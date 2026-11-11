@@ -1,5 +1,5 @@
 ---
-title: "Alternativa ao Attio: CRM open source com inbox unificada"
+title: "Alternativa ao Attio: CRM open source, WhatsApp e LinkedIn"
 description: "Alternativa ao Attio comparada: preço por licença, objetos personalizados, WhatsApp e LinkedIn na caixa de entrada, MCP e hospedagem própria no Customermates."
 competitorName: Attio
 
@@ -174,7 +174,7 @@ Preços verificados em 9 de novembro de 2026 na [página de preços do Attio](ht
 | Customermates Pro | [[commercial.price.pro.monthly.seats.5]] | Não disponível |
 | Customermates Business | [[commercial.price.business.monthly.seats.5]] | Não disponível |
 
-Essas linhas não compram as mesmas coisas, então leia-as em pares:
+Essas linhas não oferecem as mesmas coisas, então leia-as em pares:
 
 - **Attio Plus e Customermates Pro são o par mais próximo.** Os dois sincronizam uma conta por pessoa, incluem um assistente de IA que funciona com créditos e têm um servidor MCP. O Attio Plus inclui enriquecimento, que o Customermates não oferece. O Customermates Pro permite que essa única conta seja o LinkedIn, o WhatsApp, o Instagram ou o Telegram em vez do e-mail.
 - **Vários canais por pessoa significa Business.** Cada usuário do Customermates Pro conecta [[commercial.entitlement.pro.includedAccountsPerUser]] conta. Se todos precisam de e-mail e WhatsApp lado a lado, o espaço de trabalho precisa do Business, com [[commercial.entitlement.business.includedAccountsPerUser]] contas por usuário e contas compartilhadas.
@@ -187,7 +187,7 @@ Se seus clientes respondem no LinkedIn ou no WhatsApp e o Attio mantém essas co
 
 **Conversas ao lado do negócio.** A partir do Pro, a [caixa de entrada unificada](/features/unified-inbox) reúne caixas do Gmail, Outlook e IMAP, LinkedIn (incluindo Sales Navigator e Recruiter), WhatsApp, Instagram e Telegram em uma única lista, e você responde no canal original. Vincule um participante a um contato uma vez, e toda conversa com aquele endereço ou perfil aparece na linha do tempo do contato. O Starter não tem caixa de entrada.
 
-**IA que faz o trabalho do CRM.** No Customermates Cloud, o Mate resume conversas, redige respostas, atualiza registros e monta visualizações. Ele usa créditos de IA hospedados, com uma franquia mensal por usuário ativo indicada na [página de preços](/pricing), e não há recargas nem cobrança por excedente. O Mate pede uma nova aprovação antes de cada exclusão. O envio de uma mensagem acontece sem essa aprovação, então peça que ele salve rascunhos quando quiser revisar antes. As rotinas executam uma instrução salva em horários definidos ou quando um registro muda: [[commercial.entitlement.starter.includedRoutinesPerUser]] por usuário no Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] no Pro.
+**IA que faz o trabalho do CRM.** No Customermates Cloud, o [Mate](/docs/app-assistant) resume conversas, redige respostas, atualiza registros e monta visualizações. Ele usa créditos de IA hospedados, com uma franquia mensal por usuário ativo indicada na [página de preços](/pricing), e não há recargas nem cobrança por excedente. O Mate pede uma nova aprovação antes de cada exclusão. O envio de uma mensagem acontece sem essa aprovação, então peça que ele salve rascunhos quando quiser revisar antes. As [rotinas](/docs/app-routines) executam uma instrução salva em horários definidos ou quando um registro muda: [[commercial.entitlement.starter.includedRoutinesPerUser]] por usuário no Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] no Pro.
 
 Prefere o Claude, o ChatGPT ou outro cliente que você já paga? Conecte-o ao [servidor MCP](/docs/mcp), que oferece [[derived.mcp.tools.total]] ferramentas em todos os planos e em instalações auto-hospedadas. As chamadas ao modelo rodam então no seu próprio provedor de IA.
 
@@ -228,7 +228,7 @@ Cada uma das cinco pessoas tem uma rotina para a checagem de follow-up de segund
 <Steps>
   <Step title="Exporte do Attio">Abra cada visualização no Attio e escolha Import / Export, depois Export view as Excel. O arquivo contém as colunas visíveis na visualização, então mostre antes todos os atributos que você quer manter. O Attio não exporta os valores de enriquecimento; essas células saem em branco.</Step>
   <Step title="Prepare o espaço de trabalho">Renomeie as listas em Modelo de dados se suas palavras forem outras, crie campos personalizados para os atributos que você mantém e configure o campo de etapa com as probabilidades.</Step>
-  <Step title="Importe uma lista por vez">Importe primeiro as organizações, depois os contatos e depois os negócios. Uma pasta de trabalho pode ter até 10.000 linhas e 10 MB. As colunas de vínculo associam os registros pelo nome, então a coluna de empresa de um contato encontra a organização importada antes. Novos contatos precisam de nome e sobrenome. Associe endereços de e-mail e números de telefone ao campo Dados de contato do contato; os dados de contato são adicionados apenas a novos contatos.</Step>
+  <Step title="Importe uma lista por vez">Importe primeiro as organizações, depois os contatos e depois os negócios. Uma pasta de trabalho pode ter até 10.000 linhas e 10 MB. As colunas de vínculo associam os registros pelo nome, então a coluna de empresa de um contato encontra a organização importada antes. Novos contatos precisam de nome e sobrenome. Associe endereços de e-mail e números de telefone ao campo Dados de contato do contato; os dados de contato são adicionados apenas a novos contatos. O passo a passo da importação está na documentação de [registros, listas e visualizações](/docs/app-records).</Step>
   <Step title="Reconstrua as listas como visualizações">Transforme cada lista do Attio em um campo de escolha única e uma visualização salva. Compartilhe as visualizações de que toda a equipe precisa pelo menu **Compartilhar…** da visualização. Uma coluna de notas na pasta de trabalho vira as notas do registro; as notas que você adicionar depois podem ser gravadas em massa por um cliente de IA via MCP, até 100 registros por chamada.</Step>
   <Step title="Conecte canais e IA">No Pro ou durante o teste, conecte uma caixa de e-mail, o LinkedIn ou o WhatsApp em Configurações, Canais e calendários. Depois configure rotinas para o Mate ou conecte seu próprio cliente de IA via MCP.</Step>
 </Steps>

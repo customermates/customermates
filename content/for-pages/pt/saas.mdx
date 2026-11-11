@@ -1,6 +1,6 @@
 ---
-title: "CRM para SaaS: acompanhe cada trial e cada demo"
-description: "CRM para SaaS: conversas de trial, demo e LinkedIn na conta, uma próxima etapa com data para cada uma e rascunhos de resposta do Mate ou do seu cliente de IA."
+title: "CRM para SaaS: acompanhe trials, demos e renovações"
+description: "CRM para SaaS: conversas de trial, demo e LinkedIn na conta, próxima etapa com data, API REST e MCP para os dados do produto e rascunhos do Mate."
 industryName: "Empresas de SaaS"
 
 relatedHrefs:
@@ -47,6 +47,8 @@ useCases:
       linkLabel: "Veja a API REST"
       visual: import
 ---
+
+Um CRM para SaaS é o CRM de uma empresa que vende software por assinatura: ele acompanha cada conta que faz trial, assina, expande ou cancela, com as pessoas, os negócios e as conversas dela. Em relação a um CRM genérico, o que muda é o ciclo de vida da conta (trial, pagante, em risco, cancelado) e a ligação com os dados do produto, como plano, MRR e última atividade. No Customermates, o ciclo de vida é um campo que você define, e os dados do produto entram pela API.
 
 Um trial de SaaS costuma esfriar em vez de terminar em um “não”: a última mensagem do champion no LinkedIn fica sem resposta enquanto o time lança produto, e ninguém escreve no dia em que o trial acaba. Um CRM para SaaS mantém em um só lugar cada conta que faz trial, compra, expande ou cancela, com as pessoas dentro dela, os negócios ao redor e as conversas por trás. O Customermates é um CRM de código aberto, nativo de IA e feito na Alemanha para times de SaaS orientados a produto que moldam as próprias listas e conectam o próprio produto por uma API REST, webhooks e n8n. No Customermates Cloud, a partir do Pro, as conversas do LinkedIn e do e-mail ficam na conta, e o Mate ou o seu próprio cliente de IA por MCP redige a resposta e a próxima etapa para você revisar, editar e enviar. Ele não tem sincronização nativa de cobrança nem de análise de produto.
 
@@ -107,6 +109,19 @@ O Customermates cobre os dois. Ele roda como Customermates Cloud, um serviço ho
 - **Vendas assistidas e self-service ao mesmo tempo.** A maioria dos negócios fecha sem uma ligação, enquanto contas maiores precisam de um pipeline e de um responsável.
 - **Uma API que os seus próprios engenheiros possam usar.** Um time de SaaS costuma preferir uma API documentada e webhooks a um catálogo de conectores prontos.
 - **Um jeito de passar o bastão.** Quando chega a primeira contratação de customer success, o histórico das contas está no CRM e não na caixa de entrada de alguém.
+
+## Como escolher um CRM para SaaS? [#como-escolher-um-crm-para-saas]
+
+Faça estas perguntas a qualquer CRM, inclusive ao Customermates:
+
+1. **Como os dados do produto chegam?** Por integração nativa com a cobrança e a análise, ou por uma API e webhooks que o seu time conecta?
+2. **Ele modela conta, trial e assinatura?** Ou só pessoas e negócios, de modo que o ciclo de vida vira uma observação em texto?
+3. **Onde ficam as conversas?** Se o champion responde no LinkedIn, no e-mail ou no WhatsApp, a conversa precisa estar na conta, não na caixa de entrada de uma pessoa.
+4. **Quem opera a integração?** Um conector pronto custa menos engenharia, mas limita o que você grava. Uma API aberta dá liberdade e exige alguém para mantê-la.
+5. **Qual é o preço por usuário e o que o plano gratuito inclui?** Veja os limites de pessoas, registros e requisições antes de começar.
+6. **Onde ficam os dados?** Pergunte pela região do banco de dados, pelos suboperadores e pelo acordo de tratamento de dados.
+
+Para um roteiro de escolha que vale para qualquer segmento, veja o [guia para escolher um CRM](/blog/how-to-choose-crm).
 
 ## Como acompanhar trials, demos e conversas no LinkedIn?
 
@@ -244,6 +259,8 @@ Alguns times de SaaS preferem rodar o CRM junto da própria infraestrutura. O Cu
 
 No Customermates Cloud, o banco de dados primário está na região AWS de Frankfurt. Os suboperadores, entre eles provedores dos EUA, estão na [página de suboperadores](/subprocessors), e um [acordo de tratamento de dados](/dpa) está disponível. O Customermates não tem certificações como ISO 27001 ou SOC 2, o que importa quando o questionário de segurança de um cliente pergunta sobre os seus fornecedores.
 
+Para times que atendem clientes no Brasil, a LGPD é um contexto geral a ter em mente ao decidir onde ficam os dados de clientes. Isto não é aconselhamento jurídico; o ponto de partida são a página de suboperadores e o acordo de tratamento de dados.
+
 ## Quanto custa?
 
 Os preços são por usuário ao mês, cobrados mensalmente em euros. O trial dura [[commercial.trial.days]] dias no Customermates Cloud, sem cartão de crédito. Depois, o espaço de trabalho passa para um plano Free para [[commercial.limit.free.maxMembers]] membro e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate, rotinas nem webhooks, a menos que você escolha um plano pago. A API e o MCP estão em todos os planos e os webhooks vêm com todos os planos pagos, sem custo adicional.
@@ -260,6 +277,14 @@ Os detalhes estão na [página de preços](/pricing). Se os fundadores ainda ven
 ## Perguntas frequentes
 
 <Faq>
+<FaqItem question="Quais são os 4 tipos de CRM?">
+A divisão mais comum fala em CRM operacional, que automatiza o dia a dia de vendas, atendimento e marketing, CRM analítico, que analisa dados de clientes e de vendas, e CRM colaborativo, que compartilha informações entre equipes e canais. Algumas classificações acrescentam o CRM estratégico, voltado a metas de longo prazo. Para uma empresa de SaaS, o mais útil é saber se o CRM guarda a conta e a conversa (operacional e colaborativo) e se aceita os dados do produto para análise. O Customermates está no lado operacional e colaborativo.
+</FaqItem>
+
+<FaqItem question="Existe um CRM gratuito para empresas SaaS?">
+Sim, com limites. O Customermates Cloud tem um plano Free para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate, rotinas nem webhooks; a API REST e o MCP estão incluídos, e o teste do Pro dura [[commercial.trial.days]] dias. A tabela acima lista os planos gratuitos que o HubSpot e o Attio informam em seus sites. O núcleo de código aberto também pode ser hospedado por conta própria, sem custo de licença.
+</FaqItem>
+
 <FaqItem question="O Customermates acompanha os usuários em trial por mim?">
 Ele mantém a conversa e a próxima etapa na conta e redige a resposta, e você revisa, edita e envia. No Customermates Cloud, a partir do Pro, as conversas do LinkedIn e do e-mail ficam na conta, e o Mate ou o seu próprio cliente de IA redige a resposta quando você pede ou em uma rotina que você configura. O Mate só envia quando você pede ou quando você configura uma rotina que envia. Não há sequências, campanhas gota a gota nem mensagens em massa.
 </FaqItem>

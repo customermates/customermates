@@ -1,6 +1,6 @@
 ---
-title: "Automação de CRM: rotinas, webhooks, n8n e MCP"
-description: "Automação de CRM com rotinas de IA, webhooks, n8n ou MCP: quatro exemplos passo a passo, limites dos planos e o que o Customermates não automatiza."
+title: "Automação de CRM: exemplos com rotinas, webhooks e n8n"
+description: "Automação de CRM: o que é, benefícios e quatro exemplos passo a passo com rotinas de IA, webhooks, n8n e MCP, com os limites e os custos de cada plano."
 featureName: Automação de fluxos de trabalho
 
 relatedHrefs:
@@ -76,6 +76,18 @@ A automação de CRM cobre dois trabalhos diferentes. Os **fluxos sobre registro
 | Automação de marketing | Sequências de e-mail, campanhas gota a gota, prospecção em massa, pontuação de leads, formulários web | Não. Use uma ferramenta separada e traga os resultados dela por REST ou n8n |
 
 Um rascunho de resposta é uma mensagem em uma conversa, não uma sequência. Se você precisa da terceira linha, mantenha uma ferramenta dedicada para isso e use o Customermates como sistema de registro por trás dela.
+
+## Quais são os benefícios da automação de CRM? [#beneficios-da-automacao-de-crm]
+
+CRM é o sistema onde a equipe guarda contatos, negócios e conversas; a automação cuida dos passos repetitivos em volta desses registros. Os ganhos mais comuns, com os exemplos desta página:
+
+- **Menos coisas esquecidas.** Uma rotina de lembrete cria uma tarefa para cada negócio cuja data de próximo contato já passou, em vez de depender da memória de alguém.
+- **Passos idênticos toda vez.** Um webhook com o n8n cria as mesmas tarefas de onboarding para cada negócio ganho, sem variação.
+- **Resposta mais rápida.** Quando um cliente escreve por e-mail, o rascunho de resposta já espera a sua revisão.
+- **Registros em dia.** Notas de uma ligação viram uma atualização no negócio sem digitar tudo de novo.
+- **Mais tempo com os clientes.** A equipe gasta menos tempo com o trabalho de bastidor e mais tempo conversando.
+
+Nenhum desses ganhos vem sozinho: vale começar por um passo que se repete toda semana, automatizá-lo e conferir o resultado antes de passar ao próximo.
 
 ## Quais workflows de CRM combinam com uma rotina, um webhook ou um cliente de IA?
 
@@ -227,6 +239,18 @@ Cinco pessoas no Pro pagam [[commercial.price.pro.monthly.seats.5]] por mês. Ca
 
 <FaqItem question="Quais são exemplos de automação de fluxos de trabalho do CRM?">
 Quatro estão montados passo a passo acima: uma rotina de lembrete de follow-up, um rascunho de resposta quando um cliente escreve por e-mail, um novo negócio enviado ao n8n e ao Slack e o registro de uma ligação que atualiza um negócio por MCP. Passos fixos como o terceiro combinam com webhooks e n8n. Passos que exigem leitura, como os dois primeiros, combinam com rotinas no Customermates Cloud.
+</FaqItem>
+
+<FaqItem question="Quais são os tipos de CRM e onde entra a automação?">
+Costuma-se falar em três tipos: o operacional, que organiza contatos, negócios e tarefas do dia a dia; o analítico, que transforma os dados em relatórios; e o colaborativo, que compartilha o histórico do cliente entre a equipe. A automação de fluxos age sobretudo no CRM operacional, nos passos repetitivos em volta dos registros.
+</FaqItem>
+
+<FaqItem question="Como começar a automatizar o CRM?">
+Escolha um passo que se repete toda semana, como o lembrete de follow-up, e descreva o que deve acontecer, em que momento e com quem. Se o passo é sempre igual, monte-o com um webhook e o n8n; se ele exige ler um e-mail ou uma nota, comece com uma rotina que prepara um rascunho. Teste com poucos registros, confira o resultado antes de ativar para todos e deixe uma pessoa aprovar o que sai para o cliente.
+</FaqItem>
+
+<FaqItem question="Qual CRM é compatível com automação de WhatsApp?">
+No Customermates, o WhatsApp entra na caixa de entrada para conversas individuais, a partir do Pro, sem respostas automáticas, chatbots nem envio em massa. Quem precisa de mensagens automáticas ou de campanhas deve procurar um CRM ligado à API oficial do WhatsApp Business. Veja o que a conexão cobre na página de [CRM WhatsApp](/features/whatsapp-integration).
 </FaqItem>
 
 <FaqItem question="O Customermates tem um construtor visual de workflows?">

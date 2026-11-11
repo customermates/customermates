@@ -1,6 +1,6 @@
 ---
-title: "CRM para arquitetos: acompanhe cada proposta e cliente"
-description: "CRM para arquitetos: uma decisão do cliente ou a resposta de um consultor ainda em aberto? As conversas ficam em cada registro, o Mate redige e você envia."
+title: "CRM para arquitetos: propostas, prazos e clientes à vista"
+description: "CRM para arquitetos: faça follow-up de cada proposta e decisão de cliente, com conversas no registro, prazos de concurso à vista e rascunhos que você envia."
 industryName: "Arquitetos"
 
 relatedHrefs:
@@ -80,6 +80,16 @@ A maioria dos CRMs presume um comprador e um ciclo de vendas curto. A arquitetur
 - **Longos intervalos entre encomendas.** Um cliente pode voltar com o próximo edifício anos depois. O escritório que manteve contato entra na lista curta.
 - **Referências sob demanda.** Um RFQ pede projetos comparáveis e consultores nomeados, e você precisa deles em minutos, não depois de vasculhar pastas antigas.
 
+## Do primeiro contato à fidelização do cliente [#historico-e-fidelizacao]
+
+Quem chega por indicação e quem volta anos depois para o próximo projeto têm algo em comum: esperam que o escritório se lembre deles. Um CRM cuida desse histórico, do primeiro contato até depois da entrega da obra:
+
+- **Antes do projeto:** registre quem indicou o cliente (o campo Indicado por), o que ele pediu na primeira conversa e o terreno ou o programa de necessidades nas notas do registro. Quando ele escrever de novo, o contexto está ali, e não só na memória de quem atendeu.
+- **Durante a proposta:** cada oportunidade tem etapa, prazo e próximos passos com data. Quem pediu uma proposta vira um projeto no quadro, e não um recado esquecido no meio de outras conversas.
+- **Depois da entrega:** mantenha o cliente na lista e crie uma tarefa com data para retomar o contato meses depois da obra. A visualização **Ex-clientes que sumiram**, mais abaixo, mostra quem está há mais tempo sem ouvir de você.
+
+Para um escritório de arquitetura, fidelizar costuma significar estar presente quando o cliente decide o próximo imóvel ou indica um amigo. Isso depende de datas visíveis, não de lembretes automáticos: as tarefas não têm lembretes embutidos, então combine um campo de data com uma visualização salva.
+
 ## Uma configuração para arquitetos no Customermates
 
 Um novo espaço de trabalho começa sem listas: você cria as listas de que precisa (contatos, organizações, negócios ou as suas próprias) em **Modelo de dados**, ou deixa a configuração com IA montá-las na nuvem. Você pode chamá-las de **Projetos** em vez de Negócios e **Ofertas** em vez de Serviços, e renomear qualquer lista depois em **Modelo de dados**, em **Geral**, para o app falar a sua língua. Todo nome de campo abaixo é um exemplo.
@@ -89,16 +99,16 @@ Um novo espaço de trabalho começa sem listas: você cria as listas de que prec
 | Organizações | Clientes, incorporadores, órgãos públicos e escritórios consultores | Tipo de organização (Escolha única: Cliente privado, Incorporador, Órgão público, Consultor, Construtor) |
 | Contatos | Pessoas dessas organizações | Papel (Escolha única: Representante do cliente, Gerente de projeto, Engenheiro de estruturas, Engenheiro de instalações (MEP), Paisagista), Indicado por |
 | Projetos (Negócios) | Cada oportunidade, do primeiro contato ao contrato | Etapa, Via de contratação (Contratação direta, Concurso por convite, Concurso aberto, RFQ público), Prazo de submissão (Data e hora), Data da entrevista (Data), Valor da obra (Dinheiro), Tipo de edificação, Fase do projeto, Pasta do projeto (Endereço web) |
-| Ofertas (Serviços) | Pacotes de honorários com preço | Estudo de viabilidade, Pacote de aprovação do projeto, Estimativa de honorários por € 1.000 |
+| Ofertas (Serviços) | Pacotes de honorários com preço | Estudo de viabilidade, Pacote de aprovação do projeto, Estimativa de honorários por R$ 1.000 |
 | Tarefas | Próximos passos, atribuídos a uma pessoa | Um campo de data "Vence em" que você adiciona, porque as tarefas não têm prazo embutido |
 
-O valor de um projeto é a soma dos itens de linha, cada um com uma oferta vezes a quantidade. Para um honorário sob medida, uma oferta "Estimativa de honorários por € 1.000", com preço de € 1.000 e quantidade 85, dá um projeto de € 85.000.
+O valor de um projeto é a soma dos itens de linha, cada um com uma oferta vezes a quantidade. Para um honorário sob medida, uma oferta "Estimativa de honorários por R$ 1.000", com preço de R$ 1.000 e quantidade 85, dá um projeto de R$ 85.000.
 
 ### Etapas da oportunidade e valores ponderados
 
 A etapa é um campo de Escolha única que você define, e cada opção recebe uma probabilidade de ganho. Um ponto de partida: Lead 10%, Go ou no-go 20%, Preparando a submissão 30%, Submetido 40%, Na lista curta 60%, Negociando honorários 80%, Ganho 100%, Perdido 0%.
 
-Um projeto de € 85.000 em Na lista curta tem um valor ponderado de € 51.000. É aritmética a partir das suas próprias probabilidades, não uma previsão. No [quadro do pipeline](/features/pipeline) cada projeto é um cartão que você arrasta entre as etapas.
+Um projeto de R$ 85.000 em Na lista curta tem um valor ponderado de R$ 51.000. É aritmética a partir das suas próprias probabilidades, não uma previsão. No [quadro do pipeline](/features/pipeline) cada projeto é um cartão que você arrasta entre as etapas.
 
 Acompanhe a fase do projeto em um campo próprio de Escolha única (Estudo preliminar, Anteprojeto, Projeto executivo, Licitação, Acompanhamento de obra) em vez de na etapa. Um quadro agrupado por Fase do projeto e filtrado nos projetos ganhos mostra em que pé está cada trabalho ativo, e arrastar um cartão ali muda a fase dele.
 
@@ -225,7 +235,7 @@ Ele guarda o lado comercial antes e entre os projetos: quem são os seus cliente
 Sim, se cada oportunidade for um registro com uma etapa e uma via de contratação. No Customermates você agrupa projetos ganhos e perdidos por via e compara contagens e valores. A taxa de ganho em si você calcula a partir desses números; o Customermates não a calcula.
 </FaqItem>
 
-<FaqItem question="Preciso de um CRM ou de um software de gestão de escritório?">
+<FaqItem question="Qual é o melhor CRM para um escritório de arquitetura: um CRM ou um software de gestão de escritório?">
 Se horas, honorários e alocação de equipe são o seu problema, um software de gestão de escritório como Monograph, BQE CORE ou Deltek Vantagepoint cobre isso junto com um pipeline. Se isso já funciona e o seu problema é follow-up, prazos e relacionamentos, um CRM como o Customermates é o passo menor. É um produto nosso, então leve isso em conta.
 </FaqItem>
 
@@ -235,5 +245,12 @@ Sim, com um campo de Escolha única para a fase e campos de data para marcos com
 
 <FaqItem question="Um estúdio pequeno precisa de um CRM?">
 Uma planilha funciona enquanto você consegue manter cada oportunidade aberta na cabeça. Deixa de funcionar quando dois concursos se sobrepõem a um projeto em andamento e um ex-cliente liga. Um profissional autônomo paga [[commercial.price.starter.monthly]] por mês no Starter.
+</FaqItem>
+<FaqItem question="Qual software os arquitetos usam no dia a dia?">
+Em geral, um conjunto: CAD ou BIM para o projeto, um software de gestão de escritório para horas e honorários, e um CRM para clientes, consultores e propostas em aberto. O Customermates é só a última peça. A tabela acima mostra ferramentas de gestão de escritório para quem quer horas e honorários no mesmo sistema.
+</FaqItem>
+
+<FaqItem question="Um arquiteto pode ter CREA?">
+Isso quem responde é o conselho profissional, então confira direto no CAU ou no CREA. No Brasil, o CAU é o conselho dos arquitetos e urbanistas, e o CREA, o dos engenheiros e agrônomos. Registro e responsabilidade técnica (RRT ou ART) não são assunto de um CRM, e o Customermates não os emite nem valida. Se você quer ter o número à mão, crie um campo de texto, como Registro profissional no contato ou Número do RRT no projeto.
 </FaqItem>
 </Faq>

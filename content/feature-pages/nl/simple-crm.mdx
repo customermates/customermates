@@ -1,6 +1,6 @@
 ---
 title: "Simpel CRM systeem voor kleine teams met klanten"
-description: "Een simpel CRM systeem met open-source kern: lijsten via de AI-setup in de cloud of zelf gemaakt, plus Excel-import. Vanaf [[commercial.price.starter.monthly]] per gebruiker per maand."
+description: "Simpel CRM systeem voor kleine teams: eigen lijsten, een pipeline met eigen fases, Excel-import en open-source kern. Vanaf [[commercial.price.starter.monthly]] per gebruiker per maand."
 featureName: Simpel CRM
 
 relatedHrefs:
@@ -53,9 +53,33 @@ Een simpel CRM systeem is een CRM dat je team blijft bijwerken, omdat er weinig 
 
 Simpel betekent ook dat sommige dingen bewust ontbreken. De beperkingen staan verderop op een rij, zodat je Customermates snel kunt afschrijven als je ze nodig hebt.
 
+## Waarom een simpel CRM vaker gebruikt wordt dan een uitgebreid pakket [#voordelen-simpel-crm]
+
+Een CRM levert alleen iets op als je team het bijwerkt. Een uitgebreid pakket met tientallen modules en verplichte velden kost in het begin weken inrichting, en wie een veld te veel moet invullen, slaat het over. Een simpel CRM draait die logica om:
+
+- **Snel starten.** Je begint met een paar lijsten en een pipeline in plaats van een implementatietraject. Een zzp'er of klein bureau heeft binnen een dag een bruikbaar overzicht.
+- **Hogere acceptatie.** Weinig schermen en weinig verplichte velden betekenen dat collega's het systeem daadwerkelijk gebruiken. Dat is het verschil tussen een CRM dat klopt en een CRM dat na drie maanden verouderd is.
+- **Lagere kosten.** Je betaalt voor wat je gebruikt: geen modules voor marketingautomatisering of voorspellingen die je nooit opent. Let wel op de prijs per gebruiker en op wat er in het abonnement zit; zie hieronder het overzicht per abonnement.
+- **Minder onderhoud.** Een klein datamodel heeft geen beheerder nodig. Wie de lijsten heeft ingericht, past ze zelf aan als het werk verandert.
+
+Het nadeel staat verderop bij de grenzen: een simpel CRM past niet bij elk team, en dat weet je liever vooraf.
+
+## Welke functies heeft een simpel CRM minimaal nodig? [#functies-simpel-crm]
+
+Een goed eenvoudig CRM dekt zes dingen, en meer is vaak niet nodig om je klantwerk op orde te krijgen:
+
+1. **Contacten en organisaties op één plek.** Wie is de persoon, bij welk bedrijf werkt die en wat is de relatie? In Customermates zijn dat de lijsten Contactpersonen en Organisaties, die aan elkaar gekoppeld zijn.
+2. **Een pipeline met je eigen fases.** Je ziet in één blik welke deals open staan en in welke fase ze zitten, en je hernoemt de fases naar jouw werkwijze.
+3. **Een duidelijke volgende stap.** Een datumveld als Volgende stap en een opgeslagen weergave laten zien wie je als volgende moet benaderen.
+4. **Eigen velden.** Elk team legt iets anders vast. Je moet velden kunnen toevoegen zonder een ontwikkelaar.
+5. **Import uit je spreadsheet.** Je data zit nu waarschijnlijk in Excel. Een goede import neemt die mee, zodat je niet opnieuw begint.
+6. **Een overzicht dat je daadwerkelijk bekijkt.** Een dashboard of weergave met open deals en achterstallige stappen, zonder een rapportagemodule.
+
+Alles daarbuiten, zoals e-mailmarketing, bulkreeksen of een eigen workflowbouwer, is een bewuste keuze en geen minimum. Customermates laat die dingen bewust weg; zie de grenzen verderop.
+
 ## Wat een nieuwe werkruimte bevat
 
-De meeste pagina's over een "simple CRM" beloven een korte inrichting. Dit is wat er na het aanmelden echt gebeurt. Een nieuwe werkruimte begint zonder lijsten. In Customermates Cloud vraagt de AI-setup van de werkruimte naar je bedrijf en bouwt op basis van je antwoorden lijsten, velden, dealfases, een dashboard en kennisbankpagina's. Dat gebeurt eenmalig tijdens de onboarding, binnen een creditlimiet. Je kunt het overslaan met **Beginnen met een lege werkruimte** en alles zelf bouwen. Self hosted installaties hebben geen AI-setup. Daar maak je de lijsten aan in **Datamodel**, wat de rol Beheerder vereist of **Bewerken** op de rij **Gegevensmodel**.
+De meeste pagina's over een eenvoudig CRM beloven een korte inrichting. Dit is wat er na het aanmelden echt gebeurt. Een nieuwe werkruimte begint zonder lijsten. In Customermates Cloud vraagt de AI-setup van de werkruimte naar je bedrijf en bouwt op basis van je antwoorden lijsten, velden, dealfases, een dashboard en kennisbankpagina's. Dat gebeurt eenmalig tijdens de onboarding, binnen een creditlimiet. Je kunt het overslaan met **Beginnen met een lege werkruimte** en alles zelf bouwen. Self hosted installaties hebben geen AI-setup. Daar maak je de lijsten aan in **Datamodel**, wat de rol Beheerder vereist of **Bewerken** op de rij **Gegevensmodel**.
 
 Wat de setup ook oplevert, het is een startpunt en geen vast sjabloon. Fases zijn opties van één keuzeveld met enkele keuze, dus je hernoemt ze, voegt nieuwe toe of verwijdert ze. Een fase kan een winkans hebben, die je instelt als **Waarschijnlijkheid %** op het veld in **Datamodel**. Customermates gebruikt die voor een deterministische gewogen waarde per deal en een gewogen pipelinetotaal. Het is een fasegewicht dat je zelf instelt, geen voorspelling.
 
@@ -102,6 +126,18 @@ Customermates publiceert deze pagina. De tabel beschrijft elke tool aan de hand 
 
 De simpele start sluit niets buiten. De REST API zit in elk abonnement en webhooks in elk betaald abonnement, en je eigen AI-client (Claude, ChatGPT en andere) kan records lezen en bijwerken via [MCP](/docs/mcp). In Customermates Cloud maakt Mate samenvattingen en conceptantwoorden en gebruikt het gehoste AI-credits. De clouddatabase staat in de AWS-regio Frankfurt. De pagina over [subverwerkers](/subprocessors) noemt de betrokken aanbieders, ook Amerikaanse, en er is een [verwerkersovereenkomst](/dpa) beschikbaar.
 
+## Hoe kies en voer je een simpel CRM in? [#simpel-crm-kiezen-en-invoeren]
+
+Een simpel CRM is snel in te voeren, mits je het gestructureerd aanpakt:
+
+1. **Schrijf op wat je nu bijhoudt.** Welke klantgegevens staan in je mailbox, spreadsheet en notities? Dat bepaalt welke lijsten en velden je nodig hebt.
+2. **Bepaal wat je niet nodig hebt.** Kijk naar de grenzen van elk pakket: heb je pushherinneringen op je telefoon, e-mailreeksen of een mobiele app echt nodig, of niet?
+3. **Test met je eigen data.** Importeer een echte werkmap en bouw je pipeline na in de proefperiode. Een demo met voorbeelddata zegt weinig.
+4. **Spreek af wat er in het CRM hoort.** Kies één plek waar de volgende stap van een klant staat, en spreek met je team af dat die altijd bijgewerkt wordt.
+5. **Evalueer na twee tot vier weken.** Gebruikt iedereen het en zoeken mensen nog informatie elders? Pas de velden aan of stap over als het niet past.
+
+Zoek je hulp bij de afweging, lees dan de [gids over het kiezen van een CRM](/blog/how-to-choose-crm). Voor de invoering zelf staat er een [stappenplan voor CRM-implementatie](/blog/crm-implementation) klaar.
+
 ## Veelgestelde vragen
 
 <Faq>
@@ -110,11 +146,23 @@ Het makkelijkste is het CRM waarvan de structuur al bij je werk past. Zoek een p
 </FaqItem>
 
 <FaqItem question="Is er een gratis versie van Customermates?">
-De cloud heeft een gratis abonnement voor [[commercial.limit.free.maxMembers]] persoon en [[commercial.limit.free.maxRecords]] records, zonder inbox, Mate of routines. Er is ook een proefperiode van [[commercial.trial.days]] dagen zonder creditcard. De open-source kern onder AGPL-3.0 kun je zonder licentiekosten zelf hosten, met de functieset van Starter en zonder inbox of Mate. Heb je ook gratis hosting nodig, dan bieden HubSpot en CentralStationCRM gratis abonnementen met limieten voor gebruikers en contacten.
+De cloud heeft een gratis abonnement voor [[commercial.limit.free.maxMembers]] persoon en [[commercial.limit.free.maxRecords]] records, zonder inbox, Mate of routines. Er is ook een proefperiode van [[commercial.trial.days]] dagen zonder creditcard. De open-source kern onder AGPL-3.0 kun je zonder licentiekosten zelf hosten, met de functieset van Starter en zonder inbox of Mate. Wil je dat ook de hosting gratis blijft, dan bieden HubSpot en CentralStationCRM gratis abonnementen met limieten voor gebruikers en contacten.
 </FaqItem>
 
 <FaqItem question="Kan ik van Excel overstappen naar Customermates?">
 Ja. Importeer elk recordtype uit een `.xlsx`-werkmap of een CSV-bestand en koppel in de importwizard je spreadsheetkolommen aan velden en eigen velden. Een geëxporteerde werkmap kun je bewerken en terug importeren als **Bestaande records** om ze bij te werken. Google Sheets moet je eerst opslaan als `.xlsx` of `.csv`, en bijlagen worden niet overgedragen.
+</FaqItem>
+
+<FaqItem question="Welk CRM-systeem is goedkoop en toch goed?">
+Kijk eerst naar wat je echt gebruikt en vergelijk daarna per gebruiker per maand, inclusief wat er in dat abonnement zit. In de tabel hierboven staan een aantal eenvoudige tools met wat de leverancier zelf vermeldt, van een gratis abonnement met limieten tot een vaste prijs per gebruiker. Customermates begint op Starter bij [[commercial.price.starter.monthly]] per gebruiker per maand; de gratis cloudvariant heeft limieten op leden en records.
+</FaqItem>
+
+<FaqItem question="Wat is het beste CRM-systeem?">
+Dat bestaat niet in het algemeen; het beste CRM is het CRM dat jouw team daadwerkelijk bijwerkt. Een klein team met weinig processen is vaak beter af met een simpel systeem dan met een pakket dat voor grote verkoopafdelingen is gebouwd. Beoordeel op gebruiksgemak, import vanuit je spreadsheet, prijs per gebruiker en of de functies die je mist een probleem zijn.
+</FaqItem>
+
+<FaqItem question="Kan ik zelf een CRM-systeem maken?">
+Ja. Veel kleine teams beginnen met een spreadsheet, wat voor een handvol klanten werkt (zie de [Excel CRM-template](/blog/excel-crm-template)). Zodra je gesprekken, volgende stappen en meerdere mensen wilt bijhouden, wordt dat lastig. Een flexibel CRM zoals Customermates laat je dan zelf lijsten, velden en fases samenstellen, zonder dat je iets hoeft te programmeren.
 </FaqItem>
 
 <FaqItem question="Wat kost een simpel CRM per maand?">

@@ -1,6 +1,6 @@
 ---
-title: "Integracja CRM: REST API, webhooki, MCP i n8n"
-description: "Integracja CRM z Customermates: REST i MCP w każdym planie, podpisane webhooki i własny n8n w planach płatnych i self-hosted, z jasno podanymi limitami."
+title: "Integracja CRM z ERP i fakturami: API, webhooki i MCP"
+description: "Integracja CRM przez REST API, MCP i podpisane webhooki, z n8n, Make lub Zapierem. Przepływy do ERP, faktur i Slacka oraz to, co działa w którym planie."
 featureName: Integracje CRM
 
 relatedHrefs:
@@ -60,6 +60,27 @@ Ten wybór ma koszt, który warto znać od początku. Nie ma katalogu aplikacji 
 
 Webhooki, REST i MCP są w planie Starter za [[commercial.price.starter.monthly]] za użytkownika miesięcznie. [Wspólna skrzynka odbiorcza](/features/unified-inbox) zaczyna się od planu Pro za [[commercial.price.pro.monthly]] za użytkownika miesięcznie, z liczbą podłączonych kont na użytkownika w cenie równą [[commercial.entitlement.pro.includedAccountsPerUser]]; Business obejmuje [[commercial.entitlement.business.includedAccountsPerUser]] na użytkownika oraz konta współdzielone. Instalacje self-hosted mają REST, webhooki i MCP, ale nie mają skrzynki odbiorczej, więc zdarzenia komunikatorów tam nie występują.
 
+## Jakie dane przenosi integracja CRM i co to daje? [#jakie-dane]
+
+Integracja zwykle przenosi trzy rodzaje informacji: dane kontrahenta (nazwa firmy, adres, NIP, osoba kontaktowa), zdarzenia (nowa szansa sprzedaży, zmiana etapu, nowa wiadomość) i wyniki z drugiej strony (numer faktury, status płatności, zamówienie). Dzięki temu:
+
+- nikt nie przepisuje tych samych danych z jednego programu do drugiego, więc jest mniej literówek i rozbieżności;
+- handlowiec widzi przy kliencie to, co dzieje się w księgowości albo przy zamówieniach, a księgowość nie dopytuje o dane, które już są w CRM;
+- reakcja na zdarzenie, na przykład wygraną szansę sprzedaży, następuje prawie od razu, a nie przy najbliższym ręcznym eksporcie;
+- historia klienta zostaje w jednym miejscu, a pozostałe narzędzia dostają tylko to, czego potrzebują.
+
+## Jak działa integracja CRM: wywołanie API czy zdarzenie webhooka? [#jak-dziala]
+
+Dane między systemami płyną na dwa sposoby. Pierwszy to **wywołanie**: Twój program albo narzędzie do automatyzacji czyta rekordy z CRM lub zapisuje w nim zmianę przez REST API. Drugi to **zdarzenie**: CRM sam wysyła wiadomość do odbiorcy, gdy coś się zmieni, i właśnie to robi webhook. Zdarzenie jest szybsze i nie wymaga ciągłego odpytywania; wywołanie daje Ci kontrolę nad tym, kiedy i co się zapisuje. Do jednorazowej przeprowadzki arkusza z klientami wystarczy import pliku.
+
+Między dwoma systemami trzeba jeszcze uzgodnić **mapowanie pól**: które pole w jednym programie odpowiada któremu w drugim i jak przekładają się wartości, na przykład etapy lejka sprzedaży na statusy zamówień. Synchronizację w obie strony składasz z dwóch przepływów (webhook w jedną stronę, wywołanie API w drugą); gotowej synchronizacji na jedno kliknięcie Customermates nie ma. Żeby zmiany nie odbijały się w kółko, ustal, który system jest właścicielem każdego pola.
+
+## Czy CRM i ERP to to samo? [#crm-a-erp]
+
+Nie. CRM prowadzi relacje z klientami: kontakty, rozmowy, szanse sprzedaży i następne kroki. ERP albo program księgowy prowadzi zaplecze firmy: zamówienia, magazyn, faktury i płatności. Integracja łączy oba, żeby dane klienta nie trzeba było wpisywać dwa razy. Najwięcej kłopotów oszczędza jedna prosta zasada: dla każdego rodzaju danych wskaż jeden system źródłowy, a drugi niech dostaje kopię.
+
+Gotowych konektorów do polskich programów do fakturowania i ERP, takich jak Fakturownia, wFirma, Subiekt, Optima czy enova365, Customermates nie ma. Sprawdź w dokumentacji danego programu, jakie ma interfejsy (API, import plików, własne wtyczki), i dopasuj do nich webhook, n8n albo wywołanie REST API. Różnice między oboma systemami opisuje tekst [CRM a ERP](/blog/crm-and-erp).
+
 ## Która droga pasuje do którego zadania
 
 | Jeśli chcesz… | Użyj | Dlaczego |
@@ -75,7 +96,7 @@ Webhooki, REST i MCP są w planie Starter za [[commercial.price.starter.monthly]
 
 Utwórz webhook w sekcji **Ustawienia → Webhooki → Dodaj**, wklej adres URL odbiorcy, wybierz zdarzenia i wskaż listę w polu **Rekordy z**. Możesz wybierać spośród [[derived.webhooks.events.total]] zdarzeń: [[derived.webhooks.events.records]] zdarzeń rekordów (utworzony, zaktualizowany, przeniesiony do Kosza, przywrócony i trwale usunięty, dla dowolnej wybranej listy, także Twojej własnej) oraz [[derived.webhooks.events.messaging]] zdarzeń komunikatorów, takich jak odebrana wiadomość lub e-mail i zmienione wydarzenie w kalendarzu.
 
-Szczegóły, które mają znaczenie przy budowaniu na nich:
+Szczegóły, które mają znaczenie, gdy budujesz na webhookach:
 
 - **Podpisy.** Ustaw tajny klucz, a każda dostawa niesie podpis HMAC-SHA256 z treści żądania, więc odbiorca może odrzucić sfałszowane wywołania.
 - **Ponowienia.** Przekroczenia czasu, błędy sieci, odpowiedzi 5xx oraz 408, 425 i 429 są ponawiane automatycznie, łącznie do 10 prób. Inne odpowiedzi 4xx nie są.
@@ -83,7 +104,7 @@ Szczegóły, które mają znaczenie przy budowaniu na nich:
 - **Własne nagłówki i szablony treści.** Nagłówki pozwalają uwierzytelnić się u odbiorcy. Szablon treści zastępuje standardową kopertę JSON kształtem, jakiego oczekuje odbiorca, z użyciem symboli zastępczych takich jak `{{event}}` i `{{data.record.ref.recordId}}`.
 - **Tylko zmiany.** Zdarzenie `record.updated` wymienia każde zmienione pole z wartością `before` i `after`, a zapis, który niczego nie zmienia, nie wysyła zdarzenia.
 
-Dostawy nie są ściśle uporządkowane, więc traktuj je jako idempotentne wiadomości z kluczem w postaci `id` zdarzenia i porządkuj według `timestamp` ładunku i wersji rekordu. Pełny katalog i kształty ładunków są w [dokumentacji webhooków](/docs/webhooks).
+Dostawy nie są ściśle uporządkowane, więc odbiorca powinien być idempotentny: używaj `id` zdarzenia jako klucza deduplikacji, a kolejność ustalaj według `timestamp` ładunku i wersji rekordu. Pełny katalog i kształty ładunków są w [dokumentacji webhooków](/docs/webhooks).
 
 ## REST API
 
@@ -97,7 +118,7 @@ MCP (Model Context Protocol) to [otwarty standard łączenia aplikacji AI z syst
 
 Klient i jego model są Twoje. Twój dostawca AI rozlicza własne zużycie modelu. Wyszukiwania semantyczne w chmurze przez MCP mogą nadal wliczać się do zużycia Mate; zwykłe wywołania rekordów CRM nie korzystają z modelu Twojego klienta na serwerze Customermates. Narzędzia komunikatorów, kalendarza i social media wymagają planu Cloud ze skrzynką odbiorczą. [Referencja MCP](/docs/mcp) wymienia każde narzędzie.
 
-Wewnątrz Customermates Cloud jest też Mate, hostowany asystent, który korzysta z hostowanych kredytów AI. Mate może tworzyć i edytować webhooki za ciebie, a jego [rutyny](/docs/app-routines) mogą uruchamiać zapisaną instrukcję, gdy rekord się zmieni. To obejmuje pracę wymagającą czytania i oceny; stałe reguły należą do webhooków i n8n.
+Wewnątrz Customermates Cloud jest też Mate, hostowany asystent, który korzysta z hostowanych kredytów AI. Mate może tworzyć i edytować webhooki za Ciebie, a jego [rutyny](/docs/app-routines) mogą uruchamiać zapisaną instrukcję, gdy rekord się zmieni. To obejmuje pracę wymagającą czytania i oceny; stałe reguły należą do webhooków i n8n.
 
 ## Integracja CRM z n8n, Make albo Zapier
 
@@ -121,6 +142,15 @@ Customermates nie ma aplikacji Slack, kanału Slack w skrzynce odbiorczej ani ek
 
 **Droga 2, n8n.** Użyj n8n, gdy wiadomość wymaga logiki: alert tylko wtedy, gdy **Etap** szansy sprzedaży osiągnie określoną wartość, cotygodniowy przegląd lejka sprzedaży z zaplanowanego `POST /api/v1/records/query` albo zamiana skrótu Slacka w nowy kontakt przez API. Rozmowy ze Slacka w obu przypadkach nigdy nie pojawiają się w skrzynce odbiorczej Customermates.
 
+## Jak zaplanować integrację CRM, żeby działała w praktyce? [#plan-integracji]
+
+1. **Zacznij od jednego przepływu**, który co tydzień kosztuje kogoś czas, na przykład przekazanie wygranej szansy sprzedaży do programu do faktur.
+2. **Zapisz mapowanie pól.** `POST /api/v1/model/read` zwraca Twoje pola i identyfikatory ich opcji; **Etap** to konfigurowalne pole, więc mapujesz identyfikatory opcji, a nie stałe nazwy.
+3. **Uporządkuj dane przed pierwszą wysyłką:** zdublowane kontakty, puste pola i różne zapisy tej samej firmy przeniosą się do drugiego systemu razem z resztą.
+4. **Przetestuj na kilku rekordach.** Utwórz testową szansę sprzedaży i sprawdź w sekcji **Dziennik webhooków** kod statusu odbiorcy; stamtąd możesz też wysłać dostawę ponownie.
+5. **Zadbaj o uprawnienia.** Klucz API dziedziczy uprawnienia użytkownika, który go utworzył, więc zrób go z konta o roli pasującej do integracji, a tajny klucz webhooka traktuj jak hasło.
+6. **Pamiętaj o danych osobowych.** Każde kolejne narzędzie, do którego trafiają dane klientów, staje się odbiorcą danych osobowych; sprawdź je pod kątem RODO, w tym umowę powierzenia przetwarzania. To ogólna wskazówka, nie porada prawna.
+
 ## Czego nie ma
 
 <AcquisitionCallout title="Ograniczenia, które warto znać, zanim zaplanujesz integrację" variant="boundary">
@@ -136,6 +166,22 @@ Przewodnik operacyjny i fakty źródłowe trzymaj obok rekordu klienta w [Bazie 
 <Faq>
 <FaqItem question="Czym są integracje CRM?">
 Połączenia, które przenoszą dane lub wyzwalacze między CRM a innym oprogramowaniem, na przykład nowa szansa sprzedaży tworząca projekt w narzędziu do projektów albo wysłany formularz tworzący kontakt. Działają przez API, webhooki, narzędzie do automatyzacji albo konektor zbudowany przez dostawcę. Customermates oferuje trzy pierwsze oraz MCP dla klientów AI.
+</FaqItem>
+
+<FaqItem question="Czy CRM i ERP to to samo?">
+Nie. CRM prowadzi relacje z klientami: kontakty, rozmowy, szanse sprzedaży i następne kroki. ERP prowadzi zaplecze firmy, czyli zamówienia, magazyn, finanse i faktury. Integracja łączy oba systemy, żeby nie trzeba było wpisywać danych klienta dwa razy. Więcej w tekście [CRM a ERP](/blog/crm-and-erp).
+</FaqItem>
+
+<FaqItem question="Jak połączyć CRM z programem do fakturowania albo ERP?">
+Customermates nie ma natywnej integracji z księgowością ani gotowych konektorów do konkretnych programów, więc budujesz połączenie sam. Webhook `record.updated` na liście Szanse sprzedaży, uruchamiający n8n, Make albo Zapier, przekazuje wygraną szansę do interfejsu programu do faktur lub ERP, a REST API przyjmuje z powrotem dane kontrahentów i statusy. Najpierw sprawdź, jakie interfejsy ma drugi program, i przetestuj przepływ na kilku rekordach.
+</FaqItem>
+
+<FaqItem question="Czy można zintegrować CRM z centralą telefoniczną lub call center?">
+Customermates nie wykonuje ani nie rejestruje połączeń, nie ma telefonii ani gotowego konektora do central VoIP. Jeśli Twoja centrala potrafi wysłać żądanie HTTP, REST API pozwala zaktualizować wybrane pole przy kliencie po rozmowie, ale takie połączenie budujesz i testujesz sam.
+</FaqItem>
+
+<FaqItem question="Jakie są przykłady integracji CRM?">
+Najczęstsze to program do fakturowania lub ERP, poczta i kalendarz, formularze na stronie, komunikator zespołu i centrala telefoniczna. W Customermates poczta, LinkedIn, WhatsApp i inne kanały działają we [wspólnej skrzynce odbiorczej](/features/unified-inbox) (Cloud, od planu Pro), a resztę podłączasz przez REST API, webhooki, MCP albo n8n.
 </FaqItem>
 
 <FaqItem question="Czy Customermates ma otwarte API i webhooki?">

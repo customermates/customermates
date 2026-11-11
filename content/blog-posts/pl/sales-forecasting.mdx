@@ -1,6 +1,6 @@
 ---
-title: "Prognozowanie sprzedaży: metody, wzory i przykład"
-description: "Prognozowanie sprzedaży szacuje przychód do wygrania w okresie. Lejek ważony, wskaźnik wygranych i run-rate na jednym przykładzie oraz pola CRM do prognozy."
+title: "Prognozowanie sprzedaży: metody, wzory i przykład w Excelu"
+description: "Prognozowanie sprzedaży krok po kroku: ważony lejek, wskaźnik wygranych i run-rate na jednym przykładzie z ośmioma transakcjami, wzory do arkusza i pola CRM."
 
 relatedHrefs:
   - /blog/sales-pipeline
@@ -50,7 +50,18 @@ Podręcznik prognozowania Roba J. Hyndmana i George’a Athanasopoulosa ujmuje t
 | Cel | Ile chcemy wygrać w tym kwartale? | 110 000 |
 | Plan | Co robimy z różnicą? | Nowe działania wychodzące i próba przyspieszenia dużej transakcji |
 
-**Co liczy prognoza.** Ten poradnik prognozuje wartość wygranych transakcji: kwotę transakcji, które wygrywasz w okresie, wpisaną netto i w jednej walucie. To nie jest przychód ujęty księgowo ani zafakturowany. Te podlegają zasadom rachunkowości i datom faktur, a rekord transakcji w CRM ich nie zastępuje.
+**Co liczy prognoza.** Ten poradnik prognozuje wartość wygranych transakcji: kwotę transakcji, które wygrywasz w okresie, wpisaną netto i w jednej walucie. To nie jest przychód ujęty księgowo ani zafakturowany. Te podlegają zasadom rachunkowości i datom faktur, a rekord transakcji w CRM ich nie zastępuje. Jeśli potrzebujesz prognozy przychodów w tym sensie, zrób drugi krok: weź wygrane transakcje i rozłóż ich wartość według harmonogramu faktur lub płatności. Umowa roczna wygrana w grudniu przyniesie przychód w kolejnych miesiącach, a nie w jednym.
+
+## Dlaczego prognozowanie sprzedaży jest ważne? [#dlaczego-prognozowanie-sprzedazy-jest-wazne]
+
+Prognoza zamienia „chyba pójdzie dobrze” w liczbę, na której da się coś oprzeć:
+
+- **Widzisz lukę do celu, zanim będzie za późno.** W przykładzie poniżej prognoza jest o 15 600 poniżej celu, a do końca kwartału jeszcze zostaje czas na nowe działania wychodzące.
+- **Planujesz koszty i ludzi.** Zatrudnienie, reklamy czy zakup narzędzi zależą od tego, ile przychodu naprawdę wpłynie, a nie od tego, ile chcesz, żeby wpłynęło.
+- **Wiesz, na czym się skupić.** Gdy kilka dużych transakcji przesądza o wyniku, to im poświęcasz najwięcej uwagi.
+- **Rozmawiasz o liczbach, nie o odczuciach.** Wspólna prognoza i jej założenia ułatwiają rozmowę z zespołem, wspólnikami albo bankiem.
+
+Pomaga to szczególnie małej firmie, w której jedna wygrana lub przegrana transakcja zmienia cały miesiąc.
 
 ## Jakie są 7 kroków prognozowania?
 
@@ -174,6 +185,18 @@ Każda liczba powyżej bierze się z garstki pól. Jeśli Twój CRM przechowuje 
 
 Opcjonalne dwunaste pole to kategoria prognozy (Commit, Best case, Pipeline), która zapisuje własną ocenę właściciela, osobno od prawdopodobieństwa etapu. Dodaj ją tylko wtedy, gdy Twój zespół naprawdę użyje jej do nadpisywania logiki etapów.
 
+## Jakich narzędzi użyć do prognozowania sprzedaży? [#narzedzia-do-prognozowania-sprzedazy]
+
+Narzędzie ma pasować do liczby transakcji i do tego, jak często przeliczasz prognozę:
+
+| Narzędzie | Kiedy wystarcza | Ograniczenie |
+|---|---|---|
+| Arkusz (Excel, Arkusze Google) | Kilkanaście do kilkudziesięciu otwartych transakcji, prognoza raz w miesiącu; wzory z przykładu powyżej | Dane trzeba przepisywać lub eksportować z CRM, a przy kilku osobach łatwo o różne wersje |
+| CRM z polami strukturalnymi i wykresami | Gdy kwota, etap, data zamknięcia i właściciel są w każdej transakcji; prognoza to filtr i suma, przeliczana na bieżąco | Liczy według Twoich prawdopodobieństw, nie przewiduje sam |
+| Dedykowane narzędzie do prognozowania | Wielu handlowców, kwoty sprzedażowe, scenariusze i modele predykcyjne, w tym oparte na AI | Koszt i wdrożenie; potrzebuje czystych danych z CRM |
+
+Większość małych zespołów zaczyna od arkusza i przechodzi do CRM, gdy przepisywanie danych zaczyna kosztować więcej niż praca z prognozą. Do dedykowanego narzędzia sięgaj dopiero wtedy, gdy pytania wykraczają poza arytmetykę na lejku. Jak raportować w CRM, pokazuje [strona o raportowaniu](/features/reporting).
+
 ## Jak prognozować sprzedaż w Customermates
 
 Ta sekcja opisuje nasz własny produkt. Customermates to otwartoźródłowy [CRM dla zespołów sprzedaży](/blog/crm-for-sales), stworzony w Niemczech. Liczy ważony lejek i pokazuje go na wykresach; nie przewiduje. Oto konfiguracja dla przykładu liczbowego.
@@ -220,6 +243,22 @@ Nie ma uczciwej uniwersalnej liczby, bo zależy to od wielkości transakcji, dł
 
 <FaqItem question="Czy Customermates może prognozować sprzedaż?">
 Liczy ważony lejek: wartość transakcji razy prawdopodobieństwo ustawione dla etapu, pokazywany na wykresach pulpitu i możliwy do wyeksportowania do Excela. Nie przewiduje zamknięć, nie podpowiada prawdopodobieństw ani nie modeluje Twojej historii. Do tego użyj dedykowanego narzędzia do prognozowania.
+</FaqItem>
+
+<FaqItem question="Dlaczego prognozowanie sprzedaży jest ważne?">
+Pokazuje lukę do celu, zanim będzie za późno na reakcję, pomaga planować koszty i zatrudnienie oraz wskazuje transakcje, które przesądzają o wyniku. Dla małego zespołu to różnica między planowaniem na liczbach a planowaniem na odczuciu.
+</FaqItem>
+
+<FaqItem question="Jak zrobić prognozę przychodów?">
+Zacznij od prognozy wartości wygranych transakcji (ważony lejek plus wygrane dotąd), a potem rozłóż ją na miesiące według harmonogramu faktur lub płatności. Prognoza przychodów w sensie księgowym zależy od dat faktur, a tych rekord transakcji w CRM nie zastępuje.
+</FaqItem>
+
+<FaqItem question="Na czym polega proces prognozowania sprzedaży?">
+Na siedmiu krokach: zdefiniuj okres i to, co liczysz, oczyść lejek, sprawdź cztery dane w każdej transakcji, ustaw prawdopodobieństwa etapów, policz dwiema metodami, opublikuj przedział, a na koniec okresu porównaj prognozę z wynikiem i skoryguj prawdopodobieństwa.
+</FaqItem>
+
+<FaqItem question="Jakie są techniki prognozowania sprzedaży?">
+W małym zespole używa się commitu (dolnej granicy), ważonego lejka, wskaźnika wygranych, historycznego run-rate i, przy długiej historii, modeli statystycznych. Dzielą się na oparte na ocenie, na lejku, historyczne i statystyczne; opisujemy je w sekcjach powyżej.
 </FaqItem>
 </Faq>
 

@@ -18,7 +18,7 @@ sections:
         description: "Zacznij od przewodnika operacyjnego i procedury pasującej do sytuacji. Idź za istotnymi odnośnikami do materiałów referencyjnych."
       - title: "Sprawdź bieżącego klienta"
         description: "Przeczytaj faktyczny rekord klienta i uzgodniony zakres. Ogólna procedura nie uzupełnia brakujących faktów o kliencie."
-      - title: "Przygotuj ograniczony następny krok"
+      - title: "Przygotuj konkretny, ograniczony następny krok"
         description: "Utwórz wewnętrzną listę kontrolną albo szkic oparty na tych źródłach. Pokaż, skąd pochodzi każde twierdzenie faktyczne."
       - title: "Odczytaj zapisany wynik"
         description: "Sprawdź zadanie, przypisanego właściciela i relację z klientem. Samo pomyślne żądanie nie dowodzi, że zapisał się zamierzony stan."
@@ -54,9 +54,9 @@ cta:
   hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
 ---
 
-Baza wiedzy AI daje ludziom i agentom utrzymywane źródło faktów i procedur firmy. W Customermates te strony leżą w przestrzeni roboczej klienta, więc osoba, Mate albo zewnętrzny klient MCP może zajrzeć do wskazówek obok rekordu klienta, zanim przygotuje pracę.
+Baza wiedzy AI daje ludziom i agentom stale aktualizowane źródło faktów i procedur firmy. W Customermates te strony leżą w przestrzeni roboczej klienta, więc osoba, Mate albo zewnętrzny klient MCP może zajrzeć do wskazówek obok rekordu klienta, zanim przygotuje pracę.
 
-**Dla follow upu.** Najważniejsze strony mówią, kiedy rozmowa wymaga odpowiedzi, jak szybko odpowiadasz, jak się żegnasz i czego nigdy nie obiecujesz wiadomością. W konfiguracji „Wracaj do rozmów z klientami” Customermates zapisuje strony Playbook sprzedaży, Ton komunikacji i Zasady follow-upów z gotowego playbooka. Mate czyta je, zanim przygotuje odpowiedź albo zaproponuje następny krok, a ty edytujesz je jak każdą inną stronę.
+**Dla follow upu.** Najważniejsze strony mówią, kiedy rozmowa wymaga odpowiedzi, jak szybko odpowiadasz, jak się żegnasz i czego nigdy nie obiecujesz wiadomością. W konfiguracji „Wracaj do rozmów z klientami” Customermates zapisuje strony Playbook sprzedaży, Ton komunikacji i Zasady follow-upów z gotowego playbooka. Mate czyta je, zanim przygotuje odpowiedź albo zaproponuje następny krok, a Ty edytujesz je jak każdą inną stronę.
 
 To pasuje do małego zespołu, który prowadzi rozmowy z klientami i następne kroki w kilku narzędziach. To nie jest publiczne centrum pomocy, platforma szkoleniowa ani zamiennik firmowej wyszukiwarki.
 
@@ -83,7 +83,7 @@ Osoba otwiera Bazę wiedzy przestrzeni roboczej. Mate może zajrzeć do wiedzy f
 
 ## Co faktycznie pokazał nasz czterostronicowy przykład?
 
-Sprawdzone 29 października 2026 w izolowanej lokalnej przestrzeni roboczej z fikcyjnymi danymi: utworzyliśmy cztery dwujęzyczne strony, pobraliśmy ich treść przez faktyczny punkt końcowy MCP, wyszukaliśmy po angielsku i niemiecku i przygotowaliśmy ręcznie napisaną odpowiedź z odnośnikami do źródeł. Następnie utworzyliśmy wewnętrzne zadanie, powtórzyliśmy to samo idempotentne żądanie i odczytaliśmy właściciela zadania oraz powiązanie z klientem.
+Sprawdzone 29 października 2026 w izolowanej lokalnej przestrzeni roboczej z fikcyjnymi danymi: utworzyliśmy cztery dwujęzyczne strony, pobraliśmy ich treść przez rzeczywisty punkt końcowy MCP, wyszukaliśmy po angielsku i niemiecku i przygotowaliśmy ręcznie napisaną odpowiedź z odnośnikami do źródeł. Następnie utworzyliśmy wewnętrzne zadanie, powtórzyliśmy to samo idempotentne żądanie i odczytaliśmy właściciela zadania oraz powiązanie z klientem.
 
 Osobny czytelnik z dostępem do API, ale bez prawa odczytu Bazy wiedzy, nie mógł pobrać przewodnika. To sprawdza granicę uprawnień przestrzeni roboczej; nie ustanawia uprawnień na poziomie stron ani testu trafności wyszukiwania. Do przykładu nie należała żadna zewnętrzna wiadomość, płatne wywołanie AI ani połączenie konta firmy trzeciej.
 
@@ -97,9 +97,9 @@ Dlatego baza wiedzy AI nie eliminuje błędnych odpowiedzi. Przeczytaj zwrócon�
 
 ## Jakie uprawnienia i ograniczenia hostingu mają znaczenie?
 
-Prawa do odczytu i zarządzania Bazą wiedzy należą do ról w przestrzeni roboczej. Nie ma osobnej listy dostępu dla każdej strony ani systemu uprawnień na poziomie pól. Przechowuj tylko materiał odpowiedni dla osób i podłączonych użytkowników, którzy mogą czytać tę Bazę wiedzy.
+Prawa do odczytu i zarządzania Bazą wiedzy wynikają z ról w przestrzeni roboczej. Nie ma osobnej listy dostępu dla każdej strony ani systemu uprawnień na poziomie pól. Przechowuj tylko materiał odpowiedni dla osób i podłączonych użytkowników, którzy mogą czytać tę Bazę wiedzy.
 
-Zewnętrzni klienci MCP działają z uprawnieniami podłączonego użytkownika. Instrukcje potwierdzeń serwera kierują klientem; nie tworzą wymuszanej przez serwer bramki zatwierdzenia dla skądinąd autoryzowanego wywołania narzędzia. Mate ma własną politykę zatwierdzeń w Customermates Cloud.
+Zewnętrzni klienci MCP działają z uprawnieniami podłączonego użytkownika. Instrukcje potwierdzeń z serwera mają kierować zachowaniem klienta; nie tworzą wymuszanej przez serwer bramki zatwierdzenia dla wywołania narzędzia, które skądinąd jest autoryzowane. Mate ma własną politykę zatwierdzeń w Customermates Cloud.
 
 Hostowany Mate zależy od kwalifikującego się planu chmurowego, dostępnego zużycia i globalnych ustawień. Zewnętrzni klienci korzystają z własnego dostawcy modelu, ale wyszukiwanie semantyczne może nadal wliczać się do zużycia Mate. Self-hosting zapewnia rdzeń Starter i MCP dla zewnętrznych klientów, z wyszukiwaniem słów kluczowych i pełnotekstowym; nie obejmuje hostowanego Mate ani self-hostowanego semantycznego wyszukiwania AI. Zobacz [self-hosting](/features/self-hosted) i [dokumentację Mate](/docs/app-assistant).
 
@@ -109,7 +109,7 @@ Pliki zawierające tekst mogą dostarczać dodatkowego materiału do przeszukiwa
 
 Lokalny Markdown może wystarczyć na instrukcje programistyczne jednej osoby albo małe repozytorium. Publiczne centrum pomocy lepiej pasuje do portalu dokumentacji dla klientów. Dedykowana platforma wiedzy lub wyszukiwarka korporacyjna może być potrzebna do szerokiej synchronizacji dysków, wielkoskalowego wczytywania dokumentów albo bardziej szczegółowego dostępu do dokumentów.
 
-Customermates pasuje, gdy utrzymywane wskazówki mają leżeć obok rekordów klientów, rozmów i następnej porcji pracy. Zacznij od małego, użytecznego zestawu źródeł i zadbaj o jasnego właściciela oraz rutynę przeglądu.
+Customermates pasuje, gdy utrzymywane wskazówki mają leżeć obok rekordów klientów, rozmów i następnej porcji pracy. Zacznij od małego, przydatnego zestawu źródeł i zadbaj o jasnego właściciela oraz stały rytm przeglądów.
 
 <Faq>
 <FaqItem question="Czy zewnętrzni agenci mogą czytać tę samą wiedzę firmy co Mate?">

@@ -1,6 +1,6 @@
 ---
-title: "CRM op maat: aanpassen of zelf een CRM bouwen?"
-description: "CRM op maat: wat een aanpasbaar CRM je laat veranderen, waar leveranciers custom objects aanbieden en wanneer zelf bouwen loont, met voorbeeld en checklist."
+title: "CRM op maat: aanpassen, laten maken of zelf bouwen?"
+description: "CRM op maat: wat je zonder code aanpast, in welk abonnement leveranciers custom objects bieden en wanneer laten maken loont. Met checklist en voorbeeld."
 
 relatedHrefs:
   - /blog/open-source-crm
@@ -27,7 +27,7 @@ blogPost:
 
 # CRM op maat: wat je kunt aanpassen en wanneer je zelf een CRM bouwt
 
-Een CRM op maat krijg je in de praktijk door een aanpasbaar CRM te nemen: een kant-en-klaar CRM waarin je het datamodel, de pipeline en de weergaven zelf verandert, zonder code te schrijven. Voor de meeste kleine teams is dat genoeg: aangepaste velden, je eigen dealfases en opgeslagen weergaven dekken hoe een adviesbureau, een bureau of een dienstverlener echt werkt. Zelf een CRM bouwen loont alleen als je recordtypen nodig hebt die geen product biedt, en dan zijn de realistische opties een CRM met custom objects of een no-code database, en geen code die vanaf nul is geschreven.
+Een CRM op maat krijg je in de praktijk door een aanpasbaar CRM te nemen: een kant-en-klaar CRM waarin je het datamodel, de pipeline en de weergaven zelf verandert, zonder code te schrijven. Voor de meeste kleine teams is dat genoeg: aangepaste velden, je eigen dealfases en opgeslagen weergaven dekken hoe een adviesbureau, een creatief bureau of een dienstverlener echt werkt. Zelf een CRM bouwen loont alleen als je recordtypen nodig hebt die geen product biedt, en dan zijn de realistische opties een CRM met custom objects of een no-code database, en geen code die vanaf nul is geschreven.
 
 De beslissende vraag is smal. Heb je nieuwe soorten records nodig, of nieuwe velden op de gebruikelijke? De rest van deze pagina helpt je die te beantwoorden voordat je voor een abonnement betaalt.
 
@@ -40,7 +40,7 @@ Customermates publiceert dit artikel en is een van de producten die erin worden 
   <SummaryItem label="Zelf bouwen">Loont als je records niet op contactpersonen, bedrijven en deals passen. Anders neem je authenticatie, rechten, e-mailsynchronisatie en import op je voor weinig winst.</SummaryItem>
 </ArticleSummary>
 
-Begin met de werkwijze voor klanten: [CRM voor kleine bedrijven](/for/smb) en [CRM voor bureaus](/for/agencies) laten twee verschillende manieren zien om het werk te organiseren. Gaat een assistent die records gebruiken, controleer dan de rechten in de [gids over AI-CRM](/blog/ai-crm); gebruik de [CRM-vergelijking](/compare) als de gewenste aanpassing buiten het bereik van een product valt.
+Kijk eerst naar hoe jouw team werkt: [CRM voor kleine bedrijven](/for/smb) en [CRM voor bureaus](/for/agencies) laten twee verschillende manieren zien om het werk te organiseren. Gaat een assistent die records gebruiken, controleer dan de rechten in de [gids over AI-CRM](/blog/ai-crm); gebruik de [CRM-vergelijking](/compare) als de gewenste aanpassing buiten het bereik van een product valt.
 
 ## Wat "aanpasbaar" omvat, laag voor laag
 
@@ -87,6 +87,19 @@ Heb je een record "Pand" nodig dat aan meerdere eigenaren en huurders is gekoppe
 Niemand kan je zonder specificatie een eerlijke vaste prijs geven voor CRM maatwerk. De kosten die mensen onderschatten zijn niet de eerste versie; het zijn de jaren onderhoud, want elke functie die een gehuurd CRM uitbrengt, wordt jouw achterstand. Schrijf voordat je een bouwopdracht geeft op welke recordtypen je huidige tool niet kan weergeven. Is de lijst leeg, dan heb je een beter ingericht CRM nodig, geen nieuw CRM.
 
 Er is een middenweg ontstaan: begin met een CRM met een volledige API en laat een AI-client het maatwerk daartegen doen. Met een open source CRM dat REST, webhooks en een MCP-server biedt, kan een klein script of een AI-client de ene workflow dekken die specifiek voor jou is, terwijl de leverancier al het andere onderhoudt.
+
+## CRM op maat laten maken: wat je een softwarebureau vraagt [#crm-laten-maken]
+
+Kies je toch voor maatwerk, bijvoorbeeld omdat geen product je recordtypen kan weergeven, dan bepaalt de voorbereiding of de opdracht goed afloopt. Een softwarebureau of freelancer kan alleen een zinnige offerte maken als jij het probleem scherp hebt. Neem deze punten mee in het gesprek:
+
+- **Een specificatie in recordtypen en velden.** Som op welke soorten records je hebt (bijvoorbeeld Pand, Eigenaar, Contract), hoe ze aan elkaar hangen en welke vragen het systeem moet beantwoorden. Een lijst van twintig wensen zonder datamodel is geen specificatie.
+- **Eerst een klein werkend geheel.** Vraag om een eerste versie met één proces dat je echt gebruikt, en breid pas uit als je team ermee werkt. Zo zie je na weken wat het oplevert, niet pas na maanden.
+- **Eigendom en uitstap.** Spreek af wie de broncode en de gegevens bezit, in welk formaat je alles kunt exporteren en wat er gebeurt als je van bureau wisselt.
+- **Onderhoud en support.** Wie verhelpt fouten, wie installeert beveiligingsupdates, wat gebeurt er bij een storing en wat kost dat per jaar? Vraag het in de offerte apart uit.
+- **Hosting en privacy.** Waar staan de gegevens, wie heeft toegang en is er een verwerkersovereenkomst? Dat is algemene AVG-hygiëne bij elke leverancier die klantgegevens verwerkt, en geen juridisch advies.
+- **Koppelingen.** Noem vooraf welke systemen (boekhouding, e-mail, agenda) het CRM moet kunnen lezen of schrijven. Elke koppeling is werk dat je later niet gratis krijgt.
+
+Twijfel je of maatwerk nodig is, probeer dan eerst of een aanpasbaar CRM je records kan weergeven. Hoe je een systeem kiest en invoert, staat in de [gids over een CRM kiezen](/blog/how-to-choose-crm) en de [gids over CRM implementeren](/blog/crm-implementation).
 
 ## Een uitgewerkte opzet in Customermates
 
@@ -159,6 +172,14 @@ Een aanpasbaar CRM is een af product dat je aanpast met velden, fases, weergaven
 
 <FaqItem question="Kan ik mijn eigen CRM bouwen?">
 Ja. Een no-code database als Airtable, Knack of Caspio kan je snel een werkende eerste versie geven als je proces duidelijk is. Er een vanaf nul programmeren is een lang project, omdat je ook inloggen, rollen, e-mailsynchronisatie, zoeken, import en back-ups bouwt. Zijn je records mensen, bedrijven en deals, dan kom je met het configureren van een bestaand CRM verder voor minder.
+</FaqItem>
+
+<FaqItem question="Wat is een goedkoper CRM-pakket?">
+Een af product met abonnementsprijzen per gebruiker is bijna altijd goedkoper dan maatwerk, omdat de leverancier de ontwikkeling en het onderhoud over alle klanten verdeelt. Vergelijk pakketten op wat je werkelijk gebruikt, niet op de laagste prijs: aangepaste velden, je eigen fases en een API zitten niet overal in het goedkoopste abonnement. Een overzicht staat in de [gids over betaalbare CRM-software](/blog/affordable-crm-software) en de [gids over CRM-kosten](/blog/crm-cost).
+</FaqItem>
+
+<FaqItem question="Wat is de beste CRM voor een klein team dat veel wil aanpassen?">
+Er is geen beste CRM voor iedereen; het hangt af van je records en je budget. Bestaat je werk uit mensen, bedrijven en deals, dan is een aanpasbaar CRM met eigen velden en fases genoeg. Heb je extra recordtypen nodig, kijk dan naar de custom objects in de tabel hierboven. De [gids over de beste CRM-software](/blog/best-crm-software) vergelijkt de keuzes.
 </FaqItem>
 
 <FaqItem question="Hoeveel kost een CRM op maat?">

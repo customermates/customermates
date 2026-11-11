@@ -1,6 +1,6 @@
 ---
-title: "n8n tutorial: bouw je eerste workflow stap voor stap"
-description: "Een n8n tutorial voor beginners: draai n8n, bouw en test een webhook-workflow, publiceer hem, vang fouten af en stuur formulierleads naar een CRM."
+title: "n8n workflow maken: stap voor stap tutorial voor beginners"
+description: "Zo maak je een n8n workflow: draai n8n, bouw en test een webhook-workflow, publiceer hem, vang fouten af en stuur formulierleads naar je CRM, met voorbeelden."
 
 relatedHrefs:
   - /docs/n8n
@@ -39,6 +39,12 @@ Heb je een n8n workflow nodig die met een AI-client samenwerkt? Dan laat de [ver
   <SummaryItem label="CRM-voorbeeld">Formuliergegevens als CRM-contact via de HTTP Request-node, getoond met de Customermates REST API.</SummaryItem>
 </ArticleSummary>
 
+## Wat is een n8n workflow, en waarvoor gebruik je hem? [#wat-is-een-n8n-workflow]
+
+Een n8n workflow is een keten van stappen (nodes) die automatisch draait. Een trigger start hem, de nodes halen gegevens op, controleren of verwerken ze, en de laatste node stuurt iets door, bijvoorbeeld een e-mail of een nieuw contact naar je CRM. n8n is een workflowtool met een visuele editor: je bouwt de keten op een canvas in plaats van in code.
+
+Drie eigenschappen maken n8n interessant voor een klein team. Je kunt de Community Edition gratis zelf hosten. Met de Code-node voeg je JavaScript of Python toe waar de ingebouwde nodes tekortschieten. En met AI-nodes kan een workflow ook taalmodellen aanroepen. Voorbeelden van workflows staan verderop, onder "Voorbeelden van n8n workflows".
+
 ## De zes begrippen die je nodig hebt
 
 De documentatie van n8n gebruikt een kleine woordenschat. Als je deze begrippen eenmaal snapt, snap je de editor ook.
@@ -48,7 +54,7 @@ De documentatie van n8n gebruikt een kleine woordenschat. Als je deze begrippen 
 | Workflow | Een keten van nodes die van links naar rechts loopt | Het canvas |
 | Trigger | De eerste node, die een run start: een schema, een webhook-aanroep, een app-gebeurtenis of een handmatige klik | De eerste node op het canvas |
 | Node | Eén stap: gegevens ophalen, een voorwaarde controleren, een bericht sturen, een API aanroepen | Alles op het canvas |
-| Expression | Een tijdelijke aanduiding die gegevens uit eerdere nodes ophaalt, zoals `{{ $json.email }}` | Elk veld, nadat je het naar expressiemodus hebt gezet |
+| Expression | Een uitdrukking tussen dubbele accolades die gegevens uit eerdere nodes ophaalt, zoals `{{ $json.email }}` | Elk veld, nadat je het naar expressiemodus hebt gezet |
 | Credential | Een opgeslagen login of API-sleutel die nodes hergebruiken | Het menu Credentials, of "Create new credential" in een node |
 | Execution | Eén complete run van een workflow, uit hoeveel nodes die ook bestaat | Het tabblad Executions |
 
@@ -184,6 +190,20 @@ Een paar details uit de [n8n-integratiedocumentatie](/docs/n8n) besparen je debu
 
 Er is ook een community node van Customermates, `@customermates/n8n-nodes-crm`, met een actienode voor CRM-records en een triggernode voor webhookgebeurtenissen. Hij heeft een eigen releaseschema, dus controleer of hij de huidige record-API ondersteunt voordat je zijn CRM-acties gebruikt. Omdat n8n Cloud alleen geverifieerde community nodes installeert, kun je daar het beste de HTTP Request-route nemen en de community node gebruiken op een zelf gehoste n8n.
 
+## Voorbeelden van n8n workflows voor een klein team [#voorbeelden-n8n-workflows]
+
+Alles wat past bij "als dit gebeurt, doe dan dat" kan een workflow worden. Dit zijn vijf voorbeelden, van de eerste uit deze gids tot een extra stap voor veiligheid:
+
+| Voorbeeld | Trigger | Stappen | Resultaat |
+| --- | --- | --- | --- |
+| Aanvraag van je website | Webhook | If-node controleert het e-mailadres, HTTP Request maakt een contact in je CRM, een e-mail meldt het | Nieuw contact op het CRM-record en een melding (deze gids) |
+| Overzicht op maandagochtend | Schema | Gegevens ophalen via een API, samenvatten, versturen | Een wekelijks overzicht in je inbox of teamchat |
+| Dealwijziging naar de teamchat | Webhook van je CRM | Filteren op fase of waarde, bericht plaatsen | Het team ziet meteen wanneer een deal verandert |
+| Nieuwe contacten naar een spreadsheet | App-gebeurtenis of webhook | Velden koppelen, rij toevoegen | Een spreadsheet die zichzelf bijhoudt |
+| Fout melden | Error Trigger | E-mail met de naam van de workflow en de foutmelding | Een mislukte run komt bij jou terecht |
+
+Wil je niet met een leeg canvas beginnen, dan heeft n8n een openbare bibliotheek met workflowtemplates. Een template bespaart bouwtijd, maar controleer vóór je hem publiceert welke diensten en credentials hij nodig heeft en wat die kosten. Test met eigen testgegevens en lees elke node na: jij blijft verantwoordelijk voor wat de workflow verstuurt. Hoe zo'n automatisering past binnen een CRM, staat op de pagina over [workflowautomatisering](/features/workflow-automation).
+
 ## Waar Customermates past, en waar niet
 
 n8n is een apart product. Het zit in geen enkel Customermates-abonnement; je draait het zelf of neemt een abonnement op n8n Cloud. REST en MCP werken op elk Customermates Cloud-abonnement, webhooks op elk betaald abonnement, dat begint bij [[commercial.price.starter.monthly]] per gebruiker per maand (zie [prijzen](/pricing)), en alle drie werken in de zelf gehoste open-sourceversie.
@@ -197,6 +217,18 @@ Heb je alleen contactpersonen in een spreadsheet en een e-mail per aanvraag nodi
 ## Veelgestelde vragen
 
 <Faq>
+<FaqItem question="Wat is een n8n workflow?">
+Een n8n workflow is een keten van nodes die van links naar rechts loopt: een trigger start hem, de volgende nodes halen gegevens op, controleren of verwerken ze en sturen het resultaat door, bijvoorbeeld naar een e-mail of een CRM. Je bouwt hem in een visuele editor.
+</FaqItem>
+
+<FaqItem question="Is n8n gratis?">
+De Community Edition is gratis software die je zelf host; je betaalt voor de server. n8n Cloud heeft betaalde abonnementen en een proefperiode zonder creditcard. De prijzen staan hierboven, gecontroleerd op 8 oktober 2026.
+</FaqItem>
+
+<FaqItem question="Zijn er kant-en-klare n8n workflows (templates)?">
+Ja, n8n heeft een openbare bibliotheek met workflowtemplates. Controleer per template welke diensten en credentials hij nodig heeft en wat die kosten, vervang de voorbeeldgegevens door eigen testgegevens en lees elke node na voordat je publiceert.
+</FaqItem>
+
 <FaqItem question="Hoe moeilijk is het om n8n te leren?">
 De basis gaat snel: de eerste workflow in deze tutorial gebruikt drie nodes en één expression. Moeilijker is begrijpen hoe gegevens als items tussen nodes bewegen en de API-documentatie lezen van de diensten die je koppelt. Reken erop dat je het grootste deel van je leertijd in het uitvoerpaneel zit, waar je vergelijkt wat een node ontving met wat hij teruggaf.
 </FaqItem>

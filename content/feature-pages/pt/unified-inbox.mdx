@@ -1,6 +1,6 @@
 ---
-title: "CRM email: caixa de entrada unificada para email e redes"
-description: "CRM email: caixa de entrada para Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram e Telegram. Conversas no cliente, respostas em rascunho. Nuvem, do Pro."
+title: "CRM email: Gmail, Outlook e IMAP em uma caixa de entrada"
+description: "CRM email: cada conversa de Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram e Telegram no registro do cliente, com respostas em rascunho. Nuvem, do Pro."
 featureName: Caixa de entrada unificada do CRM
 
 acquisition:
@@ -10,8 +10,8 @@ acquisition:
   role: hub
   primaryIntent: Uma única caixa de entrada de CRM para os canais compatíveis
   metadata:
-    title: "CRM email: caixa de entrada unificada para email e redes"
-    description: "CRM email: caixa de entrada para Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram e Telegram. Conversas no cliente, respostas em rascunho. Nuvem, do Pro."
+    title: "CRM email: Gmail, Outlook e IMAP em uma caixa de entrada"
+    description: "CRM email: cada conversa de Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram e Telegram no registro do cliente, com respostas em rascunho. Nuvem, do Pro."
   proof:
     factReferences:
       - product:cloud-only-unified-inbox
@@ -150,6 +150,44 @@ O **CRM email do Customermates** é uma caixa de entrada unificada: reúne em um
   <ProofItem label="Contexto do CRM">Associação de participante a contato</ProofItem>
 </ProofRail>
 
+## O que é um CRM com e-mail integrado? [#o-que-e-um-crm-com-email-integrado]
+
+Um CRM com e-mail integrado lê e envia e-mails pela conta que você já usa e guarda cada conversa no registro do cliente, em vez de deixar o histórico espalhado em caixas de entrada pessoais, cópias ocultas (Cco) e planilhas. No Customermates, isso é a caixa de entrada unificada: a conversa aparece em todo registro cujos dados de contato têm o endereço de e-mail dela, e o mesmo vale para telefone e perfil do LinkedIn.
+
+Ligar o e-mail ao CRM ajuda de quatro jeitos:
+
+- **Histórico completo no cliente.** Quem abre o contato, a organização ou o negócio vê as conversas, sem pedir um encaminhamento a um colega.
+- **A equipe enxerga o mesmo contexto.** Uma conversa pode ser compartilhada com os colegas, uma de cada vez, e as permissões do CRM continuam valendo.
+- **Menos resposta esquecida.** Uma nova mensagem volta a conversa para Não lida, e uma visualização salva mostra onde você ainda espera uma resposta.
+- **Menos digitação repetida.** Você responde no próprio registro, pelo canal em que o cliente escreveu, e a assinatura da conta é aplicada ao enviar.
+
+## O que procurar em um CRM com e-mail [#o-que-procurar-em-um-crm-com-email]
+
+Ao comparar ferramentas, vale conferir estes pontos e perguntar como cada uma os resolve:
+
+| O que conferir | Como o Customermates responde |
+| --- | --- |
+| Contas que você já tem | Gmail/Google, Outlook/Microsoft e IMAP; a conexão é feita em **Canais e calendários**. |
+| Vínculo automático com o cliente | A conversa aparece nos registros cujos dados de contato têm o mesmo endereço; a associação também pode ser feita à mão, conversa por conversa. |
+| Privacidade | As conversas privadas de um colega nunca aparecem para você, nem para um Administrador. Compartilhar uma conversa é uma escolha de quem a possui. |
+| Respostas revisadas | O Mate ou o seu cliente de IA deixa um rascunho na conversa; quem responde revisa e envia. |
+| Outros canais além do e-mail | LinkedIn, WhatsApp, Instagram e Telegram na mesma lista. |
+| Limites claros | Sem SMS nem telefonia, sem edição de calendário e sem envio em massa, como explicado abaixo. |
+
+## CRM com e-mail marketing ou caixa de entrada de CRM? [#crm-com-email-marketing-ou-caixa-de-entrada]
+
+São coisas diferentes, e muitas buscas por "CRM com e-mail" misturam as duas. Uma ferramenta de e-mail marketing envia a mesma campanha para uma lista grande. A caixa de entrada de um CRM cuida da conversa um a um: você lê o que o cliente escreveu, responde e mantém tudo no registro dele.
+
+O Customermates faz o segundo. Ele não tem sequências de e-mail nem envio em massa. Se a sua equipe precisa de campanhas, use uma ferramenta de e-mail marketing ao lado do CRM; a API REST e os webhooks existem para ligar o Customermates a outras ferramentas.
+
+## Como conectar o e-mail ao CRM [#como-conectar-o-email-ao-crm]
+
+1. Em **Canais e calendários**, conecte a conta de Gmail/Google, Outlook/Microsoft ou IMAP. Cada plano da nuvem inclui um número de contas conectadas por usuário, como mostra a tabela mais abaixo.
+2. Confira as pastas da conta na aba **Pastas**. Por padrão, todas ficam ativadas, menos lixeira, lixo eletrônico ou spam, rascunhos e a pasta com todos os e-mails.
+3. Coloque o endereço de e-mail do cliente nos dados de contato do registro dele. A partir daí, as conversas com esse endereço aparecem no registro.
+4. Na aba **E-mail** da conta, ative **Adicionar uma assinatura**, se quiser que ela vá em todas as mensagens enviadas.
+5. Responda pela caixa de entrada ou escreva para um cliente com o ícone **Nova mensagem** ao lado do endereço de e-mail no registro dele.
+
 ## Canais compatíveis
 
 | Família de canais      | Conexões compatíveis                                      |
@@ -233,6 +271,27 @@ Pro, Business e Enterprise no Customermates Cloud. O Pro inclui uma conta conect
   contatos do CRM, e os vínculos dos contatos fazem a ponte para o contexto
   relevante do CRM. Em **Registros da conversa**, **Vincular registro** liga
   uma única conversa a um registro, como um negócio.
+</FaqItem>
+
+<FaqItem question="O CRM envia e-mail em massa ou faz e-mail marketing?">
+  Não. A caixa de entrada trata a conversa com cada cliente, uma a uma. O
+  Customermates não tem sequências de e-mail nem envio em massa; para campanhas,
+  use uma ferramenta de e-mail marketing separada.
+</FaqItem>
+
+<FaqItem question="Como integrar o Gmail ou o Outlook ao CRM?">
+  Conecte a conta em **Canais e calendários**, escolhendo Gmail/Google,
+  Outlook/Microsoft ou IMAP. As conversas passam a aparecer na caixa de entrada,
+  e cada uma aparece nos registros cujos dados de contato têm o mesmo endereço.
+  O guia de [CRM com Gmail](/blog/gmail-crm-integration) e o de [CRM com
+  Outlook](/blog/outlook-crm-integration) mostram o fluxo em cada provedor.
+</FaqItem>
+
+<FaqItem question="Meus colegas leem os meus e-mails?">
+  Não por padrão. As suas conversas são privadas: nem um Administrador vê as
+  conversas privadas de um colega. Você compartilha uma conversa específica
+  quando quiser; compartilhar uma conta inteira é um recurso do Business e do
+  Enterprise.
 </FaqItem>
 
 <FaqItem question="Um cliente de IA pode enviar mensagens pela caixa de entrada?">

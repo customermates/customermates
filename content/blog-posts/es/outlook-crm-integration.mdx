@@ -1,5 +1,5 @@
 ---
-title: "Integración Outlook CRM: complemento, sincronía o bandeja"
+title: "Integración Outlook CRM: complemento, sincronización o buzón"
 description: "Integración Outlook CRM: complemento, sincronización en el servidor o correo de Outlook dentro del CRM. Qué ofrecen HubSpot, Dynamics 365 y Pipedrive."
 
 relatedHrefs:
@@ -28,7 +28,7 @@ blogPost:
 
 Una integración Outlook CRM hace uno de dos trabajos, y las buenas hacen los dos. Muestra los registros del CRM junto al correo que estás leyendo en Outlook y copia los correos y las reuniones de tu buzón de Microsoft 365 en el contacto y la oportunidad correctos. El primer trabajo lo hace un complemento de Outlook. El segundo se ejecuta en los servidores del CRM, esté Outlook abierto o no.
 
-Así que la pregunta real es dónde quiere trabajar tu equipo. Si la gente vive en Outlook todo el día, elige un CRM con un buen complemento y sincronización en el servidor. Si prefiere responder el correo desde el CRM, junto a la oportunidad y los demás canales, elige un CRM que traiga el buzón a su propia bandeja. Hay una comprobación técnica que vale para todos: el nuevo Outlook para Windows solo ejecuta complementos web, así que los antiguos complementos COM o VSTO dejan de funcionar allí.
+Así que la pregunta real es dónde quiere trabajar tu equipo. Si tu equipo vive en Outlook todo el día, elige un CRM con un buen complemento y sincronización en el servidor. Si prefiere responder el correo desde el CRM, junto a la oportunidad y los demás canales, elige un CRM que traiga el buzón a su propia bandeja. Hay una comprobación técnica que vale para todos: el nuevo Outlook para Windows solo ejecuta complementos web, así que los antiguos complementos COM o VSTO dejan de funcionar allí.
 
 Customermates publica esta guía. Customermates, un CRM nativo de IA, sigue el tercer enfoque: no tiene complemento de Outlook y trae el correo de Outlook a su propia bandeja. Los datos de los proveedores de abajo se comprobaron el 8 de octubre de 2026 en las páginas de cada proveedor, enlazadas al final.
 
@@ -45,7 +45,7 @@ Customermates publica esta guía. Customermates, un CRM nativo de IA, sigue el t
 | Tipo | Qué hace | Dónde trabajas | Qué comprobar antes de comprar |
 |---|---|---|---|
 | Complemento en Outlook | Muestra el contacto, las oportunidades y el historial correspondientes junto a un correo; registra ese correo o reunión en un registro cuando haces clic | Outlook | Funciona en tus clientes de Outlook (Windows clásico y nuevo, Mac, web, móvil); funciona con buzones compartidos si los usas |
-| Sincronización en el servidor | Conecta el buzón con el CRM mediante Exchange o Microsoft 365 y copia el correo enviado y recibido, y a menudo las reuniones, en los registros que coinciden | Outlook, con el CRM llenándose solo | Qué carpetas se sincronizan, con qué rapidez, qué pasa con el correo privado y si los contactos y el calendario se sincronizan en los dos sentidos |
+| Sincronización en el servidor | Conecta el buzón con el CRM mediante Exchange o Microsoft 365 y copia el correo enviado y recibido, y a menudo las reuniones, en los registros que coinciden | Outlook, mientras el CRM se completa solo | Qué carpetas se sincronizan, con qué rapidez, qué pasa con el correo privado y si los contactos y el calendario se sincronizan en los dos sentidos |
 | Buzón dentro del CRM | Importa el buzón a la bandeja del CRM, donde lees, respondes y archivas el correo junto al registro | El CRM | Si todavía puedes usar Outlook en paralelo, si las respuestas salen desde tu dirección real y qué pasa con el calendario |
 
 La mayoría de los CRM de la tabla siguiente combinan los dos primeros: un complemento para consultar y sincronización en el servidor para que no falte nada. El tercer tipo conviene a los equipos cuyas conversaciones con clientes se reparten entre el correo y canales de chat, porque entonces el CRM las muestra todas en una sola lista.
@@ -80,10 +80,11 @@ En la práctica: si tu equipo se pasa al nuevo Outlook, pregunta a cada proveedo
 | La mayoría de las conversaciones con clientes ocurren por correo más LinkedIn o WhatsApp | Un CRM que importe el buzón a una bandeja compartida con esos canales |
 | Un buzón de equipo como sales@ debe ser visible para varias personas | Comprueba explícitamente la compatibilidad con buzones compartidos; la Dynamics 365 App for Outlook, por ejemplo, no admite los buzones compartidos de Microsoft 365 |
 | Te pasas al nuevo Outlook para Windows | Solo complementos web, o un enfoque que no necesite complemento |
+| Todavía no tienes un CRM y estás comparando | La [guía para elegir un CRM](/blog/how-to-choose-crm) y la [comparativa de CRM](/blog/crm-comparison) |
 
 ## Cómo funciona Outlook en Customermates
 
-Customermates sigue la tercera vía. Desde Pro en Customermates Cloud, una cuenta de Outlook conectada alimenta la [bandeja de entrada unificada](/features/unified-inbox), junto a LinkedIn, WhatsApp, Instagram y Telegram. Sigues usando Outlook cuando quieras; el correo que envías desde allí llega igualmente al hilo del CRM. La [página de la integración con Outlook](/features/outlook-integration) enumera exactamente qué se sincroniza.
+Customermates sigue la tercera vía. Desde Pro en Customermates Cloud, una cuenta de Outlook conectada alimenta la [bandeja de entrada unificada](/features/unified-inbox), junto a LinkedIn, WhatsApp, Instagram y Telegram. Sigues usando Outlook cuando quieras; el correo que envías desde allí llega igualmente al hilo del CRM. La [página de la integración con Outlook](/features/outlook-integration) enumera exactamente qué se sincroniza. Si tu equipo usa Gmail, la [guía de integración de Gmail con un CRM](/blog/gmail-crm-integration) cubre el mismo tema.
 
 <Steps>
   <Step title="Conecta la cuenta">Abre **Ajustes › Canales y calendarios**, haz clic en **Conectar un canal** y elige **Outlook**. Inicias sesión en una página de conexión segura y el historial del buzón se importa en segundo plano. La tarjeta indica si el correo, el calendario o ambos están conectados.</Step>

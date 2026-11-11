@@ -1,6 +1,6 @@
 ---
-title: "IA agêntica (agentic AI): definição, exemplos e limites"
-description: "IA agêntica explicada: o que significa, como difere da IA generativa e de chatbots, exemplos em vendas e CRM, como funciona e onde falha, com fontes de 2026."
+title: "IA agêntica (agentic AI): o que é, como funciona e exemplos"
+description: "IA agêntica (agentic AI): o que é, como funciona, exemplos em vendas e CRM, diferença para a IA generativa e para chatbots e onde falha. Fontes de 2026."
 
 relatedHrefs:
   - /blog/agentic-crm
@@ -31,7 +31,7 @@ A **IA agêntica** (em inglês, *agentic AI*) é uma IA a quem você dá um obje
 
 "Agêntico" vem de "agente": alguém que age em nome de outra pessoa. A AWS explica que "agentic" indica agência, "a capacidade desses sistemas de agir de forma independente, mas orientada a objetivos" ([AWS](https://aws.amazon.com/what-is/agentic-ai/)). A definição curta da IBM também é um bom ponto de apoio: IA agêntica é "um sistema de inteligência artificial capaz de cumprir um objetivo específico com supervisão limitada" ([IBM](https://www.ibm.com/think/topics/agentic-ai)). As duas palavras que sustentam o sentido são *objetivo* e *limitada*. Alguém ainda define o objetivo, e alguém ainda decide quanto o sistema pode fazer sem perguntar.
 
-Transparência: este guia é publicado pela Customermates, um CRM de código aberto. Ele responde à pergunta geral. Como fazer agentes trabalharem em registros de CRM está no [guia de CRM agêntico](/blog/agentic-crm), e os agentes específicos de vendas estão no [guia de agentes de IA para vendas](/blog/ai-sales-agent); uma seção curta mais abaixo descreve o nosso produto.
+Transparência: este guia é publicado pelo Customermates, um CRM de código aberto. Ele responde à pergunta geral. Como fazer agentes trabalharem em registros de CRM está no [guia de CRM agêntico](/blog/agentic-crm), e os agentes específicos de vendas estão no [guia de agentes de IA para vendas](/blog/ai-sales-agent); uma seção curta mais abaixo descreve o nosso produto.
 
 <ArticleSummary title="Em resumo">
   <SummaryItem label="Definição">
@@ -143,7 +143,7 @@ Cada produto abaixo é chamado de agente pelo próprio fornecedor, e as colunas 
 | [Claude Code](https://code.claude.com/docs/en/overview) (Anthropic) | Uma tarefa de programação em um repositório | Lê a base de código, edita arquivos, executa comandos, prepara alterações, escreve mensagens de commit, cria branches e abre pull requests | O diff ou o pull request |
 | [GitHub Copilot na nuvem](https://docs.github.com/en/copilot/concepts/copilot-surfaces/copilot-on-github) | Uma tarefa em um repositório | Pesquisa o repositório, planeja alterações e as implementa em segundo plano, edita arquivos e roda testes e linters em um ambiente de desenvolvimento na nuvem | A revisão das alterações propostas antes de um pull request ser criado |
 | [Salesforce Agentforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/) | Um ticket de suporte | Verifica o status da garantia, busca na base de conhecimento, envia uma etiqueta de devolução e atualiza o CRM | A Salesforce cita regras e limites claros, monitoramento regular e supervisão humana como essenciais |
-| Rotina da Customermates (Customermates Cloud) | Um novo e-mail em um negócio | Resume o e-mail nas notas do negócio e salva um rascunho de resposta | O rascunho, antes de uma pessoa enviá-lo |
+| Rotina do Customermates (Customermates Cloud) | Um novo e-mail em um negócio | Resume o e-mail nas notas do negócio e salva um rascunho de resposta | O rascunho, antes de uma pessoa enviá-lo |
 
 O [guia do Salesforce Agentforce](/blog/agentforce) detalha os recursos, os preços e a configuração desse produto.
 
@@ -187,9 +187,9 @@ Esta página responde à pergunta geral. Dois guias vizinhos tratam das mais esp
 | Como conecto o Claude ou o ChatGPT a um CRM? | [CRM com Claude](/blog/claude-crm) e [ChatGPT para vendas](/blog/chatgpt-for-sales) |
 | O que os agentes da Salesforce fazem e quanto custam? | [Salesforce Agentforce](/blog/agentforce) |
 
-### O que a Customermates faz aqui
+### O que o Customermates faz aqui
 
-Esta é uma informação do fornecedor sobre o nosso próprio produto. A Customermates é um CRM de código aberto, nativo de IA. O [servidor MCP](/docs/mcp) dela permite que um cliente de IA como o Claude ou o ChatGPT leia e grave registros do CRM com as permissões do usuário conectado, em todos os planos e em hospedagem própria; o servidor pede que os clientes confirmem antes de excluir ou enviar, mas isso é uma orientação que um cliente pode ignorar. A Customermates Cloud acrescenta o Mate, um assistente, e as [rotinas](/docs/app-routines), que executam o Mate em um agendamento ou quando algo muda. O Mate pergunta antes de exclusões, importações, mudanças de acesso e algumas outras ações, mas não antes de enviar um e-mail ou uma mensagem de chat, então peça um rascunho quando quiser revisar o texto antes; a [documentação do Mate](/docs/app-assistant) traz a lista completa. Se o Mate está ativo ou não depende do ambiente hospedado.
+Esta é uma informação do fornecedor sobre o nosso próprio produto. O Customermates é um CRM de código aberto, nativo de IA. O [servidor MCP](/docs/mcp) dele permite que um cliente de IA como o Claude ou o ChatGPT leia e grave registros do CRM com as permissões do usuário conectado, em todos os planos e em hospedagem própria; o servidor pede que os clientes confirmem antes de excluir ou enviar, mas isso é uma orientação que um cliente pode ignorar. O Customermates Cloud acrescenta o Mate, um assistente, e as [rotinas](/docs/app-routines), que executam o Mate em um agendamento ou quando algo muda. O Mate pergunta antes de exclusões, importações, mudanças de acesso e algumas outras ações, mas não antes de enviar um e-mail ou uma mensagem de chat, então peça um rascunho quando quiser revisar o texto antes; a [documentação do Mate](/docs/app-assistant) traz a lista completa. Se o Mate está ativo ou não depende do ambiente hospedado.
 
 É a escolha errada se você quer um agente que prospecta e envia por conta própria: não há sequências, nem envio em massa, nem pontuação de leads, e o [guia de agentes de IA para vendas](/blog/ai-sales-agent) trata, em vez disso, de agentes de outbound dedicados. Uma instalação com hospedagem própria tem MCP, mas nem Mate nem rotinas. Para ver o follow-up nas suas próprias conversas, [comece o teste de [[commercial.trial.days]] dias](/auth/signup?job=followup): Pro, sem cartão de crédito. Se você está escolhendo um CRM pronto para IA, o [guia de CRM com IA](/blog/ai-crm) lista o que comparar.
 
@@ -219,7 +219,7 @@ Parar: se o remetente não tiver um negócio aberto, não fazer nada e avisar.
 Relatório: o que você leu, o que alterou, do que não tem certeza.
 ```
 
-Três detalhes fazem o trabalho. Leitura e escrita são separadas, então o agente pode olhar tudo de que precisa e alterar só notas e rascunhos. A regra de parada cobre o caso que ninguém planejou. E o ponto de aprovação é o botão de enviar, que continua com uma pessoa. Na Customermates, essa execução é uma rotina; a [documentação das rotinas](/docs/app-routines) lista o que uma rotina pode fazer sem aprovação, e o [guia de CRM agêntico](/blog/agentic-crm) explica onde o Mate e o MCP perguntam e onde não.
+Três detalhes fazem o trabalho. Leitura e escrita são separadas, então o agente pode olhar tudo de que precisa e alterar só notas e rascunhos. A regra de parada cobre o caso que ninguém planejou. E o ponto de aprovação é o botão de enviar, que continua com uma pessoa. No Customermates, essa execução é uma rotina; a [documentação das rotinas](/docs/app-routines) lista o que uma rotina pode fazer sem aprovação, e o [guia de CRM agêntico](/blog/agentic-crm) explica onde o Mate e o MCP perguntam e onde não.
 
 ## Quais são os limites e os riscos da IA agêntica, e quais controles funcionam?
 
@@ -283,7 +283,7 @@ Se as etapas nunca mudam, uma regra fixa custa menos e é mais previsível do qu
 
 ## IA agêntica e proteção de dados
 
-Os agentes leem dados pessoais: nomes, endereços de e-mail, o conteúdo de conversas. Pelo GDPR, um fornecedor que trata esses dados em seu nome é um processador e precisa de um acordo de processamento de dados, e os provedores de IA nos quais ele se apoia são seus subprocessadores. Para o Mate na Customermates Cloud, os provedores de modelo estão indicados na [lista de subprocessadores](/subprocessors). Se você quiser escolher o provedor, conecte o seu próprio cliente de IA por MCP ou hospede por conta própria o núcleo de código aberto, para que os dados do CRM fiquem nos seus próprios servidores.
+Os agentes leem dados pessoais: nomes, endereços de e-mail, o conteúdo de conversas. Pelo GDPR, um fornecedor que trata esses dados em seu nome é um processador (na LGPD brasileira, o operador) e precisa de um acordo de processamento de dados, e os provedores de IA nos quais ele se apoia são seus subprocessadores. Para o Mate no Customermates Cloud, os provedores de modelo estão indicados na [lista de subprocessadores](/subprocessors). Se você quiser escolher o provedor, conecte o seu próprio cliente de IA por MCP ou hospede por conta própria o núcleo de código aberto, para que os dados do CRM fiquem nos seus próprios servidores. Se a sua empresa atua no Brasil, a LGPD também se aplica ao tratamento desses dados pessoais; isto é contexto geral, não aconselhamento jurídico.
 
 ## Perguntas frequentes
 
@@ -330,6 +330,26 @@ Os trabalhos típicos são preparar a resposta em um negócio aberto, pesquisar 
 
 <FaqItem question="Quais são os limites da IA agêntica?">
 Um agente pode agir com base em uma entrada mal interpretada, os erros se propagam pelas etapas seguintes, o custo cresce a cada etapa e o resultado ainda precisa de revisão. A OWASP agrupa o risco principal como agência excessiva: ferramentas demais, permissões demais ou autonomia demais. Tarefas restritas, rascunhos em vez de ações diretas e uma regra de parada mantêm esses limites administráveis.
+</FaqItem>
+
+<FaqItem question="Como se diz agentic AI em português?">
+O termo em português é IA agêntica (ou inteligência artificial agêntica). "Agentic AI" continua muito usado em inglês, e as duas formas aparecem como sinônimos nos textos sobre o assunto. O adjetivo "agêntico" vem de "agente".
+</FaqItem>
+
+<FaqItem question="IA agêntica é a mesma coisa que IAG (inteligência artificial geral)?">
+Não. IAG (AGI, em inglês) é um conceito mais amplo, em debate: uma IA capaz de realizar qualquer tarefa intelectual que uma pessoa realiza. A IA agêntica descreve como um sistema é montado, com um modelo de linguagem, um objetivo, ferramentas e permissões, e os agentes de hoje cumprem tarefas delimitadas, como abrir um pull request ou salvar um rascunho de resposta.
+</FaqItem>
+
+<FaqItem question="Quais são exemplos de inteligência artificial?">
+Reconhecimento de voz, tradução automática, recomendação de produtos, assistentes que respondem a perguntas e geradores de texto ou de imagem são exemplos de IA. A IA agêntica é o caso em que o modelo também age: abre um pull request, responde ou escala um ticket de suporte ou salva um rascunho de resposta em um CRM.
+</FaqItem>
+
+<FaqItem question="Qual é a melhor IA para uso corporativo?">
+Não há uma melhor para todos os casos. Em vez de comparar nomes, compare o que importa para o seu trabalho: qual é a tarefa e onde uma pessoa aprova, quais ferramentas o sistema pode chamar e com as permissões de quem, onde os dados são processados e quais subprocessadores entram, e quem paga pelo modelo. Para CRM, o [guia de CRM com IA](/blog/ai-crm) traz oito perguntas que ajudam a comparar.
+</FaqItem>
+
+<FaqItem question="Qual é a relação entre a IA agêntica e o MCP?">
+O alcance de um agente é o das ferramentas que ele pode chamar, e o Model Context Protocol (MCP) é um padrão de código aberto para conectar aplicações de IA a sistemas externos. Por isso ele aparece em tantas configurações de agentes. O [guia sobre servidores MCP](/blog/what-is-an-mcp-server) explica como ele funciona e o que verificar antes de conectar um.
 </FaqItem>
 </Faq>
 

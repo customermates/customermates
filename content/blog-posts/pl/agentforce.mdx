@@ -1,6 +1,6 @@
 ---
-title: "Salesforce Agentforce: co to jest, cena i konfiguracja"
-description: "Agentforce to platforma agentów AI Salesforce. Jak działają agenci, ile kosztują Flex Credits, dodatki i Foundations, gdzie jest Einstein i komu to pasuje."
+title: "Agentforce: co to jest, cena i jak działa w Salesforce"
+description: "Agentforce to platforma agentów AI Salesforce: jak działa, do czego służy, ile kosztują Flex Credits i dodatki. Ceny sprawdzone 8 października 2026 r."
 
 relatedHrefs:
   - /blog/salesforce-pricing
@@ -41,6 +41,16 @@ Ten poradnik publikuje Customermates, CRM open source. Fakty o Salesforce pochod
   <SummaryItem label="Einstein">Einstein Copilot został przemianowany i włączony do Agentforce. Einstein Trust Layer zachowuje nazwę i odpowiada za maskowanie, oceny toksyczności i ścieżkę audytu.</SummaryItem>
   <SummaryItem label="Dla kogo">Dla organizacji, które już korzystają z Salesforce, dbają o porządek w rekordach i artykułach Knowledge i mają kogoś, kto zbuduje i przetestuje agentów.</SummaryItem>
 </ArticleSummary>
+
+## Do czego służy agent AI w sprzedaży i obsłudze klienta [#do-czego-sluzy-agent-ai]
+
+Agent AI przejmuje powtarzalną pracę, którą człowiek robi dziś w kilku kliknięciach: odpowiada na typowe pytania, szuka informacji w rekordach i wykonuje proste zmiany. W Agentforce widać to w trzech miejscach.
+
+- **Obsługa klienta.** Agent odpowiada na czacie, w komunikatorze albo przez telefon, o każdej porze, na podstawie artykułów Knowledge, na przykład na pytanie o status zamówienia (pełny przykład niżej). Sprawy, z którymi sobie nie radzi, ktoś musi przejąć, więc zdecyduj z góry, kiedy agent przekazuje rozmowę człowiekowi.
+- **Sprzedaż.** Agent dla pracowników podsumowuje szansę sprzedaży przed rozmową handlową albo aktualizuje rekord, a handlowiec sprawdza wynik.
+- **Praca wewnętrzna.** Agent podsumowuje zgłoszenie albo odpowiada na pytanie o produkt na podstawie Twoich artykułów.
+
+Korzyść jest realna tam, gdzie pytania się powtarzają, a dane są uporządkowane. Agent odpowiada na podstawie rekordów i artykułów, które ma, więc nieaktualny artykuł daje nieaktualną odpowiedź, a pilotaż warto zacząć od jednego przypadku użycia (kroki wdrożenia niżej).
 
 ## Jak działa agent Agentforce
 
@@ -173,6 +183,18 @@ Customermates nie ma agenta obsługi o dużym wolumenie, agenta głosowego ani p
 ## Najczęstsze pytania
 
 <Faq>
+<FaqItem question="Po co jest agent AI?">
+Żeby przejąć powtarzalną pracę: odpowiedzi na typowe pytania klientów, wyszukiwanie informacji w rekordach, podsumowania i proste aktualizacje. Agent działa na Twoich danych i według Twoich instrukcji, więc jego odpowiedzi są tak dobre, jak rekordy i artykuły, z których korzysta. Przykłady dla sprzedaży i obsługi opisuje sekcja o tym, [do czego służy agent AI](#do-czego-sluzy-agent-ai).
+</FaqItem>
+
+<FaqItem question="Czy Salesforce to CRM i na czym polega?">
+Tak. Salesforce to platforma CRM w chmurze, sprzedawana w abonamencie: kontakty, firmy, szanse sprzedaży i zgłoszenia obsługi trzymasz w jednej org, a płacisz za użytkownika miesięcznie według edycji. Agentforce to warstwa agentów AI nad tymi danymi, a nie osobny CRM. Wprowadzenie do tematu daje [poradnik o tym, czym jest CRM](/blog/what-is-crm).
+</FaqItem>
+
+<FaqItem question="Ile kosztuje licencja Salesforce?">
+Według strony cennika Sales (sprawdzonej 8 października 2026 r.) Starter Suite kosztuje 25 $, Pro Suite 100 $, Core 195 $, Advanced 395 $ i Max 550 $ za użytkownika miesięcznie. Starter Suite można rozliczać miesięcznie lub rocznie, pozostałe cztery rocznie. Agentforce dochodzi osobno (Flex Credits, rozmowy albo dodatek za użytkownika), a [poradnik o cenach Salesforce](/blog/salesforce-pricing) opisuje każdą edycję.
+</FaqItem>
+
 <FaqItem question="Czy Agentforce jest darmowy w Salesforce?">
 Częściowo. Salesforce Foundations to dodatek za 0 $ dla org w Enterprise Edition i wyższych, z Agentforce Builder, Prompt Builder, Agent Script i startową pulą Flex Credits, na określonych limitach i warunkach. Potem akcje kosztują 0,10 $ każda we Flex Credits albo przechodzisz na cenę za rozmowę lub dodatek za użytkownika.
 </FaqItem>

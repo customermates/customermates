@@ -1,6 +1,6 @@
 ---
-title: "Planilha de clientes: modelos CSV gratuitos para baixar"
-description: "Planilha de clientes grátis: baixe um CSV em branco e um exemplo preenchido, importe no Excel, mantenha os campos úteis e dê um dono a cada follow-up."
+title: "Planilha de clientes grátis: modelo CSV para Excel"
+description: "Planilha de clientes grátis para Excel e Google Sheets: baixe o CSV em branco ou com exemplo, veja os campos que importam e quando passar para um CRM."
 
 relatedHrefs:
   - /blog/excel-crm-template
@@ -27,6 +27,8 @@ blogPost:
 
 Uma planilha de clientes dá a um time pequeno um só lugar para nomes, dados de contato profissionais e o próximo passo combinado. Baixe o CSV em branco ou o exemplo fictício abaixo, importe na sua planilha e passe a usar o Customermates quando cuidar de relacionamentos e follow-ups exigir mais do que um arquivo compartilhado.
 
+**Como fazer uma planilha de clientes?** Crie uma linha por pessoa e colunas só para o que você realmente usa: nome, empresa, e-mail ou telefone, responsável, último contato e o próximo passo com a data. Preencha a linha logo depois de cada conversa e revise a lista pela data do próximo passo. Os modelos abaixo já trazem essas colunas.
+
 ## Qual planilha de contatos você deve baixar?
 
 - [CSV da planilha de contatos em branco](/downloads/contact-list-template-pt-blank.csv): só os cabeçalhos, pronto para os seus próprios registros.
@@ -35,6 +37,12 @@ Uma planilha de clientes dá a um time pequeno um só lugar para nomes, dados de
 São downloads originais e gratuitos, sem cadastro. Os dois usam UTF-8 com marca de ordem de bytes (BOM) e vírgulas como separador. São dados simples, não pastas de trabalho do Excel formatadas: sem fórmulas, listas suspensas, lembretes nem sincronização automática. Esta é uma lista de contatos profissionais, não uma agenda de emergência nem uma agenda de endereços para imprimir. Para uma estrutura de planilha mais ampla, com negócios, veja o [guia do modelo de CRM no Excel](/blog/excel-crm-template).
 
 Se a lista ficar grande demais para uma planilha, o nosso guia para escolher uma [agenda de contatos digital](/blog/digital-rolodex) compara contatos do celular, modelos e CRMs.
+
+## Por que usar uma planilha de cadastro de clientes? [#por-que-usar-uma-planilha-de-clientes]
+
+Para começar, uma planilha é difícil de superar: é gratuita, todo mundo sabe abrir e cabe em poucos minutos de configuração. Ela funciona bem quando uma pessoa cuida da lista, quando você tem algumas dezenas de contatos e quando o que você precisa guardar é simples: quem é a pessoa, quem cuida dela e o que acontece em seguida. Dados em CSV também são fáceis de levar para outra ferramenta mais tarde.
+
+Os limites aparecem depois: a planilha não avisa ninguém, não guarda a conversa junto do contato e, quando circulam várias cópias, ninguém sabe qual é a atual. A última seção desta página lista os sinais de que chegou a hora de trocar.
 
 ## Que campos entram em uma planilha de cadastro de clientes?
 
@@ -52,11 +60,13 @@ Mantenha uma pessoa por linha. Duas pessoas da mesma empresa precisam de IDs de 
 | Origem | De onde vieram os dados; isso não é prova de consentimento para marketing. |
 | Data de revisão | A data que você escolher para checar a exatidão e a necessidade de manter o registro, não um prazo automático de exclusão. |
 
+**E para controle de vendas?** Se você também precisa acompanhar negócios (etapa, valor, data prevista), não misture tudo na linha da pessoa: crie uma segunda aba de negócios que cita o ID do contato. Assim uma pessoa pode ter vários negócios sem repetir os dados dela. O [guia do modelo de CRM no Excel](/blog/excel-crm-template) mostra uma estrutura mais ampla, e o [guia de Google Sheets como CRM](/blog/google-sheets-crm) traz o mesmo raciocínio para planilhas online.
+
 O exemplo deixa os telefones vazios de propósito. Acrescente endereço, aniversário ou notas sensíveis só se o trabalho realmente precisar. Não transforme um diretório útil em uma coleção de tudo o que você consegue encontrar.
 
 ## Como importar o CSV no Excel ou no Google Sheets?
 
-No Excel, use Dados > De Texto/CSV em vez de contar com o clique duplo. Selecione UTF-8 e vírgula como delimitador e confira a pré-visualização. Defina ID do contato, E-mail e Telefone como texto antes de carregar; a conversão automática pode estragar zeros à esquerda e números internacionais. As datas usam AAAA-MM-DD: confirme a interpretação antes de usar filtros de data. A Microsoft explica os caminhos disponíveis no seu [guia de importação de texto e CSV](https://support.microsoft.com/en-us/excel/get-started/import-or-export-text-txt-or-csv-files).
+No Excel, use Dados > De Texto/CSV em vez de contar com o clique duplo. Num Excel configurado para português do Brasil, o separador de lista padrão costuma ser o ponto e vírgula, então um arquivo com vírgulas pode abrir inteiro em uma única coluna. Selecione UTF-8 e vírgula como delimitador e confira a pré-visualização. Defina ID do contato, E-mail e Telefone como texto antes de carregar; a conversão automática pode estragar zeros à esquerda e números internacionais. As datas usam AAAA-MM-DD, o padrão internacional, porque o formato brasileiro DD/MM/AAAA pode ser lido de outro jeito conforme a configuração regional: confirme a interpretação antes de usar filtros de data. A Microsoft explica os caminhos disponíveis no seu [guia de importação de texto e CSV](https://support.microsoft.com/en-us/excel/get-started/import-or-export-text-txt-or-csv-files).
 
 No Google Sheets, importe o arquivo para uma nova planilha e confira as opções de separador e de conversão. Confirme que os cabeçalhos ocupam colunas separadas e que os nomes com acento se mantêm. Se tudo cair em uma coluna só, selecione a vírgula explicitamente. Depois de adicionar filtros ou formatação, salve uma pasta de trabalho do Excel ou mantenha a planilha nativa do Google; um CSV não preserva a apresentação da pasta de trabalho. Confira de novo qualquer exportação CSV posterior, porque as configurações regionais podem mudar os separadores.
 
@@ -71,17 +81,25 @@ Aqui está um time de serviços fictício em 6 de novembro de 2026. O Sam é res
 3. A Jo deixa C002 com vencimento em 2026-11-09, porque essa é a checagem de entrega combinada neste exemplo. Uma data futura não é prova de que o trabalho está concluído.
 4. Antes de passar o bastão, cada pessoa verifica se há ações abertas sem Responsável ou sem data. Revise e-mails duplicados manualmente antes de mesclar; uma caixa de entrada compartilhada pode representar pessoas diferentes.
 
-Mantenha um arquivo principal, com acesso limitado ao time que precisa dele. Várias cópias enviadas por e-mail dificultam saber qual próximo passo é o atual. A coluna de data não avisa ninguém: o time precisa fazer essa checagem. A [visão geral do recurso de gestão de contatos](/features/contact-management) explica a alternativa de CRM quando o diretório vira trabalho de relacionamento.
+O hábito que sustenta tudo isso é preencher a linha logo depois de cada contato, com a conversa ainda fresca: uma planilha atualizada só no fim da semana esconde justamente os próximos passos que vencem antes. Mantenha um arquivo principal, com acesso limitado ao time que precisa dele. Várias cópias enviadas por e-mail dificultam saber qual próximo passo é o atual. A coluna de data não avisa ninguém: o time precisa fazer essa checagem. A [visão geral do recurso de gestão de contatos](/features/contact-management) explica a alternativa de CRM quando o diretório vira trabalho de relacionamento.
 
 ## Como manter a lista proporcional e privada?
 
-Para o tratamento coberto pelo GDPR, a Comissão Europeia descreve limitação de finalidade, minimização de dados, exatidão e limitação do armazenamento nos seus [princípios de proteção de dados](https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/principles-gdpr_en). Escolha a finalidade e a base legal adequada antes de usar dados pessoais reais. Um modelo baixado não dá consentimento nem permissão para enviar marketing.
+Para o tratamento coberto pelo GDPR, a Comissão Europeia descreve limitação de finalidade, minimização de dados, exatidão e limitação do armazenamento nos seus [princípios de proteção de dados](https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/principles-gdpr_en). Para dados de pessoas no Brasil, a LGPD traz princípios parecidos, como finalidade, necessidade e qualidade dos dados; este é um contexto geral, não aconselhamento jurídico. Escolha a finalidade e a base legal adequada antes de usar dados pessoais reais. Um modelo baixado não dá consentimento nem permissão para enviar marketing.
 
 Use os dados profissionais necessários para essa finalidade, restrinja o compartilhamento, revise registros desatualizados e remova dados desnecessários, respeitando os deveres de retenção aplicáveis. Evite comentários privados ou dados pessoais sensíveis em células de texto livre. A Data de revisão é um lembrete para a sua própria decisão, não um prazo legal universal de retenção. Não publique o arquivo preenchido por um link de compartilhamento sem restrição.
 
 ## Quando passar a lista para o Customermates?
 
-Mantenha a planilha se uma pessoa conseguir cuidar dela com confiança e a revisão diária funcionar. Considere um CRM quando a responsabilidade mudar ou quando históricos de contato e empresas vinculadas ficarem difíceis de manter. O Customermates aceita importações em CSV, XLSX, XLS e JSON pelo fluxo de importação de listas de registros. Use a [documentação de importação de registros](/docs/app-records) para conferir o mapeamento e a pré-visualização antes de importar o arquivo completo.
+Mantenha a planilha se uma pessoa conseguir cuidar dela com confiança e a revisão diária funcionar. Considere um CRM quando a responsabilidade mudar ou quando históricos de contato e empresas vinculadas ficarem difíceis de manter. Sinais de que a planilha chegou ao limite:
+
+- duas ou mais pessoas editam a lista e ninguém sabe qual versão é a atual;
+- você copia e cola e-mails ou mensagens do LinkedIn para a linha do contato;
+- um mesmo cliente tem várias pessoas, empresas e negócios ligados entre si;
+- os próximos passos atrasam porque ninguém abre a planilha no dia certo;
+- você quer filtros salvos, um painel e permissões por pessoa.
+
+Quando dois ou três desses sinais aparecem, vale testar um CRM com uma amostra da sua lista. O Customermates aceita importações em CSV, XLSX, XLS e JSON pelo fluxo de importação de listas de registros. Use a [documentação de importação de registros](/docs/app-records) para conferir o mapeamento e a pré-visualização antes de importar o arquivo completo.
 
 Crie ou escolha a lista de destino e mapeie as colunas com critério. Os nomes de responsáveis e de empresas deste CSV são texto, não colegas ou organizações vinculados automaticamente. Configure você mesmo os campos de data do próximo passo e de escolha de relacionamento; são campos comuns, não datas de vencimento de tarefas nem status embutidos. Teste duas linhas e confira os registros salvos antes de continuar. Importar um arquivo não é sincronizar com uma planilha ao vivo.
 
@@ -90,6 +108,15 @@ O que a mudança acrescenta é a conversa. A data do próximo passo fica no regi
 ## Perguntas comuns
 
 <Faq>
+<FaqItem question="Como fazer uma planilha de clientes?">
+Defina as colunas que você realmente usa (nome, empresa, e-mail ou telefone, responsável, último contato, próximo passo e data), coloque uma pessoa por linha, use um vocabulário pequeno para o relacionamento e preencha a linha logo depois de cada contato. O CSV em branco desta página já traz essas colunas.
+</FaqItem>
+<FaqItem question="Qual é a diferença entre uma planilha de clientes e um CRM?">
+A planilha guarda dados em linhas e colunas e depende de você abri-la e revisá-la. Um CRM liga cada contato à conversa, aos negócios e às tarefas, permite que várias pessoas trabalhem na mesma base com permissões e mostra o que vence. A planilha basta enquanto uma pessoa cuida de poucos contatos.
+</FaqItem>
+<FaqItem question="Onde encontrar planilhas prontas de clientes?">
+Os dois CSVs desta página são gratuitos e sem cadastro. O Excel e o Google Sheets também têm galerias de modelos. Antes de usar qualquer modelo, confira se ele pede dados que você não precisa e se deixa claro o responsável e o próximo passo de cada contato.
+</FaqItem>
 <FaqItem question="Posso baixar esta planilha de clientes para Excel de graça?">
 Sim. Os dois downloads em CSV são gratuitos e não exigem cadastro. Importe no Excel e acrescente a sua própria formatação; não há pasta de trabalho XLSX nem fórmulas incluídas.
 </FaqItem>

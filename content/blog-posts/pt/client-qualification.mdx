@@ -1,6 +1,6 @@
 ---
-title: "Qualificação de leads: frameworks, perguntas e campos no CRM"
-description: "Qualificação de leads explicada: os critérios de BANT, CHAMP e MEDDIC, qual framework combina com a sua venda, o que perguntar e como registrar as respostas."
+title: "Qualificação de leads: o que é, critérios e como fazer"
+description: "Qualificação de leads: o que é, como qualificar com BANT, CHAMP ou MEDDIC, quais perguntas fazer e como registrar as respostas nos campos do CRM."
 
 relatedHrefs:
   - /features/lead-management
@@ -38,7 +38,7 @@ O Customermates publica este guia e é o CRM do exemplo de configuração mais a
   <SummaryItem label="Papel da IA">Um modelo de linguagem pode preencher esses campos a partir de uma solicitação. Quem decide é uma pessoa.</SummaryItem>
 </ArticleSummary>
 
-## Lead, MQL, SQL, oportunidade: a ordem das etapas
+## Lead, MQL, SQL, oportunidade: a ordem das etapas [#lead-mql-sql]
 
 Lead é qualquer pessoa que demonstrou interesse: mandou uma solicitação, foi indicada a você ou respondeu a uma mensagem de prospecção. Ele passa a ser qualificado quando alguém o confrontou com os seus critérios e a resposta foi sim. Empresas com time de marketing dividem essa checagem em duas:
 
@@ -52,6 +52,18 @@ Lead é qualquer pessoa que demonstrou interesse: mandou uma solicitação, foi 
 As etapas padrão do ciclo de vida do HubSpot seguem a mesma ordem, de assinante e lead, passando por MQL, SQL e oportunidade, até cliente e evangelista, conforme a [documentação sobre etapas do ciclo de vida](https://knowledge.hubspot.com/records/use-lifecycle-stages). No Salesforce, a conversão de um lead usa o registro do lead para criar uma conta empresarial, um contato e uma oportunidade, como descreve o [módulo do Trailhead sobre leads](https://trailhead.salesforce.com/content/learn/modules/leads_opportunities_lightning_experience/create-and-convert-leads-lightning). O lead sempre vem primeiro. A oportunidade é no que ele se transforma depois de qualificado. Alguns times chamam o lead qualificado de prospect; a [diferença entre prospect e lead](/blog/prospect-vs-lead) mostra como definir os dois termos para que todos falem da mesma coisa.
 
 Um time de três pessoas sem departamento de marketing pode dispensar a etapa de MQL. Toda solicitação vai para quem vende, e a única linha que importa é a que separa lead de qualificado.
+
+## Leads frios, mornos e quentes: como classificar [#leads-frios-mornos-quentes]
+
+Além da etapa (lead, MQL, SQL), muitos times classificam o lead pela temperatura. É uma leitura rápida de quão perto ele está de comprar, e ela muda com o tempo:
+
+| Temperatura | O que você vê | O que fazer |
+| --- | --- | --- |
+| Frio | Combina com o seu perfil, mas ainda não mostrou interesse: você o encontrou, ele não procurou você | Uma primeira mensagem com um motivo real para falar, sem pressionar |
+| Morno | Mostrou interesse (respondeu, puxou conversa, foi indicado), mas necessidade, decisor ou prazo ainda estão vagos | Perguntas de qualificação e um próximo passo com data |
+| Quente | Tem uma necessidade confirmada, fala com quem decide ou chega a essa pessoa e tem um prazo | Uma reunião de escopo ou uma proposta, o quanto antes |
+
+A temperatura é um rótulo de leitura, não uma decisão: quem decide são os critérios que você escreveu. Um lead “quente” que não combina com o seu perfil continua sendo um “não”. Para registrá-la, os campos de Necessidade, Decisor e Prazo da configuração mais abaixo já dizem quase tudo.
 
 ## Dois tipos de critério: adequação e prontidão
 
@@ -152,7 +164,7 @@ Deixe o modelo preencher os campos e deixe uma pessoa decidir. Nunca deixe que e
 
 ## Configurando a qualificação de leads no Customermates
 
-O Customermates não tem um registro de lead separado. Uma nova solicitação é um contato, vinculado a uma organização, mais um negócio que carrega os campos de qualificação. Um workspace novo começa sem listas: no Customermates Cloud, você descreve o seu negócio em uma frase e o Mate monta as listas de pessoas, organizações e negócios e um pipeline, e você ajusta tudo em **Modelo de dados**. Para ter um status rápido antes de existir um negócio, adicione um campo de escolha única à lista de contatos. Se o seu time fala “oportunidades”, renomeie Negócios em **Modelo de dados**: abra a lista e altere **Nome** e **Nome no plural** em **Geral**; registros e vínculos continuam como estão. A [página de gestão de leads](/features/lead-management) mostra o mesmo modelo pelo lado do contato.
+O Customermates não tem um registro de lead separado. Uma nova solicitação é um contato, vinculado a uma organização, mais um negócio que carrega os campos de qualificação. Um espaço de trabalho novo começa sem listas: no Customermates Cloud, você descreve o seu negócio em uma frase e o Mate monta as listas de pessoas, organizações e negócios e um pipeline, e você ajusta tudo em **Modelo de dados**. Para ter um status rápido antes de existir um negócio, adicione um campo de escolha única à lista de contatos. Se o seu time fala “oportunidades”, renomeie Negócios em **Modelo de dados**: abra a lista e altere **Nome** e **Nome no plural** em **Geral**; registros e vínculos continuam como estão. A [página de gestão de leads](/features/lead-management) mostra o mesmo modelo pelo lado do contato.
 
 Crie os campos em **Modelo de dados** para Negócios com **Adicionar** › **Campo**:
 
@@ -186,7 +198,7 @@ Para fazer isso em todo negócio novo, crie uma rotina com o gatilho **Quando al
 
 > Um novo negócio foi criado. Leia o negócio, os contatos dele e a conversa mais recente da caixa de entrada com eles. Preencha Necessidade, Decisor, Orçamento e Prazo, usando Desconhecido para tudo o que a conversa não disser. Acrescente às notas do negócio um resumo de três linhas e as duas perguntas para fazer em seguida. Não altere a etapa e não envie nem prepare nenhuma mensagem.
 
-Uma rotina é executada como o seu proprietário, com o acesso e os canais dele, e o Mate envia mensagens quando uma instrução manda, por isso a última frase importa. O Starter inclui [[commercial.entitlement.starter.includedRoutinesPerUser]] rotina por usuário e o Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]; cada rotina só pode rodar um número limitado de vezes por hora, então, quando muitos negócios são criados na mesma hora, alguns ficam sem execução. A [documentação de rotinas](/docs/app-routines) lista os limites atuais. Com o seu próprio cliente de IA, como o Claude ou o ChatGPT, os mesmos campos ficam acessíveis pelo [servidor MCP](/docs/mcp), com a cobrança feita pelo seu provedor de IA. Uma instalação auto-hospedada mantém campos, etapas, visualizações e MCP, mas não tem caixa de entrada nem Mate.
+Uma rotina é executada como o seu proprietário, com o acesso e os canais dele, e o Mate envia mensagens quando uma instrução manda, por isso a última frase importa. O Starter inclui [[commercial.entitlement.starter.includedRoutinesPerUser]] rotina por usuário e o Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]; cada rotina só pode rodar um número limitado de vezes por hora, então, quando muitos negócios são criados na mesma hora, alguns ficam sem execução. A [documentação de rotinas](/docs/app-routines) lista os limites atuais. Com o seu próprio cliente de IA, como o Claude ou o ChatGPT, os mesmos campos ficam acessíveis pelo [servidor MCP](/docs/mcp), com a cobrança feita pelo seu provedor de IA. Uma instalação hospedada por conta própria mantém campos, etapas, visualizações e MCP, mas não tem caixa de entrada nem Mate.
 
 <AcquisitionCallout title="O que o Customermates não faz aqui" variant="boundary">
   O Customermates não tem lead scoring, enriquecimento de dados nem formulários web incorporáveis. Ele não grava ligações e não tem lembretes. As solicitações chegam pela caixa de entrada, por uma importação XLSX, pela API REST ou por um fluxo de trabalho no n8n, que você executa separadamente. Se você precisa de pontos baseados em visitas ao site e aberturas de e-mail, procure uma plataforma de automação de marketing com ferramenta de scoring, como os níveis do HubSpot citados acima.
@@ -199,7 +211,7 @@ Quanto custa, com cobrança mensal:
 | 2 pessoas, campos, etapas, visualizações e Mate, sem caixa de entrada | Starter, [[commercial.price.starter.monthly]] por usuário | [[commercial.price.starter.monthly.seats.2]] |
 | 3 pessoas, com Mate e caixa de entrada | Pro, [[commercial.price.pro.monthly]] por usuário | [[commercial.price.pro.monthly.seats.3]] |
 
-Cada plano pago inclui créditos de IA hospedados por mês para cada usuário ativo, veja os [preços](/pricing). O seu primeiro workspace começa com o Pro grátis por [[commercial.trial.days]] dias, sem cartão de crédito.
+Cada plano pago inclui créditos de IA hospedados por mês para cada usuário ativo, veja os [preços](/pricing). O seu primeiro espaço de trabalho começa com o Pro grátis por [[commercial.trial.days]] dias, sem cartão de crédito.
 
 A qualificação termina em um próximo passo. Com a caixa de entrada do Pro, as conversas que mostram Necessidade, Decisor, Orçamento e Prazo ficam no contato do negócio, o Mate preenche os campos e prepara a resposta, e você decide. Para testar nas suas próximas solicitações, [comece o seu teste de [[commercial.trial.days]] dias](/auth/signup?job=followup).
 
@@ -222,6 +234,30 @@ No Customermates, um gráfico do painel pode contar negócios agrupados por Etap
 O lead. Lead é um interesse que ninguém verificou ainda. Uma oportunidade, chamada de negócio em muitos CRMs, passa a existir quando o lead se qualifica e há um trabalho concreto com valor. A conversão de leads do Salesforce mostra a ordem: ela cria a oportunidade a partir do registro do lead.
 </FaqItem>
 
+<FaqItem question="O que é um lead qualificado?">
+É um lead que passou pelos seus critérios escritos: combina com o seu cliente ideal (adequação) e mostrou necessidade, um decisor, uma faixa de orçamento e um prazo (prontidão). O que conta como “qualificado” é o que o seu time escreveu; sem isso, cada pessoa usa o próprio critério. A [seção sobre a ordem das etapas](#lead-mql-sql) mostra onde ele se encaixa.
+</FaqItem>
+
+<FaqItem question="Como qualificar melhor os leads?">
+Escreva os critérios antes da conversa, escolha um framework e use-o por um trimestre, faça as perguntas da tabela de sinais e registre as respostas sempre nos mesmos campos, com “desconhecido” onde faltar informação. Dê a cada recusa um motivo de uma lista fixa e uma data para olhar de novo quando o lead for só cedo demais. Por fim, conte os motivos todo mês e ajuste a origem dos leads, e não só o roteiro de vendas.
+</FaqItem>
+
+<FaqItem question="Quais são os tipos de lead?">
+Há três formas de separar. Pela etapa: lead, MQL, SQL e oportunidade. Pela temperatura: frio, morno e quente (veja a [seção sobre leads frios, mornos e quentes](#leads-frios-mornos-quentes)). Pela origem: inbound, quando o lead procurou você, e outbound, quando você foi atrás dele. Não existe uma lista única de seis tipos; escolha as divisões que mudam o seu próximo passo. Para encher o topo do funil, veja o [guia de geração de leads](/blog/lead-generation).
+</FaqItem>
+
+<FaqItem question="Qual é a taxa de conversão ideal de MQL para SQL?">
+Não há um número ideal que valha para todos: ele depende do canal, do preço e de quão rígido é o seu MQL. Calcule a sua (SQLs ÷ MQLs, por mês) e compare com o seu próprio histórico. Se quase todo MQL vira SQL, o critério de MQL pode estar rígido demais; se vendas recusa a maioria, falta uma definição escrita do que o marketing deve repassar.
+</FaqItem>
+
+<FaqItem question="Qual a diferença entre qualificar leads inbound e outbound?">
+No inbound o lead procurou você, então a conversa parte do que ele escreveu: você confere a adequação, lê o pedido e pergunta o que falta. No outbound você escolheu o lead, a adequação já é conhecida e o difícil é chegar a quem decide, por isso o ANUM começa pela autoridade. Nos dois casos, os campos e os motivos de recusa são os mesmos. Para a abordagem a frio por telefone, veja o [guia de cold calling](/blog/cold-calling).
+</FaqItem>
+
+<FaqItem question="Quem faz a qualificação de leads: marketing, SDR ou vendas?">
+Depende do tamanho do time. Onde o marketing repassa leads, ele faz a primeira checagem (MQL) e vendas confirma (SQL). Em times maiores, um SDR, ou pré-vendas, faz a qualificação mais profunda antes de passar ao vendedor. Em um time pequeno, quem vende costuma qualificar, e a conversa já faz parte da venda. O [guia de agentes de IA para vendas](/blog/ai-sales-agent) mostra o que um SDR com IA assume e o que continua com uma pessoa.
+</FaqItem>
+
 <FaqItem question="O que é um sales qualified lead?">
 Um lead com quem alguém de vendas conversou e que foi confrontado com os seus critérios: uma necessidade que você sabe resolver, um decisor conhecido, uma faixa de orçamento compatível e um motivo para o prazo. O MQL é a etapa anterior, julgada pelo marketing a partir de perfil e comportamento, sem uma conversa de vendas.
 </FaqItem>
@@ -235,7 +271,7 @@ Sim. Corretores que qualificam compradores costumam usar o LPMAMA: Location, Pri
 </FaqItem>
 
 <FaqItem question="A IA pode qualificar leads automaticamente, por exemplo a partir de gravações de ligações?">
-Ela pode fazer a primeira triagem de tudo o que está escrito: solicitações, trocas de e-mail, mensagens de chat, anotações de ligações. Ela precisa da instrução de responder “desconhecido” em vez de chutar, e não deve tomar a decisão final. O Customermates não grava nem transcreve ligações, então uma ligação só chega ao Mate ou ao seu cliente de IA por meio das notas do negócio. Mais prompts estão em [ChatGPT para vendas](/blog/chatgpt-for-sales).
+Ela pode fazer a primeira triagem de tudo o que está escrito: solicitações, trocas de e-mail, mensagens de chat, anotações de ligações. Ela precisa da instrução de responder “desconhecido” em vez de chutar, e não deve tomar a decisão final. O Customermates não grava nem transcreve ligações, então uma ligação só chega ao Mate ou ao seu cliente de IA por meio das notas do negócio. Mais prompts estão em [ChatGPT para vendas](/blog/chatgpt-for-sales). Como as conversas têm dados pessoais, use uma conta de IA com acordo de tratamento de dados e envie só o que a tarefa exige; no Brasil, a LGPD pede o mesmo cuidado (contexto geral, não aconselhamento jurídico).
 </FaqItem>
 
 <FaqItem question="Devemos terceirizar a qualificação de leads?">

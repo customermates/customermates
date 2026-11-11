@@ -1,6 +1,6 @@
 ---
-title: "Salesforce MCP: servidores, DX Server, costo y configuración"
-description: "Salesforce MCP explicado: qué servidor hace qué, cómo se activa, qué implica la facturación con Flex Credits y cuándo basta un CRM con MCP integrado."
+title: "Salesforce MCP: qué es, servidores, costo y configuración"
+description: "Salesforce MCP explicado: qué servidor hace qué, cómo activarlo y conectarlo a Claude o ChatGPT, qué implica Flex Credits y cuándo basta un CRM con MCP."
 
 hero:
   title: "Salesforce MCP explicado: qué servidor hace qué y cuánto cuesta"
@@ -92,6 +92,18 @@ Los servidores SObject separados son el control práctico. Un grupo piloto puede
 
 **Cambios con el tiempo.** Salesforce afirma en su [aviso de fin de vida](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/end-of-life.html) que las herramientas, los prompts y los recursos pueden cambiar de una versión a otra y que los servidores pueden retirarse con previo aviso. Basa tus expectativas en la referencia de servidores, no en un artículo de blog del trimestre pasado.
 
+## ¿Qué puede hacer un agente de IA con Salesforce MCP? [#que-hacen-los-agentes]
+
+Con un servidor alojado conectado, un cliente de IA trabaja sobre tus registros con tus permisos. Ejemplos habituales para un equipo comercial:
+
+- **Preguntar.** «¿Qué oportunidades de la cuenta X siguen abiertas y en qué etapa están?» Basta con SObject Reads.
+- **Preparar una reunión.** Resumir una cuenta, sus contactos y su historial antes de una llamada.
+- **Redactar un seguimiento.** Leer los datos de la oportunidad y proponer un borrador de correo o de nota, que revisas y envías tú.
+- **Actualizar registros.** Crear una tarea o cambiar la etapa de una oportunidad si activas SObject Mutations, o lanzar un Flow ya validado.
+- **Analizar.** Consultar Data 360 o Tableau Next con sus servidores específicos.
+
+Lo que no hace es saltarse tus permisos ni la seguridad a nivel de campo, borrar registros mientras SObject Deletes esté desactivado, ni sustituir la revisión humana antes de enviar o cambiar algo importante. Empieza con lecturas y con un grupo piloto. Si dudas entre MCP y una integración por API, la guía de [MCP frente a API](/blog/mcp-vs-api) compara cuándo conviene cada uno.
+
 ## ¿Es gratis Salesforce MCP?
 
 No de una forma en la que puedas confiar. La [descripción general de los servidores MCP alojados](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html) dice que los servidores están «pensados solo para clientes con Flex Credits» y que «es posible que se te facture por el uso del servidor».
@@ -129,6 +141,16 @@ El anuncio de disponibilidad general de Salesforce sitúa el camino más corto p
   </Step>
 </Steps>
 
+## ¿Cómo conectar Salesforce MCP con Claude, ChatGPT, Cursor o Windsurf? [#conectar-con-claude-chatgpt-cursor]
+
+El paso del cliente es el mismo en todos: pegas la URL del servidor que activó tu administrador e inicias sesión con tu usuario de Salesforce.
+
+- **Claude y ChatGPT:** añade la URL en el apartado de conectores o de servidores MCP del cliente e inicia sesión con OAuth. Qué hace Claude con un CRM conectado lo cuenta la guía de [Claude como CRM](/blog/claude-crm).
+- **Cursor y otros editores, como Windsurf:** declaran el servidor en su configuración MCP con la URL. Comprueba en la documentación del cliente si admite servidores remotos con OAuth, porque no todos lo resuelven igual.
+- **Postman:** sirve para probar las herramientas antes de dar acceso al equipo.
+
+Si algo falla, revisa en este orden: que el servidor esté activado, que la External Client App tenga los scopes mcp_api y refresh_token, que la URL de callback coincida con la que documenta el cliente y que tu usuario tenga permisos sobre los objetos que preguntas.
+
 ## El servidor MCP de Salesforce DX
 
 El [servidor MCP de Salesforce DX](https://github.com/salesforcecli/mcp) es de código abierto con licencia Apache 2.0 y se ejecuta en local con `npx @salesforce/mcp`. Solo llega a las orgs que ya has autorizado en tu equipo mediante la Salesforce CLI o VS Code, y el argumento `--orgs` limita cuáles. Sus conjuntos de herramientas cubren orgs, metadatos, datos, usuarios, pruebas, análisis de código, DevOps, Lightning Web Components, Aura y móvil, con más de 60 herramientas en total. Las herramientas que aún no están disponibles con carácter general necesitan el flag `--allow-non-ga-tools`.
@@ -149,6 +171,17 @@ El [MuleSoft MCP Connector](https://docs.mulesoft.com/mcp-connector/latest/) per
 | Los agentes deben llegar a sistemas ajenos a Salesforce mediante integraciones existentes | MuleSoft MCP Connector |
 | Gestionas apps en Heroku | Servidor MCP de Heroku |
 | Quieres el agente propio de Salesforce dentro de la plataforma, no un cliente externo | Agentforce, tratado en la [guía de Agentforce](/blog/agentforce) |
+
+## ¿Dónde está la documentación oficial de Salesforce MCP? [#documentacion-oficial]
+
+La documentación de Salesforce está en inglés. Estos son los puntos de entrada que usa esta guía:
+
+- [Descripción general de los servidores MCP alojados](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html): qué son, a quién se dirigen y la nota sobre Flex Credits.
+- [Referencia de servidores estándar](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/servers-reference.html): las herramientas de cada servidor.
+- [Descripción general de la configuración](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/setup-overview.html): activación del servidor y External Client App.
+- [Repositorio de Salesforce DX MCP](https://github.com/salesforcecli/mcp): el servidor local para desarrolladores.
+
+Para el agente propio de Salesforce, consulta la [guía de Agentforce](/blog/agentforce); si el cliente de IA es nuevo para ti, empieza por [qué es un servidor MCP](/blog/what-is-an-mcp-server); para el servidor remoto de otro CRM, la [guía de HubSpot MCP](/blog/hubspot-mcp).
 
 ## Un CRM con servidor MCP integrado
 
@@ -186,6 +219,18 @@ Sí. Salesforce gestiona los Hosted MCP Servers por su cuenta, disponibles con c
 
 <FaqItem question="¿Es gratis Salesforce MCP?">
 El servidor MCP DX es software de código abierto gratuito. Los servidores alojados están pensados para clientes con Flex Credits, y Salesforce ha anunciado un medidor por llamada para los agentes registrados. A 8 de octubre de 2026 la tarifa figura como TBA y aún no se mide, y los sandboxes, las scratch orgs y las orgs Developer Edition están exentos de esa medición.
+</FaqItem>
+
+<FaqItem question="¿Se puede usar Salesforce MCP con Claude o ChatGPT?">
+Sí. Un administrador activa un servidor alojado y crea la External Client App; después cada usuario añade la URL del servidor en su cliente (Claude, ChatGPT, Cursor o Postman) e inicia sesión con OAuth. Cada llamada se ejecuta con los permisos de ese usuario.
+</FaqItem>
+
+<FaqItem question="¿Es seguro usar Salesforce MCP?">
+El diseño ayuda: OAuth por usuario, permisos de objeto, seguridad a nivel de campo y reglas de uso compartido, servidores separados de lectura, escritura y eliminación, y PKCE en la External Client App. Aun así, empieza en un sandbox con SObject Reads, deja SObject Deletes desactivado salvo que haga falta y revisa cómo gestiona tu cliente de IA la confirmación antes de escribir.
+</FaqItem>
+
+<FaqItem question="¿Qué diferencia hay entre los servidores alojados y el servidor DX?">
+Los servidores alojados los ejecuta Salesforce y dan acceso a los datos del CRM con los permisos de cada usuario; son para equipos de ventas y de servicio. El servidor DX se ejecuta en tu equipo con `npx` y trabaja con metadatos, pruebas y código; es para desarrolladores.
 </FaqItem>
 
 <FaqItem question="¿Cómo activo Salesforce MCP?">

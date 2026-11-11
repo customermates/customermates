@@ -1,9 +1,9 @@
 ---
-title: "Serwer MCP (MCP server): co to jest i jak działa"
-description: "Serwer MCP (MCP server): narzędzia, zasoby i prompty, wersja lokalna a zdalna, MCP a API, ryzyka i prawdziwy przykład z CRM dla Claude, ChatGPT i Cursora."
+title: "MCP server (serwer MCP): co to jest i jak działa"
+description: "MCP server (serwer MCP) to program, przez który Claude, ChatGPT i Cursor czytają dane w innym systemie. Jak działa, MCP a API, ryzyka i przykład z CRM."
 
 hero:
-  title: "Serwer MCP (MCP server): co to jest, prosto i z prawdziwym przykładem"
+  title: "MCP server (serwer MCP): co to jest, prosto i z prawdziwym przykładem"
   description: "Serwer MCP pozwala klientowi AI, takiemu jak Claude, ChatGPT czy Cursor, czytać i zmieniać dane w innym systemie. Co udostępnia, gdzie działa, czym różni się od API, jakie niesie ryzyka i jak wygląda prawdziwy przykład."
 
 blogPost:
@@ -24,15 +24,15 @@ relatedHrefs:
   - /features/open-source-crm
 ---
 
-# Serwer MCP (MCP server): co to jest, prosto i z prawdziwym przykładem
+# MCP server (serwer MCP): co to jest, prosto i z prawdziwym przykładem
 
-Co to jest serwer MCP (MCP server)? To program, który przez Model Context Protocol (MCP), otwarty standard, oferuje aplikacji AI zestaw narzędzi, danych i szablonów promptów, dzięki czemu Claude, ChatGPT, Cursor lub inny klient MCP może wyszukiwać informacje i wykonywać działania w systemie, do którego inaczej by nie dotarł. Serwer stoi przed tym systemem, czy to folderem z plikami, bazą danych czy CRM, i decyduje, co AI może tam zobaczyć i zrobić.
+Co to jest MCP server (serwer MCP)? To program, który przez Model Context Protocol (MCP), otwarty standard, oferuje aplikacji AI zestaw narzędzi, danych i szablonów promptów, dzięki czemu Claude, ChatGPT, Cursor lub inny klient MCP może wyszukiwać informacje i wykonywać działania w systemie, do którego inaczej by nie dotarł. Serwer stoi przed tym systemem, czy to folderem z plikami, bazą danych czy CRM, i decyduje, co AI może tam zobaczyć i zrobić.
 
-Anthropic przedstawił MCP 25 listopada 2024 jako otwarty standard łączenia asystentów AI z systemami, w których leżą dane. Od tego czasu główni klienci AI dodali jego obsługę, a wielu dostawców oprogramowania prowadzi własne serwery. MCP co to właściwie znaczy w praktyce, wyjaśniamy poniżej prostymi słowami, a potem pokazujemy jeden prawdziwy serwer do danych biznesowych: serwer MCP wbudowany w Customermates, open source'owy CRM, który publikuje ten artykuł.
+Co znaczy MCP? Skrót rozwija się jako Model Context Protocol, czyli „protokół kontekstu modelu”: wspólny język, w którym aplikacja AI i zewnętrzny system uzgadniają, co można wyszukać i co zrobić. Anthropic przedstawił go 25 listopada 2024 jako otwarty standard łączenia asystentów AI z systemami, w których leżą dane. Od tego czasu główni klienci AI dodali jego obsługę, a wielu dostawców oprogramowania prowadzi własne serwery. Poniżej wyjaśniamy to prostymi słowami, a potem pokazujemy jeden prawdziwy serwer do danych biznesowych: serwer MCP wbudowany w Customermates, CRM open source, który publikuje ten artykuł.
 
-Przy stałej integracji i kliencie AI porównaj [MCP i API na tym samym zadaniu z rekordem klienta](/blog/mcp-vs-api). Wykrywanie narzędzi zmienia to, jak klient znajduje operację; uwierzytelnianie i uprawnienia nadal obowiązują.
+Jeśli masz stałą integrację i klienta AI, zobacz [MCP i API na tym samym zadaniu z rekordem klienta](/blog/mcp-vs-api). Wykrywanie narzędzi zmienia to, jak klient znajduje operację, a uwierzytelnianie i uprawnienia nadal obowiązują.
 
-Przy przepływie w n8n [porównanie tras MCP dla n8n z przykładem przypiętym do wersji](/blog/n8n-mcp) rozróżnia podłączenie n8n do serwera z danymi klientów od udostępnienia samego n8n klientowi AI. Wybierz kierunek, zanim skonfigurujesz dane uwierzytelniające.
+Jeśli budujesz przepływ w n8n, [porównanie tras MCP dla n8n z przykładem przypiętym do wersji](/blog/n8n-mcp) pokazuje różnicę między podłączeniem n8n do serwera z danymi klientów a udostępnieniem samego n8n klientowi AI. Wybierz kierunek, zanim skonfigurujesz dane uwierzytelniające.
 
 <ArticleSummary title="W skrócie">
   <SummaryItem label="W jednym zdaniu">
@@ -55,6 +55,12 @@ Przy przepływie w n8n [porównanie tras MCP dla n8n z przykładem przypiętym d
     najwęższy dostęp, który wystarcza, i zostaw zatwierdzanie przy zapisach.
   </SummaryItem>
 </ArticleSummary>
+
+## Po co powstał MCP? Jeden standard zamiast osobnej integracji dla każdej pary [#po-co-mcp]
+
+Zanim pojawił się MCP, każda para „aplikacja AI plus system” wymagała własnej integracji: inny kod dla Claude, inny dla Cursora, jeszcze inny dla każdego CRM, bazy danych czy dysku. Przy kilku aplikacjach AI i kilku systemach takich połączeń robi się szybko za dużo, a każde trzeba utrzymywać osobno.
+
+MCP zamienia to na jedno złącze po każdej stronie. System buduje jeden serwer, a każdy klient MCP może z niego korzystać. Aplikacja AI wdraża klienta raz i dostaje dostęp do wszystkich serwerów. Specyfikacja jest publiczna, więc nie zależysz od jednego dostawcy. Dla małego zespołu oznacza to trzy rzeczy: nie wklejasz danych ręcznie do czatu, bo AI sięga po aktualne dane w źródle, uprawnienia zostają tam, gdzie je ustawiłeś, a zmiana narzędzia AI nie wymusza budowania integracji od nowa.
 
 ## Jak działa MCP: host, klient i serwer?
 
@@ -127,11 +133,23 @@ Większość osób nigdy go nie buduje. Łączysz serwery, które Twoi dostawcy 
 
 Zanim połączysz serwer dostawcy, sprawdź trzy rzeczy: czy to oficjalny serwer dostawcy, czy projekt społeczności, co może zapisywać lub usuwać i jakiego planu wymaga po obu stronach. Nasze przewodniki o [serwerze HubSpot MCP](/blog/hubspot-mcp) i [Salesforce MCP](/blog/salesforce-mcp) pokazują, jak różne mogą być dwa oficjalne serwery, a [przewodnik o Claude i CRM](/blog/claude-crm) porównuje konektory kilku CRM.
 
+## Jak zrobić własny serwer MCP? [#jak-zrobic-serwer-mcp]
+
+Jeśli jednak chcesz zbudować własny serwer, droga jest krótsza, niż się wydaje:
+
+1. **Zdecyduj, co serwer ma udostępniać.** Zacznij od kilku wąskich narzędzi, na przykład „znajdź klienta po adresie e-mail” albo „utwórz zadanie”, a nie jednego narzędzia do wszystkiego. Każde dostaje nazwę, opis i schemat danych wejściowych, bo na ich podstawie model decyduje, kiedy je wywołać.
+2. **Użyj oficjalnego SDK.** Projekt MCP publikuje biblioteki między innymi dla TypeScriptu i Pythona; zajmują się komunikatami protokołu, a Ty piszesz tylko logikę narzędzi.
+3. **Wybierz transport.** stdio wystarczy dla serwera lokalnego, dla zdalnego potrzebujesz Streamable HTTP.
+4. **Przetestuj przed podłączeniem klienta.** Oficjalne narzędzie MCP Inspector pozwala obejrzeć listę narzędzi serwera i wywołać każde z nich ręcznie.
+5. **Zadbaj o uwierzytelnianie i uprawnienia.** Serwer zdalny powinien logować użytkownika (OAuth lub klucz API) i egzekwować te same reguły co aplikacja, a narzędzia zapisujące i usuwające powinny być wyraźnie oznaczone.
+
+Gdy serwer ma tylko udostępnić dane istniejącej aplikacji, zwykle wystarczy cienka warstwa nad jej API. Jak wygląda gotowy, udokumentowany serwer, zobaczysz w następnej sekcji.
+
 ## Prawdziwy biznesowy serwer MCP, od początku do końca
 
 Większość wyjaśnień kończy się na narzędziu pogodowym. Tak wygląda produkcyjny serwer do danych klientów, na przykładzie Customermates. Wszystkie poniższe szczegóły pochodzą z publicznej [dokumentacji MCP](/docs/mcp).
 
-**Punkt dostępu.** Customermates prowadzi zdalny serwer pod adresem `/api/v1/mcp` w adresie, którego używasz do aplikacji, oraz adres specyficzny dla przestrzeni roboczej z tymi samymi narzędziami zamkniętymi w tej przestrzeni. Mówi Streamable HTTP. Punkt dostępu jest częścią każdego planu Cloud i instalacji self-hosting; gdy uruchamiasz wersję open source samodzielnie, nadal jest to serwer zdalny, tylko na Twojej własnej infrastrukturze.
+**Punkt dostępu.** Customermates prowadzi zdalny serwer pod adresem `/api/v1/mcp` w adresie, którego używasz do aplikacji, oraz adres specyficzny dla przestrzeni roboczej z tymi samymi narzędziami zamkniętymi w tej przestrzeni. Obsługuje Streamable HTTP. Punkt dostępu jest częścią każdego planu Cloud i instalacji self-hosting; gdy uruchamiasz wersję open source samodzielnie, nadal jest to serwer zdalny, tylko na Twojej własnej infrastrukturze.
 
 **Łączenie.** W Claude i ChatGPT dodajesz adres URL jako własny konektor, logujesz się i zatwierdzasz ([konfiguracja własnego konektora](/docs/connect-custom-connector)). Claude Code, Codex, Cursor i Gemini CLI łączą się kluczem API w nagłówku `x-api-key` ([konfiguracja CLI](/docs/connect-cli)). Tak czy inaczej klient działa jako dokładnie jeden użytkownik w dokładnie jednej przestrzeni roboczej, a połączenie wymaga dostępu do odczytu do zasobu API i webhooki w roli tego użytkownika.
 
@@ -181,12 +199,20 @@ Specyfikacja stwierdza, że narzędzia reprezentują dowolne wykonanie kodu, a o
 To adapter między asystentem AI a innym systemem. Serwer mówi AI, jakie działania i dane oferuje, AI prosi o to, czego potrzebuje, a serwer wykonuje prośbę z Twoimi uprawnieniami.
 </FaqItem>
 
+<FaqItem question="Co oznacza skrót MCP?">
+MCP to Model Context Protocol, po polsku „protokół kontekstu modelu”. To otwarty standard, który opisuje, jak aplikacja AI prosi zewnętrzny system o dane i działania. Serwer MCP to strona tego standardu, która stoi przed systemem i te dane oraz działania udostępnia.
+</FaqItem>
+
 <FaqItem question="Jaka jest różnica między klientem MCP a serwerem MCP?">
 Klient żyje wewnątrz aplikacji AI, na przykład Claude lub Cursora, i trzyma połączenie. Serwer to program po drugiej stronie, który oferuje narzędzia, zasoby i prompty. Jedna aplikacja może uruchamiać wielu klientów, po jednym na każdy podłączony serwer.
 </FaqItem>
 
 <FaqItem question="Czy MCP jest tylko dla Claude?">
 Nie. Anthropic zapoczątkował MCP jako otwarty standard, a ChatGPT, Cursor, VS Code, Gemini CLI, Codex i wiele innych aplikacji działa dziś jako klienci MCP. Serwer zbudowany zgodnie ze specyfikacją działa z każdą z nich, w granicach obsługi funkcji przez danego klienta.
+</FaqItem>
+
+<FaqItem question="Jak zrobić serwer MCP?">
+Wybierz kilka wąskich narzędzi, które serwer ma udostępniać, użyj oficjalnego SDK (jest między innymi dla TypeScriptu i Pythona), wybierz stdio dla serwera lokalnego albo Streamable HTTP dla zdalnego i przetestuj całość w MCP Inspector, zanim podłączysz klienta. Przy serwerze zdalnym dodaj logowanie i te same uprawnienia co w aplikacji.
 </FaqItem>
 
 <FaqItem question="Czy muszę programować, żeby używać serwera MCP?">

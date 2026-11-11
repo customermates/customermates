@@ -86,7 +86,7 @@ A última linha é a que as pessoas pulam, e é a de que a etapa do cancelamento
 ## Reagendamentos, quem agenda de novo e no-shows
 
 - **Reagendamentos.** Quando um convidado reagenda, o Calendly dispara invitee.canceled para o horário antigo e invitee.created para o novo. O cancelamento traz `rescheduled: true`, e o novo agendamento aponta para o antigo por `old_invitee`. Um fluxo que ignora essa marca dá o negócio como cancelado e depois abre um segundo.
-- **Quem agenda de novo.** Procure o e-mail no CRM antes de criar um contato e converta-o antes para minúsculas. As pessoas digitam o endereço de forma diferente de um agendamento para outro.
+- **Quem agenda de novo.** Procure o e-mail no CRM antes de criar um contato e converta-o para minúsculas antes da busca. As pessoas digitam o endereço de forma diferente de um agendamento para outro.
 - **No-shows.** O Zapier oferece o gatilho do Calendly “Invitee No Show Created”. A visão geral de webhooks do Calendly lista apenas agendamentos, cancelamentos e envios de formulários de roteamento, então, se você construir sobre webhooks, planeje marcar os no-shows à mão. Mover o negócio para uma etapa de no-show é melhor do que adivinhar por um temporizador.
 - **Formulários de roteamento.** routing_form_submission.created dispara quando alguém envia um formulário de roteamento, mesmo que nenhuma reunião seja agendada. Use-o para captar quem se qualificou mas nunca escolheu um horário. A assinatura precisa usar o escopo de organização.
 
@@ -123,7 +123,7 @@ O Customermates não bloqueia um segundo contato com o mesmo endereço, porque u
 
 ### Caminho 2: o calendário, no Pro e superiores no Customermates Cloud
 
-Se o Calendly estiver configurado para enviar **Calendar Invitations**, o calendário Google ou Outlook do anfitrião cria o evento e adiciona o convidado como participante. Conecte essa mesma conta no Customermates em **Configurações › Canais e calendários** com **Conectar canal**, e a reunião chega sem nenhuma ferramenta de fluxo. Os eventos do calendário aparecem em uma [linha do tempo de atividades](/docs/app-dashboard) e no registro de um contato cujo e-mail coincide com o de um participante. O Customermates só lê o calendário. Nunca agenda nem altera reuniões.
+Se o Calendly estiver configurado para enviar **Calendar Invitations**, o calendário Google ou Outlook do anfitrião cria o evento e adiciona o convidado como participante. Conecte essa mesma conta no Customermates em **Configurações › Canais e calendários** com **Conectar canal**, e a reunião chega sem nenhuma ferramenta de fluxo. Os eventos do calendário aparecem em uma [linha do tempo de atividades](/docs/app-dashboard) e no registro de um contato cujo e-mail coincide com o de um participante. O Customermates só lê o calendário. Nunca agenda nem altera reuniões. A mesma conta traz as conversas de e-mail para a caixa de entrada; veja a integração de [CRM com Gmail](/blog/gmail-crm-integration) e de [CRM com Outlook](/blog/outlook-crm-integration).
 
 Para transformar os agendamentos em registros, uma rotina pode varrer o calendário. As rotinas rodam somente no Customermates Cloud e usam créditos de IA hospedados da cota mensal do dono. Escolha **Em uma programação**, defina **Repetição** como **A cada hora** e dê a ela instruções como estas:
 
@@ -140,7 +140,7 @@ O Calendly mantém um servidor MCP em `https://mcp.calendly.com/` com ferramenta
 - **Caminho de webhooks no Starter:** [[commercial.price.starter.monthly.seats.3]] por mês pelo Customermates, mais um plano do Calendly que inclua webhooks e o lugar onde o n8n roda.
 - **Caminho do calendário no Pro:** [[commercial.price.pro.monthly.seats.3]] por mês. Isso inclui a [caixa de entrada unificada](/features/unified-inbox) e [[commercial.entitlement.pro.includedRoutinesPerUser]] rotinas por usuário. As execuções de rotinas consomem os créditos de IA hospedados mensais por usuário ativo; veja os [preços](/pricing).
 
-Um agendamento é onde o follow-up começa. Com o caminho do calendário no Pro, uma rotina configurada por você pode colocar a reunião agendada no registro do cliente, ao lado das conversas de e-mail e LinkedIn dele, e o Mate pode redigir a confirmação ou a nota de preparação para você revisar e enviar, com o próximo passo datado no negócio. Para testar com os seus próprios agendamentos do Calendly, [comece o seu teste de [[commercial.trial.days]] dias](/auth/signup?job=followup). Sem cartão de crédito.
+Um agendamento é onde o [follow-up](/features/follow-up) começa. Com o caminho do calendário no Pro, uma rotina configurada por você pode colocar a reunião agendada no registro do cliente, ao lado das conversas de e-mail e LinkedIn dele, e o Mate pode redigir a confirmação ou a nota de preparação para você revisar e enviar, com o próximo passo datado no negócio. Para testar com os seus próprios agendamentos do Calendly, [comece o seu teste de [[commercial.trial.days]] dias](/auth/signup?job=followup). Sem cartão de crédito.
 
 <AcquisitionCallout title="Quando o Customermates não é a escolha certa" variant="boundary">
 Não há conector do Calendly, então todo caminho exige um fluxo que você mesmo roda ou o calendário mais uma rotina. No Pro, a caixa de e-mail do Gmail ou do Outlook é a conta conectada incluída do usuário ([[commercial.entitlement.pro.includedAccountsPerUser]]); o Business inclui [[commercial.entitlement.business.includedAccountsPerUser]]. As tarefas não têm prazos nem lembretes, então coloque a data do follow-up em um campo de data no negócio. O Customermates não faz pontuação de leads; guarde as respostas dos formulários de roteamento em campos de escolha única e filtre por eles. Uma instalação hospedada por conta própria tem REST, webhooks e MCP, mas não tem calendário, caixa de entrada, Mate nem rotinas. Se você quer que o Calendly escolha o anfitrião a partir do responsável no CRM no momento do agendamento, isso é um recurso do Calendly para HubSpot e Salesforce.
@@ -169,7 +169,7 @@ Sim, nativamente. A integração com o HubSpot está disponível nos planos Stan
 </FaqItem>
 
 <FaqItem question="Qual plano do Calendly preciso para uma integração com CRM?">
-Free não. HubSpot e webhooks começam no Standard, o Salesforce exige Teams ou Enterprise e o Microsoft Dynamics 365 é listado para o Enterprise. O servidor MCP do Calendly para clientes de IA é a exceção: o Calendly diz que ele não exige plano pago, embora algumas ações dependam do plano.
+O Free não basta: a integração com o HubSpot e os webhooks começam no Standard, a do Salesforce exige Teams ou Enterprise e a do Microsoft Dynamics 365 é listada para o Enterprise. O servidor MCP do Calendly para clientes de IA é a exceção: o Calendly diz que ele não exige plano pago, embora algumas ações dependam do plano.
 </FaqItem>
 
 <FaqItem question="Como conecto o Calendly ao Pipedrive, à Freshworks ou a outro CRM?">

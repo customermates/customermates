@@ -90,7 +90,7 @@ comparison:
     features:
       - name: AI in de app
         source: Mate en routines (Customermates Cloud, gehoste AI-credits)
-        competitor: Assistenten voor follow-up, samenvatting, onderzoek en workflows, deels met maandelijkse quota
+        competitor: Assistenten voor opvolging, samenvatting, onderzoek en workflows, deels met maandelijkse quota
       - name: MCP-server
         source: "Elk abonnement en zelf gehost, [[derived.mcp.tools.total]] tools"
         competitor: Elk abonnement
@@ -106,7 +106,7 @@ comparison:
         source: Docker Compose (kern-CRM zonder inbox of Mate)
         competitor: Alleen gehoste abonnementen
       - name: Cloudhosting
-        source: Database geconfigureerd in de AWS-regio Frankfurt
+        source: Database ingesteld in de AWS-regio Frankfurt
         competitor: "AWS; het helpcentrum noemt North Virginia (us-east-1), het privacybeleid Ierland"
       - name: Beveiligingscertificering
         source: Geen certificering
@@ -149,7 +149,7 @@ folk noemt zichzelf "the AI CRM for your entire sales motion". De kracht zit aan
 - **Vastleggen.** De Chrome-extensie folkX slaat profielen op van LinkedIn, Sales Navigator, X, Instagram en Gmail. De mobiele app scant visitekaartjes en neemt spraaknotities op.
 - **Benaderen.** Standard bevat 500 e-mailopzoekingen en 2.000 berichten per lid per maand, sjablonen voor LinkedIn en Gmail, en e-mailcampagnes met statistieken. Sequenties horen bij Premium.
 - **Synchroniseren.** E-mails en agenda-afspraken uit Google of Microsoft en 1-op-1-chats in WhatsApp verschijnen realtime op het profiel van elke contactpersoon.
-- **Assisteren.** Assistenten voor follow-up en samenvattingen zitten in elk abonnement; de assistenten voor onderzoek en workflows werken met maandelijkse quota.
+- **Assisteren.** Assistenten voor opvolging en samenvattingen zitten in elk abonnement; de assistenten voor onderzoek en workflows werken met maandelijkse quota.
 - **AI koppelen.** Met een MCP-server in elk abonnement kunnen Claude, ChatGPT of Cursor na een OAuth-aanmelding in de werkruimte zoeken en gegevens bijwerken.
 
 ## Waarom teams een alternatief voor folk zoeken
@@ -186,13 +186,13 @@ De rijen bieden niet hetzelfde, dus lees ze in paren:
 
 folk is gebouwd om mensen van LinkedIn vast te leggen. Customermates is gebouwd voor wat daarna komt: vanaf Pro staat het gesprek bij de klant, schrijven Mate of je eigen AI-agent het antwoord en de volgende stap als concept, en jij kijkt na, past aan en verstuurt. Het is open source en gebouwd in Duitsland.
 
-**Gesprekken die je kunt beantwoorden.** Vanaf Pro zet de [gecombineerde inbox](/features/unified-inbox) mailboxen van Gmail, Outlook en IMAP, plus LinkedIn, WhatsApp, Instagram en Telegram, in één lijst, en je antwoordt op het oorspronkelijke kanaal. [LinkedIn in Customermates](/features/linkedin-integration) omvat Sales Navigator en Recruiter InMail. Koppel een deelnemer één keer aan een contactpersoon, en elk gesprek met dat adres of die handle verschijnt op de tijdlijn van de contactpersoon.
+**Gesprekken die je kunt beantwoorden.** Vanaf Pro zet de [gecombineerde inbox](/features/unified-inbox) mailboxen van Gmail, Outlook en IMAP, plus LinkedIn, WhatsApp, Instagram en Telegram, in één lijst, en je antwoordt op het oorspronkelijke kanaal. [LinkedIn in Customermates](/features/linkedin-integration) omvat Sales Navigator en Recruiter InMail. Koppel een deelnemer één keer aan een contactpersoon, en elk gesprek met dat adres of die gebruikersnaam verschijnt op de tijdlijn van de contactpersoon.
 
 **Deals en de API vanaf Starter.** Je eigen lijsten, velden, relaties en berekende velden, tabel- en bordweergaven, en een fasenveld met kansen voor een gewogen pipelinetotaal. Rollen, REST, webhooks en MCP zijn onderdeel van Starter.
 
 **AI die het CRM-werk doet.** In Customermates Cloud maakt Mate samenvattingen van gesprekken en conceptantwoorden, werkt records bij en bouwt weergaven, met gehoste AI-credits: een maandelijks tegoed per actieve gebruiker, vermeld op de [prijspagina](/pricing). Routines voeren een opgeslagen instructie uit volgens een schema of wanneer een record verandert. Mate verstuurt een bericht zonder te vragen als jij zegt dat het moet worden verstuurd, dus vraag om een concept als je het eerst wilt nalezen. Je eigen Claude of ChatGPT kan in plaats daarvan via de [MCP-server](/docs/mcp) werken, met [[derived.mcp.tools.total]] tools in elk abonnement en bij zelf gehoste installaties.
 
-**Je eigen server, als je dat wilt.** De AGPL-3.0-kern draait met Docker Compose en PostgreSQL 16, met REST, webhooks en MCP, maar zonder inbox, Mate of gehoste credits. In Customermates Cloud is de database geconfigureerd in de AWS-regio Frankfurt, is een verwerkersovereenkomst beschikbaar en staan de subverwerkers, ook Amerikaanse aanbieders, op de juridische pagina's.
+**Je eigen server, als je dat wilt.** De AGPL-3.0-kern draait met Docker Compose en PostgreSQL 16, met REST, webhooks en MCP, maar zonder inbox, Mate of gehoste credits. In Customermates Cloud is de database ingesteld in de AWS-regio Frankfurt, is een verwerkersovereenkomst beschikbaar en staan de subverwerkers, ook Amerikaanse aanbieders, op de juridische pagina's.
 
 ## Waar Customermates niet bij past
 
@@ -219,9 +219,9 @@ De waarde van een project is de som van de regelitems, elk een dienst zoals een 
 
 Elke partner koppelt één kanaal, LinkedIn of Gmail. Eén account per persoon past bij Pro, voor [[commercial.price.pro.monthly.seats.4]] per maand voor het team. Als iemand Gmail en WhatsApp naast elkaar nodig heeft, gaat de werkruimte naar Business voor [[commercial.price.business.monthly.seats.4]].
 
-Elke partner heeft ook een eigen routine voor de follow-up op vrijdag. Een routine draait als haar eigenaar, ziet dus de contactpersonen van die persoon en schrijft concepten in diens kanalen. Ze draait in Customermates Cloud en gebruikt gehoste AI-credits:
+Elke partner heeft ook een eigen routine voor de opvolging op vrijdag. Een routine draait als haar eigenaar, ziet dus de contactpersonen van die persoon en schrijft concepten in diens kanalen. Ze draait in Customermates Cloud en gebruikt gehoste AI-credits:
 
-> Zoek elke vrijdag om 16:00 de contactpersonen die aan mij zijn toegewezen en waarvan de datum "Volgend contact" vandaag of eerder is. Lees voor elk van hen ons laatste gesprek en sla daarin een kort follow-upconcept op. Verstuur niets. Zet de contactpersonen in de samenvatting van de run.
+> Zoek elke vrijdag om 16:00 de contactpersonen die aan mij zijn toegewezen en waarvan de datum "Volgend contact" vandaag of eerder is. Lees voor elk van hen ons laatste gesprek en sla daarin een kort opvolgconcept op. Verstuur niets. Noem de contactpersonen in de samenvatting van de uitvoering.
 
 ## In vijf stappen overstappen van folk
 
@@ -265,7 +265,7 @@ Niet automatisch. Je opent elke thread en legt die vast met "Add to folk" in de 
 </FaqItem>
 
 <FaqItem question="Waar slaat folk gegevens op, en is het AVG-conform?">
-folk zegt AVG-conform te zijn en biedt op verzoek een verwerkersovereenkomst aan. Het helpcentrum en het privacybeleid noemen verschillende AWS-locaties, North Virginia en Ierland, dus bevestig de regio bij folk; als verwerkingsverantwoordelijke maak je zelf de eindbeoordeling. Customermates heeft zijn clouddatabase geconfigureerd in de AWS-regio Frankfurt, biedt een verwerkersovereenkomst en vermeldt zijn subverwerkers, ook Amerikaanse aanbieders.
+folk zegt AVG-conform te zijn en biedt op verzoek een verwerkersovereenkomst aan. Het helpcentrum en het privacybeleid noemen verschillende AWS-locaties, North Virginia en Ierland, dus bevestig de regio bij folk; als verwerkingsverantwoordelijke maak je zelf de eindbeoordeling. Customermates heeft zijn clouddatabase ingesteld in de AWS-regio Frankfurt, biedt een verwerkersovereenkomst en vermeldt zijn subverwerkers, ook Amerikaanse aanbieders.
 </FaqItem>
 </Faq>
 

@@ -32,9 +32,9 @@ De meeste kleine teams starten het best met één eenrichtingsflow: een gewonnen
 
 Customermates, een AI-native CRM, publiceert deze gids. Customermates is alleen een CRM, zonder ERP-functies en zonder native ERP-connector; het onderdeel hieronder laat zien hoe het koppelt via zijn REST API en webhooks. Gegevens van ERP-aanbieders zijn gecontroleerd op 8 oktober 2026 op de eigen pagina's van de aanbieders, aan het eind gelinkt.
 
-Voor een vaste integratie en een AI-client vergelijk je [MCP en API bij dezelfde taak met een klantrecord](/blog/mcp-vs-api). Tool discovery verandert hoe de client een operatie vindt; authenticatie en rechten blijven gelden.
+Bouw je een vaste integratie én gebruik je een AI-client? Vergelijk dan [MCP en API bij dezelfde taak met een klantrecord](/blog/mcp-vs-api). Tool discovery verandert hoe de client een operatie vindt; authenticatie en rechten blijven gelden.
 
-Voor een n8n-workflow maakt de [vergelijking van n8n MCP-routes met een voorbeeld op een vaste versie](/blog/n8n-mcp) onderscheid tussen n8n koppelen aan een server met klantgegevens en n8n zelf beschikbaar stellen aan een AI-client. Kies de richting voordat je inloggegevens instelt.
+Werk je met n8n, dan onderscheidt de [vergelijking van n8n MCP-routes met een voorbeeld op een vaste versie](/blog/n8n-mcp) twee richtingen: n8n koppelen aan een server met klantgegevens, of n8n zelf beschikbaar stellen aan een AI-client. Kies de richting voordat je inloggegevens instelt.
 
 <ArticleSummary title="In het kort">
   <SummaryItem label="Wat er beweegt">Identifiers en een paar statussen per bedrijfsgebeurtenis. Niet elk veld, en standaard niet in beide richtingen.</SummaryItem>
@@ -57,7 +57,7 @@ Schrijf deze tabel voor je eigen systemen op voordat je tools vergelijkt. Eigena
 | Orders, levering, voorraad | ERP | Ordernummer en één status voor de klant |
 | Factuurdocumenten en betalingen | ERP | Documentnummer en een grove betaalstatus, als accountmanagers die nodig hebben |
 
-Schrijven twee systemen hetzelfde veld, dan heb je een conflict dat op zijn moment wacht. Kies één eigenaar en stuur correcties daarheen. Dwing die regel af in je integratie; een CRM biedt misschien geen rechten per veld waarmee precies dit veld alleen-lezen wordt.
+Schrijven twee systemen hetzelfde veld, dan heb je een conflict dat zijn moment afwacht. Kies één eigenaar en stuur correcties daarheen. Dwing die regel af in je integratie; een CRM biedt misschien geen rechten per veld waarmee precies dit veld alleen-lezen wordt.
 
 ## Vier manieren om een CRM en een ERP te koppelen
 
@@ -68,7 +68,7 @@ Schrijven twee systemen hetzelfde veld, dan heb je een conflict dat op zijn mome
 | Directe API-integratie | Eén smalle, waardevolle flow tussen twee stabiele API's, en iemand in het team schrijft code | Authenticatie, nieuwe pogingen, wijzigingen in API-versies en monitoring zijn van jou |
 | Middleware of integratieservice | Meerdere systemen of groot volume, met een gedeeld datamodel en wachtrijen | Meer bewegende delen. Te zwaar om vijf velden te verplaatsen |
 
-Er is een vijfde antwoord waar sommige lezers naar zoeken die zoeken op "crm erp totaaloplossing" of "kan CRM onderdeel zijn van ERP": één suite. Odoo levert bijvoorbeeld een CRM-app naast zijn ERP-apps, dus het klantrecord wordt gedeeld en er valt niets te synchroniseren. De keerzijde is dat je de CRM van de suite gebruikt. Let op: Odoo stelt zijn externe API alleen beschikbaar bij het Custom-abonnement, dus een extern systeem aan Odoo koppelen vraagt om dat abonnement.
+Er is nog een vijfde antwoord, voor wie zoekt op "crm erp totaaloplossing" of vraagt of een CRM onderdeel kan zijn van een ERP: één suite. Odoo levert bijvoorbeeld een CRM-app naast zijn ERP-apps, dus het klantrecord wordt gedeeld en er valt niets te synchroniseren. De keerzijde is dat je de CRM van de suite gebruikt. Let op: Odoo stelt zijn externe API alleen beschikbaar bij het Custom-abonnement, dus een extern systeem aan Odoo koppelen vraagt om dat abonnement.
 
 ## Synchronisatiepatronen en wanneer je ze gebruikt
 

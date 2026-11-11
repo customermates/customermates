@@ -1,6 +1,6 @@
 ---
 title: "LinkedIn CRM koppeling: gesprekken en Sales Navigator"
-description: "LinkedIn CRM koppeling: chats en Sales Navigator bij elke deal, e-mail ernaast, antwoord door jou verstuurd. Vergeleken met folk, Breakcold, Kondo (nov 2026)."
+description: "LinkedIn CRM koppeling: chats en Sales Navigator bij elke deal, e-mail ernaast, jij verstuurt het antwoord. Vergeleken met folk, Breakcold, Kondo (nov 2026)."
 featureName: LinkedIn CRM koppeling
 
 acquisition:
@@ -11,7 +11,7 @@ acquisition:
   primaryIntent: LinkedIn CRM koppeling voor berichten en Sales Navigator-workflows
   metadata:
     title: "LinkedIn CRM koppeling: gesprekken en Sales Navigator"
-    description: "LinkedIn CRM koppeling: chats en Sales Navigator bij elke deal, e-mail ernaast, antwoord door jou verstuurd. Vergeleken met folk, Breakcold, Kondo (nov 2026)."
+    description: "LinkedIn CRM koppeling: chats en Sales Navigator bij elke deal, e-mail ernaast, jij verstuurt het antwoord. Vergeleken met folk, Breakcold, Kondo (nov 2026)."
   proof:
     factReferences:
       - product:cloud-only-unified-inbox
@@ -140,7 +140,7 @@ Deze lijsten en fasen zijn een voorbeeld. Een nieuwe werkruimte begint zonder li
 
 ## Hoe volg ik een LinkedIn-gesprek in Customermates?
 
-Je koppelt het account zelf onder Kanalen, op een gehoste verbindingspagina die je binnen 30 minuten afrondt ([zo koppel je een kanaal](/docs/app-profile#how-do-i-connect-a-channel)). Customermates bereikt LinkedIn via een berichtenprovider, Unipile, die op de [pagina met subverwerkers](/subprocessors) staat. Customermates zelf ontvangt noch je LinkedIn-wachtwoord noch een OAuth-token; voor de verbinding bewaart het een account-ID en niet-geheime accountmetadata. Zodra het account is gekoppeld, wordt de gespreksgeschiedenis op de achtergrond geïmporteerd, meestal binnen enkele minuten en bij grote accounts tot een uur. Ontkoppel je het account, dan worden de gesprekken en berichten die Customermates daaruit heeft geïmporteerd verwijderd.
+Je koppelt het account zelf onder Kanalen, op een gehoste verbindingspagina die je binnen 30 minuten afrondt ([zo koppel je een kanaal](/docs/app-profile#how-do-i-connect-a-channel)). Customermates bereikt LinkedIn via een berichtenprovider, Unipile, die op de [pagina met subverwerkers](/subprocessors) staat. Customermates ontvangt zelf je LinkedIn-wachtwoord niet en ook geen OAuth-token; voor de verbinding bewaart het een account-ID en niet-geheime accountmetadata. Zodra het account is gekoppeld, wordt de gespreksgeschiedenis op de achtergrond geïmporteerd, meestal binnen enkele minuten en bij grote accounts tot een uur. Ontkoppel je het account, dan worden de gesprekken en berichten die Customermates daaruit heeft geïmporteerd verwijderd.
 
 Een account met toegang in de cloud kan LinkedIn (Classic), LinkedIn (Classic & Sales Navigator) of LinkedIn (Classic & Recruiter) koppelen, afhankelijk van de producten van je LinkedIn-account. De [gecombineerde inbox](/features/unified-inbox) toont dan de ondersteunde gesprekken naast e-mail en andere gekoppelde kanalen. Een teamgenoot kan een gesprek lezen, een concept bewaren, antwoorden of vanaf het record van de persoon een individuele chat starten. Bij een koppeling met Sales Navigator of Recruiter biedt **Versturen als** de keuze uit Classic, Sales Navigator InMail of Recruiter InMail, en InMail gebruikt de onderwerp- en handtekeningvelden die het gekoppelde product vereist. Een conceptantwoord blijft in zijn gesprek staan tot je het verstuurt; een nieuwe InMail kun je niet als concept bewaren. Om gesprekken te vinden waarin jij het laatst schreef en niets hoorde, gebruik je de filters van de inbox en de datumgebonden volgende stap die op de [pagina over opvolging](/features/follow-up) staat beschreven.
 
@@ -200,7 +200,7 @@ Een zoekresultaat kan de invoer zijn voor een **aparte** actie om een CRM-record
 
 ## Customermates versus de officiële CRM Sync van LinkedIn
 
-De officiële CRM-integraties van Sales Navigator zijn een ander productoppervlak. LinkedIn beschrijft CRM Sync, ingebedde profielen, CRM-badges, automatisch opslaan, het terugschrijven van activiteit, datavalidatie en ROI-rapportage als Advanced Plus-mogelijkheden voor gecertificeerde CRM-partners, in zijn helppagina's over [CRM Sync beheren](https://www.linkedin.com/help/sales-navigator/answer/a107066) en [CRM-datavalidatie](https://www.linkedin.com/help/sales-navigator/answer/a738351) (gecontroleerd op 10 november 2026). Customermates claimt of kopieert die functies niet.
+De officiële CRM-integraties van Sales Navigator zijn een ander productoppervlak. LinkedIn beschrijft CRM Sync, ingebedde profielen, CRM-badges, automatisch opslaan, het terugschrijven van activiteit, datavalidatie en ROI-rapportage als Advanced Plus-mogelijkheden voor gecertificeerde CRM-partners, in zijn helppagina's over [CRM Sync beheren](https://www.linkedin.com/help/sales-navigator/answer/a107066) en [CRM-datavalidatie](https://www.linkedin.com/help/sales-navigator/answer/a738351) (gecontroleerd op 10 november 2026). Customermates claimt die functies niet en bouwt ze niet na.
 
 Customermates koppelt in plaats daarvan ondersteunde berichten en biedt door de klant geautoriseerde social- en Sales Navigator-acties via zijn gekoppelde accounts, REST en MCP. Je kunt LinkedIns eigen [overzicht van CRM-integraties](https://www.linkedin.com/help/sales-navigator/answer/a106005/integration-between-sales-navigator-and-your-crm-overview?lang=en) en [overzicht van SNAP](https://www.linkedin.com/help/sales-navigator/answer/a105094/sales-navigator-application-platform-snap-overview?lang=en) bekijken als je de twee modellen vergelijkt.
 
@@ -222,13 +222,13 @@ folk, Breakcold en Kondo zijn drie tools die mensen vergelijken voor LinkedIn-ge
 
 | | Customermates | folk | Breakcold | Kondo |
 | --- | --- | --- | --- | --- |
-| Wat het met LinkedIn doet | Gesprekken en InMail van een gekoppeld account, naast het CRM-record. Profielen en Sales Navigator-zoekopdrachten op aanvraag. Alleen individuele berichten | De Chrome-extensie folkX legt de berichten van een gesprek vast als interacties, één gesprek tegelijk ([helpartikel](https://help.folk.app/en/articles/7177488-track-linkedin-interactions)); ze neemt contacten uit LinkedIn en Sales Navigator over, ook in bulk vanuit een zoekopdracht ([LinkedIn-pagina](https://www.folk.app/linkedin-crm)) | Zegt dat dm's, InMail, connectieverzoeken en Sales Navigator-gesprekken vanzelf synchroniseren en dat je antwoordt vanuit Breakcold; zegt dat het geen scraper is ([LinkedIn-pagina](https://www.breakcold.com/crm/crm-for-linkedin)) | Een dm-inbox met labels, herinneringen, tekstblokken en notities, plus een Sales Navigator-inbox in Business ([website](https://www.trykondo.com/)). Zegt dat het niet automatiseert en je inbox op je eigen computer houdt |
+| Wat het met LinkedIn doet | Gesprekken en InMail van een gekoppeld account, naast het CRM-record. Profielen en Sales Navigator-zoekopdrachten op aanvraag. Alleen individuele berichten | De Chrome-extensie folkX legt de berichten van een gesprek vast als interacties, één gesprek tegelijk ([helpartikel](https://help.folk.app/en/articles/7177488-track-linkedin-interactions)); ze neemt contacten uit LinkedIn en Sales Navigator over, ook in bulk vanuit een zoekopdracht ([LinkedIn-pagina](https://www.folk.app/linkedin-crm)) | Zegt dat DM's, InMail, connectieverzoeken en Sales Navigator-gesprekken vanzelf synchroniseren en dat je antwoordt vanuit Breakcold; zegt dat het geen scraper is ([LinkedIn-pagina](https://www.breakcold.com/crm/crm-for-linkedin)) | Een DM-inbox met labels, herinneringen, tekstblokken en notities, plus een Sales Navigator-inbox in Business ([website](https://www.trykondo.com/)). Zegt dat het niet automatiseert en je inbox op je eigen computer houdt |
 | E-mail ernaast | Gmail-, Outlook- en IMAP-threads in dezelfde inbox, vanaf Pro | E-mail- en agendasynchronisatie vanaf het abonnement Standard ([prijzen](https://www.folk.app/pricing)) | Gmail, Outlook en IMAP, volledige threads, in dezelfde inbox | E-mail staat niet bij de platforms die het noemt (LinkedIn, WhatsApp, iMessage, Telegram, Instagram, Signal, X, Facebook Messenger) |
 | Deal of volgende stap | Je eigen lijsten en fasen; een persoon of een agent koppelt een gesprek bewust aan een deal. Een volgende stap met datum is een datumveld dat je zelf toevoegt, en niets herinnert je automatisch | Pipelineweergaven in elk abonnement, het object Deals in Premium en herinneringen | Pipelines met eigen fasen; volgens de pagina gaan deals vooruit en ontstaan taken uit signalen in het gesprek | Labels, herinneringen en notities bij elke chat; de deal staat in het CRM waarmee het synchroniseert, zoals HubSpot of Salesforce, vanaf Business ([CRM-integraties](https://www.trykondo.com/feature/crm-integration)) |
 | Open source | Open source CRM (AGPL-3.0 voor de kern); de gekoppelde LinkedIn-inbox is er alleen in de Cloud, niet in zelf gehoste installaties | Geen broncoderepository of open-sourcelicentie genoemd op de website | Geen open source CRM genoemd op de website; de GitHub-pagina bevat MIT-gelicentieerde MCP- en pluginrepository's | Geen broncoderepository of open-sourcelicentie genoemd op de website |
 | Prijsmodel | Pro [[commercial.price.pro.monthly]] per gebruiker per maand, maandelijks gefactureerd, met een proefperiode van [[commercial.trial.days]] dagen op de eerste werkruimte. LinkedIn- en Sales Navigator-abonnementen komen erbij | Standard $30 (€27), Premium $60 (€54), Enterprise vanaf $100 (€83) per lid per maand, maandelijks gefactureerd; goedkoper bij jaarlijkse betaling ([prijzen](https://www.folk.app/pricing)) | X1 $49, X5 $99, X20 $199 per seat per maand, maandelijks gefactureerd; de abonnementen verschillen in AI-gebruik en elke seat bevat twee gekoppelde accounts ([prijzen](https://www.breakcold.com/pricing)) | Basic $28, Business $36, Enterprise $52 per gebruiker per maand, getoond bij jaarlijkse betaling ([prijzen](https://www.trykondo.com/pricing)) |
 
-**Kies Kondo** als je een snellere LinkedIn dm-inbox zoekt en al een CRM hebt waarmee het kan synchroniseren. **Kies Breakcold** als het erom gaat dat LinkedIn-gesprekken zonder tussenkomst van een persoon op het juiste record belanden. **Kies folk** als je contacten vanuit de browser vastlegt, ook in bulk vanuit een zoekopdracht, en gesprekken onderweg logt; de [volledige vergelijking van Customermates en folk](/compare/folk) gaat verder. **Kies Customermates** als je LinkedIn naast e-mail op het klantrecord wilt, met een conceptantwoord dat je controleert en verstuurt, en een open source CRM eronder. Customermates is de verkeerde keuze als je gesprekken wilt laten koppelen aan records zonder dat iemand ingrijpt, contacten in bulk uit zoekopdrachten wilt vastleggen of LinkedIn-outreach wilt automatiseren.
+**Kies Kondo** als je een snellere LinkedIn-DM-inbox zoekt en al een CRM hebt waarmee het kan synchroniseren. **Kies Breakcold** als het erom gaat dat LinkedIn-gesprekken zonder tussenkomst van een persoon op het juiste record belanden. **Kies folk** als je contacten vanuit de browser vastlegt, ook in bulk vanuit een zoekopdracht, en gesprekken onderweg logt; de [volledige vergelijking van Customermates en folk](/compare/folk) gaat verder. **Kies Customermates** als je LinkedIn naast e-mail op het klantrecord wilt, met een conceptantwoord dat je controleert en verstuurt, en een open source CRM eronder. Customermates is de verkeerde keuze als je gesprekken wilt laten koppelen aan records zonder dat iemand ingrijpt, contacten in bulk uit zoekopdrachten wilt vastleggen of LinkedIn-outreach wilt automatiseren.
 
 ## Kan een team één LinkedIn-inbox delen, en wat kost dat?
 
@@ -256,9 +256,9 @@ Nee. Customermates is geen tool om te versturen, te automatiseren of te scrapen 
 
 ## Voor wie dit past en voor wie niet
 
-Dit past bij oprichters, adviseurs en kleine salesteams die individuele LinkedIn-gesprekken voeren en die in dezelfde werkcontext willen hebben als hun prospects en deals, of die een gecontroleerde werkwijze willen voor zoeken en lijsten in Sales Navigator via getypeerde interfaces.
+Dit past bij oprichters, adviseurs en kleine salesteams die individuele LinkedIn-gesprekken voeren en die in dezelfde werkcontext willen hebben als hun prospects en deals, of die een gecontroleerde werkwijze willen voor zoeken en lijsten in Sales Navigator via afgebakende interfaces (REST en MCP).
 
-Het past niet als je koopvereiste LinkedIn CRM Sync, een leadfeed, meegeleverde doorlopende verrijking, bulkimport van prospects, scraping, native baanvolging, bulkuitnodigingen voor connecties, outreachsequenties in meerdere stappen, massaberichten, Lead Gen Forms, synchronisatie van doelgroepen of campagneanalyse is. Dat zijn andere producten en andere verwerkingsrelaties.
+Het past niet als je LinkedIn CRM Sync, een leadfeed, meegeleverde doorlopende verrijking, bulkimport van prospects, scraping, native baanvolging, bulkuitnodigingen voor connecties, outreachsequenties in meerdere stappen, massaberichten, Lead Gen Forms, synchronisatie van doelgroepen of campagneanalyse als vaste eis hebt. Dat zijn andere producten en andere verwerkingsrelaties.
 
 ## Veelgestelde vragen
 
@@ -329,7 +329,7 @@ Het past niet als je koopvereiste LinkedIn CRM Sync, een leadfeed, meegeleverde 
 </FaqItem>
 
 <FaqItem question="Hoe verschilt Customermates van folk, Breakcold en Kondo?">
-  Kondo is een dm-inbox die met een CRM synchroniseert, Breakcold koppelt
+  Kondo is een DM-inbox die met een CRM synchroniseert, Breakcold koppelt
   LinkedIn-gesprekken zelf aan records en folk legt gesprekken vast met een
   browserextensie. Customermates zet LinkedIn en e-mail op het klantrecord en
   schrijft het antwoord dat jij verstuurt. De vergelijking hierboven noemt de

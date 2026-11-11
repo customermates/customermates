@@ -1,6 +1,6 @@
 ---
-title: "Agentic AI: wat het is, voorbeelden en grenzen"
-description: "Agentic AI uitgelegd: wat het betekent, het verschil met generatieve AI en chatbots, voorbeelden in sales en CRM, hoe het werkt en waar het misgaat."
+title: "Agentic AI: betekenis, voorbeelden, soorten en risico's"
+description: "Agentic AI uitgelegd: wat het betekent, het verschil met generatieve AI en chatbots, voorbeelden in sales en CRM, hoe het werkt en welke risico's er zijn."
 
 relatedHrefs:
   - /blog/agentic-crm
@@ -31,7 +31,7 @@ blogPost:
 
 "Agentic" komt van "agent": iemand die namens een ander handelt. AWS legt uit dat "agentic" duidt op agency, "het vermogen van deze systemen om zelfstandig te handelen, maar doelgericht" ([AWS](https://aws.amazon.com/what-is/agentic-ai/)). Ook de korte definitie van IBM is een goed ijkpunt: agentic AI is "een systeem voor kunstmatige intelligentie dat met beperkt toezicht een specifiek doel kan bereiken" ([IBM](https://www.ibm.com/think/topics/agentic-ai)). De twee woorden die de betekenis dragen zijn *doel* en *beperkt*. Iemand stelt nog steeds het doel vast en iemand bepaalt nog steeds hoeveel het systeem mag doen zonder te vragen.
 
-Transparantie: Customermates, een open-source CRM, publiceert deze gids. Hij beantwoordt de algemene vraag. Hoe je agents veilig op CRM-records laat werken, staat in de [gids over agentic CRM](/blog/agentic-crm), en agents die specifiek voor sales bedoeld zijn staan in de [gids over de AI sales agent](/blog/ai-sales-agent); één korte sectie hieronder beschrijft ons eigen product.
+Transparantie: Customermates, een open-source CRM, publiceert deze gids. Deze gids beantwoordt de algemene vraag. Hoe je agents veilig op CRM-records laat werken, staat in de [gids over agentic CRM](/blog/agentic-crm), en agents die specifiek voor sales bedoeld zijn staan in de [gids over de AI sales agent](/blog/ai-sales-agent); één korte sectie hieronder beschrijft ons eigen product.
 
 <ArticleSummary title="In het kort">
   <SummaryItem label="Definitie">
@@ -115,7 +115,7 @@ Een agentic AI-systeem is een taalmodel met vier dingen eromheen: een doel, tool
 4. **Waarnemen.** Hij leest het resultaat en vergelijkt het met het doel.
 5. **Doorgaan of stoppen.** Hij zet de volgende stap, vraagt het aan een mens of stopt zodra het doel bereikt is of een limiet is bereikt.
 
-IBM werkt dezelfde cyclus uit in zeven fasen: waarneming, redenering, doelstelling, besluitvorming, uitvoering, leren en bijsturen, en orkestratie. Wat het bereik van een agent bepaalt, zijn zijn tools: een model zonder toegang tot tools kan een actie beschrijven, maar niet uitvoeren. Daarom staat het [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro), in de woorden van de beheerders "een open-sourcestandaard voor het koppelen van AI-toepassingen aan externe systemen", centraal in zoveel agentopstellingen. De [gids over de MCP-server](/blog/what-is-an-mcp-server) legt uit hoe het werkt en wat je moet controleren voordat je er een koppelt.
+IBM werkt dezelfde cyclus uit in zeven fasen: waarneming, redenering, doelstelling, besluitvorming, uitvoering, leren en bijsturen, en orkestratie. Wat het bereik van een agent bepaalt, zijn de tools die hij mag gebruiken: een model zonder toegang tot tools kan een actie beschrijven, maar niet uitvoeren. Daarom staat het [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro), in de woorden van de beheerders "een open-sourcestandaard voor het koppelen van AI-toepassingen aan externe systemen", centraal in zoveel agentopstellingen. De [gids over de MCP-server](/blog/what-is-an-mcp-server) legt uit hoe het werkt en wat je moet controleren voordat je er een koppelt.
 
 ## Wat zijn voorbeelden en toepassingen van agentic AI?
 
@@ -161,7 +161,7 @@ Een tweede indeling gaat uit van wie het pad bepaalt. De engineeringgids van Ant
 | Orchestrator-workers | Eén model splitst de taak en deelt de onderdelen uit | Een leidende agent geeft accountonderzoek door aan subagents |
 | Evaluator-optimizer | Eén model schrijft een concept, een ander geeft kritiek tot het concept slaagt | Een conceptantwoord dat wordt bijgesteld aan de hand van jouw toonhandleiding |
 
-**Agentic AI of AI agents?** Google Cloud noemt AI agents "de bouwstenen van agentic AI": een agent richt zich op een specifieke taak en agentic AI coördineert meerdere agents in een complexe workflow. In het dagelijks gebruik zijn de termen uitwisselbaar. Zoek je naar **wat een AI agent is**: een taalmodel met tools, rechten en een stopregel, dat een taak uitvoert in plaats van alleen een antwoord te geven.
+**Agentic AI of AI agents?** Google Cloud noemt AI agents "de bouwstenen van agentic AI": een agent richt zich op een specifieke taak en agentic AI coördineert meerdere agents in een complexe workflow. In het dagelijks gebruik zijn de termen uitwisselbaar. Vraag je je af **wat een AI agent is**? Dat is een taalmodel met tools, rechten en een stopregel, dat een taak uitvoert in plaats van alleen een antwoord te geven.
 
 ## Hoe gebruik je agentic AI in sales en CRM-werk?
 
@@ -286,7 +286,7 @@ Als de stappen nooit veranderen, is een vaste regel goedkoper en voorspelbaarder
 
 ## Agentic AI en gegevensbescherming
 
-Agents lezen persoonsgegevens: namen, e-mailadressen, de inhoud van gesprekken. Onder de AVG is een aanbieder die die gegevens namens jou verwerkt een verwerker en heeft die een verwerkersovereenkomst nodig, en de AI-aanbieders waarop die steunt zijn zijn subverwerkers. Voor Mate in Customermates Cloud staan de modelaanbieders in de [lijst met subverwerkers](/subprocessors). Wil je de aanbieder zelf kiezen, koppel dan je eigen AI-client via MCP, of host de open-sourcekern zelf zodat de CRM-gegevens op je eigen servers blijven.
+Agents lezen persoonsgegevens: namen, e-mailadressen, de inhoud van gesprekken. Onder de AVG is een aanbieder die die gegevens namens jou verwerkt een verwerker en heeft die een verwerkersovereenkomst nodig, en de AI-aanbieders waarop die steunt zijn diens subverwerkers. Voor Mate in Customermates Cloud staan de modelaanbieders in de [lijst met subverwerkers](/subprocessors). Wil je de aanbieder zelf kiezen, koppel dan je eigen AI-client via MCP, of host de open-sourcekern zelf zodat de CRM-gegevens op je eigen servers blijven. Daarnaast stelt de Europese AI-verordening (AI Act) eisen aan bepaalde AI-toepassingen; of een agent eronder valt, hangt af van wat hij doet. Een agent die concepten voorbereidt voor een mens valt in een andere categorie dan een systeem dat zelfstandig beslist over mensen. Dit is algemene informatie, geen juridisch advies.
 
 ## Veelgestelde vragen
 
@@ -301,6 +301,10 @@ AI waaraan je een doel geeft in plaats van een vraag. Ze plant de stappen, gebru
 
 <FaqItem question="Kun je een voorbeeld geven van agentic AI?">
 Een codeeragent zoals Claude Code leest een repository, wijzigt bestanden, draait de tests en opent een pull request dat een mens beoordeelt. In een CRM kan een agent een nieuwe e-mail lezen, de open vraag aan de deal toevoegen en een concept-antwoord opslaan dat een mens verstuurt.
+</FaqItem>
+
+<FaqItem question="Wat zijn de beste agentic AI-tools?">
+Een eerlijke top 10 bestaat niet, omdat de beste tool afhangt van de taak. Per taak zijn er voorbeelden: voor software een codeeragent zoals Claude Code of de cloudagent van GitHub Copilot, voor een bestaand Salesforce-landschap Salesforce Agentforce, en voor opvolging van klantgesprekken een CRM met routines, zoals Customermates, dat deze gids publiceert. Beoordeel elke tool met dezelfde drie vragen: welke tools mag hij aanroepen, met wiens rechten en wat doet hij zonder te vragen.
 </FaqItem>
 
 <FaqItem question="Is ChatGPT agentic AI?">

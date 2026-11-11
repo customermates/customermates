@@ -136,7 +136,7 @@ cta:
 
 ## Jaka jest najlepsza alternatywa dla Pipedrive?
 
-Zależy od zadania, do którego zatrudniasz Pipedrive. Ta tabela dopasowuje typowe powody do CRM, który im odpowiada.
+Zależy od zadania, do którego używasz Pipedrive. Ta tabela dopasowuje typowe powody do CRM, który im odpowiada.
 
 | Twoja sytuacja | Lepszy wybór | Dlaczego |
 |---|---|---|
@@ -184,7 +184,7 @@ Ceny sprawdzone 9 listopada 2026 na [stronie z cennikiem Pipedrive](https://www.
 | Customermates Pro | [[commercial.price.pro.monthly.seats.5]] | Niedostępne |
 | Customermates Business | [[commercial.price.business.monthly.seats.5]] | Niedostępne |
 
-Te wiersze nie kupują tych samych rzeczy, więc czytaj je parami:
+Te plany nie dają tego samego, więc czytaj je parami:
 
 - **Lite i Starter** to CRM bez zsynchronizowanej poczty. Oba zawierają serwer MCP i API. Lite dodaje nagrywanie rozmów Nova, aplikacje telefoniczne i marketplace; Starter dodaje w Customermates Cloud rutyny (limit [[commercial.entitlement.starter.includedRoutinesPerUser]] na użytkownika) i kosztuje mniej za licencję niż Lite przy obu cyklach rozliczeń.
 - **Growth i Pro** to najbliższa para dla zespołów, które chcą mieć rozmowy w CRM. Growth synchronizuje jedną skrzynkę na osobę i dodaje WhatsApp, automatyzacje, sekwencje i raporty prognoz. Pro daje każdej osobie [[commercial.entitlement.pro.includedAccountsPerUser]] podłączone konto, którym może być skrzynka e-mail albo konto LinkedIn, WhatsApp, Instagram lub Telegram, plus rutyny (limit [[commercial.entitlement.pro.includedRoutinesPerUser]] na użytkownika).
@@ -204,11 +204,11 @@ Pipedrive planuje Twój dzień wokół zaplanowanych aktywności. Customermates 
 
 **Jedna skrzynka dla każdego kanału.** Od planu Pro [ujednolicona skrzynka odbiorcza](/features/unified-inbox) zbiera skrzynki Gmail, Outlook i IMAP, LinkedIn (w tym Sales Navigator i Recruiter), WhatsApp, Instagram i Telegram w jednej liście, a odpowiadasz na oryginalnym kanale. WhatsApp łączy się po zeskanowaniu kodu QR własnym kontem. Powiąż uczestnika z kontaktem raz, a każda rozmowa z tym adresem lub profilem pojawi się na osi czasu kontaktu. Plan Starter nie ma skrzynki odbiorczej.
 
-**AI, które wprowadza dane.** W Customermates Cloud Mate podsumowuje wątki, przygotowuje szkice odpowiedzi, aktualizuje rekordy i buduje zapisane widoki. Korzysta z hostowanych kredytów AI, czyli miesięcznego limitu na aktywnego użytkownika, podanego na stronie z cennikiem, bez dokupowania i bez opłat za przekroczenie. Przed każdym usunięciem Mate prosi o nowe zatwierdzenie, ale wiadomości wysyła bez niego, więc powiedz mu, żeby zapisywał szkice, gdy chcesz najpierw sprawdzić. Rutyny uruchamiają zapisaną instrukcję według harmonogramu lub gdy rekord się zmienia.
+**AI, które wprowadza dane za Ciebie.** W Customermates Cloud Mate podsumowuje wątki, przygotowuje szkice odpowiedzi, aktualizuje rekordy i buduje zapisane widoki. Korzysta z hostowanych kredytów AI, czyli miesięcznego limitu na aktywnego użytkownika, podanego na stronie z cennikiem, bez dokupowania i bez opłat za przekroczenie. Przed każdym usunięciem Mate prosi o nowe zatwierdzenie, ale wiadomości wysyła bez niego, więc powiedz mu, żeby zapisywał szkice, gdy chcesz najpierw sprawdzić. Rutyny uruchamiają zapisaną instrukcję według harmonogramu lub gdy rekord się zmienia.
 
 Pipedrive też ma serwer MCP. Różnica to zasięg: [serwer MCP](/docs/mcp) Customermates oferuje [[derived.mcp.tools.total]] narzędzi w każdym planie i w instalacjach self-hosted, a w planie Pro lub wyższym w Customermates Cloud czytają one także wątki skrzynki odbiorczej i zapisują szkice wiadomości. Wywołania modelu działają u Twojego własnego dostawcy AI.
 
-**Open source, z wyborem hostingu.** Rdzeń jest na AGPL-3.0 i działa na Twoim serwerze z Docker Compose i PostgreSQL 16, razem z REST, webhookami i MCP. [Instalacja self-hosted](/features/self-hosted) nie ma skrzynki odbiorczej, Mate ani hostowanych kredytów. W Customermates Cloud baza danych jest skonfigurowana w regionie AWS Frankfurt, dostępna jest umowa powierzenia (DPA), a podprocesorzy, w tym dostawcy z USA, są wymienieni na stronach prawnych. Customermates nie posiada żadnej certyfikacji zgodności. Dziennik audytu jest częścią każdego planu.
+**Open source, z wyborem hostingu.** Rdzeń jest na AGPL-3.0 i działa na Twoim serwerze z Docker Compose i PostgreSQL 16, razem z REST, webhookami i MCP. [Instalacja self-hosted](/features/self-hosted) nie ma skrzynki odbiorczej, Mate ani hostowanych kredytów. W Customermates Cloud baza danych jest skonfigurowana w regionie AWS Frankfurt, dostępna jest umowa powierzenia (DPA), a podprocesorzy, w tym dostawcy z USA, są wymienieni na stronach prawnych. Customermates nie ma żadnej certyfikacji zgodności. Dziennik audytu jest częścią każdego planu.
 
 ## Gdzie Customermates jest złym wyborem
 
@@ -217,7 +217,7 @@ Sprawdź to, zanim zaczniesz okres próbny:
 - **Brak kalendarza aktywności.** Lista zadań to zwykła lista z nazwą, notatkami i relacjami; terminy i statusy to pola, które dodajesz sam. Nie ma wbudowanych terminów, przypomnień ani centrum powiadomień. Dla zespołu pracującego z listą aktywności Pipedrive to największa zmiana.
 - **Brak sekwencji, masowych e-maili, formularzy internetowych, ofert, podpisów elektronicznych, telefonii, nagrywania rozmów, wzbogacania danych i scoringu leadów.** Wysyłka idzie pojedynczo, napisana przez Ciebie lub przygotowana przez Mate jako szkic. Faktury zostają w Twoim programie księgowym; wygrane szanse sprzedaży mogą trafić przez webhook do instancji n8n, którą uruchamiasz osobno, i tam być dalej obsługiwane.
 - **Brak kreatora reguł.** Rutyny to instrukcje AI, a nie reguły „jeśli/to”. W przepływach deterministycznych użyj webhooków, REST API albo instancji n8n, którą uruchamiasz osobno.
-- **Brak natywnych aplikacji mobilnych i SSO.** Uprawnienia dotyczą listy i akcji, a nie pola.
+- **Brak natywnych aplikacji mobilnych i SSO.** Uprawnienia dotyczą całej listy i akcji, a nie pojedynczych pól.
 - **Jedna lista etapów dla wszystkich szans sprzedaży.** Jeśli prowadzisz kilka pipeline'ów Pipedrive, dodaj pole pojedynczego wyboru dla pipeline'u i zapisz jeden widok tablicy na każdy pipeline. Etapy pozostają wspólne.
 
 ## Przykładowa konfiguracja: pięcioosobowa firma doradcza odchodzi z Pipedrive
@@ -236,7 +236,7 @@ Weźmy firmę doradczą z trzema partnerami i dwoma współpracownikami. Partner
 | Notatki | Pole notatek rekordu |
 | Pliki | Nie są importowane; dodaj je potem do pola Plik. Załączniki e-maili zostają w wątkach skrzynki odbiorczej |
 
-Zmieniają nazwy opcji pola Etap na Lead, Zakwalifikowany, Oferta wysłana, Negocjacje, Wygrana i Przegrana, a w sekcji Model danych dla szans sprzedaży nadają im prawdopodobieństwa 10, 25, 50, 75, 100 i 0 procent. Customermates mnoży wartość każdej szansy sprzedaży przez prawdopodobieństwo jej etapu, a wykres na Pulpicie sumuje wartości ważone. To arytmetyka na ich własnych liczbach i niczego nie przewiduje.
+Zmieniają nazwy opcji pola Etap na Lead, Zakwalifikowany, Oferta wysłana, Negocjacje, Wygrana i Przegrana, a w sekcji Model danych dla szans sprzedaży nadają im prawdopodobieństwa 10, 25, 50, 75, 100 i 0 procent. Customermates mnoży wartość każdej szansy sprzedaży przez prawdopodobieństwo jej etapu, a wykres na pulpicie sumuje wartości ważone. To arytmetyka na ich własnych liczbach i niczego nie przewiduje.
 
 Partnerzy potrzebują i LinkedIn, i e-maila, więc przestrzeń robocza działa na planie Business: [[commercial.price.business.monthly.seats.5]] miesięcznie za pięć osób. Gdyby wystarczył jeden kanał na osobę, wystarczyłby Pro za [[commercial.price.pro.monthly.seats.5]].
 
@@ -251,7 +251,7 @@ Każdy partner ma jedną rutynę. Działa jako ten partner, więc widzi jego sza
   <Step title="Przygotuj przestrzeń roboczą">Ustaw pole Etap jak w przykładzie powyżej, utwórz pola pojedynczego wyboru dla swoich etykiet i dodaj pola niestandardowe na wszystko inne, co zachowujesz. Dostępnych jest szesnaście typów pól, między innymi kwota pieniężna, data, adres internetowy i adres; numery telefonów i adresy e-mail trafiają do pola Dane kontaktowe.</Step>
   <Step title="Importuj po jednej liście">W menu Więcej działań › Dodaj z pliku zaimportuj najpierw organizacje, potem kontakty, potem usługi i szanse sprzedaży. Plik może mieć do 10 MB, a arkusz do 5 000 wierszy, więc duże pliki podziel; oba formaty eksportu Pipedrive, Excel i CSV, importują się bez zmian. Kolumny powiązań dopasowują rekordy po nazwie, więc kolumna organizacji przy szansie sprzedaży znajdzie wcześniej zaimportowaną organizację. Nowe kontakty wymagają imienia i nazwiska. Przypisz kolumny e-maila i telefonu do pola Dane kontaktowe kontaktu; dane kontaktowe są dodawane tylko do nowych kontaktów.</Step>
   <Step title="Przenieś notatki i otwarte aktywności">Każdy rekord ma jedno pole notatek. Przypisz kolumnę notatek podczas importu albo pozwól klientowi AI przez MCP dopisać wyeksportowane notatki do pasujących rekordów. Otwarte aktywności mogą wejść jako zadania, z niestandardowym polem daty na termin.</Step>
-  <Step title="Podłącz kanały, potem anuluj Pipedrive">W planie Pro lub w okresie próbnym podłącz skrzynkę e-mail, LinkedIn lub WhatsApp w Ustawienia › Kanały i kalendarze. Anuluj Pipedrive dopiero wtedy, gdy zespół sprawdzi zaimportowane rekordy. [Dokumentacja rekordów](/docs/app-records) wyjaśnia każdy krok kreatora importu.</Step>
+  <Step title="Podłącz kanały, potem anuluj Pipedrive">W planie Pro lub w okresie próbnym podłącz skrzynkę e-mail, LinkedIn lub WhatsApp w sekcji Ustawienia › Kanały i kalendarze. Anuluj Pipedrive dopiero wtedy, gdy zespół sprawdzi zaimportowane rekordy. [Dokumentacja rekordów](/docs/app-records) wyjaśnia każdy krok kreatora importu.</Step>
 </Steps>
 
 ## Kim są główni konkurenci Pipedrive?
@@ -283,7 +283,7 @@ Pipedrive, jeśli chcesz CRM zbudowanego wokół pipeline'u i następnej aktywno
 </FaqItem>
 
 <FaqItem question="Czy mogę przenieść dane z Pipedrive do Customermates?">
-Tak. Wyeksportuj każdy typ elementu z Pipedrive jako plik Excel i zaimportuj do Customermates po jednej liście: organizacje, kontakty, szanse sprzedaży. Pliki i historia poczty zostają. Po podłączeniu skrzynki rozmowy pojawiają się przy kontakcie, gdy adres zgadza się z jednym z jego danych kontaktowych.
+Tak. Wyeksportuj każdy typ elementu z Pipedrive jako plik Excel i zaimportuj do Customermates po jednej liście: organizacje, kontakty, szanse sprzedaży. Pliki i historia poczty zostają w Pipedrive. Po podłączeniu skrzynki rozmowy pojawiają się przy kontakcie, gdy adres zgadza się z jednym z jego danych kontaktowych.
 </FaqItem>
 
 <FaqItem question="Czy Customermates ma automatyzacje jak Pipedrive?">

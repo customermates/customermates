@@ -1,6 +1,6 @@
 ---
-title: "CRM vs ERP: verschillen en hoe ze samenwerken"
-description: "CRM vs ERP: de CRM regelt klant en verkoop, de ERP orders, voorraad en geld. Wie welk record beheert, wanneer je beide nodig hebt en waar facturatie past."
+title: "CRM vs ERP: het verschil en wanneer je beide nodig hebt"
+description: "CRM vs ERP: het verschil in één zin, wie welk record beheert, wanneer een facturatietool volstaat en hoe je beide koppelt zonder dubbel invoeren."
 
 relatedHrefs:
   - /blog/crm-erp-integration
@@ -28,7 +28,7 @@ blogPost:
 
 CRM vs ERP in één zin: een CRM beheert de mensen aan wie je verkoopt en de deals waar je nu aan werkt. Een ERP beheert wat er gebeurt zodra iets is verkocht: orders, voorraad, inkoop, facturen, betalingen en de boekhouding. De eenvoudigste scheidslijn is de getekende deal. Alles ervoor hoort in de CRM, alles erna in de ERP.
 
-De meeste kleine dienstverleners hebben helemaal geen volwaardige ERP nodig. Een adviesbureau of bureau met vijf mensen heeft meestal genoeg aan een CRM voor de pipeline en een facturatie- en boekhoudtool zoals Lexware Office of sevDesk voor het geld. Die combinatie is de "kleine ERP" voor een bedrijf zonder voorraad of productie. Hieronder komt ze aan bod, samen met de vraag of een groter totaalpakket beter past.
+De meeste kleine dienstverleners hebben helemaal geen volwaardige ERP nodig. Een adviesbureau of communicatiebureau met vijf mensen heeft meestal genoeg aan een CRM voor de pipeline en een facturatie- en boekhoudtool voor het geld, zoals Moneybird of Exact Online in Nederland of Lexware Office en sevDesk in Duitsland. Die combinatie is de "kleine ERP" voor een bedrijf zonder voorraad of productie. Hieronder komt ze aan bod, samen met de vraag of een groter totaalpakket beter past.
 
 Customermates publiceert deze gids. Het is een CRM, geen ERP en geen boekhoudsoftware, en het komt hieronder alleen voor waar het past.
 
@@ -39,6 +39,19 @@ Customermates publiceert deze gids. Het is een CRM, geen ERP en geen boekhoudsof
   <SummaryItem label="Koppelen">Kies per veld één eigenaar, geef een vaste ID door en synchroniseer alleen de paar velden die de andere kant nodig heeft: klantgegevens heen, betaalstatus terug.</SummaryItem>
 </ArticleSummary>
 
+## Wat is een CRM en wat is een ERP? [#wat-is-crm-en-erp]
+
+Een CRM (Customer Relationship Management) is software waarin je klantrelaties vastlegt: wie je kent, wat je met wie hebt besproken en wat de volgende stap is. Een ERP (Enterprise Resource Planning) is software waarin je de bedrijfsprocessen na de verkoop vastlegt: orders, voorraad, inkoop, facturen, betalingen en boekhouding, zodat finance en operations met dezelfde cijfers werken.
+
+Wat ze gemeen hebben:
+
+- Ze vervangen losse spreadsheets door één plek per onderwerp.
+- Ze werken met gebruikersrollen en rechten, zodat niet iedereen alles ziet of wijzigt.
+- Ze kunnen aan andere software worden gekoppeld, via een API, webhooks of een tool als n8n.
+- Ze hebben allebei klantstamgegevens nodig, en daar liggen de dubbele records.
+
+Het verschil zit in wat ze vastleggen en voor wie: de ene helpt je klanten te winnen en te houden, de andere helpt je te leveren, te factureren en je cijfers rond te krijgen.
+
 ## CRM en ERP naast elkaar
 
 | | CRM | ERP |
@@ -48,7 +61,7 @@ Customermates publiceert deze gids. Het is een CRM, geen ERP en geen boekhoudsof
 | Kernrecords | Contactpersonen, organisaties, deals, taken, gesprekken | Orders, facturen, betalingen, artikelen, voorraad, leveranciers, grootboek |
 | Hoe het werk loopt | Flexibel: deals schuiven door de fasen, plannen veranderen | Gecontroleerd: documenten worden geboekt, genummerd en gecontroleerd |
 | Wat er zonder misgaat | Opvolging blijft liggen, niemand weet wat het laatste gesprek was | Foute facturen, voorraadfouten, een stroeve maandafsluiting |
-| Typische koppelingen | E-mail, LinkedIn, WhatsApp, agenda, website | Bank, belastingadviseur, webshop, logistiek, salarisadministratie |
+| Typische koppelingen | E-mail, LinkedIn, WhatsApp, agenda, website | Bank, boekhouder of accountant, webshop, logistiek, salarisadministratie |
 
 De twee overlappen bij de klantstamgegevens. Beide systemen hebben de naam en het adres van de klant nodig, en daar ontstaan dubbele records. Het volgende gedeelte lost dat op.
 
@@ -60,7 +73,7 @@ Schrijf op wie welk record en welk veld beheert voordat je iets koppelt. Onduide
 | --- | --- | --- |
 | Persoon, functie, notities over de relatie | CRM | Alleen naam en e-mailadres van de factuurcontact |
 | Organisatie (bedrijf) | CRM tot de eerste factuur, daarna gedeeld | ERP-klantnummer opgeslagen bij de organisatie in de CRM |
-| Juridische naam, btw-id, factuuradres | ERP of facturatietool | Gekopieerd naar de CRM, alleen aangepast in de ERP |
+| Juridische naam, btw-nummer, KvK-nummer, factuuradres | ERP of facturatietool | Gekopieerd naar de CRM, alleen aangepast in de ERP |
 | Deal, fase, dealwaarde, volgende stap | CRM | Optioneel: deal-ID bij de order |
 | Producten, prijzen, voorraad | ERP | Namen van producten of diensten als regels in de deal |
 | Order, factuur, factuurnummer | ERP of facturatietool | Factuurnummer bij de deal |
@@ -69,14 +82,14 @@ Schrijf op wie welk record en welk veld beheert voordat je iets koppelt. Onduide
 
 Twee regels houden dit stabiel. Ten eerste mag maar één kant een veld wijzigen; de andere kant leest het. Ten tweede bewaren beide systemen de ID van het andere (CRM-organisatie-ID in de ERP, ERP-klantnummer in de CRM), zodat je records nooit op bedrijfsnaam koppelt. Namen veranderen, worden afgekort en worden dubbel ingevoerd.
 
-## CRM of ERP: wat heb je nodig, of volstaat een facturatietool?
+## CRM of ERP: wat heb je nodig, of volstaat een facturatietool? [#crm-of-erp-nodig]
 
 Begin bij het probleem dat je nu hebt, niet bij de softwarecategorie.
 
 | Jouw situatie | Begin met |
 | --- | --- |
 | Aanvragen raken zoek, niemand weet wie het laatst met een klant sprak | Een CRM |
-| Je verkoopt diensten, stuurt een paar tientallen facturen per maand en werkt met een belastingadviseur | Een facturatie- en boekhoudtool, plus een CRM voor sales |
+| Je verkoopt diensten, stuurt een paar tientallen facturen per maand en werkt met een boekhouder of accountant | Een facturatie- en boekhoudtool, plus een CRM voor sales |
 | Je houdt voorraad aan, koopt materiaal in, plant productie of verzendt goederen | Een ERP |
 | Sales werkt en finance werkt, maar de overdracht tussen beide hapert | Beide, met een smalle koppeling ertussen |
 | Je wilt één leverancier en één login voor alles, en de modules passen bij je werkwijze | Een totaalpakket |
@@ -98,7 +111,7 @@ Geen van beide is vanzelf eenvoudiger. Een pakket met een CRM-module die je verk
 
 ## Facturatietools naast een CRM
 
-Voor kleine bedrijven in Duitsland is de ERP-kant vaak een facturatie- en boekhoudtool die gegevens aan de belastingadviseur doorgeeft. Als je hier kwam op zoek naar een alternatief voor lexoffice, is de eerste vraag of het probleem in de boekhouding zit of in sales. Een andere boekhoudtool redt geen verloren deals, en op geen van de onderstaande prijzenpagina's staat een salespipeline of dealfase.
+Voor kleine bedrijven is de ERP-kant vaak een facturatie- en boekhoudtool die gegevens aan de boekhouder of accountant doorgeeft. In Nederland zijn dat pakketten als Moneybird, Exact Online of Twinfield, in Duitsland Lexware Office, sevDesk of vergelijkbare tools. De tabel hieronder bevat de Duitse tools die we hebben nagelopen; de vragen gelden voor elk pakket: welk abonnement bevat de API, welk exportformaat heeft je boekhouder nodig en welke e-factuurformaten moet je versturen en ontvangen. Als je hier kwam op zoek naar een alternatief voor lexoffice, is de eerste vraag of het probleem in de boekhouding zit of in sales. Een andere boekhoudtool redt geen verloren deals, en op geen van de onderstaande prijzenpagina's staat een salespipeline of dealfase.
 
 Lexoffice heet nu Lexware Office, zoals de [productpagina van Lexware](https://www.lexware.de/lexoffice/) aangeeft. Voor een CRM-koppeling telt vooral welk abonnement de API bevat:
 
@@ -109,7 +122,7 @@ Lexoffice heet nu Lexware Office, zoals de [productpagina van Lexware](https://w
 | [FastBill](https://www.fastbill.com/preise) | Solo, Plus, Pro, Premium | REST API en webhooks bij elk abonnement, met uurlimieten voor aanroepen die per abonnement oplopen |
 | [Billomat](https://www.billomat.com/preise/) | Professional, Business, Enterprise | Business en Enterprise |
 
-Abonnementen en API-niveaus zijn gecontroleerd op 8 oktober 2026. Prijzen veranderen vaak, dus vergelijk ze op de gelinkte pagina's. Twee controles voordat je overstapt: vraag je belastingadviseur welk exportformaat die nodig heeft en controleer welke e-factuurformaten je moet versturen en ontvangen. Lexware Office noemt bijvoorbeeld ZUGFeRD en XRechnung bij alle vier de abonnementen.
+Abonnementen en API-niveaus zijn gecontroleerd op 8 oktober 2026. Prijzen veranderen vaak, dus vergelijk ze op de gelinkte pagina's. Twee controles voordat je overstapt: vraag je boekhouder of accountant welk exportformaat die nodig heeft en controleer welke e-factuurformaten je moet versturen en ontvangen. Lexware Office noemt bijvoorbeeld ZUGFeRD en XRechnung bij alle vier de abonnementen.
 
 Zit het echte gat in sales, houd dan de boekhoudtool en zet er een CRM naast. De [ontwikkelaarsdocumentatie van Lexware](https://developers.lexware.io/docs/) noemt endpoints voor contacten, facturen, offertes en betalingen, plus abonnementen op events. Meer heeft de onderstaande overdracht niet nodig.
 
@@ -168,6 +181,18 @@ Een CRM beheert klantrelaties en verkoop tot de getekende deal: contactpersonen,
 
 <FaqItem question="Is SAP een ERP of een CRM, en hoe zit het met Salesforce?">
 SAP verkoopt allebei. De [ERP vs CRM-pagina van SAP](https://www.sap.com/resources/erp-vs-crm) noemt ERP-producten zoals SAP S/4HANA Cloud en SAP Business One, dat ook CRM-functies heeft, naast een aparte SAP CRM-applicatie, en antwoordt "Nee" op de vraag of een cloud-ERP een CRM kan vervangen. Salesforce is vooral bekend om zijn CRM. Het eigen [artikel over ERP vs CRM](https://www.salesforce.com/blog/erp-vs-crm/) presenteert Salesforce CRM als de klantgerichte kant en beschrijft de koppeling met ERP-functies zoals verkooporders en voorraadbeheer.
+</FaqItem>
+
+<FaqItem question="Wat betekent ERP?">
+ERP staat voor Enterprise Resource Planning: software die de bedrijfsprocessen na de verkoop beheert, zoals orders, voorraad, inkoop, facturen, betalingen en boekhouding. Zie [Wat is een CRM en wat is een ERP?](#wat-is-crm-en-erp).
+</FaqItem>
+
+<FaqItem question="Heb je een CRM én een ERP nodig?">
+Dat hangt af van je situatie. Raken aanvragen zoek, begin dan met een CRM. Houd je voorraad aan of plan je productie, dan heb je een ERP nodig. Werken sales en finance allebei, maar hapert de overdracht, dan heb je beide nodig met een smalle koppeling ertussen. Zie de tabel onder [CRM of ERP: wat heb je nodig](#crm-of-erp-nodig).
+</FaqItem>
+
+<FaqItem question="Is Excel een CRM?">
+Niet echt. Een spreadsheet kan een eenvoudige klantenlijst bijhouden, maar mist een gedeeld klantrecord, gesprekken bij de klant en één eigenaar per volgende stap. Hoe ver je ermee komt en wanneer je overstapt, staat in de gids over een [Excel-CRM-template](/blog/excel-crm-template).
 </FaqItem>
 
 <FaqItem question="Heeft een klein bedrijf een ERP nodig?">

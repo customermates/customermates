@@ -1,6 +1,6 @@
 ---
-title: "CRM dla kancelarii prawnej: follow-up po zapytaniu"
-description: "CRM dla kancelarii prawnej: zapytania leżą przy rekordzie, Mate przygotowuje odpowiedź, a Ty ją sprawdzasz i wysyłasz. Rozliczenia zostają w Twoim programie."
+title: "CRM dla kancelarii prawnej: zapytania, polecenia, follow-up"
+description: "CRM dla kancelarii prawnej: zapytania i polecenia przy rekordzie klienta, szkice odpowiedzi od Mate do sprawdzenia, obok programu do prowadzenia spraw."
 industryName: "Kancelarie"
 
 relatedHrefs:
@@ -49,6 +49,8 @@ useCases:
 ---
 
 Potencjalny klient pisze, gdy jesteś w sądzie, a zanim odpowiesz, może już dzwonić do innej kancelarii. Customermates, CRM open source stworzony w Niemczech, działa jako CRM dla kancelarii prawnej: trzyma każde zapytanie i każdą rozmowę z klientem przy rekordzie, z kolejnym krokiem z terminem. W Customermates Cloud od Pro Mate lub Twój własny agent AI (Claude, ChatGPT albo dowolny klient obsługujący MCP) przygotowuje odpowiedź na Twoją prośbę albo w ramach rutyny, którą ustawisz; Ty sprawdzasz, poprawiasz i wysyłasz. To CRM do relacji, a nie system do prowadzenia kancelarii: terminarz, dokumenty, czas pracy, rozliczenia i rachunki powiernicze zostają w narzędziu takim jak MyCase albo, w Niemczech, Actaport lub RA-MICRO, porównanych w tabeli niżej. Jeśli chcesz jednego systemu do wszystkiego, lepiej pasuje system do prowadzenia kancelarii z modułem leadów.
+
+**Krótko:** CRM dla kancelarii prawnej prowadzi relację z klientem przed sprawą, wokół niej i po niej: zapytania, polecenia, dawnych klientów oraz osoby i firmy po drugiej stronie. Nie zastępuje programu do prowadzenia kancelarii, który odpowiada za terminy, akta, czas pracy i rozliczenia. Większość małych kancelarii potrzebuje obu; zacznij od CRM, jeśli klienci czekają na odpowiedź albo nie wiesz, skąd przychodzi praca.
 
 Ta strona odpowiada też na pytania, które zadają samodzielni prawnicy. Poniższa konfiguracja działa tak samo dla jednego adwokata, jak dla dwudziestu.
 
@@ -173,19 +175,28 @@ tak lub nie.
 
 Wolisz własnego klienta AI? Claude, ChatGPT i inne łączą się przez [MCP](/docs/mcp) z [[derived.mcp.tools.total]] narzędziami, w każdym planie i w instalacjach self-hosted, a zużycie modelu rozlicza Twój dostawca AI. Przy skrzynce w Customermates Cloud od Pro może też czytać te same wątki i zapisywać szkice. Klient MCP sam decyduje, czy pyta przed zapisem.
 
+## Terminy sądowe, dokumenty i rentowność spraw: gdzie je trzymać [#terminy-dokumenty-rentownosc]
+
+Kancelarie pytają o te trzy rzeczy najczęściej, a odpowiedź jest podobna: należą do programu do prowadzenia kancelarii, a CRM trzyma przy szansie odnośnik do nich.
+
+- **Terminy sądowe i przedawnienia.** Kalendarz terminów, który ma pilnować terminów procesowych, trzymaj w programie do prowadzenia kancelarii. W Customermates data przy szansie jest informacją dla Ciebie, a nie kontrolą terminów.
+- **Akta i dokumenty.** Repozytorium akt zostaje w Twoim systemie dokumentów; przy szansie zapisz numer sprawy i link do akt, a pojedyncze pliki, takie jak podpisana umowa o obsługę, dodaj do pola typu Plik.
+- **Rentowność spraw.** Customermates nie liczy godzin, kosztów ani rozliczonych honorariów, więc raport rentowności sprawy powstaje tam, gdzie rejestrujesz czas i faktury. W CRM sprawdzisz za to, skąd pochodzi praca: widżet na pulpicie liczy przyjęte zlecenia według Źródła, więc widać, które źródła przynoszą nowe sprawy.
+
 ## Czego Customermates nie robi dla kancelarii
 
 - Bez kalendarza terminów, terminarza ani śledzenia przedawnień. Pole daty przy szansie to informacja, a nie kontrola terminów, a zadania nie mają terminów ani przypomnień.
 - Bez zarządzania dokumentami. Trzymaj akta sprawy w swoim systemie dokumentów, a jego link przy szansie; pojedyncze dokumenty mogą trafić do pola typu Plik, a pliki w wiadomościach zostają w wątku skrzynki.
 - Bez rejestracji czasu, rozliczeń, faktur i rachunków powierniczych. Webhook uruchamia się przy zmianie szansy, więc przepływ n8n, który prowadzisz osobno, może przekazać klienta ze zleceniem do Twojego narzędzia rozliczeniowego, jeśli ma ono API.
 - Bez internetowych formularzy zapytań, e-podpisu i portalu klienta. Narzędzie do formularzy może tworzyć szanse przez REST API.
-- Bez połączenia z beA, bez integracji z SMS-ami i telefonem, bez rezerwacji w kalendarzu i bez aplikacji mobilnej.
+- Bez połączenia z elektroniczną korespondencją z sądami (w Niemczech beA), bez integracji z SMS-ami i telefonem, bez rezerwacji w kalendarzu i bez aplikacji mobilnej.
 - Bez certyfikatu takiego jak ISO 27001 czy SOC 2.
 
 ## Dane klientów i tajemnica zawodowa
 
 - W Customermates Cloud główna produkcyjna baza danych jest skonfigurowana w regionie AWS Frankfurt. To ustawienie produktu, a nie umowna gwarancja lokalizacji danych. Hosting i pozostali podprocesorzy, wśród nich dostawcy z USA, są na [stronie podprocesorów](/subprocessors), a [umowa powierzenia przetwarzania danych](/dpa) jest dostępna.
-- To Twoje zasady poufności decydują, czy chmurowy CRM może przechowywać informacje o klientach. W Niemczech [§ 43e BRAO](https://dejure.org/gesetze/BRAO/43e.html) wymaga umowy w formie tekstowej, która zobowiązuje dostawcę do zachowania poufności, oraz zgody klienta, gdy usługa służy jednemu zleceniu. Umowa powierzenia Customermates zawiera ogólną klauzulę poufności; czy spełnia te wymogi, musi sprawdzić Twoja kancelaria, zanim wprowadzi dane klientów.
+- W Polsce adwokaci i radcowie prawni są związani tajemnicą zawodową, a dane klientów podlegają RODO. To ogólny kontekst, a nie porada prawna: czy chmurowy CRM może przechowywać informacje o klientach, rozstrzygają zasady etyki zawodowej, umowy z klientami i polityka ochrony danych Twojej kancelarii.
+- Dla porównania, w Niemczech [§ 43e BRAO](https://dejure.org/gesetze/BRAO/43e.html) wymaga umowy w formie tekstowej, która zobowiązuje dostawcę do zachowania poufności, oraz zgody klienta, gdy usługa służy jednemu zleceniu. Umowa powierzenia Customermates zawiera ogólną klauzulę poufności; czy spełnia wymogi, które obowiązują Ciebie, musi sprawdzić Twoja kancelaria, zanim wprowadzi dane klientów.
 - Rola niestandardowa z dostępem do odczytu **Przypisane** ogranicza młodszego prawnika lub prawnika współpracującego do rekordów, które mu przypisano. Dziennik audytu zapisuje, kto zmienił który rekord, w każdym planie.
 - Aby samemu zdecydować, gdzie żyją dane klientów, [hostuj samodzielnie](/features/self-hosted) rdzeń open source. Instalacja self-hosted nie ma skrzynki, Mate ani rutyn; zostają MCP, REST i webhooki.
 
@@ -202,6 +213,16 @@ Ceny są za aktywnego użytkownika miesięcznie, płatne miesięcznie. Każdy p�
 | Kancelaria dziesięcioosobowa, tylko pipeline i polecenia | Starter | [[commercial.price.starter.monthly.seats.10]] |
 
 Każdy płatny plan chmurowy dodaje miesięczne hostowane kredyty AI dla Mate na aktywnego użytkownika; zobacz [cennik](/pricing). Samodzielne hostowanie rdzenia open source nie wiąże się z opłatą licencyjną.
+
+## Jak wybrać i wdrożyć CRM w małej kancelarii [#jak-wybrac-crm-dla-kancelarii]
+
+1. **Zacznij od problemu, nie od funkcji.** Jeśli tracisz zapytania i nie wiesz, skąd przychodzi praca, potrzebujesz CRM. Jeśli giną terminy i rozliczenia, potrzebujesz programu do prowadzenia kancelarii.
+2. **Sprawdź poufność, zanim wprowadzisz dane.** Zapytaj, gdzie leżą dane, kto jest podprocesorem i czy umowa powierzenia spełnia wymogi Twojej kancelarii (zobacz sekcję o danych klientów wyżej).
+3. **Sprawdź, kto widzi którą rozmowę.** Rozmowy z własnych kont prawnika są prywatne, dopóki ich nie udostępni; wspólna skrzynka na zapytania wymaga planu Business.
+4. **Zaplanuj połączenie z drugim systemem.** Nic nie synchronizuje się samo. Na początek wystarczy numer sprawy zapisany przy szansie, automatyzację dobudujesz później.
+5. **Zacznij od otwartych zapytań.** Zaimportuj arkusz, zapisz widoki i podłącz jedną skrzynkę (kroki niżej), a dawne sprawy dołóż w drugiej kolejności.
+
+Więcej o samym wyborze znajdziesz w [przewodniku o wyborze CRM](/blog/how-to-choose-crm), a o wdrożeniu w [przewodniku po wdrożeniu CRM](/blog/crm-implementation).
 
 ## Przejście z arkusza kalkulacyjnego
 
@@ -249,5 +270,20 @@ Nie natywnie. Customermates ma REST, webhooki i węzeł społeczności dla n8n, 
 
 <FaqItem question="Czy AI zastąpi CRM dla kancelarii?">
 AI zmienia raczej to, kto wpisuje dane do CRM, niż to, czy go potrzebujesz. Mate lub klient MCP, taki jak Claude, może zapisać zapytanie, przesunąć szansę i przygotować odpowiedź, ale potrzebuje historii klienta, etapów i danych o poleceniach, z których ma korzystać, a one żyją w CRM. Mate wysyła wiadomość bez pytania, gdy każesz mu wysłać, więc w każdej prośbie lub rutynie napisz, czy ma tylko zapisać szkic.
+</FaqItem>
+<FaqItem question="Ile kosztuje CRM dla kancelarii prawnej?">
+Customermates kosztuje [[commercial.price.starter.monthly]] za użytkownika miesięcznie w planie Starter (tablica zapytań, bez skrzynki) i [[commercial.price.pro.monthly]] w planie Pro z jedną skrzynką pocztową. Pięć osób ze wspólną skrzynką na zapytania w planie Business płaci [[commercial.price.business.monthly.seats.5]] miesięcznie, płatne miesięcznie. Asystenci i pracownicy pomocniczy, którzy się logują, liczą się jako użytkownicy.
+</FaqItem>
+
+<FaqItem question="Jak znaleźć klientów dla kancelarii prawnej i czy pomoże w tym CRM?">
+CRM nie pozyskuje klientów za Ciebie, ale pomaga nie tracić tych, którzy już się odzywają: zapytań bez odpowiedzi, poleceń bez podziękowania i dawnych klientów, którzy ucichli. Zapisuj Źródło każdego zapytania, a po kilku miesiącach zobaczysz na pulpicie, które polecenia i które kanały przynoszą przyjęte sprawy.
+</FaqItem>
+
+<FaqItem question="Jakiego AI użyć w kancelarii prawnej?">
+Mate w Customermates Cloud albo własny klient AI, taki jak Claude, podłączony przez MCP, przygotuje szkic odpowiedzi na zapytanie na podstawie rekordu i rozmowy; Ty go sprawdzasz i wysyłasz. Nie udzielają porad prawnych. Mate przekazuje rekordy i wiadomości, które czyta, dostawcom AI wymienionym na stronie podprocesorów, więc przy treściach objętych tajemnicą decyzja, czy ich użyć, należy do Twojej kancelarii.
+</FaqItem>
+
+<FaqItem question="Czy Customermates pilnuje terminów sądowych i liczy rentowność spraw?">
+Nie. Nie ma kalendarza terminów procesowych, rejestracji czasu, rozliczeń ani raportów rentowności spraw; te zadania należą do programu do prowadzenia kancelarii. Customermates pokaże za to, skąd przychodzi praca i które zapytania czekają na odpowiedź.
 </FaqItem>
 </Faq>

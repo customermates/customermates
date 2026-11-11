@@ -1,6 +1,6 @@
 ---
-title: "Pipeline software: dealbord met waarde per fase"
-description: "Pipeline software voor kleine, relatiegedreven teams: deals per fase met kans, waarde en gewogen waarde, met de context van de klant dicht bij de hand."
+title: "Pipeline software voor kleine teams: bord, kans en waarde"
+description: "Pipeline software voor kleine teams: wat het is, waar je op let en hoe het bord per fase werkt, met kans, waarde, gewogen waarde en de klantcontext erbij."
 featureName: Verkooppipeline
 
 relatedHrefs:
@@ -61,11 +61,49 @@ Pipeline software zet je open deals op een bord, één kolom per fase, zodat je 
 
 **Waar deals blijven hangen.** Een deal blijft hangen als niemand heeft vastgelegd wat er daarna gebeurt. Op een kaart zie je het account, de contactpersonen en, vanaf Pro, de gesprekken met hen, en een datumveld zoals Volgende stap legt de opvolging vast. Een opgeslagen weergave of een widget **Aankomend** op het dashboard toont dan de deals die aan de beurt of achterstallig zijn.
 
+## Wat is pipeline software en waar let je op? [#wat-is-pipeline-software]
+
+Pipeline software laat zien waar elke deal staat in je verkoopproces, wat die deal waard is en wat de volgende stap is. Je ziet je open deals per fase, van eerste contact tot gewonnen of verloren. Het verschil met een spreadsheet: fasen, bedragen en kansen rekenen mee, en elke deal hangt vast aan de persoon, het bedrijf en de gesprekken erachter.
+
+Met deze checklist beoordeel je elke pipeline software. De derde kolom laat zien wat Customermates daarop doet:
+
+| Wat je zoekt | Waarom het telt | In Customermates |
+|---|---|---|
+| Eigen fasen en kansen | Jouw verkoopproces is niet dat van een standaardsjabloon | Fasen en kansen stel je zelf in; een fase hernoemen werkt door op elk record |
+| Bord én tabel | Het bord om te slepen, de tabel om te sorteren en te filteren | Beide, met groepering per fase |
+| Waarde en gewogen waarde | Een totaalbedrag zegt weinig als niet elke deal even waarschijnlijk is | Per kolomkop: waarde maal kans, geen prognose |
+| Klantcontext bij de deal | Je wilt weten wat er is gezegd, niet alleen het bedrag | Account, contactpersonen, taken en notities op de kaart; gesprekken vanaf Pro |
+| Een volgende stap met datum | Anders blijft een deal stilstaan | Een datumveld dat je zelf toevoegt, met een opgeslagen weergave of de widget **Aankomend** |
+| Samenwerken | Wie ziet welke deals? | Weergaven delen met de werkruimte of met rollen; rechten per lijst, niet per veld |
+| Gegevens in en uit | Overstappen en rapporteren | Excel-import en -export, REST en MCP |
+| Prijs | Betaal je per gebruiker, per deal of per functie? | Per gebruiker per maand; zelf hosten zonder licentie |
+| Prognoses en conversie per fase | Voor grote outboundteams met veel volume | Niet inbegrepen |
+
+## Welke fasen heeft een goede sales pipeline? [#pipeline-fasen-kiezen]
+
+Een pipeline werkt als elke fase een stap van de klant beschrijft en niet een taak van jou. Voor een klein team waarvan de deals uit gesprekken komen, zijn vijf tot zeven fasen genoeg, bijvoorbeeld Nieuw, Gekwalificeerd, Voorstel verstuurd, Onderhandeling, Gewonnen en Verloren. Drie vuistregels:
+
+- **Een fase heeft een uitgang.** Spreek af wat waar moet zijn voordat een deal doorschuift. "Voorstel verstuurd" is pas waar als het voorstel echt de deur uit is.
+- **Verloren heeft een reden.** Voeg een veld **Reden van verlies** toe, zodat je later ziet waarom deals afvielen.
+- **Kansen zijn schattingen.** Pas ze aan als je ervaring verandert. Het zijn jouw getallen, geen standaardwaarden.
+
+Elke open deal heeft daarnaast een volgende stap met een datum. Het artikel over de [sales pipeline](/blog/sales-pipeline) loopt het hele proces door.
+
+## Welke cijfers houd je in je pipeline bij? [#pipeline-cijfers]
+
+- **Aantal en waarde per fase.** De kolomkoppen van het bord tellen ze voor je op.
+- **Gewogen waarde van de open pipeline.** Waarde maal kans, op basis van de kansen die jij instelt.
+- **Deals die stilstaan.** Een opgeslagen weergave met **Bijgewerkt op** ouder dan 14 dagen laat zien welke deals niemand heeft aangeraakt.
+- **Verwachte afsluitingen per maand.** De widget **Maandoverzicht** en de agendaweergave van de deals.
+- **Redenen van verlies.** Een grafiek op het veld **Reden van verlies** laat zien waarom je deals verliest.
+
+Conversie per fase en doorlooptijd bewaart Customermates niet. Die haal je uit een export naar Excel, of Mate rekent ze in de cloud uit je records uit. Meer over grafieken en cijfers vind je op de pagina's over [rapportage](/features/reporting) en [sales KPI's](/features/sales).
+
 ## Bekijk het in een voorbeeldwerkruimte
 
 De [werkruimte voor de verkooppipeline](https://demo.customermates.com/nl/w/sales-pipeline/dashboard) is een voorbeeld met voorbeeldgegevens, geen klantaccount. De interface is Nederlands, de voorbeeldrecords zijn in het Engels. Er zijn vijf lijsten: Accounts, Contacts, Opportunities, Products en Tasks. Opportunities lopen door New, Qualified, Discovery, Proposal sent, Negotiation, Won en Lost, en drie verkopers zijn er eigenaar van.
 
-Het bord toont elke fase met zijn kans. Elke kolomkop telt de waarde en de gewogen waarde van de bijbehorende deals op. De waarde van een deal komt uit zijn regelitems: producten uit de lijst Products, aantal maal stuksprijs. Open een kaart en je staat op de deal met zijn account, zijn contactpersonen, zijn regelitems, zijn taken en de volgende stap die erop is vastgelegd. Offertes staan als pdf-bestand in een bestandsveld op de deal.
+Het bord toont elke fase met de bijbehorende kans. Elke kolomkop telt de waarde en de gewogen waarde van de bijbehorende deals op. De waarde van een deal komt uit zijn regelitems: producten uit de lijst Products, aantal maal stuksprijs. Open een kaart en je staat op de deal met zijn account, zijn contactpersonen, zijn regelitems, zijn taken en de volgende stap die erop is vastgelegd. Offertes staan als pdf-bestand in een bestandsveld op de deal.
 
 Het dashboard toont de verwachte afsluitingen van de maand in een widget **Maandoverzicht**, een agenda die de waarde per dag optelt, zodat je ziet welke weken de meeste waarde dragen, en plaatst de accounts op een kaart op basis van hun adres. Een agendaweergave van de deals toont de verwachte afsluitdatums per maand, en de pagina Agenda zet de locatiebezoeken uit de takenlijst daar naast.
 
@@ -73,7 +111,7 @@ Je eigen werkruimte begint niet met deze lijsten of fasen. Een nieuwe werkruimte
 
 ## Zo werkt het bord van je CRM pipeline
 
-**Fasen zijn een veld dat van jou is.** Een fase is een optie van een enkele keuze, en elke optie heeft een winkans van 0 tot 100 procent. Hernoem, herorden, voeg toe of verwijder fasen in **Datamodel**; een voorbeeldweergave toont het effect op berekeningen en widgets voordat je opslaat. Een fase hernoemen houdt haar op elk record.
+**Fasen zijn een veld dat van jou is.** Een fase is een optie van een enkele keuze, en elke optie heeft een winkans van 0 tot 100 procent. Hernoem, herorden, voeg toe of verwijder fasen in **Datamodel**; een voorbeeldweergave toont het effect op berekeningen en widgets voordat je opslaat. Een fase hernoemen werkt door op elk record.
 
 **Het bord.** Kies in **Weergave** het **Bord**, gegroepeerd op fase, een CRM kanban per fase. Sleep een kaart naar een andere kolom en zijn fase verandert. Kaarten tonen de velden die je kiest, zoals waarde, account, toegewezen gebruikers of een datum voor de volgende stap.
 
@@ -114,7 +152,7 @@ Mate maakt records aan, werkt ze bij en verstuurt berichten zodra het erom wordt
 
 ## Werken als team
 
-Iedereen wiens rol alle deals leest, ziet dezelfde deals; met leesrechten voor **Toegewezen** ziet een persoon alleen de eigen deals. Een bordweergave die je opslaat blijft privé tot je haar deelt met de werkruimte of met geselecteerde rollen; teamgenoten zien haar alleen-lezen. Twee beperkingen tellen voor teams:
+Iedereen wiens rol alle deals leest, ziet dezelfde deals; met leesrechten voor **Toegewezen** ziet een persoon alleen de eigen deals. Een bordweergave die je opslaat blijft privé tot je haar deelt met de werkruimte of met geselecteerde rollen; teamgenoten zien haar alleen-lezen. Drie beperkingen tellen voor teams:
 
 - Een bord dat je deelt is voor collega's alleen-lezen. Deel het met het hele team of met geselecteerde rollen en iedereen werkt vanuit hetzelfde bord, maar alleen jij wijzigt het, en elke persoon ziet alleen de records die zijn rol toestaat.
 - Rechten gelden voor hele lijsten. Er zijn geen rechten op veldniveau, dus iemand die deals kan lezen, ziet elk veld erop.
@@ -139,6 +177,8 @@ Er is geen apart pipelineobject. Een tweede pipeline is een tweede veld met enke
 | Een outboundteam met veel volume dat prognoses en waarschuwingen voor stilstaande deals nodig heeft | Een op sales gericht CRM dat daarvoor is gebouwd, zoals Pipedrive |
 | Een klein team waarvan de deals lopen via e-mail-, LinkedIn- en WhatsApp-gesprekken | Customermates |
 | Eén persoon met een handvol deals | Een spreadsheet kan nog volstaan |
+| Offertes, facturen of telefonie in hetzelfde pakket | Een groter pakket of aparte tools; Customermates heeft geen offertes, facturen of telefonie |
+| Veel standaard e-mailreeksen naar nieuwe leads | Een tool met sequenties; Customermates verstuurt elk bericht afzonderlijk |
 
 ## Wat het kost
 
@@ -147,6 +187,18 @@ Facturering is maandelijks per gebruiker. Starter kost [[commercial.price.starte
 ## Veelgestelde vragen
 
 <Faq>
+<FaqItem question="Wat is pipeline software?">
+Pipeline software toont je open deals per fase, met waarde, kans en de volgende stap. Zo zie je wat er speelt en welke deal aandacht nodig heeft. In Customermates is het een bord of tabel van je deals, met de klant en de gesprekken erachter.
+</FaqItem>
+
+<FaqItem question="Is er gratis pipeline software?">
+Ja. Customermates Cloud heeft een gratis abonnement voor [[commercial.limit.free.maxMembers]] persoon en [[commercial.limit.free.maxRecords]] records, waarin ook het dealbord werkt. De open source kern draait zelf gehost zonder licentiekosten. De inbox, Mate en routines horen bij betaalde abonnementen.
+</FaqItem>
+
+<FaqItem question="Hoeveel kost pipeline software?">
+Dat verschilt per aanbieder. Customermates factureert maandelijks per gebruiker: Starter kost [[commercial.price.starter.monthly]] en dekt het bord, de fasen, de gewogen waarde en dashboards, Pro kost [[commercial.price.pro.monthly]] en voegt de inbox toe. Zie de [prijzen](/pricing).
+</FaqItem>
+
 <FaqItem question="Heeft een nieuwe werkruimte pipelinefasen?">
 Nee. Een nieuwe werkruimte begint zonder lijsten. In Customermates Cloud bouwt de AI-werkruimte-instelling tijdens de onboarding op basis van jouw beschrijving een lijst met deals met fasen. Anders maak je de lijst en het fasenveld aan in Datamodel.
 </FaqItem>

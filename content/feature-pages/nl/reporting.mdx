@@ -1,6 +1,6 @@
 ---
-title: "Sales dashboard in je CRM: grafieken en gewogen pipeline"
-description: "Sales dashboard in Customermates: grafieken over deals, contactpersonen en taken, gewogen pipeline en recordanalyse door Mate. Inrichting en abonnementen."
+title: "Sales dashboard maken in je CRM: cijfers, voorbeeld, stappen"
+description: "Sales dashboard maken in je CRM: welke cijfers erop horen, een voorbeeld en de stappen voor grafieken, gewogen pipeline en een lijst met wat aan de beurt is."
 featureName: CRM-rapportage
 
 relatedHrefs:
@@ -63,13 +63,27 @@ Een sales dashboard in je CRM telt en somt op wat al in je CRM staat, zodat vrag
 
 CRM rapportage is hier bewust klein gehouden. Heb je conversietracking in de tijd, tijd in fase, quota of omzetprognoses nodig, dan noemt het onderdeel over de beperkingen tools die dat wel doen.
 
+## Wat is een sales dashboard en hoe maak je een goed dashboard? [#wat-is-een-sales-dashboard]
+
+Een sales dashboard is één scherm met de cijfers waarop je je verkoop stuurt: wat er in de pipeline zit, wat gewonnen en verloren is en welke opvolging nu aan de beurt is. De cijfers komen live uit de records in je CRM, dus niemand hoeft een overzicht bij te werken. Een goed dashboard beantwoordt de paar vragen die je elke week stelt, en niet meer.
+
+Zo maak je het:
+
+1. **Begin bij de vragen, niet bij de grafieken.** Schrijf op welke beslissingen het dashboard moet helpen nemen, bijvoorbeeld "waar bel ik deze week?" en "hoe gezond is de pipeline?".
+2. **Leg vast waarop je later wilt groeperen.** Een grafiek kan alleen groeperen op wat je invult, zoals Leadbron of Reden van verlies.
+3. **Houd het klein.** Vijf tot acht widgets, één vraag per widget.
+4. **Zet bovenaan wat actie vraagt.** De widget **Aankomend** met wat aan de beurt en achterstallig is, vóór de totalen.
+5. **Laat het team dezelfde cijfers zien.** Deel de dashboardweergave en kijk er elke week naar.
+
+Welke KPI's je daarnaast in een wekelijkse review bekijkt, staat op de pagina over [sales KPI's](/features/sales). De volgende onderdelen laten zien hoe je elk cijfer in Customermates bouwt.
+
 ## Wat een grafiekwidget kan berekenen
 
 Elke grafiek neemt één lijst als bron, een aggregatie en een groepering. De aggregatie is het aantal records, of de som, het gemiddelde, het minimum of het maximum van een getal- of geldveld, zoals **Waarde** of **Gewogen waarde** op deals.
 
 **Groepering** is **Geen groepering** (één totaal), een veld zoals Fase of Leadbron, elk record, **Toegewezen aan**, of een veld dat je via een relatie bereikt. Zo krijg je "dealwaarde per fase", "dealwaarde per organisatie" of "regelbedragen per dienst". Groepeer op een datumveld, **Aangemaakt op** of **Bijgewerkt op** en kies een **Tijdsinterval** voor één waarde per dag, week, maand, kwartaal of jaar.
 
-**Gewogen waarde** is een berekend veld op deals: de waarde van de deal maal de **Waarschijnlijkheid %** van zijn fase, die je instelt op elke optie van het veld Fase in **Datamodel**. Zodra de kansen zijn ingesteld, werkt het vanaf de eerste deal.
+**Gewogen waarde** is een berekend veld op deals: de waarde van de deal maal de **Waarschijnlijkheid %** van de bijbehorende fase, die je instelt op elke optie van het veld Fase in **Datamodel**. Zodra de kansen zijn ingesteld, werkt het vanaf de eerste deal.
 
 **Filters** beperken wat een grafiek telt, op elk veld, ook datums; gekoppelde velden verschijnen als **Lijst › Veld**. Zo maak je een grafiek van "waarde van gewonnen deals per organisatie": deals als bron, een filter op Fase is Gewonnen, gegroepeerd op organisatie.
 
@@ -97,6 +111,22 @@ Twee vragen beantwoord je beter met een lijst dan met een grafiek. **Wie werkt a
 
 Een derde vraag gaat over opvolging: **Wat is de volgende stap?** Voeg een widget **Aankomend** toe op een datumveld zoals Volgende stap. Hij toont de records die de komende 14 dagen aan de beurt zijn, met een sectie **Achterstallig** voor eerdere datums, zodat de volgende stappen op je dashboard staan als je inlogt. Filter afgeronde records weg, zodat alleen open records als achterstallig tellen.
 
+## Voorbeeld van een sales dashboard voor een team van vier [#voorbeeld-sales-dashboard]
+
+Dit is een indeling met de recepten hierboven, van boven naar beneden gelezen:
+
+| Plek | Widget | Vraag die hij beantwoordt |
+|---|---|---|
+| Bovenaan | **Aankomend** op het datumveld Volgende stap | Wat is er vandaag aan de beurt en wat is achterstallig? |
+| Daaronder | Getal: som van Waarde van open deals | Hoeveel ligt er open? |
+| Daaronder | Staafdiagram: som van Gewogen waarde per Fase | Wat is de pipeline waard als de kansen kloppen? |
+| Midden | Donut: waarde van gewonnen deals per Leadbron | Welke kanalen leveren werk op? |
+| Midden | Ranglijst: waarde van gewonnen deals per organisatie | Welke klanten brengen het meest op? |
+| Onder | Horizontale balken: aantal verloren deals per Reden van verlies | Waarom verliezen we? |
+| Onderaan | **Activiteitentijdlijn** | Wat gebeurde er de afgelopen dagen bij mijn deals? |
+
+Sleep de widgets in de volgorde die bij jouw week past, en sla de weergave op onder een naam als "Wekelijkse pipeline". Een ander team met andere vragen krijgt andere widgets: het gaat om de vragen, niet om de grafiektypen.
+
 ## Welk abonnement je nodig hebt
 
 | Abonnement | Rapportagefuncties | Prijs |
@@ -114,7 +144,7 @@ Customermates publiceert deze pagina. Gegevens van leveranciers: verificatie op 
 
 | Je hebt nodig | In Customermates | Waar je kijkt |
 |---|---|---|
-| Omzetprognoses voorbij de kansen per fase | Niet beschikbaar. De gewogen pipeline vermenigvuldigt de waarde van elke deal met de kans die jij voor zijn fase instelt, meer niet. | [HubSpot Sales Hub](https://www.hubspot.com/pricing/sales) Professional en Enterprise bevatten prognoses; [Pipedrive](https://www.pipedrive.com/en/features/insights-and-reports) biedt een prognoseweergave |
+| Omzetprognoses voorbij de kansen per fase | Niet beschikbaar. De gewogen pipeline vermenigvuldigt de waarde van elke deal met de kans die jij voor de bijbehorende fase instelt, meer niet. | [HubSpot Sales Hub](https://www.hubspot.com/pricing/sales) Professional en Enterprise bevatten prognoses; [Pipedrive](https://www.pipedrive.com/en/features/insights-and-reports) biedt een prognoseweergave |
 | Een eigen rapportbouwer met conversiepercentages, doelen en veel rapporttypes | Niet beschikbaar. Grafieken tellen en aggregeren; een Trechter toont de conversie van stap tot stap van de huidige records, maar er zijn geen doelen of conversie in de tijd. | HubSpot Sales Hub Professional (eigen rapporten); Pipedrive Insights (eigen rapporten, dashboards en doelen) |
 | Je eigen BI op de ruwe gegevens | Geen ingebouwde koppeling met een BI-tool | Zelf gehost: je gegevens staan in je eigen PostgreSQL, die [Metabase](https://www.metabase.com/docs/latest/databases/connecting) ondersteunt; de Open Source-editie is gratis en zelf te hosten. Gebruik een databasegebruiker met alleen leesrechten en reken erop dat je queries na een upgrade moet aanpassen, want de tabellen zijn het interne schema van het product. |
 | Een dashboard dat het hele team bewerkt | Niet beschikbaar. Een gedeeld dashboard is voor collega's alleen-lezen: alleen de eigenaar wijzigt de widgets, en **Dupliceren als nieuwe weergave** geeft iedereen een bewerkbare kopie. | |
@@ -141,12 +171,24 @@ Het antwoord is een chatbericht, geen opgeslagen grafiek. Mate kan ook dashboard
 ## Veelgestelde vragen
 
 <Faq>
+<FaqItem question="Wat is een sales dashboard?">
+Een sales dashboard toont op één scherm de cijfers waarop je verkoop stuurt: pipelinewaarde per fase, gewonnen en verloren deals en wat er aan de beurt is. In Customermates bouw je het uit grafiekwidgets en de widget Aankomend op je eigen records.
+</FaqItem>
+
+<FaqItem question="Hoe maak je een goed sales dashboard?">
+Begin bij de vragen die je elke week stelt, niet bij de grafieken. Leg de velden vast waarop je wilt groeperen, houd het bij vijf tot acht widgets en zet bovenaan wat actie vraagt. Deel de weergave met je team en kijk er wekelijks naar. De stappen staan hierboven.
+</FaqItem>
+
+<FaqItem question="Is Excel genoeg voor een sales dashboard?">
+Voor één persoon met een handvol deals kan een spreadsheet volstaan. Werken meerdere mensen aan dezelfde deals, dan loopt een spreadsheet snel achter. Een dashboard in je CRM rekent live mee met de records, en je kunt altijd een lijst naar Excel exporteren voor een eenmalige analyse.
+</FaqItem>
+
 <FaqItem question="Wat zijn typische CRM-rapporten?">
 Voor een klein team dekken vijf rapporten de meeste beslissingen: pipelinewaarde per fase, gewogen pipeline, gewonnen omzet per leadbron, omzet per klant en verloren deals per reden. Alle vijf zijn grafiekwidgets in Customermates. Activiteitsrapporten, conversietrechters en verkoopprognoses komen vaak voor in grotere CRM's; Customermates heeft een activiteitentijdlijn en een trechtergrafiek van de huidige fasen, maar geen prognose.
 </FaqItem>
 
 <FaqItem question="Kan Customermates omzet voorspellen?">
-Niet in voorspellende zin. Het berekent een gewogen pipeline: de waarde van elke deal maal de winkans die jij voor zijn fase instelt. Er leert niets van eerdere deals en er worden geen afsluitdatums voorspeld. Heb je dat nodig, kijk dan naar HubSpot Sales Hub Professional of de prognoseweergave van Pipedrive.
+Niet in voorspellende zin. Het berekent een gewogen pipeline: de waarde van elke deal maal de winkans die jij voor de bijbehorende fase instelt. Er leert niets van eerdere deals en er worden geen afsluitdatums voorspeld. Heb je dat nodig, kijk dan naar HubSpot Sales Hub Professional of de prognoseweergave van Pipedrive.
 </FaqItem>
 
 <FaqItem question="Kan mijn team één dashboard delen?">

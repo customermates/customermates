@@ -1,6 +1,6 @@
 ---
-title: "MCP vs API: to samo zadanie CRM obiema drogami"
-description: "MCP vs API na jednym teście z 5 listopada 2026: to samo wyszukanie klienta i zadanie przez REST i MCP. Porównaj uprawnienia, zatwierdzenia i wybór."
+title: "MCP vs API: różnice, test w CRM i kiedy wybrać które"
+description: "MCP vs API: różnice, bezpieczeństwo i wybór. Test z 5 listopada 2026: to samo wyszukanie klienta i zadanie przez REST i MCP oraz odrzucony zapis."
 
 hero:
   title: "MCP vs API: które połączenie pasuje do Twojego zadania w CRM?"
@@ -34,7 +34,7 @@ Użyj REST, gdy integracja jest znana, a jej kroki kontrolujesz w kodzie. Rozwa�
 
 API to interfejs programistyczny aplikacji. REST to styl architektury stosowany w API webowych, a nie synonim każdego API. Endpoint to konkretny adres, który udostępnia aplikacja. Mikroserwis to sposób podziału aplikacji na usługi i może mieć własne API.
 
-MCP, czyli Model Context Protocol, standaryzuje wymianę między aplikacją hosta, jej komponentem klienckim i serwerem. Serwer może opakowywać REST API, wywoływać inne API albo uruchamiać logikę aplikacji bezpośrednio. W Customermates trasy REST dla rekordów i narzędzia MCP wywołują te same współdzielone interaktory. Poniższy przykład porównuje więc dwa punkty wejścia do tej samej logiki CRM.
+MCP, czyli [Model Context Protocol](/blog/what-is-an-mcp-server), standaryzuje wymianę między aplikacją hosta, jej komponentem klienckim i serwerem. Serwer może opakowywać REST API, wywoływać inne API albo uruchamiać logikę aplikacji bezpośrednio. W Customermates trasy REST dla rekordów i narzędzia MCP wywołują te same współdzielone interaktory. Poniższy przykład porównuje więc dwa punkty wejścia do tej samej logiki CRM.
 
 | Decyzja | REST API | MCP |
 | --- | --- | --- |
@@ -48,6 +48,16 @@ MCP, czyli Model Context Protocol, standaryzuje wymianę między aplikacją host
 | Najlepszy punkt startu | Stabilna synchronizacja lub stały proces biznesowy | Asystent wybierający spośród dostępnych operacji |
 
 HTTP zapewnia semantykę metod i statusów, opisaną w [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html). Treść JSON wysłana metodą POST sama nie daje bezpiecznych ponowień. MCP również wymaga kontraktu aplikacji, który zapobiega duplikatom. Nie zastępuje HTTP gwarancją bezpieczeństwa ani wydajności.
+
+## Najważniejsze różnice w pięciu punktach [#roznice-w-piecu-punktach]
+
+1. **Kto jest odbiorcą.** REST obsługuje kod aplikacji, który programista napisał pod konkretne zadanie. MCP obsługuje aplikację AI (hosta), która ma wybrać narzędzie w trakcie pracy.
+2. **Jak klient znajduje operacje.** W REST czytasz dokumentację albo kontrakt OpenAPI i wpisujesz endpointy do kodu. W MCP klient pobiera listę narzędzi i ich schematy (`tools/list`) dopiero po połączeniu.
+3. **Kto wybiera następny krok.** W REST robi to kod integracji, w MCP może to zrobić model, choć skrypt też może wywoływać narzędzia wprost, tak jak w naszym teście.
+4. **Jak wygląda połączenie.** Żądanie REST niesie wszystko, czego potrzebuje serwer. Połączenie MCP zaczyna się od uzgodnienia (`initialize`), a dopiero potem klient wywołuje narzędzia.
+5. **Jak działa bezpieczeństwo.** Oba warianty potrzebują uwierzytelnienia, uprawnień i kontroli ponowień. MCP dokłada pytanie o to, co model zrobi z niezaufanym tekstem w wynikach narzędzi i kto zatwierdza wysyłkę lub usunięcie.
+
+Pozostała część artykułu pokazuje, jak wygląda to na jednym zadaniu w CRM.
 
 ## Czym różni się wykrywanie narzędzi od wykrywania schematu?
 
@@ -205,26 +215,55 @@ Zatwierdzenie to osobna kwestia. Customermates instruuje zewnętrznych klientów
 
 Mate hostowany przez Customermates ma własną politykę zatwierdzeń, egzekwowaną po stronie serwera. Rutyny mają własne mechanizmy wykonania i zatwierdzania; nie wnioskuj o nich na podstawie sesji zewnętrznego MCP. Dostępność Mate w chmurze zarządzanej zależy też od kwalifikujących się planów, dostępnych kredytów i globalnych ustawień. [Przewodnik po agentowym CRM](/blog/agentic-crm) wyjaśnia te granice.
 
+### Lista kontrolna bezpieczeństwa dla MCP i API [#lista-bezpieczenstwa]
+
+Niezależnie od protokołu sprawdź kilka rzeczy, zanim podłączysz agenta do prawdziwych danych klientów:
+
+- **Najmniejsze uprawnienia.** Połącz użytkownika z rolą, która może tylko to, czego zadanie wymaga. Zacznij od roli tylko do odczytu.
+- **Zaufane serwery.** Podłączaj tylko serwery MCP, którym ufasz, bo opisy narzędzi i wyniki są tekstem, który model przeczyta.
+- **Niezaufany tekst.** Treść wiadomości, notatek i stron może zawierać polecenia; traktuj ją jak dane, nie jak instrukcję.
+- **Zatwierdzanie przed wysyłką i usunięciem.** Sprawdź, jak Twój klient wymusza potwierdzenie, bo serwer nie wstrzyma uprawnionego wywołania.
+- **Idempotencja zapisu.** Przy każdym ponowieniu używaj tego samego klucza, żeby nie powstały duplikaty.
+
 ## Kiedy zostać przy REST, użyć MCP albo połączyć oba?
 
 Zostań przy REST, gdy zadanie brzmi „wykonuj dokładnie te kroki, kiedy zajdzie znane zdarzenie”. Stała synchronizacja zwykle zyskuje na jawnych mapowaniach, ponowieniach i obsłudze błędów w kodzie. OpenAPI też może dostarczać maszynowo czytelne schematy API; możliwość wykrycia nie jest wyłączną cechą MCP.
 
 Wybierz MCP, gdy kolejna przydatna operacja zależy od pytania człowieka, a host obsługuje potrzebne narzędzia. Nadal potrzebujesz zaufanych serwerów, ograniczonego dostępu, walidacji wyników i polityki zatwierdzeń. MCP to coś więcej niż format JSON, ale nie jest bramą API, która automatycznie zapewnia wszystkie te kontrole. Role hosta, klienta i serwera opisuje [oficjalna architektura MCP](https://modelcontextprotocol.io/docs/learn/architecture).
 
-Oba podejścia można łączyć: webhook zgłasza zdarzenie, deterministyczny przepływ pobiera dane przez REST, a asystent bada wyjątek przez MCP. Webhooki to powiadomienia o zdarzeniach, a nie inna nazwa wywołania narzędzia. n8n potrafi orkiestrować integracje, ale opisany wyżej test lokalny uruchomił skrypt, a nie n8n. [Wprowadzenie do workflow w n8n](/blog/n8n-for-beginners-build-your-first-workflow) to osobny punkt startu.
+Oba podejścia można łączyć: webhook zgłasza zdarzenie, deterministyczny przepływ pobiera dane przez REST, a asystent bada wyjątek przez MCP. [Webhooki](/docs/webhooks) to powiadomienia o zdarzeniach, a nie inna nazwa wywołania narzędzia. n8n potrafi orkiestrować integracje (jak to wygląda z MCP, opisuje [poradnik o n8n MCP](/blog/n8n-mcp)), ale opisany wyżej test lokalny uruchomił skrypt, a nie n8n. [Wprowadzenie do workflow w n8n](/blog/n8n-for-beginners-build-your-first-workflow) to osobny punkt startu.
 
 Samodzielnie hostowany Customermates udostępnia rdzeń CRM Starter z REST i MCP dla klientów zewnętrznych. Nie obejmuje Mate hostowanego przez Customermates ani skrzynki odbiorczej w chmurze. Wybierz inne podejście, jeśli potrzebujesz tylko adaptera do swojego obecnego CRM albo gdy stała integracja nic nie zyskuje na hoście AI. Ceny chmury i warunki okresu próbnego nie zależą od wyboru protokołu; porównasz je na [aktualnej stronie cennika](/pricing).
+
+### Przykłady zastosowań: REST czy MCP? [#przyklady-zastosowan]
+
+| Zadanie | Droga | Dlaczego |
+| --- | --- | --- |
+| Nocna synchronizacja klientów z programem księgowym | REST | Stałe kroki, jawne mapowania i obsługa błędów w kodzie |
+| Formularz na stronie tworzy kontakt i szansę sprzedaży | REST, ewentualnie webhook | Znane zdarzenie i przewidywalny przebieg |
+| Asystent streszcza historię klienta przed spotkaniem | MCP | Pytanie człowieka decyduje, które rekordy odczytać |
+| Agent przygotowuje szkic follow-upu i następnego kroku do sprawdzenia | MCP | Model wybiera narzędzia, człowiek zatwierdza wysyłkę |
+| Tygodniowy raport z tych samych liczb | REST | Powtarzalne zapytanie bez udziału modelu |
 
 Zespołowi, który wraca do rozmów z klientami, przyda się wywołanie MCP, które odczytuje wątek na rekordzie klienta i zapisuje wersję roboczą odpowiedzi oraz następny krok do przejrzenia. Żeby wypróbować to z własnym Claude lub ChatGPT, [zacznij okres próbny](/auth/signup?job=followup): [[commercial.trial.days]] dni planu Pro bez karty kredytowej.
 
 ## Najczęstsze pytania
 
 <Faq>
+<FaqItem question="Czy MCP to to samo co API?">
+Nie. API to ogólne pojęcie interfejsu programistycznego, a REST to jeden ze stylów takich interfejsów. MCP to protokół opisujący, jak aplikacja AI wykrywa i wywołuje narzędzia serwera. Serwer MCP często korzysta z API w tle, ale z punktu widzenia klienta ma inny kontrakt: nazwane narzędzia ze schematami zamiast endpointów.
+</FaqItem>
 <FaqItem question="Czy MCP zastępuje REST API?">
 Nie. Serwer MCP może opakowywać REST API albo współdzielić z nim logikę aplikacji. REST nadal sprawdza się w kontrolowanych integracjach ze z góry określonymi krokami.
 </FaqItem>
 <FaqItem question="Czy MCP to tylko JSON albo REST API?">
 MCP definiuje komunikaty protokołu i konwencje wykrywania, a nie tylko kształt JSON. Może działać przez HTTP, ale wywołanie nazwanego narzędzia MCP to nie ten sam kontrakt co wywołanie endpointu REST.
+</FaqItem>
+<FaqItem question="Czy MCP jest jak brama API (API gateway)?">
+Nie. Brama API stoi przed interfejsami i zajmuje się ruchem: routingiem, limitami, uwierzytelnianiem. MCP definiuje, jak klient AI odkrywa i wywołuje narzędzia. Samo MCP nie zapewnia kontroli, które daje dobrze skonfigurowana brama, więc nadal potrzebujesz uwierzytelniania, uprawnień i zatwierdzeń.
+</FaqItem>
+<FaqItem question="Czy istniejące API można zamienić w serwer MCP?">
+Tak, serwer MCP może opakowywać REST API, ale to nie jest mechaniczna konwersja. Wybierasz operacje, które mają być narzędziami, nadajesz im czytelne nazwy i schematy wejścia, pilnujesz uprawnień oraz kontraktu idempotentności. W Customermates REST i MCP korzystają z tych samych współdzielonych interaktorów, więc oba punkty wejścia stosują te same uprawnienia.
 </FaqItem>
 <FaqItem question="Czy MCP automatycznie zabezpiecza dane klientów?">
 Nie. Kontrola dostępu, obsługa tokenów, niezaufane dane i zatwierdzenia po stronie klienta nadal mają znaczenie. Nasz lokalny zestaw testowy obejmuje uprawnione operacje i dwie odrzucone aktualizacje dla jednej roli tylko do odczytu; nie dowodzi to przewagi w zakresie bezpieczeństwa.

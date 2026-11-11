@@ -56,11 +56,11 @@ cta:
   hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
 ---
 
-Zadania w CRM oznaczają, że to-do żyje przy rekordzie klienta: „wyślij poprawioną ofertę” jest przypięte do szansy sprzedaży i kontaktu, których dotyczy, więc każdy, kto otworzy jedno lub drugie, widzi, co czeka i kto się tym zajmuje. W Customermates zadanie to rekord na własnej liście, Zadania. Ma nazwę, notatki, przypisanych użytkowników, powiązania z kontaktami, organizacjami, szansami sprzedaży i usługami oraz pola własne, które dodasz. To wszystko, co ma.
+Zadania w CRM oznaczają, że rzecz do zrobienia żyje przy rekordzie klienta: „wyślij poprawioną ofertę” jest przypięte do szansy sprzedaży i kontaktu, których dotyczy, więc każdy, kto otworzy jedno lub drugie, widzi, co czeka i kto się tym zajmuje. W Customermates zadanie to rekord na własnej liście, Zadania. Ma nazwę, notatki, przypisanych użytkowników, powiązania z kontaktami, organizacjami, szansami sprzedaży i usługami oraz pola własne, które dodasz. Na tym koniec.
 
-**Gdzie to pomaga w follow-upie.** Obietnica złożona podczas rozmowy żyje w czyjejś głowie, dopóki nie stanie się zadaniem. Jako zadanie przy szansie sprzedaży i kontakcie pojawia się na obu rekordach, a zapisany widok szans sprzedaży bez żadnego zadania wylicza każdego klienta, którego kolejnego kroku nikt nie zapisał.
+**Gdzie to pomaga w follow-upie.** Obietnica złożona podczas rozmowy żyje w czyjejś głowie, dopóki nie stanie się zadaniem. Jako zadanie przy szansie sprzedaży i kontakcie pojawia się na obu rekordach, a zapisany widok szans sprzedaży bez żadnego zadania wskazuje każdego klienta, którego kolejnego kroku nikt nie zapisał.
 
-Nie ma wbudowanego terminu, przypomnienia, alertu o zaległości ani zadania cyklicznego. Pole **Status** w zadaniach to zwykłe pole Pojedynczy wybór, które tworzysz, przemianowujesz lub zastępujesz. Customermates nie pasuje do zespołu, który planuje tydzień wokół przypomnień i terminów zadań. Lepiej sprawdzi się tam CRM z zaplanowanymi aktywnościami, a tabela niżej wymienia dwa takie. Jeśli chcesz zadań, które niosą kontekst klienta i które AI może tworzyć i aktualizować, czytaj dalej.
+Nie ma wbudowanego terminu, przypomnienia, alertu o zaległości ani zadania cyklicznego. Pole **Status** w zadaniach to zwykłe pole Pojedynczy wybór, które tworzysz, któremu zmieniasz nazwę albo które zastępujesz innym. Customermates nie pasuje do zespołu, który planuje tydzień wokół przypomnień i terminów zadań. Lepiej sprawdzi się tam CRM z zaplanowanymi aktywnościami, a tabela niżej wymienia dwa takie. Jeśli chcesz zadań, które niosą kontekst klienta i które AI może tworzyć i aktualizować, czytaj dalej.
 
 ## Czym jest zadanie w Customermates
 
@@ -68,14 +68,14 @@ Nie ma wbudowanego terminu, przypomnienia, alertu o zaległości ani zadania cyk
 |---|---|
 | Nazwa i notatki | Notatki to pole Tekst sformatowany. Mogą zawierać listy kontrolne, obrazy i tabele, ale nie są wersjonowanym dziennikiem pracy. |
 | Przypisanie | Dowolna liczba współpracowników. Filtruj według **Przypisane**, żeby zobaczyć obciążenie jednej osoby, albo użyj „nie ma żadnych”, żeby znaleźć zadania, których nikt nie prowadzi. |
-| Powiązania | Kontakty, organizacje, szanse sprzedaży i usługi. Każdy powiązany rekord pokazuje swoje zadania, więc strona szansy sprzedaży wylicza, co jeszcze musi się wydarzyć. |
+| Powiązania | Kontakty, organizacje, szanse sprzedaży i usługi. Każdy powiązany rekord pokazuje swoje zadania, więc na stronie szansy sprzedaży widzisz, co jeszcze musi się wydarzyć. |
 | Pola własne | Dowolny typ pola, taki jak Data, Pojedynczy wybór, Liczba, Kwota pieniężna, Tekst, Adres internetowy, Adres lub Plik. Dodaj pole **Data docelowa** albo **Priorytet**, jeśli Twój proces tego wymaga. |
 | Status | To nie jest pole stałe. Nowe przestrzenie robocze dostają pole **Status** typu Pojedynczy wybór (Otwarte, W toku, Zablokowane, Wstrzymane, Ukończone, Zarchiwizowane), które możesz edytować. |
 | Tablica | Grupuj według pola wyboru i przeciągaj karty między kolumnami, żeby zmienić wartość. |
 
 Zadania to zwykła lista: zmieniasz jej nazwę, zmieniasz jej pola albo ją usuwasz i przywracasz z Kosza jak każdą inną. Osoby, które dołączają przez link zaproszenia do Twojej przestrzeni roboczej, czekają na zatwierdzenie w **Ustawienia > Członkowie**, a menu przestrzeni roboczej liczy je dla każdego, kto może zatwierdzać członków. [Przewodnik po rekordach](/docs/app-records) opisuje każdą listę, filtr i element sterujący tablicy.
 
-## Ustaw zarządzanie zadaniami w CRM
+## Jak przenieść zadania do CRM
 
 Przychodzisz z arkusza albo z innego narzędzia? Zadania importuje się ze skoroszytu XLSX lub pliku CSV, z kolumnami na nazwę, notatki, przypisanych użytkowników i powiązane rekordy. Najpierw zaimportuj kontakty, organizacje i szanse sprzedaży, żeby powiązania mogły się dopasować.
 
@@ -89,7 +89,7 @@ Rutyny działają jako ich właściciel, z jego dostępem i kredytami, a wynik c
 
 **Z własnym klientem AI** Claude, ChatGPT lub inny klient podłączony przez [MCP](/docs/mcp) może używać `mutate_crm_record` na tych samych rekordach. Działa to także w instalacjach self-hosted, z kosztami Twojego dostawcy AI zamiast hostowanych kredytów.
 
-**Z kodem** REST API udostępnia zadania, a [webhooki](/docs/webhooks) odpalają na `record.created`, `record.updated` i `record.deleted` dla listy Zadania. Harmonogram, który sam prowadzisz, na przykład n8n, może odczytać Datę docelową przez API i wysłać wiadomość, dokąd chcesz. n8n nie jest dołączone; opcje opisuje [automatyzacja przepływów pracy](/features/workflow-automation).
+**Z kodem** REST API udostępnia zadania, a [webhooki](/docs/webhooks) uruchamiają się przy zdarzeniach `record.created`, `record.updated` i `record.deleted` dla listy Zadania. Harmonogram, który sam prowadzisz, na przykład n8n, może odczytać Datę docelową przez API i wysłać wiadomość, dokąd chcesz. n8n nie jest dołączone; opcje opisuje [automatyzacja przepływów pracy](/features/workflow-automation).
 
 ## Czy Customermates to narzędzie do zarządzania projektami?
 
@@ -109,7 +109,7 @@ Jeśli realizujesz projekty, zostaw Customermates do relacji z klientem, a do pr
 
 Zadania są w każdym planie. Zespół pięciu osób na Starterze płaci [[commercial.price.starter.monthly.seats.5]] miesięcznie, za co dostaje zadania, pola własne, tablice i zapisane widoki. Starter obejmuje [[commercial.entitlement.starter.includedRoutinesPerUser]] rutynę na użytkownika i nie ma skrzynki odbiorczej. Pro, za [[commercial.price.pro.monthly.seats.5]] miesięcznie dla pięciu osób, dodaje wspólną skrzynkę odbiorczą i [[commercial.entitlement.pro.includedRoutinesPerUser]] rutyn na użytkownika. Mate zużywa miesięczne hostowane kredyty AI na aktywnego użytkownika; kwoty są na [stronie z cennikiem](/pricing). Rozliczenie jest miesięczne. Samodzielny hosting otwartego rdzenia nie kosztuje opłat licencyjnych, a serwer prowadzisz sam.
 
-## FAQ
+## Najczęstsze pytania
 
 <Faq>
 <FaqItem question="Czy Customermates ma terminy zadań i przypomnienia?">

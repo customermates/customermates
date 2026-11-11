@@ -1,6 +1,6 @@
 ---
-title: "CRM inmobiliario: seguimiento de compradores y vendedores"
-description: "CRM inmobiliario: el correo y WhatsApp en el registro de cada comprador o vendedor, con fecha de siguiente contacto y borradores de Mate que tú revisas."
+title: "CRM inmobiliario: qué es y cómo seguir a cada comprador"
+description: "CRM inmobiliario: qué es y cómo seguir a compradores y vendedores con correo y WhatsApp en cada registro, siguiente contacto con fecha y borradores de IA."
 industryName: "Inmobiliaria"
 
 relatedHrefs:
@@ -48,7 +48,9 @@ useCases:
       visual: contacts
 ---
 
-Los ingresos de un agente inmobiliario dependen de conversaciones que se enfrían: el comprador que dijo «en seis meses», el vendedor que quería pensárselo, el cliente que compró hace cinco años. Como **CRM inmobiliario**, Customermates pone las conversaciones en el registro del cliente cuando coinciden los datos de contacto o cuando las vinculas. En Customermates Cloud desde Pro, Mate redacta la respuesta y el siguiente contacto cuando se lo pides o con una rutina, o lo hace tu propio agente de IA (Claude, ChatGPT o cualquier cliente que hable MCP) a través de MCP. Tú revisas, editas y envías, y los siguientes pasos con fecha aparecen en tu panel. Es un CRM de código abierto y nativo de IA hecho en Alemania, pero no es un software inmobiliario completo: no tiene base de datos de inmuebles, ni feed de MLS o de portales, ni documentación de operaciones. La sección de límites de más abajo nombra herramientas que sí los tienen.
+Un **CRM inmobiliario** es el sistema en el que un agente o una inmobiliaria guarda a cada comprador, vendedor y cliente anterior con sus conversaciones y la fecha del siguiente contacto, para que ninguna consulta se enfríe. Te dice a quién llamar hoy, qué se le dijo la última vez y quién lleva cada inmueble.
+
+Los ingresos de un agente inmobiliario dependen de conversaciones que se enfrían: el comprador que dijo «en seis meses», el vendedor que quería pensárselo, el cliente que compró hace cinco años. Como CRM inmobiliario, Customermates pone las conversaciones en el registro del cliente cuando coinciden los datos de contacto o cuando las vinculas. En Customermates Cloud desde Pro, Mate redacta la respuesta y el siguiente contacto cuando se lo pides o con una rutina, o lo hace tu propio agente de IA (Claude, ChatGPT o cualquier cliente que hable MCP) a través de MCP. Tú revisas, editas y envías, y los siguientes pasos con fecha aparecen en tu panel. Es un CRM de código abierto y nativo de IA hecho en Alemania, pero no es un software inmobiliario completo: no tiene base de datos de inmuebles, ni feed de MLS o de portales, ni documentación de operaciones. La sección de límites de más abajo nombra herramientas que sí los tienen.
 
 <ArticleSummary title="De un vistazo">
   <SummaryItem label="Encaja con">
@@ -76,7 +78,19 @@ Los ingresos de un agente inmobiliario dependen de conversaciones que se enfría
   </SummaryItem>
 </ArticleSummary>
 
-## Qué necesitan los agentes y corredores de un CRM
+## Para qué sirve un CRM inmobiliario [#para-que-sirve-un-crm-inmobiliario]
+
+Un agente suele repartir su trabajo entre el móvil, el correo, WhatsApp y una hoja de cálculo. Un CRM inmobiliario lo reúne en un solo lugar, y las ventajas se notan en el día a día:
+
+- **Menos consultas sueltas.** Cada comprador, vendedor y colaborador tiene un registro con su historial y un siguiente paso con fecha.
+- **Respuestas con contexto.** Con la conversación en el registro, contestas sin buscar el hilo en tres aplicaciones.
+- **Menos clientes que se enfrían.** Una vista ordenada por fecha te muestra a quién tocaba llamar antes de que pase otra semana.
+- **Un equipo que ve lo mismo.** Cada consulta tiene un agente responsable, y todos ven en qué etapa está cada inmueble y cada comprador.
+- **Cifras a mano.** Cuántos inmuebles hay en cada etapa y qué comisión esperada está en juego, sin armar un informe a mano.
+
+Si hoy llevas todo en Excel, la [plantilla de CRM en Excel](/blog/excel-crm-template) te sirve para empezar ordenado, y [qué es un CRM](/blog/what-is-crm) explica lo básico.
+
+## Qué necesitan los agentes y corredores de un CRM [#que-necesitan-agentes-corredores]
 
 Que un CRM para inmobiliarias sirva a un agente depende de cinco tareas concretas:
 
@@ -131,7 +145,7 @@ En el panel, un widget **Próximos** sobre Próximo contacto muestra a quién le
 
 ### Asociar compradores a un inmueble nuevo
 
-Customermates no asocia compradores con inmuebles de forma automática, y no hay una base de datos de inmuebles con la que compararlos. Lo que funciona es un filtro. Cuando entra una casa de tres habitaciones en Riverside por 480.000 €, filtra los contactos por Rol Comprador, Zona de búsqueda Riverside, Habitaciones 3 o 4 y Presupuesto máximo de al menos 480.000. Los campos de importe admiten filtros de mayor que y menor que, y los campos de selección única admiten «es uno de» ([referencia de filtros](/docs/filter-syntax)). Vincula a la oportunidad del inmueble a los compradores a los que llames, para ver después quién se enteró.
+Customermates no asocia compradores con inmuebles de forma automática, y no hay una base de datos de inmuebles con la que compararlos. Lo que funciona es un filtro. Cuando entra una vivienda de tres habitaciones en el centro por 480.000 €, filtra los contactos por Rol Comprador, Zona de búsqueda Centro, Habitaciones 3 o 4 y Presupuesto máximo de al menos 480.000. Los campos de importe admiten filtros de mayor que y menor que, y los campos de selección única admiten «es uno de» ([referencia de filtros](/docs/filter-syntax)). Vincula a la oportunidad del inmueble a los compradores a los que llames, para ver después quién se enteró.
 
 En Customermates Cloud, una [rutina](/docs/app-routines) puede hacer la búsqueda por ti. Elige **Cuando algo cambia**, el evento **Oportunidad actualizada**, el campo modificado Etapa y los filtros de registro Lado = Venta y Etapa = Activa. Con instrucciones como estas:
 
@@ -146,7 +160,7 @@ mensaje.
 
 ### Consultas y conversaciones en una sola bandeja de entrada (Pro y superiores)
 
-En Customermates Cloud desde Pro, la [bandeja de entrada unificada](/features/unified-inbox) reúne el correo de Gmail, Outlook o IMAP con WhatsApp, LinkedIn, Instagram y Telegram. Respondes por el canal original. Si un portal reenvía las consultas a tu buzón, llegan aquí junto con el resto de tu correo. Vincula a un remitente con un contacto una vez, y cada conversación posterior con esa dirección aparece en su cronología.
+En Customermates Cloud desde Pro, la [bandeja de entrada unificada](/features/unified-inbox) reúne el correo de Gmail, Outlook o IMAP con WhatsApp, LinkedIn, Instagram y Telegram. Respondes por el canal original. Si un portal inmobiliario (Idealista, Fotocasa o Inmuebles24, por ejemplo) reenvía las consultas a tu buzón, llegan aquí junto con el resto de tu correo. Vincula a un remitente con un contacto una vez, y cada conversación posterior con esa dirección aparece en su cronología.
 
 Dos detalles deciden el plan. Pro incluye [[commercial.entitlement.pro.includedAccountsPerUser]] cuenta conectada por usuario, así que un agente que quiera tener en la bandeja de entrada tanto un buzón como WhatsApp necesita Business, que incluye [[commercial.entitlement.business.includedAccountsPerUser]]. Y tus conversaciones siguen siendo privadas: los compañeros, administradores incluidos, solo ven una conversación después de que la compartas. Compartir una cuenta entera, como el buzón de consultas de la oficina, requiere Business. Los SMS y las llamadas no son canales.
 
@@ -211,7 +225,7 @@ Los precios son por usuario activo al mes, con facturación mensual. Todos los p
 
 Cada plan de nube de pago añade cada mes créditos de IA alojados por usuario activo para Mate; las cantidades están en la [página de precios](/pricing). Ejecutar el núcleo de código abierto en tu propio servidor no cuesta licencia, pero una [instalación autoalojada](/features/self-hosted) no tiene bandeja de entrada, ni Mate, ni rutinas.
 
-## Pasar de una hoja de cálculo o de otro CRM
+## Pasar de una hoja de cálculo o de otro CRM [#pasar-de-una-hoja-de-calculo]
 
 <Steps>
   <Step title="Exporta a Excel">
@@ -245,8 +259,16 @@ En Customermates Cloud, la base de datos principal de producción está configur
 ## Preguntas frecuentes
 
 <Faq>
-<FaqItem question="¿Qué CRM usan los agentes inmobiliarios?">
-En EE. UU., los agentes pueden elegir CRM creados para el sector inmobiliario, como Follow Up Boss o Wise Agent, y muchas inmobiliarias aportan sus propias herramientas. En Alemania, programas para corredores como Propstack, FLOWFACT u onOffice también gestionan los propios inmuebles; Propstack y FLOWFACT indican interfaces con portales como ImmoScout24. Los agentes que sobre todo necesitan seguimiento, perfiles de búsqueda y sus conversaciones en un solo lugar también pueden usar un CRM general configurado como se describe arriba. Customermates es un producto propio, así que tenlo en cuenta.
+<FaqItem question="¿Qué es un CRM en el sector inmobiliario y para qué sirve?">
+Es el programa donde un agente o una inmobiliaria guarda a compradores, vendedores y colaboradores con sus conversaciones y su siguiente contacto. Sirve para no perder consultas, saber a quién llamar cada día y que todo el equipo vea el estado de cada inmueble y de cada comprador. Unos CRM inmobiliarios incluyen también la cartera de inmuebles y la conexión con portales; otros, como el que describe esta página, se centran en las personas y las conversaciones.
+</FaqItem>
+
+<FaqItem question="¿Qué CRM usan las inmobiliarias?">
+Depende del tipo de trabajo. En EE. UU., los agentes pueden elegir CRM creados para el sector inmobiliario, como Follow Up Boss o Wise Agent, y muchas inmobiliarias aportan sus propias herramientas. En Alemania, programas para corredores como Propstack, FLOWFACT u onOffice también gestionan los propios inmuebles; Propstack y FLOWFACT indican interfaces con portales como ImmoScout24. En España y Latinoamérica también hay programas específicos para inmobiliarias con cartera de inmuebles y conexión con portales, y conviene comparar sus sitios web. Los agentes que sobre todo necesitan seguimiento, perfiles de búsqueda y sus conversaciones en un solo lugar también pueden usar un CRM general configurado como se describe arriba. Customermates es un producto propio, así que tenlo en cuenta.
+</FaqItem>
+
+<FaqItem question="¿Basta con una hoja de Excel como CRM inmobiliario?">
+Con pocos contactos, sí. El problema aparece cuando crecen: la hoja no guarda las conversaciones de correo y WhatsApp, no avisa de quién lleva semanas sin respuesta y varios agentes acaban con copias distintas. Un CRM pone el historial, el responsable y la fecha del siguiente contacto en el mismo registro. Para dar el paso, importa tu hoja siguiendo los pasos de [más abajo](#pasar-de-una-hoja-de-calculo).
 </FaqItem>
 
 <FaqItem question="¿Cuánto cuesta un CRM inmobiliario?">
@@ -257,8 +279,8 @@ Las páginas de precios de los proveedores muestran un rango amplio. El 8 de oct
 No. No hay una base de datos de inmuebles ni una asociación automática. Filtras a los compradores por zona de búsqueda, tipo de inmueble, habitaciones y presupuesto cuando entra un inmueble, o, en Customermates Cloud, una rutina hace esa búsqueda cuando un inmueble pasa a activo y vincula a él a los compradores que encajan.
 </FaqItem>
 
-<FaqItem question="¿Se conecta con el MLS, Zillow o ImmoScout24?">
-No de forma nativa. Las consultas que los portales envían a tu buzón llegan a la bandeja de entrada unificada desde Pro. Para cualquier otra cosa, tu propia integración o un flujo de n8n que operes por separado puede crear contactos a través de la [API REST](/features/api).
+<FaqItem question="¿Se conecta con Idealista, Fotocasa, Inmuebles24 o el MLS?">
+No de forma nativa, ni con ningún otro portal. Las consultas que los portales envían a tu buzón llegan a la bandeja de entrada unificada desde Pro. Para cualquier otra cosa, tu propia integración o un flujo de n8n que operes por separado puede crear contactos a través de la [API REST](/features/api).
 </FaqItem>
 
 <FaqItem question="¿Es Customermates una buena opción para la administración de propiedades?">

@@ -52,7 +52,7 @@ Escreva esta tabela para os seus próprios sistemas antes de comparar ferramenta
 | --- | --- | --- |
 | Contatos, histórico de relacionamento, conversas | CRM | O ERP só guarda uma pessoa de contato se os documentos dele precisarem de uma |
 | Negócio, etapa, próximo passo | CRM | Nada, ou uma referência no pedido |
-| Conta do cliente para cobrança (razão social, VAT ID, endereço de cobrança, condições de pagamento) | ERP | Número do cliente no ERP; a integração o trata como de propriedade do ERP |
+| Conta do cliente para cobrança (razão social, CNPJ ou VAT ID, endereço de cobrança, condições de pagamento) | ERP | Número do cliente no ERP; a integração o trata como de propriedade do ERP |
 | Itens e preços | ERP | Número do item no registro de produto ou serviço do CRM |
 | Pedidos, entrega, estoque | ERP | Número do pedido e um status visível ao cliente |
 | Documentos de cobrança e pagamentos | ERP | Número do documento e um status de pagamento resumido, se os gestores de conta precisarem dele |
@@ -61,7 +61,7 @@ Se dois sistemas escrevem o mesmo campo, há um conflito esperando para acontece
 
 ## Quatro formas de conectar um CRM e um ERP
 
-| Método | Combina quando | Atenção a |
+| Método | Combina quando | Fique atento a |
 | --- | --- | --- |
 | Conector nativo | Os dois sistemas vêm de fornecedores que oferecem um conector um para o outro | Quais objetos, campos e sentidos ele cobre, quais edições ele exige e quem dá suporte quando ele quebra |
 | Plataforma de automação (iPaaS, n8n, Make, Zapier) | Você precisa de alguns fluxos entre dois sistemas com APIs REST e quer lógica visual | Idempotência, filas de erros e segredos continuam sendo seu trabalho. Um fluxo visual é software de produção |
@@ -112,7 +112,7 @@ Uma integração que só trata o caminho feliz vai criar duplicados em poucas se
     "Negócio ganho cria o cliente e o pedido no ERP" é um bom primeiro evento. "Sincronizar CRM e ERP" não é um evento.
   </Step>
   <Step title="Defina as pré-condições">
-    Liste os campos que precisam estar preenchidos antes que o evento possa disparar: endereço de cobrança, VAT ID, itens, quantidades. Decida o que bloqueia o evento e quem corrige.
+    Liste os campos que precisam estar preenchidos antes que o evento possa disparar: endereço de cobrança, CNPJ ou VAT ID, itens, quantidades. Decida o que bloqueia o evento e quem corrige.
   </Step>
   <Step title="Escreva o mapa de campos">
     Para cada campo: origem, destino, tipo, dono, transformação e o que acontece quando ele está ausente ou inválido. Mantenha o mapa versionado junto da integração.
@@ -141,7 +141,7 @@ Esta é a configuração no Customermates para o primeiro fluxo acima. Ela usa a
 
 **Idempotência.** Todo evento carrega um `id` que continua o mesmo em novas tentativas e reenvios, então deduplique por ele. Como segunda verificação, use a referência cruzada: se o "Nº do pedido no ERP" do negócio já está preenchido, pare.
 
-**Associação do cliente.** Consulte o "Nº do cliente no ERP" da organização. Se estiver vazio, procure no ERP pelo VAT ID ou crie o cliente e depois grave o número de volta. Para encontrar depois uma organização do CRM pelo número do ERP, chame `POST /api/v1/records/query` para Organizações com um filtro `eq` no ID desse campo ([sintaxe de filtros](/docs/filter-syntax)).
+**Associação do cliente.** Consulte o "Nº do cliente no ERP" da organização. Se estiver vazio, procure no ERP pelo CNPJ (ou VAT ID) ou crie o cliente e depois grave o número de volta. Para encontrar depois uma organização do CRM pelo número do ERP, chame `POST /api/v1/records/query` para Organizações com um filtro `eq` no ID desse campo ([sintaxe de filtros](/docs/filter-syntax)).
 
 **Gravação de volta.** Depois que o ERP aceitar o pedido, envie uma mutação `update` do negócio para `POST /api/v1/records/mutate` com o novo "Nº do pedido no ERP" e a versão atual do negócio. Os campos que você deixar de fora continuam inalterados.
 

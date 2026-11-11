@@ -1,6 +1,6 @@
 ---
-title: "Pipeline CRM: tablica szans sprzedaży z wartością etapów"
-description: "Pipeline CRM dla małych zespołów: szanse sprzedaży według etapu z prawdopodobieństwem, wartością i wartością ważoną oraz kontekstem klienta pod ręką."
+title: "Pipeline CRM: etapy, wartość ważona i metryki pipeline'u"
+description: "Pipeline CRM: czym jest pipeline sprzedaży, jakie ma etapy i jakie metryki śledzić. Tablica szans z wartością ważoną i rozmowami klienta pod ręką."
 featureName: Lejek sprzedaży
 
 relatedHrefs:
@@ -57,9 +57,41 @@ cta:
   hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
 ---
 
-Pipeline CRM, czyli lejek sprzedaży w jednym widoku, układa Twoje otwarte szanse sprzedaży na tablicy, po jednej kolumnie na etap. Widzisz, co jest w grze, ile to jest warte i która transakcja potrzebuje następnego kroku. Customermates to oprogramowanie CRM dla małych zespołów sprzedażowych, których transakcje zależą od rozmów: firm doradczych, agencji, firm usługowych i founderów, którzy sprzedają osobiście. Jest open source, natywnie oparte na AI i stworzone w Niemczech.
+Pipeline CRM, czyli lejek sprzedaży w jednym widoku, układa Twoje otwarte szanse sprzedaży na tablicy, po jednej kolumnie na etap. Widzisz, co jest w grze, ile to jest warte i która transakcja potrzebuje następnego kroku. Customermates to oprogramowanie CRM dla małych zespołów sprzedażowych, których transakcje zależą od rozmów: firm doradczych, agencji, firm usługowych i założycieli, którzy sprzedają osobiście. Jest open source, natywnie oparte na AI i stworzone w Niemczech.
 
-**Gdzie transakcje utykają.** Transakcja utyka, gdy nikt nie zapisał, co dzieje się dalej. Na karcie widzisz firmę, kontakty, a od planu Pro także rozmowy z nimi, a pole daty, takie jak Następny krok, wpisuje follow-up do zapisu. Zapisany widok albo widżet Nadchodzące na pulpicie pokazuje potem transakcje, którym termin właśnie nadchodzi lub już minął.
+**Gdzie transakcje utykają.** Transakcja utyka, gdy nikt nie zapisał, co dzieje się dalej. Na karcie widzisz firmę, kontakty, a od planu Pro także rozmowy z nimi, a pole daty, takie jak Następny krok, zamienia follow-up w konkretny zapis. Zapisany widok albo widżet Nadchodzące na pulpicie pokazuje potem transakcje, którym termin właśnie nadchodzi lub już minął.
+
+## Czym jest pipeline sprzedaży i po co go prowadzić? [#czym-jest-pipeline]
+
+**Pipeline sprzedaży** to widok wszystkich otwartych szans sprzedaży ułożonych według etapu procesu, od pierwszego kontaktu do wygranej lub przegranej. Odpowiada na trzy pytania: ile jest w grze, na jakim etapie stoi każda szansa i co trzeba zrobić dalej. Pipeline CRM to ten sam widok w systemie: tablica z kolumnami według etapów, na której przeciągasz kartę, gdy sprawa idzie dalej. Szerzej o etapach, modelach i budowie od zera pisze tekst [lejek sprzedaży: etapy i budowa w CRM](/blog/sales-pipeline).
+
+Prowadzenie go daje trzy rzeczy:
+
+- **Widoczność.** Cały zespół widzi te same transakcje, więc nikt nie musi pytać, kto się czym zajmuje.
+- **Planowanie.** Suma wartości szans, a po przemnożeniu przez prawdopodobieństwo etapu także wartość ważona, pokazuje, ile mniej więcej leży na stole. To pomoc w planowaniu, a nie prognoza; o metodach prognozowania pisze tekst [prognozowanie sprzedaży](/blog/sales-forecasting).
+- **Odpowiedzialność.** Każda szansa ma właściciela i następny krok z datą, więc transakcje nie giną po cichu.
+
+## Jakie etapy ma pipeline sprzedaży? [#etapy-pipeline]
+
+Nie ma jednego wzoru: etapy powinny odpowiadać temu, co naprawdę dzieje się z klientem. Dla małego zespołu usługowego typowy układ to **Nowa** (ktoś się odezwał), **Zakwalifikowana** (wiadomo, czego klient potrzebuje, kto decyduje i jaki ma termin), **Rozmowa o zakresie**, **Oferta wysłana**, **Negocjacje**, a na końcu **Wygrana** albo **Przegrana**.
+
+- Pięć do siedmiu etapów zwykle wystarcza. Więcej to więcej przeciągania i mniej czytelne sumy.
+- Nazwij etap tym, co zaszło po stronie klienta („Oferta wysłana”, „Klient prosi o zmiany”), a nie tym, co robisz Ty („Pracuję nad tym”).
+- Ustal z zespołem, co musi się wydarzyć, żeby szansa trafiła do danego etapu.
+- Prawdopodobieństwa ustaw na podstawie własnej historii wygranych i przegranych, a nie z podręcznika. W Customermates każdy etap niesie własne prawdopodobieństwo, które zmieniasz w **Model danych**.
+
+## Jakie metryki pipeline'u warto śledzić? [#metryki]
+
+| Metryka | Co mówi | Jak ją uzyskać w Customermates |
+|---|---|---|
+| Wartość otwartego pipeline'u | Ile jest w grze | Sumy w nagłówkach kolumn tablicy i widżety pulpitu |
+| Wartość ważona | Ile mniej więcej leży na stole, przy Twoich prawdopodobieństwach | Nagłówki kolumn tablicy |
+| Współczynnik wygranych | Jaka część zamkniętych szans kończy się wygraną (wygrane podzielone przez wygrane i przegrane) | Mate w chmurze albo eksport listy do Excela |
+| Średnia wartość wygranej | Jak duże są transakcje, które się udają | Mate w chmurze albo eksport do Excela |
+| Długość cyklu sprzedaży | Ile trwa droga od pierwszego kontaktu do wygranej | Wymaga zapisanych dat, na przykład w polach, które dodasz; policz ją w arkuszu z eksportu |
+| Konwersja między etapami i szybkość pipeline'u | Na którym etapie szanse odpadają i jak szybko płynie wartość | Nie są śledzone, zobacz [ograniczenia](#ograniczenia) |
+
+Zacznij od trzech liczb, które przeglądasz co tydzień: wartości otwartego pipeline'u, współczynnika wygranych i liczby szans bez następnego kroku. Trzy liczby, na które ktoś naprawdę patrzy, są warte więcej niż piętnaście ignorowanych. Opcje wykresów opisuje strona o [raportach](/features/reporting).
 
 ## Zobacz to w przykładowej przestrzeni roboczej
 
@@ -73,11 +105,11 @@ Twoja przestrzeń robocza nie startuje z tymi listami ani etapami. Nowa przestrz
 
 ## Jak działa tablica
 
-**Etapy to pole, które należy do ciebie.** Etap to opcja pojedynczego wyboru, a każda opcja niesie prawdopodobieństwo wygranej od 0 do 100 procent. Zmieniaj nazwy etapów, ustawiaj ich kolejność, dodawaj je lub usuwaj w **Model danych**; podgląd pokazuje wpływ na obliczenia i widżety, zanim zapiszesz. Zmiana nazwy etapu zachowuje go na każdym rekordzie.
+**Etapy ustalasz sam.** Etap to opcja pojedynczego wyboru, a każda opcja niesie prawdopodobieństwo wygranej od 0 do 100 procent. Zmieniaj nazwy etapów, ustawiaj ich kolejność, dodawaj je lub usuwaj w **Model danych**; podgląd pokazuje wpływ na obliczenia i widżety, zanim zapiszesz. Zmiana nazwy etapu zachowuje go na każdym rekordzie.
 
 **Tablica.** W **Wygląd** wybierz **Tablica** pogrupowaną według etapu. Przeciągnij kartę do innej kolumny, a jej etap się zmieni. Karty pokazują pola, które wybierzesz, takie jak wartość, firma, przypisani użytkownicy czy data następnego kroku. Taki układ w stylu kanban dobrze zna każdy, kto pracował z tablicami zadań.
 
-**Nagłówki kolumn liczą za ciebie.** Każdy nagłówek pokazuje liczbę rekordów i sumy, które wybierzesz, takie jak wartość i wartość ważona. Wartość ważona to wartość szansy sprzedaży razy prawdopodobieństwo jej etapu. Trzy przykładowe szanse:
+**Nagłówki kolumn liczą za Ciebie.** Każdy nagłówek pokazuje liczbę rekordów i sumy, które wybierzesz, takie jak wartość i wartość ważona. Wartość ważona to wartość szansy sprzedaży razy prawdopodobieństwo jej etapu. Trzy przykładowe szanse:
 
 | Szansa sprzedaży | Etap (prawdopodobieństwo) | Wartość | Wartość ważona |
 |---|---|---|---|
@@ -94,7 +126,7 @@ Ta suma waży Twoje własne liczby. Nie przewiduje przychodów ani dat zamknięc
 
 ## Kontekst klienta obok transakcji
 
-Szansa sprzedaży łączy się z firmą i jej kontaktami, więc ludzie i historia są o jedno kliknięcie dalej. W Customermates Cloud plan Pro i wyższe dodają [wspólną skrzynkę odbiorczą](/features/unified-inbox) dla Gmaila, Outlooka, IMAP, LinkedIn, WhatsApp, Instagrama i Telegramu. Uczestnik rozmowy jest dopasowywany do kontaktu według tożsamości z jego pola Dane kontaktowe. Rozmowa jest łączona z szansą sprzedaży lub firmą tylko wtedy, gdy zrobisz to ty albo agent, wprost; nic nie trafia do transakcji automatycznie.
+Szansa sprzedaży łączy się z firmą i jej kontaktami, więc ludzie i historia są o jedno kliknięcie dalej. W Customermates Cloud plan Pro i wyższe dodają [wspólną skrzynkę odbiorczą](/features/unified-inbox) dla Gmaila, Outlooka, IMAP, LinkedIn, WhatsApp, Instagrama i Telegramu. Uczestnik rozmowy jest dopasowywany do kontaktu według tożsamości z jego pola Dane kontaktowe. Rozmowa jest łączona z szansą sprzedaży lub firmą tylko wtedy, gdy zrobisz to Ty albo agent, wprost; nic nie trafia do transakcji automatycznie.
 
 Limity skrzynki odbiorczej według planu: Starter i self-hosted nie mają połączonych kont komunikacyjnych. Pro obejmuje Twoje własne konta, z [[commercial.entitlement.pro.includedAccountsPerUser]] połączonym kontem na użytkownika w cenie, a do tego wątki udostępniane pojedynczo. Udostępnienie całego konta zespołowi wymaga planu Business, Max lub Enterprise.
 
@@ -114,13 +146,13 @@ Mate tworzy i aktualizuje rekordy oraz wysyła wiadomości, gdy tylko o to popro
 
 ## Praca w zespole
 
-Wszyscy, których rola czyta wszystkie szanse sprzedaży, widzą te same transakcje; przy dostępie do odczytu **Przypisane** osoba widzi tylko własne. Zapisany widok tablicy pozostaje prywatny, dopóki nie udostępnisz go przestrzeni roboczej lub wybranym rolom; współpracownicy widzą go tylko do odczytu. Dla zespołów liczą się dwa ograniczenia:
+Wszyscy, których rola czyta wszystkie szanse sprzedaży, widzą te same transakcje; przy dostępie do odczytu **Przypisane** osoba widzi tylko własne. Zapisany widok tablicy pozostaje prywatny, dopóki nie udostępnisz go przestrzeni roboczej lub wybranym rolom; współpracownicy widzą go tylko do odczytu. Dla zespołów liczą się trzy ograniczenia:
 
-- Udostępniona przez ciebie tablica jest dla współpracowników tylko do odczytu. Udostępnij ją całemu zespołowi albo wybranym rolom, a wszyscy pracują na tej samej, ale zmieniasz ją tylko ty, a każdy widzi tylko rekordy, na które pozwala jego rola.
+- Udostępniona przez Ciebie tablica jest dla współpracowników tylko do odczytu: wszyscy widzą tę samą tablicę, ale zmieniasz ją tylko Ty, a każdy widzi tylko rekordy, na które pozwala jego rola.
 - Uprawnienia obejmują całe listy. Nie ma uprawnień na poziomie pola, więc osoba, która może czytać szanse sprzedaży, widzi każde ich pole.
 - Udostępnianie całego konta skrzynki odbiorczej zaczyna się od planu Business. W planie Pro współpracownicy udostępniają pojedyncze wątki.
 
-## Ograniczenia
+## Ograniczenia [#ograniczenia]
 
 <AcquisitionCallout title="Czego pipeline nie robi" variant="boundary">
   Wartość ważona to Twoja wartość razy Twoje prawdopodobieństwa. Nie ma prognozy predykcyjnej, raportu o czasie w etapie, konwersji między etapami ani szybkości pipeline'u, nie ma też automatycznego wyróżniania zastygłych transakcji. Brak uprawnień na poziomie pola i brak natywnej aplikacji mobilnej.
@@ -136,7 +168,7 @@ Nie ma osobnego obiektu pipeline. Drugi pipeline to drugie pole pojedynczego wyb
 
 | Twoja sytuacja | Na co spojrzeć |
 |---|---|
-| Zespół outbound o dużym wolumenie, który potrzebuje prognoz i alertów o zastygłych transakcjach | CRM nastawiony na sprzedaż, zbudowany pod to, na przykład Pipedrive |
+| Zespół outbound o dużym wolumenie, który potrzebuje prognoz i alertów o zastygłych transakcjach | CRM zbudowany z myślą o takiej sprzedaży, na przykład Pipedrive |
 | Mały zespół, którego transakcje toczą się w rozmowach przez e-mail, LinkedIn i WhatsApp | Customermates |
 | Jedna osoba z garstką transakcji | Arkusz kalkulacyjny może nadal wystarczyć |
 
@@ -147,6 +179,18 @@ Rozliczenie jest miesięczne, za użytkownika. Starter kosztuje [[commercial.pri
 ## Najczęstsze pytania
 
 <Faq>
+<FaqItem question="Co to jest pipeline sprzedaży?">
+To widok wszystkich otwartych szans sprzedaży według etapu procesu, od pierwszego kontaktu do wygranej lub przegranej. Pokazuje, ile jest w grze, na jakim etapie stoi każda szansa i co trzeba zrobić dalej. W Customermates to tablica z kolumnami według etapów, wartością i wartością ważoną w nagłówkach.
+</FaqItem>
+
+<FaqItem question="Czy pipeline sprzedaży to to samo co lejek sprzedaży?">
+W praktyce oba terminy są używane zamiennie. Ściśle rzecz biorąc, lejek pokazuje, ilu potencjalnych klientów odpada na kolejnych etapach, a pipeline śledzi konkretne szanse sprzedaży wraz z ich wartością i następnym krokiem. Ta strona opisuje pipeline w tym drugim sensie.
+</FaqItem>
+
+<FaqItem question="Ile etapów powinien mieć pipeline?">
+Zwykle pięć do siedmiu: tyle, ile różnych sytuacji naprawdę następuje między pierwszym kontaktem a decyzją klienta. Etapy zmieniasz w Model danych, a zmiana nazwy zachowuje etap na każdym rekordzie.
+</FaqItem>
+
 <FaqItem question="Czy nowa przestrzeń robocza ma etapy pipeline'u?">
 Nie. Nowa przestrzeń robocza zaczyna bez list. W Customermates Cloud konfiguracja przestrzeni roboczej z pomocą AI buduje podczas onboardingu listę szans sprzedaży z etapami na podstawie Twojego opisu. W innym przypadku tworzysz listę i jej pole etapu w Model danych.
 </FaqItem>

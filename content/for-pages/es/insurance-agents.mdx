@@ -1,6 +1,6 @@
 ---
-title: "CRM para agentes de seguros: seguimiento antes de renovar"
-description: "CRM para agentes de seguros: el correo y WhatsApp del cliente en su registro, renovaciones con fecha y respuestas que Mate redacta para que tú las envíes."
+title: "CRM para agentes de seguros y corredurías: renovaciones"
+description: "CRM para agentes de seguros: fecha de renovación en cada oportunidad, correo y WhatsApp en la ficha del cliente y borradores de Mate que tú revisas y envías."
 industryName: "Agentes de seguros"
 
 relatedHrefs:
@@ -79,10 +79,24 @@ Muchos productos que se venden como CRM de seguros son en realidad ambas cosas. 
 Lo que la venta de seguros le pide a ese CRM:
 
 - **Las fechas de renovación marcan el ritmo.** Una revisión de renovación solo sirve si ocurre semanas antes de la fecha de renovación, cuando todavía hay tiempo de volver a cotizar. Necesitas una lista ordenada por esa fecha.
-- **Particulares y empresas.** Un cliente de seguros personales es una persona; un cliente comercial es una empresa con un propietario, un responsable de oficina y un contador.
-- **Los prescriptores importan.** Los corredores hipotecarios, los agentes inmobiliarios y los contadores envían negocio, y se quedan callados si nadie les da seguimiento.
+- **Particulares y empresas.** Un cliente de seguros personales es una persona; un cliente comercial es una empresa con un propietario, un responsable de oficina y un asesor fiscal.
+- **Los prescriptores importan.** Los intermediarios hipotecarios, los agentes inmobiliarios y los asesores fiscales envían negocio, y se quedan callados si nadie les da seguimiento.
 - **Las cotizaciones se hacen en otro sitio.** El cotizador o el portal de la aseguradora produce la cotización. El CRM solo necesita saber que salió una cotización, de qué, y cuándo reclamarla.
 - **Los clientes escriben por WhatsApp.** Muchos clientes envían la foto de una carta o una pregunta rápida por WhatsApp en lugar de por correo.
+
+## Cómo elegir un CRM para una correduría o una agencia de seguros [#como-elegir-un-crm-para-seguros]
+
+**En pocas palabras:** si ya tienes un AMS para las pólizas y los siniestros, elige un CRM que cubra lo comercial: prospectos, renovaciones con fecha, prescriptores y conversaciones. Si todavía no tienes AMS, empieza por ahí, porque un CRM no gestiona pólizas. Los nombres cambian de un país a otro (agente, corredor, mediador, productor), pero la tarea comercial es la misma, y vale tanto para agentes como para corredurías.
+
+Antes de decidir, comprueba cinco cosas:
+
+- **Renovaciones con fecha.** Cada oportunidad debe llevar su fecha de renovación, y una vista o una rutina tiene que enseñarte las que vencen pronto, con margen para volver a cotizar.
+- **Lo que ya usas.** Si tu AMS, tu cotizador o el multitarificador con el que comparas primas tiene una API o envía webhooks, un script o un flujo de n8n puede mantener el CRM al día. Si no, el CRM se actualiza a mano o con una exportación de Excel.
+- **Particulares y empresas.** Un mismo cliente puede tener a la vez un seguro de auto, uno de vida y uno de empresa, y quieres verlos en un solo sitio.
+- **Los canales de tus clientes.** Si te escriben por WhatsApp, comprueba qué plan permite conectarlo junto al correo; en Customermates, un buzón de correo y WhatsApp a la vez necesitan Business.
+- **Datos delicados.** Deja fuera del CRM la información de salud y los expedientes de siniestros, y trata el AMS como registro de la póliza.
+
+La automatización de las renovaciones tiene un límite claro: un CRM puede preparar la conversación (un resumen del cliente, un borrador de mensaje), pero no renueva ni gestiona la póliza. La rutina de más abajo muestra cómo se prepara.
 
 ## Una configuración para seguros en Customermates
 
@@ -100,7 +114,7 @@ Un contacto puede vincularse a varias oportunidades, así que un mismo cliente p
 
 ### Etapas y valores ponderados
 
-La etapa es un campo de selección única que defines tú, y cada opción recibe una probabilidad de cierre en **Modelo de datos** para Oportunidades. Un punto de partida: Nuevo lead 10%, Análisis de necesidades 25%, Cotización enviada 50%, Decisión pendiente 75%, Contratada 100%, Perdida 0%. Para las revisiones de renovación, un segundo campo de selección única, Estado de la renovación, con Revisión pendiente, Contactado, Recotizado, Renovado y Se fue a otro, te da su propio tablero cuando agrupas por él. El pipeline ponderado es el valor de la oportunidad por la probabilidad de la etapa. El valor de la oportunidad es la suma de sus líneas; un campo personalizado de Prima estimada no forma parte del cálculo. Es aritmética con tus propios números, no una previsión, y no es una comisión.
+La etapa es un campo de selección única que defines tú, y cada opción recibe una probabilidad de cierre en **Modelo de datos** para Oportunidades. Un punto de partida: Nuevo lead 10 %, Análisis de necesidades 25 %, Cotización enviada 50 %, Decisión pendiente 75 %, Contratada 100 %, Perdida 0 %. Para las revisiones de renovación, un segundo campo de selección única, Estado de la renovación, con Revisión pendiente, Contactado, Recotizado, Renovado y Se fue a otro, te da su propio tablero cuando agrupas por él. El pipeline ponderado es el valor de la oportunidad por la probabilidad de la etapa. El valor de la oportunidad es la suma de sus líneas; un campo personalizado de Prima estimada no forma parte del cálculo. Es aritmética con tus propios números, no una previsión, y no es una comisión.
 
 ### Vistas guardadas para la semana
 
@@ -145,7 +159,7 @@ Una segunda rutina puede reaccionar a un evento en lugar de a un horario: cuando
 No hay conector nativo con aseguradoras, cotizadores ni ningún AMS. Tres formas de mantener el CRM al día:
 
 - **Tu propia integración.** Si tu cotizador o tu AMS puede llamar a una API o enviar webhooks, un script o un [flujo de n8n](/features/workflow-automation) que ejecutes por separado puede actualizar la oportunidad mediante la [API REST](/features/api): poner la etapa en Cotización enviada y escribir la referencia de la cotización y la prima. Customermates envía webhooks para [[derived.webhooks.events.records]] eventos de registros, así que una oportunidad contratada puede disparar un paso en el otro sentido.
-- **Idas y vueltas con Excel.** Exporta desde el AMS, guarda como .xlsx e importa un tipo de registro cada vez. Una columna asignada a ID del registro actualiza los registros existentes en lugar de crear duplicados.
+- **Excel de ida y vuelta.** Exporta desde el AMS, guarda como .xlsx e importa un tipo de registro cada vez. Una columna asignada a ID del registro actualiza los registros existentes en lugar de crear duplicados.
 - **Un cliente de IA.** Claude, ChatGPT u otro cliente puede crear y actualizar registros mediante [MCP](/docs/mcp) en todos los planes, con el uso del modelo facturado por tu proveedor de IA.
 
 ## Lo que no hace y qué mirar en su lugar
@@ -199,6 +213,18 @@ Customermates cuesta [[commercial.price.starter.monthly]] por usuario al mes en 
 
 <FaqItem question="¿Cuál es el mejor CRM gratuito para agentes de seguros?">
 Customermates tiene una prueba de [[commercial.trial.days]] días y un plan gratuito para [[commercial.limit.free.maxMembers]] persona y [[commercial.limit.free.maxRecords]] registros, sin bandeja de entrada, Mate ni rutinas. HubSpot anuncia un nivel gratuito en su [página de CRM para seguros](https://www.hubspot.com/products/crm/insurance). El núcleo de código abierto de Customermates se puede alojar gratis, sin la bandeja de entrada ni Mate. Si necesitas seguimiento de pólizas sin coste, un CRM general gratuito no te lo dará; un AMS sí, a cambio de un precio.
+</FaqItem>
+
+<FaqItem question="¿Qué software es adecuado para mediadores de seguros: un CRM o un AMS?">
+Cubren tareas distintas. El AMS es la fuente de verdad de las pólizas, los siniestros y los datos de las aseguradoras; el CRM lleva el lado comercial: con quién hablas, qué ofreciste y cuándo volver a escribir. Si vendes más de lo que gestionas, empieza por un CRM; si gestionas más de lo que vendes, por un AMS. Muchas agencias acaban usando ambos.
+</FaqItem>
+
+<FaqItem question="¿Cuáles son los tres tipos de CRM y cuál necesita una agencia de seguros?">
+Se suele hablar de CRM operativo (el trabajo diario: clientes, oportunidades, tareas y conversaciones), analítico (informes a partir de los registros) y colaborativo (un historial de cliente que comparte todo el equipo). Una agencia pequeña necesita sobre todo la parte operativa y, si hay varias personas, la colaborativa. Las pólizas y las comisiones no entran en ninguno de los tres: son del AMS. Hay más detalle en [sistemas CRM y sus tipos](/blog/crm-systems).
+</FaqItem>
+
+<FaqItem question="¿Cuál es el CRM más utilizado entre agentes de seguros?">
+Esta página no afirma ninguna cuota de mercado. En seguros pesa más la elección del AMS que la del CRM: las agencias suelen decidir primero dónde viven las pólizas y añaden después un CRM si venden más de lo que gestionan. La [guía para elegir un CRM](/blog/how-to-choose-crm) explica qué comparar.
 </FaqItem>
 
 <FaqItem question="¿Puede Customermates recordarme las renovaciones?">

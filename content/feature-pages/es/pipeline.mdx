@@ -1,6 +1,6 @@
 ---
-title: "Pipeline CRM: tablero de ventas con valor por etapa"
-description: "Pipeline CRM para equipos pequeños: oportunidades por etapa con probabilidad, valor y valor ponderado, y el contexto del cliente a un clic de cada una."
+title: "Pipeline CRM: qué es, etapas y tablero de ventas"
+description: "Pipeline CRM para equipos pequeños: qué es, etapas, oportunidades con probabilidad y valor ponderado, y el contexto del cliente a un clic de cada una."
 featureName: Pipeline de ventas
 
 relatedHrefs:
@@ -61,6 +61,22 @@ Un **pipeline CRM**, o software de pipeline de ventas, pone tus oportunidades ab
 
 **Dónde se estancan las oportunidades.** Una oportunidad se estanca cuando nadie registró qué pasa después. En una tarjeta ves la cuenta, los contactos y, en Pro y superior, las conversaciones con ellos, y un campo de fecha como Próximo paso deja el seguimiento por escrito. Una vista guardada o un widget **Próximos** en el dashboard lista entonces las oportunidades que vencen o están vencidas.
 
+## ¿Qué es un pipeline en un CRM y cómo funciona? [#que-es-un-pipeline-en-un-crm]
+
+Un pipeline en un CRM es la lista visual de tus oportunidades abiertas, ordenadas por la etapa en la que está cada una, desde el primer contacto hasta ganada o perdida. Funciona así: una oportunidad avanza de etapa cuando la conversación avanza, y cada etapa lleva una probabilidad que permite sumar cuánto vale lo que tienes abierto. Sirve para ver qué hay en juego, qué oportunidad necesita atención hoy y dónde se atascan las demás.
+
+Un pipeline típico de un equipo pequeño que vende servicios tiene estas etapas, que luego adaptas a tu proceso:
+
+| Etapa | Qué significa | Próximo paso habitual |
+|---|---|---|
+| Nueva | Alguien mostró interés | Responder y concertar una primera llamada |
+| Cualificada | Encaja y tiene un problema real | Entender el alcance y quién decide |
+| Propuesta enviada | Tiene tu propuesta en la mano | Fijar una fecha para retomarla |
+| Negociación | Hablan de condiciones | Resolver las dudas que frenan la decisión |
+| Ganada o Perdida | Cerrada | Pasar a la entrega, o anotar el motivo de la pérdida |
+
+Un pipeline de ventas no es lo mismo que un embudo. El pipeline lista oportunidades concretas con su valor y su próximo paso; un embudo cuenta cuántos registros hay en cada etapa y cuántos pasan a la siguiente, y en Customermates es un tipo de gráfico del dashboard ([informes](/features/reporting)). Si quieres un repaso más amplio de las etapas, lee la guía del [pipeline de ventas](/blog/sales-pipeline).
+
 ## Míralo en un espacio de trabajo de ejemplo
 
 El [espacio de trabajo de pipeline de ventas](https://demo.customermates.com/es/w/sales-pipeline/dashboard) es un ejemplo con datos de muestra, no la cuenta de un cliente. Tiene cinco listas: Accounts, Contacts, Opportunities, Products y Tasks (los registros de ejemplo están en inglés). Las oportunidades pasan por New, Qualified, Discovery, Proposal sent, Negotiation, Won y Lost, y tres comerciales son sus responsables.
@@ -81,9 +97,9 @@ Tu propio espacio de trabajo no empieza con estas listas ni estas etapas. Un esp
 
 | Oportunidad | Etapa (probabilidad) | Valor | Ponderado |
 |---|---|---|---|
-| Relanzamiento web | Cualificada (20 %) | 5 000 | 1 000 |
-| Taller de marca | Propuesta enviada (60 %) | 8 000 | 4 800 |
-| Contrato anual | Negociación (80 %) | 12.000 | 9 600 |
+| Relanzamiento web | Cualificada (20 %) | 5.000 | 1.000 |
+| Taller de marca | Propuesta enviada (60 %) | 8.000 | 4.800 |
+| Contrato anual | Negociación (80 %) | 12.000 | 9.600 |
 | **Pipeline abierto** | | **25.000** | **15.400** |
 
 Ese total pondera tus propias cifras. No predice ingresos ni fechas de cierre. Las probabilidades de arriba son ejemplos, no valores por defecto.
@@ -97,6 +113,8 @@ Ese total pondera tus propias cifras. No predice ingresos ni fechas de cierre. L
 Una oportunidad se vincula a su cuenta y a sus contactos, así que las personas y el historial quedan a un clic. En Customermates Cloud, Pro y superior añaden la [bandeja de entrada unificada](/features/unified-inbox) para Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram y Telegram. Un participante se asocia a un contacto por la identidad de su campo **Datos de contacto**. Una conversación se vincula a una oportunidad o a una cuenta solo cuando tú o un agente lo hacéis de forma explícita; nada se archiva automáticamente en una oportunidad.
 
 Límites de la bandeja de entrada por plan: Starter y el autoalojamiento no tienen cuentas de mensajería conectadas. Pro cubre tus propias cuentas, con [[commercial.entitlement.pro.includedAccountsPerUser]] cuenta conectada por usuario incluida, más los hilos compartidos de forma individual. Compartir una cuenta entera con el equipo requiere Business, Max o Enterprise.
+
+Para conectar el pipeline con otras herramientas, como tu software de contabilidad o un aviso en el chat del equipo, usa REST, webhooks o n8n. La página de [integraciones del CRM](/features/integrations) explica qué vía encaja con cada tarea.
 
 ## Mantener el pipeline al día
 
@@ -147,6 +165,18 @@ La facturación es mensual y por usuario. Starter cuesta [[commercial.price.star
 ## Preguntas frecuentes
 
 <Faq>
+<FaqItem question="¿Cuál es la diferencia entre pipeline y forecast?">
+El pipeline es la lista de oportunidades abiertas por etapa, con su valor y su próximo paso. El forecast es una estimación de los ingresos que vas a cerrar en un periodo. Entre uno y otro está el valor ponderado: el valor de cada oportunidad por la probabilidad de su etapa. Customermates muestra ese valor ponderado, pero no hace previsiones.
+</FaqItem>
+
+<FaqItem question="¿Qué etapas debe tener un pipeline de ventas?">
+Las que reflejen cómo vendes de verdad. Para un equipo pequeño suelen bastar cinco o seis: nueva, cualificada, propuesta enviada, negociación, ganada y perdida. Si dos personas dudan en qué etapa está una oportunidad, sobran etapas. En Customermates las etapas son un campo tuyo, con una probabilidad por etapa.
+</FaqItem>
+
+<FaqItem question="¿Cuáles son los tipos de CRM?">
+Se suele hablar de CRM operativo (automatiza el trabajo diario de ventas y atención), analítico (analiza los datos de clientes) y colaborativo (comparte la información del cliente entre equipos). Un pipeline pertenece sobre todo a la parte operativa: es donde el equipo ve y mueve las oportunidades.
+</FaqItem>
+
 <FaqItem question="¿Un espacio de trabajo nuevo viene con etapas de pipeline?">
 No. Un espacio de trabajo nuevo empieza sin listas. En Customermates Cloud, la configuración del espacio de trabajo con IA crea durante el onboarding una lista de oportunidades con etapas a partir de tu descripción. Si no, creas la lista y su campo de etapa en Modelo de datos.
 </FaqItem>

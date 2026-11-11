@@ -1,6 +1,6 @@
 ---
 title: "Integración CRM ERP: arquitectura y primer flujo"
-description: "Integración CRM ERP: quién es dueño de cada campo, cuatro métodos, eventos idempotentes, conciliación y un primer flujo que puedes construir."
+description: "Integración CRM ERP: qué sistema es titular de cada campo, cuatro métodos, eventos idempotentes, conciliación y un primer flujo que puedes construir."
 
 relatedHrefs:
   - /blog/crm-and-erp
@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Integración CRM ERP: arquitectura, métodos y un primer flujo que puedes construir"
-  description: "Decide qué sistema es dueño de cada campo, elige el método de integración que encaja con la interfaz de tu ERP y pon en marcha un evento fiable antes de sincronizar nada más."
+  description: "Decide qué sistema es titular de cada campo, elige el método de integración que encaja con la interfaz de tu ERP y pon en marcha un evento fiable antes de sincronizar nada más."
 
 blogPost:
   author: Benjamin Wagner
@@ -26,7 +26,7 @@ blogPost:
 
 # Integración CRM ERP: conecta los sistemas sin registros duplicados
 
-Una integración CRM ERP pasa un pequeño conjunto de identificadores y estados entre el sistema donde vendes y el sistema donde entregas y facturas. El CRM es dueño de las personas, las relaciones, las oportunidades y las conversaciones. El ERP es dueño de la cuenta de cliente que se usa para facturar, los artículos, los pedidos, el stock y los cobros. La integración se dispara con eventos de negocio definidos, como «oportunidad ganada», y escribe el número de referencia de cada sistema en el otro.
+Una integración CRM ERP pasa un pequeño conjunto de identificadores y estados entre el sistema donde vendes y el sistema donde entregas y facturas. El CRM es el sistema de referencia de las personas, las relaciones, las oportunidades y las conversaciones. El ERP lo es de la cuenta de cliente que se usa para facturar, los artículos, los pedidos, el stock y los cobros. La integración se dispara con eventos de negocio definidos, como «oportunidad ganada», y escribe el número de referencia de cada sistema en el otro.
 
 La mayoría de los equipos pequeños debería empezar con un solo flujo en un sentido: una oportunidad ganada crea el cliente y un pedido en el ERP, y el número de pedido del ERP vuelve a la oportunidad. Constrúyelo con un conector nativo si tus dos sistemas lo tienen; si no, con la API REST y los webhooks del ERP, usando una plataforma de automatización como n8n o un pequeño servicio que ejecutes tú.
 
@@ -44,7 +44,7 @@ Para un flujo de n8n, la [comparativa de rutas MCP de n8n con un ejemplo de vers
   <SummaryItem label="Customermates">API REST en todos los planes Cloud, webhooks en todos los planes de pago, y ambos en autoalojado. Las referencias del ERP viven en campos de Texto personalizados.</SummaryItem>
 </ArticleSummary>
 
-## ¿Qué sistema es dueño de cada campo en la arquitectura de la integración entre CRM y ERP?
+## ¿Qué sistema es titular de cada campo en la arquitectura de la integración entre CRM y ERP?
 
 Escribe esta tabla para tus propios sistemas antes de comparar herramientas. La titularidad se decide por campo, no por objeto: la organización puede vivir en ambos sistemas mientras su dirección de facturación pertenece al ERP y las notas de la cuenta pertenecen al CRM.
 
@@ -52,7 +52,7 @@ Escribe esta tabla para tus propios sistemas antes de comparar herramientas. La 
 | --- | --- | --- |
 | Contactos, historial de la relación, conversaciones | CRM | El ERP guarda una persona de contacto solo si sus documentos la necesitan |
 | Oportunidad, etapa, próximo paso | CRM | Nada, o una referencia en el pedido |
-| Cuenta de cliente para facturar (razón social, número de IVA, dirección de facturación, condiciones de pago) | ERP | Número de cliente del ERP; la integración lo trata como propiedad del ERP |
+| Cuenta de cliente para facturar (razón social, identificador fiscal, dirección de facturación, condiciones de pago) | ERP | Número de cliente del ERP; la integración lo trata como propiedad del ERP |
 | Artículos y precios | ERP | Número de artículo en el registro de producto o servicio del CRM |
 | Pedidos, entrega, stock | ERP | Número de pedido y un estado visible para el cliente |
 | Documentos de facturación y cobros | ERP | Número de documento y un estado de pago aproximado, si los gestores de cuentas lo necesitan |
@@ -92,7 +92,7 @@ El lado del ERP suele decidir lo difícil que es la integración. Cuatro ejemplo
 | Lexware Office | API REST para contactos, artículos, presupuestos, confirmaciones de pedido, albaranes y otros comprobantes, con suscripciones a eventos | Hasta 2 solicitudes por segundo por cliente, así que los procesos por lotes necesitan limitación |
 | Xentral | API REST para clientes, productos, pedidos de venta, pedidos de compra, albaranes y facturas, con webhooks y una lista de tipos de evento de webhook | Existen varias versiones de la API en paralelo, así que fija la versión en tu mapeo |
 
-Dos preguntas ahorran más tiempo: ¿la API está incluida en el plan que pagas?, y ¿el ERP envía los cambios por webhook o tienes que consultarlo periódicamente?
+Lexware Office y Xentral son ERP alemanes; aparecen aquí porque sus API documentan límites y versiones muy distintos, no porque sean los más usados en tu mercado. Dos preguntas ahorran más tiempo: ¿la API está incluida en el plan que pagas?, y ¿el ERP envía los cambios por webhook o tienes que consultarlo periódicamente?
 
 ## Eventos, idempotencia y conciliación
 
@@ -112,7 +112,7 @@ Una integración que solo contempla el camino feliz creará duplicados en pocas 
     «Oportunidad ganada crea el cliente y el pedido en el ERP» es un buen primer evento. «Sincronizar CRM y ERP» no es un evento.
   </Step>
   <Step title="Define las condiciones previas">
-    Enumera los campos que deben estar rellenados antes de que el evento pueda dispararse: dirección de facturación, número de IVA, artículos, cantidades. Decide qué bloquea el evento y quién lo corrige.
+    Enumera los campos que deben estar rellenados antes de que el evento pueda dispararse: dirección de facturación, identificador fiscal (NIF, RFC, NIT, según el país), artículos, cantidades. Decide qué bloquea el evento y quién lo corrige.
   </Step>
   <Step title="Escribe el mapa de campos">
     Para cada campo: origen, destino, tipo, responsable, transformación y qué pasa cuando falta o no es válido. Mantén el mapa versionado junto a la integración.
@@ -141,7 +141,7 @@ Esta es la configuración en Customermates para el primer flujo de arriba. Usa l
 
 **Idempotencia.** Cada evento lleva un `id` que se mantiene igual en los reintentos y reenvíos, así que deduplica por él. Como segunda comprobación, usa la referencia cruzada: si el «N.º de pedido ERP» de la oportunidad ya está rellenado, detente.
 
-**Vinculación del cliente.** Busca el «N.º de cliente ERP» de la organización. Si está vacío, busca en el ERP por número de IVA o crea el cliente, y después escribe el número de vuelta. Para encontrar más adelante una organización del CRM por número del ERP, llama a `POST /api/v1/records/query` para Organizaciones con un filtro `eq` sobre el ID de ese campo ([sintaxis de filtros](/docs/filter-syntax)).
+**Vinculación del cliente.** Busca el «N.º de cliente ERP» de la organización. Si está vacío, busca en el ERP por identificador fiscal o crea el cliente, y después escribe el número de vuelta. Para encontrar más adelante una organización del CRM por número del ERP, llama a `POST /api/v1/records/query` para Organizaciones con un filtro `eq` sobre el ID de ese campo ([sintaxis de filtros](/docs/filter-syntax)).
 
 **Escritura de vuelta.** Cuando el ERP acepte el pedido, envía una mutación `update` de la oportunidad a `POST /api/v1/records/mutate` con el nuevo «N.º de pedido ERP» y la versión actual de la oportunidad. Los campos que omitas no cambian.
 
@@ -190,7 +190,7 @@ Antes de que una oportunidad ganada se convierta en un pedido del ERP, la conver
 ## Errores comunes
 
 - sincronizar todos los campos antes de que un evento funcione de principio a fin;
-- dejar que ambos sistemas sean dueños del mismo campo;
+- dejar que ambos sistemas sean titulares del mismo campo;
 - vincular empresas por nombre en lugar de por ID guardados;
 - no tener una cola de reparación, de modo que los eventos fallidos se pierden en los registros;
 - ignorar las cancelaciones, las oportunidades reabiertas y las correcciones;

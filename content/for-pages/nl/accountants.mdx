@@ -137,12 +137,27 @@ Een tweede routine kan op een gebeurtenis reageren: als de Fase van een deal ver
 
 Voor de cyclus van volgend jaar kun je Mate in de chat vragen: "Maak een nieuwe deal voor elke deal Aangifte particulier in Ingediend, met het volgende jaar in de naam, in de fase Documenten opgevraagd." Liever je eigen AI-client? Verbind Claude, ChatGPT of een andere client die [MCP](/docs/mcp) spreekt, op elk abonnement en op zelf gehoste installaties. Met de inbox op Customermates Cloud vanaf Pro kan die dezelfde gesprekken lezen en ook concepten bewaren, en of die eerst om toestemming vraagt voordat hij iets doet, hangt af van de client.
 
+## Wwft-controle en documenten per klant vastleggen [#wwft-en-documenten]
+
+Voor Nederlandse kantoren speelt bij elke nieuwe klant de Wwft (Wet ter voorkoming van witwassen en financieren van terrorisme): je doet cliëntenonderzoek en legt vast wat je hebt gecontroleerd. Dit is geen juridisch advies. Welke eisen voor jouw kantoor gelden en hoe je die vastlegt, bepaal je met je eigen compliance-verantwoordelijke of beroepsorganisatie. Customermates voert geen cliëntenonderzoek uit. Het bewaart wel wat jij of je kantoorsoftware vaststelt, zodat je er per klant op kunt zoeken.
+
+Een mogelijke inrichting op de lijst Organisaties, met veldnamen die je zelf kiest:
+
+- **Identificatie gecontroleerd op** (Datum): wanneer je de identiteit van de klant of vertegenwoordiger hebt vastgesteld.
+- **UBO vastgesteld** (Enkele keuze: Ja, Nee, Niet van toepassing): of de uiteindelijk belanghebbenden bekend zijn.
+- **Risicoclassificatie** (Enkele keuze: Laag, Gemiddeld, Hoog): de uitkomst van je eigen beoordeling.
+- **Wwft-dossier** (Bestand): de vastgelegde stukken, voor zover je die in het CRM wilt bewaren.
+
+Met een opgeslagen weergave "Wwft: nog te controleren", gefilterd op organisaties waarbij UBO vastgesteld niet op Ja staat, zie je meteen welke dossiers nog openstaan. Heb je een nieuwe klant aangenomen, dan kan Mate of je eigen AI-client op verzoek een taak aanmaken met de stappen die je kantoor hanteert. Een datum voor de volgende beoordeling voeg je zelf als datumveld toe; Customermates herinnert je er niet aan.
+
+Voor gewone klantdocumenten werkt het bijna hetzelfde. Een bestand dat een klant per e-mail stuurt, blijft in het gesprek in de inbox staan. De getekende opdrachtbevestiging komt in een veld van het type Bestand bij de deal. Wil je per opdracht een vaste lijst van wat je nodig hebt, bijvoorbeeld jaaropgaven, bankafschriften, het hypotheekoverzicht, de WOZ-beschikking of de voorlopige aanslag, zet die dan als checklist in de notities van de taak "Documentenverzoek sturen". Een klantenportaal waar klanten zelf documenten uploaden bestaat niet; documenten komen binnen via e-mail of chat, of je legt ze zelf vast.
+
 ## Wat Customermates niet doet voor accountants
 
 - **Geen deadlinebewaking.** Taken hebben geen vervaldatums, herinneringen of meldingen. Een veld Uiterste indiendatum en een gesorteerde weergave laten zien wat eraan komt; bindende deadlinebewaking hoort in je kantoorsoftware of fiscale software.
 - Geen urenregistratie, facturatie, voorstellen of digitale handtekeningen. Voeg de getekende opdrachtbevestiging toe aan een veld Bestand bij de deal.
 - Geen klantenportaal.
-- Geen terugkerende opdrachten die de CRM zelf volgens een schema aanmaakt; gebruik Mate, een MCP-client of de REST API met een n8n-workflow die je apart draait.
+- Geen terugkerende opdrachten die het CRM zelf volgens een schema aanmaakt; gebruik Mate, een MCP-client of de REST API met een n8n-workflow die je apart draait.
 - Geen eigen koppeling met QuickBooks of Xero. Verbind ze via de [REST API en webhooks](/features/workflow-automation).
 - Geen mobiele app.
 
@@ -198,11 +213,19 @@ Meer over importeren vind je in de [documentatie over records](/docs/app-records
 - In Customermates Cloud is de primaire productiedatabase ingesteld in de AWS-regio Frankfurt. Hosting en de andere subverwerkers, waaronder Amerikaanse aanbieders, staan op de [pagina Subverwerkers](/subprocessors), en een [verwerkersovereenkomst](/dpa) is beschikbaar.
 - Een eigen rol met leesrechten Toegewezen beperkt een medewerker tot de records die aan die persoon zijn toegewezen. Het auditlog legt vast wie welk record heeft gewijzigd, op elk abonnement.
 - Customermates heeft geen certificering zoals ISO 27001 of SOC 2.
-- Stel je Amerikaanse belastingaangiften op, controleer dan de regels over het gebruik en de openbaarmaking van informatie uit belastingaangiften in [26 U.S.C. § 7216](https://www.law.cornell.edu/uscode/text/26/7216) voordat je die gegevens in een extern systeem opslaat. Als je de cijfers van de aangifte in je fiscale software houdt en alleen de status in de CRM, vermijd je het grootste deel van de vraag.
+- Stel je Amerikaanse belastingaangiften op, controleer dan de regels over het gebruik en de openbaarmaking van informatie uit belastingaangiften in [26 U.S.C. § 7216](https://www.law.cornell.edu/uscode/text/26/7216) voordat je die gegevens in een extern systeem opslaat. Als je de cijfers van de aangifte in je fiscale software houdt en alleen de status in het CRM, vermijd je het grootste deel van de vraag.
 
 ## Veelgestelde vragen
 
 <Faq>
+<FaqItem question="Wat is het verschil tussen een CRM en kantoorbeheersoftware voor accountants?">
+Kantoorbeheersoftware houdt de deadlines, uren, facturatie en vaak het documentbeheer van het kantoor bij. Een CRM houdt vast wie je klanten zijn, welke opdracht loopt, wat er is gezegd en wat de volgende stap is. Veel kantoren gebruiken beide: de kantoorsoftware voor de uitvoering en een CRM zoals Customermates voor de klantkant, zodat een openstaand document of een onbeantwoord bericht niet tussen wal en schip valt.
+</FaqItem>
+
+<FaqItem question="Kan ik de Wwft-controle van klanten in een CRM bijhouden?">
+Je kunt in Customermates vastleggen wat je zelf hebt vastgesteld, bijvoorbeeld de datum van de identificatie, of de UBO bekend is en je risicoclassificatie, en daarop filteren in een opgeslagen weergave. Customermates voert het cliëntenonderzoek zelf niet uit en geeft geen juridisch advies; stem de inrichting af met je compliance-verantwoordelijke.
+</FaqItem>
+
 <FaqItem question="Is QuickBooks een CRM?">
 QuickBooks beschrijft zichzelf als cloudgebaseerde boekhoudsoftware. Op de site staat een Customer Hub die klantgegevens, notities en geschiedenis op één plek bewaart en opvolgingen met verkoopleads voorstelt. Toets dat aan wat je nodig hebt: wil je elke opdracht door fases volgen en klantgesprekken naast het record zien, dan kan een aparte CRM naast de boekhouding in QuickBooks of Xero staan.
 </FaqItem>

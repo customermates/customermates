@@ -57,6 +57,18 @@ Duas perguntas de projeto decidem se o banco de dados aguenta o tempo. Uma pesso
 
 A outra metade de um banco de dados de CRM é o histórico. Cada alteração de um registro e cada e-mail ou mensagem ligado a ele formam uma linha do tempo. Essa linha do tempo é o que permite a um colega assumir um cliente sem uma reunião de passagem, e é a parte que uma planilha não oferece.
 
+### Onde ficam os leads? [#onde-ficam-os-leads]
+
+Um lead é alguém que demonstrou interesse, mas ainda não foi qualificado. Alguns CRMs têm um tipo de registro próprio para leads, como mostra a tabela de exemplos mais abaixo; outros guardam tudo como pessoa. Para uma equipe pequena, o segundo caminho costuma bastar: um campo de escolha única na pessoa, com opções como Lead, Em conversa e Cliente, evita um tipo extra e a necessidade de converter registros. A diferença entre os termos está em [prospect e lead](/blog/prospect-vs-lead).
+
+## Quais são os benefícios de um banco de dados de CRM? [#beneficios-do-banco-de-dados-de-crm]
+
+- **Uma versão única de cada cliente.** Pessoa, empresa, negócios e conversas ficam ligados, em vez de espalhados por planilhas, caixas de e-mail e anotações.
+- **Histórico que sobrevive à troca de pessoas.** Um colega assume uma conta lendo o registro, sem uma reunião de passagem.
+- **Follow-ups com dono e data.** Tarefas ligadas ao registro mostram o que vence e com quem está.
+- **Filtros e relatórios sem planilha paralela.** Campos tipados (data, moeda, escolha única) permitem filtrar, somar e agrupar sem copiar nada para o Excel.
+- **Dados prontos para integração e para IA.** Registros limpos e tipados são o que permite a uma integração ou a um assistente ler e atualizar o CRM com segurança.
+
 ## Exemplos de banco de dados de CRM: como quatro CRMs estruturam seus dados
 
 Os tipos de registro mostram para que um CRM foi construído. Esta tabela compara só o modelo de dados, não preço nem qualidade.
@@ -204,6 +216,8 @@ Na UE, um banco de dados de CRM de pessoas contém dados pessoais conforme o [GD
 
 Para o Customermates Cloud, o [acordo de processamento de dados](/dpa) é público, o banco de dados da aplicação está configurado na região AWS de Frankfurt e os [subprocessadores](/subprocessors), inclusive os provedores dos EUA, estão listados. O Customermates não possui certificação de conformidade. Se você precisa dos dados no seu próprio servidor, [auto-hospede o núcleo de código aberto](/features/self-hosted).
 
+No Brasil, a LGPD segue uma lógica parecida e vale para o banco de dados de CRM de pessoas: use os dados para uma finalidade definida, guarde só o necessário, mantenha-os corretos e saiba atender ao pedido de um titular para consultar ou eliminar os dados dele. Registre de onde cada contato veio e por que você o guarda, e, se o provedor guarda os dados fora do Brasil, como na região de Frankfurt do Customermates Cloud, peça as informações sobre a transferência internacional. É um contexto geral, não aconselhamento jurídico.
+
 ## Quando o Customermates é o banco de dados errado
 
 - **Você precisa de permissões por campo.** As permissões se aplicam por lista e ação, não por campo.
@@ -239,6 +253,14 @@ A divisão usual é operacional (conduzir o trabalho de vendas, atendimento e ma
 
 <FaqItem question="Como guardo dados que não cabem em contatos, empresas ou negócios?">
 Se descrevem um registro existente, adicione um campo personalizado tipado. Se é algo que você vende, use o catálogo de produtos ou serviços. Se só é lido, use as notas. Se tem ciclo de vida e relações próprios, você precisa de objetos personalizados, que o HubSpot oferece no Enterprise e o Salesforce na sua plataforma; no Customermates você adiciona uma lista própria para eles.
+</FaqItem>
+
+<FaqItem question="Quais são os pilares de um CRM?">
+Não existe uma lista oficial, e as fontes variam. Uma divisão comum é pessoas, processos, tecnologia e dados. O banco de dados de CRM é a parte dos dados: sem registros corretos e ligados, os processos (etapas, follow-ups) e a tecnologia (automação, IA) não têm no que se apoiar.
+</FaqItem>
+
+<FaqItem question="Existe um banco de dados de CRM gratuito?">
+Sim, dentro de limites. Uma planilha não custa nada, vários CRMs na nuvem têm planos gratuitos com limite de usuários ou de registros, e um CRM de código aberto auto-hospedado não tem taxa de licença, mas exige servidor e manutenção. O [guia de CRM grátis](/blog/free-crm) compara as opções.
 </FaqItem>
 
 <FaqItem question="Quanto custa um banco de dados de CRM?">

@@ -1,6 +1,6 @@
 ---
-title: "Base de datos CRM: qué es, ejemplos y cómo crearla"
-description: "Base de datos CRM: une personas, empresas, oportunidades y tareas. Sus tablas, cómo las modelan HubSpot, Salesforce y Pipedrive, y cómo crearla y exportarla."
+title: "Base de datos CRM: qué es, para qué sirve y cómo crearla"
+description: "Base de datos CRM: qué es, para qué sirve y en qué se diferencia de un CRM y de Excel. Sus tablas, ejemplos de HubSpot, Salesforce y Pipedrive y cómo crearla."
 
 relatedHrefs:
   - /features/contact-management
@@ -56,6 +56,19 @@ Piensa en un puñado de tablas que se apuntan entre sí. La mayoría de los CRM 
 Dos preguntas de diseño deciden si la base de datos aguanta con el tiempo. ¿Puede una persona pertenecer a varias empresas (un consultor que está en dos consejos, un freelancer que trabaja para tres agencias)? ¿Y puede una oportunidad implicar a varias personas? Si tu CRM te obliga a una empresa por persona o a un contacto por oportunidad, empezarás a escribir apaños en las notas. Lee la documentación antes de comprometerte: el artículo de datos de Pipedrive describe vincular una persona a una sola organización, mientras que en Customermates una relación puede admitir uno o varios registros en cada lado, así que un contacto puede pertenecer a varias organizaciones.
 
 La otra mitad de una base de datos CRM es el historial. Cada cambio en un registro y cada correo o mensaje vinculado forman una cronología. Esa cronología es lo que permite a un compañero hacerse cargo de un cliente sin una reunión de traspaso, y es lo que una hoja de cálculo no te da.
+
+## ¿Para qué sirve una base de datos CRM y qué ventajas tiene? [#para-que-sirve-base-de-datos-crm]
+
+Sirve para que todo el equipo trabaje con la misma versión de cada cliente. Las ventajas más claras:
+
+- **Una sola versión de cada persona y empresa.** Sin copias en hojas, correos y notas que se contradicen.
+- **Encontrar lo que pasó con un cliente en segundos.** Quién es, qué oportunidades hay abiertas y cuál fue la última conversación.
+- **Filtrar y segmentar por campos tipados.** Por ejemplo, las organizaciones de un segmento sin tocar en 90 días, algo que un texto libre no permite.
+- **Menos duplicados.** Una clave única por persona, como el correo, permite detectarlos antes de importar.
+- **Traspasos sin reuniones.** El historial queda en el registro, y un compañero retoma la cuenta sin preguntar.
+- **Cifras que se pueden sumar.** El valor de las oportunidades por etapa sale de los propios registros, no de una hoja que alguien actualiza a mano.
+
+Una base de datos de marketing, en cambio, guarda datos de personas para campañas (listas, segmentos, consentimientos); la base de datos CRM añade los enlaces con empresas y oportunidades, el pipeline y el historial de conversaciones.
 
 ## Ejemplos de bases de datos CRM: cómo estructuran sus datos cuatro CRM
 
@@ -217,6 +230,10 @@ Para Customermates Cloud, el [contrato de encargado del tratamiento](/dpa) es p�
 Es el almacén que hay detrás de un CRM: registros de personas, empresas, oportunidades y tareas, enlazados entre sí, con campos tipados y un historial de cambios y conversaciones. Los enlaces y el historial son lo que la hacen más que una lista de contactos.
 </FaqItem>
 
+<FaqItem question="¿Para qué sirve una base de datos CRM?">
+Para que el equipo trabaje con una sola versión de cada cliente: quién es, qué oportunidades hay, qué pasó y qué toca después. Permite filtrar por campos tipados, detectar duplicados, traspasar cuentas sin reuniones y sumar cifras como el valor de las oportunidades por etapa.
+</FaqItem>
+
 <FaqItem question="¿Qué datos almacena una base de datos CRM?">
 Cuatro tipos. Quién es una persona o una empresa: nombres, direcciones de correo, teléfonos, direcciones, cargos. Qué vendes y a quién: oportunidades, etapas, valores, productos o servicios. Qué pasó: correos y mensajes, notas, tareas y cambios en el registro. Y lo que añades tú, como un segmento, un origen o la fecha de fin de un contrato. Los campos tipados mantienen el primer y el último tipo localizables y contables.
 </FaqItem>
@@ -231,6 +248,10 @@ Se solapan. Una base de datos de clientes es la lista de clientes y lo que sabes
 
 <FaqItem question="¿Excel es una base de datos CRM?">
 No. Excel puede guardar una lista de clientes, y para una persona con una lista corta es suficiente. No tiene enlaces entre personas y empresas, ni historial por cliente, ni una forma segura de que varias personas editen a la vez. Una hoja limpia, con un tipo de valor por columna, sigue siendo un buen punto de partida para una importación.
+</FaqItem>
+
+<FaqItem question="¿Cuál es el CRM más usado?">
+Esta guía no cita una cifra propia. La [comparativa de CRM](/blog/crm-comparison) recoge la cuota de mercado mundial que publicó Salesforce con datos de IDC y explica por qué la cuota describe al proveedor y no si sus planes encajan con tu equipo. Para elegir, mira antes el modelo de datos: que admita varias empresas por persona, campos tipados y exportación.
 </FaqItem>
 
 <FaqItem question="¿Cuáles son los cuatro tipos de CRM?">

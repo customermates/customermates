@@ -27,7 +27,7 @@ pricing:
     features:
       - "[[commercial.limit.free.fileStorageBytes]] de almacenamiento de archivos por espacio de trabajo"
       - "API y MCP con [[commercial.limit.free.apiRequestsPerMinute]] solicitudes por minuto y [[commercial.limit.free.apiRequestsPerDay]] al día"
-      - "Sin bandeja de entrada, Mate, rutinas, webhooks ni trigger de n8n"
+      - "Sin bandeja de entrada, Mate, rutinas, webhooks ni disparador de n8n"
   - plan: starter
     title: Starter
     description: "Tu CRM y tu propia IA"
@@ -219,7 +219,7 @@ comparison:
         business: true
         max: true
         enterprise: true
-      - label: "Webhooks y el trigger de n8n"
+      - label: "Webhooks y el disparador de n8n"
         catalogFact: webhooks
       - label: Acceso MCP para un cliente de IA externo
         free: true
@@ -318,7 +318,7 @@ faq:
     content: "La base de datos en la nube funciona en AWS Fráncfort, y las cuentas conectadas inician sesión mediante el flujo alojado de Unipile, así que Customermates nunca recibe contraseñas de proveedores ni tokens OAuth. La respuesta completa está en la documentación: https://customermates.com/docs/architecture-security#where-are-customer-data-and-credentials-stored"
   - id: pricing-faq-12
     title: "¿Qué es el plan Free?"
-    content: "Tu primer espacio de trabajo en Cloud empieza con la prueba de Pro de [[commercial.trial.days]] días, sin tarjeta de crédito; cada espacio de trabajo adicional empieza eligiendo un plan. Si la prueba termina sin un plan de pago, el espacio de trabajo pasa a Free en lugar de bloquearse, y no se elimina nada. Free sirve para probar Customermates tú solo: [[commercial.limit.free.maxMembers]] persona, hasta [[commercial.limit.free.maxRecords]] registros y [[commercial.limit.free.fileStorageBytes]] de almacenamiento de archivos por espacio de trabajo. No tiene bandeja de entrada ni cuentas conectadas, ni Mate, ni rutinas, ni webhooks, ni trigger de n8n. La API REST y MCP están incluidas con hasta [[commercial.limit.free.apiRequestsPerMinute]] solicitudes por minuto y [[commercial.limit.free.apiRequestsPerDay]] al día por espacio de trabajo, así que puedes traer tu propio Claude o ChatGPT. Los registros y archivos que superen un límite se conservan; solo se rechaza añadir más. Puedes pasar a un plan de pago en cualquier momento. Una instancia autoalojada sigue siendo gratuita y sin estos límites."
+    content: "Tu primer espacio de trabajo en Cloud empieza con la prueba de Pro de [[commercial.trial.days]] días, sin tarjeta de crédito; cada espacio de trabajo adicional empieza eligiendo un plan. Si la prueba termina sin un plan de pago, el espacio de trabajo pasa a Free en lugar de bloquearse, y no se elimina nada. Free sirve para probar Customermates tú solo: [[commercial.limit.free.maxMembers]] persona, hasta [[commercial.limit.free.maxRecords]] registros y [[commercial.limit.free.fileStorageBytes]] de almacenamiento de archivos por espacio de trabajo. No tiene bandeja de entrada ni cuentas conectadas, ni Mate, ni rutinas, ni webhooks, ni disparador de n8n. La API REST y MCP están incluidas con hasta [[commercial.limit.free.apiRequestsPerMinute]] solicitudes por minuto y [[commercial.limit.free.apiRequestsPerDay]] al día por espacio de trabajo, así que puedes traer tu propio Claude o ChatGPT. Los registros y archivos que superen un límite se conservan; solo se rechaza añadir más. Puedes pasar a un plan de pago en cualquier momento. Una instancia autoalojada sigue siendo gratuita y sin estos límites."
   - id: pricing-faq-13
     title: "¿Qué pasa con mi equipo cuando un espacio de trabajo pasa a Free?"
     content: "Free mantiene [[commercial.limit.free.maxMembers]] persona activa por espacio de trabajo: la persona que creó el espacio de trabajo o, si no, el administrador más antiguo. Todas las demás quedan en pausa, no se eliminan. Las personas en pausa no pueden abrir el espacio de trabajo, y sus registros, notas e historial se conservan. Las invitaciones abiertas y las solicitudes de acceso se cancelan, las rutinas se pausan y los webhooks existentes dejan de enviar. Un administrador puede ceder la plaza activa a otro administrador. En cuanto el espacio de trabajo elige cualquier plan de pago, todas las personas en pausa vuelven automáticamente y cuentan de nuevo como plaza de pago, y las rutinas y los webhooks se reanudan."

@@ -35,7 +35,7 @@ Esta guía enumera las obligaciones que importan para un CRM con el número de s
   <SummaryItem label="La regla">Eres el responsable del tratamiento de los datos personales de tu CRM, y el fabricante del CRM es tu encargado del tratamiento. El RGPD te hace responsable de la base jurídica, del contrato y de las solicitudes, no del software.</SummaryItem>
   <SummaryItem label="Antes de firmar">Un contrato de encargo del tratamiento con el contenido del artículo 28.3, la lista de subencargados del fabricante, dónde se tratan los datos y qué mecanismo de transferencia cubre a cualquier proveedor fuera de la UE.</SummaryItem>
   <SummaryItem label="En el uso diario">Acceso restringido, pocos campos, una forma de encontrar, corregir, exportar y suprimir los datos de una persona, y una revisión de plazos de conservación que de verdad ejecutes.</SummaryItem>
-  <SummaryItem label="Customermates">Un DPA para la nube gestionada, una lista pública de subencargados que incluye proveedores de EE. UU., la base de datos principal configurada en AWS Frankfurt (un ajuste elegido, no una garantía), ninguna certificación de cumplimiento y un núcleo de código abierto que puedes alojar tú.</SummaryItem>
+  <SummaryItem label="Customermates">Un DPA para la nube gestionada, una lista pública de subencargados que incluye proveedores de EE. UU., la base de datos principal configurada en AWS Fráncfort (un ajuste elegido, no una garantía), ninguna certificación de cumplimiento y un núcleo de código abierto que puedes alojar tú.</SummaryItem>
   <SummaryItem label="Transparencia">Customermates publica esta guía. La legislación de terceros se cita en EUR-Lex y en la Comisión Europea.</SummaryItem>
 </ArticleSummary>
 
@@ -53,7 +53,7 @@ El RGPD (Reglamento (UE) 2016/679, [texto en EUR-Lex](https://eur-lex.europa.eu/
 | Contrato con el encargado | Art. 28.3 | Un contrato escrito que contenga al menos las condiciones enumeradas en las letras (a) a (h). |
 | Subencargados | Art. 28.2 y 28.4 | El encargado necesita tu autorización por escrito, general o específica, y debe imponer las mismas obligaciones a cada subencargado que contrate. |
 | Seguridad | Art. 32 | Medidas técnicas y organizativas adecuadas al riesgo, como el control de acceso, el cifrado y la capacidad de restablecer la disponibilidad tras un incidente. |
-| Violaciones de seguridad | Arts. 33 y 34 | El encargado te avisa sin dilación indebida (art. 33.2). Tú lo notificas a la autoridad de control en un plazo de 72 horas cuando sea posible (art. 33.1) y lo comunicas a las personas afectadas cuando el riesgo para ellas sea alto (art. 34.1). |
+| Violaciones de seguridad | Arts. 33 y 34 | El encargado te avisa sin dilación indebida (art. 33.2). Tú lo notificas a la autoridad de control (en España, la Agencia Española de Protección de Datos) en un plazo de 72 horas cuando sea posible (art. 33.1) y lo comunicas a las personas afectadas cuando el riesgo para ellas sea alto (art. 34.1). |
 | Transferencias fuera del EEE | Arts. 44 a 46 | Solo se permiten con una decisión de adecuación (art. 45) o con garantías adecuadas, por ejemplo cláusulas contractuales tipo (art. 46.2.c). |
 | Registro de actividades de tratamiento | Art. 30 | Un registro escrito de tus actividades de tratamiento. La excepción para organizaciones de menos de 250 personas no se aplica a un tratamiento que no sea ocasional (art. 30.5), así que un CRM de uso regular suele estar cubierto. |
 
@@ -68,13 +68,13 @@ Ningún CRM cumple el RGPD por sí solo. El cumplimiento describe cómo usas una
 - información clara sobre dónde se tratan los datos y qué mecanismo cubre cualquier transferencia fuera del EEE;
 - medidas de seguridad escritas en el contrato;
 - funciones del producto para encontrar, corregir, exportar y suprimir los datos de una persona; y
-- una forma de salir: la devolución o la supresión de tus datos al terminar.
+- una vía de salida: la devolución o la supresión de tus datos al terminar.
 
 Trata una insignia como «cumple el RGPD» o «hecho en Europa» como una afirmación de marketing. El RGPD prevé la certificación aprobada (art. 42), así que pregunta qué certificación, de qué organismo y para qué servicio. Customermates no tiene ninguna certificación de cumplimiento; alojar en una región de la UE es un hecho de alojamiento, no una certificación.
 
 ## ¿Importa dónde están el fabricante del CRM y sus servidores?
 
-Se confunden tres lugares: dónde está establecido el fabricante, dónde se ejecuta su base de datos y dónde tratan datos todos los demás proveedores de la cadena. El RGPD no exige alojamiento en la UE. Restringe las transferencias fuera del EEE (arts. 44 a 46) y te hace responder de toda la cadena de encargados. Un fabricante en Alemania puede ejecutar su aplicación en un proveedor de alojamiento de EE. UU., y un fabricante de EE. UU. puede ejecutar una base de datos en Fráncfort. Esa es la pregunta real detrás de la búsqueda de un CRM alemán o de la UE: lee los tres lugares, no el titular.
+Se confunden tres lugares: dónde está establecido el fabricante, dónde se ejecuta su base de datos y dónde tratan datos todos los demás proveedores de la cadena. El RGPD no exige alojamiento en la UE. Restringe las transferencias fuera del EEE (arts. 44 a 46) y te hace responder de toda la cadena de encargados. Un fabricante en Alemania puede ejecutar su aplicación en un proveedor de alojamiento de EE. UU., y un fabricante de EE. UU. puede ejecutar una base de datos en Fráncfort. Esa es la pregunta real detrás de la búsqueda de un CRM alemán o de la UE: lee los tres lugares, no el titular. Si tu empresa está fuera de la UE pero tratas datos de personas que están en ella, el RGPD también puede aplicarte, y cada país tiene además su propia ley de protección de datos; consúltalo con un abogado.
 
 Para Customermates, las páginas legales dicen lo siguiente (tal como estaban publicadas el 11 de noviembre de 2026):
 
@@ -105,7 +105,7 @@ El art. 28.3 enumera el contenido mínimo de un contrato con el encargado. Contr
 
 Lee también los límites. El DPA indica lo que no puede prometer: para las cuentas conectadas no tiene un derecho contractual de supresión por cuenta frente a Unipile y solo puede solicitar la eliminación, y los registros de entrada en bruto que no se pueden atribuir a un cliente se conservan para el análisis de errores sin un plazo fijo. Un DPA que indica sus límites es más fácil de valorar que uno que no indica ninguno.
 
-Comprueba además cómo se celebra. Publicar un documento no lo celebra: el DPA de Customermates entra en vigor para un cliente cuando un administrador autorizado lo acepta, junto con las Condiciones, durante el onboarding, y hay una copia en forma de texto disponible previa solicitud. La versión alemana es la que prevalece y la inglesa es una traducción de cortesía.
+Comprueba además cómo se formaliza. Publicar un documento no lo formaliza: el DPA de Customermates entra en vigor para un cliente cuando un administrador autorizado lo acepta, junto con las Condiciones, durante el onboarding, y hay una copia en forma de texto disponible previa solicitud. La versión alemana es la que prevalece y la inglesa es una traducción de cortesía.
 
 ## ¿Cómo gestionas una solicitud de acceso o de supresión en un CRM?
 
@@ -113,7 +113,7 @@ Esta es la prueba de cualquier configuración de CRM: alguien escribe «quiero s
 
 <Steps>
   <Step title="Registra la solicitud y confirma quién la hace">Anota la fecha en que la recibes: el plazo de un mes del art. 12.3 empieza entonces. Confirma la identidad en proporción a los datos, sin recoger más de lo que necesitas para ello.</Step>
-  <Step title="Encuentra todos los registros">Pulsa Cmd o Ctrl y K. La búsqueda global recorre todas las listas que puedes leer y encuentra a un contacto por cualquier dirección de correo o teléfono de sus Datos de contacto; busca también el nombre, y abre las organizaciones y oportunidades vinculadas. Las conversaciones no forman parte de esta búsqueda: la Bandeja de entrada, disponible desde Pro con una cuenta conectada, tiene su propia búsqueda.</Step>
+  <Step title="Encuentra todos los registros">Pulsa Cmd+K o Ctrl+K. La búsqueda global recorre todas las listas que puedes leer y encuentra a un contacto por cualquier dirección de correo o teléfono de sus Datos de contacto; busca también el nombre, y abre las organizaciones y oportunidades vinculadas. Las conversaciones no forman parte de esta búsqueda: la Bandeja de entrada, disponible desde Pro con una cuenta conectada, tiene su propia búsqueda.</Step>
   <Step title="Reúne los datos">Filtra cada lista por la persona y elige Exportar como Excel (.xlsx) o Exportar como JSON en Más acciones. La exportación contiene lo que muestra la lista con tus filtros, hasta 5.000 registros, y solo los campos que tu rol puede leer. Customermates no tiene exportación de toda la cuenta, así que repite esto en cada lista que contenga a la persona, y añade lo que haya en tu correo, tus hojas de cálculo y otras herramientas.</Step>
   <Step title="Corrige lo que esté mal">Edita el valor en el propio sitio. Eso responde a una solicitud de rectificación del art. 16; el Registro de actividad guarda el cambio con el valor anterior, quién lo hizo y cuándo.</Step>
   <Step title="Suprime y revisa después las copias">Eliminar mueve el registro a la Papelera y lo saca de las listas, de la búsqueda, de los widgets y de las exportaciones. Abre la Papelera y elige Eliminar definitivamente para suprimirlo ahora, lo que también quita de su historial los valores de campo del registro; si no, desaparece solo a los 30 días. Los mensajes de una bandeja de entrada conectada son copias de mensajes de tu cuenta de correo o de mensajería, así que el original necesita la misma decisión. Pregunta cómo trata tu fabricante las copias de seguridad: el DPA de Customermates indica como máximo 90 días para las supresiones que cubre (sección 11).</Step>
@@ -130,7 +130,7 @@ Una lista de comprobación para la primera semana, antes de que entren datos rea
   <Step title="Decide qué guarda cada lista">Menos campos significan menos que proteger, responder y suprimir (art. 5.1.c). Escribe la finalidad y la base jurídica de cada lista en su descripción, y deja fuera las categorías especiales de datos, como los datos de salud (art. 9), salvo que tengas un fundamento concreto.</Step>
   <Step title="Da a cada persona solo el acceso que necesita">Los roles conceden Crear, Editar, Eliminar y Acceso de lectura (Todos, Asignados o Ninguno) por lista. No hay permisos a nivel de campo, así que guarda la información sensible en una lista aparte con un acceso más restringido.</Step>
   <Step title="Planifica cómo se van las personas">Marcar a un miembro como Inactivo bloquea de golpe su acceso, sus claves de API y sus conexiones MCP al espacio de trabajo.</Step>
-  <Step title="Celebra el DPA y lee la lista de subencargados">Conserva tu copia de la versión aceptada y vuelve a mirar la lista cuando llegue un aviso de cambio.</Step>
+  <Step title="Formaliza el DPA y lee la lista de subencargados">Conserva tu copia de la versión aceptada y vuelve a mirar la lista cuando llegue un aviso de cambio.</Step>
   <Step title="Conecta solo los canales que uses">Cada cuenta conectada añade un proveedor a la cadena y una copia almacenada de sus mensajes. Desconectar una cuenta elimina los hilos, mensajes, participantes y datos de calendario almacenados de esa cuenta, tal como describe el DPA.</Step>
   <Step title="Fija una regla de conservación por lista y aplícala">Guarda una vista de los registros no actualizados durante el plazo que elegiste, revísala con regularidad y elimina lo que ya no necesites. El RGPD deja el plazo en tus manos (art. 5.1.e); cuando el derecho fiscal o mercantil te obliga a conservar un documento, esa obligación se suma.</Step>
   <Step title="Mantén al día tus propios documentos">El registro de actividades de tratamiento (art. 30) y tu aviso de privacidad (arts. 13 y 14) viven en tu carpeta de cumplimiento, no en los documentos del fabricante del CRM.</Step>
@@ -147,7 +147,7 @@ En Customermates Cloud, la lista de subencargados describe Mate: una solicitud p
 Lo que ofrece, según la documentación del producto y las páginas legales:
 
 - el [DPA](/dpa) y la [lista de subencargados](/subprocessors) de la nube gestionada, con el proceso de cambios descrito arriba;
-- roles por lista, un interruptor de desactivación de miembros y separación entre inquilinos por cuenta de empresa;
+- roles por lista, la opción de desactivar miembros y la separación entre inquilinos por cuenta de empresa;
 - búsqueda global por dirección de correo o teléfono, corrección en el propio sitio, exportación a Excel y JSON por lista, y Papelera con supresión definitiva;
 - un Registro de actividad de los cambios en los registros del CRM y en la configuración del espacio de trabajo, legible por los roles que tienen acceso; y
 - un núcleo de código abierto bajo la AGPL que puedes [alojar tú](/features/self-hosted).
@@ -158,10 +158,10 @@ Lo que no ofrece, así que pídelo en otro sitio si lo necesitas:
 - no tiene permisos a nivel de campo ni exportación de toda una cuenta en un solo paso;
 - su Registro de actividad no cubre los inicios de sesión, las claves de API ni el contenido de la bandeja de entrada, y no tiene botón de exportación.
 
-El autoalojamiento cambia quién es responsable. El núcleo AGPL se ejecuta con Docker y PostgreSQL en tu infraestructura, y el DPA cubre solo el servicio gestionado: tú eliges el alojamiento y los proveedores y tienes tus propios contratos del art. 28 y tus propias garantías de transferencia. TLS y el cifrado en reposo los configuras tú. El autoalojamiento usa el conjunto de funciones de Starter, sin la bandeja de entrada y sin Mate, y no está aislado de la red: la primera introducción de una dirección de un país descarga el archivo público de códigos postales de ese país desde GeoNames, salvo que pongas `POSTAL_CODE_DATA_URL` en `off` o en un espejo. La [guía de autoalojamiento](/docs/self-hosting) tiene los detalles, y la [página del CRM de código abierto](/features/open-source-crm) explica el límite de la licencia.
+El autoalojamiento cambia quién es responsable. El núcleo AGPL se ejecuta con Docker y PostgreSQL en tu infraestructura, y el DPA cubre solo el servicio gestionado: tú eliges el alojamiento y los proveedores y tienes tus propios contratos del art. 28 y tus propias garantías de transferencia. TLS y el cifrado en reposo los configuras tú. El autoalojamiento usa el conjunto de funciones de Starter, sin la bandeja de entrada y sin Mate, y no está aislado de la red: al introducir por primera vez una dirección de un país se descarga de GeoNames el archivo público de códigos postales de ese país, salvo que pongas `POSTAL_CODE_DATA_URL` en `off` o en un espejo. La [guía de autoalojamiento](/docs/self-hosting) tiene los detalles, y la [página del CRM de código abierto](/features/open-source-crm) explica el límite de la licencia.
 
 <AcquisitionCallout title="Dónde Customermates no es la opción adecuada" variant="boundary">
-  Si una lista de comprobación de compras pide una certificación reconocida, una garantía contractual de tratamiento solo en la UE o permisos a nivel de campo, Customermates no puede marcar hoy esas casillas. Ponlo por escrito a cada fabricante que compares y lee las respuestas junto a sus listas de subencargados. La [comparativa del mejor software de CRM](/blog/best-crm-software) y la [guía para elegir un CRM](/blog/how-to-choose-crm) cubren los demás criterios.
+  Si una lista de comprobación de compras pide una certificación reconocida, una garantía contractual de tratamiento solo en la UE o permisos a nivel de campo, Customermates no puede marcar hoy esas casillas. Pídelo por escrito a cada fabricante que compares y lee las respuestas junto a sus listas de subencargados. La [comparativa del mejor software de CRM](/blog/best-crm-software) y la [guía para elegir un CRM](/blog/how-to-choose-crm) cubren los demás criterios.
 </AcquisitionCallout>
 
 Para comprobar los puntos anteriores con tu propio caso, lee primero el DPA y la lista de subencargados, y después [empieza tu prueba de [[commercial.trial.days]] días](/auth/signup?job=followup): Pro, sin tarjeta de crédito. Importa unos registros de prueba antes de meter datos reales de clientes y ejecuta una vez los pasos de la solicitud de acceso.
@@ -176,7 +176,7 @@ No. El RGPD no prescribe una ubicación de alojamiento. Permite las transferenci
 Sí, cuando el proveedor trata datos personales por tu cuenta. El art. 28.3 exige un contrato escrito, que puede ser en formato electrónico, con el contenido enumerado en las letras (a) a (h). Comprueba que existe, qué versión se aplica y que nombra a los subencargados.
 </FaqItem>
 <FaqItem question="¿Cumple Customermates el RGPD?">
-Ningún CRM cumple el RGPD por sí solo, y Customermates no tiene ninguna certificación de cumplimiento. Ofrece un DPA para la nube gestionada, una lista pública de subencargados, una base de datos principal configurada en AWS Frankfurt y las funciones descritas arriba. Sigues siendo responsable de tu base jurídica, de tus plazos de conservación y de tus respuestas a las solicitudes.
+Ningún CRM cumple el RGPD por sí solo, y Customermates no tiene ninguna certificación de cumplimiento. Ofrece un DPA para la nube gestionada, una lista pública de subencargados, una base de datos principal configurada en AWS Fráncfort y las funciones descritas arriba. Sigues siendo responsable de tu base jurídica, de tus plazos de conservación y de tus respuestas a las solicitudes.
 </FaqItem>
 <FaqItem question="¿Qué diferencia hay entre responsable y encargado del tratamiento en un CRM?">
 El responsable decide por qué y cómo se usan los datos personales: tú, respecto a los contactos de tu CRM. El encargado trata los datos por tu cuenta y según tus instrucciones documentadas: el fabricante del CRM. Respecto a los datos de su propio sitio web, de facturación y de seguridad, un fabricante es a su vez responsable.

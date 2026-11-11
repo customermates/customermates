@@ -63,6 +63,16 @@ Veel kleine bedrijven spreken afspraken, offertes en wijzigingen met klanten af 
 
 **Waar dit helpt bij follow-up.** Een chat die op jouw antwoord wacht, mis je makkelijk tussen bezoeken en telefoontjes door. Met de chat bij de contactpersoon kun je de inbox filteren op gesprekken waarin het laatste bericht van de klant is, of een veld Chatstatus op de contactpersoon bijhouden en een bord draaien met de chats die nog openstaan. Mate, of je eigen AI-client via MCP, kan een conceptantwoord in de chat bewaren, dat jij bekijkt en verstuurt. Mate verstuurt zonder verdere goedkeuring als je daarom vraagt, dus vraag om een concept als je de formulering eerst wilt lezen.
 
+## Waarom WhatsApp-chats in je CRM zetten? [#waarom-whatsapp-in-crm]
+
+Veel klanten appen liever dan dat ze bellen of mailen. Blijft zo'n gesprek op de telefoon van één collega staan, dan weet de rest van het team niet wat er is afgesproken en verdwijnt de context zodra iemand van telefoon wisselt of afwezig is. Een WhatsApp CRM koppeling lost dat op drie manieren op:
+
+- **Eén overzicht per klant.** De chat staat naast de contactpersoon, de deal en de gesprekken via e-mail en [LinkedIn](/features/linkedin-integration), in plaats van in een app waar je moet zoeken.
+- **Geen gesprekken die blijven liggen.** Je filtert de inbox op chats waarin het laatste bericht van de klant is, dus je ziet wie nog op een antwoord wacht.
+- **Context bij elk antwoord.** Je antwoordt met de dealfase en eerdere afspraken in beeld, en Mate of je eigen AI-client kan een concept voor je klaarzetten.
+
+Chats bevatten persoonsgegevens. Spreek daarom intern af wie welke chats mag zien en hoe lang je ze bewaart, en leg de contactgegevens vast in je [contactbeheer](/features/contact-management); dat blijft je eigen verantwoordelijkheid, ook onder de AVG.
+
 ## De voorbeeldwerkruimte: WhatsApp-klantcontact met voorbeelddata
 
 De demo hierboven en de [voorbeeldwerkruimte](https://demo.customermates.com/nl/w/whatsapp/dashboard) gebruiken voorbeelddata, geen klant. De werkruimte heeft lijsten voor klanten, contactpersonen, projecten en taken. In de inbox staat een WhatsApp-chat naast het record van de contactpersoon van de klant: die is gevonden via het telefoonnummer in het veld Contactgegevens, en de chat is bewust en met de hand gekoppeld aan een open project onder **Gespreksrecords**. Een veld Chatstatus op elke contactpersoon, met de hand ingesteld, voedt een bord met de chats die nog op een antwoord wachten. Projecten bewaren de sitefoto's, tekeningen en de offerte in een veld van het type Bestand en hebben een datum en tijd voor het locatiebezoek. Het dashboard toont de locatiebezoeken van de komende 14 dagen en een agendaweergave toont de installaties per week.
@@ -80,6 +90,27 @@ Deze lijsten zijn een voorbeeld. Een nieuwe werkruimte begint zonder lijsten: in
 **Contactpersonen gevonden via telefoonnummer.** Een telefoonnummer in het veld Contactgegevens van een record koppelt dat record aan de WhatsApp-chats met dat nummer. Datzelfde nummer kan ook vanuit het record worden gebeld. Voor een afzender die nog geen record heeft, open je **Gespreksinstellingen** en koppel je het nummer aan een bestaande contactpersoon of maak je er een aan.
 
 **Status die in Customermates blijft.** Markeer een chat als ongelezen, open, gesloten of spam om de inbox te ordenen. Die status leeft alleen in Customermates: een chat hier sluiten archiveert of wijzigt hem niet in WhatsApp.
+
+## Zo koppel je WhatsApp aan Customermates [#whatsapp-koppelen-stappen]
+
+Je hebt een Cloud-abonnement vanaf Pro nodig (of de proefperiode) en rechten op de berichten in de inbox. Daarna:
+
+1. Open **Instellingen** en ga naar **Kanalen & agenda's**.
+2. Klik op **Kanaal koppelen** en kies **WhatsApp**.
+3. Scan de QR-code met je WhatsApp-account, zoals je WhatsApp op een tweede apparaat koppelt.
+4. Wacht tot het kanaal is gekoppeld. De geschiedenis wordt op de achtergrond geïmporteerd (**Synchroniseert op de achtergrond**), meestal binnen enkele minuten en bij grote accounts tot een uur.
+5. Zorg dat de lijst met contactpersonen het veld Contactgegevens heeft en dat je telefoonnummers in internationaal formaat opslaat, zodat Customermates elke chat aan de juiste contactpersoon koppelt.
+
+Meer over kanalen koppelen, synchroniseren en delen staat in de [inboxgids](/docs/app-inbox). Een nieuw kanaal is **Privé**. Wil je chats delen met je team, dan kan dat per gesprek, en op Business, Max en Enterprise ook met het hele account; zie hieronder bij "Wie ziet welke chats".
+
+## WhatsApp Business API of gekoppeld account: wat is het verschil? [#api-of-gekoppeld-account]
+
+Je kunt WhatsApp op twee manieren aan een CRM hangen, en de keuze bepaalt wat je kunt doen:
+
+- **De officiële WhatsApp Business API.** Dit is de route voor campagnes, goedgekeurde berichtsjablonen, chatbots en automatische antwoorden. Je gebruikt hiervoor een aanbieder van de Business API, en het is bedoeld voor bedrijven die veel berichten versturen.
+- **Een gekoppeld WhatsApp-account.** Je koppelt je bestaande account met een QR-code, vergelijkbaar met WhatsApp Web. Het gesprek loopt dan zoals je het nu al voert, maar dan zichtbaar naast het klantdossier. Dit is wat Customermates doet.
+
+Appen je klanten vooral één-op-één met jou of je team, zoals over een offerte, een afspraak of een wijziging, dan past een gekoppeld account het best. Wil je honderden klanten tegelijk een bericht sturen, dan heb je de Business API en een daarvoor bedoelde aanbieder nodig.
 
 ## Wat deze WhatsApp CRM niet is
 
@@ -149,6 +180,10 @@ Nee. De contactpersoon wordt gevonden via het telefoonnummer in het veld Contact
 
 <FaqItem question="Verandert er iets in WhatsApp als ik een chat in Customermates sluit?">
 Nee. Ongelezen, open, gesloten en spam zijn statussen in Customermates. Ze worden niet teruggesynchroniseerd naar de WhatsApp-app.
+</FaqItem>
+
+<FaqItem question="Hoe koppel ik WhatsApp aan mijn CRM?">
+In Customermates Cloud ga je naar **Instellingen** > **Kanalen & agenda's**, klik je op **Kanaal koppelen** en kies je **WhatsApp**. Daarna scan je de QR-code met je WhatsApp-account. De geschiedenis wordt op de achtergrond geïmporteerd. Je hebt hiervoor Pro of de proefperiode nodig.
 </FaqItem>
 
 <FaqItem question="Werkt het ook met groepschats?">

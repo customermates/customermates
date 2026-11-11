@@ -1,6 +1,6 @@
 ---
-title: "MCP vs API: la misma tarea de CRM comparada"
-description: "MCP vs API explicado con una búsqueda de cliente y una tarea fechadas, por REST y por MCP. Compara descubrimiento, permisos, aprobaciones e integración."
+title: "MCP vs API: diferencias y cuándo usar cada uno, con ejemplo"
+description: "MCP vs API explicado con la misma tarea de CRM por REST y por MCP: qué es cada uno, diferencias de descubrimiento y permisos, y cuándo usar cada uno."
 
 hero:
   title: "MCP vs API: ¿qué conexión encaja con tu tarea de CRM?"
@@ -29,6 +29,12 @@ relatedHrefs:
 MCP vs API es una elección sobre cómo un cliente encuentra y llama a una operación: REST le da al código de la aplicación endpoints, mientras que MCP le da a una aplicación de IA herramientas descubribles con esquemas de entrada. Customermates ofrece ambos para los mismos datos de clientes, y en los dos caminos se aplican los permisos de la aplicación del usuario conectado.
 
 ¿MCP o API? Usa REST para una integración conocida cuyos pasos controlas en el código. Considera MCP cuando un asistente tiene que elegir entre herramientas mientras ayuda a una persona. Ninguno de los dos protocolos garantiza por sí solo un resultado más rápido, más seguro o aprobado de forma automática.
+
+## ¿Qué es una API y qué es MCP, en pocas palabras? [#que-es-api-y-mcp]
+
+Una API es el contrato por el que un programa le pide algo a otro, por ejemplo «dame las organizaciones que coinciden con este nombre». MCP añade una capa pensada para aplicaciones de IA: un servidor MCP publica un catálogo de herramientas con nombre y esquema, y un cliente de IA lo lee, elige una herramienta y la llama. La imagen que se usa a menudo es la de un conector universal: en lugar de programar una integración distinta para cada asistente, la aplicación expone sus herramientas una vez, en un formato que entienden todos los clientes compatibles.
+
+Una «API MCP» no es un tipo distinto de API: es la forma coloquial de llamar al servidor MCP de una aplicación (la guía [qué es un servidor MCP](/blog/what-is-an-mcp-server) lo explica desde cero). Y MCP no es un sustituto de REST; lo habitual es que un servidor MCP trabaje por encima de las operaciones que la aplicación ya tiene.
 
 ## ¿Cuál es la diferencia entre MCP y una API REST?
 
@@ -205,9 +211,15 @@ La aprobación es otra cuestión. Customermates indica a los clientes MCP extern
 
 Mate, en su versión alojada, tiene su propia política de aprobación aplicada desde el servidor. Las rutinas tienen sus propios controles de ejecución y de aprobación; no los deduzcas de una sesión MCP externa. La disponibilidad de Mate en la nube gestionada también depende de los planes que lo incluyan, de los créditos disponibles y de los controles globales. La [guía del CRM agéntico](/blog/agentic-crm) explica estos límites.
 
-## ¿Cuándo conviene mantener REST, usar MCP o combinarlos?
+## ¿Qué diferencia hay entre un servidor MCP y una pasarela de API? [#servidor-mcp-pasarela-api]
 
-Mantén REST cuando tu trabajo sea «ejecutar estos pasos exactos cada vez que ocurra un evento conocido». Una sincronización fija suele beneficiarse de asignaciones explícitas, reintentos y gestión de errores en el código. OpenAPI también puede ofrecer esquemas de API legibles por máquinas; el descubrimiento no es exclusivo de MCP.
+Una pasarela de API (API gateway) es un punto de entrada delante de una o varias API: centraliza la autenticación, los límites de uso y el registro del tráfico. Un servidor MCP es otra cosa: expone herramientas a un cliente de IA. Pueden convivir, y una pasarela puede proteger el tráfico que llega a un servidor MCP, pero el servidor por sí solo no te da esos controles. Si tu organización ya usa una pasarela, aplica las mismas reglas de autenticación y de límites al tráfico de los asistentes de IA. Para ver cómo lo resuelven otros CRM con servidor propio, compara las guías del [servidor MCP de HubSpot](/blog/hubspot-mcp) y del [MCP de Salesforce](/blog/salesforce-mcp).
+
+## ¿Cuándo conviene mantener REST, usar MCP o combinarlos? [#cuando-usar-rest-o-mcp]
+
+Una regla rápida: usa REST para un flujo fijo que controlas en el código, MCP cuando un asistente tiene que elegir entre herramientas mientras ayuda a una persona, y los dos juntos cuando un flujo determinista alimenta a un asistente.
+
+Mantén REST cuando tu trabajo sea «ejecutar estos pasos exactos cada vez que ocurra un evento conocido». Una sincronización fija suele beneficiarse de asignaciones explícitas, reintentos y gestión de errores en el código. OpenAPI también puede ofrecer esquemas de API legibles por máquinas; el descubrimiento no es exclusivo de MCP. OpenAPI describe los endpoints de una API REST para desarrolladores y generadores de código, mientras que MCP describe herramientas que un cliente de IA descubre y llama en ejecución. No compiten: algunos servidores MCP se construyen sobre una API que ya tiene un contrato OpenAPI.
 
 Elige MCP cuando la siguiente operación útil dependa de la pregunta de una persona y el host admita las herramientas que necesitas. Aun así necesitas servidores de confianza, acceso acotado, validación de resultados y una política de aprobación. MCP es más que dar formato a JSON, pero no es una pasarela de API que aporte todos esos controles de forma automática. Consulta la [arquitectura oficial de MCP](https://modelcontextprotocol.io/docs/learn/architecture) para ver los roles de host, cliente y servidor.
 
@@ -215,11 +227,29 @@ Puedes combinar los dos: un webhook avisa de un evento, un flujo determinista ob
 
 Customermates autoalojado ofrece el núcleo del CRM Starter con REST y MCP para clientes externos. No incluye Mate alojado ni la bandeja de entrada en la nube. Elige otro enfoque si solo necesitas un adaptador para tu CRM actual, o si tu integración fija no gana nada con un host de IA. Los precios de la nube y las condiciones de la prueba son un asunto distinto de la elección del protocolo; compáralos en la [página de precios actual](/pricing).
 
-Para un equipo que da seguimiento a las conversaciones con clientes, la llamada MCP útil es la que lee un hilo en el registro del cliente y guarda un borrador de respuesta y un siguiente paso para revisar. Para probarlo con tu propio Claude o ChatGPT, [empieza tu prueba](/auth/signup?job=followup): [[commercial.trial.days]] días de Pro sin tarjeta de crédito.
+Para un equipo que da seguimiento a las conversaciones con clientes, la llamada MCP útil es la que lee un hilo en el registro del cliente y guarda un borrador de respuesta y un siguiente paso para revisar. La [guía de CRM con IA](/blog/ai-crm) explica qué puede leer y cambiar un asistente en tu CRM. Para probarlo con tu propio Claude o ChatGPT, [empieza tu prueba](/auth/signup?job=followup): [[commercial.trial.days]] días de Pro sin tarjeta de crédito.
 
 ## Preguntas frecuentes
 
 <Faq>
+<FaqItem question="¿Qué diferencia hay entre MCP y API?">
+Una API es el contrato por el que un programa llama a otro, y en REST el código de la integración decide cada paso. MCP añade un catálogo estándar de herramientas con esquemas que una aplicación de IA descubre y llama; el modelo o el host puede elegir la siguiente herramienta. Los dos pueden compartir la misma lógica de la aplicación.
+</FaqItem>
+<FaqItem question="¿Qué es una API MCP?">
+No es un tipo distinto de API. Se suele llamar así al servidor MCP de una aplicación, que publica herramientas con nombre y esquema para que las llame un cliente de IA como Claude o ChatGPT.
+</FaqItem>
+<FaqItem question="¿Qué diferencia hay entre una API y un endpoint?">
+La API es el conjunto de operaciones que una aplicación ofrece a otros programas; un endpoint es una dirección concreta de esa API, por ejemplo la de consulta de registros. Una API REST tiene muchos endpoints.
+</FaqItem>
+<FaqItem question="¿Qué diferencia hay entre un microservicio y una API?">
+Un microservicio es una forma de dividir una aplicación en servicios pequeños; la API es la interfaz con la que se habla con un servicio. Cada microservicio puede exponer su propia API.
+</FaqItem>
+<FaqItem question="¿MCP y OpenAPI son lo mismo?">
+No. OpenAPI describe una API REST para desarrolladores y generadores de código. MCP describe herramientas que un cliente de IA descubre y llama mientras funciona. Algunos servidores MCP se apoyan en una API que ya tiene un contrato OpenAPI.
+</FaqItem>
+<FaqItem question="¿Un servidor MCP es lo mismo que una pasarela de API?">
+No. Una pasarela de API controla el tráfico hacia las API (autenticación, límites, registro). Un servidor MCP expone herramientas a un cliente de IA. Pueden usarse juntos, pero uno no sustituye al otro.
+</FaqItem>
 <FaqItem question="¿MCP sustituye a las API REST?">
 No. Un servidor MCP puede envolver una API REST o compartir con ella la lógica de la aplicación. REST sigue siendo útil para integraciones controladas con pasos predefinidos.
 </FaqItem>

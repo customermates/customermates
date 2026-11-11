@@ -1,6 +1,6 @@
 ---
-title: "IA agéntica (agentic AI): definición, ejemplos y límites"
-description: "IA agéntica explicada: qué es, en qué se diferencia de la IA generativa y de un chatbot, ejemplos en ventas y CRM, cómo funciona y dónde falla, con fuentes."
+title: "IA agéntica: qué es, cómo funciona, ejemplos y límites"
+description: "IA agéntica: qué es, en qué se diferencia de la IA generativa y de un chatbot, cómo funciona, ejemplos en ventas y CRM, ventajas y dónde falla, con fuentes."
 
 relatedHrefs:
   - /blog/agentic-crm
@@ -116,6 +116,17 @@ Un sistema de IA agéntica es un modelo de lenguaje con cuatro elementos a su al
 5. **Seguir o parar.** Da el siguiente paso, le pregunta a una persona o termina cuando se cumple el objetivo o se alcanza un límite.
 
 IBM describe el mismo ciclo en siete etapas: percepción, razonamiento, definición de objetivos, toma de decisiones, ejecución, aprendizaje y adaptación, y orquestación. Lo que marca el alcance de un agente son sus herramientas: un modelo sin acceso a herramientas puede describir una acción, pero no puede realizarla. Por eso el [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro), en palabras de quienes lo mantienen «un estándar de código abierto para conectar aplicaciones de IA con sistemas externos», está en el centro de tantas configuraciones de agentes. La [guía del servidor MCP](/blog/what-is-an-mcp-server) explica cómo funciona y qué revisar antes de conectar uno.
+
+## ¿Qué ventajas tiene la IA agéntica? [#ventajas-ia-agentica]
+
+La ventaja de un agente frente a un flujo de trabajo fijo o a un asistente es que se ocupa de las partes del trabajo que cambian cada vez. En la práctica, las ventajas se reducen a cuatro:
+
+- **Trabaja con entradas variables.** Un correo en texto libre, unas notas desordenadas o una pregunta que requiere varias consultas no encajan en una regla fija; un agente puede leerlos y decidir el paso siguiente.
+- **Ejecuta el ciclo completo, no solo el borrador.** Un asistente responde y tú actúas; un agente lee, consulta, cambia lo que le permites cambiar y te entrega un informe de lo que hizo.
+- **Funciona sin que lo lances a mano.** Puede arrancar con un evento, como un correo nuevo, o con una programación, así que la tarea repetitiva se hace aunque nadie se acuerde de ella.
+- **Se adapta a lo que encuentra.** Como compara el resultado de cada paso con el objetivo, puede cambiar de plan; un flujo de trabajo fijo se detiene ante una entrada que no previó.
+
+IBM agrupa estas cualidades en cinco rasgos: una IA autónoma, proactiva, especializada, adaptable e intuitiva. Las ventajas dependen de las salvaguardas: un agente sin herramientas acotadas, sin permisos limitados y sin un punto de aprobación cambia el ahorro de tiempo por errores encadenados (los límites están más abajo). Y cuando los pasos nunca cambian, una regla fija sigue siendo la opción más barata.
 
 ## ¿Cuáles son los ejemplos y las aplicaciones de la IA agéntica?
 
@@ -287,13 +298,13 @@ Si los pasos nunca cambian, una regla fija es más barata y más predecible que 
 
 ## IA agéntica y protección de datos
 
-Los agentes leen datos personales: nombres, direcciones de correo, el contenido de las conversaciones. Según el RGPD, un proveedor que trata esos datos por cuenta tuya es un encargado del tratamiento y necesita un contrato de encargo del tratamiento, y los proveedores de IA en los que se apoya son sus subencargados. Para Mate en Customermates Cloud, los proveedores de modelos figuran en la [lista de subencargados](/subprocessors). Si quieres elegir tú el proveedor, conecta tu propio cliente de IA mediante MCP o autoaloja el núcleo de código abierto para que los datos del CRM se queden en tus propios servidores.
+Los agentes leen datos personales: nombres, direcciones de correo, el contenido de las conversaciones. Según el RGPD, un proveedor que trata esos datos por cuenta tuya es un encargado del tratamiento y necesita un contrato de encargo del tratamiento, y los proveedores de IA en los que se apoya son sus subencargados. Para Mate en Customermates Cloud, los proveedores de modelos figuran en la [lista de subencargados](/subprocessors). Si quieres elegir tú el proveedor, conecta tu propio cliente de IA mediante MCP o autoaloja el núcleo de código abierto para que los datos del CRM se queden en tus propios servidores. En España, la autoridad que supervisa el RGPD es la Agencia Española de Protección de Datos (AEPD), y en los países de Latinoamérica rigen leyes propias de protección de datos; consulta los criterios actuales de la autoridad de tu país sobre IA y datos personales. Esta guía no es asesoramiento jurídico.
 
 ## Preguntas frecuentes
 
 <Faq>
 <FaqItem question="¿Qué significa agéntico?">
-Agéntico describe un sistema que actúa con agencia: persigue un objetivo y da los pasos por sí mismo en lugar de limitarse a responder. AWS lo define como la capacidad de actuar de forma independiente, pero orientada a un objetivo. La palabra viene de «agente», alguien que actúa en nombre de otro.
+Agéntico describe un sistema que actúa con agencia: persigue un objetivo y da los pasos por sí mismo en lugar de limitarse a responder. AWS lo define como la capacidad de actuar de forma independiente, pero orientada a un objetivo. La palabra viene de «agente», alguien que actúa en nombre de otro. También se ve «agentiva» o «IA de agentes» (así titula Google Cloud su guía): es el mismo concepto, y aquí usamos «agéntica», la forma más habitual en los resultados de búsqueda en español.
 </FaqItem>
 
 <FaqItem question="¿Qué es agentic AI, en palabras sencillas?">
@@ -324,6 +335,10 @@ La IA generativa crea contenido a partir de un prompt, y tú decides qué hacer 
 Google Cloud llama a los agentes de IA los bloques de construcción de la IA agéntica: los agentes hacen las tareas individuales y la IA agéntica es el sistema coordinado. En el uso cotidiano los términos son intercambiables.
 </FaqItem>
 
+<FaqItem question="¿Cuáles son los 3 tipos de inteligencia artificial?">
+Según su capacidad se suele hablar de tres: la IA estrecha o débil, que resuelve tareas concretas y es la que se usa hoy, incluidos los modelos de lenguaje y los agentes; la IA general, que igualaría a una persona en cualquier tarea intelectual, y la superinteligencia, que la superaría. La IA agéntica no es un cuarto tipo: es IA estrecha con autonomía, porque un modelo recibe un objetivo, herramientas y un bucle para llegar a él. Según lo que hacen, también se distingue entre la IA tradicional (analiza datos o responde a comandos), la generativa (crea contenido) y la agéntica (actúa hacia un objetivo).
+</FaqItem>
+
 <FaqItem question="¿Qué es un flujo de trabajo agéntico?">
 Un proceso en el que los modelos de lenguaje y las herramientas siguen un camino definido de antemano, a diferencia de un agente que elige su propio camino. El encadenamiento de prompts y el enrutamiento son patrones típicos. Para la mayoría de las tareas de negocio, un flujo de trabajo es más barato y más fácil de controlar.
 </FaqItem>
@@ -334,6 +349,10 @@ Las tareas típicas son preparar la respuesta en una oportunidad abierta, invest
 
 <FaqItem question="¿Cuáles son los límites de la IA agéntica?">
 Un agente puede actuar sobre una entrada mal interpretada, los errores se encadenan en los pasos siguientes, el coste crece con cada paso y el resultado sigue necesitando revisión. OWASP agrupa el riesgo principal como exceso de agencia: demasiadas herramientas, demasiados permisos o demasiada autonomía. Las tareas acotadas, los borradores en lugar de acciones directas y una regla de parada mantienen esos límites bajo control.
+</FaqItem>
+
+<FaqItem question="¿Hay IA agéntica gratis, una app para descargar o un curso?">
+La IA agéntica no es un programa que se descargue: es una forma de configurar un modelo de lenguaje con herramientas, permisos y un bucle. Lo que sí hay son productos que funcionan así, como los de la tabla de productos que sus proveedores llaman agentes, y cada uno tiene sus propios planes y condiciones, así que comprueba en la página del proveedor qué incluye cada plan y si hay uno gratuito. Para aprender sin un curso, elige una tarea pequeña con un final claro y rellena la ficha de una página de la sección «¿Cómo le doy a un agente su primer trabajo?»: verás el ciclo completo con tus propios datos.
 </FaqItem>
 </Faq>
 

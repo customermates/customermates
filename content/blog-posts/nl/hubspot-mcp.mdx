@@ -1,6 +1,6 @@
 ---
-title: "HubSpot MCP server: opzet, toegang en limieten"
-description: "HubSpot MCP server: de connectors voor Claude en ChatGPT, de MCP-connector voor andere clients, de developerserver en de gedocumenteerde limieten."
+title: "HubSpot MCP: verbinden met Claude, ChatGPT en de limieten"
+description: "HubSpot MCP is sinds 13 april 2026 beschikbaar voor alle accounts. Zo verbind je Claude of ChatGPT, wat de server leest en schrijft en welke limieten gelden."
 
 hero:
   title: "HubSpot MCP server: welke route je kiest, wat het kan en waar het stopt"
@@ -53,6 +53,10 @@ Openheid: Customermates, een open-source CRM met een eigen MCP-server, geeft dez
     tools vragen betaalde hubs.
   </SummaryItem>
 </ArticleSummary>
+
+## Wat is MCP, en wat doet het bij HubSpot? [#wat-is-mcp]
+
+MCP, het Model Context Protocol, is een open standaard waarmee een AI-assistent als Claude of ChatGPT veilig verbinding maakt met een zakelijk systeem. De assistent ziet daarbij alleen de tools die de server aanbiedt, bijvoorbeeld "zoek een contact" of "log een notitie". Bij HubSpot betekent dat: je stelt een vraag in gewone taal, de AI-client roept via de MCP-server de juiste HubSpot-tool aan en antwoordt met actuele CRM-gegevens, niet met wat het model ooit heeft geleerd. Het verschil met een gewone koppeling via een API staat in [MCP vs API](/blog/mcp-vs-api); een uitgebreidere uitleg vind je in [wat een MCP-server is](/blog/what-is-an-mcp-server).
 
 ## Kies eerst je route
 
@@ -155,6 +159,10 @@ Customermates is de verkeerde keuze als je afhangt van de marketingtools, de hel
 Ja. HubSpot host een remote MCP-server op mcp.hubspot.com, sinds 13 april 2026 algemeen beschikbaar voor alle HubSpot-accounts, plus een lokale developer-MCP-server die via de HubSpot CLI draait.
 </FaqItem>
 
+<FaqItem question="Wat is de URL van de HubSpot MCP-server?">
+De remote server van HubSpot staat op `https://mcp.hubspot.com`. Voor Claude en ChatGPT hoef je die URL niet zelf in te vullen, want de connector van HubSpot doet dat. Je hebt hem alleen nodig als je een andere MCP-client koppelt via een zelf aangemaakte MCP-connector in HubSpot.
+</FaqItem>
+
 <FaqItem question="Hoe verbind ik HubSpot met Claude?">
 Installeer de HubSpot-connector via de connectorinstellingen van Claude of de Anthropic-marketplace en log met OAuth in bij HubSpot. HubSpot zegt dat de connector werkt op Claude web, desktop en mobiel en gratis is op alle HubSpot-niveaus. Een MCP-connector aanmaken in HubSpot is hiervoor niet nodig.
 </FaqItem>
@@ -169,6 +177,10 @@ Verwijderen hoort niet bij de schrijftoegang die HubSpot documenteert. De server
 
 <FaqItem question="Waarom ziet mijn AI-client geen calls, notities of e-mails in HubSpot?">
 Hoogstwaarschijnlijk staat Sensitive Data in je account aan. HubSpot blokkeert dan activiteiten- en gespreksgegevens via de MCP-server, terwijl de standaard-API's niet worden geraakt. Ook gebruikersrechten en beperkte inboxen beperken wat een client ziet.
+</FaqItem>
+
+<FaqItem question="Wat is MCP in een chatbot?">
+MCP is de standaard waarmee een chatbot of AI-assistent externe systemen kan raadplegen en bedienen. In plaats van gegevens in het gesprek te plakken, roept de assistent tools van een MCP-server aan, die binnen de rechten van de ingelogde gebruiker blijven. Bij HubSpot is dat de server op mcp.hubspot.com.
 </FaqItem>
 
 <FaqItem question="Wat is het verschil tussen de remote server en de developer-MCP-server?">

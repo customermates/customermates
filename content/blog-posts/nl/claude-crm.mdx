@@ -60,7 +60,7 @@ De tools komen van het CRM, niet van Claude, dus de exacte lijst hangt af van de
 - Velden wijzigen en notities toevoegen vanuit een transcript of notities die je plakt.
 - Waar het CRM gesprekken bewaart: een gesprek lezen en een antwoord voorbereiden.
 
-Claude kiest zelf de tools en de volgorde. Dat werkt goed voor een handvol records per verzoek. Voor honderden rijen gelden limieten van de aanbieder (de connector van HubSpot maakt of werkt bulksgewijs 10 records tegelijk bij) en is een import het betere gereedschap.
+Claude kiest zelf de tools en de volgorde. Dat werkt goed voor een handvol records per verzoek. Voor honderden rijen gelden limieten van de aanbieder (de connector van HubSpot maakt of werkt in bulk 10 records tegelijk bij) en is een import het betere gereedschap.
 
 ## Welke CRM's hebben een Claude-connector, gerangschikt?
 
@@ -166,7 +166,7 @@ Hier verschillen de opstellingen het meest, en een verkeerde aanname kost hier g
 
 - **De client is meestal de poort.** De MCP-server van Customermates zegt gekoppelde clients dat ze bij je moeten bevestigen voordat ze verwijderen of versturen, maar dwingt dat niet af: zodra Claude een toegestane tool aanroept, wordt de actie uitgevoerd. Wat je beschermt, zijn de **Tool permissions** in Claude. Capsule beschrijft dezelfde keuze: jij beslist of Claude eerst bij je nagaat voordat het wijzigingen maakt.
 - **Claude krijgt jouw rechten, niet minder.** Een Customermates-connector of API-sleutel erft de rechten van de gebruiker erachter; er is geen bereik per sleutel. Moet Claude minder kunnen dan jij, koppel het dan als aparte gebruiker met een smallere rol (wat een plek kost), of stel minder tools beschikbaar met de toolsets-parameter in de [MCP-referentie](/docs/mcp).
-- **Versturen gebeurt direct.** Kan je CRM e-mail of chatberichten versturen, dan verstuurt een verstuuraanroep ook echt. Vraag Claude een concept op te slaan en verstuur het zelf vanuit de inbox.
+- **Versturen gebeurt direct.** Kan je CRM e-mail of chatberichten versturen, dan gaat een bericht dat Claude verstuurt ook echt de deur uit. Vraag Claude een concept op te slaan en verstuur het zelf vanuit de inbox.
 - **Beveiligingen van aanbieders verschillen.** Close vraagt bij het koppelen welk van drie niveaus je geeft (alleen lezen, lezen en schrijven, of lezen, schrijven en verwijderen). Attio vraagt bevestiging vóór schrijfacties en laat Claude alleen taken en opmerkingen verwijderen. De connector van HubSpot kan niet verwijderen en past voorwaardelijke validatieregels voor eigenschappen en pipelinefases toe, maar geen validaties van associatielabels. Capsule noemt alleen aanmaak- en wijzigacties. De Data Operations-server van Zoho kan verwijderen, ook in bulk. De OAuth-aanroepen van Breakcold draaien als de ingelogde gebruiker, en een bearer-token draagt de bereiken en werkruimtes die je instelt.
 - **Wat Claude leest, gaat naar Anthropic.** Toolresultaten worden onderdeel van het gesprek. Anthropic publiceert aparte [consumenten- en commerciële voorwaarden](https://www.anthropic.com/legal/consumer-terms); controleer welke voor je Claude-abonnement gelden, en of je een verwerkersovereenkomst nodig hebt, voordat je klantgegevens koppelt.
 
@@ -190,8 +190,8 @@ Vier prompts om de opzet te testen. Customermates heeft geen vooringestelde fase
 
 1. "Toon mijn open deals in de fase [Voorstel] met hun organisatie en gewogen waarde." (lezen)
 2. "Zet bij de deal van [organisatie] Fase op [Onderhandeling] en voeg aan de notities toe: budget goedgekeurd tijdens het gesprek van vandaag, contractconcept volgt." (bijwerken)
-3. "Maak een contactpersoon aan voor Sarah Lee, koppel haar aan de organisatie [organisatie] en aan de deal, en maak een taak voor mij om het contractconcept te versturen." (aanmaken en koppelen)
-4. "Zoek mijn laatste e-mailgesprek met Sarah Lee, vat het samen in twee regels en bewaar een antwoord als concept. Verstuur het niet." (Pro, inbox)
+3. "Maak een contactpersoon aan voor Sanne de Boer, koppel haar aan de organisatie [organisatie] en aan de deal, en maak een taak voor mij om het contractconcept te versturen." (aanmaken en koppelen)
+4. "Zoek mijn laatste e-mailgesprek met Sanne de Boer, vat het samen in twee regels en bewaar een antwoord als concept. Verstuur het niet." (Pro, inbox)
 
 De vierde prompt is opvolging in één regel: Claude leest het gesprek bij het klantrecord en stelt het antwoord op, en jij bekijkt, bewerkt en verstuurt het. Wil je dit met je eigen Claude-account uitproberen, [start dan je proefperiode van [[commercial.trial.days]] dagen](/auth/signup?job=followup). Geen creditcard nodig.
 

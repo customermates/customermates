@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: "CRM voor advocatuur: een aanvraag komt binnen terwijl je ter zitting bent. Reageer eerder dan het volgende kantoor."
-  description: "Aanvragen en cliëntgesprekken staan op één record, en Mate of je eigen AI-agent schrijft het antwoord en de volgende stap die jij nakijkt en verstuurt. De inbox vraagt Customermates Cloud vanaf Pro; facturatie blijft in je praktijksoftware."
+  description: "Aanvragen en cliëntgesprekken staan op één record, en Mate of je eigen AI-agent schrijft het antwoord en de volgende stap die jij nakijkt en verstuurt. De inbox vereist Customermates Cloud vanaf Pro; facturatie blijft in je praktijksoftware."
   buttonLeftText: Start je proefperiode van [[commercial.trial.days]] dagen
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Ontdek de werkruimte
@@ -87,7 +87,7 @@ Veel lijsten met "juridische CRM's" mengen twee soorten producten. Praktijkbehee
 | Een algemeen sales-CRM met juridische intakesjablonen | [Pipedrive](https://www.pipedrive.com/de/industries/crm-for-law-firms) | Automatisch ingevulde documenten, intakesjablonen voor cliënten en traceerbare e-handtekeningen, plus apps van derden |
 | Een relatie-CRM naast je praktijkbeheer, met een gecombineerde inbox en AI-concepten | Customermates | Ons eigen product, beschreven op de rest van deze pagina |
 
-Een werkbare verdeling is twee systemen: praktijkbeheer voor de zaak, Customermates voor intake, doorverwijzingen en de lange relatie met elke cliënt. Bewaar het zaaknummer uit je praktijkbeheersysteem op de deal, zodat je dezelfde zaak in beide systemen kunt vinden. Niets synchroniseert vanzelf; een koppeling tussen beide vraagt een eigen automatisering (zie hieronder).
+Een werkbare verdeling is twee systemen: praktijkbeheer voor de zaak, Customermates voor intake, doorverwijzingen en de lange relatie met elke cliënt. Bewaar het zaaknummer uit je praktijkbeheersysteem op de deal, zodat je dezelfde zaak in beide systemen kunt vinden. Niets synchroniseert vanzelf; een koppeling tussen beide vereist een eigen automatisering (zie hieronder).
 
 ## Wat een advocatenkantoor nodig heeft van een CRM
 
@@ -144,11 +144,11 @@ Deel **Stille oud-cliënten** met het hele kantoor of met geselecteerde rollen, 
 
 In Customermates Cloud vanaf Pro brengt de [gecombineerde inbox](/features/unified-inbox) e-mail uit Gmail, Outlook of IMAP samen met LinkedIn, WhatsApp, Instagram en Telegram, en je antwoordt op het oorspronkelijke kanaal. Koppel een deelnemer één keer aan een contactpersoon en de gesprekken verschijnen op de tijdlijn van die contactpersoon; een gesprek aan een deal koppelen is een aparte stap, door jou of door Mate. Sms en telefoongesprekken zijn geen kanalen.
 
-Twee details tellen voor een kantoor. Gesprekken van de eigen accounts van een advocaat zijn privé: collega's, beheerders inbegrepen, zien een thread pas nadat de eigenaar die deelt. En Pro bevat [[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per gebruiker, dus een gedeelde intakemailbox waarmee het hele team werkt vraagt Business, dat [[commercial.entitlement.business.includedAccountsPerUser]] accounts per gebruiker bevat en een volledig account kan delen.
+Twee details tellen voor een kantoor. Gesprekken van de eigen accounts van een advocaat zijn privé: collega's, beheerders inbegrepen, zien een thread pas nadat de eigenaar die deelt. En Pro bevat [[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per gebruiker, dus een gedeelde intakemailbox waarmee het hele team werkt vereist Business, dat [[commercial.entitlement.business.includedAccountsPerUser]] accounts per gebruiker bevat en een volledig account kan delen.
 
 ### Opvolging van intake met Mate (Customermates Cloud)
 
-Mate is de assistent in Customermates Cloud en gebruikt gehoste AI-credits. Vraag het hem in de chat, bijvoorbeeld: "Maak een deal voor de aanvraag in deze e-mail, koppel de afzender als contactpersoon en zet de fase op Nieuwe aanvraag." Stel voor de dagelijkse controle een [routine](/docs/app-routines) in volgens een schema, bijvoorbeeld elke dag om 8:00, met instructies als deze (een schema alleen op werkdagen kun je instellen door het aan Mate te vragen, niet in het dialoogvenster):
+Mate is de assistent in Customermates Cloud en gebruikt gehoste AI-credits. Vraag het Mate in de chat, bijvoorbeeld: "Maak een deal voor de aanvraag in deze e-mail, koppel de afzender als contactpersoon en zet de fase op Nieuwe aanvraag." Stel voor de dagelijkse controle een [routine](/docs/app-routines) in volgens een schema, bijvoorbeeld elke dag om 8:00, met instructies als deze (een schema alleen op werkdagen kun je instellen door het aan Mate te vragen, niet in het dialoogvenster):
 
 ```text
 Zoek deals in de fases Nieuwe aanvraag en Consult gepland die al 2 dagen
@@ -186,7 +186,7 @@ Liever je eigen AI-client? Claude, ChatGPT en andere clients koppelen via [MCP](
 
 - In Customermates Cloud is de primaire productiedatabase geconfigureerd in de AWS-regio Frankfurt. Dat is een productinstelling, geen contractuele garantie over de locatie van gegevens. Hosting en de andere subverwerkers, waaronder Amerikaanse aanbieders, staan op de [pagina met subverwerkers](/subprocessors), en een [verwerkersovereenkomst](/dpa) is beschikbaar.
 - Je geheimhoudingsregels bepalen of een cloud-CRM cliëntgegevens mag bevatten. In Duitsland vereist [§ 43e BRAO](https://dejure.org/gesetze/BRAO/43e.html) een overeenkomst in tekstvorm die de aanbieder aan geheimhouding bindt, en toestemming van de cliënt als de dienst één mandaat betreft. De verwerkersovereenkomst van Customermates bevat een algemeen geheimhoudingsbeding; of dat aan die eisen voldoet, moet je kantoor controleren voordat er cliëntgegevens in gaan.
-- Een eigen rol met leestoegang Toegewezen beperkt een medewerker of een freelance advocaat tot de records die aan diegene zijn toegewezen. De auditlog legt vast wie welk record heeft gewijzigd, in elk abonnement.
+- Een aangepaste rol met leestoegang Toegewezen beperkt een medewerker of een freelance advocaat tot de records die aan diegene zijn toegewezen. De auditlog legt vast wie welk record heeft gewijzigd, in elk abonnement.
 - Wil je zelf bepalen waar cliëntgegevens staan, [host dan zelf](/features/self-hosted) de open-sourcekern. Een self-hosted installatie heeft geen inbox, geen Mate en geen routines; MCP, REST en webhooks blijven.
 
 ## Wat het kost
@@ -219,7 +219,7 @@ Elk betaald cloudabonnement voegt maandelijkse gehoste AI-credits per actieve ge
     later volgen, zodat de conflictcheck ze ook dekt.
   </Step>
   <Step title="Koppel de inbox en sla de weergaven op">
-    Koppel op Pro of hoger je mailbox onder Instellingen › Kanalen & agenda's, en sla daarna
+    Koppel op Pro of hoger je mailbox onder Instellingen › Kanalen en agenda's, en sla daarna
     de vijf weergaven hierboven en de dagelijkse routine op.
   </Step>
 </Steps>

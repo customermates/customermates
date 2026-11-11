@@ -1,6 +1,6 @@
 ---
-title: "CRM integratie: REST API, webhooks, MCP en n8n"
-description: "CRM integratie met REST API, ondertekende webhooks, MCP en n8n. REST en MCP zitten in elk abonnement, webhooks en n8n-triggers in de betaalde abonnementen."
+title: "CRM integratie: voordelen, voorbeelden en hoe je koppelt"
+description: "CRM integratie uitgelegd: voordelen, gangbare koppelingen en hoe je ze maakt met REST API, webhooks, MCP en n8n. REST en MCP zitten in elk abonnement."
 featureName: CRM-integraties
 
 relatedHrefs:
@@ -47,6 +47,40 @@ Een CRM integratie verplaatst gegevens of triggers tussen je CRM en een ander sy
 Die keuze heeft een prijs die je vooraf moet kennen. Er is geen catalogus met apps die je met één klik koppelt. Wil je dat Customermates met Slack, je boekhoudtool of een formulierbouwer praat, dan richt je een webhook op die tool, roep je de API aan vanuit je eigen code, of bouw je de flow in een automatiseringstool zoals n8n, Make of Zapier.
 
 **Wat dit betekent voor opvolging.** De opvolging van een klantgesprek eindigt vaak in een ander systeem: een bericht in de teamchat als er een antwoord binnenkomt, een record in je projecttool. Een webhook op de berichtgebeurtenissen, een n8n-flow of je eigen AI-client via MCP kan dat oppakken, zodat de volgende stap er niet van afhangt dat iemand het overtikt.
+
+## Waarom een CRM koppelen aan andere tools? [#voordelen-crm-integratie]
+
+Een CRM waar niemand de gegevens van andere tools in terugvindt, wordt snel een extra administratiesysteem. Een koppeling haalt dat weg:
+
+- **Minder overtikken.** Een gewonnen deal, een ingevuld formulier of een binnengekomen bericht hoeft maar op één plek te worden ingevoerd.
+- **Eén beeld van de klant.** Wat sales, administratie en support weten, staat bij hetzelfde record in plaats van verspreid over tools die elkaar tegenspreken.
+- **Minder fouten.** Gegevens die van systeem naar systeem gaan, worden niet halverwege verkeerd overgetypt.
+- **Sneller reageren.** Een gebeurtenis, zoals een nieuw bericht van een klant, kan direct iemand in de teamchat informeren of een volgende stap aanmaken.
+
+Elke koppeling is ook iets om te onderhouden. Begin daarom met de ene overdracht die je nu het vaakst met de hand doet.
+
+## Welke CRM-koppelingen komen het meest voor? [#veelvoorkomende-koppelingen]
+
+Het gaat meestal om dezelfde zes soorten systemen. Zo pak je ze aan met Customermates:
+
+| Soort koppeling | Wat er wordt uitgewisseld | Route bij Customermates |
+|---|---|---|
+| E-mail en agenda | Mailgesprekken en afspraken naast het record | Gecombineerde inbox met Gmail, Outlook en IMAP, plus agenda's van Google en Microsoft met alleen leesrechten (Pro of hoger) |
+| Chat en social | LinkedIn-, WhatsApp-, Instagram- en Telegram-gesprekken | Gecombineerde inbox (Pro of hoger) |
+| Telefonie | Gebelde nummers en gespreksnotities | Geen eigen koppeling: Customermates plaatst of registreert geen telefoongesprekken. Biedt je telefoonsysteem webhooks of een API, dan schrijf je de notitie via de REST API of n8n weg |
+| Boekhouding en facturatie | Een gewonnen deal wordt een factuur of klant in je boekhoudsoftware | Webhook op `record.updated` voor de lijst Deals, doorgezet met n8n, Make of Zapier |
+| Website en formulieren | Een aanvraag wordt een contactpersoon of deal | De formuliertool of n8n roept `POST /api/v1/records/mutate` aan |
+| Teamchat en projecttools | Een melding bij een nieuwe deal, een project bij een gewonnen deal | Webhook met bodysjabloon of n8n, zie het Slack-voorbeeld hieronder |
+
+Native of zelf bouwen? Een native koppeling met een app-marktplaats is snel aangezet, maar beperkt tot wat de leverancier heeft gebouwd. Een koppeling via API en webhooks kost meer werk bij de start en past daarna op elk proces dat je team heeft.
+
+## Zo pak je een CRM-integratie stap voor stap aan [#crm-integratie-aanpak]
+
+1. **Kies één overdracht.** Bijvoorbeeld: een gewonnen deal doorgeven aan je boekhoudsoftware.
+2. **Bepaal de richting.** Stuurt het CRM iets (webhook), ontvangt het iets (REST API) of moet een AI-client meelezen en schrijven (MCP)? De tabel hieronder helpt je kiezen.
+3. **Geef de koppeling de juiste rechten.** Een API-sleutel erft de rechten van de gebruiker die hem aanmaakt, dus maak hem aan met een gebruiker wiens rol bij de integratie past.
+4. **Test met één record.** Maak een testdeal, open het webhooklog en controleer of de ontvanger de statuscode 2xx teruggeeft.
+5. **Maak de koppeling betrouwbaar.** Behandel leveringen als idempotent, met de gebeurtenis-`id` als sleutel, en spreek af wie de koppeling beheert als er iets verandert.
 
 ## De vijf soorten koppelingen in één overzicht
 
@@ -157,6 +191,14 @@ Ja. Elke tool die een HTTP-POST kan ontvangen en HTTP-verzoeken met een eigen he
 <FaqItem question="Wat is het verschil tussen een API en een CRM?">
 De CRM is het systeem dat je contactpersonen, deals en gesprekken opslaat. Een API is de deur waarlangs andere software die gegevens leest en wijzigt. In Customermates zijn de REST API en het MCP-eindpunt twee van die deuren, een voor programma's en een voor AI-clients.
 </FaqItem>
+<FaqItem question="Wat is de betekenis van CRM?">
+CRM staat voor Customer Relationship Management: klantrelatiebeheer. Het is de manier waarop een team zijn contactpersonen, deals en gesprekken bijhoudt, meestal in software. Een CRM-integratie verbindt die software met de andere tools die je dagelijks gebruikt.
+</FaqItem>
+
+<FaqItem question="Wat zijn de voordelen van een CRM-integratie?">
+Minder overtikken, minder fouten en één actueel beeld van de klant. Een gebeurtenis in het ene systeem, zoals een gewonnen deal of een nieuw bericht, kan dan direct iets in het andere systeem starten. De voordelen zijn groter als je één vaak voorkomende handmatige overdracht kiest en die eerst goed laat lopen.
+</FaqItem>
+
 <FaqItem question="Is er een kant-en-klare CommuniGator CRM koppeling?">
 Customermates levert geen native CommuniGator-connector. De REST API en de uitgaande webhooks zijn de beschikbare integratieroutes; een apart gebouwde adapter moet bovendien de ondersteunde interface van de andere tool gebruiken. Bevestig die interface en test de benodigde objecten voordat je je aan de koppeling verbindt. Deze pagina beweert niet dat er een geteste CommuniGator-opzet is.
 </FaqItem>

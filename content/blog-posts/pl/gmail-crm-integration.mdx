@@ -1,6 +1,6 @@
 ---
-title: "CRM Gmail: jak wybrać CRM do skrzynki Gmail"
-description: "CRM Gmail: trzy warianty integracji (panel boczny, synchronizacja skrzynki, BCC), lista kontrolna i porównanie CRM do Gmaila, sprawdzone 3 listopada 2026."
+title: "CRM Gmail: 3 typy integracji i porównanie 8 CRM do Gmaila"
+description: "CRM Gmail: trzy typy integracji (panel boczny, synchronizacja, BCC), funkcje do sprawdzenia i porównanie 8 CRM do Gmaila z planami. Stan na 3 listopada 2026."
 
 relatedHrefs:
   - /features/unified-inbox
@@ -75,6 +75,18 @@ Przejdź przez te pytania razem z osobami, które będą używać CRM codziennie
 
 Krótki sposób czytania odpowiedzi: cały dzień w Gmailu z jednym zespołem, wybierz CRM z panelem bocznym, taki jak Streak lub Copper. Masz już konto HubSpot albo chcesz zacząć za darmo, użyj jego rozszerzenia lub adresu BCC. Najpierw pipeline, z e-mailem w CRM, spójrz na synchronizację poczty Pipedrive. Kilka osób, kilka kanałów i rekord jako ekran startowy, wybierz CRM oparty na synchronizacji ze skrzynką odbiorczą, i tu mieści się Customermates.
 
+## Jakich funkcji szukać w CRM do Gmaila? [#funkcje-crm-do-gmaila]
+
+System CRM służy do tego, żeby cała historia kontaktu z klientem, od pierwszego e-maila po ostatnią ofertę, leżała w jednym rekordzie i żeby zespół wiedział, jaki jest następny krok. W połączeniu z Gmailem liczą się cztery grupy funkcji; sprawdź, które naprawdę wykorzystasz:
+
+- **Logowanie e-maili.** Czy wiadomości trafiają do rekordu automatycznie (synchronizacja), po kliknięciu (panel boczny) czy po skopiowaniu (BCC)? To ustala, ile historii zobaczy zespół.
+- **Śledzenie e-maili.** Informacja, czy odbiorca otworzył wiadomość albo kliknął link. Oferują ją na przykład Streak (śledzenie e-maili i linków w planie bezpłatnym) i rozszerzenie HubSpot Sales. Traktuj takie dane jako sygnał, a nie dowód, że ktoś przeczytał wiadomość.
+- **Szablony i sekwencje.** Szablony skracają powtarzalne odpowiedzi, a sekwencje wysyłają kolejne wiadomości automatycznie. Nutshell udostępnia szablony e-maili w edytorze Gmaila od planu Business, a Streak daje korespondencję seryjną do 50 dziennie w planie bezpłatnym. Customermates nie ma sekwencji ani korespondencji seryjnej: wiadomości przygotowujesz pojedynczo, a Mate lub Twój agent AI pisze szkic, który sprawdzasz i wysyłasz.
+- **Zadania i następne kroki.** Rozmowa bez daty następnego kroku ucicha, więc CRM powinien pozwalać przypisać do każdej szansy sprzedaży termin i osobę, a nie tylko zapisać wiadomość.
+- **Kalendarz i kontakty.** Czy CRM tylko pokazuje wydarzenia z Kalendarza Google i dane kontaktów, czy też je tworzy? Customermates pokazuje wydarzenia, ale ich nie zapisuje.
+
+Ceny zależą od planu częściej niż od liczby użytkowników: kilku dostawców umieszcza synchronizację albo szablony w wyższym planie niż panel boczny, dlatego tabela poniżej podaje, który plan odblokowuje część Gmail.
+
 ## Które CRM działają z Gmailem i jak się łączą?
 
 Ta tabela opisuje podejście każdego produktu do Gmaila na jego własnych stronach, tylko dla Gmaila. To nie ranking, a zamiast ceny podaje plan, który odblokowuje część Gmail, bo ceny różnią się w zależności od regionu i okresu rozliczeniowego. Customermates pojawia się jako jedna pozycja, bo publikuje ten poradnik. Sprawdzono 3 listopada 2026.
@@ -104,7 +116,7 @@ Jeśli Gmail jest jedynym kanałem i nikt nie chce opuszczać okna Gmaila, prost
 
 ## Jak działa integracja z Gmailem w Customermates?
 
-Gmail to jeden z kanałów [ujednoliconej skrzynki odbiorczej](/features/unified-inbox) w Customermates Cloud. Wymaga planu z wiadomościami: Pro, Business, Max, Enterprise albo okresu próbnego. Liczba kont podłączanych przez każdego członka to [[commercial.entitlement.pro.includedAccountsPerUser]] w Pro, do [[commercial.entitlement.business.includedAccountsPerUser]] w Business i do [[commercial.entitlement.max.includedAccountsPerUser]] w Max; Starter nie ma skrzynki odbiorczej. Szczegóły są na [stronie z cennikiem](/pricing). Powodem, by podłączyć tu Gmaila, jest follow-up: każdy e-mail od klienta ląduje w rekordzie klienta, Mate albo Twój własny agent AI przygotowuje szkic odpowiedzi i następnego kroku, ty go sprawdzasz i wysyłasz, a następny krok pojawia się na Twoim pulpicie.
+Gmail to jeden z kanałów [ujednoliconej skrzynki odbiorczej](/features/unified-inbox) w Customermates Cloud. Wymaga planu z wiadomościami: Pro, Business, Max, Enterprise albo okresu próbnego. Liczba kont podłączanych przez każdego członka to [[commercial.entitlement.pro.includedAccountsPerUser]] w Pro, do [[commercial.entitlement.business.includedAccountsPerUser]] w Business i do [[commercial.entitlement.max.includedAccountsPerUser]] w Max; Starter nie ma skrzynki odbiorczej. Szczegóły są na [stronie z cennikiem](/pricing). Powodem, by podłączyć tu Gmaila, jest follow-up: każdy e-mail od klienta ląduje w rekordzie klienta, Mate albo Twój własny agent AI przygotowuje szkic odpowiedzi i następnego kroku, Ty go sprawdzasz i wysyłasz, a następny krok pojawia się na Twoim pulpicie.
 
 <Steps>
   <Step title="Połącz konto">Otwórz **Ustawienia › Kanały i kalendarze**, kliknij **Połącz kanał** i wybierz **Gmail**. Logujesz się do Google na bezpiecznej stronie połączenia i wracasz do **Kanały i kalendarze**. Karta pokazuje, czy podłączono e-mail, kalendarz, czy oba, a Twoja historia importuje się w tle. Wpisu **IMAP** używaj tylko dla kont pocztowych, które nie są Gmailem ani Outlookiem.</Step>
@@ -149,17 +161,28 @@ Do deterministycznej automatyzacji [webhooki](/docs/webhooks) raportują [[deriv
 
 ## Czy można używać Gmaila jako CRM?
 
-Dla jednej osoby i kilkudziesięciu klientów etykiety, gwiazdki i Kontakty Google mogą wystarczyć. Gmail nie ma etapów szans sprzedaży, wartości szans ani rekordu, który współpracownik mógłby otworzyć, by zobaczyć [pełną historię z klientem](/blog/customer-interaction-management). [Google Workspace Marketplace](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm) wymienia aplikacje CRM innych dostawców w kategorii Sales & CRM, na przykład Streak, Zoho CRM i Insightly. Gdy klientów zaczyna dzielić z tobą druga osoba, zostaw Gmaila do wysyłania i odbierania, a [rekordy kontaktów i szans sprzedaży](/features/contact-management) niech trzyma CRM. Szerszą krótką listę poza Gmailem znajdziesz w poradniku [jak wybrać CRM](/blog/how-to-choose-crm).
+Dla jednej osoby i kilkudziesięciu klientów etykiety, gwiazdki i Kontakty Google mogą wystarczyć. Gmail nie ma etapów szans sprzedaży, wartości szans ani rekordu, który współpracownik mógłby otworzyć, by zobaczyć [pełną historię z klientem](/blog/customer-interaction-management). [Google Workspace Marketplace](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm) wymienia aplikacje CRM innych dostawców w kategorii Sales & CRM, na przykład Streak, Zoho CRM i Insightly. Gdy klientów zaczyna dzielić z Tobą druga osoba, zostaw Gmaila do wysyłania i odbierania, a [rekordy kontaktów i szans sprzedaży](/features/contact-management) niech trzyma CRM. Szerszą krótką listę poza Gmailem znajdziesz w poradniku [jak wybrać CRM](/blog/how-to-choose-crm).
 
 ## Najczęściej zadawane pytania
 
 <Faq>
+<FaqItem question="Do czego służy system CRM w połączeniu z Gmailem?">
+CRM trzyma e-maile, notatki, szanse sprzedaży i następne kroki przy rekordzie klienta, żeby cały zespół widział pełną historię, a nie tylko własną skrzynkę. Gmail zostaje narzędziem do wysyłania i odbierania, a CRM miejscem, w którym wiadomo, kto ma co zrobić dalej.
+</FaqItem>
 <FaqItem question="Jaki jest najlepszy CRM do Gmaila?">
 To zależy od typu, którego potrzebujesz. Streak i Copper są zbudowane wokół pracy w Gmailu, HubSpot oferuje darmowy CRM i rozszerzenie, Pipedrive i Nutshell synchronizują Gmaila z CRM, a Customermates wprowadza Gmaila do ujednoliconej skrzynki odbiorczej obok innych kanałów. Tabela porównawcza powyżej wymienia plan potrzebny każdemu do części Gmail.
 </FaqItem>
 
 <FaqItem question="Czy jest darmowy CRM do Gmaila?">
 Darmowy CRM HubSpot jest bezpłatny dla maksymalnie 2 użytkowników, a jego rozszerzenie Sales dla Chrome jest wymienione dla wszystkich planów. Streak ma plan bezpłatny ze śledzeniem e-maili, ale bez pipeline'ów CRM, a Zoho CRM wymienia darmową edycję dla maksymalnie 3 użytkowników. Customermates łączy Gmaila w planie Pro i wyższych; możesz to przetestować w [[commercial.trial.days]]-dniowym okresie próbnym. Wersja self-hosted jest darmowa na licencji AGPL, ale nie ma skrzynki odbiorczej.
+</FaqItem>
+
+<FaqItem question="Ile kosztuje CRM do Gmaila?">
+Zależy od typu i planu, a ceny różnią się w zależności od regionu i okresu rozliczeniowego, więc tabela porównawcza podaje plan, który odblokowuje część Gmail. Darmowy CRM HubSpot jest bezpłatny dla maksymalnie 2 użytkowników, a trzyosobowy zespół w Customermates Pro płaci [[commercial.price.pro.monthly.seats.3]] miesięcznie. Sprawdź cennik dostawcy w dniu zakupu.
+</FaqItem>
+
+<FaqItem question="Ile kosztuje Gmail dla firm?">
+Firmowy Gmail to Google Workspace, płatny za użytkownika, a cena zależy od wybranego planu i regionu, więc sprawdź ją na stronie Google. Dla integracji z CRM ważniejsze są limity wysyłki: 2000 wiadomości na użytkownika dziennie w płatnym Workspace i 500 na koncie próbnym.
 </FaqItem>
 
 <FaqItem question="Czy CRM loguje moje e-maile z Gmaila automatycznie?">

@@ -1,6 +1,6 @@
 ---
-title: "CRM self hosted z Dockerem i PostgreSQL"
-description: "CRM self hosted: uruchom aplikację Customermates i PostgreSQL 16 na własnej infrastrukturze przez Docker Compose. Rdzeń AGPL, MCP, REST i webhooki w zestawie."
+title: "CRM self hosted: Docker, PostgreSQL 16 i licencja AGPL"
+description: "CRM self hosted: uruchom Customermates z PostgreSQL 16 na własnym serwerze przez Docker Compose. Sprawdź licencję AGPL, zakres funkcji, REST, webhooki i MCP."
 featureName: CRM self hosted
 
 acquisition:
@@ -10,8 +10,8 @@ acquisition:
   role: hub
   primaryIntent: Wdrożenie CRM self hosted
   metadata:
-    title: "CRM self hosted z Dockerem i PostgreSQL"
-    description: "CRM self hosted: uruchom aplikację Customermates i PostgreSQL 16 na własnej infrastrukturze przez Docker Compose. Rdzeń AGPL, MCP, REST i webhooki w zestawie."
+    title: "CRM self hosted: Docker, PostgreSQL 16 i licencja AGPL"
+    description: "CRM self hosted: uruchom Customermates z PostgreSQL 16 na własnym serwerze przez Docker Compose. Sprawdź licencję AGPL, zakres funkcji, REST, webhooki i MCP."
   proof:
     factReferences:
       - product:agpl-community-core
@@ -182,6 +182,39 @@ Plik Compose nie zawiera n8n, modelu AI, dostawcy wysyłki e-maili ani osobnego 
 
 [Wspólna skrzynka odbiorcza CRM](/features/unified-inbox) to funkcja zarządzanej chmury od planu Pro wzwyż. Self-hosting koncentruje się na otwartym rdzeniu CRM i zewnętrznych klientach MCP.
 
+## Jak uruchomić CRM self hosted na Dockerze? [#jak-uruchomic-crm-self-hosted-na-dockerze]
+
+Instalacja opiera się na dwóch plikach, `docker-compose.yml` i `.env`, oraz jednym poleceniu. Potrzebujesz Dockera z Docker Compose v2; obraz działa na `linux/amd64` i `linux/arm64`, a domena jest potrzebna dopiero do HTTPS. Nie klonujesz repozytorium i niczego nie budujesz.
+
+1. Pobierz z repozytorium projektu plik `docker-compose.yml` i szablon `.env`.
+2. Zanim ruszysz po raz pierwszy, uzupełnij w `.env` co najmniej hasło do bazy, sekret podpisujący sesje, adres `BASE_URL` oraz dane usługi wysyłki e-maili. Zmiana hasła do bazy po pierwszym starcie nie zmienia już istniejącej bazy, więc ustaw je od razu.
+3. Uruchom `docker compose up -d`. Pierwszy start trwa około minuty, bo aplikacja wykonuje migracje bazy.
+4. Otwórz `<BASE_URL>/auth/signup`, zarejestruj się, wybierz **Utwórz nową przestrzeń roboczą** i dokończ kreator: Twoje konto dostaje rolę administratora.
+
+Pod publicznym adresem postaw reverse proxy, na przykład Caddy, nginx lub Traefik, i ustaw `BASE_URL` na adres z `https://`. Pełną listę zmiennych środowiskowych i opis konfiguracji znajdziesz w [instrukcji self-hostingu](/docs/self-hosting).
+
+## Co robisz po instalacji: aktualizacje, kopie zapasowe i dostęp [#utrzymanie-po-instalacji]
+
+Samo uruchomienie to początek. Na Tobie zostają trzy rzeczy, które w chmurze robi dostawca:
+
+- **Aktualizacje.** Zrób kopię zapasową, a potem `docker compose pull` i `docker compose up -d`. Obraz `latest` jest budowany z gałęzi głównej, więc każda aktualizacja może przynieść nowe funkcje i migracje bazy. Migracje idą tylko do przodu: aby wrócić do starszej wersji, przywróć kopię zapasową i uruchom poprzedni obraz po tagu `sha-`. Jeśli chcesz sam decydować, kiedy aktualizować, przypnij obraz do konkretnego tagu zamiast `latest`.
+- **Dostęp.** Zarejestrować się może każdy, kto dotrze do Twojego `BASE_URL`, a rejestracji nie da się wyłączyć. Jeśli instancja ma służyć jednemu zespołowi, ogranicz dostęp przez VPN, listę dozwolonych adresów IP albo uwierzytelnianie na reverse proxy; klienci MCP i REST potrzebują wtedy tego samego dostępu.
+- **E-maile.** Bez działającego klucza usługi wysyłki nikt nie potwierdzi adresu e-mail, a nowe konta zostają zablokowane po 24 godzinach.
+
+Kopie zapasowe mają sens dopiero wtedy, gdy raz sprawdzisz, że da się z nich odtworzyć działającą instancję.
+
+## Jak wybrać CRM self hosted? [#jak-wybrac-crm-self-hosted]
+
+Te pytania warto zadać każdemu projektowi, który rozważasz, także Customermates:
+
+- **Licencja i edycje.** Które części kodu są open source, a które komercyjne? Wersje Community i Enterprise potrafią różnić się zarówno funkcjami, jak i prawem do ich używania.
+- **Zakres wersji self-hosted.** Co z funkcji chmury działa na Twoim serwerze, a co zostaje tylko w chmurze?
+- **Wymagania i utrzymanie.** Jakie usługi musisz postawić obok aplikacji, kto robi kopie zapasowe i kto sprawdza ich odtwarzanie?
+- **Dostosowanie i integracje.** Czy pola, listy i widoki ustawisz bez programisty i czy system ma REST API oraz webhooki?
+- **Dane i odpowiedzialność.** Gdzie trafiają dane, które dostawcy je przetwarzają i kto odpowiada za konfigurację, umowy i retencję?
+
+Odpowiedzi na te pytania są ważniejsze niż długość listy funkcji, bo to one decydują, ile pracy dołożysz po wdrożeniu.
+
 ## Granice między kodem open source a komercyjnym
 
 Materiał własny Customermates poza katalogiem `ee/` jest objęty licencją AGPL-3.0-only. W `ee/` materiał ma licencję komercyjną, z wyjątkiem obrazów, czcionek, CSS i JavaScriptu po stronie klienta, wskazanych jako AGPL Client Material w sekcji 6 pliku `ee/LICENSE.md`. Przed modyfikowaniem, dalszym rozpowszechnianiem lub uruchamianiem oprogramowania do własnych celów przeczytaj obie licencje.
@@ -237,5 +270,28 @@ Materiał własny poza katalogiem `ee/` jest objęty licencją AGPL-3.0-only. W 
 
 <FaqItem question="Co zawiera oficjalny stos Docker Compose?">
 Zawiera aplikację Customermates i PostgreSQL 16. n8n, modele AI, SMTP, dostawcy tożsamości i usługi monitoringu są osobno, jeśli zdecydujesz się je podłączyć.
+</FaqItem>
+
+<FaqItem question="Czy CRM self hosted jest darmowy?">
+  Instancja self-hosted nie ma subskrypcji ani okresu próbnego: każda przestrzeń
+  robocza startuje jako aktywna, nie liczy miejsc i niczego nie rozlicza.
+  Płacisz tylko za własną infrastrukturę i dostawców. Porównując koszty,
+  uwzględnij serwer, kopie zapasowe, testy odtwarzania, monitoring, aktualizacje
+  i czas operatora, zamiast zakładać, że jedna droga jest tańsza. Wykupienie
+  planu w chmurze niczego nie odblokowuje w instalacji self-hosted.
+</FaqItem>
+
+<FaqItem question="Jak zaktualizować CRM self hosted?">
+  Zrób kopię zapasową, pobierz nowe obrazy poleceniem `docker compose pull` i
+  utwórz kontenery ponownie przez `docker compose up -d`. Migracje bazy idą
+  tylko do przodu, więc powrót do starszej wersji oznacza przywrócenie kopii
+  zapasowej i uruchomienie poprzedniego obrazu.
+</FaqItem>
+
+<FaqItem question="Kto może założyć konto na mojej instancji self-hosted?">
+  Każdy, kto ma dostęp do Twojego `BASE_URL`, a rejestracji nie da się wyłączyć.
+  Nowy użytkownik, który utworzy własną przestrzeń roboczą, dostaje ją odizolowaną
+  od Twojej. Jeśli instancja ma służyć jednemu zespołowi, ogranicz dostęp przez
+  VPN, listę dozwolonych adresów IP albo uwierzytelnianie na reverse proxy.
 </FaqItem>
 </Faq>

@@ -1,6 +1,6 @@
 ---
-title: "CRM a ERP: różnice i jak działają razem"
-description: "CRM a ERP: CRM prowadzi klientów i sprzedaż, ERP zamówienia, magazyn i finanse. Sprawdź, kto ma który rekord, kiedy potrzebujesz obu i gdzie pasują faktury."
+title: "CRM a ERP: różnice, definicje i kiedy potrzebujesz obu"
+description: "CRM a ERP: czym są, czym się różnią (front office i back office), co mają wspólnego, kiedy firma potrzebuje obu i jak je połączyć bez podwójnego wpisywania."
 
 relatedHrefs:
   - /blog/crm-erp-integration
@@ -39,6 +39,14 @@ Ten poradnik publikuje Customermates. To CRM, a nie ERP ani program księgowy, w
   <SummaryItem label="Łączenie systemów">Wybierz jednego właściciela każdego pola, przekazuj stabilny identyfikator i synchronizuj tylko kilka pól, których potrzebuje druga strona: dane klienta w jedną stronę, status płatności z powrotem.</SummaryItem>
 </ArticleSummary>
 
+## Czym jest CRM, a czym ERP? [#czym-jest-crm-a-czym-erp]
+
+**CRM** (Customer Relationship Management) to system do zarządzania relacjami z klientami: kontaktami, rozmowami, szansami sprzedaży i kolejnymi krokami. Mieszka w nim „front office”, czyli wszystko, co dzieje się między firmą a klientem przed podpisaniem umowy. Więcej o tym, na czym polega CRM, znajdziesz w poradniku [CRM: co to jest](/blog/what-is-crm).
+
+**ERP** (Enterprise Resource Planning) to system do planowania zasobów firmy i prowadzenia jej spraw operacyjnych: zamówień, magazynu, zakupów, produkcji, faktur, płatności i księgowości. To „back office”, czyli praca zaplecza, która ma się zgadzać z dokumentami i liczbami.
+
+Dobrze to widać w rodzaju danych. W CRM trzymasz dane „miękkie”: kto jest kim, o czym rozmawialiście, co obiecano i co ma się wydarzyć dalej. W ERP trzymasz dane „twarde”: kwoty, ilości, daty dokumentów i numery faktur, które muszą być spójne i możliwe do sprawdzenia. Stąd różnica w pracy: CRM ma być elastyczny, ERP kontrolowany.
+
 ## CRM vs ERP obok siebie
 
 | | CRM | ERP |
@@ -51,6 +59,16 @@ Ten poradnik publikuje Customermates. To CRM, a nie ERP ani program księgowy, w
 | Typowe połączenia | E-mail, LinkedIn, WhatsApp, kalendarz, strona internetowa | Bank, biuro rachunkowe, sklep, logistyka, płace |
 
 Oba systemy nakładają się na dane główne klienta. Obu potrzebna jest nazwa i adres klienta, a właśnie w tym miejscu zaczynają się duplikaty. Następna sekcja to rozwiązuje.
+
+### Co mają ze sobą wspólnego CRM i ERP? [#co-maja-wspolnego]
+
+Mimo różnic oba systemy robią to samo na różnych etapach: porządkują dane, ograniczają ręczne przepisywanie i dają jedno źródło prawdy zamiast arkuszy rozsianych po zespole. Wspólne są też dane klienta (nazwa, adres, NIP, osoba do kontaktu), usługi lub produkty, które sprzedajesz, i wartość zamówienia. Dlatego przy pierwszej faktycznej sprzedaży dane klienta trafiają z CRM do ERP lub programu do fakturowania, a status płatności wraca w drugą stronę.
+
+### Korzyści z CRM i z ERP [#korzysci-crm-i-erp]
+
+- **CRM:** mniej zgubionych follow-upów, jedna historia rozmów przy kliencie, widoczny lejek sprzedaży i łatwiejsze przekazanie klienta współpracownikowi.
+- **ERP:** poprawne faktury i zamówienia, kontrola magazynu i zakupów, szybsze zamknięcie miesiąca i księgowość, która zgadza się z dokumentami.
+- **Oba razem:** dane klienta wpisujesz raz, a sprzedaż i finanse pracują na tych samych identyfikatorach.
 
 ## Kto jest właścicielem którego rekordu
 
@@ -83,6 +101,8 @@ Zacznij od problemu, który masz dziś, a nie od kategorii oprogramowania.
 
 Moduł CRM w ERP często obejmuje kontakty i proste szanse sprzedaży. Sprawdź go na swoim prawdziwym tygodniu sprzedaży, zanim na nim oprzesz pracę: jak nowa rozmowa na LinkedIn lub WhatsApp trafia do klienta, jak znaleźć utknięte szanse sprzedaży i jak współpracownik przejmuje konto klienta. Podobnie kartoteka klientów w programie do fakturowania powstaje dopiero wtedy, gdy jest coś do zafakturowania. Nie ma w niej lejka sprzedaży.
 
+Co wdrożyć najpierw? Zazwyczaj ten system, którego brak boli dziś bardziej. Jeśli giną zapytania i nikt nie pamięta ostatniej rozmowy, zacznij od CRM. Jeśli problem to błędne faktury, magazyn albo zamknięcie miesiąca, zacznij od programu do fakturowania lub ERP. Kolejność wdrażania i plan opisuje poradnik o [wdrożeniu CRM](/blog/crm-implementation), a wybór systemu w małej firmie poradnik o [tym, jak wybrać CRM](/blog/how-to-choose-crm).
+
 ## Jeden pakiet czy dwa wyspecjalizowane systemy?
 
 Pakiet all-in-one łączy moduły CRM i ERP u jednego dostawcy. Częstym przykładem dla mniejszych firm jest Odoo: jego [strona z cennikiem](https://www.odoo.com/pricing) oferuje darmowy plan z jedną aplikacją i płatne plany obejmujące wszystkie aplikacje, w tym CRM, Sprzedaż i Księgowość. [Porównanie z Odoo](/compare/odoo) pokazuje, jak wypada na tle dedykowanego CRM.
@@ -94,11 +114,13 @@ Pakiet all-in-one łączy moduły CRM i ERP u jednego dostawcy. Częstym przykł
 | Wymiana jednej części | Trudniejsza, moduły są ze sobą powiązane | Wymieniasz jedną stronę, drugą zostawiasz |
 | Bieżąca praca | Konfiguracja i aktualizacja jednego systemu | Utrzymanie i monitorowanie jednej integracji |
 
-Żadne z tych rozwiązań nie jest domyślnie prostsze. Pakiet z modułem CRM, którego unikają handlowcy, daje te same arkusze, od których chciałeś uciec. Dwa narzędzia bez jasnego właściciela każdego pola dają duplikaty. Wybierz tę stronę tabeli, której bieżącą pracę jesteś gotów przejąć.
+Żadne z tych rozwiązań nie jest domyślnie prostsze. Pakiet z modułem CRM, którego unikają handlowcy, daje te same arkusze, od których chciało się uciec. Dwa narzędzia bez jasnego właściciela każdego pola dają duplikaty. Wybierz tę stronę tabeli, której bieżącą pracę jesteś gotów przejąć.
 
-## Programy do fakturowania obok CRM
+## Programy do fakturowania obok CRM [#programy-do-fakturowania]
 
-W niemieckich małych firmach stroną „ERP” jest często program do fakturowania i księgowości, który przekazuje dane biuru rachunkowemu. Jeśli trafiasz tu, szukając alternatywy dla lexoffice, pierwsze pytanie brzmi: czy problem leży w księgowości, czy w sprzedaży? Zmiana programu księgowego nie naprawi straconych szans sprzedaży, a żaden z poniższych cenników nie wymienia lejka sprzedaży ani etapów szans.
+W małych firmach stroną „ERP” jest często program do fakturowania i księgowości, który przekazuje dane biuru rachunkowemu. W Polsce zwykle są to programy online do fakturowania połączone z biurem rachunkowym i z Krajowym Systemem e-Faktur (KSeF). Poniższe zestawienie pokazuje, na co patrzeć, na przykładzie czterech narzędzi z rynku niemieckiego, bo każde z nich opisuje dostęp do API w publicznym cenniku. Wybierając polski program, zadaj te same pytania: czy ma API, w którym planie, jaki eksport przyjmuje biuro rachunkowe i czy obsługuje KSeF.
+
+Jeśli rozważasz zmianę programu księgowego, pierwsze pytanie brzmi: czy problem leży w księgowości, czy w sprzedaży? Zmiana programu księgowego nie naprawi straconych szans sprzedaży, a żaden z poniższych cenników nie wymienia lejka sprzedaży ani etapów szans.
 
 Lexoffice nazywa się teraz Lexware Office, jak podaje [strona produktu Lexware](https://www.lexware.de/lexoffice/). Dla połączenia z CRM liczy się to, który plan zawiera API:
 
@@ -166,8 +188,20 @@ Po stronie CRM mieszka follow-up, zanim szansa sprzedaży w ogóle dotrze do fak
 CRM zarządza relacjami z klientami i sprzedażą aż do podpisanej umowy: kontaktami, rozmowami, lejkiem sprzedaży i kolejnymi krokami. ERP zarządza pracą operacyjną i finansową, która następuje potem: zamówieniami, magazynem, zakupami, fakturowaniem, płatnościami i księgowością.
 </FaqItem>
 
-<FaqItem question="Czy SAP to ERP czy CRM, a co z Salesforce?">
+<FaqItem question="Czy SAP to CRM, czy ERP? A co z Salesforce?">
 SAP sprzedaje oba. Jego [strona ERP vs CRM](https://www.sap.com/resources/erp-vs-crm) wymienia produkty ERP, takie jak SAP S/4HANA Cloud i SAP Business One, który ma też funkcje CRM, obok osobnej aplikacji SAP CRM, i odpowiada „Nie” na pytanie, czy chmurowe ERP może zastąpić CRM. Salesforce jest najbardziej znany ze swojego CRM. Jego własny [artykuł o ERP i CRM](https://www.salesforce.com/blog/erp-vs-crm/) przedstawia Salesforce CRM jako stronę zwróconą do klienta i opisuje integrację z funkcjami ERP, takimi jak zamówienia sprzedaży i śledzenie zapasów.
+</FaqItem>
+
+<FaqItem question="Na czym polega CRM?">
+CRM to system do prowadzenia relacji z klientami i sprzedaży: kontakty, firmy, rozmowy, szanse sprzedaży i kolejne kroki w jednym miejscu, żeby żaden klient nie wypadł z pola widzenia. Dokładniej opisuje to poradnik [CRM: co to jest](/blog/what-is-crm).
+</FaqItem>
+
+<FaqItem question="Na czym polega ERP?">
+ERP łączy w jednym systemie sprawy operacyjne i finansowe firmy: zamówienia, magazyn, zakupy, produkcję, faktury, płatności i księgowość. Dzięki temu dane w dokumentach zgadzają się z liczbami w księgowości.
+</FaqItem>
+
+<FaqItem question="Jaki jest najlepszy CRM w Polsce?">
+Nie ma jednego najlepszego. Wybór zależy od wielkości zespołu, kanałów kontaktu z klientami (e-mail, LinkedIn, WhatsApp), połączenia z programem do fakturowania i budżetu. Pomoże w tym [ranking CRM](/blog/best-crm-software) i poradnik, [jak wybrać CRM](/blog/how-to-choose-crm).
 </FaqItem>
 
 <FaqItem question="Czy mała firma potrzebuje ERP?">

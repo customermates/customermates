@@ -113,7 +113,7 @@ cta:
 
 | Tu motivo para irte | Mira | Por qué |
 |---|---|---|
-| Sois dos personas con un pipeline sencillo | Salesforce Free Suite, el CRM gratuito de HubSpot | Los dos son gratuitos para dos usuarios. La edición gratuita de Zoho CRM cubre tres |
+| Son dos personas con un pipeline sencillo | Salesforce Free Suite, el CRM gratuito de HubSpot | Los dos son gratuitos para dos usuarios. La edición gratuita de Zoho CRM cubre tres |
 | El precio por puesto de Pro Suite y el contrato anual | Zoho CRM, HubSpot, Customermates | Compara sus planes con Pro Suite. Customermates factura mensualmente |
 | Quieres open source o tu propio servidor | SuiteCRM, Twenty, Customermates | Los tres se pueden autoalojar |
 | Tus clientes escriben por WhatsApp, LinkedIn, Instagram o Telegram | Customermates Pro o Business | Estos canales llegan a una sola bandeja de entrada junto a la oportunidad |
@@ -134,7 +134,7 @@ Si tu equipo usa varias de estas funciones y alguien se encarga de la configurac
 
 **El salto después de Starter Suite es grande.** Pro Suite cuesta cuatro veces más por puesto, y Core casi lo duplica otra vez. Agentforce for Sales es un complemento desde 125 USD por usuario al mes, salvo que tengas Max.
 
-**Los canales de chat están en Service Cloud.** Sales Cloud sincroniza el correo. En la página de precios de Service Cloud, Digital Channels figura como «available for purchase» en Core y Advanced y está incluido en Max; Starter Suite y Pro Suite no lo enumeran. No se indica ningún precio.
+**Los canales de chat están en Service Cloud.** Sales Cloud sincroniza el correo. En la página de precios de Service Cloud, Digital Channels figura como disponible para su compra en Core y Advanced y está incluido en Max; Starter Suite y Pro Suite no lo enumeran. No se indica ningún precio.
 
 **La plataforma necesita a alguien que se encargue.** Flow Builder, los procesos de aprobación, los tipos de registro y los diseños de página dan mucho control a un administrador. Alguien tiene que construirlos y mantenerlos, y en una empresa de cinco personas suele ser quien la fundó.
 
@@ -179,14 +179,14 @@ Una pequeña consultora o agencia rara vez necesita toda la plataforma de Salesf
 
 **IA que mantiene los registros al día.** En Customermates Cloud, Mate resume hilos, redacta respuestas y actualiza contactos y oportunidades, con créditos de IA alojados. Pide una nueva aprobación antes de eliminar nada, pero envía un mensaje sin ella cuando se lo indicas, así que pide borradores cuando quieras leerlos antes. Las rutinas ejecutan una instrucción guardada según una programación o cuando cambia un registro, como su propietario: [[commercial.entitlement.starter.includedRoutinesPerUser]] por usuario en Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] en Pro y [[commercial.entitlement.business.includedRoutinesPerUser]] en Business.
 
-¿Ya pagas por Claude o ChatGPT? Conéctalo mejor al [servidor MCP](/docs/mcp). Sus llamadas al modelo se ejecutan con tu propio proveedor de IA, no con créditos alojados.
+¿Ya pagas por Claude o ChatGPT? Lo mejor es conectarlo al [servidor MCP](/docs/mcp). Sus llamadas al modelo se ejecutan con tu propio proveedor de IA, no con créditos alojados.
 
 **Open source, con libertad para elegir dónde alojarlo.** El núcleo AGPL-3.0 funciona en tu propio servidor con Docker Compose y PostgreSQL 16, con la [API REST](/features/api), los webhooks y MCP incluidos. Una [instalación autoalojada](/features/self-hosted) no tiene bandeja de entrada, ni Mate, ni créditos alojados. En Customermates Cloud la base de datos está configurada en la región AWS de Fráncfort, hay un [DPA](/dpa) disponible y se enumeran los [subencargados del tratamiento](/subprocessors), incluidos proveedores de EE. UU.
 
 ## Dónde Customermates no es la opción adecuada
 
 - **Sin previsión de ventas, presupuestos ni territorios.** El pipeline ponderado multiplica el valor de cada oportunidad por la probabilidad de su etapa. No predice nada.
-- **Sin constructor de flujos de trabajo ni procesos de aprobación.** La automatización se hace con rutinas, webhooks, la API REST y un n8n que se opera por separado.
+- **Sin constructor de flujos de trabajo ni procesos de aprobación.** La automatización se hace con rutinas, webhooks, la API REST y n8n, que se ejecuta por separado.
 - **Sin marketing ni help desk.** No hay campañas, secuencias, formularios web, casos ni tickets.
 - **Tareas sencillas.** Las tareas tienen responsables, relaciones, notas y campos personalizados. No tienen fechas de vencimiento ni recordatorios.
 - **Sin aplicación móvil nativa, inicio de sesión único ni permisos por campo.** Los roles deciden, lista por lista, si alguien ve todos los registros, solo los suyos o ninguno.
@@ -229,14 +229,14 @@ Customermates publica esta lista. Los datos proceden de las páginas de cada pro
 
 - **HubSpot** es gratuito para hasta dos usuarios, sin tarjeta de crédito. Encaja con equipos que quieren empezar gratis y crecer hacia herramientas de marketing. Consulta [HubSpot frente a Salesforce](/compare/hubspot-vs-salesforce).
 - **Zoho CRM** tiene una edición gratuita para hasta tres usuarios y cuatro ediciones de pago, de Standard a Ultimate. Encaja con equipos que quieren una suite amplia. Consulta [Zoho frente a Salesforce](/compare/zoho-vs-salesforce).
-- **Twenty** se presenta como «the open alternative to Salesforce, designed for AI». Su núcleo open source es gratuito para autoalojar con Docker Compose, todos los planes en la nube incluyen objetos personalizados ilimitados y el plan Organization añade inicio de sesión único SAML/OIDC y permisos por fila. Encaja con equipos que quieren modelar sus propios objetos.
+- **Twenty** se presenta como la alternativa abierta a Salesforce, diseñada para la IA. Su núcleo open source es gratuito para autoalojar con Docker Compose, todos los planes en la nube incluyen objetos personalizados ilimitados y el plan Organization añade inicio de sesión único SAML/OIDC y permisos por fila. Encaja con equipos que quieren modelar sus propios objetos.
 - **SuiteCRM** se publica con licencia AGPLv3 y está construido sobre PHP, Symfony y MySQL. Lo alojas tú o usas SuiteCRM Hosted. Cubre ventas con presupuestos, marketing y servicio, y encaja con equipos que quieren un conjunto amplio de módulos en sus propios servidores.
 
 ## Preguntas frecuentes
 
 <Faq>
 <FaqItem question="¿Hay alternativas a Salesforce gratis?">
-Para dos usuarios, el propio Free Suite de Salesforce no cuesta nada mientras alguien inicie sesión cada 60 días. El CRM gratuito de HubSpot también cubre dos usuarios, y la edición gratuita de Zoho CRM tres. SuiteCRM, Twenty y el núcleo AGPL-3.0 de Customermates se pueden autoalojar sin coste de licencia; Customermates autoalojado no tiene bandeja de entrada ni Mate. Customermates Cloud tiene una prueba de [[commercial.trial.days]] días y un plan gratuito para [[commercial.limit.free.maxMembers]] persona y [[commercial.limit.free.maxRecords]] registros, sin bandeja de entrada, Mate ni rutinas.
+Para dos usuarios, la propia Free Suite de Salesforce no cuesta nada mientras alguien inicie sesión cada 60 días. El CRM gratuito de HubSpot también cubre dos usuarios, y la edición gratuita de Zoho CRM tres. SuiteCRM, Twenty y el núcleo AGPL-3.0 de Customermates se pueden autoalojar sin coste de licencia; Customermates autoalojado no tiene bandeja de entrada ni Mate. Customermates Cloud tiene una prueba de [[commercial.trial.days]] días y un plan gratuito para [[commercial.limit.free.maxMembers]] persona y [[commercial.limit.free.maxRecords]] registros, sin bandeja de entrada, Mate ni rutinas.
 </FaqItem>
 
 <FaqItem question="¿Qué alternativa open source a Salesforce es buena?">
@@ -260,4 +260,4 @@ Puede hacerlo. La Hyperforce EU Operating Zone mantiene el procesamiento y el al
 </FaqItem>
 </Faq>
 
-Datos de la competencia verificados el 8 de octubre de 2026 en [Sales Cloud pricing](https://www.salesforce.com/sales/pricing/), [German pricing](https://www.salesforce.com/de/sales/pricing/), [Free Suite](https://www.salesforce.com/crm/free-crm/), [free trial](https://www.salesforce.com/sales/), [Service Cloud pricing](https://www.salesforce.com/service/pricing/), [Hyperforce EU Operating Zone](https://www.salesforce.com/platform/public-cloud-infrastructure/operating-zone/) y [data export unit](https://trailhead.salesforce.com/content/learn/modules/lex_implementation_data_management/lex_implementation_data_export) de Salesforce, y en [HubSpot pricing](https://www.hubspot.com/pricing/crm), [Zoho CRM pricing](https://www.zoho.com/crm/zohocrm-pricing.html), [Twenty pricing](https://twenty.com/pricing), el [repositorio de Twenty](https://github.com/twentyhq/twenty), [SuiteCRM](https://suitecrm.com/) y el [repositorio de SuiteCRM](https://github.com/SuiteCRM/SuiteCRM-Core).
+Datos de la competencia verificados el 8 de octubre de 2026 en la [página de precios de Sales Cloud](https://www.salesforce.com/sales/pricing/), la [página de precios en alemán](https://www.salesforce.com/de/sales/pricing/), la [página de Free Suite](https://www.salesforce.com/crm/free-crm/), la [página de la prueba gratuita](https://www.salesforce.com/sales/), la [página de precios de Service Cloud](https://www.salesforce.com/service/pricing/), la [Hyperforce EU Operating Zone](https://www.salesforce.com/platform/public-cloud-infrastructure/operating-zone/) y la [unidad de Trailhead sobre la exportación de datos](https://trailhead.salesforce.com/content/learn/modules/lex_implementation_data_management/lex_implementation_data_export) de Salesforce, y en la [página de precios de HubSpot](https://www.hubspot.com/pricing/crm), la [página de precios de Zoho CRM](https://www.zoho.com/crm/zohocrm-pricing.html), la [página de precios de Twenty](https://twenty.com/pricing), el [repositorio de Twenty](https://github.com/twentyhq/twenty), [SuiteCRM](https://suitecrm.com/) y el [repositorio de SuiteCRM](https://github.com/SuiteCRM/SuiteCRM-Core).

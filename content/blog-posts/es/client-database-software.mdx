@@ -1,6 +1,6 @@
 ---
-title: "Base de datos de clientes: 5 tipos de software comparados"
-description: "Base de datos de clientes: software comparado entre hoja de cálculo, agenda, base sin código y CRM, con límites de planes gratis y precios del 11 nov 2026."
+title: "Base de datos de clientes: cómo crearla y qué software usar"
+description: "Base de datos de clientes: qué datos guardar, cómo crearla y qué software elegir (Excel, base sin código o CRM), con planes gratis y precios del 11 nov 2026."
 
 relatedHrefs:
   - /features/contact-management
@@ -88,6 +88,24 @@ Si tus clientes viven en fichas, en un rolodex o en una fila de una hoja de cál
 
 Ordena las fichas antes de pasarlas: decide qué grafía de cada cliente es la que cuenta y da a cada persona su propia fila. Así la importación va sin sobresaltos, primero las empresas y después las personas.
 
+## Qué datos guardar de cada cliente: un ejemplo [#que-datos-guardar-de-cada-cliente]
+
+Guarda solo lo que vayas a usar. Los datos de una buena base de datos de clientes caen en tres grupos:
+
+- **Identificación:** nombre, empresa, correo y teléfono (con el prefijo del país).
+- **Relación:** un segmento (por ejemplo iguala, proyecto o antiguo), desde cuándo es cliente, quién es el responsable y de dónde llegó.
+- **Seguimiento:** el siguiente paso con una fecha real, las notas de lo acordado y los archivos (presupuesto, contrato).
+
+Cualquier otro dato debe responder a una pregunta que vayas a hacer: si no vas a filtrar ni a informar por él, va en las notas. Guardar solo lo necesario, además, es un principio del RGPD (minimización de datos): nada se guarda «por si acaso». Así queda un ejemplo con tres clientes, tal como lo verías en una hoja de cálculo:
+
+| Cliente | Empresa | Correo | Segmento | Cliente desde | Responsable | Siguiente paso |
+|---|---|---|---|---|---|---|
+| Marta Ruiz | Estudio Ruiz Arquitectos | marta@estudioruiz.example | Iguala | marzo de 2026 | Laura | Enviar la propuesta de ampliación, 18 de noviembre |
+| Diego Fernández | Taller Fernández | diego@tallerfernandez.example | Proyecto | septiembre de 2026 | Pablo | Llamar para cerrar el presupuesto, 20 de noviembre |
+| Carolina Soto | Soto y Asociados | carolina@sotoasociados.example | Antiguo | junio de 2026 | Laura | Retomar el contacto, 2 de diciembre |
+
+En una hoja de cálculo, la columna «Empresa» es solo texto. En una base de datos o en un CRM, la empresa pasa a ser un registro propio vinculado a sus personas, como muestra la tabla anterior. Si quieres empezar con una hoja y pasar más adelante a un CRM, la [plantilla de CRM en Excel](/blog/excel-crm-template) trae estas columnas ya preparadas.
+
 ## La prueba de 30 minutos
 
 Las listas de funciones se parecen. Estas comprobaciones separan las herramientas en media hora, con tus propios datos en cualquier versión de prueba o plan gratuito.
@@ -173,6 +191,15 @@ Una base de datos de clientes se justifica cuando cada cliente tiene un siguient
 - **Tu modelo de datos no es de personas y empresas.** Customermates empieza sin listas y te deja crear las tuyas, pero está construido en torno a personas, empresas y oportunidades. Equipos, inmuebles o eventos sin nada que vender pueden encajar mejor en Airtable o Ninox.
 - **Quieres autoalojar y conservar la bandeja de entrada.** El autoalojamiento es el núcleo AGPL con REST, webhooks y MCP. La bandeja de entrada unificada y Mate no forman parte de él.
 
+## Cómo conseguir una base de datos de clientes [#como-conseguir-una-base-de-datos-de-clientes]
+
+«Conseguir» una base de datos de clientes significa dos cosas distintas.
+
+- **Reunir los clientes que ya tienes.** Están repartidos entre facturas, correos, el teléfono y hojas de cálculo. Junta todo en una sola lista, quita los duplicados, decide qué grafía de cada cliente es la que cuenta e impórtala una vez a la herramienta elegida.
+- **Conseguir contactos nuevos.** Los más sólidos vienen de personas que te los dan: formularios de contacto o de suscripción, conversaciones en eventos, recomendaciones de clientes y contactos que tú mismo inicias por LinkedIn o por correo. Guarda de dónde llegó cada uno en un campo de origen.
+
+Comprar una lista de contactos suele ser mala idea: los datos envejecen rápido y las personas de la lista no te han dado permiso para escribirles. El RGPD exige una base jurídica para tratar datos personales, y los correos comerciales tienen además normas propias en cada país (en España, la LSSI; en Latinoamérica, las leyes de cada país). Es información general, no asesoramiento jurídico: si dudas, consulta a un especialista antes de escribir a una lista que no hayas construido tú.
+
 ## Dónde viven los datos de los clientes
 
 Una base de datos de clientes contiene datos personales. En la UE, un proveedor en la nube que los almacena por ti es un encargado del tratamiento, y el [artículo 28 del RGPD](https://eur-lex.europa.eu/eli/reg/2016/679/oj) exige un contrato con él, el contrato de encargado del tratamiento. Antes de importar, comprueba dónde se ejecuta la base de datos, quiénes son los subencargados y si puedes recuperar todos tus datos.
@@ -186,6 +213,10 @@ Ninox lista Alemania como región del servidor en su página de precios. Custome
 Una base de datos de clientes es el lugar compartido donde cada cliente tiene un registro: nombre, datos de contacto, empresa, el trabajo conjunto y notas sobre lo acordado. A diferencia de una simple lista de clientes, sus registros pueden vincularse entre sí, de modo que una empresa muestra a todas sus personas y su trabajo abierto. Una [base de datos de CRM](/blog/crm-database) añade encima oportunidades, tareas e historial de conversaciones.
 </FaqItem>
 
+<FaqItem question="¿Qué son los datos de un CRM?">
+Son los registros que el CRM guarda sobre tu trabajo con clientes: personas, empresas, oportunidades o proyectos, tareas, notas, archivos y el historial de conversaciones, todos vinculados entre sí. La [guía de la base de datos de CRM](/blog/crm-database) explica cómo se organizan.
+</FaqItem>
+
 <FaqItem question="¿Qué debe contener una base de datos de clientes?">
 Empieza por lo que consultas y filtras: nombre, empresa, teléfonos y correos, cliente desde, un segmento, quién es el responsable del cliente y el siguiente paso con una fecha real. Añade un campo solo cuando vayas a filtrar o a informar por él; todo lo demás va en las notas. La tabla de la sección de la ficha de cliente de arriba muestra dónde va cada elemento de una ficha en papel.
 </FaqItem>
@@ -196,6 +227,14 @@ Depende de cuántas personas lo usen y cuántos registros guardes. Las herramien
 
 <FaqItem question="¿Cómo creo una base de datos de clientes?">
 Empieza con dos tipos de registro: las personas y las empresas para las que trabajan. Anota los campos por los que de verdad vas a filtrar y limpia después tu lista actual para que cada fila sea una persona y cada columna contenga un solo tipo de valor. Elimina duplicados, importa primero las empresas y después las personas, y guarda algunas vistas. La guía para [crear una base de datos de CRM](/blog/crm-database) cubre el modelo de datos con más detalle.
+</FaqItem>
+
+<FaqItem question="¿Cómo conseguir una base de datos de clientes?">
+Reúne primero los clientes que ya tienes (facturas, correos, hojas de cálculo) en una sola lista limpia. Para contactos nuevos, apóyate en formularios con consentimiento, eventos, recomendaciones y conversaciones que inicias tú. Comprar listas suele salir mal: los datos están desactualizados y esas personas no te han dado permiso. Más detalle en la sección de arriba.
+</FaqItem>
+
+<FaqItem question="¿Cómo clasifico a los clientes en la base de datos?">
+Con un campo de selección única, por ejemplo «Segmento» con opciones como Iguala, Proyecto y Antiguo, para que haya una sola grafía y el filtro funcione. Elige las categorías según cómo trabajas con ellos (tipo de contrato, tamaño o sector), no según una lista genérica. La [guía de segmentación de clientes](/blog/customer-segmentation) tiene más criterios.
 </FaqItem>
 
 <FaqItem question="¿Puedo usar Excel como base de datos de clientes?">

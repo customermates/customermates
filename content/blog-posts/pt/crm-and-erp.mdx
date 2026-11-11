@@ -1,6 +1,6 @@
 ---
 title: "CRM e ERP: diferenças e como usar os dois juntos"
-description: "CRM e ERP: o CRM cuida de clientes e vendas, o ERP de pedidos e finanças. Veja quem é dono de cada registro e quais ferramentas de faturamento têm API."
+description: "CRM e ERP: o CRM cuida de clientes e vendas até o fechamento, o ERP de pedidos e finanças. Benefícios, quem é dono de cada registro e quando usar os dois."
 
 relatedHrefs:
   - /blog/crm-erp-integration
@@ -39,6 +39,26 @@ O Customermates publica este guia. Ele é um CRM, não um ERP nem um software de
   <SummaryItem label="Conectar os dois">Defina um dono para cada campo, passe um ID estável de um lado para o outro e sincronize só os poucos campos de que o outro lado precisa: dados do cliente de ida, status do pagamento de volta.</SummaryItem>
 </ArticleSummary>
 
+## O que é CRM e o que é ERP? Benefícios de cada um [#o-que-e-crm-e-erp]
+
+**CRM** (Customer Relationship Management, em português gestão de relacionamento com o cliente) é o sistema onde a equipe de vendas e de atendimento guarda contatos, empresas, conversas, negócios e próximos passos. **ERP** (Enterprise Resource Planning, ou sistema integrado de gestão) é o sistema que organiza a operação e o dinheiro: pedidos, estoque, compras, faturamento, contas a pagar e a receber e contabilidade. No Brasil, o ERP também costuma ser o lado que emite a nota fiscal eletrônica; o CRM não emite nota.
+
+### Benefícios do CRM
+
+- Todo mundo vê o histórico do cliente: quem falou com ele por último e o que ficou combinado.
+- O pipeline mostra em que etapa cada negócio está e o que está parado.
+- Follow-ups com data deixam de depender da memória de uma pessoa.
+- Uma passagem de contas fica simples, porque o contexto está no registro, não na caixa de e-mail de alguém.
+
+### Benefícios do ERP
+
+- Pedidos, faturas e pagamentos ficam em um só lugar, com numeração e trilha de documentos.
+- Estoque, compras e produção se baseiam nos mesmos dados.
+- O financeiro fecha o mês com menos retrabalho e o contador recebe tudo no formato que precisa.
+- O custo e a margem de cada pedido podem ser acompanhados.
+
+Existem ainda os **tipos de CRM**, que costumam ser divididos em três: operacional (automatiza vendas, marketing e atendimento no dia a dia), analítico (analisa dados de clientes para decisões) e colaborativo (compartilha informações do cliente entre as áreas). Para uma pequena equipe, o operacional costuma ser o que importa; o guia [o que é CRM](/blog/what-is-crm) explica o básico e o de [CRM para pequenas empresas](/blog/crm-for-small-business) mostra como escolher.
+
 ## CRM e ERP lado a lado
 
 | | CRM | ERP |
@@ -60,7 +80,7 @@ Antes de conectar qualquer coisa, anote um dono para cada registro e campo. Resp
 | --- | --- | --- |
 | Pessoa, cargo, anotações sobre o relacionamento | CRM | Só nome e e-mail do contato de cobrança |
 | Organização (empresa) | CRM até a primeira fatura, depois compartilhada | Número de cliente do ERP guardado na organização do CRM |
-| Razão social, número de IVA (VAT ID), endereço de cobrança | ERP ou ferramenta de faturamento | Copiados para o CRM e editados só no ERP |
+| Razão social, CNPJ ou outro número fiscal (como o VAT ID na União Europeia), endereço de cobrança | ERP ou ferramenta de faturamento | Copiados para o CRM e editados só no ERP |
 | Negócio, etapa, valor do negócio, próximo passo | CRM | Opcional: ID do negócio no pedido |
 | Produtos, preços, estoque | ERP | Nomes de produtos ou serviços para os itens de linha do negócio |
 | Pedido, fatura, número da fatura | ERP ou ferramenta de faturamento | Número da fatura no negócio |
@@ -98,7 +118,7 @@ Nenhuma das duas opções é mais simples por definição. Uma suíte com um mó
 
 ## Ferramentas de faturamento ao lado de um CRM
 
-Para as pequenas empresas alemãs, o lado do "ERP" costuma ser uma ferramenta de faturamento e contabilidade que repassa os dados ao contador. Se você chegou aqui procurando uma alternativa ao lexoffice, a primeira pergunta é se o problema é de contabilidade ou de vendas. Trocar de ferramenta de contabilidade não resolve negócios perdidos, e nenhuma das páginas de preços abaixo lista um pipeline de vendas ou etapas de negócio.
+Para as pequenas empresas alemãs, o lado do "ERP" costuma ser uma ferramenta de faturamento e contabilidade que repassa os dados ao contador. As ferramentas da tabela abaixo são alemãs porque o Customermates nasceu lá. No Brasil, esse papel costuma ser feito por sistemas de gestão e de emissão de nota fiscal, como Omie, Bling e Conta Azul, e por ERPs maiores, como TOTVS e SAP; a regra de escolha é a mesma, então confira em cada fornecedor qual plano inclui a API antes de planejar a conexão. Se você chegou aqui procurando uma alternativa ao lexoffice, a primeira pergunta é se o problema é de contabilidade ou de vendas. Trocar de ferramenta de contabilidade não resolve negócios perdidos, e nenhuma das páginas de preços abaixo lista um pipeline de vendas ou etapas de negócio.
 
 O lexoffice agora se chama Lexware Office, como diz a [página do produto Lexware](https://www.lexware.de/lexoffice/). Para conectar a um CRM, o que importa é qual plano inclui a API:
 
@@ -168,6 +188,18 @@ Um CRM gerencia o relacionamento com clientes e as vendas até o negócio fechad
 
 <FaqItem question="SAP é um ERP ou um CRM, e o Salesforce?">
 A SAP vende os dois. A [página ERP vs CRM](https://www.sap.com/resources/erp-vs-crm) dela lista produtos de ERP como SAP S/4HANA Cloud e SAP Business One, que também tem funções de CRM, ao lado de um aplicativo separado, o SAP CRM, e responde "Não" à pergunta se um ERP em nuvem pode substituir um CRM. O Salesforce é mais conhecido pelo CRM. O [artigo sobre ERP e CRM](https://www.salesforce.com/blog/erp-vs-crm/) da própria empresa apresenta o Salesforce CRM como o lado voltado ao cliente e descreve a integração com funções de ERP, como pedidos de venda e controle de estoque.
+</FaqItem>
+
+<FaqItem question="Quais são os 3 tipos de CRM?">
+O CRM operacional automatiza o trabalho diário de vendas, marketing e atendimento; o analítico transforma os dados de clientes em relatórios e previsões; o colaborativo compartilha as informações do cliente entre as áreas da empresa. Para uma pequena equipe de serviços, o que costuma importar é o operacional: contatos, pipeline, conversas e próximos passos.
+</FaqItem>
+
+<FaqItem question="A TOTVS é um CRM ou um ERP?">
+Pergunta comum para qualquer fornecedor grande: olhe o produto, não a marca. A SAP e a TOTVS vendem produtos das duas categorias, então o que decide é o que cada produto guarda. Se ele cuida de pedidos, estoque, faturamento e contabilidade, é ERP; se cuida de contatos, negócios, conversas e próximos passos, é CRM. Confira no site do fornecedor o que cada produto inclui.
+</FaqItem>
+
+<FaqItem question="Quais são os ERP mais usados?">
+Não existe uma lista oficial, e o que é mais usado depende do porte e do setor: grandes empresas costumam usar suítes como SAP, Oracle ou TOTVS, e empresas menores, sistemas de gestão e faturamento mais enxutos ou suítes como o Odoo. Escolha pelo seu processo (estoque, produção, emissão de nota fiscal, contador), não pela popularidade.
 </FaqItem>
 
 <FaqItem question="Uma pequena empresa precisa de um ERP?">

@@ -44,8 +44,8 @@ Gebruik de [contactenlijst-template](/blog/contact-list-template) voor een klein
 ## Vier regels voor de sheet
 
 1. **Eén kopregel, één rij per record.** Geen samengevoegde cellen, geen lege rijen, geen subtotalen tussen de records.
-2. **Maak van elk gegevenstabblad een tabel.** Selecteer het bereik en kies Opmaak › Converteren naar tabel. Met Google's [handleiding voor tabellen](https://support.google.com/docs/answer/14239833) stel je per kolom een type in: Dropdown, Datum, Valuta, Personenchip en andere. Een datumkolom markeert dan "volgende dinsdag" met een waarschuwing, en dat telt zodra formules datums vergelijken.
-3. **Maak van elke vaste waarde een dropdown.** Via Invoegen › Dropdown, of Gegevens › Gegevensvalidatie met "Dropdown (uit een bereik)" naar het tabblad Lijsten. Volgens Google's [hulp bij dropdowns](https://support.google.com/docs/answer/186103) wordt ongeldige invoer standaard geweigerd. Laat dat zo: "Voorstel" en "voorstel verstuurd" zijn voor elke formule twee fases.
+2. **Maak van elk gegevenstabblad een tabel.** Selecteer het bereik en kies Opmaak › Converteren naar tabel. Met de [handleiding voor tabellen](https://support.google.com/docs/answer/14239833) van Google stel je per kolom een type in: Dropdown, Datum, Valuta, Personenchip en andere. Een datumkolom waarschuwt dan als iemand "volgende dinsdag" typt in plaats van een echte datum, en dat telt zodra formules datums vergelijken.
+3. **Maak van elke vaste waarde een dropdown.** Via Invoegen › Dropdown, of Gegevens › Gegevensvalidatie met "Dropdown (uit een bereik)" naar het tabblad Lijsten. Volgens de [hulp bij dropdowns](https://support.google.com/docs/answer/186103) van Google wordt ongeldige invoer standaard geweigerd. Laat dat zo: "Voorstel" en "voorstel verstuurd" zijn voor elke formule twee fases.
 4. **Koppel op naam.** Het bedrijf van een contactpersoon is de exacte bedrijfsnaam, de contactpersoon van een deal de volledige naam van de persoon. Namen kun je lezen, en CRM-imports, ook die van Customermates, koppelen records op naam.
 
 ## De template, tabblad voor tabblad
@@ -73,13 +73,13 @@ Kolommen A tot en met J: Voornaam, Achternaam, Bedrijf, E-mail, Telefoon, Linked
 | A Deal | Tekst | Brookfield Architects beveiligingsreview |
 | B Bedrijf | Dropdown | Brookfield Architects |
 | C Contactpersoon | Volledige naam | Sarah Okafor |
-| D Waarde | Getal | 18000 |
+| D Waarde | Getal | 18.000 |
 | E Fase | Dropdown uit Lijsten!A | Voorstel |
 | F Kans | Formule | 60% |
-| G Gewogen | Formule | 10800 |
-| H Eigenaar | Dropdown uit Lijsten!G | Anna Berg |
+| G Gewogen | Formule | 10.800 |
+| H Eigenaar | Dropdown uit Lijsten!G | Anna Visser |
 | I Volgende stap | Eén zin | Aangepaste scope sturen |
-| J Datum volgende stap | Datum | 2025-12-04 |
+| J Datum volgende stap | Datum | 04-12-2025 |
 | K Gesloten op | Datum, ingevuld bij Gewonnen of Verloren | |
 
 Zet dit in rij 2 en sleep het omlaag:
@@ -122,9 +122,9 @@ Zet elk op een eigen blok van het Dashboard en laat eronder ruimte vrij, want be
 
 ## Wat Google rond de sheet toevoegt
 
-**Leads binnenhalen met Google Formulieren.** Koppel een formulier aan de spreadsheet via Antwoorden › Bestemming voor antwoorden selecteren, en Google's [hulp bij Formulieren](https://support.google.com/docs/answer/2917686) zegt dat elke nieuwe reactie automatisch wordt toegevoegd. Laat het antwoordentabblad zoals het is en kopieer [gekwalificeerde leads](/features/lead-management) met de hand naar Contactpersonen. Kolommen bewerken of herschikken is de snelste manier om de koppeling met het formulier te breken.
+**Leads binnenhalen met Google Formulieren.** Koppel een formulier aan de spreadsheet via Antwoorden › Bestemming voor antwoorden selecteren, en de [hulp bij Formulieren](https://support.google.com/docs/answer/2917686) van Google zegt dat elke nieuwe reactie automatisch wordt toegevoegd. Laat het antwoordentabblad zoals het is en kopieer [gekwalificeerde leads](/features/lead-management) met de hand naar Contactpersonen. Kolommen bewerken of herschikken is de snelste manier om de koppeling met het formulier te breken.
 
-**Wijzigingsmeldingen.** Extra › Meldingsinstellingen stuurt een e-mail wanneer iemand het bestand wijzigt, direct of als dagelijks overzicht. Volgens Google's [hulp bij meldingen](https://support.google.com/docs/answer/91588) geldt dit alleen voor wijzigingen van anderen. Je hoort dat Anna Deals heeft bewerkt. Je hoort niet dat een datum van een volgende stap is verstreken.
+**Wijzigingsmeldingen.** Extra › Meldingsinstellingen stuurt een e-mail wanneer iemand het bestand wijzigt, direct of als dagelijks overzicht. Volgens de [hulp bij meldingen](https://support.google.com/docs/answer/91588) van Google geldt dit alleen voor wijzigingen van anderen. Je hoort dat Anna Deals heeft bewerkt. Je hoort niet dat een datum van een volgende stap is verstreken.
 
 **Een ochtendmail via Apps Script.** Open daarvoor Extensies › Apps Script en plak:
 
@@ -142,15 +142,15 @@ function mailPastNextSteps() {
 }
 ```
 
-Voeg daarna een trigger toe (klokpictogram › Trigger toevoegen), gebeurtenisbron "Tijdgestuurd", type "Dagelijkse timer", 7 tot 8 uur 's ochtends. Kolom J is index 9 omdat de array bij 0 begint. Google's [quota voor Apps Script](https://developers.google.com/apps-script/guides/services/quotas) beperken een gratis Gmail-account tot 100 e-mailontvangers en 90 minuten triggerlooptijd per dag; Workspace-accounts krijgen 1.500 ontvangers en 6 uur. Eén e-mail per dag zit daar ver onder.
+Voeg daarna een trigger toe (klokpictogram › Trigger toevoegen), gebeurtenisbron "Tijdgestuurd", type "Dagelijkse timer", 7 tot 8 uur 's ochtends. Kolom J is index 9 omdat de array bij 0 begint. De [quota voor Apps Script](https://developers.google.com/apps-script/guides/services/quotas) van Google beperken een gratis Gmail-account tot 100 e-mailontvangers en 90 minuten triggerlooptijd per dag; Workspace-accounts krijgen 1.500 ontvangers en 6 uur. Eén e-mail per dag zit daar ver onder.
 
-**Filterweergaven in plaats van filters.** Een gewoon filter verandert de weergave voor iedereen met toegang. Gegevens › Filterweergaven › Nieuwe filterweergave maken slaat een filter op dat alleen jouw eigen weergave verandert, zoals Google's [hulp bij filters](https://support.google.com/docs/answer/3540681) uitlegt. Geef iedereen een filterweergave "Mijn open deals" op Eigenaar en Fase.
+**Filterweergaven in plaats van filters.** Een gewoon filter verandert de weergave voor iedereen met toegang. Gegevens › Filterweergaven › Nieuwe filterweergave maken slaat een filter op dat alleen jouw eigen weergave verandert, zoals de [hulp bij filters](https://support.google.com/docs/answer/3540681) van Google uitlegt. Geef iedereen een filterweergave "Mijn open deals" op Eigenaar en Fase.
 
 ## Waar een CRM in Google Sheets stopt met werken
 
 De omvang is zelden het probleem. Google staat in zijn [bestandslimieten voor Drive](https://support.google.com/drive/answer/37603) tot 20 miljoen cellen per spreadsheet toe, veel meer dan een klein team vult. Deze grenzen merk je het eerst:
 
-- **Iedereen ziet alles.** Delen werkt per bestand. Beveiligde bereiken voorkomen bewerkingen, maar Google's [hulp bij beveiliging](https://support.google.com/docs/answer/1218656) zegt zonder omwegen dat mensen een beveiligde spreadsheet nog steeds kunnen kopiëren en exporteren, en dat beveiliging "niet als beveiligingsmaatregel moet worden gebruikt". Een freelancer die je toevoegt om twee deals bij te werken, kan de hele klantenlijst lezen.
+- **Iedereen ziet alles.** Delen werkt per bestand. Beveiligde bereiken voorkomen bewerkingen, maar de [hulp bij beveiliging](https://support.google.com/docs/answer/1218656) van Google zegt zonder omwegen dat mensen een beveiligde spreadsheet nog steeds kunnen kopiëren en exporteren, en dat beveiliging "niet als beveiligingsmaatregel moet worden gebruikt". Een freelancer die je toevoegt om twee deals bij te werken, kan de hele klantenlijst lezen.
 - **Koppelingen zijn tekst.** Hernoem een bedrijf en elke contactpersoon en deal met de oude naam wijst nergens meer naartoe, tot je Zoeken en vervangen draait.
 - **Gesprekken blijven elders.** Gmail-threads, LinkedIn-berichten en WhatsApp-chats komen alleen in de sheet als iemand ze samenvat in Activiteiten.
 - **Persoonsgegevens vermenigvuldigen zich.** Elke download, kopie en "maak een kopie voor mij" is een extra plek waar gegevens van een persoon staan. Beroept iemand zich op zijn [AVG](https://eur-lex.europa.eu/eli/reg/2016/679/oj)-rechten om zijn gegevens in te zien (artikel 15) of te laten wissen (artikel 17), dan moet je ze allemaal terugvinden.
@@ -169,7 +169,7 @@ Een simpele vuistregel: zodra twee mensen elke week dezelfde deals bewerken en �
 
 ## Een Google Sheets CRM verhuizen naar Customermates
 
-Customermates importeert Excel-werkmappen (.xlsx) en CSV-bestanden, één lijst tegelijk, dus een Google Sheet gaat eerst via een download. Er is geen live synchronisatie met Google Sheets. De [importdocumentatie](/docs/app-records#how-do-i-import-or-export-records) bevat alle regels, en de [gids bij de Excel-template](/blog/excel-crm-template#moving-the-template-into-customermates) koppelt elke kolom van deze indeling aan een veld. Een sheet volgt alleen op als iemand eraan denkt hem te openen. In Customermates staan de gesprekken met elke klant op het klantrecord (op Customermates Cloud vanaf Pro), schrijft Mate of je eigen AI-agent het concept voor het antwoord en de volgende stap, en voedt de datum van de volgende stap je dashboard in plaats van een filter dat je zelf moet controleren.
+Customermates importeert Excel-werkmappen (.xlsx) en CSV-bestanden, één lijst tegelijk, dus een Google Sheet gaat eerst via een download. Er is geen live synchronisatie met Google Sheets. De [importdocumentatie](/docs/app-records#how-do-i-import-or-export-records) bevat alle regels, en de [gids bij de Excel-template](/blog/excel-crm-template#de-template-naar-customermates-verplaatsen) koppelt elke kolom van deze indeling aan een veld. Een sheet volgt alleen op als iemand eraan denkt hem te openen. In Customermates staan de gesprekken met elke klant op het klantrecord (op Customermates Cloud vanaf Pro), schrijft Mate of je eigen AI-agent het concept voor het antwoord en de volgende stap, en voedt de datum van de volgende stap je dashboard in plaats van een filter dat je zelf moet controleren.
 
 <Steps>
   <Step title="Maak de tabbladen schoon">Gebruik Gegevens › Gegevens opschonen › Dubbele gegevens verwijderen op Contactpersonen en Deals, en herstel elke waarde die een dropdown aanmerkt. Elke fase en elk type moet precies een van de waarden uit Lijsten zijn.</Step>
@@ -179,7 +179,7 @@ Customermates importeert Excel-werkmappen (.xlsx) en CSV-bestanden, één lijst 
   <Step title="Test met tien rijen">De controle toont elke probleemrij voordat er iets wordt toegevoegd, en je kunt die rijen overslaan. Een import kun je niet ongedaan maken, dus probeer eerst een klein bestand. Neem uit Activiteiten alleen de open vervolgstappen mee als taken; oudere geschiedenis kan in de Notities van een deal of in de gearchiveerde sheet blijven.</Step>
 </Steps>
 
-Dealwaarden werken anders: in Customermates is de waarde van een deal de som van de regelitems, elk een dienst maal aantal. De [importstappen](/blog/excel-crm-template#moving-the-template-into-customermates) in de Excel-gids laten zien hoe je eerst je prijslijst binnenhaalt.
+Dealwaarden werken anders: in Customermates is de waarde van een deal de som van de regelitems, elk een dienst maal aantal. De [importstappen](/blog/excel-crm-template#de-template-naar-customermates-verplaatsen) in de Excel-gids laten zien hoe je eerst je prijslijst binnenhaalt.
 
 ### Wat het Dashboard en het Apps Script vervangt
 
@@ -223,7 +223,7 @@ Een gratis CRM spreadsheet template vind je op deze pagina: kopieer de kopregels
 </FaqItem>
 
 <FaqItem question="Hoeveel contactpersonen kan een Google Sheets CRM aan?">
-Een spreadsheet bevat tot 20 miljoen cellen, volgens Google's [bestandslimieten](https://support.google.com/drive/answer/37603). De praktische grens zijn mensen, niet rijen: gedeelde toegang en blijven liggen van opvolging worden een probleem lang voordat het bestand vol zit. Customermates leest momenteel tot 5.000 rijen per importbestand, dus splits grotere tabbladen.
+Een spreadsheet bevat tot 20 miljoen cellen, volgens de [bestandslimieten](https://support.google.com/drive/answer/37603) van Google. De praktische grens zijn mensen, niet rijen: gedeelde toegang en blijven liggen van opvolging worden een probleem lang voordat het bestand vol zit. Customermates leest momenteel tot 5.000 rijen per importbestand, dus splits grotere tabbladen.
 </FaqItem>
 
 <FaqItem question="Kan ik een Google Sheets-lijst aan een CRM koppelen?">
@@ -235,4 +235,4 @@ Ja. De [Excel CRM-template](/blog/excel-crm-template) gebruikt dezelfde structuu
 </FaqItem>
 </Faq>
 
-Verificatie van de Google-gegevens op 8 oktober 2026, aan de hand van Google's helppagina's over [tabellen](https://support.google.com/docs/answer/14239833), [dropdowns](https://support.google.com/docs/answer/186103), [QUERY](https://support.google.com/docs/answer/3093343), [formulierreacties](https://support.google.com/docs/answer/2917686), [meldingen](https://support.google.com/docs/answer/91588), [filterweergaven](https://support.google.com/docs/answer/3540681), [beveiligde bereiken](https://support.google.com/docs/answer/1218656), [bestandslimieten van Drive](https://support.google.com/drive/answer/37603), de [quota voor Apps Script](https://developers.google.com/apps-script/guides/services/quotas) en de [Workspace Marketplace](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm).
+Verificatie van de Google-gegevens op 8 oktober 2026, aan de hand van de helppagina's van Google over [tabellen](https://support.google.com/docs/answer/14239833), [dropdowns](https://support.google.com/docs/answer/186103), [QUERY](https://support.google.com/docs/answer/3093343), [formulierreacties](https://support.google.com/docs/answer/2917686), [meldingen](https://support.google.com/docs/answer/91588), [filterweergaven](https://support.google.com/docs/answer/3540681), [beveiligde bereiken](https://support.google.com/docs/answer/1218656), [bestandslimieten van Drive](https://support.google.com/drive/answer/37603), de [quota voor Apps Script](https://developers.google.com/apps-script/guides/services/quotas) en de [Workspace Marketplace](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm).

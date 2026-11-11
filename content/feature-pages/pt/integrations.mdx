@@ -1,6 +1,6 @@
 ---
-title: "Integrações de CRM: API REST, webhooks, MCP e n8n"
-description: "Integrações de CRM com REST e MCP em todos os planos, webhooks assinados e seu próprio n8n nos planos pagos e no auto-hospedado, com os limites explicados."
+title: "Integrações de CRM: tipos, benefícios e como conectar"
+description: "Integrações de CRM: tipos, benefícios e como conectar seus sistemas por API REST, webhooks, MCP e n8n, com o plano em que cada caminho está disponível."
 featureName: Integrações de CRM
 
 relatedHrefs:
@@ -47,6 +47,35 @@ As integrações de CRM movem dados ou gatilhos entre o seu CRM e outro sistema,
 Essa escolha tem um custo que você deve conhecer desde já. Não existe um catálogo de aplicativos de um clique. Se você quer que o Customermates converse com o Slack, com a sua ferramenta de contabilidade ou com um criador de formulários, você aponta um webhook para essa ferramenta, chama a API a partir do seu próprio código ou monta o fluxo em uma ferramenta de automação como n8n, Make ou Zapier.
 
 **O que isso significa para o follow-up.** O follow-up de uma conversa com um cliente muitas vezes termina em outro sistema: uma mensagem no chat da equipe quando uma resposta chega, um registro na sua ferramenta de projetos. Um webhook nos eventos de mensagens, um fluxo do n8n ou o seu próprio cliente de IA via MCP podem captar isso, para que o próximo passo não dependa de alguém copiá-lo de um lugar para outro.
+
+## Quais são os tipos de integração de CRM? [#tipos-de-integracao-de-crm]
+
+Há quatro caminhos comuns para ligar um CRM a outro sistema, e a maioria das empresas acaba usando mais de um:
+
+- **Conector nativo.** O fornecedor do CRM mantém uma integração pronta, que você ativa em uma tela de configurações. É o caminho mais simples, mas só existe para as ferramentas que o fornecedor escolheu atender. O Customermates não tem esse tipo de catálogo.
+- **API e webhooks.** Um sistema chama o outro por uma interface documentada (API), e o CRM avisa o outro sistema na hora em que algo acontece (webhook), sem que ninguém precise consultar de tempos em tempos. Dá controle total e exige alguém que programe ou uma ferramenta que faça as chamadas.
+- **Ferramenta de automação (middleware).** Plataformas como n8n, Make e Zapier ficam no meio: recebem o evento de um sistema e executam as etapas no outro, em geral sem escrever código.
+- **Importação e exportação de arquivos.** Planilhas em Excel, CSV ou JSON servem para cargas pontuais, como trazer a base de clientes de uma ferramenta antiga, mas não mantêm dois sistemas em sincronia.
+
+## Quais são os benefícios de integrar o CRM? [#beneficios-da-integracao-de-crm]
+
+- **Cada dado em um só lugar.** O negócio, a conversa e o próximo passo não ficam espalhados em três telas, e ninguém copia informação à mão de um sistema para outro.
+- **Menos erro e menos retrabalho.** Quando o evento move o dado, o valor de um negócio ganho chega à contabilidade como foi registrado.
+- **Follow-up que não depende da memória.** Um evento de mensagem pode avisar o chat da equipe, e um negócio que muda de etapa pode abrir a tarefa seguinte.
+- **Visão completa do cliente.** Quem atende vê o histórico de e-mail, LinkedIn e WhatsApp no registro, não apenas o que passou por um canal.
+- **Liberdade de troca.** Com interfaces abertas, você pode trocar a ferramenta de contabilidade ou de formulários sem refazer o CRM.
+
+## Quais sistemas podem ser integrados a um CRM? [#sistemas-que-se-integram-ao-crm]
+
+Quase qualquer sistema que receba ou envie dados por HTTP. Os mais comuns são:
+
+- **E-mail, agenda e canais de mensagens.** No Customermates Cloud, a [caixa de entrada unificada](/features/unified-inbox) traz Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram e Telegram para o registro do cliente, a partir do Pro. Veja também a [integração com o Outlook](/features/outlook-integration), a [integração com o WhatsApp](/features/whatsapp-integration) e o guia de [CRM com Gmail](/blog/gmail-crm-integration).
+- **ERP e contabilidade.** Passam negócios ganhos para o faturamento e devolvem o status de pagamento. O [guia de integração entre CRM e ERP](/blog/crm-erp-integration) mostra o passo a passo, e o artigo [CRM e ERP](/blog/crm-and-erp) explica a diferença entre os dois.
+- **Formulários, site e e-commerce.** Criam contatos e negócios a partir de um cadastro, por meio da API.
+- **Chat da equipe e ferramentas de projetos.** Recebem avisos quando uma resposta chega ou um negócio muda de etapa.
+- **Planilhas e data warehouse.** Recebem uma cópia dos registros por webhooks ou por exportação.
+
+A tabela a seguir mostra, para cada tarefa, o caminho que funciona no Customermates.
 
 ## As cinco formas de conexão em resumo
 
@@ -134,6 +163,22 @@ Se a sua equipe precisa de centenas de conectores prontos, mantidos pelo fornece
 Mantenha o guia operacional e os fatos de origem ao lado do registro do cliente na [Base de conhecimento com IA](/features/knowledge-base).
 
 <Faq>
+<FaqItem question="Quais são os tipos de integração de CRM?">
+Conector nativo (ativado em uma tela do fornecedor), API e webhooks (feitos por código ou por uma ferramenta), ferramenta de automação ou middleware, como n8n, Make e Zapier, e importação e exportação de arquivos. O Customermates oferece API REST, webhooks, MCP, o nó da comunidade do n8n e importação e exportação de arquivos, sem catálogo de conectores nativos. Veja [os tipos de integração](#tipos-de-integracao-de-crm).
+</FaqItem>
+
+<FaqItem question="Qual é a diferença entre integração de CRM e integração de ERP?">
+O CRM cuida do relacionamento: contatos, conversas, negócios e próximos passos. O ERP cuida da operação: faturamento, estoque, compras e contabilidade. Integrar os dois significa, por exemplo, que um negócio ganho no CRM gera o pedido ou a fatura no ERP. No Customermates isso passa por um webhook ou pela API, com n8n, Make, Zapier ou código próprio; veja o [guia de integração entre CRM e ERP](/blog/crm-erp-integration).
+</FaqItem>
+
+<FaqItem question="A integração de CRM funciona em tempo real?">
+Com webhooks, sim, quase em tempo real: o Customermates envia o evento quando o registro muda, sem polling. Com a API, o outro sistema consulta o CRM quando quiser, e com arquivos a atualização só acontece quando alguém importa ou exporta.
+</FaqItem>
+
+<FaqItem question="Preciso saber programar para integrar o CRM?">
+Não necessariamente. Um webhook com modelo de corpo envia uma mensagem ao Slack sem código, e o n8n, o Make e o Zapier montam fluxos em uma tela visual. Para chamadas mais específicas à API REST, ajuda ter alguém que escreva uma requisição HTTP.
+</FaqItem>
+
 <FaqItem question="O que são integrações de CRM?">
 Conexões que movem dados ou gatilhos entre um CRM e outros softwares, por exemplo um novo negócio criando um projeto em uma ferramenta de projetos ou o envio de um formulário criando um contato. Elas funcionam por meio de uma API, de webhooks, de uma ferramenta de automação ou de um conector criado pelo fornecedor. O Customermates oferece as três primeiras, mais o MCP para clientes de IA.
 </FaqItem>

@@ -1,5 +1,5 @@
 ---
-title: "Integracja Outlook z CRM: dodatek, synchronizacja lub inbox"
+title: "Integracja Outlook z CRM: dodatek, synchronizacja lub poczta"
 description: "Integracja Outlook z CRM na 3 sposoby: dodatek, synchronizacja po stronie serwera lub poczta w CRM. Co oferują HubSpot, Dynamics 365 i Pipedrive (8.10.2026)."
 
 relatedHrefs:
@@ -81,6 +81,8 @@ W praktyce: jeśli Twój zespół przechodzi na nowy Outlook, zapytaj każdego d
 | Skrzynka zespołowa, np. sales@, musi być widoczna dla kilku osób | Wyraźnie sprawdź obsługę skrzynek współdzielonych; Dynamics 365 App for Outlook na przykład nie obsługuje skrzynek współdzielonych Microsoft 365 |
 | Przechodzisz na nowy Outlook dla Windows | Tylko dodatki webowe albo podejście, które dodatku nie potrzebuje |
 
+Jeśli część zespołu pracuje w Gmailu zamiast w Outlooku, ten sam podział na trzy podejścia opisuje [poradnik o integracji Gmaila z CRM](/blog/gmail-crm-integration).
+
 ## Jak Outlook działa w Customermates
 
 Customermates wybiera trzecią drogę. W planie Pro i wyższych w Customermates Cloud połączone konto Outlook zasila [ujednoliconą skrzynkę odbiorczą](/features/unified-inbox), obok LinkedIn, WhatsApp, Instagrama i Telegramu. Outlooka możesz nadal używać, kiedy chcesz; poczta wysłana stamtąd i tak trafia do wątku w CRM. [Strona integracji z Outlookiem](/features/outlook-integration) wymienia dokładnie, co się synchronizuje.
@@ -107,7 +109,7 @@ Co się wtedy synchronizuje, a co nie:
 
 ### Niech follow-up zrobi Mate albo Twój własny klient AI
 
-Powodem, by wciągnąć Outlooka do Customermates, jest wracanie do klientów: każdy e-mail od klienta leży na rekordzie klienta, Mate albo Twój własny agent AI przygotowuje odpowiedź i następny krok, ty przeglądasz i wysyłasz, a kolejne kroki pojawiają się na Twoim pulpicie.
+Outlooka podłączasz do Customermates po to, żeby wracać do klientów: każdy e-mail od klienta leży na rekordzie klienta, Mate albo Twój własny agent AI przygotowuje odpowiedź i następny krok, Ty przeglądasz i wysyłasz, a kolejne kroki pojawiają się na Twoim pulpicie.
 
 W Customermates Cloud Mate potrafi streścić wątek lub przygotować wersję roboczą odpowiedzi i zużywa kredyty hostowanej AI. Rutyna uruchamia zapisaną instrukcję, gdy coś się wydarzy. Dla poczty z Outlooka utwórz rutynę z wyzwalaczem **Gdy coś się zmieni**, wybierz zdarzenie **E-mail odebrany** i napisz instrukcje w tym stylu:
 
@@ -129,14 +131,16 @@ Nie ma dodatku do Outlooka, więc szczegóły CRM sprawdzasz w Customermates, a 
 
 1. Wyślij e-mail z Outlooka do znanego kontaktu. Powinien pojawić się przy tym kontakcie w czasie synchronizacji podanym przez dostawcę.
 2. Odpowiedz z telefonu. Odpowiedź powinna dołączyć do tego samego wątku, a nie tworzyć nowego kontaktu.
-3. Napisz do kogoś, kogo nie ma w CRM. Sprawdź, czy CRM sam utworzy kontakt, zapyta cię, czy zignoruje wiadomość, i które z tych zachowań chcesz.
+3. Napisz do kogoś, kogo nie ma w CRM. Sprawdź, czy CRM sam utworzy kontakt, zapyta Cię, czy zignoruje wiadomość, i które z tych zachowań chcesz.
 4. Umieść prywatny e-mail w wykluczonym folderze. Nie może pojawić się w CRM.
 5. Utwórz w Outlooku spotkanie z klientem. Sprawdź, gdzie się pojawi i czy edycja w CRM zmienia Outlooka.
 6. Otwórz dodatek, jeśli jest, w każdym kliencie Outlooka, którego używa Twój zespół, także w nowym Outlooku dla Windows.
 
+Cały pięciodniowy scenariusz testu na prawdziwych danych, razem z oceną punktową kandydatów, opisuje [poradnik jak wybrać CRM](/blog/how-to-choose-crm).
+
 ## Czy można używać Outlooka jako CRM?
 
-Przy garstce klientów częściowo. Outlook ma kontakty, kategorie, zadania i kalendarz, a folder na klienta zaprowadzi cię zaskakująco daleko. Brakuje mu szansy sprzedaży z etapem i wartością, listy otwartych szans na osobę i historii, którą kolega przeczyta, gdy cię nie ma. CRM Microsoftu to Dynamics 365 Sales, licencjonowany osobno od Microsoft 365. Gdy śledzisz naraz więcej niż kilka szans, CRM połączony z Outlookiem to mniej pracy niż foldery i kategorie.
+Przy garstce klientów częściowo. Outlook ma kontakty, kategorie, zadania i kalendarz, a folder na klienta zaprowadzi Cię zaskakująco daleko. Brakuje mu szansy sprzedaży z etapem i wartością, listy otwartych szans na osobę i historii, którą kolega przeczyta, gdy Cię nie ma. CRM Microsoftu to Dynamics 365 Sales, licencjonowany osobno od Microsoft 365. Gdy śledzisz naraz więcej niż kilka szans, CRM połączony z Outlookiem to mniej pracy niż foldery i kategorie.
 
 ## FAQ
 

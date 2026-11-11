@@ -1,6 +1,6 @@
 ---
-title: "HubSpot MCP: konfiguracja serwera, dostęp i limity"
-description: "HubSpot MCP: jak działa serwer, konektory dla Claude i ChatGPT, konektor MCP dla innych klientów, serwer dla deweloperów i udokumentowane limity."
+title: "HubSpot MCP: serwer, połączenie z Claude i ChatGPT, limity"
+description: "HubSpot MCP: oficjalny serwer mcp.hubspot.com, połączenie z Claude, ChatGPT i innymi klientami, zakres odczytu i zapisu, limity i lista kontrolna wdrożenia."
 
 hero:
   title: "Serwer HubSpot MCP: którą drogę wybrać, co potrafi i gdzie się kończy"
@@ -29,7 +29,7 @@ relatedHrefs:
 
 Tak, HubSpot MCP istnieje jako oficjalny serwer. Zdalny serwer pod adresem `https://mcp.hubspot.com` pozwala Claude'owi, ChatGPT i innym klientom MCP odczytywać i zmieniać rekordy na Twoim koncie HubSpot, a od 13 kwietnia 2026 jest ogólnie dostępny dla wszystkich kont HubSpot. Jeśli używasz Claude'a lub ChatGPT, nie budujesz niczego: instalujesz gotowy konektor HubSpot i się logujesz. Własny konektor MCP w HubSpot tworzysz dopiero wtedy, gdy łączysz innego klienta.
 
-HubSpot udostępnia też drugi, niezwiązany z pierwszym serwer dla deweloperów, który działa lokalnie przez HubSpot CLI, czyli w języku protokołu [lokalny serwer MCP](/blog/what-is-an-mcp-server). Większość zamieszania wokół „HubSpot MCP” bierze się z mylenia tych dwóch albo z mylenia serwera HubSpot z licznymi serwerami społeczności na GitHubie.
+HubSpot udostępnia też drugi, niezwiązany z pierwszym serwer dla deweloperów, który działa lokalnie przez HubSpot CLI, czyli w terminach protokołu [lokalny serwer MCP](/blog/what-is-an-mcp-server). Większość zamieszania wokół „HubSpot MCP” bierze się z mylenia tych dwóch albo z mylenia serwera HubSpot z licznymi serwerami społeczności na GitHubie.
 
 Ujawnienie: ten poradnik publikuje Customermates, CRM open source z własnym serwerem MCP. Szczegóły o HubSpot sprawdziliśmy 8 października 2026 na stronach samego HubSpot, podlinkowanych w wierszu źródeł na końcu.
 
@@ -110,7 +110,15 @@ Dla Claude'a i ChatGPT wszystko poniżej załatwia konektor. Dla każdego innego
   </Step>
 </Steps>
 
-Jeśli klient przestaje działać po okresie bezczynności, zwykle przyczyną jest odświeżanie tokenu. Klient musi użyć tokenu odświeżania z pierwszego logowania; jeśli i ten wygasł, przeprowadź przepływ OAuth od nowa.
+## Gdy połączenie nie działa: najczęstsze przyczyny [#gdy-polaczenie-nie-dziala]
+
+Problemy z HubSpot MCP wynikają zwykle z kilku powtarzalnych źródeł. Zanim zaczniesz szukać dalej, sprawdź je po kolei:
+
+- **Błąd uwierzytelniania.** Klient musi przeprowadzić przepływ OAuth z PKCE. Jeśli logowanie kończy się błędem, sprawdź najpierw, czy Twój klient w ogóle obsługuje PKCE, a potem, czy adres przekierowania w kliencie dokładnie odpowiada temu zapisanemu w konektorze MCP w HubSpot.
+- **Klient przestał działać po przerwie.** Zwykle winne jest odświeżanie tokenu. Klient musi użyć tokenu odświeżania z pierwszego logowania; jeśli i ten wygasł, przeprowadź przepływ OAuth od nowa.
+- **Brakuje połączeń, e-maili i notatek.** Sprawdź, czy na koncie nie jest włączone Sensitive Data; wtedy HubSpot blokuje dane o aktywnościach i rozmowach przez MCP.
+- **Narzędzie jest, ale nie ma do niego dostępu.** Wywołaj `get_user_details`, żeby zobaczyć, z czego Twoje konto naprawdę może korzystać, i porównaj z uprawnieniami użytkownika w HubSpot oraz planem płatnych hubów.
+- **Nowe narzędzia nie pojawiają się u dotychczasowych użytkowników.** Zakresy uprawnień są ustalane przy instalacji, więc po dodaniu narzędzi przez HubSpot trzeba zainstalować konektor ponownie.
 
 ## Serwer MCP HubSpot dla deweloperów
 
@@ -151,12 +159,24 @@ Customermates to zły wybór, jeśli polegasz na narzędziach marketingowych, he
 ## Najczęstsze pytania
 
 <Faq>
+<FaqItem question="Czym jest MCP w chatbocie i narzędziach AI?">
+MCP (Model Context Protocol) to otwarty standard, w którym klient AI, na przykład Claude albo ChatGPT, łączy się z zewnętrzną aplikacją i korzysta z jej narzędzi: odczytuje dane, a czasem je zmienia. W przypadku HubSpot oznacza to, że asystent może wyszukać kontakt albo szansę sprzedaży w Twoim CRM zamiast zgadywać. Podstawy opisujemy w poradniku [czym jest serwer MCP](/blog/what-is-an-mcp-server).
+</FaqItem>
+
 <FaqItem question="Czy HubSpot ma oficjalny serwer MCP?">
 Tak. HubSpot hostuje zdalny serwer MCP pod adresem mcp.hubspot.com, ogólnie dostępny dla wszystkich kont HubSpot od 13 kwietnia 2026, a do tego lokalny serwer MCP dla deweloperów, który działa przez HubSpot CLI.
 </FaqItem>
 
 <FaqItem question="Jak połączyć HubSpot z Claude?">
 Zainstaluj konektor HubSpot z ustawień konektorów Claude'a lub z marketplace Anthropic i zaloguj się do HubSpot przez OAuth. HubSpot podaje, że konektor działa w Claude w przeglądarce, aplikacji na komputer i telefon oraz że jest darmowy we wszystkich planach HubSpot. Nie musisz do tego tworzyć konektora MCP w HubSpot.
+</FaqItem>
+
+<FaqItem question="Czy HubSpot ma API, czy trzeba używać MCP?">
+HubSpot ma standardowe API CRM i serwer MCP, które służą do różnych rzeczy. API wywołuje Twój kod, według reguł zapisanych z góry. MCP pozwala klientowi AI samemu wybrać narzędzie i użyć go w rozmowie, zawsze w ramach uprawnień zalogowanego użytkownika. Kiedy które wybrać, wyjaśnia nasz poradnik [MCP czy API](/blog/mcp-vs-api).
+</FaqItem>
+
+<FaqItem question="Jak połączyć HubSpot MCP z Claude Code, Cursorem lub innym klientem?">
+Te narzędzia nie mają gotowego konektora jak Claude czy ChatGPT, więc przechodzisz drogę dla innych klientów: tworzysz konektor MCP w HubSpot (Development, potem MCP Connectors), podajesz klientowi adres `https://mcp.hubspot.com` oraz identyfikator i sekret klienta, a klient przeprowadza OAuth z PKCE. Pamiętaj, że lokalny serwer dla deweloperów to osobny produkt do tworzenia aplikacji i CMS, a nie droga do rekordów CRM.
 </FaqItem>
 
 <FaqItem question="Czy serwer HubSpot MCP jest darmowy?">

@@ -150,6 +150,15 @@ Hij hoort bij de beheerde cloud vanaf Pro. Starter en self hosted Customermates 
   <ProofItem label="CRM-context">Deelnemers koppelen aan contactpersonen</ProofItem>
 </ProofRail>
 
+## Wat is een CRM met e-mail, en wat niet? [#crm-met-email]
+
+Bij "CRM e-mail" kun je twee dingen bedoelen, en ze lossen verschillende problemen op:
+
+- **E-mail in het CRM zelf.** Je mailbox is gekoppeld, zodat een gesprek bij de juiste klant staat, je vanuit het CRM kunt antwoorden en je collega's kunnen zien wat er is besproken. Daar draait het hier om.
+- **E-mailmarketing vanuit het CRM.** Hierbij stuur je campagnes, nieuwsbrieven of geautomatiseerde reeksen naar een lijst contacten. Dat doet de inbox van Customermates niet: er zijn geen bulkmailings en geen e-mailreeksen.
+
+De inbox is bedoeld voor het één-op-één gesprek met een klant of prospect. Wie vooral nieuwsbrieven en campagnes verstuurt, heeft daarvoor een aparte tool nodig naast het CRM.
+
 ## Ondersteunde kanalen
 
 | Kanaalfamilie           | Ondersteunde koppelingen                                         |
@@ -166,7 +175,8 @@ Sms en telefonie vallen niet onder de ondersteunde kanalen. Het gedrag van aanbi
 - een gesprek openen en antwoorden in het kanaal waarin het binnenkwam;
 - gesprekken markeren als ongelezen, open, gesloten of spam;
 - deelnemers aan gesprekken koppelen aan contactpersonen in het CRM;
-- een blijvend concept in een bestaand gesprek bewaren; en
+- een blijvend concept in een bestaand gesprek bewaren;
+- zoeken en filteren op onderwerp, tekst, deelnemers, status, kanaal of de datum van het laatste bericht, en je filters bewaren als weergave; en
 - werken met ondersteunde bijlagen waar de koppeling met de aanbieder dat toestaat.
 
 De context van een gesprek kan via de contactrelatie zichtbaar worden, dus de contactpersoon en de bijbehorende CRM-records vormen de belangrijkste brug naar de context van de pipeline. Onder **Gespreksrecords** koppelt **Record koppelen** ook één gesprek aan een record, zoals een deal.
@@ -208,9 +218,36 @@ De unified inbox is alleen beschikbaar in Customermates Cloud vanaf Pro. Het [se
 
 Voor details over Gmail lees je de [gids over Gmail CRM](/blog/gmail-crm-integration), of volg je de exacte werkwijze in het product in de [inboxgids](/docs/app-inbox).
 
+## Waar let je op bij het kiezen van een CRM met e-mail? [#kiezen-crm-email]
+
+Een CRM met e-mail moet vooral zorgen dat gesprekken niet tussen wal en schip vallen. Vergelijk daarom op deze punten:
+
+1. **Welke mailboxen en kanalen koppelt het?** Controleer of Gmail, Outlook of IMAP werkt, en of de kanalen waarin je klanten echt schrijven erbij zitten, zoals LinkedIn of WhatsApp.
+2. **Staat het gesprek bij de klant?** Het gaat erom dat je bij een deal of contactpersoon direct ziet wat de klant schreef en wat jij antwoordde, zonder te zoeken in je mailbox.
+3. **Wie ziet welke mail?** Mailverkeer is gevoelig. Kijk of gesprekken standaard privé blijven en of je per gesprek of per account bepaalt wat je deelt. Bij Customermates zijn de privégesprekken van een collega voor niemand zichtbaar, ook niet voor een beheerder.
+4. **Wie verstuurt wat?** Als een AI een concept voorstelt, moet jij het kunnen nalezen en zelf versturen. Zo blijft de toon van je eigen berichten.
+5. **Heb je e-mailmarketing nodig?** Zo ja, kies een pakket dat dat kan of combineer het CRM met een aparte mailtool.
+6. **Wat kost het per gebruiker?** Let op welke abonnementen koppeling van mailboxen bevatten: bij Customermates begint dat op Pro, met [[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per gebruiker.
+
+Gebruik je Gmail of Outlook, dan beschrijven de gidsen over [Gmail CRM](/blog/gmail-crm-integration) en [Outlook CRM](/blog/outlook-crm-integration) wat een koppeling in de praktijk betekent.
+
 ## Veelgestelde vragen
 
 <Faq>
+<FaqItem question="Is de CRM email inbox hetzelfde als e-mailmarketing?">
+  Nee. De inbox is voor gesprekken met individuele klanten en prospects: lezen,
+  antwoorden, een concept bewaren en het gesprek aan een record koppelen. Er
+  zijn geen bulkmailings en geen e-mailreeksen. Voor nieuwsbrieven en campagnes
+  gebruik je een aparte e-mailmarketingtool.
+</FaqItem>
+
+<FaqItem question="Kunnen collega's mijn privémail lezen in het CRM?">
+  Nee, niet vanzelf. Je ziet de accounts die je zelf hebt gekoppeld, accounts die
+  een collega met de hele werkruimte heeft gedeeld en losse gesprekken die een
+  collega uit een privéaccount heeft gedeeld. De privégesprekken van een
+  collega verschijnen nooit in jouw inbox, ook niet als je beheerder bent.
+</FaqItem>
+
 <FaqItem question="Welke abonnementen bevatten de unified CRM-inbox?">
 Pro, Business en Enterprise in Customermates Cloud. Pro bevat één gekoppeld account per gebruiker; Business bevat er drie en gedeelde accounts; Enterprise bevat onbeperkte gekoppelde accounts onder fair-use-voorwaarden en ondersteunt gedeelde accounts.
 </FaqItem>

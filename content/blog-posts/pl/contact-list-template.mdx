@@ -1,6 +1,6 @@
 ---
-title: "Baza klientów w Excelu: darmowy szablon CSV do pobrania"
-description: "Baza klientów w Excelu: pobierz pusty szablon CSV i wypełniony przykład. Ustaw import do Excela, zachowaj potrzebne pola i przypisz follow-up do osoby."
+title: "Baza klientów w Excelu: jak ją zbudować i szablon CSV"
+description: "Baza klientów w Excelu krok po kroku: jakie pola zapisać, jak uniknąć duplikatów, darmowy szablon CSV do pobrania i moment, gdy lepszy jest CRM."
 
 relatedHrefs:
   - /blog/excel-crm-template
@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Baza klientów w Excelu: pusty szablon CSV i wypełniony przykład"
-  description: "Baza klientów w Excelu: pobierz pusty szablon CSV i wypełniony przykład. Ustaw import do Excela, zachowaj potrzebne pola i przypisz follow-up do osoby."
+  description: "Pobierz pusty szablon CSV i wypełniony przykład, zaimportuj go do Excela, zachowaj tylko potrzebne pola i przypisz każdy follow-up do osoby."
 
 blogPost:
   author: Benjamin Wagner
@@ -27,14 +27,28 @@ blogPost:
 
 Baza klientów w Excelu daje małemu zespołowi jedno miejsce na nazwiska, firmowe dane kontaktowe i następny uzgodniony krok. Pobierz pusty plik CSV albo fikcyjny przykład poniżej, zaimportuj go do arkusza i przejdź na Customermates, gdy utrzymywanie relacji i follow-upów wymaga czegoś więcej niż wspólnego pliku.
 
+Jak zrobić bazę klientów w Excelu? Załóż jedną tabelę, w której jeden wiersz to jedna osoba, a kolumny to stałe pola: imię i nazwisko, firma, e-mail, właściciel, ostatni kontakt oraz następny krok z datą. Zamień zakres w Tabelę Excela, dodaj filtry i listy rozwijane i pilnuj, żeby cały zespół pracował na jednym pliku. Takie rozwiązanie wystarcza na początek, a poniżej opisujemy też, kiedy zaczyna przeszkadzać.
+
 ## Który szablon listy kontaktów pobrać?
 
 - [Pusta lista kontaktów w CSV](/downloads/contact-list-template-pl-blank.csv): same nagłówki, gotowe na Twoje własne rekordy.
 - [Wypełniona lista kontaktów w CSV](/downloads/contact-list-template-pl-example.csv): dwa fikcyjne kontakty biznesowe pokazujące właściciela i następne kroki.
 
-To oryginalne, darmowe pliki do pobrania, bez rejestracji. Oba używają UTF-8 ze znacznikiem kolejności bajtów i przecinków jako separatorów. To zwykłe dane, a nie sformatowane skoroszyty Excela: bez formuł, list rozwijanych, przypomnień ani automatycznej synchronizacji. To firmowa lista kontaktów, a nie książka alarmowa ani książka adresowa do wydruku. Szerszą strukturę skoroszytu z szansami sprzedaży opisuje [poradnik o szablonie CRM w Excelu](/blog/excel-crm-template).
+To oryginalne, darmowe pliki do pobrania, bez rejestracji. Oba używają UTF-8 ze znacznikiem kolejności bajtów i przecinków jako separatorów. To zwykłe dane, a nie sformatowane skoroszyty Excela: bez formuł, list rozwijanych, przypomnień ani automatycznej synchronizacji. To firmowa lista kontaktów, a nie lista telefonów alarmowych ani książka adresowa do wydruku. Szerszą strukturę skoroszytu z szansami sprzedaży opisuje [poradnik o szablonie CRM w Excelu](/blog/excel-crm-template).
 
 Jeśli lista wyrośnie z arkusza, nasz poradnik o wyborze [cyfrowego wizytownika](/blog/digital-rolodex) porównuje kontakty w telefonie, szablony i CRM-y.
+
+## Jak zrobić bazę klientów w Excelu krok po kroku? [#jak-zrobic-baze-klientow-w-excelu]
+
+Poniższe kroki dotyczą zwykłych funkcji Excela; nazwy poleceń mogą się nieco różnić zależnie od wersji i języka programu.
+
+1. **Zacznij od pustego szablonu.** Pobierz pusty plik CSV z początku tego poradnika i zaimportuj go, jak opisano niżej. Nagłówki są już gotowe.
+2. **Zamień zakres w Tabelę.** Zaznacz dane i wybierz Wstawianie > Tabela (Ctrl+T). Tabela sama rozciąga się o nowe wiersze, trzyma filtry w nagłówkach i pozwala nadać jej nazwę, na przykład „Klienci”.
+3. **Zablokuj nagłówek.** W Widok > Zablokuj okienka zostaw wiersz nagłówków widoczny podczas przewijania.
+4. **Dodaj listy rozwijane.** Dla kolumn Relacja i Właściciel ustaw w Dane > Poprawność danych listę dozwolonych wartości. Dzięki temu nikt nie wpisze raz „Klient”, raz „klient”, a raz „kl.”.
+5. **Wyłap duplikaty.** Na kolumnie E-mail użyj Formatowania warunkowego > Reguły wyróżniania komórek > Duplikuj wartości. Polecenie Dane > Usuń duplikaty stosuj tylko na kopii pliku, bo usuwa wiersze bez pytania.
+6. **Ustaw widok na dziś.** Filtruj kolumnę Data następnego kroku na dziś i wcześniej, a potem sortuj od najstarszej. To twój codzienny przegląd.
+7. **Trzymaj jeden plik główny.** Zapisz go w miejscu wspólnym dla zespołu i ustal, kto go edytuje. Kopie wysyłane e-mailem szybko rozjeżdżają się z oryginałem.
 
 ## Jakie pola należą do bazy danych klientów w Excelu?
 
@@ -52,6 +66,10 @@ Trzymaj jedną osobę w wierszu. Dwie osoby z tej samej firmy potrzebują osobny
 | Źródło | Skąd pochodzą dane; to nie jest dowód zgody marketingowej. |
 | Data przeglądu | Data wybrana przez ciebie, by sprawdzić poprawność i dalszą potrzebę, a nie automatyczny termin usunięcia. |
 
+Dwie rzeczy odróżniają dobrą bazę klientów od zwykłej listy adresów: każdy wiersz ma właściciela i każdy wiersz ma następny krok albo pustą datę, bo żadnego kroku nie uzgodniono. Dopiero te dwie kolumny zamieniają listę w narzędzie do pracy.
+
+Gdy baza rośnie, możesz dodać pola, których faktycznie użyjesz: Segment lub branża, Miasto albo region, Strona www, Data pierwszego kontaktu oraz NIP firmy, jeśli wystawiasz faktury i chcesz mieć go pod ręką. Dodawaj kolumny dopiero wtedy, gdy ktoś będzie je filtrował albo uzupełniał, żeby arkusz nie zamienił się w formularz, którego nikt nie wypełnia.
+
 Przykład celowo zostawia numery telefonów puste. Dodawaj adres, urodziny lub wrażliwe notatki tylko wtedy, gdy praca naprawdę ich wymaga. Nie zamieniaj przydatnego katalogu w zbiór wszystkiego, co uda ci się znaleźć.
 
 ## Jak zaimportować CSV do Excela lub Arkuszy Google?
@@ -61,6 +79,24 @@ W Excelu użyj Dane > Z tekstu/CSV zamiast polegać na dwukrotnym kliknięciu. W
 W Arkuszach Google zaimportuj plik do nowego arkusza i sprawdź opcje separatora oraz konwersji. Upewnij się, że nagłówki zajmują osobne kolumny, a nazwiska ze znakami diakrytycznymi zostały zachowane. Jeśli wszystko ląduje w jednej kolumnie, wybierz przecinek jawnie. Po dodaniu filtrów lub formatowania zapisz skoroszyt Excela albo zachowaj natywny arkusz Google; CSV nie zachowuje prezentacji skoroszytu. Każdy późniejszy eksport CSV sprawdź ponownie, bo ustawienia regionalne mogą zmienić separatory.
 
 Usuń fikcyjne wiersze przykładu, zanim dodasz prawdziwe osoby. Najpierw przetestuj na dwóch rekordach i porównaj każdą kolumnę z oryginalnym plikiem. Nigdy nie włączaj formuł z nieznanych zaimportowanych wartości.
+
+### Przykłady baz klientów w Excelu dla różnych firm [#przyklady-baz-klientow]
+
+Podstawowe kolumny są podobne, ale dodatkowe zależą od tego, co sprzedajesz. Trzy przykłady, od których możesz zacząć:
+
+| Rodzaj firmy | Kolumny dodatkowe, które mają sens |
+| --- | --- |
+| Usługi dla firm (agencja, księgowość, doradztwo) | Rodzaj usługi, Etap rozmowy, Termin kolejnej rozmowy, Osoba decyzyjna |
+| Rzemiosło i serwis (instalacje, remonty, naprawy) | Adres realizacji, Rodzaj zlecenia, Termin wyceny, Termin realizacji |
+| Sprzedaż B2B produktów | Branża, Wielkość firmy, Produkt, Ostatnie zamówienie |
+
+Zacznij od podstawowych pól z tabeli wyżej i dopisuj tylko te kolumny, które naprawdę pomagają ustalić następny krok.
+
+### Gdzie pobrać darmową bazę danych klientów? [#darmowa-baza-klientow]
+
+Szablon i baza to dwie różne rzeczy. Szablon to pusta struktura, na przykład ten plik CSV, i możesz go pobrać za darmo. Baza klientów to prawdziwe dane prawdziwych osób, a te powinny pochodzić z twoich własnych rozmów, zapytań, zamówień i kontaktów, a nie z internetu. Gotowe, pobrane lub kupione „bazy klientów” z danymi osób, których nie znasz, to ryzyko: nie wiesz, skąd dane pochodzą, i nie masz podstawy, żeby pisać albo dzwonić do tych osób. Podstawy prawne opisuje sekcja o RODO niżej, a szerzej poradnik o [RODO w CRM](/blog/gdpr-crm).
+
+Czego nie robić: nie wklejaj do pliku danych z pobranych „darmowych baz firm”, jeśli nie wiesz, na jakiej podstawie je zebrano, i nie traktuj publicznie dostępnego adresu e-mail jako zgody na wysyłanie ofert.
 
 ## Jak dwie osoby mogą zamienić listę w follow-upy?
 
@@ -79,6 +115,21 @@ Dla przetwarzania objętego RODO Komisja Europejska opisuje ograniczenie celu, m
 
 Używaj danych biznesowych potrzebnych do tego celu, ograniczaj udostępnianie, przeglądaj nieaktualne wpisy i usuwaj zbędne dane z uwzględnieniem obowiązujących obowiązków przechowywania. Unikaj prywatnych komentarzy i wrażliwych danych osobowych w komórkach z wolnym tekstem. Data przeglądu to bodziec do własnej decyzji, a nie uniwersalny prawny okres przechowywania. Nie publikuj wypełnionego pliku przez link udostępniania bez ograniczeń.
 
+## Excel czy CRM: co jest lepsze dla bazy klientów? [#excel-czy-crm]
+
+Excel jest dobry na początek: znasz go, nic nie kosztuje i szybko go skonfigurujesz. Przestaje wystarczać, gdy zaczynasz pracować nad relacjami, a nie tylko trzymać dane. Różnice widać w kilku miejscach:
+
+| | Arkusz Excela | CRM |
+| --- | --- | --- |
+| Duplikaty | Trzeba wyłapywać ręcznie | Rekord osoby i firmy ma jedno miejsce, więc łatwiej uniknąć dublowania |
+| Wersje pliku | Kopie rozjeżdżają się, nie wiadomo, która jest aktualna | Jedna wspólna baza online dla całego zespołu |
+| Historia kontaktu | Tylko to, co ktoś wpisał w komórkę | Rozmowy, notatki i następne kroki przy rekordzie klienta |
+| Powiązania | Firma i osoba to dwa wiersze bez połączenia | Osoby, firmy i szanse sprzedaży są powiązane relacjami |
+| Uprawnienia | Cały plik albo nic | Dostęp można ograniczyć rolami |
+| Wiadomości | Kopiowanie z poczty ręcznie | Wątki e-mail i LinkedIn przy rekordzie (w planie Pro) |
+
+To nie znaczy, że trzeba przejść na CRM od razu. Jeśli baza ma kilkadziesiąt kontaktów, a prowadzi ją jedna osoba, arkusz wystarczy. Gdy dochodzi druga osoba, powiązane firmy i potrzeba pamiętania, o czym ostatnio rozmawiano, warto zobaczyć, czym jest [baza danych CRM](/blog/crm-database) i jak działa [program do bazy klientów](/blog/client-database-software).
+
 ## Kiedy przenieść listę do Customermates?
 
 Zostaw arkusz, jeśli osoba może go rzetelnie utrzymywać, a codzienny przegląd działa. Rozważ CRM, gdy zmienia się odpowiedzialność, a historie kontaktów albo powiązane firmy trudno utrzymać. Customermates przyjmuje importy CSV, XLSX, XLS i JSON przez przepływ importu listy rekordów. Użyj [dokumentacji importu rekordów](/docs/app-records), żeby sprawdzić mapowanie i podgląd, zanim zaimportujesz cały plik.
@@ -90,6 +141,21 @@ Przeprowadzka dodaje rozmowę. Data następnego kroku leży na rekordzie klienta
 ## Częste pytania
 
 <Faq>
+<FaqItem question="Jak zrobić bazę klientów w Excelu?">
+Zacznij od pustego szablonu CSV, zaimportuj go do Excela i zamień zakres w Tabelę. Dodaj filtry, zablokuj nagłówek, ustaw listy rozwijane dla pól z ustalonymi wartościami i wyróżnij duplikaty w kolumnie z adresem e-mail. Jeden wiersz to jedna osoba, a każdy wiersz ma właściciela i następny krok z datą.
+</FaqItem>
+<FaqItem question="Jakie dane powinna zawierać baza klientów?">
+Na początek: imię i nazwisko, firmę, e-mail, telefon, właściciela, relację, ostatni kontakt, następny krok z datą i źródło danych. Dodatkowe pola, takie jak branża, miasto czy NIP, dopisuj dopiero wtedy, gdy ktoś będzie ich używał.
+</FaqItem>
+<FaqItem question="Czy Excel wystarczy jako baza klientów?">
+Na początku tak, gdy kontaktów jest kilkadziesiąt, a plik prowadzi jedna osoba. Gdy dochodzi więcej osób, powiązane firmy i potrzeba historii rozmów, arkusz zaczyna przeszkadzać, bo kopie się rozjeżdżają, a następne kroki giną.
+</FaqItem>
+<FaqItem question="Gdzie pobrać darmową bazę klientów?">
+Możesz pobrać darmowy szablon, czyli pustą strukturę, na przykład pliki CSV z tego poradnika. Samej bazy klientów z danymi osób nie pobieraj z internetu: prawdziwe dane powinny pochodzić z twoich własnych rozmów, zapytań i zamówień.
+</FaqItem>
+<FaqItem question="Jak uniknąć duplikatów w bazie klientów w Excelu?">
+Nadaj każdemu kontaktowi stałe ID, wyróżnij zduplikowane adresy e-mail Formatowaniem warunkowym i przeglądaj je ręcznie przed scaleniem, bo wspólna skrzynka może należeć do kilku osób. Polecenie Usuń duplikaty stosuj tylko na kopii pliku.
+</FaqItem>
 <FaqItem question="Czy mogę za darmo pobrać ten szablon listy kontaktów do Excela?">
 Tak. Oba pliki CSV są bezpłatne i nie wymagają rejestracji. Zaimportuj je do Excela i dodaj własne formatowanie; nie ma w nich skoroszytu XLSX ani formuł.
 </FaqItem>

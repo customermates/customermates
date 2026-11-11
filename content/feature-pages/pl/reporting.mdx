@@ -1,6 +1,6 @@
 ---
-title: "Dashboard CRM: raporty, wykresy i ważony pipeline"
-description: "Dashboard CRM w Customermates: wykresy szans sprzedaży, kontaktów i zadań, ważony pipeline oraz analiza rekordów przez Mate. Konfiguracja, plany i limity."
+title: "Dashboard CRM: co to jest, przykłady i jak go zbudować"
+description: "Dashboard CRM: jakie raporty zbudować i jak ustawić tygodniowy dashboard pipeline'u: wykresy szans sprzedaży, ważony pipeline i analiza rekordów przez Mate."
 featureName: Raporty CRM
 
 relatedHrefs:
@@ -24,9 +24,9 @@ sections:
       - title: "Utwórz pierwszy wykres"
         description: "Na „Pulpit” naciśnij „Dodaj widżet” i wybierz „Wykres słupkowy”. W sekcji „Dane” wybierz jako źródło „Szanse sprzedaży”, zsumuj „Wartość ważona” i pogrupuj według „Etap”. W filtrach wyklucz „Wygrana” i „Przegrana”, a potem naciśnij „Zapisz”."
       - title: "Dodaj trzy kolejne"
-        description: "Wartość wygranych szans według źródła leada, wartość wygranych szans na organizację oraz liczbę przegranych szans według powodu przegranej. Przeciągaj je i zmieniaj rozmiar; układ zapisuje się za ciebie."
+        description: "Wartość wygranych szans według źródła leada, wartość wygranych szans na organizację oraz liczbę przegranych szans według powodu przegranej. Przeciągaj je i zmieniaj rozmiar; układ zapisuje się za Ciebie."
       - title: "Udostępnij dashboard zespołowi"
-        description: "Umieść wykresy w nazwanym widoku pulpitu, takim jak „Pipeline tygodniowy” („Nowy widok” nad widżetami), a potem wybierz „Udostępnij…” w jego menu. Wszyscy w przestrzeni roboczej albo wybrane przez ciebie role widzą te same wykresy, tylko do odczytu, a każda liczba jest obliczana na podstawie ich własnego dostępu."
+        description: "Umieść wykresy w nazwanym widoku pulpitu, takim jak „Pipeline tygodniowy” („Nowy widok” nad widżetami), a potem wybierz „Udostępnij…” w jego menu. Wszyscy w przestrzeni roboczej albo wybrane przez Ciebie role widzą te same wykresy, tylko do odczytu, a każda liczba jest obliczana na podstawie ich własnego dostępu."
   highlights:
     title: "W skrócie"
     capture: homepage-dashboard
@@ -59,9 +59,30 @@ cta:
   hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
 ---
 
-Dashboard CRM to raportowanie w praktyce: liczenie i sumowanie tego, co już jest w Twoim CRM, dzięki czemu pytania w rodzaju „co jest w pipeline?” albo „którzy klienci przynieśli najwięcej przychodów?” dostają odpowiedź bez arkusza kalkulacyjnego. W Customermates dzieje się to w trzech miejscach: na wykresach pulpitu, na listach pogrupowanych według pola i w wartości ważonej każdej szansy sprzedaży. Wszystko, co wymaga prawdziwej arytmetyki na wielu rekordach, takie jak mediana wartości transakcji albo ranking, trafia do Mate w Customermates Cloud, do Twojego własnego klienta AI przez MCP albo do Excela po eksporcie.
+Dashboard CRM to jedna strona z wykresami i listami, która na bieżąco liczy i sumuje to, co już jest w Twoim CRM, dzięki czemu pytania w rodzaju „co jest w pipeline?” albo „którzy klienci przynieśli najwięcej przychodów?” dostają odpowiedź bez arkusza kalkulacyjnego. W Customermates dzieje się to w trzech miejscach: na wykresach pulpitu, na listach pogrupowanych według pola i w wartości ważonej każdej szansy sprzedaży. Wszystko, co wymaga prawdziwej arytmetyki na wielu rekordach, takie jak mediana wartości transakcji albo ranking, trafia do Mate w Customermates Cloud, do Twojego własnego klienta AI przez MCP albo do Excela po eksporcie.
 
-Całość jest celowo niewielka. Jeśli potrzebujesz śledzenia konwersji w czasie, czasu w etapie, kwot do zrealizowania albo prognoz przychodów, sekcja o ograniczeniach wymienia narzędzia, które to robią.
+Zakres jest celowo niewielki. Jeśli potrzebujesz śledzenia konwersji w czasie, czasu w etapie, kwot do zrealizowania albo prognoz przychodów, sekcja o ograniczeniach wymienia narzędzia, które to robią.
+
+## Co to jest dashboard CRM i jakie ma przykłady? [#co-to-jest-dashboard]
+
+Dashboard CRM zbiera w jednym miejscu liczby, na które zespół patrzy regularnie. Nie są one kopiowane do osobnego raportu, tylko liczone z rekordów, więc wykres zmienia się razem z nimi. Najczęstsze dashboardy małego zespołu:
+
+- **Dashboard pipeline'u:** wartość i wartość ważona szans według etapu oraz liczba otwartych szans.
+- **Dashboard źródeł:** skąd przychodzą leady i skąd pochodzi wygrany biznes.
+- **Dashboard follow-upów:** widżet Nadchodzące z datami następnych kroków i sekcją Po terminie oraz oś czasu aktywności.
+- **Dashboard klientów i usług:** przychody według organizacji i usługi oraz przegrane szanse według powodu.
+
+Dashboard skuteczności kampanii reklamowych potrzebuje danych z narzędzi reklamowych, a Customermates nie ma własnego połączenia z platformami reklamowymi, więc takie liczby zbiera inne narzędzie.
+
+## Jak zaprojektować dobry dashboard CRM? [#jak-zaprojektowac]
+
+Dobry dashboard odpowiada na kilka pytań, które ktoś zadaje regularnie, a nie pokazuje wszystkiego, co da się policzyć.
+
+1. **Wybierz odbiorcę i pytania.** Kto patrzy na dashboard i jaką decyzję ma podjąć? Pięć do siedmiu widżetów zwykle wystarcza.
+2. **Sprawdź, czy dane są w polach.** Wykres liczy i grupuje tylko to, co zapisujesz: bez pola „Źródło leada” nie zobaczysz wygranych według źródła.
+3. **Dobierz styl do pytania.** Liczba pokazuje jedną sumę, słupki porównania, obszar w czasie trendy, tabela rankingowa kolejność, a lejek bieżące etapy.
+4. **Udostępnij i ustal rytm.** Wskaż właściciela dashboardu i stały termin przeglądu, na przykład poniedziałek rano. Udostępniony dashboard jest dla współpracowników tylko do odczytu, a każda liczba jest obliczana według ich własnego dostępu.
+5. **Zbierz opinie i popraw.** Po dwóch tygodniach usuń widżety, na które nikt nie patrzy, i dodaj brakujące. Przepisy na konkretne wykresy są niżej.
 
 ## Co może policzyć widżet wykresu
 
@@ -130,9 +151,9 @@ Do jednorazowej analizy wyeksportuj listę jako arkusz Excel z menu **Więcej dz
 Dla szans sprzedaży, które od 1 lipca doszły do etapu Wygrana lub Przegrana: jaki jest współczynnik wygranych według źródła leada, jaka jest mediana wartości wygranych szans i które trzy organizacje przyniosły największą wartość wygranych?
 ```
 
-Odpowiedzią jest wiadomość na czacie, a nie zapisany wykres. Mate może też tworzyć lub zmieniać widżety pulpitu za ciebie, gdy je opiszesz.
+Odpowiedzią jest wiadomość na czacie, a nie zapisany wykres. Mate może też tworzyć lub zmieniać widżety pulpitu za Ciebie, gdy je opiszesz.
 
-**Rutyny (Customermates Cloud).** Rutyna uruchamia zapisaną instrukcję według harmonogramu, na przykład „Co poniedziałek o 8:00 podsumuj otwarty pipeline według etapu i wypisz szanse sprzedaży nieaktualizowane od 30 dni.” Działa jako ty, jej właściciel, z Twoim dostępem i kredytami, a podsumowanie uruchomienia zostaje przy rutynie. W planie Pro i wyższych może też wysłać to podsumowanie do ciebie e-mailem z Twojej połączonej skrzynki; Mate wysyła bez ponownego pytania, więc napisz w instrukcji „szkic”, jeśli chcesz najpierw je przeczytać. Wyzwalacze i limity opisuje strona o [automatyzacji workflow](/features/workflow-automation).
+**Rutyny (Customermates Cloud).** Rutyna uruchamia zapisaną instrukcję według harmonogramu, na przykład „Co poniedziałek o 8:00 podsumuj otwarty pipeline według etapu i wypisz szanse sprzedaży nieaktualizowane od 30 dni.” Działa jako Ty, jej właściciel, z Twoim dostępem i kredytami, a podsumowanie uruchomienia zostaje przy rutynie. W planie Pro i wyższych może też wysłać to podsumowanie do Ciebie e-mailem z Twojej połączonej skrzynki; Mate wysyła bez ponownego pytania, więc napisz w instrukcji „szkic”, jeśli chcesz najpierw je przeczytać. Wyzwalacze i limity opisuje strona o [automatyzacji workflow](/features/workflow-automation).
 
 **Twój własny klient AI przez MCP.** Claude, ChatGPT i inni klienci MCP korzystają z serwera z [[derived.mcp.tools.total]] narzędziami w każdym planie i przy self-hostingu. Dzięki `query_crm_measure` klient oblicza sumy ze wszystkich pasujących rekordów, więc „jaki jest nasz ważony pipeline dla organizacji w Bawarii?” ma dokładną odpowiedź. Konfigurację opisuje [dokumentacja MCP](/docs/mcp).
 
@@ -141,6 +162,14 @@ Odpowiedzią jest wiadomość na czacie, a nie zapisany wykres. Mate może też 
 ## Najczęstsze pytania
 
 <Faq>
+<FaqItem question="Co to jest dashboard CRM?">
+To strona z wykresami i listami, która na bieżąco pokazuje najważniejsze liczby z CRM: wartość pipeline'u, wygrane według źródła, przychody na klienta i to, co czeka na następny krok. W Customermates budujesz go z widżetów pulpitu, a liczby pochodzą bezpośrednio z Twoich rekordów.
+</FaqItem>
+
+<FaqItem question="Ile wykresów powinien mieć dashboard CRM?">
+Zwykle pięć do siedmiu: tyle, ile pytań naprawdę zadajesz co tydzień. Każdy kolejny wykres utrudnia znalezienie tych, na których naprawdę Ci zależy.
+</FaqItem>
+
 <FaqItem question="Jakie są typowe raporty CRM?">
 W małym zespole pięć pokrywa większość decyzji: wartość pipeline'u według etapu, ważony pipeline, wygrane przychody według źródła leada, przychody na klienta i przegrane szanse według powodu. Wszystkie pięć to widżety wykresów w Customermates. Raporty aktywności, lejki konwersji i prognozy sprzedaży są częste w większych CRM; Customermates ma oś czasu aktywności i wykres lejka bieżących etapów, ale bez prognozy.
 </FaqItem>
@@ -150,7 +179,7 @@ Nie w sensie predykcyjnym. Liczy ważony pipeline: wartość każdej szansy sprz
 </FaqItem>
 
 <FaqItem question="Czy mój zespół może współdzielić jeden dashboard?">
-Tak. W nazwanym widoku pulpitu, którego jesteś właścicielem, wybierz **Udostępnij…** i wskaż wszystkich w przestrzeni roboczej albo wybrane role. Współpracownicy widzą te same widżety i ten sam układ, tylko do odczytu, a każda liczba jest obliczana na podstawie ich własnego dostępu, więc dwie osoby mogą widzieć różne liczby na tym samym wykresie. Widżety zmieniasz tylko ty; **Duplikuj jako nowy widok** daje współpracownikowi kopię do edycji. Głównego pulpitu nie można udostępnić, więc umieść wykresy w nazwanym widoku. Pojedynczy wykres można też wysłać przez **Udostępnij jako szablon**. Dla osób spoza przestrzeni roboczej widok pulpitu można opublikować przez link publiczny, tylko do odczytu i bez logowania, jeśli Twoja rola może publikować, a przestrzeń robocza dopuszcza linki publiczne.
+Tak. W nazwanym widoku pulpitu, którego jesteś właścicielem, wybierz **Udostępnij…** i wskaż wszystkich w przestrzeni roboczej albo wybrane role. Współpracownicy widzą te same widżety i ten sam układ, tylko do odczytu, a każda liczba jest obliczana na podstawie ich własnego dostępu, więc dwie osoby mogą widzieć różne liczby na tym samym wykresie. Widżety zmieniasz tylko Ty; **Duplikuj jako nowy widok** daje współpracownikowi kopię do edycji. Głównego pulpitu nie można udostępnić, więc umieść wykresy w nazwanym widoku. Pojedynczy wykres można też wysłać przez **Udostępnij jako szablon**. Dla osób spoza przestrzeni roboczej widok pulpitu można opublikować przez link publiczny, tylko do odczytu i bez logowania, jeśli Twoja rola może publikować, a przestrzeń robocza dopuszcza linki publiczne.
 </FaqItem>
 
 <FaqItem question="Czy mogę wyeksportować raporty CRM do Excela?">

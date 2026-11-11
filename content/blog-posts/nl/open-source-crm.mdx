@@ -1,6 +1,6 @@
 ---
-title: "CRM software open source: self hosted opties vergelijken"
-description: "Vergelijk CRM software open source op licentie, deployment, beheer, CRM-scope en integraties. Zie de exacte grens van Customermates bij zelf hosten."
+title: "CRM software open source: 7 criteria en een shortlist"
+description: "CRM software open source vergelijken op licentie, deployment, beheer en scope: 7 criteria, een shortlist en wat bij zelf hosten wel en niet inbegrepen is."
 
 acquisition:
   locale: nl
@@ -9,8 +9,8 @@ acquisition:
   role: support
   primaryIntent: Vergelijking van open source CRM
   metadata:
-    title: "CRM software open source: self hosted opties vergelijken"
-    description: "Vergelijk CRM software open source op licentie, deployment, beheer, CRM-scope en integraties. Zie de exacte grens van Customermates bij zelf hosten."
+    title: "CRM software open source: 7 criteria en een shortlist"
+    description: "CRM software open source vergelijken op licentie, deployment, beheer en scope: 7 criteria, een shortlist en wat bij zelf hosten wel en niet inbegrepen is."
   proof:
     factReferences:
       - product:agpl-community-core
@@ -104,7 +104,7 @@ blogPost:
 
 De beste **CRM software open source** is de software waarvan de licentie, de manier van zelf hosten, de beheerinspanning en de CRM-scope bij jouw team passen. “Source available”, “open core” en “open source” zijn niet uitwisselbaar, en een lange lijst met functies zegt weinig over wat je legaal kunt draaien of realistisch kunt onderhouden.
 
-Deze gids gebruikt een duurzaam beoordelingskader in plaats van projecten te rangschikken op prijzen die veranderen, aantallen sterren of functieclaims zonder bron. Openheid vooraf: Customermates publiceert deze vergelijking en is een van de producten die hieronder worden besproken.
+Voor een klein team dat contacten, deals en opvolging wil beheren, begin je bij een gericht CRM en pas je bij een bredere suite uit zodra je meer modules nodig hebt. Deze gids gebruikt een duurzaam beoordelingskader in plaats van projecten te rangschikken op prijzen die veranderen, aantallen sterren of functieclaims zonder bron. Openheid vooraf: Customermates publiceert deze vergelijking en is een van de producten die hieronder worden besproken.
 
 <ArticleSummary title="In het kort">
   <SummaryItem label="Begin met">
@@ -187,6 +187,19 @@ Deze tabel is een bronnenoverzicht, geen productranglijst en geen bewering dat d
   elk bestand open source is of dat elke cloudfunctie zelf te hosten is.
 </AcquisitionCallout>
 
+## Welk soort open source CRM past bij jouw situatie? [#welk-open-source-crm-past-bij-jou]
+
+Een ranglijst helpt weinig, want de projecten verschillen in reikwijdte. Deze tabel koppelt een situatie aan wat je controleert en waar je begint. Het is geen oordeel over de kwaliteit van een project.
+
+| Jouw situatie | Waar je op let | Waar je begint |
+| --- | --- | --- |
+| Klein team met contactpersonen, organisaties, deals en opvolging | Een gericht CRM-model, een lichte deployment en REST, webhooks of MCP voor je eigen tools | Een van de CRM-projecten uit de shortlist: Customermates, SuiteCRM, EspoCRM of Twenty |
+| Je wilt ook andere bedrijfsonderdelen in één systeem | De breedte van de suite, de licentiegrens per module en de extra beheerinspanning | Odoo Community |
+| Je werkt met leden of in een non-profitcontext | Een model dat daarop is gebouwd, in plaats van een algemeen sales-CRM | CiviCRM |
+| Je hebt een vaste migratie of integratie nodig | Een echt import- en exportpad en documentatie voor API's | Het officiële pad van elke finalist, in een testomgeving |
+
+Voor teams in Nederland en België speelt de AVG mee. Waar de applicatie en de database draaien en welke externe diensten je koppelt, bepaal en documenteer je zelf. Een open-sourcelicentie of een server in de EU is daarvoor op zichzelf geen bewijs van naleving.
+
 ## Waar Customermates past
 
 Customermates is een open-core CRM voor klantrelaties en pipelines, gemaakt in Duitsland. Eigen materiaal buiten `ee/` valt onder AGPL-3.0-only. Binnen `ee/` is het materiaal commercieel gelicentieerd, behalve het clientmateriaal dat in sectie 6 van `ee/LICENSE.md` als AGPL-3.0-only is aangemerkt.
@@ -268,6 +281,14 @@ Bij Customermates is het onderscheid expliciet: het kern-CRM, REST, webhooks en 
 ## Veelgestelde vragen
 
 <Faq>
+<FaqItem question="Wat is het beste open source CRM?">
+Dat hangt af van je licentie-eisen, de manier van zelf hosten, de beheerinspanning en de CRM-scope. Voor een klein team zijn Customermates, SuiteCRM, EspoCRM en Twenty bruikbare beginpunten voor een shortlist; score ze op je eigen criteria en controleer de actuele officiële licentie en deploymentdocumentatie.
+</FaqItem>
+
+<FaqItem question="Wat is het verschil tussen open source en open core?">
+Bij open source geeft de licentie je rechten op de code. Bij open core is een deel van de code open source en een ander deel onder een commerciële licentie. Customermates is zo opgebouwd: eigen materiaal buiten `ee/` valt onder AGPL-3.0-only, het overige materiaal in `ee/` onder een commerciële licentie.
+</FaqItem>
+
 <FaqItem question="Wat betekent open source CRM?">
 Het betekent dat de CRM-code wordt aangeboden onder een open-sourcelicentie die bepaalde rechten geeft om haar te gebruiken, te inspecteren, te wijzigen en te verspreiden, binnen de voorwaarden van die licentie. Controleer de exacte bestanden en de editie: een repository kan ook code onder een aparte licentie bevatten.
 </FaqItem>

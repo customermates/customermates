@@ -1,6 +1,6 @@
 ---
-title: "CRM dla biura nieruchomości: kupujący i sprzedający"
-description: "CRM dla biura nieruchomości: e-mail i WhatsApp na karcie klienta, a Mate przygotowuje szkic odpowiedzi i kolejnego kontaktu z kupującym lub sprzedającym."
+title: "CRM dla biura nieruchomości: profile kupujących i follow-up"
+description: "CRM dla biura nieruchomości: rozmowy z e-maila i WhatsAppa na karcie klienta, filtr kupujących pod nową ofertę i szkice kolejnego kontaktu od Mate."
 industryName: "Nieruchomości"
 
 relatedHrefs:
@@ -48,7 +48,9 @@ useCases:
       visual: contacts
 ---
 
-Dochód pośrednika zależy od rozmów, które cichną: kupujący, który powiedział „za pół roku”, sprzedający, który chciał to jeszcze przemyśleć, klient, który kupił mieszkanie pięć lat temu. Jako CRM dla biura nieruchomości Customermates układa rozmowy na karcie klienta, gdy dane kontaktowe się zgadzają albo gdy sam je powiążesz. W Customermates Cloud od planu Pro Mate przygotowuje szkic odpowiedzi i kolejnego kontaktu na Twoją prośbę lub w rutynie, a Twój własny agent AI (Claude, ChatGPT lub dowolny klient obsługujący MCP) robi to przez MCP. Sprawdzasz, poprawiasz i wysyłasz, a kolejne kroki z datami widzisz na pulpicie. To CRM open source, stworzony z myślą o AI, powstały w Niemczech, ale nie oprogramowanie dla nieruchomości w pełnym sensie: bez bazy ofert, bez zasilania z MLS lub portali, bez dokumentacji transakcji. Sekcja o ograniczeniach poniżej wskazuje narzędzia, które to mają.
+CRM dla biura nieruchomości trzyma w jednym miejscu osoby, z którymi pracuje pośrednik: kupujących, sprzedających, dawnych klientów i partnerów polecających, razem z ich rozmowami i datą kolejnego kontaktu. Customermates robi to dla zespołów, w których dochód zależy od follow-upu: układa rozmowy na karcie klienta, pozwala filtrem znaleźć kupujących pasujących do nowej oferty i pokazuje na pulpicie, do kogo wrócić. Nie jest natomiast programem z bazą ofert, eksportem na portale ogłoszeniowe i dokumentacją transakcji; sekcja o ograniczeniach poniżej wskazuje narzędzia, które to mają.
+
+Dochód pośrednika zależy od rozmów, które cichną: kupujący, który powiedział „za pół roku”, sprzedający, który chciał to jeszcze przemyśleć, klient, który kupił mieszkanie pięć lat temu. Rozmowy trafiają na kartę klienta, gdy dane kontaktowe się zgadzają albo gdy sam je powiążesz. W Customermates Cloud od planu Pro Mate przygotowuje szkic odpowiedzi i kolejnego kontaktu na Twoją prośbę lub w rutynie, a Twój własny agent AI (Claude, ChatGPT lub dowolny klient obsługujący MCP) robi to przez MCP. Sprawdzasz, poprawiasz i wysyłasz, a kolejne kroki z datami widzisz na pulpicie. To CRM open source, stworzony z myślą o AI, powstały w Niemczech.
 
 <ArticleSummary title="W skrócie">
   <SummaryItem label="Dla kogo">
@@ -57,7 +59,7 @@ Dochód pośrednika zależy od rozmów, które cichną: kupujący, który powied
   </SummaryItem>
   <SummaryItem label="Konfiguracja">
     Osoby jako kontakty z polami profilu poszukiwań, każda oferta lub zlecenie
-    kupującego jako szansa sprzedaży, oglądania jako zadania i zapisany widok
+    kupującego jako szansa sprzedaży, prezentacje jako zadania i zapisany widok
     na każdą rutynową kontrolę.
   </SummaryItem>
   <SummaryItem label="AI">
@@ -85,6 +87,18 @@ O tym, czy CRM pomaga pośrednikowi, decyduje pięć konkretnych zadań:
 - **Długie przerwy.** Kupujący, który jest „za pół roku”, albo klient, który kupił pięć lat temu, łatwo wypada z pola widzenia. Kolejna transakcja często pochodzi właśnie od takich osób.
 - **Jasna odpowiedzialność w zespole.** W biurze nieruchomości każde zapytanie potrzebuje jednego odpowiedzialnego pośrednika, a rozmowy pośrednika mają pozostać prywatne, dopóki ich nie udostępni.
 
+## Program branżowy czy ogólny CRM: co wybrać w biurze nieruchomości [#program-branzowy-czy-ogolny-crm]
+
+Programy stworzone dla biur nieruchomości, także polskie, zwykle łączą w jednym systemie bazę ofert, eksport ofert na portale ogłoszeniowe, prezentacje ofert i bazę klientów. Ogólny CRM, taki jak Customermates, obejmuje tylko część z ludźmi: osoby, ich rozmowy, profile poszukiwań i kolejne kroki. O wyborze decyduje to, co dziś u Ciebie kuleje najbardziej:
+
+| Jeśli największy kłopot to | Szukaj |
+|---|---|
+| Wprowadzanie ofert, zdjęć i publikacja na portalach ogłoszeniowych | Programu branżowego z bazą ofert i eksportem na portale |
+| Kupujący i dawni klienci, do których nikt nie wraca, oraz rozmowy rozrzucone po telefonach i skrzynkach | CRM, który trzyma rozmowy przy kliencie i pokazuje kolejny krok, jak Customermates |
+| Jedno i drugie | Dwóch narzędzi: programu do ofert oraz CRM do ludzi i rozmów, połączonych ręcznie albo przez [REST API](/features/api) |
+
+Niezależnie od wyboru sprawdź, kto z zespołu ma widzieć które rozmowy, czy dane da się wyeksportować i czy narzędzie nie narzuca procesu, którego nie masz. [Przewodnik po wyborze CRM](/blog/how-to-choose-crm) opisuje kryteria krok po kroku.
+
 ## Konfiguracja CRM dla agencji nieruchomości w Customermates
 
 Nowa przestrzeń robocza zaczyna bez list: potrzebne listy (kontakty, organizacje, szanse sprzedaży lub własne) tworzysz w **Model danych** albo pozwalasz, żeby w chmurze zbudowała je konfiguracja z AI. Oto jeden ze sposobów przypisania pięciu list do pracy pośrednika; każda nazwa pola poniżej to przykład, który tworzysz samodzielnie. Listę kontaktów możesz nazwać Klienci, a każdą listę zmienisz później w **Model danych** w sekcji **Ogólne**.
@@ -94,10 +108,10 @@ Nowa przestrzeń robocza zaczyna bez list: potrzebne listy (kontakty, organizacj
 | Kontakty | Kupujący, sprzedający, wynajmujący, najemcy, partnerzy polecający | Rola (pojedynczy wybór: Kupujący, Sprzedający, Wynajmujący, Najemca, Partner, Dawny klient), Okolica poszukiwań (pojedynczy wybór), Typ nieruchomości (pojedynczy wybór), Liczba pokoi (pojedynczy wybór: 1, 2, 3, 4, 5+), Budżet maksymalny (kwota pieniężna), Finansowanie (pojedynczy wybór: Do ustalenia, Wstępna decyzja kredytowa, Gotówka), Źródło leada (pojedynczy wybór), Kolejny kontakt (data) |
 | Organizacje | Banki, kancelarie prawne i notarialne, deweloperzy, inne biura nieruchomości | Typ partnera (pojedynczy wybór), Wysłane polecenia (tekst) |
 | Szanse sprzedaży | Każda oferta i każde zlecenie kupna lub najmu | Etap, Strona (pojedynczy wybór: Sprzedaż, Zakup, Najem), Adres nieruchomości (adres), Cena ofertowa (kwota pieniężna), Przewidywana prowizja (kwota pieniężna), Link do ogłoszenia (adres internetowy), Koniec umowy (data) |
-| Zadania | Oglądania i kolejne kroki, przypisane do pośrednika | Termin oglądania (data i godzina), Opinia (pojedynczy wybór: Spodobało się, Drugie oglądanie, Nietrafiona) |
+| Zadania | Prezentacje nieruchomości i kolejne kroki, przypisane do pośrednika | Termin prezentacji (data i godzina), Opinia (pojedynczy wybór: Spodobało się, Druga prezentacja, Nietrafiona) |
 | Usługi | Pośrednicy rzadko ich potrzebują | Zostaw pustą albo użyj do usług za stałą opłatę, na przykład wyceny |
 
-Osoby łączą się z szansami sprzedaży, więc zainteresowani kupujący mogą być przy ofercie, o którą pytali, a oferta sprzedającego i jego późniejsze poszukiwanie domu mogą być na tym samym kontakcie. Zadania nie mają wbudowanego terminu, dlatego oglądanie dostaje własne pole z datą.
+Osoby łączą się z szansami sprzedaży, więc zainteresowani kupujący mogą być przy ofercie, o którą pytali, a oferta sprzedającego i jego późniejsze poszukiwanie domu mogą być na tym samym kontakcie. Zadania nie mają wbudowanego terminu, dlatego prezentacja dostaje własne pole z datą.
 
 ### Etapy dla ofert i kupujących
 
@@ -108,7 +122,7 @@ Etap szansy sprzedaży to pole pojedynczego wyboru, a każda opcja może mieć p
 | Lead | Prośba o wycenę | Pierwsze zapytanie | 10% |
 | Spotkanie | Prezentacja dla sprzedającego | Konsultacja z kupującym | 20% |
 | Umowa podpisana | Umowa pośrednictwa | Umowa z kupującym | 40% |
-| Aktywna | W sprzedaży | Oglądanie nieruchomości | 50% |
+| Aktywna | W sprzedaży | Prezentacje nieruchomości | 50% |
 | Oferta kupna | Otrzymano ofertę kupna | Złożono ofertę kupna | 70% |
 | Umowa przedwstępna | Umowa przedwstępna | Umowa przedwstępna | 90% |
 | Sfinalizowana | Sfinalizowana | Sfinalizowana | 100% |
@@ -121,10 +135,10 @@ Na [tablicy pipeline](/features/pipeline) każda szansa sprzedaży to karta, kt�
 1. **Aktywne oferty:** szanse sprzedaży ze Stroną Sprzedaż na etapie Aktywna lub Oferta kupna, posortowane po Koniec umowy.
 2. **Kupujący gotowi do ruchu:** kontakty z Rolą Kupujący i Finansowaniem Wstępna decyzja kredytowa, posortowane po Kolejny kontakt.
 3. **Kto czeka na kontakt:** kontakty z datą Kolejny kontakt, posortowane po niej od najwcześniejszej, więc osoby do telefonu są na górze. Sortowanie utrzymuje ten widok aktualnym; filtr po niestandardowej dacie przyjmuje stałą datę.
-4. **Zastałe leady:** szanse sprzedaży na etapie Lead lub Spotkanie z datą aktualizacji **Starsze niż…** 14 dni.
-5. **Krąg kontaktów:** kontakty z Rolą Dawny klient lub Partner, posortowane po Kolejny kontakt.
+4. **Nieaktywne leady:** szanse sprzedaży na etapie Lead lub Spotkanie z datą aktualizacji **Starsze niż…** 14 dni.
+5. **Dawni klienci i polecający:** kontakty z Rolą Dawny klient lub Partner, posortowane po Kolejny kontakt.
 
-Udostępnij **Zastałe leady** całemu zespołowi albo wybranym rolom, żeby każdy pośrednik pracował na tej samej liście.
+Udostępnij **Nieaktywne leady** całemu zespołowi albo wybranym rolom, żeby każdy pośrednik pracował na tej samej liście.
 
 Na pulpicie widżet **Nadchodzące** oparty na polu Kolejny kontakt pokazuje, kto czeka na kontakt w najbliższych dniach, z sekcją **Po terminie**. Customermates nie wysyła przypomnień; tę listę otwierasz każdego ranka.
 
@@ -182,7 +196,7 @@ Customermates nie jest oprogramowaniem do zarządzania nieruchomościami. Nie ma
 - Brak formularzy www i stron docelowych do zbierania leadów oraz brak automatycznego kierowania leadów.
 - Brak kampanii drip, sekwencji e-maili i masowej wysyłki e-maili. Aktualności rynkowe wysyłasz ze swojego narzędzia do newsletterów.
 - Brak SMS-ów, dzwonienia i dialera oraz brak aplikacji mobilnej.
-- Brak rezerwacji oglądań i zapisu do kalendarza. W planie Pro widzisz swój kalendarz tylko do odczytu obok CRM.
+- Brak rezerwacji prezentacji i zapisu do kalendarza. W planie Pro widzisz swój kalendarz tylko do odczytu obok CRM.
 - Brak wbudowanego pola terminu zadania i powiadomień z przypomnieniami. Dodaj pole z datą i pokaż je w kalendarzu, zapisanym widoku lub rutynie.
 
 Jeśli któryś z tych punktów jest powodem, dla którego szukasz narzędzia, sięgnij po narzędzie zbudowane właśnie do tego. Tę stronę publikuje Customermates; dane dostawców sprawdzono 8 października 2026 na stronie każdego dostawcy.
@@ -239,13 +253,13 @@ Każdy płatny plan chmurowy dodaje co miesiąc hostowane kredyty AI na aktywneg
 
 ## Dane klientów
 
-W Customermates Cloud główna produkcyjna baza danych jest skonfigurowana w regionie AWS Frankfurt. Hosting i pozostali podprocesorzy, w tym dostawcy z USA, są na [stronie podprocesorów](/subprocessors), a dostępna jest [umowa powierzenia przetwarzania danych](/dpa). Customermates nie posiada certyfikatów, takich jak ISO 27001 czy SOC 2.
+W Customermates Cloud główna produkcyjna baza danych jest skonfigurowana w regionie AWS Frankfurt. Hosting i pozostali podprocesorzy, w tym dostawcy z USA, są na [stronie podprocesorów](/subprocessors), a dostępna jest [umowa powierzenia przetwarzania danych](/dpa). Customermates nie posiada certyfikatów, takich jak ISO 27001 czy SOC 2. Dane kupujących i sprzedających to dane osobowe, więc obowiązuje je RODO: Customermates daje elementy składowe, takie jak role i dziennik audytu, a nie gotowy proces zgodności.
 
 ## Najczęstsze pytania
 
 <Faq>
 <FaqItem question="Jakiego CRM używają pośrednicy w obrocie nieruchomościami?">
-W USA agenci mogą wybierać CRM zbudowane dla rynku nieruchomości, takie jak Follow Up Boss czy Wise Agent, a wiele biur dostarcza własne narzędzia. W Niemczech oprogramowanie dla pośredników, takie jak Propstack, FLOWFACT czy onOffice, zarządza także samymi nieruchomościami; Propstack i FLOWFACT podają interfejsy do portali takich jak ImmoScout24. Pośrednicy, którzy potrzebują głównie follow-upu, profili poszukiwań i swoich rozmów w jednym miejscu, mogą też użyć ogólnego CRM skonfigurowanego tak, jak opisano wyżej. Customermates to nasz własny produkt, więc weź to pod uwagę.
+W Polsce biura często sięgają po programy branżowe z bazą ofert i eksportem na portale ogłoszeniowe. W USA agenci mogą wybierać CRM zbudowane dla rynku nieruchomości, takie jak Follow Up Boss czy Wise Agent, a wiele biur dostarcza własne narzędzia. W Niemczech oprogramowanie dla pośredników, takie jak Propstack, FLOWFACT czy onOffice, zarządza także samymi nieruchomościami; Propstack i FLOWFACT podają interfejsy do portali takich jak ImmoScout24. Pośrednicy, którzy potrzebują głównie follow-upu, profili poszukiwań i swoich rozmów w jednym miejscu, mogą też użyć ogólnego CRM skonfigurowanego tak, jak opisano wyżej. Customermates to nasz własny produkt, więc weź to pod uwagę.
 </FaqItem>
 
 <FaqItem question="Ile kosztuje CRM dla biura nieruchomości?">
@@ -256,12 +270,20 @@ Cenniki dostawców pokazują szeroki rozstrzał. 8 października 2026 Follow Up 
 Nie. Nie ma bazy nieruchomości ani automatycznego dopasowywania. Gdy pojawia się oferta, filtrujesz kupujących po okolicy poszukiwań, typie nieruchomości, liczbie pokoi i budżecie, albo w Customermates Cloud rutyna wykonuje to wyszukiwanie, gdy oferta staje się aktywna, i powiązuje z nią pasujących kupujących.
 </FaqItem>
 
-<FaqItem question="Czy łączy się z MLS, Zillow lub ImmoScout24?">
+<FaqItem question="Czy łączy się z portalami, takimi jak Otodom, Morizon czy Gratka, albo z MLS?">
 Nie natywnie. Zapytania, które portale wysyłają na Twoją skrzynkę, trafiają do ujednoliconej skrzynki odbiorczej od planu Pro wzwyż. W pozostałych przypadkach własna integracja albo osobno prowadzony przepływ n8n może tworzyć kontakty przez [REST API](/features/api).
 </FaqItem>
 
 <FaqItem question="Czy Customermates nadaje się do zarządzania nieruchomościami?">
 Tylko po stronie relacji: pozyskiwania właścicieli, zapytań o najem oraz rozmów z właścicielami i dostawcami. Pobór czynszów, księgowość, konserwacja i portale dla najemców wymagają oprogramowania do zarządzania nieruchomościami, takiego jak Buildium.
+</FaqItem>
+
+<FaqItem question="Co to jest CRM w nieruchomościach?">
+To system, który trzyma w jednym miejscu ludzi i rozmowy: kupujących z profilami poszukiwań, sprzedających z ofertami, dawnych klientów i partnerów polecających, razem z historią kontaktu i datą kolejnego kroku. Różni się od programu do zarządzania ofertami, który zajmuje się nieruchomościami, a nie ludźmi. Wielu pośredników używa obu.
+</FaqItem>
+
+<FaqItem question="Jak pozyskiwać klientów do biura nieruchomości?">
+Pozyskiwanie to osobne zadanie: ogłoszenia, portale, polecenia i dni otwarte. CRM pomaga nie zgubić tego, co już przyszło: zapytań z portali, osób z dni otwartych i dawnych klientów, od których często pochodzi kolejna transakcja. Zapisz źródło leada, wyznacz datę kolejnego kontaktu i co rano otwieraj widok Kto czeka na kontakt.
 </FaqItem>
 
 <FaqItem question="Czy jest darmowy CRM dla pośredników?">

@@ -1,6 +1,6 @@
 ---
-title: "CRM para advogados: acompanhe cada consulta e indicação"
-description: "CRM para advogados: a consulta chega enquanto você está em audiência. Cada consulta fica no registro, o Mate redige a resposta e você revisa e envia."
+title: "CRM para advogados: o que é, como escolher e começar"
+description: "CRM para advogados: o que é, em que difere do software jurídico e como acompanhar consultas, indicações e ex-clientes, com respostas redigidas que você envia."
 industryName: "Escritórios de advocacia"
 
 relatedHrefs:
@@ -48,11 +48,11 @@ useCases:
       visual: search
 ---
 
-Um cliente em potencial escreve enquanto você está em audiência e, quando você responde, já pode ter ligado para o próximo escritório. O Customermates, um CRM de código aberto feito na Alemanha, funciona como **CRM para advogados**: mantém cada consulta e cada conversa com clientes no registro, com um próximo passo com data. No Customermates Cloud, a partir do Pro, o Mate ou o seu próprio agente de IA (Claude, ChatGPT ou qualquer cliente que fale MCP) redige a resposta quando você pede ou em uma rotina que você configura; você revisa, edita e envia. É um CRM de relacionamento, não um sistema de gestão jurídica (practice management): controle de prazos, documentos, horas, faturamento e contabilidade fiduciária continuam em uma ferramenta como o MyCase ou, na Alemanha, o Actaport ou o RA-MICRO, comparados na tabela abaixo. Se você quer um só sistema para tudo, um sistema de gestão jurídica com módulo de leads combina melhor.
+Um cliente em potencial escreve enquanto você está em audiência e, quando você responde, já pode ter ligado para o próximo escritório. O Customermates, um CRM de código aberto feito na Alemanha, funciona como **CRM para advogados**: mantém cada consulta e cada conversa com clientes no registro, com um próximo passo com data. No Customermates Cloud, a partir do Pro, o Mate ou o seu próprio agente de IA (Claude, ChatGPT ou qualquer cliente que fale MCP) redige a resposta quando você pede ou em uma rotina que você configura; você revisa, edita e envia. É um CRM de relacionamento, não um sistema de gestão jurídica (practice management, o software jurídico que cuida de processos e prazos): controle de prazos, documentos, horas, faturamento e contabilidade fiduciária continuam em uma ferramenta como o MyCase ou, na Alemanha, o Actaport ou o RA-MICRO, comparados na tabela abaixo. Se você quer um só sistema para tudo, um sistema de gestão jurídica com módulo de leads combina melhor.
 
 Esta página também responde às perguntas que advogados solo fazem. A configuração abaixo funciona igual para um advogado e para vinte.
 
-<ArticleSummary title="Resumo">
+<ArticleSummary title="Em resumo">
   <SummaryItem label="Para quem">
     Advogados solo e pequenos escritórios cujo trabalho vem de indicações,
     ex-clientes e consultas diretas, e que já têm um sistema de gestão
@@ -75,6 +75,10 @@ Esta página também responde às perguntas que advogados solo fazem. A configur
     um portal do cliente.
   </SummaryItem>
 </ArticleSummary>
+
+## O que é um CRM para advogados, e para que serve? [#o-que-e-crm-para-advogados]
+
+CRM é a sigla de customer relationship management, a gestão do relacionamento com o cliente. Para um advogado, é o lugar onde ficam as consultas que chegam, quem indicou cada cliente, as conversas e o próximo passo com data, antes, durante e depois da contratação. Serve para responder rápido a quem ainda não é cliente (veja o [follow-up](/features/follow-up)), lembrar de ex-clientes e de quem indica trabalho e encontrar nomes antes de aceitar um caso (veja a [gestão de contatos](/features/contact-management)). Ele não conduz o processo: prazos, petições e documentos ficam no software jurídico.
 
 ## CRM ou gestão jurídica: do que você precisa?
 
@@ -188,6 +192,8 @@ Prefere o seu próprio cliente de IA? O Claude, o ChatGPT e outros se conectam v
 
 - No Customermates Cloud, o banco de dados principal de produção está configurado na região AWS de Frankfurt. Isso é uma configuração do produto, não uma garantia contratual de residência de dados. A hospedagem e os outros subprocessadores, entre eles fornecedores dos EUA, estão na [página de subprocessadores](/subprocessors), e há um [acordo de tratamento de dados](/dpa) disponível.
 - As suas regras de confidencialidade decidem se um CRM na nuvem pode guardar informações de clientes. Na Alemanha, o [§ 43e BRAO](https://dejure.org/gesetze/BRAO/43e.html) exige um contrato em forma de texto que obrigue o provedor ao sigilo, e o consentimento do cliente quando o serviço atende a um único mandato. O acordo de tratamento de dados do Customermates tem uma cláusula geral de confidencialidade; se ela atende a esses requisitos é algo que o seu escritório deve conferir antes de inserir dados de clientes.
+- No Brasil, o sigilo profissional é um dever do advogado pelo Estatuto da Advocacia e pelo Código de Ética e Disciplina da OAB, e a LGPD vale para os dados pessoais dos clientes. O que isso exige de um fornecedor na nuvem é algo que o seu escritório deve conferir, se preciso com a OAB, antes de inserir dados de clientes.
+- O Código de Ética da OAB também limita a publicidade e a captação de clientela. O CRM organiza as consultas que chegam até você e o relacionamento com quem já é cliente; ele não substitui essas regras, e o que enviar a um possível cliente continua sendo decisão sua.
 - Uma função personalizada com acesso de leitura **Atribuídos** limita um associado ou um advogado contratado aos registros atribuídos a ele. O registro de auditoria anota quem alterou qual registro, em todos os planos.
 - Para decidir você mesmo onde ficam os dados dos clientes, [hospede por conta própria](/features/self-hosted) o núcleo de código aberto. Uma instalação de hospedagem própria não tem caixa de entrada, Mate nem rotinas; MCP, REST e webhooks continuam.
 
@@ -205,7 +211,7 @@ Os preços são por usuário ativo por mês, cobrados mensalmente. Todo plano pa
 
 Cada plano cloud pago acrescenta créditos de IA hospedados mensais por usuário ativo para o Mate; veja os [preços](/pricing). Hospedar o núcleo de código aberto por conta própria não tem custo de licença.
 
-## Migrando de uma planilha
+## Como começar um CRM no escritório: migrando da planilha [#como-comecar-um-crm]
 
 <Steps>
   <Step title="Salve suas listas como Excel ou CSV">
@@ -238,7 +244,7 @@ Um software para o relacionamento com o cliente em torno do caso: consultas e et
 Depende de qual tarefa você tem em mente. Para gestão jurídica com triagem embutida, as opções em inglês incluem o MyCase, e os escritórios alemães usam produtos como o Actaport ou o RA-MICRO. Para captação com automação de marketing, o Lawmatics é específico para o setor jurídico. Para um CRM de relacionamento com caixa de entrada unificada ao lado da sua gestão jurídica, o Customermates serve; é um produto nosso, então leve isso em conta.
 </FaqItem>
 
-<FaqItem question="Um advogado solo precisa de um CRM?">
+<FaqItem question="Vale a pena usar um CRM para advogados? Um advogado solo precisa de um?">
 Uma planilha funciona enquanto você se lembra de cada consulta em aberto. Ela deixa de funcionar quando você está em audiência e três consultas esperam, ou quando você não sabe dizer qual colega enviou trabalho este ano. Um advogado solo paga [[commercial.price.starter.monthly]] por mês no Starter, ou [[commercial.price.pro.monthly]] no Pro, com uma caixa de e-mail na caixa de entrada.
 </FaqItem>
 
@@ -252,5 +258,12 @@ Não de forma nativa. O Customermates tem REST, webhooks e um nó da comunidade 
 
 <FaqItem question="A IA vai substituir o CRM do escritório de advocacia?">
 A IA muda mais quem digita no CRM do que a necessidade de ter um. O Mate ou um cliente MCP, como o Claude, pode registrar uma consulta, mover um negócio e redigir uma resposta, mas precisa do histórico dos clientes, das etapas e dos dados de indicação para trabalhar, e isso vive no CRM. O Mate envia uma mensagem sem perguntar quando você manda enviar, então diga em cada pedido ou rotina se ele deve apenas salvar um rascunho.
+</FaqItem>
+<FaqItem question="Qual CRM gratuito é bom para advogados?">
+O Customermates Cloud tem um plano gratuito para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate nem rotinas. Dá para montar o quadro de triagem e testar o fluxo de consultas. Antes de inserir dados reais de clientes em qualquer CRM gratuito na nuvem, confira as regras de sigilo do seu escritório; o núcleo de código aberto pode ser [hospedado por conta própria](/features/self-hosted), e os [preços](/pricing) dos planos pagos estão na página de preços.
+</FaqItem>
+
+<FaqItem question="Dá para usar o WhatsApp com o CRM do escritório?">
+No Customermates Cloud, a partir do Pro, você conecta o WhatsApp à caixa de entrada unificada e as conversas aparecem no contato do cliente. As conversas das suas contas ficam privadas até você compartilhar uma conversa ou, no Business, a conta inteira. Decida com o seu escritório que tipo de conteúdo protegido por sigilo pode passar por esse canal.
 </FaqItem>
 </Faq>

@@ -26,15 +26,15 @@ blogPost:
 
 # Integracja CRM z ERP: połącz systemy bez zduplikowanych rekordów
 
-Integracja CRM z ERP przekazuje niewielki zestaw identyfikatorów i statusów między systemem, w którym sprzedajesz, a systemem, w którym dostarczasz i fakturujesz. CRM jest właścicielem osób, relacji, szans sprzedaży i rozmów. ERP jest właścicielem konta klienta używanego do rozliczeń, towarów, zamówień, magazynu i płatności. Integracja uruchamia się na zdefiniowanych zdarzeniach biznesowych, takich jak „wygrana szansa sprzedaży”, i zapisuje numer referencyjny każdego systemu w drugim.
+Integracja CRM z ERP przekazuje niewielki zestaw identyfikatorów i statusów między systemem, w którym sprzedajesz, a systemem, w którym dostarczasz i fakturujesz. CRM jest właścicielem osób, relacji, szans sprzedaży i rozmów. ERP jest właścicielem konta klienta używanego do rozliczeń, towarów, zamówień, magazynu i płatności. Integracja uruchamia się przy zdefiniowanych zdarzeniach biznesowych, takich jak „wygrana szansa sprzedaży”, i zapisuje numer referencyjny każdego systemu w drugim.
 
 Większość małych zespołów powinna zacząć od jednego przepływu w jedną stronę: wygrana szansa sprzedaży tworzy klienta i zamówienie w ERP, a numer zamówienia z ERP wraca do szansy sprzedaży. Zbuduj to przez natywny konektor, jeśli oba Twoje systemy go mają, a w przeciwnym razie przez REST API i webhooki ERP, używając platformy do automatyzacji, takiej jak n8n, albo małej usługi, którą prowadzisz sam.
 
 Customermates, CRM natywny dla AI, publikuje ten poradnik. Customermates to wyłącznie CRM, bez funkcji ERP i bez natywnego konektora do ERP; sekcja o nim poniżej pokazuje, jak łączy się przez REST API i webhooki. Dane dostawców ERP sprawdzono 8 października 2026 na ich własnych stronach, podlinkowanych na końcu.
 
-Dla stałej integracji i klienta AI porównaj [MCP i API przy tym samym zadaniu na rekordzie klienta](/blog/mcp-vs-api). Wykrywanie narzędzi zmienia sposób, w jaki klient znajduje operację; uwierzytelnianie i uprawnienia nadal obowiązują.
+Jeśli oprócz stałej integracji chcesz podłączyć klienta AI, zobacz [porównanie MCP i API na tym samym zadaniu na rekordzie klienta](/blog/mcp-vs-api). Wykrywanie narzędzi zmienia sposób, w jaki klient znajduje operację; uwierzytelnianie i uprawnienia nadal obowiązują.
 
-Dla przepływu w n8n [porównanie dróg MCP w n8n z przykładem przypiętym do wersji](/blog/n8n-mcp) rozróżnia podłączenie n8n do serwera z danymi klientów od udostępnienia samego n8n klientowi AI. Wybierz kierunek, zanim skonfigurujesz dane uwierzytelniające.
+Jeśli budujesz przepływ w n8n, [porównanie dróg MCP w n8n z przykładem przypiętym do wersji](/blog/n8n-mcp) pokazuje różnicę między podłączeniem n8n do serwera z danymi klientów a udostępnieniem samego n8n klientowi AI. Wybierz kierunek, zanim skonfigurujesz dane uwierzytelniające.
 
 <ArticleSummary title="W skrócie">
   <SummaryItem label="Co się przenosi">Identyfikatory i kilka statusów na zdarzenie biznesowe. Nie każde pole i domyślnie nie w obie strony.</SummaryItem>
@@ -52,12 +52,12 @@ Wypełnij tę tabelę dla własnych systemów, zanim zaczniesz porównywać narz
 | --- | --- | --- |
 | Kontakty, historia relacji, rozmowy | CRM | ERP trzyma osobę kontaktową tylko wtedy, gdy potrzebują jej jego dokumenty |
 | Szansa sprzedaży, etap, następny krok | CRM | Nic albo odniesienie na zamówieniu |
-| Konto klienta do rozliczeń (nazwa prawna, VAT ID, adres rozliczeniowy, warunki płatności) | ERP | Numer klienta z ERP; integracja traktuje go jako należący do ERP |
+| Konto klienta do rozliczeń (nazwa prawna, NIP lub VAT ID, adres rozliczeniowy, warunki płatności) | ERP | Numer klienta z ERP; integracja traktuje go jako należący do ERP |
 | Towary i ceny | ERP | Numer towaru w rekordzie produktu lub usługi w CRM |
 | Zamówienia, dostawa, magazyn | ERP | Numer zamówienia i jeden status widoczny dla klienta |
 | Dokumenty rozliczeniowe i płatności | ERP | Numer dokumentu i zgrubny status płatności, jeśli opiekunowie klientów go potrzebują |
 
-Jeśli dwa systemy zapisują to samo pole, masz konflikt czekający na swoją chwilę. Wybierz jednego właściciela i kieruj poprawki do niego. Egzekwuj tę regułę w integracji; CRM może nie oferować uprawnienia na poziomie pola, które uczyni tylko to jedno pole tylko do odczytu.
+Jeśli dwa systemy zapisują to samo pole, konflikt jest tylko kwestią czasu. Wybierz jednego właściciela i kieruj poprawki do niego. Wymuś tę regułę w integracji; CRM może nie mieć uprawnień na poziomie pola, które pozwoliłyby zablokować to jedno pole do edycji.
 
 ## Cztery sposoby połączenia CRM i ERP
 
@@ -66,7 +66,7 @@ Jeśli dwa systemy zapisują to samo pole, masz konflikt czekający na swoją ch
 | Natywny konektor | Oba systemy pochodzą od dostawców, którzy dostarczają konektor dla siebie nawzajem | Jakie obiekty, pola i kierunki obejmuje, jakich edycji wymaga i kto go wspiera, gdy się zepsuje |
 | Platforma do automatyzacji (iPaaS, n8n, Make, Zapier) | Potrzebujesz kilku przepływów między dwoma systemami z REST API i chcesz wizualnej logiki | Idempotencja, kolejki błędów i sekrety nadal są Twoją pracą. Wizualny przepływ to oprogramowanie produkcyjne |
 | Bezpośrednia integracja przez API | Jeden wąski, wartościowy przepływ między dwoma stabilnymi API, a ktoś w zespole pisze kod | Odpowiadasz za uwierzytelnianie, ponowienia, zmiany wersji API i monitoring |
-| Middleware lub usługa integracyjna | Kilka systemów lub duży wolumen, ze wspólnym modelem danych i kolejkami | Więcej ruchomych części. Zbyt ciężkie do przenoszenia pięciu pól |
+| Middleware lub usługa integracyjna | Kilka systemów lub duży wolumen, ze wspólnym modelem danych i kolejkami | Więcej ruchomych części. Przesada, gdy trzeba przenieść pięć pól |
 
 Jest też piąta odpowiedź, której szukają osoby wpisujące „kompleksowe rozwiązanie CRM ERP” albo pytające, czy CRM może być częścią ERP: jeden pakiet. Odoo na przykład dostarcza aplikację CRM obok swoich aplikacji ERP, więc rekord klienta jest wspólny i nie ma czego synchronizować. Kompromis polega na tym, że używasz CRM z pakietu. Pamiętaj, że Odoo udostępnia zewnętrzne API tylko w planie Custom, więc podłączenie jakiegokolwiek zewnętrznego systemu do Odoo wymaga tego planu.
 
@@ -96,7 +96,7 @@ Dwa pytania oszczędzają najwięcej czasu: czy API jest w planie, za który pł
 
 ## Zdarzenia, idempotencja i uzgadnianie
 
-Integracja, która obsługuje tylko ścieżkę bez błędów, utworzy duplikaty w ciągu tygodni. Webhooki są ponawiane, ludzie klikają dwa razy, a przekroczenie czasu może ukryć zapis, który faktycznie się udał.
+Integracja, która obsługuje tylko ścieżkę bez błędów, utworzy duplikaty w ciągu tygodni. Webhooki są ponawiane, ludzie klikają dwa razy, a przekroczony czas oczekiwania może ukryć zapis, który faktycznie się udał.
 
 - **Idempotencja.** Zanim cokolwiek utworzysz w celu, sprawdź, czy już istnieje. Najprostszym sprawdzeniem jest samo odniesienie krzyżowe: jeśli szansa sprzedaży ma już numer zamówienia z ERP, nie twórz kolejnego zamówienia.
 - **Stałe identyfikatory.** Zapisz identyfikator drugiego systemu po pierwszym dopasowaniu. Nigdy nie dopasowuj firm po nazwie przy każdym uruchomieniu; nazwy się zmieniają, a spółki zależne je dzielą.
@@ -112,7 +112,7 @@ Integracja, która obsługuje tylko ścieżkę bez błędów, utworzy duplikaty 
     „Wygrana szansa sprzedaży tworzy klienta i zamówienie w ERP” to dobre pierwsze zdarzenie. „Synchronizuj CRM i ERP” nim nie jest.
   </Step>
   <Step title="Zdefiniuj warunki wstępne">
-    Wypisz pola, które muszą być wypełnione, zanim zdarzenie może zostać uruchomione: adres rozliczeniowy, VAT ID, towary, ilości. Zdecyduj, co blokuje zdarzenie i kto to naprawia.
+    Wypisz pola, które muszą być wypełnione, zanim zdarzenie może zostać uruchomione: adres rozliczeniowy, NIP, towary, ilości. Zdecyduj, co blokuje zdarzenie i kto to naprawia.
   </Step>
   <Step title="Spisz mapę pól">
     Dla każdego pola: źródło, cel, typ, właściciel, transformacja i to, co dzieje się, gdy go brakuje lub jest nieprawidłowe. Trzymaj mapę z wersjami obok integracji.
@@ -141,7 +141,7 @@ Tak wygląda konfiguracja w Customermates dla pierwszego przepływu opisanego wy
 
 **Idempotencja.** Każde zdarzenie niesie `id`, który pozostaje taki sam przy ponowieniach i ponownych wysłaniach, więc deduplikuj po nim. Jako drugie sprawdzenie użyj odniesienia krzyżowego: jeśli „Nr zamówienia w ERP” szansy sprzedaży jest już wypełniony, zatrzymaj się.
 
-**Dopasowanie klienta.** Sprawdź „Nr klienta w ERP” organizacji. Jeśli jest pusty, wyszukaj w ERP po VAT ID lub utwórz klienta, a potem zapisz numer z powrotem. Żeby później znaleźć organizację w CRM po numerze z ERP, wywołaj `POST /api/v1/records/query` dla Organizacji z filtrem `eq` na ID tego pola ([składnia filtrów](/docs/filter-syntax)).
+**Dopasowanie klienta.** Sprawdź „Nr klienta w ERP” organizacji. Jeśli jest pusty, wyszukaj w ERP po NIP lub VAT ID albo utwórz klienta, a potem zapisz numer z powrotem. Żeby później znaleźć organizację w CRM po numerze z ERP, wywołaj `POST /api/v1/records/query` dla Organizacji z filtrem `eq` na ID tego pola ([składnia filtrów](/docs/filter-syntax)).
 
 **Zapis zwrotny.** Gdy ERP przyjmie zamówienie, wyślij mutację `update` dla szansy sprzedaży do `POST /api/v1/records/mutate` z nowym „Nr zamówienia w ERP” i bieżącą wersją szansy sprzedaży. Pola, które pominiesz, pozostają bez zmian.
 

@@ -1,6 +1,6 @@
 ---
-title: "CRM dla firmy budowlanej: follow-up po każdej wycenie"
-description: "CRM dla firmy budowlanej: wycena cichnie, gdy jesteś na zleceniu. WhatsApp i e-mail przy kliencie, szkice odpowiedzi od Mate. To nie program do zleceń."
+title: "CRM dla firmy budowlanej i remontowej: follow-up po wycenie"
+description: "CRM dla firmy budowlanej: wycena cichnie, gdy jesteś na zleceniu. WhatsApp i e-mail przy kliencie, data kolejnego kroku i szkice odpowiedzi od Mate."
 industryName: "Firmy budowlane i fachowcy"
 
 relatedHrefs:
@@ -48,7 +48,9 @@ useCases:
       visual: pipeline
 ---
 
-Jedziesz na oględziny, wysyłasz cenę i wciąga cię robota, a wycena cichnie. Zapytanie z WhatsAppa przychodzi, gdy jesteś na dachu, a wieczorem jest już zasypane innymi wiadomościami. Customermates, czyli CRM dla firmy budowlanej, trzyma każde zapytanie przy rekordzie klienta. W Customermates Cloud od planu Pro Mate przygotowuje odpowiedź i kolejny krok, gdy o to poprosisz albo w ramach rutyny, a Twój własny agent AI (Claude, ChatGPT lub dowolny klient obsługujący MCP) robi to przez MCP. Ty sprawdzasz, poprawiasz i wysyłasz, a kolejne kroki z datą pojawiają się na Twoim pulpicie. Customermates nie planuje ekip, nie pisze wycen, nie wystawia faktur i nie jest natywną aplikacją na telefon. Do tego lepiej nadaje się oprogramowanie dla firm usługowych, takie jak Jobber, Housecall Pro czy, w Niemczech, HERO lub Plancraft; tabela poniżej pokazuje, gdzie przebiega granica.
+CRM dla firmy budowlanej trzyma przy rekordzie klienta każde zapytanie i każdą wycenę razem z datą kolejnego kroku, żeby nic nie przepadło, gdy jesteś na zleceniu. Nie zastępuje programu do kosztorysów, harmonogramów i faktur: odpowiada za pierwszy telefon, wycenę czekającą na odpowiedź i powrót do klienta.
+
+Jedziesz na oględziny, wysyłasz cenę i wciąga cię robota, a wycena cichnie. Zapytanie z WhatsAppa przychodzi, gdy jesteś na dachu, a wieczorem jest już zasypane innymi wiadomościami. Customermates, czyli CRM dla firmy budowlanej, trzyma każde zapytanie przy rekordzie klienta. W Customermates Cloud od planu Pro Mate przygotowuje odpowiedź i kolejny krok, gdy o to poprosisz albo w ramach rutyny, a Twój własny agent AI (Claude, ChatGPT lub dowolny klient obsługujący MCP) robi to przez MCP. Ty sprawdzasz, poprawiasz i wysyłasz, a kolejne kroki z datą pojawiają się na Twoim pulpicie. Customermates nie planuje ekip, nie pisze wycen, nie wystawia faktur i nie jest natywną aplikacją na telefon. Do tego lepiej nadaje się oprogramowanie dla firm usługowych i budowlanych, takie jak Jobber, Housecall Pro czy, w Niemczech, HERO lub Plancraft, a w Polsce programy do kosztorysowania i prowadzenia budowy; tabela poniżej pokazuje, gdzie przebiega granica.
 
 Customermates to CRM open source, zbudowany od początku z myślą o AI i tworzony w Niemczech. Ta strona pokazuje, jak konfigurują go elektrycy, hydraulicy, firmy od ogrzewania i klimatyzacji, instalatorzy fotowoltaiki, firmy budowlane, firmy sprzątające i warsztaty samochodowe, ile kosztuje i co zostaje u nich w innych narzędziach.
 
@@ -172,6 +174,7 @@ Liczba rutyn na użytkownika to [[commercial.entitlement.starter.includedRoutine
 | Klimatyzacja i wentylacja | Osobne wartości Rodzaju zlecenia dla napraw i dla sprzedaży wymian, żeby wyceny wymian miały własny widok; Umowa serwisowa (pojedynczy wybór) |
 | Instalatorzy fotowoltaiki | Etapy: Wizja lokalna, Oferta wysłana, Finansowanie, Wniosek o przyłączenie do sieci, Zamontowane; pole Plik na plik z projektem |
 | Firmy budowlane i wykonawcy | Termin złożenia oferty (data) i Źródło przetargu przy zleceniu; podwykonawcy jako kontakty w ich własnej organizacji |
+| Firmy remontowe i wykończeniowe | Rodzaj zlecenia: remont łazienki, kuchnia, wykończenie pod klucz; Zakres prac (tekst), Wizja lokalna (data), Wycena wysłana dnia (data); ekipy i podwykonawcy jako kontakty |
 | Firmy sprzątające | Typ umowy (pojedynczy wybór: jednorazowa, tygodniowa, miesięczna), Data odnowienia; jedno zlecenie na umowę |
 | Warsztaty samochodowe | Numer rejestracyjny i marka pojazdu jako pola tekstowe przy zleceniu, Następny przegląd techniczny (data) przy kliencie |
 
@@ -208,6 +211,18 @@ Ceny są za aktywnego użytkownika miesięcznie, rozliczane miesięcznie. Każdy
 
 Każdy płatny plan chmurowy dodaje miesięczne kredyty AI w chmurze na aktywnego użytkownika dla Mate; kwoty znajdziesz na [stronie z cennikiem](/pricing). Licencje są liczone na użytkownika, więc technicy, którzy nigdy się nie logują, nie potrzebują konta. Rdzeń open source możesz uruchomić na własnym serwerze bez opłaty licencyjnej, ale [instalacja self-hosted](/features/self-hosted) nie ma skrzynki odbiorczej, Mate ani rutyn.
 
+## Jak wybrać i wdrożyć CRM w firmie budowlanej [#jak-wybrac-i-wdrozyc-crm-w-firmie-budowlanej]
+
+Zacznij od pytania, gdzie naprawdę tracisz zlecenia. Jeśli w terenie, wybierz program do zarządzania zleceniami. Jeśli przy pierwszym telefonie i wycenie, wybierz CRM. Wdrożenie nie musi być osobnym projektem:
+
+1. Wybierz jeden kanał (WhatsApp albo e-mail) i jedną listę, Zlecenia.
+2. Ustaw etapy i trzy pola: Rodzaj zlecenia, Wycena wysłana dnia i Termin follow-upu.
+3. Zaimportuj klientów i otwarte wyceny (opis poniżej).
+4. Zapisz widok Wyceny do przypomnienia i otwieraj go każdego ranka. O efekcie decyduje ten nawyk, a nie samo narzędzie.
+5. Po tygodniu lub dwóch dodaj pola i widoki dla prac cyklicznych i umów serwisowych.
+
+Najczęstsze błędy to zbyt wiele pól na starcie, których nikt nie wypełnia, brak jednej osoby odpowiedzialnej za listę zapytań i oczekiwanie, że CRM zastąpi kosztorysy i fakturowanie. Szerzej o tym, jak podejść do wdrożenia, pisze [przewodnik po wdrożeniu CRM](/blog/crm-implementation).
+
 ## Przejście z arkusza kalkulacyjnego lub kontaktów w telefonie
 
 Zapisz listę klientów jako skoroszyt Excela (.xlsx) lub plik CSV. Najpierw zaimportuj wynajmujących i wykonawców jako organizacje, potem kontakty z kolumną z nazwą ich firmy, żeby import je powiązał. Otwarte zlecenia importuj na końcu, z etapem, rodzajem zlecenia i datami wycen. Rekordy importuje się i eksportuje po jednym typie rekordu naraz; limity opisuje [przewodnik po rekordach](/docs/app-records). W Customermates Cloud główna baza danych jest skonfigurowana w regionie AWS Frankfurt, [podprocesorzy](/subprocessors) są wymienieni, a umowa powierzenia przetwarzania danych jest dostępna.
@@ -217,6 +232,14 @@ Zapisz listę klientów jako skoroszyt Excela (.xlsx) lub plik CSV. Najpierw zai
 <Faq>
 <FaqItem question="Jaki jest najlepszy CRM dla rzemieślników?">
 To zależy od tego, gdzie tracisz zlecenia. Jeśli codziennym problemem jest umawianie robót, wysyłanie faktur i aplikacja dla ekipy, pasuje pakiet do zarządzania zleceniami, taki jak Jobber, Housecall Pro lub ServiceTitan, a w Niemczech HERO i Plancraft. Jeśli zlecenia idą dobrze, a wymykają się zapytania i wyceny, pasuje CRM taki jak Customermates. To nasz własny produkt, więc weź to pod uwagę.
+</FaqItem>
+
+<FaqItem question="Czy CRM zastąpi program do kosztorysowania i prowadzenia budowy?">
+Nie. Kosztorysy, harmonogramy, dziennik budowy, materiały i rozliczenia zostają w programie do prowadzenia budowy lub w ERP. CRM odpowiada za zapytania, wyceny, kontakt z inwestorami i powrót do klienta. Wartość zlecenia zapisujesz przy rekordzie, a dane możesz przekazać dalej przez [REST API](/features/api) lub webhooki.
+</FaqItem>
+
+<FaqItem question="Ile kosztuje CRM dla firmy budowlanej?">
+W Customermates jednoosobowa firma płaci [[commercial.price.starter.monthly]] miesięcznie w planie Starter albo [[commercial.price.pro.monthly]] w planie Pro z WhatsAppem lub e-mailem w skrzynce odbiorczej. Właściciel i osoba z biura, każda z jednym kontem w skrzynce, płacą w planie Pro [[commercial.price.pro.monthly.seats.2]] miesięcznie. Licencje liczą się na użytkownika, więc technicy, którzy się nie logują, nie potrzebują konta.
 </FaqItem>
 
 <FaqItem question="Czy jednoosobowa firma potrzebuje CRM?">

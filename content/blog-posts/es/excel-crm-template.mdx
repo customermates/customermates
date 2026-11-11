@@ -1,6 +1,6 @@
 ---
-title: "CRM Excel: plantilla gratis con hojas y fórmulas"
-description: "CRM Excel: plantilla gratis de seis hojas con columnas, listas desplegables y fórmulas para pipeline y seguimiento de comerciales, lista para importar."
+title: "CRM Excel: plantilla gratis y cómo hacerlo paso a paso"
+description: "CRM Excel: plantilla gratis de seis hojas con listas desplegables y fórmulas, cómo hacerlo paso a paso, sus ventajas y límites, y cuándo pasar a un CRM."
 
 relatedHrefs:
   - /blog/google-sheets-crm
@@ -65,6 +65,19 @@ Convertimos el ejemplo en inglés a un JSON que respeta el esquema y lo importam
 | 50% / 25% | Las probabilidades decimales coincidieron tras la exportación |
 
 Repetir la misma importación con su clave de idempotencia devolvió el mismo resultado sin añadir dos trabajos más. Para una migración real, lee primero los ID actuales de tus listas, campos y opciones, y luego sigue el [contrato de importación JSON](/docs/app-records#bulk-import-over-the-api). Conserva un mapa de los ID de origen del libro a los ID de registro del CRM, vuelve a leer los registros guardados y archiva el libro original. Esto no es una migración de adjuntos, ni una función de deshacer, ni una sincronización continua.
+
+## ¿Cómo se hace un CRM en Excel? [#como-hacer-crm-excel]
+
+En resumen, en seis pasos. Los detalles de cada hoja vienen más abajo.
+
+<Steps>
+  <Step title="Escribe tu objetivo">Una frase, por ejemplo «saber a quién llamar esta semana y qué oportunidades siguen abiertas». Con ella decides qué columnas necesitas y cuáles sobran.</Step>
+  <Step title="Crea una hoja por tipo de registro">Empresas, contactos, oportunidades y actividades, cada una con una fila de encabezado y una fila por registro, convertida en tabla con Ctrl+T.</Step>
+  <Step title="Pon listas desplegables a los valores fijos">Etapa, estado, origen y tipo de actividad, con una hoja Lists como origen, para que nadie escriba «Propuesta», «propuesta enviada» y «Prop.» a la vez.</Step>
+  <Step title="Define las etapas de tu proceso de venta">Las que sigues de verdad, de la primera conversación al cierre. Pocas y con nombres claros; las de la hoja Deals de abajo son un punto de partida.</Step>
+  <Step title="Registra cada conversación con su siguiente paso y su fecha">Una fila en Activities por llamada, reunión o mensaje, y la fecha del siguiente paso en la oportunidad. Sin esa fecha, la hoja es un archivo y no un seguimiento.</Step>
+  <Step title="Protege la hoja y revísala cada semana">Una persona responsable por fila, una copia de seguridad y un repaso semanal de las fechas vencidas en el Dashboard.</Step>
+</Steps>
 
 ## Cuatro reglas de diseño antes de la primera fila
 
@@ -172,6 +185,24 @@ Past next steps  =COUNTIFS(Deals[Owner],$A4,Deals[Next step date],"<"&TODAY(),De
 
 Muchas llamadas con un pipeline plano apuntan a un problema de cualificación. Un número creciente de siguientes pasos vencidos apunta a un problema de seguimiento. Usa el seguimiento para acompañar al equipo, no como clasificación pública, o los recuentos de actividad empezarán a inflarse.
 
+## Ventajas y desventajas de un CRM en Excel [#ventajas-desventajas-crm-excel]
+
+**Ventajas**
+
+- **Ya lo tienes.** No hay que aprender un programa nuevo ni dar de alta a nadie para empezar.
+- **Tú decides las columnas.** Añades el campo propio de tu oficio sin pedirle permiso a un proveedor.
+- **Sirve para informes sencillos.** Con COUNTIFS y SUMIFS, un recuento por comercial o por etapa es cuestión de una fórmula.
+- **Es fácil de llevarse.** Un libro con una fila por registro se importa después a casi cualquier CRM, como se muestra más abajo.
+
+**Desventajas**
+
+- **No avisa a nadie.** Una fecha vencida solo se ve cuando alguien abre la hoja.
+- **Los vínculos son texto.** Cambiar el nombre de una empresa rompe las búsquedas que usaban el nombre antiguo.
+- **No trae las conversaciones.** El correo, LinkedIn o WhatsApp llegan solo cuando alguien los resume a mano.
+- **El acceso es todo o nada**, y los datos personales acaban repartidos en copias.
+
+La siguiente comparación y la sección «Dónde deja de funcionar un CRM en hoja de cálculo» explican cuándo esas desventajas pesan más que las ventajas.
+
 ## ¿Excel, Google Sheets o un CRM?
 
 | Si te describe esto | Usa | Ten en cuenta |
@@ -200,7 +231,7 @@ El tamaño rara vez es el motivo; estos límites aparecen primero.
 
 Si dos de estas cosas son ciertas, yo pasaría. Una sola suele poder arreglarse dentro del libro.
 
-## Pasar la plantilla a Customermates
+## Pasar la plantilla a Customermates [#moving-the-template-into-customermates]
 
 Customermates importa libros de Excel (.xlsx o .xls) y archivos CSV, una lista cada vez. La [documentación de importación](/docs/app-records#how-do-i-import-or-export-records) tiene las reglas completas. Una hoja de cálculo solo hace seguimiento cuando alguien se acuerda de abrirla. Cuando la hoja ya está en Customermates, las conversaciones de cada cliente quedan en el registro del cliente (en Customermates Cloud desde Pro), Mate o tu propio agente de IA redacta el borrador de la respuesta y del siguiente paso, y la fecha del siguiente paso alimenta tu panel en lugar de una celda roja. Así aterrizan las columnas de la plantilla:
 
@@ -259,6 +290,18 @@ Customermates tiene [campos calculados](/docs/concepts#how-do-i-build-a-calculat
 <Faq>
 <FaqItem question="¿Se puede montar un CRM en Excel?">
 Sí, para un equipo pequeño. El diseño de seis hojas de arriba cubre empresas, contactos, oportunidades, actividades y un panel. Lo que Excel no puede hacer por sí solo es avisar a nadie, mantener los vínculos intactos cuando cambia un nombre o traer conversaciones. Excel es una hoja de cálculo, no un CRM; Microsoft vende su CRM aparte como [Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales).
+</FaqItem>
+
+<FaqItem question="¿Cómo se hace un CRM en Excel?">
+Con una hoja por tipo de registro (empresas, contactos, oportunidades y actividades), tablas de Excel, listas desplegables para los valores fijos, las etapas de tu proceso de venta y una fecha de siguiente paso en cada oportunidad. Los seis pasos están en la sección [«¿Cómo se hace un CRM en Excel?»](#como-hacer-crm-excel), y el diseño completo, hoja por hoja, más abajo.
+</FaqItem>
+
+<FaqItem question="¿Qué es un CRM y un ejemplo?">
+Un CRM (gestión de las relaciones con los clientes) guarda en un solo lugar quién es cada cliente o posible cliente, qué se habló con él y cuál es el siguiente paso. Un ejemplo sencillo: una consultora anota en cada oportunidad la fecha del próximo seguimiento y abre cada lunes la lista de los que vencen. Eso se puede hacer en una hoja de cálculo o en un CRM como Customermates; la diferencia es quién se encarga de recordarlo.
+</FaqItem>
+
+<FaqItem question="¿Cómo llevo el seguimiento de clientes y la prospección en Excel?">
+Con la hoja Deals, que tiene una fila por oportunidad con su etapa y su fecha de siguiente paso, y la hoja Activities, una fila por cada llamada, reunión o mensaje. Filtra Deals por fecha de siguiente paso para ver a quién toca contactar. Si quieres comparar alternativas antes de decidir, mira la [guía de los mejores CRM](/blog/best-crm-software) o la de [CRM gratis](/blog/free-crm).
 </FaqItem>
 
 <FaqItem question="¿Hay una plantilla de CRM en Excel gratis?">

@@ -1,6 +1,6 @@
 ---
 title: "CRM voor verzekeringen: opvolgen voor elke verlenging"
-description: "CRM voor verzekeringen: verlenging nadert, offerte onbeantwoord? E-mail en WhatsApp staan bij de klant, Mate schrijft het concept. Polissen blijven in je AMS."
+description: "CRM voor verzekeringen: volg elke offerte en verlenging op. E-mail en WhatsApp staan bij de klant, Mate schrijft het concept en jij verstuurt het zelf."
 industryName: "Verzekeringsadviseurs"
 
 relatedHrefs:
@@ -76,7 +76,7 @@ EZLynx, dat een AMS verkoopt, [zet het onderscheid in één regel](https://www.e
 
 Veel producten die als verzekerings-CRM worden verkocht, zijn in feite allebei. AgencyBloc beschrijft zijn agency management system als gebouwd voor kantoren voor zorg-, levens- en collectieve verzekeringen (group benefits), met provisieafstemming. HawkSoft noemt downloads van maatschappijen, boekhouding en een rater. Heb je nog geen AMS, begin dan daar. Heb je er een en zit je opvolging in de verkoop nog in een notitieboekje of spreadsheet, dan is een CRM ernaast zinvol.
 
-Wat verzekeringen verkopen van dat CRM vraagt:
+Wat de verkoop van verzekeringen van dat CRM vraagt:
 
 - **Verlengingsdata bepalen het ritme.** Een verlengingsreview helpt alleen als hij weken vóór de verlengingsdatum plaatsvindt, terwijl er nog tijd is om opnieuw uit te vragen. Je hebt een lijst nodig die op die datum is gesorteerd.
 - **Huishoudens en bedrijven.** Een klant met particuliere verzekeringen is één persoon; een zakelijke klant is een bedrijf met een eigenaar, een kantoormanager en een boekhouder.
@@ -86,7 +86,7 @@ Wat verzekeringen verkopen van dat CRM vraagt:
 
 ## Een inrichting voor verzekeringen in Customermates
 
-Een nieuwe werkruimte begint zonder lijsten: je maakt de lijsten die je nodig hebt (contactpersonen, organisaties, deals of eigen lijsten) aan in het **Datamodel**, of laat de AI-setup ze in de cloud bouwen. Eén manier om vijf lijsten voor een kantoor in te delen; elke veldnaam hieronder is een voorbeeld dat je zelf aanmaakt.
+Een nieuwe werkruimte begint zonder lijsten: je maakt de lijsten die je nodig hebt (contactpersonen, organisaties, deals of eigen lijsten) aan in het **Datamodel**, of laat de AI-setup ze in de cloud bouwen. Zo kun je vijf lijsten voor een kantoor indelen; elke veldnaam hieronder is een voorbeeld dat je zelf aanmaakt.
 
 | Recordtype | Gebruikt voor | Voorbeelden van eigen velden |
 |---|---|---|
@@ -144,8 +144,8 @@ Een tweede routine kan op een gebeurtenis reageren: wanneer de fase van een deal
 
 Er is geen native koppeling met maatschappijen, raters of een AMS. Drie manieren om het CRM actueel te houden:
 
-- **Je eigen integratie.** Kan je rater of AMS een API aanroepen of webhooks versturen, dan kan een script of een [n8n-workflow](/features/workflow-automation) die je apart draait de deal bijwerken via de [REST API](/features/api): zet de fase op Offerte verstuurd en schrijf de offertereferentie en de premie weg. Customermates verstuurt webhooks voor [[derived.webhooks.events.records]] recordgebeurtenissen, dus een afgesloten deal kan een stap in de andere richting starten.
-- **Excel-heen-en-weer.** Exporteer uit het AMS, sla op als .xlsx en importeer één recordtype tegelijk. Een kolom die aan Record-ID is gekoppeld, werkt bestaande records bij in plaats van duplicaten te maken.
+- **Je eigen integratie.** Kan jouw rater of AMS een API aanroepen of webhooks versturen, dan kan een script of een [n8n-workflow](/features/workflow-automation) die je apart draait de deal bijwerken via de [REST API](/features/api): zet de fase op Offerte verstuurd en schrijf de offertereferentie en de premie weg. Customermates verstuurt webhooks voor [[derived.webhooks.events.records]] recordgebeurtenissen, dus een afgesloten deal kan een stap in de andere richting starten.
+- **Heen en weer via Excel.** Exporteer uit het AMS, sla op als .xlsx en importeer één recordtype tegelijk. Een kolom die aan Record-ID is gekoppeld, werkt bestaande records bij in plaats van duplicaten te maken.
 - **Een AI-client.** Claude, ChatGPT of een andere client kan records aanmaken en bijwerken via [MCP](/docs/mcp) in elk abonnement, met modelgebruik dat je AI-aanbieder in rekening brengt.
 
 ## Wat het niet doet, en waar je dan naar kijkt
@@ -154,7 +154,7 @@ Er is geen native koppeling met maatschappijen, raters of een AMS. Drie manieren
 - Taken hebben geen deadlines, herinneringen of meldingen. Gebruik een datumveld en een opgeslagen weergave, of een routine.
 - Geen e-mailreeksen, verlengingscampagnes of bulkberichten. Opvolging gaat per gesprek.
 - Geen webformulieren, geen telefonie of sms en geen mobiele app.
-- Geen rechten op veldniveau. Een eigen rol met leestoegang Toegewezen beperkt een adviseur tot de eigen records. Houd gezondheidsinformatie en schadedossiers buiten het CRM.
+- Geen rechten op veldniveau. Een aangepaste rol met leestoegang Toegewezen beperkt een adviseur tot de eigen records. Houd gezondheidsinformatie en schadedossiers buiten het CRM.
 
 Customermates publiceert deze pagina. Gegevens van aanbieders, inclusief de prijs van Less Annoying CRM, zijn op de eigen website van elke aanbieder gecontroleerd; verificatiedatum 8 oktober 2026.
 

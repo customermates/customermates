@@ -1,6 +1,6 @@
 ---
-title: "Servidor MCP (MCP server): qué es, local o remoto, seguridad"
-description: "Servidor MCP (MCP server): qué ofrece a Claude, ChatGPT o Cursor, herramientas, recursos y prompts, local o remoto, MCP vs API, riesgos y un ejemplo real."
+title: "Servidor MCP (MCP server): qué es, cómo funciona y ejemplos"
+description: "Servidor MCP (MCP server): qué es, qué ofrece a Claude o ChatGPT, ejemplos por tipo, cómo crear uno, local o remoto, MCP vs API, riesgos y un caso real."
 
 hero:
   title: "¿Qué es un servidor MCP (MCP server)? Una explicación clara con un ejemplo real"
@@ -127,6 +127,33 @@ La mayoría de las personas nunca construye uno. Conectas los servidores que tus
 
 Antes de conectar el servidor de un proveedor, comprueba tres cosas: si es el servidor oficial del proveedor o un proyecto de la comunidad, qué puede escribir o eliminar y qué plan necesita en ambos lados. Nuestras guías del [servidor MCP de HubSpot](/blog/hubspot-mcp) y de [Salesforce MCP](/blog/salesforce-mcp) muestran lo distintos que pueden ser dos servidores oficiales, y la [guía de Claude y CRM](/blog/claude-crm) compara los conectores de varios CRM.
 
+## ¿Cuáles son los mejores servidores MCP? Ejemplos por tipo de tarea [#mejores-servidores-mcp-ejemplos]
+
+No existe un «mejor servidor MCP» en general. El mejor suele ser el oficial del software con el que ya trabajas, porque lo mantiene el mismo equipo que el producto y respeta sus permisos. Estos son los tipos de servidor más habituales:
+
+| Tipo de tarea | Qué permite a la IA | Ejemplo | Dónde se ejecuta |
+| --- | --- | --- | --- |
+| Archivos y documentos | Leer, buscar y, si lo permites, editar archivos de una carpeta que tú indicas | El servidor de sistema de archivos de referencia | Local |
+| Errores y monitorización | Consultar los errores de producción y su contexto | El servidor alojado de Sentry | Remoto |
+| Clientes y ventas (CRM) | Buscar contactos, leer conversaciones, crear tareas y preparar respuestas | El servidor de HubSpot, el endpoint de Customermates | Remoto |
+| Bases de datos y analítica | Lanzar consultas sobre un esquema y resumir el resultado | El servidor que ofrece el fabricante de la base de datos o la comunidad | Local o remoto |
+| Navegador y pruebas | Abrir páginas, rellenar formularios y comprobar una web | Servidores de automatización de navegador | Local |
+
+Si hay varios servidores para el mismo producto, decide con estas preguntas: si lo publica el proveedor o un tercero, qué herramientas de escritura y eliminación incluye, si funciona en el cliente que usas (los clientes web y móviles solo admiten servidores remotos) y si alguien lo mantiene y publica cambios. Los encuentras en la documentación del propio proveedor y en los directorios de la comunidad. Esos directorios listan servidores de todo tipo, así que aplica la lista de seguridad de más abajo antes de instalar cualquiera.
+
+## ¿Cómo crear un servidor MCP propio? [#como-crear-un-servidor-mcp]
+
+Un servidor sencillo lleva poco código: el proyecto MCP publica SDK oficiales en varios lenguajes, entre ellos TypeScript y Python. Los pasos son los mismos en cualquiera:
+
+1. **Decide qué expones.** Empieza con una o dos herramientas de solo lectura, por ejemplo «buscar un cliente por nombre». Cada herramienta lleva un nombre, una descripción clara para el modelo y un JSON Schema con sus entradas.
+2. **Elige el transporte.** stdio si el servidor se ejecuta en tu equipo para un solo cliente; Streamable HTTP si lo publicas como servicio para varios.
+3. **Conéctalo a tu sistema** a través de la lógica o de la API que ya tienes, para que se apliquen las mismas reglas de permisos que a cualquier otra llamada.
+4. **Pruébalo antes de dárselo a nadie.** Conéctalo a un cliente MCP o al inspector que ofrece el proyecto MCP y comprueba que `tools/list` devuelve lo esperado y que cada herramienta responde con datos reales.
+5. **Si es remoto, añade inicio de sesión por usuario** (OAuth o una clave de API por usuario), nunca un token compartido por todos.
+6. **Abre las escrituras con calma.** Añade primero las que se pueden deshacer, deja las eliminaciones y los envíos detrás de una confirmación y revisa la lista de seguridad de más abajo.
+
+Antes de construir nada, mira si el sistema ya tiene su servidor: casi siempre es más rápido que mantener uno propio. Para un CRM, la [referencia de MCP de Customermates](/docs/mcp) muestra cómo queda un servidor completo, con herramientas, recursos y prompts.
+
 ## Un servidor MCP de negocio real, de principio a fin
 
 La mayoría de las explicaciones se quedan en una herramienta del tiempo. Así es un servidor de producción para datos de clientes, con Customermates como ejemplo. Todos los detalles siguientes proceden de la [referencia de MCP](/docs/mcp) pública.
@@ -181,6 +208,18 @@ La especificación afirma que las herramientas representan ejecución de código
 Es un adaptador entre un asistente de IA y otro sistema. El servidor le dice a la IA qué acciones y datos ofrece, la IA pide lo que necesita y el servidor ejecuta la petición con tus permisos.
 </FaqItem>
 
+<FaqItem question="¿Qué significa MCP?">
+MCP son las siglas de Model Context Protocol (protocolo de contexto de modelo), el estándar abierto que Anthropic presentó el 25 de noviembre de 2024. Define cómo una aplicación de IA descubre y llama a las herramientas, los datos y los prompts de otro sistema.
+</FaqItem>
+
+<FaqItem question="¿Cómo crear un servidor MCP?">
+Con uno de los SDK oficiales del proyecto MCP: defines una o dos herramientas de solo lectura, eliges el transporte (stdio en local, Streamable HTTP en remoto), lo pruebas con un cliente MCP y solo después añades escrituras y, si es remoto, inicio de sesión por usuario. Los pasos completos están en [cómo crear un servidor MCP propio](#como-crear-un-servidor-mcp).
+</FaqItem>
+
+<FaqItem question="¿Cuáles son los mejores servidores MCP?">
+El mejor es el oficial del software que ya usas, porque respeta sus permisos y lo mantiene el mismo equipo. Para elegir entre varios, mira quién lo publica, qué puede escribir o eliminar y si funciona en tu cliente de IA. Hay [ejemplos de servidores MCP por tipo de tarea](#mejores-servidores-mcp-ejemplos) más arriba.
+</FaqItem>
+
 <FaqItem question="¿Qué diferencia hay entre un cliente MCP y un servidor MCP?">
 El cliente vive dentro de la aplicación de IA, por ejemplo Claude o Cursor, y mantiene la conexión. El servidor es el programa del otro extremo que ofrece herramientas, recursos y prompts. Una aplicación puede ejecutar muchos clientes, uno por cada servidor conectado.
 </FaqItem>
@@ -198,7 +237,7 @@ Si ofrece una herramienta de eliminación y tu cuenta puede eliminar, sí. Compr
 </FaqItem>
 
 <FaqItem question="¿Son gratis los servidores MCP?">
-El protocolo es libre y abierto. Que un servidor concreto cueste dinero depende de su proveedor y de su plan; la suscripción de tu cliente de IA es un costo aparte.
+El protocolo es libre y abierto. Que un servidor concreto cueste dinero depende de su proveedor y de su plan; la suscripción de tu cliente de IA es un coste aparte.
 </FaqItem>
 </Faq>
 

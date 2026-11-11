@@ -1,6 +1,6 @@
 ---
-title: "CRM para agência de marketing: do fechamento à entrega"
-description: "CRM para agência de marketing de 2 a 10 pessoas: pitches, retainers e conversas com clientes juntos, caixa compartilhada no Business, um espaço por cliente."
+title: "CRM para agência de marketing: pitches, retainers e entrega"
+description: "CRM para agência de marketing de 2 a 10 pessoas: acompanhe cada pitch, repasse o cliente assinado à entrega e compare 6 CRMs com preços verificados em 2026."
 industryName: Agências de marketing
 
 acquisition:
@@ -10,8 +10,8 @@ acquisition:
   role: support
   primaryIntent: CRM para agência de marketing
   metadata:
-    title: "CRM para agência de marketing: do fechamento à entrega"
-    description: "CRM para agência de marketing de 2 a 10 pessoas: pitches, retainers e conversas com clientes juntos, caixa compartilhada no Business, um espaço por cliente."
+    title: "CRM para agência de marketing: pitches, retainers e entrega"
+    description: "CRM para agência de marketing de 2 a 10 pessoas: acompanhe cada pitch, repasse o cliente assinado à entrega e compare 6 CRMs com preços verificados em 2026."
   proof:
     factReferences:
       - product:core-crm-records
@@ -328,7 +328,7 @@ Abra um cliente a partir de um cartão e o relacionamento inteiro está em um s�
 
 ## As conversas com clientes ao lado do relacionamento
 
-No Customermates Cloud, a [caixa de entrada unificada](/features/unified-inbox) reúne e-mail do Gmail, do Outlook ou de IMAP com LinkedIn, WhatsApp, Instagram e Telegram. Você responde pelo canal original. Os participantes são associados a contatos pelo endereço de e-mail, pelo número de telefone ou pela identidade no LinkedIn; vincular uma conversa a um pitch ou a um cliente é um passo deliberado de uma pessoa ou de um agente.
+No Customermates Cloud, a [caixa de entrada unificada](/features/unified-inbox) reúne e-mail do Gmail, do Outlook ou de IMAP com LinkedIn, WhatsApp, Instagram e Telegram. Você responde pelo canal original. Os participantes são associados a contatos pelo endereço de e-mail, pelo número de telefone ou pela identidade no LinkedIn; vincular uma conversa a um pitch ou a um cliente é um passo deliberado de uma pessoa ou de um agente. Em uma agência em que o briefing e a aprovação costumam chegar pelo WhatsApp, isso mantém o histórico no registro do cliente, e não só no celular de quem atendeu.
 
 O plano define até onde a caixa de entrada chega:
 
@@ -341,6 +341,14 @@ O plano define até onde a caixa de entrada chega:
 O Mate, o assistente do Customermates Cloud, pode resumir um cliente antes de uma reunião de pitch, mover um pitch para a próxima etapa e salvar na conversa um rascunho de follow-up. Ele roda com créditos de IA hospedados, incluídos por usuário ativo em todo plano pago na nuvem, e não está disponível com hospedagem própria. O Mate envia quando você manda enviar, então peça um rascunho quando quiser revisar antes. Uma [rotina](/docs/app-routines) pode executar o Mate em um agendamento ou quando um registro muda. O espaço de trabalho de exemplo tem duas: toda segunda-feira uma verificação de renovações marca como Renewal due os retainers que renovam em até 60 dias e cria uma tarefa, e quando um pitch passa para Proposal sent o Mate salva um rascunho de follow-up para revisão.
 
 Todo plano, inclusive com hospedagem própria, tem uma [API REST](/features/api) e [MCP](/docs/mcp) para clientes de IA externos, como o Claude ou o ChatGPT, que podem ler ou atualizar os registros que a sua função permite; os webhooks vêm com todo plano pago e com a hospedagem própria. Um [fluxo do n8n](/features/workflow-automation) operado separadamente pode passar um pitch ganho para a sua ferramenta de projetos.
+
+## Lembretes e onboarding de novos clientes [#lembretes-e-onboarding]
+
+O cliente novo costuma se perder no intervalo entre assinar e começar. O Customermates não tem sequências de onboarding automáticas, mas dá para montar o repasse com o que existe:
+
+- **Ao ganhar o pitch:** mova-o para Won, crie o registro do projeto ou do retainer e uma tarefa de kickoff atribuída a quem lidera a entrega.
+- **A resposta de boas-vindas:** o Mate redige a mensagem a partir do seu playbook de repasse e salva como rascunho; você lê, edita e envia.
+- **Os lembretes:** as tarefas não têm lembretes embutidos, então use um campo de data com uma visualização salva, ou uma [rotina](/docs/app-routines) que o Mate executa toda segunda-feira e que cria as tarefas por você, como a verificação de renovações do espaço de exemplo.
 
 ## Trabalhando em equipe na agência
 
@@ -403,4 +411,11 @@ Ele mantém cada cliente, as pessoas por trás dele e cada pitch ou retainer em 
 Para começar, muitas vezes sim: o HubSpot é gratuito para até 2 usuários e o Attio para até 3 usuários (verificado em 9 de novembro de 2026). O Customermates Cloud tem um plano gratuito para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem a caixa de entrada, o Mate nem as rotinas. Se você quer as conversas dos clientes ao lado do pitch, precisa do Pro.
 </FaqItem>
 
+<FaqItem question="O que é CRM de marketing, e é isso que uma agência precisa?">
+Quase sempre, o termo descreve o lado do CRM que ajuda o marketing a captar e nutrir leads: formulários, segmentação e e-mails em massa. Para uma agência, o problema costuma ser outro: acompanhar cada pitch, cada retainer e cada conversa com o cliente. É isso que o Customermates cobre. Ele não faz e-mail marketing, nutrição de leads nem campanhas.
+</FaqItem>
+
+<FaqItem question="Quais são os tipos de CRM?">
+Costuma-se falar em quatro: operacional (a rotina de contatos, pipeline e tarefas), analítico (relatórios e análise dos dados), colaborativo (compartilhar o histórico entre quem vende e quem atende) e estratégico (planejar o negócio em torno do valor do cliente). O Customermates é pensado para o dia a dia comercial e para compartilhar o histórico entre a venda e a entrega; o artigo [O que é CRM](/blog/what-is-crm) explica cada tipo.
+</FaqItem>
 </Faq>

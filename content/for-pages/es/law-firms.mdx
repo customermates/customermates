@@ -1,6 +1,6 @@
 ---
-title: "CRM para abogados: seguimiento de cada consulta nueva"
-description: "CRM para abogados: cada consulta y cada recomendación queda en el registro con fecha de seguimiento, y Mate redacta la respuesta que tú envías."
+title: "CRM para abogados y despachos: cada consulta con seguimiento"
+description: "CRM para abogados y despachos: cada consulta y cada recomendación con fecha de seguimiento y respuestas que Mate redacta para que las revises y las envíes."
 industryName: "Despachos de abogados"
 
 relatedHrefs:
@@ -55,7 +55,7 @@ Esta página responde también a las preguntas que se hacen los abogados que eje
 <ArticleSummary title="De un vistazo">
   <SummaryItem label="Encaja con">
     Abogados que ejercen en solitario y despachos pequeños cuyo trabajo llega
-    por recomendaciones, excclientes y consultas directas, y que ya tienen un
+    por recomendaciones, exclientes y consultas directas, y que ya tienen un
     software de gestión del despacho.
   </SummaryItem>
   <SummaryItem label="Configuración">
@@ -91,11 +91,14 @@ Muchas listas de «CRM legal» mezclan dos tipos de producto. El software de ges
 
 Un reparto que funciona es con dos sistemas: el software de gestión del despacho para el asunto, y Customermates para la recepción de consultas, las recomendaciones y la relación a largo plazo con cada cliente. Guarda en la oportunidad el número de asunto de tu software de gestión del despacho, para encontrar el mismo asunto en ambos sistemas. Nada se sincroniza por sí solo; un enlace entre los dos necesita una automatización propia (consulta más abajo).
 
-## Qué necesita un despacho de abogados de un CRM
+## Qué necesita un despacho de abogados de un CRM [#que-necesita-un-despacho-de-un-crm]
+
+**En pocas palabras:** un CRM le sirve a un despacho o a un bufete para tres cosas: responder rápido a cada consulta nueva, saber de dónde llega el trabajo y no perder la relación con los clientes anteriores. Alrededor de cada asunto hay una relación cliente-abogado que dura más que el asunto, y es la que el CRM guarda: quién es el cliente, quién lo recomendó, qué se habló y cuál es el siguiente paso.
+
 
 - **Rapidez ante las consultas nuevas.** Un cliente potencial que espera un día puede llamar al siguiente despacho. Necesitas una lista de las consultas que nadie ha respondido, las más antiguas primero.
 - **Una búsqueda de conflictos de intereses antes del encargo.** Los clientes anteriores, las partes contrarias y sus empresas tienen que poder encontrarse por nombre, en un solo sistema y no en las agendas de cada socio.
-- **Fuentes de recomendación que puedas contar.** Si otros abogados, contadores y exclientes te envían trabajo, necesitas saber quién envió qué y a quién no has dado las gracias.
+- **Fuentes de recomendación que puedas contar.** Si otros abogados, asesores fiscales y exclientes te envían trabajo, necesitas saber quién envió qué y a quién no has dado las gracias.
 - **Un cliente, muchos asuntos.** Una empresa a la que asesoraste en un arrendamiento vuelve tres años después por un conflicto laboral. El historial debería estar en un solo registro.
 - **Correspondencia confidencial.** No todos los colegas deben leer todos los hilos de clientes, y el CRM tiene que respetarlo.
 
@@ -107,7 +110,7 @@ Un espacio de trabajo nuevo empieza sin listas: creas las listas que necesites (
 |---|---|---|
 | Contactos | Clientes, partes contrarias, abogados de la parte contraria, quienes recomiendan, peritos | Relación (selección única: Cliente, Excliente, Parte contraria, Abogado de la parte contraria, Fuente de recomendación, Perito), Último agradecimiento (fecha) |
 | Organizaciones | Empresas clientes, empresas contrarias, despachos que recomiendan | Relación (mismas opciones), Entidades relacionadas (texto) |
-| Oportunidades | Cada consulta, y el asunto una vez aceptado el encargo | Etapa, Área de práctica (selección única), Origen (selección única: Abogado que recomienda, Contador que recomienda, Excliente, Sitio web, Evento), Recomendado por (texto), Conflictos revisados el (fecha), Número de asunto (texto), Modelo de honorarios (selección única) |
+| Oportunidades | Cada consulta, y el asunto una vez aceptado el encargo | Etapa, Área de práctica (selección única), Origen (selección única: Abogado que recomienda, Asesor fiscal que recomienda, Excliente, Sitio web, Evento), Recomendado por (texto), Conflictos revisados el (fecha), Número de asunto (texto), Modelo de honorarios (selección única) |
 | Servicios | Tus conceptos de honorarios, cada uno con un precio | Primera consulta, Revisión de contrato a tarifa fija, Bolsa de horas |
 | Tareas | Siguientes pasos, asignados a una persona | Un campo de fecha «Vence el» que añades tú, porque las tareas no tienen fecha de vencimiento integrada |
 
@@ -117,12 +120,12 @@ En **Modelo de datos** puedes renombrar cualquier lista en **General**, por ejem
 
 La etapa de la oportunidad es un campo de selección única que defines tú, y cada opción puede llevar una probabilidad para el pipeline ponderado. Un punto de partida:
 
-1. Nueva consulta (10%)
-2. Consulta agendada (20%)
-3. Conflictos revisados (30%)
-4. Carta de encargo enviada (60%)
-5. Encargo aceptado (100%)
-6. Rechazada o sin encargo (0%)
+1. Nueva consulta (10 %)
+2. Consulta agendada (20 %)
+3. Conflictos revisados (30 %)
+4. Carta de encargo enviada (60 %)
+5. Encargo aceptado (100 %)
+6. Rechazada o sin encargo (0 %)
 
 Los valores ponderados son tus conceptos de honorarios por tus propias probabilidades, no una previsión. En el [tablero del pipeline](/features/pipeline), cada consulta es una tarjeta que arrastras a la siguiente etapa. Después de «Encargo aceptado», el trabajo del asunto pasa al software de gestión del despacho, y la oportunidad queda como registro de dónde vino el cliente.
 
@@ -187,6 +190,7 @@ etapa, días desde la última actualización, borrador guardado sí o no.
 
 - En Customermates Cloud, la base de datos principal de producción está configurada en la región AWS de Fráncfort. Es un ajuste del producto, no una garantía contractual de residencia de datos. El alojamiento y los demás subencargados, entre ellos proveedores de EE. UU., figuran en la [página de subencargados](/subprocessors), y hay disponible un [contrato de encargo de tratamiento de datos](/dpa).
 - Tus reglas de confidencialidad deciden si un CRM en la nube puede contener información de clientes. En Alemania, el [§ 43e BRAO](https://dejure.org/gesetze/BRAO/43e.html) exige un contrato en forma de texto que obligue al proveedor a la confidencialidad, y el consentimiento del cliente cuando el servicio atiende a un único mandato. El contrato de encargo de Customermates tiene una cláusula general de confidencialidad; si cumple esos requisitos lo debe comprobar tu despacho antes de introducir datos de clientes.
+- Si ejerces en España o en Latinoamérica, el deber de secreto profesional y las normas de protección de datos de tu país y de tu colegio de abogados deciden qué puedes guardar en un CRM en la nube. En España y en la UE, el RGPD exige además un contrato de encargo de tratamiento con el proveedor, y Customermates ofrece uno: consulta el [contrato de encargo de tratamiento de datos](/dpa) y comprueba con tu colegio o con tu asesor si basta antes de introducir datos de clientes. Es información general, no asesoramiento jurídico.
 - Un rol personalizado con acceso de lectura Asignados limita a un asociado o a un abogado contratado a los registros que se le han asignado. El registro de auditoría anota quién cambió qué registro, en todos los planes.
 - Para decidir tú mismo dónde viven los datos de los clientes, [autoaloja](/features/self-hosted) el núcleo de código abierto. Una instalación autoalojada no tiene bandeja de entrada, ni Mate, ni rutinas; MCP, REST y los webhooks siguen disponibles.
 
@@ -237,6 +241,18 @@ Es el software de la relación con el cliente alrededor del asunto: consultas y 
 
 <FaqItem question="¿Cuáles son las mejores herramientas de CRM para abogados?">
 Depende de a qué tarea te refieras. Para la gestión del despacho con recepción incluida, entre las opciones en inglés está MyCase, y los despachos alemanes usan productos como Actaport o RA-MICRO. Para la recepción con automatización de marketing, Lawmatics es específico del sector legal. Para un CRM de relaciones con bandeja de entrada unificada junto a tu software de gestión del despacho, encaja Customermates; es nuestro propio producto, así que tenlo en cuenta.
+</FaqItem>
+
+<FaqItem question="¿Cuáles son los tres tipos de CRM y cuál necesita un despacho?">
+Se suele hablar de CRM operativo (el trabajo diario: consultas, clientes, tareas y conversaciones), analítico (informes a partir de los registros) y colaborativo (un historial de cliente que comparte todo el despacho, con límites de acceso). Un despacho pequeño necesita sobre todo el operativo; el colaborativo importa cuando hay varios socios, y ahí la confidencialidad decide qué ve cada persona. Hay más detalle en [sistemas CRM y sus tipos](/blog/crm-systems).
+</FaqItem>
+
+<FaqItem question="¿Cuánto cuesta un CRM para un despacho de abogados?">
+Depende del proveedor y de cuántas personas lo usen. En Customermates, un abogado en solitario paga [[commercial.price.starter.monthly]] al mes en Starter, o [[commercial.price.pro.monthly]] en Pro con un buzón de correo en la bandeja de entrada. Cinco personas con un buzón cada una pagan [[commercial.price.pro.monthly.seats.5]] al mes en Pro, con facturación mensual. El software de gestión del despacho se tarifica aparte.
+</FaqItem>
+
+<FaqItem question="¿Hay un CRM gratuito para abogados?">
+Customermates tiene un plan gratuito, sin bandeja de entrada, Mate ni rutinas (los límites están en la [página de precios](/pricing)), y una prueba de [[commercial.trial.days]] días. El núcleo de código abierto se puede autoalojar sin coste de licencia, con las funciones de Starter. Antes de guardar datos de clientes en cualquier plan gratuito, revisa los subencargados y las reglas de confidencialidad de tu despacho.
 </FaqItem>
 
 <FaqItem question="¿Un abogado en solitario necesita un CRM?">

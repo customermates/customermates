@@ -1,5 +1,5 @@
 ---
-title: "CRM email: bandeja de entrada unificada y canales sociales"
+title: "CRM email: correo, LinkedIn y WhatsApp en una sola bandeja"
 description: "CRM email: Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram y Telegram en una bandeja. Cada conversación en su cliente, con borradores. Cloud desde Pro."
 featureName: Bandeja de entrada unificada del CRM
 
@@ -10,7 +10,7 @@ acquisition:
   role: hub
   primaryIntent: Una sola bandeja de entrada de CRM para los canales compatibles
   metadata:
-    title: "CRM email: bandeja de entrada unificada y canales sociales"
+    title: "CRM email: correo, LinkedIn y WhatsApp en una sola bandeja"
     description: "CRM email: Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram y Telegram en una bandeja. Cada conversación en su cliente, con borradores. Cloud desde Pro."
   proof:
     factReferences:
@@ -160,6 +160,19 @@ Es una función de la nube gestionada a partir de Pro. Starter y Customermates a
 
 El conjunto compatible no incluye SMS ni telefonía. El comportamiento de los proveedores y la compatibilidad con archivos adjuntos pueden variar según el tipo de conexión. Para WhatsApp, la página de la [integración de WhatsApp con el CRM](/features/whatsapp-integration) explica qué cubre la conexión y dónde termina.
 
+## ¿Cómo se integra el email con el CRM? [#integracion-del-email]
+
+Conectar el correo al CRM no significa copiar tus mensajes a un archivo aparte: la bandeja lee las conversaciones de tu cuenta y las pone junto al cliente al que pertenecen. El recorrido es este:
+
+1. **Conecta la cuenta.** En **Ajustes › Canales y calendarios**, elige **Conectar un canal** y añade tu cuenta de Gmail, Outlook o IMAP. En las cuentas de email solo aparecen las carpetas activadas en la pestaña **Carpetas** de la cuenta; por defecto lo están todas salvo la papelera, el correo no deseado, los borradores y la carpeta con todo el correo.
+2. **Asocia cada dirección con un contacto.** Un registro cuyo campo **Datos de contacto** contiene una dirección de email, un teléfono o un perfil muestra todas las conversaciones con esa dirección. Una misma dirección puede pertenecer a varios registros, por ejemplo a un contacto y a su organización. Los campos de texto normales nunca se usan para esta asociación.
+3. **Responde desde el canal original.** La respuesta sale de la cuenta por la que llegó la conversación, con tu firma si la tienes activada. La bandeja no tiene un botón de conversación nueva: para escribir a un contacto, abre su ficha y pulsa el icono **Mensaje nuevo** junto a su dirección.
+4. **Vincula lo que no se asocia solo.** Una conversación concreta se puede adjuntar a un registro, como una oportunidad, en **Registros de la conversación**.
+
+## CRM y email marketing: qué cubre esta bandeja y qué no [#crm-y-email-marketing]
+
+Quien busca «CRM email» suele tener en mente una de dos cosas. Una es tener el correo de cada cliente dentro del CRM, que es lo que hace esta bandeja. La otra es el email marketing: campañas, boletines y secuencias para listas de contactos. Customermates no tiene secuencias de email, campañas por goteo ni envío masivo. Cada mensaje se escribe y se envía en una conversación, y el borrador de Mate o de tu cliente de IA es un mensaje en un hilo, no una campaña. Si necesitas campañas, usa una herramienta de email marketing aparte y trae sus resultados al CRM mediante REST o n8n; la página de [automatización de flujos de trabajo](/features/workflow-automation) explica cómo.
+
 ## Qué puedes hacer en la bandeja de entrada
 
 - ver en una sola lista las conversaciones de las cuentas conectadas;
@@ -169,7 +182,7 @@ El conjunto compatible no incluye SMS ni telefonía. El comportamiento de los pr
 - guardar un borrador persistente en una conversación existente; y
 - trabajar con los archivos adjuntos compatibles donde la conexión del proveedor lo permita.
 
-El contexto de una conversación puede aflorar a través de su relación con el contacto, así que el contacto y sus registros del CRM vinculados son el puente principal hacia el contexto del pipeline. En **Registros de la conversación**, **Vincular registro** también adjunta una sola conversación a un registro como una oportunidad.
+El contexto de una conversación llega a través de su relación con el contacto, así que el contacto y sus registros del CRM vinculados son el puente principal hacia el contexto del pipeline. En **Registros de la conversación**, **Vincular registro** también adjunta una sola conversación a un registro como una oportunidad.
 
 ## Acceso a cuentas personales y compartidas
 
@@ -188,8 +201,8 @@ Los usuarios de Pro pueden compartir conversaciones concretas con los compañero
 >
   Un usuario de Pro puede compartir una conversación concreta con los
   compañeros del CRM. Compartir la cuenta conectada completa es una función de
-  Business o Enterprise. Esta diferencia importa cuando comparas bandejas de
-  entrada personales con direcciones propiedad del equipo.
+  Business o Enterprise. Esta diferencia importa cuando comparas una bandeja
+  personal con una dirección compartida del equipo.
 </AcquisitionCallout>
 
 ## Bandeja de entrada, MCP y límites de aprobación
@@ -211,6 +224,18 @@ Para los detalles de Gmail, lee la [guía del CRM con Gmail](/blog/gmail-crm-int
 ## Preguntas frecuentes
 
 <Faq>
+<FaqItem question="¿Qué es un CRM con email integrado y para qué sirve?">
+Es un CRM que lee el correo de tu cuenta y lo asocia con la ficha de cada cliente, de modo que no tengas que buscar la conversación en otra pestaña. Un ejemplo: un cliente te escribe desde Gmail y en Customermates la conversación aparece en su contacto, junto a la oportunidad abierta; guardas un borrador de respuesta, lo revisas y lo envías desde el mismo sitio.
+</FaqItem>
+
+<FaqItem question="¿Qué cuentas de email se pueden conectar?">
+Gmail o Google, Outlook o Microsoft e IMAP. Para los detalles de Gmail, consulta la [guía del CRM con Gmail](/blog/gmail-crm-integration). La conexión pertenece al plan de la nube: Pro incluye [[commercial.entitlement.pro.includedAccountsPerUser]] cuenta conectada por usuario.
+</FaqItem>
+
+<FaqItem question="¿Sirve para enviar campañas o email marketing?">
+No. Customermates no tiene secuencias de email, campañas por goteo ni envío masivo: cada mensaje se escribe y se envía en una conversación. Para campañas, usa una herramienta de email marketing aparte y conéctala mediante REST o n8n.
+</FaqItem>
+
 <FaqItem question="¿Qué planes incluyen la bandeja de entrada unificada del CRM?">
 Pro, Business y Enterprise en Customermates Cloud. Pro incluye una cuenta conectada por usuario; Business incluye tres y cuentas compartidas; Enterprise incluye cuentas conectadas ilimitadas bajo condiciones de uso razonable y admite cuentas compartidas.
 </FaqItem>

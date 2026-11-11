@@ -167,6 +167,18 @@ Het Compose-bestand bevat geen n8n, geen AI-model, geen aanbieder voor het verst
   deploymentmodel kiest.
 </AcquisitionCallout>
 
+## Wat heb je nodig om een self hosted CRM te starten? [#self-hosted-crm-starten]
+
+Voor de installatie heb je geen build-omgeving nodig. Je hebt een server of virtuele machine met Docker en Docker Compose v2 (de images draaien op `linux/amd64` en `linux/arm64`) en twee bestanden uit de repository: `docker-compose.yml` en een `.env`-bestand. Met `docker compose up -d` start je de applicatie en PostgreSQL. De eerste start duurt ongeveer een minuut, omdat de databasemigraties dan draaien.
+
+In `.env` vul je minstens in:
+
+- een eigen wachtwoord voor de database en een lange willekeurige sleutel voor inlogsessies;
+- `BASE_URL`, het exacte adres dat je teamleden in de browser typen;
+- de Resend-sleutel waarmee verificatie-, uitnodigings- en wachtwoordmails worden verstuurd.
+
+Een domeinnaam heb je alleen nodig als je de CRM-omgeving via HTTPS bereikbaar maakt, bijvoorbeeld achter Caddy, nginx of Traefik. Daarna registreer je het eerste account, maak je een werkruimte aan en word je daar beheerder. De stappen staan in de [installatiehandleiding](/docs/self-hosting).
+
 ## Wat zit erbij en wat niet?
 
 | Mogelijkheid                                                | Customermates self hosted |
@@ -207,6 +219,25 @@ Wil je Customermates proberen voordat je een eigen server draait, dan zet de pag
 
 Records verhuizen tussen installaties of vanuit een ander CRM als XLSX-werkmappen, per recordtype en binnen de limieten voor het aantal rijen, of via de REST API, waarmee je ook bestanden kunt uploaden naar velden van het type Bestand. Een XLSX-import neemt geen bijlagen mee en een complete accountoverdracht bestaat niet. Behandel een grotere verhuizing dus als een migratieproject dat je valideert.
 
+## Waar let je op bij het kiezen van een self hosted CRM? [#kiezen-self-hosted-crm]
+
+Een self hosted CRM is meer dan een downloadknop. Loop deze vragen langs voordat je kiest, bij Customermates en bij elk ander pakket dat je zelf kunt draaien:
+
+1. **Wat draait er echt op je eigen server?** Controleer of het alleen om applicatie en database gaat, of dat e-mail, AI en koppelingen toch bij externe diensten terechtkomen.
+2. **Welke functies krijg je mee?** Een self hosted versie dekt vaak niet alles wat de cloudversie kan. Bij Customermates staat dat in de tabel bij "Wat zit erbij en wat niet?".
+3. **Onder welke licentie valt de code?** Open source is een ander punt dan zelf hosten; lees de licentievoorwaarden voordat je aanpast of verspreidt.
+4. **Wie beheert updates en back-ups?** Bij zelf hosten ligt het herstel van een kapotte server bij jou. Plan een dagelijkse back-up en test het terugzetten op een aparte machine.
+5. **Hoe praat het CRM met de rest van je stack?** Een REST API, webhooks en MCP bepalen hoe makkelijk je er later iets aan koppelt.
+6. **Hoe ziet de verhuizing eruit?** Controleer of je records later kunt exporteren en importeren, bijvoorbeeld als werkmap per lijst.
+
+Wie dit eerlijk beantwoordt, weet meestal snel of een eigen server past, of dat de beheerde cloud het gemakkelijker maakt.
+
+## Wat kost een self hosted CRM? [#kosten-self-hosted-crm]
+
+Voor zelf hosten betaal je geen abonnement per gebruiker: een werkruimte op je eigen installatie telt geen seats en brengt niets in rekening. Je betaalt wel voor wat eromheen hangt: de server of virtuele machine, opslag voor back-ups, de externe diensten die je koppelt en de uren die jij of een collega aan beheer kwijt is.
+
+Vergelijk daarom de totale kosten in plaats van aan te nemen dat de ene route goedkoper is. Reken infrastructuur, back-ups, hersteltests, monitoring, updates en je tijd mee. De prijzen van de cloudabonnementen vind je op de [prijzenpagina](/pricing).
+
 ## Veelgestelde vragen
 
 <Faq>
@@ -233,6 +264,18 @@ Materiaal van Customermates zelf buiten `ee/` is AGPL-3.0-only. Binnen `ee/` is 
   laat je de locatie van de applicatie en de database kiezen, maar je
   organisatie blijft verantwoordelijk voor configuratie, aanbieders,
   contracten, beveiligingsmaatregelen, bewaartermijnen en juridische toetsing.
+</FaqItem>
+
+<FaqItem question="Is een self hosted CRM gratis?">
+  Voor zelf hosten met Customermates betaal je geen abonnement en geen kosten per gebruiker. Je betaalt wel voor je eigen infrastructuur, de externe diensten die je koppelt en de tijd die beheer kost. Het gratis gebruik geldt alleen voor zelf hosten; de functies van de cloudabonnementen komen daar niet bij.
+</FaqItem>
+
+<FaqItem question="Welke server heb ik nodig om een CRM zelf te hosten?">
+  Een server of virtuele machine met Docker en Docker Compose v2 volstaat; de images zijn er voor `linux/amd64` en `linux/arm64`. Je kiest zelf waar die machine staat, bijvoorbeeld bij een hostingpartij in Nederland of elders in de EU. Een domeinnaam en een reverse proxy heb je alleen nodig voor HTTPS.
+</FaqItem>
+
+<FaqItem question="Hoe maak ik back-ups van een self hosted CRM?">
+  Alle gegevens staan in de PostgreSQL-database, dus een dump met `pg_dump` via de Postgres-container is genoeg. Draai die dagelijks vanuit een planner zoals cron, bewaar de bestanden op een aparte of externe locatie en bewaar een kopie van `.env` erbij. Test het terugzetten regelmatig op een aparte machine. Staan bestanden in een S3-bucket, bewaar die dan ook.
 </FaqItem>
 
 <FaqItem question="Wat bevat de officiële Docker Compose-stack?">

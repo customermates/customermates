@@ -1,6 +1,6 @@
 ---
-title: "Integración de CRM: API REST, webhooks, MCP y n8n"
-description: "Integración de CRM con Customermates: REST y MCP en todos los planes, webhooks firmados y tu propio n8n en los de pago y autoalojado, con límites claros."
+title: "Integración CRM: qué es, métodos y cómo conectar API y n8n"
+description: "Integración CRM explicada: qué es, qué métodos hay y cómo conectar Customermates con API REST, webhooks firmados, MCP y n8n. REST y MCP en todos los planes."
 featureName: Integraciones del CRM
 
 relatedHrefs:
@@ -47,6 +47,17 @@ Una integración de CRM mueve datos o disparadores entre tu CRM y otro sistema, 
 Esa decisión tiene un coste que conviene conocer desde el principio. No hay un catálogo de aplicaciones de un clic. Si quieres integrar el CRM con Slack, con tu herramienta de contabilidad o con un creador de formularios, o apuntas un webhook a esa herramienta, o llamas a la API desde tu propio código, o montas el flujo en una herramienta de automatización como n8n, Make o Zapier.
 
 **Qué significa esto para el seguimiento.** El seguimiento de una conversación con un cliente suele terminar en otro sistema: un mensaje en el chat de tu equipo cuando llega una respuesta, un registro en tu herramienta de proyectos. Un webhook sobre los eventos de mensajería, un flujo de n8n o tu propio cliente de IA por MCP pueden recogerlo, de modo que el siguiente paso no depende de que alguien lo copie a mano.
+
+## ¿Qué métodos de integración de CRM hay? [#metodos-de-integracion-de-crm]
+
+Casi todas las integraciones de CRM siguen uno de cuatro caminos, y conviene saber en cuál estás antes de elegir herramienta:
+
+- **Conector integrado.** El proveedor del CRM mantiene la conexión con otra herramienta y tú la activas desde los ajustes. Es lo más rápido, pero solo existe para las herramientas que el proveedor eligió.
+- **Aplicación de conector.** Un tercero publica y mantiene el conector en un mercado de aplicaciones. Amplía el catálogo, pero depende de que ese tercero siga actualizándolo.
+- **Plataforma de automatización.** Un flujo en n8n, Make o Zapier recibe un evento del CRM y llama a otra herramienta, o al revés. Sirve para casi cualquier sistema que tenga API.
+- **Conexión a medida.** Tu propio código contra la API REST y los webhooks. Es lo que más control da y lo que más mantenimiento pide.
+
+Customermates se apoya en los dos últimos, más MCP para que un cliente de IA haga las llamadas. Por eso esta página se parece más a un mapa de interfaces que a un catálogo de conectores.
 
 ## Los cinco tipos de conexión de un vistazo
 
@@ -121,6 +132,18 @@ Customermates no tiene aplicación de Slack, ni canal de Slack en la bandeja de 
 
 **Vía 2, n8n.** Usa n8n cuando el mensaje necesite lógica: avisar solo cuando la **Etapa** de la oportunidad alcance cierto valor, publicar un resumen semanal del pipeline a partir de un `POST /api/v1/records/query` programado, o convertir un atajo de Slack en un contacto nuevo mediante la API. En ambos casos las conversaciones de Slack nunca aparecen en la bandeja de entrada de Customermates.
 
+## ¿Qué ganas al integrar un CRM y qué riesgos tiene? [#beneficios-y-riesgos-de-integrar-un-crm]
+
+**Lo que se gana.** Menos datos copiados a mano entre pantallas, un historial del cliente que incluye las conversaciones junto al registro y respuestas más rápidas, porque un evento del CRM, como un mensaje nuevo o una oportunidad que cambia de etapa, puede disparar el aviso o el siguiente paso en otra herramienta.
+
+**Lo que conviene vigilar.**
+
+- **Duplicados.** Si un webhook se entrega dos veces, el receptor debe reconocerlo. Usa el `id` del evento como clave, como se explica en la sección de webhooks.
+- **Seguridad.** Una clave de API hereda los permisos del usuario que la creó, así que usa una cuenta con el rol mínimo que necesite la integración y firma los webhooks con un secreto.
+- **Mantenimiento.** Un flujo se rompe cuando cambia un campo o una etapa. Lee el modelo de datos con `POST /api/v1/model/read` en lugar de fijar los ID a mano.
+- **Costes aparte.** n8n, Make y Zapier se facturan por separado del CRM.
+- **Datos personales.** Cada herramienta a la que envías datos de clientes pasa a ser otro lugar donde viven. Envía solo los campos necesarios y ten en cuenta la normativa de protección de datos, como el RGPD en España y la UE. Esto es contexto general, no asesoramiento legal.
+
 ## Lo que no está incluido
 
 <AcquisitionCallout title="Límites que conviene conocer antes de planificar una integración" variant="boundary">
@@ -134,6 +157,12 @@ Si tu equipo necesita cientos de conectores ya hechos y mantenidos por el provee
 Mantén la guía operativa y los datos de origen junto al registro del cliente en la [base de conocimiento con IA](/features/knowledge-base).
 
 <Faq>
+<FaqItem question="¿Cuáles son los 3 tipos de CRM?">
+Se suele hablar de CRM operativo, que automatiza el trabajo diario de ventas y atención; CRM analítico, que se centra en informes y análisis de los datos de clientes; y CRM colaborativo, que comparte la información del cliente entre equipos. En la práctica la mayoría de los CRM mezclan las tres ideas, y la integración con otras herramientas importa en todas.
+</FaqItem>
+<FaqItem question="¿Qué es un CRM y para qué sirve?">
+Un CRM guarda los contactos, las oportunidades y las conversaciones con tus clientes en un solo lugar para que el equipo sepa qué se dijo y qué toca hacer después. Si quieres la explicación completa, lee [qué es un CRM](/blog/what-is-crm).
+</FaqItem>
 <FaqItem question="¿Qué son las integraciones de CRM?">
 Conexiones que mueven datos o disparadores entre un CRM y otro software, por ejemplo una oportunidad nueva que crea un proyecto en una herramienta de proyectos o el envío de un formulario que crea un contacto. Funcionan mediante una API, webhooks, una herramienta de automatización o un conector creado por el proveedor. Customermates ofrece las tres primeras más MCP para clientes de IA.
 </FaqItem>

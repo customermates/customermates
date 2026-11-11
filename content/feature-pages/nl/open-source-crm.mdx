@@ -1,6 +1,6 @@
 ---
-title: "Open source CRM: probeer de cloud of host het zelf"
-description: "Customermates is een open source CRM met een AGPL-kern en openbare broncode. Probeer de beheerde cloud [[commercial.trial.days]] dagen zonder kaart of host het zelf met Docker."
+title: "Open source CRM: voordelen, nadelen en zelf hosten"
+description: "Open source CRM uitgelegd: voor- en nadelen, waar je op let en hoe Customermates (AGPL-kern) werkt in de cloud of zelf gehost met Docker. [[commercial.trial.days]] dagen proef."
 featureName: Open source CRM
 
 acquisition:
@@ -10,8 +10,8 @@ acquisition:
   role: support
   primaryIntent: Een open source CRM gebruiken, in de cloud of zelf gehost
   metadata:
-    title: "Open source CRM: probeer de cloud of host het zelf"
-    description: "Customermates is een open source CRM met een AGPL-kern en openbare broncode. Probeer de beheerde cloud [[commercial.trial.days]] dagen zonder kaart of host het zelf met Docker."
+    title: "Open source CRM: voordelen, nadelen en zelf hosten"
+    description: "Open source CRM uitgelegd: voor- en nadelen, waar je op let en hoe Customermates (AGPL-kern) werkt in de cloud of zelf gehost met Docker. [[commercial.trial.days]] dagen proef."
   proof:
     factReferences:
       - product:agpl-community-core
@@ -30,7 +30,7 @@ acquisition:
       - claim:no-invoicing
   cta:
     action: "Test de open source CRM op je eigen klantopvolging"
-    description: "Start de Pro-proefperiode van [[commercial.trial.days]] dagen in de cloud, koppel één e-mail- of LinkedIn-account en laat de AI-instelling je werkruimte opzetten. De zelf gehoste route met Docker blijft er naast open."
+    description: "Start de Pro-proefperiode van [[commercial.trial.days]] dagen in de cloud, koppel één e-mail- of LinkedIn-account en laat de AI-instelling je werkruimte opzetten. De zelf gehoste route met Docker blijft daarnaast open."
     buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
     buttonLeftHref: /auth/signup?job=followup
     buttonRightText: Zelf hosten met Docker
@@ -98,7 +98,7 @@ hero:
 
 cta:
   action: "Test de open source CRM op je eigen klantopvolging"
-  description: "Start de Pro-proefperiode van [[commercial.trial.days]] dagen in de cloud, koppel één e-mail- of LinkedIn-account en laat de AI-instelling je werkruimte opzetten. De zelf gehoste route met Docker blijft er naast open."
+  description: "Start de Pro-proefperiode van [[commercial.trial.days]] dagen in de cloud, koppel één e-mail- of LinkedIn-account en laat de AI-instelling je werkruimte opzetten. De zelf gehoste route met Docker blijft daarnaast open."
   buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Zelf hosten met Docker
@@ -117,6 +117,33 @@ cta:
   <ProofItem label="Interfaces">REST, webhooks en MCP</ProofItem>
   <ProofItem label="AI-clients">Claude, ChatGPT of andere MCP-clients</ProofItem>
 </ProofRail>
+
+## Wat is een open source CRM, en wat zijn de voor- en nadelen? [#wat-is-open-source-crm]
+
+Een open source CRM is software voor klantrelatiebeheer waarvan de broncode openbaar is, onder een licentie waarmee je die code mag inzien, aanpassen en onder voorwaarden verder verspreiden. Je installeert het zelf op je eigen servers of neemt het af als beheerde dienst. Bekende voorbeelden zijn SuiteCRM, EspoCRM, Twenty en Odoo; Customermates is er ook een, met een AGPL-3.0-kern. "Open source" zegt dus niets over de prijs en niet over wie het draait. Sommige projecten zijn bovendien open core: de kern is open, maar andere onderdelen vallen onder een commerciële licentie.
+
+**Voordelen**
+
+- **Je ziet wat de software doet.** Je kunt de code, de datastructuur en de licentie zelf nalezen in plaats van een leverancier op zijn woord te geloven.
+- **Minder afhankelijk van één leverancier.** Je kunt zelf hosten of van aanbieder wisselen, en je bepaalt waar de gegevens draaien.
+- **Aanpasbaar.** Je kunt eigen velden, integraties en soms ook de code zelf aanpassen, binnen de voorwaarden van de licentie.
+- **Geen licentiekosten per gebruiker bij zelf hosten.** Je betaalt alleen voor infrastructuur en beheertijd.
+
+**Nadelen en aandachtspunten**
+
+- **Het beheer ligt bij jou** als je zelf host: updates, back-ups, beveiliging, TLS en monitoring.
+- **Support en onderhoud verschillen per project.** Controleer hoe actief de repository wordt bijgehouden en wie je helpt als er iets misgaat.
+- **Niet alles is open of overal beschikbaar.** Onderdelen kunnen onder een commerciële licentie vallen of alleen in de cloudversie zitten. Bij Customermates zijn dat de inbox, Mate en de AI-instelling.
+- **Zelf hosten is geen AVG-garantie.** Configuratie, providers, contracten en beheer blijven jouw verantwoordelijkheid.
+
+## Waar let je op bij het kiezen van een open source CRM? [#open-source-crm-kiezen]
+
+1. **Lees de licentie.** Welk deel valt onder welke licentie, en wat mag je ermee doen in productie?
+2. **Vraag wat er in de zelf gehoste versie zit.** En wat alleen in de cloud of in een betaalde editie.
+3. **Kijk hoe actief het project is.** Recente releases en een openbare repository vertellen meer dan een featurelijst.
+4. **Controleer in- en export.** Kun je je gegevens er in en uit krijgen, bijvoorbeeld als XLSX-werkmap of via een API?
+5. **Weet wie het beheert.** Zelf hosten betekent dat jij updates en back-ups doet; een beheerde cloud neemt dat uit handen.
+6. **Zet het naast je eigen opvolging.** Een CRM past als de lijsten, velden en gesprekken bij hoe jij klanten opvolgt, niet als het de meeste functies heeft.
 
 ## Wat is er open source aan Customermates?
 
@@ -165,6 +192,18 @@ Als je meerdere open source CRM-systemen naast elkaar legt, geeft onze [vergelij
 ## Veelgestelde vragen
 
 <Faq>
+<FaqItem question="Wat is een open source CRM?">
+Een CRM waarvan de broncode openbaar is en die je onder een open licentie mag inzien en aanpassen. Je kunt het zelf hosten of als beheerde cloud gebruiken. Of het gratis is, hangt af van het project: zelf hosten kost infrastructuur en beheertijd, een beheerde cloud meestal een abonnement.
+</FaqItem>
+
+<FaqItem question="Is er een 100% gratis CRM?">
+Niet helemaal. Een open source CRM zelf hosten heeft geen licentiekosten, maar je betaalt voor servers, back-ups en beheertijd. Customermates Cloud heeft een gratis abonnement voor één persoon met [[commercial.limit.free.maxRecords]] records, zonder inbox, Mate of routines.
+</FaqItem>
+
+<FaqItem question="Kan ChatGPT een CRM maken?">
+ChatGPT kan je helpen een spreadsheet of script op te zetten, maar het bewaart zelf geen klantgegevens, rechten of gespreksgeschiedenis. Praktischer is een bestaand CRM dat je via MCP met ChatGPT verbindt: de assistent leest en schrijft records, het CRM bewaart ze. Customermates verbindt via MCP met ChatGPT en Claude.
+</FaqItem>
+
 <FaqItem question="Is Customermates een gratis open source CRM?">
 Zelf gehost factureert Customermates niets; je betaalt alleen voor je eigen infrastructuur, providers en beheertijd. De beheerde cloud kost vanaf [[commercial.price.starter.monthly]] per gebruiker per maand, maandelijks gefactureerd, en begint met een gratis proefperiode van [[commercial.trial.days]] dagen.
 </FaqItem>

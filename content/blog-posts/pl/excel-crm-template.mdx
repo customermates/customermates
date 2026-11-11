@@ -1,6 +1,6 @@
 ---
-title: "CRM Excel: darmowy szablon arkusza i formuły"
-description: "CRM Excel za darmo: szablon z sześcioma arkuszami, kolumnami, listami rozwijanymi i formułami do pipeline'u i pracy handlowców, gotowy do importu do CRM."
+title: "CRM Excel: darmowy szablon i jak zbudować CRM w Excelu"
+description: "CRM Excel za darmo: szablon z sześcioma arkuszami i formułami, jak zbudować go krok po kroku, zalety, ukryte koszty arkusza i moment przejścia na CRM."
 
 relatedHrefs:
   - /blog/google-sheets-crm
@@ -43,6 +43,18 @@ Skorzystaj z [szablonu listy kontaktów](/blog/contact-list-template) dla małeg
 
 System CRM oparty na Excelu potrzebuje tych samych zasad działania co dedykowane narzędzie: jednego właściciela na wiersz, stałych identyfikatorów i jasnego następnego kroku. Sam układ arkuszy tych zasad nie egzekwuje.
 
+## Dlaczego ludzie prowadzą CRM w Excelu [#dlaczego-crm-w-excelu]
+
+Excel jako CRM to najczęstszy pierwszy wybór, i to z rozsądnych powodów:
+
+- **Koszt.** Excel masz zwykle już w pakiecie, więc zaczynasz bez abonamentu i bez wdrożenia.
+- **Znajomość.** Nikogo nie trzeba szkolić: filtrowanie, sortowanie i formuły są znane od lat.
+- **Dopasowanie.** Dodajesz dokładnie te kolumny, których potrzebujesz, w kolejności, w jakiej myślisz o klientach.
+- **Szybki start.** Pierwsza lista klientów powstaje w jedno popołudnie, a przeniesienie danych z innego pliku to kopiuj i wklej.
+- **Pełna kontrola.** Plik leży u Ciebie, możesz go skopiować, wyeksportować i otworzyć w każdym innym programie.
+
+Cena tych zalet pojawia się później: arkusz niczego nie przypomina, nie wciąga rozmów i nie pilnuje powiązań. Dlatego dalej znajdziesz zarówno układ, który zadziała od pierwszego dnia, jak i listę objawów, że czas na CRM.
+
 ## Gdzie pobrać sprawdzony skoroszyt CRM?
 
 Pobierz [darmowy skoroszyt CRM Excel po angielsku](/templates/crm-template-en.xlsx) albo [skoroszyt CRM po niemiecku](/templates/crm-template-de.xlsx). To oryginalny, zwarty przykład z sześcioma arkuszami roboczymi plus arkuszem Readme: Companies, Contacts, Deals, Activities, Dashboard i Lists. Jest oddzielony od pełniejszego układu kolumna po kolumnie poniżej; nie wklejaj poniższych formuł do pobranego pliku bez sprawdzenia odwołań do kolumn.
@@ -65,6 +77,19 @@ Przeanalizowaliśmy angielski przykład do JSON-a uwzględniającego schemat i z
 | 50% / 25% | Prawdopodobieństwa dziesiętne zgadzały się po eksporcie |
 
 Ponowne uruchomienie identycznego importu z tym samym kluczem idempotentności zwróciło ten sam wynik bez dodawania dwóch kolejnych zleceń. Przy prawdziwym przenoszeniu najpierw odczytaj aktualne identyfikatory list, pól i opcji, a potem postępuj zgodnie z [kontraktem importu JSON](/docs/app-records#bulk-import-over-the-api). Zachowaj mapę identyfikatorów źródłowych skoroszytu na identyfikatory rekordów w CRM, odczytaj zapisane rekordy i zarchiwizuj oryginalny skoroszyt. To nie jest migracja załączników, funkcja cofania ani ciągła synchronizacja.
+
+## Jak zbudować CRM w Excelu w sześciu krokach [#crm-w-excelu-krok-po-kroku]
+
+To skrót metody; kolumny i formuły są w sekcjach poniżej.
+
+<Steps>
+  <Step title="Ustal cel i proces">Zapisz jednym zdaniem, co ma robić arkusz, na przykład: „widzieć każdą otwartą szansę sprzedaży i jej następny krok”. Wypisz etapy sprzedaży, których naprawdę używasz.</Step>
+  <Step title="Załóż arkusze">Po jednym na rodzaj rekordu: Companies, Contacts, Deals i Activities, do tego Lists na listy rozwijane i Dashboard na podsumowanie.</Step>
+  <Step title="Wpisz nagłówki i listy rozwijane">Jeden wiersz nagłówka, jeden wiersz na rekord, a wszystko, co się powtarza (etap, źródło, właściciel), jako lista rozwijana.</Step>
+  <Step title="Dodaj formuły">Prawdopodobieństwo i wartość ważoną w arkuszu Deals oraz kilka liczb pipeline'u w arkuszu Dashboard.</Step>
+  <Step title="Wprowadź dane i ustal zasady">Wklej klientów z istniejących plików i uzgodnij, kto aktualizuje który arkusz i kiedy. Aktywność wpisuj od razu po rozmowie.</Step>
+  <Step title="Raz w tygodniu przejrzyj minione następne kroki">Czerwone daty pomagają tylko temu, kto otworzy plik, więc ustal stały termin przeglądu.</Step>
+</Steps>
 
 ## Cztery zasady układu przed pierwszym wierszem
 
@@ -174,7 +199,7 @@ Dużo rozmów przy płaskim pipeline'ie wskazuje na problem z kwalifikacją. Ros
 
 ## Excel, Arkusze Google czy CRM?
 
-| Jeśli to opisuje ciebie | Użyj | Uważaj na |
+| Jeśli to opisuje Ciebie | Użyj | Uważaj na |
 | --- | --- | --- |
 | Jedna osoba, kilkaset kontaktów, większość rozmów przez e-mail | Ten szablon Excela na własnym komputerze | Trzymaj jedną kopię i rób kopię zapasową co tydzień |
 | Dwie lub trzy osoby w Microsoft 365, które edytują ten sam plik | Skoroszyt w OneDrive lub SharePoint ze [współtworzeniem](https://support.microsoft.com/en-us/excel/get-started/collaborate-on-excel-workbooks-at-the-same-time-with-co-authoring) | Wymaga subskrypcji Microsoft 365 oraz .xlsx, .xlsm lub .xlsb |
@@ -186,9 +211,21 @@ Dużo rozmów przy płaskim pipeline'ie wskazuje na problem z kwalifikacją. Ros
 Rozmiar rzadko jest powodem; te ograniczenia pojawiają się pierwsze.
 
 - **Powiązania to tekst.** Zmień nazwę firmy, a każdy kontakt, szansa sprzedaży i wyszukiwanie, które używały starej nazwy, wskazuje w próżnię, dopóki nie uruchomisz Znajdź i zamień na całym skoroszycie.
-- **Plik czeka na ciebie.** Czerwona data pomaga tylko osobie, która otworzy arkusz, a wiadomości z e-maila, LinkedIna lub WhatsAppa trafiają tam dopiero, gdy ktoś wpisze podsumowanie.
+- **Plik czeka na Ciebie.** Czerwona data pomaga tylko osobie, która otworzy arkusz, a wiadomości z e-maila, LinkedIna lub WhatsAppa trafiają tam dopiero, gdy ktoś wpisze podsumowanie.
 - **Dostęp jest na zasadzie wszystko albo nic.** Każdy, kto może otworzyć skoroszyt, może przeczytać każdy arkusz.
 - **Dane osobowe rozchodzą się po kopiach.** Zgodnie z [RODO](https://eur-lex.europa.eu/eli/reg/2016/679/oj/pol) osoba może zapytać, co o niej przechowujesz (art. 15), i zażądać usunięcia danych (art. 17). W przypadku skoroszytu oznacza to każdą kopię na każdym laptopie i w każdym folderze wysłanych.
+
+## Ukryte koszty pozostania w Excelu [#koszt-pozostania-w-excelu]
+
+Arkusz nic nie kosztuje w dniu założenia, a koszt rośnie po cichu i rzadko wygląda jak faktura:
+
+- **Utracone follow-upy.** Rozmowa, która nie ma w arkuszu daty następnego kroku, zwykle po prostu cichnie.
+- **Czas na sprzątanie danych.** Duplikaty, dwie wersje nazwy firmy i scalone komórki zabierają godziny, które mogłyby pójść na rozmowy z klientami.
+- **Konflikty wersji.** Dwie osoby, dwie kopie pliku i pytanie, która jest aktualna.
+- **Wdrażanie nowych osób.** Każdy nowy handlowiec uczy się cudzych zasad, bo nikt ich nie wymusza.
+- **Ryzyko danych.** Plik z listą klientów w poczcie i na laptopach trudniej kontrolować niż jedną przestrzeń roboczą z rolami.
+
+Porównaj to z miesięczną opłatą za CRM z tabeli w sekcji o kosztach i sprawdź, który wydatek jest większy w Twoim zespole. Jeśli dopiero porządkujesz pojęcia, [czym jest CRM](/blog/what-is-crm) wyjaśnia, co robi prawdziwy system.
 
 ## Kiedy przejść na CRM: lista kontrolna
 
@@ -200,7 +237,7 @@ Rozmiar rzadko jest powodem; te ograniczenia pojawiają się pierwsze.
 
 Jeśli prawdziwe są dwa z tych punktów, ja bym przeszedł na CRM. Jeden zwykle da się naprawić w samym skoroszycie.
 
-## Przenoszenie szablonu do Customermates
+## Przenoszenie szablonu do Customermates [#moving-the-template-into-customermates]
 
 Customermates importuje skoroszyty Excela (.xlsx lub .xls) i pliki CSV, jedna lista naraz. [Dokumentacja importu](/docs/app-records#how-do-i-import-or-export-records) zawiera pełne zasady. Arkusz kalkulacyjny prowadzi follow-up tylko wtedy, gdy ktoś pamięta, żeby go otworzyć. Gdy arkusz jest już w Customermates, rozmowy każdego klienta leżą w rekordzie klienta (w Customermates Cloud od Pro), Mate albo Twój własny agent AI przygotowuje szkic odpowiedzi i następnego kroku, a data następnego kroku zasila Twój pulpit zamiast czerwonej komórki. Oto, gdzie trafiają kolumny szablonu:
 
@@ -257,6 +294,18 @@ Customermates ma [pola obliczane](/docs/concepts#how-do-i-build-a-calculated-fie
 ## FAQ
 
 <Faq>
+<FaqItem question="Jak zrobić CRM w Excelu?">
+Załóż osobne arkusze na firmy, kontakty, szanse sprzedaży i aktywności, dodaj listy rozwijane na etapy i źródła oraz dwie formuły: prawdopodobieństwo etapu i wartość ważoną. Na końcu zrób arkusz z kilkoma liczbami pipeline'u i raz w tygodniu przeglądaj minione następne kroki. Pełny układ jest wyżej.
+</FaqItem>
+
+<FaqItem question="Dlaczego ludzie używają Excela jako CRM?">
+Bo jest tani (zwykle już go masz), znany i elastyczny: dodajesz dokładnie te kolumny, których potrzebujesz, i startujesz w jedno popołudnie. Ograniczenia pojawiają się, gdy plik edytuje kilka osób, gdy follow-up zależy od czyjejś pamięci albo gdy rozmowy toczą się poza arkuszem.
+</FaqItem>
+
+<FaqItem question="Kiedy przejść z Excela na CRM?">
+Gdy dwie lub więcej osób aktualizuje te same szanse sprzedaży, follow-up przepadł przez niefiltrowaną kolumnę albo przepisujesz wiadomości z LinkedIna i WhatsAppa do pliku. Pasują dwa punkty z listy kontrolnej powyżej? Wypróbuj CRM na kopii danych.
+</FaqItem>
+
 <FaqItem question="Czy można zbudować CRM w Excelu?">
 Tak, dla małego zespołu. Układ z sześcioma arkuszami powyżej obejmuje firmy, kontakty, szanse sprzedaży, aktywności i dashboard. Czego Excel sam nie potrafi, to powiadamiać kogokolwiek, zachować powiązania po zmianie nazwy ani wciągać rozmów. Excel to arkusz kalkulacyjny, nie CRM; Microsoft sprzedaje swój CRM osobno jako [Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales).
 </FaqItem>

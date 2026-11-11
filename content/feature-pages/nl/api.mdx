@@ -1,6 +1,6 @@
 ---
 title: "CRM API: REST, webhooks, MCP en OpenAPI-specificatie"
-description: "CRM API van Customermates: REST met OpenAPI 3.1-specificatie en MCP in elk abonnement, plus ondertekende webhooks in betaalde abonnementen en bij zelf hosten."
+description: "CRM API met REST, OpenAPI 3.1 en MCP in elk abonnement, ondertekende webhooks in betaalde abonnementen en bij zelf hosten. Eerste aanroep in vijf stappen."
 featureName: CRM API
 
 relatedHrefs:
@@ -56,15 +56,24 @@ cta:
   hint: "✓ Geen creditcard nodig ✓ De eerste [[commercial.trial.days]] dagen gratis"
 ---
 
-Customermates is een CRM met een open REST API in elk abonnement, vanaf Starter voor [[commercial.price.starter.monthly]] per gebruiker per maand, en in de gratis zelf gehoste editie. Je authenticeert met een API-sleutel in de header `x-api-key`, het volledige schema is een OpenAPI 3.1-document op `/api/v1/openapi` en, in betaalde abonnementen en bij zelf hosten, melden [[derived.webhooks.events.total]] webhook-events je systemen wanneer er iets verandert. Er is geen apart developerabonnement en geen betaalde API-add-on.
+Een CRM API is de programmeerbare toegang tot de records van een CRM: andere software leest, maakt, wijzigt en verwijdert contactpersonen, organisaties en deals via HTTP en krijgt via webhooks bericht wanneer er iets verandert. Zo koppel je je CRM aan je website, je boekhouding of een AI-client, zonder iets over te typen. Customermates heeft een open REST API in elk abonnement, vanaf Starter voor [[commercial.price.starter.monthly]] per gebruiker per maand, en in de gratis zelf gehoste editie. Je authenticeert met een API-sleutel in de header `x-api-key`, het volledige schema is een OpenAPI 3.1-document op `/api/v1/openapi` en, in betaalde abonnementen en bij zelf hosten, melden [[derived.webhooks.events.total]] webhook-events je systemen wanneer er iets verandert. Er is geen apart developerabonnement en geen betaalde API-add-on.
 
-Customermates is een open-source, AI-native CRM voor kleine teams met veel klantcontact, gebouwd in Duitsland. De API is van belang voor twee soorten lezers: een developer die de CRM met een ander systeem wil synchroniseren, en een team dat wil dat een AI-client zoals Claude of ChatGPT records bijwerkt. De eerste gebruikt REST en webhooks. De tweede gebruikt het MCP-endpoint, dat op dezelfde rechten draait.
+Customermates is een open-source, AI-native CRM voor kleine teams met veel klantcontact, gebouwd in Duitsland. Deze pagina is voor twee soorten lezers: een developer die het CRM met een ander systeem wil synchroniseren, en een team dat wil dat een AI-client zoals Claude of ChatGPT records bijwerkt. De eerste gebruikt REST en webhooks. De tweede gebruikt het MCP-endpoint, dat op dezelfde rechten draait.
 
 **Waarom dit telt voor opvolging.** Een antwoord aan een klant blijft liggen wanneer de feiten die je ervoor nodig hebt in een ander systeem staan. Via MCP leest je eigen AI-client, zoals Claude of ChatGPT, het record van een klant en, in Customermates Cloud vanaf Pro, de gesprekken met die klant, en kan hij een conceptantwoord opslaan dat jij nakijkt en verstuurt. Via REST en webhooks krijgen je andere tools dezelfde records en horen ze het wanneer er een verandert.
 
+## Wat kun je met een CRM API bouwen? [#crm-api-integraties]
+
+Een paar koppelingen, elk met de onderdelen die Customermates daarvoor biedt:
+
+- **Een formulier of je website vult het CRM.** Een script maakt met `POST /api/v1/records/mutate` een contactpersoon aan en koppelt die aan een organisatie.
+- **Je boekhouding krijgt een seintje bij een gewonnen deal.** Een webhook voor `record.updated` op de lijst Deals meldt de nieuwe fase aan je eigen workflowtool, die je boekhoudtool aanroept.
+- **Een dashboard of datawarehouse leest mee.** `POST /api/v1/records/query` en `POST /api/v1/reports/query` halen records en totalen op, zoals de pipelinewaarde.
+- **Een AI-client werkt met je klantrecords.** Claude of ChatGPT leest en werkt records bij via MCP, met de rechten van de verbonden gebruiker.
+
 ## Wat de REST API dekt
 
-De REST API werkt op elke lijst van de CRM. Een nieuwe werkruimte begint zonder lijsten: je maakt de lijsten die je nodig hebt (contactpersonen, organisaties, deals of je eigen lijsten) aan in Datamodel, via de API of MCP, of laat de AI-setup ze in de cloud opbouwen. Elke recordroute is een `POST` naar een benoemde actie met een JSON-body, dus dezelfde code werkt voor deals, contactpersonen of een lijst die je vorige week hebt toegevoegd.
+De REST API werkt op elke lijst van het CRM. Een nieuwe werkruimte begint zonder lijsten: je maakt de lijsten die je nodig hebt (contactpersonen, organisaties, deals of je eigen lijsten) aan in Datamodel, via de API of MCP, of laat de AI-setup ze in de cloud opbouwen. Elke recordroute is een `POST` naar een benoemde actie met een JSON-body, dus dezelfde code werkt voor deals, contactpersonen of een lijst die je vorige week hebt toegevoegd.
 
 | Doel | Methode en pad |
 |---|---|
@@ -79,7 +88,7 @@ De REST API werkt op elke lijst van de CRM. Een nieuwe werkruimte begint zonder 
 | Een bestand uploaden naar een veld van het type Bestand | `POST /api/v1/files/uploads`, daarna `POST /api/v1/records/mutate` |
 | Een veld optellen of tellen, zoals de pipelinewaarde | `POST /api/v1/reports/query` |
 
-Een record wordt aangesproken via een verwijzing, `{ "typeId": "...", "recordId": "..." }`, niet via zijn URL. De basis-URL is het adres waarop je Customermates opent, in de cloud en op je eigen server. Verdere routes dekken gebruikers (`/api/v1/users/me`, `/api/v1/users/search`), webhooks en de inbox: gesprekken, concepten, het versturen van e-mail en chatberichten, activiteiten en agenda's met alleen leestoegang.
+Een record wordt aangesproken via een verwijzing, `{ "typeId": "...", "recordId": "..." }`, niet via zijn URL. De basis-URL is het adres waarop je Customermates opent, in de cloud en op je eigen server. Wat sommige CRM's objecten, eigenschappen en associaties noemen, heet hier lijsten, velden en relaties. Contactpersonen, organisaties en deals zijn gewone lijsten die je in Datamodel aanmaakt; een relatie verbindt ze, bijvoorbeeld een contactpersoon met zijn organisatie. Maak eerst beide records aan en koppel ze daarna met een `link`-actie, met het `relationId` uit `/model/read`. Verdere routes dekken gebruikers (`/api/v1/users/me`, `/api/v1/users/search`), webhooks en de inbox: gesprekken, concepten, het versturen van e-mail en chatberichten, activiteiten en agenda's met alleen leestoegang.
 
 Een paar details besparen je op de eerste dag tijd:
 
@@ -89,7 +98,7 @@ Een paar details besparen je op de eerste dag tijd:
 - **Koppelingen zijn een eigen actie.** `link` en `unlink` nemen een `relationId`, een `source` en een `target`-recordverwijzing. Een update verwijdert nooit koppelingen die je niet noemt.
 - **Bulkschrijfacties nemen maximaal 100 records.** `updateMany` past één wijziging atomair toe op maximaal 100 records en `deleteMany` verplaatst er maximaal 100 naar de prullenbak, dus een opschoning van 2.000 contactpersonen splits je in 20 verzoeken.
 
-## Webhooks: laat de CRM jou bellen
+## Webhooks: laat het CRM jou bellen
 
 Een webhook stuurt een JSON-`POST` naar je URL wanneer een geabonneerd event plaatsvindt. Beheerders, en leden van wie de rol **Leestoegang** **Alle** en **Aanmaken** heeft bij **API en webhooks**, voegen er een toe onder **Instellingen → Webhooks**: URL, events, de lijst onder **Records uit** met optionele filters, een optioneel geheim, optionele eigen headers en een optioneel bodysjabloon. De [webhookreferentie](/docs/webhooks) noemt elk event en elke payload.
 
@@ -116,7 +125,7 @@ Een onjuiste, verlopen of verwijderde sleutel krijgt HTTP `401`. Een sleutel waa
 
 ## API-sleutels en rechten
 
-Sleutels horen bij de gebruiker die ze heeft aangemaakt en handelen met de huidige rol van die gebruiker. Er zijn geen aparte API-gebruikers en geen scopes per sleutel, dus een sleutel kan niet tot alleen lezen worden beperkt. Moet een integratie alleen deals lezen, maak de sleutel dan aan onder een lid van wie de rol alleen dat toestaat. In Customermates Cloud is dat lid een betaalde seat zoals elke andere.
+Sleutels horen bij de gebruiker die ze heeft aangemaakt en handelen met de huidige rol van die gebruiker. Er zijn geen aparte API-gebruikers en geen scopes per sleutel, dus een sleutel kan niet tot alleen lezen worden beperkt. Moet een integratie alleen deals lezen, maak de sleutel dan aan onder een lid van wie de rol alleen dat toestaat. In Customermates Cloud is dat lid een betaalde gebruiker zoals elke andere.
 
 Sleutels aanmaken vraagt om **Leestoegang** **Alle** en **Aanmaken** op de rij **API en webhooks** van een rol. Een nieuwe aangepaste rol begint zonder die rechten, dus standaard maken alleen beheerders sleutels aan. Dezelfde machtiging opent ook elke webhook in de werkruimte, wat goed is om te weten voordat je het recht uitdeelt. Om alle sleutels van iemand die vertrekt te stoppen, zet je het lid op **Inactief**. Ook als je **Leestoegang** **Alle** op **API en webhooks** uit hun rol haalt, stoppen hun sleutels.
 
@@ -143,12 +152,12 @@ Customermates publiceert deze pagina. Verificatiedatum: 8 oktober 2026. De cijfe
 | CRM | API in het gratis of instapabonnement | Hoe het gebruik wordt begrensd |
 |---|---|---|
 | [HubSpot](https://developers.hubspot.com/docs/developer-tooling/platform/usage-guidelines) | Ja | Private apps op Free en Starter: 100 verzoeken per 10 seconden en 250.000 per dag per account; hoger op Professional en Enterprise |
-| [Pipedrive](https://www.pipedrive.com/en/features/crm-api) | Elk abonnement bevat een API-token | [Dagelijks tokenbudget](https://pipedrive.readme.io/docs/core-api-concepts-rate-limiting): 30.000 basistokens maal een abonnementsfactor maal seats |
+| [Pipedrive](https://www.pipedrive.com/en/features/crm-api) | Elk abonnement bevat een API-token | [Dagelijks tokenbudget](https://pipedrive.readme.io/docs/core-api-concepts-rate-limiting): 30.000 basistokens maal een abonnementsfactor maal het aantal gebruikers |
 | [Zoho CRM](https://www.zoho.com/crm/developer/docs/api/v8/api-limits.html) | Ja, ook in de Free-editie | Credits per 24 uur: 5.000 op Free, meer per gebruiker op betaalde edities |
 | [EspoCRM](https://docs.espocrm.com/development/api/) | Ja, ook in de [gratis zelf gehoste editie](https://www.espocrm.com/) | API-sleutel, HMAC of basisauthenticatie via eigen API-gebruikers, van wie de rollen bepalen wat ze mogen doen |
 | Customermates | Elk abonnement en zelf gehost | Geen gepubliceerd quotum; bulkroutes nemen 100 records per verzoek |
 
-Kies HubSpot of Zoho CRM als je een gratis gehost abonnement met API-toegang wilt en je integratie binnen hun gepubliceerde aanroeplimieten past. Kies Pipedrive als een dagbudget dat meegroeit met abonnement en seats bij je volume past. Kies EspoCRM als je een zelf gehoste open-source CRM wilt met aparte API-gebruikers en hun eigen rollen. Customermates past bij een klein team dat de record-API, webhooks en een MCP-endpoint voor AI-clients wil tegen de prijs van de CRM zelf, met een AGPL-kern die het zelf kan hosten. Het past niet als je scopes per sleutel nodig hebt of, in Customermates Cloud, een API-gebruiker die geen betaalde seat inneemt.
+Kies HubSpot of Zoho CRM als je een gratis gehost abonnement met API-toegang wilt en je integratie binnen hun gepubliceerde aanroeplimieten past. Kies Pipedrive als een dagbudget dat meegroeit met abonnement en aantal gebruikers bij je volume past. Kies EspoCRM als je een zelf gehoste open-source CRM wilt met aparte API-gebruikers en hun eigen rollen. Customermates past bij een klein team dat de record-API, webhooks en een MCP-endpoint voor AI-clients wil tegen de prijs van het CRM zelf, met een AGPL-kern die het zelf kan hosten. Het past niet als je scopes per sleutel nodig hebt of, in Customermates Cloud, een API-gebruiker die niet als betaalde gebruiker meetelt.
 
 ## Wat het kost
 
@@ -156,9 +165,9 @@ Voor API-toegang geldt geen toeslag. Een team van drie op Starter betaalt [[comm
 
 <Faq>
 <FaqItem question="Wat is een API in een CRM?">
-Het is de programmatische toegang tot de gegevens van de CRM. Een ander programma stuurt HTTP-verzoeken om contactpersonen, deals en andere records te lezen, aan te maken, bij te werken of te verwijderen, in plaats van dat iemand door de schermen klikt. Webhooks zijn de andere richting: de CRM roept je programma aan wanneer gegevens veranderen.
+Een CRM (customer relationship management) is het systeem waarin je klanten, gesprekken en deals bijhoudt, zie [wat CRM is](/blog/what-is-crm). De API is de programmatische toegang tot de gegevens van dat CRM. Een ander programma stuurt HTTP-verzoeken om contactpersonen, deals en andere records te lezen, aan te maken, bij te werken of te verwijderen, in plaats van dat iemand door de schermen klikt. Webhooks zijn de andere richting: het CRM roept je programma aan wanneer gegevens veranderen.
 </FaqItem>
-<FaqItem question="Welke CRM heeft de beste API?">
+<FaqItem question="Welk CRM heeft de beste API?">
 Er is geen eenduidig antwoord. Toets vier dingen aan je project: of de API in het abonnement zit dat je daadwerkelijk koopt, hoe aanroepen worden gemeten, of webhooks bevatten wat er is gewijzigd en of er een machineleesbare specificatie is. Voor een klein team telt een API in het instapabonnement met een OpenAPI-document en ondertekende webhooks meestal zwaarder dan de omvang van de endpointcatalogus.
 </FaqItem>
 <FaqItem question="Wat is de beste gratis CRM met API-integratie?">
@@ -169,6 +178,12 @@ Nee. Een sleutel heeft precies de rechten van de gebruiker die hem bezit. Maak d
 </FaqItem>
 <FaqItem question="Bevat de API de inbox?">
 Ja, in Customermates Cloud op Pro of hoger, waar gebruikers e-mail, LinkedIn, WhatsApp, Instagram of Telegram koppelen. De routes dekken gesprekken, concepten, het versturen van e-mail en chatberichten, en activiteiten. Elk verzoek verstuurt één bericht; bulkverzending bestaat niet.
+</FaqItem>
+<FaqItem question="Wat is het verschil tussen een CRM en een ERP, en kan ik ze koppelen?">
+Een CRM beheert klantrelaties en opvolging, een ERP de bedrijfsprocessen eromheen zoals boekhouding, voorraad en inkoop. Customermates is een CRM en geen ERP. Met REST en webhooks houd je gegevens tussen beide gelijk, bijvoorbeeld door een gewonnen deal aan je boekhoudtool door te geven. Zie [CRM en ERP](/blog/crm-and-erp) en [CRM-ERP-integratie](/blog/crm-erp-integration).
+</FaqItem>
+<FaqItem question="Kan ik zelf een CRM bouwen op de API?">
+Een CRM vanaf nul programmeren is veel werk. Met Customermates richt je je eigen lijsten, velden en relaties in, in Datamodel, via de API of via MCP, en heb je meteen een werkend CRM. Wil je er eigen software omheen bouwen, dan geeft de API toegang tot dezelfde records. De AGPL-kern kun je ook [zelf hosten](/features/self-hosted).
 </FaqItem>
 <FaqItem question="Heb ik n8n of Zapier nodig om de API te gebruiken?">
 Nee. Elke taal die HTTPS-verzoeken kan versturen, werkt. n8n is optioneel en draait apart; het [overzicht van integraties](/features/integrations) vergelijkt REST, webhooks, MCP en n8n.

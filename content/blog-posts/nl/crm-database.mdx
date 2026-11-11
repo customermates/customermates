@@ -41,14 +41,14 @@ Je bouwt zo'n database zelden helemaal zelf. Je kiest een CRM, bepaalt welke rec
 
 De database is maar een deel van de keuze: test hoe mensen deze records vinden en bijwerken met de checklist voor browser en mobiel in de [gids over de CRM app](/blog/crm-app).
 
-## Wat een CRM database bevat
+## Wat een CRM database bevat [#wat-een-crm-database-bevat]
 
 Zie het als een handvol tabellen die naar elkaar verwijzen. De meeste CRM's leveren dezelfde kern en verschillen in wat ze eromheen toevoegen.
 
 | Recordtype | Wat één record is | Meestal gekoppeld aan | Velden die de moeite waard zijn |
 |---|---|---|---|
 | Persoon (contactpersoon) | Eén mens met wie je praat | Het bedrijf, de deals, taken, berichten | Voor- en achternaam, e-mail, telefoon, functie, hoe je elkaar leerde kennen |
-| Bedrijf (organisatie, account) | Eén onderneming of instelling | De mensen en deals | Naam, segment, website, factuuradres |
+| Bedrijf (organisatie, account) | Eén onderneming of instelling | De mensen en deals | Naam, KvK-nummer, segment, website, factuuradres |
 | Deal (kans) | Eén stuk potentiële of lopende business | De betrokken mensen en bedrijven, verkochte producten of diensten | Fase, waarde, verwachte start, bron |
 | Product of dienst | Iets wat je tegen een prijs verkoopt | De deals waar het in zit | Naam, prijs |
 | Taak of activiteit | Iets wat iemand moet doen of deed | Elk van de bovenstaande | Toegewezen aan, notities |
@@ -57,7 +57,19 @@ Twee ontwerpvragen bepalen of de database het later houdt. Kan één persoon bij
 
 De andere helft van een CRM database is geschiedenis. Elke wijziging aan een record en elke gekoppelde e-mail of elk bericht vormt een tijdlijn. Daardoor kan een collega een klant overnemen zonder overdrachtsoverleg, en dat is het deel dat een spreadsheet je niet kan geven.
 
-## CRM database voorbeelden: hoe vier CRM's hun gegevens structureren
+## Waarvoor gebruik je een CRM database en wat levert het op? [#voordelen]
+
+Een CRM database is geen archief, maar het gereedschap waarmee een team klantwerk doet. Dit zijn de vijf dingen waarvoor mensen hem gebruiken:
+
+- **Eén waarheid.** Elke klant staat één keer in de database, met de laatste stand van zaken. Niemand zoekt meer in drie spreadsheets en een mailbox.
+- **Overdracht zonder overleg.** Een collega opent het record en ziet wat er is besproken, aangeboden en toegezegd.
+- **Opvolging.** Elke deal heeft een volgende stap, en een weergave toont wat te laat is.
+- **Gerichter contact.** Met velden als segment of bron selecteer je de juiste groep voor een persoonlijk bericht.
+- **Inzicht.** Tellen en optellen per fase, segment of bron laat zien waar deals blijven hangen, zonder dat iemand cijfers bij elkaar zoekt.
+
+Het levert alleen op wat je erin zet. Een database met half ingevulde records geeft een half beeld, dus is de rest van deze gids vooral een gids voor schone gegevens.
+
+## CRM database voorbeelden: hoe vier CRM's hun gegevens structureren [#crm-database-voorbeelden]
 
 De recordtypen laten zien waarvoor een CRM is gebouwd. Deze tabel vergelijkt alleen het datamodel, niet prijs of kwaliteit.
 
@@ -200,9 +212,19 @@ De [documentatie over records](/docs/app-records) noemt elke import- en exportli
 
 ## Persoonsgegevens in een CRM database
 
-In de EU is een CRM database met personen een verzameling persoonsgegevens onder de [AVG](https://eur-lex.europa.eu/eli/reg/2016/679/oj). Drie beginselen uit artikel 5 vertalen zich direct naar het ontwerp van de database: bewaar alleen gegevens die "beperkt zijn tot wat noodzakelijk is" (minder velden), houd ze juist (de opschoonroutine) en beperk hoe lang je ze bewaart (de verwijdering per kwartaal). Artikel 17 geeft mensen het recht op gegevenswissing, dus je moet één persoon volledig kunnen vinden en verwijderen. Artikel 28 vereist een overeenkomst met elke aanbieder die de gegevens voor je opslaat.
+In de EU is een CRM database met personen een verzameling persoonsgegevens onder de [AVG](https://eur-lex.europa.eu/eli/reg/2016/679/oj). Drie beginselen uit artikel 5 vertalen zich direct naar het ontwerp van de database: bewaar alleen gegevens die "beperkt zijn tot wat noodzakelijk is" (minder velden), houd ze juist (de opschoonroutine) en beperk hoe lang je ze bewaart (de verwijdering per kwartaal). Artikel 17 geeft mensen het recht op gegevenswissing, dus je moet één persoon volledig kunnen vinden en verwijderen. Artikel 28 vereist een overeenkomst met elke aanbieder die de gegevens voor je opslaat. In Nederland houdt de Autoriteit Persoonsgegevens toezicht op de naleving.
 
 Voor Customermates Cloud is de [verwerkersovereenkomst](/dpa) openbaar, is de applicatiedatabase geconfigureerd in de AWS-regio Frankfurt en staan de [subverwerkers](/subprocessors), inclusief Amerikaanse aanbieders, op een rij. Customermates heeft geen compliancecertificering. Heb je de gegevens op je eigen server nodig, [host dan de open-source kern zelf](/features/self-hosted).
+
+### Gegevens beveiligen: vijf gewoonten [#dataveiligheid]
+
+Een CRM database bevat contactgegevens en gespreksgeschiedenis, dus beveiliging hoort bij het ontwerp:
+
+- **Toegang naar behoefte.** Geef elke collega alleen toegang tot de lijsten en acties die nodig zijn, en pas dat aan wanneer iemand van rol wisselt.
+- **Toegang direct intrekken bij vertrek.** Een oud-collega met een actief account is het meest voorkomende lek.
+- **Sterke aanmelding.** Gebruik unieke wachtwoorden en, waar je tool het biedt, tweestapsverificatie.
+- **Exports en back-ups goed bewaren.** Een geëxporteerde werkmap bevat dezelfde persoonsgegevens als de database; bewaar hem niet in losse mailbijlagen of op een gedeelde schijf zonder beperkte toegang.
+- **Weet waar de gegevens staan.** Vraag naar de datalocatie en de verwerkersovereenkomst, en bij zelf hosten naar wie back-ups, updates en toegang regelt.
 
 ## Wanneer Customermates de verkeerde database is
 
@@ -215,6 +237,18 @@ Voor Customermates Cloud is de [verwerkersovereenkomst](/dpa) openbaar, is de ap
 <Faq>
 <FaqItem question="Wat is een CRM database?">
 Het is de opslag achter een CRM: records voor personen, bedrijven, deals en taken, aan elkaar gekoppeld, met getypeerde velden en een geschiedenis van wijzigingen en gesprekken. De koppelingen en de geschiedenis maken er meer van dan een contactenlijst.
+</FaqItem>
+
+<FaqItem question="Wat is CRM-data?">
+CRM-data zijn alle gegevens die een CRM over klanten en prospects bewaart: wie ze zijn, wat je aan wie verkoopt, wat er is gebeurd en wat je zelf toevoegt, zoals een segment of bron. Samen vormen ze de CRM database. Zie [Wat een CRM database bevat](#wat-een-crm-database-bevat).
+</FaqItem>
+
+<FaqItem question="Is een CRM database een SQL-database?">
+Een CRM draait bovenop een database, en veel CRM's gebruiken daarvoor een relationele database. Als gebruiker werk je met records en velden en heb je geen SQL nodig; die technische laag is het werk van de aanbieder of, bij zelf hosten, van jou. Een zelf gehoste Customermates draait bijvoorbeeld op PostgreSQL, zie de [gids voor zelf hosten](/docs/self-hosting).
+</FaqItem>
+
+<FaqItem question="Welke CRM-databases zijn populair?">
+Je kiest geen database maar een CRM, en elke aanbieder modelleert de gegevens anders. De tabel onder [CRM database voorbeelden](#crm-database-voorbeelden) vergelijkt hoe HubSpot, Salesforce, Pipedrive en Customermates dat doen, en de gids over [de beste CRM-software](/blog/best-crm-software) geeft een shortlist per toepassing.
 </FaqItem>
 
 <FaqItem question="Welke gegevens slaat een CRM database op?">

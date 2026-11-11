@@ -1,6 +1,6 @@
 ---
-title: "CRM personalizado: adaptar uno o crear el tuyo a medida"
-description: "CRM personalizado: qué te deja cambiar un CRM personalizable, dónde ponen los proveedores los objetos personalizados y cuándo compensa crear el tuyo."
+title: "CRM personalizado: qué personalizar, coste y cuándo crearlo"
+description: "CRM personalizado: qué cambian campos, etapas, vistas y objetos personalizados según el proveedor, cuánto cuesta uno a medida y cuándo compensa crearlo."
 
 relatedHrefs:
   - /blog/open-source-crm
@@ -88,6 +88,18 @@ Nadie puede darte un precio fijo honesto por un CRM a medida sin una especificac
 
 Se ha abierto un camino intermedio: partir de un CRM con una API completa y dejar que un cliente de IA haga el trabajo a medida sobre él. Con un CRM de código abierto que expone REST, webhooks y un servidor MCP, un pequeño script o un cliente de IA puede cubrir el único flujo específico de tu negocio, mientras el proveedor mantiene todo lo demás.
 
+## Cómo se adapta el CRM a distintos procesos de venta [#procesos-de-venta-distintos]
+
+Un CRM personalizable se nota cuando el mismo producto sirve a negocios que venden de forma muy distinta. Tres ilustraciones, no recetas:
+
+| Negocio | Etapas de la oportunidad | Campos que añadirías |
+|---|---|---|
+| Agencia o estudio que vende proyectos | Consulta, briefing, propuesta enviada, firmada, perdida | Tipo de encargo, presupuesto aproximado, fecha de entrega |
+| Negocio con pedidos recurrentes, como un distribuidor o un servicio de mantenimiento | Oferta, pedido de prueba, contrato recurrente, perdida | Fecha de renovación, frecuencia de pedido, persona que hace el pedido |
+| Consultora B2B con ciclo largo y varias personas que deciden | Primer contacto, llamada de descubrimiento, propuesta, negociación, firmada | Quién decide, quién maneja el presupuesto, fecha de la próxima decisión |
+
+Lo que cambia entre filas no es el producto, sino los nombres de las etapas y los pocos campos que alguien usa de verdad. Empieza copiando los pasos que ya sigues, no los que aparecen en una plantilla ajena.
+
 ## Una configuración real en Customermates
 
 Así moldearía Customermates a su proceso una consultora de cinco personas. Cada paso es configuración, sin código.
@@ -116,6 +128,19 @@ Así moldearía Customermates a su proceso una consultora de cinco personas. Cad
 Las conversaciones conectadas de correo, LinkedIn y WhatsApp aparecen junto a estos registros en la [bandeja de entrada unificada](/features/unified-inbox) en Pro y superiores. Starter no tiene bandeja. Si trabajas con Claude, ChatGPT u otro cliente de IA, este lee y escribe los mismos registros, incluidos tus campos personalizados, a través de [MCP](/docs/mcp) con [[derived.mcp.tools.total]] herramientas.
 
 El sentido de moldear el modelo es hacer seguimiento de cada conversación con un cliente. Con la bandeja conectada, los hilos de cada cliente están en su registro, Mate o tu propio agente de IA redacta la respuesta y el próximo paso, tú revisas y envías, y los campos de fecha que añadiste, como Renovación del contrato o una fecha de próximo paso, ponen en tu panel lo que vence.
+
+## Integraciones: cómo se conecta un CRM personalizable con tus otras herramientas [#integraciones-crm-personalizable]
+
+Personalizar el CRM no acaba en sus campos: también cuenta cómo se conecta con el resto de tus herramientas. Al comparar productos, fíjate en cuatro vías y en el plan que incluye cada una. En Customermates son estas:
+
+| Quieres | Vía |
+|---|---|
+| Que un cliente de IA actualice el CRM en una conversación | [MCP](/docs/mcp) |
+| Hacer una integración propia en código | La API REST, con especificación OpenAPI |
+| Reaccionar a los cambios del CRM en Slack, una herramienta de secuencias o tu almacén de datos | [Webhooks](/docs/webhooks) |
+| Montar flujos de trabajo de forma visual, sin código | [n8n](/docs/n8n) |
+
+Los campos personalizados que añadiste los leen y escriben también los clientes de IA a través de MCP, como se vio arriba, así que la integración habla tu modelo de datos y no uno genérico.
 
 ## Qué no te deja personalizar Customermates
 
@@ -157,12 +182,20 @@ La personalización falla más a menudo por demasiados campos que por pocos. Tre
 Un CRM personalizable es un producto terminado que adaptas con campos, etapas, vistas y automatización, y lo mantiene el proveedor. Un CRM a medida es software construido para ti, con código o con una plataforma sin código, y lo mantienes tú. Lo personalizable es más rápido y barato para la mayoría de los equipos pequeños; lo a medida solo compensa cuando ningún producto puede representar tus registros.
 </FaqItem>
 
-<FaqItem question="¿Puedo crear mi propio CRM?">
-Sí. Una base de datos sin código como Airtable, Knack o Caspio puede darte rápido una primera versión que funcione si tu proceso está claro. Programar uno desde cero es un proyecto largo, porque también construyes el inicio de sesión, los roles, la sincronización de correo, la búsqueda, la importación y las copias de seguridad. Si tus registros son personas, empresas y oportunidades, configurar un CRM existente te lleva más lejos por menos.
+<FaqItem question="¿Puedo crear mi propio CRM y cómo se empieza?">
+Sí. Empieza por anotar los tipos de registro que tu herramienta actual no puede representar: si la lista está vacía, lo que necesitas es un CRM mejor configurado, no uno nuevo. Una base de datos sin código como Airtable, Knack o Caspio puede darte rápido una primera versión que funcione si tu proceso está claro. Programar uno desde cero es un proyecto largo, porque también construyes el inicio de sesión, los roles, la sincronización de correo, la búsqueda, la importación y las copias de seguridad. Si tus registros son personas, empresas y oportunidades, configurar un CRM existente te lleva más lejos por menos.
 </FaqItem>
 
 <FaqItem question="¿Cuánto cuesta un CRM a medida?">
 Depende de la especificación, así que desconfía de cualquier cifra fija. Cuenta el mantenimiento, no solo la primera construcción: actualizaciones de seguridad, alojamiento, copias de seguridad y cada función que de otro modo recibirías de un proveedor. Como comparación, cinco usuarios en Customermates Pro cuestan [[commercial.price.pro.monthly.seats.5]] al mes, o [[commercial.price.pro.monthly.seats.5.months.12]] en doce meses, y otros proveedores publican sus precios en sus páginas de precios.
+</FaqItem>
+
+<FaqItem question="¿Cuáles son los 3 tipos de CRM?">
+Operativo, analítico y colaborativo. El operativo organiza el día a día de ventas, marketing y servicio; el analítico trabaja con los datos de clientes para informes y previsiones; el colaborativo comparte la información entre equipos. La mayoría de los productos mezclan los tres, así que a un equipo pequeño le importa más qué capas de personalización necesita (campos, etapas, objetos) que a qué tipo pertenece el CRM.
+</FaqItem>
+
+<FaqItem question="¿Cuál es el CRM más usado?">
+No hay un ranking neutral: depende de la fuente, del país y del tamaño de empresa, y las listas de «el más usado» suelen medir cuota de mercado, no lo que le encaja a un equipo pequeño. Más útil que preguntar cuál es el más usado es comprobar qué capa de personalización necesitas y en qué plan está.
 </FaqItem>
 
 <FaqItem question="¿Puedo crear un CRM en Excel?">

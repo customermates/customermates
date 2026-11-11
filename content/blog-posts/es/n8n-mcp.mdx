@@ -1,10 +1,10 @@
 ---
-title: "n8n MCP: rutas y un flujo de CRM probado"
-description: "n8n MCP: elige la ruta correcta y sigue un ejemplo fechado con n8n 2.45.5: búsqueda de cliente y tarea interna sin duplicados, con límites de prueba claros."
+title: "n8n MCP: cómo conectarlo, qué ruta elegir y ejemplo de CRM"
+description: "n8n MCP: qué ruta elegir (servidor, trigger o client), cómo conectar un cliente de IA y un ejemplo de CRM probado con n8n 2.45.5 y límites de prueba claros."
 
 hero:
   title: "n8n MCP: elige una ruta y prueba una tarea de CRM"
-  description: "n8n MCP: elige la ruta correcta y sigue un ejemplo fechado con n8n 2.45.5: búsqueda de cliente y tarea interna sin duplicados, con límites de prueba claros."
+  description: "n8n MCP: qué ruta elegir (servidor, trigger o client), cómo conectar un cliente de IA y un ejemplo de CRM probado con n8n 2.45.5 y límites de prueba claros."
 
 blogPost:
   author: Benjamin Wagner
@@ -29,6 +29,15 @@ n8n MCP puede significar que un cliente de IA llame a n8n o que un workflow de n
 
 MCP es el protocolo de conexión; n8n es la aplicación de workflows. Empieza por la dirección de la llamada y después elige el nodo o el servidor. La [guía de n8n para principiantes](/blog/n8n-for-beginners-build-your-first-workflow) cubre el editor visual; esta guía cubre la elección de MCP y una ruta concreta, fechada y ejecutada.
 
+## ¿Qué es n8n MCP? La respuesta corta [#respuesta-corta]
+
+«n8n MCP» agrupa cuatro cosas distintas. Elige la tuya por lo que quieres lograr:
+
+- **Que Claude, Cursor u otro cliente de IA use n8n** (por ejemplo, para crear y ejecutar workflows): el MCP a nivel de instancia de n8n. Si no conoces el protocolo, empieza por [qué es un servidor MCP](/blog/what-is-an-mcp-server).
+- **Que un cliente externo llame a las herramientas de un solo workflow:** el nodo MCP Server Trigger.
+- **Que un agente de n8n use herramientas de otras aplicaciones:** el subnodo MCP Client Tool.
+- **Que un workflow normal llame a un servidor MCP externo, sin modelo:** el nodo MCP Client independiente, que es el que probamos en esta guía.
+
 ## ¿Qué ruta de n8n MCP encaja con tu trabajo?
 
 La tabla separa a quien mantiene la ruta de la persona cuyas credenciales autorizan el trabajo. Un nombre de producto conocido no basta para identificar una conexión.
@@ -46,6 +55,23 @@ La [documentación oficial de MCP a nivel de instancia](https://docs.n8n.io/conn
 La [referencia del MCP Server Trigger](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcptrigger/) describe un punto de entrada de servidor. La [referencia del MCP Client Tool](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp/) describe las herramientas externas de un agente. La [referencia del MCP Client independiente](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcpclient/) cubre las llamadas explícitas en un workflow normal.
 
 El [repositorio n8n-mcp](https://github.com/czlonkowski/n8n-mcp), independiente, ofrece ayuda para crear workflows. Es un proyecto aparte, no el nombre de todas las funciones MCP nativas. No necesitas instalarlo para la receta del cliente independiente de abajo.
+
+## ¿Cómo conectas un cliente de IA al servidor MCP de n8n? [#conectar-cliente-mcp-n8n]
+
+Es la primera ruta de la tabla: un cliente externo → n8n. Antes de empezar necesitas:
+
+- **Una instancia de n8n** (n8n Cloud o autoalojada) con una versión que admita lo que quieres hacer: crear workflows desde la 2.13.0 y los ajustes de diseño desde la 2.33.0.
+- **Un usuario de n8n** con acceso a los workflows que quieres usar: el cliente actúa con sus permisos.
+- **Un cliente MCP** que pueda autenticarse por OAuth o con un token de acceso MCP.
+
+Los pasos, según la [documentación oficial de MCP a nivel de instancia](https://docs.n8n.io/connect/connect-to-n8n-mcp-server/):
+
+1. **Activa el acceso MCP** en la instancia. En una instalación autoalojada también puedes desactivarlo del todo.
+2. **Conecta el cliente** con OAuth o con un token de acceso MCP, según lo que admita tu cliente. Revisa la documentación de n8n sobre la autenticación recomendada antes de elegir.
+3. **Elige qué workflows expones.** Activar MCP no expone todos: la visibilidad depende del acceso del usuario y de los ajustes de exposición de MCP, y la documentación describe cómo exponer workflows concretos.
+4. **Pruébalo con una lectura.** Pídele al cliente que liste tus workflows antes de dejarle crear o ejecutar nada, y vuelve a comprobar el resultado en n8n.
+
+Para que un workflow sea una herramienta concreta con su propia credencial, usa el MCP Server Trigger de la tabla. Si quieres ver cómo trabaja Claude con un CRM por MCP, la [guía de Claude con un CRM](/blog/claude-crm) lo muestra. El [repositorio comunitario n8n-mcp](https://github.com/czlonkowski/n8n-mcp) es un proyecto aparte con su propia instalación y su propia versión: no lo mezcles con esta ruta nativa.
 
 ## ¿Qué se ejecutó exactamente y con qué versiones?
 
@@ -188,6 +214,15 @@ Un workflow como este crea el siguiente paso. La respuesta al cliente es la otra
 ## Preguntas frecuentes
 
 <Faq>
+<FaqItem question="¿Cómo activo el servidor MCP de n8n?">
+Activa el acceso MCP a nivel de instancia en n8n (Cloud o autoalojado), conecta tu cliente con OAuth o con un token de acceso MCP y elige qué workflows expones: activar MCP no los expone todos. Los pasos y las opciones vigentes están en la documentación oficial de n8n.
+</FaqItem>
+<FaqItem question="¿Puedo crear workflows de n8n desde Claude o Cursor?">
+Con el MCP a nivel de instancia, sí: n8n admite la creación de workflows desde la versión 2.13.0 y sus herramientas incluyen crear y editar workflows y tablas de datos. Como el cliente actúa con los permisos del usuario conectado, revisa cada cambio antes de publicarlo.
+</FaqItem>
+<FaqItem question="¿Qué es el nodo MCP Client de n8n?">
+Es el nodo con el que un workflow normal llama a las herramientas de un servidor MCP externo, sin un modelo de lenguaje por medio. Es distinto del subnodo MCP Client Tool, que usan los agentes de IA de n8n. Esta guía prueba el nodo independiente.
+</FaqItem>
 <FaqItem question="¿n8n-mcp es lo mismo que el servidor MCP nativo de n8n?">
 No. El repositorio comunitario con ese nombre lo mantiene un proyecto independiente. El MCP nativo a nivel de instancia y los nodos integrados pertenecen a n8n; comprueba el paquete exacto y la dirección antes de instalar nada.
 </FaqItem>

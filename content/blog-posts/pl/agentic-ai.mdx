@@ -1,6 +1,6 @@
 ---
-title: "Agentic AI: co to jest, przykłady i ograniczenia"
-description: "Agentic AI wyjaśnione: co oznacza, czym różni się od generatywnej AI i chatbotów, przykłady w sprzedaży i CRM, jak działa i gdzie zawodzi. Ze źródłami."
+title: "Agentic AI: co to jest, jak działa, przykłady i ryzyka"
+description: "Agentic AI wyjaśnione: definicja, różnica wobec generatywnej AI i chatbotów, jak działa, zalety, przykłady w sprzedaży i CRM oraz ryzyka. Ze źródłami."
 
 relatedHrefs:
   - /blog/agentic-crm
@@ -90,7 +90,7 @@ Generatywna AI tworzy treści: tekst, obrazy, kod, streszczenie. Czytasz je i sa
 | Typowy błąd | Błędne zdanie w szkicu | Błędna aktualizacja albo wiadomość do niewłaściwej osoby |
 | Gdzie odbywa się sprawdzenie | Zanim użyjesz wyniku | Przed działaniem albo potem w dzienniku uruchomienia |
 
-Dwa ostatnie wiersze pokazują różnicę w praktyce. Halucynacja w szkicu kosztuje cię poprawkę. Ta sama halucynacja w agencie staje się zmienionym rekordem albo wysłanym e-mailem. Dlatego agenci potrzebują uprawnień i zasad zatwierdzania, których generator tekstu nigdy nie potrzebował.
+Dwa ostatnie wiersze pokazują różnicę w praktyce. Halucynacja w szkicu kosztuje Cię poprawkę. Ta sama halucynacja w agencie staje się zmienionym rekordem albo wysłanym e-mailem. Dlatego agenci potrzebują uprawnień i zasad zatwierdzania, których generator tekstu nigdy nie potrzebował.
 
 ## Jaka jest różnica między chatbotem, asystentem, workflow i agentem?
 
@@ -99,11 +99,11 @@ Te cztery słowa często określają ten sam produkt, ale opisują różny stopi
 | Typ | Kto decyduje o następnym kroku | Narzędzia | Przykład | Gdzie się psuje |
 |---|---|---|---|---|
 | Chatbot (bot) | Scenariusz lub stałe reguły | Brak albo proste wyszukiwanie | Widżet FAQ na stronie | Wszystko poza scenariuszem |
-| Asystent AI | Ty: on odpowiada i rekomenduje, ty działasz | Opcjonalne | ChatGPT w zwykłej rozmowie | Odpowiedź zostaje słowami, dopóki nie podejmiesz działania |
+| Asystent AI | Ty: on odpowiada i rekomenduje, Ty działasz | Opcjonalne | ChatGPT w zwykłej rozmowie | Odpowiedź zostaje słowami, dopóki nie podejmiesz działania |
 | Automatyzacja workflow | Ścieżka, którą napisałeś, z krokami AI, jeśli je dodasz | API, webhooki | „Gdy szansa sprzedaży przejdzie do etapu Wygrana, utwórz zadanie wdrożeniowe” | Dane wejściowe, których ścieżka nie przewidziała |
 | Agent AI | Model, w ramach narzędzi i limitów, które ustawisz | Wymagane | Agent programistyczny, który naprawia niedziałający test i otwiera pull request | Błędne działanie, koszt wymykający się spod kontroli, wstrzyknięte polecenie |
 
-**Czy ChatGPT to agentic AI?** W zwykłej rozmowie zachowuje się jak asystent: odpowiada, a ty działasz. Działa agentowo, gdy wolno mu używać narzędzi, by działać za ciebie, na przykład w trybie agenta w ChatGPT, albo gdy jest połączony z oprogramowaniem biznesowym przez MCP i może tam czytać dane, a zależnie od planu ChatGPT także je zmieniać. Etykieta należy do konfiguracji, nie do nazwy produktu.
+**Czy ChatGPT to agentic AI?** W zwykłej rozmowie zachowuje się jak asystent: odpowiada, a Ty działasz. Działa agentowo, gdy wolno mu używać narzędzi, by działać za Ciebie, na przykład w trybie agenta w ChatGPT, albo gdy jest połączony z oprogramowaniem biznesowym przez MCP i może tam czytać dane, a zależnie od planu ChatGPT także je zmieniać. Etykieta należy do konfiguracji, nie do nazwy produktu.
 
 ## Jak działa system agentic AI?
 
@@ -205,7 +205,7 @@ Weźmy małą firmę doradczą, w której klient pisze: „Czy możemy przesuną
 | 4. Obserwacja | Znajduje jedną otwartą szansę na etapie oferty; notatki mówią, że szkolenie jest wyceniane osobno | Odczyt z CRM | Porównaj to samodzielnie z szansą |
 | 5. Działanie | Dopisuje trzy linijki do notatek szansy: klient chce kickoffu w czwartek, pytanie o szkolenie otwarte | Aktualizacja w CRM (zapis) | Zmiana w notatkach |
 | 6. Działanie | Zapisuje szkic odpowiedzi: czwartek jest możliwy po potwierdzeniu, szkolenie według notatek jest wyceniane osobno; termin w czwartek oznacza jako niepewny | Zapis szkicu (zapis, nie wysyłka) | Szkic w wątku |
-| 7. Stop | Kończy przebieg raportem o tym, co przeczytał i zmienił | Brak | Raport; ty edytujesz i wysyłasz szkic |
+| 7. Stop | Kończy przebieg raportem o tym, co przeczytał i zmienił | Brak | Raport; Ty edytujesz i wysyłasz szkic |
 
 Instrukcja stojąca za przebiegiem jest krótka, a każda jej linijka ogranicza to, co agent może zrobić:
 
@@ -221,6 +221,17 @@ Raport: co przeczytałeś, co zmieniłeś, czego nie jesteś pewien.
 ```
 
 Pracę wykonują trzy szczegóły. Odczyt i zapis są rozdzielone, więc agent może przejrzeć wszystko, czego potrzebuje, a zmienić tylko notatki i szkice. Reguła zatrzymania obejmuje przypadek, którego nikt nie zaplanował. A punkt zatwierdzenia to przycisk wysyłania, który zostaje przy człowieku. W Customermates ten przebieg to rutyna; [dokumentacja rutyn](/docs/app-routines) wymienia, co rutyna może zrobić bez zatwierdzenia, a [poradnik o agentic CRM](/blog/agentic-crm) wyjaśnia, gdzie Mate i MCP pytają, a gdzie nie.
+
+## Jakie są zalety agentic AI? [#zalety-agentic-ai]
+
+IBM wymienia wśród zalet agentic AI autonomię, proaktywność i zdolność adaptacji ([IBM](https://www.ibm.com/think/topics/agentic-ai)). W małym zespole przekłada się to na cztery rzeczy:
+
+- **Mniej powtarzalnej pracy.** Agent robi kroki, które człowiekowi zajęłyby kilka minut za każdym razem: czyta wątek, sprawdza rekord, przygotowuje szkic.
+- **Praca bez czekania na polecenie.** Agent uruchamiany według harmonogramu albo zdarzenia, na przykład nowego e-maila czy zmiany etapu, działa, zanim ktoś o tym pomyśli.
+- **Radzenie sobie z danymi w wolnym tekście.** Stała reguła nie przeczyta e-maila, a agent tak, więc nadaje się do zadań, których nie da się zapisać jako warunek „jeśli, to”.
+- **Decyzja zostaje u człowieka.** Przy szkicach zamiast bezpośrednich działań oszczędność czasu nie wymaga oddania kontroli.
+
+Te zalety są realne tam, gdzie zadanie jest wąskie i ma jasny koniec. Następna sekcja opisuje, gdzie agent zawodzi, a jeszcze dalej, kiedy lepszy jest zwykły workflow.
 
 ## Jakie są ograniczenia i ryzyka agentic AI i jakie kontrole działają?
 
@@ -303,7 +314,7 @@ Agent programistyczny, taki jak Claude Code, czyta repozytorium, edytuje pliki, 
 </FaqItem>
 
 <FaqItem question="Czy ChatGPT to agentic AI?">
-W zwykłej rozmowie ChatGPT to generatywna AI używana jako asystent: odpowiada, a ty działasz. Działa agentowo, gdy może używać narzędzi, by działać za ciebie, na przykład w trybie agenta, albo gdy jest połączony z oprogramowaniem biznesowym przez MCP i może tam czytać dane, a zależnie od planu ChatGPT także je zmieniać.
+W zwykłej rozmowie ChatGPT to generatywna AI używana jako asystent: odpowiada, a Ty działasz. Działa agentowo, gdy może używać narzędzi, by działać za Ciebie, na przykład w trybie agenta, albo gdy jest połączony z oprogramowaniem biznesowym przez MCP i może tam czytać dane, a zależnie od planu ChatGPT także je zmieniać.
 </FaqItem>
 
 <FaqItem question="Czym jest system agentic AI?">
@@ -315,11 +326,23 @@ Nie ma standardowej listy czterech. Typowe sposoby porządkowania agentów to in
 </FaqItem>
 
 <FaqItem question="Jaka jest różnica między generatywną AI a agentic AI?">
-Generatywna AI tworzy treści na podstawie polecenia, a ty decydujesz, co z nimi zrobić. Agentic AI dąży do celu i sama wykonuje działania, zwykle z modelem generatywnym wybierającym każdy kolejny krok.
+Generatywna AI tworzy treści na podstawie polecenia, a Ty decydujesz, co z nimi zrobić. Agentic AI dąży do celu i sama wykonuje działania, zwykle z modelem generatywnym wybierającym każdy kolejny krok.
 </FaqItem>
 
 <FaqItem question="Jaka jest różnica między agentic AI a agentami AI?">
 Google Cloud nazywa agentów AI cegiełkami agentic AI: agenci wykonują pojedyncze zadania, a agentic AI to skoordynowany system. W codziennym użyciu te pojęcia są wymienne.
+</FaqItem>
+
+<FaqItem question="Jakie są zalety agentic AI?">
+Mniej powtarzalnej pracy, działanie według harmonogramu albo zdarzenia bez czekania na polecenie, radzenie sobie z tekstem w wolnej formie i możliwość pozostawienia decyzji człowiekowi, gdy agent tylko przygotowuje szkic. Zalety dotyczą wąskich zadań z jasnym końcem; sekcja o [zaletach agentic AI](#zalety-agentic-ai) opisuje je dokładniej.
+</FaqItem>
+
+<FaqItem question="Jakie są przykłady narzędzi agentic AI?">
+Produkty, które dostawcy sami nazywają agentami: Claude Code (programowanie), agent GitHub Copilot w chmurze (zadania w repozytorium), Salesforce Agentforce (obsługa klienta i CRM) oraz rutyny Customermates (szkic odpowiedzi w szansie sprzedaży). Tabela produktów wyżej pokazuje, co każdy z nich robi i gdzie zatwierdza człowiek. Agentforce opisuje osobny [poradnik o Salesforce Agentforce](/blog/agentforce).
+</FaqItem>
+
+<FaqItem question="Czy Claude albo Copilot to agentic AI?">
+Claude Code (Anthropic) i agent Copilot w chmurze (GitHub) to produkty nazywane przez dostawców agentami: czytają repozytorium, edytują pliki i uruchamiają testy, a wynik trafia do przeglądu. Zwykły czat z Claude albo Copilotem to asystent; staje się agentowy, gdy wolno mu używać narzędzi i działać w Twoim imieniu, tak samo jak w przypadku ChatGPT.
 </FaqItem>
 
 <FaqItem question="Czym jest agentowy workflow?">

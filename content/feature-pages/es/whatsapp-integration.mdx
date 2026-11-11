@@ -1,6 +1,6 @@
 ---
 title: "CRM WhatsApp: chats junto a la ficha de cada cliente"
-description: "CRM WhatsApp: conecta WhatsApp a la bandeja de Customermates Cloud desde Pro, sin la API de WhatsApp Business. Cada chat en su contacto, con borradores."
+description: "CRM WhatsApp: cada chat en la ficha de tu cliente, con borradores de respuesta. Conexión por código QR, sin la API de WhatsApp Business. Cloud desde Pro."
 featureName: Integración de WhatsApp con el CRM
 
 relatedHrefs:
@@ -75,7 +75,7 @@ Estas listas son un ejemplo. Un espacio de trabajo nuevo empieza sin listas: en 
 
 **Leer y responder.** Abre un chat, lee el historial y responde en el mismo chat. Los archivos adjuntos funcionan donde la conexión del proveedor los admite. Puedes guardar un borrador en un chat existente y enviarlo más tarde.
 
-**Iniciar un chat desde un número de teléfono.** Inicia un chat nuevo desde el número de teléfono de un contacto en formato internacional, por ejemplo +49 seguido del número sin el cero inicial.
+**Iniciar un chat desde un número de teléfono.** Inicia un chat nuevo desde el número de teléfono de un contacto en formato internacional, por ejemplo +34 para un móvil español o +52 para uno mexicano, seguido del número sin ceros ni prefijos nacionales.
 
 **Contactos asociados por número de teléfono.** Un número de teléfono en el campo Datos de contacto de un registro conecta ese registro con los chats de WhatsApp con ese número. Ese mismo número también se puede llamar desde el registro. Para un remitente que aún no tiene registro, abre **Ajustes de la conversación** y vincula el número a un contacto existente o crea uno.
 
@@ -104,6 +104,21 @@ Los proveedores limitan la velocidad a la que se pueden leer y enviar mensajes, 
   al registro del CRM.
 </AcquisitionCallout>
 
+## ¿Qué buscar en un CRM para WhatsApp? [#que-buscar-en-un-crm-para-whatsapp]
+
+Hay dos tipos de CRM con WhatsApp, y conviene saber cuál necesitas antes de comparar precios:
+
+- **Conversación individual con cada cliente.** Chats uno a uno que quedan en la ficha del cliente, para que cualquiera del equipo vea el historial y sepa quién tiene que responder. Es lo que hace Customermates.
+- **Mensajería de empresa a gran escala.** Plantillas aprobadas, difusiones, chatbots y envío masivo. Esto exige la API oficial de WhatsApp Business a través de un proveedor autorizado, y es otro tipo de herramienta.
+
+Con eso claro, comprueba cinco cosas en cualquier CRM que valores:
+
+1. **Cómo se conecta:** por código QR o por la API oficial, y qué funciones te deja fuera cada camino.
+2. **Cómo se asocia el chat al cliente:** si la asociación se hace por el número de teléfono del contacto y quién vincula el chat a una oportunidad.
+3. **Quién ve qué:** chats privados frente a cuentas compartidas con el equipo.
+4. **Qué hace la IA:** si redacta borradores que revisa una persona o envía por su cuenta.
+5. **Qué cuesta de verdad:** el precio por usuario o por número conectado y, si usas la API oficial, lo que cobre además el proveedor.
+
 ## Quién ve qué chats
 
 Un canal nuevo es privado: solo tú ves sus chats, y ningún rol, ni siquiera el de Administrador, puede leer las conversaciones privadas de un compañero. En Pro trabajas con tus propias cuentas y puedes compartir chats concretos con tus compañeros. Compartir una cuenta conectada entera, por ejemplo un número de WhatsApp del equipo que una persona conectó, requiere Business, Max o Enterprise.
@@ -127,6 +142,22 @@ La asignación es un único fondo compartido entre email, LinkedIn, WhatsApp, In
 ## Preguntas frecuentes
 
 <Faq>
+<FaqItem question="¿Qué es un CRM para WhatsApp?">
+Es un CRM que pone las conversaciones de WhatsApp en la ficha del cliente: cada chat queda asociado al contacto por su número de teléfono, con el historial y el estado de la conversación, para que cualquiera del equipo sepa qué se dijo y quién debe responder. En Customermates conectas tu cuenta con un código QR y los chats llegan a la bandeja de entrada unificada.
+</FaqItem>
+
+<FaqItem question="¿Cuál es el mejor CRM para WhatsApp y qué CRM lo tiene integrado?">
+Depende de lo que necesites. Para conversaciones uno a uno que queden junto al contacto y la oportunidad, con borradores que revisas tú, encaja Customermates, que integra WhatsApp en su bandeja de entrada desde Pro. Para plantillas aprobadas, difusiones o chatbots necesitas un CRM conectado a la API oficial de WhatsApp Business. Customermates publica esta página, así que usa las cinco comprobaciones de arriba en lugar de fiarte de un ranking.
+</FaqItem>
+
+<FaqItem question="¿Hay un CRM gratuito con WhatsApp?">
+En Customermates no: el plan gratuito de la nube no incluye la bandeja de entrada, que es donde llegan los chats de WhatsApp. Puedes probar WhatsApp durante la prueba de [[commercial.trial.days]] días en Pro, sin tarjeta de crédito. En otras herramientas, mira qué límites tiene el plan gratuito y si incluye la conexión de WhatsApp.
+</FaqItem>
+
+<FaqItem question="¿Cuánto cuesta un CRM con WhatsApp?">
+En Customermates, WhatsApp forma parte de la bandeja de entrada unificada: desde Pro, con [[commercial.entitlement.pro.includedAccountsPerUser]] cuenta conectada por usuario. Los precios actuales están en la [página de precios](/pricing). Si usas la API oficial de WhatsApp Business, el coste depende del proveedor de la API y de las tarifas de WhatsApp, y se suma al del CRM.
+</FaqItem>
+
 <FaqItem question="¿Es la API oficial de WhatsApp Business?">
 No. Customermates conecta una cuenta de WhatsApp mediante su proveedor de mensajería con un código QR. No usa la API de WhatsApp Business ni la Cloud API, y no ofrece ninguna de las funciones de la API, como las plantillas aprobadas.
 </FaqItem>

@@ -28,7 +28,7 @@ blogPost:
 
 Een Outlook CRM integratie doet een van twee taken, en goede integraties doen allebei. Ze tonen CRM-records naast de e-mail die je in Outlook leest, en ze kopiëren e-mails en afspraken uit je Microsoft 365-mailbox naar de juiste contactpersoon en deal. De eerste taak doet een Outlook-add-in (ook wel plugin genoemd). De tweede draait op de servers van het CRM, of Outlook nu openstaat of niet.
 
-De echte vraag is dus waar je team wil werken. Leeft iedereen de hele dag in Outlook, kies dan een CRM met een degelijke add-in plus server-side synchronisatie. Beantwoorden mensen liever e-mail vanuit het CRM, naast de deal en de andere kanalen, kies dan een CRM dat de mailbox binnenhaalt. Eén technische controle geldt voor iedereen: de nieuwe Outlook voor Windows draait alleen webadd-ins, dus oudere COM- of VSTO-plug-ins werken daar niet meer.
+De echte vraag is dus waar je team wil werken. Werkt iedereen de hele dag in Outlook, kies dan een CRM met een degelijke add-in plus server-side synchronisatie. Beantwoorden mensen liever e-mail vanuit het CRM, naast de deal en de andere kanalen, kies dan een CRM dat de mailbox binnenhaalt. Eén technische controle geldt voor iedereen: de nieuwe Outlook voor Windows draait alleen webadd-ins, dus oudere COM- of VSTO-plug-ins werken daar niet meer.
 
 Customermates publiceert deze gids. Customermates, een AI-native CRM, kiest de derde aanpak: er is geen Outlook-add-in en Outlook-mail komt in plaats daarvan in de eigen inbox. De leveranciersgegevens hieronder zijn op 8 oktober 2026 gecontroleerd op de eigen pagina's van de leveranciers, die aan het einde zijn gelinkt.
 
@@ -40,7 +40,7 @@ Customermates publiceert deze gids. Customermates, een AI-native CRM, kiest de d
   <SummaryItem label="Contactpersonen en agenda">Tweerichtingssynchronisatie van contactpersonen en agenda verschilt meer tussen CRM's dan het vastleggen van e-mail. Controleer ze een voor een.</SummaryItem>
 </ArticleSummary>
 
-## De drie typen Outlook CRM koppeling
+## De drie soorten Outlook-CRM-koppelingen
 
 | Type | Wat het doet | Waar je werkt | Controleer vóór je koopt |
 |---|---|---|---|
@@ -68,7 +68,7 @@ De ontwikkelaarsdocumentatie van Microsoft is duidelijk: VSTO- en COM-add-ins wo
 
 Twee details van dezelfde pagina zijn belangrijk voor CRM-kopers. Microsoft noemt "CRM and tracking services" als ondersteund scenario voor webadd-ins. "Data sync service", de tweerichtingssynchronisatie van mailitems, noemt Microsoft slechts gedeeltelijk ondersteund. En de nieuwe client vraagt op dit moment een werk- of schoolaccount van Microsoft 365 op Exchange Online; on-premises-, hybride en soevereine Exchange-accounts worden nog niet ondersteund.
 
-In de praktijk: stapt je team over op de nieuwe Outlook, vraag dan aan elke leverancier of zijn add-in een webadd-in is en test hem in de nieuwe client voordat je migreert. Server-side synchronisatie en een mailbox in het CRM zijn helemaal niet afhankelijk van de Outlook-client.
+In de praktijk: stapt je team over op de nieuwe Outlook, vraag dan aan elke leverancier of zijn add-in een webadd-in is en test hem in de nieuwe client voordat je migreert. Server-side synchronisatie en een mailbox in het CRM zijn helemaal niet afhankelijk van de Outlook-client. Werkt je team met Google Workspace in plaats van Microsoft 365, lees dan de gids over [Gmail CRM integratie](/blog/gmail-crm-integration).
 
 ## Welke aanpak past
 
@@ -126,6 +126,8 @@ Er is geen Outlook-add-in, dus CRM-details zoek je op in Customermates en niet i
 </AcquisitionCallout>
 
 ## Test elke Outlook-integratie voordat je haar uitrolt
+
+De test hieronder is een onderdeel van een bredere keuze. Het hele selectieproces, van eisen tot proef en scoring, staat in de gids over [een CRM systeem kiezen](/blog/how-to-choose-crm).
 
 1. Stuur een e-mail vanuit Outlook naar een bekende contactpersoon. Die moet binnen de door de leverancier genoemde synchronisatietijd op die contactpersoon verschijnen.
 2. Antwoord vanaf een telefoon. Het antwoord moet in dezelfde thread komen en geen nieuwe contactpersoon aanmaken.

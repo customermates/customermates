@@ -1,6 +1,6 @@
 ---
-title: "Segmentacja klientów: rodzaje, przykłady i ustawienia"
-description: "Segmentacja klientów w pigułce: cztery rodzaje z przykładami B2B, analiza ABC według przychodów, RFM i konfiguracja z polami, widokami i wykresami w CRM."
+title: "Segmentacja klientów: kryteria, przykłady i jak ją zrobić"
+description: "Segmentacja klientów: definicja, cztery rodzaje i kryteria z przykładami B2B, korzyści, analiza ABC i RFM krok po kroku oraz ustawienie segmentów w CRM."
 
 relatedHrefs:
   - /features/reporting
@@ -9,7 +9,7 @@ relatedHrefs:
   - /blog/customer-journey
 
 hero:
-  title: "Segmentacja klientów: rodzaje, przykłady i jak ją ustawić w CRM"
+  title: "Segmentacja klientów: kryteria, rodzaje, przykłady i jak ją ustawić w CRM"
   description: "Czym jest segmentacja klientów, cztery rodzaje z przykładami B2B, jak grupować klientów według przychodów (ABC) lub zachowań zakupowych (RFM) oraz konfiguracja z polami, zapisanymi widokami i tablicą dla małego zespołu."
 
 blogPost:
@@ -23,9 +23,9 @@ blogPost:
     - Proces sprzedaży
 ---
 
-# Segmentacja klientów: rodzaje, przykłady i jak ją ustawić w CRM
+# Segmentacja klientów: kryteria, rodzaje, przykłady i jak ją ustawić w CRM
 
-Segmentacja klientów polega na podzieleniu klientów na kilka grup, które łączy cecha zmieniająca sposób, w jaki im sprzedajesz, obsługujesz ich lub ustalasz dla nich ceny: branża, wielkość firmy, region, zachowania zakupowe albo przychód, który przynoszą. Cztery rodzaje, które wymienia większość poradników, to demograficzna, geograficzna, psychograficzna i behawioralna; w B2B większość pracy wykonują cechy firmy i wartość klienta, a mały zespół może poprowadzić całość kilkoma polami, zapisanymi widokami i tablicą w CRM.
+Segmentacja klientów polega na podzieleniu klientów na kilka grup, które łączy cecha zmieniająca sposób, w jaki im sprzedajesz, obsługujesz ich lub ustalasz dla nich ceny: branża, wielkość firmy, region, zachowania zakupowe albo przychód, który przynoszą. Cztery rodzaje, które wymienia większość poradników, to segmentacja demograficzna, geograficzna, psychograficzna i behawioralna. W B2B większość pracy wykonują cechy firmy i wartość klienta, a mały zespół może poprowadzić całość kilkoma polami, zapisanymi widokami i tablicą w CRM.
 
 Ten przewodnik definiuje segment klientów, pokazuje cztery rodzaje jako tabelę B2B ze źródłem danych i działaniem dla każdego, przeprowadza przez dwie metody, których małe zespoły używają najczęściej (analiza ABC według przychodów oraz RFM dla klientów, którzy zamawiają raz za razem), i kończy się konfiguracją w Customermates, otwartoźródłowym CRM, który go publikuje. Customermates nie ma automatycznej segmentacji, scoringu leadów ani kampanii e-mail, więc ostatnia sekcja mówi, co robisz ręcznie i kiedy lepiej pasuje narzędzie do automatyzacji marketingu.
 
@@ -43,7 +43,7 @@ Do pracy sprzed momentu, w którym potencjalny klient wchodzi do Twojego pipelin
 
 Bain & Company definiuje segmentację klientów jako podział rynku na odrębne grupy klientów o podobnych cechach. **Segment klientów** to jedna z tych grup, na przykład „producenci zatrudniający od 50 do 250 osób” albo „klienci, którzy zamawiali w ostatnich 90 dniach”. **Model segmentacji klientów** to zestaw kryteriów plus reguła, która przypisuje każdego klienta do dokładnie jednego segmentu.
 
-Warto oddzielić dwa sąsiednie pojęcia. Segmentacja rynku dzieli cały rynek, także ludzi, którzy nigdy o Tobie nie słyszeli; segmentacja klientów działa na klientach i kontaktach, które znasz, czyli tych z Twojego CRM. A model może być garścią spisanych reguł, co pokazuje ten przewodnik, albo klasteryzacją statystyczną, która grupuje klientów według wielu zmiennych naraz. Klasteryzacja wymaga narzędzi analitycznych i dużo danych, co zwykle przekracza potrzeby zespołu z kilkuset klientami.
+Warto oddzielić dwa sąsiednie pojęcia. Segmentacja rynku dzieli cały rynek, także ludzi, którzy nigdy o Tobie nie słyszeli; segmentacja klientów działa na klientach i kontaktach, które znasz, czyli tych z Twojego CRM. Przykład segmentacji rynku: producent oprogramowania dla biur rachunkowych dzieli rynek na jednoosobowe biura, biura z kilkoma pracownikami i duże sieci, zanim ktokolwiek z nich cokolwiek kupi. Przykład segmentacji klientów: ten sam producent dzieli swoich obecnych klientów według tego, ile płacą i jak często korzystają z produktu. A model może być garścią spisanych reguł, co pokazuje ten przewodnik, albo klasteryzacją statystyczną, która grupuje klientów według wielu zmiennych naraz. Klasteryzacja wymaga narzędzi analitycznych i dużo danych, co zwykle przekracza potrzeby zespołu z kilkuset klientami.
 
 Segment warto zachować, gdy przechodzi cztery testy (to moja lista kontrolna, a nie standard):
 
@@ -54,7 +54,20 @@ Segment warto zachować, gdy przechodzi cztery testy (to moja lista kontrolna, a
 
 Jeśli nie potrafisz nazwać działania dla segmentu, usuń go albo połącz z sąsiednim.
 
-## Jakie są cztery rodzaje segmentacji klientów?
+## Po co segmentować klientów: korzyści dla małego zespołu [#korzysci-segmentacji-klientow]
+
+Segmentacja ma sens biznesowy, gdy zmienia to, co zespół robi w poniedziałek rano. Najczęstsze korzyści:
+
+- **Kolejność pracy.** Wiesz, do kogo zadzwonić najpierw: do klienta, który przynosi największy przychód, albo do tego, który przestał zamawiać.
+- **Oferta dopasowana do grupy.** Producent i gabinet medyczny pytają o co innego, więc inne studium przypadku i inne sformułowania lepiej do nich trafiają.
+- **Utrzymanie klientów.** Klient zagrożony jest widoczny, zanim odejdzie; więcej o tym w [przewodniku po pracy z obecnymi klientami](/blog/existing-customers).
+- **Rozsądny podział czasu.** Mali klienci dostają ofertę standardową, a czas opieki idzie tam, gdzie się opłaca.
+- **Ceny i pakiety.** Segment pokazuje, komu warto dać rabat, a komu pakiet z dodatkową obsługą.
+- **Lepsze pozyskiwanie.** Skoro wiesz, jak wygląda Twój najlepszy segment, szukasz kolejnych podobnych klientów, a nie wszystkich po kolei.
+
+Bez działania segmentacja niczego nie zmienia, dlatego każdy segment w tym przewodniku ma przypisane działanie.
+
+## Jakie są cztery rodzaje segmentacji klientów? [#cztery-rodzaje-segmentacji-klientow]
 
 Typowa odpowiedź wymienia cztery podstawy dla rynków konsumenckich: geograficzną, demograficzną, psychograficzną i behawioralną. Dla B2B [artykuł Wikipedii o segmentacji rynku](https://en.wikipedia.org/wiki/Market_segmentation) zauważa, że najczęściej stosowane podstawy to geografia i firmografia, czyli cechy takie jak wielkość firmy, sektor branży czy lokalizacja. Styl życia i osobowość (psychografia) są rzadko widoczne w przypadku firmy, więc tabela używa jako czwartej podstawy potrzeb i wartości. Podręczniki zaliczają to do behawioralnej, jako segmentację według korzyści lub potrzeb.
 
@@ -64,6 +77,8 @@ Typowa odpowiedź wymienia cztery podstawy dla rynków konsumenckich: geograficz
 | Geograficzna | Kraj, region, miasto, strefa czasowa | Adres rozliczeniowy lub dostawy | Język i waluta oferty, w jakich wydarzeniach uczestniczysz, kto odwiedza, a kto dzwoni |
 | Behawioralna | Data ostatniego zamówienia, liczba zamówień rocznie, kupione produkty, skąd klient o Tobie usłyszał | Twoje faktury i zamówienia, szanse sprzedaży i rozmowy w CRM | Kontakt po pierwszym zamówieniu, telefon odzyskujący klienta, gdy zamówienia ustają, oferta dodatkowa dla częstych kupujących |
 | Potrzeby i wartość | Problem, do którego Cię zatrudniają, roczny przychód, marża, potencjał wzrostu | Rozmowy rozpoznawcze, Twoje notatki, przychód na klienta | Z jaką ofertą wychodzisz i ile czasu opieki dostaje klient |
+
+Dla firmy, która sprzedaje konsumentom, kryteria wyglądają inaczej. Demograficzne to wiek, płeć, dochód i skład gospodarstwa domowego, geograficzne to region, wielkość miejscowości i klimat, psychograficzne to styl życia, wartości i zainteresowania, a behawioralne to częstotliwość zakupów, lojalność wobec marki i reakcja na promocje. Sklep internetowy z kosmetykami może więc wydzielić klientów, którzy kupują co miesiąc i reagują na zestawy, oraz tych, którzy kupili raz przy wyprzedaży.
 
 Zacznij od jednej lub dwóch podstaw. Tabela z pięcioma podstawami i dwunastoma segmentami wygląda gruntownie i jest ignorowana. Większość małych zespołów dobrze sobie radzi z podziałem firmograficznym dla tego, kim jest klient, plus wartością lub zachowaniem dla tego, jak działa i ile przynosi.
 
@@ -211,6 +226,18 @@ Demograficzna, geograficzna, psychograficzna i behawioralna to typowa lista dla 
 
 <FaqItem question="Jakie jest pięć segmentów klientów?">
 Nie ma standardowej piątki. Działający zestaw dla małego zespołu B2B to Uśpieni, Nowi, Kluczowi klienci, Podstawowi i Mali, ze spisanymi regułami sprawdzanymi w tej kolejności. Liczba segmentów powinna wynikać z Twoich kryteriów i działań, które możesz podjąć, a nie z szablonu.
+</FaqItem>
+
+<FaqItem question="Jakie są kryteria segmentacji klientów?">
+W B2B najczęściej firmograficzne (branża, wielkość firmy, region), behawioralne (data i częstotliwość zamówień, źródło klienta) oraz wartość i potrzeby (przychód, marża, problem, który rozwiązujesz). W sprzedaży konsumenckiej dochodzą kryteria demograficzne i psychograficzne, takie jak wiek, styl życia czy zainteresowania.
+</FaqItem>
+
+<FaqItem question="Po co segmentować klientów?">
+Żeby wiedzieć, do kogo zadzwonić najpierw, jaką ofertę komu pokazać i na których klientach skupić czas opieki. Segmentacja pomaga też zauważyć klientów zagrożonych odejściem i szukać nowych klientów podobnych do najlepszego segmentu.
+</FaqItem>
+
+<FaqItem question="Czym różni się segmentacja rynku od segmentacji klientów?">
+Segmentacja rynku dzieli cały rynek, także ludzi, którzy o Tobie nie słyszeli, na przykład biura rachunkowe według wielkości. Segmentacja klientów dotyczy tych, których już znasz i masz w CRM, na przykład klientów według przychodu albo daty ostatniego zamówienia.
 </FaqItem>
 
 <FaqItem question="Czym jest model segmentacji klientów?">

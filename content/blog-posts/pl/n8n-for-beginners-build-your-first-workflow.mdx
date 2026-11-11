@@ -1,6 +1,6 @@
 ---
 title: "n8n workflow: tutorial dla początkujących krok po kroku"
-description: "n8n workflow krok po kroku: uruchom n8n, zbuduj i przetestuj webhook, opublikuj workflow, obsłuż błędy i wyślij leady z formularza do CRM. Dla początkujących."
+description: "n8n workflow dla początkujących: czym jest n8n, Cloud czy self-hosting, webhook, publikacja, obsługa błędów, węzły AI i zapytania ze strony wysyłane do CRM."
 
 relatedHrefs:
   - /docs/n8n
@@ -27,17 +27,21 @@ blogPost:
 
 # n8n workflow dla początkujących: zbuduj i opublikuj pierwszą automatyzację
 
-Żeby opanować n8n workflow, zbuduj jeden mały przykład od początku do końca: wyzwalacz, który odbiera dane, jeden węzeł, który coś z nimi robi, uruchomienie testowe i krok **Publish**, dzięki któremu całość działa bez ciebie. Wszystko, co w n8n większe, to ten sam wzorzec z większą liczbą węzłów. Ten n8n tutorial prowadzi przez pierwszy workflow, przez pułapkę adresu testowego, w którą wpada wielu początkujących, przez obsługę błędów i przez drugi workflow, który wysyła zapytania ze strony do CRM.
+Żeby opanować n8n workflow, zbuduj jeden mały przykład od początku do końca: wyzwalacz, który odbiera dane, jeden węzeł, który coś z nimi robi, uruchomienie testowe i krok **Publish**, dzięki któremu całość działa bez Ciebie. Wszystko, co w n8n większe, to ten sam wzorzec z większą liczbą węzłów. Ten n8n tutorial prowadzi przez pierwszy workflow, przez pułapkę adresu testowego, w którą wpada wielu początkujących, przez obsługę błędów i przez drugi workflow, który wysyła zapytania ze strony do CRM.
 
-Dla workflow w n8n [porównanie dróg n8n MCP wraz z przykładem w przypiętej wersji](/blog/n8n-mcp) rozróżnia dwa kierunki: podłączenie n8n do serwera danych klientów oraz udostępnienie samego n8n klientowi AI. Wybierz kierunek, zanim skonfigurujesz poświadczenia.
+Jeśli chcesz połączyć n8n z MCP, [porównanie dróg n8n MCP wraz z przykładem w przypiętej wersji](/blog/n8n-mcp) rozróżnia dwa kierunki: podłączenie n8n do serwera danych klientów oraz udostępnienie samego n8n klientowi AI. Wybierz kierunek, zanim skonfigurujesz poświadczenia.
 
 <ArticleSummary title="W skrócie">
   <SummaryItem label="Gdzie to uruchomić">n8n Cloud na szybki start albo darmowa, samodzielnie hostowana Community Edition w Dockerze, jeśli potrafisz utrzymać serwer.</SummaryItem>
   <SummaryItem label="Pierwszy workflow">Wyzwalacz Webhook, węzeł If sprawdzający dane i węzeł e-mail. Przetestuj go, a potem opublikuj.</SummaryItem>
   <SummaryItem label="Częsty błąd">Wywoływanie adresu testowego po publikacji. Opublikowany workflow nasłuchuje tylko pod adresem produkcyjnym.</SummaryItem>
-  <SummaryItem label="Zanim na nim polegasz">Dodaj workflow błędów, żeby nieudane uruchomienie dotarło do ciebie, zamiast po cichu się nie udać.</SummaryItem>
+  <SummaryItem label="Zanim na nim polegasz">Dodaj workflow błędów, żeby nieudane uruchomienie dotarło do Ciebie, zamiast po cichu się nie udać.</SummaryItem>
   <SummaryItem label="Przykład z CRM">Dane z formularza trafiają do kontaktu w CRM przez węzeł HTTP Request, pokazane na REST API Customermates.</SummaryItem>
 </ArticleSummary>
+
+## Czym jest n8n i czym jest workflow? [#czym-jest-n8n]
+
+n8n to narzędzie do automatyzacji, w którym łączysz aplikacje i usługi w przepływy pracy (workflow) w edytorze wizualnym. Workflow to ciąg kroków uruchamianych automatycznie: coś się dzieje (wpada zapytanie, nadchodzi godzina z harmonogramu), a n8n wykonuje po kolei kroki ułożone na kanwie, na przykład sprawdza dane, zapisuje kontakt w CRM i wysyła wiadomość. Dobrze zaczynać od jednego prostego przykładu, bo każdy większy workflow to ten sam wzorzec z większą liczbą węzłów.
 
 ## Jak działa n8n: sześć pojęć, które musisz znać
 
@@ -83,9 +87,9 @@ docker run -it --rm --name n8n -p 5678:5678 \
 
 Potem otwórz `http://localhost:5678`. Przewodnik dodaje ustawienia strefy czasowej, a dla serwera działającego bez przerwy n8n odsyła do konfiguracji z Docker Compose i HTTPS. Lokalna instancja wystarcza do nauki. Nie jest dostępna z internetu, co ma znaczenie, gdy usługa w chmurze musi wywołać Twój webhook.
 
-## Zbuduj pierwszy workflow: zapytanie, które wysyła ci e-mail
+## Zbuduj pierwszy workflow: zapytanie, które wysyła Ci e-mail
 
-Workflow odbiera ładunek JSON, taki jak wysłałby formularz ze strony, sprawdza, czy zawiera adres e-mail, i wysyła ci szczegóły e-mailem. Ma trzy węzły i uczy każdego podstawowego pojęcia.
+Workflow odbiera ładunek JSON, taki jak wysłałby formularz ze strony, sprawdza, czy zawiera adres e-mail, i wysyła Ci szczegóły e-mailem. Ma trzy węzły i uczy każdego podstawowego pojęcia.
 
 <Steps>
   <Step title="Utwórz workflow i dodaj wyzwalacz Webhook">
@@ -132,7 +136,7 @@ Jeśli wywołanie adresu produkcyjnego zwraca błąd, sprawdź najpierw, czy wor
 
 Opublikowany workflow nikogo nie powiadomi o porażce, dopóki nie powiesz n8n, gdzie zgłaszać błędy. Większość przypadków pokrywają dwa ustawienia.
 
-1. **Workflow błędów.** Utwórz osobny workflow, który zaczyna się od węzła **Error Trigger** i wysyła ci e-mail z nazwą workflow, który zawiódł, i komunikatem błędu. Potem otwórz oryginalny workflow, przejdź do **Options > Settings** i wybierz go w polu **Error workflow**. [Dokumentacja obsługi błędów](https://docs.n8n.io/flow-logic/error-handling/) wymienia dane, które odbiera Error Trigger.
+1. **Workflow błędów.** Utwórz osobny workflow, który zaczyna się od węzła **Error Trigger** i wysyła Ci e-mail z nazwą workflow, który zawiódł, i komunikatem błędu. Potem otwórz oryginalny workflow, przejdź do **Options > Settings** i wybierz go w polu **Error workflow**. [Dokumentacja obsługi błędów](https://docs.n8n.io/flow-logic/error-handling/) wymienia dane, które odbiera Error Trigger.
 2. **Ustawienia węzłów.** Każdy węzeł ma kartę ustawień. Przy wywołaniach zewnętrznych API włącz **Retry On Fail**. Dla kroków, które mogą się nie udać bez szkody, jak krok zapisujący log, ustaw **On Error** na **Continue**, żeby reszta uruchomienia i tak się zakończyła.
 
 Przy okazji nadawaj rzeczom nazwy. „Zapytanie: formularz ze strony do CRM” w e-mailu o błędzie mówi, gdzie szukać. „My workflow 3” nie mówi.
@@ -176,7 +180,7 @@ Użyteczna wersja pierwszego workflow zapisuje zapytanie tam, gdzie pracuje Twó
 
 Działa też kierunek odwrotny. W **Ustawienia → Webhooki → Dodaj** Customermates wysyła POST do węzła Webhook w n8n, gdy zajdzie subskrybowane zdarzenie, na przykład `record.created` dla listy Kontakty albo `record.updated` dla listy Szanse sprzedaży. Ustaw sekret, żeby n8n mogło zweryfikować podpis. [Dokumentacja webhooków](/docs/webhooks) pokazuje ładunek. Jedna praktyczna pułapka: Customermates Cloud nie dotrze do instancji n8n pod `localhost`, więc ten kierunek wymaga n8n Cloud albo własnej instancji n8n z publicznym adresem HTTPS.
 
-Kilka szczegółów z [dokumentacji integracji z n8n](/docs/n8n) oszczędzi ci czasu na debugowaniu:
+Kilka szczegółów z [dokumentacji integracji z n8n](/docs/n8n) oszczędzi Ci czasu na debugowaniu:
 
 - Powiązania zmieniają się wyłącznie mutacjami `link` i `unlink`. Starsze tablice relacji, takie jak `organizationIds`, nie są akceptowane.
 - `updateMany` i `deleteMany` przyjmują najwyżej 100 rekordów na żądanie, więc większe partie podziel.
@@ -184,19 +188,53 @@ Kilka szczegółów z [dokumentacji integracji z n8n](/docs/n8n) oszczędzi ci c
 
 Istnieje też węzeł społeczności Customermates, `@customermates/n8n-nodes-crm`, z węzłem akcji dla rekordów CRM i węzłem wyzwalacza dla zdarzeń webhooków. Ma własny harmonogram wydań, więc zanim użyjesz jego akcji CRM, sprawdź, czy obsługuje aktualne API rekordów. Ponieważ n8n Cloud instaluje tylko zweryfikowane węzły społeczności, tam postaw na drogę przez węzeł HTTP Request, a węzła społeczności używaj na własnej instancji n8n.
 
+## Węzły AI w workflow n8n [#wezly-ai-w-n8n]
+
+n8n ma węzły do modeli językowych, między innymi węzeł AI Agent, do którego podłączasz model czatu i opcjonalnie narzędzia. Dzięki nim w workflow może się znaleźć krok wymagający rozumienia tekstu: sklasyfikowanie zapytania, wyciągnięcie z wiadomości nazwy firmy albo przygotowanie szkicu odpowiedzi. Reszta workflow zostaje deterministyczna: wyzwalacz, sprawdzenie danych i zapis w CRM wykonują się zawsze tak samo.
+
+Kilka zasad dla początkujących:
+
+- **Dodaj AI dopiero do działającego workflow.** Najpierw zbuduj wersję bez modelu, potem wstaw jeden węzeł AI w miejsce, gdzie dziś czytasz tekst samodzielnie.
+- **Przetestuj na przypiętych danych.** Odpowiedź modelu bywa różna przy tych samych danych wejściowych, więc sprawdź kilka przypadków, także dziwnych.
+- **Człowiek zatwierdza wysyłkę.** Niech workflow zapisze szkic odpowiedzi, a nie wysyła go sam. To samo dotyczy usuwania rekordów.
+- **Pamiętaj o kosztach i danych.** Wywołania modelu rozlicza jego dostawca według własnego cennika, a dane z workflow trafiają do tego dostawcy.
+
+Jeśli chcesz, żeby klient AI sam wybierał narzędzia zamiast stałego workflow, zobacz [poradnik o n8n MCP](/blog/n8n-mcp), a o różnicy między tymi podejściami piszemy w poradniku [MCP vs API](/blog/mcp-vs-api).
+
+## Szablony i gotowe przykłady workflow [#szablony-n8n]
+
+Zamiast budować każdy workflow od zera, możesz zaczynać od szablonu: workflow w n8n da się wyeksportować i zaimportować jako plik JSON, więc w sieci znajdziesz biblioteki szablonów i przykłady od społeczności; część twórców i agencji sprzedaje też gotowe konfiguracje albo budowę workflow na zamówienie. Szablon oszczędza czas, ale nie zdejmuje z Ciebie odpowiedzialności:
+
+1. **Przeczytaj każdy węzeł**, zanim go uruchomisz. Sprawdź, dokąd wysyła dane i co zapisuje.
+2. **Podmień poświadczenia** na własne. Szablon nie powinien zawierać cudzych kluczy API, a Ty nie wklejaj swoich do plików, które udostępniasz.
+3. **Przetestuj na przypiętych danych**, a dopiero potem opublikuj.
+4. **Dodaj obsługę błędów** z sekcji wyżej, bo szablon zwykle jej nie ma.
+
 ## Gdzie pasuje Customermates, a gdzie nie
 
 n8n to osobny produkt. Nie wchodzi w skład żadnego planu Customermates: sam go uruchamiasz albo wykupujesz subskrypcję n8n Cloud. REST i MCP działają w każdym planie Customermates Cloud, webhooki w każdym płatnym planie, który zaczyna się od [[commercial.price.starter.monthly]] za użytkownika miesięcznie (zobacz [cennik](/pricing)), a wszystkie trzy działają w samodzielnie hostowanej edycji open source.
 
 Nie każda automatyzacja CRM potrzebuje n8n. Jeśli zadanie brzmi „w każdy poniedziałek przejrzyj szanse sprzedaży, które się nie ruszyły, i przygotuj notatkę do każdej”, wymaga to raczej osądu niż okablowania. W Customermates Cloud [rutyna](/docs/app-routines) uruchamia Mate, asystenta w aplikacji, według harmonogramu albo przy zdarzeniu na rekordzie, z zapisaną instrukcją, i zużywa kredyty hostowanej AI. Jeśli wolisz, żeby w CRM pracował Twój własny klient AI, podłącz go przez [MCP](/docs/mcp). Użyj n8n, gdy zadanie jest deterministyczne i przechodzi przez kilka systemów: formularz, CRM, arkusz, czat zespołu.
 
-Jednego n8n za ciebie nie zrobi: samego wracania do rozmowy z klientem. Gdy zapytanie stanie się kontaktem, rozmowa z tą osobą może leżeć na tym samym rekordzie: podłącz LinkedIn i e-mail w Customermates Cloud od planu Pro, a Mate albo Twój własny agent AI przygotuje odpowiedź i następny krok do przejrzenia i wysłania przez ciebie. Żeby wypróbować to na własnych zapytaniach, [zacznij okres próbny](/auth/signup?job=followup): [[commercial.trial.days]] dni planu Pro bez karty kredytowej.
+Jednego n8n za Ciebie nie zrobi: samego wracania do rozmowy z klientem. Gdy zapytanie stanie się kontaktem, rozmowa z tą osobą może leżeć na tym samym rekordzie: podłącz LinkedIn i e-mail w Customermates Cloud od planu Pro, a Mate albo Twój własny agent AI przygotuje odpowiedź i następny krok do przejrzenia i wysłania przez Ciebie. Żeby wypróbować to na własnych zapytaniach, [zacznij okres próbny](/auth/signup?job=followup): [[commercial.trial.days]] dni planu Pro bez karty kredytowej.
 
 Jeśli potrzebujesz tylko kontaktów w arkuszu i jednego e-maila na zapytanie, do tego poradnika w ogóle nie potrzebujesz CRM. Robi to węzeł Google Sheets na gałęzi true.
 
 ## Najczęstsze pytania
 
 <Faq>
+<FaqItem question="Czym jest workflow w n8n?">
+To ciąg połączonych węzłów, który n8n wykonuje od lewej do prawej, gdy zadziała wyzwalacz: wywołanie webhooka, harmonogram albo zdarzenie w aplikacji. Każdy węzeł to jeden krok, na przykład sprawdzenie warunku, wysłanie e-maila lub wywołanie API. Jedno pełne uruchomienie to jedno wykonanie.
+</FaqItem>
+
+<FaqItem question="Czy n8n jest darmowe, czy płatne?">
+Oba. Samodzielnie hostowana Community Edition jest darmowym oprogramowaniem, ale płacisz za serwer i sam go utrzymujesz. n8n Cloud jest płatny i ma okres próbny z limitem wykonań; aktualne kwoty i limity podajemy w sekcji o cloud i self-hostingu oraz w odpowiedzi o koszcie miesięcznym.
+</FaqItem>
+
+<FaqItem question="Czy workflow n8n można kupić albo sprzedać?">
+Tak, część twórców i agencji sprzedaje gotowe workflow albo budowę automatyzacji na zamówienie. Zanim uruchomisz cudzy szablon, przeczytaj każdy węzeł i podmień poświadczenia na własne; szczegóły są w sekcji o szablonach.
+</FaqItem>
+
 <FaqItem question="Jak trudno nauczyć się n8n?">
 Podstawy idą szybko: pierwszy workflow w tym poradniku używa trzech węzłów i jednego wyrażenia. Trudniejsze jest zrozumienie, jak dane przepływają między węzłami jako elementy, i czytanie dokumentacji API usług, które łączysz. Spodziewaj się, że większość czasu nauki spędzisz w panelu wyjściowym, porównując, co węzeł dostał, z tym, co zwrócił.
 </FaqItem>

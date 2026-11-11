@@ -1,6 +1,6 @@
 ---
-title: "API CRM: REST, webhooks, MCP e OpenAPI"
-description: "API CRM: o Customermates tem API REST com OpenAPI 3.1 e MCP em todos os planos, mais webhooks assinados nos planos pagos e na hospedagem própria."
+title: "API CRM: o que é e como usar REST, webhooks e MCP"
+description: "API CRM do Customermates: REST com OpenAPI 3.1 e MCP em todos os planos, webhooks assinados nos pagos e sua primeira chamada de API em 5 passos."
 featureName: API de CRM
 
 relatedHrefs:
@@ -56,11 +56,20 @@ cta:
   hint: "✓ Sem cartão de crédito ✓ Primeiros [[commercial.trial.days]] dias grátis"
 ---
 
-A API CRM do Customermates é uma API REST aberta em todos os planos, a partir do Starter, a [[commercial.price.starter.monthly]] por usuário ao mês, e na edição gratuita com hospedagem própria. Você se autentica com uma chave de API no cabeçalho `x-api-key`, o esquema completo é um documento OpenAPI 3.1 em `/api/v1/openapi` e, nos planos pagos e na hospedagem própria, [[derived.webhooks.events.total]] eventos de webhook avisam os seus sistemas quando algo muda. Não existe um plano separado para desenvolvedores nem um complemento pago de API.
+Uma **API CRM** é a interface que deixa outro programa, ou um cliente de IA, ler e gravar os registros de um CRM (contatos, empresas, negócios) por requisições HTTP, sem passar pelas telas. Aqui, CRM é o software de gestão de relacionamento com clientes. A API do Customermates é uma API REST aberta em todos os planos, a partir do Starter, a [[commercial.price.starter.monthly]] por usuário ao mês, e na edição gratuita com hospedagem própria. Você se autentica com uma chave de API no cabeçalho `x-api-key`, o esquema completo é um documento OpenAPI 3.1 em `/api/v1/openapi` e, nos planos pagos e na hospedagem própria, [[derived.webhooks.events.total]] eventos de webhook avisam os seus sistemas quando algo muda. Não existe um plano separado para desenvolvedores nem um complemento pago de API.
 
 O Customermates é um CRM com API, de código aberto e nativo de IA, feito na Alemanha para pequenas equipes que atendem clientes. A API importa para dois tipos de leitor: o desenvolvedor que quer sincronizar o CRM com outro sistema e a equipe que quer que um cliente de IA, como o Claude ou o ChatGPT, atualize registros. O primeiro usa REST e webhooks. O segundo usa o endpoint MCP, que fica sobre as mesmas permissões.
 
 **Por que isso importa para o follow-up.** Uma resposta a um cliente escorrega quando os fatos de que ela precisa estão em outro sistema. Por MCP, o seu próprio cliente de IA, como o Claude ou o ChatGPT, lê o registro de um cliente e, no Customermates Cloud a partir do Pro, as conversas com ele, e pode salvar um rascunho de resposta para você revisar e enviar. Por REST e webhooks, as suas outras ferramentas recebem os mesmos registros e são avisadas quando um deles muda.
+
+## Para que serve uma API de CRM [#para-que-serve-api-crm]
+
+Uma API de CRM tira o trabalho de copiar dados de um sistema para outro. Alguns usos comuns:
+
+- **Sincronizar clientes** com o ERP ou com o sistema de faturamento e de emissão de notas fiscais, para que o cadastro não exista em dois lugares.
+- **Criar o contato sozinho** quando alguém preenche um formulário do seu site, que você mesmo conecta, em vez de digitar o lead à mão.
+- **Levar os negócios ganhos** para uma planilha, um painel de BI ou o sistema de projetos.
+- **Deixar um agente de IA** ler o registro do cliente e atualizar o próximo passo, com as mesmas permissões de uma pessoa.
 
 ## O que a API REST cobre
 
@@ -114,6 +123,22 @@ As entregas não têm ordem estrita. Duas atualizações no mesmo contato com po
 
 Uma chave errada, expirada ou excluída recebe HTTP `401`. Uma chave cujo proprietário foi definido como **Inativo** recebe `403`.
 
+## Erros e códigos de status [#erros-e-codigos-de-status]
+
+Toda rota REST responde a uma chamada recusada com o mesmo corpo JSON: um objeto `error` com o `kind` e a lista `issues`. O status HTTP segue o `kind`:
+
+| `kind` | HTTP | Quando |
+|---|---|---|
+| `validation` | 400 | Dados inválidos; cada item de `issues` indica o campo em `path` |
+| `authentication` | 401 | Chave errada, expirada ou excluída |
+| `authorization` | 403 | A função do dono da chave não permite a ação, ou ele está **Inativo** |
+| `not_found` | 404 | O registro ou o recurso não existe ou não está acessível |
+| `conflict` | 409 | A chamada conflita com o estado atual |
+| `unavailable` | 422 | A chamada não pode ser executada, por exemplo um destino de webhook bloqueado |
+| `rate_limit` | 429 | Tente de novo mais tarde, com a mesma chamada |
+
+Um erro inesperado do servidor responde `500` sem esse corpo. Decida pelo `kind` e pelo `customCode`, que é estável, e não pela `message`, que é texto para pessoas. Em um `429`, respeite o cabeçalho `Retry-After`; sem ele, espere um intervalo crescente (1, 2, 4 e 8 segundos, mais um pouco de aleatoriedade) e desista depois de algumas tentativas. Reenvie uma gravação com a mesma `idempotencyKey`, para que uma alteração que já passou não seja aplicada duas vezes. O [guia de chaves de API](/docs/api-keys#what-does-a-failed-rest-call-return) detalha cada caso.
+
 ## Chaves de API e permissões
 
 As chaves pertencem ao usuário que as criou e agem com a função atual desse usuário. Não há usuários de API separados nem escopos por chave, então uma chave não pode ser limitada a somente leitura. Se uma integração deve apenas ler negócios, crie a chave dela sob um membro cuja função permita só isso. No Customermates Cloud, esse membro é um assento pago como qualquer outro.
@@ -157,6 +182,12 @@ O acesso à API não tem sobretaxa. Uma equipe de três pessoas no Starter paga 
 <Faq>
 <FaqItem question="O que é uma API em um CRM?">
 É a forma programática de acessar os dados do CRM. Outro programa envia requisições HTTP para ler, criar, atualizar ou excluir contatos, negócios e outros registros, em vez de uma pessoa clicar pelas telas. Os webhooks são o sentido contrário: o CRM chama o seu programa quando os dados mudam.
+</FaqItem>
+<FaqItem question="Como gerar uma chave de API no CRM?">
+No Customermates, abra **Configurações → Chaves de API e conectores**, clique em **Adicionar**, escolha **Chave de API padrão**, dê um nome e copie a chave: ela é exibida uma única vez. Envie a chave no cabeçalho `x-api-key`. Quem pode criar chaves depende da função, como descrito em chaves de API e permissões, acima.
+</FaqItem>
+<FaqItem question="Quais são os tipos de API?">
+Depende de como você classifica. Por estilo, as mais comuns em CRMs são REST (requisições HTTP com JSON), GraphQL e SOAP. Por acesso, há APIs públicas, de parceiros e internas. Na prática, para quem integra um CRM, vale separar também a API que você chama (REST), os webhooks, em que o CRM chama você, e o MCP, para clientes de IA. O Customermates oferece REST, webhooks e MCP.
 </FaqItem>
 <FaqItem question="Qual CRM tem a melhor API?">
 Não existe uma resposta única. Confira quatro coisas contra o seu projeto: se a API está no plano que você de fato vai comprar, como as chamadas são medidas, se os webhooks incluem o que mudou e se existe uma especificação legível por máquina. Para uma equipe pequena, uma API no plano de entrada com um documento OpenAPI e webhooks assinados costuma importar mais que o tamanho do catálogo de endpoints.

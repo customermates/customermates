@@ -1,6 +1,6 @@
 ---
-title: "Baza danych CRM: co to jest, przykłady i jak ją zbudować"
-description: "Baza danych CRM łączy osoby, firmy, szanse sprzedaży i zadania. Zobacz tabele, modele HubSpot, Salesforce i Pipedrive oraz jak ją zbudować i wyeksportować."
+title: "Baza danych CRM: co to jest, co zawiera i jak ją zbudować"
+description: "Baza danych CRM łączy osoby, firmy, szanse sprzedaży i zadania. Co przechowuje, jakie daje korzyści, chmura czy własny serwer i jak ją zbudować."
 
 relatedHrefs:
   - /features/contact-management
@@ -26,6 +26,8 @@ blogPost:
 ---
 
 # Baza danych CRM: co to jest i jak zbudować taką, która pozostaje czysta
+
+CRM (Customer Relationship Management) to system do prowadzenia relacji z klientami: zbiera w jednym miejscu kontakty, rozmowy, szanse sprzedaży i zadania, żeby cały zespół wiedział, co ustalono z klientem i co ma się wydarzyć dalej. Baza danych CRM to ta część systemu, w której te informacje są przechowywane i powiązane ze sobą.
 
 Baza danych CRM, czyli baza danych systemu do zarządzania relacjami z klientami, to uporządkowany magazyn za CRM: jeden rekord na osobę, jeden na firmę, jeden na szansę sprzedaży, powiązania między nimi i historia tego, co się wydarzyło. To powiązania odróżniają ją od listy kontaktów. Otwierasz firmę i widzisz jej ludzi, otwarte szanse sprzedaży i ostatnią rozmowę; otwierasz szansę sprzedaży i widzisz, kto bierze w niej udział i co zaoferowano.
 
@@ -56,6 +58,17 @@ Wyobraź ją sobie jako garść tabel, które wskazują na siebie nawzajem. Wię
 Dwa pytania projektowe decydują, czy baza wytrzyma później. Czy jedna osoba może należeć do kilku firm (doradca zasiadający w dwóch radach, freelancer pracujący dla trzech agencji)? I czy jedna szansa sprzedaży może dotyczyć kilku osób? Jeśli Twój CRM wymusza jedną firmę na osobę albo jeden kontakt na szansę sprzedaży, zaczniesz wpisywać obejścia do notatek. Przeczytaj dokumentację, zanim się zobowiążesz: artykuł Pipedrive o danych opisuje powiązanie osoby z jedną organizacją, natomiast w Customermates relacja może dopuszczać jeden lub kilka rekordów po każdej stronie, więc kontakt może należeć do kilku organizacji.
 
 Drugą połową bazy danych CRM jest historia. Każda zmiana rekordu i każdy powiązany e-mail lub wiadomość tworzą oś czasu. Dzięki niej współpracownik może przejąć klienta bez spotkania przekazującego, a właśnie tego arkusz ci nie da.
+
+## Jakie korzyści daje jedna centralna baza klientów? [#korzysci-centralnej-bazy]
+
+Największa zmiana po przejściu z rozproszonych plików na jedną bazę to to, że przestajesz szukać:
+
+- **Jedno źródło prawdy.** Dane klienta są w jednym miejscu, a nie w skrzynce handlowca, w arkuszu szefa i w notesie.
+- **Pełna historia relacji.** Rozmowy, notatki, zadania i etap szansy sprzedaży leżą przy jednym rekordzie, więc współpracownik może przejąć klienta bez spotkania przekazującego.
+- **Mniej duplikatów i błędów.** Typowane pola, jeden klucz na osobę i powiązania zamiast przepisywania zmniejszają liczbę rozjazdów.
+- **Lepsza współpraca.** Każda osoba widzi ten sam stan, a dostęp można ograniczyć rolami.
+- **Raporty bez składania plików.** Widżety i zapisane widoki liczą rekordy bezpośrednio z bazy.
+- **Łatwiejsze porządki zgodne z RODO.** Gdy dane są w jednym miejscu, łatwiej znaleźć i w całości usunąć jedną osobę.
 
 ## Przykłady baz danych CRM: jak cztery CRM układają dane
 
@@ -110,6 +123,20 @@ Te same zadania wyglądają inaczej w arkuszu i w bazie danych CRM:
 
 Jeśli arkusz to Twoje miejsce teraz, [poradnik o szablonie CRM w Excelu](/blog/excel-crm-template) pokazuje, jak daleko on sięga i jak go ułożyć, żeby późniejszy import był łatwy. Do wyboru między rodzajami narzędzi do bazy klientów zobacz [oprogramowanie do bazy klientów](/blog/client-database-software).
 
+## Chmura czy własny serwer: gdzie trzymać bazę danych CRM? [#chmura-czy-wlasny-serwer]
+
+Bazę danych CRM możesz uruchomić w chmurze dostawcy albo na własnym serwerze. Decyzja zależy od tego, ile pracy technicznej chcesz wziąć na siebie:
+
+| | CRM w chmurze | Własny serwer (self-hosting) |
+| --- | --- | --- |
+| Kto utrzymuje serwer | Dostawca | Ty lub twój administrator |
+| Aktualizacje i kopie zapasowe | Po stronie dostawcy | Po twojej stronie |
+| Koszt | Opłata za użytkownika i miesiąc | Brak opłaty licencyjnej przy open source, ale serwer i czas administratora kosztują |
+| Kontrola nad danymi | Zależy od umowy i regionu hostingu; poproś o umowę powierzenia przetwarzania danych | Pełna: dane są na twoim serwerze |
+| Start | Konto i konfiguracja | Instalacja i utrzymanie |
+
+W Customermates Cloud baza danych aplikacji jest skonfigurowana w regionie AWS Frankfurt, a umowa powierzenia i lista podprocesorów są publiczne (szczegóły w sekcji o danych osobowych niżej). Rdzeń open source możesz hostować samodzielnie na licencji AGPL, z Docker Compose i PostgreSQL. Self-hosting zachowuje REST, webhooki i MCP, ale nie ma ujednoliconej skrzynki odbiorczej, Mate ani hostowanych kredytów AI. Dla małego zespołu bez administratora chmura jest zwykle prostsza; własny serwer ma sens, gdy dane muszą zostać u ciebie.
+
 ## Jak zbudować bazę danych CRM
 
 Te kroki dotyczą każdego CRM. Kolejność znaczy więcej niż narzędzie.
@@ -124,6 +151,19 @@ Te kroki dotyczą każdego CRM. Kolejność znaczy więcej niż narzędzie.
   <Step title="Zapisz widoki, z których ludzie pracują">„Moje otwarte szanse sprzedaży”, „Klienci bez firmy”, „Bez kontaktu od 90 dni”. Baza, na którą nikt nie patrzy, po cichu się psuje.</Step>
   <Step title="Wskaż osobę odpowiedzialną za jakość danych">Jedna osoba, która co miesiąc wykonuje poniższą kontrolę. Bez właściciela porządki są sprawą wszystkich, a więc niczyją.</Step>
 </Steps>
+
+## Przygotowanie do wdrożenia: lista kontrolna [#przygotowanie-do-wdrozenia]
+
+Zanim wgrasz pierwszy rekord, odpowiedz na kilka pytań. Zajmie to godzinę, a oszczędzi tygodnie poprawek:
+
+- **Kto pracuje w bazie?** Policz osoby i role, żeby ustawić dostęp i wiedzieć, ile stanowisk potrzebujesz.
+- **Skąd pochodzą dane?** Wypisz źródła (arkusze, poczta, stary CRM, wizytówki) i zdecyduj, które są wiarygodne.
+- **Jakich typów rekordów i pól potrzebujesz?** Zacznij od najmniejszego zestawu, który pozwala prowadzić sprzedaż.
+- **Kto odpowiada za jakość?** Wskaż jedną osobę, zanim zaczniesz importować.
+- **Co z RODO?** Ustal podstawę przetwarzania, czas przechowywania i to, kto może usunąć dane.
+- **Jak wyjdziesz?** Sprawdź, w jakim formacie możesz wyeksportować dane i czy jest API.
+
+Pełny plan wdrożenia, z podziałem na etapy i testem na prawdziwych danych, opisuje poradnik o [wdrożeniu CRM](/blog/crm-implementation), a koszty, które warto policzyć przed startem, tekst o [cenie CRM](/blog/crm-cost).
 
 ## Gdy dane nie pasują do kontaktów, firm ani szans sprzedaży
 
@@ -213,6 +253,10 @@ W przypadku Customermates Cloud [umowa powierzenia przetwarzania danych](/dpa) j
 ## Najczęściej zadawane pytania
 
 <Faq>
+<FaqItem question="Co to jest system CRM?">
+System CRM to oprogramowanie do prowadzenia relacji z klientami: kontakty, rozmowy, szanse sprzedaży, zadania i historia w jednym miejscu, dostępne dla całego zespołu. Baza danych CRM to jego zaplecze, czyli powiązane rekordy, na których system pracuje. Więcej w poradniku [CRM: co to jest](/blog/what-is-crm).
+</FaqItem>
+
 <FaqItem question="Co to jest baza danych CRM?">
 To magazyn danych za CRM: rekordy osób, firm, szans sprzedaży i zadań, powiązane ze sobą, z typowanymi polami i historią zmian oraz rozmów. Powiązania i historia sprawiają, że to coś więcej niż lista kontaktów.
 </FaqItem>
@@ -239,6 +283,14 @@ Zwykły podział to operacyjny (obsługa sprzedaży, serwisu i marketingu), anal
 
 <FaqItem question="Jak przechowywać dane, które nie pasują do kontaktów, firm ani szans sprzedaży?">
 Jeśli opisują istniejący rekord, dodaj typowane pole niestandardowe. Jeśli to coś, co sprzedajesz, użyj katalogu produktów lub usług. Jeśli tylko się to czyta, użyj notatek. Jeśli ma własny cykl życia i relacje, potrzebujesz obiektów niestandardowych, które HubSpot oferuje w Enterprise, a Salesforce na swojej platformie; w Customermates dodajesz dla nich własną listę.
+</FaqItem>
+
+<FaqItem question="Czy lepszy jest CRM w chmurze czy na własnym serwerze?">
+Dla małego zespołu bez administratora zwykle chmura, bo dostawca utrzymuje serwer, aktualizacje i kopie zapasowe. Własny serwer ma sens, gdy dane muszą zostać u ciebie i masz kogoś, kto go utrzyma. Porównanie jest w sekcji o chmurze i własnym serwerze wyżej.
+</FaqItem>
+
+<FaqItem question="Jakie są przykładowe systemy CRM?">
+Najczęściej wymieniane to HubSpot, Salesforce, Pipedrive, Microsoft Dynamics 365 i Zoho CRM, a w Polsce także lokalni dostawcy. Jak cztery z nich układają bazę danych, pokazuje tabela wyżej; listę uporządkowaną według zastosowań znajdziesz w [rankingu CRM](/blog/best-crm-software), a przykłady wdrożeń w tekście o [przykładach CRM](/blog/crm-examples).
 </FaqItem>
 
 <FaqItem question="Ile kosztuje baza danych CRM?">

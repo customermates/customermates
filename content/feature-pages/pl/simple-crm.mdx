@@ -1,6 +1,6 @@
 ---
-title: "Prosty CRM dla małych zespołów obsługujących klientów"
-description: "Prosty CRM z rdzeniem open source: listy buduje konfiguracja AI w chmurze albo ty, do tego import z Excela. Od [[commercial.price.starter.monthly]] za użytkownika miesięcznie."
+title: "Prosty CRM: własne listy, etapy i import z Excela"
+description: "Prosty CRM, który skonfigurujesz w jedno posiedzenie: własne listy i etapy, import z Excela, REST i MCP. Plan Starter od [[commercial.price.starter.monthly]] za użytkownika miesięcznie."
 featureName: Prosty CRM
 
 relatedHrefs:
@@ -23,7 +23,7 @@ sections:
         description: "Otwórz Model danych i utwórz lub zmień nazwy list w sekcji Ogólne, tak by używały słów Twojego zespołu, a potem edytuj opcje etapów i prawdopodobieństwa na liście szans sprzedaży. Firma doradcza może użyć listy Projekty z etapami Zapytanie, Zakres prac, Oferta wysłana, Wygrana i Przegrana."
       - title: "Zaimportuj jeden typ rekordu"
         description: "Użyj Więcej działań › Dodaj z pliku na liście kontaktów i przypisz kolumny arkusza do pól. Kreator czyta pliki .xlsx, .xls i .csv; inne formaty arkuszy najpierw zapisz w jednym z nich. Organizacje importuj przed kontaktami i szansami sprzedaży, żeby powiązania mogły dopasować się po nazwie. Nasz przewodnik po szablonie CRM w Excelu pokazuje układ arkusza, który mapuje się bez problemów."
-      - title: "Dodaj jedno pole, którego ci zabraknie"
+      - title: "Dodaj jedno pole, którego Ci zabraknie"
         description: "Zadania nie mają wbudowanego terminu. Jeśli pracujesz z datami follow-upu, dodaj pole typu Data, na przykład „Następny krok”, do szans sprzedaży lub zadań w Modelu danych przez Dodaj › Pole, a potem zapisz widok posortowany według niego."
       - title: "Zaproś zespół"
         description: "Wyślij zaproszenia w Ustawienia › Członkowie. Nowi członkowie czekają na zatwierdzenie, dopóki Administrator albo członek, którego rola pozwala zarządzać użytkownikami, nie przypisze im roli i nie ustawi ich jako aktywnych."
@@ -51,21 +51,33 @@ Prosty CRM to taki, który Twój zespół stale aktualizuje, bo mało w nim do n
 
 **Co oznacza „prosty” dla follow-upu.** Mały model danych trzyma follow-up tam, gdzie i tak zaglądasz: rekord klienta zawiera osoby, szansę sprzedaży i, od planu Pro, rozmowy, a jedno pole daty, takie jak Następny krok, plus zapisany widok mówią ci, do kogo odezwać się w następnej kolejności.
 
-Prosty znaczy też, że pewnych rzeczy celowo brakuje. Ograniczenia wymieniamy niżej, żeby od razu wykluczyć Customermates, jeśli któreś z nich jest ci potrzebne.
+Prosty znaczy też, że pewnych rzeczy celowo brakuje. Ograniczenia wymieniamy niżej, żeby od razu wykluczyć Customermates, jeśli któreś z nich jest Ci potrzebne.
+
+## Co powinien mieć prosty CRM dla małej firmy? [#co-powinien-miec-prosty-crm]
+
+Zanim porównasz narzędzia, ustal, co naprawdę musi być w środku. Małemu zespołowi zwykle wystarczy pięć rzeczy, a każda następna powinna zasłużyć na swoje miejsce:
+
+- **Kartoteka klienta.** Jedno miejsce na osoby, firmę i kolejny krok zamiast kilku arkuszy. W Customermates są to listy kontaktów i organizacji z polami, które wybierasz sam; zobacz [zarządzanie kontaktami](/features/contact-management).
+- **Szanse sprzedaży.** Lejek z etapami, które nazwiesz po swojemu, i wartością ważoną etapem, zobacz [lejek sprzedaży](/features/pipeline).
+- **Zadania i plan pracy.** Lista rzeczy do zrobienia przy kliencie. W Customermates zadania nie mają wbudowanego terminu, więc datę dodajesz jako pole typu Data; zobacz [zadania w CRM](/features/task-management).
+- **Podsumowanie sprzedaży.** Widżety pulpitu zbierają liczby z Twoich list w jednym miejscu, zobacz [raporty w CRM](/features/reporting).
+- **Wiedza o klientach i sposobie pracy.** Ustalenia, ton komunikacji i zasady follow-upu w jednym miejscu, a nie w czyjejś skrzynce; do tego służy [baza wiedzy](/features/knowledge-base).
+
+Reszta, na przykład sekwencje wiadomości czy rozbudowane automatyzacje, to dodatki, które sprawdzisz dopiero wtedy, gdy podstawy już działają.
 
 ## Co zawiera nowa przestrzeń robocza
 
 Większość stron o prostym CRM obiecuje krótką konfigurację. Oto co faktycznie dzieje się po rejestracji. Nowa przestrzeń robocza startuje bez list. W Customermates Cloud konfiguracja przestrzeni roboczej oparta na AI pyta o Twoją firmę i z odpowiedzi buduje listy, pola, etapy szans sprzedaży, pulpit i strony Bazy wiedzy. Działa raz, podczas wdrożenia, w ramach limitu kredytów. Możesz ją pominąć przez **Zacznij od pustej przestrzeni roboczej** i zbudować wszystko sam. Instalacje self-hosted nie mają konfiguracji AI, więc listy tworzysz w sekcji **Model danych**, co wymaga roli Administrator albo uprawnienia **Edycja** w wierszu **Model danych**.
 
-To, co wyprodukowała konfiguracja, jest punktem wyjścia, a nie sztywnym szablonem. Etapy są opcjami jednego pola jednokrotnego wyboru, więc zmieniasz ich nazwy, dodajesz nowe albo je usuwasz. Etap może mieć prawdopodobieństwo wygranej, ustawiane jako **Prawdopodobieństwo %** na polu w sekcji **Model danych**. Customermates używa go do deterministycznej wartości ważonej każdej szansy sprzedaży i do ważonej sumy lejka; to waga etapu, którą ustawiasz sam, a nie prognoza.
+To, co zbuduje konfiguracja, jest punktem wyjścia, a nie sztywnym szablonem. Etapy są opcjami jednego pola jednokrotnego wyboru, więc zmieniasz ich nazwy, dodajesz nowe albo je usuwasz. Etap może mieć prawdopodobieństwo wygranej, ustawiane jako **Prawdopodobieństwo %** na polu w sekcji **Model danych**. Customermates używa go do deterministycznej wartości ważonej każdej szansy sprzedaży i do ważonej sumy lejka; to waga etapu, którą ustawiasz sam, a nie prognoza.
 
 Co jeszcze skraca konfigurację:
 
 - **Własne słowa dla rekordów.** W sekcji **Model danych** dowolnie zmieniasz nazwę każdej listy, na przykład Klienci zamiast Kontaktów, Projekty lub Zlecenia zamiast Szans sprzedaży, Follow-upy zamiast Zadań, i możesz dodawać własne listy. Rekordy i relacje pozostają połączone.
-- **Jedna powierzchnia list do wszystkiego.** Każda lista otwiera się jako tabela albo tablica, z wyszukiwaniem, filtrami, grupowaniem i sortowaniem pod tym samym paskiem narzędzi. Zobacz [rekordy w aplikacji](/docs/app-records).
+- **Wszystkie listy działają tak samo.** Każda lista otwiera się jako tabela albo tablica, z wyszukiwaniem, filtrami, grupowaniem i sortowaniem pod tym samym paskiem narzędzi. Zobacz [rekordy w aplikacji](/docs/app-records).
 - **Widoki pamiętają Twoją konfigurację.** Filtry, sortowanie, układ, grupowanie i kolumny zapisują się razem jako nazwany widok, który pojawia się jako chip. Zmiany pozostają tymczasowe, dopóki nie zapiszesz ich w widoku. Widok jest Twój, dopóki nie udostępnisz go całemu zespołowi albo wybranym rolom.
 
-## Który plan jest ci potrzebny
+## Który plan jest Ci potrzebny
 
 | Potrzeba | Plan |
 |---|---|
@@ -84,7 +96,7 @@ Brak przypomnień i powiadomień o zadaniach oraz zadań cyklicznych. Brak aplik
 
 Automatyzacja istnieje, ale mieszka w dwóch osobnych miejscach. W Customermates Cloud [Rutyny](/docs/app-routines) uruchamiają zapisaną instrukcję przez Mate według harmonogramu lub gdy rekord się zmieni, zużywając hostowane kredyty AI. Rutyna działa jako jej właściciel i widzi to, co widzi on. Do przepływów opartych na regułach podłączasz instancję n8n, którą sam prowadzisz albo wykupujesz osobno, przez webhooki, REST API lub węzeł społeczności.
 
-Jeśli Twój zespół polega na przypomnieniach push w telefonie albo chce na stałe darmowego planu, któreś z narzędzi poniżej jest prawdopodobnie lepszym początkiem.
+Jeśli Twój zespół polega na przypomnieniach push w telefonie albo potrzebuje planu bezpłatnego bez limitu czasu, któreś z narzędzi poniżej jest prawdopodobnie lepszym początkiem.
 
 ## Kiedy lepiej pasuje inny prosty CRM
 
@@ -96,17 +108,25 @@ Customermates publikuje tę stronę. Tabela opisuje każde narzędzie tak, jak d
 | OnePageCRM | Next Actions z powiadomieniami przypominającymi oraz natywne aplikacje na Androida i iOS w każdym planie, 21-dniowy okres próbny | Najbardziej liczą się przypomnienia o follow-upach i aplikacja na telefon |
 | CentralStationCRM | Bezpłatny pakiet Starter do 3 użytkowników i 200 kontaktów; dane klientów i załączniki przechowywane przez dostawcę w Niemczech | Chcesz darmowego niemieckiego narzędzia i niewielkiej bazy kontaktów |
 | Bezpłatny CRM HubSpot | Bezpłatny bez terminu ważności do dwóch użytkowników i 1000 kontaktów | Potrzebujesz darmowego CRM i być może później kupisz narzędzia marketingowe HubSpot |
-| Customermates | Rdzeń open source, konfiguracja przestrzeni roboczej oparta na AI w chmurze, skrzynka odbiorcza od Pro, Mate w chmurze, MCP dla Twojego klienta AI | Najbardziej liczą się dla ciebie rozmowy z klientami i pomoc AI przy rekordach |
+| Customermates | Rdzeń open source, konfiguracja przestrzeni roboczej oparta na AI w chmurze, skrzynka odbiorcza od Pro, Mate w chmurze, MCP dla Twojego klienta AI | Najbardziej liczą się dla Ciebie rozmowy z klientami i pomoc AI przy rekordach |
 
-## Jak się łączy, gdy potrzebujesz więcej
+## Co, gdy zespół urośnie: integracje i AI
 
 Prosty start niczego nie zamyka. REST API jest w każdym planie, a webhooki w każdym płatnym, a Twój klient AI (Claude, ChatGPT i inne) może czytać i aktualizować rekordy przez [MCP](/docs/mcp). W Customermates Cloud Mate przygotowuje podsumowania i szkice odpowiedzi i zużywa hostowane kredyty AI. Baza danych w chmurze jest skonfigurowana w regionie AWS Frankfurt; strona [podmiotów podprzetwarzających](/subprocessors) wymienia zaangażowanych dostawców, także amerykańskich, a dostępna jest [umowa DPA](/dpa).
 
 ## Najczęstsze pytania
 
 <Faq>
+<FaqItem question="Co to jest CRM i jak działa?">
+CRM to system, który trzyma w jednym miejscu informacje o klientach: osoby, firmy, szanse sprzedaży, zadania i rozmowy, a przy każdym z nich kolejny krok. Dzięki temu zespół widzi, na jakim etapie jest każda relacja i do kogo odezwać się w następnej kolejności. Więcej znajdziesz w artykule [CRM co to jest](/blog/what-is-crm).
+</FaqItem>
+
 <FaqItem question="Jaki jest najłatwiejszy w obsłudze system CRM?">
 Najłatwiejszy jest ten, którego struktura już pasuje do Twojej pracy. Szukaj lejka, który nazwiesz własnymi słowami, niewielu pól wymaganych i importu z arkusza, który już masz. W Customermates Cloud konfiguracja przestrzeni roboczej oparta na AI buduje pierwszy zestaw list i etapów na podstawie Twojego opisu; możesz je edytować jak każde pole własne i zmieniać nazwy list na własne określenia. Każdy CRM sprawdzaj na prawdziwych danych w okresie próbnym, zamiast oceniać demo.
+</FaqItem>
+
+<FaqItem question="Jaki jest najpopularniejszy CRM?">
+Rankingi popularności zależą od źródła i od wielkości firmy, a największe systemy projektuje się z myślą o dużych organizacjach. Dla małego zespołu ważniejsze jest pytanie, który CRM faktycznie będziecie aktualizować. Sprawdź kilka narzędzi na własnych danych w okresie próbnym, na przykład te z tabeli wyżej, i wybierz to, do którego wracacie bez przymusu.
 </FaqItem>
 
 <FaqItem question="Czy istnieje bezpłatna wersja Customermates?">
@@ -115,6 +135,10 @@ Chmura ma plan bezpłatny dla [[commercial.limit.free.maxMembers]] osoby i [[com
 
 <FaqItem question="Czy mogę przejść z Excela na Customermates?">
 Tak. Importuj każdy typ rekordu ze skoroszytu `.xlsx` lub pliku CSV, dopasowując kolumny arkusza do pól i pól własnych w kreatorze importu. Wyeksportowany skoroszyt możesz edytować i zaimportować z powrotem jako **Istniejące rekordy**, żeby je zaktualizować. Arkusze Google Sheets trzeba najpierw zapisać jako `.xlsx` lub `.csv`, a załączniki się nie przenoszą.
+</FaqItem>
+
+<FaqItem question="Jak zrobić własny CRM?">
+Najprostszą drogą jest arkusz, jak w [szablonie CRM w Excelu](/blog/excel-crm-template), ale przy większej liczbie klientów szybko robi się w nim ciasno. W Customermates własny CRM składasz w sekcji **Model danych**: tworzysz listy i zmieniasz ich nazwy, dodajesz pola oraz etapy lejka, a dane z arkusza wczytujesz kreatorem importu.
 </FaqItem>
 
 <FaqItem question="Ile miesięcznie kosztuje prosty CRM?">

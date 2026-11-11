@@ -77,6 +77,19 @@ La automatización CRM abarca dos trabajos distintos. Los **flujos de trabajo so
 
 Un borrador de respuesta es un mensaje en una conversación, no una secuencia. Si necesitas la tercera fila, mantén una herramienta específica para ello y usa Customermates como sistema de registro detrás de ella.
 
+## ¿Qué ventajas tiene automatizar las ventas y qué hay que vigilar? [#ventajas-y-retos]
+
+**Qué ganas.** Menos trabajo repetitivo de registro, como crear siempre las mismas tareas o copiar datos de un sitio a otro, menos pasos de seguimiento que dependan de la memoria de alguien y un historial más completo del cliente, porque cada cambio queda anotado en el registro. Ese tiempo lo dedica tu equipo a hablar con los clientes.
+
+**Qué hay que vigilar.**
+
+- Automatizar un proceso confuso lo repite más deprisa. Define antes qué debe pasar, quién lo hace y cuándo.
+- Una ejecución de IA lee, decide y escribe, así que su resultado varía un poco y consume créditos. Los pasos que deben salir idénticos cada vez van en un [webhook](/docs/webhooks).
+- Un cambio hecho sin supervisión pasa desapercibido con facilidad. Deja que la automatización prepare un borrador o proponga el cambio y que una persona confirme lo importante.
+- La automatización no sustituye la conversación: el tono, el precio y la decisión de enviar siguen siendo de una persona.
+
+**Cómo empezar.** Elige un solo paso que se repita y se suela olvidar, como el recordatorio de seguimiento que se configura más abajo con una [rutina](/docs/app-routines), haz que funcione y revísalo antes de añadir otro.
+
 ## ¿Qué flujos de trabajo del CRM encajan con una rutina, un webhook o un cliente de IA?
 
 | Tarea | Usa | Plan |
@@ -221,6 +234,18 @@ Cinco personas en Pro pagan [[commercial.price.pro.monthly.seats.5]] al mes. Cad
 ## Preguntas frecuentes
 
 <Faq>
+<FaqItem question="¿Qué es la automatización de ventas y qué tipos hay?">
+Es hacer que un paso recurrente del proceso de ventas ocurra sin que nadie tenga que acordarse. Según lo que automatizan, hay tres tipos: los flujos de trabajo sobre registros, con reglas fijas que se disparan cuando ocurre algo, como crear tareas al ganar una oportunidad; el trabajo de IA sobre registros, que lee y redacta, como un borrador de respuesta; y la marketing automation, que envía campañas a listas de contactos. Customermates cubre los dos primeros; la tabla de arriba muestra cómo.
+</FaqItem>
+
+<FaqItem question="¿Qué es la fuerza de ventas y qué significa automatizarla?">
+La fuerza de ventas es el equipo que vende: las personas que prospectan, hacen seguimiento y cierran. Automatizarla consiste en quitarles del día a día las tareas repetitivas de registro y seguimiento, no en sustituir la conversación con el cliente. En Customermates eso se traduce en tareas y borradores que se preparan solos y que cada persona revisa antes de que lleguen al cliente.
+</FaqItem>
+
+<FaqItem question="¿Qué conviene automatizar primero en las ventas?">
+El paso que más se repite y más se olvida. Normalmente es el recordatorio de [seguimiento](/features/follow-up) de las oportunidades con fecha vencida o la creación de las tareas de onboarding cuando se gana una oportunidad. Los dos tienen una guía paso a paso más arriba.
+</FaqItem>
+
 <FaqItem question="¿Qué es la automatización de flujos de trabajo del CRM?">
 Es un paso del CRM que se ejecuta solo cuando ocurre algo o según un horario: crear tareas de onboarding para una oportunidad ganada, publicar en un canal del equipo cuando se crea una oportunidad, redactar una respuesta cuando escribe un cliente, o listar las oportunidades cuya fecha de seguimiento ya pasó. En Customermates, los pasos fijos se ejecutan con webhooks y n8n, los pasos que requieren lectura se ejecutan como rutinas en Customermates Cloud, y las actualizaciones que pides tú se ejecutan mediante Mate o tu propio cliente de IA con MCP.
 </FaqItem>

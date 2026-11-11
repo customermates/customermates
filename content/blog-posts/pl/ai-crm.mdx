@@ -1,6 +1,6 @@
 ---
 title: "CRM AI: co to jest i jak wybrać dobry system"
-description: "CRM AI pozwala modelowi językowemu czytać rekordy klientów, je aktualizować i pisać szkice. Czym jest AI native, jak dostawcy rozliczają AI i osiem pytań."
+description: "CRM AI: co AI robi w CRM, czym jest typ AI native, jak dostawcy rozliczają AI i osiem pytań do oceny. Z dziesięciominutowym testem na własnych danych."
 
 hero:
   title: "CRM AI: co robi CRM typu AI native i jak go ocenić"
@@ -54,6 +54,8 @@ Większość tego, co sprzedaje się jako AI w zarządzaniu relacjami z klientam
 
 Model scoringowy uczy się na Twoich wygranych i przegranych szansach. Firma doradcza, która zamyka 30 szans rocznie, daje mu bardzo mało materiału, więc w małych zespołach najwięcej czasu oszczędza pierwsze pięć zadań.
 
+W opisach produktów często pojawia się jeszcze analiza tonu wiadomości (sentymentu) i prognozowanie przychodu. Analiza tonu to klasyfikacja tekstu: model ocenia, czy wiadomość brzmi pilnie, krytycznie czy neutralnie. Pomaga posortować skrzynkę, ale nie zastępuje przeczytania wiadomości. Prognoza przychodu działa jak scoring: potrzebuje historii wygranych i przegranych, więc w małym zespole bywa mało wiarygodna.
+
 ## AI native, AI jako dodatek i smart CRM: co znaczą te etykiety
 
 Dostawcy używają tych etykiet swobodnie. Oto, co każda zwykle oznacza i pytanie, które je odróżnia.
@@ -69,14 +71,14 @@ Szybki test na „AI native”: wypisz, co człowiek może zrobić w CRM, a pote
 
 ## Osiem pytań, które szybko porządkują CRM z AI
 
-Zadaj je na demo albo sprawdź w dokumentacji. Trzecia kolumna pokazuje, jak odpowiada Customermates, żebyś widział, jak wygląda konkretna odpowiedź.
+Zadaj je na demo albo sprawdź w dokumentacji. Trzecia kolumna pokazuje, jak odpowiada Customermates, żeby było widać, jak wygląda konkretna odpowiedź.
 
 | Pytanie | Dobra odpowiedź | Customermates |
 |---|---|---|
 | 1. Czy AI może zmieniać rekordy, czy tylko podpowiada? | Samo aktualizuje rekordy, notatki i powiązania i raportuje, co się zmieniło | Tak. Mate zmienia rekordy bezpośrednio i raportuje każdą zmianę |
 | 2. Co robi bez pytania? | Spisana lista akcji wymagających zatwierdzenia | Usuwanie, zmiana nazw list, zaproszenia do zespołu, ponowne wysyłanie webhooków i zgłoszenia do wsparcia za każdym razem wymagają pytania. Wysyłanie wiadomości nie, więc poproś o szkic, gdy chcesz najpierw sprawdzić |
 | 3. Czy widzi rozmowy? | Wątki e-mail i czatu leżą obok szansy, do której należą | W planie Pro i wyższych [skrzynka odbiorcza](/features/unified-inbox) zawiera wątki e-mail, LinkedIn, WhatsApp, Instagram i Telegram. Starter nie ma skrzynki |
-| 4. Czy działa bez ciebie? | Harmonogramy i zdarzenia rekordów, z limitami uruchomień i wydatków | Rutyny uruchamiają zapisane polecenie według harmonogramu albo gdy zmieni się rekord, z limitem na przebieg i na godzinę |
+| 4. Czy działa bez Ciebie? | Harmonogramy i zdarzenia rekordów, z limitami uruchomień i wydatków | Rutyny uruchamiają zapisane polecenie według harmonogramu albo gdy zmieni się rekord, z limitem na przebieg i na godzinę |
 | 5. Czy może połączyć się Twój własny klient AI? | Serwer MCP albo pełne API, z uprawnieniami użytkownika | Serwer MCP z [[derived.mcp.tools.total]] narzędziami, w każdym planie i w self-hostingu |
 | 6. Kto płaci za model? | Jednostka, którą można sprawdzić z góry: kredyty, dodatek albo Twój własny dostawca AI | Mate zużywa miesięczne hostowane kredyty AI na aktywnego użytkownika, zobacz [cennik](/pricing). Z klientem MCP model działa u Twojego własnego dostawcy AI |
 | 7. Dokąd trafiają dane i czy możesz je wyeksportować? | Nazwani dostawcy modeli i podprocesory, umowa powierzenia przetwarzania danych, udokumentowany eksport | Główna baza danych skonfigurowana w regionie AWS Frankfurt; strona [podprocesorów](/subprocessors) wymienia Google Cloud Vertex AI, Exa i TypeSafe AI dla odpowiednich ścieżek modelu, wyszukiwania w sieci i rankingu. Eksport jako XLSX lub JSON, jedna lista naraz |
@@ -95,6 +97,16 @@ Wykonaj ten sam test w każdej wersji próbnej, na własnych danych zamiast reko
   <Step title="Zadaj pytanie wymagające rachunków">„Które otwarte szanse sprzedaży mają najwyższą wartość i nie mają od nas wiadomości od 14 dni?” Dobra odpowiedź obejmuje każdą otwartą szansę, a nie pierwszą stronę listy.</Step>
   <Step title="Spróbuj usunięcia">Poproś o usunięcie testowego kontaktu i zobacz, czy zatrzyma się, czekając na Twoje zatwierdzenie.</Step>
 </Steps>
+
+## Od czego zacząć z CRM AI w małym zespole [#od-czego-zaczac-z-crm-ai]
+
+AI daje najwięcej tam, gdzie praca polega na powtarzalnym pisaniu i przepisywaniu. Na początek wybierz jednego klienta i trzy zadania:
+
+1. **Streszczenie.** Poproś o podsumowanie ostatniego miesiąca z klientem i porównaj je z wątkiem, żeby zobaczyć, czy nic nie zginęło.
+2. **Szkic follow-upu.** Niech AI zapisze odpowiedź do oferty, która ucichła. Ty ją czytasz, poprawiasz i wysyłasz.
+3. **Porządek po rozmowie.** Niech przeniesie ustalenia do notatek szansy sprzedaży i doda zadanie z datą następnego kroku.
+
+Pracę bez nadzoru, czyli harmonogramy i reakcje na zmiany rekordów, włączaj dopiero wtedy, gdy te trzy zadania działają i wiesz, ile poprawiasz. Do tego czasu każdy wynik przechodzi przez człowieka.
 
 ## Jak więksi dostawcy CRM pakują AI
 
@@ -172,7 +184,7 @@ Taka konfiguracja to follow-up w praktyce: wątki z LinkedIn i e-maile przy klie
 
 Jeśli powodem, dla którego chcesz AI, jest predykcyjny scoring dla dużego zespołu sprzedaży, Customermates nie jest dobrym wyborem: zajrzyj do Zoho CRM z Zia albo do Salesforce, których własne strony opisują funkcje predykcyjne.
 
-## Jakiej strategii danych potrzebują koledzy z AI?
+## Jak pracować z AI w CRM: dane, źródła i odpowiedzialność [#dane-zrodla-odpowiedzialnosc]
 
 CRM AI stosuje sztuczną inteligencję w zarządzaniu relacjami z klientami, ale użyteczna strategia danych o klientach zaczyna się od rekordów źródłowych. Traktuj AI jak kolegów z zespołu o określonym dostępie: wskaż klienta, zachowuj źródło i datę każdego twierdzenia, nazwij osobę odpowiedzialną za następny krok i zdecyduj, które działania wymagają sprawdzenia. Płynna odpowiedź nie zastąpi brakującej zgody, starej ceny ani nieznanego warunku umowy. Pozostaw te niewiadome widoczne, zamiast zamieniać je w pewne fakty o kliencie.
 
@@ -183,6 +195,14 @@ Instrukcję pracy i fakty źródłowe trzymaj obok rekordu klienta w [Bazie wied
 <Faq>
 <FaqItem question="Czym jest CRM AI?">
 System zarządzania relacjami z klientami, w którym model AI czyta dane o Twoich klientach i na nich działa: streszcza relacje, odpowiada na pytania o rekordy, aktualizuje szanse sprzedaży i pisze wiadomości. W CRM typu AI native AI korzysta też z tych samych akcji i uprawnień co człowiek i może działać według harmonogramu.
+</FaqItem>
+
+<FaqItem question="Czy istnieje CRM z AI?">
+Tak. Większość dużych dostawców ma AI w swoim CRM: Salesforce (Agentforce), HubSpot (Breeze), Pipedrive, Zoho CRM (Zia), Microsoft Dynamics 365 Sales (Copilot) i Attio. Różnią się tym, co AI wolno zmieniać, i sposobem rozliczania, a tabela wyżej zestawia je według własnych stron dostawców. Customermates to CRM typu AI native dla małych zespołów pracujących blisko klientów.
+</FaqItem>
+
+<FaqItem question="Czy mała firma potrzebuje CRM z AI?">
+Nie musi. CRM, w którym zespół faktycznie zapisuje rozmowy i następne kroki, daje więcej niż AI nad pustymi rekordami. AI zaczyna się opłacać, gdy rozmów jest dużo, a praca to głównie pisanie i przepisywanie: streszczenia, szkice odpowiedzi, aktualizacja rekordów po rozmowie. Zacznij od dziesięciominutowego testu na własnych danych albo od trzech zadań z sekcji o tym, [od czego zacząć](#od-czego-zaczac-z-crm-ai).
 </FaqItem>
 
 <FaqItem question="Czy smart CRM to to samo co CRM AI?">
@@ -202,7 +222,7 @@ Nie sam rekord. Model AI potrzebuje miejsca, które przechowuje, kim jest klient
 </FaqItem>
 
 <FaqItem question="Czy AI w CRM jest bezpieczne dla danych klientów w świetle RODO?">
-To zależy od tego, gdzie działa model i kto przetwarza dane, więc poproś każdego dostawcę o listę podprocesorów i umowę powierzenia przetwarzania danych. W Customermates Cloud główna baza danych jest skonfigurowana w regionie AWS Frankfurt. Strona podprocesorów wymienia Google Cloud Vertex AI, Exa i TypeSafe AI dla pracy modelu, wyszukiwania w sieci i rankingu. Główna ścieżka czatu Mate jest przypięta do UE, ale embeddingi i inne przetwarzanie mogą angażować Stany Zjednoczone. Microsoft Azure nie obsługuje żadnego żądania Mate. Z własnym klientem AI przez MCP dane, które klient czyta, trafiają do wybranego przez ciebie dostawcy AI. Self-hosting otwartoźródłowego rdzenia zostawia dane CRM na Twoich własnych serwerach.
+To zależy od tego, gdzie działa model i kto przetwarza dane, więc poproś każdego dostawcę o listę podprocesorów i umowę powierzenia przetwarzania danych. W Customermates Cloud główna baza danych jest skonfigurowana w regionie AWS Frankfurt. Strona podprocesorów wymienia Google Cloud Vertex AI, Exa i TypeSafe AI dla pracy modelu, wyszukiwania w sieci i rankingu. Główna ścieżka czatu Mate jest przypięta do UE, ale embeddingi i inne przetwarzanie mogą angażować Stany Zjednoczone. Microsoft Azure nie obsługuje żadnego żądania Mate. Z własnym klientem AI przez MCP dane, które klient czyta, trafiają do wybranego przez Ciebie dostawcy AI. Self-hosting otwartoźródłowego rdzenia zostawia dane CRM na Twoich własnych serwerach.
 </FaqItem>
 </Faq>
 

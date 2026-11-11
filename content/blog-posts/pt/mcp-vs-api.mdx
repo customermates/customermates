@@ -1,6 +1,6 @@
 ---
-title: "MCP vs API: a mesma tarefa de CRM comparada"
-description: "MCP vs API na prática: a mesma consulta de cliente e a mesma tarefa em REST e MCP, testadas em 5/11/2026. Compare descoberta, permissões e aprovações."
+title: "MCP vs API: diferenças, quando usar cada um e um teste"
+description: "MCP vs API: o que muda na descoberta de ferramentas, nas permissões e na segurança, quando usar cada um e a mesma tarefa de CRM testada em REST e MCP."
 
 hero:
   title: "MCP vs API: qual conexão serve para a sua tarefa de CRM?"
@@ -29,6 +29,12 @@ relatedHrefs:
 MCP vs API é uma escolha sobre como um cliente encontra e chama uma operação: o REST dá endpoints ao código da aplicação, enquanto o MCP dá a um aplicativo de IA ferramentas descobríveis, com esquemas de entrada. O Customermates oferece os dois para os mesmos dados de clientes, e as permissões do aplicativo valem para o usuário conectado nos dois caminhos.
 
 MCP ou API? Use REST para uma integração conhecida, cujos passos você controla no código. Considere o MCP quando um assistente precisa escolher entre ferramentas enquanto ajuda uma pessoa. Nenhum dos dois protocolos garante, por si só, um resultado mais rápido, mais seguro ou aprovado automaticamente.
+
+## O que é MCP e para que serve? [#o-que-e-mcp-e-para-que-serve]
+
+MCP é a sigla de Model Context Protocol, um protocolo aberto que define como um aplicativo de IA (o host) se conecta a ferramentas e dados externos por meio de servidores. Ele serve para três coisas: o cliente descobrir quais ferramentas um servidor oferece, ler o esquema de entrada de cada uma e chamá-las com argumentos. Em um CRM, isso significa que um assistente pode buscar um cliente, ler as notas e criar uma tarefa sem que alguém escreva uma integração só para esse assistente. Para uma introdução sem foco em CRM, veja [o que é um servidor MCP](/blog/what-is-an-mcp-server); exemplos de servidores de fornecedores de CRM são o [HubSpot MCP](/blog/hubspot-mcp) e o [MCP da Salesforce](/blog/salesforce-mcp).
+
+Uma API, por sua vez, é qualquer interface pela qual um programa pede algo a outro. É por isso que a comparação não é MCP contra API: o MCP é uma forma específica de expor operações a aplicativos de IA, e muitas vezes um servidor MCP chama uma API por baixo.
 
 ## Qual é a diferença entre MCP e uma API REST?
 
@@ -205,26 +211,61 @@ A aprovação é outra questão. O Customermates orienta os clientes MCP externo
 
 O Mate hospedado tem uma política de aprovação própria, aplicada pelo servidor. As Rotinas têm seus próprios controles de execução e aprovação; não os deduza a partir de uma sessão MCP externa. A disponibilidade do Mate na nuvem gerenciada também depende de planos elegíveis, créditos disponíveis e controles globais. O [guia de CRM agêntico](/blog/agentic-crm) explica esses limites.
 
+### O que muda na segurança entre MCP e API REST? [#seguranca-mcp-vs-api]
+
+As duas portas precisam das mesmas defesas de base: autenticação, permissões por usuário, validação das entradas e registro do que foi feito. O MCP acrescenta pontos de atenção por causa de quem chama:
+
+- **Quem escolhe a chamada.** Em uma integração REST, o código define cada chamada. Em um host de IA, um modelo pode escolher a ferramenta; por isso, limite o acesso do usuário conectado ao que a tarefa exige.
+- **Texto que o modelo lê.** Descrições de ferramentas e resultados chegam ao modelo como texto, e conteúdo não confiável (uma mensagem de cliente, por exemplo) pode tentar dar instruções. Trate esses dados como dados.
+- **Servidores de terceiros.** Conectar um servidor MCP que você não controla é dar a ele acesso ao que o seu cliente de IA envia. Prefira servidores confiáveis e revise as permissões que eles pedem.
+- **Aprovação humana.** Nem o REST nem o MCP garantem a confirmação antes de uma ação irreversível; ela depende da política do host ou da aplicação, como visto acima.
+
 ## Quando manter o REST, usar o MCP ou combinar os dois?
+
+| Situação | Melhor ponto de partida |
+| --- | --- |
+| Sincronização estável entre dois sistemas | REST, com mapeamentos explícitos e novas tentativas |
+| Um evento conhecido dispara sempre os mesmos passos | REST ou webhook mais um workflow |
+| Um assistente decide a próxima operação a partir da pergunta de uma pessoa | MCP |
+| Você quer o mesmo conjunto de operações em vários clientes de IA | MCP |
+| Um workflow fixo busca dados e um assistente investiga as exceções | Os dois, cada um no seu papel |
 
 Mantenha o REST quando o seu trabalho for “execute exatamente estes passos sempre que um evento conhecido acontecer”. Uma sincronização fixa costuma se beneficiar de mapeamentos explícitos, novas tentativas e tratamento de falhas no código. O OpenAPI também pode fornecer esquemas de API legíveis por máquina; a descoberta não é exclusividade do MCP.
 
 Escolha o MCP quando a próxima operação útil depender da pergunta de uma pessoa e o host oferecer suporte às ferramentas de que você precisa. Você ainda precisa de servidores confiáveis, acesso restrito, validação dos resultados e uma política de aprovação. O MCP é mais do que formatação JSON, mas não é um gateway de API que fornece todos esses controles automaticamente. Veja a [arquitetura oficial do MCP](https://modelcontextprotocol.io/docs/learn/architecture) para os papéis de host, cliente e servidor.
 
-Você pode combinar os dois: um webhook informa um evento, um workflow determinístico busca os dados pelo REST e um assistente usa o MCP para investigar uma exceção. Webhooks são notificações de eventos, não outro nome para uma chamada de ferramenta. O n8n pode orquestrar integrações, mas o teste local acima rodou um script, não o n8n. A [introdução aos workflows do n8n](/blog/n8n-for-beginners-build-your-first-workflow) é um ponto de partida à parte.
+Você pode combinar os dois: um webhook informa um evento, um workflow determinístico busca os dados pelo REST e um assistente usa o MCP para investigar uma exceção. Webhooks são notificações de eventos, não outro nome para uma chamada de ferramenta. O n8n pode orquestrar integrações, mas o teste local acima rodou um script, não o n8n. A [introdução aos workflows do n8n](/blog/n8n-for-beginners-build-your-first-workflow) é um ponto de partida à parte, e o guia de [n8n e MCP](/blog/n8n-mcp) mostra como os dois se encontram.
 
 O Customermates self-hosted fornece o núcleo do CRM Starter com REST e MCP para clientes externos. Ele não inclui o Mate hospedado nem a caixa de entrada na nuvem. Escolha outra abordagem se você só precisa de um adaptador para o CRM que já tem, ou se a sua integração fixa não ganha nada com um host de IA. Preços e condições de teste da nuvem são assuntos separados da escolha de protocolo; compare-os na [página de preços atual](/pricing).
 
-Para uma equipe que acompanha as conversas com clientes, a chamada MCP útil é a que lê uma conversa no registro do cliente e salva um rascunho de resposta e um próximo passo para revisão. Para testar isso com o seu próprio Claude ou ChatGPT, [comece seu teste](/auth/signup?job=followup): [[commercial.trial.days]] dias de Pro sem cartão de crédito.
+Para uma equipe que acompanha as conversas com clientes, a chamada MCP útil é a que lê uma conversa no registro do cliente e salva um rascunho de resposta e um próximo passo para revisão. Para testar isso com o seu próprio Claude ou ChatGPT (o [guia de conector personalizado](/docs/connect-custom-connector) mostra a conexão), [comece seu teste](/auth/signup?job=followup): [[commercial.trial.days]] dias de Pro sem cartão de crédito.
 
 ## Perguntas frequentes
 
 <Faq>
+<FaqItem question="O que é um MCP e para que serve?">
+MCP é o Model Context Protocol, um protocolo aberto para conectar aplicativos de IA a ferramentas e dados externos. Ele serve para que o cliente descubra as ferramentas de um servidor, leia o esquema de entrada de cada uma e as chame com argumentos.
+</FaqItem>
+<FaqItem question="Quais são as vantagens do MCP?">
+A principal é a descoberta: um cliente de IA lista as ferramentas de um servidor e seus esquemas em vez de depender de código escrito sob medida. Isso permite reutilizar o mesmo servidor em vários clientes. Nada disso garante, por si só, mais velocidade, mais segurança ou aprovação automática.
+</FaqItem>
 <FaqItem question="O MCP substitui as APIs REST?">
 Não. Um servidor MCP pode encapsular uma API REST ou compartilhar a lógica da aplicação com ela. O REST continua útil para integrações controladas, com passos predefinidos.
 </FaqItem>
 <FaqItem question="O MCP é só JSON ou uma API REST?">
 O MCP define mensagens de protocolo e convenções de descoberta, não apenas um formato JSON. Ele pode rodar sobre HTTP, mas a chamada de uma ferramenta MCP nomeada não é o mesmo contrato que chamar um endpoint REST.
+</FaqItem>
+<FaqItem question="É possível transformar uma API existente em um servidor MCP?">
+Sim: um servidor MCP pode encapsular uma API REST. O trabalho está em escolher quais operações expor, dar a elas nomes e esquemas de entrada claros, aplicar as permissões do usuário conectado e definir a política de aprovação. Expor todos os endpoints sem esse desenho costuma produzir ferramentas difíceis para um modelo usar.
+</FaqItem>
+<FaqItem question="Quais são os 3 tipos de API?">
+Depende do critério. Pelo acesso, as APIs são públicas (abertas a qualquer desenvolvedor), privadas (de uso interno) e de parceiros (compartilhadas com empresas específicas). Pelo estilo, REST, SOAP e GraphQL são os mais citados. Este guia compara o MCP principalmente com o REST.
+</FaqItem>
+<FaqItem question="O JSON é uma API?">
+Não. JSON é um formato de dados, usado para escrever as requisições e as respostas. Uma API é a interface que define o que pode ser pedido e como. Tanto o REST quanto o MCP costumam usar JSON, mas isso não os torna iguais.
+</FaqItem>
+<FaqItem question="A API é considerada back-end?">
+A API costuma ser a porta de entrada do back-end, mas os dois não são sinônimos. O back-end é a parte da aplicação que roda no servidor, com a lógica e o banco de dados; a API é a interface pela qual outros programas falam com ela. No teste deste guia, as rotas REST e as ferramentas MCP chamam a mesma lógica da aplicação.
 </FaqItem>
 <FaqItem question="O MCP torna os dados dos clientes automaticamente seguros?">
 Não. Verificações de acesso, tratamento de tokens, dados não confiáveis e aprovações no cliente continuam importando. Nossa fixture local inclui operações autorizadas e duas atualizações recusadas para um papel somente leitura; ela não estabelece superioridade em segurança.

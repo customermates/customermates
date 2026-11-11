@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "CRM Google Sheets: darmowy szablon, formuły i moment, w którym przestaje wystarczać"
-  description: "Karty, kolumny, listy rozwijane i formuły do arkusza CRM, który jedna do trzech osób poprowadzi w Google Sheets, krótki Apps Script wysyłający ci e-mail co rano i spokojna droga do prawdziwego CRM."
+  description: "Karty, kolumny, listy rozwijane i formuły do arkusza CRM, który jedna do trzech osób poprowadzi w Google Sheets, krótki Apps Script wysyłający Ci e-mail co rano i spokojna droga do prawdziwego CRM."
 
 blogPost:
   author: Benjamin Wagner
@@ -82,7 +82,7 @@ Kolumny od A do J: Imię, Nazwisko, Firma, E-mail, Telefon, URL LinkedIn, Typ ko
 | J Data następnego kroku | Data | 2025-12-04 |
 | K Zamknięto dnia | Data, wypełniana przy Wygranej lub Przegranej | |
 
-Wpisz je w wierszu 2 i przeciągnij w dół. Wszystkie formuły na tej stronie używają angielskich nazw funkcji i średnika jako separatora, tak jak wymaga tego arkusz z polskimi ustawieniami regionalnymi (Plik › Ustawienia):
+Dwie formuły wpisz w wierszu 2 i przeciągnij je w dół. Wszystkie formuły na tej stronie używają angielskich nazw funkcji i średnika jako separatora, tak jak wymaga tego arkusz z polskimi ustawieniami regionalnymi (Plik › Ustawienia):
 
 ```
 F2  =IFERROR(VLOOKUP(E2;Listy!A:B;2;FALSE);0)
@@ -110,7 +110,7 @@ Dwie funkcje sprawiają, że wersja Google jest lepsza od tej z Excela. [QUERY](
 =QUERY(Szanse!A1:K;"select E, count(A), sum(D) where E is not null and E <> 'Wygrana' and E <> 'Przegrana' group by E label count(A) 'Szanse', sum(D) 'Wartość'";1)
 ```
 
-A FILTER daje ci żywą listę follow-upów: każdą otwartą szansę, której data następnego kroku już minęła:
+A FILTER daje Ci żywą listę follow-upów: każdą otwartą szansę, której data następnego kroku już minęła:
 
 ```
 =FILTER(Szanse!A2:J;Szanse!J2:J<>"";TODAY()>Szanse!J2:J;Szanse!E2:E<>"Wygrana";Szanse!E2:E<>"Przegrana")
@@ -163,7 +163,7 @@ Rozmiar rzadko bywa problemem. W [limitach plików Dysku](https://support.google
 | Kilka osób współdzieli szanse, follow-upy się opóźniają albo szanse przesuwają się w wątkach na LinkedInie i WhatsAppie | Przejdź na CRM, zaczynając od importu opisanego niżej |
 | Pracujesz w Excelu lub Microsoft 365, a nie w Google | Skorzystaj z [szablonu CRM w Excelu](/blog/excel-crm-template), który ma taki sam układ plus tygodniowy tracker dla każdego handlowca |
 
-Prosta zasada kciuka: gdy dwie osoby co tydzień edytują te same szanse i jeden follow-up już się opóźnił, czas przejść. Wcześniej arkusz w zupełności wystarcza.
+Praktyczna reguła: gdy dwie osoby co tydzień edytują te same szanse i jeden follow-up już się opóźnił, czas przejść. Wcześniej arkusz w zupełności wystarcza.
 
 ## Przenoszenie CRM z Google Sheets do Customermates
 
@@ -209,7 +209,7 @@ Customermates to zły krok, jeśli Twój proces żyje w formułach: nie ma pól 
 
 <Faq>
 <FaqItem question="Czy można używać Google Sheets jako CRM?">
-Tak, dla jednej do trzech osób z jednym procesem sprzedaży. Układ z pięciu kart opisany wyżej obejmuje kontakty, szanse sprzedaży, aktywności i pulpit, a Apps Script może co rano wysyłać ci e-mail z przeterminowanymi następnymi krokami. Nie ograniczy za to, kto widzi które wiersze, nie utrzyma powiązań, gdy zmieni się nazwa, i nie wciągnie rozmów z Gmaila, LinkedIna ani WhatsAppa.
+Tak, dla jednej do trzech osób z jednym procesem sprzedaży. Układ z pięciu kart opisany wyżej obejmuje kontakty, szanse sprzedaży, aktywności i pulpit, a Apps Script może co rano wysyłać Ci e-mail z przeterminowanymi następnymi krokami. Nie ograniczy za to, kto widzi które wiersze, nie utrzyma powiązań, gdy zmieni się nazwa, i nie wciągnie rozmów z Gmaila, LinkedIna ani WhatsAppa.
 </FaqItem>
 
 <FaqItem question="Czy Google ma narzędzie CRM?">

@@ -1,6 +1,6 @@
 ---
-title: "CRM self hosted com Docker e PostgreSQL"
-description: "CRM self hosted: rode a aplicação do Customermates e o PostgreSQL na sua infraestrutura com Docker Compose. Núcleo AGPL, MCP, REST e webhooks incluídos."
+title: "CRM self hosted com Docker Compose e PostgreSQL 16"
+description: "CRM self hosted: rode o Customermates e o PostgreSQL 16 na sua infraestrutura com Docker Compose. Núcleo AGPL, REST, webhooks e MCP, sem cobrar por usuário."
 featureName: CRM self hosted
 
 acquisition:
@@ -10,8 +10,8 @@ acquisition:
   role: hub
   primaryIntent: Implantação de um CRM self hosted
   metadata:
-    title: "CRM self hosted com Docker e PostgreSQL"
-    description: "CRM self hosted: rode a aplicação do Customermates e o PostgreSQL na sua infraestrutura com Docker Compose. Núcleo AGPL, MCP, REST e webhooks incluídos."
+    title: "CRM self hosted com Docker Compose e PostgreSQL 16"
+    description: "CRM self hosted: rode o Customermates e o PostgreSQL 16 na sua infraestrutura com Docker Compose. Núcleo AGPL, REST, webhooks e MCP, sem cobrar por usuário."
   proof:
     factReferences:
       - product:agpl-community-core
@@ -207,6 +207,17 @@ Se você quer testar o Customermates antes de operar o seu próprio servidor, a 
 
 Os registros passam de uma instalação para outra, ou de outro CRM, como planilhas XLSX, um tipo de registro por vez e dentro dos limites de linhas, ou pela API REST, que também pode enviar arquivos para campos de Arquivo. Uma importação de XLSX não leva anexos e não existe transferência completa da conta, então planeje uma mudança maior como um projeto de migração que você valida.
 
+## Como instalar um CRM self hosted com Docker Compose? [#como-instalar-crm-self-hosted]
+
+Um CRM auto hospedado como o Customermates sobe a partir de dois arquivos, `docker-compose.yml` e `.env`, com `docker compose up -d`. Você baixa os dois do repositório do Customermates com `curl`, sem `git clone` e sem etapa de build. Os pré-requisitos são Docker com Docker Compose v2 e, só para usar HTTPS, um nome de domínio.
+
+1. Baixe o `docker-compose.yml` e o modelo do `.env`.
+2. Preencha o `.env` antes da primeira inicialização: no mínimo a senha do PostgreSQL, o segredo de autenticação, o `BASE_URL` e a chave do serviço de envio de e-mails. Sem uma chave de e-mail que funcione, nenhum e-mail sai e ninguém consegue confirmar o endereço.
+3. Rode `docker compose up -d`. A primeira inicialização leva cerca de um minuto, enquanto as migrações do banco rodam.
+4. Abra `<BASE_URL>/auth/signup`, cadastre-se e crie o primeiro espaço de trabalho; essa conta vira administradora.
+
+Os passos completos, as variáveis do `.env`, o proxy reverso com HTTPS, as atualizações e os backups estão no [guia de self hosting](/docs/self-hosting). Qualquer pessoa que alcance o `BASE_URL` consegue se cadastrar, então, se a instância for só da sua equipe, limite o acesso com VPN, lista de IPs permitidos ou autenticação no proxy.
+
 ## Perguntas frequentes
 
 <Faq>
@@ -228,12 +239,27 @@ O material próprio fora de `ee/` é AGPL-3.0-only. Dentro de `ee/`, o material 
   créditos de IA hospedados não fazem parte do self hosting.
 </FaqItem>
 
-<FaqItem question="O self hosting deixa o CRM em conformidade com o GDPR?">
-  Nenhum modelo de implantação cria conformidade por si só. O self hosting
-  permite escolher onde ficam a aplicação e o banco de dados, mas a sua
-  organização continua responsável pela configuração, pelos provedores, pelos
-  contratos, pelos controles de segurança, pela retenção e pela avaliação
-  jurídica.
+<FaqItem question="O self hosting deixa o CRM em conformidade com a LGPD ou o GDPR?">
+  Nenhum modelo de implantação cria conformidade por si só, nem com a LGPD nem
+  com o GDPR. O self hosting permite escolher onde ficam a aplicação e o banco de
+  dados, mas a sua organização continua responsável pela configuração, pelos
+  provedores, pelos contratos, pelos controles de segurança, pela retenção e pela
+  avaliação jurídica.
+</FaqItem>
+
+<FaqItem question="O CRM self hosted é gratuito? Preciso de licença?">
+  Uma instância self hosted não tem assinatura, não conta usuários e não cobra
+  nada: você paga apenas pela sua infraestrutura e pelos provedores que
+  conectar. O código fora de `ee/` é AGPL-3.0-only, e a imagem oficial pode rodar
+  em produção como Community Build, desde que os recursos exclusivos da nuvem
+  fiquem desativados. Os termos exatos estão em `LICENSE` e `ee/LICENSE.md`.
+</FaqItem>
+
+<FaqItem question="Preciso saber programar para rodar um CRM self hosted?">
+  Não é preciso programar, mas a sua equipe precisa saber operar Docker e
+  PostgreSQL: subir os contêineres, preencher o `.env`, configurar TLS e
+  acompanhar atualizações, backups e testes de restauração. Se ninguém na equipe
+  quer cuidar disso, a nuvem gerenciada costuma ser o caminho mais simples.
 </FaqItem>
 
 <FaqItem question="O que contém a stack oficial do Docker Compose?">

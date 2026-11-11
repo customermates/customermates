@@ -138,6 +138,19 @@ Abra a Caixa de entrada e você vê uma conversa compatível do LinkedIn cujo pa
 
 Essas listas e etapas são um exemplo. Um novo espaço de trabalho começa sem listas: no Customermates Cloud, a configuração do espaço de trabalho com IA pode montar listas, etapas, um painel e páginas da Base de conhecimento a partir da sua descrição, uma única vez no onboarding e dentro do limite de créditos, ou você a pula com **Começar com um espaço de trabalho vazio**. Caso contrário, quem tem direitos sobre o Modelo de dados cria as listas e os campos em Modelo de dados e importa os registros existentes de uma pasta de trabalho do Excel.
 
+## Quais dados do LinkedIn chegam ao CRM? [#quais-dados-do-linkedin-chegam-ao-crm]
+
+Depende de como a informação é buscada. O quadro resume o que chega por conta própria, o que você busca quando precisa e o que o Customermates não faz.
+
+| Tipo de dado | Como chega ao Customermates |
+| --- | --- |
+| Conversas e InMails compatíveis | Ficam na [caixa de entrada unificada](/features/unified-inbox) da nuvem, ao lado do e-mail. O histórico é importado em segundo plano depois que você conecta a conta, e o participante é associado a um [registro de contato](/features/contact-management) pelo campo Dados de contato |
+| Perfil de pessoa ou de empresa, posts, comentários e reações | Sob demanda: um usuário ou um cliente autorizado, por REST ou MCP, busca na conta conectada quando precisa do contexto |
+| Buscas e listas do Sales Navigator | Sob demanda, com uma assinatura ativa do Sales Navigator; criar um registro no CRM a partir de um resultado é uma ação separada |
+| Perfis incorporados, enriquecimento contínuo, alertas de mudança de emprego, importação em massa | Não chegam; o Customermates não oferece esses recursos |
+
+A conversa só vai para uma oportunidade ou para uma organização quando alguém a vincula de propósito.
+
 ## Como acompanho uma conversa do LinkedIn no Customermates?
 
 Você mesmo conecta a conta em Canais, em uma página de conexão hospedada que precisa concluir em até 30 minutos ([como conectar um canal](/docs/app-profile#how-do-i-connect-a-channel)). O Customermates chega ao LinkedIn por meio de um provedor de mensageria, a Unipile, que a [página de subprocessadores](/subprocessors) lista. O próprio Customermates não recebe a sua senha do LinkedIn nem um token OAuth; para a conexão, ele guarda um identificador da conta e metadados não secretos da conta. Depois que a conta é conectada, o histórico de conversas é importado em segundo plano, em geral em poucos minutos e em até uma hora para contas grandes. Desconectar a conta apaga os threads e as mensagens que o Customermates importou dela.
@@ -262,6 +275,14 @@ Não serve quando o requisito de compra é CRM Sync do LinkedIn, feed de leads, 
 ## Perguntas frequentes
 
 <Faq>
+<FaqItem question="O que é um CRM LinkedIn?">
+É uma integração entre o LinkedIn e o CRM que coloca as suas conversas do LinkedIn no mesmo registro da pessoa, do negócio e do e-mail, para você retomar uma conversa de onde ela parou e fazer o [follow-up de clientes](/features/follow-up) com o contexto à mão. No Customermates, isso vale para as conversas e os InMails compatíveis de uma conta conectada, a partir do Pro, e para operações de perfil e de Sales Navigator sob demanda.
+</FaqItem>
+
+<FaqItem question="Quais dados do LinkedIn vão para o CRM?">
+As conversas e os InMails compatíveis chegam à [caixa de entrada unificada](/features/unified-inbox) e ficam ligados ao registro da pessoa. Perfis, posts e buscas do Sales Navigator são lidos sob demanda por REST ou MCP. Não há enriquecimento contínuo, perfis incorporados nem importação em massa; veja o [resumo dos dados](#quais-dados-do-linkedin-chegam-ao-crm).
+</FaqItem>
+
 <FaqItem question="O Customermates oferece o CRM Sync do LinkedIn Sales Navigator?">
   Não. O CRM Sync do LinkedIn, os perfis incorporados, os selos de CRM, a
   validação de dados, o salvamento automático e a gravação de atividades de

@@ -1,6 +1,6 @@
 ---
-title: "Lead management: software de gestión de leads para equipos"
-description: "Lead management: sigue cada lead del primer mensaje a la oportunidad ganada con etapa, origen, vistas guardadas y las conversaciones en el contacto."
+title: "Lead management: qué es, etapas y software para equipos"
+description: "Lead management o gestión de leads: qué es, sus cinco etapas y cómo seguir cada lead con su origen, vistas guardadas y las conversaciones en el contacto."
 featureName: Lead management
 
 relatedHrefs:
@@ -62,6 +62,20 @@ El software de lead management, o gestión de leads, mantiene a cada cliente pot
 
 Lo que deja fuera importa igual. Customermates no puntúa leads, no enriquece registros, no aloja formularios web y no reparte nada por turnos. Si tus leads llegan por centenares desde anuncios y formularios, necesitas esos motores, y la tabla de más abajo nombra herramientas que los tienen.
 
+## ¿Qué es el lead management y para qué sirve? [#que-es-el-lead-management]
+
+Lead management, en español gestión de leads, es el proceso de captar a cada cliente potencial, registrarlo, cualificarlo, asignarlo a una persona y hacerle seguimiento hasta que se convierte en oportunidad o se descarta. Un lead es una persona o una empresa que ya mostró interés, porque escribió, respondió a un mensaje o rellenó un formulario, pero todavía no es cliente; en México se suele decir también prospecto. En un CRM, un lead es un contacto con su etapa, su origen y su historial de conversaciones.
+
+Las cinco etapas habituales son estas:
+
+1. **Captación.** El lead entra por un formulario, una recomendación, un mensaje en LinkedIn o un evento.
+2. **Registro.** Se guarda con su origen y su etapa, sin duplicados.
+3. **Cualificación.** Decides si encaja y si merece más tiempo, con criterios que defines tú.
+4. **Asignación.** Una persona concreta se ocupa de él.
+5. **Seguimiento.** Se retoma la conversación hasta que pide una propuesta, dice que no o se enfría.
+
+Sirve para que menos leads se enfríen entre el primer mensaje y la propuesta, para que el equipo sepa a quién le toca escribir y qué se dijo la última vez, y para ver qué canales traen leads que avanzan y cuáles solo ruido. La tabla siguiente muestra qué parte de cada etapa cubre Customermates.
+
 ## Qué abarca el lead management y qué partes cubre Customermates
 
 | Paso | En Customermates | Requiere otra herramienta |
@@ -98,6 +112,16 @@ Da un peso a cada etapa de la oportunidad, por ejemplo 10, 20, 40, 60 y 80 por c
 En el panel, un widget de gráfico sobre los contactos agrupados por **Origen** muestra cuántos leads aportó cada canal. El mismo gráfico sobre las oportunidades, con un campo Origen en las oportunidades y sumando **Valor**, muestra qué canales traen dinero. Un gráfico de **Embudo** muestra los registros actuales por etapa con la conversión de un paso al siguiente; la conversión a lo largo del tiempo no se registra, así que exporta la lista a Excel si la quieres.
 
 Para seguir los leads en otros sistemas a medida que cambian, los webhooks se disparan con `record.created` y `record.updated` para las listas de Contactos y de Oportunidades, entre [[derived.webhooks.events.total]] eventos. Un mensaje de Slack sobre un lead nuevo pasa por n8n o por tu propio endpoint; no hay integración nativa con Slack. Cada cambio en un lead queda en su historial, que pueden ver los roles con acceso de lectura a **Registro de actividad**.
+
+## ¿Qué buenas prácticas de lead management funcionan en un equipo pequeño? [#buenas-practicas-de-lead-management]
+
+- **Pocas etapas, bien definidas.** Con cinco o seis basta. Si dos personas dudan en qué etapa está un lead, sobran etapas.
+- **Cualifica pronto con criterios propios.** Decide qué hace que un lead encaje, por ejemplo la necesidad, el plazo y quién decide, y anótalo en el campo Encaje. La guía de [cualificación de clientes](/blog/client-qualification) ayuda a definir esos criterios.
+- **Responde pronto.** Quien escribió hoy espera una respuesta hoy o mañana, aunque solo sea para decir cuándo llegará la completa.
+- **Anota siempre el origen.** Sin él no sabrás qué canal trae leads que avanzan.
+- **Mantén los datos limpios.** Un contacto por persona y solo los campos que alguien usa. Revisa los duplicados antes de importar una lista.
+- **Haz seguimiento sin ser pesado.** Fija la fecha del siguiente paso en cada lead y, si tras varios intentos no hay respuesta, pausa en lugar de insistir. El [seguimiento al cliente](/features/follow-up) explica cómo llevarlo con fechas y borradores.
+- **Revisa la lista cada semana.** Abre «Mis leads abiertos» y mira primero los que nadie ha tocado.
 
 ## Mate y las rutinas con los leads nuevos (Customermates Cloud)
 
@@ -142,6 +166,18 @@ Un [consultor autónomo](/for/freelancers) en Starter paga [[commercial.price.st
 ## Preguntas frecuentes
 
 <Faq>
+<FaqItem question="¿Qué significa lead management?">
+Gestión de leads: el proceso de captar, registrar, cualificar, asignar y hacer seguimiento a cada cliente potencial hasta que se convierte en oportunidad o se descarta.
+</FaqItem>
+
+<FaqItem question="¿Qué es un lead en un CRM?">
+Un contacto que ya mostró interés pero todavía no es cliente. En el CRM se guarda con su etapa, su origen, quién se ocupa de él y las conversaciones con esa persona. Cuando pide una propuesta, se le abre una oportunidad; la diferencia con un prospecto la explica [esta guía](/blog/prospect-vs-lead).
+</FaqItem>
+
+<FaqItem question="¿A qué se dedica un lead manager?">
+A que los leads se capten, se cualifiquen y se repartan, y a que alguien los retome a tiempo. En una empresa grande es un puesto propio; en un equipo pequeño lo hace quien vende, con una lista y un siguiente paso para cada lead.
+</FaqItem>
+
 <FaqItem question="¿Qué es un software de gestión de leads?">
 Software que guarda a cada cliente potencial en un solo lugar con su estado, origen, responsable e historial, para que nadie quede olvidado entre el primer contacto y el contrato firmado. Las suites más grandes añaden puntuación, formularios, reparto y campañas de nutrición.
 </FaqItem>

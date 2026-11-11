@@ -1,6 +1,6 @@
 ---
-title: "CRM financeiro para assessores: cada revisão de cliente"
-description: "CRM financeiro para assessores: a revisão do cliente vence e ele sumiu? As conversas ficam no registro, o Mate redige a mensagem e você envia."
+title: "CRM financeiro: o que é e como assessores o usam"
+description: "CRM financeiro para assessores: o que é, 6 critérios para escolher e como organizar revisões, indicadores e conversas de cada cliente em um só registro."
 industryName: "Assessores financeiros"
 
 relatedHrefs:
@@ -48,11 +48,11 @@ useCases:
       visual: contacts
 ---
 
-Uma revisão anual está para vencer, um prospect não responde desde a reunião de diagnóstico e o contador que o indicou espera um retorno. Um **CRM financeiro** como o Customermates mantém essas conversas no registro do cliente, com uma data de revisão e um próximo passo com data. No Customermates Cloud, a partir do Pro, o Mate ou o seu próprio agente de IA (Claude, ChatGPT ou qualquer cliente que fale MCP) redige a mensagem e o próximo passo quando você pede ou em uma rotina que você configura; você revisa, edita e envia. Ele cobre apenas o lado do relacionamento: sem feeds de custodiantes, sem arquivo de compliance e sem processo de aconselhamento. Para isso, um sistema específico para assessores, como o Redtail ou o Wealthbox, ou a plataforma da sua rede ou pool, é a melhor escolha, e a tabela mais abaixo os cita.
+Uma revisão anual está para vencer, um prospect não responde desde a reunião de diagnóstico e o contador que o indicou espera um retorno. Um **CRM financeiro** como o Customermates mantém essas conversas no registro do cliente, com uma data de revisão e um próximo passo com data. No Customermates Cloud, a partir do Pro, o Mate ou o seu próprio agente de IA (Claude, ChatGPT ou qualquer cliente que fale MCP) redige a mensagem e o próximo passo quando você pede ou em uma rotina que você configura; você revisa, edita e envia. Ele cobre apenas o lado do relacionamento: sem feeds de custodiantes, sem arquivo de compliance e sem processo de aconselhamento. Para isso, um sistema específico para assessores, como o Redtail ou o Wealthbox, ou a plataforma da corretora ou da rede a que você é vinculado, é a melhor escolha, e a tabela mais abaixo os cita.
 
 O Customermates é um CRM de código aberto, nativo de IA, feito na Alemanha para pequenas equipes que atendem clientes. Ele reúne contatos, organizações e negócios e, a partir do plano Pro, as conversas de e-mail, LinkedIn e WhatsApp em torno deles.
 
-<ArticleSummary title="Resumo">
+<ArticleSummary title="Em resumo">
   <SummaryItem label="Para quem">
     Assessores independentes, pequenas empresas de planejamento e corretores
     de financiamento imobiliário cujos novos negócios vêm de indicações e de
@@ -75,6 +75,23 @@ O Customermates é um CRM de código aberto, nativo de IA, feito na Alemanha par
     celular.
   </SummaryItem>
 </ArticleSummary>
+
+## O que é um CRM financeiro? [#o-que-e-crm-financeiro]
+
+Um CRM financeiro é o software de gestão do relacionamento com o cliente (CRM, do inglês customer relationship management) usado por quem presta serviços financeiros. Em vez de planilhas e caixas de entrada individuais, ele guarda, em um único registro por cliente, os contatos, as conversas, a data da próxima revisão e o próximo passo. Os sistemas especializados para assessores somam a isso partes da operação regulada, como carteiras e documentação; um CRM geral como o Customermates cobre o lado do relacionamento.
+
+"CRM" também é a sigla dos conselhos regionais de medicina, e é por isso que as anuidades e os boletos deles aparecem nas buscas por "CRM financeiro". Esta página trata só do software.
+
+## Como escolher um CRM financeiro: seis critérios [#como-escolher-crm-financeiro]
+
+Antes de comparar ferramentas, avalie seis pontos. Ao lado de cada um, o que o Customermates cobre e o que não cobre, para você usar a mesma régua em qualquer opção:
+
+- **Experiência do cliente.** O histórico de conversas, a data da próxima revisão e o próximo passo ficam no registro, e qualquer pessoa da equipe retoma a conversa de onde ela parou. O Mate redige a mensagem, e você revisa e envia.
+- **Relatórios e análise.** O [quadro do pipeline](/features/pipeline), o valor ponderado por etapa e as visualizações salvas mostram as revisões a caminho, os prospects aguardando e os negócios parados. Não há relatórios regulatórios nem cálculo de ativos sob gestão.
+- **Colaboração.** Uma visualização pode ser compartilhada com a equipe inteira ou com funções selecionadas, e no Business dá para compartilhar uma conta de e-mail inteira.
+- **Segurança e conformidade.** As permissões valem por lista, registro e ação, não por campo; o registro de auditoria está em todos os planos e o banco de dados principal fica em Frankfurt. Não há certificação SOC 2 ou ISO 27001 nem arquivo de comunicações: se a sua instituição exige isso de um CRM, escolha um sistema que ofereça.
+- **Integração e escalabilidade.** [API REST](/features/api), [webhooks](/docs/webhooks) e [MCP](/docs/mcp) em todos os planos pagos, e importação de planilhas do Excel (veja o [guia de registros](/docs/app-records)). Não há conexão nativa com custodiantes nem com plataformas de carteira.
+- **Facilidade de uso.** No Customermates Cloud, a configuração com IA (veja o [onboarding](/docs/app-onboarding)) monta as listas a partir de uma descrição, e a importação traz a sua lista de clientes. Não há app para celular.
 
 ## O que um CRM para assessores financeiros precisa entregar
 
@@ -131,6 +148,8 @@ O Pro inclui [[commercial.entitlement.pro.includedAccountsPerUser]] conta conect
   apenas canais que a sua empresa aprova e arquiva em outro lugar, e consulte
   o seu responsável por compliance antes de vincular o WhatsApp.
 </AcquisitionCallout>
+
+No Brasil, quem atua como assessor de investimentos costuma estar vinculado a uma instituição, como uma corretora ou uma plataforma, que define quais canais podem ser usados e como as conversas são guardadas, dentro das regras da CVM. Confirme isso com ela antes de conectar o WhatsApp ou qualquer outro canal ao CRM. É uma orientação geral, não aconselhamento jurídico.
 
 ### Uma lista semanal de revisões com o Mate (Customermates Cloud)
 
@@ -222,6 +241,7 @@ Os detalhes sobre colunas e limites estão no [guia de registros](/docs/app-reco
 - No Customermates Cloud, o banco de dados principal de produção está configurado na região AWS de Frankfurt. A hospedagem e os outros subprocessadores, entre eles fornecedores dos EUA, estão na [página de subprocessadores](/subprocessors), e há um [acordo de tratamento de dados](/dpa) disponível.
 - As permissões se aplicam por recurso e ação, não por campo. Uma função com acesso de leitura **Atribuídos** limita um paraplanner ou associado aos registros atribuídos a ele.
 - O registro de auditoria anota quem alterou qual registro, em todos os planos.
+- No Brasil, a LGPD vale para os dados pessoais de clientes e prospects que você guarda em qualquer CRM. Registre só o que o relacionamento exige e mantenha dados de carteira e documentos nos sistemas especializados. É uma orientação geral, não aconselhamento jurídico.
 - O Customermates não tem certificação como SOC 2 ou ISO 27001. Se a sua corretora, rede ou órgão regulador exige uma para um CRM, o Customermates não é uma opção para você.
 
 ## Perguntas frequentes
@@ -245,5 +265,12 @@ Tecnicamente sim, a partir do plano Pro no Customermates Cloud. Se você pode é
 
 <FaqItem question="Quanto custa um CRM para uma assessoria de investimentos pequena?">
 No Customermates, um assessor solo paga [[commercial.price.starter.monthly]] por mês no Starter, ou [[commercial.price.pro.monthly]] no Pro, com uma caixa de e-mail na caixa de entrada. Três usuários no Pro somam [[commercial.price.pro.monthly.seats.3]] por mês, cobrados mensalmente.
+</FaqItem>
+<FaqItem question="O que é CRM no financeiro, e é o mesmo CRM dos médicos?">
+No financeiro, CRM é a sigla de customer relationship management, o software que guarda clientes, conversas, datas de revisão e próximos passos. Não tem relação com o CRM dos conselhos regionais de medicina, que usa a mesma sigla e cujas anuidades e boletos aparecem nas buscas.
+</FaqItem>
+
+<FaqItem question="Existe um CRM financeiro gratuito?">
+O Customermates Cloud tem um plano gratuito para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate nem rotinas. Com ele dá para montar contatos, núcleos familiares e um pipeline de novos negócios e testar o fluxo de revisões. Para as conversas dos clientes no registro, você precisa do Pro.
 </FaqItem>
 </Faq>

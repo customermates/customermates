@@ -29,7 +29,7 @@ blogPost:
 
 Este n8n tutorial leva você por um pequeno workflow completo, do começo ao fim: um gatilho que recebe dados, um nó que faz algo com eles, uma execução de teste e a etapa **Publish**, que faz o workflow rodar sem você. Tudo que é maior no n8n segue o mesmo padrão, só com mais nós. Aqui você vê esse primeiro workflow, a armadilha da URL de teste em que muita gente cai, o tratamento de erros e um segundo workflow que manda as solicitações do site para um CRM.
 
-Para um workflow n8n, a [comparação das rotas do n8n MCP, com um exemplo de versão fixada](/blog/n8n-mcp), distingue conectar o n8n a um servidor de dados de clientes de expor o próprio n8n a um cliente de IA. Escolha a direção antes de configurar as credenciais.
+Se você pensa em usar o n8n com MCP, a [comparação das rotas do n8n MCP, com um exemplo de versão fixada](/blog/n8n-mcp), mostra a diferença entre conectar o n8n a um servidor de dados de clientes e expor o próprio n8n a um cliente de IA. Escolha a direção antes de configurar as credenciais.
 
 <ArticleSummary title="Resumo rápido">
   <SummaryItem label="Onde rodar">n8n Cloud para começar rápido, ou a Community Edition gratuita self-hosted em Docker, se você consegue manter um servidor.</SummaryItem>
@@ -38,6 +38,10 @@ Para um workflow n8n, a [comparação das rotas do n8n MCP, com um exemplo de ve
   <SummaryItem label="Antes de confiar nele">Adicione um workflow de erro, para que uma execução com falha chegue até você em vez de falhar em silêncio.</SummaryItem>
   <SummaryItem label="Exemplo de CRM">Dados de formulário viram um contato no CRM pelo nó HTTP Request, mostrado com a API REST do Customermates.</SummaryItem>
 </ArticleSummary>
+
+## O que é o n8n e para que serve? [#o-que-e-o-n8n]
+
+O n8n é uma plataforma de automação de workflows com editor visual: você liga um gatilho a uma sequência de nós (aplicativos, APIs, condições, código) para que sistemas diferentes trabalhem juntos sem ninguém copiar dados à mão. Serve para tarefas do tipo "quando isto acontecer, faça aquilo", como guardar o envio de um formulário em um CRM ou avisar a equipe quando um negócio muda de etapa. O código-fonte é público e existe uma edição gratuita que você hospeda por conta própria; há também o n8n Cloud, pago. Como usar, em cinco passos, é o que este tutorial faz: escolher onde rodar, criar um workflow com um gatilho, testar, publicar e configurar o tratamento de erros.
 
 ## Os seis termos que você precisa conhecer
 
@@ -60,8 +64,8 @@ Você tem duas opções. O n8n Cloud não exige nada além de uma conta. A Commu
 
 | Opção | Preço | O que você recebe |
 |---|---|---|
-| n8n Cloud Starter | €20 por mês, cobrados anualmente | 2.500 execuções por mês, 5 execuções simultâneas, usuários ilimitados |
-| n8n Cloud Pro | €50 por mês, cobrados anualmente | 10.000 execuções por mês, mais execuções simultâneas, papéis de administrador, histórico de workflows mais longo |
+| n8n Cloud Starter | € 20 por mês, cobrados anualmente | 2.500 execuções por mês, 5 execuções simultâneas, usuários ilimitados |
+| n8n Cloud Pro | € 50 por mês, cobrados anualmente | 10.000 execuções por mês, mais execuções simultâneas, papéis de administrador, histórico de workflows mais longo |
 | Community Edition (self-hosted) | Software gratuito, você paga pelo servidor | Roda na sua infraestrutura, sob a Sustainable Use License do n8n |
 
 Preços verificados em 8 de outubro de 2026 na [página de preços do n8n](https://n8n.io/pricing/). Há também cobrança mensal, que custa mais; a página apresenta a opção anual como 17% de economia. O teste do Cloud dá os recursos do Pro com limite de 1.000 execuções e não exige cartão de crédito.
@@ -184,6 +188,16 @@ Alguns detalhes da [documentação de integração com o n8n](/docs/n8n) poupam 
 
 Existe também um community node do Customermates, `@customermates/n8n-nodes-crm`, com um nó de ação para registros do CRM e um nó de gatilho para eventos de webhook. Ele tem um cronograma de versões próprio, então confira se ele oferece suporte à API de registros atual antes de usar as ações de CRM. Como o n8n Cloud só instala community nodes verificados, conte com a rota do nó HTTP Request ali e use o community node em um n8n self-hosted.
 
+## n8n com IA: onde entra um modelo de linguagem? [#n8n-com-ia]
+
+O n8n tem nós de IA que chamam modelos de linguagem dentro de um workflow. No segundo workflow deste tutorial, um uso natural seria classificar a mensagem do formulário (pedido de orçamento, suporte, spam) antes de criar o contato, ou redigir um rascunho de resposta. Três cuidados valem desde o primeiro teste:
+
+1. **Mantenha o dado original.** Deixe o passo de IA em um ramo próprio e continue guardando a mensagem como ela chegou, para poder conferir a classificação.
+2. **Rascunho, não envio.** Não mande respostas automáticas a clientes sem revisão de uma pessoa. Salve o texto como rascunho ou envie-o primeiro para você.
+3. **Só os campos necessários.** O que o workflow envia a um modelo é tratado pelo provedor dele. Mande apenas os campos de que o passo precisa e, se houver dados pessoais, confira os termos do provedor e as regras da LGPD aplicáveis ao seu caso.
+
+Se a ideia é o contrário, ou seja, deixar um assistente de IA operar o seu CRM ou o próprio n8n, o caminho é o MCP: veja o [n8n MCP](/blog/n8n-mcp) e a comparação entre [MCP e API](/blog/mcp-vs-api). Para fluxos de CRM em que o n8n é a peça de ligação, a [página de automação de workflows](/features/workflow-automation) mostra o contexto.
+
 ## Onde o Customermates entra, e onde não entra
 
 O n8n é um produto à parte. Ele não está incluído em nenhum plano do Customermates; você mesmo o roda ou assina o n8n Cloud. REST e MCP funcionam em todos os planos do Customermates Cloud, os webhooks em todos os planos pagos, que começam em [[commercial.price.starter.monthly]] por usuário por mês (veja os [preços](/pricing)), e os três funcionam na edição open source self-hosted.
@@ -197,6 +211,18 @@ Se você só precisa de contatos em uma planilha e de um e-mail por solicitaçã
 ## Perguntas frequentes
 
 <Faq>
+<FaqItem question="O que é o n8n?">
+É uma plataforma de automação de workflows com editor visual. Você liga um gatilho a nós que buscam dados, verificam condições, enviam mensagens ou chamam APIs, e o workflow roda sozinho depois de publicado. O código-fonte é público, e há uma edição gratuita self-hosted e o n8n Cloud, pago.
+</FaqItem>
+
+<FaqItem question="Como usar o n8n?">
+Escolha onde rodar (n8n Cloud ou a Community Edition em Docker), crie um workflow com um gatilho, adicione os nós que fazem o trabalho, teste com dados reais e clique em **Publish**. Depois configure um workflow de erro para ser avisado quando uma execução falhar. O passo a passo completo está neste tutorial.
+</FaqItem>
+
+<FaqItem question="O n8n funciona com IA?">
+Sim. Há nós de IA que chamam modelos de linguagem dentro de um workflow, por exemplo para classificar mensagens ou redigir rascunhos. Revise o que o modelo produz antes de enviar algo a um cliente e mande ao modelo só os dados de que ele precisa.
+</FaqItem>
+
 <FaqItem question="É difícil aprender n8n?">
 O básico é rápido: o primeiro workflow deste tutorial usa três nós e uma expressão. A parte mais difícil é entender como os dados se movem entre os nós como itens e ler a documentação de API dos serviços que você conecta. Espere passar a maior parte do tempo de aprendizado no painel de saída, comparando o que um nó recebeu com o que ele produziu.
 </FaqItem>
@@ -206,7 +232,7 @@ Não. O editor visual, as expressões e os nós nativos cobrem a maioria dos wor
 </FaqItem>
 
 <FaqItem question="Quanto custa o n8n por mês?">
-A Community Edition self-hosted é gratuita; você paga pelo servidor. O n8n Cloud Starter custa €20 por mês e o Pro, €50 por mês, ambos cobrados anualmente, com 2.500 e 10.000 execuções por mês, respectivamente (verificado em 8 de outubro de 2026 na [página de preços do n8n](https://n8n.io/pricing/)). A cobrança mensal custa mais.
+A Community Edition self-hosted é gratuita; você paga pelo servidor. O n8n Cloud Starter custa € 20 por mês e o Pro, € 50 por mês, ambos cobrados anualmente, com 2.500 e 10.000 execuções por mês, respectivamente (verificado em 8 de outubro de 2026 na [página de preços do n8n](https://n8n.io/pricing/)). A cobrança mensal custa mais.
 </FaqItem>
 
 <FaqItem question="O n8n é open source?">

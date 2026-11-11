@@ -1,6 +1,6 @@
 ---
-title: "Obsługa reklamacji: proces, etapy i ustawienie w CRM"
-description: "Obsługa reklamacji: siedem etapów procesu, tabela triażu i eskalacji, skarga a reklamacja z tytułu rękojmi oraz ustawienie w CRM dla małego zespołu."
+title: "Obsługa reklamacji: proces krok po kroku, prawo i CRM"
+description: "Obsługa reklamacji w firmie: siedem etapów procesu, rękojmia a gwarancja, 14 dni na odpowiedź, tabela triażu, rozmowa z klientem i ustawienie w CRM."
 
 relatedHrefs:
   - /blog/customer-interaction-management
@@ -27,12 +27,14 @@ blogPost:
 
 Obsługa reklamacji to proces przyjmowania, rejestrowania i rozwiązywania reklamacji oraz skarg klientów, a potem wyciągania z nich wniosków: każde zgłoszenie dostaje właściciela, potwierdzenie przyjęcia, rozwiązanie i sprawdzenie, czy klient akceptuje wynik. Mały zespół może prowadzić ją w CRM takim jak Customermates, trzymając zgłoszenia na osobnej liście powiązanej z klientem, jak pokazano niżej, ale Customermates nie jest helpdeskiem ani regulowanym systemem do obsługi reklamacji.
 
-Ten poradnik wyjaśnia, czym jest system do obsługi reklamacji, czym skarga różni się od reklamacji z tytułu rękojmi, podaje tabelę triażu, odpowiedzialności i eskalacji, siedem etapów procesu, dziesięć zasad dobrej odpowiedzi oraz przykład śledzenia reklamacji w Customermates z ograniczeniami opisanymi tuż obok.
+W skrócie: przyjmij zgłoszenie, zapisz je, potwierdź klientowi, że dotarło, ustal przyczynę, odpowiedz z konkretną decyzją i sprawdź po fakcie, czy klient ją akceptuje. W sprzedaży konsumenckiej w Polsce na ustosunkowanie się do reklamacji masz 14 dni, a brak odpowiedzi w tym czasie jest traktowany jak uznanie reklamacji, więc nie czekaj z potwierdzeniem. To ogólna informacja, a nie porada prawna.
+
+Ten poradnik wyjaśnia, czym jest system do obsługi reklamacji, czym skarga różni się od reklamacji z tytułu rękojmi, co klient może zażądać i ile masz czasu, jak odmówić uznania reklamacji, jak rozmawiać z klientem, podaje tabelę triażu, odpowiedzialności i eskalacji, siedem etapów procesu, dziesięć zasad dobrej odpowiedzi oraz przykład śledzenia reklamacji w Customermates z ograniczeniami opisanymi tuż obok.
 
 <ArticleSummary title="W skrócie">
   <SummaryItem label="Definicja">Określony sposób przyjmowania, rejestrowania i rozwiązywania reklamacji oraz skarg klientów i wyciągania z nich wniosków, z jednym właścicielem na zgłoszenie.</SummaryItem>
   <SummaryItem label="Proces">Przyjęcie, rejestracja, potwierdzenie, analiza, rozwiązanie, sprawdzenie po fakcie, wnioski. Modele pięcioetapowe łączą część z nich.</SummaryItem>
-  <SummaryItem label="Skarga czy reklamacja">Skarga wyraża niezadowolenie. Reklamacja (niem. Reklamation) żąda naprawienia wady, a mogą mieć zastosowanie ustawowe przepisy o rękojmi.</SummaryItem>
+  <SummaryItem label="Skarga czy reklamacja">Skarga wyraża niezadowolenie. Reklamacja żąda naprawienia wady, a mogą mieć zastosowanie ustawowe przepisy o rękojmi lub gwarancja. W Polsce potocznie obie nazywa się reklamacją.</SummaryItem>
   <SummaryItem label="Triaż">Nadaj każdemu zgłoszeniu typ, wagę, jednego właściciela, własny cel czasu odpowiedzi i ścieżkę eskalacji.</SummaryItem>
   <SummaryItem label="W Customermates">Lista Skargi i reklamacje powiązana z klientem, tablica statusów, zadania z terminami docelowymi i rozmowy na rekordzie klienta.</SummaryItem>
   <SummaryItem label="Poza zakresem">Brak helpdesku, silnika SLA dla zgłoszeń, portalu klienta, telefonii i certyfikatu ISO 10002.</SummaryItem>
@@ -50,16 +52,57 @@ Istnieje norma. [ISO 10002:2018](https://www.iso.org/standard/71580.html) podaje
 
 W języku potocznym oba słowa się nakładają. Różnica ma znaczenie, gdy klient chce naprawienia wady, bo reklamacja może mieć skutki prawne i terminy, jakich skarga nie ma. Stąd pytanie o reklamację a rękojmię: reklamacja to zgłoszenie wady, a rękojmia to ustawowa podstawa, na której zwykle się opiera.
 
-| | Skarga | Reklamacja (niem. Reklamation) |
+| | Skarga | Reklamacja z tytułu wady |
 | --- | --- | --- |
 | Co mówi klient | „To mnie nie zadowala.” | „To jest wadliwe, proszę to naprawić.” |
 | Czego chce klient | Odpowiedzi, wyjaśnienia, przeprosin, zmiany | Konkretnego środka: naprawy, wymiany, obniżenia ceny, zwrotu pieniędzy |
 | Strona prawna | Zwykle brak | Mogą mieć zastosowanie przepisy o rękojmi obowiązujące w danym kraju |
 | Co zapisać | Datę, kanał, słowa klienta, wynik | To samo, a do tego datę dostawy, datę zgłoszenia, numer zamówienia lub faktury i żądany środek |
 
-Niemcy ten podział uwidaczniają. Beschwerde (skarga) to każde wyrażenie niezadowolenia. Reklamation to zgłoszenie wady, zwykle w ramach ustawowej rękojmi (Gewährleistung). Jeśli towar jest wadliwy, [§ 437 niemieckiego Kodeksu cywilnego (BGB)](https://www.gesetze-im-internet.de/bgb/__437.html) pozwala kupującemu, na warunkach kolejnych przepisów, żądać dodatkowego świadczenia (Nacherfüllung), odstąpić od umowy lub obniżyć cenę oraz dochodzić odszkodowania. [§ 438 BGB](https://www.gesetze-im-internet.de/bgb/__438.html) ustala terminy przedawnienia, co do zasady dwa lata. Między przedsiębiorcami [§ 377 niemieckiego Kodeksu handlowego (HGB)](https://www.gesetze-im-internet.de/hgb/__377.html) dodaje, że towar należy niezwłocznie zbadać, a wady zgłosić. Przepisy różnią się w zależności od kraju, między konsumentami a firmami i według umowy, a to nie jest porada prawna.
+Dla firm, które sprzedają także do Niemiec, ten podział widać wyraźniej w niemieckim prawie. Beschwerde (skarga) to każde wyrażenie niezadowolenia. Reklamation to zgłoszenie wady, zwykle w ramach ustawowej rękojmi (Gewährleistung). Jeśli towar jest wadliwy, [§ 437 niemieckiego Kodeksu cywilnego (BGB)](https://www.gesetze-im-internet.de/bgb/__437.html) pozwala kupującemu, na warunkach kolejnych przepisów, żądać dodatkowego świadczenia (Nacherfüllung), odstąpić od umowy lub obniżyć cenę oraz dochodzić odszkodowania. [§ 438 BGB](https://www.gesetze-im-internet.de/bgb/__438.html) ustala terminy przedawnienia, co do zasady dwa lata. Między przedsiębiorcami [§ 377 niemieckiego Kodeksu handlowego (HGB)](https://www.gesetze-im-internet.de/hgb/__377.html) dodaje, że towar należy niezwłocznie zbadać, a wady zgłosić. Przepisy różnią się w zależności od kraju, między konsumentami a firmami i według umowy, a to nie jest porada prawna.
 
 Dla Twojego procesu wniosek jest praktyczny: zapisuj jedne i drugie na tej samej liście z polem Typ, ale reklamacje traktuj jako wrażliwe na czas i zachowuj każdą datę, bo od nich mogą biec terminy.
+
+## Reklamacja w Polsce: rękojmia, gwarancja i co może zażądać klient [#rekojmia-gwarancja-w-polsce]
+
+Poniżej ogólne wyjaśnienie dla sprzedawców w Polsce, a nie porada prawna ani wynik przeglądu źródeł z końca tej strony. Przepisy się zmieniają, więc sprawdź aktualny stan, na przykład w materiałach UOKiK albo u prawnika.
+
+| | Rękojmia | Gwarancja |
+| --- | --- | --- |
+| Kto odpowiada | Sprzedawca, z mocy prawa | Gwarant, często producent, na podstawie dobrowolnego oświadczenia |
+| Skąd wynika | Z przepisów, bez żadnego dokumentu | Z karty gwarancyjnej albo oświadczenia gwaranta |
+| Zakres | Wady towaru niezgodnego z umową | Taki, jaki określa gwarant |
+| Klient | Może z niej skorzystać także wtedy, gdy ma gwarancję | Wybiera, czy reklamować u sprzedawcy, czy u gwaranta |
+
+Co klient-konsument może zażądać z tytułu rękojmi: przede wszystkim naprawy albo wymiany towaru. Jeśli nie są możliwe, wymagają nadmiernych kosztów albo nie zostały wykonane w rozsądnym czasie, albo wada jest istotna, może zażądać obniżenia ceny albo odstąpić od umowy. Sprzedawca ponosi koszty naprawy lub wymiany. Przy sprzedaży konsumenckiej sprzedawca odpowiada zazwyczaj za wady, które ujawniły się w ciągu dwóch lat od wydania towaru.
+
+Reklamacja nie wymaga specjalnego formularza. Dobrze, gdy zawiera opis wady, datę zakupu i datę stwierdzenia wady, dane klienta, numer zamówienia lub faktury oraz to, czego klient oczekuje. Paragon nie jest jedynym dowodem zakupu: wystarczy też faktura, potwierdzenie płatności albo wpis w historii zamówień. Dlatego żądany środek i numer zamówienia warto zapisać już w rekordzie zgłoszenia, na przykład w polu Szczegóły.
+
+Dwa terminy warto znać na pamięć. Po pierwsze, w sprzedaży konsumenckiej przedsiębiorca ma 14 dni na ustosunkowanie się do reklamacji; brak odpowiedzi jest traktowany jak uznanie roszczenia. Po drugie, między firmami (B2B) umowa i warunki sprzedaży mogą zmieniać wiele z tych zasad, więc sprawdź je, zanim zaczniesz stosować terminy konsumenckie. W przypadku usług podstawą reklamacji jest zwykle umowa i jej opis rezultatu.
+
+## Co zrobić, gdy nie chcesz uznać reklamacji? [#nieuznana-reklamacja]
+
+Nie każda reklamacja jest zasadna: wada może wynikać z niewłaściwego używania, być znana klientowi przed zakupem albo nie wchodzić w zakres umowy. Odmowa jest jednak częścią obsługi i też potrzebuje procesu:
+
+1. **Odpowiedz w terminie.** Cisza jest najgorszą odpowiedzią, a w sprzedaży konsumenckiej może być uznana za uznanie reklamacji.
+2. **Napisz, co ustalono.** Podaj fakty: co zostało sprawdzone, na jakiej podstawie i co z tego wynika. Unikaj sformułowań w stylu „taka jest polityka firmy”.
+3. **Wskaż przepis albo postanowienie umowy.** Krótko, bez żargonu prawniczego, tak, żeby klient zrozumiał, dlaczego odpowiedź jest taka, a nie inna.
+4. **Zaproponuj, co możesz zrobić.** Płatna naprawa, rabat na nowy produkt albo wsparcie w kontakcie z gwarantem. Alternatywa pokazuje, że nie bronisz się tylko przed klientem.
+5. **Poinformuj o kolejnych krokach.** Klient może się nie zgodzić. W sprawach konsumenckich ma do dyspozycji między innymi powiatowego lub miejskiego rzecznika konsumentów, mediację i postępowanie sądowe. Lepiej powiedzieć o tym samemu, niż żeby klient dowiedział się z internetu.
+6. **Zapisz decyzję i jej uzasadnienie w rekordzie.** Gdy sprawa wróci, zobaczysz, co klient dostał i kiedy.
+
+Jeśli klient grozi krokami prawnymi albo sprawa dotyczy bezpieczeństwa, to według tabeli triażu poniżej przypadek dla zarządu, a nie dla osoby z pierwszej linii.
+
+## Jak rozmawiać z klientem: empatia, przeprosiny i rozwiązanie [#rozmowa-z-klientem]
+
+Dobra odpowiedź na reklamację ma cztery elementy, w tej kolejności:
+
+1. **Podziękowanie i potwierdzenie.** „Dziękuję za zgłoszenie. Dotarło do mnie dziś i zajmuję się nim osobiście.” Klient wie, że ktoś jest odpowiedzialny.
+2. **Zrozumienie i krótkie przeprosiny.** Powtórz problem własnymi słowami i przeproś za niedogodność, jeśli wina leży po twojej stronie. Jedno szczere zdanie działa lepiej niż trzy akapity.
+3. **Rozwiązanie albo jasny następny krok z datą.** „Wymienię produkt do piątku” albo „Sprawdzę to z dostawcą i odpiszę do środy”.
+4. **Pytanie zamykające.** „Czy takie rozwiązanie będzie dla Pana odpowiednie?” Dzięki temu wiesz, czy zgłoszenie można zamknąć.
+
+Zwroty, których lepiej unikać: „to nie nasza wina”, „klient powinien był przeczytać instrukcję”, „takie są zasady” i „nic nie możemy zrobić”. Zamiast nich opisz, co możesz zrobić, nawet jeśli to niewiele. Nie wszystko, czego żąda klient, musisz spełnić, ale na wszystko należy mu się odpowiedź. Dobrze obsłużona reklamacja to też okazja do wzmocnienia relacji, o czym więcej w poradniku o [retencji klientów](/blog/existing-customers).
 
 ## Jak przeprowadzić triaż zgłoszeń i ustalić, kto jest ich właścicielem?
 
@@ -75,7 +118,7 @@ Triaż sortuje zgłoszenia według typu i wagi, żeby właściwa osoba odpowiedz
 
 Potraktuj wagi jako punkt wyjścia: Krytyczna to zagrożenie bezpieczeństwa, kwestia prawna lub ochrony danych albo zagrożony kluczowy klient; Wysoka oznacza, że klient nie może pracować albo nie dotrzymano obiecanego terminu; Normalna to problem z obejściem; Niska to sugestia lub drobna uciążliwość.
 
-Powyższe cele odpowiedzi to przykłady dla małego zespołu B2B, a nie norma ani wymóg prawny. Czas pierwszej odpowiedzi ustalasz sam: wybierz cele, których możesz dotrzymać, zapisz je i sprawdzaj z prawdziwymi datami. Sektory regulowane, takie jak usługi finansowe i ochrona zdrowia, mogą mieć własne przepisy i terminy dotyczące obsługi skarg i reklamacji; sprawdź je dla swojego sektora.
+Powyższe cele odpowiedzi to przykłady dla małego zespołu B2B, a nie norma ani wymóg prawny. W sprzedaży konsumenckiej w Polsce obowiązuje ustawowy termin 14 dni na ustosunkowanie się do reklamacji, więc cel pierwszej odpowiedzi ustaw znacznie krócej. Czas pierwszej odpowiedzi ustalasz sam: wybierz cele, których możesz dotrzymać, zapisz je i sprawdzaj z prawdziwymi datami. Sektory regulowane, takie jak usługi finansowe i ochrona zdrowia, mogą mieć własne przepisy i terminy dotyczące obsługi skarg i reklamacji; sprawdź je dla swojego sektora.
 
 ## Jakie są etapy procesu reklamacji?
 
@@ -154,11 +197,31 @@ Modele pięcioetapowe zwykle mówią: potwierdź, zrozum, rozwiąż, sprawdź po
 </FaqItem>
 
 <FaqItem question="Czym różni się skarga od reklamacji?">
-Skarga wyraża niezadowolenie. Reklamacja żąda naprawienia wady, na przykład naprawy, wymiany albo obniżenia ceny, a mogą mieć zastosowanie ustawowe przepisy o rękojmi. Po niemiecku to Beschwerde i Reklamation. Zapisuj obie i zachowuj daty reklamacji.
+Skarga wyraża niezadowolenie. Reklamacja żąda naprawienia wady, na przykład naprawy, wymiany albo obniżenia ceny, a mogą mieć zastosowanie ustawowe przepisy o rękojmi. W Polsce obie nazywa się zwykle reklamacją, ale skutki prawne ma tylko ta, która dotyczy wady. Zapisuj obie i zachowuj daty reklamacji.
 </FaqItem>
 
 <FaqItem question="Jak szybko odpowiedzieć na reklamację?">
-Cel pierwszej odpowiedzi ustalasz sam, dla każdego typu zgłoszenia: wpisz go do tabeli triażu i sprawdzaj z prawdziwymi datami. Sektory regulowane i poszczególne umowy mogą dodawać własne terminy.
+Cel pierwszej odpowiedzi ustalasz sam, dla każdego typu zgłoszenia: wpisz go do tabeli triażu i sprawdzaj z prawdziwymi datami. W sprzedaży konsumenckiej w Polsce na ustosunkowanie się do reklamacji jest 14 dni, więc potwierdzenie i decyzja powinny wyjść wcześniej. Sektory regulowane i poszczególne umowy mogą dodawać własne terminy.
+</FaqItem>
+
+<FaqItem question="Jak przebiega proces reklamacji?">
+Klient zgłasza wadę lub problem, sprzedawca potwierdza przyjęcie, sprawdza przyczynę i odpowiada w terminie: uznaje reklamację i proponuje naprawę, wymianę, obniżkę ceny lub zwrot albo odmawia z uzasadnieniem. Potem sprawdza, czy klient akceptuje rozwiązanie, i zamyka zgłoszenie. Ten poradnik rozbija to na siedem etapów.
+</FaqItem>
+
+<FaqItem question="Co można żądać w ramach reklamacji?">
+Konsument z tytułu rękojmi może żądać przede wszystkim naprawy albo wymiany towaru. Gdy to niemożliwe, zbyt kosztowne albo niewykonane w rozsądnym czasie, albo wada jest istotna, może żądać obniżenia ceny lub odstąpić od umowy. Przy gwarancji zakres wynika z oświadczenia gwaranta. To ogólne wyjaśnienie, a nie porada prawna.
+</FaqItem>
+
+<FaqItem question="Co jest potrzebne do złożenia reklamacji?">
+Reklamacja nie wymaga specjalnego formularza. Dobrze, gdy zawiera opis wady, datę zakupu i datę jej stwierdzenia, dane klienta, numer zamówienia lub faktury, dowód zakupu (nie tylko paragon) i oczekiwany sposób rozwiązania.
+</FaqItem>
+
+<FaqItem question="Co zrobić, gdy nie chcę uznać reklamacji?">
+Odpowiedz w terminie, napisz, co ustalono i na jakiej podstawie odmawiasz, zaproponuj to, co możesz zrobić, i poinformuj klienta o kolejnych krokach. Brak odpowiedzi w sprzedaży konsumenckiej może być potraktowany jak uznanie reklamacji.
+</FaqItem>
+
+<FaqItem question="Czym różni się rękojmia od gwarancji?">
+Rękojmia wynika z przepisów i obciąża sprzedawcę, a gwarancja jest dobrowolnym oświadczeniem gwaranta, często producenta, o określonym zakresie. Klient może wybrać, u kogo reklamuje towar, a gwarancja nie zastępuje rękojmi.
 </FaqItem>
 
 <FaqItem question="Czy istnieje norma dotycząca obsługi reklamacji?">

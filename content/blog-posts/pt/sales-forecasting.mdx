@@ -1,6 +1,6 @@
 ---
-title: "Forecast de vendas: métodos, fórmulas e exemplo prático"
-description: "Forecast de vendas estima a receita que o time vai ganhar em um período. Pipeline ponderado, taxa de ganho e run-rate num exemplo prático, com campos do CRM."
+title: "Forecast de vendas: o que é, como calcular e exemplo"
+description: "Forecast de vendas: o que é e como calcular. Pipeline ponderado, taxa de ganho e run-rate em um exemplo de 8 negócios, com fórmulas de planilha."
 
 relatedHrefs:
   - /blog/sales-pipeline
@@ -50,6 +50,8 @@ O livro de previsão de Rob J Hyndman e George Athanasopoulos diz o mesmo: preve
 | Meta | O que queremos ganhar neste trimestre? | 110.000 |
 | Plano | O que fazemos a respeito da diferença? | Nova prospecção e um esforço para antecipar um negócio grande |
 
+**Forecast, forecasting e previsão de vendas.** *Forecast* é a previsão em si, o número; *forecasting* é o processo de produzi-la e revisá-la ao longo do período. No dia a dia de vendas no Brasil, as duas palavras são usadas como sinônimos, e "previsão de vendas" é o equivalente em português. Já o *budget* (orçamento) é o plano financeiro fixado no começo do ano e raramente muda; o forecast é revisto durante o ano e mostra quanto do orçamento você está a caminho de cumprir.
+
 **O que o forecast conta.** Este guia faz o forecast do valor dos negócios ganhos: o valor dos negócios que você ganha no período, informado sem impostos e em uma única moeda. Não é receita reconhecida nem receita faturada. Essas seguem regras contábeis e datas de fatura, e um registro de negócio no CRM não as substitui.
 
 ## Quais são os 7 passos da previsão de vendas?
@@ -71,7 +73,7 @@ Não existe uma lista padrão de sete. O livro citado acima nomeia cinco passos 
 Aqui está um que você refaz em uma planilha em dez minutos. Todos os números são inventados. As premissas:
 
 - O forecast é feito em 9 de novembro de 2026 para o trimestre que termina em 31 de dezembro de 2026.
-- O valor é o valor total do contrato, sem impostos, em dólares.
+- O valor é o valor total do contrato, sem impostos, em reais.
 - As probabilidades das etapas são Qualificação 20%, Demo 40%, Proposta 60% e Negociação 80%: os valores iniciais do nosso [guia de pipeline de vendas](/blog/sales-pipeline). Troque-os pelos seus assim que puder.
 - 38.000 já foram ganhos neste trimestre. A meta é 110.000.
 - Só contam os negócios cuja data de fechamento prevista cai dentro do trimestre.
@@ -115,6 +117,7 @@ Não existe um melhor modelo, só o que se encaixa nos dados que você tem. Este
 | Pipeline ponderado | Ganho até agora + valor × probabilidade da etapa, para os negócios com vencimento no período | Probabilidades das etapas e datas de fechamento previstas | As probabilidades são chutes até serem calibradas; poucos negócios grandes dominam |
 | Taxa de ganho × pipeline | Ganho até agora + valor em aberto com vencimento no período × taxa de ganho por valor | Cerca de um ano de negócios ganhos e perdidos | Trata um negócio de primeira call e um em negociação do mesmo jeito |
 | Run-rate histórico | Valor médio ganho nos últimos quatro períodos | Quatro ou mais períodos comparáveis | Cego ao pipeline atual e ao crescimento |
+| Ticket médio × negócios esperados | Número de negócios que você espera ganhar no período × o ticket médio dos negócios ganhos | Ticket médio e taxa de conversão estáveis | Ignora o tamanho de cada negócio aberto |
 | Modelos estatísticos (séries temporais, regressão) | Ajustados por software aos resultados passados | Muitos períodos de histórico estável | A maioria dos times pequenos fecha poucos negócios para ajustar um |
 
 Para comparar os quatro primeiros no exemplo, acrescente mais dois fatos inventados. Nos últimos doze meses o time ganhou 360.000 e perdeu 540.000 em valor, uma taxa de ganho de 360.000 ÷ (360.000 + 540.000) = 40%. Nos últimos quatro trimestres, ganhou 78.000, 88.000, 99.000 e 95.000.
@@ -153,6 +156,28 @@ O capítulo do livro sobre [previsões por julgamento](https://otexts.com/fpp3/j
 - **Mantenha as datas de fechamento honestas.** Um negócio cuja data de fechamento prevista está no passado não entra no forecast deste período até alguém dar uma nova data. Mude as datas quando os compradores escorregarem e conte com que frequência isso acontece.
 - **Observe a concentração.** Liste os três maiores negócios ao lado do total. Se um negócio é um quinto do número, diga isso.
 - **Revise toda semana.** A revisão de 30 minutos do [guia de pipeline de vendas](/blog/sales-pipeline) também é onde as datas de fechamento e os próximos passos são corrigidos.
+
+## Quais são os erros mais comuns no forecast de vendas? [#erros-comuns-forecast]
+
+Quase todo forecast ruim vem de um destes cinco erros:
+
+1. **Misturar forecast e meta.** O número é puxado para a meta e deixa de ser uma estimativa. Se a meta é 110.000 e o forecast é 94.400, escreva as duas coisas.
+2. **Partir de suposições em vez de histórico.** Probabilidades "de cabeça" servem no começo, mas precisam ser trocadas pelos seus resultados reais assim que você tiver negócios encerrados suficientes.
+3. **Manter negócios parados e datas vencidas.** Um negócio sem contato há semanas e com a data de fechamento no passado infla o número sem que ninguém perceba.
+4. **Ignorar o ponto de vista do comprador.** Uma etapa só avançou de verdade quando o comprador fez algo (marcou uma reunião, pediu a proposta, trouxe quem decide), não quando o vendedor mandou uma mensagem.
+5. **Esquecer a sazonalidade e os fatores externos.** No Brasil, o calendário pesa: o Carnaval, as férias de julho e de fim de ano, a Black Friday e o Natal mudam o ritmo de decisão de muitos compradores, e o varejo e os serviços sentem isso de forma diferente. Compare o trimestre com o mesmo trimestre do ano anterior, não só com o anterior.
+
+Um sexto erro é o de processo: não comparar o forecast com o real. Sem essa conta, o erro se repete trimestre após trimestre.
+
+## Como conduzir uma reunião de forecast? [#reuniao-de-forecast]
+
+Um forecast fica melhor quando é discutido em voz alta, com os números na mesma tela. Uma reunião semanal de 30 minutos basta para um time pequeno:
+
+- **Prepare antes.** Cada responsável atualiza etapa, valor, data de fechamento prevista e próximo passo dos seus negócios antes da reunião, não durante.
+- **Comece pelos maiores negócios.** Eles movem o número; os pequenos ficam para a revisão do [pipeline de vendas](/blog/sales-pipeline).
+- **Para cada negócio, pergunte o que mudou.** Houve um fato novo desde a última semana? Se não houve, a data de fechamento prevista provavelmente está otimista.
+- **Registre as decisões.** Quem corrige o quê e até quando, e qual é o forecast depois das correções.
+- **Salve o número.** O retrato da semana é o que você vai comparar com o resultado no fim do período.
 
 ## Quais campos do CRM um negócio precisa para o forecast de vendas?
 
@@ -208,6 +233,18 @@ Multiplique o valor de cada negócio aberto pela probabilidade da sua etapa, som
 
 <FaqItem question="Qual é o melhor modelo para a previsão de vendas?">
 Nenhum serve para todos os times. Um pipeline ponderado funciona para times pequenos com regras de etapa e datas de fechamento. A taxa de ganho e o run-rate precisam de um histórico de negócios encerrados. Os modelos estatísticos precisam de muitos períodos de resultados estáveis. Calcule pelo menos dois e publique uma faixa.
+</FaqItem>
+
+<FaqItem question="Qual é a diferença entre forecast e forecasting?">
+Forecast é a previsão em si, o número que você publica. Forecasting é o processo de produzi-la: limpar o pipeline, calcular, publicar uma faixa e comparar depois com o resultado real. Em vendas, as duas palavras costumam ser usadas como sinônimos.
+</FaqItem>
+
+<FaqItem question="Como montar um forecast de vendas?">
+Defina o período, limpe o pipeline, confira valor, etapa, data de fechamento prevista e responsável em cada negócio, defina as probabilidades das etapas a partir do seu histórico, calcule o pipeline ponderado e uma conferência por taxa de ganho ou run-rate, e publique uma faixa em vez de um único número. Os sete passos acima detalham cada etapa, e a seção com o exemplo de oito negócios mostra a conta completa.
+</FaqItem>
+
+<FaqItem question="Quais são as 7 etapas de vendas?">
+Uma divisão clássica do processo de vendas tem sete etapas: prospecção, preparação, abordagem, apresentação, tratamento de objeções, fechamento e pós-venda. Elas não são os sete passos do forecast, mas alimentam o pipeline: o forecast conta os negócios nas etapas do seu funil, e o guia sobre o [pipeline de vendas](/blog/sales-pipeline) mostra como definir cada etapa com uma condição de entrada.
 </FaqItem>
 
 <FaqItem question="Qual é a diferença entre um forecast de vendas e uma meta de vendas?">

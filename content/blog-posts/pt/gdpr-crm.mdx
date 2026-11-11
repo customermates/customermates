@@ -1,6 +1,6 @@
 ---
 title: "LGPD CRM: o que verificar antes de guardar dados de clientes"
-description: "LGPD CRM: o que o GDPR europeu pede de um CRM, em checklist: base legal, DPA, suboperadores, exclusão, local dos dados e o que o Customermates informa."
+description: "LGPD CRM: checklist de base legal, contrato com o fornecedor, suboperadores, exclusão e local dos dados, com o GDPR como referência e a LGPD em comparação."
 
 relatedHrefs:
   - /blog/how-to-choose-crm
@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "LGPD CRM: o que verificar antes de guardar dados de clientes"
-  description: "LGPD CRM: o que o GDPR europeu pede de um CRM, em checklist: base legal, DPA, suboperadores, exclusão, local dos dados e o que o Customermates informa."
+  description: "LGPD CRM: checklist de base legal, contrato com o fornecedor, suboperadores, exclusão e local dos dados, com o GDPR como referência e a LGPD em comparação."
 
 blogPost:
   author: Benjamin Wagner
@@ -27,9 +27,9 @@ blogPost:
 
 # LGPD CRM: o que verificar antes de guardar dados de clientes
 
-Um "LGPD CRM" não é um produto com selo. É um CRM mais os contratos, as configurações e os hábitos que permitem cumprir as suas próprias obrigações previstas no GDPR, e essas obrigações recaem sobre você como controlador: uma base legal para cada uso de dados pessoais, um contrato de tratamento de dados (DPA) com o fornecedor que os guarda, respostas para quem pergunta o que você tem sobre essa pessoa e a exclusão dos dados quando você não precisa mais deles. O fornecedor de um CRM pode facilitar ou dificultar isso, mas nenhum CRM deixa você em conformidade por conta própria.
+Um "LGPD CRM" não é um produto com selo. É um CRM mais os contratos, as configurações e os hábitos que permitem cumprir as suas próprias obrigações de proteção de dados, e essas obrigações recaem sobre você como controlador: uma base legal para cada uso de dados pessoais, um contrato com o fornecedor que os guarda (no GDPR, o contrato de tratamento de dados, ou DPA), respostas para quem pergunta o que você tem sobre essa pessoa e a exclusão dos dados quando você não precisa mais deles. O fornecedor de um CRM pode facilitar ou dificultar isso, mas nenhum CRM deixa você em conformidade por conta própria.
 
-Este guia trata do GDPR, a lei europeia de proteção de dados, e não da LGPD: a LGPD é a lei brasileira e tem regras próprias que esta página não cobre. Se a sua pergunta é sobre CRM e LGPD, leve-a ao seu advogado ou ao seu encarregado de proteção de dados. O guia lista as obrigações que importam para um CRM com os números dos artigos, mostra o que verificar no contrato e na lista de suboperadores de qualquer fornecedor, percorre um pedido de acesso e um de exclusão e diz onde o Customermates se posiciona, inclusive o que ele não afirma. O Customermates publica o guia e aparece em seções identificadas. São informações gerais, não aconselhamento jurídico: consulte um advogado ou o seu encarregado de proteção de dados (DPO) sobre o seu caso. As fontes da legislação da UE e as páginas legais do Customermates foram verificadas em 11 de novembro de 2026; as páginas legais mudam, então leia o [contrato de tratamento de dados (DPA)](/dpa) e a [lista de suboperadores](/subprocessors) atuais antes de confiar nesta página.
+Este guia usa o GDPR, a lei europeia de proteção de dados, como referência detalhada, com os números dos artigos, porque é nele que se apoiam o fornecedor e os documentos legais citados aqui. A LGPD, a lei brasileira, segue uma lógica parecida, e uma seção compara as duas em linhas gerais; ela não substitui o texto da lei nem os regulamentos da ANPD, e as regras que dependem do seu caso devem ir ao seu advogado ou ao seu encarregado de proteção de dados. O guia lista as obrigações que importam para um CRM com os números dos artigos, mostra o que verificar no contrato e na lista de suboperadores de qualquer fornecedor, percorre um pedido de acesso e um de exclusão e diz onde o Customermates se posiciona, inclusive o que ele não afirma. O Customermates publica o guia e aparece em seções identificadas. São informações gerais, não aconselhamento jurídico: consulte um advogado ou o seu encarregado de proteção de dados (DPO) sobre o seu caso. As fontes da legislação da UE e as páginas legais do Customermates foram verificadas em 11 de novembro de 2026; as páginas legais mudam, então leia o [contrato de tratamento de dados (DPA)](/dpa) e a [lista de suboperadores](/subprocessors) atuais antes de confiar nesta página.
 
 <ArticleSummary title="Em resumo">
   <SummaryItem label="A regra">Você é o controlador dos dados pessoais no seu CRM, e o fornecedor do CRM é o seu operador. O GDPR torna você responsável pela base legal, pelo contrato e pelos pedidos, não o software.</SummaryItem>
@@ -58,6 +58,29 @@ O GDPR (Regulamento (UE) 2016/679, [texto no EUR-Lex](https://eur-lex.europa.eu/
 | Registro das atividades de tratamento | Art. 30 | Um registro escrito das suas atividades de tratamento. A isenção para organizações com menos de 250 pessoas não vale para tratamentos que não sejam ocasionais (Art. 30(5)), então um CRM em uso regular costuma estar coberto. |
 
 A página da Comissão Europeia sobre os [princípios do GDPR](https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/principles-gdpr_en) traz a versão em linguagem simples, e as [Diretrizes 07/2020](https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-072020-concepts-controller-and-processor-gdpr_en) do Comitê Europeu para a Proteção de Dados explicam em detalhe os papéis de controlador e operador. Um [banco de dados de CRM](/blog/crm-database) pensado com essas obrigações começa com menos campos e responsáveis claros.
+
+## LGPD e GDPR: o que muda para quem usa um CRM no Brasil [#lgpd-x-gdpr]
+
+A LGPD (Lei Geral de Proteção de Dados) vale para o tratamento de dados pessoais de pessoas naturais no Brasil, o que inclui os contatos das empresas que você guarda num CRM: nome, e-mail, telefone, cargo e conversas. A autoridade que fiscaliza é a ANPD (Autoridade Nacional de Proteção de Dados). A comparação abaixo é geral; confira o texto atual da lei e os regulamentos da ANPD antes de decidir.
+
+| Tema | GDPR (UE) | LGPD (Brasil) | O que fazer no CRM |
+| --- | --- | --- | --- |
+| Papéis | Controlador e operador (Art. 4) | Controlador, operador e encarregado (Art. 5 e Art. 41) | Você é o controlador; o fornecedor do CRM costuma ser o operador |
+| Base legal | Seis bases (Art. 6) | Dez hipóteses (Art. 7); em um CRM, costumam ser execução de contrato, legítimo interesse e consentimento | Escreva a base de cada lista; no legítimo interesse, registre a ponderação |
+| Princípios | Art. 5 | Art. 6: finalidade, adequação, necessidade, qualidade dos dados, transparência, segurança, responsabilização e prestação de contas, entre outros | Colete só os campos de que precisa e registre por escrito as suas decisões |
+| Direitos do titular | Arts. 15 a 21 | Art. 18: confirmação, acesso, correção, eliminação, portabilidade e informação sobre o compartilhamento, entre outros | Tenha um jeito de achar, corrigir, exportar e excluir os dados de uma pessoa |
+| Prazo de resposta | Um mês (Art. 12(3)) | Art. 19: confirmação e acesso em formato simplificado imediatamente, ou declaração completa em até 15 dias | Registre a data do pedido e responda dentro do prazo mais curto que se aplica a você |
+| Incidente de segurança | Autoridade em até 72 horas, sempre que possível (Art. 33) | ANPD e titular em prazo razoável (Art. 48), conforme o regulamento da ANPD | Combine com o fornecedor como e quando ele avisa você |
+| Transferência internacional | Arts. 44 a 46 | Arts. 33 a 36; hipóteses como país com proteção adequada e cláusulas contratuais, entre outras | Leia a lista de suboperadores: provedores nos EUA são uma transferência |
+| Registro e segurança | Arts. 30 e 32 | Art. 37 (registro das operações) e Art. 46 (medidas de segurança) | Mantenha o registro das suas operações e o controle de acesso |
+
+Três consequências práticas para quem busca "CRM e LGPD":
+
+- **O checklist deste guia serve para os dois.** Base legal, contrato com o fornecedor, lista de suboperadores, acesso restrito, exclusão e retenção são perguntas que você faz de qualquer jeito.
+- **A LGPD não exige que os dados fiquem no Brasil.** Ela regula a transferência internacional (Arts. 33 a 36), então um servidor no exterior não é proibido, mas pede que você saiba para onde os dados vão e com qual garantia.
+- **O encarregado depende do seu porte.** A lei prevê a indicação de um encarregado (Art. 41), e a ANPD tem regras próprias para agentes de tratamento de pequeno porte; confirme com o seu advogado se o seu caso se enquadra.
+
+O DPA e as páginas legais do Customermates seguem o GDPR. Se você precisa de uma cláusula específica da LGPD no contrato com o fornecedor, peça por escrito e leia a resposta junto com a lista de suboperadores.
 
 ## Existe um CRM compatível com a LGPD e com o GDPR?
 
@@ -166,9 +189,18 @@ A hospedagem própria muda quem é responsável. O núcleo AGPL roda com Docker 
 
 Para conferir os pontos acima com o seu próprio caso, leia primeiro o DPA e a lista de suboperadores e depois [comece seu teste de [[commercial.trial.days]] dias](/auth/signup?job=followup): Pro, sem cartão de crédito. Importe alguns registros de teste antes dos dados reais de clientes e percorra uma vez os passos do pedido de acesso.
 
-## Perguntas comuns sobre o GDPR e um CRM
+## Perguntas comuns sobre a LGPD, o GDPR e um CRM
 
 <Faq>
+<FaqItem question="A LGPD se aplica ao meu CRM?">
+Em geral, sim, se o CRM guarda dados pessoais de pessoas naturais no Brasil, como nome, e-mail, telefone e cargo dos contatos dos seus clientes, mesmo quando eles são B2B. A empresa que decide por que e como os dados são usados é a controladora, e o fornecedor do CRM costuma ser o operador.
+</FaqItem>
+<FaqItem question="A LGPD exige que os dados do CRM fiquem em servidores no Brasil?">
+Não. A LGPD não obriga a guardar os dados no Brasil. Ela regula a transferência internacional (Arts. 33 a 36), então você precisa saber para onde os dados vão e com qual garantia. Peça a lista de suboperadores do fornecedor.
+</FaqItem>
+<FaqItem question="Preciso de um encarregado (DPO) para usar um CRM?">
+A LGPD prevê que o controlador indique um encarregado (Art. 41), e a ANPD tem regras próprias para agentes de tratamento de pequeno porte. Se o seu caso se enquadra depende do seu tamanho e do tipo de tratamento, então confirme com o seu advogado.
+</FaqItem>
 <FaqItem question="O GDPR exige que um CRM seja hospedado na UE?">
 Não. O GDPR não prescreve um local de hospedagem. Ele permite transferências para países fora do EEE só com uma decisão de adequação ou com garantias apropriadas, como cláusulas contratuais padrão (Arts. 44 a 46). Hospedar em uma região da UE reduz a questão da transferência, mas você ainda precisa verificar cada provedor da cadeia.
 </FaqItem>

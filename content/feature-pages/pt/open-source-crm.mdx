@@ -1,6 +1,6 @@
 ---
-title: "CRM open source gratuito: na nuvem ou auto-hospedado"
-description: "CRM open source gratuito com núcleo AGPL: teste a nuvem gerenciada por [[commercial.trial.days]] dias, sem cartão, ou auto-hospede com Docker Compose e PostgreSQL 16."
+title: "CRM open source gratuito: o que é, prós e contras"
+description: "CRM open source gratuito: o que é, prós e contras e como começar. Auto-hospede o núcleo AGPL com Docker Compose ou teste o Pro na nuvem, sem cartão."
 featureName: CRM open source
 
 acquisition:
@@ -10,8 +10,8 @@ acquisition:
   role: support
   primaryIntent: Usar um CRM open source gratuito, na nuvem ou auto-hospedado
   metadata:
-    title: "CRM open source gratuito: na nuvem ou auto-hospedado"
-    description: "CRM open source gratuito com núcleo AGPL: teste a nuvem gerenciada por [[commercial.trial.days]] dias, sem cartão, ou auto-hospede com Docker Compose e PostgreSQL 16."
+    title: "CRM open source gratuito: o que é, prós e contras"
+    description: "CRM open source gratuito: o que é, prós e contras e como começar. Auto-hospede o núcleo AGPL com Docker Compose ou teste o Pro na nuvem, sem cartão."
   proof:
     factReferences:
       - product:agpl-community-core
@@ -118,6 +118,29 @@ cta:
   <ProofItem label="Clientes de IA">Claude, ChatGPT ou outros clientes MCP</ProofItem>
 </ProofRail>
 
+## O que é um CRM open source? [#o-que-e-um-crm-open-source]
+
+Um CRM open source, ou CRM de código aberto, é um sistema de relacionamento com clientes cujo código-fonte é público e licenciado de modo que qualquer pessoa pode inspecioná-lo e, dentro dos termos da licença, modificá-lo e hospedá-lo. Isso é diferente de “gratuito”: código aberto descreve a licença, e o preço depende de quem opera o software. Auto-hospedar um CRM open source não tem custo de licença, mas você paga pela infraestrutura e pelo tempo de operação; uma versão na nuvem gerenciada cobra justamente por essa operação.
+
+## Quais são os prós e contras de um CRM open source? [#pros-e-contras-do-crm-open-source]
+
+**Prós**
+
+- **Transparência.** Você (ou alguém de confiança) pode ler o código e conferir como os dados dos clientes são tratados.
+- **Menos dependência de um fornecedor.** Com o código e a API abertos, é possível levar os dados e a instalação para outro lugar.
+- **Controle sobre onde os dados rodam.** Auto-hospedado, o banco de dados fica na infraestrutura que a sua equipe escolhe.
+- **Sem custo de licença ao auto-hospedar.** Isso conta para quem tem poucos usuários e alguém capaz de operar o servidor.
+- **Adaptação.** Campos, listas, REST e webhooks permitem ajustar o CRM ao seu processo sem esperar o fornecedor.
+
+**Contras**
+
+- **Operação por sua conta.** Atualizações, backups, TLS e monitoramento passam a ser seus, e restaurar um backup precisa ser testado antes do dia em que se precisa dele.
+- **Suporte e recursos variam.** Em muitos projetos, parte do suporte e dos recursos avançados é comunitária ou paga; confira o que cada edição inclui.
+- **Obrigações da licença.** A AGPL traz regras para quem modifica o código e o oferece a outras pessoas. Leia a licença antes de redistribuir ou de oferecer uma versão modificada.
+- **Integrações menos prontas.** Um CRM open source pequeno costuma ter menos conectores prontos; no Customermates, as integrações passam por API, webhooks, MCP e n8n.
+
+No Customermates, você escolhe: o mesmo núcleo open source na nuvem gerenciada, sem operar nada, ou auto-hospedado, com o controle (e o trabalho) na sua equipe. A tabela a seguir compara os dois caminhos.
+
 ## O que há de código aberto no Customermates?
 
 O código próprio fora de `ee/` é licenciado somente sob a AGPL-3.0. O código em `ee/` usa a Licença Comercial do Customermates, exceto o material que a Seção 6 de `ee/LICENSE.md` mantém sob a AGPL-3.0: as partes entregues ao navegador (imagens, fontes, CSS e JavaScript do lado do cliente).
@@ -165,6 +188,22 @@ Se você está comparando vários CRMs de código aberto lado a lado, a nossa [c
 ## Perguntas frequentes
 
 <Faq>
+<FaqItem question="O que é um CRM open source?">
+É um CRM cujo código-fonte é público, com uma licença que permite inspecionar, modificar e hospedar o software dentro dos termos dela. Veja a [definição](#o-que-e-um-crm-open-source) e os [prós e contras](#pros-e-contras-do-crm-open-source) no início da página.
+</FaqItem>
+
+<FaqItem question="Quais são as vantagens e desvantagens de um CRM open source?">
+Entre as vantagens estão a transparência do código, a menor dependência de um fornecedor, o controle sobre onde os dados rodam e a ausência de custo de licença ao auto-hospedar. Entre as desvantagens estão a operação por sua conta (atualizações, backups, segurança), o suporte que pode ser comunitário e as obrigações da licença. Os detalhes estão em [prós e contras](#pros-e-contras-do-crm-open-source).
+</FaqItem>
+
+<FaqItem question="Existe um CRM gratuito e open source para uma equipe pequena?">
+Sim, de duas formas. Você pode auto-hospedar o núcleo AGPL do Customermates, sem cobrança do Customermates, com o conjunto de recursos do Starter e sem caixa de entrada nem Mate. Ou pode usar a nuvem gerenciada: o primeiro espaço de trabalho começa com o teste do Pro e depois passa para o plano Free, para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, se você não escolher um plano pago.
+</FaqItem>
+
+<FaqItem question="Qual é o melhor CRM open source?">
+Depende do que você precisa: do tamanho da equipe, de quanto quer operar sozinho, das integrações e da licença. Compare pelos critérios de licença, implantação e esforço de operação no nosso [guia de CRMs open source](/blog/open-source-crm) e nas comparações diretas com [SuiteCRM](/compare/suitecrm-alternative), [EspoCRM](/compare/espocrm-alternative) e [Twenty](/compare/twenty-alternative).
+</FaqItem>
+
 <FaqItem question="O Customermates é um CRM open source gratuito?">
 Auto-hospedado, o Customermates não cobra nada; você paga apenas pela sua própria infraestrutura, pelos seus provedores e pelo tempo de operação. A nuvem gerenciada custa a partir de [[commercial.price.starter.monthly]] por usuário por mês, cobrado mensalmente, e começa com um teste gratuito de [[commercial.trial.days]] dias.
 </FaqItem>

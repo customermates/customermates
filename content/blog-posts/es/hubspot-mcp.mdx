@@ -1,6 +1,6 @@
 ---
-title: "Servidor MCP de HubSpot: configuración, acceso y límites"
-description: "Cómo funciona el servidor MCP de HubSpot: conectores de Claude y ChatGPT, conector MCP para otros clientes, servidor para desarrolladores y sus límites."
+title: "HubSpot MCP: qué es, cómo conectarlo y qué límites tiene"
+description: "HubSpot MCP explicado: qué es, cómo conectarlo a Claude o ChatGPT, qué lee y escribe, la ruta para desarrolladores y los límites que documenta HubSpot."
 
 hero:
   title: "Servidor MCP de HubSpot: qué ruta usar, qué puede hacer y dónde se detiene"
@@ -53,6 +53,12 @@ Aviso: Customermates, un CRM de código abierto con su propio servidor MCP, publ
     algunas herramientas exigen hubs de pago.
   </SummaryItem>
 </ArticleSummary>
+
+## Qué es MCP y qué hace un servidor MCP [#que-es-mcp]
+
+MCP (Model Context Protocol, «protocolo de contexto de modelo») es un estándar abierto que define cómo un cliente de IA, como Claude o ChatGPT, se conecta a una aplicación externa. Un servidor MCP es el lado de la aplicación: publica una lista de herramientas (buscar contactos, leer una oportunidad, registrar una nota) y ejecuta las que el cliente le pide. Sin un estándar común, cada combinación de cliente y aplicación necesitaría su propia integración a medida. Si quieres la explicación completa, está en [qué es un servidor MCP](/blog/what-is-an-mcp-server).
+
+Aplicado a HubSpot, significa que puedes preguntarle a tu asistente de IA «¿qué oportunidades abiertas llevan 14 días sin actividad?» y la respuesta sale de tu cuenta, sin exportar nada ni copiar datos a otra herramienta. El asistente no ve más de lo que ve la persona que ha iniciado sesión: las llamadas se ejecutan con sus permisos de HubSpot.
 
 ## Elige primero tu ruta
 
@@ -151,6 +157,14 @@ Customermates no es la opción adecuada si dependes de las herramientas de marke
 ## Preguntas frecuentes
 
 <Faq>
+<FaqItem question="¿Qué es un MCP y qué hace un servidor MCP?">
+MCP es un estándar abierto para que un cliente de IA se conecte a una aplicación. El servidor MCP es la parte de la aplicación: publica herramientas, como buscar contactos o registrar una nota, y ejecuta las que el cliente de IA le pide, con los permisos del usuario que ha iniciado sesión. Con el servidor de HubSpot, tu asistente de IA lee y cambia registros de tu cuenta sin exportar datos.
+</FaqItem>
+
+<FaqItem question="¿Cuál es la URL del servidor MCP de HubSpot?">
+El servidor remoto está en `https://mcp.hubspot.com`. Con el conector de Claude o ChatGPT no tienes que escribirla; solo la necesitas cuando conectas otro cliente MCP con un conector creado en HubSpot, su ID de cliente y su secreto.
+</FaqItem>
+
 <FaqItem question="¿HubSpot tiene un servidor MCP oficial?">
 Sí. HubSpot aloja un servidor MCP remoto en mcp.hubspot.com, disponible con carácter general para todas las cuentas de HubSpot desde el 13 de abril de 2026, además de un servidor MCP local para desarrolladores que se ejecuta mediante la CLI de HubSpot.
 </FaqItem>
@@ -169,6 +183,18 @@ Eliminar no forma parte del acceso de escritura que documenta HubSpot. El servid
 
 <FaqItem question="¿Por qué mi cliente de IA no ve llamadas, notas ni correos en HubSpot?">
 Lo más probable es que tu cuenta tenga Sensitive Data activado. En ese caso HubSpot bloquea los datos de actividades y conversaciones a través del servidor MCP, mientras que sus API estándar no se ven afectadas. Los permisos de usuario y las bandejas restringidas también limitan lo que ve un cliente.
+</FaqItem>
+
+<FaqItem question="¿Cómo instalo el servidor MCP de HubSpot para desarrolladores?">
+Con la CLI de HubSpot, versión 8.2.0 o posterior: ejecuta `hs mcp setup` y elige tu cliente. Funciona con Claude Code, Codex CLI, Cursor, Gemini CLI, VS Code y Windsurf y aparece en ellos como «HubSpotDev». Está pensado para el desarrollo de apps y de CMS, no para trabajar con registros del CRM.
+</FaqItem>
+
+<FaqItem question="¿HubSpot es un CRM o un ERP?">
+HubSpot es una plataforma de CRM: contactos, oportunidades, marketing y atención al cliente. Un ERP gestiona la parte operativa y financiera de la empresa, como contabilidad, inventario o compras. Si quieres ver cómo se relacionan, lo explicamos en [CRM y ERP](/blog/crm-and-erp).
+</FaqItem>
+
+<FaqItem question="¿Cuánto cuesta HubSpot al mes?">
+Depende del hub, del nivel y del número de usuarios, y el servidor MCP remoto no añade un coste aparte: está disponible para todas las cuentas de HubSpot, también las gratuitas. Lo que sí cuesta es la suscripción de tu cliente de IA y las herramientas que exigen hubs de pago. Las cifras de cada nivel están en nuestra [guía de precios de HubSpot](/blog/hubspot-pricing).
 </FaqItem>
 
 <FaqItem question="¿Cuál es la diferencia entre el servidor remoto y el servidor MCP para desarrolladores?">

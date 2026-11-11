@@ -1,6 +1,6 @@
 ---
-title: "Strategia CRM: jednostronicowy model dla małych zespołów"
-description: "Strategia CRM mieści się na jednej stronie: siedem decyzji, przykład dla zespołu doradczego, wskaźniki retencji i rytm przeglądów, który dba o dane."
+title: "Strategia CRM: jak ją stworzyć w 7 krokach, z przykładem"
+description: "Strategia CRM na jednej stronie: jak ją stworzyć w siedmiu decyzjach, przykład dla firmy doradczej, wskaźniki utrzymania klientów i rytm przeglądów."
 
 relatedHrefs:
   - /blog/crm-implementation
@@ -66,7 +66,7 @@ Podręczniki dzielą CRM na cztery typy. Dla małego zespołu to mniej wybór, a
 Opisz w dwóch lub trzech zdaniach klientów, których chcesz więcej: wielkość, branżę, problem, z którym przychodzą, przedział budżetu. Potem nazwij zapytania, które uprzejmie odrzucisz. Ten jeden akapit rozstrzyga, co znaczy „zakwalifikowany” w kroku 3 i jakich pól potrzebujesz w kroku 4.
   </Step>
   <Step title="3. Rozpisz cykl życia, także po podpisaniu umowy">
-Wypisz etapy, przez które przechodzi relacja, każdy z regułą wejścia, którą kolega mógłby sprawdzić bez pytania ciebie. Przykład z doradztwa: Poszukiwanie, Kwalifikacja, Rozmowa wstępna, Oferta, Negocjacje, Wygrana, Przegrana. Potem idź dalej niż Wygrana: wdrożenie klienta, realizacja, przegląd wartości, odnowienie. Większość planów CRM kończy się na podpisie, a właśnie wtedy zaczynają się przychody cykliczne. [Przewodnik po lejku sprzedaży](/blog/sales-pipeline) szerzej opisuje projektowanie etapów.
+Wypisz etapy, przez które przechodzi relacja, każdy z regułą wejścia, którą kolega mógłby sprawdzić bez pytania ciebie. Przykład z doradztwa: Poszukiwanie, Kwalifikacja, Rozmowa wstępna, Oferta, Negocjacje, Wygrana, Przegrana. Potem idź dalej niż Wygrana: wdrożenie klienta, realizacja, przegląd wartości, odnowienie. Większość planów CRM kończy się na podpisie, a właśnie wtedy zaczynają się przychody cykliczne. Rozpisz przy tym ścieżkę klienta: skąd klient się dowiaduje o firmie, co robi przed pierwszą rozmową i co dzieje się po podpisie. Każdy punkt styku dostaje właściciela i miejsce w CRM; więcej w tekście o [ścieżce klienta](/blog/customer-journey). [Przewodnik po lejku sprzedaży](/blog/sales-pipeline) szerzej opisuje projektowanie etapów.
   </Step>
   <Step title="4. Ustal minimum danych na rekord">
 Dla każdego typu rekordu wybierz kilka pól, które musi mieć każdy rekord, i powód, dla którego każde istnieje. Tam, gdzie później będziesz filtrować lub liczyć (źródło, branża, kondycja), używaj stałych list opcji zamiast wolnego tekstu. Mniej pól obowiązkowych to więcej kompletnych rekordów. Zdecyduj też, jak długo przechowujesz dane osobowe i kiedy je usuwasz: [art. 5 RODO](https://eur-lex.europa.eu/eli/reg/2016/679/oj) wymaga, aby dane były ograniczone do tego, co niezbędne, i przechowywane nie dłużej, niż to potrzebne.
@@ -99,6 +99,16 @@ Skopiuj tę tabelę do wspólnego dokumentu i wypełnij środkową kolumnę. Pra
 **Przeprowadź przegląd.** Policz wszystkie otwarte szanse na ten sam cotygodniowy dzień odcięcia. Podziel te, które mają zarówno właściciela, jak i następny krok z datą, przez wszystkie otwarte szanse; zaległe kroki raportuj osobno. Jeśli nie ma otwartych szans, podaj „nie dotyczy” zamiast 100%. Cel jest przykładowy. Wybierz własny po zmierzeniu punktu wyjścia i śledź wyniki wygranych i przegranych osobno, żeby zamykanie rekordów nie maskowało słabego follow-upu.
 
 W przypadku utrzymania klientów porównuj klientów uprawnionych do odnowienia w tym samym okresie i podawaj wielkość kohorty. Przykładowy punkt wyjścia 9 odnowień z 10 uprawnionych klientów to 90%, a nie dowód, że jakiś proces spowodował lepsze utrzymanie. Rozpisany niżej przykład kohorty pokazuje, których nowych klientów wyłączyć. Do korzystania z tego arkusza nie trzeba nic pobierać.
+
+## Dane klientów i integracje w strategii CRM [#dane-klientow-i-integracje]
+
+Strategia musi odpowiedzieć na trzy pytania o dane: skąd pochodzą, który system jest ich źródłem prawdy i dokąd trafiają dalej.
+
+- **Źródła.** Formularz na stronie, skrzynka, LinkedIn, import z arkusza, system księgowy. Dla każdego zapisz, kto zakłada rekord i czy dzieje się to automatycznie, czy ręcznie.
+- **Jedno źródło prawdy.** Dla każdego pola wskaż jeden system, który je zmienia: adres rozliczeniowy zostaje w księgowości, a historia rozmów i etap szansy w CRM. Jak to uporządkować przy ERP, opisują teksty o [integracji CRM z ERP](/blog/crm-erp-integration) i o [CRM i ERP](/blog/crm-and-erp).
+- **Integracje.** Zacznij od poczty i najwyżej jednego innego systemu. Każda kolejna integracja to osobny mały projekt z własnym właścicielem.
+- **Segmenty.** Pola ze stałymi listami opcji, takie jak źródło, branża czy kondycja konta, pozwalają budować segmenty bez przeszukiwania wolnego tekstu. Więcej w tekście o [segmentacji klientów](/blog/customer-segmentation).
+- **Dane osobowe.** Zapisz, kto ma do nich dostęp, jak długo je przechowujesz i kiedy usuwasz. Ogólny kontekst wyjaśnia tekst o [CRM a RODO](/blog/gdpr-crm); to nie jest porada prawna.
 
 ## Przykład: sześcioosobowa firma doradcza w Customermates
 
@@ -135,7 +145,7 @@ Zadania w Customermates nie mają wbudowanego terminu. Jeśli zespół go chce, 
 
 Na czas sprawdzania konfiguracji utwórz rutyny jako wstrzymane. Najpierw wypróbuj ich instrukcje w zwykłym czacie z Mate na fikcyjnych rekordach. Do testu zaplanowanej rutyny włącz ją i użyj **Testuj wyzwalacz**, co wykonuje prawdziwe uruchomienie. Rutyny zdarzeniowe nie mają Testuj wyzwalacz: włącz rutynę, a potem wprowadź pasującą zmianę w fikcyjnej przykładowej szansie. Sprawdź wyniki i w razie potrzeby wstrzymaj rutynę ponownie. Rutyna działa z dostępem właściciela i jego miesięcznym limitem Mate. Wysłanie maila lub wiadomości na czacie nie wymaga zatwierdzenia przez Mate; poproś wprost o szkice, gdy osoba musi je sprawdzić. Działania wymagające zatwierdzenia na czacie są odrzucane w uruchomieniach bez nadzoru, a zmiany w Knowledge Base stają się propozycjami do przeglądu. Zmiany wprowadzone przez rutynę nie uruchamiają innych rutyn. Zobacz [wyzwalacze i limity rutyn](/docs/app-routines) oraz [politykę zatwierdzeń Mate](/docs/app-assistant). Dokumentację produktu sprawdzono 5 listopada 2026.
 
-## Utrzymanie klientów i obsługa sukcesu klienta należą do planu
+## Utrzymanie klientów i customer success należą do planu
 
 Utrzymanie klientów należy do strategii, bo podpisana szansa nadal wymaga realizacji, przeglądu wartości i, tam gdzie to ma sens, decyzji o odnowieniu. Zmierz własne kohorty klientów i koszty realizacji, zanim zdecydujesz, gdzie zainwestować czas na opiekę nad kontami.
 
@@ -196,6 +206,16 @@ Te syntetyczne liczby sugerują sprawdzenie czterech odejść wśród nowszych k
 
 W firmach projektowych bardziej przydatna może być druga miara: pierwsi nabywcy, którzy składają drugie zamówienie w ciągu 180 dni, podzieleni przez pierwszych nabywców z pełnym 180-dniowym oknem obserwacji. To okno jest przykładowym założeniem, a nie standardem. Wyłącz niedawnych nabywców, których okno jeszcze się nie skończyło, i raportuj brakujące dowody osobno.
 
+## Przykłady strategii CRM i lojalność klientów [#przyklady-strategii-i-lojalnosc]
+
+Lojalność klientów wynika z powtarzalnych, dobrze wybranych kontaktów i dotrzymanych obietnic, a nie z samego programu punktowego. Poniżej trzy krótkie przykłady strategii na tym samym szkielecie siedmiu decyzji:
+
+- **Firma doradcza** (przykład wyżej): cel to mniej ofert, które cichną, i odnowienia bez niespodzianek. Kluczowe dane to data odnowienia i kondycja konta, a lojalność buduje kwartalny przegląd wartości.
+- **Firma instalacyjna lub serwisowa:** cel to powracające zlecenia. Kluczowe dane to data ostatniego przeglądu i termin następnego. Klient dostaje przypomnienie o przeglądzie, zanim zrobi to konkurencja, a po zakończonej pracy prośbę o polecenie. Układ takiej firmy opisuje strona [CRM dla firm usługowych i rzemieślników](/for/tradespeople).
+- **Sklep lub firma sprzedająca cyklicznie:** cel to drugi i kolejny zakup. Kluczowe dane to data pierwszego i ostatniego zamówienia. Klient, który dawno nie zamawiał, dostaje osobistą wiadomość zamiast ogólnej kampanii. O pracy z obecnymi klientami piszemy w tekście [o utrzymaniu klientów](/blog/existing-customers).
+
+Program lojalnościowy ma sens dopiero wtedy, gdy wiesz, którzy klienci wracają i dlaczego. Zacznij od kohort z poniższego rachunku, a dopiero potem wymyślaj nagrody.
+
 ## Praktyki, które utrzymują strategię CRM przy życiu
 
 - **Zacznij od najmniejszej działającej konfiguracji.** Kontakty, organizacje, jeden lejek szans. Dodawaj pola, gdy przegląd pokaże, że ich potrzebujesz, a nie wcześniej.
@@ -234,6 +254,22 @@ Ta, której Twój zespół będzie przestrzegać co tydzień. W praktyce: dwa lu
 
 <FaqItem question="Jak zarządzanie utrzymaniem klientów wpisuje się w strategię CRM?">
 Utrzymanie to część cyklu życia po podpisaniu umowy: wdrożenie klienta, przeglądy wartości, kondycja konta i odnowienia. W CRM potrzebuje daty odnowienia, wartości umowy i oceny kondycji przy każdym kliencie, widoku posortowanego po dacie odnowienia i kwartalnych wskaźników, takich jak retencja przychodów brutto i netto.
+</FaqItem>
+
+<FaqItem question="Na czym polega CRM?">
+CRM (zarządzanie relacjami z klientami) polega na tym, że cała wiedza o kliencie leży w jednym miejscu: kontakt, historia rozmów, szansa sprzedaży z etapem i następny krok z datą. Dzięki temu każdy w zespole wie, co ustalono i co ma się wydarzyć dalej. Podstawy opisuje tekst [co to jest CRM](/blog/what-is-crm).
+</FaqItem>
+
+<FaqItem question="Jak obsługiwać CRM na co dzień?">
+Rano otwórz widok „Moje otwarte szanse”, uzupełnij brakujące następne kroki, a po każdej rozmowie zapisz notatkę i w razie potrzeby przesuń etap. Raz w tygodniu przejrzyj lejek z zespołem, a raz na kwartał pola i wskaźniki z tego planu. Sesję szkoleniową opisuje [przewodnik po szkoleniu z CRM](/blog/crm-training).
+</FaqItem>
+
+<FaqItem question="Jakie są przykłady strategii CRM?">
+Trzy przykłady, od firmy doradczej przez firmę serwisową po sklep, opisuje sekcja o strategiach i lojalności klientów powyżej. Każdy używa tych samych siedmiu decyzji, a różni się celami i kluczowymi danymi.
+</FaqItem>
+
+<FaqItem question="Jakie są najpopularniejsze CRM?">
+Nie ma neutralnego, publicznego zestawienia liczby użytkowników wszystkich producentów. W większości porównań pojawiają się Salesforce, HubSpot, Microsoft Dynamics 365, Zoho CRM i Pipedrive. Przykłady z opisem znajdziesz w tekście [o przykładach systemów CRM](/blog/crm-examples), ale strategia ma pierwszeństwo przed narzędziem.
 </FaqItem>
 
 <FaqItem question="Jakie są najlepsze praktyki CRM?">

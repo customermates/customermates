@@ -1,6 +1,6 @@
 ---
-title: "MCP vs API: dezelfde CRM-taak via beide routes vergeleken"
-description: "MCP vs API uitgelegd met een gedateerd voorbeeld: klant opzoeken en taak aanmaken via REST en MCP. Vergelijk ontdekking, rechten en goedkeuring."
+title: "MCP vs API: de verschillen en wanneer je welke kiest"
+description: "MCP vs API uitgelegd: de verschillen, wanneer je REST of MCP kiest en hoe ze samenwerken, met een gemeten test van dezelfde CRM-taak op 5 november 2026."
 
 hero:
   title: "MCP vs API: welke verbinding past bij jouw CRM-taak?"
@@ -34,7 +34,7 @@ MCP of API? Gebruik REST voor een bekende integratie waarvan je de stappen zelf 
 
 API staat voor application programming interface. REST is een architectuurstijl voor web-API's en geen synoniem voor elke API. Een endpoint is een specifiek adres dat een applicatie beschikbaar stelt. Een microservice is een manier om een applicatie in diensten op te delen en kan zelf ook API's aanbieden.
 
-MCP, het Model Context Protocol, standaardiseert de communicatie tussen een hostapplicatie, de clientcomponent daarvan en een server. Een server kan een REST API omhullen, andere API's aanroepen of rechtstreeks applicatielogica uitvoeren. In Customermates roepen de REST-routes voor records en de MCP-tools dezelfde gedeelde interactors aan. Het voorbeeld hieronder vergelijkt dus twee ingangen naar dezelfde CRM-logica.
+MCP, het Model Context Protocol, standaardiseert de communicatie tussen een hostapplicatie, de clientcomponent daarvan en een server. Een server kan een REST API omhullen, andere API's aanroepen of rechtstreeks applicatielogica uitvoeren. In Customermates roepen de REST-routes voor records en de MCP-tools dezelfde gedeelde interactors aan. Het voorbeeld hieronder vergelijkt dus twee ingangen naar dezelfde CRM-logica. Wat een MCP-server precies is, staat in de [gids over MCP-servers](/blog/what-is-an-mcp-server).
 
 | Beslissing | REST API | MCP |
 | --- | --- | --- |
@@ -76,7 +76,7 @@ Het modelantwoord noemde Organization en Task, met schemarevisie `1`. Het primai
 
 ## Wat gaf dezelfde klantzoekopdracht terug via beide interfaces?
 
-**Grenzen van de lokale test:** uitgevoerd op 5 november 2026, van `05:32:59.558Z` tot `05:33:10.374Z`, op een nieuwe wegwerpdatabase met PostgreSQL 17.8 en een eigen loopback-applicatie. Het geautoriseerde paar gebruikte dezelfde tijdelijke API-sleutel, dezelfde synthetische beheerder en dezelfde werkruimte. Een aparte synthetische gebruiker met alleen leesrechten testte de weigering. Er zijn geen productiegegevens, externe verzendingen of aanroepen naar modelaanbieders gebruikt; de testtransport blokkeerde uitgaande verbindingen en beide sleutels zijn daarna ingetrokken.
+**Grenzen van de lokale test:** uitgevoerd op 5 november 2026, van `05:32:59.558Z` tot `05:33:10.374Z`, op een nieuwe wegwerpdatabase met PostgreSQL 17.8 en een eigen loopback-applicatie. Het geautoriseerde paar gebruikte dezelfde tijdelijke API-sleutel, dezelfde synthetische beheerder en dezelfde werkruimte. Een aparte synthetische gebruiker met alleen leesrechten testte de weigering. Er zijn geen productiegegevens, externe verzendingen of aanroepen naar modelaanbieders gebruikt; het testtransport blokkeerde uitgaande verbindingen en beide sleutels zijn daarna ingetrokken.
 
 Vóór de start kwamen 3.797 bestanden voor applicatie, schema, rechten, fixtures en afhankelijkheidscontracten overeen met de beoordeelde bronversie `111f8a2e33f39975955e8f49d3f7c898fbbd3d05`; de cloud-buildstempel was `2912f7e6882ebccb`. Runtime: Node `24.18.0`, Next.js `16.3.2`, MCP TypeScript SDK `1.24.0` en `mcp-handler` `1.0.4`. Het vastgelegde initialize-verzoek stelde MCP `2025-06-18` voor; de server accepteerde die revisie en meldde zich als Customermates `1.1.0`. Dat is de waargenomen onderhandeling, geen claim dat de nieuwste specificatie of elke client is getest.
 
@@ -205,21 +205,33 @@ Goedkeuring is een andere vraag. Customermates geeft externe MCP-clients de inst
 
 Gehoste Mate heeft een eigen goedkeuringsbeleid dat de server afdwingt. Routines hebben eigen uitvoerings- en goedkeuringsinstellingen; leid die niet af uit een externe MCP-sessie. De beschikbaarheid van Mate in de beheerde cloud hangt bovendien af van geschikte abonnementen, beschikbare credits en globale instellingen. De [gids over agentic CRM](/blog/agentic-crm) legt deze grenzen uit.
 
-## Wanneer houd je REST, gebruik je MCP of combineer je ze?
+## Wanneer kies je MCP of een API, of allebei? [#wanneer-mcp-of-api]
 
 Houd REST als je opdracht luidt: “voer deze exacte stappen uit zodra een bekende gebeurtenis zich voordoet.” Een vaste synchronisatie profiteert meestal van expliciete koppelingen, nieuwe pogingen en foutafhandeling in code. OpenAPI kan ook machineleesbare API-schema's bieden; vindbaarheid is niet voorbehouden aan MCP.
 
 Kies MCP als de nuttige volgende bewerking afhangt van de vraag van een persoon en de host de tools ondersteunt die je nodig hebt. Je hebt nog steeds vertrouwde servers, beperkte toegang, validatie van resultaten en een goedkeuringsbeleid nodig. MCP is meer dan JSON-opmaak, maar het is geen API-gateway die al die controles automatisch levert. Zie de [officiële MCP-architectuur](https://modelcontextprotocol.io/docs/learn/architecture) voor de rollen van host, client en server.
 
-Je kunt de twee combineren: een webhook meldt een gebeurtenis, een deterministische workflow haalt gegevens op via REST en een assistent gebruikt MCP om een uitzondering te onderzoeken. Webhooks zijn gebeurtenismeldingen en geen andere naam voor een toolaanroep. n8n kan integraties orkestreren, maar de lokale test hierboven draaide een script en geen n8n. De [introductie tot n8n-workflows](/blog/n8n-for-beginners-build-your-first-workflow) is een apart startpunt.
+Je kunt de twee combineren: een webhook meldt een gebeurtenis, een deterministische workflow haalt gegevens op via REST en een assistent gebruikt MCP om een uitzondering te onderzoeken. Webhooks zijn gebeurtenismeldingen en geen andere naam voor een toolaanroep. n8n kan integraties orkestreren, maar de lokale test hierboven draaide een script en geen n8n. De [introductie tot n8n-workflows](/blog/n8n-for-beginners-build-your-first-workflow) is een apart startpunt, en [n8n en MCP](/blog/n8n-mcp) laat zien hoe n8n zelf MCP-servers aanbiedt of aanroept. Leveranciers van andere CRM's hebben hun eigen MCP-servers, zoals beschreven in de gidsen over [HubSpot MCP](/blog/hubspot-mcp) en [Salesforce MCP](/blog/salesforce-mcp).
 
-Zelf gehost Customermates levert de Starter CRM-kern met REST en MCP voor externe clients. Het bevat geen gehoste Mate en geen cloudinbox. Kies een andere aanpak als je alleen een adapter voor je bestaande CRM nodig hebt of als je vaste integratie niets wint bij een AI-host. De prijzen en proefvoorwaarden van de cloud staan los van de protocolkeuze; vergelijk ze op de [actuele prijzenpagina](/pricing).
+Een zelf gehoste Customermates levert de Starter-CRM-kern met REST en MCP voor externe clients. Het bevat geen gehoste Mate en geen cloudinbox. Kies een andere aanpak als je alleen een adapter voor je bestaande CRM nodig hebt of als je vaste integratie niets wint bij een AI-host. De prijzen en proefvoorwaarden van de cloud staan los van de protocolkeuze; vergelijk ze op de [actuele prijzenpagina](/pricing).
 
 Voor een team dat elk klantgesprek opvolgt, is de nuttige MCP-aanroep die waarmee je een gesprek op het klantrecord leest en een conceptantwoord en een volgende stap ter beoordeling opslaat. Wil je dat met je eigen Claude of ChatGPT proberen, [start dan je proefperiode](/auth/signup?job=followup): [[commercial.trial.days]] dagen Pro zonder creditcard.
 
 ## Veelgestelde vragen
 
 <Faq>
+<FaqItem question="Is MCP hetzelfde als een API?">
+Nee. Een API is het contract waarmee software een andere applicatie aanroept, bijvoorbeeld een REST-endpoint. MCP is een protocol waarmee een AI-host de tools van een server kan ontdekken en aanroepen. Een MCP-server kan een API omhullen, maar een API is niet automatisch een MCP-server.
+</FaqItem>
+<FaqItem question="Wanneer kies ik MCP en wanneer een API?">
+Kies een API voor een vaste integratie waarvan je de stappen zelf in code bepaalt, zoals een synchronisatie. Kies MCP als een assistent tussen tools moet kiezen terwijl die iemand helpt. Combineren kan ook: een workflow haalt gegevens op via REST en een assistent onderzoekt een uitzondering via MCP.
+</FaqItem>
+<FaqItem question="Is MCP een API-gateway?">
+Nee. Een API-gateway staat voor API's en regelt verkeer, authenticatie en limieten. MCP is een protocol voor tools die een AI-client kan vinden en aanroepen. Toegangscontrole, tokenbeheer en goedkeuring blijven je eigen taak, ook met MCP.
+</FaqItem>
+<FaqItem question="Is MCP sneller dan een API?">
+Niet automatisch. MCP en REST kunnen dezelfde logica aanroepen, en onze test was geen latentiebenchmark, dus we trekken geen conclusie over snelheid.
+</FaqItem>
 <FaqItem question="Vervangt MCP REST API's?">
 Nee. Een MCP-server kan een REST API omhullen of applicatielogica ermee delen. REST blijft nuttig voor beheerde integraties met vooraf bepaalde stappen.
 </FaqItem>

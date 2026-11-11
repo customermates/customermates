@@ -3,8 +3,8 @@ title: "n8n CRM: integración con REST, webhooks y MCP"
 description: "n8n CRM: conecta n8n con Customermates mediante REST, [[derived.webhooks.events.total]] webhooks, MCP o el nodo de la comunidad. Los límites del producto y del flujo quedan claros."
 
 architecture:
-  title: Un camino de automatización bien acotado
-  description: Customermates valida el acceso al CRM y emite los eventos compatibles. Tu instancia de n8n, independiente, se encarga de ejecutar los flujos de trabajo, las credenciales, las programaciones, los reintentos y cada proveedor externo al que llama.
+  title: Una vía de automatización con límites claros
+  description: Customermates valida el acceso al CRM y emite los eventos compatibles. Tu instancia de n8n, independiente, es responsable de la ejecución de los flujos de trabajo, las credenciales, las programaciones, los reintentos y cada proveedor externo al que llama.
   crmTitle: Customermates CRM
   crmDescription: Los registros estructurados, los permisos del espacio de trabajo y las escrituras validadas permanecen dentro del perímetro del CRM.
   interfaceTitle: Interfaces abiertas
@@ -43,25 +43,25 @@ benefits:
     description: Un flujo de trabajo que operas tú puede ejecutar los pasos externos configurados; su entorno de ejecución, su programación, sus reintentos, su fiabilidad y sus resultados siguen siendo responsabilidad tuya.
 
 features:
-  badge: Ejemplos de composición
-  title: Qué puede componer un flujo de trabajo de n8n operado por ti
+  badge: Ejemplos de flujos
+  title: Qué puedes combinar en un flujo de trabajo de n8n que operas tú
   subtitle: Son patrones de flujo de trabajo, no funciones incluidas en Customermates. Cada uno requiere el proveedor correspondiente, las credenciales, la asignación de campos, la supervisión y la gestión de errores en tu entorno de n8n.
   features:
   - icon: Users
-    title: Traspaso al correo
+    title: Del CRM al correo
     description: Recibe los eventos del CRM y pasa los datos seleccionados al proveedor de correo o de datos que configures en tu propio flujo de trabajo.
   - icon: Briefcase
     title: Enriquecimiento externo
     description: Llama desde tu propio flujo de trabajo a un proveedor que elijas y vuelve a escribir los campos seleccionados mediante REST. Customermates no incluye enriquecimiento ni puntuación de leads.
   - icon: Star
-    title: Traspaso a informes
+    title: Del CRM a los informes
     description: Envía los datos seleccionados del CRM a una hoja de cálculo, una base de datos o un proveedor de BI que configures tú y que tengas derecho a usar.
   - icon: Zap
-    title: Traspaso a facturación
+    title: Del CRM a la facturación
     description: Envía los datos de las oportunidades a herramientas de facturación desde tu propio flujo de trabajo. Customermates no tiene un flujo de presupuestos ni de facturas.
 
 faq:
-  title: Preguntas frecuentes sobre automatizar n8n y CRM con una instancia separada
+  title: Preguntas frecuentes sobre automatizar tu CRM con una instancia de n8n aparte
   faqs:
   - id: faq-1
     title: ¿Necesito saber programar para usar n8n?

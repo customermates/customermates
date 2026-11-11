@@ -83,7 +83,7 @@ A maioria dos produtos vendidos como “CRM de recrutamento” é um sistema de 
 |---|---|
 | Você divulga vagas e recebe muitas candidaturas por vaga | Um ATS ou uma suíte de ATS com CRM |
 | Você é um time de RH interno contratando para a própria empresa | Um ATS para empresas que contratam diretamente, como o [JOIN](https://join.com/de/preise) |
-| Você toca uma mesa de recrutamento com muitas colocações por mês | Uma suíte para staffing com pedidos de vaga, envios de candidatos e colocações embutidos |
+| Você toca uma operação de recrutamento com muitas colocações por mês | Uma suíte para staffing com pedidos de vaga, envios de candidatos e colocações embutidos |
 | Você conquista mandatos exclusivos ou por êxito por meio de relacionamentos e faz headhunting em vez de anunciar | Um CRM de relacionamento como o Customermates, ou um ATS leve ao lado dele |
 
 ## O que uma agência de recrutamento precisa de um CRM
@@ -100,10 +100,10 @@ Um espaço de trabalho novo começa sem listas: você cria as listas de que prec
 
 | Tipo de registro | Usado para | Exemplos de campos personalizados |
 |---|---|---|
-| Organizações | Empresas clientes e as empresas onde os candidatos trabalham | Relacionamento (escolha única: Prospect, Cliente ativo, Ex-cliente), Proibido abordar (escolha única: Sim, Não), Setor |
+| Organizações | Empresas clientes e as empresas onde os candidatos trabalham | Relacionamento (escolha única: Prospect, Cliente ativo, Ex-cliente), Não abordar (escolha única: Sim, Não), Setor |
 | Contatos | Gestores de vaga e candidatos | Tipo de contato (escolha única: Candidato, Gestor da vaga, Referência), Disponibilidade (Aberto a mudar, Passivo, Sem procurar, Colocado), Área de atuação, Aviso prévio, Pretensão salarial (dinheiro), Próximo contato (data), Reter até (data) |
-| Negócios, chamados Vagas | Cada mandato de busca | Etapa, Tipo de busca (Retainer, Por êxito, Interina), Mandato assinado em, Prazo da shortlist, Salário-alvo (dinheiro) |
-| Serviços | Seus tipos de honorário | Honorário de busca com retainer, Honorário por êxito, Diária de interino |
+| Negócios, chamados Vagas | Cada mandato de busca | Etapa, Tipo de busca (Retainer, Por êxito, Temporária), Mandato assinado em, Prazo da shortlist, Salário-alvo (dinheiro) |
+| Serviços | Seus tipos de honorário | Honorário de busca com retainer, Honorário por êxito, Diária de temporário |
 | Tarefas | Próximos passos, atribuídos a um recrutador | Um campo de data “Vence em” que você adiciona, porque as tarefas não têm data de vencimento embutida |
 
 Um candidato é vinculado ao empregador atual como organização e a todas as vagas para as quais entra na shortlist. A vaga é vinculada ao cliente e ao gestor da vaga. Abra um candidato e você vê todos os mandatos de que ele participou; abra um cliente e você vê todas as vagas e todas as pessoas que você conhece ali. Os usuários atribuídos a um contato mostram qual recrutador é dono do relacionamento.
@@ -208,7 +208,7 @@ Cada plano cloud pago acrescenta, todo mês, créditos de IA hospedados por usu�
   </Step>
   <Step title="Importe primeiro as empresas">
     Na lista de Organizações, abra Mais ações, escolha Adicionar de um arquivo
-    e associe suas colunas, incluindo os campos Relacionamento e Proibido
+    e associe suas colunas, incluindo os campos Relacionamento e Não
     abordar.
   </Step>
   <Step title="Importe gestores de vaga e candidatos">
@@ -225,9 +225,9 @@ Cada plano cloud pago acrescenta, todo mês, créditos de IA hospedados por usu�
   </Step>
 </Steps>
 
-## Dados de candidatos e GDPR
+## Dados de candidatos: LGPD e GDPR [#dados-de-candidatos-lgpd-e-gdpr]
 
-Os registros de candidatos são dados pessoais e, na UE, você precisa de uma base legal, de um prazo de retenção e de uma forma de excluir mediante solicitação. O Customermates oferece os blocos de construção, não um processo de conformidade.
+Os registros de candidatos são dados pessoais. No Brasil, a LGPD pede uma base legal para tratá-los e garante direitos ao titular; na UE, o GDPR exige uma base legal, um prazo de retenção e uma forma de excluir mediante solicitação. Isto é contexto geral, não aconselhamento jurídico. O Customermates oferece os blocos de construção, não um processo de conformidade.
 
 - No Customermates Cloud, o banco de dados da aplicação está configurado na região AWS de Frankfurt. A hospedagem e os demais suboperadores, entre eles provedores dos EUA, estão na [página de suboperadores](/subprocessors), e um [acordo de tratamento de dados](/dpa) está disponível.
 - Uma data de Reter até e a visualização de retenção acima mostram quem revisar. Excluir é uma etapa manual: o Mate pede aprovação antes de cada exclusão, e rotinas sem supervisão não conseguem excluir.

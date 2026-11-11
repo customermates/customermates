@@ -1,6 +1,6 @@
 ---
-title: "CRM ubezpieczenia: follow-up przed każdym odnowieniem"
-description: "CRM ubezpieczenia: e-mail i WhatsApp klienta przy rekordzie, Mate przygotowuje odpowiedź przed odnowieniem, Ty wysyłasz. Polisy zostają w Twoim systemie AMS."
+title: "CRM ubezpieczenia dla agenta: odnowienia i follow-up"
+description: "CRM ubezpieczenia dla agentów i brokerów: data odnowienia, e-mail i WhatsApp klienta przy kontakcie, szkice od Mate do sprawdzenia. Działa obok Twojego AMS."
 industryName: "Agenci ubezpieczeniowi"
 
 relatedHrefs:
@@ -50,6 +50,8 @@ useCases:
 
 Terminy odnowień nadają rytm pracy agencji, a oferta ubezpieczenia bez odpowiedzi to sprzedaż, która się wymyka. Customermates to CRM ubezpieczenia do sprzedaży i odnowień: stoi obok Twojego systemu do zarządzania agencją (AMS) i trzyma w polu widzenia stronę sprzedażową: potencjalnych klientów, przeglądy odnowień, partnerów polecających i ludzi, którzy do Ciebie piszą. W Customermates Cloud od Pro e-mail i WhatsApp klienta są przy kontakcie, a Mate lub Twój własny agent AI (Claude, ChatGPT albo dowolny klient obsługujący MCP) przygotowuje odpowiedź i kolejny krok, które sprawdzasz, poprawiasz i wysyłasz. Nie zarządza polisami, nie pobiera danych od ubezpieczycieli, nie kalkuluje ofert ani nie uzgadnia prowizji; jeśli chcesz jednego systemu do tego wszystkiego, potrzebujesz AMS lub pakietu dla ubezpieczeń, a tabela niżej wymienia kilka z nich.
 
+**Krótko:** CRM ubezpieczenia nie jest programem do obsługi polis. To narzędzie do tego, co dzieje się przed polisą i wokół niej: kto zapytał o ofertę, kiedy kończy się ochrona klienta i do kogo trzeba wrócić. Jeśli więcej sprzedajesz, niż obsługujesz, zacznij od CRM; jeśli więcej obsługujesz, niż sprzedajesz, potrzebujesz najpierw programu do obsługi agencji i polis (AMS), a CRM dokłada obok.
+
 <ArticleSummary title="W skrócie">
   <SummaryItem label="Dla kogo">
     Niezależni agenci, małe agencje i brokerzy, którzy w CRM więcej sprzedają,
@@ -83,6 +85,16 @@ Czego sprzedaż ubezpieczeń wymaga od takiego CRM:
 - **Oferty powstają gdzie indziej.** Kalkulator ofert lub portal ubezpieczyciela przygotowuje ofertę. CRM musi tylko wiedzieć, że oferta poszła, na co i kiedy o nią dopytać.
 - **Klienci piszą na WhatsAppie.** Wielu klientów wysyła zdjęcie pisma albo krótkie pytanie na WhatsAppa zamiast e-maila.
 
+## Baza polis, pojazdów i nieruchomości: co w CRM, a co w AMS [#baza-polis-w-crm-czy-ams]
+
+Programy dla agencji pokazują zwykle bazę polis z ewidencją pojazdów i nieruchomości, dokumentami i historią szkód. To zadanie AMS, bo od tego rejestru zależy obsługa polisy, a Customermates go nie zastępuje. W CRM trzymasz to, czego potrzebujesz do sprzedaży i odnowień:
+
+- **Kto i o co pyta:** kontakt, szansa sprzedaży, rodzaj ubezpieczenia, ubezpieczyciel i szacowana składka.
+- **Kiedy wracasz:** Data odnowienia i Status odnowienia przy szansie, a w zapisanym widoku lista posortowana po tej dacie.
+- **Gdzie szukać reszty:** pole z numerem polisy albo ID klienta w AMS, żeby tego samego klienta łatwo znaleźć w obu systemach.
+
+Marka pojazdu albo adres ubezpieczanej nieruchomości mogą być własnymi polami szansy, jeśli przydają się w rozmowie o odnowieniu. Pełna ewidencja, dokumenty polisowe i historia szkód zostają w AMS. Historia kontaktu z klientem jest za to w jednym miejscu: rozmowy z jego e-maila i WhatsAppa pokazują się przy kontakcie (od planu Pro).
+
 ## Konfiguracja dla ubezpieczeń w Customermates
 
 Nowa przestrzeń robocza zaczyna się bez list: tworzysz potrzebne listy (kontakty, organizacje, szanse sprzedaży lub własne) w **Modelu danych** albo pozwalasz, by zbudowała je konfiguracja z AI w chmurze. Jeden ze sposobów odwzorowania pięciu list dla agencji; każda nazwa pola poniżej to przykład, który tworzysz samodzielnie.
@@ -91,11 +103,11 @@ Nowa przestrzeń robocza zaczyna się bez list: tworzysz potrzebne listy (kontak
 |---|---|---|
 | Kontakty | Potencjalni klienci, klienci i osoby w firmach klientów | Status klienta (pojedynczy wybór: Potencjalny klient, Klient, Były klient), Źródło leada, ID klienta w AMS |
 | Organizacje | Klienci firmowi i partnerzy polecający | Typ (pojedynczy wybór: Klient firmowy, Partner polecający), Kategoria partnera (Kredyty hipoteczne, Nieruchomości, Księgowość) |
-| Szanse sprzedaży | Każda nowa okazja sprzedażowa, cross-sell lub przegląd odnowienia | Etap, Rodzaj ubezpieczenia (Auto, Dom, Życie, Zdrowie, Firmowe), Ubezpieczyciel, Data odnowienia (Data), Szacowana składka (Kwota pieniężna), Numer oferty |
+| Szanse sprzedaży | Każda nowa okazja sprzedażowa, cross-sell lub przegląd odnowienia | Etap, Rodzaj ubezpieczenia (Komunikacyjne, Mieszkanie i dom, Życie, Zdrowie, Firmowe), Ubezpieczyciel, Data odnowienia (Data), Szacowana składka (Kwota pieniężna), Numer oferty |
 | Usługi | Rodzaje ubezpieczeń, które sprzedajesz | Opcjonalne; tylko pozycje (usługa razy ilość) składają się na wartość szansy |
 | Zadania | Kolejne kroki przypisane do kogoś | Pole daty „Termin”, bo zadania nie mają wbudowanego terminu |
 
-Kontakt może być powiązany z kilkoma szansami, więc jeden klient może mieć jednocześnie otwarte odnowienie ubezpieczenia auto i okazję na ubezpieczenie na życie. Numer polisy trzymaj w polu referencyjnym, jeśli pozwala na to Twoja polityka danych, a AMS traktuj jako zapis samej polisy.
+Kontakt może być powiązany z kilkoma szansami, więc jeden klient może mieć jednocześnie otwarte odnowienie ubezpieczenia komunikacyjnego i okazję na ubezpieczenie na życie. Numer polisy trzymaj w polu referencyjnym, jeśli pozwala na to Twoja polityka danych, a AMS traktuj jako zapis samej polisy.
 
 ### Etapy i wartości ważone
 
@@ -164,6 +176,15 @@ Customermates publikuje tę stronę. Dane dostawców, w tym cenę Less Annoying 
 | AMS z pobieraniem danych od ubezpieczycieli i księgowością | [HawkSoft](https://www.hawksoft.com/) | Pobieranie danych od ubezpieczycieli, księgowość, kalkulator ofert, e-podpis i zarządzanie leadami |
 | Prostego pipeline'u kontaktów i polis | [Less Annoying CRM](https://lessannoyingcrm.com/industry/insurance-agent) | Pipeline klientów i polis, formularze, przypomnienia; 15 USD za użytkownika miesięcznie |
 
+## RODO, KNF i dane klientów [#rodo-knf-dane-klientow]
+
+Agenci i brokerzy ubezpieczeniowi w Polsce działają pod nadzorem KNF, a dane klientów podlegają RODO. To ogólny kontekst, a nie porada prawna: co wolno zapisać w CRM i gdzie, wynika z Twojej umowy z zakładem ubezpieczeń, jego wymogów i polityki ochrony danych Twojej agencji. W praktyce:
+
+- **Zapisuj tyle, ile potrzeba do kontaktu i sprzedaży.** Informacje o zdrowiu i akta szkód zostaw poza CRM; dane o zdrowiu to szczególna kategoria danych w rozumieniu RODO.
+- **Zapisuj źródło kontaktu.** Pole własne, takie jak Źródło leada, pokazuje, skąd masz dane osoby. Pole „Zgoda na kontakt” możesz dodać sam, ale Customermates nie ocenia, czy zgoda jest ważna.
+- **Ogranicz dostęp.** Rola niestandardowa z dostępem do odczytu **Przypisane** ogranicza agenta do jego własnych rekordów, a dziennik audytu zapisuje, kto zmienił który rekord.
+- **Wiedz, gdzie leżą dane.** W Customermates Cloud główna baza danych jest w regionie AWS Frankfurt, a podprocesorów opisuje [strona podprocesorów](/subprocessors). Customermates nie jest archiwum zgodności ani rejestrem komunikacji.
+
 ## Ile to kosztuje
 
 Ceny są za aktywnego użytkownika miesięcznie, płatne miesięcznie. Każdy płatny plan zawiera REST, webhooki i MCP.
@@ -175,7 +196,7 @@ Ceny są za aktywnego użytkownika miesięcznie, płatne miesięcznie. Każdy p�
 | Dwóch agentów, każdy ze skrzynką pocztową i WhatsAppem | Business | [[commercial.price.business.monthly.seats.2]] |
 | Agencja pięcioosobowa, każdy z jedną skrzynką | Pro | [[commercial.price.pro.monthly.seats.5]] |
 
-Każdy płatny plan chmurowy dodaje miesięczne hostowane kredyty AI dla Mate na aktywnego użytkownika; kwoty są na [stronie z cennikiem](/pricing). Rdzeń open source działa na Twoim własnym serwerze bez opłaty licencyjnej, ale [instalacja self-hosted](/features/self-hosted) nie ma skrzynki ani Mate. W Customermates Cloud główna baza danych jest skonfigurowana w regionie AWS Frankfurt; hosting i pozostali podprocesorzy, wśród nich dostawcy z USA, są na [stronie podprocesorów](/subprocessors), a [umowa powierzenia przetwarzania danych](/dpa) jest dostępna. Customermates nie ma żadnego certyfikatu.
+Każdy płatny plan chmurowy dodaje miesięczne hostowane kredyty AI dla Mate na aktywnego użytkownika; kwoty są na [stronie z cennikiem](/pricing). Rdzeń open source działa na Twoim własnym serwerze bez opłaty licencyjnej, ale [instalacja self-hosted](/features/self-hosted) nie ma skrzynki ani Mate. W Customermates Cloud główna baza danych jest skonfigurowana w regionie AWS Frankfurt; hosting i pozostali podprocesorzy, wśród nich dostawcy z USA, są na [stronie podprocesorów](/subprocessors), a [umowa powierzenia przetwarzania danych](/dpa) jest dostępna. Customermates nie ma żadnego certyfikatu. Masz pytanie przed wyborem planu? Możesz [umówić 15-minutową rozmowę z Benem](/contact).
 
 ## Dla ubezpieczycieli i MGA zarządzających brokerami
 
@@ -206,5 +227,20 @@ Nie przez przypomnienia ani powiadomienia. Dodaj datę odnowienia do szansy, pos
 
 <FaqItem question="Czy AI zastąpi CRM dla agentów ubezpieczeniowych?">
 AI zmienia to, kto wpisuje dane do CRM. Mate lub klient MCP może zapisać rozmowę, przesunąć szansę i przygotować wiadomość o odnowieniu, ale potrzebuje dat odnowień, etapów i historii klienta, z których ma korzystać, a one żyją w CRM. Doradztwo, adekwatność i decyzje o zakresie ochrony zostają przy Tobie.
+</FaqItem>
+<FaqItem question="Na czym polega CRM dla agenta ubezpieczeniowego?">
+Na tym, żeby każdy potencjalny klient, klient i partner polecający miał jeden rekord z historią rozmów, datą odnowienia i kolejnym krokiem. W zapisanym widoku widzisz, do kogo wrócić w tym tygodniu. Polisą, składką i szkodą zajmuje się AMS.
+</FaqItem>
+
+<FaqItem question="Jaki jest najlepszy CRM dla agenta ubezpieczeniowego?">
+To zależy od tego, czy więcej sprzedajesz, czy obsługujesz. Jeśli obsługujesz polisy, zacznij od programu do obsługi agencji (AMS) z rejestrem polis i dokumentami. Jeśli problemem jest follow-up po ofertach i przed odnowieniami, obok AMS sprawdza się CRM taki jak Customermates; to nasz własny produkt, więc miej to na uwadze. Plany i ceny są w sekcji „Ile to kosztuje”.
+</FaqItem>
+
+<FaqItem question="Czy w Customermates mogę prowadzić bazę polis z pojazdami i nieruchomościami?">
+Nie jako rejestr polis. Przy szansie dodasz własne pola, takie jak rodzaj ubezpieczenia, ubezpieczyciel, data odnowienia czy numer polisy, ale ewidencja pojazdów i nieruchomości, dokumenty polisowe i historia szkód należą do Twojego AMS.
+</FaqItem>
+
+<FaqItem question="Co z RODO i nadzorem KNF, gdy trzymam klientów w CRM?">
+To zależy od danych, które zapisujesz, i od zasad Twojej agencji oraz zakładu ubezpieczeń. Zapisuj to, co potrzebne do kontaktu i sprzedaży, informacje o zdrowiu i akta szkód zostaw poza CRM, a dostęp ogranicz rolami. Pytania o podstawę prawną i wymogi nadzoru skieruj do prawnika lub inspektora ochrony danych; ta strona nie jest poradą prawną.
 </FaqItem>
 </Faq>

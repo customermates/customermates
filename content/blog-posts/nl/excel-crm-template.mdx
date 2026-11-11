@@ -1,6 +1,6 @@
 ---
-title: "Excel CRM template: gratis sheet met formules en dropdowns"
-description: "Excel CRM template gratis: zes sheets met dropdowns en formules voor pipeline en verkopers, zo gebouwd dat elke sheet later in een CRM te importeren is."
+title: "Excel CRM template gratis: 6 sheets, formules, dropdowns"
+description: "Excel CRM template gratis: zes sheets met dropdowns, formules en een wekelijkse tracker per verkoper, zo gebouwd dat je ze later in een CRM importeert."
 
 relatedHrefs:
   - /blog/google-sheets-crm
@@ -66,6 +66,18 @@ We hebben het Engelse voorbeeld omgezet naar schemabewuste JSON en geïmporteerd
 
 Dezelfde import opnieuw afspelen met zijn idempotentiesleutel gaf hetzelfde resultaat zonder twee extra opdrachten toe te voegen. Lees voor een echte overstap eerst de ID's van je huidige lijst, velden en opties uit en volg dan het [JSON-importcontract](/docs/app-records#bulk-import-over-the-api). Bewaar een koppeling van bron-ID's in de werkmap naar record-ID's in de CRM, lees de opgeslagen records terug en archiveer de oorspronkelijke werkmap. Dit is geen migratie van bijlagen, geen ongedaanmaakfunctie en geen doorlopende synchronisatie.
 
+## Zo gebruik je de Excel CRM template in de praktijk [#zo-gebruik-je-de-template]
+
+Een template werkt pas als er een vaste routine omheen zit. Zo houd je hem bij:
+
+1. **Kopieer de layout of download de werkmap** en sla hem op als .xlsx op een plek met automatische back-up, bijvoorbeeld OneDrive.
+2. **Vervang de voorbeeldrijen door je eigen gegevens.** Begin met de deals die nu lopen, niet met je hele oude adreslijst. Een kleine, kloppende sheet wordt gebruikt; een grote, vervuilde niet.
+3. **Leg elk gesprek meteen vast** in Activities en zet bij elke deal een volgende stap met een echte datum.
+4. **Loop elke week het dashboard door.** Sorteer Deals op de datum van de volgende stap, werk bij wat te laat is en kijk welke deals al twee weken stilstaan.
+5. **Controleer elke maand dubbelen en maak een back-up** met de datum in de bestandsnaam.
+
+Merk je dat stap 3 of 4 een keer per week mislukt omdat niemand tijd heeft, dan is dat het eerste teken van de grens die de checklist verderop beschrijft.
+
 ## Vier layoutregels vóór de eerste rij
 
 1. **Eén kopregel, één rij per record.** Geen samengevoegde cellen, geen lege rijen, geen subtotalen tussen de gegevens.
@@ -107,8 +119,8 @@ Kolommen: Company (unieke naam), Industry (dropdown), Website, City, Country, Ow
 | F LinkedIn | Profiel-URL | linkedin.com/in/sarahokafor |
 | G Contact type | Dropdown uit `ContactTypes` | Klant |
 | H Source | Dropdown uit `Sources` | Aanbeveling |
-| I Owner | Dropdown uit `Team` | Anna Berg |
-| J Last contact | Datum | 2025-11-28 |
+| I Owner | Dropdown uit `Team` | Anna Visser |
+| J Last contact | Datum | 28-11-2025 |
 | K Notes | Korte tekst | Wil liefst voor 10:00 gebeld worden |
 
 Houd voor- en achternaam gescheiden: de meeste CRM's hebben allebei nodig om een persoon aan te maken.
@@ -120,14 +132,14 @@ Houd voor- en achternaam gescheiden: de meeste CRM's hebben allebei nodig om een
 | A Deal | Tekst | Beveiligingsreview Brookfield Architects |
 | B Company | Dropdown uit `Companies` | Brookfield Architects |
 | C Contact | Volledige naam van de contactpersoon | Sarah Okafor |
-| D Value | Getal | 18000 |
+| D Value | Getal | 18.000 |
 | E Stage | Dropdown uit `Stages` | Proposal |
 | F Probability | Formule | 60% |
-| G Weighted | Formule | 10800 |
-| H Expected close | Datum | 2026-01-31 |
-| I Owner | Dropdown uit `Team` | Anna Berg |
+| G Weighted | Formule | 10.800 |
+| H Expected close | Datum | 31-01-2026 |
+| I Owner | Dropdown uit `Team` | Anna Visser |
 | J Next step | Één zin | Herziene scope sturen |
-| K Next step date | Datum | 2025-12-04 |
+| K Next step date | Datum | 04-12-2025 |
 | L Closed on | Datum, ingevuld bij Won of Lost | |
 | M Loss reason | Dropdown: Prijs, Timing, Concurrent, Geen beslissing | |
 
@@ -138,7 +150,14 @@ F  Probability   =XLOOKUP([@Stage],Stages[Stage],Stages[Probability],0)
 G  Weighted      =[@Value]*[@Probability]
 ```
 
-XLOOKUP vraagt om Excel voor Microsoft 365, 2021 of 2024. De [XLOOKUP-referentie](https://support.microsoft.com/en-us/excel/functions/xlookup-function) van Microsoft zegt dat de functie niet beschikbaar is in Excel 2016 en 2019, waar `=INDEX(Stages[Probability],MATCH([@Stage],Stages[Stage],0))` hetzelfde doet.
+In een Nederlandse Excel typ je dezelfde formules met vertaalde functienamen en puntkomma's:
+
+```
+F  Probability   =X.ZOEKEN([@Stage];Stages[Stage];Stages[Probability];0)
+Open pipeline    =SOMMEN.ALS(Deals[Value];Deals[Stage];"<>Won";Deals[Stage];"<>Lost")
+```
+
+XLOOKUP (X.ZOEKEN) vraagt om Excel voor Microsoft 365, 2021 of 2024. De [XLOOKUP-referentie](https://support.microsoft.com/en-us/excel/functions/xlookup-function) van Microsoft zegt dat de functie niet beschikbaar is in Excel 2016 en 2019, waar `=INDEX(Stages[Probability],MATCH([@Stage],Stages[Stage],0))` hetzelfde doet.
 
 Om verstreken datums van de volgende stap rood te kleuren, selecteer je de gegevensrijen van kolom K en voeg je een regel toe onder Start › Voorwaardelijke opmaak › Nieuwe regel › "Een formule gebruiken om te bepalen welke cellen worden opgemaakt": `=AND($K2<>"",TODAY()>$K2)`. De kleur ziet alleen wie het bestand opent. De werkmap zelf waarschuwt niemand.
 
@@ -200,7 +219,7 @@ Omvang is zelden de reden; deze grenzen komen het eerst naar boven.
 
 Gelden er twee hiervan, dan zou ik overstappen. Eén alleen is meestal binnen de werkmap op te lossen.
 
-## De template naar Customermates verplaatsen
+## De template naar Customermates verplaatsen [#de-template-naar-customermates-verplaatsen]
 
 Customermates importeert Excel-werkmappen (.xlsx of .xls) en CSV-bestanden, één lijst tegelijk. De [importdocumentatie](/docs/app-records#how-do-i-import-or-export-records) bevat alle regels. Een spreadsheet volgt alleen op als iemand eraan denkt hem te openen. Zodra de sheet in Customermates staat, staan de gesprekken van elke klant op het klantrecord (in Customermates Cloud vanaf Pro), stelt Mate of je eigen AI-agent het antwoord en de volgende stap op, en voedt de datum van de volgende stap je dashboard in plaats van een rode cel. Hier landen de kolommen van de template:
 
@@ -257,6 +276,18 @@ Customermates heeft [berekende velden](/docs/concepts#how-do-i-build-a-calculate
 ## Veelgestelde vragen
 
 <Faq>
+<FaqItem question="Hoe gebruik je een Excel CRM template?">
+Kopieer de layout of download de werkmap, vervang de voorbeeldrijen door je lopende deals, leg elk gesprek vast in Activities en zet bij elke deal een volgende stap met datum. Loop elke week het dashboard door en maak een back-up. De stappen staan in het gedeelte "Zo gebruik je de Excel CRM template in de praktijk".
+</FaqItem>
+
+<FaqItem question="Is er een Excel CRM template in het Nederlands?">
+De downloadbare werkmappen zijn er in het Engels en het Duits; de layout in dit artikel gebruikt Engelse sheet- en kolomnamen, omdat de formules ze gebruiken. Je kunt alles hernoemen, maar pas dan de formules aan. Een Nederlandse Excel toont de formules met vertaalde functienamen en puntkomma's, zoals hierboven staat.
+</FaqItem>
+
+<FaqItem question="Wat zijn de nadelen van een CRM in Excel?">
+Koppelingen tussen bedrijven, contacten en deals zijn tekst en breken als een naam verandert, het bestand waarschuwt niemand, toegang is alles of niets en persoonsgegevens verspreiden zich over kopieën. Het gedeelte "Waar een spreadsheet-CRM ophoudt te werken" werkt deze grenzen uit.
+</FaqItem>
+
 <FaqItem question="Kun je een CRM in Excel bouwen?">
 Ja, voor een klein team. De layout met zes sheets hierboven dekt bedrijven, contacten, deals, activiteiten en een dashboard. Wat Excel zelf niet kan, is iemand waarschuwen, koppelingen intact houden als een naam verandert, of gesprekken binnenhalen. Excel is een spreadsheet, geen CRM; Microsoft verkoopt zijn CRM apart als [Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales).
 </FaqItem>

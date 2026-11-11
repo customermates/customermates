@@ -1,6 +1,6 @@
 ---
-title: "Pipeline de ventas: etapas, configuración y revisión semanal"
-description: "Pipeline de ventas: cada oportunidad por etapa, valor y siguiente paso. Criterios de salida, cómo construirlo, cobertura y una configuración de CRM."
+title: "Pipeline de ventas: qué es, etapas y cómo construirlo"
+description: "Pipeline de ventas: qué es, etapas con criterios de salida, cómo construirlo paso a paso, métricas, plantilla en Excel y una revisión semanal en tu CRM."
 
 relatedHrefs:
   - /blog/sales-plan-template
@@ -39,7 +39,7 @@ Convierte tu objetivo en acciones por cuenta, responsables y fechas de revisión
 
 ## Pipeline, embudo y proceso de ventas
 
-La gente usa las tres palabras con holgura. La distinción solo importa cuando decides qué medir.
+La gente usa las tres palabras con bastante libertad. La distinción solo importa cuando decides qué medir.
 
 | Término | Qué describe | Pregunta a la que responde |
 |---|---|---|
@@ -48,6 +48,25 @@ La gente usa las tres palabras con holgura. La distinción solo importa cuando d
 | Embudo de ventas | La conversión entre etapas en muchos leads a lo largo del tiempo | ¿Cuántos leads necesitamos para ganar un cliente? |
 
 Un pipeline trata de oportunidades con nombre. Si no puedes señalar una tarjeta y decir quién es el comprador y qué pasa el jueves, es un informe de embudo, no un pipeline.
+
+## ¿Cómo se pronuncia pipeline y qué sinónimos tiene en español? [#sinonimos-y-pronunciacion]
+
+En español se dice casi siempre «el pipeline» y se pronuncia más o menos «páip-lain», como en inglés. Su sentido literal es «tubería» u «oleoducto», y de ahí la imagen: las oportunidades avanzan por un conducto, etapa a etapa. Los términos más cercanos son:
+
+- **Pipeline comercial:** el sinónimo exacto, y el que más se ve fuera de las herramientas.
+- **Embudo de ventas:** se usa a menudo como sinónimo, pero mide otra cosa: la conversión entre etapas en muchos leads, como en la tabla de arriba.
+- **Canalización de ventas o tubería de ventas:** traducciones literales que a veces aparecen en programas en español. Significan lo mismo que pipeline.
+- **Proceso de ventas:** los pasos que da el equipo, no las oportunidades que avanzan por ellos.
+
+## ¿Qué beneficios tiene un pipeline de ventas? [#beneficios]
+
+- **Ves en qué punto está cada oportunidad,** con su valor y su siguiente paso, sin preguntar a nadie.
+- **Priorizas con criterio.** La revisión semanal empieza por las etapas avanzadas, donde un día de retraso cuesta más.
+- **Detectas los cuellos de botella.** Si muchas oportunidades llegan a propuesta y pocas pasan de ahí, el problema es la oferta, no el origen de los leads.
+- **Prevés con más base.** El valor ponderado y la cobertura convierten el pipeline en una estimación de ingresos, el punto de partida del [pronóstico de ventas](/blog/sales-forecasting).
+- **Compartes el trabajo.** Con etapas definidas y un responsable por oportunidad, cualquiera del equipo entiende el estado de una cuenta sin una reunión.
+
+Un pipeline solo da estos beneficios mientras sea veraz. Por eso las secciones siguientes insisten en las condiciones de entrada y en la revisión semanal.
 
 ## Las etapas del pipeline de ventas y sus criterios de salida
 
@@ -95,6 +114,25 @@ Imagina una pequeña consultora con tres oportunidades abiertas. Los valores y l
 El pipeline bruto dice 45.000 €. El pipeline ponderado dice 18.000 €, y eso se acerca más a lo que los socios deberían tomar como base para planificar. Fíjate en que la oportunidad más grande por valor es la que menos valor ponderado aporta, porque aún está en una fase temprana. Esa es la conversación que hay que tener en la revisión del lunes: ¿qué tiene que ocurrir para que el retainer llegue a Demo, y para cuándo?
 
 Para convertir el pipeline ponderado en un número trimestral, con fechas de cierre previstas, un suelo de commit y una comprobación lado a lado con la tasa de éxito y el run-rate, consulta nuestra guía de [pronóstico de ventas](/blog/sales-forecasting).
+
+## Plantilla de pipeline de ventas en Excel o Google Sheets [#plantilla-excel]
+
+Una hoja de cálculo basta para empezar si trabajas solo y tienes pocas oportunidades abiertas. Una fila por oportunidad y estas columnas:
+
+| Columna | Qué guarda | Consejo |
+|---|---|---|
+| Oportunidad | Empresa y proyecto | Una fila por negocio, no por persona |
+| Contacto | Quién decide y quién lleva la relación | |
+| Etapa | Una de tus etapas | Lista desplegable con validación de datos, para que no haya variantes |
+| Valor | Importe en una sola moneda, sin impuestos | |
+| Probabilidad | La de la etapa | Guárdala en una hoja aparte y consúltala con BUSCARV, para cambiarla en un solo sitio |
+| Valor ponderado | Valor × probabilidad | `=D2*E2` si el valor está en D y la probabilidad en E |
+| Cierre previsto | Fecha | Obligatoria desde la etapa de propuesta |
+| Siguiente paso y fecha | Qué pasa después y cuándo | Sin esto, la oportunidad espera a pasar a Perdida |
+| Responsable | Una sola persona | |
+| Última actividad | Fecha del último contacto | Filtra las que llevan más de 14 días |
+
+Una tabla dinámica por Etapa que sume Valor y Valor ponderado te da el resumen del pipeline. Cuando dos personas editan la misma hoja, o las conversaciones viven en el correo y en LinkedIn, la hoja se desactualiza y conviene un CRM. Más sobre esta vía en la [plantilla de CRM en Excel](/blog/excel-crm-template) y en la guía de [CRM en Google Sheets](/blog/google-sheets-crm).
 
 ## Las cifras que vale la pena seguir
 
@@ -162,6 +200,18 @@ El campo de etapa, sus probabilidades y un cálculo de valor ponderado pertenece
 ## Preguntas frecuentes
 
 <Faq>
+<FaqItem question="¿Qué es un pipeline de ventas y cómo funciona?">
+Es la lista de todas las oportunidades abiertas, ordenadas por la etapa que han alcanzado, cada una con un valor, un responsable y un siguiente paso. Funciona así: una oportunidad entra en una etapa cuando cumple su condición de entrada, avanza cuando cumple la de la siguiente y termina en Ganada o Perdida. Cada semana se revisa para que refleje la realidad.
+</FaqItem>
+
+<FaqItem question="¿Qué es pipeline y forecast?">
+El pipeline es la foto de hoy: qué oportunidades hay, en qué etapa y con qué valor. El forecast, o pronóstico de ventas, es la estimación de los ingresos que ganarás en un periodo, calculada a partir de ese pipeline y de tus resultados pasados. El pipeline es la materia prima y el pronóstico, el cálculo. La guía de [pronóstico de ventas](/blog/sales-forecasting) lo desarrolla con un ejemplo.
+</FaqItem>
+
+<FaqItem question="¿Cómo se hace un pipeline de ventas en Excel?">
+Crea una fila por oportunidad con las columnas oportunidad, contacto, etapa, valor, probabilidad, valor ponderado, cierre previsto, siguiente paso y responsable. Multiplica valor por probabilidad para el valor ponderado y suma por etapa con una tabla dinámica. La sección de la plantilla de arriba tiene la tabla completa.
+</FaqItem>
+
 <FaqItem question="¿Cuáles son las etapas de un pipeline de ventas?">
 Las siete habituales son Prospección, Cualificación, Demo o descubrimiento, Propuesta, Negociación, Ganada y Perdida. Las versiones más cortas fusionan las dos primeras en una sola etapa, o quitan Demo en los servicios que se venden con una llamada de descubrimiento. Más importante que el número es que cada etapa tenga una condición de entrada que otra persona pueda comprobar.
 </FaqItem>

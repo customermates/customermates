@@ -36,7 +36,7 @@ Poniżej znajdziesz uszeregowaną tabelę siedmiu CRM ze źródłami sprawdzonym
   <SummaryItem label="Krótka odpowiedź">Claude pracuje z CRM przez konektor MCP. Claude staje się interfejsem; CRM nadal przechowuje rekordy, uprawnienia i historię.</SummaryItem>
   <SummaryItem label="Plan Claude">Własne konektory działają w każdym planie Claude, a Free pozwala na jeden. Niektóre konektory dostawców, na przykład HubSpot, wymagają płatnego planu Claude.</SummaryItem>
   <SummaryItem label="Kontrola">Claude pozwala ustawić każde narzędzie na Always allow, Needs approval lub Blocked. Wszystko, co zapisuje, wysyła lub usuwa, zostaw na akceptacji.</SummaryItem>
-  <SummaryItem label="Dowód">Zanim na tym polegasz, wykonaj jeden odczyt i jedną aktualizację i sprawdź zmianę w samym CRM.</SummaryItem>
+  <SummaryItem label="Weryfikacja">Zanim na tym polegasz, wykonaj jeden odczyt i jedną aktualizację i sprawdź zmianę w samym CRM.</SummaryItem>
   <SummaryItem label="Ujawnienie">Customermates publikuje ten poradnik. Fakty o dostawcach sprawdziliśmy 10 listopada 2026 na ich własnych stronach. Przeczytaliśmy każdą stronę; nie uruchomiliśmy każdego konektora.</SummaryItem>
 </ArticleSummary>
 
@@ -44,10 +44,10 @@ Poniżej znajdziesz uszeregowaną tabelę siedmiu CRM ze źródłami sprawdzonym
 
 | Co masz na myśli | Jak to działa | Pasuje do | Na co uważać |
 | --- | --- | --- | --- |
-| Claude obsługuje Twoje istniejące CRM | Serwer MCP lub konektor dostawcy CRM, dodany w Claude | Zespoły, które już trzymają klientów w CRM | Wymagania co do planu po obu stronach, brakujące akcje, takie jak usuwanie |
+| Claude obsługuje Twój istniejący CRM | Serwer MCP lub konektor dostawcy CRM, dodany w Claude | Zespoły, które już trzymają klientów w CRM | Wymagania co do planu po obu stronach, brakujące akcje, takie jak usuwanie |
 | Claude pracuje w interfejsie webowym CRM | Claude in Chrome używa Twojej zalogowanej sesji w przeglądarce. [Własny przykład Anthropic](https://academy.claude.com/use-cases/log-sales-calls-to-your-crm) dopasowuje uczestników z kalendarza do kontaktów w Salesforce i przygotowuje zapisy rozmów | Jedna osoba, okazjonalne zapisy, bez konfiguracji API | Wolniejsze niż konektor i zależy od układu strony |
 | Claude jest CRM | Notatki w projekcie Claude albo baza Notion, którą Claude aktualizuje przez serwer MCP Notion | Jedna osoba z krótką listą relacji | Brak wspólnych uprawnień i historii audytu, a pola się rozjeżdżają, jeśli ich nie zdefiniujesz |
-| Budujesz CRM z Claude Code | Claude Code pisze dla ciebie własną aplikację | Nietypowe modele danych, projekty do nauki | Samodzielnie utrzymujesz logowanie, kopie zapasowe, uprawnienia i integracje ([zbudować czy dostosować](/blog/customizable-crm)) |
+| Budujesz CRM z Claude Code | Claude Code pisze dla Ciebie własną aplikację | Nietypowe modele danych, projekty do nauki | Samodzielnie utrzymujesz logowanie, kopie zapasowe, uprawnienia i integracje ([zbudować czy dostosować](/blog/customizable-crm)) |
 
 Większość wyników wyszukiwania dla „Claude CRM” dotyczy pierwszego wiersza, więc reszta tego poradnika jest o konektorach.
 
@@ -62,7 +62,7 @@ Narzędzia pochodzą z CRM, a nie z Claude, więc dokładna lista zależy od dos
 
 Claude sam wybiera narzędzia i ich kolejność. Dobrze to działa przy kilku rekordach na prośbę. Przy setkach wierszy obowiązują limity dostawców (konektor HubSpot tworzy lub aktualizuje zbiorczo po 10 rekordów naraz), a lepszym narzędziem jest import.
 
-## Które CRM mają konektor do Claude, w rankingu?
+## Które CRM mają konektor do Claude? Ranking
 
 Ten ranking publikuje Customermates i opiera go na trzech rzeczach, które podaje dokumentacja samych dostawców: jak duży dostęp do rozmów z klientami ma Claude (e-mail, LinkedIn i czat, nie tylko rekordy), ile Claude może zapisać i kto kontroluje uprawnienia. Test dopasowania to mały zespół pracujący z klientami: kilka stanowisk, długie historie e-maili i czatów, nikt do administrowania platformą. Sprawdzone 10 listopada 2026 na własnej stronie MCP lub konektora każdego dostawcy, podlinkowanej w drugiej kolumnie. Przeczytaliśmy te strony i nie uruchomiliśmy każdego konektora, więc wiersz pokazuje to, co dostawca dokumentuje, a nie pomiar. Customermates zajmuje pierwsze miejsce według własnych kryteriów, więc przeczytaj strony dostawców, zanim zdecydujesz.
 
@@ -80,7 +80,7 @@ Copper jest na ostatnim miejscu, bo na razie nie ma czego podłączać. Konektor
 
 ### Kiedy lepszy jest inny wiersz?
 
-- **Close**, jeśli Twój zespół sprzedaje przez telefon albo chcesz, żeby samo CRM oferowało zakres tylko do odczytu. Customermates nie ma telefonii, a jego połączenie niesie uprawnienia Twojej roli, bez zakresu dla klucza.
+- **Close**, jeśli Twój zespół sprzedaje przez telefon albo chcesz, żeby sam CRM oferował zakres tylko do odczytu. Customermates nie ma telefonii, a jego połączenie niesie uprawnienia Twojej roli, bez zakresu dla klucza.
 - **Breakcold** to najbliższa alternatywa do tego samego zadania, ze skrzynką odbiorczą w MCP. Na swojej stronie produktu publikuje gotowy pakiet Cowork Skill dla Claude, co jest powodem, żeby go wybrać.
 - **Attio**, jeśli chcesz niestandardowy model danych z listami i raportami, które Claude może odpytywać.
 - **HubSpot**, jeśli Twój zespół już go używa albo potrzebuje obiektów marketingowych i obsługi klienta, takich jak zgłoszenia, e-maile marketingowe i strony docelowe, obok rekordów sprzedaży.
@@ -106,13 +106,13 @@ Kroki są takie same dla każdego CRM ze zdalnym serwerem MCP; uszeregowana tabe
 
 <Steps>
   <Step title="Sprawdź, kto może dodać konektor">
-    W Free, Pro i Max dodajesz go sam; Free pozwala na jeden własny konektor. W Team i Enterprise dodaje go Owner w **Organization settings › Connectors**, a potem każdy członek łączy się osobno.
+    W Free, Pro i Max dodajesz go samodzielnie; Free pozwala na jeden własny konektor. W Team i Enterprise dodaje go Owner w **Organization settings › Connectors**, a potem każdy członek łączy się osobno.
   </Step>
   <Step title="Znajdź konektor albo dodaj adres serwera">
     W Claude otwórz **Customize › Connectors**. Konektor, który Claude wymienia na liście, taki jak HubSpot, Attio czy Pipedrive, znajdziesz wyszukiwaniem i klikasz **Connect**. Dla serwera, którego nie ma na liście, takiego jak serwer Breakcold `https://mcp.breakcold.com/mcp/v1`, kliknij **+**, wybierz **Add custom connector** i wklej adres MCP dostawcy.
   </Step>
   <Step title="Zaloguj się i zatwierdź">
-    CRM otwiera okno logowania. Przeczytaj, jakiego dostępu żąda, a potem zatwierdź. Od tej chwili Claude działa jako ty, z uprawnieniami Twojej roli.
+    CRM otwiera okno logowania. Przeczytaj, jakiego dostępu żąda, a potem zatwierdź. Od tej chwili Claude działa jako Ty, z uprawnieniami Twojej roli.
   </Step>
   <Step title="Ustaw uprawnienia narzędzi">
     Wybierz konektor w **Customize › Connectors**, żeby zobaczyć **Tool permissions**. Narzędzia do odczytu ustaw na **Always allow**, a wszystko, co zapisuje, wysyła lub usuwa, zostaw na **Needs approval**. W Team i Enterprise Owner może ograniczyć akcje konektora dla całej organizacji, a członkowie nie mogą tego zmienić.
@@ -164,9 +164,9 @@ Customermates łączy się jako własny konektor, co działa w każdym planie Cl
 
 Tu konfiguracje różnią się najbardziej, a błędne założenie kosztuje dane.
 
-- **Bramką jest zwykle klient.** Serwer MCP Customermates mówi podłączonym klientom, żeby przed usunięciem lub wysłaniem potwierdzili to z tobą, ale tego nie wymusza: gdy Claude wywoła dozwolone narzędzie, akcja się wykonuje. Chronią cię **Tool permissions** w Claude. Capsule opisuje ten sam wybór: to ty decydujesz, czy Claude pyta cię przed wprowadzeniem zmian.
-- **Claude dostaje Twoje uprawnienia, nie mniejsze.** Konektor Customermates lub klucz API dziedziczy uprawnienia użytkownika, który za nim stoi; nie ma zakresu dla klucza. Jeśli Claude ma robić mniej niż ty, podłącz go jako osobnego użytkownika z węższą rolą (co zajmuje stanowisko) albo udostępnij mniej narzędzi parametrem zestawów narzędzi opisanym w [dokumentacji MCP](/docs/mcp).
-- **Wysyłka jest natychmiastowa.** Jeśli Twoje CRM może wysyłać e-maile lub wiadomości na czacie, wywołanie wysyłki wysyła. Poproś Claude o zapisanie szkicu i wyślij go sam ze skrzynki odbiorczej.
+- **Bramką jest zwykle klient.** Serwer MCP Customermates mówi podłączonym klientom, żeby przed usunięciem lub wysłaniem potwierdzili to z Tobą, ale tego nie wymusza: gdy Claude wywoła dozwolone narzędzie, akcja się wykonuje. Chronią Cię **Tool permissions** w Claude. Capsule opisuje ten sam wybór: to Ty decydujesz, czy Claude pyta Cię przed wprowadzeniem zmian.
+- **Claude dostaje Twoje uprawnienia, nie mniejsze.** Konektor Customermates lub klucz API dziedziczy uprawnienia użytkownika, który za nim stoi; nie ma zakresu dla klucza. Jeśli Claude ma robić mniej niż Ty, podłącz go jako osobnego użytkownika z węższą rolą (co zajmuje stanowisko) albo udostępnij mniej narzędzi parametrem zestawów narzędzi opisanym w [dokumentacji MCP](/docs/mcp).
+- **Wysyłka jest natychmiastowa.** Jeśli Twój CRM może wysyłać e-maile lub wiadomości na czacie, wywołanie wysyłki wysyła. Poproś Claude o zapisanie szkicu i wyślij go samodzielnie ze skrzynki odbiorczej.
 - **Zabezpieczenia dostawców są różne.** Close pyta, który z trzech zakresów przyznać (tylko odczyt, odczyt i zapis albo odczyt, zapis i usuwanie), gdy się łączysz. Attio prosi o potwierdzenie przed zapisami i pozwala Claude usuwać tylko zadania i komentarze. Konektor HubSpot nie może usuwać i stosuje warunkowe reguły walidacji właściwości i etapów lejka, ale nie walidacji etykiet powiązań. Capsule wymienia tylko akcje tworzenia i aktualizacji. Serwer Data Operations Zoho może usuwać, także zbiorczo. Wywołania OAuth w Breakcold działają jako zalogowany użytkownik, a token okaziciela niesie zakresy i przestrzenie robocze, które ustawisz.
 - **To, co Claude czyta, trafia do Anthropic.** Wyniki narzędzi stają się częścią rozmowy. Anthropic publikuje osobne [warunki dla konsumentów i dla firm](https://www.anthropic.com/legal/consumer-terms); sprawdź, które obejmują Twój plan Claude i czy potrzebujesz umowy powierzenia przetwarzania danych, zanim podłączysz dane klientów.
 
@@ -184,16 +184,16 @@ Customermates rozlicza miesięcznie za użytkownika, bez rocznej umowy. Gdy Clau
 
 ## Gdzie pasuje Customermates
 
-*Ujawnienie: ten poradnik publikuje Customermates.* Customermates to open source'owe CRM stworzone z myślą o AI, zbudowane w Niemczech dla małych zespołów pracujących z klientami: konsultantów, agencji, innych firm usługowych i założycieli. Jego punkt końcowy MCP jest częścią rdzenia AGPL, więc działa w każdym planie chmurowym i w instalacjach z samodzielnym hostingiem, z [[derived.mcp.tools.total]] narzędziami. Przez niego Claude pracuje z listami, które skonfigurujesz (na przykład kontakty, organizacje, szanse sprzedaży, usługi i zadania), ich notatkami i polami oraz Bazą wiedzy przestrzeni roboczej. W Pro i wyższych w Customermates Cloud to samo połączenie sięga do [ujednoliconej skrzynki odbiorczej](/features/unified-inbox) z rozmowami e-mail, LinkedIn, WhatsApp, Instagram i Telegram.
+*Ujawnienie: ten poradnik publikuje Customermates.* Customermates to open source'owy CRM stworzony z myślą o AI, zbudowany w Niemczech dla małych zespołów pracujących z klientami: konsultantów, agencji, innych firm usługowych i założycieli. Jego punkt końcowy MCP jest częścią rdzenia AGPL, więc działa w każdym planie chmurowym i w instalacjach z samodzielnym hostingiem, z [[derived.mcp.tools.total]] narzędziami. Przez niego Claude pracuje z listami, które skonfigurujesz (na przykład kontakty, organizacje, szanse sprzedaży, usługi i zadania), ich notatkami i polami oraz Bazą wiedzy przestrzeni roboczej. W Pro i wyższych w Customermates Cloud to samo połączenie sięga do [ujednoliconej skrzynki odbiorczej](/features/unified-inbox) z rozmowami e-mail, LinkedIn, WhatsApp, Instagram i Telegram.
 
 Cztery prompty do przetestowania konfiguracji. Customermates nie ma gotowych etapów, więc zastąp etap, organizację i nazwy szans sprzedaży w nawiasach nazwami ze swojej przestrzeni roboczej:
 
 1. „Pokaż moje otwarte szanse sprzedaży na etapie [Oferta] wraz z organizacją i wartością ważoną.” (odczyt)
 2. „W szansie sprzedaży [organizacja] ustaw Etap na [Negocjacje] i dodaj do notatek: budżet zatwierdzony na dzisiejszej rozmowie, następny krok to projekt umowy.” (aktualizacja)
-3. „Utwórz kontakt dla Sarah Lee, powiąż ją z organizacją [organizacja] i jej szansą sprzedaży oraz utwórz zadanie przypisane do mnie, żeby wysłać projekt umowy.” (utworzenie i powiązanie)
-4. „Znajdź mój ostatni wątek e-mail z Sarah Lee, podsumuj go w dwóch wierszach i zapisz odpowiedź jako szkic. Nie wysyłaj jej.” (Pro, skrzynka odbiorcza)
+3. „Utwórz kontakt dla Katarzyny Lis, powiąż ją z organizacją [organizacja] i jej szansą sprzedaży oraz utwórz zadanie przypisane do mnie, żeby wysłać projekt umowy.” (utworzenie i powiązanie)
+4. „Znajdź mój ostatni wątek e-mail z Katarzyną Lis, podsumuj go w dwóch wierszach i zapisz odpowiedź jako szkic. Nie wysyłaj jej.” (Pro, skrzynka odbiorcza)
 
-Czwarty prompt to follow-up w jednym zdaniu: Claude czyta wątek przy rekordzie klienta i przygotowuje odpowiedź, a ty sprawdzasz, poprawiasz i wysyłasz. Żeby uruchomić go na własnym koncie Claude, [zacznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup). Bez karty kredytowej.
+Czwarty prompt to follow-up w jednym zdaniu: Claude czyta wątek przy rekordzie klienta i przygotowuje odpowiedź, a Ty sprawdzasz, poprawiasz i wysyłasz. Żeby uruchomić go na własnym koncie Claude, [zacznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup). Bez karty kredytowej.
 
 Jeśli wolisz nie prowadzić własnego klienta AI, Mate to asystent wewnątrz Customermates Cloud. Korzysta z miesięcznych hostowanych kredytów AI na aktywnego użytkownika, które wchodzą w skład każdego planu płatnego, przygotowuje podsumowania i szkice odpowiedzi oraz uruchamia rutyny: zapisane instrukcje według harmonogramu lub przy zdarzeniach w rekordach. W Customermates Cloud główna produkcyjna baza danych jest skonfigurowana w regionie AWS we Frankfurcie. To wybrane ustawienie, a nie gwarancja miejsca przechowywania danych, a podmioty przetwarzające są wymienione publicznie.
 
@@ -203,11 +203,11 @@ Customermates to zły wybór, jeśli potrzebujesz dialera telefonicznego, sekwen
 
 <Faq>
 <FaqItem question="Czy Claude można używać jako CRM?">
-Dla jednej osoby z krótką listą, tak. Projekt Claude albo baza Notion, którą Claude aktualizuje, może pomieścić kontakty i notatki. Zespół potrzebuje więcej niż historii czatu: wspólnych uprawnień, zdefiniowanych pól i zapisu, kto co zmienił. Typowa konfiguracja to CRM, które przechowuje rekordy, z Claude jako interfejsem na wierzchu.
+Dla jednej osoby z krótką listą, tak. Projekt Claude albo baza Notion, którą Claude aktualizuje, może pomieścić kontakty i notatki. Zespół potrzebuje więcej niż historii czatu: wspólnych uprawnień, zdefiniowanych pól i zapisu, kto co zmienił. Typowa konfiguracja to CRM, który przechowuje rekordy, z Claude jako interfejsem na wierzchu.
 </FaqItem>
 
 <FaqItem question="Czy mogę połączyć ChatGPT lub Claude z moim CRM?">
-Tak, jeśli Twoje CRM oferuje serwer MCP albo konektor dostawcy. Claude dodaje go jako własny konektor, a ChatGPT także przyjmuje własne konektory MCP. To, które plany ChatGPT pozwalają na akcje zapisu, zależy od OpenAI, więc sprawdź jego centrum pomocy. Customermates dokumentuje konfigurację dla obu w poradniku konektora.
+Tak, jeśli Twój CRM oferuje serwer MCP albo konektor dostawcy. Claude dodaje go jako własny konektor, a ChatGPT także przyjmuje własne konektory MCP. To, które plany ChatGPT pozwalają na akcje zapisu, zależy od OpenAI, więc sprawdź jego centrum pomocy. Customermates dokumentuje konfigurację dla obu w poradniku konektora.
 </FaqItem>
 
 <FaqItem question="Jak połączyć Pipedrive z Claude Code?">
@@ -222,7 +222,7 @@ Tak, przez „Salesforce in Claude”, wtyczkę z partnerstwa Claudeforce międz
 Jeszcze nie jako produkt, który można włączyć. Strona Copper zapowiada oficjalny serwer MCP dla Claude, zbudowany i hostowany przez Copper, jako betę tylko do odczytu na listopad 2026, a 10 listopada 2026 nadal widniało „coming soon” z listą oczekujących. Dostęp do zapisu jest planowany w późniejszym wydaniu, a Copper nie ogłosił ceny. Konektory Copper od firm trzecich istnieją; Copper mówi, że większość z nich działa na kluczu API administratora, który ignoruje uprawnienia poszczególnych użytkowników.
 </FaqItem>
 
-<FaqItem question="Które CRM ma najlepszą integrację z Claude?">
+<FaqItem question="Który CRM ma najlepszą integrację z Claude?">
 To zależy od tego, do czego Claude ma mieć dostęp. Do samej rozmowy z klientem Customermates (wydawca tego poradnika) i Breakcold dokumentują dostęp do e-maili, LinkedIn i czatów przez MCP. Close dokumentuje najwyraźniejszy wybór uprawnień, z zakresami tylko odczyt, odczyt i zapis albo odczyt, zapis i usuwanie. HubSpot to wybór, jeśli Twój zespół już go używa. Uszeregowana tabela powyżej wymienia to, co dokumentuje każdy dostawca.
 </FaqItem>
 

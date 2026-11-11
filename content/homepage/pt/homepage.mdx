@@ -1,6 +1,6 @@
 ---
 title: "CRM open source para follow-up de cada cliente"
-description: "CRM open source para acompanhar cada conversa com clientes: LinkedIn e e-mail no cadastro, próximo passo com data e rascunhos do Mate para você revisar."
+description: "CRM open source (AGPL) para fazer follow-up de cada cliente: LinkedIn e e-mail no cadastro, próximo passo com data, rascunhos do Mate e hospedagem própria."
 rootMetadata:
   defaultTitle: "Customermates: follow-up de cada cliente | CRM open source"
   defaultDescription: "Faça follow-up de cada conversa com clientes: threads de LinkedIn e e-mail no cadastro, um próximo passo com data e respostas do Mate para revisar e enviar."
@@ -375,6 +375,15 @@ pricingTitle:
 faq:
   title: Perguntas frequentes
   faqs:
+    - id: faq-what-is-open-source
+      title: "O que é um CRM open source?"
+      content: "Um CRM open source, ou CRM de código aberto, publica o código-fonte sob uma licença aberta: você pode ler o código, hospedá-lo no seu próprio servidor e não depende de um único fornecedor para guardar os seus dados. No Customermates, o núcleo do CRM tem licença AGPL-3.0 e o código é público no GitHub. Você pode usá-lo no Customermates Cloud ou hospedá-lo por conta própria com o conjunto de recursos do Starter."
+    - id: faq-free-open-source
+      title: "Existe um CRM open source gratuito?"
+      content: "Sim, com limites. Você pode hospedar o núcleo open source do Customermates por conta própria sem custo de licença, com o conjunto de recursos do Starter, mas então você opera o servidor, os backups e as atualizações, e a caixa de entrada, o Mate e as rotinas não estão incluídos. No Customermates Cloud, depois do teste do Pro de [[commercial.trial.days]] dias, há um plano Free para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros."
+    - id: faq-self-host
+      title: "Como funciona a hospedagem própria do Customermates?"
+      content: "Uma instalação com hospedagem própria roda com Docker Compose sobre PostgreSQL 16 e tem o conjunto de recursos do Starter: CRM essencial, API REST, webhooks e MCP. Não tem caixa de entrada, Mate nem configuração com IA. Você opera o servidor, os backups e as atualizações. O guia de hospedagem própria está na documentação."
     - id: faq-keep-crm
       title: Preciso trocar o meu CRM?
       content: "Não. Você pode começar conectando o LinkedIn ou o e-mail e usar o Customermates para conversas, rascunhos e próximos passos enquanto o seu CRM atual continua com o pipeline. Importe contatos de uma pasta de trabalho do Excel quando quiser, e conecte outras ferramentas pela API REST, por webhooks ou pelo n8n. Não há sincronização bidirecional nativa com outros CRMs."

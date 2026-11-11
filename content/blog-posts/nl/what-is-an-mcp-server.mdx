@@ -1,6 +1,6 @@
 ---
-title: "Wat is een MCP server? Tools, lokaal vs remote, beveiliging"
-description: "Wat is een MCP server en wat geeft hij Claude, ChatGPT of Cursor: tools, resources, prompts, lokaal of remote, MCP vs API, risico's en een echt CRM-voorbeeld."
+title: "MCP server uitgelegd: tools, lokaal of remote, API, risico's"
+description: "Wat is een MCP server en wat kan Claude, ChatGPT of Cursor ermee? Tools, lokaal of remote, MCP vs API, zelf bouwen, risico's en een echt CRM-voorbeeld."
 
 hero:
   title: "Wat is een MCP server? Een heldere uitleg met een echt voorbeeld"
@@ -26,13 +26,13 @@ relatedHrefs:
 
 # Wat is een MCP server? Een heldere uitleg met een echt voorbeeld
 
-Wat is een MCP server? Het is een programma dat een AI-toepassing via het Model Context Protocol (MCP), een open standaard, een set tools, data en promptsjablonen aanbiedt, zodat Claude, ChatGPT, Cursor of een andere MCP-client dingen kan opzoeken en acties kan uitvoeren in een systeem dat hij anders niet zou bereiken. De server staat voor dat systeem, een map met bestanden, een database of een CRM, en bepaalt wat de AI daar mag zien en doen.
+Wat is een MCP server? Het is een programma dat een AI-toepassing via het Model Context Protocol (MCP), een open standaard, een set tools, data en promptsjablonen aanbiedt. Daardoor kan Claude, ChatGPT, Cursor of een andere MCP-client dingen opzoeken en acties uitvoeren in een systeem dat de client anders niet zou bereiken. De server staat voor dat systeem, een map met bestanden, een database of een CRM, en bepaalt wat de AI daar mag zien en doen.
 
 Anthropic introduceerde MCP op 25 november 2024 als open standaard om AI-assistenten te verbinden met de systemen waar data staat. Sindsdien hebben de grote AI-clients ondersteuning toegevoegd en draaien veel softwareleveranciers eigen servers. Deze gids legt de onderdelen in gewone taal uit en loopt daarna één echte server voor bedrijfsdata door: de MCP server die in Customermates is ingebouwd, het open-source CRM dat dit artikel publiceert.
 
-Voor een vaste integratie en een AI-client vergelijk je [MCP versus API bij dezelfde klantrecordtaak](/blog/mcp-vs-api). Tooldetectie verandert hoe de client een bewerking vindt; authenticatie en rechten blijven gelden.
+Twijfel je tussen een vaste integratie en een AI-client? Zet [MCP en API naast elkaar bij dezelfde klantrecordtaak](/blog/mcp-vs-api). Tooldetectie verandert alleen hoe de client een bewerking vindt; authenticatie en rechten blijven gelden.
 
-Voor een n8n-workflow maakt de [vergelijking van n8n MCP-routes met een versiegebonden voorbeeld](/blog/n8n-mcp) onderscheid tussen n8n verbinden met een klantdataserver en n8n zelf beschikbaar stellen aan een AI-client. Kies de richting voordat je inloggegevens instelt.
+Werk je met n8n? De [vergelijking van n8n MCP-routes met een versiegebonden voorbeeld](/blog/n8n-mcp) maakt onderscheid tussen n8n verbinden met een klantdataserver en n8n zelf beschikbaar stellen aan een AI-client. Kies eerst de richting en stel daarna pas inloggegevens in.
 
 <ArticleSummary title="In het kort">
   <SummaryItem label="In één zin">
@@ -120,11 +120,39 @@ Ja. Gecontroleerd op 30 oktober 2026:
 
 Een server die de specificatie volgt, werkt met al deze clients, al verschillen die in wat ze ondersteunen. Sommige tonen alleen tools en negeren resources en prompts, en ze gaan verschillend met goedkeuringen om.
 
+## Voorbeelden van MCP servers [#voorbeelden-mcp-servers]
+
+Er zijn MCP servers voor bijna elk soort systeem. De meeste vallen in een paar groepen:
+
+| Soort server | Wat de AI ermee kan | Voorbeeldtools |
+| --- | --- | --- |
+| Bestanden | Mappen lezen en bestanden zoeken of aanpassen | Map oplijsten, bestand lezen, tekst zoeken |
+| Database | Het schema bekijken en gegevens opvragen | Tabellen oplijsten, een query uitvoeren |
+| Foutmonitoring | Fouten en stacktraces ophalen om ze te analyseren | Recente fouten zoeken, een melding openen |
+| CRM | Klanten, deals en taken opzoeken of bijwerken | Records zoeken, een taak aanmaken |
+| Agenda en e-mail | Afspraken opzoeken en antwoorden voorbereiden | Afspraken lezen, een concept schrijven |
+
+Vier servers uit dit artikel passen erin: de referentie-bestandssysteemserver (bestanden), de server van Sentry (foutmonitoring), die van HubSpot en het Customermates-endpoint (CRM). Er bestaan ook openbare catalogi met communityservers. Behandel die als code van derden en lees de beveiligingschecklist hieronder voordat je er een verbindt.
+
 ## Heb je een MCP server nodig?
 
-De meeste mensen bouwen er nooit een. Je verbindt de servers die je softwareleveranciers al draaien, zoals je een app installeert. Een eigen server heb je pas nodig wanneer een intern systeem of een nichetool er geen heeft en je wilt dat een AI-client ermee werkt.
+De meeste mensen bouwen er nooit een. Je verbindt de servers die je softwareleveranciers al draaien, zoals je een app installeert. Installeren hoeft meestal niet eens: een remote server voeg je toe met een URL en een login, en bij een lokale server start de AI-toepassing het pakket zelf op basis van een regel in het configuratiebestand. Een eigen server heb je pas nodig wanneer een intern systeem of een nichetool er geen heeft en je wilt dat een AI-client ermee werkt.
 
 Controleer voordat je de server van een leverancier verbindt drie dingen: of het de officiële server van de leverancier is of een communityproject, wat hij kan schrijven of verwijderen en welk pakket aan beide kanten nodig is. Onze gidsen over de [HubSpot MCP server](/blog/hubspot-mcp) en [Salesforce MCP](/blog/salesforce-mcp) laten zien hoe verschillend twee officiële servers kunnen zijn, en de [Claude CRM-gids](/blog/claude-crm) vergelijkt de connectoren van meerdere CRM's.
+
+## Hoe bouw en test je zelf een MCP server? [#eigen-mcp-server-bouwen]
+
+Een eigen server bouwen is overzichtelijker dan het klinkt, zeker voor één of twee tools. De MCP-documentatie heeft een stapsgewijze tutorial, "Build an MCP server", en officiële SDK's bestaan onder meer voor Python en TypeScript. Het patroon is overal hetzelfde:
+
+1. **Begin klein.** Kies één tool die één duidelijke klus doet, bijvoorbeeld "zoek een klant op". Een tool heeft een naam, een beschrijving en een invoerschema. Het model leest de beschrijving om te beslissen of het de tool nodig heeft, dus schrijf die zorgvuldig.
+2. **Kies het transport.** stdio voor een lokale server die de AI-toepassing zelf start, Streamable HTTP voor een remote server waar mensen op inloggen.
+3. **Schrijf de tool met een SDK.** De SDK regelt het protocol, dus ook `tools/list`, en jij schrijft de functie zelf. In Python kan de SDK de tooldefinitie afleiden uit typehints en docstrings.
+4. **Let op je logging bij stdio.** Een stdio-server mag naar standaarduitvoer alleen protocolberichten schrijven. Log naar standaardfout (stderr) of naar een bestand, anders raakt de client in de war.
+5. **Test eerst zonder AI.** De MCP Inspector, het testprogramma van het project, laat je de tools oplijsten en met eigen invoer aanroepen. Zo zie je of de beschrijvingen en schema's kloppen.
+6. **Test daarna in een echte client.** Voeg de server toe aan Claude Desktop (lokaal) of als aangepaste connector (remote) en stel een vraag waarvoor het model de tool moet kiezen.
+7. **Beveilig voordat je deelt.** Controleer invoer, begin met alleen-lezen tools en houd geheimen buiten de code. De beveiligingschecklist verderop geldt ook voor jouw eigen server.
+
+Wil je geen code schrijven? Dan is de server van de leverancier van het systeem meestal de snelste route.
 
 ## Een echte zakelijke MCP server, van begin tot eind
 
@@ -180,6 +208,14 @@ De specificatie stelt dat tools willekeurige code-uitvoering vertegenwoordigen e
 Het is een adapter tussen een AI-assistent en een ander systeem. De server vertelt de AI welke acties en data hij aanbiedt, de AI vraagt om wat hij nodig heeft en de server voert het verzoek uit met jouw rechten.
 </FaqItem>
 
+<FaqItem question="Waar staat MCP voor?">
+Model Context Protocol. Het is een open standaard die Anthropic op 25 november 2024 introduceerde om AI-assistenten te verbinden met de systemen waar data staat. "Context" slaat op de gegevens en tools die een AI nodig heeft om een verzoek goed uit te voeren.
+</FaqItem>
+
+<FaqItem question="Is MCP hetzelfde als een API?">
+Nee. Een API is een interface voor code die al weet welk endpoint ze nodig heeft. MCP is een standaard waarmee een server beschrijft welke acties hij aanbiedt, zodat een AI ze zelf kan ontdekken en aanroepen. In de praktijk staat een MCP server vaak bovenop een bestaande API. Het volledige verschil staat in [MCP versus API](/blog/mcp-vs-api).
+</FaqItem>
+
 <FaqItem question="Wat is het verschil tussen een MCP-client en een MCP server?">
 De client leeft in de AI-toepassing, bijvoorbeeld Claude of Cursor, en houdt de verbinding vast. De server is het programma aan de andere kant dat tools, resources en prompts aanbiedt. Eén toepassing kan veel clients draaien, een per verbonden server.
 </FaqItem>
@@ -194,6 +230,14 @@ Nee. Remote servers voeg je toe met een URL en een login. Lokale servers vragen 
 
 <FaqItem question="Kan een MCP server mijn data verwijderen?">
 Als hij een verwijdertool aanbiedt en je account mag verwijderen, ja. Kijk welke tools een server aanbiedt, verbind met de smalste rechten die werken en houd bevestigingen voor vernietigende aanroepen aan in je client. Sommige servers, zoals die van HubSpot, documenteren geen verwijderfunctie; Customermates biedt verwijderen aan waarbij records 30 dagen naar de Prullenbak gaan.
+</FaqItem>
+
+<FaqItem question="Moet ik een MCP server installeren?">
+Meestal niet. Een remote server voeg je toe met een URL en een login. Alleen een lokale server draait op je eigen computer; daarvoor start de AI-toepassing een pakket op basis van een regel in het configuratiebestand, en dan moet de bijbehorende runtime, bijvoorbeeld Node.js of Python, op je machine staan.
+</FaqItem>
+
+<FaqItem question="Hoe bouw ik een eigen MCP server?">
+Kies een SDK, bijvoorbeeld voor Python of TypeScript, definieer een of twee tools met een duidelijke beschrijving en invoerschema, test ze met de MCP Inspector en verbind de server daarna met een echte client. De stappen staan in [Hoe bouw en test je zelf een MCP server?](#eigen-mcp-server-bouwen).
 </FaqItem>
 
 <FaqItem question="Zijn MCP servers gratis?">

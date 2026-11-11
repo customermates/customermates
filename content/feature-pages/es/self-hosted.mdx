@@ -94,9 +94,9 @@ sections:
         description: "Lee la guía de autoalojamiento y consulta el archivo Compose actual en el repositorio."
       - title: "Comprueba el límite de la edición"
         description: "Confirma que el conjunto de funciones de Starter cubre los registros, las vistas y las interfaces que necesita tu flujo de trabajo."
-      - title: "Mapea los servicios externos"
-        description: "Haz una lista de cada proveedor de SMTP, OAuth, monitorización, flujos de trabajo o IA que pienses configurar y de los datos que recibe cada uno."
-      - title: "Diseña la operación"
+      - title: "Haz un inventario de los servicios externos"
+        description: "Anota cada proveedor de SMTP, OAuth, monitorización, flujos de trabajo o IA que pienses configurar y los datos que recibe cada uno."
+      - title: "Planifica la operación"
         description: "Define las copias de seguridad, la restauración probada, las actualizaciones, el TLS, la monitorización y el control de acceso de tu entorno."
       - title: "Prueba sin datos de clientes"
         description: "Ejecuta el flujo de trabajo completo en un entorno que no sea de producción antes de que el sistema maneje registros reales."
@@ -106,7 +106,7 @@ sections:
     items:
       - title: "Funciona en tu infraestructura"
         description: "La aplicación de Customermates y PostgreSQL 16 funcionan como dos servicios en el despliegue de Docker Compose del repositorio."
-      - title: "Producto incluido"
+      - title: "Lo que incluye"
         description: "Registros básicos del CRM, campos personalizados y vistas, REST, webhooks y MCP con el conjunto de funciones de Starter."
       - title: "Lo operas tú"
         description: "Acceso de red, TLS, actualizaciones, copias de seguridad, pruebas de restauración, monitorización y cada proveedor externo que configures."
@@ -134,7 +134,7 @@ cta:
 
 Customermates es un **CRM self hosted** que puedes ejecutar como dos servicios de Docker Compose: la aplicación y PostgreSQL 16. Encaja cuando tu equipo quiere operar la infraestructura de su CRM y usar un núcleo de código abierto. No es la edición autoalojada de todas las funciones de Customermates Cloud.
 
-Un CRM autoalojado funciona en servidores que controlas tú en lugar de en la nube del proveedor: decides dónde viven la aplicación y la base de datos, y te encargas de las actualizaciones, las copias de seguridad y la seguridad. Que el código sea de código abierto es otra cuestión, la de los derechos de licencia, que se trata en la [guía de CRM de código abierto](/blog/open-source-crm). Esta página trata el lado operativo de Customermates.
+Un CRM autoalojado funciona en servidores que controlas tú en lugar de en la nube del proveedor: decides dónde viven la aplicación y la base de datos, y te encargas de las actualizaciones, las copias de seguridad y la seguridad. Que el código sea abierto es otra cuestión, la de los derechos de licencia, que cubre la [guía de CRM de código abierto](/blog/open-source-crm). Esta página se centra en el lado operativo de Customermates.
 
 **Dónde encaja el seguimiento.** El autoalojamiento mantiene en tus propios servidores los registros de clientes, las fechas de los próximos pasos, los paneles y MCP, de modo que tu propio cliente de IA puede leerlos y actualizarlos. No tiene la bandeja de entrada que pone las conversaciones de LinkedIn y email en cada cliente, ni tiene Mate, que redacta las respuestas. Si el motivo por el que quieres el CRM es el seguimiento en borrador de las conversaciones, empieza por Customermates Cloud; el autoalojamiento encaja mejor cuando pesa más el control sobre dónde funcionan los datos.
 
@@ -158,13 +158,13 @@ El despliegue de este CRM con Docker, tal como está en el repositorio, contiene
 El archivo Compose no incluye n8n, un modelo de IA, un proveedor de envío de emails ni un worker aparte. Los emails de autenticación siguen necesitando el servicio de envío externo configurado. Si conectas algún proveedor, esa integración la operas por separado y conviene que revises los datos que recibe.
 
 <AcquisitionCallout
-  title="El límite del despliegue es más pequeño que el límite del sistema completo"
+  title="El despliegue es más pequeño que el sistema completo"
   variant="proof"
 >
   La aplicación y la base de datos pueden funcionar en tu infraestructura mientras
   SMTP, OAuth, la monitorización, las herramientas de flujos de trabajo y la IA
-  externa siguen siendo servicios aparte siempre que los configures. Mapea esos
-  proveedores antes de elegir el modelo de despliegue.
+  externa siguen siendo servicios aparte siempre que los configures. Haz un inventario
+  de esos proveedores antes de elegir el modelo de despliegue.
 </AcquisitionCallout>
 
 ## ¿Qué incluye y qué no incluye?

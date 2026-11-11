@@ -1,6 +1,6 @@
 ---
-title: "CRM Google Sheets: plantilla gratis y guía de uso"
-description: "CRM Google Sheets: plantilla gratis con cinco pestañas, listas desplegables, fórmulas QUERY, correo diario con Apps Script y cuándo la hoja se queda corta."
+title: "CRM Google Sheets: plantilla gratis, cómo montarlo y límites"
+description: "CRM Google Sheets: plantilla gratis de cinco pestañas con listas desplegables y fórmulas, cómo montarlo, ventajas y límites, y cuándo pasar a un CRM."
 
 relatedHrefs:
   - /blog/excel-crm-template
@@ -27,7 +27,7 @@ blogPost:
 
 # CRM Google Sheets: plantilla gratis, fórmulas y dónde deja de funcionar
 
-Sí, un CRM en Google Sheets funciona para equipos de una a tres personas. Dale a cada tipo de registro su propia pestaña (contactos, oportunidades, actividades), convierte cada valor fijo en una lista desplegable y deja que una pestaña Panel cuente y sume el resto con QUERY y COUNTIFS. Google no vende un CRM: su [Workspace Marketplace](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm) lista CRM de terceros como Copper, Pipedrive, Streak y Zoho CRM, y Gmail, Formularios y Apps Script son las piezas que conectas tú.
+Un CRM en Google Sheets es una hoja de cálculo con una pestaña por tipo de registro, que sirve para llevar a los clientes y el seguimiento de ventas sin comprar un programa de CRM. Sí, funciona para equipos de una a tres personas. Dale a cada tipo de registro su propia pestaña (contactos, oportunidades, actividades), convierte cada valor fijo en una lista desplegable y deja que una pestaña Panel cuente y sume el resto con QUERY y COUNTIFS. Google no vende un CRM: su [Workspace Marketplace](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm) lista CRM de terceros como Copper, Pipedrive, Streak y Zoho CRM, y Gmail, Formularios y Apps Script son las piezas que conectas tú.
 
 Customermates publica esta guía y es el CRM del ejemplo de migración del final. Todo lo anterior a esa sección solo necesita una cuenta de Google.
 
@@ -41,6 +41,17 @@ Customermates publica esta guía y es el CRM del ejemplo de migración del final
 
 Usa la [plantilla de lista de contactos](/blog/contact-list-template) para tener un directorio pequeño y compartido, con responsable y siguiente paso a la vista, antes de decidir si lo pasas a un CRM.
 
+## ¿Cómo se hace un CRM en Google Sheets? [#como-hacer-crm-google-sheets]
+
+En seis pasos; los detalles de cada uno están más abajo.
+
+1. **Escribe tu objetivo en una frase**, por ejemplo «saber a quién llamar esta semana y qué oportunidades siguen abiertas». Decide qué columnas necesitas.
+2. **Crea una pestaña por tipo de registro:** Contactos, Oportunidades y Actividades, más una pestaña Listas con los valores fijos.
+3. **Convierte cada pestaña en una tabla** (Formato › Convertir en tabla) y pon un menú desplegable en las columnas de valor fijo.
+4. **Define las etapas de tu proceso de venta** en la pestaña Listas, las que sigues de verdad, de la primera conversación al cierre.
+5. **Añade el Panel**, con QUERY y COUNTIFS, para ver los siguientes pasos vencidos y el pipeline abierto.
+6. **Comparte con cabeza y revisa cada semana:** una vista de filtro por persona, una copia de seguridad y un repaso de las fechas vencidas.
+
 ## Cuatro reglas para preparar la hoja
 
 1. **Una fila de encabezado y una fila por registro.** Sin celdas combinadas, sin filas vacías, sin subtotales entre registros.
@@ -49,6 +60,8 @@ Usa la [plantilla de lista de contactos](/blog/contact-list-template) para tener
 4. **Vincula por nombre.** La empresa de un contacto es el nombre exacto de la empresa, y el contacto de una oportunidad es el nombre completo de la persona. Los nombres se leen bien, y las importaciones de los CRM, Customermates incluido, enlazan los vínculos por nombre.
 
 ## La plantilla, pestaña por pestaña
+
+Las plantillas de CRM para Google Sheets que verás por ahí suelen ser de cinco tipos: de contactos, de embudo de ventas, de seguimiento de leads, de actividades y tareas, y de informes. Este diseño las reúne en una sola hoja: Contactos y Oportunidades cubren las tres primeras, Actividades la cuarta y el Panel la quinta. Una sola hoja con pestañas vinculadas por nombre es más fácil de mantener que cinco archivos sueltos.
 
 ### Listas
 
@@ -144,6 +157,16 @@ Después añade un activador (icono del reloj › Añadir activador), origen del
 
 **Vistas de filtro en lugar de filtros.** Un filtro normal cambia la vista de todas las personas con acceso. Datos › Vistas de filtro › Crear nueva vista de filtro guarda un filtro que cambia solo tu propia vista, como explica la [ayuda de filtros](https://support.google.com/docs/answer/3540681) de Google. Dale a cada persona una vista de filtro «Mis oportunidades abiertas» por Responsable y Etapa.
 
+## Ventajas de usar Google Sheets como CRM [#ventajas-google-sheets-crm]
+
+- **Ya lo tienes.** Basta una cuenta de Google; no hay que dar de alta a nadie ni aprender un programa nuevo.
+- **Varias personas a la vez.** Todos editan el mismo archivo, con comentarios y menciones, sin pasarse versiones por correo.
+- **Tú decides las columnas.** Añades el campo propio de tu oficio sin pedir nada a un proveedor.
+- **Conecta con el resto de Google.** Los Formularios llevan los leads a la hoja y Apps Script te manda cada mañana un correo con lo vencido.
+- **Es fácil de llevarse.** Una pestaña con una fila por registro se descarga como .xlsx y se importa después a un CRM.
+
+Esas ventajas son reales mientras el equipo sea pequeño. Las limitaciones de abajo explican cuándo dejan de serlo.
+
 ## Dónde deja de funcionar un CRM en Google Sheets
 
 El tamaño casi nunca es el problema. Google permite hasta 20 millones de celdas por hoja de cálculo en sus [límites de archivos de Drive](https://support.google.com/drive/answer/37603), muchísimas más de las que llena un equipo pequeño. Estos límites aparecen primero:
@@ -216,8 +239,12 @@ Sí, para una a tres personas con un solo proceso de venta. El diseño de cinco 
 No. Google Workspace tiene Sheets, Gmail, Contactos y Formularios, pero ningún CRM propio. La [categoría Sales & CRM](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm) del Workspace Marketplace lista CRM de terceros que se conectan con Google, entre ellos Copper, Pipedrive, Streak y Zoho CRM.
 </FaqItem>
 
+<FaqItem question="¿Cuál es la diferencia entre un CRM en Google Sheets y un CRM para Google Workspace?">
+Un CRM en Google Sheets es una hoja que tú mantienes. Un CRM para Google Workspace, como los de la categoría Sales & CRM del Marketplace, es un producto de otro fabricante que se conecta a Gmail, Calendar y Contactos para registrar los correos y las reuniones. La [guía de CRM para Gmail y Google Workspace](/blog/gmail-crm-integration) explica las tres formas de conectarlos y cómo elegir. Si buscas un CRM Google gratis, compara los planes de la [guía de CRM gratis](/blog/free-crm).
+</FaqItem>
+
 <FaqItem question="¿Hay una plantilla de CRM gratis para Google Sheets?">
-El diseño de esta página es gratis: copia los encabezados en una hoja de cálculo en blanco, añade las listas desplegables y pega las fórmulas. Si descargas una plantilla de CRM para Google Sheets en otro sitio, comprueba que mantenga un registro por fila, los contactos aparte de las empresas y ninguna celda combinada. Una plantilla que no pasa esas comprobaciones es difícil de importar después a un CRM.
+El diseño de esta página es gratis: copia los encabezados en una hoja de cálculo en blanco, añade las listas desplegables y pega las fórmulas. Si descargas una plantilla de CRM para Google Sheets en otro sitio, comprueba que mantenga un registro por fila, los contactos aparte de las empresas y ninguna celda combinada. Una plantilla que no pasa esas comprobaciones es difícil de importar después a un CRM. Si prefieres partir de un archivo, el libro de Excel gratuito de la [guía de CRM en Excel](/blog/excel-crm-template) se puede abrir en Google Sheets con Archivo › Importar; revisa las fórmulas después, porque los nombres de las funciones cambian entre programas.
 </FaqItem>
 
 <FaqItem question="¿Cuántos contactos aguanta un CRM en Google Sheets?">

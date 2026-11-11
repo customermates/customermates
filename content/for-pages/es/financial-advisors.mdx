@@ -48,7 +48,7 @@ useCases:
       visual: contacts
 ---
 
-Un **CRM para asesores financieros** se mide en momentos como estos: vence una revisión anual, un prospecto no contesta desde la reunión de diagnóstico y el contador que lo recomendó espera noticias. Customermates mantiene esas conversaciones en el registro del cliente, con una fecha de revisión y un siguiente paso con fecha. En Customermates Cloud desde Pro, Mate o tu propio agente de IA (Claude, ChatGPT o cualquier cliente que hable MCP) redacta el mensaje y el siguiente paso cuando se lo pides o mediante una rutina que configuras; tú revisas, editas y envías. Cubre solo la parte de relaciones: sin conexiones con custodios, archivo de cumplimiento normativo ni proceso de asesoramiento. Para eso, un sistema específico para asesores como Redtail o Wealthbox, o la plataforma de tu red o agrupación, es la mejor opción, y la tabla más abajo los nombra.
+Un **CRM para asesores financieros** se mide en momentos como estos: vence una revisión anual, un prospecto no contesta desde la reunión de diagnóstico y el asesor fiscal que lo recomendó espera noticias. Customermates mantiene esas conversaciones en el registro del cliente, con una fecha de revisión y un siguiente paso con fecha. En Customermates Cloud desde Pro, Mate o tu propio agente de IA (Claude, ChatGPT o cualquier cliente que hable MCP) redacta el mensaje y el siguiente paso cuando se lo pides o mediante una rutina que configuras; tú revisas, editas y envías. Cubre solo la parte de relaciones: sin conexiones con custodios, archivo de cumplimiento normativo ni proceso de asesoramiento. Para eso, un sistema específico para asesores como Redtail o Wealthbox, o la plataforma de tu red o agrupación, es la mejor opción, y la tabla más abajo los nombra.
 
 Customermates es un CRM de código abierto, nativo de IA y creado en Alemania para equipos pequeños que atienden a clientes. Reúne contactos, organizaciones y oportunidades y, desde el plan Pro, las conversaciones de correo, LinkedIn y WhatsApp que los rodean.
 
@@ -84,7 +84,7 @@ En el lado de las relaciones, el trabajo de asesoría tiene algunas costumbres q
 
 - **El cliente suele ser una unidad familiar.** Dos miembros de la pareja, a veces hijos adultos o un negocio familiar, y una sola reunión de revisión para todos.
 - **Las revisiones siguen un calendario, no un pipeline.** Los clientes existentes necesitan una revisión anual o semestral, y perder una cuesta más que un prospecto lento.
-- **El negocio nuevo llega a través de prescriptores.** Contadores, abogados, agentes inmobiliarios y otros asesores envían clientes, y quieres saber quién envió a quién.
+- **El negocio nuevo llega a través de prescriptores.** Asesores fiscales, abogados, agentes inmobiliarios y otros asesores envían clientes, y quieres saber quién envió a quién.
 - **La comunicación está regulada.** Qué canal puedes usar con un cliente es una cuestión de cumplimiento normativo antes que una cuestión de software.
 
 ## Una configuración para asesores en Customermates
@@ -99,11 +99,11 @@ Un espacio de trabajo nuevo empieza sin listas: creas las listas que necesites (
 | Servicios | Lo que ofreces, con un precio | Plan financiero, Iguala anual, Honorarios de asesoramiento hipotecario |
 | Tareas | Siguientes pasos asignados a una persona | Un campo de fecha «Vence el» que añades tú, porque las tareas no tienen fecha de vencimiento integrada |
 
-Un contacto puede pertenecer a varias organizaciones, así que un cliente puede estar en una unidad familiar y estar vinculado al contador que lo recomendó. En **Modelo de datos** puedes renombrar cualquier lista en **General**, por ejemplo Contactos a Clientes, Oportunidades a Propuestas y Tareas a Seguimientos.
+Un contacto puede pertenecer a varias organizaciones, así que un cliente puede estar en una unidad familiar y estar vinculado al asesor fiscal que lo recomendó. En **Modelo de datos** puedes renombrar cualquier lista en **General**, por ejemplo Contactos a Clientes, Oportunidades a Propuestas y Tareas a Seguimientos.
 
 ### Etapas para el negocio nuevo
 
-La etapa de la oportunidad es un campo de selección única que defines tú, y cada opción lleva una probabilidad de cierre. Un punto de partida: Introducción 10%, Reunión de diagnóstico 25%, Propuesta comentada 50%, Trámites en el sistema especializado 80%, Ganada 100%, No sigue adelante 0%. El valor de la oportunidad es la suma de sus líneas, así que el total del pipeline es aritmética con tus propios honorarios y probabilidades, no una predicción. El [tablero del pipeline](/features/pipeline) muestra cada oportunidad como una tarjeta que arrastras entre etapas.
+La etapa de la oportunidad es un campo de selección única que defines tú, y cada opción lleva una probabilidad de cierre. Un punto de partida: Introducción 10 %, Reunión de diagnóstico 25 %, Propuesta comentada 50 %, Trámites en el sistema especializado 80 %, Ganada 100 %, No sigue adelante 0 %. El valor de la oportunidad es la suma de sus líneas, así que el total del pipeline es aritmética con tus propios honorarios y probabilidades, no una predicción. El [tablero del pipeline](/features/pipeline) muestra cada oportunidad como una tarjeta que arrastras entre etapas.
 
 Mantén las etapas en el plano comercial. «Trámites en el sistema especializado» significa que el asesoramiento, la solicitud o la incorporación ya se gestionan en otro sitio, y el CRM solo registra que ocurrió.
 
@@ -153,7 +153,7 @@ Si prefieres usar tu propio cliente de IA, Claude, ChatGPT y otros se conectan m
 
 ## Brokers hipotecarios y brokers financieros
 
-La misma configuración sirve para un despacho hipotecario, con un solo cambio de vocabulario. Una oportunidad es la consulta, no la solicitud del préstamo. Las etapas pueden ser Nueva consulta, Requisitos confirmados, Opciones preparadas externamente, Cliente decidiendo, Ganada y Cerrada. Las inmobiliarias, los constructores y los contadores son organizaciones prescriptoras.
+La misma configuración sirve para un despacho hipotecario, con un solo cambio de vocabulario. Una oportunidad es la consulta, no la solicitud del préstamo. Las etapas pueden ser Nueva consulta, Requisitos confirmados, Opciones preparadas externamente, Cliente decidiendo, Ganada y Cerrada. Las inmobiliarias, los constructores y los asesores fiscales son organizaciones prescriptoras.
 
 Las solicitudes, las comprobaciones de crédito, la búsqueda de productos, el envío al banco y los documentos del prestatario pertenecen a tu sistema de originación de préstamos o, en Alemania, a una plataforma como [Europace](https://europace.de/), que enumera más de 800 proveedores de productos y un flujo de solicitudes con un expediente de documentos. Customermates no tiene conexión nativa con ninguno de los dos. Si la plataforma tiene una API, un flujo que construyas con la [API REST y los webhooks](/features/api) puede pasar un número de referencia o un estado entre ambos.
 

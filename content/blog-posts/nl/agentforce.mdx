@@ -1,6 +1,6 @@
 ---
-title: "Salesforce Agentforce: uitleg, prijs en opzet"
-description: "Agentforce, het AI-agentplatform van Salesforce: hoe agents werken, wat Flex Credits, add-ons en Foundations kosten, waar Einstein past en voor wie het loont."
+title: "Agentforce: wat het is, hoe het werkt en wat het kost"
+description: "Agentforce van Salesforce uitgelegd: hoe AI-agents werken, wat Flex Credits, add-ons en Foundations kosten, wat er met Einstein gebeurde en hoe je begint."
 
 relatedHrefs:
   - /blog/salesforce-pricing
@@ -116,6 +116,15 @@ Salesforce heeft in korte tijd meerdere producten hernoemd, en daarom spreken zo
 | Service Cloud | De helpdocumentatie van Salesforce noemt het nu Agentforce Service |
 | Agentforce 360 Platform | De naam van het platform waarop de agents draaien |
 
+## Wat kun je met Agentforce? Voorbeelden uit de praktijk [#wat-kun-je-met-agentforce]
+
+Bij Agentforce kom je twee soorten agents tegen, en ze verschillen vooral in wie ermee werkt en hoe je ze betaalt:
+
+- **Agents voor klanten** beantwoorden vragen op je website, in berichtenkanalen en aan de telefoon: de status van een bestelling, een retour, een vraag die in je Knowledge-artikelen staat. Salesforce noemt dit Agentforce Service. Je betaalt per gesprek of per actie in Flex Credits.
+- **Agents voor medewerkers** werken binnen Salesforce en nemen opzoek- en typewerk over: een case samenvatten, een record bijwerken, een opportunity samenvatten vóór een verkoopgesprek. Daar past de add-on per gebruiker bij, of Flex Credits.
+
+Het voordeel is dat een agent werkt op de records en de content die je al in je org hebt, met instructies, Agent Script en rechten als grenzen. Dat is meteen de beperking: staan je records slordig of zijn je Knowledge-artikelen verouderd, dan wordt het antwoord van de agent dat ook. Een webshop die elke week dezelfde vragen over orderstatus en retouren krijgt, heeft meer aan een agent dan een bureau met een handvol klanten en gesprekken die elke keer anders zijn.
+
 ## Agentforce invoeren, één use case tegelijk
 
 <Steps>
@@ -129,6 +138,20 @@ Salesforce heeft in korte tijd meerdere producten hernoemd, en daarom spreken zo
 </Steps>
 
 Heb je geen Salesforce-beheerder in huis, houd dan budget aan voor een Salesforce-adviespartner. De algemene vragen rond uitrol, van het opschonen van gegevens tot training, staan in de [gids voor CRM-implementatie](/blog/crm-implementation).
+
+## Zelf een agent bouwen of een partner inschakelen [#zelf-bouwen-of-partner]
+
+Een eenvoudige agent bouw je zelf in Agentforce Builder, mits iemand in je team Salesforce beheert: onderwerp, instructies en acties vastleggen, testen met echte vragen en live gaan op één kanaal. Moet de agent systemen buiten Salesforce bereiken, via de MuleSoft-connectoren die Salesforce noemt, of heb je geen beheerder in huis, dan kan een Salesforce-adviespartner of een aanbieder van managed services dat werk overnemen. Maak dan vooraf afspraken over vijf dingen:
+
+- **Eén use case met een cijfer erbij**, zodat de pilot iets heeft om te verslaan.
+- **Wie na oplevering de instructies en Knowledge-artikelen onderhoudt.** Een agent is niet af bij de oplevering.
+- **Hoe getest wordt**: met echte eerdere vragen, niet met voorbeelden die de partner zelf bedenkt.
+- **Welk prijsmodel erbij hoort**, Flex Credits of Conversations, en wie het verbruik in de gaten houdt.
+- **Wie het auditspoor leest**, en hoe vaak.
+
+Het implementatiewerk zelf zit niet in de prijzen hierboven; vraag daar een aparte offerte voor.
+
+Werk je met klantgegevens van Europese klanten, dan gelden de regels van de AVG. De Trust Layer maskeert gevoelige gegevens, maar beoordeel zelf of dat voor jouw gegevens genoeg is, en vraag Salesforce om de verwerkersovereenkomst en de gegevenslocatie die voor jouw org gelden. Dit is algemene informatie, geen juridisch advies.
 
 ## Wanneer Agentforce past en wanneer je beter elders kijkt
 
@@ -173,6 +196,10 @@ Customermates heeft geen serviceagent voor grote volumes, geen spraakagent en ge
 ## Veelgestelde vragen
 
 <Faq>
+<FaqItem question="Hoe werkt Agentforce?">
+Je legt in Agentforce Builder een rol, onderwerpen, instructies en acties vast. De Atlas Reasoning Engine bepaalt bij elk verzoek wat de persoon wil en welke actie als volgende moet draaien, de Data Library levert je eigen content als basis voor het antwoord en de Einstein Trust Layer maskeert gegevens en controleert het antwoord. Vaste stappen leg je vast in Agent Script. De uitleg met een voorbeeld staat hierboven.
+</FaqItem>
+
 <FaqItem question="Is Agentforce gratis bij Salesforce?">
 Gedeeltelijk. Salesforce Foundations is een add-on van $ 0 voor orgs op Enterprise Edition en hoger, met Agentforce Builder, Prompt Builder, Agent Script en een startbudget aan Flex Credits, onder limieten en voorwaarden. Daarna kosten acties $ 0,10 per stuk in Flex Credits, of stap je over op prijzen per gesprek of een add-on per gebruiker.
 </FaqItem>
@@ -195,6 +222,22 @@ Retrieval augmented generation: voordat het model antwoordt, worden relevante pa
 
 <FaqItem question="Kan Agentforce Claude- of OpenAI-modellen gebruiken?">
 Ja. De pagina van Salesforce over Agentforce Assistant beschrijft Model Builder, waarmee je je eigen large language model van aanbieders als Anthropic, Google, OpenAI en Hugging Face kunt meenemen. De zero data retention van de Trust Layer verwijst naar de afspraken van Salesforce met zijn modelaanbieders van derden; controleer dus hoe die geldt voor een model dat je zelf koppelt.
+</FaqItem>
+
+<FaqItem question="Wat voor bedrijf is Salesforce?">
+Salesforce is een Amerikaans softwarebedrijf dat vooral bekend is van zijn CRM-platform. Het verkoopt cloudsoftware voor sales, service, marketing en gegevens, en Agentforce is het platform voor AI-agents dat daarbovenop draait.
+</FaqItem>
+
+<FaqItem question="Wat kun je met Salesforce?">
+Je legt klantgegevens vast in één org: contacten, bedrijven, deals en cases, met automatisering en rapportages eromheen. De prijspagina voor Sales vergelijkt de edities Starter Suite, Pro Suite, Core, Advanced en Max. Agentforce voegt daar agents aan toe die antwoorden geven en acties uitvoeren op die gegevens.
+</FaqItem>
+
+<FaqItem question="Hoe duur is Salesforce?">
+Op de prijspagina voor Sales, gecontroleerd op 8 oktober 2026, kost Starter Suite $ 25, Pro Suite $ 100, Core $ 195, Advanced $ 395 en Max $ 550 per gebruiker per maand. Agentforce komt daar bovenop, of is bij Max inbegrepen. Alle edities en add-ons staan in de [gids over Salesforce-prijzen](/blog/salesforce-pricing).
+</FaqItem>
+
+<FaqItem question="Wie is de eigenaar van Salesforce?">
+Salesforce is een beursgenoteerd bedrijf, dus de aandeelhouders zijn samen de eigenaar. Een enkele eigenaar zoals bij een familiebedrijf of een eenmanszaak is er niet.
 </FaqItem>
 </Faq>
 

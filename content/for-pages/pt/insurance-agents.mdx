@@ -1,6 +1,6 @@
 ---
-title: "CRM para corretores de seguros: follow-up antes da renovação"
-description: "CRM para corretores de seguros: renovação a vencer, cotação sem resposta? E-mail e WhatsApp ficam no registro, o Mate redige o próximo passo e você envia."
+title: "CRM para corretores de seguros: renovações e cotações"
+description: "CRM para corretores de seguros: ordene renovações por data, cobre cotações sem resposta e deixe e-mail e WhatsApp no registro do cliente, ao lado do AMS."
 industryName: "Corretores de seguros"
 
 relatedHrefs:
@@ -50,7 +50,7 @@ useCases:
 
 As datas de renovação ditam o ritmo de uma corretora, e uma cotação sem resposta é uma venda escorrendo. Um **CRM para corretores de seguros** como o Customermates fica ao lado do seu sistema de gestão da corretora (AMS) e mantém o lado da venda à vista: prospects, revisões de renovação, parceiros de indicação e as pessoas que escrevem para você. No Customermates Cloud, a partir do Pro, o e-mail e o WhatsApp dos clientes ficam no contato, e o Mate ou o seu próprio agente de IA (Claude, ChatGPT ou qualquer cliente que fale MCP) redige a resposta e o próximo passo para você revisar, editar e enviar. Ele não administra apólices, não baixa dados das seguradoras, não calcula cotações nem concilia comissões; se você quer um só sistema para tudo isso, precisa de um AMS ou de uma suíte de seguros, e a tabela mais abaixo cita alguns.
 
-<ArticleSummary title="Resumo">
+<ArticleSummary title="Em resumo">
   <SummaryItem label="Para quem">
     Corretores independentes, pequenas corretoras e agências que vendem mais
     do que atendem no CRM e mantêm o atendimento das apólices no AMS.
@@ -69,6 +69,10 @@ As datas de renovação ditam o ritmo de uma corretora, e uma cotação sem resp
   </SummaryItem>
 </ArticleSummary>
 
+## Para que serve um CRM para corretores de seguros? [#para-que-serve-um-crm]
+
+Um CRM para corretores de seguros guarda, em um único registro por cliente, quem ele é, o que você ofereceu, quando a apólice renova e qual é o próximo passo. Assim a carteira deixa de depender de planilhas, do caderno e da memória de cada produtor, e a renovação é lembrada antes do vencimento, quando ainda há tempo de recotar. Ele não substitui o sistema que administra as apólices; trabalha ao lado dele, no lado da venda e do relacionamento.
+
 ## CRM ou AMS: do que uma corretora de seguros realmente precisa
 
 A EZLynx, que vende um AMS, [resume a divisão em uma linha](https://www.ezlynx.com/blog/posts/insurance-crm-vs-insurance-agency-management-system-whats-the-difference/): as corretoras escolhem um CRM "quando vendem mais do que atendem, e um AMS quando atendem mais do que vendem". O AMS é a fonte de verdade das apólices ativas, do histórico de sinistros e dos dados das seguradoras. Um CRM registra com quem você está falando, o que ofereceu e o que acontece a seguir.
@@ -82,6 +86,13 @@ O que a venda de seguros pede desse CRM:
 - **Os parceiros de indicação importam.** Corretores de financiamento, corretores de imóveis e contadores enviam negócios, e eles ficam em silêncio se ninguém faz o follow-up.
 - **As cotações acontecem em outro lugar.** O comparador ou o portal da seguradora gera a cotação. O CRM só precisa saber que uma cotação foi enviada, para quê, e quando cobrar.
 - **Os clientes escrevem no WhatsApp.** Muitos clientes mandam a foto de uma carta ou uma dúvida rápida pelo WhatsApp em vez do e-mail.
+
+## Corretor autônomo ou corretora com equipe [#corretor-autonomo-ou-corretora]
+
+O que você precisa muda com o tamanho da operação:
+
+- **Corretor autônomo.** Uma pessoa, uma carteira. O que pesa é a lista de renovações por data e as cotações sem resposta, tudo em visualizações salvas. O Starter ou o Pro cobrem isso, conforme você queira ou não o e-mail e o WhatsApp no registro.
+- **Corretora com equipe.** Vários produtores, uma carteira compartilhada. Uma visualização como **Paradas** pode ser compartilhada com toda a corretora ou com funções selecionadas, e uma função com acesso de leitura **Atribuídos** limita cada produtor aos próprios registros. Para abrir uma conta de e-mail inteira à equipe, o compartilhamento da conta começa no Business.
 
 ## Uma configuração para seguros no Customermates
 
@@ -147,13 +158,34 @@ Não há conector nativo com seguradoras, comparadores nem com nenhum AMS. Três
 - **Idas e vindas pelo Excel.** Exporte do AMS, salve como .xlsx e importe um tipo de registro por vez. Uma coluna mapeada para ID do registro atualiza os registros existentes em vez de criar duplicatas.
 - **Um cliente de IA.** O Claude, o ChatGPT ou outro cliente pode criar e atualizar registros via [MCP](/docs/mcp) em todos os planos, com o uso do modelo cobrado pelo seu provedor de IA.
 
+## Como começar na sua corretora [#como-comecar]
+
+<Steps>
+  <Step title="Exporte a carteira do seu sistema atual">
+    Salve contatos, empresas e negócios abertos como .xlsx, uma lista por vez.
+    Deixe de fora dados de apólice e de saúde.
+  </Step>
+  <Step title="Crie os campos de renovação">
+    Em Modelo de dados, adicione Ramo, Seguradora, Data de renovação e Status
+    da renovação, e defina as etapas e as probabilidades.
+  </Step>
+  <Step title="Importe e salve as quatro visualizações">
+    Importe primeiro as organizações, depois os contatos e os negócios, e salve
+    as visualizações da semana.
+  </Step>
+  <Step title="Conecte os canais e monte a rotina">
+    No Pro ou acima, conecte o e-mail e o WhatsApp e configure a rotina semanal
+    de renovações.
+  </Step>
+</Steps>
+
 ## O que ele não faz, e o que ver no lugar
 
 - Sem registros de apólices, downloads das seguradoras, comparador de tarifas, assinatura eletrônica, gestão de sinistros nem conciliação de comissões.
 - As tarefas não têm prazos, lembretes nem notificações. Use um campo de data e uma visualização salva, ou uma rotina.
 - Sem sequências de e-mail, campanhas de renovação nem envio em massa. O follow-up é uma conversa por vez.
 - Sem formulários web, sem telefonia ou SMS e sem app para celular.
-- Sem permissões por campo. Uma função personalizada com acesso de leitura **Atribuídos** limita um produtor aos próprios registros. Mantenha informações de saúde e arquivos de sinistros fora do CRM.
+- Sem permissões por campo. Uma função personalizada com acesso de leitura **Atribuídos** limita um produtor aos próprios registros. Mantenha informações de saúde e arquivos de sinistros fora do CRM; no Brasil, dados de saúde são dados pessoais sensíveis pela LGPD, com regras mais rígidas de tratamento.
 
 O Customermates publica esta página. Os dados dos fornecedores, incluindo o preço do Less Annoying CRM, foram verificados em 8 de outubro de 2026 no site de cada fornecedor.
 
@@ -206,5 +238,16 @@ Não com lembretes ou notificações. Ponha a data de renovação no negócio, o
 
 <FaqItem question="A IA vai substituir o CRM para corretores de seguros?">
 A IA muda quem digita no CRM. O Mate ou um cliente MCP pode registrar uma ligação, mover um negócio e redigir uma mensagem de renovação, mas precisa de datas de renovação, etapas e histórico do cliente para trabalhar, e isso vive no CRM. Aconselhamento, adequação e decisões de cobertura continuam com você.
+</FaqItem>
+<FaqItem question="O que é um CRM para corretores de seguros?">
+É o software que organiza o lado comercial de uma corretora: prospects, cotações enviadas, datas de renovação, parceiros de indicação e as conversas com clientes. O CRM mostra o que fazer a seguir com cada cliente; a administração da apólice, o sinistro e a comissão continuam no sistema de gestão da corretora.
+</FaqItem>
+
+<FaqItem question="Qual é o melhor CRM para corretores de seguros?">
+Depende de você já ter ou não um sistema de gestão de corretora. Se não tem e quer apólices, comissões e downloads das seguradoras em um só lugar, comece por um AMS, como os da tabela acima. Se já tem e o follow-up de vendas ainda mora em planilha, um CRM ao lado dele resolve; o Customermates é um deles, e esta página é nossa, então confira cada fornecedor no site dele.
+</FaqItem>
+
+<FaqItem question="Qual é a norma da SUSEP para corretores de seguros?">
+A SUSEP, a Superintendência de Seguros Privados, regula e fiscaliza o mercado de seguros no Brasil, inclusive o registro dos corretores, e as regras mudam com o tempo. Consulte a SUSEP e a sua entidade de classe para o que vale hoje. Um CRM não verifica registro nem conformidade; se quiser ter o número do registro à mão, crie um campo de texto no contato ou na organização.
 </FaqItem>
 </Faq>

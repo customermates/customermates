@@ -1,5 +1,5 @@
 ---
-title: "Planilha CRM em Excel: layout gratuito e fórmulas"
+title: "Planilha CRM em Excel: modelo grátis, colunas e fórmulas"
 description: "Planilha CRM em Excel grátis: modelo com seis abas, colunas, listas suspensas e fórmulas para funil e vendedores, pronto para importar em um CRM."
 
 relatedHrefs:
@@ -27,7 +27,7 @@ blogPost:
 
 # Planilha CRM em Excel: um layout gratuito de seis abas que você pode importar depois
 
-Uma planilha CRM em Excel apoia a gestão do relacionamento com clientes com uma aba para cada tipo de registro (empresas, contatos, negócios, atividades) e uma aba que conta e soma tudo. O layout abaixo é livre para copiar: digite os cabeçalhos em uma pasta de trabalho em branco, adicione as listas suspensas e cole as fórmulas. Ele se sustenta para uma a três pessoas que mantêm uma única cópia do arquivo, e cada aba é organizada de modo que possa entrar depois em um CRM por importação, sem redigitar uma linha.
+Uma planilha CRM (ou CRM no Excel) é uma pasta de trabalho que faz o papel de um CRM simples: ela apoia a gestão do relacionamento com clientes com uma aba para cada tipo de registro (empresas, contatos, negócios, atividades) e uma aba que conta e soma tudo. O layout abaixo é livre para copiar: digite os cabeçalhos em uma pasta de trabalho em branco, adicione as listas suspensas e cole as fórmulas. Ele se sustenta para uma a três pessoas que mantêm uma única cópia do arquivo, e cada aba é organizada de modo que possa entrar depois em um CRM por importação, sem redigitar uma linha.
 
 O Customermates publica este guia e é o CRM do exemplo de importação. A pasta de trabalho em si não precisa de nada além de uma versão atual do Excel.
 
@@ -172,6 +172,16 @@ Past next steps  =COUNTIFS(Deals[Owner],$A4,Deals[Next step date],"<"&TODAY(),De
 
 Muitas ligações com um funil parado apontam para um problema de qualificação. Uma contagem crescente de próximos passos vencidos aponta para um problema de follow-up. Use o acompanhamento para orientar a equipe, não como ranking público, ou as contagens de atividade começam a inflar.
 
+## Dicas para aproveitar a planilha CRM [#dicas-para-a-planilha]
+
+Uma planilha de CRM funciona enquanto alguém cuida dela. Cinco hábitos mantêm o modelo útil:
+
+- **Atualize logo depois de cada conversa.** Data do último contato, resumo na aba Activities e um próximo passo com data. Uma planilha preenchida às sextas já nasce desatualizada.
+- **Revise os dados uma vez por mês.** Procure empresas escritas de dois jeitos, contatos duplicados, negócios parados na mesma etapa e datas de próximo passo vencidas.
+- **Pergunte algo ao Dashboard.** Em qual etapa os negócios travam? Quantos próximos passos estão vencidos? Quem tem muitas ligações e pouco funil? Um número que ninguém lê é um número a menos para manter.
+- **Controle quem abre o arquivo.** Quem consegue abrir a pasta de trabalho lê todas as abas; compartilhe só com quem precisa e prefira o OneDrive ou o SharePoint a anexos por e-mail, para não multiplicar cópias.
+- **Faça backup e saiba a hora de sair.** Guarde uma cópia datada toda semana e releia a lista de verificação de migração abaixo a cada trimestre.
+
 ## Excel, Google Sheets ou um CRM?
 
 | Se isto descreve você | Use | Atenção a |
@@ -188,7 +198,7 @@ O tamanho raramente é o motivo; estes limites aparecem primeiro.
 - **Vínculos são texto.** Renomeie uma empresa e todo contato, negócio e busca que usava o nome antigo passa a apontar para o nada, até você rodar Localizar e Substituir na pasta de trabalho inteira.
 - **O arquivo espera por você.** Uma data vermelha só ajuda quem abre a planilha, e as mensagens de e-mail, LinkedIn ou WhatsApp só chegam quando alguém digita um resumo.
 - **O acesso é tudo ou nada.** Quem consegue abrir a pasta de trabalho consegue ler todas as abas.
-- **Dados pessoais se espalham em cópias.** Pelo [GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj), uma pessoa pode perguntar o que você guarda sobre ela (artigo 15) e pedir que seja apagado (artigo 17). Com uma pasta de trabalho, isso significa cada cópia em cada notebook e em cada pasta de enviados.
+- **Dados pessoais se espalham em cópias.** Pelo [GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj), uma pessoa pode perguntar o que você guarda sobre ela (artigo 15) e pedir que seja apagado (artigo 17). A LGPD, no Brasil, dá ao titular direitos parecidos, como acesso e eliminação dos dados (Art. 18); isto é só contexto geral, não aconselhamento jurídico. Com uma pasta de trabalho, atender a um pedido significa procurar cada cópia em cada notebook e em cada pasta de enviados.
 
 ## Hora de migrar: uma lista de verificação
 
@@ -200,7 +210,7 @@ O tamanho raramente é o motivo; estes limites aparecem primeiro.
 
 Se duas delas forem verdadeiras, eu migraria. Uma só costuma dar para resolver dentro da pasta de trabalho.
 
-## Levando o modelo para o Customermates
+## Levando o modelo para o Customermates [#moving-the-template-into-customermates]
 
 O Customermates importa pastas de trabalho do Excel (.xlsx ou .xls) e arquivos CSV, uma lista por vez. A [documentação de importação](/docs/app-records#how-do-i-import-or-export-records) traz as regras completas. Uma planilha só faz follow-up quando alguém se lembra de abri-la. Quando a planilha está no Customermates, as conversas de cada cliente ficam no registro do cliente (no Customermates Cloud a partir do Pro), o Mate ou o seu próprio agente de IA redige a resposta e o próximo passo, e a data do próximo passo alimenta o seu painel em vez de uma célula vermelha. Veja onde as colunas do modelo vão parar:
 
@@ -257,12 +267,24 @@ O Customermates tem [campos calculados](/docs/concepts#how-do-i-build-a-calculat
 ## Perguntas frequentes
 
 <Faq>
+<FaqItem question="O que é uma planilha CRM?">
+Uma planilha CRM é uma pasta de trabalho do Excel (ou do Google Sheets) usada como um CRM simples: uma aba para empresas, uma para contatos, uma para negócios e uma para atividades, mais um dashboard que soma o funil. Serve para uma a três pessoas; quando mais gente edita os mesmos negócios, um CRM de verdade passa a compensar.
+</FaqItem>
+
+<FaqItem question="Como fazer uma planilha de CRM no Excel, passo a passo?">
+Crie as abas Lists, Companies, Contacts, Deals e Activities, escreva uma linha de cabeçalho em cada uma, transforme cada intervalo em tabela (Ctrl+T), adicione listas suspensas com Validação de Dados, cole as fórmulas de probabilidade e valor ponderado na aba Deals e monte o Dashboard com SUMIFS e COUNTIFS. As seções acima trazem cada coluna e cada fórmula.
+</FaqItem>
+
+<FaqItem question="Quais são os tipos de CRM?">
+A classificação clássica distingue o CRM operacional (rotina de vendas, atendimento e marketing), o analítico (análise dos dados dos clientes) e o colaborativo (informação compartilhada entre as áreas); algumas listas somam um quarto tipo, o estratégico. Uma planilha CRM faz o papel de um CRM operacional pequeno: registro, funil e próximos passos.
+</FaqItem>
+
 <FaqItem question="Dá para montar um CRM no Excel?">
 Dá, para uma equipe pequena. O layout de seis abas acima cobre empresas, contatos, negócios, atividades e um dashboard. O que o Excel não consegue fazer sozinho é avisar alguém, manter os vínculos quando um nome muda ou trazer conversas. O Excel é uma planilha, não um CRM; a Microsoft vende o CRM dela à parte, como [Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales).
 </FaqItem>
 
 <FaqItem question="Existe uma planilha de CRM em Excel gratuita?">
-O layout deste artigo e o exemplo XLSX para download acima são gratuitos e não precisam de nada além de um programa de planilhas compatível. Se você baixar um modelo em outro lugar, confira três coisas antes de digitar dados: um registro por linha, contatos separados das empresas e nenhuma célula mesclada. Um modelo que falha nisso é difícil de importar em um CRM depois.
+O layout deste artigo e o exemplo XLSX para download acima são gratuitos e não precisam de nada além de um programa de planilhas compatível. O arquivo para download tem os cabeçalhos em inglês e em alemão; se preferir tudo em português, traduza os cabeçalhos e ajuste as fórmulas (nomes de função em português e ponto e vírgula). Se você baixar um modelo em outro lugar, confira três coisas antes de digitar dados: um registro por linha, contatos separados das empresas e nenhuma célula mesclada. Um modelo que falha nisso é difícil de importar em um CRM depois.
 </FaqItem>
 
 <FaqItem question="Quantos contatos um CRM em Excel aguenta?">

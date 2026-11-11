@@ -1,6 +1,6 @@
 ---
-title: "SaaS CRM: elke trial en demo opvolgen"
-description: "SaaS CRM: trial-, demo- en LinkedIn-gesprekken bij het account, een volgende stap met datum en conceptantwoorden van Mate of je eigen AI-client."
+title: "SaaS CRM: betekenis, voordelen en trials opvolgen"
+description: "SaaS CRM uitgelegd: wat het is, SaaS versus zelf hosten en hoe je trials, demo's en LinkedIn-gesprekken bij het account opvolgt met een datum per stap."
 industryName: "SaaS-bedrijven"
 
 relatedHrefs:
@@ -48,9 +48,9 @@ useCases:
       visual: import
 ---
 
-Een SaaS-trial eindigt vaak niet met een “nee”, maar valt stil: het laatste LinkedIn-bericht van de champion blijft onbeantwoord terwijl het team aan het bouwen is, en niemand schrijft op de dag dat de trial afloopt. Een SaaS CRM bewaart elk account dat een trial doet, koopt, uitbreidt of opzegt op één plek, met de mensen erin, de deals eromheen en de gesprekken erachter. Customermates is een open-source, AI-native CRM, gemaakt in Duitsland, voor product-led SaaS-teams die hun eigen lijsten inrichten en hun eigen product koppelen via een REST API, webhooks en n8n. Op Customermates Cloud vanaf Pro staan de LinkedIn- en e-mailgesprekken bij het account, en Mate of je eigen AI-client via MCP stelt het antwoord en de volgende stap op, zodat jij ze bekijkt, bewerkt en verstuurt. Er is geen native koppeling met facturatie of productanalyse.
+Een SaaS CRM is een CRM dat je als abonnement in de browser gebruikt, zonder zelf servers of updates te beheren. De term wordt ook gebruikt voor een CRM dat past bij een SaaS-bedrijf, met accounts, trials, plannen en verlengingen; deze pagina behandelt beide betekenissen. Customermates is allebei: een open-source, AI-native CRM, gemaakt in Duitsland, dat als Customermates Cloud draait en bedoeld is voor product-led SaaS-teams die hun eigen lijsten inrichten en hun eigen product koppelen via een REST API, webhooks en n8n.
 
-“SaaS CRM” betekent ook een CRM dat zelf als cloudservice wordt geleverd, en dat is Customermates ook, dus het eerste gedeelte hieronder scheidt de twee betekenissen.
+Een SaaS-trial eindigt vaak niet met een “nee”, maar valt stil: het laatste LinkedIn-bericht van de champion blijft onbeantwoord terwijl het team aan het bouwen is, en niemand schrijft op de dag dat de trial afloopt. Een CRM voor SaaS bewaart elk account dat een trial doet, koopt, uitbreidt of opzegt op één plek, met de mensen erin, de deals eromheen en de gesprekken erachter. Op Customermates Cloud vanaf Pro staan de LinkedIn- en e-mailgesprekken bij het account, en Mate of je eigen AI-client via MCP stelt het antwoord en de volgende stap op, zodat jij ze bekijkt, bewerkt en verstuurt. Er is geen native koppeling met facturatie of productanalyse.
 
 <ArticleSummary title="In het kort">
   <SummaryItem label="Geschikt voor">
@@ -86,7 +86,7 @@ Een SaaS-trial eindigt vaak niet met een “nee”, maar valt stil: het laatste 
   <ProofItem label="Hosting">Cloud of je eigen server</ProofItem>
 </ProofRail>
 
-## Wat is een SaaS CRM?
+## Wat is een SaaS CRM? [#wat-is-een-saas-crm]
 
 De term heeft twee betekenissen, en zoekresultaten halen ze door elkaar.
 
@@ -95,7 +95,23 @@ De term heeft twee betekenissen, en zoekresultaten halen ze door elkaar.
 | Een CRM dat als SaaS wordt geleverd | Elk CRM dat je in de browser gebruikt zonder zelf servers te draaien, tegenover software die je zelf installeert | [Cloud CRM](/features/cloud-crm) legt cloud versus zelf hosten uit en hoe je kiest |
 | Een CRM voor SaaS-bedrijven | Een CRM dat past bij een bedrijf dat abonnementen verkoopt: accounts met meerdere gebruikers, trials, plannen, verlengingen en gebruik | De rest van deze pagina |
 
+Het verschil tussen cloud en SaaS zit in wat je koopt. “Cloud” zegt waar software draait: op servers van een aanbieder in plaats van op je eigen. SaaS (software as a service) is hoe je die software afneemt: als abonnement dat de aanbieder beheert en bijwerkt. Je kunt zelf een CRM op een clouddienst installeren zonder dat het SaaS is, want dan beheer jij de installatie. Een SaaS CRM neemt dat beheer uit handen.
+
 Customermates dekt beide. Het draait als Customermates Cloud, een gehoste dienst met betaalde abonnementen die maandelijks per gebruiker worden gefactureerd en een Free-abonnement voor één persoon, en als zelf gehoste installatie van de open-source kern. Wat het niet doet, is abonnementen zelf begrijpen. Er is geen ingebouwd model voor abonnementen, trials of facturatie, dus die definieer je als velden en lijsten en jij bepaalt hoe productdata erbij komt.
+
+## Wat zijn de voordelen en nadelen van een SaaS CRM? [#voordelen-nadelen-saas-crm]
+
+Een SaaS CRM neemt werk uit handen, maar levert ook iets in. Dit weeg je af:
+
+| | Voordeel | Nadeel |
+|---|---|---|
+| Beheer | De aanbieder draait de server en werkt de software bij; jij opent de browser | Je bepaalt niet wanneer er iets verandert |
+| Kosten | Geen eigen server en een lage drempel: je betaalt per gebruiker per maand en start met een proefperiode | De kosten lopen door zolang je gebruikers hebt |
+| Teamwerk | Iedereen werkt in dezelfde records, en je voegt gebruikers toe of haalt ze weg | Elke extra gebruiker telt mee in de prijs |
+| Gegevens | Hosting en updates zijn geregeld door de aanbieder | Je gegevens staan bij de aanbieder en zijn subverwerkers; let op de regio, de [subverwerkers](/subprocessors) en de [verwerkersovereenkomst](/dpa) |
+| Aanpassen | Lijsten en velden stel je zelf in | Wat een product niet kan, bouw je via de API of laat je weg |
+
+Op Customermates Cloud staat de primaire database in de AWS-regio Frankfurt. Wil je zelf bepalen waar alles draait, dan lees je verderop wanneer [zelf hosten](#saas-of-zelf-hosten) past.
 
 ## Wat heeft een SaaS-bedrijf nodig van een CRM?
 
@@ -117,7 +133,7 @@ De meeste SaaS-opvolging gebeurt buiten het product: een trialgebruiker antwoord
 
 De gedeelten hieronder laten zien hoe je de accounts modelleert en hoe je je product koppelt.
 
-## Hoe modelleer je accounts, trials en abonnementen in Customermates?
+## Hoe modelleer je accounts, trials en abonnementen in Customermates? [#accounts-modelleren]
 
 Een nieuwe werkruimte begint zonder lijsten, dus alles hieronder is een voorbeeld dat je zelf aanmaakt in **Datamodel**, of, op Customermates Cloud, je beschrijft je bedrijf in één zin en laat Mate de lijsten, de pipeline en het dashboard bouwen. Elke veldnaam kies je zelf.
 
@@ -141,7 +157,7 @@ Handige opgeslagen weergaven voor een SaaS-team:
 
 Een opgeslagen weergave kan via het menu **Delen…** worden gedeeld met iedereen in de werkruimte of met geselecteerde rollen. Collega's zien dezelfde filters, maar alleen de records die hun eigen rol toestaat. Wil je accounts eerst groeperen op plan, omvang of levenscyclus, dan laat de [gids over klantsegmentatie](/blog/customer-segmentation) de velden en weergaven zien.
 
-## Hoe komt productdata in het CRM?
+## Hoe komt productdata in het CRM? [#productdata-in-crm]
 
 Customermates heeft geen native integratie met een factureringstool of een tool voor productanalyse, dus productdata komt binnen via de API: je backend, een geplande taak of een n8n-workflow schrijft ze naar de velden hierboven.
 
@@ -235,13 +251,40 @@ Is een van deze punten doorslaggevend voor je aankoop, kijk dan naar een tool di
 
 Productanalyse, facturatie en abonnementsbeheer, helpdesks en in-appberichten blijven in de tools die daarvoor zijn gebouwd. Customermates is de plek waar sales en success het account zien, niet de plek waar die systemen draaien.
 
-## Moet een SaaS-bedrijf zijn CRM zelf hosten?
+## SaaS CRM of zelf hosten: wat past bij een SaaS-bedrijf? [#saas-of-zelf-hosten]
+
+“On-premise” betekent dat je het CRM op je eigen infrastructuur draait. Dat is wat zelf hosten bij Customermates is. De vergelijking:
+
+| | Customermates Cloud (SaaS) | Zelf gehost |
+|---|---|---|
+| Wie beheert de server | Customermates | Jij: server, back-ups en updates |
+| Inbox, Mate en routines | Ja, afhankelijk van het abonnement | Niet beschikbaar |
+| REST, webhooks en MCP | Ja | Ja |
+| Waar staan de gegevens | AWS-regio Frankfurt | Op je eigen server |
+| Kosten | Per gebruiker per maand | Geen licentie; je betaalt je eigen hosting |
+
+Lees de [pagina over cloud-CRM](/features/cloud-crm) voor de keuze tussen de twee.
+
+
 
 Sommige SaaS-teams draaien hun CRM liever naast hun eigen infrastructuur. Customermates is open core, en een [zelf gehoste installatie](/features/self-hosted) draait met Docker Compose op PostgreSQL 16. Die heeft de functies van Starter met REST, webhooks en MCP, maar geen inbox, geen Mate en geen AI-inrichting van de werkruimte, en jij beheert de server, de back-ups en de updates. Zelf hosten is op zichzelf geen compliancegarantie.
 
 In Customermates Cloud staat de primaire database in de AWS-regio Frankfurt. Subverwerkers, waaronder Amerikaanse aanbieders, staan op de [pagina met subverwerkers](/subprocessors), en een [verwerkersovereenkomst](/dpa) is beschikbaar. Customermates heeft geen certificering zoals ISO 27001 of SOC 2, en dat telt wanneer de beveiligingsvragenlijst van een klant naar je leveranciers vraagt.
 
-## Wat kost het?
+## Hoe kies je een SaaS CRM? [#saas-crm-kiezen]
+
+Een SaaS CRM kies je op wat jouw team elke dag doet. Zes vragen helpen:
+
+1. **Past het datamodel bij abonnementen?** Je hebt accounts met meerdere gebruikers nodig, met velden voor plan, trial, MRR en verlenging. Zie [hoe je accounts modelleert](#accounts-modelleren).
+2. **Hoe komt productdata erin?** Controleer of er een API en webhooks zijn, of een kant-en-klare koppeling met je factureringstool. Bij Customermates bouw je die zelf, zie [productdata in het CRM](#productdata-in-crm).
+3. **Staan gesprekken bij het account?** Vraag of LinkedIn en e-mail bij het record komen, zodat de volgende stap niet in een inbox blijft hangen.
+4. **Waar staan je gegevens?** Kijk naar hostingregio, subverwerkers en verwerkersovereenkomst, en of het product te zelf hosten is als dat nodig is.
+5. **Wat kost het bij jouw teamgrootte?** Reken met het aantal gebruikers per abonnement, niet alleen met de vanafprijs. Zie [wat het kost](#wat-het-kost).
+6. **Kun je er weer uit?** Een lijst exporteer je als Excel of JSON, dus je kunt je gegevens meenemen.
+
+Zoek je een algemene gids voor het kiezen van een systeem, lees dan [CRM kiezen](/blog/how-to-choose-crm).
+
+## Wat kost het? [#wat-het-kost]
 
 Prijzen gelden per gebruiker per maand, maandelijks gefactureerd in euro's. De trial duurt [[commercial.trial.days]] dagen op Customermates Cloud, zonder creditcard. Daarna gaat de werkruimte over naar een Free-abonnement voor [[commercial.limit.free.maxMembers]] lid en [[commercial.limit.free.maxRecords]] records, zonder inbox, Mate, routines of webhooks, tenzij je een betaald abonnement kiest. De API en MCP zitten bij elk abonnement en webhooks bij elk betaald abonnement, zonder toeslag.
 
@@ -257,6 +300,18 @@ Details staan op de [prijzenpagina](/pricing). Verkopen de oprichters nog elke d
 ## Veelgestelde vragen
 
 <Faq>
+<FaqItem question="Wat is een SaaS CRM?">
+Een SaaS CRM is customer relationship management-software die je als abonnement afneemt en in de browser gebruikt. De aanbieder draait de servers en werkt de software bij. Voor een SaaS-bedrijf betekent de term vaak ook een CRM dat bij abonnementen past: accounts, trials, plannen en verlengingen. Zie [Wat is een SaaS CRM?](#wat-is-een-saas-crm).
+</FaqItem>
+
+<FaqItem question="Wat is het verschil tussen cloud en SaaS?">
+Cloud zegt waar software draait, namelijk op servers van een aanbieder. SaaS beschrijft hoe je de software afneemt, namelijk als abonnement dat de aanbieder beheert. Een SaaS CRM draait dus in de cloud, maar een CRM dat je zelf op een clouddienst installeert, is geen SaaS.
+</FaqItem>
+
+<FaqItem question="Wat valt er onder CRM?">
+Een CRM bevat doorgaans contactbeheer, accounts, deals en een pipeline, een gespreksgeschiedenis, taken en een overzicht van wat aan de beurt is. In Customermates zijn dat lijsten die je zelf inricht, aangevuld met de inbox, Mate en routines op Customermates Cloud.
+</FaqItem>
+
 <FaqItem question="Volgt Customermates trialgebruikers voor me op?">
 Het houdt het gesprek en de volgende stap op het account en stelt het antwoord op, en jij bekijkt, bewerkt en verstuurt. Op Customermates Cloud vanaf Pro staan LinkedIn- en e-mailgesprekken bij het account, en Mate of je eigen AI-client stelt het antwoord op wanneer je erom vraagt of via een routine die je instelt. Mate verstuurt alleen wanneer je erom vraagt of wanneer je een routine instelt die verstuurt. Er zijn geen reeksen, druppelcampagnes of bulkberichten.
 </FaqItem>
