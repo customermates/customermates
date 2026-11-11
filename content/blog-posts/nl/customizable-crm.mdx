@@ -22,7 +22,7 @@ blogPost:
     - Aanpasbaar CRM
     - CRM op maat
     - Aangepaste velden
-    - Open source CRM
+    - Open-source CRM
 ---
 
 # CRM op maat: wat je kunt aanpassen en wanneer je zelf een CRM bouwt
@@ -66,7 +66,7 @@ Custom objects zijn de duidelijkste scheidslijn tussen abonnementen. Dit zijn de
 | HubSpot | Beschikbaar met Enterprise-abonnementen (Sales Hub, Marketing Hub, Service Hub en andere Enterprise-hubs) | [HubSpot-kennisbank](https://knowledge.hubspot.com/object-settings/create-custom-objects) |
 | Zoho CRM | Custom modules in elke betaalde editie: 10 bij Standard, 25 bij Professional, 200 bij Enterprise, 500 bij Ultimate; geen bij Free | [Zoho CRM-vergelijking van edities](https://www.zoho.com/crm/complete-feature-list.html) |
 | Attio | Free tot 3, Plus tot 5, Pro tot 12, Enterprise onbeperkt | [Attio-prijzen](https://attio.com/pricing) |
-| Twenty | Onbeperkt bij Pro, Organization en Enterprise; de open source kern kun je zelf hosten | [Twenty-prijzen](https://twenty.com/pricing) |
+| Twenty | Onbeperkt bij Pro, Organization en Enterprise; de open-sourcekern kun je zelf hosten | [Twenty-prijzen](https://twenty.com/pricing) |
 | EspoCRM | Entity Manager maakt eigen entiteiten, velden en relaties; open source | [EspoCRM-functies](https://www.espocrm.com/features/) |
 | Pipedrive | De aangehaalde helppagina behandelt aangepaste velden bij leads, deals, personen, organisaties, producten en projecten; het aantal velden hangt van het abonnement af | [Pipedrive-support](https://support.pipedrive.com/en/article/custom-fields) |
 | Customermates | Je eigen lijsten met velden, relaties en berekende velden; een nieuwe werkruimte begint zonder lijsten | [Datamodel van Customermates](/docs/concepts) |
@@ -86,7 +86,7 @@ Heb je een record "Pand" nodig dat aan meerdere eigenaren en huurders is gekoppe
 
 Niemand kan je zonder specificatie een eerlijke vaste prijs geven voor CRM maatwerk. De kosten die mensen onderschatten zijn niet de eerste versie; het zijn de jaren onderhoud, want elke functie die een gehuurd CRM uitbrengt, wordt jouw achterstand. Schrijf voordat je een bouwopdracht geeft op welke recordtypen je huidige tool niet kan weergeven. Is de lijst leeg, dan heb je een beter ingericht CRM nodig, geen nieuw CRM.
 
-Er is een middenweg ontstaan: begin met een CRM met een volledige API en laat een AI-client het maatwerk daartegen doen. Met een open source CRM dat REST, webhooks en een MCP-server biedt, kan een klein script of een AI-client de ene workflow dekken die specifiek voor jou is, terwijl de leverancier al het andere onderhoudt.
+Er is een middenweg ontstaan: begin met een CRM met een volledige API en laat een AI-client het maatwerk daartegen doen. Met een open-source CRM dat REST, webhooks en een MCP-server biedt, kan een klein script of een AI-client de ene workflow dekken die specifiek voor jou is, terwijl de leverancier al het andere onderhoudt.
 
 ## CRM op maat laten maken: wat je een softwarebureau vraagt [#crm-laten-maken]
 
@@ -126,7 +126,7 @@ Zo zou een adviesbureau van vijf mensen Customermates naar zijn proces vormen. E
   </Step>
 </Steps>
 
-Gekoppelde e-mail-, LinkedIn- en WhatsApp-gesprekken verschijnen naast deze records in de [gezamenlijke inbox](/features/unified-inbox) op Pro en hoger. Starter heeft geen inbox. Werk je met Claude, ChatGPT of een andere AI-client, dan leest en schrijft die dezelfde records, inclusief je aangepaste velden, via [MCP](/docs/mcp) met [[derived.mcp.tools.total]] tools.
+Gekoppelde e-mail-, LinkedIn- en WhatsApp-gesprekken verschijnen naast deze records in de [gecombineerde inbox](/features/unified-inbox) op Pro en hoger. Starter heeft geen inbox. Werk je met Claude, ChatGPT of een andere AI-client, dan leest en schrijft die dezelfde records, inclusief je aangepaste velden, via [MCP](/docs/mcp) met [[derived.mcp.tools.total]] tools.
 
 Het doel van het vormgeven van het model is opvolging van elk klantgesprek. Met de inbox gekoppeld staan de gesprekken van elke klant op het klantrecord, schrijft Mate of je eigen AI-agent het antwoord en de volgende stap als concept, lees jij na en verstuur je, en zetten de datumvelden die je toevoegde, zoals Contractverlenging of een datum voor de volgende stap, wat aan de beurt is op je dashboard.
 
@@ -140,7 +140,7 @@ Deze grenzen tellen als je aanpasbare CRM's vergelijkt:
 - **Taken hebben geen ingebouwde deadline.** Voeg een veld Datum toe en sorteer erop; niets waarschuwt je als die datum verstrijkt.
 - **Import en export draaien per lijst**, als Excel-werkmappen of JSON, tot 5.000 records per export. Er is geen export van het hele account.
 
-Bij zelf hosten bevat de open source kern records, aangepaste velden, weergaven, rollen, REST, [webhooks](/docs/webhooks) en MCP. De inbox, Mate en Routines bestaan alleen in de cloud. Details staan op de [pagina over zelf hosten](/features/self-hosted).
+Bij zelf hosten bevat de open-sourcekern records, aangepaste velden, weergaven, rollen, REST, [webhooks](/docs/webhooks) en MCP. De inbox, Mate en Routines bestaan alleen in de cloud. Details staan op de [pagina over zelf hosten](/features/self-hosted).
 
 ## Wat het kost om te draaien
 
@@ -149,9 +149,9 @@ Customermates wordt gefactureerd per gebruiker en per maand, alleen maandelijks.
 | Abonnement | Vijf gebruikers per maand | Wat de opzet hierboven gebruikt |
 |---|---|---|
 | Starter | [[commercial.price.starter.monthly.seats.5]] | Aangepaste velden, fases, weergaven, import, API, webhooks, MCP, [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per gebruiker |
-| Pro | [[commercial.price.pro.monthly.seats.5]] | Alles hierboven, plus de gezamenlijke inbox met [[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per gebruiker en [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per gebruiker |
+| Pro | [[commercial.price.pro.monthly.seats.5]] | Alles hierboven, plus de gecombineerde inbox met [[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per gebruiker en [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per gebruiker |
 
-Een jaar Pro voor vijf mensen komt op [[commercial.price.pro.monthly.seats.5.months.12]]. Elk betaald abonnement bevat maandelijkse gehoste AI-tegoeden per actieve gebruiker voor Mate; zie [prijzen](/pricing). Zelf hosten kent geen licentiekosten voor de open source kern; je betaalt voor je eigen server en de tijd om hem te laten draaien.
+Een jaar Pro voor vijf mensen komt op [[commercial.price.pro.monthly.seats.5.months.12]]. Elk betaald abonnement bevat maandelijkse gehoste AI-tegoeden per actieve gebruiker voor Mate; zie [prijzen](/pricing). Zelf hosten kent geen licentiekosten voor de open-sourcekern; je betaalt voor je eigen server en de tijd om hem te laten draaien.
 
 Wil je je eigen werkruimte vormgeven, [start je proefperiode](/auth/signup?job=followup): [[commercial.trial.days]] dagen Pro zonder creditcard.
 
@@ -195,6 +195,6 @@ Van de hier gecontroleerde producten bevat Twenty onbeperkt custom objects in de
 </FaqItem>
 
 <FaqItem question="Kan ik mijn CRM-gegevens op mijn eigen server houden?">
-Ja, met een CRM dat je zelf kunt hosten. Customermates, Twenty en EspoCRM kunnen allemaal op je eigen infrastructuur draaien. Bij Customermates draait de zelf gehoste versie met Docker Compose en bevat die aangepaste velden, weergaven, REST, webhooks en MCP, maar niet de inbox, Mate of Routines. Zie de [gids over open source CRM](/blog/open-source-crm) voor de afwegingen.
+Ja, met een CRM dat je zelf kunt hosten. Customermates, Twenty en EspoCRM kunnen allemaal op je eigen infrastructuur draaien. Bij Customermates draait de zelf gehoste versie met Docker Compose en bevat die aangepaste velden, weergaven, REST, webhooks en MCP, maar niet de inbox, Mate of Routines. Zie de [gids over open-source CRM](/blog/open-source-crm) voor de afwegingen.
 </FaqItem>
 </Faq>

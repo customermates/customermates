@@ -1,5 +1,5 @@
 ---
-title: "Salesforce MCP: qué es, servidores, costo y configuración"
+title: "Salesforce MCP: qué es, servidores, coste y configuración"
 description: "Salesforce MCP explicado: qué servidor hace qué, cómo activarlo y conectarlo a Claude o ChatGPT, qué implica Flex Credits y cuándo basta un CRM con MCP."
 
 hero:
@@ -45,7 +45,7 @@ Los desarrolladores suelen referirse a otra cosa: el servidor MCP de código abi
     Un System Administrator activa un servidor en Setup y crea una External
     Client App con los scopes mcp_api y refresh_token.
   </SummaryItem>
-  <SummaryItem label="Costo">
+  <SummaryItem label="Coste">
     Pensado para clientes con Flex Credits. Salesforce ha anunciado un medidor
     por llamada para los agentes registrados, con la tarifa aún indicada como
     TBA.
@@ -117,7 +117,7 @@ Un artículo de Salesforce Help del 17 de septiembre de 2026, [Understand AIforc
 - Los sandboxes, las scratch orgs y las orgs Developer Edition no generan medición de HPI.
 - Una org necesita tener activada la facturación por Flex Credits, por ejemplo mediante Salesforce Foundations, que el artículo indica como disponible actualmente por 0 USD (comprobado el 8 de octubre de 2026).
 
-Así que la respuesta sincera sobre el costo es esta: la medición de HPI aún no está activa, Salesforce ya se reserva el derecho de facturar el uso de los servidores y se desconoce el importe del cargo por llamada anunciado. Si planeas un despliegue para todo un equipo de ventas, pide la tarifa de HPI a tu account executive antes de hacer el presupuesto y haz el piloto en un sandbox, donde las llamadas no se miden.
+Así que la respuesta sincera sobre el coste es esta: la medición de HPI aún no está activa, Salesforce ya se reserva el derecho de facturar el uso de los servidores y se desconoce el importe del cargo por llamada anunciado. Si planeas un despliegue para todo un equipo de ventas, pide la tarifa de HPI a tu account executive antes de hacer el presupuesto y haz el piloto en un sandbox, donde las llamadas no se miden.
 
 ## Cómo activar Salesforce MCP
 
@@ -193,12 +193,12 @@ La conexión funciona de dos maneras, como describe la [documentación de MCP](/
 | --- | --- | --- |
 | Quién lo configura | System Administrator: activación del servidor y External Client App | Cada usuario conecta su propio cliente; crear claves de API requiere el permiso de rol correspondiente |
 | Ediciones o planes | Enterprise Edition y superiores | Todos los planes cloud y autoalojado |
-| Costo de uso | Flex Credits; medición de HPI por llamada anunciada, tarifa TBA | Sin cargo por llamada; tu cliente de IA usa tu propio proveedor de IA |
+| Coste de uso | Flex Credits; medición de HPI por llamada anunciada, tarifa TBA | Sin cargo por llamada; tu cliente de IA usa tu propio proveedor de IA |
 | Control del alcance | Servidores separados de lectura, escritura y eliminación; seguridad a nivel de campo | Permisos de rol por recurso y acción; restricción de toolsets por URL; sin permisos a nivel de campo |
 | Herramientas propias | Apex, Flows, consultas con nombre, API Catalog, plantillas de prompt | Catálogo de herramientas fijo; se amplía con REST y webhooks |
 | Licencia | Servicio propietario; el servidor DX es Apache 2.0 | Núcleo AGPL, autoalojable |
 
-La cuenta del costo es sencilla. Un equipo de cinco personas en Starter paga [[commercial.price.starter.monthly.seats.5]] al mes y obtiene todo el conjunto de herramientas del CRM por MCP. Las herramientas de la bandeja de entrada necesitan Pro, [[commercial.price.pro.monthly.seats.5]] al mes para el mismo equipo. La suscripción de tu cliente de IA se suma aparte, con Anthropic, OpenAI o el proveedor que uses. Los precios actuales están en la [página de precios](/pricing).
+La cuenta del coste es sencilla. Un equipo de cinco personas en Starter paga [[commercial.price.starter.monthly.seats.5]] al mes y obtiene todo el conjunto de herramientas del CRM por MCP. Las herramientas de la bandeja de entrada necesitan Pro, [[commercial.price.pro.monthly.seats.5]] al mes para el mismo equipo. La suscripción de tu cliente de IA se suma aparte, con Anthropic, OpenAI o el proveedor que uses. Los precios actuales están en la [página de precios](/pricing).
 
 Hay una diferencia de control que importa. El servidor MCP de Customermates indica a los clientes que pidan la confirmación del usuario antes de eliminar o enviar, pero esa confirmación ocurre en el cliente. Cuando un cliente autorizado llama a una herramienta, el servidor la ejecuta. Revisa cómo gestiona las aprobaciones tu cliente y empieza con lecturas y borradores.
 

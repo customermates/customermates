@@ -95,7 +95,7 @@ sections:
       - title: "Controleer wat je editie omvat"
         description: "Ga na of de functieset van Starter de records, weergaven en interfaces dekt die jouw werkwijze nodig heeft."
       - title: "Breng externe diensten in kaart"
-        description: "Maak een lijst van elke SMTP-, OAuth-, monitoring-, workflow- of AI-aanbieder die je wilt configureren, en van de gegevens die elk van hen ontvangt."
+        description: "Maak een lijst van elke aanbieder voor e-mail (Resend), OAuth, monitoring, workflows of AI die je wilt configureren, en van de gegevens die elk van hen ontvangt."
       - title: "Richt het beheer in"
         description: "Leg back-ups, geteste herstelprocedures, upgrades, TLS, monitoring en toegangsbeheer voor jouw omgeving vast."
       - title: "Test zonder klantgegevens"
@@ -162,7 +162,7 @@ Het Compose-bestand bevat geen n8n, geen AI-model, geen aanbieder voor het verst
   variant="proof"
 >
   De applicatie en de database kunnen op je eigen infrastructuur draaien terwijl
-  SMTP, OAuth, monitoring, workflowtools en externe AI losse diensten blijven
+  e-mailverzending via Resend, OAuth, monitoring, workflowtools en externe AI losse diensten blijven
   zodra je ze configureert. Breng die aanbieders in kaart voordat je het
   deploymentmodel kiest.
 </AcquisitionCallout>
@@ -204,7 +204,7 @@ Dat onderscheid telt als je een [open-source CRM](/blog/open-source-crm) vergeli
 
 Jij kiest waar de applicatie en PostgreSQL draaien en hoe je netwerktoegang, back-ups, bewaartermijnen en updates instelt. Dat is echte controle over je infrastructuur, maar geen automatische garantie op compliance, beveiliging of een afgesloten netwerk.
 
-Gekoppelde diensten blijven aparte verwerkingsgrenzen. OAuth-aanbieders, SMTP, monitoring, workflowtools en externe AI-aanbieders ontvangen wat jouw configuratie naar hen stuurt. Foutdiagnostiek blijft op je eigen server; meldingen aan de beheerder gaan naar de ontvanger en de e-mailaanbieder die je instelt. Dit is geen algemene belofte dat er niets wordt doorgestuurd.
+Gekoppelde diensten blijven aparte verwerkingsgrenzen. OAuth-aanbieders, Resend voor e-mail, monitoring, workflowtools en externe AI-aanbieders ontvangen wat jouw configuratie naar hen stuurt. Foutdiagnostiek blijft op je eigen server; meldingen aan de beheerder gaan naar de ontvanger en de e-mailaanbieder die je instelt. Dit is geen algemene belofte dat er niets wordt doorgestuurd.
 
 ## Self hosted of beheerde cloud?
 
@@ -279,6 +279,6 @@ Materiaal van Customermates zelf buiten `ee/` is AGPL-3.0-only. Binnen `ee/` is 
 </FaqItem>
 
 <FaqItem question="Wat bevat de officiële Docker Compose-stack?">
-Hij bevat de Customermates-applicatie en PostgreSQL 16. n8n, AI-modellen, SMTP, identiteitsaanbieders en monitoringdiensten staan los van de stack zodra je ze zelf koppelt.
+Hij bevat de Customermates-applicatie en PostgreSQL 16. E-mail gaat via Resend met je eigen API-sleutel. n8n, AI-modellen, identiteitsaanbieders en monitoringdiensten staan los van de stack zodra je ze zelf koppelt.
 </FaqItem>
 </Faq>

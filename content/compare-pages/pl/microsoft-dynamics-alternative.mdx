@@ -58,7 +58,7 @@ comparison:
         source: false
         competitor: true
       - name: Prognozowanie i zarządzanie terytoriami
-        source: Nie; tylko ważony lejek z prawdopodobieństw etapów
+        source: Nie; tylko ważony pipeline z prawdopodobieństw etapów
         competitor: Od Enterprise
       - name: Natywna aplikacja mobilna
         source: Nie; responsywna aplikacja webowa
@@ -97,7 +97,7 @@ comparison:
         source: Docker Compose, podstawowy CRM bez skrzynki odbiorczej i Mate
         competitor: Customer Engagement (on-premises) v9, wsparcie standardowe do stycznia 2027
       - name: Lokalizacja danych w chmurze
-        source: Baza danych skonfigurowana w regionie AWS Frankfurt; DPA i lista podprocesorów
+        source: Baza danych skonfigurowana w regionie AWS Frankfurt; DPA i lista podmiotów podprzetwarzających
         competitor: EU Data Boundary, gdy tenant, środowiska i adres rozliczeniowy są w UE lub EFTA
 
 cta:
@@ -174,7 +174,7 @@ Mały zespół, który musi pilnować kontaktu z klientami, nie potrzebuje do te
 
 Wolisz Claude, ChatGPT albo innego klienta, za którego już płacisz? Podłącz go do [serwera MCP](/docs/mcp) kluczem API lub przez OAuth. Oferuje [[derived.mcp.tools.total]] narzędzi w każdym planie i w instalacjach self-hosted, a jego wywołania modelu działają u Twojego własnego dostawcy AI.
 
-**Open source, z wyborem hostingu.** Rdzeń AGPL-3.0 działa na Twoim własnym serwerze z Docker Compose i PostgreSQL 16, razem z REST, webhookami i MCP. [Instalacja self-hosted](/features/self-hosted) nie ma skrzynki odbiorczej, Mate ani hostowanych kredytów. W Customermates Cloud baza danych jest skonfigurowana w regionie AWS Frankfurt, dostępna jest umowa [DPA](/dpa), a [podprocesorzy](/subprocessors), w tym dostawcy z USA, są wymienieni. Customermates nie ma żadnej certyfikacji zgodności.
+**Open source, z wyborem hostingu.** Rdzeń AGPL-3.0 działa na Twoim własnym serwerze z Docker Compose i PostgreSQL 16, razem z REST, webhookami i MCP. [Instalacja self-hosted](/features/self-hosted) nie ma skrzynki odbiorczej, Mate ani hostowanych kredytów. W Customermates Cloud baza danych jest skonfigurowana w regionie AWS Frankfurt, dostępna jest umowa [DPA](/dpa), a [podmioty podprzetwarzające](/subprocessors), w tym dostawcy z USA, są wymienione. Customermates nie ma żadnej certyfikacji zgodności.
 
 ## Gdzie Customermates to zły wybór
 
@@ -182,7 +182,7 @@ Wolisz Claude, ChatGPT albo innego klienta, za którego już płacisz? Podłącz
 - **Przeliczanie walut.** Każde pole kwoty ma własną walutę i nic nie przelicza między walutami: sumy mieszające waluty pokazują niezgodność zamiast sumy.
 - **Szczegółowe zabezpieczenia.** Role ustawiają uprawnienia na poziomie listy i akcji. Nie ma zabezpieczeń na poziomie pól ani SSO.
 - **Contact Center lub Customer Service.** Microsoft sprzedaje oba jako osobne aplikacje Dynamics 365. Customermates nie ma telefonii, spraw ani zgłoszeń.
-- **Wbudowane narzędzia sprzedażowe.** Brak aplikacji mobilnej, nagrywania rozmów, wzbogacania danych, scoringu leadów, sekwencji e-mail i masowej wysyłki e-maili. Ważony lejek to arytmetyka na prawdopodobieństwach etapów, a nie prognoza.
+- **Wbudowane narzędzia sprzedażowe.** Brak aplikacji mobilnej, nagrywania rozmów, wzbogacania danych, scoringu leadów, sekwencji e-mail i masowej wysyłki e-maili. Ważony pipeline to arytmetyka na prawdopodobieństwach etapów, a nie prognoza.
 - **Duży plan bezpłatny.** Free obejmuje [[commercial.limit.free.maxMembers]] osobę i [[commercial.limit.free.maxRecords]] rekordów, bez skrzynki odbiorczej, Mate i rutyn; więcej wymaga planu płatnego po [[commercial.trial.days]]-dniowym okresie próbnym.
 
 ## Przykładowa konfiguracja: firma doradcza odchodzi od Sales Professional
@@ -250,7 +250,7 @@ Tak, od planu Pro. Łączysz skrzynkę Outlook, jej rozmowy pojawiają się we w
 </FaqItem>
 
 <FaqItem question="Czy dane CRM mogą zostać w UE przy obu produktach?">
-Tak, na różne sposoby. EU Data Boundary Microsoft obejmuje Dynamics 365, gdy tenant, każde środowisko i adres rozliczeniowy są w UE lub EFTA, z udokumentowanymi wyjątkami. Customermates Cloud ma bazę danych skonfigurowaną w regionie AWS Frankfurt i wymienia swoich podprocesorów, w tym dostawców z USA; self-hosting umieszcza dane na Twoim własnym serwerze.
+Tak, na różne sposoby. EU Data Boundary Microsoft obejmuje Dynamics 365, gdy tenant, każde środowisko i adres rozliczeniowy są w UE lub EFTA, z udokumentowanymi wyjątkami. Customermates Cloud ma bazę danych skonfigurowaną w regionie AWS Frankfurt i wymienia swoje podmioty podprzetwarzające, w tym dostawców z USA; self-hosting umieszcza dane na Twoim własnym serwerze.
 </FaqItem>
 </Faq>
 

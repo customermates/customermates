@@ -61,7 +61,7 @@ Inne akcje formułują to inaczej:
 - **Odśwież** w [Skrzynce odbiorczej](app:inbox): „Niektóre kanały osiągnęły limit zapytań. Spróbuj ponownie za kilka minut.”
 - Przenoszenie e-maila do innego folderu: „Przenoszenie do `{folder}` zatrzymano, ponieważ dostawca ogranicza liczbę zapytań.” wraz z czasem oczekiwania dla pozostałych.
 
-Czas oczekiwania pochodzi z wartości `Retry-After` w odpowiedzi o przekroczeniu limitu, którą zwraca Unipile; gdy jej brak, komunikat mówi „później” zamiast podawać czas oczekiwania. Customermates nie ponawia akcji za ciebie: spróbuj ponownie, gdy okno minie. W międzyczasie nic nie ginie. Przez REST API i MCP wywołanie kończy się tym samym komunikatem: REST API odpowiada statusem HTTP 429 i nagłówkiem `Retry-After` o wartości 30 sekund, a MCP zwraca błąd rodzaju `rate_limit`, którego opis problemu w `_meta.failure` zawiera `customCode: "unipileRateLimit"`.
+Czas oczekiwania pochodzi z wartości `Retry-After` w odpowiedzi o przekroczeniu limitu, którą zwraca Unipile; gdy jej brak, komunikat mówi „później” zamiast podawać czas oczekiwania. Customermates nie ponawia akcji za Ciebie: spróbuj ponownie, gdy okno minie. W międzyczasie nic nie ginie. Przez REST API i MCP wywołanie kończy się tym samym komunikatem: REST API odpowiada statusem HTTP 429 i nagłówkiem `Retry-After` o wartości 30 sekund, a MCP zwraca błąd rodzaju `rate_limit`, którego opis problemu w `_meta.failure` zawiera `customCode: "unipileRateLimit"`.
 
 ## Czy import historii wznawia się sam? [#does-the-history-import-resume-by-itself]
 

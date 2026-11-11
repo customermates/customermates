@@ -67,7 +67,7 @@ sections:
       - title: "Crea una cuenta"
         description: "Regístrate y crea tu primer espacio de trabajo. Recibe [[commercial.trial.days]] días de funciones de Pro, sin tarjeta de crédito."
       - title: "Describe tu espacio de trabajo"
-        description: "Responde unas preguntas sobre clientes, ventas y cifras, o deja que lea tu sitio web. La configuración con IA te muestra un plan con listas, etapas del pipeline, campos, dashboard y páginas de la base de conocimientos que tú confirmas o ajustas."
+        description: "Responde unas preguntas sobre clientes, ventas y cifras, o deja que lea tu sitio web. La configuración con IA te muestra un plan con listas, etapas del pipeline, campos, panel y páginas de la base de conocimientos que tú confirmas o ajustas."
       - title: "Trae tus propios datos"
         description: "Importa un libro de Excel (XLSX) o empieza con datos de ejemplo para comprobar las vistas y el pipeline."
       - title: "Conecta tu propia IA"
@@ -81,7 +81,7 @@ sections:
       - title: "Código abierto"
         description: "El código propio fuera de ee/ es AGPL-3.0-only. El código fuente está en el repositorio público."
       - title: "Arranque más rápido"
-        description: "Nube gestionada con [[commercial.trial.days]] días de funciones de Pro, sin tarjeta de crédito. La configuración con IA prepara listas, pipeline, dashboard y base de conocimientos."
+        description: "Nube gestionada con [[commercial.trial.days]] días de funciones de Pro, sin tarjeta de crédito. La configuración con IA prepara listas, pipeline, panel y base de conocimientos."
       - title: "Autoalojado"
         description: "Dos contenedores con Docker Compose: la aplicación y PostgreSQL 16, con el conjunto de funciones de Starter y sin facturación."
       - title: "Límite"
@@ -132,7 +132,7 @@ El código propio fuera de `ee/` tiene licencia AGPL-3.0-only. El código de `ee
 
 La licencia comercial permite ejecutar la imagen oficial en modo autoalojado como Community Build, también en producción, siempre que las funciones de la nube estén desactivadas. Los términos exactos están en [`LICENSE`](https://github.com/customermates/customermates/blob/main/LICENSE) y [`ee/LICENSE.md`](https://github.com/customermates/customermates/blob/main/ee/LICENSE.md). Lee ambos antes de modificar o redistribuir el código (detalles de la licencia comprobados el 29 de octubre de 2026).
 
-El CRM en sí funciona igual en ambos: listas para personas, organizaciones, oportunidades o tareas, campos personalizados, vistas de tabla, Kanban y calendario, dashboards, roles y un registro de actividad. Los clientes de IA externos, como Claude o ChatGPT, trabajan a través del [servidor MCP](/docs/mcp) con los permisos del usuario con el que están conectados.
+El CRM en sí funciona igual en ambos: listas para personas, organizaciones, oportunidades o tareas, campos personalizados, vistas de tabla, Kanban y calendario, paneles, roles y un registro de actividad. Los clientes de IA externos, como Claude o ChatGPT, trabajan a través del [servidor MCP](/docs/mcp) con los permisos del usuario con el que están conectados.
 
 ## Nube o autoalojado: ¿qué vía te conviene?
 
@@ -162,7 +162,7 @@ El autoalojamiento encaja cuando tu equipo sabe gestionar Docker y PostgreSQL y 
 
 La [guía de autoalojamiento](/docs/self-hosting) lo explica paso a paso: descarga `docker-compose.yml` y `.env` del repositorio con `curl`, rellena la contraseña, el secreto, `BASE_URL` y el envío de correo, y ejecuta `docker compose up -d`. La imagen está compilada para `linux/amd64` y `linux/arm64` y aplica las migraciones de base de datos pendientes en cada arranque.
 
-Una instancia autoalojada admite cualquier número de espacios de trabajo, no cuenta puestos y no factura nada. A cambio, te encargas tú de las actualizaciones, las copias de seguridad, las restauraciones probadas, TLS y la monitorización. Autoalojar no hace que un CRM cumpla el RGPD por sí solo: la configuración, los proveedores conectados, los contratos y la operación siguen siendo responsabilidad tuya.
+Una instancia autoalojada admite cualquier número de espacios de trabajo, no cuenta plazas y no factura nada. A cambio, te encargas tú de las actualizaciones, las copias de seguridad, las restauraciones probadas, TLS y la monitorización. Autoalojar no hace que un CRM cumpla el RGPD por sí solo: la configuración, los proveedores conectados, los contratos y la operación siguen siendo responsabilidad tuya.
 
 ## ¿Cómo elegir un CRM de código abierto? [#como-elegir-un-crm-de-codigo-abierto]
 

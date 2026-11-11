@@ -39,7 +39,7 @@ hero:
 
 cta:
   action: "Wypróbuj CRM, który trzyma każdą rozmowę z klientem na widoku"
-  description: "Uruchom okres próbny, skonfiguruj listy, zaimportuj jeden typ rekordu ze skoroszytu XLSX i sprawdź, czy lejek sprzedaży pasuje do Twojej pracy, zanim zaprosisz zespół. Połącz jedno konto e-mail lub LinkedIn, żeby zobaczyć rozmowy klienta przy jego rekordzie."
+  description: "Uruchom okres próbny, skonfiguruj listy, zaimportuj jeden typ rekordu ze skoroszytu XLSX i sprawdź, czy pipeline sprzedaży pasuje do Twojej pracy, zanim zaprosisz zespół. Połącz jedno konto e-mail lub LinkedIn, żeby zobaczyć rozmowy klienta przy jego rekordzie."
   buttonLeftText: "Zacznij [[commercial.trial.days]]-dniowy okres próbny"
   buttonLeftHref: /auth/signup?job=workspace
   buttonRightText: Zobacz demo na żywo
@@ -47,9 +47,9 @@ cta:
   hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
 ---
 
-Prosty CRM to taki, który Twój zespół stale aktualizuje, bo mało w nim do nauki, a struktura odpowiada temu, jak już pracujecie. Customermates osiąga to małym modelem danych: listy takie jak kontakty, organizacje, szanse sprzedaży, usługi i zadania, pola, które wybierasz, oraz lejek szans sprzedaży z etapami, które sam nazywasz. Pasuje do małych zespołów pracujących z klientami, takich jak konsultanci, agencje i założyciele, a na planie Starter kosztuje [[commercial.price.starter.monthly]] za użytkownika miesięcznie. Ta strona dotyczy łatwości obsługi i konfiguracji; jeśli oceniasz Customermates jako prosty CRM dla małej firmy usługowej, strona [CRM dla małej firmy](/for/smb) pokazuje obraz komercyjny i przykładową przestrzeń roboczą.
+Prosty CRM to taki, który Twój zespół stale aktualizuje, bo mało w nim do nauki, a struktura odpowiada temu, jak już pracujecie. Customermates osiąga to małym modelem danych: listy takie jak kontakty, organizacje, szanse sprzedaży, usługi i zadania, pola, które wybierasz, oraz pipeline szans sprzedaży z etapami, które sam nazywasz. Pasuje do małych zespołów pracujących z klientami, takich jak konsultanci, agencje i założyciele, a na planie Starter kosztuje [[commercial.price.starter.monthly]] za użytkownika miesięcznie. Ta strona dotyczy łatwości obsługi i konfiguracji; jeśli oceniasz Customermates jako prosty CRM dla małej firmy usługowej, strona [CRM dla małej firmy](/for/smb) pokazuje obraz komercyjny i przykładową przestrzeń roboczą.
 
-**Co oznacza „prosty” dla follow-upu.** Mały model danych trzyma follow-up tam, gdzie i tak zaglądasz: rekord klienta zawiera osoby, szansę sprzedaży i, od planu Pro, rozmowy, a jedno pole daty, takie jak Następny krok, plus zapisany widok mówią ci, do kogo odezwać się w następnej kolejności.
+**Co oznacza „prosty” dla follow-upu.** Mały model danych trzyma follow-up tam, gdzie i tak zaglądasz: rekord klienta zawiera osoby, szansę sprzedaży i, od planu Pro, rozmowy, a jedno pole daty, takie jak Następny krok, plus zapisany widok mówią Ci, do kogo odezwać się w następnej kolejności.
 
 Prosty znaczy też, że pewnych rzeczy celowo brakuje. Ograniczenia wymieniamy niżej, żeby od razu wykluczyć Customermates, jeśli któreś z nich jest Ci potrzebne.
 
@@ -58,7 +58,7 @@ Prosty znaczy też, że pewnych rzeczy celowo brakuje. Ograniczenia wymieniamy n
 Zanim porównasz narzędzia, ustal, co naprawdę musi być w środku. Małemu zespołowi zwykle wystarczy pięć rzeczy, a każda następna powinna zasłużyć na swoje miejsce:
 
 - **Kartoteka klienta.** Jedno miejsce na osoby, firmę i kolejny krok zamiast kilku arkuszy. W Customermates są to listy kontaktów i organizacji z polami, które wybierasz sam; zobacz [zarządzanie kontaktami](/features/contact-management).
-- **Szanse sprzedaży.** Lejek z etapami, które nazwiesz po swojemu, i wartością ważoną etapem, zobacz [lejek sprzedaży](/features/pipeline).
+- **Szanse sprzedaży.** Pipeline z etapami, które nazwiesz po swojemu, i wartością ważoną etapem, zobacz [pipeline sprzedaży](/features/pipeline).
 - **Zadania i plan pracy.** Lista rzeczy do zrobienia przy kliencie. W Customermates zadania nie mają wbudowanego terminu, więc datę dodajesz jako pole typu Data; zobacz [zadania w CRM](/features/task-management).
 - **Podsumowanie sprzedaży.** Widżety pulpitu zbierają liczby z Twoich list w jednym miejscu, zobacz [raporty w CRM](/features/reporting).
 - **Wiedza o klientach i sposobie pracy.** Ustalenia, ton komunikacji i zasady follow-upu w jednym miejscu, a nie w czyjejś skrzynce; do tego służy [baza wiedzy](/features/knowledge-base).
@@ -69,7 +69,7 @@ Reszta, na przykład sekwencje wiadomości czy rozbudowane automatyzacje, to dod
 
 Większość stron o prostym CRM obiecuje krótką konfigurację. Oto co faktycznie dzieje się po rejestracji. Nowa przestrzeń robocza startuje bez list. W Customermates Cloud konfiguracja przestrzeni roboczej oparta na AI pyta o Twoją firmę i z odpowiedzi buduje listy, pola, etapy szans sprzedaży, pulpit i strony Bazy wiedzy. Działa raz, podczas wdrożenia, w ramach limitu kredytów. Możesz ją pominąć przez **Zacznij od pustej przestrzeni roboczej** i zbudować wszystko sam. Instalacje self-hosted nie mają konfiguracji AI, więc listy tworzysz w sekcji **Model danych**, co wymaga roli Administrator albo uprawnienia **Edycja** w wierszu **Model danych**.
 
-To, co zbuduje konfiguracja, jest punktem wyjścia, a nie sztywnym szablonem. Etapy są opcjami jednego pola jednokrotnego wyboru, więc zmieniasz ich nazwy, dodajesz nowe albo je usuwasz. Etap może mieć prawdopodobieństwo wygranej, ustawiane jako **Prawdopodobieństwo %** na polu w sekcji **Model danych**. Customermates używa go do deterministycznej wartości ważonej każdej szansy sprzedaży i do ważonej sumy lejka; to waga etapu, którą ustawiasz sam, a nie prognoza.
+To, co zbuduje konfiguracja, jest punktem wyjścia, a nie sztywnym szablonem. Etapy są opcjami jednego pola jednokrotnego wyboru, więc zmieniasz ich nazwy, dodajesz nowe albo je usuwasz. Etap może mieć prawdopodobieństwo wygranej, ustawiane jako **Prawdopodobieństwo %** na polu w sekcji **Model danych**. Customermates używa go do deterministycznej wartości ważonej każdej szansy sprzedaży i do ważonej sumy pipeline'u; to waga etapu, którą ustawiasz sam, a nie prognoza.
 
 Co jeszcze skraca konfigurację:
 
@@ -122,7 +122,7 @@ CRM to system, który trzyma w jednym miejscu informacje o klientach: osoby, fir
 </FaqItem>
 
 <FaqItem question="Jaki jest najłatwiejszy w obsłudze system CRM?">
-Najłatwiejszy jest ten, którego struktura już pasuje do Twojej pracy. Szukaj lejka, który nazwiesz własnymi słowami, niewielu pól wymaganych i importu z arkusza, który już masz. W Customermates Cloud konfiguracja przestrzeni roboczej oparta na AI buduje pierwszy zestaw list i etapów na podstawie Twojego opisu; możesz je edytować jak każde pole własne i zmieniać nazwy list na własne określenia. Każdy CRM sprawdzaj na prawdziwych danych w okresie próbnym, zamiast oceniać demo.
+Najłatwiejszy jest ten, którego struktura już pasuje do Twojej pracy. Szukaj pipeline'u, który nazwiesz własnymi słowami, niewielu pól wymaganych i importu z arkusza, który już masz. W Customermates Cloud konfiguracja przestrzeni roboczej oparta na AI buduje pierwszy zestaw list i etapów na podstawie Twojego opisu; możesz je edytować jak każde pole własne i zmieniać nazwy list na własne określenia. Każdy CRM sprawdzaj na prawdziwych danych w okresie próbnym, zamiast oceniać demo.
 </FaqItem>
 
 <FaqItem question="Jaki jest najpopularniejszy CRM?">
@@ -138,7 +138,7 @@ Tak. Importuj każdy typ rekordu ze skoroszytu `.xlsx` lub pliku CSV, dopasowuj�
 </FaqItem>
 
 <FaqItem question="Jak zrobić własny CRM?">
-Najprostszą drogą jest arkusz, jak w [szablonie CRM w Excelu](/blog/excel-crm-template), ale przy większej liczbie klientów szybko robi się w nim ciasno. W Customermates własny CRM składasz w sekcji **Model danych**: tworzysz listy i zmieniasz ich nazwy, dodajesz pola oraz etapy lejka, a dane z arkusza wczytujesz kreatorem importu.
+Najprostszą drogą jest arkusz, jak w [szablonie CRM w Excelu](/blog/excel-crm-template), ale przy większej liczbie klientów szybko robi się w nim ciasno. W Customermates własny CRM składasz w sekcji **Model danych**: tworzysz listy i zmieniasz ich nazwy, dodajesz pola oraz etapy pipeline'u, a dane z arkusza wczytujesz kreatorem importu.
 </FaqItem>
 
 <FaqItem question="Ile miesięcznie kosztuje prosty CRM?">
@@ -146,7 +146,7 @@ W Customermates trzyosobowy zespół płaci [[commercial.price.starter.monthly.s
 </FaqItem>
 
 <FaqItem question="Czy prosty CRM ma sens dla jednej osoby?">
-Tak, jeśli masz więcej niż garstkę otwartych szans sprzedaży lub klientów i tracisz orientację, kto był Twoim ostatnim rozmówcą. Konsultant działający solo na Starterze dostaje pełny model rekordów i lejek. Jeśli potrzebujesz głównie listy kontaktów, arkusz może jeszcze wystarczyć.
+Tak, jeśli masz więcej niż garstkę otwartych szans sprzedaży lub klientów i tracisz orientację, kto był Twoim ostatnim rozmówcą. Konsultant działający solo na Starterze dostaje pełny model rekordów i pipeline. Jeśli potrzebujesz głównie listy kontaktów, arkusz może jeszcze wystarczyć.
 </FaqItem>
 
 <FaqItem question="Czy potrzebuję umiejętności technicznych?">

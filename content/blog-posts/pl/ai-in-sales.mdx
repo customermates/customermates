@@ -43,7 +43,7 @@ Ten poradnik publikuje Customermates, CRM typu AI native, który pojawia się we
 
 ## Gdzie AI pomaga w procesie sprzedaży
 
-Tabela prowadzi przez szansę od pierwszego researchu do przeglądu lejka. Ostatnia kolumna to część, którą człowiek powinien zachować.
+Tabela prowadzi przez szansę od pierwszego researchu do przeglądu pipeline'u. Ostatnia kolumna to część, którą człowiek powinien zachować.
 
 | Zadanie sprzedażowe | Co robi AI | Czego potrzebuje | Co zostaje po Twojej stronie |
 |---|---|---|---|
@@ -53,18 +53,18 @@ Tabela prowadzi przez szansę od pierwszego researchu do przeglądu lejka. Ostat
 | Notatki z rozmów | Transkrybuje rozmowę i wypisuje decyzje oraz następne kroki | Rejestratora spotkań i zgody drugiej strony | Tego, jakie zobowiązania naprawdę padły |
 | Follow-upy | Pisze odpowiedź w wątku, w języku klienta, odnoszącą się do otwartej szansy | Wątku, szansy i Twojego stylu wypowiedzi | Przeczytania, zanim zostanie wysłana |
 | Porządkowanie CRM | Przesuwa szanse na następny etap, pisze notatki i łączy nowe kontakty po rozmowie | CRM, którym AI może sterować przez API lub MCP | Zasad, co AI wolno zmieniać bez pytania |
-| Przegląd lejka | Znajduje szanse bez następnego kroku albo bez kontaktu od tygodni | Czystych etapów i historii aktywności | Tego, której utkniętej szansy pilnować, a którą zamknąć jako przegraną |
+| Przegląd pipeline'u | Znajduje szanse bez następnego kroku albo bez kontaktu od tygodni | Czystych etapów i historii aktywności | Tego, której utkniętej szansy pilnować, a którą zamknąć jako przegraną |
 | Scoring leadów | Szereguje leady według tego, jak bardzo przypominają dawne wygrane | Setek wygranych i przegranych szans ze spójnymi polami; przy mniejszej liczbie ranking nie jest wiarygodny | Tego, czy wynik pasuje do konta, które znasz |
-| Prognozowanie przychodów | Prognozuje kwartał na podstawie lejka i historii | Długiej, spójnej historii szans; bez niej prognoza to zgadywanie | Liczby, do której się zobowiązujesz |
+| Prognozowanie przychodów | Prognozuje kwartał na podstawie pipeline'u i historii | Długiej, spójnej historii szans; bez niej prognoza to zgadywanie | Liczby, do której się zobowiązujesz |
 | Coaching | Ocenia nagrane rozmowy według kryteriów i odgrywa role z zastrzeżeniami klienta | Nagranych rozmów i spisanych kryteriów | Informacji zwrotnej dla ludzi i każdej oceny ich pracy |
 
-Pierwsze siedem wierszy działa na danych, które mały zespół już ma. Scoring i prognozowanie nie: firma doradcza, która zamyka 40 szans rocznie, daje modelowi za mało materiału do nauki. Przy takiej skali ważony lejek, w którym wartość każdej szansy mnoży się przez prawdopodobieństwo ustawione dla jej etapu, łatwiej sprawdzić i wyjaśnić wspólnikowi. Inaczej jest w hurtowni z tysiącami zamówień rocznie: ma dość danych na modele, które podpowiadają ponowne zamówienia lub sprzedaż dodatkową.
+Pierwsze siedem wierszy działa na danych, które mały zespół już ma. Scoring i prognozowanie nie: firma doradcza, która zamyka 40 szans rocznie, daje modelowi za mało materiału do nauki. Przy takiej skali ważony pipeline, w którym wartość każdej szansy mnoży się przez prawdopodobieństwo ustawione dla jej etapu, łatwiej sprawdzić i wyjaśnić wspólnikowi. Inaczej jest w hurtowni z tysiącami zamówień rocznie: ma dość danych na modele, które podpowiadają ponowne zamówienia lub sprzedaż dodatkową.
 
 ## Personalizacja komunikacji: jak sprawić, by AI pisało po Twojemu [#personalizacja-komunikacji]
 
 Personalizacja z AI to nie wstawienie imienia i nazwy firmy w szablon. Model może wziąć z wątku to, co klient naprawdę napisał, i odnieść się do tego w odpowiedzi. Szkic wypada dobrze tylko wtedy, gdy potrafisz opisać, jak piszesz do klientów.
 
-- **Forma grzecznościowa.** W polskim B2B różnica między „Dzień dobry, Panie Marku” a „Cześć, Marek” ma znaczenie, a model bez wskazówki często wybiera zbyt sztywny, urzędowy ton. Napisz w instrukcji, jak zwracasz się do klientów (Pan/Pani czy per ty, imię czy nazwisko), i dołącz dwa, trzy własne maile jako wzór.
+- **Forma grzecznościowa.** W polskim B2B różnica między „Dzień dobry, Panie Marku” a „Cześć, Marek” ma znaczenie, a model bez wskazówki często wybiera zbyt sztywny, urzędowy ton. Napisz w instrukcji, jak zwracasz się do klientów (Pan/Pani czy per Ty, imię czy nazwisko), i dołącz dwa, trzy własne maile jako wzór.
 - **Odmiana imion i nazwisk.** Modele zwykle radzą sobie z polskim dobrze, ale wołacz („Panie Tomaszu”) i odmiana nazwisk wciąż potrafią się potknąć. Klient zauważy to od razu, więc czytaj każdy szkic, zanim wyjdzie.
 - **Język klienta.** Jeśli klient pisze po angielsku albo po niemiecku, szkic powinien być w tym samym języku. Poproś o to wprost, tak jak w przykładzie z Customermates niżej.
 - **Konkret zamiast komplementów.** Dobra personalizacja nawiązuje do ostatniej wiadomości, otwartej szansy albo ustaleń ze spotkania. Pochwała strony internetowej klienta nic nie wnosi.
@@ -146,7 +146,7 @@ To jest follow-up w praktyce: nota przed każdym spotkaniem, szkic czekający w 
 **Zamiast tego z własnym klientem AI:** Claude, ChatGPT i inni klienci mogą wykonać tę samą pracę przez [serwer MCP Customermates](/docs/mcp), w każdym planie i w instancji self-hosted. Model działa wtedy w Twojej własnej subskrypcji AI. Narzędzia do wiadomości i kalendarza wymagają planu Pro lub wyższego w chmurze. Serwer prosi klientów o potwierdzenie przed wysłaniem lub usunięciem, ale to, czy zobaczysz to potwierdzenie, zależy od klienta.
 
 <AcquisitionCallout title="Czego Customermates nie robi" variant="boundary">
-Bez scoringu leadów, wzbogacania danych i prognozowania przychodów: ważony lejek to wartość szansy razy prawdopodobieństwo etapu, które ustawiasz. Bez nagrywania i transkrypcji rozmów, bez sekwencji e-mail i wysyłki masowej, bez rezerwacji w kalendarzu. Rutyny mają limit na godzinę i po starcie przebiegu ignorują kolejne zdarzenia przez krótkie okno, więc lepiej pasują do codziennych albo cotygodniowych przeglądów niż do obsługi każdego e-maila przychodzącego. W wersji self-hosted dostajesz otwartoźródłowy rdzeń z REST, webhookami i MCP, ale bez skrzynki odbiorczej, Mate i rutyn. Duży zespół sprzedaży, który chce modeli scoringowych, lepiej obsłuży AI platform Salesforce lub HubSpot, a zespół, który prowadzi coaching na setkach nagranych rozmów, narzędzie typu conversation intelligence.
+Bez scoringu leadów, wzbogacania danych i prognozowania przychodów: ważony pipeline to wartość szansy razy prawdopodobieństwo etapu, które ustawiasz. Bez nagrywania i transkrypcji rozmów, bez sekwencji e-mail i wysyłki masowej, bez rezerwacji w kalendarzu. Rutyny mają limit na godzinę i po starcie przebiegu ignorują kolejne zdarzenia przez krótkie okno, więc lepiej pasują do codziennych albo cotygodniowych przeglądów niż do obsługi każdego e-maila przychodzącego. W wersji self-hosted dostajesz otwartoźródłowy rdzeń z REST, webhookami i MCP, ale bez skrzynki odbiorczej, Mate i rutyn. Duży zespół sprzedaży, który chce modeli scoringowych, lepiej obsłuży AI platform Salesforce lub HubSpot, a zespół, który prowadzi coaching na setkach nagranych rozmów, narzędzie typu conversation intelligence.
 </AcquisitionCallout>
 
 ## Ryzyka do rozstrzygnięcia przed startem

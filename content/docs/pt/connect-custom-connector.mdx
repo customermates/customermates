@@ -23,7 +23,7 @@ Como cada espaço de trabalho tem a própria URL, você pode adicionar vários e
 
 `<BASE_URL>/api/v1/mcp` continua funcionando: ela oferece as mesmas ferramentas, e a tela de consentimento pergunta a qual espaço de trabalho a conexão será atribuída. As conexões que você adicionou antes com ela continuam como estavam.
 
-O conector funciona em todos os planos do Customermates e em instâncias auto-hospedadas; apenas as ferramentas de mensagens, calendário e redes sociais exigem, na nuvem, um plano com mensagens, Pro ou superior.
+O conector funciona em todos os planos do Customermates e em instâncias com hospedagem própria; apenas as ferramentas de mensagens, calendário e redes sociais exigem, na nuvem, um plano com mensagens, Pro ou superior.
 
 ## Como conecto o Claude ao CRM do Customermates? [#claude]
 
@@ -141,7 +141,7 @@ Deixe em *Ask* toda ferramenta que não seja somente leitura. A lista completa e
 | "Tool not found" | Cache do conector desatualizado | Remova o conector e adicione-o de novo |
 | O servidor rejeita uma atualização de relação | O ID da relação ou de uma extremidade está ausente ou inacessível | Peça ao agente para ler `get_record_model` e depois usar `mutate_crm_record` com `link` ou `unlink` |
 | Um campo de seleção é rejeitado | O valor não está na lista de opções do campo | Peça ao agente para chamar `get_record_model` antes |
-| Uma ferramenta de mensagens, calendário ou redes sociais é recusada com uma mensagem sobre o plano | O espaço de trabalho não tem um plano com mensagens (Starter, auto-hospedado, ou sem assinatura nem teste ativos) | No Cloud, um membro com **Editar** em **Empresa** escolhe o Pro ou superior em [Faturamento](app:settings/billing). Instâncias auto-hospedadas não têm mensagens; para essas ferramentas, use o Customermates Cloud |
+| Uma ferramenta de mensagens, calendário ou redes sociais é recusada com uma mensagem sobre o plano | O espaço de trabalho não tem um plano com mensagens (Starter, hospedado por conta própria, ou sem assinatura nem teste ativos) | No Cloud, um membro com **Editar** em **Empresa** escolhe o Pro ou superior em [Faturamento](app:settings/billing). Instâncias hospedadas por conta própria não têm mensagens; para essas ferramentas, use o Customermates Cloud |
 
 ## Em um plano gratuito ou em uma CLI? [#on-a-free-plan-or-in-a-cli]
 

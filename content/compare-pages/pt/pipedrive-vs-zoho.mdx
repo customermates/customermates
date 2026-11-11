@@ -17,7 +17,7 @@ sections:
       description: "A partir do Pro, a caixa de entrada unificada reúne caixas de Gmail, Outlook e IMAP, LinkedIn, WhatsApp, Instagram e Telegram em uma só lista vinculada aos seus contatos, e você responde no canal original."
     - title: "Respostas de rotina redigidas"
       description: "No Customermates Cloud, o Mate resume conversas, redige respostas e atualiza registros, usando créditos de IA hospedados. Você revisa, edita e envia."
-    - title: "Open source"
+    - title: "Código aberto"
       description: "O núcleo AGPL-3.0 roda no seu próprio servidor com Docker Compose, incluindo REST, webhooks e MCP."
   switchSteps: true
 
@@ -87,7 +87,7 @@ comparison:
         competitor: Relatórios com IA em todos os planos; ferramentas de e-mail com IA no Premium
         competitor2: Inteligência preditiva a partir do Professional; IA ampliada no Enterprise
       - name: Servidor MCP
-        source: "Todos os planos e autohospedado, [[derived.mcp.tools.total]] ferramentas"
+        source: "Todos os planos e hospedado por conta própria, [[derived.mcp.tools.total]] ferramentas"
         competitor: Todos os planos, dentro dos limites de tokens do plano
         competitor2: Zoho MCP para Claude, GPT e outros agentes
   - title: Hospedagem e acesso
@@ -184,11 +184,11 @@ No Pipedrive, administradores globais e usuários com a permissão adequada expo
 
 ## Uma terceira opção: Customermates
 
-O Customermates publica esta página, então leia esta seção como um fornecedor descrevendo o próprio produto. Ele é um CRM open source e nativo de IA para pequenas equipes que atendem clientes, como consultores, agências, outros negócios de serviços e fundadores, feito na Alemanha e pensado para acompanhar cada conversa com o cliente: a partir do Pro, elas ficam no registro do cliente, e o Mate ou o seu próprio agente de IA redige a resposta e o próximo passo. Um novo espaço de trabalho começa sem listas: você cria as listas de que precisa (contatos, organizações, negócios ou as suas próprias) com campos, relacionamentos e campos calculados, ou deixa a configuração por IA montá-las na nuvem. Ele difere do Pipedrive e do Zoho CRM em quatro pontos:
+O Customermates publica esta página, então leia esta seção como um fornecedor descrevendo o próprio produto. Ele é um CRM de código aberto e nativo de IA para pequenas equipes que atendem clientes, como consultores, agências, outros negócios de serviços e fundadores, feito na Alemanha e pensado para acompanhar cada conversa com o cliente: a partir do Pro, elas ficam no registro do cliente, e o Mate ou o seu próprio agente de IA redige a resposta e o próximo passo. Um novo espaço de trabalho começa sem listas: você cria as listas de que precisa (contatos, organizações, negócios ou as suas próprias) com campos, relacionamentos e campos calculados, ou deixa a configuração por IA montá-las na nuvem. Ele difere do Pipedrive e do Zoho CRM em quatro pontos:
 
 - **Conversas ao lado do negócio.** A partir do Pro, a [caixa de entrada unificada](/features/unified-inbox) reúne caixas de Gmail, Outlook e IMAP, LinkedIn, WhatsApp, Instagram e Telegram em uma só lista vinculada aos seus contatos, e você responde no canal original. O Starter não tem caixa de entrada.
 - **IA para o trabalho de rotina do CRM.** No Customermates Cloud, o Mate resume conversas, redige respostas e atualiza registros, usando créditos de IA hospedados. As [rotinas](/docs/app-routines) executam uma instrução salva em um horário agendado ou quando um registro muda. Claude, ChatGPT ou outro cliente pode trabalhar com o CRM pelo [servidor MCP](/docs/mcp), com [[derived.mcp.tools.total]] ferramentas em todos os planos.
-- **Open source.** O núcleo AGPL-3.0 roda no seu próprio servidor com Docker Compose, incluindo REST, webhooks e MCP. Uma [instalação autohospedada](/features/self-hosted) não tem caixa de entrada nem Mate. No Customermates Cloud, o banco de dados é configurado na região AWS de Frankfurt; os demais subprocessadores, incluindo provedores dos EUA, estão listados na [página de subprocessadores](/subprocessors) e há um [DPA](/dpa) disponível.
+- **Código aberto.** O núcleo AGPL-3.0 roda no seu próprio servidor com Docker Compose, incluindo REST, webhooks e MCP. Uma [instalação com hospedagem própria](/features/self-hosted) não tem caixa de entrada nem Mate. No Customermates Cloud, o banco de dados é configurado na região AWS de Frankfurt; os demais subprocessadores, incluindo provedores dos EUA, estão listados na [página de subprocessadores](/subprocessors) e há um [DPA](/dpa) disponível.
 - **Preços mensais por usuário, sem limite de registros nos planos pagos.** Cinco pessoas pagam [[commercial.price.starter.monthly.seats.5]] por mês no Starter ou [[commercial.price.pro.monthly.seats.5]] no Pro, sem contrato anual. A [página de preços](/pricing) lista os créditos de IA hospedados mensais por usuário ativo.
 
 Uma consultoria de cinco pessoas o configuraria assim. No Modelo de dados de Negócios, o campo Etapa recebe probabilidades de ganho, por exemplo Descoberta 10%, Proposta enviada 50%, Negociação 75% e Ganho 100%. Cada negócio passa então a mostrar um valor ponderado, e um gráfico do painel pode somar os valores ponderados por etapa. O valor de um negócio é a soma dos seus itens de linha, cada um um serviço vezes a sua quantidade, então um serviço "Dia de workshop" ao seu valor diário precifica os negócios sempre do mesmo jeito. Um campo de escolha única "Tipo de contratação" com Recorrente, Projeto e Workshop separa os tipos de trabalho em um só quadro, e cada pessoa salva uma visualização em quadro filtrada pelos negócios que lhe foram atribuídos e pode compartilhá-la com a equipe. No Pro, cada pessoa conecta [[commercial.entitlement.pro.includedAccountsPerUser]] conta, por exemplo a própria caixa de e-mail. Uma rotina semanal no Customermates Cloud poderia ser: "Toda segunda-feira às 8h, encontre meus negócios em Proposta enviada sem mensagem nos últimos dez dias, resuma cada conversa e salve um rascunho de resposta. Não envie nada." Mantenha essa última frase: uma rotina pode enviar mensagens, a menos que a instrução diga o contrário.

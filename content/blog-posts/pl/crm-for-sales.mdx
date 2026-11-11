@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "CRM dla handlowców: co robi, co sprawdzić i który pasuje do Twojego zespołu"
-  description: "Wybierz CRM według tego, jak sprzedaje Twój zespół, i przetestuj go na własnych szansach. Lista kontrolna na demo, tabela wyboru według modelu sprzedaży, ceny ze stron producentów i lejek sprzedaży do skopiowania."
+  description: "Wybierz CRM według tego, jak sprzedaje Twój zespół, i przetestuj go na własnych szansach. Lista kontrolna na demo, tabela wyboru według modelu sprzedaży, ceny ze stron producentów i pipeline sprzedaży do skopiowania."
 
 blogPost:
   author: Benjamin Wagner
@@ -20,18 +20,18 @@ blogPost:
   updated: 2026-10-08
   tags:
     - CRM dla handlowców
-    - Zarządzanie lejkiem sprzedaży
+    - Zarządzanie pipeline'em sprzedaży
     - Porównanie CRM
     - Małe firmy
 ---
 
-CRM dla handlowców to system, w którym żyje każda otwarta szansa sprzedaży: kim jest kupujący, w jakiej firmie pracuje, ile warta jest szansa, na jakim jest etapie i co dzieje się dalej. Który wybrać, zależy mniej od liczby funkcji niż od tego, jak sprzedaje Twój zespół. Zespoły sprzedaży wychodzącej (outbound), które pracują na telefonie, potrzebują dialera, zespoły oparte na lejku potrzebują szybkich zmian etapów i automatycznych follow-upów, a małe zespoły usługowe, których szanse rozstrzygają się w wątkach mailowych, na LinkedIn lub w WhatsApp, potrzebują tych rozmów przy szansie sprzedaży.
+CRM dla handlowców to system, w którym żyje każda otwarta szansa sprzedaży: kim jest kupujący, w jakiej firmie pracuje, ile warta jest szansa, na jakim jest etapie i co dzieje się dalej. Który wybrać, zależy mniej od liczby funkcji niż od tego, jak sprzedaje Twój zespół. Zespoły sprzedaży wychodzącej (outbound), które pracują na telefonie, potrzebują dialera, zespoły oparte na pipeline'ie potrzebują szybkich zmian etapów i automatycznych follow-upów, a małe zespoły usługowe, których szanse rozstrzygają się w wątkach mailowych, na LinkedIn lub w WhatsApp, potrzebują tych rozmów przy szansie sprzedaży.
 
-Ten przewodnik daje ci kontrole do wykonania na demo, tabelę wyboru według modelu sprzedaży, ceny wejściowe ze strony cennika każdego producenta z 8 października 2026 oraz przykład skonfigurowanego lejka. Przewodnik publikuje Customermates, który ma w nim osobną, wyraźnie oznaczoną sekcję; nic poniżej nie jest rankingiem.
+Ten przewodnik daje Ci kontrole do wykonania na demo, tabelę wyboru według modelu sprzedaży, ceny wejściowe ze strony cennika każdego producenta z 8 października 2026 oraz przykład skonfigurowanego pipeline'u. Przewodnik publikuje Customermates, który ma w nim osobną, wyraźnie oznaczoną sekcję; nic poniżej nie jest rankingiem.
 
 <ArticleSummary title="W skrócie">
-  <SummaryItem label="Czym jest">Wspólna baza kontaktów, organizacji i szans sprzedaży, w której każda szansa ma etap i wartość, dzięki czemu każdy w zespole widzi lejek i następny krok.</SummaryItem>
-  <SummaryItem label="Jak wybrać">Dopasuj CRM do swojego modelu sprzedaży: rozmowy telefoniczne, uporządkowane etapy lejka, proces korporacyjny albo rozmowy w kilku kanałach.</SummaryItem>
+  <SummaryItem label="Czym jest">Wspólna baza kontaktów, organizacji i szans sprzedaży, w której każda szansa ma etap i wartość, dzięki czemu każdy w zespole widzi pipeline i następny krok.</SummaryItem>
+  <SummaryItem label="Jak wybrać">Dopasuj CRM do swojego modelu sprzedaży: rozmowy telefoniczne, uporządkowane etapy pipeline'u, proces korporacyjny albo rozmowy w kilku kanałach.</SummaryItem>
   <SummaryItem label="Prawdziwy test">Zapytaj, ile czasu zajmuje Twojemu najbardziej zajętemu handlowcowi aktualizacja CRM w poniedziałek rano. Powyżej 15 minut dane się zestarzeją.</SummaryItem>
   <SummaryItem label="Transparentność">Przewodnik publikuje Customermates. Fakty o konkurencji pochodzą ze stron producentów sprawdzonych 8 października 2026, podlinkowanych na końcu.</SummaryItem>
 </ArticleSummary>
@@ -61,19 +61,19 @@ Strony producentów wymieniają wszystko. To pytania, które odróżniają CRM, 
 
 | Funkcja | Zapytaj producenta | Dlaczego to ważne |
 | --- | --- | --- |
-| Tablica lejka | Czy mogę przeciągnąć szansę do następnego etapu i czy mogę samodzielnie edytować etapy? | Zmiany etapów zdarzają się dziesiątki razy w tygodniu. Każda powinna zająć sekundę. |
+| Tablica pipeline'u | Czy mogę przeciągnąć szansę do następnego etapu i czy mogę samodzielnie edytować etapy? | Zmiany etapów zdarzają się dziesiątki razy w tygodniu. Każda powinna zająć sekundę. |
 | Wartość szansy | Czy wartość jest wpisywana ręcznie, czy liczona z produktów lub usług i ilości? | Wartość wyliczona to kwota, którą naprawdę zafakturujesz. |
 | Przechwytywanie rozmów | Które kanały trafiają do kontaktu automatycznie: tylko mail, czy też LinkedIn i WhatsApp? | To, czego system nie przechwyci, trzeba przepisać, a zwykle nikt tego nie robi. |
 | Automatyzacja follow-upów | Czy CRM wysyła sekwencje follow-upów, czy tylko tworzy zadania? W którym planie? | Sekwencje często są dostępne dopiero w wyższym pakiecie. |
-| Wartość lejka | Czy suma lejka waży szanse prawdopodobieństwem etapu? Czy jest osobny moduł prognoz i w którym planie? | Suma ważona i prognoza przychodów to dwie różne rzeczy. |
-| Raportowanie | Czy szef sprzedaży może bez analityka zbudować wykres wartości lejka według etapu lub handlowca? | Jeśli cotygodniowy przegląd wymaga eksportu do arkusza, CRM nie jest źródłem prawdy. |
+| Wartość pipeline'u | Czy suma pipeline'u waży szanse prawdopodobieństwem etapu? Czy jest osobny moduł prognoz i w którym planie? | Suma ważona i prognoza przychodów to dwie różne rzeczy. |
+| Raportowanie | Czy szef sprzedaży może bez analityka zbudować wykres wartości pipeline'u według etapu lub handlowca? | Jeśli cotygodniowy przegląd wymaga eksportu do arkusza, CRM nie jest źródłem prawdy. |
 | Aplikacja mobilna | Czy jest natywna aplikacja na iOS i Androida? Czy po spotkaniu mogę w niej dodać notatkę i zmienić etap? Co działa bez zasięgu? | Handlowiec w terenie wpisuje dane od razu po spotkaniu albo wcale. |
-| AI | Czy asystent AI może aktualizować rekordy i przygotowywać odpowiedzi? Czy to kosztuje dodatkowe kredyty albo wyższy plan? | AI jest przydatne, gdy zdejmuje z ciebie wpisywanie danych. Sprawdź, ile kosztuje miesięcznie. |
+| AI | Czy asystent AI może aktualizować rekordy i przygotowywać odpowiedzi? Czy to kosztuje dodatkowe kredyty albo wyższy plan? | AI jest przydatne, gdy zdejmuje z Ciebie wpisywanie danych. Sprawdź, ile kosztuje miesięcznie. |
 | Wyjście z systemu | Jaki format eksportu? Jeden typ rekordów naraz czy całe konto? Czy jest API? | Koszty zmiany systemu rozstrzygają się, zanim się wprowadzisz. |
 
-### Ważony lejek to nie prognoza
+### Ważony pipeline to nie prognoza
 
-Częste pytanie brzmi, które funkcje CRM przewidują przychód. Wiele systemów oferuje ważony lejek: każdy etap ma prawdopodobieństwo wygranej, a wartość każdej szansy mnoży się przez nie.
+Częste pytanie brzmi, które funkcje CRM przewidują przychód. Wiele systemów oferuje ważony pipeline: każdy etap ma prawdopodobieństwo wygranej, a wartość każdej szansy mnoży się przez nie.
 
 | Szansa | Wartość | Etap | Prawdopodobieństwo, które ustawiasz | Wartość ważona |
 | --- | --- | --- | --- | --- |
@@ -82,7 +82,7 @@ Częste pytanie brzmi, które funkcje CRM przewidują przychód. Wiele systemów
 | Odnowienie abonamentu | 24 000 | Negocjacje | 75% | 18 000 |
 | **Razem** | **48 000** | | | **28 200** |
 
-Te 28 200 to arytmetyka na prawdopodobieństwach, które ustawiasz samodzielnie, a nie przewidywanie. Pokazuje, czy lejek utrzyma następny kwartał, jeśli prawdopodobieństwa etapów są uczciwe. Dedykowane funkcje prognozowania znajdują się w płatnych pakietach u producentów sprawdzonych na potrzeby tego przewodnika: w Salesforce od Pro Suite, w HubSpot od Sales Hub Professional, widok prognozy w Pipedrive od Growth, a prognozowanie sprzedaży w Zoho CRM od Standard. Dla wielu małych zespołów wystarczy ważony lejek przeglądany co tydzień.
+Te 28 200 to arytmetyka na prawdopodobieństwach, które ustawiasz samodzielnie, a nie przewidywanie. Pokazuje, czy pipeline utrzyma następny kwartał, jeśli prawdopodobieństwa etapów są uczciwe. Dedykowane funkcje prognozowania znajdują się w płatnych pakietach u producentów sprawdzonych na potrzeby tego przewodnika: w Salesforce od Pro Suite, w HubSpot od Sales Hub Professional, widok prognozy w Pipedrive od Growth, a prognozowanie sprzedaży w Zoho CRM od Standard. Dla wielu małych zespołów wystarczy ważony pipeline przeglądany co tydzień.
 
 ## Test poniedziałkowego poranka
 
@@ -109,13 +109,13 @@ Każdy z poniższych produktów jest rozsądnym wyborem dla innego modelu sprzed
 | Twój model sprzedaży | Zacznij od | Dlaczego pasuje | Sprawdź przed zakupem |
 | --- | --- | --- | --- |
 | Sprzedaż wychodząca przez telefon, wiele połączeń dziennie | Close | Połączenia i SMS w każdym planie, power dialer od Growth, predictive dialer w Scale | Automatyczne przepływy zaczynają się od Growth |
-| Czytelny lejek z etapami i cotygodniowy przegląd | Pipedrive | Zbudowany wokół lejka szans; sekwencje i widok prognozy od Growth | Plany różnią się też limitami, na przykład raportów oraz leadów i szans na użytkownika |
+| Czytelny pipeline z etapami i cotygodniowy przegląd | Pipedrive | Zbudowany wokół pipeline'u szans; sekwencje i widok prognozy od Growth | Plany różnią się też limitami, na przykład raportów oraz leadów i szans na użytkownika |
 | Marketing i sprzedaż na jednej platformie | HubSpot Sales Hub | Bezpłatne narzędzia dla maksymalnie 2 użytkowników, potem płatne pakiety na tej samej platformie | Sekwencje i prognozowanie przychodów zaczynają się od Professional |
 | Proces korporacyjny z dedykowanym administratorem | Salesforce Sales Cloud | Starter Suite rozliczany miesięcznie lub rocznie; prognozy i wyceny w Pro Suite | Pro Suite i wyższe rozlicza się rocznie |
 | Mały budżet albo już używane aplikacje Zoho | Zoho CRM | Edycja bezpłatna dla maksymalnie 3 użytkowników; przepływy i prognozowanie sprzedaży od Standard | Ceny na stronie Zoho różnią się w zależności od regionu |
 | Mały zespół usługowy, którego szanse rozstrzygają się w wątkach mailowych, na LinkedIn i w WhatsApp | Customermates | Rozmowy i szanse w jednym miejscu, asystent AI w Customermates Cloud (kredyty AI w chmurze), open source | Brak sekwencji, telefonii i aplikacji mobilnej (szczegóły niżej) |
 
-Jeśli opisują cię dwa wiersze, uruchom wersję próbną obu i przeprowadź test poniedziałkowego poranka na tych samych pięciu prawdziwych szansach.
+Jeśli opisują Cię dwa wiersze, uruchom wersję próbną obu i przeprowadź test poniedziałkowego poranka na tych samych pięciu prawdziwych szansach.
 
 ## Ile kosztuje pięć licencji
 
@@ -134,21 +134,21 @@ Te liczby najbardziej zmienia pakiet, którego naprawdę potrzebujesz. Jeśli se
 
 ## Gdzie pasuje Customermates
 
-Customermates to CRM open source, zbudowany w Niemczech z AI w rdzeniu dla małych zespołów pracujących z klientami: konsultantów, agencji, firm usługowych i założycieli, którzy sami sprzedają. Sprawdza się u zespołu, którego szanse przesuwają się w rozmowach, a nie w kolejce połączeń. Plany i limity opisuje [strona o CRM sprzedażowym Customermates](/features/sales). Oto jak ustawia się w nim lejek sprzedaży, sprawdzone na produkcie.
+Customermates to CRM open source, zbudowany w Niemczech z AI w rdzeniu dla małych zespołów pracujących z klientami: konsultantów, agencji, firm usługowych i założycieli, którzy sami sprzedają. Sprawdza się u zespołu, którego szanse przesuwają się w rozmowach, a nie w kolejce połączeń. Plany i limity opisuje [strona o CRM sprzedażowym Customermates](/features/sales). Oto jak ustawia się w nim pipeline sprzedaży, sprawdzone na produkcie.
 
 **Szanse sprzedaży i etapy.** Etapy nie są z góry ustawione: do listy szans dodajesz pole **Etap** w sekcji Model danych, na przykład z opcjami Poszukiwanie, Kwalifikacja, Demo, Oferta, Negocjacje, Wygrana i Przegrana, albo pozwalasz AI utworzyć je w chmurze. To pole Pojedynczy wybór, więc nazwy etapów zmieniasz, dodajesz i usuwasz samodzielnie. Na tablicy **Szanse sprzedaży** pogrupowanej według pola **Etap** przeciągasz kartę, żeby zmienić jej etap.
 
 **Wartość szansy z usług.** Swoje oferty przechowujesz jako usługi z ceną, a potem dodajesz je do szansy jako pozycje z ilością. Wartość szansy to ich suma, więc „3 dni warsztatów plus miesięczny abonament” daje kwotę, którą zafakturujesz, a nie zgadywankę.
 
-**Ważony lejek.** W sekcji Model danych dla szans każda opcja pola **Etap** ma **Prawdopodobieństwo %** od 0 do 100. Ustaw je według własnych wskaźników wygranych. Każda szansa dostaje wtedy pole **Wartość ważona**, a wykres na pulpicie, który sumuje pole **Wartość** albo **Wartość ważona** i grupuje po etapie, pokazuje sumy. Szczegóły są w [dokumentacji podstawowych pojęć](/docs/concepts).
+**Ważony pipeline.** W sekcji Model danych dla szans każda opcja pola **Etap** ma **Prawdopodobieństwo %** od 0 do 100. Ustaw je według własnych wskaźników wygranych. Każda szansa dostaje wtedy pole **Wartość ważona**, a wykres na pulpicie, który sumuje pole **Wartość** albo **Wartość ważona** i grupuje po etapie, pokazuje sumy. Szczegóły są w [dokumentacji podstawowych pojęć](/docs/concepts).
 
 **Przypisanie i segmenty.** Szanse mają użytkowników w polu **Przypisano do**, więc dwie osoby mogą dzielić jedną szansę. Dodaj pole Pojedynczy wybór, takie jak „Źródło leadu”, z opcjami Polecenie, LinkedIn, Strona internetowa i Wydarzenie, żeby segmentować szanse. Zanim powstanie szansa, pole etapu i pole źródła w kontaktach obsłużą [zarządzanie leadami](/features/lead-management).
 
-**Widoki do cotygodniowego przeglądu.** Zapisany widok przechowuje filtry, sortowanie, układ i grupowanie. Przykład: „Moje otwarte szanse”, przefiltrowane do szans przypisanych do ciebie z etapem innym niż Wygrana i Przegrana, pokazane jako tablica pogrupowana według etapu. Każdy może zapisać własny, a widok do cotygodniowego przeglądu można udostępnić całemu zespołowi albo wybranym rolom. Na pulpicie [wykres szans z miarą wartości ważonej szansy](/features/reporting), pogrupowany według etapu, daje przeglądowi jedną liczbę.
+**Widoki do cotygodniowego przeglądu.** Zapisany widok przechowuje filtry, sortowanie, układ i grupowanie. Przykład: „Moje otwarte szanse”, przefiltrowane do szans przypisanych do Ciebie z etapem innym niż Wygrana i Przegrana, pokazane jako tablica pogrupowana według etapu. Każdy może zapisać własny, a widok do cotygodniowego przeglądu można udostępnić całemu zespołowi albo wybranym rolom. Na pulpicie [wykres szans z miarą wartości ważonej szansy](/features/reporting), pogrupowany według etapu, daje przeglądowi jedną liczbę.
 
 **Rozmowy przy szansie.** W planie Pro i wyższych [ujednolicona skrzynka odbiorcza](/features/unified-inbox) wprowadza do CRM e-mail (Gmail, Outlook, IMAP), LinkedIn, WhatsApp, Instagram i Telegram, powiązane z kontaktami i szansami. Pro obejmuje [[commercial.entitlement.pro.includedAccountsPerUser]] podłączone konto na użytkownika, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Starter nie ma skrzynki.
 
-**AI, które wpisuje dane za ciebie (Customermates Cloud).** Mate, asystent w Customermates Cloud, korzysta z kredytów AI w chmurze. Potrafi streścić wątek, przygotować odpowiedź i zaktualizować szansę. Rutyny uruchamiają zapisaną instrukcję według harmonogramu albo gdy zmieni się rekord. Przykładowa rutyna, wyzwalana przy aktualizacji szansy i ograniczona do zmienionego pola Etap:
+**AI, które wpisuje dane za Ciebie (Customermates Cloud).** Mate, asystent w Customermates Cloud, korzysta z kredytów AI w chmurze. Potrafi streścić wątek, przygotować odpowiedź i zaktualizować szansę. Rutyny uruchamiają zapisaną instrukcję według harmonogramu albo gdy zmieni się rekord. Przykładowa rutyna, wyzwalana przy aktualizacji szansy i ograniczona do zmienionego pola Etap:
 
 > Gdy szansa przechodzi do etapu Oferta, przeczytaj najnowszą rozmowę z jej kontaktami, napisz w notatkach szansy trzywierszowe podsumowanie ustaleń i przygotuj szkic odpowiedzi follow-up. Niczego nie wysyłaj.
 
@@ -160,7 +160,7 @@ Ostatnie zdanie ma znaczenie: Mate wysyła wiadomości, gdy mu każesz, więc ru
 
 Samodzielne hostowanie jest możliwe: rdzeń na licencji AGPL z REST, webhookami i MCP działa na Twoim serwerze, ale bez skrzynki, Mate i kredytów w chmurze. Dla zespołu pięciu osób w planie Pro chmura kosztuje [[commercial.price.pro.monthly.seats.5]] miesięcznie, rozliczane miesięcznie, po [[commercial.trial.days]] dniach Pro za darmo bez karty kredytowej. Wszystkie plany są na [stronie cennika](/pricing).
 
-Dla zespołu, który sprzedaje w rozmowach, test poniedziałkowego poranka jest prosty: każda otwarta szansa pokazuje ostatnią wiadomość, przygotowany szkic odpowiedzi i następny krok z datą, a ty przeglądasz i wysyłasz. [Zacznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup) i przeprowadź go na pięciu prawdziwych szansach.
+Dla zespołu, który sprzedaje w rozmowach, test poniedziałkowego poranka jest prosty: każda otwarta szansa pokazuje ostatnią wiadomość, przygotowany szkic odpowiedzi i następny krok z datą, a Ty przeglądasz i wysyłasz. [Zacznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup) i przeprowadź go na pięciu prawdziwych szansach.
 
 ## Wdrożenie CRM dla handlowca w małym zespole
 
@@ -169,18 +169,18 @@ Dla zespołu, który sprzedaje w rozmowach, test poniedziałkowego poranka jest 
   <Step title="Ustal minimum pól">Nazwa szansy, wartość, etap, przypisany handlowiec i główny kontakt. Wszystko inne jest opcjonalne, dopóki zespół o to nie poprosi.</Step>
   <Step title="Importuj jedną listę naraz">Najpierw organizacje, potem kontakty, potem szanse, żeby powiązania się zgadzały. W Customermates importujesz skoroszyty Excel, pliki CSV lub JSON, a eksportujesz skoroszyty XLSX lub JSON, jedna lista na plik; [przewodnik po szablonie CRM w Excelu](/blog/excel-crm-template) pokazuje, jak najpierw uporządkować arkusz.</Step>
   <Step title="Podłącz rozmowy">W planie Pro lub Business każdy handlowiec podłącza kanał, w którym omawia się najwięcej szans, na przykład skrzynkę pocztową albo LinkedIn, żeby nowe wiadomości trafiały do właściwego kontaktu bez przepisywania. Pro obejmuje [[commercial.entitlement.pro.includedAccountsPerUser]] podłączone konto na użytkownika, Business [[commercial.entitlement.business.includedAccountsPerUser]].</Step>
-  <Step title="Prowadź cotygodniowy przegląd w CRM">Otwórz tablicę lejka na spotkaniu zamiast slajdu lub arkusza. Szanse bez następnego kroku dostają go przed końcem spotkania. [Przewodnik po lejku sprzedaży](/blog/sales-pipeline) szerzej opisuje projektowanie etapów.</Step>
+  <Step title="Prowadź cotygodniowy przegląd w CRM">Otwórz tablicę pipeline'u na spotkaniu zamiast slajdu lub arkusza. Szanse bez następnego kroku dostają go przed końcem spotkania. [Przewodnik po lejku sprzedaży](/blog/sales-pipeline) szerzej opisuje projektowanie etapów.</Step>
 </Steps>
 
 ## FAQ
 
 <Faq>
 <FaqItem question="Co to jest CRM sprzedażowy?">
-CRM sprzedażowy to oprogramowanie, które przechowuje kontakty, firmy i szanse sprzedaży w jednym miejscu i pokazuje każdą szansę na etapie lejka, z wartością i przypisanymi handlowcami. Jego zadaniem jest uczynić następny krok przy każdej szansie widocznym dla całego zespołu, tak aby nic nie zależało od skrzynki ani pamięci jednej osoby.
+CRM sprzedażowy to oprogramowanie, które przechowuje kontakty, firmy i szanse sprzedaży w jednym miejscu i pokazuje każdą szansę na etapie pipeline'u, z wartością i przypisanymi handlowcami. Jego zadaniem jest uczynić następny krok przy każdej szansie widocznym dla całego zespołu, tak aby nic nie zależało od skrzynki ani pamięci jednej osoby.
 </FaqItem>
 
 <FaqItem question="Jaki jest najlepszy CRM dla sprzedaży?">
-Nie ma jednego najlepszego, bo modele sprzedaży są różne. Close jest zbudowany dla zespołów, które dużo dzwonią. Pipedrive pasuje zespołom prowadzącym czytelny lejek z etapami. HubSpot sprawdza się u firm, które chcą mieć marketing i sprzedaż na jednej platformie. Salesforce pasuje większym zespołom z dedykowanym administratorem. Customermates, który publikuje ten przewodnik, pasuje małym zespołom usługowym, których szanse rozstrzygają się w wątkach mailowych, na LinkedIn i w WhatsApp.
+Nie ma jednego najlepszego, bo modele sprzedaży są różne. Close jest zbudowany dla zespołów, które dużo dzwonią. Pipedrive pasuje zespołom prowadzącym czytelny pipeline z etapami. HubSpot sprawdza się u firm, które chcą mieć marketing i sprzedaż na jednej platformie. Salesforce pasuje większym zespołom z dedykowanym administratorem. Customermates, który publikuje ten przewodnik, pasuje małym zespołom usługowym, których szanse rozstrzygają się w wątkach mailowych, na LinkedIn i w WhatsApp.
 </FaqItem>
 
 <FaqItem question="Ile miesięcznie kosztuje CRM sprzedażowy?">
@@ -188,11 +188,11 @@ Bezpłatne narzędzia istnieją dla bardzo małych zespołów: bezpłatne narzę
 </FaqItem>
 
 <FaqItem question="Które funkcje CRM pomagają przewidywać przychód?">
-Większość CRM dla małych zespołów daje ważony lejek: wartość szansy razy prawdopodobieństwo wygranej, które przypisujesz każdemu etapowi. To przydatne w planowaniu, ale to arytmetyka, a nie przewidywanie. Dedykowane funkcje prognozowania są w wyższych pakietach, na przykład Salesforce Pro Suite albo HubSpot Sales Hub Professional. Customermates ma tylko ważony lejek.
+Większość CRM dla małych zespołów daje ważony pipeline: wartość szansy razy prawdopodobieństwo wygranej, które przypisujesz każdemu etapowi. To przydatne w planowaniu, ale to arytmetyka, a nie przewidywanie. Dedykowane funkcje prognozowania są w wyższych pakietach, na przykład Salesforce Pro Suite albo HubSpot Sales Hub Professional. Customermates ma tylko ważony pipeline.
 </FaqItem>
 
 <FaqItem question="Jaki jest najprostszy CRM dla handlowca?">
-Najprostszy to taki, który handlowiec uruchomi w jedno popołudnie i będzie aktualizował w minutę: tablica lejka z przeciąganiem etapów, kilka pól obowiązkowych i historia rozmów przy kontakcie. Zrób test poniedziałkowego poranka na własnych szansach. Pipedrive jest zbudowany wokół lejka szans, a małym zespołom usługowym, których szanse rozstrzygają się w rozmowach, pasuje Customermates; zobacz stronę o [prostym CRM](/features/simple-crm).
+Najprostszy to taki, który handlowiec uruchomi w jedno popołudnie i będzie aktualizował w minutę: tablica pipeline'u z przeciąganiem etapów, kilka pól obowiązkowych i historia rozmów przy kontakcie. Zrób test poniedziałkowego poranka na własnych szansach. Pipedrive jest zbudowany wokół pipeline'u szans, a małym zespołom usługowym, których szanse rozstrzygają się w rozmowach, pasuje Customermates; zobacz stronę o [prostym CRM](/features/simple-crm).
 </FaqItem>
 
 <FaqItem question="Jaki jest najpopularniejszy CRM?">
@@ -200,15 +200,15 @@ Nie ma neutralnego, publicznego zestawienia liczby użytkowników wszystkich pro
 </FaqItem>
 
 <FaqItem question="Jaka jest najlepsza darmowa aplikacja CRM dla przedstawicieli handlowych?">
-Darmowe plany mają HubSpot (do 2 użytkowników) i Zoho CRM (do 3 użytkowników). Zanim wybierzesz, sprawdź, czy darmowy plan obejmuje aplikację mobilną i czy limity rekordów starczą na Twój lejek. Customermates nie ma aplikacji mobilnej. Szersze zestawienie znajdziesz w tekście o [darmowych CRM](/blog/free-crm).
+Darmowe plany mają HubSpot (do 2 użytkowników) i Zoho CRM (do 3 użytkowników). Zanim wybierzesz, sprawdź, czy darmowy plan obejmuje aplikację mobilną i czy limity rekordów starczą na Twój pipeline. Customermates nie ma aplikacji mobilnej. Szersze zestawienie znajdziesz w tekście o [darmowych CRM](/blog/free-crm).
 </FaqItem>
 
 <FaqItem question="Czy CRM trudno się nauczyć?">
-Podstawy zajmują jedno popołudnie: tablica lejka, lista kontaktów i strona szansy. Dłużej trwa uzgodnienie etapów i minimum pól oraz utrzymywanie aktualnych danych. Wybierz CRM, w którym aktualizacje biorą się z zsynchronizowanych rozmów albo z asystenta, i ogranicz pola obowiązkowe do garstki.
+Podstawy zajmują jedno popołudnie: tablica pipeline'u, lista kontaktów i strona szansy. Dłużej trwa uzgodnienie etapów i minimum pól oraz utrzymywanie aktualnych danych. Wybierz CRM, w którym aktualizacje biorą się z zsynchronizowanych rozmów albo z asystenta, i ogranicz pola obowiązkowe do garstki.
 </FaqItem>
 
 <FaqItem question="Czym różni się CRM sprzedażowy od zwykłego CRM?">
-Każdy CRM sprzedażowy jest CRM, ale nie każdy CRM jest zbudowany dla sprzedaży. Ogólne platformy dokładają automatyzację marketingu, zgłoszenia do obsługi albo funkcje ERP. CRM sprzedażowy stawia na pierwszym miejscu lejek szans: etapy, wartości, przypisanych handlowców i kolejne kroki. Jeśli potrzebujesz też fakturowania albo gospodarki magazynowej, przeczytaj o [CRM i ERP](/blog/crm-and-erp).
+Każdy CRM sprzedażowy jest CRM, ale nie każdy CRM jest zbudowany dla sprzedaży. Ogólne platformy dokładają automatyzację marketingu, zgłoszenia do obsługi albo funkcje ERP. CRM sprzedażowy stawia na pierwszym miejscu pipeline szans: etapy, wartości, przypisanych handlowców i kolejne kroki. Jeśli potrzebujesz też fakturowania albo gospodarki magazynowej, przeczytaj o [CRM i ERP](/blog/crm-and-erp).
 </FaqItem>
 </Faq>
 

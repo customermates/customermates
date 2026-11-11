@@ -16,7 +16,7 @@ sections:
     - title: "O Mate redige a resposta"
       description: "No Customermates Cloud, o Mate resume conversas, redige respostas, atualiza registros e cria visualizações, usando créditos de IA hospedados. Você revisa, edita e envia."
     - title: "API e MCP desde o plano de entrada"
-      description: "O servidor MCP oferece [[derived.mcp.tools.total]] ferramentas em todos os planos e em instalações autohospedadas, e a API REST vem junto. O Odoo lista a API externa no plano Custom."
+      description: "O servidor MCP oferece [[derived.mcp.tools.total]] ferramentas em todos os planos e em instalações com hospedagem própria, e a API REST vem junto. O Odoo lista a API externa no plano Custom."
   switchSteps: true
 
 hero:
@@ -34,16 +34,16 @@ comparison:
   sections:
   - title: Licença e hospedagem
     features:
-      - name: Licença open source
+      - name: Licença de código aberto
         source: Núcleo AGPL-3.0; a maior parte de ee/ sob uma licença comercial separada
         competitor: Community sob LGPLv3; Enterprise sob a Odoo Enterprise Edition License
-      - name: CRM na edição open source gratuita
+      - name: CRM na edição de código aberto gratuita
         source: true
         competitor: true
-      - name: Autohospedagem
+      - name: Hospedagem própria
         source: Docker Compose com dois serviços, o aplicativo e o PostgreSQL 16
         competitor: Community no seu próprio servidor; Enterprise on-premise ou no Odoo.sh com o plano Custom
-      - name: O que fica de fora na autohospedagem
+      - name: O que fica de fora na hospedagem própria
         source: Caixa de entrada unificada, Mate e créditos de IA hospedados
         competitor: "Community: aplicativos Enterprise como Studio, WhatsApp, VoIP e as versões para Android e iOS"
       - name: Nuvem gerenciada
@@ -145,12 +145,12 @@ cta:
 | Você pontua muitos leads de entrada ou gera novos por setor e porte de empresa | Continue com o Odoo | O Customermates não tem pontuação de leads nem base de leads |
 | Os clientes escrevem no WhatsApp, LinkedIn, Instagram ou Telegram além do e-mail | Customermates Pro ou Business | Tudo isso chega em uma só caixa de entrada, guardado no contato vinculado |
 | Um assistente deve redigir acompanhamentos e atualizar registros em horário agendado | Customermates Cloud | O Mate e as rotinas rodam ali com créditos de IA hospedados |
-| n8n, scripts ou um cliente de IA devem trabalhar com o CRM em um plano de entrada | Customermates, qualquer plano pago ou autohospedado | REST, webhooks e MCP vêm com todos os planos pagos; o Odoo lista a API externa no Custom |
-| Você quer autohospedar um CRM open source, não uma suíte | Customermates, Frappe CRM ou Twenty | O Odoo Community também inclui o CRM, dentro da suíte mais ampla |
+| n8n, scripts ou um cliente de IA devem trabalhar com o CRM em um plano de entrada | Customermates, qualquer plano pago ou hospedado por conta própria | REST, webhooks e MCP vêm com todos os planos pagos; o Odoo lista a API externa no Custom |
+| Você quer hospedar por conta própria um CRM de código aberto, não uma suíte | Customermates, Frappe CRM ou Twenty | O Odoo Community também inclui o CRM, dentro da suíte mais ampla |
 
 ## Para quem o Odoo CRM é uma boa escolha
 
-O Odoo é uma suíte de aplicativos de negócio, e o CRM é um deles. O aplicativo de CRM gerencia leads e um pipeline de arrastar e soltar, agenda ligações, reuniões e envios de e-mail e cria cotações. Seus relatórios cobrem previsões de receita, desempenho da equipe e painéis personalizados. A edição Community, open source sob a LGPLv3, o inclui.
+O Odoo é uma suíte de aplicativos de negócio, e o CRM é um deles. O aplicativo de CRM gerencia leads e um pipeline de arrastar e soltar, agenda ligações, reuniões e envios de e-mail e cria cotações. Seus relatórios cobrem previsões de receita, desempenho da equipe e painéis personalizados. A edição Community, de código aberto sob a LGPLv3, o inclui.
 
 O tratamento de leads é onde o Odoo vai mais longe. A pontuação preditiva de leads calcula a probabilidade de sucesso de cada oportunidade a partir do seu histórico de ganhos e perdas, com um modelo naive Bayes, usando a etapa e a equipe de vendas e campos opcionais como país e origem. As regras de atribuição direcionam leads para equipes e vendedores, e a mineração de leads gera novos leads por país, porte da empresa e setor, a um crédito de In-App Purchase por lead mais um por contato.
 
@@ -198,9 +198,9 @@ Se o Odoo é só o seu pipeline, o Customermates é a opção focada: a partir d
 
 **O Mate faz o trabalho do CRM.** No Customermates Cloud, o Mate resume conversas, redige respostas, atualiza registros e cria visualizações. Ele usa créditos de IA hospedados, uma franquia mensal por usuário ativo indicada na [página de preços](/pricing). O Mate pede uma nova aprovação antes de toda exclusão, mas o envio de uma mensagem não precisa de nenhuma, então diga a ele para salvar rascunhos quando quiser lê-los antes. As rotinas executam uma instrução salva em um horário agendado ou quando um registro muda, sempre como o seu dono.
 
-**Seu próprio cliente de IA por MCP.** O [servidor MCP](/docs/mcp) oferece [[derived.mcp.tools.total]] ferramentas em todos os planos e em instalações autohospedadas. Claude, ChatGPT e outros clientes se conectam com OAuth ou uma chave de API, agem com as permissões do usuário conectado e rodam no seu próprio provedor de IA.
+**Seu próprio cliente de IA por MCP.** O [servidor MCP](/docs/mcp) oferece [[derived.mcp.tools.total]] ferramentas em todos os planos e em instalações com hospedagem própria. Claude, ChatGPT e outros clientes se conectam com OAuth ou uma chave de API, agem com as permissões do usuário conectado e rodam no seu próprio provedor de IA.
 
-**Autohospedagem e hospedagem.** A [edição autohospedada](/features/self-hosted) é o núcleo AGPL-3.0 com REST, webhooks e MCP, executado com Docker Compose em dois contêineres, o aplicativo e o PostgreSQL 16. Ela não tem caixa de entrada, Mate nem créditos hospedados. O Customermates Cloud tem o banco de dados principal configurado na região AWS de Frankfurt, oferece um [contrato de processamento de dados](/dpa) e lista seus subprocessadores, provedores dos EUA entre eles, nas páginas legais. O Customermates não possui nenhuma certificação de conformidade.
+**Hospedagem própria e hospedagem.** A [edição com hospedagem própria](/features/self-hosted) é o núcleo AGPL-3.0 com REST, webhooks e MCP, executado com Docker Compose em dois contêineres, o aplicativo e o PostgreSQL 16. Ela não tem caixa de entrada, Mate nem créditos hospedados. O Customermates Cloud tem o banco de dados principal configurado na região AWS de Frankfurt, oferece um [contrato de processamento de dados](/dpa) e lista seus subprocessadores, provedores dos EUA entre eles, nas páginas legais. O Customermates não possui nenhuma certificação de conformidade.
 
 ## Onde o Customermates é a escolha errada
 
@@ -242,16 +242,16 @@ Um exemplo de rotina, agendada para todo dia às 8h: "Encontre meus negócios na
 
 O Customermates publica esta lista. Os detalhes vêm do site de cada fornecedor, verificado em 8 de outubro de 2026.
 
-- **ERPNext** é a suíte open source mais próxima, cobrindo contabilidade, vendas, CRM, estoque, manufatura, projetos, ponto de venda e RH com folha de pagamento. Não há taxa por usuário: você o autohospeda ou paga pela hospedagem do Frappe Cloud, cujo preço depende da capacidade de computação.
-- **Zoho One** reúne mais de 40 aplicativos de negócio integrados sob uma única licença, com preço para todos os funcionários ou para um número flexível de usuários. Serve a equipes que querem uma suíte em nuvem de um só fornecedor e não precisam de open source.
-- **Frappe CRM** é um CRM focado e totalmente open source para leads, contatos, negócios e organizações, com integração com o WhatsApp e sincronização de leads do Facebook e do Instagram. O Frappe cobra a hospedagem pela capacidade de computação, a partir de US$ 5 por mês com usuários ilimitados.
-- **Twenty** é um CRM open source com objetos personalizados ilimitados, agentes de IA e APIs REST e GraphQL. O plano Pro custa US$ 9 por usuário por mês na cobrança anual, e o núcleo open source é gratuito para autohospedar.
+- **ERPNext** é a suíte de código aberto mais próxima, cobrindo contabilidade, vendas, CRM, estoque, manufatura, projetos, ponto de venda e RH com folha de pagamento. Não há taxa por usuário: você o hospeda por conta própria ou paga pela hospedagem do Frappe Cloud, cujo preço depende da capacidade de computação.
+- **Zoho One** reúne mais de 40 aplicativos de negócio integrados sob uma única licença, com preço para todos os funcionários ou para um número flexível de usuários. Serve a equipes que querem uma suíte em nuvem de um só fornecedor e não precisam de código aberto.
+- **Frappe CRM** é um CRM focado e totalmente de código aberto para leads, contatos, negócios e organizações, com integração com o WhatsApp e sincronização de leads do Facebook e do Instagram. O Frappe cobra a hospedagem pela capacidade de computação, a partir de US$ 5 por mês com usuários ilimitados.
+- **Twenty** é um CRM de código aberto com objetos personalizados ilimitados, agentes de IA e APIs REST e GraphQL. O plano Pro custa US$ 9 por usuário por mês na cobrança anual, e o núcleo de código aberto é gratuito para hospedar por conta própria.
 
 ## Perguntas frequentes
 
 <Faq>
 <FaqItem question="O Odoo CRM é gratuito?">
-Para um aplicativo, sim. O One App Free dá o CRM com usuários ilimitados no Odoo Online, e a edição Community com CRM é gratuita para autohospedar sob a LGPLv3. Um segundo aplicativo no Odoo Online significa pagar o Standard: a partir de € 19,90 por usuário por mês no primeiro ano e a partir de € 24,90 depois, mais a implementação e os créditos de In-App Purchase onde você precisar. O Customermates Cloud tem um plano gratuito para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate nem rotinas, e um teste de [[commercial.trial.days]] dias, e seu núcleo autohospedado é gratuito sob a AGPL-3.0.
+Para um aplicativo, sim. O One App Free dá o CRM com usuários ilimitados no Odoo Online, e a edição Community com CRM é gratuita para hospedar por conta própria sob a LGPLv3. Um segundo aplicativo no Odoo Online significa pagar o Standard: a partir de € 19,90 por usuário por mês no primeiro ano e a partir de € 24,90 depois, mais a implementação e os créditos de In-App Purchase onde você precisar. O Customermates Cloud tem um plano gratuito para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate nem rotinas, e um teste de [[commercial.trial.days]] dias, e seu núcleo hospedado por conta própria é gratuito sob a AGPL-3.0.
 </FaqItem>
 
 <FaqItem question="O Odoo CRM tem API?">
@@ -262,8 +262,8 @@ Sim. O Odoo 19 documenta uma API JSON-2 ao lado dos endpoints mais antigos XML-R
 Depende de como você quer pagar e de quanto quer operar por conta própria. Os dois são suítes com contabilidade, estoque e CRM. O ERPNext não tem taxa por usuário: você paga pela hospedagem, no seu próprio servidor ou no Frappe Cloud. O Odoo cobra por usuário no Standard e no Custom, com a hospedagem no Odoo Online incluída, e tem um plano gratuito para um único aplicativo.
 </FaqItem>
 
-<FaqItem question="Existe uma alternativa open source ao Odoo CRM?">
-Sim, várias. O Odoo Community é open source e inclui o CRM. Se você quer um CRM open source focado em vez de uma suíte, Customermates (AGPL-3.0), Frappe CRM e Twenty podem ser autohospedados. O ERPNext é a escolha open source se você quer uma suíte completa.
+<FaqItem question="Existe uma alternativa de código aberto ao Odoo CRM?">
+Sim, várias. O Odoo Community é de código aberto e inclui o CRM. Se você quer um CRM de código aberto focado em vez de uma suíte, Customermates (AGPL-3.0), Frappe CRM e Twenty podem ser hospedados por conta própria. O ERPNext é a escolha de código aberto se você quer uma suíte completa.
 </FaqItem>
 
 <FaqItem question="Posso manter o Odoo para a contabilidade e usar o Customermates como CRM?">

@@ -95,7 +95,7 @@ sections:
       - title: "Vérifiez la limite de l’édition"
         description: "Confirmez que le jeu de fonctionnalités Starter couvre les enregistrements, les vues et les interfaces dont votre workflow a besoin."
       - title: "Cartographiez les services externes"
-        description: "Listez chaque fournisseur SMTP, OAuth, de supervision, de workflow ou d’IA que vous prévoyez de configurer et les données que chacun reçoit."
+        description: "Listez chaque fournisseur d’e-mail (Resend), OAuth, de supervision, de workflow ou d’IA que vous prévoyez de configurer et les données que chacun reçoit."
       - title: "Concevez l’exploitation"
         description: "Définissez les sauvegardes, la restauration testée, les mises à niveau, le TLS, la supervision et le contrôle d’accès de votre environnement."
       - title: "Testez sans données clients"
@@ -162,7 +162,7 @@ Le fichier Compose n’inclut ni n8n, ni modèle d’IA, ni fournisseur d’envo
   variant="proof"
 >
   L’application et la base de données peuvent tourner sur votre infrastructure
-  pendant que SMTP, OAuth, la supervision, les outils de workflow et l’IA
+  pendant que l’envoi d’e-mails via Resend, OAuth, la supervision, les outils de workflow et l’IA
   externe restent des services distincts dès que vous les configurez.
   Cartographiez ces fournisseurs avant de choisir le modèle de déploiement.
 </AcquisitionCallout>
@@ -192,7 +192,7 @@ Cette distinction compte quand on compare des [CRM open source](/blog/open-sourc
 
 Vous choisissez où s’exécutent l’application et PostgreSQL et comment vous configurez l’accès réseau, les sauvegardes, la conservation et les mises à jour. C’est un vrai contrôle de l’infrastructure, mais pas une garantie automatique de conformité, de sécurité ou d’isolement réseau.
 
-Les services connectés restent des périmètres de traitement distincts. Les fournisseurs OAuth, SMTP, la supervision, les outils de workflow et les fournisseurs d’IA externes reçoivent ce que votre configuration leur envoie. Les diagnostics d’erreurs restent sur votre serveur ; les notifications à l’opérateur utilisent le destinataire et le fournisseur d’e-mail que vous configurez. Ce n’est pas une promesse générale d’absence de télémétrie.
+Les services connectés restent des périmètres de traitement distincts. Les fournisseurs OAuth, Resend pour l’e-mail, la supervision, les outils de workflow et les fournisseurs d’IA externes reçoivent ce que votre configuration leur envoie. Les diagnostics d’erreurs restent sur votre serveur ; les notifications à l’opérateur utilisent le destinataire et le fournisseur d’e-mail que vous configurez. Ce n’est pas une promesse générale d’absence de télémétrie.
 
 ## Auto-hébergement ou cloud géré ?
 
@@ -237,6 +237,6 @@ Le matériel propriétaire hors de `ee/` est sous AGPL-3.0-only. Dans `ee/`, le 
 </FaqItem>
 
 <FaqItem question="Que contient la pile Docker Compose officielle ?">
-Elle contient l’application Customermates et PostgreSQL 16. n8n, les modèles d’IA, SMTP, les fournisseurs d’identité et les services de supervision sont distincts quand vous choisissez de les connecter.
+Elle contient l’application Customermates et PostgreSQL 16. L’envoi d’e-mails passe par Resend avec votre propre clé d’API. n8n, les modèles d’IA, les fournisseurs d’identité et les services de supervision sont distincts quand vous choisissez de les connecter.
 </FaqItem>
 </Faq>

@@ -29,7 +29,7 @@ sections:
       - title: "Dois motores"
         description: "Rotinas para o trabalho que exige leitura e julgamento. Webhooks mais n8n ou o seu próprio código para regras fixas."
       - title: "Planos"
-        description: "Rotinas em todos os planos pagos da nuvem: [[commercial.entitlement.starter.includedRoutinesPerUser]] por usuário no Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] no Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] no Business. REST e MCP em todos os planos; webhooks em todos os planos pagos, inclusive no self hosted."
+        description: "Rotinas em todos os planos pagos da nuvem: [[commercial.entitlement.starter.includedRoutinesPerUser]] por usuário no Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] no Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] no Business. REST e MCP em todos os planos; webhooks em todos os planos pagos, inclusive na hospedagem própria."
       - title: "Custo"
         description: "Uma execução de rotina usa os créditos de IA hospedados mensais do dono dela e para em 10 créditos. O n8n cobra pelos próprios planos."
       - title: "Não incluído"
@@ -37,7 +37,7 @@ sections:
 
 hero:
   title: Automação de CRM com rotinas de IA e webhooks abertos
-  description: "As rotinas no Customermates Cloud rodam o Mate em um horário definido ou quando chega um e-mail, e os rascunhos de resposta ficam esperando a sua revisão. REST e MCP conectam qualquer ferramenta em todos os planos; webhooks e n8n vêm com todos os planos pagos e com o self hosted."
+  description: "As rotinas no Customermates Cloud rodam o Mate em um horário definido ou quando chega um e-mail, e os rascunhos de resposta ficam esperando a sua revisão. REST e MCP conectam qualquer ferramenta em todos os planos; webhooks e n8n vêm com todos os planos pagos e com a hospedagem própria."
   buttonLeftText: "Comece seu teste de [[commercial.trial.days]] dias"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Leia o guia de rotinas
@@ -60,7 +60,7 @@ O limite é fácil de dizer. O Customermates automatiza o trabalho em registros 
 
 <ArticleSummary title="Em resumo">
   <SummaryItem label="Três caminhos">Rotinas para o trabalho que exige leitura e julgamento. Webhooks mais n8n ou o seu próprio código para regras fixas. O seu próprio cliente de IA por MCP para as atualizações de registros que você pede.</SummaryItem>
-  <SummaryItem label="Planos">Rotinas em todos os planos pagos da nuvem: [[commercial.entitlement.starter.includedRoutinesPerUser]] por usuário no Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] no Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] no Business. REST e MCP em todos os planos; webhooks em todos os planos pagos, inclusive no self hosted.</SummaryItem>
+  <SummaryItem label="Planos">Rotinas em todos os planos pagos da nuvem: [[commercial.entitlement.starter.includedRoutinesPerUser]] por usuário no Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] no Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] no Business. REST e MCP em todos os planos; webhooks em todos os planos pagos, inclusive na hospedagem própria.</SummaryItem>
   <SummaryItem label="Custo">Uma execução de rotina usa os créditos de IA hospedados mensais do dono dela e para em 10 créditos. O n8n cobra pelos próprios planos.</SummaryItem>
   <SummaryItem label="Não incluído">Sem construtor visual nem ramificações dentro do CRM, sem sequências de e-mail, sem lembretes de tarefas, sem pontuação de leads.</SummaryItem>
 </ArticleSummary>
@@ -180,7 +180,7 @@ As entregas são repetidas automaticamente em caso de timeout e de erros do serv
 
 ## Como um cliente de IA pode atualizar registros do CRM por MCP?
 
-O servidor MCP dá a clientes de IA como o Claude ou o ChatGPT [[derived.mcp.tools.total]] ferramentas sobre os mesmos dados, em todos os planos e também no self hosted. O seu próprio provedor de IA cobra pelo uso do modelo. Este é o caminho para atualizações que você pede em linguagem simples, como registrar uma ligação.
+O servidor MCP dá a clientes de IA como o Claude ou o ChatGPT [[derived.mcp.tools.total]] ferramentas sobre os mesmos dados, em todos os planos e também na hospedagem própria. O seu próprio provedor de IA cobra pelo uso do modelo. Este é o caminho para atualizações que você pede em linguagem simples, como registrar uma ligação.
 
 <Steps>
   <Step title="Conecte o cliente">O Claude e o ChatGPT se conectam por um conector personalizado com OAuth, então não há chave para gerenciar. Clientes de CLI e de editor usam uma chave de API de **Configurações › Chaves de API e conectores**. A configuração de cada cliente está na [referência do MCP](/docs/mcp).</Step>
@@ -197,9 +197,9 @@ Acrescentar a um campo de notas nunca sobrescreve o que já está lá e não ent
 
 As chamadas externas por MCP funcionam de outro jeito. O servidor confere a autorização e a validação, mas não pede confirmação; o conselho de confirmar antes de excluir ou enviar vai para o cliente. Uma chave de API carrega as permissões do usuário que a criou, sem escopo por chave. Crie-a em nome de um usuário cuja função combine com a tarefa e confira como o seu cliente trata as aprovações antes de conceder acesso de escrita.
 
-## Existe um CRM open source com construtor de workflows?
+## Existe um CRM de código aberto com construtor de workflows?
 
-O Customermates é open source e não tem um construtor de workflows dentro do CRM. O [n8n](https://n8n.io/) cumpre esse papel. Os recursos dele que importam aqui são um construtor visual, JavaScript ou Python em qualquer etapa e nós prontos para apps como o Slack, e ele se conecta ao Customermates por webhooks e pela API REST. Você pode hospedar por conta própria a Community Edition dele sob a [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), que permite o uso apenas para os seus próprios fins internos de negócio ou para uso não comercial ou pessoal, ou assinar o n8n Cloud, [com preço por execuções mensais de workflows](https://n8n.io/pricing/). O Customermates não inclui runtime nem assinatura do n8n.
+O Customermates é de código aberto e não tem um construtor de workflows dentro do CRM. O [n8n](https://n8n.io/) cumpre esse papel. Os recursos dele que importam aqui são um construtor visual, JavaScript ou Python em qualquer etapa e nós prontos para apps como o Slack, e ele se conecta ao Customermates por webhooks e pela API REST. Você pode hospedar por conta própria a Community Edition dele sob a [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), que permite o uso apenas para os seus próprios fins internos de negócio ou para uso não comercial ou pessoal, ou assinar o n8n Cloud, [com preço por execuções mensais de workflows](https://n8n.io/pricing/). O Customermates não inclui runtime nem assinatura do n8n.
 
 O nó da comunidade [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm) oferece nós de CRM dedicados, se você os preferir aos nós HTTP Request. Use a versão 2 ou posterior: a versão 1.x aponta para endpoints que a API não tem mais, então os fluxos dela falham até você atualizar.
 
@@ -221,7 +221,7 @@ Nosso conselho: deixe uma rotina propor uma mudança de etapa em uma nota e deix
 - Sem sequências de e-mail, campanhas gota a gota nem e-mail em massa. Um rascunho de resposta é uma mensagem em uma conversa.
 - Sem prazos de tarefas, lembretes nem central de notificações. Um campo de data personalizado no negócio, mais a rotina de follow-up acima, dá a você uma lista para trabalhar, como em [follow-ups](/features/follow-up).
 - Sem pontuação de leads, enriquecimento de dados nem formulários web. Envie as respostas de formulários por REST ou n8n.
-- Sem rotinas, Mate nem caixa de entrada no [Customermates self hosted](/features/self-hosted). Webhooks, REST e MCP funcionam lá.
+- Sem rotinas, Mate nem caixa de entrada no [Customermates com hospedagem própria](/features/self-hosted). Webhooks, REST e MCP funcionam lá.
 - Sem garantia de que uma rotina rode: o limite por hora, o tempo de espera ou um dono sem créditos podem pular uma execução. Os passos que precisam rodar para todo evento pertencem a um webhook, onde as entregas com falha são repetidas e podem ser reenviadas.
 
 ## Quanto custa para uma equipe pequena?
@@ -269,8 +269,8 @@ A automação de marketing envia campanhas para listas de contatos em um cronogr
 Eles ficam na etapa em que estão até alguém tropeçar neles, e continuam contando no pipeline ponderado. O Customermates não cutuca ninguém: não há prazos de tarefas nem notificações. O que ajuda é um campo de Data personalizado "Próximo contato" no negócio mais a rotina de follow-up acima, que cria uma tarefa para cada negócio cuja data já passou.
 </FaqItem>
 
-<FaqItem question="As rotinas funcionam no self hosting?">
-Não. As rotinas exigem o Mate e créditos de IA hospedados, que existem apenas no Customermates Cloud. No self hosted, você monta tarefas parecidas com webhooks, REST e n8n, ou com o seu próprio cliente de IA por MCP.
+<FaqItem question="As rotinas funcionam na hospedagem própria?">
+Não. As rotinas exigem o Mate e créditos de IA hospedados, que existem apenas no Customermates Cloud. Na hospedagem própria, você monta tarefas parecidas com webhooks, REST e n8n, ou com o seu próprio cliente de IA por MCP.
 </FaqItem>
 
 <FaqItem question="Quanto custa a automação de fluxos de trabalho no Customermates?">

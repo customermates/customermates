@@ -57,11 +57,11 @@ O HTTP fornece a semântica de método e de status, conforme especificado na [RF
 
 ## Como a descoberta de ferramentas se diferencia da descoberta de esquema?
 
-A [especificação de ferramentas do MCP](https://modelcontextprotocol.io/specification/latest/server/tools) define `tools/list` para descobrir nomes e esquemas de entrada das ferramentas e `tools/call` para chamar uma ferramenta. Isso diz a um cliente como chamar uma consulta genérica de registros. Não revela qual lista ou campo definido pelo cliente é o certo para o seu workspace.
+A [especificação de ferramentas do MCP](https://modelcontextprotocol.io/specification/latest/server/tools) define `tools/list` para descobrir nomes e esquemas de entrada das ferramentas e `tools/call` para chamar uma ferramenta. Isso diz a um cliente como chamar uma consulta genérica de registros. Não revela qual lista ou campo definido pelo cliente é o certo para o seu espaço de trabalho.
 
 O Customermates separa essas perguntas. `discover_record_types` identifica as listas acessíveis; `get_record_model` informa seus campos, tipos, relações e a revisão da configuração. Não transforme um rótulo visível como “Tarefas” em um identificador inventado. A [visão geral da API REST do Customermates](/features/api) explica o contrato dos endpoints; a [referência do MCP](/docs/mcp) descreve o contrato das ferramentas.
 
-O teste local registrou `initialize`, `tools/list` e chamadas explícitas às ferramentas. Nenhum modelo de linguagem escolheu as ferramentas. O primeiro bloco JSON é a requisição de descoberta registrada; o segundo mostra os argumentos do SDK para ler o modelo do workspace:
+O teste local registrou `initialize`, `tools/list` e chamadas explícitas às ferramentas. Nenhum modelo de linguagem escolheu as ferramentas. O primeiro bloco JSON é a requisição de descoberta registrada; o segundo mostra os argumentos do SDK para ler o modelo do espaço de trabalho:
 
 ```json
 {
@@ -82,7 +82,7 @@ A resposta do modelo identificou Organization e Task, com revisão de esquema `1
 
 ## O que a mesma consulta de cliente retornou nas duas interfaces?
 
-**Limite do teste local:** executado em 5 de novembro de 2026, de `05:32:59.558Z` a `05:33:10.374Z`, em um banco PostgreSQL 17.8 novo e descartável, com uma aplicação própria em loopback. O par autorizado usou a mesma chave de API temporária, o mesmo Administrador sintético e o mesmo workspace. Um usuário sintético separado, só com leitura, testou a recusa. Não houve credenciais de produção, envios externos nem chamadas a provedores de modelos; o transporte do teste bloqueou conexões de saída e as duas chaves foram revogadas depois.
+**Limite do teste local:** executado em 5 de novembro de 2026, de `05:32:59.558Z` a `05:33:10.374Z`, em um banco PostgreSQL 17.8 novo e descartável, com uma aplicação própria em loopback. O par autorizado usou a mesma chave de API temporária, o mesmo Administrador sintético e o mesmo espaço de trabalho. Um usuário sintético separado, só com leitura, testou a recusa. Não houve credenciais de produção, envios externos nem chamadas a provedores de modelos; o transporte do teste bloqueou conexões de saída e as duas chaves foram revogadas depois.
 
 Antes da execução, 3.797 arquivos de aplicação, esquema, permissões, fixtures e contratos de dependências correspondiam ao commit-fonte revisado `111f8a2e33f39975955e8f49d3f7c898fbbd3d05`; o carimbo de build na nuvem era `2912f7e6882ebccb`. Runtime: Node `24.18.0`, Next.js `16.3.2`, SDK TypeScript do MCP `1.24.0` e `mcp-handler` `1.0.4`. A requisição initialize capturada propunha o MCP `2025-06-18`; o servidor aceitou essa revisão e se identificou como Customermates `1.1.0`. Essa é a negociação observada, não uma afirmação de que a especificação mais recente ou todos os clientes foram testados.
 
@@ -203,11 +203,11 @@ Os limites importam: um cliente correspondente, página `1` com `pageSize: 25`, 
 
 ## Onde as permissões e as aprovações humanas realmente valem?
 
-A autenticação estabelece quem está chamando; as permissões da aplicação determinam o que esse usuário pode ler ou alterar. As duas portas de entrada do Customermates aplicam as permissões do usuário conectado. O segundo usuário da fixture tinha acesso à API e permissão de leitura em Organization e Task, sem permissão de atualizar registros. Sua requisição REST de identidade e sua consulta de cliente por MCP funcionaram, o que mostra que o teste chegou a um workspace autenticado e legível.
+A autenticação estabelece quem está chamando; as permissões da aplicação determinam o que esse usuário pode ler ou alterar. As duas portas de entrada do Customermates aplicam as permissões do usuário conectado. O segundo usuário da fixture tinha acesso à API e permissão de leitura em Organization e Task, sem permissão de atualizar registros. Sua requisição REST de identidade e sua consulta de cliente por MCP funcionaram, o que mostra que o teste chegou a um espaço de trabalho autenticado e legível.
 
 Esse usuário tentou então alterar o Name da tarefa criada pelo REST, uma vez por REST e outra por MCP, com a revisão de esquema atual e a versão da tarefa. O REST retornou HTTP `403`, `error.kind: authorization`, `customCode: permissionDenied`. A troca MCP retornou HTTP `200`, mas o resultado da ferramenta trazia `isError: true` com `_meta.failure.kind: authorization` e o mesmo código personalizado. Depois de **cada** recusa, o Administrador releu a tarefa pelas duas interfaces: o registro completo, o Name, a versão `1` e o vínculo com a organização estavam inalterados. Isso comprova essas duas atualizações recusadas para este papel e esta fixture; não é uma auditoria de segurança de todas as permissões.
 
-A aprovação é outra questão. O Customermates orienta os clientes MCP externos a pedir confirmação antes de enviar, excluir ou alcançar algo fora do workspace. Essas instruções guiam o cliente. O servidor MCP externo não interrompe uma chamada autorizada para pedir aprovação por conta própria.
+A aprovação é outra questão. O Customermates orienta os clientes MCP externos a pedir confirmação antes de enviar, excluir ou alcançar algo fora do espaço de trabalho. Essas instruções guiam o cliente. O servidor MCP externo não interrompe uma chamada autorizada para pedir aprovação por conta própria.
 
 O Mate hospedado tem uma política de aprovação própria, aplicada pelo servidor. As Rotinas têm seus próprios controles de execução e aprovação; não os deduza a partir de uma sessão MCP externa. A disponibilidade do Mate na nuvem gerenciada também depende de planos elegíveis, créditos disponíveis e controles globais. O [guia de CRM agêntico](/blog/agentic-crm) explica esses limites.
 
@@ -236,7 +236,7 @@ Escolha o MCP quando a próxima operação útil depender da pergunta de uma pes
 
 Você pode combinar os dois: um webhook informa um evento, um workflow determinístico busca os dados pelo REST e um assistente usa o MCP para investigar uma exceção. Webhooks são notificações de eventos, não outro nome para uma chamada de ferramenta. O n8n pode orquestrar integrações, mas o teste local acima rodou um script, não o n8n. A [introdução aos workflows do n8n](/blog/n8n-for-beginners-build-your-first-workflow) é um ponto de partida à parte, e o guia de [n8n e MCP](/blog/n8n-mcp) mostra como os dois se encontram.
 
-O Customermates self-hosted fornece o núcleo do CRM Starter com REST e MCP para clientes externos. Ele não inclui o Mate hospedado nem a caixa de entrada na nuvem. Escolha outra abordagem se você só precisa de um adaptador para o CRM que já tem, ou se a sua integração fixa não ganha nada com um host de IA. Preços e condições de teste da nuvem são assuntos separados da escolha de protocolo; compare-os na [página de preços atual](/pricing).
+O Customermates com hospedagem própria fornece o núcleo do CRM Starter com REST e MCP para clientes externos. Ele não inclui o Mate hospedado nem a caixa de entrada na nuvem. Escolha outra abordagem se você só precisa de um adaptador para o CRM que já tem, ou se a sua integração fixa não ganha nada com um host de IA. Preços e condições de teste da nuvem são assuntos separados da escolha de protocolo; compare-os na [página de preços atual](/pricing).
 
 Para uma equipe que acompanha as conversas com clientes, a chamada MCP útil é a que lê uma conversa no registro do cliente e salva um rascunho de resposta e um próximo passo para revisão. Para testar isso com o seu próprio Claude ou ChatGPT (o [guia de conector personalizado](/docs/connect-custom-connector) mostra a conexão), [comece seu teste](/auth/signup?job=followup): [[commercial.trial.days]] dias de Pro sem cartão de crédito.
 

@@ -95,7 +95,7 @@ sections:
       - title: "Sprawdź granicę edycji"
         description: "Upewnij się, że zestaw funkcji Starter obejmuje rekordy, widoki i interfejsy, których potrzebuje Twój proces."
       - title: "Rozpisz usługi zewnętrzne"
-        description: "Wypisz każdego dostawcę SMTP, OAuth, monitoringu, przepływów pracy lub AI, którego zamierzasz skonfigurować, oraz dane, które każdy z nich otrzymuje."
+        description: "Wypisz każdego dostawcę poczty e-mail (Resend), OAuth, monitoringu, przepływów pracy lub AI, którego zamierzasz skonfigurować, oraz dane, które każdy z nich otrzymuje."
       - title: "Zaplanuj utrzymanie"
         description: "Ustal kopie zapasowe, sprawdzone odtwarzanie, aktualizacje, TLS, monitoring i kontrolę dostępu dla swojego środowiska."
       - title: "Testuj bez danych klientów"
@@ -162,7 +162,7 @@ Plik Compose nie zawiera n8n, modelu AI, dostawcy wysyłki e-maili ani osobnego 
   variant="proof"
 >
   Aplikacja i baza danych mogą działać na Twojej infrastrukturze, podczas gdy
-  SMTP, OAuth, monitoring, narzędzia do przepływów pracy i zewnętrzne AI
+  wysyłka e-maili przez Resend, OAuth, monitoring, narzędzia do przepływów pracy i zewnętrzne AI
   pozostają osobnymi usługami, gdy tylko je skonfigurujesz. Rozpisz tych
   dostawców, zanim wybierzesz model wdrożenia.
 </AcquisitionCallout>
@@ -219,20 +219,20 @@ Odpowiedzi na te pytania są ważniejsze niż długość listy funkcji, bo to on
 
 Materiał własny Customermates poza katalogiem `ee/` jest objęty licencją AGPL-3.0-only. W `ee/` materiał ma licencję komercyjną, z wyjątkiem obrazów, czcionek, CSS i JavaScriptu po stronie klienta, wskazanych jako AGPL Client Material w sekcji 6 pliku `ee/LICENSE.md`. Przed modyfikowaniem, dalszym rozpowszechnianiem lub uruchamianiem oprogramowania do własnych celów przeczytaj obie licencje.
 
-To rozróżnienie ma znaczenie, gdy porównujesz [CRM open source](/blog/open-source-crm): samo publiczne repozytorium nie mówi, jakiego kodu wolno ci używać na jakich warunkach. Jeśli rozważasz inne projekty, które da się hostować samodzielnie, porównania z [EspoCRM](/compare/espocrm-alternative) i [Twenty](/compare/twenty-alternative) pokazują, czym różnią się ich wdrożenie i granice licencji.
+To rozróżnienie ma znaczenie, gdy porównujesz [CRM open source](/blog/open-source-crm): samo publiczne repozytorium nie mówi, jakiego kodu wolno Ci używać na jakich warunkach. Jeśli rozważasz inne projekty, które da się hostować samodzielnie, porównania z [EspoCRM](/compare/espocrm-alternative) i [Twenty](/compare/twenty-alternative) pokazują, czym różnią się ich wdrożenie i granice licencji.
 
 ## Jaką kontrolę daje self-hosting?
 
 Sam wybierasz, gdzie działają aplikacja i PostgreSQL, oraz jak konfigurujesz dostęp sieciowy, kopie zapasowe, retencję i aktualizacje. To realna kontrola nad infrastrukturą, ale nie automatyczna gwarancja zgodności, bezpieczeństwa ani pracy bez dostępu do sieci.
 
-Podłączone usługi pozostają osobnymi granicami przetwarzania. Dostawcy OAuth, SMTP, monitoring, narzędzia do przepływów pracy i zewnętrzni dostawcy AI otrzymują to, co wyśle do nich Twoja konfiguracja. Diagnostyka błędów zostaje na Twoim serwerze; powiadomienia dla operatora korzystają z odbiorcy i dostawcy poczty, których skonfigurujesz. To nie jest ogólna obietnica braku telemetrii.
+Podłączone usługi pozostają osobnymi granicami przetwarzania. Dostawcy OAuth, Resend do e-maili, monitoring, narzędzia do przepływów pracy i zewnętrzni dostawcy AI otrzymują to, co wyśle do nich Twoja konfiguracja. Diagnostyka błędów zostaje na Twoim serwerze; powiadomienia dla operatora korzystają z odbiorcy i dostawcy poczty, których skonfigurujesz. To nie jest ogólna obietnica braku telemetrii.
 
 ## Self-hosted czy zarządzana chmura?
 
 | Wybierz self-hosting, gdy…                        | Wybierz zarządzaną chmurę, gdy…                                   |
 | ------------------------------------------------- | ----------------------------------------------------------------- |
 | Twój zespół potrafi prowadzić Dockera i PostgreSQL | chcesz, by Customermates prowadziło aplikację i bazę danych      |
-| granica funkcji Starter ci wystarcza              | potrzebujesz wspólnej skrzynki odbiorczej lub widoku kalendarza   |
+| granica funkcji Starter Ci wystarcza              | potrzebujesz wspólnej skrzynki odbiorczej lub widoku kalendarza   |
 | chcesz, by zewnętrzni klienci AI korzystali z MCP | chcesz uprawnień planów chmurowych i zarządzanych połączonych kont |
 | sam zajmiesz się aktualizacjami, kopiami i odtwarzaniem | wolisz subskrypcję z zarządzanym utrzymaniem                |
 
@@ -269,7 +269,7 @@ Materiał własny poza katalogiem `ee/` jest objęty licencją AGPL-3.0-only. W 
 </FaqItem>
 
 <FaqItem question="Co zawiera oficjalny stos Docker Compose?">
-Zawiera aplikację Customermates i PostgreSQL 16. n8n, modele AI, SMTP, dostawcy tożsamości i usługi monitoringu są osobno, jeśli zdecydujesz się je podłączyć.
+Zawiera aplikację Customermates i PostgreSQL 16. E-maile wychodzą przez Resend z Twoim własnym kluczem API. n8n, modele AI, dostawcy tożsamości i usługi monitoringu są osobno, jeśli zdecydujesz się je podłączyć.
 </FaqItem>
 
 <FaqItem question="Czy CRM self hosted jest darmowy?">

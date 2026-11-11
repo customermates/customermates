@@ -61,11 +61,11 @@ A periodicidade da cobrança mexe mais no preço do que a escolha do fornecedor.
 
 ## CRMs sem preço por licença
 
-A maioria dos CRMs cobra por licença. Dois fornecedores da tabela cobram por pacote, e um CRM de código aberto em self-hosting não tem número de licenças.
+A maioria dos CRMs cobra por licença. Dois fornecedores da tabela cobram por pacote, e um CRM de código aberto com hospedagem própria não tem número de licenças.
 
 - **Bitrix24** é gratuito para 1 a 2 usuários. O Basic cobre 5 usuários por US$ 49 por mês na cobrança anual (US$ 69 na mensal), o Standard cobre 50 usuários por US$ 99 (US$ 144 na mensal) e o Professional 100 usuários por US$ 199 (US$ 289 na mensal). O preço é por organização.
 - **CentralStationCRM** tem um pacote Starter gratuito para 3 usuários e 200 contatos. Os pacotes pagos custam € 24 por mês para 3 usuários, € 75 para 10, € 149 para 20 e € 289 para 40, todos sem IVA. O CentralStationCRM diz que todos os pacotes têm os mesmos recursos; eles diferem em usuários, contatos e armazenamento.
-- **Um CRM de código aberto em self-hosting** não tem custo de licença por pessoa. Você paga pelo servidor, pelos backups e pelas horas que alguém gasta com as atualizações. Nosso [guia de CRM de código aberto](/blog/open-source-crm) compara as opções de self-hosting.
+- **Um CRM de código aberto com hospedagem própria** não tem custo de licença por pessoa. Você paga pelo servidor, pelos backups e pelas horas que alguém gasta com as atualizações. Nosso [guia de CRM de código aberto](/blog/open-source-crm) compara as opções de hospedagem própria.
 
 Um preço fixo sai mais barato quando a equipe preenche a faixa e mais caro logo depois de ultrapassá-la. Custo mensal por tamanho de equipe, com o Bitrix24 na cobrança anual:
 
@@ -113,7 +113,7 @@ O [guia de CRM gratuito](/blog/free-crm) compara os planos gratuitos em detalhe.
 | Você já planeja o trabalho no monday.com | monday CRM | Basic a partir de € 12 por licença, na cobrança anual | O mínimo de 3 licenças |
 | Um funil de vendas que vai precisar de sequências | Pipedrive | Lite a € 14, Growth com sequências a € 39, na cobrança anual | Sem plano gratuito |
 | Negócios que passam por e-mail, LinkedIn e WhatsApp | Customermates Pro (publicador do guia) | Caixa de entrada unificada, cobrança mensal | Sem telefonia, sem sequências de e-mail, sem app móvel nativo |
-| Uma equipe técnica sem orçamento para licenças | Um CRM de código aberto em self-hosting | Sem taxa por licença | Servidor, backups e atualizações ficam por sua conta |
+| Uma equipe técnica sem orçamento para licenças | Um CRM de código aberto com hospedagem própria | Sem taxa por licença | Servidor, backups e atualizações ficam por sua conta |
 | Uma loja virtual ou outro negócio que vende produtos | A ligação do CRM com a plataforma da loja, antes do preço | Sem ela, pedidos e clientes são digitados duas vezes | O plano em que a API e os webhooks começam |
 
 ## Como escolher pelo custo-benefício: confira o preço antes de assinar [#como-escolher-crm-barato]
@@ -163,7 +163,7 @@ Para uma equipe que atende clientes, avalie uma licença pelo que ela ajuda a n�
 
 - **Starter com o seu próprio cliente de IA.** Crie uma chave em **Configurações › Chaves de API e conectores › Adicionar** e escolha Claude ou ChatGPT em **Conexões rápidas**. O cliente passa então a ler e atualizar registros por [MCP](/docs/mcp), e as chamadas ao modelo rodam no seu próprio provedor de IA.
 - **Pague apenas por quem está ativo.** Uma licença é um membro com status **Ativo**. Defina como **Inativo** em **Configurações › Membros** quem não precisa mais de acesso, e a contagem de licenças diminui, com cobrança proporcional na sua próxima fatura. Isso também pausa as rotinas que essa pessoa possui.
-- **Self-hosting do núcleo de código aberto.** Ele roda com Docker Compose e PostgreSQL, não conta licenças e não cobra nada. Você paga pelo servidor e por uma conta de envio de e-mail, e cuida das atualizações e dos backups. Em self-hosting, não há caixa de entrada, Mate, rotinas nem créditos hospedados; REST, webhooks e MCP continuam. O [guia de self-hosting](/docs/self-hosting) traz a configuração.
+- **Hospedagem própria do núcleo de código aberto.** Ele roda com Docker Compose e PostgreSQL, não conta licenças e não cobra nada. Você paga pelo servidor e por uma conta de envio de e-mail, e cuida das atualizações e dos backups. Com hospedagem própria, não há caixa de entrada, Mate, rotinas nem créditos hospedados; REST, webhooks e MCP continuam. O [guia de hospedagem própria](/docs/self-hosting) traz a configuração.
 
 <AcquisitionCallout title="Quando o Customermates é a escolha errada" variant="boundary">
   Se você precisa de um CRM por US$ 0 operado por um fornecedor, comece pelas ferramentas gratuitas do HubSpot ou pela edição gratuita do Zoho CRM; o Customermates Cloud tem um plano gratuito para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate nem rotinas. O Customermates não tem telefonia, sequências de e-mail nem envio de e-mail em massa, formulários web nem app móvel nativo, e não cria orçamentos nem faturas. Uma equipe que vive no telefone deve escolher um CRM com chamadas integradas, e quem precisa de sequências as encontra no Pipedrive a partir do Growth.
@@ -185,7 +185,7 @@ Em 8 de outubro de 2026, os menores totais anuais para cinco usuários no preço
 </FaqItem>
 
 <FaqItem question="Existe um CRM sem preço por licença?">
-Sim. O Bitrix24 cobra por organização: o Basic cobre 5 usuários e o Standard 50. O CentralStationCRM vende pacotes para 3, 10, 20 e 40 usuários, cada um com um único preço mensal. Um CRM de código aberto em self-hosting não tem número de licenças; você paga a hospedagem e a manutenção.
+Sim. O Bitrix24 cobra por organização: o Basic cobre 5 usuários e o Standard 50. O CentralStationCRM vende pacotes para 3, 10, 20 e 40 usuários, cada um com um único preço mensal. Um CRM de código aberto com hospedagem própria não tem número de licenças; você paga a hospedagem e a manutenção.
 </FaqItem>
 
 <FaqItem question="Quais CRMs custam menos do que o Pipedrive?">

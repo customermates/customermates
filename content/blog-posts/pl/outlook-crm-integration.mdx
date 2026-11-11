@@ -89,7 +89,7 @@ Customermates wybiera trzecią drogę. W planie Pro i wyższych w Customermates 
 
 <Steps>
   <Step title="Połącz konto">Otwórz **Ustawienia › Kanały i kalendarze**, kliknij **Połącz kanał** i wybierz **Outlook**. Logujesz się na bezpiecznej stronie połączenia, a historia skrzynki importuje się w tle. Karta pokazuje, czy połączono e-mail, kalendarz, czy oba.</Step>
-  <Step title="Wybierz foldery">Karta **Foldery** konta ma jeden przełącznik na folder. Domyślnie włączone są wszystkie foldery poza koszem, spamem, wersjami roboczymi i folderem z całą pocztą. Wyłącz foldery z pocztą prywatną.</Step>
+  <Step title="Wybierz foldery">Karta **Foldery** konta ma jeden przełącznik na folder. Domyślnie włączone są wszystkie foldery poza koszem, spamem, szkicami i folderem z całą pocztą. Wyłącz foldery z pocztą prywatną.</Step>
   <Step title="Powiąż osoby z kontaktami">W rozmowie otwórz **Ustawienia wątku** i kliknij **Powiąż** przy uczestniku albo utwórz stamtąd kontakt. Adres zostaje dodany do kontaktu, więc [każda rozmowa z nim pojawia się na osi czasu tego kontaktu](/blog/customer-interaction-management).</Step>
   <Step title="Ustaw podpis">Na karcie **E-mail** konta włącz **Dodaj podpis**. Zostanie dodany do każdego e-maila wysłanego z tego konta, ze skrzynki odbiorczej, przez REST API lub MCP.</Step>
   <Step title="Zdecyduj, co widzi zespół">Nowe konto jest prywatne. W planie Pro udostępniasz pojedyncze rozmowy; w planie Business możesz udostępnić całe konto, na przykład skrzynkę sales@, wszystkim, których rola pozwala czytać skrzynkę odbiorczą.</Step>
@@ -105,17 +105,17 @@ Co się wtedy synchronizuje, a co nie:
 | Kontakty z Outlooka (książka adresowa) | Niesynchronizowane w żadnym kierunku. Kontakty powstają przez powiązanie uczestnika albo w CRM |
 | Zadania z Outlooka | Niesynchronizowane |
 
-[Przewodnik po skrzynce odbiorczej](/docs/app-inbox) szczegółowo opisuje uprawnienia, wersje robocze i filtry.
+[Przewodnik po skrzynce odbiorczej](/docs/app-inbox) szczegółowo opisuje uprawnienia, szkice i filtry.
 
 ### Niech follow-up zrobi Mate albo Twój własny klient AI
 
 Outlooka podłączasz do Customermates po to, żeby wracać do klientów: każdy e-mail od klienta leży na rekordzie klienta, Mate albo Twój własny agent AI przygotowuje odpowiedź i następny krok, Ty przeglądasz i wysyłasz, a kolejne kroki pojawiają się na Twoim pulpicie.
 
-W Customermates Cloud Mate potrafi streścić wątek lub przygotować wersję roboczą odpowiedzi i zużywa kredyty hostowanej AI. Rutyna uruchamia zapisaną instrukcję, gdy coś się wydarzy. Dla poczty z Outlooka utwórz rutynę z wyzwalaczem **Gdy coś się zmieni**, wybierz zdarzenie **E-mail odebrany** i napisz instrukcje w tym stylu:
+W Customermates Cloud Mate potrafi streścić wątek lub przygotować szkic odpowiedzi i zużywa kredyty hostowanej AI. Rutyna uruchamia zapisaną instrukcję, gdy coś się wydarzy. Dla poczty z Outlooka utwórz rutynę z wyzwalaczem **Gdy coś się zmieni**, wybierz zdarzenie **E-mail odebrany** i napisz instrukcje w tym stylu:
 
-> Gdy przyjdzie e-mail od kontaktu, który ma otwartą szansę sprzedaży przypisaną do mnie, przeczytaj wątek i szansę sprzedaży. Zapisz w wątku wersję roboczą odpowiedzi, która odpowiada na otwarte pytanie. Niczego nie wysyłaj. Jeśli e-mail prosi o spotkanie, napisz o tym w wersji roboczej zamiast proponować terminy.
+> Gdy przyjdzie e-mail od kontaktu, który ma otwartą szansę sprzedaży przypisaną do mnie, przeczytaj wątek i szansę sprzedaży. Zapisz w wątku szkic odpowiedzi, która odpowiada na otwarte pytanie. Niczego nie wysyłaj. Jeśli e-mail prosi o spotkanie, napisz o tym w szkicu zamiast proponować terminy.
 
-Zdanie „Niczego nie wysyłaj” ma znaczenie. Rutyna działa jako jej właściciel, z jego kanałami, a Mate wysyła e-mail bez ponownego pytania, jeśli instrukcja każe mu wysłać. [Rutyny](/docs/app-routines) wymieniają aktualne limity. Jeśli wolisz własnego klienta AI, takiego jak Claude lub ChatGPT, może on czytać wątki i zapisywać wersje robocze przez MCP, korzystając z Twojego własnego dostawcy AI zamiast hostowanych kredytów.
+Zdanie „Niczego nie wysyłaj” ma znaczenie. Rutyna działa jako jej właściciel, z jego kanałami, a Mate wysyła e-mail bez ponownego pytania, jeśli instrukcja każe mu wysłać. [Rutyny](/docs/app-routines) wymieniają aktualne limity. Jeśli wolisz własnego klienta AI, takiego jak Claude lub ChatGPT, może on czytać wątki i zapisywać szkice przez MCP, korzystając z Twojego własnego dostawcy AI zamiast hostowanych kredytów.
 
 ### Ile to kosztuje
 

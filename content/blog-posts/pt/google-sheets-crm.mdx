@@ -196,7 +196,7 @@ Uma regra prática simples: quando duas pessoas editam os mesmos negócios toda 
 
 ## Levando um CRM do Google Sheets para o Customermates
 
-O Customermates importa pastas de trabalho do Excel (.xlsx) e arquivos CSV, uma lista por vez, então uma planilha do Google passa antes por um download. Não há sincronização ao vivo com o Google Sheets. A [documentação de importação](/docs/app-records#how-do-i-import-or-export-records) traz todas as regras, e o [guia do modelo de Excel](/blog/excel-crm-template#moving-the-template-into-customermates) associa cada coluna deste layout a um campo. Uma planilha só faz follow-up quando alguém lembra de abri-la. No Customermates, as conversas de cada cliente ficam no registro do cliente (na Customermates Cloud, a partir do Pro), o Mate ou o seu próprio agente de IA redige a resposta e o próximo passo, e a data do próximo passo alimenta o seu painel em vez de um filtro que você precisa conferir.
+O Customermates importa pastas de trabalho do Excel (.xlsx) e arquivos CSV, uma lista por vez, então uma planilha do Google passa antes por um download. Não há sincronização ao vivo com o Google Sheets. A [documentação de importação](/docs/app-records#how-do-i-import-or-export-records) traz todas as regras, e o [guia do modelo de Excel](/blog/excel-crm-template#moving-the-template-into-customermates) associa cada coluna deste layout a um campo. Uma planilha só faz follow-up quando alguém lembra de abri-la. No Customermates, as conversas de cada cliente ficam no registro do cliente (no Customermates Cloud, a partir do Pro), o Mate ou o seu próprio agente de IA redige a resposta e o próximo passo, e a data do próximo passo alimenta o seu painel em vez de um filtro que você precisa conferir.
 
 <Steps>
   <Step title="Limpe as abas">Use Dados › Limpeza de dados › Remover duplicatas em Contatos e Negócios, e corrija todo valor que uma lista suspensa sinalizar. Cada etapa e cada tipo deve ser exatamente um dos valores de Listas.</Step>
@@ -212,7 +212,7 @@ Os valores de negócio funcionam de outro jeito: no Customermates, o valor de um
 
 - **QUERY por etapa** vira a lista de Negócios como um quadro agrupado por Etapa, com o valor total e o ponderado por coluna, exibido na [visualização de pipeline](/features/pipeline).
 - **A lista de follow-up com FILTER** vira uma visualização salva dos negócios filtrados pela Data do próximo passo, do mais antigo para o mais novo. Ela pode ser compartilhada com a equipe.
-- **O e-mail matinal** pode virar uma rotina na Customermates Cloud. O Customermates não tem lembretes nem notificações, mas uma rotina programada para rodar todo dia às 08:00 pode seguir uma instrução como esta, usando créditos de IA hospedados:
+- **O e-mail matinal** pode virar uma rotina no Customermates Cloud. O Customermates não tem lembretes nem notificações, mas uma rotina programada para rodar todo dia às 08:00 pode seguir uma instrução como esta, usando créditos de IA hospedados:
 
 > Liste os meus negócios abertos cuja Data do próximo passo é hoje ou anterior. Para cada um, crie uma tarefa vinculada ao negócio, atribuída a mim, com o nome "Follow-up" mais o nome do negócio. Não envie nem redija nenhuma mensagem.
 
@@ -228,7 +228,7 @@ Se você ainda quiser uma cópia para relatórios no Google Sheets, os webhooks 
 | --- | --- | --- |
 | 3 pessoas, CRM sem caixa de entrada | Starter, [[commercial.price.starter.monthly]] por usuário | [[commercial.price.starter.monthly.seats.3]] |
 | 3 pessoas, com a caixa de entrada unificada | Pro, [[commercial.price.pro.monthly]] por usuário | [[commercial.price.pro.monthly.seats.3]] |
-| Seu próprio servidor | Núcleo AGPL auto-hospedado | Sem taxa de licença, mais a hospedagem; REST, webhooks e MCP, mas sem caixa de entrada e sem o Mate |
+| Seu próprio servidor | Núcleo AGPL com hospedagem própria | Sem taxa de licença, mais a hospedagem; REST, webhooks e MCP, mas sem caixa de entrada e sem o Mate |
 
 A cobrança é mensal, e o teste hospedado dura [[commercial.trial.days]] dias no Pro, sem cartão de crédito: [comece o seu teste](/auth/signup?job=followup) e importe uma aba para ver os seus próprios negócios lá. Cada plano hospedado pago inclui créditos de IA hospedados por mês para cada usuário ativo; veja os [preços](/pricing).
 

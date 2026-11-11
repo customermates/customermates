@@ -1,6 +1,6 @@
 ---
 title: "CRM RODO: co sprawdzić, zanim zapiszesz dane klientów"
-description: "CRM RODO: czego wymaga RODO, czyli podstawa prawna, dane osobowe, umowa powierzenia, podprocesory, wnioski i usuwanie danych. Lista kontrolna z artykułami."
+description: "CRM RODO: czego wymaga RODO, czyli podstawa prawna, dane osobowe, umowa powierzenia, podmioty podprzetwarzające, wnioski i usuwanie danych. Lista kontrolna z artykułami."
 
 relatedHrefs:
   - /blog/how-to-choose-crm
@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "CRM RODO: co sprawdzić, zanim zapiszesz dane klientów"
-  description: "CRM RODO: czego wymaga RODO, czyli podstawa prawna, dane osobowe, umowa powierzenia, podprocesory, wnioski i usuwanie danych. Lista kontrolna z artykułami."
+  description: "CRM RODO: czego wymaga RODO, czyli podstawa prawna, dane osobowe, umowa powierzenia, podmioty podprzetwarzające, wnioski i usuwanie danych. Lista kontrolna z artykułami."
 
 blogPost:
   author: Benjamin Wagner
@@ -29,13 +29,13 @@ blogPost:
 
 CRM RODO to nie produkt z odznaką. To CRM plus umowy, ustawienia i nawyki, które pozwalają Ci wypełnić własne obowiązki wynikające z RODO, a te obowiązki spoczywają na Tobie jako administratorze: podstawa prawna każdego użycia danych osobowych, umowa powierzenia przetwarzania danych z dostawcą, który je przechowuje, odpowiedzi dla osób pytających, co o nich masz, oraz usunięcie danych, gdy przestajesz ich potrzebować. Dostawca CRM może to ułatwić lub utrudnić, ale żaden CRM sam nie czyni Cię zgodnym z przepisami.
 
-Ten poradnik wylicza obowiązki istotne dla CRM wraz z numerami artykułów, pokazuje, co sprawdzić w umowie i na liście podprocesorów dowolnego dostawcy, przeprowadza przez wniosek o dostęp i wniosek o usunięcie danych oraz podaje, gdzie stoi Customermates, w tym czego nie deklaruje. Publikuje go Customermates, który pojawia się w oznaczonych sekcjach. To informacja ogólna, nie porada prawna: zapytaj prawnika albo inspektora ochrony danych o swój przypadek. Źródła prawa UE i strony prawne Customermates sprawdzono 11 listopada 2026; strony prawne się zmieniają, więc zanim oprzesz się na tej stronie, przeczytaj aktualną [umowę powierzenia przetwarzania danych](/dpa) i [listę podprocesorów](/subprocessors).
+Ten poradnik wylicza obowiązki istotne dla CRM wraz z numerami artykułów, pokazuje, co sprawdzić w umowie i na liście podmiotów podprzetwarzających dowolnego dostawcy, przeprowadza przez wniosek o dostęp i wniosek o usunięcie danych oraz podaje, gdzie stoi Customermates, w tym czego nie deklaruje. Publikuje go Customermates, który pojawia się w oznaczonych sekcjach. To informacja ogólna, nie porada prawna: zapytaj prawnika albo inspektora ochrony danych o swój przypadek. Źródła prawa UE i strony prawne Customermates sprawdzono 11 listopada 2026; strony prawne się zmieniają, więc zanim oprzesz się na tej stronie, przeczytaj aktualną [umowę powierzenia przetwarzania danych](/dpa) i [listę podmiotów podprzetwarzających](/subprocessors).
 
 <ArticleSummary title="W skrócie">
   <SummaryItem label="Zasada">Jesteś administratorem danych osobowych w swoim CRM, a dostawca CRM jest Twoim podmiotem przetwarzającym. RODO czyni odpowiedzialnym Ciebie za podstawę prawną, umowę i wnioski, a nie oprogramowanie.</SummaryItem>
-  <SummaryItem label="Przed podpisaniem">Umowa powierzenia przetwarzania danych z treścią z art. 28 ust. 3, lista podprocesorów dostawcy, gdzie dane są przetwarzane i jaki mechanizm transferu obejmuje każdego dostawcę spoza UE.</SummaryItem>
+  <SummaryItem label="Przed podpisaniem">Umowa powierzenia przetwarzania danych z treścią z art. 28 ust. 3, lista podmiotów podprzetwarzających dostawcy, gdzie dane są przetwarzane i jaki mechanizm transferu obejmuje każdego dostawcę spoza UE.</SummaryItem>
   <SummaryItem label="W codziennym użyciu">Wąski dostęp, mało pól, sposób na znalezienie, poprawienie, wyeksportowanie i usunięcie danych jednej osoby oraz przegląd retencji, który naprawdę przeprowadzasz.</SummaryItem>
-  <SummaryItem label="Customermates">Umowa powierzenia dla zarządzanej chmury, publiczna lista podprocesorów obejmująca dostawców z USA, główna baza danych skonfigurowana w AWS Frankfurt (wybrane ustawienie, nie gwarancja), brak certyfikatu zgodności i rdzeń open source, który możesz hostować samodzielnie.</SummaryItem>
+  <SummaryItem label="Customermates">Umowa powierzenia dla zarządzanej chmury, publiczna lista podmiotów podprzetwarzających obejmująca dostawców z USA, główna baza danych skonfigurowana w AWS Frankfurt (wybrane ustawienie, nie gwarancja), brak certyfikatu zgodności i rdzeń open source, który możesz hostować samodzielnie.</SummaryItem>
   <SummaryItem label="Transparentność">Ten poradnik publikuje Customermates. Prawo stron trzecich cytujemy według EUR-Lex i Komisji Europejskiej.</SummaryItem>
 </ArticleSummary>
 
@@ -51,7 +51,7 @@ RODO (rozporządzenie (UE) 2016/679, [tekst w EUR-Lex](https://eur-lex.europa.eu
 | Poinformuj osoby | Art. 13 i 14 | Klauzula informacyjna. Gdy dane nie pochodzą od osoby (zaimportowana lista, profil na LinkedInie), poinformuj ją w rozsądnym terminie, najpóźniej w ciągu miesiąca (art. 14 ust. 3 lit. a). |
 | Odpowiadaj na wnioski | Art. 12 oraz 15 do 21 | Dostęp (15), sprostowanie (16), usunięcie (17), ograniczenie przetwarzania (18), przenoszenie (20) i sprzeciw (21). Odpowiadaj bez zbędnej zwłoki i w każdym razie w ciągu miesiąca, z możliwością przedłużenia o dwa kolejne miesiące, gdy to konieczne (art. 12 ust. 3). Sprzeciw wobec marketingu bezpośredniego trzeba uwzględnić (art. 21 ust. 2 i 3). |
 | Umowa z podmiotem przetwarzającym | Art. 28 ust. 3 | Pisemna umowa zawierająca co najmniej warunki wymienione w lit. a do h. |
-| Podprocesorzy | Art. 28 ust. 2 i 4 | Podmiot przetwarzający potrzebuje Twojej pisemnej zgody, ogólnej lub szczegółowej, i musi nałożyć te same obowiązki na każdy podmiot, któremu powierza dalsze przetwarzanie. |
+| Podmioty podprzetwarzające | Art. 28 ust. 2 i 4 | Podmiot przetwarzający potrzebuje Twojej pisemnej zgody, ogólnej lub szczegółowej, i musi nałożyć te same obowiązki na każdy podmiot, któremu powierza dalsze przetwarzanie. |
 | Bezpieczeństwo | Art. 32 | Odpowiednie środki techniczne i organizacyjne dostosowane do ryzyka, takie jak kontrola dostępu, szyfrowanie i możliwość przywrócenia dostępności po incydencie. |
 | Naruszenia | Art. 33 i 34 | Podmiot przetwarzający informuje Cię bez zbędnej zwłoki (art. 33 ust. 2). Ty zgłaszasz organowi nadzorczemu w ciągu 72 godzin, jeśli to możliwe (art. 33 ust. 1), i informujesz osoby, których to dotyczy, gdy ryzyko dla nich jest wysokie (art. 34 ust. 1). |
 | Transfery poza EOG | Art. 44 do 46 | Dozwolone tylko na podstawie decyzji stwierdzającej odpowiedni stopień ochrony (art. 45) lub z odpowiednimi zabezpieczeniami, na przykład standardowymi klauzulami umownymi (art. 46 ust. 2 lit. c). |
@@ -78,7 +78,7 @@ W Polsce organem nadzorczym jest Prezes Urzędu Ochrony Danych Osobowych (UODO):
 Żaden CRM nie jest zgodny z RODO sam z siebie. Zgodność opisuje, jak używasz narzędzia: co zbierasz, na jakiej podstawie, jak długo przechowujesz i jak odpowiadasz na wnioski. To, co dostawca może uczciwie zaoferować, jest węższe i da się to sprawdzić:
 
 - umowa powierzenia obejmująca art. 28 ust. 3;
-- publiczna lista podprocesorów i opisany proces zmian;
+- publiczna lista podmiotów podprzetwarzających i opisany proces zmian;
 - jasna informacja, gdzie dane są przetwarzane i jaki mechanizm obejmuje każdy transfer poza EOG;
 - środki bezpieczeństwa zapisane w umowie;
 - funkcje produktu do znalezienia, poprawienia, wyeksportowania i usunięcia danych jednej osoby; oraz
@@ -100,7 +100,7 @@ W przypadku Customermates strony prawne mówią tak (stan z 11 listopada 2026):
 | Podłączone konta e-mail, LinkedIn i inne | Przekazywane przez Unipile (Francja), które deklaruje, że dane podłączonych kont są przechowywane w UE. Jego własna umowa powierzenia dopuszcza transfery poza UE, gdy obowiązują zabezpieczenia z rozdziału V. |
 | Asystent AI Mate | Zapytania przechodzą przez Vercel AI Gateway do Google Cloud Vertex AI (modele Claude przypięte do unijnej strefy inferencji, model osadzeń w regionie w USA), do Exa w USA do wyszukiwania w sieci oraz do TypeSafe AI. |
 
-[Lista podprocesorów](/subprocessors) zawiera każdego dostawcę z jego celem, lokalizacją i podstawą transferu, a [dokumentacja bezpieczeństwa](/docs/architecture-security) wyjaśnia izolację najemców i miejsce przechowywania poświadczeń. Podsumowanie: operator w Niemczech, baza danych skonfigurowana w regionie UE i dostawcy z USA w łańcuchu, dlatego lista liczy się bardziej niż nazwa kraju.
+[Lista podmiotów podprzetwarzających](/subprocessors) zawiera każdego dostawcę z jego celem, lokalizacją i podstawą transferu, a [dokumentacja bezpieczeństwa](/docs/architecture-security) wyjaśnia izolację najemców i miejsce przechowywania poświadczeń. Podsumowanie: operator w Niemczech, baza danych skonfigurowana w regionie UE i dostawcy z USA w łańcuchu, dlatego lista liczy się bardziej niż nazwa kraju.
 
 ## Co powinna zawierać umowa powierzenia przetwarzania danych w CRM?
 
@@ -111,10 +111,10 @@ Art. 28 ust. 3 wymienia minimalną treść umowy z podmiotem przetwarzającym. P
 | (a) Polecenia | Podmiot przetwarzający działa wyłącznie na Twoje udokumentowane polecenie | Sekcja 5: umowa powierzenia, Regulamin i Twoje korzystanie z usługi to polecenia; Customermates informuje Cię, jeśli uważa, że polecenie narusza RODO |
 | (b) Poufność | Personel jest związany poufnością | Sekcja 7 |
 | (c) Bezpieczeństwo | Środki z art. 32, wymienione z nazwy | Sekcja 8: TLS w tranzycie, szyfrowanie w spoczynku dla produkcyjnej bazy danych i jej kopii zapasowych, dostęp oparty na rolach z imiennymi kontami, rozdzielenie danych klientów według konta firmowego, logowanie, odtwarzanie po incydentach, regularne testy |
-| (d) Podprocesorzy | Zgoda i te same obowiązki w całym łańcuchu | Sekcja 9: ogólna pisemna zgoda, lista pod adresem `/subprocessors`, pisemna umowa przed rozpoczęciem pracy podprocesora, powiadomienie przed dodaniami, o których decyduje Customermates, sprzeciw z uzasadnionych powodów ochrony danych oraz prawo do zakończenia dotkniętej usługi, jeśli sprzeciwu nie da się rozwiązać. W przypadku zmian po stronie dostawcy Customermates przekazuje powiadomienie bez zbędnej zwłoki i nie obiecuje stałego terminu z wyprzedzeniem |
+| (d) Podmioty podprzetwarzające | Zgoda i te same obowiązki w całym łańcuchu | Sekcja 9: ogólna pisemna zgoda, lista pod adresem `/subprocessors`, pisemna umowa przed rozpoczęciem pracy podmiotu podprzetwarzającego, powiadomienie przed dodaniami, o których decyduje Customermates, sprzeciw z uzasadnionych powodów ochrony danych oraz prawo do zakończenia dotkniętej usługi, jeśli sprzeciwu nie da się rozwiązać. W przypadku zmian po stronie dostawcy Customermates przekazuje powiadomienie bez zbędnej zwłoki i nie obiecuje stałego terminu z wyprzedzeniem |
 | (e) Wnioski osób, których dane dotyczą | Pomoc przy art. 12 do 23 | Sekcja 10: wnioski wysłane do Customermates są przekazywane Tobie bez zbędnej zwłoki |
 | (f) Art. 32 do 36 | Pomoc przy bezpieczeństwie, naruszeniach, ocenach skutków | Sekcja 10: dowiadujesz się bez zbędnej zwłoki po stwierdzeniu naruszenia, wraz z informacjami potrzebnymi do art. 33 i 34 |
-| (g) Koniec usługi | Usunięcie lub zwrot, do wyboru | Sekcja 11: 30 dni po zakończeniu usługi na wybór usunięcia lub zwrotu, potem usunięcie z własnych systemów Customermates i z kopii zapasowych najpóźniej w ciągu 90 dni, w miarę wygasania kopii; podprocesorzy usuwają zgodnie z własnymi umowami |
+| (g) Koniec usługi | Usunięcie lub zwrot, do wyboru | Sekcja 11: 30 dni po zakończeniu usługi na wybór usunięcia lub zwrotu, potem usunięcie z własnych systemów Customermates i z kopii zapasowych najpóźniej w ciągu 90 dni, w miarę wygasania kopii; podmioty podprzetwarzające usuwają zgodnie z własnymi umowami |
 | (h) Audyty | Informacje i audyty | Sekcja 12: najpierw dokumentacja, potem inspekcja na miejscu z powiadomieniem |
 
 Czytaj także ograniczenia. Umowa wskazuje, czego nie może obiecać: dla podłączonych kont nie ma umownego prawa do usunięcia danych konta względem Unipile i może jedynie zażądać usunięcia, a surowe rekordy przychodzące, których nie da się przypisać do klienta, są przechowywane do analizy błędów bez ustalonego okresu. Umowę, która wskazuje swoje ograniczenia, łatwiej ocenić niż taką, która nie wskazuje żadnych.
@@ -144,7 +144,7 @@ Lista kontrolna na pierwszy tydzień, zanim wejdą prawdziwe dane klientów:
   <Step title="Zdecyduj, co przechowuje każda lista">Mniej pól to mniej do ochrony, odpowiadania i usuwania (art. 5 ust. 1 lit. c). Zapisz cel i podstawę prawną każdej listy w jej opisie i pomiń szczególne kategorie danych, takie jak dane o zdrowiu (art. 9), chyba że masz konkretną podstawę.</Step>
   <Step title="Daj ludziom tylko potrzebny dostęp">Role nadają dostęp Tworzenie, Edycja, Usuwanie i Dostęp do odczytu (Wszystkie, Przypisane lub Brak) dla każdej listy. Nie ma uprawnień na poziomie pól, więc trzymaj wrażliwe informacje w osobnej liście z węższym dostępem.</Step>
   <Step title="Zaplanuj, jak ludzie odchodzą">Ustawienie członka jako Nieaktywny blokuje naraz jego dostęp, klucze API i połączenia MCP dla przestrzeni roboczej.</Step>
-  <Step title="Zawrzyj umowę powierzenia i przeczytaj listę podprocesorów">Zachowaj swoją kopię zaakceptowanej wersji i spójrz na listę ponownie, gdy przyjdzie powiadomienie o zmianie.</Step>
+  <Step title="Zawrzyj umowę powierzenia i przeczytaj listę podmiotów podprzetwarzających">Zachowaj swoją kopię zaakceptowanej wersji i spójrz na listę ponownie, gdy przyjdzie powiadomienie o zmianie.</Step>
   <Step title="Podłączaj tylko kanały, których używasz">Każde podłączone konto dodaje do łańcucha dostawcę i zapisaną kopię jego wiadomości. Rozłączenie konta usuwa zapisane wątki, wiadomości, uczestników i dane kalendarza tego konta, jak opisuje umowa powierzenia.</Step>
   <Step title="Ustal regułę retencji dla każdej listy i ją stosuj">Zapisz widok rekordów niezaktualizowanych przez wybrany okres, przeglądaj go według harmonogramu i usuwaj to, czego już nie potrzebujesz. RODO zostawia okres Tobie (art. 5 ust. 1 lit. e); tam, gdzie prawo podatkowe lub handlowe wymaga przechowywania dokumentu, ten obowiązek obowiązuje dodatkowo.</Step>
   <Step title="Aktualizuj własne dokumenty">Rejestr czynności przetwarzania (art. 30) i Twoja klauzula informacyjna (art. 13 i 14) żyją w Twoim folderze zgodności, nie w dokumentach dostawcy CRM.</Step>
@@ -152,15 +152,15 @@ Lista kontrolna na pierwszy tydzień, zanim wejdą prawdziwe dane klientów:
 
 ## Co zmieniają funkcje AI w świetle RODO?
 
-Asystent AI dodaje do łańcucha dostawców i wysyła im tekst z Twoich rekordów. Przy każdej funkcji AI zapytaj, który dostawca otrzymuje jakie dane, czy jest na liście podprocesorów, gdzie przetwarza, czy trenuje na Twoich danych i czy możesz zostawić funkcję wyłączoną.
+Asystent AI dodaje do łańcucha dostawców i wysyła im tekst z Twoich rekordów. Przy każdej funkcji AI zapytaj, który dostawca otrzymuje jakie dane, czy jest na liście podmiotów podprzetwarzających, gdzie przetwarza, czy trenuje na Twoich danych i czy możesz zostawić funkcję wyłączoną.
 
-W Customermates Cloud lista podprocesorów opisuje Mate: zapytanie przechodzi przez Vercel AI Gateway do dostawców wymienionych w tabeli powyżej i zawiera tylko to, co potrzebne do odpowiedzi. Lista podaje ustawienie zerowej retencji danych na tej ścieżce bramy, które jest wąską kontrolą, a nie obietnicą retencji dla samego CRM. Modele Claude są przypięte do unijnej strefy inferencji, a wyszukiwanie w sieci i model osadzeń działają w USA. Ty decydujesz, jakie dane zawiera zapytanie, i to Ty odpowiadasz za konieczność i podstawę prawną. Jeśli podłączasz własnego klienta AI przez MCP, ten dostawca przetwarza dane na podstawie Twojej umowy z nim. Instancje self-hosted nie mają Mate. [Poradnik o CRM z AI](/blog/ai-crm) porównuje podejścia.
+W Customermates Cloud lista podmiotów podprzetwarzających opisuje Mate: zapytanie przechodzi przez Vercel AI Gateway do dostawców wymienionych w tabeli powyżej i zawiera tylko to, co potrzebne do odpowiedzi. Lista podaje ustawienie zerowej retencji danych na tej ścieżce bramy, które jest wąską kontrolą, a nie obietnicą retencji dla samego CRM. Modele Claude są przypięte do unijnej strefy inferencji, a wyszukiwanie w sieci i model osadzeń działają w USA. Ty decydujesz, jakie dane zawiera zapytanie, i to Ty odpowiadasz za konieczność i podstawę prawną. Jeśli podłączasz własnego klienta AI przez MCP, ten dostawca przetwarza dane na podstawie Twojej umowy z nim. Instancje self-hosted nie mają Mate. [Poradnik o CRM z AI](/blog/ai-crm) porównuje podejścia.
 
 ## Customermates i RODO: co zapewnia, a czego nie
 
 Zapewnia, według dokumentacji produktu i stron prawnych:
 
-- [umowę powierzenia](/dpa) i [listę podprocesorów](/subprocessors) dla zarządzanej chmury, z opisanym wyżej procesem zmian;
+- [umowę powierzenia](/dpa) i [listę podmiotów podprzetwarzających](/subprocessors) dla zarządzanej chmury, z opisanym wyżej procesem zmian;
 - role dla każdej listy, przełącznik dezaktywacji członków i rozdzielenie najemców według konta firmowego;
 - wyszukiwanie globalne po adresie e-mail lub numerze telefonu, poprawianie w miejscu, eksport do Excela i JSON dla każdej listy oraz Kosz z trwałym usuwaniem;
 - Dziennik aktywności zmian w rekordach CRM i konfiguracji przestrzeni roboczej, dostępny dla ról z dostępem; oraz
@@ -175,10 +175,10 @@ Nie zapewnia, więc szukaj tego gdzie indziej, jeśli potrzebujesz:
 Self-hosting zmienia to, kto jest odpowiedzialny. Rdzeń AGPL działa z Dockerem i PostgreSQL na Twojej infrastrukturze, a umowa powierzenia obejmuje tylko usługę zarządzaną: wybierasz hosting i dostawców, a własne umowy z art. 28 i zabezpieczenia transferów trzymasz sam. TLS i szyfrowanie w spoczynku musisz skonfigurować sam. Self-hosting używa zestawu funkcji Starter, bez skrzynki odbiorczej i bez Mate, i nie jest odizolowany od sieci: pierwszy wpis adresu dla danego kraju pobiera publiczny plik kodów pocztowych tego kraju z GeoNames, chyba że ustawisz `POSTAL_CODE_DATA_URL` na `off` albo na mirror. [Poradnik self-hostingu](/docs/self-hosting) zawiera szczegóły, a [strona o CRM open source](/features/open-source-crm) wyjaśnia granicę licencji.
 
 <AcquisitionCallout title="Gdzie Customermates nie pasuje" variant="boundary">
-  Jeśli kwestionariusz zakupowy wymaga uznanego certyfikatu, umownej gwarancji przetwarzania wyłącznie w UE albo uprawnień na poziomie pól, Customermates nie może dziś zaznaczyć tych pól. Poproś o to na piśmie każdego porównywanego dostawcę i czytaj odpowiedzi na tle list podprocesorów. [Porównanie najlepszego oprogramowania CRM](/blog/best-crm-software) i [poradnik wyboru CRM](/blog/how-to-choose-crm) omawiają pozostałe kryteria.
+  Jeśli kwestionariusz zakupowy wymaga uznanego certyfikatu, umownej gwarancji przetwarzania wyłącznie w UE albo uprawnień na poziomie pól, Customermates nie może dziś zaznaczyć tych pól. Poproś o to na piśmie każdego porównywanego dostawcę i czytaj odpowiedzi na tle list podmiotów podprzetwarzających. [Porównanie najlepszego oprogramowania CRM](/blog/best-crm-software) i [poradnik wyboru CRM](/blog/how-to-choose-crm) omawiają pozostałe kryteria.
 </AcquisitionCallout>
 
-Aby sprawdzić powyższe punkty na własnym przypadku, najpierw przeczytaj umowę powierzenia i listę podprocesorów, a potem [rozpocznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup): Pro, bez karty kredytowej. Zaimportuj kilka rekordów testowych, zanim wejdą prawdziwe dane klientów, i raz przejdź kroki wniosku o dostęp.
+Aby sprawdzić powyższe punkty na własnym przypadku, najpierw przeczytaj umowę powierzenia i listę podmiotów podprzetwarzających, a potem [rozpocznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup): Pro, bez karty kredytowej. Zaimportuj kilka rekordów testowych, zanim wejdą prawdziwe dane klientów, i raz przejdź kroki wniosku o dostęp.
 
 ## Najczęstsze pytania o RODO i CRM
 
@@ -196,10 +196,10 @@ Zapewnienie poufności, integralności i dostępności danych (art. 32 ust. 1 li
 Nie. RODO nie narzuca lokalizacji hostingu. Pozwala na transfery do krajów poza EOG tylko na podstawie decyzji stwierdzającej odpowiedni stopień ochrony albo z odpowiednimi zabezpieczeniami, takimi jak standardowe klauzule umowne (art. 44 do 46). Hosting w regionie UE zmniejsza kwestię transferu, ale nadal musisz sprawdzić każdego dostawcę w łańcuchu.
 </FaqItem>
 <FaqItem question="Czy potrzebuję umowy powierzenia przetwarzania danych z dostawcą CRM?">
-Tak, gdy dostawca przetwarza dla Ciebie dane osobowe. Art. 28 ust. 3 wymaga pisemnej umowy, która może mieć formę elektroniczną, z treścią wymienioną w lit. a do h. Sprawdź, czy istnieje, która wersja obowiązuje i czy wymienia podprocesorów.
+Tak, gdy dostawca przetwarza dla Ciebie dane osobowe. Art. 28 ust. 3 wymaga pisemnej umowy, która może mieć formę elektroniczną, z treścią wymienioną w lit. a do h. Sprawdź, czy istnieje, która wersja obowiązuje i czy wymienia podmiotów podprzetwarzających.
 </FaqItem>
 <FaqItem question="Czy Customermates jest zgodny z RODO?">
-Żaden CRM nie jest zgodny z RODO sam z siebie, a Customermates nie ma certyfikatu zgodności. Zapewnia umowę powierzenia dla zarządzanej chmury, publiczną listę podprocesorów, główną bazę danych skonfigurowaną w AWS Frankfurt oraz opisane wyżej funkcje. Za podstawę prawną, okresy przechowywania i odpowiedzi na wnioski odpowiadasz Ty.
+Żaden CRM nie jest zgodny z RODO sam z siebie, a Customermates nie ma certyfikatu zgodności. Zapewnia umowę powierzenia dla zarządzanej chmury, publiczną listę podmiotów podprzetwarzających, główną bazę danych skonfigurowaną w AWS Frankfurt oraz opisane wyżej funkcje. Za podstawę prawną, okresy przechowywania i odpowiedzi na wnioski odpowiadasz Ty.
 </FaqItem>
 <FaqItem question="Czym różni się administrator od podmiotu przetwarzającego w CRM?">
 Administrator decyduje, dlaczego i jak dane osobowe są wykorzystywane: Ty, dla kontaktów w Twoim CRM. Podmiot przetwarzający przetwarza dane w Twoim imieniu i na Twoje udokumentowane polecenie: dostawca CRM. Dla własnej strony internetowej, rozliczeń i danych bezpieczeństwa dostawca sam jest administratorem.
@@ -214,8 +214,8 @@ Zasadniczo tak. Art. 13 i 14 wymagają klauzuli informacyjnej. Gdy nie zebrano d
 Z rdzeniem open source tak: uruchamiasz go z Dockerem i PostgreSQL na infrastrukturze, którą wybierzesz. Używa zestawu funkcji Starter, bez skrzynki odbiorczej i bez Mate, a za własne umowy hostingowe i bezpieczeństwo odpowiadasz Ty.
 </FaqItem>
 <FaqItem question="Co się dzieje z moimi danymi po rezygnacji?">
-Zgodnie z umową powierzenia Customermates masz 30 dni po zakończeniu usługi na wybór usunięcia lub zwrotu. Potem dane są usuwane z własnych systemów Customermates, z kopii zapasowych najpóźniej w ciągu 90 dni, a podprocesorzy usuwają je zgodnie z własnymi umowami.
+Zgodnie z umową powierzenia Customermates masz 30 dni po zakończeniu usługi na wybór usunięcia lub zwrotu. Potem dane są usuwane z własnych systemów Customermates, z kopii zapasowych najpóźniej w ciągu 90 dni, a podmioty podprzetwarzające usuwają je zgodnie z własnymi umowami.
 </FaqItem>
 </Faq>
 
-Prawo i źródła stron trzecich sprawdzono 11 listopada 2026: [rozporządzenie (UE) 2016/679 w EUR-Lex](https://eur-lex.europa.eu/eli/reg/2016/679/oj/pol), [dyrektywa o prywatności i łączności elektronicznej](https://eur-lex.europa.eu/eli/dir/2002/58/oj/pol), [zasady RODO](https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/principles-gdpr_en) Komisji Europejskiej i [wytyczne 07/2020](https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-072020-concepts-controller-and-processor-gdpr_en) Europejskiej Rady Ochrony Danych. Stwierdzenia o Customermates pochodzą z jego [umowy powierzenia](/dpa), [listy podprocesorów](/subprocessors) i [dokumentacji bezpieczeństwa](/docs/architecture-security) w wersji opublikowanej tego dnia.
+Prawo i źródła stron trzecich sprawdzono 11 listopada 2026: [rozporządzenie (UE) 2016/679 w EUR-Lex](https://eur-lex.europa.eu/eli/reg/2016/679/oj/pol), [dyrektywa o prywatności i łączności elektronicznej](https://eur-lex.europa.eu/eli/dir/2002/58/oj/pol), [zasady RODO](https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/principles-gdpr_en) Komisji Europejskiej i [wytyczne 07/2020](https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-072020-concepts-controller-and-processor-gdpr_en) Europejskiej Rady Ochrony Danych. Stwierdzenia o Customermates pochodzą z jego [umowy powierzenia](/dpa), [listy podmiotów podprzetwarzających](/subprocessors) i [dokumentacji bezpieczeństwa](/docs/architecture-security) w wersji opublikowanej tego dnia.

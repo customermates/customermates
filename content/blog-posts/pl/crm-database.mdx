@@ -57,7 +57,7 @@ Wyobraź ją sobie jako garść tabel, które wskazują na siebie nawzajem. Wię
 
 Dwa pytania projektowe decydują, czy baza wytrzyma później. Czy jedna osoba może należeć do kilku firm (doradca zasiadający w dwóch radach, freelancer pracujący dla trzech agencji)? I czy jedna szansa sprzedaży może dotyczyć kilku osób? Jeśli Twój CRM wymusza jedną firmę na osobę albo jeden kontakt na szansę sprzedaży, zaczniesz wpisywać obejścia do notatek. Przeczytaj dokumentację, zanim się zobowiążesz: artykuł Pipedrive o danych opisuje powiązanie osoby z jedną organizacją, natomiast w Customermates relacja może dopuszczać jeden lub kilka rekordów po każdej stronie, więc kontakt może należeć do kilku organizacji.
 
-Drugą połową bazy danych CRM jest historia. Każda zmiana rekordu i każdy powiązany e-mail lub wiadomość tworzą oś czasu. Dzięki niej współpracownik może przejąć klienta bez spotkania przekazującego, a właśnie tego arkusz ci nie da.
+Drugą połową bazy danych CRM jest historia. Każda zmiana rekordu i każdy powiązany e-mail lub wiadomość tworzą oś czasu. Dzięki niej współpracownik może przejąć klienta bez spotkania przekazującego, a właśnie tego arkusz Ci nie da.
 
 ## Jakie korzyści daje jedna centralna baza klientów? [#korzysci-centralnej-bazy]
 
@@ -99,7 +99,7 @@ Customermates trzyma dane CRM w konfigurowalnych listach i żadna lista nie jest
 
 Relacja łączy dwie listy. Każda strona ma własną etykietę i dopuszcza jeden lub kilka rekordów, więc jeden kontakt może należeć do kilku organizacji, a projekt może łączyć kilka kontaktów i szans sprzedaży. Oba rekordy pokazują powiązanie. W planie Pro, gdzie połączone konta wprowadzają wiadomości, relacja może też pokazać wiadomości powiązanych osób przy szansie sprzedaży lub organizacji.
 
-Pola mogą być obliczane. Wartość szansy sprzedaży sumuje kwoty jej pozycji, a wartość ważona to wartość szansy sprzedaży razy prawdopodobieństwo etapu podzielone przez 100, czyli ważenie lejka, a nie prognoza. Każdy rekord ma stały identyfikator, więc zmiana nazwy listy lub pola nie psuje żadnych odwołań, a zapisany widok pokazuje rekordy bez ich kopiowania.
+Pola mogą być obliczane. Wartość szansy sprzedaży sumuje kwoty jej pozycji, a wartość ważona to wartość szansy sprzedaży razy prawdopodobieństwo etapu podzielone przez 100, czyli ważenie pipeline'u, a nie prognoza. Każdy rekord ma stały identyfikator, więc zmiana nazwy listy lub pola nie psuje żadnych odwołań, a zapisany widok pokazuje rekordy bez ich kopiowania.
 
 ## Baza danych CRM, arkusz czy zwykła baza danych?
 
@@ -109,7 +109,7 @@ Wszystkie trzy mogą przechowywać dane klientów. Pytanie brzmi, kto je utrzymu
 |---|---|---|
 | Arkusz | Jedna osoba, krótka lista, wspólna historia niepotrzebna | Powiązań między osobami i firmami, osi czasu na klienta, bezpiecznej edycji przez kilka osób |
 | Zwykła baza danych lub narzędzie no-code (Airtable, Notion, Access, PostgreSQL) | Twoje rekordy to nie osoby i szanse sprzedaży albo potrzebujesz modelu, którego nie oferuje żaden CRM | Formularze, relacje, uprawnienia i historię budujesz sam |
-| CRM | Kilka osób pracuje z tymi samymi klientami, a ty śledzisz szanse sprzedaży, follow-upy lub rozmowy | Trochę swobody w modelu danych; większość CRM w chmurze liczy opłatę za użytkownika |
+| CRM | Kilka osób pracuje z tymi samymi klientami, a Ty śledzisz szanse sprzedaży, follow-upy lub rozmowy | Trochę swobody w modelu danych; większość CRM w chmurze liczy opłatę za użytkownika |
 
 Te same zadania wyglądają inaczej w arkuszu i w bazie danych CRM:
 
@@ -129,13 +129,13 @@ Bazę danych CRM możesz uruchomić w chmurze dostawcy albo na własnym serwerze
 
 | | CRM w chmurze | Własny serwer (self-hosting) |
 | --- | --- | --- |
-| Kto utrzymuje serwer | Dostawca | Ty lub twój administrator |
-| Aktualizacje i kopie zapasowe | Po stronie dostawcy | Po twojej stronie |
+| Kto utrzymuje serwer | Dostawca | Ty lub Twój administrator |
+| Aktualizacje i kopie zapasowe | Po stronie dostawcy | Po Twojej stronie |
 | Koszt | Opłata za użytkownika i miesiąc | Brak opłaty licencyjnej przy open source, ale serwer i czas administratora kosztują |
-| Kontrola nad danymi | Zależy od umowy i regionu hostingu; poproś o umowę powierzenia przetwarzania danych | Pełna: dane są na twoim serwerze |
+| Kontrola nad danymi | Zależy od umowy i regionu hostingu; poproś o umowę powierzenia przetwarzania danych | Pełna: dane są na Twoim serwerze |
 | Start | Konto i konfiguracja | Instalacja i utrzymanie |
 
-W Customermates Cloud baza danych aplikacji jest skonfigurowana w regionie AWS Frankfurt, a umowa powierzenia i lista podprocesorów są publiczne (szczegóły w sekcji o danych osobowych niżej). Rdzeń open source możesz hostować samodzielnie na licencji AGPL, z Docker Compose i PostgreSQL. Self-hosting zachowuje REST, webhooki i MCP, ale nie ma ujednoliconej skrzynki odbiorczej, Mate ani hostowanych kredytów AI. Dla małego zespołu bez administratora chmura jest zwykle prostsza; własny serwer ma sens, gdy dane muszą zostać u ciebie.
+W Customermates Cloud baza danych aplikacji jest skonfigurowana w regionie AWS Frankfurt, a umowa powierzenia i lista podmiotów podprzetwarzających są publiczne (szczegóły w sekcji o danych osobowych niżej). Rdzeń open source możesz hostować samodzielnie na licencji AGPL, z Docker Compose i PostgreSQL. Self-hosting zachowuje REST, webhooki i MCP, ale nie ma ujednoliconej skrzynki odbiorczej, Mate ani hostowanych kredytów AI. Dla małego zespołu bez administratora chmura jest zwykle prostsza; własny serwer ma sens, gdy dane muszą zostać u Ciebie.
 
 ## Jak zbudować bazę danych CRM
 
@@ -176,7 +176,7 @@ To najczęstszy problem projektowy i są na niego cztery uczciwe odpowiedzi.
 
 ## Przykład praktyczny: baza danych CRM dla czteroosobowej firmy doradczej
 
-Oto ten sam projekt w Customermates, ustawiony tak, jak produkt działa dziś. Customermates to CRM open source, natywny dla AI, stworzony w Niemczech dla małych zespołów pracujących z klientami, takich jak doradcy, agencje i założyciele. Nowa przestrzeń robocza startuje bez list: w Customermates Cloud opisujesz swoją firmę jednym zdaniem, a Mate buduje listy, lejek i pulpit, a poniższe kroki działają też ręcznie w sekcji Model danych.
+Oto ten sam projekt w Customermates, ustawiony tak, jak produkt działa dziś. Customermates to CRM open source, natywny dla AI, stworzony w Niemczech dla małych zespołów pracujących z klientami, takich jak doradcy, agencje i założyciele. Nowa przestrzeń robocza startuje bez list: w Customermates Cloud opisujesz swoją firmę jednym zdaniem, a Mate buduje listy, pipeline i pulpit, a poniższe kroki działają też ręcznie w sekcji Model danych.
 
 **Listy.** W sekcji Model danych otwórz Kontakty i zmień **Nazwa** oraz **Nazwa w liczbie mnogiej** w grupie **Ogólne** na Klient i Klienci, a potem w ten sam sposób przemianuj Szanse sprzedaży na Projekty. Zadziała dowolna nazwa. Organizacje, Usługi i Zadania zachowują swoje nazwy.
 
@@ -193,7 +193,7 @@ Oto ten sam projekt w Customermates, ustawiony tak, jak produkt działa dziś. C
 
 **Relacje.** Klient może łączyć się z kilkoma organizacjami, a projekt z kilkoma klientami, organizacjami i przypisanymi użytkownikami. Wartość projektu to suma jego pozycji, z których każda to cena usługi pomnożona przez ilość, więc „Warsztat strategiczny” w jednej cenie i „Abonament miesięczny” razy sześć sumują się same.
 
-**Etapy.** Etapy nie są z góry ustawione: dodajesz pole Etap (na przykład Pozyskiwanie, Kwalifikacja, Demo, Oferta, Negocjacje, Wygrana, Przegrana) i ustawiasz prawdopodobieństwa wygranej na każdy etap w sekcji Model danych. Ważony lejek to zwykła arytmetyka tych procentów, a nie przewidywanie.
+**Etapy.** Etapy nie są z góry ustawione: dodajesz pole Etap (na przykład Pozyskiwanie, Kwalifikacja, Demo, Oferta, Negocjacje, Wygrana, Przegrana) i ustawiasz prawdopodobieństwa wygranej na każdy etap w sekcji Model danych. Ważony pipeline to zwykła arytmetyka tych procentów, a nie przewidywanie.
 
 **Unikalny klucz.** Adresy e-mail trafiają do pola Dane kontaktowe klienta, które dopasowuje przychodzące wiadomości do rekordu. Jeden adres może należeć do kilku rekordów, więc usuń duplikaty przed importem. Wyszukiwanie globalne (Cmd/Ctrl+K) znajduje klienta po nazwie albo po dowolnym adresie e-mail lub numerze telefonu w jego danych kontaktowych.
 
@@ -209,7 +209,7 @@ Oto ten sam projekt w Customermates, ustawiony tak, jak produkt działa dziś. C
 
 Ostatnie zdanie ma znaczenie. Mate może wysyłać wiadomości, gdy instrukcja o to prosi, więc rutyna, która ma tylko raportować, musi to powiedzieć wprost. Jeśli wolisz własnego klienta AI, Claude, ChatGPT i inni klienci MCP mogą odpytywać te same rekordy przez [[derived.mcp.tools.total]] [narzędzi MCP](/docs/mcp), w chmurze i w instalacji self-hosted.
 
-Baza zarabia na siebie, gdy każdy rekord ma kolejny krok. W planie Pro wątki dołączają do rekordu klienta, Mate lub Twój własny klient AI przygotowuje odpowiedź i kolejny krok, a ty sprawdzasz, poprawiasz i wysyłasz. Żeby wypróbować to na własnych rekordach, [rozpocznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup).
+Baza zarabia na siebie, gdy każdy rekord ma kolejny krok. W planie Pro wątki dołączają do rekordu klienta, Mate lub Twój własny klient AI przygotowuje odpowiedź i kolejny krok, a Ty sprawdzasz, poprawiasz i wysyłasz. Żeby wypróbować to na własnych rekordach, [rozpocznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup).
 
 ## Jak utrzymać bazę danych CRM w czystości
 
@@ -240,9 +240,9 @@ Planuj drogę wyjścia, kiedy projektujesz drogę wejścia. Eksport jest potrzeb
 
 ## Dane osobowe w bazie danych CRM
 
-W UE baza danych CRM z osobami to dane osobowe w rozumieniu [RODO](https://eur-lex.europa.eu/eli/reg/2016/679/oj). Trzy zasady z art. 5 przekładają się wprost na projekt bazy: przechowuj tylko dane „ograniczone do tego, co niezbędne” (mniej pól), dbaj o ich prawidłowość (rutyna porządkowa) i ogranicz czas ich przechowywania (kwartalne usuwanie). Art. 17 daje ludziom prawo do usunięcia ich danych, więc musisz umieć znaleźć i w całości usunąć jedną osobę. Art. 28 wymaga umowy z każdym dostawcą, który przechowuje dane za ciebie.
+W UE baza danych CRM z osobami to dane osobowe w rozumieniu [RODO](https://eur-lex.europa.eu/eli/reg/2016/679/oj). Trzy zasady z art. 5 przekładają się wprost na projekt bazy: przechowuj tylko dane „ograniczone do tego, co niezbędne” (mniej pól), dbaj o ich prawidłowość (rutyna porządkowa) i ogranicz czas ich przechowywania (kwartalne usuwanie). Art. 17 daje ludziom prawo do usunięcia ich danych, więc musisz umieć znaleźć i w całości usunąć jedną osobę. Art. 28 wymaga umowy z każdym dostawcą, który przechowuje dane za Ciebie.
 
-W przypadku Customermates Cloud [umowa powierzenia przetwarzania danych](/dpa) jest publiczna, baza danych aplikacji jest skonfigurowana w regionie AWS Frankfurt, a [podprocesorzy](/subprocessors), w tym dostawcy z USA, są wymienieni. Customermates nie posiada żadnej certyfikacji zgodności. Jeśli potrzebujesz danych na własnym serwerze, [hostuj samodzielnie rdzeń open source](/features/self-hosted).
+W przypadku Customermates Cloud [umowa powierzenia przetwarzania danych](/dpa) jest publiczna, baza danych aplikacji jest skonfigurowana w regionie AWS Frankfurt, a [podmioty podprzetwarzające](/subprocessors), w tym dostawcy z USA, są wymienione. Customermates nie posiada żadnej certyfikacji zgodności. Jeśli potrzebujesz danych na własnym serwerze, [hostuj samodzielnie rdzeń open source](/features/self-hosted).
 
 ## Kiedy Customermates to zła baza danych
 
@@ -266,11 +266,11 @@ Cztery rodzaje. Kim jest osoba lub firma: nazwy, adresy e-mail, numery telefonó
 </FaqItem>
 
 <FaqItem question="Czym różni się baza danych od CRM?">
-Baza danych przechowuje dowolne tabele, które zaprojektujesz, a formularze, relacje, uprawnienia i historię zostawia tobie. CRM to baza danych z gotową logiką klienta: osoby powiązane z firmami i szansami sprzedaży, etapy lejka, osoby odpowiedzialne i oś czasu na rekord. Wymieniasz trochę swobody w modelu danych na to, że nie musisz go budować.
+Baza danych przechowuje dowolne tabele, które zaprojektujesz, a formularze, relacje, uprawnienia i historię zostawia Tobie. CRM to baza danych z gotową logiką klienta: osoby powiązane z firmami i szansami sprzedaży, etapy pipeline'u, osoby odpowiedzialne i oś czasu na rekord. Wymieniasz trochę swobody w modelu danych na to, że nie musisz go budować.
 </FaqItem>
 
 <FaqItem question="Czy baza klientów to to samo co baza danych CRM?">
-Częściowo się pokrywają. Baza klientów to lista klientów i tego, co o nich wiesz; baza danych CRM dodaje powiązania między osobami, firmami i szansami sprzedaży, lejek i historię stojącą za CRM. Jeśli potrzebujesz tylko listy klientów i wybierasz do niej narzędzie, zobacz [oprogramowanie do bazy klientów](/blog/client-database-software).
+Częściowo się pokrywają. Baza klientów to lista klientów i tego, co o nich wiesz; baza danych CRM dodaje powiązania między osobami, firmami i szansami sprzedaży, pipeline i historię stojącą za CRM. Jeśli potrzebujesz tylko listy klientów i wybierasz do niej narzędzie, zobacz [oprogramowanie do bazy klientów](/blog/client-database-software).
 </FaqItem>
 
 <FaqItem question="Czy Excel to baza danych CRM?">
@@ -286,7 +286,7 @@ Jeśli opisują istniejący rekord, dodaj typowane pole niestandardowe. Jeśli t
 </FaqItem>
 
 <FaqItem question="Czy lepszy jest CRM w chmurze czy na własnym serwerze?">
-Dla małego zespołu bez administratora zwykle chmura, bo dostawca utrzymuje serwer, aktualizacje i kopie zapasowe. Własny serwer ma sens, gdy dane muszą zostać u ciebie i masz kogoś, kto go utrzyma. Porównanie jest w sekcji o chmurze i własnym serwerze wyżej.
+Dla małego zespołu bez administratora zwykle chmura, bo dostawca utrzymuje serwer, aktualizacje i kopie zapasowe. Własny serwer ma sens, gdy dane muszą zostać u Ciebie i masz kogoś, kto go utrzyma. Porównanie jest w sekcji o chmurze i własnym serwerze wyżej.
 </FaqItem>
 
 <FaqItem question="Jakie są przykładowe systemy CRM?">

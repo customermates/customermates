@@ -42,7 +42,7 @@ cta:
   hint: "✓ Sem cartão de crédito ✓ Primeiros [[commercial.trial.days]] dias grátis"
 ---
 
-As integrações de CRM movem dados ou gatilhos entre o seu CRM e outro sistema, para que ninguém copie um negócio de uma tela para outra. O Customermates faz isso por quatro interfaces abertas, em vez de um marketplace de aplicativos: uma API REST, webhooks de saída, um endpoint MCP para clientes de IA e um nó da comunidade para o n8n. A API REST e o MCP estão disponíveis em todos os planos. Os webhooks, e os gatilhos do n8n que dependem deles, vêm com todos os planos pagos. As instalações auto-hospedadas têm as quatro.
+As integrações de CRM movem dados ou gatilhos entre o seu CRM e outro sistema, para que ninguém copie um negócio de uma tela para outra. O Customermates faz isso por quatro interfaces abertas, em vez de um marketplace de aplicativos: uma API REST, webhooks de saída, um endpoint MCP para clientes de IA e um nó da comunidade para o n8n. A API REST e o MCP estão disponíveis em todos os planos. Os webhooks, e os gatilhos do n8n que dependem deles, vêm com todos os planos pagos. As instalações com hospedagem própria têm as quatro.
 
 Essa escolha tem um custo que você deve conhecer desde já. Não existe um catálogo de aplicativos de um clique. Se você quer que o Customermates converse com o Slack, com a sua ferramenta de contabilidade ou com um criador de formulários, você aponta um webhook para essa ferramenta, chama a API a partir do seu próprio código ou monta o fluxo em uma ferramenta de automação como n8n, Make ou Zapier.
 
@@ -81,13 +81,13 @@ A tabela a seguir mostra, para cada tarefa, o caminho que funciona no Customerma
 
 | Conexão | Direção | Para que serve | Plano |
 |---|---|---|---|
-| Webhooks | CRM para o seu sistema | Enviar um evento quando um registro de qualquer lista é criado, atualizado, movido para a lixeira, restaurado ou excluído permanentemente, ou quando chega uma mensagem na caixa de entrada | Todos os planos pagos e auto-hospedado, não no Free |
-| API REST | Seu sistema para o CRM | Criar, ler, buscar, atualizar e excluir registros a partir de código ou de uma ferramenta de automação | Todos os planos, inclusive auto-hospedado |
-| MCP | Cliente de IA para o CRM | Deixar o Claude, o ChatGPT, o Cursor, o Codex ou o Gemini CLI ler e gravar registros em uma conversa | Todos os planos, inclusive auto-hospedado |
-| Nó da comunidade do n8n | Os dois sentidos | Nós dedicados do Customermates em uma instância do n8n operada à parte | Ações em todos os planos, gatilhos nos planos pagos e no auto-hospedado; o n8n é cobrado pelo n8n |
+| Webhooks | CRM para o seu sistema | Enviar um evento quando um registro de qualquer lista é criado, atualizado, movido para a lixeira, restaurado ou excluído permanentemente, ou quando chega uma mensagem na caixa de entrada | Todos os planos pagos e hospedado por conta própria, não no Free |
+| API REST | Seu sistema para o CRM | Criar, ler, buscar, atualizar e excluir registros a partir de código ou de uma ferramenta de automação | Todos os planos, inclusive hospedado por conta própria |
+| MCP | Cliente de IA para o CRM | Deixar o Claude, o ChatGPT, o Cursor, o Codex ou o Gemini CLI ler e gravar registros em uma conversa | Todos os planos, inclusive hospedado por conta própria |
+| Nó da comunidade do n8n | Os dois sentidos | Nós dedicados do Customermates em uma instância do n8n operada à parte | Ações em todos os planos, gatilhos nos planos pagos e no hospedado por conta própria; o n8n é cobrado pelo n8n |
 | Caixa de entrada unificada | Canais para o CRM | Conversas de Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram e Telegram ao lado do registro, além de agendas do Google e da Microsoft somente para leitura | Customermates Cloud, Pro ou superior |
 
-Webhooks, REST e MCP vêm com o Starter, a [[commercial.price.starter.monthly]] por usuário ao mês. A [caixa de entrada unificada](/features/unified-inbox) começa no Pro, a [[commercial.price.pro.monthly]] por usuário ao mês, e inclui [[commercial.entitlement.pro.includedAccountsPerUser]] conta conectada por usuário; o Business inclui [[commercial.entitlement.business.includedAccountsPerUser]] por usuário e contas compartilhadas. As instalações auto-hospedadas têm REST, webhooks e MCP, mas não têm caixa de entrada, então os eventos de mensagens nunca disparam por lá.
+Webhooks, REST e MCP vêm com o Starter, a [[commercial.price.starter.monthly]] por usuário ao mês. A [caixa de entrada unificada](/features/unified-inbox) começa no Pro, a [[commercial.price.pro.monthly]] por usuário ao mês, e inclui [[commercial.entitlement.pro.includedAccountsPerUser]] conta conectada por usuário; o Business inclui [[commercial.entitlement.business.includedAccountsPerUser]] por usuário e contas compartilhadas. As instalações com hospedagem própria têm REST, webhooks e MCP, mas não têm caixa de entrada, então os eventos de mensagens nunca disparam por lá.
 
 ## Qual caminho serve para qual tarefa
 
@@ -134,13 +134,13 @@ Nenhuma dessas ferramentas vem junto com o Customermates. Você as opera ou assi
 
 | Ferramenta | Como cobra | Opção gratuita |
 |---|---|---|
-| [n8n](https://n8n.io/pricing/) | Planos na nuvem por execuções de workflow; uma execução completa conta como uma | Community Edition auto-hospedada |
+| [n8n](https://n8n.io/pricing/) | Planos na nuvem por execuções de workflow; uma execução completa conta como uma | Community Edition hospedada por conta própria |
 | [Make](https://www.make.com/en/pricing) | Créditos; a maioria das ações de módulo usa um crédito | Plano gratuito com uma cota mensal de créditos |
 | [Zapier](https://zapier.com/pricing) | Tarefas; cada etapa de ação concluída com sucesso conta, os gatilhos não | Plano gratuito, limitado a Zaps de duas etapas |
 
-O n8n é fair-code sob a [Sustainable Use License](https://github.com/n8n-io/n8n): o n8n descreve o código-fonte dele como disponível e auto-hospedável. É uma licença diferente da AGPL, que cobre o núcleo do Customermates.
+O n8n é fair-code sob a [Sustainable Use License](https://github.com/n8n-io/n8n): o n8n descreve o código-fonte dele como disponível e que pode ser hospedado por conta própria. É uma licença diferente da AGPL, que cobre o núcleo do Customermates.
 
-Se você já paga por uma delas, use-a. Se você parte do zero e tem alguém capaz de operar um contêiner, o n8n auto-hospedado mantém o CRM e a automação nos seus próprios servidores. O [guia de configuração do n8n](/docs/n8n) mostra o gatilho de webhook, as chamadas HTTP Request e a credencial `x-api-key`.
+Se você já paga por uma delas, use-a. Se você parte do zero e tem alguém capaz de operar um contêiner, o n8n hospedado por conta própria mantém o CRM e a automação nos seus próprios servidores. O [guia de configuração do n8n](/docs/n8n) mostra o gatilho de webhook, as chamadas HTTP Request e a credencial `x-api-key`.
 
 ## Slack: duas rotas, sem aplicativo nativo
 
@@ -184,7 +184,7 @@ Conexões que movem dados ou gatilhos entre um CRM e outros softwares, por exemp
 </FaqItem>
 
 <FaqItem question="O Customermates tem API aberta e webhooks?">
-Sim: a API em todos os planos e nas instalações auto-hospedadas, os webhooks em todos os planos pagos e na hospedagem própria. A API REST é documentada com OpenAPI e usa o cabeçalho `x-api-key`. Os webhooks cobrem [[derived.webhooks.events.total]] eventos, com assinaturas HMAC, novas tentativas automáticas e um registro de entregas.
+Sim: a API em todos os planos e nas instalações com hospedagem própria, os webhooks em todos os planos pagos e na hospedagem própria. A API REST é documentada com OpenAPI e usa o cabeçalho `x-api-key`. Os webhooks cobrem [[derived.webhooks.events.total]] eventos, com assinaturas HMAC, novas tentativas automáticas e um registro de entregas.
 </FaqItem>
 
 <FaqItem question="Existe uma integração nativa com o Slack?">

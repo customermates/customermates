@@ -116,7 +116,7 @@ Una clave incorrecta, caducada o eliminada recibe HTTP `401`. Una clave cuyo pro
 
 ## Claves de API y permisos
 
-Las claves pertenecen al usuario que las creó y actúan con el rol actual de ese usuario. No hay usuarios de API aparte ni ámbitos por clave, así que una clave no se puede limitar a solo lectura. Si una integración solo debe leer oportunidades, crea su clave con un miembro cuyo rol permita solo eso. En Customermates Cloud ese miembro es un puesto de pago como cualquier otro.
+Las claves pertenecen al usuario que las creó y actúan con el rol actual de ese usuario. No hay usuarios de API aparte ni ámbitos por clave, así que una clave no se puede limitar a solo lectura. Si una integración solo debe leer oportunidades, crea su clave con un miembro cuyo rol permita solo eso. En Customermates Cloud ese miembro es una plaza de pago como cualquier otra.
 
 Crear claves exige **Acceso de lectura** **Todos** y **Crear** en la fila **API y webhooks** de un rol. Un rol personalizado nuevo empieza sin ello, así que de entrada solo los administradores crean claves. El mismo permiso abre también todos los webhooks del espacio de trabajo, algo que conviene saber antes de concederlo. Para detener todas las claves de alguien que se va, pon al miembro en **Inactivo**. Quitar a su rol **Acceso de lectura** **Todos** en **API y webhooks** también detiene sus claves.
 
@@ -143,12 +143,12 @@ Customermates publica esta página. Las cifras de abajo proceden de la documenta
 | CRM | API en el plan gratuito o de entrada | Cómo se limita el uso |
 |---|---|---|
 | [HubSpot](https://developers.hubspot.com/docs/developer-tooling/platform/usage-guidelines) | Sí | Apps privadas en Free y Starter: 100 solicitudes cada 10 segundos y 250.000 al día por cuenta; más en Professional y Enterprise |
-| [Pipedrive](https://www.pipedrive.com/en/features/crm-api) | Todos los planes incluyen un token de API | [Presupuesto diario de tokens](https://pipedrive.readme.io/docs/core-api-concepts-rate-limiting): 30.000 tokens base por un multiplicador del plan por los puestos |
+| [Pipedrive](https://www.pipedrive.com/en/features/crm-api) | Todos los planes incluyen un token de API | [Presupuesto diario de tokens](https://pipedrive.readme.io/docs/core-api-concepts-rate-limiting): 30.000 tokens base por un multiplicador del plan por las plazas |
 | [Zoho CRM](https://www.zoho.com/crm/developer/docs/api/v8/api-limits.html) | Sí, incluida la edición Free | Créditos cada 24 horas: 5000 en Free, más por usuario en las ediciones de pago |
 | [EspoCRM](https://docs.espocrm.com/development/api/) | Sí, incluida la [edición autoalojada gratuita](https://www.espocrm.com/) | Clave de API, HMAC o autenticación básica mediante usuarios de API dedicados cuyos roles definen lo que pueden hacer |
 | Customermates | Todos los planes y el autoalojado | Sin cuota publicada; las rutas masivas admiten 100 registros por solicitud |
 
-Elige HubSpot o Zoho CRM si quieres un plan gratuito alojado con acceso a la API y tu integración cabe dentro de sus límites de llamadas publicados. Elige Pipedrive si te conviene un presupuesto diario que crece con el plan y los puestos. Elige EspoCRM si quieres un CRM de código abierto autoalojado con usuarios de API separados y roles propios. Customermates encaja con un equipo pequeño que quiere la API de registros, los webhooks y un endpoint MCP para clientes de IA al precio del propio CRM, con un núcleo AGPL que puede alojar por su cuenta. No encaja si necesitas ámbitos por clave o, en Customermates Cloud, un usuario de API que no ocupe un puesto de pago.
+Elige HubSpot o Zoho CRM si quieres un plan gratuito alojado con acceso a la API y tu integración cabe dentro de sus límites de llamadas publicados. Elige Pipedrive si te conviene un presupuesto diario que crece con el plan y las plazas. Elige EspoCRM si quieres un CRM de código abierto autoalojado con usuarios de API separados y roles propios. Customermates encaja con un equipo pequeño que quiere la API de registros, los webhooks y un endpoint MCP para clientes de IA al precio del propio CRM, con un núcleo AGPL que puede alojar por su cuenta. No encaja si necesitas ámbitos por clave o, en Customermates Cloud, un usuario de API que no ocupe una plaza de pago.
 
 ## Cuánto cuesta
 

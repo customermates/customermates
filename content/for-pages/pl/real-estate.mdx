@@ -37,7 +37,7 @@ useCases:
       linkLabel: "Zobacz follow-up"
       visual: calendar
     - title: "E-mail i WhatsApp na karcie"
-      description: "Od planu Pro zapytania i odpowiedzi są na karcie klienta. Mate lub Twój agent AI przygotowuje odpowiedź i kolejny krok, ty sprawdzasz i wysyłasz, a portale zostają w swoich narzędziach."
+      description: "Od planu Pro zapytania i odpowiedzi są na karcie klienta. Mate lub Twój agent AI przygotowuje odpowiedź i kolejny krok, Ty sprawdzasz i wysyłasz, a portale zostają w swoich narzędziach."
       href: /features/whatsapp-integration
       linkLabel: "Zobacz WhatsAppa w skrzynce odbiorczej"
       visual: conversation
@@ -146,7 +146,7 @@ Na pulpicie widżet **Nadchodzące** oparty na polu Kolejny kontakt pokazuje, kt
 
 Customermates nie dopasowuje kupujących do nieruchomości automatycznie i nie ma bazy nieruchomości, z którą można by porównywać. Działa filtr. Gdy pojawia się mieszkanie z trzema pokojami w Łodzi za 480 000 zł, filtrujesz kontakty po Roli Kupujący, Okolicy poszukiwań Łódź, Liczbie pokoi 3 lub 4 i Budżecie maksymalnym co najmniej 480 000. Pola typu Kwota pieniężna obsługują filtry „większe niż” i „mniejsze niż”, a pola pojedynczego wyboru obsługują „jest jednym z” ([opis filtrów](/docs/filter-syntax)). Kupujących, do których dzwonisz, powiąż z szansą sprzedaży tej oferty, żeby później widzieć, kto o niej usłyszał.
 
-W Customermates Cloud [rutyna](/docs/app-routines) może wykonać to wyszukiwanie za ciebie. Wybierz **Gdy coś się zmieni**, zdarzenie **Szansa sprzedaży zaktualizowana**, zmienione pole Etap oraz filtry rekordów Strona = Sprzedaż i Etap = Aktywna. Instrukcje w tym stylu:
+W Customermates Cloud [rutyna](/docs/app-routines) może wykonać to wyszukiwanie za Ciebie. Wybierz **Gdy coś się zmieni**, zdarzenie **Szansa sprzedaży zaktualizowana**, zmienione pole Etap oraz filtry rekordów Strona = Sprzedaż i Etap = Aktywna. Instrukcje w tym stylu:
 
 ```text
 Ta oferta właśnie stała się aktywna. Znajdź kontakty z Rolą Kupujący,
@@ -180,7 +180,7 @@ szkic zapisany tak lub nie.
   Poproś Mate, żeby zapisywał szkice i wymieniał użyte źródła. Każdy szkic sprawdź w jego rozmowie, zanim wyślesz. Rutyna działa jako jej właściciel, z dostępem i podłączonymi kontami tego użytkownika, więc ogranicz jej instrukcje i uprawnienia do tego zadania przygotowawczego. [Przewodnik po uprawnieniach i zatwierdzaniu rutyn](/docs/app-routines) opisuje mechanizmy kontroli.
 </AcquisitionCallout>
 
-W planie Starter limit rutyn na użytkownika to [[commercial.entitlement.starter.includedRoutinesPerUser]], a w planie Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]. Jeśli wolisz własnego agenta, podłącz Claude, ChatGPT lub dowolnego klienta obsługującego [MCP](/docs/mcp); działa w każdym planie i w instalacjach self-hosted, bez skrzynki odbiorczej, a za użycie modelu rozlicza cię Twój dostawca AI. Twój klient stosuje uprawnienia konta, z którym się łączy; to, czy pyta o zgodę przed działaniem, zależy od klienta.
+W planie Starter limit rutyn na użytkownika to [[commercial.entitlement.starter.includedRoutinesPerUser]], a w planie Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]. Jeśli wolisz własnego agenta, podłącz Claude, ChatGPT lub dowolnego klienta obsługującego [MCP](/docs/mcp); działa w każdym planie i w instalacjach self-hosted, bez skrzynki odbiorczej, a za użycie modelu rozlicza Cię Twój dostawca AI. Twój klient stosuje uprawnienia konta, z którym się łączy; to, czy pyta o zgodę przed działaniem, zależy od klienta.
 
 ### Zespoły i biura
 
@@ -253,13 +253,13 @@ Każdy płatny plan chmurowy dodaje co miesiąc hostowane kredyty AI na aktywneg
 
 ## Dane klientów
 
-W Customermates Cloud główna produkcyjna baza danych jest skonfigurowana w regionie AWS Frankfurt. Hosting i pozostali podprocesorzy, w tym dostawcy z USA, są na [stronie podprocesorów](/subprocessors), a dostępna jest [umowa powierzenia przetwarzania danych](/dpa). Customermates nie posiada certyfikatów, takich jak ISO 27001 czy SOC 2. Dane kupujących i sprzedających to dane osobowe, więc obowiązuje je RODO: Customermates daje elementy składowe, takie jak role i dziennik audytu, a nie gotowy proces zgodności.
+W Customermates Cloud główna produkcyjna baza danych jest skonfigurowana w regionie AWS Frankfurt. Hosting i pozostałe podmioty podprzetwarzające, w tym dostawcy z USA, są na [stronie podmiotów podprzetwarzających](/subprocessors), a dostępna jest [umowa powierzenia przetwarzania danych](/dpa). Customermates nie posiada certyfikatów, takich jak ISO 27001 czy SOC 2. Dane kupujących i sprzedających to dane osobowe, więc obowiązuje je RODO: Customermates daje elementy składowe, takie jak role i dziennik audytu, a nie gotowy proces zgodności.
 
 ## Najczęstsze pytania
 
 <Faq>
 <FaqItem question="Jakiego CRM używają pośrednicy w obrocie nieruchomościami?">
-W Polsce biura często sięgają po programy branżowe z bazą ofert i eksportem na portale ogłoszeniowe. W USA agenci mogą wybierać CRM zbudowane dla rynku nieruchomości, takie jak Follow Up Boss czy Wise Agent, a wiele biur dostarcza własne narzędzia. W Niemczech oprogramowanie dla pośredników, takie jak Propstack, FLOWFACT czy onOffice, zarządza także samymi nieruchomościami; Propstack i FLOWFACT podają interfejsy do portali takich jak ImmoScout24. Pośrednicy, którzy potrzebują głównie follow-upu, profili poszukiwań i swoich rozmów w jednym miejscu, mogą też użyć ogólnego CRM skonfigurowanego tak, jak opisano wyżej. Customermates to nasz własny produkt, więc weź to pod uwagę.
+Programy branżowe dla biur nieruchomości, także polskie, zwykle łączą bazę ofert z eksportem na portale ogłoszeniowe. W USA agenci mogą wybierać CRM-y zbudowane dla rynku nieruchomości, takie jak Follow Up Boss czy Wise Agent, a wiele biur dostarcza własne narzędzia. W Niemczech oprogramowanie dla pośredników, takie jak Propstack, FLOWFACT czy onOffice, zarządza także samymi nieruchomościami; Propstack i FLOWFACT podają interfejsy do portali takich jak ImmoScout24. Pośrednicy, którzy potrzebują głównie follow-upu, profili poszukiwań i swoich rozmów w jednym miejscu, mogą też użyć ogólnego CRM skonfigurowanego tak, jak opisano wyżej. Customermates to nasz własny produkt, więc weź to pod uwagę.
 </FaqItem>
 
 <FaqItem question="Ile kosztuje CRM dla biura nieruchomości?">

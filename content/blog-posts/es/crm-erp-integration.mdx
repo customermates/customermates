@@ -51,7 +51,7 @@ Escribe esta tabla para tus propios sistemas antes de comparar herramientas. La 
 | Dato | Normalmente propiedad de | Qué conserva el otro lado |
 | --- | --- | --- |
 | Contactos, historial de la relación, conversaciones | CRM | El ERP guarda una persona de contacto solo si sus documentos la necesitan |
-| Oportunidad, etapa, próximo paso | CRM | Nada, o una referencia en el pedido |
+| Oportunidad, etapa, siguiente paso | CRM | Nada, o una referencia en el pedido |
 | Cuenta de cliente para facturar (razón social, identificador fiscal, dirección de facturación, condiciones de pago) | ERP | Número de cliente del ERP; la integración lo trata como propiedad del ERP |
 | Artículos y precios | ERP | Número de artículo en el registro de producto o servicio del CRM |
 | Pedidos, entrega, stock | ERP | Número de pedido y un estado visible para el cliente |
@@ -172,7 +172,7 @@ Comprobado el 29 de octubre de 2026 con un espacio de trabajo local desechable d
 
 Esto demuestra el mapa de ID, la regla de reintento y la lectura, escritura y relectura del CRM en ese ejemplo. No demuestra un conector de ERP de producción, la entrega automática de webhooks, la creación de facturas ni un proceso de conciliación desplegado. Antes de usar tu propio ERP, repite esas comprobaciones contra su entorno de pruebas, verifica la autenticación y las firmas, y prueba su validación y sus límites de uso reales. Las [opciones de integración](/features/integrations) explican dónde encaja un adaptador o un n8n que ejecutas por separado.
 
-## Qué determina el costo y el esfuerzo
+## Qué determina el coste y el esfuerzo
 
 Ningún punto de referencia honesto cubre todas las integraciones CRM ERP; un evento en un sentido entre dos API documentadas y una sincronización bidireccional de pedidos y stock son proyectos distintos. Estima a partir de estos factores:
 
@@ -185,7 +185,7 @@ Ningún punto de referencia honesto cubre todas las integraciones CRM ERP; un ev
 
 Del lado del CRM, la API REST no requiere ningún plan concreto de Customermates y los webhooks vienen con todos los planes de pago. Un equipo de tres personas en Starter paga [[commercial.price.starter.monthly.seats.3]] al mes. La bandeja de entrada unificada, que lleva las conversaciones de correo, LinkedIn y WhatsApp a los mismos registros, empieza en Pro ([[commercial.price.pro.monthly]] por usuario al mes).
 
-Antes de que una oportunidad ganada se convierta en un pedido del ERP, la conversación que la ganó está en la ficha del cliente, con una respuesta y un próximo paso que prepara Mate o tu propio cliente de IA para que los revises y los envíes. Para ver esa parte con tus propios clientes, [empieza tu prueba de [[commercial.trial.days]] días](/auth/signup?job=followup). Sin tarjeta de crédito.
+Antes de que una oportunidad ganada se convierta en un pedido del ERP, la conversación que la ganó está en la ficha del cliente, con una respuesta y un siguiente paso que prepara Mate o tu propio cliente de IA para que los revises y los envíes. Para ver esa parte con tus propios clientes, [empieza tu prueba de [[commercial.trial.days]] días](/auth/signup?job=followup). Sin tarjeta de crédito.
 
 ## Errores comunes
 

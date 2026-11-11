@@ -26,7 +26,7 @@ blogPost:
 
 # Tickler file: cómo funciona el sistema del 1 al 31 y una versión digital
 
-Un tickler file, o archivo de recordatorios por fecha (en español también archivo tickler o archivo de seguimiento), es un juego de carpetas con etiqueta de fecha, 31 para los días del mes y 12 para los meses, que te pone delante un papel, una factura o un seguimiento el día en que toca y no antes. Un tickler file digital mantiene la idea en una lista: cada elemento tiene una fecha, la lista se ordena por esa fecha y una vista muestra lo que vence hoy. En Customermates eso es un campo «Fecha del próximo paso», una vista guardada ordenada por él y el widget «Próximos» del panel.
+Un tickler file, o archivo de recordatorios por fecha (en español también archivo tickler o archivo de seguimiento), es un juego de carpetas con etiqueta de fecha, 31 para los días del mes y 12 para los meses, que te pone delante un papel, una factura o un seguimiento el día en que toca y no antes. Un tickler file digital mantiene la idea en una lista: cada elemento tiene una fecha, la lista se ordena por esa fecha y una vista muestra lo que vence hoy. En Customermates eso es un campo «Fecha del siguiente paso», una vista guardada ordenada por él y el widget «Próximos» del panel.
 
 Esta guía explica qué es un tickler file, recorre el sistema de 43 carpetas con un ejemplo, compara el papel, un indicador de seguimiento de Outlook, una hoja de cálculo y un CRM, y configura la versión digital en Customermates paso a paso. Customermates la publica y aparece en sus propias secciones señaladas, también donde es la opción equivocada. Los datos de terceros se comprobaron el 11 de noviembre de 2026; las fuentes están enlazadas donde se usan.
 
@@ -60,10 +60,10 @@ Aquí va un ejemplo. Es inventado y empieza el miércoles 11 de noviembre de 202
 
 | Elemento | Volver a verlo el | Tickler de papel | Tickler digital |
 | --- | --- | --- | --- |
-| Hoy salió una propuesta; el cliente dijo que decidiría antes del miércoles 18 de noviembre | 18 de noviembre | Carpeta 18 | Próximo paso «Pedir la decisión», Fecha del próximo paso 18 de noviembre |
-| Un prospecto dijo «llámame después de nuestra feria del 3 de diciembre» | 3 de diciembre | Carpeta de diciembre, pasada a la carpeta 3 el 1 de diciembre | Próximo paso «Llamar por la propuesta», Fecha del próximo paso 3 de diciembre; entra en el widget «Próximos» cuando la fecha cae dentro de su ventana de días por delante |
-| Necesitas el precio de un proveedor antes de poder responder a un cliente; lo prometió para el viernes 13 de noviembre | 13 de noviembre | Carpeta 13 | Próximo paso «Reclamar el precio al proveedor», Fecha del próximo paso 13 de noviembre |
-| El contrato de un cliente termina en enero y quieres abrir la conversación de renovación en diciembre | 1 de diciembre | Carpeta de diciembre | Próximo paso «Iniciar la conversación de renovación», Fecha del próximo paso 1 de diciembre |
+| Hoy salió una propuesta; el cliente dijo que decidiría antes del miércoles 18 de noviembre | 18 de noviembre | Carpeta 18 | Siguiente paso «Pedir la decisión», Fecha del siguiente paso 18 de noviembre |
+| Un prospecto dijo «llámame después de nuestra feria del 3 de diciembre» | 3 de diciembre | Carpeta de diciembre, pasada a la carpeta 3 el 1 de diciembre | Siguiente paso «Llamar por la propuesta», Fecha del siguiente paso 3 de diciembre; entra en el widget «Próximos» cuando la fecha cae dentro de su ventana de días por delante |
+| Necesitas el precio de un proveedor antes de poder responder a un cliente; lo prometió para el viernes 13 de noviembre | 13 de noviembre | Carpeta 13 | Siguiente paso «Reclamar el precio al proveedor», Fecha del siguiente paso 13 de noviembre |
+| El contrato de un cliente termina en enero y quieres abrir la conversación de renovación en diciembre | 1 de diciembre | Carpeta de diciembre | Siguiente paso «Iniciar la conversación de renovación», Fecha del siguiente paso 1 de diciembre |
 
 La versión digital elimina la rotación de carpetas. Nadie pasa una carpeta al final, porque el orden de la lista lo hace, y las carpetas de mes desaparecen porque una fecha de marzo simplemente espera en la lista hasta que entra en tu campo de visión.
 
@@ -105,7 +105,7 @@ Cinco reglas convierten las carpetas en un hábito de ventas:
 - **Abre la lista a la misma hora cada día** y empieza por lo vencido.
 - **Una vez a la semana, busca registros sin fecha.** Es la fuga que un tickler no puede mostrarte por sí solo.
 
-Un [rolodex digital](/blog/digital-rolodex) te dice quién es alguien; el tickler te dice cuándo escribirle. Para la redacción del mensaje, lee [cómo escribir un correo de seguimiento de ventas](/blog/sales-follow-up-email). La página del [software de seguimiento de clientes](/features/follow-up) muestra el mismo próximo paso con fecha, con las conversaciones de LinkedIn y de correo en el registro del cliente.
+Un [rolodex digital](/blog/digital-rolodex) te dice quién es alguien; el tickler te dice cuándo escribirle. Para la redacción del mensaje, lee [cómo escribir un correo de seguimiento de ventas](/blog/sales-follow-up-email). La página del [software de seguimiento de clientes](/features/follow-up) muestra el mismo siguiente paso con fecha, con las conversaciones de LinkedIn y de correo en el registro del cliente.
 
 ## ¿Cómo se configura un tickler file digital en Customermates?
 
@@ -113,7 +113,7 @@ Primero, cómo se corresponden las partes del papel con Customermates:
 
 | En el tickler de papel | En Customermates |
 | --- | --- |
-| 31 carpetas de día | Un campo Fecha «Fecha del próximo paso». El widget «Próximos» lista hoy y los días siguientes, 14 de forma predeterminada y hasta 90 |
+| 31 carpetas de día | Un campo Fecha «Fecha del siguiente paso». El widget «Próximos» lista hoy y los días siguientes, 14 de forma predeterminada y hasta 90 |
 | 12 carpetas de mes | Nada que mantener. Un registro con fecha en marzo espera en tu vista ordenada hasta que su fecha entra en la ventana del widget |
 | Abrir la carpeta de hoy | Abrir el panel: los registros de hoy y la sección «Vencidos» |
 | Pasar la carpeta al final | Cambiar la fecha de cada registro después de actuar, o borrarla |
@@ -121,11 +121,11 @@ Primero, cómo se corresponden las partes del papel con Customermates:
 | Acordarte de abrir el cajón | Sigue siendo tu hábito. Customermates no envía recordatorios |
 
 <Steps>
-  <Step title="Añade dos campos">En **Modelo de datos**, añade un campo de tipo **Fecha** llamado «Fecha del próximo paso» y un campo de tipo **Texto** llamado «Próximo paso» a **Contactos** o a **Oportunidades**, o a ambos si tus leads viven en las oportunidades. En un plan con Mate, puedes pedirle que los añada. Las tareas no tienen fecha de vencimiento integrada, así que el mismo campo Fecha sirve también ahí; la [gestión de tareas](/features/task-management) muestra cómo se vinculan las tareas con los clientes.</Step>
-  <Step title="Guarda la vista tickler">Abre **Apariencia**, muestra **Próximo paso** y **Fecha del próximo paso**, usa **Ordenar por** con la Fecha del próximo paso, **Ascendente**, haz clic en **Nueva vista** y ponle el nombre «Tickler». Las fechas más antiguas quedan arriba. Los filtros de fecha personalizados toman fechas fijas, así que es la ordenación lo que mantiene la lista al día sin editar un filtro cada semana. Elige **Compartir…** en el menú de la vista para mostrarla a todo el espacio de trabajo o a roles concretos.</Step>
-  <Step title="Añade el widget Próximos">En el **Panel**, pulsa **Añadir widget** y elige **Próximos**. Elige la lista y el campo **Fecha del próximo paso**, y filtra los registros terminados, por ejemplo las oportunidades Ganada y Perdida. El widget lista los registros que vencen en los próximos días y tiene una sección **Vencidos** para las fechas anteriores.</Step>
-  <Step title="Guarda una vista sin fecha">En la misma lista, filtra **Fecha del próximo paso** con **está vacío** y excluye Ganada y Perdida en el campo **Etapa**. Lo que aparezca aquí se ha salido de tu tickler.</Step>
-  <Step title="Trabaja la lista cada mañana">Empieza por **Vencidos** y sigue con hoy. Haz el paso, escribe una línea en las notas del registro y mueve la **Fecha del próximo paso** al siguiente día prometido, o bórrala cuando no quede nada pendiente. Cambia la vista a **Calendario** sobre la misma fecha si prefieres días a filas, y arrastra un registro a otro día para mover su fecha.</Step>
+  <Step title="Añade dos campos">En **Modelo de datos**, añade un campo de tipo **Fecha** llamado «Fecha del siguiente paso» y un campo de tipo **Texto** llamado «Siguiente paso» a **Contactos** o a **Oportunidades**, o a ambos si tus leads viven en las oportunidades. En un plan con Mate, puedes pedirle que los añada. Las tareas no tienen fecha de vencimiento integrada, así que el mismo campo Fecha sirve también ahí; la [gestión de tareas](/features/task-management) muestra cómo se vinculan las tareas con los clientes.</Step>
+  <Step title="Guarda la vista tickler">Abre **Apariencia**, muestra **Siguiente paso** y **Fecha del siguiente paso**, usa **Ordenar por** con la Fecha del siguiente paso, **Ascendente**, haz clic en **Nueva vista** y ponle el nombre «Tickler». Las fechas más antiguas quedan arriba. Los filtros de fecha personalizados toman fechas fijas, así que es la ordenación lo que mantiene la lista al día sin editar un filtro cada semana. Elige **Compartir…** en el menú de la vista para mostrarla a todo el espacio de trabajo o a roles concretos.</Step>
+  <Step title="Añade el widget Próximos">En el **Panel**, pulsa **Añadir widget** y elige **Próximos**. Elige la lista y el campo **Fecha del siguiente paso**, y filtra los registros terminados, por ejemplo las oportunidades Ganada y Perdida. El widget lista los registros que vencen en los próximos días y tiene una sección **Vencidos** para las fechas anteriores.</Step>
+  <Step title="Guarda una vista sin fecha">En la misma lista, filtra **Fecha del siguiente paso** con **está vacío** y excluye Ganada y Perdida en el campo **Etapa**. Lo que aparezca aquí se ha salido de tu tickler.</Step>
+  <Step title="Trabaja la lista cada mañana">Empieza por **Vencidos** y sigue con hoy. Haz el paso, escribe una línea en las notas del registro y mueve la **Fecha del siguiente paso** al siguiente día prometido, o bórrala cuando no quede nada pendiente. Cambia la vista a **Calendario** sobre la misma fecha si prefieres días a filas, y arrastra un registro a otro día para mover su fecha.</Step>
 </Steps>
 
 Los campos Fecha, las vistas guardadas y el widget «Próximos» no tienen límite de plan: funcionan en Free, en los planes de pago y autoalojados. Para ver las mismas fechas en otra aplicación de calendario, crea una URL de suscripción en el calendario: es un feed privado de solo lectura, y tu aplicación de calendario decide cada cuánto se actualiza. La [guía del panel](/docs/app-dashboard) cubre las opciones del widget y la [guía del calendario](/docs/app-calendar) cubre el feed.
@@ -146,13 +146,13 @@ Un sistema de recordatorios hecho de carpetas con etiqueta de fecha: 31 para los
 Porque le hace cosquillas a tu memoria en el momento justo. El archivo guarda el elemento hasta su día, así que no tienes que llevarlo en la cabeza.
 </FaqItem>
 <FaqItem question="¿Cómo se dice tickler file en español?">
-No hay un nombre fijo: se usan «archivo tickler», «archivo de recordatorios» y «archivo de seguimiento», además del sistema de las 43 carpetas (43 Folders). Wikipedia nombra también las fichas tickler para la versión de despacho de abogados de la misma idea. En una oficina o en un CRM, un seguimiento o próximo paso con fecha es lo mismo en otro contenedor.
+No hay un nombre fijo: se usan «archivo tickler», «archivo de recordatorios» y «archivo de seguimiento», además del sistema de las 43 carpetas (43 Folders). Wikipedia nombra también las fichas tickler para la versión de despacho de abogados de la misma idea. En una oficina o en un CRM, un seguimiento o siguiente paso con fecha es lo mismo en otro contenedor.
 </FaqItem>
 <FaqItem question="¿Qué es el tickler file en GTD?">
 En Getting Things Done es el archivo de fechas donde dejas lo que no puedes hacer hoy pero no quieres olvidar, para que te lo devuelva el día en que toca. David Allen lo describe como tener tu propia oficina de correos. La clave es abrirlo cada día.
 </FaqItem>
 <FaqItem question="¿Qué significa tickler en los negocios?">
-Un recordatorio con fecha que te devuelve un asunto cuando vence. En el trabajo jurídico es una ficha o una entrada que hace aflorar un plazo; en ventas es el próximo paso con fecha en un cliente o una oportunidad.
+Un recordatorio con fecha que te devuelve un asunto cuando vence. En el trabajo jurídico es una ficha o una entrada que hace aflorar un plazo; en ventas es el siguiente paso con fecha en un cliente o una oportunidad.
 </FaqItem>
 <FaqItem question="¿Cómo hago un tickler file?">
 Etiqueta 31 carpetas del 1 al 31 y 12 carpetas de enero a diciembre. Archiva cada elemento bajo el día, o el mes, en que necesitas volver a verlo. Abre la carpeta de hoy cada mañana y, el primer día de cada mes, reparte la carpeta de ese mes en las carpetas de día.

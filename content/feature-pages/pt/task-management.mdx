@@ -31,7 +31,7 @@ sections:
       - title: "O que uma tarefa tem"
         description: "Nome, notas, um ou mais usuários atribuídos, vínculos com contatos, organizações, negócios e serviços, além dos seus próprios campos personalizados."
       - title: "Planos"
-        description: "As tarefas fazem parte de todos os planos, do Starter ao self hosted. O Mate e as rotinas exigem o Customermates Cloud e usam créditos de IA hospedados."
+        description: "As tarefas fazem parte de todos os planos, do Starter à hospedagem própria. O Mate e as rotinas exigem o Customermates Cloud e usam créditos de IA hospedados."
       - title: "Visualizações"
         description: "Tabela ou quadro, agrupados por um campo de escolha como Status, com visualizações salvas que você pode compartilhar."
       - title: "Não incluído"
@@ -87,7 +87,7 @@ Vem de uma planilha ou de outra ferramenta? As tarefas podem ser importadas de u
 
 As rotinas rodam como o seu dono, com o acesso e os créditos dele, e você lê o resultado nos detalhes da execução. O Customermates não envia nenhuma notificação quando uma execução termina, então uma rotina não substitui um lembrete, a menos que alguém a abra. Outra rotina útil reage quando um negócio é atualizado e, se a etapa dele passou a ser Ganho, cria as tarefas de onboarding e as vincula ao negócio.
 
-**Com o seu próprio cliente de IA**, Claude, ChatGPT ou outro cliente conectado por [MCP](/docs/mcp) pode usar `mutate_crm_record` nos mesmos registros. Isso funciona também em instalações self hosted, com os custos do seu provedor de IA no lugar dos créditos hospedados.
+**Com o seu próprio cliente de IA**, Claude, ChatGPT ou outro cliente conectado por [MCP](/docs/mcp) pode usar `mutate_crm_record` nos mesmos registros. Isso funciona também em instalações com hospedagem própria, com os custos do seu provedor de IA no lugar dos créditos hospedados.
 
 **Com código**, a API REST expõe as tarefas, e os [webhooks](/docs/webhooks) disparam em `record.created`, `record.updated` e `record.deleted` para a lista Tarefas. Um agendador que você mesmo opera, como o n8n, pode ler uma Data-alvo pela API e enviar uma mensagem para onde você quiser. O n8n não vem incluído; veja a [automação de fluxos de trabalho](/features/workflow-automation) para conhecer as opções.
 
@@ -107,7 +107,7 @@ Se você entrega projetos, mantenha o Customermates para o relacionamento com o 
 
 ## Quanto custa
 
-As tarefas estão incluídas em todos os planos. Uma equipe de cinco pessoas no Starter paga [[commercial.price.starter.monthly.seats.5]] por mês, o que cobre tarefas, campos personalizados, quadros e visualizações salvas. O Starter inclui [[commercial.entitlement.starter.includedRoutinesPerUser]] rotina por usuário e não tem caixa de entrada. O Pro, a [[commercial.price.pro.monthly.seats.5]] por mês para cinco pessoas, acrescenta a caixa de entrada unificada e [[commercial.entitlement.pro.includedRoutinesPerUser]] rotinas por usuário. O Mate usa créditos de IA hospedados mensais por usuário ativo; os valores estão na [página de preços](/pricing). A cobrança é mensal. Hospedar o núcleo open source por conta própria não tem taxa de licença, e o servidor fica por sua conta.
+As tarefas estão incluídas em todos os planos. Uma equipe de cinco pessoas no Starter paga [[commercial.price.starter.monthly.seats.5]] por mês, o que cobre tarefas, campos personalizados, quadros e visualizações salvas. O Starter inclui [[commercial.entitlement.starter.includedRoutinesPerUser]] rotina por usuário e não tem caixa de entrada. O Pro, a [[commercial.price.pro.monthly.seats.5]] por mês para cinco pessoas, acrescenta a caixa de entrada unificada e [[commercial.entitlement.pro.includedRoutinesPerUser]] rotinas por usuário. O Mate usa créditos de IA hospedados mensais por usuário ativo; os valores estão na [página de preços](/pricing). A cobrança é mensal. Hospedar o núcleo de código aberto por conta própria não tem taxa de licença, e o servidor fica por sua conta.
 
 ## Perguntas frequentes
 

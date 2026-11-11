@@ -35,7 +35,7 @@ Deze gids somt de plichten op die voor een CRM tellen, met hun artikelnummers, l
   <SummaryItem label="De regel">Jij bent de verwerkingsverantwoordelijke voor de persoonsgegevens in je CRM, en de CRM-aanbieder is je verwerker. De AVG maakt jou verantwoordelijk voor de grondslag, het contract en de verzoeken, niet de software.</SummaryItem>
   <SummaryItem label="Voordat je tekent">Een verwerkersovereenkomst met de inhoud van art. 28 lid 3, de lijst met subverwerkers van de aanbieder, waar de gegevens worden verwerkt en welk doorgiftemechanisme elke aanbieder buiten de EU dekt.</SummaryItem>
   <SummaryItem label="In het dagelijks gebruik">Beperkte toegang, weinig velden, een manier om de gegevens van één persoon te vinden, te corrigeren, te exporteren en te verwijderen, en een bewaartermijnreview die je ook echt uitvoert.</SummaryItem>
-  <SummaryItem label="Customermates">Een verwerkersovereenkomst voor de beheerde cloud, een openbare lijst met subverwerkers waar Amerikaanse aanbieders op staan, de primaire database geconfigureerd in AWS Frankfurt (een gekozen instelling, geen garantie), geen nalevingscertificering en een open source kern die je zelf kunt hosten.</SummaryItem>
+  <SummaryItem label="Customermates">Een verwerkersovereenkomst voor de beheerde cloud, een openbare lijst met subverwerkers waar Amerikaanse aanbieders op staan, de primaire database geconfigureerd in AWS Frankfurt (een gekozen instelling, geen garantie), geen nalevingscertificering en een open-sourcekern die je zelf kunt hosten.</SummaryItem>
   <SummaryItem label="Transparantie">Customermates publiceert deze gids. Wetgeving van derden wordt geciteerd naar EUR-Lex en de Europese Commissie.</SummaryItem>
 </ArticleSummary>
 
@@ -150,7 +150,7 @@ Geboden, volgens de productdocumentatie en de juridische pagina's:
 - rollen per lijst, een deactiveringsschakelaar voor leden en scheiding van tenants per bedrijfsaccount;
 - globaal zoeken op e-mailadres of telefoonnummer, correctie ter plekke, export naar Excel en JSON per lijst en een Prullenbak met permanent verwijderen;
 - een Activiteitenlog voor wijzigingen aan CRM-records en werkruimteconfiguratie, leesbaar voor rollen die toegang hebben; en
-- een open source kern onder de AGPL die je kunt [zelf hosten](/features/self-hosted).
+- een open-sourcekern onder de AGPL die je kunt [zelf hosten](/features/self-hosted).
 
 Niet geboden, dus vraag er elders naar als je het nodig hebt:
 
@@ -158,7 +158,7 @@ Niet geboden, dus vraag er elders naar als je het nodig hebt:
 - het heeft geen machtigingen op veldniveau en geen export van een heel account in één stap;
 - het Activiteitenlog dekt geen aanmeldingen, API-sleutels of inboxinhoud en heeft geen exportknop.
 
-Zelf hosten verandert wie verantwoordelijk is. De AGPL-kern draait met Docker en PostgreSQL op je eigen infrastructuur, en de verwerkersovereenkomst dekt alleen de beheerde dienst: jij kiest de hosting en de aanbieders en je hebt je eigen art. 28-contracten en doorgiftewaarborgen. TLS en versleuteling in rust moet je zelf instellen. Zelf hosten gebruikt de functies van Starter, zonder de inbox en zonder Mate, en het is niet air-gapped: de eerste adresinvoer voor een land downloadt het openbare postcodebestand van dat land van GeoNames, tenzij je `POSTAL_CODE_DATA_URL` op `off` of op een mirror zet. De [gids voor zelf hosten](/docs/self-hosting) bevat de details en de [pagina over open source CRM](/features/open-source-crm) legt de licentiegrens uit.
+Zelf hosten verandert wie verantwoordelijk is. De AGPL-kern draait met Docker en PostgreSQL op je eigen infrastructuur, en de verwerkersovereenkomst dekt alleen de beheerde dienst: jij kiest de hosting en de aanbieders en je hebt je eigen art. 28-contracten en doorgiftewaarborgen. TLS en versleuteling in rust moet je zelf instellen. Zelf hosten gebruikt de functies van Starter, zonder de inbox en zonder Mate, en het is niet air-gapped: de eerste adresinvoer voor een land downloadt het openbare postcodebestand van dat land van GeoNames, tenzij je `POSTAL_CODE_DATA_URL` op `off` of op een mirror zet. De [gids voor zelf hosten](/docs/self-hosting) bevat de details en de [pagina over open-source CRM](/features/open-source-crm) legt de licentiegrens uit.
 
 <AcquisitionCallout title="Waar Customermates niet past" variant="boundary">
   Vraagt een inkoopchecklist om een erkende certificering, een contractuele garantie voor uitsluitend verwerking in de EU of machtigingen op veldniveau, dan kan Customermates die vakjes vandaag niet aanvinken. Leg ze schriftelijk voor aan elke aanbieder die je vergelijkt en lees de antwoorden naast de lijsten met subverwerkers. De [vergelijking van de beste CRM-software](/blog/best-crm-software) en de [gids over het kiezen van een CRM](/blog/how-to-choose-crm) behandelen de andere criteria.
@@ -188,7 +188,7 @@ De AVG kent geen vaste termijn. Art. 5 lid 1, onder e, eist dat gegevens niet la
 In het algemeen wel. Art. 13 en 14 eisen een privacyverklaring. Als je de gegevens niet bij de persoon zelf hebt verzameld, bijvoorbeeld uit een geïmporteerde lijst, moet je de persoon binnen een redelijke termijn en uiterlijk binnen één maand informeren.
 </FaqItem>
 <FaqItem question="Kan ik alle CRM-gegevens op mijn eigen server houden?">
-Met de open source kern wel: je draait hem met Docker en PostgreSQL op infrastructuur die je zelf kiest. Hij gebruikt de functies van Starter, zonder de inbox en zonder Mate, en je bent zelf verantwoordelijk voor je hostingcontracten en beveiliging.
+Met de open-sourcekern wel: je draait hem met Docker en PostgreSQL op infrastructuur die je zelf kiest. Hij gebruikt de functies van Starter, zonder de inbox en zonder Mate, en je bent zelf verantwoordelijk voor je hostingcontracten en beveiliging.
 </FaqItem>
 <FaqItem question="Wat gebeurt er met mijn gegevens als ik opzeg?">
 Onder de verwerkersovereenkomst van Customermates heb je na het einde van de dienst 30 dagen om te kiezen voor verwijdering of teruggave. Daarna worden de gegevens verwijderd uit de eigen systemen van Customermates, uit back-ups uiterlijk binnen 90 dagen, en verwijderen subverwerkers volgens hun eigen overeenkomsten.

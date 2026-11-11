@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: "CRM dla firm SaaS: wracaj do klienta, zanim trial ucichnie"
-  description: "Triale, demo i rozmowy na LinkedInie cichną, gdy wypuszczasz kolejne wersje. W Customermates Cloud od planu Pro są na koncie, Mate lub Twój własny klient AI przygotowuje odpowiedź i kolejny krok, a ty je sprawdzasz i wysyłasz. Dane z produktu trafiają przez REST API lub n8n. Bez natywnej synchronizacji rozliczeń, oceny leadów i sekwencji."
+  description: "Triale, demo i rozmowy na LinkedInie cichną, gdy wypuszczasz kolejne wersje. W Customermates Cloud od planu Pro są na koncie, Mate lub Twój własny klient AI przygotowuje odpowiedź i kolejny krok, a Ty je sprawdzasz i wysyłasz. Dane z produktu trafiają przez REST API lub n8n. Bez natywnej synchronizacji rozliczeń, oceny leadów i sekwencji."
   buttonLeftText: Rozpocznij [[commercial.trial.days]]-dniowy okres próbny
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Poznaj przestrzeń roboczą
@@ -37,7 +37,7 @@ useCases:
       linkLabel: "Zobacz follow-up"
       visual: dashboard
     - title: "Odpowiadaj tam, gdzie napisała osoba popierająca zakup"
-      description: "Od planu Pro wątki z LinkedIna i e-maila są na koncie. Mate zapisuje szkic w rozmowie, a ty go sprawdzasz, poprawiasz i wysyłasz."
+      description: "Od planu Pro wątki z LinkedIna i e-maila są na koncie. Mate zapisuje szkic w rozmowie, a Ty go sprawdzasz, poprawiasz i wysyłasz."
       href: /features/unified-inbox
       linkLabel: "Zobacz ujednoliconą skrzynkę odbiorczą"
       visual: inbox
@@ -112,7 +112,7 @@ Customermates obejmuje oba. Działa jako Customermates Cloud, usługa hostowana 
 
 Większość follow-upu w SaaS odbywa się poza produktem: użytkownik triala odpowiada na e-mail powitalny, champion odpisuje na LinkedInie po demo, potencjalny klient pyta o odpowiedź w sprawie bezpieczeństwa przed przeglądem. To, gdzie te wątki żyją, decyduje, czy kolejny krok się wydarzy.
 
-1. **Podłącz LinkedIna i e-mail.** W Customermates Cloud od planu Pro wątki pojawiają się przy kontakcie, którego adres e-mail, numer telefonu lub profil LinkedIn się zgadza, a WhatsApp, Instagram i Telegram działają tak samo. Wątek z kontem lub szansą sprzedaży, do której należy, wiążesz ty albo Mate.
+1. **Podłącz LinkedIna i e-mail.** W Customermates Cloud od planu Pro wątki pojawiają się przy kontakcie, którego adres e-mail, numer telefonu lub profil LinkedIn się zgadza, a WhatsApp, Instagram i Telegram działają tak samo. Wątek z kontem lub szansą sprzedaży, do której należy, wiążesz Ty albo Mate.
 2. **Wyznacz datę kolejnego kroku.** Dodaj pole Data kolejnego kroku do Kont i Szans sprzedaży. Widżet **Nadchodzące** na pulpicie wyświetla to, co ma termin, i to, co jest po terminie, a widok Kończące się triale sortuje konta po Koniec triala.
 3. **Pozwól Mate lub własnemu klientowi AI przygotować odpowiedź.** Poproś o szkic albo ustaw [rutynę](/docs/app-routines), która przygotuje kontakt kontrolny, gdy Cykl życia zmieni się na Zagrożony. Szkic czeka w rozmowie, aż go poprawisz i wyślesz.
 
@@ -129,7 +129,7 @@ Nowa przestrzeń robocza zaczyna bez list, więc wszystko poniżej to przykład,
 | Szanse sprzedaży | Nowa sprzedaż prowadzona przez ludzi i rozszerzenia | Etap z prawdopodobieństwem wygranej, wartość, oczekiwana data zamknięcia, powiązane z kontem i jego kontaktami |
 | Subskrypcje (opcjonalnie) | Konta, które mają kilka produktów lub planów | Plan, MRR, data początku i końca, powiązane z kontem |
 
-Konta i kontakty są połączone relacją, a jeden kontakt może należeć do kilku kont. Jeśli Subskrypcje trzymasz jako osobną listę, pole obliczane na Kontach może sumować MRR powiązanych subskrypcji, a kolejne pole obliczane może mnożyć MRR przez 12, żeby uzyskać roczny przychód cykliczny ([jak działają pola obliczane](/docs/concepts#how-do-i-build-a-calculated-field)). Bez listy Subskrypcje MRR to zwykłe pole z kwotą pieniężną na koncie, które ustawiasz ty lub Twoja integracja.
+Konta i kontakty są połączone relacją, a jeden kontakt może należeć do kilku kont. Jeśli Subskrypcje trzymasz jako osobną listę, pole obliczane na Kontach może sumować MRR powiązanych subskrypcji, a kolejne pole obliczane może mnożyć MRR przez 12, żeby uzyskać roczny przychód cykliczny ([jak działają pola obliczane](/docs/concepts#how-do-i-build-a-calculated-field)). Bez listy Subskrypcje MRR to zwykłe pole z kwotą pieniężną na koncie, które ustawiasz Ty lub Twoja integracja.
 
 Dwie rzeczy do zapamiętania. Po pierwsze, MRR to tu liczba, którą ktoś lub coś wpisuje w pole; Customermates nie wylicza jej z faktur. Po drugie, zadania nie mają wbudowanego terminu ani statusu, więc data follow-upu to kolejne pole z datą, które dodajesz.
 
@@ -242,7 +242,7 @@ Analityka produktu, rozliczenia i zarządzanie subskrypcjami, systemy obsługi k
 
 Niektóre zespoły SaaS wolą prowadzić CRM obok własnej infrastruktury. Customermates to open core, a [instalacja self-hosted](/features/self-hosted) działa na Docker Compose z PostgreSQL 16. Ma zestaw funkcji planu Starter z REST, webhookami i MCP, ale bez skrzynki odbiorczej, bez Mate i bez konfiguracji przestrzeni roboczej przez AI, a serwer, kopie zapasowe i aktualizacje prowadzisz samodzielnie. Self-hosting sam w sobie nie jest gwarancją zgodności.
 
-W Customermates Cloud główna baza danych jest w regionie AWS Frankfurt. Podprocesorzy, w tym dostawcy z USA, są na [stronie podprocesorów](/subprocessors), a dostępna jest [umowa powierzenia przetwarzania danych](/dpa). Customermates nie posiada certyfikatów, takich jak ISO 27001 czy SOC 2, co ma znaczenie, gdy kwestionariusz bezpieczeństwa klienta pyta o Twoich dostawców.
+W Customermates Cloud główna baza danych jest w regionie AWS Frankfurt. Podmioty podprzetwarzające, w tym dostawcy z USA, są na [stronie podmiotów podprzetwarzających](/subprocessors), a dostępna jest [umowa powierzenia przetwarzania danych](/dpa). Customermates nie posiada certyfikatów, takich jak ISO 27001 czy SOC 2, co ma znaczenie, gdy kwestionariusz bezpieczeństwa klienta pyta o Twoich dostawców.
 
 ## Ile to kosztuje?
 
@@ -261,7 +261,7 @@ Szczegóły są na [stronie z cennikiem](/pricing). Jeśli założyciele nadal s
 
 <Faq>
 <FaqItem question="Czy Customermates sam wraca do użytkowników triala?">
-Trzyma rozmowę i kolejny krok na koncie oraz przygotowuje szkic odpowiedzi, a ty go sprawdzasz, poprawiasz i wysyłasz. W Customermates Cloud od planu Pro wątki z LinkedIna i e-maila są na koncie, a Mate lub Twój własny klient AI przygotowuje odpowiedź na Twoją prośbę lub w rutynie, którą ustawisz. Mate wysyła tylko wtedy, gdy o to poprosisz albo gdy ustawisz rutynę, która wysyła. Nie ma sekwencji, kampanii drip ani wiadomości masowych.
+Trzyma rozmowę i kolejny krok na koncie oraz przygotowuje szkic odpowiedzi, a Ty go sprawdzasz, poprawiasz i wysyłasz. W Customermates Cloud od planu Pro wątki z LinkedIna i e-maila są na koncie, a Mate lub Twój własny klient AI przygotowuje odpowiedź na Twoją prośbę lub w rutynie, którą ustawisz. Mate wysyła tylko wtedy, gdy o to poprosisz albo gdy ustawisz rutynę, która wysyła. Nie ma sekwencji, kampanii drip ani wiadomości masowych.
 </FaqItem>
 
 <FaqItem question="Jaki CRM jest najlepszy dla firmy SaaS?">
@@ -273,7 +273,7 @@ Nie natywnie. Nie ma integracji z rozliczeniami ani z analityką produktu. Narz�
 </FaqItem>
 
 <FaqItem question="Czy Customermates może śledzić triale, MRR i odnowienia?">
-Tak, jako pola i listy, które definiujesz samodzielnie: data końca triala, data odnowienia, MRR jako pole z kwotą pieniężną i wybór cyklu życia. Nie ma wbudowanego modelu subskrypcji ani rozliczeń, więc Customermates nie wylicza MRR z faktur; wartość zapisujesz ty lub Twoja integracja.
+Tak, jako pola i listy, które definiujesz samodzielnie: data końca triala, data odnowienia, MRR jako pole z kwotą pieniężną i wybór cyklu życia. Nie ma wbudowanego modelu subskrypcji ani rozliczeń, więc Customermates nie wylicza MRR z faktur; wartość zapisujesz Ty lub Twoja integracja.
 </FaqItem>
 
 <FaqItem question="Czy ocenia leady lub użycie produktu?">

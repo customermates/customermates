@@ -30,7 +30,7 @@ Com o [nó da comunidade do Customermates](https://github.com/customermates/n8n-
 
 ## A partir de quando um trigger começa a receber eventos? [#when-does-a-trigger-start-receiving-events]
 
-Desde o n8n 2.x, a ativação termina antes de o n8n concluir a preparação do trigger. A inscrição costuma existir em menos de um segundo, e as mudanças feitas antes disso não são entregues depois. Se algo ativa um fluxo e cria registros logo em seguida, espere primeiro até que o `GET /rest/workflows/{id}/publication-status` do n8n informe `published`, ou até que a inscrição apareça em [Webhooks](app:settings/webhooks). Um n8n auto-hospedado pode restaurar a ativação com espera usando `N8N_USE_WORKFLOW_PUBLICATION_SERVICE=false`.
+Desde o n8n 2.x, a ativação termina antes de o n8n concluir a preparação do trigger. A inscrição costuma existir em menos de um segundo, e as mudanças feitas antes disso não são entregues depois. Se algo ativa um fluxo e cria registros logo em seguida, espere primeiro até que o `GET /rest/workflows/{id}/publication-status` do n8n informe `published`, ou até que a inscrição apareça em [Webhooks](app:settings/webhooks). Um n8n hospedado por conta própria pode restaurar a ativação com espera usando `N8N_USE_WORKFLOW_PUBLICATION_SERVICE=false`.
 
 ## Como crio, leio, atualizo ou excluo registros a partir do n8n? [#how-do-i-write-to-customermates-from-n8n]
 
@@ -82,7 +82,7 @@ Abra [Chaves de API e conectores](app:settings/api-keys) e crie uma chave com [A
 
 ## O n8n funciona no plano Free? [#n8n-on-the-free-plan]
 
-O trigger do n8n precisa de um webhook, então ele não funciona enquanto um espaço de trabalho do Customermates Cloud estiver no plano Free: a criação da inscrição é recusada com o preço do Starter na mensagem, e um trigger existente não recebe nada até que o espaço de trabalho escolha um plano pago. As ações que leem ou gravam registros passam pela API REST e contam para o limite de requisições do plano Free, de [[commercial.limit.free.apiRequestsPerMinute]] por minuto e [[commercial.limit.free.apiRequestsPerDay]] por dia. As instalações auto-hospedadas não têm esse limite.
+O trigger do n8n precisa de um webhook, então ele não funciona enquanto um espaço de trabalho do Customermates Cloud estiver no plano Free: a criação da inscrição é recusada com o preço do Starter na mensagem, e um trigger existente não recebe nada até que o espaço de trabalho escolha um plano pago. As ações que leem ou gravam registros passam pela API REST e contam para o limite de requisições do plano Free, de [[commercial.limit.free.apiRequestsPerMinute]] por minuto e [[commercial.limit.free.apiRequestsPerDay]] por dia. As instalações com hospedagem própria não têm esse limite.
 
 ## Próximos passos [#next]
 

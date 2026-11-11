@@ -1,3 +1,3 @@
 ﻿ID kontaktu,Imię i nazwisko,Firma,E-mail,Telefon,Właściciel,Relacja,Ostatni kontakt,Następny krok,Data następnego kroku,Źródło,Data przeglądu
-C001,Alex Przykładowy,Studio Przykład,alex@example.com,,Sam,Potencjalny klient,2026-11-05,Wysłać wymagany brief,2026-11-06,Zapytanie z 2026-11-05,2026-12-04
-C002,Robin Wzorcowy,Warsztat Wzorcowy,robin@example.org,,Jo,Klient,2026-11-04,Potwierdzić szczegóły dostawy,2026-11-09,Prośba klienta z 2026-11-04,2026-12-04
+C001,Marta Przykładowa,Studio Przykład,marta@example.com,,Tomek,Potencjalny klient,2026-11-05,Wysłać wymagany brief,2026-11-06,Zapytanie z 2026-11-05,2026-12-04
+C002,Piotr Wzorcowy,Warsztat Wzorcowy,piotr@example.org,,Ola,Klient,2026-11-04,Potwierdzić szczegóły dostawy,2026-11-09,Prośba klienta z 2026-11-04,2026-12-04

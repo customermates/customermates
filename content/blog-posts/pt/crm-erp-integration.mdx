@@ -41,7 +41,7 @@ Para um fluxo do n8n, a [comparação de rotas MCP do n8n e o exemplo com versã
   <SummaryItem label="Métodos">Conector nativo, plataforma de automação (iPaaS ou n8n), integração direta por API ou middleware. Ou uma suíte cujo ERP inclui um aplicativo de CRM.</SummaryItem>
   <SummaryItem label="Decida primeiro">Um sistema dono de cada campo, uma estratégia de IDs estáveis e o que acontece quando um evento chega duas vezes ou falha.</SummaryItem>
   <SummaryItem label="Confira o seu ERP">Se a API está no seu plano, se ele envia webhooks e quais são os limites de requisições. Variam muito entre fornecedores.</SummaryItem>
-  <SummaryItem label="Customermates">API REST em todos os planos Cloud, webhooks em todos os planos pagos e os dois quando auto-hospedado. As referências do ERP ficam em campos personalizados de Texto.</SummaryItem>
+  <SummaryItem label="Customermates">API REST em todos os planos Cloud, webhooks em todos os planos pagos e os dois quando hospedado por conta própria. As referências do ERP ficam em campos personalizados de Texto.</SummaryItem>
 </ArticleSummary>
 
 ## Qual sistema é dono de cada campo na arquitetura da integração?
@@ -133,7 +133,7 @@ Uma integração que só trata o caminho feliz vai criar duplicados em poucas se
 
 ## Exemplo: do negócio ganho ao pedido no ERP com o Customermates
 
-Esta é a configuração no Customermates para o primeiro fluxo acima. Ela usa a [API REST](/features/api) e os [webhooks](/docs/webhooks), que funcionam em uma instalação auto-hospedada e no Customermates Cloud: a API REST em todos os planos, os webhooks em todos os planos pagos. O receptor no meio é seu: um fluxo do n8n ou um pequeno serviço.
+Esta é a configuração no Customermates para o primeiro fluxo acima. Ela usa a [API REST](/features/api) e os [webhooks](/docs/webhooks), que funcionam em uma instalação com hospedagem própria e no Customermates Cloud: a API REST em todos os planos, os webhooks em todos os planos pagos. O receptor no meio é seu: um fluxo do n8n ou um pequeno serviço.
 
 **Campos.** Em **Modelo de dados**, adicione campos personalizados do tipo Texto: "Nº do cliente no ERP" nas organizações, "Nº do pedido no ERP" nos negócios e "Nº do item no ERP" nos serviços. Os itens de linha de um negócio guardam cada um um serviço e uma quantidade, então os itens de linha e os números de item dos serviços viram as linhas do pedido. Se os gestores de conta precisarem do estado de entrega ou de pagamento, adicione um campo de Escolha única como "Status no ERP" nos negócios e torne a titularidade do ERP uma regra explícita no seu adaptador. O Customermates tem permissões por lista e por função, não permissões por campo que reservem esse campo para a integração.
 

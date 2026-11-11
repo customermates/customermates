@@ -15,7 +15,7 @@ sections:
   steps:
     items:
       - title: "Dodaj rutynę"
-        description: "Otwórz Rutyny, kliknij Dodaj i nazwij ją „Poniedziałkowy przegląd lejka”."
+        description: "Otwórz Rutyny, kliknij Dodaj i nazwij ją „Poniedziałkowy przegląd pipeline'u”."
       - title: "Ustaw wyzwalacz"
         description: "Wybierz Według harmonogramu, a potem Powtarza się: Co tydzień, poniedziałek, 08:00."
       - title: "Wklej instrukcję"
@@ -46,7 +46,7 @@ hero:
 
 cta:
   action: "Zautomatyzuj poniedziałkowy przegląd follow-upów"
-  description: "Ustaw w okresie próbnym poniedziałkowy przegląd lejka i pozwól rutynie przygotować szkice follow-upów. Podłącz n8n do reguł, które mają zadziałać za każdym razem tak samo."
+  description: "Ustaw w okresie próbnym poniedziałkowy przegląd pipeline'u i pozwól rutynie przygotować szkice follow-upów. Podłącz n8n do reguł, które mają zadziałać za każdym razem tak samo."
   buttonLeftText: "Zacznij [[commercial.trial.days]]-dniowy okres próbny"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Podłącz n8n
@@ -213,11 +213,11 @@ Węzeł społeczności [customermates/n8n-nodes-crm](https://github.com/customer
 
 ## Co aktualizuje się samo, a co nadal wymaga człowieka?
 
-- **Bez AI:** każda zmiana trafia do historii aktywności rekordu i do każdego webhooka zasubskrybowanego na to zdarzenie, a ważone wartości lejka podążają za wagami Twoich etapów. W Pro i wyżej, gdy powiążesz adres e-mail lub uchwyt z kontaktem, każda rozmowa z nim pojawia się na osi czasu tego kontaktu.
+- **Bez AI:** każda zmiana trafia do historii aktywności rekordu i do każdego webhooka zasubskrybowanego na to zdarzenie, a ważone wartości pipeline'u podążają za wagami Twoich etapów. W Pro i wyżej, gdy powiążesz adres e-mail lub uchwyt z kontaktem, każda rozmowa z nim pojawia się na osi czasu tego kontaktu.
 - **Z AI, gdy o to poprosisz:** wklej notatki z rozmowy do Mate albo do własnego klienta AI przez MCP i poproś o aktualizację szansy sprzedaży, dopisanie notatek i utworzenie zadań follow-up.
 - **Z AI, bez nadzoru:** rutyny, jak wyżej.
 
-Nasza rada: pozwól rutynie zaproponować zmianę etapu w notatce, a samo przeniesienie zostaw osobie przypisanej do szansy sprzedaży. Etapy napędzają ważony lejek, a błędny ruch wykonany przez uruchomienie bez nadzoru łatwo przeoczyć.
+Nasza rada: pozwól rutynie zaproponować zmianę etapu w notatce, a samo przeniesienie zostaw osobie przypisanej do szansy sprzedaży. Etapy napędzają ważony pipeline, a błędny ruch wykonany przez uruchomienie bez nadzoru łatwo przeoczyć.
 
 ## Czego Customermates nie automatyzuje?
 
@@ -243,7 +243,7 @@ Szerszy plan wdrożenia samego CRM znajdziesz w artykule [wdrożenie CRM krok po
 
 - **Automatyzowanie procesu, którego nikt nie spisał.** Jeśli etapy i zasady są każdemu znane inaczej, automatyzacja utrwali bałagan, zamiast go usunąć.
 - **Zbyt wiele naraz.** Kilka automatyzacji uruchomionych w jednym tygodniu utrudnia ustalenie, która coś zepsuła.
-- **Oddawanie decyzji bez przeglądu.** Zmianę etapu napędzającą ważony lejek lepiej zostawić osobie prowadzącej szansę, a rutynie dać zadanie zaproponowania zmiany w notatce.
+- **Oddawanie decyzji bez przeglądu.** Zmianę etapu napędzającą ważony pipeline lepiej zostawić osobie prowadzącej szansę, a rutynie dać zadanie zaproponowania zmiany w notatce.
 - **Wysyłka bez przeczytania.** Szkic odpowiedzi jest po to, żebyś go sprawdził; napisz w instrukcji rutyny, że ma zapisać szkic, a nie wysłać wiadomość.
 - **Brak właściciela.** Rutyna działa jako jej właściciel i zużywa jego kredyty, więc ktoś musi ją okresowo sprawdzać.
 - **Brak planu na wyjątki.** Rutyna może pominąć uruchomienie przez limit godzinowy, opóźnienie lub brak kredytów; kroki, które muszą wykonać się zawsze, należą do webhooka.
@@ -270,7 +270,7 @@ Nie. Nie ma kreatora drag-and-drop ani reguł z rozgałęzieniami w Customermate
 </FaqItem>
 
 <FaqItem question="Czy CRM może sam się aktualizować?">
-Częściowo. Historia aktywności, zdarzenia webhooków i ważone wartości lejka aktualizują się same, a w Pro i wyżej powiązany adres e-mail wprowadza późniejsze rozmowy na oś czasu kontaktu. Pisanie notatek lub zmiana szans sprzedaży na podstawie tego, co powiedziano, wymaga AI: Mate na Twoje polecenie, rutyny na wyzwalaczu albo własnego klienta AI przez MCP.
+Częściowo. Historia aktywności, zdarzenia webhooków i ważone wartości pipeline'u aktualizują się same, a w Pro i wyżej powiązany adres e-mail wprowadza późniejsze rozmowy na oś czasu kontaktu. Pisanie notatek lub zmiana szans sprzedaży na podstawie tego, co powiedziano, wymaga AI: Mate na Twoje polecenie, rutyny na wyzwalaczu albo własnego klienta AI przez MCP.
 </FaqItem>
 
 <FaqItem question="Czym różni się automatyzacja procesów w CRM od automatyzacji marketingu?">
@@ -278,7 +278,7 @@ Automatyzacja marketingu wysyła kampanie do list kontaktów według harmonogram
 </FaqItem>
 
 <FaqItem question="Co dzieje się z szansami sprzedaży, gdy zapomina się o follow-upach po spotkaniach?">
-Zostają w swoim etapie, dopóki ktoś na nie nie trafi, i nadal liczą się do ważonego lejka. Customermates nikogo nie szturcha: nie ma terminów zadań ani powiadomień. Pomaga własne pole Data „Następny kontakt” na szansie sprzedaży plus rutyna follow-upu z wyżej, która tworzy zadanie dla każdej szansy, której data minęła.
+Zostają w swoim etapie, dopóki ktoś na nie nie trafi, i nadal liczą się do ważonego pipeline'u. Customermates nikogo nie szturcha: nie ma terminów zadań ani powiadomień. Pomaga własne pole Data „Następny kontakt” na szansie sprzedaży plus rutyna follow-upu z wyżej, która tworzy zadanie dla każdej szansy, której data minęła.
 </FaqItem>
 
 <FaqItem question="Jakie są etapy procesu sprzedaży?">

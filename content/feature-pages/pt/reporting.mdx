@@ -34,7 +34,7 @@ sections:
       - title: "O que você recebe"
         description: "Widgets de gráfico que contam registros ou somam campos como valor do negócio e valor ponderado, agrupados por um campo, por registro ou ao longo do tempo, mais um widget de linha do tempo de atividades."
       - title: "Planos"
-        description: "Os painéis e o pipeline ponderado fazem parte de todos os planos, a partir do Starter, por [[commercial.price.starter.monthly]] por usuário por mês, e da edição auto-hospedada."
+        description: "Os painéis e o pipeline ponderado fazem parte de todos os planos, a partir do Starter, por [[commercial.price.starter.monthly]] por usuário por mês, e da edição com hospedagem própria."
       - title: "IA"
         description: "No Customermates Cloud, o Mate responde a perguntas que exigem cálculo em muitos registros, usando créditos de IA hospedada. O seu próprio cliente de IA lê os mesmos dados pelo MCP."
       - title: "Não incluído"
@@ -140,7 +140,7 @@ Uma terceira é sobre follow-up: **O que vence a seguir?** Adicione um widget **
 | Starter | Widgets de gráfico, linha do tempo de atividades das mudanças nos registros, pipeline ponderado, listas agrupadas, exportação XLSX, REST, MCP | [[commercial.price.starter.monthly]] por usuário por mês |
 | Pro | Starter mais mensagens e eventos de calendário na linha do tempo de atividades, pela caixa de entrada unificada | [[commercial.price.pro.monthly]] por usuário por mês |
 | Business | Pro mais uma linha do tempo de toda a equipe em todos os canais | [[commercial.price.business.monthly]] por usuário por mês |
-| Auto-hospedado | Gráficos, pipeline ponderado, exportação, REST e MCP no seu próprio servidor; sem caixa de entrada, Mate nem rotinas | Sem taxa de licença |
+| Hospedado por conta própria | Gráficos, pipeline ponderado, exportação, REST e MCP no seu próprio servidor; sem caixa de entrada, Mate nem rotinas | Sem taxa de licença |
 
 O Mate usa créditos de IA hospedada, incluídos por usuário ativo e por mês em todos os planos pagos do Cloud; a [página de preços](/pricing) lista os valores. Uma equipe de três pessoas no Starter paga [[commercial.price.starter.monthly.seats.3]] por mês, e uma equipe de cinco pessoas no Pro paga [[commercial.price.pro.monthly.seats.5]]. Não há complemento de relatórios nem cobrança por relatório.
 
@@ -152,7 +152,7 @@ O Customermates publica esta página. Os detalhes dos fornecedores foram verific
 |---|---|---|
 | Previsão de receita além dos pesos das etapas | Não disponível. O pipeline ponderado multiplica o valor de cada negócio pela probabilidade que você definiu para a etapa dele, nada mais. | O [HubSpot Sales Hub](https://www.hubspot.com/pricing/sales) Professional e Enterprise incluem previsão; o [Pipedrive](https://www.pipedrive.com/en/features/insights-and-reports) oferece uma visualização de previsão |
 | Um construtor de relatórios personalizados com taxas de conversão, metas e muitos tipos de relatório | Não disponível. Os gráficos contam e agregam; um gráfico de Funil mostra a conversão etapa a etapa dos registros atuais, mas não há metas nem conversão ao longo do tempo. | HubSpot Sales Hub Professional (relatórios personalizados); Pipedrive Insights (relatórios personalizados, painéis e metas) |
-| O seu próprio BI sobre os dados brutos | Sem conector embutido para uma ferramenta de BI | Auto-hospedado: os seus dados ficam no seu próprio PostgreSQL, que o [Metabase](https://www.metabase.com/docs/latest/databases/connecting) suporta; a edição Open Source dele é gratuita e auto-hospedada. Use um usuário de banco de dados somente leitura e espere ajustar as consultas depois de uma atualização, porque as tabelas são o esquema interno do produto. |
+| O seu próprio BI sobre os dados brutos | Sem conector embutido para uma ferramenta de BI | Hospedado por conta própria: os seus dados ficam no seu próprio PostgreSQL, que o [Metabase](https://www.metabase.com/docs/latest/databases/connecting) suporta; a edição de código aberto dele é gratuita e hospedada por conta própria. Use um usuário de banco de dados somente leitura e espere ajustar as consultas depois de uma atualização, porque as tabelas são o esquema interno do produto. |
 | Um painel que a equipe toda edita | Não disponível. Um painel compartilhado é somente leitura para os colegas: só o dono altera os widgets, e **Duplicar como nova visualização** dá a cada pessoa uma cópia editável. | |
 | E-mails de relatório agendados | Não embutido | Uma rotina no Customermates Cloud, ou o n8n, ambos descritos abaixo |
 
@@ -170,7 +170,7 @@ A resposta é uma mensagem de chat, não um gráfico salvo. O Mate também pode 
 
 **Rotinas (Customermates Cloud).** Uma rotina executa uma instrução salva em um horário, como "Toda segunda-feira às 8h, resuma o pipeline em aberto por etapa e liste os negócios não atualizados há 30 dias." Ela roda como você, o dono, com o seu acesso e os seus créditos, e o resumo da execução fica nela. No Pro e acima, ela também pode enviar esse resumo por e-mail a partir da sua caixa de correio conectada; o Mate envia sem perguntar de novo, então diga "rascunho" na instrução se quiser lê-lo antes. Veja a [automação de fluxos de trabalho](/features/workflow-automation) para gatilhos e limites.
 
-**O seu próprio cliente de IA pelo MCP.** O Claude, o ChatGPT e outros clientes MCP usam [[derived.mcp.tools.total]] ferramentas em todos os planos e na auto-hospedagem. Com `query_crm_measure`, um cliente calcula totais em todos os registros correspondentes, então "qual é o nosso pipeline ponderado das organizações na Baviera?" tem uma resposta exata. A [documentação do MCP](/docs/mcp) traz a configuração.
+**O seu próprio cliente de IA pelo MCP.** O Claude, o ChatGPT e outros clientes MCP usam [[derived.mcp.tools.total]] ferramentas em todos os planos e na hospedagem própria. Com `query_crm_measure`, um cliente calcula totais em todos os registros correspondentes, então "qual é o nosso pipeline ponderado das organizações na Baviera?" tem uma resposta exata. A [documentação do MCP](/docs/mcp) traz a configuração.
 
 **REST e webhooks.** Se os relatórios pertencem a outro sistema, leia os registros pela [API REST](/features/api) ou receba um webhook a cada mudança e mantenha a sua própria tabela de relatórios atualizada. O [n8n](/docs/n8n) pode fazer as duas coisas em um horário; ele roda separadamente e não faz parte do Customermates.
 

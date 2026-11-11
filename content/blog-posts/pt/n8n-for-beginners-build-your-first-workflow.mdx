@@ -32,7 +32,7 @@ Este n8n tutorial leva você por um pequeno workflow completo, do começo ao fim
 Se você pensa em usar o n8n com MCP, a [comparação das rotas do n8n MCP, com um exemplo de versão fixada](/blog/n8n-mcp), mostra a diferença entre conectar o n8n a um servidor de dados de clientes e expor o próprio n8n a um cliente de IA. Escolha a direção antes de configurar as credenciais.
 
 <ArticleSummary title="Resumo rápido">
-  <SummaryItem label="Onde rodar">n8n Cloud para começar rápido, ou a Community Edition gratuita self-hosted em Docker, se você consegue manter um servidor.</SummaryItem>
+  <SummaryItem label="Onde rodar">n8n Cloud para começar rápido, ou a Community Edition gratuita com hospedagem própria em Docker, se você consegue manter um servidor.</SummaryItem>
   <SummaryItem label="Primeiro workflow">Gatilho Webhook, um nó If que confere os dados, um nó de e-mail. Teste e depois publique.</SummaryItem>
   <SummaryItem label="Erro comum">Chamar a URL de teste depois de publicar. Um workflow publicado só escuta na URL de produção.</SummaryItem>
   <SummaryItem label="Antes de confiar nele">Adicione um workflow de erro, para que uma execução com falha chegue até você em vez de falhar em silêncio.</SummaryItem>
@@ -58,7 +58,7 @@ A documentação do n8n usa um vocabulário pequeno. Quando esses termos fazem s
 
 A última linha pesa no custo. A página de preços do n8n define uma execução como "a single run of your entire workflow" (uma única rodada do seu workflow inteiro), seja qual for o número de etapas ou o volume de dados processados. Um workflow de dez nós que roda uma vez é uma execução.
 
-## Nuvem ou self-hosted: onde rodar o n8n
+## Nuvem ou hospedagem própria: onde rodar o n8n
 
 Você tem duas opções. O n8n Cloud não exige nada além de uma conta. A Community Edition é gratuita e roda na sua própria máquina ou servidor, que passa a ser sua responsabilidade manter.
 
@@ -66,16 +66,16 @@ Você tem duas opções. O n8n Cloud não exige nada além de uma conta. A Commu
 |---|---|---|
 | n8n Cloud Starter | € 20 por mês, cobrados anualmente | 2.500 execuções por mês, 5 execuções simultâneas, usuários ilimitados |
 | n8n Cloud Pro | € 50 por mês, cobrados anualmente | 10.000 execuções por mês, mais execuções simultâneas, papéis de administrador, histórico de workflows mais longo |
-| Community Edition (self-hosted) | Software gratuito, você paga pelo servidor | Roda na sua infraestrutura, sob a Sustainable Use License do n8n |
+| Community Edition (hospedagem própria) | Software gratuito, você paga pelo servidor | Roda na sua infraestrutura, sob a Sustainable Use License do n8n |
 
 Preços verificados em 8 de outubro de 2026 na [página de preços do n8n](https://n8n.io/pricing/). Há também cobrança mensal, que custa mais; a página apresenta a opção anual como 17% de economia. O teste do Cloud dá os recursos do Pro com limite de 1.000 execuções e não exige cartão de crédito.
 
 Duas diferenças mudam o que uma pessoa iniciante consegue fazer:
 
-- **Community nodes.** O n8n Cloud só instala community nodes verificados. Os não verificados exigem uma instância self-hosted, segundo a [documentação de community nodes do n8n](https://docs.n8n.io/integrations/community-nodes/installation/).
+- **Community nodes.** O n8n Cloud só instala community nodes verificados. Os não verificados exigem uma instância com hospedagem própria, segundo a [documentação de community nodes do n8n](https://docs.n8n.io/integrations/community-nodes/installation/).
 - **Licença.** A Community Edition é publicada sob a [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), que permite o uso "for your own internal business purposes or for non-commercial or personal use" (para fins internos da própria empresa ou para uso não comercial ou pessoal). Automatizar a sua própria empresa está coberto. Revender o n8n como serviço hospedado, não.
 
-**Escolha o Cloud** se quiser começar hoje e ninguém na equipe quiser manter um servidor. **Faça self-hosting** se precisar de community nodes não verificados, quiser os dados na sua própria infraestrutura ou esperar tantas execuções que os limites custariam mais que um servidor pequeno.
+**Escolha o Cloud** se quiser começar hoje e ninguém na equipe quiser manter um servidor. **Use hospedagem própria** se precisar de community nodes não verificados, quiser os dados na sua própria infraestrutura ou esperar tantas execuções que os limites custariam mais que um servidor pequeno.
 
 Para testar a Community Edition localmente, o Docker é o caminho mais curto. Esta é uma versão mínima do comando do [guia de Docker do n8n](https://docs.n8n.io/hosting/installation/docker/):
 
@@ -178,7 +178,7 @@ A versão útil do primeiro workflow guarda a solicitação onde a sua equipe tr
   </Step>
 </Steps>
 
-O sentido inverso também funciona. Em **Configurações → Webhooks → Adicionar**, o Customermates envia um POST para um nó Webhook do n8n quando acontece um evento assinado, por exemplo `record.created` para a lista Contatos ou `record.updated` para a lista Negócios. Defina um secret para que o n8n possa verificar a assinatura. A [referência de webhooks](/docs/webhooks) mostra o payload. Um detalhe prático: o Customermates Cloud não alcança uma instância do n8n em `localhost`, então esse sentido exige o n8n Cloud ou um n8n self-hosted com endereço HTTPS público.
+O sentido inverso também funciona. Em **Configurações → Webhooks → Adicionar**, o Customermates envia um POST para um nó Webhook do n8n quando acontece um evento assinado, por exemplo `record.created` para a lista Contatos ou `record.updated` para a lista Negócios. Defina um secret para que o n8n possa verificar a assinatura. A [referência de webhooks](/docs/webhooks) mostra o payload. Um detalhe prático: o Customermates Cloud não alcança uma instância do n8n em `localhost`, então esse sentido exige o n8n Cloud ou um n8n com hospedagem própria com endereço HTTPS público.
 
 Alguns detalhes da [documentação de integração com o n8n](/docs/n8n) poupam tempo de depuração:
 
@@ -186,7 +186,7 @@ Alguns detalhes da [documentação de integração com o n8n](/docs/n8n) poupam 
 - `updateMany` e `deleteMany` aceitam no máximo 100 registros por requisição, então divida lotes maiores.
 - As entregas de webhook não seguem uma ordem estrita. Use o `timestamp` do payload para ordená-las e o ID do evento para descartar duplicatas.
 
-Existe também um community node do Customermates, `@customermates/n8n-nodes-crm`, com um nó de ação para registros do CRM e um nó de gatilho para eventos de webhook. Ele tem um cronograma de versões próprio, então confira se ele oferece suporte à API de registros atual antes de usar as ações de CRM. Como o n8n Cloud só instala community nodes verificados, conte com a rota do nó HTTP Request ali e use o community node em um n8n self-hosted.
+Existe também um community node do Customermates, `@customermates/n8n-nodes-crm`, com um nó de ação para registros do CRM e um nó de gatilho para eventos de webhook. Ele tem um cronograma de versões próprio, então confira se ele oferece suporte à API de registros atual antes de usar as ações de CRM. Como o n8n Cloud só instala community nodes verificados, conte com a rota do nó HTTP Request ali e use o community node em um n8n com hospedagem própria.
 
 ## n8n com IA: onde entra um modelo de linguagem? [#n8n-com-ia]
 
@@ -200,7 +200,7 @@ Se a ideia é o contrário, ou seja, deixar um assistente de IA operar o seu CRM
 
 ## Onde o Customermates entra, e onde não entra
 
-O n8n é um produto à parte. Ele não está incluído em nenhum plano do Customermates; você mesmo o roda ou assina o n8n Cloud. REST e MCP funcionam em todos os planos do Customermates Cloud, os webhooks em todos os planos pagos, que começam em [[commercial.price.starter.monthly]] por usuário por mês (veja os [preços](/pricing)), e os três funcionam na edição open source self-hosted.
+O n8n é um produto à parte. Ele não está incluído em nenhum plano do Customermates; você mesmo o roda ou assina o n8n Cloud. REST e MCP funcionam em todos os planos do Customermates Cloud, os webhooks em todos os planos pagos, que começam em [[commercial.price.starter.monthly]] por usuário por mês (veja os [preços](/pricing)), e os três funcionam na edição de código aberto com hospedagem própria.
 
 Nem toda automação de CRM precisa do n8n. Se a tarefa é "toda segunda-feira, revisar os negócios parados e redigir uma nota para cada um", isso pede mais julgamento do que ligações entre sistemas. No Customermates Cloud, uma [rotina](/docs/app-routines) roda o Mate, o assistente do aplicativo, em um agendamento ou em um evento de registro, com uma instrução salva, e usa créditos de IA hospedados. Se você prefere que o seu próprio cliente de IA trabalhe no CRM, conecte-o pelo [MCP](/docs/mcp). Use o n8n quando o trabalho for determinístico e passar por vários sistemas: formulário, CRM, planilha e chat da equipe.
 
@@ -212,7 +212,7 @@ Se você só precisa de contatos em uma planilha e de um e-mail por solicitaçã
 
 <Faq>
 <FaqItem question="O que é o n8n?">
-É uma plataforma de automação de workflows com editor visual. Você liga um gatilho a nós que buscam dados, verificam condições, enviam mensagens ou chamam APIs, e o workflow roda sozinho depois de publicado. O código-fonte é público, e há uma edição gratuita self-hosted e o n8n Cloud, pago.
+É uma plataforma de automação de workflows com editor visual. Você liga um gatilho a nós que buscam dados, verificam condições, enviam mensagens ou chamam APIs, e o workflow roda sozinho depois de publicado. O código-fonte é público, e há uma edição gratuita com hospedagem própria e o n8n Cloud, pago.
 </FaqItem>
 
 <FaqItem question="Como usar o n8n?">
@@ -232,11 +232,11 @@ Não. O editor visual, as expressões e os nós nativos cobrem a maioria dos wor
 </FaqItem>
 
 <FaqItem question="Quanto custa o n8n por mês?">
-A Community Edition self-hosted é gratuita; você paga pelo servidor. O n8n Cloud Starter custa € 20 por mês e o Pro, € 50 por mês, ambos cobrados anualmente, com 2.500 e 10.000 execuções por mês, respectivamente (verificado em 8 de outubro de 2026 na [página de preços do n8n](https://n8n.io/pricing/)). A cobrança mensal custa mais.
+A Community Edition com hospedagem própria é gratuita; você paga pelo servidor. O n8n Cloud Starter custa € 20 por mês e o Pro, € 50 por mês, ambos cobrados anualmente, com 2.500 e 10.000 execuções por mês, respectivamente (verificado em 8 de outubro de 2026 na [página de preços do n8n](https://n8n.io/pricing/)). A cobrança mensal custa mais.
 </FaqItem>
 
-<FaqItem question="O n8n é open source?">
-O código-fonte é público no GitHub, mas a licença é a Sustainable Use License, não uma licença open source aprovada pela OSI. Ela permite uso interno de negócios, uso não comercial e uso pessoal. Arquivos marcados como enterprise edition exigem uma n8n Enterprise License separada.
+<FaqItem question="O n8n é de código aberto?">
+O código-fonte é público no GitHub, mas a licença é a Sustainable Use License, não uma licença de código aberto aprovada pela OSI. Ela permite uso interno de negócios, uso não comercial e uso pessoal. Arquivos marcados como enterprise edition exigem uma n8n Enterprise License separada.
 </FaqItem>
 
 <FaqItem question="O que eu consigo fazer de fato com o n8n?">

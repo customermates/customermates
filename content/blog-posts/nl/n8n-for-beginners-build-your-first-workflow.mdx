@@ -149,13 +149,13 @@ De bruikbare versie van de eerste workflow bewaart de aanvraag waar je team erme
 
 <Steps>
   <Step title="Maak een API-sleutel aan">
-    Open in Customermates **Instellingen → API-sleutels & connectoren**, klik op **Toevoegen** en kies **Standaard API-sleutel**. De sleutel werkt met de rechten van de gebruiker die hem heeft aangemaakt, dus maak hem aan als een gebruiker die contactpersonen mag aanmaken. Details staan bij [API-sleutels](/docs/api-keys).
+    Open in Customermates **Instellingen › API-sleutels & connectoren**, klik op **Toevoegen** en kies **Standaard API-sleutel**. De sleutel werkt met de rechten van de gebruiker die hem heeft aangemaakt, dus maak hem aan als een gebruiker die contactpersonen mag aanmaken. Details staan bij [API-sleutels](/docs/api-keys).
   </Step>
   <Step title="Sla hem op als n8n-credential">
     Maak in n8n een **Header Auth**-credential met de headernaam `x-api-key` en de sleutel als waarde. Elke node die met het CRM praat, hergebruikt hem, dus een vervangen sleutel pas je op één plek aan.
   </Step>
   <Step title="Vervang de e-mailnode door een HTTP Request-node">
-    Zoek eerst één keer de ID's op: `POST <your Customermates address>/api/v1/model/discover` met `{}` geeft de ID van het type Contacts terug, en `POST /api/v1/model/read` met die ID in `typeIds` geeft de veld-ID's en de huidige schemarevisie terug. Voeg daarna op de true-tak van de If-node een **HTTP Request**-node toe: methode `POST`, URL `<your Customermates address>/api/v1/records/mutate`, authenticatie via de Header Auth-credential en een JSON-body:
+    Zoek eerst één keer de ID's op: `POST <your Customermates address>/api/v1/model/discover` met `{}` geeft de ID van het type Contactpersonen terug, en `POST /api/v1/model/read` met die ID in `typeIds` geeft de veld-ID's en de huidige schemarevisie terug. Voeg daarna op de true-tak van de If-node een **HTTP Request**-node toe: methode `POST`, URL `<your Customermates address>/api/v1/records/mutate`, authenticatie via de Header Auth-credential en een JSON-body:
 
     ```json
     {
@@ -180,7 +180,7 @@ De bruikbare versie van de eerste workflow bewaart de aanvraag waar je team erme
   </Step>
 </Steps>
 
-De omgekeerde richting werkt ook. Onder **Instellingen → Webhooks → Toevoegen** stuurt Customermates een POST naar een Webhook-node in n8n wanneer een geabonneerde gebeurtenis plaatsvindt, bijvoorbeeld `record.created` voor de lijst Contactpersonen of `record.updated` voor de lijst Deals. Stel een secret in, zodat n8n de handtekening kan controleren. De [webhookreferentie](/docs/webhooks) toont de payload. Een praktisch addertje: Customermates Cloud kan een n8n-instantie op `localhost` niet bereiken, dus voor deze richting heb je n8n Cloud of een zelf gehoste n8n met een openbaar HTTPS-adres nodig.
+De omgekeerde richting werkt ook. Onder **Instellingen › Webhooks › Toevoegen** stuurt Customermates een POST naar een Webhook-node in n8n wanneer een geabonneerde gebeurtenis plaatsvindt, bijvoorbeeld `record.created` voor de lijst Contactpersonen of `record.updated` voor de lijst Deals. Stel een secret in, zodat n8n de handtekening kan controleren. De [webhookreferentie](/docs/webhooks) toont de payload. Een praktisch addertje: Customermates Cloud kan een n8n-instantie op `localhost` niet bereiken, dus voor deze richting heb je n8n Cloud of een zelf gehoste n8n met een openbaar HTTPS-adres nodig.
 
 Een paar details uit de [n8n-integratiedocumentatie](/docs/n8n) besparen je debugtijd:
 

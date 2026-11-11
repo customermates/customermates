@@ -51,7 +51,7 @@ Cada célula indica o primeiro plano em que a página de preços do fornecedor l
 | Pipedrive | Teste de 14 dias, sem plano gratuito | Growth (etapas if/else) | Growth | Não comparado aqui | Growth | O Premium lista 150.000 tokens de API |
 | Salesforce Sales Cloud | Free Suite | Starter Suite (fluxos de vendas, distribuição de leads) | Não comparado aqui | Não comparado aqui | Pro Suite | Não comparado aqui |
 | Zoho CRM | Edição gratuita, 3 usuários | A edição gratuita lista automação de workflows | Não comparado aqui | Standard (ligações integradas) | Edição gratuita e acima | Edição gratuita, 5.000 chamadas por dia |
-| Customermates | Teste de [[commercial.trial.days]] dias; plano gratuito hospedado para [[commercial.limit.free.maxMembers]] pessoa; núcleo AGPL gratuito para auto-hospedar | Sem mecanismo de regras; Rotinas no Customermates Cloud, mais webhooks para o seu próprio n8n | Não tem | Não tem | Pipeline ponderado pelas probabilidades das etapas, sem previsão de vendas | REST, webhooks e MCP em todos os planos pagos |
+| Customermates | Teste de [[commercial.trial.days]] dias; plano gratuito hospedado para [[commercial.limit.free.maxMembers]] pessoa; núcleo AGPL gratuito para hospedar por conta própria | Sem mecanismo de regras; Rotinas no Customermates Cloud, mais webhooks para o seu próprio n8n | Não tem | Não tem | Pipeline ponderado pelas probabilidades das etapas, sem previsão de vendas | REST, webhooks e MCP em todos os planos pagos |
 
 Duas coisas que esta tabela não consegue mostrar. Ter um recurso no plano não significa que ele seja bom para o seu trabalho, e os limites variam: os workflows do HubSpot Starter têm gatilhos e ações restritos, e o plano Standard do monday limita as automações a 250 por mês. Confira o limite, não só o nome do plano, e confirme as células em aberto durante o teste.
 
@@ -155,7 +155,7 @@ Três linhas das tabelas acima merecem uma leitura atenta:
 
 - **IA.** No Customermates Cloud, o assistente Mate prepara resumos e rascunhos de resposta e usa créditos de IA hospedados; todo plano pago inclui créditos de IA hospedados mensais por usuário ativo, veja os preços. As Rotinas executam instruções salvas em um horário ou quando um registro muda. Se você prefere o Claude, o ChatGPT ou outro cliente, ele trabalha com o CRM por [MCP](/docs/mcp) em todos os planos, cobrado pelo seu próprio provedor de IA.
 - **Automação.** Não há mecanismo de regras. Webhooks e a API REST se conectam a uma instância do n8n que você mesmo opera.
-- **Hospedagem.** O núcleo AGPL pode ser [auto-hospedado](/features/self-hosted) com Docker, com REST, webhooks e MCP. A instalação própria não tem caixa de entrada, Mate nem créditos hospedados.
+- **Hospedagem.** O núcleo AGPL pode ser [hospedado por conta própria](/features/self-hosted) com Docker, com REST, webhooks e MCP. A instalação própria não tem caixa de entrada, Mate nem créditos hospedados.
 
 O valor de um negócio vem dos itens de linha, cada um um serviço vezes a quantidade, e cada etapa, um campo configurável de Escolha única, carrega uma probabilidade. O pipeline ponderado é essa aritmética, não uma previsão. Os registros são importados e exportados como planilhas Excel ou JSON, uma lista por vez.
 
@@ -187,7 +187,7 @@ Operacional, analítico e colaborativo são os três que a maioria dos guias cit
 </FaqItem>
 
 <FaqItem question="Qual CRM é gratuito?">
-O HubSpot Free Tools cobre até 2 usuários, a edição gratuita do Zoho CRM 3 usuários, e o Salesforce lista um Free Suite. Pipedrive e monday CRM não têm plano gratuito. O Customermates Cloud tem um plano gratuito para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem a caixa de entrada, o Mate nem as rotinas; o núcleo AGPL pode ser auto-hospedado sem taxa de licença, sem a caixa de entrada nem o Mate. Veja o [guia de CRM grátis](/blog/free-crm).
+O HubSpot Free Tools cobre até 2 usuários, a edição gratuita do Zoho CRM 3 usuários, e o Salesforce lista um Free Suite. Pipedrive e monday CRM não têm plano gratuito. O Customermates Cloud tem um plano gratuito para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem a caixa de entrada, o Mate nem as rotinas; o núcleo AGPL pode ser hospedado por conta própria sem taxa de licença, sem a caixa de entrada nem o Mate. Veja o [guia de CRM grátis](/blog/free-crm).
 </FaqItem>
 
 <FaqItem question="Posso trocar de CRM depois?">

@@ -76,7 +76,7 @@ Toda linha tem as caixas de seleção **Criar**, **Editar** e **Excluir** (em **
 | **Rotinas** (Cloud) | **Criar**, **Editar** (e executar ou testar agora), **Excluir**; excluir uma rotina ou pausar a de outra pessoa também exige a função **Administrador**. **Todos** ou **Atribuídos** (rotinas próprias). |
 | **Links públicos** | **Criar**: publicar as suas próprias visualizações de painel e de lista por link público ([Painel](/docs/app-dashboard#public-links)). |
 
-Salvar uma nova função, webhook ou rotina exige **Criar**, e uma já existente exige **Editar**. As predefinições de acesso são definidas por membros com **Usuários e funções** **Editar**; um gestor do Modelo de dados só pode aplicar uma ao criar uma lista, e ampliar as permissões de listas existentes exige **Usuários e funções** **Editar**. Mensagens da caixa de entrada e Rotinas ficam ocultas nas instalações auto-hospedadas.
+Salvar uma nova função, webhook ou rotina exige **Criar**, e uma já existente exige **Editar**. As predefinições de acesso são definidas por membros com **Usuários e funções** **Editar**; um gestor do Modelo de dados só pode aplicar uma ao criar uma lista, e ampliar as permissões de listas existentes exige **Usuários e funções** **Editar**. Mensagens da caixa de entrada e Rotinas ficam ocultas nas instalações com hospedagem própria.
 
 ### O que é a função Administrador? [#what-is-the-admin-role]
 
@@ -90,7 +90,7 @@ Todo espaço de trabalho começa com uma função integrada, **Administrador**, 
 
 ## Faturamento [#subscription-tab]
 
-[Faturamento](app:settings/billing) mostra o plano, o status, as licenças e a cobrança de um espaço de trabalho no Cloud; as instalações auto-hospedadas não têm plano, e a página redireciona para o Painel. O Customermates cobra pelo Lemon Squeezy, que cuida do checkout e do portal do cliente. Cada espaço de trabalho tem o próprio plano, assinatura, faturas e reserva de créditos de IA hospedada; veja [como cada espaço de trabalho é cobrado](/docs/app-workspaces#how-is-each-workspace-billed).
+[Faturamento](app:settings/billing) mostra o plano, o status, as licenças e a cobrança de um espaço de trabalho no Cloud; as instalações com hospedagem própria não têm plano, e a página redireciona para o Painel. O Customermates cobra pelo Lemon Squeezy, que cuida do checkout e do portal do cliente. Cada espaço de trabalho tem o próprio plano, assinatura, faturas e reserva de créditos de IA hospedada; veja [como cada espaço de trabalho é cobrado](/docs/app-workspaces#how-is-each-workspace-billed).
 
 | Campo | O que ele mostra |
 |---|---|
@@ -181,11 +181,11 @@ O [Registro de auditoria](app:settings/activity) é o registro de eventos do esp
 - **Administração e sistema**: membros, funções, webhooks, rotinas, contas conectadas, páginas da Base de conhecimento, avisos legais e exportações. Os segredos dos webhooks e os valores de cabeçalhos são ocultados.
 - **Configuração**: listas, campos, relações e acesso a registros por função. Só as funções com **Modelo de dados** **Editar** ou **Usuários e funções** **Editar** veem essas entradas.
 
-Lê-lo exige acesso de leitura **Todos** em **Registro de atividades**. As alterações de registros seguem o seu acesso a registros, e as entradas da Base de conhecimento exigem acesso de leitura à Base de conhecimento. Clique em uma entrada para ver os detalhes; salve visualizações como nas listas. Uma alteração feita por uma chave de API ou por um agente de IA conectado pelo MCP cita a chave ou o aplicativo depois da pessoa, por exemplo "Max Bergmann via Claude Desktop". As entradas são mantidas por tempo indeterminado, as mensagens nunca aparecem aqui, e o histórico começa na atualização para registros configuráveis. Disponível em todos os planos e nas instalações auto-hospedadas.
+Lê-lo exige acesso de leitura **Todos** em **Registro de atividades**. As alterações de registros seguem o seu acesso a registros, e as entradas da Base de conhecimento exigem acesso de leitura à Base de conhecimento. Clique em uma entrada para ver os detalhes; salve visualizações como nas listas. Uma alteração feita por uma chave de API ou por um agente de IA conectado pelo MCP cita a chave ou o aplicativo depois da pessoa, por exemplo "Max Bergmann via Claude Desktop". As entradas são mantidas por tempo indeterminado, as mensagens nunca aparecem aqui, e o histórico começa na atualização para registros configuráveis. Disponível em todos os planos e nas instalações com hospedagem própria.
 
 ## Webhooks [#webhooks-tab]
 
-[Webhooks](app:settings/webhooks) envia eventos do espaço de trabalho para os seus sistemas; payloads, assinaturas e novas tentativas estão em [Webhooks](/docs/webhooks). Abri-lo exige acesso de leitura **Todos** em **API e webhooks**; adicionar exige **Criar**, editar **Editar**, excluir **Excluir**. Disponível em todo plano pago e nas instalações auto-hospedadas, não no Free.
+[Webhooks](app:settings/webhooks) envia eventos do espaço de trabalho para os seus sistemas; payloads, assinaturas e novas tentativas estão em [Webhooks](/docs/webhooks). Abri-lo exige acesso de leitura **Todos** em **API e webhooks**; adicionar exige **Criar**, editar **Editar**, excluir **Excluir**. Disponível em todo plano pago e nas instalações com hospedagem própria, não no Free.
 
 Clique em [Adicionar](app:settings/webhooks?focus=add), ou em uma linha para editar. A caixa **Webhook** tem **URL**, **Descrição**, **Eventos**, **Segredo**, **Cabeçalhos personalizados**, **Modelo do corpo** e **Ativado**. Para eventos de registros, você também escolhe as listas e os filtros, e o **Proprietário do acesso aos registros**: as entregas usam as permissões atuais desse membro, e só um administrador pode escolher outra pessoa. Desmarcar **Ativado** pausa as entregas sem excluir o webhook. Sem **Editar**, o segredo e os valores dos cabeçalhos aparecem como `********`. **Excluir** pede confirmação; as entregas anteriores ficam. A busca em [Filtros](app:settings/webhooks?focus=filter) corresponde à URL.
 

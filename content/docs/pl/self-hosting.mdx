@@ -30,7 +30,7 @@ Customermates to oprogramowanie typu open core. Kod poza `ee/` oraz materiały z
 
 Każda instalacja hostowana samodzielnie korzysta z zestawu funkcji Starter. Te funkcje dostępne tylko w chmurze pozostają wyłączone, nawet jeśli płacisz też za plan Cloud: połączone konta wiadomości (e-mail, LinkedIn, WhatsApp, Instagram, Telegram), zintegrowana Skrzynka odbiorcza, połączone kalendarze i ich wydarzenia, hostowany asystent Mate z hostowanymi kredytami AI, Rutyny, które uruchamia Mate, oraz konfiguracja przestrzeni roboczej przez AI w kreatorze wdrożenia, więc nowa przestrzeń robocza startuje bez list. Zewnętrzni klienci AI nadal działają przez MCP z Twoim własnym dostawcą AI. Enterprise SSO (SAML) i white-labeling nie są zaimplementowane w żadnym z modeli wdrożenia.
 
-Aplikacja ukrywa to, co nie ma zastosowania: pasek boczny nie pokazuje Skrzynki odbiorczej ani Rutyn, w Ustawieniach nie ma strony Rozliczenia ani Kanały i kalendarze, a edytor ról ukrywa wiersze **Wiadomości w skrzynce odbiorczej** i **Rutyny**. Otwarcie jednej z tych stron przez adres URL przenosi cię do Pulpitu.
+Aplikacja ukrywa to, co nie ma zastosowania: pasek boczny nie pokazuje Skrzynki odbiorczej ani Rutyn, w Ustawieniach nie ma strony Rozliczenia ani Kanały i kalendarze, a edytor ról ukrywa wiersze **Wiadomości w skrzynce odbiorczej** i **Rutyny**. Otwarcie jednej z tych stron przez adres URL przenosi Cię do Pulpitu.
 
 Cała reszta działa tak jak w chmurze: listy i widoki, import i eksport Excela, Model danych, widżety pulpitu, członkowie i role, Dziennik aktywności, REST, webhooki i MCP.
 
@@ -195,7 +195,7 @@ Aby decydować, kiedy następują aktualizacje, przypnij obraz w `docker-compose
 
 **Aktualizacja z wydania starszego niż 14 października 2026:** wydanie, które uczyniło listy, pola i obliczenia konfigurowalnymi, konwertuje dane CRM każdej przestrzeni roboczej przy pierwszym starcie nowego obrazu. Rekordy, wartości, powiązania, osoby przypisane, strony Bazy wiedzy, członkowie, role i klucze API są zachowane. Każdy widżet pulpitu, zapisane widoki i osobiste ustawienia list rekordów, terminologia wybrana dla list oraz dziennik audytu są usuwane, więc historia zaczyna się od nowa w chwili aktualizacji, a każdy webhook jest wyłączany, dopóki nie włączysz go ponownie ze zdarzeniami rekordów, które ma wysyłać. Przed tą aktualizacją zrób kopię zapasową i uruchom inwentaryzację tylko do odczytu z [notatek o migracji](https://github.com/customermates/customermates/blob/main/prisma/migrations/20261010000000_dynamic_record_model/README.md#before-deploying), na przykład w `docker compose exec postgres sh -c 'psql -U "$POSTGRES_USER" "$POSTGRES_DB"'`, aby wyświetlić webhooki, które zostaną wyłączone. Jeśli konwersja odrzuci dane, których nie może przekonwertować, niczego nie zmienia, aplikacja nie startuje, a jej log wymienia pola i liczbę odrzuconych wartości: przywróć kopię zapasową, uruchom poprzedni obraz, popraw te rekordy i zaktualizuj ponownie.
 
-Z klonu repozytorium `scripts/selfhost-update.sh` wykonuje tę aktualizację za ciebie: zapisuje kopię zapasową w `backups/`, potem pobiera obrazy i odtwarza kontenery. Obok niego `scripts/selfhost-setup.sh` tworzy `.env` z szablonu, sprawdza wymagane wartości i uruchamia instancję, `scripts/selfhost-restart.sh` odtwarza kontener aplikacji, żeby odczytał zmiany w `.env`, a `scripts/selfhost-reset.sh` usuwa wszystkie dane jak `docker compose down -v`, gdy wpiszesz `RESET`.
+Z klonu repozytorium `scripts/selfhost-update.sh` wykonuje tę aktualizację za Ciebie: zapisuje kopię zapasową w `backups/`, potem pobiera obrazy i odtwarza kontenery. Obok niego `scripts/selfhost-setup.sh` tworzy `.env` z szablonu, sprawdza wymagane wartości i uruchamia instancję, `scripts/selfhost-restart.sh` odtwarza kontener aplikacji, żeby odczytał zmiany w `.env`, a `scripts/selfhost-reset.sh` usuwa wszystkie dane jak `docker compose down -v`, gdy wpiszesz `RESET`.
 
 ## Jak zastosować zmiany w .env? [#apply-env-changes]
 
@@ -253,7 +253,7 @@ Regularnie testuj przywracanie na osobnej maszynie. Przejście na nową główn�
 
 ## Jakie zaplanowane zadania muszę uruchomić? [#scheduled-jobs]
 
-Chmura wywołuje według harmonogramu dwa endpointy konserwacyjne; instancja hostowana samodzielnie uruchamia je tylko wtedy, gdy ty je wywołasz. Bez codziennego wywołania elementy w [Koszu](/docs/app-trash) nigdy nie są usuwane na stałe po upływie 30 dni.
+Chmura wywołuje według harmonogramu dwa endpointy konserwacyjne; instancja hostowana samodzielnie uruchamia je tylko wtedy, gdy Ty je wywołasz. Bez codziennego wywołania elementy w [Koszu](/docs/app-trash) nigdy nie są usuwane na stałe po upływie 30 dni.
 
 - `/api/cron/lifecycle`, raz dziennie: usuwa elementy Kosza, którym minęło 30 dni, pliki usunięte z rekordów 30 dni temu i wysłane pliki, które nigdy nie zostały zapisane, oraz wykonuje inne codzienne porządki. W instancji hostowanej samodzielnie pomija zadania chmury dotyczące okresów próbnych, subskrypcji i połączonych kont.
 - `/api/cron/record-deliveries`, co 5 minut (opcjonalnie): uruchamia należne dostawy webhooków, przetwarzanie zdarzeń, wyodrębnianie tekstu z dołączonych plików i inne prace w tle nad rekordami, których nie podjęło żadne działające zadanie, na przykład po restarcie kontenera.

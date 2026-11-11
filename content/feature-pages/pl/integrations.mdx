@@ -73,7 +73,7 @@ Integracja zwykle przenosi trzy rodzaje informacji: dane kontrahenta (nazwa firm
 
 Dane między systemami płyną na dwa sposoby. Pierwszy to **wywołanie**: Twój program albo narzędzie do automatyzacji czyta rekordy z CRM lub zapisuje w nim zmianę przez REST API. Drugi to **zdarzenie**: CRM sam wysyła wiadomość do odbiorcy, gdy coś się zmieni, i właśnie to robi webhook. Zdarzenie jest szybsze i nie wymaga ciągłego odpytywania; wywołanie daje Ci kontrolę nad tym, kiedy i co się zapisuje. Do jednorazowej przeprowadzki arkusza z klientami wystarczy import pliku.
 
-Między dwoma systemami trzeba jeszcze uzgodnić **mapowanie pól**: które pole w jednym programie odpowiada któremu w drugim i jak przekładają się wartości, na przykład etapy lejka sprzedaży na statusy zamówień. Synchronizację w obie strony składasz z dwóch przepływów (webhook w jedną stronę, wywołanie API w drugą); gotowej synchronizacji na jedno kliknięcie Customermates nie ma. Żeby zmiany nie odbijały się w kółko, ustal, który system jest właścicielem każdego pola.
+Między dwoma systemami trzeba jeszcze uzgodnić **mapowanie pól**: które pole w jednym programie odpowiada któremu w drugim i jak przekładają się wartości, na przykład etapy pipeline'u sprzedaży na statusy zamówień. Synchronizację w obie strony składasz z dwóch przepływów (webhook w jedną stronę, wywołanie API w drugą); gotowej synchronizacji na jedno kliknięcie Customermates nie ma. Żeby zmiany nie odbijały się w kółko, ustal, który system jest właścicielem każdego pola.
 
 ## Czy CRM i ERP to to samo? [#crm-a-erp]
 
@@ -140,7 +140,7 @@ Customermates nie ma aplikacji Slack, kanału Slack w skrzynce odbiorczej ani ek
 
 **Droga 1, tylko webhook.** [Przychodzące webhooki](https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/) Slacka przyjmują POST JSON, taki jak `{"text": "Hello"}`, i publikują go na jednym kanale. Szablon treści Customermates tworzy dokładnie to:
 
-**Droga 2, n8n.** Użyj n8n, gdy wiadomość wymaga logiki: alert tylko wtedy, gdy **Etap** szansy sprzedaży osiągnie określoną wartość, cotygodniowy przegląd lejka sprzedaży z zaplanowanego `POST /api/v1/records/query` albo zamiana skrótu Slacka w nowy kontakt przez API. Rozmowy ze Slacka w obu przypadkach nigdy nie pojawiają się w skrzynce odbiorczej Customermates.
+**Droga 2, n8n.** Użyj n8n, gdy wiadomość wymaga logiki: alert tylko wtedy, gdy **Etap** szansy sprzedaży osiągnie określoną wartość, cotygodniowy przegląd pipeline'u sprzedaży z zaplanowanego `POST /api/v1/records/query` albo zamiana skrótu Slacka w nowy kontakt przez API. Rozmowy ze Slacka w obu przypadkach nigdy nie pojawiają się w skrzynce odbiorczej Customermates.
 
 ## Jak zaplanować integrację CRM, żeby działała w praktyce? [#plan-integracji]
 

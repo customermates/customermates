@@ -36,7 +36,7 @@ Raramente você monta esse banco de dados do zero. Você escolhe um CRM, decide 
   <SummaryItem label="Como montar">Defina primeiro os tipos de registro, depois os campos pelos quais você filtra e depois uma chave única por pessoa. Limpe antes de importar e importe as empresas antes das pessoas.</SummaryItem>
   <SummaryItem label="O que o estraga">Duplicados, campos de texto livre que deveriam ser escolhas e ninguém responsável pela limpeza.</SummaryItem>
   <SummaryItem label="Tirar os dados de lá">Planeje a exportação antes de precisar dela. O Customermates exporta uma lista por vez como Excel ou JSON; não há exportação da conta inteira.</SummaryItem>
-  <SummaryItem label="Customermates">Começa sem listas: você cria as de que precisa (contatos, organizações, negócios ou as suas próprias), com campos tipados e relacionamentos, a partir de [[commercial.price.starter.monthly]] por usuário por mês na nuvem, ou auto-hospedado sob AGPL.</SummaryItem>
+  <SummaryItem label="Customermates">Começa sem listas: você cria as de que precisa (contatos, organizações, negócios ou as suas próprias), com campos tipados e relacionamentos, a partir de [[commercial.price.starter.monthly]] por usuário por mês na nuvem, ou com hospedagem própria sob AGPL.</SummaryItem>
 </ArticleSummary>
 
 O banco de dados é só parte da escolha: teste como as pessoas encontram e atualizam esses registros usando a lista de verificação de navegador e celular do [guia de CRM app](/blog/crm-app).
@@ -84,7 +84,7 @@ O padrão: HubSpot e Salesforce deixam você adicionar e configurar os seus pró
 
 ## Como o Customermates modela as listas centrais
 
-O Customermates guarda os dados do CRM em listas configuráveis, e nenhuma lista vem embutida. No Customermates Cloud, a configuração do espaço de trabalho com IA projeta as listas a partir das suas respostas; um espaço de trabalho auto-hospedado começa vazio, e as pessoas que gerenciam o modelo de dados criam as listas em Modelo de dados. A configuração sempre cria uma lista de pessoas e Tarefas, em geral Organizações e Negócios, e um catálogo de serviços ou produtos só quando você os vende. Um resultado típico é este, como descrito na [documentação do modelo de dados](/docs/concepts).
+O Customermates guarda os dados do CRM em listas configuráveis, e nenhuma lista vem embutida. No Customermates Cloud, a configuração do espaço de trabalho com IA projeta as listas a partir das suas respostas; um espaço de trabalho com hospedagem própria começa vazio, e as pessoas que gerenciam o modelo de dados criam as listas em Modelo de dados. A configuração sempre cria uma lista de pessoas e Tarefas, em geral Organizações e Negócios, e um catálogo de serviços ou produtos só quando você os vende. Um resultado típico é este, como descrito na [documentação do modelo de dados](/docs/concepts).
 
 | Lista (nome padrão) | Um registro é | Normalmente ligado a | O que saber |
 |---|---|---|---|
@@ -173,13 +173,13 @@ Aqui está o mesmo projeto no Customermates, configurado do jeito que o produto 
 
 **Visualizações.** Salve "Sem atualização há 90 dias" filtrando Atualizado em com Mais antigo que… 90 dias, e "Clientes sem organização". Compartilhe "Sem atualização há 90 dias" com a equipe toda ou com funções selecionadas, para que todos trabalhem a partir da mesma lista.
 
-**Custo.** Quatro pessoas no Starter pagam [[commercial.price.starter.monthly.seats.4]] por mês. No Pro, que acrescenta a [caixa de entrada unificada](/features/unified-inbox) para que a conta de e-mail, LinkedIn ou WhatsApp conectada de cada usuário mostre as conversas ao lado do cliente, são [[commercial.price.pro.monthly.seats.4]] por mês. A cobrança é mensal, e o seu primeiro espaço de trabalho começa com o Pro grátis por [[commercial.trial.days]] dias, sem cartão de crédito. Auto-hospedar o núcleo de código aberto não tem taxa de licença, mas também não tem caixa de entrada nem Mate.
+**Custo.** Quatro pessoas no Starter pagam [[commercial.price.starter.monthly.seats.4]] por mês. No Pro, que acrescenta a [caixa de entrada unificada](/features/unified-inbox) para que a conta de e-mail, LinkedIn ou WhatsApp conectada de cada usuário mostre as conversas ao lado do cliente, são [[commercial.price.pro.monthly.seats.4]] por mês. A cobrança é mensal, e o seu primeiro espaço de trabalho começa com o Pro grátis por [[commercial.trial.days]] dias, sem cartão de crédito. Hospedar por conta própria o núcleo de código aberto não tem taxa de licença, mas também não tem caixa de entrada nem Mate.
 
 **Uma rotina para a qualidade dos dados (Customermates Cloud).** O Mate, o assistente do Customermates Cloud, usa créditos de IA hospedados. Uma rotina executa instruções salvas em um horário ou diante de um evento de registro, como a pessoa que é dona dela; o Pro inclui [[commercial.entitlement.pro.includedRoutinesPerUser]] rotinas por usuário. Uma rotina semanal poderia levar esta instrução:
 
 > Toda segunda-feira, liste os clientes criados nos últimos 7 dias que não têm organização vinculada ou não têm e-mail, e liste as organizações sem valor em Segmento. Informe as listas no resumo da execução. Não altere nenhum registro e não envie nenhuma mensagem.
 
-A última frase importa. O Mate pode enviar mensagens quando uma instrução pede, então uma rotina feita só para informar precisa dizer isso. Se você prefere o seu próprio cliente de IA, o Claude, o ChatGPT e outros clientes MCP podem consultar os mesmos registros por meio de [[derived.mcp.tools.total]] [ferramentas MCP](/docs/mcp), no Cloud e auto-hospedado.
+A última frase importa. O Mate pode enviar mensagens quando uma instrução pede, então uma rotina feita só para informar precisa dizer isso. Se você prefere o seu próprio cliente de IA, o Claude, o ChatGPT e outros clientes MCP podem consultar os mesmos registros por meio de [[derived.mcp.tools.total]] [ferramentas MCP](/docs/mcp), no Cloud e com hospedagem própria.
 
 Um banco de dados se paga quando cada registro tem um próximo passo. No Pro, as conversas se juntam ao cadastro do cliente, o Mate ou o seu próprio cliente de IA rascunha a resposta e o próximo passo, e você revisa, edita e envia. Para testar isso nos seus próprios registros, [comece o seu teste de [[commercial.trial.days]] dias](/auth/signup?job=followup).
 
@@ -214,7 +214,7 @@ A [documentação de registros](/docs/app-records) lista todos os limites de imp
 
 Na UE, um banco de dados de CRM de pessoas contém dados pessoais conforme o [GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj). Três princípios do Artigo 5 se traduzem diretamente no projeto do banco de dados: guardar apenas dados "limitados ao que é necessário" (menos campos), mantê-los corretos (a rotina de limpeza) e limitar por quanto tempo você os armazena (a exclusão trimestral). O Artigo 17 dá às pessoas o direito de ter os dados apagados, então você precisa conseguir encontrar e apagar uma pessoa por completo. O Artigo 28 exige um contrato com qualquer provedor que armazene os dados para você.
 
-Para o Customermates Cloud, o [acordo de processamento de dados](/dpa) é público, o banco de dados da aplicação está configurado na região AWS de Frankfurt e os [subprocessadores](/subprocessors), inclusive os provedores dos EUA, estão listados. O Customermates não possui certificação de conformidade. Se você precisa dos dados no seu próprio servidor, [auto-hospede o núcleo de código aberto](/features/self-hosted).
+Para o Customermates Cloud, o [acordo de processamento de dados](/dpa) é público, o banco de dados da aplicação está configurado na região AWS de Frankfurt e os [subprocessadores](/subprocessors), inclusive os provedores dos EUA, estão listados. O Customermates não possui certificação de conformidade. Se você precisa dos dados no seu próprio servidor, [hospede por conta própria o núcleo de código aberto](/features/self-hosted).
 
 No Brasil, a LGPD segue uma lógica parecida e vale para o banco de dados de CRM de pessoas: use os dados para uma finalidade definida, guarde só o necessário, mantenha-os corretos e saiba atender ao pedido de um titular para consultar ou eliminar os dados dele. Registre de onde cada contato veio e por que você o guarda, e, se o provedor guarda os dados fora do Brasil, como na região de Frankfurt do Customermates Cloud, peça as informações sobre a transferência internacional. É um contexto geral, não aconselhamento jurídico.
 
@@ -260,11 +260,11 @@ Não existe uma lista oficial, e as fontes variam. Uma divisão comum é pessoas
 </FaqItem>
 
 <FaqItem question="Existe um banco de dados de CRM gratuito?">
-Sim, dentro de limites. Uma planilha não custa nada, vários CRMs na nuvem têm planos gratuitos com limite de usuários ou de registros, e um CRM de código aberto auto-hospedado não tem taxa de licença, mas exige servidor e manutenção. O [guia de CRM grátis](/blog/free-crm) compara as opções.
+Sim, dentro de limites. Uma planilha não custa nada, vários CRMs na nuvem têm planos gratuitos com limite de usuários ou de registros, e um CRM de código aberto com hospedagem própria não tem taxa de licença, mas exige servidor e manutenção. O [guia de CRM grátis](/blog/free-crm) compara as opções.
 </FaqItem>
 
 <FaqItem question="Quanto custa um banco de dados de CRM?">
-Uma planilha ou um CRM de código aberto auto-hospedado não tem taxa de licença, mas você paga em tempo de configuração e manutenção. Os CRMs na nuvem cobram, na maioria, por usuário e por mês. No Customermates Cloud são [[commercial.price.starter.monthly]] por usuário no Starter e [[commercial.price.pro.monthly]] no Pro com a caixa de entrada unificada; veja os [preços](/pricing).
+Uma planilha ou um CRM de código aberto com hospedagem própria não tem taxa de licença, mas você paga em tempo de configuração e manutenção. Os CRMs na nuvem cobram, na maioria, por usuário e por mês. No Customermates Cloud são [[commercial.price.starter.monthly]] por usuário no Starter e [[commercial.price.pro.monthly]] no Pro com a caixa de entrada unificada; veja os [preços](/pricing).
 </FaqItem>
 </Faq>
 

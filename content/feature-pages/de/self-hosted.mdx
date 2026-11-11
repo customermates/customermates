@@ -95,7 +95,7 @@ sections:
       - title: "Editionsgrenze prüfen"
         description: "Stellen Sie sicher, dass der Funktionsumfang von Starter die benötigten Datensätze, Ansichten und Schnittstellen abdecken."
       - title: "Externe Dienste erfassen"
-        description: "Listen Sie alle geplanten SMTP-, OAuth-, Monitoring-, Workflow- und KI-Anbieter sowie deren Datenzugriff auf."
+        description: "Listen Sie alle geplanten Anbieter für E-Mail (Resend), OAuth, Monitoring, Workflows und KI sowie deren Datenzugriff auf."
       - title: "Betrieb entwerfen"
         description: "Definieren Sie Backups, getestete Wiederherstellung, Updates, TLS, Monitoring und Zugriffskontrollen."
       - title: "Ohne Kundendaten testen"
@@ -161,7 +161,7 @@ Die Compose-Datei enthält weder n8n noch ein KI-Modell, einen E-Mail-Versanddie
   title="Die Deployment-Grenze ist kleiner als die gesamte Systemgrenze"
   variant="proof"
 >
-  Anwendung und Datenbank können auf Ihrer Infrastruktur laufen. SMTP, OAuth,
+  Anwendung und Datenbank können auf Ihrer Infrastruktur laufen. E-Mail-Versand über Resend, OAuth,
   Monitoring, Workflow-Tools und externe KI bleiben bei entsprechender
   Konfiguration separate Dienste. Erfassen Sie diese Anbieter, bevor Sie sich
   für das Betriebsmodell entscheiden.
@@ -192,7 +192,7 @@ Diese Trennung ist beim Vergleich eines [Open-Source-CRMs](/blog/open-source-crm
 
 Sie bestimmen, wo Anwendung und PostgreSQL laufen und wie Netzwerkzugriff, Backups, Aufbewahrung und Updates konfiguriert werden. Das gibt Ihnen Kontrolle über die Infrastruktur, garantiert jedoch weder Compliance noch Sicherheit oder einen vollständig isolierten Betrieb.
 
-Jeder angebundene Dienst bildet weiterhin eine eigene Grenze der Datenverarbeitung. OAuth-Anbieter, SMTP, Monitoring, Workflow-Tools und externe KI-Anbieter erhalten die Daten, die Ihre Konfiguration an sie übermittelt. Die Fehlerdiagnose bleibt auf Ihrem Server; Betreiberbenachrichtigungen verwenden den von Ihnen konfigurierten Empfänger und E-Mail-Anbieter. Dies ist keine pauschale Aussage zur Telemetrie.
+Jeder angebundene Dienst bildet weiterhin eine eigene Grenze der Datenverarbeitung. OAuth-Anbieter, Resend für den E-Mail-Versand, Monitoring, Workflow-Tools und externe KI-Anbieter erhalten die Daten, die Ihre Konfiguration an sie übermittelt. Die Fehlerdiagnose bleibt auf Ihrem Server; Betreiberbenachrichtigungen verwenden den von Ihnen konfigurierten Empfänger und E-Mail-Anbieter. Dies ist keine pauschale Aussage zur Telemetrie.
 
 ## Self-Hosted oder Managed Cloud?
 
@@ -234,6 +234,6 @@ Der von Customermates selbst entwickelte Code außerhalb von `ee/` steht ausschl
 </FaqItem>
 
 <FaqItem question="Was enthält der offizielle Docker-Compose-Stack?">
-Er enthält die Customermates-Anwendung und PostgreSQL 16. n8n, KI-Modelle sowie SMTP-, Identitäts- und Monitoring-Dienste sind nicht enthalten und müssen bei Bedarf separat angebunden werden.
+Er enthält die Customermates-Anwendung und PostgreSQL 16. Der E-Mail-Versand läuft über Resend mit Ihrem eigenen API-Schlüssel. n8n, KI-Modelle sowie Identitäts- und Monitoring-Dienste sind nicht enthalten und müssen bei Bedarf separat angebunden werden.
 </FaqItem>
 </Faq>

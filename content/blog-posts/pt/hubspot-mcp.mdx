@@ -155,7 +155,7 @@ Escreva o prompt como pediria a alguém da equipe: com o nome do negócio, a eta
 
 ## Quando o próprio CRM tem um servidor MCP
 
-Se você está escolhendo um CRM em vez de conectar um já existente, um servidor MCP embutido no CRM é a alternativa. A [Customermates](/) é um exemplo: o endpoint em `/api/v1/mcp` faz parte de todos os planos na nuvem e das instalações auto-hospedadas. No Claude e no ChatGPT, você o adiciona como conector personalizado e faz login ([guia de configuração](/docs/connect-custom-connector)); Claude Code, Codex, Cursor e Gemini CLI se conectam com uma chave de API ([configuração da CLI](/docs/connect-cli)). Um cliente conectado descobre [[derived.mcp.tools.total]] ferramentas, e você pode reduzir o conjunto com um parâmetro de URL, como descrito na [referência do MCP](/docs/mcp).
+Se você está escolhendo um CRM em vez de conectar um já existente, um servidor MCP embutido no CRM é a alternativa. A [Customermates](/) é um exemplo: o endpoint em `/api/v1/mcp` faz parte de todos os planos na nuvem e das instalações com hospedagem própria. No Claude e no ChatGPT, você o adiciona como conector personalizado e faz login ([guia de configuração](/docs/connect-custom-connector)); Claude Code, Codex, Cursor e Gemini CLI se conectam com uma chave de API ([configuração da CLI](/docs/connect-cli)). Um cliente conectado descobre [[derived.mcp.tools.total]] ferramentas, e você pode reduzir o conjunto com um parâmetro de URL, como descrito na [referência do MCP](/docs/mcp).
 
 | Pergunta | Servidor MCP remoto do HubSpot | MCP do Customermates |
 | --- | --- | --- |
@@ -164,7 +164,7 @@ Se você está escolhendo um CRM em vez de conectar um já existente, um servido
 | Excluir registros | Não consta no acesso de gravação documentado | Possível, dentro das permissões do usuário |
 | Conteúdo de marketing | Landing pages, posts de blog, campanhas, e-mails de marketing | Não faz parte do produto |
 | Conversas com clientes | Lê as conversas da caixa de entrada do HubSpot | Lê, redige e envia mensagens de e-mail, LinkedIn, WhatsApp, Instagram e Telegram no Pro e acima, só na nuvem |
-| Auto-hospedagem | Não, é hospedado pelo HubSpot | Núcleo AGPL com MCP, sem a caixa de entrada |
+| Hospedagem própria | Não, é hospedado pelo HubSpot | Núcleo AGPL com MCP, sem a caixa de entrada |
 
 Poder excluir e enviar corta para os dois lados. O servidor do Customermates diz aos clientes conectados que peçam confirmação antes de excluir ou enviar, mas isso é uma orientação ao cliente, não uma trava no servidor: quando um cliente autorizado chama uma ferramenta, ela roda. Veja como o seu cliente trata as aprovações de ferramentas e comece por leituras e rascunhos, como com o HubSpot.
 

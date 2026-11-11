@@ -57,7 +57,7 @@ Esta é a rota em que o n8n é o servidor e um cliente de IA, como o Claude ou o
 
 | Etapa | O que a documentação cobre | O que conferir |
 | --- | --- | --- |
-| Habilitar | O acesso MCP no n8n Cloud e em instâncias self-hosted; no self-hosted também dá para desativá-lo por completo | Quem pode ligar o recurso e se a sua política permite |
+| Habilitar | O acesso MCP no n8n Cloud e em instâncias com hospedagem própria; na hospedagem própria também dá para desativá-lo por completo | Quem pode ligar o recurso e se a sua política permite |
 | Conectar o cliente | OAuth, que a documentação indica como a opção recomendada, ou uma chave de acesso | O acesso é o do usuário n8n que autoriza; guarde chaves como credenciais |
 | Expor workflows | Workflows individuais, projetos ou pastas, e a exposição automática de workflows novos | Ativar o MCP não expõe tudo; exponha só o necessário e escreva uma descrição clara de cada workflow, porque o cliente a usa para escolher |
 | Expor agentes | Agentes individuais e o gerenciamento do acesso a eles | Quais agentes realmente devem ser chamados de fora |
@@ -81,7 +81,7 @@ Esta é uma receita para exatamente essa rota e essa sintaxe testadas, revisada 
 
 ## Como montar o workflow manual de cinco chamadas?
 
-Crie um Manual Trigger seguido de cinco nós **MCP Client independentes**, ligados pelas saídas normais. Mantenha o workflow sem publicar enquanto valida uma tarefa interna em um workspace descartável. O diagrama mostra a sequência executada, incluindo a requisição duplicada de propósito:
+Crie um Manual Trigger seguido de cinco nós **MCP Client independentes**, ligados pelas saídas normais. Mantenha o workflow sem publicar enquanto valida uma tarefa interna em um espaço de trabalho descartável. O diagrama mostra a sequência executada, incluindo a requisição duplicada de propósito:
 
 ```text
 Manual Trigger
@@ -115,9 +115,9 @@ No workflow preservado, cada nó cliente usou o seguinte formato de parâmetros.
 
 Em cada nó seguinte, troque `tool.value` e `jsonInput` conforme os passos abaixo; mantenha Streamable HTTP, a entrada JSON e o timeout de 60 segundos. A sequência fixa não mapeia dinamicamente os resultados da descoberta para os nós seguintes.
 
-1. **Confirme o workspace.** Chame `get_workspace_context` com `{}`. Confira o usuário e o workspace retornados antes de permitir uma escrita.
+1. **Confirme o espaço de trabalho.** Chame `get_workspace_context` com `{}`. Confira o usuário e o espaço de trabalho retornados antes de permitir uma escrita.
 2. **Leia o esquema.** Chame `get_record_model` com `{}`. O ambiente de teste já tinha resolvido os tipos Task e Organization, os campos principais e a relação de saída antes de montar o workflow. A mutação registrada usou a revisão de configuração `2`.
-3. **Encontre o cliente.** Chame `query_crm_records` com o JSON registrado abaixo. No seu workspace, resolva os IDs de novo e confira o resultado antes de escolher um cliente. A referência de registro conhecida da fixture foi fixada no nó seguinte; este não foi um teste de correspondência automática de entidades.
+3. **Encontre o cliente.** Chame `query_crm_records` com o JSON registrado abaixo. No seu espaço de trabalho, resolva os IDs de novo e confira o resultado antes de escolher um cliente. A referência de registro conhecida da fixture foi fixada no nó seguinte; este não foi um teste de correspondência automática de entidades.
 
 ```json
 {
@@ -193,15 +193,15 @@ Um teste de produto separado, de **5 de novembro de 2026**, na fonte `111f8a2e33
 
 ## Como diferem as credenciais e a configuração de produção?
 
-Para uma conexão direta com o Customermates, use `<BASE_URL>/api/v1/mcp` e uma credencial Header Auth do n8n cujo nome de cabeçalho seja `x-api-key`. Guarde a chave nas credenciais, nunca no JSON exportado do workflow. O [guia de chaves de API do Customermates](/docs/api-keys) explica o vínculo com o workspace e as permissões herdadas do usuário. O Header Auth direto é uma configuração documentada; a execução preservada no n8n usou o relay.
+Para uma conexão direta com o Customermates, use `<BASE_URL>/api/v1/mcp` e uma credencial Header Auth do n8n cujo nome de cabeçalho seja `x-api-key`. Guarde a chave nas credenciais, nunca no JSON exportado do workflow. O [guia de chaves de API do Customermates](/docs/api-keys) explica o vínculo com o espaço de trabalho e as permissões herdadas do usuário. O Header Auth direto é uma configuração documentada; a execução preservada no n8n usou o relay.
 
-Consulte o [contrato MCP do Customermates](/docs/mcp) para ver as ferramentas e os esquemas atuais. Troque os IDs da fixture e a revisão por valores do seu workspace, adicione uma verificação de que a correspondência do cliente é inequívoca e releia a tarefa resultante. Inspecione os erros das ferramentas, e não só o status do workflow. Não transforme uma escrita que falhou em uma nova chave de idempotência sem entender o resultado.
+Consulte o [contrato MCP do Customermates](/docs/mcp) para ver as ferramentas e os esquemas atuais. Troque os IDs da fixture e a revisão por valores do seu espaço de trabalho, adicione uma verificação de que a correspondência do cliente é inequívoca e releia a tarefa resultante. Inspecione os erros das ferramentas, e não só o status do workflow. Não transforme uma escrita que falhou em uma nova chave de idempotência sem entender o resultado.
 
 Um cliente MCP externo age como o usuário conectado. As instruções de perguntar antes de enviar ou excluir são orientação para o cliente, não uma barreira de aprovação imposta pelo servidor. Implemente a sua própria etapa de revisão para ações que tenham consequências. A política de aprovação do Mate é separada; este workflow não aciona o Mate nem comprova um processo de aprovação.
 
 Se a sua tarefa é uma sincronização fixa de CRM, o [guia de integração do Customermates com o n8n](/docs/n8n) pode ser mais simples: o community node `@customermates/n8n-nodes-crm` v2, separado, usa a API genérica de registros. Os workflows da v1 apontam para endpoints removidos. REST e webhooks também são opções; compare os contratos em [MCP vs API](/blog/mcp-vs-api).
 
-O Customermates self-hosted fornece o núcleo do CRM Starter, REST e acesso MCP externo. O Mate hospedado e a caixa de entrada na nuvem não estão incluídos. O Customermates não inclui um runtime nem uma assinatura do n8n, n8n hospedado gratuito ou sequências de envio. Se você só precisa conectar um CRM que já tem, o Customermates não é um intermediário obrigatório.
+O Customermates com [hospedagem própria](/features/self-hosted) fornece o núcleo do CRM Starter, REST e acesso MCP externo. O Mate hospedado e a caixa de entrada na nuvem não estão incluídos. O Customermates não inclui um runtime nem uma assinatura do n8n, n8n hospedado gratuito ou sequências de envio. Se você só precisa conectar um CRM que já tem, o Customermates não é um intermediário obrigatório.
 
 Um workflow como este cria o próximo passo. A resposta ao cliente é a outra metade: com LinkedIn e e-mail conectados no Customermates Cloud a partir do Pro, a conversa fica no registro do cliente, e o Mate ou o seu próprio agente de IA redige a resposta para você revisar e enviar. Para ver os dois juntos, [comece seu teste](/auth/signup?job=followup): [[commercial.trial.days]] dias de Pro sem cartão de crédito.
 

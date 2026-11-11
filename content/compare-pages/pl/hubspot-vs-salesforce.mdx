@@ -60,12 +60,12 @@ comparison:
       competitor2: Starter Suite miesięcznie lub rocznie; Pro Suite i wyższe rocznie
   - title: Sprzedaż i AI
     features:
-    - name: Kontakty, firmy i lejek szans sprzedaży
+    - name: Kontakty, firmy i pipeline szans sprzedaży
       source: true
       competitor: true
       competitor2: true
     - name: Prognozowanie
-      source: Ważony lejek z prawdopodobieństw etapów, bez przewidywania
+      source: Ważony pipeline z prawdopodobieństw etapów, bez przewidywania
       competitor: Professional i Enterprise
       competitor2: Pro Suite i wyższe
     - name: AI w planie
@@ -155,7 +155,7 @@ Nasz [przewodnik po cenach Salesforce](/blog/salesforce-pricing) omawia każdą 
 
 **Dłuższa droga rozwoju.** Core dodaje Momentum i Premier Success. Advanced dodaje Backup & Recover, Data Detect i Security Center. Max łączy Agentforce for Sales, Sales Planning, Maps i Salesforce Spiff. Niewiele małych zespołów tego potrzebuje, ale firma, której to później będzie potrzebne, unika migracji.
 
-**Strefa operacyjna w UE.** EU Operating Zone w Hyperforce od Salesforce sprawia, że dane klientów są przetwarzane i przechowywane w UE i Szwajcarii, izoluje dostęp do tego regionu i obsadza wsparcie pracownikami z UE. HubSpot też ma centrum danych w Niemczech, ale jego własne FAQ mówi, że pracownicy wsparcia i podprocesorzy z innych regionów mogą nadal przetwarzać dane.
+**Strefa operacyjna w UE.** EU Operating Zone w Hyperforce od Salesforce sprawia, że dane klientów są przetwarzane i przechowywane w UE i Szwajcarii, izoluje dostęp do tego regionu i obsadza wsparcie pracownikami z UE. HubSpot też ma centrum danych w Niemczech, ale jego własne FAQ mówi, że pracownicy wsparcia i podmioty podprzetwarzające z innych regionów mogą nadal przetwarzać dane.
 
 ## HubSpot i Salesforce razem
 
@@ -169,11 +169,11 @@ Połączona konfiguracja kosztuje więc co najmniej jedną subskrypcję HubSpot 
 
 ## Lokalizacja danych w UE i RODO
 
-**HubSpot** hostuje na AWS w USA (wschód i zachód), Kanadzie, Australii i Niemczech. Konto dostaje centrum danych na podstawie adresu IP z chwili rejestracji, a konta w planach Starter, Professional lub Enterprise mogą się przenieść. Część danych i tak opuszcza region: dane o użyciu trafiają do USA, a podprocesorzy i pracownicy wsparcia mogą przetwarzać dane gdzie indziej.
+**HubSpot** hostuje na AWS w USA (wschód i zachód), Kanadzie, Australii i Niemczech. Konto dostaje centrum danych na podstawie adresu IP z chwili rejestracji, a konta w planach Starter, Professional lub Enterprise mogą się przenieść. Część danych i tak opuszcza region: dane o użyciu trafiają do USA, a podmioty podprzetwarzające i pracownicy wsparcia mogą przetwarzać dane gdzie indziej.
 
 **Salesforce** działa na Hyperforce, własnej infrastrukturze chmury publicznej. Do przetwarzania wyłącznie w UE EU Operating Zone dodaje zobowiązania dotyczące przechowywania, dostępu i wsparcia opisane powyżej. Obejmuje wybrany zestaw produktów Sales Cloud, Service Cloud i platformy, więc sprawdź, czy Twoje są na liście.
 
-W obu przypadkach to Ty jesteś administratorem danych. Podpisz umowę powierzenia przetwarzania danych dostawcy i przeczytaj listę jego podprocesorów, zanim zaimportujesz dane klientów.
+W obu przypadkach to Ty jesteś administratorem danych. Podpisz umowę powierzenia przetwarzania danych dostawcy i przeczytaj listę jego podmiotów podprzetwarzających, zanim zaimportujesz dane klientów.
 
 ## Trzecia opcja: Customermates
 
@@ -188,7 +188,7 @@ Ta sekcja opisuje nasz własny produkt. Customermates to CRM open source z AI w 
 **Koszt.** Pięciu użytkowników w planie Pro płaci [[commercial.price.pro.monthly.seats.5]] miesięcznie, czyli [[commercial.price.pro.monthly.seats.5.months.12]] w ciągu dwunastu miesięcy. Płatność jest miesięczna, bez opłaty za wdrożenie.
 
 <AcquisitionCallout title="Gdzie Customermates to zły wybór" variant="boundary">
-Plan bezpłatny kończy się na [[commercial.limit.free.maxMembers]] osobie i [[commercial.limit.free.maxRecords]] rekordach, bez skrzynki odbiorczej i Mate; [[commercial.trial.days]]-dniowy okres próbny pokazuje pełny produkt. Customermates nie ma e-mail marketingu, sekwencji ani masowej wysyłki e-maili, wycen, scoringu leadów ani wzbogacania danych, natywnych aplikacji mobilnych ani SSO. Ważony lejek mnoży wartości szans sprzedaży przez prawdopodobieństwa etapów i nie przewiduje przychodów. Jeśli potrzebujesz któregokolwiek z tych elementów, lepszym zakupem jest HubSpot lub Salesforce.
+Plan bezpłatny kończy się na [[commercial.limit.free.maxMembers]] osobie i [[commercial.limit.free.maxRecords]] rekordach, bez skrzynki odbiorczej i Mate; [[commercial.trial.days]]-dniowy okres próbny pokazuje pełny produkt. Customermates nie ma e-mail marketingu, sekwencji ani masowej wysyłki e-maili, wycen, scoringu leadów ani wzbogacania danych, natywnych aplikacji mobilnych ani SSO. Ważony pipeline mnoży wartości szans sprzedaży przez prawdopodobieństwa etapów i nie przewiduje przychodów. Jeśli potrzebujesz któregokolwiek z tych elementów, lepszym zakupem jest HubSpot lub Salesforce.
 </AcquisitionCallout>
 
 ### Przykładowa konfiguracja dla pięcioosobowej firmy doradczej
@@ -234,7 +234,7 @@ HubSpot przypisuje centrum danych na podstawie adresu IP z chwili rejestracji, a
 </FaqItem>
 
 <FaqItem question="Czy jest prostszy CRM niż HubSpot lub Salesforce?">
-To zależy od tego, z czego byś zrezygnował. Customermates obejmuje kontakty, organizacje, szanse sprzedaży i wielokanałową skrzynkę odbiorczą dla małych zespołów pracujących z klientami, bez narzędzi marketingowych. Jeśli potrzebujesz głównie lejka sprzedaży, nasze [porównanie Pipedrive vs Salesforce](/compare/pipedrive-vs-salesforce) omawia inną popularną opcję.
+To zależy od tego, z czego byś zrezygnował. Customermates obejmuje kontakty, organizacje, szanse sprzedaży i wielokanałową skrzynkę odbiorczą dla małych zespołów pracujących z klientami, bez narzędzi marketingowych. Jeśli potrzebujesz głównie pipeline'u sprzedaży, nasze [porównanie Pipedrive vs Salesforce](/compare/pipedrive-vs-salesforce) omawia inną popularną opcję.
 </FaqItem>
 </Faq>
 

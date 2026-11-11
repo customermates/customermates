@@ -77,7 +77,7 @@ REST API działa na każdej liście CRM. Nowa przestrzeń robocza startuje bez l
 | Zaktualizuj lub usuń do 100 rekordów | `POST /api/v1/records/mutate` z `updateMany` lub `deleteMany` |
 | Wyeksportuj listę lub zaimportuj do 100 rekordów | `POST /api/v1/records/export` lub `POST /api/v1/records/import` |
 | Wgraj plik do pola Plik | `POST /api/v1/files/uploads`, potem `POST /api/v1/records/mutate` |
-| Zsumuj lub policz pole, na przykład wartość lejka | `POST /api/v1/reports/query` |
+| Zsumuj lub policz pole, na przykład wartość pipeline'u | `POST /api/v1/reports/query` |
 
 Rekord adresuje się odwołaniem `{ "typeId": "...", "recordId": "..." }`, a nie jego adresem URL. Bazowy adres URL to adres, pod którym otwierasz Customermates, w chmurze i na własnym serwerze. Dalsze trasy obejmują użytkowników (`/api/v1/users/me`, `/api/v1/users/search`), webhooki oraz skrzynkę odbiorczą: wątki, szkice, wysyłanie e-maili i wiadomości czatu, aktywności i kalendarze tylko do odczytu.
 
@@ -136,7 +136,7 @@ Mate, asystent w Customermates Cloud, to osobna funkcja. Działa na kredytach AI
 
 Poza ścieżką `/api/v1` nie obiecujemy żadnego okresu wstecznej zgodności, więc traktuj aktualny dokument OpenAPI jako kontrakt i testuj względem niego.
 
-## Jak inne CRM ograniczają dostęp do API
+## Jak inne CRM-y ograniczają dostęp do API
 
 Customermates publikuje tę stronę. Poniższe liczby pochodzą z dokumentacji każdego dostawcy, sprawdzone 8 października 2026; zmieniają się, więc przejdź pod linki, zanim coś zaplanujesz.
 
@@ -148,7 +148,7 @@ Customermates publikuje tę stronę. Poniższe liczby pochodzą z dokumentacji k
 | [EspoCRM](https://docs.espocrm.com/development/api/) | Tak, w tym [bezpłatna edycja self-hosted](https://www.espocrm.com/) | Klucz API, HMAC lub podstawowe uwierzytelnianie przez dedykowanych użytkowników API, których role określają, co mogą robić |
 | Customermates | Każdy plan i self-hosting | Brak opublikowanego limitu; trasy zbiorcze przyjmują 100 rekordów na żądanie |
 
-Wybierz HubSpot lub Zoho CRM, jeśli chcesz bezpłatnego planu hostowanego z dostępem do API, a Twoja integracja mieści się w ich opublikowanych limitach wywołań. Wybierz Pipedrive, jeśli odpowiada ci dzienny budżet rosnący wraz z planem i liczbą stanowisk. Wybierz EspoCRM, jeśli chcesz samodzielnie hostowanego CRM open source z osobnymi użytkownikami API i ich własnymi rolami. Customermates pasuje małemu zespołowi, który chce API rekordów, webhooków i endpointu MCP dla klientów AI w cenie samego CRM, z rdzeniem AGPL, który może hostować samodzielnie. Nie pasuje, jeśli potrzebujesz zakresów uprawnień dla pojedynczych kluczy albo, w Customermates Cloud, użytkownika API, który nie zajmuje płatnego stanowiska.
+Wybierz HubSpot lub Zoho CRM, jeśli chcesz bezpłatnego planu hostowanego z dostępem do API, a Twoja integracja mieści się w ich opublikowanych limitach wywołań. Wybierz Pipedrive, jeśli odpowiada Ci dzienny budżet rosnący wraz z planem i liczbą stanowisk. Wybierz EspoCRM, jeśli chcesz samodzielnie hostowanego CRM open source z osobnymi użytkownikami API i ich własnymi rolami. Customermates pasuje małemu zespołowi, który chce API rekordów, webhooków i endpointu MCP dla klientów AI w cenie samego CRM, z rdzeniem AGPL, który może hostować samodzielnie. Nie pasuje, jeśli potrzebujesz zakresów uprawnień dla pojedynczych kluczy albo, w Customermates Cloud, użytkownika API, który nie zajmuje płatnego stanowiska.
 
 ## Ile to kosztuje
 
@@ -158,10 +158,10 @@ Dostęp do API nie ma dopłaty. Trzyosobowy zespół w planie Starter płaci [[c
 <FaqItem question="Czym jest API w CRM?">
 To programistyczne wejście do danych CRM. Inny program wysyła żądania HTTP, żeby czytać, tworzyć, aktualizować lub usuwać kontakty, szanse sprzedaży i inne rekordy, zamiast człowieka klikającego po ekranach. Webhooki to drugi kierunek: CRM wywołuje Twój program, gdy dane się zmieniają.
 </FaqItem>
-<FaqItem question="Które CRM ma najlepsze API?">
+<FaqItem question="Który CRM ma najlepsze API?">
 Nie ma jednej odpowiedzi. Sprawdź cztery rzeczy względem swojego projektu: czy API jest w planie, który naprawdę kupisz, jak liczone są wywołania, czy webhooki zawierają informację o tym, co się zmieniło, i czy istnieje specyfikacja czytelna dla maszyn. Dla małego zespołu API w planie podstawowym z dokumentem OpenAPI i podpisanymi webhookami zwykle liczy się bardziej niż rozmiar katalogu endpointów.
 </FaqItem>
-<FaqItem question="Jakie jest najlepsze darmowe CRM z integracją przez API?">
+<FaqItem question="Jakie jest najlepszy darmowy CRM z integracją przez API?">
 HubSpot i Zoho CRM mają bezpłatne plany hostowane z dostępem do API z limitami, a EspoCRM oferuje bezpłatną edycję self-hosted z REST API. Edycja self-hosted Customermates to bezpłatny open source i zawiera REST API, webhooki i MCP, ale bez skrzynki odbiorczej i Mate, a serwer prowadzisz sam. Zobacz [self-hosting](/features/self-hosted).
 </FaqItem>
 <FaqItem question="Czy mogę ograniczyć klucz API do samego odczytu?">

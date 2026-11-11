@@ -137,7 +137,7 @@ Dit is de inrichting in Customermates voor de eerste flow hierboven. Ze gebruikt
 
 **Velden.** Voeg in **Datamodel** aangepaste velden van het type Tekst toe: "ERP-klantnr." bij organisaties, "ERP-ordernr." bij deals en "ERP-artikelnr." bij diensten. De regelitems van een deal bevatten elk een dienst en een aantal, dus de regelitems en de artikelnummers van hun diensten worden de orderregels. Hebben accountmanagers de levering of betaalstatus nodig, voeg dan een veld met Enkele keuze toe, zoals "ERP-status", bij deals en maak eigenaarschap van de ERP een expliciete regel in je adapter. Customermates kent rechten per lijst en rol, geen rechten per veld die dit veld voor de integratie reserveren.
 
-**Trigger.** Dit gaat ervan uit dat je lijst met deals een veld Fase met Enkele keuze heeft met een optie "Gewonnen" (fasen zijn niet voorgeprogrammeerd). Abonneer onder **Instellingen → Webhooks** een URL op `record.updated` voor de lijst Deals, eventueel met Fase onder **Gewijzigde velden**, en stel een secret in. Elke levering is ondertekend met HMAC-SHA256 in de header `X-Webhook-Signature`, en bij update-events toont `data.record.fields` elk gewijzigd veld met zijn waarde `before` en `after`. Je ontvanger handelt alleen als de fase is gewijzigd naar "Gewonnen".
+**Trigger.** Dit gaat ervan uit dat je lijst met deals een veld Fase met Enkele keuze heeft met een optie "Gewonnen" (fasen zijn niet voorgeprogrammeerd). Abonneer onder **Instellingen › Webhooks** een URL op `record.updated` voor de lijst Deals, eventueel met Fase onder **Gewijzigde velden**, en stel een secret in. Elke levering is ondertekend met HMAC-SHA256 in de header `X-Webhook-Signature`, en bij update-events toont `data.record.fields` elk gewijzigd veld met zijn waarde `before` en `after`. Je ontvanger handelt alleen als de fase is gewijzigd naar "Gewonnen".
 
 **Idempotentie.** Elk event heeft een `id` die gelijk blijft bij nieuwe pogingen en opnieuw verzenden, dus ontdubbel erop. Gebruik als tweede controle de kruisverwijzing: is "ERP-ordernr." van de deal al gevuld, stop dan.
 
@@ -145,7 +145,7 @@ Dit is de inrichting in Customermates voor de eerste flow hierboven. Ze gebruikt
 
 **Terugschrijven.** Nadat de ERP de order heeft geaccepteerd, stuur je een `update`-mutatie voor de deal naar `POST /api/v1/records/mutate` met het nieuwe "ERP-ordernr." en de huidige versie van de deal. Velden die je weglaat, blijven ongewijzigd.
 
-**Mislukkingen.** Customermates probeert een mislukte levering automatisch opnieuw bij timeouts, netwerkfouten, 5xx-antwoorden en 408, 425 en 429. Andere 4xx-antwoorden worden niet opnieuw geprobeerd, omdat ze op dezelfde manier zouden mislukken. Elke levering staat onder **Instellingen → Webhooklog**, waar je hem opnieuw kunt versturen nadat je de oorzaak hebt verholpen.
+**Mislukkingen.** Customermates probeert een mislukte levering automatisch opnieuw bij timeouts, netwerkfouten, 5xx-antwoorden en 408, 425 en 429. Andere 4xx-antwoorden worden niet opnieuw geprobeerd, omdat ze op dezelfde manier zouden mislukken. Elke levering staat onder **Instellingen › Webhooklog**, waar je hem opnieuw kunt versturen nadat je de oorzaak hebt verholpen.
 
 **Reconciliatie.** Sla een dealweergave op gefilterd op Fase "Gewonnen" en een leeg "ERP-ordernr.". Deel hem met de persoon die integratiestoringen afhandelt, of met het hele team. Alles wat daar verschijnt, is gemist door de eventflow.
 

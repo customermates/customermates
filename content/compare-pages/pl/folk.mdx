@@ -14,7 +14,7 @@ sections:
     - title: "Odpowiadaj na LinkedIn z poziomu CRM"
       description: "Od planu Pro LinkedIn (z Sales Navigator i InMail z Recruitera), e-mail, WhatsApp, Instagram i Telegram trafiają do jednej skrzynki odbiorczej, a odpowiadasz w oryginalnym kanale."
     - title: "Szanse sprzedaży i API już w Starter"
-      description: "Własne listy, pola, relacje i pola obliczane, układy tabeli i tablicy oraz pole etapu z prawdopodobieństwami dla ważonej wartości lejka. Role, REST, webhooki i MCP są częścią planu Starter."
+      description: "Własne listy, pola, relacje i pola obliczane, układy tabeli i tablicy oraz pole etapu z prawdopodobieństwami dla ważonej wartości pipeline'u. Role, REST, webhooki i MCP są częścią planu Starter."
     - title: "Szkic odpowiedzi do każdej rozmowy"
       description: "W Customermates Cloud Mate przygotowuje szkic odpowiedzi na podstawie Twoich stron i aktualizuje rekord, korzystając z hostowanych kredytów AI. Zamiast tego Twój własny Claude lub ChatGPT może pracować przez MCP."
   switchSteps: true
@@ -48,9 +48,9 @@ comparison:
         competitor: 2 tygodnie z funkcjami Premium, bez karty kredytowej
   - title: Dane CRM
     features:
-      - name: Szanse sprzedaży z etapami lejka
+      - name: Szanse sprzedaży z etapami pipeline'u
         source: W każdym planie, z prawdopodobieństwami etapów
-        competitor: Obiekt Deals w Premium; widoki lejka w każdym planie
+        competitor: Obiekt Deals w Premium; widoki pipeline'u w każdym planie
       - name: Własne obiekty
         source: Konfigurowalne listy; nowa przestrzeń robocza startuje bez list
         competitor: Premium
@@ -120,7 +120,7 @@ comparison:
 
 cta:
   action: Porównujesz folk i Customermates?
-  description: "Rozpocznij okres próbny, połącz LinkedIn lub WhatsApp i zaimportuj jedną grupę wyeksportowaną z folk. Szybko zobaczysz, czy Twoje rozmowy i lejek pasują do modelu Customermates."
+  description: "Rozpocznij okres próbny, połącz LinkedIn lub WhatsApp i zaimportuj jedną grupę wyeksportowaną z folk. Szybko zobaczysz, czy Twoje rozmowy i pipeline pasują do modelu Customermates."
   buttonLeftText: Rozpocznij [[commercial.trial.days]]-dniowy okres próbny
   buttonLeftHref: /auth/signup
   buttonRightText: Zobacz demo na żywo
@@ -154,7 +154,7 @@ folk nazywa się „the AI CRM for your entire sales motion”. Jego mocną stro
 
 ## Dlaczego zespoły szukają alternatywy dla folk
 
-**Szanse sprzedaży i API są w planie Premium.** Standard obejmuje zarządzanie lejkiem. Obiekt Deals, własne obiekty, pulpity, role w przestrzeni roboczej i REST API wymagają Premium, za 60 USD za członka miesięcznie albo 48 USD przy płatności rocznej (54 € lub 43 €).
+**Szanse sprzedaży i API są w planie Premium.** Standard obejmuje zarządzanie pipeline'em. Obiekt Deals, własne obiekty, pulpity, role w przestrzeni roboczej i REST API wymagają Premium, za 60 USD za członka miesięcznie albo 48 USD przy płatności rocznej (54 € lub 43 €).
 
 **LinkedIn jest przechwytywany, a nie synchronizowany.** Centrum pomocy folk podaje, że nie ma natywnej integracji z LinkedInem do automatycznej synchronizacji. Żeby zapisać rozmowę z LinkedIna, otwierasz wątek i klikasz „Add to folk” w rozszerzeniu, raz na każdą rozmowę. E-mail i czaty 1:1 z WhatsAppa synchronizują się natomiast same.
 
@@ -188,11 +188,11 @@ folk jest stworzony do przechwytywania ludzi z LinkedIna. Customermates jest stw
 
 **Rozmowy, na które możesz odpowiedzieć.** Od planu Pro [ujednolicona skrzynka odbiorcza](/features/unified-inbox) zbiera skrzynki Gmail, Outlook i IMAP, LinkedIn, WhatsApp, Instagram i Telegram w jednej liście, a odpowiadasz w oryginalnym kanale. [LinkedIn w Customermates](/features/linkedin-integration) obejmuje Sales Navigator i InMail z Recruitera. Powiąż uczestnika z kontaktem raz, a każda rozmowa z tym adresem lub profilem pojawi się na osi czasu kontaktu.
 
-**Szanse sprzedaży i API już od Starter.** Własne listy, pola, relacje i pola obliczane, układy tabeli i tablicy oraz pole etapu z prawdopodobieństwami dla ważonej wartości lejka. Role, REST, webhooki i MCP są częścią planu Starter.
+**Szanse sprzedaży i API już od Starter.** Własne listy, pola, relacje i pola obliczane, układy tabeli i tablicy oraz pole etapu z prawdopodobieństwami dla ważonej wartości pipeline'u. Role, REST, webhooki i MCP są częścią planu Starter.
 
 **AI, które wykonuje pracę w CRM.** W Customermates Cloud Mate przygotowuje podsumowania wątków i szkice odpowiedzi, aktualizuje rekordy i buduje widoki, korzystając z hostowanych kredytów AI: miesięcznej puli na aktywnego użytkownika, podanej na [stronie z cennikiem](/pricing). Rutyny uruchamiają zapisaną instrukcję według harmonogramu albo gdy rekord się zmieni. Mate wysyła wiadomość bez pytania, gdy każesz mu ją wysłać, więc proś o szkice, gdy chcesz najpierw sprawdzić. Zamiast tego Twój własny Claude lub ChatGPT może pracować przez [serwer MCP](/docs/mcp), z [[derived.mcp.tools.total]] narzędziami w każdym planie i w instalacjach self-hosted.
 
-**Twój serwer, jeśli go chcesz.** Rdzeń AGPL-3.0 działa na Docker Compose i PostgreSQL 16, z REST, webhookami i MCP, ale bez skrzynki odbiorczej, Mate i hostowanych kredytów. W Customermates Cloud baza danych jest skonfigurowana w regionie AWS Frankfurt, dostępna jest umowa DPA, a podprocesorzy, w tym dostawcy z USA, są wymienieni na stronach prawnych.
+**Twój serwer, jeśli go chcesz.** Rdzeń AGPL-3.0 działa na Docker Compose i PostgreSQL 16, z REST, webhookami i MCP, ale bez skrzynki odbiorczej, Mate i hostowanych kredytów. W Customermates Cloud baza danych jest skonfigurowana w regionie AWS Frankfurt, dostępna jest umowa DPA, a podmioty podprzetwarzające, w tym dostawcy z USA, są wymienione na stronach prawnych.
 
 ## Gdzie Customermates to zły wybór
 
@@ -204,13 +204,13 @@ folk jest stworzony do przechwytywania ludzi z LinkedIna. Customermates jest stw
 
 ## Przykładowa konfiguracja: firma doradcza przechodzi z folk
 
-Czteroosobowa firma doradcza na folk Standard prowadzi dwie grupy, „Prospekty” i „Klienci”, ma widok lejka oparty na polu statusu i zapisuje czaty z LinkedIna przez folkX. Dwoje wspólników prowadzi prospecting na LinkedInie; pozostała dwójka opiekuje się klientami w Gmailu.
+Czteroosobowa firma doradcza na folk Standard prowadzi dwie grupy, „Prospekty” i „Klienci”, ma widok pipeline'u oparty na polu statusu i zapisuje czaty z LinkedIna przez folkX. Dwoje wspólników prowadzi prospecting na LinkedInie; pozostała dwójka opiekuje się klientami w Gmailu.
 
 | W folk | W Customermates |
 |---|---|
 | Osoby i firmy | Kontakty i organizacje |
 | Grupy „Prospekty” i „Klienci” | Jedno pole pojedynczego wyboru „Relacja” na kontaktach, plus jeden zapisany widok na każdą wartość |
-| Widok lejka na polu statusu | Szanse sprzedaży przemianowane na „Projekty”, z polem etapu: Lead 10%, Oferta 40%, Negocjacje 70%, Wygrana 100%, Przegrana 0% |
+| Widok pipeline'u na polu statusu | Szanse sprzedaży przemianowane na „Projekty”, z polem etapu: Lead 10%, Oferta 40%, Negocjacje 70%, Wygrana 100%, Przegrana 0% |
 | Notatki | Pole notatek na każdym rekordzie |
 | Przypomnienia | Brak przypomnień; pole daty „Następny kontakt” i zapisany widok posortowany po nim |
 | Czaty z LinkedIna zapisywane jeden po drugim | LinkedIn połączony ze skrzynką odbiorczą |
@@ -245,7 +245,7 @@ Customermates publikuje tę listę. Ceny i funkcje pochodzą ze strony z cenniki
 
 <Faq>
 <FaqItem question="Czym jest folk CRM?">
-folk to hostowany CRM do relacji od Folk Inc., spółki z Delaware, która opisuje go jako „the AI CRM for your entire sales motion”. Osoby i firmy żyją w grupach z widokami tabeli i lejka, e-mail, kalendarz i WhatsApp synchronizują się z każdym kontaktem, a rozszerzenie folkX przechwytuje profile z LinkedIna. Każdy plan obejmuje wyszukiwarkę adresów e-mail, kampanie e-mail i asystentów AI.
+folk to hostowany CRM do relacji od Folk Inc., spółki z Delaware, która opisuje go jako „the AI CRM for your entire sales motion”. Osoby i firmy żyją w grupach z widokami tabeli i pipeline'u, e-mail, kalendarz i WhatsApp synchronizują się z każdym kontaktem, a rozszerzenie folkX przechwytuje profile z LinkedIna. Każdy plan obejmuje wyszukiwarkę adresów e-mail, kampanie e-mail i asystentów AI.
 </FaqItem>
 
 <FaqItem question="Czy folk CRM jest darmowy?">
@@ -265,7 +265,7 @@ Nie automatycznie. Otwierasz każdy wątek i zapisujesz go przez „Add to folk�
 </FaqItem>
 
 <FaqItem question="Gdzie folk przechowuje dane i czy jest zgodny z RODO?">
-folk twierdzi, że jest zgodny z RODO, i na życzenie oferuje umowę powierzenia przetwarzania danych. Jego centrum pomocy i polityka prywatności wskazują różne lokalizacje AWS, North Virginia i Irlandię, więc potwierdź region w folk; jako administrator danych dokonujesz ostatecznej oceny samodzielnie. Customermates ma bazę danych w chmurze skonfigurowaną w regionie AWS Frankfurt, oferuje umowę DPA i wymienia swoich podprocesorów, w tym dostawców z USA.
+folk twierdzi, że jest zgodny z RODO, i na życzenie oferuje umowę powierzenia przetwarzania danych. Jego centrum pomocy i polityka prywatności wskazują różne lokalizacje AWS, North Virginia i Irlandię, więc potwierdź region w folk; jako administrator danych dokonujesz ostatecznej oceny samodzielnie. Customermates ma bazę danych w chmurze skonfigurowaną w regionie AWS Frankfurt, oferuje umowę DPA i wymienia swoje podmioty podprzetwarzające, w tym dostawców z USA.
 </FaqItem>
 </Faq>
 

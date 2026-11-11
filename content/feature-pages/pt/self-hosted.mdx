@@ -95,7 +95,7 @@ sections:
       - title: "Confira o limite da edição"
         description: "Confirme que o conjunto de recursos do Starter cobre os registros, as visualizações e as interfaces de que o seu fluxo de trabalho precisa."
       - title: "Mapeie os serviços externos"
-        description: "Liste cada provedor de SMTP, OAuth, monitoramento, fluxos de trabalho ou IA que você pretende configurar e os dados que cada um recebe."
+        description: "Liste cada provedor de e-mail (Resend), OAuth, monitoramento, fluxos de trabalho ou IA que você pretende configurar e os dados que cada um recebe."
       - title: "Planeje a operação"
         description: "Defina backups, restauração testada, atualizações, TLS, monitoramento e controle de acesso para o seu ambiente."
       - title: "Teste sem dados de clientes"
@@ -162,7 +162,7 @@ O arquivo Compose não inclui n8n, modelo de IA, provedor de envio de e-mails ne
   variant="proof"
 >
   A aplicação e o banco de dados podem rodar na sua infraestrutura enquanto
-  SMTP, OAuth, monitoramento, ferramentas de fluxo de trabalho e IA externa
+  o envio de e-mail pelo Resend, OAuth, monitoramento, ferramentas de fluxo de trabalho e IA externa
   continuam sendo serviços separados sempre que você os configura. Mapeie esses
   provedores antes de escolher o modelo de implantação.
 </AcquisitionCallout>
@@ -192,7 +192,7 @@ Essa distinção importa quando você compara um [CRM open source](/blog/open-so
 
 Você escolhe onde rodam a aplicação e o PostgreSQL e como configura o acesso de rede, os backups, a retenção e as atualizações. É um controle relevante sobre a infraestrutura, mas não é uma garantia automática de conformidade, de segurança ou de isolamento da rede.
 
-Os serviços conectados continuam sendo limites de tratamento de dados separados. Provedores de OAuth, SMTP, monitoramento, ferramentas de fluxo de trabalho e provedores de IA externos recebem o que a sua configuração envia a eles. O diagnóstico de erros fica no seu servidor; as notificações ao operador usam o destinatário e o provedor de e-mail que você configurar. Isso não é uma promessa geral de ausência de telemetria.
+Os serviços conectados continuam sendo limites de tratamento de dados separados. Provedores de OAuth, Resend para e-mail, monitoramento, ferramentas de fluxo de trabalho e provedores de IA externos recebem o que a sua configuração envia a eles. O diagnóstico de erros fica no seu servidor; as notificações ao operador usam o destinatário e o provedor de e-mail que você configurar. Isso não é uma promessa geral de ausência de telemetria.
 
 ## Self hosted ou nuvem gerenciada?
 
@@ -263,6 +263,6 @@ O material próprio fora de `ee/` é AGPL-3.0-only. Dentro de `ee/`, o material 
 </FaqItem>
 
 <FaqItem question="O que contém a stack oficial do Docker Compose?">
-Ela contém a aplicação do Customermates e o PostgreSQL 16. n8n, modelos de IA, SMTP, provedores de identidade e serviços de monitoramento são separados quando você escolhe conectá-los.
+Ela contém a aplicação do Customermates e o PostgreSQL 16. O e-mail sai pelo Resend com a sua própria chave de API. n8n, modelos de IA, provedores de identidade e serviços de monitoramento são separados quando você escolhe conectá-los.
 </FaqItem>
 </Faq>

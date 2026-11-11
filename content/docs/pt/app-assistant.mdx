@@ -3,7 +3,7 @@ title: "Mate, o assistente do app: aprovações, uso e limites"
 description: "Como o Mate funciona no Customermates Cloud: o que roda na hora, o que pede aprovação, como o uso é contado por plano e como ele guia você pelo app."
 ---
 
-O **Mate** é o assistente de IA integrado ao Customermates Cloud. Pergunte a ele sobre o seu espaço de trabalho ou sobre o produto, peça que ele altere dados ou deixe que ele mostre o app para você. As instalações auto-hospedadas não têm um assistente hospedado; elas conectam clientes de IA externos pelo [servidor MCP](/docs/mcp) com o seu próprio provedor.
+O **Mate** é o assistente de IA integrado ao Customermates Cloud. Pergunte a ele sobre o seu espaço de trabalho ou sobre o produto, peça que ele altere dados ou deixe que ele mostre o app para você. As instalações com hospedagem própria não têm um assistente hospedado; elas conectam clientes de IA externos pelo [servidor MCP](/docs/mcp) com o seu próprio provedor.
 
 ## Como abro o Mate? [#how-do-i-open-mate]
 
@@ -75,7 +75,7 @@ O Mate pode configurar listas, campos, cálculos e o acesso por função dentro 
 
 As duas pesquisas casam com as palavras da sua consulta, inclusive as formas flexionadas em inglês, alemão, espanhol, francês e italiano, e casam por significado, de modo que uma pergunta formulada de outro jeito ou em outro idioma ainda encontra a página. Para o casamento por significado, um modelo de embeddings executado pelo Google nos EUA por meio do Vercel AI Gateway recebe a consulta de busca e o texto das páginas da Base de conhecimento novas e alteradas quando o índice de busca do seu espaço de trabalho é atualizado, junto com um resumo curto da página escrito pelo Claude. Depois, um classificador pequeno reordena as melhores seções: o modelo Jev, executado pela TypeSafe AI nos EUA por meio do Vercel AI Gateway com retenção zero de dados solicitada, que recebe a sua última mensagem, a consulta e trechos das seções que estão sendo ordenadas, nunca registros do CRM. Uma página que contém um código ou identificador consultado vem primeiro, e erros de digitação são corrigidos a partir das palavras da sua Base de conhecimento. Se um dos dois serviços estiver lento ou falhar, a busca mantém a ordem simples. As páginas de uma mesma busca na Base de conhecimento mantêm a ordem por até cinco minutos, para que a paginação não repita nem pule resultados.
 
-O casamento por significado custa uma fração minúscula de uma franquia, cobrada de quem fez a busca que o gerou; buscas idênticas em um mesmo espaço de trabalho no mesmo instante o compartilham, então você pode ser cobrado mesmo que só a busca de um colega o tenha usado. Veja [créditos](#credits). Sem franquia e em instalações auto-hospedadas, a busca é só de texto completo, com a mesma correção de erros de digitação. Os clientes MCP externos recebem a mesma busca sem a reordenação.
+O casamento por significado custa uma fração minúscula de uma franquia, cobrada de quem fez a busca que o gerou; buscas idênticas em um mesmo espaço de trabalho no mesmo instante o compartilham, então você pode ser cobrado mesmo que só a busca de um colega o tenha usado. Veja [créditos](#credits). Sem franquia e em instalações com hospedagem própria, a busca é só de texto completo, com a mesma correção de erros de digitação. Os clientes MCP externos recebem a mesma busca sem a reordenação.
 
 ## Como o Mate opera a interface e ele pode clicar em botões por mim? [#how-does-mate-operate-the-interface]
 
@@ -127,7 +127,7 @@ Avise o Mate quando algo não funcionar e ele se oferece para enviar à equipe d
 
 ## Disponibilidade [#availability]
 
-Todos os planos pagos na nuvem incluem o direito de usar o Mate; se o assistente está no ar depende do ambiente hospedado, e um operador pode desligá-lo, caso em que **Perguntar ao Mate** não aparece. O Mate funciona em todos os idiomas da interface (inglês, alemão, espanhol, francês, italiano, português (Brasil), polonês, holandês); ele lê a documentação em todos esses idiomas e recorre ao inglês como alternativa. As instalações auto-hospedadas não incluem nem o Mate nem rotinas e conectam clientes de IA externos pelo [servidor MCP](/docs/mcp).
+Todos os planos pagos na nuvem incluem o direito de usar o Mate; se o assistente está no ar depende do ambiente hospedado, e um operador pode desligá-lo, caso em que **Perguntar ao Mate** não aparece. O Mate funciona em todos os idiomas da interface (inglês, alemão, espanhol, francês, italiano, português (Brasil), polonês, holandês); ele lê a documentação em todos esses idiomas e recorre ao inglês como alternativa. As instalações com hospedagem própria não incluem nem o Mate nem rotinas e conectam clientes de IA externos pelo [servidor MCP](/docs/mcp).
 
 ## Para agentes [#for-agents]
 
