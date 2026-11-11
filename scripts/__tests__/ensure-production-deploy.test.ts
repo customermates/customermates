@@ -61,6 +61,7 @@ fi
   const result = spawnSync("bash", [script], {
     encoding: "utf8",
     env: {
+      NODE_ENV: "test",
       PATH: `${directory}:${process.env.PATH ?? ""}`,
       VERCEL_PROJECT_ID: "prj_test",
       VERCEL_TEAM_ID: "team_test",
