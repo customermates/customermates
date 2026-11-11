@@ -88,6 +88,8 @@ const nextConfig: NextConfig = {
 
   images: {
     formats: ["image/avif", "image/webp"],
+    // 90 is the film poster's quality (components/marketing/product-film-poster-blur.ts); 75 is the default.
+    qualities: [75, 90],
   },
 
   // CI's static job type-checks every pull request and push to main, so the production builds on Vercel and in CI's
