@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Cabinet de recrutement",
-  "summary": "Un poste de travail pour un cabinet de recrutement ou un recruteur indépendant : missions du brief au placement, une fiche par candidat et par mission, dates d'honoraires et de garantie, suivi après l'embauche et date de conservation de chaque candidat.",
-  "description": "Gérez votre cabinet en un seul endroit : clients et leurs conditions, missions avec une étape et des honoraires attendus, candidats présentés par mission avec leur propre étape, placements avec la fin de la garantie et le suivi après l'embauche, et une date de revue de conservation sur chaque candidat. Convient à une équipe d'une à cinq personnes. Ce n'est ni un jobboard, ni un outil d'analyse de CV, ni un outil d'envoi en masse, ni un logiciel de gestion du temps et de la paie. Rien n'est envoyé automatiquement aux candidats ni aux clients.",
+  "summary": "Un outil pour un cabinet de recrutement ou un recruteur indépendant : missions du brief au placement, une fiche par candidat et par mission, dates d’honoraires et de garantie, suivi après l’embauche et date de conservation de chaque candidat.",
+  "description": "Gérez votre cabinet en un seul endroit : clients et leurs conditions, missions avec une étape et des honoraires attendus, candidats présentés par mission avec leur propre étape, placements avec la fin de la garantie et le suivi après l’embauche, et une date de revue de conservation sur chaque candidat. Convient à une équipe d’une à cinq personnes. Ce n’est ni un jobboard, ni un outil d’analyse de CV, ni un outil d’envoi en masse, ni un logiciel de gestion du temps et de la paie. Rien n’est envoyé automatiquement aux candidats ni aux clients.",
   "lists": {
     "people": { "label": "Personne", "pluralLabel": "Candidats et contacts", "description": "Candidats, contacts chez le client et prescripteurs." },
     "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Les entreprises pour lesquelles vous recrutez, avec leurs honoraires et leur garantie." },
@@ -13,11 +13,11 @@
   "fields": {
     "jobs.stage": {
       "label": "Étape",
-      "options": { "lead": "Demande", "brief": "Brief", "terms_agreed": "Conditions signées", "searching": "Recherche", "submitted": "Shortlist présentée", "interviews": "Entretiens client", "offer": "Promesse d'embauche", "placed": "Placé", "lost": "Perdu" }
+      "options": { "lead": "Demande", "brief": "Brief", "terms_agreed": "Conditions convenues", "searching": "Recherche", "submitted": "Shortlist présentée", "interviews": "Entretiens client", "offer": "Promesse d’embauche", "placed": "Placé", "lost": "Perdu" }
     },
     "submissions.stage": {
       "label": "Étape",
-      "options": { "sourced": "Identifié", "contacted": "Contacté", "screened": "Pré-qualifié", "submitted": "Présenté au client", "client_interview": "Entretien client", "offer": "Promesse d'embauche", "placed": "Placé", "rejected_internal": "Écarté par nous", "rejected_by_client": "Refusé par le client", "withdrawn": "Désisté" }
+      "options": { "sourced": "Identifié", "contacted": "Contacté", "screened": "Pré-qualifié", "submitted": "Présenté au client", "client_interview": "Entretien client", "offer": "Promesse d’embauche", "placed": "Placé", "rejected_internal": "Écarté par nous", "rejected_by_client": "Refusé par le client", "withdrawn": "Désisté" }
     },
     "people.person_type": {
       "label": "Type",
@@ -26,7 +26,7 @@
     "people.job_title": { "label": "Poste" },
     "people.candidate_status": {
       "label": "Statut du candidat",
-      "options": { "active": "En recherche active", "passive": "À l'écoute", "placed": "Placé", "do_not_contact": "Ne pas contacter", "archived": "Archivé" }
+      "options": { "active": "En recherche active", "passive": "À l’écoute", "placed": "Placé", "do_not_contact": "Ne pas contacter", "archived": "Archivé" }
     },
     "people.source": {
       "label": "Source",
@@ -39,7 +39,7 @@
       "label": "Base de conservation des données",
       "options": { "pre_contract": "Mesures précontractuelles", "talent_pool_consent": "Consentement vivier", "legitimate_interest": "Sourcé, intérêt légitime" }
     },
-    "people.retain_until": { "label": "Conserver jusqu'au" },
+    "people.retain_until": { "label": "Conserver jusqu’au" },
     "people.last_contact": { "label": "Dernier contact" },
     "people.owner": { "label": "Responsable" },
     "clients.client_status": {
@@ -66,8 +66,8 @@
     "jobs.work_model": { "label": "Organisation du travail", "options": { "on_site": "Sur site", "hybrid": "Hybride", "remote": "Télétravail" } },
     "jobs.must_haves": { "label": "Critères indispensables et souhaitables" },
     "jobs.brief_url": { "label": "Lien vers le brief" },
-    "jobs.next_step": { "label": "Prochaine étape" },
-    "jobs.next_step_due": { "label": "Échéance de la prochaine étape" },
+    "jobs.next_step": { "label": "Prochaine action" },
+    "jobs.next_step_due": { "label": "Échéance de la prochaine action" },
     "jobs.lost_reason": {
       "label": "Motif de perte",
       "options": { "client_filled_internally": "Pourvu en interne par le client", "client_froze_search": "Recherche gelée par le client", "filled_by_competitor": "Pourvu par un concurrent", "terms_not_agreed": "Conditions non acceptées", "role_cancelled": "Poste supprimé", "no_suitable_candidates": "Aucun candidat adapté" }
@@ -80,7 +80,7 @@
     "submissions.feedback_due": { "label": "Retour du client attendu le" },
     "submissions.rejection_reason": {
       "label": "Motif du refus",
-      "options": { "skills": "Compétences", "culture_fit": "Adéquation culturelle", "salary_mismatch": "Salaire inadapté", "other_offer": "Autre proposition", "no_response": "Sans réponse", "location_or_notice": "Lieu ou préavis" }
+      "options": { "skills": "Compétences", "culture_fit": "Adéquation culturelle", "salary_mismatch": "Prétentions salariales inadaptées", "other_offer": "Autre proposition", "no_response": "Sans réponse", "location_or_notice": "Lieu ou préavis" }
     },
     "submissions.notes": { "label": "Notes" },
     "submissions.owner": { "label": "Responsable" },
@@ -128,7 +128,7 @@
   "views": {
     "jobs_board": { "name": "Missions par étape" },
     "jobs_all": { "name": "Toutes les missions" },
-    "searches_without_next_step": { "name": "Recherches ouvertes sans prochaine étape" },
+    "searches_without_next_step": { "name": "Recherches ouvertes sans prochaine action" },
     "submissions_board": { "name": "Candidats par étape" },
     "feedback_pending": { "name": "En attente du retour du client" },
     "placements_all": { "name": "Tous les placements" },
@@ -143,25 +143,25 @@
     "interviews_coming": { "title": "Entretiens à venir" },
     "guarantees_ending": { "title": "Garanties qui se terminent" },
     "retention_due": { "title": "Données de candidats à revoir" },
-    "lost_reasons": { "title": "Pourquoi les missions ont été perdues" },
+    "lost_reasons": { "title": "Motifs de perte des missions" },
     "average_days_to_fill": { "title": "Délai moyen pour pourvoir un poste" }
   },
   "knowledgePages": {
-    "operating_guide": { "title": "Comment fonctionne le cabinet", "sections": ["Les deux pipelines : missions et candidats", "Qui porte quelle étape, et la règle d'une action datée par dossier ouvert"] },
-    "client_intake_call": { "title": "Appel de cadrage client : brief de la mission", "sections": ["Poste, lieu, organisation du travail, fourchette de rémunération et date de début", "Critères indispensables et souhaitables, raison de l'ouverture du poste et décideur"] },
-    "terms_checklist": { "title": "Honoraires, garantie et exclusivité", "sections": ["Base de calcul, fait générateur et délai de paiement", "Durée et mise en œuvre de la garantie, exclusivité (utilisez votre propre contrat, ceci n'est pas un conseil juridique)"] },
-    "screening_call": { "title": "Guide de l'entretien de pré-qualification", "sections": ["Motivation, préavis, prétentions salariales, autres processus", "Ce qu'il ne faut pas demander ni consigner"] },
+    "operating_guide": { "title": "Comment fonctionne le cabinet", "sections": ["Les deux pipelines : missions et candidats", "Qui porte quelle étape, et la règle d’une action datée par dossier ouvert"] },
+    "client_intake_call": { "title": "Appel de cadrage client : brief de la mission", "sections": ["Poste, lieu, organisation du travail, fourchette de rémunération et date de début", "Critères indispensables et souhaitables, raison de l’ouverture du poste et décideur"] },
+    "terms_checklist": { "title": "Honoraires, garantie et exclusivité", "sections": ["Base de calcul, fait générateur et délai de paiement", "Durée et mise en œuvre de la garantie, exclusivité (utilisez votre propre contrat, ceci n’est pas un conseil juridique)"] },
+    "screening_call": { "title": "Guide de l’entretien de pré-qualification", "sections": ["Motivation, préavis, prétentions salariales, autres processus", "Ce qu’il ne faut pas demander ni consigner"] },
     "submission_email": { "title": "Présenter un candidat au client", "sections": ["Résumé en trois lignes et pourquoi cette personne", "Disponibilité, prétentions et CV en pièce jointe (un brouillon, jamais envoyé automatiquement)"] },
     "interview_routine": { "title": "Préparation et débrief des entretiens", "sections": ["Briefer le candidat et le contact chez le client", "Consigner le résultat dans la journée"] },
-    "candidate_data": { "title": "Données des candidats : base, information et durée de conservation", "sections": ["Durée de conservation et information des candidats", "Consentement pour le vivier et date de revue"] },
-    "aftercare_routine": { "title": "Suivi après l'embauche du jour 1 au jour 90", "sections": ["Prises de nouvelles au démarrage, à une semaine, à 30, 60 et 90 jours", "Fin de la garantie et facturation des honoraires"] }
+    "candidate_data": { "title": "Données des candidats : base, information et durée de conservation", "sections": ["Durée de conservation et information des candidats", "Consentement pour le vivier et date de revue"] },
+    "aftercare_routine": { "title": "Suivi après l’embauche du jour 1 au jour 90", "sections": ["Prises de nouvelles au démarrage, à une semaine, à 30, 60 et 90 jours", "Fin de la garantie et facturation des honoraires"] }
   },
   "rules": {
-    "chase_terms": { "title": "Relancer les conditions signées trois jours après l'accord sur les conditions" },
-    "request_client_feedback": { "title": "Demander un retour au client deux jours après la présentation d'un candidat" },
-    "prepare_interview": { "title": "Briefer le candidat la veille de l'entretien chez le client" },
-    "debrief_interview": { "title": "Faire le débrief avec le candidat et le client le jour de l'entretien" },
-    "chase_offer_decision": { "title": "Relancer la décision du candidat deux jours après la promesse d'embauche" },
+    "chase_terms": { "title": "Relancer les conditions signées trois jours après l’accord sur les conditions" },
+    "request_client_feedback": { "title": "Demander un retour au client deux jours après la présentation d’un candidat" },
+    "prepare_interview": { "title": "Briefer le candidat la veille de l’entretien chez le client" },
+    "debrief_interview": { "title": "Faire le débrief avec le candidat et le client le jour de l’entretien" },
+    "chase_offer_decision": { "title": "Relancer la décision du candidat deux jours après la promesse d’embauche" },
     "start_day_confirmation": { "title": "Confirmer la prise de poste le premier jour du placement" },
     "check_in_week_1": { "title": "Prendre des nouvelles une semaine après le début" },
     "check_in_day_30": { "title": "Prendre des nouvelles 30 jours après le début" },
@@ -173,23 +173,23 @@
     "stalled_search_review": { "title": "Revoir une recherche ouverte depuis plus de 10 jours" },
     "application_received": { "title": "Créer le candidat et un appel quand un formulaire de candidature est envoyé" },
     "feedback_overdue_notice": { "title": "Prévenir le responsable quand le retour du client est en retard" },
-    "interview_calendar": { "title": "Ajouter l'entretien à l'agenda du responsable dès qu'il est convenu" }
+    "interview_calendar": { "title": "Ajouter l’entretien à l’agenda du responsable dès qu’il est convenu" }
   },
   "acceptanceChecks": {
-    "job_stage_field": "Chaque mission a l'une des neuf étapes.",
+    "job_stage_field": "Chaque mission a l’une des neuf étapes.",
     "submission_stage_field": "Chaque candidat a sa propre étape sur une mission.",
     "guarantee_end_field": "Chaque placement indique la fin de sa garantie.",
-    "retain_until_field": "Chaque personne indique jusqu'à quand ses données sont conservées.",
-    "jobs_board_view": "Les missions s'ouvrent en tableau par étape.",
+    "retain_until_field": "Chaque personne indique jusqu’à quand ses données sont conservées.",
+    "jobs_board_view": "Les missions s’ouvrent en board par étape.",
     "candidate_data_page": "La base de connaissances contient une page sur les données des candidats et leur durée de conservation."
   },
   "prompt": {
-    "intro": "Mets en place dans mon espace Customermates un cabinet de recrutement : clients avec leurs conditions, missions en neuf étapes avec les honoraires attendus, une présentation par candidat et par mission, placements avec la fin de la garantie et le suivi après l'embauche, et une date de conservation pour chaque candidat.",
+    "intro": "Mets en place dans mon espace de travail Customermates un cabinet de recrutement : clients avec leurs conditions, missions en neuf étapes avec les honoraires attendus, une présentation par candidat et par mission, placements avec la fin de la garantie et le suivi après l’embauche, et une date de conservation pour chaque candidat.",
     "questions": [
-      "Travaillez-vous au succès, en retainer ou les deux, et quels honoraires et quelle garantie convenez-vous d'habitude ?",
-      "Combien de missions et de candidats gérez-vous en même temps, et qui porte quelle étape ?",
-      "Combien de temps conservez-vous les données des candidats, et dans quels pays recrutez-vous ?",
-      "Où rangez-vous les conditions signées et les factures ? Seul un lien ou une référence est conservé ici."
+      "Travaillez-vous au succès, en retainer ou les deux, et quels honoraires et quelle garantie convenez-vous d’habitude ?",
+      "Combien de missions et de candidats gérez-vous en même temps, et qui porte quelle étape ?",
+      "Combien de temps conservez-vous les données des candidats, et dans quels pays recrutez-vous ?",
+      "Où rangez-vous les conditions signées et les factures ? Seul un lien ou une référence est conservé ici."
     ]
   }
 }
