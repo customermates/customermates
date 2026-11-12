@@ -2,10 +2,10 @@
   "locale": "it",
   "name": "Calendario editoriale",
   "summary": "Una riga per contenuto con stato, responsabile, revisore e data di pubblicazione, più campagne, date chiave e una routine editoriale settimanale.",
-  "description": "Un calendario editoriale per blog, newsletter, social e video: sette stati dall’idea al pubblicato, un calendario di pubblicazione, un pilastro di contenuto per ogni contenuto, un controllo della dichiarazione pubblicitaria per i contenuti a pagamento o ricevuti in regalo e una verifica dei risultati dopo 30 giorni. Pianifica e traccia, non pubblica.",
+  "description": "Un calendario editoriale per blog, newsletter, social e video: sette stati dall'idea al pubblicato, un calendario di pubblicazione, un pilastro di contenuto per ogni contenuto, un controllo della segnalazione pubblicitaria per i contenuti sponsorizzati o con prodotti ricevuti in omaggio e una verifica dei risultati dopo 30 giorni. Pianifica e tiene traccia, non pubblica.",
   "lists": {
     "people": { "label": "Persona", "pluralLabel": "Persone", "description": "Autori, redattori, revisori, approvatori e ospiti." },
-    "pieces": { "label": "Contenuto", "pluralLabel": "Contenuti", "description": "Un contenuto dall’idea alla pubblicazione." },
+    "pieces": { "label": "Contenuto", "pluralLabel": "Contenuti", "description": "Un contenuto dall'idea alla pubblicazione." },
     "campaigns": { "label": "Campagna", "pluralLabel": "Campagne", "description": "Un tema che raggruppa più contenuti." },
     "key_dates": { "label": "Data chiave", "pluralLabel": "Date chiave", "description": "Festività, eventi e lanci intorno ai quali pianificare." }
   },
@@ -61,16 +61,16 @@
     },
     "pieces.brief_url": { "label": "Link al brief" },
     "pieces.draft_url": { "label": "Link alla bozza" },
-    "pieces.target_keyword": { "label": "Parola chiave obiettivo" },
-    "pieces.call_to_action": { "label": "Invito all’azione" },
+    "pieces.target_keyword": { "label": "Parola chiave target" },
+    "pieces.call_to_action": { "label": "Invito all'azione" },
     "pieces.draft_due": { "label": "Bozza entro" },
     "pieces.review_due": { "label": "Revisione entro" },
     "pieces.publish_at": { "label": "Pubblicazione il" },
     "pieces.ad_disclosure": {
-      "label": "Dichiarazione pubblicitaria",
-      "options": { "none": "Nessuna", "paid_partnership": "Partnership a pagamento o pubblicità", "gifted_product": "Prodotto regalato", "affiliate_link": "Link di affiliazione" }
+      "label": "Segnalazione pubblicitaria",
+      "options": { "none": "Nessuna", "paid_partnership": "Partnership a pagamento o pubblicità", "gifted_product": "Prodotto in omaggio", "affiliate_link": "Link di affiliazione" }
     },
-    "pieces.disclosure_checked": { "label": "Dichiarazione verificata" },
+    "pieces.disclosure_checked": { "label": "Segnalazione verificata" },
     "pieces.published_url": { "label": "Link al contenuto pubblicato" },
     "pieces.published_on": { "label": "Pubblicato il" },
     "pieces.reach": { "label": "Copertura" },
@@ -78,7 +78,7 @@
     "pieces.clicks": { "label": "Clic" },
     "pieces.killed_reason": {
       "label": "Motivo dello scarto",
-      "options": { "off_topic": "Fuori tema", "duplicate": "Duplicato", "no_owner": "Senza responsabile", "stale": "Superato", "replaced": "Sostituito", "client_declined": "Rifiutato dal cliente" }
+      "options": { "off_topic": "Fuori tema", "duplicate": "Duplicato", "no_owner": "Senza responsabile", "stale": "Obsoleto", "replaced": "Sostituito", "client_declined": "Rifiutato dal cliente" }
     },
     "campaigns.goal": { "label": "Obiettivo" },
     "campaigns.start_date": { "label": "Inizio" },
@@ -88,7 +88,7 @@
     "key_dates.date": { "label": "Data" },
     "key_dates.date_type": {
       "label": "Tipo",
-      "options": { "holiday": "Festività", "industry_event": "Evento di settore", "product_launch": "Lancio di prodotto", "awareness_day": "Giornata tematica", "own_event": "Evento proprio", "deadline": "Scadenza" }
+      "options": { "holiday": "Festività", "industry_event": "Evento di settore", "product_launch": "Lancio di prodotto", "awareness_day": "Giornata tematica", "own_event": "Evento aziendale", "deadline": "Scadenza" }
     },
     "key_dates.idea_note": { "label": "Idea di contenuto" },
     "actions.kind": {
@@ -133,25 +133,25 @@
     "content_pillars": { "title": "Pilastri di contenuto e mix", "sections": ["I pilastri e la quota di ciascuno", "Che cosa rientra in ogni pilastro"] },
     "editorial_rhythm": { "title": "Ritmo di pubblicazione e riunione editoriale settimanale", "sections": ["Slot per canale", "Uscito, a rischio, bloccato", "Stati e chi li cambia"] },
     "review_and_approval": { "title": "Tempi di revisione e approvazione", "sections": ["Chi rivede e in quanti giorni", "Approvazione del cliente, se serve"] },
-    "disclosure_checklist": { "title": "Checklist della dichiarazione di pubblicità e partnership", "sections": ["Quando un post va segnalato", "Formulazione e posizione", "Controllo prima della pubblicazione"] }
+    "disclosure_checklist": { "title": "Checklist della segnalazione di pubblicità e partnership", "sections": ["Quando un post va segnalato", "Formulazione e posizione", "Controllo prima della pubblicazione"] }
   },
   "rules": {
-    "review_task": { "title": "Creare un’attività di revisione quando un contenuto va in revisione" },
-    "schedule_task": { "title": "Creare un’attività di programmazione quando un contenuto è approvato" },
+    "review_task": { "title": "Creare un'attività di revisione quando un contenuto va in revisione" },
+    "schedule_task": { "title": "Creare un'attività di programmazione quando un contenuto è approvato" },
     "at_risk_before_publish": { "title": "Segnalare un contenuto ancora in bozza tre giorni prima della pubblicazione" },
     "measure_after_30_days": { "title": "Creare una verifica dei risultati dopo la pubblicazione" },
     "stale_piece": { "title": "Rivedere un contenuto fermo da 14 giorni in stesura o revisione" },
     "weekly_editorial_prep": { "title": "Preparare ogni lunedì la riunione editoriale" },
     "plan_for_key_date": { "title": "Pianificare i contenuti tre settimane prima di una data chiave" },
-    "idea_form_piece": { "title": "Creare un contenuto da un’idea inviata con un modulo" }
+    "idea_form_piece": { "title": "Creare un contenuto da un'idea inviata con un modulo" }
   },
   "acceptanceChecks": {
     "stage_field": "Ogni contenuto ha uno dei sette stati.",
-    "publish_field": "Ogni contenuto ha una data e un’ora di pubblicazione.",
+    "publish_field": "Ogni contenuto ha una data e un'ora di pubblicazione.",
     "calendar_widget": "La dashboard mostra il calendario di pubblicazione."
   },
   "prompt": {
-    "intro": "Configura un calendario editoriale nel mio spazio di lavoro Customermates: contenuti con sette stati, un responsabile, un revisore e una data di pubblicazione, campagne, date chiave, un controllo della dichiarazione pubblicitaria e una routine editoriale settimanale.",
+    "intro": "Configura un calendario editoriale nel mio spazio di lavoro Customermates: contenuti con sette stati, un responsabile, un revisore e una data di pubblicazione, campagne, date chiave, un controllo della segnalazione pubblicitaria e una routine editoriale settimanale.",
     "questions": [
       "Che cosa pubblichi, su quali canali e con quale frequenza?",
       "Chi scrive, chi rivede e chi approva? È coinvolto un cliente?",

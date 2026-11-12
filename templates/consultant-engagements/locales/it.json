@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Incarichi di consulenza",
-  "summary": "Una pipeline per un consulente indipendente: incarichi dal contatto all'incarico vinto con verifica di accettazione prima dell'offerta, una data di sollecito concordata nella chiamata sulla proposta e deliverable che regolano esecuzione e chiusura.",
-  "description": "Gestisci un'attività di consulenza in un unico posto: incarichi attraverso analisi, definizione dell'ambito, proposta e decisione, la data di sollecito concordata con lo sponsor, una verifica di accettazione (capacità, indipendenza, riservatezza) prima dell'offerta, deliverable con scadenza e accettazione, e una chiusura che chiede un riscontro e una testimonianza. Conserva pipeline, relazioni e passaggi di consegna. Non è rilevazione dei tempi, fatturazione, firma elettronica delle proposte né pianificazione delle risorse e non contiene dati riservati del cliente.",
+  "summary": "Una pipeline per un consulente indipendente: incarichi dal contatto all'incarico vinto con verifica di accettazione prima dell'offerta, una data di follow-up concordata nella chiamata sulla proposta e deliverable che regolano esecuzione e chiusura.",
+  "description": "Gestisci un'attività di consulenza in un unico posto: incarichi attraverso analisi, definizione dell'ambito, proposta e decisione, la data di follow-up concordata con lo sponsor, una verifica di accettazione (capacità, indipendenza, riservatezza) prima dell'offerta, deliverable con scadenza e accettazione, e una chiusura che chiede un riscontro e una testimonianza. Conserva pipeline, relazioni e punti di controllo della consegna. Non è rilevazione dei tempi, fatturazione, firma elettronica delle proposte né pianificazione delle risorse e non contiene dati riservati del cliente.",
   "lists": {
     "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Sponsor, referenti operativi, chi firma e segnalatori." },
     "clients": { "label": "Cliente", "pluralLabel": "Clienti", "description": "Potenziali clienti, clienti, ex clienti e partner segnalatori." },
@@ -20,12 +20,12 @@
       "options": { "introduction": "Contatto", "discovery": "Analisi", "scoping": "Definizione dell'ambito", "proposal_sent": "Proposta", "decision": "Decisione", "won": "Vinto", "lost": "Perso" }
     },
     "engagements.engagement_type": { "label": "Tipo", "options": { "diagnostic": "Diagnosi", "advisory_review": "Revisione consulenziale", "workshop": "Workshop", "interim": "Incarico interim", "retainer": "Consulenza continuativa", "training": "Formazione" } },
-    "engagements.referral_source": { "label": "Come è arrivato", "options": { "client_referral": "Segnalazione di un cliente", "peer_referral": "Segnalazione di un collega", "event_or_talk": "Evento o intervento", "content": "Contenuti pubblicati", "existing_client": "Cliente esistente", "marketplace": "Piattaforma" } },
+    "engagements.referral_source": { "label": "Origine dell'incarico", "options": { "client_referral": "Segnalazione di un cliente", "peer_referral": "Segnalazione di un collega", "event_or_talk": "Evento o intervento", "content": "Contenuti pubblicati", "existing_client": "Cliente esistente", "marketplace": "Piattaforma" } },
     "engagements.day_rate": { "label": "Tariffa giornaliera" },
     "engagements.days_estimated": { "label": "Giorni stimati" },
     "engagements.estimated_fee": { "label": "Compenso stimato" },
     "engagements.acceptance_checked_on": { "label": "Accettazione verificata il" },
-    "engagements.proposal_follow_up_on": { "label": "Sollecito concordato per il" },
+    "engagements.proposal_follow_up_on": { "label": "Follow-up concordato per il" },
     "engagements.decision_expected": { "label": "Decisione attesa" },
     "engagements.start_date": { "label": "Inizio" },
     "engagements.end_date": { "label": "Fine" },
@@ -33,15 +33,15 @@
     "engagements.next_step_due": { "label": "Prossimo passo entro" },
     "engagements.lost_reason": {
       "label": "Motivo della perdita",
-      "options": { "timing": "Tempi", "budget": "Budget", "in_house": "Lo fa internamente", "other_advisor": "Ha scelto un altro consulente", "scope_changed": "Ambito cambiato", "no_decision": "Nessuna decisione", "no_response": "Nessuna risposta" }
+      "options": { "timing": "Tempi", "budget": "Budget", "in_house": "Lo gestisce internamente", "other_advisor": "Ha scelto un altro consulente", "scope_changed": "Ambito modificato", "no_decision": "Nessuna decisione", "no_response": "Nessuna risposta" }
     },
     "deliverables.status": { "label": "Stato", "options": { "planned": "Pianificato", "in_progress": "In corso", "delivered": "Consegnato", "accepted": "Accettato" } },
-    "deliverables.kind": { "label": "Tipo", "options": { "interview_summary": "Sintesi delle interviste", "workshop": "Workshop", "report": "Rapporto", "recommendation": "Raccomandazione", "training_session": "Sessione di formazione", "handover": "Passaggio di consegne" } },
+    "deliverables.kind": { "label": "Tipo", "options": { "interview_summary": "Sintesi delle interviste", "workshop": "Workshop", "report": "Relazione", "recommendation": "Raccomandazione", "training_session": "Sessione di formazione", "handover": "Passaggio di consegne" } },
     "deliverables.due_date": { "label": "Scadenza" },
     "deliverables.owner": { "label": "Responsabile" },
     "actions.kind": {
       "label": "Tipo",
-      "options": { "reply": "Rispondere", "write_up": "Redigere il resoconto", "acceptance_check": "Verificare l'accettazione", "proposal": "Scrivere la proposta", "follow_up": "Sollecitare", "kickoff": "Kickoff", "deliver": "Consegnare", "feedback": "Chiedere un riscontro", "other": "Altro" }
+      "options": { "reply": "Rispondere", "write_up": "Redigere il resoconto", "acceptance_check": "Verificare l'accettazione", "proposal": "Scrivere la proposta", "follow_up": "Fare follow-up", "kickoff": "Kickoff", "deliver": "Consegnare", "feedback": "Chiedere un riscontro", "other": "Altro" }
     }
   },
   "relationships": {
@@ -66,34 +66,34 @@
     "deliverables_due": { "title": "Deliverable in scadenza" },
     "engagements_ending": { "title": "Incarichi che finiscono" },
     "by_type": { "title": "Incarichi vinti per tipo" },
-    "lost_reasons": { "title": "Perché gli incarichi sono persi" }
+    "lost_reasons": { "title": "Motivi di perdita degli incarichi" }
   },
   "knowledgePages": {
     "operating_guide": { "title": "Come funziona l'attività", "sections": ["Le fasi e la regola di un prossimo passo con data per incarico aperto", "Che cosa resta fuori: rilevazione dei tempi e fatturazione"] },
-    "discovery_guide": { "title": "Guida al colloquio di analisi", "sections": ["Il problema con le parole del cliente, i soggetti coinvolti e i segnali di budget", "Che cosa annotare il giorno dopo"] },
+    "discovery_guide": { "title": "Guida al colloquio di analisi", "sections": ["Il problema nelle parole del cliente, i soggetti coinvolti e i segnali di budget", "Che cosa annotare il giorno dopo"] },
     "acceptance_check": { "title": "Verifica di accettazione prima dell'offerta", "sections": ["Capacità, indipendenza, riservatezza e adeguatezza", "Chi decide se accettare il lavoro"] },
-    "proposal_and_follow_up": { "title": "Struttura della proposta e sollecito", "sections": ["Opzioni offerte e quella raccomandata", "Concordare la data di sollecito nella chiamata sulla proposta"] }
+    "proposal_and_follow_up": { "title": "Struttura della proposta e follow-up", "sections": ["Opzioni offerte e quella raccomandata", "Concordare la data di follow-up nella chiamata sulla proposta"] }
   },
   "rules": {
     "discovery_writeup": { "title": "Redigere il resoconto del colloquio di analisi il giorno dopo" },
     "acceptance_check": { "title": "Verificare l'accettazione il giorno dopo l'ingresso nella definizione dell'ambito" },
-    "proposal_follow_up": { "title": "Sollecitare 3 giorni dopo l'invio della proposta" },
+    "proposal_follow_up": { "title": "Fare follow-up 3 giorni dopo l'invio della proposta" },
     "decision_date": { "title": "Chiedere la decisione alla data di decisione attesa" },
     "won_kickoff": { "title": "Fissare il kickoff il giorno dopo un incarico vinto" },
     "lost_review": { "title": "Chiedere che cosa si poteva fare diversamente 2 giorni dopo una perdita" },
     "deliverable_due_notice": { "title": "Avvisare il responsabile 3 giorni prima della scadenza di un deliverable" },
-    "closeout_report": { "title": "Consegnare il rapporto finale alla data di fine" },
+    "closeout_report": { "title": "Consegnare la relazione finale alla data di fine" },
     "testimonial_ask": { "title": "Chiedere una testimonianza 14 giorni dopo la data di fine" },
     "followup_after_end": { "title": "Proporre nuovo lavoro 30 giorni dopo la data di fine" }
   },
   "acceptanceChecks": {
     "stage_field": "Ogni incarico ha una fase.",
-    "follow_up_field": "Ogni proposta registra la data di sollecito concordata con lo sponsor.",
+    "follow_up_field": "Ogni proposta registra la data di follow-up concordata con lo sponsor.",
     "acceptance_checked_field": "Ogni incarico indica quando è stata verificata l'accettazione.",
-    "engagements_board_view": "Gli incarichi si aprono come bacheca per fase."
+    "engagements_board_view": "Gli incarichi si aprono come board per fase."
   },
   "prompt": {
-    "intro": "Imposta nel mio workspace Customermates gli incarichi di consulenza: incarichi dal contatto al vinto con verifica di accettazione e data di sollecito concordata nella chiamata sulla proposta, deliverable con scadenza e accettazione e una chiusura che chiede un riscontro. Non conservare dati riservati del cliente.",
+    "intro": "Imposta nel mio spazio di lavoro Customermates gli incarichi di consulenza: incarichi dal primo contatto all'incarico vinto con verifica di accettazione e data di follow-up concordata nella chiamata sulla proposta, deliverable con scadenza e accettazione e una chiusura che chiede un riscontro. Non conservare dati riservati del cliente.",
     "questions": [
       "Che tipi di incarico vendi e a quale tariffa giornaliera?",
       "Come decidi se accettare un lavoro?",
