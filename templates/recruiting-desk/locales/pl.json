@@ -1,0 +1,195 @@
+{
+  "locale": "pl",
+  "name": "Biuro rekrutacyjne",
+  "summary": "Biurko agencji rekrutacyjnej lub niezależnego rekrutera: zlecenia od zapytania do zatrudnienia, jeden wpis w procesie na kandydata, terminy prowizji i gwarancji, kontakty po zatrudnieniu i data przechowywania danych każdego kandydata.",
+  "description": "Prowadź biuro agencji w jednym miejscu: klienci i ich warunki współpracy, zlecenia rekrutacyjne z etapem i spodziewaną prowizją, kandydaci prezentowani na zlecenie z własnymi etapami, zatrudnienia z końcem gwarancji i kontaktami po starcie oraz data przeglądu danych przy każdym kandydacie. Pasuje do biura jednego do pięciu rekruterów. To nie portal z ogłoszeniami, parser CV, narzędzie do masowych wysyłek ani system rozliczania czasu pracy i płac, a do kandydatów i klientów nic nie jest wysyłane automatycznie.",
+  "lists": {
+    "people": { "label": "Osoba", "pluralLabel": "Osoby", "description": "Kandydaci, kontakty u klientów i polecający." },
+    "clients": { "label": "Klient", "pluralLabel": "Klienci", "description": "Firmy, dla których rekrutujesz, z warunkami prowizji i gwarancji." },
+    "jobs": { "label": "Zlecenie rekrutacyjne", "pluralLabel": "Zlecenia rekrutacyjne", "description": "Jedno poszukiwanie dla jednego klienta, od zapytania do zatrudnienia lub utraty." },
+    "submissions": { "label": "Prezentacja kandydata", "pluralLabel": "Prezentacje kandydatów", "description": "Jeden kandydat na jednym zleceniu, z własnym etapem." },
+    "placements": { "label": "Zatrudnienie", "pluralLabel": "Zatrudnienia", "description": "Kandydat, który przyjął ofertę, z datą startu, prowizją i końcem gwarancji." }
+  },
+  "fields": {
+    "jobs.stage": {
+      "label": "Etap",
+      "options": { "lead": "Zapytanie", "brief": "Brief", "terms_agreed": "Umowa podpisana", "searching": "Wyszukiwanie", "submitted": "Prezentacja kandydatów", "interviews": "Rozmowy u klienta", "offer": "Oferta", "placed": "Zatrudniony", "lost": "Utracone" }
+    },
+    "submissions.stage": {
+      "label": "Etap",
+      "options": { "sourced": "Znaleziony", "contacted": "Skontaktowany", "screened": "Po rozmowie wstępnej", "submitted": "Zaprezentowany klientowi", "client_interview": "Rozmowa u klienta", "offer": "Oferta", "placed": "Zatrudniony", "rejected_internal": "Odrzucony przez nas", "rejected_by_client": "Odrzucony przez klienta", "withdrawn": "Wycofał się" }
+    },
+    "people.person_type": {
+      "label": "Typ",
+      "options": { "candidate": "Kandydat", "client_contact": "Kontakt u klienta", "referrer": "Polecający", "other": "Inny" }
+    },
+    "people.job_title": { "label": "Stanowisko" },
+    "people.candidate_status": {
+      "label": "Status kandydata",
+      "options": { "active": "Aktywny", "passive": "Pasywny", "placed": "Zatrudniony", "do_not_contact": "Nie kontaktować", "archived": "Zarchiwizowany" }
+    },
+    "people.source": {
+      "label": "Źródło",
+      "options": { "referral": "Polecenie", "linkedin": "LinkedIn", "job_board": "Portal z ogłoszeniami", "own_database": "Własna baza", "event": "Wydarzenie", "inbound": "Zgłoszenie przychodzące", "other": "Inne" }
+    },
+    "people.salary_expectation": { "label": "Oczekiwania finansowe" },
+    "people.notice_period": { "label": "Okres wypowiedzenia" },
+    "people.location": { "label": "Miejscowość" },
+    "people.data_basis": {
+      "label": "Podstawa przechowywania danych",
+      "options": { "pre_contract": "Działania przed zawarciem umowy", "talent_pool_consent": "Zgoda na przyszłe rekrutacje", "legitimate_interest": "Pozyskany, prawnie uzasadniony interes" }
+    },
+    "people.retain_until": { "label": "Usuń do" },
+    "people.last_contact": { "label": "Ostatni kontakt" },
+    "people.owner": { "label": "Opiekun" },
+    "clients.client_status": {
+      "label": "Status",
+      "options": { "prospect": "Potencjalny klient", "active_client": "Aktywny klient", "past_client": "Były klient", "do_not_contact": "Nie kontaktować" }
+    },
+    "clients.agreement_type": {
+      "label": "Umowa",
+      "options": { "contingency": "Za sukces", "retained": "Z zaliczką", "container": "Pakiet zleceń", "other": "Inna" }
+    },
+    "clients.fee_percent": { "label": "Prowizja (% rocznego wynagrodzenia brutto)" },
+    "clients.guarantee_days": { "label": "Gwarancja (dni)" },
+    "clients.terms_signed_on": { "label": "Umowa podpisana dnia" },
+    "clients.terms_url": { "label": "Link do umowy" },
+    "clients.website": { "label": "Strona internetowa" },
+    "clients.next_touch": { "label": "Następny kontakt" },
+    "clients.owner": { "label": "Opiekun" },
+    "jobs.salary": { "label": "Wynagrodzenie" },
+    "jobs.fee_percent": { "label": "Prowizja (%)" },
+    "jobs.opened_on": { "label": "Otwarto dnia" },
+    "jobs.filled_on": { "label": "Obsadzono dnia" },
+    "jobs.exclusive": { "label": "Na wyłączność" },
+    "jobs.location": { "label": "Miejscowość" },
+    "jobs.work_model": { "label": "Model pracy", "options": { "on_site": "Stacjonarnie", "hybrid": "Hybrydowo", "remote": "Zdalnie" } },
+    "jobs.must_haves": { "label": "Wymagania obowiązkowe i mile widziane" },
+    "jobs.brief_url": { "label": "Link do briefu" },
+    "jobs.next_step": { "label": "Następny krok" },
+    "jobs.next_step_due": { "label": "Termin następnego kroku" },
+    "jobs.lost_reason": {
+      "label": "Powód utraty",
+      "options": { "client_filled_internally": "Klient obsadził stanowisko wewnętrznie", "client_froze_search": "Klient wstrzymał poszukiwania", "filled_by_competitor": "Obsadzone przez konkurencję", "terms_not_agreed": "Nie uzgodniono warunków", "role_cancelled": "Stanowisko anulowane", "no_suitable_candidates": "Brak odpowiednich kandydatów" }
+    },
+    "jobs.owner": { "label": "Opiekun" },
+    "jobs.days_to_fill": { "label": "Dni do obsadzenia" },
+    "jobs.weighted_fee": { "label": "Prowizja ważona" },
+    "submissions.submitted_on": { "label": "Zaprezentowano dnia" },
+    "submissions.interview_at": { "label": "Rozmowa" },
+    "submissions.feedback_due": { "label": "Opinia klienta do" },
+    "submissions.rejection_reason": {
+      "label": "Powód odrzucenia",
+      "options": { "skills": "Umiejętności", "culture_fit": "Dopasowanie do kultury firmy", "salary_mismatch": "Niedopasowane wynagrodzenie", "other_offer": "Inna oferta", "no_response": "Brak odpowiedzi", "location_or_notice": "Lokalizacja lub okres wypowiedzenia" }
+    },
+    "submissions.notes": { "label": "Notatki" },
+    "submissions.owner": { "label": "Opiekun" },
+    "placements.start_date": { "label": "Data startu" },
+    "placements.agreed_salary": { "label": "Uzgodnione wynagrodzenie" },
+    "placements.fee_amount": { "label": "Prowizja" },
+    "placements.invoice_reference": { "label": "Numer faktury" },
+    "placements.guarantee_ends": { "label": "Koniec gwarancji" },
+    "placements.status": {
+      "label": "Status",
+      "options": { "in_guarantee": "W okresie gwarancji", "guarantee_passed": "Gwarancja minęła", "fell_out_replaced": "Odszedł, zastąpiony", "fell_out_refunded": "Odszedł, zwrot prowizji" }
+    },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": {
+        "call_client": "Zadzwonić do klienta",
+        "call_candidate": "Zadzwonić do kandydata",
+        "submit_candidate": "Zaprezentować kandydata",
+        "request_feedback": "Poprosić o opinię",
+        "prepare_interview": "Przygotować rozmowę",
+        "debrief": "Omówić rozmowę",
+        "chase_terms": "Ponaglić o podpisaną umowę",
+        "check_in": "Sprawdzić, jak się układa",
+        "retention_review": "Przejrzeć przechowywanie danych",
+        "review_search": "Przejrzeć zastygłe poszukiwanie",
+        "invoice_request": "Poprosić o fakturę",
+        "other": "Inne"
+      }
+    }
+  },
+  "relationships": {
+    "person_client": { "sourceLabel": "Pracodawca lub klient", "targetLabel": "Osoby" },
+    "job_client": { "sourceLabel": "Klient", "targetLabel": "Zlecenia rekrutacyjne" },
+    "job_contacts": { "sourceLabel": "Kontakty u klienta", "targetLabel": "Zlecenia rekrutacyjne" },
+    "submission_job": { "sourceLabel": "Zlecenie rekrutacyjne", "targetLabel": "Prezentacje kandydatów" },
+    "submission_candidate": { "sourceLabel": "Kandydat", "targetLabel": "Prezentacje kandydatów" },
+    "placement_job": { "sourceLabel": "Zlecenie rekrutacyjne", "targetLabel": "Zatrudnienia" },
+    "placement_candidate": { "sourceLabel": "Kandydat", "targetLabel": "Zatrudnienia" },
+    "action_person": { "sourceLabel": "Osoba", "targetLabel": "Zadania" },
+    "action_job": { "sourceLabel": "Zlecenie rekrutacyjne", "targetLabel": "Zadania" },
+    "action_submission": { "sourceLabel": "Prezentacja kandydata", "targetLabel": "Zadania" },
+    "action_client": { "sourceLabel": "Klient", "targetLabel": "Zadania" },
+    "action_placement": { "sourceLabel": "Zatrudnienie", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "jobs_board": { "name": "Zlecenia według etapu" },
+    "jobs_all": { "name": "Wszystkie zlecenia" },
+    "searches_without_next_step": { "name": "Otwarte poszukiwania bez następnego kroku" },
+    "submissions_board": { "name": "Kandydaci według etapu" },
+    "feedback_pending": { "name": "Czekamy na opinię klienta" },
+    "placements_all": { "name": "Wszystkie zatrudnienia" },
+    "clients_all": { "name": "Wszyscy klienci" },
+    "people_all": { "name": "Wszystkie osoby" }
+  },
+  "widgets": {
+    "jobs_funnel": { "title": "Otwarte zlecenia według etapu" },
+    "weighted_fees": { "title": "Prowizje ważone w toku" },
+    "submissions_by_stage": { "title": "Kandydaci według etapu" },
+    "placements_per_month": { "title": "Prowizje według miesiąca startu" },
+    "interviews_coming": { "title": "Nadchodzące rozmowy" },
+    "guarantees_ending": { "title": "Kończące się gwarancje" },
+    "retention_due": { "title": "Dane kandydatów do przeglądu" },
+    "lost_reasons": { "title": "Dlaczego zlecenia zostały utracone" },
+    "average_days_to_fill": { "title": "Średnia liczba dni do obsadzenia" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Jak działa biuro", "sections": ["Dwa procesy: zlecenia i kandydaci", "Kto odpowiada za który etap i zasada jednego zadania z terminem na otwarty wpis"] },
+    "client_intake_call": { "title": "Rozmowa z klientem: brief zlecenia", "sections": ["Stanowisko, miejsce, model pracy, widełki i data startu", "Wymagania obowiązkowe, mile widziane, powód otwarcia stanowiska i kto decyduje"] },
+    "terms_checklist": { "title": "Prowizja, gwarancja i wyłączność", "sections": ["Podstawa prowizji, kiedy jest należna i terminy płatności", "Długość i skutek gwarancji, wyłączność (korzystaj z własnej umowy, to nie jest porada prawna)"] },
+    "screening_call": { "title": "Rozmowa wstępna z kandydatem", "sections": ["Motywacja, okres wypowiedzenia, oczekiwania finansowe, inne procesy", "Czego nie pytać i czego nie zapisywać"] },
+    "submission_email": { "title": "Prezentacja kandydata klientowi", "sections": ["Trzy zdania podsumowania i dlaczego ta osoba", "Dostępność, oczekiwania finansowe i CV w załączniku (szkic, nigdy nie wysyłany automatycznie)"] },
+    "interview_routine": { "title": "Przygotowanie rozmowy i omówienie po niej", "sections": ["Przygotowanie kandydata i kontaktu u klienta", "Zapisanie wyniku w ciągu doby"] },
+    "candidate_data": { "title": "Dane kandydatów: podstawa, informacja i przechowywanie", "sections": ["Okresy przechowywania według kraju i klauzula informacyjna", "Zgoda na przyszłe rekrutacje i data przeglądu"] },
+    "aftercare_routine": { "title": "Opieka po zatrudnieniu od dnia 1 do dnia 90", "sections": ["Kontakty na starcie, po tygodniu, 30, 60 i 90 dniach", "Koniec gwarancji i faktura za prowizję"] }
+  },
+  "rules": {
+    "chase_terms": { "title": "Ponaglić o podpisaną umowę trzy dni po przejściu zlecenia do etapu umowy podpisanej" },
+    "request_client_feedback": { "title": "Poprosić klienta o opinię dwa dni po zaprezentowaniu kandydata" },
+    "prepare_interview": { "title": "Przygotować kandydata dzień przed rozmową u klienta" },
+    "debrief_interview": { "title": "Omówić rozmowę z kandydatem i klientem w dniu rozmowy" },
+    "chase_offer_decision": { "title": "Zapytać kandydata o decyzję dwa dni po ofercie" },
+    "start_day_confirmation": { "title": "Potwierdzić start w pierwszym dniu zatrudnienia" },
+    "check_in_week_1": { "title": "Sprawdzić, jak się układa, tydzień po starcie" },
+    "check_in_day_30": { "title": "Sprawdzić, jak się układa, 30 dni po starcie" },
+    "check_in_day_60": { "title": "Sprawdzić, jak się układa, 60 dni po starcie" },
+    "check_in_day_90": { "title": "Sprawdzić, jak się układa, 90 dni po starcie" },
+    "guarantee_check": { "title": "Potwierdzić, że zatrudnienie jest stabilne, a prowizja zapłacona, 14 dni przed końcem gwarancji" },
+    "retention_review": { "title": "Usunąć kandydata lub zapisać nową zgodę w dniu przeglądu danych" },
+    "client_touch": { "title": "Zadzwonić do aktywnego klienta w dniu następnego kontaktu i zapytać o planowane rekrutacje" },
+    "stalled_search_review": { "title": "Przejrzeć poszukiwanie otwarte dłużej niż 10 dni" },
+    "application_received": { "title": "Utworzyć kandydata i rozmowę po wysłaniu formularza aplikacyjnego" },
+    "feedback_overdue_notice": { "title": "Powiadomić opiekuna, gdy opinia klienta jest spóźniona" },
+    "interview_calendar": { "title": "Dodać rozmowę do kalendarza opiekuna, gdy zostanie uzgodniona" }
+  },
+  "acceptanceChecks": {
+    "job_stage_field": "Każde zlecenie ma jeden z dziewięciu etapów.",
+    "submission_stage_field": "Każdy kandydat na zleceniu ma własny etap.",
+    "guarantee_end_field": "Każde zatrudnienie zapisuje, kiedy kończy się gwarancja.",
+    "retain_until_field": "Każda osoba zapisuje, do kiedy przechowywane są jej dane.",
+    "jobs_board_view": "Zlecenia otwierają się jako tablica według etapu.",
+    "candidate_data_page": "Baza wiedzy zawiera stronę o danych kandydatów i ich przechowywaniu."
+  },
+  "prompt": {
+    "intro": "Skonfiguruj w moim workspace Customermates biuro rekrutacyjne: klienci z warunkami, zlecenia w dziewięciu etapach ze spodziewaną prowizją, jedna prezentacja na kandydata i zlecenie, zatrudnienia z końcem gwarancji i kontaktami po starcie oraz data przechowywania danych każdego kandydata.",
+    "questions": [
+      "Pracujesz za sukces, z zaliczką czy w obu modelach i jaką prowizję oraz gwarancję zwykle uzgadniasz?",
+      "Ile zleceń i kandydatów obsługujesz naraz i kto odpowiada za który etap?",
+      "Jak długo przechowujesz dane kandydatów i w jakich krajach rekrutujesz?",
+      "Gdzie trzymasz podpisane umowy i faktury? Tutaj zapisywany jest tylko link lub numer."
+    ]
+  }
+}
