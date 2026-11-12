@@ -55,6 +55,16 @@ async function recordAgentConnected(toolName: string): Promise<void> {
   }
 }
 
+async function recordAgentFirstCall(): Promise<void> {
+  if (env.APP_MODE === "demo") return;
+  try {
+    const { getRecordAgentFirstCallInteractor } = await import("@/core/di");
+    await getRecordAgentFirstCallInteractor().invoke();
+  } catch (error) {
+    ErrorReporter.captureException(redactUnexpectedError(error, "The first agent call could not be recorded."));
+  }
+}
+
 function registerAllTools(server: Parameters<Parameters<typeof createMcpHandler>[0]>[0], tools: McpTool[]) {
   for (const tool of tools) {
     server.registerTool(
@@ -380,6 +390,7 @@ export function createMcpRoute(
     if (!toolCall.toolCall) await exemptCurrentRequestFromIntegrationLimit();
     const refused = await mcpAccessRefusal(resourceMetadataUrl, toolCall);
     if (refused) return refused;
+    await recordAgentFirstCall();
     const toolsets = resolveToolsetKey(request, knownKeys);
     if ("unknown" in toolsets) return unknownToolsets(toolsets.unknown, knownKeys);
     const operator = await isOperatorRequest(operatorTools);

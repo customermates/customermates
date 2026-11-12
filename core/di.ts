@@ -231,6 +231,8 @@ import { GetOnboardingJobChoiceInteractor } from "@/features/onboarding-funnel/g
 import { SelectOnboardingJobInteractor } from "@/features/onboarding-funnel/select-onboarding-job.interactor";
 import { ApplyOnboardingPlaybookInteractor } from "@/features/onboarding-funnel/apply-onboarding-playbook.interactor";
 import { RecordAgentConnectedInteractor } from "@/features/onboarding-funnel/record-agent-connected.interactor";
+import { RecordAgentFirstCallInteractor } from "@/features/onboarding-funnel/record-agent-first-call.interactor";
+import { GetOnboardingAgentStatusInteractor } from "@/features/onboarding-funnel/get-onboarding-agent-status.interactor";
 import { NextAdAttributionCookieRepo } from "@/features/acquisition/next/ad-attribution-cookie";
 import { ReadAdAttributionConsentInteractor } from "@/features/acquisition/read-ad-attribution-consent.interactor";
 import { WithdrawAdAttributionInteractor } from "@/features/acquisition/withdraw-ad-attribution.interactor";
@@ -1322,6 +1324,9 @@ export const getApplyOnboardingPlaybookInteractor = () =>
     getRouteGuardService(),
   );
 export const getRecordAgentConnectedInteractor = () => new RecordAgentConnectedInteractor(getOnboardingFunnelRepo());
+export const getRecordAgentFirstCallInteractor = () => new RecordAgentFirstCallInteractor(getCompanyRepo());
+export const getGetOnboardingAgentStatusInteractor = () =>
+  new GetOnboardingAgentStatusInteractor(getOnboardingFunnelRepo(), getRouteGuardService());
 
 export const getGetOnboardingWizardProgressInteractor = () =>
   new GetOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService(), getAuthService());

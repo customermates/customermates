@@ -26,6 +26,7 @@ const apiKeys = vi.hoisted(() => ({
     }),
   ),
   authorize: vi.fn(() => Promise.resolve({ ok: true, data: true })),
+  firstCall: vi.fn((): Promise<unknown> => Promise.resolve({ ok: true, data: { recorded: true } })),
 }));
 
 const requestLimit = vi.hoisted(() => ({ exemptCurrentRequestFromIntegrationLimit: vi.fn(() => Promise.resolve()) }));
@@ -40,6 +41,7 @@ vi.mock("@/core/di", () => ({
   getDeleteCustomColumnInteractor: vi.fn(),
   getAuthService: () => apiKeys,
   getAuthorizeMcpConnectionInteractor: () => ({ invoke: apiKeys.authorize }),
+  getRecordAgentFirstCallInteractor: () => ({ invoke: apiKeys.firstCall }),
 }));
 
 import { createMcpRoute, readMcpToolCall } from "../mcp-route-utils";
@@ -402,6 +404,32 @@ describe("public MCP execution boundary", () => {
     expect(apiKeys.resolveMcpCredentialWorkspace).toHaveBeenCalledWith(expect.any(Headers));
     expect(apiKeys.isMcpApiKeyValid).not.toHaveBeenCalled();
     expect(apiKeys.authorize).toHaveBeenCalled();
+  });
+
+  it("records the workspace's first authenticated call and not a refused one", async () => {
+    const handler = createMcpRoute({ test: [expectedFailureTool] });
+
+    await rpc(handler, requestBody("initialize", 1), undefined, { workspaceId: WORKSPACE });
+    expect(apiKeys.firstCall).toHaveBeenCalledTimes(1);
+
+    apiKeys.authorize.mockRejectedValueOnce(new WorkspacePlanRequiredError());
+    const refused = await rpc(handler, requestBody("initialize", 1), undefined, { workspaceId: WORKSPACE });
+    expect(refused.response.status).toBe(403);
+    expect(apiKeys.firstCall).toHaveBeenCalledTimes(1);
+
+    apiKeys.resolveMcpCredentialWorkspace.mockResolvedValueOnce({ credential: "apiKey", companyId: OTHER_WORKSPACE });
+    await rpc(handler, requestBody("initialize", 1), undefined, { workspaceId: WORKSPACE });
+    expect(apiKeys.firstCall).toHaveBeenCalledTimes(1);
+  });
+
+  it("serves the request and reports when the first call cannot be recorded", async () => {
+    const handler = createMcpRoute({ test: [expectedFailureTool] });
+    apiKeys.firstCall.mockRejectedValueOnce(new Error("database is down"));
+
+    const initialized = await rpc(handler, requestBody("initialize", 1), undefined, { workspaceId: WORKSPACE });
+
+    expect(initialized.response.status).toBe(200);
+    expect(sentry.captureException).toHaveBeenCalledTimes(1);
   });
 
   it("asks a client without a credential to authorize for the workspace's own resource", async () => {

@@ -17,6 +17,7 @@ import type { ProcessLemonSqueezyWebhookRepo } from "@/ee/subscription/process-l
 import type { BillingUsageRepo } from "@/features/billing-usage/billing-usage.repo";
 import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard-company.repo";
 import type { InviteTokenRepo } from "@/features/company/invite-token-validation.repo";
+import type { RecordAgentFirstCallRepo } from "@/features/onboarding-funnel/onboarding-agent.repo";
 import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user-company.repo";
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-subscription.repo";
 import type { GetCompanyRepo } from "./get-company.repo";
@@ -72,6 +73,7 @@ export class PrismaCompanyRepo
     CreateAuthLinkSubscriptionRepo,
     UpsertRoutineSubscriptionRepo,
     RegisterUserCompanyRepo,
+    RecordAgentFirstCallRepo,
     WorkspaceDeletionRepo,
     WorkspaceSlugRepo,
     PlanInviteRepo
@@ -488,9 +490,9 @@ export class PrismaCompanyRepo
             name: setup.name ?? null,
             slug,
             createdByAuthUserId: setup.createdByAuthUserId ?? null,
+            signupTemplate: setup.signupTemplate ?? null,
           },
         ],
-            signupTemplate: setup.signupTemplate ?? null,
         skipDuplicates: true,
       });
       return count === 1;
@@ -537,6 +539,14 @@ export class PrismaCompanyRepo
 
   async recordSignupSource(companyId: string, source: RegistrationSignupSource) {
     await this.prisma.companySignupSource.createMany({ data: [{ companyId, ...source }], skipDuplicates: true });
+  }
+
+  async recordAgentFirstCall() {
+    const { count } = await this.prisma.company.updateMany({
+      where: { id: this.user.companyId, agentFirstCallAt: null },
+      data: { agentFirstCallAt: new Date() },
+    });
+    return count === 1;
   }
 
   @BypassTenantGuard

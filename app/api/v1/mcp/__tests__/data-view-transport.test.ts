@@ -17,6 +17,7 @@ vi.mock("@/core/di", () => ({
   getManageDataViewsInteractor: () => ({ invoke: interactors.manage }),
   getAuthService: () => ({ isMcpApiKeyValid: () => Promise.resolve(true) }),
   getAuthorizeMcpConnectionInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: true }) }),
+  getRecordAgentFirstCallInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: { recorded: false } }) }),
   getOperatorAccessService: () => ({ isReadEligible: () => Promise.resolve(false) }),
 }));
 
