@@ -104,18 +104,18 @@
     "document_checklists": { "title": "Documentverzoeken per dienst", "sections": ["Wat we per dienst opvragen en voor wanneer", "Herinneringen en wat we doen als documenten ontbreken"] }
   },
   "rules": {
-    "proposal_follow_up": { "title": "Een offerte 3 dagen na verzending opvolgen" },
-    "aml_identification": { "title": "Binnen 2 dagen identificeren als een opdracht de fase Cliëntenonderzoek bereikt" },
-    "onboarding_set": { "title": "De machtiging en de eerste documenten opvragen als een opdracht actief wordt" },
-    "recontact_not_going_ahead": { "title": "De volgende stap op 90 dagen zetten als een opdracht niet doorgaat" },
-    "documents_chase": { "title": "De documenten 3 dagen voor de afgesproken datum opnieuw opvragen" },
-    "documents_overdue_notice": { "title": "De verantwoordelijke waarschuwen als documenten er al moeten zijn en nog ontbreken" },
-    "pre_deadline_check": { "title": "De verantwoordelijke waarschuwen op de voortermijn van een open termijn" },
-    "due_date_escalation": { "title": "De teamleider 2 dagen voor een open termijn waarschuwen" },
-    "approval_chase": { "title": "Het akkoord van de klant na 5 dagen wachten opvolgen" },
-    "notice_check": { "title": "Een aanslag of beschikking binnen 3 dagen na ontvangst beoordelen" },
-    "aml_review": { "title": "De risicoclassificatie herzien als de volgende beoordelingsdatum is bereikt" },
-    "monthly_close_jobs": { "title": "Aan het begin van elke maand de maanddossiers aanmaken" }
+    "proposal_follow_up": { "title": "Volg een offerte 3 dagen na verzending op" },
+    "aml_identification": { "title": "Identificeer binnen 2 dagen als een opdracht de fase Cliëntenonderzoek bereikt" },
+    "onboarding_set": { "title": "Vraag de machtiging en de eerste documenten op als een opdracht actief wordt" },
+    "recontact_not_going_ahead": { "title": "Zet de volgende stap op 90 dagen als een opdracht niet doorgaat" },
+    "documents_chase": { "title": "Vraag de documenten 3 dagen voor de afgesproken datum opnieuw op" },
+    "documents_overdue_notice": { "title": "Waarschuw de verantwoordelijke als documenten er al moeten zijn en nog ontbreken" },
+    "pre_deadline_check": { "title": "Waarschuw de verantwoordelijke op de voortermijn van een open termijn" },
+    "due_date_escalation": { "title": "Waarschuw de teamleider 2 dagen voor een open termijn" },
+    "approval_chase": { "title": "Volg het akkoord van de klant na 5 dagen wachten op" },
+    "notice_check": { "title": "Beoordeel een aanslag of beschikking binnen 3 dagen na ontvangst" },
+    "aml_review": { "title": "Herzie de risicoclassificatie als de volgende beoordelingsdatum is bereikt" },
+    "monthly_close_jobs": { "title": "Maak aan het begin van elke maand de maanddossiers aan" }
   },
   "acceptanceChecks": {
     "mandate_stage_field": "Elke opdracht heeft een fase.",

@@ -83,18 +83,18 @@
     "renewal_playbook": { "title": "Draaiboek verlenging en kwartaalgesprek", "sections": ["Terugblik met resultaten en uitbreidingsopties", "Opzegvenster en het verlengingsvoorstel"] }
   },
   "rules": {
-    "brief_form_records": { "title": "Contactpersoon en kans aanmaken als het briefingformulier is ingediend" },
-    "respond_to_brief": { "title": "Een nieuwe kans binnen een dag beantwoorden" },
-    "qualify_check": { "title": "Budgetbereik en beslisser bevestigen 2 dagen na de kwalificatie" },
-    "pitch_go_no_go": { "title": "Besluiten over meedoen op de dag dat een kans briefing of pitch bereikt" },
-    "pitch_rehearsal": { "title": "De verantwoordelijke 3 dagen voor een pitch een herinnering sturen" },
-    "proposal_follow_up": { "title": "2 dagen na het versturen van een offerte bellen" },
-    "onboarding_set": { "title": "De dag na een gewonnen kans de onboardingstappen starten" },
-    "lost_feedback": { "title": "2 dagen na een verloren kans om feedback vragen" },
-    "renewal_review": { "title": "De verlenging 90 dagen voor het aflopen van een lopende opdracht beoordelen" },
-    "renewal_notice": { "title": "De verantwoordelijke 45 dagen voor verlenging laten bevestigen wat de klant van plan is" },
-    "qbr_due": { "title": "Het kwartaalgesprek op de afgesproken datum voorbereiden" },
-    "health_red": { "title": "De teamleider waarschuwen als een lopende opdracht op rood springt" }
+    "brief_form_records": { "title": "Maak een contactpersoon en een kans aan als het briefingformulier is ingediend" },
+    "respond_to_brief": { "title": "Beantwoord een nieuwe kans binnen een dag" },
+    "qualify_check": { "title": "Bevestig het budgetbereik en de beslisser 2 dagen na de kwalificatie" },
+    "pitch_go_no_go": { "title": "Besluit of je meedoet op de dag dat een kans briefing of pitch bereikt" },
+    "pitch_rehearsal": { "title": "Stuur de verantwoordelijke 3 dagen voor een pitch een herinnering" },
+    "proposal_follow_up": { "title": "Bel 2 dagen na het versturen van een offerte" },
+    "onboarding_set": { "title": "Start de dag na een gewonnen kans de onboardingstappen" },
+    "lost_feedback": { "title": "Vraag 2 dagen na een verloren kans om feedback" },
+    "renewal_review": { "title": "Beoordeel de verlenging 90 dagen voor het aflopen van een lopende opdracht" },
+    "renewal_notice": { "title": "Laat de verantwoordelijke 45 dagen voor verlenging bevestigen wat de klant van plan is" },
+    "qbr_due": { "title": "Bereid het kwartaalgesprek voor op de afgesproken datum" },
+    "health_red": { "title": "Waarschuw de teamleider als een lopende opdracht op rood springt" }
   },
   "acceptanceChecks": {
     "stage_field": "Elke kans heeft een fase.",

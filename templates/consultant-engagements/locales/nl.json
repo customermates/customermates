@@ -75,16 +75,16 @@
     "proposal_and_follow_up": { "title": "Opbouw van het voorstel en opvolging", "sections": ["Aangeboden opties en de aanbevolen optie", "De opvolgdatum afspreken in het gesprek over het voorstel"] }
   },
   "rules": {
-    "discovery_writeup": { "title": "Het verkennende gesprek de volgende dag uitwerken" },
-    "acceptance_check": { "title": "De acceptatie controleren de dag nadat een opdracht de afbakening bereikt" },
-    "proposal_follow_up": { "title": "3 dagen na het versturen van het voorstel opvolgen" },
-    "decision_date": { "title": "Op de verwachte beslisdatum om de beslissing vragen" },
-    "won_kickoff": { "title": "De kick-off inplannen de dag na een gewonnen opdracht" },
-    "lost_review": { "title": "2 dagen na een verloren opdracht vragen wat anders had gekund" },
-    "deliverable_due_notice": { "title": "De eigenaar 3 dagen voor de opleverdatum van een resultaat waarschuwen" },
-    "closeout_report": { "title": "Op de einddatum het eindrapport overdragen" },
-    "testimonial_ask": { "title": "14 dagen na de einddatum om een referentie vragen" },
-    "followup_after_end": { "title": "30 dagen na de einddatum vervolgwerk voorstellen" }
+    "discovery_writeup": { "title": "Werk het verkennende gesprek de volgende dag uit" },
+    "acceptance_check": { "title": "Controleer de acceptatie de dag nadat een opdracht de afbakening bereikt" },
+    "proposal_follow_up": { "title": "Volg het voorstel 3 dagen na het versturen op" },
+    "decision_date": { "title": "Vraag op de verwachte beslisdatum om de beslissing" },
+    "won_kickoff": { "title": "Plan de kick-off in de dag na een gewonnen opdracht" },
+    "lost_review": { "title": "Vraag 2 dagen na een verloren opdracht wat anders had gekund" },
+    "deliverable_due_notice": { "title": "Waarschuw de eigenaar 3 dagen voor de opleverdatum van een resultaat" },
+    "closeout_report": { "title": "Draag op de einddatum het eindrapport over" },
+    "testimonial_ask": { "title": "Vraag 14 dagen na de einddatum om een referentie" },
+    "followup_after_end": { "title": "Stel 30 dagen na de einddatum vervolgwerk voor" }
   },
   "acceptanceChecks": {
     "stage_field": "Elke opdracht heeft een fase.",

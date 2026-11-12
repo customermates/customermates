@@ -102,13 +102,13 @@
     "re_evaluation": { "title": "Planning van herbeoordelingen", "sections": ["Beoordelingsdata per risiconiveau", "Gebeurtenissen die een eerdere beoordeling uitlokken"] }
   },
   "rules": {
-    "chase_questionnaire": { "title": "De leverancier een herinnering sturen als een vragenlijst de deadline overschrijdt" },
-    "review_answers": { "title": "De antwoorden beoordelen 3 dagen na ontvangst van een vragenlijst" },
-    "renew_document": { "title": "Een vernieuwd document opvragen 30 dagen voordat het verloopt" },
-    "document_expiry_notice": { "title": "De verantwoordelijke waarschuwen als een document verloopt" },
-    "re_evaluate_supplier": { "title": "Een herbeoordeling starten 14 dagen voor de volgende beoordeling" },
-    "decide_after_review": { "title": "Binnen 5 dagen beslissen als een leverancier in beoordeling gaat" },
-    "registration_form_records": { "title": "De leverancier en contactpersoon aanmaken als het registratieformulier is ingediend" }
+    "chase_questionnaire": { "title": "Stuur de leverancier een herinnering als een vragenlijst de deadline overschrijdt" },
+    "review_answers": { "title": "Beoordeel de antwoorden 3 dagen na ontvangst van een vragenlijst" },
+    "renew_document": { "title": "Vraag een vernieuwd document op 30 dagen voordat het verloopt" },
+    "document_expiry_notice": { "title": "Waarschuw de verantwoordelijke als een document verloopt" },
+    "re_evaluate_supplier": { "title": "Start een herbeoordeling 14 dagen voor de volgende beoordeling" },
+    "decide_after_review": { "title": "Beslis binnen 5 dagen als een leverancier in beoordeling gaat" },
+    "registration_form_records": { "title": "Maak de leverancier en de contactpersoon aan als het registratieformulier is ingediend" }
   },
   "acceptanceChecks": {
     "status_field": "Elke leverancier heeft een kwalificatiestatus.",

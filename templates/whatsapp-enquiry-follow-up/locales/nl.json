@@ -63,18 +63,18 @@
     "what_whatsapp_allows": { "title": "Wat WhatsApp toestaat en wat deze opzet niet doet", "sections": ["Geen massaberichten, campagnes of chatbots", "Het risico van een gekoppeld account"] }
   },
   "rules": {
-    "enquiry_form_records": { "title": "Contactpersoon en aanvraag aanmaken als het formulier met het WhatsApp-vakje is ingediend" },
-    "reply_new_chat": { "title": "Een taak om te antwoorden aanmaken als een aanvraag binnenkomt" },
-    "first_reply_missed": { "title": "De verantwoordelijke waarschuwen als een aanvraag een dag later nog een nieuw bericht is" },
-    "quote_follow_up": { "title": "2 dagen na het versturen van een offerte opvolgen" },
-    "quote_expiring": { "title": "Navragen of afsluiten als een offerte zijn geldigheidsdatum bereikt" },
-    "payment_request": { "title": "De betaling vragen op de dag nadat een aanvraag in de fase Wacht op betaling komt" },
-    "won_reorder": { "title": "90 dagen na een bevestigde bestelling een herinnering voor nabestelling aanmaken" },
-    "service_calendar": { "title": "De levering of afspraak in de agenda zetten als de bestelling is bevestigd" },
-    "appointment_confirm": { "title": "De afspraak de dag ervoor bevestigen" },
-    "later_revisit_date": { "title": "De terugkomdatum op 90 dagen zetten als een aanvraag naar later gaat" },
-    "revisit_follow_up": { "title": "Op de terugkomdatum opvolgen" },
-    "unanswered_sweep": { "title": "Elke dag voor elk onbeantwoord nieuw bericht een taak om te antwoorden aanmaken" }
+    "enquiry_form_records": { "title": "Maak een contactpersoon en een aanvraag aan als het formulier met het WhatsApp-vakje is ingediend" },
+    "reply_new_chat": { "title": "Maak een taak aan om te antwoorden als een aanvraag binnenkomt" },
+    "first_reply_missed": { "title": "Waarschuw de verantwoordelijke als een aanvraag een dag later nog een nieuw bericht is" },
+    "quote_follow_up": { "title": "Volg 2 dagen na het versturen van een offerte op" },
+    "quote_expiring": { "title": "Vraag na of sluit af als een offerte zijn geldigheidsdatum bereikt" },
+    "payment_request": { "title": "Vraag om de betaling op de dag nadat een aanvraag in de fase Wacht op betaling komt" },
+    "won_reorder": { "title": "Maak 90 dagen na een bevestigde bestelling een herinnering voor nabestelling aan" },
+    "service_calendar": { "title": "Zet de levering of afspraak in de agenda als de bestelling is bevestigd" },
+    "appointment_confirm": { "title": "Bevestig de afspraak de dag ervoor" },
+    "later_revisit_date": { "title": "Zet de terugkomdatum op 90 dagen als een aanvraag naar later gaat" },
+    "revisit_follow_up": { "title": "Volg op de terugkomdatum op" },
+    "unanswered_sweep": { "title": "Maak elke dag voor elk onbeantwoord nieuw bericht een taak aan om te antwoorden" }
   },
   "acceptanceChecks": {
     "stage_field": "Elke aanvraag heeft een fase.",

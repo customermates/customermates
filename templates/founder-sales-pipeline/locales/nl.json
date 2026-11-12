@@ -69,16 +69,16 @@
     "when_to_hire": { "title": "Wanneer de eerste verkoper komt", "sections": ["Signalen dat de verkoop zich zonder jou herhaalt", "Wat eerst wordt overgedragen"] }
   },
   "rules": {
-    "enquiry_form_records": { "title": "Contactpersoon, bedrijf en deal aanmaken als het aanvraagformulier is ingediend" },
-    "recap_reply": { "title": "De dag nadat een gesprek begint reageren met een persoonlijke samenvatting en één volgende stap" },
-    "discovery_proposal": { "title": "2 dagen nadat de behoefte helder is het pilotplan of de offerte sturen" },
-    "pilot_start_check": { "title": "14 dagen na de start van de pilot nalopen" },
-    "pilot_review": { "title": "3 dagen voor het einde van de pilot het beslisgesprek voeren" },
-    "proposal_follow_up": { "title": "3 dagen na het versturen van een offerte opvolgen" },
-    "parked_revisit_date": { "title": "De terugkomdatum op 90 dagen zetten als een deal wordt gepauzeerd" },
-    "revisit_reopen": { "title": "Op de terugkomdatum het gesprek heropenen" },
-    "won_handover": { "title": "De dag na een gewonnen deal de klant overdragen" },
-    "won_intro_request": { "title": "30 dagen na een gewonnen deal de klant om een introductie vragen" }
+    "enquiry_form_records": { "title": "Maak een contactpersoon, een bedrijf en een deal aan als het aanvraagformulier is ingediend" },
+    "recap_reply": { "title": "Reageer de dag nadat een gesprek begint met een persoonlijke samenvatting en één volgende stap" },
+    "discovery_proposal": { "title": "Stuur 2 dagen nadat de behoefte helder is het pilotplan of de offerte" },
+    "pilot_start_check": { "title": "Loop de pilot 14 dagen na de start na" },
+    "pilot_review": { "title": "Voer 3 dagen voor het einde van de pilot het beslisgesprek" },
+    "proposal_follow_up": { "title": "Volg een offerte 3 dagen na het versturen op" },
+    "parked_revisit_date": { "title": "Zet de terugkomdatum op 90 dagen als een deal wordt gepauzeerd" },
+    "revisit_reopen": { "title": "Heropen het gesprek op de terugkomdatum" },
+    "won_handover": { "title": "Draag de klant de dag na een gewonnen deal over" },
+    "won_intro_request": { "title": "Vraag de klant 30 dagen na een gewonnen deal om een introductie" }
   },
   "acceptanceChecks": {
     "stage_field": "Elke deal heeft een fase.",

@@ -66,14 +66,14 @@
     "triage": { "title": "Triage van verzoeken en bugs", "sections": ["Wie beslist wat er binnenkomt", "Ernst versus prioriteit"] }
   },
   "rules": {
-    "task_assigned": { "title": "De nieuwe eigenaar waarschuwen als een taak wordt toegewezen" },
-    "due_tomorrow": { "title": "De eigenaar de dag voor de deadline waarschuwen" },
-    "overdue_task": { "title": "De teamleider de dag na de deadline waarschuwen" },
-    "blocked_stale": { "title": "De teamleider waarschuwen als een taak 3 dagen geblokkeerd blijft" },
-    "stale_in_progress": { "title": "De eigenaar een herinnering sturen als een taak 5 dagen stilstaat" },
-    "recurring_due": { "title": "Een taak aanmaken als een terugkerende taak aan de beurt is" },
-    "task_from_git": { "title": "Een taak aanmaken als de Git-dienst een gebeurtenis stuurt" },
-    "request_form": { "title": "Taak en aanvrager aanmaken als het aanvraagformulier is ingediend" }
+    "task_assigned": { "title": "Waarschuw de nieuwe eigenaar als een taak wordt toegewezen" },
+    "due_tomorrow": { "title": "Waarschuw de eigenaar de dag voor de deadline" },
+    "overdue_task": { "title": "Waarschuw de teamleider de dag na de deadline" },
+    "blocked_stale": { "title": "Waarschuw de teamleider als een taak 3 dagen geblokkeerd blijft" },
+    "stale_in_progress": { "title": "Stuur de eigenaar een herinnering als een taak 5 dagen stilstaat" },
+    "recurring_due": { "title": "Maak een taak aan als een terugkerende taak aan de beurt is" },
+    "task_from_git": { "title": "Maak een taak aan als de Git-dienst een gebeurtenis stuurt" },
+    "request_form": { "title": "Maak een taak en een aanvrager aan als het aanvraagformulier is ingediend" }
   },
   "acceptanceChecks": {
     "status_field": "Elke taak heeft een status.",

@@ -66,14 +66,14 @@
     "spam_and_duplicates": { "title": "Spam en herhaalde inzendingen", "sections": ["Wat als spam geldt", "Wat we doen als dezelfde persoon opnieuw schrijft"] }
   },
   "rules": {
-    "enquiry_form_records": { "title": "Contactpersoon en aanvraag aanmaken als het aanvraagformulier is ingediend" },
-    "reply_task": { "title": "Een actie om de volgende dag te antwoorden aanmaken als een aanvraag binnenkomt" },
-    "first_response_missed": { "title": "De teamleider waarschuwen als een aanvraag een dag na ontvangst nog nieuw is" },
-    "chase_contacted": { "title": "Een gecontacteerde aanvraag opvolgen die 3 dagen stilstaat" },
-    "converted_task": { "title": "De aanvraag aan de pijplijn overdragen als ze wordt omgezet" },
-    "review_date_not_a_fit": { "title": "De controledatum van de gegevens op een jaar later zetten als een aanvraag niet past" },
-    "data_review": { "title": "De gegevens controleren als de controledatum is bereikt" },
-    "external_form_records": { "title": "Contactpersoon en aanvraag aanmaken als een ander formuliertool een inzending stuurt" }
+    "enquiry_form_records": { "title": "Maak een contactpersoon en een aanvraag aan als het aanvraagformulier is ingediend" },
+    "reply_task": { "title": "Maak een actie aan om de volgende dag te antwoorden als een aanvraag binnenkomt" },
+    "first_response_missed": { "title": "Waarschuw de teamleider als een aanvraag een dag na ontvangst nog nieuw is" },
+    "chase_contacted": { "title": "Volg een gecontacteerde aanvraag op die 3 dagen stilstaat" },
+    "converted_task": { "title": "Draag de aanvraag over aan de pijplijn als ze wordt omgezet" },
+    "review_date_not_a_fit": { "title": "Zet de controledatum van de gegevens een jaar later als een aanvraag niet past" },
+    "data_review": { "title": "Controleer de gegevens als de controledatum is bereikt" },
+    "external_form_records": { "title": "Maak een contactpersoon en een aanvraag aan als een ander formuliertool een inzending stuurt" }
   },
   "acceptanceChecks": {
     "stage_field": "Elke aanvraag heeft een fase.",

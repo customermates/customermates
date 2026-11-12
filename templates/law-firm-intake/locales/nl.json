@@ -84,18 +84,18 @@
     "engagement_checklist": { "title": "Checklist opdrachtbevestiging en offerte", "sections": ["Tarief, volmacht en voorschot", "Afwijzings- en afsluitbrieven"] }
   },
   "rules": {
-    "inquiry_form_records": { "title": "Contactpersoon en aanvraag aanmaken als het aanvraagformulier is ingediend" },
-    "acknowledge_inquiry": { "title": "Een nieuwe aanvraag de volgende dag beantwoorden en een intake aanbieden" },
-    "urgent_deadline_alert": { "title": "De verantwoordelijke 14 dagen voor de termijn van een open aanvraag waarschuwen" },
-    "conflict_check_task": { "title": "De conflictcheck uitvoeren de dag nadat een aanvraag die fase bereikt" },
-    "fee_proposal_task": { "title": "De offerte sturen de dag na de intake" },
-    "proposal_follow_up": { "title": "3 dagen na het versturen van de offerte opvolgen" },
-    "agreement_signed_set": { "title": "Het voorschot opvragen 2 dagen na de getekende opdrachtbevestiging" },
-    "advance_chase": { "title": "De verantwoordelijke waarschuwen als het voorschot 7 dagen na het verzoek nog ontbreekt" },
-    "letter_declined": { "title": "De afwijzingsbrief opstellen als het kantoor een aanvraag afwijst" },
-    "letter_not_retained": { "title": "De afwijzingsbrief opstellen als een aanvrager de opdracht niet geeft" },
-    "poa_renewal": { "title": "De volmacht 30 dagen voor het verlopen vernieuwen" },
-    "closing_letter": { "title": "De afsluitbrief opstellen een week nadat een zaak is gesloten" }
+    "inquiry_form_records": { "title": "Maak een contactpersoon en een aanvraag aan als het aanvraagformulier is ingediend" },
+    "acknowledge_inquiry": { "title": "Beantwoord een nieuwe aanvraag de volgende dag en bied een intake aan" },
+    "urgent_deadline_alert": { "title": "Waarschuw de verantwoordelijke 14 dagen voor de termijn van een open aanvraag" },
+    "conflict_check_task": { "title": "Voer de conflictcheck uit de dag nadat een aanvraag die fase bereikt" },
+    "fee_proposal_task": { "title": "Stuur de offerte de dag na de intake" },
+    "proposal_follow_up": { "title": "Volg de offerte 3 dagen na het versturen op" },
+    "agreement_signed_set": { "title": "Vraag het voorschot op 2 dagen na de getekende opdrachtbevestiging" },
+    "advance_chase": { "title": "Waarschuw de verantwoordelijke als het voorschot 7 dagen na het verzoek nog ontbreekt" },
+    "letter_declined": { "title": "Stel de afwijzingsbrief op als het kantoor een aanvraag afwijst" },
+    "letter_not_retained": { "title": "Stel de afwijzingsbrief op als een aanvrager de opdracht niet geeft" },
+    "poa_renewal": { "title": "Vernieuw de volmacht 30 dagen voor het verlopen" },
+    "closing_letter": { "title": "Stel de afsluitbrief op een week nadat een zaak is gesloten" }
   },
   "acceptanceChecks": {
     "stage_field": "Elke aanvraag heeft een van de acht fasen.",

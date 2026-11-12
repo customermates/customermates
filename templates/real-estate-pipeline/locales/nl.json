@@ -320,7 +320,7 @@
       "description": "Vijf dagen nadat het voorstel is verstuurd."
     },
     "proposal_final_call_day_10": {
-      "title": "Laatste telefoontje over het opdrachtvoorstel",
+      "title": "Bel nog een laatste keer over het opdrachtvoorstel",
       "description": "Tien dagen nadat het voorstel is verstuurd."
     },
     "prepare_property": {
@@ -368,7 +368,7 @@
       "description": "Checklist overdracht, bedankje en verzoek om een review, met deadline zeven dagen na de overdracht."
     },
     "completed_anniversary": {
-      "title": "Jubileumbelletje",
+      "title": "Neem een jaar na de overdracht contact op met de klant",
       "description": "Een jaar na de overdracht staat een taak om contact te onderhouden klaar."
     },
     "identify_before_contract": {
@@ -384,7 +384,7 @@
       "description": "Elke maandag krijgt een zoekopdracht in de fase Bezichtiging zonder activiteit in zeven dagen een taak om contact te onderhouden."
     },
     "listing_price_review": {
-      "title": "Prijs en marketing bespreken met de eigenaar",
+      "title": "Bespreek prijs en marketing met de eigenaar",
       "description": "Elke maandag krijgt een woning in verkoop zonder bezichtiging in 14 dagen een controletaak."
     },
     "past_client_monthly_touch": {

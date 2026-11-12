@@ -76,14 +76,14 @@
     "cancellation_policy": { "title": "Annuleren en verzetten", "sections": ["Tot wanneer een klant kan annuleren", "Hoe een nieuw tijdstip wordt aangeboden"] }
   },
   "rules": {
-    "booking_form_records": { "title": "Contactpersoon en afspraak aanmaken als het boekingsformulier is ingediend" },
-    "confirm_event": { "title": "Een agenda-item toevoegen als een afspraak wordt bevestigd" },
-    "notify_new_booking": { "title": "De eigenaar waarschuwen als er een boeking binnenkomt" },
-    "first_reminder": { "title": "Een eerste herinnering sturen 3 dagen voor een bevestigde afspraak" },
-    "second_reminder": { "title": "Een tweede herinnering sturen 1 dag voor een bevestigde afspraak" },
-    "record_outcome": { "title": "De uitkomst vastleggen nadat een bevestigde afspraak heeft plaatsgevonden" },
-    "no_show_new_slot": { "title": "De dag na een no-show een nieuw tijdstip aanbieden" },
-    "follow_up_held": { "title": "De dag na een gehouden afspraak de opvolging sturen" }
+    "booking_form_records": { "title": "Maak een contactpersoon en een afspraak aan als het boekingsformulier is ingediend" },
+    "confirm_event": { "title": "Voeg een agenda-item toe als een afspraak wordt bevestigd" },
+    "notify_new_booking": { "title": "Waarschuw de eigenaar als er een boeking binnenkomt" },
+    "first_reminder": { "title": "Stuur 3 dagen voor een bevestigde afspraak een eerste herinnering" },
+    "second_reminder": { "title": "Stuur 1 dag voor een bevestigde afspraak een tweede herinnering" },
+    "record_outcome": { "title": "Leg de uitkomst vast nadat een bevestigde afspraak heeft plaatsgevonden" },
+    "no_show_new_slot": { "title": "Bied de dag na een no-show een nieuw tijdstip aan" },
+    "follow_up_held": { "title": "Stuur de dag na een gehouden afspraak de opvolging" }
   },
   "acceptanceChecks": {
     "status_field": "Elke afspraak heeft een status.",

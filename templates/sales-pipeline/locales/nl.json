@@ -175,7 +175,7 @@
       "description": "Drie dagen nadat de offerte is verstuurd, staat er een opvolgactie klaar."
     },
     "second_proposal_follow_up": {
-      "title": "Tweede opvolging van de offerte",
+      "title": "Volg de offerte voor de tweede keer op",
       "description": "Tien dagen nadat de offerte is verstuurd, staat een tweede opvolgactie klaar. Sluit die als de prospect al heeft gereageerd."
     },
     "confirm_decision": {
@@ -207,7 +207,7 @@
       "description": "Op de datum van de volgende stap van een open deal krijgt de eigenaar een melding."
     },
     "weekly_pipeline_report": {
-      "title": "Wekelijks pipelinerapport",
+      "title": "Bekijk het wekelijkse pipelinerapport",
       "description": "Elke vrijdag somt één controleactie aantallen en waarde per fase en eigenaar op, gewonnen en verloren deals met redenen en deals voorbij hun verwachte afsluitdatum."
     },
     "enquiry_form_records": {

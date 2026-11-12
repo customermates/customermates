@@ -142,11 +142,11 @@
       "description": "Zeven dagen voor de volgende controle van een actieve klant wordt een controleactie voor de accountmanager aangemaakt."
     },
     "daily_next_step_sweep": {
-      "title": "Check-in: geen open actie bij deze klant",
+      "title": "Neem contact op: geen open actie bij deze klant",
       "description": "Elke dag krijgt een actieve klant of een klant in opstart zonder gekoppelde open actie een check-in met deadline vandaag."
     },
     "stalled_client_sweep": {
-      "title": "Check-in: 45 dagen geen contact",
+      "title": "Neem contact op: 45 dagen geen contact",
       "description": "Elke maandag krijgt een actieve klant zonder contact in 45 dagen een check-in. De status verandert nooit vanzelf."
     },
     "closed_client_dates": {
@@ -170,7 +170,7 @@
       "description": "Elke aanvraag krijgt een antwoordactie met deadline de volgende dag."
     },
     "weekly_client_review": {
-      "title": "Wekelijkse klantcontrole",
+      "title": "Houd de wekelijkse klantcontrole",
       "description": "Elke maandag somt één controleactie de klanten met achterstand, de klanten zonder volgende stap en de prospects die stilvallen op."
     }
   },

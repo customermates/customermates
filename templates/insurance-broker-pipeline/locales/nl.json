@@ -93,18 +93,18 @@
     "policy_data_rules": { "title": "Polisgegevens: wat in het administratiesysteem blijft", "sections": ["De actuele polisgegevens en de provisie-overzichten blijven in het administratiesysteem", "Wat deze werkruimte bewaart en wat nooit"] }
   },
   "rules": {
-    "enquiry_form_records": { "title": "Contactpersoon en aanvraag aanmaken als het aanvraagformulier is ingediend" },
-    "respond_new_lead": { "title": "Een nieuwe aanvraag de volgende dag beantwoorden" },
-    "needs_analysis_task": { "title": "Het advies binnen 3 dagen vastleggen als een aanvraag de behoefteanalyse bereikt" },
-    "quotes_chase": { "title": "3 dagen na het opvragen van offertes bij de verzekeraars navragen" },
-    "offer_follow_up": { "title": "De dag na het presenteren van een offerte opvolgen" },
-    "bound_welcome": { "title": "De klant een week nadat de polis is ontvangen bellen" },
-    "renewal_commercial": { "title": "Een prolongatiezaak openen 120 dagen voor de hoofdvervaldatum van een lopende zakelijke polis" },
-    "renewal_personal": { "title": "Een prolongatiezaak openen 45 dagen voor de hoofdvervaldatum van een lopende particuliere polis" },
-    "renewal_review_task": { "title": "De prolongatie binnen een week na het openen van de zaak beoordelen" },
-    "renewal_offer_chase": { "title": "De verantwoordelijke waarschuwen als een prolongatieofferte 7 dagen op de klant wacht" },
-    "decision_deadline_notice": { "title": "De verantwoordelijke 30 dagen voor de hoofdvervaldatum laten bevestigen wat de klant besluit" },
-    "unpaid_premium_notice": { "title": "De klant aanschrijven als het administratiesysteem een onbetaalde premie meldt" }
+    "enquiry_form_records": { "title": "Maak een contactpersoon en een aanvraag aan als het aanvraagformulier is ingediend" },
+    "respond_new_lead": { "title": "Beantwoord een nieuwe aanvraag de volgende dag" },
+    "needs_analysis_task": { "title": "Leg het advies binnen 3 dagen vast als een aanvraag de behoefteanalyse bereikt" },
+    "quotes_chase": { "title": "Vraag 3 dagen na het opvragen van offertes bij de verzekeraars na" },
+    "offer_follow_up": { "title": "Volg de dag na het presenteren van een offerte op" },
+    "bound_welcome": { "title": "Bel de klant een week nadat de polis is ontvangen" },
+    "renewal_commercial": { "title": "Open een prolongatiezaak 120 dagen voor de hoofdvervaldatum van een lopende zakelijke polis" },
+    "renewal_personal": { "title": "Open een prolongatiezaak 45 dagen voor de hoofdvervaldatum van een lopende particuliere polis" },
+    "renewal_review_task": { "title": "Beoordeel de prolongatie binnen een week na het openen van de zaak" },
+    "renewal_offer_chase": { "title": "Waarschuw de verantwoordelijke als een prolongatieofferte 7 dagen op de klant wacht" },
+    "decision_deadline_notice": { "title": "Laat de verantwoordelijke 30 dagen voor de hoofdvervaldatum bevestigen wat de klant besluit" },
+    "unpaid_premium_notice": { "title": "Schrijf de klant aan als het administratiesysteem een onbetaalde premie meldt" }
   },
   "acceptanceChecks": {
     "opportunity_stage_field": "Elke aanvraag heeft een fase.",
