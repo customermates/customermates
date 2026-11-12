@@ -2,7 +2,7 @@
   "locale": "it",
   "name": "Gestione attività del team",
   "summary": "Un tracker di lavoro per un piccolo team: progetti, attività con un responsabile e una scadenza, attività ricorrenti e richieste dall'esterno sulla stessa lista.",
-  "description": "Tieni un team da due a quindici persone su un'unica lista: ogni attività ha uno stato, una priorità, un responsabile e una scadenza, e vedi a colpo d'occhio che cosa è in ritardo o bloccato. Le attività ricorrenti si creano da sole, le richieste di colleghi o clienti arrivano da un modulo e un'attività bloccata o ferma sollecita il suo responsabile. Non è uno strumento per sprint, un diagramma di Gantt, un rilevatore di tempi né un sistema HR.",
+  "description": "Tieni un team da due a quindici persone su un'unica lista: ogni attività ha uno stato, una priorità, un responsabile e una scadenza, e vedi a colpo d'occhio che cosa è in ritardo o bloccato. Le attività ricorrenti si creano da sole, le richieste di colleghi o clienti arrivano da un modulo e un'attività bloccata o ferma sollecita il suo responsabile. Non è uno strumento per sprint, un diagramma di Gantt, uno strumento di rilevazione dei tempi né un sistema HR.",
   "lists": {
     "requesters": { "label": "Richiedente", "pluralLabel": "Richiedenti", "description": "Le persone esterne al team che chiedono lavoro." },
     "projects": { "label": "Progetto", "pluralLabel": "Progetti", "description": "Un insieme di attività con responsabile, andamento e scadenza." },
@@ -46,7 +46,7 @@
   },
   "views": {
     "tasks_all": { "name": "Tutte le attività" },
-    "tasks_board": { "name": "Bacheca delle attività" },
+    "tasks_board": { "name": "Board delle attività" },
     "blocked_tasks": { "name": "Attività bloccate" },
     "projects_all": { "name": "Tutti i progetti" },
     "recurring_all": { "name": "Tutte le attività ricorrenti" },
@@ -58,7 +58,7 @@
     "overdue_tasks": { "title": "Attività in ritardo" },
     "due_soon": { "title": "Attività in scadenza" },
     "blocked_count": { "title": "Attività bloccate" },
-    "activity_timeline": { "title": "Attività recente" }
+    "activity_timeline": { "title": "Attività recenti" }
   },
   "knowledgePages": {
     "how_we_work": { "title": "Come lavoriamo", "sections": ["Stati, priorità e che cosa significa completata", "Un responsabile e una data per attività"] },
@@ -68,8 +68,8 @@
   "rules": {
     "task_assigned": { "title": "Avvisare il nuovo responsabile quando gli viene assegnata un'attività" },
     "due_tomorrow": { "title": "Avvisare il responsabile il giorno prima della scadenza" },
-    "overdue_task": { "title": "Avvisare il referente il giorno dopo la scadenza" },
-    "blocked_stale": { "title": "Avvisare il referente quando un'attività resta bloccata per 3 giorni" },
+    "overdue_task": { "title": "Avvisare il responsabile del team il giorno dopo la scadenza" },
+    "blocked_stale": { "title": "Avvisare il responsabile del team quando un'attività resta bloccata per 3 giorni" },
     "stale_in_progress": { "title": "Sollecitare il responsabile quando un'attività è ferma da 5 giorni" },
     "recurring_due": { "title": "Creare un'attività quando scade un'attività ricorrente" },
     "task_from_git": { "title": "Creare un'attività quando il servizio Git invia un evento" },
@@ -78,13 +78,13 @@
   "acceptanceChecks": {
     "status_field": "Ogni attività ha uno stato.",
     "due_field": "Ogni attività ha una scadenza.",
-    "tasks_board_view": "Le attività si aprono come bacheca per stato."
+    "tasks_board_view": "Le attività si aprono come board per stato."
   },
   "prompt": {
-    "intro": "Imposta nel mio workspace Customermates un tracker per il team: progetti, attività con un responsabile e una scadenza, attività ricorrenti, richieste dall'esterno del team e promemoria per il lavoro in ritardo o bloccato.",
+    "intro": "Imposta nel mio spazio di lavoro Customermates un tracker per il team: progetti, attività con un responsabile e una scadenza, attività ricorrenti, richieste dall'esterno del team e promemoria per il lavoro in ritardo o bloccato.",
     "questions": [
       "Quante persone ha il team e di cosa si occupano?",
-      "Quali stati usate oggi in Trello, Jira, Asana o in un foglio di calcolo?",
+      "Quali stati usi oggi in Trello, Jira, Asana o in un foglio di calcolo?",
       "Quali attività tornano ogni settimana o ogni mese e chi ne è responsabile?",
       "Da dove arrivano le richieste e devono arrivare da un modulo?"
     ]
