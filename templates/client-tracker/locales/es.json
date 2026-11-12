@@ -32,7 +32,7 @@
         "website": "Sitio web",
         "event": "Evento",
         "outbound": "Prospección",
-        "existing_network": "Red existente",
+        "existing_network": "Red de contactos",
         "other": "Otro"
       }
     },
@@ -124,7 +124,7 @@
       "sections": ["Seguimiento tras un periodo de silencio", "Recordatorio a un cliente que debe responder", "Invitación a la revisión", "Reactivación a los 90 días", "Cierre cortés"]
     },
     "data_retention": {
-      "title": "Conservación de datos y protección de datos de la ficha de clientes",
+      "title": "Conservación de datos y RGPD en la ficha de clientes",
       "sections": ["Finalidad y datos conservados", "Plazo de conservación según el país", "Prueba del consentimiento", "Responder a una solicitud de acceso o supresión"]
     }
   },

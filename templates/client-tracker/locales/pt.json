@@ -70,7 +70,7 @@
         "reply": "Resposta",
         "request_document": "Pedido de documento",
         "review": "Revisão",
-        "chase": "Cobrança de retorno",
+        "chase": "Lembrete ao cliente",
         "data_review": "Revisão dos dados",
         "other": "Outro"
       }
@@ -117,11 +117,11 @@
     },
     "status_definitions": {
       "title": "Definição dos status de cliente",
-      "sections": ["Regra de entrada e de saída de cada status", "Cobrar retorno após 7 dias, escalar após 14", "Quem pode mudar um status"]
+      "sections": ["Regra de entrada e de saída de cada status", "Lembrar o cliente após 7 dias, escalar após 14", "Quem pode mudar um status"]
     },
     "message_templates": {
       "title": "Modelos de mensagem: acompanhamento e reativação",
-      "sections": ["Acompanhamento após um período de silêncio", "Cobrança de retorno de um cliente que deve responder", "Convite para a revisão", "Reativação após 90 dias", "Encerramento educado"]
+      "sections": ["Acompanhamento após um período de silêncio", "Lembrete a um cliente que deve responder", "Convite para a revisão", "Reativação após 90 dias", "Encerramento educado"]
     },
     "data_retention": {
       "title": "Retenção de dados e LGPD no cadastro de clientes",
@@ -134,8 +134,8 @@
       "description": "Quando chega o prazo de uma tarefa aberta, o responsável é avisado."
     },
     "chase_waiting_client": {
-      "title": "Cobrar o retorno do cliente sobre o item pendente",
-      "description": "Quando um cliente passa para Aguardando cliente, o responsável recebe uma tarefa de cobrança de retorno após 7 dias."
+      "title": "Lembrar o cliente do item pendente",
+      "description": "Quando um cliente passa para Aguardando cliente, o responsável recebe uma tarefa de lembrete após 7 dias."
     },
     "review_before_due": {
       "title": "Revisar a ficha do cliente",
@@ -179,7 +179,7 @@
     "next_step_date_field": "Cada cliente tem um próximo contato e uma data para ele.",
     "clients_default_view": "A lista de clientes abre ordenada pela data do próximo contato.",
     "overdue_widget": "O painel mostra quantas tarefas estão atrasadas.",
-    "chase_rule": "Um cliente movido para Aguardando cliente recebe uma tarefa de cobrança de retorno.",
+    "chase_rule": "Um cliente movido para Aguardando cliente recebe uma tarefa de lembrete.",
     "playbook_page": "A base de conhecimento contém o guia do cadastro de clientes."
   },
   "prompt": {
@@ -189,7 +189,7 @@
       "Quais status de cliente você já usa? Algum dos sete deve ser renomeado ou retirado?",
       "Com que frequência você quer revisar clientes-chave, regulares e ocasionais?",
       "Em que país você trabalha, para definir o prazo de retenção dos clientes encerrados?",
-      "Você guarda as notas fiscais em outro lugar? Se sim, em qual ferramenta, para não criar campos de cobrança aqui."
+      "Você guarda as notas fiscais em outro lugar? Se sim, em qual ferramenta, para não criar campos de faturamento aqui."
     ]
   }
 }

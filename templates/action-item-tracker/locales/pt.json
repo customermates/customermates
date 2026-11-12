@@ -2,7 +2,7 @@
   "locale": "pt",
   "name": "Plano de ação",
   "summary": "Cada ação com um responsável e um prazo, vinculada à reunião, à decisão ou ao projeto de onde vem, com revisão semanal e encerramento com comprovação.",
-  "description": "Um controle das ações que saem de reuniões, projetos, auditorias e pedidos de clientes: seis status, uma prioridade, um responsável, um prazo, uma data de retorno, um registro de decisões e uma checagem de eficácia depois de ações corretivas. Os lembretes vêm de regras de automação e notificações. O modelo 5W2H cabe aqui com os campos de responsável, prazo e origem.",
+  "description": "Um controle das ações que saem de reuniões, projetos, auditorias e pedidos de clientes: seis status, uma prioridade, um responsável, um prazo, uma data de retorno, um registro de decisões e uma verificação de eficácia depois de ações corretivas. Os lembretes vêm de regras de automação e notificações. O modelo 5W2H cabe aqui com os campos de responsável, prazo e origem.",
   "lists": {
     "people": { "label": "Pessoa", "pluralLabel": "Pessoas", "description": "Equipe, parceiros, clientes e fornecedores." },
     "meetings": { "label": "Reunião", "pluralLabel": "Reuniões", "description": "De onde vêm as ações e as decisões." },
@@ -84,8 +84,8 @@
   },
   "knowledgePages": {
     "how_we_write_an_action": { "title": "Como escrevemos uma ação", "sections": ["Um verbo, um responsável, uma data", "Como é uma ação concluída"] },
-    "weekly_action_review": { "title": "Revisão semanal das ações em 15 minutos", "sections": ["Bloqueadas, atrasando, sem próximo passo", "Remarcar, delegar ou cancelar"] },
-    "closing_with_proof": { "title": "Encerrar uma ação com comprovação", "sections": ["Vincular a comprovação", "Checagem de eficácia das ações corretivas"] }
+    "weekly_action_review": { "title": "Revisão semanal das ações em 15 minutos", "sections": ["Bloqueadas, atrasadas, sem próximo passo", "Alterar o prazo, delegar ou cancelar"] },
+    "closing_with_proof": { "title": "Encerrar uma ação com comprovação", "sections": ["Vincular a comprovação", "Verificação de eficácia das ações corretivas"] }
   },
   "rules": {
     "minutes_after_meeting": { "title": "Enviar a ata e a lista de ações depois de uma reunião" },
@@ -93,7 +93,7 @@
     "due_reminder": { "title": "Lembrar o responsável dois dias antes do prazo" },
     "overdue_notice": { "title": "Avisar o responsável no dia seguinte ao vencimento do prazo" },
     "follow_up_date": { "title": "Retomar a ação na data de retorno" },
-    "effectiveness_check": { "title": "Checar a eficácia de uma ação corretiva ou preventiva após 30 dias" },
+    "effectiveness_check": { "title": "Verificar a eficácia de uma ação corretiva ou preventiva após 30 dias" },
     "weekly_action_review": { "title": "Fazer a revisão semanal das ações toda segunda-feira" },
     "decision_review": { "title": "Revisar uma decisão na data de revisão" },
     "request_form_action": { "title": "Criar uma ação a partir de um pedido enviado por formulário" }
@@ -107,7 +107,7 @@
     "intro": "Configure um plano de ação no meu espaço de trabalho do Customermates: ações com seis status, uma prioridade, um responsável, um prazo e uma data de retorno, vinculadas a reuniões, decisões e projetos, mais uma revisão semanal.",
     "questions": [
       "De onde vêm as suas ações: reuniões, projetos, auditorias, clientes?",
-      "Quem é responsável pelas ações e quem decide quando uma é remarcada ou cancelada?",
+      "Quem é responsável pelas ações e quem decide quando o prazo de uma muda ou ela é cancelada?",
       "Você precisa de ações corretivas e preventivas com checagem de eficácia, como na ISO 9001?",
       "Você guarda as atas em outro lugar? Aqui só se guarda um link."
     ]

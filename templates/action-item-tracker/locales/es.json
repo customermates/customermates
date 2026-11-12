@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Plan de acción",
-  "summary": "Cada acción con un responsable y una fecha límite, vinculada a la reunión, la decisión o el proyecto de donde sale, con revisión semanal y cierre con prueba.",
-  "description": "Un seguimiento de las acciones que salen de reuniones, proyectos, auditorías y peticiones de clientes: seis estados, una prioridad, un responsable, una fecha límite, una fecha de seguimiento, un registro de decisiones y una comprobación de eficacia tras las acciones correctivas. Los recordatorios vienen de las reglas de automatización y las notificaciones.",
+  "summary": "Cada acción con un responsable y una fecha límite, vinculada a la reunión, la decisión o el proyecto de donde sale, con revisión semanal y cierre con evidencia.",
+  "description": "Un seguimiento de las acciones que salen de reuniones, proyectos, auditorías y peticiones de clientes: seis estados, una prioridad, un responsable, una fecha límite, una fecha de seguimiento, un registro de decisiones y una verificación de eficacia tras las acciones correctivas. Los recordatorios vienen de las reglas de automatización y las notificaciones.",
   "lists": {
     "people": { "label": "Persona", "pluralLabel": "Personas", "description": "Equipo, socios, clientes y proveedores." },
     "meetings": { "label": "Reunión", "pluralLabel": "Reuniones", "description": "De dónde salen las acciones y las decisiones." },
@@ -21,7 +21,7 @@
     },
     "people.person_role": {
       "label": "Función",
-      "options": { "team_member": "Miembro del equipo", "external": "Socio externo", "customer": "Cliente", "supplier": "Proveedor", "other": "Otro" }
+      "options": { "team_member": "Miembro del equipo", "external": "Colaborador externo", "customer": "Cliente", "supplier": "Proveedor", "other": "Otro" }
     },
     "people.team": { "label": "Equipo" },
     "meetings.meeting_type": {
@@ -54,7 +54,7 @@
     "actions.follow_up_on": { "label": "Seguimiento el" },
     "actions.done_on": { "label": "Hecha el" },
     "actions.blocker_note": { "label": "Qué la bloquea" },
-    "actions.proof_url": { "label": "Enlace de la prueba" },
+    "actions.proof_url": { "label": "Enlace de la evidencia" },
     "actions.outcome": { "label": "Resultado" },
     "actions.days_late": { "label": "Días de retraso" }
   },
@@ -85,15 +85,15 @@
   "knowledgePages": {
     "how_we_write_an_action": { "title": "Cómo redactamos una acción", "sections": ["Un verbo, un responsable, una fecha", "Qué aspecto tiene «hecha»"] },
     "weekly_action_review": { "title": "Revisión semanal de acciones en 15 minutos", "sections": ["Bloqueadas, retrasadas, sin siguiente paso", "Cambiar la fecha, delegar o cancelar"] },
-    "closing_with_proof": { "title": "Cerrar una acción con prueba", "sections": ["Enlazar la prueba", "Comprobación de eficacia de las acciones correctivas"] }
+    "closing_with_proof": { "title": "Cerrar una acción con evidencia", "sections": ["Enlazar la evidencia", "Verificación de la eficacia de las acciones correctivas"] }
   },
   "rules": {
     "minutes_after_meeting": { "title": "Enviar el acta y la lista de acciones tras una reunión" },
     "unblock_action": { "title": "Indicar quién puede desbloquear una acción que pasa a bloqueada" },
     "due_reminder": { "title": "Recordar al responsable dos días antes de la fecha límite" },
-    "overdue_notice": { "title": "Avisar al responsable el día después de pasar la fecha límite" },
+    "overdue_notice": { "title": "Avisar al responsable al día siguiente de vencer la fecha límite" },
     "follow_up_date": { "title": "Retomar la acción en su fecha de seguimiento" },
-    "effectiveness_check": { "title": "Comprobar la eficacia de una acción correctiva o preventiva a los 30 días" },
+    "effectiveness_check": { "title": "Verificar la eficacia de una acción correctiva o preventiva a los 30 días" },
     "weekly_action_review": { "title": "Hacer la revisión semanal de acciones cada lunes" },
     "decision_review": { "title": "Revisar una decisión en su fecha de revisión" },
     "request_form_action": { "title": "Crear una acción a partir de una petición enviada por formulario" }
