@@ -1,0 +1,99 @@
+{
+  "locale": "de",
+  "name": "Kundensupport",
+  "summary": "Ein schlanker Support-Desk: Tickets mit Priorität, Reaktionszeit und Lösungsfrist, bekannte Probleme, die viele Tickets einer Ursache zuordnen, und eine Zufriedenheitsbewertung.",
+  "description": "Kunden von einem Ort aus betreuen: Jedes Ticket hat Status, Priorität, Typ, Zuständigen und die Zeit, bis zu der Sie eine erste Antwort und eine Lösung schulden. Verknüpfen Sie Tickets mit einem bekannten Problem, damit alle erfahren, wann es behoben ist, und behalten Sie die Monatsfrist einer DSGVO-Anfrage im Blick. Gedacht für einige Dutzend Tickets pro Woche. Kein Telefonsystem, kein Live-Chat, kein Kundenportal und kein Kalender mit Geschäftszeiten.",
+  "lists": {
+    "customers": { "label": "Kunde", "pluralLabel": "Kunden", "description": "Die Personen, die sich mit einer Frage an Sie wenden." },
+    "accounts": { "label": "Konto", "pluralLabel": "Konten", "description": "Die Unternehmen hinter Ihren Kunden, mit ihrem Supportvertrag." },
+    "tickets": { "label": "Ticket", "pluralLabel": "Tickets", "description": "Eine Anfrage, von der ersten Nachricht bis zur Lösung." },
+    "known_issues": { "label": "Bekanntes Problem", "pluralLabel": "Bekannte Probleme", "description": "Eine Ursache hinter vielen Tickets, mit Umgehungslösung und Behebungsdatum." }
+  },
+  "fields": {
+    "customers.preferred_channel": { "label": "Bevorzugter Kanal", "options": { "email": "E-Mail", "whatsapp": "WhatsApp", "form": "Anfrageformular", "phone": "Telefon" } },
+    "customers.language": { "label": "Sprache" },
+    "accounts.support_plan": { "label": "Supportvertrag", "options": { "standard": "Standard", "priority": "Priorität", "none": "Keiner" } },
+    "accounts.contract_end": { "label": "Vertragsende" },
+    "tickets.status": {
+      "label": "Status",
+      "options": { "new": "Neu", "open": "Offen", "pending_customer": "Wartet auf Kunden", "on_hold": "Wartet auf Dritte", "solved": "Gelöst", "closed": "Geschlossen", "spam_or_duplicate": "Spam oder Duplikat" }
+    },
+    "tickets.priority": { "label": "Priorität", "options": { "urgent": "Dringend", "high": "Hoch", "normal": "Normal", "low": "Niedrig" } },
+    "tickets.type": { "label": "Typ", "options": { "question": "Frage", "problem": "Problem", "request": "Anfrage", "complaint": "Beschwerde", "data_request": "Auskunftsersuchen" } },
+    "tickets.channel": { "label": "Kanal", "options": { "email": "E-Mail", "whatsapp": "WhatsApp", "form": "Anfrageformular", "phone": "Telefon", "webhook": "Meldung eines anderen Systems" } },
+    "tickets.assignee": { "label": "Zuständig" },
+    "tickets.first_response_due": { "label": "Reaktionszeit bis" },
+    "tickets.resolution_due": { "label": "Lösung bis" },
+    "tickets.solved_on": { "label": "Gelöst am" },
+    "tickets.rating": { "label": "Bewertung" },
+    "known_issues.status": {
+      "label": "Status",
+      "options": { "investigating": "In Analyse", "workaround_available": "Umgehung vorhanden", "fixed": "Behoben", "wont_fix": "Wird nicht behoben" }
+    },
+    "known_issues.workaround": { "label": "Umgehungslösung" },
+    "known_issues.fixed_on": { "label": "Behoben am" },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "reply": "Antworten",
+        "nudge_customer": "Kunden erinnern",
+        "send_survey": "Zufriedenheitsumfrage senden",
+        "close_ticket": "Ticket schließen",
+        "tell_customer_fixed": "Kunden über die Behebung informieren",
+        "verify_identity": "Identität prüfen",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "customer_account": { "sourceLabel": "Konto", "targetLabel": "Kunden" },
+    "ticket_customer": { "sourceLabel": "Kunde", "targetLabel": "Tickets" },
+    "ticket_known_issue": { "sourceLabel": "Bekanntes Problem", "targetLabel": "Tickets" },
+    "action_ticket": { "sourceLabel": "Ticket", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "tickets_all": { "name": "Alle Tickets" },
+    "tickets_board": { "name": "Ticket-Board" },
+    "waiting_on_us": { "name": "Wartet auf uns" },
+    "known_issues_all": { "name": "Alle bekannten Probleme" },
+    "customers_all": { "name": "Alle Kunden" },
+    "accounts_all": { "name": "Alle Konten" }
+  },
+  "widgets": {
+    "tickets_by_status": { "title": "Tickets nach Status" },
+    "open_by_priority": { "title": "Offene Tickets nach Priorität" },
+    "waiting_on_us_count": { "title": "Tickets, die auf uns warten" },
+    "responses_due": { "title": "Fällige Erstantworten" },
+    "average_rating": { "title": "Durchschnittliche Bewertung" },
+    "tickets_by_type": { "title": "Tickets nach Typ" }
+  },
+  "knowledgePages": {
+    "how_we_run_support": { "title": "So läuft unser Support", "sections": ["Status und Prioritäten", "Ziele für Erstantwort und Lösung", "Wer Dienst hat"] },
+    "triage_and_replies": { "title": "Einordnung und Standardantworten", "sections": ["Typ, Priorität und Zuständiger", "Erstantwort, Rückfrage, behoben, keine Antwort"] },
+    "data_requests": { "title": "Auskunftsersuchen nach DSGVO", "sections": ["Identität prüfen, erfassen, binnen eines Monats antworten", "Wer entscheidet"] }
+  },
+  "rules": {
+    "ticket_created": { "title": "Antwortaufgabe anlegen, wenn ein Ticket entsteht" },
+    "first_response_missed": { "title": "Leitung informieren, wenn die Erstantwort überfällig ist" },
+    "nudge_customer": { "title": "Kunden nach 3 Tagen Wartezeit erinnern" },
+    "send_survey": { "title": "Am Tag nach der Lösung die Zufriedenheitsumfrage senden" },
+    "close_solved": { "title": "Ticket schließen, das 4 Tage lang gelöst blieb" },
+    "data_request_clock": { "title": "Lösung auf 30 Tage setzen, wenn ein Ticket ein Auskunftsersuchen wird" },
+    "known_issue_fixed": { "title": "Kunden informieren, wenn ein bekanntes Problem behoben ist" },
+    "ticket_from_webhook": { "title": "Ticket anlegen, wenn ein anderes System eine Meldung schickt" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Jedes Ticket hat einen Status.",
+    "first_response_field": "Jedes Ticket hält fest, bis wann die Erstantwort fällig ist.",
+    "tickets_board_view": "Die Tickets öffnen sich als Board nach Status."
+  },
+  "prompt": {
+    "intro": "Richte in meinem Customermates-Workspace einen Kundensupport ein: Tickets mit Status, Priorität, Reaktionszeit und Lösungsfrist, bekannte Probleme mit Verknüpfung zu Tickets, eine Zufriedenheitsbewertung und terminierte Folgeaufgaben.",
+    "questions": [
+      "Wie viele Tickets bearbeiten Sie pro Woche, und über welche Kanäle kommen sie?",
+      "Wie schnell versprechen Sie Erstantwort und Lösung, je nach Priorität oder Supportvertrag?",
+      "Wer antwortet, und wer erfährt, wenn ein Ticket zu spät ist?",
+      "Erhalten Sie Auskunftsersuchen oder Meldungen anderer Systeme, die zu Tickets werden sollen?"
+    ]
+  }
+}

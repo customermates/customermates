@@ -1,0 +1,142 @@
+{
+  "id": "tpl_client_support_desk",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "client-support-desk",
+  "family": "operations",
+  "kind": "tracker",
+  "jurisdictions": ["DE", "FR", "IT", "ES", "BR", "PL", "NL"],
+  "dashboardAudience": "team",
+  "modules": ["actions_core", "actions_dashboard"],
+  "requiresCapabilities": ["forms", "rules", "notifications", "incomingWebhooks"],
+  "pairedPages": {},
+  "lists": [
+    { "key": "customers", "role": "people", "icon": "headset" },
+    { "key": "accounts", "icon": "building" },
+    { "key": "tickets", "icon": "ticket" },
+    { "key": "known_issues", "icon": "bug" }
+  ],
+  "stages": [
+    {
+      "field": "tickets.status",
+      "items": [
+        { "key": "new", "outcome": "open", "weight": 0 },
+        { "key": "open", "outcome": "open", "weight": 0 },
+        { "key": "pending_customer", "outcome": "open", "weight": 0 },
+        { "key": "on_hold", "outcome": "open", "weight": 0 },
+        { "key": "solved", "outcome": "won", "weight": 0 },
+        { "key": "closed", "outcome": "won", "weight": 0 },
+        { "key": "spam_or_duplicate", "outcome": "lost", "weight": 0 }
+      ]
+    },
+    {
+      "field": "known_issues.status",
+      "items": [
+        { "key": "investigating", "outcome": "open", "weight": 0 },
+        { "key": "workaround_available", "outcome": "open", "weight": 0 },
+        { "key": "fixed", "outcome": "won", "weight": 0 },
+        { "key": "wont_fix", "outcome": "lost", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "customers.preferred_channel", "type": "select", "options": [{ "key": "email" }, { "key": "whatsapp" }, { "key": "form" }, { "key": "phone" }] },
+    { "key": "customers.language", "type": "text" },
+    { "key": "accounts.support_plan", "type": "select", "options": [{ "key": "standard" }, { "key": "priority", "color": "info" }, { "key": "none" }] },
+    { "key": "accounts.contract_end", "type": "date" },
+    { "key": "tickets.priority", "type": "select", "options": [{ "key": "urgent", "color": "destructive" }, { "key": "high", "color": "warning" }, { "key": "normal" }, { "key": "low", "color": "secondary" }] },
+    { "key": "tickets.type", "type": "select", "options": [{ "key": "question" }, { "key": "problem" }, { "key": "request" }, { "key": "complaint", "color": "warning" }, { "key": "data_request", "color": "info" }] },
+    { "key": "tickets.channel", "type": "select", "options": [{ "key": "email" }, { "key": "whatsapp" }, { "key": "form" }, { "key": "phone" }, { "key": "webhook" }] },
+    { "key": "tickets.assignee", "type": "member" },
+    { "key": "tickets.first_response_due", "type": "dateTime" },
+    { "key": "tickets.resolution_due", "type": "dateTime" },
+    { "key": "tickets.solved_on", "type": "date" },
+    { "key": "tickets.rating", "type": "number" },
+    { "key": "known_issues.workaround", "type": "richText" },
+    { "key": "known_issues.fixed_on", "type": "date" },
+    {
+      "key": "actions.kind",
+      "type": "select",
+      "options": [{ "key": "reply" }, { "key": "nudge_customer" }, { "key": "send_survey" }, { "key": "close_ticket" }, { "key": "tell_customer_fixed" }, { "key": "verify_identity" }, { "key": "other" }]
+    }
+  ],
+  "relationships": [
+    { "key": "customer_account", "source": "customers", "target": "accounts", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "ticket_customer", "source": "tickets", "target": "customers", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "ticket_known_issue", "source": "tickets", "target": "known_issues", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_ticket", "source": "actions", "target": "tickets", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    { "key": "tickets_all", "list": "tickets", "default": true, "layout": "table", "sort": { "field": "tickets.first_response_due", "direction": "asc" }, "columns": ["tickets.status", "tickets.priority", "tickets.type", "tickets.assignee", "tickets.first_response_due"] },
+    { "key": "tickets_board", "list": "tickets", "default": false, "layout": "board", "groupBy": "tickets.status" },
+    { "key": "waiting_on_us", "list": "tickets", "default": false, "layout": "table", "filters": [{ "operator": "in", "field": "tickets.status", "options": ["new", "open"] }] },
+    { "key": "known_issues_all", "list": "known_issues", "default": true, "layout": "table", "columns": ["known_issues.status", "known_issues.fixed_on"] },
+    { "key": "customers_all", "list": "customers", "default": true, "layout": "table", "columns": ["customers.preferred_channel", "customers.language"] },
+    { "key": "accounts_all", "list": "accounts", "default": true, "layout": "table", "columns": ["accounts.support_plan", "accounts.contract_end"] }
+  ],
+  "widgets": [
+    { "kind": "chart", "key": "tickets_by_status", "list": "tickets", "aggregation": "count", "groupBy": { "field": "tickets.status" }, "display": "doughnutChart" },
+    { "kind": "chart", "key": "open_by_priority", "list": "tickets", "aggregation": "count", "groupBy": { "field": "tickets.priority" }, "filters": [{ "operator": "in", "field": "tickets.status", "options": ["new", "open", "pending_customer", "on_hold"] }], "display": "horizontalBarChart" },
+    { "kind": "chart", "key": "waiting_on_us_count", "list": "tickets", "aggregation": "count", "filters": [{ "operator": "in", "field": "tickets.status", "options": ["new", "open"] }], "display": "number" },
+    { "kind": "calendar", "key": "responses_due", "list": "tickets", "layout": "upcoming", "dateField": "tickets.first_response_due", "filters": [{ "operator": "in", "field": "tickets.status", "options": ["new"] }] },
+    { "kind": "chart", "key": "average_rating", "list": "tickets", "aggregation": "average", "valueField": "tickets.rating", "display": "number" },
+    { "kind": "chart", "key": "tickets_by_type", "list": "tickets", "aggregation": "count", "groupBy": { "field": "tickets.type" }, "display": "horizontalBarChart" }
+  ],
+  "knowledgePages": [
+    { "key": "how_we_run_support", "kind": "overview" },
+    { "key": "triage_and_replies", "kind": "processes" },
+    { "key": "data_requests", "kind": "processes" }
+  ],
+  "followUpRules": [
+    { "key": "ticket_created", "trigger": { "kind": "record_created", "list": "tickets" }, "action": { "kind": "create_task", "taskKind": "reply", "assignee": "record_owner", "about": "tickets" }, "dueOffsetDays": 0, "needs": "rules" },
+    {
+      "key": "first_response_missed",
+      "trigger": { "kind": "date_reached", "field": "tickets.first_response_due", "offsetDays": 0 },
+      "condition": [{ "operator": "in", "field": "tickets.status", "options": ["new"] }],
+      "action": { "kind": "notify", "recipient": "workspace_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    {
+      "key": "nudge_customer",
+      "trigger": { "kind": "unchanged_for", "field": "tickets.status", "days": 3 },
+      "condition": [{ "operator": "in", "field": "tickets.status", "options": ["pending_customer"] }],
+      "action": { "kind": "create_task", "taskKind": "nudge_customer", "assignee": "record_owner", "about": "tickets" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "send_survey", "trigger": { "kind": "field_changed", "field": "tickets.status", "to": "solved" }, "action": { "kind": "create_task", "taskKind": "send_survey", "assignee": "record_owner", "about": "tickets" }, "dueOffsetDays": 1, "needs": "forms" },
+    {
+      "key": "close_solved",
+      "trigger": { "kind": "unchanged_for", "field": "tickets.status", "days": 4 },
+      "condition": [{ "operator": "in", "field": "tickets.status", "options": ["solved"] }],
+      "action": { "kind": "create_task", "taskKind": "close_ticket", "assignee": "record_owner", "about": "tickets" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "data_request_clock", "trigger": { "kind": "field_changed", "field": "tickets.type", "to": "data_request" }, "action": { "kind": "set_dates", "dates": [{ "field": "tickets.resolution_due", "offsetDays": 30 }] }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "known_issue_fixed", "trigger": { "kind": "field_changed", "field": "known_issues.status", "to": "fixed" }, "action": { "kind": "create_task", "taskKind": "tell_customer_fixed", "assignee": "record_owner", "about": "known_issues" }, "dueOffsetDays": 1, "needs": "rules" },
+    { "key": "ticket_from_webhook", "trigger": { "kind": "webhook_received", "source": "monitoring" }, "action": { "kind": "create_records", "lists": ["tickets"] }, "dueOffsetDays": 0, "needs": "incomingWebhooks" }
+  ],
+  "acceptanceChecks": [
+    { "key": "status_field", "kind": "field_exists", "ref": "tickets.status" },
+    { "key": "first_response_field", "kind": "field_exists", "ref": "tickets.first_response_due" },
+    { "key": "tickets_board_view", "kind": "view_exists", "ref": "tickets_board" }
+  ],
+  "sources": [
+    { "url": "https://support.freshdesk.com/support/solutions/articles/37626-setting-up-sla-policies-and-reminders", "checkedOn": "2026-11-12" },
+    { "url": "https://support.zendesk.com/hc/en-us/articles/4408886879258-About-ticket-statuses", "checkedOn": "2026-11-12" },
+    { "url": "https://www.helpscout.com/blog/customer-service-metrics/", "checkedOn": "2026-11-12" },
+    { "url": "https://blog.invgate.com/pt/gestao-de-chamados", "checkedOn": "2026-11-12" },
+    { "url": "https://clickup.com/p/templates/project-management/technical-support-task-management-template", "checkedOn": "2026-11-12" },
+    { "url": "https://www.hubspot.com/products/service/ticketing-system", "checkedOn": "2026-11-12" },
+    { "url": "https://smartsheet.com/solutions/help-desk-ticket-tracker-and-form", "checkedOn": "2026-11-12" },
+    { "url": "https://www.freshworks.com/de/ticketing-system/free/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.edpb.europa.eu/system/files/2023-04/edpb_guidelines_202201_data_subject_rights_access_v2_en.pdf", "checkedOn": "2026-11-12" },
+    { "url": "https://www.planalto.gov.br/ccivil_03/_Ato2019-2022/2022/Decreto/D11034.htm", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "own", "de": "own", "fr": "own", "it": "own", "es": "own", "pt": "own", "pl": "own", "nl": "own" },
+  "publishWave": { "en": "wave2", "de": "wave2", "fr": "wave2", "it": "wave2", "es": "wave2", "pt": "wave2", "pl": "wave2", "nl": "wave2" }
+}

@@ -1,0 +1,99 @@
+{
+  "locale": "en",
+  "name": "Client support desk",
+  "summary": "A light support desk: tickets with a priority, a first-response time and a due time, known issues that link many tickets to one cause, and a satisfaction score.",
+  "description": "Answer customers and clients from one place: every ticket has a status, a priority, a type, an owner and the time by which you owe a first reply and a solution. Link tickets to a known issue so you can tell everyone when it is fixed, and keep the one-month clock of a data request visible. It is built for a few dozen tickets a week. It is not a phone system, a live chat, a customer portal or a business-hours calendar.",
+  "lists": {
+    "customers": { "label": "Customer", "pluralLabel": "Customers", "description": "The people who write to you for help." },
+    "accounts": { "label": "Account", "pluralLabel": "Accounts", "description": "The companies behind your customers, with their support plan." },
+    "tickets": { "label": "Ticket", "pluralLabel": "Tickets", "description": "One request for help, from first message to solved." },
+    "known_issues": { "label": "Known issue", "pluralLabel": "Known issues", "description": "One cause behind many tickets, with its workaround and fix date." }
+  },
+  "fields": {
+    "customers.preferred_channel": { "label": "Preferred channel", "options": { "email": "Email", "whatsapp": "WhatsApp", "form": "Request form", "phone": "Phone" } },
+    "customers.language": { "label": "Language" },
+    "accounts.support_plan": { "label": "Support plan", "options": { "standard": "Standard", "priority": "Priority", "none": "None" } },
+    "accounts.contract_end": { "label": "Contract ends" },
+    "tickets.status": {
+      "label": "Status",
+      "options": { "new": "New", "open": "Open", "pending_customer": "Waiting for the customer", "on_hold": "Waiting for a third party", "solved": "Solved", "closed": "Closed", "spam_or_duplicate": "Spam or duplicate" }
+    },
+    "tickets.priority": { "label": "Priority", "options": { "urgent": "Urgent", "high": "High", "normal": "Normal", "low": "Low" } },
+    "tickets.type": { "label": "Type", "options": { "question": "Question", "problem": "Problem", "request": "Request", "complaint": "Complaint", "data_request": "Data request" } },
+    "tickets.channel": { "label": "Channel", "options": { "email": "Email", "whatsapp": "WhatsApp", "form": "Request form", "phone": "Phone", "webhook": "Alert from another system" } },
+    "tickets.assignee": { "label": "Assigned to" },
+    "tickets.first_response_due": { "label": "First reply due" },
+    "tickets.resolution_due": { "label": "Solution due" },
+    "tickets.solved_on": { "label": "Solved on" },
+    "tickets.rating": { "label": "Satisfaction rating" },
+    "known_issues.status": {
+      "label": "Status",
+      "options": { "investigating": "Investigating", "workaround_available": "Workaround available", "fixed": "Fixed", "wont_fix": "Will not fix" }
+    },
+    "known_issues.workaround": { "label": "Workaround" },
+    "known_issues.fixed_on": { "label": "Fixed on" },
+    "actions.kind": {
+      "label": "Kind",
+      "options": {
+        "reply": "Reply",
+        "nudge_customer": "Nudge the customer",
+        "send_survey": "Send the satisfaction survey",
+        "close_ticket": "Close the ticket",
+        "tell_customer_fixed": "Tell the customer it is fixed",
+        "verify_identity": "Verify identity",
+        "other": "Other"
+      }
+    }
+  },
+  "relationships": {
+    "customer_account": { "sourceLabel": "Account", "targetLabel": "Customers" },
+    "ticket_customer": { "sourceLabel": "Customer", "targetLabel": "Tickets" },
+    "ticket_known_issue": { "sourceLabel": "Known issue", "targetLabel": "Tickets" },
+    "action_ticket": { "sourceLabel": "Ticket", "targetLabel": "Actions" }
+  },
+  "views": {
+    "tickets_all": { "name": "All tickets" },
+    "tickets_board": { "name": "Ticket board" },
+    "waiting_on_us": { "name": "Waiting on us" },
+    "known_issues_all": { "name": "All known issues" },
+    "customers_all": { "name": "All customers" },
+    "accounts_all": { "name": "All accounts" }
+  },
+  "widgets": {
+    "tickets_by_status": { "title": "Tickets by status" },
+    "open_by_priority": { "title": "Open tickets by priority" },
+    "waiting_on_us_count": { "title": "Tickets waiting on us" },
+    "responses_due": { "title": "First replies due" },
+    "average_rating": { "title": "Average satisfaction rating" },
+    "tickets_by_type": { "title": "Tickets by type" }
+  },
+  "knowledgePages": {
+    "how_we_run_support": { "title": "How we run support", "sections": ["Statuses and priorities", "Reply and solution targets", "Who is on duty"] },
+    "triage_and_replies": { "title": "Triage and standard replies", "sections": ["Type, priority and owner", "First reply, need more information, fixed, no response"] },
+    "data_requests": { "title": "Data requests", "sections": ["Verify identity, log, answer within one month", "Who decides"] }
+  },
+  "rules": {
+    "ticket_created": { "title": "Create a reply task when a ticket is created" },
+    "first_response_missed": { "title": "Notify the lead when the first reply is overdue" },
+    "nudge_customer": { "title": "Nudge the customer after 3 days of waiting" },
+    "send_survey": { "title": "Send the satisfaction survey the day after a ticket is solved" },
+    "close_solved": { "title": "Close a ticket that stayed solved for 4 days" },
+    "data_request_clock": { "title": "Set the solution date to 30 days out when a ticket becomes a data request" },
+    "known_issue_fixed": { "title": "Tell the customers when a known issue is fixed" },
+    "ticket_from_webhook": { "title": "Create a ticket when another system sends an alert" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Every ticket has a status.",
+    "first_response_field": "Every ticket records when the first reply is due.",
+    "tickets_board_view": "The tickets open as a board by status."
+  },
+  "prompt": {
+    "intro": "Set up a client support desk in my Customermates workspace: tickets with a status, a priority, a first-reply time and a solution time, known issues linked to tickets, a satisfaction rating and dated follow-ups.",
+    "questions": [
+      "How many tickets do you handle a week, and through which channels do they arrive?",
+      "How fast do you promise a first reply and a solution, by priority or support plan?",
+      "Who answers, and who is told when a ticket is late?",
+      "Do you get data requests or alerts from other systems that should become tickets?"
+    ]
+  }
+}

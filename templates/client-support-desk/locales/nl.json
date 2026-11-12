@@ -1,0 +1,99 @@
+{
+  "locale": "nl",
+  "name": "Klantenservice",
+  "summary": "Een lichte servicedesk: tickets met prioriteit, tijd voor een eerste reactie en een oplostermijn, bekende problemen die meerdere tickets aan één oorzaak koppelen en een tevredenheidsscore.",
+  "description": "Help uw klanten vanaf één plek: elk ticket heeft een status, een prioriteit, een type, een eigenaar en het tijdstip waarop u een eerste reactie en een oplossing verschuldigd bent. Koppel tickets aan een bekend probleem om iedereen te laten weten wanneer het is opgelost en houd de termijn van één maand van een AVG-verzoek in beeld. Bedoeld voor enkele tientallen tickets per week. Geen telefooncentrale, geen livechat, geen klantportaal en geen kalender met kantooruren.",
+  "lists": {
+    "customers": { "label": "Klant", "pluralLabel": "Klanten", "description": "De mensen die u om hulp schrijven." },
+    "accounts": { "label": "Account", "pluralLabel": "Accounts", "description": "De bedrijven achter uw klanten, met hun supportplan." },
+    "tickets": { "label": "Ticket", "pluralLabel": "Tickets", "description": "Eén hulpvraag, van het eerste bericht tot de oplossing." },
+    "known_issues": { "label": "Bekend probleem", "pluralLabel": "Bekende problemen", "description": "Eén oorzaak achter meerdere tickets, met tijdelijke oplossing en hersteldatum." }
+  },
+  "fields": {
+    "customers.preferred_channel": { "label": "Voorkeurskanaal", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "form": "Aanvraagformulier", "phone": "Telefoon" } },
+    "customers.language": { "label": "Taal" },
+    "accounts.support_plan": { "label": "Supportplan", "options": { "standard": "Standaard", "priority": "Prioriteit", "none": "Geen" } },
+    "accounts.contract_end": { "label": "Einde contract" },
+    "tickets.status": {
+      "label": "Status",
+      "options": { "new": "Nieuw", "open": "Open", "pending_customer": "Wacht op klant", "on_hold": "Wacht op derde", "solved": "Opgelost", "closed": "Gesloten", "spam_or_duplicate": "Spam of dubbel" }
+    },
+    "tickets.priority": { "label": "Prioriteit", "options": { "urgent": "Urgent", "high": "Hoog", "normal": "Normaal", "low": "Laag" } },
+    "tickets.type": { "label": "Type", "options": { "question": "Vraag", "problem": "Probleem", "request": "Verzoek", "complaint": "Klacht", "data_request": "AVG-verzoek" } },
+    "tickets.channel": { "label": "Kanaal", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "form": "Aanvraagformulier", "phone": "Telefoon", "webhook": "Melding van een ander systeem" } },
+    "tickets.assignee": { "label": "Toegewezen aan" },
+    "tickets.first_response_due": { "label": "Eerste reactie voor" },
+    "tickets.resolution_due": { "label": "Oplossing voor" },
+    "tickets.solved_on": { "label": "Opgelost op" },
+    "tickets.rating": { "label": "Beoordeling" },
+    "known_issues.status": {
+      "label": "Status",
+      "options": { "investigating": "In onderzoek", "workaround_available": "Tijdelijke oplossing beschikbaar", "fixed": "Opgelost", "wont_fix": "Wordt niet opgelost" }
+    },
+    "known_issues.workaround": { "label": "Tijdelijke oplossing" },
+    "known_issues.fixed_on": { "label": "Opgelost op" },
+    "actions.kind": {
+      "label": "Soort",
+      "options": {
+        "reply": "Reageren",
+        "nudge_customer": "Klant herinneren",
+        "send_survey": "Tevredenheidsenquête versturen",
+        "close_ticket": "Ticket sluiten",
+        "tell_customer_fixed": "Klant laten weten dat het is opgelost",
+        "verify_identity": "Identiteit controleren",
+        "other": "Overig"
+      }
+    }
+  },
+  "relationships": {
+    "customer_account": { "sourceLabel": "Account", "targetLabel": "Klanten" },
+    "ticket_customer": { "sourceLabel": "Klant", "targetLabel": "Tickets" },
+    "ticket_known_issue": { "sourceLabel": "Bekend probleem", "targetLabel": "Tickets" },
+    "action_ticket": { "sourceLabel": "Ticket", "targetLabel": "Taken" }
+  },
+  "views": {
+    "tickets_all": { "name": "Alle tickets" },
+    "tickets_board": { "name": "Ticketbord" },
+    "waiting_on_us": { "name": "Wacht op ons" },
+    "known_issues_all": { "name": "Alle bekende problemen" },
+    "customers_all": { "name": "Alle klanten" },
+    "accounts_all": { "name": "Alle accounts" }
+  },
+  "widgets": {
+    "tickets_by_status": { "title": "Tickets per status" },
+    "open_by_priority": { "title": "Open tickets per prioriteit" },
+    "waiting_on_us_count": { "title": "Tickets die op ons wachten" },
+    "responses_due": { "title": "Eerste reacties die nog moeten" },
+    "average_rating": { "title": "Gemiddelde tevredenheidsscore" },
+    "tickets_by_type": { "title": "Tickets per type" }
+  },
+  "knowledgePages": {
+    "how_we_run_support": { "title": "Hoe wij klantenservice doen", "sections": ["Statussen en prioriteiten", "Doelen voor eerste reactie en oplossing", "Wie dienst heeft"] },
+    "triage_and_replies": { "title": "Triage en standaardantwoorden", "sections": ["Type, prioriteit en eigenaar", "Eerste reactie, meer informatie nodig, opgelost, geen reactie"] },
+    "data_requests": { "title": "AVG-verzoeken", "sections": ["Identiteit controleren, registreren, binnen een maand antwoorden", "Wie beslist"] }
+  },
+  "rules": {
+    "ticket_created": { "title": "Een taak om te reageren aanmaken zodra een ticket binnenkomt" },
+    "first_response_missed": { "title": "De leiding waarschuwen als de eerste reactie te laat is" },
+    "nudge_customer": { "title": "De klant na 3 dagen wachten herinneren" },
+    "send_survey": { "title": "De dag na het oplossen de tevredenheidsenquête versturen" },
+    "close_solved": { "title": "Een ticket sluiten dat 4 dagen opgelost bleef" },
+    "data_request_clock": { "title": "De oplostermijn op 30 dagen zetten als een ticket een AVG-verzoek wordt" },
+    "known_issue_fixed": { "title": "Klanten informeren als een bekend probleem is opgelost" },
+    "ticket_from_webhook": { "title": "Een ticket aanmaken als een ander systeem een melding stuurt" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Elk ticket heeft een status.",
+    "first_response_field": "Elk ticket legt vast wanneer de eerste reactie verschuldigd is.",
+    "tickets_board_view": "De tickets openen als bord per status."
+  },
+  "prompt": {
+    "intro": "Richt in mijn Customermates-workspace een klantenservice in: tickets met status, prioriteit, tijd voor de eerste reactie en oplostermijn, bekende problemen gekoppeld aan tickets, een tevredenheidsscore en opvolging met datum.",
+    "questions": [
+      "Hoeveel tickets behandelt u per week en via welke kanalen komen ze binnen?",
+      "Welke termijnen belooft u voor de eerste reactie en de oplossing, per prioriteit of supportplan?",
+      "Wie antwoordt en wie wordt gewaarschuwd als een ticket te laat is?",
+      "Krijgt u AVG-verzoeken of meldingen van andere systemen die tickets moeten worden?"
+    ]
+  }
+}
