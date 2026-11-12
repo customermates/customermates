@@ -235,6 +235,47 @@
     "proposal_follow_up_rule": "Une affaire qui atteint « Devis envoyé » reçoit une action de relance.",
     "stages_page": "La base de connaissances contient les étapes et leurs critères de sortie."
   },
+  "page": {
+    "metaTitle": "Modèle de pipeline commercial pour votre agent IA",
+    "metaDescription": "Copiez le pipeline commercial dans Claude, ChatGPT ou Codex : sept étapes pondérées, une action datée par affaire et les motifs de gain et de perte.",
+    "headline": "Un pipeline commercial que votre agent IA construit dans votre CRM",
+    "answer": "Le pipeline d’une petite équipe demande peu d’étapes, un critère de sortie pour chacune, une valeur pondérée et une prochaine action datée sur chaque affaire ouverte. Collez ce modèle dans votre agent IA et il construit ce pipeline dans Customermates : sept étapes, le comité d’achat sur chaque affaire, les motifs de gain et de perte, et une action créée à chaque changement d’étape. Vous validez le plan avant toute écriture.",
+    "routine": {
+      "title": "La revue hebdomadaire du pipeline",
+      "steps": [
+        "Ouvrez le tableau et regardez chaque affaire restée plus de 14 jours dans son étape.",
+        "Pour chacune, décidez : la faire avancer parce que son critère de sortie est rempli, la relancer avec une nouvelle prochaine action, ou la clore comme perdue avec un motif.",
+        "Vérifiez que chaque affaire ouverte a une prochaine action datée, fixée à la fin de chaque appel.",
+        "Passez en revue les affaires gagnées et perdues avec leurs motifs, ainsi que celles dont la date de signature prévue est dépassée."
+      ]
+    },
+    "limits": [
+      "Il ne produit ni devis ni factures. La proposition est rédigée dans votre outil documentaire et liée à l’affaire.",
+      "Ce n’est pas un outil de séquences ou de prospection de masse. Les relances sont des brouillons pour des personnes précises, et c’est vous qui les envoyez.",
+      "Il n’y a ni notation des leads, ni enrichissement, ni catégories de prévision, ni gestion des quotas ou des commissions. La valeur pondérée est une simple pondération du montant de vos affaires par étape, pas une prévision.",
+      "Il n’y a ni téléphonie ni SMS.",
+      "Les rappels viennent des règles d’automatisation et des notifications, ou d’une routine que votre agent exécute à intervalles réguliers. Le modèle les propose, vous décidez lesquelles activer.",
+      "Il est dimensionné pour un à dix commerciaux. Les équipes avec un processus de prévision formel sont mieux servies par un outil conçu pour cela."
+    ],
+    "faq": [
+      {
+        "question": "Combien d’étapes un pipeline commercial doit-il avoir ?",
+        "answer": "Les praticiens ne sont pas d’accord : certains conseillent cinq au plus, d’autres en utilisent neuf. Ce modèle compte cinq étapes ouvertes plus gagné et perdu, parce que chaque étape a un critère de sortie mesurable. Renommez ou retirez des étapes dans le plan que propose votre agent."
+      },
+      {
+        "question": "Qu’est-ce que la valeur pondérée d’une affaire ?",
+        "answer": "Le montant de l’affaire multiplié par la pondération de son étape, par exemple 10, 25, 40, 60 et 80 % de la première à la cinquième étape. C’est une pondération que vous pouvez ajuster à vos propres taux de transformation, pas une prédiction."
+      },
+      {
+        "question": "Pourquoi noter un motif de gain et de perte ?",
+        "answer": "Les rapports sur un pipeline ne fonctionnent que si les deux issues existent, et les motifs montrent ce qu’il faut changer. Le modèle demande un motif à la clôture et crée une action de suivi pour reprendre les affaires perdues après 90 jours."
+      },
+      {
+        "question": "L’agent envoie-t-il mes relances ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Mets en place un pipeline commercial dans mon espace de travail Customermates : des affaires avec sept étapes et leur pondération, une valeur pondérée, une prochaine action datée sur chaque affaire ouverte, les motifs de perte et de gain, le comité d’achat sur chaque affaire et une action créée à chaque changement d’étape.",
     "questions": [

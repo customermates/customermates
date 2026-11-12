@@ -235,6 +235,47 @@
     "proposal_follow_up_rule": "Una trattativa che arriva a «Preventivo inviato» riceve un'attività di sollecito.",
     "stages_page": "La base di conoscenza contiene le fasi e i loro criteri di uscita."
   },
+  "page": {
+    "metaTitle": "Pipeline commerciale: modello per il tuo agente IA",
+    "metaDescription": "Copia la pipeline commerciale in Claude, ChatGPT o Codex: sette fasi con pesi, un prossimo passo datato per trattativa e i motivi di vittoria e perdita.",
+    "headline": "Una pipeline commerciale che il tuo agente IA costruisce nel tuo CRM",
+    "answer": "La pipeline di un piccolo team ha poche fasi, un criterio di uscita per ciascuna, un valore ponderato e un prossimo passo con scadenza su ogni trattativa aperta. Incolla questo modello nel tuo agente IA e lui costruisce la pipeline in Customermates: sette fasi, il comitato d'acquisto su ogni trattativa, i motivi di vittoria e di perdita e un'attività creata a ogni cambio di fase. Approvi il piano prima che venga scritto qualcosa.",
+    "routine": {
+      "title": "Il controllo settimanale della pipeline",
+      "steps": [
+        "Apri la bacheca e guarda ogni trattativa ferma nella sua fase da più di 14 giorni.",
+        "Per ciascuna decidi: farla avanzare perché il criterio di uscita è soddisfatto, rilanciarla con un nuovo prossimo passo oppure chiuderla come persa con un motivo.",
+        "Assicurati che ogni trattativa aperta abbia un prossimo passo con scadenza, fissato alla fine di ogni chiamata.",
+        "Rivedi le trattative vinte e perse con i loro motivi, e quelle che hanno superato la chiusura prevista."
+      ]
+    },
+    "limits": [
+      "Non crea preventivi né fatture. La proposta si scrive nel tuo strumento per i documenti e si collega alla trattativa.",
+      "Non è uno strumento per sequenze o invii di massa. I follow-up sono bozze per singole persone, e li invii tu.",
+      "Non ci sono lead scoring né arricchimento dei dati, categorie di previsione o gestione di quote e provvigioni. Il valore ponderato è una semplice ponderazione degli importi delle trattative per fase, non una previsione.",
+      "Non ci sono telefonia né SMS.",
+      "I promemoria arrivano dalle regole di automazione e dalle notifiche, oppure da una routine che il tuo agente esegue a intervalli regolari. Il modello li propone, tu decidi quali attivare.",
+      "È pensato per un team da uno a dieci venditori. I team con un processo di previsione formale sono serviti meglio da uno strumento fatto per quello."
+    ],
+    "faq": [
+      {
+        "question": "Quante fasi dovrebbe avere una pipeline commerciale?",
+        "answer": "I professionisti non sono d'accordo: alcuni consigliano cinque o meno, altri ne usano nove. Questo modello ha cinque fasi aperte più vinta e persa, perché ogni fase ha un criterio di uscita misurabile. Rinomina o togli fasi nel piano che il tuo agente propone."
+      },
+      {
+        "question": "Che cos'è il valore ponderato di una trattativa?",
+        "answer": "L'importo della trattativa moltiplicato per il peso della sua fase, per esempio 10, 25, 40, 60 e 80 per cento dalla prima alla quinta fase. È un peso che puoi adattare ai tuoi tassi di chiusura, non una previsione."
+      },
+      {
+        "question": "Perché registrare un motivo di vittoria e di perdita?",
+        "answer": "I report su una pipeline funzionano solo se esistono entrambi gli esiti, e i motivi mostrano cosa cambiare. Il modello chiede un motivo alla chiusura e crea un'attività di follow-up per riprendere le trattative perse dopo 90 giorni."
+      },
+      {
+        "question": "L'agente invia i miei follow-up?",
+        "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Configura una pipeline commerciale nel mio spazio di lavoro Customermates: trattative con sette fasi e pesi, un valore ponderato, un prossimo passo con scadenza su ogni trattativa aperta, motivi della perdita e della vittoria, il comitato d'acquisto su ogni trattativa e un'attività creata a ogni cambio di fase.",
     "questions": [

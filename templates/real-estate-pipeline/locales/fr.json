@@ -400,6 +400,47 @@
     "listings_board_view": "La liste des biens s’ouvre en board par étape.",
     "operating_guide_page": "La base de connaissances contient le mode d’emploi."
   },
+  "page": {
+    "metaTitle": "Modèle de pipeline immobilier pour votre agent IA",
+    "metaDescription": "Copiez le pipeline immobilier dans Claude, ChatGPT ou Codex : biens, acquéreurs, visites avec retour et dates clés après le compromis, dans votre CRM.",
+    "headline": "Un pipeline immobilier que votre agent IA construit dans votre CRM",
+    "answer": "Une agence immobilière mène deux pipelines qui se rejoignent au compromis : décrocher et commercialiser le bien pour le propriétaire, et suivre l’acquéreur de la visite jusqu’à l’offre. Collez ce modèle dans votre agent IA et il construit les deux dans Customermates, avec les mandats, les visites, les dates clés et une routine datée pour les anciens clients. Vous validez le plan avant toute écriture.",
+    "routine": {
+      "title": "La tournée hebdomadaire des biens et des acquéreurs",
+      "steps": [
+        "Envoyez à chaque propriétaire d’un bien commercialisé un court point sur les visites et les retours de la semaine.",
+        "Passez en revue les biens dont le mandat se termine bientôt : renouveler, prolonger ou revoir le prix.",
+        "Relancez avec des biens adaptés les acquéreurs en phase de visites qui n’ont pas bougé depuis sept jours.",
+        "Confirmez les prochaines dates clés après le compromis et gardez le contact chaque mois avec les anciens clients."
+      ]
+    },
+    "limits": [
+      "Ce n’est pas un système de diffusion sur les portails. Votre propre logiciel immobilier continue de diffuser sur les portails et de tenir le registre des mandats ; ici, vous gardez un identifiant et le pipeline qui l’entoure.",
+      "Il ne gère ni les transactions, ni les fonds séquestrés, ni la signature électronique. Les contrats et les signatures restent chez votre notaire et dans votre outil de signature.",
+      "Ce n’est pas de la gestion locative : loyers, entretien et comptes des locataires relèvent d’un autre métier.",
+      "Il n’estime pas les biens et ne fait ni comptabilité ni répartition des honoraires.",
+      "Il n’envoie rien automatiquement. Les demandes WhatsApp arrivent dans la boîte de réception et les réponses sont des brouillons que vous relisez.",
+      "Gardez-en à l’écart les copies de pièces d’identité, les justificatifs de revenus et les relevés bancaires. Le modèle ne stocke que la date à laquelle l’identité a été vérifiée."
+    ],
+    "faq": [
+      {
+        "question": "Pourquoi deux pipelines pour un agent immobilier ?",
+        "answer": "Propriétaires et acquéreurs suivent des étapes différentes. Côté propriétaire, on va de l’estimation et de la proposition de mandat jusqu’au mandat signé et à la mise en vente ; côté acquéreur, de la demande aux visites puis à l’offre. Les deux se rejoignent au compromis, où les dates clés sont communes."
+      },
+      {
+        "question": "Quelles dates le modèle suit-il ?",
+        "answer": "Le type et la fin de chaque mandat, les visites avec le retour que vous devez au propriétaire et, après le compromis, les dates qui comptent dans votre pays, comme l’acompte, la condition suspensive de financement, l’expertise et le rendez-vous chez le notaire. Quelles dates s’appliquent, c’est la première question que votre agent vous pose."
+      },
+      {
+        "question": "Puis-je l’utiliser avec mon logiciel immobilier ou mon portail ?",
+        "answer": "Oui. Les portails et votre propre logiciel gardent les données des biens et la diffusion. Le modèle est la couche de pipeline, de dates clés et de relance à leurs côtés ; les demandes venues des portails arrivent par e-mail dans votre boîte connectée ou par un webhook entrant, et celles de WhatsApp dans la boîte de réception une fois le compte connecté."
+      },
+      {
+        "question": "L’agent contacte-t-il les propriétaires ou les acquéreurs ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Mets en place un pipeline immobilier dans mon espace de travail Customermates : des biens avec le type de mandat et sa date de fin, des recherches acquéreurs, des visites avec retour, les dates clés après la signature du compromis et une tâche datée pour chaque dossier ouvert.",
     "questions": [

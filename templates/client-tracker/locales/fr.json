@@ -182,6 +182,46 @@
     "chase_rule": "Un client passé à « En attente du client » reçoit une action de relance.",
     "playbook_page": "La base de connaissances contient le mode d’emploi du fichier client."
   },
+  "page": {
+    "metaTitle": "Modèle de fichier client pour votre agent IA",
+    "metaDescription": "Copiez le fichier client dans Claude, ChatGPT ou Codex : une ligne par client, un responsable, une relance datée et une revue chaque semaine.",
+    "headline": "Un fichier client que votre agent IA construit dans votre CRM",
+    "answer": "Un fichier client est une liste courte : une ligne par client, un responsable, un statut, la date du dernier contact et une prochaine action avec une date de relance. Collez ce modèle dans votre agent IA et il construit cette liste dans Customermates, avec les contacts, des actions datées et une revue hebdomadaire. Vous validez le plan avant toute écriture.",
+    "routine": {
+      "title": "La revue client hebdomadaire de 15 minutes",
+      "steps": [
+        "Triez la liste des clients par prochaine relance, puis par statut.",
+        "Traitez d’abord tout ce qui est en retard, puis les clients actifs sans prochaine action.",
+        "Regardez les prospects devenus silencieux et décidez : relancer ou clore.",
+        "Terminez en vous assurant qu’une date figure sur chaque ligne, pour qu’aucun client ne reste sans prochaine action."
+      ]
+    },
+    "limits": [
+      "Ce n’est pas un outil de facturation, de devis ou de suivi du temps. La facturation reste dans votre logiciel de comptabilité ; le fichier ne garde au plus qu’un lien et une valeur annuelle.",
+      "Il ne conserve pas les contrats signés et ce n’est pas un portail client. Vos clients ne peuvent pas s’y connecter pour voir leur statut.",
+      "Les rappels viennent des règles d’automatisation et des notifications, ou d’une routine que votre agent exécute à intervalles réguliers. Le modèle les propose, vous décidez lesquelles activer.",
+      "Gardez-en à l’écart les dossiers sensibles, comme les données de santé, juridiques ou thérapeutiques. La relation reste ici, le contenu du dossier dans un système prévu pour cela.",
+      "Il est dimensionné pour une à dix personnes. Si certaines colonnes doivent rester cachées à vos collègues, placez-les dans une liste distincte avec ses propres accès."
+    ],
+    "faq": [
+      {
+        "question": "Que contient un fichier client ?",
+        "answer": "Une ligne par client, avec un responsable, un statut tiré d’une courte liste, la date du dernier contact et une prochaine action datée. La date de relance pilote le travail : triez par cette date une fois par semaine et rien ne passe entre les mailles."
+      },
+      {
+        "question": "Quand un tableur ne suffit-il plus pour suivre ses clients ?",
+        "answer": "Les guides de praticiens placent la limite autour de 25 à 50 clients, dès que plusieurs personnes modifient le fichier ou que plus personne n’est rappelé à l’ordre pour une relance. Un CRM aide alors : les contacts sont liés, les prochaines actions sont des actions datées et les échanges se trouvent à côté de chaque client."
+      },
+      {
+        "question": "Combien de temps conserver les données des clients clos ?",
+        "answer": "Cela dépend de votre pays et des données conservées. Deux exemples : la CNIL admet que les données de clients utilisées pour la prospection soient gardées pendant la durée de la relation commerciale plus trois ans, et le droit commercial allemand impose de conserver six ans les lettres commerciales et huit ans les pièces comptables. Le modèle fixe une date de revue des données pour chaque client clos ; adaptez le délai à votre pays et demandez conseil à votre expert. Ce n’est pas un avis juridique."
+      },
+      {
+        "question": "L’agent contacte-t-il mes clients ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Mets en place un fichier client dans mon espace de travail Customermates : une ligne par client avec un responsable, un statut, la date du dernier contact et une prochaine action datée, plus les contacts, des actions datées, une revue hebdomadaire et une date de revue des données pour les clients clos.",
     "questions": [

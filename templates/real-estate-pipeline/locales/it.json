@@ -400,6 +400,47 @@
     "listings_board_view": "L'elenco degli immobili si apre come board per fase.",
     "operating_guide_page": "La base di conoscenza contiene la guida operativa."
   },
+  "page": {
+    "metaTitle": "Pipeline immobiliare: modello per il tuo agente IA",
+    "metaDescription": "Copia la pipeline immobiliare in Claude, ChatGPT o Codex: immobili, acquirenti, visite con riscontro e le scadenze dopo il compromesso, nel tuo CRM.",
+    "headline": "Una pipeline immobiliare che il tuo agente IA costruisce nel tuo CRM",
+    "answer": "Un'agenzia immobiliare porta avanti due pipeline che si incontrano al compromesso: acquisire e promuovere l'immobile per il proprietario, e seguire l'acquirente dalle visite fino alla proposta. Incolla questo modello nel tuo agente IA e lui costruisce entrambe in Customermates, con incarichi, visite, scadenze e una routine con date per gli ex clienti. Approvi il piano prima che venga scritto qualcosa.",
+    "routine": {
+      "title": "Il giro settimanale tra immobili e acquirenti",
+      "steps": [
+        "Manda a ogni proprietario di un immobile in vendita un breve aggiornamento con le visite e i riscontri della settimana.",
+        "Controlla gli immobili con un incarico in scadenza: rinnova, proroga o rivedi il prezzo.",
+        "Riprendi i contatti con gli acquirenti in fase di visita fermi da sette giorni, proponendo immobili adatti.",
+        "Conferma le prossime scadenze dopo il compromesso e mantieni il contatto mensile con gli ex clienti."
+      ]
+    },
+    "limits": [
+      "Non è un sistema per pubblicare sui portali. Il tuo gestionale immobiliare continua a pubblicare sui portali e a tenere il registro degli incarichi; qui tieni un identificativo e la pipeline intorno.",
+      "Non gestisce transazioni, depositi fiduciari o firme elettroniche. Contratti e firme restano dal notaio e nel tuo strumento di firma.",
+      "Non è gestione degli affitti: canoni, manutenzione e conti degli inquilini sono un altro lavoro.",
+      "Non valuta gli immobili e non fa contabilità né ripartizione delle provvigioni.",
+      "Non invia nulla in automatico. Le richieste su WhatsApp arrivano nella posta in arrivo e le risposte sono bozze che rivedi tu.",
+      "Tieni fuori copie di documenti d'identità, redditi ed estratti conto. Il modello salva solo la data in cui l'identità è stata verificata."
+    ],
+    "faq": [
+      {
+        "question": "Perché due pipeline per un agente immobiliare?",
+        "answer": "Proprietari e acquirenti seguono passaggi diversi. Sul lato proprietario si va dalla valutazione e dalla proposta di incarico fino all'incarico firmato e alla vendita; sul lato acquirente dalla richiesta alle visite fino alla proposta d'acquisto. Si incontrano al compromesso, dove le scadenze sono condivise."
+      },
+      {
+        "question": "Quali scadenze segue il modello?",
+        "answer": "Tipo e durata di ogni incarico, le visite con il riscontro che devi al proprietario e, dopo il compromesso, le scadenze che contano nel tuo paese, come caparra, condizione di finanziamento, verifiche e rogito. Quali scadenze valgono è la prima domanda che il tuo agente ti fa."
+      },
+      {
+        "question": "Posso usarlo con il mio gestionale o con un portale?",
+        "answer": "Sì. I portali e il tuo software tengono i dati degli immobili e la pubblicazione. Il modello è lo strato di pipeline, scadenze e follow-up accanto a loro; le richieste dai portali arrivano via e-mail nella tua casella collegata o tramite un webhook in ingresso, quelle di WhatsApp nella posta in arrivo una volta collegato l'account."
+      },
+      {
+        "question": "L'agente contatta proprietari o acquirenti?",
+        "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Configura una pipeline immobiliare nel mio spazio di lavoro Customermates: immobili con il tipo di incarico e la sua scadenza, richieste di acquirenti, visite con riscontro, le scadenze dopo la firma del compromesso e un'attività con data per ogni pratica aperta.",
     "questions": [

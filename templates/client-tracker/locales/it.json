@@ -182,6 +182,46 @@
     "chase_rule": "Un cliente passato a «In attesa del cliente» riceve un'attività di sollecito.",
     "playbook_page": "La base di conoscenza contiene la guida all'anagrafica clienti."
   },
+  "page": {
+    "metaTitle": "Anagrafica clienti: modello per il tuo agente IA",
+    "metaDescription": "Copia l'anagrafica clienti in Claude, ChatGPT o Codex: una riga per cliente, un responsabile, un prossimo passo con scadenza e una revisione settimanale.",
+    "headline": "Un'anagrafica clienti che il tuo agente IA costruisce nel tuo CRM",
+    "answer": "Un'anagrafica clienti è un elenco breve: una riga per cliente, un responsabile, uno stato, la data dell'ultimo contatto e un prossimo passo con scadenza. Incolla questo modello nel tuo agente IA e lui costruisce l'elenco in Customermates, con referenti, attività con scadenza e una revisione settimanale. Approvi il piano prima che venga scritto qualcosa.",
+    "routine": {
+      "title": "La revisione settimanale dei clienti in 15 minuti",
+      "steps": [
+        "Ordina l'elenco dei clienti per scadenza del prossimo passo e per stato.",
+        "Occupati prima di tutto ciò che è in ritardo, poi dei clienti attivi senza prossimo passo.",
+        "Guarda i potenziali clienti diventati silenziosi e decidi: riprendere il contatto o chiudere.",
+        "Concludi con una data su ogni riga, così nessun cliente resta senza prossimo passo."
+      ]
+    },
+    "limits": [
+      "Non è uno strumento per fatture, preventivi o rilevazione del tempo. La fatturazione resta nel tuo gestionale; qui c'è al massimo un link e un valore annuo.",
+      "Non conserva i contratti firmati e non è un portale clienti. I clienti non possono accedere per vedere il loro stato.",
+      "I promemoria arrivano dalle regole di automazione e dalle notifiche, oppure da una routine che il tuo agente esegue a intervalli regolari. Il modello li propone, tu decidi quali attivare.",
+      "Tieni fuori le pratiche sensibili, come documenti sanitari, legali o terapeutici. Qui resta la relazione, il contenuto della pratica in un sistema fatto per quello.",
+      "È pensato per un team da una a dieci persone. Se alcune colonne devono restare nascoste ai colleghi, mettile in un elenco separato con accessi propri."
+    ],
+    "faq": [
+      {
+        "question": "Cosa deve contenere un'anagrafica clienti?",
+        "answer": "Una riga per cliente, con un responsabile, uno stato scelto da un elenco breve, la data dell'ultimo contatto e un prossimo passo con scadenza. È la scadenza a guidare il lavoro: ordina per quella una volta a settimana e niente va perso."
+      },
+      {
+        "question": "Quando un foglio di calcolo non basta più per gestire i clienti?",
+        "answer": "Le guide di chi lavora sul campo indicano il limite tra 25 e 50 clienti, quando più persone modificano il file o quando nessuno viene più avvisato di un follow-up. Un CRM aiuta allora: i referenti sono collegati, i prossimi passi sono attività con scadenza e le conversazioni stanno accanto a ogni cliente."
+      },
+      {
+        "question": "Per quanto tempo posso conservare i dati dei clienti chiusi?",
+        "answer": "Dipende dal paese e dai dati. Due esempi: l'autorità francese per la protezione dei dati ammette i dati dei clienti usati per la prospezione per la durata del rapporto più tre anni, e il diritto commerciale tedesco impone di conservare sei anni le lettere commerciali e otto anni i documenti contabili. Il modello imposta una data di verifica dei dati per ogni cliente chiuso; adatta il termine al tuo paese e chiedi al tuo consulente. Non è una consulenza legale."
+      },
+      {
+        "question": "L'agente contatta i miei clienti?",
+        "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Configura un'anagrafica clienti nel mio spazio di lavoro Customermates: una riga per cliente con un responsabile, uno stato, la data dell'ultimo contatto e un prossimo passo con scadenza, più i referenti, attività con scadenza, una revisione settimanale e una data di verifica dei dati per i clienti chiusi.",
     "questions": [
