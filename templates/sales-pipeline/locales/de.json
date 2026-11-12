@@ -28,7 +28,7 @@
         "decision_maker": "Entscheider",
         "budget_holder": "Budgetverantwortlicher",
         "champion": "Fürsprecher",
-        "influencer": "Beeinflusser",
+        "influencer": "Einflussnehmer",
         "user": "Anwender",
         "blocker": "Blockierer"
       }
@@ -188,7 +188,7 @@
     },
     "won_handover": {
       "title": "Gewonnene Chance übergeben",
-      "description": "Am Tag nach dem Gewinn ist eine Übergabe-Aufgabe fällig. Tragen Sie den Gewinngrund ein."
+      "description": "Am Tag nach dem Abschluss ist eine Übergabe-Aufgabe fällig. Tragen Sie den Gewinngrund ein."
     },
     "lost_revisit": {
       "title": "Verlorene Chance wieder aufgreifen",
