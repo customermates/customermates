@@ -36,6 +36,64 @@ Connected calendars require the existing messaging entitlement and inbox read pe
 
 Copy the URL when it is created: it is shown only once. Anyone with it can read the selected events while you retain access. Every refresh checks your active membership and current permissions. **Revoke subscription** immediately stops future fetches; calendar apps may keep previously downloaded events. Changes flow from Customermates to the calendar app. Editing an imported event does not update its CRM record; this is not a two-way calendar connection.
 
+## How do I schedule a meeting? [#schedule-meetings]
+
+Click **Schedule meeting** in the header of any record, for example a person, an organization or a deal. On [Calendar](app:calendar), double-click an empty time slot in the week or month view (or use **+** on a day of the month) and choose **New meeting**; it is offered next to creating a record when a list source allows it. Both open the same window.
+
+### What can I set? [#schedule-meeting-options]
+
+The window has these fields:
+
+- A title, the date, the start time and the length (15 to 120 minutes).
+- Free times for that day, taken from your synced calendars within working hours (Monday to Friday, 09:00 to 17:00 in your time zone). You can still type any start time.
+- The calendar, shown only when you have more than one connected calendar.
+- Attendees: email addresses are suggested from the record and from the people linked to it, and you can type more.
+- A location, a description and, if you want one, a video link: Google Meet for Google calendars, Microsoft Teams for Outlook.
+- A switch to send invitations. Google or Microsoft sends them.
+- An optional follow-up: choose a list and one of its date or date-time fields, and the app creates a record in that list at the meeting start, linked to the record.
+
+### What happens after I save? [#schedule-meeting-result]
+
+The event is created in your own connected Google or Microsoft calendar. It appears on [Calendar](app:calendar) and on the activity timeline of the records it belongs to, and of people whose email address is an attendee. Only your own connected calendars can be written. If the connected account lost its calendar permission, the app asks you to reconnect it under [Channels & calendars](app:settings/channels).
+
+### What do I need to schedule meetings? [#schedule-meeting-requirements]
+
+A connected Google or Microsoft account and the plan the [Inbox](/docs/app-inbox#who-can-use-the-inbox) needs: Pro or higher. Scheduling meetings is not available when self-hosting, because the calendar connection runs through the hosted service, and not in the demo workspace.
+
+### Can an agent schedule meetings? [#schedule-meeting-agents]
+
+Yes, with the MCP tool `schedule_meeting`, whose actions are `options`, `slots`, `create`, `update` and `cancel`. `slots` finds free times; `create`, `update` and `cancel` change meetings in the caller's own connected calendar. Like the other messaging tools, it needs Pro or higher and Customermates Cloud. Exact schemas are in the [MCP catalog](/docs/mcp#tool-catalog).
+
+## How do I let people book a meeting with me? [#booking-pages]
+
+A booking page is a public link that anyone can open without an account, like a small scheduling page of your own. Visitors pick a free time from your calendar, and each booking creates a calendar event, a person and a record in your CRM. Create and manage pages under [Booking pages](app:settings/booking) in Settings, next to [Channels & calendars](app:settings/channels). Each user can have up to 10 booking pages.
+
+### What can I set on a booking page? [#booking-page-settings]
+
+- A title, a description and the calendar that receives the events.
+- The meeting length (15 to 120 minutes), the buffer between meetings, the minimum notice and how many days ahead visitors can book (up to 90).
+- The time zone, the working hours for each weekday and, if you want one, a video link.
+- The list in which the visitor's person is found or created (one person per email address), the list that receives one record per booking and the field of that list that gets the meeting start.
+- Up to 8 questions. Each question is a field of the booking list (text, link, single choice, number, yes/no or date) and can be required.
+- A message shown after booking.
+- The **Accept bookings** switch.
+
+Switch **Accept bookings** off to pause a page without deleting it. Deleting a page removes its link and its booking history; meetings that are already booked stay in your calendar.
+
+### What happens when someone books? [#booking-page-visitors]
+
+The visitor sees free times from your synced calendar, in the visitor's own time zone. Busy time hides slots, and bookings cannot overlap because a time is reserved first. The visitor enters a name and an email address, answers your questions and confirms. The app then creates the calendar event with the visitor as an attendee (Google or Microsoft sends the invitation), finds or creates the person by email address, creates the booking record and links the event to them. Every booking also produces the `form.submitted` event with the booking as its payload, so rules can react to it.
+
+Booking pages protect themselves with rate limits per visitor and per link, a hidden honeypot field, a maximum of 3 upcoming bookings per email address per page and limits on the size of the input.
+
+### What do I need for booking pages? [#booking-page-requirements]
+
+The same as for scheduling meetings: a connected Google or Microsoft account, the plan the [Inbox](/docs/app-inbox#who-can-use-the-inbox) needs (Pro or higher) and Customermates Cloud. Booking pages are not available when self-hosting or in the demo workspace. If the plan or the calendar connection of the person who owns a page ends, the page shows that it is not available.
+
+### Can an agent manage booking pages? [#booking-page-agents]
+
+Yes, with the MCP tool `manage_booking_links`, whose actions are `list`, `get`, `save` and `delete`. Like the other messaging tools, it needs Pro or higher and Customermates Cloud. Exact schemas are in the [MCP catalog](/docs/mcp#tool-catalog).
+
 ## For agents [#tips-for-agents]
 
 Change a person's calendar with `manage_calendar` rather than driving the page; it changes only the caller's own calendar. Call `options` first: it lists the lists with date fields, their choice fields for colors and, where connected messaging is available, the caller's connected calendars, all by stable ID. `read` returns the configuration and `saved`, which stays false while the default applies. `update` takes a `config` with only the keys to change: `sources` and `calendarIds` replace the whole list, and a source's `filters` use the filter fields of `manage_data_views` `config` for the list's surface. Pass `timeZone` with the first update, because the default is UTC. `reset` returns to the default. `subscriptions` lists the subscription URLs and `revoke` revokes one by `id`; creating a subscription URL stays in the app. There is no REST endpoint for the calendar. Exact schemas are in the [MCP catalog](/docs/mcp#tool-catalog).

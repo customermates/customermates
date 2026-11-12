@@ -36,6 +36,64 @@ Los calendarios conectados requieren el derecho de mensajería ya existente y el
 
 Copia la URL cuando se cree: solo se muestra una vez. Quien la tenga puede leer los eventos seleccionados mientras tú conserves el acceso. Cada actualización comprueba tu membresía activa y tus permisos actuales. **Revocar suscripción** detiene al instante las consultas futuras; las aplicaciones de calendario pueden conservar los eventos descargados antes. Los cambios van de Customermates a la aplicación de calendario. Editar un evento importado no actualiza su registro del CRM; no es una conexión de calendario bidireccional.
 
+## ¿Cómo programo una reunión? [#schedule-meetings]
+
+Haz clic en **Programar reunión** en la cabecera de cualquier registro, por ejemplo una persona, una organización o una oportunidad. En el [Calendario](app:calendar), haz doble clic en un hueco vacío de la vista de semana o de mes (o usa **+** en un día del mes) y elige **Nueva reunión**; aparece junto a la creación de un registro cuando una fuente de lista lo permite. Ambas formas abren la misma ventana.
+
+### ¿Qué puedo configurar? [#schedule-meeting-options]
+
+La ventana incluye estos campos:
+
+- Un título, la fecha, la hora de inicio y la duración (de 15 a 120 minutos).
+- Los horarios libres de ese día, tomados de tus calendarios sincronizados dentro del horario laboral (de lunes a viernes, de 9:00 a 17:00 en tu zona horaria). Aun así puedes escribir cualquier hora de inicio.
+- El calendario, que solo aparece si tienes más de un calendario conectado.
+- Los asistentes: se sugieren direcciones de correo a partir del registro y de las personas vinculadas a él, y puedes escribir más.
+- Una ubicación, una descripción y, si quieres, un enlace de videollamada: Google Meet para calendarios de Google, Microsoft Teams para Outlook.
+- Un interruptor para enviar las invitaciones. Las envía Google o Microsoft.
+- Un seguimiento opcional: elige una lista y uno de sus campos de fecha o de fecha y hora, y la aplicación crea un registro en esa lista al inicio de la reunión, vinculado al registro.
+
+### ¿Qué pasa después de guardar? [#schedule-meeting-result]
+
+El evento se crea en tu propio calendario de Google o Microsoft conectado. Aparece en el [Calendario](app:calendar) y en la cronología de actividad de los registros a los que pertenece, y de las personas cuyo correo figura entre los asistentes. Solo se pueden escribir tus propios calendarios conectados. Si la cuenta conectada perdió el permiso del calendario, la aplicación te pide volver a conectarla en [Canales y calendarios](app:settings/channels).
+
+### ¿Qué necesito para programar reuniones? [#schedule-meeting-requirements]
+
+Una cuenta de Google o Microsoft conectada y el plan que necesita la [bandeja de entrada](/docs/app-inbox#who-can-use-the-inbox): Pro o superior. Programar reuniones no está disponible en instalaciones autoalojadas, porque la conexión del calendario pasa por el servicio alojado, ni en el espacio de trabajo de demostración.
+
+### ¿Puede un agente programar reuniones? [#schedule-meeting-agents]
+
+Sí, con la herramienta MCP `schedule_meeting`, cuyas acciones son `options`, `slots`, `create`, `update` y `cancel`. `slots` busca horarios libres; `create`, `update` y `cancel` cambian reuniones en el calendario conectado de quien llama. Como las demás herramientas de mensajería, requiere Pro o superior y Customermates Cloud. Los esquemas exactos están en el [catálogo de MCP](/docs/mcp#tool-catalog).
+
+## ¿Cómo dejo que otras personas reserven una reunión conmigo? [#booking-pages]
+
+Una página de reserva es un enlace público que cualquiera puede abrir sin cuenta, como una pequeña página de citas propia. Los visitantes eligen un horario libre de tu calendario y cada reserva crea un evento de calendario, una persona y un registro en tu CRM. Creas y gestionas las páginas en los ajustes, en [Páginas de reserva](app:settings/booking), junto a [Canales y calendarios](app:settings/channels). Cada usuario puede tener hasta 10 páginas de reserva.
+
+### ¿Qué puedo configurar en una página de reserva? [#booking-page-settings]
+
+- Un título, una descripción y el calendario que recibe los eventos.
+- La duración de la reunión (de 15 a 120 minutos), el margen entre reuniones, la antelación mínima y con cuántos días de adelanto se puede reservar (hasta 90).
+- La zona horaria, el horario laboral de cada día de la semana y, si quieres, un enlace de videollamada.
+- La lista en la que se busca o se crea a la persona del visitante (una persona por dirección de correo), la lista que recibe un registro por reserva y el campo de esa lista que recibe el inicio de la reunión.
+- Hasta 8 preguntas. Cada pregunta es un campo de la lista de reservas (texto, enlace, opción única, número, sí/no o fecha) y puede ser obligatoria.
+- Un mensaje que se muestra tras la reserva.
+- El interruptor **Aceptar reservas**.
+
+Desactiva **Aceptar reservas** para pausar una página sin eliminarla. Eliminar una página borra su enlace y su historial de reservas; las reuniones ya reservadas siguen en tu calendario.
+
+### ¿Qué pasa cuando alguien reserva? [#booking-page-visitors]
+
+El visitante ve los horarios libres de tu calendario sincronizado, en su propia zona horaria. El tiempo ocupado oculta horarios, y dos reservas no pueden solaparse porque primero se reserva el horario. El visitante escribe su nombre y su correo, responde a tus preguntas y confirma. Entonces la aplicación crea el evento de calendario con el visitante como asistente (Google o Microsoft envía la invitación), busca o crea a la persona por su correo, crea el registro de la reserva y vincula el evento a ambos. Cada reserva también produce el evento `form.submitted` con la reserva como contenido, al que las reglas pueden reaccionar.
+
+Las páginas de reserva se protegen solas: límites de solicitudes por visitante y por enlace, un campo trampa oculto (honeypot), un máximo de 3 reservas próximas por dirección de correo y página, y límites en el tamaño de los datos enviados.
+
+### ¿Qué necesito para las páginas de reserva? [#booking-page-requirements]
+
+Lo mismo que para programar reuniones: una cuenta de Google o Microsoft conectada, el plan que necesita la [bandeja de entrada](/docs/app-inbox#who-can-use-the-inbox) (Pro o superior) y Customermates Cloud. Las páginas de reserva no están disponibles en instalaciones autoalojadas ni en el espacio de trabajo de demostración. Si termina el plan o la conexión del calendario de quien es titular de una página, la página muestra que no está disponible.
+
+### ¿Puede un agente gestionar páginas de reserva? [#booking-page-agents]
+
+Sí, con la herramienta MCP `manage_booking_links`, cuyas acciones son `list`, `get`, `save` y `delete`. Como las demás herramientas de mensajería, requiere Pro o superior y Customermates Cloud. Los esquemas exactos están en el [catálogo de MCP](/docs/mcp#tool-catalog).
+
 ## Para agentes [#tips-for-agents]
 
 Cambia el calendario de una persona con `manage_calendar` en lugar de manejar la página; solo cambia el calendario de quien llama. Llama primero a `options`: lista las listas con campos de fecha, sus campos de selección para los colores y, donde la mensajería conectada está disponible, los calendarios conectados de quien llama, todo con ID estables. `read` devuelve la configuración y `saved`, que sigue en false mientras se aplique la predeterminada. `update` recibe un `config` solo con las claves que se cambian: `sources` y `calendarIds` sustituyen la lista entera, y los `filters` de una fuente usan los campos de filtro del `config` de `manage_data_views` para la superficie de la lista. Pasa `timeZone` en la primera actualización, porque la predeterminada es UTC. `reset` vuelve a la configuración predeterminada. `subscriptions` lista las URL de suscripción y `revoke` revoca una por `id`; crear una URL de suscripción sigue siendo cosa de la app. No hay endpoint REST para el calendario. Los esquemas exactos están en el [catálogo de MCP](/docs/mcp#tool-catalog).

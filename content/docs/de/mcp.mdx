@@ -178,7 +178,7 @@ Customermates bietet bis zu [[derived.mcp.tools.total]] MCP-Tools, standardmäß
 {/* mcp-catalog:flags */}
 **Nur lesend:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `lookup_address`, `check_address`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
-**Kann Daten löschen:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_calendar`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_team`, `manage_roles`
+**Kann Daten löschen:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_calendar`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `schedule_meeting`, `manage_booking_links`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_rules`, `manage_webhooks`, `manage_incoming_webhooks`, `manage_team`, `manage_roles`
 {/* /mcp-catalog */}
 
 Das volle JSON-Schema jedes Tools liegt live an `POST /api/v1/mcp` mit `method: "tools/list"`.
@@ -425,6 +425,12 @@ Pflicht: `typeId`, `action`. Optional: `expectedRevision`, `idempotencyKey`, `la
 Ihren persönlichen Kalender lesen und ändern: options listet die Listen mit Datumsfeldern und Ihre verbundenen Kalender, read liefert die Konfiguration und ob noch die Voreinstellung gilt (das erste einzelne Datumsfeld jeder Liste, sonst ihr erster Zeitraum, bis zu zwölf Listen), update erwartet eine config mit nur den zu ändernden Schlüsseln und prüft jede Liste, jedes Feld, jeden Filter und jeden Kalender, und reset kehrt zur Voreinstellung zurück. subscriptions listet Ihre Kalender-Abonnement-URLs und revoke deaktiviert eine davon per id endgültig. Datensätze, Kalendertermine und die Kalender anderer Nutzer ändern sich nie.
 
 **Kann Daten löschen.** Pflicht: `action`. Optional: `config`, `id`.
+
+#### `manage_forms`
+
+Ein Tool mit `action`-Schalter: list, get, fields, create, update, disable. Ein Formular ist eine öffentliche Seite mit iframe-Einbettungscode, über die jede Person ohne Anmeldung einen Datensatz in einer Liste anlegen kann. `fields` liefert die Felder, die ein Formular nutzen kann, und die Personenlisten, aus denen sich eine Person verknüpfen lässt (per E-Mail gefunden oder angelegt, eine Person pro E-Mail); lesen Sie es vor create. create und update nehmen die gesamte Definition in `config`: Titel, Beschreibung, Button-Beschriftung, Felder mit Beschriftung, Hilfetext und Pflichtkennzeichen, Einwilligungstext mit Datenschutzlink, Erfolgsmeldung oder Weiterleitung und Sprache; update ersetzt sie, disable schaltet den Link sofort ab. Eine Liste hat ein Formular. Einsendungen legen den Datensatz als das Mitglied an, das das Formular zuletzt eingeschaltet hat, mit dem Formular als Quelle. Der Free-Tarif begrenzt die Einsendungen pro Monat und zeigt ein Badge. Braucht die Berechtigung Erstellen auf Öffentliche Links und erlaubte öffentliche Links in den Workspace-Einstellungen.
+
+Pflicht: `action`. Optional: `id`, `typeId`, `name`, `enabled`, `config`.
 {/* /mcp-catalog */}
 
 ### Wissensdatenbank [#workspace-wiki]
@@ -515,6 +521,18 @@ Pflicht: `channel`.
 Listet Ihre verbundenen Konten mit Ordnern und E-Mail-Einstellungen und ändert ein eigenes Konto: synchronisierte E-Mail-Ordner wählen, Signatur und E-Mail-Darstellung setzen, mit dem Workspace teilen oder wieder privat machen, neu synchronisieren oder trennen. Trennen lässt sich nicht rückgängig machen. Braucht Bearbeiten auf Inbox-Nachrichten, Löschen zum Trennen.
 
 **Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `selectedFolderIds`, `signature`, `settings`, `shared`.
+
+#### `schedule_meeting`
+
+Termine im verbundenen Google- oder Microsoft-Kalender des Aufrufers anlegen, verschieben und absagen sowie freie Zeiten finden.
+
+**Kann Daten löschen.** Pflicht: `action`. Optional: `record`, `id`, `calendarId`, `title`, `description`, `location`, `startsAt`, `durationMinutes`, `timeZone`, `attendees`, `videoLink`, `sendInvites`, `records`, `followUp`, `from`, `days`, `workingHours`, `bufferMinutes`, `comment`.
+
+#### `manage_booking_links`
+
+Öffentliche Buchungsseiten auflisten, anlegen, ändern und löschen, über die jeder einen Termin im Kalender des Aufrufers buchen kann.
+
+**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `calendarId`, `title`, `description`, `durationMinutes`, `bufferMinutes`, `minNoticeMinutes`, `horizonDays`, `timeZone`, `workingHours`, `withVideo`, `personTypeId`, `recordTypeId`, `startFieldId`, `questions`, `successMessage`, `enabled`.
 {/* /mcp-catalog */}
 
 ### Social Posts [#social-posts]
@@ -684,6 +702,12 @@ Widgets auflisten und lesen sowie Diagramm-, Aktivitäts-, Kalender- und Kartenk
 Ein Tool mit einem `action`-Schalter: list, runs, create, update, pause, run_now, delete. Eine Routine sind gespeicherte Anweisungen, die der Assistent nach Zeitplan oder bei einem CRM-Ereignis ausführt. Ohne `enabled` erzeugt create eine LIVE-Routine; für einen Entwurf `enabled: false` übergeben; der gehostete Assistent muss `enabled` ausdrücklich angeben und speichert einen Entwurf, sofern der Nutzer nicht die Aktivierung verlangt hat. Ein Wechsel von `triggerKind` muss den Zeitplan oder die Ereignisse der neuen Art mitbringen. pause deaktiviert die Routine und setzt wartende Läufe auf übersprungen, was ein erneutes Aktivieren nicht rückgängig macht; nur aktive Systemadministratoren dürfen eine Routine pausieren oder löschen. run_now gilt nur für geplante Routinen und nur für eine aktivierte Routine, die der Aufrufer besitzt. Pausierte KI-Arbeit, inaktive Eigentümer und aufgebrauchte Credits werden vor dem Einreihen abgelehnt. Eine Plattformpause durch Customermates liefert `platformPaused`; Workspace-Administratoren können sie nicht aufheben. Eine von einem Workspace-Administrator pausierte Routine verwendet `adminPaused`; manuelle Testläufe nutzen weiterhin `triggerKind: schedule`. Läufe werden über `cursor` paginiert und enthalten Status, Zusammenfassung, Auslöser und den Blockiergrund in `error`. delete verschiebt die Routine in den Papierkorb, wo sie nicht läuft, bis manage_trash sie wiederherstellt. list liefert standardmäßig knappe Angaben zu Name, Eigentümer, Auslöser und Aktivierung. Mit includePrompts: true erhalten Sie die vollständige Konfiguration samt Anweisungen; owner: "mine" beschränkt die Liste auf Ihre Routinen.
 
 **Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `owner`, `includePrompts`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `recordTrigger`, `recordSources`, `expectedSchemaRevision`, `debounceSeconds`.
+
+#### `manage_rules`
+
+Ein Tool mit einem `action`-Schalter: list, get, runs, create, update, enable, disable, delete, preview. Eine Regel ist eine deterministische Wenn-Dann-Automatisierung ohne KI, auf jedem Tarif und auf selbst gehosteten Instanzen: ein Auslöser (Datensatz angelegt oder geändert, Feld geändert, Datum erreicht mit Versatz in Tagen, Nachricht empfangen, Formular abgeschickt, eingehender Webhook), optionale Bedingungen für den auslösenden Datensatz und geordnete Aktionen (Feld setzen, Datensatz anlegen wie eine Aktion, Mitglieder benachrichtigen, Webhook aufrufen). Eine Regel läuft einmal pro Datensatz und Vorkommen als ihr Eigentümer mit dessen Berechtigungen; ihre eigenen Änderungen starten sie nicht erneut. Ohne `enabled` erzeugt create eine LIVE-Regel, und der Tarif begrenzt die Zahl aktiver Regeln (`automationRuleLimitReached`). `trigger`, `conditions` und `effects` ersetzen bei update den bisherigen Wert. Nur der Eigentümer darf eine Regel ändern oder aktivieren; ein Administrator darf sie zusätzlich deaktivieren oder löschen. delete entfernt die Regel samt Verlauf endgültig. preview listet die Datensätze, die eine Datumsregel beim nächsten Durchlauf treffen würde. runs liefert den Verlauf mit dem Ergebnis jeder Aktion.
+
+**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `name`, `enabled`, `trigger`, `conditions`, `effects`, `typeId`, `owner`, `page`, `pageSize`.
 {/* /mcp-catalog */}
 
 ### Webhooks [#webhooks]
@@ -694,6 +718,12 @@ Ein Tool mit einem `action`-Schalter: list, runs, create, update, pause, run_now
 Ein Tool mit `action`-Schalter: list, get, create, update, delete, dazu das Delivery-Log (Action list_deliveries, auf die aktuelle url eines Webhooks beschränkt, wenn Sie dessen `id` übergeben) und die erneute Zustellung (Action resend_delivery). Lesen braucht bei API & Webhooks die Leseberechtigung Alle; create und resend_delivery brauchen Erstellen, update braucht Bearbeiten und delete braucht Löschen auf API & Webhooks.
 
 **Kann Daten löschen.** Pflicht: `action`. Optional: `recordTrigger`, `recordSources`, `recordOwnerUserId`, `expectedSchemaRevision`, `id`, `url`, `description`, `events`, `secret`, `headers`, `bodyTemplate`, `enabled`, `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+
+#### `manage_incoming_webhooks`
+
+Ein Tool mit `action`-Schalter: list, get, fields, create, update, delete, test, deliveries. Ein eingehender Webhook gibt einer Liste eine geheime URL, die aus gesendetem JSON Datensätze anlegt oder aktualisiert: `mapping` ordnet JSON-Pfade Feldern zu, und der Modus upsert aktualisiert den Datensatz, dessen Abgleichsfeld dem Wert entspricht. Dazu kommen eine optionale HMAC-SHA256-Signaturprüfung, ein Body-Limit von 256 KB und Rate-Limits. `test` zeigt, was ein Body schreiben würde, ohne zu schreiben, `deliveries` ist das Protokoll mit dem Ergebnis jeder Anfrage, und update mit `rotateUrl` ersetzt die URL. Lesen braucht bei API & Webhooks die Leseberechtigung Alle; create braucht Erstellen, update Bearbeiten und delete Löschen auf API & Webhooks, und die Cloud braucht einen Tarif mit Webhooks.
+
+**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `typeId`, `name`, `mapping`, `enabled`, `signatureHeader`, `signingSecret`, `samplePayload`, `rotateUrl`, `payload`, `limit`.
 {/* /mcp-catalog */}
 
 ### Admin und Team [#admin-and-team]

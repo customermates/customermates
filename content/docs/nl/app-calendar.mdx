@@ -36,6 +36,64 @@ Gekoppelde agenda's vereisen het bestaande recht op berichten en leesrechten voo
 
 Kopieer de URL zodra hij is gemaakt: hij wordt maar één keer getoond. Iedereen die hem heeft, kan de geselecteerde afspraken lezen zolang jij toegang houdt. Bij elke vernieuwing worden je actieve lidmaatschap en je huidige rechten gecontroleerd. **Abonnement intrekken** stopt direct alle toekomstige opvragingen; agenda-apps kunnen eerder gedownloade afspraken wel bewaren. Wijzigingen lopen van Customermates naar de agenda-app. Een geïmporteerde afspraak bewerken werkt het CRM-record niet bij; dit is geen tweerichtingskoppeling met een agenda.
 
+## Hoe plan ik een afspraak? [#schedule-meetings]
+
+Klik op **Afspraak plannen** in de kop van een willekeurig record, bijvoorbeeld een persoon, een organisatie of een deal. Dubbelklik in de [Agenda](app:calendar) op een leeg tijdvak in de week- of maandweergave (of gebruik **+** op een dag van de maand) en kies **Nieuwe afspraak**; die keuze staat naast het aanmaken van een record als een lijstbron dat toestaat. Beide manieren openen hetzelfde venster.
+
+### Wat kan ik instellen? [#schedule-meeting-options]
+
+Het venster heeft deze velden:
+
+- Een titel, de datum, de starttijd en de duur (15 tot 120 minuten).
+- Vrije tijden voor die dag, afkomstig uit je gesynchroniseerde agenda's binnen werktijd (maandag tot en met vrijdag, van 9:00 tot 17:00 uur in jouw tijdzone). Je kunt nog steeds elke starttijd intypen.
+- De agenda, alleen zichtbaar als je meer dan één gekoppelde agenda hebt.
+- Deelnemers: e-mailadressen worden voorgesteld op basis van het record en de personen die eraan gekoppeld zijn, en je kunt er meer intypen.
+- Een locatie, een beschrijving en, als je wilt, een videolink: Google Meet voor Google-agenda's, Microsoft Teams voor Outlook.
+- Een schakelaar om uitnodigingen te versturen. Google of Microsoft verstuurt ze.
+- Een optionele vervolgstap: kies een lijst en een van de datum- of datumtijdvelden ervan, en de app maakt bij de start van de afspraak een record in die lijst, gekoppeld aan het record.
+
+### Wat gebeurt er na het opslaan? [#schedule-meeting-result]
+
+De afspraak wordt aangemaakt in je eigen gekoppelde Google- of Microsoft-agenda. Hij verschijnt in de [Agenda](app:calendar) en in de activiteitentijdlijn van de records waartoe hij hoort, en van personen wier e-mailadres een deelnemer is. Alleen je eigen gekoppelde agenda's kunnen worden beschreven. Heeft het gekoppelde account de agendatoestemming verloren, dan vraagt de app je het opnieuw te koppelen onder [Kanalen & agenda's](app:settings/channels).
+
+### Wat heb ik nodig om afspraken te plannen? [#schedule-meeting-requirements]
+
+Een gekoppeld Google- of Microsoft-account en het abonnement dat de [Inbox](/docs/app-inbox#who-can-use-the-inbox) nodig heeft: Pro of hoger. Afspraken plannen is niet beschikbaar bij zelf hosten, omdat de agendakoppeling via de gehoste dienst loopt, en ook niet in de demowerkruimte.
+
+### Kan een agent afspraken plannen? [#schedule-meeting-agents]
+
+Ja, met de MCP-tool `schedule_meeting`, met de acties `options`, `slots`, `create`, `update` en `cancel`. `slots` zoekt vrije tijden; `create`, `update` en `cancel` wijzigen afspraken in de eigen gekoppelde agenda van de aanroeper. Net als de andere berichtentools vereist hij Pro of hoger en Customermates Cloud. De exacte schema's staan in de [MCP-catalogus](/docs/mcp#tool-catalog).
+
+## Hoe laat ik anderen een afspraak met mij boeken? [#booking-pages]
+
+Een boekingspagina is een openbare link die iedereen zonder account kan openen, zoals een kleine eigen afsprakenpagina. Bezoekers kiezen een vrije tijd uit je agenda, en elke boeking maakt een agenda-afspraak, een persoon en een record in je CRM aan. Je maakt en beheert de pagina's in de instellingen onder [Boekingspagina's](app:settings/booking), naast [Kanalen & agenda's](app:settings/channels). Elke gebruiker kan maximaal 10 boekingspagina's hebben.
+
+### Wat kan ik instellen op een boekingspagina? [#booking-page-settings]
+
+- Een titel, een beschrijving en de agenda die de afspraken ontvangt.
+- De duur van de afspraak (15 tot 120 minuten), de buffer tussen afspraken, de minimale aanlooptijd en hoeveel dagen vooruit er geboekt kan worden (maximaal 90).
+- De tijdzone, de werktijden per weekdag en, als je wilt, een videolink.
+- De lijst waarin de persoon van de bezoeker wordt gevonden of aangemaakt (één persoon per e-mailadres), de lijst die per boeking één record ontvangt en het veld van die lijst dat de start van de afspraak ontvangt.
+- Maximaal 8 vragen. Elke vraag is een veld van de boekingslijst (tekst, link, enkelvoudige keuze, getal, ja/nee of datum) en kan verplicht zijn.
+- Een bericht dat na de boeking wordt getoond.
+- De schakelaar **Boekingen accepteren**.
+
+Zet **Boekingen accepteren** uit om een pagina te pauzeren zonder hem te verwijderen. Een pagina verwijderen haalt de link en de boekingsgeschiedenis weg; afspraken die al geboekt zijn, blijven in je agenda staan.
+
+### Wat gebeurt er als iemand boekt? [#booking-page-visitors]
+
+De bezoeker ziet vrije tijden uit je gesynchroniseerde agenda, in zijn eigen tijdzone. Bezette tijd verbergt tijdvakken, en twee boekingen kunnen elkaar niet overlappen, omdat een tijd eerst wordt gereserveerd. De bezoeker vult naam en e-mailadres in, beantwoordt je vragen en bevestigt. De app maakt dan de agenda-afspraak aan met de bezoeker als deelnemer (Google of Microsoft verstuurt de uitnodiging), zoekt of maakt de persoon aan op basis van het e-mailadres, maakt het boekingsrecord aan en koppelt de afspraak aan beide. Elke boeking levert ook de gebeurtenis `form.submitted` op, met de boeking als inhoud, waarop regels kunnen reageren.
+
+Boekingspagina's beschermen zichzelf: limieten per bezoeker en per link, een verborgen lokveld (honeypot), maximaal 3 aankomende boekingen per e-mailadres per pagina en limieten op de grootte van de invoer.
+
+### Wat heb ik nodig voor boekingspagina's? [#booking-page-requirements]
+
+Hetzelfde als voor het plannen van afspraken: een gekoppeld Google- of Microsoft-account, het abonnement dat de [Inbox](/docs/app-inbox#who-can-use-the-inbox) nodig heeft (Pro of hoger) en Customermates Cloud. Boekingspagina's zijn niet beschikbaar bij zelf hosten en niet in de demowerkruimte. Eindigt het abonnement of de agendakoppeling van degene aan wie een pagina toebehoort, dan toont de pagina dat ze niet beschikbaar is.
+
+### Kan een agent boekingspagina's beheren? [#booking-page-agents]
+
+Ja, met de MCP-tool `manage_booking_links`, met de acties `list`, `get`, `save` en `delete`. Net als de andere berichtentools vereist hij Pro of hoger en Customermates Cloud. De exacte schema's staan in de [MCP-catalogus](/docs/mcp#tool-catalog).
+
 ## Voor agents [#tips-for-agents]
 
 Wijzig de agenda van een persoon met `manage_calendar` in plaats van de pagina te bedienen; het wijzigt alleen de eigen agenda van de aanroeper. Roep eerst `options` aan: het geeft de lijsten met datumvelden, hun keuzevelden voor kleuren en, waar gekoppelde berichten beschikbaar zijn, de gekoppelde agenda's van de aanroeper, allemaal met stabiele ID's. `read` geeft de configuratie en `saved` terug, dat false blijft zolang de standaardweergave geldt. `update` neemt een `config` met alleen de sleutels die je wilt wijzigen: `sources` en `calendarIds` vervangen de hele lijst en de `filters` van een bron gebruiken de filtervelden van `manage_data_views` `config` voor het oppervlak van de lijst. Geef `timeZone` mee bij de eerste update, want de standaard is UTC. `reset` keert terug naar de standaardweergave. `subscriptions` geeft de abonnements-URL's weer en `revoke` trekt er een in op `id`; een abonnements-URL maken kan alleen in de app. Er is geen REST-endpoint voor de agenda. De exacte schema's staan in de [MCP-catalogus](/docs/mcp#tool-catalog).

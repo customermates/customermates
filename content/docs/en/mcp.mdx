@@ -178,7 +178,7 @@ Customermates exposes up to [[derived.mcp.tools.total]] MCP tools, all enabled b
 {/* mcp-catalog:flags */}
 **Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `lookup_address`, `check_address`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
-**Can delete data:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_calendar`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_team`, `manage_roles`
+**Can delete data:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_calendar`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `schedule_meeting`, `manage_booking_links`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_rules`, `manage_webhooks`, `manage_incoming_webhooks`, `manage_team`, `manage_roles`
 {/* /mcp-catalog */}
 
 Full JSON Schema for every tool is available live at `POST /api/v1/mcp` with `method: "tools/list"`.
@@ -425,6 +425,12 @@ Required: `typeId`, `action`. Optional: `expectedRevision`, `idempotencyKey`, `l
 Read and change your personal calendar: options lists the lists with date fields and your connected calendars, read returns the configuration and whether the default still applies (the first single date field of each list, else its first date range, up to 12 lists), update takes a config with only the keys to change and checks every list, field, filter and calendar, and reset returns to the default. subscriptions lists your calendar subscription URLs and revoke permanently disables one by id. Records, calendar events and other users’ calendars never change.
 
 **Can delete data.** Required: `action`. Optional: `config`, `id`.
+
+#### `manage_forms`
+
+One tool with an `action` switch: list, get, fields, create, update, disable. A form is a public page, with an iframe embed snippet, that lets anyone add a record to a list without signing in. `fields` returns the fields a form can use and the people lists it can link a person from (found or created by email, one person per email); read it before create. create and update take the whole definition in `config`: title, description, button label, fields with label, help text and required flag, consent text with a privacy link, success message or redirect and language; update replaces it and disable turns the link off at once. A list has one form. Submissions create the record as the member who last turned the form on, with the form named as its source. The Free plan limits submissions per month and shows a badge. Needs the Public links Create permission and public links allowed in the workspace settings.
+
+Required: `action`. Optional: `id`, `typeId`, `name`, `enabled`, `config`.
 {/* /mcp-catalog */}
 
 ### Knowledge Base [#workspace-wiki]
@@ -515,6 +521,18 @@ Required: `channel`.
 List your connected accounts with folders and email settings, and change one you own: choose the synced email folders, set the signature and email appearance, share it with the workspace or make it private, resync it, or disconnect it. Disconnecting cannot be undone. Needs Edit on Inbox messages, Delete to disconnect.
 
 **Can delete data.** Required: `action`. Optional: `id`, `selectedFolderIds`, `signature`, `settings`, `shared`.
+
+#### `schedule_meeting`
+
+Create, move and cancel meetings in the caller’s connected Google or Microsoft calendar and find free slots.
+
+**Can delete data.** Required: `action`. Optional: `record`, `id`, `calendarId`, `title`, `description`, `location`, `startsAt`, `durationMinutes`, `timeZone`, `attendees`, `videoLink`, `sendInvites`, `records`, `followUp`, `from`, `days`, `workingHours`, `bufferMinutes`, `comment`.
+
+#### `manage_booking_links`
+
+List, create, change and delete public booking pages that let anyone book a meeting in the caller’s calendar.
+
+**Can delete data.** Required: `action`. Optional: `id`, `calendarId`, `title`, `description`, `durationMinutes`, `bufferMinutes`, `minNoticeMinutes`, `horizonDays`, `timeZone`, `workingHours`, `withVideo`, `personTypeId`, `recordTypeId`, `startFieldId`, `questions`, `successMessage`, `enabled`.
 {/* /mcp-catalog */}
 
 ### Social posts
@@ -684,6 +702,12 @@ List or read widgets; create, update or delete chart, activity, calendar and map
 One tool with an `action` switch: list, runs, create, update, pause, run_now, delete. A routine is saved instructions the assistant runs on a cron schedule or when a CRM event fires. Omitting `enabled` on create produces a LIVE routine, so pass `enabled: false` to draft one; the hosted assistant must state `enabled` explicitly and drafts unless the user asked to activate. A change of `triggerKind` must arrive with that kind's schedule or events. pause disables the routine and settles its queued runs to skipped, which re-enabling does not undo; only an active system administrator may pause or delete a routine. run_now applies to scheduled routines only, and only to an enabled routine the caller owns. It refuses paused AI work, inactive owners and exhausted credits before queuing. A Customermates platform pause returns `platformPaused`; workspace admins cannot lift it. A routine paused by a workspace administrator uses `adminPaused`; manual test runs still use `triggerKind: schedule`. Runs are paginated by `cursor` and carry status, summary, trigger and the `error` block reason. delete moves the routine to Trash, where it stops running until manage_trash restores it. list returns compact name, owner, trigger and enabled summaries by default. Pass includePrompts: true for full configurations including prompts, or owner: "mine" for routines you own.
 
 **Can delete data.** Required: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `owner`, `includePrompts`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `recordTrigger`, `recordSources`, `expectedSchemaRevision`, `debounceSeconds`.
+
+#### `manage_rules`
+
+One tool with an `action` switch: list, get, runs, create, update, enable, disable, delete, preview. A rule is a deterministic when-if-then automation that runs without AI on every plan and on self-hosted instances: a trigger (record created or updated, field changed, date reached with an offset in days, message received, form submitted, incoming webhook), optional conditions on the triggering record and ordered effects (set a field, create a record such as an Action, notify members, call a webhook). A rule runs once per record and occurrence as its owner, with the owner's permissions; its own changes never start it again. Omitting `enabled` on create produces a LIVE rule, and the plan limits the number of active rules (`automationRuleLimitReached`). `trigger`, `conditions` and `effects` replace their previous value on update. Only the owner may change or enable a rule; an administrator may also disable or delete one. delete removes the rule and its history permanently. preview lists the records a date-reached rule would hit on its next sweep. runs returns the history with the outcome of every effect.
+
+**Can delete data.** Required: `action`. Optional: `id`, `name`, `enabled`, `trigger`, `conditions`, `effects`, `typeId`, `owner`, `page`, `pageSize`.
 {/* /mcp-catalog */}
 
 ### Webhooks
@@ -694,6 +718,12 @@ One tool with an `action` switch: list, runs, create, update, pause, run_now, de
 One tool with an `action` switch: list, get, create, update, delete, plus the delivery log (action list_deliveries, scoped to one webhook's current url when you pass its `id`) and re-delivery (action resend_delivery). Reads need API & Webhooks read access All; create and resend_delivery need Create, update needs Edit and delete needs Delete on API & Webhooks.
 
 **Can delete data.** Required: `action`. Optional: `recordTrigger`, `recordSources`, `recordOwnerUserId`, `expectedSchemaRevision`, `id`, `url`, `description`, `events`, `secret`, `headers`, `bodyTemplate`, `enabled`, `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+
+#### `manage_incoming_webhooks`
+
+One tool with an `action` switch: list, get, fields, create, update, delete, test, deliveries. An incoming webhook gives a list a secret URL that creates or updates records from posted JSON: `mapping` maps JSON paths to fields, and mode upsert updates the record whose match field equals the value. An optional HMAC-SHA256 signature check, a 256 KB body limit and rate limits apply. `test` shows what a body would write without writing it, `deliveries` is the log with the outcome of every request, and update with `rotateUrl` replaces the URL. Reads need API & Webhooks read access All; create needs Create, update Edit and delete Delete on API & Webhooks, and the cloud needs a plan with webhooks.
+
+**Can delete data.** Required: `action`. Optional: `id`, `typeId`, `name`, `mapping`, `enabled`, `signatureHeader`, `signingSecret`, `samplePayload`, `rotateUrl`, `payload`, `limit`.
 {/* /mcp-catalog */}
 
 ### Admin and team

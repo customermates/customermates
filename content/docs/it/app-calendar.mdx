@@ -36,6 +36,64 @@ I calendari collegati richiedono il diritto alla messaggistica già esistente e 
 
 Copia l’URL quando viene creato: viene mostrato una sola volta. Chiunque lo possieda può leggere gli eventi selezionati finché mantieni l’accesso. Ogni aggiornamento verifica l’appartenenza attiva e i permessi attuali. **Revoca abbonamento** interrompe subito i recuperi futuri; le app di calendario possono conservare gli eventi già scaricati. Le modifiche vanno da Customermates all’app di calendario. Modificare un evento importato non aggiorna il suo record del CRM; non è una connessione di calendario bidirezionale.
 
+## Come pianifico una riunione? [#schedule-meetings]
+
+Clicca **Pianifica riunione** nell’intestazione di qualsiasi record, per esempio una persona, un’organizzazione o una trattativa. Nel [Calendario](app:calendar) fai doppio clic su una fascia oraria libera nella vista settimana o mese (oppure usa **+** su un giorno del mese) e scegli **Nuova riunione**; la voce compare accanto alla creazione di un record quando lo consente una fonte basata su una lista. Entrambi i modi aprono la stessa finestra.
+
+### Che cosa posso impostare? [#schedule-meeting-options]
+
+La finestra contiene questi campi:
+
+- Titolo, data, ora di inizio e durata (da 15 a 120 minuti).
+- Gli orari liberi di quel giorno, ricavati dai tuoi calendari sincronizzati entro l’orario di lavoro (da lunedì a venerdì, dalle 9:00 alle 17:00 nel tuo fuso orario). Puoi comunque digitare qualsiasi ora di inizio.
+- Il calendario, mostrato solo se hai più di un calendario collegato.
+- I partecipanti: gli indirizzi e-mail vengono suggeriti dal record e dalle persone collegate, e puoi digitarne altri.
+- Luogo, descrizione e, se vuoi, un link per la videochiamata: Google Meet per i calendari Google, Microsoft Teams per Outlook.
+- Un interruttore per inviare gli inviti. Li invia Google o Microsoft.
+- Un seguito facoltativo: scegli una lista e uno dei suoi campi data o data e ora, e l’app crea un record in quella lista all’inizio della riunione, collegato al record.
+
+### Che cosa succede dopo il salvataggio? [#schedule-meeting-result]
+
+L’evento viene creato nel tuo calendario Google o Microsoft collegato. Compare nel [Calendario](app:calendar) e nella cronologia delle attività dei record a cui appartiene e delle persone il cui indirizzo e-mail è tra i partecipanti. Si può scrivere solo nei tuoi calendari collegati. Se l’account collegato ha perso il permesso di accesso al calendario, l’app ti chiede di ricollegarlo in [Canali e calendari](app:settings/channels).
+
+### Che cosa serve per pianificare riunioni? [#schedule-meeting-requirements]
+
+Un account Google o Microsoft collegato e il piano richiesto dalla [Posta in arrivo](/docs/app-inbox#who-can-use-the-inbox): Pro o superiore. La pianificazione delle riunioni non è disponibile in self-hosting, perché la connessione al calendario passa dal servizio ospitato, e nemmeno nello spazio di lavoro demo.
+
+### Un agente può pianificare riunioni? [#schedule-meeting-agents]
+
+Sì, con lo strumento MCP `schedule_meeting`, le cui azioni sono `options`, `slots`, `create`, `update` e `cancel`. `slots` trova gli orari liberi; `create`, `update` e `cancel` modificano le riunioni nel calendario collegato di chi chiama. Come gli altri strumenti di messaggistica richiede Pro o superiore e Customermates Cloud. Gli schemi esatti sono nel [catalogo MCP](/docs/mcp#tool-catalog).
+
+## Come permetto agli altri di prenotare una riunione con me? [#booking-pages]
+
+Una pagina di prenotazione è un link pubblico che chiunque può aprire senza account, come una piccola pagina di appuntamenti tutta tua. I visitatori scelgono un orario libero dal tuo calendario e ogni prenotazione crea un evento di calendario, una persona e un record nel tuo CRM. Crei e gestisci le pagine nelle impostazioni, in [Pagine di prenotazione](app:settings/booking), accanto a [Canali e calendari](app:settings/channels). Ogni utente può avere fino a 10 pagine di prenotazione.
+
+### Che cosa posso impostare su una pagina di prenotazione? [#booking-page-settings]
+
+- Titolo, descrizione e il calendario che riceve gli eventi.
+- La durata della riunione (da 15 a 120 minuti), la pausa tra le riunioni, il preavviso minimo e quanti giorni in anticipo si può prenotare (fino a 90).
+- Il fuso orario, l’orario di lavoro per ogni giorno della settimana e, se vuoi, un link per la videochiamata.
+- La lista in cui la persona del visitatore viene trovata o creata (una persona per indirizzo e-mail), la lista che riceve un record per ogni prenotazione e il campo di quella lista che riceve l’inizio della riunione.
+- Fino a 8 domande. Ogni domanda è un campo della lista delle prenotazioni (testo, link, scelta singola, numero, sì/no o data) e può essere obbligatoria.
+- Un messaggio mostrato dopo la prenotazione.
+- L’interruttore **Accetta prenotazioni**.
+
+Disattiva **Accetta prenotazioni** per mettere in pausa una pagina senza eliminarla. Eliminare una pagina ne rimuove il link e lo storico delle prenotazioni; le riunioni già prenotate restano nel calendario.
+
+### Che cosa succede quando qualcuno prenota? [#booking-page-visitors]
+
+Il visitatore vede gli orari liberi del tuo calendario sincronizzato, nel proprio fuso orario. Il tempo occupato nasconde gli orari e due prenotazioni non possono sovrapporsi, perché un orario viene riservato per primo. Il visitatore inserisce nome e indirizzo e-mail, risponde alle tue domande e conferma. L’app crea quindi l’evento di calendario con il visitatore come partecipante (l’invito lo invia Google o Microsoft), trova o crea la persona in base all’indirizzo e-mail, crea il record della prenotazione e collega l’evento a entrambi. Ogni prenotazione produce anche l’evento `form.submitted` con la prenotazione come contenuto, a cui le regole possono reagire.
+
+Le pagine di prenotazione si proteggono da sole: limiti di richieste per visitatore e per link, un campo trappola nascosto (honeypot), al massimo 3 prenotazioni future per indirizzo e-mail e per pagina e limiti alla dimensione dei dati inseriti.
+
+### Che cosa serve per le pagine di prenotazione? [#booking-page-requirements]
+
+Le stesse condizioni della pianificazione di riunioni: un account Google o Microsoft collegato, il piano richiesto dalla [Posta in arrivo](/docs/app-inbox#who-can-use-the-inbox) (Pro o superiore) e Customermates Cloud. Le pagine di prenotazione non sono disponibili in self-hosting né nello spazio di lavoro demo. Se il piano o la connessione al calendario di chi possiede una pagina termina, la pagina mostra che non è disponibile.
+
+### Un agente può gestire le pagine di prenotazione? [#booking-page-agents]
+
+Sì, con lo strumento MCP `manage_booking_links`, le cui azioni sono `list`, `get`, `save` e `delete`. Come gli altri strumenti di messaggistica richiede Pro o superiore e Customermates Cloud. Gli schemi esatti sono nel [catalogo MCP](/docs/mcp#tool-catalog).
+
 ## Per gli agenti [#tips-for-agents]
 
 Modifica il calendario di una persona con `manage_calendar` invece di pilotare la pagina; cambia solo il calendario di chi chiama. Chiama prima `options`: elenca le liste con campi data, i loro campi a scelta per i colori e, dove è disponibile la messaggistica collegata, i calendari collegati di chi chiama, tutti tramite ID stabile. `read` restituisce la configurazione e `saved`, che resta false finché vale l’impostazione predefinita. `update` accetta un `config` con solo le chiavi da cambiare: `sources` e `calendarIds` sostituiscono l’intero elenco, e i `filters` di una fonte usano i campi filtro del `config` di `manage_data_views` per la superficie della lista. Passa `timeZone` con il primo aggiornamento, perché il valore predefinito è UTC. `reset` torna all’impostazione predefinita. `subscriptions` elenca gli URL di abbonamento e `revoke` ne revoca uno tramite `id`; la creazione di un URL di abbonamento resta nell’app. Non esiste un endpoint REST per il calendario. Gli schemi esatti sono nel [catalogo MCP](/docs/mcp#tool-catalog).

@@ -36,6 +36,64 @@ Verbundene Kalender benötigen die vorhandene Nachrichtenfunktion des Tarifs und
 
 Kopieren Sie die URL beim Erstellen; sie wird nur einmal angezeigt. Jeder mit dem Link kann die ausgewählten Termine lesen, solange Sie Zugriff haben. Jeder Abruf prüft Ihre aktive Mitgliedschaft und aktuellen Berechtigungen. **Abonnement widerrufen** stoppt weitere Abrufe sofort; Kalender-Apps können bereits geladene Termine behalten. Änderungen fließen von Customermates zur Kalender-App. Änderungen an importierten Terminen schreiben nicht in CRM-Datensätze zurück; es handelt sich nicht um eine bidirektionale Verbindung.
 
+## Wie plane ich einen Termin? [#schedule-meetings]
+
+Klicken Sie in der Kopfzeile eines beliebigen Datensatzes, zum Beispiel einer Person, einer Organisation oder eines Deals, auf **Termin planen**. Im [Kalender](app:calendar) doppelklicken Sie in der Wochen- oder Monatsansicht auf ein freies Zeitfenster (oder verwenden **+** an einem Tag des Monats) und wählen **Neuer Termin**; die Auswahl erscheint neben dem Anlegen eines Datensatzes, wenn eine Listenquelle das erlaubt. Beides öffnet dasselbe Fenster.
+
+### Was kann ich festlegen? [#schedule-meeting-options]
+
+Das Fenster enthält diese Angaben:
+
+- Titel, Datum, Beginn und Dauer (15 bis 120 Minuten).
+- Freie Zeiten für diesen Tag, ermittelt aus Ihren synchronisierten Kalendern innerhalb der Arbeitszeit (Montag bis Freitag, 9:00 bis 17:00 Uhr in Ihrer Zeitzone). Sie können trotzdem jede beliebige Startzeit eintippen.
+- Den Kalender, nur wenn Sie mehr als einen verbundenen Kalender haben.
+- Teilnehmer: E-Mail-Adressen werden aus dem Datensatz und aus den damit verknüpften Personen vorgeschlagen, weitere können Sie eintippen.
+- Ort, Beschreibung und auf Wunsch einen Videolink: Google Meet für Google-Kalender, Microsoft Teams für Outlook.
+- Einen Schalter, der Einladungen verschickt. Google oder Microsoft versendet sie.
+- Optional einen Folgedatensatz: Wählen Sie eine Liste und eines ihrer Datums- oder Datum-Uhrzeit-Felder; die App legt dann zum Beginn des Termins einen Datensatz in dieser Liste an und verknüpft ihn mit diesem Datensatz.
+
+### Was passiert nach dem Speichern? [#schedule-meeting-result]
+
+Der Termin wird in Ihrem eigenen verbundenen Google- oder Microsoft-Kalender angelegt. Er erscheint im [Kalender](app:calendar) und im Aktivitätenverlauf der zugehörigen Datensätze sowie der Personen, deren E-Mail-Adresse ein Teilnehmer ist. Geschrieben wird nur in Ihre eigenen verbundenen Kalender. Hat das verbundene Konto die Kalenderberechtigung verloren, bittet die App Sie, es unter [Kanäle & Kalender](app:settings/channels) neu zu verbinden.
+
+### Was brauche ich, um Termine zu planen? [#schedule-meeting-requirements]
+
+Ein verbundenes Google- oder Microsoft-Konto und den Tarif, den auch der [Posteingang](/docs/app-inbox#who-can-use-the-inbox) braucht: Pro oder höher. Das Planen von Terminen ist bei Self-Hosting nicht verfügbar, weil die Kalenderverbindung über den gehosteten Dienst läuft, und ebenso wenig im Demo-Workspace.
+
+### Kann ein Agent Termine planen? [#schedule-meeting-agents]
+
+Ja, mit dem MCP-Tool `schedule_meeting` und seinen Aktionen `options`, `slots`, `create`, `update` und `cancel`. `slots` findet freie Zeiten; `create`, `update` und `cancel` ändern Termine im eigenen verbundenen Kalender des Aufrufers. Wie die anderen Messaging-Tools braucht es Pro oder höher und Customermates Cloud. Die genauen Schemas stehen im [MCP-Katalog](/docs/mcp#tool-catalog).
+
+## Wie lasse ich andere einen Termin bei mir buchen? [#booking-pages]
+
+Eine Buchungsseite ist ein öffentlicher Link, den jeder ohne Konto öffnen kann, eine kleine Terminseite für Sie. Besucher wählen eine freie Zeit aus Ihrem Kalender, und jede Buchung legt einen Kalendertermin, eine Person und einen Datensatz in Ihrem CRM an. Buchungsseiten legen und verwalten Sie in den Einstellungen unter [Buchungsseiten](app:settings/booking), neben [Kanäle & Kalender](app:settings/channels). Pro Nutzer sind bis zu 10 Buchungsseiten möglich.
+
+### Was kann ich auf einer Buchungsseite einstellen? [#booking-page-settings]
+
+- Titel, Beschreibung und den Kalender, der die Termine erhält.
+- Die Dauer des Termins (15 bis 120 Minuten), den Puffer zwischen Terminen, den Mindestvorlauf und wie viele Tage im Voraus gebucht werden kann (bis zu 90).
+- Die Zeitzone, die Arbeitszeiten für jeden Wochentag und auf Wunsch einen Videolink.
+- Die Liste, in der die Person des Besuchers gefunden oder angelegt wird (eine Person pro E-Mail-Adresse), die Liste, die pro Buchung einen Datensatz erhält, und das Feld dieser Liste, das den Terminbeginn aufnimmt.
+- Bis zu 8 Fragen. Jede Frage ist ein Feld der Buchungsliste (Text, Link, Einzelauswahl, Zahl, Ja/Nein oder Datum) und kann verpflichtend sein.
+- Eine Nachricht, die nach der Buchung erscheint.
+- Den Schalter **Buchungen annehmen**.
+
+Schalten Sie **Buchungen annehmen** aus, um eine Seite zu pausieren, ohne sie zu löschen. Das Löschen einer Seite entfernt ihren Link und ihren Buchungsverlauf; bereits gebuchte Termine bleiben im Kalender.
+
+### Was passiert bei einer Buchung? [#booking-page-visitors]
+
+Der Besucher sieht freie Zeiten aus Ihrem synchronisierten Kalender in seiner eigenen Zeitzone. Belegte Zeiten blenden Zeitfenster aus, und Buchungen können sich nicht überschneiden, weil eine Zeit zuerst reserviert wird. Der Besucher gibt Namen und E-Mail-Adresse an, beantwortet Ihre Fragen und bestätigt. Die App legt dann den Kalendertermin mit dem Besucher als Teilnehmer an (Google oder Microsoft sendet die Einladung), findet oder erstellt die Person anhand der E-Mail-Adresse, legt den Buchungsdatensatz an und verknüpft den Termin mit beiden. Jede Buchung löst außerdem das Ereignis `form.submitted` mit der Buchung als Nutzdaten aus, auf das Regeln reagieren können.
+
+Buchungsseiten schützen sich selbst: mit Begrenzungen pro Besucher und pro Link, einem versteckten Honeypot-Feld, höchstens 3 bevorstehenden Buchungen pro E-Mail-Adresse und Seite sowie Größenbegrenzungen für Eingaben.
+
+### Was brauche ich für Buchungsseiten? [#booking-page-requirements]
+
+Dasselbe wie zum Planen von Terminen: ein verbundenes Google- oder Microsoft-Konto, den Tarif, den auch der [Posteingang](/docs/app-inbox#who-can-use-the-inbox) braucht (Pro oder höher), und Customermates Cloud. Buchungsseiten sind weder bei Self-Hosting noch im Demo-Workspace verfügbar. Endet der Tarif oder die Kalenderverbindung der Person, der eine Seite gehört, zeigt die Seite an, dass sie nicht verfügbar ist.
+
+### Kann ein Agent Buchungsseiten verwalten? [#booking-page-agents]
+
+Ja, mit dem MCP-Tool `manage_booking_links` und seinen Aktionen `list`, `get`, `save` und `delete`. Wie die anderen Messaging-Tools braucht es Pro oder höher und Customermates Cloud. Die genauen Schemas stehen im [MCP-Katalog](/docs/mcp#tool-catalog).
+
 ## Für Agents [#tips-for-agents]
 
 Ändern Sie den Kalender einer Person mit `manage_calendar`, statt die Seite zu bedienen; das Tool ändert nur den eigenen Kalender des Aufrufers. Rufen Sie zuerst `options` auf: Es listet die Listen mit Datumsfeldern, ihre Auswahlfelder für Farben und, wo die Nachrichtenfunktion verfügbar ist, die verbundenen Kalender des Aufrufers, jeweils mit stabiler ID. `read` liefert die Konfiguration und `saved`, das false bleibt, solange die Voreinstellung gilt. `update` erwartet eine `config` mit nur den zu ändernden Schlüsseln: `sources` und `calendarIds` ersetzen die ganze Liste, und die `filters` einer Quelle verwenden die Filterfelder von `manage_data_views` `config` für die Oberfläche der Liste. Übergeben Sie `timeZone` mit der ersten Änderung, denn die Voreinstellung ist UTC. `reset` kehrt zur Voreinstellung zurück. `subscriptions` listet die Abonnement-URLs und `revoke` widerruft eine per `id`; eine Abonnement-URL erstellen Sie weiterhin in der App. Für den Kalender gibt es keinen REST-Endpunkt. Die genauen Schemas stehen im [MCP-Katalog](/docs/mcp#tool-catalog).

@@ -36,6 +36,64 @@ Połączone kalendarze wymagają istniejącego uprawnienia do komunikacji i upra
 
 Skopiuj adres w momencie utworzenia: jest pokazywany tylko raz. Każdy, kto go ma, może czytać wybrane wydarzenia, dopóki masz dostęp. Każde odświeżenie sprawdza Twoje aktywne członkostwo i bieżące uprawnienia. **Unieważnij subskrypcję** natychmiast zatrzymuje kolejne pobrania; aplikacje kalendarza mogą zachować wcześniej pobrane wydarzenia. Zmiany płyną z Customermates do aplikacji kalendarza. Edycja zaimportowanego wydarzenia nie aktualizuje jego rekordu CRM; to nie jest dwukierunkowe połączenie kalendarza.
 
+## Jak zaplanować spotkanie? [#schedule-meetings]
+
+Kliknij **Zaplanuj spotkanie** w nagłówku dowolnego rekordu, na przykład osoby, organizacji lub szansy sprzedaży. W [Kalendarzu](app:calendar) kliknij dwukrotnie puste okno czasowe w widoku tygodnia lub miesiąca (albo użyj **+** w dniu miesiąca) i wybierz **Nowe spotkanie**; ta opcja pojawia się obok tworzenia rekordu, gdy źródło oparte na liście na to pozwala. Obie drogi otwierają to samo okno.
+
+### Co mogę ustawić? [#schedule-meeting-options]
+
+Okno zawiera te pola:
+
+- Tytuł, datę, godzinę rozpoczęcia i długość (od 15 do 120 minut).
+- Wolne terminy tego dnia, pobrane z Twoich zsynchronizowanych kalendarzy w godzinach pracy (od poniedziałku do piątku, od 9:00 do 17:00 w Twojej strefie czasowej). Nadal możesz wpisać dowolną godzinę rozpoczęcia.
+- Kalendarz, pokazywany tylko wtedy, gdy masz więcej niż jeden połączony kalendarz.
+- Uczestników: adresy e-mail są podpowiadane z rekordu i z powiązanych z nim osób, a kolejne możesz wpisać.
+- Miejsce, opis i, jeśli chcesz, link do rozmowy wideo: Google Meet dla kalendarzy Google, Microsoft Teams dla Outlooka.
+- Przełącznik wysyłania zaproszeń. Wysyła je Google lub Microsoft.
+- Opcjonalny dalszy krok: wybierz listę i jedno z jej pól daty lub daty z godziną, a aplikacja utworzy w tej liście rekord w chwili rozpoczęcia spotkania, powiązany z rekordem.
+
+### Co się dzieje po zapisaniu? [#schedule-meeting-result]
+
+Wydarzenie powstaje w Twoim własnym połączonym kalendarzu Google lub Microsoft. Pojawia się w [Kalendarzu](app:calendar) oraz na osi aktywności rekordów, do których należy, i osób, których adres e-mail jest wśród uczestników. Zapisywać można tylko w Twoich własnych połączonych kalendarzach. Jeśli połączone konto utraciło uprawnienie do kalendarza, aplikacja poprosi o jego ponowne połączenie w sekcji [Kanały i kalendarze](app:settings/channels).
+
+### Czego potrzebuję, aby planować spotkania? [#schedule-meeting-requirements]
+
+Połączonego konta Google lub Microsoft i planu, którego wymaga [Skrzynka odbiorcza](/docs/app-inbox#who-can-use-the-inbox): Pro lub wyższego. Planowanie spotkań nie jest dostępne przy samodzielnym hostowaniu, bo połączenie z kalendarzem działa przez usługę hostowaną, ani w przestrzeni roboczej demo.
+
+### Czy agent może planować spotkania? [#schedule-meeting-agents]
+
+Tak, za pomocą narzędzia MCP `schedule_meeting`, którego akcje to `options`, `slots`, `create`, `update` i `cancel`. `slots` znajduje wolne terminy; `create`, `update` i `cancel` zmieniają spotkania w połączonym kalendarzu wywołującego. Tak jak inne narzędzia wiadomości wymaga planu Pro lub wyższego i Customermates Cloud. Dokładne schematy są w [katalogu MCP](/docs/mcp#tool-catalog).
+
+## Jak pozwolić innym zarezerwować ze mną spotkanie? [#booking-pages]
+
+Strona rezerwacji to publiczny link, który każdy może otworzyć bez konta, jak mała własna strona do umawiania spotkań. Odwiedzający wybierają wolny termin z Twojego kalendarza, a każda rezerwacja tworzy wydarzenie w kalendarzu, osobę i rekord w Twoim CRM. Strony tworzysz i zarządzasz nimi w ustawieniach, w sekcji [Strony rezerwacji](app:settings/booking), obok sekcji [Kanały i kalendarze](app:settings/channels). Każdy użytkownik może mieć do 10 stron rezerwacji.
+
+### Co mogę ustawić na stronie rezerwacji? [#booking-page-settings]
+
+- Tytuł, opis i kalendarz, w którym powstają wydarzenia.
+- Długość spotkania (od 15 do 120 minut), przerwę między spotkaniami, minimalne wyprzedzenie oraz to, na ile dni naprzód można rezerwować (do 90).
+- Strefę czasową, godziny pracy dla każdego dnia tygodnia oraz, jeśli chcesz, link do rozmowy wideo.
+- Listę, w której odwiedzający jest wyszukiwany lub tworzony jako osoba (jedna osoba na adres e-mail), listę, która dostaje jeden rekord na rezerwację, i pole tej listy, które dostaje początek spotkania.
+- Do 8 pytań. Każde pytanie to pole listy rezerwacji (tekst, link, jednokrotny wybór, liczba, tak/nie lub data) i może być wymagane.
+- Komunikat wyświetlany po rezerwacji.
+- Przełącznik **Przyjmuj rezerwacje**.
+
+Wyłącz **Przyjmuj rezerwacje**, aby wstrzymać stronę bez jej usuwania. Usunięcie strony kasuje jej link i historię rezerwacji; już zarezerwowane spotkania zostają w Twoim kalendarzu.
+
+### Co się dzieje, gdy ktoś rezerwuje? [#booking-page-visitors]
+
+Odwiedzający widzi wolne terminy z Twojego zsynchronizowanego kalendarza, w swojej strefie czasowej. Zajęty czas ukrywa terminy, a dwie rezerwacje nie mogą się nakładać, bo termin jest najpierw blokowany. Odwiedzający wpisuje imię i nazwisko oraz adres e-mail, odpowiada na Twoje pytania i potwierdza. Aplikacja tworzy wtedy wydarzenie w kalendarzu z odwiedzającym jako uczestnikiem (zaproszenie wysyła Google lub Microsoft), znajduje lub tworzy osobę po adresie e-mail, tworzy rekord rezerwacji i łączy wydarzenie z osobą i rekordem rezerwacji. Każda rezerwacja wywołuje też zdarzenie `form.submitted` z rezerwacją jako treścią, na które mogą reagować reguły.
+
+Strony rezerwacji chronią się same: limity zapytań na odwiedzającego i na link, ukryte pole-pułapka (honeypot), najwyżej 3 nadchodzące rezerwacje na adres e-mail i stronę oraz limity rozmiaru wprowadzanych danych.
+
+### Czego potrzebuję do stron rezerwacji? [#booking-page-requirements]
+
+Tego samego co do planowania spotkań: połączonego konta Google lub Microsoft, planu, którego wymaga [Skrzynka odbiorcza](/docs/app-inbox#who-can-use-the-inbox) (Pro lub wyższy), oraz Customermates Cloud. Strony rezerwacji nie są dostępne przy samodzielnym hostowaniu ani w przestrzeni roboczej demo. Jeśli plan lub połączenie z kalendarzem właściciela strony się skończy, strona pokazuje, że jest niedostępna.
+
+### Czy agent może zarządzać stronami rezerwacji? [#booking-page-agents]
+
+Tak, za pomocą narzędzia MCP `manage_booking_links`, którego akcje to `list`, `get`, `save` i `delete`. Tak jak inne narzędzia wiadomości wymaga planu Pro lub wyższego i Customermates Cloud. Dokładne schematy są w [katalogu MCP](/docs/mcp#tool-catalog).
+
 ## Dla agentów [#tips-for-agents]
 
 Kalendarz osoby zmieniaj przez `manage_calendar` zamiast sterować stroną; zmienia on tylko kalendarz wywołującego. Najpierw wywołaj `options`: wyświetla listy z polami dat, ich pola wyboru do kolorów oraz, tam gdzie dostępna jest połączona komunikacja, połączone kalendarze wywołującego, wszystko według stałych identyfikatorów. `read` zwraca konfigurację i `saved`, które pozostaje false, dopóki obowiązuje ustawienie domyślne. `update` przyjmuje `config` tylko z kluczami do zmiany: `sources` i `calendarIds` zastępują całą listę, a `filters` źródła używają pól filtrów z `config` narzędzia `manage_data_views` dla powierzchni listy. Przekaż `timeZone` przy pierwszej aktualizacji, ponieważ domyślna to UTC. `reset` wraca do ustawienia domyślnego. `subscriptions` wyświetla adresy subskrypcji, a `revoke` unieważnia jeden według `id`; tworzenie adresu subskrypcji pozostaje w aplikacji. Dla kalendarza nie ma punktu końcowego REST. Dokładne schematy są w [katalogu MCP](/docs/mcp#tool-catalog).

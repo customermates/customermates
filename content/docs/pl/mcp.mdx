@@ -178,7 +178,7 @@ Customermates udostępnia do [[derived.mcp.tools.total]] narzędzi MCP, wszystki
 {/* mcp-catalog:flags */}
 **Tylko odczyt:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `lookup_address`, `check_address`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
-**Może usuwać dane:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_calendar`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_team`, `manage_roles`
+**Może usuwać dane:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_calendar`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `schedule_meeting`, `manage_booking_links`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_rules`, `manage_webhooks`, `manage_incoming_webhooks`, `manage_team`, `manage_roles`
 {/* /mcp-catalog */}
 
 Pełny JSON Schema każdego narzędzia jest dostępny na żywo pod `POST /api/v1/mcp` z `method: "tools/list"`.
@@ -425,6 +425,12 @@ Wymagane: `typeId`, `action`. Opcjonalne: `expectedRevision`, `idempotencyKey`, 
 Czyta i zmienia twój osobisty kalendarz: options wyświetla listy z polami dat i twoje połączone kalendarze, read zwraca konfigurację i informację, czy nadal obowiązuje domyślna (pierwsze pole pojedynczej daty każdej listy, a w razie braku jej pierwszy zakres dat, do 12 list), update przyjmuje config tylko z kluczami do zmiany i sprawdza każdą listę, pole, filtr i kalendarz, a reset wraca do domyślnej. subscriptions wyświetla adresy URL subskrypcji twojego kalendarza, a revoke wyłącza jeden z nich na stałe według identyfikatora. Rekordy, wydarzenia kalendarza i kalendarze innych użytkowników nigdy się nie zmieniają.
 
 **Może usuwać dane.** Wymagane: `action`. Opcjonalne: `config`, `id`.
+
+#### `manage_forms`
+
+Jedno narzędzie z przełącznikiem `action`: list, get, fields, create, update, disable. Formularz to publiczna strona z kodem osadzenia w iframe, dzięki której każdy może dodać rekord do listy bez logowania. `fields` zwraca pola, których formularz może użyć, oraz listy osób, z których może powiązać osobę (znalezioną lub utworzoną po adresie e-mail, jedna osoba na adres); przeczytaj to przed create. create i update przyjmują całą definicję w `config`: tytuł, opis, etykietę przycisku, pola z etykietą, tekstem pomocy i znacznikiem wymagalności, treść zgody z linkiem do polityki prywatności, komunikat o powodzeniu lub przekierowanie oraz język; update ją zastępuje, a disable wyłącza link natychmiast. Lista ma jeden formularz. Zgłoszenia tworzą rekord jako członek, który ostatnio włączył formularz, ze wskazaniem formularza jako źródła. Plan Free ogranicza liczbę zgłoszeń na miesiąc i pokazuje odznakę. Wymaga uprawnienia Tworzenie w wierszu Linki publiczne i zezwolenia na linki publiczne w ustawieniach przestrzeni roboczej.
+
+Wymagane: `action`. Opcjonalne: `id`, `typeId`, `name`, `enabled`, `config`.
 {/* /mcp-catalog */}
 
 ### Baza wiedzy [#workspace-wiki]
@@ -515,6 +521,18 @@ Wymagane: `channel`.
 Wyświetla twoje połączone konta z folderami i ustawieniami e-mail oraz zmienia konto, które należy do ciebie: wybierz synchronizowane foldery e-mail, ustaw podpis i wygląd e-maili, udostępnij konto przestrzeni roboczej albo uczyń je prywatnym, zsynchronizuj je ponownie lub rozłącz. Rozłączenia nie można cofnąć. Wymaga uprawnienia Edycja w wierszu Wiadomości w skrzynce odbiorczej, a do rozłączenia uprawnienia Usuń.
 
 **Może usuwać dane.** Wymagane: `action`. Opcjonalne: `id`, `selectedFolderIds`, `signature`, `settings`, `shared`.
+
+#### `schedule_meeting`
+
+Tworzy, przenosi i anuluje spotkania w połączonym kalendarzu Google lub Microsoft wywołującego oraz znajduje wolne terminy.
+
+**Może usuwać dane.** Wymagane: `action`. Opcjonalne: `record`, `id`, `calendarId`, `title`, `description`, `location`, `startsAt`, `durationMinutes`, `timeZone`, `attendees`, `videoLink`, `sendInvites`, `records`, `followUp`, `from`, `days`, `workingHours`, `bufferMinutes`, `comment`.
+
+#### `manage_booking_links`
+
+Wyświetla, tworzy, zmienia i usuwa publiczne strony rezerwacji, na których każdy może zarezerwować spotkanie w kalendarzu wywołującego.
+
+**Może usuwać dane.** Wymagane: `action`. Opcjonalne: `id`, `calendarId`, `title`, `description`, `durationMinutes`, `bufferMinutes`, `minNoticeMinutes`, `horizonDays`, `timeZone`, `workingHours`, `withVideo`, `personTypeId`, `recordTypeId`, `startFieldId`, `questions`, `successMessage`, `enabled`.
 {/* /mcp-catalog */}
 
 ### Posty w social mediach [#social-posts]
@@ -684,6 +702,12 @@ Wyświetla lub czyta widżety; tworzy, aktualizuje lub usuwa konfiguracje wykres
 Jedno narzędzie z przełącznikiem `action`: list, runs, create, update, pause, run_now, delete. Rutyna to zapisane instrukcje, które asystent wykonuje według harmonogramu cron albo gdy zadziała zdarzenie CRM. Pominięcie `enabled` przy tworzeniu daje rutynę AKTYWNĄ, więc przekaż `enabled: false`, aby zapisać ją jako szkic; hostowany asystent musi podać `enabled` jawnie i tworzy szkice, chyba że użytkownik poprosił o aktywację. Zmiana `triggerKind` musi dotrzeć razem z harmonogramem lub zdarzeniami tego rodzaju. pause wyłącza rutynę i oznacza jej kolejkowane uruchomienia jako pominięte, czego ponowne włączenie nie cofa; tylko aktywny administrator systemu może wstrzymać lub usunąć rutynę. run_now dotyczy wyłącznie rutyn harmonogramowych i tylko włączonej rutyny należącej do wywołującego. Odrzuca wstrzymaną pracę AI, nieaktywnych właścicieli i wyczerpane kredyty, zanim trafi do kolejki. Wstrzymanie przez platformę Customermates zwraca `platformPaused`; administratorzy przestrzeni roboczej nie mogą go zdjąć. Rutyna wstrzymana przez administratora przestrzeni roboczej używa `adminPaused`; ręczne uruchomienia testowe nadal używają `triggerKind: schedule`. Uruchomienia są stronicowane przez `cursor` i niosą status, podsumowanie, wyzwalacz oraz powód blokady z bloku `error`. delete przenosi rutynę do Kosza, gdzie przestaje działać, dopóki manage_trash jej nie przywróci. list domyślnie zwraca zwięzłe podsumowania z nazwą, właścicielem, wyzwalaczem i stanem włączenia. Przekaż includePrompts: true, aby dostać pełne konfiguracje z promptami, albo owner: "mine" dla rutyn, które należą do ciebie.
 
 **Może usuwać dane.** Wymagane: `action`. Opcjonalne: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `owner`, `includePrompts`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `recordTrigger`, `recordSources`, `expectedSchemaRevision`, `debounceSeconds`.
+
+#### `manage_rules`
+
+Jedno narzędzie z przełącznikiem `action`: list, get, runs, create, update, enable, disable, delete, preview. Reguła to deterministyczna automatyzacja „gdy, jeśli, to”, która działa bez AI w każdym planie i na instancjach self-hosted: wyzwalacz (rekord utworzony lub zmieniony, pole zmienione, osiągnięta data z przesunięciem w dniach, odebrana wiadomość, wysłany formularz, przychodzący webhook), opcjonalne warunki dla rekordu, który ją uruchomił, oraz uporządkowane działania (ustawienie pola, utworzenie rekordu takiego jak zadanie, powiadomienie członków, wywołanie webhooka). Reguła uruchamia się raz na rekord i wystąpienie, jako jej właściciel i z jego uprawnieniami; jej własne zmiany nigdy nie uruchamiają jej ponownie. Bez `enabled` create tworzy regułę AKTYWNĄ, a plan ogranicza liczbę aktywnych reguł (`automationRuleLimitReached`). `trigger`, `conditions` i `effects` zastępują poprzednią wartość przy update. Tylko właściciel może zmieniać lub włączać regułę; administrator może ją też wyłączyć lub usunąć. delete usuwa regułę wraz z historią bezpowrotnie. preview wylicza rekordy, które reguła daty objęłaby przy następnym przebiegu. runs zwraca historię z wynikiem każdego działania.
+
+**Może usuwać dane.** Wymagane: `action`. Opcjonalne: `id`, `name`, `enabled`, `trigger`, `conditions`, `effects`, `typeId`, `owner`, `page`, `pageSize`.
 {/* /mcp-catalog */}
 
 ### Webhooki [#webhooks]
@@ -694,6 +718,12 @@ Jedno narzędzie z przełącznikiem `action`: list, runs, create, update, pause,
 Jedno narzędzie z przełącznikiem `action`: list, get, create, update, delete, a do tego dziennik dostaw (akcja list_deliveries, ograniczona do bieżącego url jednego webhooka, gdy przekażesz jego `id`) i ponowne dostarczenie (akcja resend_delivery). Odczyty wymagają w wierszu API i webhooki dostępu do odczytu Wszystkie; create i resend_delivery wymagają uprawnienia Tworzenie, update uprawnienia Edycja, a delete uprawnienia Usuń w wierszu API i webhooki.
 
 **Może usuwać dane.** Wymagane: `action`. Opcjonalne: `recordTrigger`, `recordSources`, `recordOwnerUserId`, `expectedSchemaRevision`, `id`, `url`, `description`, `events`, `secret`, `headers`, `bodyTemplate`, `enabled`, `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+
+#### `manage_incoming_webhooks`
+
+Jedno narzędzie z przełącznikiem `action`: list, get, fields, create, update, delete, test, deliveries. Przychodzący webhook daje liście tajny adres URL, który tworzy lub aktualizuje rekordy z przesłanego JSON-a: `mapping` przypisuje ścieżki JSON do pól, a tryb upsert aktualizuje rekord, którego pole dopasowania jest równe wartości. Obowiązują opcjonalna weryfikacja podpisu HMAC-SHA256, limit treści 256 KB i limity częstotliwości. `test` pokazuje, co zapisałaby treść, bez zapisywania, `deliveries` to dziennik z wynikiem każdego żądania, a update z `rotateUrl` zastępuje adres URL. Odczyty wymagają w wierszu API i webhooki dostępu do odczytu Wszystkie; create wymaga uprawnienia Tworzenie, update uprawnienia Edycja, a delete uprawnienia Usuń w wierszu API i webhooki, a chmura wymaga planu z webhookami.
+
+**Może usuwać dane.** Wymagane: `action`. Opcjonalne: `id`, `typeId`, `name`, `mapping`, `enabled`, `signatureHeader`, `signingSecret`, `samplePayload`, `rotateUrl`, `payload`, `limit`.
 {/* /mcp-catalog */}
 
 ### Administracja i zespół [#admin-and-team]
