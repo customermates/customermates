@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Formulário para CRM",
-  "summary": "Transformar os contatos dos formulários do site em oportunidades acompanhadas: uma solicitação por envio com a origem, uma resposta devida, uma etapa de nova a convertida, e spam e sem fit à parte.",
-  "description": "Cada contato vindo de um formulário de contato, de orçamento ou de triagem vira uma solicitação ligada a um contato, com o formulário de origem, de onde veio o visitante, para quando precisa e uma resposta devida no dia seguinte. As solicitações passam de nova a convertida, sem fit ou spam, e uma solicitação sem resposta é sinalizada. O consentimento e uma data de revisão acompanham os dados coletados. Não é um criador de formulários para pagamentos, quizzes ou envio de documentos sensíveis.",
+  "summary": "Transformar as mensagens dos formulários do site em oportunidades acompanhadas: uma solicitação por envio com a origem, uma resposta pendente, uma etapa de nova a convertida, e spam e sem fit à parte.",
+  "description": "Cada mensagem vinda de um formulário de contato, de orçamento ou de triagem vira uma solicitação ligada a um contato, com o formulário de origem, de onde veio o visitante, para quando precisa e uma resposta a dar no dia seguinte. As solicitações passam de nova a convertida, sem fit ou spam, e uma solicitação sem resposta é sinalizada. O consentimento e uma data de revisão acompanham os dados coletados. Não é um criador de formulários para pagamentos, quizzes ou envio de documentos sensíveis.",
   "lists": {
     "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas que escrevem para você por um formulário." },
     "requests": { "label": "Solicitação", "pluralLabel": "Solicitações", "description": "Um envio de formulário, de nova a convertida, sem fit ou spam." }
@@ -30,7 +30,7 @@
     "requests.landing_page": { "label": "Página do formulário" },
     "requests.repeat_submission": { "label": "Já escreveu antes" },
     "requests.not_a_fit_reason": {
-      "label": "Motivo do sem fit",
+      "label": "Por que não tem fit",
       "options": { "out_of_area": "Fora da nossa região", "no_budget": "Sem orçamento", "wrong_service": "Serviço errado", "no_response": "Sem resposta", "duplicate": "Duplicada", "other": "Outro" }
     },
     "requests.closed_on": { "label": "Encerrada em" },
@@ -73,7 +73,7 @@
     "converted_task": { "title": "Passar a solicitação para o funil quando ela for convertida" },
     "review_date_not_a_fit": { "title": "Definir a revisão dos dados em um ano quando uma solicitação não tem fit" },
     "data_review": { "title": "Revisar os dados quando chegar a data de revisão" },
-    "external_form_records": { "title": "Criar o contato e a solicitação quando outra ferramenta de formulários enviar um envio" }
+    "external_form_records": { "title": "Criar o contato e a solicitação quando outra ferramenta de formulários enviar uma resposta" }
   },
   "acceptanceChecks": {
     "stage_field": "Toda solicitação tem uma etapa.",
@@ -81,7 +81,7 @@
     "requests_board_view": "As solicitações abrem como quadro por etapa."
   },
   "prompt": {
-    "intro": "Configure no meu workspace do Customermates a ligação do formulário ao CRM: uma solicitação por envio com a origem, uma resposta devida, seis etapas, o consentimento e uma data de revisão dos dados, e acompanhamentos com data.",
+    "intro": "Configure no meu espaço de trabalho do Customermates a ligação do formulário ao CRM: uma solicitação por envio com a origem, uma resposta devida, seis etapas, o consentimento e uma data de revisão dos dados, e acompanhamentos com data.",
     "questions": [
       "Quais formulários você usa e o que precisa saber para orçar ou encaminhar um contato?",
       "Quem responde e em quanto tempo você se compromete a responder?",

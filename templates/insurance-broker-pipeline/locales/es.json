@@ -2,7 +2,7 @@
   "locale": "es",
   "name": "Correduría de seguros",
   "summary": "Dos pipelines para una correduría de seguros: nuevo negocio de la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, y un caso de renovación para cada póliza que empieza de 120 a 45 días antes del vencimiento.",
-  "description": "Lleve el nuevo negocio y las renovaciones a la vez: oportunidades de la primera consulta al análisis de necesidades, la solicitud de ofertas, la propuesta y la decisión hasta la póliza activa, una fecha de asesoramiento documentado en cada propuesta, y pólizas con su vencimiento que abren solas un caso de renovación. Guarda una referencia al registro del asesoramiento y a la póliza en su programa de gestión, nunca datos de salud, detalles de siniestros, datos bancarios ni copias de documentos de identidad. No es administración de pólizas, un comparador o tarificador, tramitación de siniestros ni conciliación de comisiones.",
+  "description": "Lleva el nuevo negocio y las renovaciones a la vez: oportunidades de la primera consulta al análisis de necesidades, la solicitud de ofertas, la propuesta y la decisión hasta la póliza activa, una fecha de asesoramiento documentado en cada propuesta, y pólizas con su vencimiento que abren solas un caso de renovación. Guarda una referencia al registro del asesoramiento y a la póliza en tu programa de gestión, nunca datos de salud, detalles de siniestros, datos bancarios ni copias de documentos de identidad. No es administración de pólizas, un comparador o tarificador, tramitación de siniestros ni conciliación de comisiones.",
   "lists": {
     "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Tomadores, posibles clientes, decisores y quienes recomiendan." },
     "opportunities": { "label": "Oportunidad", "pluralLabel": "Oportunidades", "description": "Nuevo negocio de la primera consulta a la póliza activa o a la pérdida." },
@@ -26,9 +26,9 @@
     "opportunities.advice_documented_on": { "label": "Asesoramiento documentado el" },
     "opportunities.advice_record_ref": { "label": "Enlace al registro del asesoramiento" },
     "opportunities.decision_expected": { "label": "Decisión esperada" },
-    "opportunities.next_step_due": { "label": "Siguiente paso antes de" },
+    "opportunities.next_step_due": { "label": "Fecha del siguiente paso" },
     "opportunities.lost_reason": {
-      "label": "Motivo de la pérdida",
+      "label": "Motivo de pérdida",
       "options": { "price": "Precio", "coverage_not_matching": "Coberturas inadecuadas", "stayed_with_current": "Se queda con su aseguradora actual", "no_response": "Sin respuesta", "declined_by_carrier": "Rechazado por la aseguradora", "timing": "Momento" }
     },
     "opportunities.producer": { "label": "Gestor comercial" },
@@ -53,7 +53,7 @@
     "renewals.premium_change_percent": { "label": "Variación de la prima (%)" },
     "renewals.advice_documented_on": { "label": "Asesoramiento documentado el" },
     "renewals.lost_reason": {
-      "label": "Motivo de la pérdida",
+      "label": "Motivo de pérdida",
       "options": { "price": "Precio", "switched_broker": "Cambió de correduría", "switched_carrier": "Cambió de aseguradora", "business_closed": "Negocio cerrado", "no_response": "Sin respuesta", "other": "Otro" }
     },
     "actions.kind": {
@@ -87,17 +87,17 @@
     "lost_reasons": { "title": "Por qué se pierden oportunidades" }
   },
   "knowledgePages": {
-    "operating_guide": { "title": "Cómo funciona el puesto de la correduría", "sections": ["Los dos pipelines: nuevo negocio y renovaciones", "Quién responsable de cada fase y la regla de una tarea con fecha por elemento abierto"] },
+    "operating_guide": { "title": "Cómo funciona el día a día de la correduría", "sections": ["Los dos pipelines: nuevo negocio y renovaciones", "Quién es responsable de cada fase y la regla de una tarea con fecha por elemento abierto"] },
     "advice_documentation": { "title": "Análisis de necesidades y documentación del asesoramiento", "sections": ["Qué se pregunta y se registra antes de una propuesta", "Dónde está el registro: aquí solo se guarda una referencia"] },
     "renewal_playbook": { "title": "Guía de renovación", "sections": ["Empresas desde 120 días, particulares desde 45 días antes del vencimiento", "Revisión, consulta al mercado, propuesta y decisión antes de la fecha de preaviso"] },
-    "policy_data_rules": { "title": "Datos de pólizas: qué queda en el programa de gestión", "sections": ["La verdad de la póliza y los extractos de comisiones quedan en el programa de gestión", "Qué guarda este espacio y qué no guarda nunca"] }
+    "policy_data_rules": { "title": "Datos de pólizas: qué queda en el programa de gestión", "sections": ["Los datos de referencia de la póliza y los extractos de comisiones quedan en el programa de gestión", "Qué guarda este espacio y qué no guarda nunca"] }
   },
   "rules": {
     "enquiry_form_records": { "title": "Crear el contacto y la oportunidad cuando se envía el formulario de consulta" },
     "respond_new_lead": { "title": "Responder a una consulta nueva al día siguiente" },
     "needs_analysis_task": { "title": "Documentar el asesoramiento en 3 días cuando una oportunidad llega al análisis de necesidades" },
     "quotes_chase": { "title": "Reclamar a las aseguradoras 3 días después de solicitar las ofertas" },
-    "offer_follow_up": { "title": "Dar seguimiento el día después de presentar una propuesta" },
+    "offer_follow_up": { "title": "Hacer seguimiento al día siguiente de presentar una propuesta" },
     "bound_welcome": { "title": "Llamar al cliente una semana después de emitirse la póliza" },
     "renewal_commercial": { "title": "Abrir un caso de renovación 120 días antes de que venza una póliza de empresa activa" },
     "renewal_personal": { "title": "Abrir un caso de renovación 45 días antes de que venza una póliza de particular activa" },
@@ -114,12 +114,12 @@
     "advice_documentation_page": "La base de conocimiento contiene una página sobre la documentación del asesoramiento."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de Customermates un pipeline para una correduría de seguros: nuevo negocio de la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, pólizas con vencimiento y un caso de renovación para cada una, y seguimientos con fecha. No guardes datos de salud, detalles de siniestros ni copias de documentos de identidad.",
+    "intro": "Configura en mi espacio de trabajo de Customermates un pipeline para una correduría de seguros: nuevo negocio de la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, pólizas con vencimiento y un caso de renovación para cada una, y seguimientos con fecha. No guardes datos de salud, detalles de siniestros ni copias de documentos de identidad.",
     "questions": [
-      "¿Qué ramos coloca y atiende a empresas, a particulares o a ambos?",
+      "¿Qué ramos colocas y atiendes a empresas, a particulares o a ambos?",
       "¿Con cuánta antelación al vencimiento empieza una renovación y cuál es el preaviso habitual?",
-      "¿Dónde guarda el registro del asesoramiento y los datos de las pólizas? Aquí solo se guardan enlaces.",
-      "¿En qué país trabaja y qué deberes de asesoramiento le afectan?"
+      "¿Dónde guardas el registro del asesoramiento y los datos de las pólizas? Aquí solo se guardan enlaces.",
+      "¿En qué país trabajas y qué deberes de asesoramiento te afectan?"
     ]
   }
 }

@@ -11,7 +11,7 @@
   "fields": {
     "opportunities.stage": {
       "label": "Etapa",
-      "options": { "lead": "Lead", "qualified": "Calificado", "proposal": "Propuesta", "negotiation": "Negociación", "won": "Ganada", "lost": "Perdida" }
+      "options": { "lead": "Lead", "qualified": "Cualificada", "proposal": "Propuesta", "negotiation": "Negociación", "won": "Ganada", "lost": "Perdida" }
     },
     "contacts.job_title": { "label": "Cargo" },
     "contacts.contact_role": {
@@ -23,7 +23,7 @@
     "contacts.consent": { "label": "Consentimiento de contacto" },
     "organizations.relationship": {
       "label": "Relación",
-      "options": { "prospect": "Potencial", "customer": "Cliente", "former_customer": "Excliente", "partner": "Socio", "other": "Otro" }
+      "options": { "prospect": "Cliente potencial", "customer": "Cliente", "former_customer": "Excliente", "partner": "Socio", "other": "Otro" }
     },
     "organizations.owner": { "label": "Responsable" },
     "organizations.source": {
@@ -75,7 +75,7 @@
     "next_action_per_stage": { "title": "Crear una tarea de seguimiento cuando una oportunidad cambia de etapa" },
     "set_a_next_step": { "title": "Pedir un siguiente paso en cada oportunidad abierta que no lo tenga" },
     "next_step_notice": { "title": "Avisar al responsable cuando vence un siguiente paso" },
-    "expected_close_passed": { "title": "Revisar una oportunidad abierta el día después de su cierre previsto" },
+    "expected_close_passed": { "title": "Revisar una oportunidad abierta al día siguiente de su cierre previsto" },
     "weekly_review": { "title": "Hacer la revisión semanal cada viernes" },
     "enquiry_form_records": { "title": "Crear contacto, empresa y oportunidad desde un formulario de consulta" },
     "webhook_upsert": { "title": "Crear o actualizar registros de la herramienta anterior mediante un webhook entrante" }

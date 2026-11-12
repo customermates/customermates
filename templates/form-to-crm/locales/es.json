@@ -2,9 +2,9 @@
   "locale": "es",
   "name": "Formulario a CRM",
   "summary": "Convertir las consultas de los formularios web en oportunidades trabajadas: una solicitud por envío con su origen, una respuesta pendiente, una fase de nueva a convertida y el spam y las que no encajan aparte.",
-  "description": "Cada consulta de un formulario de contacto, de presupuesto o de admisión se convierte en una solicitud vinculada a un contacto, con el formulario de origen, de dónde llegó el visitante, para cuándo la necesita y una respuesta debida al día siguiente. Las solicitudes pasan de nueva a convertida, no encaja o spam, y una solicitud sin respuesta se señala. El consentimiento y una fecha de revisión acompañan a los datos recogidos. No es un creador de formularios para pagos, cuestionarios o subida de documentos sensibles.",
+  "description": "Cada consulta de un formulario de contacto, de presupuesto o de admisión se convierte en una solicitud vinculada a un contacto, con el formulario de origen, de dónde llegó el visitante, para cuándo la necesita y una respuesta para el día siguiente. Las solicitudes pasan de nueva a convertida, no encaja o spam, y una solicitud sin respuesta se señala. El consentimiento y una fecha de revisión acompañan a los datos recogidos. No es un creador de formularios para pagos, cuestionarios o subida de documentos sensibles.",
   "lists": {
-    "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Las personas que le escriben por un formulario." },
+    "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Las personas que te escriben por un formulario." },
     "requests": { "label": "Solicitud", "pluralLabel": "Solicitudes", "description": "Un envío de formulario, de nueva a convertida, no encaja o spam." }
   },
   "fields": {
@@ -34,7 +34,7 @@
       "options": { "out_of_area": "Fuera de nuestra zona", "no_budget": "Sin presupuesto", "wrong_service": "Servicio equivocado", "no_response": "Sin respuesta", "duplicate": "Duplicada", "other": "Otro" }
     },
     "requests.closed_on": { "label": "Cerrada el" },
-    "requests.data_review_on": { "label": "Revisar los datos el" },
+    "requests.data_review_on": { "label": "Revisión de datos el" },
     "requests.days_to_close": { "label": "Días del envío al cierre" },
     "actions.kind": {
       "label": "Tipo",
@@ -71,9 +71,9 @@
     "first_response_missed": { "title": "Avisar a la persona a cargo cuando una solicitud sigue nueva un día después de recibirla" },
     "chase_contacted": { "title": "Reclamar una solicitud contactada que lleva 3 días sin moverse" },
     "converted_task": { "title": "Pasar la solicitud al pipeline cuando se convierte" },
-    "review_date_not_a_fit": { "title": "Fijar la revisión de datos a un año cuando una solicitud no encaja" },
+    "review_date_not_a_fit": { "title": "Fijar la revisión de datos dentro de un año cuando una solicitud no encaja" },
     "data_review": { "title": "Revisar los datos cuando llega la fecha de revisión" },
-    "external_form_records": { "title": "Crear el contacto y la solicitud cuando otra herramienta de formularios envía un envío" }
+    "external_form_records": { "title": "Crear el contacto y la solicitud cuando otra herramienta de formularios envía una respuesta" }
   },
   "acceptanceChecks": {
     "stage_field": "Cada solicitud tiene una fase.",
@@ -81,12 +81,12 @@
     "requests_board_view": "Las solicitudes se abren como tablero por fase."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de Customermates el paso del formulario al CRM: una solicitud por envío con su origen, una respuesta pendiente, seis fases, el consentimiento y una fecha de revisión de datos, y seguimientos con fecha.",
+    "intro": "Configura en mi espacio de trabajo de Customermates el paso del formulario al CRM: una solicitud por envío con su origen, una respuesta pendiente, seis fases, el consentimiento y una fecha de revisión de datos, y seguimientos con fecha.",
     "questions": [
-      "¿Qué formularios usa y qué necesita saber para presupuestar o derivar una consulta?",
-      "¿Quién responde y en cuánto tiempo se compromete a hacerlo?",
-      "¿Qué dice a las personas sobre sus datos en el formulario?",
-      "¿Usa otra herramienta de formularios como Typeform, Tally o Jotform?"
+      "¿Qué formularios usas y qué necesitas saber para presupuestar o derivar una consulta?",
+      "¿Quién responde y en cuánto tiempo te comprometes a hacerlo?",
+      "¿Qué dices a las personas sobre sus datos en el formulario?",
+      "¿Usas otra herramienta de formularios como Typeform, Tally o Jotform?"
     ]
   }
 }

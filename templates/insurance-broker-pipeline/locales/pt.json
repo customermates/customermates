@@ -2,15 +2,15 @@
   "locale": "pt",
   "name": "Corretora de seguros",
   "summary": "Dois funis para uma corretora de seguros: vendas novas do lead à apólice emitida com a recomendação documentada antes da proposta, e um caso de renovação para cada apólice que começa de 120 a 45 dias antes do vencimento.",
-  "description": "Conduza vendas novas e renovações lado a lado: negociações do primeiro contato à qualificação, à cotação, à proposta e à decisão até a apólice emitida, uma data de recomendação documentada em cada proposta, e apólices com a data de vigência que abrem sozinhas um caso de renovação. Guarda uma referência ao registro da recomendação e à apólice no seu sistema, nunca dados de saúde, detalhes de sinistros, dados bancários ou cópias de documentos de identidade. Não é administração de apólices, um comparador ou motor de tarifação, regulação de sinistros nem conciliação de comissões.",
+  "description": "Conduza vendas novas e renovações lado a lado: negociações do primeiro contato à qualificação, à cotação, à proposta e à decisão até a apólice emitida, uma data de recomendação documentada em cada proposta, e apólices com a data de vigência que abrem sozinhas um caso de renovação. Guarde uma referência ao registro da recomendação e à apólice no seu sistema, nunca dados de saúde, detalhes de sinistros, dados bancários ou cópias de documentos de identidade. Não é administração de apólices, um comparador ou motor de tarifação, regulação de sinistros nem conciliação de comissões.",
   "lists": {
-    "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "Segurados, interessados, decisores e indicadores." },
+    "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "Segurados, interessados, decisores e quem indica." },
     "opportunities": { "label": "Negociação", "pluralLabel": "Negociações", "description": "Uma venda nova do primeiro contato à apólice emitida ou à perda." },
     "policies": { "label": "Apólice", "pluralLabel": "Apólices", "description": "Uma apólice com o ramo, a vigência e um link para o sistema da corretora." },
     "renewals": { "label": "Renovação", "pluralLabel": "Renovações", "description": "O caso de renovação anual de uma apólice." }
   },
   "fields": {
-    "contacts.contact_role": { "label": "Papel", "options": { "policyholder": "Segurado", "prospect": "Interessado", "decision_maker": "Decisor", "referrer": "Indicador" } },
+    "contacts.contact_role": { "label": "Papel", "options": { "policyholder": "Segurado", "prospect": "Interessado", "decision_maker": "Decisor", "referrer": "Quem indicou" } },
     "contacts.preferred_channel": { "label": "Canal preferido", "options": { "email": "E-mail", "phone": "Telefone", "whatsapp": "WhatsApp", "post": "Correio" } },
     "contacts.broker_mandate_on": { "label": "Carta de nomeação assinada em" },
     "opportunities.stage": {
@@ -38,7 +38,7 @@
       "options": { "motor": "Automóvel", "home_contents": "Residencial", "liability": "Responsabilidade civil", "legal_expenses": "Proteção jurídica", "life_pension": "Vida e previdência", "health": "Saúde", "commercial_property": "Patrimonial empresarial", "commercial_liability": "Responsabilidade civil empresarial", "cyber": "Cibernético", "other": "Outro" }
     },
     "policies.line_group": { "label": "Segmento", "options": { "commercial": "Empresas", "personal": "Pessoas físicas" } },
-    "policies.status": { "label": "Situação", "options": { "pending": "Em emissão", "active": "Vigente", "lapsed": "Cancelada por falta de pagamento", "cancelled": "Cancelada" } },
+    "policies.status": { "label": "Status", "options": { "pending": "Em emissão", "active": "Vigente", "lapsed": "Cancelada por falta de pagamento", "cancelled": "Cancelada" } },
     "policies.renewal_date": { "label": "Fim da vigência" },
     "policies.annual_premium": { "label": "Prêmio anual" },
     "policies.notice_days": { "label": "Aviso prévio (dias)" },
@@ -87,10 +87,10 @@
     "lost_reasons": { "title": "Por que negociações foram perdidas" }
   },
   "knowledgePages": {
-    "operating_guide": { "title": "Como funciona a mesa da corretora", "sections": ["Os dois funis: vendas novas e renovações", "Quem responde por cada etapa e a regra de uma tarefa com data por item aberto"] },
+    "operating_guide": { "title": "Como funciona o dia a dia da corretora", "sections": ["Os dois funis: vendas novas e renovações", "Quem responde por cada etapa e a regra de uma tarefa com data por item aberto"] },
     "advice_documentation": { "title": "Análise de necessidades e documentação da recomendação", "sections": ["O que se pergunta e se registra antes de uma proposta", "Onde fica o registro: aqui só se guarda uma referência"] },
     "renewal_playbook": { "title": "Guia de renovação", "sections": ["Empresas a partir de 120 dias, pessoas físicas a partir de 45 dias antes do vencimento", "Revisão, cotação no mercado, proposta e decisão antes do prazo de aviso"] },
-    "policy_data_rules": { "title": "Dados das apólices: o que fica no sistema da corretora", "sections": ["A verdade da apólice e os extratos de comissão ficam no sistema da corretora", "O que este espaço guarda e o que nunca guarda"] }
+    "policy_data_rules": { "title": "Dados das apólices: o que fica no sistema da corretora", "sections": ["Os dados de referência da apólice e os extratos de comissão ficam no sistema da corretora", "O que este espaço guarda e o que nunca guarda"] }
   },
   "rules": {
     "enquiry_form_records": { "title": "Criar o contato e a negociação quando o formulário de solicitação for enviado" },
@@ -114,7 +114,7 @@
     "advice_documentation_page": "A base de conhecimento tem uma página sobre a documentação da recomendação."
   },
   "prompt": {
-    "intro": "Configure no meu workspace do Customermates um funil para uma corretora de seguros: vendas novas do lead à apólice emitida com a recomendação documentada antes da proposta, apólices com fim de vigência e um caso de renovação para cada uma, e acompanhamentos com data. Não guarde dados de saúde, detalhes de sinistros nem cópias de documentos de identidade.",
+    "intro": "Configure no meu espaço de trabalho do Customermates um funil para uma corretora de seguros: vendas novas do lead à apólice emitida com a recomendação documentada antes da proposta, apólices com fim de vigência e um caso de renovação para cada uma, e acompanhamentos com data. Não guarde dados de saúde, detalhes de sinistros nem cópias de documentos de identidade.",
     "questions": [
       "Quais ramos você trabalha e atende empresas, pessoas físicas ou os dois?",
       "Com quanta antecedência do vencimento você começa uma renovação e qual é o aviso prévio habitual?",

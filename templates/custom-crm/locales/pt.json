@@ -2,7 +2,7 @@
   "locale": "pt",
   "name": "CRM personalizado",
   "summary": "Um CRM construído em torno do seu jeito de trabalhar: contatos, empresas, negócios e tarefas com data, com importação da sua planilha ou da ferramenta antiga e uma revisão semanal.",
-  "description": "Comece pelas quatro listas de que todo CRM precisa e adapte: etapas, campos e visões são seus. Pensado para quem deixa uma planilha, o Notion, o Airtable ou o Trello e quer seus dados em um CRM sem montar um projeto. Anota de onde cada registro foi importado.",
+  "description": "Comece pelas quatro listas de que todo CRM precisa e adapte: etapas, campos e visualizações são seus. Pensado para quem deixa uma planilha, o Notion, o Airtable ou o Trello e quer seus dados em um CRM sem montar um projeto. Anote de onde cada registro foi importado.",
   "lists": {
     "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas com quem você lida." },
     "organizations": { "label": "Empresa", "pluralLabel": "Empresas", "description": "Empresas e outras entidades." },
