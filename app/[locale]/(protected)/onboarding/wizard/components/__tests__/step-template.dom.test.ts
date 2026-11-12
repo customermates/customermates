@@ -28,6 +28,7 @@ vi.mock("../../onboarding-agent-actions", () => ({
   getOnboardingTemplatePromptAction: vi.fn(),
 }));
 
+import { TEMPLATE_SLUGS } from "@/core/templates/template-slugs";
 import { OnboardingWizardStore } from "../onboarding-wizard.store";
 import { StepTemplate, StepTemplateFooter, TEMPLATE_INITIAL_LIMIT } from "../step-template";
 
@@ -74,7 +75,7 @@ const THREE: OnboardingTemplateCard[] = [
 
 function manyCards(count: number): OnboardingTemplateCard[] {
   return Array.from({ length: count }, (_, index) => ({
-    slug: THREE[index % 3].slug,
+    slug: TEMPLATE_SLUGS[index],
     family: FAMILIES[index % FAMILIES.length],
     name: `Template ${index}`,
     summary: `Summary ${index}`,
@@ -159,6 +160,42 @@ describe("StepTemplate", () => {
     });
 
     expect(store.selectedTemplate).toBe("client-tracker");
+  });
+
+  it("keeps the cards where they are when another one is selected", async () => {
+    await setup(THREE, { slug: "sales-pipeline", reason: "default" });
+    const before = radios().map((radio) => radio.id);
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>("#onboarding-template-client-tracker")?.click();
+      await Promise.resolve();
+    });
+
+    expect(radios().map((radio) => radio.id)).toEqual(before);
+    expect(radios().filter((radio) => radio.getAttribute("aria-checked") === "true")).toHaveLength(1);
+  });
+
+  it("still shows a selection made beyond the first six after showing fewer", async () => {
+    const cards = manyCards(10);
+    await setup(cards, { slug: cards[0].slug, reason: "default" });
+    const find = (text: string) =>
+      [...container.querySelectorAll("button")].find((button) => button.textContent?.includes(text));
+
+    await act(async () => {
+      find("OnboardingWizard.template.browseAll")?.click();
+      await Promise.resolve();
+    });
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>(`#onboarding-template-${cards[8].slug}`)?.click();
+      await Promise.resolve();
+    });
+    await act(async () => {
+      find("OnboardingWizard.template.showFewer")?.click();
+      await Promise.resolve();
+    });
+
+    expect(radios()).toHaveLength(TEMPLATE_INITIAL_LIMIT + 1);
+    expect(container.querySelector(`#onboarding-template-${cards[8].slug}`)?.getAttribute("aria-checked")).toBe("true");
   });
 
   it("filters by family and by search and says so when nothing matches", async () => {

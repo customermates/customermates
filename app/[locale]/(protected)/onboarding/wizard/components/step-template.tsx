@@ -94,17 +94,23 @@ export const StepTemplate = observer(({ cards, preselection }: Props) => {
   const [family, setFamily] = useState<OnboardingTemplateCard["family"] | "all">("all");
   const [query, setQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
+  const [pinned] = useState(store.selectedTemplate);
   const disabled = store.isSubmitting || store.isSaving || store.isInitializing;
   const families = [...new Set(cards.map((card) => card.family))];
   const filtered = cards.filter((card) => (family === "all" || card.family === family) && matches(card, query));
   const filtering = family !== "all" || query.trim() !== "";
   const selected = store.selectedTemplate;
   const ordered = [
-    ...filtered.filter((card) => card.slug === selected),
-    ...filtered.filter((card) => card.slug !== selected),
+    ...filtered.filter((card) => card.slug === pinned),
+    ...filtered.filter((card) => card.slug !== pinned),
   ];
   const limited = !showAll && !filtering && ordered.length > TEMPLATE_INITIAL_LIMIT;
-  const visible = limited ? ordered.slice(0, TEMPLATE_INITIAL_LIMIT) : ordered;
+  const visible = limited
+    ? [
+        ...ordered.slice(0, TEMPLATE_INITIAL_LIMIT),
+        ...ordered.slice(TEMPLATE_INITIAL_LIMIT).filter((card) => card.slug === selected),
+      ]
+    : ordered;
   const badgeFor = (card: OnboardingTemplateCard) => {
     if (card.slug !== preselection.slug) return null;
     if (preselection.reason === "default") return t("OnboardingWizard.template.recommended");
