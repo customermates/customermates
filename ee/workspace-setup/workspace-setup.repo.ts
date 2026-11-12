@@ -17,8 +17,15 @@ export type SetupCrawlSource = { url: string; title: string; text: string; categ
 export abstract class WorkspaceSetupRepo {
   abstract findCurrent(): Promise<WorkspaceSetupRecord | null>;
   abstract get(id: string): Promise<WorkspaceSetupRecord | null>;
-  abstract create(data: { websiteUrl: string | null; answers: SetupAnswers }): Promise<WorkspaceSetupRecord | null>;
-  abstract restart(id: string, data: { websiteUrl: string | null; answers: SetupAnswers }): Promise<boolean>;
+  abstract create(data: {
+    websiteUrl: string | null;
+    answers: SetupAnswers;
+    templateSlug: string | null;
+  }): Promise<WorkspaceSetupRecord | null>;
+  abstract restart(
+    id: string,
+    data: { websiteUrl: string | null; answers: SetupAnswers; templateSlug: string | null },
+  ): Promise<boolean>;
   abstract mutate(
     id: string,
     change: (setup: WorkspaceSetupRecord) => WorkspaceSetupPatch | null,
