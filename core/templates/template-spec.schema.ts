@@ -422,12 +422,61 @@ export const TemplateTextBodyShape = {
   acceptanceChecks: z.record(z.string(), z.string().trim().min(1).max(TEMPLATE_LIMITS.checkLength)).default({}),
 };
 
+export const TEMPLATE_PAGE_LIMITS = {
+  metaTitleMin: 30,
+  metaTitleMax: 60,
+  metaDescriptionMin: 70,
+  metaDescriptionMax: 158,
+  headlineLength: 120,
+  answerLength: 600,
+  routineSteps: 6,
+  stepLength: 300,
+  limits: 8,
+  limitLength: 300,
+  faqItems: 8,
+  questionLength: 200,
+  faqAnswerLength: 900,
+} as const;
+
+export const TemplatePageTextSchema = z.strictObject({
+  metaTitle: z.string().trim().min(TEMPLATE_PAGE_LIMITS.metaTitleMin).max(TEMPLATE_PAGE_LIMITS.metaTitleMax),
+  metaDescription: z
+    .string()
+    .trim()
+    .min(TEMPLATE_PAGE_LIMITS.metaDescriptionMin)
+    .max(TEMPLATE_PAGE_LIMITS.metaDescriptionMax),
+  headline: z.string().trim().min(1).max(TEMPLATE_PAGE_LIMITS.headlineLength),
+  answer: z.string().trim().min(1).max(TEMPLATE_PAGE_LIMITS.answerLength),
+  routine: z.strictObject({
+    title: z.string().trim().min(1).max(TEMPLATE_PAGE_LIMITS.headlineLength),
+    steps: z
+      .array(z.string().trim().min(1).max(TEMPLATE_PAGE_LIMITS.stepLength))
+      .min(2)
+      .max(TEMPLATE_PAGE_LIMITS.routineSteps),
+  }),
+  limits: z
+    .array(z.string().trim().min(1).max(TEMPLATE_PAGE_LIMITS.limitLength))
+    .min(1)
+    .max(TEMPLATE_PAGE_LIMITS.limits),
+  faq: z
+    .array(
+      z.strictObject({
+        question: z.string().trim().min(1).max(TEMPLATE_PAGE_LIMITS.questionLength),
+        answer: z.string().trim().min(1).max(TEMPLATE_PAGE_LIMITS.faqAnswerLength),
+      }),
+    )
+    .min(2)
+    .max(TEMPLATE_PAGE_LIMITS.faqItems),
+});
+export type TemplatePageText = z.output<typeof TemplatePageTextSchema>;
+
 export const TemplateLocaleSchema = z.strictObject({
   locale: z.string().refine((value) => isAppLocale(value), "Must be an app locale."),
   name: LabelSchema,
   summary: z.string().trim().min(1).max(TEMPLATE_LIMITS.summaryLength),
   description: z.string().trim().min(1).max(TEMPLATE_LIMITS.descriptionLength),
   ...TemplateTextBodyShape,
+  page: TemplatePageTextSchema.optional(),
   prompt: z.strictObject({
     intro: z.string().trim().min(1).max(TEMPLATE_LIMITS.promptIntroLength),
     questions: z

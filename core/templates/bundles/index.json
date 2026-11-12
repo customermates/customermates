@@ -1,0 +1,117 @@
+[
+  {
+    "slug": "client-tracker",
+    "family": "clients",
+    "kind": "tracker",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "notifications"
+    ],
+    "pairedPages": {
+      "en": "/features/contact-management",
+      "de": "/features/contact-management"
+    },
+    "reviewedAt": "2026-11-12",
+    "counts": {
+      "lists": 3,
+      "fields": 27,
+      "views": 9,
+      "widgets": 12,
+      "rules": 11
+    },
+    "locales": {
+      "de": {
+        "name": "Kundenverwaltung",
+        "summary": "Eine Zeile pro Kunde, ein Betreuer, ein terminierter nächster Schritt, dazu eine wöchentliche Durchsicht und ein Prüfdatum für jeden beendeten Kunden.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "en": {
+        "name": "Client tracker",
+        "summary": "One row per client, one owner, one dated next step, plus a weekly review and a retention date for every closed client.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      }
+    }
+  },
+  {
+    "slug": "real-estate-pipeline",
+    "family": "property",
+    "kind": "pipeline",
+    "requiresCapabilities": [
+      "rules",
+      "calendarWrite",
+      "notifications",
+      "incomingWebhooks"
+    ],
+    "pairedPages": {
+      "en": "/for/real-estate",
+      "de": "/for/real-estate"
+    },
+    "reviewedAt": "2026-11-12",
+    "counts": {
+      "lists": 7,
+      "fields": 62,
+      "views": 11,
+      "widgets": 12,
+      "rules": 23
+    },
+    "locales": {
+      "de": {
+        "name": "Immobilien-Pipeline",
+        "summary": "Zwei Pipelines, die sich beim Kaufvertrag treffen: Objekt hereinholen und vermarkten, Interessenten betreuen, mit Besichtigungen, Fristen und einer Routine für frühere Kunden.",
+        "status": "draft",
+        "publicPage": "proof",
+        "page": null
+      },
+      "en": {
+        "name": "Real estate pipeline",
+        "summary": "Two pipelines that meet at the contract: win and market the listing, and work the buyer, with viewings, key dates and a routine for past clients.",
+        "status": "draft",
+        "publicPage": "proof",
+        "page": null
+      }
+    }
+  },
+  {
+    "slug": "sales-pipeline",
+    "family": "sales",
+    "kind": "pipeline",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "notifications"
+    ],
+    "pairedPages": {
+      "en": "/features/pipeline",
+      "de": "/features/pipeline"
+    },
+    "reviewedAt": "2026-11-12",
+    "counts": {
+      "lists": 4,
+      "fields": 30,
+      "views": 8,
+      "widgets": 12,
+      "rules": 17
+    },
+    "locales": {
+      "de": {
+        "name": "Vertriebspipeline",
+        "summary": "Sieben Phasen mit Abschlusskriterien und Gewichtung, ein terminierter nächster Schritt bei jeder offenen Chance, Verlust- und Gewinngründe und bei jedem Phasenwechsel die nächste Aufgabe.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "en": {
+        "name": "Sales pipeline",
+        "summary": "Seven stages with exit criteria and weights, a dated next step on every open deal, lost and won reasons, and a stage change that creates the next Action.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      }
+    }
+  }
+]

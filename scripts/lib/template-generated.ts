@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import { TemplateLocaleSchema, TemplateSpecObjectSchema } from "@/core/templates/template-spec.schema";
 
+import { buildTemplateIndex } from "./template-index";
 import { BUNDLES_ROOT, TEMPLATES_ROOT, buildTemplateBundles } from "./template-sources";
 
 export const GENERATED_COMMAND = "yarn templates:generate";
@@ -44,6 +45,7 @@ function readme(bundles: Map<string, TemplateBundle>): string {
     "- `_modules/*.json`: blocks shared by several templates (structure and text).",
     "- `schema/*.json`: JSON Schemas generated from the Zod schemas in `core/templates/template-spec.schema.ts`.",
     "- `core/templates/bundles/<slug>.json`: the validated bundle the app reads.",
+    "- `core/templates/bundles/index.json`: the light index (publication state, names and summaries per locale) that the sitemap, the navigation and the public pages read without loading the bundles.",
     "",
     "| Template | Family | Kind | Lists | Fields | Widgets | Rules | Needs | Locales |",
     "| --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- |",
@@ -56,6 +58,7 @@ export function generatedOutputs(): Map<string, string> {
   const bundles = buildTemplateBundles();
   const outputs = new Map<string, string>();
   for (const [slug, bundle] of bundles) outputs.set(join(BUNDLES_ROOT, `${slug}.json`), json(bundle));
+  outputs.set(join(BUNDLES_ROOT, "index.json"), json(buildTemplateIndex(bundles)));
   outputs.set(join(TEMPLATES_ROOT, "README.md"), readme(bundles));
   outputs.set(
     join(TEMPLATES_ROOT, "schema", "template.schema.json"),

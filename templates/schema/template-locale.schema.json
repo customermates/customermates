@@ -244,6 +244,101 @@
         "maxLength": 300
       }
     },
+    "page": {
+      "type": "object",
+      "properties": {
+        "metaTitle": {
+          "type": "string",
+          "minLength": 30,
+          "maxLength": 60
+        },
+        "metaDescription": {
+          "type": "string",
+          "minLength": 70,
+          "maxLength": 158
+        },
+        "headline": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "answer": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 600
+        },
+        "routine": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "steps": {
+              "minItems": 2,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              }
+            }
+          },
+          "required": [
+            "title",
+            "steps"
+          ],
+          "additionalProperties": false
+        },
+        "limits": {
+          "minItems": 1,
+          "maxItems": 8,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          }
+        },
+        "faq": {
+          "minItems": 2,
+          "maxItems": 8,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "question": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "answer": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 900
+              }
+            },
+            "required": [
+              "question",
+              "answer"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "metaTitle",
+        "metaDescription",
+        "headline",
+        "answer",
+        "routine",
+        "limits",
+        "faq"
+      ],
+      "additionalProperties": false
+    },
     "prompt": {
       "type": "object",
       "properties": {
