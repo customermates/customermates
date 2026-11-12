@@ -38,7 +38,7 @@ describe("guarded account-state route contract", () => {
 
     expect(page).toMatch(/requireAccountState\(\s*\[\s*"unregistered",\s*"onboarding"\s*\](?:\s*,|\s*\))/);
     expect(actions).toMatch(
-      /getRegisterOnboardingProfileInteractor\(\)\.invoke\(\s*data,\s*\{\s*adAttribution,\s*signupSource,?\s*\}\s*\)/,
+      /getRegisterOnboardingProfileInteractor\(\)\.invoke\(\s*data,\s*\{\s*adAttribution,\s*signupSource,\s*signupTemplate,?\s*\}\s*\)/,
     );
     expect(page).toContain("resolveOnboardingIntent(");
     expect(page).toContain("canCreateCompany");

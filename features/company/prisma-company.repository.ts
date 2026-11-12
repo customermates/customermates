@@ -490,6 +490,7 @@ export class PrismaCompanyRepo
             createdByAuthUserId: setup.createdByAuthUserId ?? null,
           },
         ],
+            signupTemplate: setup.signupTemplate ?? null,
         skipDuplicates: true,
       });
       return count === 1;

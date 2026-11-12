@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import {
   SIGNUP_LANDING_FALLBACK_PATH,
+  choiceOnlyJourney,
   decodeSignupJourneyCookie,
   encodeSignupJourneyCookie,
   nextSignupJourney,
   signupJourneyFromRequest,
   signupSourceForRegistration,
+  signupTemplateForRegistration,
 } from "../signup-source";
 
 const BASE_URL = "https://customermates.com";
@@ -22,6 +24,7 @@ describe("signup journey from the signup request", () => {
       }),
     ).toEqual({
       job: "followup",
+      template: null,
       landingPath: "/en/consultants",
       referrerHost: null,
       utmSource: "linkedin",
@@ -57,6 +60,7 @@ describe("signup journey from the signup request", () => {
       }),
     ).toEqual({
       job: null,
+      template: null,
       landingPath: SIGNUP_LANDING_FALLBACK_PATH,
       referrerHost: null,
       utmSource: null,
@@ -66,9 +70,43 @@ describe("signup journey from the signup request", () => {
   });
 });
 
+describe("signup journey template", () => {
+  it("reads a known template slug from the signup request", () => {
+    expect(
+      signupJourneyFromRequest({ searchParams: { template: "client-tracker" }, referer: null, baseUrl: BASE_URL })
+        .template,
+    ).toBe("client-tracker");
+    expect(
+      signupJourneyFromRequest({ searchParams: { template: " Sales-Pipeline " }, referer: null, baseUrl: BASE_URL })
+        .template,
+    ).toBe("sales-pipeline");
+  });
+
+  it.each([
+    ["an unknown slug", { template: "not-a-template" }],
+    ["markup", { template: "<script>" }],
+    ["an empty value", { template: "" }],
+    ["a prototype key", { template: "constructor" }],
+    ["no parameter", {}],
+  ])("ignores %s", (_, searchParams) => {
+    expect(signupJourneyFromRequest({ searchParams, referer: null, baseUrl: BASE_URL }).template).toBeNull();
+  });
+
+  it("takes the first value of a repeated parameter and rejects the rest", () => {
+    expect(
+      signupJourneyFromRequest({
+        searchParams: { template: ["client-tracker", "sales-pipeline"] },
+        referer: null,
+        baseUrl: BASE_URL,
+      }).template,
+    ).toBe("client-tracker");
+  });
+});
+
 describe("signup journey consent", () => {
   const input = {
     job: "agent" as const,
+    template: "client-tracker" as const,
     landingPath: "/en/mcp",
     referrerHost: "news.ycombinator.com",
     utmSource: "hn",
@@ -76,11 +114,15 @@ describe("signup journey consent", () => {
     utmCampaign: null,
   };
 
-  it("stores the referrer and campaign only with advertising consent", () => {
+  it("stores the page, goal, referrer and campaign only with advertising consent", () => {
     expect(nextSignupJourney({ existing: null, input, marketingConsent: false, now: NOW })).toEqual({
-      ...input,
+      job: null,
+      template: "client-tracker",
+      landingPath: SIGNUP_LANDING_FALLBACK_PATH,
       referrerHost: null,
       utmSource: null,
+      utmMedium: null,
+      utmCampaign: null,
       capturedAt: NOW.toISOString(),
     });
     expect(nextSignupJourney({ existing: null, input, marketingConsent: true, now: NOW })).toEqual({
@@ -89,52 +131,79 @@ describe("signup journey consent", () => {
     });
   });
 
-  it("keeps the first touch and takes a later job", () => {
-    const first = nextSignupJourney({ existing: null, input, marketingConsent: true, now: NOW });
-    const later = nextSignupJourney({
-      existing: first,
-      input: { ...input, job: "followup", landingPath: "/en/pricing", referrerHost: null, utmSource: null },
-      marketingConsent: true,
-      now: new Date("2026-11-06T10:00:00.000Z"),
-    });
-
-    expect(later).toEqual({ ...first, job: "followup" });
-    expect(
-      nextSignupJourney({ existing: later, input: { ...input, job: null }, marketingConsent: true, now: NOW }).job,
-    ).toBe("followup");
-  });
-
-  it("strips marketing fields at registration when consent is missing or withdrawn", () => {
-    const journey = { ...input, capturedAt: NOW.toISOString() };
-
-    expect(signupSourceForRegistration(journey, null)).toEqual({
-      job: "agent",
-      landingPath: "/en/mcp",
+  it("keeps the template the visitor chose without any consent, nothing else", () => {
+    expect(choiceOnlyJourney(input)).toEqual({
+      job: null,
+      template: "client-tracker",
+      landingPath: SIGNUP_LANDING_FALLBACK_PATH,
       referrerHost: null,
       utmSource: null,
       utmMedium: null,
       utmCampaign: null,
-      marketingConsentedAt: null,
-      capturedAt: NOW,
+    });
+  });
+
+  it("keeps the first touch and takes a later job and template", () => {
+    const first = nextSignupJourney({
+      existing: null,
+      input: { ...input, template: null },
+      marketingConsent: true,
+      now: NOW,
+    });
+    const later = nextSignupJourney({
+      existing: first,
+      input: {
+        ...input,
+        job: "followup",
+        template: "sales-pipeline",
+        landingPath: "/en/pricing",
+        referrerHost: null,
+        utmSource: null,
+      },
+      marketingConsent: true,
+      now: new Date("2026-11-06T10:00:00.000Z"),
     });
 
+    expect(later).toEqual({ ...first, job: "followup", template: "sales-pipeline" });
+    expect(
+      nextSignupJourney({
+        existing: later,
+        input: { ...input, job: null, template: null },
+        marketingConsent: true,
+        now: NOW,
+      }),
+    ).toMatchObject({ job: "followup", template: "sales-pipeline" });
+  });
+
+  it("stores no source at registration without consent, which is what the privacy notice promises", () => {
+    const journey = { ...input, capturedAt: NOW.toISOString() };
+
+    expect(signupSourceForRegistration(journey, null)).toBeNull();
+    expect(signupTemplateForRegistration(journey)).toBe("client-tracker");
+
     const consentedAt = new Date("2026-11-05T08:00:00.000Z");
-    expect(signupSourceForRegistration(journey, consentedAt)).toMatchObject({
+    expect(signupSourceForRegistration(journey, consentedAt)).toEqual({
+      job: "agent",
+      landingPath: "/en/mcp",
       referrerHost: "news.ycombinator.com",
       utmSource: "hn",
+      utmMedium: null,
+      utmCampaign: null,
       marketingConsentedAt: consentedAt,
+      capturedAt: NOW,
     });
   });
 
   it("records no consent time when no marketing field was stored", () => {
     const journey = { ...input, referrerHost: null, utmSource: null, capturedAt: NOW.toISOString() };
-    expect(signupSourceForRegistration(journey, NOW).marketingConsentedAt).toBeNull();
+    expect(signupSourceForRegistration(journey, NOW)?.marketingConsentedAt).toBeNull();
   });
 });
 
 describe("signup journey cookie", () => {
   const journey = {
     job: "followup" as const,
+    template: null,
     landingPath: "/de/berater",
     referrerHost: null,
     utmSource: null,
@@ -149,12 +218,26 @@ describe("signup journey cookie", () => {
     expect(decodeSignupJourneyCookie(encoded ?? undefined)).toEqual(journey);
   });
 
+  it("round-trips a journey with a template", () => {
+    const withTemplate = { ...journey, template: "real-estate-pipeline" as const };
+    expect(decodeSignupJourneyCookie(encodeSignupJourneyCookie(withTemplate) ?? undefined)).toEqual(withTemplate);
+  });
+
+  it("reads a cookie written before templates existed", () => {
+    const { template: _template, ...legacy } = journey;
+    const encoded = Buffer.from(JSON.stringify(legacy)).toString("base64url");
+
+    expect(decodeSignupJourneyCookie(encoded)).toEqual(journey);
+  });
+
   it("ignores missing, malformed and out-of-set values", () => {
     const forged = Buffer.from(JSON.stringify({ ...journey, job: "owner" })).toString("base64url");
+    const forgedTemplate = Buffer.from(JSON.stringify({ ...journey, template: "../../etc" })).toString("base64url");
 
     expect(decodeSignupJourneyCookie(undefined)).toBeNull();
     expect(decodeSignupJourneyCookie("not-json")).toBeNull();
     expect(decodeSignupJourneyCookie(forged)).toBeNull();
+    expect(decodeSignupJourneyCookie(forgedTemplate)).toBeNull();
     expect(decodeSignupJourneyCookie("x".repeat(4_096))).toBeNull();
   });
 });

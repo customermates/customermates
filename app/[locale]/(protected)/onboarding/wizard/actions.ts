@@ -24,7 +24,11 @@ import {
   clearRegisteredAdClicksFromCookie,
   readRegistrationAdAttribution,
 } from "@/features/acquisition/next/ad-attribution-cookie";
-import { forgetSignupJourney, readRegistrationSignupSource } from "@/features/acquisition/next/signup-journey-cookie";
+import {
+  forgetSignupJourney,
+  readRegistrationSignupSource,
+  readRegistrationSignupTemplate,
+} from "@/features/acquisition/next/signup-journey-cookie";
 import { appLocaleOrDefault, buildLocalePath } from "@/i18n/locale-registry";
 
 async function settleInLocale<T>(outcome: Parameters<typeof settleActionResult<T>>[0]) {
@@ -36,9 +40,11 @@ async function settleInLocale<T>(outcome: Parameters<typeof settleActionResult<T
 export async function registerProfileAction(data: RegisterOnboardingProfileData) {
   const adAttribution = await readRegistrationAdAttribution();
   const signupSource = await readRegistrationSignupSource();
+  const signupTemplate = await readRegistrationSignupTemplate();
   const registrationResult = await getRegisterOnboardingProfileInteractor().invoke(data, {
     adAttribution,
     signupSource,
+    signupTemplate,
   });
   if (isRedirect(registrationResult)) redirect(await appRedirectHref(registrationResult.redirect));
   const result = await serializeResult(registrationResult);

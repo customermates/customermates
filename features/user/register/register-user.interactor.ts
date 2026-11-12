@@ -32,6 +32,7 @@ import {
   type RegistrationAdAttribution,
 } from "@/features/acquisition/ad-attribution.schema";
 import { RegistrationSignupSourceSchema, type RegistrationSignupSource } from "@/features/acquisition/signup-source";
+import { TEMPLATE_SLUGS, type TemplateSlug } from "@/core/templates/template-slugs";
 import { startsWithTrial } from "@/features/workspace/workspace-trial-policy";
 import { workspaceCreationLimit } from "@/features/workspace/workspace-creation-limit";
 import { WorkspaceNameSchema } from "@/features/workspace/workspace.schema";
@@ -76,6 +77,7 @@ const RegistrationSchema = RegisterUserSchema.extend({
   sessionUserId: z.string().min(1),
   adAttribution: z.array(RegistrationAdAttributionSchema),
   signupSource: RegistrationSignupSourceSchema.nullable(),
+  signupTemplate: z.enum(TEMPLATE_SLUGS).nullable(),
   target: RegistrationTargetSchema,
 });
 type RegistrationData = Data<typeof RegistrationSchema>;
@@ -83,6 +85,7 @@ type RegistrationData = Data<typeof RegistrationSchema>;
 type RegistrationContext = {
   adAttribution?: RegistrationAdAttribution[];
   signupSource?: RegistrationSignupSource | null;
+  signupTemplate?: TemplateSlug | null;
   target: RegistrationTarget;
 };
 
@@ -112,6 +115,7 @@ export class RegisterUserInteractor {
       sessionUserId: resolution.sessionUser.id,
       adAttribution: context.adAttribution ?? [],
       signupSource: context.signupSource ?? null,
+      signupTemplate: context.signupTemplate ?? null,
       target: context.target,
     });
   }
@@ -136,7 +140,8 @@ export class RegisterUserInteractor {
     data: RegistrationData,
     plannedCompanyId: string | null | undefined,
   ): Promise<Awaited<Validated<RegisterUserResult>> | Redirect> {
-    const { sessionUserId, adAttribution, signupSource, target, workspaceName, ...registrationData } = data;
+    const { sessionUserId, adAttribution, signupSource, signupTemplate, target, workspaceName, ...registrationData } =
+      data;
     if (plannedCompanyId && !(await this.companyRepo.existsUnscoped(plannedCompanyId)))
       return redirectTo(target.type === "invitation" ? "/auth/error?type=invalidInviteLink" : "/onboarding");
 
@@ -197,6 +202,7 @@ export class RegisterUserInteractor {
             name: workspaceName ?? null,
             createdByAuthUserId: sessionUserId,
             trial: await startsWithTrial(sessionUserId, this.repo),
+            signupTemplate: env.APP_MODE === "cloud" ? signupTemplate : null,
           },
         });
 

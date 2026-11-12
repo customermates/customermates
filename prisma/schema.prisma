@@ -236,6 +236,8 @@ model Company {
   updatedAt                   DateTime                         @updatedAt
   tags                        String[]                         @default([])
   allowPublicLinks            Boolean                          @default(true)
+  signupTemplate              String?                          @db.VarChar(64)
+  agentFirstCallAt            DateTime?
   users                       User[]
   apiKeys                     Apikey[]
   oauthAccessTokens           OauthAccessToken[]
@@ -643,6 +645,7 @@ model WorkspaceSetup {
   userId           String
   status           WorkspaceSetupStatus @default(interview)
   websiteUrl       String?
+  templateSlug     String?              @db.VarChar(64)
   crawlId          String?
   answers          Json                 @default("{}")
   interview        Json                 @default("{}")
