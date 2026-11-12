@@ -1,0 +1,92 @@
+{
+  "locale": "es",
+  "name": "Seguimiento del equipo",
+  "summary": "Un seguimiento del trabajo para un equipo pequeño: proyectos, tareas con un responsable y un vencimiento, tareas recurrentes y solicitudes externas en la misma lista.",
+  "description": "Mantenga a un equipo de dos a quince personas en una sola lista: cada tarea tiene un estado, una prioridad, un responsable y un vencimiento, y se ve de un vistazo lo que va con retraso o bloqueado. Las tareas recurrentes se crean solas, las solicitudes de compañeros o clientes llegan por un formulario y una tarea bloqueada o parada avisa a su responsable. No es una herramienta de sprints, un diagrama de Gantt, un control de horas ni un sistema de RR. HH.",
+  "lists": {
+    "requesters": { "label": "Solicitante", "pluralLabel": "Solicitantes", "description": "Las personas ajenas al equipo que piden trabajo." },
+    "projects": { "label": "Proyecto", "pluralLabel": "Proyectos", "description": "Un conjunto de tareas con responsable, estado de salud y vencimiento." },
+    "tasks": { "label": "Tarea", "pluralLabel": "Tareas", "description": "Un trabajo con un responsable y un vencimiento." },
+    "recurring": { "label": "Tarea recurrente", "pluralLabel": "Tareas recurrentes", "description": "Una tarea que vuelve cada semana, mes, trimestre o año." }
+  },
+  "fields": {
+    "requesters.relation": {
+      "label": "Relación",
+      "options": { "customer": "Cliente", "colleague": "Compañero", "partner": "Socio", "vendor": "Proveedor", "other": "Otro" }
+    },
+    "requesters.team": { "label": "Equipo" },
+    "projects.status": {
+      "label": "Estado",
+      "options": { "planned": "Planificado", "active": "Activo", "on_hold": "En pausa", "done": "Terminado", "cancelled": "Cancelado" }
+    },
+    "projects.health": { "label": "Salud", "options": { "on_track": "En plazo", "at_risk": "En riesgo", "off_track": "Desviado" } },
+    "projects.owner": { "label": "Responsable" },
+    "projects.due_date": { "label": "Vencimiento" },
+    "projects.repo_url": { "label": "Enlace al repositorio" },
+    "tasks.status": {
+      "label": "Estado",
+      "options": { "backlog": "Backlog", "todo": "Por hacer", "in_progress": "En curso", "in_review": "En revisión", "blocked": "Bloqueada", "done": "Hecha", "cancelled": "Cancelada" }
+    },
+    "tasks.kind": { "label": "Tipo", "options": { "task": "Tarea", "bug": "Error", "feature": "Funcionalidad", "chore": "Rutina", "request": "Solicitud" } },
+    "tasks.priority": { "label": "Prioridad", "options": { "urgent": "Urgente", "high": "Alta", "medium": "Media", "low": "Baja" } },
+    "tasks.owner": { "label": "Responsable" },
+    "tasks.due": { "label": "Vencimiento" },
+    "tasks.original_due": { "label": "Vencimiento original" },
+    "tasks.done_on": { "label": "Hecha el" },
+    "tasks.blocked_reason": { "label": "Motivo del bloqueo" },
+    "tasks.external_url": { "label": "Enlace (pull request o ticket)" },
+    "recurring.cadence": { "label": "Se repite", "options": { "weekly": "Cada semana", "monthly": "Cada mes", "quarterly": "Cada trimestre", "yearly": "Cada año" } },
+    "recurring.next_due": { "label": "Próximo vencimiento" },
+    "recurring.owner": { "label": "Responsable" }
+  },
+  "relationships": {
+    "task_project": { "sourceLabel": "Proyecto", "targetLabel": "Tareas" },
+    "task_requester": { "sourceLabel": "Solicitante", "targetLabel": "Tareas" },
+    "recurring_project": { "sourceLabel": "Proyecto", "targetLabel": "Tareas recurrentes" }
+  },
+  "views": {
+    "tasks_all": { "name": "Todas las tareas" },
+    "tasks_board": { "name": "Tablero de tareas" },
+    "blocked_tasks": { "name": "Tareas bloqueadas" },
+    "projects_all": { "name": "Todos los proyectos" },
+    "recurring_all": { "name": "Todas las tareas recurrentes" },
+    "requesters_all": { "name": "Todos los solicitantes" }
+  },
+  "widgets": {
+    "tasks_by_status": { "title": "Tareas por estado" },
+    "open_by_priority": { "title": "Tareas abiertas por prioridad" },
+    "overdue_tasks": { "title": "Tareas vencidas" },
+    "due_soon": { "title": "Tareas que vencen pronto" },
+    "blocked_count": { "title": "Tareas bloqueadas" },
+    "activity_timeline": { "title": "Actividad reciente" }
+  },
+  "knowledgePages": {
+    "how_we_work": { "title": "Cómo trabajamos", "sections": ["Estados, prioridades y qué significa hecha", "Un responsable y una fecha por tarea"] },
+    "weekly_review": { "title": "Revisión semanal", "sections": ["Retrasos, bloqueos y tareas sin responsable", "Qué cambia esta semana"] },
+    "triage": { "title": "Clasificación de solicitudes y errores", "sections": ["Quién decide lo que entra", "Gravedad y prioridad"] }
+  },
+  "rules": {
+    "task_assigned": { "title": "Avisar al nuevo responsable cuando se le asigna una tarea" },
+    "due_tomorrow": { "title": "Avisar al responsable el día antes del vencimiento" },
+    "overdue_task": { "title": "Avisar a la persona a cargo el día después del vencimiento" },
+    "blocked_stale": { "title": "Avisar a la persona a cargo cuando una tarea sigue bloqueada 3 días" },
+    "stale_in_progress": { "title": "Recordar al responsable cuando una tarea lleva 5 días sin moverse" },
+    "recurring_due": { "title": "Crear una tarea cuando vence una tarea recurrente" },
+    "task_from_git": { "title": "Crear una tarea cuando el servicio de Git envía un evento" },
+    "request_form": { "title": "Crear la tarea y el solicitante cuando se envía el formulario de solicitud" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Cada tarea tiene un estado.",
+    "due_field": "Cada tarea tiene un vencimiento.",
+    "tasks_board_view": "Las tareas se abren como tablero por estado."
+  },
+  "prompt": {
+    "intro": "Configura en mi espacio de Customermates un seguimiento del equipo: proyectos, tareas con un responsable y un vencimiento, tareas recurrentes, solicitudes de fuera del equipo y avisos para el trabajo retrasado o bloqueado.",
+    "questions": [
+      "¿Cuántas personas tiene el equipo y en qué trabajan?",
+      "¿Qué estados usa hoy en Trello, Jira, Asana o una hoja de cálculo?",
+      "¿Qué tareas vuelven cada semana o cada mes y quién es responsable?",
+      "¿De dónde vienen las solicitudes y deben llegar por un formulario?"
+    ]
+  }
+}
