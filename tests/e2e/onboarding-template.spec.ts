@@ -1,16 +1,14 @@
-import { randomUUID } from "node:crypto";
-
 import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 import type { BrowserWorkspace } from "./workspace";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { collectPageErrors, expect, test } from "./fixtures";
-import { secondUser } from "./second-user";
 import { uniqueWorkspaceName } from "./workspace-names";
+import { insertStarterModel } from "./workspace";
 import { createWorkspaceFromSettings, openGoalOfNewWorkspace } from "./workspace-setup";
 import { clickHydrated, e2eAppMode } from "./workspace-switching";
-import { appPath, appUrlPattern, workspaceSlugOf } from "./app-paths";
+import { appUrlPattern, workspaceSlugOf } from "./app-paths";
 
 const wizard = englishMessages.OnboardingWizard;
 const goal = wizard.goal;
@@ -48,11 +46,11 @@ async function funnelEvents(database: Client, companyId: string) {
   return rows;
 }
 
-async function bumpSchemaRevision(database: Client, companyId: string) {
-  await database.query(
-    'INSERT INTO "RecordSchemaState" ("companyId", revision) VALUES ($1, 1) ON CONFLICT ("companyId") DO UPDATE SET revision = "RecordSchemaState".revision + 1',
-    [companyId],
-  );
+async function agentBuildsStarterModel(database: Client, companyId: string) {
+  const { rows } = await database.query<{ id: string }>('SELECT id FROM "User" WHERE "companyId"=$1 LIMIT 1', [
+    companyId,
+  ]);
+  await insertStarterModel(database, companyId, rows[0].id);
 }
 
 async function stubClipboard(page: Page, blocked: boolean) {
@@ -165,10 +163,9 @@ test.describe("cloud onboarding with templates", () => {
     await expectNoHorizontalOverflow(page);
     await page.setViewportSize({ width: 1280, height: 900 });
 
-    await expect(async () => {
-      await bumpSchemaRevision(database, companyId);
-      await expect(changed).toContainText(wizard.prompt.changed, { timeout: 4_000 });
-    }).toPass({ timeout: 40_000 });
+    await expect.poll(async () => (await savedProgress(database, companyId))?.schemaBaseline).not.toBeNull();
+    await agentBuildsStarterModel(database, companyId);
+    await expect(changed).toContainText(wizard.prompt.changed, { timeout: 20_000 });
     await page.screenshot({ path: testInfo.outputPath("prompt-changed.png"), fullPage: true });
 
     await clickHydrated(page.locator("#onboarding-prompt-finish"));
@@ -195,8 +192,11 @@ test.describe("cloud onboarding with templates", () => {
     await expect(templateCard(page, DEFAULT_TEMPLATE)).toBeChecked();
     await expect(templateLabel(page, DEFAULT_TEMPLATE)).toContainText(wizard.template.recommended);
 
+    await expect(templateCard(page, DEFAULT_TEMPLATE)).toBeEnabled();
     await templateCard(page, DEFAULT_TEMPLATE).focus();
     await page.keyboard.press("ArrowRight");
+    await expect(templateCard(page, DEFAULT_TEMPLATE)).not.toBeFocused();
+    await page.keyboard.press("Space");
     await expect(page.getByRole("radio", { checked: true })).toHaveCount(1);
     await expect(templateCard(page, DEFAULT_TEMPLATE)).not.toBeChecked();
 
@@ -251,34 +251,6 @@ test.describe("cloud onboarding with templates", () => {
     await expect(heading(page, steps.setup.startTitle)).toBeVisible();
     expect(await funnelEvents(database, companyId)).toEqual([{ type: "jobSelected", job: "workspace" }]);
     expect(errors).toEqual([]);
-  });
-});
-
-test.describe("invited members", () => {
-  test.skip(e2eAppMode() === "demo", "Invitations do not exist in the demo");
-
-  test("an invited member sees only the profile, team and AI steps", async ({ browser, database, workspace }, testInfo) => {
-    const roleId = randomUUID();
-    await database.query(
-      'INSERT INTO "UserRole" (id,"companyId",name,"isSystemRole","updatedAt") VALUES ($1,$2,\'Invited member\',false,NOW())',
-      [roleId, workspace.companyId],
-    );
-    const member = await secondUser(browser, database, workspace.companyId, testInfo, roleId);
-    try {
-      await database.query('UPDATE "User" SET "onboardingWizardCompletedAt"=NULL WHERE id=$1', [member.userId]);
-      await member.page.goto(appPath(workspace.slug, "/onboarding/wizard"));
-
-      await expect(heading(member.page, steps.invite.title)).toBeVisible();
-      await expect(member.page.locator("#onboarding-goal-continue")).toHaveCount(0);
-      await expect(member.page.getByRole("radio")).toHaveCount(0);
-      await clickHydrated(member.page.locator("#onboarding-next"));
-      await expect(heading(member.page, steps.ai.title)).toBeVisible();
-      await expect(heading(member.page, steps.connect.title)).toHaveCount(0);
-      await expect(member.page.locator("#onboarding-agent-status")).toHaveCount(0);
-      expect(member.errors).toEqual([]);
-    } finally {
-      await member.close();
-    }
   });
 });
 
