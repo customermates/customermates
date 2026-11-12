@@ -991,7 +991,7 @@
         "contacts": {
           "label": "Kontakt",
           "pluralLabel": "Kontakte",
-          "description": "Die Personen, die Ihnen schreiben, mit ihrer WhatsApp-Einwilligung und dem Nachbestelltermin."
+          "description": "Die Personen, die dir schreiben, mit ihrer WhatsApp-Einwilligung und dem Nachbestelltermin."
         },
         "enquiries": {
           "label": "Anfrage",
@@ -1027,7 +1027,7 @@
             "customer_started_chat": "Kunde hat den Chat begonnen",
             "gave_permission": "Hat zugestimmt",
             "unknown": "Unbekannt",
-            "opted_out": "Wollte keine Nachrichten mehr"
+            "opted_out": "Keine Nachrichten mehr gewünscht"
           }
         },
         "contacts.last_order_on": {
@@ -1098,7 +1098,7 @@
           }
         },
         "enquiries.revisit_on": {
-          "label": "Melden am",
+          "label": "Wiederansprache am",
           "options": {}
         },
         "enquiries.weighted_value": {
@@ -1233,7 +1233,7 @@
           "description": ""
         },
         "payment_request": {
-          "title": "Am Tag nach Eintritt in Zahlung offen die Zahlung anfordern",
+          "title": "Am Tag nach Eintritt in die Phase „Zahlung offen“ die Zahlung anfordern",
           "description": ""
         },
         "won_reorder": {
@@ -1249,11 +1249,11 @@
           "description": ""
         },
         "later_revisit_date": {
-          "title": "Das Meldedatum auf 90 Tage setzen, wenn eine Anfrage auf Später geht",
+          "title": "Das Datum der Wiederansprache auf 90 Tage setzen, wenn eine Anfrage auf „Später“ geht",
           "description": ""
         },
         "revisit_follow_up": {
-          "title": "Zum Meldedatum nachfassen",
+          "title": "Zur Wiederansprache nachfassen",
           "description": ""
         },
         "unanswered_sweep": {
@@ -1268,20 +1268,20 @@
         "enquiries_board_view": "Die Anfragen öffnen sich als Board nach Phase."
       },
       "prompt": {
-        "intro": "Richte in meinem Customermates-Workspace das Nachfassen von WhatsApp-Anfragen ein: eine Anfrage je Chat mit Angebot und Gültigkeit, terminiertem nächstem Schritt, Zahlungsphase, Meldedatum und einem Nachbestelltermin je Kontakt, dazu die WhatsApp-Einwilligung des Kontakts. Schreibe Antworten einzeln zur Prüfung und sende nichts in Masse.",
+        "intro": "Richte in meinem Customermates-Workspace das Nachfassen von WhatsApp-Anfragen ein: eine Anfrage je Chat mit Angebot und Gültigkeit, terminiertem nächstem Schritt, Zahlungsphase, Datum der Wiederansprache und einem Nachbestelltermin je Kontakt, dazu die WhatsApp-Einwilligung des Kontakts. Schreibe Antworten einzeln zur Prüfung und sende nichts in Masse.",
         "questions": [
-          "Wonach fragen Kunden Sie auf WhatsApp, und wie bieten Sie an?",
-          "Wie schnell möchten Sie auf eine neue Nachricht antworten?",
-          "Wie viele Tage warten Sie nach einem Angebot, bevor Sie nachfassen, und wann hören Sie auf?",
+          "Wonach fragen dich Kunden auf WhatsApp, und wie erstellst du Angebote?",
+          "Wie schnell möchtest du auf eine neue Nachricht antworten?",
+          "Wie viele Tage wartest du nach einem Angebot, bevor du nachfasst, und wann hörst du auf?",
           "Bestellen Kunden nach, und nach welcher Zeit?"
         ]
       }
     },
     "en": {
       "locale": "en",
-      "name": "WhatsApp enquiry follow-up",
-      "summary": "A pipeline for a small business whose customers write on WhatsApp: record the enquiry, reply fast, send a quote, follow up in days, confirm the order and remember the repeat purchase.",
-      "description": "Turn WhatsApp chats into worked enquiries: every chat becomes an enquiry with what the customer wants, the quote and how long it is valid, a dated next step, a payment stage and a date to come back when the answer was later. Each contact records whether they agreed to be messaged and when a reorder is due. Replies are written one by one and reviewed. It does not send broadcasts, campaigns or chatbot menus, and it does not use the official WhatsApp Business Platform. WhatsApp may restrict an account used in a way its policy forbids.",
+      "name": "WhatsApp inquiry follow-up",
+      "summary": "A pipeline for a small business whose customers write on WhatsApp: record the inquiry, reply fast, send a quote, follow up in days, confirm the order and remember the repeat purchase.",
+      "description": "Turn WhatsApp chats into worked inquiries: every chat becomes an inquiry with what the customer wants, the quote and how long it is valid, a dated next step, a payment stage and a date to come back when the answer was later. Each contact records whether they agreed to be messaged and when a reorder is due. Replies are written one by one and reviewed. It does not send broadcasts, campaigns or chatbot menus, and it does not use the official WhatsApp Business Platform. WhatsApp may restrict an account used in a way its policy forbids.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1294,8 +1294,8 @@
           "description": "The people who write to you, with their WhatsApp permission and reorder date."
         },
         "enquiries": {
-          "label": "Enquiry",
-          "pluralLabel": "Enquiries",
+          "label": "Inquiry",
+          "pluralLabel": "Inquiries",
           "description": "One request from a chat, from the first message to ordered, lost or later."
         }
       },
@@ -1422,10 +1422,10 @@
       "relationships": {
         "enquiry_contact": {
           "sourceLabel": "Contact",
-          "targetLabel": "Enquiries"
+          "targetLabel": "Inquiries"
         },
         "action_enquiry": {
-          "sourceLabel": "Enquiry",
+          "sourceLabel": "Inquiry",
           "targetLabel": "Actions"
         }
       },
@@ -1434,10 +1434,10 @@
           "name": "All actions"
         },
         "enquiries_board": {
-          "name": "Enquiries by stage"
+          "name": "Inquiries by stage"
         },
         "enquiries_all": {
-          "name": "All enquiries"
+          "name": "All inquiries"
         },
         "open_quotes": {
           "name": "Quotes waiting for an answer"
@@ -1460,7 +1460,7 @@
           "title": "Recent activity"
         },
         "enquiries_funnel": {
-          "title": "Enquiries by stage"
+          "title": "Inquiries by stage"
         },
         "open_quotes_value": {
           "title": "Value of quotes waiting"
@@ -1475,15 +1475,15 @@
           "title": "Deliveries and appointments coming up"
         },
         "by_source": {
-          "title": "Enquiries by source"
+          "title": "Inquiries by source"
         },
         "lost_reasons": {
-          "title": "Why enquiries were lost"
+          "title": "Why inquiries were lost"
         }
       },
       "knowledgePages": {
         "enquiry_playbook": {
-          "title": "WhatsApp enquiry playbook",
+          "title": "WhatsApp inquiry playbook",
           "sections": [
             "Reply, record, quote, follow up, confirm, remember",
             "Who answers and how fast"
@@ -1513,15 +1513,15 @@
       },
       "rules": {
         "enquiry_form_records": {
-          "title": "Create the contact and the enquiry when the enquiry form with the WhatsApp box is submitted",
+          "title": "Create the contact and the inquiry when the inquiry form with the WhatsApp box is submitted",
           "description": ""
         },
         "reply_new_chat": {
-          "title": "Create a reply task when an enquiry is created",
+          "title": "Create a reply task when an inquiry is created",
           "description": ""
         },
         "first_reply_missed": {
-          "title": "Notify the owner when an enquiry is still a new chat a day later",
+          "title": "Notify the owner when an inquiry is still a new chat a day later",
           "description": ""
         },
         "quote_follow_up": {
@@ -1533,7 +1533,7 @@
           "description": ""
         },
         "payment_request": {
-          "title": "Ask for payment the day after an enquiry reaches awaiting payment",
+          "title": "Ask for payment the day after an inquiry reaches awaiting payment",
           "description": ""
         },
         "won_reorder": {
@@ -1549,7 +1549,7 @@
           "description": ""
         },
         "later_revisit_date": {
-          "title": "Set the come-back date to 90 days out when an enquiry moves to later",
+          "title": "Set the come-back date to 90 days out when an inquiry moves to later",
           "description": ""
         },
         "revisit_follow_up": {
@@ -1562,13 +1562,13 @@
         }
       },
       "acceptanceChecks": {
-        "stage_field": "Every enquiry has a stage.",
+        "stage_field": "Every inquiry has a stage.",
         "opt_in_field": "Every contact records their WhatsApp permission.",
         "quote_valid_field": "Every quote records how long it is valid.",
-        "enquiries_board_view": "The enquiries open as a board by stage."
+        "enquiries_board_view": "The inquiries open as a board by stage."
       },
       "prompt": {
-        "intro": "Set up WhatsApp enquiry follow-up in my Customermates workspace: an enquiry for every chat with a quote and its validity, a dated next step, a payment stage, a come-back date and a reorder date per contact, plus the contact's WhatsApp permission. Write replies one by one for my review and send nothing in bulk.",
+        "intro": "Set up WhatsApp inquiry follow-up in my Customermates workspace: an inquiry for every chat with a quote and its validity, a dated next step, a payment stage, a come-back date and a reorder date per contact, plus the contact's WhatsApp permission. Write replies one by one for my review and send nothing in bulk.",
         "questions": [
           "What do customers ask you about on WhatsApp, and how do you quote?",
           "How fast do you want to answer a new chat?",
@@ -1581,7 +1581,7 @@
       "locale": "es",
       "name": "Seguimiento de consultas por WhatsApp",
       "summary": "Un pipeline para una pequeña empresa cuyos clientes escriben por WhatsApp: anotar la consulta, responder rápido, enviar un presupuesto, hacer seguimiento en días, confirmar el pedido y recordar la recompra.",
-      "description": "Convierta los chats de WhatsApp en consultas trabajadas: cada chat pasa a ser una consulta con lo que quiere el cliente, el presupuesto y su validez, un próximo seguimiento con fecha, una fase de pago y una fecha para volver cuando la respuesta fue «más adelante». Cada contacto anota si aceptó recibir mensajes y cuándo toca reponer. Las respuestas se escriben una a una y se revisan. No envía difusiones, campañas ni menús de chatbot y no usa la plataforma oficial de WhatsApp Business. WhatsApp puede restringir una cuenta usada de una forma que su política prohíbe.",
+      "description": "Convierte los chats de WhatsApp en consultas trabajadas: cada chat pasa a ser una consulta con lo que quiere el cliente, el presupuesto y su validez, un próximo seguimiento con fecha, una fase de pago y una fecha para volver cuando la respuesta fue «más adelante». Cada contacto anota si aceptó recibir mensajes y cuándo toca reponer. Las respuestas se escriben una a una y se revisan. No envía difusiones, campañas ni menús de chatbot y no usa la plataforma oficial de WhatsApp Business. WhatsApp puede restringir una cuenta usada de una forma que su política prohíbe.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -1591,7 +1591,7 @@
         "contacts": {
           "label": "Contacto",
           "pluralLabel": "Contactos",
-          "description": "Las personas que le escriben, con su permiso de WhatsApp y su fecha de reposición."
+          "description": "Las personas que te escriben, con su permiso de WhatsApp y su fecha de reposición."
         },
         "enquiries": {
           "label": "Consulta",
@@ -1627,7 +1627,7 @@
             "customer_started_chat": "El cliente inició el chat",
             "gave_permission": "Dio su permiso",
             "unknown": "Desconocido",
-            "opted_out": "Pidió que paremos"
+            "opted_out": "Pidió que no le escribamos más"
           }
         },
         "contacts.last_order_on": {
@@ -1687,7 +1687,7 @@
           "options": {}
         },
         "enquiries.lost_reason": {
-          "label": "Motivo de la pérdida",
+          "label": "Motivo de pérdida",
           "options": {
             "price": "Precio",
             "chose_competitor": "Eligió a la competencia",
@@ -1710,7 +1710,7 @@
           "options": {
             "reply": "Responder",
             "send_quote": "Enviar el presupuesto",
-            "follow_up": "Dar seguimiento",
+            "follow_up": "Hacer seguimiento",
             "confirm_order": "Confirmar el pedido",
             "request_payment": "Pedir el pago",
             "confirm_appointment": "Confirmar la cita",
@@ -1793,7 +1793,7 @@
           "title": "Permiso y baja de mensajes",
           "sections": [
             "Cuándo un cliente ha aceptado recibir mensajes",
-            "Qué pasa cuando alguien pide que paremos"
+            "Qué pasa cuando alguien pide que no le escribamos más"
           ]
         },
         "follow_up_rhythm": {
@@ -1825,7 +1825,7 @@
           "description": ""
         },
         "quote_follow_up": {
-          "title": "Dar seguimiento 2 días después de enviar un presupuesto",
+          "title": "Hacer seguimiento 2 días después de enviar un presupuesto",
           "description": ""
         },
         "quote_expiring": {
@@ -1833,7 +1833,7 @@
           "description": ""
         },
         "payment_request": {
-          "title": "Pedir el pago el día después de pasar a pendiente de pago",
+          "title": "Pedir el pago al día siguiente de pasar a pendiente de pago",
           "description": ""
         },
         "won_reorder": {
@@ -1849,11 +1849,11 @@
           "description": ""
         },
         "later_revisit_date": {
-          "title": "Fijar la fecha para volver a 90 días cuando una consulta pasa a más adelante",
+          "title": "Fijar la fecha para volver dentro de 90 días cuando una consulta pasa a más adelante",
           "description": ""
         },
         "revisit_follow_up": {
-          "title": "Dar seguimiento en la fecha para volver",
+          "title": "Hacer seguimiento en la fecha para volver",
           "description": ""
         },
         "unanswered_sweep": {
@@ -1868,11 +1868,11 @@
         "enquiries_board_view": "Las consultas se abren como tablero por fase."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de Customermates el seguimiento de consultas por WhatsApp: una consulta por chat con presupuesto y validez, próximo seguimiento con fecha, fase de pago, fecha para volver y fecha de reposición por contacto, además del permiso de WhatsApp del contacto. Escribe las respuestas una a una para mi revisión y no envíes nada en masa.",
+        "intro": "Configura en mi espacio de trabajo de Customermates el seguimiento de consultas por WhatsApp: una consulta por chat con presupuesto y validez, próximo seguimiento con fecha, fase de pago, fecha para volver y fecha de reposición por contacto, además del permiso de WhatsApp del contacto. Escribe las respuestas una a una para mi revisión y no envíes nada en masa.",
         "questions": [
-          "¿Qué le preguntan los clientes por WhatsApp y cómo presupuesta?",
-          "¿En cuánto tiempo quiere responder a un chat nuevo?",
-          "¿Cuántos días espera tras un presupuesto antes de hacer seguimiento y cuándo para?",
+          "¿Qué te preguntan los clientes por WhatsApp y cómo presupuestas?",
+          "¿En cuánto tiempo quieres responder a un chat nuevo?",
+          "¿Cuántos días esperas tras un presupuesto antes de hacer seguimiento y cuándo paras?",
           "¿Los clientes repiten pedidos y al cabo de cuánto tiempo?"
         ]
       }
@@ -1880,8 +1880,8 @@
     "fr": {
       "locale": "fr",
       "name": "Suivi des demandes WhatsApp",
-      "summary": "Un pipeline pour une petite entreprise dont les clients écrivent sur WhatsApp : noter la demande, répondre vite, envoyer un devis, relancer en quelques jours, confirmer la commande et penser au réachat.",
-      "description": "Transformez les conversations WhatsApp en demandes suivies : chaque conversation devient une demande avec ce que veut le client, le devis et sa validité, une prochaine relance datée, une étape de paiement et une date pour revenir quand la réponse était « plus tard ». Chaque contact indique s'il a accepté de recevoir des messages et quand un réachat est attendu. Les réponses sont rédigées une à une et relues. Il n'envoie ni diffusions, ni campagnes, ni menus de chatbot, et n'utilise pas la plateforme officielle WhatsApp Business. WhatsApp peut restreindre un compte utilisé d'une façon que sa politique interdit.",
+      "summary": "Un pipeline pour une petite entreprise dont les clients écrivent sur WhatsApp : noter la demande, répondre vite, envoyer un devis, relancer en quelques jours, confirmer la commande et penser au réachat.",
+      "description": "Transformez les conversations WhatsApp en demandes suivies : chaque conversation devient une demande avec ce que veut le client, le devis et sa validité, une prochaine relance datée, une étape de paiement et une date pour revenir quand la réponse était « plus tard ». Chaque contact indique s’il a accepté de recevoir des messages et quand un réachat est attendu. Les réponses sont rédigées une à une et relues. Il n’envoie ni diffusions, ni campagnes, ni menus de chatbot, et n’utilise pas la plateforme officielle WhatsApp Business. WhatsApp peut restreindre un compte utilisé d’une façon que sa politique interdit.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1896,7 +1896,7 @@
         "enquiries": {
           "label": "Demande",
           "pluralLabel": "Demandes (affaires)",
-          "description": "Une demande venue d'une conversation, du premier message à commande confirmée, perdue ou plus tard."
+          "description": "Une demande venue d’une conversation, du premier message à commande confirmée, perdue ou plus tard."
         }
       },
       "fields": {
@@ -1927,7 +1927,7 @@
             "customer_started_chat": "Le client a lancé la conversation",
             "gave_permission": "A donné son accord",
             "unknown": "Inconnu",
-            "opted_out": "A demandé l'arrêt"
+            "opted_out": "A demandé l’arrêt"
           }
         },
         "contacts.last_order_on": {
@@ -1971,7 +1971,7 @@
           "options": {}
         },
         "enquiries.quote_valid_until": {
-          "label": "Devis valable jusqu'au",
+          "label": "Devis valable jusqu’au",
           "options": {}
         },
         "enquiries.ordered_on": {
@@ -1987,7 +1987,7 @@
           "options": {}
         },
         "enquiries.lost_reason": {
-          "label": "Raison de la perte",
+          "label": "Motif de perte",
           "options": {
             "price": "Prix",
             "chose_competitor": "A choisi un concurrent",
@@ -2078,7 +2078,7 @@
           "title": "Demandes par source"
         },
         "lost_reasons": {
-          "title": "Pourquoi des demandes sont perdues"
+          "title": "Motifs de perte des demandes"
         }
       },
       "knowledgePages": {
@@ -2093,21 +2093,21 @@
           "title": "Consentement et arrêt des messages",
           "sections": [
             "Quand un client a accepté de recevoir des messages",
-            "Ce qui se passe quand quelqu'un demande l'arrêt"
+            "Ce qui se passe quand quelqu’un demande l’arrêt"
           ]
         },
         "follow_up_rhythm": {
-          "title": "Rythme de relance et moment d'arrêter",
+          "title": "Rythme de relance et moment d’arrêter",
           "sections": [
             "Délai entre les relances après un devis",
             "Le message de clôture et la date pour recontacter"
           ]
         },
         "what_whatsapp_allows": {
-          "title": "Ce que WhatsApp permet et ce que ce montage ne fait pas",
+          "title": "Ce que WhatsApp permet et ce que cette configuration ne fait pas",
           "sections": [
             "Pas de diffusions, de campagnes ni de chatbots",
-            "Le risque d'utiliser un compte lié"
+            "Le risque d’utiliser un compte lié"
           ]
         }
       },
@@ -2125,7 +2125,7 @@
           "description": ""
         },
         "quote_follow_up": {
-          "title": "Relancer 2 jours après l'envoi d'un devis",
+          "title": "Relancer 2 jours après l’envoi d’un devis",
           "description": ""
         },
         "quote_expiring": {
@@ -2133,15 +2133,15 @@
           "description": ""
         },
         "payment_request": {
-          "title": "Demander le paiement le lendemain de l'entrée en attente de paiement",
+          "title": "Demander le paiement le lendemain de l’entrée en attente de paiement",
           "description": ""
         },
         "won_reorder": {
-          "title": "Créer un rappel de réachat 90 jours après la confirmation d'une commande",
+          "title": "Créer un rappel de réachat 90 jours après la confirmation d’une commande",
           "description": ""
         },
         "service_calendar": {
-          "title": "Ajouter la livraison ou le rendez-vous à l'agenda quand la commande est confirmée",
+          "title": "Ajouter la livraison ou le rendez-vous à l’agenda quand la commande est confirmée",
           "description": ""
         },
         "appointment_confirm": {
@@ -2165,21 +2165,21 @@
         "stage_field": "Chaque demande a une étape.",
         "opt_in_field": "Chaque contact indique son accord WhatsApp.",
         "quote_valid_field": "Chaque devis indique sa durée de validité.",
-        "enquiries_board_view": "Les demandes s'ouvrent en tableau par étape."
+        "enquiries_board_view": "Les demandes s’ouvrent en board par étape."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace Customermates le suivi des demandes WhatsApp : une demande par conversation avec devis et validité, prochaine relance datée, étape de paiement, date pour recontacter et date de réachat par contact, ainsi que l'accord WhatsApp du contact. Rédige les réponses une à une pour relecture et n'envoie rien en masse.",
+        "intro": "Mets en place dans mon espace de travail Customermates le suivi des demandes WhatsApp : une demande par conversation avec devis et validité, prochaine relance datée, étape de paiement, date pour recontacter et date de réachat par contact, ainsi que l’accord WhatsApp du contact. Rédige les réponses une à une pour relecture et n’envoie rien en masse.",
         "questions": [
-          "Que vous demandent les clients sur WhatsApp, et comment chiffrez-vous ?",
-          "En combien de temps voulez-vous répondre à un nouveau message ?",
-          "Combien de jours attendez-vous après un devis avant de relancer, et quand arrêtez-vous ?",
-          "Vos clients rachètent-ils, et au bout de combien de temps ?"
+          "Que vous demandent les clients sur WhatsApp, et comment chiffrez-vous ?",
+          "En combien de temps voulez-vous répondre à un nouveau message ?",
+          "Combien de jours attendez-vous après un devis avant de relancer, et quand arrêtez-vous ?",
+          "Vos clients rachètent-ils, et au bout de combien de temps ?"
         ]
       }
     },
     "it": {
       "locale": "it",
-      "name": "Seguito delle richieste WhatsApp",
+      "name": "Follow-up delle richieste WhatsApp",
       "summary": "Una pipeline per una piccola impresa i cui clienti scrivono su WhatsApp: registrare la richiesta, rispondere in fretta, inviare un preventivo, sollecitare dopo qualche giorno, confermare l'ordine e ricordare il riacquisto.",
       "description": "Trasforma le chat WhatsApp in richieste seguite: ogni chat diventa una richiesta con ciò che vuole il cliente, il preventivo e la sua validità, un prossimo contatto con data, una fase di pagamento e una data per riprendere quando la risposta era «più avanti». Ogni contatto registra se ha accettato di ricevere messaggi e quando è previsto un riordino. Le risposte vengono scritte una per una e riviste. Non invia messaggi di massa, campagne o menu di chatbot e non usa la piattaforma ufficiale WhatsApp Business. WhatsApp può limitare un account usato in modo vietato dalle sue regole.",
       "lists": {
@@ -2246,7 +2246,7 @@
             "quote_sent": "Preventivo inviato",
             "awaiting_payment": "In attesa di pagamento",
             "won": "Ordine confermato",
-            "lost": "Perso",
+            "lost": "Persa",
             "later": "Più avanti"
           }
         },
@@ -2263,7 +2263,7 @@
           }
         },
         "enquiries.interest": {
-          "label": "Prodotto di interesse",
+          "label": "Prodotto o servizio richiesto",
           "options": {}
         },
         "enquiries.received_at": {
@@ -2357,7 +2357,7 @@
           "title": "Attività scadute"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         },
         "enquiries_funnel": {
           "title": "Richieste per fase"
@@ -2378,14 +2378,14 @@
           "title": "Richieste per origine"
         },
         "lost_reasons": {
-          "title": "Perché le richieste sono perse"
+          "title": "Motivi di perdita delle richieste"
         }
       },
       "knowledgePages": {
         "enquiry_playbook": {
           "title": "Guida alle richieste WhatsApp",
           "sections": [
-            "Rispondere, registrare, quotare, sollecitare, confermare, ricordare",
+            "Rispondere, registrare, fare il preventivo, sollecitare, confermare, ricordare",
             "Chi risponde e in che tempi"
           ]
         },
@@ -2465,14 +2465,14 @@
         "stage_field": "Ogni richiesta ha una fase.",
         "opt_in_field": "Ogni contatto registra il suo consenso WhatsApp.",
         "quote_valid_field": "Ogni preventivo indica per quanto tempo è valido.",
-        "enquiries_board_view": "Le richieste si aprono come bacheca per fase."
+        "enquiries_board_view": "Le richieste si aprono come board per fase."
       },
       "prompt": {
-        "intro": "Imposta nel mio workspace Customermates il seguito delle richieste WhatsApp: una richiesta per ogni chat con preventivo e validità, prossimo contatto con data, fase di pagamento, data per ricontattare e data di riordino per contatto, più il consenso WhatsApp del contatto. Scrivi le risposte una per una per la mia revisione e non inviare nulla in massa.",
+        "intro": "Imposta nel mio spazio di lavoro Customermates il follow-up delle richieste WhatsApp: una richiesta per ogni chat con preventivo e validità, prossimo contatto con data, fase di pagamento, data per ricontattare e data di riordino per contatto, più il consenso WhatsApp del contatto. Scrivi le risposte una per una per la mia revisione e non inviare nulla in massa.",
         "questions": [
-          "Che cosa vi chiedono i clienti su WhatsApp e come quotate?",
-          "In quanto tempo volete rispondere a una nuova chat?",
-          "Quanti giorni aspettate dopo un preventivo prima di sollecitare e quando smettete?",
+          "Che cosa ti chiedono i clienti su WhatsApp e come fai i preventivi?",
+          "In quanto tempo vuoi rispondere a una nuova chat?",
+          "Quanti giorni aspetti dopo un preventivo prima di sollecitare e quando smetti?",
           "I clienti riordinano e dopo quanto tempo?"
         ]
       }
@@ -2491,11 +2491,11 @@
         "contacts": {
           "label": "Contactpersoon",
           "pluralLabel": "Contactpersonen",
-          "description": "De mensen die u schrijven, met hun WhatsApp-toestemming en nabestelddatum."
+          "description": "De mensen die je schrijven, met hun WhatsApp-toestemming en de verwachte nabestelling."
         },
         "enquiries": {
           "label": "Aanvraag",
-          "pluralLabel": "Aanvragen (deals)",
+          "pluralLabel": "Aanvragen",
           "description": "Eén verzoek uit een gesprek, van eerste bericht tot besteld, verloren of later."
         }
       },
@@ -2504,7 +2504,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -2557,7 +2557,7 @@
             "website": "Website",
             "instagram": "Instagram",
             "referral": "Aanbeveling",
-            "walk_in": "Langsgekomen",
+            "walk_in": "Binnengelopen",
             "phone": "Telefoon",
             "ad": "Advertentie"
           }
@@ -2583,7 +2583,7 @@
           "options": {}
         },
         "enquiries.next_step_due": {
-          "label": "Volgende stap",
+          "label": "Volgende stap uiterlijk op",
           "options": {}
         },
         "enquiries.lost_reason": {
@@ -2622,11 +2622,11 @@
       "relationships": {
         "enquiry_contact": {
           "sourceLabel": "Contactpersoon",
-          "targetLabel": "Aanvragen (deals)"
+          "targetLabel": "Aanvragen"
         },
         "action_enquiry": {
           "sourceLabel": "Aanvraag",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         }
       },
       "views": {
@@ -2685,7 +2685,7 @@
         "enquiry_playbook": {
           "title": "Draaiboek voor WhatsApp-aanvragen",
           "sections": [
-            "Antwoorden, vastleggen, offreren, opvolgen, bevestigen, onthouden",
+            "Antwoorden, vastleggen, offerte maken, opvolgen, bevestigen, onthouden",
             "Wie antwoordt en hoe snel"
           ]
         },
@@ -2713,51 +2713,51 @@
       },
       "rules": {
         "enquiry_form_records": {
-          "title": "Contactpersoon en aanvraag aanmaken als het formulier met het WhatsApp-vakje is ingediend",
+          "title": "Maak een contactpersoon en een aanvraag aan als het formulier met het WhatsApp-vakje is ingediend",
           "description": ""
         },
         "reply_new_chat": {
-          "title": "Een taak om te antwoorden aanmaken als een aanvraag binnenkomt",
+          "title": "Maak een taak aan om te antwoorden als een aanvraag binnenkomt",
           "description": ""
         },
         "first_reply_missed": {
-          "title": "De verantwoordelijke waarschuwen als een aanvraag een dag later nog een nieuw bericht is",
+          "title": "Waarschuw de verantwoordelijke als een aanvraag een dag later nog een nieuw bericht is",
           "description": ""
         },
         "quote_follow_up": {
-          "title": "2 dagen na het versturen van een offerte opvolgen",
+          "title": "Volg 2 dagen na het versturen van een offerte op",
           "description": ""
         },
         "quote_expiring": {
-          "title": "Navragen of afsluiten als een offerte zijn geldigheidsdatum bereikt",
+          "title": "Vraag na of sluit af als een offerte zijn geldigheidsdatum bereikt",
           "description": ""
         },
         "payment_request": {
-          "title": "De dag nadat een aanvraag op wacht op betaling komt de betaling vragen",
+          "title": "Vraag om de betaling op de dag nadat een aanvraag in de fase Wacht op betaling komt",
           "description": ""
         },
         "won_reorder": {
-          "title": "90 dagen na een bevestigde bestelling een herinnering voor nabestelling aanmaken",
+          "title": "Maak 90 dagen na een bevestigde bestelling een herinnering voor nabestelling aan",
           "description": ""
         },
         "service_calendar": {
-          "title": "De levering of afspraak in de agenda zetten als de bestelling is bevestigd",
+          "title": "Zet de levering of afspraak in de agenda als de bestelling is bevestigd",
           "description": ""
         },
         "appointment_confirm": {
-          "title": "De afspraak de dag ervoor bevestigen",
+          "title": "Bevestig de afspraak de dag ervoor",
           "description": ""
         },
         "later_revisit_date": {
-          "title": "De terugkomdatum op 90 dagen zetten als een aanvraag naar later gaat",
+          "title": "Zet de terugkomdatum op 90 dagen als een aanvraag naar later gaat",
           "description": ""
         },
         "revisit_follow_up": {
-          "title": "Op de terugkomdatum opvolgen",
+          "title": "Volg op de terugkomdatum op",
           "description": ""
         },
         "unanswered_sweep": {
-          "title": "Elke dag voor elk onbeantwoord nieuw bericht een taak om te antwoorden aanmaken",
+          "title": "Maak elke dag voor elk onbeantwoord nieuw bericht een taak aan om te antwoorden",
           "description": ""
         }
       },
@@ -2768,18 +2768,18 @@
         "enquiries_board_view": "De aanvragen openen als bord per fase."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-workspace het opvolgen van WhatsApp-aanvragen in: een aanvraag per gesprek met offerte en geldigheid, een volgende stap met datum, een betalingsfase, een terugkomdatum en een nabestelddatum per contact, plus de WhatsApp-toestemming van het contact. Schrijf antwoorden stuk voor stuk ter controle en stuur niets in bulk.",
+        "intro": "Richt in mijn Customermates-werkruimte het opvolgen van WhatsApp-aanvragen in: een aanvraag per gesprek met offerte en geldigheid, een volgende stap met datum, een betalingsfase, een terugkomdatum en een verwachte nabestelling per contact, plus de WhatsApp-toestemming van het contact. Schrijf antwoorden stuk voor stuk ter controle en stuur niets in bulk.",
         "questions": [
-          "Waar vragen klanten u op WhatsApp naar en hoe offreert u?",
-          "Hoe snel wilt u op een nieuw bericht antwoorden?",
-          "Hoeveel dagen wacht u na een offerte voordat u opvolgt en wanneer stopt u?",
+          "Waar vragen klanten je op WhatsApp naar en hoe maak je een offerte?",
+          "Hoe snel wil je op een nieuw bericht antwoorden?",
+          "Hoeveel dagen wacht je na een offerte voordat je opvolgt en wanneer stop je?",
           "Bestellen klanten opnieuw en na hoe lang?"
         ]
       }
     },
     "pl": {
       "locale": "pl",
-      "name": "Obsługa zapytań z WhatsApp",
+      "name": "Obsługa zapytań z WhatsAppa",
       "summary": "Lejek dla małej firmy, której klienci piszą na WhatsAppie: zapisać zapytanie, szybko odpowiedzieć, wysłać ofertę, przypomnieć po kilku dniach, potwierdzić zamówienie i pamiętać o ponownym zakupie.",
       "description": "Zamieniaj rozmowy z WhatsAppa w obsłużone zapytania: każda rozmowa staje się zapytaniem z tym, czego chce klient, ofertą i jej ważnością, następnym kontaktem z terminem, etapem płatności i datą powrotu, gdy odpowiedź brzmiała „później”. Każdy kontakt zapisuje, czy zgodził się na wiadomości i kiedy spodziewane jest ponowne zamówienie. Odpowiedzi pisze się pojedynczo i sprawdza. Narzędzie nie wysyła wiadomości masowych, kampanii ani menu chatbota i nie korzysta z oficjalnej platformy WhatsApp Business. WhatsApp może ograniczyć konto używane w sposób sprzeczny z jego regulaminem.",
       "lists": {
@@ -2795,7 +2795,7 @@
         },
         "enquiries": {
           "label": "Zapytanie",
-          "pluralLabel": "Zapytania (szanse)",
+          "pluralLabel": "Zapytania",
           "description": "Jedna prośba z rozmowy, od pierwszej wiadomości do zamówienia, utraty lub później."
         }
       },
@@ -2814,7 +2814,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -2827,7 +2827,7 @@
             "customer_started_chat": "Klient sam zaczął rozmowę",
             "gave_permission": "Wyraził zgodę",
             "unknown": "Nieznana",
-            "opted_out": "Poprosił o zaprzestanie"
+            "opted_out": "Poprosił o zaprzestanie kontaktu"
           }
         },
         "contacts.last_order_on": {
@@ -2863,11 +2863,11 @@
           }
         },
         "enquiries.interest": {
-          "label": "Zainteresowanie",
+          "label": "Czego chce klient",
           "options": {}
         },
         "enquiries.received_at": {
-          "label": "Pierwsza wiadomość otrzymana",
+          "label": "Data i godzina pierwszej wiadomości",
           "options": {}
         },
         "enquiries.quote_valid_until": {
@@ -2875,7 +2875,7 @@
           "options": {}
         },
         "enquiries.ordered_on": {
-          "label": "Zamówiono dnia",
+          "label": "Data zamówienia",
           "options": {}
         },
         "enquiries.service_date": {
@@ -2890,15 +2890,15 @@
           "label": "Powód utraty",
           "options": {
             "price": "Cena",
-            "chose_competitor": "Wybrał konkurencję",
+            "chose_competitor": "Klient wybrał konkurencję",
             "no_response": "Brak odpowiedzi",
-            "timing": "Termin",
+            "timing": "Nieodpowiedni moment",
             "not_available": "Niedostępne",
             "not_a_fit": "Nie pasuje"
           }
         },
         "enquiries.revisit_on": {
-          "label": "Wróć do klienta dnia",
+          "label": "Data powrotu do klienta",
           "options": {}
         },
         "enquiries.weighted_value": {
@@ -2910,7 +2910,7 @@
           "options": {
             "reply": "Odpowiedzieć",
             "send_quote": "Wysłać ofertę",
-            "follow_up": "Przypomnieć",
+            "follow_up": "Przypomnieć o sobie",
             "confirm_order": "Potwierdzić zamówienie",
             "request_payment": "Poprosić o płatność",
             "confirm_appointment": "Potwierdzić termin",
@@ -2922,7 +2922,7 @@
       "relationships": {
         "enquiry_contact": {
           "sourceLabel": "Kontakt",
-          "targetLabel": "Zapytania (szanse)"
+          "targetLabel": "Zapytania"
         },
         "action_enquiry": {
           "sourceLabel": "Zapytanie",
@@ -2963,7 +2963,7 @@
           "title": "Zapytania według etapu"
         },
         "open_quotes_value": {
-          "title": "Wartość ofert w oczekiwaniu"
+          "title": "Wartość ofert czekających na odpowiedź"
         },
         "new_chats": {
           "title": "Nowe wiadomości do odpowiedzi"
@@ -2978,7 +2978,7 @@
           "title": "Zapytania według źródła"
         },
         "lost_reasons": {
-          "title": "Dlaczego zapytania zostały utracone"
+          "title": "Powody utraty zapytań"
         }
       },
       "knowledgePages": {
@@ -3013,51 +3013,51 @@
       },
       "rules": {
         "enquiry_form_records": {
-          "title": "Utworzyć kontakt i zapytanie po wysłaniu formularza z polem WhatsApp",
+          "title": "Utwórz kontakt i zapytanie po wysłaniu formularza z polem WhatsApp",
           "description": ""
         },
         "reply_new_chat": {
-          "title": "Utworzyć zadanie odpowiedzi, gdy powstaje zapytanie",
+          "title": "Utwórz zadanie odpowiedzi, gdy powstaje zapytanie",
           "description": ""
         },
         "first_reply_missed": {
-          "title": "Powiadomić opiekuna, gdy zapytanie po dobie jest nadal nową wiadomością",
+          "title": "Powiadom opiekuna, gdy zapytanie po dobie jest nadal nową wiadomością",
           "description": ""
         },
         "quote_follow_up": {
-          "title": "Przypomnieć o ofercie 2 dni po jej wysłaniu",
+          "title": "Przypomnij o ofercie 2 dni po jej wysłaniu",
           "description": ""
         },
         "quote_expiring": {
-          "title": "Dopytać lub zamknąć, gdy oferta osiąga datę ważności",
+          "title": "Dopytaj lub zamknij, gdy minie data ważności oferty",
           "description": ""
         },
         "payment_request": {
-          "title": "Poprosić o płatność dzień po wejściu w etap oczekiwania na płatność",
+          "title": "Poproś o płatność dzień po tym, jak zapytanie trafi na etap oczekiwania na płatność",
           "description": ""
         },
         "won_reorder": {
-          "title": "Utworzyć przypomnienie o ponownym zamówieniu 90 dni po potwierdzeniu zamówienia",
+          "title": "Utwórz przypomnienie o ponownym zamówieniu 90 dni po potwierdzeniu zamówienia",
           "description": ""
         },
         "service_calendar": {
-          "title": "Dodać termin realizacji do kalendarza, gdy zamówienie zostaje potwierdzone",
+          "title": "Dodaj termin realizacji do kalendarza, gdy zamówienie zostanie potwierdzone",
           "description": ""
         },
         "appointment_confirm": {
-          "title": "Potwierdzić termin dzień wcześniej",
+          "title": "Potwierdź termin dzień wcześniej",
           "description": ""
         },
         "later_revisit_date": {
-          "title": "Ustawić datę powrotu na 90 dni, gdy zapytanie przechodzi na później",
+          "title": "Ustaw datę powrotu na 90 dni naprzód, gdy zapytanie przejdzie na etap Później",
           "description": ""
         },
         "revisit_follow_up": {
-          "title": "Odezwać się w dniu powrotu",
+          "title": "Odezwij się w dniu powrotu",
           "description": ""
         },
         "unanswered_sweep": {
-          "title": "Codziennie tworzyć zadanie odpowiedzi dla każdej nowej wiadomości bez odpowiedzi",
+          "title": "Codziennie utwórz zadanie odpowiedzi dla każdej nowej wiadomości bez odpowiedzi",
           "description": ""
         }
       },
@@ -3068,7 +3068,7 @@
         "enquiries_board_view": "Zapytania otwierają się jako tablica według etapu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w moim workspace Customermates obsługę zapytań z WhatsAppa: jedno zapytanie na rozmowę z ofertą i jej ważnością, następnym kontaktem z terminem, etapem płatności, datą powrotu i terminem ponownego zamówienia na kontakt, a także zgodą kontaktu na WhatsApp. Pisz odpowiedzi pojedynczo do mojego sprawdzenia i niczego nie wysyłaj masowo.",
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates obsługę zapytań z WhatsAppa: jedno zapytanie na rozmowę z ofertą i jej ważnością, następnym kontaktem z terminem, etapem płatności, datą powrotu i terminem ponownego zamówienia na kontakt, a także zgodą kontaktu na WhatsApp. Pisz odpowiedzi pojedynczo do mojego sprawdzenia i niczego nie wysyłaj masowo.",
         "questions": [
           "O co klienci pytają Cię na WhatsAppie i jak wyceniasz?",
           "W jakim czasie chcesz odpowiadać na nową wiadomość?",
@@ -3081,7 +3081,7 @@
       "locale": "pt",
       "name": "Acompanhamento de atendimentos no WhatsApp",
       "summary": "Um funil para uma pequena empresa cujos clientes escrevem no WhatsApp: registrar o atendimento, responder rápido, enviar o orçamento, fazer o retorno em dias, confirmar o pedido e lembrar da recompra.",
-      "description": "Transforme conversas do WhatsApp em atendimentos acompanhados: cada conversa vira um atendimento com o que o cliente quer, o orçamento e a validade, um próximo contato com data, uma etapa de pagamento e uma data para voltar quando a resposta foi «para depois». Cada contato registra se aceitou receber mensagens e quando é esperada uma recompra. As respostas são escritas uma a uma e revisadas. Não envia listas de transmissão, campanhas nem menus de chatbot e não usa a plataforma oficial do WhatsApp Business. O WhatsApp pode restringir uma conta usada de um jeito que a política dele proíbe.",
+      "description": "Transforme conversas do WhatsApp em atendimentos acompanhados: cada conversa vira um atendimento com o que o cliente quer, o orçamento e a validade, um próximo contato com data, uma etapa de pagamento e uma data para voltar quando a resposta foi “para depois”. Cada contato registra se aceitou receber mensagens e quando é esperada uma recompra. As respostas são escritas uma a uma e revisadas. Não envia listas de transmissão, campanhas nem menus de chatbot e não usa a plataforma oficial do WhatsApp Business. O WhatsApp pode restringir uma conta usada de um jeito que a política dele proíbe.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -3325,7 +3325,7 @@
           "description": ""
         },
         "quote_follow_up": {
-          "title": "Fazer o retorno 2 dias depois de enviado um orçamento",
+          "title": "Fazer o retorno 2 dias depois de enviar um orçamento",
           "description": ""
         },
         "quote_expiring": {
@@ -3337,7 +3337,7 @@
           "description": ""
         },
         "won_reorder": {
-          "title": "Criar um lembrete de recompra 90 dias depois de confirmado um pedido",
+          "title": "Criar um lembrete de recompra 90 dias depois de confirmar um pedido",
           "description": ""
         },
         "service_calendar": {
@@ -3368,7 +3368,7 @@
         "enquiries_board_view": "Os atendimentos abrem como quadro por etapa."
       },
       "prompt": {
-        "intro": "Configure no meu workspace do Customermates o acompanhamento de atendimentos no WhatsApp: um atendimento por conversa com orçamento e validade, próximo contato com data, etapa de pagamento, data para voltar e data de recompra por contato, além do consentimento do WhatsApp do contato. Escreva as respostas uma a uma para minha revisão e não envie nada em massa.",
+        "intro": "Configure no meu espaço de trabalho do Customermates o acompanhamento de atendimentos no WhatsApp: um atendimento por conversa com orçamento e validade, próximo contato com data, etapa de pagamento, data para voltar e data de recompra por contato, além do consentimento do WhatsApp do contato. Escreva as respostas uma a uma para minha revisão e não envie nada em massa.",
         "questions": [
           "O que os clientes perguntam no WhatsApp e como você faz o orçamento?",
           "Em quanto tempo você quer responder a um novo contato?",

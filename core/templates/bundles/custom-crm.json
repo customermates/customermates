@@ -903,7 +903,7 @@
     "de": {
       "locale": "de",
       "name": "Eigenes CRM",
-      "summary": "Ein CRM nach Ihrer Arbeitsweise: Kontakte, Firmen, Verkaufschancen und terminierte Aufgaben, mit Import aus Ihrer Tabelle oder dem alten Werkzeug und einer wöchentlichen Durchsicht.",
+      "summary": "Ein CRM nach der eigenen Arbeitsweise: Kontakte, Firmen, Verkaufschancen und terminierte Aufgaben, mit Import aus der eigenen Tabelle oder dem alten Werkzeug und einer wöchentlichen Durchsicht.",
       "description": "Starten Sie mit den vier Listen, die jedes CRM braucht, und passen Sie sie an: Phasen, Felder und Ansichten gehören Ihnen. Gedacht für alle, die eine Excel-Tabelle, Notion, Airtable oder Trello verlassen und ihre Daten ohne Projekt in ein CRM bringen wollen. Es merkt sich, woher jeder Datensatz importiert wurde.",
       "lists": {
         "actions": {
@@ -914,7 +914,7 @@
         "contacts": {
           "label": "Kontakt",
           "pluralLabel": "Kontakte",
-          "description": "Die Personen, mit denen Sie zu tun haben."
+          "description": "Die Personen, mit denen du zu tun hast."
         },
         "organizations": {
           "label": "Firma",
@@ -1145,7 +1145,7 @@
         "import_notes": {
           "title": "Importnotizen: was woher kam",
           "sections": [
-            "Quellwerkzeug und Exportdatum",
+            "Quellsystem und Exportdatum",
             "Was nicht mitgekommen ist und warum"
           ]
         }
@@ -1188,9 +1188,9 @@
       "prompt": {
         "intro": "Richte ein eigenes CRM in meinem Customermates-Workspace ein: Kontakte, Firmen, Verkaufschancen mit Phasen und terminierten Aufgaben, einen Import aus meiner Tabelle oder dem alten Werkzeug und eine wöchentliche Durchsicht.",
         "questions": [
-          "Aus welchem Werkzeug oder welcher Tabelle stammen Ihre Datensätze, und lässt sie sich exportieren?",
-          "Welche Phasen durchläuft eine Chance in Ihrem Geschäft?",
-          "Welche Felder nutzen Sie heute wirklich, und welche lassen Sie zurück?",
+          "Aus welchem Werkzeug oder welcher Tabelle stammen deine Datensätze, und lässt sie sich exportieren?",
+          "Welche Phasen durchläuft eine Chance in deinem Geschäft?",
+          "Welche Felder nutzt du heute wirklich, und welche lässt du zurück?",
           "Wer arbeitet im CRM, und wer betreut welche Datensätze?"
         ]
       }
@@ -1467,7 +1467,7 @@
           "description": ""
         },
         "enquiry_form_records": {
-          "title": "Create the contact, organization and opportunity from an enquiry form",
+          "title": "Create the contact, organization and opportunity from an inquiry form",
           "description": ""
         },
         "webhook_upsert": {
@@ -1543,7 +1543,7 @@
           "label": "Etapa",
           "options": {
             "lead": "Lead",
-            "qualified": "Calificado",
+            "qualified": "Cualificada",
             "proposal": "Propuesta",
             "negotiation": "Negociación",
             "won": "Ganada",
@@ -1579,7 +1579,7 @@
         "organizations.relationship": {
           "label": "Relación",
           "options": {
-            "prospect": "Potencial",
+            "prospect": "Cliente potencial",
             "customer": "Cliente",
             "former_customer": "Excliente",
             "partner": "Socio",
@@ -1754,7 +1754,7 @@
           "description": ""
         },
         "expected_close_passed": {
-          "title": "Revisar una oportunidad abierta el día después de su cierre previsto",
+          "title": "Revisar una oportunidad abierta al día siguiente de su cierre previsto",
           "description": ""
         },
         "weekly_review": {
@@ -1788,8 +1788,8 @@
     "fr": {
       "locale": "fr",
       "name": "CRM sur mesure",
-      "summary": "Un CRM construit autour de votre façon de travailler : contacts, entreprises, affaires et actions datées, avec un import depuis votre tableur ou votre ancien outil et une revue hebdomadaire.",
-      "description": "Partez des quatre listes dont tout CRM a besoin et adaptez-les : étapes, champs et vues sont à vous. Pensé pour ceux qui quittent un fichier Excel, Notion, Airtable ou Trello et veulent leurs données dans un CRM sans projet. Il garde la trace de l’origine de chaque fiche importée.",
+      "summary": "Un CRM construit autour de votre façon de travailler : contacts, entreprises, affaires et actions datées, avec un import depuis votre tableur ou votre ancien outil et une revue hebdomadaire.",
+      "description": "Partez des quatre listes dont tout CRM a besoin et adaptez-les : étapes, champs et vues sont à vous. Pensé pour ceux qui quittent un fichier Excel, Notion, Airtable ou Trello et veulent leurs données dans un CRM sans projet. Il garde la trace de l’origine de chaque fiche importée.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1932,7 +1932,7 @@
             "no_decision": "Pas de décision",
             "timing": "Calendrier",
             "no_response": "Pas de réponse",
-            "not_a_fit": "Pas adapté",
+            "not_a_fit": "Ne convient pas",
             "other": "Autre"
           }
         },
@@ -2000,10 +2000,10 @@
           "title": "Affaires ouvertes par étape"
         },
         "open_value": {
-          "title": "Montant ouvert"
+          "title": "Montant des affaires ouvertes"
         },
         "open_weighted_value": {
-          "title": "Valeur pondérée ouverte"
+          "title": "Valeur pondérée des affaires ouvertes"
         },
         "lost_reasons": {
           "title": "Motifs de perte"
@@ -2028,7 +2028,7 @@
           ]
         },
         "import_notes": {
-          "title": "Notes d’import : ce qui vient d’où",
+          "title": "Notes d’import : ce qui vient d’où",
           "sections": [
             "Outil d’origine et date d’export",
             "Ce qui n’a pas suivi et pourquoi"
@@ -2037,7 +2037,7 @@
       },
       "rules": {
         "next_action_per_stage": {
-          "title": "Créer une action de suite quand une affaire change d’étape",
+          "title": "Créer une action de suivi quand une affaire change d’étape",
           "description": ""
         },
         "set_a_next_step": {
@@ -2067,23 +2067,23 @@
       },
       "acceptanceChecks": {
         "stage_field": "Chaque affaire a une étape.",
-        "board_view": "Le pipeline s’ouvre en tableau par étape, avec les totaux.",
+        "board_view": "Le pipeline s’ouvre en board par étape, avec les totaux.",
         "how_we_use_page": "La base de connaissances explique comment l’équipe utilise le CRM."
       },
       "prompt": {
-        "intro": "Mets en place un CRM sur mesure dans mon espace Customermates : contacts, entreprises, affaires avec étapes et actions datées, un import depuis mon tableur ou mon ancien outil et une revue hebdomadaire.",
+        "intro": "Mets en place un CRM sur mesure dans mon espace de travail Customermates : contacts, entreprises, affaires avec étapes et actions datées, un import depuis mon tableur ou mon ancien outil et une revue hebdomadaire.",
         "questions": [
-          "De quel outil ou tableur viennent vos fiches, et peut-on l’exporter ?",
-          "Par quelles étapes passe une affaire dans votre activité ?",
-          "Quels champs utilisez-vous vraiment aujourd’hui, et lesquels pouvez-vous laisser derrière vous ?",
-          "Qui travaille dans le CRM, et qui est responsable de quelles fiches ?"
+          "De quel outil ou tableur viennent vos fiches, et peut-on l’exporter ?",
+          "Par quelles étapes passe une affaire dans votre activité ?",
+          "Quels champs utilisez-vous vraiment aujourd’hui, et lesquels pouvez-vous abandonner ?",
+          "Qui travaille dans le CRM, et qui est responsable de quelles fiches ?"
         ]
       }
     },
     "it": {
       "locale": "it",
       "name": "CRM su misura",
-      "summary": "Un CRM costruito intorno al tuo modo di lavorare: contatti, aziende, trattative e attività con scadenza, con un’importazione dal tuo foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
+      "summary": "Un CRM costruito intorno al tuo modo di lavorare: contatti, aziende, trattative e attività con scadenza, con un'importazione dal tuo foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
       "description": "Parti dalle quattro liste di cui ogni CRM ha bisogno e adattale: fasi, campi e viste sono tuoi. Pensato per chi lascia un foglio Excel, Notion, Airtable o Trello e vuole i propri dati in un CRM senza un progetto. Tiene nota di dove è stato importato ogni record.",
       "lists": {
         "actions": {
@@ -2183,7 +2183,7 @@
         "organizations.source": {
           "label": "Provenienza",
           "options": {
-            "referral": "Passaparola",
+            "referral": "Segnalazione",
             "website": "Sito web",
             "event": "Evento",
             "outbound": "Contatto diretto",
@@ -2241,7 +2241,7 @@
             "call": "Chiamata",
             "email": "E-mail",
             "meeting": "Incontro",
-            "follow_up": "Sollecito",
+            "follow_up": "Follow-up",
             "review": "Revisione",
             "other": "Altro"
           }
@@ -2289,16 +2289,16 @@
           "title": "Attività scadute"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         },
         "pipeline_funnel": {
           "title": "Trattative aperte per fase"
         },
         "open_value": {
-          "title": "Valore aperto"
+          "title": "Valore delle trattative aperte"
         },
         "open_weighted_value": {
-          "title": "Valore ponderato aperto"
+          "title": "Valore ponderato delle trattative aperte"
         },
         "lost_reasons": {
           "title": "Motivi della perdita"
@@ -2323,7 +2323,7 @@
           ]
         },
         "import_notes": {
-          "title": "Note sull’importazione: che cosa viene da dove",
+          "title": "Note sull'importazione: che cosa viene da dove",
           "sections": [
             "Strumento di origine e data di esportazione",
             "Che cosa non è arrivato e perché"
@@ -2332,7 +2332,7 @@
       },
       "rules": {
         "next_action_per_stage": {
-          "title": "Creare un’attività di seguito quando una trattativa cambia fase",
+          "title": "Creare un'attività di follow-up quando una trattativa cambia fase",
           "description": ""
         },
         "set_a_next_step": {
@@ -2362,11 +2362,11 @@
       },
       "acceptanceChecks": {
         "stage_field": "Ogni trattativa ha una fase.",
-        "board_view": "La pipeline si apre come bacheca per fase, con i totali.",
-        "how_we_use_page": "La knowledge base spiega come il team usa il CRM."
+        "board_view": "La pipeline si apre come board per fase, con i totali.",
+        "how_we_use_page": "La base di conoscenza spiega come il team usa il CRM."
       },
       "prompt": {
-        "intro": "Configura un CRM su misura nel mio spazio di lavoro Customermates: contatti, aziende, trattative con fasi e attività con scadenza, un’importazione dal mio foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
+        "intro": "Configura un CRM su misura nel mio spazio di lavoro Customermates: contatti, aziende, trattative con fasi e attività con scadenza, un'importazione dal mio foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
         "questions": [
           "Da quale strumento o foglio di calcolo vengono i tuoi record e si può esportare?",
           "Quali fasi attraversa una trattativa nella tua attività?",
@@ -2378,7 +2378,7 @@
     "nl": {
       "locale": "nl",
       "name": "CRM op maat",
-      "summary": "Een CRM rond jouw manier van werken: contacten, bedrijven, deals en acties met datum, met een import uit je spreadsheet of oude tool en een wekelijkse controle.",
+      "summary": "Een CRM rond jouw manier van werken: contactpersonen, bedrijven, deals en acties met datum, met een import uit je spreadsheet of oude tool en een wekelijkse controle.",
       "description": "Begin met de vier lijsten die elk CRM nodig heeft en pas ze aan: fasen, velden en weergaven zijn van jou. Bedoeld voor wie een spreadsheet, Notion, Airtable of Trello achterlaat en zijn gegevens zonder project in een CRM wil. Het onthoudt waar elk record vandaan is geïmporteerd.",
       "lists": {
         "actions": {
@@ -2387,8 +2387,8 @@
           "description": "Eén volgende stap met datum per open dossier."
         },
         "contacts": {
-          "label": "Contact",
-          "pluralLabel": "Contacten",
+          "label": "Contactpersoon",
+          "pluralLabel": "Contactpersonen",
           "description": "De mensen met wie je te maken hebt."
         },
         "organizations": {
@@ -2407,7 +2407,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -2503,7 +2503,7 @@
           "options": {}
         },
         "opportunities.expected_close": {
-          "label": "Verwachte afsluiting",
+          "label": "Verwachte afsluitdatum",
           "options": {}
         },
         "opportunities.next_step": {
@@ -2515,7 +2515,7 @@
           "options": {}
         },
         "opportunities.lost_reason": {
-          "label": "Reden verloren",
+          "label": "Reden van verlies",
           "options": {
             "price": "Prijs",
             "competitor": "Concurrent",
@@ -2545,7 +2545,7 @@
       "relationships": {
         "contact_organization": {
           "sourceLabel": "Bedrijf",
-          "targetLabel": "Contacten"
+          "targetLabel": "Contactpersonen"
         },
         "opportunity_organization": {
           "sourceLabel": "Bedrijf",
@@ -2573,7 +2573,7 @@
           "name": "Alle bedrijven"
         },
         "contacts_all": {
-          "name": "Alle contacten"
+          "name": "Alle contactpersonen"
         }
       },
       "widgets": {
@@ -2596,7 +2596,7 @@
           "title": "Open gewogen waarde"
         },
         "lost_reasons": {
-          "title": "Redenen verloren"
+          "title": "Redenen van verlies"
         },
         "deals_without_next_step": {
           "title": "Deals zonder volgende stap"
@@ -2635,11 +2635,11 @@
           "description": ""
         },
         "next_step_notice": {
-          "title": "Meld de eigenaar wanneer een volgende stap aan de beurt is",
+          "title": "Informeer de eigenaar wanneer een volgende stap aan de beurt is",
           "description": ""
         },
         "expected_close_passed": {
-          "title": "Bekijk een open deal de dag na de verwachte afsluiting",
+          "title": "Bekijk een open deal de dag na de verwachte afsluitdatum",
           "description": ""
         },
         "weekly_review": {
@@ -2647,7 +2647,7 @@
           "description": ""
         },
         "enquiry_form_records": {
-          "title": "Maak contact, bedrijf en deal aan uit een aanvraagformulier",
+          "title": "Maak contactpersoon, bedrijf en deal aan uit een aanvraagformulier",
           "description": ""
         },
         "webhook_upsert": {
@@ -2661,7 +2661,7 @@
         "how_we_use_page": "De kennisbank legt uit hoe het team het CRM gebruikt."
       },
       "prompt": {
-        "intro": "Richt een CRM op maat in mijn Customermates-werkruimte in: contacten, bedrijven, deals met fasen en acties met datum, een import uit mijn spreadsheet of oude tool en een wekelijkse controle.",
+        "intro": "Richt een CRM op maat in mijn Customermates-werkruimte in: contactpersonen, bedrijven, deals met fasen en acties met datum, een import uit mijn spreadsheet of oude tool en een wekelijkse controle.",
         "questions": [
           "Uit welke tool of spreadsheet komen je records en kun je die exporteren?",
           "Welke fasen doorloopt een deal in jouw bedrijf?",
@@ -2673,8 +2673,8 @@
     "pl": {
       "locale": "pl",
       "name": "Własny CRM",
-      "summary": "CRM zbudowany wokół Twojego sposobu pracy: kontakty, firmy, szanse sprzedaży i zadania z terminem, z importem z arkusza lub starego narzędzia i cotygodniowym przeglądem.",
-      "description": "Zacznij od czterech list, których potrzebuje każdy CRM, i dopasuj je: etapy, pola i widoki należą do Ciebie. Dla tych, którzy odchodzą od arkusza, Notion, Airtable lub Trello i chcą mieć dane w CRM bez projektu. Zapisuje, skąd zaimportowano każdy rekord.",
+      "summary": "CRM zbudowany wokół Twojego sposobu pracy: kontakty, organizacje, szanse sprzedaży i zadania z terminem, z importem z arkusza lub starego narzędzia i cotygodniowym przeglądem.",
+      "description": "Zacznij od czterech list, których potrzebuje każdy CRM, i dopasuj je: etapy, pola i widoki należą do Ciebie. Dla tych, którzy odchodzą od arkusza, Notion, Airtable lub Trello i chcą mieć dane w CRM bez osobnego projektu wdrożeniowego. Zapisuje, skąd zaimportowano każdy rekord.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -2687,9 +2687,9 @@
           "description": "Osoby, z którymi masz do czynienia."
         },
         "organizations": {
-          "label": "Firma",
-          "pluralLabel": "Firmy",
-          "description": "Spółki i inne podmioty."
+          "label": "Organizacja",
+          "pluralLabel": "Organizacje",
+          "description": "Firmy i inne podmioty."
         },
         "opportunities": {
           "label": "Szansa sprzedaży",
@@ -2712,7 +2712,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -2776,7 +2776,7 @@
             "referral": "Polecenie",
             "website": "Strona internetowa",
             "event": "Wydarzenie",
-            "outbound": "Kontakt własny",
+            "outbound": "Kontakt wychodzący",
             "import": "Import",
             "other": "Inne"
           }
@@ -2815,7 +2815,7 @@
             "price": "Cena",
             "competitor": "Konkurent",
             "no_decision": "Brak decyzji",
-            "timing": "Termin",
+            "timing": "Nieodpowiedni moment",
             "no_response": "Brak odpowiedzi",
             "not_a_fit": "Brak dopasowania",
             "other": "Inny"
@@ -2839,11 +2839,11 @@
       },
       "relationships": {
         "contact_organization": {
-          "sourceLabel": "Firma",
+          "sourceLabel": "Organizacja",
           "targetLabel": "Kontakty"
         },
         "opportunity_organization": {
-          "sourceLabel": "Firma",
+          "sourceLabel": "Organizacja",
           "targetLabel": "Szanse sprzedaży"
         },
         "action_opportunity": {
@@ -2865,7 +2865,7 @@
           "name": "Bez następnego kroku"
         },
         "organizations_all": {
-          "name": "Wszystkie firmy"
+          "name": "Wszystkie organizacje"
         },
         "contacts_all": {
           "name": "Wszystkie kontakty"
@@ -2885,10 +2885,10 @@
           "title": "Otwarte szanse wg etapu"
         },
         "open_value": {
-          "title": "Otwarta wartość"
+          "title": "Wartość otwartych szans"
         },
         "open_weighted_value": {
-          "title": "Otwarta wartość ważona"
+          "title": "Ważona wartość otwartych szans"
         },
         "lost_reasons": {
           "title": "Powody przegranej"
@@ -2922,11 +2922,11 @@
       },
       "rules": {
         "next_action_per_stage": {
-          "title": "Utwórz zadanie następcze, gdy szansa zmienia etap",
+          "title": "Utwórz zadanie z kolejnym krokiem, gdy szansa zmienia etap",
           "description": ""
         },
         "set_a_next_step": {
-          "title": "Poproś o następny krok przy każdej otwartej szansie, która go nie ma",
+          "title": "Ustal następny krok dla każdej otwartej szansy, która go nie ma",
           "description": ""
         },
         "next_step_notice": {
@@ -2942,7 +2942,7 @@
           "description": ""
         },
         "enquiry_form_records": {
-          "title": "Utwórz kontakt, firmę i szansę z formularza zapytania",
+          "title": "Utwórz kontakt, organizację i szansę z formularza zapytania",
           "description": ""
         },
         "webhook_upsert": {
@@ -2956,7 +2956,7 @@
         "how_we_use_page": "Baza wiedzy wyjaśnia, jak zespół korzysta z CRM."
       },
       "prompt": {
-        "intro": "Skonfiguruj własny CRM w mojej przestrzeni roboczej Customermates: kontakty, firmy, szanse sprzedaży z etapami i zadania z terminem, import z mojego arkusza lub starego narzędzia i cotygodniowy przegląd.",
+        "intro": "Skonfiguruj własny CRM w mojej przestrzeni roboczej Customermates: kontakty, organizacje, szanse sprzedaży z etapami i zadania z terminem, import z mojego arkusza lub starego narzędzia i cotygodniowy przegląd.",
         "questions": [
           "Z jakiego narzędzia lub arkusza pochodzą Twoje rekordy i czy da się je wyeksportować?",
           "Przez jakie etapy przechodzi szansa w Twojej firmie?",
@@ -2969,7 +2969,7 @@
       "locale": "pt",
       "name": "CRM personalizado",
       "summary": "Um CRM construído em torno do seu jeito de trabalhar: contatos, empresas, negócios e tarefas com data, com importação da sua planilha ou da ferramenta antiga e uma revisão semanal.",
-      "description": "Comece pelas quatro listas de que todo CRM precisa e adapte: etapas, campos e visões são seus. Pensado para quem deixa uma planilha, o Notion, o Airtable ou o Trello e quer seus dados em um CRM sem montar um projeto. Anota de onde cada registro foi importado.",
+      "description": "Comece pelas quatro listas de que todo CRM precisa e adapte: etapas, campos e visualizações são seus. Pensado para quem deixa uma planilha, o Notion, o Airtable ou o Trello e quer seus dados em um CRM sem montar um projeto. Anote de onde cada registro foi importado.",
       "lists": {
         "actions": {
           "label": "Tarefa",

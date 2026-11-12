@@ -792,7 +792,20 @@
           ]
         },
         "dueOffsetDays": 0,
-        "needs": "rules"
+        "needs": "rules",
+        "variants": {
+          "BR": {
+            "action": {
+              "kind": "set_dates",
+              "dates": [
+                {
+                  "field": "tickets.resolution_due",
+                  "offsetDays": 15
+                }
+              ]
+            }
+          }
+        }
       },
       {
         "key": "known_issue_fixed",
@@ -885,6 +898,10 @@
       {
         "url": "https://www.planalto.gov.br/ccivil_03/_Ato2019-2022/2022/Decreto/D11034.htm",
         "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm",
+        "checkedOn": "2026-11-12"
       }
     ],
     "reviewedAt": "2026-11-12",
@@ -934,12 +951,12 @@
         "customers": {
           "label": "Kunde",
           "pluralLabel": "Kunden",
-          "description": "Die Personen, die sich mit einer Frage an Sie wenden."
+          "description": "Die Personen, die sich mit einer Frage an dich wenden."
         },
         "accounts": {
           "label": "Konto",
           "pluralLabel": "Konten",
-          "description": "Die Unternehmen hinter Ihren Kunden, mit ihrem Supportvertrag."
+          "description": "Die Unternehmen hinter deinen Kunden, mit ihrem Supportvertrag."
         },
         "tickets": {
           "label": "Ticket",
@@ -1064,7 +1081,7 @@
           "label": "Status",
           "options": {
             "investigating": "In Analyse",
-            "workaround_available": "Umgehung vorhanden",
+            "workaround_available": "Umgehungslösung vorhanden",
             "fixed": "Behoben",
             "wont_fix": "Wird nicht behoben"
           }
@@ -1207,7 +1224,13 @@
         },
         "data_request_clock": {
           "title": "Lösung auf 30 Tage setzen, wenn ein Ticket ein Auskunftsersuchen wird",
-          "description": ""
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Lösung auf 15 Tage setzen, wenn ein Ticket ein Auskunftsersuchen wird (Brasilien, LGPD)",
+              "description": "Nach Art. 19 LGPD ist eine vollständige Antwort auf ein Auskunfts- oder Bestätigungsersuchen binnen 15 Tagen fällig."
+            }
+          }
         },
         "known_issue_fixed": {
           "title": "Kunden informieren, wenn ein bekanntes Problem behoben ist",
@@ -1226,10 +1249,10 @@
       "prompt": {
         "intro": "Richte in meinem Customermates-Workspace einen Kundensupport ein: Tickets mit Status, Priorität, Reaktionszeit und Lösungsfrist, bekannte Probleme mit Verknüpfung zu Tickets, eine Zufriedenheitsbewertung und terminierte Folgeaufgaben.",
         "questions": [
-          "Wie viele Tickets bearbeiten Sie pro Woche, und über welche Kanäle kommen sie?",
-          "Wie schnell versprechen Sie Erstantwort und Lösung, je nach Priorität oder Supportvertrag?",
+          "Wie viele Tickets bearbeitest du pro Woche, und über welche Kanäle kommen sie?",
+          "Wie schnell versprichst du Erstantwort und Lösung, je nach Priorität oder Supportvertrag?",
           "Wer antwortet, und wer erfährt, wenn ein Ticket zu spät ist?",
-          "Erhalten Sie Auskunftsersuchen oder Meldungen anderer Systeme, die zu Tickets werden sollen?"
+          "Erhältst du Auskunftsersuchen oder Meldungen anderer Systeme, die zu Tickets werden sollen?"
         ]
       }
     },
@@ -1520,7 +1543,13 @@
         },
         "data_request_clock": {
           "title": "Set the solution date to 30 days out when a ticket becomes a data request",
-          "description": ""
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Set the solution date to 15 days out when a ticket becomes a data request (Brazil, LGPD)",
+              "description": "Under LGPD art. 19, a full answer to a data subject's access or confirmation request is due within 15 days."
+            }
+          }
         },
         "known_issue_fixed": {
           "title": "Tell the customers when a known issue is fixed",
@@ -1550,7 +1579,7 @@
       "locale": "es",
       "name": "Soporte al cliente",
       "summary": "Un soporte ligero: tickets con prioridad, tiempo de primera respuesta y plazo de resolución, incidencias conocidas que unen varios tickets a una causa y una valoración de satisfacción.",
-      "description": "Atienda a sus clientes desde un solo lugar: cada ticket tiene un estado, una prioridad, un tipo, un responsable y la hora hasta la que debe una primera respuesta y una solución. Vincule los tickets a una incidencia conocida para avisar a todos cuando se resuelva y mantenga a la vista el plazo de un mes de una solicitud de datos. Pensado para unas decenas de tickets por semana. No es una centralita, un chat en vivo, un portal de clientes ni un calendario de horario laboral.",
+      "description": "Atiende a tus clientes desde un solo lugar: cada ticket tiene un estado, una prioridad, un tipo, un responsable y la fecha límite de la primera respuesta y de la solución. Vincula los tickets a una incidencia conocida para avisar a todos cuando se resuelva y mantén a la vista el plazo de un mes de una solicitud de datos. Pensado para unas decenas de tickets por semana. No es una centralita, un chat en vivo, un portal de clientes ni un calendario de horario laboral.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -1560,12 +1589,12 @@
         "customers": {
           "label": "Cliente",
           "pluralLabel": "Clientes",
-          "description": "Las personas que le escriben para pedir ayuda."
+          "description": "Las personas que te escriben para pedir ayuda."
         },
         "accounts": {
           "label": "Cuenta",
           "pluralLabel": "Cuentas",
-          "description": "Las empresas detrás de sus clientes, con su plan de soporte."
+          "description": "Las empresas detrás de tus clientes, con su plan de soporte."
         },
         "tickets": {
           "label": "Ticket",
@@ -1745,7 +1774,7 @@
           "name": "Tablero de tickets"
         },
         "waiting_on_us": {
-          "name": "Esperando respuesta nuestra"
+          "name": "Esperando nuestra respuesta"
         },
         "known_issues_all": {
           "name": "Todas las incidencias conocidas"
@@ -1774,7 +1803,7 @@
           "title": "Tickets abiertos por prioridad"
         },
         "waiting_on_us_count": {
-          "title": "Tickets esperando respuesta nuestra"
+          "title": "Tickets esperando nuestra respuesta"
         },
         "responses_due": {
           "title": "Primeras respuestas pendientes"
@@ -1824,7 +1853,7 @@
           "description": ""
         },
         "send_survey": {
-          "title": "Enviar la encuesta de satisfacción el día después de resolver",
+          "title": "Enviar la encuesta de satisfacción al día siguiente de resolver",
           "description": ""
         },
         "close_solved": {
@@ -1833,7 +1862,13 @@
         },
         "data_request_clock": {
           "title": "Fijar la resolución a 30 días cuando un ticket pasa a ser una solicitud de datos",
-          "description": ""
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Fijar la resolución a 15 días cuando un ticket pasa a ser una solicitud de datos (Brasil, LGPD)",
+              "description": "Según el art. 19 de la LGPD, la respuesta completa a una solicitud de acceso o de confirmación debe darse en 15 días."
+            }
+          }
         },
         "known_issue_fixed": {
           "title": "Avisar a los clientes cuando se corrige una incidencia conocida",
@@ -1850,20 +1885,20 @@
         "tickets_board_view": "Los tickets se abren como tablero por estado."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de Customermates un soporte al cliente: tickets con estado, prioridad, tiempo de primera respuesta y plazo de resolución, incidencias conocidas vinculadas a los tickets, una valoración de satisfacción y seguimientos con fecha.",
+        "intro": "Configura en mi espacio de trabajo de Customermates un soporte al cliente: tickets con estado, prioridad, tiempo de primera respuesta y plazo de resolución, incidencias conocidas vinculadas a los tickets, una valoración de satisfacción y seguimientos con fecha.",
         "questions": [
-          "¿Cuántos tickets gestiona por semana y por qué canales llegan?",
-          "¿Qué plazos promete para la primera respuesta y la resolución, según la prioridad o el plan de soporte?",
+          "¿Cuántos tickets gestionas por semana y por qué canales llegan?",
+          "¿Qué plazos prometes para la primera respuesta y la resolución, según la prioridad o el plan de soporte?",
           "¿Quién responde y a quién se avisa cuando un ticket va con retraso?",
-          "¿Recibe solicitudes de datos o alertas de otros sistemas que deban convertirse en tickets?"
+          "¿Recibes solicitudes de datos o alertas de otros sistemas que deban convertirse en tickets?"
         ]
       }
     },
     "fr": {
       "locale": "fr",
       "name": "Support client",
-      "summary": "Un support léger : tickets avec priorité, délai de première réponse et échéance de résolution, problèmes connus qui relient plusieurs tickets à une cause, et note de satisfaction.",
-      "description": "Répondez à vos clients depuis un seul endroit : chaque ticket a un statut, une priorité, un type, un responsable et l'heure à laquelle vous devez une première réponse et une solution. Reliez les tickets à un problème connu pour prévenir tout le monde de sa résolution et gardez sous les yeux le délai d'un mois d'une demande RGPD. Prévu pour quelques dizaines de tickets par semaine. Ce n'est ni un standard téléphonique, ni un chat en direct, ni un portail client, ni un calendrier d'heures ouvrées.",
+      "summary": "Un support léger : tickets avec priorité, délai de première réponse et échéance de résolution, problèmes connus qui relient plusieurs tickets à une cause, et note de satisfaction.",
+      "description": "Répondez à vos clients depuis un seul endroit : chaque ticket a un statut, une priorité, un type, un responsable et les échéances de première réponse et de résolution. Reliez les tickets à un problème connu pour prévenir tout le monde de sa résolution et gardez bien visible le délai d’un mois d’une demande RGPD. Prévu pour quelques dizaines de tickets par semaine. Ce n’est ni un standard téléphonique, ni un chat en direct, ni un portail client, ni un calendrier d’heures ouvrées.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1873,7 +1908,7 @@
         "customers": {
           "label": "Client",
           "pluralLabel": "Clients",
-          "description": "Les personnes qui vous écrivent pour obtenir de l'aide."
+          "description": "Les personnes qui vous écrivent pour obtenir de l’aide."
         },
         "accounts": {
           "label": "Compte",
@@ -1883,7 +1918,7 @@
         "tickets": {
           "label": "Ticket",
           "pluralLabel": "Tickets",
-          "description": "Une demande d'aide, du premier message à la résolution."
+          "description": "Une demande d’aide, du premier message à la résolution."
         },
         "known_issues": {
           "label": "Problème connu",
@@ -1944,7 +1979,7 @@
             "new": "Nouveau",
             "open": "Ouvert",
             "pending_customer": "En attente du client",
-            "on_hold": "En attente d'un tiers",
+            "on_hold": "En attente d’un tiers",
             "solved": "Résolu",
             "closed": "Fermé",
             "spam_or_duplicate": "Spam ou doublon"
@@ -1976,7 +2011,7 @@
             "whatsapp": "WhatsApp",
             "form": "Formulaire de demande",
             "phone": "Téléphone",
-            "webhook": "Alerte d'un autre système"
+            "webhook": "Alerte d’un autre système"
           }
         },
         "tickets.assignee": {
@@ -2021,10 +2056,10 @@
           "options": {
             "reply": "Répondre",
             "nudge_customer": "Relancer le client",
-            "send_survey": "Envoyer l'enquête de satisfaction",
+            "send_survey": "Envoyer l’enquête de satisfaction",
             "close_ticket": "Fermer le ticket",
-            "tell_customer_fixed": "Prévenir le client que c'est corrigé",
-            "verify_identity": "Vérifier l'identité",
+            "tell_customer_fixed": "Prévenir le client que c’est corrigé",
+            "verify_identity": "Vérifier l’identité",
             "other": "Autre"
           }
         }
@@ -2055,7 +2090,7 @@
           "name": "Tous les tickets"
         },
         "tickets_board": {
-          "name": "Tableau des tickets"
+          "name": "Board des tickets"
         },
         "waiting_on_us": {
           "name": "En attente de notre réponse"
@@ -2112,13 +2147,13 @@
           "title": "Tri et réponses types",
           "sections": [
             "Type, priorité et responsable",
-            "Première réponse, demande d'informations, corrigé, sans réponse"
+            "Première réponse, demande d’informations, corrigé, sans réponse"
           ]
         },
         "data_requests": {
           "title": "Demandes RGPD",
           "sections": [
-            "Vérifier l'identité, consigner, répondre sous un mois",
+            "Vérifier l’identité, consigner, répondre sous un mois",
             "Qui décide"
           ]
         }
@@ -2133,11 +2168,11 @@
           "description": ""
         },
         "nudge_customer": {
-          "title": "Relancer le client après 3 jours d'attente",
+          "title": "Relancer le client après 3 jours d’attente",
           "description": ""
         },
         "send_survey": {
-          "title": "Envoyer l'enquête de satisfaction le lendemain de la résolution",
+          "title": "Envoyer l’enquête de satisfaction le lendemain de la résolution",
           "description": ""
         },
         "close_solved": {
@@ -2146,7 +2181,13 @@
         },
         "data_request_clock": {
           "title": "Fixer la résolution à 30 jours quand un ticket devient une demande RGPD",
-          "description": ""
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Fixer la résolution à 15 jours quand un ticket devient une demande LGPD (Brésil)",
+              "description": "Selon l’art. 19 de la LGPD, la réponse complète à une demande d’accès ou de confirmation est due sous 15 jours."
+            }
+          }
         },
         "known_issue_fixed": {
           "title": "Prévenir les clients quand un problème connu est corrigé",
@@ -2160,15 +2201,15 @@
       "acceptanceChecks": {
         "status_field": "Chaque ticket a un statut.",
         "first_response_field": "Chaque ticket indique avant quand la première réponse est due.",
-        "tickets_board_view": "Les tickets s'ouvrent en tableau par statut."
+        "tickets_board_view": "Les tickets s’ouvrent en board par statut."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace Customermates un support client : tickets avec statut, priorité, délai de première réponse et échéance de résolution, problèmes connus reliés aux tickets, note de satisfaction et relances datées.",
+        "intro": "Mets en place dans mon espace de travail Customermates un support client : tickets avec statut, priorité, délai de première réponse et échéance de résolution, problèmes connus reliés aux tickets, note de satisfaction et relances datées.",
         "questions": [
-          "Combien de tickets traitez-vous par semaine, et par quels canaux arrivent-ils ?",
-          "Quels délais promettez-vous pour la première réponse et la résolution, selon la priorité ou la formule de support ?",
-          "Qui répond, et qui est prévenu quand un ticket est en retard ?",
-          "Recevez-vous des demandes RGPD ou des alertes d'autres systèmes qui doivent devenir des tickets ?"
+          "Combien de tickets traitez-vous par semaine, et par quels canaux arrivent-ils ?",
+          "Quels délais promettez-vous pour la première réponse et la résolution, selon la priorité ou la formule de support ?",
+          "Qui répond, et qui est prévenu quand un ticket est en retard ?",
+          "Recevez-vous des demandes RGPD ou des alertes d’autres systèmes qui doivent devenir des tickets ?"
         ]
       }
     },
@@ -2176,7 +2217,7 @@
       "locale": "it",
       "name": "Assistenza clienti",
       "summary": "Un'assistenza leggera: ticket con priorità, tempo di prima risposta e scadenza di risoluzione, problemi noti che collegano più ticket a una causa e una valutazione di soddisfazione.",
-      "description": "Rispondi ai clienti da un unico posto: ogni ticket ha uno stato, una priorità, un tipo, un responsabile e l'orario entro cui devi una prima risposta e una soluzione. Collega i ticket a un problema noto per avvisare tutti quando è risolto e tieni d'occhio il termine di un mese di una richiesta GDPR. Pensato per qualche decina di ticket a settimana. Non è un centralino, una chat dal vivo, un portale clienti né un calendario con orari lavorativi.",
+      "description": "Rispondi ai clienti da un unico posto: ogni ticket ha uno stato, una priorità, un tipo, un responsabile e le scadenze per la prima risposta e per la soluzione. Collega i ticket a un problema noto per avvisare tutti quando è risolto e tieni sempre visibile il termine di un mese per una richiesta GDPR. Pensato per qualche decina di ticket a settimana. Non è un centralino, una chat dal vivo, un portale clienti né un calendario con orari lavorativi.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2368,10 +2409,10 @@
           "name": "Tutti i ticket"
         },
         "tickets_board": {
-          "name": "Bacheca dei ticket"
+          "name": "Board dei ticket"
         },
         "waiting_on_us": {
-          "name": "In attesa di noi"
+          "name": "In attesa di una nostra risposta"
         },
         "known_issues_all": {
           "name": "Tutti i problemi noti"
@@ -2391,7 +2432,7 @@
           "title": "Attività scadute"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         },
         "tickets_by_status": {
           "title": "Ticket per stato"
@@ -2400,7 +2441,7 @@
           "title": "Ticket aperti per priorità"
         },
         "waiting_on_us_count": {
-          "title": "Ticket in attesa di noi"
+          "title": "Ticket in attesa di una nostra risposta"
         },
         "responses_due": {
           "title": "Prime risposte in scadenza"
@@ -2459,7 +2500,13 @@
         },
         "data_request_clock": {
           "title": "Fissare la risoluzione a 30 giorni quando un ticket diventa una richiesta GDPR",
-          "description": ""
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Fissare la risoluzione a 15 giorni quando un ticket diventa una richiesta LGPD (Brasile)",
+              "description": "Secondo l'art. 19 della LGPD, la risposta completa a una richiesta di accesso o di conferma va data entro 15 giorni."
+            }
+          }
         },
         "known_issue_fixed": {
           "title": "Avvisare i clienti quando un problema noto è corretto",
@@ -2473,15 +2520,15 @@
       "acceptanceChecks": {
         "status_field": "Ogni ticket ha uno stato.",
         "first_response_field": "Ogni ticket indica entro quando è dovuta la prima risposta.",
-        "tickets_board_view": "I ticket si aprono come bacheca per stato."
+        "tickets_board_view": "I ticket si aprono come board per stato."
       },
       "prompt": {
-        "intro": "Imposta nel mio workspace Customermates un'assistenza clienti: ticket con stato, priorità, tempo di prima risposta e scadenza di risoluzione, problemi noti collegati ai ticket, una valutazione di soddisfazione e attività di follow-up con data.",
+        "intro": "Imposta nel mio spazio di lavoro Customermates un'assistenza clienti: ticket con stato, priorità, tempo di prima risposta e scadenza di risoluzione, problemi noti collegati ai ticket, una valutazione di soddisfazione e attività di follow-up con data.",
         "questions": [
-          "Quanti ticket gestite a settimana e da quali canali arrivano?",
-          "Che tempi promettete per la prima risposta e la risoluzione, per priorità o piano di assistenza?",
+          "Quanti ticket gestisci a settimana e da quali canali arrivano?",
+          "Che tempi prometti per la prima risposta e la risoluzione, per priorità o piano di assistenza?",
           "Chi risponde e chi viene avvisato quando un ticket è in ritardo?",
-          "Ricevete richieste GDPR o segnalazioni da altri sistemi che devono diventare ticket?"
+          "Ricevi richieste GDPR o segnalazioni da altri sistemi che devono diventare ticket?"
         ]
       }
     },
@@ -2489,7 +2536,7 @@
       "locale": "nl",
       "name": "Klantenservice",
       "summary": "Een lichte servicedesk: tickets met prioriteit, tijd voor een eerste reactie en een oplostermijn, bekende problemen die meerdere tickets aan één oorzaak koppelen en een tevredenheidsscore.",
-      "description": "Help uw klanten vanaf één plek: elk ticket heeft een status, een prioriteit, een type, een eigenaar en het tijdstip waarop u een eerste reactie en een oplossing verschuldigd bent. Koppel tickets aan een bekend probleem om iedereen te laten weten wanneer het is opgelost en houd de termijn van één maand van een AVG-verzoek in beeld. Bedoeld voor enkele tientallen tickets per week. Geen telefooncentrale, geen livechat, geen klantportaal en geen kalender met kantooruren.",
+      "description": "Help je klanten vanaf één plek: elk ticket heeft een status, een prioriteit, een type, een eigenaar en de uiterste datum voor een eerste reactie en een oplossing. Koppel tickets aan een bekend probleem om iedereen te laten weten wanneer het is opgelost en houd de termijn van één maand van een AVG-verzoek in beeld. Bedoeld voor enkele tientallen tickets per week. Geen telefooncentrale, geen livechat, geen klantportaal en geen kalender met kantooruren.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -2499,12 +2546,12 @@
         "customers": {
           "label": "Klant",
           "pluralLabel": "Klanten",
-          "description": "De mensen die u om hulp schrijven."
+          "description": "De mensen die je om hulp vragen."
         },
         "accounts": {
           "label": "Account",
           "pluralLabel": "Accounts",
-          "description": "De bedrijven achter uw klanten, met hun supportplan."
+          "description": "De bedrijven achter je klanten, met hun supportplan."
         },
         "tickets": {
           "label": "Ticket",
@@ -2522,7 +2569,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -2570,7 +2617,7 @@
             "new": "Nieuw",
             "open": "Open",
             "pending_customer": "Wacht op klant",
-            "on_hold": "Wacht op derde",
+            "on_hold": "Wacht op een derde",
             "solved": "Opgelost",
             "closed": "Gesloten",
             "spam_or_duplicate": "Spam of dubbel"
@@ -2610,11 +2657,11 @@
           "options": {}
         },
         "tickets.first_response_due": {
-          "label": "Eerste reactie voor",
+          "label": "Eerste reactie uiterlijk",
           "options": {}
         },
         "tickets.resolution_due": {
-          "label": "Oplossing voor",
+          "label": "Oplossing uiterlijk",
           "options": {}
         },
         "tickets.solved_on": {
@@ -2646,7 +2693,7 @@
           "label": "Soort",
           "options": {
             "reply": "Reageren",
-            "nudge_customer": "Klant herinneren",
+            "nudge_customer": "Klant een herinnering sturen",
             "send_survey": "Tevredenheidsenquête versturen",
             "close_ticket": "Ticket sluiten",
             "tell_customer_fixed": "Klant laten weten dat het is opgelost",
@@ -2670,7 +2717,7 @@
         },
         "action_ticket": {
           "sourceLabel": "Ticket",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         }
       },
       "views": {
@@ -2716,7 +2763,7 @@
           "title": "Tickets die op ons wachten"
         },
         "responses_due": {
-          "title": "Eerste reacties die nog moeten"
+          "title": "Openstaande eerste reacties"
         },
         "average_rating": {
           "title": "Gemiddelde tevredenheidsscore"
@@ -2727,7 +2774,7 @@
       },
       "knowledgePages": {
         "how_we_run_support": {
-          "title": "Hoe wij klantenservice doen",
+          "title": "Hoe wij onze klantenservice organiseren",
           "sections": [
             "Statussen en prioriteiten",
             "Doelen voor eerste reactie en oplossing",
@@ -2751,58 +2798,64 @@
       },
       "rules": {
         "ticket_created": {
-          "title": "Een taak om te reageren aanmaken zodra een ticket binnenkomt",
+          "title": "Maak een actie om te reageren aan zodra een ticket binnenkomt",
           "description": ""
         },
         "first_response_missed": {
-          "title": "De leiding waarschuwen als de eerste reactie te laat is",
+          "title": "Waarschuw de leiding als de eerste reactie te laat is",
           "description": ""
         },
         "nudge_customer": {
-          "title": "De klant na 3 dagen wachten herinneren",
+          "title": "Stuur de klant een herinnering na 3 dagen wachten",
           "description": ""
         },
         "send_survey": {
-          "title": "De dag na het oplossen de tevredenheidsenquête versturen",
+          "title": "Verstuur de dag na het oplossen de tevredenheidsenquête",
           "description": ""
         },
         "close_solved": {
-          "title": "Een ticket sluiten dat 4 dagen opgelost bleef",
+          "title": "Sluit een ticket dat 4 dagen opgelost bleef",
           "description": ""
         },
         "data_request_clock": {
-          "title": "De oplostermijn op 30 dagen zetten als een ticket een AVG-verzoek wordt",
-          "description": ""
+          "title": "Zet de oplostermijn op 30 dagen als een ticket een AVG-verzoek wordt",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Zet de oplostermijn op 15 dagen als een ticket een LGPD-verzoek wordt (Brazilië)",
+              "description": "Volgens art. 19 LGPD is een volledig antwoord op een inzage- of bevestigingsverzoek binnen 15 dagen verschuldigd."
+            }
+          }
         },
         "known_issue_fixed": {
-          "title": "Klanten informeren als een bekend probleem is opgelost",
+          "title": "Informeer klanten als een bekend probleem is opgelost",
           "description": ""
         },
         "ticket_from_webhook": {
-          "title": "Een ticket aanmaken als een ander systeem een melding stuurt",
+          "title": "Maak een ticket aan als een ander systeem een melding stuurt",
           "description": ""
         }
       },
       "acceptanceChecks": {
         "status_field": "Elk ticket heeft een status.",
-        "first_response_field": "Elk ticket legt vast wanneer de eerste reactie verschuldigd is.",
+        "first_response_field": "Elk ticket legt vast wanneer de eerste reactie uiterlijk moet komen.",
         "tickets_board_view": "De tickets openen als bord per status."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-workspace een klantenservice in: tickets met status, prioriteit, tijd voor de eerste reactie en oplostermijn, bekende problemen gekoppeld aan tickets, een tevredenheidsscore en opvolging met datum.",
+        "intro": "Richt in mijn Customermates-werkruimte een klantenservice in: tickets met status, prioriteit, tijd voor de eerste reactie en oplostermijn, bekende problemen gekoppeld aan tickets, een tevredenheidsscore en opvolging met datum.",
         "questions": [
-          "Hoeveel tickets behandelt u per week en via welke kanalen komen ze binnen?",
-          "Welke termijnen belooft u voor de eerste reactie en de oplossing, per prioriteit of supportplan?",
+          "Hoeveel tickets behandel je per week en via welke kanalen komen ze binnen?",
+          "Welke termijnen beloof je voor de eerste reactie en de oplossing, per prioriteit of supportplan?",
           "Wie antwoordt en wie wordt gewaarschuwd als een ticket te laat is?",
-          "Krijgt u AVG-verzoeken of meldingen van andere systemen die tickets moeten worden?"
+          "Krijg je AVG-verzoeken of meldingen van andere systemen die tickets moeten worden?"
         ]
       }
     },
     "pl": {
       "locale": "pl",
       "name": "Obsługa klienta",
-      "summary": "Lekki system obsługi: zgłoszenia z priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy łączące wiele zgłoszeń z jedną przyczyną oraz ocena zadowolenia.",
-      "description": "Obsługuj klientów w jednym miejscu: każde zgłoszenie ma status, priorytet, typ, osobę odpowiedzialną i termin, do którego należy się pierwsza odpowiedź i rozwiązanie. Połącz zgłoszenia ze znanym problemem, by poinformować wszystkich o naprawie, i miej na oku miesięczny termin wniosku RODO. Przeznaczony na kilkadziesiąt zgłoszeń tygodniowo. To nie centrala telefoniczna, czat na żywo, portal klienta ani kalendarz godzin pracy.",
+      "summary": "Prosty system obsługi zgłoszeń: zgłoszenia z priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy łączące wiele zgłoszeń z jedną przyczyną oraz ocena zadowolenia.",
+      "description": "Obsługuj klientów w jednym miejscu: każde zgłoszenie ma status, priorytet, typ, osobę odpowiedzialną i termin, do którego musisz udzielić pierwszej odpowiedzi i rozwiązać sprawę. Połącz zgłoszenia ze znanym problemem, by poinformować wszystkich o naprawie, i miej na oku miesięczny termin wniosku RODO. Sprawdzi się przy kilkudziesięciu zgłoszeniach tygodniowo. To nie jest centrala telefoniczna, czat na żywo, portal klienta ani kalendarz godzin pracy.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -2845,7 +2898,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -2874,7 +2927,7 @@
           }
         },
         "accounts.contract_end": {
-          "label": "Koniec umowy",
+          "label": "Data zakończenia umowy",
           "options": {}
         },
         "tickets.status": {
@@ -2923,19 +2976,19 @@
           "options": {}
         },
         "tickets.first_response_due": {
-          "label": "Pierwsza odpowiedź do",
+          "label": "Termin pierwszej odpowiedzi",
           "options": {}
         },
         "tickets.resolution_due": {
-          "label": "Rozwiązanie do",
+          "label": "Termin rozwiązania",
           "options": {}
         },
         "tickets.solved_on": {
-          "label": "Rozwiązano dnia",
+          "label": "Data rozwiązania",
           "options": {}
         },
         "tickets.rating": {
-          "label": "Ocena",
+          "label": "Ocena zadowolenia",
           "options": {}
         },
         "known_issues.status": {
@@ -2952,7 +3005,7 @@
           "options": {}
         },
         "known_issues.fixed_on": {
-          "label": "Naprawiono dnia",
+          "label": "Data naprawy",
           "options": {}
         },
         "actions.kind": {
@@ -3064,35 +3117,41 @@
       },
       "rules": {
         "ticket_created": {
-          "title": "Utworzyć zadanie odpowiedzi, gdy powstaje zgłoszenie",
+          "title": "Utwórz zadanie odpowiedzi, gdy powstaje zgłoszenie",
           "description": ""
         },
         "first_response_missed": {
-          "title": "Powiadomić prowadzącego, gdy pierwsza odpowiedź jest spóźniona",
+          "title": "Powiadom osobę prowadzącą obsługę, gdy minie termin pierwszej odpowiedzi",
           "description": ""
         },
         "nudge_customer": {
-          "title": "Przypomnieć klientowi po 3 dniach oczekiwania",
+          "title": "Przypomnij klientowi po 3 dniach oczekiwania",
           "description": ""
         },
         "send_survey": {
-          "title": "Wysłać ankietę zadowolenia w dniu po rozwiązaniu",
+          "title": "Wyślij ankietę zadowolenia dzień po rozwiązaniu zgłoszenia",
           "description": ""
         },
         "close_solved": {
-          "title": "Zamknąć zgłoszenie, które było rozwiązane przez 4 dni",
+          "title": "Zamknij zgłoszenie, które pozostaje rozwiązane od 4 dni",
           "description": ""
         },
         "data_request_clock": {
-          "title": "Ustawić rozwiązanie na 30 dni, gdy zgłoszenie staje się wnioskiem RODO",
-          "description": ""
+          "title": "Ustaw termin rozwiązania na 30 dni, gdy zgłoszenie staje się wnioskiem RODO",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Ustaw termin rozwiązania na 15 dni, gdy zgłoszenie staje się wnioskiem LGPD (Brazylia)",
+              "description": "Zgodnie z art. 19 LGPD pełna odpowiedź na wniosek o dostęp lub potwierdzenie przetwarzania jest należna w ciągu 15 dni."
+            }
+          }
         },
         "known_issue_fixed": {
-          "title": "Poinformować klientów, gdy znany problem zostanie naprawiony",
+          "title": "Poinformuj klientów, gdy znany problem zostanie naprawiony",
           "description": ""
         },
         "ticket_from_webhook": {
-          "title": "Utworzyć zgłoszenie, gdy inny system wyśle alert",
+          "title": "Utwórz zgłoszenie, gdy inny system wyśle alert",
           "description": ""
         }
       },
@@ -3102,9 +3161,9 @@
         "tickets_board_view": "Zgłoszenia otwierają się jako tablica według statusu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w moim workspace Customermates obsługę klienta: zgłoszenia ze statusem, priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy powiązane ze zgłoszeniami, ocenę zadowolenia i zaplanowane kontakty uzupełniające.",
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates obsługę klienta: zgłoszenia ze statusem, priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy powiązane ze zgłoszeniami, ocenę zadowolenia i zaplanowane kolejne kroki.",
         "questions": [
-          "Ile zgłoszeń obsługujesz tygodniowo i kanałami jakiego rodzaju do Ciebie docierają?",
+          "Ile zgłoszeń obsługujesz tygodniowo i jakimi kanałami do Ciebie docierają?",
           "Jakie terminy obiecujesz na pierwszą odpowiedź i rozwiązanie, według priorytetu lub planu wsparcia?",
           "Kto odpowiada i kogo informujesz, gdy zgłoszenie jest spóźnione?",
           "Czy dostajesz wnioski RODO lub alerty z innych systemów, które mają stać się zgłoszeniami?"
@@ -3115,7 +3174,7 @@
       "locale": "pt",
       "name": "Atendimento ao cliente",
       "summary": "Um atendimento enxuto: chamados com prioridade, prazo de primeira resposta e prazo de resolução, problemas conhecidos que ligam vários chamados a uma causa e uma nota de satisfação.",
-      "description": "Atenda seus clientes em um só lugar: cada chamado tem situação, prioridade, tipo, responsável e o prazo em que você deve uma primeira resposta e uma solução. Ligue os chamados a um problema conhecido para avisar a todos quando for resolvido e mantenha à vista o prazo de um mês de uma solicitação da LGPD. Pensado para algumas dezenas de chamados por semana. Não é uma central telefônica, um chat ao vivo, um portal do cliente nem um calendário de horário comercial.",
+      "description": "Atenda seus clientes em um só lugar: cada chamado tem status, prioridade, tipo, responsável e o prazo em que você deve uma primeira resposta e uma solução. Vincule os chamados a um problema conhecido para avisar a todos quando for resolvido e mantenha à vista o prazo de uma solicitação de titular da LGPD. Pensado para algumas dezenas de chamados por semana. Não é uma central telefônica, um chat ao vivo, um portal do cliente nem um calendário de horário comercial.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -3191,7 +3250,7 @@
           "options": {}
         },
         "tickets.status": {
-          "label": "Situação",
+          "label": "Status",
           "options": {
             "new": "Novo",
             "open": "Aberto",
@@ -3252,7 +3311,7 @@
           "options": {}
         },
         "known_issues.status": {
-          "label": "Situação",
+          "label": "Status",
           "options": {
             "investigating": "Em investigação",
             "workaround_available": "Solução alternativa disponível",
@@ -3275,7 +3334,7 @@
             "nudge_customer": "Lembrar o cliente",
             "send_survey": "Enviar a pesquisa de satisfação",
             "close_ticket": "Fechar o chamado",
-            "tell_customer_fixed": "Avisar o cliente que foi corrigido",
+            "tell_customer_fixed": "Avisar o cliente de que foi corrigido",
             "verify_identity": "Verificar a identidade",
             "other": "Outro"
           }
@@ -3333,7 +3392,7 @@
           "title": "Atividade recente"
         },
         "tickets_by_status": {
-          "title": "Chamados por situação"
+          "title": "Chamados por status"
         },
         "open_by_priority": {
           "title": "Chamados abertos por prioridade"
@@ -3355,7 +3414,7 @@
         "how_we_run_support": {
           "title": "Como funciona o nosso atendimento",
           "sections": [
-            "Situações e prioridades",
+            "Status e prioridades",
             "Metas de primeira resposta e de resolução",
             "Quem está de plantão"
           ]
@@ -3370,7 +3429,7 @@
         "data_requests": {
           "title": "Solicitações de titulares (LGPD)",
           "sections": [
-            "Verificar a identidade, registrar, responder em um mês",
+            "Verificar a identidade, registrar e responder dentro do prazo legal (acesso e confirmação: até 15 dias)",
             "Quem decide"
           ]
         }
@@ -3397,8 +3456,14 @@
           "description": ""
         },
         "data_request_clock": {
-          "title": "Definir a resolução em 30 dias quando um chamado vira solicitação LGPD",
-          "description": ""
+          "title": "Definir a resolução em 30 dias quando um chamado vira solicitação de dados",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Definir a resolução em 15 dias quando um chamado vira solicitação LGPD",
+              "description": "Pelo art. 19 da LGPD, a resposta completa a um pedido de acesso ou de confirmação é devida em até 15 dias."
+            }
+          }
         },
         "known_issue_fixed": {
           "title": "Avisar os clientes quando um problema conhecido é corrigido",
@@ -3410,12 +3475,12 @@
         }
       },
       "acceptanceChecks": {
-        "status_field": "Todo chamado tem uma situação.",
+        "status_field": "Todo chamado tem um status.",
         "first_response_field": "Todo chamado registra o prazo da primeira resposta.",
-        "tickets_board_view": "Os chamados abrem como quadro por situação."
+        "tickets_board_view": "Os chamados abrem como quadro por status."
       },
       "prompt": {
-        "intro": "Configure no meu workspace do Customermates um atendimento ao cliente: chamados com situação, prioridade, prazo de primeira resposta e prazo de resolução, problemas conhecidos ligados aos chamados, uma nota de satisfação e acompanhamentos com data.",
+        "intro": "Configure no meu espaço de trabalho do Customermates um atendimento ao cliente: chamados com status, prioridade, prazo de primeira resposta e prazo de resolução, problemas conhecidos ligados aos chamados, uma nota de satisfação e acompanhamentos com data.",
         "questions": [
           "Quantos chamados você atende por semana e por quais canais eles chegam?",
           "Que prazos você promete para a primeira resposta e a resolução, por prioridade ou plano de suporte?",

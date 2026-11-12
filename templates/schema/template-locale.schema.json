@@ -224,6 +224,32 @@
             "default": "",
             "type": "string",
             "maxLength": 500
+          },
+          "variants": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "pattern": "^[A-Z]{2}$"
+            },
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                "description": {
+                  "default": "",
+                  "type": "string",
+                  "maxLength": 500
+                }
+              },
+              "required": [
+                "title"
+              ],
+              "additionalProperties": false
+            }
           }
         },
         "required": [

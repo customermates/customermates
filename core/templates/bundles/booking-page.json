@@ -888,7 +888,7 @@
         "people": {
           "label": "Kontakt",
           "pluralLabel": "Kontakte",
-          "description": "Die Personen, die bei Ihnen buchen."
+          "description": "Die Personen, die bei dir buchen."
         },
         "appointment_types": {
           "label": "Terminart",
@@ -1104,7 +1104,7 @@
           "title": "Terminarten und Verfügbarkeit",
           "sections": [
             "Arten, Dauer, Pufferzeit und Vorlaufzeit",
-            "Sprechzeiten und Tageslimits"
+            "Öffnungszeiten und Tageslimits"
           ]
         },
         "reminder_policy": {
@@ -1164,10 +1164,10 @@
       "prompt": {
         "intro": "Richte in meinem Customermates-Workspace eine Terminbuchung ein: Terminarten mit Dauer, Pufferzeit und Vorlaufzeit, Termine mit Status und Ergebnis, Erinnerungen vor jedem Termin und ein Nachfassen danach.",
         "questions": [
-          "Welche Terminarten bieten Sie an, und wie lange dauert jede?",
-          "Wie viel Vorlaufzeit brauchen Sie, und wie weit im Voraus kann man buchen?",
+          "Welche Terminarten bietest du an, und wie lange dauert jede?",
+          "Wie viel Vorlaufzeit brauchst du, und wie weit im Voraus kann man buchen?",
           "Welche Fragen soll ein Kunde bei der Buchung beantworten?",
-          "Wie gehen Sie heute mit Nichterscheinen und kurzfristigen Absagen um?"
+          "Wie gehst du heute mit Nichterscheinen und kurzfristigen Absagen um?"
         ]
       }
     },
@@ -1472,7 +1472,7 @@
       "locale": "es",
       "name": "Reservas de citas",
       "summary": "Un registro de citas para quien presta servicios: tipos de cita con duración y antelación, cada reserva con su estado, recordatorios y resultado, y un siguiente paso en cada una.",
-      "description": "Reciba reservas para llamadas, consultas o visitas y guárdelas en el CRM: pocos tipos de cita con duración, margen y antelación mínima, una reserva que crea la persona y la cita, un evento de calendario al confirmar, dos recordatorios y un resultado anotado tras cada cita. Reserva solo el tiempo de personas. No es un sistema de reserva de salas o recursos, una herramienta de entradas, un programa de citas médicas ni una pasarela de pago.",
+      "description": "Recibe reservas para llamadas, consultas o visitas y guárdalas en el CRM: pocos tipos de cita con duración, margen y antelación mínima, una reserva que crea la persona y la cita, un evento de calendario al confirmar, dos recordatorios y un resultado anotado tras cada cita. Solo gestiona el tiempo de las personas. No es un sistema de reserva de salas o recursos, una herramienta de entradas, un programa de citas médicas ni una pasarela de pago.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -1482,7 +1482,7 @@
         "people": {
           "label": "Contacto",
           "pluralLabel": "Contactos",
-          "description": "Las personas que reservan con usted."
+          "description": "Las personas que reservan contigo."
         },
         "appointment_types": {
           "label": "Tipo de cita",
@@ -1579,7 +1579,7 @@
           }
         },
         "appointments.start_at": {
-          "label": "Comienzo",
+          "label": "Inicio",
           "options": {}
         },
         "appointments.source": {
@@ -1726,7 +1726,7 @@
           "description": ""
         },
         "notify_new_booking": {
-          "title": "Avisar al titular cuando llega una reserva",
+          "title": "Avisar al propietario cuando llega una reserva",
           "description": ""
         },
         "first_reminder": {
@@ -1742,11 +1742,11 @@
           "description": ""
         },
         "no_show_new_slot": {
-          "title": "Ofrecer un nuevo hueco el día después de una ausencia",
+          "title": "Ofrecer un nuevo hueco al día siguiente de una ausencia",
           "description": ""
         },
         "follow_up_held": {
-          "title": "Enviar el seguimiento el día después de una cita realizada",
+          "title": "Enviar el seguimiento al día siguiente de una cita realizada",
           "description": ""
         }
       },
@@ -1756,20 +1756,20 @@
         "appointments_board_view": "Las citas se abren como tablero por estado."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de Customermates unas reservas de citas: tipos de cita con duración, margen y antelación, citas con estado y resultado, recordatorios antes de cada cita y un seguimiento después.",
+        "intro": "Configura en mi espacio de trabajo de Customermates unas reservas de citas: tipos de cita con duración, margen y antelación, citas con estado y resultado, recordatorios antes de cada cita y un seguimiento después.",
         "questions": [
-          "¿Qué tipos de cita ofrece y cuánto dura cada una?",
-          "¿Cuánta antelación necesita y con cuánto tiempo se puede reservar?",
+          "¿Qué tipos de cita ofreces y cuánto dura cada una?",
+          "¿Cuánta antelación necesitas y con cuánto tiempo se puede reservar?",
           "¿Qué preguntas debe responder un cliente al reservar?",
-          "¿Cómo gestiona hoy las ausencias y las cancelaciones de última hora?"
+          "¿Cómo gestionas hoy las ausencias y las cancelaciones de última hora?"
         ]
       }
     },
     "fr": {
       "locale": "fr",
       "name": "Prise de rendez-vous",
-      "summary": "Un registre de rendez-vous pour un prestataire de services : types de rendez-vous avec durée et délai de prévenance, chaque réservation avec son statut, ses rappels et son résultat, et une prochaine étape pour chacune.",
-      "description": "Prenez des réservations pour des appels, des consultations ou des visites et gardez-les dans le CRM : quelques types de rendez-vous avec durée, temps de battement et délai de prévenance, une réservation qui crée la personne et le rendez-vous, un événement d'agenda une fois confirmé, deux rappels et un résultat noté après chaque rendez-vous. Le modèle réserve uniquement du temps de personnes. Ce n'est ni un système de réservation de salles ou de ressources, ni une billetterie, ni un logiciel de rendez-vous médicaux, ni un service de paiement.",
+      "summary": "Un registre de rendez-vous pour un prestataire de services : types de rendez-vous avec durée et délai de prévenance, chaque réservation avec son statut, ses rappels et son résultat, et une prochaine étape pour chacune.",
+      "description": "Prenez des réservations pour des appels, des consultations ou des visites et gardez-les dans le CRM : quelques types de rendez-vous avec durée, temps de battement et délai de prévenance, une réservation qui crée la personne et le rendez-vous, un événement d’agenda une fois confirmé, deux rappels et un résultat noté après chaque rendez-vous. Il ne gère que le temps des personnes. Ce n’est ni un système de réservation de salles ou de ressources, ni une billetterie, ni un logiciel de rendez-vous médicaux, ni un service de paiement.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1839,7 +1839,7 @@
           "options": {}
         },
         "appointment_types.booking_window_days": {
-          "label": "Réservable jusqu'à (jours à l'avance)",
+          "label": "Réservable jusqu’à (jours à l’avance)",
           "options": {}
         },
         "appointment_types.daily_limit": {
@@ -1847,7 +1847,7 @@
           "options": {}
         },
         "appointment_types.location_type": {
-          "label": "Où",
+          "label": "Lieu",
           "options": {
             "video_call": "Visioconférence",
             "phone": "Téléphone",
@@ -1886,7 +1886,7 @@
             "email": "E-mail",
             "whatsapp": "WhatsApp",
             "phone": "Téléphone",
-            "manual": "Saisi à la main"
+            "manual": "Saisi manuellement"
           }
         },
         "appointments.meeting_url": {
@@ -1900,16 +1900,16 @@
             "qualified": "Qualifié",
             "second_call": "Deuxième appel nécessaire",
             "proposal_needed": "Proposition à envoyer",
-            "won": "Gagné pendant l'appel",
+            "won": "Gagné pendant l’appel",
             "not_a_fit": "Ne convient pas"
           }
         },
         "appointments.cancel_reason": {
-          "label": "Motif d'annulation",
+          "label": "Motif d’annulation",
           "options": {
-            "schedule_conflict": "Conflit d'agenda",
+            "schedule_conflict": "Conflit d’agenda",
             "other_provider": "A trouvé un autre prestataire",
-            "no_longer_needed": "N'en a plus besoin",
+            "no_longer_needed": "N’en a plus besoin",
             "personal": "Raison personnelle",
             "other": "Autre"
           }
@@ -1920,7 +1920,7 @@
             "confirm_booking": "Confirmer la réservation",
             "send_reminder": "Envoyer un rappel",
             "prepare_call": "Préparer le rendez-vous",
-            "send_follow_up": "Envoyer le suivi",
+            "send_follow_up": "Envoyer le message de suivi",
             "offer_new_slot": "Proposer un nouveau créneau",
             "record_outcome": "Noter le résultat",
             "other": "Autre"
@@ -1949,7 +1949,7 @@
           "name": "Tous les rendez-vous"
         },
         "appointments_board": {
-          "name": "Tableau des rendez-vous"
+          "name": "Board des rendez-vous"
         },
         "missed_or_cancelled": {
           "name": "Manqués ou annulés"
@@ -2008,7 +2008,7 @@
         "cancellation_policy": {
           "title": "Annulation et report",
           "sections": [
-            "Jusqu'à quand un client peut annuler",
+            "Jusqu’à quand un client peut annuler",
             "Comment un nouveau créneau est proposé"
           ]
         }
@@ -2019,7 +2019,7 @@
           "description": ""
         },
         "confirm_event": {
-          "title": "Ajouter un événement d'agenda quand un rendez-vous est confirmé",
+          "title": "Ajouter un événement d’agenda quand un rendez-vous est confirmé",
           "description": ""
         },
         "notify_new_booking": {
@@ -2035,30 +2035,30 @@
           "description": ""
         },
         "record_outcome": {
-          "title": "Noter le résultat après qu'un rendez-vous confirmé a eu lieu",
+          "title": "Noter le résultat après qu’un rendez-vous confirmé a eu lieu",
           "description": ""
         },
         "no_show_new_slot": {
-          "title": "Proposer un nouveau créneau le lendemain d'une absence",
+          "title": "Proposer un nouveau créneau le lendemain d’une absence",
           "description": ""
         },
         "follow_up_held": {
-          "title": "Envoyer le suivi le lendemain d'un rendez-vous tenu",
+          "title": "Envoyer le suivi le lendemain d’un rendez-vous tenu",
           "description": ""
         }
       },
       "acceptanceChecks": {
         "status_field": "Chaque rendez-vous a un statut.",
         "start_field": "Chaque rendez-vous indique quand il commence.",
-        "appointments_board_view": "Les rendez-vous s'ouvrent en tableau par statut."
+        "appointments_board_view": "Les rendez-vous s’ouvrent en board par statut."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace Customermates une prise de rendez-vous : types de rendez-vous avec durée, temps de battement et délai de prévenance, rendez-vous avec statut et résultat, rappels avant chaque rendez-vous et suivi après.",
+        "intro": "Mets en place dans mon espace de travail Customermates une prise de rendez-vous : types de rendez-vous avec durée, temps de battement et délai de prévenance, rendez-vous avec statut et résultat, rappels avant chaque rendez-vous et suivi après.",
         "questions": [
-          "Quels types de rendez-vous proposez-vous, et combien de temps dure chacun ?",
-          "De quel délai de prévenance avez-vous besoin, et jusqu'à combien de temps à l'avance peut-on réserver ?",
-          "Quelles questions un client doit-il renseigner en réservant ?",
-          "Comment gérez-vous aujourd'hui les absences et les annulations tardives ?"
+          "Quels types de rendez-vous proposez-vous, et combien de temps dure chacun ?",
+          "De quel délai de prévenance avez-vous besoin, et jusqu’à combien de temps à l’avance peut-on réserver ?",
+          "Quelles questions un client doit-il renseigner en réservant ?",
+          "Comment gérez-vous aujourd’hui les absences et les annulations tardives ?"
         ]
       }
     },
@@ -2183,11 +2183,11 @@
             "email": "Email",
             "whatsapp": "WhatsApp",
             "phone": "Telefono",
-            "manual": "Inserito a mano"
+            "manual": "Inserito manualmente"
           }
         },
         "appointments.meeting_url": {
-          "label": "Link della riunione",
+          "label": "Link alla riunione",
           "options": {}
         },
         "appointments.outcome": {
@@ -2204,9 +2204,9 @@
         "appointments.cancel_reason": {
           "label": "Motivo dell'annullamento",
           "options": {
-            "schedule_conflict": "Impegno in conflitto",
-            "other_provider": "Ha trovato un altro fornitore",
-            "no_longer_needed": "Non gli serve più",
+            "schedule_conflict": "Impegno concomitante",
+            "other_provider": "Ha scelto un altro professionista",
+            "no_longer_needed": "Non serve più",
             "personal": "Motivo personale",
             "other": "Altro"
           }
@@ -2217,7 +2217,7 @@
             "confirm_booking": "Confermare la prenotazione",
             "send_reminder": "Inviare un promemoria",
             "prepare_call": "Preparare l'appuntamento",
-            "send_follow_up": "Inviare il seguito",
+            "send_follow_up": "Inviare il follow-up",
             "offer_new_slot": "Proporre un nuovo orario",
             "record_outcome": "Registrare l'esito",
             "other": "Altro"
@@ -2246,7 +2246,7 @@
           "name": "Tutti gli appuntamenti"
         },
         "appointments_board": {
-          "name": "Bacheca degli appuntamenti"
+          "name": "Board degli appuntamenti"
         },
         "missed_or_cancelled": {
           "name": "Mancati o annullati"
@@ -2266,7 +2266,7 @@
           "title": "Attività scadute"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         },
         "upcoming_appointments": {
           "title": "Prossimi appuntamenti"
@@ -2303,7 +2303,7 @@
           ]
         },
         "cancellation_policy": {
-          "title": "Annullamento e cambio data",
+          "title": "Annullamento e spostamento",
           "sections": [
             "Fino a quando un cliente può annullare",
             "Come viene proposto un nuovo orario"
@@ -2340,22 +2340,22 @@
           "description": ""
         },
         "follow_up_held": {
-          "title": "Inviare il seguito il giorno dopo un appuntamento svolto",
+          "title": "Inviare il follow-up il giorno dopo un appuntamento svolto",
           "description": ""
         }
       },
       "acceptanceChecks": {
         "status_field": "Ogni appuntamento ha uno stato.",
         "start_field": "Ogni appuntamento indica quando inizia.",
-        "appointments_board_view": "Gli appuntamenti si aprono come bacheca per stato."
+        "appointments_board_view": "Gli appuntamenti si aprono come board per stato."
       },
       "prompt": {
-        "intro": "Imposta nel mio workspace Customermates una prenotazione online: tipi di appuntamento con durata, pausa e preavviso, appuntamenti con stato ed esito, promemoria prima di ogni appuntamento e un seguito dopo.",
+        "intro": "Imposta nel mio spazio di lavoro Customermates una prenotazione online: tipi di appuntamento con durata, pausa e preavviso, appuntamenti con stato ed esito, promemoria prima di ogni appuntamento e un follow-up dopo.",
         "questions": [
-          "Quali tipi di appuntamento offrite e quanto dura ciascuno?",
-          "Quanto preavviso vi serve e con quanto anticipo si può prenotare?",
+          "Quali tipi di appuntamento offri e quanto dura ciascuno?",
+          "Quanto preavviso ti serve e con quanto anticipo si può prenotare?",
           "Quali domande deve compilare un cliente al momento della prenotazione?",
-          "Come gestite oggi le assenze e le disdette tardive?"
+          "Come gestisci oggi le assenze e le disdette tardive?"
         ]
       }
     },
@@ -2363,7 +2363,7 @@
       "locale": "nl",
       "name": "Online afspraken maken",
       "summary": "Een afsprakenregister voor dienstverleners: afspraaktypes met duur en minimale termijn, elke boeking met status, herinneringen en uitkomst, en bij elk een volgende stap.",
-      "description": "Neem boekingen aan voor gesprekken, consulten of bezichtigingen en bewaar ze in de CRM: een paar afspraaktypes met duur, buffer en minimale termijn, een boeking die de persoon en de afspraak aanmaakt, een agenda-item zodra u bevestigt, twee herinneringen en een uitkomst na elke afspraak. Het boekt alleen tijd van mensen. Geen systeem voor het reserveren van ruimtes of middelen, geen ticketverkoop, geen afsprakensysteem voor de zorg en geen betaaldienst.",
+      "description": "Boekingen aannemen voor gesprekken, consulten of bezichtigingen en ze bewaren in het CRM: een paar afspraaktypes met duur, buffer en minimale termijn, een boeking die de persoon en de afspraak aanmaakt, een agenda-item zodra je bevestigt, twee herinneringen en een uitkomst na elke afspraak. Het boekt alleen tijd van mensen. Geen systeem voor het reserveren van ruimtes of middelen, geen ticketverkoop, geen afsprakensysteem voor de zorg en geen betaaldienst.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -2373,7 +2373,7 @@
         "people": {
           "label": "Contactpersoon",
           "pluralLabel": "Contactpersonen",
-          "description": "De mensen die bij u boeken."
+          "description": "De mensen die bij jou boeken."
         },
         "appointment_types": {
           "label": "Afspraaktype",
@@ -2391,7 +2391,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -2465,12 +2465,12 @@
             "rescheduled": "Verzet",
             "held": "Gehouden",
             "no_show": "Niet verschenen",
-            "cancelled_by_client": "Geannuleerd door klant",
+            "cancelled_by_client": "Geannuleerd door de klant",
             "cancelled_by_us": "Geannuleerd door ons"
           }
         },
         "appointments.start_at": {
-          "label": "Begint",
+          "label": "Begin",
           "options": {}
         },
         "appointments.source": {
@@ -2484,7 +2484,7 @@
           }
         },
         "appointments.meeting_url": {
-          "label": "Link naar de vergadering",
+          "label": "Meetinglink",
           "options": {}
         },
         "appointments.outcome": {
@@ -2515,7 +2515,7 @@
             "send_reminder": "Herinnering sturen",
             "prepare_call": "Afspraak voorbereiden",
             "send_follow_up": "Opvolging sturen",
-            "offer_new_slot": "Nieuw moment aanbieden",
+            "offer_new_slot": "Nieuw tijdstip aanbieden",
             "record_outcome": "Uitkomst vastleggen",
             "other": "Overig"
           }
@@ -2532,7 +2532,7 @@
         },
         "action_appointment": {
           "sourceLabel": "Afspraak",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         }
       },
       "views": {
@@ -2593,7 +2593,7 @@
           ]
         },
         "reminder_policy": {
-          "title": "Herinneringen en niet verschijnen",
+          "title": "Herinneringen en no-shows",
           "sections": [
             "Herinneringen 3 dagen en 1 dag van tevoren",
             "Wat we doen na een no-show"
@@ -2603,41 +2603,41 @@
           "title": "Annuleren en verzetten",
           "sections": [
             "Tot wanneer een klant kan annuleren",
-            "Hoe een nieuw moment wordt aangeboden"
+            "Hoe een nieuw tijdstip wordt aangeboden"
           ]
         }
       },
       "rules": {
         "booking_form_records": {
-          "title": "Contactpersoon en afspraak aanmaken als het boekingsformulier is ingediend",
+          "title": "Maak een contactpersoon en een afspraak aan als het boekingsformulier is ingediend",
           "description": ""
         },
         "confirm_event": {
-          "title": "Een agenda-item toevoegen als een afspraak wordt bevestigd",
+          "title": "Voeg een agenda-item toe als een afspraak wordt bevestigd",
           "description": ""
         },
         "notify_new_booking": {
-          "title": "De eigenaar waarschuwen als er een boeking binnenkomt",
+          "title": "Waarschuw de eigenaar als er een boeking binnenkomt",
           "description": ""
         },
         "first_reminder": {
-          "title": "Een eerste herinnering sturen 3 dagen voor een bevestigde afspraak",
+          "title": "Stuur 3 dagen voor een bevestigde afspraak een eerste herinnering",
           "description": ""
         },
         "second_reminder": {
-          "title": "Een tweede herinnering sturen 1 dag voor een bevestigde afspraak",
+          "title": "Stuur 1 dag voor een bevestigde afspraak een tweede herinnering",
           "description": ""
         },
         "record_outcome": {
-          "title": "De uitkomst vastleggen nadat een bevestigde afspraak heeft plaatsgevonden",
+          "title": "Leg de uitkomst vast nadat een bevestigde afspraak heeft plaatsgevonden",
           "description": ""
         },
         "no_show_new_slot": {
-          "title": "De dag na een no-show een nieuw moment aanbieden",
+          "title": "Bied de dag na een no-show een nieuw tijdstip aan",
           "description": ""
         },
         "follow_up_held": {
-          "title": "De dag na een gehouden afspraak de opvolging sturen",
+          "title": "Stuur de dag na een gehouden afspraak de opvolging",
           "description": ""
         }
       },
@@ -2647,12 +2647,12 @@
         "appointments_board_view": "De afspraken openen als bord per status."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-workspace online afspraken in: afspraaktypes met duur, buffer en minimale termijn, afspraken met status en uitkomst, herinneringen vóór elke afspraak en een opvolging erna.",
+        "intro": "Richt in mijn Customermates-werkruimte online afspraken in: afspraaktypes met duur, buffer en minimale termijn, afspraken met status en uitkomst, herinneringen vóór elke afspraak en een opvolging erna.",
         "questions": [
-          "Welke soorten afspraken biedt u aan en hoe lang duurt elke?",
-          "Hoeveel termijn heeft u nodig en hoe ver vooruit kan men boeken?",
+          "Welke soorten afspraken bied je aan en hoe lang duurt elke?",
+          "Hoeveel tijd van tevoren moet iemand boeken en hoe ver vooruit kan men boeken?",
           "Welke vragen moet een klant bij het boeken beantwoorden?",
-          "Hoe gaat u nu om met no-shows en late annuleringen?"
+          "Hoe ga je nu om met no-shows en late annuleringen?"
         ]
       }
     },
@@ -2660,7 +2660,7 @@
       "locale": "pl",
       "name": "Rezerwacja wizyt online",
       "summary": "Rejestr wizyt dla osoby świadczącej usługi: typy wizyt z czasem trwania i wyprzedzeniem, każda rezerwacja ze statusem, przypomnieniami i wynikiem oraz następnym krokiem.",
-      "description": "Przyjmuj rezerwacje rozmów, konsultacji lub oglądania i trzymaj je w CRM: kilka typów wizyt z czasem trwania, przerwą i minimalnym wyprzedzeniem, rezerwacja tworzy osobę i wizytę, po potwierdzeniu powstaje wydarzenie w kalendarzu, wychodzą dwa przypomnienia, a po każdej wizycie zapisujesz wynik. Rezerwuje tylko czas ludzi. To nie system rezerwacji sal i zasobów, sprzedaży biletów, wizyt lekarskich ani bramka płatności.",
+      "description": "Przyjmuj rezerwacje rozmów, konsultacji lub oglądania nieruchomości i prowadź je w CRM: kilka typów wizyt z czasem trwania, przerwą i minimalnym wyprzedzeniem, rezerwacja, która tworzy kontakt i wizytę, wydarzenie w kalendarzu po potwierdzeniu, dwa przypomnienia i wynik zapisany po każdej wizycie. Rezerwuje wyłącznie czas osób, nie zasobów. To nie jest system rezerwacji sal i zasobów, sprzedaży biletów, wizyt lekarskich ani operator płatności.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -2698,7 +2698,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -2730,7 +2730,7 @@
           "options": {}
         },
         "appointment_types.booking_window_days": {
-          "label": "Rezerwacja do (dni naprzód)",
+          "label": "Maksymalne wyprzedzenie rezerwacji (dni)",
           "options": {}
         },
         "appointment_types.daily_limit": {
@@ -2761,13 +2761,13 @@
             "confirmed": "Potwierdzona",
             "rescheduled": "Przełożona",
             "held": "Odbyta",
-            "no_show": "Nieobecność",
+            "no_show": "Nieobecność klienta",
             "cancelled_by_client": "Odwołana przez klienta",
             "cancelled_by_us": "Odwołana przez nas"
           }
         },
         "appointments.start_at": {
-          "label": "Początek",
+          "label": "Rozpoczęcie",
           "options": {}
         },
         "appointments.source": {
@@ -2791,7 +2791,7 @@
             "qualified": "Zakwalifikowany",
             "second_call": "Potrzebna druga rozmowa",
             "proposal_needed": "Potrzebna oferta",
-            "won": "Wygrane na rozmowie",
+            "won": "Wygrane podczas rozmowy",
             "not_a_fit": "Nie pasuje"
           }
         },
@@ -2906,35 +2906,35 @@
       },
       "rules": {
         "booking_form_records": {
-          "title": "Utworzyć kontakt i wizytę po wysłaniu formularza rezerwacji",
+          "title": "Utwórz kontakt i wizytę po wysłaniu formularza rezerwacji",
           "description": ""
         },
         "confirm_event": {
-          "title": "Dodać wydarzenie do kalendarza po potwierdzeniu wizyty",
+          "title": "Dodaj wydarzenie do kalendarza po potwierdzeniu wizyty",
           "description": ""
         },
         "notify_new_booking": {
-          "title": "Powiadomić właściciela o nowej rezerwacji",
+          "title": "Powiadom właściciela o nowej rezerwacji",
           "description": ""
         },
         "first_reminder": {
-          "title": "Wysłać pierwsze przypomnienie 3 dni przed potwierdzoną wizytą",
+          "title": "Wyślij pierwsze przypomnienie 3 dni przed potwierdzoną wizytą",
           "description": ""
         },
         "second_reminder": {
-          "title": "Wysłać drugie przypomnienie 1 dzień przed potwierdzoną wizytą",
+          "title": "Wyślij drugie przypomnienie 1 dzień przed potwierdzoną wizytą",
           "description": ""
         },
         "record_outcome": {
-          "title": "Zapisać wynik po tym, jak potwierdzona wizyta się odbyła",
+          "title": "Zapisz wynik po odbyciu potwierdzonej wizyty",
           "description": ""
         },
         "no_show_new_slot": {
-          "title": "Zaproponować nowy termin dzień po nieobecności",
+          "title": "Zaproponuj nowy termin dzień po nieobecności klienta",
           "description": ""
         },
         "follow_up_held": {
-          "title": "Wysłać wiadomość po wizycie dzień po jej odbyciu",
+          "title": "Wyślij wiadomość podsumowującą dzień po odbytej wizycie",
           "description": ""
         }
       },
@@ -2944,9 +2944,9 @@
         "appointments_board_view": "Wizyty otwierają się jako tablica według statusu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w moim workspace Customermates rezerwację wizyt online: typy wizyt z czasem trwania, przerwą i wyprzedzeniem, wizyty ze statusem i wynikiem, przypomnienia przed każdą wizytą i wiadomość po niej.",
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates rezerwację wizyt online: typy wizyt z czasem trwania, przerwą i wyprzedzeniem, wizyty ze statusem i wynikiem, przypomnienia przed każdą wizytą i wiadomość po niej.",
         "questions": [
-          "Jakie typy wizyt oferujesz i ile trwa każdy?",
+          "Jakie typy wizyt oferujesz i ile trwa każdy z nich?",
           "Jakiego wyprzedzenia potrzebujesz i jak daleko naprzód można rezerwować?",
           "Na jakie pytania ma odpowiedzieć klient przy rezerwacji?",
           "Jak dziś radzisz sobie z nieobecnościami i odwołaniami w ostatniej chwili?"
@@ -2956,8 +2956,8 @@
     "pt": {
       "locale": "pt",
       "name": "Agendamento online",
-      "summary": "Uma agenda de atendimentos para quem presta serviços: tipos de atendimento com duração e antecedência mínima, cada agendamento com situação, lembretes e resultado, e um próximo passo em cada um.",
-      "description": "Receba agendamentos de chamadas, consultas ou visitas e guarde tudo no CRM: poucos tipos de atendimento com duração, intervalo e antecedência mínima, um agendamento que cria a pessoa e o atendimento, um evento na agenda quando você confirma, dois lembretes e um resultado registrado depois de cada atendimento. Agenda só o tempo das pessoas. Não é um sistema de reserva de salas ou recursos, uma ferramenta de ingressos, um sistema de consultas médicas nem um meio de pagamento.",
+      "summary": "Uma agenda de atendimentos para quem presta serviços: tipos de atendimento com duração e antecedência mínima, cada agendamento com status, lembretes e resultado, e um próximo passo em cada um.",
+      "description": "Receba agendamentos de chamadas, consultas ou visitas e guarde tudo no CRM: poucos tipos de atendimento com duração, intervalo e antecedência mínima, um agendamento que cria a pessoa e o atendimento, um evento na agenda quando você confirma, dois lembretes e um resultado registrado depois de cada atendimento. Gerencia apenas o tempo das pessoas. Não é um sistema de reserva de salas ou recursos, uma ferramenta de ingressos, um sistema de consultas médicas nem um meio de pagamento.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -3052,7 +3052,7 @@
           "options": {}
         },
         "appointments.status": {
-          "label": "Situação",
+          "label": "Status",
           "options": {
             "requested": "Solicitado",
             "confirmed": "Confirmado",
@@ -3074,7 +3074,7 @@
             "email": "E-mail",
             "whatsapp": "WhatsApp",
             "phone": "Telefone",
-            "manual": "Lançado à mão"
+            "manual": "Lançado manualmente"
           }
         },
         "appointments.meeting_url": {
@@ -3163,7 +3163,7 @@
           "title": "Próximos atendimentos"
         },
         "appointments_by_status": {
-          "title": "Atendimentos por situação"
+          "title": "Atendimentos por status"
         },
         "outcomes_of_held": {
           "title": "Resultados dos atendimentos realizados"
@@ -3236,12 +3236,12 @@
         }
       },
       "acceptanceChecks": {
-        "status_field": "Todo atendimento tem uma situação.",
+        "status_field": "Todo atendimento tem um status.",
         "start_field": "Todo atendimento registra quando começa.",
-        "appointments_board_view": "Os atendimentos abrem como quadro por situação."
+        "appointments_board_view": "Os atendimentos abrem como quadro por status."
       },
       "prompt": {
-        "intro": "Configure no meu workspace do Customermates um agendamento online: tipos de atendimento com duração, intervalo e antecedência mínima, atendimentos com situação e resultado, lembretes antes de cada atendimento e um acompanhamento depois.",
+        "intro": "Configure no meu espaço de trabalho do Customermates um agendamento online: tipos de atendimento com duração, intervalo e antecedência mínima, atendimentos com status e resultado, lembretes antes de cada atendimento e um acompanhamento depois.",
         "questions": [
           "Quais tipos de atendimento você oferece e quanto dura cada um?",
           "De quanta antecedência você precisa e com quanto tempo de antecedência dá para agendar?",

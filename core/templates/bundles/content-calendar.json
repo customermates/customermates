@@ -1113,7 +1113,7 @@
     "de": {
       "locale": "de",
       "name": "Redaktionsplan",
-      "summary": "Eine Zeile pro Beitrag mit Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, dazu Kampagnen, Aktionstage und eine wöchentliche Redaktionsroutine.",
+      "summary": "Eine Zeile pro Beitrag mit Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, dazu Kampagnen, Anlässe und eine wöchentliche Redaktionsroutine.",
       "description": "Ein Redaktionsplan für Blog, Newsletter, Social Media und Video: sieben Status von Idee bis veröffentlicht, ein Veröffentlichungskalender, eine Content-Säule pro Beitrag, eine Werbekennzeichnungs-Prüfung für bezahlte oder geschenkte Inhalte und eine Erfolgskontrolle nach 30 Tagen. Er plant und verfolgt, er veröffentlicht nicht.",
       "lists": {
         "actions": {
@@ -1137,8 +1137,8 @@
           "description": "Ein Thema, das mehrere Beiträge bündelt."
         },
         "key_dates": {
-          "label": "Aktionstag",
-          "pluralLabel": "Aktionstage",
+          "label": "Anlass",
+          "pluralLabel": "Anlässe",
           "description": "Feiertage, Veranstaltungen und Launches, um die herum Inhalte geplant werden."
         }
       },
@@ -1317,7 +1317,7 @@
             "no_owner": "Kein Verantwortlicher",
             "stale": "Überholt",
             "replaced": "Ersetzt",
-            "client_declined": "Kunde lehnte ab"
+            "client_declined": "Kunde hat abgelehnt"
           }
         },
         "campaigns.goal": {
@@ -1406,7 +1406,7 @@
           "name": "Alle Kampagnen"
         },
         "key_dates_all": {
-          "name": "Aktionstage"
+          "name": "Anlässe"
         },
         "people_all": {
           "name": "Alle Personen"
@@ -1441,7 +1441,7 @@
           "title": "Reichweite nach Content-Säule"
         },
         "key_dates_coming": {
-          "title": "Anstehende Aktionstage"
+          "title": "Anstehende Anlässe"
         }
       },
       "knowledgePages": {
@@ -1502,7 +1502,7 @@
           "description": ""
         },
         "plan_for_key_date": {
-          "title": "Drei Wochen vor einem Aktionstag Inhalte planen",
+          "title": "Drei Wochen vor einem Anlass Inhalte planen",
           "description": ""
         },
         "idea_form_piece": {
@@ -1516,11 +1516,11 @@
         "calendar_widget": "Das Dashboard zeigt den Veröffentlichungskalender."
       },
       "prompt": {
-        "intro": "Richte einen Redaktionsplan in meinem Customermates-Workspace ein: Beiträge mit sieben Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, Kampagnen, Aktionstage, eine Kennzeichnungsprüfung und eine wöchentliche Redaktionsroutine.",
+        "intro": "Richte einen Redaktionsplan in meinem Customermates-Workspace ein: Beiträge mit sieben Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, Kampagnen, Anlässe, eine Kennzeichnungsprüfung und eine wöchentliche Redaktionsroutine.",
         "questions": [
-          "Was veröffentlichen Sie, auf welchen Kanälen und wie oft?",
+          "Was veröffentlichst du, auf welchen Kanälen und wie oft?",
           "Wer schreibt, wer prüft und wer gibt frei? Ist ein Kunde beteiligt?",
-          "Welche Content-Säulen nutzen Sie, und welche der sieben Status brauchen Sie?",
+          "Welche Content-Säulen nutzt du, und welche der sieben Status brauchst du?",
           "Mit welchem Werkzeug wird veröffentlicht? Dort bleibt der Inhalt, hier werden nur Link und Datum festgehalten."
         ]
       }
@@ -1642,7 +1642,7 @@
           "label": "Content pillar",
           "options": {
             "educate": "Educate",
-            "prove": "Prove",
+            "prove": "Proof",
             "product": "Product",
             "community": "Community",
             "behind_the_scenes": "Behind the scenes"
@@ -1943,8 +1943,8 @@
     "es": {
       "locale": "es",
       "name": "Calendario editorial",
-      "summary": "Una fila por pieza con estado, responsable, revisor y fecha de publicación, más campañas, fechas clave y una rutina editorial semanal.",
-      "description": "Un calendario editorial para blog, newsletter, redes sociales y vídeo: siete estados de la idea a publicado, un calendario de publicación, un pilar de contenido por pieza, una comprobación del aviso de publicidad para contenido pagado o regalado y un repaso de resultados a los 30 días. Planifica y hace seguimiento, no publica.",
+      "summary": "Una fila por pieza con estado, responsable, revisor y fecha de publicación, más campañas, fechas clave y una reunión editorial semanal.",
+      "description": "Un calendario editorial para blog, newsletter, redes sociales y vídeo: siete estados de la idea a publicado, un calendario de publicación, un pilar de contenido por pieza, una comprobación de la identificación de la publicidad en el contenido pagado o regalado y un repaso de resultados a los 30 días. Planifica y hace seguimiento, pero no publica.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -2107,7 +2107,7 @@
           "options": {}
         },
         "pieces.ad_disclosure": {
-          "label": "Aviso de publicidad",
+          "label": "Identificación de la publicidad",
           "options": {
             "none": "Ninguno",
             "paid_partnership": "Colaboración pagada o publicidad",
@@ -2116,7 +2116,7 @@
           }
         },
         "pieces.disclosure_checked": {
-          "label": "Aviso comprobado",
+          "label": "Identificación comprobada",
           "options": {}
         },
         "pieces.published_url": {
@@ -2298,9 +2298,9 @@
           ]
         },
         "disclosure_checklist": {
-          "title": "Lista de avisos de publicidad y colaboraciones",
+          "title": "Lista de identificación de publicidad y colaboraciones",
           "sections": [
-            "Cuándo una publicación debe llevar aviso",
+            "Cuándo una publicación debe identificarse como publicidad",
             "Redacción y colocación",
             "Comprobación antes de publicar"
           ]
@@ -2346,7 +2346,7 @@
         "calendar_widget": "El panel muestra el calendario de publicación."
       },
       "prompt": {
-        "intro": "Configura un calendario editorial en mi espacio de trabajo de Customermates: piezas con siete estados, un responsable, un revisor y una fecha de publicación, campañas, fechas clave, una comprobación del aviso de publicidad y una rutina editorial semanal.",
+        "intro": "Configura un calendario editorial en mi espacio de trabajo de Customermates: piezas con siete estados, un responsable, un revisor y una fecha de publicación, campañas, fechas clave, una comprobación de la identificación de la publicidad y una reunión editorial semanal.",
         "questions": [
           "¿Qué publicas, en qué canales y con qué frecuencia?",
           "¿Quién escribe, quién revisa y quién aprueba? ¿Interviene un cliente?",
@@ -2359,7 +2359,7 @@
       "locale": "fr",
       "name": "Calendrier éditorial",
       "summary": "Une ligne par contenu avec un statut, un responsable, un relecteur et une date de publication, plus des campagnes, des dates clés et une routine éditoriale hebdomadaire.",
-      "description": "Un calendrier éditorial pour blog, newsletter, réseaux sociaux et vidéo : sept statuts de l’idée à publié, un calendrier de publication, un pilier de contenu par contenu, une vérification de la mention de partenariat pour les contenus rémunérés ou offerts et un point sur les résultats après 30 jours. Il planifie et suit, il ne publie pas.",
+      "description": "Un calendrier éditorial pour blog, newsletter, réseaux sociaux et vidéo : sept statuts de l’idée à la publication, un calendrier de publication, un pilier de contenu par contenu, une vérification de la mention de partenariat pour les contenus rémunérés ou offerts et un point sur les résultats après 30 jours. Il planifie et suit, il ne publie pas.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2369,7 +2369,7 @@
         "people": {
           "label": "Personne",
           "pluralLabel": "Personnes",
-          "description": "Auteurs, rédacteurs, relecteurs, validateurs et invités."
+          "description": "Auteurs, rédacteurs en chef, relecteurs, validateurs et invités."
         },
         "pieces": {
           "label": "Contenu",
@@ -2472,7 +2472,7 @@
           "label": "Pilier de contenu",
           "options": {
             "educate": "Éduquer",
-            "prove": "Prouver",
+            "prove": "Preuves",
             "product": "Produit",
             "community": "Communauté",
             "behind_the_scenes": "Coulisses"
@@ -2547,7 +2547,7 @@
           "options": {}
         },
         "pieces.engagements": {
-          "label": "Engagements",
+          "label": "Interactions",
           "options": {}
         },
         "pieces.clicks": {
@@ -2560,7 +2560,7 @@
             "off_topic": "Hors sujet",
             "duplicate": "Doublon",
             "no_owner": "Sans responsable",
-            "stale": "Périmé",
+            "stale": "Obsolète",
             "replaced": "Remplacé",
             "client_declined": "Refusé par le client"
           }
@@ -2596,7 +2596,7 @@
             "industry_event": "Événement du secteur",
             "product_launch": "Lancement de produit",
             "awareness_day": "Journée thématique",
-            "own_event": "Événement propre",
+            "own_event": "Notre événement",
             "deadline": "Échéance"
           }
         },
@@ -2761,12 +2761,12 @@
         "calendar_widget": "Le tableau de bord montre le calendrier de publication."
       },
       "prompt": {
-        "intro": "Mets en place un calendrier éditorial dans mon espace Customermates : des contenus avec sept statuts, un responsable, un relecteur et une date de publication, des campagnes, des dates clés, une vérification des mentions de partenariat et une routine éditoriale hebdomadaire.",
+        "intro": "Mets en place un calendrier éditorial dans mon espace de travail Customermates : des contenus avec sept statuts, un responsable, un relecteur et une date de publication, des campagnes, des dates clés, une vérification des mentions de partenariat et une routine éditoriale hebdomadaire.",
         "questions": [
-          "Que publiez-vous, sur quels canaux, et à quel rythme ?",
-          "Qui écrit, qui relit et qui valide ? Un client intervient-il ?",
-          "Quels piliers de contenu utilisez-vous, et lesquels des sept statuts vous servent ?",
-          "Quel outil publie les contenus ? Ils y restent, et seuls le lien et la date sont gardés ici."
+          "Que publiez-vous, sur quels canaux, et à quel rythme ?",
+          "Qui écrit, qui relit et qui valide ? Un client intervient-il ?",
+          "Quels piliers de contenu utilisez-vous, et lesquels des sept statuts vous servent ?",
+          "Quel outil publie les contenus ? Ils y restent, et seuls le lien et la date sont gardés ici."
         ]
       }
     },
@@ -2774,7 +2774,7 @@
       "locale": "it",
       "name": "Calendario editoriale",
       "summary": "Una riga per contenuto con stato, responsabile, revisore e data di pubblicazione, più campagne, date chiave e una routine editoriale settimanale.",
-      "description": "Un calendario editoriale per blog, newsletter, social e video: sette stati dall’idea al pubblicato, un calendario di pubblicazione, un pilastro di contenuto per ogni contenuto, un controllo della dichiarazione pubblicitaria per i contenuti a pagamento o ricevuti in regalo e una verifica dei risultati dopo 30 giorni. Pianifica e traccia, non pubblica.",
+      "description": "Un calendario editoriale per blog, newsletter, social e video: sette stati dall'idea al pubblicato, un calendario di pubblicazione, un pilastro di contenuto per ogni contenuto, un controllo della segnalazione pubblicitaria per i contenuti sponsorizzati o con prodotti ricevuti in omaggio e una verifica dei risultati dopo 30 giorni. Pianifica e tiene traccia, non pubblica.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2789,7 +2789,7 @@
         "pieces": {
           "label": "Contenuto",
           "pluralLabel": "Contenuti",
-          "description": "Un contenuto dall’idea alla pubblicazione."
+          "description": "Un contenuto dall'idea alla pubblicazione."
         },
         "campaigns": {
           "label": "Campagna",
@@ -2917,11 +2917,11 @@
           "options": {}
         },
         "pieces.target_keyword": {
-          "label": "Parola chiave obiettivo",
+          "label": "Parola chiave target",
           "options": {}
         },
         "pieces.call_to_action": {
-          "label": "Invito all’azione",
+          "label": "Invito all'azione",
           "options": {}
         },
         "pieces.draft_due": {
@@ -2937,16 +2937,16 @@
           "options": {}
         },
         "pieces.ad_disclosure": {
-          "label": "Dichiarazione pubblicitaria",
+          "label": "Segnalazione pubblicitaria",
           "options": {
             "none": "Nessuna",
             "paid_partnership": "Partnership a pagamento o pubblicità",
-            "gifted_product": "Prodotto regalato",
+            "gifted_product": "Prodotto in omaggio",
             "affiliate_link": "Link di affiliazione"
           }
         },
         "pieces.disclosure_checked": {
-          "label": "Dichiarazione verificata",
+          "label": "Segnalazione verificata",
           "options": {}
         },
         "pieces.published_url": {
@@ -2975,7 +2975,7 @@
             "off_topic": "Fuori tema",
             "duplicate": "Duplicato",
             "no_owner": "Senza responsabile",
-            "stale": "Superato",
+            "stale": "Obsoleto",
             "replaced": "Sostituito",
             "client_declined": "Rifiutato dal cliente"
           }
@@ -3011,7 +3011,7 @@
             "industry_event": "Evento di settore",
             "product_launch": "Lancio di prodotto",
             "awareness_day": "Giornata tematica",
-            "own_event": "Evento proprio",
+            "own_event": "Evento aziendale",
             "deadline": "Scadenza"
           }
         },
@@ -3080,7 +3080,7 @@
           "title": "Attività scadute"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         },
         "publishing_calendar": {
           "title": "Calendario di pubblicazione"
@@ -3128,7 +3128,7 @@
           ]
         },
         "disclosure_checklist": {
-          "title": "Checklist della dichiarazione di pubblicità e partnership",
+          "title": "Checklist della segnalazione di pubblicità e partnership",
           "sections": [
             "Quando un post va segnalato",
             "Formulazione e posizione",
@@ -3138,11 +3138,11 @@
       },
       "rules": {
         "review_task": {
-          "title": "Creare un’attività di revisione quando un contenuto va in revisione",
+          "title": "Creare un'attività di revisione quando un contenuto va in revisione",
           "description": ""
         },
         "schedule_task": {
-          "title": "Creare un’attività di programmazione quando un contenuto è approvato",
+          "title": "Creare un'attività di programmazione quando un contenuto è approvato",
           "description": ""
         },
         "at_risk_before_publish": {
@@ -3166,17 +3166,17 @@
           "description": ""
         },
         "idea_form_piece": {
-          "title": "Creare un contenuto da un’idea inviata con un modulo",
+          "title": "Creare un contenuto da un'idea inviata con un modulo",
           "description": ""
         }
       },
       "acceptanceChecks": {
         "stage_field": "Ogni contenuto ha uno dei sette stati.",
-        "publish_field": "Ogni contenuto ha una data e un’ora di pubblicazione.",
+        "publish_field": "Ogni contenuto ha una data e un'ora di pubblicazione.",
         "calendar_widget": "La dashboard mostra il calendario di pubblicazione."
       },
       "prompt": {
-        "intro": "Configura un calendario editoriale nel mio spazio di lavoro Customermates: contenuti con sette stati, un responsabile, un revisore e una data di pubblicazione, campagne, date chiave, un controllo della dichiarazione pubblicitaria e una routine editoriale settimanale.",
+        "intro": "Configura un calendario editoriale nel mio spazio di lavoro Customermates: contenuti con sette stati, un responsabile, un revisore e una data di pubblicazione, campagne, date chiave, un controllo della segnalazione pubblicitaria e una routine editoriale settimanale.",
         "questions": [
           "Che cosa pubblichi, su quali canali e con quale frequenza?",
           "Chi scrive, chi rivede e chi approva? È coinvolto un cliente?",
@@ -3188,7 +3188,7 @@
     "nl": {
       "locale": "nl",
       "name": "Contentkalender",
-      "summary": "Eén regel per stuk met status, eigenaar, reviewer en publicatiedatum, plus campagnes, vaste data en een wekelijkse redactieroutine.",
+      "summary": "Eén regel per stuk met status, eigenaar, reviewer en publicatiedatum, plus campagnes, belangrijke data en een wekelijkse redactieroutine.",
       "description": "Een redactiekalender voor blog, nieuwsbrief, social media en video: zeven statussen van idee tot gepubliceerd, een publicatiekalender, een contentpijler per stuk, een controle op reclamelabels voor betaalde of cadeau gekregen content en een resultaatcheck na 30 dagen. Hij plant en volgt, hij publiceert niet.",
       "lists": {
         "actions": {
@@ -3212,8 +3212,8 @@
           "description": "Een thema dat meerdere stukken bundelt."
         },
         "key_dates": {
-          "label": "Vaste datum",
-          "pluralLabel": "Vaste data",
+          "label": "Belangrijke datum",
+          "pluralLabel": "Belangrijke data",
           "description": "Feestdagen, evenementen en lanceringen om content omheen te plannen."
         }
       },
@@ -3222,7 +3222,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -3255,7 +3255,7 @@
           "label": "Status",
           "options": {
             "planned": "Gepland",
-            "running": "Loopt",
+            "running": "Lopend",
             "done": "Afgerond",
             "dropped": "Vervallen"
           }
@@ -3481,7 +3481,7 @@
           "name": "Alle campagnes"
         },
         "key_dates_all": {
-          "name": "Vaste data"
+          "name": "Belangrijke data"
         },
         "people_all": {
           "name": "Alle personen"
@@ -3516,7 +3516,7 @@
           "title": "Bereik per pijler"
         },
         "key_dates_coming": {
-          "title": "Aankomende vaste data"
+          "title": "Aankomende belangrijke data"
         }
       },
       "knowledgePages": {
@@ -3531,7 +3531,7 @@
           "title": "Publicatieritme en wekelijks redactieoverleg",
           "sections": [
             "Slots per kanaal",
-            "Verschenen, in gevaar, geblokkeerd",
+            "Verschenen, loopt risico, geblokkeerd",
             "Statussen en wie ze wijzigt"
           ]
         },
@@ -3561,7 +3561,7 @@
           "description": ""
         },
         "at_risk_before_publish": {
-          "title": "Meld een stuk dat drie dagen voor publicatie nog een concept is",
+          "title": "Signaleer een stuk dat drie dagen voor publicatie nog een concept is",
           "description": ""
         },
         "measure_after_30_days": {
@@ -3577,7 +3577,7 @@
           "description": ""
         },
         "plan_for_key_date": {
-          "title": "Plan content drie weken voor een vaste datum",
+          "title": "Plan content drie weken voor een belangrijke datum",
           "description": ""
         },
         "idea_form_piece": {
@@ -3591,7 +3591,7 @@
         "calendar_widget": "Het dashboard toont de publicatiekalender."
       },
       "prompt": {
-        "intro": "Richt een contentkalender in mijn Customermates-werkruimte in: contentstukken met zeven statussen, een eigenaar, een reviewer en een publicatiedatum, campagnes, vaste data, een controle op reclamelabels en een wekelijkse redactieroutine.",
+        "intro": "Richt een contentkalender in mijn Customermates-werkruimte in: contentstukken met zeven statussen, een eigenaar, een reviewer en een publicatiedatum, campagnes, belangrijke data, een controle op reclamelabels en een wekelijkse redactieroutine.",
         "questions": [
           "Wat publiceer je, op welke kanalen en hoe vaak?",
           "Wie schrijft, wie reviewt en wie keurt goed? Is er een klant bij betrokken?",
@@ -3604,7 +3604,7 @@
       "locale": "pl",
       "name": "Kalendarz treści",
       "summary": "Jeden wiersz na materiał ze statusem, osobą odpowiedzialną, recenzentem i datą publikacji, do tego kampanie, ważne daty i cotygodniowa rutyna redakcyjna.",
-      "description": "Harmonogram publikacji dla bloga, newslettera, mediów społecznościowych i wideo: siedem statusów od pomysłu do opublikowanego, kalendarz publikacji, filar treści przy każdym materiale, kontrola oznaczenia reklamy dla treści płatnych lub otrzymanych w prezencie i sprawdzenie wyników po 30 dniach. Planuje i śledzi, nie publikuje.",
+      "description": "Kalendarz redakcyjny dla bloga, newslettera, mediów społecznościowych i wideo: siedem statusów od pomysłu do opublikowanego, kalendarz publikacji, filar treści przy każdym materiale, kontrola oznaczenia reklamy dla treści płatnych lub powstałych w zamian za produkt i sprawdzenie wyników po 30 dniach. Planuje i śledzi, nie publikuje.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -3647,7 +3647,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -3691,7 +3691,7 @@
           "options": {}
         },
         "pieces.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "pieces.reviewer": {
@@ -3755,15 +3755,15 @@
           "options": {}
         },
         "pieces.draft_due": {
-          "label": "Szkic do dnia",
+          "label": "Termin szkicu",
           "options": {}
         },
         "pieces.review_due": {
-          "label": "Akceptacja do dnia",
+          "label": "Termin akceptacji",
           "options": {}
         },
         "pieces.publish_at": {
-          "label": "Publikacja dnia",
+          "label": "Data publikacji",
           "options": {}
         },
         "pieces.ad_disclosure": {
@@ -3771,7 +3771,7 @@
           "options": {
             "none": "Brak",
             "paid_partnership": "Płatna współpraca lub reklama",
-            "gifted_product": "Produkt otrzymany w prezencie",
+            "gifted_product": "Produkt otrzymany bezpłatnie",
             "affiliate_link": "Link afiliacyjny"
           }
         },
@@ -3784,7 +3784,7 @@
           "options": {}
         },
         "pieces.published_on": {
-          "label": "Opublikowano dnia",
+          "label": "Data opublikowania",
           "options": {}
         },
         "pieces.reach": {
@@ -3804,7 +3804,7 @@
           "options": {
             "off_topic": "Poza tematem",
             "duplicate": "Duplikat",
-            "no_owner": "Brak odpowiedzialnego",
+            "no_owner": "Brak osoby odpowiedzialnej",
             "stale": "Nieaktualny",
             "replaced": "Zastąpiony",
             "client_declined": "Klient odrzucił"
@@ -3815,11 +3815,11 @@
           "options": {}
         },
         "campaigns.start_date": {
-          "label": "Początek",
+          "label": "Data rozpoczęcia",
           "options": {}
         },
         "campaigns.end_date": {
-          "label": "Koniec",
+          "label": "Data zakończenia",
           "options": {}
         },
         "campaigns.budget": {
@@ -3827,7 +3827,7 @@
           "options": {}
         },
         "campaigns.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "key_dates.date": {
@@ -3852,7 +3852,7 @@
         "actions.kind": {
           "label": "Rodzaj",
           "options": {
-            "write_brief": "Napisać brief",
+            "write_brief": "Napisanie briefu",
             "draft": "Szkic",
             "review": "Przegląd",
             "revise": "Poprawki",
@@ -3919,13 +3919,13 @@
           "title": "Materiały wg statusu"
         },
         "open_pieces_by_owner": {
-          "title": "Otwarte materiały na osobę"
+          "title": "Otwarte materiały wg osoby odpowiedzialnej"
         },
         "pieces_by_pillar": {
           "title": "Materiały wg filaru"
         },
         "published_per_month": {
-          "title": "Opublikowane miesięcznie"
+          "title": "Opublikowane w poszczególnych miesiącach"
         },
         "reach_by_pillar": {
           "title": "Zasięg wg filaru"
@@ -3945,7 +3945,7 @@
         "editorial_rhythm": {
           "title": "Rytm publikacji i cotygodniowe spotkanie redakcyjne",
           "sections": [
-            "Sloty dla każdego kanału",
+            "Terminy publikacji dla każdego kanału",
             "Opublikowane, zagrożone, zablokowane",
             "Statusy i kto je zmienia"
           ]
@@ -3980,7 +3980,7 @@
           "description": ""
         },
         "measure_after_30_days": {
-          "title": "Utwórz sprawdzenie wyników po publikacji materiału",
+          "title": "Utwórz zadanie sprawdzenia wyników po publikacji materiału",
           "description": ""
         },
         "stale_piece": {
@@ -3996,7 +3996,7 @@
           "description": ""
         },
         "idea_form_piece": {
-          "title": "Utwórz materiał z pomysłu przesłanego formularzem",
+          "title": "Utwórz materiał z pomysłu przesłanego przez formularz",
           "description": ""
         }
       },
@@ -4011,15 +4011,15 @@
           "Co publikujesz, w jakich kanałach i jak często?",
           "Kto pisze, kto przegląda i kto akceptuje? Czy uczestniczy klient?",
           "Jakich filarów treści używasz i które z siedmiu statusów są Ci potrzebne?",
-          "Jakie narzędzie publikuje treści? Zostają tam, a tutaj trzymane są tylko odnośnik i data."
+          "Jakie narzędzie publikuje treści? Zostają tam, a tutaj zapisujemy tylko link i datę."
         ]
       }
     },
     "pt": {
       "locale": "pt",
       "name": "Calendário editorial",
-      "summary": "Uma linha por conteúdo com status, responsável, revisor e data de publicação, mais campanhas, datas-chave e uma rotina editorial semanal.",
-      "description": "Um calendário editorial para blog, newsletter, redes sociais e vídeo: sete status da ideia ao publicado, um calendário de postagens, um pilar de conteúdo por conteúdo, uma conferência da identificação de publicidade para conteúdo pago ou recebido de presente e uma checagem de resultados após 30 dias. Planeja e acompanha, não publica.",
+      "summary": "Uma linha por conteúdo com status, responsável, revisor e data de publicação, mais campanhas, datas-chave e uma reunião editorial semanal.",
+      "description": "Um calendário editorial para blog, newsletter, redes sociais e vídeo: sete status da ideia ao publicado, um calendário de postagens, um pilar por conteúdo, uma conferência da identificação de publicidade para conteúdo pago ou recebido de presente e uma checagem de resultados após 30 dias. Planeja e acompanha, não publica.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -4360,7 +4360,7 @@
         "editorial_rhythm": {
           "title": "Ritmo de publicação e reunião editorial semanal",
           "sections": [
-            "Espaços por canal",
+            "Lacunas por canal",
             "Publicado, em risco, bloqueado",
             "Status e quem os muda"
           ]
@@ -4376,7 +4376,7 @@
           "title": "Checklist de identificação de publicidade e parcerias",
           "sections": [
             "Quando um post precisa de identificação",
-            "Termo e posição",
+            "Redação e posição da identificação",
             "Conferência antes de publicar"
           ]
         }
@@ -4421,7 +4421,7 @@
         "calendar_widget": "O painel mostra o calendário de postagens."
       },
       "prompt": {
-        "intro": "Configure um calendário editorial no meu espaço de trabalho do Customermates: conteúdos com sete status, um responsável, um revisor e uma data de publicação, campanhas, datas-chave, uma conferência da identificação de publicidade e uma rotina editorial semanal.",
+        "intro": "Configure um calendário editorial no meu espaço de trabalho do Customermates: conteúdos com sete status, um responsável, um revisor e uma data de publicação, campanhas, datas-chave, uma conferência da identificação de publicidade e uma reunião editorial semanal.",
         "questions": [
           "O que você publica, em quais canais e com que frequência?",
           "Quem escreve, quem revisa e quem aprova? Há um cliente envolvido?",

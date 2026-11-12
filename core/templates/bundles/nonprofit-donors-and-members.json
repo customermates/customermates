@@ -1191,7 +1191,7 @@
       "locale": "de",
       "name": "Mitglieder- und Spendenverwaltung",
       "summary": "Ein Register für Mitglieder, Spender und Ehrenamtliche: Mitgliedschaften mit Fälligkeit, Spenden mit Dank und Zuwendungsbestätigung, dazu eine Pipeline für Großspenden und Förderanträge.",
-      "description": "Für Vereine, gemeinnützige Organisationen und Gemeinden: wer Sie unterstützt und wie, welche Mitgliedschaft bis wann läuft, welche Spende noch einen Dank oder eine Zuwendungsbestätigung braucht und welche Großspende oder Förderung gerade läuft. Es stellt keine Zuwendungsbestätigungen aus und zieht keine Beiträge ein, es zeigt, welche fällig sind.",
+      "description": "Für Vereine, gemeinnützige Organisationen und Kirchengemeinden: wer Sie unterstützt und wie, welche Mitgliedschaft bis wann läuft, welche Spende noch einen Dank oder eine Zuwendungsbestätigung braucht und welche Großspende oder Förderung gerade läuft. Es stellt keine Zuwendungsbestätigungen aus und zieht keine Beiträge ein, es zeigt, welche fällig sind.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1214,8 +1214,8 @@
           "description": "Jede Spende mit Dank und Zuwendungsbestätigung."
         },
         "gift_opportunities": {
-          "label": "Spendenchance",
-          "pluralLabel": "Spendenchancen",
+          "label": "Spendenvorhaben",
+          "pluralLabel": "Spendenvorhaben",
           "description": "Großspenden, Förderungen und Sponsoring in Arbeit."
         }
       },
@@ -1466,7 +1466,7 @@
         },
         "opportunity_supporter": {
           "sourceLabel": "Interessent",
-          "targetLabel": "Spendenchancen"
+          "targetLabel": "Spendenvorhaben"
         },
         "action_supporter": {
           "sourceLabel": "Unterstützer",
@@ -1487,16 +1487,16 @@
           "name": "Mitgliedschaften nach Status"
         },
         "fees_to_chase": {
-          "name": "Beiträge anzumahnen"
+          "name": "Zu mahnende Beiträge"
         },
         "gifts_all": {
           "name": "Alle Spenden"
         },
         "receipts_to_issue": {
-          "name": "Zuwendungsbestätigungen auszustellen"
+          "name": "Auszustellende Zuwendungsbestätigungen"
         },
         "opportunities_board": {
-          "name": "Spendenchancen"
+          "name": "Spendenvorhaben"
         }
       },
       "widgets": {
@@ -1594,9 +1594,9 @@
       "prompt": {
         "intro": "Richte ein Register für Mitglieder und Spender in meinem Customermates-Workspace ein: Unterstützer, Mitgliedschaften mit Beitrag und Fälligkeit, Spenden mit Dank und Status der Zuwendungsbestätigung und eine Pipeline für Großspenden und Förderungen.",
         "questions": [
-          "Sind Sie ein Verein, eine gemeinnützige Organisation oder eine Gemeinde? Welche von Mitgliedern, Spendern und Ehrenamtlichen haben Sie?",
-          "Welche Beitragsarten und Beiträge nutzen Sie, und wie werden sie eingezogen?",
-          "In welchem Land sind Sie eingetragen, und welche Zuwendungsbestätigung stellen Sie dort aus?",
+          "Führst du einen Verein, eine gemeinnützige Organisation oder eine Kirchengemeinde? Welche von Mitgliedern, Spendern und Ehrenamtlichen hast du?",
+          "Welche Beitragsarten und Beiträge nutzt du, und wie werden sie eingezogen?",
+          "In welchem Land bist du eingetragen, und welche Zuwendungsbestätigung stellst du dort aus?",
           "Welche Software führt Zahlungen oder Buchhaltung? Hier wird nur ein Verweis gespeichert."
         ]
       }
@@ -2083,7 +2083,7 @@
           "label": "Fase",
           "options": {
             "identified": "Identificada",
-            "qualified": "Calificada",
+            "qualified": "Cualificada",
             "cultivation": "Relación en curso",
             "ask_made": "Petición hecha",
             "pledged": "Compromiso recibido",
@@ -2293,7 +2293,7 @@
           "targetLabel": "Donativos"
         },
         "opportunity_supporter": {
-          "sourceLabel": "Potencial donante",
+          "sourceLabel": "Posible donante",
           "targetLabel": "Oportunidades de donación"
         },
         "action_supporter": {
@@ -2432,8 +2432,8 @@
     "fr": {
       "locale": "fr",
       "name": "Adhérents et donateurs",
-      "summary": "Un registre unique pour adhérents, donateurs et bénévoles : adhésions avec date d’échéance, dons avec remerciement et reçu fiscal, et un suivi des grands dons et subventions.",
-      "description": "Pour associations, fondations et paroisses : qui vous soutient et comment, quelle adhésion court jusqu’à quand, quel don attend encore un remerciement ou un reçu fiscal, et quel grand don ou quelle subvention est en cours. L’outil n’émet pas de reçus fiscaux et n’encaisse pas les cotisations : il vous montre lesquels sont à faire.",
+      "summary": "Un registre unique pour adhérents, donateurs et bénévoles : adhésions avec date d’échéance, dons avec remerciement et reçu fiscal, et un suivi des grands dons et subventions.",
+      "description": "Pour associations, clubs, organismes caritatifs et paroisses : qui vous soutient et comment, quelle adhésion court jusqu’à quand, quel don attend encore un remerciement ou un reçu fiscal, et quel grand don ou quelle subvention est en cours. L’outil n’émet pas de reçus fiscaux et n’encaisse pas les cotisations : il vous montre lesquels sont à faire.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2441,8 +2441,8 @@
           "description": "Une prochaine étape datée par dossier ouvert."
         },
         "supporters": {
-          "label": "Soutien",
-          "pluralLabel": "Soutiens",
+          "label": "Personne",
+          "pluralLabel": "Personnes",
           "description": "Adhérents, donateurs, bénévoles, invités et membres du bureau."
         },
         "memberships": {
@@ -2530,7 +2530,7 @@
           }
         },
         "supporters.joined_on": {
-          "label": "Arrivé le",
+          "label": "Date d’arrivée",
           "options": {}
         },
         "supporters.relationship_owner": {
@@ -2554,9 +2554,9 @@
           "options": {}
         },
         "memberships.level": {
-          "label": "Formule",
+          "label": "Catégorie",
           "options": {
-            "regular": "Normale",
+            "regular": "Plein tarif",
             "reduced": "Tarif réduit",
             "family": "Famille",
             "youth": "Jeune",
@@ -2612,7 +2612,7 @@
           }
         },
         "gifts.received_on": {
-          "label": "Reçu le",
+          "label": "Date de réception",
           "options": {}
         },
         "gifts.amount": {
@@ -2644,13 +2644,13 @@
           "options": {
             "to_acknowledge": "À remercier",
             "acknowledged": "Remercié",
-            "not_needed": "Inutile"
+            "not_needed": "Sans objet"
           }
         },
         "gifts.receipt_status": {
           "label": "Reçu fiscal",
           "options": {
-            "not_needed": "Inutile",
+            "not_needed": "Sans objet",
             "to_issue": "À émettre",
             "issued": "Émis",
             "annual_summary_sent": "Récapitulatif annuel envoyé"
@@ -2711,7 +2711,7 @@
           "targetLabel": "Pistes de dons"
         },
         "action_supporter": {
-          "sourceLabel": "Soutien",
+          "sourceLabel": "Personne",
           "targetLabel": "Actions"
         }
       },
@@ -2720,7 +2720,7 @@
           "name": "Toutes les actions"
         },
         "supporters_all": {
-          "name": "Tous les soutiens"
+          "name": "Toutes les personnes"
         },
         "memberships_all": {
           "name": "Toutes les adhésions"
@@ -2824,7 +2824,7 @@
           "description": ""
         },
         "join_form_records": {
-          "title": "Créer le soutien et l’adhésion à partir d’un formulaire d’adhésion",
+          "title": "Créer la personne et l’adhésion à partir d’un formulaire d’adhésion",
           "description": ""
         }
       },
@@ -2834,12 +2834,12 @@
         "receipt_field": "Chaque don indique si un reçu fiscal est à émettre."
       },
       "prompt": {
-        "intro": "Mets en place un registre d’adhérents et de donateurs dans mon espace Customermates : des soutiens, des adhésions avec cotisation et date d’échéance, des dons avec remerciement et état du reçu fiscal, et un suivi des grands dons et subventions.",
+        "intro": "Mets en place un registre d’adhérents et de donateurs dans mon espace de travail Customermates : des personnes, des adhésions avec cotisation et date d’échéance, des dons avec remerciement et état du reçu fiscal, et un suivi des grands dons et subventions.",
         "questions": [
-          "Êtes-vous une association, une fondation ou une paroisse ? Avez-vous des adhérents, des donateurs, des bénévoles ?",
-          "Quelles formules d’adhésion et quelles cotisations utilisez-vous, et comment sont-elles encaissées ?",
-          "Dans quel pays êtes-vous déclaré, et quel reçu fiscal y émettez-vous ?",
-          "Quel logiciel tient vos paiements ou votre comptabilité ? Seule une référence est gardée ici."
+          "Êtes-vous une association ou un club, un organisme caritatif ou une paroisse ? Avez-vous des adhérents, des donateurs, des bénévoles ?",
+          "Quelles catégories d’adhésion et quelles cotisations utilisez-vous, et comment sont-elles encaissées ?",
+          "Dans quel pays votre organisation est-elle enregistrée, et quel reçu fiscal y émettez-vous ?",
+          "Quel logiciel tient vos paiements ou votre comptabilité ? Seule une référence est gardée ici."
         ]
       }
     },
@@ -2847,7 +2847,7 @@
       "locale": "it",
       "name": "Soci e donatori",
       "summary": "Un unico registro per soci, donatori e volontari: tesseramenti con scadenza, donazioni con ringraziamento e ricevuta, e una pipeline per grandi donazioni e bandi.",
-      "description": "Per associazioni, enti del terzo settore e parrocchie: chi vi sostiene e come, quale tessera dura fino a quando, quale donazione attende ancora un ringraziamento o una ricevuta e quale grande donazione o bando è in corso. Non emette ricevute fiscali né incassa quote: mostra quali sono da fare.",
+      "description": "Per associazioni, enti del terzo settore e parrocchie: chi ti sostiene e come, quale tessera dura fino a quando, quale donazione attende ancora un ringraziamento o una ricevuta e quale grande donazione o bando è in corso. Non emette ricevute fiscali né incassa quote: mostra quali sono da fare.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2862,7 +2862,7 @@
         "memberships": {
           "label": "Tesseramento",
           "pluralLabel": "Tesseramenti",
-          "description": "Un’iscrizione con quota e scadenza."
+          "description": "Un'iscrizione con quota e scadenza."
         },
         "gifts": {
           "label": "Erogazione liberale",
@@ -2999,11 +2999,11 @@
             "paid": "Pagata",
             "reminded": "Sollecitata",
             "overdue": "Scaduta",
-            "waived": "Condonata"
+            "waived": "Esonerata"
           }
         },
         "memberships.mandate_on_file": {
-          "label": "Mandato di addebito in archivio",
+          "label": "Mandato di addebito diretto in archivio",
           "options": {}
         },
         "memberships.started_on": {
@@ -3026,7 +3026,7 @@
           }
         },
         "gifts.received_on": {
-          "label": "Ricevuta il",
+          "label": "Data di ricezione",
           "options": {}
         },
         "gifts.amount": {
@@ -3046,7 +3046,7 @@
         "gifts.fund": {
           "label": "Destinazione",
           "options": {
-            "unrestricted": "Libera",
+            "unrestricted": "Non vincolata",
             "restricted_project": "Progetto specifico",
             "appeal": "Campagna di raccolta",
             "event": "Evento",
@@ -3163,7 +3163,7 @@
           "title": "Attività scadute"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         },
         "memberships_by_status": {
           "title": "Tesseramenti per stato"
@@ -3250,9 +3250,9 @@
       "prompt": {
         "intro": "Configura un registro di soci e donatori nel mio spazio di lavoro Customermates: sostenitori, tesseramenti con quota e scadenza, erogazioni con ringraziamento e stato della ricevuta, e una pipeline per grandi donazioni e bandi.",
         "questions": [
-          "Siete un’associazione, un ente benefico o una parrocchia? Avete soci, donatori, volontari?",
-          "Quali tipi di quota e quali importi usate e come vengono incassati?",
-          "In quale paese siete registrati e quale ricevuta emettete lì?",
+          "Sei un'associazione, un ente benefico o una parrocchia? Hai soci, donatori, volontari?",
+          "Quali tipi di quota e quali importi usi e come vengono incassati?",
+          "In quale paese è registrata la tua organizzazione e quale ricevuta emetti lì?",
           "Quale software tiene i pagamenti o la contabilità? Qui si conserva solo un riferimento."
         ]
       }
@@ -3261,7 +3261,7 @@
       "locale": "nl",
       "name": "Leden en donateurs",
       "summary": "Eén register voor leden, donateurs en vrijwilligers: lidmaatschappen met contributiedatum, giften met bedankje en bewijs, en een pijplijn voor grote giften en subsidies.",
-      "description": "Voor verenigingen, stichtingen en kerken: wie jullie steunt en hoe, welk lidmaatschap tot wanneer loopt, welke gift nog een bedankje of bewijs nodig heeft en welke grote gift of subsidie loopt. Het geeft geen giftenbewijzen af en int geen contributie, maar laat zien welke aan de beurt zijn.",
+      "description": "Voor verenigingen, stichtingen en kerken: wie jullie steunt en hoe, welk lidmaatschap tot wanneer loopt, welke gift nog een bedankje of bewijs nodig heeft en welke grote gift of subsidie loopt. Het geeft geen donatiebewijzen af en int geen contributie, maar laat zien welke aan de beurt zijn.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -3294,7 +3294,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -3362,7 +3362,7 @@
           "options": {}
         },
         "supporters.relationship_owner": {
-          "label": "Contactpersoon bij ons",
+          "label": "Relatiebeheerder",
           "options": {}
         },
         "supporters.contact_consent": {
@@ -3388,7 +3388,7 @@
             "reduced": "Gereduceerd",
             "family": "Gezin",
             "youth": "Jeugd",
-            "supporting": "Steunend",
+            "supporting": "Steunend lid",
             "honorary": "Erelid"
           }
         },
@@ -3417,7 +3417,7 @@
           }
         },
         "memberships.mandate_on_file": {
-          "label": "Machtiging incasso aanwezig",
+          "label": "Incassomachtiging aanwezig",
           "options": {}
         },
         "memberships.started_on": {
@@ -3429,7 +3429,7 @@
           "options": {}
         },
         "memberships.end_reason": {
-          "label": "Reden einde",
+          "label": "Reden van beëindiging",
           "options": {
             "moved_away": "Verhuisd",
             "cost": "Kosten",
@@ -3476,7 +3476,7 @@
           }
         },
         "gifts.receipt_status": {
-          "label": "Giftenbewijs",
+          "label": "Donatiebewijs",
           "options": {
             "not_needed": "Niet nodig",
             "to_issue": "Af te geven",
@@ -3514,7 +3514,7 @@
           "label": "Soort",
           "options": {
             "thank_donor": "Donateur bedanken",
-            "issue_receipt": "Giftenbewijs afgeven",
+            "issue_receipt": "Donatiebewijs afgeven",
             "welcome_member": "Lid welkom heten",
             "renewal_notice": "Verlengingsbericht",
             "chase_fee": "Contributie aanmanen",
@@ -3557,13 +3557,13 @@
           "name": "Lidmaatschappen per status"
         },
         "fees_to_chase": {
-          "name": "Contributie aan te manen"
+          "name": "Aan te manen contributie"
         },
         "gifts_all": {
           "name": "Alle giften"
         },
         "receipts_to_issue": {
-          "name": "Giftenbewijzen af te geven"
+          "name": "Af te geven donatiebewijzen"
         },
         "opportunities_board": {
           "name": "Giften in voorbereiding"
@@ -3595,7 +3595,7 @@
           "title": "Aankomende verlengingen"
         },
         "receipts_to_issue_count": {
-          "title": "Giftenbewijzen af te geven"
+          "title": "Af te geven donatiebewijzen"
         }
       },
       "knowledgePages": {
@@ -3610,12 +3610,12 @@
         "renewals_and_fees": {
           "title": "Verlengingen en herinneringen voor contributie",
           "sections": [
-            "Bericht na 60 en 30 dagen",
+            "Bericht 60 en 30 dagen vooraf",
             "Respijt en beëindiging volgens de statuten"
           ]
         },
         "receipts_and_thanks": {
-          "title": "Bedankjes en giftenbewijzen",
+          "title": "Bedankjes en donatiebewijzen",
           "sections": [
             "Binnen twee dagen bedanken",
             "Wanneer een bewijs kan en in welke vorm"
@@ -3628,7 +3628,7 @@
           "description": ""
         },
         "issue_receipt": {
-          "title": "Geef het giftenbewijs af zodra een gift daarvoor is gemarkeerd",
+          "title": "Geef het donatiebewijs af zodra een gift daarvoor is gemarkeerd",
           "description": ""
         },
         "welcome_member": {
@@ -3644,7 +3644,7 @@
           "description": ""
         },
         "expiry_notice": {
-          "title": "Maan de onbetaalde contributie aan op de dag van verlopen",
+          "title": "Maan de onbetaalde contributie aan op de dag dat een lidmaatschap onbetaald verloopt",
           "description": ""
         },
         "report_to_funder": {
@@ -3659,14 +3659,14 @@
       "acceptanceChecks": {
         "status_field": "Elk lidmaatschap heeft een status.",
         "renewal_field": "Elk lidmaatschap heeft een verlengdatum.",
-        "receipt_field": "Elke gift toont of een giftenbewijs nodig is."
+        "receipt_field": "Elke gift toont of een donatiebewijs nodig is."
       },
       "prompt": {
         "intro": "Richt een register voor leden en donateurs in mijn Customermates-werkruimte in: supporters, lidmaatschappen met contributie en verlengdatum, giften met bedankje en status van het bewijs, en een pijplijn voor grote giften en subsidies.",
         "questions": [
           "Zijn jullie een vereniging, een stichting of een kerk? Hebben jullie leden, donateurs, vrijwilligers?",
           "Welke soorten lidmaatschap en welke contributie gebruiken jullie en hoe wordt die geïnd?",
-          "In welk land zijn jullie geregistreerd en welk giftenbewijs geven jullie daar af?",
+          "In welk land zijn jullie geregistreerd en welk donatiebewijs geven jullie daar af?",
           "Welke software beheert jullie betalingen of boekhouding? Hier wordt alleen een verwijzing bewaard."
         ]
       }
@@ -3675,7 +3675,7 @@
       "locale": "pl",
       "name": "Członkowie i darczyńcy",
       "summary": "Jeden rejestr członków, darczyńców i wolontariuszy: członkostwa z terminem składki, darowizny z podziękowaniem i potwierdzeniem oraz lejek dużych darowizn i grantów.",
-      "description": "Dla stowarzyszeń, fundacji i parafii: kto Was wspiera i jak, które członkostwo trwa do kiedy, która darowizna czeka jeszcze na podziękowanie lub potwierdzenie i która duża darowizna lub grant jest w toku. Narzędzie nie wystawia potwierdzeń ani nie pobiera składek, pokazuje tylko, które są do zrobienia.",
+      "description": "Dla stowarzyszeń, klubów, fundacji i parafii: kto Cię wspiera i jak, które członkostwo trwa do kiedy, która darowizna czeka jeszcze na podziękowanie lub potwierdzenie i która duża darowizna lub grant jest w toku. Narzędzie nie wystawia potwierdzeń ani nie pobiera składek, pokazuje tylko, które są do zrobienia.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -3718,7 +3718,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -3729,10 +3729,10 @@
           "label": "Status",
           "options": {
             "applied": "Deklaracja członkowska",
-            "active": "Członek",
+            "active": "Aktywne",
             "grace_period": "Zaległość w składce",
             "lapsed": "Wygasłe",
-            "resigned": "Skreślenie"
+            "resigned": "Rezygnacja"
           }
         },
         "gift_opportunities.stage": {
@@ -3772,7 +3772,7 @@
           }
         },
         "supporters.joined_on": {
-          "label": "Wstąpił dnia",
+          "label": "Data wstąpienia",
           "options": {}
         },
         "supporters.relationship_owner": {
@@ -3798,7 +3798,7 @@
         "memberships.level": {
           "label": "Rodzaj członkostwa",
           "options": {
-            "regular": "Zwykłe",
+            "regular": "Zwyczajne",
             "reduced": "Ulgowe",
             "family": "Rodzinne",
             "youth": "Młodzieżowe",
@@ -3831,11 +3831,11 @@
           }
         },
         "memberships.mandate_on_file": {
-          "label": "Zgoda na polecenie zapłaty w aktach",
+          "label": "Zgoda na polecenie zapłaty złożona",
           "options": {}
         },
         "memberships.started_on": {
-          "label": "Początek dnia",
+          "label": "Data rozpoczęcia",
           "options": {}
         },
         "memberships.renewal_due": {
@@ -3854,7 +3854,7 @@
           }
         },
         "gifts.received_on": {
-          "label": "Otrzymano dnia",
+          "label": "Data otrzymania",
           "options": {}
         },
         "gifts.amount": {
@@ -3868,13 +3868,13 @@
             "recurring": "Cykliczna",
             "pledge_payment": "Wpłata z zobowiązania",
             "in_kind": "Rzeczowa",
-            "legacy": "Zapis"
+            "legacy": "Zapis testamentowy"
           }
         },
         "gifts.fund": {
           "label": "Przeznaczenie",
           "options": {
-            "unrestricted": "Dowolne",
+            "unrestricted": "Cel dowolny",
             "restricted_project": "Konkretny projekt",
             "appeal": "Zbiórka",
             "event": "Wydarzenie",
@@ -3904,12 +3904,12 @@
             "major_gift": "Duża darowizna",
             "grant": "Grant",
             "sponsorship": "Sponsoring firmowy",
-            "legacy": "Zapis",
+            "legacy": "Zapis testamentowy",
             "campaign_pledge": "Zobowiązanie w kampanii"
           }
         },
         "gift_opportunities.solicitor": {
-          "label": "Prosi",
+          "label": "Kto prosi o wsparcie",
           "options": {}
         },
         "gift_opportunities.ask_date": {
@@ -3917,11 +3917,11 @@
           "options": {}
         },
         "gift_opportunities.decision_on": {
-          "label": "Decyzja dnia",
+          "label": "Data decyzji",
           "options": {}
         },
         "gift_opportunities.report_due": {
-          "label": "Sprawozdanie do dnia",
+          "label": "Termin sprawozdania",
           "options": {}
         },
         "actions.kind": {
@@ -3997,7 +3997,7 @@
           "title": "Członkostwa wg statusu"
         },
         "gifts_per_month": {
-          "title": "Darowizny miesięcznie"
+          "title": "Darowizny w poszczególnych miesiącach"
         },
         "gifts_by_fund": {
           "title": "Darowizny wg przeznaczenia"
@@ -4032,7 +4032,7 @@
           "title": "Podziękowania i potwierdzenia darowizn",
           "sections": [
             "Podziękuj w ciągu dwóch dni",
-            "Kiedy potwierdzenie jest możliwe i w jakim wzorze"
+            "Kiedy potwierdzenie jest możliwe i w jakiej formie"
           ]
         }
       },
@@ -4078,10 +4078,10 @@
       "prompt": {
         "intro": "Skonfiguruj rejestr członków i darczyńców w mojej przestrzeni roboczej Customermates: sympatycy, członkostwa ze składką i terminem, darowizny z podziękowaniem i stanem potwierdzenia oraz lejek dużych darowizn i grantów.",
         "questions": [
-          "Czy jesteście stowarzyszeniem, fundacją czy parafią? Macie członków, darczyńców, wolontariuszy?",
-          "Jakich rodzajów członkostwa i jakich składek używacie i jak są pobierane?",
-          "W jakim kraju jesteście zarejestrowani i jakie potwierdzenie darowizny tam wystawiacie?",
-          "Jaki program prowadzi Wasze płatności lub księgowość? Tutaj zapisywane jest tylko odniesienie."
+          "Czy prowadzisz stowarzyszenie, klub, fundację czy parafię? Masz członków, darczyńców, wolontariuszy?",
+          "Jakich rodzajów członkostwa i jakich składek używasz i jak są pobierane?",
+          "W jakim kraju jest zarejestrowana Twoja organizacja i jakie potwierdzenie darowizny tam wystawia?",
+          "Jaki program prowadzi płatności lub księgowość Twojej organizacji? Tutaj zapisujemy tylko link."
         ]
       }
     },
@@ -4102,8 +4102,8 @@
           "description": "Associados, doadores, voluntários, visitantes e diretoria."
         },
         "memberships": {
-          "label": "Associação",
-          "pluralLabel": "Associações",
+          "label": "Vínculo",
+          "pluralLabel": "Vínculos",
           "description": "Um vínculo com mensalidade e data de renovação."
         },
         "gifts": {
@@ -4145,7 +4145,7 @@
             "applied": "Solicitação",
             "active": "Associado ativo",
             "grace_period": "Mensalidade a renovar",
-            "lapsed": "Vencida",
+            "lapsed": "Vencido",
             "resigned": "Desligamento"
           }
         },
@@ -4235,7 +4235,7 @@
           }
         },
         "memberships.fee_status": {
-          "label": "Situação do pagamento",
+          "label": "Status do pagamento",
           "options": {
             "open": "Em aberto",
             "paid": "Paga",
@@ -4343,7 +4343,7 @@
           "options": {
             "thank_donor": "Agradecer um doador",
             "issue_receipt": "Emitir um recibo",
-            "welcome_member": "Receber um associado",
+            "welcome_member": "Dar as boas-vindas a um associado",
             "renewal_notice": "Aviso de renovação",
             "chase_fee": "Cobrar uma mensalidade",
             "ask": "Pedido",
@@ -4356,7 +4356,7 @@
       "relationships": {
         "membership_supporter": {
           "sourceLabel": "Associado",
-          "targetLabel": "Associações"
+          "targetLabel": "Vínculos"
         },
         "gift_supporter": {
           "sourceLabel": "Doador",
@@ -4379,10 +4379,10 @@
           "name": "Todos os apoiadores"
         },
         "memberships_all": {
-          "name": "Todas as associações"
+          "name": "Todos os vínculos"
         },
         "memberships_board": {
-          "name": "Associações por status"
+          "name": "Vínculos por status"
         },
         "fees_to_chase": {
           "name": "Mensalidades a cobrar"
@@ -4408,7 +4408,7 @@
           "title": "Atividade recente"
         },
         "memberships_by_status": {
-          "title": "Associações por status"
+          "title": "Vínculos por status"
         },
         "gifts_per_month": {
           "title": "Doações por mês"
@@ -4460,7 +4460,7 @@
           "description": ""
         },
         "welcome_member": {
-          "title": "Receber o associado quando chega uma solicitação",
+          "title": "Dar as boas-vindas ao associado quando chega uma solicitação",
           "description": ""
         },
         "renewal_notice": {
@@ -4480,17 +4480,17 @@
           "description": ""
         },
         "join_form_records": {
-          "title": "Criar o apoiador e a associação a partir de um formulário de adesão",
+          "title": "Criar o apoiador e o vínculo a partir de um formulário de adesão",
           "description": ""
         }
       },
       "acceptanceChecks": {
-        "status_field": "Cada associação tem um status.",
-        "renewal_field": "Cada associação tem uma data de renovação.",
+        "status_field": "Cada vínculo tem um status.",
+        "renewal_field": "Cada vínculo tem uma data de renovação.",
         "receipt_field": "Cada doação mostra se há um recibo a emitir."
       },
       "prompt": {
-        "intro": "Configure um registro de associados e doadores no meu espaço de trabalho do Customermates: apoiadores, associações com mensalidade e data de renovação, doações com agradecimento e situação do recibo, e um acompanhamento de grandes doações e editais.",
+        "intro": "Configure um registro de associados e doadores no meu espaço de trabalho do Customermates: apoiadores, vínculos com mensalidade e data de renovação, doações com agradecimento e status do recibo, e um acompanhamento de grandes doações e editais.",
         "questions": [
           "Vocês são uma associação, uma ONG ou uma igreja? Têm associados, doadores, voluntários?",
           "Quais categorias e valores de mensalidade vocês usam e como são cobrados?",

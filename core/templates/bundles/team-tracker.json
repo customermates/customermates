@@ -818,7 +818,7 @@
         "projects": {
           "label": "Projekt",
           "pluralLabel": "Projekte",
-          "description": "Ein Bündel von Aufgaben mit Verantwortlichem, Verlauf und Termin."
+          "description": "Ein Bündel von Aufgaben mit Verantwortlichem, Ampel und Termin."
         },
         "tasks": {
           "label": "Aufgabe",
@@ -857,7 +857,7 @@
           }
         },
         "projects.health": {
-          "label": "Verlauf",
+          "label": "Ampel",
           "options": {
             "on_track": "Im Plan",
             "at_risk": "Gefährdet",
@@ -1069,7 +1069,7 @@
         "intro": "Richte in meinem Customermates-Workspace einen Team-Aufgabentracker ein: Projekte, Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben, Anfragen von außerhalb des Teams und Erinnerungen für Überfälliges oder Blockiertes.",
         "questions": [
           "Wie viele Personen hat das Team, und woran arbeiten sie?",
-          "Welche Status nutzen Sie heute in Trello, Jira, Asana oder einer Tabelle?",
+          "Welche Status nutzt du heute in Trello, Jira, Asana oder einer Tabelle?",
           "Welche Aufgaben kommen jede Woche oder jeden Monat wieder, und wer ist zuständig?",
           "Woher kommen Anfragen, und sollen sie über ein Formular eingehen?"
         ]
@@ -1350,7 +1350,7 @@
       "locale": "es",
       "name": "Seguimiento del equipo",
       "summary": "Un seguimiento del trabajo para un equipo pequeño: proyectos, tareas con un responsable y un vencimiento, tareas recurrentes y solicitudes externas en la misma lista.",
-      "description": "Mantenga a un equipo de dos a quince personas en una sola lista: cada tarea tiene un estado, una prioridad, un responsable y un vencimiento, y se ve de un vistazo lo que va con retraso o bloqueado. Las tareas recurrentes se crean solas, las solicitudes de compañeros o clientes llegan por un formulario y una tarea bloqueada o parada avisa a su responsable. No es una herramienta de sprints, un diagrama de Gantt, un control de horas ni un sistema de RR. HH.",
+      "description": "Mantén a un equipo de dos a quince personas en una sola lista: cada tarea tiene un estado, una prioridad, un responsable y un vencimiento, y se ve de un vistazo lo que va con retraso o bloqueado. Las tareas recurrentes se crean solas, las solicitudes de compañeros o clientes llegan por un formulario y una tarea bloqueada o parada avisa a su responsable. No es una herramienta de sprints, un diagrama de Gantt, un control de horas ni un sistema de RR. HH.",
       "lists": {
         "requesters": {
           "label": "Solicitante",
@@ -1436,7 +1436,7 @@
             "task": "Tarea",
             "bug": "Error",
             "feature": "Funcionalidad",
-            "chore": "Rutina",
+            "chore": "Mantenimiento",
             "request": "Solicitud"
           }
         },
@@ -1578,7 +1578,7 @@
           "description": ""
         },
         "overdue_task": {
-          "title": "Avisar a la persona a cargo el día después del vencimiento",
+          "title": "Avisar a la persona a cargo al día siguiente del vencimiento",
           "description": ""
         },
         "blocked_stale": {
@@ -1608,10 +1608,10 @@
         "tasks_board_view": "Las tareas se abren como tablero por estado."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de Customermates un seguimiento del equipo: proyectos, tareas con un responsable y un vencimiento, tareas recurrentes, solicitudes de fuera del equipo y avisos para el trabajo retrasado o bloqueado.",
+        "intro": "Configura en mi espacio de trabajo de Customermates un seguimiento del equipo: proyectos, tareas con un responsable y un vencimiento, tareas recurrentes, solicitudes de fuera del equipo y avisos para el trabajo retrasado o bloqueado.",
         "questions": [
           "¿Cuántas personas tiene el equipo y en qué trabajan?",
-          "¿Qué estados usa hoy en Trello, Jira, Asana o una hoja de cálculo?",
+          "¿Qué estados usas hoy en Trello, Jira, Asana o una hoja de cálculo?",
           "¿Qué tareas vuelven cada semana o cada mes y quién es responsable?",
           "¿De dónde vienen las solicitudes y deben llegar por un formulario?"
         ]
@@ -1619,14 +1619,14 @@
     },
     "fr": {
       "locale": "fr",
-      "name": "Suivi d'équipe",
-      "summary": "Un suivi du travail pour une petite équipe : projets, tâches avec un responsable et une échéance, tâches récurrentes et demandes venues de l'extérieur sur la même liste.",
-      "description": "Gardez une équipe de deux à quinze personnes sur une seule liste : chaque tâche a un statut, une priorité, un responsable et une échéance, et vous voyez d'un coup d'œil ce qui est en retard ou bloqué. Les tâches récurrentes se créent seules, les demandes de collègues ou de clients arrivent par un formulaire, et une tâche bloquée ou à l'arrêt relance son responsable. Ce n'est ni un outil de sprints, ni un diagramme de Gantt, ni un suivi du temps, ni un système RH.",
+      "name": "Suivi d’équipe",
+      "summary": "Un suivi du travail pour une petite équipe : projets, tâches avec un responsable et une échéance, tâches récurrentes et demandes venues de l’extérieur sur la même liste.",
+      "description": "Gardez une équipe de deux à quinze personnes sur une seule liste : chaque tâche a un statut, une priorité, un responsable et une échéance, et vous voyez d’un coup d’œil ce qui est en retard ou bloqué. Les tâches récurrentes se créent seules, les demandes de collègues ou de clients arrivent par un formulaire, et une tâche bloquée ou à l’arrêt relance son responsable. Ce n’est ni un outil de sprints, ni un diagramme de Gantt, ni un suivi du temps, ni un système RH.",
       "lists": {
         "requesters": {
           "label": "Demandeur",
           "pluralLabel": "Demandeurs",
-          "description": "Les personnes extérieures à l'équipe qui demandent du travail."
+          "description": "Les personnes extérieures à l’équipe qui demandent du travail."
         },
         "projects": {
           "label": "Projet",
@@ -1670,7 +1670,7 @@
           }
         },
         "projects.health": {
-          "label": "Santé",
+          "label": "Santé du projet",
           "options": {
             "on_track": "Dans les temps",
             "at_risk": "À risque",
@@ -1696,9 +1696,9 @@
             "todo": "À faire",
             "in_progress": "En cours",
             "in_review": "En revue",
-            "blocked": "Bloqué",
-            "done": "Terminé",
-            "cancelled": "Annulé"
+            "blocked": "Bloquée",
+            "done": "Terminée",
+            "cancelled": "Annulée"
           }
         },
         "tasks.kind": {
@@ -1729,15 +1729,15 @@
           "options": {}
         },
         "tasks.original_due": {
-          "label": "Échéance d'origine",
+          "label": "Échéance d’origine",
           "options": {}
         },
         "tasks.done_on": {
-          "label": "Terminé le",
+          "label": "Terminée le",
           "options": {}
         },
         "tasks.blocked_reason": {
-          "label": "Raison du blocage",
+          "label": "Motif du blocage",
           "options": {}
         },
         "tasks.external_url": {
@@ -1781,7 +1781,7 @@
           "name": "Toutes les tâches"
         },
         "tasks_board": {
-          "name": "Tableau des tâches"
+          "name": "Board des tâches"
         },
         "blocked_tasks": {
           "name": "Tâches bloquées"
@@ -1820,7 +1820,7 @@
         "how_we_work": {
           "title": "Notre façon de travailler",
           "sections": [
-            "Statuts, priorités et ce que « terminé » veut dire",
+            "Statuts, priorités et ce que « terminé » veut dire",
             "Un responsable et une date par tâche"
           ]
         },
@@ -1845,19 +1845,19 @@
           "description": ""
         },
         "due_tomorrow": {
-          "title": "Prévenir le responsable la veille de l'échéance",
+          "title": "Prévenir le responsable la veille de l’échéance",
           "description": ""
         },
         "overdue_task": {
-          "title": "Prévenir le chef d'équipe le lendemain de l'échéance",
+          "title": "Prévenir le chef d’équipe le lendemain de l’échéance",
           "description": ""
         },
         "blocked_stale": {
-          "title": "Prévenir le chef d'équipe quand une tâche reste bloquée 3 jours",
+          "title": "Prévenir le chef d’équipe quand une tâche reste bloquée 3 jours",
           "description": ""
         },
         "stale_in_progress": {
-          "title": "Relancer le responsable quand une tâche n'a pas bougé depuis 5 jours",
+          "title": "Relancer le responsable quand une tâche n’a pas bougé depuis 5 jours",
           "description": ""
         },
         "recurring_due": {
@@ -1865,7 +1865,7 @@
           "description": ""
         },
         "task_from_git": {
-          "title": "Créer une tâche quand l'hébergeur Git envoie un événement",
+          "title": "Créer une tâche quand l’hébergeur Git envoie un événement",
           "description": ""
         },
         "request_form": {
@@ -1876,15 +1876,15 @@
       "acceptanceChecks": {
         "status_field": "Chaque tâche a un statut.",
         "due_field": "Chaque tâche a une échéance.",
-        "tasks_board_view": "Les tâches s'ouvrent en tableau par statut."
+        "tasks_board_view": "Les tâches s’ouvrent en board par statut."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace Customermates un suivi d'équipe : projets, tâches avec un responsable et une échéance, tâches récurrentes, demandes venues de l'extérieur et rappels pour le travail en retard ou bloqué.",
+        "intro": "Mets en place dans mon espace de travail Customermates un suivi d’équipe : projets, tâches avec un responsable et une échéance, tâches récurrentes, demandes venues de l’extérieur et rappels pour le travail en retard ou bloqué.",
         "questions": [
-          "Combien de personnes compte l'équipe, et sur quoi travaillent-elles ?",
-          "Quels statuts utilisez-vous aujourd'hui dans Trello, Jira, Asana ou un tableur ?",
-          "Quelles tâches reviennent chaque semaine ou chaque mois, et qui en est responsable ?",
-          "D'où viennent les demandes, et doivent-elles arriver par un formulaire ?"
+          "Combien de personnes compte l’équipe, et sur quoi travaillent-elles ?",
+          "Quels statuts utilisez-vous aujourd’hui dans Trello, Jira, Asana ou un tableur ?",
+          "Quelles tâches reviennent chaque semaine ou chaque mois, et qui en est responsable ?",
+          "D’où viennent les demandes, et doivent-elles arriver par un formulaire ?"
         ]
       }
     },
@@ -1892,7 +1892,7 @@
       "locale": "it",
       "name": "Gestione attività del team",
       "summary": "Un tracker di lavoro per un piccolo team: progetti, attività con un responsabile e una scadenza, attività ricorrenti e richieste dall'esterno sulla stessa lista.",
-      "description": "Tieni un team da due a quindici persone su un'unica lista: ogni attività ha uno stato, una priorità, un responsabile e una scadenza, e vedi a colpo d'occhio che cosa è in ritardo o bloccato. Le attività ricorrenti si creano da sole, le richieste di colleghi o clienti arrivano da un modulo e un'attività bloccata o ferma sollecita il suo responsabile. Non è uno strumento per sprint, un diagramma di Gantt, un rilevatore di tempi né un sistema HR.",
+      "description": "Tieni un team da due a quindici persone su un'unica lista: ogni attività ha uno stato, una priorità, un responsabile e una scadenza, e vedi a colpo d'occhio che cosa è in ritardo o bloccato. Le attività ricorrenti si creano da sole, le richieste di colleghi o clienti arrivano da un modulo e un'attività bloccata o ferma sollecita il suo responsabile. Non è uno strumento per sprint, un diagramma di Gantt, uno strumento di rilevazione dei tempi né un sistema HR.",
       "lists": {
         "requesters": {
           "label": "Richiedente",
@@ -2052,7 +2052,7 @@
           "name": "Tutte le attività"
         },
         "tasks_board": {
-          "name": "Bacheca delle attività"
+          "name": "Board delle attività"
         },
         "blocked_tasks": {
           "name": "Attività bloccate"
@@ -2084,7 +2084,7 @@
           "title": "Attività bloccate"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         }
       },
       "knowledgePages": {
@@ -2120,11 +2120,11 @@
           "description": ""
         },
         "overdue_task": {
-          "title": "Avvisare il referente il giorno dopo la scadenza",
+          "title": "Avvisare il responsabile del team il giorno dopo la scadenza",
           "description": ""
         },
         "blocked_stale": {
-          "title": "Avvisare il referente quando un'attività resta bloccata per 3 giorni",
+          "title": "Avvisare il responsabile del team quando un'attività resta bloccata per 3 giorni",
           "description": ""
         },
         "stale_in_progress": {
@@ -2147,13 +2147,13 @@
       "acceptanceChecks": {
         "status_field": "Ogni attività ha uno stato.",
         "due_field": "Ogni attività ha una scadenza.",
-        "tasks_board_view": "Le attività si aprono come bacheca per stato."
+        "tasks_board_view": "Le attività si aprono come board per stato."
       },
       "prompt": {
-        "intro": "Imposta nel mio workspace Customermates un tracker per il team: progetti, attività con un responsabile e una scadenza, attività ricorrenti, richieste dall'esterno del team e promemoria per il lavoro in ritardo o bloccato.",
+        "intro": "Imposta nel mio spazio di lavoro Customermates un tracker per il team: progetti, attività con un responsabile e una scadenza, attività ricorrenti, richieste dall'esterno del team e promemoria per il lavoro in ritardo o bloccato.",
         "questions": [
           "Quante persone ha il team e di cosa si occupano?",
-          "Quali stati usate oggi in Trello, Jira, Asana o in un foglio di calcolo?",
+          "Quali stati usi oggi in Trello, Jira, Asana o in un foglio di calcolo?",
           "Quali attività tornano ogni settimana o ogni mese e chi ne è responsabile?",
           "Da dove arrivano le richieste e devono arrivare da un modulo?"
         ]
@@ -2163,7 +2163,7 @@
       "locale": "nl",
       "name": "Teamtaken",
       "summary": "Een werkoverzicht voor een klein team: projecten, taken met één eigenaar en één deadline, terugkerende taken en verzoeken van buiten het team op dezelfde lijst.",
-      "description": "Houd een team van twee tot vijftien mensen op één lijst: elke taak heeft een status, een prioriteit, een eigenaar en een deadline, en wat te laat of geblokkeerd is zie je in één oogopslag. Terugkerende taken maken zichzelf aan, verzoeken van collega's of klanten komen binnen via een formulier en een geblokkeerde of stilstaande taak herinnert zijn eigenaar. Geen sprinttool, geen Gantt-planner, geen urenregistratie en geen hr-systeem.",
+      "description": "Houd een team van twee tot vijftien mensen op één lijst: elke taak heeft een status, een prioriteit, een eigenaar en een deadline, en wat te laat of geblokkeerd is zie je in één oogopslag. Terugkerende taken maken zichzelf aan, verzoeken van collega's of klanten komen binnen via een formulier en een geblokkeerde of stilstaande taak stuurt zijn eigenaar een herinnering. Geen sprinttool, geen Gantt-planner, geen urenregistratie en geen hr-systeem.",
       "lists": {
         "requesters": {
           "label": "Aanvrager",
@@ -2173,7 +2173,7 @@
         "projects": {
           "label": "Project",
           "pluralLabel": "Projecten",
-          "description": "Een bundel taken met eigenaar, gezondheid en deadline."
+          "description": "Een bundel taken met eigenaar, stoplicht en deadline."
         },
         "tasks": {
           "label": "Taak",
@@ -2212,10 +2212,10 @@
           }
         },
         "projects.health": {
-          "label": "Gezondheid",
+          "label": "Stoplicht",
           "options": {
             "on_track": "Op koers",
-            "at_risk": "In gevaar",
+            "at_risk": "Loopt risico",
             "off_track": "Uit koers"
           }
         },
@@ -2248,7 +2248,7 @@
           "options": {
             "task": "Taak",
             "bug": "Bug",
-            "feature": "Functie",
+            "feature": "Feature",
             "chore": "Routinetaak",
             "request": "Verzoek"
           }
@@ -2287,7 +2287,7 @@
           "options": {}
         },
         "recurring.cadence": {
-          "label": "Herhaalt",
+          "label": "Herhaling",
           "options": {
             "weekly": "Wekelijks",
             "monthly": "Maandelijks",
@@ -2346,10 +2346,10 @@
           "title": "Open taken per prioriteit"
         },
         "overdue_tasks": {
-          "title": "Taken over de deadline"
+          "title": "Achterstallige taken"
         },
         "due_soon": {
-          "title": "Taken met een deadline in de buurt"
+          "title": "Taken met een naderende deadline"
         },
         "blocked_count": {
           "title": "Geblokkeerde taken"
@@ -2383,35 +2383,35 @@
       },
       "rules": {
         "task_assigned": {
-          "title": "De nieuwe eigenaar waarschuwen als een taak wordt toegewezen",
+          "title": "Waarschuw de nieuwe eigenaar als een taak wordt toegewezen",
           "description": ""
         },
         "due_tomorrow": {
-          "title": "De eigenaar de dag voor de deadline waarschuwen",
+          "title": "Waarschuw de eigenaar de dag voor de deadline",
           "description": ""
         },
         "overdue_task": {
-          "title": "De teamleider de dag na de deadline waarschuwen",
+          "title": "Waarschuw de teamleider de dag na de deadline",
           "description": ""
         },
         "blocked_stale": {
-          "title": "De teamleider waarschuwen als een taak 3 dagen geblokkeerd blijft",
+          "title": "Waarschuw de teamleider als een taak 3 dagen geblokkeerd blijft",
           "description": ""
         },
         "stale_in_progress": {
-          "title": "De eigenaar herinneren als een taak 5 dagen niet is bewogen",
+          "title": "Stuur de eigenaar een herinnering als een taak 5 dagen stilstaat",
           "description": ""
         },
         "recurring_due": {
-          "title": "Een taak aanmaken als een terugkerende taak aan de beurt is",
+          "title": "Maak een taak aan als een terugkerende taak aan de beurt is",
           "description": ""
         },
         "task_from_git": {
-          "title": "Een taak aanmaken als de Git-dienst een gebeurtenis stuurt",
+          "title": "Maak een taak aan als de Git-dienst een gebeurtenis stuurt",
           "description": ""
         },
         "request_form": {
-          "title": "Taak en aanvrager aanmaken als het aanvraagformulier is ingediend",
+          "title": "Maak een taak en een aanvrager aan als het aanvraagformulier is ingediend",
           "description": ""
         }
       },
@@ -2421,10 +2421,10 @@
         "tasks_board_view": "De taken openen als bord per status."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-workspace een teamoverzicht in: projecten, taken met één eigenaar en één deadline, terugkerende taken, verzoeken van buiten het team en herinneringen voor werk dat te laat of geblokkeerd is.",
+        "intro": "Richt in mijn Customermates-werkruimte een teamoverzicht in: projecten, taken met één eigenaar en één deadline, terugkerende taken, verzoeken van buiten het team en herinneringen voor werk dat te laat of geblokkeerd is.",
         "questions": [
           "Hoeveel mensen telt het team en waar werken ze aan?",
-          "Welke statussen gebruikt u nu in Trello, Jira, Asana of een spreadsheet?",
+          "Welke statussen gebruik je nu in Trello, Jira, Asana of een spreadsheet?",
           "Welke taken komen elke week of maand terug en wie is eigenaar?",
           "Waar komen verzoeken vandaan en moeten ze via een formulier binnenkomen?"
         ]
@@ -2434,17 +2434,17 @@
       "locale": "pl",
       "name": "Śledzenie zadań zespołu",
       "summary": "Narzędzie do śledzenia pracy małego zespołu: projekty, zadania z jedną osobą odpowiedzialną i jednym terminem, zadania cykliczne i prośby z zewnątrz na jednej liście.",
-      "description": "Prowadź zespół od dwóch do piętnastu osób na jednej liście: każde zadanie ma status, priorytet, osobę odpowiedzialną i termin, a to, co się spóźnia lub jest zablokowane, widać od razu. Zadania cykliczne tworzą się same, prośby od współpracowników i klientów przychodzą przez formularz, a zadanie zablokowane lub stojące przypomina o sobie osobie odpowiedzialnej. To nie narzędzie do sprintów, wykres Gantta, rejestr czasu pracy ani system kadrowy.",
+      "description": "Prowadź zespół od dwóch do piętnastu osób na jednej liście: każde zadanie ma status, priorytet, osobę odpowiedzialną i termin, a to, co się spóźnia lub jest zablokowane, widać od razu. Zadania cykliczne tworzą się same, prośby od współpracowników i klientów przychodzą przez formularz, a zadanie zablokowane lub stojące przypomina o sobie osobie odpowiedzialnej. To nie jest narzędzie do sprintów, wykres Gantta, rejestr czasu pracy ani system kadrowy.",
       "lists": {
         "requesters": {
-          "label": "Zgłaszający",
-          "pluralLabel": "Zgłaszający",
+          "label": "Osoba zgłaszająca",
+          "pluralLabel": "Osoby zgłaszające",
           "description": "Osoby spoza zespołu, które proszą o pracę."
         },
         "projects": {
           "label": "Projekt",
           "pluralLabel": "Projekty",
-          "description": "Zestaw zadań z osobą odpowiedzialną, kondycją i terminem."
+          "description": "Zestaw zadań z osobą odpowiedzialną, stanem realizacji i terminem."
         },
         "tasks": {
           "label": "Zadanie",
@@ -2483,7 +2483,7 @@
           }
         },
         "projects.health": {
-          "label": "Kondycja",
+          "label": "Stan realizacji",
           "options": {
             "on_track": "Zgodnie z planem",
             "at_risk": "Zagrożony",
@@ -2491,7 +2491,7 @@
           }
         },
         "projects.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "projects.due_date": {
@@ -2508,7 +2508,7 @@
             "backlog": "Backlog",
             "todo": "Do zrobienia",
             "in_progress": "W toku",
-            "in_review": "W przeglądzie",
+            "in_review": "Do weryfikacji",
             "blocked": "Zablokowane",
             "done": "Zrobione",
             "cancelled": "Anulowane"
@@ -2519,7 +2519,7 @@
           "options": {
             "task": "Zadanie",
             "bug": "Błąd",
-            "feature": "Funkcja",
+            "feature": "Nowa funkcja",
             "chore": "Czynność rutynowa",
             "request": "Prośba"
           }
@@ -2534,7 +2534,7 @@
           }
         },
         "tasks.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "tasks.due": {
@@ -2546,7 +2546,7 @@
           "options": {}
         },
         "tasks.done_on": {
-          "label": "Zrobiono dnia",
+          "label": "Data wykonania",
           "options": {}
         },
         "tasks.blocked_reason": {
@@ -2571,7 +2571,7 @@
           "options": {}
         },
         "recurring.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         }
       },
@@ -2581,7 +2581,7 @@
           "targetLabel": "Zadania"
         },
         "task_requester": {
-          "sourceLabel": "Zgłaszający",
+          "sourceLabel": "Osoba zgłaszająca",
           "targetLabel": "Zadania"
         },
         "recurring_project": {
@@ -2606,7 +2606,7 @@
           "name": "Wszystkie zadania cykliczne"
         },
         "requesters_all": {
-          "name": "Wszyscy zgłaszający"
+          "name": "Wszystkie osoby zgłaszające"
         }
       },
       "widgets": {
@@ -2633,7 +2633,7 @@
         "how_we_work": {
           "title": "Jak pracujemy",
           "sections": [
-            "Statusy, priorytety i co znaczy zrobione",
+            "Statusy, priorytety i co oznacza zrobione",
             "Jedna osoba odpowiedzialna i jeden termin na zadanie"
           ]
         },
@@ -2645,7 +2645,7 @@
           ]
         },
         "triage": {
-          "title": "Sortowanie próśb i błędów",
+          "title": "Kwalifikacja próśb i błędów",
           "sections": [
             "Kto decyduje, co wchodzi",
             "Waga błędu a priorytet"
@@ -2654,35 +2654,35 @@
       },
       "rules": {
         "task_assigned": {
-          "title": "Powiadomić nowego właściciela, gdy zadanie zostaje mu przypisane",
+          "title": "Powiadom nową osobę odpowiedzialną, gdy zostanie jej przypisane zadanie",
           "description": ""
         },
         "due_tomorrow": {
-          "title": "Powiadomić osobę odpowiedzialną dzień przed terminem",
+          "title": "Powiadom osobę odpowiedzialną dzień przed terminem",
           "description": ""
         },
         "overdue_task": {
-          "title": "Powiadomić prowadzącego dzień po terminie",
+          "title": "Powiadom osobę prowadzącą zespół dzień po terminie zadania",
           "description": ""
         },
         "blocked_stale": {
-          "title": "Powiadomić prowadzącego, gdy zadanie jest zablokowane przez 3 dni",
+          "title": "Powiadom osobę prowadzącą zespół, gdy zadanie jest zablokowane przez 3 dni",
           "description": ""
         },
         "stale_in_progress": {
-          "title": "Przypomnieć osobie odpowiedzialnej, gdy zadanie nie ruszyło od 5 dni",
+          "title": "Przypomnij osobie odpowiedzialnej, gdy zadanie nie ruszyło od 5 dni",
           "description": ""
         },
         "recurring_due": {
-          "title": "Utworzyć zadanie, gdy nadchodzi termin zadania cyklicznego",
+          "title": "Utwórz zadanie, gdy nadchodzi termin zadania cyklicznego",
           "description": ""
         },
         "task_from_git": {
-          "title": "Utworzyć zadanie, gdy serwis Git wyśle zdarzenie",
+          "title": "Utwórz zadanie, gdy platforma Git wyśle zdarzenie",
           "description": ""
         },
         "request_form": {
-          "title": "Utworzyć zadanie i zgłaszającego po wysłaniu formularza zgłoszeniowego",
+          "title": "Utwórz zadanie i osobę zgłaszającą po wysłaniu formularza zgłoszeniowego",
           "description": ""
         }
       },
@@ -2692,7 +2692,7 @@
         "tasks_board_view": "Zadania otwierają się jako tablica według statusu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w moim workspace Customermates śledzenie zadań zespołu: projekty, zadania z jedną osobą odpowiedzialną i jednym terminem, zadania cykliczne, prośby spoza zespołu i przypomnienia o pracy po terminie lub zablokowanej.",
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates śledzenie zadań zespołu: projekty, zadania z jedną osobą odpowiedzialną i jednym terminem, zadania cykliczne, prośby spoza zespołu i przypomnienia o pracy po terminie lub zablokowanej.",
         "questions": [
           "Ile osób liczy zespół i nad czym pracują?",
           "Jakich statusów używasz dziś w Trello, Jirze, Asanie lub arkuszu?",
@@ -2705,7 +2705,7 @@
       "locale": "pt",
       "name": "Acompanhamento da equipe",
       "summary": "Um acompanhamento de trabalho para uma equipe pequena: projetos, tarefas com um responsável e um prazo, tarefas recorrentes e pedidos de fora da equipe na mesma lista.",
-      "description": "Mantenha uma equipe de duas a quinze pessoas em uma só lista: cada tarefa tem situação, prioridade, responsável e prazo, e você vê de relance o que está atrasado ou bloqueado. Tarefas recorrentes se criam sozinhas, pedidos de colegas ou clientes chegam por um formulário e uma tarefa bloqueada ou parada avisa o responsável. Não é uma ferramenta de sprints, um Gantt, um controle de horas nem um sistema de RH.",
+      "description": "Mantenha uma equipe de duas a quinze pessoas em uma só lista: cada tarefa tem status, prioridade, responsável e prazo, e você vê de relance o que está atrasado ou bloqueado. Tarefas recorrentes são criadas sozinhas, pedidos de colegas ou clientes chegam por um formulário e uma tarefa bloqueada ou parada avisa o responsável. Não é uma ferramenta de sprints, um Gantt, um controle de horas nem um sistema de RH.",
       "lists": {
         "requesters": {
           "label": "Solicitante",
@@ -2730,7 +2730,7 @@
       },
       "fields": {
         "requesters.relation": {
-          "label": "Relação",
+          "label": "Relacionamento",
           "options": {
             "customer": "Cliente",
             "colleague": "Colega",
@@ -2744,7 +2744,7 @@
           "options": {}
         },
         "projects.status": {
-          "label": "Situação",
+          "label": "Status",
           "options": {
             "planned": "Planejado",
             "active": "Ativo",
@@ -2758,7 +2758,7 @@
           "options": {
             "on_track": "No prazo",
             "at_risk": "Em risco",
-            "off_track": "Fora do rumo"
+            "off_track": "Atrasado"
           }
         },
         "projects.owner": {
@@ -2774,14 +2774,14 @@
           "options": {}
         },
         "tasks.status": {
-          "label": "Situação",
+          "label": "Status",
           "options": {
             "backlog": "Backlog",
             "todo": "A fazer",
             "in_progress": "Em andamento",
             "in_review": "Em revisão",
             "blocked": "Bloqueada",
-            "done": "Feito",
+            "done": "Concluída",
             "cancelled": "Cancelada"
           }
         },
@@ -2791,7 +2791,7 @@
             "task": "Tarefa",
             "bug": "Bug",
             "feature": "Funcionalidade",
-            "chore": "Rotina",
+            "chore": "Manutenção",
             "request": "Pedido"
           }
         },
@@ -2817,7 +2817,7 @@
           "options": {}
         },
         "tasks.done_on": {
-          "label": "Feito em",
+          "label": "Concluída em",
           "options": {}
         },
         "tasks.blocked_reason": {
@@ -2882,7 +2882,7 @@
       },
       "widgets": {
         "tasks_by_status": {
-          "title": "Tarefas por situação"
+          "title": "Tarefas por status"
         },
         "open_by_priority": {
           "title": "Tarefas abertas por prioridade"
@@ -2904,7 +2904,7 @@
         "how_we_work": {
           "title": "Como trabalhamos",
           "sections": [
-            "Situações, prioridades e o que significa feito",
+            "Status, prioridades e o que significa concluída",
             "Um responsável e uma data por tarefa"
           ]
         },
@@ -2958,15 +2958,15 @@
         }
       },
       "acceptanceChecks": {
-        "status_field": "Toda tarefa tem uma situação.",
+        "status_field": "Toda tarefa tem um status.",
         "due_field": "Toda tarefa tem um prazo.",
-        "tasks_board_view": "As tarefas abrem como quadro por situação."
+        "tasks_board_view": "As tarefas abrem como quadro por status."
       },
       "prompt": {
-        "intro": "Configure no meu workspace do Customermates um acompanhamento da equipe: projetos, tarefas com um responsável e um prazo, tarefas recorrentes, pedidos de fora da equipe e lembretes para o trabalho atrasado ou bloqueado.",
+        "intro": "Configure no meu espaço de trabalho do Customermates um acompanhamento da equipe: projetos, tarefas com um responsável e um prazo, tarefas recorrentes, pedidos de fora da equipe e lembretes para o trabalho atrasado ou bloqueado.",
         "questions": [
           "Quantas pessoas tem a equipe e no que elas trabalham?",
-          "Quais situações você usa hoje no Trello, Jira, Asana ou em uma planilha?",
+          "Quais status você usa hoje no Trello, Jira, Asana ou em uma planilha?",
           "Quais tarefas voltam toda semana ou todo mês e quem é responsável?",
           "De onde vêm os pedidos e eles devem chegar por um formulário?"
         ]

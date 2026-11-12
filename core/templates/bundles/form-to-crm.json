@@ -882,7 +882,7 @@
     "de": {
       "locale": "de",
       "name": "Kontaktformular mit CRM",
-      "summary": "Anfragen aus Formularen zu bearbeiteten Kontakten machen: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, Phase von neu bis übergeben, Spam und Kein Bedarf getrennt.",
+      "summary": "Anfragen aus Formularen zu bearbeiteten Kontakten machen: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, Phase von neu bis übergeben, Spam und „Kein Bedarf“ getrennt.",
       "description": "Jede Anfrage aus einem Kontakt-, Angebots- oder Anfrageformular wird zu einer Anfrage mit Verknüpfung zum Kontakt, mit dem Formular, aus dem sie kam, der Herkunft des Besuchers, dem Zeitpunkt, bis wann sie gebraucht wird, und einer Antwort, die am nächsten Tag fällig ist. Anfragen laufen von neu bis übergeben, kein Bedarf oder Spam, und eine unbeantwortete Anfrage wird gemeldet. Einwilligung und ein Prüftermin gehören zu den erhobenen Daten. Kein Formularbaukasten für Zahlungen, Quiz oder den Upload sensibler Dokumente.",
       "lists": {
         "actions": {
@@ -893,7 +893,7 @@
         "contacts": {
           "label": "Kontakt",
           "pluralLabel": "Kontakte",
-          "description": "Die Personen, die Ihnen über ein Formular schreiben."
+          "description": "Die Personen, die dir über ein Formular schreiben."
         },
         "requests": {
           "label": "Anfrage",
@@ -932,7 +932,7 @@
           "options": {}
         },
         "contacts.marketing_consent": {
-          "label": "Einwilligung Werbung",
+          "label": "Einwilligung zu Werbe-E-Mails",
           "options": {}
         },
         "contacts.marketing_consent_on": {
@@ -1008,7 +1008,7 @@
           "options": {}
         },
         "requests.not_a_fit_reason": {
-          "label": "Grund für Kein Bedarf",
+          "label": "Grund für „Kein Bedarf“",
           "options": {
             "out_of_area": "Außerhalb unseres Gebiets",
             "no_budget": "Kein Budget",
@@ -1096,7 +1096,7 @@
           "title": "Neue Anfragen"
         },
         "not_a_fit_reasons": {
-          "title": "Gründe für Kein Bedarf"
+          "title": "Gründe für „Kein Bedarf“"
         },
         "average_days_to_close": {
           "title": "Durchschnittliche Tage bis zum Abschluss"
@@ -1147,7 +1147,7 @@
           "description": ""
         },
         "review_date_not_a_fit": {
-          "title": "Prüftermin auf ein Jahr setzen, wenn eine Anfrage als Kein Bedarf endet",
+          "title": "Prüftermin auf ein Jahr setzen, wenn eine Anfrage als „Kein Bedarf“ endet",
           "description": ""
         },
         "data_review": {
@@ -1155,7 +1155,7 @@
           "description": ""
         },
         "external_form_records": {
-          "title": "Kontakt und Anfrage anlegen, wenn ein anderes Formularwerkzeug eine Einsendung schickt",
+          "title": "Kontakt und Anfrage anlegen, wenn ein anderes Formular-Tool eine Einsendung schickt",
           "description": ""
         }
       },
@@ -1167,18 +1167,18 @@
       "prompt": {
         "intro": "Richte in meinem Customermates-Workspace die Verbindung von Formular zu CRM ein: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, sechs Phasen, Einwilligung und Prüftermin sowie terminierte Folgeaufgaben.",
         "questions": [
-          "Welche Formulare betreiben Sie, und was müssen Sie wissen, um eine Anfrage zu bepreisen oder zuzuordnen?",
-          "Wer antwortet, und wie schnell versprechen Sie eine Antwort?",
-          "Was teilen Sie den Personen am Formular über ihre Daten mit?",
-          "Nutzen Sie ein anderes Formularwerkzeug wie Typeform, Tally oder Jotform?"
+          "Welche Formulare betreibst du, und was musst du wissen, um eine Anfrage zu bepreisen oder zuzuordnen?",
+          "Wer antwortet, und wie schnell versprichst du eine Antwort?",
+          "Was teilst du den Personen am Formular über ihre Daten mit?",
+          "Nutzt du ein anderes Formular-Tool wie Typeform, Tally oder Jotform?"
         ]
       }
     },
     "en": {
       "locale": "en",
       "name": "Form to CRM",
-      "summary": "Turn web form enquiries into worked leads: a request for every submission with its source, a reply due, a stage from new to converted, and spam and not-a-fit kept apart.",
-      "description": "Every enquiry from a contact, quote or intake form becomes a request linked to a contact, with the form it came from, where the visitor arrived from, when it is needed and a reply due the next day. Requests move from new to converted, not a fit or spam, and a request nobody answered is flagged. Consent and a review date are kept for the data you collect. It is not a form builder for payments, quizzes or file uploads of sensitive documents.",
+      "summary": "Turn web form inquiries into worked leads: a request for every submission with its source, a reply due, a stage from new to converted, and spam and not-a-fit kept apart.",
+      "description": "Every inquiry from a contact, quote or intake form becomes a request linked to a contact, with the form it came from, where the visitor arrived from, when it is needed and a reply due the next day. Requests move from new to converted, not a fit or spam, and a request nobody answered is flagged. Consent and a review date are kept for the data you collect. It is not a form builder for payments, quizzes or file uploads of sensitive documents.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1409,7 +1409,7 @@
           "title": "Privacy notice for forms",
           "sections": [
             "What we tell people at the form",
-            "How long we keep an enquiry"
+            "How long we keep an inquiry"
           ]
         },
         "spam_and_duplicates": {
@@ -1422,7 +1422,7 @@
       },
       "rules": {
         "enquiry_form_records": {
-          "title": "Create the contact and the request when the enquiry form is submitted",
+          "title": "Create the contact and the request when the inquiry form is submitted",
           "description": ""
         },
         "reply_task": {
@@ -1462,7 +1462,7 @@
       "prompt": {
         "intro": "Set up form to CRM in my Customermates workspace: a request for every form submission with its source, a reply due, six stages, consent and a data review date, and dated follow-ups.",
         "questions": [
-          "Which forms do you run, and what do you need to know to price or route an enquiry?",
+          "Which forms do you run, and what do you need to know to price or route an inquiry?",
           "Who answers, and how fast do you promise to reply?",
           "What do you tell people about their data at the form?",
           "Do you use another form tool such as Typeform, Tally or Jotform?"
@@ -1473,7 +1473,7 @@
       "locale": "es",
       "name": "Formulario a CRM",
       "summary": "Convertir las consultas de los formularios web en oportunidades trabajadas: una solicitud por envío con su origen, una respuesta pendiente, una fase de nueva a convertida y el spam y las que no encajan aparte.",
-      "description": "Cada consulta de un formulario de contacto, de presupuesto o de admisión se convierte en una solicitud vinculada a un contacto, con el formulario de origen, de dónde llegó el visitante, para cuándo la necesita y una respuesta debida al día siguiente. Las solicitudes pasan de nueva a convertida, no encaja o spam, y una solicitud sin respuesta se señala. El consentimiento y una fecha de revisión acompañan a los datos recogidos. No es un creador de formularios para pagos, cuestionarios o subida de documentos sensibles.",
+      "description": "Cada consulta de un formulario de contacto, de presupuesto o de admisión se convierte en una solicitud vinculada a un contacto, con el formulario de origen, de dónde llegó el visitante, para cuándo la necesita y una respuesta para el día siguiente. Las solicitudes pasan de nueva a convertida, no encaja o spam, y una solicitud sin respuesta se señala. El consentimiento y una fecha de revisión acompañan a los datos recogidos. No es un creador de formularios para pagos, cuestionarios o subida de documentos sensibles.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -1483,7 +1483,7 @@
         "contacts": {
           "label": "Contacto",
           "pluralLabel": "Contactos",
-          "description": "Las personas que le escriben por un formulario."
+          "description": "Las personas que te escriben por un formulario."
         },
         "requests": {
           "label": "Solicitud",
@@ -1613,7 +1613,7 @@
           "options": {}
         },
         "requests.data_review_on": {
-          "label": "Revisar los datos el",
+          "label": "Revisión de datos el",
           "options": {}
         },
         "requests.days_to_close": {
@@ -1737,7 +1737,7 @@
           "description": ""
         },
         "review_date_not_a_fit": {
-          "title": "Fijar la revisión de datos a un año cuando una solicitud no encaja",
+          "title": "Fijar la revisión de datos dentro de un año cuando una solicitud no encaja",
           "description": ""
         },
         "data_review": {
@@ -1745,7 +1745,7 @@
           "description": ""
         },
         "external_form_records": {
-          "title": "Crear el contacto y la solicitud cuando otra herramienta de formularios envía un envío",
+          "title": "Crear el contacto y la solicitud cuando otra herramienta de formularios envía una respuesta",
           "description": ""
         }
       },
@@ -1755,20 +1755,20 @@
         "requests_board_view": "Las solicitudes se abren como tablero por fase."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de Customermates el paso del formulario al CRM: una solicitud por envío con su origen, una respuesta pendiente, seis fases, el consentimiento y una fecha de revisión de datos, y seguimientos con fecha.",
+        "intro": "Configura en mi espacio de trabajo de Customermates el paso del formulario al CRM: una solicitud por envío con su origen, una respuesta pendiente, seis fases, el consentimiento y una fecha de revisión de datos, y seguimientos con fecha.",
         "questions": [
-          "¿Qué formularios usa y qué necesita saber para presupuestar o derivar una consulta?",
-          "¿Quién responde y en cuánto tiempo se compromete a hacerlo?",
-          "¿Qué dice a las personas sobre sus datos en el formulario?",
-          "¿Usa otra herramienta de formularios como Typeform, Tally o Jotform?"
+          "¿Qué formularios usas y qué necesitas saber para presupuestar o derivar una consulta?",
+          "¿Quién responde y en cuánto tiempo te comprometes a hacerlo?",
+          "¿Qué dices a las personas sobre sus datos en el formulario?",
+          "¿Usas otra herramienta de formularios como Typeform, Tally o Jotform?"
         ]
       }
     },
     "fr": {
       "locale": "fr",
-      "name": "Formulaire vers CRM",
-      "summary": "Transformer les demandes des formulaires web en prospects suivis : une demande par envoi avec sa source, une réponse à donner, une étape de nouveau à converti, et le spam et le sans suite à part.",
-      "description": "Chaque demande venue d'un formulaire de contact, de devis ou d'accueil devient une demande reliée à un contact, avec le formulaire d'origine, la provenance du visiteur, le besoin pour quand et une réponse due le lendemain. Les demandes passent de nouveau à converti, sans suite ou spam, et une demande restée sans réponse est signalée. Le consentement et une date de revue accompagnent les données collectées. Ce n'est pas un créateur de formulaires pour des paiements, des quiz ou le dépôt de documents sensibles.",
+      "name": "Du formulaire au CRM",
+      "summary": "Transformez les demandes des formulaires web en prospects suivis : une demande par envoi avec sa source, une réponse à donner, une étape de nouveau à converti, et les demandes sans suite et le spam mis à part.",
+      "description": "Chaque message reçu par un formulaire de contact, de devis ou d’accueil devient une demande reliée à un contact, avec le formulaire d’origine, la provenance du visiteur, le délai souhaité et une réponse due le lendemain. Les demandes passent de nouveau à converti, sans suite ou spam, et une demande restée sans réponse est signalée. Le consentement et une date de revue accompagnent les données collectées. Ce n’est pas un créateur de formulaires pour des paiements, des quiz ou le dépôt de documents sensibles.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1840,7 +1840,7 @@
           "options": {
             "contact": "Formulaire de contact",
             "quote_request": "Demande de devis",
-            "intake": "Formulaire d'accueil",
+            "intake": "Formulaire d’accueil",
             "callback": "Demande de rappel",
             "other": "Autre"
           }
@@ -1854,7 +1854,7 @@
           "options": {}
         },
         "requests.needed_by": {
-          "label": "Besoin pour le",
+          "label": "Besoin avant le",
           "options": {
             "asap": "Dès que possible",
             "within_a_month": "Dans le mois",
@@ -1893,7 +1893,7 @@
           "options": {}
         },
         "requests.not_a_fit_reason": {
-          "label": "Raison du sans suite",
+          "label": "Motif du classement sans suite",
           "options": {
             "out_of_area": "Hors de notre zone",
             "no_budget": "Pas de budget",
@@ -1912,7 +1912,7 @@
           "options": {}
         },
         "requests.days_to_close": {
-          "label": "Jours entre l'envoi et la clôture",
+          "label": "Jours entre l’envoi et la clôture",
           "options": {}
         },
         "actions.kind": {
@@ -1946,7 +1946,7 @@
           "name": "Toutes les demandes"
         },
         "requests_board": {
-          "name": "Tableau des demandes"
+          "name": "Board des demandes"
         },
         "new_requests": {
           "name": "Nouvelles demandes"
@@ -1981,7 +1981,7 @@
           "title": "Nouvelles demandes"
         },
         "not_a_fit_reasons": {
-          "title": "Raisons des demandes sans suite"
+          "title": "Motifs des demandes sans suite"
         },
         "average_days_to_close": {
           "title": "Nombre moyen de jours avant clôture"
@@ -1996,10 +1996,10 @@
           ]
         },
         "privacy_notice": {
-          "title": "Mentions d'information des formulaires",
+          "title": "Mentions d’information des formulaires",
           "sections": [
             "Ce que nous indiquons au niveau du formulaire",
-            "Durée de conservation d'une demande"
+            "Durée de conservation d’une demande"
           ]
         },
         "spam_and_duplicates": {
@@ -2024,7 +2024,7 @@
           "description": ""
         },
         "chase_contacted": {
-          "title": "Relancer une demande contactée qui n'a pas bougé depuis 3 jours",
+          "title": "Relancer une demande contactée qui n’a pas bougé depuis 3 jours",
           "description": ""
         },
         "converted_task": {
@@ -2040,30 +2040,30 @@
           "description": ""
         },
         "external_form_records": {
-          "title": "Créer le contact et la demande quand un autre outil de formulaire envoie un envoi",
+          "title": "Créer le contact et la demande quand un autre outil de formulaire transmet un envoi",
           "description": ""
         }
       },
       "acceptanceChecks": {
         "stage_field": "Chaque demande a une étape.",
         "submitted_field": "Chaque demande indique quand elle a été reçue.",
-        "requests_board_view": "Les demandes s'ouvrent en tableau par étape."
+        "requests_board_view": "Les demandes s’ouvrent en board par étape."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace Customermates le passage du formulaire au CRM : une demande par envoi avec sa source, une réponse à donner, six étapes, le consentement et une date de revue des données, et des relances datées.",
+        "intro": "Mets en place dans mon espace de travail Customermates le passage du formulaire au CRM : une demande par envoi avec sa source, une réponse à donner, six étapes, le consentement et une date de revue des données, et des relances datées.",
         "questions": [
-          "Quels formulaires utilisez-vous, et que devez-vous savoir pour chiffrer ou orienter une demande ?",
-          "Qui répond, et sous quel délai vous engagez-vous à répondre ?",
-          "Que dites-vous aux personnes sur leurs données au niveau du formulaire ?",
-          "Utilisez-vous un autre outil de formulaire comme Typeform, Tally ou Jotform ?"
+          "Quels formulaires utilisez-vous, et que devez-vous savoir pour chiffrer ou orienter une demande ?",
+          "Qui répond, et sous quel délai vous engagez-vous à répondre ?",
+          "Que dites-vous aux personnes, dans le formulaire, sur l’usage de leurs données ?",
+          "Utilisez-vous un autre outil de formulaire comme Typeform, Tally ou Jotform ?"
         ]
       }
     },
     "it": {
       "locale": "it",
-      "name": "Modulo di contatto con CRM",
-      "summary": "Trasformare le richieste dei moduli web in contatti seguiti: una richiesta per ogni invio con la sua origine, una risposta dovuta, una fase da nuova a convertita, spam e non idonee tenuti a parte.",
-      "description": "Ogni richiesta da un modulo di contatto, preventivo o accoglienza diventa una richiesta collegata a un contatto, con il modulo di provenienza, da dove è arrivato il visitatore, entro quando serve e una risposta dovuta il giorno dopo. Le richieste passano da nuova a convertita, non idonea o spam e una richiesta rimasta senza risposta viene segnalata. Consenso e una data di revisione accompagnano i dati raccolti. Non è un costruttore di moduli per pagamenti, quiz o caricamento di documenti sensibili.",
+      "name": "Dal modulo al CRM",
+      "summary": "Trasforma le richieste dei moduli web in contatti seguiti: una richiesta per ogni invio con la sua origine, una scadenza di risposta, una fase da nuova a convertita, con spam e richieste non idonee tenuti a parte.",
+      "description": "Ogni messaggio inviato da un modulo di contatto, preventivo o accoglienza diventa una richiesta collegata a un contatto, con il modulo di provenienza, da dove è arrivato il visitatore, entro quando serve e una risposta da dare entro il giorno dopo. Le richieste passano da nuova a convertita, non idonea o spam e una richiesta rimasta senza risposta viene segnalata. Consenso e una data di revisione accompagnano i dati raccolti. Non è un costruttore di moduli per pagamenti, quiz o caricamento di documenti sensibili.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2241,7 +2241,7 @@
           "name": "Tutte le richieste"
         },
         "requests_board": {
-          "name": "Bacheca delle richieste"
+          "name": "Board delle richieste"
         },
         "new_requests": {
           "name": "Nuove richieste"
@@ -2261,7 +2261,7 @@
           "title": "Attività scadute"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         },
         "requests_funnel": {
           "title": "Richieste per fase"
@@ -2315,7 +2315,7 @@
           "description": ""
         },
         "first_response_missed": {
-          "title": "Avvisare il referente quando una richiesta è ancora nuova un giorno dopo l'invio",
+          "title": "Avvisare il responsabile quando una richiesta è ancora nuova un giorno dopo l'invio",
           "description": ""
         },
         "chase_contacted": {
@@ -2335,30 +2335,30 @@
           "description": ""
         },
         "external_form_records": {
-          "title": "Creare contatto e richiesta quando un altro strumento di moduli invia un invio",
+          "title": "Creare contatto e richiesta quando un altro strumento di moduli trasmette un invio",
           "description": ""
         }
       },
       "acceptanceChecks": {
         "stage_field": "Ogni richiesta ha una fase.",
         "submitted_field": "Ogni richiesta indica quando è stata ricevuta.",
-        "requests_board_view": "Le richieste si aprono come bacheca per fase."
+        "requests_board_view": "Le richieste si aprono come board per fase."
       },
       "prompt": {
-        "intro": "Imposta nel mio workspace Customermates il passaggio dal modulo al CRM: una richiesta per ogni invio con la sua origine, una risposta dovuta, sei fasi, il consenso e una data di revisione dei dati, e attività di follow-up con data.",
+        "intro": "Imposta nel mio spazio di lavoro Customermates il passaggio dal modulo al CRM: una richiesta per ogni invio con la sua origine, una scadenza di risposta, sei fasi, il consenso e una data di revisione dei dati, e attività di follow-up con data.",
         "questions": [
-          "Quali moduli usate e che cosa dovete sapere per quotare o smistare una richiesta?",
-          "Chi risponde e in quanto tempo vi impegnate a farlo?",
-          "Che cosa dite alle persone sui loro dati nel modulo?",
-          "Usate un altro strumento di moduli come Typeform, Tally o Jotform?"
+          "Quali moduli usi e che cosa devi sapere per fare un preventivo o smistare una richiesta?",
+          "Chi risponde e in quanto tempo ti impegni a farlo?",
+          "Che cosa dici alle persone sui loro dati nel modulo?",
+          "Usi un altro strumento di moduli come Typeform, Tally o Jotform?"
         ]
       }
     },
     "nl": {
       "locale": "nl",
       "name": "Formulier naar CRM",
-      "summary": "Aanvragen uit webformulieren omzetten in opgevolgde leads: een aanvraag per inzending met bron, een verschuldigd antwoord, een fase van nieuw tot omgezet, en spam en niet passend apart.",
-      "description": "Elke aanvraag uit een contact-, offerte- of intakeformulier wordt een aanvraag gekoppeld aan een contactpersoon, met het formulier waaruit ze kwam, waar de bezoeker vandaan kwam, wanneer het nodig is en een antwoord dat de volgende dag verschuldigd is. Aanvragen lopen van nieuw tot omgezet, niet passend of spam, en een aanvraag zonder antwoord wordt gemeld. Toestemming en een controledatum horen bij de verzamelde gegevens. Geen formulierenbouwer voor betalingen, quizzen of het uploaden van gevoelige documenten.",
+      "summary": "Aanvragen uit webformulieren omzetten in opgevolgde leads: een aanvraag per inzending met bron, een uiterste antwoorddatum, een fase van nieuw tot omgezet, en spam en niet passend apart.",
+      "description": "Elke aanvraag uit een contact-, offerte- of intakeformulier wordt een aanvraag gekoppeld aan een contactpersoon, met het formulier waaruit ze kwam, waar de bezoeker vandaan kwam, wanneer het nodig is en een uiterste antwoorddatum de volgende dag. Aanvragen lopen van nieuw tot omgezet, niet passend of spam, en een aanvraag zonder antwoord wordt gesignaleerd. Toestemming en een controledatum horen bij de verzamelde gegevens. Geen formulierenbouwer voor betalingen, quizzen of het uploaden van gevoelige documenten.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -2368,7 +2368,7 @@
         "contacts": {
           "label": "Contactpersoon",
           "pluralLabel": "Contactpersonen",
-          "description": "De mensen die u via een formulier schrijven."
+          "description": "De mensen die je via een formulier schrijven."
         },
         "requests": {
           "label": "Aanvraag",
@@ -2381,7 +2381,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -2444,19 +2444,19 @@
           "options": {}
         },
         "requests.needed_by": {
-          "label": "Gewenst voor",
+          "label": "Gewenst uiterlijk",
           "options": {
             "asap": "Zo snel mogelijk",
             "within_a_month": "Binnen een maand",
             "within_three_months": "Binnen drie maanden",
             "just_looking": "Gewoon oriënteren",
-            "no_answer": "Geen antwoord"
+            "no_answer": "Niet ingevuld"
           }
         },
         "requests.budget_band": {
           "label": "Budget",
           "options": {
-            "no_answer": "Geen antwoord",
+            "no_answer": "Niet ingevuld",
             "low": "Laag",
             "medium": "Gemiddeld",
             "high": "Hoog"
@@ -2525,7 +2525,7 @@
         },
         "action_request": {
           "sourceLabel": "Aanvraag",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         }
       },
       "views": {
@@ -2602,35 +2602,35 @@
       },
       "rules": {
         "enquiry_form_records": {
-          "title": "Contactpersoon en aanvraag aanmaken als het aanvraagformulier is ingediend",
+          "title": "Maak een contactpersoon en een aanvraag aan als het aanvraagformulier is ingediend",
           "description": ""
         },
         "reply_task": {
-          "title": "Een taak om de volgende dag te antwoorden aanmaken als een aanvraag binnenkomt",
+          "title": "Maak een actie aan om de volgende dag te antwoorden als een aanvraag binnenkomt",
           "description": ""
         },
         "first_response_missed": {
-          "title": "De teamleider waarschuwen als een aanvraag een dag na ontvangst nog nieuw is",
+          "title": "Waarschuw de teamleider als een aanvraag een dag na ontvangst nog nieuw is",
           "description": ""
         },
         "chase_contacted": {
-          "title": "Een gecontacteerde aanvraag opvolgen die 3 dagen stilstaat",
+          "title": "Volg een gecontacteerde aanvraag op die 3 dagen stilstaat",
           "description": ""
         },
         "converted_task": {
-          "title": "De aanvraag aan de pijplijn overdragen als ze wordt omgezet",
+          "title": "Draag de aanvraag over aan de pijplijn als ze wordt omgezet",
           "description": ""
         },
         "review_date_not_a_fit": {
-          "title": "De controle van gegevens op een jaar zetten als een aanvraag niet past",
+          "title": "Zet de controledatum van de gegevens een jaar later als een aanvraag niet past",
           "description": ""
         },
         "data_review": {
-          "title": "De gegevens controleren als de controledatum is bereikt",
+          "title": "Controleer de gegevens als de controledatum is bereikt",
           "description": ""
         },
         "external_form_records": {
-          "title": "Contactpersoon en aanvraag aanmaken als een ander formuliertool een inzending stuurt",
+          "title": "Maak een contactpersoon en een aanvraag aan als een ander formuliertool een inzending stuurt",
           "description": ""
         }
       },
@@ -2640,20 +2640,20 @@
         "requests_board_view": "De aanvragen openen als bord per fase."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-workspace de stap van formulier naar CRM in: een aanvraag per inzending met bron, een verschuldigd antwoord, zes fasen, toestemming en een controledatum voor gegevens, en opvolging met datum.",
+        "intro": "Richt in mijn Customermates-werkruimte de stap van formulier naar CRM in: een aanvraag per inzending met bron, een uiterste antwoorddatum, zes fasen, toestemming en een controledatum voor gegevens, en opvolging met datum.",
         "questions": [
-          "Welke formulieren gebruikt u en wat moet u weten om een aanvraag te prijzen of door te sturen?",
-          "Wie antwoordt en binnen welke tijd belooft u te reageren?",
-          "Wat vertelt u mensen bij het formulier over hun gegevens?",
-          "Gebruikt u een ander formuliertool zoals Typeform, Tally of Jotform?"
+          "Welke formulieren gebruik je en wat moet je weten om een aanvraag te prijzen of door te sturen?",
+          "Wie antwoordt en binnen welke tijd beloof je te reageren?",
+          "Wat vertel je mensen bij het formulier over hun gegevens?",
+          "Gebruik je een ander formuliertool zoals Typeform, Tally of Jotform?"
         ]
       }
     },
     "pl": {
       "locale": "pl",
-      "name": "Formularz do CRM",
-      "summary": "Zamienianie zapytań z formularzy w opracowane kontakty: jedno zapytanie na każde wysłanie ze źródłem, należną odpowiedzią, etapem od nowego do przekazanego oraz osobno spam i nietrafione.",
-      "description": "Każde zapytanie z formularza kontaktowego, wyceny lub zgłoszeniowego staje się zapytaniem powiązanym z kontaktem, z formularzem, z którego przyszło, skąd trafił odwiedzający, na kiedy jest potrzebne i odpowiedzią należną następnego dnia. Zapytania przechodzą od nowego do przekazanego, nietrafionego lub spamu, a zapytanie bez odpowiedzi jest oznaczane. Zgoda i termin przeglądu towarzyszą zbieranym danym. To nie kreator formularzy do płatności, quizów ani przesyłania wrażliwych dokumentów.",
+      "name": "Od formularza do CRM",
+      "summary": "Zamień zapytania z formularzy internetowych w obsłużone kontakty: jedno zapytanie na każde zgłoszenie ze źródłem, terminem odpowiedzi i etapem od nowego do przekazanego do lejka oraz osobno spam i zapytania nietrafione.",
+      "description": "Każde zgłoszenie z formularza kontaktowego, wyceny lub zgłoszeniowego staje się zapytaniem powiązanym z kontaktem, z formularzem, z którego przyszło, informacją, skąd trafił odwiedzający, na kiedy jest potrzebne, i terminem odpowiedzi na następny dzień. Zapytania przechodzą od nowego do przekazanego do lejka, nietrafionego lub spamu, a zapytanie bez odpowiedzi zostaje oznaczone. Dla zbieranych danych zapisujemy zgodę i termin przeglądu. To nie jest kreator formularzy do płatności, quizów ani przesyłania wrażliwych dokumentów.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -2686,7 +2686,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -2706,7 +2706,7 @@
           "options": {}
         },
         "contacts.marketing_consent_on": {
-          "label": "Zgoda udzielona dnia",
+          "label": "Data udzielenia zgody",
           "options": {}
         },
         "requests.stage": {
@@ -2715,7 +2715,7 @@
             "new": "Nowe",
             "contacted": "Skontaktowane",
             "qualified": "Zakwalifikowane",
-            "converted": "Przekazane",
+            "converted": "Przekazane do lejka",
             "not_a_fit": "Nietrafione",
             "spam": "Spam"
           }
@@ -2726,12 +2726,12 @@
             "contact": "Formularz kontaktowy",
             "quote_request": "Formularz wyceny",
             "intake": "Formularz zgłoszeniowy",
-            "callback": "Prośba o telefon",
+            "callback": "Prośba o oddzwonienie",
             "other": "Inny"
           }
         },
         "requests.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "requests.service_interest": {
@@ -2739,7 +2739,7 @@
           "options": {}
         },
         "requests.needed_by": {
-          "label": "Termin",
+          "label": "Kiedy potrzebne",
           "options": {
             "asap": "Jak najszybciej",
             "within_a_month": "W ciągu miesiąca",
@@ -2758,7 +2758,7 @@
           }
         },
         "requests.submitted_at": {
-          "label": "Otrzymano",
+          "label": "Data i godzina zgłoszenia",
           "options": {}
         },
         "requests.first_response_at": {
@@ -2770,11 +2770,11 @@
           "options": {}
         },
         "requests.landing_page": {
-          "label": "Strona formularza",
+          "label": "Strona z formularzem",
           "options": {}
         },
         "requests.repeat_submission": {
-          "label": "Pisał już wcześniej",
+          "label": "Zgłaszał się już wcześniej",
           "options": {}
         },
         "requests.not_a_fit_reason": {
@@ -2789,22 +2789,22 @@
           }
         },
         "requests.closed_on": {
-          "label": "Zamknięto dnia",
+          "label": "Data zamknięcia",
           "options": {}
         },
         "requests.data_review_on": {
-          "label": "Przejrzyj dane dnia",
+          "label": "Data przeglądu danych",
           "options": {}
         },
         "requests.days_to_close": {
-          "label": "Dni od wysłania do zamknięcia",
+          "label": "Dni od zgłoszenia do zamknięcia",
           "options": {}
         },
         "actions.kind": {
           "label": "Rodzaj",
           "options": {
             "reply": "Odpowiedzieć",
-            "qualify_call": "Rozmowa kwalifikacyjna",
+            "qualify_call": "Rozmowa kwalifikująca",
             "send_quote": "Wysłać wycenę",
             "convert": "Przekazać do lejka",
             "chase": "Ponaglić",
@@ -2857,7 +2857,7 @@
           "title": "Zapytania według etapu"
         },
         "requests_per_week": {
-          "title": "Zapytania tygodniowo"
+          "title": "Zapytania w poszczególnych tygodniach"
         },
         "requests_by_form": {
           "title": "Zapytania według formularza"
@@ -2866,7 +2866,7 @@
           "title": "Nowe zapytania"
         },
         "not_a_fit_reasons": {
-          "title": "Dlaczego zapytania są nietrafione"
+          "title": "Powody uznania zapytań za nietrafione"
         },
         "average_days_to_close": {
           "title": "Średnia liczba dni do zamknięcia"
@@ -2874,7 +2874,7 @@
       },
       "knowledgePages": {
         "form_playbook": {
-          "title": "Przewodnik od formularza do CRM",
+          "title": "Instrukcja: od formularza do CRM",
           "sections": [
             "Jakich formularzy używamy i kto odpowiada",
             "Jak szybko odpowiadamy"
@@ -2897,35 +2897,35 @@
       },
       "rules": {
         "enquiry_form_records": {
-          "title": "Utworzyć kontakt i zapytanie po wysłaniu formularza zapytania",
+          "title": "Utwórz kontakt i zapytanie po wysłaniu formularza",
           "description": ""
         },
         "reply_task": {
-          "title": "Utworzyć zadanie odpowiedzi na następny dzień, gdy powstaje zapytanie",
+          "title": "Utwórz zadanie odpowiedzi na następny dzień, gdy powstaje zapytanie",
           "description": ""
         },
         "first_response_missed": {
-          "title": "Powiadomić prowadzącego, gdy zapytanie jest nadal nowe dzień po otrzymaniu",
+          "title": "Powiadom osobę prowadzącą, gdy zapytanie jest nadal nowe dzień po zgłoszeniu",
           "description": ""
         },
         "chase_contacted": {
-          "title": "Ponaglić skontaktowane zapytanie, które stoi od 3 dni",
+          "title": "Ponagl zapytanie ze statusem Skontaktowane, które stoi od 3 dni",
           "description": ""
         },
         "converted_task": {
-          "title": "Przekazać zapytanie do lejka, gdy zostanie przekazane",
+          "title": "Przekaż zapytanie do lejka, gdy trafi na etap Przekazane do lejka",
           "description": ""
         },
         "review_date_not_a_fit": {
-          "title": "Ustawić przegląd danych na rok, gdy zapytanie jest nietrafione",
+          "title": "Ustaw termin przeglądu danych na rok naprzód, gdy zapytanie zostanie uznane za nietrafione",
           "description": ""
         },
         "data_review": {
-          "title": "Przejrzeć dane, gdy nadejdzie termin przeglądu",
+          "title": "Przejrzyj dane, gdy nadejdzie termin przeglądu",
           "description": ""
         },
         "external_form_records": {
-          "title": "Utworzyć kontakt i zapytanie, gdy inne narzędzie do formularzy wyśle zgłoszenie",
+          "title": "Utwórz kontakt i zapytanie, gdy inne narzędzie do formularzy wyśle zgłoszenie",
           "description": ""
         }
       },
@@ -2935,7 +2935,7 @@
         "requests_board_view": "Zapytania otwierają się jako tablica według etapu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w moim workspace Customermates przejście od formularza do CRM: jedno zapytanie na każde wysłanie ze źródłem, należną odpowiedzią, sześcioma etapami, zgodą i terminem przeglądu danych oraz zaplanowane kontakty uzupełniające.",
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates obieg od formularza do CRM: jedno zapytanie na każde zgłoszenie ze źródłem, terminem odpowiedzi, sześcioma etapami, zgodą i terminem przeglądu danych oraz zaplanowane kolejne kroki.",
         "questions": [
           "Jakich formularzy używasz i co musisz wiedzieć, żeby wycenić lub przypisać zapytanie?",
           "Kto odpowiada i w jakim czasie obiecujesz odpowiedź?",
@@ -2947,8 +2947,8 @@
     "pt": {
       "locale": "pt",
       "name": "Formulário para CRM",
-      "summary": "Transformar os contatos dos formulários do site em oportunidades acompanhadas: uma solicitação por envio com a origem, uma resposta devida, uma etapa de nova a convertida, e spam e sem fit à parte.",
-      "description": "Cada contato vindo de um formulário de contato, de orçamento ou de triagem vira uma solicitação ligada a um contato, com o formulário de origem, de onde veio o visitante, para quando precisa e uma resposta devida no dia seguinte. As solicitações passam de nova a convertida, sem fit ou spam, e uma solicitação sem resposta é sinalizada. O consentimento e uma data de revisão acompanham os dados coletados. Não é um criador de formulários para pagamentos, quizzes ou envio de documentos sensíveis.",
+      "summary": "Transformar as mensagens dos formulários do site em oportunidades acompanhadas: uma solicitação por envio com a origem, uma resposta pendente, uma etapa de nova a convertida, e spam e sem fit à parte.",
+      "description": "Cada mensagem vinda de um formulário de contato, de orçamento ou de triagem vira uma solicitação ligada a um contato, com o formulário de origem, de onde veio o visitante, para quando precisa e uma resposta a dar no dia seguinte. As solicitações passam de nova a convertida, sem fit ou spam, e uma solicitação sem resposta é sinalizada. O consentimento e uma data de revisão acompanham os dados coletados. Não é um criador de formulários para pagamentos, quizzes ou envio de documentos sensíveis.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -3073,7 +3073,7 @@
           "options": {}
         },
         "requests.not_a_fit_reason": {
-          "label": "Motivo do sem fit",
+          "label": "Por que não tem fit",
           "options": {
             "out_of_area": "Fora da nossa região",
             "no_budget": "Sem orçamento",
@@ -3220,7 +3220,7 @@
           "description": ""
         },
         "external_form_records": {
-          "title": "Criar o contato e a solicitação quando outra ferramenta de formulários enviar um envio",
+          "title": "Criar o contato e a solicitação quando outra ferramenta de formulários enviar uma resposta",
           "description": ""
         }
       },
@@ -3230,7 +3230,7 @@
         "requests_board_view": "As solicitações abrem como quadro por etapa."
       },
       "prompt": {
-        "intro": "Configure no meu workspace do Customermates a ligação do formulário ao CRM: uma solicitação por envio com a origem, uma resposta devida, seis etapas, o consentimento e uma data de revisão dos dados, e acompanhamentos com data.",
+        "intro": "Configure no meu espaço de trabalho do Customermates a ligação do formulário ao CRM: uma solicitação por envio com a origem, uma resposta devida, seis etapas, o consentimento e uma data de revisão dos dados, e acompanhamentos com data.",
         "questions": [
           "Quais formulários você usa e o que precisa saber para orçar ou encaminhar um contato?",
           "Quem responde e em quanto tempo você se compromete a responder?",

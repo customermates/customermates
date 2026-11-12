@@ -1138,7 +1138,7 @@
         "contacts": {
           "label": "Ansprechpartner",
           "pluralLabel": "Ansprechpartner",
-          "description": "Die Personen, mit denen Sie bei jedem Kunden zu tun haben."
+          "description": "Die Personen, mit denen du bei jedem Kunden zu tun hast."
         }
       },
       "fields": {
@@ -1167,7 +1167,7 @@
           "label": "Status",
           "options": {
             "prospect": "Interessent",
-            "onboarding": "Einrichtung",
+            "onboarding": "Onboarding",
             "active": "Aktiv",
             "waiting_on_client": "Wartet auf Kunde",
             "at_risk": "Gefährdet",
@@ -1259,7 +1259,7 @@
           "label": "Rolle",
           "options": {
             "decision_maker": "Entscheider",
-            "day_to_day": "Tagesgeschäft",
+            "day_to_day": "Ansprechpartner im Tagesgeschäft",
             "billing": "Buchhaltung",
             "other": "Sonstige"
           }
@@ -1347,7 +1347,7 @@
           "title": "Anstehende Wiedervorlagen"
         },
         "review_calendar": {
-          "title": "Kundenprüfungen im Monat"
+          "title": "Kundenprüfungen in diesem Monat"
         },
         "clients_by_status": {
           "title": "Kunden nach Status"
@@ -1432,7 +1432,7 @@
         },
         "chase_waiting_client": {
           "title": "Beim Kunden an den offenen Punkt erinnern",
-          "description": "Wechselt ein Kunde auf Wartet auf Kunde, erhält der Betreuer nach 7 Tagen eine Wiedervorlage zum Erinnern."
+          "description": "Wechselt ein Kunde auf „Wartet auf Kunde“, erhält der Betreuer nach 7 Tagen eine Wiedervorlage zum Erinnern."
         },
         "review_before_due": {
           "title": "Kundenakte prüfen",
@@ -1440,7 +1440,7 @@
         },
         "daily_next_step_sweep": {
           "title": "Nachfassen: keine offene Wiedervorlage bei diesem Kunden",
-          "description": "Täglich erhält ein aktiver oder in der Einrichtung befindlicher Kunde ohne offene verknüpfte Wiedervorlage eine Wiedervorlage zum Nachfassen, fällig heute."
+          "description": "Täglich erhält ein aktiver Kunde oder ein Kunde im Onboarding ohne offene verknüpfte Wiedervorlage eine Wiedervorlage zum Nachfassen, fällig heute."
         },
         "stalled_client_sweep": {
           "title": "Nachfassen: seit 45 Tagen kein Kontakt",
@@ -1448,7 +1448,7 @@
         },
         "closed_client_dates": {
           "title": "Beendigungsdatum und Datenprüfungsdatum setzen",
-          "description": "Wird ein Kunde beendet, wird Beendet am auf heute und Datenprüfung am auf drei Jahre später gesetzt. Passen Sie die Frist an Ihre Pflichten an."
+          "description": "Wird ein Kunde beendet, wird „Beendet am“ auf heute und „Datenprüfung am“ auf drei Jahre später gesetzt. Passe die Frist an deine Pflichten an."
         },
         "closed_client_data_review": {
           "title": "Daten dieses beendeten Kunden prüfen",
@@ -1456,7 +1456,7 @@
         },
         "inactive_reactivation": {
           "title": "Fragen, ob der Kunde noch relevant ist",
-          "description": "Neunzig Tage nachdem ein Kunde auf Ruhend gesetzt wurde, stellt eine Wiedervorlage die Reaktivierungsfrage."
+          "description": "Neunzig Tage nachdem ein Kunde auf „Ruhend“ gesetzt wurde, stellt eine Wiedervorlage die Reaktivierungsfrage."
         },
         "enquiry_form_records": {
           "title": "Kunde und Ansprechpartner aus einer Anfrage anlegen",
@@ -1476,14 +1476,14 @@
         "next_step_date_field": "Jeder Kunde hat einen nächsten Schritt und ein Datum dafür.",
         "clients_default_view": "Die Kundenliste öffnet sich nach Wiedervorlage sortiert.",
         "overdue_widget": "Das Dashboard zeigt, wie viele Wiedervorlagen überfällig sind.",
-        "chase_rule": "Ein Kunde, der auf Wartet auf Kunde gesetzt wird, erhält eine Wiedervorlage zum Erinnern.",
+        "chase_rule": "Ein Kunde, der auf „Wartet auf Kunde“ gesetzt wird, erhält eine Wiedervorlage zum Erinnern.",
         "playbook_page": "Die Wissensdatenbank enthält den Leitfaden zur Kundenverwaltung."
       },
       "page": {
         "metaTitle": "Kundenverwaltung als Vorlage für Ihren KI-Agenten",
         "metaDescription": "Kopieren Sie die Kundenverwaltung in Claude, ChatGPT oder Codex: eine Zeile pro Kunde, ein Betreuer, eine Wiedervorlage und eine wöchentliche Durchsicht.",
         "headline": "Eine Kundenverwaltung, die Ihr KI-Agent in Ihrem CRM aufbaut",
-        "answer": "Eine Kundenverwaltung ist eine kurze Liste: eine Zeile pro Kunde, ein Betreuer, ein Status, das Datum des letzten Kontakts und ein nächster Schritt mit Wiedervorlage. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Liste in Customermates auf, mit Ansprechpartnern, terminierten Aufgaben und einer wöchentlichen Durchsicht. Sie genehmigen den Plan, bevor etwas geschrieben wird.",
+        "answer": "Eine Kundenverwaltung ist eine kurze Liste: eine Zeile pro Kunde, ein Betreuer, ein Status, das Datum des letzten Kontakts und ein nächster Schritt mit Wiedervorlage. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Liste in Customermates auf, mit Ansprechpartnern, terminierten Wiedervorlagen und einer wöchentlichen Durchsicht. Sie genehmigen den Plan, bevor etwas geschrieben wird.",
         "routine": {
           "title": "Die wöchentliche Kundendurchsicht in 15 Minuten",
           "steps": [
@@ -1507,7 +1507,7 @@
           },
           {
             "question": "Ab wann reicht eine Tabelle für die Kundenverwaltung nicht mehr?",
-            "answer": "Praxisleitfäden nennen etwa 25 bis 50 Kunden, mehrere Bearbeiter oder den Punkt, an dem niemand mehr an Wiedervorlagen erinnert wird. Dann hilft ein CRM: Ansprechpartner sind verknüpft, nächste Schritte sind terminierte Aufgaben, und die Gespräche stehen neben jedem Kunden."
+            "answer": "Praxisleitfäden nennen etwa 25 bis 50 Kunden, mehrere Bearbeiter oder den Punkt, an dem niemand mehr an Wiedervorlagen erinnert wird. Dann hilft ein CRM: Ansprechpartner sind verknüpft, nächste Schritte sind terminierte Wiedervorlagen, und die Gespräche stehen neben jedem Kunden."
           },
           {
             "question": "Wie lange darf ich die Daten beendeter Kunden aufbewahren?",
@@ -1520,13 +1520,13 @@
         ]
       },
       "prompt": {
-        "intro": "Richte in meinem Customermates-Workspace eine Kundenverwaltung ein: eine Zeile pro Kunde mit einem Betreuer, einem Status, dem Datum des letzten Kontakts und einer terminierten Wiedervorlage, dazu Ansprechpartner, terminierte Aufgaben, eine wöchentliche Durchsicht und ein Prüfdatum für beendete Kunden.",
+        "intro": "Richte in meinem Customermates-Workspace eine Kundenverwaltung ein: eine Zeile pro Kunde mit einem Betreuer, einem Status, dem Datum des letzten Kontakts und einer terminierten Wiedervorlage, dazu Ansprechpartner, terminierte Wiedervorlagen, eine wöchentliche Durchsicht und ein Prüfdatum für beendete Kunden.",
         "questions": [
-          "Wie viele Kunden betreuen Sie heute, und wer arbeitet noch an der Kartei mit?",
-          "Welche Kundenstatus nutzen Sie schon? Soll einer der sieben umbenannt oder weggelassen werden?",
-          "Wie oft möchten Sie A-, B- und C-Kunden durchsehen?",
-          "In welchem Land arbeiten Sie, damit die Aufbewahrungsfrist für beendete Kunden gesetzt werden kann?",
-          "Führen Sie Rechnungen in einem anderen Programm? Wenn ja, in welchem, damit hier keine Rechnungsfelder entstehen."
+          "Wie viele Kunden betreust du heute, und wer arbeitet noch an der Kartei mit?",
+          "Welche Kundenstatus nutzt du schon? Soll einer der sieben umbenannt oder weggelassen werden?",
+          "Wie oft möchtest du A-, B- und C-Kunden durchsehen?",
+          "In welchem Land arbeitest du, damit die Aufbewahrungsfrist für beendete Kunden gesetzt werden kann?",
+          "Führst du Rechnungen in einem anderen Programm? Wenn ja, in welchem, damit hier keine Rechnungsfelder entstehen."
         ]
       }
     },
@@ -1870,12 +1870,12 @@
           "description": "Ninety days after a client becomes Inactive, a check-in Action asks the reactivation question."
         },
         "enquiry_form_records": {
-          "title": "Create the client and the contact from an enquiry",
-          "description": "A public enquiry form creates a client as Prospect and its contact."
+          "title": "Create the client and the contact from an inquiry",
+          "description": "A public inquiry form creates a client as Prospect and its contact."
         },
         "enquiry_form_reply": {
-          "title": "Reply to the enquiry",
-          "description": "Every enquiry gets a reply Action due the next day."
+          "title": "Reply to the inquiry",
+          "description": "Every inquiry gets a reply Action due the next day."
         },
         "weekly_client_review": {
           "title": "Weekly client review",
@@ -2016,7 +2016,7 @@
             "website": "Sitio web",
             "event": "Evento",
             "outbound": "Prospección",
-            "existing_network": "Red existente",
+            "existing_network": "Red de contactos",
             "other": "Otro"
           }
         },
@@ -2238,7 +2238,7 @@
           ]
         },
         "data_retention": {
-          "title": "Conservación de datos y protección de datos de la ficha de clientes",
+          "title": "Conservación de datos y RGPD en la ficha de clientes",
           "sections": [
             "Finalidad y datos conservados",
             "Plazo de conservación según el país",
@@ -2315,8 +2315,8 @@
     "fr": {
       "locale": "fr",
       "name": "Fichier client",
-      "summary": "Une ligne par client, un responsable, une prochaine relance datée, avec une revue hebdomadaire et une date de revue des données pour chaque client clos.",
-      "description": "Un fichier client court et rigoureux : sept statuts, la date du dernier contact, une date de prochaine relance qui pilote le travail, un rythme de revue par segment et une date de revue des données pour les clients clos. Les contacts, les actions datées et les conversations liées se trouvent à côté de chaque client.",
+      "summary": "Une ligne par client, un responsable, une prochaine action datée, avec une revue hebdomadaire et une date de revue des données pour chaque client clos.",
+      "description": "Un fichier client court et rigoureux : sept statuts, la date du dernier contact, une échéance de prochaine action qui pilote le travail, un rythme de revue par segment et une date de revue des données pour les clients clos. Les contacts, les actions datées et les conversations liées se trouvent à côté de chaque client.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2326,7 +2326,7 @@
         "clients": {
           "label": "Client",
           "pluralLabel": "Clients",
-          "description": "Une ligne par client, un responsable, une prochaine relance datée."
+          "description": "Une ligne par client, un responsable, une prochaine action datée."
         },
         "contacts": {
           "label": "Contact",
@@ -2371,9 +2371,9 @@
         "clients.segment": {
           "label": "Segment",
           "options": {
-            "a_key": "A : client clé",
-            "b_regular": "B : client régulier",
-            "c_occasional": "C : client occasionnel"
+            "a_key": "A : client clé",
+            "b_regular": "B : client régulier",
+            "c_occasional": "C : client occasionnel"
           }
         },
         "clients.owner": {
@@ -2404,7 +2404,7 @@
           "options": {}
         },
         "clients.next_step_due": {
-          "label": "Date de relance",
+          "label": "Échéance de la prochaine action",
           "options": {}
         },
         "clients.review_interval": {
@@ -2517,7 +2517,7 @@
           "name": "Sans prochaine action"
         },
         "overdue_next_step": {
-          "name": "Relances en retard"
+          "name": "Prochaines actions en retard"
         },
         "waiting_on_client": {
           "name": "En attente du client"
@@ -2585,7 +2585,7 @@
         "weekly_review": {
           "title": "Revue clients hebdomadaire de 15 minutes",
           "sections": [
-            "Trier par date de relance et par statut",
+            "Trier par échéance et par statut",
             "En retard, actifs sans prochaine action, prospects à l’arrêt",
             "Terminer avec une date sur chaque ligne"
           ]
@@ -2599,9 +2599,9 @@
           ]
         },
         "message_templates": {
-          "title": "Modèles de messages : prise de nouvelles et réactivation",
+          "title": "Modèles de messages : prise de nouvelles et réactivation",
           "sections": [
-            "Prise de nouvelles après un temps calme",
+            "Prise de nouvelles après une période sans contact",
             "Relance d’un client qui doit répondre",
             "Invitation à la revue",
             "Réactivation après 90 jours",
@@ -2625,23 +2625,23 @@
         },
         "chase_waiting_client": {
           "title": "Relancer le client pour l’élément en attente",
-          "description": "Quand un client passe à En attente du client, son responsable reçoit une action de relance au bout de 7 jours."
+          "description": "Quand un client passe à « En attente du client », son responsable reçoit une action de relance au bout de 7 jours."
         },
         "review_before_due": {
           "title": "Revoir le dossier du client",
           "description": "Sept jours avant la prochaine revue d’un client actif, une action de revue est créée pour le responsable."
         },
         "daily_next_step_sweep": {
-          "title": "Prendre des nouvelles : aucune action ouverte sur ce client",
+          "title": "Prendre des nouvelles : aucune action ouverte sur ce client",
           "description": "Chaque jour, un client actif ou en mise en route sans action ouverte liée reçoit une action de prise de nouvelles pour le jour même."
         },
         "stalled_client_sweep": {
-          "title": "Prendre des nouvelles : aucun contact depuis 45 jours",
+          "title": "Prendre des nouvelles : aucun contact depuis 45 jours",
           "description": "Chaque lundi, un client actif sans contact depuis 45 jours reçoit une action de prise de nouvelles. Le statut ne change jamais tout seul."
         },
         "closed_client_dates": {
           "title": "Renseigner la date de clôture et la date de revue des données",
-          "description": "Quand un client est clos, Clos le prend la date du jour et Revue des données le trois ans plus tard. Adaptez la durée à votre pays."
+          "description": "Quand un client est clos, « Clos le » prend la date du jour et « Revue des données le » celle de trois ans plus tard. Adaptez la durée à votre pays."
         },
         "closed_client_data_review": {
           "title": "Revoir les données de ce client clos",
@@ -2649,11 +2649,11 @@
         },
         "inactive_reactivation": {
           "title": "Demander si le client est encore concerné",
-          "description": "Quatre-vingt-dix jours après le passage d’un client à Inactif, une action de prise de nouvelles pose la question de la réactivation."
+          "description": "Quatre-vingt-dix jours après le passage d’un client à « Inactif », une action de prise de nouvelles pose la question de la réactivation."
         },
         "enquiry_form_records": {
           "title": "Créer le client et le contact à partir d’une demande",
-          "description": "Un formulaire de demande public crée un client en Prospect et son contact."
+          "description": "Un formulaire de demande public crée un client en « Prospect » et son contact."
         },
         "enquiry_form_reply": {
           "title": "Répondre à la demande",
@@ -2667,19 +2667,59 @@
       "acceptanceChecks": {
         "status_field": "Chaque client a un statut parmi les sept valeurs.",
         "next_step_date_field": "Chaque client a une prochaine action et une date pour elle.",
-        "clients_default_view": "La liste des clients s’ouvre triée par date de relance.",
+        "clients_default_view": "La liste des clients s’ouvre triée par échéance de la prochaine action.",
         "overdue_widget": "Le tableau de bord indique combien d’actions sont en retard.",
-        "chase_rule": "Un client passé à En attente du client reçoit une action de relance.",
+        "chase_rule": "Un client passé à « En attente du client » reçoit une action de relance.",
         "playbook_page": "La base de connaissances contient le mode d’emploi du fichier client."
       },
+      "page": {
+        "metaTitle": "Modèle de fichier client pour votre agent IA",
+        "metaDescription": "Copiez le fichier client dans Claude, ChatGPT ou Codex : une ligne par client, un responsable, une relance datée et une revue chaque semaine.",
+        "headline": "Un fichier client que votre agent IA construit dans votre CRM",
+        "answer": "Un fichier client est une liste courte : une ligne par client, un responsable, un statut, la date du dernier contact et une prochaine action avec une date de relance. Collez ce modèle dans votre agent IA et il construit cette liste dans Customermates, avec les contacts, des actions datées et une revue hebdomadaire. Vous validez le plan avant toute écriture.",
+        "routine": {
+          "title": "La revue client hebdomadaire de 15 minutes",
+          "steps": [
+            "Triez la liste des clients par prochaine relance, puis par statut.",
+            "Traitez d’abord tout ce qui est en retard, puis les clients actifs sans prochaine action.",
+            "Regardez les prospects devenus silencieux et décidez : relancer ou clore.",
+            "Terminez en vous assurant qu’une date figure sur chaque ligne, pour qu’aucun client ne reste sans prochaine action."
+          ]
+        },
+        "limits": [
+          "Ce n’est pas un outil de facturation, de devis ou de suivi du temps. La facturation reste dans votre logiciel de comptabilité ; le fichier ne garde au plus qu’un lien et une valeur annuelle.",
+          "Il ne conserve pas les contrats signés et ce n’est pas un portail client. Vos clients ne peuvent pas s’y connecter pour voir leur statut.",
+          "Les rappels viennent des règles d’automatisation et des notifications, ou d’une routine que votre agent exécute à intervalles réguliers. Le modèle les propose, vous décidez lesquelles activer.",
+          "Gardez-en à l’écart les dossiers sensibles, comme les données de santé, juridiques ou thérapeutiques. La relation reste ici, le contenu du dossier dans un système prévu pour cela.",
+          "Il est dimensionné pour une à dix personnes. Si certaines colonnes doivent rester cachées à vos collègues, placez-les dans une liste distincte avec ses propres accès."
+        ],
+        "faq": [
+          {
+            "question": "Que contient un fichier client ?",
+            "answer": "Une ligne par client, avec un responsable, un statut tiré d’une courte liste, la date du dernier contact et une prochaine action datée. La date de relance pilote le travail : triez par cette date une fois par semaine et rien ne passe entre les mailles."
+          },
+          {
+            "question": "Quand un tableur ne suffit-il plus pour suivre ses clients ?",
+            "answer": "Les guides de praticiens placent la limite autour de 25 à 50 clients, dès que plusieurs personnes modifient le fichier ou que plus personne n’est rappelé à l’ordre pour une relance. Un CRM aide alors : les contacts sont liés, les prochaines actions sont des actions datées et les échanges se trouvent à côté de chaque client."
+          },
+          {
+            "question": "Combien de temps conserver les données des clients clos ?",
+            "answer": "Cela dépend de votre pays et des données conservées. Deux exemples : la CNIL admet que les données de clients utilisées pour la prospection soient gardées pendant la durée de la relation commerciale plus trois ans, et le droit commercial allemand impose de conserver six ans les lettres commerciales et huit ans les pièces comptables. Le modèle fixe une date de revue des données pour chaque client clos ; adaptez le délai à votre pays et demandez conseil à votre expert. Ce n’est pas un avis juridique."
+          },
+          {
+            "question": "L’agent contacte-t-il mes clients ?",
+            "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+          }
+        ]
+      },
       "prompt": {
-        "intro": "Mets en place un fichier client dans mon espace Customermates : une ligne par client avec un responsable, un statut, la date du dernier contact et une prochaine action datée, plus les contacts, des actions datées, une revue hebdomadaire et une date de revue des données pour les clients clos.",
+        "intro": "Mets en place un fichier client dans mon espace de travail Customermates : une ligne par client avec un responsable, un statut, la date du dernier contact et une prochaine action datée, plus les contacts, des actions datées, une revue hebdomadaire et une date de revue des données pour les clients clos.",
         "questions": [
-          "Combien de clients suivez-vous aujourd’hui, et qui d’autre travaille sur le fichier ?",
-          "Quels statuts clients utilisez-vous déjà ? Faut-il renommer ou retirer certains des sept ?",
-          "À quelle fréquence voulez-vous revoir les clients clés, réguliers et occasionnels ?",
-          "Dans quel pays travaillez-vous, pour fixer la durée de conservation des clients clos ?",
-          "Gardez-vous vos factures ailleurs ? Si oui, dans quel outil, pour ne pas ajouter de champs de facturation ici."
+          "Combien de clients suivez-vous aujourd’hui, et qui d’autre travaille sur le fichier ?",
+          "Quels statuts clients utilisez-vous déjà ? Faut-il renommer ou retirer certains des sept ?",
+          "À quelle fréquence voulez-vous revoir les clients clés, réguliers et occasionnels ?",
+          "Dans quel pays travaillez-vous, pour fixer la durée de conservation des clients clos ?",
+          "Gardez-vous vos factures ailleurs ? Si oui, dans quel outil, pour ne pas ajouter de champs de facturation ici."
         ]
       }
     },
@@ -2687,7 +2727,7 @@
       "locale": "it",
       "name": "Anagrafica clienti",
       "summary": "Una riga per cliente, un responsabile, un prossimo passo con scadenza, più una revisione settimanale e una data di verifica dei dati per ogni cliente chiuso.",
-      "description": "Un’anagrafica clienti snella e disciplinata: sette stati, la data dell’ultimo contatto, una scadenza del prossimo passo che guida il lavoro, un ritmo di revisione per segmento e una data di verifica dei dati per i clienti chiusi. Referenti, attività con scadenza e conversazioni collegate stanno accanto a ogni cliente.",
+      "description": "Un'anagrafica clienti snella e disciplinata: sette stati, la data dell'ultimo contatto, una scadenza del prossimo passo che guida il lavoro, un ritmo di revisione per segmento e una data di verifica dei dati per i clienti chiusi. Referenti, attività con scadenza e conversazioni collegate stanno accanto a ogni cliente.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2754,11 +2794,11 @@
         "clients.source": {
           "label": "Provenienza",
           "options": {
-            "referral": "Passaparola",
+            "referral": "Segnalazione",
             "website": "Sito web",
             "event": "Evento",
             "outbound": "Contatto diretto",
-            "existing_network": "Rete esistente",
+            "existing_network": "Rete di conoscenze",
             "other": "Altro"
           }
         },
@@ -2853,7 +2893,7 @@
         "actions.kind": {
           "label": "Tipo",
           "options": {
-            "check_in": "Verifica periodica",
+            "check_in": "Ricontatto",
             "reply": "Risposta",
             "request_document": "Richiesta di documento",
             "review": "Revisione",
@@ -2941,12 +2981,12 @@
           "title": "Attività scadute"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         }
       },
       "knowledgePages": {
         "playbook": {
-          "title": "Guida all’anagrafica clienti",
+          "title": "Guida all'anagrafica clienti",
           "sections": [
             "Una riga, un responsabile, un prossimo passo con scadenza",
             "Che cosa significa ogni stato",
@@ -2970,9 +3010,9 @@
           ]
         },
         "message_templates": {
-          "title": "Modelli di messaggio: verifica periodica e riattivazione",
+          "title": "Modelli di messaggio: ricontatto e riattivazione",
           "sections": [
-            "Verifica dopo un periodo di silenzio",
+            "Ricontatto dopo un periodo di silenzio",
             "Sollecito a un cliente che deve rispondere",
             "Invito alla revisione",
             "Riattivazione dopo 90 giorni",
@@ -2980,7 +3020,7 @@
           ]
         },
         "data_retention": {
-          "title": "Conservazione dei dati e privacy per l’anagrafica clienti",
+          "title": "Conservazione dei dati e privacy per l'anagrafica clienti",
           "sections": [
             "Finalità e dati conservati",
             "Periodo di conservazione per paese",
@@ -2991,62 +3031,102 @@
       },
       "rules": {
         "overdue_action_notice": {
-          "title": "Avvisare il responsabile che un’attività è scaduta",
-          "description": "Alla scadenza di un’attività aperta, il responsabile riceve un avviso."
+          "title": "Avvisare il responsabile che un'attività è scaduta",
+          "description": "Alla scadenza di un'attività aperta, il responsabile riceve un avviso."
         },
         "chase_waiting_client": {
           "title": "Sollecitare il cliente per la questione in sospeso",
-          "description": "Quando un cliente passa a In attesa del cliente, il suo responsabile riceve un’attività di sollecito dopo 7 giorni."
+          "description": "Quando un cliente passa a «In attesa del cliente», il suo responsabile riceve un'attività di sollecito dopo 7 giorni."
         },
         "review_before_due": {
           "title": "Rivedere la scheda del cliente",
-          "description": "Sette giorni prima della prossima revisione di un cliente attivo, viene creata un’attività di revisione per il responsabile."
+          "description": "Sette giorni prima della prossima revisione di un cliente attivo, viene creata un'attività di revisione per il responsabile."
         },
         "daily_next_step_sweep": {
-          "title": "Verifica periodica: nessuna attività aperta su questo cliente",
-          "description": "Ogni giorno, un cliente attivo o in avvio senza attività aperte collegate riceve un’attività di verifica con scadenza oggi."
+          "title": "Ricontatto: nessuna attività aperta su questo cliente",
+          "description": "Ogni giorno, un cliente attivo o in avvio senza attività aperte collegate riceve un'attività di ricontatto con scadenza oggi."
         },
         "stalled_client_sweep": {
-          "title": "Verifica periodica: nessun contatto da 45 giorni",
-          "description": "Ogni lunedì, un cliente attivo senza contatti da 45 giorni riceve un’attività di verifica. Lo stato non cambia mai da solo."
+          "title": "Ricontatto: nessun contatto da 45 giorni",
+          "description": "Ogni lunedì, un cliente attivo senza contatti da 45 giorni riceve un'attività di ricontatto. Lo stato non cambia mai da solo."
         },
         "closed_client_dates": {
           "title": "Impostare la data di chiusura e la data di verifica dei dati",
-          "description": "Quando un cliente viene chiuso, Chiuso il prende la data di oggi e Verifica dei dati il tre anni dopo. Adatta il periodo al tuo paese."
+          "description": "Quando un cliente viene chiuso, «Chiuso il» prende la data di oggi e «Verifica dei dati il» quella di tre anni dopo. Adatta il periodo al tuo paese."
         },
         "closed_client_data_review": {
           "title": "Verificare i dati di questo cliente chiuso",
-          "description": "Un’attività di verifica dei dati scade alla data di verifica dei dati."
+          "description": "Un'attività di verifica dei dati scade alla data di verifica dei dati."
         },
         "inactive_reactivation": {
           "title": "Chiedere se il cliente è ancora interessato",
-          "description": "Novanta giorni dopo il passaggio di un cliente a Inattivo, un’attività di verifica pone la domanda sulla riattivazione."
+          "description": "Novanta giorni dopo il passaggio di un cliente a «Inattivo», un'attività di ricontatto pone la domanda sulla riattivazione."
         },
         "enquiry_form_records": {
           "title": "Creare cliente e referente da una richiesta",
-          "description": "Un modulo di richiesta pubblico crea un cliente come Potenziale e il suo referente."
+          "description": "Un modulo di richiesta pubblico crea un cliente come «Potenziale» e il suo referente."
         },
         "enquiry_form_reply": {
           "title": "Rispondere alla richiesta",
-          "description": "Ogni richiesta riceve un’attività di risposta con scadenza il giorno dopo."
+          "description": "Ogni richiesta riceve un'attività di risposta con scadenza il giorno dopo."
         },
         "weekly_client_review": {
           "title": "Revisione clienti settimanale",
-          "description": "Ogni lunedì, un’attività di revisione elenca i clienti in ritardo, quelli senza prossimo passo e i potenziali fermi."
+          "description": "Ogni lunedì, un'attività di revisione elenca i clienti in ritardo, quelli senza prossimo passo e i potenziali fermi."
         }
       },
       "acceptanceChecks": {
         "status_field": "Ogni cliente ha uno stato tra i sette valori.",
         "next_step_date_field": "Ogni cliente ha un prossimo passo e una data per esso.",
-        "clients_default_view": "L’elenco dei clienti si apre ordinato per scadenza del prossimo passo.",
+        "clients_default_view": "L'elenco dei clienti si apre ordinato per scadenza del prossimo passo.",
         "overdue_widget": "La dashboard mostra quante attività sono scadute.",
-        "chase_rule": "Un cliente passato a In attesa del cliente riceve un’attività di sollecito.",
-        "playbook_page": "La knowledge base contiene la guida all’anagrafica clienti."
+        "chase_rule": "Un cliente passato a «In attesa del cliente» riceve un'attività di sollecito.",
+        "playbook_page": "La base di conoscenza contiene la guida all'anagrafica clienti."
+      },
+      "page": {
+        "metaTitle": "Anagrafica clienti: modello per il tuo agente IA",
+        "metaDescription": "Copia l'anagrafica clienti in Claude, ChatGPT o Codex: una riga per cliente, un responsabile, un prossimo passo con scadenza e una revisione settimanale.",
+        "headline": "Un'anagrafica clienti che il tuo agente IA costruisce nel tuo CRM",
+        "answer": "Un'anagrafica clienti è un elenco breve: una riga per cliente, un responsabile, uno stato, la data dell'ultimo contatto e un prossimo passo con scadenza. Incolla questo modello nel tuo agente IA e lui costruisce l'elenco in Customermates, con referenti, attività con scadenza e una revisione settimanale. Approvi il piano prima che venga scritto qualcosa.",
+        "routine": {
+          "title": "La revisione settimanale dei clienti in 15 minuti",
+          "steps": [
+            "Ordina l'elenco dei clienti per scadenza del prossimo passo e per stato.",
+            "Occupati prima di tutto ciò che è in ritardo, poi dei clienti attivi senza prossimo passo.",
+            "Guarda i potenziali clienti diventati silenziosi e decidi: riprendere il contatto o chiudere.",
+            "Concludi con una data su ogni riga, così nessun cliente resta senza prossimo passo."
+          ]
+        },
+        "limits": [
+          "Non è uno strumento per fatture, preventivi o rilevazione del tempo. La fatturazione resta nel tuo gestionale; qui c'è al massimo un link e un valore annuo.",
+          "Non conserva i contratti firmati e non è un portale clienti. I clienti non possono accedere per vedere il loro stato.",
+          "I promemoria arrivano dalle regole di automazione e dalle notifiche, oppure da una routine che il tuo agente esegue a intervalli regolari. Il modello li propone, tu decidi quali attivare.",
+          "Tieni fuori le pratiche sensibili, come documenti sanitari, legali o terapeutici. Qui resta la relazione, il contenuto della pratica in un sistema fatto per quello.",
+          "È pensato per un team da una a dieci persone. Se alcune colonne devono restare nascoste ai colleghi, mettile in un elenco separato con accessi propri."
+        ],
+        "faq": [
+          {
+            "question": "Cosa deve contenere un'anagrafica clienti?",
+            "answer": "Una riga per cliente, con un responsabile, uno stato scelto da un elenco breve, la data dell'ultimo contatto e un prossimo passo con scadenza. È la scadenza a guidare il lavoro: ordina per quella una volta a settimana e niente va perso."
+          },
+          {
+            "question": "Quando un foglio di calcolo non basta più per gestire i clienti?",
+            "answer": "Le guide di chi lavora sul campo indicano il limite tra 25 e 50 clienti, quando più persone modificano il file o quando nessuno viene più avvisato di un follow-up. Un CRM aiuta allora: i referenti sono collegati, i prossimi passi sono attività con scadenza e le conversazioni stanno accanto a ogni cliente."
+          },
+          {
+            "question": "Per quanto tempo posso conservare i dati dei clienti chiusi?",
+            "answer": "Dipende dal paese e dai dati. Due esempi: l'autorità francese per la protezione dei dati ammette i dati dei clienti usati per la prospezione per la durata del rapporto più tre anni, e il diritto commerciale tedesco impone di conservare sei anni le lettere commerciali e otto anni i documenti contabili. Il modello imposta una data di verifica dei dati per ogni cliente chiuso; adatta il termine al tuo paese e chiedi al tuo consulente. Non è una consulenza legale."
+          },
+          {
+            "question": "L'agente contatta i miei clienti?",
+            "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+          }
+        ]
       },
       "prompt": {
-        "intro": "Configura un’anagrafica clienti nel mio spazio di lavoro Customermates: una riga per cliente con un responsabile, uno stato, la data dell’ultimo contatto e un prossimo passo con scadenza, più i referenti, attività con scadenza, una revisione settimanale e una data di verifica dei dati per i clienti chiusi.",
+        "intro": "Configura un'anagrafica clienti nel mio spazio di lavoro Customermates: una riga per cliente con un responsabile, uno stato, la data dell'ultimo contatto e un prossimo passo con scadenza, più i referenti, attività con scadenza, una revisione settimanale e una data di verifica dei dati per i clienti chiusi.",
         "questions": [
-          "Quanti clienti segui oggi e chi altro lavora sull’anagrafica?",
+          "Quanti clienti segui oggi e chi altro lavora sull'anagrafica?",
           "Quali stati dei clienti usi già? Vanno rinominati o tolti alcuni dei sette?",
           "Con quale frequenza vuoi rivedere i clienti chiave, abituali e occasionali?",
           "In quale paese lavori, così da fissare il periodo di conservazione per i clienti chiusi?",
@@ -3081,7 +3161,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -3105,7 +3185,7 @@
             "onboarding": "Opstart",
             "active": "Actief",
             "waiting_on_client": "Wacht op klant",
-            "at_risk": "Risico",
+            "at_risk": "Loopt risico",
             "inactive": "Inactief",
             "closed": "Beëindigd"
           }
@@ -3259,13 +3339,13 @@
           "name": "Zonder volgende stap"
         },
         "overdue_next_step": {
-          "name": "Verlopen volgende stappen"
+          "name": "Achterstallige volgende stappen"
         },
         "waiting_on_client": {
           "name": "Wacht op klant"
         },
         "at_risk": {
-          "name": "Risico"
+          "name": "Loopt risico"
         },
         "data_review_due": {
           "name": "Gegevenscontrole aan de beurt"
@@ -3300,7 +3380,7 @@
           "title": "Wacht op klant"
         },
         "at_risk_count": {
-          "title": "Risico"
+          "title": "Loopt risico"
         },
         "value_by_segment": {
           "title": "Jaarwaarde per segment"
@@ -3328,7 +3408,7 @@
           "title": "Wekelijkse klantcontrole van 15 minuten",
           "sections": [
             "Sorteer op datum volgende stap en status",
-            "Verlopen, actief zonder volgende stap, prospects die stilvallen",
+            "Achterstallig, actief zonder volgende stap, prospects die stilvallen",
             "Sluit af met een datum op elke regel"
           ]
         },
@@ -3362,7 +3442,7 @@
       },
       "rules": {
         "overdue_action_notice": {
-          "title": "Meld de accountmanager dat een actie te laat is",
+          "title": "Informeer de accountmanager dat een actie te laat is",
           "description": "Op de deadline van een open actie krijgt de accountmanager een melding."
         },
         "chase_waiting_client": {
@@ -3374,20 +3454,20 @@
           "description": "Zeven dagen voor de volgende controle van een actieve klant wordt een controleactie voor de accountmanager aangemaakt."
         },
         "daily_next_step_sweep": {
-          "title": "Check-in: geen open actie bij deze klant",
+          "title": "Neem contact op: geen open actie bij deze klant",
           "description": "Elke dag krijgt een actieve klant of een klant in opstart zonder gekoppelde open actie een check-in met deadline vandaag."
         },
         "stalled_client_sweep": {
-          "title": "Check-in: 45 dagen geen contact",
+          "title": "Neem contact op: 45 dagen geen contact",
           "description": "Elke maandag krijgt een actieve klant zonder contact in 45 dagen een check-in. De status verandert nooit vanzelf."
         },
         "closed_client_dates": {
           "title": "Stel de beëindigingsdatum en de gegevenscontrole in",
-          "description": "Wanneer een klant wordt beëindigd, krijgt Beëindigd op de datum van vandaag en Gegevenscontrole op drie jaar later. Pas de termijn aan je land aan."
+          "description": "Wanneer een klant wordt beëindigd, krijgt Beëindigd op de datum van vandaag en Gegevenscontrole op drie jaar later. Pas de termijn aan voor je land."
         },
         "closed_client_data_review": {
           "title": "Controleer de gegevens van deze beëindigde klant",
-          "description": "Een actie voor de gegevenscontrole valt op de datum van de gegevenscontrole."
+          "description": "Op de datum van de gegevenscontrole staat een actie voor de gegevenscontrole klaar."
         },
         "inactive_reactivation": {
           "title": "Vraag of de klant nog relevant is",
@@ -3402,7 +3482,7 @@
           "description": "Elke aanvraag krijgt een antwoordactie met deadline de volgende dag."
         },
         "weekly_client_review": {
-          "title": "Wekelijkse klantcontrole",
+          "title": "Houd de wekelijkse klantcontrole",
           "description": "Elke maandag somt één controleactie de klanten met achterstand, de klanten zonder volgende stap en de prospects die stilvallen op."
         }
       },
@@ -3417,7 +3497,7 @@
       "prompt": {
         "intro": "Richt een klantenbestand in mijn Customermates-werkruimte in: één regel per klant met een accountmanager, een status, de datum van het laatste contact en een volgende stap met datum, plus contactpersonen, acties met datum, een wekelijkse controle en een controledatum voor beëindigde klanten.",
         "questions": [
-          "Hoeveel klanten begeleid je nu en wie werkt er nog meer met het bestand?",
+          "Hoeveel klanten heb je nu en wie werkt er nog meer met het bestand?",
           "Welke klantstatussen gebruik je al? Moet een van de zeven worden hernoemd of weggelaten?",
           "Hoe vaak wil je sleutelklanten, vaste klanten en incidentele klanten controleren?",
           "In welk land werk je, zodat de bewaartermijn voor beëindigde klanten kan worden ingesteld?",
@@ -3427,7 +3507,7 @@
     },
     "pl": {
       "locale": "pl",
-      "name": "Kartoteka klientów",
+      "name": "Baza klientów",
       "summary": "Jeden wiersz na klienta, jeden opiekun, jeden następny krok z terminem, do tego cotygodniowy przegląd i data przeglądu danych dla każdego zakończonego klienta.",
       "description": "Zwięzła, zdyscyplinowana baza klientów: siedem statusów, data ostatniego kontaktu, termin następnego kroku, który napędza pracę, rytm przeglądów dla każdego segmentu i data przeglądu danych dla klientów zakończonych. Osoby kontaktowe, zadania z terminem i powiązane rozmowy są obok każdego klienta.",
       "lists": {
@@ -3462,7 +3542,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -3473,7 +3553,7 @@
           "label": "Status",
           "options": {
             "prospect": "Potencjalny",
-            "onboarding": "Wdrożenie",
+            "onboarding": "W trakcie wdrożenia",
             "active": "Aktywny",
             "waiting_on_client": "Oczekuje na klienta",
             "at_risk": "Zagrożony",
@@ -3499,13 +3579,13 @@
             "referral": "Polecenie",
             "website": "Strona internetowa",
             "event": "Wydarzenie",
-            "outbound": "Kontakt własny",
+            "outbound": "Kontakt wychodzący",
             "existing_network": "Dotychczasowa sieć kontaktów",
             "other": "Inne"
           }
         },
         "clients.client_since": {
-          "label": "Klientem od",
+          "label": "Klient od",
           "options": {}
         },
         "clients.last_contact": {
@@ -3550,11 +3630,11 @@
           "options": {}
         },
         "clients.closed_on": {
-          "label": "Zakończono dnia",
+          "label": "Data zakończenia współpracy",
           "options": {}
         },
         "clients.data_review_on": {
-          "label": "Przegląd danych dnia",
+          "label": "Data przeglądu danych",
           "options": {}
         },
         "contacts.job_title": {
@@ -3639,7 +3719,7 @@
           "name": "Zagrożeni"
         },
         "data_review_due": {
-          "name": "Przegląd danych do zrobienia"
+          "name": "Do przeglądu danych"
         },
         "actions_all": {
           "name": "Wszystkie zadania"
@@ -3662,7 +3742,7 @@
           "title": "Klienci wg segmentu"
         },
         "clients_per_owner": {
-          "title": "Klienci na opiekuna"
+          "title": "Klienci wg opiekuna"
         },
         "active_without_next_step": {
           "title": "Aktywni klienci bez następnego kroku"
@@ -3677,7 +3757,7 @@
           "title": "Wartość roczna wg segmentu"
         },
         "new_clients_per_month": {
-          "title": "Nowi klienci miesięcznie"
+          "title": "Nowi klienci w poszczególnych miesiącach"
         },
         "overdue_actions": {
           "title": "Zaległe zadania"
@@ -3688,7 +3768,7 @@
       },
       "knowledgePages": {
         "playbook": {
-          "title": "Instrukcja kartoteki klientów",
+          "title": "Instrukcja bazy klientów",
           "sections": [
             "Jeden wiersz, jeden opiekun, jeden następny krok z terminem",
             "Co oznacza każdy status",
@@ -3722,7 +3802,7 @@
           ]
         },
         "data_retention": {
-          "title": "Przechowywanie danych i RODO w kartotece klientów",
+          "title": "Przechowywanie danych i RODO w bazie klientów",
           "sections": [
             "Cel i przechowywane dane",
             "Okres przechowywania w zależności od kraju",
@@ -3754,7 +3834,7 @@
         },
         "closed_client_dates": {
           "title": "Ustaw datę zakończenia i datę przeglądu danych",
-          "description": "Gdy klient zostaje zakończony, pole Zakończono dnia dostaje dzisiejszą datę, a Przegląd danych dnia datę za trzy lata. Dostosuj okres do swojego kraju."
+          "description": "Gdy klient dostaje status Zakończony, pole Data zakończenia współpracy dostaje dzisiejszą datę, a Data przeglądu danych datę za trzy lata. Dostosuj okres do swojego kraju."
         },
         "closed_client_data_review": {
           "title": "Przejrzyj dane tego zakończonego klienta",
@@ -3766,7 +3846,7 @@
         },
         "enquiry_form_records": {
           "title": "Utwórz klienta i osobę kontaktową z zapytania",
-          "description": "Publiczny formularz zapytania tworzy klienta jako Potencjalnego oraz jego osobę kontaktową."
+          "description": "Publiczny formularz zapytania tworzy klienta ze statusem Potencjalny oraz jego osobę kontaktową."
         },
         "enquiry_form_reply": {
           "title": "Odpowiedz na zapytanie",
@@ -3783,16 +3863,16 @@
         "clients_default_view": "Lista klientów otwiera się posortowana według terminu następnego kroku.",
         "overdue_widget": "Pulpit pokazuje, ile zadań jest zaległych.",
         "chase_rule": "Klient przeniesiony do statusu Oczekuje na klienta dostaje zadanie ponaglenia.",
-        "playbook_page": "Baza wiedzy zawiera instrukcję kartoteki klientów."
+        "playbook_page": "Baza wiedzy zawiera instrukcję bazy klientów."
       },
       "prompt": {
-        "intro": "Skonfiguruj kartotekę klientów w mojej przestrzeni roboczej Customermates: jeden wiersz na klienta z opiekunem, statusem, datą ostatniego kontaktu i następnym krokiem z terminem, do tego osoby kontaktowe, zadania z terminem, cotygodniowy przegląd i data przeglądu danych dla klientów zakończonych.",
+        "intro": "Skonfiguruj bazę klientów w mojej przestrzeni roboczej Customermates: jeden wiersz na klienta z opiekunem, statusem, datą ostatniego kontaktu i następnym krokiem z terminem, do tego osoby kontaktowe, zadania z terminem, cotygodniowy przegląd i data przeglądu danych dla klientów zakończonych.",
         "questions": [
-          "Ilu klientów obsługujesz dziś i kto jeszcze pracuje na kartotece?",
+          "Ilu klientów obsługujesz dziś i kto jeszcze pracuje w bazie?",
           "Jakich statusów klientów już używasz? Czy któryś z siedmiu zmienić lub pominąć?",
           "Jak często chcesz przeglądać klientów kluczowych, stałych i okazjonalnych?",
           "W jakim kraju pracujesz, aby ustawić okres przechowywania danych klientów zakończonych?",
-          "Czy faktury trzymasz gdzie indziej? Jeśli tak, w jakim narzędziu, żeby nie dodawać tu pól rozliczeniowych."
+          "Czy faktury prowadzisz w innym narzędziu? Jeśli tak, w jakim, żebyśmy nie dodawali tu pól rozliczeniowych."
         ]
       }
     },
@@ -3970,7 +4050,7 @@
             "reply": "Resposta",
             "request_document": "Pedido de documento",
             "review": "Revisão",
-            "chase": "Cobrança de retorno",
+            "chase": "Lembrete ao cliente",
             "data_review": "Revisão dos dados",
             "other": "Outro"
           }
@@ -4078,7 +4158,7 @@
           "title": "Definição dos status de cliente",
           "sections": [
             "Regra de entrada e de saída de cada status",
-            "Cobrar retorno após 7 dias, escalar após 14",
+            "Lembrar o cliente após 7 dias, escalar após 14",
             "Quem pode mudar um status"
           ]
         },
@@ -4086,7 +4166,7 @@
           "title": "Modelos de mensagem: acompanhamento e reativação",
           "sections": [
             "Acompanhamento após um período de silêncio",
-            "Cobrança de retorno de um cliente que deve responder",
+            "Lembrete a um cliente que deve responder",
             "Convite para a revisão",
             "Reativação após 90 dias",
             "Encerramento educado"
@@ -4108,8 +4188,8 @@
           "description": "Quando chega o prazo de uma tarefa aberta, o responsável é avisado."
         },
         "chase_waiting_client": {
-          "title": "Cobrar o retorno do cliente sobre o item pendente",
-          "description": "Quando um cliente passa para Aguardando cliente, o responsável recebe uma tarefa de cobrança de retorno após 7 dias."
+          "title": "Lembrar o cliente do item pendente",
+          "description": "Quando um cliente passa para Aguardando cliente, o responsável recebe uma tarefa de lembrete após 7 dias."
         },
         "review_before_due": {
           "title": "Revisar a ficha do cliente",
@@ -4153,7 +4233,7 @@
         "next_step_date_field": "Cada cliente tem um próximo contato e uma data para ele.",
         "clients_default_view": "A lista de clientes abre ordenada pela data do próximo contato.",
         "overdue_widget": "O painel mostra quantas tarefas estão atrasadas.",
-        "chase_rule": "Um cliente movido para Aguardando cliente recebe uma tarefa de cobrança de retorno.",
+        "chase_rule": "Um cliente movido para Aguardando cliente recebe uma tarefa de lembrete.",
         "playbook_page": "A base de conhecimento contém o guia do cadastro de clientes."
       },
       "prompt": {
@@ -4163,7 +4243,7 @@
           "Quais status de cliente você já usa? Algum dos sete deve ser renomeado ou retirado?",
           "Com que frequência você quer revisar clientes-chave, regulares e ocasionais?",
           "Em que país você trabalha, para definir o prazo de retenção dos clientes encerrados?",
-          "Você guarda as notas fiscais em outro lugar? Se sim, em qual ferramenta, para não criar campos de cobrança aqui."
+          "Você guarda as notas fiscais em outro lugar? Se sim, em qual ferramenta, para não criar campos de faturamento aqui."
         ]
       }
     }

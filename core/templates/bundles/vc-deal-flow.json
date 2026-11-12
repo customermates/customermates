@@ -1071,7 +1071,7 @@
       "locale": "de",
       "name": "Dealflow für Investoren",
       "summary": "Ein Dealflow für einen kleinen Fonds oder Business Angel: acht Phasen von erkannt bis vollzogen oder abgelehnt, der Vermittler bei jedem Deal, ein Absagegrund und ein Termin zur Wiedervorlage.",
-      "description": "Startups und Investoren durch Sourcing, Erstprüfung, Gespräche, Due Diligence und Term Sheet begleiten. Jeder Deal hält fest, wer ihn vermittelt hat, wie gut er zur Anlagestrategie passt, die eigene Rolle als Lead oder Mitinvestor, einen Link zum Datenraum, den Absagegrund und wann man erneut hinsieht. Ein Beziehungswerkzeug, keine Gesellschafterliste, kein juristischer Datenraum und kein Bewertungsmodell. Die Gewichte sind grob und Ihre Sache.",
+      "description": "Startups und Investoren durch Sourcing, Erstprüfung, Gespräche, Due Diligence und Term Sheet begleiten. Jeder Deal hält fest, wer ihn vermittelt hat, wie gut er zur Anlagestrategie passt, die eigene Rolle als Lead oder Mitinvestor, einen Link zum Datenraum, den Absagegrund und wann man erneut hinsieht. Ein Beziehungswerkzeug, keine Cap Table, kein juristischer Datenraum und kein Bewertungsmodell. Die Gewichte sind grob, und Sie legen sie selbst fest.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1444,9 +1444,9 @@
       "prompt": {
         "intro": "Richte einen Dealflow in meinem Customermates-Workspace ein: Deals mit acht Phasen, Vermittler, Passung zur Anlagethese, eigener Rolle, Absagegrund und Wiedervorlagetermin, dazu Startups, Investoren und terminierte Nachfassaufgaben.",
         "questions": [
-          "In welche Phasen und Branchen investieren Sie, und wie groß ist Ihr üblicher Ticket?",
-          "Wie erreichen Sie die Deals, und wer vermittelt sie?",
-          "Wer entscheidet in welcher Phase, und wann sagen Sie ab?",
+          "In welche Phasen und Branchen investierst du, und wie groß ist deine übliche Ticketgröße?",
+          "Wie erreichst du die Deals, und wer vermittelt sie?",
+          "Wer entscheidet in welcher Phase, und wann sagst du ab?",
           "Wo liegen Rechtsdokumente und Datenraum? Hier wird nur ein Link gespeichert."
         ]
       }
@@ -1849,7 +1849,7 @@
         "people": {
           "label": "Persona",
           "pluralLabel": "Personas",
-          "description": "Fundadores, inversores, coinversores y presentadores."
+          "description": "Fundadores, inversores, coinversores y quienes presentan operaciones."
         },
         "organizations": {
           "label": "Organización",
@@ -1904,7 +1904,7 @@
             "investor": "Socio inversor",
             "angel": "Business angel",
             "co_investor": "Coinversor",
-            "introducer": "Presentador",
+            "introducer": "Quien presenta",
             "advisor": "Asesor"
           }
         },
@@ -2048,7 +2048,7 @@
           "options": {}
         },
         "deals.pass_reason": {
-          "label": "Motivo del rechazo",
+          "label": "Motivo de rechazo",
           "options": {
             "thesis_mismatch": "Fuera de tesis",
             "team": "Equipo",
@@ -2060,7 +2060,7 @@
           }
         },
         "deals.revisit_on": {
-          "label": "Retomar el",
+          "label": "Fecha para retomar",
           "options": {}
         },
         "deals.data_room_url": {
@@ -2086,7 +2086,7 @@
             "write_memo": "Escribir el memo",
             "send_pass_note": "Enviar un rechazo",
             "revisit": "Retomar el contacto",
-            "thank_introducer": "Agradecer o recordar al presentador",
+            "thank_introducer": "Agradecer o recordar a quien presentó",
             "other": "Otro"
           }
         }
@@ -2200,7 +2200,7 @@
           "description": ""
         },
         "intro_nudge": {
-          "title": "Recordar al presentador una semana después de pedir la presentación",
+          "title": "Recordar a quien presentó una semana después de pedir la presentación",
           "description": ""
         }
       },
@@ -2222,8 +2222,8 @@
     "fr": {
       "locale": "fr",
       "name": "Dealflow d’investisseur",
-      "summary": "Un dealflow pour un petit fonds ou un business angel : huit étapes de l’identification au closing ou au refus, l’apporteur sur chaque dossier, un motif de refus et une date de reprise de contact.",
-      "description": "Suivre startups et investisseurs de la détection au term sheet : screening, rencontres, due diligence. Chaque dossier note qui l’a apporté, son adéquation à la thèse, le rôle de lead, un lien vers la data room, le motif de refus et la date de reprise. C’est un outil de relation, pas une table de capitalisation, ni une data room juridique, ni un modèle de notation. Les pondérations sont approximatives et à vous de les fixer.",
+      "summary": "Un dealflow pour un petit fonds ou un business angel : huit étapes de l’identification au closing ou au refus, l’apporteur sur chaque dossier, un motif de refus et une date de reprise de contact.",
+      "description": "Suivez startups et investisseurs de la détection au term sheet : screening, rencontres, due diligence. Chaque dossier note qui l’a apporté, son adéquation à la thèse, le rôle de lead, un lien vers la data room, le motif de refus et la date de reprise. C’est un outil de relation, pas une table de capitalisation, ni une data room juridique, ni un modèle de notation. Les pondérations sont approximatives et à vous de les fixer.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2363,7 +2363,7 @@
           }
         },
         "deals.round": {
-          "label": "Tour",
+          "label": "Tour de financement",
           "options": {
             "pre_seed": "Pré-amorçage",
             "seed": "Amorçage",
@@ -2591,23 +2591,23 @@
       "acceptanceChecks": {
         "stage_field": "Chaque dossier a l’une des huit étapes.",
         "pass_reason_field": "Chaque dossier note pourquoi il a été refusé.",
-        "board_view": "Les dossiers s’ouvrent en tableau par étape."
+        "board_view": "Les dossiers s’ouvrent en board par étape."
       },
       "prompt": {
-        "intro": "Mets en place un dealflow dans mon espace Customermates : des dossiers avec huit étapes, l’apporteur, l’adéquation à la thèse, le rôle de lead, un motif de refus et une date de reprise, plus startups, investisseurs et relances datées.",
+        "intro": "Mets en place un dealflow dans mon espace de travail Customermates : des dossiers avec huit étapes, l’apporteur, l’adéquation à la thèse, le rôle de lead, un motif de refus et une date de reprise, plus startups, investisseurs et relances datées.",
         "questions": [
-          "Dans quels stades et secteurs investissez-vous, et quelle est votre taille de ticket habituelle ?",
-          "Comment les dossiers vous parviennent-ils, et qui les apporte ?",
-          "Qui décide à chaque étape, et quand refusez-vous ?",
-          "Où gardez-vous les documents juridiques et la data room ? Seul un lien est gardé ici."
+          "Dans quels stades et secteurs investissez-vous, et quelle est votre taille de ticket habituelle ?",
+          "Comment les dossiers vous parviennent-ils, et qui les apporte ?",
+          "Qui décide à chaque étape, et quand refusez-vous ?",
+          "Où gardez-vous les documents juridiques et la data room ? Seul un lien est gardé ici."
         ]
       }
     },
     "it": {
       "locale": "it",
       "name": "Dealflow per investitori",
-      "summary": "Un dealflow per un piccolo fondo o un business angel: otto fasi dall’individuazione al closing o al rifiuto, chi ha presentato ogni operazione, un motivo del rifiuto e una data per riprendere il contatto.",
-      "description": "Segui startup e investitori da sourcing, valutazione, incontri, due diligence fino al term sheet. Ogni operazione registra chi l’ha presentata, quanto aderisce alla tesi, il ruolo di lead, un link alla data room, il motivo del rifiuto e quando riguardarla. È uno strumento di relazione, non una cap table, né una data room legale, né un modello di punteggio. I pesi sono approssimativi e sono tuoi.",
+      "summary": "Un dealflow per un piccolo fondo o un business angel: otto fasi dall'individuazione al closing o al rifiuto, chi ha fatto l'introduzione per ogni operazione, un motivo del rifiuto e una data per riprendere il contatto.",
+      "description": "Segui startup e investitori dal sourcing alla valutazione, agli incontri e alla due diligence, fino al term sheet. Ogni operazione registra chi l'ha introdotta, quanto aderisce alla tesi, il ruolo di lead, un link alla data room, il motivo del rifiuto e quando riguardarla. È uno strumento di relazione, non una cap table, né una data room legale, né un modello di punteggio. I pesi sono approssimativi e sono tuoi.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2617,7 +2617,7 @@
         "people": {
           "label": "Persona",
           "pluralLabel": "Persone",
-          "description": "Fondatori, investitori, co-investitori e presentatori."
+          "description": "Fondatori, investitori, co-investitori e introduttori."
         },
         "organizations": {
           "label": "Organizzazione",
@@ -2627,7 +2627,7 @@
         "deals": {
           "label": "Operazione",
           "pluralLabel": "Operazioni",
-          "description": "Un’opportunità di investimento dal sourcing al closing o al rifiuto."
+          "description": "Un'opportunità di investimento dal sourcing al closing o al rifiuto."
         }
       },
       "fields": {
@@ -2672,7 +2672,7 @@
             "investor": "Partner investitore",
             "angel": "Business angel",
             "co_investor": "Co-investitore",
-            "introducer": "Presentatore",
+            "introducer": "Introduttore",
             "advisor": "Consulente"
           }
         },
@@ -2710,7 +2710,7 @@
           "options": {
             "startup": "Startup",
             "vc_fund": "Fondo di venture capital",
-            "angel_syndicate": "Sindacato di angel",
+            "angel_syndicate": "Sindacato di business angel",
             "corporate_vc": "Corporate venture",
             "accelerator": "Acceleratore",
             "other": "Altro"
@@ -2760,7 +2760,7 @@
           "label": "Il nostro ruolo",
           "options": {
             "lead": "Lead",
-            "follow": "Follower",
+            "follow": "Segue il lead",
             "undecided": "Da decidere"
           }
         },
@@ -2779,7 +2779,7 @@
         "deals.source": {
           "label": "Provenienza",
           "options": {
-            "warm_introduction": "Presentazione personale",
+            "warm_introduction": "Introduzione personale",
             "inbound": "Richiesta in entrata",
             "outbound": "Contatto diretto",
             "event": "Evento",
@@ -2788,11 +2788,11 @@
           }
         },
         "deals.intro_requested_on": {
-          "label": "Presentazione richiesta il",
+          "label": "Introduzione richiesta il",
           "options": {}
         },
         "deals.intro_made_on": {
-          "label": "Presentazione fatta il",
+          "label": "Introduzione fatta il",
           "options": {}
         },
         "deals.first_meeting_on": {
@@ -2832,7 +2832,7 @@
           "options": {}
         },
         "deals.data_room_url": {
-          "label": "Link della data room",
+          "label": "Link alla data room",
           "options": {}
         },
         "deals.days_to_term_sheet": {
@@ -2846,15 +2846,15 @@
         "actions.kind": {
           "label": "Tipo",
           "options": {
-            "request_intro": "Chiedere una presentazione",
+            "request_intro": "Chiedere un'introduzione",
             "send_deck": "Inviare il deck",
             "prepare_meeting": "Preparare un incontro",
-            "follow_up": "Sollecito",
+            "follow_up": "Follow-up",
             "diligence_request": "Richiesta di due diligence",
             "write_memo": "Scrivere il memo",
             "send_pass_note": "Inviare un rifiuto",
             "revisit": "Ripresa del contatto",
-            "thank_introducer": "Ringraziare o sollecitare il presentatore",
+            "thank_introducer": "Ringraziare o sollecitare l'introduttore",
             "other": "Altro"
           }
         }
@@ -2901,7 +2901,7 @@
           "title": "Attività scadute"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         },
         "deal_funnel": {
           "title": "Operazioni aperte per fase"
@@ -2930,7 +2930,7 @@
         "stage_criteria": {
           "title": "Criteri per fase",
           "sections": [
-            "Che cosa fa avanzare un’operazione alla fase successiva",
+            "Che cosa fa avanzare un'operazione alla fase successiva",
             "Chi decide in comitato"
           ]
         },
@@ -2948,15 +2948,15 @@
           "description": ""
         },
         "stale_screening": {
-          "title": "Rilanciare o rifiutare un’operazione ferma da 14 giorni in valutazione",
+          "title": "Rilanciare o rifiutare un'operazione ferma da 14 giorni in valutazione",
           "description": ""
         },
         "pass_note": {
-          "title": "Inviare un rifiuto quando un’operazione viene rifiutata",
+          "title": "Inviare un rifiuto quando un'operazione viene rifiutata",
           "description": ""
         },
         "revisit_deal": {
-          "title": "Riprendere un’operazione rifiutata alla data di ripresa",
+          "title": "Riprendere un'operazione rifiutata alla data di ripresa",
           "description": ""
         },
         "diligence_checklist": {
@@ -2964,24 +2964,24 @@
           "description": ""
         },
         "first_check_in_after_close": {
-          "title": "Fare un check-in 30 giorni dopo il closing",
+          "title": "Fare un ricontatto 30 giorni dopo il closing",
           "description": ""
         },
         "intro_nudge": {
-          "title": "Sollecitare il presentatore una settimana dopo la presentazione richiesta",
+          "title": "Sollecitare l'introduttore una settimana dopo l'introduzione richiesta",
           "description": ""
         }
       },
       "acceptanceChecks": {
         "stage_field": "Ogni operazione ha una delle otto fasi.",
         "pass_reason_field": "Ogni operazione registra perché è stata rifiutata.",
-        "board_view": "Le operazioni si aprono come bacheca per fase."
+        "board_view": "Le operazioni si aprono come board per fase."
       },
       "prompt": {
-        "intro": "Configura un dealflow nel mio spazio di lavoro Customermates: operazioni con otto fasi, chi le ha presentate, aderenza alla tesi, ruolo di lead, un motivo del rifiuto e una data di ripresa, più startup, investitori e solleciti con scadenza.",
+        "intro": "Configura un dealflow nel mio spazio di lavoro Customermates: operazioni con otto fasi, chi le ha introdotte, aderenza alla tesi, ruolo di lead, un motivo del rifiuto e una data di ripresa, più startup, investitori e solleciti con scadenza.",
         "questions": [
           "In quali fasi e settori investi e qual è la dimensione abituale del ticket?",
-          "Come ti arrivano le operazioni e chi le presenta?",
+          "Come ti arrivano le operazioni e chi le introduce?",
           "Chi decide a ogni fase e quando rifiuti?",
           "Dove tieni i documenti legali e la data room? Qui si conserva solo un link."
         ]
@@ -3019,7 +3019,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -3238,7 +3238,7 @@
             "write_memo": "Memo schrijven",
             "send_pass_note": "Afwijzing sturen",
             "revisit": "Terugkomen",
-            "thank_introducer": "Introducer bedanken of herinneren",
+            "thank_introducer": "Introducer bedanken of een herinnering sturen",
             "other": "Overig"
           }
         }
@@ -3348,11 +3348,11 @@
           "description": ""
         },
         "first_check_in_after_close": {
-          "title": "Neem 30 dagen na het sluiten contact op",
+          "title": "Neem 30 dagen na de closing contact op",
           "description": ""
         },
         "intro_nudge": {
-          "title": "Herinner de introducer een week nadat een introductie is gevraagd",
+          "title": "Stuur de introducer een herinnering een week nadat een introductie is gevraagd",
           "description": ""
         }
       },
@@ -3374,8 +3374,8 @@
     "pl": {
       "locale": "pl",
       "name": "Dealflow inwestora",
-      "summary": "Dealflow dla małego funduszu lub anioła biznesu: osiem etapów od wyszukania do zamknięcia lub odrzucenia, osoba polecająca przy każdym dealu, powód odrzucenia i data powrotu do sprawy.",
-      "description": "Prowadź startupy i inwestorów przez sourcing, wstępną ocenę, spotkania, due diligence i term sheet. Każdy deal zapisuje, kto go polecił, jak pasuje do tezy inwestycyjnej, rolę lidera, link do data roomu, powód odrzucenia i kiedy spojrzeć ponownie. To narzędzie do relacji, a nie tabela kapitałowa, prawny data room ani model punktowy. Wagi są przybliżone i Twoje.",
+      "summary": "Dealflow dla małego funduszu lub anioła biznesu: osiem etapów od wyszukania do zamknięcia lub odrzucenia, osoba polecająca przy każdym dealu, powód odrzucenia i data ponownej oceny.",
+      "description": "Prowadź startupy i inwestorów przez sourcing, wstępną ocenę, spotkania, due diligence i term sheet. Każdy deal zapisuje, kto go polecił, jak pasuje do tezy inwestycyjnej, rolę lidera, link do data roomu, powód odrzucenia i kiedy spojrzeć ponownie. To narzędzie do relacji, a nie tabela kapitałowa, prawny data room ani model punktowy. Wagi są przybliżone, a ich ustawienie należy do Ciebie.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -3413,7 +3413,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -3445,7 +3445,7 @@
           }
         },
         "people.focus_stages": {
-          "label": "Interesujące etapy",
+          "label": "Preferowane etapy",
           "options": {
             "pre_seed": "Pre-seed",
             "seed": "Seed",
@@ -3461,7 +3461,7 @@
           "label": "Relacja",
           "options": {
             "strong": "Silna",
-            "warm": "Dobra",
+            "warm": "Ciepła",
             "new": "Nowa"
           }
         },
@@ -3541,7 +3541,7 @@
           }
         },
         "deals.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "deals.source": {
@@ -3549,34 +3549,34 @@
           "options": {
             "warm_introduction": "Osobiste polecenie",
             "inbound": "Zapytanie przychodzące",
-            "outbound": "Kontakt własny",
+            "outbound": "Kontakt wychodzący",
             "event": "Wydarzenie",
             "portfolio_referral": "Polecenie z portfela",
             "co_investor": "Współinwestor"
           }
         },
         "deals.intro_requested_on": {
-          "label": "Prośba o przedstawienie dnia",
+          "label": "Data prośby o przedstawienie",
           "options": {}
         },
         "deals.intro_made_on": {
-          "label": "Przedstawienie dnia",
+          "label": "Data przedstawienia",
           "options": {}
         },
         "deals.first_meeting_on": {
-          "label": "Pierwsze spotkanie dnia",
+          "label": "Data pierwszego spotkania",
           "options": {}
         },
         "deals.decision_on": {
-          "label": "Decyzja dnia",
+          "label": "Data decyzji",
           "options": {}
         },
         "deals.term_sheet_on": {
-          "label": "Term sheet dnia",
+          "label": "Data term sheet",
           "options": {}
         },
         "deals.closed_on": {
-          "label": "Zamknięto dnia",
+          "label": "Data zamknięcia",
           "options": {}
         },
         "deals.nda_signed": {
@@ -3591,12 +3591,12 @@
             "market": "Rynek",
             "too_early": "Za wcześnie",
             "valuation": "Wycena",
-            "timing": "Termin",
+            "timing": "Nieodpowiedni moment",
             "other": "Inny"
           }
         },
         "deals.revisit_on": {
-          "label": "Powrót do sprawy dnia",
+          "label": "Data ponownej oceny",
           "options": {}
         },
         "deals.data_room_url": {
@@ -3621,7 +3621,7 @@
             "diligence_request": "Prośba w ramach due diligence",
             "write_memo": "Napisać memorandum",
             "send_pass_note": "Wysłać odmowę",
-            "revisit": "Powrót do sprawy",
+            "revisit": "Ponowna ocena",
             "thank_introducer": "Podziękować lub przypomnieć osobie polecającej",
             "other": "Inne"
           }
@@ -3684,12 +3684,12 @@
           "title": "Średnia liczba dni do term sheet"
         },
         "revisits_coming": {
-          "title": "Nadchodzące powroty do spraw"
+          "title": "Nadchodzące ponowne oceny"
         }
       },
       "knowledgePages": {
         "investment_thesis": {
-          "title": "Teza inwestycyjna i fokus",
+          "title": "Teza inwestycyjna i obszar zainteresowań",
           "sections": [
             "Etap, branża i wielkość biletu",
             "W co nie inwestujemy"
@@ -3703,7 +3703,7 @@
           ]
         },
         "pass_notes": {
-          "title": "Odmowy i zasady powrotu do spraw",
+          "title": "Odmowy i zasady ponownej oceny",
           "sections": [
             "Jak odmawiamy",
             "Kiedy patrzymy ponownie"
@@ -3746,12 +3746,12 @@
         "board_view": "Deale otwierają się jako tablica według etapów."
       },
       "prompt": {
-        "intro": "Skonfiguruj dealflow w mojej przestrzeni roboczej Customermates: deale z ośmioma etapami, osobą polecającą, dopasowaniem do tezy, rolą lidera, powodem odrzucenia i datą powrotu do sprawy, do tego startupy, inwestorzy i zadania z terminem.",
+        "intro": "Skonfiguruj dealflow w mojej przestrzeni roboczej Customermates: deale z ośmioma etapami, osobą polecającą, dopasowaniem do tezy, rolą lidera, powodem odrzucenia i datą ponownej oceny, do tego startupy, inwestorzy i zadania z terminem.",
         "questions": [
           "W jakie etapy i branże inwestujesz i jaka jest Twoja typowa wielkość biletu?",
           "Jak deale do Ciebie docierają i kto je poleca?",
           "Kto decyduje na każdym etapie i kiedy odmawiasz?",
-          "Gdzie trzymasz dokumenty prawne i data room? Tutaj zapisywany jest tylko link."
+          "Gdzie przechowujesz dokumenty prawne i data room? Tutaj zapisujemy tylko link."
         ]
       }
     },

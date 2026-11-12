@@ -1647,6 +1647,402 @@
               "notifications",
               "incomingWebhooks"
             ]
+          },
+          "variants": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "pattern": "^[A-Z]{2}$"
+            },
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "trigger": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "record_created"
+                        },
+                        "list": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "list"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "field_changed"
+                        },
+                        "field": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                        },
+                        "to": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "field"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "date_reached"
+                        },
+                        "field": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                        },
+                        "offsetDays": {
+                          "type": "integer",
+                          "minimum": -3650,
+                          "maximum": 3650
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "field",
+                        "offsetDays"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "unchanged_for"
+                        },
+                        "field": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                        },
+                        "days": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 3650
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "field",
+                        "days"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "schedule"
+                        },
+                        "every": {
+                          "type": "string",
+                          "enum": [
+                            "day",
+                            "week",
+                            "month"
+                          ]
+                        },
+                        "weekday": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 7
+                        },
+                        "list": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "every"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "form_submitted"
+                        },
+                        "form": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "form"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "webhook_received"
+                        },
+                        "source": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "source"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "condition": {
+                  "maxItems": 4,
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "operator": {
+                            "type": "string",
+                            "enum": [
+                              "in",
+                              "notIn"
+                            ]
+                          },
+                          "field": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                          },
+                          "options": {
+                            "minItems": 1,
+                            "maxItems": 20,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                            }
+                          }
+                        },
+                        "required": [
+                          "operator",
+                          "field",
+                          "options"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "operator": {
+                            "type": "string",
+                            "enum": [
+                              "empty",
+                              "notEmpty",
+                              "passed"
+                            ]
+                          },
+                          "field": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                          }
+                        },
+                        "required": [
+                          "operator",
+                          "field"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "operator": {
+                            "type": "string",
+                            "const": "olderThanDays"
+                          },
+                          "field": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                          },
+                          "days": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 3650
+                          }
+                        },
+                        "required": [
+                          "operator",
+                          "field",
+                          "days"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "action": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "create_task"
+                        },
+                        "taskKind": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                        },
+                        "assignee": {
+                          "type": "string",
+                          "enum": [
+                            "record_owner",
+                            "workspace_owner"
+                          ]
+                        },
+                        "about": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "taskKind",
+                        "assignee"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "notify"
+                        },
+                        "recipient": {
+                          "type": "string",
+                          "enum": [
+                            "record_owner",
+                            "workspace_owner"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "recipient"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "add_calendar_event"
+                        },
+                        "dateField": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "dateField"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "create_records"
+                        },
+                        "lists": {
+                          "minItems": 1,
+                          "maxItems": 4,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                          }
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "lists"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "set_dates"
+                        },
+                        "dates": {
+                          "minItems": 1,
+                          "maxItems": 4,
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                              },
+                              "offsetDays": {
+                                "type": "integer",
+                                "minimum": -3650,
+                                "maximum": 3650
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "offsetDays"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "dates"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "dueOffsetDays": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3650
+                }
+              },
+              "additionalProperties": false
+            }
           }
         },
         "required": [

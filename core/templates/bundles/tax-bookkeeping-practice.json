@@ -1322,7 +1322,7 @@
       "locale": "de",
       "name": "Steuerkanzlei",
       "summary": "Ein Kanzleiarbeitsplatz mit zwei Abläufen: ein Mandat gewinnen, mit Identifizierung und Mandatsvertrag, und die laufende Arbeit je Mandant erledigen, mit einem Fristenregister, das eine zweite Person verifiziert.",
-      "description": "Eine Steuer- oder Buchhaltungskanzlei an einem Ort führen: Mandate von der Anfrage bis zum aktiven Mandat mit einer Identifizierung nach Geldwäschegesetz dazwischen, wiederkehrende Vorgänge je Mandant und Zeitraum mit dem Status Wartet auf Unterlagen und ein Fristenregister mit Vorfrist und der Person, die jede Frist verifiziert hat. Die Vorlage ist die Ebene für Beziehung, Fristennachweis und Nachfassen neben Ihrer Kanzleisoftware. Sie berechnet keine gesetzlichen Fristen, reicht nichts ein, führt keine Bücher, rechnet keine Löhne und keine Zeit ab und speichert weder Steuer-IDs noch Ausweiskopien.",
+      "description": "Eine Steuerkanzlei oder ein Buchhaltungsbüro an einem Ort führen: Mandate von der Anfrage bis zum aktiven Mandat mit einer Identifizierung nach Geldwäschegesetz dazwischen, wiederkehrende Vorgänge je Mandant und Zeitraum mit dem Status Wartet auf Unterlagen und ein Fristenregister mit Vorfrist und der Person, die jede Frist verifiziert hat. Die Vorlage ist die Ebene für Beziehung, Fristennachweis und Nachfassen neben Ihrer Kanzleisoftware. Sie berechnet keine gesetzlichen Fristen, reicht nichts ein, führt keine Bücher, rechnet keine Löhne und keine Zeit ab und speichert weder Steuer-IDs noch Ausweiskopien.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1332,12 +1332,12 @@
         "contacts": {
           "label": "Ansprechpartner",
           "pluralLabel": "Ansprechpartner",
-          "description": "Personen bei Ihren Mandanten, die Unterlagen schicken und unterschreiben."
+          "description": "Personen bei deinen Mandanten, die Unterlagen schicken und unterschreiben."
         },
         "clients": {
           "label": "Mandant",
           "pluralLabel": "Mandanten",
-          "description": "Privatpersonen, Einzelunternehmer, Gesellschaften und Vereine, für die Sie tätig sind."
+          "description": "Privatpersonen, Einzelunternehmer, Gesellschaften und Vereine, für die du tätig bist."
         },
         "mandates": {
           "label": "Mandat",
@@ -1451,7 +1451,7 @@
           "label": "Vergütung",
           "options": {
             "fixed_monthly": "Monatspauschale",
-            "hourly": "Nach Zeit",
+            "hourly": "Nach Zeitaufwand",
             "per_filing": "Je Erklärung",
             "value_based": "Wertbasiert"
           }
@@ -1461,7 +1461,7 @@
           "options": {}
         },
         "mandates.lost_reason": {
-          "label": "Grund",
+          "label": "Verlustgrund",
           "options": {
             "capacity": "Keine Kapazität",
             "risk_declined": "Wegen Risiko abgelehnt",
@@ -1520,7 +1520,7 @@
           "options": {
             "vat_return": "Umsatzsteuer-Voranmeldung",
             "vat_payment": "Umsatzsteuerzahlung",
-            "payroll_report": "Lohnmeldung",
+            "payroll_report": "Lohnsteuer-Anmeldung",
             "annual_accounts": "Jahresabschluss",
             "tax_return": "Steuererklärung",
             "appeal": "Einspruchsfrist",
@@ -1746,10 +1746,10 @@
       "prompt": {
         "intro": "Richte in meinem Customermates-Workspace eine Steuerkanzlei ein: Mandate von der Anfrage bis aktiv mit Identifizierung, wiederkehrende Vorgänge je Mandant und Zeitraum, ein Fristenregister mit Vorfrist und Verifizierung und terminierte Folgeaufgaben. Berechne niemals gesetzliche Fristen und speichere keine Ausweiskopien.",
         "questions": [
-          "Welche Leistungen bieten Sie an, und welche wiederkehrenden Vorgänge führen Sie je Mandant?",
-          "In welchem Land arbeiten Sie, und welche Fristen verfolgen Sie?",
+          "Welche Leistungen bietest du an, und welche wiederkehrenden Vorgänge führst du je Mandant?",
+          "In welchem Land arbeitest du, und welche Fristen verfolgst du?",
           "Wer bereitet vor, wer prüft, und wer verifiziert eine Frist?",
-          "Wie identifizieren Sie neue Mandanten, und wie oft prüfen Sie deren Risikoeinstufung?"
+          "Wie identifizierst du neue Mandanten, und wie oft prüfst du deren Risikoeinstufung?"
         ]
       }
     },
@@ -2191,8 +2191,8 @@
     "es": {
       "locale": "es",
       "name": "Despacho fiscal y contable",
-      "summary": "Un puesto de trabajo de despacho con dos flujos: conseguir un encargo, con identificación PBC/FT y hoja de encargo, y hacer el trabajo recurrente por cliente, con un calendario de plazos verificado por una segunda persona.",
-      "description": "Lleve un despacho fiscal o contable en un solo lugar: encargos de la consulta al encargo activo con un paso de identificación de prevención del blanqueo en medio, expedientes recurrentes por cliente y periodo con el estado a la espera de documentación, y un calendario de plazos con aviso previo y la persona que verificó cada fecha. La plantilla es la capa de relación, prueba de plazos y seguimiento junto a su programa de despacho. No calcula fechas legales, no presenta declaraciones, no lleva la contabilidad, no hace nóminas ni factura el tiempo y no guarda NIF ni copias de documentos de identidad.",
+      "summary": "Un espacio de trabajo para un despacho con dos flujos: conseguir un encargo, con identificación PBC/FT y hoja de encargo, y hacer el trabajo recurrente por cliente, con un calendario de plazos verificado por una segunda persona.",
+      "description": "Lleva un despacho fiscal o contable en un solo lugar: encargos de la consulta al encargo activo con un paso de identificación de prevención del blanqueo en medio, expedientes recurrentes por cliente y periodo con el estado a la espera de documentación, y un calendario de plazos con aviso previo y la persona que verificó cada fecha. La plantilla es la capa de relación, constancia de plazos y seguimiento junto a tu programa de despacho. No calcula fechas legales, no presenta declaraciones, no lleva la contabilidad, no hace nóminas ni factura el tiempo y no guarda NIF ni copias de documentos de identidad.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -2202,12 +2202,12 @@
         "contacts": {
           "label": "Contacto",
           "pluralLabel": "Contactos",
-          "description": "Las personas de sus clientes que envían documentación y firman."
+          "description": "Las personas de tus clientes que envían documentación y firman."
         },
         "clients": {
           "label": "Cliente",
           "pluralLabel": "Clientes",
-          "description": "Particulares, autónomos, sociedades y asociaciones para los que trabaja."
+          "description": "Particulares, autónomos, sociedades y asociaciones para los que trabajas."
         },
         "mandates": {
           "label": "Encargo",
@@ -2327,7 +2327,7 @@
           }
         },
         "mandates.next_step_due": {
-          "label": "Siguiente paso antes de",
+          "label": "Fecha del siguiente paso",
           "options": {}
         },
         "mandates.lost_reason": {
@@ -2390,7 +2390,7 @@
           "options": {
             "vat_return": "Declaración del IVA",
             "vat_payment": "Pago del IVA",
-            "payroll_report": "Declaración de nóminas",
+            "payroll_report": "Retenciones de nóminas",
             "annual_accounts": "Cuentas anuales",
             "tax_return": "Declaración de impuestos",
             "appeal": "Recurso",
@@ -2421,7 +2421,7 @@
             "open": "Abierto",
             "in_progress": "En curso",
             "filed": "Presentado",
-            "extended": "Ampliado",
+            "extended": "Prorrogado",
             "cancelled": "Cancelado"
           }
         },
@@ -2531,7 +2531,7 @@
           "title": "Cómo funciona el despacho",
           "sections": [
             "Los dos flujos: conseguir un encargo y hacer el trabajo",
-            "Quién responsable de cada fase y la regla de una tarea con fecha por expediente abierto"
+            "Quién es responsable de cada fase y la regla de una tarea con fecha por expediente abierto"
           ]
         },
         "onboarding_and_aml": {
@@ -2545,7 +2545,7 @@
           "title": "Control de plazos",
           "sections": [
             "Cómo se introduce una fecha con su fuente y la verifica una segunda persona",
-            "Revisión del aviso previo y decisión sobre una ampliación"
+            "Revisión del aviso previo y decisión sobre una prórroga"
           ]
         },
         "document_checklists": {
@@ -2558,7 +2558,7 @@
       },
       "rules": {
         "proposal_follow_up": {
-          "title": "Dar seguimiento a un presupuesto 3 días después de enviarlo",
+          "title": "Hacer seguimiento de un presupuesto 3 días después de enviarlo",
           "description": ""
         },
         "aml_identification": {
@@ -2570,7 +2570,7 @@
           "description": ""
         },
         "recontact_not_going_ahead": {
-          "title": "Fijar el siguiente paso a 90 días cuando un encargo no prospera",
+          "title": "Fijar el siguiente paso dentro de 90 días cuando un encargo no prospera",
           "description": ""
         },
         "documents_chase": {
@@ -2614,20 +2614,20 @@
         "deadline_control_page": "La base de conocimiento contiene una página sobre el control de plazos."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de Customermates un despacho fiscal y contable: encargos de la consulta a activo con un paso de identificación, expedientes recurrentes por cliente y periodo, un calendario de plazos con aviso previo y verificador, y seguimientos con fecha. No calcules nunca fechas legales y no guardes copias de documentos de identidad.",
+        "intro": "Configura en mi espacio de trabajo de Customermates un despacho fiscal y contable: encargos de la consulta a activo con un paso de identificación, expedientes recurrentes por cliente y periodo, un calendario de plazos con aviso previo y verificador, y seguimientos con fecha. No calcules nunca fechas legales y no guardes copias de documentos de identidad.",
         "questions": [
-          "¿Qué servicios ofrece y qué expedientes recurrentes lleva por cliente?",
-          "¿En qué país trabaja y qué plazos controla?",
+          "¿Qué servicios ofreces y qué expedientes recurrentes llevas por cliente?",
+          "¿En qué país trabajas y qué plazos controlas?",
           "¿Quién prepara, quién revisa y quién verifica un plazo?",
-          "¿Cómo identifica a los clientes nuevos y cada cuánto revisa su nivel de riesgo?"
+          "¿Cómo identificas a los clientes nuevos y cada cuánto revisas su nivel de riesgo?"
         ]
       }
     },
     "fr": {
       "locale": "fr",
-      "name": "Cabinet d'expertise comptable",
-      "summary": "Un poste de travail de cabinet avec deux flux : obtenir une mission, avec vigilance LCB-FT et lettre de mission, et faire le travail récurrent par client, avec un registre d'échéances vérifié par une seconde personne.",
-      "description": "Pilotez un cabinet d'expertise comptable au même endroit : missions de la demande à la mission active avec une étape de vigilance LCB-FT entre les deux, dossiers récurrents par client et période avec le statut en attente de pièces, et registre d'échéances avec une pré-échéance et la personne qui a vérifié chaque date. Le modèle est la couche relation, preuve des échéances et relances à côté de votre logiciel de cabinet. Il ne calcule pas les dates légales, ne dépose rien, ne tient pas la comptabilité, ne fait pas la paie ni la facturation du temps, et ne conserve ni numéros fiscaux ni copies de pièces d'identité.",
+      "name": "Cabinet d’expertise comptable",
+      "summary": "Un outil de cabinet avec deux flux : obtenir une mission, avec vigilance LCB-FT et lettre de mission, et faire le travail récurrent par client, avec un registre d’échéances vérifié par une seconde personne.",
+      "description": "Pilotez un cabinet d’expertise comptable au même endroit : missions de la demande à la mission active avec une étape de vigilance LCB-FT entre les deux, dossiers récurrents par client et période avec le statut en attente de pièces, et registre d’échéances avec une pré-échéance et la personne qui a vérifié chaque date. C’est la couche relation, preuve des échéances et relances, à côté de votre logiciel de cabinet. Il ne calcule pas les dates légales, ne dépose rien, ne tient pas la comptabilité, ne fait pas la paie ni la facturation du temps, et ne conserve ni numéros fiscaux ni copies de pièces d’identité.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2647,7 +2647,7 @@
         "mandates": {
           "label": "Mission",
           "pluralLabel": "Missions",
-          "description": "Un engagement de la demande à actif ou refusé."
+          "description": "Une mission de la demande à active ou refusée."
         },
         "jobs": {
           "label": "Dossier de travaux",
@@ -2657,7 +2657,7 @@
         "deadlines": {
           "label": "Échéance",
           "pluralLabel": "Échéances",
-          "description": "Une date légale ou administrative avec sa source, une pré-échéance et la personne qui l'a vérifiée."
+          "description": "Une date légale ou administrative avec sa source, une pré-échéance et la personne qui l’a vérifiée."
         }
       },
       "fields": {
@@ -2736,8 +2736,8 @@
             "proposal_sent": "Proposition",
             "aml_check": "Vigilance LCB-FT",
             "engagement_letter_out": "Lettre de mission envoyée",
-            "active": "Actif",
-            "declined": "Refusé",
+            "active": "Active",
+            "declined": "Refusée",
             "not_going_ahead": "Sans suite"
           }
         },
@@ -2768,11 +2768,11 @@
         "mandates.lost_reason": {
           "label": "Motif",
           "options": {
-            "capacity": "Pas de capacité",
-            "risk_declined": "Refusé pour le risque",
+            "capacity": "Pas de disponibilité",
+            "risk_declined": "Refusée pour le risque",
             "scope_mismatch": "Périmètre inadapté",
             "price": "Prix",
-            "chose_other_advisor": "A choisi un autre conseil",
+            "chose_other_advisor": "A choisi un autre cabinet",
             "no_response": "Sans réponse"
           }
         },
@@ -2783,9 +2783,9 @@
             "waiting_for_documents": "En attente de pièces",
             "in_preparation": "En préparation",
             "in_review": "En revue",
-            "client_approval": "En attente de l'accord du client",
+            "client_approval": "En attente de l’accord du client",
             "submitted": "Déposé",
-            "waiting_for_authority": "En attente de l'administration",
+            "waiting_for_authority": "En attente de l’administration",
             "done": "Terminé"
           }
         },
@@ -2797,7 +2797,7 @@
             "vat_return": "Déclaration de TVA",
             "annual_accounts": "Comptes annuels",
             "tax_return": "Déclaration fiscale",
-            "year_end": "Clôture d'exercice"
+            "year_end": "Clôture d’exercice"
           }
         },
         "jobs.period": {
@@ -2817,7 +2817,7 @@
           "options": {}
         },
         "jobs.notice_received_on": {
-          "label": "Avis de l'administration reçu le",
+          "label": "Avis de l’administration reçu le",
           "options": {}
         },
         "deadlines.kind": {
@@ -2865,7 +2865,7 @@
           "options": {
             "request_documents": "Demander des pièces",
             "chase_documents": "Relancer pour les pièces",
-            "chase_approval": "Relancer pour l'accord ou la signature",
+            "chase_approval": "Relancer pour l’accord ou la signature",
             "review": "Relire",
             "reply": "Répondre",
             "aml": "Identification et niveau de risque",
@@ -2952,7 +2952,7 @@
           "title": "Dossiers en attente de pièces"
         },
         "jobs_waiting_on_client": {
-          "title": "Dossiers en attente de l'accord du client"
+          "title": "Dossiers en attente de l’accord du client"
         },
         "mandates_funnel": {
           "title": "Missions par étape"
@@ -2965,15 +2965,15 @@
         "operating_guide": {
           "title": "Comment fonctionne le cabinet",
           "sections": [
-            "Les deux flux : obtenir une mission et faire le travail",
-            "Qui est responsable de quelle étape et la règle d'une action datée par dossier ouvert"
+            "Les deux flux : obtenir une mission et faire le travail",
+            "Qui est responsable de quelle étape et la règle d’une action datée par dossier ouvert"
           ]
         },
         "onboarding_and_aml": {
           "title": "Entrée en relation et vigilance LCB-FT",
           "sections": [
             "Identifier le client et le bénéficiaire effectif, niveau de risque",
-            "Liste de contrôle de la lettre de mission (aucune copie de pièce d'identité n'est conservée ici)"
+            "Liste de contrôle de la lettre de mission (aucune copie de pièce d’identité n’est conservée ici)"
           ]
         },
         "deadline_control": {
@@ -2997,7 +2997,7 @@
           "description": ""
         },
         "aml_identification": {
-          "title": "Identifier le client sous 2 jours quand une mission atteint l'étape de vigilance",
+          "title": "Identifier le client sous 2 jours quand une mission atteint l’étape de vigilance",
           "description": ""
         },
         "onboarding_set": {
@@ -3017,19 +3017,19 @@
           "description": ""
         },
         "pre_deadline_check": {
-          "title": "Prévenir le responsable à la pré-échéance d'une échéance ouverte",
+          "title": "Prévenir le responsable à la pré-échéance d’une échéance ouverte",
           "description": ""
         },
         "due_date_escalation": {
-          "title": "Prévenir l'associé 2 jours avant une échéance ouverte",
+          "title": "Prévenir l’associé 2 jours avant une échéance ouverte",
           "description": ""
         },
         "approval_chase": {
-          "title": "Relancer l'accord du client après 5 jours d'attente",
+          "title": "Relancer l’accord du client après 5 jours d’attente",
           "description": ""
         },
         "notice_check": {
-          "title": "Examiner un avis de l'administration dans les 3 jours suivant sa réception",
+          "title": "Examiner un avis de l’administration dans les 3 jours suivant sa réception",
           "description": ""
         },
         "aml_review": {
@@ -3045,24 +3045,24 @@
         "mandate_stage_field": "Chaque mission a une étape.",
         "job_status_field": "Chaque dossier a un statut, y compris en attente de pièces.",
         "deadline_due_field": "Chaque échéance indique sa date.",
-        "deadline_verifier_field": "Chaque échéance indique qui l'a vérifiée.",
+        "deadline_verifier_field": "Chaque échéance indique qui l’a vérifiée.",
         "deadline_control_page": "La base de connaissances contient une page sur le contrôle des échéances."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace Customermates un cabinet d'expertise comptable : missions de la demande à actif avec une étape de vigilance, dossiers récurrents par client et période, registre d'échéances avec pré-échéance et vérificateur, et relances datées. Ne calcule jamais de dates légales et ne stocke aucune copie de pièce d'identité.",
+        "intro": "Mets en place dans mon espace de travail Customermates un cabinet d’expertise comptable : missions de la demande à active avec une étape de vigilance, dossiers récurrents par client et période, registre d’échéances avec pré-échéance et vérificateur, et relances datées. Ne calcule jamais de dates légales et ne stocke aucune copie de pièce d’identité.",
         "questions": [
-          "Quelles prestations proposez-vous, et quels dossiers récurrents tenez-vous par client ?",
-          "Dans quel pays exercez-vous, et quelles échéances suivez-vous ?",
-          "Qui prépare, qui relit, et qui vérifie une échéance ?",
-          "Comment identifiez-vous les nouveaux clients, et à quelle fréquence revoyez-vous leur niveau de risque ?"
+          "Quelles prestations proposez-vous, et quels dossiers récurrents tenez-vous par client ?",
+          "Dans quel pays exercez-vous, et quelles échéances suivez-vous ?",
+          "Qui prépare, qui relit, et qui vérifie une échéance ?",
+          "Comment identifiez-vous les nouveaux clients, et à quelle fréquence revoyez-vous leur niveau de risque ?"
         ]
       }
     },
     "it": {
       "locale": "it",
       "name": "Studio commercialista",
-      "summary": "Una postazione di studio con due flussi: acquisire un incarico, con adeguata verifica e lettera di incarico, e svolgere il lavoro ricorrente per cliente, con uno scadenzario verificato da una seconda persona.",
-      "description": "Gestisci uno studio di commercialisti in un unico posto: incarichi dalla richiesta all'incarico attivo con un passaggio di adeguata verifica antiriciclaggio in mezzo, pratiche ricorrenti per cliente e periodo con lo stato in attesa di documenti, e uno scadenzario con una prescadenza e la persona che ha verificato ogni data. Il modello è lo strato di relazione, prova delle scadenze e solleciti accanto al tuo software di studio. Non calcola scadenze di legge, non invia dichiarazioni, non tiene la contabilità, non elabora paghe né fattura il tempo e non conserva codici fiscali né copie dei documenti d'identità.",
+      "summary": "Uno strumento per lo studio con due flussi: acquisire un incarico, con adeguata verifica e lettera di incarico, e svolgere il lavoro ricorrente per cliente, con uno scadenzario verificato da una seconda persona.",
+      "description": "Gestisci uno studio di commercialisti in un unico posto: incarichi dalla richiesta all'incarico attivo con un passaggio di adeguata verifica antiriciclaggio in mezzo, pratiche ricorrenti per cliente e periodo con lo stato in attesa di documenti, e uno scadenzario con una data di preavviso e la persona che ha verificato ogni data. È il livello di relazione, prova delle scadenze e solleciti accanto al tuo software di studio. Non calcola scadenze di legge, non invia dichiarazioni, non tiene la contabilità, non elabora paghe né fattura il tempo e non conserva codici fiscali né copie dei documenti d'identità.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -3092,7 +3092,7 @@
         "deadlines": {
           "label": "Scadenza",
           "pluralLabel": "Scadenze",
-          "description": "Una data di legge o dell'amministrazione con la sua fonte, una prescadenza e la persona che l'ha verificata."
+          "description": "Una data di legge o dell'amministrazione con la sua fonte, una data di preavviso e la persona che l'ha verificata."
         }
       },
       "fields": {
@@ -3146,7 +3146,7 @@
           }
         },
         "clients.authorisation_on": {
-          "label": "Delega agli atti dal",
+          "label": "Delega in archivio dal",
           "options": {}
         },
         "clients.aml_risk": {
@@ -3203,7 +3203,7 @@
         "mandates.lost_reason": {
           "label": "Motivo",
           "options": {
-            "capacity": "Nessuna capacità",
+            "capacity": "Nessuna disponibilità",
             "risk_declined": "Rifiutato per rischio",
             "scope_mismatch": "Ambito non adatto",
             "price": "Prezzo",
@@ -3218,7 +3218,7 @@
             "waiting_for_documents": "In attesa di documenti",
             "in_preparation": "In lavorazione",
             "in_review": "In revisione",
-            "client_approval": "In attesa del cliente",
+            "client_approval": "In attesa dell'approvazione del cliente",
             "submitted": "Inviata",
             "waiting_for_authority": "In attesa dell'amministrazione",
             "done": "Completata"
@@ -3248,7 +3248,7 @@
           "options": {}
         },
         "jobs.reviewer": {
-          "label": "Revisore",
+          "label": "Responsabile del controllo",
           "options": {}
         },
         "jobs.notice_received_on": {
@@ -3274,7 +3274,7 @@
           "options": {}
         },
         "deadlines.pre_deadline": {
-          "label": "Prescadenza",
+          "label": "Data di preavviso",
           "options": {}
         },
         "deadlines.source_ref": {
@@ -3301,7 +3301,7 @@
             "request_documents": "Richiedere documenti",
             "chase_documents": "Sollecitare i documenti",
             "chase_approval": "Sollecitare approvazione o firma",
-            "review": "Revisionare",
+            "review": "Rivedere",
             "reply": "Rispondere",
             "aml": "Identificazione e profilo di rischio",
             "filing": "Invio",
@@ -3372,7 +3372,7 @@
           "title": "Attività scadute"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         },
         "deadlines_coming": {
           "title": "Scadenze in arrivo"
@@ -3387,7 +3387,7 @@
           "title": "Pratiche in attesa di documenti"
         },
         "jobs_waiting_on_client": {
-          "title": "Pratiche in attesa del cliente"
+          "title": "Pratiche in attesa dell'approvazione del cliente"
         },
         "mandates_funnel": {
           "title": "Incarichi per fase"
@@ -3415,13 +3415,13 @@
           "title": "Controllo delle scadenze",
           "sections": [
             "Come si inserisce una data con la sua fonte e la si fa verificare da una seconda persona",
-            "Controllo della prescadenza e decisione sulla proroga"
+            "Controllo della data di preavviso e decisione sulla proroga"
           ]
         },
         "document_checklists": {
           "title": "Richieste di documenti per servizio",
           "sections": [
-            "Che cosa chiediamo per ogni servizio e entro quando",
+            "Che cosa chiediamo per ogni servizio e per quando",
             "Solleciti e che cosa fare quando mancano documenti"
           ]
         }
@@ -3452,11 +3452,11 @@
           "description": ""
         },
         "pre_deadline_check": {
-          "title": "Avvisare il responsabile alla prescadenza di una scadenza aperta",
+          "title": "Avvisare il responsabile alla data di preavviso di una scadenza aperta",
           "description": ""
         },
         "due_date_escalation": {
-          "title": "Avvisare il referente 2 giorni prima di una scadenza aperta",
+          "title": "Avvisare il titolare dello studio 2 giorni prima di una scadenza aperta",
           "description": ""
         },
         "approval_chase": {
@@ -3484,12 +3484,12 @@
         "deadline_control_page": "La base di conoscenza contiene una pagina sul controllo delle scadenze."
       },
       "prompt": {
-        "intro": "Imposta nel mio workspace Customermates uno studio di commercialisti: incarichi dalla richiesta ad attivo con una fase di adeguata verifica, pratiche ricorrenti per cliente e periodo, uno scadenzario con prescadenza e verificatore e solleciti con data. Non calcolare mai scadenze di legge e non conservare copie dei documenti d'identità.",
+        "intro": "Imposta nel mio spazio di lavoro Customermates uno studio di commercialisti: incarichi dalla richiesta ad attivo con una fase di adeguata verifica, pratiche ricorrenti per cliente e periodo, uno scadenzario con data di preavviso e verificatore e solleciti con data. Non calcolare mai scadenze di legge e non conservare copie dei documenti d'identità.",
         "questions": [
-          "Quali servizi offrite e quali pratiche ricorrenti seguite per cliente?",
-          "In quale Paese operate e quali scadenze monitorate?",
-          "Chi prepara, chi revisiona e chi verifica una scadenza?",
-          "Come identificate i nuovi clienti e ogni quanto rivedete il loro profilo di rischio?"
+          "Quali servizi offri e quali pratiche ricorrenti segui per cliente?",
+          "In quale Paese operi e quali scadenze monitori?",
+          "Chi prepara, chi rivede e chi verifica una scadenza?",
+          "Come identifichi i nuovi clienti e ogni quanto rivedi il loro profilo di rischio?"
         ]
       }
     },
@@ -3497,7 +3497,7 @@
       "locale": "nl",
       "name": "Boekhoud- en belastingkantoor",
       "summary": "Een kantoorwerkplek met twee stromen: een opdracht binnenhalen, met cliëntenonderzoek en opdrachtbevestiging, en het terugkerende werk per klant doen, met een termijnenregister dat een tweede persoon controleert.",
-      "description": "Voer een boekhoud- of belastingkantoor op één plek: opdrachten van aanvraag tot actieve opdracht met een cliëntenonderzoek volgens de Wwft ertussen, terugkerende dossiers per klant en periode met de status wacht op documenten, en een termijnenregister met een voortermijn en de persoon die elke datum heeft gecontroleerd. Het is de laag voor relatie, bewijs van termijnen en opvolging naast uw kantoorsoftware. Het berekent geen wettelijke data, dient niets in, voert geen administratie, doet geen loonadministratie of tijdfacturering en bewaart geen BSN's of kopieën van identiteitsbewijzen.",
+      "description": "Beheer een boekhoud- of belastingkantoor op één plek: opdrachten van aanvraag tot actieve opdracht met een cliëntenonderzoek volgens de Wwft ertussen, terugkerende dossiers per klant en periode met de status wacht op documenten, en een termijnenregister met een voortermijn en de persoon die elke datum heeft gecontroleerd. Het is de laag voor relatie, bewijs van termijnen en opvolging naast je kantoorsoftware. Het berekent geen wettelijke data, dient niets in, voert geen administratie, doet geen loonadministratie of tijdfacturering en bewaart geen BSN's of kopieën van identiteitsbewijzen.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -3507,12 +3507,12 @@
         "contacts": {
           "label": "Contactpersoon",
           "pluralLabel": "Contactpersonen",
-          "description": "De mensen bij uw klanten die documenten sturen en tekenen."
+          "description": "De mensen bij je klanten die documenten sturen en tekenen."
         },
         "clients": {
           "label": "Klant",
           "pluralLabel": "Klanten",
-          "description": "Particulieren, eenmanszaken, bedrijven en verenigingen voor wie u werkt."
+          "description": "Particulieren, eenmanszaken, bedrijven en verenigingen voor wie je werkt."
         },
         "mandates": {
           "label": "Opdracht",
@@ -3535,7 +3535,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -3632,11 +3632,11 @@
           }
         },
         "mandates.next_step_due": {
-          "label": "Volgende stap voor",
+          "label": "Volgende stap uiterlijk op",
           "options": {}
         },
         "mandates.lost_reason": {
-          "label": "Reden",
+          "label": "Reden van verlies",
           "options": {
             "capacity": "Geen capaciteit",
             "risk_declined": "Afgewezen wegens risico",
@@ -3675,7 +3675,7 @@
           "options": {}
         },
         "jobs.documents_due": {
-          "label": "Documenten voor",
+          "label": "Documenten uiterlijk op",
           "options": {}
         },
         "jobs.internal_due": {
@@ -3687,7 +3687,7 @@
           "options": {}
         },
         "jobs.notice_received_on": {
-          "label": "Bericht van de overheid ontvangen op",
+          "label": "Aanslag of beschikking ontvangen op",
           "options": {}
         },
         "deadlines.kind": {
@@ -3698,7 +3698,7 @@
             "payroll_report": "Loonaangifte",
             "annual_accounts": "Jaarrekening",
             "tax_return": "Belastingaangifte",
-            "appeal": "Bezwaar",
+            "appeal": "Bezwaartermijn",
             "payment": "Betaling",
             "aml_review": "Risicobeoordeling",
             "other": "Overig"
@@ -3734,8 +3734,8 @@
           "label": "Soort",
           "options": {
             "request_documents": "Documenten opvragen",
-            "chase_documents": "Documenten nabellen",
-            "chase_approval": "Akkoord of handtekening nabellen",
+            "chase_documents": "Documenten opnieuw opvragen",
+            "chase_approval": "Akkoord of handtekening opvolgen",
             "review": "Controleren",
             "reply": "Reageren",
             "aml": "Identificatie en risicoclassificatie",
@@ -3763,11 +3763,11 @@
         },
         "action_job": {
           "sourceLabel": "Dossier",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         },
         "action_client": {
           "sourceLabel": "Klant",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         }
       },
       "views": {
@@ -3836,7 +3836,7 @@
           "title": "Hoe het kantoor draait",
           "sections": [
             "De twee stromen: een opdracht binnenhalen en het werk doen",
-            "Wie welke fase bezit en de regel van één Actie met datum per open dossier"
+            "Wie voor welke fase verantwoordelijk is en de regel van één actie met datum per open dossier"
           ]
         },
         "onboarding_and_aml": {
@@ -3863,51 +3863,51 @@
       },
       "rules": {
         "proposal_follow_up": {
-          "title": "Een offerte 3 dagen na verzending opvolgen",
+          "title": "Volg een offerte 3 dagen na verzending op",
           "description": ""
         },
         "aml_identification": {
-          "title": "Binnen 2 dagen identificeren als een opdracht de onderzoeksfase bereikt",
+          "title": "Identificeer binnen 2 dagen als een opdracht de fase Cliëntenonderzoek bereikt",
           "description": ""
         },
         "onboarding_set": {
-          "title": "De machtiging en de eerste documenten opvragen als een opdracht actief wordt",
+          "title": "Vraag de machtiging en de eerste documenten op als een opdracht actief wordt",
           "description": ""
         },
         "recontact_not_going_ahead": {
-          "title": "De volgende stap op 90 dagen zetten als een opdracht niet doorgaat",
+          "title": "Zet de volgende stap op 90 dagen als een opdracht niet doorgaat",
           "description": ""
         },
         "documents_chase": {
-          "title": "De documenten 3 dagen voor de afgesproken datum nabellen",
+          "title": "Vraag de documenten 3 dagen voor de afgesproken datum opnieuw op",
           "description": ""
         },
         "documents_overdue_notice": {
-          "title": "De verantwoordelijke waarschuwen als documenten verschuldigd zijn en nog ontbreken",
+          "title": "Waarschuw de verantwoordelijke als documenten er al moeten zijn en nog ontbreken",
           "description": ""
         },
         "pre_deadline_check": {
-          "title": "De verantwoordelijke waarschuwen op de voortermijn van een open termijn",
+          "title": "Waarschuw de verantwoordelijke op de voortermijn van een open termijn",
           "description": ""
         },
         "due_date_escalation": {
-          "title": "De teamleider 2 dagen voor een open termijn waarschuwen",
+          "title": "Waarschuw de teamleider 2 dagen voor een open termijn",
           "description": ""
         },
         "approval_chase": {
-          "title": "Het akkoord van de klant na 5 dagen wachten nabellen",
+          "title": "Volg het akkoord van de klant na 5 dagen wachten op",
           "description": ""
         },
         "notice_check": {
-          "title": "Een bericht van de overheid binnen 3 dagen na ontvangst beoordelen",
+          "title": "Beoordeel een aanslag of beschikking binnen 3 dagen na ontvangst",
           "description": ""
         },
         "aml_review": {
-          "title": "De risicoclassificatie herzien als de volgende beoordelingsdatum is bereikt",
+          "title": "Herzie de risicoclassificatie als de volgende beoordelingsdatum is bereikt",
           "description": ""
         },
         "monthly_close_jobs": {
-          "title": "Aan het begin van elke maand de maanddossiers aanmaken",
+          "title": "Maak aan het begin van elke maand de maanddossiers aan",
           "description": ""
         }
       },
@@ -3919,20 +3919,20 @@
         "deadline_control_page": "De kennisbank bevat een pagina over termijnbewaking."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-workspace een boekhoud- en belastingkantoor in: opdrachten van aanvraag tot actief met een cliëntenonderzoek, terugkerende dossiers per klant en periode, een termijnenregister met voortermijn en controleur, en opvolging met datum. Bereken nooit wettelijke data en bewaar geen kopieën van identiteitsbewijzen.",
+        "intro": "Richt in mijn Customermates-werkruimte een boekhoud- en belastingkantoor in: opdrachten van aanvraag tot actief met een cliëntenonderzoek, terugkerende dossiers per klant en periode, een termijnenregister met voortermijn en controleur, en opvolging met datum. Bereken nooit wettelijke data en bewaar geen kopieën van identiteitsbewijzen.",
         "questions": [
-          "Welke diensten biedt u aan en welke terugkerende dossiers voert u per klant?",
-          "In welk land werkt u en welke termijnen bewaakt u?",
-          "Wie bereidt voor, wie controleert en wie controleert een termijn?",
-          "Hoe identificeert u nieuwe klanten en hoe vaak herziet u hun risicoclassificatie?"
+          "Welke diensten bied je aan en welke terugkerende dossiers voer je per klant?",
+          "In welk land werk je en welke termijnen bewaak je?",
+          "Wie bereidt voor, wie beoordeelt en wie controleert een termijn?",
+          "Hoe identificeer je nieuwe klanten en hoe vaak herzie je hun risicoclassificatie?"
         ]
       }
     },
     "pl": {
       "locale": "pl",
       "name": "Biuro rachunkowe",
-      "summary": "Stanowisko pracy biura z dwoma obiegami: zdobycie klienta, z weryfikacją AML i umową, oraz stała praca dla klienta, z rejestrem terminów sprawdzanym przez drugą osobę.",
-      "description": "Prowadź biuro rachunkowe w jednym miejscu: umowy od zapytania do aktywnej z weryfikacją klienta w przepisach o przeciwdziałaniu praniu pieniędzy po drodze, powtarzalne rozliczenia na klienta i okres ze statusem oczekiwania na dokumenty oraz rejestr terminów z terminem wstępnym i osobą, która sprawdziła każdą datę. Szablon to warstwa relacji, dowodu terminów i przypomnień obok Twojego programu księgowego. Nie wylicza terminów ustawowych, nie wysyła deklaracji, nie prowadzi ksiąg, nie nalicza płac ani czasu pracy i nie przechowuje numerów PESEL ani kopii dowodów osobistych.",
+      "summary": "Narzędzie dla biura rachunkowego z dwoma obiegami: pozyskanie klienta, z weryfikacją AML i umową, oraz stała obsługa klienta, z rejestrem terminów sprawdzanym przez drugą osobę.",
+      "description": "Prowadź biuro rachunkowe w jednym miejscu: umowy od zapytania do aktywnej współpracy, z weryfikacją klienta zgodnie z przepisami o przeciwdziałaniu praniu pieniędzy po drodze, powtarzalne rozliczenia na klienta i okres ze statusem oczekiwania na dokumenty oraz rejestr terminów z terminem wstępnym i osobą, która sprawdziła każdą datę. Szablon to warstwa relacji, dowodu terminów i przypomnień obok Twojego programu księgowego. Nie wylicza terminów ustawowych, nie wysyła deklaracji, nie prowadzi ksiąg, nie nalicza płac ani czasu pracy i nie przechowuje numerów PESEL ani NIP, ani kopii dowodów osobistych.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -3952,7 +3952,7 @@
         "mandates": {
           "label": "Umowa",
           "pluralLabel": "Umowy",
-          "description": "Jedno zlecenie od zapytania do aktywnego lub odrzuconego."
+          "description": "Jedno zlecenie od zapytania do aktywnej współpracy lub odmowy."
         },
         "jobs": {
           "label": "Rozliczenie",
@@ -3980,7 +3980,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -4038,12 +4038,12 @@
           "options": {
             "inquiry": "Zapytanie",
             "intro_call": "Spotkanie",
-            "proposal_sent": "Oferta",
+            "proposal_sent": "Oferta wysłana",
             "aml_check": "Weryfikacja klienta (AML)",
             "engagement_letter_out": "Umowa wysłana",
-            "active": "Aktywny",
-            "declined": "Odrzucony",
-            "not_going_ahead": "Utracony"
+            "active": "Aktywna",
+            "declined": "Odrzucona",
+            "not_going_ahead": "Nie doszła do skutku"
           }
         },
         "mandates.services": {
@@ -4052,13 +4052,13 @@
             "bookkeeping": "Księgowość",
             "payroll": "Kadry i płace",
             "vat_returns": "VAT",
-            "annual_accounts": "Sprawozdanie roczne",
+            "annual_accounts": "Sprawozdanie finansowe",
             "tax_returns": "Zeznania podatkowe",
             "advisory": "Doradztwo"
           }
         },
         "mandates.fee_model": {
-          "label": "Wynagrodzenie",
+          "label": "Model wynagrodzenia",
           "options": {
             "fixed_monthly": "Ryczałt miesięczny",
             "hourly": "Godzinowo",
@@ -4067,17 +4067,17 @@
           }
         },
         "mandates.next_step_due": {
-          "label": "Następny krok do",
+          "label": "Termin następnego kroku",
           "options": {}
         },
         "mandates.lost_reason": {
           "label": "Powód",
           "options": {
             "capacity": "Brak mocy przerobowych",
-            "risk_declined": "Odrzucony z powodu ryzyka",
+            "risk_declined": "Odrzucona z powodu ryzyka",
             "scope_mismatch": "Niedopasowany zakres",
             "price": "Cena",
-            "chose_other_advisor": "Wybrał inne biuro",
+            "chose_other_advisor": "Klient wybrał inne biuro",
             "no_response": "Brak odpowiedzi"
           }
         },
@@ -4100,7 +4100,7 @@
             "monthly_bookkeeping": "Księgowość miesięczna",
             "payroll_run": "Lista płac",
             "vat_return": "Rozliczenie VAT",
-            "annual_accounts": "Sprawozdanie roczne",
+            "annual_accounts": "Sprawozdanie finansowe",
             "tax_return": "Zeznanie podatkowe",
             "year_end": "Zamknięcie roku"
           }
@@ -4110,7 +4110,7 @@
           "options": {}
         },
         "jobs.documents_due": {
-          "label": "Dokumenty do",
+          "label": "Termin dostarczenia dokumentów",
           "options": {}
         },
         "jobs.internal_due": {
@@ -4118,11 +4118,11 @@
           "options": {}
         },
         "jobs.reviewer": {
-          "label": "Kontrolujący",
+          "label": "Osoba kontrolująca",
           "options": {}
         },
         "jobs.notice_received_on": {
-          "label": "Pismo z urzędu otrzymano dnia",
+          "label": "Data otrzymania pisma z urzędu",
           "options": {}
         },
         "deadlines.kind": {
@@ -4131,7 +4131,7 @@
             "vat_return": "Rozliczenie VAT",
             "vat_payment": "Wpłata VAT",
             "payroll_report": "Deklaracja ZUS",
-            "annual_accounts": "Sprawozdanie roczne",
+            "annual_accounts": "Sprawozdanie finansowe",
             "tax_return": "Zeznanie podatkowe",
             "appeal": "Odwołanie",
             "payment": "Płatność",
@@ -4152,7 +4152,7 @@
           "options": {}
         },
         "deadlines.verified_by": {
-          "label": "Sprawdził",
+          "label": "Kto sprawdził",
           "options": {}
         },
         "deadlines.status": {
@@ -4298,51 +4298,51 @@
       },
       "rules": {
         "proposal_follow_up": {
-          "title": "Przypomnieć o ofercie 3 dni po jej wysłaniu",
+          "title": "Przypomnij o ofercie 3 dni po jej wysłaniu",
           "description": ""
         },
         "aml_identification": {
-          "title": "Zidentyfikować klienta w ciągu 2 dni, gdy umowa osiągnie etap weryfikacji",
+          "title": "Zidentyfikuj klienta w ciągu 2 dni, gdy umowa trafi na etap weryfikacji",
           "description": ""
         },
         "onboarding_set": {
-          "title": "Poprosić o pełnomocnictwo i pierwsze dokumenty, gdy umowa staje się aktywna",
+          "title": "Poproś o pełnomocnictwo i pierwsze dokumenty, gdy umowa staje się aktywna",
           "description": ""
         },
         "recontact_not_going_ahead": {
-          "title": "Ustawić następny krok na 90 dni, gdy umowa nie dojdzie do skutku",
+          "title": "Ustaw następny krok na 90 dni naprzód, gdy umowa nie dojdzie do skutku",
           "description": ""
         },
         "documents_chase": {
-          "title": "Ponaglić o dokumenty 3 dni przed terminem",
+          "title": "Ponagl o dokumenty 3 dni przed terminem",
           "description": ""
         },
         "documents_overdue_notice": {
-          "title": "Powiadomić prowadzącego, gdy dokumenty są należne i nadal ich brak",
+          "title": "Powiadom osobę prowadzącą sprawę, gdy dokumenty są należne i nadal ich brak",
           "description": ""
         },
         "pre_deadline_check": {
-          "title": "Powiadomić prowadzącego w terminie wstępnym otwartego terminu",
+          "title": "Powiadom osobę prowadzącą sprawę w dniu terminu wstępnego",
           "description": ""
         },
         "due_date_escalation": {
-          "title": "Powiadomić szefa 2 dni przed otwartym terminem",
+          "title": "Powiadom szefa biura 2 dni przed otwartym terminem",
           "description": ""
         },
         "approval_chase": {
-          "title": "Ponaglić o zgodę klienta po 5 dniach oczekiwania",
+          "title": "Ponagl o zgodę klienta po 5 dniach oczekiwania",
           "description": ""
         },
         "notice_check": {
-          "title": "Sprawdzić pismo z urzędu w ciągu 3 dni od otrzymania",
+          "title": "Sprawdź pismo z urzędu w ciągu 3 dni od otrzymania",
           "description": ""
         },
         "aml_review": {
-          "title": "Przejrzeć ocenę ryzyka, gdy nadejdzie data następnego przeglądu",
+          "title": "Przejrzyj ocenę ryzyka, gdy nadejdzie data następnego przeglądu",
           "description": ""
         },
         "monthly_close_jobs": {
-          "title": "Utworzyć rozliczenia miesięczne na początku każdego miesiąca",
+          "title": "Utwórz rozliczenia miesięczne na początku każdego miesiąca",
           "description": ""
         }
       },
@@ -4354,7 +4354,7 @@
         "deadline_control_page": "Baza wiedzy zawiera stronę o kontroli terminów."
       },
       "prompt": {
-        "intro": "Skonfiguruj w moim workspace Customermates biuro rachunkowe: umowy od zapytania do aktywnej z etapem weryfikacji klienta, powtarzalne rozliczenia na klienta i okres, rejestr terminów z terminem wstępnym i osobą sprawdzającą oraz zaplanowane przypomnienia. Nigdy nie wyliczaj terminów ustawowych i nie przechowuj kopii dowodów tożsamości.",
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates biuro rachunkowe: umowy od zapytania do aktywnej współpracy z etapem weryfikacji klienta, powtarzalne rozliczenia na klienta i okres, rejestr terminów z terminem wstępnym i osobą sprawdzającą oraz zaplanowane kolejne kroki. Nigdy nie wyliczaj terminów ustawowych i nie przechowuj kopii dowodów tożsamości.",
         "questions": [
           "Jakie usługi oferujesz i jakie powtarzalne rozliczenia prowadzisz na klienta?",
           "Jakie formy opodatkowania obsługujesz i jakie terminy śledzisz?",
@@ -4366,8 +4366,8 @@
     "pt": {
       "locale": "pt",
       "name": "Escritório contábil",
-      "summary": "Uma mesa de escritório com dois fluxos: conquistar um cliente, com diligência de PLD e contrato de prestação de serviços, e fazer o trabalho recorrente por cliente, com um calendário de prazos conferido por uma segunda pessoa.",
-      "description": "Conduza um escritório contábil em um só lugar: contratos da proposta ao contrato ativo com uma etapa de diligência de prevenção à lavagem de dinheiro no meio, rotinas recorrentes por cliente e competência com a situação aguardando documentos, e um calendário de prazos com aviso prévio e a pessoa que conferiu cada data. O modelo é a camada de relacionamento, prova de prazos e acompanhamento ao lado do seu sistema contábil. Não calcula datas legais, não transmite declarações, não faz escrituração, folha de pagamento nem cobrança de horas e não guarda CPF, CNPJ de terceiros nem cópias de documentos de identidade.",
+      "summary": "Um espaço de trabalho de escritório com dois fluxos: conquistar um cliente, com diligência de PLD e contrato de prestação de serviços, e fazer o trabalho recorrente por cliente, com um calendário de prazos conferido por uma segunda pessoa.",
+      "description": "Conduza um escritório contábil em um só lugar: contratos da proposta ao contrato ativo com uma etapa de diligência de prevenção à lavagem de dinheiro no meio, entregas recorrentes por cliente e competência com o status aguardando documentos, e um calendário de prazos com aviso antecipado e a pessoa que conferiu cada data. O modelo é a camada de relacionamento, comprovação de prazos e acompanhamento ao lado do seu sistema contábil. Não calcula datas legais, não transmite declarações, não faz escrituração, folha de pagamento nem cobrança de horas e não guarda CPF, CNPJ de terceiros nem cópias de documentos de identidade.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -4390,14 +4390,14 @@
           "description": "Um contrato da proposta a ativo ou recusado."
         },
         "jobs": {
-          "label": "Rotina",
-          "pluralLabel": "Rotinas e obrigações",
+          "label": "Entrega",
+          "pluralLabel": "Entregas e obrigações",
           "description": "Trabalho recorrente para um cliente e uma competência, como o fechamento mensal ou a apuração de impostos."
         },
         "deadlines": {
           "label": "Prazo",
           "pluralLabel": "Prazos",
-          "description": "Uma data legal ou do fisco com a fonte, um aviso prévio e a pessoa que a conferiu."
+          "description": "Uma data legal ou do fisco com a fonte, um aviso antecipado e a pessoa que a conferiu."
         }
       },
       "fields": {
@@ -4486,7 +4486,7 @@
           "options": {
             "bookkeeping": "Escrituração",
             "payroll": "Folha de pagamento",
-            "vat_returns": "Impostos sobre vendas",
+            "vat_returns": "Apuração fiscal",
             "annual_accounts": "Balanço anual",
             "tax_returns": "Declarações de imposto",
             "advisory": "Consultoria"
@@ -4502,7 +4502,7 @@
           }
         },
         "mandates.next_step_due": {
-          "label": "Próximo passo até",
+          "label": "Data do próximo passo",
           "options": {}
         },
         "mandates.lost_reason": {
@@ -4517,7 +4517,7 @@
           }
         },
         "jobs.status": {
-          "label": "Situação",
+          "label": "Status",
           "options": {
             "planned": "Planejada",
             "waiting_for_documents": "Aguardando documentos",
@@ -4530,7 +4530,7 @@
           }
         },
         "jobs.job_type": {
-          "label": "Tipo de rotina",
+          "label": "Tipo de entrega",
           "options": {
             "monthly_bookkeeping": "Escrituração mensal",
             "payroll_run": "Folha do mês",
@@ -4579,7 +4579,7 @@
           "options": {}
         },
         "deadlines.pre_deadline": {
-          "label": "Aviso prévio",
+          "label": "Aviso antecipado",
           "options": {}
         },
         "deadlines.source_ref": {
@@ -4591,7 +4591,7 @@
           "options": {}
         },
         "deadlines.status": {
-          "label": "Situação",
+          "label": "Status",
           "options": {
             "open": "Aberto",
             "in_progress": "Em andamento",
@@ -4625,14 +4625,14 @@
         },
         "job_client": {
           "sourceLabel": "Cliente",
-          "targetLabel": "Rotinas e obrigações"
+          "targetLabel": "Entregas e obrigações"
         },
         "deadline_client": {
           "sourceLabel": "Cliente",
           "targetLabel": "Prazos"
         },
         "action_job": {
-          "sourceLabel": "Rotina",
+          "sourceLabel": "Entrega",
           "targetLabel": "Tarefas"
         },
         "action_client": {
@@ -4651,7 +4651,7 @@
           "name": "Todos os contratos"
         },
         "jobs_board": {
-          "name": "Rotinas por situação"
+          "name": "Entregas por status"
         },
         "jobs_waiting_documents": {
           "name": "Aguardando documentos"
@@ -4686,13 +4686,13 @@
           "title": "Prazos abertos sem conferência"
         },
         "jobs_by_status": {
-          "title": "Rotinas abertas por situação"
+          "title": "Entregas abertas por status"
         },
         "documents_waiting": {
-          "title": "Rotinas aguardando documentos"
+          "title": "Entregas aguardando documentos"
         },
         "jobs_waiting_on_client": {
-          "title": "Rotinas aguardando aprovação do cliente"
+          "title": "Entregas aguardando aprovação do cliente"
         },
         "mandates_funnel": {
           "title": "Contratos por etapa"
@@ -4706,7 +4706,7 @@
           "title": "Como funciona o escritório",
           "sections": [
             "Os dois fluxos: conquistar um cliente e fazer o trabalho",
-            "Quem responde por cada etapa e a regra de uma tarefa com data por rotina aberta"
+            "Quem responde por cada etapa e a regra de uma tarefa com data por entrega aberta"
           ]
         },
         "onboarding_and_aml": {
@@ -4720,7 +4720,7 @@
           "title": "Controle de prazos",
           "sections": [
             "Como uma data é lançada com a fonte e conferida por uma segunda pessoa",
-            "Conferência do aviso prévio e decisão sobre prorrogação"
+            "Conferência do aviso antecipado e decisão sobre prorrogação"
           ]
         },
         "document_checklists": {
@@ -4733,7 +4733,7 @@
       },
       "rules": {
         "proposal_follow_up": {
-          "title": "Fazer o retorno de uma proposta 3 dias depois de enviada",
+          "title": "Fazer o retorno de uma proposta 3 dias depois de enviá-la",
           "description": ""
         },
         "aml_identification": {
@@ -4757,7 +4757,7 @@
           "description": ""
         },
         "pre_deadline_check": {
-          "title": "Avisar o responsável no aviso prévio de um prazo aberto",
+          "title": "Avisar o responsável na data do aviso antecipado de um prazo aberto",
           "description": ""
         },
         "due_date_escalation": {
@@ -4777,21 +4777,21 @@
           "description": ""
         },
         "monthly_close_jobs": {
-          "title": "Criar as rotinas mensais no início de cada mês",
+          "title": "Criar as entregas mensais no início de cada mês",
           "description": ""
         }
       },
       "acceptanceChecks": {
         "mandate_stage_field": "Todo contrato tem uma etapa.",
-        "job_status_field": "Toda rotina tem uma situação, inclusive aguardando documentos.",
+        "job_status_field": "Toda entrega tem um status, inclusive aguardando documentos.",
         "deadline_due_field": "Todo prazo registra a data final.",
         "deadline_verifier_field": "Todo prazo registra quem o conferiu.",
         "deadline_control_page": "A base de conhecimento tem uma página sobre controle de prazos."
       },
       "prompt": {
-        "intro": "Configure no meu workspace do Customermates um escritório contábil: contratos da proposta a ativo com uma etapa de diligência, rotinas recorrentes por cliente e competência, um calendário de prazos com aviso prévio e conferência, e acompanhamentos com data. Nunca calcule datas legais e não guarde cópias de documentos de identidade.",
+        "intro": "Configure no meu espaço de trabalho do Customermates um escritório contábil: contratos da proposta a ativo com uma etapa de diligência, entregas recorrentes por cliente e competência, um calendário de prazos com aviso antecipado e conferência, e acompanhamentos com data. Nunca calcule datas legais e não guarde cópias de documentos de identidade.",
         "questions": [
-          "Quais serviços você oferece e quais rotinas recorrentes mantém por cliente?",
+          "Quais serviços você oferece e quais entregas recorrentes mantém por cliente?",
           "Em qual regime tributário seus clientes costumam estar e quais prazos você acompanha?",
           "Quem prepara, quem revisa e quem confere um prazo?",
           "Como você identifica novos clientes e com que frequência revisa a classificação de risco deles?"

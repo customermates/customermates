@@ -1723,7 +1723,7 @@
         "clients": {
           "label": "Kunde",
           "pluralLabel": "Kunden",
-          "description": "Unternehmen, für die Sie suchen, mit Provisions- und Garantiebedingungen."
+          "description": "Unternehmen, für die du suchst, mit Provisions- und Garantiebedingungen."
         },
         "jobs": {
           "label": "Auftrag",
@@ -1959,7 +1959,7 @@
             "client_filled_internally": "Kunde hat intern besetzt",
             "client_froze_search": "Kunde hat die Suche gestoppt",
             "filled_by_competitor": "Von einem Wettbewerber besetzt",
-            "terms_not_agreed": "Konditionen nicht geeinigt",
+            "terms_not_agreed": "Keine Einigung über die Konditionen",
             "role_cancelled": "Stelle gestrichen",
             "no_suitable_candidates": "Keine passenden Kandidaten"
           }
@@ -2190,14 +2190,14 @@
           "title": "Provision, Garantie und Exklusivität",
           "sections": [
             "Berechnungsgrundlage, Fälligkeit und Zahlungsziel",
-            "Garantiezeit und Ersatzbesetzung, Exklusivität (nutzen Sie Ihren eigenen Vertrag, keine Rechtsberatung)"
+            "Garantiezeit und Ersatzbesetzung, Exklusivität (nutze deinen eigenen Vertrag, keine Rechtsberatung)"
           ]
         },
         "screening_call": {
           "title": "Leitfaden für das Kandidatengespräch",
           "sections": [
             "Motivation, Kündigungsfrist, Gehaltswunsch, andere Verfahren",
-            "Was Sie nicht fragen und nicht festhalten"
+            "Was du nicht fragst und nicht festhältst"
           ]
         },
         "submission_email": {
@@ -2305,14 +2305,14 @@
         "guarantee_end_field": "Jede Vermittlung hält fest, wann die Garantiezeit endet.",
         "retain_until_field": "Jede Person hält fest, bis wann ihre Daten gespeichert werden.",
         "jobs_board_view": "Die Aufträge öffnen sich als Board nach Phase.",
-        "candidate_data_page": "Die Wissensbasis enthält eine Seite zu Kandidatendaten und Löschfristen."
+        "candidate_data_page": "Die Wissensdatenbank enthält eine Seite zu Kandidatendaten und Löschfristen."
       },
       "prompt": {
         "intro": "Richte in meinem Customermates-Workspace eine Personalvermittlung ein: Kunden mit ihren Konditionen, Aufträge mit neun Phasen und erwarteter Provision, einen Vorschlag je Kandidat und Auftrag, Vermittlungen mit Garantieende und Nachbetreuung sowie ein Löschdatum für jeden Kandidaten.",
         "questions": [
-          "Arbeiten Sie erfolgsabhängig, retained oder beides, und welche Provision und Garantiezeit vereinbaren Sie üblicherweise?",
-          "Wie viele Aufträge und Kandidaten betreuen Sie gleichzeitig, und wer verantwortet welche Phase?",
-          "Wie lange speichern Sie Kandidatendaten, und in welchen Ländern suchen Sie?",
+          "Arbeitest du erfolgsabhängig, retained oder beides, und welche Provision und Garantiezeit vereinbarst du üblicherweise?",
+          "Wie viele Aufträge und Kandidaten betreust du gleichzeitig, und wer verantwortet welche Phase?",
+          "Wie lange speicherst du Kandidatendaten, und in welchen Ländern suchst du?",
           "Wo liegen unterschriebene Verträge und Rechnungen? Hier wird nur ein Link oder eine Referenz gespeichert."
         ]
       }
@@ -2933,7 +2933,7 @@
     "es": {
       "locale": "es",
       "name": "Consultora de selección de personal",
-      "summary": "Un puesto de trabajo para una consultora de selección o un reclutador independiente: procesos desde el briefing hasta la incorporación, una ficha por candidato y proceso, fechas de honorarios y garantía, seguimiento posterior y una fecha de conservación de cada candidato.",
+      "summary": "Un espacio de trabajo para una consultora de selección o un reclutador independiente: procesos desde el briefing hasta la incorporación, una ficha por candidato y proceso, fechas de honorarios y garantía, seguimiento posterior y una fecha de conservación de cada candidato.",
       "description": "Lleva tu consultora en un solo sitio: clientes y sus condiciones, procesos de selección con una etapa y unos honorarios previstos, candidatos presentados por proceso con su propia etapa, incorporaciones con el fin de la garantía y el seguimiento posterior, y una fecha de revisión de conservación en cada candidato. Encaja con un equipo de una a cinco personas. No es un portal de empleo, ni un lector de CV, ni una herramienta de envíos masivos, ni un sistema de partes de horas y nóminas. No se envía nada automáticamente a candidatos ni a clientes.",
       "lists": {
         "actions": {
@@ -2996,7 +2996,7 @@
             "brief": "Briefing",
             "terms_agreed": "Condiciones firmadas",
             "searching": "Búsqueda",
-            "submitted": "Terna presentada",
+            "submitted": "Shortlist presentada",
             "interviews": "Entrevistas con el cliente",
             "offer": "Oferta",
             "placed": "Incorporado",
@@ -3054,7 +3054,7 @@
           }
         },
         "people.salary_expectation": {
-          "label": "Expectativa salarial",
+          "label": "Pretensión salarial",
           "options": {}
         },
         "people.notice_period": {
@@ -3088,7 +3088,7 @@
         "clients.client_status": {
           "label": "Estado",
           "options": {
-            "prospect": "Potencial",
+            "prospect": "Cliente potencial",
             "active_client": "Cliente activo",
             "past_client": "Cliente anterior",
             "do_not_contact": "No contactar"
@@ -3416,13 +3416,13 @@
           "title": "Honorarios, garantía y exclusividad",
           "sections": [
             "Base de cálculo, cuándo se devengan y plazo de pago",
-            "Duración y remedio de la garantía, exclusividad (usa tu propio contrato, esto no es asesoramiento jurídico)"
+            "Duración y alcance de la garantía (reposición o reembolso), exclusividad (usa tu propio contrato, esto no es asesoramiento jurídico)"
           ]
         },
         "screening_call": {
           "title": "Guía de la llamada de cribado",
           "sections": [
-            "Motivación, preaviso, expectativa salarial, otros procesos",
+            "Motivación, preaviso, pretensión salarial, otros procesos",
             "Qué no preguntar y qué no registrar"
           ]
         },
@@ -3430,7 +3430,7 @@
           "title": "Presentar un candidato al cliente",
           "sections": [
             "Resumen en tres líneas y por qué esta persona",
-            "Disponibilidad, expectativa y CV adjunto (un borrador, nunca enviado de forma automática)"
+            "Disponibilidad, pretensión salarial y CV adjunto (un borrador, nunca enviado de forma automática)"
           ]
         },
         "interview_routine": {
@@ -3546,8 +3546,8 @@
     "fr": {
       "locale": "fr",
       "name": "Cabinet de recrutement",
-      "summary": "Un poste de travail pour un cabinet de recrutement ou un recruteur indépendant : missions du brief au placement, une fiche par candidat et par mission, dates d'honoraires et de garantie, suivi après l'embauche et date de conservation de chaque candidat.",
-      "description": "Gérez votre cabinet en un seul endroit : clients et leurs conditions, missions avec une étape et des honoraires attendus, candidats présentés par mission avec leur propre étape, placements avec la fin de la garantie et le suivi après l'embauche, et une date de revue de conservation sur chaque candidat. Convient à une équipe d'une à cinq personnes. Ce n'est ni un jobboard, ni un outil d'analyse de CV, ni un outil d'envoi en masse, ni un logiciel de gestion du temps et de la paie. Rien n'est envoyé automatiquement aux candidats ni aux clients.",
+      "summary": "Un outil pour un cabinet de recrutement ou un recruteur indépendant : missions du brief au placement, une fiche par candidat et par mission, dates d’honoraires et de garantie, suivi après l’embauche et date de conservation de chaque candidat.",
+      "description": "Gérez votre cabinet en un seul endroit : clients et leurs conditions, missions avec une étape et des honoraires attendus, candidats présentés par mission avec leur propre étape, placements avec la fin de la garantie et le suivi après l’embauche, et une date de revue de conservation sur chaque candidat. Convient à une équipe d’une à cinq personnes. Ce n’est ni un jobboard, ni un outil d’analyse de CV, ni un outil d’envoi en masse, ni un logiciel de gestion du temps et de la paie. Rien n’est envoyé automatiquement aux candidats ni aux clients.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -3607,11 +3607,11 @@
           "options": {
             "lead": "Demande",
             "brief": "Brief",
-            "terms_agreed": "Conditions signées",
+            "terms_agreed": "Conditions convenues",
             "searching": "Recherche",
             "submitted": "Shortlist présentée",
             "interviews": "Entretiens client",
-            "offer": "Promesse d'embauche",
+            "offer": "Promesse d’embauche",
             "placed": "Placé",
             "lost": "Perdu"
           }
@@ -3624,7 +3624,7 @@
             "screened": "Pré-qualifié",
             "submitted": "Présenté au client",
             "client_interview": "Entretien client",
-            "offer": "Promesse d'embauche",
+            "offer": "Promesse d’embauche",
             "placed": "Placé",
             "rejected_internal": "Écarté par nous",
             "rejected_by_client": "Refusé par le client",
@@ -3648,7 +3648,7 @@
           "label": "Statut du candidat",
           "options": {
             "active": "En recherche active",
-            "passive": "À l'écoute",
+            "passive": "À l’écoute",
             "placed": "Placé",
             "do_not_contact": "Ne pas contacter",
             "archived": "Archivé"
@@ -3687,7 +3687,7 @@
           }
         },
         "people.retain_until": {
-          "label": "Conserver jusqu'au",
+          "label": "Conserver jusqu’au",
           "options": {}
         },
         "people.last_contact": {
@@ -3785,11 +3785,11 @@
           "options": {}
         },
         "jobs.next_step": {
-          "label": "Prochaine étape",
+          "label": "Prochaine action",
           "options": {}
         },
         "jobs.next_step_due": {
-          "label": "Échéance de la prochaine étape",
+          "label": "Échéance de la prochaine action",
           "options": {}
         },
         "jobs.lost_reason": {
@@ -3832,7 +3832,7 @@
           "options": {
             "skills": "Compétences",
             "culture_fit": "Adéquation culturelle",
-            "salary_mismatch": "Salaire inadapté",
+            "salary_mismatch": "Prétentions salariales inadaptées",
             "other_offer": "Autre proposition",
             "no_response": "Sans réponse",
             "location_or_notice": "Lieu ou préavis"
@@ -3954,7 +3954,7 @@
           "name": "Toutes les missions"
         },
         "searches_without_next_step": {
-          "name": "Recherches ouvertes sans prochaine étape"
+          "name": "Recherches ouvertes sans prochaine action"
         },
         "submissions_board": {
           "name": "Candidats par étape"
@@ -4004,7 +4004,7 @@
           "title": "Données de candidats à revoir"
         },
         "lost_reasons": {
-          "title": "Pourquoi les missions ont été perdues"
+          "title": "Motifs de perte des missions"
         },
         "average_days_to_fill": {
           "title": "Délai moyen pour pourvoir un poste"
@@ -4014,29 +4014,29 @@
         "operating_guide": {
           "title": "Comment fonctionne le cabinet",
           "sections": [
-            "Les deux pipelines : missions et candidats",
-            "Qui porte quelle étape, et la règle d'une action datée par dossier ouvert"
+            "Les deux pipelines : missions et candidats",
+            "Qui porte quelle étape, et la règle d’une action datée par dossier ouvert"
           ]
         },
         "client_intake_call": {
-          "title": "Appel de cadrage client : brief de la mission",
+          "title": "Appel de cadrage client : brief de la mission",
           "sections": [
             "Poste, lieu, organisation du travail, fourchette de rémunération et date de début",
-            "Critères indispensables et souhaitables, raison de l'ouverture du poste et décideur"
+            "Critères indispensables et souhaitables, raison de l’ouverture du poste et décideur"
           ]
         },
         "terms_checklist": {
           "title": "Honoraires, garantie et exclusivité",
           "sections": [
             "Base de calcul, fait générateur et délai de paiement",
-            "Durée et mise en œuvre de la garantie, exclusivité (utilisez votre propre contrat, ceci n'est pas un conseil juridique)"
+            "Durée et mise en œuvre de la garantie, exclusivité (utilisez votre propre contrat, ceci n’est pas un conseil juridique)"
           ]
         },
         "screening_call": {
-          "title": "Guide de l'entretien de pré-qualification",
+          "title": "Guide de l’entretien de pré-qualification",
           "sections": [
             "Motivation, préavis, prétentions salariales, autres processus",
-            "Ce qu'il ne faut pas demander ni consigner"
+            "Ce qu’il ne faut pas demander ni consigner"
           ]
         },
         "submission_email": {
@@ -4054,14 +4054,14 @@
           ]
         },
         "candidate_data": {
-          "title": "Données des candidats : base, information et durée de conservation",
+          "title": "Données des candidats : base, information et durée de conservation",
           "sections": [
             "Durée de conservation et information des candidats",
             "Consentement pour le vivier et date de revue"
           ]
         },
         "aftercare_routine": {
-          "title": "Suivi après l'embauche du jour 1 au jour 90",
+          "title": "Suivi après l’embauche du jour 1 au jour 90",
           "sections": [
             "Prises de nouvelles au démarrage, à une semaine, à 30, 60 et 90 jours",
             "Fin de la garantie et facturation des honoraires"
@@ -4070,23 +4070,23 @@
       },
       "rules": {
         "chase_terms": {
-          "title": "Relancer les conditions signées trois jours après l'accord sur les conditions",
+          "title": "Relancer les conditions signées trois jours après l’accord sur les conditions",
           "description": ""
         },
         "request_client_feedback": {
-          "title": "Demander un retour au client deux jours après la présentation d'un candidat",
+          "title": "Demander un retour au client deux jours après la présentation d’un candidat",
           "description": ""
         },
         "prepare_interview": {
-          "title": "Briefer le candidat la veille de l'entretien chez le client",
+          "title": "Briefer le candidat la veille de l’entretien chez le client",
           "description": ""
         },
         "debrief_interview": {
-          "title": "Faire le débrief avec le candidat et le client le jour de l'entretien",
+          "title": "Faire le débrief avec le candidat et le client le jour de l’entretien",
           "description": ""
         },
         "chase_offer_decision": {
-          "title": "Relancer la décision du candidat deux jours après la promesse d'embauche",
+          "title": "Relancer la décision du candidat deux jours après la promesse d’embauche",
           "description": ""
         },
         "start_day_confirmation": {
@@ -4134,32 +4134,32 @@
           "description": ""
         },
         "interview_calendar": {
-          "title": "Ajouter l'entretien à l'agenda du responsable dès qu'il est convenu",
+          "title": "Ajouter l’entretien à l’agenda du responsable dès qu’il est convenu",
           "description": ""
         }
       },
       "acceptanceChecks": {
-        "job_stage_field": "Chaque mission a l'une des neuf étapes.",
+        "job_stage_field": "Chaque mission a l’une des neuf étapes.",
         "submission_stage_field": "Chaque candidat a sa propre étape sur une mission.",
         "guarantee_end_field": "Chaque placement indique la fin de sa garantie.",
-        "retain_until_field": "Chaque personne indique jusqu'à quand ses données sont conservées.",
-        "jobs_board_view": "Les missions s'ouvrent en tableau par étape.",
+        "retain_until_field": "Chaque personne indique jusqu’à quand ses données sont conservées.",
+        "jobs_board_view": "Les missions s’ouvrent en board par étape.",
         "candidate_data_page": "La base de connaissances contient une page sur les données des candidats et leur durée de conservation."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace Customermates un cabinet de recrutement : clients avec leurs conditions, missions en neuf étapes avec les honoraires attendus, une présentation par candidat et par mission, placements avec la fin de la garantie et le suivi après l'embauche, et une date de conservation pour chaque candidat.",
+        "intro": "Mets en place dans mon espace de travail Customermates un cabinet de recrutement : clients avec leurs conditions, missions en neuf étapes avec les honoraires attendus, une présentation par candidat et par mission, placements avec la fin de la garantie et le suivi après l’embauche, et une date de conservation pour chaque candidat.",
         "questions": [
-          "Travaillez-vous au succès, en retainer ou les deux, et quels honoraires et quelle garantie convenez-vous d'habitude ?",
-          "Combien de missions et de candidats gérez-vous en même temps, et qui porte quelle étape ?",
-          "Combien de temps conservez-vous les données des candidats, et dans quels pays recrutez-vous ?",
-          "Où rangez-vous les conditions signées et les factures ? Seul un lien ou une référence est conservé ici."
+          "Travaillez-vous au succès, en retainer ou les deux, et quels honoraires et quelle garantie convenez-vous d’habitude ?",
+          "Combien de missions et de candidats gérez-vous en même temps, et qui porte quelle étape ?",
+          "Combien de temps conservez-vous les données des candidats, et dans quels pays recrutez-vous ?",
+          "Où rangez-vous les conditions signées et les factures ? Seul un lien ou une référence est conservé ici."
         ]
       }
     },
     "it": {
       "locale": "it",
       "name": "Ricerca e selezione del personale",
-      "summary": "Una scrivania per agenzia di ricerca e selezione o recruiter indipendente: incarichi dal briefing all'inserimento, una scheda per candidato e incarico, scadenze di fee e garanzia, ricontatti dopo l'inserimento e una data di conservazione per ogni candidato.",
+      "summary": "Uno strumento per agenzie di ricerca e selezione o recruiter indipendenti: incarichi dal briefing all'inserimento, una scheda per candidato e incarico, scadenze di fee e garanzia, ricontatti dopo l'inserimento e una data di conservazione per ogni candidato.",
       "description": "Gestisci l'agenzia in un unico posto: clienti e condizioni di incarico, incarichi con una fase e una fee prevista, candidati presentati per incarico con la propria fase, inserimenti con la fine del periodo di garanzia e i ricontatti dopo l'ingresso, e una data di revisione della conservazione su ogni candidato. Adatto a un team da una a cinque persone. Non è un job board, né un parser di CV, né uno strumento di invii di massa, né un sistema di timesheet e paghe. Nulla viene inviato automaticamente a candidati o clienti.",
       "lists": {
         "actions": {
@@ -4220,7 +4220,7 @@
           "options": {
             "lead": "Richiesta",
             "brief": "Briefing",
-            "terms_agreed": "Incarico firmato",
+            "terms_agreed": "Condizioni concordate",
             "searching": "Ricerca",
             "submitted": "Short list presentata",
             "interviews": "Colloqui in azienda",
@@ -4295,12 +4295,12 @@
           "label": "Base per conservare i dati",
           "options": {
             "pre_contract": "Misure precontrattuali",
-            "talent_pool_consent": "Consenso per la banca dati",
+            "talent_pool_consent": "Consenso per future selezioni",
             "legitimate_interest": "Individuato, legittimo interesse"
           }
         },
         "people.retain_until": {
-          "label": "Conserva fino al",
+          "label": "Conservare fino al",
           "options": {}
         },
         "people.last_contact": {
@@ -4370,7 +4370,7 @@
           "options": {}
         },
         "jobs.filled_on": {
-          "label": "Chiuso il",
+          "label": "Coperto il",
           "options": {}
         },
         "jobs.exclusive": {
@@ -4593,7 +4593,7 @@
           "title": "Attività scadute"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         },
         "jobs_funnel": {
           "title": "Incarichi aperti per fase"
@@ -4617,7 +4617,7 @@
           "title": "Dati dei candidati da rivedere"
         },
         "lost_reasons": {
-          "title": "Perché si sono persi gli incarichi"
+          "title": "Motivi di perdita degli incarichi"
         },
         "average_days_to_fill": {
           "title": "Giorni medi per coprire una posizione"
@@ -4625,7 +4625,7 @@
       },
       "knowledgePages": {
         "operating_guide": {
-          "title": "Come funziona la scrivania",
+          "title": "Come funziona l'attività di ricerca",
           "sections": [
             "Le due pipeline: incarichi e candidati",
             "Chi segue quale fase, e la regola di un'attività con data per ogni pratica aperta"
@@ -4649,7 +4649,7 @@
           "title": "Guida al colloquio di screening",
           "sections": [
             "Motivazione, preavviso, aspettativa retributiva, altri processi",
-            "Cosa non chiedere e cosa non registrare"
+            "Che cosa non chiedere e che cosa non registrare"
           ]
         },
         "submission_email": {
@@ -4670,7 +4670,7 @@
           "title": "Dati dei candidati: base giuridica, informativa e conservazione",
           "sections": [
             "Tempi di conservazione e informativa privacy",
-            "Consenso per la banca dati e data di revisione"
+            "Consenso per future selezioni e data di revisione"
           ]
         },
         "aftercare_routine": {
@@ -4756,11 +4756,11 @@
         "submission_stage_field": "Ogni candidato ha una fase propria su un incarico.",
         "guarantee_end_field": "Ogni inserimento registra quando finisce la garanzia.",
         "retain_until_field": "Ogni persona registra fino a quando i suoi dati sono conservati.",
-        "jobs_board_view": "Gli incarichi si aprono come bacheca per fase.",
+        "jobs_board_view": "Gli incarichi si aprono come board per fase.",
         "candidate_data_page": "La base di conoscenza contiene una pagina sui dati dei candidati e sulla conservazione."
       },
       "prompt": {
-        "intro": "Configura nel mio spazio di lavoro Customermates una scrivania di ricerca e selezione: clienti con le loro condizioni, incarichi con nove fasi e una fee prevista, una candidatura per candidato e incarico, inserimenti con la fine della garanzia e i ricontatti, e una data di conservazione per ogni candidato.",
+        "intro": "Configura nel mio spazio di lavoro Customermates un sistema per la ricerca e selezione del personale: clienti con le loro condizioni, incarichi con nove fasi e una fee prevista, una candidatura per candidato e incarico, inserimenti con la fine della garanzia e i ricontatti, e una data di conservazione per ogni candidato.",
         "questions": [
           "Lavori a successo, in retained o in entrambi i modi, e che fee e garanzia concordi di solito?",
           "Quanti incarichi e candidati gestisci in parallelo e chi segue quale fase?",
@@ -4773,7 +4773,7 @@
       "locale": "nl",
       "name": "Wervingsbureau",
       "summary": "Een werkplek voor een wervingsbureau of zelfstandige recruiter: vacatures van aanvraag tot plaatsing, één regel in het proces per kandidaat, fee- en garantiedata, nazorg en een bewaardatum bij elke kandidaat.",
-      "description": "Voer het bureau op één plek: opdrachtgevers en hun voorwaarden, vacatures met een fase en een verwachte fee, kandidaten die per vacature worden voorgesteld met eigen fasen, plaatsingen met het einde van de garantie en nazorgmomenten, en een controledatum voor de gegevens van elke kandidaat. Geschikt voor een bureau van één tot vijf recruiters. Geen vacaturesite, geen cv-parser, geen tool voor massamailing en geen systeem voor uren en loon, en er wordt niets automatisch naar kandidaten of opdrachtgevers gestuurd.",
+      "description": "Beheer het bureau op één plek: opdrachtgevers en hun voorwaarden, vacatures met een fase en een verwachte fee, kandidaten die per vacature worden voorgesteld met eigen fasen, plaatsingen met het einde van de garantie en nazorgmomenten, en een controledatum voor de gegevens van elke kandidaat. Geschikt voor een bureau van één tot vijf recruiters. Geen vacaturesite, geen cv-parser, geen tool voor massamailing en geen systeem voor uren en loon, en er wordt niets automatisch naar kandidaten of opdrachtgevers gestuurd.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -4788,7 +4788,7 @@
         "clients": {
           "label": "Opdrachtgever",
           "pluralLabel": "Opdrachtgevers",
-          "description": "Bedrijven waarvoor u werft, met fee en garantievoorwaarden."
+          "description": "Bedrijven waarvoor je werft, met fee en garantievoorwaarden."
         },
         "jobs": {
           "label": "Vacature",
@@ -4811,7 +4811,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -4888,12 +4888,12 @@
             "job_board": "Vacaturesite",
             "own_database": "Eigen database",
             "event": "Evenement",
-            "inbound": "Zelf gemeld",
+            "inbound": "Zelf gesolliciteerd",
             "other": "Overig"
           }
         },
         "people.salary_expectation": {
-          "label": "Salarisindicatie",
+          "label": "Salarisverwachting",
           "options": {}
         },
         "people.notice_period": {
@@ -4908,7 +4908,7 @@
           "label": "Grondslag voor het bewaren van gegevens",
           "options": {
             "pre_contract": "Stappen voor een overeenkomst",
-            "talent_pool_consent": "Toestemming voor het talentenbestand",
+            "talent_pool_consent": "Toestemming voor de talentpool",
             "legitimate_interest": "Zelf gevonden, gerechtvaardigd belang"
           }
         },
@@ -4971,7 +4971,7 @@
           "options": {}
         },
         "jobs.salary": {
-          "label": "Salaris",
+          "label": "Bruto jaarsalaris",
           "options": {}
         },
         "jobs.fee_percent": {
@@ -5015,7 +5015,7 @@
           "options": {}
         },
         "jobs.next_step_due": {
-          "label": "Volgende stap voor",
+          "label": "Volgende stap uiterlijk op",
           "options": {}
         },
         "jobs.lost_reason": {
@@ -5050,7 +5050,7 @@
           "options": {}
         },
         "submissions.feedback_due": {
-          "label": "Feedback opdrachtgever voor",
+          "label": "Feedback opdrachtgever uiterlijk op",
           "options": {}
         },
         "submissions.rejection_reason": {
@@ -5150,23 +5150,23 @@
         },
         "action_person": {
           "sourceLabel": "Persoon",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         },
         "action_job": {
           "sourceLabel": "Vacature",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         },
         "action_submission": {
           "sourceLabel": "Voorgestelde kandidaat",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         },
         "action_client": {
           "sourceLabel": "Opdrachtgever",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         },
         "action_placement": {
           "sourceLabel": "Plaatsing",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         }
       },
       "views": {
@@ -5241,13 +5241,13 @@
           "title": "Hoe het bureau draait",
           "sections": [
             "De twee pijplijnen: vacatures en kandidaten",
-            "Wie welke fase bezit en de regel van één Actie met datum per open item"
+            "Wie voor welke fase verantwoordelijk is en de regel van één actie met datum per open item"
           ]
         },
         "client_intake_call": {
           "title": "Intakegesprek met de opdrachtgever",
           "sections": [
-            "Functie, standplaats, werkvorm, salarisschaal en startdatum",
+            "Functie, standplaats, werkvorm, salarisrange en startdatum",
             "Eisen, wensen, waarom de functie openstaat en wie beslist"
           ]
         },
@@ -5255,21 +5255,21 @@
           "title": "Fee, garantie en exclusiviteit",
           "sections": [
             "Grondslag van de fee, wanneer ze verdiend is en betalingstermijn",
-            "Duur en gevolg van de garantie, exclusiviteit (gebruik uw eigen contract, dit is geen juridisch advies)"
+            "Duur en gevolg van de garantie, exclusiviteit (gebruik je eigen contract, dit is geen juridisch advies)"
           ]
         },
         "screening_call": {
           "title": "Screeningsgesprek met de kandidaat",
           "sections": [
-            "Motivatie, opzegtermijn, salarisindicatie, andere trajecten",
-            "Wat u niet vraagt en niet vastlegt"
+            "Motivatie, opzegtermijn, salarisverwachting, andere trajecten",
+            "Wat je niet vraagt en niet vastlegt"
           ]
         },
         "submission_email": {
           "title": "Een kandidaat voorstellen aan de opdrachtgever",
           "sections": [
             "Samenvatting in drie regels en waarom deze persoon",
-            "Beschikbaarheid, salarisindicatie en het cv als bijlage (een concept, nooit automatisch verzonden)"
+            "Beschikbaarheid, salarisverwachting en het cv als bijlage (een concept, nooit automatisch verzonden)"
           ]
         },
         "interview_routine": {
@@ -5283,7 +5283,7 @@
           "title": "Kandidaatgegevens: grondslag, informatie en bewaartermijn",
           "sections": [
             "Bewaartermijn per land en de privacyverklaring",
-            "Toestemming voor het talentenbestand en de controledatum"
+            "Toestemming voor de talentpool en de controledatum"
           ]
         },
         "aftercare_routine": {
@@ -5296,71 +5296,71 @@
       },
       "rules": {
         "chase_terms": {
-          "title": "De getekende voorwaarden opvragen drie dagen nadat een vacature op voorwaarden akkoord staat",
+          "title": "Vraag de getekende voorwaarden op drie dagen nadat een vacature op voorwaarden akkoord staat",
           "description": ""
         },
         "request_client_feedback": {
-          "title": "De opdrachtgever twee dagen na het voorstellen van een kandidaat om feedback vragen",
+          "title": "Vraag de opdrachtgever twee dagen na het voorstellen van een kandidaat om feedback",
           "description": ""
         },
         "prepare_interview": {
-          "title": "De kandidaat de dag voor een gesprek bij de opdrachtgever briefen",
+          "title": "Brief de kandidaat de dag voor een gesprek bij de opdrachtgever",
           "description": ""
         },
         "debrief_interview": {
-          "title": "Op de dag van een gesprek de kandidaat en de opdrachtgever nabellen",
+          "title": "Bespreek op de dag van een gesprek het gesprek na met de kandidaat en de opdrachtgever",
           "description": ""
         },
         "chase_offer_decision": {
-          "title": "Twee dagen na een aanbod naar de beslissing van de kandidaat vragen",
+          "title": "Vraag twee dagen na een aanbod naar de beslissing van de kandidaat",
           "description": ""
         },
         "start_day_confirmation": {
-          "title": "De start bevestigen op de eerste dag van een plaatsing",
+          "title": "Bevestig de start op de eerste dag van een plaatsing",
           "description": ""
         },
         "check_in_week_1": {
-          "title": "Een week na de start even navragen",
+          "title": "Vraag een week na de start even na",
           "description": ""
         },
         "check_in_day_30": {
-          "title": "30 dagen na de start even navragen",
+          "title": "Vraag 30 dagen na de start even na",
           "description": ""
         },
         "check_in_day_60": {
-          "title": "60 dagen na de start even navragen",
+          "title": "Vraag 60 dagen na de start even na",
           "description": ""
         },
         "check_in_day_90": {
-          "title": "90 dagen na de start even navragen",
+          "title": "Vraag 90 dagen na de start even na",
           "description": ""
         },
         "guarantee_check": {
-          "title": "14 dagen voor het einde van de garantie bevestigen dat de plaatsing stabiel is en de fee is betaald",
+          "title": "Bevestig 14 dagen voor het einde van de garantie dat de plaatsing stabiel is en de fee is betaald",
           "description": ""
         },
         "retention_review": {
-          "title": "De kandidaat verwijderen of nieuwe toestemming vastleggen op de bewaardatum",
+          "title": "Verwijder de kandidaat of leg nieuwe toestemming vast op de bewaardatum",
           "description": ""
         },
         "client_touch": {
-          "title": "Een actieve opdrachtgever op de volgende contactdatum bellen om naar komende vacatures te vragen",
+          "title": "Bel een actieve opdrachtgever op de volgende contactdatum om naar komende vacatures te vragen",
           "description": ""
         },
         "stalled_search_review": {
-          "title": "Een search nalopen die langer dan 10 dagen openstaat",
+          "title": "Loop een search na die langer dan 10 dagen openstaat",
           "description": ""
         },
         "application_received": {
-          "title": "De kandidaat en een belafspraak aanmaken als een sollicitatieformulier is ingediend",
+          "title": "Maak de kandidaat en een belafspraak aan als een sollicitatieformulier is ingediend",
           "description": ""
         },
         "feedback_overdue_notice": {
-          "title": "De eigenaar waarschuwen als de feedback van de opdrachtgever te laat is",
+          "title": "Waarschuw de eigenaar als de feedback van de opdrachtgever te laat is",
           "description": ""
         },
         "interview_calendar": {
-          "title": "Het gesprek in de agenda van de eigenaar zetten zodra het is afgesproken",
+          "title": "Zet het gesprek in de agenda van de eigenaar zodra het is afgesproken",
           "description": ""
         }
       },
@@ -5373,20 +5373,20 @@
         "candidate_data_page": "De kennisbank bevat een pagina over kandidaatgegevens en bewaartermijnen."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-workspace een wervingsbureau in: opdrachtgevers met hun voorwaarden, vacatures in negen fasen met een verwachte fee, één voorgestelde kandidaat per kandidaat en vacature, plaatsingen met het einde van de garantie en nazorgmomenten, en een bewaardatum bij elke kandidaat.",
+        "intro": "Richt in mijn Customermates-werkruimte een wervingsbureau in: opdrachtgevers met hun voorwaarden, vacatures in negen fasen met een verwachte fee, één voordracht per kandidaat en vacature, plaatsingen met het einde van de garantie en nazorgmomenten, en een bewaardatum bij elke kandidaat.",
         "questions": [
-          "Werkt u op basis van succes, met voorschot of allebei, en welke fee en garantie spreekt u meestal af?",
-          "Hoeveel vacatures en kandidaten behandelt u tegelijk en wie bezit welke fase?",
-          "Hoe lang bewaart u kandidaatgegevens en in welke landen werft u?",
-          "Waar bewaart u getekende voorwaarden en facturen? Hier staat alleen een link of een nummer."
+          "Werk je op basis van succes, met voorschot of allebei, en welke fee en garantie spreek je meestal af?",
+          "Hoeveel vacatures en kandidaten behandel je tegelijk en wie is verantwoordelijk voor welke fase?",
+          "Hoe lang bewaar je kandidaatgegevens en in welke landen werf je?",
+          "Waar bewaar je getekende voorwaarden en facturen? Hier staat alleen een link of een nummer."
         ]
       }
     },
     "pl": {
       "locale": "pl",
       "name": "Biuro rekrutacyjne",
-      "summary": "Biurko agencji rekrutacyjnej lub niezależnego rekrutera: zlecenia od zapytania do zatrudnienia, jeden wpis w procesie na kandydata, terminy prowizji i gwarancji, kontakty po zatrudnieniu i data przechowywania danych każdego kandydata.",
-      "description": "Prowadź biuro agencji w jednym miejscu: klienci i ich warunki współpracy, zlecenia rekrutacyjne z etapem i spodziewaną prowizją, kandydaci prezentowani na zlecenie z własnymi etapami, zatrudnienia z końcem gwarancji i kontaktami po starcie oraz data przeglądu danych przy każdym kandydacie. Pasuje do biura jednego do pięciu rekruterów. To nie portal z ogłoszeniami, parser CV, narzędzie do masowych wysyłek ani system rozliczania czasu pracy i płac, a do kandydatów i klientów nic nie jest wysyłane automatycznie.",
+      "summary": "Narzędzie dla agencji rekrutacyjnej lub niezależnego rekrutera: zlecenia od zapytania do zatrudnienia, jeden wpis w procesie na kandydata, terminy prowizji i gwarancji, kontakty po zatrudnieniu i data przechowywania danych każdego kandydata.",
+      "description": "Prowadź biuro agencji w jednym miejscu: klienci i ich warunki współpracy, zlecenia rekrutacyjne z etapem i spodziewaną prowizją, kandydaci prezentowani na zlecenie z własnymi etapami, zatrudnienia z końcem gwarancji i kontaktami po starcie oraz data przeglądu danych przy każdym kandydacie. Pasuje do biura jednego do pięciu rekruterów. To nie jest portal z ogłoszeniami, parser CV, narzędzie do masowych wysyłek ani system rozliczania czasu pracy i płac, a do kandydatów i klientów nic nie jest wysyłane automatycznie.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -5434,7 +5434,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -5446,12 +5446,12 @@
           "options": {
             "lead": "Zapytanie",
             "brief": "Brief",
-            "terms_agreed": "Umowa podpisana",
-            "searching": "Wyszukiwanie",
+            "terms_agreed": "Warunki uzgodnione",
+            "searching": "Poszukiwanie kandydatów",
             "submitted": "Prezentacja kandydatów",
             "interviews": "Rozmowy u klienta",
             "offer": "Oferta",
-            "placed": "Zatrudniony",
+            "placed": "Obsadzone",
             "lost": "Utracone"
           }
         },
@@ -5556,7 +5556,7 @@
           }
         },
         "clients.fee_percent": {
-          "label": "Prowizja (% rocznego wynagrodzenia brutto)",
+          "label": "Prowizja (% wynagrodzenia rocznego)",
           "options": {}
         },
         "clients.guarantee_days": {
@@ -5564,7 +5564,7 @@
           "options": {}
         },
         "clients.terms_signed_on": {
-          "label": "Umowa podpisana dnia",
+          "label": "Data podpisania umowy",
           "options": {}
         },
         "clients.terms_url": {
@@ -5592,11 +5592,11 @@
           "options": {}
         },
         "jobs.opened_on": {
-          "label": "Otwarto dnia",
+          "label": "Data otwarcia",
           "options": {}
         },
         "jobs.filled_on": {
-          "label": "Obsadzono dnia",
+          "label": "Data obsadzenia",
           "options": {}
         },
         "jobs.exclusive": {
@@ -5655,7 +5655,7 @@
           "options": {}
         },
         "submissions.submitted_on": {
-          "label": "Zaprezentowano dnia",
+          "label": "Data prezentacji",
           "options": {}
         },
         "submissions.interview_at": {
@@ -5663,7 +5663,7 @@
           "options": {}
         },
         "submissions.feedback_due": {
-          "label": "Opinia klienta do",
+          "label": "Termin opinii klienta",
           "options": {}
         },
         "submissions.rejection_reason": {
@@ -5671,7 +5671,7 @@
           "options": {
             "skills": "Umiejętności",
             "culture_fit": "Dopasowanie do kultury firmy",
-            "salary_mismatch": "Niedopasowane wynagrodzenie",
+            "salary_mismatch": "Rozbieżne oczekiwania finansowe",
             "other_offer": "Inna oferta",
             "no_response": "Brak odpowiedzi",
             "location_or_notice": "Lokalizacja lub okres wypowiedzenia"
@@ -5702,7 +5702,7 @@
           "options": {}
         },
         "placements.guarantee_ends": {
-          "label": "Koniec gwarancji",
+          "label": "Data końca gwarancji",
           "options": {}
         },
         "placements.status": {
@@ -5843,7 +5843,7 @@
           "title": "Dane kandydatów do przeglądu"
         },
         "lost_reasons": {
-          "title": "Dlaczego zlecenia zostały utracone"
+          "title": "Powody utraty zleceń"
         },
         "average_days_to_fill": {
           "title": "Średnia liczba dni do obsadzenia"
@@ -5909,71 +5909,71 @@
       },
       "rules": {
         "chase_terms": {
-          "title": "Ponaglić o podpisaną umowę trzy dni po przejściu zlecenia do etapu umowy podpisanej",
+          "title": "Ponagl klienta o podpisanie umowy trzy dni po przejściu zlecenia na etap Warunki uzgodnione",
           "description": ""
         },
         "request_client_feedback": {
-          "title": "Poprosić klienta o opinię dwa dni po zaprezentowaniu kandydata",
+          "title": "Poproś klienta o opinię dwa dni po zaprezentowaniu kandydata",
           "description": ""
         },
         "prepare_interview": {
-          "title": "Przygotować kandydata dzień przed rozmową u klienta",
+          "title": "Przygotuj kandydata dzień przed rozmową u klienta",
           "description": ""
         },
         "debrief_interview": {
-          "title": "Omówić rozmowę z kandydatem i klientem w dniu rozmowy",
+          "title": "Omów rozmowę z kandydatem i klientem w dniu rozmowy",
           "description": ""
         },
         "chase_offer_decision": {
-          "title": "Zapytać kandydata o decyzję dwa dni po ofercie",
+          "title": "Zapytaj kandydata o decyzję dwa dni po ofercie",
           "description": ""
         },
         "start_day_confirmation": {
-          "title": "Potwierdzić start w pierwszym dniu zatrudnienia",
+          "title": "Potwierdź start w pierwszym dniu zatrudnienia",
           "description": ""
         },
         "check_in_week_1": {
-          "title": "Sprawdzić, jak się układa, tydzień po starcie",
+          "title": "Sprawdź, jak się układa, tydzień po starcie",
           "description": ""
         },
         "check_in_day_30": {
-          "title": "Sprawdzić, jak się układa, 30 dni po starcie",
+          "title": "Sprawdź, jak się układa, 30 dni po starcie",
           "description": ""
         },
         "check_in_day_60": {
-          "title": "Sprawdzić, jak się układa, 60 dni po starcie",
+          "title": "Sprawdź, jak się układa, 60 dni po starcie",
           "description": ""
         },
         "check_in_day_90": {
-          "title": "Sprawdzić, jak się układa, 90 dni po starcie",
+          "title": "Sprawdź, jak się układa, 90 dni po starcie",
           "description": ""
         },
         "guarantee_check": {
-          "title": "Potwierdzić, że zatrudnienie jest stabilne, a prowizja zapłacona, 14 dni przed końcem gwarancji",
+          "title": "Potwierdź, że zatrudnienie jest stabilne, a prowizja zapłacona, 14 dni przed końcem gwarancji",
           "description": ""
         },
         "retention_review": {
-          "title": "Usunąć kandydata lub zapisać nową zgodę w dniu przeglądu danych",
+          "title": "Usuń kandydata lub zapisz nową zgodę w dniu przeglądu danych",
           "description": ""
         },
         "client_touch": {
-          "title": "Zadzwonić do aktywnego klienta w dniu następnego kontaktu i zapytać o planowane rekrutacje",
+          "title": "Zadzwoń do aktywnego klienta w dniu następnego kontaktu i zapytaj o planowane rekrutacje",
           "description": ""
         },
         "stalled_search_review": {
-          "title": "Przejrzeć poszukiwanie otwarte dłużej niż 10 dni",
+          "title": "Przejrzyj poszukiwanie otwarte dłużej niż 10 dni",
           "description": ""
         },
         "application_received": {
-          "title": "Utworzyć kandydata i rozmowę po wysłaniu formularza aplikacyjnego",
+          "title": "Utwórz kandydata i zadanie telefoniczne po wysłaniu formularza aplikacyjnego",
           "description": ""
         },
         "feedback_overdue_notice": {
-          "title": "Powiadomić opiekuna, gdy opinia klienta jest spóźniona",
+          "title": "Powiadom opiekuna, gdy minie termin opinii klienta",
           "description": ""
         },
         "interview_calendar": {
-          "title": "Dodać rozmowę do kalendarza opiekuna, gdy zostanie uzgodniona",
+          "title": "Dodaj rozmowę do kalendarza opiekuna, gdy zostanie uzgodniona",
           "description": ""
         }
       },
@@ -5986,19 +5986,19 @@
         "candidate_data_page": "Baza wiedzy zawiera stronę o danych kandydatów i ich przechowywaniu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w moim workspace Customermates biuro rekrutacyjne: klienci z warunkami, zlecenia w dziewięciu etapach ze spodziewaną prowizją, jedna prezentacja na kandydata i zlecenie, zatrudnienia z końcem gwarancji i kontaktami po starcie oraz data przechowywania danych każdego kandydata.",
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates biuro rekrutacyjne: klienci z warunkami, zlecenia w dziewięciu etapach ze spodziewaną prowizją, jedna prezentacja na kandydata i zlecenie, zatrudnienia z końcem gwarancji i kontaktami po starcie oraz data przechowywania danych każdego kandydata.",
         "questions": [
-          "Pracujesz za sukces, z zaliczką czy w obu modelach i jaką prowizję oraz gwarancję zwykle uzgadniasz?",
+          "Pracujesz za sukces, z zaliczką, czy w obu modelach i jaką prowizję oraz gwarancję zwykle uzgadniasz?",
           "Ile zleceń i kandydatów obsługujesz naraz i kto odpowiada za który etap?",
           "Jak długo przechowujesz dane kandydatów i w jakich krajach rekrutujesz?",
-          "Gdzie trzymasz podpisane umowy i faktury? Tutaj zapisywany jest tylko link lub numer."
+          "Gdzie przechowujesz podpisane umowy i faktury? Tutaj zapisujemy tylko link lub numer."
         ]
       }
     },
     "pt": {
       "locale": "pt",
       "name": "Consultoria de recrutamento",
-      "summary": "Uma mesa de trabalho para consultoria de recrutamento ou recrutador independente: vagas da solicitação à contratação, uma ficha por candidato e vaga, datas de honorários e garantia, acompanhamento pós-contratação e uma data de retenção para cada candidato.",
+      "summary": "Um espaço de trabalho para consultoria de recrutamento ou recrutador independente: vagas da solicitação à contratação, uma ficha por candidato e vaga, datas de honorários e garantia, acompanhamento pós-contratação e uma data de retenção para cada candidato.",
       "description": "Conduza a consultoria em um só lugar: clientes e suas condições, vagas com uma etapa e honorários previstos, candidatos indicados por vaga com etapa própria, contratações com o fim do período de garantia e o acompanhamento pós-contratação, e uma data de revisão de retenção em cada candidato. Serve para uma equipe de uma a cinco pessoas. Não é um portal de vagas, nem um leitor de currículos, nem uma ferramenta de disparos em massa, nem um sistema de ponto e folha de pagamento. Nada é enviado automaticamente a candidatos ou clientes.",
       "lists": {
         "actions": {
@@ -6009,7 +6009,7 @@
         "people": {
           "label": "Pessoa",
           "pluralLabel": "Candidatos e contatos",
-          "description": "Candidatos, contatos no cliente e indicadores."
+          "description": "Candidatos, contatos no cliente e quem indica."
         },
         "clients": {
           "label": "Cliente",
@@ -6088,7 +6088,7 @@
           "options": {
             "candidate": "Candidato",
             "client_contact": "Contato do cliente",
-            "referrer": "Indicador",
+            "referrer": "Quem indicou",
             "other": "Outro"
           }
         },
@@ -6097,7 +6097,7 @@
           "options": {}
         },
         "people.candidate_status": {
-          "label": "Situação do candidato",
+          "label": "Status do candidato",
           "options": {
             "active": "Em busca ativa",
             "passive": "Passivo",
@@ -6151,7 +6151,7 @@
           "options": {}
         },
         "clients.client_status": {
-          "label": "Situação",
+          "label": "Status",
           "options": {
             "prospect": "Prospect",
             "active_client": "Cliente ativo",
@@ -6241,7 +6241,7 @@
           "options": {}
         },
         "jobs.next_step_due": {
-          "label": "Prazo do próximo passo",
+          "label": "Data do próximo passo",
           "options": {}
         },
         "jobs.lost_reason": {
@@ -6319,7 +6319,7 @@
           "options": {}
         },
         "placements.status": {
-          "label": "Situação",
+          "label": "Status",
           "options": {
             "in_guarantee": "Em garantia",
             "guarantee_passed": "Garantia concluída",
@@ -6481,7 +6481,7 @@
           "title": "Honorários, garantia e exclusividade",
           "sections": [
             "Base de cálculo, quando são devidos e prazo de pagamento",
-            "Prazo e remédio da garantia, exclusividade (use o seu próprio contrato, isto não é consultoria jurídica)"
+            "Prazo e forma de reposição da garantia, exclusividade (use o seu próprio contrato, isto não é consultoria jurídica)"
           ]
         },
         "screening_call": {

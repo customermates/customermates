@@ -952,8 +952,8 @@
     "de": {
       "locale": "de",
       "name": "Maßnahmenplan",
-      "summary": "Jede Maßnahme mit einem Verantwortlichen und einer Frist, verknüpft mit Besprechung, Beschluss oder Projekt, mit wöchentlicher Durchsicht und Abschluss mit Nachweis.",
-      "description": "Eine Maßnahmenliste für alles, was aus Besprechungen, Projekten, Audits und Kundenanfragen folgt: sechs Status, Priorität, Verantwortlicher, Frist, Wiedervorlage, ein Beschlussprotokoll und eine Wirksamkeitsprüfung nach Korrekturmaßnahmen. Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen.",
+      "summary": "Jede Maßnahme mit einem Verantwortlichen und einer Deadline, verknüpft mit Besprechung, Beschluss oder Projekt, mit wöchentlicher Durchsicht und Abschluss mit Nachweis.",
+      "description": "Eine Maßnahmenliste für alles, was aus Besprechungen, Projekten, Audits und Kundenanfragen folgt: sechs Status, Priorität, Verantwortlicher, Deadline, Wiedervorlage, ein Beschlussprotokoll und eine Wirksamkeitsprüfung nach Korrekturmaßnahmen. Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen.",
       "lists": {
         "people": {
           "label": "Person",
@@ -1021,7 +1021,7 @@
           "options": {
             "team": "Teambesprechung",
             "project": "Projektbesprechung",
-            "steering": "Lenkungskreis",
+            "steering": "Lenkungsausschuss",
             "customer": "Kundentermin",
             "audit": "Audit oder Review"
           }
@@ -1109,7 +1109,7 @@
           }
         },
         "actions.owner": {
-          "label": "Verantwortlicher",
+          "label": "Verantwortlich",
           "options": {}
         },
         "actions.due": {
@@ -1233,7 +1233,7 @@
           "description": ""
         },
         "unblock_action": {
-          "title": "Benennen, wer eine blockierte Maßnahme lösen kann",
+          "title": "Festlegen, wer die Blockade einer Maßnahme auflösen kann",
           "description": ""
         },
         "due_reminder": {
@@ -1271,12 +1271,12 @@
         "overdue_widget": "Das Dashboard zeigt, wie viele Maßnahmen überfällig sind."
       },
       "prompt": {
-        "intro": "Richte einen Maßnahmenplan in meinem Customermates-Workspace ein: Maßnahmen mit sechs Status, Priorität, Verantwortlichem, Frist und Wiedervorlage, verknüpft mit Besprechungen, Beschlüssen und Projekten, dazu eine wöchentliche Durchsicht.",
+        "intro": "Richte einen Maßnahmenplan in meinem Customermates-Workspace ein: Maßnahmen mit sechs Status, Priorität, Verantwortlichem, Deadline und Wiedervorlage, verknüpft mit Besprechungen, Beschlüssen und Projekten, dazu eine wöchentliche Durchsicht.",
         "questions": [
-          "Woher kommen Ihre Maßnahmen: Besprechungen, Projekte, Audits, Kunden?",
+          "Woher kommen deine Maßnahmen: Besprechungen, Projekte, Audits, Kunden?",
           "Wer verantwortet Maßnahmen, und wer entscheidet, wenn eine neu terminiert oder abgebrochen wird?",
-          "Brauchen Sie Korrektur- und Vorbeugungsmaßnahmen mit Wirksamkeitsprüfung, etwa nach ISO 9001?",
-          "Führen Sie Protokolle anderswo? Hier wird nur ein Link dazu gespeichert."
+          "Brauchst du Korrektur- und Vorbeugungsmaßnahmen mit Wirksamkeitsprüfung, etwa nach ISO 9001?",
+          "Führst du Protokolle anderswo? Hier wird nur ein Link dazu gespeichert."
         ]
       }
     },
@@ -1614,8 +1614,8 @@
     "es": {
       "locale": "es",
       "name": "Plan de acción",
-      "summary": "Cada acción con un responsable y una fecha límite, vinculada a la reunión, la decisión o el proyecto de donde sale, con revisión semanal y cierre con prueba.",
-      "description": "Un seguimiento de las acciones que salen de reuniones, proyectos, auditorías y peticiones de clientes: seis estados, una prioridad, un responsable, una fecha límite, una fecha de seguimiento, un registro de decisiones y una comprobación de eficacia tras las acciones correctivas. Los recordatorios vienen de las reglas de automatización y las notificaciones.",
+      "summary": "Cada acción con un responsable y una fecha límite, vinculada a la reunión, la decisión o el proyecto de donde sale, con revisión semanal y cierre con evidencia.",
+      "description": "Un seguimiento de las acciones que salen de reuniones, proyectos, auditorías y peticiones de clientes: seis estados, una prioridad, un responsable, una fecha límite, una fecha de seguimiento, un registro de decisiones y una verificación de eficacia tras las acciones correctivas. Los recordatorios vienen de las reglas de automatización y las notificaciones.",
       "lists": {
         "people": {
           "label": "Persona",
@@ -1668,7 +1668,7 @@
           "label": "Función",
           "options": {
             "team_member": "Miembro del equipo",
-            "external": "Socio externo",
+            "external": "Colaborador externo",
             "customer": "Cliente",
             "supplier": "Proveedor",
             "other": "Otro"
@@ -1791,7 +1791,7 @@
           "options": {}
         },
         "actions.proof_url": {
-          "label": "Enlace de la prueba",
+          "label": "Enlace de la evidencia",
           "options": {}
         },
         "actions.outcome": {
@@ -1882,10 +1882,10 @@
           ]
         },
         "closing_with_proof": {
-          "title": "Cerrar una acción con prueba",
+          "title": "Cerrar una acción con evidencia",
           "sections": [
-            "Enlazar la prueba",
-            "Comprobación de eficacia de las acciones correctivas"
+            "Enlazar la evidencia",
+            "Verificación de la eficacia de las acciones correctivas"
           ]
         }
       },
@@ -1903,7 +1903,7 @@
           "description": ""
         },
         "overdue_notice": {
-          "title": "Avisar al responsable el día después de pasar la fecha límite",
+          "title": "Avisar al responsable al día siguiente de vencer la fecha límite",
           "description": ""
         },
         "follow_up_date": {
@@ -1911,7 +1911,7 @@
           "description": ""
         },
         "effectiveness_check": {
-          "title": "Comprobar la eficacia de una acción correctiva o preventiva a los 30 días",
+          "title": "Verificar la eficacia de una acción correctiva o preventiva a los 30 días",
           "description": ""
         },
         "weekly_action_review": {
@@ -1945,8 +1945,8 @@
     "fr": {
       "locale": "fr",
       "name": "Plan d’action",
-      "summary": "Chaque action avec un pilote et une échéance, liée à la réunion, à la décision ou au projet dont elle vient, avec une revue hebdomadaire et une clôture avec preuve.",
-      "description": "Un tableau de suivi des actions issues des réunions, des projets, des audits et des demandes clients : six statuts, une priorité, un pilote, une échéance, une date de relance, un relevé de décisions et une vérification d’efficacité après les actions correctives. Les rappels viennent des règles d’automatisation et des notifications.",
+      "summary": "Chaque action avec un pilote et une échéance, liée à la réunion, à la décision ou au projet dont elle est issue, avec une revue hebdomadaire et une clôture sur preuve.",
+      "description": "Un tableau de suivi des actions issues des réunions, des projets, des audits et des demandes clients : six statuts, une priorité, un pilote, une échéance, une date de relance, un relevé de décisions et une vérification d’efficacité après les actions correctives. Les rappels viennent des règles d’automatisation et des notifications.",
       "lists": {
         "people": {
           "label": "Personne",
@@ -2185,7 +2185,7 @@
           "title": "Actions ouvertes par pilote"
         },
         "done_per_month": {
-          "title": "Faites par mois"
+          "title": "Actions faites par mois"
         },
         "actions_by_source": {
           "title": "Actions par origine"
@@ -2202,18 +2202,18 @@
           "title": "Comment nous rédigeons une action",
           "sections": [
             "Un verbe, un pilote, une date",
-            "À quoi ressemble « fait »"
+            "À quoi ressemble une action « faite »"
           ]
         },
         "weekly_action_review": {
           "title": "Revue hebdomadaire des actions en 15 minutes",
           "sections": [
-            "Bloquées, qui glissent, sans prochaine étape",
-            "Redater, déléguer ou annuler"
+            "Bloquées, en retard ou sans prochaine étape",
+            "Décaler l’échéance, déléguer ou annuler"
           ]
         },
         "closing_with_proof": {
-          "title": "Clore une action avec une preuve",
+          "title": "Clôturer une action avec une preuve",
           "sections": [
             "Lier la preuve",
             "Vérification d’efficacité des actions correctives"
@@ -2264,20 +2264,20 @@
         "overdue_widget": "Le tableau de bord montre combien d’actions sont en retard."
       },
       "prompt": {
-        "intro": "Mets en place un plan d’action dans mon espace Customermates : des actions avec six statuts, une priorité, un pilote, une échéance et une date de relance, liées aux réunions, aux décisions et aux projets, plus une revue hebdomadaire.",
+        "intro": "Mets en place un plan d’action dans mon espace de travail Customermates : des actions avec six statuts, une priorité, un pilote, une échéance et une date de relance, liées aux réunions, aux décisions et aux projets, plus une revue hebdomadaire.",
         "questions": [
-          "D’où viennent vos actions : réunions, projets, audits, clients ?",
-          "Qui pilote les actions, et qui décide quand l’une est redatée ou annulée ?",
-          "Avez-vous besoin d’actions correctives et préventives avec vérification d’efficacité, comme en ISO 9001 ?",
-          "Gardez-vous les comptes rendus ailleurs ? Seul un lien y est conservé ici."
+          "D’où viennent vos actions : réunions, projets, audits, clients ?",
+          "Qui pilote les actions, et qui décide quand l’une est reportée ou annulée ?",
+          "Avez-vous besoin d’actions correctives et préventives avec vérification d’efficacité, comme dans la norme ISO 9001 ?",
+          "Gardez-vous les comptes rendus ailleurs ? Seul un lien vers eux est conservé ici."
         ]
       }
     },
     "it": {
       "locale": "it",
-      "name": "Piano d’azione",
-      "summary": "Ogni azione con un responsabile e una scadenza, collegata alla riunione, alla decisione o al progetto da cui nasce, con una revisione settimanale e la chiusura con prova.",
-      "description": "Un elenco delle azioni che nascono da riunioni, progetti, audit e richieste dei clienti: sei stati, una priorità, un responsabile, una scadenza, una data di ripresa, un registro delle decisioni e una verifica di efficacia dopo le azioni correttive. I promemoria vengono dalle regole di automazione e dalle notifiche.",
+      "name": "Piano d'azione",
+      "summary": "Ogni azione con un responsabile e una scadenza, collegata alla riunione, alla decisione o al progetto da cui nasce, con una revisione settimanale e la chiusura con una prova a supporto.",
+      "description": "Un elenco delle azioni che nascono da riunioni, progetti, audit e richieste dei clienti: sei stati, una priorità, un responsabile, una scadenza, una data di follow-up, un registro delle decisioni e una verifica di efficacia dopo le azioni correttive. I promemoria vengono dalle regole di automazione e dalle notifiche.",
       "lists": {
         "people": {
           "label": "Persona",
@@ -2297,7 +2297,7 @@
         "projects": {
           "label": "Progetto",
           "pluralLabel": "Progetti",
-          "description": "Il progetto a cui appartiene un’azione."
+          "description": "Il progetto a cui appartiene un'azione."
         },
         "actions": {
           "label": "Azione",
@@ -2355,11 +2355,11 @@
           "options": {}
         },
         "meetings.agenda_url": {
-          "label": "Link dell’ordine del giorno",
+          "label": "Link all'ordine del giorno",
           "options": {}
         },
         "meetings.minutes_url": {
-          "label": "Link del verbale",
+          "label": "Link al verbale",
           "options": {}
         },
         "meetings.minutes_sent_on": {
@@ -2414,7 +2414,7 @@
           "label": "Tipo",
           "options": {
             "action": "Azione",
-            "follow_up": "Sollecito",
+            "follow_up": "Follow-up",
             "review": "Revisione",
             "corrective": "Azione correttiva",
             "preventive": "Azione preventiva",
@@ -2441,7 +2441,7 @@
           "options": {}
         },
         "actions.follow_up_on": {
-          "label": "Da riprendere il",
+          "label": "Follow-up il",
           "options": {}
         },
         "actions.done_on": {
@@ -2453,7 +2453,7 @@
           "options": {}
         },
         "actions.proof_url": {
-          "label": "Link della prova",
+          "label": "Link alla prova",
           "options": {}
         },
         "actions.outcome": {
@@ -2516,7 +2516,7 @@
           "title": "Azioni aperte per responsabile"
         },
         "done_per_month": {
-          "title": "Completate al mese"
+          "title": "Azioni completate per mese"
         },
         "actions_by_source": {
           "title": "Azioni per origine"
@@ -2525,12 +2525,12 @@
           "title": "Ritardo medio in giorni"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         }
       },
       "knowledgePages": {
         "how_we_write_an_action": {
-          "title": "Come scriviamo un’azione",
+          "title": "Come scriviamo un'azione",
           "sections": [
             "Un verbo, un responsabile, una data",
             "Come si riconosce che è completata"
@@ -2540,11 +2540,11 @@
           "title": "Revisione settimanale delle azioni in 15 minuti",
           "sections": [
             "Bloccate, in ritardo, senza prossimo passo",
-            "Ridatare, delegare o annullare"
+            "Spostare la scadenza, delegare o annullare"
           ]
         },
         "closing_with_proof": {
-          "title": "Chiudere un’azione con una prova",
+          "title": "Chiudere un'azione con una prova",
           "sections": [
             "Collegare la prova",
             "Verifica di efficacia per le azioni correttive"
@@ -2553,11 +2553,11 @@
       },
       "rules": {
         "minutes_after_meeting": {
-          "title": "Inviare il verbale e l’elenco delle azioni dopo una riunione",
+          "title": "Inviare il verbale e l'elenco delle azioni dopo una riunione",
           "description": ""
         },
         "unblock_action": {
-          "title": "Indicare chi può sbloccare un’azione che diventa bloccata",
+          "title": "Indicare chi può sbloccare un'azione che diventa bloccata",
           "description": ""
         },
         "due_reminder": {
@@ -2569,11 +2569,11 @@
           "description": ""
         },
         "follow_up_date": {
-          "title": "Riprendere l’azione alla data di ripresa",
+          "title": "Riprendere l'azione alla data di follow-up",
           "description": ""
         },
         "effectiveness_check": {
-          "title": "Verificare l’efficacia di un’azione correttiva o preventiva dopo 30 giorni",
+          "title": "Verificare l'efficacia di un'azione correttiva o preventiva dopo 30 giorni",
           "description": ""
         },
         "weekly_action_review": {
@@ -2585,7 +2585,7 @@
           "description": ""
         },
         "request_form_action": {
-          "title": "Creare un’azione da una richiesta inviata con un modulo",
+          "title": "Creare un'azione da una richiesta inviata con un modulo",
           "description": ""
         }
       },
@@ -2595,10 +2595,10 @@
         "overdue_widget": "La dashboard mostra quante azioni sono scadute."
       },
       "prompt": {
-        "intro": "Configura un piano d’azione nel mio spazio di lavoro Customermates: azioni con sei stati, una priorità, un responsabile, una scadenza e una data di ripresa, collegate a riunioni, decisioni e progetti, più una revisione settimanale.",
+        "intro": "Configura un piano d'azione nel mio spazio di lavoro Customermates: azioni con sei stati, una priorità, un responsabile, una scadenza e una data di follow-up, collegate a riunioni, decisioni e progetti, più una revisione settimanale.",
         "questions": [
           "Da dove nascono le tue azioni: riunioni, progetti, audit, clienti?",
-          "Chi è responsabile delle azioni e chi decide quando una viene ridatata o annullata?",
+          "Chi è responsabile delle azioni e chi decide quando una viene rinviata o annullata?",
           "Ti servono azioni correttive e preventive con verifica di efficacia, come nella ISO 9001?",
           "Tieni i verbali altrove? Qui si conserva solo un link."
         ]
@@ -2841,7 +2841,7 @@
           "title": "Geblokkeerde acties"
         },
         "due_soon": {
-          "title": "Binnenkort aan de beurt"
+          "title": "Deadline nadert"
         },
         "open_by_owner": {
           "title": "Open acties per eigenaar"
@@ -2870,8 +2870,8 @@
         "weekly_action_review": {
           "title": "Wekelijkse actiecontrole van 15 minuten",
           "sections": [
-            "Geblokkeerd, schuivend, zonder volgende stap",
-            "Opnieuw dateren, delegeren of annuleren"
+            "Geblokkeerd, vertraagd, zonder volgende stap",
+            "Verzetten, delegeren of annuleren"
           ]
         },
         "closing_with_proof": {
@@ -2896,7 +2896,7 @@
           "description": ""
         },
         "overdue_notice": {
-          "title": "Meld de eigenaar de dag nadat de deadline is verstreken",
+          "title": "Waarschuw de eigenaar de dag nadat de deadline is verstreken",
           "description": ""
         },
         "follow_up_date": {
@@ -2937,9 +2937,9 @@
     },
     "pl": {
       "locale": "pl",
-      "name": "Plan działań",
-      "summary": "Każde zadanie z jedną osobą odpowiedzialną i terminem, powiązane ze spotkaniem, decyzją lub projektem, z którego wynika, z cotygodniowym przeglądem i zamknięciem z dowodem.",
-      "description": "Lista zadań wynikających ze spotkań, projektów, audytów i próśb klientów: sześć statusów, priorytet, osoba odpowiedzialna, termin, data powrotu do sprawy, rejestr decyzji i sprawdzenie skuteczności po działaniach korygujących. Przypomnienia pochodzą z reguł automatyzacji i powiadomień.",
+      "name": "Rejestr zadań i działań",
+      "summary": "Każde zadanie z jedną osobą odpowiedzialną i terminem, powiązane ze spotkaniem, decyzją lub projektem, z którego wynika, z cotygodniowym przeglądem i zamykaniem z dowodem wykonania.",
+      "description": "Lista zadań wynikających ze spotkań, projektów, audytów i próśb klientów: sześć statusów, priorytet, osoba odpowiedzialna, termin, termin kontrolny, rejestr decyzji i sprawdzenie skuteczności po działaniach korygujących. Przypomnienia pochodzą z reguł automatyzacji i powiadomień.",
       "lists": {
         "people": {
           "label": "Osoba",
@@ -3013,7 +3013,7 @@
           }
         },
         "meetings.held_at": {
-          "label": "Odbyło się",
+          "label": "Data spotkania",
           "options": {}
         },
         "meetings.agenda_url": {
@@ -3025,11 +3025,11 @@
           "options": {}
         },
         "meetings.minutes_sent_on": {
-          "label": "Protokół wysłano dnia",
+          "label": "Data wysłania protokołu",
           "options": {}
         },
         "meetings.next_meeting_on": {
-          "label": "Następne spotkanie dnia",
+          "label": "Data następnego spotkania",
           "options": {}
         },
         "decisions.decision_text": {
@@ -3045,23 +3045,23 @@
           }
         },
         "decisions.decided_on": {
-          "label": "Podjęto dnia",
+          "label": "Data podjęcia",
           "options": {}
         },
         "decisions.review_on": {
-          "label": "Przegląd dnia",
+          "label": "Data przeglądu",
           "options": {}
         },
         "projects.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "projects.start_date": {
-          "label": "Początek",
+          "label": "Data rozpoczęcia",
           "options": {}
         },
         "projects.end_date": {
-          "label": "Koniec",
+          "label": "Data zakończenia",
           "options": {}
         },
         "actions.priority": {
@@ -3076,7 +3076,7 @@
           "label": "Rodzaj",
           "options": {
             "action": "Zadanie",
-            "follow_up": "Ponowny kontakt",
+            "follow_up": "Kontynuacja",
             "review": "Przegląd",
             "corrective": "Działanie korygujące",
             "preventive": "Działanie zapobiegawcze",
@@ -3095,7 +3095,7 @@
           }
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.due": {
@@ -3103,11 +3103,11 @@
           "options": {}
         },
         "actions.follow_up_on": {
-          "label": "Powrót do sprawy dnia",
+          "label": "Termin kontrolny",
           "options": {}
         },
         "actions.done_on": {
-          "label": "Zrobiono dnia",
+          "label": "Data wykonania",
           "options": {}
         },
         "actions.blocker_note": {
@@ -3172,13 +3172,13 @@
           "title": "Zablokowane zadania"
         },
         "due_soon": {
-          "title": "Wkrótce do zrobienia"
+          "title": "Zbliżające się terminy"
         },
         "open_by_owner": {
-          "title": "Otwarte zadania na osobę"
+          "title": "Otwarte zadania wg osoby"
         },
         "done_per_month": {
-          "title": "Zrobione miesięcznie"
+          "title": "Zrobione w poszczególnych miesiącach"
         },
         "actions_by_source": {
           "title": "Zadania wg źródła"
@@ -3195,20 +3195,20 @@
           "title": "Jak zapisujemy zadanie",
           "sections": [
             "Jeden czasownik, jedna osoba, jedna data",
-            "Jak wygląda zadanie zrobione"
+            "Jak wygląda wykonane zadanie"
           ]
         },
         "weekly_action_review": {
           "title": "Cotygodniowy 15-minutowy przegląd zadań",
           "sections": [
             "Zablokowane, opóźnione, bez następnego kroku",
-            "Zmień termin, deleguj lub anuluj"
+            "Zmień termin, przekaż komuś innemu lub anuluj"
           ]
         },
         "closing_with_proof": {
           "title": "Zamykanie zadania z dowodem",
           "sections": [
-            "Podlinkuj dowód",
+            "Dołącz link do dowodu",
             "Sprawdzenie skuteczności działań korygujących"
           ]
         }
@@ -3219,19 +3219,19 @@
           "description": ""
         },
         "unblock_action": {
-          "title": "Wskaż, kto może odblokować zadanie, które zostało zablokowane",
+          "title": "Wskaż, kto może odblokować zadanie, gdy zostanie zablokowane",
           "description": ""
         },
         "due_reminder": {
-          "title": "Przypomnij odpowiedzialnemu dwa dni przed terminem",
+          "title": "Przypomnij osobie odpowiedzialnej o terminie na dwa dni przed jego upływem",
           "description": ""
         },
         "overdue_notice": {
-          "title": "Powiadom odpowiedzialnego dzień po przekroczeniu terminu",
+          "title": "Powiadom osobę odpowiedzialną dzień po przekroczeniu terminu zadania",
           "description": ""
         },
         "follow_up_date": {
-          "title": "Wróć do zadania w dniu powrotu do sprawy",
+          "title": "Wróć do zadania w terminie kontrolnym",
           "description": ""
         },
         "effectiveness_check": {
@@ -3239,15 +3239,15 @@
           "description": ""
         },
         "weekly_action_review": {
-          "title": "Przeprowadź przegląd zadań w każdy poniedziałek",
+          "title": "Przeprowadź cotygodniowy przegląd zadań w każdy poniedziałek",
           "description": ""
         },
         "decision_review": {
-          "title": "Przejrzyj decyzję w dniu przeglądu",
+          "title": "Przejrzyj decyzję w terminie jej przeglądu",
           "description": ""
         },
         "request_form_action": {
-          "title": "Utwórz zadanie z prośby wysłanej formularzem",
+          "title": "Utwórz zadanie z prośby wysłanej przez formularz",
           "description": ""
         }
       },
@@ -3257,12 +3257,12 @@
         "overdue_widget": "Pulpit pokazuje, ile zadań jest zaległych."
       },
       "prompt": {
-        "intro": "Skonfiguruj plan działań w mojej przestrzeni roboczej Customermates: zadania z sześcioma statusami, priorytetem, osobą odpowiedzialną, terminem i datą powrotu do sprawy, powiązane ze spotkaniami, decyzjami i projektami, do tego cotygodniowy przegląd.",
+        "intro": "Skonfiguruj rejestr zadań i działań w mojej przestrzeni roboczej Customermates: zadania z sześcioma statusami, priorytetem, osobą odpowiedzialną, terminem i terminem kontrolnym, powiązane ze spotkaniami, decyzjami i projektami, do tego cotygodniowy przegląd.",
         "questions": [
           "Skąd biorą się Twoje zadania: spotkania, projekty, audyty, klienci?",
-          "Kto odpowiada za zadania i kto decyduje, gdy zmienia się termin lub zadanie jest anulowane?",
+          "Kto odpowiada za zadania i kto decyduje o zmianie terminu lub anulowaniu zadania?",
           "Czy potrzebujesz działań korygujących i zapobiegawczych ze sprawdzeniem skuteczności, jak w ISO 9001?",
-          "Czy protokoły trzymasz gdzie indziej? Tutaj zapisywany jest tylko odnośnik."
+          "Czy protokoły prowadzisz w innym miejscu? Tutaj zapisujemy tylko link do nich."
         ]
       }
     },
@@ -3270,7 +3270,7 @@
       "locale": "pt",
       "name": "Plano de ação",
       "summary": "Cada ação com um responsável e um prazo, vinculada à reunião, à decisão ou ao projeto de onde vem, com revisão semanal e encerramento com comprovação.",
-      "description": "Um controle das ações que saem de reuniões, projetos, auditorias e pedidos de clientes: seis status, uma prioridade, um responsável, um prazo, uma data de retorno, um registro de decisões e uma checagem de eficácia depois de ações corretivas. Os lembretes vêm de regras de automação e notificações. O modelo 5W2H cabe aqui com os campos de responsável, prazo e origem.",
+      "description": "Um controle das ações que saem de reuniões, projetos, auditorias e pedidos de clientes: seis status, uma prioridade, um responsável, um prazo, uma data de retorno, um registro de decisões e uma verificação de eficácia depois de ações corretivas. Os lembretes vêm de regras de automação e notificações. O modelo 5W2H cabe aqui com os campos de responsável, prazo e origem.",
       "lists": {
         "people": {
           "label": "Pessoa",
@@ -3532,15 +3532,15 @@
         "weekly_action_review": {
           "title": "Revisão semanal das ações em 15 minutos",
           "sections": [
-            "Bloqueadas, atrasando, sem próximo passo",
-            "Remarcar, delegar ou cancelar"
+            "Bloqueadas, atrasadas, sem próximo passo",
+            "Alterar o prazo, delegar ou cancelar"
           ]
         },
         "closing_with_proof": {
           "title": "Encerrar uma ação com comprovação",
           "sections": [
             "Vincular a comprovação",
-            "Checagem de eficácia das ações corretivas"
+            "Verificação de eficácia das ações corretivas"
           ]
         }
       },
@@ -3566,7 +3566,7 @@
           "description": ""
         },
         "effectiveness_check": {
-          "title": "Checar a eficácia de uma ação corretiva ou preventiva após 30 dias",
+          "title": "Verificar a eficácia de uma ação corretiva ou preventiva após 30 dias",
           "description": ""
         },
         "weekly_action_review": {
@@ -3591,7 +3591,7 @@
         "intro": "Configure um plano de ação no meu espaço de trabalho do Customermates: ações com seis status, uma prioridade, um responsável, um prazo e uma data de retorno, vinculadas a reuniões, decisões e projetos, mais uma revisão semanal.",
         "questions": [
           "De onde vêm as suas ações: reuniões, projetos, auditorias, clientes?",
-          "Quem é responsável pelas ações e quem decide quando uma é remarcada ou cancelada?",
+          "Quem é responsável pelas ações e quem decide quando o prazo de uma muda ou ela é cancelada?",
           "Você precisa de ações corretivas e preventivas com checagem de eficácia, como na ISO 9001?",
           "Você guarda as atas em outro lugar? Aqui só se guarda um link."
         ]

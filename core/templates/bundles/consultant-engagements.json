@@ -1155,7 +1155,7 @@
     "de": {
       "locale": "de",
       "name": "Beratungsaufträge",
-      "summary": "Eine Pipeline für selbstständige Berater: Aufträge vom Erstkontakt bis zum Beratungsvertrag mit Auftragsklärung vor dem Angebot, einem beim Angebotsgespräch vereinbarten Nachfasstermin und Ergebnissen, die Durchführung und Abschluss steuern.",
+      "summary": "Eine Pipeline für selbstständige Berater: Aufträge vom Erstkontakt bis zur Auftragserteilung mit Auftragsklärung vor dem Angebot, einem beim Angebotsgespräch vereinbarten Nachfasstermin und Ergebnissen, die Durchführung und Abschluss steuern.",
       "description": "Eine Beratung an einem Ort führen: Aufträge über Vorgespräch, Auftragsklärung, Angebot und Entscheidung, den mit dem Auftraggeber vereinbarten Nachfasstermin, eine Annahmeprüfung (Kapazität, Unabhängigkeit, Vertraulichkeit) vor dem Angebot, Ergebnisse mit Fälligkeits- und Abnahmedatum und einen Abschluss, der um Rückmeldung und eine Referenz bittet. Die Vorlage hält Pipeline, Beziehungen und Lieferschritte fest. Keine Zeiterfassung, keine Rechnungsstellung, keine elektronische Unterschrift für Angebote und keine Ressourcenplanung, und keine vertraulichen Daten des Kunden.",
       "lists": {
         "actions": {
@@ -1181,7 +1181,7 @@
         "deliverables": {
           "label": "Ergebnis",
           "pluralLabel": "Ergebnisse (Meilensteine)",
-          "description": "Ein Meilenstein, den Sie übergeben, mit Fälligkeit und Abnahme."
+          "description": "Ein Meilenstein, den du übergibst, mit Fälligkeit und Abnahme."
         }
       },
       "fields": {
@@ -1249,7 +1249,7 @@
             "scoping": "Auftragsklärung",
             "proposal_sent": "Angebot",
             "decision": "Entscheidung",
-            "won": "Beratungsvertrag",
+            "won": "Auftrag erteilt",
             "lost": "Verloren"
           }
         },
@@ -1326,7 +1326,7 @@
           "options": {
             "timing": "Zeitpunkt",
             "budget": "Budget",
-            "in_house": "Macht es intern",
+            "in_house": "Wird intern umgesetzt",
             "other_advisor": "Anderen Berater gewählt",
             "scope_changed": "Umfang geändert",
             "no_decision": "Keine Entscheidung",
@@ -1501,7 +1501,7 @@
           "description": ""
         },
         "won_kickoff": {
-          "title": "Am Tag nach dem Beratungsvertrag den Auftakt terminieren",
+          "title": "Am Tag nach der Auftragserteilung den Auftakt terminieren",
           "description": ""
         },
         "lost_review": {
@@ -1532,12 +1532,12 @@
         "engagements_board_view": "Die Beratungsaufträge öffnen sich als Board nach Phase."
       },
       "prompt": {
-        "intro": "Richte in meinem Customermates-Workspace Beratungsaufträge ein: Aufträge vom Erstkontakt bis zum Beratungsvertrag mit Annahmeprüfung und einem im Angebotsgespräch vereinbarten Nachfasstermin, Ergebnisse mit Fälligkeits- und Abnahmedatum und einen Abschluss, der um Rückmeldung bittet. Speichere keine vertraulichen Kundendaten.",
+        "intro": "Richte in meinem Customermates-Workspace Beratungsaufträge ein: Aufträge vom Erstkontakt bis zur Auftragserteilung mit Annahmeprüfung und einem im Angebotsgespräch vereinbarten Nachfasstermin, Ergebnisse mit Fälligkeits- und Abnahmedatum und einen Abschluss, der um Rückmeldung bittet. Speichere keine vertraulichen Kundendaten.",
         "questions": [
-          "Welche Arten von Aufträgen verkaufen Sie, und zu welchem Tagessatz?",
-          "Wie entscheiden Sie, ob Sie einen Auftrag annehmen?",
-          "Wie lange warten Sie nach einem Angebot, bevor Sie nachfassen?",
-          "Welche Ergebnisse sind Meilensteine, die Sie abrechnen?"
+          "Welche Arten von Aufträgen verkaufst du, und zu welchem Tagessatz?",
+          "Wie entscheidest du, ob du einen Auftrag annimmst?",
+          "Wie lange wartest du nach einem Angebot, bevor du nachfasst?",
+          "Welche Ergebnisse sind Meilensteine, die du abrechnest?"
         ]
       }
     },
@@ -1934,7 +1934,7 @@
       "locale": "es",
       "name": "Encargos de consultoría",
       "summary": "Un pipeline para un consultor independiente: encargos del contacto al encargo ganado con comprobación de aceptación antes de la oferta, una fecha de seguimiento acordada en la llamada de la propuesta y entregables que regulan la ejecución y el cierre.",
-      "description": "Lleve una consultoría en un solo lugar: encargos a través de descubrimiento, alcance, propuesta y decisión, la fecha de seguimiento acordada con el patrocinador, una comprobación de aceptación (capacidad, independencia, confidencialidad) antes de la oferta, entregables con su fecha límite y su aceptación, y un cierre que pide opinión y un testimonio. Guarda el pipeline, las relaciones y los hitos de entrega. No es control de horas, facturación, firma electrónica de propuestas ni planificación de recursos, y no contiene datos confidenciales del cliente.",
+      "description": "Lleva tu consultoría en un solo lugar: encargos a través de exploración, alcance, propuesta y decisión, la fecha de seguimiento acordada con el patrocinador, una comprobación de aceptación (capacidad, independencia, confidencialidad) antes de la oferta, entregables con su fecha límite y su aceptación, y un cierre que pide opinión y un testimonio. Guarda el pipeline, las relaciones y los hitos de entrega. No sirve para controlar horas, facturar, firmar propuestas electrónicamente ni planificar recursos, y no contiene datos confidenciales del cliente.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -1949,7 +1949,7 @@
         "clients": {
           "label": "Cliente",
           "pluralLabel": "Clientes",
-          "description": "Prospectos, clientes, antiguos clientes y socios que recomiendan."
+          "description": "Clientes potenciales, clientes, antiguos clientes y socios que recomiendan."
         },
         "engagements": {
           "label": "Encargo",
@@ -1959,7 +1959,7 @@
         "deliverables": {
           "label": "Entregable",
           "pluralLabel": "Entregables",
-          "description": "Un hito que usted entrega, con su fecha límite y su aceptación."
+          "description": "Un hito que entregas, con su fecha límite y su aceptación."
         }
       },
       "fields": {
@@ -2009,7 +2009,7 @@
         "clients.relationship": {
           "label": "Relación",
           "options": {
-            "prospect": "Prospecto",
+            "prospect": "Cliente potencial",
             "client": "Cliente",
             "former_client": "Antiguo cliente",
             "referral_partner": "Socio que recomienda"
@@ -2023,7 +2023,7 @@
           "label": "Fase",
           "options": {
             "introduction": "Contacto",
-            "discovery": "Descubrimiento",
+            "discovery": "Exploración",
             "scoping": "Alcance",
             "proposal_sent": "Propuesta enviada",
             "decision": "Decisión",
@@ -2035,7 +2035,7 @@
           "label": "Tipo",
           "options": {
             "diagnostic": "Diagnóstico",
-            "advisory_review": "Revisión asesora",
+            "advisory_review": "Revisión de asesoramiento",
             "workshop": "Taller",
             "interim": "Dirección interina",
             "retainer": "Asesoramiento continuo",
@@ -2096,11 +2096,11 @@
           }
         },
         "engagements.next_step_due": {
-          "label": "Siguiente paso antes de",
+          "label": "Fecha del siguiente paso",
           "options": {}
         },
         "engagements.lost_reason": {
-          "label": "Motivo de la pérdida",
+          "label": "Motivo de pérdida",
           "options": {
             "timing": "Momento",
             "budget": "Presupuesto",
@@ -2143,10 +2143,10 @@
           "label": "Tipo",
           "options": {
             "reply": "Responder",
-            "write_up": "Redactar la conversación",
+            "write_up": "Redactar el resumen de la conversación",
             "acceptance_check": "Comprobar la aceptación",
             "proposal": "Redactar la propuesta",
-            "follow_up": "Dar seguimiento",
+            "follow_up": "Hacer seguimiento",
             "kickoff": "Arranque",
             "deliver": "Entregar",
             "feedback": "Pedir opinión",
@@ -2240,7 +2240,7 @@
           ]
         },
         "discovery_guide": {
-          "title": "Guía de la conversación de descubrimiento",
+          "title": "Guía de la conversación de exploración",
           "sections": [
             "El problema con las palabras del cliente, los interesados y las señales de presupuesto",
             "Qué anotar al día siguiente"
@@ -2263,15 +2263,15 @@
       },
       "rules": {
         "discovery_writeup": {
-          "title": "Redactar la conversación de descubrimiento al día siguiente",
+          "title": "Redactar la conversación de exploración al día siguiente",
           "description": ""
         },
         "acceptance_check": {
-          "title": "Comprobar la aceptación el día después de pasar a alcance",
+          "title": "Comprobar la aceptación al día siguiente de pasar a alcance",
           "description": ""
         },
         "proposal_follow_up": {
-          "title": "Dar seguimiento 3 días después de enviar la propuesta",
+          "title": "Hacer seguimiento 3 días después de enviar la propuesta",
           "description": ""
         },
         "decision_date": {
@@ -2279,7 +2279,7 @@
           "description": ""
         },
         "won_kickoff": {
-          "title": "Programar el arranque el día después de ganar un encargo",
+          "title": "Programar el arranque al día siguiente de ganar un encargo",
           "description": ""
         },
         "lost_review": {
@@ -2310,20 +2310,20 @@
         "engagements_board_view": "Los encargos se abren como tablero por fase."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de Customermates encargos de consultoría: encargos del contacto al ganado con comprobación de aceptación y fecha de seguimiento acordada en la llamada de la propuesta, entregables con fecha límite y aceptación, y un cierre que pide opinión. No guardes datos confidenciales del cliente.",
+        "intro": "Configura en mi espacio de trabajo de Customermates encargos de consultoría: encargos del contacto al ganado con comprobación de aceptación y fecha de seguimiento acordada en la llamada de la propuesta, entregables con fecha límite y aceptación, y un cierre que pide opinión. No guardes datos confidenciales del cliente.",
         "questions": [
-          "¿Qué tipos de encargos vende y a qué tarifa diaria?",
-          "¿Cómo decide si acepta un trabajo?",
-          "¿Cuánto espera tras una propuesta antes de dar seguimiento?",
-          "¿Qué entregables marcan un hito que usted factura?"
+          "¿Qué tipos de encargos vendes y a qué tarifa diaria?",
+          "¿Cómo decides si aceptas un trabajo?",
+          "¿Cuánto esperas tras una propuesta antes de hacer seguimiento?",
+          "¿Qué entregables marcan un hito que facturas?"
         ]
       }
     },
     "fr": {
       "locale": "fr",
       "name": "Missions de conseil",
-      "summary": "Un pipeline pour un consultant indépendant : missions de la prospection à la mission signée avec contrôle d'acceptation avant la proposition, une date de relance convenue lors de l'appel sur la proposition, et des livrables qui encadrent l'exécution et la clôture.",
-      "description": "Pilotez une activité de conseil au même endroit : missions à travers la qualification, le cadrage, la proposition commerciale et la décision, la date de relance convenue avec le sponsor, un contrôle d'acceptation (capacité, indépendance, confidentialité) avant la proposition, des livrables avec leur échéance et leur validation, et une clôture qui demande un retour et un témoignage. Le modèle garde le pipeline, les relations et les jalons de livraison. Ce n'est ni du suivi du temps, ni de la facturation, ni de la signature électronique de propositions, ni de la planification de ressources, et il ne contient aucune donnée confidentielle du client.",
+      "summary": "Un pipeline pour un consultant indépendant : missions de la prospection à la mission signée avec contrôle d’acceptation avant la proposition, une date de relance convenue lors de l’appel sur la proposition, et des livrables qui encadrent l’exécution et la clôture.",
+      "description": "Pilotez une activité de conseil au même endroit : missions à travers la qualification, le cadrage, la proposition commerciale et la décision, la date de relance convenue avec le sponsor, un contrôle d’acceptation (capacité, indépendance, confidentialité) avant la proposition, des livrables avec leur échéance et leur validation, et une clôture qui demande un retour et un témoignage. Il conserve le pipeline, les relations et les jalons de livraison. Ce n’est ni du suivi du temps, ni de la facturation, ni de la signature électronique de propositions, ni de la planification de ressources, et il ne contient aucune donnée confidentielle du client.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2432,10 +2432,10 @@
           }
         },
         "engagements.referral_source": {
-          "label": "Comment elle est arrivée",
+          "label": "Origine de la mission",
           "options": {
-            "client_referral": "Recommandation d'un client",
-            "peer_referral": "Recommandation d'un confrère",
+            "client_referral": "Recommandation d’un client",
+            "peer_referral": "Recommandation d’un confrère",
             "event_or_talk": "Événement ou conférence",
             "content": "Contenu publié",
             "existing_client": "Client existant",
@@ -2489,12 +2489,12 @@
           "options": {}
         },
         "engagements.lost_reason": {
-          "label": "Raison de la perte",
+          "label": "Motif de perte",
           "options": {
             "timing": "Calendrier",
             "budget": "Budget",
-            "in_house": "Le fait en interne",
-            "other_advisor": "A choisi un autre conseil",
+            "in_house": "Réalisé en interne",
+            "other_advisor": "A choisi un autre consultant",
             "scope_changed": "Périmètre modifié",
             "no_decision": "Pas de décision",
             "no_response": "Sans réponse"
@@ -2512,7 +2512,7 @@
         "deliverables.kind": {
           "label": "Type",
           "options": {
-            "interview_summary": "Synthèse d'entretiens",
+            "interview_summary": "Synthèse d’entretiens",
             "workshop": "Atelier",
             "report": "Rapport",
             "recommendation": "Recommandation",
@@ -2533,7 +2533,7 @@
           "options": {
             "reply": "Répondre",
             "write_up": "Rédiger le compte rendu",
-            "acceptance_check": "Contrôler l'acceptation",
+            "acceptance_check": "Contrôler l’acceptation",
             "proposal": "Rédiger la proposition",
             "follow_up": "Relancer",
             "kickoff": "Lancement",
@@ -2617,50 +2617,50 @@
           "title": "Missions signées par type"
         },
         "lost_reasons": {
-          "title": "Pourquoi des missions sont perdues"
+          "title": "Motifs de perte des missions"
         }
       },
       "knowledgePages": {
         "operating_guide": {
-          "title": "Comment fonctionne l'activité",
+          "title": "Comment fonctionne l’activité",
           "sections": [
-            "Les étapes et la règle d'une prochaine étape datée par mission ouverte",
-            "Ce qui reste à l'extérieur : suivi du temps et facturation"
+            "Les étapes et la règle d’une prochaine étape datée par mission ouverte",
+            "Ce qui reste hors de l’outil : suivi du temps et facturation"
           ]
         },
         "discovery_guide": {
-          "title": "Guide de l'entretien de qualification",
+          "title": "Guide de l’entretien de qualification",
           "sections": [
-            "Le problème avec les mots du client, les parties prenantes et les signaux de budget",
-            "Ce qu'il faut rédiger le lendemain"
+            "Le problème dans les mots du client, les parties prenantes et les signaux de budget",
+            "Ce qu’il faut rédiger le lendemain"
           ]
         },
         "acceptance_check": {
-          "title": "Contrôle d'acceptation avant la proposition",
+          "title": "Contrôle d’acceptation avant la proposition",
           "sections": [
             "Capacité, indépendance, confidentialité et adéquation",
-            "Qui décide d'accepter la mission"
+            "Qui décide d’accepter la mission"
           ]
         },
         "proposal_and_follow_up": {
           "title": "Structure de la proposition et relance",
           "sections": [
             "Options proposées et option recommandée",
-            "Convenir de la date de relance lors de l'appel sur la proposition"
+            "Convenir de la date de relance lors de l’appel sur la proposition"
           ]
         }
       },
       "rules": {
         "discovery_writeup": {
-          "title": "Rédiger le compte rendu de l'entretien de qualification le lendemain",
+          "title": "Rédiger le compte rendu de l’entretien de qualification le lendemain",
           "description": ""
         },
         "acceptance_check": {
-          "title": "Contrôler l'acceptation le lendemain de l'entrée en cadrage",
+          "title": "Contrôler l’acceptation le lendemain de l’entrée en cadrage",
           "description": ""
         },
         "proposal_follow_up": {
-          "title": "Relancer 3 jours après l'envoi de la proposition",
+          "title": "Relancer 3 jours après l’envoi de la proposition",
           "description": ""
         },
         "decision_date": {
@@ -2668,7 +2668,7 @@
           "description": ""
         },
         "won_kickoff": {
-          "title": "Planifier le lancement le lendemain d'une mission signée",
+          "title": "Planifier le lancement le lendemain d’une mission signée",
           "description": ""
         },
         "lost_review": {
@@ -2676,7 +2676,7 @@
           "description": ""
         },
         "deliverable_due_notice": {
-          "title": "Prévenir le responsable 3 jours avant l'échéance d'un livrable",
+          "title": "Prévenir le responsable 3 jours avant l’échéance d’un livrable",
           "description": ""
         },
         "closeout_report": {
@@ -2695,24 +2695,24 @@
       "acceptanceChecks": {
         "stage_field": "Chaque mission a une étape.",
         "follow_up_field": "Chaque proposition indique la date de relance convenue avec le sponsor.",
-        "acceptance_checked_field": "Chaque mission indique quand l'acceptation a été contrôlée.",
-        "engagements_board_view": "Les missions s'ouvrent en tableau par étape."
+        "acceptance_checked_field": "Chaque mission indique quand l’acceptation a été contrôlée.",
+        "engagements_board_view": "Les missions s’ouvrent en board par étape."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace Customermates des missions de conseil : missions de la prospection à la mission signée avec contrôle d'acceptation et date de relance convenue lors de l'appel sur la proposition, livrables avec échéance et validation, et une clôture qui demande un retour. Ne stocke aucune donnée confidentielle du client.",
+        "intro": "Mets en place dans mon espace de travail Customermates des missions de conseil : missions de la prospection à la mission signée avec contrôle d’acceptation et date de relance convenue lors de l’appel sur la proposition, livrables avec échéance et validation, et une clôture qui demande un retour. Ne stocke aucune donnée confidentielle du client.",
         "questions": [
-          "Quels types de missions vendez-vous, et à quel taux journalier ?",
-          "Comment décidez-vous d'accepter ou non une mission ?",
-          "Combien de temps attendez-vous après une proposition avant de relancer ?",
-          "Quels livrables marquent un jalon que vous facturez ?"
+          "Quels types de missions vendez-vous, et à quel taux journalier ?",
+          "Comment décidez-vous d’accepter ou non une mission ?",
+          "Combien de temps attendez-vous après une proposition avant de relancer ?",
+          "Quels livrables marquent un jalon que vous facturez ?"
         ]
       }
     },
     "it": {
       "locale": "it",
       "name": "Incarichi di consulenza",
-      "summary": "Una pipeline per un consulente indipendente: incarichi dal contatto all'incarico vinto con verifica di accettazione prima dell'offerta, una data di sollecito concordata nella chiamata sulla proposta e deliverable che regolano esecuzione e chiusura.",
-      "description": "Gestisci un'attività di consulenza in un unico posto: incarichi attraverso analisi, definizione dell'ambito, proposta e decisione, la data di sollecito concordata con lo sponsor, una verifica di accettazione (capacità, indipendenza, riservatezza) prima dell'offerta, deliverable con scadenza e accettazione, e una chiusura che chiede un riscontro e una testimonianza. Conserva pipeline, relazioni e passaggi di consegna. Non è rilevazione dei tempi, fatturazione, firma elettronica delle proposte né pianificazione delle risorse e non contiene dati riservati del cliente.",
+      "summary": "Una pipeline per un consulente indipendente: incarichi dal contatto all'incarico vinto con verifica di accettazione prima dell'offerta, una data di follow-up concordata nella chiamata sulla proposta e deliverable che regolano esecuzione e chiusura.",
+      "description": "Gestisci un'attività di consulenza in un unico posto: incarichi attraverso analisi, definizione dell'ambito, proposta e decisione, la data di follow-up concordata con lo sponsor, una verifica di accettazione (capacità, indipendenza, riservatezza) prima dell'offerta, deliverable con scadenza e accettazione, e una chiusura che chiede un riscontro e una testimonianza. Conserva pipeline, relazioni e punti di controllo della consegna. Non è rilevazione dei tempi, fatturazione, firma elettronica delle proposte né pianificazione delle risorse e non contiene dati riservati del cliente.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2821,7 +2821,7 @@
           }
         },
         "engagements.referral_source": {
-          "label": "Come è arrivato",
+          "label": "Origine dell'incarico",
           "options": {
             "client_referral": "Segnalazione di un cliente",
             "peer_referral": "Segnalazione di un collega",
@@ -2848,7 +2848,7 @@
           "options": {}
         },
         "engagements.proposal_follow_up_on": {
-          "label": "Sollecito concordato per il",
+          "label": "Follow-up concordato per il",
           "options": {}
         },
         "engagements.decision_expected": {
@@ -2882,9 +2882,9 @@
           "options": {
             "timing": "Tempi",
             "budget": "Budget",
-            "in_house": "Lo fa internamente",
+            "in_house": "Lo gestisce internamente",
             "other_advisor": "Ha scelto un altro consulente",
-            "scope_changed": "Ambito cambiato",
+            "scope_changed": "Ambito modificato",
             "no_decision": "Nessuna decisione",
             "no_response": "Nessuna risposta"
           }
@@ -2903,7 +2903,7 @@
           "options": {
             "interview_summary": "Sintesi delle interviste",
             "workshop": "Workshop",
-            "report": "Rapporto",
+            "report": "Relazione",
             "recommendation": "Raccomandazione",
             "training_session": "Sessione di formazione",
             "handover": "Passaggio di consegne"
@@ -2924,7 +2924,7 @@
             "write_up": "Redigere il resoconto",
             "acceptance_check": "Verificare l'accettazione",
             "proposal": "Scrivere la proposta",
-            "follow_up": "Sollecitare",
+            "follow_up": "Fare follow-up",
             "kickoff": "Kickoff",
             "deliver": "Consegnare",
             "feedback": "Chiedere un riscontro",
@@ -2985,7 +2985,7 @@
           "title": "Attività scadute"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         },
         "engagements_funnel": {
           "title": "Incarichi per fase"
@@ -3006,7 +3006,7 @@
           "title": "Incarichi vinti per tipo"
         },
         "lost_reasons": {
-          "title": "Perché gli incarichi sono persi"
+          "title": "Motivi di perdita degli incarichi"
         }
       },
       "knowledgePages": {
@@ -3020,7 +3020,7 @@
         "discovery_guide": {
           "title": "Guida al colloquio di analisi",
           "sections": [
-            "Il problema con le parole del cliente, i soggetti coinvolti e i segnali di budget",
+            "Il problema nelle parole del cliente, i soggetti coinvolti e i segnali di budget",
             "Che cosa annotare il giorno dopo"
           ]
         },
@@ -3032,10 +3032,10 @@
           ]
         },
         "proposal_and_follow_up": {
-          "title": "Struttura della proposta e sollecito",
+          "title": "Struttura della proposta e follow-up",
           "sections": [
             "Opzioni offerte e quella raccomandata",
-            "Concordare la data di sollecito nella chiamata sulla proposta"
+            "Concordare la data di follow-up nella chiamata sulla proposta"
           ]
         }
       },
@@ -3049,7 +3049,7 @@
           "description": ""
         },
         "proposal_follow_up": {
-          "title": "Sollecitare 3 giorni dopo l'invio della proposta",
+          "title": "Fare follow-up 3 giorni dopo l'invio della proposta",
           "description": ""
         },
         "decision_date": {
@@ -3069,7 +3069,7 @@
           "description": ""
         },
         "closeout_report": {
-          "title": "Consegnare il rapporto finale alla data di fine",
+          "title": "Consegnare la relazione finale alla data di fine",
           "description": ""
         },
         "testimonial_ask": {
@@ -3083,12 +3083,12 @@
       },
       "acceptanceChecks": {
         "stage_field": "Ogni incarico ha una fase.",
-        "follow_up_field": "Ogni proposta registra la data di sollecito concordata con lo sponsor.",
+        "follow_up_field": "Ogni proposta registra la data di follow-up concordata con lo sponsor.",
         "acceptance_checked_field": "Ogni incarico indica quando è stata verificata l'accettazione.",
-        "engagements_board_view": "Gli incarichi si aprono come bacheca per fase."
+        "engagements_board_view": "Gli incarichi si aprono come board per fase."
       },
       "prompt": {
-        "intro": "Imposta nel mio workspace Customermates gli incarichi di consulenza: incarichi dal contatto al vinto con verifica di accettazione e data di sollecito concordata nella chiamata sulla proposta, deliverable con scadenza e accettazione e una chiusura che chiede un riscontro. Non conservare dati riservati del cliente.",
+        "intro": "Imposta nel mio spazio di lavoro Customermates gli incarichi di consulenza: incarichi dal primo contatto all'incarico vinto con verifica di accettazione e data di follow-up concordata nella chiamata sulla proposta, deliverable con scadenza e accettazione e una chiusura che chiede un riscontro. Non conservare dati riservati del cliente.",
         "questions": [
           "Che tipi di incarico vendi e a quale tariffa giornaliera?",
           "Come decidi se accettare un lavoro?",
@@ -3100,8 +3100,8 @@
     "nl": {
       "locale": "nl",
       "name": "Adviesopdrachten",
-      "summary": "Een pijplijn voor een zelfstandig adviseur: opdrachten van kennismaking tot gewonnen met een acceptatiecheck vóór de offerte, een bij het offertegesprek afgesproken opvolgdatum en resultaten die uitvoering en afsluiting bewaken.",
-      "description": "Voer een adviespraktijk op één plek: opdrachten via verkenning, afbakening, voorstel en beslissing, de met de opdrachtgever afgesproken opvolgdatum, een acceptatiecheck (capaciteit, onafhankelijkheid, vertrouwelijkheid) vóór de offerte, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback en een referentie vraagt. Het bewaart de pijplijn, de relaties en de opleverpunten. Geen urenregistratie, geen facturering, geen elektronische handtekening voor voorstellen en geen capaciteitsplanning, en geen vertrouwelijke gegevens van de klant.",
+      "summary": "Een pijplijn voor een zelfstandig adviseur: opdrachten van kennismaking tot gewonnen met een acceptatiecheck vóór het voorstel, een bij het offertegesprek afgesproken opvolgdatum en resultaten die uitvoering en afsluiting bewaken.",
+      "description": "Beheer een adviespraktijk op één plek: opdrachten via verkenning, afbakening, voorstel en beslissing, de met de opdrachtgever afgesproken opvolgdatum, een acceptatiecheck (capaciteit, onafhankelijkheid, vertrouwelijkheid) vóór het voorstel, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback en een referentie vraagt. Het bewaart de pijplijn, de relaties en de opleverpunten. Geen urenregistratie, geen facturering, geen elektronische handtekening voor voorstellen en geen capaciteitsplanning, en geen vertrouwelijke gegevens van de klant.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -3111,7 +3111,7 @@
         "contacts": {
           "label": "Contactpersoon",
           "pluralLabel": "Contactpersonen",
-          "description": "Opdrachtgevers, dagelijkse contactpersonen, wie tekent en doorverwijzers."
+          "description": "Opdrachtgevers, dagelijkse contactpersonen, mensen die goedkeuren en doorverwijzers."
         },
         "clients": {
           "label": "Klant",
@@ -3126,7 +3126,7 @@
         "deliverables": {
           "label": "Resultaat",
           "pluralLabel": "Resultaten",
-          "description": "Een mijlpaal die u oplevert, met opleverdatum en acceptatie."
+          "description": "Een mijlpaal die je oplevert, met opleverdatum en acceptatie."
         }
       },
       "fields": {
@@ -3134,7 +3134,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -3229,7 +3229,7 @@
           "options": {}
         },
         "engagements.estimated_fee": {
-          "label": "Geschatte honorering",
+          "label": "Geschatte fee",
           "options": {}
         },
         "engagements.acceptance_checked_on": {
@@ -3237,7 +3237,7 @@
           "options": {}
         },
         "engagements.proposal_follow_up_on": {
-          "label": "Opvolging afgesproken voor",
+          "label": "Opvolging afgesproken op",
           "options": {}
         },
         "engagements.decision_expected": {
@@ -3263,7 +3263,7 @@
           }
         },
         "engagements.next_step_due": {
-          "label": "Volgende stap voor",
+          "label": "Volgende stap uiterlijk op",
           "options": {}
         },
         "engagements.lost_reason": {
@@ -3271,7 +3271,7 @@
           "options": {
             "timing": "Timing",
             "budget": "Budget",
-            "in_house": "Doet het intern",
+            "in_house": "Pakt het intern op",
             "other_advisor": "Koos een andere adviseur",
             "scope_changed": "Omvang veranderd",
             "no_decision": "Geen beslissing",
@@ -3340,7 +3340,7 @@
         },
         "action_engagement": {
           "sourceLabel": "Opdracht",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         }
       },
       "views": {
@@ -3414,7 +3414,7 @@
           ]
         },
         "acceptance_check": {
-          "title": "Acceptatiecheck vóór de offerte",
+          "title": "Acceptatiecheck vóór het voorstel",
           "sections": [
             "Capaciteit, onafhankelijkheid, vertrouwelijkheid en match",
             "Wie beslist om de opdracht aan te nemen"
@@ -3430,43 +3430,43 @@
       },
       "rules": {
         "discovery_writeup": {
-          "title": "Het verkennende gesprek de volgende dag uitwerken",
+          "title": "Werk het verkennende gesprek de volgende dag uit",
           "description": ""
         },
         "acceptance_check": {
-          "title": "De acceptatie controleren de dag nadat een opdracht de afbakening bereikt",
+          "title": "Controleer de acceptatie de dag nadat een opdracht de afbakening bereikt",
           "description": ""
         },
         "proposal_follow_up": {
-          "title": "3 dagen na het versturen van het voorstel opvolgen",
+          "title": "Volg het voorstel 3 dagen na het versturen op",
           "description": ""
         },
         "decision_date": {
-          "title": "Op de verwachte beslisdatum om de beslissing vragen",
+          "title": "Vraag op de verwachte beslisdatum om de beslissing",
           "description": ""
         },
         "won_kickoff": {
-          "title": "De kick-off inplannen de dag na een gewonnen opdracht",
+          "title": "Plan de kick-off in de dag na een gewonnen opdracht",
           "description": ""
         },
         "lost_review": {
-          "title": "2 dagen na een verloren opdracht vragen wat anders had gekund",
+          "title": "Vraag 2 dagen na een verloren opdracht wat anders had gekund",
           "description": ""
         },
         "deliverable_due_notice": {
-          "title": "De eigenaar 3 dagen voor de opleverdatum van een resultaat waarschuwen",
+          "title": "Waarschuw de eigenaar 3 dagen voor de opleverdatum van een resultaat",
           "description": ""
         },
         "closeout_report": {
-          "title": "Op de einddatum het eindrapport overdragen",
+          "title": "Draag op de einddatum het eindrapport over",
           "description": ""
         },
         "testimonial_ask": {
-          "title": "14 dagen na de einddatum om een referentie vragen",
+          "title": "Vraag 14 dagen na de einddatum om een referentie",
           "description": ""
         },
         "followup_after_end": {
-          "title": "30 dagen na de einddatum vervolgwerk voorstellen",
+          "title": "Stel 30 dagen na de einddatum vervolgwerk voor",
           "description": ""
         }
       },
@@ -3477,20 +3477,20 @@
         "engagements_board_view": "De opdrachten openen als bord per fase."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-workspace adviesopdrachten in: opdrachten van kennismaking tot gewonnen met een acceptatiecheck en een bij het voorstelgesprek afgesproken opvolgdatum, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback vraagt. Bewaar geen vertrouwelijke gegevens van de klant.",
+        "intro": "Richt in mijn Customermates-werkruimte adviesopdrachten in: opdrachten van kennismaking tot gewonnen met een acceptatiecheck en een bij het voorstelgesprek afgesproken opvolgdatum, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback vraagt. Bewaar geen vertrouwelijke gegevens van de klant.",
         "questions": [
-          "Welke soorten opdrachten verkoopt u en tegen welk dagtarief?",
-          "Hoe beslist u of u een opdracht aanneemt?",
-          "Hoe lang wacht u na een voorstel voordat u opvolgt?",
-          "Welke resultaten zijn mijlpalen die u factureert?"
+          "Welke soorten opdrachten verkoop je en tegen welk dagtarief?",
+          "Hoe beslis je of je een opdracht aanneemt?",
+          "Hoe lang wacht je na een voorstel voordat je opvolgt?",
+          "Welke resultaten zijn mijlpalen die je factureert?"
         ]
       }
     },
     "pl": {
       "locale": "pl",
       "name": "Zlecenia konsultingowe",
-      "summary": "Lejek dla niezależnego konsultanta: zlecenia od kontaktu do wygranego z kontrolą przyjęcia przed ofertą, terminem przypomnienia ustalonym podczas rozmowy o ofercie i rezultatami, które porządkują realizację i zamknięcie.",
-      "description": "Prowadź działalność konsultingową w jednym miejscu: zlecenia przez rozmowę odkrywczą, zakres, ofertę i decyzję, termin przypomnienia ustalony ze sponsorem, kontrolę przyjęcia (moce, niezależność, poufność) przed ofertą, rezultaty z terminem i odbiorem oraz zamknięcie, które prosi o opinię i referencje. Narzędzie zapisuje lejek, relacje i etapy dostarczania. To nie rejestr czasu pracy, fakturowanie, podpis elektroniczny ofert ani planowanie zasobów i nie zawiera poufnych danych klienta.",
+      "summary": "Lejek dla niezależnego konsultanta: zlecenia od kontaktu do wygranego z kontrolą przyjęcia zlecenia przed ofertą, terminem ponownego kontaktu ustalonym podczas rozmowy o ofercie i rezultatami, od których zależą realizacja i zamknięcie.",
+      "description": "Prowadź działalność konsultingową w jednym miejscu: zlecenia przez rozmowę odkrywczą, zakres, ofertę i decyzję, termin ponownego kontaktu ustalony ze sponsorem, kontrolę przyjęcia zlecenia (moce przerobowe, niezależność, poufność) przed ofertą, rezultaty z terminem i odbiorem oraz zamknięcie, które prosi o opinię i referencje. Narzędzie zapisuje lejek, relacje i punkty kontrolne realizacji. To nie jest rejestr czasu pracy, system do fakturowania, podpisu elektronicznego ofert ani planowania zasobów i nie przechowuje poufnych danych klienta.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -3533,7 +3533,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -3545,7 +3545,7 @@
           "options": {
             "sponsor": "Sponsor",
             "day_to_day": "Kontakt na co dzień",
-            "signs_off": "Akceptuje",
+            "signs_off": "Zatwierdza",
             "referrer": "Polecający",
             "influencer": "Osoba wpływowa"
           }
@@ -3554,7 +3554,7 @@
           "label": "Relacja",
           "options": {
             "strong": "Silna",
-            "warm": "Dobra",
+            "warm": "Ciepła",
             "new": "Nowa"
           }
         },
@@ -3599,7 +3599,7 @@
           }
         },
         "engagements.referral_source": {
-          "label": "Skąd przyszło",
+          "label": "Skąd pochodzi zlecenie",
           "options": {
             "client_referral": "Polecenie klienta",
             "peer_referral": "Polecenie kolegi z branży",
@@ -3614,7 +3614,7 @@
           "options": {}
         },
         "engagements.days_estimated": {
-          "label": "Szacowane dni",
+          "label": "Szacowana liczba dni",
           "options": {}
         },
         "engagements.estimated_fee": {
@@ -3622,11 +3622,11 @@
           "options": {}
         },
         "engagements.acceptance_checked_on": {
-          "label": "Przyjęcie sprawdzono dnia",
+          "label": "Data kontroli przyjęcia",
           "options": {}
         },
         "engagements.proposal_follow_up_on": {
-          "label": "Przypomnienie ustalone na",
+          "label": "Ustalony termin ponownego kontaktu",
           "options": {}
         },
         "engagements.decision_expected": {
@@ -3634,11 +3634,11 @@
           "options": {}
         },
         "engagements.start_date": {
-          "label": "Start",
+          "label": "Data rozpoczęcia",
           "options": {}
         },
         "engagements.end_date": {
-          "label": "Koniec",
+          "label": "Data zakończenia",
           "options": {}
         },
         "engagements.delivery_status": {
@@ -3647,21 +3647,21 @@
             "not_started": "Nierozpoczęta",
             "kickoff_scheduled": "Spotkanie startowe umówione",
             "in_delivery": "W realizacji",
-            "wrapping_up": "W zamykaniu",
+            "wrapping_up": "Zamykanie",
             "completed": "Zakończona"
           }
         },
         "engagements.next_step_due": {
-          "label": "Następny krok do",
+          "label": "Termin następnego kroku",
           "options": {}
         },
         "engagements.lost_reason": {
           "label": "Powód utraty",
           "options": {
-            "timing": "Termin",
+            "timing": "Nieodpowiedni moment",
             "budget": "Budżet",
             "in_house": "Zrobi to we własnym zakresie",
-            "other_advisor": "Wybrał innego doradcę",
+            "other_advisor": "Klient wybrał innego doradcę",
             "scope_changed": "Zmienił się zakres",
             "no_decision": "Brak decyzji",
             "no_response": "Brak odpowiedzi"
@@ -3692,7 +3692,7 @@
           "options": {}
         },
         "deliverables.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.kind": {
@@ -3702,7 +3702,7 @@
             "write_up": "Opisać rozmowę",
             "acceptance_check": "Sprawdzić przyjęcie",
             "proposal": "Napisać ofertę",
-            "follow_up": "Przypomnieć",
+            "follow_up": "Skontaktować się ponownie",
             "kickoff": "Spotkanie startowe",
             "deliver": "Dostarczyć",
             "feedback": "Poprosić o opinię",
@@ -3784,7 +3784,7 @@
           "title": "Wygrane zlecenia według typu"
         },
         "lost_reasons": {
-          "title": "Dlaczego zlecenia zostały utracone"
+          "title": "Powody utraty zleceń"
         }
       },
       "knowledgePages": {
@@ -3803,70 +3803,70 @@
           ]
         },
         "acceptance_check": {
-          "title": "Kontrola przyjęcia przed ofertą",
+          "title": "Kontrola przyjęcia zlecenia przed ofertą",
           "sections": [
-            "Moce, niezależność, poufność i dopasowanie",
+            "Moce przerobowe, niezależność, poufność i dopasowanie",
             "Kto decyduje o przyjęciu zlecenia"
           ]
         },
         "proposal_and_follow_up": {
-          "title": "Struktura oferty i przypomnienie",
+          "title": "Struktura oferty i ponowny kontakt",
           "sections": [
             "Przedstawione opcje i rekomendowana",
-            "Ustalenie terminu przypomnienia podczas rozmowy o ofercie"
+            "Ustalenie terminu ponownego kontaktu podczas rozmowy o ofercie"
           ]
         }
       },
       "rules": {
         "discovery_writeup": {
-          "title": "Opisać rozmowę odkrywczą następnego dnia",
+          "title": "Opisz rozmowę odkrywczą następnego dnia",
           "description": ""
         },
         "acceptance_check": {
-          "title": "Sprawdzić przyjęcie dzień po wejściu zlecenia w etap zakresu",
+          "title": "Sprawdź przyjęcie zlecenia dzień po wejściu w etap zakresu",
           "description": ""
         },
         "proposal_follow_up": {
-          "title": "Przypomnieć o ofercie 3 dni po jej wysłaniu",
+          "title": "Przypomnij o ofercie 3 dni po jej wysłaniu",
           "description": ""
         },
         "decision_date": {
-          "title": "Zapytać o decyzję w spodziewanym terminie decyzji",
+          "title": "Zapytaj o decyzję w spodziewanym terminie decyzji",
           "description": ""
         },
         "won_kickoff": {
-          "title": "Umówić spotkanie startowe dzień po wygraniu zlecenia",
+          "title": "Umów spotkanie startowe dzień po wygraniu zlecenia",
           "description": ""
         },
         "lost_review": {
-          "title": "Zapytać, co można było zrobić inaczej, 2 dni po utracie zlecenia",
+          "title": "Zapytaj, co można było zrobić inaczej, 2 dni po utracie zlecenia",
           "description": ""
         },
         "deliverable_due_notice": {
-          "title": "Powiadomić odpowiedzialnego 3 dni przed terminem rezultatu",
+          "title": "Powiadom osobę odpowiedzialną 3 dni przed terminem rezultatu",
           "description": ""
         },
         "closeout_report": {
-          "title": "Przekazać raport końcowy w dniu zakończenia",
+          "title": "Przekaż raport końcowy w dniu zakończenia",
           "description": ""
         },
         "testimonial_ask": {
-          "title": "Poprosić o referencje 14 dni po zakończeniu",
+          "title": "Poproś o referencje 14 dni po zakończeniu",
           "description": ""
         },
         "followup_after_end": {
-          "title": "Zaproponować dalszą pracę 30 dni po zakończeniu",
+          "title": "Zaproponuj dalszą pracę 30 dni po zakończeniu",
           "description": ""
         }
       },
       "acceptanceChecks": {
         "stage_field": "Każde zlecenie ma etap.",
-        "follow_up_field": "Każda oferta zapisuje termin przypomnienia ustalony ze sponsorem.",
+        "follow_up_field": "Każda oferta zapisuje termin ponownego kontaktu ustalony ze sponsorem.",
         "acceptance_checked_field": "Każde zlecenie zapisuje, kiedy sprawdzono przyjęcie.",
         "engagements_board_view": "Zlecenia otwierają się jako tablica według etapu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w moim workspace Customermates zlecenia konsultingowe: zlecenia od kontaktu do wygranego z kontrolą przyjęcia i terminem przypomnienia ustalonym podczas rozmowy o ofercie, rezultaty z terminem i odbiorem oraz zamknięcie, które prosi o opinię. Nie zapisuj poufnych danych klienta.",
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates zlecenia konsultingowe: zlecenia od kontaktu do wygranego z kontrolą przyjęcia i terminem ponownego kontaktu ustalonym podczas rozmowy o ofercie, rezultaty z terminem i odbiorem oraz zamknięcie, które prosi o opinię. Nie zapisuj poufnych danych klienta.",
         "questions": [
           "Jakie rodzaje zleceń sprzedajesz i w jakiej stawce dziennej?",
           "Jak decydujesz, czy przyjąć zlecenie?",
@@ -3879,7 +3879,7 @@
       "locale": "pt",
       "name": "Projetos de consultoria",
       "summary": "Um funil para um consultor independente: projetos do contato ao projeto ganho com checagem de aceitação antes da proposta, uma data de retorno combinada na conversa da proposta e entregáveis que regulam a execução e o encerramento.",
-      "description": "Conduza uma consultoria em um só lugar: projetos por diagnóstico, escopo, proposta e decisão, a data de retorno combinada com o patrocinador, uma checagem de aceitação (capacidade, independência, confidencialidade) antes da proposta, entregáveis com prazo e aceite, e um encerramento que pede feedback e um depoimento. Guarda o funil, os relacionamentos e as etapas de entrega. Não é controle de horas, emissão de notas, assinatura eletrônica de propostas nem planejamento de recursos, e não contém dados confidenciais do cliente.",
+      "description": "Conduza uma consultoria em um só lugar: projetos por diagnóstico, escopo, proposta e decisão, a data de retorno combinada com o patrocinador, uma checagem de aceitação (capacidade, independência, confidencialidade) antes da proposta, entregáveis com prazo e aceite, e um encerramento que pede feedback e um depoimento. Guarda o funil, os relacionamentos e as etapas de entrega. Não é controle de horas, emissão de notas fiscais, assinatura eletrônica de propostas nem planejamento de recursos, e não contém dados confidenciais do cliente.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -3889,7 +3889,7 @@
         "contacts": {
           "label": "Contato",
           "pluralLabel": "Contatos",
-          "description": "Patrocinadores, contatos do dia a dia, quem assina e indicadores."
+          "description": "Patrocinadores, contatos do dia a dia, quem assina e quem indica."
         },
         "clients": {
           "label": "Cliente",
@@ -3935,7 +3935,7 @@
             "sponsor": "Patrocinador",
             "day_to_day": "Contato do dia a dia",
             "signs_off": "Dá o aval",
-            "referrer": "Indicador",
+            "referrer": "Quem indica",
             "influencer": "Influenciador"
           }
         },
@@ -3952,7 +3952,7 @@
           "options": {}
         },
         "clients.relationship": {
-          "label": "Relação",
+          "label": "Relacionamento",
           "options": {
             "prospect": "Prospect",
             "client": "Cliente",
@@ -4049,7 +4049,7 @@
           "options": {
             "timing": "Momento",
             "budget": "Orçamento",
-            "in_house": "Fará internamente",
+            "in_house": "Vai fazer internamente",
             "other_advisor": "Escolheu outro consultor",
             "scope_changed": "Escopo mudou",
             "no_decision": "Sem decisão",
@@ -4057,7 +4057,7 @@
           }
         },
         "deliverables.status": {
-          "label": "Situação",
+          "label": "Status",
           "options": {
             "planned": "Planejado",
             "in_progress": "Em andamento",
@@ -4216,7 +4216,7 @@
           "description": ""
         },
         "proposal_follow_up": {
-          "title": "Fazer o retorno 3 dias depois de enviada a proposta",
+          "title": "Fazer o retorno 3 dias depois de enviar a proposta",
           "description": ""
         },
         "decision_date": {
@@ -4255,12 +4255,12 @@
         "engagements_board_view": "Os projetos abrem como quadro por etapa."
       },
       "prompt": {
-        "intro": "Configure no meu workspace do Customermates projetos de consultoria: projetos do contato ao ganho com checagem de aceitação e data de retorno combinada na conversa da proposta, entregáveis com prazo e aceite, e um encerramento que pede feedback. Não guarde dados confidenciais do cliente.",
+        "intro": "Configure no meu espaço de trabalho do Customermates projetos de consultoria: projetos do contato ao ganho com checagem de aceitação e data de retorno combinada na conversa da proposta, entregáveis com prazo e aceite, e um encerramento que pede feedback. Não guarde dados confidenciais do cliente.",
         "questions": [
           "Que tipos de projeto você vende e a qual valor de diária?",
           "Como você decide se aceita um trabalho?",
           "Quanto tempo você espera depois de uma proposta antes de fazer o retorno?",
-          "Quais entregáveis marcam um marco que você fatura?"
+          "Quais entregáveis correspondem a um marco que você fatura?"
         ]
       }
     }

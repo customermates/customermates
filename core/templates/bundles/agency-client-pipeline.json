@@ -1228,7 +1228,7 @@
       "locale": "de",
       "name": "Agentur-Kundenpipeline",
       "summary": "Eine Pipeline für Marketing- und Kreativagenturen: Neugeschäft vom ersten Gespräch bis zum Abschluss mit Pitch-Entscheidung, und laufende Retainer mit Verlängerungstermin, Kündigungsfrist, Quartalsgespräch und Ampel.",
-      "description": "Kunden gewinnen und halten an einem Ort: Neugeschäft über Gespräch, Qualifizierung, Briefing oder Pitch, Angebot und Verhandlung, ein Gewinn, der ein Onboarding in fünf Schritten startet, und Retainer und Projekte, die folgen, mit Monatsbudget, Verlängerungstermin, Kündigungsfrist und dem nächsten Quartalsgespräch. Budgets werden erfasst, wenn der Kunde sie nennt, nie geschätzt. Zugangsdaten, Markenmaterial und Zugriff auf Werbekonten gehören nie in den Workspace. Kein Projektmanagement, keine Zeiterfassung, keine Retainer-Abrechnung und kein Reporting.",
+      "description": "Kunden gewinnen und halten an einem Ort: Neugeschäft über Gespräch, Qualifizierung, Briefing oder Pitch, Angebot und Verhandlung, ein gewonnener Auftrag, der ein Onboarding in fünf Schritten startet, und Retainer und Projekte, die folgen, mit Monatsbudget, Verlängerungstermin, Kündigungsfrist und dem nächsten Quartalsgespräch. Budgets werden erfasst, wenn der Kunde sie nennt, nie geschätzt. Zugangsdaten, Markenmaterial und Zugriff auf Werbekonten gehören nie in den Workspace. Kein Projektmanagement, keine Zeiterfassung, keine Retainer-Abrechnung und kein Reporting.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1247,7 +1247,7 @@
         },
         "opportunities": {
           "label": "Chance",
-          "pluralLabel": "Neugeschäft",
+          "pluralLabel": "Chancen",
           "description": "Ein möglicher Auftrag, vom ersten Gespräch bis gewonnen oder verloren."
         },
         "engagements": {
@@ -1381,7 +1381,7 @@
           "options": {
             "price": "Preis",
             "chose_other_agency": "Andere Agentur gewählt",
-            "in_house": "Macht es intern",
+            "in_house": "Wird intern umgesetzt",
             "budget_cut": "Budget gekürzt",
             "no_decision": "Keine Entscheidung",
             "scope_mismatch": "Umfang passt nicht",
@@ -1419,7 +1419,7 @@
           "options": {}
         },
         "engagements.monthly_fee": {
-          "label": "Monatsbudget",
+          "label": "Monatshonorar",
           "options": {}
         },
         "engagements.next_qbr_on": {
@@ -1437,8 +1437,8 @@
             "agency_ended": "Agentur hat beendet",
             "project_completed": "Projekt abgeschlossen",
             "budget": "Budget",
-            "in_house": "Ins Haus geholt",
-            "moved_agency": "Zu anderer Agentur gewechselt"
+            "in_house": "Intern übernommen",
+            "moved_agency": "Zu einer anderen Agentur gewechselt"
           }
         },
         "actions.kind": {
@@ -1462,7 +1462,7 @@
         },
         "opportunity_client": {
           "sourceLabel": "Kunde",
-          "targetLabel": "Neugeschäft"
+          "targetLabel": "Chancen"
         },
         "engagement_client": {
           "sourceLabel": "Kunde",
@@ -1486,7 +1486,7 @@
           "name": "Alle Aufgaben"
         },
         "opportunities_board": {
-          "name": "Neugeschäft nach Phase"
+          "name": "Chancen nach Phase"
         },
         "opportunities_all": {
           "name": "Alle Chancen"
@@ -1515,7 +1515,7 @@
           "title": "Letzte Aktivität"
         },
         "opportunities_funnel": {
-          "title": "Neugeschäft nach Phase"
+          "title": "Chancen nach Phase"
         },
         "recurring_revenue": {
           "title": "Monatlich wiederkehrender Umsatz"
@@ -1550,7 +1550,7 @@
         "pitch_go_no_go": {
           "title": "Checkliste Pitch: teilnehmen oder nicht",
           "sections": [
-            "Kosten des Pitchs, Zahl der Agenturen und Abschlagshonorar",
+            "Kosten des Pitchs, Zahl der Agenturen und Pitchhonorar",
             "Kriterien und wer entscheidet"
           ]
         },
@@ -1595,7 +1595,7 @@
           "description": ""
         },
         "onboarding_set": {
-          "title": "Den Tag nach einem Gewinn die Onboarding-Schritte starten",
+          "title": "Am Tag nach einem gewonnenen Auftrag die Onboarding-Schritte starten",
           "description": ""
         },
         "lost_feedback": {
@@ -1628,10 +1628,10 @@
       "prompt": {
         "intro": "Richte in meinem Customermates-Workspace eine Kundenpipeline für die Agentur ein: Chancen mit Pitch-Entscheidung, laufende Aufträge für Retainer und Projekte mit Verlängerungstermin, Kündigungsfrist, Quartalsgespräch und Ampel sowie terminierte Folgeaufgaben. Speichere niemals Kundenzugänge oder Markenmaterial.",
         "questions": [
-          "Welche Leistungen verkaufen Sie, und arbeiten Sie mit Retainern, Projekten oder beidem?",
-          "Wie entscheiden Sie, ob Sie an einem Wettbewerbspitch teilnehmen?",
+          "Welche Leistungen verkaufst du, und arbeitest du mit Retainern, Projekten oder beidem?",
+          "Wie entscheidest du, ob du an einem Wettbewerbspitch teilnimmst?",
           "Wie lang ist die übliche Kündigungsfrist und Vertragslaufzeit?",
-          "Wie oft besprechen Sie Ergebnisse mit einem Kunden?"
+          "Wie oft besprichst du Ergebnisse mit einem Kunden?"
         ]
       }
     },
@@ -2050,7 +2050,7 @@
       "locale": "es",
       "name": "Pipeline de clientes para agencias",
       "summary": "Un pipeline para una agencia de marketing o creativa: oportunidades de la primera conversación a la firma con decisión sobre el concurso, e igualas en curso con fecha de renovación, preaviso, revisión trimestral e indicador de salud.",
-      "description": "Gane y conserve clientes en un solo lugar: oportunidades a través de conversación, cualificación, briefing o concurso, propuesta y negociación, una victoria que inicia un onboarding de cinco pasos, e igualas y proyectos que siguen, con cuota mensual, fecha de renovación, preaviso y próxima revisión trimestral. Los presupuestos se anotan cuando el cliente los indica, nunca se suponen. Los accesos, los materiales de marca y el acceso a cuentas publicitarias no van nunca al espacio de trabajo. No es gestión de proyectos, control de horas, facturación de igualas ni informes.",
+      "description": "Gana y conserva clientes en un solo lugar: oportunidades a través de conversación, cualificación, briefing o concurso, propuesta y negociación, una victoria que inicia un onboarding de cinco pasos, e igualas y proyectos que siguen, con cuota mensual, fecha de renovación, preaviso y próxima revisión trimestral. Los presupuestos se anotan cuando el cliente los indica, nunca se suponen. Los accesos, los materiales de marca y el acceso a cuentas publicitarias no van nunca al espacio de trabajo. No sirve para gestionar proyectos, controlar horas, facturar igualas ni elaborar informes.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -2065,12 +2065,12 @@
         "clients": {
           "label": "Cliente",
           "pluralLabel": "Clientes",
-          "description": "Prospectos, clientes, antiguos clientes y socios."
+          "description": "Clientes potenciales, clientes, antiguos clientes y socios."
         },
         "opportunities": {
           "label": "Oportunidad",
           "pluralLabel": "Oportunidades",
-          "description": "Un posible trabajo, de la primera conversación a ganado o perdido."
+          "description": "Un posible trabajo, de la primera conversación a ganada o perdida."
         },
         "engagements": {
           "label": "Iguala",
@@ -2101,7 +2101,7 @@
           "options": {}
         },
         "contacts.contact_role": {
-          "label": "Cargo",
+          "label": "Papel",
           "options": {
             "decision_maker": "Decisor",
             "marketing_lead": "Responsable de marketing",
@@ -2123,7 +2123,7 @@
         "clients.relationship": {
           "label": "Relación",
           "options": {
-            "prospect": "Prospecto",
+            "prospect": "Cliente potencial",
             "client": "Cliente",
             "former_client": "Antiguo cliente",
             "partner": "Socio"
@@ -2136,14 +2136,14 @@
         "opportunities.stage": {
           "label": "Fase",
           "options": {
-            "prospect": "Prospecto",
+            "prospect": "Cliente potencial",
             "conversation": "Conversación",
-            "qualified": "Cualificado",
+            "qualified": "Cualificada",
             "brief_or_pitch": "Briefing o concurso",
             "proposal_sent": "Propuesta enviada",
             "negotiation": "Negociación",
-            "won": "Ganado",
-            "lost": "Perdido"
+            "won": "Ganada",
+            "lost": "Perdida"
           }
         },
         "opportunities.opportunity_type": {
@@ -2179,7 +2179,7 @@
           }
         },
         "opportunities.competitive_pitch": {
-          "label": "Concurso competitivo",
+          "label": "Concurso entre agencias",
           "options": {}
         },
         "opportunities.pitch_date": {
@@ -2195,11 +2195,11 @@
           "options": {}
         },
         "opportunities.next_step_due": {
-          "label": "Siguiente paso antes de",
+          "label": "Fecha del siguiente paso",
           "options": {}
         },
         "opportunities.lost_reason": {
-          "label": "Motivo de la pérdida",
+          "label": "Motivo de pérdida",
           "options": {
             "price": "Precio",
             "chose_other_agency": "Eligió otra agencia",
@@ -2372,7 +2372,7 @@
         "pitch_go_no_go": {
           "title": "Lista de control: presentarse o no al concurso",
           "sections": [
-            "Coste de presentarse, número de agencias e indemnización",
+            "Coste de presentarse, número de agencias y remuneración por participar",
             "Criterios y quién decide"
           ]
         },
@@ -2417,7 +2417,7 @@
           "description": ""
         },
         "onboarding_set": {
-          "title": "Iniciar los pasos de onboarding el día después de ganar un trato",
+          "title": "Iniciar los pasos de onboarding al día siguiente de ganar una oportunidad",
           "description": ""
         },
         "lost_feedback": {
@@ -2448,20 +2448,20 @@
         "opportunities_board_view": "Las oportunidades se abren como tablero por fase."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de Customermates un pipeline de clientes para una agencia: oportunidades con decisión sobre el concurso, igualas y proyectos con fecha de renovación, preaviso, revisión trimestral e indicador de salud, y seguimientos con fecha. No guardes nunca accesos de clientes ni materiales de marca.",
+        "intro": "Configura en mi espacio de trabajo de Customermates un pipeline de clientes para una agencia: oportunidades con decisión sobre el concurso, igualas y proyectos con fecha de renovación, preaviso, revisión trimestral e indicador de salud, y seguimientos con fecha. No guardes nunca accesos de clientes ni materiales de marca.",
         "questions": [
-          "¿Qué servicios vende y trabaja con igualas, proyectos o ambos?",
-          "¿Cómo decide si participa en un concurso competitivo?",
+          "¿Qué servicios vendes y trabajas con igualas, proyectos o ambos?",
+          "¿Cómo decides si participas en un concurso entre agencias?",
           "¿Cuál es el preaviso habitual y la duración del contrato?",
-          "¿Cada cuánto revisa los resultados con un cliente?"
+          "¿Cada cuánto revisas los resultados con un cliente?"
         ]
       }
     },
     "fr": {
       "locale": "fr",
-      "name": "Pipeline clients d'agence",
-      "summary": "Un pipeline pour une agence de communication ou de création : opportunités de la première conversation à la signature avec décision de répondre ou non à un appel d'offres, et retainers en cours avec date de renouvellement, préavis, revue trimestrielle et indicateur de santé.",
-      "description": "Gagnez et gardez vos clients au même endroit : opportunités de la conversation à la qualification, au brief ou appel d'offres, à la proposition et à la négociation, un gain qui lance un onboarding en cinq étapes, et des contrats récurrents et projets qui suivent, avec honoraires mensuels, date de renouvellement, préavis et prochaine revue trimestrielle. Les budgets sont notés quand le client les annonce, jamais devinés. Les accès, les éléments de marque et les accès aux comptes publicitaires ne vont jamais dans l'espace de travail. Ce n'est ni de la gestion de projet, ni du suivi du temps, ni de la facturation de retainers, ni du reporting.",
+      "name": "Pipeline clients d’agence",
+      "summary": "Un pipeline pour une agence de communication ou de création : opportunités de la première conversation à la signature, avec la décision de répondre ou non à un appel d’offres, et retainers en cours avec date de renouvellement, préavis, revue trimestrielle et indicateur de santé.",
+      "description": "Gagnez et gardez vos clients au même endroit : opportunités de la conversation à la qualification, au brief ou appel d’offres, à la proposition et à la négociation, un gain qui lance un onboarding en cinq étapes, et des contrats récurrents et projets qui suivent, avec honoraires mensuels, date de renouvellement, préavis et prochaine revue trimestrielle. Les budgets sont notés quand le client les annonce, jamais devinés. Les identifiants de connexion, les éléments de marque et les accès aux comptes publicitaires ne vont jamais dans l’espace de travail. Ce n’est ni de la gestion de projet, ni du suivi du temps, ni de la facturation de retainers, ni du reporting.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2550,7 +2550,7 @@
             "prospect": "Prospect",
             "conversation": "Échange",
             "qualified": "Qualifié",
-            "brief_or_pitch": "Brief ou appel d'offres",
+            "brief_or_pitch": "Brief ou appel d’offres",
             "proposal_sent": "Proposition envoyée",
             "negotiation": "Négociation",
             "won": "Gagné",
@@ -2602,7 +2602,7 @@
           "options": {}
         },
         "opportunities.decision_expected": {
-          "label": "Décision attendue",
+          "label": "Décision attendue le",
           "options": {}
         },
         "opportunities.next_step_due": {
@@ -2610,11 +2610,11 @@
           "options": {}
         },
         "opportunities.lost_reason": {
-          "label": "Raison de la perte",
+          "label": "Motif de perte",
           "options": {
             "price": "Prix",
             "chose_other_agency": "A choisi une autre agence",
-            "in_house": "Le fait en interne",
+            "in_house": "Réalisé en interne",
             "budget_cut": "Budget réduit",
             "no_decision": "Pas de décision",
             "scope_mismatch": "Périmètre inadapté",
@@ -2664,10 +2664,10 @@
           "options": {}
         },
         "engagements.ended_reason": {
-          "label": "Pourquoi il s'est terminé",
+          "label": "Motif de fin",
           "options": {
             "client_ended": "Arrêté par le client",
-            "agency_ended": "Arrêté par l'agence",
+            "agency_ended": "Arrêté par l’agence",
             "project_completed": "Projet terminé",
             "budget": "Budget",
             "in_house": "Repris en interne",
@@ -2677,10 +2677,10 @@
         "actions.kind": {
           "label": "Type",
           "options": {
-            "call": "Appeler",
-            "email": "Écrire un e-mail",
-            "proposal": "Préparer la proposition ou la présentation",
-            "onboarding": "Étape d'onboarding",
+            "call": "Appel",
+            "email": "E-mail",
+            "proposal": "Proposition ou préparation du pitch",
+            "onboarding": "Étape d’onboarding",
             "report": "Rapport",
             "qbr": "Revue trimestrielle",
             "renewal": "Renouvellement",
@@ -2769,42 +2769,42 @@
           "title": "Présentations à venir"
         },
         "lost_reasons": {
-          "title": "Pourquoi des opportunités sont perdues"
+          "title": "Motifs de perte des opportunités"
         }
       },
       "knowledgePages": {
         "operating_guide": {
-          "title": "Comment fonctionne le pipeline de l'agence",
+          "title": "Comment fonctionne le pipeline de l’agence",
           "sections": [
             "Les étapes et qui en est responsable",
-            "Questions de qualification : objectifs, urgence, budget, décideurs"
+            "Questions de qualification : objectifs, urgence, budget, décideurs"
           ]
         },
         "pitch_go_no_go": {
-          "title": "Liste de contrôle : répondre ou non à un appel d'offres",
+          "title": "Liste de contrôle : répondre ou non à un appel d’offres",
           "sections": [
-            "Coût de la présentation, nombre d'agences et indemnité de présentation",
+            "Coût de la réponse, nombre d’agences en compétition et indemnité de participation",
             "Critères et qui décide"
           ]
         },
         "onboarding_checklist": {
           "title": "Onboarding en cinq étapes",
           "sections": [
-            "Accueil et paiement, éléments et calendrier",
+            "Accueil et paiement, éléments de marque et calendrier",
             "Lancement sous cinq jours et organisation de la livraison"
           ]
         },
         "renewal_playbook": {
           "title": "Guide du renouvellement et de la revue trimestrielle",
           "sections": [
-            "Bilan des résultats et pistes d'extension",
+            "Bilan des résultats et pistes d’extension",
             "Fenêtre de préavis et proposition de renouvellement"
           ]
         }
       },
       "rules": {
         "brief_form_records": {
-          "title": "Créer le contact et l'opportunité quand le formulaire de brief est envoyé",
+          "title": "Créer le contact et l’opportunité quand le formulaire de brief est envoyé",
           "description": ""
         },
         "respond_to_brief": {
@@ -2816,7 +2816,7 @@
           "description": ""
         },
         "pitch_go_no_go": {
-          "title": "Décider d'y aller ou non le jour où une opportunité atteint le brief ou l'appel d'offres",
+          "title": "Décider du go ou no-go le jour où une opportunité arrive au stade brief ou appel d’offres",
           "description": ""
         },
         "pitch_rehearsal": {
@@ -2824,11 +2824,11 @@
           "description": ""
         },
         "proposal_follow_up": {
-          "title": "Appeler 2 jours après l'envoi d'une proposition",
+          "title": "Appeler 2 jours après l’envoi d’une proposition",
           "description": ""
         },
         "onboarding_set": {
-          "title": "Lancer les étapes d'onboarding le lendemain d'un gain",
+          "title": "Lancer les étapes d’onboarding le lendemain d’un gain",
           "description": ""
         },
         "lost_feedback": {
@@ -2836,11 +2836,11 @@
           "description": ""
         },
         "renewal_review": {
-          "title": "Revoir le renouvellement 90 jours avant l'échéance d'un contrat",
+          "title": "Revoir le renouvellement 90 jours avant l’échéance d’un contrat",
           "description": ""
         },
         "renewal_notice": {
-          "title": "Prévenir le responsable 45 jours avant le renouvellement pour confirmer l'intention du client",
+          "title": "Prévenir le responsable 45 jours avant le renouvellement pour confirmer l’intention du client",
           "description": ""
         },
         "qbr_due": {
@@ -2848,7 +2848,7 @@
           "description": ""
         },
         "health_red": {
-          "title": "Prévenir l'associé quand un contrat passe au rouge",
+          "title": "Prévenir le responsable de compte quand un contrat passe au rouge",
           "description": ""
         }
       },
@@ -2856,23 +2856,23 @@
         "stage_field": "Chaque opportunité a une étape.",
         "renewal_date_field": "Chaque contrat indique sa date de renouvellement.",
         "notice_days_field": "Chaque contrat indique son préavis.",
-        "opportunities_board_view": "Les opportunités s'ouvrent en tableau par étape."
+        "opportunities_board_view": "Les opportunités s’ouvrent en board par étape."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace Customermates un pipeline clients pour une agence : opportunités avec décision de répondre ou non à un appel d'offres, contrats récurrents et projets avec date de renouvellement, préavis, revue trimestrielle et indicateur de santé, et relances datées. Ne stocke jamais d'accès clients ni d'éléments de marque.",
+        "intro": "Mets en place dans mon espace de travail Customermates un pipeline clients pour une agence : opportunités avec décision de répondre ou non à un appel d’offres, contrats récurrents et projets avec date de renouvellement, préavis, revue trimestrielle et indicateur de santé, et relances datées. Ne stocke jamais d’identifiants clients ni d’éléments de marque.",
         "questions": [
-          "Quelles prestations vendez-vous, et travaillez-vous en retainer, en projet ou les deux ?",
-          "Comment décidez-vous de participer ou non à une mise en concurrence ?",
-          "Quel est le préavis habituel et la durée de contrat ?",
-          "À quelle fréquence faites-vous le point sur les résultats avec un client ?"
+          "Quelles prestations vendez-vous, et travaillez-vous en retainer, en projet ou les deux ?",
+          "Comment décidez-vous de participer ou non à une mise en concurrence ?",
+          "Quel est le préavis habituel et la durée de contrat ?",
+          "À quelle fréquence faites-vous le point sur les résultats avec un client ?"
         ]
       }
     },
     "it": {
       "locale": "it",
       "name": "Pipeline clienti per agenzie",
-      "summary": "Una pipeline per un'agenzia di marketing o creativa: opportunità dalla prima conversazione alla firma con decisione sulla gara, e retainer in corso con data di rinnovo, preavviso, revisione trimestrale e indicatore di salute.",
-      "description": "Conquista e mantieni i clienti in un unico posto: opportunità attraverso conversazione, qualificazione, brief o gara, preventivo e trattativa, una vittoria che avvia un onboarding in cinque passi, e contratti e progetti che seguono, con canone mensile, data di rinnovo, preavviso e prossima revisione trimestrale. I budget si registrano quando il cliente li dichiara, mai indovinati. Accessi, materiali del marchio e accessi agli account pubblicitari non vanno mai nello spazio di lavoro. Non è project management, rilevazione dei tempi, fatturazione dei retainer né reportistica.",
+      "summary": "Una pipeline per un'agenzia di marketing o creativa: opportunità dalla prima conversazione alla firma, con la decisione se partecipare alla gara, e retainer in corso con data di rinnovo, preavviso, revisione trimestrale e indicatore di salute.",
+      "description": "Conquista e mantieni i clienti in un unico posto: opportunità attraverso conversazione, qualificazione, brief o gara, preventivo e trattativa, una trattativa vinta che avvia un onboarding in cinque passaggi, e contratti e progetti che seguono, con canone mensile, data di rinnovo, preavviso e prossima revisione trimestrale. I budget si registrano quando il cliente li dichiara, mai indovinati. Credenziali di accesso, materiali del marchio e accessi agli account pubblicitari non vanno mai nello spazio di lavoro. Non è project management, rilevazione dei tempi, fatturazione dei retainer né reportistica.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2994,14 +2994,14 @@
           "options": {
             "referral": "Segnalazione",
             "inbound": "Richiesta in entrata",
-            "outbound": "Ricerca attiva",
+            "outbound": "Prospezione",
             "existing_client": "Cliente esistente",
             "event": "Evento",
             "marketplace": "Marketplace"
           }
         },
         "opportunities.competitive_pitch": {
-          "label": "Gara competitiva",
+          "label": "Gara con più agenzie",
           "options": {}
         },
         "opportunities.pitch_date": {
@@ -3025,7 +3025,7 @@
           "options": {
             "price": "Prezzo",
             "chose_other_agency": "Ha scelto un'altra agenzia",
-            "in_house": "Lo fa internamente",
+            "in_house": "Lo gestisce internamente",
             "budget_cut": "Budget tagliato",
             "no_decision": "Nessuna decisione",
             "scope_mismatch": "Ambito non adatto",
@@ -3043,7 +3043,7 @@
           }
         },
         "engagements.health": {
-          "label": "Salute",
+          "label": "Stato di salute",
           "options": {
             "green": "Verde",
             "amber": "Arancione",
@@ -3075,7 +3075,7 @@
           "options": {}
         },
         "engagements.ended_reason": {
-          "label": "Perché è finito",
+          "label": "Motivo della conclusione",
           "options": {
             "client_ended": "Interrotto dal cliente",
             "agency_ended": "Interrotto dall'agenzia",
@@ -3088,10 +3088,10 @@
         "actions.kind": {
           "label": "Tipo",
           "options": {
-            "call": "Chiamare",
-            "email": "Scrivere un'email",
-            "proposal": "Preparare preventivo o presentazione",
-            "onboarding": "Passo di onboarding",
+            "call": "Chiamata",
+            "email": "Email",
+            "proposal": "Preventivo o preparazione della presentazione",
+            "onboarding": "Passaggio di onboarding",
             "report": "Report",
             "qbr": "Revisione trimestrale",
             "renewal": "Rinnovo",
@@ -3156,7 +3156,7 @@
           "title": "Attività scadute"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         },
         "opportunities_funnel": {
           "title": "Opportunità per fase"
@@ -3174,7 +3174,7 @@
           "title": "Revisioni trimestrali in arrivo"
         },
         "health_split": {
-          "title": "Salute dei contratti in corso"
+          "title": "Stato di salute dei contratti in corso"
         },
         "pitches_coming": {
           "title": "Presentazioni in arrivo"
@@ -3194,12 +3194,12 @@
         "pitch_go_no_go": {
           "title": "Lista di controllo: partecipare o meno alla gara",
           "sections": [
-            "Costo della presentazione, numero di agenzie e rimborso spese",
+            "Costo della presentazione, numero di agenzie e compenso per la partecipazione",
             "Criteri e chi decide"
           ]
         },
         "onboarding_checklist": {
-          "title": "Onboarding in cinque passi",
+          "title": "Onboarding in cinque passaggi",
           "sections": [
             "Benvenuto e pagamento, materiali e tempistiche",
             "Kickoff entro cinque giorni e flusso di consegna"
@@ -3239,11 +3239,11 @@
           "description": ""
         },
         "onboarding_set": {
-          "title": "Avviare i passi di onboarding il giorno dopo una vittoria",
+          "title": "Avviare i passaggi di onboarding il giorno dopo una trattativa vinta",
           "description": ""
         },
         "lost_feedback": {
-          "title": "Chiedere un riscontro 2 giorni dopo una perdita",
+          "title": "Chiedere un riscontro 2 giorni dopo un'opportunità persa",
           "description": ""
         },
         "renewal_review": {
@@ -3259,7 +3259,7 @@
           "description": ""
         },
         "health_red": {
-          "title": "Avvisare il referente quando un contratto diventa rosso",
+          "title": "Avvisare l'account manager quando un contratto diventa rosso",
           "description": ""
         }
       },
@@ -3267,23 +3267,23 @@
         "stage_field": "Ogni opportunità ha una fase.",
         "renewal_date_field": "Ogni contratto indica la data di rinnovo.",
         "notice_days_field": "Ogni contratto indica il preavviso.",
-        "opportunities_board_view": "Le opportunità si aprono come bacheca per fase."
+        "opportunities_board_view": "Le opportunità si aprono come board per fase."
       },
       "prompt": {
-        "intro": "Imposta nel mio workspace Customermates una pipeline clienti per un'agenzia: opportunità con decisione sulla gara, contratti e progetti con data di rinnovo, preavviso, revisione trimestrale e indicatore di salute, e attività di follow-up con data. Non conservare mai accessi dei clienti né materiali del marchio.",
+        "intro": "Imposta nel mio spazio di lavoro Customermates una pipeline clienti per un'agenzia: opportunità con decisione sulla gara, contratti e progetti con data di rinnovo, preavviso, revisione trimestrale e indicatore di salute, e attività di follow-up con data. Non conservare mai credenziali di accesso dei clienti né materiali del marchio.",
         "questions": [
-          "Quali servizi vendete e lavorate a retainer, a progetto o in entrambi i modi?",
-          "Come decidete se partecipare a una gara competitiva?",
+          "Quali servizi vendi e lavori a retainer, a progetto o in entrambi i modi?",
+          "Come decidi se partecipare a una gara con più agenzie?",
           "Qual è il preavviso abituale e la durata del contratto?",
-          "Ogni quanto rivedete i risultati con un cliente?"
+          "Ogni quanto rivedi i risultati con un cliente?"
         ]
       }
     },
     "nl": {
       "locale": "nl",
       "name": "Klantenpijplijn voor bureaus",
-      "summary": "Een pijplijn voor een marketing- of creatief bureau: kansen van eerste gesprek tot getekende opdracht met een pitchbeslissing, en lopende retainers met verlengingsdatum, opzegtermijn, kwartaalgesprek en gezondheidsindicator.",
-      "description": "Win en behoud klanten op één plek: kansen via gesprek, kwalificatie, briefing of pitch, offerte en onderhandeling, een gewonnen kans die een onboarding in vijf stappen start, en retainers en projecten die volgen, met maandelijkse retainer, verlengingsdatum, opzegtermijn en het volgende kwartaalgesprek. Budgetten worden vastgelegd als de klant ze noemt, nooit geraden. Inloggegevens, merkmateriaal en toegang tot advertentieaccounts horen nooit in de workspace. Geen projectmanagement, geen urenregistratie, geen facturering van retainers en geen rapportage.",
+      "summary": "Een pijplijn voor een marketing- of creatief bureau: kansen van eerste gesprek tot getekende opdracht met een pitchbeslissing, en lopende opdrachten met verlengingsdatum, opzegtermijn, kwartaalgesprek en stoplicht.",
+      "description": "Klanten winnen en behouden op één plek: kansen via gesprek, kwalificatie, briefing of pitch, offerte en onderhandeling, een gewonnen kans die een onboarding in vijf stappen start, en retainers en projecten die volgen, met maandelijkse fee, verlengingsdatum, opzegtermijn en het volgende kwartaalgesprek. Budgetten worden vastgelegd als de klant ze noemt, nooit geraden. Inloggegevens, merkmateriaal en toegang tot advertentieaccounts horen nooit in de werkruimte. Geen projectmanagement, geen urenregistratie, geen facturering van retainers en geen rapportage.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -3306,9 +3306,9 @@
           "description": "Een mogelijke opdracht, van eerste gesprek tot gewonnen of verloren."
         },
         "engagements": {
-          "label": "Retainer",
-          "pluralLabel": "Retainers",
-          "description": "Een lopende retainer of lopend project met fee, verlengingsdatum, opzegtermijn en gezondheid."
+          "label": "Lopende opdracht",
+          "pluralLabel": "Lopende opdrachten",
+          "description": "Een lopende retainer of lopend project met fee, verlengingsdatum, opzegtermijn en stoplicht."
         }
       },
       "fields": {
@@ -3316,7 +3316,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -3408,11 +3408,11 @@
             "outbound": "Uitgaand",
             "existing_client": "Bestaande klant",
             "event": "Evenement",
-            "marketplace": "Marktplaats"
+            "marketplace": "Platform"
           }
         },
         "opportunities.competitive_pitch": {
-          "label": "Concurrerende pitch",
+          "label": "Pitch tegen andere bureaus",
           "options": {}
         },
         "opportunities.pitch_date": {
@@ -3420,7 +3420,7 @@
           "options": {}
         },
         "opportunities.monthly_fee": {
-          "label": "Maandelijkse retainer",
+          "label": "Maandelijkse fee",
           "options": {}
         },
         "opportunities.decision_expected": {
@@ -3428,7 +3428,7 @@
           "options": {}
         },
         "opportunities.next_step_due": {
-          "label": "Volgende stap voor",
+          "label": "Volgende stap uiterlijk op",
           "options": {}
         },
         "opportunities.lost_reason": {
@@ -3436,7 +3436,7 @@
           "options": {
             "price": "Prijs",
             "chose_other_agency": "Koos een ander bureau",
-            "in_house": "Doet het intern",
+            "in_house": "Pakt het intern op",
             "budget_cut": "Budget gekort",
             "no_decision": "Geen beslissing",
             "scope_mismatch": "Omvang past niet",
@@ -3448,13 +3448,13 @@
           "options": {
             "onboarding": "Onboarding",
             "active": "Actief",
-            "at_risk": "In gevaar",
+            "at_risk": "Loopt risico",
             "paused": "Gepauzeerd",
             "ended": "Beëindigd"
           }
         },
         "engagements.health": {
-          "label": "Gezondheid",
+          "label": "Stoplicht",
           "options": {
             "green": "Groen",
             "amber": "Oranje",
@@ -3474,7 +3474,7 @@
           "options": {}
         },
         "engagements.monthly_fee": {
-          "label": "Maandelijkse retainer",
+          "label": "Maandelijkse fee",
           "options": {}
         },
         "engagements.next_qbr_on": {
@@ -3492,7 +3492,7 @@
             "agency_ended": "Bureau beëindigde het",
             "project_completed": "Project afgerond",
             "budget": "Budget",
-            "in_house": "Naar intern verhuisd",
+            "in_house": "Intern overgenomen",
             "moved_agency": "Naar een ander bureau"
           }
         },
@@ -3521,19 +3521,19 @@
         },
         "engagement_client": {
           "sourceLabel": "Klant",
-          "targetLabel": "Retainers"
+          "targetLabel": "Lopende opdrachten"
         },
         "engagement_opportunity": {
           "sourceLabel": "Kans",
-          "targetLabel": "Retainers"
+          "targetLabel": "Lopende opdrachten"
         },
         "action_opportunity": {
           "sourceLabel": "Kans",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         },
         "action_engagement": {
-          "sourceLabel": "Retainer",
-          "targetLabel": "Taken"
+          "sourceLabel": "Lopende opdracht",
+          "targetLabel": "Acties"
         }
       },
       "views": {
@@ -3547,10 +3547,10 @@
           "name": "Alle kansen"
         },
         "engagements_all": {
-          "name": "Alle retainers"
+          "name": "Alle lopende opdrachten"
         },
         "at_risk_engagements": {
-          "name": "Retainers op oranje en rood"
+          "name": "Lopende opdrachten op oranje en rood"
         },
         "clients_all": {
           "name": "Alle klanten"
@@ -3585,7 +3585,7 @@
           "title": "Komende kwartaalgesprekken"
         },
         "health_split": {
-          "title": "Gezondheid van lopende retainers"
+          "title": "Stoplicht van lopende opdrachten"
         },
         "pitches_coming": {
           "title": "Komende pitches"
@@ -3598,7 +3598,7 @@
         "operating_guide": {
           "title": "Hoe de pijplijn van het bureau draait",
           "sections": [
-            "De fasen en wie ze bezit",
+            "De fasen en wie er verantwoordelijk voor is",
             "Kwalificatievragen: doelen, urgentie, budget, beslissers"
           ]
         },
@@ -3626,67 +3626,67 @@
       },
       "rules": {
         "brief_form_records": {
-          "title": "Contactpersoon en kans aanmaken als het briefingformulier is ingediend",
+          "title": "Maak een contactpersoon en een kans aan als het briefingformulier is ingediend",
           "description": ""
         },
         "respond_to_brief": {
-          "title": "Een nieuwe kans binnen een dag beantwoorden",
+          "title": "Beantwoord een nieuwe kans binnen een dag",
           "description": ""
         },
         "qualify_check": {
-          "title": "Budgetbereik en beslisser bevestigen 2 dagen na de kwalificatie",
+          "title": "Bevestig het budgetbereik en de beslisser 2 dagen na de kwalificatie",
           "description": ""
         },
         "pitch_go_no_go": {
-          "title": "Besluiten over meedoen op de dag dat een kans briefing of pitch bereikt",
+          "title": "Besluit of je meedoet op de dag dat een kans briefing of pitch bereikt",
           "description": ""
         },
         "pitch_rehearsal": {
-          "title": "De verantwoordelijke 3 dagen voor een pitch herinneren",
+          "title": "Stuur de verantwoordelijke 3 dagen voor een pitch een herinnering",
           "description": ""
         },
         "proposal_follow_up": {
-          "title": "2 dagen na het versturen van een offerte bellen",
+          "title": "Bel 2 dagen na het versturen van een offerte",
           "description": ""
         },
         "onboarding_set": {
-          "title": "De dag na een gewonnen kans de onboardingstappen starten",
+          "title": "Start de dag na een gewonnen kans de onboardingstappen",
           "description": ""
         },
         "lost_feedback": {
-          "title": "2 dagen na een verloren kans om feedback vragen",
+          "title": "Vraag 2 dagen na een verloren kans om feedback",
           "description": ""
         },
         "renewal_review": {
-          "title": "De verlenging 90 dagen voor het aflopen van een retainer beoordelen",
+          "title": "Beoordeel de verlenging 90 dagen voor het aflopen van een lopende opdracht",
           "description": ""
         },
         "renewal_notice": {
-          "title": "De verantwoordelijke 45 dagen voor verlenging laten bevestigen wat de klant van plan is",
+          "title": "Laat de verantwoordelijke 45 dagen voor verlenging bevestigen wat de klant van plan is",
           "description": ""
         },
         "qbr_due": {
-          "title": "Het kwartaalgesprek op de afgesproken datum voorbereiden",
+          "title": "Bereid het kwartaalgesprek voor op de afgesproken datum",
           "description": ""
         },
         "health_red": {
-          "title": "De teamleider waarschuwen als een retainer op rood springt",
+          "title": "Waarschuw de teamleider als een lopende opdracht op rood springt",
           "description": ""
         }
       },
       "acceptanceChecks": {
         "stage_field": "Elke kans heeft een fase.",
-        "renewal_date_field": "Elke retainer legt zijn verlengingsdatum vast.",
-        "notice_days_field": "Elke retainer legt zijn opzegtermijn vast.",
+        "renewal_date_field": "Elke lopende opdracht legt de verlengingsdatum vast.",
+        "notice_days_field": "Elke lopende opdracht legt de opzegtermijn vast.",
         "opportunities_board_view": "De kansen openen als bord per fase."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-workspace een klantenpijplijn voor een bureau in: kansen met een pitchbeslissing, retainers en projecten met verlengingsdatum, opzegtermijn, kwartaalgesprek en gezondheidsindicator, en opvolging met datum. Bewaar nooit inloggegevens van klanten of merkmateriaal.",
+        "intro": "Richt in mijn Customermates-werkruimte een klantenpijplijn voor een bureau in: kansen met een pitchbeslissing, lopende opdrachten (retainers en projecten) met verlengingsdatum, opzegtermijn, kwartaalgesprek en stoplicht, en opvolging met datum. Bewaar nooit inloggegevens van klanten of merkmateriaal.",
         "questions": [
-          "Welke diensten verkoopt u en werkt u met retainers, projecten of beide?",
-          "Hoe beslist u of u meedoet aan een concurrerende pitch?",
+          "Welke diensten verkoop je en werk je met retainers, projecten of beide?",
+          "Hoe beslis je of je meedoet aan een pitch tegen andere bureaus?",
           "Wat is de gebruikelijke opzegtermijn en looptijd van het contract?",
-          "Hoe vaak bespreekt u resultaten met een klant?"
+          "Hoe vaak bespreek je resultaten met een klant?"
         ]
       }
     },
@@ -3694,7 +3694,7 @@
       "locale": "pl",
       "name": "Lejek klientów dla agencji",
       "summary": "Lejek dla agencji marketingowej lub kreatywnej: szanse od pierwszej rozmowy do podpisania umowy z decyzją o udziale w przetargu oraz trwające umowy abonamentowe z terminem odnowienia, okresem wypowiedzenia, przeglądem kwartalnym i wskaźnikiem kondycji.",
-      "description": "Zdobywaj i utrzymuj klientów w jednym miejscu: szanse przez rozmowę, kwalifikację, brief lub przetarg, ofertę i negocjacje, wygraną, która uruchamia onboarding w pięciu krokach, oraz umowy abonamentowe i projekty, które po niej następują, z abonamentem miesięcznym, terminem odnowienia, okresem wypowiedzenia i następnym przeglądem kwartalnym. Budżety zapisujemy, gdy klient je poda, nigdy nie zgadujemy. Dane dostępowe, materiały marki i dostęp do kont reklamowych nigdy nie trafiają do workspace. To nie zarządzanie projektami, rejestr czasu pracy, rozliczanie abonamentów ani raportowanie.",
+      "description": "Zdobywaj i utrzymuj klientów w jednym miejscu: szanse przez rozmowę, kwalifikację, brief lub przetarg, ofertę i negocjacje, wygraną, która uruchamia onboarding w pięciu krokach, oraz umowy abonamentowe i projekty, które po niej następują, z abonamentem miesięcznym, terminem odnowienia, okresem wypowiedzenia i następnym przeglądem kwartalnym. Budżety zapisujemy, gdy klient je poda, nigdy nie zgadujemy. Dane dostępowe, materiały marki i dostęp do kont reklamowych nigdy nie trafiają do przestrzeni roboczej. To nie jest zarządzanie projektami, rejestr czasu pracy, rozliczanie abonamentów ani raportowanie.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -3717,7 +3717,7 @@
           "description": "Możliwe zlecenie, od pierwszej rozmowy do wygranego lub przegranego."
         },
         "engagements": {
-          "label": "Umowa abonamentowa",
+          "label": "Umowa",
           "pluralLabel": "Umowy abonamentowe i projekty",
           "description": "Trwający abonament lub projekt z opłatą, terminem odnowienia, okresem wypowiedzenia i kondycją."
         }
@@ -3737,7 +3737,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -3823,7 +3823,7 @@
           }
         },
         "opportunities.competitive_pitch": {
-          "label": "Przetarg konkurencyjny",
+          "label": "Przetarg z innymi agencjami",
           "options": {}
         },
         "opportunities.pitch_date": {
@@ -3839,16 +3839,16 @@
           "options": {}
         },
         "opportunities.next_step_due": {
-          "label": "Następny krok do",
+          "label": "Termin następnego kroku",
           "options": {}
         },
         "opportunities.lost_reason": {
           "label": "Powód utraty",
           "options": {
             "price": "Cena",
-            "chose_other_agency": "Wybrał inną agencję",
+            "chose_other_agency": "Klient wybrał inną agencję",
             "in_house": "Zrobi to we własnym zakresie",
-            "budget_cut": "Cięcie budżetu",
+            "budget_cut": "Obcięty budżet",
             "no_decision": "Brak decyzji",
             "scope_mismatch": "Niedopasowany zakres",
             "no_response": "Brak odpowiedzi"
@@ -3873,11 +3873,11 @@
           }
         },
         "engagements.start_date": {
-          "label": "Start",
+          "label": "Data rozpoczęcia",
           "options": {}
         },
         "engagements.renewal_date": {
-          "label": "Odnowienie dnia",
+          "label": "Data odnowienia",
           "options": {}
         },
         "engagements.notice_days": {
@@ -3897,22 +3897,22 @@
           "options": {}
         },
         "engagements.ended_reason": {
-          "label": "Dlaczego się zakończyła",
+          "label": "Powód zakończenia",
           "options": {
             "client_ended": "Zakończył klient",
             "agency_ended": "Zakończyła agencja",
             "project_completed": "Projekt zakończony",
             "budget": "Budżet",
-            "in_house": "Przeniesiona do firmy",
+            "in_house": "Przejęta przez klienta",
             "moved_agency": "Przeszła do innej agencji"
           }
         },
         "actions.kind": {
           "label": "Rodzaj",
           "options": {
-            "call": "Zadzwonić",
-            "email": "Napisać e-mail",
-            "proposal": "Przygotować ofertę lub prezentację",
+            "call": "Rozmowa telefoniczna",
+            "email": "E-mail",
+            "proposal": "Oferta lub prezentacja",
             "onboarding": "Krok onboardingu",
             "report": "Raport",
             "qbr": "Przegląd kwartalny",
@@ -3943,7 +3943,7 @@
           "targetLabel": "Zadania"
         },
         "action_engagement": {
-          "sourceLabel": "Umowa abonamentowa",
+          "sourceLabel": "Umowa",
           "targetLabel": "Zadania"
         }
       },
@@ -3961,7 +3961,7 @@
           "name": "Wszystkie umowy abonamentowe i projekty"
         },
         "at_risk_engagements": {
-          "name": "Umowy na żółto i czerwono"
+          "name": "Umowy z żółtą i czerwoną kondycją"
         },
         "clients_all": {
           "name": "Wszyscy klienci"
@@ -4002,7 +4002,7 @@
           "title": "Nadchodzące prezentacje"
         },
         "lost_reasons": {
-          "title": "Dlaczego szanse zostały utracone"
+          "title": "Powody utraty szans"
         }
       },
       "knowledgePages": {
@@ -4014,7 +4014,7 @@
           ]
         },
         "pitch_go_no_go": {
-          "title": "Lista kontrolna: wziąć udział w przetargu czy nie",
+          "title": "Lista kontrolna: startować w przetargu czy odpuścić",
           "sections": [
             "Koszt prezentacji, liczba agencji i wynagrodzenie za udział",
             "Kryteria i kto decyduje"
@@ -4024,7 +4024,7 @@
           "title": "Onboarding w pięciu krokach",
           "sections": [
             "Powitanie i płatność, materiały i harmonogram",
-            "Spotkanie startowe w ciągu pięciu dni i sposób dostarczania"
+            "Spotkanie startowe w ciągu pięciu dni i przebieg realizacji"
           ]
         },
         "renewal_playbook": {
@@ -4037,51 +4037,51 @@
       },
       "rules": {
         "brief_form_records": {
-          "title": "Utworzyć kontakt i szansę sprzedaży po wysłaniu formularza briefu",
+          "title": "Utwórz kontakt i szansę sprzedaży po wysłaniu formularza briefu",
           "description": ""
         },
         "respond_to_brief": {
-          "title": "Odpowiedzieć na nową szansę w ciągu doby",
+          "title": "Odpowiedz na nową szansę w ciągu doby",
           "description": ""
         },
         "qualify_check": {
-          "title": "Potwierdzić widełki budżetu i decydenta 2 dni po kwalifikacji",
+          "title": "Potwierdź widełki budżetu i decydenta 2 dni po kwalifikacji",
           "description": ""
         },
         "pitch_go_no_go": {
-          "title": "Zdecydować o udziale w dniu, w którym szansa osiąga brief lub przetarg",
+          "title": "Zdecyduj o starcie w przetargu w dniu, w którym szansa trafia na etap briefu lub przetargu",
           "description": ""
         },
         "pitch_rehearsal": {
-          "title": "Przypomnieć opiekunowi 3 dni przed prezentacją",
+          "title": "Przypomnij opiekunowi 3 dni przed prezentacją",
           "description": ""
         },
         "proposal_follow_up": {
-          "title": "Zadzwonić 2 dni po wysłaniu oferty",
+          "title": "Zadzwoń 2 dni po wysłaniu oferty",
           "description": ""
         },
         "onboarding_set": {
-          "title": "Uruchomić kroki onboardingu dzień po wygranej",
+          "title": "Uruchom kroki onboardingu dzień po wygranej",
           "description": ""
         },
         "lost_feedback": {
-          "title": "Poprosić o opinię 2 dni po utracie szansy",
+          "title": "Poproś o opinię 2 dni po utracie szansy",
           "description": ""
         },
         "renewal_review": {
-          "title": "Przejrzeć odnowienie 90 dni przed końcem umowy",
+          "title": "Przejrzyj odnowienie 90 dni przed terminem odnowienia umowy",
           "description": ""
         },
         "renewal_notice": {
-          "title": "Powiadomić opiekuna 45 dni przed odnowieniem, by potwierdzić zamiary klienta",
+          "title": "Powiadom opiekuna 45 dni przed odnowieniem, by potwierdził zamiary klienta",
           "description": ""
         },
         "qbr_due": {
-          "title": "Przygotować przegląd kwartalny w jego terminie",
+          "title": "Przygotuj przegląd kwartalny w jego terminie",
           "description": ""
         },
         "health_red": {
-          "title": "Powiadomić szefa, gdy umowa zmienia kondycję na czerwoną",
+          "title": "Powiadom szefa zespołu, gdy kondycja umowy zmieni się na czerwoną",
           "description": ""
         }
       },
@@ -4092,10 +4092,10 @@
         "opportunities_board_view": "Szanse otwierają się jako tablica według etapu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w moim workspace Customermates lejek klientów dla agencji: szanse z decyzją o udziale w przetargu, umowy abonamentowe i projekty z terminem odnowienia, okresem wypowiedzenia, przeglądem kwartalnym i wskaźnikiem kondycji oraz zaplanowane przypomnienia. Nigdy nie zapisuj danych dostępowych klientów ani materiałów marki.",
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates lejek klientów dla agencji: szanse z decyzją o udziale w przetargu, umowy abonamentowe i projekty z terminem odnowienia, okresem wypowiedzenia, przeglądem kwartalnym i wskaźnikiem kondycji oraz zaplanowane przypomnienia. Nigdy nie zapisuj danych dostępowych klientów ani materiałów marki.",
         "questions": [
-          "Jakie usługi sprzedajesz i pracujesz w abonamencie, w projektach czy w obu modelach?",
-          "Jak decydujesz, czy wziąć udział w przetargu konkurencyjnym?",
+          "Jakie usługi sprzedajesz i czy pracujesz w abonamencie, w projektach, czy w obu modelach?",
+          "Jak decydujesz, czy startować w przetargu z udziałem innych agencji?",
           "Jaki jest zwykły okres wypowiedzenia i czas trwania umowy?",
           "Jak często omawiasz wyniki z klientem?"
         ]
@@ -4105,7 +4105,7 @@
       "locale": "pt",
       "name": "Funil de clientes para agências",
       "summary": "Um funil para uma agência de marketing ou criativa: oportunidades da primeira conversa ao fechamento com decisão sobre a concorrência, e contratos mensais em andamento com data de renovação, aviso prévio, revisão trimestral e indicador de saúde.",
-      "description": "Conquiste e mantenha clientes em um só lugar: oportunidades por conversa, qualificação, briefing ou concorrência, proposta e negociação, um ganho que inicia um onboarding em cinco passos, e contratos e projetos que seguem, com fee mensal, data de renovação, aviso prévio e próxima revisão trimestral. Os orçamentos são registrados quando o cliente os informa, nunca chutados. Acessos, materiais da marca e acesso a contas de anúncios nunca entram no workspace. Não é gestão de projetos, controle de horas, cobrança de fees nem relatórios.",
+      "description": "Conquiste e mantenha clientes em um só lugar: oportunidades por conversa, qualificação, briefing ou concorrência, proposta e negociação, um ganho que inicia um onboarding em cinco passos, e contratos e projetos que seguem, com fee mensal, data de renovação, aviso prévio e próxima revisão trimestral. Os orçamentos são registrados quando o cliente os informa, nunca presumidos. Acessos, materiais da marca e acesso a contas de anúncios nunca entram no espaço de trabalho. Não é gestão de projetos, controle de horas, cobrança de fees nem relatórios.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -4159,10 +4159,10 @@
           "label": "Papel",
           "options": {
             "decision_maker": "Decisor",
-            "marketing_lead": "Líder de marketing",
+            "marketing_lead": "Gestor de marketing",
             "procurement": "Compras",
             "day_to_day": "Contato do dia a dia",
-            "referrer": "Indicador"
+            "referrer": "Quem indicou"
           }
         },
         "contacts.preferred_channel": {
@@ -4176,7 +4176,7 @@
           }
         },
         "clients.relationship": {
-          "label": "Relação",
+          "label": "Relacionamento",
           "options": {
             "prospect": "Prospect",
             "client": "Cliente",
@@ -4226,7 +4226,7 @@
           "label": "Origem",
           "options": {
             "referral": "Indicação",
-            "inbound": "Entrada",
+            "inbound": "Contato recebido",
             "outbound": "Prospecção ativa",
             "existing_client": "Cliente existente",
             "event": "Evento",
@@ -4258,7 +4258,7 @@
           "options": {
             "price": "Preço",
             "chose_other_agency": "Escolheu outra agência",
-            "in_house": "Fará internamente",
+            "in_house": "Vai fazer internamente",
             "budget_cut": "Corte de orçamento",
             "no_decision": "Sem decisão",
             "scope_mismatch": "Escopo inadequado",
@@ -4266,7 +4266,7 @@
           }
         },
         "engagements.engagement_status": {
-          "label": "Situação",
+          "label": "Status",
           "options": {
             "onboarding": "Onboarding",
             "active": "Ativo",
@@ -4314,7 +4314,7 @@
             "agency_ended": "Encerrado pela agência",
             "project_completed": "Projeto concluído",
             "budget": "Orçamento",
-            "in_house": "Passou para o interno",
+            "in_house": "Foi internalizado",
             "moved_agency": "Foi para outra agência"
           }
         },
@@ -4468,7 +4468,7 @@
           "description": ""
         },
         "proposal_follow_up": {
-          "title": "Ligar 2 dias depois de enviada uma proposta",
+          "title": "Ligar 2 dias depois de enviar uma proposta",
           "description": ""
         },
         "onboarding_set": {
@@ -4488,7 +4488,7 @@
           "description": ""
         },
         "qbr_due": {
-          "title": "Preparar a revisão trimestral na data dela",
+          "title": "Preparar a revisão trimestral na data marcada",
           "description": ""
         },
         "health_red": {
@@ -4503,7 +4503,7 @@
         "opportunities_board_view": "As oportunidades abrem como quadro por etapa."
       },
       "prompt": {
-        "intro": "Configure no meu workspace do Customermates um funil de clientes para uma agência: oportunidades com decisão sobre a concorrência, contratos e projetos com data de renovação, aviso prévio, revisão trimestral e indicador de saúde, e acompanhamentos com data. Nunca guarde acessos de clientes nem materiais da marca.",
+        "intro": "Configure no meu espaço de trabalho do Customermates um funil de clientes para uma agência: oportunidades com decisão sobre a concorrência, contratos e projetos com data de renovação, aviso prévio, revisão trimestral e indicador de saúde, e acompanhamentos com data. Nunca guarde acessos de clientes nem materiais da marca.",
         "questions": [
           "Quais serviços você vende e trabalha com contrato mensal, projeto ou os dois?",
           "Como você decide entrar ou não em uma concorrência entre agências?",

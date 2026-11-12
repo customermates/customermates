@@ -1247,8 +1247,8 @@
     "de": {
       "locale": "de",
       "name": "Mandatsaufnahme für Kanzleien",
-      "summary": "Eine Mandatsaufnahme in festen Schritten: Anfrage, Kollisionsprüfung, Erstberatung, Mandatsangebot, unterschriebene Mandatsvereinbarung mit Vollmacht und Vorschuss und ein schriftliches Schreiben an alle, die kein Mandat werden.",
-      "description": "Mandanten in fester Reihenfolge aufnehmen: Jede Anfrage hält Rechtsgebiet, den frühesten bekannten Fristablauf, die Kollisionsprüfung und wer sie durchgeführt hat fest, dann Erstberatung, Mandatsangebot und unterschriebene Vereinbarung. Eine Liste der Beteiligten stützt die Kollisionsprüfung, Mandate tragen das Datum der Vollmacht und einen Löschtermin, und abgelehnte oder verstummte Interessenten erhalten ein schriftliches Schreiben. Die Vorlage hält einen Verweis auf die Akte, niemals Falldetails, Mandatsgeheimnisse, Gesundheitsdaten oder Angaben zur Gegenseite. Keine Aktenführung, keine Fremdgeldverwaltung, keine Quelle für Verfahrensfristen und keine Abrechnung.",
+      "summary": "Eine Mandatsaufnahme in festen Schritten: Anfrage, Kollisionsprüfung, Erstberatung, Mandatsangebot, unterschriebene Mandatsvereinbarung mit Vollmacht und Vorschuss und ein Absageschreiben an alle, die nicht Mandant werden.",
+      "description": "Mandanten in fester Reihenfolge aufnehmen: Jede Anfrage hält Rechtsgebiet, den frühesten bekannten Fristablauf, die Kollisionsprüfung und wer sie durchgeführt hat fest, dann Erstberatung, Mandatsangebot und unterschriebene Vereinbarung. Eine Liste der Beteiligten stützt die Kollisionsprüfung, Mandate tragen das Datum der Vollmacht und einen Löschtermin, und abgelehnte oder verstummte Interessenten erhalten ein schriftliches Absageschreiben. Die Vorlage hält einen Verweis auf die Akte, niemals Falldetails, Mandatsgeheimnisse, Gesundheitsdaten oder Angaben zur Gegenseite. Keine Aktenführung, keine Fremdgeldverwaltung, keine Quelle für Verfahrensfristen und keine Abrechnung.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -1416,7 +1416,7 @@
           }
         },
         "inquiries.non_engagement_letter_on": {
-          "label": "Schreiben zur Nichtbeauftragung am",
+          "label": "Absageschreiben gesendet am",
           "options": {}
         },
         "matters.matter_ref": {
@@ -1588,7 +1588,7 @@
           "title": "Checkliste Honorarvereinbarung und Mandat",
           "sections": [
             "Vergütung, Vollmacht und Vorschuss",
-            "Schreiben zur Nichtbeauftragung und zum Abschluss"
+            "Absage- und Abschlussschreiben"
           ]
         }
       },
@@ -1606,7 +1606,7 @@
           "description": ""
         },
         "conflict_check_task": {
-          "title": "Die Kollisionsprüfung am Tag nach Eintritt in die Prüfungsphase durchführen",
+          "title": "Die Kollisionsprüfung am Tag nach Eintritt in die Phase „Kollisionsprüfung“ durchführen",
           "description": ""
         },
         "fee_proposal_task": {
@@ -1626,11 +1626,11 @@
           "description": ""
         },
         "letter_declined": {
-          "title": "Das Schreiben zur Nichtbeauftragung verfassen, wenn die Kanzlei eine Anfrage ablehnt",
+          "title": "Das Absageschreiben verfassen, wenn die Kanzlei eine Anfrage ablehnt",
           "description": ""
         },
         "letter_not_retained": {
-          "title": "Das Schreiben zur Nichtbeauftragung verfassen, wenn ein Interessent kein Mandat erteilt",
+          "title": "Das Absageschreiben verfassen, wenn ein Interessent kein Mandat erteilt",
           "description": ""
         },
         "poa_renewal": {
@@ -1650,12 +1650,12 @@
         "conflict_check_page": "Die Wissensdatenbank enthält eine Seite zur Kollisionsprüfung."
       },
       "prompt": {
-        "intro": "Richte in meinem Customermates-Workspace eine Mandatsaufnahme für die Kanzlei ein: Anfragen mit Kollisionsprüfung, frühestem bekanntem Fristablauf, Erstberatung, Mandatsangebot und unterschriebener Vereinbarung, Mandate als Verweise auf das Kanzleisystem, Beteiligte für die Kollisionsprüfung und schriftliche Schreiben zur Nichtbeauftragung. Speichere keine Falldetails und keine Mandatsgeheimnisse.",
+        "intro": "Richte in meinem Customermates-Workspace eine Mandatsaufnahme für die Kanzlei ein: Anfragen mit Kollisionsprüfung, frühestem bekanntem Fristablauf, Erstberatung, Mandatsangebot und unterschriebener Vereinbarung, Mandate als Verweise auf das Kanzleisystem, Beteiligte für die Kollisionsprüfung und schriftliche Absageschreiben. Speichere keine Falldetails und keine Mandatsgeheimnisse.",
         "questions": [
-          "Welche Rechtsgebiete nehmen Sie an, und welche vermitteln Sie weiter?",
-          "Wie führen Sie die Kollisionsprüfung durch, und wer zeichnet sie ab?",
-          "Welche Vergütungsmodelle und welchen Vorschuss nutzen Sie?",
-          "Welches Kanzleisystem nutzen Sie? Hier wird nur ein Verweis auf die Akte gespeichert."
+          "Welche Rechtsgebiete nimmst du an, und welche vermittelst du weiter?",
+          "Wie führst du die Kollisionsprüfung durch, und wer zeichnet sie ab?",
+          "Welche Vergütungsmodelle und welchen Vorschuss nutzt du?",
+          "Welches Kanzleisystem nutzt du? Hier wird nur ein Verweis auf die Akte gespeichert."
         ]
       }
     },
@@ -1872,7 +1872,7 @@
           "label": "Type",
           "options": {
             "person": "Person",
-            "organisation": "Organisation"
+            "organisation": "Organization"
           }
         },
         "actions.kind": {
@@ -2078,7 +2078,7 @@
       "locale": "es",
       "name": "Alta de clientes para despachos de abogados",
       "summary": "Un alta de clientes en pasos fijos: consulta, conflicto de intereses, primera reunión, presupuesto, hoja de encargo y poder firmados con provisión de fondos, y una carta escrita para quien no llega a ser cliente.",
-      "description": "Dé de alta a los clientes en un orden fijo: cada consulta registra el área, el plazo más próximo conocido, la comprobación de conflicto de intereses y quién la hizo, luego la reunión, el presupuesto y la hoja de encargo firmada. Una lista de partes apoya la comprobación de conflictos, los expedientes llevan la fecha del poder y una fecha de conservación, y los posibles clientes rechazados o en silencio reciben una carta escrita de no contratación. Guarda una referencia al expediente, nunca hechos del caso, contenido sujeto a secreto profesional, datos de salud ni datos de la parte contraria. No es gestión de expedientes, contabilidad de fondos de clientes, fuente de plazos procesales ni facturación.",
+      "description": "Da de alta a los clientes en un orden fijo: cada consulta registra el área, el plazo más próximo conocido, la comprobación de conflicto de intereses y quién la hizo, luego la reunión, el presupuesto y la hoja de encargo firmada. Una lista de partes apoya la comprobación de conflictos, los expedientes llevan la fecha del poder y una fecha de conservación, y los posibles clientes rechazados o en silencio reciben una carta escrita de no contratación. Guarda una referencia al expediente, nunca hechos del caso, contenido sujeto a secreto profesional, datos de salud ni datos de la parte contraria. No es gestión de expedientes, contabilidad de fondos de clientes, fuente de plazos procesales ni facturación.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -2098,7 +2098,7 @@
         "matters": {
           "label": "Expediente",
           "pluralLabel": "Expedientes",
-          "description": "Una referencia al caso en su programa de gestión, con la fecha del poder y la de conservación."
+          "description": "Una referencia al caso en tu programa de gestión, con la fecha del poder y la de conservación."
         },
         "parties": {
           "label": "Parte",
@@ -2229,7 +2229,7 @@
           "options": {}
         },
         "inquiries.next_step_due": {
-          "label": "Siguiente paso antes de",
+          "label": "Fecha del siguiente paso",
           "options": {}
         },
         "inquiries.lost_reason": {
@@ -2297,7 +2297,7 @@
             "conflict_check": "Hacer la comprobación de conflictos",
             "consultation_prep": "Preparar la reunión",
             "fee_proposal": "Enviar el presupuesto",
-            "follow_up": "Dar seguimiento",
+            "follow_up": "Hacer seguimiento",
             "advance": "Solicitar la provisión de fondos",
             "letter": "Redactar una carta",
             "other": "Otro"
@@ -2436,15 +2436,15 @@
           "description": ""
         },
         "conflict_check_task": {
-          "title": "Hacer la comprobación de conflictos el día después de pasar a esa fase",
+          "title": "Hacer la comprobación de conflictos al día siguiente de pasar a esa fase",
           "description": ""
         },
         "fee_proposal_task": {
-          "title": "Enviar el presupuesto el día siguiente a la reunión",
+          "title": "Enviar el presupuesto al día siguiente de la reunión",
           "description": ""
         },
         "proposal_follow_up": {
-          "title": "Dar seguimiento 3 días después de enviar el presupuesto",
+          "title": "Hacer seguimiento 3 días después de enviar el presupuesto",
           "description": ""
         },
         "agreement_signed_set": {
@@ -2480,20 +2480,20 @@
         "conflict_check_page": "La base de conocimiento contiene una página sobre el conflicto de intereses."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de Customermates un alta de clientes para un despacho de abogados: consultas con comprobación de conflictos, plazo más próximo conocido, reunión, presupuesto y hoja de encargo firmada, expedientes como referencias a su programa de gestión, partes para la comprobación de conflictos y cartas escritas de no contratación. No guardes hechos del caso ni contenido sujeto a secreto profesional.",
+        "intro": "Configura en mi espacio de trabajo de Customermates un alta de clientes para un despacho de abogados: consultas con comprobación de conflictos, plazo más próximo conocido, reunión, presupuesto y hoja de encargo firmada, expedientes como referencias a mi programa de gestión, partes para la comprobación de conflictos y cartas escritas de no contratación. No guardes hechos del caso ni contenido sujeto a secreto profesional.",
         "questions": [
-          "¿Qué áreas lleva y cuáles deriva a otros despachos?",
-          "¿Cómo hace la comprobación de conflictos y quién la da por buena?",
-          "¿Qué modelos de honorarios y qué provisión de fondos usa?",
-          "¿Qué programa de gestión usa? Aquí solo se guarda una referencia al expediente."
+          "¿Qué áreas llevas y cuáles derivas a otros despachos?",
+          "¿Cómo haces la comprobación de conflictos y quién la da por buena?",
+          "¿Qué modelos de honorarios y qué provisión de fondos usas?",
+          "¿Qué programa de gestión usas? Aquí solo se guarda una referencia al expediente."
         ]
       }
     },
     "fr": {
       "locale": "fr",
       "name": "Prise de dossier pour avocats",
-      "summary": "Une prise de dossier en étapes fixes : demande, vérification des conflits, premier rendez-vous, convention d'honoraires, lettre de mission et pouvoir signés avec provision, et un courrier écrit pour chaque personne qui ne devient pas cliente.",
-      "description": "Prenez les clients en charge dans un ordre fixe : chaque demande consigne le domaine du droit, le délai le plus proche connu, la vérification des conflits et qui l'a faite, puis le rendez-vous, la convention d'honoraires et la lettre de mission signée. Une liste de parties soutient la recherche de conflits, les dossiers portent la date du pouvoir et une date de conservation, et les prospects refusés ou silencieux reçoivent un courrier écrit de non-engagement. Le modèle garde un renvoi vers le dossier, jamais les faits de l'affaire, le secret professionnel, les données de santé ni les informations sur la partie adverse. Ce n'est ni de la gestion de dossiers, ni de la comptabilité de fonds clients, ni une source de délais de procédure, ni de la facturation.",
+      "summary": "Une prise de dossier en étapes fixes : demande, vérification des conflits, premier rendez-vous, convention d’honoraires, lettre de mission et pouvoir signés avec provision, et un courrier de non-prise en charge pour chaque personne qui ne devient pas cliente.",
+      "description": "Prenez les clients en charge dans un ordre fixe : chaque demande consigne le domaine du droit, le délai le plus proche connu, la vérification des conflits et qui l’a faite, puis le rendez-vous, la convention d’honoraires et la lettre de mission signée. Une liste de parties soutient la recherche de conflits, les dossiers portent la date du pouvoir et une date de conservation, et les prospects refusés ou silencieux reçoivent un courrier écrit de non-prise en charge. Il conserve un renvoi vers le dossier, jamais les faits de l’affaire, les informations couvertes par le secret professionnel, les données de santé ni les informations sur la partie adverse. Ce n’est ni de la gestion de dossiers, ni de la comptabilité des fonds de tiers, ni une source de délais de procédure, ni de la facturation.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2508,12 +2508,12 @@
         "inquiries": {
           "label": "Demande",
           "pluralLabel": "Demandes",
-          "description": "Une demande d'aide juridique, du premier contact à un dossier ou un refus."
+          "description": "Une demande d’aide juridique, du premier contact à un dossier ou un refus."
         },
         "matters": {
           "label": "Dossier",
           "pluralLabel": "Dossiers",
-          "description": "Un renvoi vers l'affaire dans votre logiciel, avec la date du pouvoir et la date de conservation."
+          "description": "Un renvoi vers l’affaire dans votre logiciel, avec la date du pouvoir et la date de conservation."
         },
         "parties": {
           "label": "Partie",
@@ -2567,11 +2567,11 @@
             "new_inquiry": "Demande",
             "screening": "Vérification des conflits",
             "consultation": "Premier rendez-vous",
-            "fee_proposal_sent": "Convention d'honoraires envoyée",
+            "fee_proposal_sent": "Convention d’honoraires envoyée",
             "agreement_signed": "Lettre de mission signée",
             "matter_opened": "Dossier ouvert",
-            "declined_by_firm": "Refusé",
-            "not_retained": "Non donné suite"
+            "declined_by_firm": "Refusé par le cabinet",
+            "not_retained": "Cabinet non retenu"
           }
         },
         "inquiries.practice_area": {
@@ -2626,7 +2626,7 @@
           "options": {
             "hourly": "Au temps passé",
             "fixed": "Forfait",
-            "success_fee": "Honoraire de résultat",
+            "success_fee": "Honoraires de résultat",
             "insurance_or_legal_aid": "Protection juridique ou aide juridictionnelle",
             "mixed": "Mixte"
           }
@@ -2648,11 +2648,11 @@
           "options": {}
         },
         "inquiries.lost_reason": {
-          "label": "Pourquoi pas de mission",
+          "label": "Motif de l’absence de mission",
           "options": {
-            "conflict": "Conflit d'intérêts",
+            "conflict": "Conflit d’intérêts",
             "outside_practice_area": "Hors de nos domaines",
-            "capacity": "Pas de capacité",
+            "capacity": "Pas de disponibilité",
             "time_limit_referred_out": "Délai, orienté ailleurs",
             "fee": "Honoraires",
             "chose_other_lawyer": "A choisi un autre avocat",
@@ -2661,7 +2661,7 @@
           }
         },
         "inquiries.non_engagement_letter_on": {
-          "label": "Courrier de non-engagement envoyé le",
+          "label": "Courrier de non-prise en charge envoyé le",
           "options": {}
         },
         "matters.matter_ref": {
@@ -2681,11 +2681,11 @@
           "options": {}
         },
         "matters.poa_valid_until": {
-          "label": "Pouvoir valable jusqu'au",
+          "label": "Pouvoir valable jusqu’au",
           "options": {}
         },
         "matters.retention_until": {
-          "label": "Conserver jusqu'au",
+          "label": "Conserver jusqu’au",
           "options": {}
         },
         "parties.party_role": {
@@ -2709,9 +2709,9 @@
           "label": "Type",
           "options": {
             "reply": "Répondre",
-            "conflict_check": "Faire la vérification des conflits",
+            "conflict_check": "Effectuer la vérification des conflits",
             "consultation_prep": "Préparer le rendez-vous",
-            "fee_proposal": "Envoyer la convention d'honoraires",
+            "fee_proposal": "Envoyer la convention d’honoraires",
             "follow_up": "Relancer",
             "advance": "Demander la provision",
             "letter": "Rédiger un courrier",
@@ -2801,7 +2801,7 @@
           "title": "Demandes par source"
         },
         "lost_reasons": {
-          "title": "Pourquoi des demandes ne deviennent pas des dossiers"
+          "title": "Motifs des demandes sans dossier"
         },
         "poa_expiring": {
           "title": "Pouvoirs qui expirent"
@@ -2818,7 +2818,7 @@
         "conflict_check": {
           "title": "Procédure de vérification des conflits",
           "sections": [
-            "Ce qui est recherché : parties, clients et anciens clients",
+            "Ce qui est recherché : parties, clients et anciens clients",
             "Comment le résultat est consigné et que faire en cas de conflit"
           ]
         },
@@ -2830,10 +2830,10 @@
           ]
         },
         "engagement_checklist": {
-          "title": "Liste de contrôle convention d'honoraires et lettre de mission",
+          "title": "Liste de contrôle de la convention d’honoraires et de la lettre de mission",
           "sections": [
             "Honoraires, pouvoir et provision",
-            "Courriers de non-engagement et de clôture"
+            "Courriers de non-prise en charge et de clôture"
           ]
         }
       },
@@ -2847,19 +2847,19 @@
           "description": ""
         },
         "urgent_deadline_alert": {
-          "title": "Prévenir l'avocat responsable 14 jours avant le délai d'une demande ouverte",
+          "title": "Prévenir l’avocat responsable 14 jours avant le délai d’une demande ouverte",
           "description": ""
         },
         "conflict_check_task": {
-          "title": "Faire la vérification des conflits le lendemain de l'entrée en étape de vérification",
+          "title": "Effectuer la vérification des conflits le lendemain de l’entrée en étape de vérification",
           "description": ""
         },
         "fee_proposal_task": {
-          "title": "Envoyer la convention d'honoraires le lendemain du rendez-vous",
+          "title": "Envoyer la convention d’honoraires le lendemain du rendez-vous",
           "description": ""
         },
         "proposal_follow_up": {
-          "title": "Relancer 3 jours après l'envoi de la convention d'honoraires",
+          "title": "Relancer 3 jours après l’envoi de la convention d’honoraires",
           "description": ""
         },
         "agreement_signed_set": {
@@ -2871,11 +2871,11 @@
           "description": ""
         },
         "letter_declined": {
-          "title": "Rédiger le courrier de non-engagement quand le cabinet refuse une demande",
+          "title": "Rédiger le courrier de non-prise en charge quand le cabinet refuse une demande",
           "description": ""
         },
         "letter_not_retained": {
-          "title": "Rédiger le courrier de non-engagement quand un prospect ne confie pas le dossier",
+          "title": "Rédiger le courrier de non-prise en charge quand un prospect ne confie pas le dossier",
           "description": ""
         },
         "poa_renewal": {
@@ -2883,24 +2883,24 @@
           "description": ""
         },
         "closing_letter": {
-          "title": "Rédiger le courrier de clôture une semaine après la clôture d'un dossier",
+          "title": "Rédiger le courrier de clôture une semaine après la clôture d’un dossier",
           "description": ""
         }
       },
       "acceptanceChecks": {
-        "stage_field": "Chaque demande a l'une des huit étapes.",
+        "stage_field": "Chaque demande a l’une des huit étapes.",
         "conflict_check_field": "Chaque demande consigne sa vérification des conflits.",
         "urgent_deadline_field": "Chaque demande consigne le délai le plus proche connu.",
-        "inquiries_board_view": "Les demandes s'ouvrent en tableau par étape.",
+        "inquiries_board_view": "Les demandes s’ouvrent en board par étape.",
         "conflict_check_page": "La base de connaissances contient une page sur la vérification des conflits."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace Customermates une prise de dossier pour un cabinet d'avocats : demandes avec vérification des conflits, délai le plus proche connu, rendez-vous, convention d'honoraires et lettre de mission signée, dossiers comme renvois vers le logiciel du cabinet, parties pour la recherche de conflits et courriers écrits de non-engagement. Ne stocke aucun fait de l'affaire ni information couverte par le secret.",
+        "intro": "Mets en place dans mon espace de travail Customermates une prise de dossier pour un cabinet d’avocats : demandes avec vérification des conflits, délai le plus proche connu, rendez-vous, convention d’honoraires et lettre de mission signée, dossiers comme renvois vers le logiciel du cabinet, parties pour la recherche de conflits et courriers écrits de non-prise en charge. Ne stocke aucun fait de l’affaire ni information couverte par le secret professionnel.",
         "questions": [
-          "Quels domaines du droit acceptez-vous, et lesquels orientez-vous ailleurs ?",
-          "Comment faites-vous la vérification des conflits, et qui la valide ?",
-          "Quels modes d'honoraires et quelle provision utilisez-vous ?",
-          "Quel logiciel de gestion utilisez-vous ? Seule une référence au dossier est conservée ici."
+          "Quels domaines du droit acceptez-vous, et lesquels orientez-vous ailleurs ?",
+          "Comment faites-vous la vérification des conflits, et qui la valide ?",
+          "Quels modes d’honoraires et quelle provision utilisez-vous ?",
+          "Quel logiciel de gestion utilisez-vous ? Seule une référence au dossier est conservée ici."
         ]
       }
     },
@@ -2908,7 +2908,7 @@
       "locale": "it",
       "name": "Acquisizione clienti per studi legali",
       "summary": "Un'acquisizione in passaggi fissi: richiesta, verifica dei conflitti, primo colloquio, preventivo, incarico e procura firmati con acconto, e una lettera scritta per chi non diventa cliente.",
-      "description": "Acquisisci i clienti in un ordine fisso: ogni richiesta registra la materia, il termine più vicino noto, la verifica dei conflitti e chi l'ha fatta, poi il colloquio, il preventivo e l'incarico firmato. Un elenco di controparti sostiene la verifica dei conflitti, le pratiche portano la data della procura e una data di conservazione, e i potenziali clienti rifiutati o silenziosi ricevono una lettera scritta di mancato conferimento. Conserva un rimando alla pratica, mai i fatti della causa, contenuti riservati, dati sanitari o dati della controparte. Non è gestione delle pratiche, contabilità dei fondi dei clienti, fonte dei termini processuali né fatturazione.",
+      "description": "Acquisisci i clienti in un ordine fisso: ogni richiesta registra la materia, il termine più vicino noto, la verifica dei conflitti e chi l'ha fatta, poi il colloquio, il preventivo e l'incarico firmato. Un elenco di controparti sostiene la verifica dei conflitti, le pratiche portano la data della procura e una data di conservazione, e i potenziali clienti rifiutati o silenziosi ricevono una lettera scritta di mancato conferimento. Conserva un rimando alla pratica, mai i fatti della causa, informazioni coperte dal segreto professionale, dati sanitari o dati della controparte. Non è gestione delle pratiche, contabilità dei fondi dei clienti, fonte dei termini processuali né fatturazione.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2985,8 +2985,8 @@
             "fee_proposal_sent": "Preventivo inviato",
             "agreement_signed": "Incarico e procura firmati",
             "matter_opened": "Pratica aperta",
-            "declined_by_firm": "Rifiutato",
-            "not_retained": "Non conferito"
+            "declined_by_firm": "Rifiutato dallo studio",
+            "not_retained": "Incarico non conferito"
           }
         },
         "inquiries.practice_area": {
@@ -3042,7 +3042,7 @@
             "hourly": "A ore",
             "fixed": "Forfait",
             "success_fee": "Compenso a risultato",
-            "insurance_or_legal_aid": "Assicurazione o patrocinio a spese dello Stato",
+            "insurance_or_legal_aid": "Tutela legale o patrocinio a spese dello Stato",
             "mixed": "Misto"
           }
         },
@@ -3067,7 +3067,7 @@
           "options": {
             "conflict": "Conflitto di interessi",
             "outside_practice_area": "Fuori dalle nostre materie",
-            "capacity": "Nessuna capacità",
+            "capacity": "Nessuna disponibilità",
             "time_limit_referred_out": "Termine, indirizzato altrove",
             "fee": "Compenso",
             "chose_other_lawyer": "Ha scelto un altro avvocato",
@@ -3127,7 +3127,7 @@
             "conflict_check": "Fare la verifica dei conflitti",
             "consultation_prep": "Preparare il colloquio",
             "fee_proposal": "Inviare il preventivo",
-            "follow_up": "Sollecitare",
+            "follow_up": "Fare follow-up",
             "advance": "Chiedere l'acconto",
             "letter": "Scrivere una lettera",
             "other": "Altro"
@@ -3198,7 +3198,7 @@
           "title": "Attività scadute"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         },
         "inquiries_funnel": {
           "title": "Richieste per fase"
@@ -3274,7 +3274,7 @@
           "description": ""
         },
         "proposal_follow_up": {
-          "title": "Sollecitare 3 giorni dopo l'invio del preventivo",
+          "title": "Fare follow-up 3 giorni dopo l'invio del preventivo",
           "description": ""
         },
         "agreement_signed_set": {
@@ -3306,16 +3306,16 @@
         "stage_field": "Ogni richiesta ha una delle otto fasi.",
         "conflict_check_field": "Ogni richiesta registra la sua verifica dei conflitti.",
         "urgent_deadline_field": "Ogni richiesta registra il termine più vicino noto.",
-        "inquiries_board_view": "Le richieste si aprono come bacheca per fase.",
+        "inquiries_board_view": "Le richieste si aprono come board per fase.",
         "conflict_check_page": "La base di conoscenza contiene una pagina sulla verifica dei conflitti."
       },
       "prompt": {
-        "intro": "Imposta nel mio workspace Customermates l'acquisizione clienti per uno studio legale: richieste con verifica dei conflitti, termine più vicino noto, colloquio, preventivo e incarico firmato, pratiche come rimandi al gestionale, controparti per la verifica dei conflitti e lettere scritte di mancato conferimento. Non conservare fatti della causa né contenuti riservati.",
+        "intro": "Imposta nel mio spazio di lavoro Customermates l'acquisizione clienti per uno studio legale: richieste con verifica dei conflitti, termine più vicino noto, colloquio, preventivo e incarico firmato, pratiche come rimandi al gestionale, controparti per la verifica dei conflitti e lettere scritte di mancato conferimento. Non conservare fatti della causa né informazioni coperte dal segreto professionale.",
         "questions": [
-          "Quali materie trattate e quali indirizzate ad altri?",
-          "Come fate la verifica dei conflitti e chi la approva?",
-          "Quali modelli di compenso e quale acconto usate?",
-          "Quale gestionale di studio usate? Qui si conserva solo un riferimento alla pratica."
+          "Quali materie tratti e quali indirizzi ad altri?",
+          "Come fai la verifica dei conflitti e chi la approva?",
+          "Quali modelli di compenso e quale acconto usi?",
+          "Quale gestionale di studio usi? Qui si conserva solo un riferimento alla pratica."
         ]
       }
     },
@@ -3323,7 +3323,7 @@
       "locale": "nl",
       "name": "Intake voor advocatenkantoren",
       "summary": "Een intake in vaste stappen: aanvraag, conflictcheck, intake, offerte, getekende opdrachtbevestiging met volmacht en voorschot, en een schriftelijke brief voor iedereen die geen cliënt wordt.",
-      "description": "Neem cliënten in een vaste volgorde aan: elke aanvraag legt het rechtsgebied vast, de vroegst bekende termijn, de conflictcheck en wie die deed, daarna de intake, de offerte en de getekende opdrachtbevestiging. Een lijst met partijen ondersteunt de conflictcheck, zaken dragen de datum van de volmacht en een bewaardatum, en afgewezen of stille aanvragers krijgen een schriftelijke brief dat het kantoor de zaak niet aanneemt. Het bewaart een verwijzing naar het dossier, nooit feiten van de zaak, vertrouwelijke inhoud, gezondheidsgegevens of gegevens van de wederpartij. Geen dossierbeheer, geen derdengeldenadministratie, geen bron voor procestermijnen en geen facturatie.",
+      "description": "Cliënten in een vaste volgorde aannemen: elke aanvraag legt het rechtsgebied vast, de vroegst bekende termijn, de conflictcheck en wie die deed, daarna de intake, de offerte en de getekende opdrachtbevestiging. Een lijst met partijen ondersteunt de conflictcheck, zaken dragen de datum van de volmacht en een bewaardatum, en afgewezen of stille aanvragers krijgen een schriftelijke brief dat het kantoor de zaak niet aanneemt. Het bewaart een verwijzing naar het dossier, nooit feiten van de zaak, vertrouwelijke inhoud, gezondheidsgegevens of gegevens van de wederpartij. Geen dossierbeheer, geen derdengeldenadministratie, geen bron voor procestermijnen en geen facturatie.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -3342,8 +3342,8 @@
         },
         "matters": {
           "label": "Zaak",
-          "pluralLabel": "Zaken (dossiers)",
-          "description": "Een verwijzing naar het dossier in uw kantoorsysteem, met de datum van de volmacht en de bewaardatum."
+          "pluralLabel": "Zaken",
+          "description": "Een verwijzing naar het dossier in je kantoorsysteem, met de datum van de volmacht en de bewaardatum."
         },
         "parties": {
           "label": "Partij",
@@ -3356,7 +3356,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -3443,7 +3443,7 @@
           "options": {
             "pending": "Open",
             "cleared": "Geen conflict",
-            "cleared_with_waiver": "Opgelost met toestemming",
+            "cleared_with_waiver": "Geen conflict, met toestemming",
             "conflict_found": "Conflict gevonden"
           }
         },
@@ -3470,11 +3470,11 @@
           "options": {}
         },
         "inquiries.responsible_lawyer": {
-          "label": "Verantwoordelijk advocaat",
+          "label": "Verantwoordelijke advocaat",
           "options": {}
         },
         "inquiries.next_step_due": {
-          "label": "Volgende stap voor",
+          "label": "Volgende stap uiterlijk op",
           "options": {}
         },
         "inquiries.lost_reason": {
@@ -3491,7 +3491,7 @@
           }
         },
         "inquiries.non_engagement_letter_on": {
-          "label": "Brief over niet aannemen verstuurd op",
+          "label": "Afwijzingsbrief verstuurd op",
           "options": {}
         },
         "matters.matter_ref": {
@@ -3556,11 +3556,11 @@
         },
         "matter_contact": {
           "sourceLabel": "Cliënt",
-          "targetLabel": "Zaken (dossiers)"
+          "targetLabel": "Zaken"
         },
         "matter_inquiry": {
           "sourceLabel": "Aanvraag",
-          "targetLabel": "Zaken (dossiers)"
+          "targetLabel": "Zaken"
         },
         "party_inquiry": {
           "sourceLabel": "Aanvraag",
@@ -3572,11 +3572,11 @@
         },
         "action_inquiry": {
           "sourceLabel": "Aanvraag",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         },
         "action_matter": {
           "sourceLabel": "Zaak",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         }
       },
       "views": {
@@ -3663,57 +3663,57 @@
           "title": "Checklist opdrachtbevestiging en offerte",
           "sections": [
             "Tarief, volmacht en voorschot",
-            "Brieven over niet aannemen en afsluiting"
+            "Afwijzings- en afsluitbrieven"
           ]
         }
       },
       "rules": {
         "inquiry_form_records": {
-          "title": "Contactpersoon en aanvraag aanmaken als het aanvraagformulier is ingediend",
+          "title": "Maak een contactpersoon en een aanvraag aan als het aanvraagformulier is ingediend",
           "description": ""
         },
         "acknowledge_inquiry": {
-          "title": "Een nieuwe aanvraag de volgende dag beantwoorden en een intake aanbieden",
+          "title": "Beantwoord een nieuwe aanvraag de volgende dag en bied een intake aan",
           "description": ""
         },
         "urgent_deadline_alert": {
-          "title": "De verantwoordelijke 14 dagen voor de termijn van een open aanvraag waarschuwen",
+          "title": "Waarschuw de verantwoordelijke 14 dagen voor de termijn van een open aanvraag",
           "description": ""
         },
         "conflict_check_task": {
-          "title": "De conflictcheck uitvoeren de dag nadat een aanvraag die fase bereikt",
+          "title": "Voer de conflictcheck uit de dag nadat een aanvraag die fase bereikt",
           "description": ""
         },
         "fee_proposal_task": {
-          "title": "De offerte sturen de dag na de intake",
+          "title": "Stuur de offerte de dag na de intake",
           "description": ""
         },
         "proposal_follow_up": {
-          "title": "3 dagen na het versturen van de offerte opvolgen",
+          "title": "Volg de offerte 3 dagen na het versturen op",
           "description": ""
         },
         "agreement_signed_set": {
-          "title": "Het voorschot opvragen 2 dagen na de getekende opdrachtbevestiging",
+          "title": "Vraag het voorschot op 2 dagen na de getekende opdrachtbevestiging",
           "description": ""
         },
         "advance_chase": {
-          "title": "De verantwoordelijke waarschuwen als het voorschot 7 dagen na het verzoek nog ontbreekt",
+          "title": "Waarschuw de verantwoordelijke als het voorschot 7 dagen na het verzoek nog ontbreekt",
           "description": ""
         },
         "letter_declined": {
-          "title": "De brief over niet aannemen opstellen als het kantoor een aanvraag afwijst",
+          "title": "Stel de afwijzingsbrief op als het kantoor een aanvraag afwijst",
           "description": ""
         },
         "letter_not_retained": {
-          "title": "De brief over niet aannemen opstellen als een aanvrager de opdracht niet geeft",
+          "title": "Stel de afwijzingsbrief op als een aanvrager de opdracht niet geeft",
           "description": ""
         },
         "poa_renewal": {
-          "title": "De volmacht 30 dagen voor het verlopen vernieuwen",
+          "title": "Vernieuw de volmacht 30 dagen voor het verlopen",
           "description": ""
         },
         "closing_letter": {
-          "title": "De afsluitbrief opstellen een week nadat een zaak is gesloten",
+          "title": "Stel de afsluitbrief op een week nadat een zaak is gesloten",
           "description": ""
         }
       },
@@ -3725,20 +3725,20 @@
         "conflict_check_page": "De kennisbank bevat een pagina over de conflictcheck."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-workspace een intake voor een advocatenkantoor in: aanvragen met conflictcheck, vroegst bekende termijn, intake, offerte en getekende opdrachtbevestiging, zaken als verwijzingen naar het kantoorsysteem, partijen voor de conflictcheck en schriftelijke brieven over niet aannemen. Bewaar geen feiten van de zaak of vertrouwelijke inhoud.",
+        "intro": "Richt in mijn Customermates-werkruimte een intake voor een advocatenkantoor in: aanvragen met conflictcheck, vroegst bekende termijn, intake, offerte en getekende opdrachtbevestiging, zaken als verwijzingen naar het kantoorsysteem, partijen voor de conflictcheck en schriftelijke afwijzingsbrieven. Bewaar geen feiten van de zaak of vertrouwelijke inhoud.",
         "questions": [
-          "Welke rechtsgebieden neemt u aan en welke verwijst u door?",
-          "Hoe voert u de conflictcheck uit en wie tekent die af?",
-          "Welke tariefmodellen en welk voorschot gebruikt u?",
-          "Welk kantoorsysteem gebruikt u? Hier wordt alleen een verwijzing naar het dossier bewaard."
+          "Welke rechtsgebieden neem je aan en welke verwijs je door?",
+          "Hoe voer je de conflictcheck uit en wie tekent die af?",
+          "Welke tariefmodellen en welk voorschot gebruik je?",
+          "Welk kantoorsysteem gebruik je? Hier wordt alleen een verwijzing naar het dossier bewaard."
         ]
       }
     },
     "pl": {
       "locale": "pl",
       "name": "Przyjmowanie klientów w kancelarii",
-      "summary": "Przyjmowanie klientów w stałych krokach: zapytanie, weryfikacja konfliktu interesów, konsultacja, oferta, umowa i pełnomocnictwo z zaliczką oraz pisemne pismo dla każdego, kto nie zostaje klientem.",
-      "description": "Przyjmuj klientów w stałej kolejności: każde zapytanie zapisuje dziedzinę prawa, najbliższy znany termin, weryfikację konfliktu interesów i kto ją wykonał, potem konsultację, ofertę i podpisaną umowę. Lista stron wspiera weryfikację konfliktu, sprawy mają datę pełnomocnictwa i datę przechowywania, a odrzuceni lub milczący potencjalni klienci dostają pisemne pismo o niepodjęciu sprawy. Narzędzie zapisuje odwołanie do sprawy, nigdy okoliczności sprawy, treści objętych tajemnicą, danych o zdrowiu ani danych drugiej strony. To nie zarządzanie sprawami, rozliczanie środków klientów, źródło terminów procesowych ani fakturowanie.",
+      "summary": "Przyjmowanie klientów w stałych krokach: zapytanie, weryfikacja konfliktu interesów, konsultacja, oferta, umowa i pełnomocnictwo z zaliczką oraz pismo o niepodjęciu sprawy dla każdego, kto nie zostaje klientem.",
+      "description": "Przyjmuj klientów w stałej kolejności: każde zapytanie zapisuje dziedzinę prawa, najbliższy znany termin, weryfikację konfliktu interesów i kto ją wykonał, potem konsultację, ofertę i podpisaną umowę. Lista stron wspiera weryfikację konfliktu, sprawy mają datę pełnomocnictwa i datę przechowywania, a odrzuceni lub milczący potencjalni klienci dostają pismo o niepodjęciu sprawy. Narzędzie zapisuje odnośnik do sprawy, nigdy okoliczności sprawy, treści objętych tajemnicą zawodową, danych o zdrowiu ani danych drugiej strony. To nie jest system do zarządzania sprawami, rozliczania środków klientów, śledzenia terminów procesowych ani fakturowania.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -3758,7 +3758,7 @@
         "matters": {
           "label": "Sprawa",
           "pluralLabel": "Sprawy",
-          "description": "Odwołanie do sprawy w systemie kancelarii, z datą pełnomocnictwa i datą przechowywania."
+          "description": "Odnośnik do sprawy w systemie kancelarii, z datą pełnomocnictwa i datą przechowywania."
         },
         "parties": {
           "label": "Strona",
@@ -3781,7 +3781,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -3815,7 +3815,7 @@
             "fee_proposal_sent": "Oferta wysłana",
             "agreement_signed": "Umowa i pełnomocnictwo podpisane",
             "matter_opened": "Sprawa otwarta",
-            "declined_by_firm": "Odrzucone",
+            "declined_by_firm": "Odmówiono przyjęcia",
             "not_retained": "Bez zlecenia"
           }
         },
@@ -3842,7 +3842,7 @@
             "referral": "Polecenie",
             "whatsapp": "WhatsApp",
             "walk_in": "Wizyta w kancelarii",
-            "directory": "Katalog"
+            "directory": "Katalog prawników"
           }
         },
         "inquiries.urgent_deadline": {
@@ -3858,16 +3858,16 @@
           "options": {
             "pending": "Do wykonania",
             "cleared": "Brak konfliktu",
-            "cleared_with_waiver": "Wyjaśniony za zgodą",
+            "cleared_with_waiver": "Dopuszczone za zgodą",
             "conflict_found": "Wykryto konflikt"
           }
         },
         "inquiries.consultation_on": {
-          "label": "Konsultacja",
+          "label": "Data konsultacji",
           "options": {}
         },
         "inquiries.fee_model": {
-          "label": "Wynagrodzenie",
+          "label": "Model wynagrodzenia",
           "options": {
             "hourly": "Godzinowo",
             "fixed": "Ryczałt",
@@ -3877,19 +3877,19 @@
           }
         },
         "inquiries.advance_requested_on": {
-          "label": "Zaliczkę zażądano dnia",
+          "label": "Data żądania zaliczki",
           "options": {}
         },
         "inquiries.advance_received_on": {
-          "label": "Zaliczkę otrzymano dnia",
+          "label": "Data otrzymania zaliczki",
           "options": {}
         },
         "inquiries.responsible_lawyer": {
-          "label": "Prowadzący prawnik",
+          "label": "Prawnik prowadzący",
           "options": {}
         },
         "inquiries.next_step_due": {
-          "label": "Następny krok do",
+          "label": "Termin następnego kroku",
           "options": {}
         },
         "inquiries.lost_reason": {
@@ -3898,19 +3898,19 @@
             "conflict": "Konflikt interesów",
             "outside_practice_area": "Poza naszymi dziedzinami",
             "capacity": "Brak mocy przerobowych",
-            "time_limit_referred_out": "Termin, skierowany gdzie indziej",
-            "fee": "Wynagrodzenie",
-            "chose_other_lawyer": "Wybrał innego prawnika",
+            "time_limit_referred_out": "Pilny termin, skierowano do innej kancelarii",
+            "fee": "Wysokość wynagrodzenia",
+            "chose_other_lawyer": "Klient wybrał innego prawnika",
             "no_response": "Brak odpowiedzi",
             "self_resolved": "Sprawa rozwiązała się sama"
           }
         },
         "inquiries.non_engagement_letter_on": {
-          "label": "Pismo o niepodjęciu sprawy wysłano dnia",
+          "label": "Data wysłania pisma o niepodjęciu sprawy",
           "options": {}
         },
         "matters.matter_ref": {
-          "label": "Odwołanie w systemie kancelarii",
+          "label": "Numer sprawy w systemie kancelarii",
           "options": {}
         },
         "matters.status": {
@@ -3922,7 +3922,7 @@
           }
         },
         "matters.opened_on": {
-          "label": "Otwarto dnia",
+          "label": "Data otwarcia",
           "options": {}
         },
         "matters.poa_valid_until": {
@@ -3946,8 +3946,8 @@
         "parties.party_type": {
           "label": "Typ",
           "options": {
-            "person": "Osoba",
-            "organisation": "Organizacja"
+            "person": "Osoba fizyczna",
+            "organisation": "Firma lub organizacja"
           }
         },
         "actions.kind": {
@@ -3957,8 +3957,8 @@
             "conflict_check": "Wykonać weryfikację konfliktu",
             "consultation_prep": "Przygotować konsultację",
             "fee_proposal": "Wysłać ofertę",
-            "follow_up": "Przypomnieć",
-            "advance": "Zażądać zaliczki",
+            "follow_up": "Przypomnieć o sobie",
+            "advance": "Poprosić o zaliczkę",
             "letter": "Napisać pismo",
             "other": "Inne"
           }
@@ -4046,7 +4046,7 @@
           "title": "Zapytania według źródła"
         },
         "lost_reasons": {
-          "title": "Dlaczego zapytania nie stały się sprawami"
+          "title": "Powody braku zlecenia"
         },
         "poa_expiring": {
           "title": "Wygasające pełnomocnictwa"
@@ -4068,10 +4068,10 @@
           ]
         },
         "time_limit_triage": {
-          "title": "Sortowanie pilnych terminów",
+          "title": "Ocena pilnych terminów",
           "sections": [
             "Pytanie o najbliższy znany termin przy pierwszym kontakcie",
-            "Przyjąć, skierować gdzie indziej albo ostrzec pisemnie"
+            "Przyjąć sprawę, skierować do innej kancelarii albo ostrzec pisemnie"
           ]
         },
         "engagement_checklist": {
@@ -4084,51 +4084,51 @@
       },
       "rules": {
         "inquiry_form_records": {
-          "title": "Utworzyć kontakt i zapytanie po wysłaniu formularza zapytania",
+          "title": "Utwórz kontakt i zapytanie po wysłaniu formularza",
           "description": ""
         },
         "acknowledge_inquiry": {
-          "title": "Odpowiedzieć na nowe zapytanie następnego dnia i zaproponować konsultację",
+          "title": "Odpowiedz na nowe zapytanie następnego dnia i zaproponuj konsultację",
           "description": ""
         },
         "urgent_deadline_alert": {
-          "title": "Powiadomić prowadzącego 14 dni przed terminem otwartego zapytania",
+          "title": "Powiadom prawnika prowadzącego 14 dni przed terminem otwartego zapytania",
           "description": ""
         },
         "conflict_check_task": {
-          "title": "Wykonać weryfikację konfliktu dzień po wejściu w ten etap",
+          "title": "Wykonaj weryfikację konfliktu dzień po tym, jak zapytanie trafi na ten etap",
           "description": ""
         },
         "fee_proposal_task": {
-          "title": "Wysłać ofertę dzień po konsultacji",
+          "title": "Wyślij ofertę dzień po konsultacji",
           "description": ""
         },
         "proposal_follow_up": {
-          "title": "Przypomnieć o ofercie 3 dni po jej wysłaniu",
+          "title": "Przypomnij o ofercie 3 dni po jej wysłaniu",
           "description": ""
         },
         "agreement_signed_set": {
-          "title": "Zażądać zaliczki 2 dni po podpisaniu umowy",
+          "title": "Poproś o zaliczkę 2 dni po podpisaniu umowy",
           "description": ""
         },
         "advance_chase": {
-          "title": "Powiadomić prowadzącego, gdy zaliczki nadal brak 7 dni po żądaniu",
+          "title": "Powiadom prawnika prowadzącego, gdy zaliczki nadal brak 7 dni po prośbie o wpłatę",
           "description": ""
         },
         "letter_declined": {
-          "title": "Napisać pismo o niepodjęciu sprawy, gdy kancelaria odrzuca zapytanie",
+          "title": "Napisz pismo o niepodjęciu sprawy, gdy kancelaria odmawia przyjęcia zapytania",
           "description": ""
         },
         "letter_not_retained": {
-          "title": "Napisać pismo o niepodjęciu sprawy, gdy potencjalny klient nie zleca sprawy",
+          "title": "Napisz pismo o niepodjęciu sprawy, gdy potencjalny klient nie zleca sprawy",
           "description": ""
         },
         "poa_renewal": {
-          "title": "Odnowić pełnomocnictwo 30 dni przed wygaśnięciem",
+          "title": "Odnów pełnomocnictwo 30 dni przed wygaśnięciem",
           "description": ""
         },
         "closing_letter": {
-          "title": "Napisać pismo kończące tydzień po zamknięciu sprawy",
+          "title": "Napisz pismo kończące tydzień po zamknięciu sprawy",
           "description": ""
         }
       },
@@ -4140,12 +4140,12 @@
         "conflict_check_page": "Baza wiedzy zawiera stronę o weryfikacji konfliktu interesów."
       },
       "prompt": {
-        "intro": "Skonfiguruj w moim workspace Customermates przyjmowanie klientów w kancelarii: zapytania z weryfikacją konfliktu interesów, najbliższym znanym terminem, konsultacją, ofertą i podpisaną umową, sprawy jako odwołania do systemu kancelarii, strony na potrzeby weryfikacji konfliktu i pisemne pisma o niepodjęciu sprawy. Nie zapisuj okoliczności sprawy ani treści objętych tajemnicą.",
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates przyjmowanie klientów w kancelarii: zapytania z weryfikacją konfliktu interesów, najbliższym znanym terminem, konsultacją, ofertą i podpisaną umową, sprawy jako odnośniki do systemu kancelarii, strony na potrzeby weryfikacji konfliktu i pisma o niepodjęciu sprawy. Nie zapisuj okoliczności sprawy ani treści objętych tajemnicą.",
         "questions": [
           "Jakie dziedziny prawa przyjmujesz, a jakie kierujesz do innych?",
           "Jak wykonujesz weryfikację konfliktu interesów i kto ją zatwierdza?",
           "Jakie modele wynagrodzenia i jaką zaliczkę stosujesz?",
-          "Z jakiego systemu kancelarii korzystasz? Tutaj zapisywane jest tylko odwołanie do sprawy."
+          "Z jakiego systemu kancelarii korzystasz? Tutaj zapisujemy tylko odnośnik do sprawy."
         ]
       }
     },
@@ -4153,7 +4153,7 @@
       "locale": "pt",
       "name": "Atendimento de clientes para advocacia",
       "summary": "Um atendimento em etapas fixas: contato, triagem de conflito e urgência, consulta, proposta de honorários, contrato e procuração assinados e uma carta escrita para quem não vira cliente.",
-      "description": "Receba clientes em uma ordem fixa: cada atendimento registra a área do direito, o prazo mais próximo conhecido, a checagem de conflito e quem a fez, depois a consulta, a proposta de honorários e o contrato assinado. Uma lista de partes apoia a checagem de conflito, os casos levam a data da procuração e uma data de guarda, e interessados recusados ou silenciosos recebem uma carta escrita de não contratação. Guarda uma referência ao caso, nunca fatos do processo, conteúdo sigiloso, dados de saúde ou dados da parte contrária. Não é gestão de processos, contabilidade de valores de clientes, fonte de prazos processuais nem cobrança.",
+      "description": "Receba clientes em uma ordem fixa: cada atendimento registra a área do direito, o prazo mais próximo conhecido, a verificação de conflito e quem a fez, depois a consulta, a proposta de honorários e o contrato assinado. Uma lista de partes apoia a verificação de conflito, os casos levam a data da procuração e uma data de guarda, e interessados recusados ou silenciosos recebem uma carta escrita de não contratação. Guarde uma referência ao caso, nunca fatos do processo, conteúdo sigiloso, dados de saúde ou dados da parte contrária. Não é gestão de processos, contabilidade de valores de clientes, fonte de prazos processuais nem cobrança.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -4163,7 +4163,7 @@
         "contacts": {
           "label": "Contato",
           "pluralLabel": "Contatos",
-          "description": "Interessados, clientes, ex-clientes e indicadores."
+          "description": "Interessados, clientes, ex-clientes e quem indica."
         },
         "inquiries": {
           "label": "Atendimento",
@@ -4178,7 +4178,7 @@
         "parties": {
           "label": "Parte",
           "pluralLabel": "Partes",
-          "description": "Partes contrárias e relacionadas, guardadas para a checagem de conflito."
+          "description": "Partes contrárias e relacionadas, guardadas para a verificação de conflito."
         }
       },
       "fields": {
@@ -4209,7 +4209,7 @@
             "prospect": "Interessado",
             "client": "Cliente",
             "former_client": "Ex-cliente",
-            "referrer": "Indicador"
+            "referrer": "Quem indicou"
           }
         },
         "contacts.preferred_channel": {
@@ -4269,7 +4269,7 @@
           "options": {}
         },
         "inquiries.conflict_check": {
-          "label": "Checagem de conflito",
+          "label": "Verificação de conflito",
           "options": {
             "pending": "Pendente",
             "cleared": "Sem conflito",
@@ -4304,7 +4304,7 @@
           "options": {}
         },
         "inquiries.next_step_due": {
-          "label": "Próximo passo até",
+          "label": "Data do próximo passo",
           "options": {}
         },
         "inquiries.lost_reason": {
@@ -4329,7 +4329,7 @@
           "options": {}
         },
         "matters.status": {
-          "label": "Situação",
+          "label": "Status",
           "options": {
             "open": "Aberto",
             "on_hold": "Suspenso",
@@ -4369,11 +4369,11 @@
           "label": "Tipo",
           "options": {
             "reply": "Responder",
-            "conflict_check": "Fazer a checagem de conflito",
+            "conflict_check": "Fazer a verificação de conflito",
             "consultation_prep": "Preparar a consulta",
             "fee_proposal": "Enviar a proposta de honorários",
             "follow_up": "Fazer o retorno",
-            "advance": "Cobrar o adiantamento",
+            "advance": "Solicitar o adiantamento",
             "letter": "Redigir uma carta",
             "other": "Outro"
           }
@@ -4423,7 +4423,7 @@
           "name": "Atendimentos abertos com prazo"
         },
         "conflicts_to_check": {
-          "name": "Checagens de conflito pendentes"
+          "name": "Verificações de conflito pendentes"
         },
         "matters_all": {
           "name": "Todos os casos"
@@ -4455,7 +4455,7 @@
           "title": "Consultas próximas"
         },
         "conflicts_pending": {
-          "title": "Checagens de conflito pendentes"
+          "title": "Verificações de conflito pendentes"
         },
         "inquiries_by_source": {
           "title": "Atendimentos por origem"
@@ -4476,7 +4476,7 @@
           ]
         },
         "conflict_check": {
-          "title": "Procedimento de checagem de conflito",
+          "title": "Procedimento de verificação de conflito",
           "sections": [
             "O que se busca: partes, clientes e ex-clientes",
             "Como o resultado é registrado e o que fazer se houver conflito"
@@ -4511,7 +4511,7 @@
           "description": ""
         },
         "conflict_check_task": {
-          "title": "Fazer a checagem de conflito no dia seguinte à entrada na triagem",
+          "title": "Fazer a verificação de conflito no dia seguinte à entrada na triagem",
           "description": ""
         },
         "fee_proposal_task": {
@@ -4519,11 +4519,11 @@
           "description": ""
         },
         "proposal_follow_up": {
-          "title": "Fazer o retorno 3 dias depois de enviada a proposta",
+          "title": "Fazer o retorno 3 dias depois de enviar a proposta",
           "description": ""
         },
         "agreement_signed_set": {
-          "title": "Cobrar o adiantamento 2 dias depois da assinatura do contrato",
+          "title": "Solicitar o adiantamento 2 dias depois da assinatura do contrato",
           "description": ""
         },
         "advance_chase": {
@@ -4549,16 +4549,16 @@
       },
       "acceptanceChecks": {
         "stage_field": "Todo atendimento está em uma das oito etapas.",
-        "conflict_check_field": "Todo atendimento registra a checagem de conflito.",
+        "conflict_check_field": "Todo atendimento registra a verificação de conflito.",
         "urgent_deadline_field": "Todo atendimento registra o prazo mais próximo conhecido.",
         "inquiries_board_view": "Os atendimentos abrem como quadro por etapa.",
-        "conflict_check_page": "A base de conhecimento tem uma página sobre a checagem de conflito."
+        "conflict_check_page": "A base de conhecimento tem uma página sobre a verificação de conflito."
       },
       "prompt": {
-        "intro": "Configure no meu workspace do Customermates um atendimento de clientes para um escritório de advocacia: atendimentos com checagem de conflito, prazo mais próximo conhecido, consulta, proposta de honorários e contrato assinado, casos como referências ao sistema do escritório, partes para a checagem de conflito e cartas escritas de não contratação. Não guarde fatos do processo nem conteúdo sigiloso.",
+        "intro": "Configure no meu espaço de trabalho do Customermates um atendimento de clientes para um escritório de advocacia: atendimentos com verificação de conflito, prazo mais próximo conhecido, consulta, proposta de honorários e contrato assinado, casos como referências ao sistema do escritório, partes para a verificação de conflito e cartas escritas de não contratação. Não guarde fatos do processo nem conteúdo sigiloso.",
         "questions": [
           "Quais áreas do direito você atende e quais encaminha a outros?",
-          "Como você faz a checagem de conflito e quem a aprova?",
+          "Como você faz a verificação de conflito e quem a aprova?",
           "Que modelos de honorários e que adiantamento você usa?",
           "Qual sistema de gestão você usa? Aqui só se guarda uma referência ao caso."
         ]

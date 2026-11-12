@@ -916,7 +916,20 @@
           ]
         },
         "dueOffsetDays": 0,
-        "needs": "rules"
+        "needs": "rules",
+        "variants": {
+          "BR": {
+            "action": {
+              "kind": "set_dates",
+              "dates": [
+                {
+                  "field": "jobs.withdrawal_ends",
+                  "offsetDays": 7
+                }
+              ]
+            }
+          }
+        }
       },
       {
         "key": "payment_check",
@@ -1063,6 +1076,10 @@
       {
         "url": "https://monday.com/blog/crm-and-sales/crm-for-construction/",
         "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm",
+        "checkedOn": "2026-11-12"
       }
     ],
     "reviewedAt": "2026-11-12",
@@ -1103,7 +1120,7 @@
         "customers": {
           "label": "Kunde",
           "pluralLabel": "Kunden",
-          "description": "Eigentümer, Vermieter, Hausverwaltungen und Firmen, für die Sie arbeiten."
+          "description": "Eigentümer, Vermieter, Hausverwaltungen und Firmen, für die du arbeitest."
         },
         "sites": {
           "label": "Objekt",
@@ -1154,7 +1171,7 @@
           }
         },
         "customers.marketing_ok": {
-          "label": "Einwilligung Werbung",
+          "label": "Einwilligung zu Werbung",
           "options": {}
         },
         "sites.address": {
@@ -1228,7 +1245,7 @@
           "options": {}
         },
         "jobs.lost_reason": {
-          "label": "Grund für Verloren",
+          "label": "Verlustgrund",
           "options": {
             "price": "Preis",
             "timing": "Zeitpunkt",
@@ -1412,7 +1429,13 @@
         },
         "withdrawal_clock": {
           "title": "Das Ende der 14-tägigen Widerrufsfrist setzen, wenn ein Auftrag erteilt wird",
-          "description": ""
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Das Ende der 7-tägigen Widerrufsfrist setzen, wenn ein Auftrag erteilt wird (Brasilien)",
+              "description": "Nach dem brasilianischen Verbraucherschutzgesetz (CDC, Art. 49) kann ein Kunde binnen 7 Tagen widerrufen, wenn der Vertrag außerhalb der Geschäftsräume zustande kam, etwa bei ihm zu Hause."
+            }
+          }
         },
         "payment_check": {
           "title": "Einen abgerechneten Auftrag 3 Tage nach dem Zahlungsziel prüfen",
@@ -1440,17 +1463,17 @@
       "prompt": {
         "intro": "Richte in meinem Customermates-Workspace eine Auftragspipeline für den Handwerksbetrieb ein: Kunden, Objekte, Aufträge mit Vertriebsphase und Ausführungsstatus, Bindefrist, Besichtigungs- und Bautermine, Gewährleistungsende und Wartungsverträge, mit terminierten Folgeaufgaben.",
         "questions": [
-          "Welche Arbeiten führen Sie aus, und für wen: Eigentümer, Vermieter oder Firmen?",
-          "Wie schnell beantworten Sie eine Anfrage und senden nach der Besichtigung ein Angebot?",
-          "Wie lange sind Ihre Angebote bindend, und wie lang ist Ihre Gewährleistung?",
-          "Verkaufen Sie Wartungsverträge für Folgeaufträge?"
+          "Welche Arbeiten führst du aus, und für wen: Eigentümer, Vermieter oder Firmen?",
+          "Wie schnell beantwortest du eine Anfrage und sendest nach der Besichtigung ein Angebot?",
+          "Wie lange sind deine Angebote bindend, und wie lang ist deine Gewährleistung?",
+          "Verkaufst du Wartungsverträge für Folgeaufträge?"
         ]
       }
     },
     "en": {
       "locale": "en",
       "name": "Trades job pipeline",
-      "summary": "A pipeline for a trade business: enquiry, site visit, quote and follow-up, then the work itself from scheduled to paid, with withdrawal, warranty and service dates on every job.",
+      "summary": "A pipeline for a trade business: inquiry, site visit, quote and follow-up, then the work itself from scheduled to paid, with withdrawal, warranty and service dates on every job.",
       "description": "Follow a job from the first call to the last invoice: customers and the sites you work at, jobs with a sales stage and a separate work status, quote validity, the visit and the schedule, a withdrawal date for consumer contracts, warranty end and service agreements that bring repeat work. It stores the job, the dates and the follow-up. It is not a quoting or invoicing tool, a dispatch system or a timesheet. Legal dates are fields you confirm, not legal advice.",
       "lists": {
         "actions": {
@@ -1471,7 +1494,7 @@
         "jobs": {
           "label": "Job",
           "pluralLabel": "Jobs",
-          "description": "One piece of work, from enquiry to won or lost, then through the work itself."
+          "description": "One piece of work, from inquiry to won or lost, then through the work itself."
         },
         "agreements": {
           "label": "Service agreement",
@@ -1526,7 +1549,7 @@
         "jobs.stage": {
           "label": "Stage",
           "options": {
-            "enquiry": "Enquiry",
+            "enquiry": "Inquiry",
             "assessment": "Site visit",
             "to_quote": "Quote to write",
             "quote_sent": "Quote sent",
@@ -1719,7 +1742,7 @@
       },
       "knowledgePages": {
         "operating_guide": {
-          "title": "How enquiries become jobs",
+          "title": "How inquiries become jobs",
           "sections": [
             "Reply, visit and quote: who does what and how fast",
             "Weekly review of open quotes, jobs to invoice and unpaid invoices"
@@ -1749,11 +1772,11 @@
       },
       "rules": {
         "enquiry_form_records": {
-          "title": "Create the customer, the site and the job when the enquiry form is submitted",
+          "title": "Create the customer, the site and the job when the inquiry form is submitted",
           "description": ""
         },
         "call_back_new": {
-          "title": "Call back a new enquiry the same day",
+          "title": "Call back a new inquiry the same day",
           "description": ""
         },
         "quote_after_visit": {
@@ -1770,7 +1793,13 @@
         },
         "withdrawal_clock": {
           "title": "Set the end of the 14-day withdrawal period when a job is won",
-          "description": ""
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Set the end of the 7-day withdrawal period when a job is won (Brazil, CDC art. 49)",
+              "description": "Under Brazil's consumer code (CDC art. 49), a customer can withdraw within 7 days when the contract was made outside the business premises, for example at their home."
+            }
+          }
         },
         "payment_check": {
           "title": "Check an invoiced job 3 days after the payment is due",
@@ -1799,7 +1828,7 @@
         "intro": "Set up a trades job pipeline in my Customermates workspace: customers, sites, jobs with a sales stage and a work status, quote validity, visit and schedule dates, warranty end and service agreements, with dated follow-ups.",
         "questions": [
           "Which kinds of work do you do, and for whom: homeowners, landlords or companies?",
-          "How quickly do you answer an enquiry and send a quote after the visit?",
+          "How quickly do you answer an inquiry and send a quote after the visit?",
           "How long are your quotes valid, and how long is your warranty?",
           "Do you sell service agreements for repeat work?"
         ]
@@ -1809,7 +1838,7 @@
       "locale": "es",
       "name": "Trabajos para oficios",
       "summary": "Un pipeline para una empresa de oficios: solicitud, visita técnica, presupuesto y seguimiento, y luego el trabajo de programado a pagado, con fechas de desistimiento, garantía y mantenimiento en cada trabajo.",
-      "description": "Siga un trabajo desde la primera llamada hasta la última factura: clientes y obras donde trabaja, trabajos con una fase comercial y un estado de ejecución aparte, validez del presupuesto, visita y calendario, fecha de desistimiento en contratos con consumidores, fin de la garantía y contratos de mantenimiento que traen nuevo trabajo. Guarda el trabajo, las fechas y el seguimiento. No es una herramienta de presupuestos y facturas, un sistema de planificación de equipos ni un control de horas. Las fechas legales son campos que usted confirma, no asesoramiento jurídico.",
+      "description": "Sigue un trabajo desde la primera llamada hasta la última factura: clientes y obras donde trabajas, trabajos con una fase comercial y un estado de ejecución aparte, validez del presupuesto, visita y calendario, fecha de desistimiento en contratos con consumidores, fin de la garantía y contratos de mantenimiento que traen nuevo trabajo. Guarda el trabajo, las fechas y el seguimiento. No es una herramienta de presupuestos y facturas, un sistema de planificación de equipos ni un control de horas. Las fechas legales son campos que tú confirmas, no asesoramiento jurídico.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -1819,7 +1848,7 @@
         "customers": {
           "label": "Cliente",
           "pluralLabel": "Clientes",
-          "description": "Particulares, propietarios, administradores de fincas y empresas para los que trabaja."
+          "description": "Particulares, propietarios, administradores de fincas y empresas para los que trabajas."
         },
         "sites": {
           "label": "Obra",
@@ -1944,7 +1973,7 @@
           "options": {}
         },
         "jobs.lost_reason": {
-          "label": "Motivo de la pérdida",
+          "label": "Motivo de pérdida",
           "options": {
             "price": "Precio",
             "timing": "Plazos",
@@ -1985,7 +2014,7 @@
             "call_back": "Devolver la llamada",
             "book_visit": "Concertar una visita",
             "send_quote": "Enviar el presupuesto",
-            "follow_up_quote": "Dar seguimiento al presupuesto",
+            "follow_up_quote": "Hacer seguimiento del presupuesto",
             "confirm_schedule": "Confirmar el calendario",
             "handover": "Entregar y anotar la aceptación",
             "check_payment": "Comprobar el pago",
@@ -2119,16 +2148,22 @@
           "description": ""
         },
         "quote_follow_up": {
-          "title": "Dar seguimiento 3 días después de enviar un presupuesto",
+          "title": "Hacer seguimiento 3 días después de enviar un presupuesto",
           "description": ""
         },
         "quote_expiring": {
-          "title": "Dar seguimiento 3 días antes de que venza un presupuesto",
+          "title": "Hacer seguimiento 3 días antes de que venza un presupuesto",
           "description": ""
         },
         "withdrawal_clock": {
           "title": "Fijar el fin del plazo de desistimiento de 14 días cuando se acepta un trabajo",
-          "description": ""
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Fijar el fin del plazo de desistimiento de 7 días cuando se acepta un trabajo (Brasil)",
+              "description": "Según el código brasileño del consumidor (CDC, art. 49), el cliente puede desistir en 7 días cuando el contrato se firmó fuera del establecimiento, por ejemplo en su domicilio."
+            }
+          }
         },
         "payment_check": {
           "title": "Comprobar un trabajo facturado 3 días después del vencimiento del pago",
@@ -2154,20 +2189,20 @@
         "jobs_board_view": "Los trabajos se abren como tablero por fase."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de Customermates un pipeline para una empresa de oficios: clientes, obras, trabajos con fase comercial y estado de ejecución, validez del presupuesto, fechas de visita y de obra, fin de garantía y contratos de mantenimiento, con seguimientos con fecha.",
+        "intro": "Configura en mi espacio de trabajo de Customermates un pipeline para una empresa de oficios: clientes, obras, trabajos con fase comercial y estado de ejecución, validez del presupuesto, fechas de visita y de obra, fin de garantía y contratos de mantenimiento, con seguimientos con fecha.",
         "questions": [
-          "¿Qué trabajos realiza y para quién: particulares, propietarios o empresas?",
-          "¿En cuánto tiempo responde a una solicitud y envía el presupuesto tras la visita?",
-          "¿Cuánto tiempo son válidos sus presupuestos y cuánto dura su garantía?",
-          "¿Vende contratos de mantenimiento para trabajo recurrente?"
+          "¿Qué trabajos realizas y para quién: particulares, propietarios o empresas?",
+          "¿En cuánto tiempo respondes a una solicitud y envías el presupuesto tras la visita?",
+          "¿Cuánto tiempo son válidos tus presupuestos y cuánto dura tu garantía?",
+          "¿Vendes contratos de mantenimiento para trabajo recurrente?"
         ]
       }
     },
     "fr": {
       "locale": "fr",
-      "name": "Dossiers d'artisan",
-      "summary": "Un pipeline pour une entreprise de travaux : demande, visite, devis et relance, puis le chantier de planifié à payé, avec les dates de rétractation, de garantie et d'entretien sur chaque dossier.",
-      "description": "Suivez un dossier de la première demande à la dernière facture : clients et chantiers où vous intervenez, dossiers avec une étape commerciale et un statut de travaux distinct, validité du devis, visite et planning, date de rétractation pour les contrats de consommateurs, fin de garantie et contrats d'entretien qui ramènent du travail. Le modèle garde le dossier, les dates et la relance. Ce n'est ni un outil de devis et de facturation, ni un système de planification d'équipes, ni un suivi des heures. Les dates légales sont des champs que vous confirmez, pas un conseil juridique.",
+      "name": "Dossiers d’artisan",
+      "summary": "Un pipeline pour une entreprise de travaux : demande, visite, devis et relance, puis le chantier de planifié à payé, avec les dates de rétractation, de garantie et d’entretien sur chaque dossier.",
+      "description": "Suivez un dossier de la première demande à la dernière facture : clients et chantiers où vous intervenez, dossiers avec une étape commerciale et un statut de travaux distinct, validité du devis, visite et planning, date de rétractation pour les contrats de consommateurs, fin de garantie et contrats d’entretien qui ramènent du travail. Il conserve le dossier, les dates et la relance. Ce n’est ni un outil de devis et de facturation, ni un système de planification d’équipes, ni un suivi des heures. Les dates légales sont des champs que vous confirmez, pas un conseil juridique.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2182,17 +2217,17 @@
         "sites": {
           "label": "Chantier",
           "pluralLabel": "Chantiers",
-          "description": "L'adresse où le travail a lieu, qui peut différer de celle du client."
+          "description": "L’adresse où le travail a lieu, qui peut différer de celle du client."
         },
         "jobs": {
           "label": "Dossier",
           "pluralLabel": "Dossiers",
-          "description": "Un travail, de la demande à accepté ou perdu, puis tout au long de l'exécution."
+          "description": "Un travail, de la demande à accepté ou perdu, puis tout au long de l’exécution."
         },
         "agreements": {
-          "label": "Contrat d'entretien",
-          "pluralLabel": "Contrats d'entretien",
-          "description": "Entretien récurrent d'un chantier, avec la prochaine intervention et la date de reconduction."
+          "label": "Contrat d’entretien",
+          "pluralLabel": "Contrats d’entretien",
+          "description": "Entretien récurrent d’un chantier, avec la prochaine intervention et la date de reconduction."
         }
       },
       "fields": {
@@ -2236,7 +2271,7 @@
           "options": {}
         },
         "sites.access_notes": {
-          "label": "Consignes d'accès",
+          "label": "Consignes d’accès",
           "options": {}
         },
         "jobs.stage": {
@@ -2278,7 +2313,7 @@
           "options": {}
         },
         "jobs.quote_valid_until": {
-          "label": "Devis valable jusqu'au",
+          "label": "Devis valable jusqu’au",
           "options": {}
         },
         "jobs.withdrawal_ends": {
@@ -2294,7 +2329,7 @@
           "options": {}
         },
         "jobs.warranty_ends": {
-          "label": "Garantie jusqu'au",
+          "label": "Garantie jusqu’au",
           "options": {}
         },
         "jobs.payment_due": {
@@ -2302,7 +2337,7 @@
           "options": {}
         },
         "jobs.lost_reason": {
-          "label": "Raison de la perte",
+          "label": "Motif de perte",
           "options": {
             "price": "Prix",
             "timing": "Délai",
@@ -2347,8 +2382,8 @@
             "confirm_schedule": "Confirmer le planning",
             "handover": "Livrer et noter la réception des travaux",
             "check_payment": "Vérifier le paiement",
-            "warranty_check": "Demander les défauts à la fin de la garantie",
-            "book_service": "Fixer la visite d'entretien",
+            "warranty_check": "Demander s’il y a des défauts",
+            "book_service": "Fixer la visite d’entretien",
             "other": "Autre"
           }
         }
@@ -2368,7 +2403,7 @@
         },
         "agreement_site": {
           "sourceLabel": "Chantier",
-          "targetLabel": "Contrats d'entretien"
+          "targetLabel": "Contrats d’entretien"
         },
         "action_job": {
           "sourceLabel": "Dossier",
@@ -2398,7 +2433,7 @@
           "name": "Tous les chantiers"
         },
         "agreements_all": {
-          "name": "Tous les contrats d'entretien"
+          "name": "Tous les contrats d’entretien"
         }
       },
       "widgets": {
@@ -2424,20 +2459,20 @@
           "title": "Dossiers acceptés par statut des travaux"
         },
         "lost_reasons": {
-          "title": "Pourquoi des dossiers sont perdus"
+          "title": "Motifs de perte des dossiers"
         },
         "warranties_ending": {
           "title": "Garanties qui se terminent"
         },
         "services_due": {
-          "title": "Interventions d'entretien à prévoir"
+          "title": "Interventions d’entretien à prévoir"
         }
       },
       "knowledgePages": {
         "operating_guide": {
           "title": "De la demande au dossier accepté",
           "sections": [
-            "Réponse, visite et devis : qui fait quoi et en combien de temps",
+            "Réponse, visite et devis : qui fait quoi et en combien de temps",
             "Revue hebdomadaire des devis en cours, des dossiers à facturer et des factures impayées"
           ]
         },
@@ -2451,15 +2486,15 @@
         "withdrawal_and_acceptance": {
           "title": "Rétractation, livraison et réception",
           "sections": [
-            "Rétractation du consommateur pour les contrats conclus à domicile et travaux d'urgence",
+            "Rétractation du consommateur pour les contrats conclus à domicile et travaux d’urgence",
             "Liste de contrôle de la livraison et de la réception"
           ]
         },
         "warranty_and_service": {
-          "title": "Garantie, défauts et contrats d'entretien",
+          "title": "Garantie, défauts et contrats d’entretien",
           "sections": [
             "Comment un défaut est traité",
-            "Proposer et reconduire un contrat d'entretien"
+            "Proposer et reconduire un contrat d’entretien"
           ]
         }
       },
@@ -2477,55 +2512,61 @@
           "description": ""
         },
         "quote_follow_up": {
-          "title": "Relancer 3 jours après l'envoi d'un devis",
+          "title": "Relancer 3 jours après l’envoi d’un devis",
           "description": ""
         },
         "quote_expiring": {
-          "title": "Relancer 3 jours avant l'expiration d'un devis",
+          "title": "Relancer 3 jours avant l’expiration d’un devis",
           "description": ""
         },
         "withdrawal_clock": {
           "title": "Fixer la fin du délai de rétractation de 14 jours quand un dossier est accepté",
-          "description": ""
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Fixer la fin du délai de rétractation de 7 jours quand un dossier est accepté (Brésil)",
+              "description": "Selon le code brésilien de la consommation (CDC, art. 49), le client peut se rétracter sous 7 jours quand le contrat est conclu hors de l’établissement, par exemple à son domicile."
+            }
+          }
         },
         "payment_check": {
-          "title": "Vérifier un dossier facturé 3 jours après l'échéance de paiement",
+          "title": "Vérifier un dossier facturé 3 jours après l’échéance de paiement",
           "description": ""
         },
         "warranty_check": {
-          "title": "Demander les défauts 30 jours avant la fin de la garantie",
+          "title": "Demander s’il y a des défauts 30 jours avant la fin de la garantie",
           "description": ""
         },
         "service_due": {
-          "title": "Fixer la visite d'entretien 30 jours avant son échéance",
+          "title": "Fixer la visite d’entretien 30 jours avant son échéance",
           "description": ""
         },
         "visit_calendar": {
-          "title": "Ajouter la visite à l'agenda quand un dossier atteint l'étape de visite",
+          "title": "Ajouter la visite à l’agenda quand un dossier atteint l’étape de visite",
           "description": ""
         }
       },
       "acceptanceChecks": {
         "stage_field": "Chaque dossier a une étape commerciale.",
         "work_status_field": "Chaque dossier a un statut de travaux distinct.",
-        "warranty_field": "Chaque dossier indique jusqu'à quand court sa garantie.",
-        "jobs_board_view": "Les dossiers s'ouvrent en tableau par étape."
+        "warranty_field": "Chaque dossier indique jusqu’à quand court sa garantie.",
+        "jobs_board_view": "Les dossiers s’ouvrent en board par étape."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace Customermates un pipeline pour une entreprise de travaux : clients, chantiers, dossiers avec étape commerciale et statut des travaux, validité du devis, dates de visite et de chantier, fin de garantie et contrats d'entretien, avec des relances datées.",
+        "intro": "Mets en place dans mon espace de travail Customermates un pipeline pour une entreprise de travaux : clients, chantiers, dossiers avec étape commerciale et statut des travaux, validité du devis, dates de visite et de chantier, fin de garantie et contrats d’entretien, avec des relances datées.",
         "questions": [
-          "Quels travaux réalisez-vous, et pour qui : particuliers, bailleurs ou entreprises ?",
-          "En combien de temps répondez-vous à une demande et envoyez-vous un devis après la visite ?",
-          "Quelle est la durée de validité de vos devis, et la durée de votre garantie ?",
-          "Vendez-vous des contrats d'entretien pour du travail récurrent ?"
+          "Quels travaux réalisez-vous, et pour qui : particuliers, bailleurs ou entreprises ?",
+          "En combien de temps répondez-vous à une demande et envoyez-vous un devis après la visite ?",
+          "Quelle est la durée de validité de vos devis, et la durée de votre garantie ?",
+          "Vendez-vous des contrats d’entretien pour du travail récurrent ?"
         ]
       }
     },
     "it": {
       "locale": "it",
       "name": "Commesse per artigiani",
-      "summary": "Una pipeline per un'impresa di lavori: richiesta, sopralluogo, preventivo e sollecito, poi il lavoro da programmato a pagato, con date di recesso, garanzia e manutenzione su ogni commessa.",
-      "description": "Segui una commessa dalla prima chiamata all'ultima fattura: clienti e cantieri in cui lavori, commesse con una fase commerciale e uno stato lavori separato, validità del preventivo, sopralluogo e programma, data di recesso per i contratti con i consumatori, fine della garanzia e contratti di manutenzione che portano nuovo lavoro. Conserva la commessa, le date e i solleciti. Non è uno strumento per preventivi e fatture, un sistema di pianificazione delle squadre né un rilevatore di ore. Le date legali sono campi che confermi tu, non una consulenza legale.",
+      "summary": "Una pipeline per un'impresa artigiana: richiesta, sopralluogo, preventivo e sollecito, poi il lavoro da programmato a pagato, con date di recesso, garanzia e manutenzione su ogni commessa.",
+      "description": "Segui una commessa dalla prima chiamata all'ultima fattura: clienti e cantieri in cui lavori, commesse con una fase commerciale e uno stato lavori separato, validità del preventivo, sopralluogo e programma, data di recesso per i contratti con i consumatori, fine della garanzia e contratti di manutenzione che portano nuovo lavoro. Conserva la commessa, le date e i solleciti. Non è uno strumento per preventivi e fatture, un sistema di pianificazione delle squadre né un sistema di rilevazione delle ore. Le date legali sono campi che confermi tu, non una consulenza legale.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2605,19 +2646,19 @@
             "to_quote": "Preventivo da fare",
             "quote_sent": "Preventivo inviato",
             "negotiating": "Trattativa",
-            "won": "Accettato",
-            "lost": "Perso"
+            "won": "Accettata",
+            "lost": "Persa"
           }
         },
         "jobs.work_status": {
           "label": "Stato dei lavori",
           "options": {
-            "not_scheduled": "Non programmato",
-            "scheduled": "Programmato",
+            "not_scheduled": "Non programmata",
+            "scheduled": "Programmata",
             "in_progress": "In corso",
-            "completed": "Completato",
-            "invoiced": "Fatturato",
-            "paid": "Pagato"
+            "completed": "Completata",
+            "invoiced": "Fatturata",
+            "paid": "Pagata"
           }
         },
         "jobs.work_type": {
@@ -2648,7 +2689,7 @@
           "options": {}
         },
         "jobs.completed_on": {
-          "label": "Completato il",
+          "label": "Completata il",
           "options": {}
         },
         "jobs.warranty_ends": {
@@ -2705,7 +2746,7 @@
             "confirm_schedule": "Confermare il programma",
             "handover": "Consegnare e registrare l'accettazione",
             "check_payment": "Verificare il pagamento",
-            "warranty_check": "Chiedere i difetti a fine garanzia",
+            "warranty_check": "Chiedere se ci sono difetti",
             "book_service": "Fissare l'intervento di manutenzione",
             "other": "Altro"
           }
@@ -2747,7 +2788,7 @@
           "name": "Preventivi aperti"
         },
         "work_in_progress": {
-          "name": "Programmati e in corso"
+          "name": "Programmate e in corso"
         },
         "customers_all": {
           "name": "Tutti i clienti"
@@ -2767,7 +2808,7 @@
           "title": "Attività scadute"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         },
         "jobs_funnel": {
           "title": "Commesse per fase"
@@ -2782,7 +2823,7 @@
           "title": "Commesse accettate per stato dei lavori"
         },
         "lost_reasons": {
-          "title": "Perché le commesse sono perse"
+          "title": "Motivi di perdita delle commesse"
         },
         "warranties_ending": {
           "title": "Garanzie in scadenza"
@@ -2844,14 +2885,20 @@
         },
         "withdrawal_clock": {
           "title": "Fissare la fine dei 14 giorni di recesso quando una commessa è accettata",
-          "description": ""
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Fissare la fine dei 7 giorni di recesso quando una commessa è accettata (Brasile)",
+              "description": "Secondo il codice brasiliano del consumo (CDC, art. 49), il cliente può recedere entro 7 giorni se il contratto è stato concluso fuori dai locali commerciali, per esempio a casa sua."
+            }
+          }
         },
         "payment_check": {
           "title": "Verificare una commessa fatturata 3 giorni dopo la scadenza del pagamento",
           "description": ""
         },
         "warranty_check": {
-          "title": "Chiedere i difetti 30 giorni prima della fine della garanzia",
+          "title": "Chiedere se ci sono difetti 30 giorni prima della fine della garanzia",
           "description": ""
         },
         "service_due": {
@@ -2867,15 +2914,15 @@
         "stage_field": "Ogni commessa ha una fase commerciale.",
         "work_status_field": "Ogni commessa ha uno stato dei lavori a sé.",
         "warranty_field": "Ogni commessa indica fino a quando dura la garanzia.",
-        "jobs_board_view": "Le commesse si aprono come bacheca per fase."
+        "jobs_board_view": "Le commesse si aprono come board per fase."
       },
       "prompt": {
-        "intro": "Imposta nel mio workspace Customermates una pipeline per un'impresa di lavori: clienti, cantieri, commesse con fase commerciale e stato dei lavori, validità del preventivo, date di sopralluogo e di cantiere, fine della garanzia e contratti di manutenzione, con solleciti con data.",
+        "intro": "Imposta nel mio spazio di lavoro Customermates una pipeline per un'impresa artigiana: clienti, cantieri, commesse con fase commerciale e stato dei lavori, validità del preventivo, date di sopralluogo e di cantiere, fine della garanzia e contratti di manutenzione, con solleciti con data.",
         "questions": [
-          "Quali lavori eseguite e per chi: privati, proprietari o aziende?",
-          "Con che rapidità rispondete a una richiesta e inviate il preventivo dopo il sopralluogo?",
-          "Quanto durano i vostri preventivi e quanto dura la vostra garanzia?",
-          "Vendete contratti di manutenzione per lavori ricorrenti?"
+          "Quali lavori esegui e per chi: privati, proprietari o aziende?",
+          "Con che rapidità rispondi a una richiesta e invii il preventivo dopo il sopralluogo?",
+          "Quanto durano i tuoi preventivi e quanto dura la tua garanzia?",
+          "Vendi contratti di manutenzione per lavori ricorrenti?"
         ]
       }
     },
@@ -2883,7 +2930,7 @@
       "locale": "nl",
       "name": "Opdrachten voor vakmensen",
       "summary": "Een pijplijn voor een vakbedrijf: aanvraag, opname, offerte en opvolging, daarna het werk zelf van ingepland tot betaald, met bedenktijd-, garantie- en onderhoudsdata bij elke opdracht.",
-      "description": "Volg een opdracht van het eerste telefoontje tot de laatste factuur: klanten en projectlocaties waar u werkt, opdrachten met een verkoopfase en een aparte werkstatus, geldigheid van de offerte, opname en planning, einde van de bedenktijd bij consumentencontracten, einde van de garantie en onderhoudscontracten die vervolgwerk opleveren. Het bewaart de opdracht, de data en de opvolging. Geen programma voor offertes en facturen, geen planning van ploegen en geen urenregistratie. Wettelijke data zijn velden die u zelf bevestigt, geen juridisch advies.",
+      "description": "Volg een opdracht van het eerste telefoontje tot de laatste factuur: klanten en projectlocaties waar je werkt, opdrachten met een verkoopfase en een aparte werkstatus, geldigheid van de offerte, opname en planning, einde van de bedenktijd bij consumentencontracten, einde van de garantie en onderhoudscontracten die vervolgwerk opleveren. Het bewaart de opdracht, de data en de opvolging. Geen programma voor offertes en facturen, geen planning van ploegen en geen urenregistratie. Wettelijke data zijn velden die je zelf bevestigt, geen juridisch advies.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -2893,7 +2940,7 @@
         "customers": {
           "label": "Klant",
           "pluralLabel": "Klanten",
-          "description": "Huiseigenaren, verhuurders, vastgoedbeheerders en bedrijven voor wie u werkt."
+          "description": "Huiseigenaren, verhuurders, vastgoedbeheerders en bedrijven voor wie je werkt."
         },
         "sites": {
           "label": "Locatie",
@@ -2916,7 +2963,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -3014,7 +3061,7 @@
           "options": {}
         },
         "jobs.payment_due": {
-          "label": "Betaaltermijn tot",
+          "label": "Betalen uiterlijk op",
           "options": {}
         },
         "jobs.lost_reason": {
@@ -3088,7 +3135,7 @@
         },
         "action_job": {
           "sourceLabel": "Opdracht",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         }
       },
       "views": {
@@ -3181,43 +3228,49 @@
       },
       "rules": {
         "enquiry_form_records": {
-          "title": "Klant, locatie en opdracht aanmaken als het aanvraagformulier is ingediend",
+          "title": "Maak een klant, een locatie en een opdracht aan als het aanvraagformulier is ingediend",
           "description": ""
         },
         "call_back_new": {
-          "title": "Een nieuwe aanvraag dezelfde dag terugbellen",
+          "title": "Bel een nieuwe aanvraag dezelfde dag terug",
           "description": ""
         },
         "quote_after_visit": {
-          "title": "De offerte binnen 2 dagen na de opname sturen",
+          "title": "Stuur de offerte binnen 2 dagen na de opname",
           "description": ""
         },
         "quote_follow_up": {
-          "title": "3 dagen na het versturen van een offerte opvolgen",
+          "title": "Volg een offerte 3 dagen na het versturen op",
           "description": ""
         },
         "quote_expiring": {
-          "title": "3 dagen voordat een offerte verloopt opvolgen",
+          "title": "Volg een offerte 3 dagen voordat ze verloopt op",
           "description": ""
         },
         "withdrawal_clock": {
-          "title": "Het einde van de bedenktijd van 14 dagen vastleggen als een opdracht is gewonnen",
-          "description": ""
+          "title": "Leg het einde van de bedenktijd van 14 dagen vast als een opdracht is gewonnen",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Leg het einde van de bedenktijd van 7 dagen vast als een opdracht is gewonnen (Brazilië)",
+              "description": "Volgens het Braziliaanse consumentenwetboek (CDC, art. 49) kan een klant binnen 7 dagen afzien als het contract buiten het bedrijfspand is gesloten, bijvoorbeeld bij hem thuis."
+            }
+          }
         },
         "payment_check": {
-          "title": "Een gefactureerde opdracht 3 dagen na de betaaltermijn controleren",
+          "title": "Controleer een gefactureerde opdracht 3 dagen na de betaaltermijn",
           "description": ""
         },
         "warranty_check": {
-          "title": "30 dagen voor het einde van de garantie naar gebreken vragen",
+          "title": "Vraag 30 dagen voor het einde van de garantie naar gebreken",
           "description": ""
         },
         "service_due": {
-          "title": "Het onderhoudsbezoek 30 dagen voor de vervaldatum inplannen",
+          "title": "Plan het onderhoudsbezoek 30 dagen voor de vervaldatum in",
           "description": ""
         },
         "visit_calendar": {
-          "title": "De opname in de agenda zetten als een opdracht de opnamefase bereikt",
+          "title": "Zet de opname in de agenda als een opdracht de opnamefase bereikt",
           "description": ""
         }
       },
@@ -3228,12 +3281,12 @@
         "jobs_board_view": "De opdrachten openen als bord per fase."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-workspace een pijplijn voor een vakbedrijf in: klanten, locaties, opdrachten met verkoopfase en werkstatus, geldigheid van de offerte, opname- en uitvoeringsdata, einde van de garantie en onderhoudscontracten, met opvolging met datum.",
+        "intro": "Richt in mijn Customermates-werkruimte een pijplijn voor een vakbedrijf in: klanten, locaties, opdrachten met verkoopfase en werkstatus, geldigheid van de offerte, opname- en uitvoeringsdata, einde van de garantie en onderhoudscontracten, met opvolging met datum.",
         "questions": [
-          "Welk werk voert u uit en voor wie: particulieren, verhuurders of bedrijven?",
-          "Hoe snel beantwoordt u een aanvraag en stuurt u na de opname een offerte?",
-          "Hoe lang zijn uw offertes geldig en hoe lang is uw garantie?",
-          "Verkoopt u onderhoudscontracten voor terugkerend werk?"
+          "Welk werk voer je uit en voor wie: particulieren, verhuurders of bedrijven?",
+          "Hoe snel beantwoord je een aanvraag en stuur je na de opname een offerte?",
+          "Hoe lang zijn je offertes geldig en hoe lang is je garantie?",
+          "Verkoop je onderhoudscontracten voor terugkerend werk?"
         ]
       }
     },
@@ -3241,7 +3294,7 @@
       "locale": "pl",
       "name": "Zlecenia dla firm usługowych",
       "summary": "Lejek dla firmy remontowej lub instalacyjnej: zapytanie, oględziny, wycena i przypomnienie, potem praca od zaplanowanej do opłaconej, z terminami odstąpienia, rękojmi i serwisu przy każdym zleceniu.",
-      "description": "Prowadź zlecenie od pierwszego telefonu do ostatniej faktury: klienci i obiekty, w których pracujesz, zlecenia z etapem sprzedaży i osobnym statusem prac, ważność oferty, oględziny i harmonogram, termin odstąpienia od umowy konsumenckiej, koniec rękojmi oraz umowy serwisowe, które przynoszą kolejne prace. Narzędzie zapisuje zlecenie, terminy i przypomnienia. To nie program do ofert i faktur, planowania ekip ani rejestru czasu pracy. Terminy prawne to pola, które potwierdzasz sam, a nie porada prawna.",
+      "description": "Prowadź zlecenie od pierwszego telefonu do ostatniej faktury: klienci i obiekty, w których pracujesz, zlecenia z etapem sprzedaży i osobnym statusem prac, ważność oferty, oględziny i harmonogram, termin odstąpienia od umowy konsumenckiej, koniec rękojmi oraz umowy serwisowe, które przynoszą kolejne prace. Narzędzie zapisuje zlecenie, terminy i przypomnienia. To nie program do ofert i faktur, planowania ekip ani rejestru czasu pracy. Terminy prawne to pola, które potwierdzasz samodzielnie, a nie porada prawna.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -3284,7 +3337,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -3318,7 +3371,7 @@
           "options": {
             "enquiry": "Zapytanie",
             "assessment": "Oględziny",
-            "to_quote": "Wycena do zrobienia",
+            "to_quote": "Do wyceny",
             "quote_sent": "Oferta wysłana",
             "negotiating": "Negocjacje",
             "won": "Przyjęte",
@@ -3364,11 +3417,11 @@
           "options": {}
         },
         "jobs.completed_on": {
-          "label": "Zakończono dnia",
+          "label": "Data zakończenia prac",
           "options": {}
         },
         "jobs.warranty_ends": {
-          "label": "Rękojmia do",
+          "label": "Data końca rękojmi",
           "options": {}
         },
         "jobs.payment_due": {
@@ -3379,8 +3432,8 @@
           "label": "Powód utraty",
           "options": {
             "price": "Cena",
-            "timing": "Termin",
-            "chose_competitor": "Wybrał konkurencję",
+            "timing": "Nieodpowiedni moment",
+            "chose_competitor": "Klient wybrał konkurencję",
             "no_response": "Brak odpowiedzi",
             "job_cancelled": "Zlecenie odwołane",
             "other": "Inny"
@@ -3408,7 +3461,7 @@
           "options": {}
         },
         "agreements.renewal_on": {
-          "label": "Odnowienie dnia",
+          "label": "Data odnowienia",
           "options": {}
         },
         "actions.kind": {
@@ -3498,13 +3551,13 @@
           "title": "Przyjęte zlecenia według statusu prac"
         },
         "lost_reasons": {
-          "title": "Dlaczego zlecenia są utracone"
+          "title": "Powody utraty zleceń"
         },
         "warranties_ending": {
-          "title": "Kończąca się rękojmia"
+          "title": "Kończące się rękojmie"
         },
         "services_due": {
-          "title": "Wizyty serwisowe do zrobienia"
+          "title": "Wizyty serwisowe do wykonania"
         }
       },
       "knowledgePages": {
@@ -3539,43 +3592,49 @@
       },
       "rules": {
         "enquiry_form_records": {
-          "title": "Utworzyć klienta, obiekt i zlecenie po wysłaniu formularza zapytania",
+          "title": "Utwórz klienta, obiekt i zlecenie po wysłaniu formularza zapytania",
           "description": ""
         },
         "call_back_new": {
-          "title": "Oddzwonić w sprawie nowego zapytania tego samego dnia",
+          "title": "Oddzwoń w sprawie nowego zapytania tego samego dnia",
           "description": ""
         },
         "quote_after_visit": {
-          "title": "Wysłać ofertę w ciągu 2 dni od oględzin",
+          "title": "Wyślij ofertę w ciągu 2 dni od oględzin",
           "description": ""
         },
         "quote_follow_up": {
-          "title": "Przypomnieć o ofercie 3 dni po jej wysłaniu",
+          "title": "Przypomnij o ofercie 3 dni po jej wysłaniu",
           "description": ""
         },
         "quote_expiring": {
-          "title": "Przypomnieć o ofercie 3 dni przed końcem jej ważności",
+          "title": "Przypomnij o ofercie 3 dni przed końcem jej ważności",
           "description": ""
         },
         "withdrawal_clock": {
-          "title": "Ustawić koniec 14-dniowego terminu odstąpienia, gdy zlecenie zostaje przyjęte",
-          "description": ""
+          "title": "Ustaw koniec 14-dniowego terminu odstąpienia, gdy zlecenie zostanie przyjęte",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Ustaw koniec 7-dniowego terminu odstąpienia, gdy zlecenie zostanie przyjęte (Brazylia)",
+              "description": "Zgodnie z brazylijskim kodeksem ochrony konsumenta (CDC, art. 49) klient może odstąpić od umowy w ciągu 7 dni, gdy zawarto ją poza lokalem przedsiębiorcy, na przykład w jego domu."
+            }
+          }
         },
         "payment_check": {
-          "title": "Sprawdzić zafakturowane zlecenie 3 dni po terminie płatności",
+          "title": "Sprawdź zafakturowane zlecenie 3 dni po terminie płatności",
           "description": ""
         },
         "warranty_check": {
-          "title": "Zapytać o usterki 30 dni przed końcem rękojmi",
+          "title": "Zapytaj o usterki 30 dni przed końcem rękojmi",
           "description": ""
         },
         "service_due": {
-          "title": "Umówić wizytę serwisową 30 dni przed terminem",
+          "title": "Umów wizytę serwisową 30 dni przed terminem",
           "description": ""
         },
         "visit_calendar": {
-          "title": "Dodać oględziny do kalendarza, gdy zlecenie osiągnie etap oględzin",
+          "title": "Dodaj oględziny do kalendarza, gdy zlecenie trafi na etap oględzin",
           "description": ""
         }
       },
@@ -3586,7 +3645,7 @@
         "jobs_board_view": "Zlecenia otwierają się jako tablica według etapu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w moim workspace Customermates lejek dla firmy remontowej lub instalacyjnej: klienci, obiekty, zlecenia z etapem sprzedaży i statusem prac, ważność oferty, terminy oględzin i prac, koniec rękojmi i umowy serwisowe, z zaplanowanymi przypomnieniami.",
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates lejek dla firmy remontowej lub instalacyjnej: klienci, obiekty, zlecenia z etapem sprzedaży i statusem prac, ważność oferty, terminy oględzin i prac, koniec rękojmi i umowy serwisowe, z zaplanowanymi kolejnymi krokami.",
         "questions": [
           "Jakie prace wykonujesz i dla kogo: osób prywatnych, wynajmujących czy firm?",
           "Jak szybko odpowiadasz na zapytanie i wysyłasz ofertę po oględzinach?",
@@ -3599,7 +3658,7 @@
       "locale": "pt",
       "name": "Obras e serviços",
       "summary": "Um funil para uma empresa de serviços e obras: solicitação, visita técnica, orçamento e retorno, e depois a execução de agendada a paga, com datas de arrependimento, garantia e manutenção em cada serviço.",
-      "description": "Acompanhe um serviço da primeira ligação à última nota: clientes e obras onde você atua, serviços com uma etapa comercial e uma situação da obra separada, validade do orçamento, visita e cronograma, data de arrependimento para contratos com consumidores, fim da garantia e contratos de manutenção que trazem novo trabalho. Guarda o serviço, as datas e o retorno. Não é uma ferramenta de orçamentos e notas, um sistema de escala de equipes nem um controle de horas. As datas legais são campos que você confirma, não aconselhamento jurídico.",
+      "description": "Acompanhe um serviço da primeira ligação à última nota: clientes e obras onde você atua, serviços com uma etapa comercial e um status da obra separado, validade do orçamento, visita e cronograma, data de arrependimento para contratos com consumidores, fim da garantia e contratos de manutenção que trazem novo trabalho. Guarde o serviço, as datas e o retorno. Não é uma ferramenta de orçamentos e notas, um sistema de escala de equipes nem um controle de horas. As datas legais são campos que você confirma, não aconselhamento jurídico.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -3684,7 +3743,7 @@
           }
         },
         "jobs.work_status": {
-          "label": "Situação da obra",
+          "label": "Status da obra",
           "options": {
             "not_scheduled": "Sem data",
             "scheduled": "Agendada",
@@ -3754,7 +3813,7 @@
           }
         },
         "agreements.status": {
-          "label": "Situação",
+          "label": "Status",
           "options": {
             "active": "Ativo",
             "paused": "Pausado",
@@ -3853,7 +3912,7 @@
           "title": "Visitas próximas"
         },
         "jobs_by_work_status": {
-          "title": "Serviços aprovados por situação da obra"
+          "title": "Serviços aprovados por status da obra"
         },
         "lost_reasons": {
           "title": "Por que serviços são perdidos"
@@ -3883,7 +3942,7 @@
         "withdrawal_and_acceptance": {
           "title": "Arrependimento, entrega e aceite",
           "sections": [
-            "Direito de arrependimento do consumidor em contratos fora do estabelecimento e serviços de emergência",
+            "Direito de arrependimento do consumidor em contratos fora do estabelecimento (7 dias, CDC, art. 49)",
             "Checklist de entrega e aceite"
           ]
         },
@@ -3918,7 +3977,13 @@
         },
         "withdrawal_clock": {
           "title": "Definir o fim do prazo de arrependimento de 14 dias quando um serviço é aprovado",
-          "description": ""
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Definir o fim do prazo de arrependimento de 7 dias quando um serviço é aprovado",
+              "description": "Pelo Código de Defesa do Consumidor (art. 49), o cliente pode desistir em até 7 dias quando o contrato foi feito fora do estabelecimento, por exemplo na casa dele."
+            }
+          }
         },
         "payment_check": {
           "title": "Conferir um serviço faturado 3 dias depois do vencimento do pagamento",
@@ -3939,12 +4004,12 @@
       },
       "acceptanceChecks": {
         "stage_field": "Todo serviço tem uma etapa comercial.",
-        "work_status_field": "Todo serviço tem uma situação da obra própria.",
+        "work_status_field": "Todo serviço tem um status da obra próprio.",
         "warranty_field": "Todo serviço registra até quando vai a garantia.",
         "jobs_board_view": "Os serviços abrem como quadro por etapa."
       },
       "prompt": {
-        "intro": "Configure no meu workspace do Customermates um funil para uma empresa de obras e serviços: clientes, obras, serviços com etapa comercial e situação da obra, validade do orçamento, datas de visita e de obra, fim da garantia e contratos de manutenção, com acompanhamentos com data.",
+        "intro": "Configure no meu espaço de trabalho do Customermates um funil para uma empresa de obras e serviços: clientes, obras, serviços com etapa comercial e status da obra, validade do orçamento, datas de visita e de obra, fim da garantia e contratos de manutenção, com acompanhamentos com data.",
         "questions": [
           "Quais serviços você executa e para quem: pessoas físicas, proprietários ou empresas?",
           "Em quanto tempo você responde a uma solicitação e envia o orçamento depois da visita?",

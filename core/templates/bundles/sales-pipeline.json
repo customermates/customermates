@@ -1377,7 +1377,7 @@
         "accounts": {
           "label": "Unternehmen",
           "pluralLabel": "Unternehmen",
-          "description": "Die Firmen, an die Sie verkaufen."
+          "description": "Die Firmen, an die du verkaufst."
         },
         "opportunities": {
           "label": "Verkaufschance",
@@ -1429,7 +1429,7 @@
             "decision_maker": "Entscheider",
             "budget_holder": "Budgetverantwortlicher",
             "champion": "Fürsprecher",
-            "influencer": "Beeinflusser",
+            "influencer": "Einflussnehmer",
             "user": "Anwender",
             "blocker": "Blockierer"
           }
@@ -1658,7 +1658,7 @@
           "sections": [
             "Eintritts- und Austrittskriterium je Phase",
             "Wer eine Chance verschieben darf und mit welchem Nachweis",
-            "Gewichtung und wann Sie sie ersetzen"
+            "Gewichtung und wann du sie ersetzt"
           ]
         },
         "qualification_questions": {
@@ -1725,7 +1725,7 @@
         },
         "second_proposal_follow_up": {
           "title": "Zweites Nachfassen zum Angebot",
-          "description": "Zehn Tage nach dem Angebot wird eine zweite Aufgabe zum Nachfassen fällig. Schließen Sie sie, wenn der Interessent schon geantwortet hat."
+          "description": "Zehn Tage nach dem Angebot wird eine zweite Aufgabe zum Nachfassen fällig. Schließe sie, wenn der Interessent schon geantwortet hat."
         },
         "confirm_decision": {
           "title": "Entscheidungstermin und Entscheider bestätigen",
@@ -1737,11 +1737,11 @@
         },
         "won_handover": {
           "title": "Gewonnene Chance übergeben",
-          "description": "Am Tag nach dem Gewinn ist eine Übergabe-Aufgabe fällig. Tragen Sie den Gewinngrund ein."
+          "description": "Am Tag nach dem Abschluss ist eine Übergabe-Aufgabe fällig. Trage den Gewinngrund ein."
         },
         "lost_revisit": {
           "title": "Verlorene Chance wieder aufgreifen",
-          "description": "Neunzig Tage nach dem Verlust fragt eine Aufgabe zum Nachfassen, ob sich der Zeitpunkt geändert hat. Tragen Sie vorher den Verlustgrund ein."
+          "description": "Neunzig Tage nach dem Verlust fragt eine Aufgabe zum Nachfassen, ob sich der Zeitpunkt geändert hat. Trage vorher den Verlustgrund ein."
         },
         "stale_deal_sweep": {
           "title": "Stockende Chance wiederbeleben oder aussortieren",
@@ -1828,11 +1828,11 @@
       "prompt": {
         "intro": "Richte in meinem Customermates-Workspace eine Vertriebspipeline ein: Verkaufschancen mit sieben Phasen und Gewichtung, einem gewichteten Wert, einem terminierten nächsten Schritt bei jeder offenen Chance, Verlust- und Gewinngründen, dem Entscheidergremium an jeder Chance und einer Aufgabe bei jedem Phasenwechsel.",
         "questions": [
-          "Was verkaufen Sie, und wie viele Personen verkaufen es?",
+          "Was verkaufst du, und wie viele Personen verkaufen es?",
           "Welche Schritte durchläuft eine Chance vom Erstkontakt bis zur Unterschrift? Welche der sieben Phasen passen, und welche brauchen andere Namen?",
           "Wie lange dauert eine typische Chance, und nach wie vielen Tagen ohne Bewegung gilt sie als stockend?",
-          "Welche Abschlussquoten kennen Sie aus früheren Chancen? Gibt es keine, bleibt die Standard-Gewichtung.",
-          "Wo erstellen Sie Angebote? Sie bleiben dort, hier wird nur ein Link gespeichert."
+          "Welche Abschlussquoten kennst du aus früheren Chancen? Gibt es keine, bleibt die Standard-Gewichtung.",
+          "Wo erstellst du Angebote? Sie bleiben dort, hier wird nur ein Link gespeichert."
         ]
       }
     },
@@ -2238,12 +2238,12 @@
           "description": "Each Friday, one review Action lists counts and value per stage and owner, won and lost deals with reasons, and deals past their expected close."
         },
         "enquiry_form_records": {
-          "title": "Create the contact, account and opportunity from an enquiry",
-          "description": "A web enquiry form creates the contact, the account and an opportunity in the New stage."
+          "title": "Create the contact, account and opportunity from an inquiry",
+          "description": "A web inquiry form creates the contact, the account and an opportunity in the New stage."
         },
         "enquiry_form_notice": {
-          "title": "Tell the owner about the enquiry",
-          "description": "The owner is notified of every new enquiry."
+          "title": "Tell the owner about the inquiry",
+          "description": "The owner is notified of every new inquiry."
         },
         "fill_missing_value": {
           "title": "Fill in the value of this deal",
@@ -2318,7 +2318,7 @@
       "locale": "es",
       "name": "Pipeline de ventas",
       "summary": "Siete etapas con criterios de salida y ponderación, un siguiente paso con fecha en cada oportunidad abierta, motivos de pérdida y de victoria y un cambio de etapa que crea la siguiente tarea.",
-      "description": "Un pipeline para un equipo comercial pequeño: cinco etapas abiertas, Ganada y Perdida, un valor ponderado por oportunidad, el comité de compra en la oportunidad, un motivo de pérdida y un motivo de victoria, y la revisión semanal. Las ponderaciones son una ponderación del pipeline, no una previsión: sustitúyelas por tus propias tasas de cierre tras 20 o 30 oportunidades cerradas.",
+      "description": "Un pipeline para un equipo comercial pequeño: cinco etapas abiertas, Ganada y Perdida, un valor ponderado por oportunidad, el comité de compra en la oportunidad, un motivo de pérdida y un motivo de victoria, y la revisión semanal. Las ponderaciones sirven para valorar el pipeline, no para prever ventas: sustitúyelas por tus propias tasas de cierre cuando tengas entre 20 y 30 oportunidades cerradas.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -2366,9 +2366,9 @@
         "opportunities.stage": {
           "label": "Etapa",
           "options": {
-            "new": "Nuevo",
-            "qualified": "Calificado",
-            "discovery": "Reunión de descubrimiento",
+            "new": "Nueva",
+            "qualified": "Cualificada",
+            "discovery": "Reunión de diagnóstico",
             "proposal_sent": "Presupuesto enviado",
             "negotiation": "Negociación",
             "won": "Ganada",
@@ -2387,7 +2387,7 @@
             "champion": "Impulsor interno",
             "influencer": "Prescriptor",
             "user": "Usuario",
-            "blocker": "Opositor"
+            "blocker": "Detractor"
           }
         },
         "contacts.language": {
@@ -2401,7 +2401,7 @@
         "accounts.relationship": {
           "label": "Relación",
           "options": {
-            "prospect": "Potencial",
+            "prospect": "Cliente potencial",
             "customer": "Cliente",
             "former_customer": "Excliente",
             "partner": "Socio"
@@ -2618,10 +2618,10 @@
           ]
         },
         "qualification_questions": {
-          "title": "Preguntas de calificación",
+          "title": "Preguntas de cualificación",
           "sections": [
             "Presupuesto, autoridad, necesidad y plazo",
-            "Qué pasa si el potencial cliente no hace nada",
+            "Qué pasa si el cliente potencial no hace nada",
             "Quién más decide"
           ]
         },
@@ -2643,7 +2643,7 @@
           ]
         },
         "win_loss_review": {
-          "title": "Análisis de victorias y pérdidas",
+          "title": "Análisis de oportunidades ganadas y perdidas",
           "sections": [
             "Leer cada mes los motivos de pérdida y los competidores",
             "Leer los motivos de victoria",
@@ -2654,7 +2654,7 @@
           "title": "Plantillas de mensajes de seguimiento",
           "sections": [
             "Primera respuesta",
-            "Tras la reunión de descubrimiento",
+            "Tras la reunión de diagnóstico",
             "Mensaje de envío del presupuesto",
             "Seguimiento del presupuesto",
             "Cierre: puede que no sea el momento",
@@ -2664,16 +2664,16 @@
       },
       "rules": {
         "qualify_new_opportunity": {
-          "title": "Calificar la nueva oportunidad",
+          "title": "Cualificar la nueva oportunidad",
           "description": "Una oportunidad nueva recibe una tarea de llamada para el día siguiente."
         },
         "book_discovery_call": {
-          "title": "Agendar la reunión de descubrimiento",
-          "description": "Cuando una oportunidad pasa a Calificado, una tarea de reunión vence en 3 días."
+          "title": "Agendar la reunión de diagnóstico",
+          "description": "Cuando una oportunidad pasa a Cualificada, una tarea de reunión vence en 3 días."
         },
         "send_proposal": {
           "title": "Enviar el presupuesto",
-          "description": "Cuando una oportunidad llega a Reunión de descubrimiento, una tarea de presupuesto vence en 5 días."
+          "description": "Cuando una oportunidad llega a Reunión de diagnóstico, una tarea de presupuesto vence en 5 días."
         },
         "follow_up_proposal": {
           "title": "Hacer seguimiento del presupuesto",
@@ -2681,7 +2681,7 @@
         },
         "second_proposal_follow_up": {
           "title": "Segundo seguimiento del presupuesto",
-          "description": "Diez días después de enviar el presupuesto vence una segunda tarea de seguimiento. Ciérrala si el potencial cliente ya respondió."
+          "description": "Diez días después de enviar el presupuesto vence una segunda tarea de seguimiento. Ciérrala si el cliente potencial ya respondió."
         },
         "confirm_decision": {
           "title": "Confirmar la fecha de decisión y al decisor",
@@ -2717,7 +2717,7 @@
         },
         "enquiry_form_records": {
           "title": "Crear persona de contacto, empresa y oportunidad a partir de una consulta",
-          "description": "Un formulario de consulta web crea la persona de contacto, la empresa y una oportunidad en la etapa Nuevo."
+          "description": "Un formulario de consulta web crea la persona de contacto, la empresa y una oportunidad en la etapa Nueva."
         },
         "enquiry_form_notice": {
           "title": "Avisar al responsable de la consulta",
@@ -2725,7 +2725,7 @@
         },
         "fill_missing_value": {
           "title": "Completar el valor de esta oportunidad",
-          "description": "Una oportunidad que llega a Reunión de descubrimiento sin valor recibe una tarea de revisión."
+          "description": "Una oportunidad que llega a Reunión de diagnóstico sin valor recibe una tarea de revisión."
         },
         "fill_expected_close": {
           "title": "Completar el cierre previsto de esta oportunidad",
@@ -2744,10 +2744,10 @@
         "intro": "Configura un pipeline de ventas en mi espacio de trabajo de Customermates: oportunidades con siete etapas y ponderaciones, un valor ponderado, un siguiente paso con fecha en cada oportunidad abierta, motivos de pérdida y de victoria, el comité de compra en cada oportunidad y una tarea creada en cada cambio de etapa.",
         "questions": [
           "¿Qué vendes y cuántas personas lo venden?",
-          "¿Por qué pasos va una oportunidad desde el primer contacto hasta la firma? ¿Cuáles de las siete etapas encajan y cuáles necesitan otro nombre?",
+          "¿Qué pasos sigue una oportunidad desde el primer contacto hasta la firma? ¿Cuáles de las siete etapas encajan y cuáles necesitan otro nombre?",
           "¿Cuánto dura una oportunidad típica y tras cuántos días sin movimiento debe considerarse estancada?",
-          "¿Qué tasas de cierre tienes de oportunidades pasadas? Si no tienes, se mantienen las ponderaciones por defecto.",
-          "¿Dónde haces los presupuestos? Se quedan allí y aquí solo se guarda un enlace."
+          "¿Qué tasas de cierre tienes de oportunidades anteriores? Si no las tienes, se mantienen las ponderaciones por defecto.",
+          "¿Dónde preparas los presupuestos? Se quedan allí y aquí solo se guarda un enlace."
         ]
       }
     },
@@ -2755,7 +2755,7 @@
       "locale": "fr",
       "name": "Pipeline commercial",
       "summary": "Sept étapes avec critères de sortie et pondération, une prochaine action datée sur chaque affaire ouverte, les motifs de gain et de perte, et un changement d’étape qui crée la prochaine action.",
-      "description": "Un pipeline pour une petite équipe commerciale : cinq étapes ouvertes, Signé et Perdu, une valeur pondérée par affaire, le comité d’achat sur l’affaire, un motif de perte et un motif de gain, et la revue hebdomadaire. Les pondérations sont une pondération du pipeline, pas une prévision : remplacez-les par vos propres taux de transformation après 20 à 30 affaires closes.",
+      "description": "Un pipeline pour une petite équipe commerciale : cinq étapes ouvertes, Signé et Perdu, une valeur pondérée par affaire, le comité d’achat sur l’affaire, un motif de perte et un motif de gain, et la revue hebdomadaire. Les pondérations sont une pondération du pipeline, pas une prévision : remplacez-les par vos propres taux de transformation après 20 à 30 affaires closes.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2902,7 +2902,7 @@
           "options": {}
         },
         "opportunities.closed_on": {
-          "label": "Clos le",
+          "label": "Date de clôture",
           "options": {}
         },
         "opportunities.next_step": {
@@ -2929,7 +2929,7 @@
             "no_budget_or_decision": "Pas de budget ni de décision",
             "timing": "Calendrier",
             "no_response": "Pas de réponse",
-            "not_a_fit": "Pas adapté",
+            "not_a_fit": "Ne convient pas",
             "other": "Autre"
           }
         },
@@ -3012,7 +3012,7 @@
           "title": "Affaires ouvertes par étape"
         },
         "open_value_by_stage": {
-          "title": "Montant ouvert par étape"
+          "title": "Montant des affaires ouvertes par étape"
         },
         "weighted_value_by_stage": {
           "title": "Valeur pondérée par étape"
@@ -3021,10 +3021,10 @@
           "title": "Affaires ouvertes"
         },
         "open_value": {
-          "title": "Montant ouvert"
+          "title": "Montant des affaires ouvertes"
         },
         "open_weighted_value": {
-          "title": "Valeur pondérée ouverte"
+          "title": "Valeur pondérée des affaires ouvertes"
         },
         "won_last_90_days": {
           "title": "Signées sur les 90 derniers jours"
@@ -3033,7 +3033,7 @@
           "title": "Motifs de perte"
         },
         "pipeline_by_owner": {
-          "title": "Montant ouvert par responsable"
+          "title": "Montant des affaires ouvertes par responsable"
         },
         "deals_without_next_step": {
           "title": "Affaires sans prochaine action"
@@ -3094,7 +3094,7 @@
             "Après le rendez-vous découverte",
             "Message d’accompagnement du devis",
             "Relance du devis",
-            "Clôture : le moment n’est peut-être pas le bon",
+            "Clôture : le moment n’est peut-être pas le bon",
             "Reprise de contact après 90 jours"
           ]
         }
@@ -3106,11 +3106,11 @@
         },
         "book_discovery_call": {
           "title": "Fixer le rendez-vous découverte",
-          "description": "Quand une affaire devient Qualifié, une action de rendez-vous est due dans 3 jours."
+          "description": "Quand une affaire passe à « Qualifié », une action de rendez-vous est due dans 3 jours."
         },
         "send_proposal": {
           "title": "Envoyer le devis",
-          "description": "Quand une affaire atteint Rendez-vous découverte, une action de devis est due dans 5 jours."
+          "description": "Quand une affaire atteint « Rendez-vous découverte », une action de devis est due dans 5 jours."
         },
         "follow_up_proposal": {
           "title": "Relancer le devis",
@@ -3122,11 +3122,11 @@
         },
         "confirm_decision": {
           "title": "Confirmer la date de décision et le décideur",
-          "description": "Quand une affaire atteint Négociation, une action de relance est due dans 5 jours."
+          "description": "Quand une affaire atteint « Négociation », une action de relance est due dans 5 jours."
         },
         "won_close_date": {
           "title": "Renseigner la date de clôture",
-          "description": "Quand une affaire est signée, Clos le prend la date du jour."
+          "description": "Quand une affaire est signée, « Date de clôture » prend la date du jour."
         },
         "won_handover": {
           "title": "Transmettre l’affaire signée",
@@ -3141,7 +3141,7 @@
           "description": "Une affaire ouverte restée 14 jours dans la même étape reçoit une action de relance."
         },
         "expected_close_passed": {
-          "title": "Mettre à jour la date de signature ou clore l’affaire",
+          "title": "Mettre à jour la date de signature ou clôturer l’affaire",
           "description": "Quand la date de signature prévue d’une affaire ouverte est dépassée, une action de revue est créée."
         },
         "next_step_due_notice": {
@@ -3154,7 +3154,7 @@
         },
         "enquiry_form_records": {
           "title": "Créer le contact, le compte et l’affaire à partir d’une demande",
-          "description": "Un formulaire de demande web crée le contact, le compte et une affaire à l’étape Prospect."
+          "description": "Un formulaire de demande web crée le contact, le compte et une affaire à l’étape « Prospect »."
         },
         "enquiry_form_notice": {
           "title": "Prévenir le responsable de la demande",
@@ -3162,29 +3162,70 @@
         },
         "fill_missing_value": {
           "title": "Renseigner le montant de cette affaire",
-          "description": "Une affaire qui atteint Rendez-vous découverte sans montant reçoit une action de revue."
+          "description": "Une affaire qui atteint « Rendez-vous découverte » sans montant reçoit une action de revue."
         },
         "fill_expected_close": {
           "title": "Renseigner la date de signature prévue de cette affaire",
-          "description": "Une affaire qui atteint Devis envoyé sans date de signature prévue reçoit une action de revue."
+          "description": "Une affaire qui atteint « Devis envoyé » sans date de signature prévue reçoit une action de revue."
         }
       },
       "acceptanceChecks": {
         "stage_field": "Chaque affaire a l’une des sept étapes.",
         "weighted_value_field": "Chaque affaire affiche sa valeur pondérée.",
-        "pipeline_board_view": "La liste des affaires s’ouvre en tableau par étape, avec les totaux.",
+        "pipeline_board_view": "La liste des affaires s’ouvre en board par étape, avec les totaux.",
         "funnel_widget": "Le tableau de bord montre les affaires ouvertes par étape sous forme d’entonnoir.",
-        "proposal_follow_up_rule": "Une affaire qui atteint Devis envoyé reçoit une action de relance.",
+        "proposal_follow_up_rule": "Une affaire qui atteint « Devis envoyé » reçoit une action de relance.",
         "stages_page": "La base de connaissances contient les étapes et leurs critères de sortie."
       },
+      "page": {
+        "metaTitle": "Modèle de pipeline commercial pour votre agent IA",
+        "metaDescription": "Copiez le pipeline commercial dans Claude, ChatGPT ou Codex : sept étapes pondérées, une action datée par affaire et les motifs de gain et de perte.",
+        "headline": "Un pipeline commercial que votre agent IA construit dans votre CRM",
+        "answer": "Le pipeline d’une petite équipe demande peu d’étapes, un critère de sortie pour chacune, une valeur pondérée et une prochaine action datée sur chaque affaire ouverte. Collez ce modèle dans votre agent IA et il construit ce pipeline dans Customermates : sept étapes, le comité d’achat sur chaque affaire, les motifs de gain et de perte, et une action créée à chaque changement d’étape. Vous validez le plan avant toute écriture.",
+        "routine": {
+          "title": "La revue hebdomadaire du pipeline",
+          "steps": [
+            "Ouvrez le tableau et regardez chaque affaire restée plus de 14 jours dans son étape.",
+            "Pour chacune, décidez : la faire avancer parce que son critère de sortie est rempli, la relancer avec une nouvelle prochaine action, ou la clore comme perdue avec un motif.",
+            "Vérifiez que chaque affaire ouverte a une prochaine action datée, fixée à la fin de chaque appel.",
+            "Passez en revue les affaires gagnées et perdues avec leurs motifs, ainsi que celles dont la date de signature prévue est dépassée."
+          ]
+        },
+        "limits": [
+          "Il ne produit ni devis ni factures. La proposition est rédigée dans votre outil documentaire et liée à l’affaire.",
+          "Ce n’est pas un outil de séquences ou de prospection de masse. Les relances sont des brouillons pour des personnes précises, et c’est vous qui les envoyez.",
+          "Il n’y a ni notation des leads, ni enrichissement, ni catégories de prévision, ni gestion des quotas ou des commissions. La valeur pondérée est une simple pondération du montant de vos affaires par étape, pas une prévision.",
+          "Il n’y a ni téléphonie ni SMS.",
+          "Les rappels viennent des règles d’automatisation et des notifications, ou d’une routine que votre agent exécute à intervalles réguliers. Le modèle les propose, vous décidez lesquelles activer.",
+          "Il est dimensionné pour un à dix commerciaux. Les équipes avec un processus de prévision formel sont mieux servies par un outil conçu pour cela."
+        ],
+        "faq": [
+          {
+            "question": "Combien d’étapes un pipeline commercial doit-il avoir ?",
+            "answer": "Les praticiens ne sont pas d’accord : certains conseillent cinq au plus, d’autres en utilisent neuf. Ce modèle compte cinq étapes ouvertes plus gagné et perdu, parce que chaque étape a un critère de sortie mesurable. Renommez ou retirez des étapes dans le plan que propose votre agent."
+          },
+          {
+            "question": "Qu’est-ce que la valeur pondérée d’une affaire ?",
+            "answer": "Le montant de l’affaire multiplié par la pondération de son étape, par exemple 10, 25, 40, 60 et 80 % de la première à la cinquième étape. C’est une pondération que vous pouvez ajuster à vos propres taux de transformation, pas une prédiction."
+          },
+          {
+            "question": "Pourquoi noter un motif de gain et de perte ?",
+            "answer": "Les rapports sur un pipeline ne fonctionnent que si les deux issues existent, et les motifs montrent ce qu’il faut changer. Le modèle demande un motif à la clôture et crée une action de suivi pour reprendre les affaires perdues après 90 jours."
+          },
+          {
+            "question": "L’agent envoie-t-il mes relances ?",
+            "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+          }
+        ]
+      },
       "prompt": {
-        "intro": "Mets en place un pipeline commercial dans mon espace Customermates : des affaires avec sept étapes et leur pondération, une valeur pondérée, une prochaine action datée sur chaque affaire ouverte, les motifs de perte et de gain, le comité d’achat sur chaque affaire et une action créée à chaque changement d’étape.",
+        "intro": "Mets en place un pipeline commercial dans mon espace de travail Customermates : des affaires avec sept étapes et leur pondération, une valeur pondérée, une prochaine action datée sur chaque affaire ouverte, les motifs de perte et de gain, le comité d’achat sur chaque affaire et une action créée à chaque changement d’étape.",
         "questions": [
-          "Que vendez-vous, et combien de personnes le vendent ?",
-          "Par quelles étapes passe une affaire entre le premier contact et la signature ? Lesquelles des sept conviennent, lesquelles doivent changer de nom ?",
-          "Combien de temps dure une affaire type, et au bout de combien de jours sans mouvement une affaire stagne-t-elle ?",
-          "Quels taux de transformation avez-vous sur vos affaires passées ? À défaut, les pondérations par défaut restent.",
-          "Où faites-vous vos devis ? Ils y restent, et seul un lien est conservé ici."
+          "Que vendez-vous, et combien de personnes le vendent ?",
+          "Par quelles étapes passe une affaire entre le premier contact et la signature ? Lesquelles des sept conviennent, lesquelles doivent changer de nom ?",
+          "Combien de temps dure une affaire type, et au bout de combien de jours sans mouvement une affaire stagne-t-elle ?",
+          "Quels taux de transformation avez-vous sur vos affaires passées ? À défaut, les pondérations par défaut restent.",
+          "Où faites-vous vos devis ? Ils y restent, et seul un lien est conservé ici."
         ]
       }
     },
@@ -3192,7 +3233,7 @@
       "locale": "it",
       "name": "Pipeline commerciale",
       "summary": "Sette fasi con criteri di uscita e pesi, un prossimo passo con scadenza su ogni trattativa aperta, motivi di vittoria e di perdita e un cambio di fase che crea la prossima attività.",
-      "description": "Una pipeline per un piccolo team di vendita: cinque fasi aperte, Vinta e Persa, un valore ponderato per trattativa, il comitato d’acquisto sulla trattativa, un motivo della perdita e un motivo della vittoria, e la revisione settimanale. I pesi sono una ponderazione della pipeline, non una previsione: sostituiscili con i tuoi tassi di chiusura dopo 20 o 30 trattative chiuse.",
+      "description": "Una pipeline per un piccolo team di vendita: cinque fasi aperte, Vinta e Persa, un valore ponderato per trattativa, il comitato d'acquisto sulla trattativa, un motivo della perdita e un motivo della vittoria, e la revisione settimanale. I pesi sono una ponderazione della pipeline, non una previsione: sostituiscili con i tuoi tassi di chiusura dopo 20 o 30 trattative chiuse.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -3241,7 +3282,7 @@
           "label": "Fase",
           "options": {
             "new": "Nuovo contatto",
-            "qualified": "Qualificato",
+            "qualified": "Qualificata",
             "discovery": "Analisi esigenze",
             "proposal_sent": "Preventivo inviato",
             "negotiation": "Negoziazione",
@@ -3254,7 +3295,7 @@
           "options": {}
         },
         "contacts.buying_role": {
-          "label": "Ruolo nell’acquisto",
+          "label": "Ruolo nell'acquisto",
           "options": {
             "decision_maker": "Decisore",
             "budget_holder": "Responsabile del budget",
@@ -3321,7 +3362,7 @@
         "opportunities.source": {
           "label": "Provenienza",
           "options": {
-            "referral": "Passaparola",
+            "referral": "Segnalazione",
             "inbound": "Richiesta in entrata",
             "outbound": "Contatto diretto",
             "event": "Evento",
@@ -3389,7 +3430,7 @@
             "email": "E-mail",
             "meeting": "Incontro",
             "proposal": "Preventivo",
-            "follow_up": "Sollecito",
+            "follow_up": "Follow-up",
             "handover": "Passaggio di consegne",
             "review": "Revisione",
             "other": "Altro"
@@ -3406,7 +3447,7 @@
           "targetLabel": "Trattative"
         },
         "opportunity_contacts": {
-          "sourceLabel": "Comitato d’acquisto",
+          "sourceLabel": "Comitato d'acquisto",
           "targetLabel": "Trattative"
         },
         "action_opportunity": {
@@ -3449,7 +3490,7 @@
           "title": "Trattative aperte per fase"
         },
         "open_value_by_stage": {
-          "title": "Valore aperto per fase"
+          "title": "Valore delle trattative aperte per fase"
         },
         "weighted_value_by_stage": {
           "title": "Valore ponderato per fase"
@@ -3458,10 +3499,10 @@
           "title": "Trattative aperte"
         },
         "open_value": {
-          "title": "Valore aperto"
+          "title": "Valore delle trattative aperte"
         },
         "open_weighted_value": {
-          "title": "Valore ponderato aperto"
+          "title": "Valore ponderato delle trattative aperte"
         },
         "won_last_90_days": {
           "title": "Vinte negli ultimi 90 giorni"
@@ -3470,7 +3511,7 @@
           "title": "Motivi della perdita"
         },
         "pipeline_by_owner": {
-          "title": "Valore aperto per responsabile"
+          "title": "Valore delle trattative aperte per responsabile"
         },
         "deals_without_next_step": {
           "title": "Trattative senza prossimo passo"
@@ -3521,14 +3562,14 @@
           "sections": [
             "Leggere ogni mese i motivi della perdita e i concorrenti",
             "Leggere i motivi della vittoria",
-            "Un’attività di miglioramento"
+            "Un'attività di miglioramento"
           ]
         },
         "message_templates": {
           "title": "Modelli di messaggio di sollecito",
           "sections": [
             "Prima risposta",
-            "Dopo l’analisi delle esigenze",
+            "Dopo l'analisi delle esigenze",
             "Messaggio di accompagnamento del preventivo",
             "Sollecito del preventivo",
             "Chiusura: forse non è il momento giusto",
@@ -3539,59 +3580,59 @@
       "rules": {
         "qualify_new_opportunity": {
           "title": "Qualificare la nuova trattativa",
-          "description": "Una nuova trattativa riceve un’attività di chiamata con scadenza il giorno dopo."
+          "description": "Una nuova trattativa riceve un'attività di chiamata con scadenza il giorno dopo."
         },
         "book_discovery_call": {
-          "title": "Fissare l’incontro di analisi delle esigenze",
-          "description": "Quando una trattativa diventa Qualificato, un’attività di incontro scade tra 3 giorni."
+          "title": "Fissare l'incontro di analisi delle esigenze",
+          "description": "Quando una trattativa diventa «Qualificata», un'attività di incontro scade tra 3 giorni."
         },
         "send_proposal": {
           "title": "Inviare il preventivo",
-          "description": "Quando una trattativa arriva ad Analisi esigenze, un’attività di preventivo scade tra 5 giorni."
+          "description": "Quando una trattativa arriva ad «Analisi esigenze», un'attività di preventivo scade tra 5 giorni."
         },
         "follow_up_proposal": {
           "title": "Sollecitare il preventivo",
-          "description": "Tre giorni dopo l’invio del preventivo scade un’attività di sollecito."
+          "description": "Tre giorni dopo l'invio del preventivo scade un'attività di sollecito."
         },
         "second_proposal_follow_up": {
           "title": "Secondo sollecito del preventivo",
-          "description": "Dieci giorni dopo l’invio del preventivo scade una seconda attività di sollecito. Chiudila se il potenziale cliente ha già risposto."
+          "description": "Dieci giorni dopo l'invio del preventivo scade una seconda attività di sollecito. Chiudila se il potenziale cliente ha già risposto."
         },
         "confirm_decision": {
           "title": "Confermare la data della decisione e il decisore",
-          "description": "Quando una trattativa arriva a Negoziazione, un’attività di sollecito scade tra 5 giorni."
+          "description": "Quando una trattativa arriva a «Negoziazione», un'attività di sollecito scade tra 5 giorni."
         },
         "won_close_date": {
           "title": "Impostare la data di chiusura",
-          "description": "Quando una trattativa è vinta, Chiusa il prende la data di oggi."
+          "description": "Quando una trattativa è vinta, «Chiusa il» prende la data di oggi."
         },
         "won_handover": {
           "title": "Passare in consegna la trattativa vinta",
-          "description": "Un’attività di passaggio di consegne scade il giorno dopo la vittoria. Registra il motivo della vittoria."
+          "description": "Un'attività di passaggio di consegne scade il giorno dopo la vittoria. Registra il motivo della vittoria."
         },
         "lost_revisit": {
           "title": "Riprendere la trattativa persa",
-          "description": "Novanta giorni dopo la perdita, un’attività di sollecito chiede se i tempi sono cambiati. Registra prima il motivo della perdita."
+          "description": "Novanta giorni dopo la perdita, un'attività di sollecito chiede se i tempi sono cambiati. Registra prima il motivo della perdita."
         },
         "stale_deal_sweep": {
           "title": "Rilanciare o scartare la trattativa ferma",
-          "description": "Una trattativa aperta rimasta 14 giorni nella stessa fase riceve un’attività di sollecito."
+          "description": "Una trattativa aperta rimasta 14 giorni nella stessa fase riceve un'attività di sollecito."
         },
         "expected_close_passed": {
           "title": "Aggiornare la chiusura prevista o chiudere la trattativa",
-          "description": "Quando la data di chiusura prevista di una trattativa aperta è passata, viene creata un’attività di revisione."
+          "description": "Quando la data di chiusura prevista di una trattativa aperta è passata, viene creata un'attività di revisione."
         },
         "next_step_due_notice": {
           "title": "Avvisare il responsabile che un prossimo passo scade",
           "description": "Alla data del prossimo passo di una trattativa aperta, il responsabile riceve un avviso."
         },
         "weekly_pipeline_report": {
-          "title": "Rapporto settimanale sulla pipeline",
-          "description": "Ogni venerdì, un’attività di revisione elenca numero e valore per fase e responsabile, trattative vinte e perse con i motivi e trattative oltre la chiusura prevista."
+          "title": "Report settimanale della pipeline",
+          "description": "Ogni venerdì, un'attività di revisione elenca numero e valore per fase e responsabile, trattative vinte e perse con i motivi e trattative oltre la chiusura prevista."
         },
         "enquiry_form_records": {
           "title": "Creare referente, azienda e trattativa da una richiesta",
-          "description": "Un modulo di richiesta sul web crea il referente, l’azienda e una trattativa nella fase Nuovo contatto."
+          "description": "Un modulo di richiesta sul web crea il referente, l'azienda e una trattativa nella fase «Nuovo contatto»."
         },
         "enquiry_form_notice": {
           "title": "Avvisare il responsabile della richiesta",
@@ -3599,29 +3640,70 @@
         },
         "fill_missing_value": {
           "title": "Inserire il valore di questa trattativa",
-          "description": "Una trattativa che arriva ad Analisi esigenze senza valore riceve un’attività di revisione."
+          "description": "Una trattativa che arriva ad «Analisi esigenze» senza valore riceve un'attività di revisione."
         },
         "fill_expected_close": {
           "title": "Inserire la chiusura prevista di questa trattativa",
-          "description": "Una trattativa che arriva a Preventivo inviato senza data di chiusura prevista riceve un’attività di revisione."
+          "description": "Una trattativa che arriva a «Preventivo inviato» senza data di chiusura prevista riceve un'attività di revisione."
         }
       },
       "acceptanceChecks": {
         "stage_field": "Ogni trattativa ha una delle sette fasi.",
         "weighted_value_field": "Ogni trattativa mostra il suo valore ponderato.",
-        "pipeline_board_view": "L’elenco delle trattative si apre come bacheca per fase, con i totali.",
+        "pipeline_board_view": "L'elenco delle trattative si apre come board per fase, con i totali.",
         "funnel_widget": "La dashboard mostra le trattative aperte per fase come imbuto.",
-        "proposal_follow_up_rule": "Una trattativa che arriva a Preventivo inviato riceve un’attività di sollecito.",
-        "stages_page": "La knowledge base contiene le fasi e i loro criteri di uscita."
+        "proposal_follow_up_rule": "Una trattativa che arriva a «Preventivo inviato» riceve un'attività di sollecito.",
+        "stages_page": "La base di conoscenza contiene le fasi e i loro criteri di uscita."
+      },
+      "page": {
+        "metaTitle": "Pipeline commerciale: modello per il tuo agente IA",
+        "metaDescription": "Copia la pipeline commerciale in Claude, ChatGPT o Codex: sette fasi con pesi, un prossimo passo datato per trattativa e i motivi di vittoria e perdita.",
+        "headline": "Una pipeline commerciale che il tuo agente IA costruisce nel tuo CRM",
+        "answer": "La pipeline di un piccolo team ha poche fasi, un criterio di uscita per ciascuna, un valore ponderato e un prossimo passo con scadenza su ogni trattativa aperta. Incolla questo modello nel tuo agente IA e lui costruisce la pipeline in Customermates: sette fasi, il comitato d'acquisto su ogni trattativa, i motivi di vittoria e di perdita e un'attività creata a ogni cambio di fase. Approvi il piano prima che venga scritto qualcosa.",
+        "routine": {
+          "title": "Il controllo settimanale della pipeline",
+          "steps": [
+            "Apri la bacheca e guarda ogni trattativa ferma nella sua fase da più di 14 giorni.",
+            "Per ciascuna decidi: farla avanzare perché il criterio di uscita è soddisfatto, rilanciarla con un nuovo prossimo passo oppure chiuderla come persa con un motivo.",
+            "Assicurati che ogni trattativa aperta abbia un prossimo passo con scadenza, fissato alla fine di ogni chiamata.",
+            "Rivedi le trattative vinte e perse con i loro motivi, e quelle che hanno superato la chiusura prevista."
+          ]
+        },
+        "limits": [
+          "Non crea preventivi né fatture. La proposta si scrive nel tuo strumento per i documenti e si collega alla trattativa.",
+          "Non è uno strumento per sequenze o invii di massa. I follow-up sono bozze per singole persone, e li invii tu.",
+          "Non ci sono lead scoring né arricchimento dei dati, categorie di previsione o gestione di quote e provvigioni. Il valore ponderato è una semplice ponderazione degli importi delle trattative per fase, non una previsione.",
+          "Non ci sono telefonia né SMS.",
+          "I promemoria arrivano dalle regole di automazione e dalle notifiche, oppure da una routine che il tuo agente esegue a intervalli regolari. Il modello li propone, tu decidi quali attivare.",
+          "È pensato per un team da uno a dieci venditori. I team con un processo di previsione formale sono serviti meglio da uno strumento fatto per quello."
+        ],
+        "faq": [
+          {
+            "question": "Quante fasi dovrebbe avere una pipeline commerciale?",
+            "answer": "I professionisti non sono d'accordo: alcuni consigliano cinque o meno, altri ne usano nove. Questo modello ha cinque fasi aperte più vinta e persa, perché ogni fase ha un criterio di uscita misurabile. Rinomina o togli fasi nel piano che il tuo agente propone."
+          },
+          {
+            "question": "Che cos'è il valore ponderato di una trattativa?",
+            "answer": "L'importo della trattativa moltiplicato per il peso della sua fase, per esempio 10, 25, 40, 60 e 80 per cento dalla prima alla quinta fase. È un peso che puoi adattare ai tuoi tassi di chiusura, non una previsione."
+          },
+          {
+            "question": "Perché registrare un motivo di vittoria e di perdita?",
+            "answer": "I report su una pipeline funzionano solo se esistono entrambi gli esiti, e i motivi mostrano cosa cambiare. Il modello chiede un motivo alla chiusura e crea un'attività di follow-up per riprendere le trattative perse dopo 90 giorni."
+          },
+          {
+            "question": "L'agente invia i miei follow-up?",
+            "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+          }
+        ]
       },
       "prompt": {
-        "intro": "Configura una pipeline commerciale nel mio spazio di lavoro Customermates: trattative con sette fasi e pesi, un valore ponderato, un prossimo passo con scadenza su ogni trattativa aperta, motivi della perdita e della vittoria, il comitato d’acquisto su ogni trattativa e un’attività creata a ogni cambio di fase.",
+        "intro": "Configura una pipeline commerciale nel mio spazio di lavoro Customermates: trattative con sette fasi e pesi, un valore ponderato, un prossimo passo con scadenza su ogni trattativa aperta, motivi della perdita e della vittoria, il comitato d'acquisto su ogni trattativa e un'attività creata a ogni cambio di fase.",
         "questions": [
           "Che cosa vendi e quante persone lo vendono?",
           "Quali passaggi attraversa una trattativa dal primo contatto alla firma? Quali delle sette fasi vanno bene e quali vanno rinominate?",
           "Quanto dura una trattativa tipica e dopo quanti giorni senza movimento va considerata ferma?",
           "Quali tassi di chiusura hai sulle trattative passate? Se non ne hai, restano i pesi predefiniti.",
-          "Dove prepari i preventivi? Restano lì e qui si conserva solo un collegamento."
+          "Dove prepari i preventivi? Restano lì e qui si conserva solo un link."
         ]
       }
     },
@@ -3629,7 +3711,7 @@
       "locale": "nl",
       "name": "Sales pipeline",
       "summary": "Zeven fasen met uitstapcriteria en weging, een volgende stap met datum bij elke open deal, redenen voor gewonnen en verloren en een fasewijziging die de volgende actie aanmaakt.",
-      "description": "Een pipeline voor een klein salesteam: vijf open fasen, Gewonnen en Verloren, een gewogen waarde per deal, het besluitvormingsteam bij de deal, een reden voor verlies en een reden voor winst, en de wekelijkse controle. De wegingen zijn een weging van de pipeline, geen prognose: vervang ze door je eigen sluitingspercentages na 20 tot 30 gesloten deals.",
+      "description": "Een pipeline voor een klein salesteam: vijf open fasen, Gewonnen en Verloren, een gewogen waarde per deal, het besluitvormingsteam bij de deal, een reden voor verlies en een reden voor winst, en de wekelijkse controle. De weging is een indicatie voor de pipeline, geen prognose: vervang haar door je eigen slagingspercentages na 20 tot 30 gesloten deals.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -3657,7 +3739,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -3772,7 +3854,7 @@
           "options": {}
         },
         "opportunities.expected_close": {
-          "label": "Verwachte afsluiting",
+          "label": "Verwachte afsluitdatum",
           "options": {}
         },
         "opportunities.closed_on": {
@@ -3796,7 +3878,7 @@
           "options": {}
         },
         "opportunities.lost_reason": {
-          "label": "Reden verloren",
+          "label": "Reden van verlies",
           "options": {
             "price": "Prijs",
             "competitor": "Concurrent",
@@ -3808,7 +3890,7 @@
           }
         },
         "opportunities.won_reason": {
-          "label": "Reden gewonnen",
+          "label": "Reden van winst",
           "options": {}
         },
         "opportunities.weighted_value": {
@@ -3904,7 +3986,7 @@
           "title": "Gewonnen in de laatste 90 dagen"
         },
         "lost_reasons": {
-          "title": "Redenen verloren"
+          "title": "Redenen van verlies"
         },
         "pipeline_by_owner": {
           "title": "Open waarde per eigenaar"
@@ -3916,7 +3998,7 @@
           "title": "Aankomende en achterstallige acties"
         },
         "expected_closes": {
-          "title": "Verwachte afsluitingen"
+          "title": "Verwachte afsluitdata"
         }
       },
       "knowledgePages": {
@@ -3948,7 +4030,7 @@
           "title": "Wekelijkse pipelinecontrole",
           "sections": [
             "Deals die stilstaan",
-            "Deals voorbij hun verwachte afsluiting",
+            "Deals voorbij hun verwachte afsluitdatum",
             "Deals zonder volgende stap",
             "De top vijf op gewogen waarde"
           ]
@@ -3980,23 +4062,23 @@
         },
         "book_discovery_call": {
           "title": "Plan de kennismaking in",
-          "description": "Wanneer een deal Gekwalificeerd wordt, valt een afspraakactie over 3 dagen."
+          "description": "Wanneer een deal Gekwalificeerd wordt, staat over 3 dagen een afspraakactie klaar."
         },
         "send_proposal": {
           "title": "Stuur de offerte",
-          "description": "Wanneer een deal Kennismaking bereikt, valt een offerteactie over 5 dagen."
+          "description": "Wanneer een deal Kennismaking bereikt, staat over 5 dagen een offerteactie klaar."
         },
         "follow_up_proposal": {
           "title": "Volg de offerte op",
-          "description": "Drie dagen nadat de offerte is verstuurd, valt een opvolgactie."
+          "description": "Drie dagen nadat de offerte is verstuurd, staat er een opvolgactie klaar."
         },
         "second_proposal_follow_up": {
-          "title": "Tweede opvolging van de offerte",
-          "description": "Tien dagen nadat de offerte is verstuurd, valt een tweede opvolgactie. Sluit hem als de prospect al heeft gereageerd."
+          "title": "Volg de offerte voor de tweede keer op",
+          "description": "Tien dagen nadat de offerte is verstuurd, staat een tweede opvolgactie klaar. Sluit die als de prospect al heeft gereageerd."
         },
         "confirm_decision": {
           "title": "Bevestig de beslisdatum en de beslisser",
-          "description": "Wanneer een deal Onderhandeling bereikt, valt een opvolgactie over 5 dagen."
+          "description": "Wanneer een deal Onderhandeling bereikt, staat over 5 dagen een opvolgactie klaar."
         },
         "won_close_date": {
           "title": "Stel de afsluitdatum in",
@@ -4004,34 +4086,34 @@
         },
         "won_handover": {
           "title": "Draag de gewonnen deal over",
-          "description": "De dag na winst valt een overdrachtsactie. Noteer de reden voor winst."
+          "description": "De dag na winst staat een overdrachtsactie klaar. Noteer de reden van winst."
         },
         "lost_revisit": {
           "title": "Benader de verloren deal opnieuw",
-          "description": "Negentig dagen na verlies vraagt een opvolgactie of de timing is veranderd. Noteer eerst de reden voor verlies."
+          "description": "Negentig dagen na verlies vraagt een opvolgactie of de timing is veranderd. Noteer eerst de reden van verlies."
         },
         "stale_deal_sweep": {
           "title": "Haal de stilstaande deal terug of kwalificeer hem af",
           "description": "Een open deal die 14 dagen in dezelfde fase bleef, krijgt een opvolgactie."
         },
         "expected_close_passed": {
-          "title": "Werk de verwachte afsluiting bij of sluit de deal",
+          "title": "Werk de verwachte afsluitdatum bij of sluit de deal",
           "description": "Wanneer de verwachte afsluitdatum van een open deal is verstreken, wordt een controleactie aangemaakt."
         },
         "next_step_due_notice": {
-          "title": "Meld de eigenaar dat een volgende stap aan de beurt is",
+          "title": "Informeer de eigenaar dat een volgende stap aan de beurt is",
           "description": "Op de datum van de volgende stap van een open deal krijgt de eigenaar een melding."
         },
         "weekly_pipeline_report": {
-          "title": "Wekelijks pipelinerapport",
-          "description": "Elke vrijdag somt één controleactie aantallen en waarde per fase en eigenaar op, gewonnen en verloren deals met redenen en deals voorbij hun verwachte afsluiting."
+          "title": "Bekijk het wekelijkse pipelinerapport",
+          "description": "Elke vrijdag somt één controleactie aantallen en waarde per fase en eigenaar op, gewonnen en verloren deals met redenen en deals voorbij hun verwachte afsluitdatum."
         },
         "enquiry_form_records": {
           "title": "Maak contactpersoon, bedrijf en deal aan uit een aanvraag",
           "description": "Een webformulier voor aanvragen maakt de contactpersoon, het bedrijf en een deal in de fase Nieuw aan."
         },
         "enquiry_form_notice": {
-          "title": "Meld de eigenaar de aanvraag",
+          "title": "Informeer de eigenaar over de aanvraag",
           "description": "De eigenaar krijgt een melding van elke nieuwe aanvraag."
         },
         "fill_missing_value": {
@@ -4039,7 +4121,7 @@
           "description": "Een deal die Kennismaking bereikt zonder waarde, krijgt een controleactie."
         },
         "fill_expected_close": {
-          "title": "Vul de verwachte afsluiting van deze deal in",
+          "title": "Vul de verwachte afsluitdatum van deze deal in",
           "description": "Een deal die Offerte verstuurd bereikt zonder verwachte afsluitdatum, krijgt een controleactie."
         }
       },
@@ -4057,7 +4139,7 @@
           "Wat verkoop je en hoeveel mensen verkopen het?",
           "Welke stappen doorloopt een deal van eerste contact tot handtekening? Welke van de zeven fasen passen en welke hebben een andere naam nodig?",
           "Hoe lang duurt een gemiddelde deal en na hoeveel dagen zonder beweging telt een deal als stilstaand?",
-          "Welke sluitingspercentages heb je uit eerdere deals? Zonder cijfers blijven de standaardwegingen.",
+          "Welke slagingspercentages heb je uit eerdere deals? Zonder cijfers blijven de standaardwegingen.",
           "Waar maak je offertes? Die blijven daar en hier wordt alleen een link bewaard."
         ]
       }
@@ -4066,7 +4148,7 @@
       "locale": "pl",
       "name": "Lejek sprzedaży",
       "summary": "Siedem etapów z kryteriami wyjścia i wagami, następny krok z terminem przy każdej otwartej szansie, powody wygranej i przegranej oraz zmiana etapu, która tworzy kolejne zadanie.",
-      "description": "Lejek dla małego zespołu sprzedaży: pięć etapów otwartych, Wygrana i Przegrana, wartość ważona każdej szansy, komitet zakupowy przy szansie, powód przegranej i powód wygranej oraz cotygodniowy przegląd. Wagi to ważenie lejka, a nie prognoza: po 20 do 30 zamkniętych szansach zastąp je własnymi wskaźnikami zamknięcia.",
+      "description": "Lejek dla małego zespołu sprzedaży: pięć etapów otwartych, Wygrana i Przegrana, wartość ważona każdej szansy, komitet zakupowy przy szansie, powód przegranej i powód wygranej oraz cotygodniowy przegląd. Wagi służą do ważenia lejka, a nie do prognozowania: po 20 do 30 zamkniętych szansach zastąp je własnymi wskaźnikami zamknięcia.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -4104,7 +4186,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -4114,8 +4196,8 @@
         "opportunities.stage": {
           "label": "Etap",
           "options": {
-            "new": "Nowy",
-            "qualified": "Zakwalifikowany",
+            "new": "Nowa",
+            "qualified": "Zakwalifikowana",
             "discovery": "Analiza potrzeb",
             "proposal_sent": "Oferta wysłana",
             "negotiation": "Negocjacje",
@@ -4197,7 +4279,7 @@
           "options": {
             "referral": "Polecenie",
             "inbound": "Zapytanie przychodzące",
-            "outbound": "Kontakt własny",
+            "outbound": "Kontakt wychodzący",
             "event": "Wydarzenie",
             "partner": "Partner",
             "existing_customer": "Obecny klient",
@@ -4213,7 +4295,7 @@
           "options": {}
         },
         "opportunities.closed_on": {
-          "label": "Zamknięto dnia",
+          "label": "Data zamknięcia",
           "options": {}
         },
         "opportunities.next_step": {
@@ -4238,7 +4320,7 @@
             "price": "Cena",
             "competitor": "Konkurent",
             "no_budget_or_decision": "Brak budżetu lub decyzji",
-            "timing": "Termin",
+            "timing": "Nieodpowiedni moment",
             "no_response": "Brak odpowiedzi",
             "not_a_fit": "Brak dopasowania",
             "other": "Inny"
@@ -4253,7 +4335,7 @@
           "options": {}
         },
         "opportunities.cycle_days": {
-          "label": "Cykl w dniach",
+          "label": "Długość cyklu (dni)",
           "options": {}
         },
         "actions.kind": {
@@ -4323,7 +4405,7 @@
           "title": "Otwarte szanse wg etapu"
         },
         "open_value_by_stage": {
-          "title": "Otwarta wartość wg etapu"
+          "title": "Wartość otwartych szans wg etapu"
         },
         "weighted_value_by_stage": {
           "title": "Wartość ważona wg etapu"
@@ -4332,10 +4414,10 @@
           "title": "Otwarte szanse"
         },
         "open_value": {
-          "title": "Otwarta wartość"
+          "title": "Wartość otwartych szans"
         },
         "open_weighted_value": {
-          "title": "Otwarta wartość ważona"
+          "title": "Ważona wartość otwartych szans"
         },
         "won_last_90_days": {
           "title": "Wygrane w ostatnich 90 dniach"
@@ -4344,7 +4426,7 @@
           "title": "Powody przegranej"
         },
         "pipeline_by_owner": {
-          "title": "Otwarta wartość wg opiekuna"
+          "title": "Wartość otwartych szans wg opiekuna"
         },
         "deals_without_next_step": {
           "title": "Szanse bez następnego kroku"
@@ -4421,7 +4503,7 @@
         },
         "send_proposal": {
           "title": "Wyślij ofertę",
-          "description": "Gdy szansa osiąga Analizę potrzeb, zadanie oferty przypada za 5 dni."
+          "description": "Gdy szansa trafia na etap Analiza potrzeb, zadanie oferty przypada za 5 dni."
         },
         "follow_up_proposal": {
           "title": "Wróć do oferty",
@@ -4433,15 +4515,15 @@
         },
         "confirm_decision": {
           "title": "Potwierdź datę decyzji i decydenta",
-          "description": "Gdy szansa osiąga Negocjacje, zadanie ponownego kontaktu przypada za 5 dni."
+          "description": "Gdy szansa trafia na etap Negocjacje, zadanie ponownego kontaktu przypada za 5 dni."
         },
         "won_close_date": {
           "title": "Ustaw datę zamknięcia",
-          "description": "Gdy szansa jest wygrana, pole Zamknięto dnia dostaje dzisiejszą datę."
+          "description": "Gdy szansa jest wygrana, pole Data zamknięcia dostaje dzisiejszą datę."
         },
         "won_handover": {
           "title": "Przekaż wygraną szansę",
-          "description": "Zadanie przekazania przypada w dniu po wygranej. Zapisz powód wygranej."
+          "description": "Zadanie przekazania przypada dzień po wygranej. Zapisz powód wygranej."
         },
         "lost_revisit": {
           "title": "Wróć do przegranej szansy",
@@ -4465,7 +4547,7 @@
         },
         "enquiry_form_records": {
           "title": "Utwórz osobę kontaktową, firmę i szansę z zapytania",
-          "description": "Internetowy formularz zapytania tworzy osobę kontaktową, firmę i szansę na etapie Nowy."
+          "description": "Internetowy formularz zapytania tworzy osobę kontaktową, firmę i szansę na etapie Nowa."
         },
         "enquiry_form_notice": {
           "title": "Powiadom opiekuna o zapytaniu",
@@ -4473,11 +4555,11 @@
         },
         "fill_missing_value": {
           "title": "Uzupełnij wartość tej szansy",
-          "description": "Szansa, która osiąga Analizę potrzeb bez wartości, dostaje zadanie przeglądu."
+          "description": "Szansa, która trafia na etap Analiza potrzeb bez wartości, dostaje zadanie przeglądu."
         },
         "fill_expected_close": {
           "title": "Uzupełnij planowane zamknięcie tej szansy",
-          "description": "Szansa, która osiąga Ofertę wysłaną bez planowanej daty zamknięcia, dostaje zadanie przeglądu."
+          "description": "Szansa, która trafia na etap Oferta wysłana bez planowanej daty zamknięcia, dostaje zadanie przeglądu."
         }
       },
       "acceptanceChecks": {
@@ -4485,7 +4567,7 @@
         "weighted_value_field": "Każda szansa pokazuje wartość ważoną.",
         "pipeline_board_view": "Lista szans otwiera się jako tablica według etapów z sumami.",
         "funnel_widget": "Pulpit pokazuje otwarte szanse według etapów jako lejek.",
-        "proposal_follow_up_rule": "Szansa, która osiąga Ofertę wysłaną, dostaje zadanie ponownego kontaktu.",
+        "proposal_follow_up_rule": "Szansa, która trafia na etap Oferta wysłana, dostaje zadanie ponownego kontaktu.",
         "stages_page": "Baza wiedzy zawiera etapy i ich kryteria wyjścia."
       },
       "prompt": {
@@ -4495,7 +4577,7 @@
           "Przez jakie kroki przechodzi szansa od pierwszego kontaktu do podpisu? Które z siedmiu etapów pasują, a które wymagają innej nazwy?",
           "Jak długo trwa typowa szansa i po ilu dniach bez ruchu uznać, że utknęła?",
           "Jakie wskaźniki zamknięcia masz z dawnych szans? Jeśli żadnych, zostają wagi domyślne.",
-          "Gdzie przygotowujesz oferty? Zostają tam, a tutaj trzymany jest tylko odnośnik."
+          "Gdzie przygotowujesz oferty? Zostają tam, a tutaj zapisujemy tylko link."
         ]
       }
     },
@@ -4701,7 +4783,7 @@
             "meeting": "Reunião",
             "proposal": "Proposta",
             "follow_up": "Retorno",
-            "handover": "Passagem",
+            "handover": "Repasse",
             "review": "Revisão",
             "other": "Outro"
           }
@@ -4798,7 +4880,7 @@
           "title": "Etapas de venda e critérios de saída",
           "sections": [
             "Critério de entrada e de saída de cada etapa",
-            "Quem move um negócio e com qual evidência",
+            "Quem move um negócio e com que comprovação",
             "Pesos e quando substituí-los"
           ]
         },
@@ -4841,7 +4923,7 @@
             "Primeira resposta",
             "Depois da reunião de diagnóstico",
             "Mensagem de envio da proposta",
-            "Cobrança de retorno da proposta",
+            "Retorno sobre a proposta",
             "Encerramento: talvez não seja o momento",
             "Retomada após 90 dias"
           ]
@@ -4866,7 +4948,7 @@
         },
         "second_proposal_follow_up": {
           "title": "Segundo retorno da proposta",
-          "description": "Dez dias depois do envio da proposta vence uma segunda tarefa de retorno. Conclua-a se o prospect já respondeu."
+          "description": "Dez dias depois do envio da proposta vence uma segunda tarefa de retorno. Conclua a tarefa se o prospect já respondeu."
         },
         "confirm_decision": {
           "title": "Confirmar a data da decisão e o decisor",
@@ -4878,7 +4960,7 @@
         },
         "won_handover": {
           "title": "Repassar o negócio ganho",
-          "description": "Uma tarefa de passagem vence no dia seguinte ao ganho. Registre o motivo do ganho."
+          "description": "Uma tarefa de repasse vence no dia seguinte ao ganho. Registre o motivo do ganho."
         },
         "lost_revisit": {
           "title": "Retomar o negócio perdido",
@@ -4902,7 +4984,7 @@
         },
         "enquiry_form_records": {
           "title": "Criar contato, empresa e negócio a partir de uma solicitação",
-          "description": "Um formulário de solicitação na web cria o contato, a empresa e um negócio na etapa Novo lead."
+          "description": "Um formulário de solicitação no site cria o contato, a empresa e um negócio na etapa Novo lead."
         },
         "enquiry_form_notice": {
           "title": "Avisar o responsável da solicitação",
@@ -4931,7 +5013,7 @@
           "O que você vende e quantas pessoas vendem?",
           "Por quais passos um negócio passa do primeiro contato à assinatura? Quais das sete etapas servem e quais precisam de outro nome?",
           "Quanto dura um negócio típico e depois de quantos dias sem movimento ele deve ser considerado parado?",
-          "Quais taxas de conversão você tem de negócios passados? Se não tiver, os pesos padrão ficam.",
+          "Quais taxas de conversão você tem de negócios passados? Se não tiver, mantemos os pesos padrão.",
           "Onde você faz as propostas? Elas ficam lá e aqui só se guarda um link."
         ]
       }

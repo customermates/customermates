@@ -1416,7 +1416,7 @@
         "clients": {
           "label": "Mandant",
           "pluralLabel": "Mandanten",
-          "description": "Unternehmen, Einzelunternehmer und Privatpersonen, die Sie aufnehmen."
+          "description": "Unternehmen, Einzelunternehmer und Privatpersonen, die du aufnimmst."
         },
         "intakes": {
           "label": "Aufnahme",
@@ -1426,7 +1426,7 @@
         "document_requests": {
           "label": "Unterlagenanforderung",
           "pluralLabel": "Unterlagenanforderungen",
-          "description": "Eine Zeile pro Unterlage, die Sie vom Mandanten anfordern."
+          "description": "Eine Zeile pro Unterlage, die du vom Mandanten anforderst."
         }
       },
       "fields": {
@@ -1564,7 +1564,7 @@
           "options": {
             "fixed": "Festpreis",
             "hourly": "Stundensatz",
-            "retainer": "Pauschale pro Monat",
+            "retainer": "Monatspauschale",
             "other": "Sonstige"
           }
         },
@@ -1609,7 +1609,7 @@
             "not_a_fit": "Passt nicht",
             "no_capacity": "Keine Kapazität",
             "no_response": "Keine Antwort",
-            "client_withdrew": "Mandant zog zurück",
+            "client_withdrew": "Mandant hat zurückgezogen",
             "risk": "Risiko",
             "other": "Sonstiges"
           }
@@ -1640,7 +1640,7 @@
             "identity": "Ausweis",
             "proof_of_address": "Adressnachweis",
             "company_register": "Handelsregisterauszug",
-            "prior_year_return": "Vorjahreserklärung",
+            "prior_year_return": "Steuererklärung des Vorjahres",
             "contract": "Vertrag",
             "questionnaire": "Fragebogen",
             "access_credentials": "Zugangsdaten",
@@ -1761,7 +1761,7 @@
           "title": "Offene Aufnahmen nach Phase"
         },
         "open_intakes_by_owner": {
-          "title": "Offene Aufnahmen je Betreuer"
+          "title": "Offene Aufnahmen je Zuständigem"
         },
         "enquiries_without_reply": {
           "title": "Anfragen ohne erste Antwort"
@@ -1799,7 +1799,7 @@
           "sections": [
             "Unternehmen, Einzelunternehmer, Privatperson, Verein",
             "Fragen, die über die Passung entscheiden",
-            "Wonach Sie nie fragen"
+            "Wonach du nie fragst"
           ]
         },
         "document_requests_guide": {
@@ -1858,7 +1858,7 @@
         },
         "decline_letter": {
           "title": "Absage senden",
-          "description": "Eine abgelehnte Aufnahme erhält eine Absageaufgabe für den nächsten Tag. Schreiben Sie, dass kein Mandat besteht, und nennen Sie nahende Fristen."
+          "description": "Eine abgelehnte Aufnahme erhält eine Absageaufgabe für den nächsten Tag. Schreibe, dass kein Mandat besteht, und nenne nahende Fristen."
         },
         "kickoff_event": {
           "title": "Kickoff in den Kalender eintragen",
@@ -1883,7 +1883,7 @@
       },
       "acceptanceChecks": {
         "stage_field": "Jede Aufnahme hat eine von neun Phasen.",
-        "first_response_field": "Jede Aufnahme hält fest, wann Sie zuerst geantwortet haben.",
+        "first_response_field": "Jede Aufnahme hält fest, wann du zuerst geantwortet hast.",
         "document_requests_list": "Unterlagenanforderungen stehen in einer eigenen Liste.",
         "intakes_board_view": "Die Aufnahmeliste lässt sich als Board nach Phase ansehen.",
         "chase_signature_rule": "Eine versendete Auftragsbestätigung erhält nach 7 Tagen eine Nachfrageaufgabe.",
@@ -1892,10 +1892,10 @@
       "prompt": {
         "intro": "Richte die Mandantenaufnahme in meinem Customermates-Workspace ein: eine Aufnahme pro Mandat mit neun Phasen, Unterlagenanforderungen, einem Termin in jeder Phase, einem Ablehnungsgrund und optionalen Identifizierungs-, Konflikt- und Risikoprüfungen, die festhalten, wer wann geprüft hat.",
         "questions": [
-          "Was verkaufen Sie, und wer sind Ihre Mandanten: Unternehmen, Einzelunternehmer oder Privatpersonen?",
-          "Welche Schritte durchläuft ein neuer Mandant heute, und welche der neun Phasen brauchen Sie nicht?",
-          "Ist Ihr Beruf reguliert, sodass Identifizierung, Konflikt- oder Risikoprüfung festgehalten werden müssen? In welchem Land?",
-          "Welche Unterlagen fordern Sie immer an, und wo legen Sie sie ab? Hier wird nur ein Link gespeichert.",
+          "Was verkaufst du, und wer sind deine Mandanten: Unternehmen, Einzelunternehmer oder Privatpersonen?",
+          "Welche Schritte durchläuft ein neuer Mandant heute, und welche der neun Phasen brauchst du nicht?",
+          "Ist dein Beruf reguliert, sodass Identifizierung, Konflikt- oder Risikoprüfung festgehalten werden müssen? In welchem Land?",
+          "Welche Unterlagen forderst du immer an, und wo legst du sie ab? Hier wird nur ein Link gespeichert.",
           "Wo unterschreiben Mandanten die Auftragsbestätigung? Sie bleibt dort, die Daten werden hier festgehalten."
         ]
       }
@@ -1903,7 +1903,7 @@
     "en": {
       "locale": "en",
       "name": "Client intake and onboarding",
-      "summary": "One intake per engagement: enquiry, screening, form, document requests, agreement and kickoff, with a dated step at every stage and a reason when you decline.",
+      "summary": "One intake per engagement: inquiry, screening, form, document requests, agreement and kickoff, with a dated step at every stage and a reason when you decline.",
       "description": "A short pipeline for taking on a new client: reply within a day, screen for fit, send the intake form, collect documents, send the agreement, start. Regulated professions can record who verified identity and when, never the document itself. Not an e-signature, KYC or payment tool.",
       "lists": {
         "actions": {
@@ -1924,7 +1924,7 @@
         "intakes": {
           "label": "Intake",
           "pluralLabel": "Intakes",
-          "description": "One intake per engagement, from enquiry to onboarded or declined."
+          "description": "One intake per engagement, from inquiry to onboarded or declined."
         },
         "document_requests": {
           "label": "Document request",
@@ -1957,7 +1957,7 @@
         "intakes.stage": {
           "label": "Stage",
           "options": {
-            "enquiry": "Enquiry",
+            "enquiry": "Inquiry",
             "screening": "Screening",
             "form_sent": "Intake form sent",
             "review_checks": "Review and checks",
@@ -1996,7 +1996,7 @@
             "company": "Company",
             "sole_trader": "Sole trader",
             "individual": "Individual",
-            "organisation": "Organisation"
+            "organisation": "Organization"
           }
         },
         "clients.owner": {
@@ -2267,7 +2267,7 @@
           "title": "Open intakes per owner"
         },
         "enquiries_without_reply": {
-          "title": "Enquiries without a first response"
+          "title": "Inquiries without a first response"
         },
         "documents_outstanding": {
           "title": "Documents outstanding"
@@ -2300,7 +2300,7 @@
         "intake_questionnaire": {
           "title": "Intake questionnaire by client type",
           "sections": [
-            "Company, sole trader, individual, organisation",
+            "Company, sole trader, individual, organization",
             "Questions that decide fit",
             "What you never ask for"
           ]
@@ -2340,7 +2340,7 @@
       },
       "rules": {
         "reply_to_enquiry": {
-          "title": "Reply to the enquiry",
+          "title": "Reply to the inquiry",
           "description": "A new intake gets a reply Action due the next day."
         },
         "chase_form": {
@@ -2377,7 +2377,7 @@
         },
         "intake_form_records": {
           "title": "Create the client, contact and intake from the form",
-          "description": "A public intake form creates the client, the contact and an intake in the Enquiry stage."
+          "description": "A public intake form creates the client, the contact and an intake in the Inquiry stage."
         },
         "intake_form_notice": {
           "title": "Tell the owner about the new intake",
@@ -2427,7 +2427,7 @@
         "intakes": {
           "label": "Alta",
           "pluralLabel": "Altas",
-          "description": "Un alta por encargo, desde la solicitud hasta incorporado o rechazado."
+          "description": "Un alta por encargo, desde la solicitud hasta cliente activo o rechazado."
         },
         "document_requests": {
           "label": "Documento solicitado",
@@ -2467,7 +2467,7 @@
             "agreement_sent": "Hoja de encargo enviada",
             "ready_to_start": "Listo para empezar",
             "kickoff_scheduled": "Reunión de arranque",
-            "onboarded": "Incorporado",
+            "onboarded": "Cliente activo",
             "declined": "Rechazado"
           }
         },
@@ -2645,8 +2645,8 @@
           "options": {
             "identity": "Documento de identidad",
             "proof_of_address": "Justificante de domicilio",
-            "company_register": "Nota del Registro Mercantil",
-            "prior_year_return": "Declaración del año anterior",
+            "company_register": "Nota simple del Registro Mercantil",
+            "prior_year_return": "Declaración de impuestos del año anterior",
             "contract": "Contrato",
             "questionnaire": "Cuestionario",
             "access_credentials": "Claves de acceso",
@@ -2813,7 +2813,7 @@
           "sections": [
             "Lista estándar por servicio",
             "Primera petición y recordatorios",
-            "Cuando un documento hay que corregirlo"
+            "Cuando hay que corregir un documento"
           ]
         },
         "agreement_checklist": {
@@ -2883,8 +2883,8 @@
           "description": "Un formulario público de alta crea el cliente, la persona de contacto y un alta en la etapa Solicitud."
         },
         "intake_form_notice": {
-          "title": "Avisar al responsable del alta nueva",
-          "description": "Se avisa al titular del espacio de trabajo de cada envío."
+          "title": "Avisar al propietario del alta nueva",
+          "description": "Se avisa al propietario del espacio de trabajo de cada envío."
         }
       },
       "acceptanceChecks": {
@@ -2909,8 +2909,8 @@
     "fr": {
       "locale": "fr",
       "name": "Fiche client et intégration",
-      "summary": "Une intégration par mission : demande, qualification, questionnaire, pièces demandées, lettre de mission et réunion de lancement, avec une étape datée à chaque phase et un motif en cas de refus.",
-      "description": "Un court pipeline pour accueillir un nouveau client : répondre sous un jour, vérifier l’adéquation, envoyer le questionnaire, réunir les pièces, envoyer la lettre de mission, démarrer. Les professions réglementées notent qui a vérifié l’identité et quand, jamais la pièce elle-même. Ce n’est ni un outil de signature électronique, ni de LCB-FT, ni de paiement.",
+      "summary": "Une intégration par mission : demande, qualification, questionnaire, pièces demandées, lettre de mission et réunion de lancement, avec une étape datée à chaque phase et un motif en cas de refus.",
+      "description": "Un court pipeline pour accueillir un nouveau client : répondre sous un jour, vérifier l’adéquation, envoyer le questionnaire, réunir les pièces, envoyer la lettre de mission, démarrer. Les professions réglementées notent qui a vérifié l’identité et quand, jamais la pièce elle-même. Ce n’est pas un outil de signature électronique, de LCB-FT ou de paiement.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2920,7 +2920,7 @@
         "contacts": {
           "label": "Contact",
           "pluralLabel": "Contacts",
-          "description": "Les personnes chez chaque client : interlocuteur principal, facturation, signataire."
+          "description": "Les personnes chez chaque client : interlocuteur principal, facturation, signataire."
         },
         "clients": {
           "label": "Client",
@@ -2993,7 +2993,7 @@
           "options": {}
         },
         "contacts.privacy_notice_sent_on": {
-          "label": "Information RGPD envoyée le",
+          "label": "Mention d’information RGPD envoyée le",
           "options": {}
         },
         "clients.client_type": {
@@ -3116,7 +3116,7 @@
           "options": {
             "conflict": "Conflit d’intérêts",
             "not_a_fit": "Ne convient pas",
-            "no_capacity": "Pas de capacité",
+            "no_capacity": "Pas de disponibilité",
             "no_response": "Pas de réponse",
             "client_withdrew": "Le client s’est retiré",
             "risk": "Risque",
@@ -3132,7 +3132,7 @@
           "options": {}
         },
         "intakes.next_step_due": {
-          "label": "Date de relance",
+          "label": "Prochaine action avant le",
           "options": {}
         },
         "intakes.days_to_first_response": {
@@ -3149,7 +3149,7 @@
             "identity": "Pièce d’identité",
             "proof_of_address": "Justificatif de domicile",
             "company_register": "Extrait Kbis",
-            "prior_year_return": "Déclaration de l’an dernier",
+            "prior_year_return": "Déclaration de l’année précédente",
             "contract": "Contrat",
             "questionnaire": "Questionnaire",
             "access_credentials": "Accès et identifiants",
@@ -3167,7 +3167,7 @@
           }
         },
         "document_requests.requested_on": {
-          "label": "Pièces demandées le",
+          "label": "Demandée le",
           "options": {}
         },
         "document_requests.needed_by": {
@@ -3300,7 +3300,7 @@
           "sections": [
             "Les neuf étapes et ce qui clôt chacune",
             "Qui répond, qui qualifie, qui signe",
-            "Délais : répondre sous un jour, relancer à 3 et à 7 jours"
+            "Délais : répondre sous un jour, relancer à 3 et à 7 jours"
           ]
         },
         "intake_questionnaire": {
@@ -3336,7 +3336,7 @@
           ]
         },
         "privacy_at_intake": {
-          "title": "Données personnelles : ce que nous collectons à l’intégration et pourquoi",
+          "title": "Données personnelles : ce que nous collectons à l’intégration et pourquoi",
           "sections": [
             "Finalité et base légale",
             "Ce qui reste hors de l’espace de travail",
@@ -3367,10 +3367,10 @@
         },
         "decline_letter": {
           "title": "Envoyer le courrier de refus",
-          "description": "Une intégration refusée reçoit une action de courrier pour le lendemain. Indiquez qu’aucune mission n’existe et citez tout délai proche."
+          "description": "Une intégration refusée reçoit une action de courrier pour le lendemain. Précisez qu’aucune mission n’est engagée et mentionnez tout délai proche."
         },
         "kickoff_event": {
-          "title": "Mettre la réunion de lancement dans l’agenda",
+          "title": "Inscrire la réunion de lancement dans l’agenda",
           "description": "Quand la date de lancement est fixée, l’événement est inscrit dans l’agenda du responsable."
         },
         "first_value_check": {
@@ -3394,26 +3394,26 @@
         "stage_field": "Chaque intégration a l’une des neuf étapes.",
         "first_response_field": "Chaque intégration note quand vous avez répondu pour la première fois.",
         "document_requests_list": "Les pièces demandées sont suivies dans leur propre liste.",
-        "intakes_board_view": "La liste des intégrations peut se voir en tableau par étape.",
+        "intakes_board_view": "La liste des intégrations peut s’afficher en board par étape.",
         "chase_signature_rule": "Une lettre de mission envoyée reçoit une action de relance au bout de 7 jours.",
         "process_page": "La base de connaissances contient le processus d’intégration."
       },
       "prompt": {
-        "intro": "Mets en place l’intégration des clients dans mon espace Customermates : une intégration par mission avec neuf étapes, des pièces demandées, une étape datée à chaque phase, un motif de refus et des vérifications facultatives d’identité, de conflit et de risque qui notent qui a vérifié et quand.",
+        "intro": "Mets en place l’intégration des clients dans mon espace de travail Customermates : une intégration par mission avec neuf étapes, des pièces demandées, une étape datée à chaque phase, un motif de refus et des vérifications facultatives d’identité, de conflit et de risque qui notent qui a vérifié et quand.",
         "questions": [
-          "Que vendez-vous, et qui sont vos clients : sociétés, indépendants ou particuliers ?",
-          "Par quelles étapes passe un nouveau client aujourd’hui, et lesquelles des neuf étapes ne vous servent pas ?",
-          "Votre profession est-elle réglementée, de sorte que l’identité, le conflit ou le risque doivent être consignés ? Dans quel pays ?",
-          "Quelles pièces demandez-vous toujours, et où les rangez-vous ? Seul un lien est gardé ici.",
-          "Où les clients signent-ils la lettre de mission ? Elle y reste, et les dates sont gardées ici."
+          "Que vendez-vous, et qui sont vos clients : sociétés, indépendants ou particuliers ?",
+          "Par quelles étapes passe un nouveau client aujourd’hui, et lesquelles des neuf étapes ne vous servent pas ?",
+          "Votre profession est-elle réglementée, avec des vérifications d’identité, de conflit ou de risque à consigner ? Dans quel pays ?",
+          "Quelles pièces demandez-vous toujours, et où les rangez-vous ? Seul un lien est gardé ici.",
+          "Où les clients signent-ils la lettre de mission ? Elle y reste ; seules les dates sont gardées ici."
         ]
       }
     },
     "it": {
       "locale": "it",
       "name": "Scheda cliente e accoglienza",
-      "summary": "Un’accoglienza per incarico: richiesta, valutazione, questionario, documenti richiesti, lettera d’incarico e riunione di avvio, con un passo datato a ogni fase e un motivo quando rifiuti.",
-      "description": "Una breve pipeline per accogliere un nuovo cliente: rispondere entro un giorno, valutare l’adeguatezza, inviare il questionario, raccogliere i documenti, inviare la lettera d’incarico, partire. Le professioni regolamentate annotano chi ha verificato l’identità e quando, mai il documento. Non è uno strumento di firma elettronica, di antiriciclaggio o di pagamento.",
+      "summary": "Un'accoglienza per incarico: richiesta, valutazione, questionario, documenti richiesti, lettera d'incarico e riunione di avvio, con un passaggio datato a ogni fase e un motivo quando rifiuti.",
+      "description": "Una breve pipeline per accogliere un nuovo cliente: rispondere entro un giorno, valutare l'adeguatezza, inviare il questionario, raccogliere i documenti, inviare la lettera d'incarico, partire. Le professioni regolamentate annotano chi ha verificato l'identità e quando, mai il documento. Non è uno strumento di firma elettronica, di antiriciclaggio o di pagamento.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -3433,7 +3433,7 @@
         "intakes": {
           "label": "Accoglienza",
           "pluralLabel": "Accoglienze",
-          "description": "Un’accoglienza per incarico, dalla richiesta ad acquisito o rifiutato."
+          "description": "Un'accoglienza per incarico, dalla richiesta ad acquisito o rifiutato."
         },
         "document_requests": {
           "label": "Documento richiesto",
@@ -3470,8 +3470,8 @@
             "screening": "Valutazione",
             "form_sent": "Questionario inviato",
             "review_checks": "Verifica",
-            "agreement_sent": "Lettera d’incarico inviata",
-            "ready_to_start": "Pronto all’avvio",
+            "agreement_sent": "Lettera d'incarico inviata",
+            "ready_to_start": "Pronto all'avvio",
             "kickoff_scheduled": "Riunione di avvio",
             "onboarded": "Acquisito",
             "declined": "Rifiutato"
@@ -3527,7 +3527,7 @@
         "clients.source": {
           "label": "Provenienza",
           "options": {
-            "referral": "Passaparola",
+            "referral": "Segnalazione",
             "website": "Sito web",
             "event": "Evento",
             "outbound": "Contatto diretto",
@@ -3560,11 +3560,11 @@
           "options": {}
         },
         "intakes.agreement_sent_on": {
-          "label": "Lettera d’incarico inviata il",
+          "label": "Lettera d'incarico inviata il",
           "options": {}
         },
         "intakes.agreement_signed_on": {
-          "label": "Lettera d’incarico firmata il",
+          "label": "Lettera d'incarico firmata il",
           "options": {}
         },
         "intakes.kickoff_on": {
@@ -3643,16 +3643,16 @@
           "options": {}
         },
         "intakes.days_to_kickoff": {
-          "label": "Giorni all’avvio",
+          "label": "Giorni all'avvio",
           "options": {}
         },
         "document_requests.kind": {
           "label": "Tipo",
           "options": {
-            "identity": "Documento d’identità",
-            "proof_of_address": "Prova di residenza",
+            "identity": "Documento d'identità",
+            "proof_of_address": "Attestazione di residenza",
             "company_register": "Visura camerale",
-            "prior_year_return": "Dichiarazione dell’anno precedente",
+            "prior_year_return": "Dichiarazione dei redditi dell'anno precedente",
             "contract": "Contratto",
             "questionnaire": "Questionario",
             "access_credentials": "Credenziali di accesso",
@@ -3670,7 +3670,7 @@
           }
         },
         "document_requests.requested_on": {
-          "label": "Documenti richiesti il",
+          "label": "Richiesto il",
           "options": {}
         },
         "document_requests.needed_by": {
@@ -3697,7 +3697,7 @@
             "chase_document": "Sollecitare un documento",
             "review": "Revisione",
             "check": "Verifica",
-            "send_agreement": "Inviare la lettera d’incarico",
+            "send_agreement": "Inviare la lettera d'incarico",
             "chase_signature": "Sollecitare la firma",
             "kickoff": "Avvio",
             "decline_letter": "Lettera di rifiuto",
@@ -3767,7 +3767,7 @@
           "title": "Attività scadute"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         },
         "intakes_by_stage": {
           "title": "Accoglienze aperte per fase"
@@ -3788,7 +3788,7 @@
           "title": "Media dei giorni alla prima risposta"
         },
         "average_days_to_kickoff": {
-          "title": "Media dei giorni all’avvio"
+          "title": "Media dei giorni all'avvio"
         },
         "decline_reasons": {
           "title": "Motivi del rifiuto"
@@ -3810,7 +3810,7 @@
           "title": "Questionario per tipo di cliente",
           "sections": [
             "Società, ditta individuale, privato, associazione",
-            "Domande che decidono l’adeguatezza",
+            "Domande che decidono l'adeguatezza",
             "Che cosa non chiedi mai"
           ]
         },
@@ -3823,7 +3823,7 @@
           ]
         },
         "agreement_checklist": {
-          "title": "Checklist della lettera d’incarico",
+          "title": "Checklist della lettera d'incarico",
           "sections": [
             "Ambito, modello di compenso e acconto",
             "Chi firma e con quale strumento",
@@ -3839,7 +3839,7 @@
           ]
         },
         "privacy_at_intake": {
-          "title": "Privacy: che cosa raccogliamo all’accoglienza e perché",
+          "title": "Privacy: che cosa raccogliamo all'accoglienza e perché",
           "sections": [
             "Finalità e base giuridica",
             "Che cosa resta fuori dallo spazio di lavoro",
@@ -3850,43 +3850,43 @@
       "rules": {
         "reply_to_enquiry": {
           "title": "Rispondere alla richiesta",
-          "description": "Una nuova accoglienza riceve un’attività di risposta con scadenza il giorno dopo."
+          "description": "Una nuova accoglienza riceve un'attività di risposta con scadenza il giorno dopo."
         },
         "chase_form": {
           "title": "Sollecitare il questionario",
-          "description": "Tre giorni dopo l’invio del questionario scade un’attività di sollecito."
+          "description": "Tre giorni dopo l'invio del questionario scade un'attività di sollecito."
         },
         "chase_document": {
           "title": "Sollecitare il documento mancante",
-          "description": "Alla data limite di un documento richiesto ancora aperto viene creata un’attività di sollecito."
+          "description": "Alla data limite di un documento richiesto ancora aperto viene creata un'attività di sollecito."
         },
         "review_received_document": {
           "title": "Controllare il documento ricevuto",
-          "description": "Quando un documento è segnato come ricevuto, un’attività di controllo scade il giorno dopo."
+          "description": "Quando un documento è segnato come ricevuto, un'attività di controllo scade il giorno dopo."
         },
         "chase_signature": {
           "title": "Sollecitare la firma",
-          "description": "Sette giorni dopo l’invio della lettera d’incarico scade un’attività di sollecito."
+          "description": "Sette giorni dopo l'invio della lettera d'incarico scade un'attività di sollecito."
         },
         "decline_letter": {
           "title": "Inviare la lettera di rifiuto",
-          "description": "Un’accoglienza rifiutata riceve un’attività di lettera con scadenza il giorno dopo. Indica che non esiste alcun incarico e cita eventuali termini vicini."
+          "description": "Un'accoglienza rifiutata riceve un'attività di lettera con scadenza il giorno dopo. Precisa che non esiste alcun incarico e indica eventuali termini in scadenza."
         },
         "kickoff_event": {
           "title": "Inserire la riunione di avvio nel calendario",
-          "description": "Quando la data di avvio è impostata, l’evento viene scritto nel calendario del responsabile."
+          "description": "Quando la data di avvio è impostata, l'evento viene scritto nel calendario del responsabile."
         },
         "first_value_check": {
           "title": "Verificare il primo risultato",
-          "description": "Quattordici giorni dopo l’acquisizione, un’attività di verifica chiede se il cliente ha visto un primo risultato."
+          "description": "Quattordici giorni dopo l'acquisizione, un'attività di verifica chiede se il cliente ha visto un primo risultato."
         },
         "stalled_intake": {
-          "title": "Rivedere l’accoglienza ferma",
-          "description": "Un’accoglienza aperta rimasta 7 giorni nella stessa fase riceve un’attività di revisione."
+          "title": "Rivedere l'accoglienza ferma",
+          "description": "Un'accoglienza aperta rimasta 7 giorni nella stessa fase riceve un'attività di revisione."
         },
         "intake_form_records": {
           "title": "Creare cliente, referente e accoglienza dal modulo",
-          "description": "Un modulo di accoglienza pubblico crea il cliente, il referente e un’accoglienza nella fase Richiesta."
+          "description": "Un modulo di accoglienza pubblico crea il cliente, il referente e un'accoglienza nella fase Richiesta."
         },
         "intake_form_notice": {
           "title": "Avvisare il responsabile della nuova accoglienza",
@@ -3897,18 +3897,18 @@
         "stage_field": "Ogni accoglienza ha una delle nove fasi.",
         "first_response_field": "Ogni accoglienza registra quando hai risposto per la prima volta.",
         "document_requests_list": "I documenti richiesti sono seguiti in un elenco proprio.",
-        "intakes_board_view": "L’elenco delle accoglienze si può vedere come bacheca per fase.",
-        "chase_signature_rule": "Una lettera d’incarico inviata riceve un’attività di sollecito dopo 7 giorni.",
-        "process_page": "La knowledge base contiene il processo di accoglienza."
+        "intakes_board_view": "L'elenco delle accoglienze si può vedere come board per fase.",
+        "chase_signature_rule": "Una lettera d'incarico inviata riceve un'attività di sollecito dopo 7 giorni.",
+        "process_page": "La base di conoscenza contiene il processo di accoglienza."
       },
       "prompt": {
-        "intro": "Configura l’accoglienza dei clienti nel mio spazio di lavoro Customermates: un’accoglienza per incarico con nove fasi, documenti richiesti, un passo datato a ogni fase, un motivo del rifiuto e verifiche facoltative di identità, conflitto e rischio che annotano chi ha verificato e quando.",
+        "intro": "Configura l'accoglienza dei clienti nel mio spazio di lavoro Customermates: un'accoglienza per incarico con nove fasi, documenti richiesti, un passaggio datato a ogni fase, un motivo del rifiuto e verifiche facoltative di identità, conflitto e rischio che annotano chi ha verificato e quando.",
         "questions": [
           "Che cosa vendi e chi sono i tuoi clienti: società, ditte individuali o privati?",
           "Quali passaggi attraversa oggi un nuovo cliente e quali delle nove fasi non ti servono?",
-          "La tua professione è regolamentata, così che identità, conflitto o rischio vadano registrati? In quale paese?",
-          "Quali documenti chiedi sempre e dove li conservi? Qui si tiene solo un collegamento.",
-          "Dove firmano i clienti la lettera d’incarico? Resta lì e qui si tengono le date."
+          "La tua professione è regolamentata e richiede di registrare verifiche di identità, conflitto o rischio? In quale paese?",
+          "Quali documenti chiedi sempre e dove li conservi? Qui si tiene solo un link.",
+          "Dove firmano i clienti la lettera d'incarico? Resta lì e qui si tengono le date."
         ]
       }
     },
@@ -3949,7 +3949,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -4103,7 +4103,7 @@
           "label": "Controle op belangenconflict",
           "options": {
             "not_required": "Niet vereist",
-            "pending": "Loopt",
+            "pending": "In behandeling",
             "clear": "Geen conflict",
             "conflict_found": "Conflict gevonden"
           }
@@ -4173,7 +4173,7 @@
           }
         },
         "document_requests.requested_on": {
-          "label": "Gevraagde documenten op",
+          "label": "Opgevraagd op",
           "options": {}
         },
         "document_requests.needed_by": {
@@ -4196,12 +4196,12 @@
           "label": "Soort",
           "options": {
             "reply": "Antwoord",
-            "chase_form": "Formulier nabellen",
-            "chase_document": "Document nabellen",
+            "chase_form": "Formulier opvolgen",
+            "chase_document": "Document opvolgen",
             "review": "Controle",
             "check": "Check",
             "send_agreement": "Overeenkomst sturen",
-            "chase_signature": "Handtekening nabellen",
+            "chase_signature": "Handtekening opvolgen",
             "kickoff": "Kickoff",
             "decline_letter": "Afwijzingsbrief",
             "other": "Overig"
@@ -4306,7 +4306,7 @@
           "sections": [
             "De negen fasen en wat elke fase afsluit",
             "Wie antwoordt, wie screent, wie tekent",
-            "Tijdskaders: binnen een dag reageren, nabellen na 3 en 7 dagen"
+            "Tijdskaders: binnen een dag reageren, opvolgen na 3 en 7 dagen"
           ]
         },
         "intake_questionnaire": {
@@ -4356,28 +4356,28 @@
           "description": "Een nieuwe intake krijgt een antwoordactie met deadline de volgende dag."
         },
         "chase_form": {
-          "title": "Bel het intakeformulier na",
-          "description": "Drie dagen nadat het formulier is verstuurd, valt een nabelactie."
+          "title": "Volg het intakeformulier op",
+          "description": "Drie dagen nadat het formulier is verstuurd, staat er een opvolgactie klaar."
         },
         "chase_document": {
-          "title": "Bel het ontbrekende document na",
-          "description": "Wanneer de uiterste datum van een open documentverzoek is bereikt, wordt een nabelactie aangemaakt."
+          "title": "Volg het ontbrekende document op",
+          "description": "Wanneer de uiterste datum van een open documentverzoek is bereikt, wordt een opvolgactie aangemaakt."
         },
         "review_received_document": {
           "title": "Controleer het ontvangen document",
-          "description": "Wanneer een document als ontvangen is gemarkeerd, valt de volgende dag een controleactie."
+          "description": "Wanneer een document als ontvangen is gemarkeerd, staat de volgende dag een controleactie klaar."
         },
         "chase_signature": {
-          "title": "Bel de handtekening na",
-          "description": "Zeven dagen nadat de overeenkomst is verstuurd, valt een nabelactie."
+          "title": "Volg de handtekening op",
+          "description": "Zeven dagen nadat de overeenkomst is verstuurd, staat er een opvolgactie klaar."
         },
         "decline_letter": {
           "title": "Stuur de afwijzingsbrief",
-          "description": "Een afgewezen intake krijgt een briefactie voor de volgende dag. Vermeld dat er geen opdracht bestaat en noem een naderende termijn."
+          "description": "Een afgewezen intake krijgt een actie voor de afwijzingsbrief, met deadline de volgende dag. Vermeld dat er geen opdracht bestaat en noem een naderende termijn."
         },
         "kickoff_event": {
           "title": "Zet de kickoff in de agenda",
-          "description": "Zodra de kickoffdatum is ingesteld, wordt het evenement in de agenda van de verantwoordelijke gezet."
+          "description": "Zodra de kickoffdatum is ingesteld, wordt de afspraak in de agenda van de verantwoordelijke gezet."
         },
         "first_value_check": {
           "title": "Controleer het eerste resultaat",
@@ -4392,7 +4392,7 @@
           "description": "Een openbaar intakeformulier maakt de klant, de contactpersoon en een intake in de fase Aanvraag aan."
         },
         "intake_form_notice": {
-          "title": "Meld de verantwoordelijke de nieuwe intake",
+          "title": "Informeer de verantwoordelijke over de nieuwe intake",
           "description": "De eigenaar van de werkruimte krijgt een melding van elke inzending."
         }
       },
@@ -4401,7 +4401,7 @@
         "first_response_field": "Elke intake legt vast wanneer je voor het eerst reageerde.",
         "document_requests_list": "Documentverzoeken worden in een eigen lijst bijgehouden.",
         "intakes_board_view": "De intakelijst is te zien als bord per fase.",
-        "chase_signature_rule": "Een verstuurde overeenkomst krijgt na 7 dagen een nabelactie.",
+        "chase_signature_rule": "Een verstuurde overeenkomst krijgt na 7 dagen een opvolgactie.",
         "process_page": "De kennisbank bevat het intakeproces."
       },
       "prompt": {
@@ -4417,9 +4417,9 @@
     },
     "pl": {
       "locale": "pl",
-      "name": "Karta klienta i wdrożenie",
-      "summary": "Jedno wdrożenie na zlecenie: zapytanie, wstępna kwalifikacja, ankieta, dokumenty, umowa i spotkanie startowe, z datowanym krokiem na każdym etapie i powodem, gdy odmawiasz.",
-      "description": "Krótki lejek przyjęcia nowego klienta: odpowiedź w ciągu doby, ocena dopasowania, wysłanie ankiety, zebranie dokumentów, wysłanie umowy, start. Zawody regulowane zapisują, kto i kiedy zweryfikował tożsamość, nigdy samego dokumentu. To nie narzędzie do podpisu elektronicznego, przeciwdziałania praniu pieniędzy ani płatności.",
+      "name": "Przyjęcie klienta i onboarding",
+      "summary": "Jedno przyjęcie na zlecenie: zapytanie, wstępna kwalifikacja, ankieta, dokumenty, umowa i spotkanie startowe, z datowanym krokiem na każdym etapie i powodem, gdy odmawiasz.",
+      "description": "Krótki lejek przyjęcia nowego klienta: odpowiedź w ciągu doby, ocena dopasowania, wysłanie ankiety, zebranie dokumentów, wysłanie umowy, start. Zawody regulowane zapisują, kto i kiedy zweryfikował tożsamość, nigdy samego dokumentu. To nie jest narzędzie do podpisu elektronicznego, weryfikacji KYC/AML ani płatności.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -4437,13 +4437,13 @@
           "description": "Firmy, jednoosobowe działalności i osoby prywatne, które przyjmujesz."
         },
         "intakes": {
-          "label": "Wdrożenie",
-          "pluralLabel": "Wdrożenia",
-          "description": "Jedno wdrożenie na zlecenie, od zapytania do wdrożonego lub odrzuconego."
+          "label": "Przyjęcie",
+          "pluralLabel": "Przyjęcia",
+          "description": "Jedno przyjęcie na zlecenie, od zapytania do wdrożonego lub odrzuconego."
         },
         "document_requests": {
-          "label": "Zamówiony dokument",
-          "pluralLabel": "Zamówione dokumenty",
+          "label": "Dokument",
+          "pluralLabel": "Dokumenty",
           "description": "Jeden wiersz na dokument, o który prosisz klienta."
         }
       },
@@ -4462,7 +4462,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -4477,10 +4477,10 @@
             "form_sent": "Ankieta wysłana",
             "review_checks": "Weryfikacja",
             "agreement_sent": "Umowa wysłana",
-            "ready_to_start": "Gotowy do startu",
+            "ready_to_start": "Gotowe do startu",
             "kickoff_scheduled": "Spotkanie startowe",
-            "onboarded": "Wdrożony",
-            "declined": "Odrzucony"
+            "onboarded": "Wdrożone",
+            "declined": "Odrzucone"
           }
         },
         "contacts.job_title": {
@@ -4493,7 +4493,7 @@
             "primary": "Główny kontakt",
             "billing": "Rozliczenia",
             "signatory": "Osoba podpisująca",
-            "technical": "Techniczny",
+            "technical": "Kontakt techniczny",
             "other": "Inna"
           }
         },
@@ -4502,7 +4502,7 @@
           "options": {}
         },
         "contacts.privacy_notice_sent_on": {
-          "label": "Klauzula informacyjna wysłana dnia",
+          "label": "Data wysłania klauzuli informacyjnej",
           "options": {}
         },
         "clients.client_type": {
@@ -4536,13 +4536,13 @@
             "referral": "Polecenie",
             "website": "Strona internetowa",
             "event": "Wydarzenie",
-            "outbound": "Kontakt własny",
+            "outbound": "Kontakt wychodzący",
             "partner": "Partner",
             "other": "Inne"
           }
         },
         "intakes.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "intakes.service": {
@@ -4550,37 +4550,37 @@
           "options": {}
         },
         "intakes.received_on": {
-          "label": "Otrzymano dnia",
+          "label": "Data otrzymania",
           "options": {}
         },
         "intakes.first_response_on": {
-          "label": "Pierwsza odpowiedź dnia",
+          "label": "Data pierwszej odpowiedzi",
           "options": {}
         },
         "intakes.form_sent_on": {
-          "label": "Ankieta wysłana dnia",
+          "label": "Data wysłania ankiety",
           "options": {}
         },
         "intakes.form_received_on": {
-          "label": "Ankieta otrzymana dnia",
+          "label": "Data otrzymania ankiety",
           "options": {}
         },
         "intakes.agreement_sent_on": {
-          "label": "Umowa wysłana dnia",
+          "label": "Data wysłania umowy",
           "options": {}
         },
         "intakes.agreement_signed_on": {
-          "label": "Umowa podpisana dnia",
+          "label": "Data podpisania umowy",
           "options": {}
         },
         "intakes.kickoff_on": {
-          "label": "Spotkanie startowe dnia",
+          "label": "Data spotkania startowego",
           "options": {}
         },
         "intakes.fee_model": {
           "label": "Model wynagrodzenia",
           "options": {
-            "fixed": "Kwota stała",
+            "fixed": "Ryczałt",
             "hourly": "Za godzinę",
             "retainer": "Abonament miesięczny",
             "other": "Inny"
@@ -4591,15 +4591,15 @@
           "options": {}
         },
         "intakes.deposit_received_on": {
-          "label": "Zaliczka otrzymana dnia",
+          "label": "Data otrzymania zaliczki",
           "options": {}
         },
         "intakes.identity_verified_on": {
-          "label": "Tożsamość zweryfikowana dnia",
+          "label": "Data weryfikacji tożsamości",
           "options": {}
         },
         "intakes.identity_verified_by": {
-          "label": "Tożsamość zweryfikował",
+          "label": "Kto zweryfikował tożsamość",
           "options": {}
         },
         "intakes.conflict_check": {
@@ -4625,7 +4625,7 @@
           "options": {
             "conflict": "Konflikt interesów",
             "not_a_fit": "Brak dopasowania",
-            "no_capacity": "Brak możliwości",
+            "no_capacity": "Brak mocy przerobowych",
             "no_response": "Brak odpowiedzi",
             "client_withdrew": "Klient się wycofał",
             "risk": "Ryzyko",
@@ -4633,7 +4633,7 @@
           }
         },
         "intakes.decline_notice_sent_on": {
-          "label": "Odmowa wysłana dnia",
+          "label": "Data wysłania odmowy",
           "options": {}
         },
         "intakes.next_step": {
@@ -4658,7 +4658,7 @@
             "identity": "Dokument tożsamości",
             "proof_of_address": "Potwierdzenie adresu",
             "company_register": "Odpis z rejestru",
-            "prior_year_return": "Zeznanie z poprzedniego roku",
+            "prior_year_return": "Zeznanie podatkowe za poprzedni rok",
             "contract": "Umowa",
             "questionnaire": "Ankieta",
             "access_credentials": "Dane dostępowe",
@@ -4668,7 +4668,7 @@
         "document_requests.status": {
           "label": "Status",
           "options": {
-            "requested": "Zamówiony",
+            "requested": "Oczekiwany",
             "partial": "Otrzymany częściowo",
             "received": "Otrzymany",
             "needs_correction": "Wymaga poprawy",
@@ -4676,7 +4676,7 @@
           }
         },
         "document_requests.requested_on": {
-          "label": "Dokumenty zamówione dnia",
+          "label": "Data prośby",
           "options": {}
         },
         "document_requests.needed_by": {
@@ -4684,15 +4684,15 @@
           "options": {}
         },
         "document_requests.received_on": {
-          "label": "Otrzymano dnia",
+          "label": "Data otrzymania",
           "options": {}
         },
         "document_requests.where_stored": {
-          "label": "Gdzie jest przechowywany",
+          "label": "Miejsce przechowywania",
           "options": {}
         },
         "document_requests.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.kind": {
@@ -4718,18 +4718,18 @@
         },
         "intake_client": {
           "sourceLabel": "Klient",
-          "targetLabel": "Wdrożenia"
+          "targetLabel": "Przyjęcia"
         },
         "intake_contact": {
           "sourceLabel": "Główny kontakt",
-          "targetLabel": "Wdrożenia"
+          "targetLabel": "Przyjęcia"
         },
         "document_request_intake": {
-          "sourceLabel": "Wdrożenie",
-          "targetLabel": "Zamówione dokumenty"
+          "sourceLabel": "Przyjęcie",
+          "targetLabel": "Dokumenty"
         },
         "action_intake": {
-          "sourceLabel": "Wdrożenie",
+          "sourceLabel": "Przyjęcie",
           "targetLabel": "Zadania"
         }
       },
@@ -4738,10 +4738,10 @@
           "name": "Wszystkie zadania"
         },
         "intakes_all": {
-          "name": "Wszystkie wdrożenia"
+          "name": "Wszystkie przyjęcia"
         },
         "intakes_board": {
-          "name": "Wdrożenia wg etapu"
+          "name": "Przyjęcia wg etapu"
         },
         "awaiting_signature": {
           "name": "Czeka na podpis"
@@ -4753,7 +4753,7 @@
           "name": "Odrzucone"
         },
         "document_requests_all": {
-          "name": "Wszystkie zamówione dokumenty"
+          "name": "Wszystkie dokumenty"
         },
         "documents_outstanding": {
           "name": "Czeka na dokumenty"
@@ -4776,10 +4776,10 @@
           "title": "Ostatnia aktywność"
         },
         "intakes_by_stage": {
-          "title": "Otwarte wdrożenia wg etapu"
+          "title": "Otwarte przyjęcia wg etapu"
         },
         "open_intakes_by_owner": {
-          "title": "Otwarte wdrożenia na opiekuna"
+          "title": "Otwarte przyjęcia wg osoby odpowiedzialnej"
         },
         "enquiries_without_reply": {
           "title": "Zapytania bez pierwszej odpowiedzi"
@@ -4800,7 +4800,7 @@
           "title": "Powody odmów"
         },
         "new_intakes_per_month": {
-          "title": "Nowe wdrożenia miesięcznie"
+          "title": "Nowe przyjęcia w poszczególnych miesiącach"
         }
       },
       "knowledgePages": {
@@ -4839,7 +4839,7 @@
         "regulated_checks": {
           "title": "Weryfikacja tożsamości, konfliktu i ryzyka w zawodach regulowanych",
           "sections": [
-            "Zapisz, kto i kiedy sprawdził, nigdy dokumentu",
+            "Zapisz, kto i kiedy sprawdził, ale nigdy samego dokumentu",
             "Sprawdzenie konfliktów przed rozpoczęciem pracy",
             "Ocena ryzyka i kiedy odmówić"
           ]
@@ -4856,7 +4856,7 @@
       "rules": {
         "reply_to_enquiry": {
           "title": "Odpowiedz na zapytanie",
-          "description": "Nowe wdrożenie dostaje zadanie odpowiedzi z terminem na następny dzień."
+          "description": "Nowe przyjęcie dostaje zadanie odpowiedzi z terminem na następny dzień."
         },
         "chase_form": {
           "title": "Ponagl ankietę",
@@ -4864,11 +4864,11 @@
         },
         "chase_document": {
           "title": "Ponagl brakujący dokument",
-          "description": "Gdy upływa termin otwartego zamówionego dokumentu, powstaje zadanie ponaglenia."
+          "description": "Gdy upływa termin otwartego dokumentu, powstaje zadanie ponaglenia."
         },
         "review_received_document": {
           "title": "Sprawdź otrzymany dokument",
-          "description": "Gdy dokument oznaczono jako otrzymany, zadanie kontroli przypada następnego dnia."
+          "description": "Gdy dokument zostanie oznaczony jako otrzymany, zadanie kontroli przypada następnego dnia."
         },
         "chase_signature": {
           "title": "Ponagl podpis",
@@ -4876,45 +4876,45 @@
         },
         "decline_letter": {
           "title": "Wyślij pismo z odmową",
-          "description": "Odrzucone wdrożenie dostaje zadanie pisma z terminem na następny dzień. Napisz, że zlecenie nie istnieje, i wskaż zbliżające się terminy."
+          "description": "Odrzucone przyjęcie dostaje zadanie pisma z terminem na następny dzień. Napisz, że zlecenie nie istnieje, i wskaż zbliżające się terminy."
         },
         "kickoff_event": {
           "title": "Wpisz spotkanie startowe do kalendarza",
-          "description": "Gdy ustawiono datę spotkania, wydarzenie trafia do kalendarza odpowiedzialnego."
+          "description": "Gdy ustawisz datę spotkania, wydarzenie trafia do kalendarza osoby odpowiedzialnej."
         },
         "first_value_check": {
-          "title": "Sprawdź pierwszy wynik",
-          "description": "Czternaście dni po wdrożeniu zadanie kontrolne pyta, czy klient zobaczył pierwszy wynik."
+          "title": "Sprawdź pierwszy efekt",
+          "description": "Czternaście dni po wdrożeniu powstaje zadanie kontrolne: czy klient zobaczył pierwszy efekt."
         },
         "stalled_intake": {
-          "title": "Przejrzyj zablokowane wdrożenie",
-          "description": "Otwarte wdrożenie, które przez 7 dni zostało na tym samym etapie, dostaje zadanie przeglądu."
+          "title": "Przejrzyj przyjęcie, które utknęło",
+          "description": "Otwarte przyjęcie, które przez 7 dni stoi na tym samym etapie, dostaje zadanie przeglądu."
         },
         "intake_form_records": {
-          "title": "Utwórz klienta, osobę kontaktową i wdrożenie z formularza",
-          "description": "Publiczny formularz przyjęcia tworzy klienta, osobę kontaktową i wdrożenie na etapie Zapytanie."
+          "title": "Utwórz klienta, osobę kontaktową i przyjęcie z formularza",
+          "description": "Publiczny formularz przyjęcia tworzy klienta, osobę kontaktową i przyjęcie na etapie Zapytanie."
         },
         "intake_form_notice": {
-          "title": "Powiadom odpowiedzialnego o nowym wdrożeniu",
+          "title": "Powiadom właściciela o nowym przyjęciu",
           "description": "Właściciel przestrzeni roboczej dostaje powiadomienie o każdym zgłoszeniu."
         }
       },
       "acceptanceChecks": {
-        "stage_field": "Każde wdrożenie ma jeden z dziewięciu etapów.",
-        "first_response_field": "Każde wdrożenie zapisuje, kiedy pierwszy raz odpowiedziano.",
-        "document_requests_list": "Zamówione dokumenty są śledzone na własnej liście.",
-        "intakes_board_view": "Listę wdrożeń można zobaczyć jako tablicę wg etapów.",
+        "stage_field": "Każde przyjęcie ma jeden z dziewięciu etapów.",
+        "first_response_field": "Każde przyjęcie zapisuje, kiedy pierwszy raz odpowiedziano.",
+        "document_requests_list": "Dokumenty są śledzone na własnej liście.",
+        "intakes_board_view": "Listę przyjęć można zobaczyć jako tablicę wg etapów.",
         "chase_signature_rule": "Wysłana umowa dostaje zadanie ponaglenia po 7 dniach.",
         "process_page": "Baza wiedzy zawiera proces przyjęcia."
       },
       "prompt": {
-        "intro": "Skonfiguruj przyjmowanie klientów w mojej przestrzeni roboczej Customermates: jedno wdrożenie na zlecenie z dziewięcioma etapami, zamówione dokumenty, datowany krok na każdym etapie, powód odmowy oraz opcjonalna weryfikacja tożsamości, konfliktu i ryzyka, która zapisuje, kto i kiedy sprawdził.",
+        "intro": "Skonfiguruj przyjmowanie klientów w mojej przestrzeni roboczej Customermates: jedno przyjęcie na zlecenie z dziewięcioma etapami, dokumenty od klienta, datowany krok na każdym etapie, powód odmowy oraz opcjonalna weryfikacja tożsamości, konfliktu i ryzyka, która zapisuje, kto i kiedy sprawdził.",
         "questions": [
-          "Co sprzedajesz i kim są Twoi klienci: firmami, jednoosobowymi działalnościami czy osobami prywatnymi?",
+          "Co sprzedajesz i jacy są Twoi klienci: firmy, jednoosobowe działalności czy osoby prywatne?",
           "Jakie kroki przechodzi dziś nowy klient i których z dziewięciu etapów nie potrzebujesz?",
-          "Czy Twój zawód jest regulowany, tak że tożsamość, konflikt lub ryzyko trzeba zapisywać? W jakim kraju?",
-          "O jakie dokumenty zawsze prosisz i gdzie je przechowujesz? Tutaj trzymany jest tylko odnośnik.",
-          "Gdzie klienci podpisują umowę? Zostaje tam, a tutaj trzymane są daty."
+          "Czy wykonujesz zawód regulowany, w którym trzeba zapisywać weryfikację tożsamości, konflikt interesów lub ocenę ryzyka? W jakim kraju?",
+          "O jakie dokumenty zawsze prosisz i gdzie je przechowujesz? Tutaj zapisujemy tylko link.",
+          "Gdzie klienci podpisują umowę? Umowa zostaje tam, a tutaj zapisujemy tylko daty."
         ]
       }
     },
@@ -5090,11 +5090,11 @@
           }
         },
         "intakes.deposit_required": {
-          "label": "Sinal exigido",
+          "label": "Adiantamento exigido",
           "options": {}
         },
         "intakes.deposit_received_on": {
-          "label": "Sinal recebido em",
+          "label": "Adiantamento recebido em",
           "options": {}
         },
         "intakes.identity_verified_on": {
@@ -5334,7 +5334,7 @@
         "agreement_checklist": {
           "title": "Checklist do contrato",
           "sections": [
-            "Escopo, modelo de honorários e sinal",
+            "Escopo, modelo de honorários e adiantamento",
             "Quem assina e em qual ferramenta",
             "O que fazer se ficar sem assinatura"
           ]
@@ -5398,8 +5398,8 @@
           "description": "Um formulário público de integração cria o cliente, o contato e uma integração na etapa Solicitação."
         },
         "intake_form_notice": {
-          "title": "Avisar o responsável da nova integração",
-          "description": "O dono do espaço de trabalho é avisado de cada envio."
+          "title": "Avisar o proprietário sobre a nova integração",
+          "description": "O proprietário do espaço de trabalho é avisado de cada envio."
         }
       },
       "acceptanceChecks": {

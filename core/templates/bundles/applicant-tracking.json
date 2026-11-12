@@ -778,7 +778,20 @@
           ]
         },
         "dueOffsetDays": 0,
-        "needs": "rules"
+        "needs": "rules",
+        "variants": {
+          "PL": {
+            "action": {
+              "kind": "set_dates",
+              "dates": [
+                {
+                  "field": "applications.retain_until",
+                  "offsetDays": 30
+                }
+              ]
+            }
+          }
+        }
       },
       {
         "key": "job_filled_close",
@@ -878,6 +891,10 @@
         "checkedOn": "2026-11-12"
       },
       {
+        "url": "https://uodo.gov.pl/file/1469",
+        "checkedOn": "2026-11-12"
+      },
+      {
         "url": "https://www.jazzhr.com/insights/best-free-ats",
         "checkedOn": "2026-11-12"
       }
@@ -917,8 +934,8 @@
     "de": {
       "locale": "de",
       "name": "Bewerbermanagement",
-      "summary": "Ein Bewerbertracker für kleine Unternehmen: Stellen, Bewerber, eine Bewerbung je Stelle durch neun Phasen, ein Interviewbogen je Gesprächsführer und ein Löschtermin für Absagen.",
-      "description": "Das Recruiting an einem Ort steuern: Jede Stelle hat Status, Fachvorgesetzten und Gehaltsspanne; jede Bewerbung läuft vom Eingang bis zur Einstellung oder Absage, mit Gesprächstermin, Angebotsfrist und Absagegrund; jeder Gesprächsführer legt einen Interviewbogen ab. Abgelehnte Bewerbungen erhalten ein Löschdatum, damit Sie sie rechtzeitig löschen oder eine Einwilligung einholen. Kein Stellenportal, kein CV-Parser, keine Testplattform, kein Werkzeug für Vertragsangebote oder elektronische Unterschriften und keine Rechtsauskunft zu Aufbewahrungsfristen.",
+      "summary": "Ein Bewerbertracker für kleine Unternehmen: Stellen, Bewerber, eine Bewerbung je Stelle durch neun Phasen, ein Interviewbogen je Interviewer und ein Löschtermin für Absagen.",
+      "description": "Das Recruiting an einem Ort steuern: Jede Stelle hat Status, Fachvorgesetzten und Gehaltsspanne; jede Bewerbung läuft vom Eingang bis zur Einstellung oder Absage, mit Gesprächstermin, Angebotsfrist und Absagegrund; jeder Interviewer legt einen Interviewbogen ab. Abgelehnte Bewerbungen erhalten ein Löschdatum, damit Sie sie rechtzeitig löschen oder eine Einwilligung einholen. Kein Stellenportal, kein CV-Parser, keine Testplattform, kein Werkzeug für Vertragsangebote oder elektronische Unterschriften und keine Rechtsauskunft zu Aufbewahrungsfristen.",
       "lists": {
         "actions": {
           "label": "Aufgabe",
@@ -943,7 +960,7 @@
         "scorecards": {
           "label": "Interviewbogen",
           "pluralLabel": "Interviewbögen",
-          "description": "Bewertung und Empfehlung eines Gesprächsführers zu einer Bewerbung."
+          "description": "Bewertung und Empfehlung eines Interviewers zu einer Bewerbung."
         }
       },
       "fields": {
@@ -998,7 +1015,7 @@
             "open": "Offen",
             "on_hold": "Pausiert",
             "filled": "Besetzt",
-            "cancelled": "Abgesagt"
+            "cancelled": "Abgebrochen"
           }
         },
         "jobs.department": {
@@ -1026,9 +1043,9 @@
           "options": {
             "new": "Eingang",
             "screening": "Vorauswahl",
-            "interview_1": "Telefoninterview",
-            "interview_2": "Vorstellungsgespräch",
-            "reference_check": "Referenzen",
+            "interview_1": "Erstgespräch",
+            "interview_2": "Zweitgespräch",
+            "reference_check": "Referenzprüfung",
             "offer": "Angebot",
             "hired": "Eingestellt",
             "rejected": "Absage",
@@ -1049,7 +1066,7 @@
             "skills": "Qualifikation",
             "experience": "Erfahrung",
             "salary_mismatch": "Gehalt passt nicht",
-            "other_offer": "Hat anderes Angebot angenommen",
+            "other_offer": "Hat ein anderes Angebot angenommen",
             "position_filled": "Stelle besetzt",
             "other": "Sonstiger"
           }
@@ -1059,7 +1076,7 @@
           "options": {}
         },
         "scorecards.interviewer": {
-          "label": "Gesprächsführer",
+          "label": "Interviewer",
           "options": {}
         },
         "scorecards.round": {
@@ -1210,7 +1227,13 @@
         },
         "rejection_retention": {
           "title": "Löschdatum auf 180 Tage setzen, wenn eine Bewerbung abgelehnt wird",
-          "description": ""
+          "description": "",
+          "variants": {
+            "PL": {
+              "title": "Löschdatum auf 30 Tage setzen, wenn eine Bewerbung abgelehnt wird (Polen: länger nur mit Einwilligung)",
+              "description": "Die polnische Datenschutzbehörde (UODO) erwartet, dass Bewerberdaten nach Abschluss des Verfahrens gelöscht werden, außer der Bewerber hat in künftige Verfahren eingewilligt. Das ist ein Standardwert: Setze die Frist deiner eigenen Aufbewahrungsrichtlinie und bei Einwilligung ein späteres Datum von Hand."
+            }
+          }
         },
         "job_filled_close": {
           "title": "Den übrigen Bewerbern absagen, wenn eine Stelle besetzt ist",
@@ -1230,8 +1253,8 @@
         "intro": "Richte in meinem Customermates-Workspace ein Bewerbermanagement ein: Stellen mit Fachvorgesetztem und Gehaltsspanne, Bewerber, Bewerbungen durch neun Phasen, Interviewbögen, ein Löschdatum für Absagen und terminierte Folgeaufgaben.",
         "questions": [
           "Wie viele Stellen sind gleichzeitig offen, und wer stellt jeweils ein?",
-          "Woher kommen die Bewerber, und nutzen Sie ein Bewerbungsformular?",
-          "Wie lange bewahren Sie Absagen auf, und führen Sie einen Talentpool mit Einwilligung?",
+          "Woher kommen die Bewerber, und nutzt du ein Bewerbungsformular?",
+          "Wie lange bewahrst du Absagen auf, und führst du einen Talentpool mit Einwilligung?",
           "Welche Gesprächsrunden gibt es, und wer legt einen Interviewbogen ab?"
         ]
       }
@@ -1310,7 +1333,7 @@
           "options": {}
         },
         "applicants.pool_consent": {
-          "label": "Agreed to the talent pool",
+          "label": "Talent pool consent",
           "options": {}
         },
         "jobs.status": {
@@ -1483,7 +1506,7 @@
           "title": "Rejection reasons"
         },
         "retention_coming": {
-          "title": "Applications to delete or renew soon"
+          "title": "Applications due for deletion or fresh consent"
         }
       },
       "knowledgePages": {
@@ -1532,7 +1555,13 @@
         },
         "rejection_retention": {
           "title": "Set the retention date to 180 days out when an application is rejected",
-          "description": ""
+          "description": "",
+          "variants": {
+            "PL": {
+              "title": "Set the retention date to 30 days out when an application is rejected (Poland: longer only with consent)",
+              "description": "Poland's data protection authority (UODO) expects candidate data to be deleted once the recruitment ends, unless the candidate consented to future recruitment. This is a default: set the period your own retention policy requires, and a later date by hand where there is consent."
+            }
+          }
         },
         "job_filled_close": {
           "title": "Send a closing message to the other applicants when a job is filled",
@@ -1562,7 +1591,7 @@
       "locale": "es",
       "name": "Seguimiento de candidaturas",
       "summary": "Un seguimiento de selección para una pequeña empresa: vacantes, candidatos, una candidatura por vacante en nueve fases, una ficha de evaluación por entrevistador y una fecha para eliminar los descartes.",
-      "description": "Gestione la selección en un solo lugar: cada vacante tiene un estado, un responsable y un rango salarial; cada candidatura avanza de recibida a incorporada o descartada, con la fecha de entrevista, el plazo de respuesta a la oferta y el motivo de descarte; cada entrevistador rellena una ficha de evaluación. Las candidaturas descartadas reciben una fecha de conservación para que se acuerde de eliminarlas o de pedir consentimiento. No es un portal de empleo, un lector de currículos, una plataforma de pruebas, una herramienta de cartas de oferta y firma electrónica ni una autoridad legal sobre los plazos de conservación.",
+      "description": "Gestiona la selección en un solo lugar: cada vacante tiene un estado, un responsable y un rango salarial; cada candidatura avanza de recibida a incorporada o descartada, con la fecha de entrevista, el plazo de respuesta a la oferta y el motivo de descarte; cada entrevistador rellena una ficha de evaluación. Las candidaturas descartadas reciben una fecha de conservación para que te acuerdes de eliminarlas o de pedir consentimiento. No es un portal de empleo, un lector de currículos, una plataforma de pruebas, una herramienta de cartas de oferta y firma electrónica ni una autoridad legal sobre los plazos de conservación.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -1845,7 +1874,7 @@
           "description": ""
         },
         "scorecard_reminder": {
-          "title": "Recordar al responsable el día después de una entrevista",
+          "title": "Recordar al responsable al día siguiente de una entrevista",
           "description": ""
         },
         "chase_offer": {
@@ -1854,7 +1883,13 @@
         },
         "rejection_retention": {
           "title": "Fijar la conservación a 180 días cuando se descarta una candidatura",
-          "description": ""
+          "description": "",
+          "variants": {
+            "PL": {
+              "title": "Fijar la conservación a 30 días cuando se descarta una candidatura (Polonia: más tiempo solo con consentimiento)",
+              "description": "La autoridad polaca de protección de datos (UODO) espera que los datos del candidato se supriman al terminar el proceso, salvo que haya consentido futuros procesos. Es un valor por defecto: fija el plazo de tu propia política de conservación y, si hay consentimiento, una fecha posterior a mano."
+            }
+          }
         },
         "job_filled_close": {
           "title": "Escribir al resto de candidatos cuando se cubre una vacante",
@@ -1871,20 +1906,20 @@
         "applications_board_view": "Las candidaturas se abren como tablero por fase."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de Customermates un seguimiento de candidaturas: vacantes con responsable y rango salarial, candidatos, candidaturas en nueve fases, fichas de evaluación, una fecha de conservación para los descartes y seguimientos con fecha.",
+        "intro": "Configura en mi espacio de trabajo de Customermates un seguimiento de candidaturas: vacantes con responsable y rango salarial, candidatos, candidaturas en nueve fases, fichas de evaluación, una fecha de conservación para los descartes y seguimientos con fecha.",
         "questions": [
-          "¿Cuántas vacantes tiene abiertas a la vez y quién selecciona para cada una?",
-          "¿De dónde vienen los candidatos y usa un formulario de candidatura?",
-          "¿Cuánto tiempo conserva las candidaturas descartadas y mantiene una bolsa de talento con consentimiento?",
-          "¿Qué rondas de entrevistas hace y quién rellena una ficha de evaluación?"
+          "¿Cuántas vacantes tienes abiertas a la vez y quién selecciona para cada una?",
+          "¿De dónde vienen los candidatos y usas un formulario de candidatura?",
+          "¿Cuánto tiempo conservas las candidaturas descartadas y mantienes una bolsa de talento con consentimiento?",
+          "¿Qué rondas de entrevistas haces y quién rellena una ficha de evaluación?"
         ]
       }
     },
     "fr": {
       "locale": "fr",
       "name": "Suivi des candidatures",
-      "summary": "Un suivi de recrutement pour une petite entreprise : offres d'emploi, candidats, une candidature par offre en neuf étapes, une fiche d'entretien par recruteur et une date de suppression des refus.",
-      "description": "Pilotez le recrutement au même endroit : chaque offre a un statut, un responsable du recrutement et une fourchette de salaire ; chaque candidature avance de reçue à embauchée ou refusée, avec la date d'entretien, le délai de réponse à la proposition et le motif de refus ; chaque recruteur remplit une fiche d'entretien. Les candidatures refusées reçoivent une date de conservation pour penser à les supprimer ou à demander un consentement. Ce n'est ni un job board, ni un analyseur de CV, ni une plateforme de tests, ni un outil de promesses d'embauche et de signature électronique, ni une autorité juridique sur les durées de conservation.",
+      "summary": "Un suivi de recrutement pour une petite entreprise : offres d’emploi, candidats, une candidature par offre en neuf étapes, une fiche d’entretien par recruteur et une date de suppression des candidatures refusées.",
+      "description": "Pilotez le recrutement au même endroit : chaque offre a un statut, un responsable du recrutement et une fourchette de salaire ; chaque candidature avance de reçue à embauchée ou refusée, avec la date d’entretien, le délai de réponse à la proposition et le motif de refus ; chaque recruteur remplit une fiche d’entretien. Les candidatures refusées reçoivent une date de conservation pour penser à les supprimer ou à demander un consentement. Ce n’est ni un job board, ni un analyseur de CV, ni une plateforme de tests, ni un outil de promesse d’embauche ou de signature électronique, ni un conseil juridique sur les durées de conservation.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -1897,8 +1932,8 @@
           "description": "Les personnes qui postulent, avec leur source et leur consentement au vivier."
         },
         "jobs": {
-          "label": "Offre d'emploi",
-          "pluralLabel": "Offres d'emploi",
+          "label": "Offre d’emploi",
+          "pluralLabel": "Offres d’emploi",
           "description": "Chaque poste ouvert avec son responsable du recrutement et sa fourchette de salaire."
         },
         "applications": {
@@ -1907,9 +1942,9 @@
           "description": "Un candidat pour une offre, de reçue à embauché ou refusé."
         },
         "scorecards": {
-          "label": "Fiche d'entretien",
-          "pluralLabel": "Fiches d'entretien",
-          "description": "La note et la recommandation d'un recruteur pour une candidature."
+          "label": "Fiche d’entretien",
+          "pluralLabel": "Fiches d’entretien",
+          "description": "La note et la recommandation d’un recruteur pour une candidature."
         }
       },
       "fields": {
@@ -1938,7 +1973,7 @@
           "label": "Source",
           "options": {
             "careers_page": "Page carrières",
-            "job_board": "Site d'emploi",
+            "job_board": "Site d’emploi",
             "referral": "Cooptation",
             "linkedin": "LinkedIn",
             "agency": "Cabinet de recrutement",
@@ -1980,7 +2015,7 @@
           "options": {}
         },
         "jobs.pay_max": {
-          "label": "Salaire jusqu'à",
+          "label": "Salaire jusqu’à",
           "options": {}
         },
         "jobs.apply_by": {
@@ -2006,7 +2041,7 @@
           "options": {}
         },
         "applications.offer_decision_due": {
-          "label": "Réponse à la proposition avant",
+          "label": "Réponse à la proposition avant le",
           "options": {}
         },
         "applications.rejection_reason": {
@@ -2014,14 +2049,14 @@
           "options": {
             "skills": "Compétences",
             "experience": "Expérience",
-            "salary_mismatch": "Salaire inadapté",
+            "salary_mismatch": "Prétentions salariales inadaptées",
             "other_offer": "A accepté une autre offre",
             "position_filled": "Poste pourvu",
             "other": "Autre"
           }
         },
         "applications.retain_until": {
-          "label": "Conserver jusqu'au",
+          "label": "Conserver jusqu’au",
           "options": {}
         },
         "scorecards.interviewer": {
@@ -2029,7 +2064,7 @@
           "options": {}
         },
         "scorecards.round": {
-          "label": "Tour",
+          "label": "Tour d’entretien",
           "options": {
             "screening": "Présélection",
             "interview_1": "Entretien RH",
@@ -2043,10 +2078,10 @@
         "scorecards.recommendation": {
           "label": "Recommandation",
           "options": {
-            "strong_no": "Clairement non",
-            "no": "Non",
-            "yes": "Oui",
-            "strong_yes": "Clairement oui"
+            "strong_no": "Très défavorable",
+            "no": "Défavorable",
+            "yes": "Favorable",
+            "strong_yes": "Très favorable"
           }
         },
         "actions.kind": {
@@ -2055,7 +2090,7 @@
             "acknowledge": "Accuser réception",
             "screen": "Présélectionner la candidature",
             "schedule_interview": "Planifier un entretien",
-            "collect_scorecards": "Recueillir les fiches d'entretien",
+            "collect_scorecards": "Recueillir les fiches d’entretien",
             "chase_offer": "Relancer pour la réponse à la proposition",
             "close_message": "Envoyer un message de clôture",
             "retention_review": "Revoir la conservation",
@@ -2069,12 +2104,12 @@
           "targetLabel": "Candidatures"
         },
         "application_job": {
-          "sourceLabel": "Offre d'emploi",
+          "sourceLabel": "Offre d’emploi",
           "targetLabel": "Candidatures"
         },
         "scorecard_application": {
           "sourceLabel": "Candidature",
-          "targetLabel": "Fiches d'entretien"
+          "targetLabel": "Fiches d’entretien"
         },
         "action_application": {
           "sourceLabel": "Candidature",
@@ -2089,7 +2124,7 @@
           "name": "Toutes les candidatures"
         },
         "applications_board": {
-          "name": "Tableau de recrutement"
+          "name": "Board de recrutement"
         },
         "jobs_all": {
           "name": "Toutes les offres"
@@ -2098,7 +2133,7 @@
           "name": "Tous les candidats"
         },
         "scorecards_all": {
-          "name": "Toutes les fiches d'entretien"
+          "name": "Toutes les fiches d’entretien"
         }
       },
       "widgets": {
@@ -2141,7 +2176,7 @@
         "form_and_retention": {
           "title": "Formulaire de candidature et conservation des données",
           "sections": [
-            "Informations demandées et mention d'information",
+            "Informations demandées et mention d’information",
             "Durée de conservation des candidatures refusées"
           ]
         },
@@ -2159,15 +2194,15 @@
           "description": ""
         },
         "acknowledge_application": {
-          "title": "Accuser réception d'une nouvelle candidature sous 2 jours",
+          "title": "Accuser réception d’une nouvelle candidature sous 2 jours",
           "description": ""
         },
         "collect_scorecards": {
-          "title": "Recueillir les fiches d'entretien le jour de l'entretien",
+          "title": "Recueillir les fiches d’entretien le jour de l’entretien",
           "description": ""
         },
         "scorecard_reminder": {
-          "title": "Relancer le responsable le lendemain d'un entretien",
+          "title": "Relancer le responsable le lendemain d’un entretien",
           "description": ""
         },
         "chase_offer": {
@@ -2176,7 +2211,13 @@
         },
         "rejection_retention": {
           "title": "Fixer la date de conservation à 180 jours quand une candidature est refusée",
-          "description": ""
+          "description": "",
+          "variants": {
+            "PL": {
+              "title": "Fixer la date de conservation à 30 jours quand une candidature est refusée (Pologne : plus long seulement avec consentement)",
+              "description": "L’autorité polonaise de protection des données (UODO) attend que les données d’un candidat soient supprimées à la fin du recrutement, sauf si le candidat a consenti à de futurs recrutements. C’est une valeur par défaut : fixez le délai de votre propre politique de conservation et, en cas de consentement, une date plus tardive à la main."
+            }
+          }
         },
         "job_filled_close": {
           "title": "Écrire aux autres candidats quand une offre est pourvue",
@@ -2188,25 +2229,25 @@
         }
       },
       "acceptanceChecks": {
-        "stage_field": "Chaque candidature a l'une des neuf étapes.",
-        "retain_until_field": "Chaque candidature indique jusqu'à quand elle est conservée.",
-        "applications_board_view": "Les candidatures s'ouvrent en tableau par étape."
+        "stage_field": "Chaque candidature a l’une des neuf étapes.",
+        "retain_until_field": "Chaque candidature indique jusqu’à quand elle est conservée.",
+        "applications_board_view": "Les candidatures s’ouvrent en board par étape."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace Customermates un suivi des candidatures : offres d'emploi avec responsable et fourchette de salaire, candidats, candidatures en neuf étapes, fiches d'entretien, date de conservation des refus et relances datées.",
+        "intro": "Mets en place dans mon espace de travail Customermates un suivi des candidatures : offres d’emploi avec responsable et fourchette de salaire, candidats, candidatures en neuf étapes, fiches d’entretien, date de conservation des candidatures refusées et relances datées.",
         "questions": [
-          "Combien d'offres sont ouvertes en même temps, et qui recrute pour chacune ?",
-          "D'où viennent les candidats, et utilisez-vous un formulaire de candidature ?",
-          "Combien de temps conservez-vous les candidatures refusées, et tenez-vous un vivier avec consentement ?",
-          "Quels tours d'entretien organisez-vous, et qui remplit une fiche d'entretien ?"
+          "Combien d’offres sont ouvertes en même temps, et qui recrute pour chacune ?",
+          "D’où viennent les candidats, et utilisez-vous un formulaire de candidature ?",
+          "Combien de temps conservez-vous les candidatures refusées, et tenez-vous un vivier avec consentement ?",
+          "Quels tours d’entretien organisez-vous, et qui remplit une fiche d’entretien ?"
         ]
       }
     },
     "it": {
       "locale": "it",
-      "name": "Tracciamento candidature",
-      "summary": "Un tracker di selezione per una piccola azienda: posizioni aperte, candidati, una candidatura per posizione in nove fasi, una scheda di valutazione per ogni intervistatore e una data di cancellazione per gli scartati.",
-      "description": "Gestisci la selezione in un unico posto: ogni posizione ha uno stato, un responsabile e una fascia retributiva; ogni candidatura avanza da ricevuta ad assunto o scartato, con data del colloquio, scadenza dell'offerta e motivo dello scarto; ogni intervistatore compila una scheda di valutazione. Le candidature scartate ricevono una data di conservazione per ricordarti di cancellarle o di chiedere il consenso. Non è un job board, un parser di CV, una piattaforma di test, uno strumento per lettere d'offerta e firma elettronica né un'autorità legale sui tempi di conservazione.",
+      "name": "Gestione candidature",
+      "summary": "Un tracker per la selezione del personale in una piccola azienda: posizioni, candidati, una candidatura per posizione in nove fasi, una scheda di valutazione per ogni intervistatore e una data di cancellazione per le candidature scartate.",
+      "description": "Gestisci la selezione in un unico posto: ogni posizione ha uno stato, un responsabile e una fascia retributiva; ogni candidatura avanza da ricevuta ad assunto o scartato, con data del colloquio, scadenza dell'offerta e motivo dello scarto; ogni intervistatore compila una scheda di valutazione. Le candidature scartate ricevono una data di conservazione per ricordarti di cancellarle o di chiedere il consenso. Non è un job board, un parser di CV, una piattaforma di test, uno strumento per lettere d'offerta e firma elettronica né una consulenza legale sui tempi di conservazione.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -2216,11 +2257,11 @@
         "applicants": {
           "label": "Candidato",
           "pluralLabel": "Candidati",
-          "description": "Le persone che si candidano, con la fonte e il consenso alla banca CV."
+          "description": "Le persone che si candidano, con la fonte e il consenso per future selezioni."
         },
         "jobs": {
-          "label": "Posizione aperta",
-          "pluralLabel": "Posizioni aperte",
+          "label": "Posizione",
+          "pluralLabel": "Posizioni",
           "description": "Ogni posizione con il suo responsabile e la fascia retributiva."
         },
         "applications": {
@@ -2259,11 +2300,11 @@
         "applicants.source": {
           "label": "Fonte",
           "options": {
-            "careers_page": "Pagina carriere",
-            "job_board": "Portale di annunci",
+            "careers_page": "Pagina «Lavora con noi»",
+            "job_board": "Portale di offerte di lavoro",
             "referral": "Segnalazione",
             "linkedin": "LinkedIn",
-            "agency": "Agenzia",
+            "agency": "Agenzia per il lavoro",
             "other": "Altro"
           }
         },
@@ -2272,11 +2313,11 @@
           "options": {}
         },
         "applicants.salary_expectation": {
-          "label": "RAL richiesta",
+          "label": "RAL desiderata",
           "options": {}
         },
         "applicants.pool_consent": {
-          "label": "Consenso banca CV",
+          "label": "Consenso per future selezioni",
           "options": {}
         },
         "jobs.status": {
@@ -2306,7 +2347,7 @@
           "options": {}
         },
         "jobs.apply_by": {
-          "label": "Candidature entro",
+          "label": "Candidarsi entro",
           "options": {}
         },
         "applications.stage": {
@@ -2316,7 +2357,7 @@
             "screening": "Preselezione",
             "interview_1": "Colloquio conoscitivo",
             "interview_2": "Colloquio tecnico",
-            "reference_check": "Referenze",
+            "reference_check": "Verifica delle referenze",
             "offer": "Offerta",
             "hired": "Assunto",
             "rejected": "Scartato",
@@ -2336,7 +2377,7 @@
           "options": {
             "skills": "Competenze",
             "experience": "Esperienza",
-            "salary_mismatch": "Retribuzione non adeguata",
+            "salary_mismatch": "Aspettative retributive non allineate",
             "other_offer": "Ha accettato un'altra offerta",
             "position_filled": "Posizione coperta",
             "other": "Altro"
@@ -2351,7 +2392,7 @@
           "options": {}
         },
         "scorecards.round": {
-          "label": "Giro",
+          "label": "Tipo di colloquio",
           "options": {
             "screening": "Preselezione",
             "interview_1": "Colloquio conoscitivo",
@@ -2391,7 +2432,7 @@
           "targetLabel": "Candidature"
         },
         "application_job": {
-          "sourceLabel": "Posizione aperta",
+          "sourceLabel": "Posizione",
           "targetLabel": "Candidature"
         },
         "scorecard_application": {
@@ -2411,7 +2452,7 @@
           "name": "Tutte le candidature"
         },
         "applications_board": {
-          "name": "Bacheca di selezione"
+          "name": "Board di selezione"
         },
         "jobs_all": {
           "name": "Tutte le posizioni"
@@ -2431,7 +2472,7 @@
           "title": "Attività scadute"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         },
         "applications_funnel": {
           "title": "Candidature per fase"
@@ -2449,7 +2490,7 @@
           "title": "Motivi di scarto"
         },
         "retention_coming": {
-          "title": "Candidature da cancellare o rinnovare a breve"
+          "title": "Candidature da cancellare o con consenso da rinnovare"
         }
       },
       "knowledgePages": {
@@ -2497,8 +2538,14 @@
           "description": ""
         },
         "rejection_retention": {
-          "title": "Fissare la conservazione a 180 giorni quando una candidatura viene scartata",
-          "description": ""
+          "title": "Impostare la data di conservazione a 180 giorni quando una candidatura viene scartata",
+          "description": "",
+          "variants": {
+            "PL": {
+              "title": "Impostare la data di conservazione a 30 giorni quando una candidatura viene scartata (Polonia: più a lungo solo con consenso)",
+              "description": "L'autorità polacca per la protezione dei dati (UODO) si aspetta che i dati del candidato siano cancellati al termine della selezione, salvo consenso del candidato a selezioni future. È un valore predefinito: imposta il termine della tua politica di conservazione e, in caso di consenso, una data successiva a mano."
+            }
+          }
         },
         "job_filled_close": {
           "title": "Scrivere agli altri candidati quando una posizione è coperta",
@@ -2512,15 +2559,15 @@
       "acceptanceChecks": {
         "stage_field": "Ogni candidatura ha una delle nove fasi.",
         "retain_until_field": "Ogni candidatura indica fino a quando viene conservata.",
-        "applications_board_view": "Le candidature si aprono come bacheca per fase."
+        "applications_board_view": "Le candidature si aprono come board per fase."
       },
       "prompt": {
-        "intro": "Imposta nel mio workspace Customermates il tracciamento delle candidature: posizioni con responsabile e fascia retributiva, candidati, candidature in nove fasi, schede di valutazione, una data di conservazione per gli scartati e attività di follow-up con data.",
+        "intro": "Imposta nel mio spazio di lavoro Customermates la gestione delle candidature: posizioni con responsabile e fascia retributiva, candidati, candidature in nove fasi, schede di valutazione, una data di conservazione per le candidature scartate e attività di follow-up con data.",
         "questions": [
-          "Quante posizioni sono aperte contemporaneamente e chi seleziona per ciascuna?",
-          "Da dove arrivano i candidati e usate un modulo di candidatura?",
-          "Per quanto tempo conservate le candidature scartate e tenete una banca CV con consenso?",
-          "Quali giri di colloquio svolgete e chi compila una scheda di valutazione?"
+          "Quante posizioni hai aperte contemporaneamente e chi seleziona per ciascuna?",
+          "Da dove arrivano i candidati e usi un modulo di candidatura?",
+          "Per quanto tempo conservi le candidature scartate e tieni un archivio di candidati (talent pool) con consenso?",
+          "Quali colloqui prevedi e chi compila una scheda di valutazione?"
         ]
       }
     },
@@ -2528,7 +2575,7 @@
       "locale": "nl",
       "name": "Sollicitatiebeheer",
       "summary": "Een wervingsoverzicht voor een klein bedrijf: vacatures, sollicitanten, één sollicitatie per vacature in negen fasen, een beoordelingsformulier per interviewer en een datum om afwijzingen te verwijderen.",
-      "description": "Voer de werving op één plek: elke vacature heeft een status, een leidinggevende en een salarisschaal; elke sollicitatie loopt van ontvangen tot aangenomen of afgewezen, met gesprekstijd, uiterste datum voor antwoord op het aanbod en reden van afwijzing; elke interviewer vult een beoordelingsformulier in. Afgewezen sollicitaties krijgen een bewaardatum zodat u ze op tijd verwijdert of om toestemming vraagt. Geen vacaturesite, geen cv-parser, geen testplatform, geen hulpmiddel voor aanbiedingsbrieven en e-handtekeningen en geen juridisch gezag over bewaartermijnen.",
+      "description": "Beheer de werving op één plek: elke vacature heeft een status, een leidinggevende en een salarisrange; elke sollicitatie loopt van ontvangen tot aangenomen of afgewezen, met gesprekstijd, uiterste datum voor antwoord op het aanbod en reden van afwijzing; elke interviewer vult een beoordelingsformulier in. Afgewezen sollicitaties krijgen een bewaardatum zodat je ze op tijd verwijdert of om toestemming vraagt. Geen vacaturesite, geen cv-parser, geen testplatform, geen hulpmiddel voor aanbiedingsbrieven en e-handtekeningen en geen juridisch advies over bewaartermijnen.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -2538,12 +2585,12 @@
         "applicants": {
           "label": "Sollicitant",
           "pluralLabel": "Sollicitanten",
-          "description": "De mensen die solliciteren, met bron en toestemming voor het talentenbestand."
+          "description": "De mensen die solliciteren, met bron en toestemming voor de talentpool."
         },
         "jobs": {
           "label": "Vacature",
           "pluralLabel": "Vacatures",
-          "description": "Elke open functie met leidinggevende en salarisschaal."
+          "description": "Elke open functie met leidinggevende en salarisrange."
         },
         "applications": {
           "label": "Sollicitatie",
@@ -2561,7 +2608,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -2594,11 +2641,11 @@
           "options": {}
         },
         "applicants.salary_expectation": {
-          "label": "Salarisindicatie",
+          "label": "Salarisverwachting",
           "options": {}
         },
         "applicants.pool_consent": {
-          "label": "Toestemming bewaren",
+          "label": "Toestemming voor talentpool",
           "options": {}
         },
         "jobs.status": {
@@ -2628,7 +2675,7 @@
           "options": {}
         },
         "jobs.apply_by": {
-          "label": "Solliciteren voor",
+          "label": "Solliciteren tot",
           "options": {}
         },
         "applications.stage": {
@@ -2636,9 +2683,9 @@
           "options": {
             "new": "Ontvangen",
             "screening": "Voorselectie",
-            "interview_1": "Telefonisch gesprek",
-            "interview_2": "Sollicitatiegesprek",
-            "reference_check": "Referenties",
+            "interview_1": "Eerste gesprek",
+            "interview_2": "Tweede gesprek",
+            "reference_check": "Referentiecheck",
             "offer": "Aanbod",
             "hired": "Aangenomen",
             "rejected": "Afgewezen",
@@ -2676,8 +2723,8 @@
           "label": "Ronde",
           "options": {
             "screening": "Voorselectie",
-            "interview_1": "Telefonisch gesprek",
-            "interview_2": "Sollicitatiegesprek"
+            "interview_1": "Eerste gesprek",
+            "interview_2": "Tweede gesprek"
           }
         },
         "scorecards.rating": {
@@ -2699,7 +2746,7 @@
             "acknowledge": "Ontvangst bevestigen",
             "screen": "Sollicitatie voorselecteren",
             "schedule_interview": "Gesprek inplannen",
-            "collect_scorecards": "Beoordelingsformulieren ophalen",
+            "collect_scorecards": "Beoordelingsformulieren verzamelen",
             "chase_offer": "Antwoord op aanbod opvragen",
             "close_message": "Afsluitend bericht sturen",
             "retention_review": "Bewaartermijn nalopen",
@@ -2722,7 +2769,7 @@
         },
         "action_application": {
           "sourceLabel": "Sollicitatie",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         }
       },
       "views": {
@@ -2771,7 +2818,7 @@
           "title": "Redenen van afwijzing"
         },
         "retention_coming": {
-          "title": "Sollicitaties die binnenkort weg of verlengd moeten"
+          "title": "Sollicitaties die binnenkort verwijderd of verlengd moeten worden"
         }
       },
       "knowledgePages": {
@@ -2799,35 +2846,41 @@
       },
       "rules": {
         "application_form_records": {
-          "title": "Sollicitant en sollicitatie aanmaken zodra het sollicitatieformulier is ingediend",
+          "title": "Maak een sollicitant en een sollicitatie aan zodra het sollicitatieformulier is ingediend",
           "description": ""
         },
         "acknowledge_application": {
-          "title": "Een nieuwe sollicitatie binnen 2 dagen bevestigen",
+          "title": "Bevestig een nieuwe sollicitatie binnen 2 dagen",
           "description": ""
         },
         "collect_scorecards": {
-          "title": "De beoordelingsformulieren ophalen op de dag van het gesprek",
+          "title": "Verzamel de beoordelingsformulieren op de dag van het gesprek",
           "description": ""
         },
         "scorecard_reminder": {
-          "title": "De verantwoordelijke de dag na een gesprek herinneren",
+          "title": "Stuur de verantwoordelijke de dag na een gesprek een herinnering",
           "description": ""
         },
         "chase_offer": {
-          "title": "5 dagen na een aanbod naar het antwoord vragen",
+          "title": "Vraag 5 dagen na een aanbod naar het antwoord",
           "description": ""
         },
         "rejection_retention": {
-          "title": "De bewaardatum op 180 dagen zetten als een sollicitatie wordt afgewezen",
-          "description": ""
+          "title": "Zet de bewaardatum op 180 dagen als een sollicitatie wordt afgewezen",
+          "description": "",
+          "variants": {
+            "PL": {
+              "title": "Zet de bewaardatum op 30 dagen als een sollicitatie wordt afgewezen (Polen: langer alleen met toestemming)",
+              "description": "De Poolse toezichthouder (UODO) verwacht dat sollicitantgegevens worden verwijderd zodra de procedure is afgerond, tenzij de kandidaat toestemming gaf voor toekomstige procedures. Dit is een standaardwaarde: stel de termijn van je eigen bewaarbeleid in en bij toestemming handmatig een latere datum."
+            }
+          }
         },
         "job_filled_close": {
-          "title": "De overige kandidaten berichten als een vacature is vervuld",
+          "title": "Stuur de overige kandidaten een afsluitend bericht als een vacature is vervuld",
           "description": ""
         },
         "retention_review": {
-          "title": "Een sollicitatie nalopen als de bewaardatum is bereikt",
+          "title": "Loop een sollicitatie na als de bewaardatum is bereikt",
           "description": ""
         }
       },
@@ -2837,20 +2890,20 @@
         "applications_board_view": "De sollicitaties openen als bord per fase."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-workspace sollicitatiebeheer in: vacatures met leidinggevende en salarisschaal, sollicitanten, sollicitaties in negen fasen, beoordelingsformulieren voor gesprekken, een bewaardatum voor afwijzingen en opvolging met datum.",
+        "intro": "Richt in mijn Customermates-werkruimte sollicitatiebeheer in: vacatures met leidinggevende en salarisrange, sollicitanten, sollicitaties in negen fasen, beoordelingsformulieren voor gesprekken, een bewaardatum voor afwijzingen en opvolging met datum.",
         "questions": [
           "Hoeveel vacatures staan er tegelijk open en wie neemt voor elke vacature aan?",
-          "Waar komen sollicitanten vandaan en gebruikt u een sollicitatieformulier?",
-          "Hoe lang bewaart u afgewezen sollicitaties en houdt u een talentenbestand bij met toestemming?",
-          "Welke gespreksrondes houdt u en wie vult een beoordelingsformulier in?"
+          "Waar komen sollicitanten vandaan en gebruik je een sollicitatieformulier?",
+          "Hoe lang bewaar je afgewezen sollicitaties en houd je een talentpool bij met toestemming?",
+          "Welke gespreksrondes houd je en wie vult een beoordelingsformulier in?"
         ]
       }
     },
     "pl": {
       "locale": "pl",
       "name": "Śledzenie kandydatów",
-      "summary": "Narzędzie rekrutacyjne dla małej firmy: oferty pracy, kandydaci, jedna aplikacja na ofertę w dziewięciu etapach, karta oceny każdego rekrutera i data usunięcia odrzuconych aplikacji.",
-      "description": "Prowadź rekrutację w jednym miejscu: każda oferta ma status, osobę prowadzącą i widełki wynagrodzenia; każda aplikacja przechodzi od otrzymanej do zatrudnionej lub odrzuconej, z terminem rozmowy, terminem odpowiedzi na ofertę i powodem odrzucenia; każdy rekruter wypełnia kartę oceny. Odrzucone aplikacje dostają datę przechowywania, żebyś pamiętał o usunięciu ich lub o zgodzie. To nie portal z ogłoszeniami, parser CV, platforma testów, narzędzie do ofert i podpisów elektronicznych ani źródło prawnej wiedzy o okresach przechowywania.",
+      "summary": "Narzędzie rekrutacyjne dla małej firmy: oferty pracy, kandydaci, jedna aplikacja na ofertę w dziewięciu etapach, karta oceny każdej osoby prowadzącej rozmowę i data usunięcia odrzuconych aplikacji.",
+      "description": "Prowadź rekrutację w jednym miejscu: każda oferta ma status, przyszłego przełożonego i widełki wynagrodzenia; każda aplikacja przechodzi od otrzymanej do zatrudnionej lub odrzuconej, z terminem rozmowy, terminem odpowiedzi na ofertę i powodem odrzucenia; każda osoba prowadząca rozmowę wypełnia kartę oceny. Odrzucone aplikacje dostają datę przechowywania, żeby nie zapomnieć o ich usunięciu albo o uzyskaniu zgody. To nie jest portal z ogłoszeniami, parser CV, platforma do testów kompetencji, narzędzie do ofert zatrudnienia i podpisów elektronicznych ani doradca prawny w sprawie okresów przechowywania danych.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -2865,7 +2918,7 @@
         "jobs": {
           "label": "Oferta pracy",
           "pluralLabel": "Oferty pracy",
-          "description": "Każde otwarte stanowisko z osobą prowadzącą i widełkami wynagrodzenia."
+          "description": "Każde otwarte stanowisko z przyszłym przełożonym i widełkami wynagrodzenia."
         },
         "applications": {
           "label": "Aplikacja",
@@ -2875,7 +2928,7 @@
         "scorecards": {
           "label": "Karta oceny",
           "pluralLabel": "Karty ocen",
-          "description": "Ocena i rekomendacja jednego rekrutera dla jednej aplikacji."
+          "description": "Ocena i rekomendacja jednej osoby prowadzącej rozmowę dla jednej aplikacji."
         }
       },
       "fields": {
@@ -2893,7 +2946,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -2938,7 +2991,7 @@
           "options": {}
         },
         "jobs.hiring_manager": {
-          "label": "Przełożony rekrutujący",
+          "label": "Przyszły przełożony",
           "options": {}
         },
         "jobs.pay_min": {
@@ -2950,7 +3003,7 @@
           "options": {}
         },
         "jobs.apply_by": {
-          "label": "Aplikuj do",
+          "label": "Termin składania aplikacji",
           "options": {}
         },
         "applications.stage": {
@@ -2958,9 +3011,9 @@
           "options": {
             "new": "Otrzymana",
             "screening": "Wstępna selekcja",
-            "interview_1": "Rozmowa telefoniczna",
+            "interview_1": "Rozmowa wstępna",
             "interview_2": "Rozmowa kwalifikacyjna",
-            "reference_check": "Referencje",
+            "reference_check": "Weryfikacja referencji",
             "offer": "Oferta",
             "hired": "Zatrudniony",
             "rejected": "Odrzucona",
@@ -2972,7 +3025,7 @@
           "options": {}
         },
         "applications.offer_decision_due": {
-          "label": "Odpowiedź na ofertę do",
+          "label": "Termin odpowiedzi na ofertę",
           "options": {}
         },
         "applications.rejection_reason": {
@@ -2980,7 +3033,7 @@
           "options": {
             "skills": "Umiejętności",
             "experience": "Doświadczenie",
-            "salary_mismatch": "Niedopasowane wynagrodzenie",
+            "salary_mismatch": "Rozbieżne oczekiwania finansowe",
             "other_offer": "Przyjął inną ofertę",
             "position_filled": "Stanowisko obsadzone",
             "other": "Inny"
@@ -2991,14 +3044,14 @@
           "options": {}
         },
         "scorecards.interviewer": {
-          "label": "Rekruter",
+          "label": "Osoba prowadząca rozmowę",
           "options": {}
         },
         "scorecards.round": {
           "label": "Runda",
           "options": {
             "screening": "Wstępna selekcja",
-            "interview_1": "Rozmowa telefoniczna",
+            "interview_1": "Rozmowa wstępna",
             "interview_2": "Rozmowa kwalifikacyjna"
           }
         },
@@ -3093,7 +3146,7 @@
           "title": "Powody odrzucenia"
         },
         "retention_coming": {
-          "title": "Aplikacje do usunięcia lub odnowienia zgody wkrótce"
+          "title": "Wkrótce do usunięcia lub odnowienia zgody"
         }
       },
       "knowledgePages": {
@@ -3108,7 +3161,7 @@
           "title": "Formularz aplikacyjny i przechowywanie danych",
           "sections": [
             "Jakie dane zbieramy i klauzula informacyjna",
-            "Jak długo trzymamy odrzucone aplikacje"
+            "Jak długo przechowujemy odrzucone aplikacje"
           ]
         },
         "candidate_messages": {
@@ -3121,35 +3174,41 @@
       },
       "rules": {
         "application_form_records": {
-          "title": "Utworzyć kandydata i aplikację po wysłaniu formularza aplikacyjnego",
+          "title": "Utwórz kandydata i aplikację po wysłaniu formularza aplikacyjnego",
           "description": ""
         },
         "acknowledge_application": {
-          "title": "Potwierdzić nową aplikację w ciągu 2 dni",
+          "title": "Potwierdź otrzymanie nowej aplikacji w ciągu 2 dni",
           "description": ""
         },
         "collect_scorecards": {
-          "title": "Zebrać karty ocen w dniu rozmowy",
+          "title": "Zbierz karty ocen w dniu rozmowy",
           "description": ""
         },
         "scorecard_reminder": {
-          "title": "Przypomnieć osobie odpowiedzialnej dzień po rozmowie",
+          "title": "Przypomnij osobie odpowiedzialnej dzień po rozmowie",
           "description": ""
         },
         "chase_offer": {
-          "title": "Ponaglić odpowiedź 5 dni po ofercie",
+          "title": "Ponagl kandydata o odpowiedź 5 dni po złożeniu oferty",
           "description": ""
         },
         "rejection_retention": {
-          "title": "Ustawić datę przechowywania na 180 dni po odrzuceniu aplikacji",
-          "description": ""
+          "title": "Ustaw datę przechowywania na 180 dni po odrzuceniu aplikacji",
+          "description": "",
+          "variants": {
+            "PL": {
+              "title": "Ustaw datę przechowywania na 30 dni po odrzuceniu aplikacji (dłużej tylko za zgodą kandydata)",
+              "description": "Według poradnika UODO dane kandydata usuwa się po zakończeniu rekrutacji, chyba że kandydat zgodził się na udział w przyszłych rekrutacjach. To ustawienie domyślne: ustaw termin zgodny z polityką retencji firmy, a przy zgodzie kandydata późniejszą datę wpisz ręcznie."
+            }
+          }
         },
         "job_filled_close": {
-          "title": "Napisać do pozostałych kandydatów, gdy oferta zostanie obsadzona",
+          "title": "Napisz do pozostałych kandydatów, gdy oferta zostanie obsadzona",
           "description": ""
         },
         "retention_review": {
-          "title": "Sprawdzić aplikację, gdy nadejdzie jej data przechowywania",
+          "title": "Sprawdź aplikację, gdy nadejdzie jej data przechowywania",
           "description": ""
         }
       },
@@ -3159,11 +3218,11 @@
         "applications_board_view": "Aplikacje otwierają się jako tablica według etapu."
       },
       "prompt": {
-        "intro": "Skonfiguruj w moim workspace Customermates śledzenie kandydatów: oferty pracy z przełożonym i widełkami wynagrodzenia, kandydaci, aplikacje w dziewięciu etapach, karty ocen z rozmów, data przechowywania odrzuconych aplikacji i zaplanowane kontakty uzupełniające.",
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates śledzenie kandydatów: oferty pracy z przyszłym przełożonym i widełkami wynagrodzenia, kandydaci, aplikacje w dziewięciu etapach, karty ocen z rozmów, data przechowywania odrzuconych aplikacji i zaplanowane kolejne kroki.",
         "questions": [
           "Ile ofert jest otwartych jednocześnie i kto rekrutuje na każdą z nich?",
           "Skąd przychodzą kandydaci i czy używasz formularza aplikacyjnego?",
-          "Jak długo trzymasz odrzucone aplikacje i czy prowadzisz bazę talentów za zgodą?",
+          "Jak długo przechowujesz odrzucone aplikacje i czy prowadzisz bazę talentów za zgodą?",
           "Jakie rundy rozmów prowadzisz i kto wypełnia kartę oceny?"
         ]
       }
@@ -3172,7 +3231,7 @@
       "locale": "pt",
       "name": "Acompanhamento de candidaturas",
       "summary": "Um acompanhamento de seleção para uma pequena empresa: vagas, candidatos, uma candidatura por vaga em nove etapas, uma avaliação por entrevistador e uma data para excluir os reprovados.",
-      "description": "Conduza a seleção em um só lugar: cada vaga tem situação, gestor e faixa salarial; cada candidatura avança de recebida a admitido ou reprovado, com data da entrevista, prazo de resposta à proposta e motivo da reprovação; cada entrevistador preenche uma avaliação. As candidaturas reprovadas recebem uma data de guarda para você lembrar de excluí-las ou pedir consentimento. Não é um site de vagas, um leitor de currículos, uma plataforma de testes, uma ferramenta de carta-proposta e assinatura eletrônica nem uma autoridade jurídica sobre prazos de guarda.",
+      "description": "Conduza a seleção em um só lugar: cada vaga tem status, gestor e faixa salarial; cada candidatura avança de recebida a admitido ou reprovado, com data da entrevista, prazo de resposta à proposta e motivo da reprovação; cada entrevistador preenche uma avaliação. As candidaturas reprovadas recebem uma data de guarda para você lembrar de excluí-las ou pedir consentimento. Não é um site de vagas, um leitor de currículos, uma plataforma de testes, uma ferramenta de carta-proposta e assinatura eletrônica nem uma autoridade jurídica sobre prazos de guarda.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -3242,11 +3301,11 @@
           "options": {}
         },
         "applicants.pool_consent": {
-          "label": "Consentimento banco de talentos",
+          "label": "Consentimento para o banco de talentos",
           "options": {}
         },
         "jobs.status": {
-          "label": "Situação",
+          "label": "Status",
           "options": {
             "draft": "Rascunho",
             "open": "Aberta",
@@ -3343,7 +3402,7 @@
             "acknowledge": "Confirmar o recebimento",
             "screen": "Fazer a triagem da candidatura",
             "schedule_interview": "Agendar uma entrevista",
-            "collect_scorecards": "Recolher as avaliações",
+            "collect_scorecards": "Coletar as avaliações",
             "chase_offer": "Cobrar a resposta à proposta",
             "close_message": "Enviar uma mensagem de encerramento",
             "retention_review": "Revisar a guarda dos dados",
@@ -3451,7 +3510,7 @@
           "description": ""
         },
         "collect_scorecards": {
-          "title": "Recolher as avaliações no dia da entrevista",
+          "title": "Coletar as avaliações no dia da entrevista",
           "description": ""
         },
         "scorecard_reminder": {
@@ -3464,7 +3523,13 @@
         },
         "rejection_retention": {
           "title": "Definir a guarda em 180 dias quando uma candidatura é reprovada",
-          "description": ""
+          "description": "",
+          "variants": {
+            "PL": {
+              "title": "Definir a guarda em 30 dias quando uma candidatura é reprovada (Polônia: mais tempo só com consentimento)",
+              "description": "A autoridade polonesa de proteção de dados (UODO) espera que os dados do candidato sejam excluídos ao fim do processo, salvo consentimento para processos futuros. É um valor padrão: defina o prazo da sua própria política de retenção e, havendo consentimento, uma data posterior à mão."
+            }
+          }
         },
         "job_filled_close": {
           "title": "Escrever aos demais candidatos quando uma vaga é preenchida",
@@ -3481,7 +3546,7 @@
         "applications_board_view": "As candidaturas abrem como quadro por etapa."
       },
       "prompt": {
-        "intro": "Configure no meu workspace do Customermates um acompanhamento de candidaturas: vagas com gestor e faixa salarial, candidatos, candidaturas em nove etapas, avaliações de entrevista, uma data de guarda para os reprovados e acompanhamentos com data.",
+        "intro": "Configure no meu espaço de trabalho do Customermates um acompanhamento de candidaturas: vagas com gestor e faixa salarial, candidatos, candidaturas em nove etapas, avaliações de entrevista, uma data de guarda para os reprovados e acompanhamentos com data.",
         "questions": [
           "Quantas vagas ficam abertas ao mesmo tempo e quem contrata para cada uma?",
           "De onde vêm os candidatos e você usa um formulário de candidatura?",

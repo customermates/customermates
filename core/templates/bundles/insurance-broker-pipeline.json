@@ -1324,7 +1324,7 @@
         },
         "opportunities": {
           "label": "Anfrage",
-          "pluralLabel": "Neugeschäft (Anfragen)",
+          "pluralLabel": "Anfragen",
           "description": "Neugeschäft von der ersten Anfrage bis zur Police oder zum Verlust."
         },
         "policies": {
@@ -1334,7 +1334,7 @@
         },
         "renewals": {
           "label": "Verlängerung",
-          "pluralLabel": "Hauptfälligkeiten (Verlängerungen)",
+          "pluralLabel": "Verlängerungen",
           "description": "Der jährliche Verlängerungsfall eines Vertrags."
         }
       },
@@ -1403,7 +1403,7 @@
             "liability": "Haftpflicht",
             "legal_expenses": "Rechtsschutz",
             "life_pension": "Leben und Altersvorsorge",
-            "health": "Kranken",
+            "health": "Krankenversicherung",
             "commercial_property": "Gewerbliche Sachversicherung",
             "commercial_liability": "Betriebshaftpflicht",
             "cyber": "Cyber",
@@ -1468,7 +1468,7 @@
             "liability": "Haftpflicht",
             "legal_expenses": "Rechtsschutz",
             "life_pension": "Leben und Altersvorsorge",
-            "health": "Kranken",
+            "health": "Krankenversicherung",
             "commercial_property": "Gewerbliche Sachversicherung",
             "commercial_liability": "Betriebshaftpflicht",
             "cyber": "Cyber",
@@ -1487,7 +1487,7 @@
           "options": {
             "pending": "Beantragt",
             "active": "Aktiv",
-            "lapsed": "Beitragsfrei oder erloschen",
+            "lapsed": "Erloschen",
             "cancelled": "Gekündigt"
           }
         },
@@ -1528,7 +1528,7 @@
           "options": {}
         },
         "renewals.decision_on": {
-          "label": "Kunde entschieden am",
+          "label": "Entscheidung des Kunden am",
           "options": {}
         },
         "renewals.premium_change_percent": {
@@ -1567,7 +1567,7 @@
       "relationships": {
         "opportunity_contact": {
           "sourceLabel": "Ansprechpartner",
-          "targetLabel": "Neugeschäft (Anfragen)"
+          "targetLabel": "Anfragen"
         },
         "policy_contact": {
           "sourceLabel": "Versicherungsnehmer",
@@ -1579,7 +1579,7 @@
         },
         "renewal_policy": {
           "sourceLabel": "Vertrag",
-          "targetLabel": "Hauptfälligkeiten (Verlängerungen)"
+          "targetLabel": "Verlängerungen"
         },
         "action_opportunity": {
           "sourceLabel": "Anfrage",
@@ -1736,10 +1736,10 @@
       "prompt": {
         "intro": "Richte in meinem Customermates-Workspace eine Pipeline für den Versicherungsmakler ein: Neugeschäft von der Anfrage bis zur Police mit dokumentierter Beratung vor dem Angebot, Verträge mit Hauptfälligkeit und je einen Verlängerungsfall, und terminierte Folgeaufgaben. Speichere keine Gesundheitsdaten, Schadendetails oder Ausweiskopien.",
         "questions": [
-          "Welche Sparten vermitteln Sie, und betreuen Sie Gewerbekunden, Privatkunden oder beide?",
-          "Wie lange vor der Hauptfälligkeit beginnen Sie die Verlängerung, und wie lang ist die übliche Kündigungsfrist?",
-          "Wo bewahren Sie Beratungsprotokoll und Vertragsdaten auf? Hier stehen nur Links.",
-          "In welchem Land arbeiten Sie, und welche Beratungspflichten gelten für Sie?"
+          "Welche Sparten vermittelst du, und betreust du Gewerbekunden, Privatkunden oder beide?",
+          "Wie lange vor der Hauptfälligkeit beginnst du die Verlängerung, und wie lang ist die übliche Kündigungsfrist?",
+          "Wo bewahrst du Beratungsprotokoll und Vertragsdaten auf? Hier stehen nur Links.",
+          "In welchem Land arbeitest du, und welche Beratungspflichten gelten für dich?"
         ]
       }
     },
@@ -2115,7 +2115,7 @@
       },
       "rules": {
         "enquiry_form_records": {
-          "title": "Create the contact and the opportunity when the enquiry form is submitted",
+          "title": "Create the contact and the opportunity when the inquiry form is submitted",
           "description": ""
         },
         "respond_new_lead": {
@@ -2184,7 +2184,7 @@
       "locale": "es",
       "name": "Correduría de seguros",
       "summary": "Dos pipelines para una correduría de seguros: nuevo negocio de la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, y un caso de renovación para cada póliza que empieza de 120 a 45 días antes del vencimiento.",
-      "description": "Lleve el nuevo negocio y las renovaciones a la vez: oportunidades de la primera consulta al análisis de necesidades, la solicitud de ofertas, la propuesta y la decisión hasta la póliza activa, una fecha de asesoramiento documentado en cada propuesta, y pólizas con su vencimiento que abren solas un caso de renovación. Guarda una referencia al registro del asesoramiento y a la póliza en su programa de gestión, nunca datos de salud, detalles de siniestros, datos bancarios ni copias de documentos de identidad. No es administración de pólizas, un comparador o tarificador, tramitación de siniestros ni conciliación de comisiones.",
+      "description": "Lleva el nuevo negocio y las renovaciones a la vez: oportunidades de la primera consulta al análisis de necesidades, la solicitud de ofertas, la propuesta y la decisión hasta la póliza activa, una fecha de asesoramiento documentado en cada propuesta, y pólizas con su vencimiento que abren solas un caso de renovación. Guarda una referencia al registro del asesoramiento y a la póliza en tu programa de gestión, nunca datos de salud, detalles de siniestros, datos bancarios ni copias de documentos de identidad. No es administración de pólizas, un comparador o tarificador, tramitación de siniestros ni conciliación de comisiones.",
       "lists": {
         "actions": {
           "label": "Tarea",
@@ -2312,11 +2312,11 @@
           "options": {}
         },
         "opportunities.next_step_due": {
-          "label": "Siguiente paso antes de",
+          "label": "Fecha del siguiente paso",
           "options": {}
         },
         "opportunities.lost_reason": {
-          "label": "Motivo de la pérdida",
+          "label": "Motivo de pérdida",
           "options": {
             "price": "Precio",
             "coverage_not_matching": "Coberturas inadecuadas",
@@ -2414,7 +2414,7 @@
           "options": {}
         },
         "renewals.lost_reason": {
-          "label": "Motivo de la pérdida",
+          "label": "Motivo de pérdida",
           "options": {
             "price": "Precio",
             "switched_broker": "Cambió de correduría",
@@ -2522,10 +2522,10 @@
       },
       "knowledgePages": {
         "operating_guide": {
-          "title": "Cómo funciona el puesto de la correduría",
+          "title": "Cómo funciona el día a día de la correduría",
           "sections": [
             "Los dos pipelines: nuevo negocio y renovaciones",
-            "Quién responsable de cada fase y la regla de una tarea con fecha por elemento abierto"
+            "Quién es responsable de cada fase y la regla de una tarea con fecha por elemento abierto"
           ]
         },
         "advice_documentation": {
@@ -2545,7 +2545,7 @@
         "policy_data_rules": {
           "title": "Datos de pólizas: qué queda en el programa de gestión",
           "sections": [
-            "La verdad de la póliza y los extractos de comisiones quedan en el programa de gestión",
+            "Los datos de referencia de la póliza y los extractos de comisiones quedan en el programa de gestión",
             "Qué guarda este espacio y qué no guarda nunca"
           ]
         }
@@ -2568,7 +2568,7 @@
           "description": ""
         },
         "offer_follow_up": {
-          "title": "Dar seguimiento el día después de presentar una propuesta",
+          "title": "Hacer seguimiento al día siguiente de presentar una propuesta",
           "description": ""
         },
         "bound_welcome": {
@@ -2608,20 +2608,20 @@
         "advice_documentation_page": "La base de conocimiento contiene una página sobre la documentación del asesoramiento."
       },
       "prompt": {
-        "intro": "Configura en mi espacio de Customermates un pipeline para una correduría de seguros: nuevo negocio de la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, pólizas con vencimiento y un caso de renovación para cada una, y seguimientos con fecha. No guardes datos de salud, detalles de siniestros ni copias de documentos de identidad.",
+        "intro": "Configura en mi espacio de trabajo de Customermates un pipeline para una correduría de seguros: nuevo negocio de la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, pólizas con vencimiento y un caso de renovación para cada una, y seguimientos con fecha. No guardes datos de salud, detalles de siniestros ni copias de documentos de identidad.",
         "questions": [
-          "¿Qué ramos coloca y atiende a empresas, a particulares o a ambos?",
+          "¿Qué ramos colocas y atiendes a empresas, a particulares o a ambos?",
           "¿Con cuánta antelación al vencimiento empieza una renovación y cuál es el preaviso habitual?",
-          "¿Dónde guarda el registro del asesoramiento y los datos de las pólizas? Aquí solo se guardan enlaces.",
-          "¿En qué país trabaja y qué deberes de asesoramiento le afectan?"
+          "¿Dónde guardas el registro del asesoramiento y los datos de las pólizas? Aquí solo se guardan enlaces.",
+          "¿En qué país trabajas y qué deberes de asesoramiento te afectan?"
         ]
       }
     },
     "fr": {
       "locale": "fr",
       "name": "Courtier en assurance",
-      "summary": "Deux pipelines pour un courtier en assurance : affaires nouvelles de la demande à l'émission avec le conseil documenté avant la proposition, et un dossier de renouvellement pour chaque contrat qui démarre 120 à 45 jours avant l'échéance.",
-      "description": "Menez les affaires nouvelles et les renouvellements côte à côte : affaires de la première demande à l'analyse des besoins, à la consultation des assureurs, à la proposition et à la décision jusqu'au contrat émis, une date de conseil documenté sur chaque proposition, et des contrats avec leur échéance principale qui ouvrent d'eux-mêmes un dossier de renouvellement. Le modèle garde un renvoi vers la trace du conseil et vers le contrat dans votre logiciel de cabinet, jamais de données de santé, de détails de sinistres, de coordonnées bancaires ni de copies de pièces d'identité. Ce n'est ni de la gestion de contrats, ni un comparateur ou un tarificateur, ni de la gestion de sinistres, ni un rapprochement de commissions.",
+      "summary": "Deux pipelines pour un courtier en assurance : affaires nouvelles de la demande à l’émission avec le conseil documenté avant la proposition, et un dossier de renouvellement pour chaque contrat qui s’ouvre de 120 à 45 jours avant l’échéance.",
+      "description": "Menez les affaires nouvelles et les renouvellements côte à côte : affaires de la première demande à l’analyse des besoins, à la consultation des assureurs, à la proposition et à la décision jusqu’au contrat émis, une date de conseil documenté sur chaque proposition, et des contrats avec leur échéance principale qui ouvrent d’eux-mêmes un dossier de renouvellement. Il conserve un renvoi vers la trace du conseil et vers le contrat dans votre logiciel de cabinet, jamais de données de santé, de détails de sinistres, de coordonnées bancaires ni de copies de pièces d’identité. Ce n’est ni de la gestion de contrats, ni un comparateur ou un tarificateur, ni de la gestion de sinistres, ni un rapprochement de commissions.",
       "lists": {
         "actions": {
           "label": "Action",
@@ -2636,7 +2636,7 @@
         "opportunities": {
           "label": "Affaire nouvelle",
           "pluralLabel": "Affaires nouvelles",
-          "description": "Une affaire nouvelle de la première demande à l'émission ou à la perte."
+          "description": "Une affaire nouvelle de la première demande à l’émission ou à la perte."
         },
         "policies": {
           "label": "Contrat",
@@ -2646,7 +2646,7 @@
         "renewals": {
           "label": "Renouvellement",
           "pluralLabel": "Renouvellements (échéances)",
-          "description": "Le dossier de renouvellement annuel d'un contrat."
+          "description": "Le dossier de renouvellement annuel d’un contrat."
         }
       },
       "fields": {
@@ -2753,18 +2753,18 @@
           "options": {}
         },
         "opportunities.lost_reason": {
-          "label": "Raison de la perte",
+          "label": "Motif de perte",
           "options": {
             "price": "Prix",
             "coverage_not_matching": "Garanties inadaptées",
-            "stayed_with_current": "Reste chez l'assureur actuel",
+            "stayed_with_current": "Reste chez l’assureur actuel",
             "no_response": "Sans réponse",
-            "declined_by_carrier": "Refusé par l'assureur",
+            "declined_by_carrier": "Refusé par l’assureur",
             "timing": "Calendrier"
           }
         },
         "opportunities.producer": {
-          "label": "Chargé d'affaire",
+          "label": "Chargé d’affaires",
           "options": {}
         },
         "policies.policy_ref": {
@@ -2796,7 +2796,7 @@
         "policies.status": {
           "label": "Statut",
           "options": {
-            "pending": "En attente d'émission",
+            "pending": "En attente d’émission",
             "active": "Actif",
             "lapsed": "Résilié par défaut de paiement",
             "cancelled": "Résilié"
@@ -2851,11 +2851,11 @@
           "options": {}
         },
         "renewals.lost_reason": {
-          "label": "Raison de la perte",
+          "label": "Motif de perte",
           "options": {
             "price": "Prix",
             "switched_broker": "A changé de courtier",
-            "switched_carrier": "A changé d'assureur",
+            "switched_carrier": "A changé d’assureur",
             "business_closed": "Activité arrêtée",
             "no_response": "Sans réponse",
             "other": "Autre"
@@ -2866,7 +2866,7 @@
           "options": {
             "call": "Appeler",
             "send_quote": "Envoyer la proposition",
-            "chase_carrier": "Relancer l'assureur",
+            "chase_carrier": "Relancer l’assureur",
             "advice_record": "Consigner le conseil",
             "renewal_review": "Revoir le renouvellement",
             "cross_sell": "Revue de vente croisée",
@@ -2954,42 +2954,42 @@
           "title": "Prime annuelle des contrats actifs"
         },
         "lost_reasons": {
-          "title": "Pourquoi des affaires sont perdues"
+          "title": "Motifs de perte des affaires"
         }
       },
       "knowledgePages": {
         "operating_guide": {
-          "title": "Comment fonctionne le poste de courtage",
+          "title": "Comment fonctionne le cabinet de courtage",
           "sections": [
-            "Les deux pipelines : affaires nouvelles et renouvellements",
-            "Qui est responsable de quelle étape et la règle d'une action datée par élément ouvert"
+            "Les deux pipelines : affaires nouvelles et renouvellements",
+            "Qui est responsable de quelle étape et la règle d’une action datée par élément ouvert"
           ]
         },
         "advice_documentation": {
           "title": "Analyse des besoins et traçabilité du conseil",
           "sections": [
             "Ce qui est demandé et consigné avant une proposition",
-            "Où se trouve la trace : seul un renvoi est conservé ici"
+            "Où se trouve la trace : seul un renvoi est conservé ici"
           ]
         },
         "renewal_playbook": {
           "title": "Guide du renouvellement",
           "sections": [
-            "Professionnels dès 120 jours, particuliers dès 45 jours avant l'échéance",
+            "Professionnels dès 120 jours, particuliers dès 45 jours avant l’échéance",
             "Revue, consultation du marché, proposition et décision avant la date de préavis"
           ]
         },
         "policy_data_rules": {
-          "title": "Données des contrats : ce qui reste dans le logiciel de cabinet",
+          "title": "Données des contrats : ce qui reste dans le logiciel de cabinet",
           "sections": [
-            "La vérité du contrat et les relevés de commissions restent dans le logiciel de cabinet",
-            "Ce que cet espace garde et ce qu'il ne détient jamais"
+            "Les données de référence des contrats et les relevés de commissions restent dans le logiciel de cabinet",
+            "Ce que cet espace garde et ce qu’il ne détient jamais"
           ]
         }
       },
       "rules": {
         "enquiry_form_records": {
-          "title": "Créer le contact et l'affaire quand le formulaire de demande est envoyé",
+          "title": "Créer le contact et l’affaire quand le formulaire de demande est envoyé",
           "description": ""
         },
         "respond_new_lead": {
@@ -2997,7 +2997,7 @@
           "description": ""
         },
         "needs_analysis_task": {
-          "title": "Consigner le conseil sous 3 jours quand une affaire atteint l'analyse des besoins",
+          "title": "Consigner le conseil sous 3 jours quand une affaire atteint l’analyse des besoins",
           "description": ""
         },
         "quotes_chase": {
@@ -3005,23 +3005,23 @@
           "description": ""
         },
         "offer_follow_up": {
-          "title": "Relancer le lendemain de la présentation d'une proposition",
+          "title": "Relancer le lendemain de la présentation d’une proposition",
           "description": ""
         },
         "bound_welcome": {
-          "title": "Appeler le client une semaine après l'émission du contrat",
+          "title": "Appeler le client une semaine après l’émission du contrat",
           "description": ""
         },
         "renewal_commercial": {
-          "title": "Ouvrir un dossier de renouvellement 120 jours avant l'échéance d'un contrat professionnel actif",
+          "title": "Ouvrir un dossier de renouvellement 120 jours avant l’échéance d’un contrat professionnel actif",
           "description": ""
         },
         "renewal_personal": {
-          "title": "Ouvrir un dossier de renouvellement 45 jours avant l'échéance d'un contrat de particulier actif",
+          "title": "Ouvrir un dossier de renouvellement 45 jours avant l’échéance d’un contrat de particulier actif",
           "description": ""
         },
         "renewal_review_task": {
-          "title": "Revoir le renouvellement dans la semaine suivant l'ouverture du dossier",
+          "title": "Revoir le renouvellement dans la semaine suivant l’ouverture du dossier",
           "description": ""
         },
         "renewal_offer_chase": {
@@ -3029,7 +3029,7 @@
           "description": ""
         },
         "decision_deadline_notice": {
-          "title": "Prévenir le responsable 30 jours avant l'échéance pour confirmer la décision du client",
+          "title": "Prévenir le responsable 30 jours avant l’échéance pour confirmer la décision du client",
           "description": ""
         },
         "unpaid_premium_notice": {
@@ -3041,24 +3041,24 @@
         "opportunity_stage_field": "Chaque affaire nouvelle a une étape.",
         "advice_documented_field": "Chaque affaire indique quand le conseil a été documenté.",
         "renewal_date_field": "Chaque contrat indique son échéance principale.",
-        "renewals_board_view": "Les renouvellements s'ouvrent en tableau par étape.",
+        "renewals_board_view": "Les renouvellements s’ouvrent en board par étape.",
         "advice_documentation_page": "La base de connaissances contient une page sur la traçabilité du conseil."
       },
       "prompt": {
-        "intro": "Mets en place dans mon espace Customermates un pipeline pour un courtier en assurance : affaires nouvelles de la demande à l'émission avec le conseil documenté avant la proposition, contrats avec échéance principale et un dossier de renouvellement pour chacun, et relances datées. Ne stocke ni données de santé, ni détails de sinistres, ni copies de pièces d'identité.",
+        "intro": "Mets en place dans mon espace de travail Customermates un pipeline pour un courtier en assurance : affaires nouvelles de la demande à l’émission avec le conseil documenté avant la proposition, contrats avec échéance principale et un dossier de renouvellement pour chacun, et relances datées. Ne stocke ni données de santé, ni détails de sinistres, ni copies de pièces d’identité.",
         "questions": [
-          "Quelles branches placez-vous, et servez-vous des professionnels, des particuliers ou les deux ?",
-          "Combien de temps avant l'échéance démarrez-vous un renouvellement, et quel est le préavis habituel ?",
-          "Où conservez-vous la trace du conseil et les données des contrats ? Seuls des liens sont gardés ici.",
-          "Dans quel pays travaillez-vous, et quelles obligations de conseil s'appliquent à vous ?"
+          "Quelles branches placez-vous, et servez-vous des professionnels, des particuliers ou les deux ?",
+          "Combien de temps avant l’échéance démarrez-vous un renouvellement, et quel est le préavis habituel ?",
+          "Où conservez-vous la trace du conseil et les données des contrats ? Seuls des liens sont gardés ici.",
+          "Dans quel pays travaillez-vous, et quelles obligations de conseil s’appliquent à vous ?"
         ]
       }
     },
     "it": {
       "locale": "it",
       "name": "Broker assicurativo",
-      "summary": "Due pipeline per un broker assicurativo: nuove trattative dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, e un caso di rinnovo per ogni polizza che parte da 120 a 45 giorni prima della scadenza.",
-      "description": "Gestisci nuovi affari e rinnovi fianco a fianco: trattative dalla prima richiesta all'analisi delle esigenze, alla richiesta di quotazioni, alla proposta e alla decisione fino alla polizza attiva, una data di consulenza documentata su ogni proposta, e polizze con la loro scadenza che aprono da sole un caso di rinnovo. Conserva un rimando alla documentazione della consulenza e alla polizza nel gestionale di agenzia, mai dati sanitari, dettagli dei sinistri, coordinate bancarie o copie dei documenti d'identità. Non è amministrazione delle polizze, un comparatore o un motore tariffario, gestione dei sinistri né riconciliazione delle provvigioni.",
+      "summary": "Due pipeline per un broker assicurativo: nuove trattative dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, e una pratica di rinnovo per ogni polizza che si apre da 120 a 45 giorni prima della scadenza.",
+      "description": "Gestisci nuovi affari e rinnovi fianco a fianco: trattative dalla prima richiesta all'analisi delle esigenze, alla richiesta di quotazioni, alla proposta e alla decisione fino alla polizza attiva, una data di consulenza documentata su ogni proposta, e polizze con la loro scadenza che aprono da sole una pratica di rinnovo. Conserva un rimando alla documentazione della consulenza e alla polizza nel gestionale assicurativo, mai dati sanitari, dettagli dei sinistri, coordinate bancarie o copie dei documenti d'identità. Non è amministrazione delle polizze, un comparatore o un motore tariffario, gestione dei sinistri né riconciliazione delle provvigioni.",
       "lists": {
         "actions": {
           "label": "Attività",
@@ -3078,12 +3078,12 @@
         "policies": {
           "label": "Polizza",
           "pluralLabel": "Polizze",
-          "description": "Una polizza con il suo ramo, la scadenza e un link al gestionale di agenzia."
+          "description": "Una polizza con il suo ramo, la scadenza e un link al gestionale assicurativo."
         },
         "renewals": {
           "label": "Rinnovo",
           "pluralLabel": "Scadenze (rinnovi)",
-          "description": "Il caso di rinnovo annuale di una polizza."
+          "description": "La pratica di rinnovo annuale di una polizza."
         }
       },
       "fields": {
@@ -3138,9 +3138,9 @@
             "quotes_requested": "Richiesta di quotazioni",
             "offer_presented": "Proposta",
             "awaiting_decision": "Decisione",
-            "application_submitted": "Emissione",
+            "application_submitted": "Richiesta di emissione",
             "bound": "Polizza attiva",
-            "lost": "Perso"
+            "lost": "Persa"
           }
         },
         "opportunities.line": {
@@ -3201,7 +3201,7 @@
           }
         },
         "opportunities.producer": {
-          "label": "Responsabile commerciale",
+          "label": "Produttore",
           "options": {}
         },
         "policies.policy_ref": {
@@ -3252,7 +3252,7 @@
           "options": {}
         },
         "policies.system_ref": {
-          "label": "Link nel gestionale di agenzia",
+          "label": "Link nel gestionale assicurativo",
           "options": {}
         },
         "renewals.stage": {
@@ -3306,7 +3306,7 @@
             "chase_carrier": "Sollecitare la compagnia",
             "advice_record": "Documentare la consulenza",
             "renewal_review": "Rivedere il rinnovo",
-            "cross_sell": "Verifica di vendita incrociata",
+            "cross_sell": "Verifica di cross-selling",
             "letter": "Scrivere una lettera",
             "other": "Altro"
           }
@@ -3373,7 +3373,7 @@
           "title": "Attività scadute"
         },
         "activity_timeline": {
-          "title": "Attività recente"
+          "title": "Attività recenti"
         },
         "opportunities_funnel": {
           "title": "Trattative per fase"
@@ -3391,12 +3391,12 @@
           "title": "Premio annuo delle polizze attive"
         },
         "lost_reasons": {
-          "title": "Perché le trattative sono perse"
+          "title": "Motivi di perdita delle trattative"
         }
       },
       "knowledgePages": {
         "operating_guide": {
-          "title": "Come funziona la postazione del broker",
+          "title": "Come funziona l'attività del broker",
           "sections": [
             "Le due pipeline: nuovi affari e rinnovi",
             "Chi è responsabile di quale fase e la regola di un'attività con data per elemento aperto"
@@ -3417,9 +3417,9 @@
           ]
         },
         "policy_data_rules": {
-          "title": "Dati delle polizze: che cosa resta nel gestionale di agenzia",
+          "title": "Dati delle polizze: che cosa resta nel gestionale assicurativo",
           "sections": [
-            "La verità della polizza e gli estratti provvigionali restano nel gestionale di agenzia",
+            "I dati di riferimento della polizza e gli estratti provvigionali restano nel gestionale assicurativo",
             "Che cosa conserva questo spazio e che cosa non conserva mai"
           ]
         }
@@ -3442,7 +3442,7 @@
           "description": ""
         },
         "offer_follow_up": {
-          "title": "Sollecitare il giorno dopo la presentazione di una proposta",
+          "title": "Fare follow-up il giorno dopo la presentazione di una proposta",
           "description": ""
         },
         "bound_welcome": {
@@ -3450,15 +3450,15 @@
           "description": ""
         },
         "renewal_commercial": {
-          "title": "Aprire un caso di rinnovo 120 giorni prima della scadenza di una polizza aziende attiva",
+          "title": "Aprire una pratica di rinnovo 120 giorni prima della scadenza di una polizza aziende attiva",
           "description": ""
         },
         "renewal_personal": {
-          "title": "Aprire un caso di rinnovo 45 giorni prima della scadenza di una polizza privati attiva",
+          "title": "Aprire una pratica di rinnovo 45 giorni prima della scadenza di una polizza privati attiva",
           "description": ""
         },
         "renewal_review_task": {
-          "title": "Rivedere il rinnovo entro una settimana dall'apertura del caso",
+          "title": "Rivedere il rinnovo entro una settimana dall'apertura della pratica",
           "description": ""
         },
         "renewal_offer_chase": {
@@ -3470,7 +3470,7 @@
           "description": ""
         },
         "unpaid_premium_notice": {
-          "title": "Scrivere al cliente quando il gestionale di agenzia segnala un premio non pagato",
+          "title": "Scrivere al cliente quando il gestionale assicurativo segnala un premio non pagato",
           "description": ""
         }
       },
@@ -3478,16 +3478,16 @@
         "opportunity_stage_field": "Ogni trattativa ha una fase.",
         "advice_documented_field": "Ogni trattativa indica quando la consulenza è stata documentata.",
         "renewal_date_field": "Ogni polizza indica la sua scadenza.",
-        "renewals_board_view": "I rinnovi si aprono come bacheca per fase.",
+        "renewals_board_view": "I rinnovi si aprono come board per fase.",
         "advice_documentation_page": "La base di conoscenza contiene una pagina sulla documentazione della consulenza."
       },
       "prompt": {
-        "intro": "Imposta nel mio workspace Customermates una pipeline per un broker assicurativo: nuove trattative dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, polizze con scadenza e un caso di rinnovo per ciascuna, e attività di follow-up con data. Non conservare dati sanitari, dettagli dei sinistri né copie dei documenti d'identità.",
+        "intro": "Imposta nel mio spazio di lavoro Customermates una pipeline per un broker assicurativo: nuove trattative dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, polizze con scadenza e una pratica di rinnovo per ciascuna, e attività di follow-up con data. Non conservare dati sanitari, dettagli dei sinistri né copie dei documenti d'identità.",
         "questions": [
-          "Quali rami collocate e seguite aziende, privati o entrambi?",
-          "Quanto tempo prima della scadenza avviate un rinnovo e qual è il preavviso di disdetta abituale?",
-          "Dove conservate la documentazione della consulenza e i dati delle polizze? Qui si tengono solo link.",
-          "In quale Paese lavorate e quali obblighi di consulenza vi riguardano?"
+          "Quali rami collochi e segui aziende, privati o entrambi?",
+          "Quanto tempo prima della scadenza avvii un rinnovo e qual è il preavviso di disdetta abituale?",
+          "Dove conservi la documentazione della consulenza e i dati delle polizze? Qui si tengono solo link.",
+          "In quale Paese lavori e quali obblighi di consulenza ti riguardano?"
         ]
       }
     },
@@ -3495,7 +3495,7 @@
       "locale": "nl",
       "name": "Verzekeringsadviseur",
       "summary": "Twee pijplijnen voor een verzekeringsadviseur: nieuwe zaken van aanvraag tot polis met het advies vastgelegd vóór de offerte, en een prolongatiezaak voor elke polis die 120 tot 45 dagen voor de vervaldatum begint.",
-      "description": "Voer nieuwe zaken en prolongaties naast elkaar: aanvragen van eerste vraag via behoefteanalyse, offertes opvragen, advies en beslissing tot een ontvangen polis, een datum van vastgelegd advies bij elke offerte, en polissen met hun hoofdvervaldatum die zelf een prolongatiezaak openen. Het bewaart een verwijzing naar het adviesdossier en naar de polis in uw administratiesysteem, nooit gezondheidsgegevens, schadedetails, bankgegevens of kopieën van identiteitsbewijzen. Geen polisadministratie, geen vergelijker of premieberekening, geen schadebehandeling en geen provisie-afstemming.",
+      "description": "Beheer nieuwe zaken en prolongaties naast elkaar: aanvragen van eerste vraag via behoefteanalyse, offertes opvragen, advies en beslissing tot een ontvangen polis, een datum van vastgelegd advies bij elke offerte, en polissen met hun hoofdvervaldatum die zelf een prolongatiezaak openen. Het bewaart een verwijzing naar het adviesdossier en naar de polis in je administratiesysteem, nooit gezondheidsgegevens, schadedetails, bankgegevens of kopieën van identiteitsbewijzen. Geen polisadministratie, geen vergelijker of premieberekening, geen schadebehandeling en geen provisie-afstemming.",
       "lists": {
         "actions": {
           "label": "Actie",
@@ -3528,7 +3528,7 @@
           "label": "Status",
           "options": {
             "open": "Open",
-            "waiting": "Wachtend",
+            "waiting": "In de wacht",
             "done": "Klaar",
             "cancelled": "Geannuleerd"
           }
@@ -3623,7 +3623,7 @@
           "options": {}
         },
         "opportunities.next_step_due": {
-          "label": "Volgende stap voor",
+          "label": "Volgende stap uiterlijk op",
           "options": {}
         },
         "opportunities.lost_reason": {
@@ -3633,7 +3633,7 @@
             "coverage_not_matching": "Dekking paste niet",
             "stayed_with_current": "Bleef bij de huidige verzekeraar",
             "no_response": "Geen reactie",
-            "declined_by_carrier": "Door verzekeraar geweigerd",
+            "declined_by_carrier": "Door de verzekeraar geweigerd",
             "timing": "Timing"
           }
         },
@@ -3672,7 +3672,7 @@
           "options": {
             "pending": "In aanvraag",
             "active": "Lopend",
-            "lapsed": "Vervallen door wanbetaling",
+            "lapsed": "Vervallen",
             "cancelled": "Opgezegd"
           }
         },
@@ -3740,7 +3740,7 @@
           "options": {
             "call": "Bellen",
             "send_quote": "Offerte sturen",
-            "chase_carrier": "Verzekeraar nabellen",
+            "chase_carrier": "Bij de verzekeraar navragen",
             "advice_record": "Advies vastleggen",
             "renewal_review": "Prolongatie beoordelen",
             "cross_sell": "Cross-sellcontrole",
@@ -3768,15 +3768,15 @@
         },
         "action_opportunity": {
           "sourceLabel": "Aanvraag",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         },
         "action_renewal": {
           "sourceLabel": "Prolongatie",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         },
         "action_policy": {
           "sourceLabel": "Polis",
-          "targetLabel": "Taken"
+          "targetLabel": "Acties"
         }
       },
       "views": {
@@ -3836,7 +3836,7 @@
           "title": "Hoe de adviseurswerkplek draait",
           "sections": [
             "De twee pijplijnen: nieuwe zaken en prolongaties",
-            "Wie welke fase bezit en de regel van één Actie met datum per open item"
+            "Wie voor welke fase verantwoordelijk is en de regel van één actie met datum per open item"
           ]
         },
         "advice_documentation": {
@@ -3856,58 +3856,58 @@
         "policy_data_rules": {
           "title": "Polisgegevens: wat in het administratiesysteem blijft",
           "sections": [
-            "De waarheid over de polis en de provisie-overzichten blijven in het administratiesysteem",
-            "Wat deze workspace bewaart en wat nooit"
+            "De actuele polisgegevens en de provisie-overzichten blijven in het administratiesysteem",
+            "Wat deze werkruimte bewaart en wat nooit"
           ]
         }
       },
       "rules": {
         "enquiry_form_records": {
-          "title": "Contactpersoon en aanvraag aanmaken als het aanvraagformulier is ingediend",
+          "title": "Maak een contactpersoon en een aanvraag aan als het aanvraagformulier is ingediend",
           "description": ""
         },
         "respond_new_lead": {
-          "title": "Een nieuwe aanvraag de volgende dag beantwoorden",
+          "title": "Beantwoord een nieuwe aanvraag de volgende dag",
           "description": ""
         },
         "needs_analysis_task": {
-          "title": "Het advies binnen 3 dagen vastleggen als een aanvraag de behoefteanalyse bereikt",
+          "title": "Leg het advies binnen 3 dagen vast als een aanvraag de behoefteanalyse bereikt",
           "description": ""
         },
         "quotes_chase": {
-          "title": "De verzekeraars 3 dagen na het opvragen van offertes nabellen",
+          "title": "Vraag 3 dagen na het opvragen van offertes bij de verzekeraars na",
           "description": ""
         },
         "offer_follow_up": {
-          "title": "De dag na het presenteren van een offerte opvolgen",
+          "title": "Volg de dag na het presenteren van een offerte op",
           "description": ""
         },
         "bound_welcome": {
-          "title": "De klant een week nadat de polis is ontvangen bellen",
+          "title": "Bel de klant een week nadat de polis is ontvangen",
           "description": ""
         },
         "renewal_commercial": {
-          "title": "Een prolongatiezaak openen 120 dagen voor de hoofdvervaldatum van een lopende zakelijke polis",
+          "title": "Open een prolongatiezaak 120 dagen voor de hoofdvervaldatum van een lopende zakelijke polis",
           "description": ""
         },
         "renewal_personal": {
-          "title": "Een prolongatiezaak openen 45 dagen voor de hoofdvervaldatum van een lopende particuliere polis",
+          "title": "Open een prolongatiezaak 45 dagen voor de hoofdvervaldatum van een lopende particuliere polis",
           "description": ""
         },
         "renewal_review_task": {
-          "title": "De prolongatie binnen een week na het openen van de zaak beoordelen",
+          "title": "Beoordeel de prolongatie binnen een week na het openen van de zaak",
           "description": ""
         },
         "renewal_offer_chase": {
-          "title": "De verantwoordelijke waarschuwen als een prolongatieofferte 7 dagen op de klant wacht",
+          "title": "Waarschuw de verantwoordelijke als een prolongatieofferte 7 dagen op de klant wacht",
           "description": ""
         },
         "decision_deadline_notice": {
-          "title": "De verantwoordelijke 30 dagen voor de hoofdvervaldatum laten bevestigen wat de klant besluit",
+          "title": "Laat de verantwoordelijke 30 dagen voor de hoofdvervaldatum bevestigen wat de klant besluit",
           "description": ""
         },
         "unpaid_premium_notice": {
-          "title": "De klant schrijven als het administratiesysteem een onbetaalde premie meldt",
+          "title": "Schrijf de klant aan als het administratiesysteem een onbetaalde premie meldt",
           "description": ""
         }
       },
@@ -3919,20 +3919,20 @@
         "advice_documentation_page": "De kennisbank bevat een pagina over het vastleggen van het advies."
       },
       "prompt": {
-        "intro": "Richt in mijn Customermates-workspace een pijplijn voor een verzekeringsadviseur in: nieuwe zaken van aanvraag tot polis met het advies vastgelegd vóór de offerte, polissen met een hoofdvervaldatum en een prolongatiezaak voor elk, en opvolging met datum. Bewaar geen gezondheidsgegevens, schadedetails of kopieën van identiteitsbewijzen.",
+        "intro": "Richt in mijn Customermates-werkruimte een pijplijn voor een verzekeringsadviseur in: nieuwe zaken van aanvraag tot polis met het advies vastgelegd vóór de offerte, polissen met een hoofdvervaldatum en een prolongatiezaak voor elk, en opvolging met datum. Bewaar geen gezondheidsgegevens, schadedetails of kopieën van identiteitsbewijzen.",
         "questions": [
-          "Welke branches bemiddelt u en bedient u zakelijke klanten, particulieren of beide?",
-          "Hoe lang voor de hoofdvervaldatum begint u een prolongatie en wat is de gebruikelijke opzegtermijn?",
-          "Waar bewaart u het adviesdossier en de polisgegevens? Hier staan alleen links.",
-          "In welk land werkt u en welke adviesplichten gelden voor u?"
+          "Welke branches bemiddel je en bedien je zakelijke klanten, particulieren of beide?",
+          "Hoe lang voor de hoofdvervaldatum begin je een prolongatie en wat is de gebruikelijke opzegtermijn?",
+          "Waar bewaar je het adviesdossier en de polisgegevens? Hier staan alleen links.",
+          "In welk land werk je en welke zorgplichten gelden voor jou?"
         ]
       }
     },
     "pl": {
       "locale": "pl",
-      "name": "Broker ubezpieczeniowy",
+      "name": "Lejek dla brokera ubezpieczeniowego",
       "summary": "Dwa lejki dla brokera ubezpieczeniowego: nowa sprzedaż od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą oraz sprawa odnowienia dla każdej polisy, która startuje od 120 do 45 dni przed końcem ochrony.",
-      "description": "Prowadź nową sprzedaż i odnowienia obok siebie: szanse od pierwszego zapytania przez analizę potrzeb, zapytania ofertowe, rekomendację i ofertę oraz decyzję do wystawionej polisy, datę udokumentowania rekomendacji przy każdej ofercie oraz polisy z terminem odnowienia, które same otwierają sprawę odnowienia. Szablon przechowuje odwołanie do dokumentacji rekomendacji i do polisy w Twoim systemie, nigdy danych o zdrowiu, szczegółów szkód, danych bankowych ani kopii dokumentów tożsamości. To nie administracja polisami, porównywarka ani kalkulator składek, likwidacja szkód ani rozliczanie prowizji.",
+      "description": "Prowadź nową sprzedaż i odnowienia obok siebie: szanse od pierwszego zapytania przez analizę potrzeb, zapytania ofertowe, rekomendację i ofertę oraz decyzję do wystawionej polisy, datę udokumentowania rekomendacji przy każdej ofercie oraz polisy z terminem odnowienia, które same otwierają sprawę odnowienia. Szablon przechowuje link do dokumentacji rekomendacji i do polisy w Twoim systemie, nigdy danych o zdrowiu, szczegółów szkód, danych bankowych ani kopii dokumentów tożsamości. To nie jest system do administrowania polisami, porównywarka ani kalkulator składek, likwidacja szkód ani rozliczanie prowizji.",
       "lists": {
         "actions": {
           "label": "Zadanie",
@@ -3975,7 +3975,7 @@
           "options": {}
         },
         "actions.owner": {
-          "label": "Odpowiedzialny",
+          "label": "Osoba odpowiedzialna",
           "options": {}
         },
         "actions.outcome": {
@@ -4001,7 +4001,7 @@
           }
         },
         "contacts.broker_mandate_on": {
-          "label": "Pełnomocnictwo brokerskie podpisano dnia",
+          "label": "Data pełnomocnictwa brokerskiego",
           "options": {}
         },
         "opportunities.stage": {
@@ -4011,7 +4011,7 @@
             "needs_analysis": "Analiza potrzeb",
             "quotes_requested": "Zapytania ofertowe",
             "offer_presented": "Rekomendacja i oferta",
-            "awaiting_decision": "Decyzja",
+            "awaiting_decision": "Czeka na decyzję",
             "application_submitted": "Wniosek złożony",
             "bound": "Polisa wystawiona",
             "lost": "Utracona"
@@ -4044,11 +4044,11 @@
           }
         },
         "opportunities.needs_analysis_on": {
-          "label": "Analiza potrzeb dnia",
+          "label": "Data analizy potrzeb",
           "options": {}
         },
         "opportunities.advice_documented_on": {
-          "label": "Rekomendację udokumentowano dnia",
+          "label": "Data udokumentowania rekomendacji",
           "options": {}
         },
         "opportunities.advice_record_ref": {
@@ -4060,7 +4060,7 @@
           "options": {}
         },
         "opportunities.next_step_due": {
-          "label": "Następny krok do",
+          "label": "Termin następnego kroku",
           "options": {}
         },
         "opportunities.lost_reason": {
@@ -4068,10 +4068,10 @@
           "options": {
             "price": "Cena",
             "coverage_not_matching": "Niedopasowany zakres ochrony",
-            "stayed_with_current": "Został przy obecnym ubezpieczycielu",
+            "stayed_with_current": "Klient został przy obecnym ubezpieczycielu",
             "no_response": "Brak odpowiedzi",
             "declined_by_carrier": "Odrzucone przez ubezpieczyciela",
-            "timing": "Termin"
+            "timing": "Nieodpowiedni moment"
           }
         },
         "opportunities.producer": {
@@ -4146,11 +4146,11 @@
           "options": {}
         },
         "renewals.offer_sent_on": {
-          "label": "Ofertę wysłano dnia",
+          "label": "Data wysłania oferty",
           "options": {}
         },
         "renewals.decision_on": {
-          "label": "Klient zdecydował dnia",
+          "label": "Data decyzji klienta",
           "options": {}
         },
         "renewals.premium_change_percent": {
@@ -4158,7 +4158,7 @@
           "options": {}
         },
         "renewals.advice_documented_on": {
-          "label": "Rekomendację udokumentowano dnia",
+          "label": "Data udokumentowania rekomendacji",
           "options": {}
         },
         "renewals.lost_reason": {
@@ -4265,12 +4265,12 @@
           "title": "Składka roczna aktywnych polis"
         },
         "lost_reasons": {
-          "title": "Dlaczego szanse sprzedaży zostały utracone"
+          "title": "Powody utraty szans"
         }
       },
       "knowledgePages": {
         "operating_guide": {
-          "title": "Jak działa biurko brokera",
+          "title": "Jak działa biuro brokerskie",
           "sections": [
             "Dwa lejki: nowa sprzedaż i odnowienia",
             "Kto odpowiada za który etap i zasada jednego zadania z terminem na otwarty element"
@@ -4280,7 +4280,7 @@
           "title": "Analiza potrzeb i dokumentacja rekomendacji",
           "sections": [
             "O co pytamy i co zapisujemy przed ofertą",
-            "Gdzie jest dokumentacja: tutaj zapisywane jest tylko odwołanie"
+            "Gdzie jest dokumentacja: tutaj zapisujemy tylko link"
           ]
         },
         "renewal_playbook": {
@@ -4294,57 +4294,57 @@
           "title": "Dane polis: co zostaje w systemie brokera",
           "sections": [
             "Stan polisy i rozliczenia prowizji zostają w systemie brokera",
-            "Co ta przestrzeń przechowuje, a czego nigdy"
+            "Co przechowuje ta przestrzeń robocza, a czego nigdy"
           ]
         }
       },
       "rules": {
         "enquiry_form_records": {
-          "title": "Utworzyć kontakt i szansę sprzedaży po wysłaniu formularza zapytania",
+          "title": "Utwórz kontakt i szansę sprzedaży po wysłaniu formularza",
           "description": ""
         },
         "respond_new_lead": {
-          "title": "Odpowiedzieć na nowe zapytanie następnego dnia",
+          "title": "Odpowiedz na nowe zapytanie następnego dnia",
           "description": ""
         },
         "needs_analysis_task": {
-          "title": "Udokumentować rekomendację w ciągu 3 dni, gdy szansa osiągnie analizę potrzeb",
+          "title": "Udokumentuj rekomendację w ciągu 3 dni, gdy szansa trafi na etap analizy potrzeb",
           "description": ""
         },
         "quotes_chase": {
-          "title": "Ponaglić ubezpieczycieli 3 dni po zapytaniach ofertowych",
+          "title": "Ponagl ubezpieczycieli 3 dni po zapytaniach ofertowych",
           "description": ""
         },
         "offer_follow_up": {
-          "title": "Przypomnieć o ofercie dzień po jej przedstawieniu",
+          "title": "Przypomnij o ofercie dzień po jej przedstawieniu",
           "description": ""
         },
         "bound_welcome": {
-          "title": "Zadzwonić do klienta tydzień po wystawieniu polisy",
+          "title": "Zadzwoń do klienta tydzień po wystawieniu polisy",
           "description": ""
         },
         "renewal_commercial": {
-          "title": "Otworzyć sprawę odnowienia 120 dni przed terminem aktywnej polisy firmowej",
+          "title": "Otwórz sprawę odnowienia 120 dni przed terminem aktywnej polisy firmowej",
           "description": ""
         },
         "renewal_personal": {
-          "title": "Otworzyć sprawę odnowienia 45 dni przed terminem aktywnej polisy indywidualnej",
+          "title": "Otwórz sprawę odnowienia 45 dni przed terminem aktywnej polisy indywidualnej",
           "description": ""
         },
         "renewal_review_task": {
-          "title": "Przejrzeć odnowienie w ciągu tygodnia od otwarcia sprawy",
+          "title": "Przejrzyj odnowienie w ciągu tygodnia od otwarcia sprawy",
           "description": ""
         },
         "renewal_offer_chase": {
-          "title": "Powiadomić opiekuna, gdy oferta odnowienia czeka na klienta 7 dni",
+          "title": "Powiadom opiekuna, gdy oferta odnowienia czeka na klienta 7 dni",
           "description": ""
         },
         "decision_deadline_notice": {
-          "title": "Powiadomić opiekuna 30 dni przed terminem, by potwierdzić decyzję klienta",
+          "title": "Powiadom opiekuna 30 dni przed terminem, by potwierdzić decyzję klienta",
           "description": ""
         },
         "unpaid_premium_notice": {
-          "title": "Napisać do klienta, gdy system brokera zgłasza nieopłaconą składkę",
+          "title": "Napisz do klienta, gdy system brokera zgłasza nieopłaconą składkę",
           "description": ""
         }
       },
@@ -4356,11 +4356,11 @@
         "advice_documentation_page": "Baza wiedzy zawiera stronę o dokumentacji rekomendacji."
       },
       "prompt": {
-        "intro": "Skonfiguruj w moim workspace Customermates lejek dla brokera ubezpieczeniowego: nowa sprzedaż od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą, polisy z terminem odnowienia i sprawa odnowienia dla każdej oraz zaplanowane przypomnienia. Nie zapisuj danych o zdrowiu, szczegółów szkód ani kopii dokumentów tożsamości.",
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates lejek dla brokera ubezpieczeniowego: nowa sprzedaż od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą, polisy z terminem odnowienia i sprawa odnowienia dla każdej oraz zaplanowane kolejne kroki. Nie zapisuj danych o zdrowiu, szczegółów szkód ani kopii dokumentów tożsamości.",
         "questions": [
-          "Jakie rodzaje ubezpieczeń pośredniczysz i obsługujesz firmy, klientów indywidualnych czy obu?",
+          "W jakich rodzajach ubezpieczeń pośredniczysz i czy obsługujesz firmy, klientów indywidualnych, czy obu?",
           "Ile czasu przed terminem zaczynasz odnowienie i jaki jest zwykły okres wypowiedzenia?",
-          "Gdzie trzymasz dokumentację rekomendacji i dane polis? Tutaj zapisywane są tylko linki.",
+          "Gdzie przechowujesz dokumentację rekomendacji i dane polis? Tutaj zapisujemy tylko linki.",
           "W jakim kraju działasz i jakie obowiązki doradcze Cię dotyczą?"
         ]
       }
@@ -4369,7 +4369,7 @@
       "locale": "pt",
       "name": "Corretora de seguros",
       "summary": "Dois funis para uma corretora de seguros: vendas novas do lead à apólice emitida com a recomendação documentada antes da proposta, e um caso de renovação para cada apólice que começa de 120 a 45 dias antes do vencimento.",
-      "description": "Conduza vendas novas e renovações lado a lado: negociações do primeiro contato à qualificação, à cotação, à proposta e à decisão até a apólice emitida, uma data de recomendação documentada em cada proposta, e apólices com a data de vigência que abrem sozinhas um caso de renovação. Guarda uma referência ao registro da recomendação e à apólice no seu sistema, nunca dados de saúde, detalhes de sinistros, dados bancários ou cópias de documentos de identidade. Não é administração de apólices, um comparador ou motor de tarifação, regulação de sinistros nem conciliação de comissões.",
+      "description": "Conduza vendas novas e renovações lado a lado: negociações do primeiro contato à qualificação, à cotação, à proposta e à decisão até a apólice emitida, uma data de recomendação documentada em cada proposta, e apólices com a data de vigência que abrem sozinhas um caso de renovação. Guarde uma referência ao registro da recomendação e à apólice no seu sistema, nunca dados de saúde, detalhes de sinistros, dados bancários ou cópias de documentos de identidade. Não é administração de apólices, um comparador ou motor de tarifação, regulação de sinistros nem conciliação de comissões.",
       "lists": {
         "actions": {
           "label": "Tarefa",
@@ -4379,7 +4379,7 @@
         "contacts": {
           "label": "Contato",
           "pluralLabel": "Contatos",
-          "description": "Segurados, interessados, decisores e indicadores."
+          "description": "Segurados, interessados, decisores e quem indica."
         },
         "opportunities": {
           "label": "Negociação",
@@ -4425,7 +4425,7 @@
             "policyholder": "Segurado",
             "prospect": "Interessado",
             "decision_maker": "Decisor",
-            "referrer": "Indicador"
+            "referrer": "Quem indicou"
           }
         },
         "contacts.preferred_channel": {
@@ -4542,7 +4542,7 @@
           }
         },
         "policies.status": {
-          "label": "Situação",
+          "label": "Status",
           "options": {
             "pending": "Em emissão",
             "active": "Vigente",
@@ -4707,7 +4707,7 @@
       },
       "knowledgePages": {
         "operating_guide": {
-          "title": "Como funciona a mesa da corretora",
+          "title": "Como funciona o dia a dia da corretora",
           "sections": [
             "Os dois funis: vendas novas e renovações",
             "Quem responde por cada etapa e a regra de uma tarefa com data por item aberto"
@@ -4730,7 +4730,7 @@
         "policy_data_rules": {
           "title": "Dados das apólices: o que fica no sistema da corretora",
           "sections": [
-            "A verdade da apólice e os extratos de comissão ficam no sistema da corretora",
+            "Os dados de referência da apólice e os extratos de comissão ficam no sistema da corretora",
             "O que este espaço guarda e o que nunca guarda"
           ]
         }
@@ -4793,7 +4793,7 @@
         "advice_documentation_page": "A base de conhecimento tem uma página sobre a documentação da recomendação."
       },
       "prompt": {
-        "intro": "Configure no meu workspace do Customermates um funil para uma corretora de seguros: vendas novas do lead à apólice emitida com a recomendação documentada antes da proposta, apólices com fim de vigência e um caso de renovação para cada uma, e acompanhamentos com data. Não guarde dados de saúde, detalhes de sinistros nem cópias de documentos de identidade.",
+        "intro": "Configure no meu espaço de trabalho do Customermates um funil para uma corretora de seguros: vendas novas do lead à apólice emitida com a recomendação documentada antes da proposta, apólices com fim de vigência e um caso de renovação para cada uma, e acompanhamentos com data. Não guarde dados de saúde, detalhes de sinistros nem cópias de documentos de identidade.",
         "questions": [
           "Quais ramos você trabalha e atende empresas, pessoas físicas ou os dois?",
           "Com quanta antecedência do vencimento você começa uma renovação e qual é o aviso prévio habitual?",
