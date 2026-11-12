@@ -45,6 +45,7 @@ const ENGLISH_SEGMENTS = ENGLISH_LEAVES.flatMap(([, value]) => value.split(PLACE
   .map((segment) => segment.trim())
   .filter((segment) => segment.length >= MIN_SEGMENT);
 const NON_ENGLISH = APP_LOCALES.filter((locale) => locale !== "en");
+const SCAFFOLD_CHECKED_LOCALES = NON_ENGLISH.filter((locale) => locale === "de" || locale === "pl");
 
 describe("template prompt scaffolding", () => {
   it.each(APP_LOCALES)("keeps the keys, the placeholders and the field types of %s in step with English", (locale) => {
@@ -81,7 +82,13 @@ describe("template prompt scaffolding", () => {
     }
   });
 
-  it.each(["de", "pl"])("renders a %s prompt without English scaffolding", (locale) => {
+  it("checks the English scaffolding in German and Polish among the registry locales", () => {
+    expect(SCAFFOLD_CHECKED_LOCALES).toContain("de");
+    expect(SCAFFOLD_CHECKED_LOCALES).toContain("pl");
+    expect(SCAFFOLD_CHECKED_LOCALES).toHaveLength(2);
+  });
+
+  it.each(SCAFFOLD_CHECKED_LOCALES)("renders a %s prompt without English scaffolding", (locale) => {
     for (const options of [{}, { deployment: "self-hosted" }, { connected: true }]) {
       const prompt = promptFor("sales-pipeline", locale, options);
       for (const segment of ENGLISH_SEGMENTS) expect(prompt, `English scaffolding: ${segment}`).not.toContain(segment);
