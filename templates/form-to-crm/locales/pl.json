@@ -1,0 +1,92 @@
+{
+  "locale": "pl",
+  "name": "Formularz do CRM",
+  "summary": "Zamienianie zapytań z formularzy w opracowane kontakty: jedno zapytanie na każde wysłanie ze źródłem, należną odpowiedzią, etapem od nowego do przekazanego oraz osobno spam i nietrafione.",
+  "description": "Każde zapytanie z formularza kontaktowego, wyceny lub zgłoszeniowego staje się zapytaniem powiązanym z kontaktem, z formularzem, z którego przyszło, skąd trafił odwiedzający, na kiedy jest potrzebne i odpowiedzią należną następnego dnia. Zapytania przechodzą od nowego do przekazanego, nietrafionego lub spamu, a zapytanie bez odpowiedzi jest oznaczane. Zgoda i termin przeglądu towarzyszą zbieranym danym. To nie kreator formularzy do płatności, quizów ani przesyłania wrażliwych dokumentów.",
+  "lists": {
+    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Osoby, które piszą do Ciebie przez formularz." },
+    "requests": { "label": "Zapytanie", "pluralLabel": "Zapytania", "description": "Jedno wysłanie formularza, od nowego do przekazanego, nietrafionego lub spamu." }
+  },
+  "fields": {
+    "contacts.company_name": { "label": "Firma" },
+    "contacts.language": { "label": "Język" },
+    "contacts.marketing_consent": { "label": "Zgoda na e-maile marketingowe" },
+    "contacts.marketing_consent_on": { "label": "Zgoda udzielona dnia" },
+    "requests.stage": {
+      "label": "Etap",
+      "options": { "new": "Nowe", "contacted": "Skontaktowane", "qualified": "Zakwalifikowane", "converted": "Przekazane", "not_a_fit": "Nietrafione", "spam": "Spam" }
+    },
+    "requests.form": { "label": "Formularz", "options": { "contact": "Formularz kontaktowy", "quote_request": "Formularz wyceny", "intake": "Formularz zgłoszeniowy", "callback": "Prośba o telefon", "other": "Inny" } },
+    "requests.owner": { "label": "Odpowiedzialny" },
+    "requests.service_interest": { "label": "Interesująca usługa" },
+    "requests.needed_by": {
+      "label": "Termin",
+      "options": { "asap": "Jak najszybciej", "within_a_month": "W ciągu miesiąca", "within_three_months": "W ciągu trzech miesięcy", "just_looking": "Tylko się rozglądam", "no_answer": "Bez odpowiedzi" }
+    },
+    "requests.budget_band": { "label": "Budżet", "options": { "no_answer": "Bez odpowiedzi", "low": "Niski", "medium": "Średni", "high": "Wysoki" } },
+    "requests.submitted_at": { "label": "Otrzymano" },
+    "requests.first_response_at": { "label": "Pierwsza odpowiedź" },
+    "requests.utm_source": { "label": "Skąd przyszedł odwiedzający" },
+    "requests.landing_page": { "label": "Strona formularza" },
+    "requests.repeat_submission": { "label": "Pisał już wcześniej" },
+    "requests.not_a_fit_reason": {
+      "label": "Dlaczego nietrafione",
+      "options": { "out_of_area": "Poza naszym obszarem", "no_budget": "Brak budżetu", "wrong_service": "Inna usługa", "no_response": "Brak odpowiedzi", "duplicate": "Duplikat", "other": "Inny" }
+    },
+    "requests.closed_on": { "label": "Zamknięto dnia" },
+    "requests.data_review_on": { "label": "Przejrzyj dane dnia" },
+    "requests.days_to_close": { "label": "Dni od wysłania do zamknięcia" },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": { "reply": "Odpowiedzieć", "qualify_call": "Rozmowa kwalifikacyjna", "send_quote": "Wysłać wycenę", "convert": "Przekazać do lejka", "chase": "Ponaglić", "data_review": "Przejrzeć dane", "other": "Inne" }
+    }
+  },
+  "relationships": {
+    "request_contact": { "sourceLabel": "Kontakt", "targetLabel": "Zapytania" },
+    "action_request": { "sourceLabel": "Zapytanie", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "requests_all": { "name": "Wszystkie zapytania" },
+    "requests_board": { "name": "Tablica zapytań" },
+    "new_requests": { "name": "Nowe zapytania" },
+    "closed_without_deal": { "name": "Nietrafione lub spam" },
+    "contacts_all": { "name": "Wszystkie kontakty" }
+  },
+  "widgets": {
+    "requests_funnel": { "title": "Zapytania według etapu" },
+    "requests_per_week": { "title": "Zapytania tygodniowo" },
+    "requests_by_form": { "title": "Zapytania według formularza" },
+    "new_requests_count": { "title": "Nowe zapytania" },
+    "not_a_fit_reasons": { "title": "Dlaczego zapytania są nietrafione" },
+    "average_days_to_close": { "title": "Średnia liczba dni do zamknięcia" }
+  },
+  "knowledgePages": {
+    "form_playbook": { "title": "Przewodnik od formularza do CRM", "sections": ["Jakich formularzy używamy i kto odpowiada", "Jak szybko odpowiadamy"] },
+    "privacy_notice": { "title": "Klauzula informacyjna formularzy", "sections": ["Co mówimy przy formularzu", "Jak długo przechowujemy zapytanie"] },
+    "spam_and_duplicates": { "title": "Spam i powtórne wysłania", "sections": ["Co uznajemy za spam", "Co robimy, gdy ta sama osoba pisze ponownie"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Utworzyć kontakt i zapytanie po wysłaniu formularza zapytania" },
+    "reply_task": { "title": "Utworzyć zadanie odpowiedzi na następny dzień, gdy powstaje zapytanie" },
+    "first_response_missed": { "title": "Powiadomić prowadzącego, gdy zapytanie jest nadal nowe dzień po otrzymaniu" },
+    "chase_contacted": { "title": "Ponaglić skontaktowane zapytanie, które stoi od 3 dni" },
+    "converted_task": { "title": "Przekazać zapytanie do lejka, gdy zostanie przekazane" },
+    "review_date_not_a_fit": { "title": "Ustawić przegląd danych na rok, gdy zapytanie jest nietrafione" },
+    "data_review": { "title": "Przejrzeć dane, gdy nadejdzie termin przeglądu" },
+    "external_form_records": { "title": "Utworzyć kontakt i zapytanie, gdy inne narzędzie do formularzy wyśle zgłoszenie" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Każde zapytanie ma etap.",
+    "submitted_field": "Każde zapytanie zapisuje, kiedy wpłynęło.",
+    "requests_board_view": "Zapytania otwierają się jako tablica według etapu."
+  },
+  "prompt": {
+    "intro": "Skonfiguruj w moim workspace Customermates przejście od formularza do CRM: jedno zapytanie na każde wysłanie ze źródłem, należną odpowiedzią, sześcioma etapami, zgodą i terminem przeglądu danych oraz zaplanowane kontakty uzupełniające.",
+    "questions": [
+      "Jakich formularzy używasz i co musisz wiedzieć, żeby wycenić lub przypisać zapytanie?",
+      "Kto odpowiada i w jakim czasie obiecujesz odpowiedź?",
+      "Co mówisz ludziom o ich danych przy formularzu?",
+      "Czy używasz innego narzędzia do formularzy, takiego jak Typeform, Tally lub Jotform?"
+    ]
+  }
+}
