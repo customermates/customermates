@@ -60,7 +60,7 @@ export const ScheduleMeetingSchema = MeetingTimingSchema.extend({
     .max(MEETING_MAX_RECORDS)
     .default([])
     .describe("Records the meeting belongs to. It appears on their activity timeline."),
-  action: MeetingActionTargetSchema.optional().describe(
+  followUp: MeetingActionTargetSchema.optional().describe(
     "Creates a record in this list at the start of the meeting, linked to the records, as the follow-up Action.",
   ),
 }).strict();
@@ -114,7 +114,7 @@ export const MeetingSchema = z.object({
   status: z.enum(["confirmed", "cancelled"]),
   attendees: z.array(MeetingAttendeeSchema),
   records: z.array(RecordRefSchema),
-  action: RecordRefSchema.nullable(),
+  followUp: RecordRefSchema.nullable(),
   warnings: z
     .array(z.enum(["recordsNotLinked", "actionNotCreated"]))
     .describe("The meeting exists in the calendar; these follow-up steps did not complete."),

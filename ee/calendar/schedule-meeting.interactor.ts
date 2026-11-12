@@ -61,10 +61,10 @@ export class ScheduleMeetingInteractor extends AuthenticatedInteractor<ScheduleM
     if (!written.ok) return eventWriteFailure(written);
 
     const warnings: Meeting["warnings"] = [];
-    const action = data.action
+    const followUp = data.followUp
       ? await this.records
           .createAction({
-            target: data.action,
+            target: data.followUp,
             title: data.title,
             startsAt,
             timeZone: data.timeZone,
@@ -75,9 +75,9 @@ export class ScheduleMeetingInteractor extends AuthenticatedInteractor<ScheduleM
             return null;
           })
       : null;
-    if (data.action && !action) warnings.push("actionNotCreated");
+    if (data.followUp && !followUp) warnings.push("actionNotCreated");
 
-    const linked: RecordRef[] = [...data.records, ...(action ? [action] : [])];
+    const linked: RecordRef[] = [...data.records, ...(followUp ? [followUp] : [])];
     await this.links.linkRecords(written.eventId, linked).catch((error: unknown) => {
       ErrorReporter.captureException(error, { tags: { kind: "meeting-record-links" } });
       warnings.push("recordsNotLinked");
@@ -90,7 +90,7 @@ export class ScheduleMeetingInteractor extends AuthenticatedInteractor<ScheduleM
         calendarId: calendar.row.id,
         event: written.event,
         records: linked,
-        action,
+        followUp,
         warnings,
       }),
     };

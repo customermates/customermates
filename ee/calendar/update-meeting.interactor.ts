@@ -64,7 +64,7 @@ export class UpdateMeetingInteractor extends AuthenticatedInteractor<UpdateMeeti
         calendarId: event.calendarId,
         event: written.event,
         records: links,
-        action: null,
+        followUp: null,
         warnings: [],
       }),
     };

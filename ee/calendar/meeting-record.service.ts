@@ -14,6 +14,7 @@ import type {
 } from "@/features/records/record-model.schema";
 
 import { recordChannelsEnabled } from "@/features/records/record-channels";
+import { zonedDate } from "@/features/record-calendar/zoned-time";
 
 import type { MeetingActionList, MeetingActionTarget, MeetingAttendeeSuggestion } from "./meeting.schema";
 
@@ -191,7 +192,7 @@ export class MeetingRecordService {
         : date.valueType === "date"
           ? {
               kind: "date",
-              value: new Intl.DateTimeFormat("en-CA", { timeZone: input.timeZone }).format(input.startsAt),
+              value: zonedDate(input.startsAt, input.timeZone),
             }
           : null;
     if (!dateValue) return null;
@@ -244,7 +245,7 @@ export class MeetingRecordService {
     if (start?.valueType === "date")
       fields.push({
         fieldId: start.id,
-        value: { kind: "date", value: new Intl.DateTimeFormat("en-CA", { timeZone: input.timeZone }).format(input.startsAt) },
+        value: { kind: "date", value: zonedDate(input.startsAt, input.timeZone) },
       });
     for (const answer of input.answers) {
       const field = model.fields.find((item) => item.id === answer.fieldId && item.typeId === type.id);

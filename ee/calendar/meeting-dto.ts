@@ -8,7 +8,7 @@ export function toMeeting(input: {
   calendarId: string;
   event: CalendarEventCore;
   records: RecordRef[];
-  action: RecordRef | null;
+  followUp: RecordRef | null;
   warnings: Meeting["warnings"];
 }): Meeting {
   const { event } = input;
@@ -30,7 +30,7 @@ export function toMeeting(input: {
       responseStatus: attendee.responseStatus,
     })),
     records: input.records,
-    action: input.action,
+    followUp: input.followUp,
     warnings: input.warnings,
   };
 }
