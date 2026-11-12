@@ -17,6 +17,7 @@ export const MARKETING_NAMESPACES = [
   "NotFoundPage",
   "OnboardingWizard",
   "StructuredData",
+  "TemplatePages",
   "UserAvatar",
 ] as const;
 
