@@ -1,0 +1,73 @@
+{
+  "availability": {
+    "routine": "rutyna asystenta uruchamiana według harmonogramu",
+    "rule": "reguła automatyzacji",
+    "unavailable": "jeszcze niedostępne, nie konfiguruj"
+  },
+  "due": {
+    "afterDays": {
+      "few": "termin po {days} dniach",
+      "many": "termin po {days} dniach",
+      "one": "termin po {days} dniu",
+      "other": "termin po {days} dnia"
+    },
+    "sameDay": "termin tego samego dnia"
+  },
+  "fieldTypes": {
+    "address": "adres",
+    "boolean": "tak lub nie",
+    "channels": "kanały kontaktu",
+    "currency": "kwota",
+    "date": "data",
+    "dateRange": "zakres dat",
+    "dateTime": "data i godzina",
+    "file": "plik",
+    "member": "członek zespołu",
+    "number": "liczba",
+    "richText": "tekst sformatowany",
+    "select": "wybór",
+    "text": "tekst",
+    "url": "link"
+  },
+  "groupedBy": "pogrupowany według {field}",
+  "headings": {
+    "beforeYouWrite": "Zanim cokolwiek zapiszesz",
+    "dashboardWidgets": "Widżety pulpitu",
+    "followUpRoutines": "Rutyny działań następczych",
+    "getWorkspace": "Załóż przestrzeń roboczą",
+    "knowledgePages": "Strony bazy wiedzy (tylko szkice, do uzupełnienia moimi własnymi danymi)",
+    "listsAndFields": "Listy i pola",
+    "questions": "Pytania do mnie",
+    "relationships": "Relacje",
+    "rules": "Zasady",
+    "thisWorkspace": "Ta przestrzeń robocza",
+    "views": "Widoki",
+    "yourWorkspace": "Twoja przestrzeń robocza"
+  },
+  "layouts": {
+    "board": "tablica",
+    "table": "tabela"
+  },
+  "nameOnly": "tylko nazwa",
+  "procedure": {
+    "askQuestions": "Najpierw zadaj pytania z końca. Zostaw puste wszystko, czego nie wiesz, zamiast zgadywać.",
+    "describePlan": "Opisz poniższy plan prostymi słowami, dopasowany do moich odpowiedzi, i poczekaj na moją zgodę, zanim cokolwiek zmienisz.",
+    "readContext": "Wywołaj get_workspace_context i przeczytaj przewodnik operacyjny oraz istniejące listy, pola, widoki i strony bazy wiedzy.",
+    "reuse": "Wykorzystaj to, co już istnieje. Nigdy nie zakładaj drugiej listy dla czegoś, co przestrzeń robocza już śledzi."
+  },
+  "relationship": "{source} łączą się z {target} (widoczne jako {sourceLabel} w {source} i {targetLabel} w {target})",
+  "roadRules": {
+    "neverInvent": "Nigdy nie wymyślaj cen, kwot, dat ani nazw. Zostaw je puste, dopóki ci ich nie podam.",
+    "noSamples": "Nie twórz przykładowych, demonstracyjnych ani zastępczych rekordów.",
+    "readBack": "Po zbudowaniu odczytaj wynik i powiedz mi, co istnieje i co zostało pominięte.",
+    "sendNothing": "Niczego nie wysyłaj: ani e-maili, ani wiadomości, ani zaproszeń, ani postów. Tylko szkice i tylko na moją prośbę.",
+    "sensitiveData": "Trzymaj wrażliwe dane osobowe poza przestrzenią roboczą, chyba że o to poproszę."
+  },
+  "routinesIntro": "Zaproponuj je jako zestaw. Skonfiguruj tylko te oznaczone jako dostępne, a o pozostałych mi powiedz.",
+  "workspace": {
+    "cloud": "Załóż przestrzeń roboczą Customermates pod adresem {url} i połącz z nią asystenta. Szablon jest tam już wybrany.",
+    "connected": "Jesteś już połączony z przestrzenią roboczą Customermates, która przyjmie ten szablon. Pracuj w niej i nie zakładaj kolejnej.",
+    "connectedAt": "Ta przestrzeń robocza już istnieje i jesteś z nią połączony przez MCP pod adresem {mcpUrl}. Pracuj w tej przestrzeni roboczej i w żadnej innej.",
+    "selfHosted": "Użyj własnej instancji Customermates. Połącz asystenta z jej punktem końcowym MCP pod adresem <adres instancji>/api/v1/mcp za pomocą klucza API z Ustawienia, Klucze API i konektory. Nic tutaj nie zależy od hostowanej chmury."
+  }
+}

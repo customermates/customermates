@@ -1,0 +1,71 @@
+{
+  "availability": {
+    "routine": "una routine dell’assistente pianificata",
+    "rule": "una regola di automazione",
+    "unavailable": "non ancora disponibile, non configurare"
+  },
+  "due": {
+    "afterDays": {
+      "one": "scadenza dopo {days} giorno",
+      "other": "scadenza dopo {days} giorni"
+    },
+    "sameDay": "scadenza lo stesso giorno"
+  },
+  "fieldTypes": {
+    "address": "indirizzo",
+    "boolean": "sì o no",
+    "channels": "canali di contatto",
+    "currency": "importo",
+    "date": "data",
+    "dateRange": "intervallo di date",
+    "dateTime": "data e ora",
+    "file": "file",
+    "member": "membro del team",
+    "number": "numero",
+    "richText": "testo formattato",
+    "select": "scelta",
+    "text": "testo",
+    "url": "link"
+  },
+  "groupedBy": "raggruppata per {field}",
+  "headings": {
+    "beforeYouWrite": "Prima di scrivere qualsiasi cosa",
+    "dashboardWidgets": "Widget della dashboard",
+    "followUpRoutines": "Routine di seguito",
+    "getWorkspace": "Ottenere uno spazio di lavoro",
+    "knowledgePages": "Pagine della base di conoscenza (solo schemi, da riempire con i miei dati)",
+    "listsAndFields": "Liste e campi",
+    "questions": "Domande per me",
+    "relationships": "Relazioni",
+    "rules": "Regole",
+    "thisWorkspace": "Questo spazio di lavoro",
+    "views": "Viste",
+    "yourWorkspace": "Il tuo spazio di lavoro"
+  },
+  "layouts": {
+    "board": "board",
+    "table": "tabella"
+  },
+  "nameOnly": "solo il nome",
+  "procedure": {
+    "askQuestions": "Fai prima le domande in fondo. Lascia vuoto tutto ciò che non sai, invece di tirare a indovinare.",
+    "describePlan": "Descrivi il piano qui sotto con parole semplici, adattato alle mie risposte, e attendi la mia approvazione prima di modificare qualsiasi cosa.",
+    "readContext": "Chiama get_workspace_context e leggi la guida operativa, le liste, i campi, le viste e le pagine della base di conoscenza esistenti.",
+    "reuse": "Riutilizza ciò che esiste già. Non creare mai una seconda lista per qualcosa che lo spazio di lavoro già monitora."
+  },
+  "relationship": "{source} sono collegati a {target} (mostrati come {sourceLabel} su {source} e {targetLabel} su {target})",
+  "roadRules": {
+    "neverInvent": "Non inventare mai prezzi, importi, date o nomi. Lasciali vuoti finché non te li dico.",
+    "noSamples": "Non creare record di esempio, di prova o segnaposto.",
+    "readBack": "Dopo la costruzione, rileggi il risultato e dimmi che cosa esiste e che cosa hai saltato.",
+    "sendNothing": "Non inviare nulla: né e-mail, né messaggi, né inviti, né post. Solo bozze, e solo se te lo chiedo.",
+    "sensitiveData": "Tieni i dati personali sensibili fuori dallo spazio di lavoro, a meno che non lo chieda io."
+  },
+  "routinesIntro": "Proponile come insieme. Configura solo quelle contrassegnate come disponibili e parlami delle altre.",
+  "workspace": {
+    "cloud": "Crea uno spazio di lavoro Customermates su {url} e collega il tuo assistente. Il modello è già preselezionato lì.",
+    "connected": "Sei già collegato allo spazio di lavoro Customermates che ospiterà questo modello. Lavora al suo interno e non crearne un altro.",
+    "connectedAt": "Questo spazio di lavoro esiste già e sei collegato tramite MCP all’indirizzo {mcpUrl}. Lavora in questo spazio di lavoro e in nessun altro.",
+    "selfHosted": "Usa la tua istanza Customermates. Collega il tuo assistente al suo endpoint MCP all’indirizzo <indirizzo della tua istanza>/api/v1/mcp con una chiave API da Impostazioni, Chiavi API e connettori. Nulla qui dipende dal cloud ospitato."
+  }
+}

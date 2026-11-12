@@ -1,0 +1,71 @@
+{
+  "availability": {
+    "routine": "an assistant routine that runs on a schedule",
+    "rule": "an automation rule",
+    "unavailable": "not available yet, do not set up"
+  },
+  "due": {
+    "afterDays": {
+      "one": "due after {days} day",
+      "other": "due after {days} days"
+    },
+    "sameDay": "due the same day"
+  },
+  "fieldTypes": {
+    "address": "address",
+    "boolean": "yes or no",
+    "channels": "contact channels",
+    "currency": "amount",
+    "date": "date",
+    "dateRange": "date range",
+    "dateTime": "date and time",
+    "file": "file",
+    "member": "team member",
+    "number": "number",
+    "richText": "formatted text",
+    "select": "choice",
+    "text": "text",
+    "url": "link"
+  },
+  "groupedBy": "grouped by {field}",
+  "headings": {
+    "beforeYouWrite": "Before you write anything",
+    "dashboardWidgets": "Dashboard widgets",
+    "followUpRoutines": "Follow-up routines",
+    "getWorkspace": "Get a workspace",
+    "knowledgePages": "Knowledge Base pages (outlines only, filled with my own facts)",
+    "listsAndFields": "Lists and fields",
+    "questions": "Questions for me",
+    "relationships": "Relationships",
+    "rules": "Rules",
+    "thisWorkspace": "This workspace",
+    "views": "Views",
+    "yourWorkspace": "Your workspace"
+  },
+  "layouts": {
+    "board": "board",
+    "table": "table"
+  },
+  "nameOnly": "name only",
+  "procedure": {
+    "askQuestions": "Ask the questions at the end first. Leave every unknown empty instead of guessing.",
+    "describePlan": "Describe the plan below in plain words, adapted to my answers, and wait for my approval before you change anything.",
+    "readContext": "Call get_workspace_context and read the Operating Guide, the existing lists, fields, views and wiki pages.",
+    "reuse": "Reuse what already exists. Never create a second list for something the workspace already tracks."
+  },
+  "relationship": "{source} link to {target} (shown as {sourceLabel} on {source} and {targetLabel} on {target})",
+  "roadRules": {
+    "neverInvent": "Never invent prices, amounts, dates or names. Leave them empty until I tell you.",
+    "noSamples": "Create no sample, demo or placeholder records.",
+    "readBack": "After the build, read the result back and tell me what exists and what you skipped.",
+    "sendNothing": "Send nothing: no emails, messages, invitations or posts. Drafts only, and only when I ask.",
+    "sensitiveData": "Keep sensitive personal data out of the workspace unless I ask for it."
+  },
+  "routinesIntro": "Propose these as a set. Set up only the ones marked as available and tell me about the rest.",
+  "workspace": {
+    "cloud": "Create a Customermates workspace at {url} and connect your assistant to it. The template is preselected there.",
+    "connected": "You are already connected to the Customermates workspace that will hold this template. Work in it and do not create another one.",
+    "connectedAt": "This workspace already exists and you are connected to it through MCP at {mcpUrl}. Work in this workspace and in no other.",
+    "selfHosted": "Use your own Customermates instance. Connect your assistant to its MCP endpoint at <your instance address>/api/v1/mcp with an API key from Settings, API keys. Nothing here depends on the hosted cloud."
+  }
+}
