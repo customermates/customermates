@@ -18,7 +18,9 @@ function visitorOf(request: NextRequest): string | null {
     .map((entry) => entry.trim())
     .filter(Boolean);
   const address =
-    request.headers.get("x-vercel-forwarded-for")?.trim() || request.headers.get("x-real-ip")?.trim() || forwarded?.at(-1);
+    request.headers.get("x-vercel-forwarded-for")?.trim() ||
+    request.headers.get("x-real-ip")?.trim() ||
+    forwarded?.at(-1);
   return address ? createHash("sha256").update(address).digest("hex").slice(0, 32) : null;
 }
 

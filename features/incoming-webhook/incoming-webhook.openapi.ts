@@ -65,7 +65,7 @@ export const incomingWebhookApiPaths = {
       operationId: "createIncomingWebhook",
       summary: "Create an incoming webhook",
       description:
-        "Creates an endpoint that creates or updates records of a list from JSON posted to its secret url (POST /api/hooks/{token}). mapping lists JSON paths and the fields they fill; mode upsert updates the record whose match field equals the mapped value. With signingSecret, every request must carry the hex HMAC-SHA256 of the raw body in signatureHeader (default x-signature, an optional sha256= prefix is accepted). Bodies over 256 KB and bursts over the rate limits are refused. An Idempotency-Key request header of at least 8 characters makes a retried request create nothing twice. Records are created as the member who created the endpoint, with the endpoint named as their source.",
+        "Creates an endpoint that creates or updates records of a list from JSON posted to its secret url (`POST /api/hooks/{token}`). mapping lists JSON paths and the fields they fill; mode upsert updates the record whose match field equals the mapped value. With signingSecret, every request must carry the hex HMAC-SHA256 of the raw body in signatureHeader (default x-signature, an optional sha256= prefix is accepted). Bodies over 256 KB and bursts over the rate limits are refused. An Idempotency-Key request header of at least 8 characters makes a retried request create nothing twice. Records are created as the member who created the endpoint, with the endpoint named as their source.",
       requires: REQUIRES,
       tag: "incoming-webhooks",
       input: createAction.omit({ action: true }),

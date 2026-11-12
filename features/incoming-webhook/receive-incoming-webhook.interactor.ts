@@ -87,12 +87,13 @@ export class ReceiveIncomingWebhookInteractor {
     for (const [limiter, key] of checks) {
       if (!key) continue;
       const admission = limiter.admit(key);
-      if (!admission.allowed)
+      if (!admission.allowed) {
         return {
           status: 429,
           body: { ok: false, error: "rate_limited" },
           retryAfterSeconds: admission.retryAfterSeconds,
         };
+      }
     }
     return null;
   }
@@ -191,7 +192,9 @@ export class ReceiveIncomingWebhookInteractor {
         { systemCompanyId: webhook.companyId },
       )
       .catch((error: unknown) => {
-        ErrorReporter.captureException(error, { tags: { kind: "webhook-received-event", companyId: webhook.companyId } });
+        ErrorReporter.captureException(error, {
+          tags: { kind: "webhook-received-event", companyId: webhook.companyId },
+        });
       });
     return {
       status: outcome === "created" ? 201 : 200,

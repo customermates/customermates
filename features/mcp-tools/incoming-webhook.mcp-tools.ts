@@ -3,8 +3,10 @@ import { z } from "zod";
 import { mcpValidationFailure, runInteractor, toonResult } from "./utils";
 
 import { getManageIncomingWebhookInteractor } from "@/core/di";
-import { createZodError } from "@/core/validation/validation.utils";
-import { IncomingWebhookMappingSchema } from "@/features/incoming-webhook/incoming-webhook.schema";
+import {
+  IncomingWebhookMappingSchema,
+  ManageIncomingWebhookSchema,
+} from "@/features/incoming-webhook/incoming-webhook.schema";
 
 const ACTIONS = ["list", "get", "fields", "create", "update", "delete", "test", "deliveries"] as const;
 
@@ -16,11 +18,16 @@ const ManageIncomingWebhooksSchema = z.object({
     .describe(
       "Incoming webhook operation. Keys per action: list: typeId; get: id; fields: typeId; create: typeId, name, mapping, enabled, signatureHeader, signingSecret, samplePayload; update: id, name, mapping, enabled, signatureHeader, signingSecret, samplePayload, rotateUrl; delete: id; test: id, payload; deliveries: id, limit.",
     ),
-  id: z.uuid().optional().describe("The incoming webhook id. Required for every action except list, fields and create."),
+  id: z
+    .uuid()
+    .optional()
+    .describe("The incoming webhook id. Required for every action except list, fields and create."),
   typeId: z
     .uuid()
     .optional()
-    .describe("The list whose records the webhook creates or updates. Required for fields and create; optional for list."),
+    .describe(
+      "The list whose records the webhook creates or updates. Required for fields and create; optional for list.",
+    ),
   name: z.string().optional().describe("A name for the endpoint; the records it creates name it as their source."),
   mapping: IncomingWebhookMappingSchema.optional().describe(
     "How the JSON body fills the list: mode create or upsert, matchFieldId (upsert only: the mapped field that finds the existing record) and fields, each a JSON path such as data.email and the fieldId it fills. Required for create; on update it replaces the stored mapping.",
@@ -40,10 +47,27 @@ const ManageIncomingWebhooksSchema = z.object({
   samplePayload: PayloadSchema.nullable().optional().describe("An example body kept with the endpoint for test."),
   rotateUrl: z.boolean().optional().describe("update only. true replaces the secret URL; the old URL stops working."),
   payload: PayloadSchema.optional().describe("test only. The body to try; defaults to the stored samplePayload."),
-  limit: z.number().int().min(1).max(100).optional().describe("deliveries only. How many recent deliveries, default 25."),
+  limit: z
+    .number()
+    .int()
+    .min(1)
+    .max(100)
+    .optional()
+    .describe("deliveries only. How many recent deliveries, default 25."),
 });
 
 type Params = z.infer<typeof ManageIncomingWebhooksSchema>;
+
+const ACTION_KEYS: Record<Params["action"], ReadonlyArray<keyof Params>> = {
+  list: ["typeId"],
+  get: ["id"],
+  fields: ["typeId"],
+  create: ["typeId", "name", "mapping", "enabled", "signatureHeader", "signingSecret", "samplePayload"],
+  update: ["id", "name", "mapping", "enabled", "signatureHeader", "signingSecret", "samplePayload", "rotateUrl"],
+  delete: ["id"],
+  test: ["id", "payload"],
+  deliveries: ["id", "limit"],
+};
 
 const OutputSchema = z
   .looseObject({
@@ -58,12 +82,13 @@ const OutputSchema = z
     "list returns items; get, create and update return webhook with its secret url; delete returns deleted; test returns preview, what the mapping would write for the body without writing it; deliveries returns the recent deliveries; fields returns the fields of the list a mapping can fill.",
   );
 
-function missing(key: "id" | "typeId" | "name" | "mapping") {
-  return mcpValidationFailure(createZodError(`${key} is required`, [key]));
-}
-
-function run(data: Parameters<ReturnType<typeof getManageIncomingWebhookInteractor>["invoke"]>[0]) {
-  return runInteractor(getManageIncomingWebhookInteractor().invoke(data), (result) => toonResult({ ...result }));
+function relevantInput(params: Params): Record<string, unknown> {
+  const relevant = ACTION_KEYS[params.action].flatMap((key) => {
+    const value = params[key];
+    const dropped = value === undefined || (value === null && params.action === "create");
+    return dropped ? [] : [[key, value] as const];
+  });
+  return { action: params.action, ...Object.fromEntries(relevant) };
 }
 
 export const manageIncomingWebhooksTool = {
@@ -81,46 +106,10 @@ export const manageIncomingWebhooksTool = {
   inputSchema: ManageIncomingWebhooksSchema,
   outputSchema: OutputSchema,
   execute: async (params: Params) => {
-    switch (params.action) {
-      case "list":
-        return run({ action: "list", typeId: params.typeId });
-      case "get":
-        return params.id ? run({ action: "get", id: params.id }) : missing("id");
-      case "fields":
-        return params.typeId ? run({ action: "fields", typeId: params.typeId }) : missing("typeId");
-      case "delete":
-        return params.id ? run({ action: "delete", id: params.id }) : missing("id");
-      case "test":
-        return params.id ? run({ action: "test", id: params.id, payload: params.payload as never }) : missing("id");
-      case "deliveries":
-        return params.id ? run({ action: "deliveries", id: params.id, limit: params.limit }) : missing("id");
-      case "create":
-        if (!params.typeId) return missing("typeId");
-        if (!params.name) return missing("name");
-        if (!params.mapping) return missing("mapping");
-        return run({
-          action: "create",
-          typeId: params.typeId,
-          name: params.name,
-          mapping: params.mapping,
-          enabled: params.enabled,
-          signatureHeader: params.signatureHeader,
-          signingSecret: params.signingSecret ?? undefined,
-          samplePayload: params.samplePayload as never,
-        });
-      case "update":
-        if (!params.id) return missing("id");
-        return run({
-          action: "update",
-          id: params.id,
-          name: params.name,
-          mapping: params.mapping,
-          enabled: params.enabled,
-          signatureHeader: params.signatureHeader,
-          signingSecret: params.signingSecret,
-          samplePayload: params.samplePayload as never,
-          rotateUrl: params.rotateUrl,
-        });
-    }
+    const parsed = ManageIncomingWebhookSchema.safeParse(relevantInput(params));
+    if (!parsed.success) return mcpValidationFailure(parsed.error);
+    return runInteractor(getManageIncomingWebhookInteractor().invoke(parsed.data), (result) =>
+      toonResult({ ...result }),
+    );
   },
 };

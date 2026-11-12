@@ -39,7 +39,9 @@ export function toIncomingWebhookDto(
 }
 
 function knownOutcome(value: string): IncomingWebhookOutcome {
-  return (INCOMING_WEBHOOK_OUTCOMES as readonly string[]).includes(value) ? (value as IncomingWebhookOutcome) : "failed";
+  return (INCOMING_WEBHOOK_OUTCOMES as readonly string[]).includes(value)
+    ? (value as IncomingWebhookOutcome)
+    : "failed";
 }
 
 export function toIncomingDeliveryDto(delivery: StoredIncomingDelivery): IncomingWebhookDeliveryDto {

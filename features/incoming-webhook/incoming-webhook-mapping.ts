@@ -83,11 +83,11 @@ export function mapIncomingPayload(
     }
     const raw = selectIds(field, toAnswerValue(field, readJsonPath(payload, entry.path)));
     const converted = convertField(field, raw);
-    if (converted.kind === "skip") {
+    if (converted.kind === "skip")
       values.push({ fieldId: entry.fieldId, path: entry.path, value: null, error: field.required ? "required" : null });
-    } else if (converted.kind === "error") {
+    else if (converted.kind === "error")
       values.push({ fieldId: entry.fieldId, path: entry.path, value: null, error: "invalid" });
-    } else {
+    else {
       values.push({ fieldId: entry.fieldId, path: entry.path, value: converted.display, error: null });
       const isMatch = mapping.mode === "upsert" && mapping.matchFieldId === entry.fieldId;
       if (converted.kind === "identity") {

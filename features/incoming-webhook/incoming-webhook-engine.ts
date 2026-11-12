@@ -83,24 +83,28 @@ export class IncomingWebhookEngine {
 
   async apply(plan: Extract<WebhookPlan, { ok: true }>, idempotencyKey: string): Promise<WebhookApplied> {
     const { mapped, existing, model, operation, typeId } = plan;
-    const result = await this.writer.invoke({
-      expectedRevision: model.revision,
-      idempotencyKey,
-      mutation:
-        operation === "update" && existing
-          ? {
-              action: "update",
-              ref: existing.ref,
-              expectedVersion: existing.version,
-              fields: mapped.fields,
-            }
-          : {
-              action: "create",
-              typeId,
-              fields: mapped.fields,
-              ...(mapped.identities.length > 0 ? { identities: mapped.identities } : {}),
-            },
-    });
+    const attempt = (expectedRevision: number) =>
+      this.writer.invoke({
+        expectedRevision,
+        idempotencyKey,
+        mutation:
+          operation === "update" && existing
+            ? {
+                action: "update",
+                ref: existing.ref,
+                expectedVersion: existing.version,
+                fields: mapped.fields,
+              }
+            : {
+                action: "create",
+                typeId,
+                fields: mapped.fields,
+                ...(mapped.identities.length > 0 ? { identities: mapped.identities } : {}),
+              },
+      });
+    let result = await attempt(model.revision);
+    if (!result.ok && failureCode(result.error.issues) === CustomErrorCode.recordSchemaChanged)
+      result = await attempt((await this.records.getModel()).revision);
     if (result.ok) {
       const ref = result.data.status === "completed" ? result.data.refs[0] : undefined;
       return { ok: true, operation, recordId: existing?.ref.recordId ?? ref?.recordId ?? null };

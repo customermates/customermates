@@ -129,11 +129,12 @@ export class PrismaIncomingWebhookRepo
         createdAt: { lt: new Date(Date.now() - retentionDays * DAY_MS) },
       },
     });
-    if (delivery.outcome === "created" || delivery.outcome === "updated")
+    if (delivery.outcome === "created" || delivery.outcome === "updated") {
       await this.prisma.incomingWebhook.update({
         where: { id: delivery.webhookId, companyId: this.companyId },
         data: { lastReceivedAt: new Date() },
       });
+    }
     return created;
   }
 

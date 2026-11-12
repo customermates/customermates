@@ -27,13 +27,14 @@ import { IncomingWebhookResultSchema, ManageIncomingWebhookSchema } from "./inco
 type Outcome = Validated<IncomingWebhookResult>;
 
 function previewOf(plan: Awaited<ReturnType<IncomingWebhookEngine["plan"]>>): IncomingWebhookPreview {
-  if (!plan.ok)
+  if (!plan.ok) {
     return {
       ok: false,
       outcome: null,
       existingRecordId: null,
       values: plan.reason === "invalid" ? plan.values : [],
     };
+  }
   return {
     ok: true,
     outcome: plan.operation,
