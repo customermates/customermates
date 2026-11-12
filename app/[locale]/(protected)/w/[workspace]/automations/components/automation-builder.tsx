@@ -23,7 +23,7 @@ import type { AutomationRuleDto } from "@/features/automation-rules/automation-r
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { AppCardFooter } from "@/components/card/app-card-footer";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { AppModal } from "@/components/modal/app-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -522,15 +522,7 @@ export function AutomationBuilder({ draft: initial, model, onClose, onSaved }: P
             </Section>
           </AppCardBody>
 
-          <AppCardFooter>
-            <Button variant="ghost" onClick={onClose}>
-              {t("Common.actions.cancel")}
-            </Button>
-
-            <Button disabled={pending} onClick={save}>
-              {t("Common.actions.save")}
-            </Button>
-          </AppCardFooter>
+          <FormFooterActions creating saving={pending} onCancel={onClose} onSave={save} />
         </AppCard>
       )}
     </AppModal>
