@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Calendário editorial",
-  "summary": "Uma linha por conteúdo com status, responsável, revisor e data de publicação, mais campanhas, datas-chave e uma rotina editorial semanal.",
-  "description": "Um calendário editorial para blog, newsletter, redes sociais e vídeo: sete status da ideia ao publicado, um calendário de postagens, um pilar de conteúdo por conteúdo, uma conferência da identificação de publicidade para conteúdo pago ou recebido de presente e uma checagem de resultados após 30 dias. Planeja e acompanha, não publica.",
+  "summary": "Uma linha por conteúdo com status, responsável, revisor e data de publicação, mais campanhas, datas-chave e uma reunião editorial semanal.",
+  "description": "Um calendário editorial para blog, newsletter, redes sociais e vídeo: sete status da ideia ao publicado, um calendário de postagens, um pilar por conteúdo, uma conferência da identificação de publicidade para conteúdo pago ou recebido de presente e uma checagem de resultados após 30 dias. Planeja e acompanha, não publica.",
   "lists": {
     "people": { "label": "Pessoa", "pluralLabel": "Pessoas", "description": "Autores, editores, revisores, aprovadores e convidados." },
     "pieces": { "label": "Conteúdo", "pluralLabel": "Conteúdos", "description": "Um conteúdo da ideia à publicação." },
@@ -131,9 +131,9 @@
   },
   "knowledgePages": {
     "content_pillars": { "title": "Pilares de conteúdo e mix", "sections": ["Os pilares e a parte de cada um", "O que pertence a cada pilar"] },
-    "editorial_rhythm": { "title": "Ritmo de publicação e reunião editorial semanal", "sections": ["Espaços por canal", "Publicado, em risco, bloqueado", "Status e quem os muda"] },
+    "editorial_rhythm": { "title": "Ritmo de publicação e reunião editorial semanal", "sections": ["Lacunas por canal", "Publicado, em risco, bloqueado", "Status e quem os muda"] },
     "review_and_approval": { "title": "Prazos de revisão e aprovação", "sections": ["Quem revisa e em quantos dias", "Aprovação do cliente quando necessária"] },
-    "disclosure_checklist": { "title": "Checklist de identificação de publicidade e parcerias", "sections": ["Quando um post precisa de identificação", "Termo e posição", "Conferência antes de publicar"] }
+    "disclosure_checklist": { "title": "Checklist de identificação de publicidade e parcerias", "sections": ["Quando um post precisa de identificação", "Redação e posição da identificação", "Conferência antes de publicar"] }
   },
   "rules": {
     "review_task": { "title": "Criar uma tarefa de revisão quando um conteúdo entra em revisão" },
@@ -151,7 +151,7 @@
     "calendar_widget": "O painel mostra o calendário de postagens."
   },
   "prompt": {
-    "intro": "Configure um calendário editorial no meu espaço de trabalho do Customermates: conteúdos com sete status, um responsável, um revisor e uma data de publicação, campanhas, datas-chave, uma conferência da identificação de publicidade e uma rotina editorial semanal.",
+    "intro": "Configure um calendário editorial no meu espaço de trabalho do Customermates: conteúdos com sete status, um responsável, um revisor e uma data de publicação, campanhas, datas-chave, uma conferência da identificação de publicidade e uma reunião editorial semanal.",
     "questions": [
       "O que você publica, em quais canais e com que frequência?",
       "Quem escreve, quem revisa e quem aprova? Há um cliente envolvido?",

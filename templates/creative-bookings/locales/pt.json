@@ -2,7 +2,7 @@
   "locale": "pt",
   "name": "Reservas para criativos",
   "summary": "Para fotógrafos, videomakers e cerimonialistas: um funil da solicitação à reserva, uma etapa de entrega depois da data, controle de sinal e saldo e uma nota para cada aniversário.",
-  "description": "Uma linha por reserva com duas etapas: venda (da solicitação a reservado) e entrega (sessão feita a entregue). A data fica reservada até o contrato ser assinado e o sinal pago, o saldo tem um vencimento próprio e cada entrega pede uma avaliação. Contratos, notas e galerias ficam nas suas ferramentas, aqui ficam os links.",
+  "description": "Uma linha por reserva com duas etapas: venda (da solicitação a reservado) e entrega (sessão feita a entregue). A data fica reservada até o contrato ser assinado e o sinal pago, o saldo tem um vencimento próprio e cada entrega pede uma avaliação. Contratos, notas fiscais e galerias ficam nas suas ferramentas, aqui ficam os links.",
   "lists": {
     "people": { "label": "Pessoa", "pluralLabel": "Pessoas", "description": "Clientes, parceiros dos clientes, cerimonialistas e contatos de espaços." },
     "partners": { "label": "Parceiro", "pluralLabel": "Parceiros", "description": "Espaços, cerimonialistas, buffets e outros fornecedores com quem você trabalha." },
@@ -19,7 +19,7 @@
     },
     "people.contact_role": {
       "label": "Papel",
-      "options": { "client": "Cliente", "partner_of_client": "Parceiro do cliente", "payer": "Pai, mãe ou pagador", "planner": "Cerimonialista", "venue_contact": "Contato do espaço", "referrer": "Indicador" }
+      "options": { "client": "Cliente", "partner_of_client": "Cônjuge ou noivo(a) do cliente", "payer": "Pai, mãe ou pagador", "planner": "Cerimonialista", "venue_contact": "Contato do espaço", "referrer": "Quem indicou" }
     },
     "people.preferred_channel": {
       "label": "Canal preferido",
@@ -53,12 +53,12 @@
     "bookings.deposit_amount": { "label": "Valor do sinal" },
     "bookings.deposit_status": {
       "label": "Sinal",
-      "options": { "not_due": "Não devido", "requested": "Solicitado", "paid": "Pago", "refunded": "Devolvido", "kept": "Retido" }
+      "options": { "not_due": "Não exigido", "requested": "Solicitado", "paid": "Pago", "refunded": "Devolvido", "kept": "Retido" }
     },
     "bookings.balance_due_on": { "label": "Saldo vence em" },
     "bookings.balance_status": {
       "label": "Saldo",
-      "options": { "not_due": "Não devido", "requested": "Solicitado", "paid": "Pago", "overdue": "Atrasado" }
+      "options": { "not_due": "Não exigido", "requested": "Solicitado", "paid": "Pago", "overdue": "Atrasado" }
     },
     "bookings.questionnaire_status": {
       "label": "Questionário",
@@ -142,7 +142,7 @@
     "questions": [
       "O que você fotografa, filma ou organiza e quantas reservas tem por ano?",
       "Por quais passos um cliente passa da solicitação à reserva e quando você reserva a data?",
-      "Como você recebe sinais e saldos? As notas ficam na sua ferramenta.",
+      "Como você recebe sinais e saldos? As notas fiscais ficam na sua ferramenta.",
       "Onde você entrega as galerias? Aqui só se guarda o link."
     ]
   }

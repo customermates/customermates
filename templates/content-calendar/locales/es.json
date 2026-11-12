@@ -1,8 +1,8 @@
 {
   "locale": "es",
   "name": "Calendario editorial",
-  "summary": "Una fila por pieza con estado, responsable, revisor y fecha de publicación, más campañas, fechas clave y una rutina editorial semanal.",
-  "description": "Un calendario editorial para blog, newsletter, redes sociales y vídeo: siete estados de la idea a publicado, un calendario de publicación, un pilar de contenido por pieza, una comprobación del aviso de publicidad para contenido pagado o regalado y un repaso de resultados a los 30 días. Planifica y hace seguimiento, no publica.",
+  "summary": "Una fila por pieza con estado, responsable, revisor y fecha de publicación, más campañas, fechas clave y una reunión editorial semanal.",
+  "description": "Un calendario editorial para blog, newsletter, redes sociales y vídeo: siete estados de la idea a publicado, un calendario de publicación, un pilar de contenido por pieza, una comprobación de la identificación de la publicidad en el contenido pagado o regalado y un repaso de resultados a los 30 días. Planifica y hace seguimiento, pero no publica.",
   "lists": {
     "people": { "label": "Persona", "pluralLabel": "Personas", "description": "Autores, editores, revisores, aprobadores e invitados." },
     "pieces": { "label": "Pieza", "pluralLabel": "Piezas", "description": "Una pieza de contenido de la idea a la publicación." },
@@ -67,10 +67,10 @@
     "pieces.review_due": { "label": "Revisión para el" },
     "pieces.publish_at": { "label": "Publicación el" },
     "pieces.ad_disclosure": {
-      "label": "Aviso de publicidad",
+      "label": "Identificación de la publicidad",
       "options": { "none": "Ninguno", "paid_partnership": "Colaboración pagada o publicidad", "gifted_product": "Producto regalado", "affiliate_link": "Enlace de afiliado" }
     },
-    "pieces.disclosure_checked": { "label": "Aviso comprobado" },
+    "pieces.disclosure_checked": { "label": "Identificación comprobada" },
     "pieces.published_url": { "label": "Enlace de la pieza publicada" },
     "pieces.published_on": { "label": "Publicado el" },
     "pieces.reach": { "label": "Alcance" },
@@ -133,7 +133,7 @@
     "content_pillars": { "title": "Pilares de contenido y reparto", "sections": ["Los pilares y el peso de cada uno", "Qué corresponde a cada pilar"] },
     "editorial_rhythm": { "title": "Ritmo de publicación y reunión editorial semanal", "sections": ["Huecos por canal", "Publicado, en riesgo, bloqueado", "Estados y quién los cambia"] },
     "review_and_approval": { "title": "Plazos de revisión y aprobación", "sections": ["Quién revisa y en cuántos días", "Aprobación del cliente cuando haga falta"] },
-    "disclosure_checklist": { "title": "Lista de avisos de publicidad y colaboraciones", "sections": ["Cuándo una publicación debe llevar aviso", "Redacción y colocación", "Comprobación antes de publicar"] }
+    "disclosure_checklist": { "title": "Lista de identificación de publicidad y colaboraciones", "sections": ["Cuándo una publicación debe identificarse como publicidad", "Redacción y colocación", "Comprobación antes de publicar"] }
   },
   "rules": {
     "review_task": { "title": "Crear una tarea de revisión cuando una pieza pasa a revisión" },
@@ -151,7 +151,7 @@
     "calendar_widget": "El panel muestra el calendario de publicación."
   },
   "prompt": {
-    "intro": "Configura un calendario editorial en mi espacio de trabajo de Customermates: piezas con siete estados, un responsable, un revisor y una fecha de publicación, campañas, fechas clave, una comprobación del aviso de publicidad y una rutina editorial semanal.",
+    "intro": "Configura un calendario editorial en mi espacio de trabajo de Customermates: piezas con siete estados, un responsable, un revisor y una fecha de publicación, campañas, fechas clave, una comprobación de la identificación de la publicidad y una reunión editorial semanal.",
     "questions": [
       "¿Qué publicas, en qué canales y con qué frecuencia?",
       "¿Quién escribe, quién revisa y quién aprueba? ¿Interviene un cliente?",

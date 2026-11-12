@@ -140,7 +140,7 @@
   "prompt": {
     "intro": "Configura las reservas para creativos en mi espacio de trabajo de Customermates: un pipeline de la solicitud a la reserva, una fase de entrega tras la fecha, seguimiento de señal y resto, un cuestionario antes del evento, una petición de reseña y notas de aniversario.",
     "questions": [
-      "¿Qué fotografías, grabas u organizas y cuántas reservas tienes al año?",
+      "¿A qué te dedicas: fotografía, vídeo u organización de eventos? ¿Cuántas reservas tienes al año?",
       "¿Por qué pasos pasa un cliente de la solicitud a la reserva y cuándo reservas la fecha?",
       "¿Cómo cobras señales y restos? Las facturas se quedan en tu herramienta.",
       "¿Dónde entregas las galerías? Aquí solo se guarda el enlace."
