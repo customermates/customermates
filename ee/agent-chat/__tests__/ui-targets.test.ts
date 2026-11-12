@@ -116,6 +116,8 @@ describe("agent interface targets", () => {
     const everything = () => true;
 
     expect(agentRouteVisible("/settings/webhooks", "cloud", reads(Resource.users))).toBe(false);
+    expect(agentRouteVisible("/settings/incoming-webhooks", "cloud", reads(Resource.users))).toBe(false);
+    expect(agentRouteVisible("/settings/incoming-webhooks", "cloud", reads(Resource.api))).toBe(true);
     expect(agentRouteVisible("/settings/members", "cloud", reads(Resource.users))).toBe(true);
     expect(agentRouteVisible("/settings/api-keys", "cloud", reads(Resource.users))).toBe(false);
     expect(agentRouteVisible("/settings/profile", "cloud", reads())).toBe(true);
@@ -132,6 +134,7 @@ describe("agent interface targets", () => {
     expect(agentUiPageLabelKeys("/settings/members")).toEqual(["SettingsNav.members"]);
     expect(agentUiPageLabelKeys("/settings/api-keys")).toEqual(["SettingsNav.apiKeys"]);
     expect(agentUiPageLabelKeys("/settings/webhook-deliveries")).toEqual(["SettingsNav.deliveries"]);
+    expect(agentUiPageLabelKeys("/settings/incoming-webhooks")).toEqual(["SettingsNav.incomingWebhooks"]);
     expect(agentUiPageLabelKeys("/inbox")).toEqual(["NavigationBar.inbox"]);
     expect(agentUiPageLabelKeys("/routines")).toEqual(["NavigationBar.routines"]);
     expect(agentUiPageLabelKeys("*")).toEqual([]);

@@ -90,6 +90,7 @@ const SETTINGS_NAVIGATION = {
   channels: "Channels & calendars",
   deliveries: "Webhook log",
   general: "General",
+  incomingWebhooks: "Incoming webhooks",
   members: "Members",
   profile: "Profile & preferences",
   roles: "Roles",

@@ -54,6 +54,10 @@ describe("app topbar crumbs", () => {
       { label: "NavigationBar.settings", href: "/settings/profile" },
       { label: "SettingsNav.deliveries" },
     ]);
+    expect(buildAppTopbarCrumbs("/en/settings/incoming-webhooks", translate, null).crumbs).toEqual([
+      { label: "NavigationBar.settings", href: "/settings/profile" },
+      { label: "SettingsNav.incomingWebhooks" },
+    ]);
     expect(buildAppTopbarCrumbs("/en/settings/billing", translate, null).crumbs.at(-1)).toEqual({
       label: "SettingsNav.billing",
     });

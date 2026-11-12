@@ -531,6 +531,8 @@ export const SETTINGS_NAV_DESCRIPTIONS: Record<SettingsSlug, string> = {
   activity: "Settings link to Audit log, the log of changes in the workspace",
   webhooks: "Settings link to Webhooks; each webhook row offers Show deliveries for its sent deliveries",
   "webhook-deliveries": "Settings link to Webhook log, the sent webhook deliveries, directly below Webhooks",
+  "incoming-webhooks":
+    "Settings link to Incoming webhooks, the secret addresses other systems post JSON to in order to create or update records, below Webhook log",
 };
 
 function settingsNavKeys(section: SettingsSection): string[] {
