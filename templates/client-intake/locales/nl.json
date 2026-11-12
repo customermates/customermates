@@ -62,7 +62,7 @@
     "intakes.identity_verified_by": { "label": "Identiteit gecontroleerd door" },
     "intakes.conflict_check": {
       "label": "Controle op belangenconflict",
-      "options": { "not_required": "Niet vereist", "pending": "Loopt", "clear": "Geen conflict", "conflict_found": "Conflict gevonden" }
+      "options": { "not_required": "Niet vereist", "pending": "In behandeling", "clear": "Geen conflict", "conflict_found": "Conflict gevonden" }
     },
     "intakes.risk_rating": {
       "label": "Risicobeoordeling",
@@ -102,7 +102,7 @@
       "label": "Status",
       "options": { "requested": "Opgevraagd", "partial": "Deels ontvangen", "received": "Ontvangen", "needs_correction": "Moet worden gecorrigeerd", "not_needed": "Niet nodig" }
     },
-    "document_requests.requested_on": { "label": "Gevraagde documenten op" },
+    "document_requests.requested_on": { "label": "Opgevraagd op" },
     "document_requests.needed_by": { "label": "Uiterste datum" },
     "document_requests.received_on": { "label": "Ontvangen op" },
     "document_requests.where_stored": { "label": "Waar het is opgeslagen" },
@@ -111,12 +111,12 @@
       "label": "Soort",
       "options": {
         "reply": "Antwoord",
-        "chase_form": "Formulier nabellen",
-        "chase_document": "Document nabellen",
+        "chase_form": "Formulier opvolgen",
+        "chase_document": "Document opvolgen",
         "review": "Controle",
         "check": "Check",
         "send_agreement": "Overeenkomst sturen",
-        "chase_signature": "Handtekening nabellen",
+        "chase_signature": "Handtekening opvolgen",
         "kickoff": "Kickoff",
         "decline_letter": "Afwijzingsbrief",
         "other": "Overig"
@@ -180,23 +180,23 @@
   },
   "rules": {
     "reply_to_enquiry": { "title": "Beantwoord de aanvraag", "description": "Een nieuwe intake krijgt een antwoordactie met deadline de volgende dag." },
-    "chase_form": { "title": "Bel het intakeformulier na", "description": "Drie dagen nadat het formulier is verstuurd, valt een nabelactie." },
-    "chase_document": { "title": "Bel het ontbrekende document na", "description": "Wanneer de uiterste datum van een open documentverzoek is bereikt, wordt een nabelactie aangemaakt." },
-    "review_received_document": { "title": "Controleer het ontvangen document", "description": "Wanneer een document als ontvangen is gemarkeerd, valt de volgende dag een controleactie." },
-    "chase_signature": { "title": "Bel de handtekening na", "description": "Zeven dagen nadat de overeenkomst is verstuurd, valt een nabelactie." },
-    "decline_letter": { "title": "Stuur de afwijzingsbrief", "description": "Een afgewezen intake krijgt een briefactie voor de volgende dag. Vermeld dat er geen opdracht bestaat en noem een naderende termijn." },
-    "kickoff_event": { "title": "Zet de kickoff in de agenda", "description": "Zodra de kickoffdatum is ingesteld, wordt het evenement in de agenda van de verantwoordelijke gezet." },
+    "chase_form": { "title": "Volg het intakeformulier op", "description": "Drie dagen nadat het formulier is verstuurd, staat er een opvolgactie klaar." },
+    "chase_document": { "title": "Volg het ontbrekende document op", "description": "Wanneer de uiterste datum van een open documentverzoek is bereikt, wordt een opvolgactie aangemaakt." },
+    "review_received_document": { "title": "Controleer het ontvangen document", "description": "Wanneer een document als ontvangen is gemarkeerd, staat de volgende dag een controleactie klaar." },
+    "chase_signature": { "title": "Volg de handtekening op", "description": "Zeven dagen nadat de overeenkomst is verstuurd, staat er een opvolgactie klaar." },
+    "decline_letter": { "title": "Stuur de afwijzingsbrief", "description": "Een afgewezen intake krijgt een actie voor de afwijzingsbrief, met deadline de volgende dag. Vermeld dat er geen opdracht bestaat en noem een naderende termijn." },
+    "kickoff_event": { "title": "Zet de kickoff in de agenda", "description": "Zodra de kickoffdatum is ingesteld, wordt de afspraak in de agenda van de verantwoordelijke gezet." },
     "first_value_check": { "title": "Controleer het eerste resultaat", "description": "Veertien dagen na de start vraagt een controleactie of de klant een eerste resultaat heeft gezien." },
     "stalled_intake": { "title": "Bekijk de vastgelopen intake", "description": "Een open intake die 7 dagen in dezelfde fase bleef, krijgt een controleactie." },
     "intake_form_records": { "title": "Maak klant, contactpersoon en intake aan uit het formulier", "description": "Een openbaar intakeformulier maakt de klant, de contactpersoon en een intake in de fase Aanvraag aan." },
-    "intake_form_notice": { "title": "Meld de verantwoordelijke de nieuwe intake", "description": "De eigenaar van de werkruimte krijgt een melding van elke inzending." }
+    "intake_form_notice": { "title": "Informeer de verantwoordelijke over de nieuwe intake", "description": "De eigenaar van de werkruimte krijgt een melding van elke inzending." }
   },
   "acceptanceChecks": {
     "stage_field": "Elke intake heeft een van de negen fasen.",
     "first_response_field": "Elke intake legt vast wanneer je voor het eerst reageerde.",
     "document_requests_list": "Documentverzoeken worden in een eigen lijst bijgehouden.",
     "intakes_board_view": "De intakelijst is te zien als bord per fase.",
-    "chase_signature_rule": "Een verstuurde overeenkomst krijgt na 7 dagen een nabelactie.",
+    "chase_signature_rule": "Een verstuurde overeenkomst krijgt na 7 dagen een opvolgactie.",
     "process_page": "De kennisbank bevat het intakeproces."
   },
   "prompt": {

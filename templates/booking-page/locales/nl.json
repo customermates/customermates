@@ -2,9 +2,9 @@
   "locale": "nl",
   "name": "Online afspraken maken",
   "summary": "Een afsprakenregister voor dienstverleners: afspraaktypes met duur en minimale termijn, elke boeking met status, herinneringen en uitkomst, en bij elk een volgende stap.",
-  "description": "Neem boekingen aan voor gesprekken, consulten of bezichtigingen en bewaar ze in de CRM: een paar afspraaktypes met duur, buffer en minimale termijn, een boeking die de persoon en de afspraak aanmaakt, een agenda-item zodra u bevestigt, twee herinneringen en een uitkomst na elke afspraak. Het boekt alleen tijd van mensen. Geen systeem voor het reserveren van ruimtes of middelen, geen ticketverkoop, geen afsprakensysteem voor de zorg en geen betaaldienst.",
+  "description": "Boekingen aannemen voor gesprekken, consulten of bezichtigingen en ze bewaren in het CRM: een paar afspraaktypes met duur, buffer en minimale termijn, een boeking die de persoon en de afspraak aanmaakt, een agenda-item zodra je bevestigt, twee herinneringen en een uitkomst na elke afspraak. Het boekt alleen tijd van mensen. Geen systeem voor het reserveren van ruimtes of middelen, geen ticketverkoop, geen afsprakensysteem voor de zorg en geen betaaldienst.",
   "lists": {
-    "people": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen die bij u boeken." },
+    "people": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen die bij jou boeken." },
     "appointment_types": { "label": "Afspraaktype", "pluralLabel": "Afspraaktypes", "description": "Een soort afspraak met duur, buffer, minimale termijn en prijs." },
     "appointments": { "label": "Afspraak", "pluralLabel": "Afspraken", "description": "Eén boeking, van aangevraagd tot gehouden, niet verschenen of geannuleerd." }
   },
@@ -24,11 +24,11 @@
     "appointment_types.active": { "label": "Actief" },
     "appointments.status": {
       "label": "Status",
-      "options": { "requested": "Aangevraagd", "confirmed": "Bevestigd", "rescheduled": "Verzet", "held": "Gehouden", "no_show": "Niet verschenen", "cancelled_by_client": "Geannuleerd door klant", "cancelled_by_us": "Geannuleerd door ons" }
+      "options": { "requested": "Aangevraagd", "confirmed": "Bevestigd", "rescheduled": "Verzet", "held": "Gehouden", "no_show": "Niet verschenen", "cancelled_by_client": "Geannuleerd door de klant", "cancelled_by_us": "Geannuleerd door ons" }
     },
-    "appointments.start_at": { "label": "Begint" },
+    "appointments.start_at": { "label": "Begin" },
     "appointments.source": { "label": "Bron", "options": { "booking_page": "Boekingspagina", "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Telefoon", "manual": "Handmatig ingevoerd" } },
-    "appointments.meeting_url": { "label": "Link naar de vergadering" },
+    "appointments.meeting_url": { "label": "Meetinglink" },
     "appointments.outcome": {
       "label": "Uitkomst",
       "options": { "not_decided": "Nog niet beslist", "qualified": "Gekwalificeerd", "second_call": "Tweede gesprek nodig", "proposal_needed": "Offerte nodig", "won": "Gewonnen in het gesprek", "not_a_fit": "Past niet" }
@@ -44,7 +44,7 @@
         "send_reminder": "Herinnering sturen",
         "prepare_call": "Afspraak voorbereiden",
         "send_follow_up": "Opvolging sturen",
-        "offer_new_slot": "Nieuw moment aanbieden",
+        "offer_new_slot": "Nieuw tijdstip aanbieden",
         "record_outcome": "Uitkomst vastleggen",
         "other": "Overig"
       }
@@ -72,8 +72,8 @@
   },
   "knowledgePages": {
     "appointment_types_rules": { "title": "Afspraaktypes en beschikbaarheid", "sections": ["Types, duur, buffers en minimale termijn", "Openingstijden en limieten per dag"] },
-    "reminder_policy": { "title": "Herinneringen en niet verschijnen", "sections": ["Herinneringen 3 dagen en 1 dag van tevoren", "Wat we doen na een no-show"] },
-    "cancellation_policy": { "title": "Annuleren en verzetten", "sections": ["Tot wanneer een klant kan annuleren", "Hoe een nieuw moment wordt aangeboden"] }
+    "reminder_policy": { "title": "Herinneringen en no-shows", "sections": ["Herinneringen 3 dagen en 1 dag van tevoren", "Wat we doen na een no-show"] },
+    "cancellation_policy": { "title": "Annuleren en verzetten", "sections": ["Tot wanneer een klant kan annuleren", "Hoe een nieuw tijdstip wordt aangeboden"] }
   },
   "rules": {
     "booking_form_records": { "title": "Contactpersoon en afspraak aanmaken als het boekingsformulier is ingediend" },
@@ -82,7 +82,7 @@
     "first_reminder": { "title": "Een eerste herinnering sturen 3 dagen voor een bevestigde afspraak" },
     "second_reminder": { "title": "Een tweede herinnering sturen 1 dag voor een bevestigde afspraak" },
     "record_outcome": { "title": "De uitkomst vastleggen nadat een bevestigde afspraak heeft plaatsgevonden" },
-    "no_show_new_slot": { "title": "De dag na een no-show een nieuw moment aanbieden" },
+    "no_show_new_slot": { "title": "De dag na een no-show een nieuw tijdstip aanbieden" },
     "follow_up_held": { "title": "De dag na een gehouden afspraak de opvolging sturen" }
   },
   "acceptanceChecks": {
@@ -91,12 +91,12 @@
     "appointments_board_view": "De afspraken openen als bord per status."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-workspace online afspraken in: afspraaktypes met duur, buffer en minimale termijn, afspraken met status en uitkomst, herinneringen vóór elke afspraak en een opvolging erna.",
+    "intro": "Richt in mijn Customermates-werkruimte online afspraken in: afspraaktypes met duur, buffer en minimale termijn, afspraken met status en uitkomst, herinneringen vóór elke afspraak en een opvolging erna.",
     "questions": [
-      "Welke soorten afspraken biedt u aan en hoe lang duurt elke?",
-      "Hoeveel termijn heeft u nodig en hoe ver vooruit kan men boeken?",
+      "Welke soorten afspraken bied je aan en hoe lang duurt elke?",
+      "Hoeveel tijd van tevoren moet iemand boeken en hoe ver vooruit kan men boeken?",
       "Welke vragen moet een klant bij het boeken beantwoorden?",
-      "Hoe gaat u nu om met no-shows en late annuleringen?"
+      "Hoe ga je nu om met no-shows en late annuleringen?"
     ]
   }
 }
