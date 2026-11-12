@@ -135,10 +135,10 @@ export async function TemplateRoutineSection({
     >
       <ol className="mb-10 grid grid-cols-1 gap-3 md:grid-cols-2" data-template-routine="">
         {page.routine.steps.map((step, index) => (
-          <li key={step} className="mk-card flex gap-4 p-5">
-            <span className="mk-icon-tile">{index + 1}</span>
+          <li key={step} className="mk-card flex items-start gap-4 p-5">
+            <span className="mk-icon-tile shrink-0">{index + 1}</span>
 
-            <p className="text-sm leading-6 text-foreground">{step}</p>
+            <p className="pt-1 text-sm leading-6 text-foreground">{step}</p>
           </li>
         ))}
       </ol>

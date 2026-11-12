@@ -40,7 +40,7 @@ export function TemplateCard({ copyLabel, data, worksWith }: Props) {
         <p className="mt-3 flex-1 text-sm leading-6 text-subdued">{data.summary}</p>
 
         <div className="mt-5 flex items-center justify-between gap-3 border-t border-border pt-4 text-xs text-subdued">
-          <span className="min-w-0 truncate">{worksWith}</span>
+          <span className="min-w-0">{worksWith}</span>
 
           <span className="inline-flex shrink-0 items-center gap-1 font-medium text-foreground">
             {copyLabel}

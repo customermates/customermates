@@ -67,7 +67,7 @@ export async function TemplatesHub({ locale }: { locale: string }) {
         title={t("hubTitle")}
       />
 
-      <MarketingSection className="mk-section-tight pt-6 sm:pt-8" containerSize="wide" id="templates">
+      <MarketingSection className="mk-section-tight pt-6 sm:pt-8" id="templates">
         <TemplateGallery
           families={familyIds.map((id) => ({ id, label: families[id] ?? id }))}
           items={items}

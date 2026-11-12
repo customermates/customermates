@@ -68,7 +68,7 @@ export function TemplateGallery({ families, items, labels }: Props) {
           />
 
           <input
-            className="h-10 w-full rounded-lg border border-border bg-card ps-9 pe-3 text-sm text-foreground outline-none placeholder:text-subdued focus-visible:ring-2 focus-visible:ring-ring/50"
+            className="block h-10 w-full rounded-lg border border-border bg-card ps-9 pe-3 text-sm text-foreground outline-none placeholder:text-subdued focus-visible:ring-2 focus-visible:ring-ring/50"
             placeholder={labels.searchPlaceholder}
             type="search"
             value={query}
