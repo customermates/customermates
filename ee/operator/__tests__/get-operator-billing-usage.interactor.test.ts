@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { OperatorActor } from "@/core/decorators/operator-context";
 import type { BillingUsageLedger } from "../get/get-operator-billing-usage.repo";
+import type { WorkspaceMeasurementRow } from "../workspace-measurement";
 
 const actor: OperatorActor = {
   authUserId: "auth-1",
@@ -79,10 +80,40 @@ const ledger: BillingUsageLedger = {
   ],
 };
 
-function interactor(readBillingUsageLedgerUnscoped = vi.fn(() => Promise.resolve(ledger))) {
+function measurement(overrides: Partial<WorkspaceMeasurementRow> = {}): WorkspaceMeasurementRow {
+  return {
+    signupTemplate: null,
+    signupLastPage: null,
+    discoveryChoice: null,
+    discoveryDetail: null,
+    discoveryAnsweredAt: null,
+    signupSource: null,
+    agentFirstCallAt: null,
+    funnelSetupCompletedAt: null,
+    funnelAgentConnectedAt: null,
+    funnelChannelConnectedAt: null,
+    wizardCompletedAt: null,
+    firstConnectedAccountAt: null,
+    firstModelChangeAt: null,
+    firstRecordCreatedAt: null,
+    changeInSecondWeekAt: null,
+    ...overrides,
+  };
+}
+
+function interactor(
+  readBillingUsageLedgerUnscoped = vi.fn(() => Promise.resolve(ledger)),
+  readWorkspaceMeasurementsUnscoped = vi.fn((_workspaces: ReadonlyArray<{ companyId: string; createdAt: Date }>) =>
+    Promise.resolve(new Map<string, WorkspaceMeasurementRow>()),
+  ),
+) {
   return {
     read: readBillingUsageLedgerUnscoped,
-    interactor: new GetOperatorBillingUsageInteractor({ readBillingUsageLedgerUnscoped }),
+    readMeasurements: readWorkspaceMeasurementsUnscoped,
+    interactor: new GetOperatorBillingUsageInteractor({
+      readBillingUsageLedgerUnscoped,
+      readWorkspaceMeasurementsUnscoped,
+    }),
   };
 }
 
@@ -107,6 +138,56 @@ describe("GetOperatorBillingUsageInteractor", () => {
       workspaces: 1,
       paying: 1,
       groups: [{ billing: "manual", plan: "enterprise", status: "active", workspaces: 1, activeSeats: 1 }],
+    });
+  });
+
+  it("adds the signup source and the first-value events of every live workspace, and nothing for a deleted one", async () => {
+    const { interactor: subject, readMeasurements } = interactor(
+      undefined,
+      vi.fn(() =>
+        Promise.resolve(
+          new Map([
+            [
+              LIVE,
+              measurement({
+                signupTemplate: "law-firm-intake",
+                signupLastPage: "/en/for/law-firms",
+                discoveryChoice: "aiAssistant",
+                discoveryAnsweredAt: new Date("2026-01-01T00:05:00.000Z"),
+                agentFirstCallAt: new Date("2026-01-02T00:00:00.000Z"),
+                funnelSetupCompletedAt: new Date("2026-01-01T01:00:00.000Z"),
+                firstModelChangeAt: new Date("2026-01-01T02:00:00.000Z"),
+                changeInSecondWeekAt: new Date("2026-01-09T00:00:00.000Z"),
+              }),
+            ],
+          ]),
+        ),
+      ),
+    );
+
+    const result = await subject.invoke({ month: "2026-09" });
+
+    if (!result.ok) throw new Error("expected usage");
+    expect(readMeasurements).toHaveBeenCalledWith([expect.objectContaining({ companyId: LIVE })]);
+    const [deleted, live] = result.data.workspaces;
+    expect(deleted.acquisition).toBeNull();
+    expect(deleted.activation).toBeNull();
+    expect(live.acquisition).toEqual({
+      signupTemplate: "law-firm-intake",
+      lastPageBeforeSignup: "/en/for/law-firms",
+      discovery: { choice: "aiAssistant", detail: null, answeredAt: new Date("2026-01-01T00:05:00.000Z") },
+      consentedSource: null,
+    });
+    expect(live.activation).toMatchObject({
+      firstValue: {
+        setupCompletedAt: new Date("2026-01-01T01:00:00.000Z"),
+        agentFirstCallAt: new Date("2026-01-02T00:00:00.000Z"),
+        firstModelChangeAt: new Date("2026-01-01T02:00:00.000Z"),
+        firstRecordCreatedAt: null,
+      },
+      active: true,
+      activeSince: new Date("2026-01-09T00:00:00.000Z"),
+      notActiveBecause: null,
     });
   });
 

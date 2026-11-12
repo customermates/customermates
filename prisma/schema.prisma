@@ -16,6 +16,7 @@ model AuthUser {
   image              String?
   companyId          String?
   trialConsumedAt    DateTime?
+  signupLastPage     String?            @db.VarChar(512)
   /// Platform operator access belongs to the login, not to one of its workspace memberships.
   isPlatformOperator Boolean            @default(false)
   createdAt          DateTime           @default(now())
@@ -238,6 +239,11 @@ model Company {
   allowPublicLinks            Boolean                          @default(true)
   signupTemplate              String?                          @db.VarChar(64)
   agentFirstCallAt            DateTime?
+  signupLastPage              String?                          @db.VarChar(512)
+  discoveryChoice             String?                          @db.VarChar(32)
+  discoveryDetail             String?                          @db.VarChar(200)
+  discoveryUserId             String?
+  discoveryAnsweredAt         DateTime?
   users                       User[]
   apiKeys                     Apikey[]
   oauthAccessTokens           OauthAccessToken[]

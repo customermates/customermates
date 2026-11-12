@@ -9,6 +9,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { billingUsageWindow, subscriptionSummary, workspaceBillingUsage, workspaceExistsIn } from "../billing-usage";
 import { operatorCollator } from "../operator-collator";
+import { workspaceAcquisition, workspaceActivation } from "../workspace-measurement";
 import { GetOperatorBillingUsageSchema, OperatorBillingUsageDtoSchema } from "../billing-usage.schema";
 
 @OperatorReadInteractor
@@ -35,19 +36,31 @@ export class GetOperatorBillingUsageInteractor {
       intervalsByCompany.set(interval.companyId, companyIntervals);
     }
 
+    const listed = ledger.workspaces.filter((workspace) =>
+      data.companyId ? workspace.companyId === data.companyId : workspaceExistsIn(workspace, window),
+    );
+    const measurements = await this.repo.readWorkspaceMeasurementsUnscoped(
+      listed.filter((workspace) => workspace.deletedAt === null),
+    );
+    const now = new Date();
+
     const collator = operatorCollator();
-    const workspaces = ledger.workspaces
-      .filter((workspace) =>
-        data.companyId ? workspace.companyId === data.companyId : workspaceExistsIn(workspace, window),
-      )
-      .map((workspace) =>
-        workspaceBillingUsage({
-          workspace,
-          intervals: intervalsByCompany.get(workspace.companyId) ?? [],
-          window,
-          includeDetails: Boolean(data.companyId),
-        }),
-      )
+    const workspaces = listed
+      .map((workspace) => {
+        const measurement = measurements.get(workspace.companyId);
+        return {
+          ...workspaceBillingUsage({
+            workspace,
+            intervals: intervalsByCompany.get(workspace.companyId) ?? [],
+            window,
+            includeDetails: Boolean(data.companyId),
+          }),
+          acquisition: measurement ? workspaceAcquisition(measurement) : null,
+          activation: measurement
+            ? workspaceActivation({ row: measurement, createdAt: workspace.createdAt, now })
+            : null,
+        };
+      })
       .sort(
         (a, b) =>
           b.seats.count - a.seats.count ||

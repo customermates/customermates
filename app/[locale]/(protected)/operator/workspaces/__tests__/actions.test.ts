@@ -17,7 +17,10 @@ vi.mock("@/core/di", async () => {
   return {
     getOperatorAccessService: () => ({ authorizeRead: mocks.authorizeRead }),
     getGetOperatorBillingUsageInteractor: () =>
-      new GetOperatorBillingUsageInteractor({ readBillingUsageLedgerUnscoped: mocks.ledgerReads }),
+      new GetOperatorBillingUsageInteractor({
+        readBillingUsageLedgerUnscoped: mocks.ledgerReads,
+        readWorkspaceMeasurementsUnscoped: () => Promise.resolve(new Map()),
+      }),
     getDeleteOperatorWorkspaceInteractor: () => ({ invoke: vi.fn() }),
     getUpdateHostedAiEnterpriseAllowanceInteractor: () => ({ invoke: vi.fn() }),
     getUpdateOperatorSubscriptionTermsInteractor: () => ({ invoke: vi.fn() }),

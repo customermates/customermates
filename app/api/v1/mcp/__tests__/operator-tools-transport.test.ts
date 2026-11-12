@@ -40,7 +40,10 @@ vi.mock("@/core/di", async () => {
     }),
     getOperatorAccessService: () => accessService,
     getGetOperatorBillingUsageInteractor: () =>
-      new GetOperatorBillingUsageInteractor({ readBillingUsageLedgerUnscoped: state.ledgerReads }),
+      new GetOperatorBillingUsageInteractor({
+        readBillingUsageLedgerUnscoped: state.ledgerReads,
+        readWorkspaceMeasurementsUnscoped: () => Promise.resolve(new Map()),
+      }),
   };
 });
 
