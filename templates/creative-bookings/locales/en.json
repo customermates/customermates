@@ -1,0 +1,149 @@
+{
+  "locale": "en",
+  "name": "Creative bookings",
+  "summary": "For photographers, videographers and event planners: an inquiry-to-booking pipeline, a delivery stage after the date, deposit and balance tracking, and a note for every anniversary.",
+  "description": "One row per booking with two stages: sales (inquiry to booked) and delivery (shoot done to delivered). Dates are held until a contract is signed and a deposit paid, the balance has its own due date, and every delivered job asks for a review. Contracts, invoices and galleries stay in your own tools; links are kept here.",
+  "lists": {
+    "people": { "label": "Person", "pluralLabel": "People", "description": "Clients, partners of clients, planners and venue contacts." },
+    "partners": { "label": "Partner", "pluralLabel": "Partners", "description": "Venues, planners, caterers and other vendors you work with." },
+    "bookings": { "label": "Booking", "pluralLabel": "Bookings", "description": "One job from inquiry to delivery." }
+  },
+  "fields": {
+    "bookings.stage": {
+      "label": "Stage",
+      "options": { "inquiry": "Inquiry", "consultation": "Consultation", "proposal_sent": "Proposal sent", "date_on_hold": "Date on hold", "booked": "Booked", "lost": "Lost" }
+    },
+    "bookings.delivery": {
+      "label": "Delivery",
+      "options": { "not_started": "Not started", "preparing": "Preparing", "shoot_done": "Shoot done", "editing": "Editing", "client_review": "Client review", "delivered": "Delivered", "cancelled": "Cancelled or postponed" }
+    },
+    "people.contact_role": {
+      "label": "Role",
+      "options": { "client": "Client", "partner_of_client": "Partner of client", "payer": "Parent or payer", "planner": "Planner", "venue_contact": "Venue contact", "referrer": "Referrer" }
+    },
+    "people.preferred_channel": {
+      "label": "Preferred channel",
+      "options": { "email": "Email", "whatsapp": "WhatsApp", "phone": "Phone", "instagram": "Instagram" }
+    },
+    "people.anniversary_on": { "label": "Anniversary" },
+    "people.portfolio_consent": { "label": "Portfolio consent", "options": { "granted": "Granted", "declined": "Declined", "not_asked": "Not asked" } },
+    "people.consent_date": { "label": "Consent date" },
+    "partners.partner_type": {
+      "label": "Type",
+      "options": { "venue": "Venue", "planner": "Planner", "caterer": "Caterer", "florist": "Florist", "band_or_dj": "Band or DJ", "other": "Other" }
+    },
+    "partners.website": { "label": "Website" },
+    "partners.preferred": { "label": "Preferred partner" },
+    "bookings.service_type": {
+      "label": "Service",
+      "options": { "wedding": "Wedding", "portrait": "Portrait or family", "event": "Event", "corporate": "Corporate or headshots", "commercial": "Commercial", "video": "Video", "planning": "Planning" }
+    },
+    "bookings.package": { "label": "Package" },
+    "bookings.event_date": { "label": "Event date" },
+    "bookings.location": { "label": "Location" },
+    "bookings.source": {
+      "label": "Source",
+      "options": { "referral": "Referral", "instagram": "Instagram", "google_search": "Google search", "venue_or_planner": "Venue or planner", "wedding_fair": "Wedding fair", "past_client": "Past client", "other": "Other" }
+    },
+    "bookings.date_hold_until": { "label": "Date held until" },
+    "bookings.contract_status": {
+      "label": "Contract",
+      "options": { "not_sent": "Not sent", "sent": "Sent", "signed": "Signed", "cancelled": "Cancelled" }
+    },
+    "bookings.deposit_amount": { "label": "Deposit amount" },
+    "bookings.deposit_status": {
+      "label": "Deposit",
+      "options": { "not_due": "Not due", "requested": "Requested", "paid": "Paid", "refunded": "Refunded", "kept": "Kept" }
+    },
+    "bookings.balance_due_on": { "label": "Balance due on" },
+    "bookings.balance_status": {
+      "label": "Balance",
+      "options": { "not_due": "Not due", "requested": "Requested", "paid": "Paid", "overdue": "Overdue" }
+    },
+    "bookings.questionnaire_status": {
+      "label": "Questionnaire",
+      "options": { "not_sent": "Not sent", "sent": "Sent", "received": "Received" }
+    },
+    "bookings.delivery_due_on": { "label": "Delivery due on" },
+    "bookings.delivered_on": { "label": "Delivered on" },
+    "bookings.gallery_url": { "label": "Gallery link" },
+    "bookings.usage_rights": {
+      "label": "Usage rights",
+      "options": { "private_use": "Private use", "portfolio_and_social": "Portfolio and social", "commercial_licence": "Commercial licence", "not_decided": "Not decided" }
+    },
+    "bookings.lost_reason": {
+      "label": "Lost reason",
+      "options": { "date_taken": "Date taken", "price": "Price", "chose_another": "Chose another creative", "cancelled_or_postponed": "Event cancelled or postponed", "no_response": "No response", "style_mismatch": "Style mismatch" }
+    },
+    "bookings.weighted_value": { "label": "Weighted value" },
+    "actions.kind": {
+      "label": "Kind",
+      "options": {
+        "reply": "Reply to the inquiry",
+        "consult": "Consultation",
+        "send_proposal": "Send the proposal",
+        "send_contract": "Send the contract",
+        "chase_payment": "Chase a payment",
+        "send_questionnaire": "Send the questionnaire",
+        "build_timeline": "Build the timeline",
+        "shoot_day": "Shoot day",
+        "edit": "Edit",
+        "deliver": "Deliver",
+        "request_review": "Request a review",
+        "anniversary": "Anniversary note",
+        "other": "Other"
+      }
+    }
+  },
+  "relationships": {
+    "booking_client": { "sourceLabel": "Client", "targetLabel": "Bookings" },
+    "booking_venue": { "sourceLabel": "Venue or planner", "targetLabel": "Bookings" },
+    "action_booking": { "sourceLabel": "Booking", "targetLabel": "Actions" }
+  },
+  "views": {
+    "bookings_board": { "name": "Bookings by stage" },
+    "bookings_all": { "name": "All bookings by date" },
+    "delivery_board": { "name": "Delivery by status" },
+    "payments_due": { "name": "Balances to chase" },
+    "people_all": { "name": "All people" },
+    "partners_all": { "name": "All partners" }
+  },
+  "widgets": {
+    "pipeline_by_stage": { "title": "Open inquiries by stage" },
+    "shoots_coming": { "title": "Booked dates" },
+    "deposits_outstanding": { "title": "Deposits requested" },
+    "balances_coming": { "title": "Balances coming due" },
+    "booked_per_month": { "title": "Booked value by month of the event" },
+    "lost_reasons": { "title": "Why inquiries were lost" }
+  },
+  "knowledgePages": {
+    "booking_workflow": { "title": "Booking workflow", "sections": ["From inquiry to booked: reply in a day, hold the date, sign, deposit", "From shoot to delivery: editing, review, gallery"] },
+    "contract_checklist": { "title": "Contract and payment checklist", "sections": ["What the package includes and excludes", "Deposit, balance and cancellation", "Usage rights and model release"] },
+    "delivery_and_usage": { "title": "Delivery, previews and review request", "sections": ["Delivery date and preview", "Where the gallery lives", "Ask for a review"] }
+  },
+  "rules": {
+    "reply_to_inquiry": { "title": "Reply to a new inquiry within a day" },
+    "send_contract": { "title": "Send the contract when the date is put on hold" },
+    "chase_payment_after_signing": { "title": "Chase the deposit three days after the contract is signed" },
+    "questionnaire_before_event": { "title": "Send the questionnaire 45 days before a booked event" },
+    "balance_reminder": { "title": "Chase the balance a week before it is due" },
+    "edit_after_shoot": { "title": "Start the edit when the shoot is done" },
+    "request_review": { "title": "Ask for a review two weeks after delivery" },
+    "anniversary_note": { "title": "Write an anniversary note on the day" },
+    "inquiry_form_records": { "title": "Create the person and the booking from an inquiry form" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Every booking has a sales stage.",
+    "event_date_field": "Every booking has an event date.",
+    "bookings_board_view": "The bookings open as a board by stage."
+  },
+  "prompt": {
+    "intro": "Set up creative bookings in my Customermates workspace: a pipeline from inquiry to booked, a delivery stage after the date, deposit and balance tracking, a questionnaire before the event, a review request and anniversary notes.",
+    "questions": [
+      "What do you shoot or plan, and how many bookings a year?",
+      "Which steps does a client go through from inquiry to booked, and when is the date held?",
+      "How do you take deposits and balances? Invoices stay in your own tool.",
+      "Where do you deliver galleries? Only the link is kept here."
+    ]
+  }
+}

@@ -1,0 +1,159 @@
+{
+  "id": "tpl_creative_bookings",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "creative-bookings",
+  "family": "clients",
+  "kind": "pipeline",
+  "jurisdictions": ["global"],
+  "dashboardAudience": "me",
+  "modules": ["actions_core", "actions_dashboard"],
+  "requiresCapabilities": ["forms", "rules"],
+  "pairedPages": {},
+  "lists": [
+    { "key": "people", "role": "people", "icon": "contact" },
+    { "key": "partners", "icon": "store" },
+    { "key": "bookings", "role": "deals", "icon": "camera" }
+  ],
+  "stages": [
+    {
+      "field": "bookings.stage",
+      "items": [
+        { "key": "inquiry", "outcome": "open", "weight": 10 },
+        { "key": "consultation", "outcome": "open", "weight": 30 },
+        { "key": "proposal_sent", "outcome": "open", "weight": 50 },
+        { "key": "date_on_hold", "outcome": "open", "weight": 65 },
+        { "key": "booked", "outcome": "won", "weight": 100 },
+        { "key": "lost", "outcome": "lost", "weight": 0 }
+      ]
+    },
+    {
+      "field": "bookings.delivery",
+      "items": [
+        { "key": "not_started", "outcome": "open", "weight": 0 },
+        { "key": "preparing", "outcome": "open", "weight": 0 },
+        { "key": "shoot_done", "outcome": "open", "weight": 0 },
+        { "key": "editing", "outcome": "open", "weight": 0 },
+        { "key": "client_review", "outcome": "open", "weight": 0 },
+        { "key": "delivered", "outcome": "won", "weight": 100 },
+        { "key": "cancelled", "outcome": "lost", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "people.contact_role", "type": "select", "options": [{ "key": "client" }, { "key": "partner_of_client" }, { "key": "payer" }, { "key": "planner" }, { "key": "venue_contact" }, { "key": "referrer" }] },
+    { "key": "people.preferred_channel", "type": "select", "options": [{ "key": "email" }, { "key": "whatsapp" }, { "key": "phone" }, { "key": "instagram" }] },
+    { "key": "people.anniversary_on", "type": "date" },
+    { "key": "people.portfolio_consent", "type": "select", "options": [{ "key": "granted", "color": "success" }, { "key": "declined", "color": "destructive" }, { "key": "not_asked" }] },
+    { "key": "people.consent_date", "type": "date" },
+    { "key": "partners.partner_type", "type": "select", "options": [{ "key": "venue" }, { "key": "planner" }, { "key": "caterer" }, { "key": "florist" }, { "key": "band_or_dj" }, { "key": "other" }] },
+    { "key": "partners.website", "type": "url" },
+    { "key": "partners.preferred", "type": "boolean" },
+    { "key": "bookings.service_type", "type": "select", "options": [{ "key": "wedding" }, { "key": "portrait" }, { "key": "event" }, { "key": "corporate" }, { "key": "commercial" }, { "key": "video" }, { "key": "planning" }] },
+    { "key": "bookings.package", "type": "text" },
+    { "key": "bookings.event_date", "type": "date" },
+    { "key": "bookings.location", "type": "address" },
+    { "key": "bookings.source", "type": "select", "options": [{ "key": "referral" }, { "key": "instagram" }, { "key": "google_search" }, { "key": "venue_or_planner" }, { "key": "wedding_fair" }, { "key": "past_client" }, { "key": "other" }] },
+    { "key": "bookings.date_hold_until", "type": "date" },
+    { "key": "bookings.contract_status", "type": "select", "options": [{ "key": "not_sent" }, { "key": "sent", "color": "warning" }, { "key": "signed", "color": "success" }, { "key": "cancelled", "color": "destructive" }] },
+    { "key": "bookings.deposit_amount", "type": "currency" },
+    { "key": "bookings.deposit_status", "type": "select", "options": [{ "key": "not_due" }, { "key": "requested", "color": "warning" }, { "key": "paid", "color": "success" }, { "key": "refunded" }, { "key": "kept" }] },
+    { "key": "bookings.balance_due_on", "type": "date" },
+    { "key": "bookings.balance_status", "type": "select", "options": [{ "key": "not_due" }, { "key": "requested", "color": "warning" }, { "key": "paid", "color": "success" }, { "key": "overdue", "color": "destructive" }] },
+    { "key": "bookings.questionnaire_status", "type": "select", "options": [{ "key": "not_sent" }, { "key": "sent" }, { "key": "received", "color": "success" }] },
+    { "key": "bookings.delivery_due_on", "type": "date" },
+    { "key": "bookings.delivered_on", "type": "date" },
+    { "key": "bookings.gallery_url", "type": "url" },
+    { "key": "bookings.usage_rights", "type": "select", "options": [{ "key": "private_use" }, { "key": "portfolio_and_social" }, { "key": "commercial_licence" }, { "key": "not_decided" }] },
+    { "key": "bookings.lost_reason", "type": "select", "options": [{ "key": "date_taken" }, { "key": "price" }, { "key": "chose_another" }, { "key": "cancelled_or_postponed" }, { "key": "no_response" }, { "key": "style_mismatch" }] },
+    { "key": "actions.kind", "type": "select", "options": [{ "key": "reply" }, { "key": "consult" }, { "key": "send_proposal" }, { "key": "send_contract" }, { "key": "chase_payment" }, { "key": "send_questionnaire" }, { "key": "build_timeline" }, { "key": "shoot_day" }, { "key": "edit" }, { "key": "deliver" }, { "key": "request_review" }, { "key": "anniversary" }, { "key": "other" }] }
+  ],
+  "calculations": [
+    {
+      "key": "bookings.weighted_value",
+      "type": "currency",
+      "expression": {
+        "op": "divide",
+        "left": { "op": "multiply", "left": { "op": "field", "field": "bookings.value" }, "right": { "op": "optionWeight", "field": "bookings.stage" } },
+        "right": { "op": "number", "value": "100" }
+      }
+    }
+  ],
+  "relationships": [
+    { "key": "booking_client", "source": "bookings", "target": "people", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "booking_venue", "source": "bookings", "target": "partners", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_booking", "source": "actions", "target": "bookings", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    { "key": "bookings_board", "list": "bookings", "default": true, "layout": "board", "groupBy": "bookings.stage", "summaries": [{ "field": "bookings.value", "aggregation": "sum" }] },
+    {
+      "key": "bookings_all",
+      "list": "bookings",
+      "default": false,
+      "layout": "table",
+      "sort": { "field": "bookings.event_date", "direction": "asc" },
+      "columns": ["bookings.stage", "bookings.delivery", "bookings.event_date", "bookings.deposit_status", "bookings.balance_status"]
+    },
+    { "key": "delivery_board", "list": "bookings", "default": false, "layout": "board", "groupBy": "bookings.delivery" },
+    { "key": "payments_due", "list": "bookings", "default": false, "layout": "table", "filters": [{ "operator": "in", "field": "bookings.balance_status", "options": ["requested", "overdue"] }] },
+    { "key": "people_all", "list": "people", "default": true, "layout": "table", "columns": ["people.contact_role", "people.preferred_channel", "people.anniversary_on"] },
+    { "key": "partners_all", "list": "partners", "default": true, "layout": "table", "columns": ["partners.partner_type", "partners.preferred"] }
+  ],
+  "widgets": [
+    { "kind": "chart", "key": "pipeline_by_stage", "list": "bookings", "aggregation": "count", "groupBy": { "field": "bookings.stage" }, "filters": [{ "operator": "notIn", "field": "bookings.stage", "options": ["booked", "lost"] }], "display": "funnelChart" },
+    { "kind": "calendar", "key": "shoots_coming", "list": "bookings", "layout": "month", "dateField": "bookings.event_date", "filters": [{ "operator": "in", "field": "bookings.stage", "options": ["booked"] }] },
+    { "kind": "chart", "key": "deposits_outstanding", "list": "bookings", "aggregation": "count", "filters": [{ "operator": "in", "field": "bookings.deposit_status", "options": ["requested"] }], "display": "number" },
+    { "kind": "calendar", "key": "balances_coming", "list": "bookings", "layout": "upcoming", "dateField": "bookings.balance_due_on", "filters": [{ "operator": "in", "field": "bookings.balance_status", "options": ["not_due", "requested", "overdue"] }] },
+    { "kind": "chart", "key": "booked_per_month", "list": "bookings", "aggregation": "sum", "valueField": "bookings.value", "groupBy": { "field": "bookings.event_date", "dateInterval": "month" }, "filters": [{ "operator": "in", "field": "bookings.stage", "options": ["booked"] }], "display": "areaChart" },
+    { "kind": "chart", "key": "lost_reasons", "list": "bookings", "aggregation": "count", "groupBy": { "field": "bookings.lost_reason" }, "filters": [{ "operator": "in", "field": "bookings.stage", "options": ["lost"] }], "display": "doughnutChart" }
+  ],
+  "knowledgePages": [
+    { "key": "booking_workflow", "kind": "overview" },
+    { "key": "contract_checklist", "kind": "processes" },
+    { "key": "delivery_and_usage", "kind": "processes" }
+  ],
+  "followUpRules": [
+    { "key": "reply_to_inquiry", "trigger": { "kind": "record_created", "list": "bookings" }, "action": { "kind": "create_task", "taskKind": "reply", "assignee": "record_owner", "about": "bookings" }, "dueOffsetDays": 1, "needs": "today" },
+    { "key": "send_contract", "trigger": { "kind": "field_changed", "field": "bookings.stage", "to": "date_on_hold" }, "action": { "kind": "create_task", "taskKind": "send_contract", "assignee": "record_owner", "about": "bookings" }, "dueOffsetDays": 1, "needs": "today" },
+    { "key": "chase_payment_after_signing", "trigger": { "kind": "field_changed", "field": "bookings.contract_status", "to": "signed" }, "action": { "kind": "create_task", "taskKind": "chase_payment", "assignee": "record_owner", "about": "bookings" }, "dueOffsetDays": 3, "needs": "today" },
+    {
+      "key": "questionnaire_before_event",
+      "trigger": { "kind": "date_reached", "field": "bookings.event_date", "offsetDays": -45 },
+      "condition": [{ "operator": "in", "field": "bookings.stage", "options": ["booked"] }],
+      "action": { "kind": "create_task", "taskKind": "send_questionnaire", "assignee": "record_owner", "about": "bookings" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    {
+      "key": "balance_reminder",
+      "trigger": { "kind": "date_reached", "field": "bookings.balance_due_on", "offsetDays": -7 },
+      "condition": [{ "operator": "in", "field": "bookings.balance_status", "options": ["not_due", "requested"] }],
+      "action": { "kind": "create_task", "taskKind": "chase_payment", "assignee": "record_owner", "about": "bookings" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "edit_after_shoot", "trigger": { "kind": "field_changed", "field": "bookings.delivery", "to": "shoot_done" }, "action": { "kind": "create_task", "taskKind": "edit", "assignee": "record_owner", "about": "bookings" }, "dueOffsetDays": 3, "needs": "today" },
+    { "key": "request_review", "trigger": { "kind": "field_changed", "field": "bookings.delivery", "to": "delivered" }, "action": { "kind": "create_task", "taskKind": "request_review", "assignee": "record_owner", "about": "bookings" }, "dueOffsetDays": 14, "needs": "today" },
+    { "key": "anniversary_note", "trigger": { "kind": "date_reached", "field": "people.anniversary_on", "offsetDays": 0 }, "action": { "kind": "create_task", "taskKind": "anniversary", "assignee": "workspace_owner", "about": "people" }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "inquiry_form_records", "trigger": { "kind": "form_submitted", "form": "inquiry" }, "action": { "kind": "create_records", "lists": ["people", "bookings"] }, "dueOffsetDays": 1, "needs": "forms" }
+  ],
+  "acceptanceChecks": [
+    { "key": "stage_field", "kind": "field_exists", "ref": "bookings.stage" },
+    { "key": "event_date_field", "kind": "field_exists", "ref": "bookings.event_date" },
+    { "key": "bookings_board_view", "kind": "view_exists", "ref": "bookings_board" }
+  ],
+  "sources": [
+    { "url": "https://filmlifestyle.com/ultimate-wedding-videography-workflow/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.shootq.com/the-structure-every-studio-workflow-needs", "checkedOn": "2026-11-12" },
+    { "url": "https://www.honeybook.com/templates/kits/wedding-planner", "checkedOn": "2026-11-12" },
+    { "url": "https://www.honeybook.com/crm-for-photographers", "checkedOn": "2026-11-12" },
+    { "url": "https://blog.pixifi.com/mapping-the-client-journey-in-a-photography-studio", "checkedOn": "2026-11-12" },
+    { "url": "https://www.photocrm.io/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.getsproutstudio.com/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.weddingwire.com/wedding-ideas/wedding-photography-contract", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "own", "de": "own", "fr": "own", "it": "own", "es": "none", "pt": "own", "pl": "none", "nl": "none" },
+  "publishWave": { "en": "wave1", "de": "wave1", "fr": "wave2", "it": "wave1", "pt": "wave1" }
+}

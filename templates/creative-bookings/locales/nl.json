@@ -1,0 +1,149 @@
+{
+  "locale": "nl",
+  "name": "Boekingen voor creatievelingen",
+  "summary": "Voor fotografen, videografen en eventplanners: een pijplijn van aanvraag tot boeking, een leverfase na de datum, aanbetaling en restbetaling in beeld en een notitie voor elke verjaardag.",
+  "description": "Eén regel per boeking met twee fasen: verkoop (aanvraag tot geboekt) en levering (shoot gedaan tot geleverd). De datum wordt vastgehouden tot het contract is getekend en de aanbetaling is voldaan, de restbetaling heeft een eigen datum en na elke levering vraag je om een review. Contracten, facturen en galerijen blijven in je eigen tools, hier staan de links.",
+  "lists": {
+    "people": { "label": "Persoon", "pluralLabel": "Personen", "description": "Klanten, partners van klanten, planners en contactpersonen van locaties." },
+    "partners": { "label": "Partner", "pluralLabel": "Partners", "description": "Locaties, planners, cateraars en andere leveranciers met wie je werkt." },
+    "bookings": { "label": "Boeking", "pluralLabel": "Boekingen", "description": "Eén opdracht van aanvraag tot levering." }
+  },
+  "fields": {
+    "bookings.stage": {
+      "label": "Fase",
+      "options": { "inquiry": "Aanvraag", "consultation": "Kennismaking", "proposal_sent": "Offerte verstuurd", "date_on_hold": "Datum vastgehouden", "booked": "Geboekt", "lost": "Verloren" }
+    },
+    "bookings.delivery": {
+      "label": "Levering",
+      "options": { "not_started": "Niet gestart", "preparing": "In voorbereiding", "shoot_done": "Shoot gedaan", "editing": "In bewerking", "client_review": "Beoordeling door klant", "delivered": "Geleverd", "cancelled": "Geannuleerd of uitgesteld" }
+    },
+    "people.contact_role": {
+      "label": "Rol",
+      "options": { "client": "Klant", "partner_of_client": "Partner van klant", "payer": "Ouder of betaler", "planner": "Planner", "venue_contact": "Contact bij de locatie", "referrer": "Verwijzer" }
+    },
+    "people.preferred_channel": {
+      "label": "Voorkeurskanaal",
+      "options": { "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Telefoon", "instagram": "Instagram" }
+    },
+    "people.anniversary_on": { "label": "Verjaardag of jubileum" },
+    "people.portfolio_consent": { "label": "Toestemming voor portfolio", "options": { "granted": "Gegeven", "declined": "Geweigerd", "not_asked": "Niet gevraagd" } },
+    "people.consent_date": { "label": "Datum toestemming" },
+    "partners.partner_type": {
+      "label": "Soort",
+      "options": { "venue": "Locatie", "planner": "Planner", "caterer": "Cateraar", "florist": "Bloemist", "band_or_dj": "Band of dj", "other": "Overig" }
+    },
+    "partners.website": { "label": "Website" },
+    "partners.preferred": { "label": "Voorkeurspartner" },
+    "bookings.service_type": {
+      "label": "Dienst",
+      "options": { "wedding": "Bruiloft", "portrait": "Portret of gezin", "event": "Evenement", "corporate": "Zakelijk of portretten", "commercial": "Commercieel", "video": "Video", "planning": "Planning" }
+    },
+    "bookings.package": { "label": "Pakket" },
+    "bookings.event_date": { "label": "Datum van het evenement" },
+    "bookings.location": { "label": "Locatie" },
+    "bookings.source": {
+      "label": "Herkomst",
+      "options": { "referral": "Aanbeveling", "instagram": "Instagram", "google_search": "Google-zoekopdracht", "venue_or_planner": "Locatie of planner", "wedding_fair": "Bruiloftsbeurs", "past_client": "Oud-klant", "other": "Overig" }
+    },
+    "bookings.date_hold_until": { "label": "Datum vastgehouden tot" },
+    "bookings.contract_status": {
+      "label": "Contract",
+      "options": { "not_sent": "Niet verstuurd", "sent": "Verstuurd", "signed": "Getekend", "cancelled": "Geannuleerd" }
+    },
+    "bookings.deposit_amount": { "label": "Bedrag aanbetaling" },
+    "bookings.deposit_status": {
+      "label": "Aanbetaling",
+      "options": { "not_due": "Niet verschuldigd", "requested": "Gevraagd", "paid": "Betaald", "refunded": "Terugbetaald", "kept": "Ingehouden" }
+    },
+    "bookings.balance_due_on": { "label": "Restbetaling uiterlijk op" },
+    "bookings.balance_status": {
+      "label": "Restbetaling",
+      "options": { "not_due": "Niet verschuldigd", "requested": "Gevraagd", "paid": "Betaald", "overdue": "Achterstallig" }
+    },
+    "bookings.questionnaire_status": {
+      "label": "Vragenlijst",
+      "options": { "not_sent": "Niet verstuurd", "sent": "Verstuurd", "received": "Ontvangen" }
+    },
+    "bookings.delivery_due_on": { "label": "Levering uiterlijk op" },
+    "bookings.delivered_on": { "label": "Geleverd op" },
+    "bookings.gallery_url": { "label": "Link naar galerij" },
+    "bookings.usage_rights": {
+      "label": "Gebruiksrechten",
+      "options": { "private_use": "Privégebruik", "portfolio_and_social": "Portfolio en social media", "commercial_licence": "Commerciële licentie", "not_decided": "Nog niet bepaald" }
+    },
+    "bookings.lost_reason": {
+      "label": "Reden verloren",
+      "options": { "date_taken": "Datum bezet", "price": "Prijs", "chose_another": "Koos een ander", "cancelled_or_postponed": "Evenement geannuleerd of uitgesteld", "no_response": "Geen reactie", "style_mismatch": "Stijl past niet" }
+    },
+    "bookings.weighted_value": { "label": "Gewogen waarde" },
+    "actions.kind": {
+      "label": "Soort",
+      "options": {
+        "reply": "Aanvraag beantwoorden",
+        "consult": "Kennismaking",
+        "send_proposal": "Offerte sturen",
+        "send_contract": "Contract sturen",
+        "chase_payment": "Betaling nabellen",
+        "send_questionnaire": "Vragenlijst sturen",
+        "build_timeline": "Draaiboek maken",
+        "shoot_day": "Shootdag",
+        "edit": "Bewerken",
+        "deliver": "Leveren",
+        "request_review": "Review vragen",
+        "anniversary": "Bericht voor de verjaardag",
+        "other": "Overig"
+      }
+    }
+  },
+  "relationships": {
+    "booking_client": { "sourceLabel": "Klant", "targetLabel": "Boekingen" },
+    "booking_venue": { "sourceLabel": "Locatie of planner", "targetLabel": "Boekingen" },
+    "action_booking": { "sourceLabel": "Boeking", "targetLabel": "Acties" }
+  },
+  "views": {
+    "bookings_board": { "name": "Boekingen per fase" },
+    "bookings_all": { "name": "Alle boekingen op datum" },
+    "delivery_board": { "name": "Levering per status" },
+    "payments_due": { "name": "Restbetalingen na te bellen" },
+    "people_all": { "name": "Alle personen" },
+    "partners_all": { "name": "Alle partners" }
+  },
+  "widgets": {
+    "pipeline_by_stage": { "title": "Open aanvragen per fase" },
+    "shoots_coming": { "title": "Geboekte data" },
+    "deposits_outstanding": { "title": "Gevraagde aanbetalingen" },
+    "balances_coming": { "title": "Aankomende restbetalingen" },
+    "booked_per_month": { "title": "Geboekte waarde per maand van het evenement" },
+    "lost_reasons": { "title": "Waarom aanvragen verloren gingen" }
+  },
+  "knowledgePages": {
+    "booking_workflow": { "title": "Werkwijze van een boeking", "sections": ["Van aanvraag tot boeking: binnen een dag reageren, datum vasthouden, tekenen, aanbetaling", "Van shoot tot levering: bewerken, beoordelen, galerij"] },
+    "contract_checklist": { "title": "Checklist contract en betaling", "sections": ["Wat het pakket wel en niet omvat", "Aanbetaling, restbetaling en annulering", "Gebruiksrechten en toestemming voor beeld"] },
+    "delivery_and_usage": { "title": "Levering, voorproefje en reviewverzoek", "sections": ["Leverdatum en voorproefje", "Waar de galerij staat", "Om een review vragen"] }
+  },
+  "rules": {
+    "reply_to_inquiry": { "title": "Beantwoord een nieuwe aanvraag binnen een dag" },
+    "send_contract": { "title": "Stuur het contract zodra de datum wordt vastgehouden" },
+    "chase_payment_after_signing": { "title": "Bel de aanbetaling na drie dagen na ondertekening na" },
+    "questionnaire_before_event": { "title": "Stuur de vragenlijst 45 dagen voor een geboekt evenement" },
+    "balance_reminder": { "title": "Bel de restbetaling een week voor de vervaldatum na" },
+    "edit_after_shoot": { "title": "Begin met bewerken zodra de shoot is gedaan" },
+    "request_review": { "title": "Vraag twee weken na levering om een review" },
+    "anniversary_note": { "title": "Schrijf op de dag zelf een bericht voor de verjaardag" },
+    "inquiry_form_records": { "title": "Maak persoon en boeking aan uit een aanvraagformulier" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Elke boeking heeft een verkoopfase.",
+    "event_date_field": "Elke boeking heeft een datum van het evenement.",
+    "bookings_board_view": "De boekingen openen als bord per fase."
+  },
+  "prompt": {
+    "intro": "Richt boekingen voor creatievelingen in mijn Customermates-werkruimte in: een pijplijn van aanvraag tot boeking, een leverfase na de datum, aanbetaling en restbetaling, een vragenlijst voor het evenement, een reviewverzoek en berichten voor verjaardagen.",
+    "questions": [
+      "Wat fotografeer, film of plan je en hoeveel boekingen heb je per jaar?",
+      "Welke stappen doorloopt een klant van aanvraag tot boeking en wanneer houd je de datum vast?",
+      "Hoe ontvang je aanbetalingen en restbetalingen? Facturen blijven in je eigen tool.",
+      "Waar lever je galerijen? Hier wordt alleen de link bewaard."
+    ]
+  }
+}
