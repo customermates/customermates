@@ -1,0 +1,159 @@
+{
+  "id": "tpl_trades_job_pipeline",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "trades-job-pipeline",
+  "family": "trades",
+  "kind": "pipeline",
+  "jurisdictions": ["DE", "FR", "IT", "ES", "BR", "PL", "NL"],
+  "dashboardAudience": "team",
+  "modules": ["actions_core", "actions_dashboard"],
+  "requiresCapabilities": ["forms", "rules", "calendarWrite"],
+  "pairedPages": {
+    "en": "/for/tradespeople",
+    "de": "/for/tradespeople",
+    "fr": "/for/tradespeople",
+    "it": "/for/tradespeople",
+    "es": "/for/tradespeople",
+    "pt": "/for/tradespeople",
+    "pl": "/for/tradespeople",
+    "nl": "/for/tradespeople"
+  },
+  "lists": [
+    { "key": "customers", "role": "people", "icon": "contact" },
+    { "key": "sites", "icon": "mapPin" },
+    { "key": "jobs", "role": "deals", "icon": "hammer" },
+    { "key": "agreements", "icon": "repeat" }
+  ],
+  "stages": [
+    {
+      "field": "jobs.stage",
+      "items": [
+        { "key": "enquiry", "outcome": "open", "weight": 10 },
+        { "key": "assessment", "outcome": "open", "weight": 20 },
+        { "key": "to_quote", "outcome": "open", "weight": 30 },
+        { "key": "quote_sent", "outcome": "open", "weight": 40 },
+        { "key": "negotiating", "outcome": "open", "weight": 60 },
+        { "key": "won", "outcome": "won", "weight": 100 },
+        { "key": "lost", "outcome": "lost", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "customers.customer_type", "type": "select", "options": [{ "key": "private" }, { "key": "landlord" }, { "key": "property_manager" }, { "key": "commercial" }, { "key": "builder_contractor" }] },
+    { "key": "customers.marketing_ok", "type": "boolean" },
+    { "key": "sites.address", "type": "address" },
+    { "key": "sites.access_notes", "type": "text" },
+    { "key": "jobs.work_status", "type": "select", "options": [{ "key": "not_scheduled" }, { "key": "scheduled", "color": "info" }, { "key": "in_progress", "color": "warning" }, { "key": "completed", "color": "success" }, { "key": "invoiced" }, { "key": "paid", "color": "success" }] },
+    { "key": "jobs.work_type", "type": "select", "options": [{ "key": "repair" }, { "key": "installation" }, { "key": "renovation" }, { "key": "maintenance" }, { "key": "inspection" }, { "key": "emergency", "color": "destructive" }] },
+    { "key": "jobs.visit_at", "type": "dateTime" },
+    { "key": "jobs.quote_valid_until", "type": "date" },
+    { "key": "jobs.withdrawal_ends", "type": "date" },
+    { "key": "jobs.scheduled_start", "type": "date" },
+    { "key": "jobs.completed_on", "type": "date" },
+    { "key": "jobs.warranty_ends", "type": "date" },
+    { "key": "jobs.payment_due", "type": "date" },
+    { "key": "jobs.lost_reason", "type": "select", "options": [{ "key": "price" }, { "key": "timing" }, { "key": "chose_competitor" }, { "key": "no_response" }, { "key": "job_cancelled" }, { "key": "other" }] },
+    { "key": "agreements.interval", "type": "select", "options": [{ "key": "monthly" }, { "key": "quarterly" }, { "key": "twice_yearly" }, { "key": "yearly" }] },
+    { "key": "agreements.status", "type": "select", "options": [{ "key": "active", "color": "success" }, { "key": "paused", "color": "warning" }, { "key": "ended", "color": "secondary" }] },
+    { "key": "agreements.next_due", "type": "date" },
+    { "key": "agreements.renewal_on", "type": "date" },
+    {
+      "key": "actions.kind",
+      "type": "select",
+      "options": [{ "key": "call_back" }, { "key": "book_visit" }, { "key": "send_quote" }, { "key": "follow_up_quote" }, { "key": "confirm_schedule" }, { "key": "handover" }, { "key": "check_payment" }, { "key": "warranty_check" }, { "key": "book_service" }, { "key": "other" }]
+    }
+  ],
+  "relationships": [
+    { "key": "site_customer", "source": "sites", "target": "customers", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "job_customer", "source": "jobs", "target": "customers", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "job_site", "source": "jobs", "target": "sites", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "agreement_site", "source": "agreements", "target": "sites", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_job", "source": "actions", "target": "jobs", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    { "key": "jobs_board", "list": "jobs", "default": true, "layout": "board", "groupBy": "jobs.stage", "columns": ["jobs.work_type", "jobs.visit_at", "jobs.quote_valid_until"], "summaries": [{ "field": "jobs.value", "aggregation": "sum" }] },
+    { "key": "jobs_all", "list": "jobs", "default": false, "layout": "table", "sort": { "field": "jobs.visit_at", "direction": "asc" }, "columns": ["jobs.stage", "jobs.work_status", "jobs.work_type", "jobs.visit_at", "jobs.quote_valid_until"] },
+    { "key": "open_quotes", "list": "jobs", "default": false, "layout": "table", "sort": { "field": "jobs.quote_valid_until", "direction": "asc" }, "filters": [{ "operator": "in", "field": "jobs.stage", "options": ["quote_sent", "negotiating"] }] },
+    { "key": "work_in_progress", "list": "jobs", "default": false, "layout": "table", "sort": { "field": "jobs.scheduled_start", "direction": "asc" }, "filters": [{ "operator": "in", "field": "jobs.work_status", "options": ["scheduled", "in_progress"] }] },
+    { "key": "customers_all", "list": "customers", "default": true, "layout": "table", "columns": ["customers.customer_type", "customers.marketing_ok"] },
+    { "key": "sites_all", "list": "sites", "default": true, "layout": "table", "columns": ["sites.address", "sites.access_notes"] },
+    { "key": "agreements_all", "list": "agreements", "default": true, "layout": "table", "sort": { "field": "agreements.next_due", "direction": "asc" }, "columns": ["agreements.status", "agreements.interval", "agreements.next_due", "agreements.renewal_on"] }
+  ],
+  "widgets": [
+    { "kind": "chart", "key": "jobs_funnel", "list": "jobs", "aggregation": "count", "groupBy": { "field": "jobs.stage" }, "filters": [{ "operator": "in", "field": "jobs.stage", "options": ["enquiry", "assessment", "to_quote", "quote_sent", "negotiating", "won"] }], "display": "funnelChart" },
+    { "kind": "chart", "key": "open_quotes_value", "list": "jobs", "aggregation": "sum", "valueField": "jobs.value", "filters": [{ "operator": "in", "field": "jobs.stage", "options": ["quote_sent", "negotiating"] }], "display": "number" },
+    { "kind": "calendar", "key": "visits_coming", "list": "jobs", "layout": "upcoming", "dateField": "jobs.visit_at" },
+    { "kind": "chart", "key": "jobs_by_work_status", "list": "jobs", "aggregation": "count", "groupBy": { "field": "jobs.work_status" }, "filters": [{ "operator": "in", "field": "jobs.stage", "options": ["won"] }], "display": "doughnutChart" },
+    { "kind": "chart", "key": "lost_reasons", "list": "jobs", "aggregation": "count", "groupBy": { "field": "jobs.lost_reason" }, "filters": [{ "operator": "in", "field": "jobs.stage", "options": ["lost"] }], "display": "horizontalBarChart" },
+    { "kind": "calendar", "key": "warranties_ending", "list": "jobs", "layout": "upcoming", "dateField": "jobs.warranty_ends" },
+    { "kind": "calendar", "key": "services_due", "list": "agreements", "layout": "upcoming", "dateField": "agreements.next_due", "filters": [{ "operator": "in", "field": "agreements.status", "options": ["active"] }] }
+  ],
+  "knowledgePages": [
+    { "key": "operating_guide", "kind": "overview" },
+    { "key": "quote_checklist", "kind": "processes" },
+    { "key": "withdrawal_and_acceptance", "kind": "processes" },
+    { "key": "warranty_and_service", "kind": "processes" }
+  ],
+  "followUpRules": [
+    { "key": "enquiry_form_records", "trigger": { "kind": "form_submitted", "form": "enquiry" }, "action": { "kind": "create_records", "lists": ["customers", "sites", "jobs"] }, "dueOffsetDays": 0, "needs": "forms" },
+    { "key": "call_back_new", "trigger": { "kind": "record_created", "list": "jobs" }, "action": { "kind": "create_task", "taskKind": "call_back", "assignee": "record_owner", "about": "jobs" }, "dueOffsetDays": 0, "needs": "rules" },
+    {
+      "key": "quote_after_visit",
+      "trigger": { "kind": "date_reached", "field": "jobs.visit_at", "offsetDays": 0 },
+      "condition": [{ "operator": "in", "field": "jobs.stage", "options": ["assessment"] }],
+      "action": { "kind": "create_task", "taskKind": "send_quote", "assignee": "record_owner", "about": "jobs" },
+      "dueOffsetDays": 2,
+      "needs": "rules"
+    },
+    { "key": "quote_follow_up", "trigger": { "kind": "field_changed", "field": "jobs.stage", "to": "quote_sent" }, "action": { "kind": "create_task", "taskKind": "follow_up_quote", "assignee": "record_owner", "about": "jobs" }, "dueOffsetDays": 3, "needs": "rules" },
+    {
+      "key": "quote_expiring",
+      "trigger": { "kind": "date_reached", "field": "jobs.quote_valid_until", "offsetDays": -3 },
+      "condition": [{ "operator": "in", "field": "jobs.stage", "options": ["quote_sent", "negotiating"] }],
+      "action": { "kind": "create_task", "taskKind": "follow_up_quote", "assignee": "record_owner", "about": "jobs" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "withdrawal_clock", "trigger": { "kind": "field_changed", "field": "jobs.stage", "to": "won" }, "action": { "kind": "set_dates", "dates": [{ "field": "jobs.withdrawal_ends", "offsetDays": 14 }] }, "dueOffsetDays": 0, "needs": "rules" },
+    {
+      "key": "payment_check",
+      "trigger": { "kind": "date_reached", "field": "jobs.payment_due", "offsetDays": 3 },
+      "condition": [{ "operator": "in", "field": "jobs.work_status", "options": ["invoiced"] }],
+      "action": { "kind": "create_task", "taskKind": "check_payment", "assignee": "record_owner", "about": "jobs" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "warranty_check", "trigger": { "kind": "date_reached", "field": "jobs.warranty_ends", "offsetDays": -30 }, "action": { "kind": "create_task", "taskKind": "warranty_check", "assignee": "record_owner", "about": "jobs" }, "dueOffsetDays": 0, "needs": "rules" },
+    {
+      "key": "service_due",
+      "trigger": { "kind": "date_reached", "field": "agreements.next_due", "offsetDays": -30 },
+      "condition": [{ "operator": "in", "field": "agreements.status", "options": ["active"] }],
+      "action": { "kind": "create_task", "taskKind": "book_service", "assignee": "record_owner", "about": "agreements" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "visit_calendar", "trigger": { "kind": "field_changed", "field": "jobs.stage", "to": "assessment" }, "action": { "kind": "add_calendar_event", "dateField": "jobs.visit_at" }, "dueOffsetDays": 0, "needs": "calendarWrite" }
+  ],
+  "acceptanceChecks": [
+    { "key": "stage_field", "kind": "field_exists", "ref": "jobs.stage" },
+    { "key": "work_status_field", "kind": "field_exists", "ref": "jobs.work_status" },
+    { "key": "warranty_field", "kind": "field_exists", "ref": "jobs.warranty_ends" },
+    { "key": "jobs_board_view", "kind": "view_exists", "ref": "jobs_board" }
+  ],
+  "sources": [
+    { "url": "https://getjobber.com/academy/how-to-follow-up-on-quote/", "checkedOn": "2026-11-12" },
+    { "url": "https://help.getjobber.com/hc/en-us/articles/34647017424023-Sales-Pipeline-Beta", "checkedOn": "2026-11-12" },
+    { "url": "https://www.subcontractorhub.com/blog/roofing-sales-process", "checkedOn": "2026-11-12" },
+    { "url": "https://help.servicetitan.com/roofing/docs/roofing-sales-lifecycle-overview-in-servicetitan", "checkedOn": "2026-11-12" },
+    { "url": "https://myquoteiq.com/crm-for-landscaping-business/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.streit-software.de/wissen/widerrufsbelehrung-handwerk", "checkedOn": "2026-11-12" },
+    { "url": "https://das-programm.io/gewerke/dachdecker-software/", "checkedOn": "2026-11-12" },
+    { "url": "https://hero-software.de/features/kundenverwaltung-crm", "checkedOn": "2026-11-12" },
+    { "url": "https://www.salesforce.com/crm/crm-for-contractors/", "checkedOn": "2026-11-12" },
+    { "url": "https://monday.com/blog/crm-and-sales/crm-for-construction/", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "proof", "de": "proof", "fr": "proof", "it": "proof", "es": "none", "pt": "proof", "pl": "none", "nl": "proof" }
+}

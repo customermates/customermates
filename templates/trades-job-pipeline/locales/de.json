@@ -1,0 +1,121 @@
+{
+  "locale": "de",
+  "name": "Handwerker-Aufträge",
+  "summary": "Eine Pipeline für den Handwerksbetrieb: Anfrage, Besichtigung, Angebot und Nachfassen, danach die Ausführung von geplant bis bezahlt, mit Widerrufs-, Gewährleistungs- und Wartungsterminen an jedem Auftrag.",
+  "description": "Einen Auftrag von der ersten Anfrage bis zur Schlussrechnung begleiten: Kunden und Objekte, an denen Sie arbeiten, Aufträge mit einer Vertriebsphase und einem eigenen Ausführungsstatus, Bindefrist des Angebots, Besichtigung und Termin, Widerrufsfrist bei Verbraucherverträgen, Gewährleistungsende und Wartungsverträge, die Folgeaufträge bringen. Die Vorlage hält Auftrag, Termine und Nachfassen fest. Kein Werkzeug für Angebote und Rechnungen, keine Einsatzplanung und keine Zeiterfassung. Rechtliche Fristen sind Felder, die Sie selbst bestätigen, keine Rechtsberatung.",
+  "lists": {
+    "customers": { "label": "Kunde", "pluralLabel": "Kunden", "description": "Eigentümer, Vermieter, Hausverwaltungen und Firmen, für die Sie arbeiten." },
+    "sites": { "label": "Objekt", "pluralLabel": "Objekte", "description": "Die Adresse der Baustelle, die vom Kunden abweichen kann." },
+    "jobs": { "label": "Auftrag", "pluralLabel": "Aufträge", "description": "Eine Arbeit, von der Anfrage bis Auftrag oder Verloren, danach durch die Ausführung." },
+    "agreements": { "label": "Wartungsvertrag", "pluralLabel": "Wartungsverträge", "description": "Wiederkehrende Wartung eines Objekts mit nächstem Termin und Verlängerungsdatum." }
+  },
+  "fields": {
+    "customers.customer_type": {
+      "label": "Art",
+      "options": { "private": "Privatkunde", "landlord": "Vermieter", "property_manager": "Hausverwaltung", "commercial": "Gewerbekunde", "builder_contractor": "Bauunternehmen" }
+    },
+    "customers.marketing_ok": { "label": "Einwilligung Werbung" },
+    "sites.address": { "label": "Adresse" },
+    "sites.access_notes": { "label": "Hinweise zum Zugang" },
+    "jobs.stage": {
+      "label": "Phase",
+      "options": { "enquiry": "Anfrage", "assessment": "Besichtigung", "to_quote": "Angebot erstellen", "quote_sent": "Angebot versendet", "negotiating": "Nachverhandlung", "won": "Auftrag", "lost": "Verloren" }
+    },
+    "jobs.work_status": {
+      "label": "Ausführung",
+      "options": { "not_scheduled": "Nicht terminiert", "scheduled": "Terminiert", "in_progress": "In Arbeit", "completed": "Fertiggestellt", "invoiced": "Abgerechnet", "paid": "Bezahlt" }
+    },
+    "jobs.work_type": {
+      "label": "Art der Arbeit",
+      "options": { "repair": "Reparatur", "installation": "Einbau", "renovation": "Sanierung", "maintenance": "Wartung", "inspection": "Prüfung", "emergency": "Notfall" }
+    },
+    "jobs.visit_at": { "label": "Besichtigung" },
+    "jobs.quote_valid_until": { "label": "Angebot gültig bis" },
+    "jobs.withdrawal_ends": { "label": "Widerrufsfrist bis" },
+    "jobs.scheduled_start": { "label": "Arbeitsbeginn" },
+    "jobs.completed_on": { "label": "Fertiggestellt am" },
+    "jobs.warranty_ends": { "label": "Gewährleistung bis" },
+    "jobs.payment_due": { "label": "Zahlungsziel" },
+    "jobs.lost_reason": {
+      "label": "Grund für Verloren",
+      "options": { "price": "Preis", "timing": "Zeitpunkt", "chose_competitor": "Anderer Anbieter gewählt", "no_response": "Keine Rückmeldung", "job_cancelled": "Auftrag abgesagt", "other": "Sonstiger" }
+    },
+    "agreements.interval": { "label": "Turnus", "options": { "monthly": "Monatlich", "quarterly": "Vierteljährlich", "twice_yearly": "Halbjährlich", "yearly": "Jährlich" } },
+    "agreements.status": { "label": "Status", "options": { "active": "Aktiv", "paused": "Pausiert", "ended": "Beendet" } },
+    "agreements.next_due": { "label": "Nächster Termin" },
+    "agreements.renewal_on": { "label": "Verlängerung am" },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "call_back": "Zurückrufen",
+        "book_visit": "Besichtigung vereinbaren",
+        "send_quote": "Angebot senden",
+        "follow_up_quote": "Angebot nachfassen",
+        "confirm_schedule": "Termin bestätigen",
+        "handover": "Übergeben und Abnahme festhalten",
+        "check_payment": "Zahlung prüfen",
+        "warranty_check": "Zum Gewährleistungsende nach Mängeln fragen",
+        "book_service": "Wartungstermin vereinbaren",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "site_customer": { "sourceLabel": "Kunde", "targetLabel": "Objekte" },
+    "job_customer": { "sourceLabel": "Kunde", "targetLabel": "Aufträge" },
+    "job_site": { "sourceLabel": "Objekt", "targetLabel": "Aufträge" },
+    "agreement_site": { "sourceLabel": "Objekt", "targetLabel": "Wartungsverträge" },
+    "action_job": { "sourceLabel": "Auftrag", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "jobs_board": { "name": "Aufträge nach Phase" },
+    "jobs_all": { "name": "Alle Aufträge" },
+    "open_quotes": { "name": "Offene Angebote" },
+    "work_in_progress": { "name": "Terminiert und in Arbeit" },
+    "customers_all": { "name": "Alle Kunden" },
+    "sites_all": { "name": "Alle Objekte" },
+    "agreements_all": { "name": "Alle Wartungsverträge" }
+  },
+  "widgets": {
+    "jobs_funnel": { "title": "Aufträge nach Phase" },
+    "open_quotes_value": { "title": "Wert der offenen Angebote" },
+    "visits_coming": { "title": "Anstehende Besichtigungen" },
+    "jobs_by_work_status": { "title": "Erteilte Aufträge nach Ausführung" },
+    "lost_reasons": { "title": "Warum Aufträge verloren gingen" },
+    "warranties_ending": { "title": "Auslaufende Gewährleistungen" },
+    "services_due": { "title": "Fällige Wartungstermine" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Von der Anfrage zum Auftrag", "sections": ["Antwort, Besichtigung und Angebot: wer was wie schnell erledigt", "Wöchentliche Durchsicht offener Angebote, abzurechnender Aufträge und offener Rechnungen"] },
+    "quote_checklist": { "title": "Checkliste fürs Angebot", "sections": ["Leistungsumfang, Ausschlüsse, Preis, Bindefrist und Anzahlung", "Beginn, Zahlungsziel und Nachfass-Nachrichten"] },
+    "withdrawal_and_acceptance": { "title": "Widerruf, Übergabe und Abnahme", "sections": ["Verbraucherwiderruf bei Verträgen beim Kunden und Notfallarbeiten", "Checkliste für Übergabe und Abnahme"] },
+    "warranty_and_service": { "title": "Gewährleistung, Mängel und Wartungsverträge", "sections": ["Wie ein Mangel bearbeitet wird", "Wartungsvertrag anbieten und verlängern"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Kunde, Objekt und Auftrag anlegen, wenn das Anfrageformular abgeschickt wird" },
+    "call_back_new": { "title": "Eine neue Anfrage am selben Tag zurückrufen" },
+    "quote_after_visit": { "title": "Das Angebot binnen 2 Tagen nach der Besichtigung senden" },
+    "quote_follow_up": { "title": "3 Tage nach dem Versand eines Angebots nachfassen" },
+    "quote_expiring": { "title": "3 Tage vor Ablauf der Bindefrist nachfassen" },
+    "withdrawal_clock": { "title": "Das Ende der 14-tägigen Widerrufsfrist setzen, wenn ein Auftrag erteilt wird" },
+    "payment_check": { "title": "Einen abgerechneten Auftrag 3 Tage nach dem Zahlungsziel prüfen" },
+    "warranty_check": { "title": "30 Tage vor Ende der Gewährleistung nach Mängeln fragen" },
+    "service_due": { "title": "Den Wartungstermin 30 Tage vor Fälligkeit vereinbaren" },
+    "visit_calendar": { "title": "Die Besichtigung in den Kalender eintragen, wenn ein Auftrag die Besichtigungsphase erreicht" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Jeder Auftrag hat eine Vertriebsphase.",
+    "work_status_field": "Jeder Auftrag hat einen eigenen Ausführungsstatus.",
+    "warranty_field": "Jeder Auftrag hält fest, bis wann die Gewährleistung gilt.",
+    "jobs_board_view": "Die Aufträge öffnen sich als Board nach Phase."
+  },
+  "prompt": {
+    "intro": "Richte in meinem Customermates-Workspace eine Auftragspipeline für den Handwerksbetrieb ein: Kunden, Objekte, Aufträge mit Vertriebsphase und Ausführungsstatus, Bindefrist, Besichtigungs- und Bautermine, Gewährleistungsende und Wartungsverträge, mit terminierten Folgeaufgaben.",
+    "questions": [
+      "Welche Arbeiten führen Sie aus, und für wen: Eigentümer, Vermieter oder Firmen?",
+      "Wie schnell beantworten Sie eine Anfrage und senden nach der Besichtigung ein Angebot?",
+      "Wie lange sind Ihre Angebote bindend, und wie lang ist Ihre Gewährleistung?",
+      "Verkaufen Sie Wartungsverträge für Folgeaufträge?"
+    ]
+  }
+}

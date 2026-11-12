@@ -1,0 +1,121 @@
+{
+  "locale": "en",
+  "name": "Trades job pipeline",
+  "summary": "A pipeline for a trade business: enquiry, site visit, quote and follow-up, then the work itself from scheduled to paid, with withdrawal, warranty and service dates on every job.",
+  "description": "Follow a job from the first call to the last invoice: customers and the sites you work at, jobs with a sales stage and a separate work status, quote validity, the visit and the schedule, a withdrawal date for consumer contracts, warranty end and service agreements that bring repeat work. It stores the job, the dates and the follow-up. It is not a quoting or invoicing tool, a dispatch system or a timesheet. Legal dates are fields you confirm, not legal advice.",
+  "lists": {
+    "customers": { "label": "Customer", "pluralLabel": "Customers", "description": "Homeowners, landlords, property managers and companies you work for." },
+    "sites": { "label": "Site", "pluralLabel": "Sites", "description": "The address where the work happens, which can differ from the customer." },
+    "jobs": { "label": "Job", "pluralLabel": "Jobs", "description": "One piece of work, from enquiry to won or lost, then through the work itself." },
+    "agreements": { "label": "Service agreement", "pluralLabel": "Service agreements", "description": "Recurring maintenance for a site, with the next visit and the renewal date." }
+  },
+  "fields": {
+    "customers.customer_type": {
+      "label": "Type",
+      "options": { "private": "Private", "landlord": "Landlord", "property_manager": "Property manager", "commercial": "Commercial", "builder_contractor": "Builder or contractor" }
+    },
+    "customers.marketing_ok": { "label": "Agreed to marketing messages" },
+    "sites.address": { "label": "Address" },
+    "sites.access_notes": { "label": "Access notes" },
+    "jobs.stage": {
+      "label": "Stage",
+      "options": { "enquiry": "Enquiry", "assessment": "Site visit", "to_quote": "Quote to write", "quote_sent": "Quote sent", "negotiating": "Negotiating", "won": "Won", "lost": "Lost" }
+    },
+    "jobs.work_status": {
+      "label": "Work status",
+      "options": { "not_scheduled": "Not scheduled", "scheduled": "Scheduled", "in_progress": "In progress", "completed": "Completed", "invoiced": "Invoiced", "paid": "Paid" }
+    },
+    "jobs.work_type": {
+      "label": "Type of work",
+      "options": { "repair": "Repair", "installation": "Installation", "renovation": "Renovation", "maintenance": "Maintenance", "inspection": "Inspection", "emergency": "Emergency" }
+    },
+    "jobs.visit_at": { "label": "Site visit" },
+    "jobs.quote_valid_until": { "label": "Quote valid until" },
+    "jobs.withdrawal_ends": { "label": "Withdrawal period ends" },
+    "jobs.scheduled_start": { "label": "Work starts" },
+    "jobs.completed_on": { "label": "Completed on" },
+    "jobs.warranty_ends": { "label": "Warranty ends" },
+    "jobs.payment_due": { "label": "Payment due" },
+    "jobs.lost_reason": {
+      "label": "Lost reason",
+      "options": { "price": "Price", "timing": "Timing", "chose_competitor": "Chose a competitor", "no_response": "No response", "job_cancelled": "Job cancelled", "other": "Other" }
+    },
+    "agreements.interval": { "label": "Interval", "options": { "monthly": "Monthly", "quarterly": "Quarterly", "twice_yearly": "Twice a year", "yearly": "Yearly" } },
+    "agreements.status": { "label": "Status", "options": { "active": "Active", "paused": "Paused", "ended": "Ended" } },
+    "agreements.next_due": { "label": "Next visit due" },
+    "agreements.renewal_on": { "label": "Renewal on" },
+    "actions.kind": {
+      "label": "Kind",
+      "options": {
+        "call_back": "Call back",
+        "book_visit": "Book a site visit",
+        "send_quote": "Send the quote",
+        "follow_up_quote": "Follow up the quote",
+        "confirm_schedule": "Confirm the schedule",
+        "handover": "Hand over and record acceptance",
+        "check_payment": "Check the payment",
+        "warranty_check": "Ask about defects at the warranty end",
+        "book_service": "Book the service visit",
+        "other": "Other"
+      }
+    }
+  },
+  "relationships": {
+    "site_customer": { "sourceLabel": "Customer", "targetLabel": "Sites" },
+    "job_customer": { "sourceLabel": "Customer", "targetLabel": "Jobs" },
+    "job_site": { "sourceLabel": "Site", "targetLabel": "Jobs" },
+    "agreement_site": { "sourceLabel": "Site", "targetLabel": "Service agreements" },
+    "action_job": { "sourceLabel": "Job", "targetLabel": "Actions" }
+  },
+  "views": {
+    "jobs_board": { "name": "Jobs by stage" },
+    "jobs_all": { "name": "All jobs" },
+    "open_quotes": { "name": "Open quotes" },
+    "work_in_progress": { "name": "Scheduled and in progress" },
+    "customers_all": { "name": "All customers" },
+    "sites_all": { "name": "All sites" },
+    "agreements_all": { "name": "All service agreements" }
+  },
+  "widgets": {
+    "jobs_funnel": { "title": "Jobs by stage" },
+    "open_quotes_value": { "title": "Value of open quotes" },
+    "visits_coming": { "title": "Site visits coming up" },
+    "jobs_by_work_status": { "title": "Won jobs by work status" },
+    "lost_reasons": { "title": "Why jobs were lost" },
+    "warranties_ending": { "title": "Warranties ending" },
+    "services_due": { "title": "Service visits due" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "How enquiries become jobs", "sections": ["Reply, visit and quote: who does what and how fast", "Weekly review of open quotes, jobs to invoice and unpaid invoices"] },
+    "quote_checklist": { "title": "Quote checklist", "sections": ["Scope, exclusions, price, validity and deposit", "Start date, payment terms and follow-up messages"] },
+    "withdrawal_and_acceptance": { "title": "Withdrawal, handover and acceptance", "sections": ["Consumer withdrawal for contracts at the customer's home and emergency work", "Handover and acceptance checklist"] },
+    "warranty_and_service": { "title": "Warranty, defects and service agreements", "sections": ["How a defect is handled", "Offering and renewing a service agreement"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Create the customer, the site and the job when the enquiry form is submitted" },
+    "call_back_new": { "title": "Call back a new enquiry the same day" },
+    "quote_after_visit": { "title": "Send the quote within 2 days of the site visit" },
+    "quote_follow_up": { "title": "Follow up 3 days after a quote is sent" },
+    "quote_expiring": { "title": "Follow up 3 days before a quote expires" },
+    "withdrawal_clock": { "title": "Set the end of the 14-day withdrawal period when a job is won" },
+    "payment_check": { "title": "Check an invoiced job 3 days after the payment is due" },
+    "warranty_check": { "title": "Ask about defects 30 days before the warranty ends" },
+    "service_due": { "title": "Book the service visit 30 days before it is due" },
+    "visit_calendar": { "title": "Add the site visit to the calendar when a job reaches the visit stage" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Every job has a sales stage.",
+    "work_status_field": "Every job has a work status of its own.",
+    "warranty_field": "Every job records when its warranty ends.",
+    "jobs_board_view": "The jobs open as a board by stage."
+  },
+  "prompt": {
+    "intro": "Set up a trades job pipeline in my Customermates workspace: customers, sites, jobs with a sales stage and a work status, quote validity, visit and schedule dates, warranty end and service agreements, with dated follow-ups.",
+    "questions": [
+      "Which kinds of work do you do, and for whom: homeowners, landlords or companies?",
+      "How quickly do you answer an enquiry and send a quote after the visit?",
+      "How long are your quotes valid, and how long is your warranty?",
+      "Do you sell service agreements for repeat work?"
+    ]
+  }
+}

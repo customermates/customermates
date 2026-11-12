@@ -1,0 +1,121 @@
+{
+  "locale": "es",
+  "name": "Trabajos para oficios",
+  "summary": "Un pipeline para una empresa de oficios: solicitud, visita técnica, presupuesto y seguimiento, y luego el trabajo de programado a pagado, con fechas de desistimiento, garantía y mantenimiento en cada trabajo.",
+  "description": "Siga un trabajo desde la primera llamada hasta la última factura: clientes y obras donde trabaja, trabajos con una fase comercial y un estado de ejecución aparte, validez del presupuesto, visita y calendario, fecha de desistimiento en contratos con consumidores, fin de la garantía y contratos de mantenimiento que traen nuevo trabajo. Guarda el trabajo, las fechas y el seguimiento. No es una herramienta de presupuestos y facturas, un sistema de planificación de equipos ni un control de horas. Las fechas legales son campos que usted confirma, no asesoramiento jurídico.",
+  "lists": {
+    "customers": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Particulares, propietarios, administradores de fincas y empresas para los que trabaja." },
+    "sites": { "label": "Obra", "pluralLabel": "Obras", "description": "La dirección donde se hace el trabajo, que puede ser distinta de la del cliente." },
+    "jobs": { "label": "Trabajo", "pluralLabel": "Trabajos", "description": "Un trabajo, de la solicitud a aceptado o perdido, y después durante la ejecución." },
+    "agreements": { "label": "Contrato de mantenimiento", "pluralLabel": "Contratos de mantenimiento", "description": "Mantenimiento recurrente de una obra, con la próxima visita y la fecha de renovación." }
+  },
+  "fields": {
+    "customers.customer_type": {
+      "label": "Tipo",
+      "options": { "private": "Particular", "landlord": "Propietario", "property_manager": "Administrador de fincas", "commercial": "Empresa", "builder_contractor": "Constructora" }
+    },
+    "customers.marketing_ok": { "label": "Acepta mensajes comerciales" },
+    "sites.address": { "label": "Dirección" },
+    "sites.access_notes": { "label": "Notas de acceso" },
+    "jobs.stage": {
+      "label": "Fase",
+      "options": { "enquiry": "Solicitud", "assessment": "Visita técnica", "to_quote": "Presupuesto por hacer", "quote_sent": "Presupuesto enviado", "negotiating": "Negociación", "won": "Aceptado", "lost": "Perdido" }
+    },
+    "jobs.work_status": {
+      "label": "Estado de la obra",
+      "options": { "not_scheduled": "Sin programar", "scheduled": "Programado", "in_progress": "En curso", "completed": "Terminado", "invoiced": "Facturado", "paid": "Pagado" }
+    },
+    "jobs.work_type": {
+      "label": "Tipo de trabajo",
+      "options": { "repair": "Reparación", "installation": "Instalación", "renovation": "Reforma", "maintenance": "Mantenimiento", "inspection": "Revisión", "emergency": "Urgencia" }
+    },
+    "jobs.visit_at": { "label": "Visita técnica" },
+    "jobs.quote_valid_until": { "label": "Presupuesto válido hasta" },
+    "jobs.withdrawal_ends": { "label": "Fin del plazo de desistimiento" },
+    "jobs.scheduled_start": { "label": "Inicio de la obra" },
+    "jobs.completed_on": { "label": "Terminado el" },
+    "jobs.warranty_ends": { "label": "Garantía hasta" },
+    "jobs.payment_due": { "label": "Vencimiento del pago" },
+    "jobs.lost_reason": {
+      "label": "Motivo de la pérdida",
+      "options": { "price": "Precio", "timing": "Plazos", "chose_competitor": "Eligió a la competencia", "no_response": "Sin respuesta", "job_cancelled": "Trabajo cancelado", "other": "Otro" }
+    },
+    "agreements.interval": { "label": "Periodicidad", "options": { "monthly": "Mensual", "quarterly": "Trimestral", "twice_yearly": "Semestral", "yearly": "Anual" } },
+    "agreements.status": { "label": "Estado", "options": { "active": "Activo", "paused": "En pausa", "ended": "Terminado" } },
+    "agreements.next_due": { "label": "Próxima visita" },
+    "agreements.renewal_on": { "label": "Renovación el" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "call_back": "Devolver la llamada",
+        "book_visit": "Concertar una visita",
+        "send_quote": "Enviar el presupuesto",
+        "follow_up_quote": "Dar seguimiento al presupuesto",
+        "confirm_schedule": "Confirmar el calendario",
+        "handover": "Entregar y anotar la aceptación",
+        "check_payment": "Comprobar el pago",
+        "warranty_check": "Preguntar por defectos al acabar la garantía",
+        "book_service": "Concertar la visita de mantenimiento",
+        "other": "Otro"
+      }
+    }
+  },
+  "relationships": {
+    "site_customer": { "sourceLabel": "Cliente", "targetLabel": "Obras" },
+    "job_customer": { "sourceLabel": "Cliente", "targetLabel": "Trabajos" },
+    "job_site": { "sourceLabel": "Obra", "targetLabel": "Trabajos" },
+    "agreement_site": { "sourceLabel": "Obra", "targetLabel": "Contratos de mantenimiento" },
+    "action_job": { "sourceLabel": "Trabajo", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "jobs_board": { "name": "Trabajos por fase" },
+    "jobs_all": { "name": "Todos los trabajos" },
+    "open_quotes": { "name": "Presupuestos abiertos" },
+    "work_in_progress": { "name": "Programados y en curso" },
+    "customers_all": { "name": "Todos los clientes" },
+    "sites_all": { "name": "Todas las obras" },
+    "agreements_all": { "name": "Todos los contratos de mantenimiento" }
+  },
+  "widgets": {
+    "jobs_funnel": { "title": "Trabajos por fase" },
+    "open_quotes_value": { "title": "Importe de los presupuestos abiertos" },
+    "visits_coming": { "title": "Visitas próximas" },
+    "jobs_by_work_status": { "title": "Trabajos aceptados por estado de la obra" },
+    "lost_reasons": { "title": "Por qué se pierden trabajos" },
+    "warranties_ending": { "title": "Garantías que terminan" },
+    "services_due": { "title": "Visitas de mantenimiento pendientes" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "De la solicitud al trabajo aceptado", "sections": ["Respuesta, visita y presupuesto: quién hace qué y en cuánto tiempo", "Revisión semanal de presupuestos abiertos, trabajos por facturar y facturas impagadas"] },
+    "quote_checklist": { "title": "Lista de control del presupuesto", "sections": ["Alcance, exclusiones, precio, validez y anticipo", "Fecha de inicio, condiciones de pago y mensajes de seguimiento"] },
+    "withdrawal_and_acceptance": { "title": "Desistimiento, entrega y aceptación", "sections": ["Desistimiento del consumidor en contratos fuera del establecimiento y trabajos urgentes", "Lista de control de la entrega y la aceptación"] },
+    "warranty_and_service": { "title": "Garantía, defectos y contratos de mantenimiento", "sections": ["Cómo se gestiona un defecto", "Ofrecer y renovar un contrato de mantenimiento"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Crear el cliente, la obra y el trabajo cuando se envía el formulario de solicitud" },
+    "call_back_new": { "title": "Devolver la llamada a una solicitud nueva el mismo día" },
+    "quote_after_visit": { "title": "Enviar el presupuesto en los 2 días siguientes a la visita" },
+    "quote_follow_up": { "title": "Dar seguimiento 3 días después de enviar un presupuesto" },
+    "quote_expiring": { "title": "Dar seguimiento 3 días antes de que venza un presupuesto" },
+    "withdrawal_clock": { "title": "Fijar el fin del plazo de desistimiento de 14 días cuando se acepta un trabajo" },
+    "payment_check": { "title": "Comprobar un trabajo facturado 3 días después del vencimiento del pago" },
+    "warranty_check": { "title": "Preguntar por defectos 30 días antes de que termine la garantía" },
+    "service_due": { "title": "Concertar la visita de mantenimiento 30 días antes de su vencimiento" },
+    "visit_calendar": { "title": "Añadir la visita al calendario cuando un trabajo llega a la fase de visita" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada trabajo tiene una fase comercial.",
+    "work_status_field": "Cada trabajo tiene su propio estado de ejecución.",
+    "warranty_field": "Cada trabajo indica hasta cuándo dura su garantía.",
+    "jobs_board_view": "Los trabajos se abren como tablero por fase."
+  },
+  "prompt": {
+    "intro": "Configura en mi espacio de Customermates un pipeline para una empresa de oficios: clientes, obras, trabajos con fase comercial y estado de ejecución, validez del presupuesto, fechas de visita y de obra, fin de garantía y contratos de mantenimiento, con seguimientos con fecha.",
+    "questions": [
+      "¿Qué trabajos realiza y para quién: particulares, propietarios o empresas?",
+      "¿En cuánto tiempo responde a una solicitud y envía el presupuesto tras la visita?",
+      "¿Cuánto tiempo son válidos sus presupuestos y cuánto dura su garantía?",
+      "¿Vende contratos de mantenimiento para trabajo recurrente?"
+    ]
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "locale": "pl",
+  "name": "Zlecenia dla firm usługowych",
+  "summary": "Lejek dla firmy remontowej lub instalacyjnej: zapytanie, oględziny, wycena i przypomnienie, potem praca od zaplanowanej do opłaconej, z terminami odstąpienia, rękojmi i serwisu przy każdym zleceniu.",
+  "description": "Prowadź zlecenie od pierwszego telefonu do ostatniej faktury: klienci i obiekty, w których pracujesz, zlecenia z etapem sprzedaży i osobnym statusem prac, ważność oferty, oględziny i harmonogram, termin odstąpienia od umowy konsumenckiej, koniec rękojmi oraz umowy serwisowe, które przynoszą kolejne prace. Narzędzie zapisuje zlecenie, terminy i przypomnienia. To nie program do ofert i faktur, planowania ekip ani rejestru czasu pracy. Terminy prawne to pola, które potwierdzasz sam, a nie porada prawna.",
+  "lists": {
+    "customers": { "label": "Klient", "pluralLabel": "Klienci", "description": "Właściciele domów, wynajmujący, zarządcy nieruchomości i firmy, dla których pracujesz." },
+    "sites": { "label": "Obiekt", "pluralLabel": "Obiekty", "description": "Adres, pod którym wykonujesz prace, który może różnić się od adresu klienta." },
+    "jobs": { "label": "Zlecenie", "pluralLabel": "Zlecenia", "description": "Jedna praca, od zapytania do przyjętej lub utraconej, potem w trakcie wykonania." },
+    "agreements": { "label": "Umowa serwisowa", "pluralLabel": "Umowy serwisowe", "description": "Cykliczny serwis obiektu z następną wizytą i datą odnowienia." }
+  },
+  "fields": {
+    "customers.customer_type": {
+      "label": "Typ",
+      "options": { "private": "Osoba prywatna", "landlord": "Wynajmujący", "property_manager": "Zarządca nieruchomości", "commercial": "Firma", "builder_contractor": "Firma budowlana" }
+    },
+    "customers.marketing_ok": { "label": "Zgoda na wiadomości marketingowe" },
+    "sites.address": { "label": "Adres" },
+    "sites.access_notes": { "label": "Uwagi o dostępie" },
+    "jobs.stage": {
+      "label": "Etap",
+      "options": { "enquiry": "Zapytanie", "assessment": "Oględziny", "to_quote": "Wycena do zrobienia", "quote_sent": "Oferta wysłana", "negotiating": "Negocjacje", "won": "Przyjęte", "lost": "Utracone" }
+    },
+    "jobs.work_status": {
+      "label": "Status prac",
+      "options": { "not_scheduled": "Bez terminu", "scheduled": "Zaplanowane", "in_progress": "W toku", "completed": "Zakończone", "invoiced": "Zafakturowane", "paid": "Opłacone" }
+    },
+    "jobs.work_type": {
+      "label": "Rodzaj prac",
+      "options": { "repair": "Naprawa", "installation": "Montaż", "renovation": "Remont", "maintenance": "Konserwacja", "inspection": "Przegląd", "emergency": "Awaria" }
+    },
+    "jobs.visit_at": { "label": "Oględziny" },
+    "jobs.quote_valid_until": { "label": "Oferta ważna do" },
+    "jobs.withdrawal_ends": { "label": "Koniec terminu odstąpienia" },
+    "jobs.scheduled_start": { "label": "Start prac" },
+    "jobs.completed_on": { "label": "Zakończono dnia" },
+    "jobs.warranty_ends": { "label": "Rękojmia do" },
+    "jobs.payment_due": { "label": "Termin płatności" },
+    "jobs.lost_reason": {
+      "label": "Powód utraty",
+      "options": { "price": "Cena", "timing": "Termin", "chose_competitor": "Wybrał konkurencję", "no_response": "Brak odpowiedzi", "job_cancelled": "Zlecenie odwołane", "other": "Inny" }
+    },
+    "agreements.interval": { "label": "Częstotliwość", "options": { "monthly": "Co miesiąc", "quarterly": "Co kwartał", "twice_yearly": "Co pół roku", "yearly": "Co rok" } },
+    "agreements.status": { "label": "Status", "options": { "active": "Aktywna", "paused": "Wstrzymana", "ended": "Zakończona" } },
+    "agreements.next_due": { "label": "Następna wizyta" },
+    "agreements.renewal_on": { "label": "Odnowienie dnia" },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": {
+        "call_back": "Oddzwonić",
+        "book_visit": "Umówić oględziny",
+        "send_quote": "Wysłać ofertę",
+        "follow_up_quote": "Przypomnieć o ofercie",
+        "confirm_schedule": "Potwierdzić harmonogram",
+        "handover": "Przekazać i zapisać odbiór",
+        "check_payment": "Sprawdzić płatność",
+        "warranty_check": "Zapytać o usterki pod koniec rękojmi",
+        "book_service": "Umówić wizytę serwisową",
+        "other": "Inne"
+      }
+    }
+  },
+  "relationships": {
+    "site_customer": { "sourceLabel": "Klient", "targetLabel": "Obiekty" },
+    "job_customer": { "sourceLabel": "Klient", "targetLabel": "Zlecenia" },
+    "job_site": { "sourceLabel": "Obiekt", "targetLabel": "Zlecenia" },
+    "agreement_site": { "sourceLabel": "Obiekt", "targetLabel": "Umowy serwisowe" },
+    "action_job": { "sourceLabel": "Zlecenie", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "jobs_board": { "name": "Zlecenia według etapu" },
+    "jobs_all": { "name": "Wszystkie zlecenia" },
+    "open_quotes": { "name": "Otwarte oferty" },
+    "work_in_progress": { "name": "Zaplanowane i w toku" },
+    "customers_all": { "name": "Wszyscy klienci" },
+    "sites_all": { "name": "Wszystkie obiekty" },
+    "agreements_all": { "name": "Wszystkie umowy serwisowe" }
+  },
+  "widgets": {
+    "jobs_funnel": { "title": "Zlecenia według etapu" },
+    "open_quotes_value": { "title": "Wartość otwartych ofert" },
+    "visits_coming": { "title": "Nadchodzące oględziny" },
+    "jobs_by_work_status": { "title": "Przyjęte zlecenia według statusu prac" },
+    "lost_reasons": { "title": "Dlaczego zlecenia są utracone" },
+    "warranties_ending": { "title": "Kończąca się rękojmia" },
+    "services_due": { "title": "Wizyty serwisowe do zrobienia" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Od zapytania do zlecenia", "sections": ["Odpowiedź, oględziny i wycena: kto co robi i w jakim czasie", "Tygodniowy przegląd otwartych ofert, zleceń do zafakturowania i nieopłaconych faktur"] },
+    "quote_checklist": { "title": "Lista kontrolna oferty", "sections": ["Zakres, wyłączenia, cena, ważność i zaliczka", "Termin rozpoczęcia, warunki płatności i wiadomości z przypomnieniem"] },
+    "withdrawal_and_acceptance": { "title": "Odstąpienie, przekazanie i odbiór", "sections": ["Odstąpienie konsumenta od umowy zawartej poza lokalem i prace awaryjne", "Lista kontrolna przekazania i odbioru"] },
+    "warranty_and_service": { "title": "Rękojmia, usterki i umowy serwisowe", "sections": ["Jak postępujemy z usterką", "Oferowanie i odnawianie umowy serwisowej"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Utworzyć klienta, obiekt i zlecenie po wysłaniu formularza zapytania" },
+    "call_back_new": { "title": "Oddzwonić w sprawie nowego zapytania tego samego dnia" },
+    "quote_after_visit": { "title": "Wysłać ofertę w ciągu 2 dni od oględzin" },
+    "quote_follow_up": { "title": "Przypomnieć o ofercie 3 dni po jej wysłaniu" },
+    "quote_expiring": { "title": "Przypomnieć o ofercie 3 dni przed końcem jej ważności" },
+    "withdrawal_clock": { "title": "Ustawić koniec 14-dniowego terminu odstąpienia, gdy zlecenie zostaje przyjęte" },
+    "payment_check": { "title": "Sprawdzić zafakturowane zlecenie 3 dni po terminie płatności" },
+    "warranty_check": { "title": "Zapytać o usterki 30 dni przed końcem rękojmi" },
+    "service_due": { "title": "Umówić wizytę serwisową 30 dni przed terminem" },
+    "visit_calendar": { "title": "Dodać oględziny do kalendarza, gdy zlecenie osiągnie etap oględzin" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Każde zlecenie ma etap sprzedaży.",
+    "work_status_field": "Każde zlecenie ma własny status prac.",
+    "warranty_field": "Każde zlecenie zapisuje, do kiedy trwa rękojmia.",
+    "jobs_board_view": "Zlecenia otwierają się jako tablica według etapu."
+  },
+  "prompt": {
+    "intro": "Skonfiguruj w moim workspace Customermates lejek dla firmy remontowej lub instalacyjnej: klienci, obiekty, zlecenia z etapem sprzedaży i statusem prac, ważność oferty, terminy oględzin i prac, koniec rękojmi i umowy serwisowe, z zaplanowanymi przypomnieniami.",
+    "questions": [
+      "Jakie prace wykonujesz i dla kogo: osób prywatnych, wynajmujących czy firm?",
+      "Jak szybko odpowiadasz na zapytanie i wysyłasz ofertę po oględzinach?",
+      "Jak długo ważne są Twoje oferty i jak długo trwa Twoja rękojmia?",
+      "Czy sprzedajesz umowy serwisowe na prace cykliczne?"
+    ]
+  }
+}

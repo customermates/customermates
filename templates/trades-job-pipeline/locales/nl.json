@@ -1,0 +1,121 @@
+{
+  "locale": "nl",
+  "name": "Opdrachten voor vakmensen",
+  "summary": "Een pijplijn voor een vakbedrijf: aanvraag, opname, offerte en opvolging, daarna het werk zelf van ingepland tot betaald, met bedenktijd-, garantie- en onderhoudsdata bij elke opdracht.",
+  "description": "Volg een opdracht van het eerste telefoontje tot de laatste factuur: klanten en projectlocaties waar u werkt, opdrachten met een verkoopfase en een aparte werkstatus, geldigheid van de offerte, opname en planning, einde van de bedenktijd bij consumentencontracten, einde van de garantie en onderhoudscontracten die vervolgwerk opleveren. Het bewaart de opdracht, de data en de opvolging. Geen programma voor offertes en facturen, geen planning van ploegen en geen urenregistratie. Wettelijke data zijn velden die u zelf bevestigt, geen juridisch advies.",
+  "lists": {
+    "customers": { "label": "Klant", "pluralLabel": "Klanten", "description": "Huiseigenaren, verhuurders, vastgoedbeheerders en bedrijven voor wie u werkt." },
+    "sites": { "label": "Locatie", "pluralLabel": "Locaties", "description": "Het adres waar het werk gebeurt, dat kan afwijken van dat van de klant." },
+    "jobs": { "label": "Opdracht", "pluralLabel": "Opdrachten", "description": "Eén stuk werk, van aanvraag tot opdracht of verloren, daarna door de uitvoering." },
+    "agreements": { "label": "Onderhoudscontract", "pluralLabel": "Onderhoudscontracten", "description": "Terugkerend onderhoud van een locatie, met het volgende bezoek en de verlengingsdatum." }
+  },
+  "fields": {
+    "customers.customer_type": {
+      "label": "Type",
+      "options": { "private": "Particulier", "landlord": "Verhuurder", "property_manager": "Vastgoedbeheerder", "commercial": "Zakelijk", "builder_contractor": "Aannemer" }
+    },
+    "customers.marketing_ok": { "label": "Toestemming voor marketingberichten" },
+    "sites.address": { "label": "Adres" },
+    "sites.access_notes": { "label": "Toegangsnotities" },
+    "jobs.stage": {
+      "label": "Fase",
+      "options": { "enquiry": "Aanvraag", "assessment": "Opname", "to_quote": "Offerte maken", "quote_sent": "Offerte verstuurd", "negotiating": "Onderhandeling", "won": "Opdracht", "lost": "Verloren" }
+    },
+    "jobs.work_status": {
+      "label": "Werkstatus",
+      "options": { "not_scheduled": "Niet ingepland", "scheduled": "Ingepland", "in_progress": "In uitvoering", "completed": "Opgeleverd", "invoiced": "Gefactureerd", "paid": "Betaald" }
+    },
+    "jobs.work_type": {
+      "label": "Soort werk",
+      "options": { "repair": "Reparatie", "installation": "Installatie", "renovation": "Verbouwing", "maintenance": "Onderhoud", "inspection": "Inspectie", "emergency": "Spoed" }
+    },
+    "jobs.visit_at": { "label": "Opname" },
+    "jobs.quote_valid_until": { "label": "Offerte geldig tot" },
+    "jobs.withdrawal_ends": { "label": "Einde bedenktijd" },
+    "jobs.scheduled_start": { "label": "Start werk" },
+    "jobs.completed_on": { "label": "Opgeleverd op" },
+    "jobs.warranty_ends": { "label": "Garantie tot" },
+    "jobs.payment_due": { "label": "Betaaltermijn tot" },
+    "jobs.lost_reason": {
+      "label": "Reden van verlies",
+      "options": { "price": "Prijs", "timing": "Timing", "chose_competitor": "Koos een concurrent", "no_response": "Geen reactie", "job_cancelled": "Opdracht geannuleerd", "other": "Overig" }
+    },
+    "agreements.interval": { "label": "Interval", "options": { "monthly": "Maandelijks", "quarterly": "Elk kwartaal", "twice_yearly": "Twee keer per jaar", "yearly": "Jaarlijks" } },
+    "agreements.status": { "label": "Status", "options": { "active": "Actief", "paused": "Gepauzeerd", "ended": "Beëindigd" } },
+    "agreements.next_due": { "label": "Volgend bezoek" },
+    "agreements.renewal_on": { "label": "Verlenging op" },
+    "actions.kind": {
+      "label": "Soort",
+      "options": {
+        "call_back": "Terugbellen",
+        "book_visit": "Opname inplannen",
+        "send_quote": "Offerte sturen",
+        "follow_up_quote": "Offerte opvolgen",
+        "confirm_schedule": "Planning bevestigen",
+        "handover": "Opleveren en akkoord vastleggen",
+        "check_payment": "Betaling controleren",
+        "warranty_check": "Naar gebreken vragen aan het einde van de garantie",
+        "book_service": "Onderhoudsbezoek inplannen",
+        "other": "Overig"
+      }
+    }
+  },
+  "relationships": {
+    "site_customer": { "sourceLabel": "Klant", "targetLabel": "Locaties" },
+    "job_customer": { "sourceLabel": "Klant", "targetLabel": "Opdrachten" },
+    "job_site": { "sourceLabel": "Locatie", "targetLabel": "Opdrachten" },
+    "agreement_site": { "sourceLabel": "Locatie", "targetLabel": "Onderhoudscontracten" },
+    "action_job": { "sourceLabel": "Opdracht", "targetLabel": "Taken" }
+  },
+  "views": {
+    "jobs_board": { "name": "Opdrachten per fase" },
+    "jobs_all": { "name": "Alle opdrachten" },
+    "open_quotes": { "name": "Openstaande offertes" },
+    "work_in_progress": { "name": "Ingepland en in uitvoering" },
+    "customers_all": { "name": "Alle klanten" },
+    "sites_all": { "name": "Alle locaties" },
+    "agreements_all": { "name": "Alle onderhoudscontracten" }
+  },
+  "widgets": {
+    "jobs_funnel": { "title": "Opdrachten per fase" },
+    "open_quotes_value": { "title": "Waarde van openstaande offertes" },
+    "visits_coming": { "title": "Komende opnames" },
+    "jobs_by_work_status": { "title": "Gewonnen opdrachten per werkstatus" },
+    "lost_reasons": { "title": "Waarom opdrachten verloren gingen" },
+    "warranties_ending": { "title": "Garanties die aflopen" },
+    "services_due": { "title": "Onderhoudsbezoeken die aan de beurt zijn" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Van aanvraag naar opdracht", "sections": ["Reactie, opname en offerte: wie doet wat en hoe snel", "Wekelijkse controle van openstaande offertes, te factureren opdrachten en onbetaalde facturen"] },
+    "quote_checklist": { "title": "Checklist voor de offerte", "sections": ["Werkzaamheden, uitsluitingen, prijs, geldigheid en aanbetaling", "Startdatum, betalingsvoorwaarden en opvolgberichten"] },
+    "withdrawal_and_acceptance": { "title": "Bedenktijd, oplevering en acceptatie", "sections": ["Herroepingsrecht van de consument bij contracten buiten de verkoopruimte en spoedwerk", "Checklist voor oplevering en acceptatie"] },
+    "warranty_and_service": { "title": "Garantie, gebreken en onderhoudscontracten", "sections": ["Hoe een gebrek wordt afgehandeld", "Een onderhoudscontract aanbieden en verlengen"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Klant, locatie en opdracht aanmaken als het aanvraagformulier is ingediend" },
+    "call_back_new": { "title": "Een nieuwe aanvraag dezelfde dag terugbellen" },
+    "quote_after_visit": { "title": "De offerte binnen 2 dagen na de opname sturen" },
+    "quote_follow_up": { "title": "3 dagen na het versturen van een offerte opvolgen" },
+    "quote_expiring": { "title": "3 dagen voordat een offerte verloopt opvolgen" },
+    "withdrawal_clock": { "title": "Het einde van de bedenktijd van 14 dagen vastleggen als een opdracht is gewonnen" },
+    "payment_check": { "title": "Een gefactureerde opdracht 3 dagen na de betaaltermijn controleren" },
+    "warranty_check": { "title": "30 dagen voor het einde van de garantie naar gebreken vragen" },
+    "service_due": { "title": "Het onderhoudsbezoek 30 dagen voor de vervaldatum inplannen" },
+    "visit_calendar": { "title": "De opname in de agenda zetten als een opdracht de opnamefase bereikt" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Elke opdracht heeft een verkoopfase.",
+    "work_status_field": "Elke opdracht heeft een eigen werkstatus.",
+    "warranty_field": "Elke opdracht legt vast tot wanneer de garantie loopt.",
+    "jobs_board_view": "De opdrachten openen als bord per fase."
+  },
+  "prompt": {
+    "intro": "Richt in mijn Customermates-workspace een pijplijn voor een vakbedrijf in: klanten, locaties, opdrachten met verkoopfase en werkstatus, geldigheid van de offerte, opname- en uitvoeringsdata, einde van de garantie en onderhoudscontracten, met opvolging met datum.",
+    "questions": [
+      "Welk werk voert u uit en voor wie: particulieren, verhuurders of bedrijven?",
+      "Hoe snel beantwoordt u een aanvraag en stuurt u na de opname een offerte?",
+      "Hoe lang zijn uw offertes geldig en hoe lang is uw garantie?",
+      "Verkoopt u onderhoudscontracten voor terugkerend werk?"
+    ]
+  }
+}
