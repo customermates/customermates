@@ -116,6 +116,8 @@ import { widgetApiPaths } from "@/features/widget/widget.openapi";
 import { trashApiPaths } from "@/features/trash/trash.openapi";
 import { addressApiPaths } from "@/features/addresses/addresses.openapi";
 import { recordFileApiPaths } from "@/features/record-files/record-files.openapi";
+import { publicFormApiPaths } from "@/features/public-form/public-form.openapi";
+import { incomingWebhookApiPaths } from "@/features/incoming-webhook/incoming-webhook.openapi";
 
 export function generateOpenApiSpec() {
   const document = createDocument({
@@ -141,6 +143,8 @@ export function generateOpenApiSpec() {
       ...trashApiPaths,
       ...addressApiPaths,
       ...recordFileApiPaths,
+      ...publicFormApiPaths,
+      ...incomingWebhookApiPaths,
       ...connectedAccountSettingsApiPaths,
       "/v1/users/search": {
         post: getUsersOperation,

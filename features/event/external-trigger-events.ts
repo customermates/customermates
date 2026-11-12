@@ -26,5 +26,5 @@ export type WebhookReceivedPayload = {
   typeId: string;
   deliveryId: string;
   outcome: "created" | "updated";
-  recordId: string;
+  recordId: string | null;
 };

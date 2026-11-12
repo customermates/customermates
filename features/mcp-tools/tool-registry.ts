@@ -24,6 +24,8 @@ import { fetchTool, searchTool } from "@/features/mcp-tools/deep-research.mcp-to
 import { checkAddressTool, lookupAddressTool } from "@/features/mcp-tools/address.mcp-tools";
 import { manageTeamTool, updateMyProfileTool } from "@/features/mcp-tools/admin.mcp-tools";
 import { manageWebhooksTool } from "@/features/mcp-tools/webhook.mcp-tools";
+import { manageFormsTool } from "@/features/mcp-tools/form.mcp-tools";
+import { manageIncomingWebhooksTool } from "@/features/mcp-tools/incoming-webhook.mcp-tools";
 import { manageWidgetsTool } from "@/features/mcp-tools/widget.mcp-tools";
 import { manageRoutinesTool } from "@/features/mcp-tools/routine.mcp-tools";
 import { requestSupportTool } from "@/features/mcp-tools/support.mcp-tools";
@@ -89,7 +91,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
   ],
   "record-model": [configureRecordModelV2Tool],
   workspace: [getWorkspaceContextTool, listUsersTool],
-  views: [manageDataViewsTool, manageRecordDetailLayoutV2Tool, manageCalendarTool],
+  views: [manageDataViewsTool, manageRecordDetailLayoutV2Tool, manageCalendarTool, manageFormsTool],
   wiki: [manageWikiPagesTool],
   messaging: [
     getMessagingThreadsTool,
@@ -120,7 +122,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
   docs: [searchDocsTool, getDocsPageTool],
   widgets: [manageWidgetsTool],
   routines: [manageRoutinesTool],
-  webhooks: [manageWebhooksTool],
+  webhooks: [manageWebhooksTool, manageIncomingWebhooksTool],
   admin: [updateMyProfileTool, manageTeamTool, manageRolesTool],
   support: [requestSupportTool],
 };

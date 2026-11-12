@@ -79,6 +79,7 @@ export const PUBLIC_ROUTES = [
   "/auth/invitation",
   "/invitation/:token",
   "/p/:token",
+  "/f/:token",
   "/docs/openapi/:slug",
   "/docs/openapi",
 ] as const;

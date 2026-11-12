@@ -36,7 +36,9 @@ const BACKGROUND_TENANT_DEFINITION = "core/decorators/background-tenant.ts";
 const BACKGROUND_TENANT_CALLER_PREFIX = "workflows/";
 
 const TOKEN_VERIFIED_STORED_USER_ENTRYPOINTS = [
+  "features/incoming-webhook/incoming-webhook-tenant.ts",
   "features/planner/calendar-subscription-tenant.ts",
+  "features/public-form/public-form-tenant.ts",
   "features/public-link/public-link-tenant.ts",
   "features/record-files/record-file-grant-tenant.ts",
 ];

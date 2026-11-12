@@ -2803,3 +2803,120 @@ export const getReadPublicListRecordsInteractor = () =>
 export const getGetPublicLinkSettingsInteractor = () => new GetPublicLinkSettingsInteractor(getCompanyRepo());
 export const getSetPublicLinksAllowedInteractor = () =>
   new SetPublicLinksAllowedInteractor(getCompanyRepo(), getEventService());
+
+import { PrismaPublicFormRepo } from "@/features/public-form/prisma-public-form.repository";
+import { PublicFormAccess } from "@/features/public-form/public-form-access";
+import { PUBLIC_FORM_LIMITS } from "@/features/public-form/public-form-limits";
+import { PlanPublicFormQuota } from "@/features/public-form/public-form-quota";
+import { PublicFormTenant } from "@/features/public-form/public-form-tenant";
+import { DisablePublicFormInteractor } from "@/features/public-form/disable-public-form.interactor";
+import { GetPublicFormEditorInteractor } from "@/features/public-form/get-public-form-editor.interactor";
+import { GetPublicFormInteractor } from "@/features/public-form/get-public-form.interactor";
+import { ListPublicFormsInteractor } from "@/features/public-form/list-public-forms.interactor";
+import { ReadPublicFormInteractor } from "@/features/public-form/read-public-form.interactor";
+import { SubmitPublicFormInteractor } from "@/features/public-form/submit-public-form.interactor";
+import { UpsertPublicFormInteractor } from "@/features/public-form/upsert-public-form.interactor";
+
+const getPublicFormRepo = () => new PrismaPublicFormRepo();
+const getPublicFormQuota = () => new PlanPublicFormQuota(getPlanLimitsService());
+const getPublicFormSettings = () => ({ baseUrl: env.BASE_URL, authSecret: env.BETTER_AUTH_SECRET });
+
+const publicFormAccess = new PublicFormAccess(
+  getPublicFormRepo(),
+  new PublicFormTenant(getUserService()),
+  {
+    view: new TokenBucketRateLimiter(PUBLIC_FORM_LIMITS.viewBucket.capacity, PUBLIC_FORM_LIMITS.viewBucket.windowMs),
+    visitorSubmit: new TokenBucketRateLimiter(PUBLIC_FORM_LIMITS.ipBucket.capacity, PUBLIC_FORM_LIMITS.ipBucket.windowMs),
+    formSubmit: new TokenBucketRateLimiter(
+      PUBLIC_FORM_LIMITS.formBucket.capacity,
+      PUBLIC_FORM_LIMITS.formBucket.windowMs,
+    ),
+  },
+  { authSecret: env.BETTER_AUTH_SECRET },
+);
+
+export const getReadPublicFormInteractor = () =>
+  new ReadPublicFormInteractor(publicFormAccess, getRecordRepo(), getRecordAccessPolicy(), getPublicFormQuota());
+
+export const getSubmitPublicFormInteractor = () =>
+  new SubmitPublicFormInteractor(
+    publicFormAccess,
+    getPublicFormRepo(),
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getMutateRecordInteractor(),
+    getEventService(),
+    getPublicFormQuota(),
+  );
+
+export const getListPublicFormsInteractor = () =>
+  new ListPublicFormsInteractor(getPublicFormRepo(), getPublicFormQuota(), getPublicFormSettings());
+
+export const getGetPublicFormInteractor = () =>
+  new GetPublicFormInteractor(getPublicFormRepo(), getPublicFormQuota(), getPublicFormSettings());
+
+export const getUpsertPublicFormInteractor = () =>
+  new UpsertPublicFormInteractor(
+    getPublicFormRepo(),
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getPublicFormQuota(),
+    getPublicFormSettings(),
+  );
+
+export const getDisablePublicFormInteractor = () =>
+  new DisablePublicFormInteractor(getPublicFormRepo(), getPublicFormQuota(), getPublicFormSettings());
+
+export const getGetPublicFormEditorInteractor = () =>
+  new GetPublicFormEditorInteractor(
+    getPublicFormRepo(),
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getPublicFormQuota(),
+    getPublicFormSettings(),
+  );
+
+import { PrismaIncomingWebhookRepo } from "@/features/incoming-webhook/prisma-incoming-webhook.repository";
+import { INCOMING_WEBHOOK_LIMITS } from "@/features/incoming-webhook/incoming-webhook.schema";
+import { IncomingWebhookEngine } from "@/features/incoming-webhook/incoming-webhook-engine";
+import { IncomingWebhookTenant } from "@/features/incoming-webhook/incoming-webhook-tenant";
+import { ManageIncomingWebhookInteractor } from "@/features/incoming-webhook/manage-incoming-webhook.interactor";
+import { ReceiveIncomingWebhookInteractor } from "@/features/incoming-webhook/receive-incoming-webhook.interactor";
+
+const getIncomingWebhookRepo = () => new PrismaIncomingWebhookRepo();
+const getIncomingWebhookSettings = () => ({ baseUrl: env.BASE_URL, authSecret: env.BETTER_AUTH_SECRET });
+const getIncomingWebhookEngine = () =>
+  new IncomingWebhookEngine(getRecordRepo(), getQueryRecordsInteractor(), getMutateRecordInteractor());
+
+const incomingWebhookLimiters = {
+  webhook: new TokenBucketRateLimiter(
+    INCOMING_WEBHOOK_LIMITS.webhookBucket.capacity,
+    INCOMING_WEBHOOK_LIMITS.webhookBucket.windowMs,
+  ),
+  visitor: new TokenBucketRateLimiter(
+    INCOMING_WEBHOOK_LIMITS.visitorBucket.capacity,
+    INCOMING_WEBHOOK_LIMITS.visitorBucket.windowMs,
+  ),
+};
+
+export const getManageIncomingWebhookInteractor = () =>
+  new ManageIncomingWebhookInteractor(
+    getIncomingWebhookRepo(),
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getIncomingWebhookEngine(),
+    getPlanLimitsService(),
+    getIncomingWebhookSettings(),
+  );
+
+export const getReceiveIncomingWebhookInteractor = () =>
+  new ReceiveIncomingWebhookInteractor(
+    getIncomingWebhookRepo(),
+    getIncomingWebhookRepo(),
+    new IncomingWebhookTenant(getUserService()),
+    getIncomingWebhookEngine(),
+    getEventService(),
+    getPlanLimitsService(),
+    incomingWebhookLimiters,
+    { authSecret: env.BETTER_AUTH_SECRET },
+  );

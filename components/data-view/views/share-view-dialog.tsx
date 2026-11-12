@@ -17,9 +17,11 @@ import { AppCardHeader } from "@/components/card/app-card-header";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { SelectableCard } from "@/components/forms/selectable-card";
 import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
+import { PublicFormTab } from "@/components/public-form/public-form-tab";
 import { CopyableCode } from "@/components/shared/copyable-code";
 import { Label } from "@/components/ui/label";
 import { RadioGroup } from "@/components/ui/radio-group";
+import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
 import { copyToClipboard } from "@/core/utils/clipboard";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
@@ -29,6 +31,7 @@ import { PublicLinkOption } from "./public-link-option";
 
 type Props = {
   kind: "dashboard" | "list";
+  formTypeId?: string | null;
   link: string;
   view: DataViewChipDto | null;
   onOpenChange: (open: boolean) => void;
@@ -48,10 +51,12 @@ function sameRoles(left: readonly string[], right: readonly string[]) {
   return left.length === right.length && left.every((id) => right.includes(id));
 }
 
-export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Props) {
+export function ShareViewDialog({ kind, formTypeId = null, link, view, onOpenChange, onShared }: Props) {
   const t = useTranslations();
   const { appMode } = useRootStore();
   const publishable = appMode !== "demo";
+  const [tab, setTab] = useState<"share" | "form">("share");
+  const showForm = publishable && kind === "list" && formTypeId !== null;
   const [visibility, setVisibility] = useState<Scope>("private");
   const [publicStatus, setPublicStatus] = useState<PublicLinkStatus | null>(null);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
@@ -62,6 +67,7 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
 
   if ((view?.id ?? null) !== openedFor) {
     setOpenedFor(view?.id ?? null);
+    setTab("share");
     setVisibility(view?.isPublic ? "public" : (view?.visibility ?? "private"));
     setRoleIds(view?.roleIds ?? []);
     setPublicStatus(null);
@@ -214,7 +220,28 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
           </div>
         </AppCardHeader>
 
-        <AppCardBody className="flex flex-col gap-4">
+        {showForm ? (
+          <div className="px-6 pt-4">
+            <SegmentedControl<"share" | "form">
+              idPrefix="share-view"
+              items={[
+                { value: "share", label: t("DataView.share.tabShare") },
+                { value: "form", label: t("DataView.share.tabForm") },
+              ]}
+              label={t("DataView.share.tabsLabel")}
+              value={tab}
+              onValueChange={setTab}
+            />
+          </div>
+        ) : null}
+
+        {showForm && tab === "form" && formTypeId ? (
+          <AppCardBody>
+            <PublicFormTab typeId={formTypeId} />
+          </AppCardBody>
+        ) : null}
+
+        <AppCardBody className={showForm && tab === "form" ? "hidden" : "flex flex-col gap-4"}>
           <RadioGroup className="gap-2" value={visibility} onValueChange={(value) => setVisibility(value as Scope)}>
             {scopes.map((scope) => {
               const Icon = SCOPE_ICONS[scope];
@@ -275,14 +302,16 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
           )}
         </AppCardBody>
 
-        <FormFooterActions
-          editable
-          anchorScope="share-view"
-          dirty={changed && valid}
-          saving={saving}
-          onCancel={() => onOpenChange(false)}
-          onSave={save}
-        />
+        {showForm && tab === "form" ? null : (
+          <FormFooterActions
+            editable
+            anchorScope="share-view"
+            dirty={changed && valid}
+            saving={saving}
+            onCancel={() => onOpenChange(false)}
+            onSave={save}
+          />
+        )}
       </AppCard>
     </AppModal>
   );
