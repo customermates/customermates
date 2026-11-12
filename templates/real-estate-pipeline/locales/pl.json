@@ -130,7 +130,7 @@
         "unrealistic_expectations": "Nierealistyczne oczekiwania"
       }
     },
-    "listings.days_to_first_offer": { "label": "Dni od publikacji do pierwszej oferty kupna" },
+    "listings.days_to_first_offer": { "label": "Dni do pierwszej oferty kupna" },
     "buyer_searches.source": {
       "label": "Źródło",
       "options": {
@@ -148,7 +148,7 @@
       "label": "Finansowanie",
       "options": { "cash": "Gotówka", "pre_approved": "Wstępnie zatwierdzony kredyt", "mortgage_needed": "Kredyt do uzyskania", "unknown": "Nieznane" }
     },
-    "buyer_searches.preapproval_verified_on": { "label": "Data sprawdzenia wstępnej decyzji kredytowej" },
+    "buyer_searches.preapproval_verified_on": { "label": "Data sprawdzenia decyzji kredytowej" },
     "buyer_searches.timeframe": {
       "label": "Planowany termin",
       "options": { "asap": "Jak najszybciej", "three_months": "W ciągu trzech miesięcy", "six_months": "W ciągu sześciu miesięcy", "later": "Później" }

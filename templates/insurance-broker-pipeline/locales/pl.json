@@ -12,7 +12,7 @@
   "fields": {
     "contacts.contact_role": { "label": "Rola", "options": { "policyholder": "Ubezpieczający", "prospect": "Potencjalny klient", "decision_maker": "Decydent", "referrer": "Polecający" } },
     "contacts.preferred_channel": { "label": "Preferowany kanał", "options": { "email": "E-mail", "phone": "Telefon", "whatsapp": "WhatsApp", "post": "Poczta" } },
-    "contacts.broker_mandate_on": { "label": "Data podpisania pełnomocnictwa brokerskiego" },
+    "contacts.broker_mandate_on": { "label": "Data pełnomocnictwa brokerskiego" },
     "opportunities.stage": {
       "label": "Etap",
       "options": { "lead": "Zapytanie", "needs_analysis": "Analiza potrzeb", "quotes_requested": "Zapytania ofertowe", "offer_presented": "Rekomendacja i oferta", "awaiting_decision": "Czeka na decyzję", "application_submitted": "Wniosek złożony", "bound": "Polisa wystawiona", "lost": "Utracona" }

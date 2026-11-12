@@ -50,7 +50,7 @@
       "label": "Umowa",
       "options": { "contingency": "Za sukces", "retained": "Z zaliczką", "container": "Pakiet zleceń", "other": "Inna" }
     },
-    "clients.fee_percent": { "label": "Prowizja (% rocznego wynagrodzenia brutto)" },
+    "clients.fee_percent": { "label": "Prowizja (% wynagrodzenia rocznego)" },
     "clients.guarantee_days": { "label": "Gwarancja (dni)" },
     "clients.terms_signed_on": { "label": "Data podpisania umowy" },
     "clients.terms_url": { "label": "Link do umowy" },
