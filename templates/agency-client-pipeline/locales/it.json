@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Pipeline clienti per agenzie",
-  "summary": "Una pipeline per un'agenzia di marketing o creativa: opportunità dalla prima conversazione alla firma con decisione sulla gara, e retainer in corso con data di rinnovo, preavviso, revisione trimestrale e indicatore di salute.",
-  "description": "Conquista e mantieni i clienti in un unico posto: opportunità attraverso conversazione, qualificazione, brief o gara, preventivo e trattativa, una vittoria che avvia un onboarding in cinque passi, e contratti e progetti che seguono, con canone mensile, data di rinnovo, preavviso e prossima revisione trimestrale. I budget si registrano quando il cliente li dichiara, mai indovinati. Accessi, materiali del marchio e accessi agli account pubblicitari non vanno mai nello spazio di lavoro. Non è project management, rilevazione dei tempi, fatturazione dei retainer né reportistica.",
+  "summary": "Una pipeline per un'agenzia di marketing o creativa: opportunità dalla prima conversazione alla firma, con la decisione se partecipare alla gara, e retainer in corso con data di rinnovo, preavviso, revisione trimestrale e indicatore di salute.",
+  "description": "Conquista e mantieni i clienti in un unico posto: opportunità attraverso conversazione, qualificazione, brief o gara, preventivo e trattativa, una trattativa vinta che avvia un onboarding in cinque passaggi, e contratti e progetti che seguono, con canone mensile, data di rinnovo, preavviso e prossima revisione trimestrale. I budget si registrano quando il cliente li dichiara, mai indovinati. Credenziali di accesso, materiali del marchio e accessi agli account pubblicitari non vanno mai nello spazio di lavoro. Non è project management, rilevazione dei tempi, fatturazione dei retainer né reportistica.",
   "lists": {
     "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Decisori, responsabili marketing, acquisti e referenti operativi." },
     "clients": { "label": "Cliente", "pluralLabel": "Clienti", "description": "Potenziali clienti, clienti, ex clienti e partner." },
@@ -23,18 +23,18 @@
       "label": "Servizi",
       "options": { "seo": "SEO", "paid_media": "Campagne a pagamento", "social": "Social", "content": "Contenuti", "web": "Web", "branding": "Branding", "pr": "Ufficio stampa" }
     },
-    "opportunities.source": { "label": "Origine", "options": { "referral": "Segnalazione", "inbound": "Richiesta in entrata", "outbound": "Ricerca attiva", "existing_client": "Cliente esistente", "event": "Evento", "marketplace": "Marketplace" } },
-    "opportunities.competitive_pitch": { "label": "Gara competitiva" },
+    "opportunities.source": { "label": "Origine", "options": { "referral": "Segnalazione", "inbound": "Richiesta in entrata", "outbound": "Prospezione", "existing_client": "Cliente esistente", "event": "Evento", "marketplace": "Marketplace" } },
+    "opportunities.competitive_pitch": { "label": "Gara con più agenzie" },
     "opportunities.pitch_date": { "label": "Data della presentazione" },
     "opportunities.monthly_fee": { "label": "Canone mensile" },
     "opportunities.decision_expected": { "label": "Decisione attesa" },
     "opportunities.next_step_due": { "label": "Prossimo passo entro" },
     "opportunities.lost_reason": {
       "label": "Motivo della perdita",
-      "options": { "price": "Prezzo", "chose_other_agency": "Ha scelto un'altra agenzia", "in_house": "Lo fa internamente", "budget_cut": "Budget tagliato", "no_decision": "Nessuna decisione", "scope_mismatch": "Ambito non adatto", "no_response": "Nessuna risposta" }
+      "options": { "price": "Prezzo", "chose_other_agency": "Ha scelto un'altra agenzia", "in_house": "Lo gestisce internamente", "budget_cut": "Budget tagliato", "no_decision": "Nessuna decisione", "scope_mismatch": "Ambito non adatto", "no_response": "Nessuna risposta" }
     },
     "engagements.engagement_status": { "label": "Stato", "options": { "onboarding": "Onboarding", "active": "Attivo", "at_risk": "A rischio", "paused": "In pausa", "ended": "Concluso" } },
-    "engagements.health": { "label": "Salute", "options": { "green": "Verde", "amber": "Arancione", "red": "Rosso" } },
+    "engagements.health": { "label": "Stato di salute", "options": { "green": "Verde", "amber": "Arancione", "red": "Rosso" } },
     "engagements.start_date": { "label": "Inizio" },
     "engagements.renewal_date": { "label": "Rinnovo il" },
     "engagements.notice_days": { "label": "Preavviso (giorni)" },
@@ -42,12 +42,12 @@
     "engagements.next_qbr_on": { "label": "Prossima revisione trimestrale" },
     "engagements.account_manager": { "label": "Account manager" },
     "engagements.ended_reason": {
-      "label": "Perché è finito",
+      "label": "Motivo della conclusione",
       "options": { "client_ended": "Interrotto dal cliente", "agency_ended": "Interrotto dall'agenzia", "project_completed": "Progetto completato", "budget": "Budget", "in_house": "Internalizzato", "moved_agency": "Passato a un'altra agenzia" }
     },
     "actions.kind": {
       "label": "Tipo",
-      "options": { "call": "Chiamare", "email": "Scrivere un'email", "proposal": "Preparare preventivo o presentazione", "onboarding": "Passo di onboarding", "report": "Report", "qbr": "Revisione trimestrale", "renewal": "Rinnovo", "other": "Altro" }
+      "options": { "call": "Chiamata", "email": "Email", "proposal": "Preventivo o preparazione della presentazione", "onboarding": "Passaggio di onboarding", "report": "Report", "qbr": "Revisione trimestrale", "renewal": "Rinnovo", "other": "Altro" }
     }
   },
   "relationships": {
@@ -72,14 +72,14 @@
     "pipeline_fees": { "title": "Canoni mensili in pipeline" },
     "renewals_coming": { "title": "Rinnovi in arrivo" },
     "qbrs_coming": { "title": "Revisioni trimestrali in arrivo" },
-    "health_split": { "title": "Salute dei contratti in corso" },
+    "health_split": { "title": "Stato di salute dei contratti in corso" },
     "pitches_coming": { "title": "Presentazioni in arrivo" },
     "lost_reasons": { "title": "Perché le opportunità sono perse" }
   },
   "knowledgePages": {
     "operating_guide": { "title": "Come funziona la pipeline dell'agenzia", "sections": ["Le fasi e chi ne è responsabile", "Domande di qualificazione: obiettivi, urgenza, budget, decisori"] },
-    "pitch_go_no_go": { "title": "Lista di controllo: partecipare o meno alla gara", "sections": ["Costo della presentazione, numero di agenzie e rimborso spese", "Criteri e chi decide"] },
-    "onboarding_checklist": { "title": "Onboarding in cinque passi", "sections": ["Benvenuto e pagamento, materiali e tempistiche", "Kickoff entro cinque giorni e flusso di consegna"] },
+    "pitch_go_no_go": { "title": "Lista di controllo: partecipare o meno alla gara", "sections": ["Costo della presentazione, numero di agenzie e compenso per la partecipazione", "Criteri e chi decide"] },
+    "onboarding_checklist": { "title": "Onboarding in cinque passaggi", "sections": ["Benvenuto e pagamento, materiali e tempistiche", "Kickoff entro cinque giorni e flusso di consegna"] },
     "renewal_playbook": { "title": "Guida a rinnovo e revisione trimestrale", "sections": ["Bilancio dei risultati e opzioni di ampliamento", "Finestra di preavviso e proposta di rinnovo"] }
   },
   "rules": {
@@ -89,26 +89,26 @@
     "pitch_go_no_go": { "title": "Decidere se partecipare il giorno in cui un'opportunità raggiunge brief o gara" },
     "pitch_rehearsal": { "title": "Ricordare al responsabile 3 giorni prima di una presentazione" },
     "proposal_follow_up": { "title": "Chiamare 2 giorni dopo l'invio di un preventivo" },
-    "onboarding_set": { "title": "Avviare i passi di onboarding il giorno dopo una vittoria" },
-    "lost_feedback": { "title": "Chiedere un riscontro 2 giorni dopo una perdita" },
+    "onboarding_set": { "title": "Avviare i passaggi di onboarding il giorno dopo una trattativa vinta" },
+    "lost_feedback": { "title": "Chiedere un riscontro 2 giorni dopo un'opportunità persa" },
     "renewal_review": { "title": "Rivedere il rinnovo 90 giorni prima della scadenza di un contratto" },
     "renewal_notice": { "title": "Avvisare il responsabile 45 giorni prima del rinnovo per confermare l'intenzione del cliente" },
     "qbr_due": { "title": "Preparare la revisione trimestrale alla sua data" },
-    "health_red": { "title": "Avvisare il referente quando un contratto diventa rosso" }
+    "health_red": { "title": "Avvisare l'account manager quando un contratto diventa rosso" }
   },
   "acceptanceChecks": {
     "stage_field": "Ogni opportunità ha una fase.",
     "renewal_date_field": "Ogni contratto indica la data di rinnovo.",
     "notice_days_field": "Ogni contratto indica il preavviso.",
-    "opportunities_board_view": "Le opportunità si aprono come bacheca per fase."
+    "opportunities_board_view": "Le opportunità si aprono come board per fase."
   },
   "prompt": {
-    "intro": "Imposta nel mio workspace Customermates una pipeline clienti per un'agenzia: opportunità con decisione sulla gara, contratti e progetti con data di rinnovo, preavviso, revisione trimestrale e indicatore di salute, e attività di follow-up con data. Non conservare mai accessi dei clienti né materiali del marchio.",
+    "intro": "Imposta nel mio spazio di lavoro Customermates una pipeline clienti per un'agenzia: opportunità con decisione sulla gara, contratti e progetti con data di rinnovo, preavviso, revisione trimestrale e indicatore di salute, e attività di follow-up con data. Non conservare mai credenziali di accesso dei clienti né materiali del marchio.",
     "questions": [
-      "Quali servizi vendete e lavorate a retainer, a progetto o in entrambi i modi?",
-      "Come decidete se partecipare a una gara competitiva?",
+      "Quali servizi vendi e lavori a retainer, a progetto o in entrambi i modi?",
+      "Come decidi se partecipare a una gara con più agenzie?",
       "Qual è il preavviso abituale e la durata del contratto?",
-      "Ogni quanto rivedete i risultati con un cliente?"
+      "Ogni quanto rivedi i risultati con un cliente?"
     ]
   }
 }
