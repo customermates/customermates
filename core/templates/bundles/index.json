@@ -341,6 +341,236 @@
     }
   },
   {
+    "slug": "creative-bookings",
+    "family": "clients",
+    "kind": "pipeline",
+    "requiresCapabilities": [
+      "forms",
+      "rules"
+    ],
+    "pairedPages": {},
+    "reviewedAt": "2026-11-12",
+    "counts": {
+      "lists": 4,
+      "fields": 33,
+      "views": 7,
+      "widgets": 9,
+      "rules": 9
+    },
+    "locales": {
+      "de": {
+        "name": "Buchungen für Kreative",
+        "summary": "Für Fotografen, Videografen und Eventplaner: eine Pipeline von der Anfrage bis zur Buchung, eine Lieferphase nach dem Termin, Anzahlung und Restzahlung im Blick und eine Notiz zu jedem Jahrestag.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "en": {
+        "name": "Creative bookings",
+        "summary": "For photographers, videographers and event planners: an inquiry-to-booking pipeline, a delivery stage after the date, deposit and balance tracking, and a note for every anniversary.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "es": {
+        "name": "Reservas para creativos",
+        "summary": "Para fotógrafos, videógrafos y organizadores de eventos: un pipeline de la solicitud a la reserva, una fase de entrega tras la fecha, seguimiento de señal y resto y una nota para cada aniversario.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "fr": {
+        "name": "Réservations pour créatifs",
+        "summary": "Pour photographes, vidéastes et organisateurs d’événements : un pipeline de la demande à la réservation, une étape de livraison après la date, le suivi de l’acompte et du solde et une note pour chaque anniversaire.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "it": {
+        "name": "Prenotazioni per creativi",
+        "summary": "Per fotografi, videomaker e organizzatori di eventi: una pipeline dalla richiesta alla prenotazione, una fase di consegna dopo la data, acconto e saldo sotto controllo e una nota per ogni anniversario.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "nl": {
+        "name": "Boekingen voor creatievelingen",
+        "summary": "Voor fotografen, videografen en eventplanners: een pijplijn van aanvraag tot boeking, een leverfase na de datum, aanbetaling en restbetaling in beeld en een notitie voor elke verjaardag.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "pl": {
+        "name": "Rezerwacje dla twórców",
+        "summary": "Dla fotografów, filmowców i organizatorów wydarzeń: lejek od zapytania do rezerwacji, etap dostawy po terminie, kontrola zaliczki i dopłaty oraz notatka na każdą rocznicę.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "pt": {
+        "name": "Reservas para criativos",
+        "summary": "Para fotógrafos, videomakers e cerimonialistas: um funil da solicitação à reserva, uma etapa de entrega depois da data, controle de sinal e saldo e uma nota para cada aniversário.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      }
+    }
+  },
+  {
+    "slug": "custom-crm",
+    "family": "custom",
+    "kind": "pipeline",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "notifications",
+      "incomingWebhooks"
+    ],
+    "pairedPages": {},
+    "reviewedAt": "2026-11-12",
+    "counts": {
+      "lists": 4,
+      "fields": 23,
+      "views": 6,
+      "widgets": 8,
+      "rules": 7
+    },
+    "locales": {
+      "de": {
+        "name": "Eigenes CRM",
+        "summary": "Ein CRM nach Ihrer Arbeitsweise: Kontakte, Firmen, Verkaufschancen und terminierte Aufgaben, mit Import aus Ihrer Tabelle oder dem alten Werkzeug und einer wöchentlichen Durchsicht.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "en": {
+        "name": "Custom CRM",
+        "summary": "A CRM built around how you work: contacts, organizations, opportunities and dated actions, with an import from your spreadsheet or old tool and a weekly review.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "es": {
+        "name": "CRM a medida",
+        "summary": "Un CRM construido en torno a tu forma de trabajar: contactos, empresas, oportunidades y tareas con fecha, con una importación desde tu hoja de cálculo o tu herramienta anterior y una revisión semanal.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "fr": {
+        "name": "CRM sur mesure",
+        "summary": "Un CRM construit autour de votre façon de travailler : contacts, entreprises, affaires et actions datées, avec un import depuis votre tableur ou votre ancien outil et une revue hebdomadaire.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "it": {
+        "name": "CRM su misura",
+        "summary": "Un CRM costruito intorno al tuo modo di lavorare: contatti, aziende, trattative e attività con scadenza, con un’importazione dal tuo foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "nl": {
+        "name": "CRM op maat",
+        "summary": "Een CRM rond jouw manier van werken: contacten, bedrijven, deals en acties met datum, met een import uit je spreadsheet of oude tool en een wekelijkse controle.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "pl": {
+        "name": "Własny CRM",
+        "summary": "CRM zbudowany wokół Twojego sposobu pracy: kontakty, firmy, szanse sprzedaży i zadania z terminem, z importem z arkusza lub starego narzędzia i cotygodniowym przeglądem.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "pt": {
+        "name": "CRM personalizado",
+        "summary": "Um CRM construído em torno do seu jeito de trabalhar: contatos, empresas, negócios e tarefas com data, com importação da sua planilha ou da ferramenta antiga e uma revisão semanal.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      }
+    }
+  },
+  {
+    "slug": "nonprofit-donors-and-members",
+    "family": "community",
+    "kind": "register",
+    "requiresCapabilities": [
+      "forms",
+      "rules"
+    ],
+    "pairedPages": {},
+    "reviewedAt": "2026-11-12",
+    "counts": {
+      "lists": 5,
+      "fields": 34,
+      "views": 8,
+      "widgets": 9,
+      "rules": 8
+    },
+    "locales": {
+      "de": {
+        "name": "Mitglieder- und Spendenverwaltung",
+        "summary": "Ein Register für Mitglieder, Spender und Ehrenamtliche: Mitgliedschaften mit Fälligkeit, Spenden mit Dank und Zuwendungsbestätigung, dazu eine Pipeline für Großspenden und Förderanträge.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "en": {
+        "name": "Donors and members",
+        "summary": "One register for members, donors and volunteers: memberships with a renewal date, gifts with thanks and receipts, and a pipeline for major gifts and grants.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "es": {
+        "name": "Socios y donantes",
+        "summary": "Un registro único de socios, donantes y voluntarios: membresías con fecha de renovación, donativos con agradecimiento y certificado, y un seguimiento de grandes donaciones y subvenciones.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "fr": {
+        "name": "Adhérents et donateurs",
+        "summary": "Un registre unique pour adhérents, donateurs et bénévoles : adhésions avec date d’échéance, dons avec remerciement et reçu fiscal, et un suivi des grands dons et subventions.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "it": {
+        "name": "Soci e donatori",
+        "summary": "Un unico registro per soci, donatori e volontari: tesseramenti con scadenza, donazioni con ringraziamento e ricevuta, e una pipeline per grandi donazioni e bandi.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "nl": {
+        "name": "Leden en donateurs",
+        "summary": "Eén register voor leden, donateurs en vrijwilligers: lidmaatschappen met contributiedatum, giften met bedankje en bewijs, en een pijplijn voor grote giften en subsidies.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "pl": {
+        "name": "Członkowie i darczyńcy",
+        "summary": "Jeden rejestr członków, darczyńców i wolontariuszy: członkostwa z terminem składki, darowizny z podziękowaniem i potwierdzeniem oraz lejek dużych darowizn i grantów.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "pt": {
+        "name": "Associados e doadores",
+        "summary": "Um registro único de associados, doadores e voluntários: mensalidades com data de renovação, doações com agradecimento e recibo, e um acompanhamento de grandes doações e editais.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      }
+    }
+  },
+  {
     "slug": "real-estate-pipeline",
     "family": "property",
     "kind": "pipeline",
@@ -521,6 +751,81 @@
         "summary": "Sete etapas com critérios de saída e pesos, um próximo passo com data em cada negócio aberto, motivos de ganho e de perda e uma mudança de etapa que cria a próxima tarefa.",
         "status": "draft",
         "publicPage": "own",
+        "page": null
+      }
+    }
+  },
+  {
+    "slug": "vc-deal-flow",
+    "family": "investing",
+    "kind": "pipeline",
+    "requiresCapabilities": [
+      "rules"
+    ],
+    "pairedPages": {},
+    "reviewedAt": "2026-11-12",
+    "counts": {
+      "lists": 4,
+      "fields": 35,
+      "views": 6,
+      "widgets": 8,
+      "rules": 7
+    },
+    "locales": {
+      "de": {
+        "name": "Dealflow für Investoren",
+        "summary": "Ein Dealflow für einen kleinen Fonds oder Business Angel: acht Phasen von erkannt bis vollzogen oder abgelehnt, der Vermittler bei jedem Deal, ein Absagegrund und ein Termin zur Wiedervorlage.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "en": {
+        "name": "VC deal flow",
+        "summary": "A deal flow for a small fund or angel: eight stages from sourced to closed or passed, the introducer on every deal, a pass reason and a date to revisit.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "es": {
+        "name": "Dealflow para inversores",
+        "summary": "Un dealflow para un fondo pequeño o un business angel: ocho etapas de la detección al cierre o al rechazo, quién presentó cada operación, un motivo de rechazo y una fecha para retomar.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "fr": {
+        "name": "Dealflow d’investisseur",
+        "summary": "Un dealflow pour un petit fonds ou un business angel : huit étapes de l’identification au closing ou au refus, l’apporteur sur chaque dossier, un motif de refus et une date de reprise de contact.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "it": {
+        "name": "Dealflow per investitori",
+        "summary": "Un dealflow per un piccolo fondo o un business angel: otto fasi dall’individuazione al closing o al rifiuto, chi ha presentato ogni operazione, un motivo del rifiuto e una data per riprendere il contatto.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "nl": {
+        "name": "Dealflow voor investeerders",
+        "summary": "Een dealflow voor een klein fonds of business angel: acht fasen van gesignaleerd tot gesloten of afgewezen, wie elke deal aandroeg, een reden van afwijzing en een datum om terug te komen.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "pl": {
+        "name": "Dealflow inwestora",
+        "summary": "Dealflow dla małego funduszu lub anioła biznesu: osiem etapów od wyszukania do zamknięcia lub odrzucenia, osoba polecająca przy każdym dealu, powód odrzucenia i data powrotu do sprawy.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "pt": {
+        "name": "Dealflow para investidores",
+        "summary": "Um dealflow para um fundo pequeno ou um investidor-anjo: oito etapas da identificação ao fechamento ou à recusa, quem indicou cada negócio, um motivo de recusa e uma data para retomar.",
+        "status": "draft",
+        "publicPage": "none",
         "page": null
       }
     }

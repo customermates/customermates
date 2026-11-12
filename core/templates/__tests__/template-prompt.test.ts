@@ -73,7 +73,7 @@ describe("renderTemplatePrompt", () => {
   });
 
   it("marks rules by whether their capability has shipped", () => {
-    const none = prompt("client-tracker");
+    const none = prompt("client-tracker", { shipped: new Set<Capability>() });
     expect(none).toContain("[not available yet, do not set up]");
     expect(none).toContain("[an assistant routine that runs on a schedule]");
     expect(none).not.toContain("[an automation rule]");

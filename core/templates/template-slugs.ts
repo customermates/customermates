@@ -3,8 +3,12 @@ export const TEMPLATE_SLUGS = [
   "client-intake",
   "client-tracker",
   "content-calendar",
+  "creative-bookings",
+  "custom-crm",
+  "nonprofit-donors-and-members",
   "real-estate-pipeline",
   "sales-pipeline",
+  "vc-deal-flow",
 ] as const;
 
 export type TemplateSlug = (typeof TEMPLATE_SLUGS)[number];

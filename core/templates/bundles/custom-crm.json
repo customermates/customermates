@@ -1,0 +1,3264 @@
+{
+  "spec": {
+    "id": "tpl_custom_crm",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "custom-crm",
+    "family": "custom",
+    "kind": "pipeline",
+    "jurisdictions": [
+      "global"
+    ],
+    "dashboardAudience": "team",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "notifications",
+      "incomingWebhooks"
+    ],
+    "pairedPages": {},
+    "modules": [
+      "actions_core",
+      "actions_dashboard"
+    ],
+    "lists": [
+      {
+        "key": "contacts",
+        "role": "people",
+        "icon": "contact"
+      },
+      {
+        "key": "organizations",
+        "icon": "building"
+      },
+      {
+        "key": "opportunities",
+        "role": "deals",
+        "icon": "handshake"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "contacts.job_title",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "contacts.contact_role",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "decision_maker"
+          },
+          {
+            "key": "influencer"
+          },
+          {
+            "key": "user"
+          },
+          {
+            "key": "billing"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "contacts.language",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "contacts.last_contact",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "contacts.consent",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "organizations.relationship",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "prospect"
+          },
+          {
+            "key": "customer",
+            "color": "success"
+          },
+          {
+            "key": "former_customer",
+            "color": "secondary"
+          },
+          {
+            "key": "partner"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "organizations.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "organizations.source",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "referral"
+          },
+          {
+            "key": "website"
+          },
+          {
+            "key": "event"
+          },
+          {
+            "key": "outbound"
+          },
+          {
+            "key": "import"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "organizations.website",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "organizations.address",
+        "type": "address",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "organizations.imported_from",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.expected_close",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.next_step",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.next_step_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.lost_reason",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "price"
+          },
+          {
+            "key": "competitor"
+          },
+          {
+            "key": "no_decision"
+          },
+          {
+            "key": "timing"
+          },
+          {
+            "key": "no_response"
+          },
+          {
+            "key": "not_a_fit"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "call"
+          },
+          {
+            "key": "email"
+          },
+          {
+            "key": "meeting"
+          },
+          {
+            "key": "follow_up"
+          },
+          {
+            "key": "review"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "opportunities.stage",
+        "items": [
+          {
+            "key": "lead",
+            "outcome": "open",
+            "weight": 10
+          },
+          {
+            "key": "qualified",
+            "outcome": "open",
+            "weight": 30
+          },
+          {
+            "key": "proposal",
+            "outcome": "open",
+            "weight": 60
+          },
+          {
+            "key": "negotiation",
+            "outcome": "open",
+            "weight": 80
+          },
+          {
+            "key": "won",
+            "outcome": "won",
+            "weight": 100
+          },
+          {
+            "key": "lost",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [
+      {
+        "key": "opportunities.weighted_value",
+        "type": "currency",
+        "expression": {
+          "op": "divide",
+          "left": {
+            "op": "multiply",
+            "left": {
+              "op": "field",
+              "field": "opportunities.value"
+            },
+            "right": {
+              "op": "optionWeight",
+              "field": "opportunities.stage"
+            }
+          },
+          "right": {
+            "op": "number",
+            "value": "100"
+          }
+        }
+      }
+    ],
+    "relationships": [
+      {
+        "key": "contact_organization",
+        "source": "contacts",
+        "target": "organizations",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "opportunity_organization",
+        "source": "opportunities",
+        "target": "organizations",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_opportunity",
+        "source": "actions",
+        "target": "opportunities",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "pipeline_board",
+        "list": "opportunities",
+        "default": true,
+        "layout": "board",
+        "groupBy": "opportunities.stage",
+        "sort": null,
+        "columns": [],
+        "summaries": [
+          {
+            "field": "opportunities.value",
+            "aggregation": "sum"
+          }
+        ],
+        "filters": []
+      },
+      {
+        "key": "opportunities_all",
+        "list": "opportunities",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "opportunities.next_step_due",
+          "direction": "asc"
+        },
+        "columns": [
+          "opportunities.stage",
+          "opportunities.owner",
+          "opportunities.value",
+          "opportunities.next_step",
+          "opportunities.next_step_due"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "no_next_step",
+        "list": "opportunities",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          },
+          {
+            "operator": "empty",
+            "field": "opportunities.next_step_due"
+          }
+        ]
+      },
+      {
+        "key": "organizations_all",
+        "list": "organizations",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "organizations.relationship",
+          "organizations.owner",
+          "organizations.source"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "contacts_all",
+        "list": "contacts",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "contacts.contact_role",
+          "contacts.last_contact",
+          "contacts.consent"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "chart",
+        "key": "pipeline_funnel",
+        "list": "opportunities",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "opportunities.stage"
+        },
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          }
+        ],
+        "display": "funnelChart",
+        "size": "large"
+      },
+      {
+        "kind": "chart",
+        "key": "open_value",
+        "list": "opportunities",
+        "aggregation": "sum",
+        "valueField": "opportunities.value",
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "open_weighted_value",
+        "list": "opportunities",
+        "aggregation": "sum",
+        "valueField": "opportunities.weighted_value",
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "lost_reasons",
+        "list": "opportunities",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "opportunities.lost_reason"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "opportunities.stage",
+            "options": [
+              "lost"
+            ]
+          }
+        ],
+        "display": "doughnutChart"
+      },
+      {
+        "kind": "chart",
+        "key": "deals_without_next_step",
+        "list": "opportunities",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          },
+          {
+            "operator": "empty",
+            "field": "opportunities.next_step_due"
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_actions",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "how_we_use_this_crm",
+        "kind": "overview"
+      },
+      {
+        "key": "data_entry_rules",
+        "kind": "processes"
+      },
+      {
+        "key": "import_notes",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "next_action_per_stage",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "opportunities.stage"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 3,
+        "needs": "today"
+      },
+      {
+        "key": "set_a_next_step",
+        "trigger": {
+          "kind": "schedule",
+          "every": "day",
+          "list": "opportunities"
+        },
+        "condition": [
+          {
+            "operator": "empty",
+            "field": "opportunities.next_step_due"
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 0,
+        "needs": "today"
+      },
+      {
+        "key": "next_step_notice",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "opportunities.next_step_due",
+          "offsetDays": 0
+        },
+        "condition": [],
+        "action": {
+          "kind": "notify",
+          "recipient": "record_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "expected_close_passed",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "opportunities.expected_close",
+          "offsetDays": 1
+        },
+        "condition": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "weekly_review",
+        "trigger": {
+          "kind": "schedule",
+          "every": "week",
+          "weekday": 5
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "workspace_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "today"
+      },
+      {
+        "key": "enquiry_form_records",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "enquiry"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "contacts",
+            "organizations",
+            "opportunities"
+          ]
+        },
+        "dueOffsetDays": 1,
+        "needs": "forms"
+      },
+      {
+        "key": "webhook_upsert",
+        "trigger": {
+          "kind": "webhook_received",
+          "source": "old_tool"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "contacts",
+            "organizations"
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "incomingWebhooks"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "stage_field",
+        "kind": "field_exists",
+        "ref": "opportunities.stage"
+      },
+      {
+        "key": "board_view",
+        "kind": "view_exists",
+        "ref": "pipeline_board"
+      },
+      {
+        "key": "how_we_use_page",
+        "kind": "page_exists",
+        "ref": "how_we_use_this_crm"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://ninox.com/de/ressourcen/blog/baue-dein-eigenes-crm-system",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.adito.de/knowhow/blog/crm-selbst-erstellen",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://appmaster.io/pt/blog/como-criar-um-software-crm-personalizado-sem-codificacao",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://br.hubspot.com/blog/service/como-implantar-crm",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.salesforce.com/crm/custom-crm/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.creatio.com/glossary/customizable-crm",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.knack.com/solutions/custom-crm/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.appvizer.fr/magazine/relation-client/customer-relationship-management-crm/crm-sur-mesure",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.notion.com/help/export-your-content",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.notion.com/help/relations-and-rollups",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://support.atlassian.com/trello/docs/exporting-data-from-trello/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://help.smartsheet.com/articles/770623-exporting-sheets-reports-from-smartsheet",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://support.airtable.com/articles/9139007724-attachment-fields-in-airtable",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://customermates.com/en/docs/app-records",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "status": {
+      "en": "draft",
+      "de": "draft",
+      "fr": "draft",
+      "it": "draft",
+      "es": "draft",
+      "pt": "draft",
+      "pl": "draft",
+      "nl": "draft"
+    },
+    "publicPage": {
+      "en": "own",
+      "de": "own",
+      "fr": "own",
+      "it": "none",
+      "es": "own",
+      "pt": "own",
+      "pl": "none",
+      "nl": "own"
+    },
+    "publishWave": {
+      "en": "hold",
+      "de": "wave2",
+      "fr": "wave1",
+      "es": "wave2",
+      "pt": "wave2",
+      "nl": "wave1"
+    }
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Eigenes CRM",
+      "summary": "Ein CRM nach Ihrer Arbeitsweise: Kontakte, Firmen, Verkaufschancen und terminierte Aufgaben, mit Import aus Ihrer Tabelle oder dem alten Werkzeug und einer wöchentlichen Durchsicht.",
+      "description": "Starten Sie mit den vier Listen, die jedes CRM braucht, und passen Sie sie an: Phasen, Felder und Ansichten gehören Ihnen. Gedacht für alle, die eine Excel-Tabelle, Notion, Airtable oder Trello verlassen und ihre Daten ohne Projekt in ein CRM bringen wollen. Es merkt sich, woher jeder Datensatz importiert wurde.",
+      "lists": {
+        "actions": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "contacts": {
+          "label": "Kontakt",
+          "pluralLabel": "Kontakte",
+          "description": "Die Personen, mit denen Sie zu tun haben."
+        },
+        "organizations": {
+          "label": "Firma",
+          "pluralLabel": "Firmen",
+          "description": "Unternehmen und andere Einrichtungen."
+        },
+        "opportunities": {
+          "label": "Verkaufschance",
+          "pluralLabel": "Verkaufschancen",
+          "description": "Eine Chance vom Lead bis gewonnen oder verloren."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Phase",
+          "options": {
+            "lead": "Lead",
+            "qualified": "Qualifiziert",
+            "proposal": "Angebot",
+            "negotiation": "Verhandlung",
+            "won": "Gewonnen",
+            "lost": "Verloren"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Position",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Rolle",
+          "options": {
+            "decision_maker": "Entscheider",
+            "influencer": "Einflussnehmer",
+            "user": "Anwender",
+            "billing": "Rechnungsempfänger",
+            "other": "Sonstige"
+          }
+        },
+        "contacts.language": {
+          "label": "Sprache",
+          "options": {}
+        },
+        "contacts.last_contact": {
+          "label": "Letzter Kontakt",
+          "options": {}
+        },
+        "contacts.consent": {
+          "label": "Einwilligung zur Kontaktaufnahme",
+          "options": {}
+        },
+        "organizations.relationship": {
+          "label": "Beziehung",
+          "options": {
+            "prospect": "Interessent",
+            "customer": "Kunde",
+            "former_customer": "Ehemaliger Kunde",
+            "partner": "Partner",
+            "other": "Sonstige"
+          }
+        },
+        "organizations.owner": {
+          "label": "Betreuer",
+          "options": {}
+        },
+        "organizations.source": {
+          "label": "Herkunft",
+          "options": {
+            "referral": "Empfehlung",
+            "website": "Website",
+            "event": "Veranstaltung",
+            "outbound": "Eigene Akquise",
+            "import": "Import",
+            "other": "Sonstige"
+          }
+        },
+        "organizations.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "organizations.address": {
+          "label": "Anschrift",
+          "options": {}
+        },
+        "organizations.imported_from": {
+          "label": "Importiert aus",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Erwarteter Abschluss",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Nächster Schritt",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Wiedervorlage am",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Verlustgrund",
+          "options": {
+            "price": "Preis",
+            "competitor": "Wettbewerber",
+            "no_decision": "Keine Entscheidung",
+            "timing": "Zeitpunkt",
+            "no_response": "Keine Antwort",
+            "not_a_fit": "Passt nicht",
+            "other": "Sonstiges"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Gewichteter Wert",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "call": "Anruf",
+            "email": "E-Mail",
+            "meeting": "Termin",
+            "follow_up": "Nachfassen",
+            "review": "Prüfung",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "contact_organization": {
+          "sourceLabel": "Firma",
+          "targetLabel": "Kontakte"
+        },
+        "opportunity_organization": {
+          "sourceLabel": "Firma",
+          "targetLabel": "Verkaufschancen"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Verkaufschance",
+          "targetLabel": "Aufgaben"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle Aufgaben"
+        },
+        "pipeline_board": {
+          "name": "Pipeline"
+        },
+        "opportunities_all": {
+          "name": "Alle Verkaufschancen"
+        },
+        "no_next_step": {
+          "name": "Ohne nächsten Schritt"
+        },
+        "organizations_all": {
+          "name": "Alle Firmen"
+        },
+        "contacts_all": {
+          "name": "Alle Kontakte"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Anstehende Aufgaben"
+        },
+        "overdue_actions": {
+          "title": "Überfällige Aufgaben"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        },
+        "pipeline_funnel": {
+          "title": "Offene Verkaufschancen nach Phase"
+        },
+        "open_value": {
+          "title": "Offener Wert"
+        },
+        "open_weighted_value": {
+          "title": "Offener gewichteter Wert"
+        },
+        "lost_reasons": {
+          "title": "Verlustgründe"
+        },
+        "deals_without_next_step": {
+          "title": "Chancen ohne nächsten Schritt"
+        }
+      },
+      "knowledgePages": {
+        "how_we_use_this_crm": {
+          "title": "So nutzen wir dieses CRM",
+          "sections": [
+            "Was hineingehört und wer es pflegt",
+            "Phasen und wann eine Chance weiterrückt"
+          ]
+        },
+        "data_entry_rules": {
+          "title": "Regeln für die Dateneingabe",
+          "sections": [
+            "Namen, E-Mails und ein Datensatz pro Person",
+            "Ein nächster Schritt mit Datum bei jeder offenen Chance"
+          ]
+        },
+        "import_notes": {
+          "title": "Importnotizen: was woher kam",
+          "sections": [
+            "Quellwerkzeug und Exportdatum",
+            "Was nicht mitgekommen ist und warum"
+          ]
+        }
+      },
+      "rules": {
+        "next_action_per_stage": {
+          "title": "Eine Folgeaufgabe anlegen, wenn eine Verkaufschance die Phase wechselt",
+          "description": ""
+        },
+        "set_a_next_step": {
+          "title": "Bei jeder offenen Chance ohne nächsten Schritt einen verlangen",
+          "description": ""
+        },
+        "next_step_notice": {
+          "title": "Den Zuständigen informieren, wenn ein nächster Schritt fällig ist",
+          "description": ""
+        },
+        "expected_close_passed": {
+          "title": "Eine offene Chance am Tag nach dem erwarteten Abschluss prüfen",
+          "description": ""
+        },
+        "weekly_review": {
+          "title": "Jeden Freitag die wöchentliche Durchsicht durchführen",
+          "description": ""
+        },
+        "enquiry_form_records": {
+          "title": "Kontakt, Firma und Verkaufschance aus einem Anfrageformular anlegen",
+          "description": ""
+        },
+        "webhook_upsert": {
+          "title": "Datensätze aus dem alten Werkzeug über einen eingehenden Webhook anlegen oder aktualisieren",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Jede Verkaufschance hat eine Phase.",
+        "board_view": "Die Pipeline öffnet sich als Board nach Phase mit Summen.",
+        "how_we_use_page": "Die Wissensdatenbank erklärt, wie das Team das CRM nutzt."
+      },
+      "prompt": {
+        "intro": "Richte ein eigenes CRM in meinem Customermates-Workspace ein: Kontakte, Firmen, Verkaufschancen mit Phasen und terminierten Aufgaben, einen Import aus meiner Tabelle oder dem alten Werkzeug und eine wöchentliche Durchsicht.",
+        "questions": [
+          "Aus welchem Werkzeug oder welcher Tabelle stammen Ihre Datensätze, und lässt sie sich exportieren?",
+          "Welche Phasen durchläuft eine Chance in Ihrem Geschäft?",
+          "Welche Felder nutzen Sie heute wirklich, und welche lassen Sie zurück?",
+          "Wer arbeitet im CRM, und wer betreut welche Datensätze?"
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Custom CRM",
+      "summary": "A CRM built around how you work: contacts, organizations, opportunities and dated actions, with an import from your spreadsheet or old tool and a weekly review.",
+      "description": "Start from the four lists every CRM needs and change them to fit: stages, fields and views are yours. Meant for people leaving a spreadsheet, Notion, Airtable or Trello who want their data in a CRM without a project. It keeps a note of where each record was imported from.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "The people you deal with."
+        },
+        "organizations": {
+          "label": "Organization",
+          "pluralLabel": "Organizations",
+          "description": "Companies and other bodies."
+        },
+        "opportunities": {
+          "label": "Opportunity",
+          "pluralLabel": "Opportunities",
+          "description": "One deal from lead to won or lost."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Stage",
+          "options": {
+            "lead": "Lead",
+            "qualified": "Qualified",
+            "proposal": "Proposal",
+            "negotiation": "Negotiation",
+            "won": "Won",
+            "lost": "Lost"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Job title",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Role",
+          "options": {
+            "decision_maker": "Decision maker",
+            "influencer": "Influencer",
+            "user": "User",
+            "billing": "Billing",
+            "other": "Other"
+          }
+        },
+        "contacts.language": {
+          "label": "Language",
+          "options": {}
+        },
+        "contacts.last_contact": {
+          "label": "Last contact",
+          "options": {}
+        },
+        "contacts.consent": {
+          "label": "Consent to contact",
+          "options": {}
+        },
+        "organizations.relationship": {
+          "label": "Relationship",
+          "options": {
+            "prospect": "Prospect",
+            "customer": "Customer",
+            "former_customer": "Former customer",
+            "partner": "Partner",
+            "other": "Other"
+          }
+        },
+        "organizations.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "organizations.source": {
+          "label": "Source",
+          "options": {
+            "referral": "Referral",
+            "website": "Website",
+            "event": "Event",
+            "outbound": "Outbound",
+            "import": "Import",
+            "other": "Other"
+          }
+        },
+        "organizations.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "organizations.address": {
+          "label": "Address",
+          "options": {}
+        },
+        "organizations.imported_from": {
+          "label": "Imported from",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Expected close",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Next step",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Next step due",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Lost reason",
+          "options": {
+            "price": "Price",
+            "competitor": "Competitor",
+            "no_decision": "No decision",
+            "timing": "Timing",
+            "no_response": "No response",
+            "not_a_fit": "Not a fit",
+            "other": "Other"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Weighted value",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "call": "Call",
+            "email": "Email",
+            "meeting": "Meeting",
+            "follow_up": "Follow-up",
+            "review": "Review",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "contact_organization": {
+          "sourceLabel": "Organization",
+          "targetLabel": "Contacts"
+        },
+        "opportunity_organization": {
+          "sourceLabel": "Organization",
+          "targetLabel": "Opportunities"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Opportunity",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "All actions"
+        },
+        "pipeline_board": {
+          "name": "Pipeline"
+        },
+        "opportunities_all": {
+          "name": "All opportunities"
+        },
+        "no_next_step": {
+          "name": "No next step"
+        },
+        "organizations_all": {
+          "name": "All organizations"
+        },
+        "contacts_all": {
+          "name": "All contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Upcoming actions"
+        },
+        "overdue_actions": {
+          "title": "Overdue actions"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        },
+        "pipeline_funnel": {
+          "title": "Open opportunities by stage"
+        },
+        "open_value": {
+          "title": "Open value"
+        },
+        "open_weighted_value": {
+          "title": "Open weighted value"
+        },
+        "lost_reasons": {
+          "title": "Lost reasons"
+        },
+        "deals_without_next_step": {
+          "title": "Deals without a next step"
+        }
+      },
+      "knowledgePages": {
+        "how_we_use_this_crm": {
+          "title": "How we use this CRM",
+          "sections": [
+            "What goes in and who updates it",
+            "Stages and when a deal moves"
+          ]
+        },
+        "data_entry_rules": {
+          "title": "Data entry rules",
+          "sections": [
+            "Names, emails and one record per person",
+            "A next step with a date on every open deal"
+          ]
+        },
+        "import_notes": {
+          "title": "Import notes: what came from where",
+          "sections": [
+            "Source tool and export date",
+            "What did not travel and why"
+          ]
+        }
+      },
+      "rules": {
+        "next_action_per_stage": {
+          "title": "Create a follow-up Action when an opportunity changes stage",
+          "description": ""
+        },
+        "set_a_next_step": {
+          "title": "Ask for a next step on every open opportunity that has none",
+          "description": ""
+        },
+        "next_step_notice": {
+          "title": "Tell the owner when a next step is due",
+          "description": ""
+        },
+        "expected_close_passed": {
+          "title": "Review an open opportunity the day after its expected close",
+          "description": ""
+        },
+        "weekly_review": {
+          "title": "Run the weekly review every Friday",
+          "description": ""
+        },
+        "enquiry_form_records": {
+          "title": "Create the contact, organization and opportunity from an enquiry form",
+          "description": ""
+        },
+        "webhook_upsert": {
+          "title": "Create or update records from the old tool through an incoming webhook",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Every opportunity has a stage.",
+        "board_view": "The pipeline opens as a board by stage with totals.",
+        "how_we_use_page": "The Knowledge Base explains how the team uses the CRM."
+      },
+      "prompt": {
+        "intro": "Set up a custom CRM in my Customermates workspace: contacts, organizations, opportunities with stages and dated actions, an import from my spreadsheet or old tool and a weekly review.",
+        "questions": [
+          "Which tool or spreadsheet do your records come from, and can you export it?",
+          "What stages does a deal go through in your business?",
+          "Which fields do you really use today, and which can you leave behind?",
+          "Who works in the CRM, and who owns which records?"
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "CRM a medida",
+      "summary": "Un CRM construido en torno a tu forma de trabajar: contactos, empresas, oportunidades y tareas con fecha, con una importación desde tu hoja de cálculo o tu herramienta anterior y una revisión semanal.",
+      "description": "Parte de las cuatro listas que necesita todo CRM y adáptalas: etapas, campos y vistas son tuyos. Pensado para quien deja una hoja de Excel, Notion, Airtable o Trello y quiere sus datos en un CRM sin montar un proyecto. Anota de dónde se importó cada registro.",
+      "lists": {
+        "actions": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un siguiente paso con fecha por cada asunto abierto."
+        },
+        "contacts": {
+          "label": "Contacto",
+          "pluralLabel": "Contactos",
+          "description": "Las personas con las que tratas."
+        },
+        "organizations": {
+          "label": "Empresa",
+          "pluralLabel": "Empresas",
+          "description": "Sociedades y otras entidades."
+        },
+        "opportunities": {
+          "label": "Oportunidad",
+          "pluralLabel": "Oportunidades",
+          "description": "Una oportunidad del lead a ganada o perdida."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierta",
+            "waiting": "En espera",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Etapa",
+          "options": {
+            "lead": "Lead",
+            "qualified": "Calificado",
+            "proposal": "Propuesta",
+            "negotiation": "Negociación",
+            "won": "Ganada",
+            "lost": "Perdida"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Cargo",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Función",
+          "options": {
+            "decision_maker": "Decisor",
+            "influencer": "Prescriptor",
+            "user": "Usuario",
+            "billing": "Facturación",
+            "other": "Otro"
+          }
+        },
+        "contacts.language": {
+          "label": "Idioma",
+          "options": {}
+        },
+        "contacts.last_contact": {
+          "label": "Última interacción",
+          "options": {}
+        },
+        "contacts.consent": {
+          "label": "Consentimiento de contacto",
+          "options": {}
+        },
+        "organizations.relationship": {
+          "label": "Relación",
+          "options": {
+            "prospect": "Potencial",
+            "customer": "Cliente",
+            "former_customer": "Excliente",
+            "partner": "Socio",
+            "other": "Otro"
+          }
+        },
+        "organizations.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "organizations.source": {
+          "label": "Origen",
+          "options": {
+            "referral": "Recomendación",
+            "website": "Sitio web",
+            "event": "Evento",
+            "outbound": "Prospección",
+            "import": "Importación",
+            "other": "Otro"
+          }
+        },
+        "organizations.website": {
+          "label": "Sitio web",
+          "options": {}
+        },
+        "organizations.address": {
+          "label": "Dirección",
+          "options": {}
+        },
+        "organizations.imported_from": {
+          "label": "Importado desde",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Cierre previsto",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Siguiente paso",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Fecha del siguiente paso",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Motivo de pérdida",
+          "options": {
+            "price": "Precio",
+            "competitor": "Competidor",
+            "no_decision": "Sin decisión",
+            "timing": "Momento",
+            "no_response": "Sin respuesta",
+            "not_a_fit": "No encaja",
+            "other": "Otro"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Valor ponderado",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "call": "Llamada",
+            "email": "Correo",
+            "meeting": "Reunión",
+            "follow_up": "Seguimiento",
+            "review": "Revisión",
+            "other": "Otro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_organization": {
+          "sourceLabel": "Empresa",
+          "targetLabel": "Contactos"
+        },
+        "opportunity_organization": {
+          "sourceLabel": "Empresa",
+          "targetLabel": "Oportunidades"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Oportunidad",
+          "targetLabel": "Tareas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas las tareas"
+        },
+        "pipeline_board": {
+          "name": "Pipeline"
+        },
+        "opportunities_all": {
+          "name": "Todas las oportunidades"
+        },
+        "no_next_step": {
+          "name": "Sin siguiente paso"
+        },
+        "organizations_all": {
+          "name": "Todas las empresas"
+        },
+        "contacts_all": {
+          "name": "Todos los contactos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tareas"
+        },
+        "overdue_actions": {
+          "title": "Tareas vencidas"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        },
+        "pipeline_funnel": {
+          "title": "Oportunidades abiertas por etapa"
+        },
+        "open_value": {
+          "title": "Valor abierto"
+        },
+        "open_weighted_value": {
+          "title": "Valor ponderado abierto"
+        },
+        "lost_reasons": {
+          "title": "Motivos de pérdida"
+        },
+        "deals_without_next_step": {
+          "title": "Oportunidades sin siguiente paso"
+        }
+      },
+      "knowledgePages": {
+        "how_we_use_this_crm": {
+          "title": "Cómo usamos este CRM",
+          "sections": [
+            "Qué entra y quién lo actualiza",
+            "Etapas y cuándo avanza una oportunidad"
+          ]
+        },
+        "data_entry_rules": {
+          "title": "Reglas de entrada de datos",
+          "sections": [
+            "Nombres, correos y un registro por persona",
+            "Un siguiente paso con fecha en cada oportunidad abierta"
+          ]
+        },
+        "import_notes": {
+          "title": "Notas de importación: qué vino de dónde",
+          "sections": [
+            "Herramienta de origen y fecha de exportación",
+            "Qué no se trasladó y por qué"
+          ]
+        }
+      },
+      "rules": {
+        "next_action_per_stage": {
+          "title": "Crear una tarea de seguimiento cuando una oportunidad cambia de etapa",
+          "description": ""
+        },
+        "set_a_next_step": {
+          "title": "Pedir un siguiente paso en cada oportunidad abierta que no lo tenga",
+          "description": ""
+        },
+        "next_step_notice": {
+          "title": "Avisar al responsable cuando vence un siguiente paso",
+          "description": ""
+        },
+        "expected_close_passed": {
+          "title": "Revisar una oportunidad abierta el día después de su cierre previsto",
+          "description": ""
+        },
+        "weekly_review": {
+          "title": "Hacer la revisión semanal cada viernes",
+          "description": ""
+        },
+        "enquiry_form_records": {
+          "title": "Crear contacto, empresa y oportunidad desde un formulario de consulta",
+          "description": ""
+        },
+        "webhook_upsert": {
+          "title": "Crear o actualizar registros de la herramienta anterior mediante un webhook entrante",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada oportunidad tiene una etapa.",
+        "board_view": "El pipeline se abre como tablero por etapa, con totales.",
+        "how_we_use_page": "La base de conocimiento explica cómo usa el equipo el CRM."
+      },
+      "prompt": {
+        "intro": "Configura un CRM a medida en mi espacio de trabajo de Customermates: contactos, empresas, oportunidades con etapas y tareas con fecha, una importación desde mi hoja de cálculo o mi herramienta anterior y una revisión semanal.",
+        "questions": [
+          "¿De qué herramienta u hoja de cálculo vienen tus registros y se puede exportar?",
+          "¿Por qué etapas pasa una oportunidad en tu negocio?",
+          "¿Qué campos usas de verdad hoy y cuáles puedes dejar atrás?",
+          "¿Quién trabaja en el CRM y quién es responsable de qué registros?"
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "CRM sur mesure",
+      "summary": "Un CRM construit autour de votre façon de travailler : contacts, entreprises, affaires et actions datées, avec un import depuis votre tableur ou votre ancien outil et une revue hebdomadaire.",
+      "description": "Partez des quatre listes dont tout CRM a besoin et adaptez-les : étapes, champs et vues sont à vous. Pensé pour ceux qui quittent un fichier Excel, Notion, Airtable ou Trello et veulent leurs données dans un CRM sans projet. Il garde la trace de l’origine de chaque fiche importée.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Une prochaine étape datée par dossier ouvert."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "Les personnes avec lesquelles vous travaillez."
+        },
+        "organizations": {
+          "label": "Entreprise",
+          "pluralLabel": "Entreprises",
+          "description": "Sociétés et autres organismes."
+        },
+        "opportunities": {
+          "label": "Affaire",
+          "pluralLabel": "Affaires",
+          "description": "Une affaire du lead à gagnée ou perdue."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "waiting": "En attente",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Étape",
+          "options": {
+            "lead": "Lead",
+            "qualified": "Qualifié",
+            "proposal": "Proposition",
+            "negotiation": "Négociation",
+            "won": "Gagné",
+            "lost": "Perdu"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Fonction",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Rôle",
+          "options": {
+            "decision_maker": "Décideur",
+            "influencer": "Prescripteur",
+            "user": "Utilisateur",
+            "billing": "Facturation",
+            "other": "Autre"
+          }
+        },
+        "contacts.language": {
+          "label": "Langue",
+          "options": {}
+        },
+        "contacts.last_contact": {
+          "label": "Dernier contact",
+          "options": {}
+        },
+        "contacts.consent": {
+          "label": "Consentement au contact",
+          "options": {}
+        },
+        "organizations.relationship": {
+          "label": "Relation",
+          "options": {
+            "prospect": "Prospect",
+            "customer": "Client",
+            "former_customer": "Ancien client",
+            "partner": "Partenaire",
+            "other": "Autre"
+          }
+        },
+        "organizations.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "organizations.source": {
+          "label": "Origine",
+          "options": {
+            "referral": "Recommandation",
+            "website": "Site web",
+            "event": "Événement",
+            "outbound": "Prospection",
+            "import": "Import",
+            "other": "Autre"
+          }
+        },
+        "organizations.website": {
+          "label": "Site web",
+          "options": {}
+        },
+        "organizations.address": {
+          "label": "Adresse",
+          "options": {}
+        },
+        "organizations.imported_from": {
+          "label": "Importé depuis",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Date de signature prévue",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Prochaine action",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Échéance de la prochaine action",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Motif de perte",
+          "options": {
+            "price": "Prix",
+            "competitor": "Concurrent",
+            "no_decision": "Pas de décision",
+            "timing": "Calendrier",
+            "no_response": "Pas de réponse",
+            "not_a_fit": "Pas adapté",
+            "other": "Autre"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Valeur pondérée",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "call": "Appel",
+            "email": "E-mail",
+            "meeting": "Rendez-vous",
+            "follow_up": "Relance",
+            "review": "Revue",
+            "other": "Autre"
+          }
+        }
+      },
+      "relationships": {
+        "contact_organization": {
+          "sourceLabel": "Entreprise",
+          "targetLabel": "Contacts"
+        },
+        "opportunity_organization": {
+          "sourceLabel": "Entreprise",
+          "targetLabel": "Affaires"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Affaire",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "pipeline_board": {
+          "name": "Pipeline"
+        },
+        "opportunities_all": {
+          "name": "Toutes les affaires"
+        },
+        "no_next_step": {
+          "name": "Sans prochaine action"
+        },
+        "organizations_all": {
+          "name": "Toutes les entreprises"
+        },
+        "contacts_all": {
+          "name": "Tous les contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Actions à venir"
+        },
+        "overdue_actions": {
+          "title": "Actions en retard"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        },
+        "pipeline_funnel": {
+          "title": "Affaires ouvertes par étape"
+        },
+        "open_value": {
+          "title": "Montant ouvert"
+        },
+        "open_weighted_value": {
+          "title": "Valeur pondérée ouverte"
+        },
+        "lost_reasons": {
+          "title": "Motifs de perte"
+        },
+        "deals_without_next_step": {
+          "title": "Affaires sans prochaine action"
+        }
+      },
+      "knowledgePages": {
+        "how_we_use_this_crm": {
+          "title": "Comment nous utilisons ce CRM",
+          "sections": [
+            "Ce qui y entre et qui le met à jour",
+            "Étapes et quand une affaire avance"
+          ]
+        },
+        "data_entry_rules": {
+          "title": "Règles de saisie",
+          "sections": [
+            "Noms, e-mails et une fiche par personne",
+            "Une prochaine action datée sur chaque affaire ouverte"
+          ]
+        },
+        "import_notes": {
+          "title": "Notes d’import : ce qui vient d’où",
+          "sections": [
+            "Outil d’origine et date d’export",
+            "Ce qui n’a pas suivi et pourquoi"
+          ]
+        }
+      },
+      "rules": {
+        "next_action_per_stage": {
+          "title": "Créer une action de suite quand une affaire change d’étape",
+          "description": ""
+        },
+        "set_a_next_step": {
+          "title": "Demander une prochaine action sur chaque affaire ouverte qui n’en a pas",
+          "description": ""
+        },
+        "next_step_notice": {
+          "title": "Prévenir le responsable quand une prochaine action arrive à échéance",
+          "description": ""
+        },
+        "expected_close_passed": {
+          "title": "Revoir une affaire ouverte le lendemain de sa date de signature prévue",
+          "description": ""
+        },
+        "weekly_review": {
+          "title": "Mener la revue hebdomadaire chaque vendredi",
+          "description": ""
+        },
+        "enquiry_form_records": {
+          "title": "Créer le contact, l’entreprise et l’affaire à partir d’un formulaire de demande",
+          "description": ""
+        },
+        "webhook_upsert": {
+          "title": "Créer ou mettre à jour des fiches depuis l’ancien outil par un webhook entrant",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Chaque affaire a une étape.",
+        "board_view": "Le pipeline s’ouvre en tableau par étape, avec les totaux.",
+        "how_we_use_page": "La base de connaissances explique comment l’équipe utilise le CRM."
+      },
+      "prompt": {
+        "intro": "Mets en place un CRM sur mesure dans mon espace Customermates : contacts, entreprises, affaires avec étapes et actions datées, un import depuis mon tableur ou mon ancien outil et une revue hebdomadaire.",
+        "questions": [
+          "De quel outil ou tableur viennent vos fiches, et peut-on l’exporter ?",
+          "Par quelles étapes passe une affaire dans votre activité ?",
+          "Quels champs utilisez-vous vraiment aujourd’hui, et lesquels pouvez-vous laisser derrière vous ?",
+          "Qui travaille dans le CRM, et qui est responsable de quelles fiches ?"
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "CRM su misura",
+      "summary": "Un CRM costruito intorno al tuo modo di lavorare: contatti, aziende, trattative e attività con scadenza, con un’importazione dal tuo foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
+      "description": "Parti dalle quattro liste di cui ogni CRM ha bisogno e adattale: fasi, campi e viste sono tuoi. Pensato per chi lascia un foglio Excel, Notion, Airtable o Trello e vuole i propri dati in un CRM senza un progetto. Tiene nota di dove è stato importato ogni record.",
+      "lists": {
+        "actions": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un prossimo passo con data per ogni pratica aperta."
+        },
+        "contacts": {
+          "label": "Contatto",
+          "pluralLabel": "Contatti",
+          "description": "Le persone con cui hai a che fare."
+        },
+        "organizations": {
+          "label": "Azienda",
+          "pluralLabel": "Aziende",
+          "description": "Società e altri enti."
+        },
+        "opportunities": {
+          "label": "Trattativa",
+          "pluralLabel": "Trattative",
+          "description": "Una trattativa dal contatto a vinta o persa."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "waiting": "In attesa",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Fase",
+          "options": {
+            "lead": "Nuovo contatto",
+            "qualified": "Qualificato",
+            "proposal": "Preventivo",
+            "negotiation": "Negoziazione",
+            "won": "Vinta",
+            "lost": "Persa"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Ruolo aziendale",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Funzione",
+          "options": {
+            "decision_maker": "Decisore",
+            "influencer": "Influenzatore",
+            "user": "Utilizzatore",
+            "billing": "Amministrazione",
+            "other": "Altro"
+          }
+        },
+        "contacts.language": {
+          "label": "Lingua",
+          "options": {}
+        },
+        "contacts.last_contact": {
+          "label": "Ultimo contatto",
+          "options": {}
+        },
+        "contacts.consent": {
+          "label": "Consenso al contatto",
+          "options": {}
+        },
+        "organizations.relationship": {
+          "label": "Relazione",
+          "options": {
+            "prospect": "Potenziale",
+            "customer": "Cliente",
+            "former_customer": "Ex cliente",
+            "partner": "Partner",
+            "other": "Altro"
+          }
+        },
+        "organizations.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "organizations.source": {
+          "label": "Provenienza",
+          "options": {
+            "referral": "Passaparola",
+            "website": "Sito web",
+            "event": "Evento",
+            "outbound": "Contatto diretto",
+            "import": "Importazione",
+            "other": "Altro"
+          }
+        },
+        "organizations.website": {
+          "label": "Sito web",
+          "options": {}
+        },
+        "organizations.address": {
+          "label": "Indirizzo",
+          "options": {}
+        },
+        "organizations.imported_from": {
+          "label": "Importato da",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Chiusura prevista",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Prossimo passo",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Scadenza del prossimo passo",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Motivo della perdita",
+          "options": {
+            "price": "Prezzo",
+            "competitor": "Concorrente",
+            "no_decision": "Nessuna decisione",
+            "timing": "Tempi",
+            "no_response": "Nessuna risposta",
+            "not_a_fit": "Non adatto",
+            "other": "Altro"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Valore ponderato",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "call": "Chiamata",
+            "email": "E-mail",
+            "meeting": "Incontro",
+            "follow_up": "Sollecito",
+            "review": "Revisione",
+            "other": "Altro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_organization": {
+          "sourceLabel": "Azienda",
+          "targetLabel": "Contatti"
+        },
+        "opportunity_organization": {
+          "sourceLabel": "Azienda",
+          "targetLabel": "Trattative"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Trattativa",
+          "targetLabel": "Attività"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Tutte le attività"
+        },
+        "pipeline_board": {
+          "name": "Pipeline"
+        },
+        "opportunities_all": {
+          "name": "Tutte le trattative"
+        },
+        "no_next_step": {
+          "name": "Senza prossimo passo"
+        },
+        "organizations_all": {
+          "name": "Tutte le aziende"
+        },
+        "contacts_all": {
+          "name": "Tutti i contatti"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Attività in arrivo"
+        },
+        "overdue_actions": {
+          "title": "Attività scadute"
+        },
+        "activity_timeline": {
+          "title": "Attività recente"
+        },
+        "pipeline_funnel": {
+          "title": "Trattative aperte per fase"
+        },
+        "open_value": {
+          "title": "Valore aperto"
+        },
+        "open_weighted_value": {
+          "title": "Valore ponderato aperto"
+        },
+        "lost_reasons": {
+          "title": "Motivi della perdita"
+        },
+        "deals_without_next_step": {
+          "title": "Trattative senza prossimo passo"
+        }
+      },
+      "knowledgePages": {
+        "how_we_use_this_crm": {
+          "title": "Come usiamo questo CRM",
+          "sections": [
+            "Che cosa vi entra e chi lo aggiorna",
+            "Fasi e quando una trattativa avanza"
+          ]
+        },
+        "data_entry_rules": {
+          "title": "Regole di inserimento dei dati",
+          "sections": [
+            "Nomi, e-mail e un record per persona",
+            "Un prossimo passo con data su ogni trattativa aperta"
+          ]
+        },
+        "import_notes": {
+          "title": "Note sull’importazione: che cosa viene da dove",
+          "sections": [
+            "Strumento di origine e data di esportazione",
+            "Che cosa non è arrivato e perché"
+          ]
+        }
+      },
+      "rules": {
+        "next_action_per_stage": {
+          "title": "Creare un’attività di seguito quando una trattativa cambia fase",
+          "description": ""
+        },
+        "set_a_next_step": {
+          "title": "Chiedere un prossimo passo su ogni trattativa aperta che non ne ha",
+          "description": ""
+        },
+        "next_step_notice": {
+          "title": "Avvisare il responsabile quando un prossimo passo scade",
+          "description": ""
+        },
+        "expected_close_passed": {
+          "title": "Rivedere una trattativa aperta il giorno dopo la chiusura prevista",
+          "description": ""
+        },
+        "weekly_review": {
+          "title": "Fare la revisione settimanale ogni venerdì",
+          "description": ""
+        },
+        "enquiry_form_records": {
+          "title": "Creare contatto, azienda e trattativa da un modulo di richiesta",
+          "description": ""
+        },
+        "webhook_upsert": {
+          "title": "Creare o aggiornare record dal vecchio strumento tramite un webhook in entrata",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Ogni trattativa ha una fase.",
+        "board_view": "La pipeline si apre come bacheca per fase, con i totali.",
+        "how_we_use_page": "La knowledge base spiega come il team usa il CRM."
+      },
+      "prompt": {
+        "intro": "Configura un CRM su misura nel mio spazio di lavoro Customermates: contatti, aziende, trattative con fasi e attività con scadenza, un’importazione dal mio foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
+        "questions": [
+          "Da quale strumento o foglio di calcolo vengono i tuoi record e si può esportare?",
+          "Quali fasi attraversa una trattativa nella tua attività?",
+          "Quali campi usi davvero oggi e quali puoi lasciare indietro?",
+          "Chi lavora nel CRM e chi è responsabile di quali record?"
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "CRM op maat",
+      "summary": "Een CRM rond jouw manier van werken: contacten, bedrijven, deals en acties met datum, met een import uit je spreadsheet of oude tool en een wekelijkse controle.",
+      "description": "Begin met de vier lijsten die elk CRM nodig heeft en pas ze aan: fasen, velden en weergaven zijn van jou. Bedoeld voor wie een spreadsheet, Notion, Airtable of Trello achterlaat en zijn gegevens zonder project in een CRM wil. Het onthoudt waar elk record vandaan is geïmporteerd.",
+      "lists": {
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén volgende stap met datum per open dossier."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacten",
+          "description": "De mensen met wie je te maken hebt."
+        },
+        "organizations": {
+          "label": "Bedrijf",
+          "pluralLabel": "Bedrijven",
+          "description": "Bedrijven en andere organisaties."
+        },
+        "opportunities": {
+          "label": "Deal",
+          "pluralLabel": "Deals",
+          "description": "Eén deal van lead tot gewonnen of verloren."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Wachtend",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Fase",
+          "options": {
+            "lead": "Lead",
+            "qualified": "Gekwalificeerd",
+            "proposal": "Voorstel",
+            "negotiation": "Onderhandeling",
+            "won": "Gewonnen",
+            "lost": "Verloren"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Functie",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Rol",
+          "options": {
+            "decision_maker": "Beslisser",
+            "influencer": "Beïnvloeder",
+            "user": "Gebruiker",
+            "billing": "Facturatie",
+            "other": "Overig"
+          }
+        },
+        "contacts.language": {
+          "label": "Taal",
+          "options": {}
+        },
+        "contacts.last_contact": {
+          "label": "Laatste contact",
+          "options": {}
+        },
+        "contacts.consent": {
+          "label": "Toestemming voor contact",
+          "options": {}
+        },
+        "organizations.relationship": {
+          "label": "Relatie",
+          "options": {
+            "prospect": "Prospect",
+            "customer": "Klant",
+            "former_customer": "Oud-klant",
+            "partner": "Partner",
+            "other": "Overig"
+          }
+        },
+        "organizations.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "organizations.source": {
+          "label": "Herkomst",
+          "options": {
+            "referral": "Aanbeveling",
+            "website": "Website",
+            "event": "Evenement",
+            "outbound": "Eigen acquisitie",
+            "import": "Import",
+            "other": "Overig"
+          }
+        },
+        "organizations.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "organizations.address": {
+          "label": "Adres",
+          "options": {}
+        },
+        "organizations.imported_from": {
+          "label": "Geïmporteerd uit",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Verwachte afsluiting",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Volgende stap",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Datum volgende stap",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Reden verloren",
+          "options": {
+            "price": "Prijs",
+            "competitor": "Concurrent",
+            "no_decision": "Geen besluit",
+            "timing": "Timing",
+            "no_response": "Geen reactie",
+            "not_a_fit": "Past niet",
+            "other": "Overig"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Gewogen waarde",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "call": "Telefoongesprek",
+            "email": "E-mail",
+            "meeting": "Afspraak",
+            "follow_up": "Opvolging",
+            "review": "Controle",
+            "other": "Overig"
+          }
+        }
+      },
+      "relationships": {
+        "contact_organization": {
+          "sourceLabel": "Bedrijf",
+          "targetLabel": "Contacten"
+        },
+        "opportunity_organization": {
+          "sourceLabel": "Bedrijf",
+          "targetLabel": "Deals"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Deal",
+          "targetLabel": "Acties"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "pipeline_board": {
+          "name": "Pipeline"
+        },
+        "opportunities_all": {
+          "name": "Alle deals"
+        },
+        "no_next_step": {
+          "name": "Zonder volgende stap"
+        },
+        "organizations_all": {
+          "name": "Alle bedrijven"
+        },
+        "contacts_all": {
+          "name": "Alle contacten"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Aankomende acties"
+        },
+        "overdue_actions": {
+          "title": "Achterstallige acties"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        },
+        "pipeline_funnel": {
+          "title": "Open deals per fase"
+        },
+        "open_value": {
+          "title": "Open waarde"
+        },
+        "open_weighted_value": {
+          "title": "Open gewogen waarde"
+        },
+        "lost_reasons": {
+          "title": "Redenen verloren"
+        },
+        "deals_without_next_step": {
+          "title": "Deals zonder volgende stap"
+        }
+      },
+      "knowledgePages": {
+        "how_we_use_this_crm": {
+          "title": "Zo gebruiken we dit CRM",
+          "sections": [
+            "Wat erin komt en wie het bijwerkt",
+            "Fasen en wanneer een deal verder gaat"
+          ]
+        },
+        "data_entry_rules": {
+          "title": "Regels voor het invoeren van gegevens",
+          "sections": [
+            "Namen, e-mails en één record per persoon",
+            "Een volgende stap met datum bij elke open deal"
+          ]
+        },
+        "import_notes": {
+          "title": "Importnotities: wat waar vandaan kwam",
+          "sections": [
+            "Bronapplicatie en exportdatum",
+            "Wat niet is meegekomen en waarom"
+          ]
+        }
+      },
+      "rules": {
+        "next_action_per_stage": {
+          "title": "Maak een vervolgactie aan wanneer een deal van fase wisselt",
+          "description": ""
+        },
+        "set_a_next_step": {
+          "title": "Vraag om een volgende stap bij elke open deal zonder",
+          "description": ""
+        },
+        "next_step_notice": {
+          "title": "Meld de eigenaar wanneer een volgende stap aan de beurt is",
+          "description": ""
+        },
+        "expected_close_passed": {
+          "title": "Bekijk een open deal de dag na de verwachte afsluiting",
+          "description": ""
+        },
+        "weekly_review": {
+          "title": "Houd elke vrijdag de wekelijkse controle",
+          "description": ""
+        },
+        "enquiry_form_records": {
+          "title": "Maak contact, bedrijf en deal aan uit een aanvraagformulier",
+          "description": ""
+        },
+        "webhook_upsert": {
+          "title": "Maak of werk records bij uit de oude tool via een inkomende webhook",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Elke deal heeft een fase.",
+        "board_view": "De pipeline opent als bord per fase met totalen.",
+        "how_we_use_page": "De kennisbank legt uit hoe het team het CRM gebruikt."
+      },
+      "prompt": {
+        "intro": "Richt een CRM op maat in mijn Customermates-werkruimte in: contacten, bedrijven, deals met fasen en acties met datum, een import uit mijn spreadsheet of oude tool en een wekelijkse controle.",
+        "questions": [
+          "Uit welke tool of spreadsheet komen je records en kun je die exporteren?",
+          "Welke fasen doorloopt een deal in jouw bedrijf?",
+          "Welke velden gebruik je nu echt en welke kun je achterlaten?",
+          "Wie werkt in het CRM en wie is eigenaar van welke records?"
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Własny CRM",
+      "summary": "CRM zbudowany wokół Twojego sposobu pracy: kontakty, firmy, szanse sprzedaży i zadania z terminem, z importem z arkusza lub starego narzędzia i cotygodniowym przeglądem.",
+      "description": "Zacznij od czterech list, których potrzebuje każdy CRM, i dopasuj je: etapy, pola i widoki należą do Ciebie. Dla tych, którzy odchodzą od arkusza, Notion, Airtable lub Trello i chcą mieć dane w CRM bez projektu. Zapisuje, skąd zaimportowano każdy rekord.",
+      "lists": {
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jeden następny krok z terminem dla każdej otwartej sprawy."
+        },
+        "contacts": {
+          "label": "Kontakt",
+          "pluralLabel": "Kontakty",
+          "description": "Osoby, z którymi masz do czynienia."
+        },
+        "organizations": {
+          "label": "Firma",
+          "pluralLabel": "Firmy",
+          "description": "Spółki i inne podmioty."
+        },
+        "opportunities": {
+          "label": "Szansa sprzedaży",
+          "pluralLabel": "Szanse sprzedaży",
+          "description": "Jedna szansa od leada do wygranej lub przegranej."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarte",
+            "waiting": "Oczekuje",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Odpowiedzialny",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Etap",
+          "options": {
+            "lead": "Lead",
+            "qualified": "Zakwalifikowany",
+            "proposal": "Oferta",
+            "negotiation": "Negocjacje",
+            "won": "Wygrana",
+            "lost": "Przegrana"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Stanowisko",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Rola",
+          "options": {
+            "decision_maker": "Decydent",
+            "influencer": "Osoba wpływająca na decyzję",
+            "user": "Użytkownik",
+            "billing": "Rozliczenia",
+            "other": "Inna"
+          }
+        },
+        "contacts.language": {
+          "label": "Język",
+          "options": {}
+        },
+        "contacts.last_contact": {
+          "label": "Ostatni kontakt",
+          "options": {}
+        },
+        "contacts.consent": {
+          "label": "Zgoda na kontakt",
+          "options": {}
+        },
+        "organizations.relationship": {
+          "label": "Relacja",
+          "options": {
+            "prospect": "Potencjalny",
+            "customer": "Klient",
+            "former_customer": "Były klient",
+            "partner": "Partner",
+            "other": "Inna"
+          }
+        },
+        "organizations.owner": {
+          "label": "Opiekun",
+          "options": {}
+        },
+        "organizations.source": {
+          "label": "Źródło",
+          "options": {
+            "referral": "Polecenie",
+            "website": "Strona internetowa",
+            "event": "Wydarzenie",
+            "outbound": "Kontakt własny",
+            "import": "Import",
+            "other": "Inne"
+          }
+        },
+        "organizations.website": {
+          "label": "Strona internetowa",
+          "options": {}
+        },
+        "organizations.address": {
+          "label": "Adres",
+          "options": {}
+        },
+        "organizations.imported_from": {
+          "label": "Zaimportowano z",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Opiekun",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Planowane zamknięcie",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Następny krok",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Termin następnego kroku",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Powód przegranej",
+          "options": {
+            "price": "Cena",
+            "competitor": "Konkurent",
+            "no_decision": "Brak decyzji",
+            "timing": "Termin",
+            "no_response": "Brak odpowiedzi",
+            "not_a_fit": "Brak dopasowania",
+            "other": "Inny"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Wartość ważona",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "call": "Rozmowa telefoniczna",
+            "email": "E-mail",
+            "meeting": "Spotkanie",
+            "follow_up": "Ponowny kontakt",
+            "review": "Przegląd",
+            "other": "Inne"
+          }
+        }
+      },
+      "relationships": {
+        "contact_organization": {
+          "sourceLabel": "Firma",
+          "targetLabel": "Kontakty"
+        },
+        "opportunity_organization": {
+          "sourceLabel": "Firma",
+          "targetLabel": "Szanse sprzedaży"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Szansa sprzedaży",
+          "targetLabel": "Zadania"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "pipeline_board": {
+          "name": "Lejek"
+        },
+        "opportunities_all": {
+          "name": "Wszystkie szanse"
+        },
+        "no_next_step": {
+          "name": "Bez następnego kroku"
+        },
+        "organizations_all": {
+          "name": "Wszystkie firmy"
+        },
+        "contacts_all": {
+          "name": "Wszystkie kontakty"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Nadchodzące zadania"
+        },
+        "overdue_actions": {
+          "title": "Zaległe zadania"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        },
+        "pipeline_funnel": {
+          "title": "Otwarte szanse wg etapu"
+        },
+        "open_value": {
+          "title": "Otwarta wartość"
+        },
+        "open_weighted_value": {
+          "title": "Otwarta wartość ważona"
+        },
+        "lost_reasons": {
+          "title": "Powody przegranej"
+        },
+        "deals_without_next_step": {
+          "title": "Szanse bez następnego kroku"
+        }
+      },
+      "knowledgePages": {
+        "how_we_use_this_crm": {
+          "title": "Jak używamy tego CRM",
+          "sections": [
+            "Co tu trafia i kto to aktualizuje",
+            "Etapy i kiedy szansa idzie dalej"
+          ]
+        },
+        "data_entry_rules": {
+          "title": "Zasady wprowadzania danych",
+          "sections": [
+            "Nazwy, e-maile i jeden rekord na osobę",
+            "Następny krok z terminem przy każdej otwartej szansie"
+          ]
+        },
+        "import_notes": {
+          "title": "Notatki z importu: co skąd pochodzi",
+          "sections": [
+            "Narzędzie źródłowe i data eksportu",
+            "Co nie przeszło i dlaczego"
+          ]
+        }
+      },
+      "rules": {
+        "next_action_per_stage": {
+          "title": "Utwórz zadanie następcze, gdy szansa zmienia etap",
+          "description": ""
+        },
+        "set_a_next_step": {
+          "title": "Poproś o następny krok przy każdej otwartej szansie, która go nie ma",
+          "description": ""
+        },
+        "next_step_notice": {
+          "title": "Powiadom opiekuna, gdy nadchodzi termin następnego kroku",
+          "description": ""
+        },
+        "expected_close_passed": {
+          "title": "Przejrzyj otwartą szansę dzień po planowanym zamknięciu",
+          "description": ""
+        },
+        "weekly_review": {
+          "title": "Przeprowadź cotygodniowy przegląd w każdy piątek",
+          "description": ""
+        },
+        "enquiry_form_records": {
+          "title": "Utwórz kontakt, firmę i szansę z formularza zapytania",
+          "description": ""
+        },
+        "webhook_upsert": {
+          "title": "Utwórz lub zaktualizuj rekordy ze starego narzędzia przez przychodzący webhook",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Każda szansa ma etap.",
+        "board_view": "Lejek otwiera się jako tablica według etapów z sumami.",
+        "how_we_use_page": "Baza wiedzy wyjaśnia, jak zespół korzysta z CRM."
+      },
+      "prompt": {
+        "intro": "Skonfiguruj własny CRM w mojej przestrzeni roboczej Customermates: kontakty, firmy, szanse sprzedaży z etapami i zadania z terminem, import z mojego arkusza lub starego narzędzia i cotygodniowy przegląd.",
+        "questions": [
+          "Z jakiego narzędzia lub arkusza pochodzą Twoje rekordy i czy da się je wyeksportować?",
+          "Przez jakie etapy przechodzi szansa w Twojej firmie?",
+          "Jakich pól naprawdę dziś używasz, a które możesz zostawić?",
+          "Kto pracuje w CRM i kto odpowiada za które rekordy?"
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "CRM personalizado",
+      "summary": "Um CRM construído em torno do seu jeito de trabalhar: contatos, empresas, negócios e tarefas com data, com importação da sua planilha ou da ferramenta antiga e uma revisão semanal.",
+      "description": "Comece pelas quatro listas de que todo CRM precisa e adapte: etapas, campos e visões são seus. Pensado para quem deixa uma planilha, o Notion, o Airtable ou o Trello e quer seus dados em um CRM sem montar um projeto. Anota de onde cada registro foi importado.",
+      "lists": {
+        "actions": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um próximo passo com data para cada item em aberto."
+        },
+        "contacts": {
+          "label": "Contato",
+          "pluralLabel": "Contatos",
+          "description": "As pessoas com quem você lida."
+        },
+        "organizations": {
+          "label": "Empresa",
+          "pluralLabel": "Empresas",
+          "description": "Empresas e outras entidades."
+        },
+        "opportunities": {
+          "label": "Negócio",
+          "pluralLabel": "Negócios",
+          "description": "Um negócio do lead até ganho ou perdido."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberta",
+            "waiting": "Aguardando",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Etapa",
+          "options": {
+            "lead": "Lead",
+            "qualified": "Qualificado",
+            "proposal": "Proposta",
+            "negotiation": "Negociação",
+            "won": "Ganho",
+            "lost": "Perdido"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Cargo",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Papel",
+          "options": {
+            "decision_maker": "Decisor",
+            "influencer": "Influenciador",
+            "user": "Usuário",
+            "billing": "Financeiro",
+            "other": "Outro"
+          }
+        },
+        "contacts.language": {
+          "label": "Idioma",
+          "options": {}
+        },
+        "contacts.last_contact": {
+          "label": "Último contato",
+          "options": {}
+        },
+        "contacts.consent": {
+          "label": "Consentimento para contato",
+          "options": {}
+        },
+        "organizations.relationship": {
+          "label": "Relacionamento",
+          "options": {
+            "prospect": "Prospect",
+            "customer": "Cliente",
+            "former_customer": "Ex-cliente",
+            "partner": "Parceiro",
+            "other": "Outro"
+          }
+        },
+        "organizations.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "organizations.source": {
+          "label": "Origem",
+          "options": {
+            "referral": "Indicação",
+            "website": "Site",
+            "event": "Evento",
+            "outbound": "Prospecção ativa",
+            "import": "Importação",
+            "other": "Outra"
+          }
+        },
+        "organizations.website": {
+          "label": "Site",
+          "options": {}
+        },
+        "organizations.address": {
+          "label": "Endereço",
+          "options": {}
+        },
+        "organizations.imported_from": {
+          "label": "Importado de",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Previsão de fechamento",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Próximo passo",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Data do próximo passo",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Motivo da perda",
+          "options": {
+            "price": "Preço",
+            "competitor": "Concorrente",
+            "no_decision": "Sem decisão",
+            "timing": "Momento",
+            "no_response": "Sem resposta",
+            "not_a_fit": "Sem aderência",
+            "other": "Outro"
+          }
+        },
+        "opportunities.weighted_value": {
+          "label": "Valor ponderado",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "call": "Ligação",
+            "email": "E-mail",
+            "meeting": "Reunião",
+            "follow_up": "Retorno",
+            "review": "Revisão",
+            "other": "Outro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_organization": {
+          "sourceLabel": "Empresa",
+          "targetLabel": "Contatos"
+        },
+        "opportunity_organization": {
+          "sourceLabel": "Empresa",
+          "targetLabel": "Negócios"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Negócio",
+          "targetLabel": "Tarefas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas as tarefas"
+        },
+        "pipeline_board": {
+          "name": "Funil"
+        },
+        "opportunities_all": {
+          "name": "Todos os negócios"
+        },
+        "no_next_step": {
+          "name": "Sem próximo passo"
+        },
+        "organizations_all": {
+          "name": "Todas as empresas"
+        },
+        "contacts_all": {
+          "name": "Todos os contatos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tarefas"
+        },
+        "overdue_actions": {
+          "title": "Tarefas atrasadas"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        },
+        "pipeline_funnel": {
+          "title": "Negócios abertos por etapa"
+        },
+        "open_value": {
+          "title": "Valor aberto"
+        },
+        "open_weighted_value": {
+          "title": "Valor ponderado aberto"
+        },
+        "lost_reasons": {
+          "title": "Motivos da perda"
+        },
+        "deals_without_next_step": {
+          "title": "Negócios sem próximo passo"
+        }
+      },
+      "knowledgePages": {
+        "how_we_use_this_crm": {
+          "title": "Como usamos este CRM",
+          "sections": [
+            "O que entra e quem atualiza",
+            "Etapas e quando um negócio avança"
+          ]
+        },
+        "data_entry_rules": {
+          "title": "Regras de entrada de dados",
+          "sections": [
+            "Nomes, e-mails e um registro por pessoa",
+            "Um próximo passo com data em cada negócio aberto"
+          ]
+        },
+        "import_notes": {
+          "title": "Notas de importação: o que veio de onde",
+          "sections": [
+            "Ferramenta de origem e data da exportação",
+            "O que não veio e por quê"
+          ]
+        }
+      },
+      "rules": {
+        "next_action_per_stage": {
+          "title": "Criar uma tarefa de retorno quando um negócio muda de etapa",
+          "description": ""
+        },
+        "set_a_next_step": {
+          "title": "Pedir um próximo passo em cada negócio aberto que não tem",
+          "description": ""
+        },
+        "next_step_notice": {
+          "title": "Avisar o responsável quando um próximo passo vence",
+          "description": ""
+        },
+        "expected_close_passed": {
+          "title": "Revisar um negócio aberto no dia seguinte à previsão de fechamento",
+          "description": ""
+        },
+        "weekly_review": {
+          "title": "Fazer a revisão semanal toda sexta-feira",
+          "description": ""
+        },
+        "enquiry_form_records": {
+          "title": "Criar contato, empresa e negócio a partir de um formulário de solicitação",
+          "description": ""
+        },
+        "webhook_upsert": {
+          "title": "Criar ou atualizar registros da ferramenta antiga por um webhook de entrada",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada negócio tem uma etapa.",
+        "board_view": "O funil abre como quadro por etapa, com totais.",
+        "how_we_use_page": "A base de conhecimento explica como a equipe usa o CRM."
+      },
+      "prompt": {
+        "intro": "Configure um CRM personalizado no meu espaço de trabalho do Customermates: contatos, empresas, negócios com etapas e tarefas com data, uma importação da minha planilha ou da ferramenta antiga e uma revisão semanal.",
+        "questions": [
+          "De qual ferramenta ou planilha vêm os seus registros e dá para exportar?",
+          "Por quais etapas um negócio passa no seu trabalho?",
+          "Quais campos você realmente usa hoje e quais pode deixar para trás?",
+          "Quem trabalha no CRM e quem é responsável por quais registros?"
+        ]
+      }
+    }
+  }
+}

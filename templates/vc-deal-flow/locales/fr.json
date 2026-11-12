@@ -1,0 +1,129 @@
+{
+  "locale": "fr",
+  "name": "Dealflow d’investisseur",
+  "summary": "Un dealflow pour un petit fonds ou un business angel : huit étapes de l’identification au closing ou au refus, l’apporteur sur chaque dossier, un motif de refus et une date de reprise de contact.",
+  "description": "Suivre startups et investisseurs de la détection au term sheet : screening, rencontres, due diligence. Chaque dossier note qui l’a apporté, son adéquation à la thèse, le rôle de lead, un lien vers la data room, le motif de refus et la date de reprise. C’est un outil de relation, pas une table de capitalisation, ni une data room juridique, ni un modèle de notation. Les pondérations sont approximatives et à vous de les fixer.",
+  "lists": {
+    "people": { "label": "Personne", "pluralLabel": "Personnes", "description": "Fondateurs, investisseurs, co-investisseurs et apporteurs." },
+    "organizations": { "label": "Organisation", "pluralLabel": "Organisations", "description": "Startups, fonds, syndicats et accélérateurs." },
+    "deals": { "label": "Dossier", "pluralLabel": "Dossiers", "description": "Une opportunité d’investissement de la détection au closing ou au refus." }
+  },
+  "fields": {
+    "deals.stage": {
+      "label": "Étape",
+      "options": { "sourced": "Détecté", "screening": "Screening", "first_meeting": "Première réunion", "partner_meeting": "Comité d’investissement", "diligence": "Due diligence", "term_sheet": "Term sheet", "closed": "Closing", "passed": "Refusé" }
+    },
+    "people.person_role": {
+      "label": "Rôle",
+      "options": { "founder": "Fondateur", "investor": "Associé investisseur", "angel": "Business angel", "co_investor": "Co-investisseur", "introducer": "Apporteur", "advisor": "Conseiller" }
+    },
+    "people.focus_stages": {
+      "label": "Stades ciblés",
+      "options": { "pre_seed": "Pré-amorçage", "seed": "Amorçage", "series_a": "Série A", "series_b_plus": "Série B et suivantes" }
+    },
+    "people.thesis": { "label": "Thèse d’investissement" },
+    "people.relationship_strength": { "label": "Relation", "options": { "strong": "Forte", "warm": "Bonne", "new": "Nouvelle" } },
+    "people.last_meeting_on": { "label": "Dernière rencontre" },
+    "people.relationship_owner": { "label": "Référent" },
+    "organizations.org_type": {
+      "label": "Type",
+      "options": { "startup": "Startup", "vc_fund": "Fonds de capital-risque", "angel_syndicate": "Syndicat de business angels", "corporate_vc": "Corporate venture", "accelerator": "Accélérateur", "other": "Autre" }
+    },
+    "organizations.website": { "label": "Site web" },
+    "organizations.sector": { "label": "Secteur" },
+    "organizations.stage": {
+      "label": "Stade",
+      "options": { "pre_seed": "Pré-amorçage", "seed": "Amorçage", "series_a": "Série A", "series_b": "Série B", "growth": "Croissance" }
+    },
+    "organizations.country": { "label": "Pays" },
+    "organizations.conflict_check": { "label": "Vérification des conflits d’intérêts", "options": { "to_check": "À vérifier", "clear": "Aucun conflit", "conflict": "Conflit" } },
+    "deals.round": {
+      "label": "Tour",
+      "options": { "pre_seed": "Pré-amorçage", "seed": "Amorçage", "series_a": "Série A", "series_b": "Série B", "bridge": "Tour relais" }
+    },
+    "deals.lead_role": { "label": "Notre rôle", "options": { "lead": "Lead", "follow": "Suiveur", "undecided": "À décider" } },
+    "deals.thesis_fit": { "label": "Adéquation à la thèse", "options": { "strong": "Forte", "partial": "Partielle", "weak": "Faible" } },
+    "deals.owner": { "label": "Responsable" },
+    "deals.source": {
+      "label": "Origine",
+      "options": { "warm_introduction": "Introduction personnelle", "inbound": "Demande entrante", "outbound": "Prospection", "event": "Événement", "portfolio_referral": "Recommandation du portefeuille", "co_investor": "Co-investisseur" }
+    },
+    "deals.intro_requested_on": { "label": "Introduction demandée le" },
+    "deals.intro_made_on": { "label": "Introduction faite le" },
+    "deals.first_meeting_on": { "label": "Première réunion le" },
+    "deals.decision_on": { "label": "Décision le" },
+    "deals.term_sheet_on": { "label": "Term sheet le" },
+    "deals.closed_on": { "label": "Closing le" },
+    "deals.nda_signed": { "label": "NDA signé" },
+    "deals.pass_reason": {
+      "label": "Motif de refus",
+      "options": { "thesis_mismatch": "Hors thèse", "team": "Équipe", "market": "Marché", "too_early": "Trop tôt", "valuation": "Valorisation", "timing": "Calendrier", "other": "Autre" }
+    },
+    "deals.revisit_on": { "label": "À revoir le" },
+    "deals.data_room_url": { "label": "Lien de la data room" },
+    "deals.days_to_term_sheet": { "label": "Jours de la première réunion au term sheet" },
+    "deals.weighted_value": { "label": "Valeur pondérée" },
+    "actions.kind": {
+      "label": "Type",
+      "options": {
+        "request_intro": "Demander une introduction",
+        "send_deck": "Envoyer le deck",
+        "prepare_meeting": "Préparer une réunion",
+        "follow_up": "Relance",
+        "diligence_request": "Demande de due diligence",
+        "write_memo": "Rédiger le mémo",
+        "send_pass_note": "Envoyer un refus",
+        "revisit": "Reprise de contact",
+        "thank_introducer": "Remercier ou relancer l’apporteur",
+        "other": "Autre"
+      }
+    }
+  },
+  "relationships": {
+    "deal_company": { "sourceLabel": "Entreprise", "targetLabel": "Dossiers" },
+    "deal_contacts": { "sourceLabel": "Fondateurs et contacts", "targetLabel": "Dossiers" },
+    "action_deal": { "sourceLabel": "Dossier", "targetLabel": "Actions" }
+  },
+  "views": {
+    "deals_board": { "name": "Dealflow" },
+    "deals_all": { "name": "Tous les dossiers" },
+    "passed_to_revisit": { "name": "Refusés, à revoir" },
+    "organizations_all": { "name": "Toutes les organisations" },
+    "people_all": { "name": "Toutes les personnes" }
+  },
+  "widgets": {
+    "deal_funnel": { "title": "Dossiers ouverts par étape" },
+    "deals_by_source": { "title": "Dossiers par origine" },
+    "pass_reasons": { "title": "Motifs de refus" },
+    "average_days_to_term_sheet": { "title": "Moyenne de jours jusqu’au term sheet" },
+    "revisits_coming": { "title": "Reprises de contact à venir" }
+  },
+  "knowledgePages": {
+    "investment_thesis": { "title": "Thèse d’investissement et focus", "sections": ["Stade, secteur et taille de ticket", "Ce dans quoi nous n’investissons pas"] },
+    "stage_criteria": { "title": "Critères par étape", "sections": ["Ce qui fait passer un dossier à l’étape suivante", "Qui décide en comité"] },
+    "pass_notes": { "title": "Refus et règles de reprise de contact", "sections": ["Comment nous refusons", "Quand nous regardons à nouveau"] }
+  },
+  "rules": {
+    "follow_up_after_meeting": { "title": "Envoyer un message avec les prochaines étapes après une première réunion" },
+    "stale_screening": { "title": "Relancer ou refuser un dossier resté 14 jours en screening" },
+    "pass_note": { "title": "Envoyer un refus quand un dossier est refusé" },
+    "revisit_deal": { "title": "Revoir un dossier refusé à sa date de reprise" },
+    "diligence_checklist": { "title": "Lancer la check-list de due diligence quand un term sheet est convenu" },
+    "first_check_in_after_close": { "title": "Prendre des nouvelles 30 jours après le closing" },
+    "intro_nudge": { "title": "Relancer l’apporteur une semaine après une introduction demandée" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Chaque dossier a l’une des huit étapes.",
+    "pass_reason_field": "Chaque dossier note pourquoi il a été refusé.",
+    "board_view": "Les dossiers s’ouvrent en tableau par étape."
+  },
+  "prompt": {
+    "intro": "Mets en place un dealflow dans mon espace Customermates : des dossiers avec huit étapes, l’apporteur, l’adéquation à la thèse, le rôle de lead, un motif de refus et une date de reprise, plus startups, investisseurs et relances datées.",
+    "questions": [
+      "Dans quels stades et secteurs investissez-vous, et quelle est votre taille de ticket habituelle ?",
+      "Comment les dossiers vous parviennent-ils, et qui les apporte ?",
+      "Qui décide à chaque étape, et quand refusez-vous ?",
+      "Où gardez-vous les documents juridiques et la data room ? Seul un lien est gardé ici."
+    ]
+  }
+}

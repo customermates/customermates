@@ -9,8 +9,12 @@ import actionItemTracker from "./bundles/action-item-tracker.json";
 import clientIntake from "./bundles/client-intake.json";
 import clientTracker from "./bundles/client-tracker.json";
 import contentCalendar from "./bundles/content-calendar.json";
+import creativeBookings from "./bundles/creative-bookings.json";
+import customCrm from "./bundles/custom-crm.json";
+import nonprofitDonorsAndMembers from "./bundles/nonprofit-donors-and-members.json";
 import realEstatePipeline from "./bundles/real-estate-pipeline.json";
 import salesPipeline from "./bundles/sales-pipeline.json";
+import vcDealFlow from "./bundles/vc-deal-flow.json";
 import { TEMPLATE_SLUGS } from "./template-slugs";
 
 export { TEMPLATE_SLUGS, isTemplateSlug } from "./template-slugs";
@@ -25,8 +29,12 @@ const BUNDLES: Readonly<Record<TemplateSlug, TemplateBundle>> = {
   "client-intake": clientIntake as unknown as TemplateBundle,
   "client-tracker": clientTracker as unknown as TemplateBundle,
   "content-calendar": contentCalendar as unknown as TemplateBundle,
+  "creative-bookings": creativeBookings as unknown as TemplateBundle,
+  "custom-crm": customCrm as unknown as TemplateBundle,
+  "nonprofit-donors-and-members": nonprofitDonorsAndMembers as unknown as TemplateBundle,
   "real-estate-pipeline": realEstatePipeline as unknown as TemplateBundle,
   "sales-pipeline": salesPipeline as unknown as TemplateBundle,
+  "vc-deal-flow": vcDealFlow as unknown as TemplateBundle,
 };
 
 export function getTemplate(slug: TemplateSlug): TemplateSpec {

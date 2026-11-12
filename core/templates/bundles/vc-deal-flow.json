@@ -1,0 +1,4143 @@
+{
+  "spec": {
+    "id": "tpl_vc_deal_flow",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "vc-deal-flow",
+    "family": "investing",
+    "kind": "pipeline",
+    "jurisdictions": [
+      "global"
+    ],
+    "dashboardAudience": "team",
+    "requiresCapabilities": [
+      "rules"
+    ],
+    "pairedPages": {},
+    "modules": [
+      "actions_core",
+      "actions_dashboard"
+    ],
+    "lists": [
+      {
+        "key": "people",
+        "role": "people",
+        "icon": "contact"
+      },
+      {
+        "key": "organizations",
+        "icon": "landmark"
+      },
+      {
+        "key": "deals",
+        "role": "deals",
+        "icon": "rocket"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "people.person_role",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "founder"
+          },
+          {
+            "key": "investor"
+          },
+          {
+            "key": "angel"
+          },
+          {
+            "key": "co_investor"
+          },
+          {
+            "key": "introducer"
+          },
+          {
+            "key": "advisor"
+          }
+        ]
+      },
+      {
+        "key": "people.focus_stages",
+        "type": "select",
+        "required": false,
+        "multiple": true,
+        "options": [
+          {
+            "key": "pre_seed"
+          },
+          {
+            "key": "seed"
+          },
+          {
+            "key": "series_a"
+          },
+          {
+            "key": "series_b_plus"
+          }
+        ]
+      },
+      {
+        "key": "people.thesis",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "people.relationship_strength",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "strong",
+            "color": "success"
+          },
+          {
+            "key": "warm",
+            "color": "warning"
+          },
+          {
+            "key": "new"
+          }
+        ]
+      },
+      {
+        "key": "people.last_meeting_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "people.relationship_owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "organizations.org_type",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "startup"
+          },
+          {
+            "key": "vc_fund"
+          },
+          {
+            "key": "angel_syndicate"
+          },
+          {
+            "key": "corporate_vc"
+          },
+          {
+            "key": "accelerator"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "organizations.website",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "organizations.sector",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "organizations.stage",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "pre_seed"
+          },
+          {
+            "key": "seed"
+          },
+          {
+            "key": "series_a"
+          },
+          {
+            "key": "series_b"
+          },
+          {
+            "key": "growth"
+          }
+        ]
+      },
+      {
+        "key": "organizations.country",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "organizations.conflict_check",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "to_check",
+            "color": "warning"
+          },
+          {
+            "key": "clear",
+            "color": "success"
+          },
+          {
+            "key": "conflict",
+            "color": "destructive"
+          }
+        ]
+      },
+      {
+        "key": "deals.round",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "pre_seed"
+          },
+          {
+            "key": "seed"
+          },
+          {
+            "key": "series_a"
+          },
+          {
+            "key": "series_b"
+          },
+          {
+            "key": "bridge"
+          }
+        ]
+      },
+      {
+        "key": "deals.lead_role",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "lead"
+          },
+          {
+            "key": "follow"
+          },
+          {
+            "key": "undecided"
+          }
+        ]
+      },
+      {
+        "key": "deals.thesis_fit",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "strong",
+            "color": "success"
+          },
+          {
+            "key": "partial",
+            "color": "warning"
+          },
+          {
+            "key": "weak",
+            "color": "destructive"
+          }
+        ]
+      },
+      {
+        "key": "deals.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "deals.source",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "warm_introduction"
+          },
+          {
+            "key": "inbound"
+          },
+          {
+            "key": "outbound"
+          },
+          {
+            "key": "event"
+          },
+          {
+            "key": "portfolio_referral"
+          },
+          {
+            "key": "co_investor"
+          }
+        ]
+      },
+      {
+        "key": "deals.intro_requested_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "deals.intro_made_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "deals.first_meeting_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "deals.decision_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "deals.term_sheet_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "deals.closed_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "deals.nda_signed",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "deals.pass_reason",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "thesis_mismatch"
+          },
+          {
+            "key": "team"
+          },
+          {
+            "key": "market"
+          },
+          {
+            "key": "too_early"
+          },
+          {
+            "key": "valuation"
+          },
+          {
+            "key": "timing"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "deals.revisit_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "deals.data_room_url",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "request_intro"
+          },
+          {
+            "key": "send_deck"
+          },
+          {
+            "key": "prepare_meeting"
+          },
+          {
+            "key": "follow_up"
+          },
+          {
+            "key": "diligence_request"
+          },
+          {
+            "key": "write_memo"
+          },
+          {
+            "key": "send_pass_note"
+          },
+          {
+            "key": "revisit"
+          },
+          {
+            "key": "thank_introducer"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "deals.stage",
+        "items": [
+          {
+            "key": "sourced",
+            "outcome": "open",
+            "weight": 1
+          },
+          {
+            "key": "screening",
+            "outcome": "open",
+            "weight": 2
+          },
+          {
+            "key": "first_meeting",
+            "outcome": "open",
+            "weight": 3
+          },
+          {
+            "key": "partner_meeting",
+            "outcome": "open",
+            "weight": 12
+          },
+          {
+            "key": "diligence",
+            "outcome": "open",
+            "weight": 40
+          },
+          {
+            "key": "term_sheet",
+            "outcome": "open",
+            "weight": 80
+          },
+          {
+            "key": "closed",
+            "outcome": "won",
+            "weight": 100
+          },
+          {
+            "key": "passed",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [
+      {
+        "key": "deals.days_to_term_sheet",
+        "type": "number",
+        "expression": {
+          "op": "daysBetween",
+          "from": "deals.first_meeting_on",
+          "to": "deals.term_sheet_on"
+        }
+      },
+      {
+        "key": "deals.weighted_value",
+        "type": "currency",
+        "expression": {
+          "op": "divide",
+          "left": {
+            "op": "multiply",
+            "left": {
+              "op": "field",
+              "field": "deals.value"
+            },
+            "right": {
+              "op": "optionWeight",
+              "field": "deals.stage"
+            }
+          },
+          "right": {
+            "op": "number",
+            "value": "100"
+          }
+        }
+      }
+    ],
+    "relationships": [
+      {
+        "key": "deal_company",
+        "source": "deals",
+        "target": "organizations",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "deal_contacts",
+        "source": "deals",
+        "target": "people",
+        "sourceCardinality": "many",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_deal",
+        "source": "actions",
+        "target": "deals",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "deals_board",
+        "list": "deals",
+        "default": true,
+        "layout": "board",
+        "groupBy": "deals.stage",
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "deals_all",
+        "list": "deals",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "deals.decision_on",
+          "direction": "asc"
+        },
+        "columns": [
+          "deals.stage",
+          "deals.owner",
+          "deals.lead_role",
+          "deals.thesis_fit",
+          "deals.decision_on"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "passed_to_revisit",
+        "list": "deals",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "deals.revisit_on",
+          "direction": "asc"
+        },
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "deals.stage",
+            "options": [
+              "passed"
+            ]
+          },
+          {
+            "operator": "notEmpty",
+            "field": "deals.revisit_on"
+          }
+        ]
+      },
+      {
+        "key": "organizations_all",
+        "list": "organizations",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "organizations.org_type",
+          "organizations.sector",
+          "organizations.stage",
+          "organizations.conflict_check"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "people_all",
+        "list": "people",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "people.person_role",
+          "people.relationship_strength",
+          "people.last_meeting_on",
+          "people.relationship_owner"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "chart",
+        "key": "deal_funnel",
+        "list": "deals",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "deals.stage"
+        },
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "deals.stage",
+            "options": [
+              "closed",
+              "passed"
+            ]
+          }
+        ],
+        "display": "funnelChart",
+        "size": "large"
+      },
+      {
+        "kind": "chart",
+        "key": "deals_by_source",
+        "list": "deals",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "deals.source"
+        },
+        "filters": [],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "chart",
+        "key": "pass_reasons",
+        "list": "deals",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "deals.pass_reason"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "deals.stage",
+            "options": [
+              "passed"
+            ]
+          }
+        ],
+        "display": "doughnutChart"
+      },
+      {
+        "kind": "chart",
+        "key": "average_days_to_term_sheet",
+        "list": "deals",
+        "aggregation": "average",
+        "valueField": "deals.days_to_term_sheet",
+        "groupBy": null,
+        "filters": [],
+        "display": "number"
+      },
+      {
+        "kind": "calendar",
+        "key": "revisits_coming",
+        "list": "deals",
+        "layout": "upcoming",
+        "dateField": "deals.revisit_on",
+        "amountField": null,
+        "filters": []
+      },
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_actions",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "investment_thesis",
+        "kind": "overview"
+      },
+      {
+        "key": "stage_criteria",
+        "kind": "processes"
+      },
+      {
+        "key": "pass_notes",
+        "kind": "salesPlaybook"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "follow_up_after_meeting",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "deals.stage",
+          "to": "first_meeting"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "deals"
+        },
+        "dueOffsetDays": 2,
+        "needs": "today"
+      },
+      {
+        "key": "stale_screening",
+        "trigger": {
+          "kind": "unchanged_for",
+          "field": "deals.stage",
+          "days": 14
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "deals.stage",
+            "options": [
+              "screening",
+              "first_meeting"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "deals"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "pass_note",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "deals.stage",
+          "to": "passed"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "send_pass_note",
+          "assignee": "record_owner",
+          "about": "deals"
+        },
+        "dueOffsetDays": 1,
+        "needs": "today"
+      },
+      {
+        "key": "revisit_deal",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "deals.revisit_on",
+          "offsetDays": 0
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "revisit",
+          "assignee": "record_owner",
+          "about": "deals"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "diligence_checklist",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "deals.stage",
+          "to": "term_sheet"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "diligence_request",
+          "assignee": "record_owner",
+          "about": "deals"
+        },
+        "dueOffsetDays": 1,
+        "needs": "today"
+      },
+      {
+        "key": "first_check_in_after_close",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "deals.stage",
+          "to": "closed"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "deals"
+        },
+        "dueOffsetDays": 30,
+        "needs": "today"
+      },
+      {
+        "key": "intro_nudge",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "deals.intro_requested_on",
+          "offsetDays": 7
+        },
+        "condition": [
+          {
+            "operator": "empty",
+            "field": "deals.intro_made_on"
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "thank_introducer",
+          "assignee": "record_owner",
+          "about": "deals"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "stage_field",
+        "kind": "field_exists",
+        "ref": "deals.stage"
+      },
+      {
+        "key": "pass_reason_field",
+        "kind": "field_exists",
+        "ref": "deals.pass_reason"
+      },
+      {
+        "key": "board_view",
+        "kind": "view_exists",
+        "ref": "deals_board"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://www.affinity.co/guides/how-to-choose-the-best-crm-for-venture-capital",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.affinity.co/blog/how-to-organize-your-deal-flow",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://visible.vc/blog/best-crm-for-venture-capital/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://visible.vc/blog/deal-flow-venture-capital",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.allied.vc/guides/fundraising-investor-funnel-that-converts",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://adamant.beehiiv.com/p/fundraising-conversion-funnel",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.capitaly.vc/blog/the-investor-pipeline-template-organize-your-raise-like-a-pro",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://attio.com/f/best-crm-for-venture-capital",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.airtable.com/templates/fundraising-crm/expQrNqXl4bUBrb8B",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://cms.law/de/deu/legal-updates/der-ablauf-eines-venture-capital-investments",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://startups.com.br/artigo/processo-de-investimento-de-venture-capital/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.vcstack.io/category/crm",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://fi.co/insight/venture-capital-crm",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "status": {
+      "en": "draft",
+      "de": "draft",
+      "fr": "draft",
+      "it": "draft",
+      "es": "draft",
+      "pt": "draft",
+      "pl": "draft",
+      "nl": "draft"
+    },
+    "publicPage": {
+      "en": "own",
+      "de": "own",
+      "fr": "none",
+      "it": "none",
+      "es": "none",
+      "pt": "none",
+      "pl": "none",
+      "nl": "none"
+    },
+    "publishWave": {
+      "en": "wave2",
+      "de": "wave2"
+    }
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Dealflow für Investoren",
+      "summary": "Ein Dealflow für einen kleinen Fonds oder Business Angel: acht Phasen von erkannt bis vollzogen oder abgelehnt, der Vermittler bei jedem Deal, ein Absagegrund und ein Termin zur Wiedervorlage.",
+      "description": "Startups und Investoren durch Sourcing, Erstprüfung, Gespräche, Due Diligence und Term Sheet begleiten. Jeder Deal hält fest, wer ihn vermittelt hat, wie gut er zur Anlagestrategie passt, die eigene Rolle als Lead oder Mitinvestor, einen Link zum Datenraum, den Absagegrund und wann man erneut hinsieht. Ein Beziehungswerkzeug, keine Gesellschafterliste, kein juristischer Datenraum und kein Bewertungsmodell. Die Gewichte sind grob und Ihre Sache.",
+      "lists": {
+        "actions": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "people": {
+          "label": "Person",
+          "pluralLabel": "Personen",
+          "description": "Gründer, Investoren, Mitinvestoren und Vermittler."
+        },
+        "organizations": {
+          "label": "Organisation",
+          "pluralLabel": "Organisationen",
+          "description": "Startups, Fonds, Syndikate und Accelerators."
+        },
+        "deals": {
+          "label": "Deal",
+          "pluralLabel": "Deals",
+          "description": "Eine Beteiligungschance vom Sourcing bis vollzogen oder abgelehnt."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "deals.stage": {
+          "label": "Phase",
+          "options": {
+            "sourced": "Erkannt",
+            "screening": "Prüfung",
+            "first_meeting": "Erstgespräch",
+            "partner_meeting": "Partnerrunde",
+            "diligence": "Due Diligence",
+            "term_sheet": "Term Sheet",
+            "closed": "Vollzug",
+            "passed": "Abgelehnt"
+          }
+        },
+        "people.person_role": {
+          "label": "Rolle",
+          "options": {
+            "founder": "Gründer",
+            "investor": "Investment-Partner",
+            "angel": "Business Angel",
+            "co_investor": "Mitinvestor",
+            "introducer": "Vermittler",
+            "advisor": "Berater"
+          }
+        },
+        "people.focus_stages": {
+          "label": "Fokus-Phasen",
+          "options": {
+            "pre_seed": "Pre-Seed",
+            "seed": "Seed",
+            "series_a": "Serie A",
+            "series_b_plus": "Serie B und später"
+          }
+        },
+        "people.thesis": {
+          "label": "Anlagethese",
+          "options": {}
+        },
+        "people.relationship_strength": {
+          "label": "Beziehung",
+          "options": {
+            "strong": "Stark",
+            "warm": "Gut",
+            "new": "Neu"
+          }
+        },
+        "people.last_meeting_on": {
+          "label": "Letztes Treffen",
+          "options": {}
+        },
+        "people.relationship_owner": {
+          "label": "Betreuer",
+          "options": {}
+        },
+        "organizations.org_type": {
+          "label": "Art",
+          "options": {
+            "startup": "Startup",
+            "vc_fund": "VC-Fonds",
+            "angel_syndicate": "Angel-Syndikat",
+            "corporate_vc": "Corporate VC",
+            "accelerator": "Accelerator",
+            "other": "Sonstige"
+          }
+        },
+        "organizations.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "organizations.sector": {
+          "label": "Branche",
+          "options": {}
+        },
+        "organizations.stage": {
+          "label": "Phase",
+          "options": {
+            "pre_seed": "Pre-Seed",
+            "seed": "Seed",
+            "series_a": "Serie A",
+            "series_b": "Serie B",
+            "growth": "Wachstum"
+          }
+        },
+        "organizations.country": {
+          "label": "Land",
+          "options": {}
+        },
+        "organizations.conflict_check": {
+          "label": "Interessenkonflikt-Prüfung",
+          "options": {
+            "to_check": "Zu prüfen",
+            "clear": "Unbedenklich",
+            "conflict": "Konflikt"
+          }
+        },
+        "deals.round": {
+          "label": "Runde",
+          "options": {
+            "pre_seed": "Pre-Seed",
+            "seed": "Seed",
+            "series_a": "Serie A",
+            "series_b": "Serie B",
+            "bridge": "Brückenfinanzierung"
+          }
+        },
+        "deals.lead_role": {
+          "label": "Unsere Rolle",
+          "options": {
+            "lead": "Lead",
+            "follow": "Mitinvestor",
+            "undecided": "Offen"
+          }
+        },
+        "deals.thesis_fit": {
+          "label": "Passung zur Anlagethese",
+          "options": {
+            "strong": "Stark",
+            "partial": "Teilweise",
+            "weak": "Schwach"
+          }
+        },
+        "deals.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "deals.source": {
+          "label": "Herkunft",
+          "options": {
+            "warm_introduction": "Persönliche Vermittlung",
+            "inbound": "Eingehende Anfrage",
+            "outbound": "Eigene Ansprache",
+            "event": "Veranstaltung",
+            "portfolio_referral": "Empfehlung aus dem Portfolio",
+            "co_investor": "Mitinvestor"
+          }
+        },
+        "deals.intro_requested_on": {
+          "label": "Vermittlung erbeten am",
+          "options": {}
+        },
+        "deals.intro_made_on": {
+          "label": "Vermittlung erfolgt am",
+          "options": {}
+        },
+        "deals.first_meeting_on": {
+          "label": "Erstgespräch am",
+          "options": {}
+        },
+        "deals.decision_on": {
+          "label": "Entscheidung am",
+          "options": {}
+        },
+        "deals.term_sheet_on": {
+          "label": "Term Sheet am",
+          "options": {}
+        },
+        "deals.closed_on": {
+          "label": "Vollzug am",
+          "options": {}
+        },
+        "deals.nda_signed": {
+          "label": "NDA unterschrieben",
+          "options": {}
+        },
+        "deals.pass_reason": {
+          "label": "Absagegrund",
+          "options": {
+            "thesis_mismatch": "Passt nicht zur Anlagethese",
+            "team": "Team",
+            "market": "Markt",
+            "too_early": "Zu früh",
+            "valuation": "Bewertung",
+            "timing": "Zeitpunkt",
+            "other": "Sonstiges"
+          }
+        },
+        "deals.revisit_on": {
+          "label": "Wiedervorlage am",
+          "options": {}
+        },
+        "deals.data_room_url": {
+          "label": "Link zum Datenraum",
+          "options": {}
+        },
+        "deals.days_to_term_sheet": {
+          "label": "Tage vom Erstgespräch bis zum Term Sheet",
+          "options": {}
+        },
+        "deals.weighted_value": {
+          "label": "Gewichteter Wert",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "request_intro": "Vermittlung erbitten",
+            "send_deck": "Pitch Deck senden",
+            "prepare_meeting": "Gespräch vorbereiten",
+            "follow_up": "Nachfassen",
+            "diligence_request": "Anforderungsliste Due Diligence",
+            "write_memo": "Investment-Memo schreiben",
+            "send_pass_note": "Absage senden",
+            "revisit": "Wiedervorlage",
+            "thank_introducer": "Vermittler danken oder erinnern",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "deal_company": {
+          "sourceLabel": "Unternehmen",
+          "targetLabel": "Deals"
+        },
+        "deal_contacts": {
+          "sourceLabel": "Gründer und Kontakte",
+          "targetLabel": "Deals"
+        },
+        "action_deal": {
+          "sourceLabel": "Deal",
+          "targetLabel": "Aufgaben"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle Aufgaben"
+        },
+        "deals_board": {
+          "name": "Dealflow"
+        },
+        "deals_all": {
+          "name": "Alle Deals"
+        },
+        "passed_to_revisit": {
+          "name": "Abgelehnt, zur Wiedervorlage"
+        },
+        "organizations_all": {
+          "name": "Alle Organisationen"
+        },
+        "people_all": {
+          "name": "Alle Personen"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Anstehende Aufgaben"
+        },
+        "overdue_actions": {
+          "title": "Überfällige Aufgaben"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        },
+        "deal_funnel": {
+          "title": "Offene Deals nach Phase"
+        },
+        "deals_by_source": {
+          "title": "Deals nach Herkunft"
+        },
+        "pass_reasons": {
+          "title": "Absagegründe"
+        },
+        "average_days_to_term_sheet": {
+          "title": "Durchschnittliche Tage bis zum Term Sheet"
+        },
+        "revisits_coming": {
+          "title": "Anstehende Wiedervorlagen"
+        }
+      },
+      "knowledgePages": {
+        "investment_thesis": {
+          "title": "Anlagethese und Fokus",
+          "sections": [
+            "Phase, Branche und Ticketgröße",
+            "Worin wir nicht investieren"
+          ]
+        },
+        "stage_criteria": {
+          "title": "Kriterien je Phase",
+          "sections": [
+            "Was einen Deal in die nächste Phase bringt",
+            "Wer in der Partnerrunde entscheidet"
+          ]
+        },
+        "pass_notes": {
+          "title": "Absagen und Wiedervorlage",
+          "sections": [
+            "Wie wir absagen",
+            "Wann wir erneut hinsehen"
+          ]
+        }
+      },
+      "rules": {
+        "follow_up_after_meeting": {
+          "title": "Nach einem Erstgespräch eine Nachricht mit den nächsten Schritten senden",
+          "description": ""
+        },
+        "stale_screening": {
+          "title": "Einen Deal, der 14 Tage in der Prüfung blieb, neu aufgreifen oder absagen",
+          "description": ""
+        },
+        "pass_note": {
+          "title": "Eine Absage senden, wenn ein Deal abgelehnt wird",
+          "description": ""
+        },
+        "revisit_deal": {
+          "title": "Einen abgelehnten Deal zum Wiedervorlagetermin erneut prüfen",
+          "description": ""
+        },
+        "diligence_checklist": {
+          "title": "Die Due-Diligence-Liste starten, wenn ein Term Sheet vereinbart ist",
+          "description": ""
+        },
+        "first_check_in_after_close": {
+          "title": "30 Tage nach dem Vollzug nachfragen",
+          "description": ""
+        },
+        "intro_nudge": {
+          "title": "Den Vermittler eine Woche nach der erbetenen Vermittlung erinnern",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Jeder Deal hat eine von acht Phasen.",
+        "pass_reason_field": "Jeder Deal hält fest, warum er abgelehnt wurde.",
+        "board_view": "Die Deals öffnen sich als Board nach Phase."
+      },
+      "prompt": {
+        "intro": "Richte einen Dealflow in meinem Customermates-Workspace ein: Deals mit acht Phasen, Vermittler, Passung zur Anlagethese, eigener Rolle, Absagegrund und Wiedervorlagetermin, dazu Startups, Investoren und terminierte Nachfassaufgaben.",
+        "questions": [
+          "In welche Phasen und Branchen investieren Sie, und wie groß ist Ihr üblicher Ticket?",
+          "Wie erreichen Sie die Deals, und wer vermittelt sie?",
+          "Wer entscheidet in welcher Phase, und wann sagen Sie ab?",
+          "Wo liegen Rechtsdokumente und Datenraum? Hier wird nur ein Link gespeichert."
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "VC deal flow",
+      "summary": "A deal flow for a small fund or angel: eight stages from sourced to closed or passed, the introducer on every deal, a pass reason and a date to revisit.",
+      "description": "Track startups and investors through sourcing, screening, meetings, diligence and term sheet. Each deal records who introduced it, how well it fits the thesis, the lead role, a data room link, the pass reason and when to look again. It is a relationship tool, not a cap table, a legal data room or a scoring model. Weights are rough and yours to set.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "people": {
+          "label": "Person",
+          "pluralLabel": "People",
+          "description": "Founders, investors, co-investors and introducers."
+        },
+        "organizations": {
+          "label": "Organization",
+          "pluralLabel": "Organizations",
+          "description": "Startups, funds, syndicates and accelerators."
+        },
+        "deals": {
+          "label": "Deal",
+          "pluralLabel": "Deals",
+          "description": "One investment opportunity from sourcing to closed or passed."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "deals.stage": {
+          "label": "Stage",
+          "options": {
+            "sourced": "Sourced",
+            "screening": "Screening",
+            "first_meeting": "First meeting",
+            "partner_meeting": "Partner meeting",
+            "diligence": "Diligence",
+            "term_sheet": "Term sheet",
+            "closed": "Closed",
+            "passed": "Passed"
+          }
+        },
+        "people.person_role": {
+          "label": "Role",
+          "options": {
+            "founder": "Founder",
+            "investor": "Investor partner",
+            "angel": "Angel",
+            "co_investor": "Co-investor",
+            "introducer": "Introducer",
+            "advisor": "Advisor"
+          }
+        },
+        "people.focus_stages": {
+          "label": "Focus stages",
+          "options": {
+            "pre_seed": "Pre-seed",
+            "seed": "Seed",
+            "series_a": "Series A",
+            "series_b_plus": "Series B and later"
+          }
+        },
+        "people.thesis": {
+          "label": "Thesis",
+          "options": {}
+        },
+        "people.relationship_strength": {
+          "label": "Relationship",
+          "options": {
+            "strong": "Strong",
+            "warm": "Warm",
+            "new": "New"
+          }
+        },
+        "people.last_meeting_on": {
+          "label": "Last meeting",
+          "options": {}
+        },
+        "people.relationship_owner": {
+          "label": "Relationship owner",
+          "options": {}
+        },
+        "organizations.org_type": {
+          "label": "Type",
+          "options": {
+            "startup": "Startup",
+            "vc_fund": "VC fund",
+            "angel_syndicate": "Angel syndicate",
+            "corporate_vc": "Corporate VC",
+            "accelerator": "Accelerator",
+            "other": "Other"
+          }
+        },
+        "organizations.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "organizations.sector": {
+          "label": "Sector",
+          "options": {}
+        },
+        "organizations.stage": {
+          "label": "Stage",
+          "options": {
+            "pre_seed": "Pre-seed",
+            "seed": "Seed",
+            "series_a": "Series A",
+            "series_b": "Series B",
+            "growth": "Growth"
+          }
+        },
+        "organizations.country": {
+          "label": "Country",
+          "options": {}
+        },
+        "organizations.conflict_check": {
+          "label": "Conflict check",
+          "options": {
+            "to_check": "To check",
+            "clear": "Clear",
+            "conflict": "Conflict"
+          }
+        },
+        "deals.round": {
+          "label": "Round",
+          "options": {
+            "pre_seed": "Pre-seed",
+            "seed": "Seed",
+            "series_a": "Series A",
+            "series_b": "Series B",
+            "bridge": "Bridge"
+          }
+        },
+        "deals.lead_role": {
+          "label": "Our role",
+          "options": {
+            "lead": "Lead",
+            "follow": "Follow",
+            "undecided": "Undecided"
+          }
+        },
+        "deals.thesis_fit": {
+          "label": "Thesis fit",
+          "options": {
+            "strong": "Strong",
+            "partial": "Partial",
+            "weak": "Weak"
+          }
+        },
+        "deals.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "deals.source": {
+          "label": "Source",
+          "options": {
+            "warm_introduction": "Warm introduction",
+            "inbound": "Inbound",
+            "outbound": "Outbound",
+            "event": "Event",
+            "portfolio_referral": "Portfolio referral",
+            "co_investor": "Co-investor"
+          }
+        },
+        "deals.intro_requested_on": {
+          "label": "Introduction requested on",
+          "options": {}
+        },
+        "deals.intro_made_on": {
+          "label": "Introduction made on",
+          "options": {}
+        },
+        "deals.first_meeting_on": {
+          "label": "First meeting on",
+          "options": {}
+        },
+        "deals.decision_on": {
+          "label": "Decision on",
+          "options": {}
+        },
+        "deals.term_sheet_on": {
+          "label": "Term sheet on",
+          "options": {}
+        },
+        "deals.closed_on": {
+          "label": "Closed on",
+          "options": {}
+        },
+        "deals.nda_signed": {
+          "label": "NDA signed",
+          "options": {}
+        },
+        "deals.pass_reason": {
+          "label": "Pass reason",
+          "options": {
+            "thesis_mismatch": "Thesis mismatch",
+            "team": "Team",
+            "market": "Market",
+            "too_early": "Too early",
+            "valuation": "Valuation",
+            "timing": "Timing",
+            "other": "Other"
+          }
+        },
+        "deals.revisit_on": {
+          "label": "Revisit on",
+          "options": {}
+        },
+        "deals.data_room_url": {
+          "label": "Data room link",
+          "options": {}
+        },
+        "deals.days_to_term_sheet": {
+          "label": "Days from first meeting to term sheet",
+          "options": {}
+        },
+        "deals.weighted_value": {
+          "label": "Weighted value",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "request_intro": "Request an introduction",
+            "send_deck": "Send the deck",
+            "prepare_meeting": "Prepare a meeting",
+            "follow_up": "Follow up",
+            "diligence_request": "Diligence request",
+            "write_memo": "Write the memo",
+            "send_pass_note": "Send a pass note",
+            "revisit": "Revisit",
+            "thank_introducer": "Thank or nudge the introducer",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "deal_company": {
+          "sourceLabel": "Company",
+          "targetLabel": "Deals"
+        },
+        "deal_contacts": {
+          "sourceLabel": "Founders and contacts",
+          "targetLabel": "Deals"
+        },
+        "action_deal": {
+          "sourceLabel": "Deal",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "All actions"
+        },
+        "deals_board": {
+          "name": "Deal flow"
+        },
+        "deals_all": {
+          "name": "All deals"
+        },
+        "passed_to_revisit": {
+          "name": "Passed, to revisit"
+        },
+        "organizations_all": {
+          "name": "All organizations"
+        },
+        "people_all": {
+          "name": "All people"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Upcoming actions"
+        },
+        "overdue_actions": {
+          "title": "Overdue actions"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        },
+        "deal_funnel": {
+          "title": "Open deals by stage"
+        },
+        "deals_by_source": {
+          "title": "Deals by source"
+        },
+        "pass_reasons": {
+          "title": "Pass reasons"
+        },
+        "average_days_to_term_sheet": {
+          "title": "Average days to term sheet"
+        },
+        "revisits_coming": {
+          "title": "Revisits coming up"
+        }
+      },
+      "knowledgePages": {
+        "investment_thesis": {
+          "title": "Investment thesis and focus",
+          "sections": [
+            "Stage, sector and check size",
+            "What we do not invest in"
+          ]
+        },
+        "stage_criteria": {
+          "title": "Stage criteria",
+          "sections": [
+            "What moves a deal to the next stage",
+            "Who decides at the partner meeting"
+          ]
+        },
+        "pass_notes": {
+          "title": "Pass notes and revisit rules",
+          "sections": [
+            "How we decline",
+            "When we look again"
+          ]
+        }
+      },
+      "rules": {
+        "follow_up_after_meeting": {
+          "title": "Send a follow-up with next steps after a first meeting",
+          "description": ""
+        },
+        "stale_screening": {
+          "title": "Re-engage or pass on a deal that stayed in screening for 14 days",
+          "description": ""
+        },
+        "pass_note": {
+          "title": "Send a pass note when a deal is passed",
+          "description": ""
+        },
+        "revisit_deal": {
+          "title": "Revisit a passed deal on its revisit date",
+          "description": ""
+        },
+        "diligence_checklist": {
+          "title": "Start the diligence checklist when a term sheet is agreed",
+          "description": ""
+        },
+        "first_check_in_after_close": {
+          "title": "Check in 30 days after closing",
+          "description": ""
+        },
+        "intro_nudge": {
+          "title": "Nudge the introducer a week after an introduction was requested",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Every deal has one of eight stages.",
+        "pass_reason_field": "Every deal records why it was passed.",
+        "board_view": "The deals open as a board by stage."
+      },
+      "prompt": {
+        "intro": "Set up a VC deal flow in my Customermates workspace: deals with eight stages, the introducer, thesis fit, lead role, a pass reason and a date to revisit, plus startups, investors and dated follow-ups.",
+        "questions": [
+          "Which stages and sectors do you invest in, and what is your usual check size?",
+          "How do deals reach you, and who introduces them?",
+          "Who decides at each stage, and when do you pass?",
+          "Where do you keep legal documents and the data room? Only a link is kept here."
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "Dealflow para inversores",
+      "summary": "Un dealflow para un fondo pequeño o un business angel: ocho etapas de la detección al cierre o al rechazo, quién presentó cada operación, un motivo de rechazo y una fecha para retomar.",
+      "description": "Sigue startups e inversores desde la detección, el filtrado, las reuniones y la due diligence hasta el term sheet. Cada operación anota quién la presentó, cuánto encaja con la tesis, el papel de lead, un enlace a la data room, el motivo del rechazo y cuándo volver a mirarla. Es una herramienta de relaciones, no una tabla de capitalización, ni una data room legal, ni un modelo de puntuación. Las ponderaciones son aproximadas y tuyas.",
+      "lists": {
+        "actions": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un siguiente paso con fecha por cada asunto abierto."
+        },
+        "people": {
+          "label": "Persona",
+          "pluralLabel": "Personas",
+          "description": "Fundadores, inversores, coinversores y presentadores."
+        },
+        "organizations": {
+          "label": "Organización",
+          "pluralLabel": "Organizaciones",
+          "description": "Startups, fondos, sindicatos y aceleradoras."
+        },
+        "deals": {
+          "label": "Operación",
+          "pluralLabel": "Operaciones",
+          "description": "Una oportunidad de inversión de la detección al cierre o al rechazo."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierta",
+            "waiting": "En espera",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "deals.stage": {
+          "label": "Etapa",
+          "options": {
+            "sourced": "Detectada",
+            "screening": "Filtrado",
+            "first_meeting": "Primera reunión",
+            "partner_meeting": "Comité de inversión",
+            "diligence": "Due diligence",
+            "term_sheet": "Term sheet",
+            "closed": "Cerrada",
+            "passed": "Rechazada"
+          }
+        },
+        "people.person_role": {
+          "label": "Función",
+          "options": {
+            "founder": "Fundador",
+            "investor": "Socio inversor",
+            "angel": "Business angel",
+            "co_investor": "Coinversor",
+            "introducer": "Presentador",
+            "advisor": "Asesor"
+          }
+        },
+        "people.focus_stages": {
+          "label": "Etapas de interés",
+          "options": {
+            "pre_seed": "Pre-seed",
+            "seed": "Seed",
+            "series_a": "Serie A",
+            "series_b_plus": "Serie B y posteriores"
+          }
+        },
+        "people.thesis": {
+          "label": "Tesis de inversión",
+          "options": {}
+        },
+        "people.relationship_strength": {
+          "label": "Relación",
+          "options": {
+            "strong": "Fuerte",
+            "warm": "Buena",
+            "new": "Nueva"
+          }
+        },
+        "people.last_meeting_on": {
+          "label": "Última reunión",
+          "options": {}
+        },
+        "people.relationship_owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "organizations.org_type": {
+          "label": "Tipo",
+          "options": {
+            "startup": "Startup",
+            "vc_fund": "Fondo de venture capital",
+            "angel_syndicate": "Sindicato de business angels",
+            "corporate_vc": "Corporate venture",
+            "accelerator": "Aceleradora",
+            "other": "Otro"
+          }
+        },
+        "organizations.website": {
+          "label": "Sitio web",
+          "options": {}
+        },
+        "organizations.sector": {
+          "label": "Sector",
+          "options": {}
+        },
+        "organizations.stage": {
+          "label": "Etapa",
+          "options": {
+            "pre_seed": "Pre-seed",
+            "seed": "Seed",
+            "series_a": "Serie A",
+            "series_b": "Serie B",
+            "growth": "Crecimiento"
+          }
+        },
+        "organizations.country": {
+          "label": "País",
+          "options": {}
+        },
+        "organizations.conflict_check": {
+          "label": "Comprobación de conflicto de intereses",
+          "options": {
+            "to_check": "Por comprobar",
+            "clear": "Sin conflicto",
+            "conflict": "Conflicto"
+          }
+        },
+        "deals.round": {
+          "label": "Ronda",
+          "options": {
+            "pre_seed": "Pre-seed",
+            "seed": "Seed",
+            "series_a": "Serie A",
+            "series_b": "Serie B",
+            "bridge": "Ronda puente"
+          }
+        },
+        "deals.lead_role": {
+          "label": "Nuestro papel",
+          "options": {
+            "lead": "Lead",
+            "follow": "Seguidor",
+            "undecided": "Sin decidir"
+          }
+        },
+        "deals.thesis_fit": {
+          "label": "Encaje con la tesis",
+          "options": {
+            "strong": "Fuerte",
+            "partial": "Parcial",
+            "weak": "Débil"
+          }
+        },
+        "deals.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "deals.source": {
+          "label": "Origen",
+          "options": {
+            "warm_introduction": "Presentación personal",
+            "inbound": "Solicitud entrante",
+            "outbound": "Prospección",
+            "event": "Evento",
+            "portfolio_referral": "Recomendación de la cartera",
+            "co_investor": "Coinversor"
+          }
+        },
+        "deals.intro_requested_on": {
+          "label": "Presentación solicitada el",
+          "options": {}
+        },
+        "deals.intro_made_on": {
+          "label": "Presentación hecha el",
+          "options": {}
+        },
+        "deals.first_meeting_on": {
+          "label": "Primera reunión el",
+          "options": {}
+        },
+        "deals.decision_on": {
+          "label": "Decisión el",
+          "options": {}
+        },
+        "deals.term_sheet_on": {
+          "label": "Term sheet el",
+          "options": {}
+        },
+        "deals.closed_on": {
+          "label": "Cierre el",
+          "options": {}
+        },
+        "deals.nda_signed": {
+          "label": "NDA firmado",
+          "options": {}
+        },
+        "deals.pass_reason": {
+          "label": "Motivo del rechazo",
+          "options": {
+            "thesis_mismatch": "Fuera de tesis",
+            "team": "Equipo",
+            "market": "Mercado",
+            "too_early": "Demasiado pronto",
+            "valuation": "Valoración",
+            "timing": "Momento",
+            "other": "Otro"
+          }
+        },
+        "deals.revisit_on": {
+          "label": "Retomar el",
+          "options": {}
+        },
+        "deals.data_room_url": {
+          "label": "Enlace de la data room",
+          "options": {}
+        },
+        "deals.days_to_term_sheet": {
+          "label": "Días de la primera reunión al term sheet",
+          "options": {}
+        },
+        "deals.weighted_value": {
+          "label": "Valor ponderado",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "request_intro": "Pedir una presentación",
+            "send_deck": "Enviar el deck",
+            "prepare_meeting": "Preparar una reunión",
+            "follow_up": "Seguimiento",
+            "diligence_request": "Petición de due diligence",
+            "write_memo": "Escribir el memo",
+            "send_pass_note": "Enviar un rechazo",
+            "revisit": "Retomar el contacto",
+            "thank_introducer": "Agradecer o recordar al presentador",
+            "other": "Otro"
+          }
+        }
+      },
+      "relationships": {
+        "deal_company": {
+          "sourceLabel": "Empresa",
+          "targetLabel": "Operaciones"
+        },
+        "deal_contacts": {
+          "sourceLabel": "Fundadores y contactos",
+          "targetLabel": "Operaciones"
+        },
+        "action_deal": {
+          "sourceLabel": "Operación",
+          "targetLabel": "Tareas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas las tareas"
+        },
+        "deals_board": {
+          "name": "Dealflow"
+        },
+        "deals_all": {
+          "name": "Todas las operaciones"
+        },
+        "passed_to_revisit": {
+          "name": "Rechazadas, por retomar"
+        },
+        "organizations_all": {
+          "name": "Todas las organizaciones"
+        },
+        "people_all": {
+          "name": "Todas las personas"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tareas"
+        },
+        "overdue_actions": {
+          "title": "Tareas vencidas"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        },
+        "deal_funnel": {
+          "title": "Operaciones abiertas por etapa"
+        },
+        "deals_by_source": {
+          "title": "Operaciones por origen"
+        },
+        "pass_reasons": {
+          "title": "Motivos de rechazo"
+        },
+        "average_days_to_term_sheet": {
+          "title": "Media de días hasta el term sheet"
+        },
+        "revisits_coming": {
+          "title": "Próximos contactos por retomar"
+        }
+      },
+      "knowledgePages": {
+        "investment_thesis": {
+          "title": "Tesis de inversión y foco",
+          "sections": [
+            "Etapa, sector y tamaño de ticket",
+            "En qué no invertimos"
+          ]
+        },
+        "stage_criteria": {
+          "title": "Criterios por etapa",
+          "sections": [
+            "Qué lleva una operación a la siguiente etapa",
+            "Quién decide en el comité"
+          ]
+        },
+        "pass_notes": {
+          "title": "Rechazos y reglas para retomar",
+          "sections": [
+            "Cómo rechazamos",
+            "Cuándo volvemos a mirar"
+          ]
+        }
+      },
+      "rules": {
+        "follow_up_after_meeting": {
+          "title": "Enviar un mensaje con los siguientes pasos tras una primera reunión",
+          "description": ""
+        },
+        "stale_screening": {
+          "title": "Reactivar o rechazar una operación parada 14 días en filtrado",
+          "description": ""
+        },
+        "pass_note": {
+          "title": "Enviar un rechazo cuando se rechaza una operación",
+          "description": ""
+        },
+        "revisit_deal": {
+          "title": "Retomar una operación rechazada en su fecha",
+          "description": ""
+        },
+        "diligence_checklist": {
+          "title": "Iniciar la lista de due diligence cuando se acuerda un term sheet",
+          "description": ""
+        },
+        "first_check_in_after_close": {
+          "title": "Hacer un seguimiento 30 días después del cierre",
+          "description": ""
+        },
+        "intro_nudge": {
+          "title": "Recordar al presentador una semana después de pedir la presentación",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada operación tiene una de las ocho etapas.",
+        "pass_reason_field": "Cada operación anota por qué se rechazó.",
+        "board_view": "Las operaciones se abren como tablero por etapa."
+      },
+      "prompt": {
+        "intro": "Configura un dealflow en mi espacio de trabajo de Customermates: operaciones con ocho etapas, quién las presentó, encaje con la tesis, papel de lead, un motivo de rechazo y una fecha para retomar, además de startups, inversores y seguimientos con fecha.",
+        "questions": [
+          "¿En qué etapas y sectores inviertes y cuál es el tamaño habitual de tu ticket?",
+          "¿Cómo te llegan las operaciones y quién las presenta?",
+          "¿Quién decide en cada etapa y cuándo rechazas?",
+          "¿Dónde guardas los documentos legales y la data room? Aquí solo se guarda un enlace."
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "Dealflow d’investisseur",
+      "summary": "Un dealflow pour un petit fonds ou un business angel : huit étapes de l’identification au closing ou au refus, l’apporteur sur chaque dossier, un motif de refus et une date de reprise de contact.",
+      "description": "Suivre startups et investisseurs de la détection au term sheet : screening, rencontres, due diligence. Chaque dossier note qui l’a apporté, son adéquation à la thèse, le rôle de lead, un lien vers la data room, le motif de refus et la date de reprise. C’est un outil de relation, pas une table de capitalisation, ni une data room juridique, ni un modèle de notation. Les pondérations sont approximatives et à vous de les fixer.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Une prochaine étape datée par dossier ouvert."
+        },
+        "people": {
+          "label": "Personne",
+          "pluralLabel": "Personnes",
+          "description": "Fondateurs, investisseurs, co-investisseurs et apporteurs."
+        },
+        "organizations": {
+          "label": "Organisation",
+          "pluralLabel": "Organisations",
+          "description": "Startups, fonds, syndicats et accélérateurs."
+        },
+        "deals": {
+          "label": "Dossier",
+          "pluralLabel": "Dossiers",
+          "description": "Une opportunité d’investissement de la détection au closing ou au refus."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "waiting": "En attente",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "deals.stage": {
+          "label": "Étape",
+          "options": {
+            "sourced": "Détecté",
+            "screening": "Screening",
+            "first_meeting": "Première réunion",
+            "partner_meeting": "Comité d’investissement",
+            "diligence": "Due diligence",
+            "term_sheet": "Term sheet",
+            "closed": "Closing",
+            "passed": "Refusé"
+          }
+        },
+        "people.person_role": {
+          "label": "Rôle",
+          "options": {
+            "founder": "Fondateur",
+            "investor": "Associé investisseur",
+            "angel": "Business angel",
+            "co_investor": "Co-investisseur",
+            "introducer": "Apporteur",
+            "advisor": "Conseiller"
+          }
+        },
+        "people.focus_stages": {
+          "label": "Stades ciblés",
+          "options": {
+            "pre_seed": "Pré-amorçage",
+            "seed": "Amorçage",
+            "series_a": "Série A",
+            "series_b_plus": "Série B et suivantes"
+          }
+        },
+        "people.thesis": {
+          "label": "Thèse d’investissement",
+          "options": {}
+        },
+        "people.relationship_strength": {
+          "label": "Relation",
+          "options": {
+            "strong": "Forte",
+            "warm": "Bonne",
+            "new": "Nouvelle"
+          }
+        },
+        "people.last_meeting_on": {
+          "label": "Dernière rencontre",
+          "options": {}
+        },
+        "people.relationship_owner": {
+          "label": "Référent",
+          "options": {}
+        },
+        "organizations.org_type": {
+          "label": "Type",
+          "options": {
+            "startup": "Startup",
+            "vc_fund": "Fonds de capital-risque",
+            "angel_syndicate": "Syndicat de business angels",
+            "corporate_vc": "Corporate venture",
+            "accelerator": "Accélérateur",
+            "other": "Autre"
+          }
+        },
+        "organizations.website": {
+          "label": "Site web",
+          "options": {}
+        },
+        "organizations.sector": {
+          "label": "Secteur",
+          "options": {}
+        },
+        "organizations.stage": {
+          "label": "Stade",
+          "options": {
+            "pre_seed": "Pré-amorçage",
+            "seed": "Amorçage",
+            "series_a": "Série A",
+            "series_b": "Série B",
+            "growth": "Croissance"
+          }
+        },
+        "organizations.country": {
+          "label": "Pays",
+          "options": {}
+        },
+        "organizations.conflict_check": {
+          "label": "Vérification des conflits d’intérêts",
+          "options": {
+            "to_check": "À vérifier",
+            "clear": "Aucun conflit",
+            "conflict": "Conflit"
+          }
+        },
+        "deals.round": {
+          "label": "Tour",
+          "options": {
+            "pre_seed": "Pré-amorçage",
+            "seed": "Amorçage",
+            "series_a": "Série A",
+            "series_b": "Série B",
+            "bridge": "Tour relais"
+          }
+        },
+        "deals.lead_role": {
+          "label": "Notre rôle",
+          "options": {
+            "lead": "Lead",
+            "follow": "Suiveur",
+            "undecided": "À décider"
+          }
+        },
+        "deals.thesis_fit": {
+          "label": "Adéquation à la thèse",
+          "options": {
+            "strong": "Forte",
+            "partial": "Partielle",
+            "weak": "Faible"
+          }
+        },
+        "deals.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "deals.source": {
+          "label": "Origine",
+          "options": {
+            "warm_introduction": "Introduction personnelle",
+            "inbound": "Demande entrante",
+            "outbound": "Prospection",
+            "event": "Événement",
+            "portfolio_referral": "Recommandation du portefeuille",
+            "co_investor": "Co-investisseur"
+          }
+        },
+        "deals.intro_requested_on": {
+          "label": "Introduction demandée le",
+          "options": {}
+        },
+        "deals.intro_made_on": {
+          "label": "Introduction faite le",
+          "options": {}
+        },
+        "deals.first_meeting_on": {
+          "label": "Première réunion le",
+          "options": {}
+        },
+        "deals.decision_on": {
+          "label": "Décision le",
+          "options": {}
+        },
+        "deals.term_sheet_on": {
+          "label": "Term sheet le",
+          "options": {}
+        },
+        "deals.closed_on": {
+          "label": "Closing le",
+          "options": {}
+        },
+        "deals.nda_signed": {
+          "label": "NDA signé",
+          "options": {}
+        },
+        "deals.pass_reason": {
+          "label": "Motif de refus",
+          "options": {
+            "thesis_mismatch": "Hors thèse",
+            "team": "Équipe",
+            "market": "Marché",
+            "too_early": "Trop tôt",
+            "valuation": "Valorisation",
+            "timing": "Calendrier",
+            "other": "Autre"
+          }
+        },
+        "deals.revisit_on": {
+          "label": "À revoir le",
+          "options": {}
+        },
+        "deals.data_room_url": {
+          "label": "Lien de la data room",
+          "options": {}
+        },
+        "deals.days_to_term_sheet": {
+          "label": "Jours de la première réunion au term sheet",
+          "options": {}
+        },
+        "deals.weighted_value": {
+          "label": "Valeur pondérée",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "request_intro": "Demander une introduction",
+            "send_deck": "Envoyer le deck",
+            "prepare_meeting": "Préparer une réunion",
+            "follow_up": "Relance",
+            "diligence_request": "Demande de due diligence",
+            "write_memo": "Rédiger le mémo",
+            "send_pass_note": "Envoyer un refus",
+            "revisit": "Reprise de contact",
+            "thank_introducer": "Remercier ou relancer l’apporteur",
+            "other": "Autre"
+          }
+        }
+      },
+      "relationships": {
+        "deal_company": {
+          "sourceLabel": "Entreprise",
+          "targetLabel": "Dossiers"
+        },
+        "deal_contacts": {
+          "sourceLabel": "Fondateurs et contacts",
+          "targetLabel": "Dossiers"
+        },
+        "action_deal": {
+          "sourceLabel": "Dossier",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "deals_board": {
+          "name": "Dealflow"
+        },
+        "deals_all": {
+          "name": "Tous les dossiers"
+        },
+        "passed_to_revisit": {
+          "name": "Refusés, à revoir"
+        },
+        "organizations_all": {
+          "name": "Toutes les organisations"
+        },
+        "people_all": {
+          "name": "Toutes les personnes"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Actions à venir"
+        },
+        "overdue_actions": {
+          "title": "Actions en retard"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        },
+        "deal_funnel": {
+          "title": "Dossiers ouverts par étape"
+        },
+        "deals_by_source": {
+          "title": "Dossiers par origine"
+        },
+        "pass_reasons": {
+          "title": "Motifs de refus"
+        },
+        "average_days_to_term_sheet": {
+          "title": "Moyenne de jours jusqu’au term sheet"
+        },
+        "revisits_coming": {
+          "title": "Reprises de contact à venir"
+        }
+      },
+      "knowledgePages": {
+        "investment_thesis": {
+          "title": "Thèse d’investissement et focus",
+          "sections": [
+            "Stade, secteur et taille de ticket",
+            "Ce dans quoi nous n’investissons pas"
+          ]
+        },
+        "stage_criteria": {
+          "title": "Critères par étape",
+          "sections": [
+            "Ce qui fait passer un dossier à l’étape suivante",
+            "Qui décide en comité"
+          ]
+        },
+        "pass_notes": {
+          "title": "Refus et règles de reprise de contact",
+          "sections": [
+            "Comment nous refusons",
+            "Quand nous regardons à nouveau"
+          ]
+        }
+      },
+      "rules": {
+        "follow_up_after_meeting": {
+          "title": "Envoyer un message avec les prochaines étapes après une première réunion",
+          "description": ""
+        },
+        "stale_screening": {
+          "title": "Relancer ou refuser un dossier resté 14 jours en screening",
+          "description": ""
+        },
+        "pass_note": {
+          "title": "Envoyer un refus quand un dossier est refusé",
+          "description": ""
+        },
+        "revisit_deal": {
+          "title": "Revoir un dossier refusé à sa date de reprise",
+          "description": ""
+        },
+        "diligence_checklist": {
+          "title": "Lancer la check-list de due diligence quand un term sheet est convenu",
+          "description": ""
+        },
+        "first_check_in_after_close": {
+          "title": "Prendre des nouvelles 30 jours après le closing",
+          "description": ""
+        },
+        "intro_nudge": {
+          "title": "Relancer l’apporteur une semaine après une introduction demandée",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Chaque dossier a l’une des huit étapes.",
+        "pass_reason_field": "Chaque dossier note pourquoi il a été refusé.",
+        "board_view": "Les dossiers s’ouvrent en tableau par étape."
+      },
+      "prompt": {
+        "intro": "Mets en place un dealflow dans mon espace Customermates : des dossiers avec huit étapes, l’apporteur, l’adéquation à la thèse, le rôle de lead, un motif de refus et une date de reprise, plus startups, investisseurs et relances datées.",
+        "questions": [
+          "Dans quels stades et secteurs investissez-vous, et quelle est votre taille de ticket habituelle ?",
+          "Comment les dossiers vous parviennent-ils, et qui les apporte ?",
+          "Qui décide à chaque étape, et quand refusez-vous ?",
+          "Où gardez-vous les documents juridiques et la data room ? Seul un lien est gardé ici."
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "Dealflow per investitori",
+      "summary": "Un dealflow per un piccolo fondo o un business angel: otto fasi dall’individuazione al closing o al rifiuto, chi ha presentato ogni operazione, un motivo del rifiuto e una data per riprendere il contatto.",
+      "description": "Segui startup e investitori da sourcing, valutazione, incontri, due diligence fino al term sheet. Ogni operazione registra chi l’ha presentata, quanto aderisce alla tesi, il ruolo di lead, un link alla data room, il motivo del rifiuto e quando riguardarla. È uno strumento di relazione, non una cap table, né una data room legale, né un modello di punteggio. I pesi sono approssimativi e sono tuoi.",
+      "lists": {
+        "actions": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un prossimo passo con data per ogni pratica aperta."
+        },
+        "people": {
+          "label": "Persona",
+          "pluralLabel": "Persone",
+          "description": "Fondatori, investitori, co-investitori e presentatori."
+        },
+        "organizations": {
+          "label": "Organizzazione",
+          "pluralLabel": "Organizzazioni",
+          "description": "Startup, fondi, sindacati e acceleratori."
+        },
+        "deals": {
+          "label": "Operazione",
+          "pluralLabel": "Operazioni",
+          "description": "Un’opportunità di investimento dal sourcing al closing o al rifiuto."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "waiting": "In attesa",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "deals.stage": {
+          "label": "Fase",
+          "options": {
+            "sourced": "Individuata",
+            "screening": "Valutazione",
+            "first_meeting": "Primo incontro",
+            "partner_meeting": "Comitato investimenti",
+            "diligence": "Due diligence",
+            "term_sheet": "Term sheet",
+            "closed": "Closing",
+            "passed": "Rifiutata"
+          }
+        },
+        "people.person_role": {
+          "label": "Ruolo",
+          "options": {
+            "founder": "Fondatore",
+            "investor": "Partner investitore",
+            "angel": "Business angel",
+            "co_investor": "Co-investitore",
+            "introducer": "Presentatore",
+            "advisor": "Consulente"
+          }
+        },
+        "people.focus_stages": {
+          "label": "Fasi di interesse",
+          "options": {
+            "pre_seed": "Pre-seed",
+            "seed": "Seed",
+            "series_a": "Serie A",
+            "series_b_plus": "Serie B e successive"
+          }
+        },
+        "people.thesis": {
+          "label": "Tesi di investimento",
+          "options": {}
+        },
+        "people.relationship_strength": {
+          "label": "Relazione",
+          "options": {
+            "strong": "Forte",
+            "warm": "Buona",
+            "new": "Nuova"
+          }
+        },
+        "people.last_meeting_on": {
+          "label": "Ultimo incontro",
+          "options": {}
+        },
+        "people.relationship_owner": {
+          "label": "Referente",
+          "options": {}
+        },
+        "organizations.org_type": {
+          "label": "Tipo",
+          "options": {
+            "startup": "Startup",
+            "vc_fund": "Fondo di venture capital",
+            "angel_syndicate": "Sindacato di angel",
+            "corporate_vc": "Corporate venture",
+            "accelerator": "Acceleratore",
+            "other": "Altro"
+          }
+        },
+        "organizations.website": {
+          "label": "Sito web",
+          "options": {}
+        },
+        "organizations.sector": {
+          "label": "Settore",
+          "options": {}
+        },
+        "organizations.stage": {
+          "label": "Fase",
+          "options": {
+            "pre_seed": "Pre-seed",
+            "seed": "Seed",
+            "series_a": "Serie A",
+            "series_b": "Serie B",
+            "growth": "Crescita"
+          }
+        },
+        "organizations.country": {
+          "label": "Paese",
+          "options": {}
+        },
+        "organizations.conflict_check": {
+          "label": "Verifica del conflitto di interessi",
+          "options": {
+            "to_check": "Da verificare",
+            "clear": "Nessun conflitto",
+            "conflict": "Conflitto"
+          }
+        },
+        "deals.round": {
+          "label": "Round",
+          "options": {
+            "pre_seed": "Pre-seed",
+            "seed": "Seed",
+            "series_a": "Serie A",
+            "series_b": "Serie B",
+            "bridge": "Round ponte"
+          }
+        },
+        "deals.lead_role": {
+          "label": "Il nostro ruolo",
+          "options": {
+            "lead": "Lead",
+            "follow": "Follower",
+            "undecided": "Da decidere"
+          }
+        },
+        "deals.thesis_fit": {
+          "label": "Aderenza alla tesi",
+          "options": {
+            "strong": "Forte",
+            "partial": "Parziale",
+            "weak": "Debole"
+          }
+        },
+        "deals.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "deals.source": {
+          "label": "Provenienza",
+          "options": {
+            "warm_introduction": "Presentazione personale",
+            "inbound": "Richiesta in entrata",
+            "outbound": "Contatto diretto",
+            "event": "Evento",
+            "portfolio_referral": "Segnalazione dal portafoglio",
+            "co_investor": "Co-investitore"
+          }
+        },
+        "deals.intro_requested_on": {
+          "label": "Presentazione richiesta il",
+          "options": {}
+        },
+        "deals.intro_made_on": {
+          "label": "Presentazione fatta il",
+          "options": {}
+        },
+        "deals.first_meeting_on": {
+          "label": "Primo incontro il",
+          "options": {}
+        },
+        "deals.decision_on": {
+          "label": "Decisione il",
+          "options": {}
+        },
+        "deals.term_sheet_on": {
+          "label": "Term sheet il",
+          "options": {}
+        },
+        "deals.closed_on": {
+          "label": "Closing il",
+          "options": {}
+        },
+        "deals.nda_signed": {
+          "label": "NDA firmato",
+          "options": {}
+        },
+        "deals.pass_reason": {
+          "label": "Motivo del rifiuto",
+          "options": {
+            "thesis_mismatch": "Fuori tesi",
+            "team": "Team",
+            "market": "Mercato",
+            "too_early": "Troppo presto",
+            "valuation": "Valutazione",
+            "timing": "Tempi",
+            "other": "Altro"
+          }
+        },
+        "deals.revisit_on": {
+          "label": "Da riprendere il",
+          "options": {}
+        },
+        "deals.data_room_url": {
+          "label": "Link della data room",
+          "options": {}
+        },
+        "deals.days_to_term_sheet": {
+          "label": "Giorni dal primo incontro al term sheet",
+          "options": {}
+        },
+        "deals.weighted_value": {
+          "label": "Valore ponderato",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "request_intro": "Chiedere una presentazione",
+            "send_deck": "Inviare il deck",
+            "prepare_meeting": "Preparare un incontro",
+            "follow_up": "Sollecito",
+            "diligence_request": "Richiesta di due diligence",
+            "write_memo": "Scrivere il memo",
+            "send_pass_note": "Inviare un rifiuto",
+            "revisit": "Ripresa del contatto",
+            "thank_introducer": "Ringraziare o sollecitare il presentatore",
+            "other": "Altro"
+          }
+        }
+      },
+      "relationships": {
+        "deal_company": {
+          "sourceLabel": "Azienda",
+          "targetLabel": "Operazioni"
+        },
+        "deal_contacts": {
+          "sourceLabel": "Fondatori e referenti",
+          "targetLabel": "Operazioni"
+        },
+        "action_deal": {
+          "sourceLabel": "Operazione",
+          "targetLabel": "Attività"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Tutte le attività"
+        },
+        "deals_board": {
+          "name": "Dealflow"
+        },
+        "deals_all": {
+          "name": "Tutte le operazioni"
+        },
+        "passed_to_revisit": {
+          "name": "Rifiutate, da riprendere"
+        },
+        "organizations_all": {
+          "name": "Tutte le organizzazioni"
+        },
+        "people_all": {
+          "name": "Tutte le persone"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Attività in arrivo"
+        },
+        "overdue_actions": {
+          "title": "Attività scadute"
+        },
+        "activity_timeline": {
+          "title": "Attività recente"
+        },
+        "deal_funnel": {
+          "title": "Operazioni aperte per fase"
+        },
+        "deals_by_source": {
+          "title": "Operazioni per provenienza"
+        },
+        "pass_reasons": {
+          "title": "Motivi del rifiuto"
+        },
+        "average_days_to_term_sheet": {
+          "title": "Media dei giorni al term sheet"
+        },
+        "revisits_coming": {
+          "title": "Riprese di contatto in arrivo"
+        }
+      },
+      "knowledgePages": {
+        "investment_thesis": {
+          "title": "Tesi di investimento e focus",
+          "sections": [
+            "Fase, settore e dimensione del ticket",
+            "Dove non investiamo"
+          ]
+        },
+        "stage_criteria": {
+          "title": "Criteri per fase",
+          "sections": [
+            "Che cosa fa avanzare un’operazione alla fase successiva",
+            "Chi decide in comitato"
+          ]
+        },
+        "pass_notes": {
+          "title": "Rifiuti e regole di ripresa del contatto",
+          "sections": [
+            "Come rifiutiamo",
+            "Quando riguardiamo"
+          ]
+        }
+      },
+      "rules": {
+        "follow_up_after_meeting": {
+          "title": "Inviare un messaggio con i prossimi passi dopo un primo incontro",
+          "description": ""
+        },
+        "stale_screening": {
+          "title": "Rilanciare o rifiutare un’operazione ferma da 14 giorni in valutazione",
+          "description": ""
+        },
+        "pass_note": {
+          "title": "Inviare un rifiuto quando un’operazione viene rifiutata",
+          "description": ""
+        },
+        "revisit_deal": {
+          "title": "Riprendere un’operazione rifiutata alla data di ripresa",
+          "description": ""
+        },
+        "diligence_checklist": {
+          "title": "Avviare la checklist di due diligence quando è concordato un term sheet",
+          "description": ""
+        },
+        "first_check_in_after_close": {
+          "title": "Fare un check-in 30 giorni dopo il closing",
+          "description": ""
+        },
+        "intro_nudge": {
+          "title": "Sollecitare il presentatore una settimana dopo la presentazione richiesta",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Ogni operazione ha una delle otto fasi.",
+        "pass_reason_field": "Ogni operazione registra perché è stata rifiutata.",
+        "board_view": "Le operazioni si aprono come bacheca per fase."
+      },
+      "prompt": {
+        "intro": "Configura un dealflow nel mio spazio di lavoro Customermates: operazioni con otto fasi, chi le ha presentate, aderenza alla tesi, ruolo di lead, un motivo del rifiuto e una data di ripresa, più startup, investitori e solleciti con scadenza.",
+        "questions": [
+          "In quali fasi e settori investi e qual è la dimensione abituale del ticket?",
+          "Come ti arrivano le operazioni e chi le presenta?",
+          "Chi decide a ogni fase e quando rifiuti?",
+          "Dove tieni i documenti legali e la data room? Qui si conserva solo un link."
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "Dealflow voor investeerders",
+      "summary": "Een dealflow voor een klein fonds of business angel: acht fasen van gesignaleerd tot gesloten of afgewezen, wie elke deal aandroeg, een reden van afwijzing en een datum om terug te komen.",
+      "description": "Volg startups en investeerders van sourcing, screening en gesprekken via due diligence tot de term sheet. Elke deal legt vast wie hem aandroeg, hoe goed hij past bij de thesis, de rol als lead, een link naar de data room, de reden van afwijzing en wanneer je opnieuw kijkt. Een relatietool, geen aandeelhoudersregister, geen juridische data room en geen scoremodel. De wegingen zijn globaal en van jou.",
+      "lists": {
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén volgende stap met datum per open dossier."
+        },
+        "people": {
+          "label": "Persoon",
+          "pluralLabel": "Personen",
+          "description": "Oprichters, investeerders, co-investeerders en introducers."
+        },
+        "organizations": {
+          "label": "Organisatie",
+          "pluralLabel": "Organisaties",
+          "description": "Startups, fondsen, syndicaten en accelerators."
+        },
+        "deals": {
+          "label": "Deal",
+          "pluralLabel": "Deals",
+          "description": "Eén investeringskans van sourcing tot gesloten of afgewezen."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Wachtend",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "deals.stage": {
+          "label": "Fase",
+          "options": {
+            "sourced": "Gesignaleerd",
+            "screening": "Screening",
+            "first_meeting": "Eerste gesprek",
+            "partner_meeting": "Investeringscommissie",
+            "diligence": "Due diligence",
+            "term_sheet": "Term sheet",
+            "closed": "Gesloten",
+            "passed": "Afgewezen"
+          }
+        },
+        "people.person_role": {
+          "label": "Rol",
+          "options": {
+            "founder": "Oprichter",
+            "investor": "Investeringspartner",
+            "angel": "Business angel",
+            "co_investor": "Co-investeerder",
+            "introducer": "Introducer",
+            "advisor": "Adviseur"
+          }
+        },
+        "people.focus_stages": {
+          "label": "Focusfasen",
+          "options": {
+            "pre_seed": "Pre-seed",
+            "seed": "Seed",
+            "series_a": "Serie A",
+            "series_b_plus": "Serie B en later"
+          }
+        },
+        "people.thesis": {
+          "label": "Investeringsthese",
+          "options": {}
+        },
+        "people.relationship_strength": {
+          "label": "Relatie",
+          "options": {
+            "strong": "Sterk",
+            "warm": "Goed",
+            "new": "Nieuw"
+          }
+        },
+        "people.last_meeting_on": {
+          "label": "Laatste gesprek",
+          "options": {}
+        },
+        "people.relationship_owner": {
+          "label": "Relatiebeheerder",
+          "options": {}
+        },
+        "organizations.org_type": {
+          "label": "Soort",
+          "options": {
+            "startup": "Startup",
+            "vc_fund": "Venture capital-fonds",
+            "angel_syndicate": "Angelsyndicaat",
+            "corporate_vc": "Corporate venture",
+            "accelerator": "Accelerator",
+            "other": "Overig"
+          }
+        },
+        "organizations.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "organizations.sector": {
+          "label": "Sector",
+          "options": {}
+        },
+        "organizations.stage": {
+          "label": "Fase",
+          "options": {
+            "pre_seed": "Pre-seed",
+            "seed": "Seed",
+            "series_a": "Serie A",
+            "series_b": "Serie B",
+            "growth": "Groei"
+          }
+        },
+        "organizations.country": {
+          "label": "Land",
+          "options": {}
+        },
+        "organizations.conflict_check": {
+          "label": "Controle op belangenconflict",
+          "options": {
+            "to_check": "Te controleren",
+            "clear": "Geen conflict",
+            "conflict": "Conflict"
+          }
+        },
+        "deals.round": {
+          "label": "Ronde",
+          "options": {
+            "pre_seed": "Pre-seed",
+            "seed": "Seed",
+            "series_a": "Serie A",
+            "series_b": "Serie B",
+            "bridge": "Overbruggingsronde"
+          }
+        },
+        "deals.lead_role": {
+          "label": "Onze rol",
+          "options": {
+            "lead": "Lead",
+            "follow": "Volger",
+            "undecided": "Nog open"
+          }
+        },
+        "deals.thesis_fit": {
+          "label": "Match met de these",
+          "options": {
+            "strong": "Sterk",
+            "partial": "Gedeeltelijk",
+            "weak": "Zwak"
+          }
+        },
+        "deals.owner": {
+          "label": "Verantwoordelijke",
+          "options": {}
+        },
+        "deals.source": {
+          "label": "Herkomst",
+          "options": {
+            "warm_introduction": "Persoonlijke introductie",
+            "inbound": "Inkomende aanvraag",
+            "outbound": "Eigen benadering",
+            "event": "Evenement",
+            "portfolio_referral": "Verwijzing uit de portefeuille",
+            "co_investor": "Co-investeerder"
+          }
+        },
+        "deals.intro_requested_on": {
+          "label": "Introductie gevraagd op",
+          "options": {}
+        },
+        "deals.intro_made_on": {
+          "label": "Introductie gedaan op",
+          "options": {}
+        },
+        "deals.first_meeting_on": {
+          "label": "Eerste gesprek op",
+          "options": {}
+        },
+        "deals.decision_on": {
+          "label": "Besluit op",
+          "options": {}
+        },
+        "deals.term_sheet_on": {
+          "label": "Term sheet op",
+          "options": {}
+        },
+        "deals.closed_on": {
+          "label": "Gesloten op",
+          "options": {}
+        },
+        "deals.nda_signed": {
+          "label": "NDA getekend",
+          "options": {}
+        },
+        "deals.pass_reason": {
+          "label": "Reden van afwijzing",
+          "options": {
+            "thesis_mismatch": "Past niet bij de these",
+            "team": "Team",
+            "market": "Markt",
+            "too_early": "Te vroeg",
+            "valuation": "Waardering",
+            "timing": "Timing",
+            "other": "Overig"
+          }
+        },
+        "deals.revisit_on": {
+          "label": "Terugkomen op",
+          "options": {}
+        },
+        "deals.data_room_url": {
+          "label": "Link naar data room",
+          "options": {}
+        },
+        "deals.days_to_term_sheet": {
+          "label": "Dagen van eerste gesprek tot term sheet",
+          "options": {}
+        },
+        "deals.weighted_value": {
+          "label": "Gewogen waarde",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "request_intro": "Introductie vragen",
+            "send_deck": "Deck sturen",
+            "prepare_meeting": "Gesprek voorbereiden",
+            "follow_up": "Opvolging",
+            "diligence_request": "Verzoek voor due diligence",
+            "write_memo": "Memo schrijven",
+            "send_pass_note": "Afwijzing sturen",
+            "revisit": "Terugkomen",
+            "thank_introducer": "Introducer bedanken of herinneren",
+            "other": "Overig"
+          }
+        }
+      },
+      "relationships": {
+        "deal_company": {
+          "sourceLabel": "Bedrijf",
+          "targetLabel": "Deals"
+        },
+        "deal_contacts": {
+          "sourceLabel": "Oprichters en contacten",
+          "targetLabel": "Deals"
+        },
+        "action_deal": {
+          "sourceLabel": "Deal",
+          "targetLabel": "Acties"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "deals_board": {
+          "name": "Dealflow"
+        },
+        "deals_all": {
+          "name": "Alle deals"
+        },
+        "passed_to_revisit": {
+          "name": "Afgewezen, om op terug te komen"
+        },
+        "organizations_all": {
+          "name": "Alle organisaties"
+        },
+        "people_all": {
+          "name": "Alle personen"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Aankomende acties"
+        },
+        "overdue_actions": {
+          "title": "Achterstallige acties"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        },
+        "deal_funnel": {
+          "title": "Open deals per fase"
+        },
+        "deals_by_source": {
+          "title": "Deals per herkomst"
+        },
+        "pass_reasons": {
+          "title": "Redenen van afwijzing"
+        },
+        "average_days_to_term_sheet": {
+          "title": "Gemiddeld aantal dagen tot term sheet"
+        },
+        "revisits_coming": {
+          "title": "Aankomende herbeoordelingen"
+        }
+      },
+      "knowledgePages": {
+        "investment_thesis": {
+          "title": "Investeringsthese en focus",
+          "sections": [
+            "Fase, sector en ticketgrootte",
+            "Waarin wij niet investeren"
+          ]
+        },
+        "stage_criteria": {
+          "title": "Criteria per fase",
+          "sections": [
+            "Wat een deal naar de volgende fase brengt",
+            "Wie beslist in de commissie"
+          ]
+        },
+        "pass_notes": {
+          "title": "Afwijzingen en regels om terug te komen",
+          "sections": [
+            "Hoe we afwijzen",
+            "Wanneer we opnieuw kijken"
+          ]
+        }
+      },
+      "rules": {
+        "follow_up_after_meeting": {
+          "title": "Stuur na een eerste gesprek een bericht met de volgende stappen",
+          "description": ""
+        },
+        "stale_screening": {
+          "title": "Pak een deal die 14 dagen in screening bleef weer op of wijs af",
+          "description": ""
+        },
+        "pass_note": {
+          "title": "Stuur een afwijzing wanneer een deal wordt afgewezen",
+          "description": ""
+        },
+        "revisit_deal": {
+          "title": "Kom op de afgesproken datum terug op een afgewezen deal",
+          "description": ""
+        },
+        "diligence_checklist": {
+          "title": "Start de due-diligencelijst wanneer een term sheet is afgesproken",
+          "description": ""
+        },
+        "first_check_in_after_close": {
+          "title": "Neem 30 dagen na het sluiten contact op",
+          "description": ""
+        },
+        "intro_nudge": {
+          "title": "Herinner de introducer een week nadat een introductie is gevraagd",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Elke deal heeft een van de acht fasen.",
+        "pass_reason_field": "Elke deal legt vast waarom hij is afgewezen.",
+        "board_view": "De deals openen als bord per fase."
+      },
+      "prompt": {
+        "intro": "Richt een dealflow in mijn Customermates-werkruimte in: deals met acht fasen, de introducer, match met de these, de rol als lead, een reden van afwijzing en een datum om terug te komen, plus startups, investeerders en opvolgacties met datum.",
+        "questions": [
+          "In welke fasen en sectoren investeer je en hoe groot is je gebruikelijke ticket?",
+          "Hoe komen deals bij je binnen en wie draagt ze aan?",
+          "Wie beslist in elke fase en wanneer wijs je af?",
+          "Waar bewaar je juridische documenten en de data room? Hier wordt alleen een link bewaard."
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Dealflow inwestora",
+      "summary": "Dealflow dla małego funduszu lub anioła biznesu: osiem etapów od wyszukania do zamknięcia lub odrzucenia, osoba polecająca przy każdym dealu, powód odrzucenia i data powrotu do sprawy.",
+      "description": "Prowadź startupy i inwestorów przez sourcing, wstępną ocenę, spotkania, due diligence i term sheet. Każdy deal zapisuje, kto go polecił, jak pasuje do tezy inwestycyjnej, rolę lidera, link do data roomu, powód odrzucenia i kiedy spojrzeć ponownie. To narzędzie do relacji, a nie tabela kapitałowa, prawny data room ani model punktowy. Wagi są przybliżone i Twoje.",
+      "lists": {
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jeden następny krok z terminem dla każdej otwartej sprawy."
+        },
+        "people": {
+          "label": "Osoba",
+          "pluralLabel": "Osoby",
+          "description": "Założyciele, inwestorzy, współinwestorzy i osoby polecające."
+        },
+        "organizations": {
+          "label": "Organizacja",
+          "pluralLabel": "Organizacje",
+          "description": "Startupy, fundusze, syndykaty i akceleratory."
+        },
+        "deals": {
+          "label": "Deal",
+          "pluralLabel": "Deale",
+          "description": "Jedna szansa inwestycyjna od sourcingu do zamknięcia lub odrzucenia."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarte",
+            "waiting": "Oczekuje",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Odpowiedzialny",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "deals.stage": {
+          "label": "Etap",
+          "options": {
+            "sourced": "Wyszukany",
+            "screening": "Wstępna ocena",
+            "first_meeting": "Pierwsze spotkanie",
+            "partner_meeting": "Komitet inwestycyjny",
+            "diligence": "Due diligence",
+            "term_sheet": "Term sheet",
+            "closed": "Zamknięty",
+            "passed": "Odrzucony"
+          }
+        },
+        "people.person_role": {
+          "label": "Rola",
+          "options": {
+            "founder": "Założyciel",
+            "investor": "Partner inwestycyjny",
+            "angel": "Anioł biznesu",
+            "co_investor": "Współinwestor",
+            "introducer": "Osoba polecająca",
+            "advisor": "Doradca"
+          }
+        },
+        "people.focus_stages": {
+          "label": "Interesujące etapy",
+          "options": {
+            "pre_seed": "Pre-seed",
+            "seed": "Seed",
+            "series_a": "Seria A",
+            "series_b_plus": "Seria B i późniejsze"
+          }
+        },
+        "people.thesis": {
+          "label": "Teza inwestycyjna",
+          "options": {}
+        },
+        "people.relationship_strength": {
+          "label": "Relacja",
+          "options": {
+            "strong": "Silna",
+            "warm": "Dobra",
+            "new": "Nowa"
+          }
+        },
+        "people.last_meeting_on": {
+          "label": "Ostatnie spotkanie",
+          "options": {}
+        },
+        "people.relationship_owner": {
+          "label": "Opiekun",
+          "options": {}
+        },
+        "organizations.org_type": {
+          "label": "Rodzaj",
+          "options": {
+            "startup": "Startup",
+            "vc_fund": "Fundusz VC",
+            "angel_syndicate": "Syndykat aniołów biznesu",
+            "corporate_vc": "Corporate venture",
+            "accelerator": "Akcelerator",
+            "other": "Inny"
+          }
+        },
+        "organizations.website": {
+          "label": "Strona internetowa",
+          "options": {}
+        },
+        "organizations.sector": {
+          "label": "Branża",
+          "options": {}
+        },
+        "organizations.stage": {
+          "label": "Etap",
+          "options": {
+            "pre_seed": "Pre-seed",
+            "seed": "Seed",
+            "series_a": "Seria A",
+            "series_b": "Seria B",
+            "growth": "Wzrost"
+          }
+        },
+        "organizations.country": {
+          "label": "Kraj",
+          "options": {}
+        },
+        "organizations.conflict_check": {
+          "label": "Sprawdzenie konfliktu interesów",
+          "options": {
+            "to_check": "Do sprawdzenia",
+            "clear": "Brak konfliktu",
+            "conflict": "Konflikt"
+          }
+        },
+        "deals.round": {
+          "label": "Runda",
+          "options": {
+            "pre_seed": "Pre-seed",
+            "seed": "Seed",
+            "series_a": "Seria A",
+            "series_b": "Seria B",
+            "bridge": "Runda pomostowa"
+          }
+        },
+        "deals.lead_role": {
+          "label": "Nasza rola",
+          "options": {
+            "lead": "Lider",
+            "follow": "Współinwestor",
+            "undecided": "Do ustalenia"
+          }
+        },
+        "deals.thesis_fit": {
+          "label": "Dopasowanie do tezy",
+          "options": {
+            "strong": "Silne",
+            "partial": "Częściowe",
+            "weak": "Słabe"
+          }
+        },
+        "deals.owner": {
+          "label": "Odpowiedzialny",
+          "options": {}
+        },
+        "deals.source": {
+          "label": "Źródło",
+          "options": {
+            "warm_introduction": "Osobiste polecenie",
+            "inbound": "Zapytanie przychodzące",
+            "outbound": "Kontakt własny",
+            "event": "Wydarzenie",
+            "portfolio_referral": "Polecenie z portfela",
+            "co_investor": "Współinwestor"
+          }
+        },
+        "deals.intro_requested_on": {
+          "label": "Prośba o przedstawienie dnia",
+          "options": {}
+        },
+        "deals.intro_made_on": {
+          "label": "Przedstawienie dnia",
+          "options": {}
+        },
+        "deals.first_meeting_on": {
+          "label": "Pierwsze spotkanie dnia",
+          "options": {}
+        },
+        "deals.decision_on": {
+          "label": "Decyzja dnia",
+          "options": {}
+        },
+        "deals.term_sheet_on": {
+          "label": "Term sheet dnia",
+          "options": {}
+        },
+        "deals.closed_on": {
+          "label": "Zamknięto dnia",
+          "options": {}
+        },
+        "deals.nda_signed": {
+          "label": "NDA podpisane",
+          "options": {}
+        },
+        "deals.pass_reason": {
+          "label": "Powód odrzucenia",
+          "options": {
+            "thesis_mismatch": "Poza tezą",
+            "team": "Zespół",
+            "market": "Rynek",
+            "too_early": "Za wcześnie",
+            "valuation": "Wycena",
+            "timing": "Termin",
+            "other": "Inny"
+          }
+        },
+        "deals.revisit_on": {
+          "label": "Powrót do sprawy dnia",
+          "options": {}
+        },
+        "deals.data_room_url": {
+          "label": "Link do data roomu",
+          "options": {}
+        },
+        "deals.days_to_term_sheet": {
+          "label": "Dni od pierwszego spotkania do term sheet",
+          "options": {}
+        },
+        "deals.weighted_value": {
+          "label": "Wartość ważona",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "request_intro": "Poprosić o przedstawienie",
+            "send_deck": "Wysłać prezentację",
+            "prepare_meeting": "Przygotować spotkanie",
+            "follow_up": "Ponowny kontakt",
+            "diligence_request": "Prośba w ramach due diligence",
+            "write_memo": "Napisać memorandum",
+            "send_pass_note": "Wysłać odmowę",
+            "revisit": "Powrót do sprawy",
+            "thank_introducer": "Podziękować lub przypomnieć osobie polecającej",
+            "other": "Inne"
+          }
+        }
+      },
+      "relationships": {
+        "deal_company": {
+          "sourceLabel": "Firma",
+          "targetLabel": "Deale"
+        },
+        "deal_contacts": {
+          "sourceLabel": "Założyciele i kontakty",
+          "targetLabel": "Deale"
+        },
+        "action_deal": {
+          "sourceLabel": "Deal",
+          "targetLabel": "Zadania"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "deals_board": {
+          "name": "Dealflow"
+        },
+        "deals_all": {
+          "name": "Wszystkie deale"
+        },
+        "passed_to_revisit": {
+          "name": "Odrzucone, do ponownej oceny"
+        },
+        "organizations_all": {
+          "name": "Wszystkie organizacje"
+        },
+        "people_all": {
+          "name": "Wszystkie osoby"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Nadchodzące zadania"
+        },
+        "overdue_actions": {
+          "title": "Zaległe zadania"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        },
+        "deal_funnel": {
+          "title": "Otwarte deale wg etapu"
+        },
+        "deals_by_source": {
+          "title": "Deale wg źródła"
+        },
+        "pass_reasons": {
+          "title": "Powody odrzucenia"
+        },
+        "average_days_to_term_sheet": {
+          "title": "Średnia liczba dni do term sheet"
+        },
+        "revisits_coming": {
+          "title": "Nadchodzące powroty do spraw"
+        }
+      },
+      "knowledgePages": {
+        "investment_thesis": {
+          "title": "Teza inwestycyjna i fokus",
+          "sections": [
+            "Etap, branża i wielkość biletu",
+            "W co nie inwestujemy"
+          ]
+        },
+        "stage_criteria": {
+          "title": "Kryteria etapów",
+          "sections": [
+            "Co przenosi deal na następny etap",
+            "Kto decyduje na komitecie"
+          ]
+        },
+        "pass_notes": {
+          "title": "Odmowy i zasady powrotu do spraw",
+          "sections": [
+            "Jak odmawiamy",
+            "Kiedy patrzymy ponownie"
+          ]
+        }
+      },
+      "rules": {
+        "follow_up_after_meeting": {
+          "title": "Wyślij wiadomość z kolejnymi krokami po pierwszym spotkaniu",
+          "description": ""
+        },
+        "stale_screening": {
+          "title": "Wznów lub odrzuć deal, który 14 dni stał we wstępnej ocenie",
+          "description": ""
+        },
+        "pass_note": {
+          "title": "Wyślij odmowę, gdy deal zostaje odrzucony",
+          "description": ""
+        },
+        "revisit_deal": {
+          "title": "Wróć do odrzuconego dealu w wyznaczonym dniu",
+          "description": ""
+        },
+        "diligence_checklist": {
+          "title": "Uruchom listę due diligence, gdy ustalono term sheet",
+          "description": ""
+        },
+        "first_check_in_after_close": {
+          "title": "Zapytaj o postępy 30 dni po zamknięciu",
+          "description": ""
+        },
+        "intro_nudge": {
+          "title": "Przypomnij osobie polecającej tydzień po prośbie o przedstawienie",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Każdy deal ma jeden z ośmiu etapów.",
+        "pass_reason_field": "Każdy deal zapisuje, dlaczego został odrzucony.",
+        "board_view": "Deale otwierają się jako tablica według etapów."
+      },
+      "prompt": {
+        "intro": "Skonfiguruj dealflow w mojej przestrzeni roboczej Customermates: deale z ośmioma etapami, osobą polecającą, dopasowaniem do tezy, rolą lidera, powodem odrzucenia i datą powrotu do sprawy, do tego startupy, inwestorzy i zadania z terminem.",
+        "questions": [
+          "W jakie etapy i branże inwestujesz i jaka jest Twoja typowa wielkość biletu?",
+          "Jak deale do Ciebie docierają i kto je poleca?",
+          "Kto decyduje na każdym etapie i kiedy odmawiasz?",
+          "Gdzie trzymasz dokumenty prawne i data room? Tutaj zapisywany jest tylko link."
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "Dealflow para investidores",
+      "summary": "Um dealflow para um fundo pequeno ou um investidor-anjo: oito etapas da identificação ao fechamento ou à recusa, quem indicou cada negócio, um motivo de recusa e uma data para retomar.",
+      "description": "Acompanhe startups e investidores da prospecção, triagem, reuniões e due diligence até o term sheet. Cada negócio registra quem o indicou, o quanto se encaixa na tese, o papel de lead, um link da data room, o motivo da recusa e quando olhar de novo. É uma ferramenta de relacionamento, não uma cap table, nem uma data room jurídica, nem um modelo de pontuação. Os pesos são aproximados e são seus.",
+      "lists": {
+        "actions": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um próximo passo com data para cada item em aberto."
+        },
+        "people": {
+          "label": "Pessoa",
+          "pluralLabel": "Pessoas",
+          "description": "Fundadores, investidores, coinvestidores e quem indica."
+        },
+        "organizations": {
+          "label": "Organização",
+          "pluralLabel": "Organizações",
+          "description": "Startups, fundos, sindicatos e aceleradoras."
+        },
+        "deals": {
+          "label": "Negócio",
+          "pluralLabel": "Negócios",
+          "description": "Uma oportunidade de investimento da prospecção ao fechamento ou à recusa."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberta",
+            "waiting": "Aguardando",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "deals.stage": {
+          "label": "Etapa",
+          "options": {
+            "sourced": "Identificado",
+            "screening": "Triagem",
+            "first_meeting": "Primeira reunião",
+            "partner_meeting": "Comitê de investimento",
+            "diligence": "Due diligence",
+            "term_sheet": "Term sheet",
+            "closed": "Fechado",
+            "passed": "Recusado"
+          }
+        },
+        "people.person_role": {
+          "label": "Papel",
+          "options": {
+            "founder": "Fundador",
+            "investor": "Sócio investidor",
+            "angel": "Investidor-anjo",
+            "co_investor": "Coinvestidor",
+            "introducer": "Quem indica",
+            "advisor": "Conselheiro"
+          }
+        },
+        "people.focus_stages": {
+          "label": "Estágios de interesse",
+          "options": {
+            "pre_seed": "Pré-seed",
+            "seed": "Seed",
+            "series_a": "Série A",
+            "series_b_plus": "Série B e seguintes"
+          }
+        },
+        "people.thesis": {
+          "label": "Tese de investimento",
+          "options": {}
+        },
+        "people.relationship_strength": {
+          "label": "Relacionamento",
+          "options": {
+            "strong": "Forte",
+            "warm": "Bom",
+            "new": "Novo"
+          }
+        },
+        "people.last_meeting_on": {
+          "label": "Última reunião",
+          "options": {}
+        },
+        "people.relationship_owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "organizations.org_type": {
+          "label": "Tipo",
+          "options": {
+            "startup": "Startup",
+            "vc_fund": "Fundo de venture capital",
+            "angel_syndicate": "Sindicato de anjos",
+            "corporate_vc": "Corporate venture",
+            "accelerator": "Aceleradora",
+            "other": "Outro"
+          }
+        },
+        "organizations.website": {
+          "label": "Site",
+          "options": {}
+        },
+        "organizations.sector": {
+          "label": "Setor",
+          "options": {}
+        },
+        "organizations.stage": {
+          "label": "Estágio",
+          "options": {
+            "pre_seed": "Pré-seed",
+            "seed": "Seed",
+            "series_a": "Série A",
+            "series_b": "Série B",
+            "growth": "Crescimento"
+          }
+        },
+        "organizations.country": {
+          "label": "País",
+          "options": {}
+        },
+        "organizations.conflict_check": {
+          "label": "Verificação de conflito de interesses",
+          "options": {
+            "to_check": "A verificar",
+            "clear": "Sem conflito",
+            "conflict": "Conflito"
+          }
+        },
+        "deals.round": {
+          "label": "Rodada",
+          "options": {
+            "pre_seed": "Pré-seed",
+            "seed": "Seed",
+            "series_a": "Série A",
+            "series_b": "Série B",
+            "bridge": "Rodada ponte"
+          }
+        },
+        "deals.lead_role": {
+          "label": "Nosso papel",
+          "options": {
+            "lead": "Lead",
+            "follow": "Seguidor",
+            "undecided": "A decidir"
+          }
+        },
+        "deals.thesis_fit": {
+          "label": "Aderência à tese",
+          "options": {
+            "strong": "Forte",
+            "partial": "Parcial",
+            "weak": "Fraca"
+          }
+        },
+        "deals.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "deals.source": {
+          "label": "Origem",
+          "options": {
+            "warm_introduction": "Indicação pessoal",
+            "inbound": "Contato recebido",
+            "outbound": "Prospecção ativa",
+            "event": "Evento",
+            "portfolio_referral": "Indicação do portfólio",
+            "co_investor": "Coinvestidor"
+          }
+        },
+        "deals.intro_requested_on": {
+          "label": "Apresentação solicitada em",
+          "options": {}
+        },
+        "deals.intro_made_on": {
+          "label": "Apresentação feita em",
+          "options": {}
+        },
+        "deals.first_meeting_on": {
+          "label": "Primeira reunião em",
+          "options": {}
+        },
+        "deals.decision_on": {
+          "label": "Decisão em",
+          "options": {}
+        },
+        "deals.term_sheet_on": {
+          "label": "Term sheet em",
+          "options": {}
+        },
+        "deals.closed_on": {
+          "label": "Fechado em",
+          "options": {}
+        },
+        "deals.nda_signed": {
+          "label": "NDA assinado",
+          "options": {}
+        },
+        "deals.pass_reason": {
+          "label": "Motivo da recusa",
+          "options": {
+            "thesis_mismatch": "Fora da tese",
+            "team": "Time",
+            "market": "Mercado",
+            "too_early": "Cedo demais",
+            "valuation": "Valuation",
+            "timing": "Momento",
+            "other": "Outro"
+          }
+        },
+        "deals.revisit_on": {
+          "label": "Retomar em",
+          "options": {}
+        },
+        "deals.data_room_url": {
+          "label": "Link da data room",
+          "options": {}
+        },
+        "deals.days_to_term_sheet": {
+          "label": "Dias da primeira reunião ao term sheet",
+          "options": {}
+        },
+        "deals.weighted_value": {
+          "label": "Valor ponderado",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "request_intro": "Pedir uma apresentação",
+            "send_deck": "Enviar o deck",
+            "prepare_meeting": "Preparar uma reunião",
+            "follow_up": "Retorno",
+            "diligence_request": "Pedido de due diligence",
+            "write_memo": "Escrever o memorando",
+            "send_pass_note": "Enviar uma recusa",
+            "revisit": "Retomar o contato",
+            "thank_introducer": "Agradecer ou lembrar quem indicou",
+            "other": "Outro"
+          }
+        }
+      },
+      "relationships": {
+        "deal_company": {
+          "sourceLabel": "Empresa",
+          "targetLabel": "Negócios"
+        },
+        "deal_contacts": {
+          "sourceLabel": "Fundadores e contatos",
+          "targetLabel": "Negócios"
+        },
+        "action_deal": {
+          "sourceLabel": "Negócio",
+          "targetLabel": "Tarefas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas as tarefas"
+        },
+        "deals_board": {
+          "name": "Dealflow"
+        },
+        "deals_all": {
+          "name": "Todos os negócios"
+        },
+        "passed_to_revisit": {
+          "name": "Recusados, a retomar"
+        },
+        "organizations_all": {
+          "name": "Todas as organizações"
+        },
+        "people_all": {
+          "name": "Todas as pessoas"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tarefas"
+        },
+        "overdue_actions": {
+          "title": "Tarefas atrasadas"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        },
+        "deal_funnel": {
+          "title": "Negócios abertos por etapa"
+        },
+        "deals_by_source": {
+          "title": "Negócios por origem"
+        },
+        "pass_reasons": {
+          "title": "Motivos de recusa"
+        },
+        "average_days_to_term_sheet": {
+          "title": "Média de dias até o term sheet"
+        },
+        "revisits_coming": {
+          "title": "Retomadas a caminho"
+        }
+      },
+      "knowledgePages": {
+        "investment_thesis": {
+          "title": "Tese de investimento e foco",
+          "sections": [
+            "Estágio, setor e tamanho do cheque",
+            "Onde não investimos"
+          ]
+        },
+        "stage_criteria": {
+          "title": "Critérios por etapa",
+          "sections": [
+            "O que leva um negócio à próxima etapa",
+            "Quem decide no comitê"
+          ]
+        },
+        "pass_notes": {
+          "title": "Recusas e regras para retomar",
+          "sections": [
+            "Como recusamos",
+            "Quando olhamos de novo"
+          ]
+        }
+      },
+      "rules": {
+        "follow_up_after_meeting": {
+          "title": "Enviar uma mensagem com os próximos passos depois de uma primeira reunião",
+          "description": ""
+        },
+        "stale_screening": {
+          "title": "Reativar ou recusar um negócio parado há 14 dias na triagem",
+          "description": ""
+        },
+        "pass_note": {
+          "title": "Enviar uma recusa quando um negócio é recusado",
+          "description": ""
+        },
+        "revisit_deal": {
+          "title": "Retomar um negócio recusado na data de retomada",
+          "description": ""
+        },
+        "diligence_checklist": {
+          "title": "Iniciar a lista de due diligence quando um term sheet é acordado",
+          "description": ""
+        },
+        "first_check_in_after_close": {
+          "title": "Fazer um acompanhamento 30 dias depois do fechamento",
+          "description": ""
+        },
+        "intro_nudge": {
+          "title": "Lembrar quem indicou uma semana depois de pedir a apresentação",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada negócio tem uma das oito etapas.",
+        "pass_reason_field": "Cada negócio registra por que foi recusado.",
+        "board_view": "Os negócios abrem como quadro por etapa."
+      },
+      "prompt": {
+        "intro": "Configure um dealflow no meu espaço de trabalho do Customermates: negócios com oito etapas, quem os indicou, aderência à tese, papel de lead, um motivo de recusa e uma data para retomar, além de startups, investidores e retornos com data.",
+        "questions": [
+          "Em quais estágios e setores você investe e qual é o tamanho habitual do cheque?",
+          "Como os negócios chegam até você e quem os indica?",
+          "Quem decide em cada etapa e quando você recusa?",
+          "Onde você guarda os documentos jurídicos e a data room? Aqui só se guarda um link."
+        ]
+      }
+    }
+  }
+}
