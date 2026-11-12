@@ -70,7 +70,7 @@
     "jobs.next_step_due": { "label": "Nächster Schritt fällig" },
     "jobs.lost_reason": {
       "label": "Verlustgrund",
-      "options": { "client_filled_internally": "Kunde hat intern besetzt", "client_froze_search": "Kunde hat die Suche gestoppt", "filled_by_competitor": "Von einem Wettbewerber besetzt", "terms_not_agreed": "Konditionen nicht geeinigt", "role_cancelled": "Stelle gestrichen", "no_suitable_candidates": "Keine passenden Kandidaten" }
+      "options": { "client_filled_internally": "Kunde hat intern besetzt", "client_froze_search": "Kunde hat die Suche gestoppt", "filled_by_competitor": "Von einem Wettbewerber besetzt", "terms_not_agreed": "Keine Einigung über die Konditionen", "role_cancelled": "Stelle gestrichen", "no_suitable_candidates": "Keine passenden Kandidaten" }
     },
     "jobs.owner": { "label": "Zuständig" },
     "jobs.days_to_fill": { "label": "Tage bis zur Besetzung" },
@@ -181,7 +181,7 @@
     "guarantee_end_field": "Jede Vermittlung hält fest, wann die Garantiezeit endet.",
     "retain_until_field": "Jede Person hält fest, bis wann ihre Daten gespeichert werden.",
     "jobs_board_view": "Die Aufträge öffnen sich als Board nach Phase.",
-    "candidate_data_page": "Die Wissensbasis enthält eine Seite zu Kandidatendaten und Löschfristen."
+    "candidate_data_page": "Die Wissensdatenbank enthält eine Seite zu Kandidatendaten und Löschfristen."
   },
   "prompt": {
     "intro": "Richte in meinem Customermates-Workspace eine Personalvermittlung ein: Kunden mit ihren Konditionen, Aufträge mit neun Phasen und erwarteter Provision, einen Vorschlag je Kandidat und Auftrag, Vermittlungen mit Garantieende und Nachbetreuung sowie ein Löschdatum für jeden Kandidaten.",

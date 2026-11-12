@@ -171,7 +171,7 @@
     "viewings.viewing_on": { "label": "Besichtigung am" },
     "viewings.interest": {
       "label": "Interesse",
-      "options": { "none": "Keins", "low": "Gering", "medium": "Mittel", "high": "Hoch", "offer": "Angebot" }
+      "options": { "none": "Keines", "low": "Gering", "medium": "Mittel", "high": "Hoch", "offer": "Angebot" }
     },
     "viewings.feedback": { "label": "Rückmeldung" },
     "viewings.feedback_sent_on": { "label": "Rückmeldung gesendet am" },
@@ -181,7 +181,7 @@
         "reservation_deposit_due": "Reservierungsgebühr fällig",
         "financing_deadline": "Finanzierungsfrist",
         "inspection_deadline": "Prüffrist",
-        "cooling_off_ends": "Widerrufsfrist endet",
+        "cooling_off_ends": "Rücktrittsfrist endet",
         "notary_appointment": "Notartermin",
         "handover": "Übergabe",
         "other": "Sonstiges"
@@ -279,7 +279,7 @@
     },
     "under_contract_timeline": {
       "title": "Ablauf nach dem Kaufvertrag und Fristen",
-      "sections": ["Jede Frist aus dem Vertrag lesen und die Fundstelle notieren", "Fristen für Anzahlung, Finanzierung, Prüfung und Widerruf", "Notartermin und Übergabe"]
+      "sections": ["Jede Frist aus dem Vertrag lesen und die Fundstelle notieren", "Fristen für Anzahlung, Finanzierung, Prüfung und Rücktritt", "Notartermin und Übergabe"]
     },
     "closing_handover": {
       "title": "Checkliste Abschluss und Übergabe",
@@ -404,14 +404,14 @@
     "metaTitle": "Immobilien-Pipeline als Vorlage für Ihren KI-Agenten",
     "metaDescription": "Kopieren Sie die Immobilien-Pipeline in Claude, ChatGPT oder Codex: Objekte, Interessenten, Besichtigungen mit Rückmeldung und die Fristen nach dem Vertrag.",
     "headline": "Eine Immobilien-Pipeline, die Ihr KI-Agent in Ihrem CRM aufbaut",
-    "answer": "Ein Maklerbüro führt zwei Pipelines, die sich beim Kaufvertrag treffen: für den Eigentümer das Objekt hereinholen und vermarkten, für den Interessenten die Betreuung über Besichtigungen bis zum Angebot. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut beide in Customermates auf, mit Maklerauftrag, Besichtigungen, Fristen und einer terminierten Routine für Bestandskunden. Sie genehmigen den Plan, bevor etwas geschrieben wird.",
+    "answer": "Ein Maklerbüro führt zwei Pipelines, die sich beim Kaufvertrag treffen: für den Eigentümer das Objekt hereinholen und vermarkten, für den Interessenten die Betreuung über Besichtigungen bis zum Angebot. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut beide in Customermates auf, mit Maklerauftrag, Besichtigungen, Fristen und einer terminierten Routine für frühere Kunden. Sie genehmigen den Plan, bevor etwas geschrieben wird.",
     "routine": {
       "title": "Die wöchentliche Runde über Objekte und Interessenten",
       "steps": [
         "Schicken Sie jedem Eigentümer eines vermarkteten Objekts ein kurzes Update mit den Besichtigungen und Rückmeldungen der Woche.",
-        "Prüfen Sie Objekte mit bald endendem Maklerauftrag: verlängern, erneuern oder den Preis anpassen.",
+        "Prüfen Sie Objekte mit bald endendem Maklerauftrag: verlängern oder den Preis anpassen.",
         "Sprechen Sie Interessenten in Besichtigungen, die sieben Tage lang nichts unternommen haben, mit passenden Objekten erneut an.",
-        "Bestätigen Sie die anstehenden Fristen nach dem Vertrag, und melden Sie sich bei Bestandskunden monatlich."
+        "Bestätigen Sie die anstehenden Fristen nach dem Vertrag, und melden Sie sich bei früheren Kunden monatlich."
       ]
     },
     "limits": [
@@ -433,7 +433,7 @@
       },
       {
         "question": "Kann ich sie mit meiner Maklersoftware oder meinem Portal nutzen?",
-        "answer": "Ja. Die Portale und Ihre eigene Software behalten die Objektdaten und das Veröffentlichen. Die Vorlage ist die Pipeline-, Fristen- und Nachfassschicht daneben, und Anfragen aus Portalen oder WhatsApp können in den Arbeitsbereich kommen, sobald die passende Anbindung eingeschaltet ist."
+        "answer": "Ja. Die Portale und Ihre eigene Software behalten die Objektdaten und das Veröffentlichen. Die Vorlage ist die Pipeline-, Fristen- und Nachfassschicht daneben, und Anfragen aus Portalen oder WhatsApp können in den Workspace kommen, sobald die passende Anbindung eingeschaltet ist."
       },
       {
         "question": "Schreibt der Agent Eigentümer oder Interessenten an?",
@@ -445,7 +445,7 @@
     "intro": "Richte in meinem Customermates-Workspace eine Immobilien-Pipeline ein: Objekte mit Art und Ende des Maklerauftrags, Suchaufträge, Besichtigungen mit Rückmeldung, Fristen nach dem Kaufvertrag und eine terminierte Aufgabe für jeden offenen Datensatz.",
     "questions": [
       "Arbeiten Sie für Eigentümer, für Käufer oder für beide? Verkaufen, vermieten oder beides?",
-      "Welche Arten von Maklerauftrag nutzen Sie, und was gilt dafür bei Ihnen?",
+      "In welchem Land arbeiten Sie, und welche Arten von Maklerauftrag nutzen Sie dort?",
       "Wie erreichen Sie Anfragen: Immobilienportale, Ihre Website, WhatsApp oder Empfehlungen?",
       "Welche Software verwaltet Ihre Objekte und veröffentlicht sie auf Portalen? Hier wird nur eine Kennung geführt, nichts wird kopiert.",
       "Welche Fristen sind in Ihren Verträgen wichtig, zum Beispiel Anzahlung, Finanzierung, Prüfung oder Notar?"
