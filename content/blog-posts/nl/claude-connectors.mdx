@@ -1,0 +1,208 @@
+---
+title: "Claude connectors: wat ze zijn, abonnementen en instellen"
+description: "Claude connectors uitgelegd: directory of eigen connector, toegestane abonnementen, rechten per tool en een gecontroleerde tabel voor mail, agenda en CRM."
+
+relatedHrefs:
+  - /blog/claude-crm
+  - /docs/connect-custom-connector
+  - /blog/what-is-an-mcp-server
+  - /docs/mcp
+
+hero:
+  title: "Claude connectors: wat ze zijn, welke abonnementen ze toestaan en hoe je er een toevoegt"
+  description: "Wat een Claude connector is, hoe een connector uit de directory verschilt van een eigen connector, welke abonnementen ze kunnen toevoegen, wat de connectors voor Gmail, Calendar, Drive, Microsoft 365, HubSpot en Customermates Claude laten doen en welke rechten je instelt."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Terug naar de blog
+  by: door Benjamin Wagner
+  date: 2026-11-12
+  tags:
+    - Claude connectors
+    - MCP
+    - AI-agents
+    - CRM
+---
+
+# Claude connectors: wat ze zijn, welke abonnementen ze toestaan en hoe je er een toevoegt
+
+Claude connectors zijn uitbreidingen waarmee Claude gegevens in een andere app leest en daar handelt, bijvoorbeeld in je mail, agenda, bestanden of CRM, met de rechten die je daar al hebt. Je kiest er een uit de connectordirectory van Anthropic of je voegt voor elke dienst met een remote [MCP-server](/blog/what-is-an-mcp-server) zelf een eigen connector toe met een URL. Eigen connectors werken in elk Claude-abonnement, en Free staat er één toe.
+
+Deze gids legt de twee soorten uit, welke abonnementen welke kunnen toevoegen, wat zes connectors voor het werk met klanten Claude laten doen (gecontroleerd op 12 november 2026 in het helpcentrum van Anthropic en op de pagina’s van de aanbieders), welke rechten je instelt en hoe je stap voor stap een eigen connector toevoegt. Het uitgewerkte voorbeeld is Customermates, de open-source CRM die deze gids publiceert, omdat het als eigen connector werkt; voor andere CRM’s is er de [gids over Claude en CRM](/blog/claude-crm).
+
+<ArticleSummary title="In het kort">
+  <SummaryItem label="Kort antwoord">Een connector geeft Claude tools in een andere app. Connectors uit de directory zijn kant-en-klaar; een eigen connector is elke URL van een remote MCP-server die je zelf toevoegt.</SummaryItem>
+  <SummaryItem label="Abonnementen">Eigen connectors werken in Free, Pro, Max, Ultra, Team en Enterprise, en Free is beperkt tot één. In Team voegt een Owner hem toe, waarna elk lid zelf verbinding maakt.</SummaryItem>
+  <SummaryItem label="Controle">Claude handelt met jouw rechten in de app, nooit met meer. Laat elke tool die schrijft, verstuurt of verwijdert op Needs approval staan.</SummaryItem>
+  <SummaryItem label="Gecontroleerd">De gegevens over abonnementen en functies zijn op 12 november 2026 gecontroleerd in het helpcentrum van Anthropic en op de pagina’s van de aanbieders. We hebben ze gelezen; we hebben niet elke connector uitgevoerd.</SummaryItem>
+  <SummaryItem label="Openheid">Customermates publiceert deze gids en komt erin voor als één voorbeeld.</SummaryItem>
+</ArticleSummary>
+
+## Wat is een Claude connector? [#what-is-a-claude-connector]
+
+Het helpcentrum van Anthropic zegt het zo: “Connectors let Claude access your apps and services, retrieve your data, and take actions within connected services.” In de praktijk geeft een connector Claude een lijst tools van de andere app. Vraag je “Zoek de laatste mailwisseling met Sarah Lee en schrijf een antwoord”, dan kiest Claude de passende tools (zoeken, lezen, een concept maken) en antwoordt de app met wat jouw account mag zien.
+
+Technisch is een eigen connector een remote [MCP-server](/blog/what-is-an-mcp-server) waarmee Claude via het web praat. Drie gevolgen zijn belangrijk voordat je iets koppelt:
+
+- **Claude erft jouw rechten.** Wat je in de app niet mag openen, kan Claude ook niet openen. Alleen een connector met een gedeelde inlog geeft iedereen dezelfde toegang.
+- **De toollijst komt van de ontwikkelaar, niet van Anthropic.** In zijn vermeldingen schrijft Anthropic dat het niet controleert welke tools ontwikkelaars aanbieden en niet kan verifiëren dat ze niet veranderen.
+- **Wat Claude leest, wordt deel van het gesprek.** De gekoppelde app verwerkt je gegevens volgens haar eigen voorwaarden; lees ze voordat je klantgegevens koppelt.
+
+## Waarin verschilt een connector uit de directory van een eigen connector? [#directory-vs-custom]
+
+De directory bevat kant-en-klare connectors; een eigen connector voeg je met een URL toe als de app er niet in staat of als je een eigen instantie beheert.
+
+| | Connector uit de directory | Eigen connector |
+| --- | --- | --- |
+| Wie hem bouwt | De ontwikkelaar van de app of Anthropic, vermeld in de [connectordirectory](https://claude.com/connectors) van Anthropic, die op 12 november 2026 meer dan 1.100 vermeldingen toonde | Jij of je aanbieder: elke dienst met de URL van een remote MCP-server |
+| Hoe je hem toevoegt | In de directory zoeken en op **Connect** klikken, of **Add to Claude** op de vermelding | **Customize › Connectors**, dan **+ Add**, **Add custom connector**, een naam en de URL |
+| Gecontroleerd door Anthropic | Sommige vermeldingen dragen het label “Anthropic verified”, bijvoorbeeld Gmail, Google Calendar, Google Drive, Microsoft 365 en HubSpot | Nee. Volgens Anthropic kunnen eigen connectors diensten bereiken die het niet heeft geverifieerd |
+| Abonnementen | Webconnectors: alle gebruikers van Claude, Cowork, Claude Desktop en de mobiele apps. Desktopextensies: Claude Desktop | Free, Pro, Max, Ultra, Team en Enterprise; Free-gebruikers krijgen er één |
+| Bereikbaarheid | De aanbieder host hem | De server moet vanaf internet bereikbaar zijn voor de IP-bereiken van Anthropic; een server op een privénetwerk heeft een allowlist nodig |
+| Wanneer kiezen | De app die je nodig hebt staat in de directory | De app staat er niet in, of je host hem zelf |
+
+De directory filtert op type (Web, Desktop extension, Interactive) en op categorie, bijvoorbeeld Productivity, Communication, Developer tools en Sales & marketing. De vermeldingen dragen de kop “Claude Marketplace”, dus wie zoekt naar de marketplace voor Claude connectors, komt op dezelfde pagina’s uit. Interactive is een derde type dat het filter biedt, en Owners van Team en Enterprise kunnen de toolaanroepen uitzetten die interactieve connectors tonen.
+
+## Welke abonnementen kunnen Claude connectors gebruiken? [#plans]
+
+Elk abonnement kan connectors gebruiken. Wat verschilt, is wie ze toevoegt (helpcentrum van Anthropic, gecontroleerd op 12 november 2026):
+
+| Abonnement | Connectors uit de directory | Eigen connectors | Wie voegt toe |
+| --- | --- | --- | --- |
+| Free, Pro, Max, Ultra | Ja | Ja; Free is beperkt tot één | Jij, onder **Customize › Connectors** |
+| Team | Ja | Ja | Alleen Owners en Primary Owners voegen eigen connectors toe; daarna maakt en activeert elk lid hem zelf |
+| Enterprise | Ja | Ja | Owners, Primary Owners en mensen met een eigen rol die Manage access to Libraries bevat; leden verbinden zelf |
+
+In Team en Enterprise maakt het inschakelen van een connector voor de organisatie hem beschikbaar, maar geeft het niemand toegang: elk lid meldt zich zelf aan bij de app. Afzonderlijke connectors stellen eigen voorwaarden. Het helpartikel van HubSpot vraagt een betaald Claude-abonnement (Pro, Max, Team of Enterprise), en de Microsoft 365-connector accepteert persoonlijke accounts alleen in Free, Pro, Max en Ultra. Lees de pagina van de connector voordat je een uitrol plant.
+
+## Welke Claude connectors zijn nuttig voor het werk met klanten? [#client-work-connectors]
+
+Werk met klanten speelt zich op vier plekken af: de inbox, de agenda, gedeelde bestanden en het CRM. De tabel toont wat Anthropic en de aanbieders documenteren voor een connector op elk van die plekken, gecontroleerd op 12 november 2026 op de pagina’s in de laatste kolom. We hebben die pagina’s gelezen en niet elke connector uitgevoerd, dus een rij toont wat is gedocumenteerd, geen meting.
+
+| Connector | Wat Claude kan lezen | Wat Claude kan wijzigen of versturen | Account en abonnement | Bronnen |
+| --- | --- | --- | --- | --- |
+| Gmail | Mails zoeken, hele gesprekken lezen, labels en opgeslagen concepten tonen; bijlagen alleen als metagegevens | Mails opstellen, versturen, beantwoorden en doorsturen; standaard vraagt Claude vóór elke actie om je toestemming | Je Google-account; in Team en Enterprise zet eerst een Owner hem aan | [Hulp van Anthropic](https://support.claude.com/en/articles/10166901-use-google-workspace-connectors), [vermelding](https://claude.com/connectors/gmail) |
+| Google Calendar | Afspraken en gedeelde agenda’s bekijken, gezamenlijke vrije momenten vinden | Afspraken maken, wijzigen en verwijderen, op uitnodigingen reageren, terugkerende afspraken instellen | Je Google-account; dezelfde regel voor Team en Enterprise | [Hulp van Anthropic](https://support.claude.com/en/articles/10166901-use-google-workspace-connectors), [vermelding](https://claude.com/connectors/google-calendar) |
+| Google Drive | Docs, Sheets, Slides, pdf’s, afbeeldingen en Office-bestanden zoeken en lezen; alleen tekst wordt uitgelezen | Bestanden uploaden, mappen maken, bestanden delen, verplaatsen en naar de prullenbak sturen; delen, verplaatsen en verwijderen vragen standaard om toestemming | Je Google-account; dezelfde regel voor Team en Enterprise | [Hulp van Anthropic](https://support.claude.com/en/articles/10166901-use-google-workspace-connectors), [vermelding](https://claude.com/connectors/google-drive) |
+| Microsoft 365 (Outlook, SharePoint, OneDrive, Teams) | Mail, agenda, documenten en chats doorzoeken en analyseren | Alleen lezen totdat schrijftools aanstaan: bij werk- of schoolaccounts zet een beheerder ze aan, bij persoonlijke accounts zitten ze erbij; daarna concepten, verzenden en agendawijzigingen, zonder bijlagen | Persoonlijke accounts in Free, Pro, Max en Ultra; werk- of schoolaccounts in elk abonnement na eenmalige toestemming van een Microsoft Entra-globale beheerder | [Connect to Microsoft 365](https://support.claude.com/en/articles/15183774-connect-to-microsoft-365), [beheerderinstelling](https://support.claude.com/en/articles/12542951-set-up-the-microsoft-365-connector) |
+| HubSpot | Contacten, leads, bedrijven, deals, tickets, eigen objecten, interactiegeschiedenis | De meeste CRM-records en interacties maken en wijzigen; geen verwijderen; bulkwijzigingen van hooguit 10 records tegelijk | Alle HubSpot-abonnementen; Claude Pro, Max, Team of Enterprise; een Super Admin moet eerst goedkeuren, tenzij je dat zelf bent of toegang tot de App Marketplace hebt | [Hulp van HubSpot](https://knowledge.hubspot.com/integrations/set-up-and-use-the-hubspot-connector-for-claude), [vermelding](https://claude.com/connectors/hubspot) |
+| Customermates (eigen connector) | Records in elke lijst die je aanmaakt (bijvoorbeeld contacten, organisaties, deals en taken), hun notities en bestanden, de Kennisbank; gekoppelde agenda’s alleen lezen | Records maken, wijzigen en verwijderen ([[derived.mcp.tools.total]] tools in totaal). Vanaf Pro ook mail-, LinkedIn- en chatgesprekken, concepten en verzenden; het kan geen agenda-afspraken inplannen | Elk abonnement en zelf gehost; Free deelt [[commercial.limit.free.apiRequestsPerMinute]] verzoeken per minuut en [[commercial.limit.free.apiRequestsPerDay]] per dag per werkruimte | [Connectorgids](/docs/connect-custom-connector), [MCP-referentie](/docs/mcp) |
+
+In de directory staan ook onder meer Slack, Notion, Asana, Atlassian, Linear, monday.com en Box. Voor Close, Attio, Pipedrive, folk, Breakcold, Zoho CRM, Capsule en Salesforce vergelijkt de [gids over Claude en CRM](/blog/claude-crm) wat de connector van elk CRM Claude laat wijzigen. Wil je alleen Gmail- of Outlook-mail bij klantrecords in een CRM zien, kijk dan naar de [Gmail-CRM-integratie](/blog/gmail-crm-integration) en de [Outlook-CRM-integratie](/blog/outlook-crm-integration) in plaats van een connector.
+
+## Hoe voeg ik een eigen connector toe in Claude? [#add-custom-connector]
+
+De stappen volgen het helpartikel van Anthropic over eigen connectors, gecontroleerd op 12 november 2026. Ze gelden voor elke remote MCP-server.
+
+<Steps>
+  <Step title="Nagaan wie hem mag toevoegen">
+    In Free, Pro, Max en Ultra voeg je hem zelf toe, en Free staat er één toe. In Team opent een Owner of Primary Owner **Organization settings › Connectors › Add**, wijst **Custom** aan en kiest **Web**. In Enterprise kunnen Owners en rollen met Manage access to Libraries hetzelfde doen.
+  </Step>
+  <Step title="Het formulier openen en de URL invullen">
+    Open in Claude **Customize › Connectors**, klik op **+ Add** en kies **Add custom connector**. Vul een naam en de URL van de remote MCP-server in en klik op **Continue**.
+  </Step>
+  <Step title="De authenticatie controleren">
+    Claude toont de gedetecteerde instellingen. Kies **Sign in now**, **Sign in when needed** of **No sign in** en een OAuth-clientoptie; “Use Claude’s published identity” is de aanbevolen. Vaste inloggegevens, zoals een API-sleutel, komen onder **Request headers**. Klik daarna op **Add**.
+  </Step>
+  <Step title="Verbinden en aanzetten">
+    In Team en Enterprise opent elk lid **Customize › Connectors**, vindt de connector (meestal met het label Custom) en klikt op **Connect**. In een chat zet je hem voor dat gesprek aan met de knop **+** linksonder en dan **Connectors**.
+  </Step>
+</Steps>
+
+Claude Code werkt met dezelfde servers. Het toont de connectors van je claude.ai-account als MCP-servers met de laagste voorrang, en je kunt ook rechtstreeks een server toevoegen. Voer het commando uit en typ daarna `/mcp` in Claude Code om de aanmelding af te ronden ([documentatie van Claude Code](https://code.claude.com/docs/en/mcp), gecontroleerd op 12 november 2026):
+
+```bash
+claude mcp add --transport http <name> <remote-mcp-url>
+```
+
+Voor een server die een API-sleutel gebruikt in plaats van OAuth, accepteert Claude Code `--header`; de [CLI-gids](/docs/connect-cli) toont de variant voor Customermates. Koppel alleen servers die zijn gebouwd en gehost door organisaties die je vertrouwt: Anthropic waarschuwt dat een kwaadaardige server prompt injection kan gebruiken en dat de ontwikkelaar het gedrag van een tool later kan veranderen.
+
+## Hoe verbind ik Claude met Customermates als eigen connector? [#connect-customermates]
+
+Customermates bevat een remote MCP-server en koppelt daarom via de route van de eigen connector. Elke werkruimte heeft een eigen URL, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>`, waarbij `<BASE_URL>` het adres is waarop je Customermates opent, in de cloud of op je eigen instantie. Je hoeft hem niet zelf samen te stellen: de app toont hem met een kopieerknop. Dit zijn de stappen uit de [connectorgids](/docs/connect-custom-connector); de stappen in Claude komen overeen met het artikel van Anthropic hierboven.
+
+<Steps>
+  <Step title="De URL van de werkruimte kopiëren">
+    Open in Customermates **Instellingen › API-sleutels & connectoren**, klik op **Toevoegen**, kies **Claude** onder **Snelle koppelingen** en dan **Claude-account**. Het venster toont de URL van je huidige werkruimte. Koppelen vraagt **Leestoegang** **Alle** op de rij **API en webhooks** van je rol; de ingebouwde Admin-rol heeft die.
+  </Step>
+  <Step title="De connector in Claude toevoegen">
+    Open **Customize › Connectors**, klik op **+ Add**, kies **Add custom connector**, geef hem een naam en plak de URL. Laat de authenticatie op OAuth staan: er is geen sleutel om te kopiëren. De knop **Toevoegen aan Claude** in hetzelfde venster opent het formulier van Claude met de URL al ingevuld (alleen Claude op het web en Team).
+  </Step>
+  <Step title="Inloggen en goedkeuren">
+    Er opent een Customermates-venster. Log in, controleer dat het toestemmingsscherm de koppelende app noemt en de host bij **Verbindingsbestemming**, en klik op **Goedkeuren**. Kies **Weigeren** bij elke koppeling die je niet zelf hebt gestart.
+  </Step>
+  <Step title="De tools bevestigen en één wijziging testen">
+    Terug in Claude verschijnt Customermates met zijn tools. Stel eerst een leesvraag, wijzig daarna één veld op een testrecord en zoek de wijziging in het paneel **Geschiedenis** van het record, mits je rol het auditlog mag lezen.
+  </Step>
+</Steps>
+
+Elke werkruimte bepaalt haar eigen lijsten en velden, dus vraag Claude om `discover_record_types` en `get_record_model` aan te roepen voordat het schrijft. Drie opdrachten om mee te beginnen:
+
+1. “Laat de laatste tien contacten zien die ik heb aangemaakt. Mist er bij een het e-mailadres?” (lezen)
+2. “Zet bij de deal van Acme het veld Status op Gewonnen en voeg aan de notities toe dat het contract vandaag is getekend.” (wijzigen)
+3. “Welke klantgesprekken wachten op mijn antwoord? Schrijf een antwoord op het oudste en bewaar het als concept.” (vraagt een abonnement met berichten, in de cloud vanaf Pro)
+
+Voeg één connector per werkruimte toe; Claude weigert een tweede connector met een URL die het al kent. In het Free-abonnement, met zijn ene eigen connector, kun je dus één werkruimte koppelen. Om Claude minder tools te geven, voeg je `?toolsets=records,messaging` aan de URL toe, zoals de [MCP-referentie](/docs/mcp#narrowing-with-toolsets) uitlegt. Om het met je eigen Claude-account te proberen, [start je proefperiode van [[commercial.trial.days]] dagen](/auth/signup?job=followup). Zonder creditcard.
+
+## Welke rechten krijgt een Claude connector, en hoe beperk ik ze? [#permissions]
+
+- **Jouw rechten, niet meer.** Volgens Anthropic wordt toegang op gebruikersniveau afgedwongen: je meldt je aan bij de app en Claude komt alleen bij wat jouw account mag zien. De uitzondering is een connector met een gedeelde API-sleutel: in Team en Enterprise geeft die iedereen de toegang van die sleutel.
+- **Toolrechten per connector.** Elke connector heeft **Tool permissions**, waar je kiest tussen Always allow en Needs approval. Sta leestools toe; wat schrijft, verstuurt of verwijdert, blijft op Needs approval. In Team en Enterprise kunnen Owners een recht voor de hele organisatie op Always allow, Needs approval of Blocked zetten, leden kunnen dat niet omzeilen, en een beperking geeft nooit meer toegang dan de app toestaat.
+- **Standaardinstellingen van Anthropic.** Bij Gmail, Calendar en Drive vragen verzenden, beantwoorden, doorsturen, delen, verplaatsen en verwijderen standaard om jouw toestemming. Bij Microsoft 365-accounts voor werk of school vraagt Claude elke keer als het een mail verstuurt of doorstuurt of een afspraak wijzigt, tenzij een beheerder die tool op Always allow heeft gezet.
+- **Research-modus.** Anthropic merkt op dat Claude tijdens Research connectortools zonder verdere toestemming kan aanroepen; zet daarom tools die schrijven uit.
+- **Customermates.** De server vraagt clients om te bevestigen voordat ze verwijderen of versturen, maar dwingt dat niet af: mag Claude een tool aanroepen, dan wordt de aanroep uitgevoerd. Wat je beschermt, zijn de Tool permissions in Claude. Een verbinding draagt de rechten van de gebruiker die haar goedkeurde, zonder bereik per sleutel; voor minder rechten koppel je een aparte gebruiker met een smallere rol (die neemt een plek in) of gebruik je `?toolsets=`. Verzenden gebeurt direct, dus laat Claude een concept bewaren en verstuur het zelf vanuit de inbox.
+- **Gegevens.** Bij de Google-connectors blijven opgehaalde gegevens aan hun chat gekoppeld: verwijder je de chat, dan verdwijnen ze. Een gekoppelde dienst verwerkt je gegevens volgens haar eigen voorwaarden, die volgens Anthropic ook buiten de Verenigde Staten kunnen gelden.
+
+## Wanneer is een Claude connector de verkeerde keuze? [#wrong-choice]
+
+- **Een eenmalige taak van een paar regels.** Plak de tekst in de chat; er is niets te autoriseren.
+- **Honderden records.** Een connector werkt record voor record en aanbieders beperken bulkaanroepen (de HubSpot-connector wijzigt 10 records tegelijk). Gebruik liever de import van het CRM.
+- **Een server die je niet beheert of niet vertrouwt.** Een eigen connector kan diensten bereiken die Anthropic niet heeft geverifieerd.
+- **Customermates in het bijzonder.** Het is de verkeerde keuze als Claude agenda-afspraken moet inplannen of wijzigen (de gekoppelde agenda’s zijn alleen-lezen: zet er de Google Calendar- of Microsoft 365-connector naast), als je een native Slack-koppeling wilt (Slack bereik je alleen met n8n) of als je telefonie of mailreeksen nodig hebt, die het niet heeft. Werkt je team al tevreden met HubSpot, gebruik dan de connector van HubSpot.
+
+## Wat als een Claude connector geen verbinding maakt? [#troubleshooting]
+
+| Symptoom | Waarschijnlijke oorzaak | Oplossing |
+| --- | --- | --- |
+| “Access blocked: your institution’s admin needs to review Claude for Google Drive” | Een Google Workspace-beheerder heeft Claude niet als vertrouwde app gemarkeerd | De beheerder opent admin.google.com, daar **Security › Access and data control › API controls › Manage third-party app access** (het pad uit het artikel van Anthropic), zoekt Claude, zet het op Trusted en wacht ongeveer 15 minuten |
+| Geen optie **Add custom connector**, of een tweede wordt geweigerd | Free staat één eigen connector toe | De bestaande eigen connector verwijderen, of een betaald abonnement kiezen |
+| “Couldn’t register with the sign-in service” | De URL klopt niet, of de servers van Anthropic kunnen hem niet bereiken | De URL opnieuw uit de app kopiëren; een server op een privénetwerk heeft een allowlist nodig |
+| “A connector with this URL already exists in your organization” | Die URL is al gekoppeld, misschien voor een andere werkruimte | De andere werkruimte toevoegen met haar eigen URL, gekopieerd terwijl die werkruimte openstaat |
+| Customermates antwoordt met HTTP 401 en `invalid_token` | De verbinding is voor een andere werkruimte goedgekeurd | Opnieuw verbinden; Claude meldt zich opnieuw aan voor de werkruimte van de URL |
+| “Tool not found” | Een verouderde connectorcache | De connector verwijderen en opnieuw toevoegen |
+
+De [connectorgids](/docs/connect-custom-connector#troubleshooting) bevat de volledige tabel voor Customermates.
+
+## Veelgestelde vragen
+
+<Faq>
+<FaqItem question="Is er een lijst met Claude connectors?">
+De lijst is de [connectordirectory](https://claude.com/connectors) van Anthropic: die toonde op 12 november 2026 meer dan 1.100 connectors, te filteren op categorie en type (Web, Desktop extension, Interactive). De tabel hierboven behandelt er zes voor het werk met klanten, en de [gids over Claude en CRM](/blog/claude-crm) behandelt CRM’s.
+</FaqItem>
+
+<FaqItem question="Is er een Claude connector voor Outlook?">
+Ja, de Microsoft 365-connector, die Outlook-mail en -agenda, SharePoint, OneDrive en Teams dekt. Hij is alleen-lezen totdat schrijftools aanstaan: bij werk- of schoolaccounts zet een beheerder ze aan, persoonlijke accounts hebben ze erbij. Werk- of schoolaccounts hebben bovendien de eenmalige toestemming van een Microsoft Entra-globale beheerder nodig.
+</FaqItem>
+
+<FaqItem question="Kunnen Claude connectors mails versturen?">
+De Gmail-connector kan mails versturen, beantwoorden en doorsturen, en Claude vraagt standaard vóór elke actie om je toestemming. De Microsoft 365-connector stelt op en verstuurt zodra schrijftools aanstaan. Controleer bij een CRM-connector de aanbieder: Customermates verstuurt direct als je de tool toestaat, dus bewaar eerst concepten.
+</FaqItem>
+
+<FaqItem question="Kan ik Claude connectors gebruiken in het Free-abonnement?">
+Ja. Webconnectors uit de directory staan open voor alle gebruikers, en een Free-account kan één eigen connector toevoegen. Sommige vragen meer: die van HubSpot vraagt een betaald Claude-abonnement.
+</FaqItem>
+
+<FaqItem question="Wat is het verschil tussen een connector en een MCP-server?">
+Een MCP-server is het programma dat tools aanbiedt via het Model Context Protocol; een eigen connector is de manier om een remote MCP-server met een URL aan Claude te koppelen. Connectors uit de directory zijn kant-en-klaar, en sommige desktopextensies draaien in plaats daarvan in Claude Desktop. Het protocol staat uitgelegd in het [artikel over de MCP-server](/blog/what-is-an-mcp-server), en [MCP versus API](/blog/mcp-vs-api) vergelijkt het met een klassieke integratie.
+</FaqItem>
+
+<FaqItem question="Werken Claude connectors in Claude Code?">
+Claude Code toont de connectors van je claude.ai-account als MCP-servers, met lagere voorrang dan servers die je zelf toevoegt, en je kunt er per project een uitzetten met `/mcp`. Een remote server voeg je ook rechtstreeks toe met `claude mcp add --transport http`, zoals hierboven getoond.
+</FaqItem>
+
+<FaqItem question="Zijn Claude connectors veilig?">
+Ze zijn zo veilig als de server erachter en de rechten die je geeft. Koppel alleen servers van organisaties die je vertrouwt, lees goedkeuringsverzoeken, sta standaard alleen leestools toe en onthoud dat opgehaalde gegevens deel van het gesprek worden.
+</FaqItem>
+</Faq>
+
+Gegevens van de aanbieders gecontroleerd op 12 november 2026 in het [connectoroverzicht van Anthropic](https://support.claude.com/en/articles/11176164-use-connectors-to-extend-claude-s-capabilities), de [gids van Anthropic over eigen connectors](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp), het [artikel van Anthropic over de Google Workspace-connectors](https://support.claude.com/en/articles/10166901-use-google-workspace-connectors), [Connect to Microsoft 365](https://support.claude.com/en/articles/15183774-connect-to-microsoft-365), de [beheerderinstelling van Microsoft 365](https://support.claude.com/en/articles/12542951-set-up-the-microsoft-365-connector), de [connectordirectory](https://claude.com/connectors), het [artikel van HubSpot over de Claude-connector](https://knowledge.hubspot.com/integrations/set-up-and-use-the-hubspot-connector-for-claude) en de [MCP-documentatie van Claude Code](https://code.claude.com/docs/en/mcp).

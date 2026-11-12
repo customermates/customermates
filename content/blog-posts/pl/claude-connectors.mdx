@@ -1,0 +1,208 @@
+---
+title: "Konektory Claude: czym są, plany i konfiguracja"
+description: "Konektory Claude wyjaśnione: katalog czy własny konektor, plany, które na to pozwalają, uprawnienia narzędzi i sprawdzona tabela dla poczty, kalendarza i CRM."
+
+relatedHrefs:
+  - /blog/claude-crm
+  - /docs/connect-custom-connector
+  - /blog/what-is-an-mcp-server
+  - /docs/mcp
+
+hero:
+  title: "Konektory Claude: czym są, które plany na nie pozwalają i jak dodać własny"
+  description: "Czym jest konektor Claude, czym konektor z katalogu różni się od własnego, które plany mogą je dodawać, co pozwalają robić Claude konektory Gmail, Calendar, Drive, Microsoft 365, HubSpot i Customermates oraz jakie uprawnienia ustawić."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Wróć do bloga
+  by: autor Benjamin Wagner
+  date: 2026-11-12
+  tags:
+    - Konektory Claude
+    - MCP
+    - Agenci AI
+    - CRM
+---
+
+# Konektory Claude: czym są, które plany na nie pozwalają i jak dodać własny
+
+Konektory Claude (po angielsku Claude connectors) to dodatki, dzięki którym Claude czyta dane w innej aplikacji i działa w niej, na przykład w Twojej poczcie, kalendarzu, plikach lub CRM, z uprawnieniami, które już tam masz. Wybierasz konektor z katalogu konektorów Anthropic albo, dla każdej usługi ze zdalnym [serwerem MCP](/blog/what-is-an-mcp-server), dodajesz własny konektor przez adres URL. Własne konektory działają w każdym planie Claude, a Free pozwala na jeden.
+
+Ten poradnik wyjaśnia oba rodzaje, które plany mogą dodawać który, co pozwala robić Claude sześć konektorów przydatnych w pracy z klientami (sprawdzone 12 listopada 2026 w centrum pomocy Anthropic i na stronach dostawców), jakie uprawnienia ustawić i jak krok po kroku dodać własny konektor. Przykładem jest Customermates, otwartoźródłowy CRM, który publikuje ten poradnik, bo działa jako własny konektor; o innych CRM przeczytasz w [poradniku o Claude i CRM](/blog/claude-crm).
+
+<ArticleSummary title="W skrócie">
+  <SummaryItem label="Krótka odpowiedź">Konektor daje Claude narzędzia w innej aplikacji. Konektory z katalogu są gotowe; własny konektor to dowolny adres URL zdalnego serwera MCP, który dodajesz sam.</SummaryItem>
+  <SummaryItem label="Plany">Własne konektory działają w planach Free, Pro, Max, Ultra, Team i Enterprise, a Free jest ograniczony do jednego. W planie Team dodaje go Owner, a potem każdy członek łączy się osobno.</SummaryItem>
+  <SummaryItem label="Kontrola">Claude działa z Twoimi uprawnieniami w aplikacji, nigdy z większymi. Każde narzędzie, które zapisuje, wysyła lub usuwa, zostaw na Needs approval.</SummaryItem>
+  <SummaryItem label="Sprawdzone">Informacje o planach i funkcjach sprawdziliśmy 12 listopada 2026 w centrum pomocy Anthropic i na stronach dostawców. Przeczytaliśmy je; nie uruchomiliśmy każdego konektora.</SummaryItem>
+  <SummaryItem label="Ujawnienie">Customermates publikuje ten poradnik i pojawia się w nim jako jeden z przykładów.</SummaryItem>
+</ArticleSummary>
+
+## Czym jest konektor Claude? [#what-is-a-claude-connector]
+
+Centrum pomocy Anthropic ujmuje to tak: „Connectors let Claude access your apps and services, retrieve your data, and take actions within connected services.” W praktyce konektor przekazuje Claude listę narzędzi drugiej aplikacji. Gdy poprosisz „Znajdź ostatnią korespondencję mailową z Sarah Lee i napisz odpowiedź”, Claude wybiera pasujące narzędzia (szukanie, czytanie, tworzenie szkicu), a aplikacja odpowiada tym, co może zobaczyć Twoje konto.
+
+Technicznie własny konektor to zdalny [serwer MCP](/blog/what-is-an-mcp-server), z którym Claude rozmawia przez internet. Trzy konsekwencje warto znać, zanim cokolwiek podłączysz:
+
+- **Claude dziedziczy Twoje uprawnienia.** Czego nie możesz otworzyć w aplikacji, tego nie otworzy też Claude. Tylko konektor działający na wspólnym poświadczeniu daje wszystkim ten sam dostęp.
+- **Listę narzędzi ustala deweloper, nie Anthropic.** W swoich kartach Anthropic pisze, że nie kontroluje, jakie narzędzia oferują deweloperzy, i nie może zweryfikować, że nie zmienią się później.
+- **To, co Claude czyta, trafia do rozmowy.** Podłączona aplikacja przetwarza Twoje dane na własnych warunkach; przeczytaj je, zanim podłączysz dane klientów.
+
+## Czym konektor z katalogu różni się od własnego konektora? [#directory-vs-custom]
+
+Katalog zawiera gotowe konektory; własny konektor dodajesz przez adres URL, gdy aplikacji nie ma na liście albo prowadzisz własną instancję.
+
+| | Konektor z katalogu | Własny konektor |
+| --- | --- | --- |
+| Kto go buduje | Deweloper aplikacji lub Anthropic, na liście w [katalogu konektorów](https://claude.com/connectors) Anthropic, który 12 listopada 2026 pokazywał ponad 1100 pozycji | Ty lub Twój dostawca: dowolna usługa z adresem URL zdalnego serwera MCP |
+| Jak go dodać | Wyszukać w katalogu i kliknąć **Connect**, albo **Add to Claude** na karcie | **Customize › Connectors**, potem **+ Add**, **Add custom connector**, nazwa i adres URL |
+| Sprawdzony przez Anthropic | Niektóre karty mają oznaczenie „Anthropic verified”, na przykład Gmail, Google Calendar, Google Drive, Microsoft 365 i HubSpot | Nie. Według Anthropic własne konektory mogą sięgać do usług, których firma nie zweryfikowała |
+| Plany | Konektory webowe: wszyscy użytkownicy Claude, Cowork, Claude Desktop i aplikacji mobilnych. Rozszerzenia desktopowe: Claude Desktop | Free, Pro, Max, Ultra, Team i Enterprise; użytkownicy Free mają jeden |
+| Dostępność | Hostuje go dostawca | Serwer musi być osiągalny z internetu dla zakresów adresów IP Anthropic; serwer w sieci prywatnej wymaga zgody na dostęp |
+| Kiedy wybrać | Potrzebna aplikacja jest na liście | Aplikacji nie ma na liście albo hostujesz ją sam |
+
+Katalog filtruje się według typu (Web, Desktop extension, Interactive) i kategorii, na przykład Productivity, Communication, Developer tools i Sales & marketing. Jego karty mają nagłówek „Claude Marketplace”, więc kto szuka marketplace konektorów Claude, trafia na te same strony. Interactive to trzeci typ w filtrze, a Ownerzy w planach Team i Enterprise mogą wyłączyć wywołania narzędzi, które wyświetlają konektory interaktywne.
+
+## Które plany mogą korzystać z konektorów Claude? [#plans]
+
+Z konektorów może korzystać każdy plan. Różni się to, kto je dodaje (centrum pomocy Anthropic, sprawdzone 12 listopada 2026):
+
+| Plan | Konektory z katalogu | Własne konektory | Kto dodaje |
+| --- | --- | --- | --- |
+| Free, Pro, Max, Ultra | Tak | Tak; Free ma limit jednego | Ty, w **Customize › Connectors** |
+| Team | Tak | Tak | Własne konektory dodają tylko Ownerzy i Primary Ownerzy; potem każdy członek łączy się i włącza go osobno |
+| Enterprise | Tak | Tak | Ownerzy, Primary Ownerzy i osoby z własną rolą zawierającą Manage access to Libraries; członkowie łączą się osobno |
+
+W planach Team i Enterprise włączenie konektora dla organizacji czyni go dostępnym, ale nikomu nie daje dostępu: każdy członek loguje się do aplikacji sam. Poszczególne konektory mają własne warunki. Artykuł pomocy HubSpot wymaga płatnego planu Claude (Pro, Max, Team lub Enterprise), a konektor Microsoft 365 przyjmuje konta prywatne tylko w planach Free, Pro, Max i Ultra. Przeczytaj stronę konektora, zanim zaplanujesz wdrożenie.
+
+## Które konektory Claude przydają się w pracy z klientami? [#client-work-connectors]
+
+Praca z klientami toczy się w czterech miejscach: w poczcie, kalendarzu, wspólnych plikach i CRM. Tabela pokazuje, co dokumentują Anthropic i dostawcy dla konektora w każdym z nich, sprawdzone 12 listopada 2026 na stronach z ostatniej kolumny. Przeczytaliśmy te strony i nie uruchomiliśmy każdego konektora, więc wiersz pokazuje to, co udokumentowano, a nie pomiar.
+
+| Konektor | Co Claude może czytać | Co Claude może zmieniać lub wysyłać | Konto i plan | Źródła |
+| --- | --- | --- | --- | --- |
+| Gmail | Szukać wiadomości, czytać całe wątki, wyświetlać etykiety i zapisane szkice; załączniki tylko jako metadane | Pisać szkice, wysyłać, odpowiadać i przekazywać wiadomości; domyślnie Claude prosi o Twoją zgodę przed każdą taką czynnością | Twoje konto Google; w planach Team i Enterprise najpierw włącza go Owner | [Pomoc Anthropic](https://support.claude.com/en/articles/10166901-use-google-workspace-connectors), [karta](https://claude.com/connectors/gmail) |
+| Google Calendar | Przeglądać wydarzenia i kalendarze udostępnione, znajdować wspólne terminy | Tworzyć, zmieniać i usuwać wydarzenia, odpowiadać na zaproszenia, ustawiać spotkania cykliczne | Twoje konto Google; ta sama zasada dla Team i Enterprise | [Pomoc Anthropic](https://support.claude.com/en/articles/10166901-use-google-workspace-connectors), [karta](https://claude.com/connectors/google-calendar) |
+| Google Drive | Szukać i czytać Docs, Sheets, Slides, PDF-y, obrazy i pliki Office; wyodrębniany jest tylko tekst | Przesyłać pliki, tworzyć foldery, udostępniać, przenosić i przenosić do kosza; udostępnianie, przenoszenie i usuwanie domyślnie wymagają zgody | Twoje konto Google; ta sama zasada dla Team i Enterprise | [Pomoc Anthropic](https://support.claude.com/en/articles/10166901-use-google-workspace-connectors), [karta](https://claude.com/connectors/google-drive) |
+| Microsoft 365 (Outlook, SharePoint, OneDrive, Teams) | Przeszukiwać i analizować pocztę, kalendarz, dokumenty i czaty | Tylko odczyt, dopóki nie włączy się narzędzi zapisu: w kontach służbowych lub szkolnych włącza je administrator, w kontach prywatnych są w zestawie; potem szkice, wysyłka i zmiany w kalendarzu, bez załączników | Konta prywatne w planach Free, Pro, Max i Ultra; konta służbowe lub szkolne w każdym planie po jednorazowej zgodzie administratora globalnego Microsoft Entra | [Connect to Microsoft 365](https://support.claude.com/en/articles/15183774-connect-to-microsoft-365), [konfiguracja administratora](https://support.claude.com/en/articles/12542951-set-up-the-microsoft-365-connector) |
+| HubSpot | Kontakty, leady, firmy, szanse sprzedaży, zgłoszenia, obiekty niestandardowe, historia interakcji | Tworzyć i zmieniać większość rekordów CRM i interakcji; bez usuwania; zmiany zbiorcze po najwyżej 10 rekordów naraz | Wszystkie plany HubSpot; Claude Pro, Max, Team lub Enterprise; najpierw musi zatwierdzić Super Admin, chyba że nim jesteś albo masz dostęp App Marketplace | [Pomoc HubSpot](https://knowledge.hubspot.com/integrations/set-up-and-use-the-hubspot-connector-for-claude), [karta](https://claude.com/connectors/hubspot) |
+| Customermates (własny konektor) | Rekordy w każdej utworzonej przez Ciebie liście (na przykład kontakty, organizacje, szanse sprzedaży i zadania), ich notatki i pliki, Baza wiedzy; podłączone kalendarze tylko do odczytu | Tworzyć, zmieniać i usuwać rekordy (łącznie [[derived.mcp.tools.total]] narzędzi). Od planu Pro także wątki e-mail, LinkedIn i czatu, szkice i wysyłka; nie rezerwuje wydarzeń w kalendarzu | Każdy plan i samodzielny hosting; Free dzieli [[commercial.limit.free.apiRequestsPerMinute]] żądań na minutę i [[commercial.limit.free.apiRequestsPerDay]] na dobę na przestrzeń roboczą | [Poradnik o konektorze](/docs/connect-custom-connector), [dokumentacja MCP](/docs/mcp) |
+
+W katalogu są też między innymi Slack, Notion, Asana, Atlassian, Linear, monday.com i Box. Dla Close, Attio, Pipedrive, folk, Breakcold, Zoho CRM, Capsule i Salesforce [poradnik o Claude i CRM](/blog/claude-crm) porównuje, co konektor każdego CRM pozwala Claude zmieniać. Jeśli chcesz tylko widzieć pocztę z Gmaila lub Outlooka przy rekordach klientów w CRM, zajrzyj do wpisów o [integracji Gmaila z CRM](/blog/gmail-crm-integration) i [integracji Outlooka z CRM](/blog/outlook-crm-integration) zamiast konfigurować konektor.
+
+## Jak dodać własny konektor w Claude? [#add-custom-connector]
+
+Kroki opierają się na artykule pomocy Anthropic o własnych konektorach, sprawdzonym 12 listopada 2026. Dotyczą każdego zdalnego serwera MCP.
+
+<Steps>
+  <Step title="Sprawdź, kto może go dodać">
+    W planach Free, Pro, Max i Ultra dodajesz go sam, a Free pozwala na jeden. W planie Team Owner lub Primary Owner otwiera **Organization settings › Connectors › Add**, najeżdża na **Custom** i wybiera **Web**. W planie Enterprise mogą to zrobić Ownerzy i role z Manage access to Libraries.
+  </Step>
+  <Step title="Otwórz formularz i wpisz adres URL">
+    W Claude otwórz **Customize › Connectors**, kliknij **+ Add** i wybierz **Add custom connector**. Wpisz nazwę i adres URL zdalnego serwera MCP, a potem kliknij **Continue**.
+  </Step>
+  <Step title="Sprawdź uwierzytelnianie">
+    Claude pokazuje wykryte ustawienia. Wybierz **Sign in now**, **Sign in when needed** lub **No sign in** oraz opcję klienta OAuth; zalecana jest „Use Claude’s published identity”. Stałe poświadczenia, takie jak klucz API, trafiają do **Request headers**. Potem kliknij **Add**.
+  </Step>
+  <Step title="Połącz się i włącz go">
+    W planach Team i Enterprise każdy członek otwiera **Customize › Connectors**, znajduje konektor (zwykle ma etykietę Custom) i klika **Connect**. W czacie przycisk **+** w lewym dolnym rogu, a potem **Connectors**, włącza go dla tej rozmowy.
+  </Step>
+</Steps>
+
+Claude Code działa z tymi samymi serwerami. Pokazuje konektory z Twojego konta claude.ai jako serwery MCP o najniższym priorytecie, a serwer możesz też dodać bezpośrednio. Uruchom polecenie, a potem wpisz `/mcp` w Claude Code, aby dokończyć logowanie ([dokumentacja Claude Code](https://code.claude.com/docs/en/mcp), sprawdzona 12 listopada 2026):
+
+```bash
+claude mcp add --transport http <name> <remote-mcp-url>
+```
+
+Dla serwera, który zamiast OAuth używa klucza API, Claude Code przyjmuje `--header`; [poradnik CLI](/docs/connect-cli) pokazuje wariant dla Customermates. Podłączaj tylko serwery zbudowane i hostowane przez organizacje, którym ufasz: Anthropic ostrzega, że złośliwy serwer może wykorzystać prompt injection, a deweloper może później zmienić działanie narzędzia.
+
+## Jak połączyć Claude z Customermates jako własny konektor? [#connect-customermates]
+
+Customermates zawiera zdalny serwer MCP, więc łączy się drogą własnego konektora. Każda przestrzeń robocza ma własny adres URL, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>`, gdzie `<BASE_URL>` to adres, pod którym otwierasz Customermates, w chmurze lub na własnej instancji. Nie musisz go składać: aplikacja pokazuje go z przyciskiem kopiowania. To kroki z [poradnika o konektorze](/docs/connect-custom-connector); kroki w Claude odpowiadają artykułowi Anthropic powyżej.
+
+<Steps>
+  <Step title="Skopiuj adres URL przestrzeni roboczej">
+    W Customermates otwórz **Ustawienia › Klucze API i konektory**, kliknij **Dodaj**, wybierz **Claude** w sekcji **Szybkie połączenia**, a potem **Konto Claude**. Okno pokazuje adres URL Twojej bieżącej przestrzeni roboczej. Połączenie wymaga ustawienia **Dostęp do odczytu** na **Wszystkie** w wierszu **API i webhooki** Twojej roli; wbudowana rola Administrator je ma.
+  </Step>
+  <Step title="Dodaj konektor w Claude">
+    Otwórz **Customize › Connectors**, kliknij **+ Add**, wybierz **Add custom connector**, nadaj nazwę i wklej adres URL. Zostaw uwierzytelnianie na OAuth: nie ma klucza do skopiowania. Przycisk **Dodaj do Claude** w tym samym oknie otwiera formularz Claude z wypełnionym adresem URL (tylko Claude w przeglądarce i Team).
+  </Step>
+  <Step title="Zaloguj się i zatwierdź">
+    Otwiera się okno Customermates. Zaloguj się, sprawdź, czy ekran zgody wymienia łączącą się aplikację i host w polu **Miejsce docelowe połączenia**, a potem kliknij **Zatwierdź**. Wybierz **Odrzuć** przy każdym połączeniu, o które nie prosisz Ty.
+  </Step>
+  <Step title="Potwierdź narzędzia i przetestuj jedną zmianę">
+    Po powrocie do Claude Customermates pojawia się ze swoimi narzędziami. Najpierw zadaj pytanie do odczytu, potem zmień jedno pole w rekordzie testowym i poszukaj zmiany w panelu **Historia** rekordu, o ile Twoja rola może czytać dziennik audytu.
+  </Step>
+</Steps>
+
+Każda przestrzeń robocza definiuje własne listy i pola, więc poproś Claude, by przed zapisem wywołał `discover_record_types` i `get_record_model`. Trzy prośby na start:
+
+1. „Pokaż ostatnie dziesięć kontaktów, które utworzyłem. Czy któryś nie ma adresu e-mail?” (odczyt)
+2. „W szansie sprzedaży Acme ustaw pole Status na Wygrana i dopisz w notatkach, że umowę podpisano dzisiaj.” (zmiana)
+3. „Które rozmowy z klientami czekają na moją odpowiedź? Napisz odpowiedź na najstarszą i zapisz ją jako szkic.” (wymaga planu z komunikacją, w chmurze od Pro)
+
+Dodawaj jeden konektor na przestrzeń roboczą; Claude odrzuca drugi konektor z adresem URL, który już zna. W planie Free, z jedynym własnym konektorem, możesz więc połączyć jedną przestrzeń roboczą. Aby dać Claude mniej narzędzi, dopisz do adresu URL `?toolsets=records,messaging`, jak wyjaśnia [dokumentacja MCP](/docs/mcp#narrowing-with-toolsets). Aby wypróbować to na własnym koncie Claude, [zacznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup). Bez karty kredytowej.
+
+## Jakie uprawnienia dostaje konektor Claude i jak je ograniczyć? [#permissions]
+
+- **Twoje uprawnienia, nie większe.** Według Anthropic dostęp jest egzekwowany na poziomie użytkownika: logujesz się do aplikacji, a Claude sięga tylko do tego, co może zobaczyć Twoje konto. Wyjątek to konektor ze wspólnym kluczem API: w planach Team i Enterprise daje wszystkim dostęp tego klucza.
+- **Uprawnienia narzędzi dla każdego konektora.** Każdy konektor ma **Tool permissions**, gdzie wybierasz między Always allow a Needs approval. Narzędzia do odczytu zezwól; to, co zapisuje, wysyła lub usuwa, zostaw na Needs approval. W planach Team i Enterprise Ownerzy mogą ustawić uprawnienie na Always allow, Needs approval albo Blocked dla całej organizacji, członkowie nie mogą tego obejść, a ograniczenie nigdy nie daje większego dostępu, niż pozwala aplikacja.
+- **Domyślne ustawienia Anthropic.** W Gmailu, Calendar i Drive wysyłanie, odpowiadanie, przekazywanie, udostępnianie, przenoszenie i usuwanie domyślnie wymagają Twojej zgody. W kontach Microsoft 365 służbowych lub szkolnych Claude pyta za każdym razem, gdy wysyła lub przekazuje wiadomość albo zmienia wydarzenie, chyba że administrator ustawił to narzędzie na Always allow.
+- **Tryb Research.** Anthropic zaznacza, że podczas Research Claude może wywoływać narzędzia konektorów bez dalszej zgody; wyłącz więc narzędzia, które zapisują.
+- **Customermates.** Serwer prosi klientów o potwierdzenie przed usunięciem lub wysłaniem, ale tego nie wymusza: jeśli Claude może wywołać narzędzie, wywołanie się wykona. Chronią Cię Tool permissions w Claude. Połączenie niesie uprawnienia użytkownika, który je zatwierdził, bez zakresu na klucz; aby mieć mniej uprawnień, połącz osobnego użytkownika z węższą rolą (zajmuje miejsce) albo użyj `?toolsets=`. Wysyłka jest natychmiastowa, więc poproś Claude o zapisanie szkicu i wyślij go sam ze skrzynki odbiorczej.
+- **Dane.** W konektorach Google pobrane dane są związane z czatem: usunięcie czatu je usuwa. Podłączona usługa przetwarza Twoje dane na własnych warunkach, które, jak zaznacza Anthropic, mogą obowiązywać poza Stanami Zjednoczonymi.
+
+## Kiedy konektor Claude to zły wybór? [#wrong-choice]
+
+- **Jednorazowe zadanie na kilka linijek.** Wklej tekst do czatu; nie ma czego autoryzować.
+- **Setki rekordów.** Konektor pracuje rekord po rekordzie, a dostawcy ograniczają wywołania zbiorcze (konektor HubSpot zmienia 10 rekordów naraz). Użyj raczej importu w CRM.
+- **Serwer, którego nie kontrolujesz lub któremu nie ufasz.** Własny konektor może sięgać do usług, których Anthropic nie zweryfikował.
+- **Customermates w szczególności.** To zły wybór, jeśli Claude ma rezerwować lub zmieniać wydarzenia w kalendarzu (podłączone kalendarze są tylko do odczytu: dołącz do niego konektor Google Calendar lub Microsoft 365), jeśli chcesz natywnego połączenia ze Slackiem (do Slacka dociera tylko n8n) albo potrzebujesz telefonii lub sekwencji e-maili, których nie ma. Jeśli Twój zespół już pracuje w HubSpot i jest zadowolony, użyj konektora HubSpot.
+
+## Co zrobić, gdy konektor Claude się nie łączy? [#troubleshooting]
+
+| Objaw | Prawdopodobna przyczyna | Rozwiązanie |
+| --- | --- | --- |
+| „Access blocked: your institution’s admin needs to review Claude for Google Drive” | Administrator Google Workspace nie oznaczył Claude jako zaufanej aplikacji | Administrator otwiera admin.google.com, potem **Security › Access and data control › API controls › Manage third-party app access** (ścieżka z artykułu Anthropic), wyszukuje Claude, ustawia Trusted i czeka około 15 minut |
+| Brak opcji **Add custom connector** albo drugi jest odrzucany | Free pozwala na jeden własny konektor | Usunąć istniejący własny konektor albo wybrać plan płatny |
+| „Couldn’t register with the sign-in service” | Adres URL jest błędny albo serwery Anthropic nie mogą do niego dotrzeć | Skopiować adres URL ponownie z aplikacji; serwer w sieci prywatnej wymaga zgody na dostęp |
+| „A connector with this URL already exists in your organization” | Ten adres URL jest już podłączony, może dla innej przestrzeni roboczej | Dodać drugą przestrzeń roboczą z jej własnym adresem URL, skopiowanym przy otwartej tej przestrzeni |
+| Customermates odpowiada HTTP 401 z `invalid_token` | Połączenie zatwierdzono dla innej przestrzeni roboczej | Połączyć ponownie; Claude loguje się jeszcze raz dla przestrzeni roboczej z adresu URL |
+| „Tool not found” | Nieaktualna pamięć podręczna konektora | Usunąć konektor i dodać go ponownie |
+
+[Poradnik o konektorze](/docs/connect-custom-connector#troubleshooting) zawiera pełną tabelę dla Customermates.
+
+## Najczęstsze pytania
+
+<Faq>
+<FaqItem question="Czy jest lista konektorów Claude?">
+Listą jest [katalog konektorów](https://claude.com/connectors) Anthropic: 12 listopada 2026 pokazywał ponad 1100 konektorów, które można filtrować według kategorii i typu (Web, Desktop extension, Interactive). Tabela powyżej obejmuje sześć przydatnych w pracy z klientami, a [poradnik o Claude i CRM](/blog/claude-crm) obejmuje CRM.
+</FaqItem>
+
+<FaqItem question="Czy jest konektor Claude dla Outlooka?">
+Tak, to konektor Microsoft 365, który obejmuje pocztę i kalendarz Outlooka, SharePoint, OneDrive i Teams. Jest tylko do odczytu, dopóki nie włączy się narzędzi zapisu: w kontach służbowych lub szkolnych włącza je administrator, a konta prywatne mają je w zestawie. Konta służbowe lub szkolne potrzebują też jednorazowej zgody administratora globalnego Microsoft Entra.
+</FaqItem>
+
+<FaqItem question="Czy konektory Claude mogą wysyłać e-maile?">
+Konektor Gmail może wysyłać e-maile, odpowiadać na nie i je przekazywać, a Claude domyślnie prosi o Twoją zgodę przed każdą taką czynnością. Konektor Microsoft 365 pisze i wysyła, gdy narzędzia zapisu są włączone. Przy konektorze CRM sprawdź dostawcę: Customermates wysyła natychmiast, jeśli zezwolisz na narzędzie, więc najpierw zapisuj szkice.
+</FaqItem>
+
+<FaqItem question="Czy mogę używać konektorów Claude w planie Free?">
+Tak. Konektory webowe z katalogu są dostępne dla wszystkich użytkowników, a konto Free może dodać jeden własny konektor. Niektóre wymagają więcej: konektor HubSpot wymaga płatnego planu Claude.
+</FaqItem>
+
+<FaqItem question="Czym różni się konektor od serwera MCP?">
+Serwer MCP to program, który oferuje narzędzia przez Model Context Protocol; własny konektor to sposób podłączenia zdalnego serwera MCP do Claude przez adres URL. Konektory z katalogu są gotowe, a niektóre rozszerzenia desktopowe działają zamiast tego w Claude Desktop. Protokół wyjaśnia [artykuł o serwerze MCP](/blog/what-is-an-mcp-server), a [MCP kontra API](/blog/mcp-vs-api) porównuje go z klasyczną integracją.
+</FaqItem>
+
+<FaqItem question="Czy konektory Claude działają w Claude Code?">
+Claude Code pokazuje konektory z Twojego konta claude.ai jako serwery MCP, z niższym priorytetem niż serwery dodane przez Ciebie, a jeden z nich możesz wyłączyć w projekcie poleceniem `/mcp`. Zdalny serwer możesz też dodać bezpośrednio przez `claude mcp add --transport http`, jak pokazano wyżej.
+</FaqItem>
+
+<FaqItem question="Czy konektory Claude są bezpieczne?">
+Są tak bezpieczne, jak serwer, który za nimi stoi, i uprawnienia, które nadajesz. Podłączaj tylko serwery organizacji, którym ufasz, czytaj prośby o zgodę, domyślnie zezwalaj tylko na narzędzia do odczytu i pamiętaj, że pobrane dane trafiają do rozmowy.
+</FaqItem>
+</Faq>
+
+Informacje dostawców sprawdzone 12 listopada 2026 w [przeglądzie konektorów Anthropic](https://support.claude.com/en/articles/11176164-use-connectors-to-extend-claude-s-capabilities), [poradniku Anthropic o własnych konektorach](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp), [artykule Anthropic o konektorach Google Workspace](https://support.claude.com/en/articles/10166901-use-google-workspace-connectors), [Connect to Microsoft 365](https://support.claude.com/en/articles/15183774-connect-to-microsoft-365), [konfiguracji administratora Microsoft 365](https://support.claude.com/en/articles/12542951-set-up-the-microsoft-365-connector), [katalogu konektorów](https://claude.com/connectors), [artykule HubSpot o konektorze Claude](https://knowledge.hubspot.com/integrations/set-up-and-use-the-hubspot-connector-for-claude) i [dokumentacji MCP Claude Code](https://code.claude.com/docs/en/mcp).
