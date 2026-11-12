@@ -2,7 +2,7 @@
   "locale": "pt",
   "name": "Funil de clientes para agências",
   "summary": "Um funil para uma agência de marketing ou criativa: oportunidades da primeira conversa ao fechamento com decisão sobre a concorrência, e contratos mensais em andamento com data de renovação, aviso prévio, revisão trimestral e indicador de saúde.",
-  "description": "Conquiste e mantenha clientes em um só lugar: oportunidades por conversa, qualificação, briefing ou concorrência, proposta e negociação, um ganho que inicia um onboarding em cinco passos, e contratos e projetos que seguem, com fee mensal, data de renovação, aviso prévio e próxima revisão trimestral. Os orçamentos são registrados quando o cliente os informa, nunca chutados. Acessos, materiais da marca e acesso a contas de anúncios nunca entram no workspace. Não é gestão de projetos, controle de horas, cobrança de fees nem relatórios.",
+  "description": "Conquiste e mantenha clientes em um só lugar: oportunidades por conversa, qualificação, briefing ou concorrência, proposta e negociação, um ganho que inicia um onboarding em cinco passos, e contratos e projetos que seguem, com fee mensal, data de renovação, aviso prévio e próxima revisão trimestral. Os orçamentos são registrados quando o cliente os informa, nunca presumidos. Acessos, materiais da marca e acesso a contas de anúncios nunca entram no espaço de trabalho. Não é gestão de projetos, controle de horas, cobrança de fees nem relatórios.",
   "lists": {
     "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "Decisores, líderes de marketing, compras e contatos do dia a dia." },
     "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Prospects, clientes, ex-clientes e parceiros." },
@@ -10,9 +10,9 @@
     "engagements": { "label": "Contrato", "pluralLabel": "Contratos (fee mensal) e projetos", "description": "Um contrato mensal ou projeto em andamento com fee, data de renovação, aviso prévio e saúde." }
   },
   "fields": {
-    "contacts.contact_role": { "label": "Papel", "options": { "decision_maker": "Decisor", "marketing_lead": "Líder de marketing", "procurement": "Compras", "day_to_day": "Contato do dia a dia", "referrer": "Indicador" } },
+    "contacts.contact_role": { "label": "Papel", "options": { "decision_maker": "Decisor", "marketing_lead": "Gestor de marketing", "procurement": "Compras", "day_to_day": "Contato do dia a dia", "referrer": "Quem indicou" } },
     "contacts.preferred_channel": { "label": "Canal preferido", "options": { "email": "E-mail", "phone": "Telefone", "linkedin": "LinkedIn", "whatsapp": "WhatsApp", "chat": "Slack ou chat" } },
-    "clients.relationship": { "label": "Relação", "options": { "prospect": "Prospect", "client": "Cliente", "former_client": "Ex-cliente", "partner": "Parceiro" } },
+    "clients.relationship": { "label": "Relacionamento", "options": { "prospect": "Prospect", "client": "Cliente", "former_client": "Ex-cliente", "partner": "Parceiro" } },
     "clients.website": { "label": "Site" },
     "opportunities.stage": {
       "label": "Etapa",
@@ -23,7 +23,7 @@
       "label": "Serviços",
       "options": { "seo": "SEO", "paid_media": "Mídia paga", "social": "Redes sociais", "content": "Conteúdo", "web": "Web", "branding": "Branding", "pr": "Assessoria de imprensa" }
     },
-    "opportunities.source": { "label": "Origem", "options": { "referral": "Indicação", "inbound": "Entrada", "outbound": "Prospecção ativa", "existing_client": "Cliente existente", "event": "Evento", "marketplace": "Marketplace" } },
+    "opportunities.source": { "label": "Origem", "options": { "referral": "Indicação", "inbound": "Contato recebido", "outbound": "Prospecção ativa", "existing_client": "Cliente existente", "event": "Evento", "marketplace": "Marketplace" } },
     "opportunities.competitive_pitch": { "label": "Concorrência entre agências" },
     "opportunities.pitch_date": { "label": "Data da apresentação" },
     "opportunities.monthly_fee": { "label": "Fee mensal" },
@@ -31,9 +31,9 @@
     "opportunities.next_step_due": { "label": "Próximo passo até" },
     "opportunities.lost_reason": {
       "label": "Motivo da perda",
-      "options": { "price": "Preço", "chose_other_agency": "Escolheu outra agência", "in_house": "Fará internamente", "budget_cut": "Corte de orçamento", "no_decision": "Sem decisão", "scope_mismatch": "Escopo inadequado", "no_response": "Sem resposta" }
+      "options": { "price": "Preço", "chose_other_agency": "Escolheu outra agência", "in_house": "Vai fazer internamente", "budget_cut": "Corte de orçamento", "no_decision": "Sem decisão", "scope_mismatch": "Escopo inadequado", "no_response": "Sem resposta" }
     },
-    "engagements.engagement_status": { "label": "Situação", "options": { "onboarding": "Onboarding", "active": "Ativo", "at_risk": "Em risco", "paused": "Pausado", "ended": "Encerrado" } },
+    "engagements.engagement_status": { "label": "Status", "options": { "onboarding": "Onboarding", "active": "Ativo", "at_risk": "Em risco", "paused": "Pausado", "ended": "Encerrado" } },
     "engagements.health": { "label": "Saúde", "options": { "green": "Verde", "amber": "Amarelo", "red": "Vermelho" } },
     "engagements.start_date": { "label": "Início" },
     "engagements.renewal_date": { "label": "Renovação em" },
@@ -43,7 +43,7 @@
     "engagements.account_manager": { "label": "Gerente de conta" },
     "engagements.ended_reason": {
       "label": "Por que terminou",
-      "options": { "client_ended": "Encerrado pelo cliente", "agency_ended": "Encerrado pela agência", "project_completed": "Projeto concluído", "budget": "Orçamento", "in_house": "Passou para o interno", "moved_agency": "Foi para outra agência" }
+      "options": { "client_ended": "Encerrado pelo cliente", "agency_ended": "Encerrado pela agência", "project_completed": "Projeto concluído", "budget": "Orçamento", "in_house": "Foi internalizado", "moved_agency": "Foi para outra agência" }
     },
     "actions.kind": {
       "label": "Tipo",
@@ -88,12 +88,12 @@
     "qualify_check": { "title": "Confirmar a faixa de orçamento e o decisor 2 dias depois da qualificação" },
     "pitch_go_no_go": { "title": "Decidir se entra no dia em que uma oportunidade chega a briefing ou concorrência" },
     "pitch_rehearsal": { "title": "Lembrar o responsável 3 dias antes de uma apresentação" },
-    "proposal_follow_up": { "title": "Ligar 2 dias depois de enviada uma proposta" },
+    "proposal_follow_up": { "title": "Ligar 2 dias depois de enviar uma proposta" },
     "onboarding_set": { "title": "Iniciar os passos de onboarding no dia seguinte a um ganho" },
     "lost_feedback": { "title": "Pedir feedback 2 dias depois de perder uma oportunidade" },
     "renewal_review": { "title": "Revisar a renovação 90 dias antes de um contrato vencer" },
     "renewal_notice": { "title": "Avisar o responsável 45 dias antes da renovação para confirmar a intenção do cliente" },
-    "qbr_due": { "title": "Preparar a revisão trimestral na data dela" },
+    "qbr_due": { "title": "Preparar a revisão trimestral na data marcada" },
     "health_red": { "title": "Avisar a liderança quando um contrato fica vermelho" }
   },
   "acceptanceChecks": {
@@ -103,7 +103,7 @@
     "opportunities_board_view": "As oportunidades abrem como quadro por etapa."
   },
   "prompt": {
-    "intro": "Configure no meu workspace do Customermates um funil de clientes para uma agência: oportunidades com decisão sobre a concorrência, contratos e projetos com data de renovação, aviso prévio, revisão trimestral e indicador de saúde, e acompanhamentos com data. Nunca guarde acessos de clientes nem materiais da marca.",
+    "intro": "Configure no meu espaço de trabalho do Customermates um funil de clientes para uma agência: oportunidades com decisão sobre a concorrência, contratos e projetos com data de renovação, aviso prévio, revisão trimestral e indicador de saúde, e acompanhamentos com data. Nunca guarde acessos de clientes nem materiais da marca.",
     "questions": [
       "Quais serviços você vende e trabalha com contrato mensal, projeto ou os dois?",
       "Como você decide entrar ou não em uma concorrência entre agências?",

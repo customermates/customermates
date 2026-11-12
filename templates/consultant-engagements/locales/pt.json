@@ -2,18 +2,18 @@
   "locale": "pt",
   "name": "Projetos de consultoria",
   "summary": "Um funil para um consultor independente: projetos do contato ao projeto ganho com checagem de aceitação antes da proposta, uma data de retorno combinada na conversa da proposta e entregáveis que regulam a execução e o encerramento.",
-  "description": "Conduza uma consultoria em um só lugar: projetos por diagnóstico, escopo, proposta e decisão, a data de retorno combinada com o patrocinador, uma checagem de aceitação (capacidade, independência, confidencialidade) antes da proposta, entregáveis com prazo e aceite, e um encerramento que pede feedback e um depoimento. Guarda o funil, os relacionamentos e as etapas de entrega. Não é controle de horas, emissão de notas, assinatura eletrônica de propostas nem planejamento de recursos, e não contém dados confidenciais do cliente.",
+  "description": "Conduza uma consultoria em um só lugar: projetos por diagnóstico, escopo, proposta e decisão, a data de retorno combinada com o patrocinador, uma checagem de aceitação (capacidade, independência, confidencialidade) antes da proposta, entregáveis com prazo e aceite, e um encerramento que pede feedback e um depoimento. Guarda o funil, os relacionamentos e as etapas de entrega. Não é controle de horas, emissão de notas fiscais, assinatura eletrônica de propostas nem planejamento de recursos, e não contém dados confidenciais do cliente.",
   "lists": {
-    "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "Patrocinadores, contatos do dia a dia, quem assina e indicadores." },
+    "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "Patrocinadores, contatos do dia a dia, quem assina e quem indica." },
     "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Prospects, clientes, ex-clientes e parceiros que indicam." },
     "engagements": { "label": "Projeto", "pluralLabel": "Projetos", "description": "Um trabalho de consultoria, do primeiro contato à entrega e ao encerramento." },
     "deliverables": { "label": "Entregável", "pluralLabel": "Entregáveis", "description": "Um marco que você entrega, com prazo e aceite." }
   },
   "fields": {
-    "contacts.role_in_engagement": { "label": "Papel", "options": { "sponsor": "Patrocinador", "day_to_day": "Contato do dia a dia", "signs_off": "Dá o aval", "referrer": "Indicador", "influencer": "Influenciador" } },
+    "contacts.role_in_engagement": { "label": "Papel", "options": { "sponsor": "Patrocinador", "day_to_day": "Contato do dia a dia", "signs_off": "Dá o aval", "referrer": "Quem indica", "influencer": "Influenciador" } },
     "contacts.relationship_strength": { "label": "Relacionamento", "options": { "strong": "Forte", "warm": "Bom", "new": "Novo" } },
     "contacts.last_meeting": { "label": "Última reunião" },
-    "clients.relationship": { "label": "Relação", "options": { "prospect": "Prospect", "client": "Cliente", "former_client": "Ex-cliente", "referral_partner": "Parceiro que indica" } },
+    "clients.relationship": { "label": "Relacionamento", "options": { "prospect": "Prospect", "client": "Cliente", "former_client": "Ex-cliente", "referral_partner": "Parceiro que indica" } },
     "clients.industry": { "label": "Setor" },
     "engagements.stage": {
       "label": "Etapa",
@@ -33,9 +33,9 @@
     "engagements.next_step_due": { "label": "Próximo passo até" },
     "engagements.lost_reason": {
       "label": "Motivo da perda",
-      "options": { "timing": "Momento", "budget": "Orçamento", "in_house": "Fará internamente", "other_advisor": "Escolheu outro consultor", "scope_changed": "Escopo mudou", "no_decision": "Sem decisão", "no_response": "Sem resposta" }
+      "options": { "timing": "Momento", "budget": "Orçamento", "in_house": "Vai fazer internamente", "other_advisor": "Escolheu outro consultor", "scope_changed": "Escopo mudou", "no_decision": "Sem decisão", "no_response": "Sem resposta" }
     },
-    "deliverables.status": { "label": "Situação", "options": { "planned": "Planejado", "in_progress": "Em andamento", "delivered": "Entregue", "accepted": "Aceito" } },
+    "deliverables.status": { "label": "Status", "options": { "planned": "Planejado", "in_progress": "Em andamento", "delivered": "Entregue", "accepted": "Aceito" } },
     "deliverables.kind": { "label": "Tipo", "options": { "interview_summary": "Resumo de entrevistas", "workshop": "Workshop", "report": "Relatório", "recommendation": "Recomendação", "training_session": "Sessão de treinamento", "handover": "Passagem de bastão" } },
     "deliverables.due_date": { "label": "Prazo" },
     "deliverables.owner": { "label": "Responsável" },
@@ -77,7 +77,7 @@
   "rules": {
     "discovery_writeup": { "title": "Registrar a conversa de diagnóstico no dia seguinte" },
     "acceptance_check": { "title": "Checar a aceitação no dia seguinte à entrada no escopo" },
-    "proposal_follow_up": { "title": "Fazer o retorno 3 dias depois de enviada a proposta" },
+    "proposal_follow_up": { "title": "Fazer o retorno 3 dias depois de enviar a proposta" },
     "decision_date": { "title": "Pedir a decisão na data de decisão esperada" },
     "won_kickoff": { "title": "Agendar o kickoff no dia seguinte a um projeto ganho" },
     "lost_review": { "title": "Perguntar o que poderia ter sido diferente 2 dias depois de perder um projeto" },
@@ -93,12 +93,12 @@
     "engagements_board_view": "Os projetos abrem como quadro por etapa."
   },
   "prompt": {
-    "intro": "Configure no meu workspace do Customermates projetos de consultoria: projetos do contato ao ganho com checagem de aceitação e data de retorno combinada na conversa da proposta, entregáveis com prazo e aceite, e um encerramento que pede feedback. Não guarde dados confidenciais do cliente.",
+    "intro": "Configure no meu espaço de trabalho do Customermates projetos de consultoria: projetos do contato ao ganho com checagem de aceitação e data de retorno combinada na conversa da proposta, entregáveis com prazo e aceite, e um encerramento que pede feedback. Não guarde dados confidenciais do cliente.",
     "questions": [
       "Que tipos de projeto você vende e a qual valor de diária?",
       "Como você decide se aceita um trabalho?",
       "Quanto tempo você espera depois de uma proposta antes de fazer o retorno?",
-      "Quais entregáveis marcam um marco que você fatura?"
+      "Quais entregáveis correspondem a um marco que você fatura?"
     ]
   }
 }
