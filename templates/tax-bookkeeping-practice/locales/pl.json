@@ -1,12 +1,12 @@
 {
   "locale": "pl",
   "name": "Biuro rachunkowe",
-  "summary": "Stanowisko pracy biura z dwoma obiegami: zdobycie klienta, z weryfikacją AML i umową, oraz stała praca dla klienta, z rejestrem terminów sprawdzanym przez drugą osobę.",
-  "description": "Prowadź biuro rachunkowe w jednym miejscu: umowy od zapytania do aktywnej z weryfikacją klienta w przepisach o przeciwdziałaniu praniu pieniędzy po drodze, powtarzalne rozliczenia na klienta i okres ze statusem oczekiwania na dokumenty oraz rejestr terminów z terminem wstępnym i osobą, która sprawdziła każdą datę. Szablon to warstwa relacji, dowodu terminów i przypomnień obok Twojego programu księgowego. Nie wylicza terminów ustawowych, nie wysyła deklaracji, nie prowadzi ksiąg, nie nalicza płac ani czasu pracy i nie przechowuje numerów PESEL ani kopii dowodów osobistych.",
+  "summary": "Narzędzie dla biura rachunkowego z dwoma obiegami: pozyskanie klienta, z weryfikacją AML i umową, oraz stała obsługa klienta, z rejestrem terminów sprawdzanym przez drugą osobę.",
+  "description": "Prowadź biuro rachunkowe w jednym miejscu: umowy od zapytania do aktywnej współpracy, z weryfikacją klienta zgodnie z przepisami o przeciwdziałaniu praniu pieniędzy po drodze, powtarzalne rozliczenia na klienta i okres ze statusem oczekiwania na dokumenty oraz rejestr terminów z terminem wstępnym i osobą, która sprawdziła każdą datę. Szablon to warstwa relacji, dowodu terminów i przypomnień obok Twojego programu księgowego. Nie wylicza terminów ustawowych, nie wysyła deklaracji, nie prowadzi ksiąg, nie nalicza płac ani czasu pracy i nie przechowuje numerów PESEL ani NIP, ani kopii dowodów osobistych.",
   "lists": {
     "contacts": { "label": "Osoba kontaktowa", "pluralLabel": "Osoby kontaktowe", "description": "Osoby u klientów, które wysyłają dokumenty i podpisują." },
     "clients": { "label": "Klient", "pluralLabel": "Klienci", "description": "Osoby prywatne, jednoosobowe działalności, spółki i stowarzyszenia, dla których pracujesz." },
-    "mandates": { "label": "Umowa", "pluralLabel": "Umowy", "description": "Jedno zlecenie od zapytania do aktywnego lub odrzuconego." },
+    "mandates": { "label": "Umowa", "pluralLabel": "Umowy", "description": "Jedno zlecenie od zapytania do aktywnej współpracy lub odmowy." },
     "jobs": { "label": "Rozliczenie", "pluralLabel": "Rozliczenia", "description": "Powtarzalna praca dla klienta i okresu, na przykład zamknięcie miesiąca lub JPK_V7." },
     "deadlines": { "label": "Termin", "pluralLabel": "Terminy", "description": "Termin ustawowy lub urzędowy ze źródłem, terminem wstępnym i osobą, która go sprawdziła." }
   },
@@ -22,17 +22,17 @@
     "clients.aml_next_review": { "label": "Następny przegląd ryzyka" },
     "mandates.stage": {
       "label": "Etap",
-      "options": { "inquiry": "Zapytanie", "intro_call": "Spotkanie", "proposal_sent": "Oferta", "aml_check": "Weryfikacja klienta (AML)", "engagement_letter_out": "Umowa wysłana", "active": "Aktywny", "declined": "Odrzucony", "not_going_ahead": "Utracony" }
+      "options": { "inquiry": "Zapytanie", "intro_call": "Spotkanie", "proposal_sent": "Oferta wysłana", "aml_check": "Weryfikacja klienta (AML)", "engagement_letter_out": "Umowa wysłana", "active": "Aktywna", "declined": "Odrzucona", "not_going_ahead": "Nie doszła do skutku" }
     },
     "mandates.services": {
       "label": "Usługi",
-      "options": { "bookkeeping": "Księgowość", "payroll": "Kadry i płace", "vat_returns": "VAT", "annual_accounts": "Sprawozdanie roczne", "tax_returns": "Zeznania podatkowe", "advisory": "Doradztwo" }
+      "options": { "bookkeeping": "Księgowość", "payroll": "Kadry i płace", "vat_returns": "VAT", "annual_accounts": "Sprawozdanie finansowe", "tax_returns": "Zeznania podatkowe", "advisory": "Doradztwo" }
     },
-    "mandates.fee_model": { "label": "Wynagrodzenie", "options": { "fixed_monthly": "Ryczałt miesięczny", "hourly": "Godzinowo", "per_filing": "Za deklarację", "value_based": "Według wartości" } },
-    "mandates.next_step_due": { "label": "Następny krok do" },
+    "mandates.fee_model": { "label": "Model wynagrodzenia", "options": { "fixed_monthly": "Ryczałt miesięczny", "hourly": "Godzinowo", "per_filing": "Za deklarację", "value_based": "Według wartości" } },
+    "mandates.next_step_due": { "label": "Termin następnego kroku" },
     "mandates.lost_reason": {
       "label": "Powód",
-      "options": { "capacity": "Brak mocy przerobowych", "risk_declined": "Odrzucony z powodu ryzyka", "scope_mismatch": "Niedopasowany zakres", "price": "Cena", "chose_other_advisor": "Wybrał inne biuro", "no_response": "Brak odpowiedzi" }
+      "options": { "capacity": "Brak mocy przerobowych", "risk_declined": "Odrzucona z powodu ryzyka", "scope_mismatch": "Niedopasowany zakres", "price": "Cena", "chose_other_advisor": "Klient wybrał inne biuro", "no_response": "Brak odpowiedzi" }
     },
     "jobs.status": {
       "label": "Status",
@@ -40,21 +40,21 @@
     },
     "jobs.job_type": {
       "label": "Rodzaj rozliczenia",
-      "options": { "monthly_bookkeeping": "Księgowość miesięczna", "payroll_run": "Lista płac", "vat_return": "Rozliczenie VAT", "annual_accounts": "Sprawozdanie roczne", "tax_return": "Zeznanie podatkowe", "year_end": "Zamknięcie roku" }
+      "options": { "monthly_bookkeeping": "Księgowość miesięczna", "payroll_run": "Lista płac", "vat_return": "Rozliczenie VAT", "annual_accounts": "Sprawozdanie finansowe", "tax_return": "Zeznanie podatkowe", "year_end": "Zamknięcie roku" }
     },
     "jobs.period": { "label": "Okres" },
-    "jobs.documents_due": { "label": "Dokumenty do" },
+    "jobs.documents_due": { "label": "Termin dostarczenia dokumentów" },
     "jobs.internal_due": { "label": "Termin wewnętrzny" },
-    "jobs.reviewer": { "label": "Kontrolujący" },
-    "jobs.notice_received_on": { "label": "Pismo z urzędu otrzymano dnia" },
+    "jobs.reviewer": { "label": "Osoba kontrolująca" },
+    "jobs.notice_received_on": { "label": "Data otrzymania pisma z urzędu" },
     "deadlines.kind": {
       "label": "Rodzaj",
-      "options": { "vat_return": "Rozliczenie VAT", "vat_payment": "Wpłata VAT", "payroll_report": "Deklaracja ZUS", "annual_accounts": "Sprawozdanie roczne", "tax_return": "Zeznanie podatkowe", "appeal": "Odwołanie", "payment": "Płatność", "aml_review": "Przegląd ryzyka", "other": "Inny" }
+      "options": { "vat_return": "Rozliczenie VAT", "vat_payment": "Wpłata VAT", "payroll_report": "Deklaracja ZUS", "annual_accounts": "Sprawozdanie finansowe", "tax_return": "Zeznanie podatkowe", "appeal": "Odwołanie", "payment": "Płatność", "aml_review": "Przegląd ryzyka", "other": "Inny" }
     },
     "deadlines.due_date": { "label": "Termin ostateczny" },
     "deadlines.pre_deadline": { "label": "Termin wstępny" },
     "deadlines.source_ref": { "label": "Źródło terminu" },
-    "deadlines.verified_by": { "label": "Sprawdził" },
+    "deadlines.verified_by": { "label": "Kto sprawdził" },
     "deadlines.status": { "label": "Status", "options": { "open": "Otwarty", "in_progress": "W toku", "filed": "Złożony", "extended": "Przedłużony", "cancelled": "Anulowany" } },
     "actions.kind": {
       "label": "Rodzaj",
@@ -104,18 +104,18 @@
     "document_checklists": { "title": "Prośby o dokumenty według usługi", "sections": ["O co prosimy przy każdej usłudze i na kiedy", "Przypomnienia i co robimy, gdy brakuje dokumentów"] }
   },
   "rules": {
-    "proposal_follow_up": { "title": "Przypomnieć o ofercie 3 dni po jej wysłaniu" },
-    "aml_identification": { "title": "Zidentyfikować klienta w ciągu 2 dni, gdy umowa osiągnie etap weryfikacji" },
-    "onboarding_set": { "title": "Poprosić o pełnomocnictwo i pierwsze dokumenty, gdy umowa staje się aktywna" },
-    "recontact_not_going_ahead": { "title": "Ustawić następny krok na 90 dni, gdy umowa nie dojdzie do skutku" },
-    "documents_chase": { "title": "Ponaglić o dokumenty 3 dni przed terminem" },
-    "documents_overdue_notice": { "title": "Powiadomić prowadzącego, gdy dokumenty są należne i nadal ich brak" },
-    "pre_deadline_check": { "title": "Powiadomić prowadzącego w terminie wstępnym otwartego terminu" },
-    "due_date_escalation": { "title": "Powiadomić szefa 2 dni przed otwartym terminem" },
-    "approval_chase": { "title": "Ponaglić o zgodę klienta po 5 dniach oczekiwania" },
-    "notice_check": { "title": "Sprawdzić pismo z urzędu w ciągu 3 dni od otrzymania" },
-    "aml_review": { "title": "Przejrzeć ocenę ryzyka, gdy nadejdzie data następnego przeglądu" },
-    "monthly_close_jobs": { "title": "Utworzyć rozliczenia miesięczne na początku każdego miesiąca" }
+    "proposal_follow_up": { "title": "Przypomnij o ofercie 3 dni po jej wysłaniu" },
+    "aml_identification": { "title": "Zidentyfikuj klienta w ciągu 2 dni, gdy umowa trafi na etap weryfikacji" },
+    "onboarding_set": { "title": "Poproś o pełnomocnictwo i pierwsze dokumenty, gdy umowa staje się aktywna" },
+    "recontact_not_going_ahead": { "title": "Ustaw następny krok na 90 dni naprzód, gdy umowa nie dojdzie do skutku" },
+    "documents_chase": { "title": "Ponagl o dokumenty 3 dni przed terminem" },
+    "documents_overdue_notice": { "title": "Powiadom osobę prowadzącą sprawę, gdy dokumenty są należne i nadal ich brak" },
+    "pre_deadline_check": { "title": "Powiadom osobę prowadzącą sprawę w dniu terminu wstępnego" },
+    "due_date_escalation": { "title": "Powiadom szefa biura 2 dni przed otwartym terminem" },
+    "approval_chase": { "title": "Ponagl o zgodę klienta po 5 dniach oczekiwania" },
+    "notice_check": { "title": "Sprawdź pismo z urzędu w ciągu 3 dni od otrzymania" },
+    "aml_review": { "title": "Przejrzyj ocenę ryzyka, gdy nadejdzie data następnego przeglądu" },
+    "monthly_close_jobs": { "title": "Utwórz rozliczenia miesięczne na początku każdego miesiąca" }
   },
   "acceptanceChecks": {
     "mandate_stage_field": "Każda umowa ma etap.",
@@ -125,7 +125,7 @@
     "deadline_control_page": "Baza wiedzy zawiera stronę o kontroli terminów."
   },
   "prompt": {
-    "intro": "Skonfiguruj w moim workspace Customermates biuro rachunkowe: umowy od zapytania do aktywnej z etapem weryfikacji klienta, powtarzalne rozliczenia na klienta i okres, rejestr terminów z terminem wstępnym i osobą sprawdzającą oraz zaplanowane przypomnienia. Nigdy nie wyliczaj terminów ustawowych i nie przechowuj kopii dowodów tożsamości.",
+    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates biuro rachunkowe: umowy od zapytania do aktywnej współpracy z etapem weryfikacji klienta, powtarzalne rozliczenia na klienta i okres, rejestr terminów z terminem wstępnym i osobą sprawdzającą oraz zaplanowane kolejne kroki. Nigdy nie wyliczaj terminów ustawowych i nie przechowuj kopii dowodów tożsamości.",
     "questions": [
       "Jakie usługi oferujesz i jakie powtarzalne rozliczenia prowadzisz na klienta?",
       "Jakie formy opodatkowania obsługujesz i jakie terminy śledzisz?",
