@@ -1,13 +1,13 @@
 {
   "locale": "de",
   "name": "Redaktionsplan",
-  "summary": "Eine Zeile pro Beitrag mit Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, dazu Kampagnen, Aktionstage und eine wöchentliche Redaktionsroutine.",
+  "summary": "Eine Zeile pro Beitrag mit Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, dazu Kampagnen, Anlässe und eine wöchentliche Redaktionsroutine.",
   "description": "Ein Redaktionsplan für Blog, Newsletter, Social Media und Video: sieben Status von Idee bis veröffentlicht, ein Veröffentlichungskalender, eine Content-Säule pro Beitrag, eine Werbekennzeichnungs-Prüfung für bezahlte oder geschenkte Inhalte und eine Erfolgskontrolle nach 30 Tagen. Er plant und verfolgt, er veröffentlicht nicht.",
   "lists": {
     "people": { "label": "Person", "pluralLabel": "Personen", "description": "Autoren, Redakteure, Prüfer, Freigebende und Gäste." },
     "pieces": { "label": "Beitrag", "pluralLabel": "Beiträge", "description": "Ein Inhalt von der Idee bis zur Veröffentlichung." },
     "campaigns": { "label": "Kampagne", "pluralLabel": "Kampagnen", "description": "Ein Thema, das mehrere Beiträge bündelt." },
-    "key_dates": { "label": "Aktionstag", "pluralLabel": "Aktionstage", "description": "Feiertage, Veranstaltungen und Launches, um die herum Inhalte geplant werden." }
+    "key_dates": { "label": "Anlass", "pluralLabel": "Anlässe", "description": "Feiertage, Veranstaltungen und Launches, um die herum Inhalte geplant werden." }
   },
   "fields": {
     "pieces.stage": {
@@ -78,7 +78,7 @@
     "pieces.clicks": { "label": "Klicks" },
     "pieces.killed_reason": {
       "label": "Grund für das Verwerfen",
-      "options": { "off_topic": "Thema verfehlt", "duplicate": "Doppelt", "no_owner": "Kein Verantwortlicher", "stale": "Überholt", "replaced": "Ersetzt", "client_declined": "Kunde lehnte ab" }
+      "options": { "off_topic": "Thema verfehlt", "duplicate": "Doppelt", "no_owner": "Kein Verantwortlicher", "stale": "Überholt", "replaced": "Ersetzt", "client_declined": "Kunde hat abgelehnt" }
     },
     "campaigns.goal": { "label": "Ziel" },
     "campaigns.start_date": { "label": "Start" },
@@ -117,7 +117,7 @@
     "pieces_board": { "name": "Beiträge nach Status" },
     "in_review_pieces": { "name": "In Prüfung" },
     "campaigns_all": { "name": "Alle Kampagnen" },
-    "key_dates_all": { "name": "Aktionstage" },
+    "key_dates_all": { "name": "Anlässe" },
     "people_all": { "name": "Alle Personen" }
   },
   "widgets": {
@@ -127,7 +127,7 @@
     "pieces_by_pillar": { "title": "Beiträge nach Content-Säule" },
     "published_per_month": { "title": "Veröffentlicht pro Monat" },
     "reach_by_pillar": { "title": "Reichweite nach Content-Säule" },
-    "key_dates_coming": { "title": "Anstehende Aktionstage" }
+    "key_dates_coming": { "title": "Anstehende Anlässe" }
   },
   "knowledgePages": {
     "content_pillars": { "title": "Content-Säulen und Mix", "sections": ["Die Säulen und ihr Anteil", "Was zu welcher Säule gehört"] },
@@ -142,7 +142,7 @@
     "measure_after_30_days": { "title": "Erfolgskontrolle anlegen, wenn ein Beitrag veröffentlicht ist" },
     "stale_piece": { "title": "Beitrag prüfen, der 14 Tage im Entwurf oder in der Prüfung liegt" },
     "weekly_editorial_prep": { "title": "Jeden Montag die Redaktionssitzung vorbereiten" },
-    "plan_for_key_date": { "title": "Drei Wochen vor einem Aktionstag Inhalte planen" },
+    "plan_for_key_date": { "title": "Drei Wochen vor einem Anlass Inhalte planen" },
     "idea_form_piece": { "title": "Aus einer über ein Formular eingereichten Idee einen Beitrag anlegen" }
   },
   "acceptanceChecks": {
@@ -151,7 +151,7 @@
     "calendar_widget": "Das Dashboard zeigt den Veröffentlichungskalender."
   },
   "prompt": {
-    "intro": "Richte einen Redaktionsplan in meinem Customermates-Workspace ein: Beiträge mit sieben Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, Kampagnen, Aktionstage, eine Kennzeichnungsprüfung und eine wöchentliche Redaktionsroutine.",
+    "intro": "Richte einen Redaktionsplan in meinem Customermates-Workspace ein: Beiträge mit sieben Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, Kampagnen, Anlässe, eine Kennzeichnungsprüfung und eine wöchentliche Redaktionsroutine.",
     "questions": [
       "Was veröffentlichen Sie, auf welchen Kanälen und wie oft?",
       "Wer schreibt, wer prüft und wer gibt frei? Ist ein Kunde beteiligt?",

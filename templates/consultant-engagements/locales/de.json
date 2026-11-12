@@ -1,7 +1,7 @@
 {
   "locale": "de",
   "name": "Beratungsaufträge",
-  "summary": "Eine Pipeline für selbstständige Berater: Aufträge vom Erstkontakt bis zum Beratungsvertrag mit Auftragsklärung vor dem Angebot, einem beim Angebotsgespräch vereinbarten Nachfasstermin und Ergebnissen, die Durchführung und Abschluss steuern.",
+  "summary": "Eine Pipeline für selbstständige Berater: Aufträge vom Erstkontakt bis zur Auftragserteilung mit Auftragsklärung vor dem Angebot, einem beim Angebotsgespräch vereinbarten Nachfasstermin und Ergebnissen, die Durchführung und Abschluss steuern.",
   "description": "Eine Beratung an einem Ort führen: Aufträge über Vorgespräch, Auftragsklärung, Angebot und Entscheidung, den mit dem Auftraggeber vereinbarten Nachfasstermin, eine Annahmeprüfung (Kapazität, Unabhängigkeit, Vertraulichkeit) vor dem Angebot, Ergebnisse mit Fälligkeits- und Abnahmedatum und einen Abschluss, der um Rückmeldung und eine Referenz bittet. Die Vorlage hält Pipeline, Beziehungen und Lieferschritte fest. Keine Zeiterfassung, keine Rechnungsstellung, keine elektronische Unterschrift für Angebote und keine Ressourcenplanung, und keine vertraulichen Daten des Kunden.",
   "lists": {
     "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Auftraggeber, Ansprechpartner im Tagesgeschäft, Freigebende und Empfehler." },
@@ -17,7 +17,7 @@
     "clients.industry": { "label": "Branche" },
     "engagements.stage": {
       "label": "Phase",
-      "options": { "introduction": "Erstkontakt", "discovery": "Vorgespräch", "scoping": "Auftragsklärung", "proposal_sent": "Angebot", "decision": "Entscheidung", "won": "Beratungsvertrag", "lost": "Verloren" }
+      "options": { "introduction": "Erstkontakt", "discovery": "Vorgespräch", "scoping": "Auftragsklärung", "proposal_sent": "Angebot", "decision": "Entscheidung", "won": "Auftrag erteilt", "lost": "Verloren" }
     },
     "engagements.engagement_type": { "label": "Art", "options": { "diagnostic": "Analyse", "advisory_review": "Beratende Prüfung", "workshop": "Workshop", "interim": "Interimseinsatz", "retainer": "Laufende Betreuung", "training": "Training" } },
     "engagements.referral_source": { "label": "Wie der Auftrag kam", "options": { "client_referral": "Empfehlung eines Kunden", "peer_referral": "Empfehlung eines Kollegen", "event_or_talk": "Veranstaltung oder Vortrag", "content": "Fachbeitrag", "existing_client": "Bestandskunde", "marketplace": "Marktplatz" } },
@@ -33,7 +33,7 @@
     "engagements.next_step_due": { "label": "Nächster Schritt bis" },
     "engagements.lost_reason": {
       "label": "Verlustgrund",
-      "options": { "timing": "Zeitpunkt", "budget": "Budget", "in_house": "Macht es intern", "other_advisor": "Anderen Berater gewählt", "scope_changed": "Umfang geändert", "no_decision": "Keine Entscheidung", "no_response": "Keine Rückmeldung" }
+      "options": { "timing": "Zeitpunkt", "budget": "Budget", "in_house": "Wird intern umgesetzt", "other_advisor": "Anderen Berater gewählt", "scope_changed": "Umfang geändert", "no_decision": "Keine Entscheidung", "no_response": "Keine Rückmeldung" }
     },
     "deliverables.status": { "label": "Status", "options": { "planned": "Geplant", "in_progress": "In Arbeit", "delivered": "Übergeben", "accepted": "Abgenommen" } },
     "deliverables.kind": { "label": "Art", "options": { "interview_summary": "Interviewzusammenfassung", "workshop": "Workshop", "report": "Bericht", "recommendation": "Empfehlung", "training_session": "Schulung", "handover": "Übergabe" } },
@@ -79,7 +79,7 @@
     "acceptance_check": { "title": "Am Tag nach Eintritt in die Auftragsklärung die Annahme prüfen" },
     "proposal_follow_up": { "title": "3 Tage nach dem Angebot nachfassen" },
     "decision_date": { "title": "Zum erwarteten Entscheidungstermin nach der Entscheidung fragen" },
-    "won_kickoff": { "title": "Am Tag nach dem Beratungsvertrag den Auftakt terminieren" },
+    "won_kickoff": { "title": "Am Tag nach der Auftragserteilung den Auftakt terminieren" },
     "lost_review": { "title": "2 Tage nach einem Verlust fragen, was man hätte anders machen können" },
     "deliverable_due_notice": { "title": "Den Verantwortlichen 3 Tage vor der Fälligkeit eines Ergebnisses informieren" },
     "closeout_report": { "title": "Am Enddatum den Abschlussbericht übergeben" },
@@ -93,7 +93,7 @@
     "engagements_board_view": "Die Beratungsaufträge öffnen sich als Board nach Phase."
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace Beratungsaufträge ein: Aufträge vom Erstkontakt bis zum Beratungsvertrag mit Annahmeprüfung und einem im Angebotsgespräch vereinbarten Nachfasstermin, Ergebnisse mit Fälligkeits- und Abnahmedatum und einen Abschluss, der um Rückmeldung bittet. Speichere keine vertraulichen Kundendaten.",
+    "intro": "Richte in meinem Customermates-Workspace Beratungsaufträge ein: Aufträge vom Erstkontakt bis zur Auftragserteilung mit Annahmeprüfung und einem im Angebotsgespräch vereinbarten Nachfasstermin, Ergebnisse mit Fälligkeits- und Abnahmedatum und einen Abschluss, der um Rückmeldung bittet. Speichere keine vertraulichen Kundendaten.",
     "questions": [
       "Welche Arten von Aufträgen verkaufen Sie, und zu welchem Tagessatz?",
       "Wie entscheiden Sie, ob Sie einen Auftrag annehmen?",
