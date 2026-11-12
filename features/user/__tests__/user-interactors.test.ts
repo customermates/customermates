@@ -696,9 +696,33 @@ describe("RegisterUserInteractor", () => {
 
     expect(mockRepo.hasCreatedWorkspaceUnscoped).toHaveBeenCalledWith(USER_ID);
     expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
-      expect.objectContaining({ workspace: { name: "Acme Sales", createdByAuthUserId: USER_ID, trial: true } }),
+      expect.objectContaining({
+        workspace: { name: "Acme Sales", createdByAuthUserId: USER_ID, trial: true, signupTemplate: null },
+      }),
     );
     expect(mockRegistration.createCompanyAndUser.mock.calls[0]?.[0]).not.toHaveProperty("workspaceName");
+  });
+
+  it("stores the template the visitor chose on the new company", async () => {
+    mutableEnv.APP_MODE = "cloud";
+
+    await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        avatarUrl: null,
+        agreeToTerms: true,
+        workspaceName: "Acme Sales",
+      },
+      { target: { type: "createCompany" }, signupTemplate: "client-tracker" },
+    );
+
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        workspace: { name: "Acme Sales", createdByAuthUserId: USER_ID, trial: true, signupTemplate: "client-tracker" },
+      }),
+    );
   });
 
   it("starts a later cloud workspace of the same login without a trial", async () => {
@@ -717,7 +741,9 @@ describe("RegisterUserInteractor", () => {
     );
 
     expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
-      expect.objectContaining({ workspace: { name: null, createdByAuthUserId: USER_ID, trial: false } }),
+      expect.objectContaining({
+        workspace: { name: null, createdByAuthUserId: USER_ID, trial: false, signupTemplate: null },
+      }),
     );
   });
 
