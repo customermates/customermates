@@ -2,10 +2,10 @@
   "locale": "nl",
   "name": "Sollicitatiebeheer",
   "summary": "Een wervingsoverzicht voor een klein bedrijf: vacatures, sollicitanten, één sollicitatie per vacature in negen fasen, een beoordelingsformulier per interviewer en een datum om afwijzingen te verwijderen.",
-  "description": "Voer de werving op één plek: elke vacature heeft een status, een leidinggevende en een salarisschaal; elke sollicitatie loopt van ontvangen tot aangenomen of afgewezen, met gesprekstijd, uiterste datum voor antwoord op het aanbod en reden van afwijzing; elke interviewer vult een beoordelingsformulier in. Afgewezen sollicitaties krijgen een bewaardatum zodat u ze op tijd verwijdert of om toestemming vraagt. Geen vacaturesite, geen cv-parser, geen testplatform, geen hulpmiddel voor aanbiedingsbrieven en e-handtekeningen en geen juridisch gezag over bewaartermijnen.",
+  "description": "Beheer de werving op één plek: elke vacature heeft een status, een leidinggevende en een salarisrange; elke sollicitatie loopt van ontvangen tot aangenomen of afgewezen, met gesprekstijd, uiterste datum voor antwoord op het aanbod en reden van afwijzing; elke interviewer vult een beoordelingsformulier in. Afgewezen sollicitaties krijgen een bewaardatum zodat je ze op tijd verwijdert of om toestemming vraagt. Geen vacaturesite, geen cv-parser, geen testplatform, geen hulpmiddel voor aanbiedingsbrieven en e-handtekeningen en geen juridisch advies over bewaartermijnen.",
   "lists": {
-    "applicants": { "label": "Sollicitant", "pluralLabel": "Sollicitanten", "description": "De mensen die solliciteren, met bron en toestemming voor het talentenbestand." },
-    "jobs": { "label": "Vacature", "pluralLabel": "Vacatures", "description": "Elke open functie met leidinggevende en salarisschaal." },
+    "applicants": { "label": "Sollicitant", "pluralLabel": "Sollicitanten", "description": "De mensen die solliciteren, met bron en toestemming voor de talentpool." },
+    "jobs": { "label": "Vacature", "pluralLabel": "Vacatures", "description": "Elke open functie met leidinggevende en salarisrange." },
     "applications": { "label": "Sollicitatie", "pluralLabel": "Sollicitaties", "description": "Eén sollicitant voor één vacature, van ontvangen tot aangenomen of afgewezen." },
     "scorecards": { "label": "Beoordelingsformulier", "pluralLabel": "Beoordelingsformulieren", "description": "De score en aanbeveling van één interviewer voor één sollicitatie." }
   },
@@ -15,8 +15,8 @@
       "options": { "careers_page": "Werken-bij-pagina", "job_board": "Vacaturesite", "referral": "Aanbeveling", "linkedin": "LinkedIn", "agency": "Bureau", "other": "Overig" }
     },
     "applicants.location": { "label": "Woonplaats" },
-    "applicants.salary_expectation": { "label": "Salarisindicatie" },
-    "applicants.pool_consent": { "label": "Toestemming bewaren" },
+    "applicants.salary_expectation": { "label": "Salarisverwachting" },
+    "applicants.pool_consent": { "label": "Toestemming voor talentpool" },
     "jobs.status": {
       "label": "Status",
       "options": { "draft": "Concept", "open": "Open", "on_hold": "On hold", "filled": "Vervuld", "cancelled": "Geannuleerd" }
@@ -25,10 +25,10 @@
     "jobs.hiring_manager": { "label": "Leidinggevende" },
     "jobs.pay_min": { "label": "Salaris vanaf" },
     "jobs.pay_max": { "label": "Salaris tot" },
-    "jobs.apply_by": { "label": "Solliciteren voor" },
+    "jobs.apply_by": { "label": "Solliciteren tot" },
     "applications.stage": {
       "label": "Fase",
-      "options": { "new": "Ontvangen", "screening": "Voorselectie", "interview_1": "Telefonisch gesprek", "interview_2": "Sollicitatiegesprek", "reference_check": "Referenties", "offer": "Aanbod", "hired": "Aangenomen", "rejected": "Afgewezen", "withdrawn": "Ingetrokken" }
+      "options": { "new": "Ontvangen", "screening": "Voorselectie", "interview_1": "Eerste gesprek", "interview_2": "Tweede gesprek", "reference_check": "Referentiecheck", "offer": "Aanbod", "hired": "Aangenomen", "rejected": "Afgewezen", "withdrawn": "Ingetrokken" }
     },
     "applications.interview_at": { "label": "Gesprek" },
     "applications.offer_decision_due": { "label": "Antwoord op aanbod voor" },
@@ -38,7 +38,7 @@
     },
     "applications.retain_until": { "label": "Bewaren tot" },
     "scorecards.interviewer": { "label": "Interviewer" },
-    "scorecards.round": { "label": "Ronde", "options": { "screening": "Voorselectie", "interview_1": "Telefonisch gesprek", "interview_2": "Sollicitatiegesprek" } },
+    "scorecards.round": { "label": "Ronde", "options": { "screening": "Voorselectie", "interview_1": "Eerste gesprek", "interview_2": "Tweede gesprek" } },
     "scorecards.rating": { "label": "Score" },
     "scorecards.recommendation": { "label": "Aanbeveling", "options": { "strong_no": "Zeker niet", "no": "Nee", "yes": "Ja", "strong_yes": "Zeker wel" } },
     "actions.kind": {
@@ -47,7 +47,7 @@
         "acknowledge": "Ontvangst bevestigen",
         "screen": "Sollicitatie voorselecteren",
         "schedule_interview": "Gesprek inplannen",
-        "collect_scorecards": "Beoordelingsformulieren ophalen",
+        "collect_scorecards": "Beoordelingsformulieren verzamelen",
         "chase_offer": "Antwoord op aanbod opvragen",
         "close_message": "Afsluitend bericht sturen",
         "retention_review": "Bewaartermijn nalopen",
@@ -74,7 +74,7 @@
     "interviews_coming": { "title": "Komende gesprekken" },
     "open_jobs": { "title": "Open vacatures" },
     "rejection_reasons": { "title": "Redenen van afwijzing" },
-    "retention_coming": { "title": "Sollicitaties die binnenkort weg of verlengd moeten" }
+    "retention_coming": { "title": "Sollicitaties die binnenkort verwijderd of verlengd moeten worden" }
   },
   "knowledgePages": {
     "hiring_process": { "title": "Wervingsproces en wie beslist", "sections": ["Fasen en eigenaren", "Waar we op letten bij voorselectie en gesprekken"] },
@@ -84,11 +84,11 @@
   "rules": {
     "application_form_records": { "title": "Sollicitant en sollicitatie aanmaken zodra het sollicitatieformulier is ingediend" },
     "acknowledge_application": { "title": "Een nieuwe sollicitatie binnen 2 dagen bevestigen" },
-    "collect_scorecards": { "title": "De beoordelingsformulieren ophalen op de dag van het gesprek" },
-    "scorecard_reminder": { "title": "De verantwoordelijke de dag na een gesprek herinneren" },
+    "collect_scorecards": { "title": "De beoordelingsformulieren verzamelen op de dag van het gesprek" },
+    "scorecard_reminder": { "title": "De verantwoordelijke de dag na een gesprek een herinnering sturen" },
     "chase_offer": { "title": "5 dagen na een aanbod naar het antwoord vragen" },
     "rejection_retention": { "title": "De bewaardatum op 180 dagen zetten als een sollicitatie wordt afgewezen" },
-    "job_filled_close": { "title": "De overige kandidaten berichten als een vacature is vervuld" },
+    "job_filled_close": { "title": "De overige kandidaten een afsluitend bericht sturen als een vacature is vervuld" },
     "retention_review": { "title": "Een sollicitatie nalopen als de bewaardatum is bereikt" }
   },
   "acceptanceChecks": {
@@ -97,12 +97,12 @@
     "applications_board_view": "De sollicitaties openen als bord per fase."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-workspace sollicitatiebeheer in: vacatures met leidinggevende en salarisschaal, sollicitanten, sollicitaties in negen fasen, beoordelingsformulieren voor gesprekken, een bewaardatum voor afwijzingen en opvolging met datum.",
+    "intro": "Richt in mijn Customermates-werkruimte sollicitatiebeheer in: vacatures met leidinggevende en salarisrange, sollicitanten, sollicitaties in negen fasen, beoordelingsformulieren voor gesprekken, een bewaardatum voor afwijzingen en opvolging met datum.",
     "questions": [
       "Hoeveel vacatures staan er tegelijk open en wie neemt voor elke vacature aan?",
-      "Waar komen sollicitanten vandaan en gebruikt u een sollicitatieformulier?",
-      "Hoe lang bewaart u afgewezen sollicitaties en houdt u een talentenbestand bij met toestemming?",
-      "Welke gespreksrondes houdt u en wie vult een beoordelingsformulier in?"
+      "Waar komen sollicitanten vandaan en gebruik je een sollicitatieformulier?",
+      "Hoe lang bewaar je afgewezen sollicitaties en houd je een talentpool bij met toestemming?",
+      "Welke gespreksrondes houd je en wie vult een beoordelingsformulier in?"
     ]
   }
 }

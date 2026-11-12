@@ -75,7 +75,7 @@
     "actions_by_status": { "title": "Acties per status" },
     "overdue_count": { "title": "Achterstallige acties" },
     "blocked_count": { "title": "Geblokkeerde acties" },
-    "due_soon": { "title": "Binnenkort aan de beurt" },
+    "due_soon": { "title": "Deadline nadert" },
     "open_by_owner": { "title": "Open acties per eigenaar" },
     "done_per_month": { "title": "Afgerond per maand" },
     "actions_by_source": { "title": "Acties per bron" },
@@ -84,14 +84,14 @@
   },
   "knowledgePages": {
     "how_we_write_an_action": { "title": "Hoe we een actie opschrijven", "sections": ["Eén werkwoord, één eigenaar, één datum", "Hoe een afgeronde actie eruitziet"] },
-    "weekly_action_review": { "title": "Wekelijkse actiecontrole van 15 minuten", "sections": ["Geblokkeerd, schuivend, zonder volgende stap", "Opnieuw dateren, delegeren of annuleren"] },
+    "weekly_action_review": { "title": "Wekelijkse actiecontrole van 15 minuten", "sections": ["Geblokkeerd, vertraagd, zonder volgende stap", "Verzetten, delegeren of annuleren"] },
     "closing_with_proof": { "title": "Een actie afsluiten met bewijs", "sections": ["Het bewijs koppelen", "Effectiviteitscontrole bij corrigerende acties"] }
   },
   "rules": {
     "minutes_after_meeting": { "title": "Stuur na een overleg de notulen en de actielijst" },
     "unblock_action": { "title": "Benoem wie een geblokkeerde actie kan losmaken" },
     "due_reminder": { "title": "Herinner de eigenaar twee dagen voor de deadline" },
-    "overdue_notice": { "title": "Meld de eigenaar de dag nadat de deadline is verstreken" },
+    "overdue_notice": { "title": "Waarschuw de eigenaar de dag nadat de deadline is verstreken" },
     "follow_up_date": { "title": "Bekijk de actie opnieuw op de opvolgdatum" },
     "effectiveness_check": { "title": "Controleer na 30 dagen de effectiviteit van een corrigerende of preventieve actie" },
     "weekly_action_review": { "title": "Houd elke maandag de wekelijkse actiecontrole" },
