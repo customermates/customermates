@@ -59,16 +59,13 @@ export function TemplateGallery({ families, items, labels }: Props) {
           ))}
         </div>
 
-        <label className="relative block w-full lg:max-w-xs">
+        <label className="flex h-10 w-full items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm focus-within:ring-2 focus-within:ring-ring/50 lg:max-w-xs">
           <span className="sr-only">{labels.searchLabel}</span>
 
-          <Search
-            aria-hidden
-            className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-subdued"
-          />
+          <Search aria-hidden className="pointer-events-none size-4 shrink-0 text-subdued" />
 
           <input
-            className="block h-10 w-full rounded-lg border border-border bg-card ps-9 pe-3 text-sm text-foreground outline-none placeholder:text-subdued focus-visible:ring-2 focus-visible:ring-ring/50"
+            className="h-full min-w-0 flex-1 bg-transparent text-foreground outline-none placeholder:text-subdued"
             placeholder={labels.searchPlaceholder}
             type="search"
             value={query}

@@ -16,7 +16,7 @@ export async function TemplateStepsSection({ signupHref }: { signupHref: string 
 
   return (
     <MarketingSection className="mk-section-tight" headerAlign="start" id="steps" title={t("stepsTitle")}>
-      <Steps className="mx-auto max-w-2xl ps-10 sm:ps-11">
+      <Steps className="max-w-2xl ps-10 sm:ps-11">
         <Step title={t("step1Title")}>
           <p>{t("step1Body")}</p>
 
