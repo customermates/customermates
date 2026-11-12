@@ -592,7 +592,7 @@ export const GlobalSearchModal = observer(() => {
         )}
       </CommandList>
 
-      <div className="flex shrink-0 items-center gap-4 border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
+      <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
         <Hint label={t("GlobalSearch.hintNavigate")} symbol="↑↓" />
 
         <Hint label={t("GlobalSearch.hintOpen")} symbol={<CornerDownLeft className="size-3" />} />
@@ -648,7 +648,7 @@ function PaletteRow({ row }: { row: PaletteRowData }) {
 
 function Hint({ label, symbol }: { label: string; symbol: ReactNode }) {
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-1.5 whitespace-nowrap">
       <Kbd>{symbol}</Kbd>
 
       <span>{label}</span>
