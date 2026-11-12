@@ -182,6 +182,46 @@
     "chase_rule": "A client moved to Waiting on client gets a chase Action.",
     "playbook_page": "The Knowledge Base holds the client tracker playbook."
   },
+  "page": {
+    "metaTitle": "Client Tracker Template for Your AI Agent",
+    "metaDescription": "Copy a client tracker into Claude, ChatGPT or Codex: one row per client, one owner, a dated next step and a weekly review, built in your CRM.",
+    "headline": "A client tracker your AI agent builds in your CRM",
+    "answer": "A client tracker is a short list with one row per client, one owner, a status, the date of the last contact and a next step with a date. Paste this template into your AI agent and it builds that list in Customermates, with contacts, dated Actions and a weekly review. You approve the plan before anything is written.",
+    "routine": {
+      "title": "The weekly 15-minute client review",
+      "steps": [
+        "Sort the client list by next step due and by status.",
+        "Deal with everything overdue, then with active clients that have no next step.",
+        "Look at prospects that have gone quiet and decide: follow up or close.",
+        "End with a date on every row, so no client is left without a next step."
+      ]
+    },
+    "limits": [
+      "It is not an invoicing, quoting or time-tracking tool. Billing stays in your accounting tool; the tracker holds at most a link and an annual value.",
+      "It does not store signed contracts and it is not a client portal. Clients cannot sign in to see their status.",
+      "Reminders come from automation rules and notifications, or from a routine your agent runs on a schedule. The template proposes them and you decide which ones to switch on.",
+      "Keep sensitive client files such as health, legal or therapy records out of it. Keep the relationship here and the case content in a system built for it.",
+      "It is sized for one to ten people. If some columns must be hidden from colleagues, move them into a separate list with its own access."
+    ],
+    "faq": [
+      {
+        "question": "What belongs in a client tracker?",
+        "answer": "One row per client with one owner, a status from a short list, the date of the last contact and a next step with a date. The next-step date drives the work: sort by it once a week and nothing falls through."
+      },
+      {
+        "question": "When does a spreadsheet stop working for client tracking?",
+        "answer": "Practitioner guides put the limit at about 25 to 50 clients, at several people editing the file, or at the point where nobody is reminded of a follow-up. A CRM then helps: contacts are linked, next steps are dated Actions and the conversations sit next to each client."
+      },
+      {
+        "question": "How long should I keep the data of closed clients?",
+        "answer": "That depends on your country and on what you keep. Two examples: the French data protection authority allows client data used for prospecting for the length of the relationship plus three years, and German commercial law requires business letters to be kept for six years and accounting vouchers for eight. The template sets a data review date for every closed client; adjust the period to your country and ask your adviser. This is not legal advice."
+      },
+      {
+        "question": "Does the agent contact my clients?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Set up a client tracker in my Customermates workspace: one row per client with one owner, a status, a last-contact date and a dated next step, plus contacts, dated Actions, a weekly review and a retention date for closed clients.",
     "questions": [

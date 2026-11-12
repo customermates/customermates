@@ -5757,7 +5757,7 @@
       "cta": "Essai gratuit",
       "exportLabel": "Comment exporter",
       "movesLabel": "Ce qui est repris",
-      "note": "Votre agent ne modifie jamais l’outil que vous quittez. Il lit votre export, montre la correspondance des colonnes, attend votre confirmation et importe une liste à la fois. L’import lit les fichiers .xlsx et CSV jusqu’à 10 Mo et 5 000 lignes par feuille, et le plan Free contient [[commercial.limit.free.maxRecords]] enregistrements.",
+      "note": "Votre agent ne modifie jamais l’outil que vous quittez. Il lit votre export, montre la correspondance des colonnes, attend votre confirmation et importe une liste à la fois. L’import lit les fichiers .xlsx et CSV jusqu’à 10 Mo et cinq mille lignes par feuille, et le plan Free contient [[commercial.limit.free.maxRecords]] enregistrements.",
       "replacesLabel": "Remplace",
       "sectionLead": "Votre agent lit un export de l’outil que vous utilisez aujourd’hui et reconstruit les mêmes données dans votre espace de travail. Chaque kit indique ce qui est repris, comment exporter et ce qui reste de côté.",
       "sectionTitle": "Apportez vos données : kits de migration",

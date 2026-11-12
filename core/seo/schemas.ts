@@ -150,6 +150,20 @@ export function breadcrumbListSchema(crumbs: { name: string; path: string }[]) {
   };
 }
 
+export function itemListSchema(items: { name: string; path: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    numberOfItems: items.length,
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      url: `${env.BASE_URL}${item.path}`,
+    })),
+  };
+}
+
 export function faqPageSchema(entries: { question: string; answer: string }[]) {
   return {
     "@context": "https://schema.org",

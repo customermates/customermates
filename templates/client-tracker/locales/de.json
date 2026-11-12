@@ -183,6 +183,46 @@
     "chase_rule": "Ein Kunde, der auf Wartet auf Kunde gesetzt wird, erhält eine Wiedervorlage zum Erinnern.",
     "playbook_page": "Die Wissensdatenbank enthält den Leitfaden zur Kundenverwaltung."
   },
+  "page": {
+    "metaTitle": "Kundenverwaltung als Vorlage für Ihren KI-Agenten",
+    "metaDescription": "Kopieren Sie die Kundenverwaltung in Claude, ChatGPT oder Codex: eine Zeile pro Kunde, ein Betreuer, eine Wiedervorlage und eine wöchentliche Durchsicht.",
+    "headline": "Eine Kundenverwaltung, die Ihr KI-Agent in Ihrem CRM aufbaut",
+    "answer": "Eine Kundenverwaltung ist eine kurze Liste: eine Zeile pro Kunde, ein Betreuer, ein Status, das Datum des letzten Kontakts und ein nächster Schritt mit Wiedervorlage. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Liste in Customermates auf, mit Ansprechpartnern, terminierten Aufgaben und einer wöchentlichen Durchsicht. Sie genehmigen den Plan, bevor etwas geschrieben wird.",
+    "routine": {
+      "title": "Die wöchentliche Kundendurchsicht in 15 Minuten",
+      "steps": [
+        "Sortieren Sie die Kundenliste nach Wiedervorlage und nach Status.",
+        "Erledigen Sie zuerst alles Überfällige, dann die aktiven Kunden ohne nächsten Schritt.",
+        "Prüfen Sie ruhig gewordene Interessenten und entscheiden Sie: nachfassen oder schließen.",
+        "Schließen Sie mit einem Datum in jeder Zeile ab, damit kein Kunde ohne nächsten Schritt bleibt."
+      ]
+    },
+    "limits": [
+      "Es ist kein Werkzeug für Rechnungen, Angebote oder Zeiterfassung. Die Abrechnung bleibt in Ihrer Buchhaltungssoftware; hier steht höchstens ein Link und ein Jahreswert.",
+      "Unterschriebene Verträge werden nicht abgelegt, und ein Kundenportal ist es nicht. Kunden können sich nicht anmelden, um ihren Stand zu sehen.",
+      "Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt. Die Vorlage schlägt sie vor, Sie entscheiden, welche Sie einschalten.",
+      "Sensible Kundenakten wie Gesundheits-, Rechts- oder Therapieunterlagen gehören nicht hinein. Die Beziehung steht hier, der Fallinhalt in einem dafür gebauten System.",
+      "Ausgelegt ist es für ein bis zehn Personen. Müssen einzelne Spalten vor Kollegen verborgen bleiben, legen Sie sie in eine eigene Liste mit eigenem Zugriff."
+    ],
+    "faq": [
+      {
+        "question": "Was gehört in eine Kundenverwaltung?",
+        "answer": "Eine Zeile pro Kunde mit einem Betreuer, einem Status aus einer kurzen Liste, dem Datum des letzten Kontakts und einem nächsten Schritt mit Datum. Das Wiedervorlage-Datum steuert die Arbeit: einmal pro Woche danach sortieren, dann geht nichts verloren."
+      },
+      {
+        "question": "Ab wann reicht eine Tabelle für die Kundenverwaltung nicht mehr?",
+        "answer": "Praxisleitfäden nennen etwa 25 bis 50 Kunden, mehrere Bearbeiter oder den Punkt, an dem niemand mehr an Wiedervorlagen erinnert wird. Dann hilft ein CRM: Ansprechpartner sind verknüpft, nächste Schritte sind terminierte Aufgaben, und die Gespräche stehen neben jedem Kunden."
+      },
+      {
+        "question": "Wie lange darf ich die Daten beendeter Kunden aufbewahren?",
+        "answer": "Das hängt vom Land und von den Daten ab. Zwei Beispiele: Die französische Datenschutzbehörde erlaubt Kundendaten, die für Werbung genutzt werden, für die Dauer der Beziehung plus drei Jahre, und das deutsche Handelsrecht verlangt sechs Jahre für Geschäftsbriefe und acht Jahre für Buchungsbelege. Die Vorlage setzt für jeden beendeten Kunden ein Prüfdatum; passen Sie die Frist an Ihr Land an und fragen Sie Ihre Beraterin oder Ihren Berater. Das ist keine Rechtsberatung."
+      },
+      {
+        "question": "Schreibt der Agent meine Kunden an?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Richte in meinem Customermates-Workspace eine Kundenverwaltung ein: eine Zeile pro Kunde mit einem Betreuer, einem Status, dem Datum des letzten Kontakts und einer terminierten Wiedervorlage, dazu Ansprechpartner, terminierte Aufgaben, eine wöchentliche Durchsicht und ein Prüfdatum für beendete Kunden.",
     "questions": [

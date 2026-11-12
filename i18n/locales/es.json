@@ -5757,7 +5757,7 @@
       "cta": "Prueba gratuita",
       "exportLabel": "Cómo exportar",
       "movesLabel": "Qué se traslada",
-      "note": "Tu agente nunca modifica la herramienta que dejas. Lee tu exportación, muestra cómo se corresponden las columnas, espera tu confirmación e importa una lista cada vez. La importación lee archivos .xlsx y CSV de hasta 10 MB y 5.000 filas por hoja, y el plan Free admite [[commercial.limit.free.maxRecords]] registros.",
+      "note": "Tu agente nunca modifica la herramienta que dejas. Lee tu exportación, muestra cómo se corresponden las columnas, espera tu confirmación e importa una lista cada vez. La importación lee archivos .xlsx y CSV de hasta 10 MB y cinco mil filas por hoja, y el plan Free admite [[commercial.limit.free.maxRecords]] registros.",
       "replacesLabel": "Sustituye",
       "sectionLead": "Tu agente lee una exportación de la herramienta que usas hoy y construye los mismos datos en tu espacio de trabajo. Cada kit indica qué se traslada, cómo exportar y qué se queda atrás.",
       "sectionTitle": "Trae tus datos: kits de cambio",

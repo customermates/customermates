@@ -10,7 +10,13 @@
     ],
     "pairedPages": {
       "en": "/features/contact-management",
-      "de": "/features/contact-management"
+      "de": "/features/contact-management",
+      "fr": "/features/contact-management",
+      "it": "/features/contact-management",
+      "es": "/features/contact-management",
+      "pt": "/features/contact-management",
+      "pl": "/features/contact-management",
+      "nl": "/features/contact-management"
     },
     "reviewedAt": "2026-11-12",
     "counts": {
@@ -25,12 +31,60 @@
         "name": "Kundenverwaltung",
         "summary": "Eine Zeile pro Kunde, ein Betreuer, ein terminierter nächster Schritt, dazu eine wöchentliche Durchsicht und ein Prüfdatum für jeden beendeten Kunden.",
         "status": "draft",
-        "publicPage": "none",
-        "page": null
+        "publicPage": "own",
+        "page": {
+          "metaTitle": "Kundenverwaltung als Vorlage für Ihren KI-Agenten",
+          "metaDescription": "Kopieren Sie die Kundenverwaltung in Claude, ChatGPT oder Codex: eine Zeile pro Kunde, ein Betreuer, eine Wiedervorlage und eine wöchentliche Durchsicht."
+        }
       },
       "en": {
         "name": "Client tracker",
         "summary": "One row per client, one owner, one dated next step, plus a weekly review and a retention date for every closed client.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": {
+          "metaTitle": "Client Tracker Template for Your AI Agent",
+          "metaDescription": "Copy a client tracker into Claude, ChatGPT or Codex: one row per client, one owner, a dated next step and a weekly review, built in your CRM."
+        }
+      },
+      "es": {
+        "name": "Ficha de clientes",
+        "summary": "Una fila por cliente, un responsable, una próxima acción con fecha, más una revisión semanal y una fecha de revisión de datos para cada cliente dado de baja.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "fr": {
+        "name": "Fichier client",
+        "summary": "Une ligne par client, un responsable, une prochaine relance datée, avec une revue hebdomadaire et une date de revue des données pour chaque client clos.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "it": {
+        "name": "Anagrafica clienti",
+        "summary": "Una riga per cliente, un responsabile, un prossimo passo con scadenza, più una revisione settimanale e una data di verifica dei dati per ogni cliente chiuso.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "nl": {
+        "name": "Klantenbestand",
+        "summary": "Eén regel per klant, één accountmanager, één volgende stap met datum, plus een wekelijkse controle en een controledatum voor elke beëindigde klant.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "pl": {
+        "name": "Kartoteka klientów",
+        "summary": "Jeden wiersz na klienta, jeden opiekun, jeden następny krok z terminem, do tego cotygodniowy przegląd i data przeglądu danych dla każdego zakończonego klienta.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "pt": {
+        "name": "Cadastro de clientes",
+        "summary": "Uma linha por cliente, um responsável, um próximo contato com data, mais uma revisão semanal e uma data de revisão dos dados para cada cliente encerrado.",
         "status": "draft",
         "publicPage": "own",
         "page": null
@@ -49,7 +103,13 @@
     ],
     "pairedPages": {
       "en": "/for/real-estate",
-      "de": "/for/real-estate"
+      "de": "/for/real-estate",
+      "fr": "/for/real-estate",
+      "it": "/for/real-estate",
+      "es": "/for/real-estate",
+      "pt": "/for/real-estate",
+      "pl": "/for/real-estate",
+      "nl": "/for/real-estate"
     },
     "reviewedAt": "2026-11-12",
     "counts": {
@@ -65,11 +125,59 @@
         "summary": "Zwei Pipelines, die sich beim Kaufvertrag treffen: Objekt hereinholen und vermarkten, Interessenten betreuen, mit Besichtigungen, Fristen und einer Routine für frühere Kunden.",
         "status": "draft",
         "publicPage": "proof",
-        "page": null
+        "page": {
+          "metaTitle": "Immobilien-Pipeline als Vorlage für Ihren KI-Agenten",
+          "metaDescription": "Kopieren Sie die Immobilien-Pipeline in Claude, ChatGPT oder Codex: Objekte, Interessenten, Besichtigungen mit Rückmeldung und die Fristen nach dem Vertrag."
+        }
       },
       "en": {
         "name": "Real estate pipeline",
         "summary": "Two pipelines that meet at the contract: win and market the listing, and work the buyer, with viewings, key dates and a routine for past clients.",
+        "status": "draft",
+        "publicPage": "proof",
+        "page": {
+          "metaTitle": "Real Estate Pipeline Template for Your AI Agent",
+          "metaDescription": "Copy a real estate pipeline into Claude, ChatGPT or Codex: listings, buyers, viewings with feedback and the key dates after the contract, built in your CRM."
+        }
+      },
+      "es": {
+        "name": "Pipeline inmobiliario",
+        "summary": "Dos pipelines que se encuentran en las arras: captar y comercializar el inmueble, y atender al comprador, con visitas, fechas clave y una rutina para clientes anteriores.",
+        "status": "draft",
+        "publicPage": "proof",
+        "page": null
+      },
+      "fr": {
+        "name": "Pipeline immobilier",
+        "summary": "Deux pipelines qui se rejoignent au compromis : décrocher et commercialiser le bien, et suivre l’acquéreur, avec les visites, les dates clés et une routine pour les anciens clients.",
+        "status": "draft",
+        "publicPage": "proof",
+        "page": null
+      },
+      "it": {
+        "name": "Pipeline immobiliare",
+        "summary": "Due pipeline che si incontrano al compromesso: acquisire e promuovere l’immobile, e seguire l’acquirente, con visite, scadenze e una routine per i clienti passati.",
+        "status": "draft",
+        "publicPage": "proof",
+        "page": null
+      },
+      "nl": {
+        "name": "Makelaarspipeline",
+        "summary": "Twee pipelines die samenkomen bij de koopovereenkomst: de woning binnenhalen en op de markt brengen, en de koper begeleiden, met bezichtigingen, sleutelmomenten en een routine voor oud-klanten.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "pl": {
+        "name": "Lejek nieruchomości",
+        "summary": "Dwa lejki, które spotykają się przy umowie: pozyskać i wypromować ofertę oraz obsłużyć kupującego, z prezentacjami, terminami i rutyną dla dawnych klientów.",
+        "status": "draft",
+        "publicPage": "proof",
+        "page": null
+      },
+      "pt": {
+        "name": "Funil imobiliário",
+        "summary": "Dois funis que se encontram no contrato: captar e divulgar o imóvel, e atender o comprador, com visitas, prazos e uma rotina para clientes antigos.",
         "status": "draft",
         "publicPage": "proof",
         "page": null
@@ -87,7 +195,13 @@
     ],
     "pairedPages": {
       "en": "/features/pipeline",
-      "de": "/features/pipeline"
+      "de": "/features/pipeline",
+      "fr": "/features/pipeline",
+      "it": "/features/pipeline",
+      "es": "/features/pipeline",
+      "pt": "/features/pipeline",
+      "pl": "/features/pipeline",
+      "nl": "/features/pipeline"
     },
     "reviewedAt": "2026-11-12",
     "counts": {
@@ -102,12 +216,60 @@
         "name": "Vertriebspipeline",
         "summary": "Sieben Phasen mit Abschlusskriterien und Gewichtung, ein terminierter nächster Schritt bei jeder offenen Chance, Verlust- und Gewinngründe und bei jedem Phasenwechsel die nächste Aufgabe.",
         "status": "draft",
-        "publicPage": "none",
-        "page": null
+        "publicPage": "own",
+        "page": {
+          "metaTitle": "Vertriebspipeline als Vorlage für Ihren KI-Agenten",
+          "metaDescription": "Kopieren Sie die Vertriebspipeline in Claude, ChatGPT oder Codex: sieben Phasen mit Gewichtung und ein nächster Schritt mit Datum je Chance."
+        }
       },
       "en": {
         "name": "Sales pipeline",
         "summary": "Seven stages with exit criteria and weights, a dated next step on every open deal, lost and won reasons, and a stage change that creates the next Action.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": {
+          "metaTitle": "Sales Pipeline Template for Your AI Agent",
+          "metaDescription": "Copy a sales pipeline into Claude, ChatGPT or Codex: seven stages with weights, a dated next step on every deal and reasons for won and lost."
+        }
+      },
+      "es": {
+        "name": "Pipeline de ventas",
+        "summary": "Siete etapas con criterios de salida y ponderación, un siguiente paso con fecha en cada oportunidad abierta, motivos de pérdida y de victoria y un cambio de etapa que crea la siguiente tarea.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "fr": {
+        "name": "Pipeline commercial",
+        "summary": "Sept étapes avec critères de sortie et pondération, une prochaine action datée sur chaque affaire ouverte, les motifs de gain et de perte, et un changement d’étape qui crée la prochaine action.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "it": {
+        "name": "Pipeline commerciale",
+        "summary": "Sette fasi con criteri di uscita e pesi, un prossimo passo con scadenza su ogni trattativa aperta, motivi di vittoria e di perdita e un cambio di fase che crea la prossima attività.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "nl": {
+        "name": "Sales pipeline",
+        "summary": "Zeven fasen met uitstapcriteria en weging, een volgende stap met datum bij elke open deal, redenen voor gewonnen en verloren en een fasewijziging die de volgende actie aanmaakt.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "pl": {
+        "name": "Lejek sprzedaży",
+        "summary": "Siedem etapów z kryteriami wyjścia i wagami, następny krok z terminem przy każdej otwartej szansie, powody wygranej i przegranej oraz zmiana etapu, która tworzy kolejne zadanie.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "pt": {
+        "name": "Funil de vendas",
+        "summary": "Sete etapas com critérios de saída e pesos, um próximo passo com data em cada negócio aberto, motivos de ganho e de perda e uma mudança de etapa que cria a próxima tarefa.",
         "status": "draft",
         "publicPage": "own",
         "page": null

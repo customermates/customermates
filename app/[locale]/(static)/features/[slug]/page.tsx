@@ -10,6 +10,7 @@ import { LandingArticle } from "@/components/marketing/landing-article";
 import { LandingHero } from "@/components/marketing/landing-hero";
 import { PageUpdatedAt } from "@/components/marketing/page-updated-at";
 import { PageEnding } from "@/components/marketing/page-ending";
+import { TemplateProofBlock } from "@/components/marketing/templates/template-proof-block";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { featurePagesSource } from "@/core/fumadocs/source";
@@ -110,6 +111,8 @@ export default async function FeaturePage({ params }: Props) {
       <LandingArticle founderContact items={page.data.toc}>
         <MDX components={components} />
       </LandingArticle>
+
+      <TemplateProofBlock locale={locale} path={`/features/${slug}`} />
 
       <PageEnding
         cta={page.data.acquisition?.cta ?? page.data.cta}

@@ -5757,7 +5757,7 @@
       "cta": "Kostenlos testen",
       "exportLabel": "So exportieren Sie",
       "movesLabel": "Was mitkommt",
-      "note": "Ihr Agent verändert das Werkzeug, das Sie verlassen, nie. Er liest Ihren Export, zeigt die Zuordnung der Spalten, wartet auf Ihre Bestätigung und importiert eine Liste nach der anderen. Der Import liest .xlsx- und CSV-Dateien bis 10 MB und 5.000 Zeilen pro Blatt, und der Free-Tarif fasst [[commercial.limit.free.maxRecords]] Datensätze.",
+      "note": "Ihr Agent verändert das Werkzeug, das Sie verlassen, nie. Er liest Ihren Export, zeigt die Zuordnung der Spalten, wartet auf Ihre Bestätigung und importiert eine Liste nach der anderen. Der Import liest .xlsx- und CSV-Dateien bis 10 MB und fünftausend Zeilen pro Blatt, und der Free-Tarif fasst [[commercial.limit.free.maxRecords]] Datensätze.",
       "replacesLabel": "Ersetzt",
       "sectionLead": "Ihr Agent liest einen Export des Werkzeugs, das Sie heute nutzen, und baut dieselben Daten in Ihrem Arbeitsbereich auf. Jedes Paket nennt, was mitkommt, wie Sie exportieren und was zurückbleibt.",
       "sectionTitle": "Daten mitbringen: Umstiegspakete",

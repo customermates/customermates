@@ -400,6 +400,47 @@
     "listings_board_view": "The listing list opens as a board by stage.",
     "operating_guide_page": "The Knowledge Base holds the operating guide."
   },
+  "page": {
+    "metaTitle": "Real Estate Pipeline Template for Your AI Agent",
+    "metaDescription": "Copy a real estate pipeline into Claude, ChatGPT or Codex: listings, buyers, viewings with feedback and the key dates after the contract, built in your CRM.",
+    "headline": "A real estate pipeline your AI agent builds in your CRM",
+    "answer": "A real estate practice runs two pipelines that meet at the contract: winning and marketing the listing for the owner, and working the buyer through viewings to an offer. Paste this template into your AI agent and it builds both in Customermates, with listing agreements, viewings, key dates and a dated routine for past clients. You approve the plan before anything is written.",
+    "routine": {
+      "title": "The weekly listing and buyer round",
+      "steps": [
+        "Send each owner of a listing on the market a short update with the viewings and feedback of the week.",
+        "Check listings with an agreement that ends soon: renew, extend or re-price.",
+        "Re-engage buyers in viewings who have not moved for seven days with matching listings.",
+        "Confirm the upcoming key dates after contract, and give past clients their monthly touch."
+      ]
+    },
+    "limits": [
+      "It is not a portal publishing system. Your own property software keeps publishing to the portals and the mandate register; here you keep an identifier and the pipeline around it.",
+      "It does not manage transactions, escrow or e-signature. Contracts and signatures stay with your notary and your signing tool.",
+      "It is not property management: rent, maintenance and tenant accounts are a separate job.",
+      "It does not value properties and does not do accounting or commission splits.",
+      "It sends nothing automatically. WhatsApp enquiries arrive in the inbox and replies are drafts you review.",
+      "Keep copies of identity documents, income and bank records out of it. The template stores only the date on which identification was verified."
+    ],
+    "faq": [
+      {
+        "question": "Why two pipelines for a real estate agent?",
+        "answer": "Owners and buyers move through different steps. The owner side runs from valuation and listing proposal to a signed agreement and being on the market; the buyer side from enquiry through viewings to an offer. They meet at the contract, where the key dates are shared."
+      },
+      {
+        "question": "Which dates does the template track?",
+        "answer": "The type and end of each listing agreement, viewings with the feedback you owe the owner, and after the contract the dates that matter in your country, such as deposit, financing condition, inspection and notary. Which dates apply is your agent's first question to you."
+      },
+      {
+        "question": "Can I use it with my property software or portal?",
+        "answer": "Yes. The portals and your own software keep the listing data and publishing. The template is the pipeline, key-date and follow-up layer next to them, and leads from portals or WhatsApp can come into the workspace when the matching integration is switched on."
+      },
+      {
+        "question": "Does the agent contact owners or buyers?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Set up a real estate pipeline in my Customermates workspace: listings with the agreement type and end date, buyer searches, viewings with feedback, key dates after the contract is signed, and a dated task for every open record.",
     "questions": [

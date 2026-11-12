@@ -235,6 +235,47 @@
     "proposal_follow_up_rule": "Eine Chance, die Angebot gesendet erreicht, erhält eine Aufgabe zum Nachfassen.",
     "stages_page": "Die Wissensdatenbank enthält die Phasen und ihre Abschlusskriterien."
   },
+  "page": {
+    "metaTitle": "Vertriebspipeline als Vorlage für Ihren KI-Agenten",
+    "metaDescription": "Kopieren Sie die Vertriebspipeline in Claude, ChatGPT oder Codex: sieben Phasen mit Gewichtung und ein nächster Schritt mit Datum je Chance.",
+    "headline": "Eine Vertriebspipeline, die Ihr KI-Agent in Ihrem CRM aufbaut",
+    "answer": "Die Pipeline eines kleinen Teams braucht wenige Phasen, für jede ein Abschlusskriterium, einen gewichteten Wert und bei jeder offenen Chance einen nächsten Schritt mit Datum. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Pipeline in Customermates auf: sieben Phasen, die Entscheider auf jeder Chance, Gründe für gewonnen und verloren und eine Aufgabe bei jedem Phasenwechsel. Sie genehmigen den Plan, bevor etwas geschrieben wird.",
+    "routine": {
+      "title": "Die wöchentliche Pipeline-Durchsicht",
+      "steps": [
+        "Öffnen Sie das Board und sehen Sie sich jede Chance an, die länger als 14 Tage in ihrer Phase steht.",
+        "Entscheiden Sie je Chance: weiterschieben, weil das Abschlusskriterium erfüllt ist, mit einem neuen nächsten Schritt wiederbeleben oder mit Grund als verloren schließen.",
+        "Prüfen Sie, dass jede offene Chance einen nächsten Schritt mit Datum hat, gesetzt am Ende jedes Gesprächs.",
+        "Sehen Sie gewonnene und verlorene Chancen mit ihren Gründen durch, dazu die Chancen nach dem erwarteten Abschluss."
+      ]
+    },
+    "limits": [
+      "Es erstellt keine Angebote oder Rechnungen. Das Angebot entsteht in Ihrem Dokumentenwerkzeug und wird mit der Chance verknüpft.",
+      "Es ist kein Werkzeug für Sequenzen oder Massenansprache. Nachfassen sind Entwürfe für einzelne Personen, und Sie senden sie selbst.",
+      "Es gibt kein Lead-Scoring, keine Anreicherung, keine Forecast-Kategorien und keine Quoten- oder Provisionsverwaltung. Der gewichtete Wert ist eine einfache Gewichtung Ihrer Chancenwerte nach Phase, keine Prognose.",
+      "Telefonie und SMS gibt es nicht.",
+      "Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt. Die Vorlage schlägt sie vor, Sie entscheiden, welche Sie einschalten.",
+      "Ausgelegt ist es für ein bis zehn Vertriebsmitarbeitende. Teams mit einem förmlichen Forecast-Prozess sind mit einem dafür gebauten Werkzeug besser bedient."
+    ],
+    "faq": [
+      {
+        "question": "Wie viele Phasen sollte eine Vertriebspipeline haben?",
+        "answer": "Die Meinungen gehen auseinander: Manche raten zu fünf oder weniger, andere nutzen neun. Diese Vorlage hat fünf offene Phasen plus gewonnen und verloren, weil jede Phase ein messbares Abschlusskriterium hat. Benennen Sie Phasen im Plan, den Ihr Agent vorschlägt, um oder lassen Sie welche weg."
+      },
+      {
+        "question": "Was ist der gewichtete Wert einer Chance?",
+        "answer": "Der Wert der Chance multipliziert mit der Gewichtung ihrer Phase, zum Beispiel 10, 25, 40, 60 und 80 Prozent von der ersten bis zur fünften Phase. Es ist eine Gewichtung, die Sie an Ihre eigenen Abschlussquoten anpassen können, keine Vorhersage."
+      },
+      {
+        "question": "Warum einen Grund für gewonnen und verloren festhalten?",
+        "answer": "Auswertungen einer Pipeline funktionieren nur, wenn beide Ergebnisse existieren, und die Gründe zeigen, was zu ändern ist. Die Vorlage fragt beim Schließen nach einem Grund und legt eine Folgeaufgabe an, um verlorene Chancen nach 90 Tagen wieder aufzugreifen."
+      },
+      {
+        "question": "Versendet der Agent meine Nachfassnachrichten?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Richte in meinem Customermates-Workspace eine Vertriebspipeline ein: Verkaufschancen mit sieben Phasen und Gewichtung, einem gewichteten Wert, einem terminierten nächsten Schritt bei jeder offenen Chance, Verlust- und Gewinngründen, dem Entscheidergremium an jeder Chance und einer Aufgabe bei jedem Phasenwechsel.",
     "questions": [

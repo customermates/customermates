@@ -9,6 +9,7 @@ import { LandingHero } from "@/components/marketing/landing-hero";
 import { PageUpdatedAt } from "@/components/marketing/page-updated-at";
 import { PageEnding } from "@/components/marketing/page-ending";
 import { ProductFilm } from "@/components/marketing/product-film";
+import { TemplateProofBlock } from "@/components/marketing/templates/template-proof-block";
 import { UseCasesSection } from "@/components/marketing/use-cases-section";
 import { productDemoForIndustry } from "@/components/marketing/product-demo-config";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -107,6 +108,8 @@ export default async function ForIndustryPage({ params }: Props) {
       <LandingArticle founderContact items={page.data.toc}>
         <MDX components={components} />
       </LandingArticle>
+
+      <TemplateProofBlock locale={locale} path={`/for/${industry}`} />
 
       <PageEnding
         cta={page.data.acquisition?.cta ?? page.data.cta}

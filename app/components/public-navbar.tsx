@@ -39,6 +39,7 @@ type Props = {
   onboardingIntent?: string;
   onSignedOut?: () => void;
   profile?: MarketingAccountProfile | null;
+  templatesInNav?: boolean;
 };
 
 const mobileOverviewRowClassName =
@@ -51,6 +52,7 @@ export function PublicNavbar({
   onboardingIntent,
   onSignedOut,
   profile,
+  templatesInNav = false,
 }: Props) {
   const t = useTranslations();
   const locale = useLocale();
@@ -70,7 +72,7 @@ export function PublicNavbar({
     return pathname === href;
   }
 
-  const publicNavGroups = resolvePublicNavGroups(t, locale);
+  const publicNavGroups = resolvePublicNavGroups(t, locale, { templates: templatesInNav });
 
   const logoAlt = t("Common.imageAlt.logo");
   const homeLabel = t("UserAvatar.home");

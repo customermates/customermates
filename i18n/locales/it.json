@@ -5757,7 +5757,7 @@
       "cta": "Prova gratuita",
       "exportLabel": "Come esportare",
       "movesLabel": "Cosa viene trasferito",
-      "note": "Il tuo agente non modifica mai lo strumento che lasci. Legge la tua esportazione, mostra come si abbinano le colonne, aspetta la tua conferma e importa un elenco alla volta. L'importazione legge file .xlsx e CSV fino a 10 MB e 5.000 righe per foglio, e il piano Free contiene [[commercial.limit.free.maxRecords]] record.",
+      "note": "Il tuo agente non modifica mai lo strumento che lasci. Legge la tua esportazione, mostra come si abbinano le colonne, aspetta la tua conferma e importa un elenco alla volta. L'importazione legge file .xlsx e CSV fino a 10 MB e cinquemila righe per foglio, e il piano Free contiene [[commercial.limit.free.maxRecords]] record.",
       "replacesLabel": "Sostituisce",
       "sectionLead": "Il tuo agente legge un'esportazione dello strumento che usi oggi e costruisce gli stessi dati nel tuo spazio di lavoro. Ogni kit dice cosa viene trasferito, come esportare e cosa resta indietro.",
       "sectionTitle": "Porta i tuoi dati: kit di passaggio",

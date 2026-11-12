@@ -1,5 +1,7 @@
 import type { PUBLIC_ROUTES_SEO } from "@/i18n/routing";
 
+import { templatePagesSource, templatesHubSource } from "@/core/templates/templates-source";
+
 import {
   aboutSource,
   affiliateSource,
@@ -112,6 +114,14 @@ export const ROUTE_SOURCE_MAP = {
   "/for/:industry": {
     source: forPagesSource,
     path: [":industry"],
+  },
+  "/templates": {
+    source: templatesHubSource,
+    path: ["templates"],
+  },
+  "/templates/:slug": {
+    source: templatePagesSource,
+    path: [":slug"],
   },
   "/features/:slug": {
     source: featurePagesSource,

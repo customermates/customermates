@@ -17,7 +17,11 @@ export type TemplateVisibility = "own" | "proof" | "block" | "hidden";
 
 export type HubVisibility = "indexable" | "noindex" | "hidden";
 
-export type VisibleTemplate = { entry: TemplateIndexEntry; locale: TemplateIndexLocale; visibility: TemplateVisibility };
+export type VisibleTemplate = {
+  entry: TemplateIndexEntry;
+  locale: TemplateIndexLocale;
+  visibility: TemplateVisibility;
+};
 
 const CLOUD_ONLY: ReadonlySet<Capability> = new Set<Capability>(["calendarWrite"]);
 

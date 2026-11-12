@@ -5757,7 +5757,7 @@
       "cta": "Start free trial",
       "exportLabel": "How to export",
       "movesLabel": "What moves",
-      "note": "Your agent never changes the tool you leave. It reads your export, shows how the columns map, waits for your confirmation and imports one list at a time. The import reads .xlsx and CSV files up to 10 MB and 5,000 rows per sheet, and the Free plan holds [[commercial.limit.free.maxRecords]] records.",
+      "note": "Your agent never changes the tool you leave. It reads your export, shows how the columns map, waits for your confirmation and imports one list at a time. The import reads .xlsx and CSV files up to 10 MB and five thousand rows per sheet, and the Free plan holds [[commercial.limit.free.maxRecords]] records.",
       "replacesLabel": "Replaces",
       "sectionLead": "Your agent reads an export of the tool you use today and builds the same data in your workspace. Each kit says what moves, how to export and what stays behind.",
       "sectionTitle": "Bring your data: switch kits",

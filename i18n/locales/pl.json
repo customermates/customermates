@@ -5757,7 +5757,7 @@
       "cta": "Zacznij za darmo",
       "exportLabel": "Jak wyeksportować",
       "movesLabel": "Co zostaje przeniesione",
-      "note": "Twój agent nigdy nie zmienia narzędzia, które opuszczasz. Czyta Twój eksport, pokazuje dopasowanie kolumn, czeka na Twoje potwierdzenie i importuje jedną listę naraz. Import czyta pliki .xlsx i CSV do 10 MB oraz 5000 wierszy na arkusz, a plan Free mieści [[commercial.limit.free.maxRecords]] rekordów.",
+      "note": "Twój agent nigdy nie zmienia narzędzia, które opuszczasz. Czyta Twój eksport, pokazuje dopasowanie kolumn, czeka na Twoje potwierdzenie i importuje jedną listę naraz. Import czyta pliki .xlsx i CSV do 10 MB oraz pięć tysięcy wierszy na arkusz, a plan Free mieści [[commercial.limit.free.maxRecords]] rekordów.",
       "replacesLabel": "Zastępuje",
       "sectionLead": "Twój agent czyta eksport narzędzia, którego używasz dziś, i buduje te same dane w Twojej przestrzeni roboczej. Każdy zestaw mówi, co zostaje przeniesione, jak wyeksportować i co zostaje z tyłu.",
       "sectionTitle": "Przenieś swoje dane: zestawy przejścia",

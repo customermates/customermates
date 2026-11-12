@@ -5757,7 +5757,7 @@
       "cta": "Start gratis",
       "exportLabel": "Zo exporteer je",
       "movesLabel": "Wat meegaat",
-      "note": "Je agent past het hulpmiddel dat je achterlaat nooit aan. Hij leest je export, laat zien hoe de kolommen overeenkomen, wacht op je bevestiging en importeert één lijst tegelijk. De import leest .xlsx- en CSV-bestanden tot 10 MB en 5.000 rijen per blad, en het Free-abonnement bevat [[commercial.limit.free.maxRecords]] records.",
+      "note": "Je agent past het hulpmiddel dat je achterlaat nooit aan. Hij leest je export, laat zien hoe de kolommen overeenkomen, wacht op je bevestiging en importeert één lijst tegelijk. De import leest .xlsx- en CSV-bestanden tot 10 MB en vijfduizend rijen per blad, en het Free-abonnement bevat [[commercial.limit.free.maxRecords]] records.",
       "replacesLabel": "Vervangt",
       "sectionLead": "Je agent leest een export van het hulpmiddel dat je nu gebruikt en bouwt dezelfde gegevens op in je werkruimte. Elke kit zegt wat meegaat, hoe je exporteert en wat achterblijft.",
       "sectionTitle": "Neem je gegevens mee: overstapkits",

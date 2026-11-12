@@ -235,6 +235,47 @@
     "proposal_follow_up_rule": "A deal that reaches Proposal sent gets a follow-up Action.",
     "stages_page": "The Knowledge Base holds the stages and their exit criteria."
   },
+  "page": {
+    "metaTitle": "Sales Pipeline Template for Your AI Agent",
+    "metaDescription": "Copy a sales pipeline into Claude, ChatGPT or Codex: seven stages with weights, a dated next step on every deal and reasons for won and lost.",
+    "headline": "A sales pipeline your AI agent builds in your CRM",
+    "answer": "A small team's pipeline needs few stages, an exit criterion for each, a weighted value and a dated next step on every open deal. Paste this template into your AI agent and it builds that pipeline in Customermates: seven stages, the buying committee on each deal, reasons for won and lost, and an Action created at every stage change. You approve the plan before anything is written.",
+    "routine": {
+      "title": "The weekly pipeline check",
+      "steps": [
+        "Open the board and look at every deal that has stayed in its stage for more than 14 days.",
+        "For each one, decide: move it forward with its exit criterion met, revive it with a new next step, or close it as lost with a reason.",
+        "Make sure every open deal has a next step with a date, set at the end of each call.",
+        "Review won and lost with their reasons, and the deals past their expected close date."
+      ]
+    },
+    "limits": [
+      "It does not make quotes or invoices. The proposal is written in your document tool and linked to the deal.",
+      "It is not a sequence or mass-outreach tool. Follow-ups are drafts for individual people, and you send them yourself.",
+      "There is no lead scoring or enrichment, no forecast categories and no quota or commission management. The weighted value is a simple weighting of your deal values by stage, not a forecast.",
+      "There is no telephony or SMS.",
+      "Reminders come from automation rules and notifications, or from a routine your agent runs on a schedule. The template proposes them and you decide which ones to switch on.",
+      "It is sized for one to ten sellers. Teams with a formal forecast process are better served by a tool built for it."
+    ],
+    "faq": [
+      {
+        "question": "How many stages should a sales pipeline have?",
+        "answer": "Practitioners disagree: some advise five or fewer, others use nine. This template uses five open stages plus won and lost, because each stage has one measurable exit criterion. Rename or drop stages in the plan your agent proposes."
+      },
+      {
+        "question": "What is the weighted value of a deal?",
+        "answer": "The deal value multiplied by the weight of its stage, for example 10, 25, 40, 60 and 80 percent from the first to the fifth stage. It is a weighting you can adjust to your own close rates, not a prediction."
+      },
+      {
+        "question": "Why record a reason for won and lost?",
+        "answer": "Reports about a pipeline only work when both outcomes exist, and the reasons show what to change. The template asks for a reason when a deal is closed and creates a follow-up Action to revisit lost deals after 90 days."
+      },
+      {
+        "question": "Does the agent send my follow-ups?",
+        "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+      }
+    ]
+  },
   "prompt": {
     "intro": "Set up a sales pipeline in my Customermates workspace: opportunities with seven stages and weights, a weighted value, a dated next step on every open deal, lost and won reasons, the buying committee on each deal, and an Action created at every stage change.",
     "questions": [

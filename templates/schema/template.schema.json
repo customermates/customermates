@@ -1748,6 +1748,21 @@
           "none"
         ]
       }
+    },
+    "publishWave": {
+      "default": {},
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "enum": [
+          "wave1",
+          "wave2",
+          "hold"
+        ]
+      }
     }
   },
   "required": [
