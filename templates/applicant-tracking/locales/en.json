@@ -16,7 +16,7 @@
     },
     "applicants.location": { "label": "Location" },
     "applicants.salary_expectation": { "label": "Salary expectation" },
-    "applicants.pool_consent": { "label": "Agreed to the talent pool" },
+    "applicants.pool_consent": { "label": "Talent pool consent" },
     "jobs.status": {
       "label": "Status",
       "options": { "draft": "Draft", "open": "Open", "on_hold": "On hold", "filled": "Filled", "cancelled": "Cancelled" }
@@ -74,7 +74,7 @@
     "interviews_coming": { "title": "Interviews coming up" },
     "open_jobs": { "title": "Open jobs" },
     "rejection_reasons": { "title": "Rejection reasons" },
-    "retention_coming": { "title": "Applications to delete or renew soon" }
+    "retention_coming": { "title": "Applications due for deletion or fresh consent" }
   },
   "knowledgePages": {
     "hiring_process": { "title": "Hiring process and who decides", "sections": ["Stages and owners", "What we look for in screening and interviews"] },
