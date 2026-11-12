@@ -1,8 +1,8 @@
 {
   "locale": "it",
   "name": "Commesse per artigiani",
-  "summary": "Una pipeline per un'impresa di lavori: richiesta, sopralluogo, preventivo e sollecito, poi il lavoro da programmato a pagato, con date di recesso, garanzia e manutenzione su ogni commessa.",
-  "description": "Segui una commessa dalla prima chiamata all'ultima fattura: clienti e cantieri in cui lavori, commesse con una fase commerciale e uno stato lavori separato, validità del preventivo, sopralluogo e programma, data di recesso per i contratti con i consumatori, fine della garanzia e contratti di manutenzione che portano nuovo lavoro. Conserva la commessa, le date e i solleciti. Non è uno strumento per preventivi e fatture, un sistema di pianificazione delle squadre né un rilevatore di ore. Le date legali sono campi che confermi tu, non una consulenza legale.",
+  "summary": "Una pipeline per un'impresa artigiana: richiesta, sopralluogo, preventivo e sollecito, poi il lavoro da programmato a pagato, con date di recesso, garanzia e manutenzione su ogni commessa.",
+  "description": "Segui una commessa dalla prima chiamata all'ultima fattura: clienti e cantieri in cui lavori, commesse con una fase commerciale e uno stato lavori separato, validità del preventivo, sopralluogo e programma, data di recesso per i contratti con i consumatori, fine della garanzia e contratti di manutenzione che portano nuovo lavoro. Conserva la commessa, le date e i solleciti. Non è uno strumento per preventivi e fatture, un sistema di pianificazione delle squadre né un sistema di rilevazione delle ore. Le date legali sono campi che confermi tu, non una consulenza legale.",
   "lists": {
     "customers": { "label": "Cliente", "pluralLabel": "Clienti", "description": "Privati, proprietari, amministratori di condominio e aziende per cui lavori." },
     "sites": { "label": "Cantiere", "pluralLabel": "Cantieri", "description": "L'indirizzo dove si svolge il lavoro, che può essere diverso da quello del cliente." },
@@ -19,11 +19,11 @@
     "sites.access_notes": { "label": "Note sull'accesso" },
     "jobs.stage": {
       "label": "Fase",
-      "options": { "enquiry": "Richiesta", "assessment": "Sopralluogo", "to_quote": "Preventivo da fare", "quote_sent": "Preventivo inviato", "negotiating": "Trattativa", "won": "Accettato", "lost": "Perso" }
+      "options": { "enquiry": "Richiesta", "assessment": "Sopralluogo", "to_quote": "Preventivo da fare", "quote_sent": "Preventivo inviato", "negotiating": "Trattativa", "won": "Accettata", "lost": "Persa" }
     },
     "jobs.work_status": {
       "label": "Stato dei lavori",
-      "options": { "not_scheduled": "Non programmato", "scheduled": "Programmato", "in_progress": "In corso", "completed": "Completato", "invoiced": "Fatturato", "paid": "Pagato" }
+      "options": { "not_scheduled": "Non programmata", "scheduled": "Programmata", "in_progress": "In corso", "completed": "Completata", "invoiced": "Fatturata", "paid": "Pagata" }
     },
     "jobs.work_type": {
       "label": "Tipo di lavoro",
@@ -33,7 +33,7 @@
     "jobs.quote_valid_until": { "label": "Preventivo valido fino al" },
     "jobs.withdrawal_ends": { "label": "Fine del termine di recesso" },
     "jobs.scheduled_start": { "label": "Inizio lavori" },
-    "jobs.completed_on": { "label": "Completato il" },
+    "jobs.completed_on": { "label": "Completata il" },
     "jobs.warranty_ends": { "label": "Garanzia fino al" },
     "jobs.payment_due": { "label": "Scadenza del pagamento" },
     "jobs.lost_reason": {
@@ -54,7 +54,7 @@
         "confirm_schedule": "Confermare il programma",
         "handover": "Consegnare e registrare l'accettazione",
         "check_payment": "Verificare il pagamento",
-        "warranty_check": "Chiedere i difetti a fine garanzia",
+        "warranty_check": "Chiedere se ci sono difetti",
         "book_service": "Fissare l'intervento di manutenzione",
         "other": "Altro"
       }
@@ -71,7 +71,7 @@
     "jobs_board": { "name": "Commesse per fase" },
     "jobs_all": { "name": "Tutte le commesse" },
     "open_quotes": { "name": "Preventivi aperti" },
-    "work_in_progress": { "name": "Programmati e in corso" },
+    "work_in_progress": { "name": "Programmate e in corso" },
     "customers_all": { "name": "Tutti i clienti" },
     "sites_all": { "name": "Tutti i cantieri" },
     "agreements_all": { "name": "Tutti i contratti di manutenzione" }
@@ -81,7 +81,7 @@
     "open_quotes_value": { "title": "Valore dei preventivi aperti" },
     "visits_coming": { "title": "Sopralluoghi in arrivo" },
     "jobs_by_work_status": { "title": "Commesse accettate per stato dei lavori" },
-    "lost_reasons": { "title": "Perché le commesse sono perse" },
+    "lost_reasons": { "title": "Motivi di perdita delle commesse" },
     "warranties_ending": { "title": "Garanzie in scadenza" },
     "services_due": { "title": "Interventi di manutenzione in scadenza" }
   },
@@ -99,7 +99,7 @@
     "quote_expiring": { "title": "Sollecitare 3 giorni prima della scadenza di un preventivo" },
     "withdrawal_clock": { "title": "Fissare la fine dei 14 giorni di recesso quando una commessa è accettata" },
     "payment_check": { "title": "Verificare una commessa fatturata 3 giorni dopo la scadenza del pagamento" },
-    "warranty_check": { "title": "Chiedere i difetti 30 giorni prima della fine della garanzia" },
+    "warranty_check": { "title": "Chiedere se ci sono difetti 30 giorni prima della fine della garanzia" },
     "service_due": { "title": "Fissare l'intervento di manutenzione 30 giorni prima della scadenza" },
     "visit_calendar": { "title": "Aggiungere il sopralluogo all'agenda quando una commessa raggiunge la fase di sopralluogo" }
   },
@@ -107,15 +107,15 @@
     "stage_field": "Ogni commessa ha una fase commerciale.",
     "work_status_field": "Ogni commessa ha uno stato dei lavori a sé.",
     "warranty_field": "Ogni commessa indica fino a quando dura la garanzia.",
-    "jobs_board_view": "Le commesse si aprono come bacheca per fase."
+    "jobs_board_view": "Le commesse si aprono come board per fase."
   },
   "prompt": {
-    "intro": "Imposta nel mio workspace Customermates una pipeline per un'impresa di lavori: clienti, cantieri, commesse con fase commerciale e stato dei lavori, validità del preventivo, date di sopralluogo e di cantiere, fine della garanzia e contratti di manutenzione, con solleciti con data.",
+    "intro": "Imposta nel mio spazio di lavoro Customermates una pipeline per un'impresa artigiana: clienti, cantieri, commesse con fase commerciale e stato dei lavori, validità del preventivo, date di sopralluogo e di cantiere, fine della garanzia e contratti di manutenzione, con solleciti con data.",
     "questions": [
-      "Quali lavori eseguite e per chi: privati, proprietari o aziende?",
-      "Con che rapidità rispondete a una richiesta e inviate il preventivo dopo il sopralluogo?",
-      "Quanto durano i vostri preventivi e quanto dura la vostra garanzia?",
-      "Vendete contratti di manutenzione per lavori ricorrenti?"
+      "Quali lavori esegui e per chi: privati, proprietari o aziende?",
+      "Con che rapidità rispondi a una richiesta e invii il preventivo dopo il sopralluogo?",
+      "Quanto durano i tuoi preventivi e quanto dura la tua garanzia?",
+      "Vendi contratti di manutenzione per lavori ricorrenti?"
     ]
   }
 }
