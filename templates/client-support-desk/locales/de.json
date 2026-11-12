@@ -28,7 +28,7 @@
     "tickets.rating": { "label": "Bewertung" },
     "known_issues.status": {
       "label": "Status",
-      "options": { "investigating": "In Analyse", "workaround_available": "Umgehung vorhanden", "fixed": "Behoben", "wont_fix": "Wird nicht behoben" }
+      "options": { "investigating": "In Analyse", "workaround_available": "Umgehungslösung vorhanden", "fixed": "Behoben", "wont_fix": "Wird nicht behoben" }
     },
     "known_issues.workaround": { "label": "Umgehungslösung" },
     "known_issues.fixed_on": { "label": "Behoben am" },

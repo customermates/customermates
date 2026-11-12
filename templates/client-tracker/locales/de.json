@@ -13,7 +13,7 @@
       "label": "Status",
       "options": {
         "prospect": "Interessent",
-        "onboarding": "Einrichtung",
+        "onboarding": "Onboarding",
         "active": "Aktiv",
         "waiting_on_client": "Wartet auf Kunde",
         "at_risk": "Gefährdet",
@@ -55,7 +55,7 @@
     "contacts.job_title": { "label": "Position" },
     "contacts.contact_role": {
       "label": "Rolle",
-      "options": { "decision_maker": "Entscheider", "day_to_day": "Tagesgeschäft", "billing": "Buchhaltung", "other": "Sonstige" }
+      "options": { "decision_maker": "Entscheider", "day_to_day": "Ansprechpartner im Tagesgeschäft", "billing": "Buchhaltung", "other": "Sonstige" }
     },
     "contacts.preferred_channel": {
       "label": "Bevorzugter Kanal",
@@ -95,7 +95,7 @@
   },
   "widgets": {
     "upcoming_actions": { "title": "Anstehende Wiedervorlagen" },
-    "review_calendar": { "title": "Kundenprüfungen im Monat" },
+    "review_calendar": { "title": "Kundenprüfungen in diesem Monat" },
     "clients_by_status": { "title": "Kunden nach Status" },
     "clients_by_segment": { "title": "Kunden nach Segment" },
     "clients_per_owner": { "title": "Kunden je Betreuer" },
@@ -136,7 +136,7 @@
     },
     "chase_waiting_client": {
       "title": "Beim Kunden an den offenen Punkt erinnern",
-      "description": "Wechselt ein Kunde auf Wartet auf Kunde, erhält der Betreuer nach 7 Tagen eine Wiedervorlage zum Erinnern."
+      "description": "Wechselt ein Kunde auf „Wartet auf Kunde“, erhält der Betreuer nach 7 Tagen eine Wiedervorlage zum Erinnern."
     },
     "review_before_due": {
       "title": "Kundenakte prüfen",
@@ -144,7 +144,7 @@
     },
     "daily_next_step_sweep": {
       "title": "Nachfassen: keine offene Wiedervorlage bei diesem Kunden",
-      "description": "Täglich erhält ein aktiver oder in der Einrichtung befindlicher Kunde ohne offene verknüpfte Wiedervorlage eine Wiedervorlage zum Nachfassen, fällig heute."
+      "description": "Täglich erhält ein aktiver Kunde oder ein Kunde im Onboarding ohne offene verknüpfte Wiedervorlage eine Wiedervorlage zum Nachfassen, fällig heute."
     },
     "stalled_client_sweep": {
       "title": "Nachfassen: seit 45 Tagen kein Kontakt",
@@ -152,7 +152,7 @@
     },
     "closed_client_dates": {
       "title": "Beendigungsdatum und Datenprüfungsdatum setzen",
-      "description": "Wird ein Kunde beendet, wird Beendet am auf heute und Datenprüfung am auf drei Jahre später gesetzt. Passen Sie die Frist an Ihre Pflichten an."
+      "description": "Wird ein Kunde beendet, wird „Beendet am“ auf heute und „Datenprüfung am“ auf drei Jahre später gesetzt. Passen Sie die Frist an Ihre Pflichten an."
     },
     "closed_client_data_review": {
       "title": "Daten dieses beendeten Kunden prüfen",
@@ -160,7 +160,7 @@
     },
     "inactive_reactivation": {
       "title": "Fragen, ob der Kunde noch relevant ist",
-      "description": "Neunzig Tage nachdem ein Kunde auf Ruhend gesetzt wurde, stellt eine Wiedervorlage die Reaktivierungsfrage."
+      "description": "Neunzig Tage nachdem ein Kunde auf „Ruhend“ gesetzt wurde, stellt eine Wiedervorlage die Reaktivierungsfrage."
     },
     "enquiry_form_records": {
       "title": "Kunde und Ansprechpartner aus einer Anfrage anlegen",
@@ -180,14 +180,14 @@
     "next_step_date_field": "Jeder Kunde hat einen nächsten Schritt und ein Datum dafür.",
     "clients_default_view": "Die Kundenliste öffnet sich nach Wiedervorlage sortiert.",
     "overdue_widget": "Das Dashboard zeigt, wie viele Wiedervorlagen überfällig sind.",
-    "chase_rule": "Ein Kunde, der auf Wartet auf Kunde gesetzt wird, erhält eine Wiedervorlage zum Erinnern.",
+    "chase_rule": "Ein Kunde, der auf „Wartet auf Kunde“ gesetzt wird, erhält eine Wiedervorlage zum Erinnern.",
     "playbook_page": "Die Wissensdatenbank enthält den Leitfaden zur Kundenverwaltung."
   },
   "page": {
     "metaTitle": "Kundenverwaltung als Vorlage für Ihren KI-Agenten",
     "metaDescription": "Kopieren Sie die Kundenverwaltung in Claude, ChatGPT oder Codex: eine Zeile pro Kunde, ein Betreuer, eine Wiedervorlage und eine wöchentliche Durchsicht.",
     "headline": "Eine Kundenverwaltung, die Ihr KI-Agent in Ihrem CRM aufbaut",
-    "answer": "Eine Kundenverwaltung ist eine kurze Liste: eine Zeile pro Kunde, ein Betreuer, ein Status, das Datum des letzten Kontakts und ein nächster Schritt mit Wiedervorlage. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Liste in Customermates auf, mit Ansprechpartnern, terminierten Aufgaben und einer wöchentlichen Durchsicht. Sie genehmigen den Plan, bevor etwas geschrieben wird.",
+    "answer": "Eine Kundenverwaltung ist eine kurze Liste: eine Zeile pro Kunde, ein Betreuer, ein Status, das Datum des letzten Kontakts und ein nächster Schritt mit Wiedervorlage. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Liste in Customermates auf, mit Ansprechpartnern, terminierten Wiedervorlagen und einer wöchentlichen Durchsicht. Sie genehmigen den Plan, bevor etwas geschrieben wird.",
     "routine": {
       "title": "Die wöchentliche Kundendurchsicht in 15 Minuten",
       "steps": [
@@ -211,7 +211,7 @@
       },
       {
         "question": "Ab wann reicht eine Tabelle für die Kundenverwaltung nicht mehr?",
-        "answer": "Praxisleitfäden nennen etwa 25 bis 50 Kunden, mehrere Bearbeiter oder den Punkt, an dem niemand mehr an Wiedervorlagen erinnert wird. Dann hilft ein CRM: Ansprechpartner sind verknüpft, nächste Schritte sind terminierte Aufgaben, und die Gespräche stehen neben jedem Kunden."
+        "answer": "Praxisleitfäden nennen etwa 25 bis 50 Kunden, mehrere Bearbeiter oder den Punkt, an dem niemand mehr an Wiedervorlagen erinnert wird. Dann hilft ein CRM: Ansprechpartner sind verknüpft, nächste Schritte sind terminierte Wiedervorlagen, und die Gespräche stehen neben jedem Kunden."
       },
       {
         "question": "Wie lange darf ich die Daten beendeter Kunden aufbewahren?",
@@ -224,7 +224,7 @@
     ]
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace eine Kundenverwaltung ein: eine Zeile pro Kunde mit einem Betreuer, einem Status, dem Datum des letzten Kontakts und einer terminierten Wiedervorlage, dazu Ansprechpartner, terminierte Aufgaben, eine wöchentliche Durchsicht und ein Prüfdatum für beendete Kunden.",
+    "intro": "Richte in meinem Customermates-Workspace eine Kundenverwaltung ein: eine Zeile pro Kunde mit einem Betreuer, einem Status, dem Datum des letzten Kontakts und einer terminierten Wiedervorlage, dazu Ansprechpartner, terminierte Wiedervorlagen, eine wöchentliche Durchsicht und ein Prüfdatum für beendete Kunden.",
     "questions": [
       "Wie viele Kunden betreuen Sie heute, und wer arbeitet noch an der Kartei mit?",
       "Welche Kundenstatus nutzen Sie schon? Soll einer der sieben umbenannt oder weggelassen werden?",
