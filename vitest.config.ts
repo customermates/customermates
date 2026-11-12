@@ -87,6 +87,7 @@ export const domTestFiles = [
   "core/utils/__tests__/use-is-truncated.test.ts",
   "components/data-view/__tests__/is-interactive-click.test.ts",
   "components/data-view/__tests__/data-table-grouping.test.tsx",
+  "components/data-view/__tests__/data-table-flexible-column.test.tsx",
   "components/data-view/__tests__/data-kanban-order.test.tsx",
   "components/data-view/__tests__/board-drag-gating.test.tsx",
   "components/data-view/__tests__/group-summaries.test.tsx",
