@@ -8,6 +8,7 @@ import { type FocusEvent, type KeyboardEvent, useEffect, useId, useRef, useState
 import { motion } from "framer-motion";
 import { preconnect } from "react-dom";
 import {
+  ArrowUpRight,
   CalendarDays,
   Inbox,
   KanbanSquare,
@@ -453,6 +454,22 @@ export function HomepageProductStage({
                         sizes="(min-width: 1280px) 1216px, 92vw"
                       />
                     )
+                  ) : null}
+
+                  {embed && !liveAllowed && index === activeIndex ? (
+                    <a
+                      className="absolute inset-0 z-10 flex items-end justify-center p-4 no-underline"
+                      data-homepage-stage-open-live=""
+                      href={liveSrcFor(tab)}
+                      rel="noreferrer noopener"
+                      target="_blank"
+                    >
+                      <span className="glass-surface inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-foreground shadow-md">
+                        {liveCopy.prompt}
+
+                        <ArrowUpRight aria-hidden className="size-4" />
+                      </span>
+                    </a>
                   ) : null}
                 </div>
               ))}
