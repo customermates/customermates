@@ -149,6 +149,7 @@ export type AgentTurnWorkflowPayload = {
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
   schemaDigest?: string | null;
+  templateRules?: string | null;
   tenant: WorkflowTenant;
   surface?: AgentTurnSurface;
   toolsets?: string[];
@@ -1063,6 +1064,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         surface,
         loadedToolsets: [...toolsets],
         schemaDigest: payload.schemaDigest ?? null,
+        templateRules: payload.templateRules ?? null,
         triggerEvent: routineTriggerEventOf(payload.messages.findLast((message) => message.role === "user")?.text),
         wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
         webSearchEnabled: payload.webSearchEnabled,

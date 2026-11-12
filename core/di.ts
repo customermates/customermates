@@ -516,6 +516,7 @@ import { RespondToApprovalInteractor } from "@/ee/agent-chat/respond-to-approval
 import { RespondToUiCommandInteractor } from "@/ee/agent-chat/respond-to-ui-command.interactor";
 import { RestoreAgentConversationInteractor } from "@/ee/agent-chat/restore-agent-conversation.interactor";
 import { SendAgentMessageInteractor } from "@/ee/agent-chat/send-agent-message.interactor";
+import { AgentTemplateRules } from "@/ee/agent-chat/agent-template-rules";
 import { CorrectOperatorSubscriptionSnapshotInteractor } from "@/ee/operator/correct-operator-subscription-snapshot.interactor";
 import { CreateAgentCreditAdjustmentInteractor } from "@/ee/operator/create-agent-credit-adjustment.interactor";
 import { DeleteOperatorWorkspaceInteractor } from "@/ee/operator/delete-operator-workspace.interactor";
@@ -2335,6 +2336,9 @@ export const getDraftCalculationInteractor = () =>
 export const getReconcileRetrievalReservationsInteractor = () =>
   new ReconcileRetrievalReservationsInteractor(getAgentUsageService());
 
+export const getAgentTemplateRules = () =>
+  new AgentTemplateRules(getWorkspaceSetupRepo(), getRecordRepo(), getGetAutomationRulesInteractor());
+
 export const getSendAgentMessageInteractor = () =>
   new SendAgentMessageInteractor(
     getAgentChatRepo(),
@@ -2346,6 +2350,7 @@ export const getSendAgentMessageInteractor = () =>
     getUserService(),
     getWikiWebsiteCrawlRepo(),
     getAgentChatFileService(),
+    getAgentTemplateRules(),
   );
 
 export const getGetRoutinesInteractor = () =>
@@ -2942,7 +2947,10 @@ const publicFormAccess = new PublicFormAccess(
   new PublicFormTenant(getUserService()),
   {
     view: new TokenBucketRateLimiter(PUBLIC_FORM_LIMITS.viewBucket.capacity, PUBLIC_FORM_LIMITS.viewBucket.windowMs),
-    visitorSubmit: new TokenBucketRateLimiter(PUBLIC_FORM_LIMITS.ipBucket.capacity, PUBLIC_FORM_LIMITS.ipBucket.windowMs),
+    visitorSubmit: new TokenBucketRateLimiter(
+      PUBLIC_FORM_LIMITS.ipBucket.capacity,
+      PUBLIC_FORM_LIMITS.ipBucket.windowMs,
+    ),
     formSubmit: new TokenBucketRateLimiter(
       PUBLIC_FORM_LIMITS.formBucket.capacity,
       PUBLIC_FORM_LIMITS.formBucket.windowMs,
