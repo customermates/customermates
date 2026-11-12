@@ -100,6 +100,12 @@ vi.mock("@/features/messaging/activities/activities-detail-modal", () => ({
 vi.mock("@/app/components/workspaces/create-workspace-modal", () => ({
   CreateWorkspaceModal: () => "create-workspace-modal",
 }));
+vi.mock("@/app/components/schedule-meeting/schedule-meeting-modal", () => ({
+  ScheduleMeetingModal: () => "schedule-meeting-modal",
+}));
+vi.mock("../settings/(account)/components/booking-link-modal", () => ({
+  BookingLinkModal: () => "booking-link-modal",
+}));
 
 import { ProtectedShell as ProtectedLayout } from "../protected-shell";
 

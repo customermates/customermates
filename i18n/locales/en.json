@@ -892,7 +892,7 @@
       "successMessage": "Message after booking",
       "timeZone": "Time zone",
       "title": "Title",
-      "to": "To",
+      "to": "Until",
       "withVideo": "Add a video link",
       "workingHours": "Working hours"
     },

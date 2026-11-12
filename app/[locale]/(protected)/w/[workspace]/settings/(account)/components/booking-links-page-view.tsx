@@ -120,7 +120,7 @@ const BookingLinksPageViewContent = observer(function BookingLinksPageView({
 
                   <AppChip>{t("Booking.minutes", { minutes: link.durationMinutes })}</AppChip>
 
-                  {!link.enabled ? <AppChip variant="outline">{t("Booking.paused")}</AppChip> : null}
+                  {!link.enabled ? <AppChip variant="warning">{t("Booking.paused")}</AppChip> : null}
                 </div>
 
                 <p className="text-sm text-muted-foreground">
