@@ -155,7 +155,7 @@
   "knowledgePages": {
     "intake_process": {
       "title": "Intakeproces voor klanten",
-      "sections": ["De negen fasen en wat elke fase afsluit", "Wie antwoordt, wie screent, wie tekent", "Tijdskaders: binnen een dag reageren, nabellen na 3 en 7 dagen"]
+      "sections": ["De negen fasen en wat elke fase afsluit", "Wie antwoordt, wie screent, wie tekent", "Tijdskaders: binnen een dag reageren, opvolgen na 3 en 7 dagen"]
     },
     "intake_questionnaire": {
       "title": "Intakeformulier per type klant",

@@ -118,7 +118,7 @@
       "fields": {
         "actions.status": {
           "label": "Status",
-          "options": { "open": "Open", "waiting": "Wachtend", "done": "Klaar", "cancelled": "Geannuleerd" }
+          "options": { "open": "Open", "waiting": "In de wacht", "done": "Klaar", "cancelled": "Geannuleerd" }
         },
         "actions.due": { "label": "Deadline" },
         "actions.owner": { "label": "Eigenaar" },
