@@ -1,14 +1,14 @@
 {
   "locale": "es",
   "name": "Pipeline inmobiliario",
-  "summary": "Dos pipelines que se encuentran en las arras: captar y comercializar el inmueble, y atender al comprador, con visitas, fechas clave y una rutina para clientes anteriores.",
-  "description": "Una inmobiliaria trabaja un lado propietario (valoración, encargo, comercialización, ofertas) y un lado comprador (contacto, calificación, visitas, oferta), y después una fase común con las arras firmadas y fechas improrrogables. Esta plantilla sigue ambos, el tipo de encargo y su fecha de fin, cada visita con su valoración, las fechas clave tras la firma y una rutina con fechas para clientes anteriores. El valor de un inmueble contiene los honorarios esperados.",
+  "summary": "Dos pipelines que se encuentran en las arras: captar y comercializar el inmueble, y atender al comprador, con visitas, fechas clave y un seguimiento periódico de clientes anteriores.",
+  "description": "Una inmobiliaria trabaja un lado propietario (valoración, encargo, comercialización, ofertas) y un lado comprador (contacto, cualificación, visitas, oferta), y después una fase común con las arras firmadas y fechas improrrogables. Esta plantilla sigue ambos, el tipo de encargo y su fecha de fin, cada visita con la opinión del comprador, las fechas clave tras la firma y un seguimiento con fechas de clientes anteriores. El valor de un inmueble recoge los honorarios esperados.",
   "lists": {
     "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Propietarios, arrendadores, compradores, inquilinos y prescriptores." },
     "organizations": { "label": "Organización", "pluralLabel": "Organizaciones", "description": "Promotoras, bancos, notarías y socios prescriptores." },
     "listings": { "label": "Inmueble", "pluralLabel": "Inmuebles", "description": "El encargo del propietario y su pipeline. El valor son los honorarios esperados." },
     "buyer_searches": { "label": "Demanda de comprador", "pluralLabel": "Demandas de compradores", "description": "La búsqueda de un comprador o inquilino, desde la consulta hasta la escritura." },
-    "viewings": { "label": "Visita", "pluralLabel": "Visitas", "description": "Cada visita con su valoración." },
+    "viewings": { "label": "Visita", "pluralLabel": "Visitas", "description": "Cada visita con la opinión del comprador." },
     "key_dates": { "label": "Fecha clave", "pluralLabel": "Fechas clave", "description": "Fechas que corren tras la firma del contrato." },
     "actions": { "label": "Tarea", "pluralLabel": "Tareas", "description": "Un siguiente paso con fecha por cada inmueble o demanda abierta." }
   },
@@ -31,12 +31,12 @@
       "label": "Etapa",
       "options": {
         "new_lead": "Consulta nueva",
-        "qualified": "Calificado",
+        "qualified": "Cualificada",
         "viewing": "Visita",
         "offer_made": "Oferta hecha",
         "under_contract": "Arras",
         "completed": "Escritura",
-        "lost": "Perdido"
+        "lost": "Perdida"
       }
     },
     "contacts.contact_role": {
@@ -173,8 +173,8 @@
       "label": "Interés",
       "options": { "none": "Ninguno", "low": "Bajo", "medium": "Medio", "high": "Alto", "offer": "Oferta" }
     },
-    "viewings.feedback": { "label": "Valoración de la visita" },
-    "viewings.feedback_sent_on": { "label": "Valoración enviada el" },
+    "viewings.feedback": { "label": "Opinión sobre la visita" },
+    "viewings.feedback_sent_on": { "label": "Opinión enviada el" },
     "key_dates.kind": {
       "label": "Tipo",
       "options": {
@@ -254,7 +254,7 @@
       "sections": ["Dos pipelines, una tarea con fecha por registro abierto", "Qué significa cada etapa", "Qué queda fuera del espacio de trabajo"]
     },
     "lead_response": {
-      "title": "Plazo de respuesta a consultas y preguntas de calificación",
+      "title": "Plazo de respuesta a consultas y preguntas de cualificación",
       "sections": ["Responder el mismo día", "Preguntas al comprador: plazo, financiación, requisitos imprescindibles", "Preguntas al propietario: plazos y documentos", "Anotar de forma neutra"]
     },
     "valuation_checklist": {
@@ -270,8 +270,8 @@
       "sections": ["Fotos y plano", "Certificado de eficiencia energética", "Comprobación del precio", "Publicación en portales", "Aprobación del propietario"]
     },
     "viewing_routine": {
-      "title": "Rutina de visitas y modelo de valoración",
-      "sections": ["Confirmar con antelación", "Registrar la visita", "Enviar la valoración al propietario en un día"]
+      "title": "Protocolo de visitas y modelo de opinión",
+      "sections": ["Confirmar con antelación", "Registrar la visita", "Enviar la opinión al propietario en un día"]
     },
     "offer_handling": {
       "title": "Gestión de ofertas",
@@ -286,12 +286,12 @@
       "sections": ["Llaves y lecturas de contadores", "Escritura e inscripción", "Factura de honorarios en tu herramienta de contabilidad", "Archivo"]
     },
     "past_client_routine": {
-      "title": "Rutina para clientes anteriores",
+      "title": "Seguimiento de clientes anteriores",
       "sections": ["Un contacto al mes", "Llamada de aniversario", "Agradecer las recomendaciones", "Pedir una reseña"]
     },
     "message_templates": {
       "title": "Plantillas de mensajes",
-      "sections": ["Respuesta a una consulta", "Confirmación de la valoración", "Propuesta de encargo", "Informe al propietario", "Valoración de la visita", "Aviso de oferta", "Agradecimiento"]
+      "sections": ["Respuesta a una consulta", "Confirmación de la valoración", "Propuesta de encargo", "Informe al propietario", "Opinión sobre la visita", "Aviso de oferta", "Agradecimiento"]
     },
     "data_rules": {
       "title": "Reglas de datos: identificación, trato justo, qué queda fuera",
@@ -337,11 +337,11 @@
     },
     "weekly_owner_update": {
       "title": "Enviar el informe al propietario",
-      "description": "Cada semana, un inmueble publicado recibe una tarea para informar al propietario de visitas, valoraciones y consultas."
+      "description": "Cada semana, un inmueble publicado recibe una tarea para informar al propietario de visitas, opiniones y consultas."
     },
     "viewing_feedback": {
-      "title": "Recoger la valoración de la visita y enviarla al propietario",
-      "description": "El día después de una visita se crea una tarea si no hay ninguna valoración registrada."
+      "title": "Recoger la opinión sobre la visita y enviarla al propietario",
+      "description": "Al día siguiente de una visita se crea una tarea si no hay ninguna opinión registrada."
     },
     "offer_notice": {
       "title": "Avisar al agente de que hay que presentar una oferta",
@@ -401,7 +401,7 @@
     "operating_guide_page": "La base de conocimiento contiene la guía de trabajo."
   },
   "prompt": {
-    "intro": "Configura un pipeline inmobiliario en mi espacio de trabajo de Customermates: inmuebles con el tipo de encargo y su fecha de fin, demandas de compradores, visitas con valoración, fechas clave tras la firma del contrato y una tarea con fecha para cada registro abierto.",
+    "intro": "Configura un pipeline inmobiliario en mi espacio de trabajo de Customermates: inmuebles con el tipo de encargo y su fecha de fin, demandas de compradores, visitas con la opinión del comprador, fechas clave tras la firma del contrato y una tarea con fecha para cada registro abierto.",
     "questions": [
       "¿Trabajas para propietarios, para compradores o para ambos? ¿Vendes, alquilas o ambas cosas?",
       "¿En qué país trabajas y qué tipos de encargo usas allí?",

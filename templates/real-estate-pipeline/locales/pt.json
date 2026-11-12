@@ -1,10 +1,10 @@
 {
   "locale": "pt",
   "name": "Funil imobiliário",
-  "summary": "Dois funis que se encontram no contrato: captar e divulgar o imóvel, e atender o comprador, com visitas, prazos e uma rotina para clientes antigos.",
-  "description": "Uma imobiliária trabalha um lado proprietário (avaliação, autorização de venda, divulgação, propostas) e um lado comprador (lead, qualificação, visitas, proposta), depois uma fase comum com o contrato assinado e prazos firmes. Este modelo acompanha os dois, o tipo de autorização e o seu fim, cada visita com o retorno, os prazos depois da assinatura e uma rotina com datas para clientes antigos. O valor de um imóvel guarda a comissão esperada.",
+  "summary": "Dois funis que se encontram no contrato: captar e divulgar o imóvel, e atender o comprador, com visitas, prazos e um acompanhamento periódico de clientes antigos.",
+  "description": "Uma imobiliária trabalha um lado proprietário (avaliação, autorização de venda, divulgação, propostas) e um lado comprador (lead, qualificação, visitas, proposta), depois uma fase comum com o contrato assinado e prazos firmes. Este modelo acompanha os dois, o tipo de autorização e o seu fim, cada visita com o retorno, os prazos depois da assinatura e um acompanhamento com datas para clientes antigos. O valor de um imóvel guarda a comissão esperada.",
   "lists": {
-    "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "Proprietários, locadores, compradores, locatários e indicadores." },
+    "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "Proprietários, locadores, compradores, locatários e quem indica." },
     "organizations": { "label": "Organização", "pluralLabel": "Organizações", "description": "Construtoras, bancos, cartórios e parceiros indicadores." },
     "listings": { "label": "Imóvel", "pluralLabel": "Imóveis", "description": "A captação do proprietário e o funil dela. O valor é a comissão esperada." },
     "buyer_searches": { "label": "Busca de comprador", "pluralLabel": "Buscas de compradores", "description": "A busca de um comprador ou locatário, do lead à escritura." },
@@ -36,7 +36,7 @@
         "offer_made": "Proposta feita",
         "under_contract": "Contrato assinado",
         "completed": "Escritura",
-        "lost": "Perdido"
+        "lost": "Perdida"
       }
     },
     "contacts.contact_role": {
@@ -47,7 +47,7 @@
         "buyer": "Comprador",
         "tenant": "Locatário",
         "investor": "Investidor",
-        "referrer": "Indicador",
+        "referrer": "Quem indicou",
         "other": "Outro"
       }
     },
@@ -113,7 +113,7 @@
     "listings.first_offer_on": { "label": "Primeira proposta em" },
     "listings.contract_signed_on": { "label": "Contrato assinado em" },
     "listings.completion_on": { "label": "Escritura em" },
-    "listings.energy_label": { "label": "Classe energética" },
+    "listings.energy_label": { "label": "Eficiência energética" },
     "listings.listing_url": { "label": "Link do anúncio" },
     "listings.external_id": { "label": "Referência no seu outro software" },
     "listings.aml_checked_on": { "label": "Identificação conferida em" },
@@ -138,7 +138,7 @@
         "web_form": "Formulário do site",
         "whatsapp": "WhatsApp",
         "referral": "Indicação",
-        "walk_in": "Visita à loja",
+        "walk_in": "Visita à imobiliária",
         "past_client": "Cliente antigo"
       }
     },
@@ -209,7 +209,7 @@
   "relationships": {
     "contact_organization": { "sourceLabel": "Organização", "targetLabel": "Contatos" },
     "listing_owner": { "sourceLabel": "Proprietário", "targetLabel": "Imóveis" },
-    "listing_referrer": { "sourceLabel": "Indicador", "targetLabel": "Imóveis indicados" },
+    "listing_referrer": { "sourceLabel": "Quem indicou", "targetLabel": "Imóveis indicados" },
     "buyer_search_contact": { "sourceLabel": "Comprador", "targetLabel": "Buscas de compradores" },
     "buyer_search_listing": { "sourceLabel": "Imóvel em proposta", "targetLabel": "Buscas de compradores" },
     "viewing_listing": { "sourceLabel": "Imóvel", "targetLabel": "Visitas" },
@@ -259,7 +259,7 @@
     },
     "valuation_checklist": {
       "title": "Checklist da visita de avaliação",
-      "sections": ["Documentos a reunir", "Dados de comparação", "Autorização para fotografar"]
+      "sections": ["Documentos a reunir", "Imóveis comparáveis", "Autorização para fotografar"]
     },
     "agreement_checklist": {
       "title": "Checklist da proposta e do contrato de captação",
@@ -267,10 +267,10 @@
     },
     "marketing_launch": {
       "title": "Checklist de lançamento da divulgação",
-      "sections": ["Fotos e planta", "Classe energética", "Conferência do preço", "Publicação nos portais", "Aprovação do proprietário"]
+      "sections": ["Fotos e planta", "Documentos do imóvel (matrícula e certidões)", "Conferência do preço", "Publicação nos portais", "Aprovação do proprietário"]
     },
     "viewing_routine": {
-      "title": "Rotina de visitas e modelo de retorno",
+      "title": "Passo a passo das visitas e modelo de retorno",
       "sections": ["Confirmar com antecedência", "Registrar a visita", "Enviar o retorno ao proprietário em até um dia"]
     },
     "offer_handling": {
@@ -283,10 +283,10 @@
     },
     "closing_handover": {
       "title": "Checklist de escritura e entrega",
-      "sections": ["Chaves e leitura dos medidores", "Escritura e registro", "Nota da comissão na sua ferramenta de contabilidade", "Arquivo"]
+      "sections": ["Chaves e leitura dos medidores", "Escritura e registro", "Nota fiscal da comissão na sua ferramenta de contabilidade", "Arquivo"]
     },
     "past_client_routine": {
-      "title": "Rotina para clientes antigos",
+      "title": "Acompanhamento de clientes antigos",
       "sections": ["Um contato por mês", "Ligação de aniversário", "Agradecer as indicações", "Pedir uma avaliação"]
     },
     "message_templates": {
@@ -325,7 +325,7 @@
     },
     "prepare_property": {
       "title": "Preparar o imóvel e publicar",
-      "description": "Fotos, planta, classe energética e documentos; depois publicar. Vence três dias depois da assinatura do contrato de captação."
+      "description": "Fotos, planta e documentos do imóvel; depois publicar. Vence três dias depois da assinatura do contrato de captação."
     },
     "agreement_end_review": {
       "title": "Rever a autorização: renovar, prorrogar ou reajustar o preço",
