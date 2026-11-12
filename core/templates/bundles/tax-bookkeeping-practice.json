@@ -1,0 +1,4802 @@
+{
+  "spec": {
+    "id": "tpl_tax_bookkeeping_practice",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "tax-bookkeeping-practice",
+    "family": "professional-services",
+    "kind": "pipeline",
+    "jurisdictions": [
+      "DE",
+      "FR",
+      "IT",
+      "ES",
+      "BR",
+      "PL",
+      "NL"
+    ],
+    "dashboardAudience": "team",
+    "requiresCapabilities": [
+      "rules",
+      "notifications"
+    ],
+    "pairedPages": {
+      "en": "/for/accountants",
+      "de": "/for/accountants",
+      "fr": "/for/accountants",
+      "it": "/for/accountants",
+      "es": "/for/accountants",
+      "pt": "/for/accountants",
+      "pl": "/for/accountants",
+      "nl": "/for/accountants"
+    },
+    "modules": [
+      "actions_core",
+      "actions_dashboard"
+    ],
+    "lists": [
+      {
+        "key": "contacts",
+        "role": "people",
+        "icon": "contact"
+      },
+      {
+        "key": "clients",
+        "icon": "building"
+      },
+      {
+        "key": "mandates",
+        "role": "deals",
+        "icon": "signature"
+      },
+      {
+        "key": "jobs",
+        "icon": "clipboard"
+      },
+      {
+        "key": "deadlines",
+        "icon": "alarm"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "contacts.preferred_channel",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "email"
+          },
+          {
+            "key": "phone"
+          },
+          {
+            "key": "portal"
+          },
+          {
+            "key": "whatsapp"
+          },
+          {
+            "key": "post"
+          }
+        ]
+      },
+      {
+        "key": "clients.client_type",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "individual"
+          },
+          {
+            "key": "sole_trader"
+          },
+          {
+            "key": "company"
+          },
+          {
+            "key": "association"
+          }
+        ]
+      },
+      {
+        "key": "clients.vat_frequency",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "monthly"
+          },
+          {
+            "key": "quarterly"
+          },
+          {
+            "key": "annual"
+          },
+          {
+            "key": "not_applicable"
+          }
+        ]
+      },
+      {
+        "key": "clients.authorisation_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "clients.aml_risk",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "not_assessed"
+          },
+          {
+            "key": "low",
+            "color": "success"
+          },
+          {
+            "key": "standard"
+          },
+          {
+            "key": "enhanced",
+            "color": "warning"
+          },
+          {
+            "key": "declined",
+            "color": "destructive"
+          }
+        ]
+      },
+      {
+        "key": "clients.aml_next_review",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "mandates.services",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "bookkeeping"
+          },
+          {
+            "key": "payroll"
+          },
+          {
+            "key": "vat_returns"
+          },
+          {
+            "key": "annual_accounts"
+          },
+          {
+            "key": "tax_returns"
+          },
+          {
+            "key": "advisory"
+          }
+        ]
+      },
+      {
+        "key": "mandates.fee_model",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "fixed_monthly"
+          },
+          {
+            "key": "hourly"
+          },
+          {
+            "key": "per_filing"
+          },
+          {
+            "key": "value_based"
+          }
+        ]
+      },
+      {
+        "key": "mandates.next_step_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "mandates.lost_reason",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "capacity"
+          },
+          {
+            "key": "risk_declined"
+          },
+          {
+            "key": "scope_mismatch"
+          },
+          {
+            "key": "price"
+          },
+          {
+            "key": "chose_other_advisor"
+          },
+          {
+            "key": "no_response"
+          }
+        ]
+      },
+      {
+        "key": "jobs.job_type",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "monthly_bookkeeping"
+          },
+          {
+            "key": "payroll_run"
+          },
+          {
+            "key": "vat_return"
+          },
+          {
+            "key": "annual_accounts"
+          },
+          {
+            "key": "tax_return"
+          },
+          {
+            "key": "year_end"
+          }
+        ]
+      },
+      {
+        "key": "jobs.period",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "jobs.documents_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "jobs.internal_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "jobs.reviewer",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "jobs.notice_received_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "deadlines.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "vat_return"
+          },
+          {
+            "key": "vat_payment"
+          },
+          {
+            "key": "payroll_report"
+          },
+          {
+            "key": "annual_accounts"
+          },
+          {
+            "key": "tax_return"
+          },
+          {
+            "key": "appeal",
+            "color": "warning"
+          },
+          {
+            "key": "payment"
+          },
+          {
+            "key": "aml_review"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "deadlines.due_date",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "deadlines.pre_deadline",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "deadlines.source_ref",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "deadlines.verified_by",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "deadlines.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "in_progress",
+            "color": "info"
+          },
+          {
+            "key": "filed",
+            "color": "success"
+          },
+          {
+            "key": "extended"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "request_documents"
+          },
+          {
+            "key": "chase_documents"
+          },
+          {
+            "key": "chase_approval"
+          },
+          {
+            "key": "review"
+          },
+          {
+            "key": "reply"
+          },
+          {
+            "key": "aml"
+          },
+          {
+            "key": "filing"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "mandates.stage",
+        "items": [
+          {
+            "key": "inquiry",
+            "outcome": "open",
+            "weight": 10
+          },
+          {
+            "key": "intro_call",
+            "outcome": "open",
+            "weight": 25
+          },
+          {
+            "key": "proposal_sent",
+            "outcome": "open",
+            "weight": 50
+          },
+          {
+            "key": "aml_check",
+            "outcome": "open",
+            "weight": 70
+          },
+          {
+            "key": "engagement_letter_out",
+            "outcome": "open",
+            "weight": 85
+          },
+          {
+            "key": "active",
+            "outcome": "won",
+            "weight": 100
+          },
+          {
+            "key": "declined",
+            "outcome": "lost",
+            "weight": 0
+          },
+          {
+            "key": "not_going_ahead",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      },
+      {
+        "field": "jobs.status",
+        "items": [
+          {
+            "key": "planned",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "waiting_for_documents",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "in_preparation",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "in_review",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "client_approval",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "submitted",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "waiting_for_authority",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "done",
+            "outcome": "won",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [],
+    "relationships": [
+      {
+        "key": "contact_client",
+        "source": "contacts",
+        "target": "clients",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "mandate_client",
+        "source": "mandates",
+        "target": "clients",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "job_client",
+        "source": "jobs",
+        "target": "clients",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "deadline_client",
+        "source": "deadlines",
+        "target": "clients",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_job",
+        "source": "actions",
+        "target": "jobs",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_client",
+        "source": "actions",
+        "target": "clients",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "mandates_board",
+        "list": "mandates",
+        "default": true,
+        "layout": "board",
+        "groupBy": "mandates.stage",
+        "sort": null,
+        "columns": [
+          "mandates.services",
+          "mandates.fee_model",
+          "mandates.next_step_due"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "mandates_all",
+        "list": "mandates",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "mandates.next_step_due",
+          "direction": "asc"
+        },
+        "columns": [
+          "mandates.stage",
+          "mandates.services",
+          "mandates.fee_model",
+          "mandates.next_step_due"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "jobs_board",
+        "list": "jobs",
+        "default": true,
+        "layout": "board",
+        "groupBy": "jobs.status",
+        "sort": {
+          "field": "jobs.internal_due",
+          "direction": "asc"
+        },
+        "columns": [
+          "jobs.job_type",
+          "jobs.period",
+          "jobs.documents_due",
+          "jobs.internal_due"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "jobs_waiting_documents",
+        "list": "jobs",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "jobs.documents_due",
+          "direction": "asc"
+        },
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "jobs.status",
+            "options": [
+              "waiting_for_documents"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "deadlines_all",
+        "list": "deadlines",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "deadlines.due_date",
+          "direction": "asc"
+        },
+        "columns": [
+          "deadlines.kind",
+          "deadlines.status",
+          "deadlines.pre_deadline",
+          "deadlines.verified_by"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "unverified_deadlines",
+        "list": "deadlines",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "deadlines.due_date",
+          "direction": "asc"
+        },
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "deadlines.status",
+            "options": [
+              "open",
+              "in_progress"
+            ]
+          },
+          {
+            "operator": "empty",
+            "field": "deadlines.verified_by"
+          }
+        ]
+      },
+      {
+        "key": "clients_all",
+        "list": "clients",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "clients.client_type",
+          "clients.vat_frequency",
+          "clients.aml_risk",
+          "clients.aml_next_review"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "contacts_all",
+        "list": "contacts",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "contacts.preferred_channel"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "calendar",
+        "key": "deadlines_coming",
+        "list": "deadlines",
+        "layout": "upcoming",
+        "dateField": "deadlines.due_date",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "deadlines.status",
+            "options": [
+              "open",
+              "in_progress"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "unverified_count",
+        "list": "deadlines",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "deadlines.status",
+            "options": [
+              "open",
+              "in_progress"
+            ]
+          },
+          {
+            "operator": "empty",
+            "field": "deadlines.verified_by"
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "jobs_by_status",
+        "list": "jobs",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "jobs.status"
+        },
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "jobs.status",
+            "options": [
+              "done"
+            ]
+          }
+        ],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "chart",
+        "key": "documents_waiting",
+        "list": "jobs",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "jobs.status",
+            "options": [
+              "waiting_for_documents"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "jobs_waiting_on_client",
+        "list": "jobs",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "jobs.status",
+            "options": [
+              "client_approval"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "mandates_funnel",
+        "list": "mandates",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "mandates.stage"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "mandates.stage",
+            "options": [
+              "inquiry",
+              "intro_call",
+              "proposal_sent",
+              "aml_check",
+              "engagement_letter_out",
+              "active"
+            ]
+          }
+        ],
+        "display": "funnelChart"
+      },
+      {
+        "kind": "calendar",
+        "key": "aml_reviews",
+        "list": "clients",
+        "layout": "upcoming",
+        "dateField": "clients.aml_next_review",
+        "amountField": null,
+        "filters": []
+      },
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_actions",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "operating_guide",
+        "kind": "overview"
+      },
+      {
+        "key": "onboarding_and_aml",
+        "kind": "processes"
+      },
+      {
+        "key": "deadline_control",
+        "kind": "processes"
+      },
+      {
+        "key": "document_checklists",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "proposal_follow_up",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "mandates.stage",
+          "to": "proposal_sent"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "reply",
+          "assignee": "record_owner",
+          "about": "mandates"
+        },
+        "dueOffsetDays": 3,
+        "needs": "rules"
+      },
+      {
+        "key": "aml_identification",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "mandates.stage",
+          "to": "aml_check"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "aml",
+          "assignee": "record_owner",
+          "about": "mandates"
+        },
+        "dueOffsetDays": 2,
+        "needs": "rules"
+      },
+      {
+        "key": "onboarding_set",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "mandates.stage",
+          "to": "active"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "request_documents",
+          "assignee": "record_owner",
+          "about": "mandates"
+        },
+        "dueOffsetDays": 1,
+        "needs": "rules"
+      },
+      {
+        "key": "recontact_not_going_ahead",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "mandates.stage",
+          "to": "not_going_ahead"
+        },
+        "condition": [],
+        "action": {
+          "kind": "set_dates",
+          "dates": [
+            {
+              "field": "mandates.next_step_due",
+              "offsetDays": 90
+            }
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "documents_chase",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "jobs.documents_due",
+          "offsetDays": -3
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "jobs.status",
+            "options": [
+              "waiting_for_documents"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "chase_documents",
+          "assignee": "record_owner",
+          "about": "jobs"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "documents_overdue_notice",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "jobs.documents_due",
+          "offsetDays": 0
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "jobs.status",
+            "options": [
+              "waiting_for_documents"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "notify",
+          "recipient": "record_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "pre_deadline_check",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "deadlines.pre_deadline",
+          "offsetDays": 0
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "deadlines.status",
+            "options": [
+              "open",
+              "in_progress"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "notify",
+          "recipient": "record_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "due_date_escalation",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "deadlines.due_date",
+          "offsetDays": -2
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "deadlines.status",
+            "options": [
+              "open",
+              "in_progress"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "notify",
+          "recipient": "workspace_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "approval_chase",
+        "trigger": {
+          "kind": "unchanged_for",
+          "field": "jobs.status",
+          "days": 5
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "jobs.status",
+            "options": [
+              "client_approval"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "chase_approval",
+          "assignee": "record_owner",
+          "about": "jobs"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "notice_check",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "jobs.notice_received_on",
+          "offsetDays": 0
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "record_owner",
+          "about": "jobs"
+        },
+        "dueOffsetDays": 3,
+        "needs": "rules"
+      },
+      {
+        "key": "aml_review",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "clients.aml_next_review",
+          "offsetDays": 0
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "aml",
+          "assignee": "record_owner",
+          "about": "clients"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "monthly_close_jobs",
+        "trigger": {
+          "kind": "schedule",
+          "every": "month",
+          "list": "clients"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "jobs"
+          ]
+        },
+        "dueOffsetDays": 10,
+        "needs": "rules"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "mandate_stage_field",
+        "kind": "field_exists",
+        "ref": "mandates.stage"
+      },
+      {
+        "key": "job_status_field",
+        "kind": "field_exists",
+        "ref": "jobs.status"
+      },
+      {
+        "key": "deadline_due_field",
+        "kind": "field_exists",
+        "ref": "deadlines.due_date"
+      },
+      {
+        "key": "deadline_verifier_field",
+        "kind": "field_exists",
+        "ref": "deadlines.verified_by"
+      },
+      {
+        "key": "deadline_control_page",
+        "kind": "page_exists",
+        "ref": "deadline_control"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://karbonhq.com/templates/individual-tax-return-itr12",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.myfirm360.com/blog/tax-preparation-workflow/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://accountants.intuit.com/taxprocenter/practice-management/an-efficient-workflow-can-help-you-speed-your-way-through-tax-season/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.datev.de/web/de/steuerberatung/loesungen/kanzleimanagement/kanzleiprozesse-optimieren-und-steuern/mandanten-digital-anbahnen/datev-mandatsanbahnung",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.deubner-steuern.de/themen/transparenzregister/geldwaeschegesetz/sorgfaltspflichten.html",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.fiscal-focus.it/quotidiano/altre-tematiche/infoprofessioni/antiriciclaggio-commercialisti-autovalutazione-obbligatoria-entro-il-27-maggio-2026-anche-per-i-clienti-dichiarativi,3,183740",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://hayot-expertise.fr/en/blog/aml-cft-french-accountant-2026-tracfin-client-due-diligence",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://pomoc.wfirma.pl/-nawiazanie-wspolpracy-z-nowym-klientem-w-biurze-rachunkowym",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://poradnikprzedsiebiorcy.pl/-wspolpraca-klienta-z-biurem-rachunkowym-jak-powinna-wygladac",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.onderneming.nl/belasting/btw-aangifte/",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "status": {
+      "en": "draft",
+      "de": "draft",
+      "fr": "draft",
+      "it": "draft",
+      "es": "draft",
+      "pt": "draft",
+      "pl": "draft",
+      "nl": "draft"
+    },
+    "publicPage": {
+      "en": "proof",
+      "de": "proof",
+      "fr": "proof",
+      "it": "proof",
+      "es": "none",
+      "pt": "proof",
+      "pl": "proof",
+      "nl": "none"
+    },
+    "publishWave": {}
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Steuerkanzlei",
+      "summary": "Ein Kanzleiarbeitsplatz mit zwei Abläufen: ein Mandat gewinnen, mit Identifizierung und Mandatsvertrag, und die laufende Arbeit je Mandant erledigen, mit einem Fristenregister, das eine zweite Person verifiziert.",
+      "description": "Eine Steuer- oder Buchhaltungskanzlei an einem Ort führen: Mandate von der Anfrage bis zum aktiven Mandat mit einer Identifizierung nach Geldwäschegesetz dazwischen, wiederkehrende Vorgänge je Mandant und Zeitraum mit dem Status Wartet auf Unterlagen und ein Fristenregister mit Vorfrist und der Person, die jede Frist verifiziert hat. Die Vorlage ist die Ebene für Beziehung, Fristennachweis und Nachfassen neben Ihrer Kanzleisoftware. Sie berechnet keine gesetzlichen Fristen, reicht nichts ein, führt keine Bücher, rechnet keine Löhne und keine Zeit ab und speichert weder Steuer-IDs noch Ausweiskopien.",
+      "lists": {
+        "actions": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "contacts": {
+          "label": "Ansprechpartner",
+          "pluralLabel": "Ansprechpartner",
+          "description": "Personen bei Ihren Mandanten, die Unterlagen schicken und unterschreiben."
+        },
+        "clients": {
+          "label": "Mandant",
+          "pluralLabel": "Mandanten",
+          "description": "Privatpersonen, Einzelunternehmer, Gesellschaften und Vereine, für die Sie tätig sind."
+        },
+        "mandates": {
+          "label": "Mandat",
+          "pluralLabel": "Mandate",
+          "description": "Ein Auftrag von der Anfrage bis aktiv oder abgelehnt."
+        },
+        "jobs": {
+          "label": "Vorgang",
+          "pluralLabel": "Vorgänge",
+          "description": "Wiederkehrende Arbeit für einen Mandanten und Zeitraum, etwa Monatsabschluss oder Umsatzsteuer-Voranmeldung."
+        },
+        "deadlines": {
+          "label": "Frist",
+          "pluralLabel": "Fristen",
+          "description": "Ein gesetzlicher oder behördlicher Termin mit Quelle, Vorfrist und der Person, die ihn verifiziert hat."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "contacts.preferred_channel": {
+          "label": "Bevorzugter Kanal",
+          "options": {
+            "email": "E-Mail",
+            "phone": "Telefon",
+            "portal": "Portal",
+            "whatsapp": "WhatsApp",
+            "post": "Post"
+          }
+        },
+        "clients.client_type": {
+          "label": "Art",
+          "options": {
+            "individual": "Privatperson",
+            "sole_trader": "Einzelunternehmer",
+            "company": "Gesellschaft",
+            "association": "Verein"
+          }
+        },
+        "clients.vat_frequency": {
+          "label": "Umsatzsteuer-Voranmeldung",
+          "options": {
+            "monthly": "Monatlich",
+            "quarterly": "Vierteljährlich",
+            "annual": "Jährlich",
+            "not_applicable": "Entfällt"
+          }
+        },
+        "clients.authorisation_on": {
+          "label": "Vollmacht liegt vor seit",
+          "options": {}
+        },
+        "clients.aml_risk": {
+          "label": "Geldwäscherisiko",
+          "options": {
+            "not_assessed": "Nicht bewertet",
+            "low": "Gering",
+            "standard": "Normal",
+            "enhanced": "Erhöht",
+            "declined": "Abgelehnt"
+          }
+        },
+        "clients.aml_next_review": {
+          "label": "Nächste Risikoprüfung",
+          "options": {}
+        },
+        "mandates.stage": {
+          "label": "Phase",
+          "options": {
+            "inquiry": "Anfrage",
+            "intro_call": "Erstgespräch",
+            "proposal_sent": "Angebot",
+            "aml_check": "Identifizierung (GwG)",
+            "engagement_letter_out": "Mandatsvertrag versendet",
+            "active": "Aktiv",
+            "declined": "Abgelehnt",
+            "not_going_ahead": "Nicht zustande gekommen"
+          }
+        },
+        "mandates.services": {
+          "label": "Leistungen",
+          "options": {
+            "bookkeeping": "Buchhaltung",
+            "payroll": "Lohn und Gehalt",
+            "vat_returns": "Umsatzsteuer",
+            "annual_accounts": "Jahresabschluss",
+            "tax_returns": "Steuererklärungen",
+            "advisory": "Beratung"
+          }
+        },
+        "mandates.fee_model": {
+          "label": "Vergütung",
+          "options": {
+            "fixed_monthly": "Monatspauschale",
+            "hourly": "Nach Zeit",
+            "per_filing": "Je Erklärung",
+            "value_based": "Wertbasiert"
+          }
+        },
+        "mandates.next_step_due": {
+          "label": "Nächster Schritt bis",
+          "options": {}
+        },
+        "mandates.lost_reason": {
+          "label": "Grund",
+          "options": {
+            "capacity": "Keine Kapazität",
+            "risk_declined": "Wegen Risiko abgelehnt",
+            "scope_mismatch": "Umfang passt nicht",
+            "price": "Preis",
+            "chose_other_advisor": "Anderen Berater gewählt",
+            "no_response": "Keine Rückmeldung"
+          }
+        },
+        "jobs.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Geplant",
+            "waiting_for_documents": "Wartet auf Unterlagen",
+            "in_preparation": "In Bearbeitung",
+            "in_review": "In Prüfung",
+            "client_approval": "Wartet auf Freigabe des Mandanten",
+            "submitted": "Eingereicht",
+            "waiting_for_authority": "Wartet auf das Finanzamt",
+            "done": "Erledigt"
+          }
+        },
+        "jobs.job_type": {
+          "label": "Art des Vorgangs",
+          "options": {
+            "monthly_bookkeeping": "Laufende Buchhaltung",
+            "payroll_run": "Lohnabrechnung",
+            "vat_return": "Umsatzsteuer-Voranmeldung",
+            "annual_accounts": "Jahresabschluss",
+            "tax_return": "Steuererklärung",
+            "year_end": "Jahresabschlussarbeiten"
+          }
+        },
+        "jobs.period": {
+          "label": "Zeitraum",
+          "options": {}
+        },
+        "jobs.documents_due": {
+          "label": "Unterlagen bis",
+          "options": {}
+        },
+        "jobs.internal_due": {
+          "label": "Interner Termin",
+          "options": {}
+        },
+        "jobs.reviewer": {
+          "label": "Geprüft von",
+          "options": {}
+        },
+        "jobs.notice_received_on": {
+          "label": "Bescheid eingegangen am",
+          "options": {}
+        },
+        "deadlines.kind": {
+          "label": "Art",
+          "options": {
+            "vat_return": "Umsatzsteuer-Voranmeldung",
+            "vat_payment": "Umsatzsteuerzahlung",
+            "payroll_report": "Lohnmeldung",
+            "annual_accounts": "Jahresabschluss",
+            "tax_return": "Steuererklärung",
+            "appeal": "Einspruchsfrist",
+            "payment": "Zahlung",
+            "aml_review": "Risikoprüfung",
+            "other": "Sonstiges"
+          }
+        },
+        "deadlines.due_date": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "deadlines.pre_deadline": {
+          "label": "Vorfrist",
+          "options": {}
+        },
+        "deadlines.source_ref": {
+          "label": "Quelle des Termins",
+          "options": {}
+        },
+        "deadlines.verified_by": {
+          "label": "Verifiziert von",
+          "options": {}
+        },
+        "deadlines.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "in_progress": "In Arbeit",
+            "filed": "Eingereicht",
+            "extended": "Verlängert",
+            "cancelled": "Entfallen"
+          }
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "request_documents": "Unterlagen anfordern",
+            "chase_documents": "Unterlagen nachfordern",
+            "chase_approval": "Freigabe oder Unterschrift nachfassen",
+            "review": "Prüfen",
+            "reply": "Antworten",
+            "aml": "Identifizierung und Risikoeinstufung",
+            "filing": "Einreichung",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Mandant",
+          "targetLabel": "Ansprechpartner"
+        },
+        "mandate_client": {
+          "sourceLabel": "Mandant",
+          "targetLabel": "Mandate"
+        },
+        "job_client": {
+          "sourceLabel": "Mandant",
+          "targetLabel": "Vorgänge"
+        },
+        "deadline_client": {
+          "sourceLabel": "Mandant",
+          "targetLabel": "Fristen"
+        },
+        "action_job": {
+          "sourceLabel": "Vorgang",
+          "targetLabel": "Aufgaben"
+        },
+        "action_client": {
+          "sourceLabel": "Mandant",
+          "targetLabel": "Aufgaben"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle Aufgaben"
+        },
+        "mandates_board": {
+          "name": "Mandate nach Phase"
+        },
+        "mandates_all": {
+          "name": "Alle Mandate"
+        },
+        "jobs_board": {
+          "name": "Vorgänge nach Status"
+        },
+        "jobs_waiting_documents": {
+          "name": "Wartet auf Unterlagen"
+        },
+        "deadlines_all": {
+          "name": "Alle Fristen"
+        },
+        "unverified_deadlines": {
+          "name": "Fristen ohne Verifizierung"
+        },
+        "clients_all": {
+          "name": "Alle Mandanten"
+        },
+        "contacts_all": {
+          "name": "Alle Ansprechpartner"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Anstehende Aufgaben"
+        },
+        "overdue_actions": {
+          "title": "Überfällige Aufgaben"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        },
+        "deadlines_coming": {
+          "title": "Anstehende Fristen"
+        },
+        "unverified_count": {
+          "title": "Offene Fristen ohne Verifizierung"
+        },
+        "jobs_by_status": {
+          "title": "Offene Vorgänge nach Status"
+        },
+        "documents_waiting": {
+          "title": "Vorgänge, die auf Unterlagen warten"
+        },
+        "jobs_waiting_on_client": {
+          "title": "Vorgänge, die auf die Freigabe des Mandanten warten"
+        },
+        "mandates_funnel": {
+          "title": "Mandate nach Phase"
+        },
+        "aml_reviews": {
+          "title": "Fällige Risikoprüfungen"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "So läuft die Kanzlei",
+          "sections": [
+            "Die zwei Abläufe: Mandat gewinnen und Arbeit erledigen",
+            "Wer welche Phase verantwortet und die Regel einer terminierten Aufgabe je offenem Vorgang"
+          ]
+        },
+        "onboarding_and_aml": {
+          "title": "Aufnahme und Identifizierung",
+          "sections": [
+            "Mandant und wirtschaftlich Berechtigten identifizieren, Risikoeinstufung",
+            "Checkliste Mandatsvertrag (Ausweiskopien werden hier nicht gespeichert)"
+          ]
+        },
+        "deadline_control": {
+          "title": "Fristenkontrolle",
+          "sections": [
+            "Wie ein Termin mit Quelle erfasst und von einer zweiten Person verifiziert wird",
+            "Vorfristprüfung und Entscheidung über eine Verlängerung"
+          ]
+        },
+        "document_checklists": {
+          "title": "Unterlagenanforderung je Leistung",
+          "sections": [
+            "Was wir je Leistung anfordern und bis wann",
+            "Erinnerungen und was passiert, wenn Unterlagen fehlen"
+          ]
+        }
+      },
+      "rules": {
+        "proposal_follow_up": {
+          "title": "Drei Tage nach dem Versand eines Angebots nachfassen",
+          "description": ""
+        },
+        "aml_identification": {
+          "title": "Binnen 2 Tagen identifizieren, wenn ein Mandat die Identifizierungsphase erreicht",
+          "description": ""
+        },
+        "onboarding_set": {
+          "title": "Vollmacht und erste Unterlagen anfordern, wenn ein Mandat aktiv wird",
+          "description": ""
+        },
+        "recontact_not_going_ahead": {
+          "title": "Den nächsten Schritt auf 90 Tage setzen, wenn ein Mandat nicht zustande kommt",
+          "description": ""
+        },
+        "documents_chase": {
+          "title": "Unterlagen 3 Tage vor dem Termin nachfordern",
+          "description": ""
+        },
+        "documents_overdue_notice": {
+          "title": "Den Zuständigen informieren, wenn Unterlagen fällig und noch nicht da sind",
+          "description": ""
+        },
+        "pre_deadline_check": {
+          "title": "Den Zuständigen zur Vorfrist einer offenen Frist informieren",
+          "description": ""
+        },
+        "due_date_escalation": {
+          "title": "Die Leitung 2 Tage vor einer offenen Frist informieren",
+          "description": ""
+        },
+        "approval_chase": {
+          "title": "Die Freigabe des Mandanten nach 5 Tagen Wartezeit nachfassen",
+          "description": ""
+        },
+        "notice_check": {
+          "title": "Einen Bescheid binnen 3 Tagen nach Eingang prüfen",
+          "description": ""
+        },
+        "aml_review": {
+          "title": "Die Risikoeinstufung prüfen, wenn die nächste Prüfung ansteht",
+          "description": ""
+        },
+        "monthly_close_jobs": {
+          "title": "Zu Monatsbeginn die monatlichen Vorgänge anlegen",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "mandate_stage_field": "Jedes Mandat hat eine Phase.",
+        "job_status_field": "Jeder Vorgang hat einen Status, auch Wartet auf Unterlagen.",
+        "deadline_due_field": "Jede Frist hält ihr Fälligkeitsdatum fest.",
+        "deadline_verifier_field": "Jede Frist hält fest, wer sie verifiziert hat.",
+        "deadline_control_page": "Die Wissensdatenbank enthält eine Seite zur Fristenkontrolle."
+      },
+      "prompt": {
+        "intro": "Richte in meinem Customermates-Workspace eine Steuerkanzlei ein: Mandate von der Anfrage bis aktiv mit Identifizierung, wiederkehrende Vorgänge je Mandant und Zeitraum, ein Fristenregister mit Vorfrist und Verifizierung und terminierte Folgeaufgaben. Berechne niemals gesetzliche Fristen und speichere keine Ausweiskopien.",
+        "questions": [
+          "Welche Leistungen bieten Sie an, und welche wiederkehrenden Vorgänge führen Sie je Mandant?",
+          "In welchem Land arbeiten Sie, und welche Fristen verfolgen Sie?",
+          "Wer bereitet vor, wer prüft, und wer verifiziert eine Frist?",
+          "Wie identifizieren Sie neue Mandanten, und wie oft prüfen Sie deren Risikoeinstufung?"
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Tax and bookkeeping practice",
+      "summary": "A practice desk with two flows: winning a mandate through an identification step and engagement letter, and doing the recurring work per client, with a deadline register that a second person verifies.",
+      "description": "Run a tax or bookkeeping practice from one place: mandates from inquiry to an active engagement with a money-laundering identification step in between, recurring jobs per client and period with a waiting-for-documents status, and a register of deadlines with a pre-deadline and the person who verified each date. It is the relationship, deadline-evidence and follow-up layer next to your practice software. It does not compute legal dates, file returns, keep ledgers, run payroll or bill time, and it holds no tax IDs or ID copies.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "People at your clients who send documents and sign."
+        },
+        "clients": {
+          "label": "Client",
+          "pluralLabel": "Clients",
+          "description": "Individuals, sole traders, companies and associations you act for."
+        },
+        "mandates": {
+          "label": "Mandate",
+          "pluralLabel": "Mandates",
+          "description": "One engagement from inquiry to active or declined."
+        },
+        "jobs": {
+          "label": "Job",
+          "pluralLabel": "Jobs",
+          "description": "Recurring work for a client and period, such as a monthly close or a VAT return."
+        },
+        "deadlines": {
+          "label": "Deadline",
+          "pluralLabel": "Deadlines",
+          "description": "A legal or authority date with its source, a pre-deadline and the person who verified it."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "contacts.preferred_channel": {
+          "label": "Preferred channel",
+          "options": {
+            "email": "Email",
+            "phone": "Phone",
+            "portal": "Portal",
+            "whatsapp": "WhatsApp",
+            "post": "Post"
+          }
+        },
+        "clients.client_type": {
+          "label": "Type",
+          "options": {
+            "individual": "Individual",
+            "sole_trader": "Sole trader",
+            "company": "Company",
+            "association": "Association"
+          }
+        },
+        "clients.vat_frequency": {
+          "label": "VAT returns",
+          "options": {
+            "monthly": "Monthly",
+            "quarterly": "Quarterly",
+            "annual": "Annual",
+            "not_applicable": "Not applicable"
+          }
+        },
+        "clients.authorisation_on": {
+          "label": "Authorisation on file since",
+          "options": {}
+        },
+        "clients.aml_risk": {
+          "label": "Money-laundering risk",
+          "options": {
+            "not_assessed": "Not assessed",
+            "low": "Low",
+            "standard": "Standard",
+            "enhanced": "Enhanced",
+            "declined": "Declined"
+          }
+        },
+        "clients.aml_next_review": {
+          "label": "Next risk review",
+          "options": {}
+        },
+        "mandates.stage": {
+          "label": "Stage",
+          "options": {
+            "inquiry": "Inquiry",
+            "intro_call": "Intro call",
+            "proposal_sent": "Proposal sent",
+            "aml_check": "Identification",
+            "engagement_letter_out": "Engagement letter sent",
+            "active": "Active",
+            "declined": "Declined",
+            "not_going_ahead": "Not going ahead"
+          }
+        },
+        "mandates.services": {
+          "label": "Services",
+          "options": {
+            "bookkeeping": "Bookkeeping",
+            "payroll": "Payroll",
+            "vat_returns": "VAT returns",
+            "annual_accounts": "Annual accounts",
+            "tax_returns": "Tax returns",
+            "advisory": "Advisory"
+          }
+        },
+        "mandates.fee_model": {
+          "label": "Fee model",
+          "options": {
+            "fixed_monthly": "Fixed monthly",
+            "hourly": "Hourly",
+            "per_filing": "Per filing",
+            "value_based": "Value based"
+          }
+        },
+        "mandates.next_step_due": {
+          "label": "Next step due",
+          "options": {}
+        },
+        "mandates.lost_reason": {
+          "label": "Reason",
+          "options": {
+            "capacity": "No capacity",
+            "risk_declined": "Declined for risk",
+            "scope_mismatch": "Scope mismatch",
+            "price": "Price",
+            "chose_other_advisor": "Chose another advisor",
+            "no_response": "No response"
+          }
+        },
+        "jobs.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Planned",
+            "waiting_for_documents": "Waiting for documents",
+            "in_preparation": "In preparation",
+            "in_review": "In review",
+            "client_approval": "Waiting for client approval",
+            "submitted": "Submitted",
+            "waiting_for_authority": "Waiting for the authority",
+            "done": "Done"
+          }
+        },
+        "jobs.job_type": {
+          "label": "Job type",
+          "options": {
+            "monthly_bookkeeping": "Monthly bookkeeping",
+            "payroll_run": "Payroll run",
+            "vat_return": "VAT return",
+            "annual_accounts": "Annual accounts",
+            "tax_return": "Tax return",
+            "year_end": "Year-end"
+          }
+        },
+        "jobs.period": {
+          "label": "Period",
+          "options": {}
+        },
+        "jobs.documents_due": {
+          "label": "Documents needed by",
+          "options": {}
+        },
+        "jobs.internal_due": {
+          "label": "Internal due date",
+          "options": {}
+        },
+        "jobs.reviewer": {
+          "label": "Reviewer",
+          "options": {}
+        },
+        "jobs.notice_received_on": {
+          "label": "Authority notice received on",
+          "options": {}
+        },
+        "deadlines.kind": {
+          "label": "Kind",
+          "options": {
+            "vat_return": "VAT return",
+            "vat_payment": "VAT payment",
+            "payroll_report": "Payroll report",
+            "annual_accounts": "Annual accounts",
+            "tax_return": "Tax return",
+            "appeal": "Appeal",
+            "payment": "Payment",
+            "aml_review": "Risk review",
+            "other": "Other"
+          }
+        },
+        "deadlines.due_date": {
+          "label": "Due date",
+          "options": {}
+        },
+        "deadlines.pre_deadline": {
+          "label": "Pre-deadline",
+          "options": {}
+        },
+        "deadlines.source_ref": {
+          "label": "Source of the date",
+          "options": {}
+        },
+        "deadlines.verified_by": {
+          "label": "Verified by",
+          "options": {}
+        },
+        "deadlines.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "in_progress": "In progress",
+            "filed": "Filed",
+            "extended": "Extended",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "request_documents": "Request documents",
+            "chase_documents": "Chase documents",
+            "chase_approval": "Chase approval or signature",
+            "review": "Review",
+            "reply": "Reply",
+            "aml": "Identification and risk rating",
+            "filing": "Filing",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Contacts"
+        },
+        "mandate_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Mandates"
+        },
+        "job_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Jobs"
+        },
+        "deadline_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Deadlines"
+        },
+        "action_job": {
+          "sourceLabel": "Job",
+          "targetLabel": "Actions"
+        },
+        "action_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "All actions"
+        },
+        "mandates_board": {
+          "name": "Mandates by stage"
+        },
+        "mandates_all": {
+          "name": "All mandates"
+        },
+        "jobs_board": {
+          "name": "Jobs by status"
+        },
+        "jobs_waiting_documents": {
+          "name": "Waiting for documents"
+        },
+        "deadlines_all": {
+          "name": "All deadlines"
+        },
+        "unverified_deadlines": {
+          "name": "Deadlines nobody has verified"
+        },
+        "clients_all": {
+          "name": "All clients"
+        },
+        "contacts_all": {
+          "name": "All contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Upcoming actions"
+        },
+        "overdue_actions": {
+          "title": "Overdue actions"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        },
+        "deadlines_coming": {
+          "title": "Deadlines coming up"
+        },
+        "unverified_count": {
+          "title": "Open deadlines without a verifier"
+        },
+        "jobs_by_status": {
+          "title": "Open jobs by status"
+        },
+        "documents_waiting": {
+          "title": "Jobs waiting for documents"
+        },
+        "jobs_waiting_on_client": {
+          "title": "Jobs waiting for client approval"
+        },
+        "mandates_funnel": {
+          "title": "Mandates by stage"
+        },
+        "aml_reviews": {
+          "title": "Risk reviews due"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "How the practice runs",
+          "sections": [
+            "The two flows: winning a mandate and doing the work",
+            "Who owns which stage and the rule of one dated Action per open job"
+          ]
+        },
+        "onboarding_and_aml": {
+          "title": "Onboarding and identification",
+          "sections": [
+            "Identifying the client and the beneficial owner, and the risk rating",
+            "Engagement letter checklist (no ID copies are stored here)"
+          ]
+        },
+        "deadline_control": {
+          "title": "Deadline control",
+          "sections": [
+            "How a date is entered with its source and verified by a second person",
+            "Pre-deadline check and extension decision"
+          ]
+        },
+        "document_checklists": {
+          "title": "Document requests by service",
+          "sections": [
+            "What we ask for each service and by when",
+            "Reminders and what happens when documents stay missing"
+          ]
+        }
+      },
+      "rules": {
+        "proposal_follow_up": {
+          "title": "Follow up on a proposal 3 days after it is sent",
+          "description": ""
+        },
+        "aml_identification": {
+          "title": "Identify the client within 2 days when a mandate reaches the identification stage",
+          "description": ""
+        },
+        "onboarding_set": {
+          "title": "Request the authorisation and the first documents when a mandate becomes active",
+          "description": ""
+        },
+        "recontact_not_going_ahead": {
+          "title": "Set the next step to 90 days out when a mandate is not going ahead",
+          "description": ""
+        },
+        "documents_chase": {
+          "title": "Chase the documents 3 days before they are needed",
+          "description": ""
+        },
+        "documents_overdue_notice": {
+          "title": "Notify the owner when the documents are due and still missing",
+          "description": ""
+        },
+        "pre_deadline_check": {
+          "title": "Notify the owner on the pre-deadline of an open deadline",
+          "description": ""
+        },
+        "due_date_escalation": {
+          "title": "Notify the lead 2 days before an open deadline",
+          "description": ""
+        },
+        "approval_chase": {
+          "title": "Chase the client approval after 5 days of waiting",
+          "description": ""
+        },
+        "notice_check": {
+          "title": "Check an authority notice within 3 days of receiving it",
+          "description": ""
+        },
+        "aml_review": {
+          "title": "Review the risk rating when the next review date arrives",
+          "description": ""
+        },
+        "monthly_close_jobs": {
+          "title": "Create the monthly jobs at the start of each month",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "mandate_stage_field": "Every mandate has a stage.",
+        "job_status_field": "Every job has a status, including waiting for documents.",
+        "deadline_due_field": "Every deadline records its due date.",
+        "deadline_verifier_field": "Every deadline records who verified it.",
+        "deadline_control_page": "The knowledge base holds a page on deadline control."
+      },
+      "prompt": {
+        "intro": "Set up a tax and bookkeeping practice in my Customermates workspace: mandates from inquiry to active with an identification step, recurring jobs per client and period, a deadline register with a pre-deadline and a verifier, and dated follow-ups. Never compute legal dates and never store ID copies.",
+        "questions": [
+          "Which services do you offer, and which recurring jobs do you run per client?",
+          "In which country do you practise, and which deadlines do you track?",
+          "Who prepares, who reviews, and who verifies a deadline?",
+          "How do you identify new clients, and how often do you review their risk rating?"
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "Despacho fiscal y contable",
+      "summary": "Un puesto de trabajo de despacho con dos flujos: conseguir un encargo, con identificación PBC/FT y hoja de encargo, y hacer el trabajo recurrente por cliente, con un calendario de plazos verificado por una segunda persona.",
+      "description": "Lleve un despacho fiscal o contable en un solo lugar: encargos de la consulta al encargo activo con un paso de identificación de prevención del blanqueo en medio, expedientes recurrentes por cliente y periodo con el estado a la espera de documentación, y un calendario de plazos con aviso previo y la persona que verificó cada fecha. La plantilla es la capa de relación, prueba de plazos y seguimiento junto a su programa de despacho. No calcula fechas legales, no presenta declaraciones, no lleva la contabilidad, no hace nóminas ni factura el tiempo y no guarda NIF ni copias de documentos de identidad.",
+      "lists": {
+        "actions": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un siguiente paso con fecha por cada asunto abierto."
+        },
+        "contacts": {
+          "label": "Contacto",
+          "pluralLabel": "Contactos",
+          "description": "Las personas de sus clientes que envían documentación y firman."
+        },
+        "clients": {
+          "label": "Cliente",
+          "pluralLabel": "Clientes",
+          "description": "Particulares, autónomos, sociedades y asociaciones para los que trabaja."
+        },
+        "mandates": {
+          "label": "Encargo",
+          "pluralLabel": "Encargos",
+          "description": "Un encargo de la consulta a activo o rechazado."
+        },
+        "jobs": {
+          "label": "Expediente",
+          "pluralLabel": "Expedientes",
+          "description": "Trabajo recurrente para un cliente y un periodo, como el cierre mensual o la declaración del IVA."
+        },
+        "deadlines": {
+          "label": "Plazo",
+          "pluralLabel": "Plazos",
+          "description": "Una fecha legal o de la administración con su fuente, un aviso previo y la persona que la verificó."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierta",
+            "waiting": "En espera",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "contacts.preferred_channel": {
+          "label": "Canal preferido",
+          "options": {
+            "email": "Correo electrónico",
+            "phone": "Teléfono",
+            "portal": "Portal",
+            "whatsapp": "WhatsApp",
+            "post": "Correo postal"
+          }
+        },
+        "clients.client_type": {
+          "label": "Tipo",
+          "options": {
+            "individual": "Particular",
+            "sole_trader": "Autónomo",
+            "company": "Sociedad",
+            "association": "Asociación"
+          }
+        },
+        "clients.vat_frequency": {
+          "label": "Declaraciones de IVA",
+          "options": {
+            "monthly": "Mensuales",
+            "quarterly": "Trimestrales",
+            "annual": "Anuales",
+            "not_applicable": "No aplica"
+          }
+        },
+        "clients.authorisation_on": {
+          "label": "Apoderamiento desde",
+          "options": {}
+        },
+        "clients.aml_risk": {
+          "label": "Riesgo de blanqueo",
+          "options": {
+            "not_assessed": "Sin evaluar",
+            "low": "Bajo",
+            "standard": "Normal",
+            "enhanced": "Reforzado",
+            "declined": "Rechazado"
+          }
+        },
+        "clients.aml_next_review": {
+          "label": "Próxima revisión del riesgo",
+          "options": {}
+        },
+        "mandates.stage": {
+          "label": "Fase",
+          "options": {
+            "inquiry": "Consulta",
+            "intro_call": "Primera reunión",
+            "proposal_sent": "Presupuesto",
+            "aml_check": "Identificación (PBC/FT)",
+            "engagement_letter_out": "Hoja de encargo enviada",
+            "active": "Activo",
+            "declined": "Rechazado",
+            "not_going_ahead": "No prosperó"
+          }
+        },
+        "mandates.services": {
+          "label": "Servicios",
+          "options": {
+            "bookkeeping": "Contabilidad",
+            "payroll": "Nóminas",
+            "vat_returns": "IVA",
+            "annual_accounts": "Cuentas anuales",
+            "tax_returns": "Declaraciones de impuestos",
+            "advisory": "Asesoramiento"
+          }
+        },
+        "mandates.fee_model": {
+          "label": "Honorarios",
+          "options": {
+            "fixed_monthly": "Cuota mensual fija",
+            "hourly": "Por horas",
+            "per_filing": "Por declaración",
+            "value_based": "Según valor"
+          }
+        },
+        "mandates.next_step_due": {
+          "label": "Siguiente paso antes de",
+          "options": {}
+        },
+        "mandates.lost_reason": {
+          "label": "Motivo",
+          "options": {
+            "capacity": "Sin capacidad",
+            "risk_declined": "Rechazado por riesgo",
+            "scope_mismatch": "Alcance inadecuado",
+            "price": "Precio",
+            "chose_other_advisor": "Eligió otro asesor",
+            "no_response": "Sin respuesta"
+          }
+        },
+        "jobs.status": {
+          "label": "Estado",
+          "options": {
+            "planned": "Planificado",
+            "waiting_for_documents": "A la espera de documentación",
+            "in_preparation": "En preparación",
+            "in_review": "En revisión",
+            "client_approval": "A la espera de la conformidad del cliente",
+            "submitted": "Presentado",
+            "waiting_for_authority": "A la espera de la administración",
+            "done": "Hecho"
+          }
+        },
+        "jobs.job_type": {
+          "label": "Tipo de expediente",
+          "options": {
+            "monthly_bookkeeping": "Contabilidad mensual",
+            "payroll_run": "Nómina del mes",
+            "vat_return": "Declaración del IVA",
+            "annual_accounts": "Cuentas anuales",
+            "tax_return": "Declaración de impuestos",
+            "year_end": "Cierre del ejercicio"
+          }
+        },
+        "jobs.period": {
+          "label": "Periodo",
+          "options": {}
+        },
+        "jobs.documents_due": {
+          "label": "Documentación antes de",
+          "options": {}
+        },
+        "jobs.internal_due": {
+          "label": "Vencimiento interno",
+          "options": {}
+        },
+        "jobs.reviewer": {
+          "label": "Revisor",
+          "options": {}
+        },
+        "jobs.notice_received_on": {
+          "label": "Notificación recibida el",
+          "options": {}
+        },
+        "deadlines.kind": {
+          "label": "Tipo",
+          "options": {
+            "vat_return": "Declaración del IVA",
+            "vat_payment": "Pago del IVA",
+            "payroll_report": "Declaración de nóminas",
+            "annual_accounts": "Cuentas anuales",
+            "tax_return": "Declaración de impuestos",
+            "appeal": "Recurso",
+            "payment": "Pago",
+            "aml_review": "Revisión del riesgo",
+            "other": "Otro"
+          }
+        },
+        "deadlines.due_date": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "deadlines.pre_deadline": {
+          "label": "Aviso previo",
+          "options": {}
+        },
+        "deadlines.source_ref": {
+          "label": "Fuente de la fecha",
+          "options": {}
+        },
+        "deadlines.verified_by": {
+          "label": "Verificado por",
+          "options": {}
+        },
+        "deadlines.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierto",
+            "in_progress": "En curso",
+            "filed": "Presentado",
+            "extended": "Ampliado",
+            "cancelled": "Cancelado"
+          }
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "request_documents": "Solicitar documentación",
+            "chase_documents": "Reclamar documentación",
+            "chase_approval": "Reclamar conformidad o firma",
+            "review": "Revisar",
+            "reply": "Responder",
+            "aml": "Identificación y nivel de riesgo",
+            "filing": "Presentación",
+            "other": "Otro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Contactos"
+        },
+        "mandate_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Encargos"
+        },
+        "job_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Expedientes"
+        },
+        "deadline_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Plazos"
+        },
+        "action_job": {
+          "sourceLabel": "Expediente",
+          "targetLabel": "Tareas"
+        },
+        "action_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Tareas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas las tareas"
+        },
+        "mandates_board": {
+          "name": "Encargos por fase"
+        },
+        "mandates_all": {
+          "name": "Todos los encargos"
+        },
+        "jobs_board": {
+          "name": "Expedientes por estado"
+        },
+        "jobs_waiting_documents": {
+          "name": "A la espera de documentación"
+        },
+        "deadlines_all": {
+          "name": "Todos los plazos"
+        },
+        "unverified_deadlines": {
+          "name": "Plazos sin verificar"
+        },
+        "clients_all": {
+          "name": "Todos los clientes"
+        },
+        "contacts_all": {
+          "name": "Todos los contactos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tareas"
+        },
+        "overdue_actions": {
+          "title": "Tareas vencidas"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        },
+        "deadlines_coming": {
+          "title": "Plazos próximos"
+        },
+        "unverified_count": {
+          "title": "Plazos abiertos sin verificador"
+        },
+        "jobs_by_status": {
+          "title": "Expedientes abiertos por estado"
+        },
+        "documents_waiting": {
+          "title": "Expedientes a la espera de documentación"
+        },
+        "jobs_waiting_on_client": {
+          "title": "Expedientes a la espera de la conformidad del cliente"
+        },
+        "mandates_funnel": {
+          "title": "Encargos por fase"
+        },
+        "aml_reviews": {
+          "title": "Revisiones de riesgo pendientes"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Cómo funciona el despacho",
+          "sections": [
+            "Los dos flujos: conseguir un encargo y hacer el trabajo",
+            "Quién responsable de cada fase y la regla de una tarea con fecha por expediente abierto"
+          ]
+        },
+        "onboarding_and_aml": {
+          "title": "Alta del cliente e identificación",
+          "sections": [
+            "Identificar al cliente y al titular real, nivel de riesgo",
+            "Lista de control de la hoja de encargo (aquí no se guardan copias de documentos de identidad)"
+          ]
+        },
+        "deadline_control": {
+          "title": "Control de plazos",
+          "sections": [
+            "Cómo se introduce una fecha con su fuente y la verifica una segunda persona",
+            "Revisión del aviso previo y decisión sobre una ampliación"
+          ]
+        },
+        "document_checklists": {
+          "title": "Solicitudes de documentación por servicio",
+          "sections": [
+            "Qué pedimos en cada servicio y para cuándo",
+            "Recordatorios y qué hacer cuando falta documentación"
+          ]
+        }
+      },
+      "rules": {
+        "proposal_follow_up": {
+          "title": "Dar seguimiento a un presupuesto 3 días después de enviarlo",
+          "description": ""
+        },
+        "aml_identification": {
+          "title": "Identificar al cliente en 2 días cuando un encargo llega a la fase de identificación",
+          "description": ""
+        },
+        "onboarding_set": {
+          "title": "Pedir el apoderamiento y la primera documentación cuando un encargo pasa a activo",
+          "description": ""
+        },
+        "recontact_not_going_ahead": {
+          "title": "Fijar el siguiente paso a 90 días cuando un encargo no prospera",
+          "description": ""
+        },
+        "documents_chase": {
+          "title": "Reclamar la documentación 3 días antes de la fecha prevista",
+          "description": ""
+        },
+        "documents_overdue_notice": {
+          "title": "Avisar al responsable cuando la documentación vence y sigue sin llegar",
+          "description": ""
+        },
+        "pre_deadline_check": {
+          "title": "Avisar al responsable en el aviso previo de un plazo abierto",
+          "description": ""
+        },
+        "due_date_escalation": {
+          "title": "Avisar a la persona a cargo 2 días antes de un plazo abierto",
+          "description": ""
+        },
+        "approval_chase": {
+          "title": "Reclamar la conformidad del cliente tras 5 días de espera",
+          "description": ""
+        },
+        "notice_check": {
+          "title": "Revisar una notificación de la administración en los 3 días siguientes a recibirla",
+          "description": ""
+        },
+        "aml_review": {
+          "title": "Revisar el nivel de riesgo cuando llega la fecha de la próxima revisión",
+          "description": ""
+        },
+        "monthly_close_jobs": {
+          "title": "Crear los expedientes mensuales al comienzo de cada mes",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "mandate_stage_field": "Cada encargo tiene una fase.",
+        "job_status_field": "Cada expediente tiene un estado, incluido a la espera de documentación.",
+        "deadline_due_field": "Cada plazo indica su fecha.",
+        "deadline_verifier_field": "Cada plazo indica quién lo verificó.",
+        "deadline_control_page": "La base de conocimiento contiene una página sobre el control de plazos."
+      },
+      "prompt": {
+        "intro": "Configura en mi espacio de Customermates un despacho fiscal y contable: encargos de la consulta a activo con un paso de identificación, expedientes recurrentes por cliente y periodo, un calendario de plazos con aviso previo y verificador, y seguimientos con fecha. No calcules nunca fechas legales y no guardes copias de documentos de identidad.",
+        "questions": [
+          "¿Qué servicios ofrece y qué expedientes recurrentes lleva por cliente?",
+          "¿En qué país trabaja y qué plazos controla?",
+          "¿Quién prepara, quién revisa y quién verifica un plazo?",
+          "¿Cómo identifica a los clientes nuevos y cada cuánto revisa su nivel de riesgo?"
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "Cabinet d'expertise comptable",
+      "summary": "Un poste de travail de cabinet avec deux flux : obtenir une mission, avec vigilance LCB-FT et lettre de mission, et faire le travail récurrent par client, avec un registre d'échéances vérifié par une seconde personne.",
+      "description": "Pilotez un cabinet d'expertise comptable au même endroit : missions de la demande à la mission active avec une étape de vigilance LCB-FT entre les deux, dossiers récurrents par client et période avec le statut en attente de pièces, et registre d'échéances avec une pré-échéance et la personne qui a vérifié chaque date. Le modèle est la couche relation, preuve des échéances et relances à côté de votre logiciel de cabinet. Il ne calcule pas les dates légales, ne dépose rien, ne tient pas la comptabilité, ne fait pas la paie ni la facturation du temps, et ne conserve ni numéros fiscaux ni copies de pièces d'identité.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Une prochaine étape datée par dossier ouvert."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "Les personnes chez vos clients qui envoient les pièces et signent."
+        },
+        "clients": {
+          "label": "Client",
+          "pluralLabel": "Clients",
+          "description": "Particuliers, entrepreneurs individuels, sociétés et associations pour lesquels vous intervenez."
+        },
+        "mandates": {
+          "label": "Mission",
+          "pluralLabel": "Missions",
+          "description": "Un engagement de la demande à actif ou refusé."
+        },
+        "jobs": {
+          "label": "Dossier de travaux",
+          "pluralLabel": "Dossiers de travaux",
+          "description": "Travail récurrent pour un client et une période, comme une clôture mensuelle ou une déclaration de TVA."
+        },
+        "deadlines": {
+          "label": "Échéance",
+          "pluralLabel": "Échéances",
+          "description": "Une date légale ou administrative avec sa source, une pré-échéance et la personne qui l'a vérifiée."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "waiting": "En attente",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "contacts.preferred_channel": {
+          "label": "Canal préféré",
+          "options": {
+            "email": "E-mail",
+            "phone": "Téléphone",
+            "portal": "Portail",
+            "whatsapp": "WhatsApp",
+            "post": "Courrier"
+          }
+        },
+        "clients.client_type": {
+          "label": "Type",
+          "options": {
+            "individual": "Particulier",
+            "sole_trader": "Entrepreneur individuel",
+            "company": "Société",
+            "association": "Association"
+          }
+        },
+        "clients.vat_frequency": {
+          "label": "Déclarations de TVA",
+          "options": {
+            "monthly": "Mensuelles",
+            "quarterly": "Trimestrielles",
+            "annual": "Annuelles",
+            "not_applicable": "Sans objet"
+          }
+        },
+        "clients.authorisation_on": {
+          "label": "Mandat de représentation depuis le",
+          "options": {}
+        },
+        "clients.aml_risk": {
+          "label": "Risque LCB-FT",
+          "options": {
+            "not_assessed": "Non évalué",
+            "low": "Faible",
+            "standard": "Standard",
+            "enhanced": "Renforcé",
+            "declined": "Refusé"
+          }
+        },
+        "clients.aml_next_review": {
+          "label": "Prochaine revue du risque",
+          "options": {}
+        },
+        "mandates.stage": {
+          "label": "Étape",
+          "options": {
+            "inquiry": "Demande",
+            "intro_call": "Premier rendez-vous",
+            "proposal_sent": "Proposition",
+            "aml_check": "Vigilance LCB-FT",
+            "engagement_letter_out": "Lettre de mission envoyée",
+            "active": "Actif",
+            "declined": "Refusé",
+            "not_going_ahead": "Sans suite"
+          }
+        },
+        "mandates.services": {
+          "label": "Prestations",
+          "options": {
+            "bookkeeping": "Tenue comptable",
+            "payroll": "Paie",
+            "vat_returns": "TVA",
+            "annual_accounts": "Comptes annuels",
+            "tax_returns": "Déclarations fiscales",
+            "advisory": "Conseil"
+          }
+        },
+        "mandates.fee_model": {
+          "label": "Honoraires",
+          "options": {
+            "fixed_monthly": "Forfait mensuel",
+            "hourly": "Au temps passé",
+            "per_filing": "Par déclaration",
+            "value_based": "À la valeur"
+          }
+        },
+        "mandates.next_step_due": {
+          "label": "Prochaine étape avant le",
+          "options": {}
+        },
+        "mandates.lost_reason": {
+          "label": "Motif",
+          "options": {
+            "capacity": "Pas de capacité",
+            "risk_declined": "Refusé pour le risque",
+            "scope_mismatch": "Périmètre inadapté",
+            "price": "Prix",
+            "chose_other_advisor": "A choisi un autre conseil",
+            "no_response": "Sans réponse"
+          }
+        },
+        "jobs.status": {
+          "label": "Statut",
+          "options": {
+            "planned": "Prévu",
+            "waiting_for_documents": "En attente de pièces",
+            "in_preparation": "En préparation",
+            "in_review": "En revue",
+            "client_approval": "En attente de l'accord du client",
+            "submitted": "Déposé",
+            "waiting_for_authority": "En attente de l'administration",
+            "done": "Terminé"
+          }
+        },
+        "jobs.job_type": {
+          "label": "Type de travaux",
+          "options": {
+            "monthly_bookkeeping": "Tenue mensuelle",
+            "payroll_run": "Paie du mois",
+            "vat_return": "Déclaration de TVA",
+            "annual_accounts": "Comptes annuels",
+            "tax_return": "Déclaration fiscale",
+            "year_end": "Clôture d'exercice"
+          }
+        },
+        "jobs.period": {
+          "label": "Période",
+          "options": {}
+        },
+        "jobs.documents_due": {
+          "label": "Pièces à fournir avant le",
+          "options": {}
+        },
+        "jobs.internal_due": {
+          "label": "Échéance interne",
+          "options": {}
+        },
+        "jobs.reviewer": {
+          "label": "Relecteur",
+          "options": {}
+        },
+        "jobs.notice_received_on": {
+          "label": "Avis de l'administration reçu le",
+          "options": {}
+        },
+        "deadlines.kind": {
+          "label": "Type",
+          "options": {
+            "vat_return": "Déclaration de TVA",
+            "vat_payment": "Paiement de la TVA",
+            "payroll_report": "Déclaration sociale",
+            "annual_accounts": "Comptes annuels",
+            "tax_return": "Déclaration fiscale",
+            "appeal": "Recours",
+            "payment": "Paiement",
+            "aml_review": "Revue du risque",
+            "other": "Autre"
+          }
+        },
+        "deadlines.due_date": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "deadlines.pre_deadline": {
+          "label": "Pré-échéance",
+          "options": {}
+        },
+        "deadlines.source_ref": {
+          "label": "Source de la date",
+          "options": {}
+        },
+        "deadlines.verified_by": {
+          "label": "Vérifiée par",
+          "options": {}
+        },
+        "deadlines.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "in_progress": "En cours",
+            "filed": "Déposée",
+            "extended": "Prorogée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "request_documents": "Demander des pièces",
+            "chase_documents": "Relancer pour les pièces",
+            "chase_approval": "Relancer pour l'accord ou la signature",
+            "review": "Relire",
+            "reply": "Répondre",
+            "aml": "Identification et niveau de risque",
+            "filing": "Dépôt",
+            "other": "Autre"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Contacts"
+        },
+        "mandate_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Missions"
+        },
+        "job_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Dossiers de travaux"
+        },
+        "deadline_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Échéances"
+        },
+        "action_job": {
+          "sourceLabel": "Dossier de travaux",
+          "targetLabel": "Actions"
+        },
+        "action_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "mandates_board": {
+          "name": "Missions par étape"
+        },
+        "mandates_all": {
+          "name": "Toutes les missions"
+        },
+        "jobs_board": {
+          "name": "Dossiers par statut"
+        },
+        "jobs_waiting_documents": {
+          "name": "En attente de pièces"
+        },
+        "deadlines_all": {
+          "name": "Toutes les échéances"
+        },
+        "unverified_deadlines": {
+          "name": "Échéances non vérifiées"
+        },
+        "clients_all": {
+          "name": "Tous les clients"
+        },
+        "contacts_all": {
+          "name": "Tous les contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Actions à venir"
+        },
+        "overdue_actions": {
+          "title": "Actions en retard"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        },
+        "deadlines_coming": {
+          "title": "Échéances à venir"
+        },
+        "unverified_count": {
+          "title": "Échéances ouvertes sans vérificateur"
+        },
+        "jobs_by_status": {
+          "title": "Dossiers ouverts par statut"
+        },
+        "documents_waiting": {
+          "title": "Dossiers en attente de pièces"
+        },
+        "jobs_waiting_on_client": {
+          "title": "Dossiers en attente de l'accord du client"
+        },
+        "mandates_funnel": {
+          "title": "Missions par étape"
+        },
+        "aml_reviews": {
+          "title": "Revues du risque à faire"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Comment fonctionne le cabinet",
+          "sections": [
+            "Les deux flux : obtenir une mission et faire le travail",
+            "Qui est responsable de quelle étape et la règle d'une action datée par dossier ouvert"
+          ]
+        },
+        "onboarding_and_aml": {
+          "title": "Entrée en relation et vigilance LCB-FT",
+          "sections": [
+            "Identifier le client et le bénéficiaire effectif, niveau de risque",
+            "Liste de contrôle de la lettre de mission (aucune copie de pièce d'identité n'est conservée ici)"
+          ]
+        },
+        "deadline_control": {
+          "title": "Contrôle des échéances",
+          "sections": [
+            "Comment une date est saisie avec sa source et vérifiée par une seconde personne",
+            "Contrôle de la pré-échéance et décision de prorogation"
+          ]
+        },
+        "document_checklists": {
+          "title": "Demandes de pièces par prestation",
+          "sections": [
+            "Ce que nous demandons pour chaque prestation et pour quand",
+            "Relances et suite à donner quand des pièces manquent"
+          ]
+        }
+      },
+      "rules": {
+        "proposal_follow_up": {
+          "title": "Relancer une proposition 3 jours après son envoi",
+          "description": ""
+        },
+        "aml_identification": {
+          "title": "Identifier le client sous 2 jours quand une mission atteint l'étape de vigilance",
+          "description": ""
+        },
+        "onboarding_set": {
+          "title": "Demander le mandat de représentation et les premières pièces quand une mission devient active",
+          "description": ""
+        },
+        "recontact_not_going_ahead": {
+          "title": "Fixer la prochaine étape à 90 jours quand une mission est sans suite",
+          "description": ""
+        },
+        "documents_chase": {
+          "title": "Relancer pour les pièces 3 jours avant la date prévue",
+          "description": ""
+        },
+        "documents_overdue_notice": {
+          "title": "Prévenir le responsable quand les pièces sont dues et toujours absentes",
+          "description": ""
+        },
+        "pre_deadline_check": {
+          "title": "Prévenir le responsable à la pré-échéance d'une échéance ouverte",
+          "description": ""
+        },
+        "due_date_escalation": {
+          "title": "Prévenir l'associé 2 jours avant une échéance ouverte",
+          "description": ""
+        },
+        "approval_chase": {
+          "title": "Relancer l'accord du client après 5 jours d'attente",
+          "description": ""
+        },
+        "notice_check": {
+          "title": "Examiner un avis de l'administration dans les 3 jours suivant sa réception",
+          "description": ""
+        },
+        "aml_review": {
+          "title": "Revoir le niveau de risque quand la prochaine revue arrive",
+          "description": ""
+        },
+        "monthly_close_jobs": {
+          "title": "Créer les dossiers mensuels au début de chaque mois",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "mandate_stage_field": "Chaque mission a une étape.",
+        "job_status_field": "Chaque dossier a un statut, y compris en attente de pièces.",
+        "deadline_due_field": "Chaque échéance indique sa date.",
+        "deadline_verifier_field": "Chaque échéance indique qui l'a vérifiée.",
+        "deadline_control_page": "La base de connaissances contient une page sur le contrôle des échéances."
+      },
+      "prompt": {
+        "intro": "Mets en place dans mon espace Customermates un cabinet d'expertise comptable : missions de la demande à actif avec une étape de vigilance, dossiers récurrents par client et période, registre d'échéances avec pré-échéance et vérificateur, et relances datées. Ne calcule jamais de dates légales et ne stocke aucune copie de pièce d'identité.",
+        "questions": [
+          "Quelles prestations proposez-vous, et quels dossiers récurrents tenez-vous par client ?",
+          "Dans quel pays exercez-vous, et quelles échéances suivez-vous ?",
+          "Qui prépare, qui relit, et qui vérifie une échéance ?",
+          "Comment identifiez-vous les nouveaux clients, et à quelle fréquence revoyez-vous leur niveau de risque ?"
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "Studio commercialista",
+      "summary": "Una postazione di studio con due flussi: acquisire un incarico, con adeguata verifica e lettera di incarico, e svolgere il lavoro ricorrente per cliente, con uno scadenzario verificato da una seconda persona.",
+      "description": "Gestisci uno studio di commercialisti in un unico posto: incarichi dalla richiesta all'incarico attivo con un passaggio di adeguata verifica antiriciclaggio in mezzo, pratiche ricorrenti per cliente e periodo con lo stato in attesa di documenti, e uno scadenzario con una prescadenza e la persona che ha verificato ogni data. Il modello è lo strato di relazione, prova delle scadenze e solleciti accanto al tuo software di studio. Non calcola scadenze di legge, non invia dichiarazioni, non tiene la contabilità, non elabora paghe né fattura il tempo e non conserva codici fiscali né copie dei documenti d'identità.",
+      "lists": {
+        "actions": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un prossimo passo con data per ogni pratica aperta."
+        },
+        "contacts": {
+          "label": "Referente",
+          "pluralLabel": "Referenti",
+          "description": "Le persone presso i clienti che inviano i documenti e firmano."
+        },
+        "clients": {
+          "label": "Cliente",
+          "pluralLabel": "Clienti",
+          "description": "Privati, ditte individuali, società e associazioni per cui operi."
+        },
+        "mandates": {
+          "label": "Incarico",
+          "pluralLabel": "Incarichi",
+          "description": "Un incarico dalla richiesta ad attivo o rifiutato."
+        },
+        "jobs": {
+          "label": "Pratica",
+          "pluralLabel": "Pratiche e adempimenti",
+          "description": "Lavoro ricorrente per un cliente e un periodo, come la chiusura mensile o la liquidazione IVA."
+        },
+        "deadlines": {
+          "label": "Scadenza",
+          "pluralLabel": "Scadenze",
+          "description": "Una data di legge o dell'amministrazione con la sua fonte, una prescadenza e la persona che l'ha verificata."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "waiting": "In attesa",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "contacts.preferred_channel": {
+          "label": "Canale preferito",
+          "options": {
+            "email": "Email",
+            "phone": "Telefono",
+            "portal": "Portale",
+            "whatsapp": "WhatsApp",
+            "post": "Posta"
+          }
+        },
+        "clients.client_type": {
+          "label": "Tipo",
+          "options": {
+            "individual": "Privato",
+            "sole_trader": "Ditta individuale",
+            "company": "Società",
+            "association": "Associazione"
+          }
+        },
+        "clients.vat_frequency": {
+          "label": "Liquidazioni IVA",
+          "options": {
+            "monthly": "Mensili",
+            "quarterly": "Trimestrali",
+            "annual": "Annuali",
+            "not_applicable": "Non applicabile"
+          }
+        },
+        "clients.authorisation_on": {
+          "label": "Delega agli atti dal",
+          "options": {}
+        },
+        "clients.aml_risk": {
+          "label": "Profilo di rischio antiriciclaggio",
+          "options": {
+            "not_assessed": "Non valutato",
+            "low": "Basso",
+            "standard": "Medio",
+            "enhanced": "Alto",
+            "declined": "Rifiutato"
+          }
+        },
+        "clients.aml_next_review": {
+          "label": "Prossima rivalutazione del rischio",
+          "options": {}
+        },
+        "mandates.stage": {
+          "label": "Fase",
+          "options": {
+            "inquiry": "Richiesta",
+            "intro_call": "Primo colloquio",
+            "proposal_sent": "Preventivo",
+            "aml_check": "Adeguata verifica",
+            "engagement_letter_out": "Lettera di incarico inviata",
+            "active": "Attivo",
+            "declined": "Rifiutato",
+            "not_going_ahead": "Non concluso"
+          }
+        },
+        "mandates.services": {
+          "label": "Servizi",
+          "options": {
+            "bookkeeping": "Contabilità",
+            "payroll": "Paghe",
+            "vat_returns": "IVA",
+            "annual_accounts": "Bilancio",
+            "tax_returns": "Dichiarazioni dei redditi",
+            "advisory": "Consulenza"
+          }
+        },
+        "mandates.fee_model": {
+          "label": "Compenso",
+          "options": {
+            "fixed_monthly": "Canone mensile",
+            "hourly": "A ore",
+            "per_filing": "A dichiarazione",
+            "value_based": "A valore"
+          }
+        },
+        "mandates.next_step_due": {
+          "label": "Prossimo passo entro",
+          "options": {}
+        },
+        "mandates.lost_reason": {
+          "label": "Motivo",
+          "options": {
+            "capacity": "Nessuna capacità",
+            "risk_declined": "Rifiutato per rischio",
+            "scope_mismatch": "Ambito non adatto",
+            "price": "Prezzo",
+            "chose_other_advisor": "Ha scelto un altro consulente",
+            "no_response": "Nessuna risposta"
+          }
+        },
+        "jobs.status": {
+          "label": "Stato",
+          "options": {
+            "planned": "Pianificata",
+            "waiting_for_documents": "In attesa di documenti",
+            "in_preparation": "In lavorazione",
+            "in_review": "In revisione",
+            "client_approval": "In attesa del cliente",
+            "submitted": "Inviata",
+            "waiting_for_authority": "In attesa dell'amministrazione",
+            "done": "Completata"
+          }
+        },
+        "jobs.job_type": {
+          "label": "Tipo di pratica",
+          "options": {
+            "monthly_bookkeeping": "Contabilità mensile",
+            "payroll_run": "Elaborazione paghe",
+            "vat_return": "Liquidazione IVA",
+            "annual_accounts": "Bilancio",
+            "tax_return": "Dichiarazione dei redditi",
+            "year_end": "Chiusura d'esercizio"
+          }
+        },
+        "jobs.period": {
+          "label": "Periodo",
+          "options": {}
+        },
+        "jobs.documents_due": {
+          "label": "Documenti entro",
+          "options": {}
+        },
+        "jobs.internal_due": {
+          "label": "Scadenza interna",
+          "options": {}
+        },
+        "jobs.reviewer": {
+          "label": "Revisore",
+          "options": {}
+        },
+        "jobs.notice_received_on": {
+          "label": "Avviso dell'amministrazione ricevuto il",
+          "options": {}
+        },
+        "deadlines.kind": {
+          "label": "Tipo",
+          "options": {
+            "vat_return": "Liquidazione IVA",
+            "vat_payment": "Versamento IVA",
+            "payroll_report": "Denuncia contributiva",
+            "annual_accounts": "Bilancio",
+            "tax_return": "Dichiarazione dei redditi",
+            "appeal": "Ricorso",
+            "payment": "Pagamento (F24)",
+            "aml_review": "Rivalutazione del rischio",
+            "other": "Altro"
+          }
+        },
+        "deadlines.due_date": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "deadlines.pre_deadline": {
+          "label": "Prescadenza",
+          "options": {}
+        },
+        "deadlines.source_ref": {
+          "label": "Fonte della data",
+          "options": {}
+        },
+        "deadlines.verified_by": {
+          "label": "Verificata da",
+          "options": {}
+        },
+        "deadlines.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "in_progress": "In corso",
+            "filed": "Adempiuta",
+            "extended": "Prorogata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "request_documents": "Richiedere documenti",
+            "chase_documents": "Sollecitare i documenti",
+            "chase_approval": "Sollecitare approvazione o firma",
+            "review": "Revisionare",
+            "reply": "Rispondere",
+            "aml": "Identificazione e profilo di rischio",
+            "filing": "Invio",
+            "other": "Altro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Referenti"
+        },
+        "mandate_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Incarichi"
+        },
+        "job_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Pratiche e adempimenti"
+        },
+        "deadline_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Scadenze"
+        },
+        "action_job": {
+          "sourceLabel": "Pratica",
+          "targetLabel": "Attività"
+        },
+        "action_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Attività"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Tutte le attività"
+        },
+        "mandates_board": {
+          "name": "Incarichi per fase"
+        },
+        "mandates_all": {
+          "name": "Tutti gli incarichi"
+        },
+        "jobs_board": {
+          "name": "Pratiche per stato"
+        },
+        "jobs_waiting_documents": {
+          "name": "In attesa di documenti"
+        },
+        "deadlines_all": {
+          "name": "Tutte le scadenze"
+        },
+        "unverified_deadlines": {
+          "name": "Scadenze non verificate"
+        },
+        "clients_all": {
+          "name": "Tutti i clienti"
+        },
+        "contacts_all": {
+          "name": "Tutti i referenti"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Attività in arrivo"
+        },
+        "overdue_actions": {
+          "title": "Attività scadute"
+        },
+        "activity_timeline": {
+          "title": "Attività recente"
+        },
+        "deadlines_coming": {
+          "title": "Scadenze in arrivo"
+        },
+        "unverified_count": {
+          "title": "Scadenze aperte senza verifica"
+        },
+        "jobs_by_status": {
+          "title": "Pratiche aperte per stato"
+        },
+        "documents_waiting": {
+          "title": "Pratiche in attesa di documenti"
+        },
+        "jobs_waiting_on_client": {
+          "title": "Pratiche in attesa del cliente"
+        },
+        "mandates_funnel": {
+          "title": "Incarichi per fase"
+        },
+        "aml_reviews": {
+          "title": "Rivalutazioni del rischio in scadenza"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Come funziona lo studio",
+          "sections": [
+            "I due flussi: acquisire un incarico e svolgere il lavoro",
+            "Chi è responsabile di quale fase e la regola di un'attività con data per pratica aperta"
+          ]
+        },
+        "onboarding_and_aml": {
+          "title": "Acquisizione del cliente e adeguata verifica",
+          "sections": [
+            "Identificare il cliente e il titolare effettivo, profilo di rischio",
+            "Lista di controllo della lettera di incarico (qui non si conservano copie dei documenti)"
+          ]
+        },
+        "deadline_control": {
+          "title": "Controllo delle scadenze",
+          "sections": [
+            "Come si inserisce una data con la sua fonte e la si fa verificare da una seconda persona",
+            "Controllo della prescadenza e decisione sulla proroga"
+          ]
+        },
+        "document_checklists": {
+          "title": "Richieste di documenti per servizio",
+          "sections": [
+            "Che cosa chiediamo per ogni servizio e entro quando",
+            "Solleciti e che cosa fare quando mancano documenti"
+          ]
+        }
+      },
+      "rules": {
+        "proposal_follow_up": {
+          "title": "Sollecitare un preventivo 3 giorni dopo l'invio",
+          "description": ""
+        },
+        "aml_identification": {
+          "title": "Identificare il cliente entro 2 giorni quando un incarico arriva alla fase di adeguata verifica",
+          "description": ""
+        },
+        "onboarding_set": {
+          "title": "Richiedere la delega e i primi documenti quando un incarico diventa attivo",
+          "description": ""
+        },
+        "recontact_not_going_ahead": {
+          "title": "Fissare il prossimo passo a 90 giorni quando un incarico non si conclude",
+          "description": ""
+        },
+        "documents_chase": {
+          "title": "Sollecitare i documenti 3 giorni prima della data richiesta",
+          "description": ""
+        },
+        "documents_overdue_notice": {
+          "title": "Avvisare il responsabile quando i documenti sono dovuti e mancano ancora",
+          "description": ""
+        },
+        "pre_deadline_check": {
+          "title": "Avvisare il responsabile alla prescadenza di una scadenza aperta",
+          "description": ""
+        },
+        "due_date_escalation": {
+          "title": "Avvisare il referente 2 giorni prima di una scadenza aperta",
+          "description": ""
+        },
+        "approval_chase": {
+          "title": "Sollecitare l'approvazione del cliente dopo 5 giorni di attesa",
+          "description": ""
+        },
+        "notice_check": {
+          "title": "Esaminare un avviso dell'amministrazione entro 3 giorni dal ricevimento",
+          "description": ""
+        },
+        "aml_review": {
+          "title": "Rivalutare il profilo di rischio quando arriva la data di rivalutazione",
+          "description": ""
+        },
+        "monthly_close_jobs": {
+          "title": "Creare le pratiche mensili all'inizio di ogni mese",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "mandate_stage_field": "Ogni incarico ha una fase.",
+        "job_status_field": "Ogni pratica ha uno stato, compreso in attesa di documenti.",
+        "deadline_due_field": "Ogni scadenza indica la sua data.",
+        "deadline_verifier_field": "Ogni scadenza indica chi l'ha verificata.",
+        "deadline_control_page": "La base di conoscenza contiene una pagina sul controllo delle scadenze."
+      },
+      "prompt": {
+        "intro": "Imposta nel mio workspace Customermates uno studio di commercialisti: incarichi dalla richiesta ad attivo con una fase di adeguata verifica, pratiche ricorrenti per cliente e periodo, uno scadenzario con prescadenza e verificatore e solleciti con data. Non calcolare mai scadenze di legge e non conservare copie dei documenti d'identità.",
+        "questions": [
+          "Quali servizi offrite e quali pratiche ricorrenti seguite per cliente?",
+          "In quale Paese operate e quali scadenze monitorate?",
+          "Chi prepara, chi revisiona e chi verifica una scadenza?",
+          "Come identificate i nuovi clienti e ogni quanto rivedete il loro profilo di rischio?"
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "Boekhoud- en belastingkantoor",
+      "summary": "Een kantoorwerkplek met twee stromen: een opdracht binnenhalen, met cliëntenonderzoek en opdrachtbevestiging, en het terugkerende werk per klant doen, met een termijnenregister dat een tweede persoon controleert.",
+      "description": "Voer een boekhoud- of belastingkantoor op één plek: opdrachten van aanvraag tot actieve opdracht met een cliëntenonderzoek volgens de Wwft ertussen, terugkerende dossiers per klant en periode met de status wacht op documenten, en een termijnenregister met een voortermijn en de persoon die elke datum heeft gecontroleerd. Het is de laag voor relatie, bewijs van termijnen en opvolging naast uw kantoorsoftware. Het berekent geen wettelijke data, dient niets in, voert geen administratie, doet geen loonadministratie of tijdfacturering en bewaart geen BSN's of kopieën van identiteitsbewijzen.",
+      "lists": {
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén volgende stap met datum per open dossier."
+        },
+        "contacts": {
+          "label": "Contactpersoon",
+          "pluralLabel": "Contactpersonen",
+          "description": "De mensen bij uw klanten die documenten sturen en tekenen."
+        },
+        "clients": {
+          "label": "Klant",
+          "pluralLabel": "Klanten",
+          "description": "Particulieren, eenmanszaken, bedrijven en verenigingen voor wie u werkt."
+        },
+        "mandates": {
+          "label": "Opdracht",
+          "pluralLabel": "Opdrachten",
+          "description": "Eén opdracht van aanvraag tot actief of afgewezen."
+        },
+        "jobs": {
+          "label": "Dossier",
+          "pluralLabel": "Dossiers",
+          "description": "Terugkerend werk voor een klant en periode, zoals een maandafsluiting of een btw-aangifte."
+        },
+        "deadlines": {
+          "label": "Termijn",
+          "pluralLabel": "Termijnen",
+          "description": "Een wettelijke of overheidsdatum met bron, een voortermijn en de persoon die haar controleerde."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Wachtend",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "contacts.preferred_channel": {
+          "label": "Voorkeurskanaal",
+          "options": {
+            "email": "E-mail",
+            "phone": "Telefoon",
+            "portal": "Portaal",
+            "whatsapp": "WhatsApp",
+            "post": "Post"
+          }
+        },
+        "clients.client_type": {
+          "label": "Type",
+          "options": {
+            "individual": "Particulier",
+            "sole_trader": "Eenmanszaak",
+            "company": "Bedrijf",
+            "association": "Vereniging"
+          }
+        },
+        "clients.vat_frequency": {
+          "label": "Btw-aangifte",
+          "options": {
+            "monthly": "Maandelijks",
+            "quarterly": "Per kwartaal",
+            "annual": "Jaarlijks",
+            "not_applicable": "Niet van toepassing"
+          }
+        },
+        "clients.authorisation_on": {
+          "label": "Machtiging aanwezig sinds",
+          "options": {}
+        },
+        "clients.aml_risk": {
+          "label": "Witwasrisico",
+          "options": {
+            "not_assessed": "Niet beoordeeld",
+            "low": "Laag",
+            "standard": "Standaard",
+            "enhanced": "Verhoogd",
+            "declined": "Afgewezen"
+          }
+        },
+        "clients.aml_next_review": {
+          "label": "Volgende risicobeoordeling",
+          "options": {}
+        },
+        "mandates.stage": {
+          "label": "Fase",
+          "options": {
+            "inquiry": "Aanvraag",
+            "intro_call": "Kennismaking",
+            "proposal_sent": "Offerte",
+            "aml_check": "Cliëntenonderzoek (Wwft)",
+            "engagement_letter_out": "Opdrachtbevestiging verstuurd",
+            "active": "Actief",
+            "declined": "Afgewezen",
+            "not_going_ahead": "Verloren"
+          }
+        },
+        "mandates.services": {
+          "label": "Diensten",
+          "options": {
+            "bookkeeping": "Boekhouding",
+            "payroll": "Loonadministratie",
+            "vat_returns": "Btw",
+            "annual_accounts": "Jaarrekening",
+            "tax_returns": "Belastingaangiften",
+            "advisory": "Advies"
+          }
+        },
+        "mandates.fee_model": {
+          "label": "Tarief",
+          "options": {
+            "fixed_monthly": "Vast per maand",
+            "hourly": "Per uur",
+            "per_filing": "Per aangifte",
+            "value_based": "Waardegebonden"
+          }
+        },
+        "mandates.next_step_due": {
+          "label": "Volgende stap voor",
+          "options": {}
+        },
+        "mandates.lost_reason": {
+          "label": "Reden",
+          "options": {
+            "capacity": "Geen capaciteit",
+            "risk_declined": "Afgewezen wegens risico",
+            "scope_mismatch": "Omvang past niet",
+            "price": "Prijs",
+            "chose_other_advisor": "Koos een andere adviseur",
+            "no_response": "Geen reactie"
+          }
+        },
+        "jobs.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Gepland",
+            "waiting_for_documents": "Wacht op documenten",
+            "in_preparation": "In voorbereiding",
+            "in_review": "In controle",
+            "client_approval": "Wacht op akkoord van de klant",
+            "submitted": "Ingediend",
+            "waiting_for_authority": "Wacht op de Belastingdienst",
+            "done": "Klaar"
+          }
+        },
+        "jobs.job_type": {
+          "label": "Soort dossier",
+          "options": {
+            "monthly_bookkeeping": "Maandelijkse boekhouding",
+            "payroll_run": "Loonrun",
+            "vat_return": "Btw-aangifte",
+            "annual_accounts": "Jaarrekening",
+            "tax_return": "Belastingaangifte",
+            "year_end": "Jaarafsluiting"
+          }
+        },
+        "jobs.period": {
+          "label": "Periode",
+          "options": {}
+        },
+        "jobs.documents_due": {
+          "label": "Documenten voor",
+          "options": {}
+        },
+        "jobs.internal_due": {
+          "label": "Interne deadline",
+          "options": {}
+        },
+        "jobs.reviewer": {
+          "label": "Controleur",
+          "options": {}
+        },
+        "jobs.notice_received_on": {
+          "label": "Bericht van de overheid ontvangen op",
+          "options": {}
+        },
+        "deadlines.kind": {
+          "label": "Soort",
+          "options": {
+            "vat_return": "Btw-aangifte",
+            "vat_payment": "Btw-betaling",
+            "payroll_report": "Loonaangifte",
+            "annual_accounts": "Jaarrekening",
+            "tax_return": "Belastingaangifte",
+            "appeal": "Bezwaar",
+            "payment": "Betaling",
+            "aml_review": "Risicobeoordeling",
+            "other": "Overig"
+          }
+        },
+        "deadlines.due_date": {
+          "label": "Uiterste datum",
+          "options": {}
+        },
+        "deadlines.pre_deadline": {
+          "label": "Voortermijn",
+          "options": {}
+        },
+        "deadlines.source_ref": {
+          "label": "Bron van de datum",
+          "options": {}
+        },
+        "deadlines.verified_by": {
+          "label": "Gecontroleerd door",
+          "options": {}
+        },
+        "deadlines.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "in_progress": "In behandeling",
+            "filed": "Ingediend",
+            "extended": "Uitgesteld",
+            "cancelled": "Vervallen"
+          }
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "request_documents": "Documenten opvragen",
+            "chase_documents": "Documenten nabellen",
+            "chase_approval": "Akkoord of handtekening nabellen",
+            "review": "Controleren",
+            "reply": "Reageren",
+            "aml": "Identificatie en risicoclassificatie",
+            "filing": "Indienen",
+            "other": "Overig"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Klant",
+          "targetLabel": "Contactpersonen"
+        },
+        "mandate_client": {
+          "sourceLabel": "Klant",
+          "targetLabel": "Opdrachten"
+        },
+        "job_client": {
+          "sourceLabel": "Klant",
+          "targetLabel": "Dossiers"
+        },
+        "deadline_client": {
+          "sourceLabel": "Klant",
+          "targetLabel": "Termijnen"
+        },
+        "action_job": {
+          "sourceLabel": "Dossier",
+          "targetLabel": "Taken"
+        },
+        "action_client": {
+          "sourceLabel": "Klant",
+          "targetLabel": "Taken"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "mandates_board": {
+          "name": "Opdrachten per fase"
+        },
+        "mandates_all": {
+          "name": "Alle opdrachten"
+        },
+        "jobs_board": {
+          "name": "Dossiers per status"
+        },
+        "jobs_waiting_documents": {
+          "name": "Wachten op documenten"
+        },
+        "deadlines_all": {
+          "name": "Alle termijnen"
+        },
+        "unverified_deadlines": {
+          "name": "Termijnen zonder controle"
+        },
+        "clients_all": {
+          "name": "Alle klanten"
+        },
+        "contacts_all": {
+          "name": "Alle contactpersonen"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Aankomende acties"
+        },
+        "overdue_actions": {
+          "title": "Achterstallige acties"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        },
+        "deadlines_coming": {
+          "title": "Komende termijnen"
+        },
+        "unverified_count": {
+          "title": "Open termijnen zonder controleur"
+        },
+        "jobs_by_status": {
+          "title": "Open dossiers per status"
+        },
+        "documents_waiting": {
+          "title": "Dossiers die op documenten wachten"
+        },
+        "jobs_waiting_on_client": {
+          "title": "Dossiers die op akkoord van de klant wachten"
+        },
+        "mandates_funnel": {
+          "title": "Opdrachten per fase"
+        },
+        "aml_reviews": {
+          "title": "Risicobeoordelingen die aan de beurt zijn"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Hoe het kantoor draait",
+          "sections": [
+            "De twee stromen: een opdracht binnenhalen en het werk doen",
+            "Wie welke fase bezit en de regel van één Actie met datum per open dossier"
+          ]
+        },
+        "onboarding_and_aml": {
+          "title": "Acceptatie en cliëntenonderzoek",
+          "sections": [
+            "De klant en de uiteindelijk belanghebbende identificeren, risicoclassificatie",
+            "Checklist opdrachtbevestiging (kopieën van identiteitsbewijzen worden hier niet bewaard)"
+          ]
+        },
+        "deadline_control": {
+          "title": "Termijnbewaking",
+          "sections": [
+            "Hoe een datum met bron wordt ingevoerd en door een tweede persoon gecontroleerd",
+            "Controle van de voortermijn en besluit over uitstel"
+          ]
+        },
+        "document_checklists": {
+          "title": "Documentverzoeken per dienst",
+          "sections": [
+            "Wat we per dienst opvragen en voor wanneer",
+            "Herinneringen en wat we doen als documenten ontbreken"
+          ]
+        }
+      },
+      "rules": {
+        "proposal_follow_up": {
+          "title": "Een offerte 3 dagen na verzending opvolgen",
+          "description": ""
+        },
+        "aml_identification": {
+          "title": "Binnen 2 dagen identificeren als een opdracht de onderzoeksfase bereikt",
+          "description": ""
+        },
+        "onboarding_set": {
+          "title": "De machtiging en de eerste documenten opvragen als een opdracht actief wordt",
+          "description": ""
+        },
+        "recontact_not_going_ahead": {
+          "title": "De volgende stap op 90 dagen zetten als een opdracht niet doorgaat",
+          "description": ""
+        },
+        "documents_chase": {
+          "title": "De documenten 3 dagen voor de afgesproken datum nabellen",
+          "description": ""
+        },
+        "documents_overdue_notice": {
+          "title": "De verantwoordelijke waarschuwen als documenten verschuldigd zijn en nog ontbreken",
+          "description": ""
+        },
+        "pre_deadline_check": {
+          "title": "De verantwoordelijke waarschuwen op de voortermijn van een open termijn",
+          "description": ""
+        },
+        "due_date_escalation": {
+          "title": "De teamleider 2 dagen voor een open termijn waarschuwen",
+          "description": ""
+        },
+        "approval_chase": {
+          "title": "Het akkoord van de klant na 5 dagen wachten nabellen",
+          "description": ""
+        },
+        "notice_check": {
+          "title": "Een bericht van de overheid binnen 3 dagen na ontvangst beoordelen",
+          "description": ""
+        },
+        "aml_review": {
+          "title": "De risicoclassificatie herzien als de volgende beoordelingsdatum is bereikt",
+          "description": ""
+        },
+        "monthly_close_jobs": {
+          "title": "Aan het begin van elke maand de maanddossiers aanmaken",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "mandate_stage_field": "Elke opdracht heeft een fase.",
+        "job_status_field": "Elk dossier heeft een status, ook wacht op documenten.",
+        "deadline_due_field": "Elke termijn legt zijn datum vast.",
+        "deadline_verifier_field": "Elke termijn legt vast wie hem controleerde.",
+        "deadline_control_page": "De kennisbank bevat een pagina over termijnbewaking."
+      },
+      "prompt": {
+        "intro": "Richt in mijn Customermates-workspace een boekhoud- en belastingkantoor in: opdrachten van aanvraag tot actief met een cliëntenonderzoek, terugkerende dossiers per klant en periode, een termijnenregister met voortermijn en controleur, en opvolging met datum. Bereken nooit wettelijke data en bewaar geen kopieën van identiteitsbewijzen.",
+        "questions": [
+          "Welke diensten biedt u aan en welke terugkerende dossiers voert u per klant?",
+          "In welk land werkt u en welke termijnen bewaakt u?",
+          "Wie bereidt voor, wie controleert en wie controleert een termijn?",
+          "Hoe identificeert u nieuwe klanten en hoe vaak herziet u hun risicoclassificatie?"
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Biuro rachunkowe",
+      "summary": "Stanowisko pracy biura z dwoma obiegami: zdobycie klienta, z weryfikacją AML i umową, oraz stała praca dla klienta, z rejestrem terminów sprawdzanym przez drugą osobę.",
+      "description": "Prowadź biuro rachunkowe w jednym miejscu: umowy od zapytania do aktywnej z weryfikacją klienta w przepisach o przeciwdziałaniu praniu pieniędzy po drodze, powtarzalne rozliczenia na klienta i okres ze statusem oczekiwania na dokumenty oraz rejestr terminów z terminem wstępnym i osobą, która sprawdziła każdą datę. Szablon to warstwa relacji, dowodu terminów i przypomnień obok Twojego programu księgowego. Nie wylicza terminów ustawowych, nie wysyła deklaracji, nie prowadzi ksiąg, nie nalicza płac ani czasu pracy i nie przechowuje numerów PESEL ani kopii dowodów osobistych.",
+      "lists": {
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jeden następny krok z terminem dla każdej otwartej sprawy."
+        },
+        "contacts": {
+          "label": "Osoba kontaktowa",
+          "pluralLabel": "Osoby kontaktowe",
+          "description": "Osoby u klientów, które wysyłają dokumenty i podpisują."
+        },
+        "clients": {
+          "label": "Klient",
+          "pluralLabel": "Klienci",
+          "description": "Osoby prywatne, jednoosobowe działalności, spółki i stowarzyszenia, dla których pracujesz."
+        },
+        "mandates": {
+          "label": "Umowa",
+          "pluralLabel": "Umowy",
+          "description": "Jedno zlecenie od zapytania do aktywnego lub odrzuconego."
+        },
+        "jobs": {
+          "label": "Rozliczenie",
+          "pluralLabel": "Rozliczenia",
+          "description": "Powtarzalna praca dla klienta i okresu, na przykład zamknięcie miesiąca lub JPK_V7."
+        },
+        "deadlines": {
+          "label": "Termin",
+          "pluralLabel": "Terminy",
+          "description": "Termin ustawowy lub urzędowy ze źródłem, terminem wstępnym i osobą, która go sprawdziła."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarte",
+            "waiting": "Oczekuje",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Odpowiedzialny",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "contacts.preferred_channel": {
+          "label": "Preferowany kanał",
+          "options": {
+            "email": "E-mail",
+            "phone": "Telefon",
+            "portal": "Portal",
+            "whatsapp": "WhatsApp",
+            "post": "Poczta"
+          }
+        },
+        "clients.client_type": {
+          "label": "Typ",
+          "options": {
+            "individual": "Osoba prywatna",
+            "sole_trader": "Jednoosobowa działalność",
+            "company": "Spółka",
+            "association": "Stowarzyszenie"
+          }
+        },
+        "clients.vat_frequency": {
+          "label": "Rozliczenie VAT",
+          "options": {
+            "monthly": "Miesięczne",
+            "quarterly": "Kwartalne",
+            "annual": "Roczne",
+            "not_applicable": "Nie dotyczy"
+          }
+        },
+        "clients.authorisation_on": {
+          "label": "Pełnomocnictwo od",
+          "options": {}
+        },
+        "clients.aml_risk": {
+          "label": "Ryzyko prania pieniędzy",
+          "options": {
+            "not_assessed": "Nieocenione",
+            "low": "Niskie",
+            "standard": "Standardowe",
+            "enhanced": "Podwyższone",
+            "declined": "Odrzucone"
+          }
+        },
+        "clients.aml_next_review": {
+          "label": "Następny przegląd ryzyka",
+          "options": {}
+        },
+        "mandates.stage": {
+          "label": "Etap",
+          "options": {
+            "inquiry": "Zapytanie",
+            "intro_call": "Spotkanie",
+            "proposal_sent": "Oferta",
+            "aml_check": "Weryfikacja klienta (AML)",
+            "engagement_letter_out": "Umowa wysłana",
+            "active": "Aktywny",
+            "declined": "Odrzucony",
+            "not_going_ahead": "Utracony"
+          }
+        },
+        "mandates.services": {
+          "label": "Usługi",
+          "options": {
+            "bookkeeping": "Księgowość",
+            "payroll": "Kadry i płace",
+            "vat_returns": "VAT",
+            "annual_accounts": "Sprawozdanie roczne",
+            "tax_returns": "Zeznania podatkowe",
+            "advisory": "Doradztwo"
+          }
+        },
+        "mandates.fee_model": {
+          "label": "Wynagrodzenie",
+          "options": {
+            "fixed_monthly": "Ryczałt miesięczny",
+            "hourly": "Godzinowo",
+            "per_filing": "Za deklarację",
+            "value_based": "Według wartości"
+          }
+        },
+        "mandates.next_step_due": {
+          "label": "Następny krok do",
+          "options": {}
+        },
+        "mandates.lost_reason": {
+          "label": "Powód",
+          "options": {
+            "capacity": "Brak mocy przerobowych",
+            "risk_declined": "Odrzucony z powodu ryzyka",
+            "scope_mismatch": "Niedopasowany zakres",
+            "price": "Cena",
+            "chose_other_advisor": "Wybrał inne biuro",
+            "no_response": "Brak odpowiedzi"
+          }
+        },
+        "jobs.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Zaplanowane",
+            "waiting_for_documents": "Oczekuje na dokumenty",
+            "in_preparation": "W przygotowaniu",
+            "in_review": "W kontroli",
+            "client_approval": "Oczekuje na zgodę klienta",
+            "submitted": "Złożone",
+            "waiting_for_authority": "Oczekuje na urząd",
+            "done": "Zrobione"
+          }
+        },
+        "jobs.job_type": {
+          "label": "Rodzaj rozliczenia",
+          "options": {
+            "monthly_bookkeeping": "Księgowość miesięczna",
+            "payroll_run": "Lista płac",
+            "vat_return": "Rozliczenie VAT",
+            "annual_accounts": "Sprawozdanie roczne",
+            "tax_return": "Zeznanie podatkowe",
+            "year_end": "Zamknięcie roku"
+          }
+        },
+        "jobs.period": {
+          "label": "Okres",
+          "options": {}
+        },
+        "jobs.documents_due": {
+          "label": "Dokumenty do",
+          "options": {}
+        },
+        "jobs.internal_due": {
+          "label": "Termin wewnętrzny",
+          "options": {}
+        },
+        "jobs.reviewer": {
+          "label": "Kontrolujący",
+          "options": {}
+        },
+        "jobs.notice_received_on": {
+          "label": "Pismo z urzędu otrzymano dnia",
+          "options": {}
+        },
+        "deadlines.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "vat_return": "Rozliczenie VAT",
+            "vat_payment": "Wpłata VAT",
+            "payroll_report": "Deklaracja ZUS",
+            "annual_accounts": "Sprawozdanie roczne",
+            "tax_return": "Zeznanie podatkowe",
+            "appeal": "Odwołanie",
+            "payment": "Płatność",
+            "aml_review": "Przegląd ryzyka",
+            "other": "Inny"
+          }
+        },
+        "deadlines.due_date": {
+          "label": "Termin ostateczny",
+          "options": {}
+        },
+        "deadlines.pre_deadline": {
+          "label": "Termin wstępny",
+          "options": {}
+        },
+        "deadlines.source_ref": {
+          "label": "Źródło terminu",
+          "options": {}
+        },
+        "deadlines.verified_by": {
+          "label": "Sprawdził",
+          "options": {}
+        },
+        "deadlines.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarty",
+            "in_progress": "W toku",
+            "filed": "Złożony",
+            "extended": "Przedłużony",
+            "cancelled": "Anulowany"
+          }
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "request_documents": "Poprosić o dokumenty",
+            "chase_documents": "Ponaglić o dokumenty",
+            "chase_approval": "Ponaglić o zgodę lub podpis",
+            "review": "Skontrolować",
+            "reply": "Odpowiedzieć",
+            "aml": "Identyfikacja i ocena ryzyka",
+            "filing": "Złożenie",
+            "other": "Inne"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Klient",
+          "targetLabel": "Osoby kontaktowe"
+        },
+        "mandate_client": {
+          "sourceLabel": "Klient",
+          "targetLabel": "Umowy"
+        },
+        "job_client": {
+          "sourceLabel": "Klient",
+          "targetLabel": "Rozliczenia"
+        },
+        "deadline_client": {
+          "sourceLabel": "Klient",
+          "targetLabel": "Terminy"
+        },
+        "action_job": {
+          "sourceLabel": "Rozliczenie",
+          "targetLabel": "Zadania"
+        },
+        "action_client": {
+          "sourceLabel": "Klient",
+          "targetLabel": "Zadania"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "mandates_board": {
+          "name": "Umowy według etapu"
+        },
+        "mandates_all": {
+          "name": "Wszystkie umowy"
+        },
+        "jobs_board": {
+          "name": "Rozliczenia według statusu"
+        },
+        "jobs_waiting_documents": {
+          "name": "Oczekują na dokumenty"
+        },
+        "deadlines_all": {
+          "name": "Wszystkie terminy"
+        },
+        "unverified_deadlines": {
+          "name": "Terminy bez weryfikacji"
+        },
+        "clients_all": {
+          "name": "Wszyscy klienci"
+        },
+        "contacts_all": {
+          "name": "Wszystkie osoby kontaktowe"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Nadchodzące zadania"
+        },
+        "overdue_actions": {
+          "title": "Zaległe zadania"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        },
+        "deadlines_coming": {
+          "title": "Nadchodzące terminy"
+        },
+        "unverified_count": {
+          "title": "Otwarte terminy bez weryfikacji"
+        },
+        "jobs_by_status": {
+          "title": "Otwarte rozliczenia według statusu"
+        },
+        "documents_waiting": {
+          "title": "Rozliczenia czekające na dokumenty"
+        },
+        "jobs_waiting_on_client": {
+          "title": "Rozliczenia czekające na zgodę klienta"
+        },
+        "mandates_funnel": {
+          "title": "Umowy według etapu"
+        },
+        "aml_reviews": {
+          "title": "Przeglądy ryzyka do wykonania"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Jak działa biuro",
+          "sections": [
+            "Dwa obiegi: zdobycie klienta i praca",
+            "Kto odpowiada za który etap i zasada jednego zadania z terminem na otwarte rozliczenie"
+          ]
+        },
+        "onboarding_and_aml": {
+          "title": "Przyjęcie klienta i weryfikacja",
+          "sections": [
+            "Identyfikacja klienta i beneficjenta rzeczywistego, ocena ryzyka",
+            "Lista kontrolna umowy (kopie dokumentów tożsamości nie są tu przechowywane)"
+          ]
+        },
+        "deadline_control": {
+          "title": "Kontrola terminów",
+          "sections": [
+            "Jak termin jest wpisywany ze źródłem i sprawdzany przez drugą osobę",
+            "Kontrola terminu wstępnego i decyzja o przedłużeniu"
+          ]
+        },
+        "document_checklists": {
+          "title": "Prośby o dokumenty według usługi",
+          "sections": [
+            "O co prosimy przy każdej usłudze i na kiedy",
+            "Przypomnienia i co robimy, gdy brakuje dokumentów"
+          ]
+        }
+      },
+      "rules": {
+        "proposal_follow_up": {
+          "title": "Przypomnieć o ofercie 3 dni po jej wysłaniu",
+          "description": ""
+        },
+        "aml_identification": {
+          "title": "Zidentyfikować klienta w ciągu 2 dni, gdy umowa osiągnie etap weryfikacji",
+          "description": ""
+        },
+        "onboarding_set": {
+          "title": "Poprosić o pełnomocnictwo i pierwsze dokumenty, gdy umowa staje się aktywna",
+          "description": ""
+        },
+        "recontact_not_going_ahead": {
+          "title": "Ustawić następny krok na 90 dni, gdy umowa nie dojdzie do skutku",
+          "description": ""
+        },
+        "documents_chase": {
+          "title": "Ponaglić o dokumenty 3 dni przed terminem",
+          "description": ""
+        },
+        "documents_overdue_notice": {
+          "title": "Powiadomić prowadzącego, gdy dokumenty są należne i nadal ich brak",
+          "description": ""
+        },
+        "pre_deadline_check": {
+          "title": "Powiadomić prowadzącego w terminie wstępnym otwartego terminu",
+          "description": ""
+        },
+        "due_date_escalation": {
+          "title": "Powiadomić szefa 2 dni przed otwartym terminem",
+          "description": ""
+        },
+        "approval_chase": {
+          "title": "Ponaglić o zgodę klienta po 5 dniach oczekiwania",
+          "description": ""
+        },
+        "notice_check": {
+          "title": "Sprawdzić pismo z urzędu w ciągu 3 dni od otrzymania",
+          "description": ""
+        },
+        "aml_review": {
+          "title": "Przejrzeć ocenę ryzyka, gdy nadejdzie data następnego przeglądu",
+          "description": ""
+        },
+        "monthly_close_jobs": {
+          "title": "Utworzyć rozliczenia miesięczne na początku każdego miesiąca",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "mandate_stage_field": "Każda umowa ma etap.",
+        "job_status_field": "Każde rozliczenie ma status, także oczekiwanie na dokumenty.",
+        "deadline_due_field": "Każdy termin zapisuje swoją datę.",
+        "deadline_verifier_field": "Każdy termin zapisuje, kto go sprawdził.",
+        "deadline_control_page": "Baza wiedzy zawiera stronę o kontroli terminów."
+      },
+      "prompt": {
+        "intro": "Skonfiguruj w moim workspace Customermates biuro rachunkowe: umowy od zapytania do aktywnej z etapem weryfikacji klienta, powtarzalne rozliczenia na klienta i okres, rejestr terminów z terminem wstępnym i osobą sprawdzającą oraz zaplanowane przypomnienia. Nigdy nie wyliczaj terminów ustawowych i nie przechowuj kopii dowodów tożsamości.",
+        "questions": [
+          "Jakie usługi oferujesz i jakie powtarzalne rozliczenia prowadzisz na klienta?",
+          "Jakie formy opodatkowania obsługujesz i jakie terminy śledzisz?",
+          "Kto przygotowuje, kto kontroluje i kto sprawdza termin?",
+          "Jak identyfikujesz nowych klientów i jak często przeglądasz ich ocenę ryzyka?"
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "Escritório contábil",
+      "summary": "Uma mesa de escritório com dois fluxos: conquistar um cliente, com diligência de PLD e contrato de prestação de serviços, e fazer o trabalho recorrente por cliente, com um calendário de prazos conferido por uma segunda pessoa.",
+      "description": "Conduza um escritório contábil em um só lugar: contratos da proposta ao contrato ativo com uma etapa de diligência de prevenção à lavagem de dinheiro no meio, rotinas recorrentes por cliente e competência com a situação aguardando documentos, e um calendário de prazos com aviso prévio e a pessoa que conferiu cada data. O modelo é a camada de relacionamento, prova de prazos e acompanhamento ao lado do seu sistema contábil. Não calcula datas legais, não transmite declarações, não faz escrituração, folha de pagamento nem cobrança de horas e não guarda CPF, CNPJ de terceiros nem cópias de documentos de identidade.",
+      "lists": {
+        "actions": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um próximo passo com data para cada item em aberto."
+        },
+        "contacts": {
+          "label": "Contato",
+          "pluralLabel": "Contatos",
+          "description": "As pessoas dos seus clientes que enviam documentos e assinam."
+        },
+        "clients": {
+          "label": "Cliente",
+          "pluralLabel": "Clientes",
+          "description": "Pessoas físicas, MEIs, empresas e associações para quem você atua."
+        },
+        "mandates": {
+          "label": "Contrato de serviços",
+          "pluralLabel": "Contratos de prestação de serviços",
+          "description": "Um contrato da proposta a ativo ou recusado."
+        },
+        "jobs": {
+          "label": "Rotina",
+          "pluralLabel": "Rotinas e obrigações",
+          "description": "Trabalho recorrente para um cliente e uma competência, como o fechamento mensal ou a apuração de impostos."
+        },
+        "deadlines": {
+          "label": "Prazo",
+          "pluralLabel": "Prazos",
+          "description": "Uma data legal ou do fisco com a fonte, um aviso prévio e a pessoa que a conferiu."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberta",
+            "waiting": "Aguardando",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "contacts.preferred_channel": {
+          "label": "Canal preferido",
+          "options": {
+            "email": "E-mail",
+            "phone": "Telefone",
+            "portal": "Portal",
+            "whatsapp": "WhatsApp",
+            "post": "Correio"
+          }
+        },
+        "clients.client_type": {
+          "label": "Tipo",
+          "options": {
+            "individual": "Pessoa física",
+            "sole_trader": "MEI ou autônomo",
+            "company": "Empresa",
+            "association": "Associação"
+          }
+        },
+        "clients.vat_frequency": {
+          "label": "Apuração de impostos",
+          "options": {
+            "monthly": "Mensal",
+            "quarterly": "Trimestral",
+            "annual": "Anual",
+            "not_applicable": "Não se aplica"
+          }
+        },
+        "clients.authorisation_on": {
+          "label": "Procuração desde",
+          "options": {}
+        },
+        "clients.aml_risk": {
+          "label": "Risco de lavagem de dinheiro",
+          "options": {
+            "not_assessed": "Não avaliado",
+            "low": "Baixo",
+            "standard": "Médio",
+            "enhanced": "Alto",
+            "declined": "Recusado"
+          }
+        },
+        "clients.aml_next_review": {
+          "label": "Próxima revisão do risco",
+          "options": {}
+        },
+        "mandates.stage": {
+          "label": "Etapa",
+          "options": {
+            "inquiry": "Contato",
+            "intro_call": "Reunião",
+            "proposal_sent": "Proposta",
+            "aml_check": "Diligência do cliente",
+            "engagement_letter_out": "Contrato enviado",
+            "active": "Ativo",
+            "declined": "Recusado",
+            "not_going_ahead": "Não seguiu"
+          }
+        },
+        "mandates.services": {
+          "label": "Serviços",
+          "options": {
+            "bookkeeping": "Escrituração",
+            "payroll": "Folha de pagamento",
+            "vat_returns": "Impostos sobre vendas",
+            "annual_accounts": "Balanço anual",
+            "tax_returns": "Declarações de imposto",
+            "advisory": "Consultoria"
+          }
+        },
+        "mandates.fee_model": {
+          "label": "Honorários",
+          "options": {
+            "fixed_monthly": "Mensalidade fixa",
+            "hourly": "Por hora",
+            "per_filing": "Por declaração",
+            "value_based": "Por valor"
+          }
+        },
+        "mandates.next_step_due": {
+          "label": "Próximo passo até",
+          "options": {}
+        },
+        "mandates.lost_reason": {
+          "label": "Motivo",
+          "options": {
+            "capacity": "Sem capacidade",
+            "risk_declined": "Recusado por risco",
+            "scope_mismatch": "Escopo inadequado",
+            "price": "Preço",
+            "chose_other_advisor": "Escolheu outro contador",
+            "no_response": "Sem resposta"
+          }
+        },
+        "jobs.status": {
+          "label": "Situação",
+          "options": {
+            "planned": "Planejada",
+            "waiting_for_documents": "Aguardando documentos",
+            "in_preparation": "Em preparação",
+            "in_review": "Em revisão",
+            "client_approval": "Aguardando aprovação do cliente",
+            "submitted": "Transmitida",
+            "waiting_for_authority": "Aguardando o fisco",
+            "done": "Concluída"
+          }
+        },
+        "jobs.job_type": {
+          "label": "Tipo de rotina",
+          "options": {
+            "monthly_bookkeeping": "Escrituração mensal",
+            "payroll_run": "Folha do mês",
+            "vat_return": "Apuração de impostos",
+            "annual_accounts": "Balanço anual",
+            "tax_return": "Declaração de imposto",
+            "year_end": "Encerramento do exercício"
+          }
+        },
+        "jobs.period": {
+          "label": "Competência",
+          "options": {}
+        },
+        "jobs.documents_due": {
+          "label": "Documentos até",
+          "options": {}
+        },
+        "jobs.internal_due": {
+          "label": "Prazo interno",
+          "options": {}
+        },
+        "jobs.reviewer": {
+          "label": "Revisor",
+          "options": {}
+        },
+        "jobs.notice_received_on": {
+          "label": "Notificação recebida em",
+          "options": {}
+        },
+        "deadlines.kind": {
+          "label": "Tipo",
+          "options": {
+            "vat_return": "Apuração de impostos",
+            "vat_payment": "Pagamento de imposto",
+            "payroll_report": "Obrigação da folha",
+            "annual_accounts": "Balanço anual",
+            "tax_return": "Declaração de imposto",
+            "appeal": "Recurso",
+            "payment": "Pagamento",
+            "aml_review": "Revisão do risco",
+            "other": "Outro"
+          }
+        },
+        "deadlines.due_date": {
+          "label": "Prazo final",
+          "options": {}
+        },
+        "deadlines.pre_deadline": {
+          "label": "Aviso prévio",
+          "options": {}
+        },
+        "deadlines.source_ref": {
+          "label": "Fonte da data",
+          "options": {}
+        },
+        "deadlines.verified_by": {
+          "label": "Conferido por",
+          "options": {}
+        },
+        "deadlines.status": {
+          "label": "Situação",
+          "options": {
+            "open": "Aberto",
+            "in_progress": "Em andamento",
+            "filed": "Cumprido",
+            "extended": "Prorrogado",
+            "cancelled": "Cancelado"
+          }
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "request_documents": "Solicitar documentos",
+            "chase_documents": "Cobrar documentos",
+            "chase_approval": "Cobrar aprovação ou assinatura",
+            "review": "Revisar",
+            "reply": "Responder",
+            "aml": "Identificação e classificação de risco",
+            "filing": "Transmissão",
+            "other": "Outro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Contatos"
+        },
+        "mandate_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Contratos de prestação de serviços"
+        },
+        "job_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Rotinas e obrigações"
+        },
+        "deadline_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Prazos"
+        },
+        "action_job": {
+          "sourceLabel": "Rotina",
+          "targetLabel": "Tarefas"
+        },
+        "action_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Tarefas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas as tarefas"
+        },
+        "mandates_board": {
+          "name": "Contratos por etapa"
+        },
+        "mandates_all": {
+          "name": "Todos os contratos"
+        },
+        "jobs_board": {
+          "name": "Rotinas por situação"
+        },
+        "jobs_waiting_documents": {
+          "name": "Aguardando documentos"
+        },
+        "deadlines_all": {
+          "name": "Todos os prazos"
+        },
+        "unverified_deadlines": {
+          "name": "Prazos não conferidos"
+        },
+        "clients_all": {
+          "name": "Todos os clientes"
+        },
+        "contacts_all": {
+          "name": "Todos os contatos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tarefas"
+        },
+        "overdue_actions": {
+          "title": "Tarefas atrasadas"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        },
+        "deadlines_coming": {
+          "title": "Prazos próximos"
+        },
+        "unverified_count": {
+          "title": "Prazos abertos sem conferência"
+        },
+        "jobs_by_status": {
+          "title": "Rotinas abertas por situação"
+        },
+        "documents_waiting": {
+          "title": "Rotinas aguardando documentos"
+        },
+        "jobs_waiting_on_client": {
+          "title": "Rotinas aguardando aprovação do cliente"
+        },
+        "mandates_funnel": {
+          "title": "Contratos por etapa"
+        },
+        "aml_reviews": {
+          "title": "Revisões de risco a fazer"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Como funciona o escritório",
+          "sections": [
+            "Os dois fluxos: conquistar um cliente e fazer o trabalho",
+            "Quem responde por cada etapa e a regra de uma tarefa com data por rotina aberta"
+          ]
+        },
+        "onboarding_and_aml": {
+          "title": "Entrada do cliente e diligência",
+          "sections": [
+            "Identificar o cliente e o beneficiário final, classificação de risco",
+            "Checklist do contrato de prestação de serviços (cópias de documentos de identidade não são guardadas aqui)"
+          ]
+        },
+        "deadline_control": {
+          "title": "Controle de prazos",
+          "sections": [
+            "Como uma data é lançada com a fonte e conferida por uma segunda pessoa",
+            "Conferência do aviso prévio e decisão sobre prorrogação"
+          ]
+        },
+        "document_checklists": {
+          "title": "Solicitação de documentos por serviço",
+          "sections": [
+            "O que pedimos em cada serviço e para quando",
+            "Lembretes e o que fazer quando faltam documentos"
+          ]
+        }
+      },
+      "rules": {
+        "proposal_follow_up": {
+          "title": "Fazer o retorno de uma proposta 3 dias depois de enviada",
+          "description": ""
+        },
+        "aml_identification": {
+          "title": "Identificar o cliente em 2 dias quando um contrato chega à etapa de diligência",
+          "description": ""
+        },
+        "onboarding_set": {
+          "title": "Pedir a procuração e os primeiros documentos quando um contrato fica ativo",
+          "description": ""
+        },
+        "recontact_not_going_ahead": {
+          "title": "Definir o próximo passo para 90 dias quando um contrato não segue",
+          "description": ""
+        },
+        "documents_chase": {
+          "title": "Cobrar os documentos 3 dias antes da data combinada",
+          "description": ""
+        },
+        "documents_overdue_notice": {
+          "title": "Avisar o responsável quando os documentos venceram e ainda faltam",
+          "description": ""
+        },
+        "pre_deadline_check": {
+          "title": "Avisar o responsável no aviso prévio de um prazo aberto",
+          "description": ""
+        },
+        "due_date_escalation": {
+          "title": "Avisar a liderança 2 dias antes de um prazo aberto",
+          "description": ""
+        },
+        "approval_chase": {
+          "title": "Cobrar a aprovação do cliente depois de 5 dias de espera",
+          "description": ""
+        },
+        "notice_check": {
+          "title": "Analisar uma notificação do fisco em até 3 dias do recebimento",
+          "description": ""
+        },
+        "aml_review": {
+          "title": "Revisar a classificação de risco quando chega a data da próxima revisão",
+          "description": ""
+        },
+        "monthly_close_jobs": {
+          "title": "Criar as rotinas mensais no início de cada mês",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "mandate_stage_field": "Todo contrato tem uma etapa.",
+        "job_status_field": "Toda rotina tem uma situação, inclusive aguardando documentos.",
+        "deadline_due_field": "Todo prazo registra a data final.",
+        "deadline_verifier_field": "Todo prazo registra quem o conferiu.",
+        "deadline_control_page": "A base de conhecimento tem uma página sobre controle de prazos."
+      },
+      "prompt": {
+        "intro": "Configure no meu workspace do Customermates um escritório contábil: contratos da proposta a ativo com uma etapa de diligência, rotinas recorrentes por cliente e competência, um calendário de prazos com aviso prévio e conferência, e acompanhamentos com data. Nunca calcule datas legais e não guarde cópias de documentos de identidade.",
+        "questions": [
+          "Quais serviços você oferece e quais rotinas recorrentes mantém por cliente?",
+          "Em qual regime tributário seus clientes costumam estar e quais prazos você acompanha?",
+          "Quem prepara, quem revisa e quem confere um prazo?",
+          "Como você identifica novos clientes e com que frequência revisa a classificação de risco deles?"
+        ]
+      }
+    }
+  }
+}

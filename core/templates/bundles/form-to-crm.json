@@ -1,0 +1,3243 @@
+{
+  "spec": {
+    "id": "tpl_form_to_crm",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "form-to-crm",
+    "family": "intake",
+    "kind": "pipeline",
+    "jurisdictions": [
+      "DE",
+      "FR",
+      "IT",
+      "ES",
+      "BR",
+      "PL",
+      "NL"
+    ],
+    "dashboardAudience": "team",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "notifications",
+      "incomingWebhooks"
+    ],
+    "pairedPages": {},
+    "modules": [
+      "actions_core",
+      "actions_dashboard"
+    ],
+    "lists": [
+      {
+        "key": "contacts",
+        "role": "people",
+        "icon": "contact"
+      },
+      {
+        "key": "requests",
+        "role": "deals",
+        "icon": "inbox"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "contacts.company_name",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "contacts.language",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "contacts.marketing_consent",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "contacts.marketing_consent_on",
+        "type": "dateTime",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "requests.form",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "contact"
+          },
+          {
+            "key": "quote_request"
+          },
+          {
+            "key": "intake"
+          },
+          {
+            "key": "callback"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "requests.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "requests.service_interest",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "requests.needed_by",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "asap",
+            "color": "warning"
+          },
+          {
+            "key": "within_a_month"
+          },
+          {
+            "key": "within_three_months"
+          },
+          {
+            "key": "just_looking"
+          },
+          {
+            "key": "no_answer"
+          }
+        ]
+      },
+      {
+        "key": "requests.budget_band",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "no_answer"
+          },
+          {
+            "key": "low"
+          },
+          {
+            "key": "medium"
+          },
+          {
+            "key": "high"
+          }
+        ]
+      },
+      {
+        "key": "requests.submitted_at",
+        "type": "dateTime",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "requests.first_response_at",
+        "type": "dateTime",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "requests.utm_source",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "requests.landing_page",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "requests.repeat_submission",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "requests.not_a_fit_reason",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "out_of_area"
+          },
+          {
+            "key": "no_budget"
+          },
+          {
+            "key": "wrong_service"
+          },
+          {
+            "key": "no_response"
+          },
+          {
+            "key": "duplicate"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "requests.closed_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "requests.data_review_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "reply"
+          },
+          {
+            "key": "qualify_call"
+          },
+          {
+            "key": "send_quote"
+          },
+          {
+            "key": "convert"
+          },
+          {
+            "key": "chase"
+          },
+          {
+            "key": "data_review"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "requests.stage",
+        "items": [
+          {
+            "key": "new",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "contacted",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "qualified",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "converted",
+            "outcome": "won",
+            "weight": 0
+          },
+          {
+            "key": "not_a_fit",
+            "outcome": "lost",
+            "weight": 0
+          },
+          {
+            "key": "spam",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [
+      {
+        "key": "requests.days_to_close",
+        "type": "number",
+        "expression": {
+          "op": "daysBetween",
+          "from": "requests.submitted_at",
+          "to": "requests.closed_on"
+        }
+      }
+    ],
+    "relationships": [
+      {
+        "key": "request_contact",
+        "source": "requests",
+        "target": "contacts",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_request",
+        "source": "actions",
+        "target": "requests",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "requests_all",
+        "list": "requests",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "requests.submitted_at",
+          "direction": "desc"
+        },
+        "columns": [
+          "requests.stage",
+          "requests.form",
+          "requests.owner",
+          "requests.needed_by",
+          "requests.submitted_at"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "requests_board",
+        "list": "requests",
+        "default": false,
+        "layout": "board",
+        "groupBy": "requests.stage",
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "new_requests",
+        "list": "requests",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "requests.stage",
+            "options": [
+              "new"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "closed_without_deal",
+        "list": "requests",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "requests.stage",
+            "options": [
+              "not_a_fit",
+              "spam"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "contacts_all",
+        "list": "contacts",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "contacts.company_name",
+          "contacts.language",
+          "contacts.marketing_consent"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "chart",
+        "key": "requests_funnel",
+        "list": "requests",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "requests.stage"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "requests.stage",
+            "options": [
+              "new",
+              "contacted",
+              "qualified",
+              "converted"
+            ]
+          }
+        ],
+        "display": "funnelChart"
+      },
+      {
+        "kind": "chart",
+        "key": "requests_per_week",
+        "list": "requests",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "requests.submitted_at",
+          "dateInterval": "week"
+        },
+        "filters": [],
+        "display": "areaChart"
+      },
+      {
+        "kind": "chart",
+        "key": "requests_by_form",
+        "list": "requests",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "requests.form"
+        },
+        "filters": [],
+        "display": "doughnutChart"
+      },
+      {
+        "kind": "chart",
+        "key": "new_requests_count",
+        "list": "requests",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "requests.stage",
+            "options": [
+              "new"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "not_a_fit_reasons",
+        "list": "requests",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "requests.not_a_fit_reason"
+        },
+        "filters": [],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "chart",
+        "key": "average_days_to_close",
+        "list": "requests",
+        "aggregation": "average",
+        "valueField": "requests.days_to_close",
+        "groupBy": null,
+        "filters": [],
+        "display": "number"
+      },
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_actions",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "form_playbook",
+        "kind": "overview"
+      },
+      {
+        "key": "privacy_notice",
+        "kind": "processes"
+      },
+      {
+        "key": "spam_and_duplicates",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "enquiry_form_records",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "enquiry"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "contacts",
+            "requests"
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "forms"
+      },
+      {
+        "key": "reply_task",
+        "trigger": {
+          "kind": "record_created",
+          "list": "requests"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "reply",
+          "assignee": "record_owner",
+          "about": "requests"
+        },
+        "dueOffsetDays": 1,
+        "needs": "rules"
+      },
+      {
+        "key": "first_response_missed",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "requests.submitted_at",
+          "offsetDays": 1
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "requests.stage",
+            "options": [
+              "new"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "notify",
+          "recipient": "workspace_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "chase_contacted",
+        "trigger": {
+          "kind": "unchanged_for",
+          "field": "requests.stage",
+          "days": 3
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "requests.stage",
+            "options": [
+              "contacted"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "chase",
+          "assignee": "record_owner",
+          "about": "requests"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "converted_task",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "requests.stage",
+          "to": "converted"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "convert",
+          "assignee": "record_owner",
+          "about": "requests"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "review_date_not_a_fit",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "requests.stage",
+          "to": "not_a_fit"
+        },
+        "condition": [],
+        "action": {
+          "kind": "set_dates",
+          "dates": [
+            {
+              "field": "requests.data_review_on",
+              "offsetDays": 365
+            }
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "data_review",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "requests.data_review_on",
+          "offsetDays": 0
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "data_review",
+          "assignee": "record_owner",
+          "about": "requests"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "external_form_records",
+        "trigger": {
+          "kind": "webhook_received",
+          "source": "external_form"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "contacts",
+            "requests"
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "incomingWebhooks"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "stage_field",
+        "kind": "field_exists",
+        "ref": "requests.stage"
+      },
+      {
+        "key": "submitted_field",
+        "kind": "field_exists",
+        "ref": "requests.submitted_at"
+      },
+      {
+        "key": "requests_board_view",
+        "kind": "view_exists",
+        "ref": "requests_board"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://www.involve.me/blog/quote-request-form-best-practices",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.salesforceben.com/the-admins-playbook-for-web-to-lead-in-salesforce-security-routing-and-data/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://knowledge.hubspot.com/forms/create-and-edit-forms",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.pipedrive.com/en/features/web-forms",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://donneespersonnelles.fr/formulaire-contact-rgpd",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.cnil.fr/sites/cnil/files/atoms/files/referentiel_traitements-donnees-caractere-personnel_gestion-activites-commerciales.pdf",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.edpb.europa.eu/system/files/2026-04/edpb-summary-consent_en.pdf",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://formbricks.com/blog/jotform-alternative",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://formidableforms.com/form-templates/request-a-quote-form/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://webflow-prod.typeform.com/templates/request-for-quote-form-template",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.jotform.com/fr/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://forms.app/fr/modeles/formulaire-de-demande-de-devis",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "status": {
+      "en": "draft",
+      "de": "draft",
+      "fr": "draft",
+      "it": "draft",
+      "es": "draft",
+      "pt": "draft",
+      "pl": "draft",
+      "nl": "draft"
+    },
+    "publicPage": {
+      "en": "own",
+      "de": "own",
+      "fr": "own",
+      "it": "own",
+      "es": "own",
+      "pt": "own",
+      "pl": "none",
+      "nl": "own"
+    },
+    "publishWave": {
+      "en": "wave2",
+      "de": "wave2",
+      "fr": "wave2",
+      "it": "wave2",
+      "es": "wave2",
+      "pt": "wave2",
+      "nl": "wave2"
+    }
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Kontaktformular mit CRM",
+      "summary": "Anfragen aus Formularen zu bearbeiteten Kontakten machen: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, Phase von neu bis übergeben, Spam und Kein Bedarf getrennt.",
+      "description": "Jede Anfrage aus einem Kontakt-, Angebots- oder Anfrageformular wird zu einer Anfrage mit Verknüpfung zum Kontakt, mit dem Formular, aus dem sie kam, der Herkunft des Besuchers, dem Zeitpunkt, bis wann sie gebraucht wird, und einer Antwort, die am nächsten Tag fällig ist. Anfragen laufen von neu bis übergeben, kein Bedarf oder Spam, und eine unbeantwortete Anfrage wird gemeldet. Einwilligung und ein Prüftermin gehören zu den erhobenen Daten. Kein Formularbaukasten für Zahlungen, Quiz oder den Upload sensibler Dokumente.",
+      "lists": {
+        "actions": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "contacts": {
+          "label": "Kontakt",
+          "pluralLabel": "Kontakte",
+          "description": "Die Personen, die Ihnen über ein Formular schreiben."
+        },
+        "requests": {
+          "label": "Anfrage",
+          "pluralLabel": "Anfragen",
+          "description": "Eine Formulareinsendung, von neu bis übergeben, kein Bedarf oder Spam."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "contacts.company_name": {
+          "label": "Firma",
+          "options": {}
+        },
+        "contacts.language": {
+          "label": "Sprache",
+          "options": {}
+        },
+        "contacts.marketing_consent": {
+          "label": "Einwilligung Werbung",
+          "options": {}
+        },
+        "contacts.marketing_consent_on": {
+          "label": "Einwilligung erteilt am",
+          "options": {}
+        },
+        "requests.stage": {
+          "label": "Phase",
+          "options": {
+            "new": "Neu",
+            "contacted": "Kontaktiert",
+            "qualified": "Qualifiziert",
+            "converted": "Übergeben",
+            "not_a_fit": "Kein Bedarf",
+            "spam": "Spam"
+          }
+        },
+        "requests.form": {
+          "label": "Formular",
+          "options": {
+            "contact": "Kontaktformular",
+            "quote_request": "Angebotsanfrage",
+            "intake": "Anfrageformular",
+            "callback": "Rückrufwunsch",
+            "other": "Sonstiges"
+          }
+        },
+        "requests.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "requests.service_interest": {
+          "label": "Gewünschte Leistung",
+          "options": {}
+        },
+        "requests.needed_by": {
+          "label": "Gewünscht bis",
+          "options": {
+            "asap": "So schnell wie möglich",
+            "within_a_month": "Innerhalb eines Monats",
+            "within_three_months": "Innerhalb von drei Monaten",
+            "just_looking": "Nur informieren",
+            "no_answer": "Keine Angabe"
+          }
+        },
+        "requests.budget_band": {
+          "label": "Budgetrahmen",
+          "options": {
+            "no_answer": "Keine Angabe",
+            "low": "Niedrig",
+            "medium": "Mittel",
+            "high": "Hoch"
+          }
+        },
+        "requests.submitted_at": {
+          "label": "Eingegangen",
+          "options": {}
+        },
+        "requests.first_response_at": {
+          "label": "Erste Antwort",
+          "options": {}
+        },
+        "requests.utm_source": {
+          "label": "Herkunft des Besuchers",
+          "options": {}
+        },
+        "requests.landing_page": {
+          "label": "Seite des Formulars",
+          "options": {}
+        },
+        "requests.repeat_submission": {
+          "label": "Schon einmal geschrieben",
+          "options": {}
+        },
+        "requests.not_a_fit_reason": {
+          "label": "Grund für Kein Bedarf",
+          "options": {
+            "out_of_area": "Außerhalb unseres Gebiets",
+            "no_budget": "Kein Budget",
+            "wrong_service": "Falsche Leistung",
+            "no_response": "Keine Antwort",
+            "duplicate": "Duplikat",
+            "other": "Sonstiger"
+          }
+        },
+        "requests.closed_on": {
+          "label": "Abgeschlossen am",
+          "options": {}
+        },
+        "requests.data_review_on": {
+          "label": "Daten prüfen am",
+          "options": {}
+        },
+        "requests.days_to_close": {
+          "label": "Tage von der Einsendung bis zum Abschluss",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "reply": "Antworten",
+            "qualify_call": "Qualifizierungsgespräch",
+            "send_quote": "Angebot senden",
+            "convert": "An die Pipeline übergeben",
+            "chase": "Nachfassen",
+            "data_review": "Daten prüfen",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "request_contact": {
+          "sourceLabel": "Kontakt",
+          "targetLabel": "Anfragen"
+        },
+        "action_request": {
+          "sourceLabel": "Anfrage",
+          "targetLabel": "Aufgaben"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle Aufgaben"
+        },
+        "requests_all": {
+          "name": "Alle Anfragen"
+        },
+        "requests_board": {
+          "name": "Anfragen-Board"
+        },
+        "new_requests": {
+          "name": "Neue Anfragen"
+        },
+        "closed_without_deal": {
+          "name": "Kein Bedarf oder Spam"
+        },
+        "contacts_all": {
+          "name": "Alle Kontakte"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Anstehende Aufgaben"
+        },
+        "overdue_actions": {
+          "title": "Überfällige Aufgaben"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        },
+        "requests_funnel": {
+          "title": "Anfragen nach Phase"
+        },
+        "requests_per_week": {
+          "title": "Anfragen pro Woche"
+        },
+        "requests_by_form": {
+          "title": "Anfragen nach Formular"
+        },
+        "new_requests_count": {
+          "title": "Neue Anfragen"
+        },
+        "not_a_fit_reasons": {
+          "title": "Gründe für Kein Bedarf"
+        },
+        "average_days_to_close": {
+          "title": "Durchschnittliche Tage bis zum Abschluss"
+        }
+      },
+      "knowledgePages": {
+        "form_playbook": {
+          "title": "Leitfaden vom Formular zum CRM",
+          "sections": [
+            "Welche Formulare wir betreiben und wer antwortet",
+            "Wie schnell wir antworten"
+          ]
+        },
+        "privacy_notice": {
+          "title": "Datenschutzhinweis für Formulare",
+          "sections": [
+            "Was wir am Formular mitteilen",
+            "Wie lange wir eine Anfrage aufbewahren"
+          ]
+        },
+        "spam_and_duplicates": {
+          "title": "Spam und Mehrfacheinsendungen",
+          "sections": [
+            "Was als Spam gilt",
+            "Was wir tun, wenn dieselbe Person erneut schreibt"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Kontakt und Anfrage anlegen, wenn das Anfrageformular abgeschickt wird",
+          "description": ""
+        },
+        "reply_task": {
+          "title": "Eine Antwortaufgabe für den nächsten Tag anlegen, wenn eine Anfrage entsteht",
+          "description": ""
+        },
+        "first_response_missed": {
+          "title": "Die Leitung informieren, wenn eine Anfrage einen Tag nach Eingang noch neu ist",
+          "description": ""
+        },
+        "chase_contacted": {
+          "title": "Eine kontaktierte Anfrage nachfassen, die sich 3 Tage nicht bewegt hat",
+          "description": ""
+        },
+        "converted_task": {
+          "title": "Die Anfrage an die Pipeline übergeben, wenn sie als übergeben markiert wird",
+          "description": ""
+        },
+        "review_date_not_a_fit": {
+          "title": "Prüftermin auf ein Jahr setzen, wenn eine Anfrage als Kein Bedarf endet",
+          "description": ""
+        },
+        "data_review": {
+          "title": "Die Daten prüfen, wenn der Prüftermin erreicht ist",
+          "description": ""
+        },
+        "external_form_records": {
+          "title": "Kontakt und Anfrage anlegen, wenn ein anderes Formularwerkzeug eine Einsendung schickt",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Jede Anfrage hat eine Phase.",
+        "submitted_field": "Jede Anfrage hält fest, wann sie eingegangen ist.",
+        "requests_board_view": "Die Anfragen öffnen sich als Board nach Phase."
+      },
+      "prompt": {
+        "intro": "Richte in meinem Customermates-Workspace die Verbindung von Formular zu CRM ein: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, sechs Phasen, Einwilligung und Prüftermin sowie terminierte Folgeaufgaben.",
+        "questions": [
+          "Welche Formulare betreiben Sie, und was müssen Sie wissen, um eine Anfrage zu bepreisen oder zuzuordnen?",
+          "Wer antwortet, und wie schnell versprechen Sie eine Antwort?",
+          "Was teilen Sie den Personen am Formular über ihre Daten mit?",
+          "Nutzen Sie ein anderes Formularwerkzeug wie Typeform, Tally oder Jotform?"
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Form to CRM",
+      "summary": "Turn web form enquiries into worked leads: a request for every submission with its source, a reply due, a stage from new to converted, and spam and not-a-fit kept apart.",
+      "description": "Every enquiry from a contact, quote or intake form becomes a request linked to a contact, with the form it came from, where the visitor arrived from, when it is needed and a reply due the next day. Requests move from new to converted, not a fit or spam, and a request nobody answered is flagged. Consent and a review date are kept for the data you collect. It is not a form builder for payments, quizzes or file uploads of sensitive documents.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "The people who write to you through a form."
+        },
+        "requests": {
+          "label": "Request",
+          "pluralLabel": "Requests",
+          "description": "One form submission, from new to converted, not a fit or spam."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "contacts.company_name": {
+          "label": "Company",
+          "options": {}
+        },
+        "contacts.language": {
+          "label": "Language",
+          "options": {}
+        },
+        "contacts.marketing_consent": {
+          "label": "Agreed to marketing emails",
+          "options": {}
+        },
+        "contacts.marketing_consent_on": {
+          "label": "Consent given on",
+          "options": {}
+        },
+        "requests.stage": {
+          "label": "Stage",
+          "options": {
+            "new": "New",
+            "contacted": "Contacted",
+            "qualified": "Qualified",
+            "converted": "Converted",
+            "not_a_fit": "Not a fit",
+            "spam": "Spam"
+          }
+        },
+        "requests.form": {
+          "label": "Form",
+          "options": {
+            "contact": "Contact form",
+            "quote_request": "Quote request",
+            "intake": "Intake form",
+            "callback": "Callback request",
+            "other": "Other"
+          }
+        },
+        "requests.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "requests.service_interest": {
+          "label": "Service of interest",
+          "options": {}
+        },
+        "requests.needed_by": {
+          "label": "Needed by",
+          "options": {
+            "asap": "As soon as possible",
+            "within_a_month": "Within a month",
+            "within_three_months": "Within three months",
+            "just_looking": "Just looking",
+            "no_answer": "No answer"
+          }
+        },
+        "requests.budget_band": {
+          "label": "Budget",
+          "options": {
+            "no_answer": "No answer",
+            "low": "Low",
+            "medium": "Medium",
+            "high": "High"
+          }
+        },
+        "requests.submitted_at": {
+          "label": "Submitted",
+          "options": {}
+        },
+        "requests.first_response_at": {
+          "label": "First reply",
+          "options": {}
+        },
+        "requests.utm_source": {
+          "label": "Where the visitor came from",
+          "options": {}
+        },
+        "requests.landing_page": {
+          "label": "Page of the form",
+          "options": {}
+        },
+        "requests.repeat_submission": {
+          "label": "Sent before",
+          "options": {}
+        },
+        "requests.not_a_fit_reason": {
+          "label": "Why not a fit",
+          "options": {
+            "out_of_area": "Outside our area",
+            "no_budget": "No budget",
+            "wrong_service": "Wrong service",
+            "no_response": "No response",
+            "duplicate": "Duplicate",
+            "other": "Other"
+          }
+        },
+        "requests.closed_on": {
+          "label": "Closed on",
+          "options": {}
+        },
+        "requests.data_review_on": {
+          "label": "Review the data on",
+          "options": {}
+        },
+        "requests.days_to_close": {
+          "label": "Days from submission to close",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "reply": "Reply",
+            "qualify_call": "Qualifying call",
+            "send_quote": "Send a quote",
+            "convert": "Hand over to the pipeline",
+            "chase": "Chase",
+            "data_review": "Review the data",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "request_contact": {
+          "sourceLabel": "Contact",
+          "targetLabel": "Requests"
+        },
+        "action_request": {
+          "sourceLabel": "Request",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "All actions"
+        },
+        "requests_all": {
+          "name": "All requests"
+        },
+        "requests_board": {
+          "name": "Request board"
+        },
+        "new_requests": {
+          "name": "New requests"
+        },
+        "closed_without_deal": {
+          "name": "Not a fit or spam"
+        },
+        "contacts_all": {
+          "name": "All contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Upcoming actions"
+        },
+        "overdue_actions": {
+          "title": "Overdue actions"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        },
+        "requests_funnel": {
+          "title": "Requests by stage"
+        },
+        "requests_per_week": {
+          "title": "Requests per week"
+        },
+        "requests_by_form": {
+          "title": "Requests by form"
+        },
+        "new_requests_count": {
+          "title": "New requests"
+        },
+        "not_a_fit_reasons": {
+          "title": "Why requests are not a fit"
+        },
+        "average_days_to_close": {
+          "title": "Average days to close"
+        }
+      },
+      "knowledgePages": {
+        "form_playbook": {
+          "title": "Form to CRM playbook",
+          "sections": [
+            "Which forms we run and who answers",
+            "How fast we reply"
+          ]
+        },
+        "privacy_notice": {
+          "title": "Privacy notice for forms",
+          "sections": [
+            "What we tell people at the form",
+            "How long we keep an enquiry"
+          ]
+        },
+        "spam_and_duplicates": {
+          "title": "Spam and repeat submissions",
+          "sections": [
+            "What counts as spam",
+            "What we do when the same person writes again"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Create the contact and the request when the enquiry form is submitted",
+          "description": ""
+        },
+        "reply_task": {
+          "title": "Create a reply task, due the next day, when a request is created",
+          "description": ""
+        },
+        "first_response_missed": {
+          "title": "Notify the lead when a request is still new a day after it was submitted",
+          "description": ""
+        },
+        "chase_contacted": {
+          "title": "Chase a contacted request that has not moved for 3 days",
+          "description": ""
+        },
+        "converted_task": {
+          "title": "Hand the request over to the pipeline when it is converted",
+          "description": ""
+        },
+        "review_date_not_a_fit": {
+          "title": "Set the data review date to one year out when a request is not a fit",
+          "description": ""
+        },
+        "data_review": {
+          "title": "Review the data when the review date arrives",
+          "description": ""
+        },
+        "external_form_records": {
+          "title": "Create the contact and the request when another form tool sends a submission",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Every request has a stage.",
+        "submitted_field": "Every request records when it was submitted.",
+        "requests_board_view": "The requests open as a board by stage."
+      },
+      "prompt": {
+        "intro": "Set up form to CRM in my Customermates workspace: a request for every form submission with its source, a reply due, six stages, consent and a data review date, and dated follow-ups.",
+        "questions": [
+          "Which forms do you run, and what do you need to know to price or route an enquiry?",
+          "Who answers, and how fast do you promise to reply?",
+          "What do you tell people about their data at the form?",
+          "Do you use another form tool such as Typeform, Tally or Jotform?"
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "Formulario a CRM",
+      "summary": "Convertir las consultas de los formularios web en oportunidades trabajadas: una solicitud por envío con su origen, una respuesta pendiente, una fase de nueva a convertida y el spam y las que no encajan aparte.",
+      "description": "Cada consulta de un formulario de contacto, de presupuesto o de admisión se convierte en una solicitud vinculada a un contacto, con el formulario de origen, de dónde llegó el visitante, para cuándo la necesita y una respuesta debida al día siguiente. Las solicitudes pasan de nueva a convertida, no encaja o spam, y una solicitud sin respuesta se señala. El consentimiento y una fecha de revisión acompañan a los datos recogidos. No es un creador de formularios para pagos, cuestionarios o subida de documentos sensibles.",
+      "lists": {
+        "actions": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un siguiente paso con fecha por cada asunto abierto."
+        },
+        "contacts": {
+          "label": "Contacto",
+          "pluralLabel": "Contactos",
+          "description": "Las personas que le escriben por un formulario."
+        },
+        "requests": {
+          "label": "Solicitud",
+          "pluralLabel": "Solicitudes",
+          "description": "Un envío de formulario, de nueva a convertida, no encaja o spam."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierta",
+            "waiting": "En espera",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "contacts.company_name": {
+          "label": "Empresa",
+          "options": {}
+        },
+        "contacts.language": {
+          "label": "Idioma",
+          "options": {}
+        },
+        "contacts.marketing_consent": {
+          "label": "Consentimiento para correos comerciales",
+          "options": {}
+        },
+        "contacts.marketing_consent_on": {
+          "label": "Consentimiento dado el",
+          "options": {}
+        },
+        "requests.stage": {
+          "label": "Fase",
+          "options": {
+            "new": "Nueva",
+            "contacted": "Contactada",
+            "qualified": "Cualificada",
+            "converted": "Convertida",
+            "not_a_fit": "No encaja",
+            "spam": "Spam"
+          }
+        },
+        "requests.form": {
+          "label": "Formulario",
+          "options": {
+            "contact": "Formulario de contacto",
+            "quote_request": "Solicitud de presupuesto",
+            "intake": "Formulario de admisión",
+            "callback": "Solicitud de llamada",
+            "other": "Otro"
+          }
+        },
+        "requests.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "requests.service_interest": {
+          "label": "Servicio de interés",
+          "options": {}
+        },
+        "requests.needed_by": {
+          "label": "Para cuándo",
+          "options": {
+            "asap": "Cuanto antes",
+            "within_a_month": "En un mes",
+            "within_three_months": "En tres meses",
+            "just_looking": "Solo informarse",
+            "no_answer": "Sin respuesta"
+          }
+        },
+        "requests.budget_band": {
+          "label": "Presupuesto",
+          "options": {
+            "no_answer": "Sin respuesta",
+            "low": "Bajo",
+            "medium": "Medio",
+            "high": "Alto"
+          }
+        },
+        "requests.submitted_at": {
+          "label": "Recibida",
+          "options": {}
+        },
+        "requests.first_response_at": {
+          "label": "Primera respuesta",
+          "options": {}
+        },
+        "requests.utm_source": {
+          "label": "Origen del visitante",
+          "options": {}
+        },
+        "requests.landing_page": {
+          "label": "Página del formulario",
+          "options": {}
+        },
+        "requests.repeat_submission": {
+          "label": "Ya había escrito",
+          "options": {}
+        },
+        "requests.not_a_fit_reason": {
+          "label": "Por qué no encaja",
+          "options": {
+            "out_of_area": "Fuera de nuestra zona",
+            "no_budget": "Sin presupuesto",
+            "wrong_service": "Servicio equivocado",
+            "no_response": "Sin respuesta",
+            "duplicate": "Duplicada",
+            "other": "Otro"
+          }
+        },
+        "requests.closed_on": {
+          "label": "Cerrada el",
+          "options": {}
+        },
+        "requests.data_review_on": {
+          "label": "Revisar los datos el",
+          "options": {}
+        },
+        "requests.days_to_close": {
+          "label": "Días del envío al cierre",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Responder",
+            "qualify_call": "Llamada de cualificación",
+            "send_quote": "Enviar un presupuesto",
+            "convert": "Pasar al pipeline",
+            "chase": "Reclamar",
+            "data_review": "Revisar los datos",
+            "other": "Otro"
+          }
+        }
+      },
+      "relationships": {
+        "request_contact": {
+          "sourceLabel": "Contacto",
+          "targetLabel": "Solicitudes"
+        },
+        "action_request": {
+          "sourceLabel": "Solicitud",
+          "targetLabel": "Tareas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas las tareas"
+        },
+        "requests_all": {
+          "name": "Todas las solicitudes"
+        },
+        "requests_board": {
+          "name": "Tablero de solicitudes"
+        },
+        "new_requests": {
+          "name": "Solicitudes nuevas"
+        },
+        "closed_without_deal": {
+          "name": "No encajan o spam"
+        },
+        "contacts_all": {
+          "name": "Todos los contactos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tareas"
+        },
+        "overdue_actions": {
+          "title": "Tareas vencidas"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        },
+        "requests_funnel": {
+          "title": "Solicitudes por fase"
+        },
+        "requests_per_week": {
+          "title": "Solicitudes por semana"
+        },
+        "requests_by_form": {
+          "title": "Solicitudes por formulario"
+        },
+        "new_requests_count": {
+          "title": "Solicitudes nuevas"
+        },
+        "not_a_fit_reasons": {
+          "title": "Por qué las solicitudes no encajan"
+        },
+        "average_days_to_close": {
+          "title": "Media de días hasta el cierre"
+        }
+      },
+      "knowledgePages": {
+        "form_playbook": {
+          "title": "Guía del formulario al CRM",
+          "sections": [
+            "Qué formularios usamos y quién responde",
+            "En cuánto tiempo respondemos"
+          ]
+        },
+        "privacy_notice": {
+          "title": "Aviso de privacidad de los formularios",
+          "sections": [
+            "Qué decimos en el formulario",
+            "Cuánto tiempo conservamos una consulta"
+          ]
+        },
+        "spam_and_duplicates": {
+          "title": "Spam y envíos repetidos",
+          "sections": [
+            "Qué cuenta como spam",
+            "Qué hacemos cuando la misma persona vuelve a escribir"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Crear el contacto y la solicitud cuando se envía el formulario de consulta",
+          "description": ""
+        },
+        "reply_task": {
+          "title": "Crear una tarea de respuesta para el día siguiente cuando se crea una solicitud",
+          "description": ""
+        },
+        "first_response_missed": {
+          "title": "Avisar a la persona a cargo cuando una solicitud sigue nueva un día después de recibirla",
+          "description": ""
+        },
+        "chase_contacted": {
+          "title": "Reclamar una solicitud contactada que lleva 3 días sin moverse",
+          "description": ""
+        },
+        "converted_task": {
+          "title": "Pasar la solicitud al pipeline cuando se convierte",
+          "description": ""
+        },
+        "review_date_not_a_fit": {
+          "title": "Fijar la revisión de datos a un año cuando una solicitud no encaja",
+          "description": ""
+        },
+        "data_review": {
+          "title": "Revisar los datos cuando llega la fecha de revisión",
+          "description": ""
+        },
+        "external_form_records": {
+          "title": "Crear el contacto y la solicitud cuando otra herramienta de formularios envía un envío",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada solicitud tiene una fase.",
+        "submitted_field": "Cada solicitud indica cuándo se recibió.",
+        "requests_board_view": "Las solicitudes se abren como tablero por fase."
+      },
+      "prompt": {
+        "intro": "Configura en mi espacio de Customermates el paso del formulario al CRM: una solicitud por envío con su origen, una respuesta pendiente, seis fases, el consentimiento y una fecha de revisión de datos, y seguimientos con fecha.",
+        "questions": [
+          "¿Qué formularios usa y qué necesita saber para presupuestar o derivar una consulta?",
+          "¿Quién responde y en cuánto tiempo se compromete a hacerlo?",
+          "¿Qué dice a las personas sobre sus datos en el formulario?",
+          "¿Usa otra herramienta de formularios como Typeform, Tally o Jotform?"
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "Formulaire vers CRM",
+      "summary": "Transformer les demandes des formulaires web en prospects suivis : une demande par envoi avec sa source, une réponse à donner, une étape de nouveau à converti, et le spam et le sans suite à part.",
+      "description": "Chaque demande venue d'un formulaire de contact, de devis ou d'accueil devient une demande reliée à un contact, avec le formulaire d'origine, la provenance du visiteur, le besoin pour quand et une réponse due le lendemain. Les demandes passent de nouveau à converti, sans suite ou spam, et une demande restée sans réponse est signalée. Le consentement et une date de revue accompagnent les données collectées. Ce n'est pas un créateur de formulaires pour des paiements, des quiz ou le dépôt de documents sensibles.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Une prochaine étape datée par dossier ouvert."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "Les personnes qui vous écrivent par un formulaire."
+        },
+        "requests": {
+          "label": "Demande",
+          "pluralLabel": "Demandes",
+          "description": "Un envoi de formulaire, de nouveau à converti, sans suite ou spam."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "waiting": "En attente",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "contacts.company_name": {
+          "label": "Entreprise",
+          "options": {}
+        },
+        "contacts.language": {
+          "label": "Langue",
+          "options": {}
+        },
+        "contacts.marketing_consent": {
+          "label": "Consentement aux e-mails commerciaux",
+          "options": {}
+        },
+        "contacts.marketing_consent_on": {
+          "label": "Consentement donné le",
+          "options": {}
+        },
+        "requests.stage": {
+          "label": "Étape",
+          "options": {
+            "new": "Nouveau",
+            "contacted": "Contacté",
+            "qualified": "Qualifié",
+            "converted": "Converti",
+            "not_a_fit": "Sans suite",
+            "spam": "Spam"
+          }
+        },
+        "requests.form": {
+          "label": "Formulaire",
+          "options": {
+            "contact": "Formulaire de contact",
+            "quote_request": "Demande de devis",
+            "intake": "Formulaire d'accueil",
+            "callback": "Demande de rappel",
+            "other": "Autre"
+          }
+        },
+        "requests.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "requests.service_interest": {
+          "label": "Prestation souhaitée",
+          "options": {}
+        },
+        "requests.needed_by": {
+          "label": "Besoin pour le",
+          "options": {
+            "asap": "Dès que possible",
+            "within_a_month": "Dans le mois",
+            "within_three_months": "Dans les trois mois",
+            "just_looking": "Simple renseignement",
+            "no_answer": "Sans réponse"
+          }
+        },
+        "requests.budget_band": {
+          "label": "Budget",
+          "options": {
+            "no_answer": "Sans réponse",
+            "low": "Faible",
+            "medium": "Moyen",
+            "high": "Élevé"
+          }
+        },
+        "requests.submitted_at": {
+          "label": "Reçue le",
+          "options": {}
+        },
+        "requests.first_response_at": {
+          "label": "Première réponse",
+          "options": {}
+        },
+        "requests.utm_source": {
+          "label": "Provenance du visiteur",
+          "options": {}
+        },
+        "requests.landing_page": {
+          "label": "Page du formulaire",
+          "options": {}
+        },
+        "requests.repeat_submission": {
+          "label": "A déjà écrit",
+          "options": {}
+        },
+        "requests.not_a_fit_reason": {
+          "label": "Raison du sans suite",
+          "options": {
+            "out_of_area": "Hors de notre zone",
+            "no_budget": "Pas de budget",
+            "wrong_service": "Mauvaise prestation",
+            "no_response": "Sans réponse",
+            "duplicate": "Doublon",
+            "other": "Autre"
+          }
+        },
+        "requests.closed_on": {
+          "label": "Clôturée le",
+          "options": {}
+        },
+        "requests.data_review_on": {
+          "label": "Revoir les données le",
+          "options": {}
+        },
+        "requests.days_to_close": {
+          "label": "Jours entre l'envoi et la clôture",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "reply": "Répondre",
+            "qualify_call": "Appel de qualification",
+            "send_quote": "Envoyer un devis",
+            "convert": "Passer au pipeline",
+            "chase": "Relancer",
+            "data_review": "Revoir les données",
+            "other": "Autre"
+          }
+        }
+      },
+      "relationships": {
+        "request_contact": {
+          "sourceLabel": "Contact",
+          "targetLabel": "Demandes"
+        },
+        "action_request": {
+          "sourceLabel": "Demande",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "requests_all": {
+          "name": "Toutes les demandes"
+        },
+        "requests_board": {
+          "name": "Tableau des demandes"
+        },
+        "new_requests": {
+          "name": "Nouvelles demandes"
+        },
+        "closed_without_deal": {
+          "name": "Sans suite ou spam"
+        },
+        "contacts_all": {
+          "name": "Tous les contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Actions à venir"
+        },
+        "overdue_actions": {
+          "title": "Actions en retard"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        },
+        "requests_funnel": {
+          "title": "Demandes par étape"
+        },
+        "requests_per_week": {
+          "title": "Demandes par semaine"
+        },
+        "requests_by_form": {
+          "title": "Demandes par formulaire"
+        },
+        "new_requests_count": {
+          "title": "Nouvelles demandes"
+        },
+        "not_a_fit_reasons": {
+          "title": "Raisons des demandes sans suite"
+        },
+        "average_days_to_close": {
+          "title": "Nombre moyen de jours avant clôture"
+        }
+      },
+      "knowledgePages": {
+        "form_playbook": {
+          "title": "Guide du formulaire au CRM",
+          "sections": [
+            "Quels formulaires nous utilisons et qui répond",
+            "En combien de temps nous répondons"
+          ]
+        },
+        "privacy_notice": {
+          "title": "Mentions d'information des formulaires",
+          "sections": [
+            "Ce que nous indiquons au niveau du formulaire",
+            "Durée de conservation d'une demande"
+          ]
+        },
+        "spam_and_duplicates": {
+          "title": "Spam et envois répétés",
+          "sections": [
+            "Ce qui compte comme du spam",
+            "Ce que nous faisons quand la même personne écrit à nouveau"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Créer le contact et la demande quand le formulaire de demande est envoyé",
+          "description": ""
+        },
+        "reply_task": {
+          "title": "Créer une tâche de réponse pour le lendemain quand une demande est créée",
+          "description": ""
+        },
+        "first_response_missed": {
+          "title": "Prévenir le responsable quand une demande est encore nouvelle un jour après sa réception",
+          "description": ""
+        },
+        "chase_contacted": {
+          "title": "Relancer une demande contactée qui n'a pas bougé depuis 3 jours",
+          "description": ""
+        },
+        "converted_task": {
+          "title": "Passer la demande au pipeline quand elle est convertie",
+          "description": ""
+        },
+        "review_date_not_a_fit": {
+          "title": "Fixer la revue des données à un an quand une demande est sans suite",
+          "description": ""
+        },
+        "data_review": {
+          "title": "Revoir les données quand la date de revue arrive",
+          "description": ""
+        },
+        "external_form_records": {
+          "title": "Créer le contact et la demande quand un autre outil de formulaire envoie un envoi",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Chaque demande a une étape.",
+        "submitted_field": "Chaque demande indique quand elle a été reçue.",
+        "requests_board_view": "Les demandes s'ouvrent en tableau par étape."
+      },
+      "prompt": {
+        "intro": "Mets en place dans mon espace Customermates le passage du formulaire au CRM : une demande par envoi avec sa source, une réponse à donner, six étapes, le consentement et une date de revue des données, et des relances datées.",
+        "questions": [
+          "Quels formulaires utilisez-vous, et que devez-vous savoir pour chiffrer ou orienter une demande ?",
+          "Qui répond, et sous quel délai vous engagez-vous à répondre ?",
+          "Que dites-vous aux personnes sur leurs données au niveau du formulaire ?",
+          "Utilisez-vous un autre outil de formulaire comme Typeform, Tally ou Jotform ?"
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "Modulo di contatto con CRM",
+      "summary": "Trasformare le richieste dei moduli web in contatti seguiti: una richiesta per ogni invio con la sua origine, una risposta dovuta, una fase da nuova a convertita, spam e non idonee tenuti a parte.",
+      "description": "Ogni richiesta da un modulo di contatto, preventivo o accoglienza diventa una richiesta collegata a un contatto, con il modulo di provenienza, da dove è arrivato il visitatore, entro quando serve e una risposta dovuta il giorno dopo. Le richieste passano da nuova a convertita, non idonea o spam e una richiesta rimasta senza risposta viene segnalata. Consenso e una data di revisione accompagnano i dati raccolti. Non è un costruttore di moduli per pagamenti, quiz o caricamento di documenti sensibili.",
+      "lists": {
+        "actions": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un prossimo passo con data per ogni pratica aperta."
+        },
+        "contacts": {
+          "label": "Contatto",
+          "pluralLabel": "Contatti",
+          "description": "Le persone che ti scrivono tramite un modulo."
+        },
+        "requests": {
+          "label": "Richiesta",
+          "pluralLabel": "Richieste",
+          "description": "Un invio di modulo, da nuova a convertita, non idonea o spam."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "waiting": "In attesa",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "contacts.company_name": {
+          "label": "Azienda",
+          "options": {}
+        },
+        "contacts.language": {
+          "label": "Lingua",
+          "options": {}
+        },
+        "contacts.marketing_consent": {
+          "label": "Consenso alle email promozionali",
+          "options": {}
+        },
+        "contacts.marketing_consent_on": {
+          "label": "Consenso dato il",
+          "options": {}
+        },
+        "requests.stage": {
+          "label": "Fase",
+          "options": {
+            "new": "Nuova",
+            "contacted": "Contattata",
+            "qualified": "Qualificata",
+            "converted": "Convertita",
+            "not_a_fit": "Non idonea",
+            "spam": "Spam"
+          }
+        },
+        "requests.form": {
+          "label": "Modulo",
+          "options": {
+            "contact": "Modulo di contatto",
+            "quote_request": "Richiesta preventivo",
+            "intake": "Modulo di accoglienza",
+            "callback": "Richiesta di richiamata",
+            "other": "Altro"
+          }
+        },
+        "requests.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "requests.service_interest": {
+          "label": "Servizio richiesto",
+          "options": {}
+        },
+        "requests.needed_by": {
+          "label": "Entro quando",
+          "options": {
+            "asap": "Appena possibile",
+            "within_a_month": "Entro un mese",
+            "within_three_months": "Entro tre mesi",
+            "just_looking": "Solo informazioni",
+            "no_answer": "Nessuna risposta"
+          }
+        },
+        "requests.budget_band": {
+          "label": "Budget",
+          "options": {
+            "no_answer": "Nessuna risposta",
+            "low": "Basso",
+            "medium": "Medio",
+            "high": "Alto"
+          }
+        },
+        "requests.submitted_at": {
+          "label": "Ricevuta il",
+          "options": {}
+        },
+        "requests.first_response_at": {
+          "label": "Prima risposta",
+          "options": {}
+        },
+        "requests.utm_source": {
+          "label": "Origine del visitatore",
+          "options": {}
+        },
+        "requests.landing_page": {
+          "label": "Pagina del modulo",
+          "options": {}
+        },
+        "requests.repeat_submission": {
+          "label": "Ha già scritto",
+          "options": {}
+        },
+        "requests.not_a_fit_reason": {
+          "label": "Motivo di non idoneità",
+          "options": {
+            "out_of_area": "Fuori zona",
+            "no_budget": "Nessun budget",
+            "wrong_service": "Servizio sbagliato",
+            "no_response": "Nessuna risposta",
+            "duplicate": "Duplicato",
+            "other": "Altro"
+          }
+        },
+        "requests.closed_on": {
+          "label": "Chiusa il",
+          "options": {}
+        },
+        "requests.data_review_on": {
+          "label": "Rivedere i dati il",
+          "options": {}
+        },
+        "requests.days_to_close": {
+          "label": "Giorni dall'invio alla chiusura",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Rispondere",
+            "qualify_call": "Chiamata di qualifica",
+            "send_quote": "Inviare un preventivo",
+            "convert": "Passare alla pipeline",
+            "chase": "Sollecitare",
+            "data_review": "Rivedere i dati",
+            "other": "Altro"
+          }
+        }
+      },
+      "relationships": {
+        "request_contact": {
+          "sourceLabel": "Contatto",
+          "targetLabel": "Richieste"
+        },
+        "action_request": {
+          "sourceLabel": "Richiesta",
+          "targetLabel": "Attività"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Tutte le attività"
+        },
+        "requests_all": {
+          "name": "Tutte le richieste"
+        },
+        "requests_board": {
+          "name": "Bacheca delle richieste"
+        },
+        "new_requests": {
+          "name": "Nuove richieste"
+        },
+        "closed_without_deal": {
+          "name": "Non idonee o spam"
+        },
+        "contacts_all": {
+          "name": "Tutti i contatti"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Attività in arrivo"
+        },
+        "overdue_actions": {
+          "title": "Attività scadute"
+        },
+        "activity_timeline": {
+          "title": "Attività recente"
+        },
+        "requests_funnel": {
+          "title": "Richieste per fase"
+        },
+        "requests_per_week": {
+          "title": "Richieste per settimana"
+        },
+        "requests_by_form": {
+          "title": "Richieste per modulo"
+        },
+        "new_requests_count": {
+          "title": "Nuove richieste"
+        },
+        "not_a_fit_reasons": {
+          "title": "Perché le richieste non sono idonee"
+        },
+        "average_days_to_close": {
+          "title": "Giorni medi alla chiusura"
+        }
+      },
+      "knowledgePages": {
+        "form_playbook": {
+          "title": "Guida dal modulo al CRM",
+          "sections": [
+            "Quali moduli usiamo e chi risponde",
+            "In quanto tempo rispondiamo"
+          ]
+        },
+        "privacy_notice": {
+          "title": "Informativa privacy dei moduli",
+          "sections": [
+            "Che cosa comunichiamo sul modulo",
+            "Per quanto tempo conserviamo una richiesta"
+          ]
+        },
+        "spam_and_duplicates": {
+          "title": "Spam e invii ripetuti",
+          "sections": [
+            "Che cosa conta come spam",
+            "Che cosa facciamo quando la stessa persona scrive di nuovo"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Creare contatto e richiesta quando viene inviato il modulo di richiesta",
+          "description": ""
+        },
+        "reply_task": {
+          "title": "Creare un'attività di risposta per il giorno dopo quando nasce una richiesta",
+          "description": ""
+        },
+        "first_response_missed": {
+          "title": "Avvisare il referente quando una richiesta è ancora nuova un giorno dopo l'invio",
+          "description": ""
+        },
+        "chase_contacted": {
+          "title": "Sollecitare una richiesta contattata ferma da 3 giorni",
+          "description": ""
+        },
+        "converted_task": {
+          "title": "Passare la richiesta alla pipeline quando viene convertita",
+          "description": ""
+        },
+        "review_date_not_a_fit": {
+          "title": "Fissare la revisione dei dati a un anno quando una richiesta è non idonea",
+          "description": ""
+        },
+        "data_review": {
+          "title": "Rivedere i dati quando arriva la data di revisione",
+          "description": ""
+        },
+        "external_form_records": {
+          "title": "Creare contatto e richiesta quando un altro strumento di moduli invia un invio",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Ogni richiesta ha una fase.",
+        "submitted_field": "Ogni richiesta indica quando è stata ricevuta.",
+        "requests_board_view": "Le richieste si aprono come bacheca per fase."
+      },
+      "prompt": {
+        "intro": "Imposta nel mio workspace Customermates il passaggio dal modulo al CRM: una richiesta per ogni invio con la sua origine, una risposta dovuta, sei fasi, il consenso e una data di revisione dei dati, e attività di follow-up con data.",
+        "questions": [
+          "Quali moduli usate e che cosa dovete sapere per quotare o smistare una richiesta?",
+          "Chi risponde e in quanto tempo vi impegnate a farlo?",
+          "Che cosa dite alle persone sui loro dati nel modulo?",
+          "Usate un altro strumento di moduli come Typeform, Tally o Jotform?"
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "Formulier naar CRM",
+      "summary": "Aanvragen uit webformulieren omzetten in opgevolgde leads: een aanvraag per inzending met bron, een verschuldigd antwoord, een fase van nieuw tot omgezet, en spam en niet passend apart.",
+      "description": "Elke aanvraag uit een contact-, offerte- of intakeformulier wordt een aanvraag gekoppeld aan een contactpersoon, met het formulier waaruit ze kwam, waar de bezoeker vandaan kwam, wanneer het nodig is en een antwoord dat de volgende dag verschuldigd is. Aanvragen lopen van nieuw tot omgezet, niet passend of spam, en een aanvraag zonder antwoord wordt gemeld. Toestemming en een controledatum horen bij de verzamelde gegevens. Geen formulierenbouwer voor betalingen, quizzen of het uploaden van gevoelige documenten.",
+      "lists": {
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén volgende stap met datum per open dossier."
+        },
+        "contacts": {
+          "label": "Contactpersoon",
+          "pluralLabel": "Contactpersonen",
+          "description": "De mensen die u via een formulier schrijven."
+        },
+        "requests": {
+          "label": "Aanvraag",
+          "pluralLabel": "Aanvragen",
+          "description": "Eén inzending van een formulier, van nieuw tot omgezet, niet passend of spam."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Wachtend",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "contacts.company_name": {
+          "label": "Bedrijf",
+          "options": {}
+        },
+        "contacts.language": {
+          "label": "Taal",
+          "options": {}
+        },
+        "contacts.marketing_consent": {
+          "label": "Toestemming voor marketingmail",
+          "options": {}
+        },
+        "contacts.marketing_consent_on": {
+          "label": "Toestemming gegeven op",
+          "options": {}
+        },
+        "requests.stage": {
+          "label": "Fase",
+          "options": {
+            "new": "Nieuw",
+            "contacted": "Gecontacteerd",
+            "qualified": "Gekwalificeerd",
+            "converted": "Omgezet",
+            "not_a_fit": "Niet passend",
+            "spam": "Spam"
+          }
+        },
+        "requests.form": {
+          "label": "Formulier",
+          "options": {
+            "contact": "Contactformulier",
+            "quote_request": "Offerteaanvraag",
+            "intake": "Intakeformulier",
+            "callback": "Terugbelverzoek",
+            "other": "Overig"
+          }
+        },
+        "requests.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "requests.service_interest": {
+          "label": "Gewenste dienst",
+          "options": {}
+        },
+        "requests.needed_by": {
+          "label": "Gewenst voor",
+          "options": {
+            "asap": "Zo snel mogelijk",
+            "within_a_month": "Binnen een maand",
+            "within_three_months": "Binnen drie maanden",
+            "just_looking": "Gewoon oriënteren",
+            "no_answer": "Geen antwoord"
+          }
+        },
+        "requests.budget_band": {
+          "label": "Budget",
+          "options": {
+            "no_answer": "Geen antwoord",
+            "low": "Laag",
+            "medium": "Gemiddeld",
+            "high": "Hoog"
+          }
+        },
+        "requests.submitted_at": {
+          "label": "Ontvangen",
+          "options": {}
+        },
+        "requests.first_response_at": {
+          "label": "Eerste reactie",
+          "options": {}
+        },
+        "requests.utm_source": {
+          "label": "Waar de bezoeker vandaan kwam",
+          "options": {}
+        },
+        "requests.landing_page": {
+          "label": "Pagina van het formulier",
+          "options": {}
+        },
+        "requests.repeat_submission": {
+          "label": "Eerder geschreven",
+          "options": {}
+        },
+        "requests.not_a_fit_reason": {
+          "label": "Waarom niet passend",
+          "options": {
+            "out_of_area": "Buiten ons gebied",
+            "no_budget": "Geen budget",
+            "wrong_service": "Verkeerde dienst",
+            "no_response": "Geen reactie",
+            "duplicate": "Dubbel",
+            "other": "Overig"
+          }
+        },
+        "requests.closed_on": {
+          "label": "Gesloten op",
+          "options": {}
+        },
+        "requests.data_review_on": {
+          "label": "Gegevens controleren op",
+          "options": {}
+        },
+        "requests.days_to_close": {
+          "label": "Dagen van inzending tot afsluiting",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "reply": "Reageren",
+            "qualify_call": "Kwalificatiegesprek",
+            "send_quote": "Offerte sturen",
+            "convert": "Overdragen aan de pijplijn",
+            "chase": "Opvolgen",
+            "data_review": "Gegevens controleren",
+            "other": "Overig"
+          }
+        }
+      },
+      "relationships": {
+        "request_contact": {
+          "sourceLabel": "Contactpersoon",
+          "targetLabel": "Aanvragen"
+        },
+        "action_request": {
+          "sourceLabel": "Aanvraag",
+          "targetLabel": "Taken"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "requests_all": {
+          "name": "Alle aanvragen"
+        },
+        "requests_board": {
+          "name": "Aanvragenbord"
+        },
+        "new_requests": {
+          "name": "Nieuwe aanvragen"
+        },
+        "closed_without_deal": {
+          "name": "Niet passend of spam"
+        },
+        "contacts_all": {
+          "name": "Alle contactpersonen"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Aankomende acties"
+        },
+        "overdue_actions": {
+          "title": "Achterstallige acties"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        },
+        "requests_funnel": {
+          "title": "Aanvragen per fase"
+        },
+        "requests_per_week": {
+          "title": "Aanvragen per week"
+        },
+        "requests_by_form": {
+          "title": "Aanvragen per formulier"
+        },
+        "new_requests_count": {
+          "title": "Nieuwe aanvragen"
+        },
+        "not_a_fit_reasons": {
+          "title": "Waarom aanvragen niet passen"
+        },
+        "average_days_to_close": {
+          "title": "Gemiddeld aantal dagen tot afsluiting"
+        }
+      },
+      "knowledgePages": {
+        "form_playbook": {
+          "title": "Draaiboek van formulier naar CRM",
+          "sections": [
+            "Welke formulieren we gebruiken en wie antwoordt",
+            "Hoe snel we antwoorden"
+          ]
+        },
+        "privacy_notice": {
+          "title": "Privacyverklaring voor formulieren",
+          "sections": [
+            "Wat we bij het formulier vermelden",
+            "Hoe lang we een aanvraag bewaren"
+          ]
+        },
+        "spam_and_duplicates": {
+          "title": "Spam en herhaalde inzendingen",
+          "sections": [
+            "Wat als spam geldt",
+            "Wat we doen als dezelfde persoon opnieuw schrijft"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Contactpersoon en aanvraag aanmaken als het aanvraagformulier is ingediend",
+          "description": ""
+        },
+        "reply_task": {
+          "title": "Een taak om de volgende dag te antwoorden aanmaken als een aanvraag binnenkomt",
+          "description": ""
+        },
+        "first_response_missed": {
+          "title": "De teamleider waarschuwen als een aanvraag een dag na ontvangst nog nieuw is",
+          "description": ""
+        },
+        "chase_contacted": {
+          "title": "Een gecontacteerde aanvraag opvolgen die 3 dagen stilstaat",
+          "description": ""
+        },
+        "converted_task": {
+          "title": "De aanvraag aan de pijplijn overdragen als ze wordt omgezet",
+          "description": ""
+        },
+        "review_date_not_a_fit": {
+          "title": "De controle van gegevens op een jaar zetten als een aanvraag niet past",
+          "description": ""
+        },
+        "data_review": {
+          "title": "De gegevens controleren als de controledatum is bereikt",
+          "description": ""
+        },
+        "external_form_records": {
+          "title": "Contactpersoon en aanvraag aanmaken als een ander formuliertool een inzending stuurt",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Elke aanvraag heeft een fase.",
+        "submitted_field": "Elke aanvraag legt vast wanneer ze is ontvangen.",
+        "requests_board_view": "De aanvragen openen als bord per fase."
+      },
+      "prompt": {
+        "intro": "Richt in mijn Customermates-workspace de stap van formulier naar CRM in: een aanvraag per inzending met bron, een verschuldigd antwoord, zes fasen, toestemming en een controledatum voor gegevens, en opvolging met datum.",
+        "questions": [
+          "Welke formulieren gebruikt u en wat moet u weten om een aanvraag te prijzen of door te sturen?",
+          "Wie antwoordt en binnen welke tijd belooft u te reageren?",
+          "Wat vertelt u mensen bij het formulier over hun gegevens?",
+          "Gebruikt u een ander formuliertool zoals Typeform, Tally of Jotform?"
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Formularz do CRM",
+      "summary": "Zamienianie zapytań z formularzy w opracowane kontakty: jedno zapytanie na każde wysłanie ze źródłem, należną odpowiedzią, etapem od nowego do przekazanego oraz osobno spam i nietrafione.",
+      "description": "Każde zapytanie z formularza kontaktowego, wyceny lub zgłoszeniowego staje się zapytaniem powiązanym z kontaktem, z formularzem, z którego przyszło, skąd trafił odwiedzający, na kiedy jest potrzebne i odpowiedzią należną następnego dnia. Zapytania przechodzą od nowego do przekazanego, nietrafionego lub spamu, a zapytanie bez odpowiedzi jest oznaczane. Zgoda i termin przeglądu towarzyszą zbieranym danym. To nie kreator formularzy do płatności, quizów ani przesyłania wrażliwych dokumentów.",
+      "lists": {
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jeden następny krok z terminem dla każdej otwartej sprawy."
+        },
+        "contacts": {
+          "label": "Kontakt",
+          "pluralLabel": "Kontakty",
+          "description": "Osoby, które piszą do Ciebie przez formularz."
+        },
+        "requests": {
+          "label": "Zapytanie",
+          "pluralLabel": "Zapytania",
+          "description": "Jedno wysłanie formularza, od nowego do przekazanego, nietrafionego lub spamu."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarte",
+            "waiting": "Oczekuje",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Odpowiedzialny",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "contacts.company_name": {
+          "label": "Firma",
+          "options": {}
+        },
+        "contacts.language": {
+          "label": "Język",
+          "options": {}
+        },
+        "contacts.marketing_consent": {
+          "label": "Zgoda na e-maile marketingowe",
+          "options": {}
+        },
+        "contacts.marketing_consent_on": {
+          "label": "Zgoda udzielona dnia",
+          "options": {}
+        },
+        "requests.stage": {
+          "label": "Etap",
+          "options": {
+            "new": "Nowe",
+            "contacted": "Skontaktowane",
+            "qualified": "Zakwalifikowane",
+            "converted": "Przekazane",
+            "not_a_fit": "Nietrafione",
+            "spam": "Spam"
+          }
+        },
+        "requests.form": {
+          "label": "Formularz",
+          "options": {
+            "contact": "Formularz kontaktowy",
+            "quote_request": "Formularz wyceny",
+            "intake": "Formularz zgłoszeniowy",
+            "callback": "Prośba o telefon",
+            "other": "Inny"
+          }
+        },
+        "requests.owner": {
+          "label": "Odpowiedzialny",
+          "options": {}
+        },
+        "requests.service_interest": {
+          "label": "Interesująca usługa",
+          "options": {}
+        },
+        "requests.needed_by": {
+          "label": "Termin",
+          "options": {
+            "asap": "Jak najszybciej",
+            "within_a_month": "W ciągu miesiąca",
+            "within_three_months": "W ciągu trzech miesięcy",
+            "just_looking": "Tylko się rozglądam",
+            "no_answer": "Bez odpowiedzi"
+          }
+        },
+        "requests.budget_band": {
+          "label": "Budżet",
+          "options": {
+            "no_answer": "Bez odpowiedzi",
+            "low": "Niski",
+            "medium": "Średni",
+            "high": "Wysoki"
+          }
+        },
+        "requests.submitted_at": {
+          "label": "Otrzymano",
+          "options": {}
+        },
+        "requests.first_response_at": {
+          "label": "Pierwsza odpowiedź",
+          "options": {}
+        },
+        "requests.utm_source": {
+          "label": "Skąd przyszedł odwiedzający",
+          "options": {}
+        },
+        "requests.landing_page": {
+          "label": "Strona formularza",
+          "options": {}
+        },
+        "requests.repeat_submission": {
+          "label": "Pisał już wcześniej",
+          "options": {}
+        },
+        "requests.not_a_fit_reason": {
+          "label": "Dlaczego nietrafione",
+          "options": {
+            "out_of_area": "Poza naszym obszarem",
+            "no_budget": "Brak budżetu",
+            "wrong_service": "Inna usługa",
+            "no_response": "Brak odpowiedzi",
+            "duplicate": "Duplikat",
+            "other": "Inny"
+          }
+        },
+        "requests.closed_on": {
+          "label": "Zamknięto dnia",
+          "options": {}
+        },
+        "requests.data_review_on": {
+          "label": "Przejrzyj dane dnia",
+          "options": {}
+        },
+        "requests.days_to_close": {
+          "label": "Dni od wysłania do zamknięcia",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "reply": "Odpowiedzieć",
+            "qualify_call": "Rozmowa kwalifikacyjna",
+            "send_quote": "Wysłać wycenę",
+            "convert": "Przekazać do lejka",
+            "chase": "Ponaglić",
+            "data_review": "Przejrzeć dane",
+            "other": "Inne"
+          }
+        }
+      },
+      "relationships": {
+        "request_contact": {
+          "sourceLabel": "Kontakt",
+          "targetLabel": "Zapytania"
+        },
+        "action_request": {
+          "sourceLabel": "Zapytanie",
+          "targetLabel": "Zadania"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "requests_all": {
+          "name": "Wszystkie zapytania"
+        },
+        "requests_board": {
+          "name": "Tablica zapytań"
+        },
+        "new_requests": {
+          "name": "Nowe zapytania"
+        },
+        "closed_without_deal": {
+          "name": "Nietrafione lub spam"
+        },
+        "contacts_all": {
+          "name": "Wszystkie kontakty"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Nadchodzące zadania"
+        },
+        "overdue_actions": {
+          "title": "Zaległe zadania"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        },
+        "requests_funnel": {
+          "title": "Zapytania według etapu"
+        },
+        "requests_per_week": {
+          "title": "Zapytania tygodniowo"
+        },
+        "requests_by_form": {
+          "title": "Zapytania według formularza"
+        },
+        "new_requests_count": {
+          "title": "Nowe zapytania"
+        },
+        "not_a_fit_reasons": {
+          "title": "Dlaczego zapytania są nietrafione"
+        },
+        "average_days_to_close": {
+          "title": "Średnia liczba dni do zamknięcia"
+        }
+      },
+      "knowledgePages": {
+        "form_playbook": {
+          "title": "Przewodnik od formularza do CRM",
+          "sections": [
+            "Jakich formularzy używamy i kto odpowiada",
+            "Jak szybko odpowiadamy"
+          ]
+        },
+        "privacy_notice": {
+          "title": "Klauzula informacyjna formularzy",
+          "sections": [
+            "Co mówimy przy formularzu",
+            "Jak długo przechowujemy zapytanie"
+          ]
+        },
+        "spam_and_duplicates": {
+          "title": "Spam i powtórne wysłania",
+          "sections": [
+            "Co uznajemy za spam",
+            "Co robimy, gdy ta sama osoba pisze ponownie"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Utworzyć kontakt i zapytanie po wysłaniu formularza zapytania",
+          "description": ""
+        },
+        "reply_task": {
+          "title": "Utworzyć zadanie odpowiedzi na następny dzień, gdy powstaje zapytanie",
+          "description": ""
+        },
+        "first_response_missed": {
+          "title": "Powiadomić prowadzącego, gdy zapytanie jest nadal nowe dzień po otrzymaniu",
+          "description": ""
+        },
+        "chase_contacted": {
+          "title": "Ponaglić skontaktowane zapytanie, które stoi od 3 dni",
+          "description": ""
+        },
+        "converted_task": {
+          "title": "Przekazać zapytanie do lejka, gdy zostanie przekazane",
+          "description": ""
+        },
+        "review_date_not_a_fit": {
+          "title": "Ustawić przegląd danych na rok, gdy zapytanie jest nietrafione",
+          "description": ""
+        },
+        "data_review": {
+          "title": "Przejrzeć dane, gdy nadejdzie termin przeglądu",
+          "description": ""
+        },
+        "external_form_records": {
+          "title": "Utworzyć kontakt i zapytanie, gdy inne narzędzie do formularzy wyśle zgłoszenie",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Każde zapytanie ma etap.",
+        "submitted_field": "Każde zapytanie zapisuje, kiedy wpłynęło.",
+        "requests_board_view": "Zapytania otwierają się jako tablica według etapu."
+      },
+      "prompt": {
+        "intro": "Skonfiguruj w moim workspace Customermates przejście od formularza do CRM: jedno zapytanie na każde wysłanie ze źródłem, należną odpowiedzią, sześcioma etapami, zgodą i terminem przeglądu danych oraz zaplanowane kontakty uzupełniające.",
+        "questions": [
+          "Jakich formularzy używasz i co musisz wiedzieć, żeby wycenić lub przypisać zapytanie?",
+          "Kto odpowiada i w jakim czasie obiecujesz odpowiedź?",
+          "Co mówisz ludziom o ich danych przy formularzu?",
+          "Czy używasz innego narzędzia do formularzy, takiego jak Typeform, Tally lub Jotform?"
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "Formulário para CRM",
+      "summary": "Transformar os contatos dos formulários do site em oportunidades acompanhadas: uma solicitação por envio com a origem, uma resposta devida, uma etapa de nova a convertida, e spam e sem fit à parte.",
+      "description": "Cada contato vindo de um formulário de contato, de orçamento ou de triagem vira uma solicitação ligada a um contato, com o formulário de origem, de onde veio o visitante, para quando precisa e uma resposta devida no dia seguinte. As solicitações passam de nova a convertida, sem fit ou spam, e uma solicitação sem resposta é sinalizada. O consentimento e uma data de revisão acompanham os dados coletados. Não é um criador de formulários para pagamentos, quizzes ou envio de documentos sensíveis.",
+      "lists": {
+        "actions": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um próximo passo com data para cada item em aberto."
+        },
+        "contacts": {
+          "label": "Contato",
+          "pluralLabel": "Contatos",
+          "description": "As pessoas que escrevem para você por um formulário."
+        },
+        "requests": {
+          "label": "Solicitação",
+          "pluralLabel": "Solicitações",
+          "description": "Um envio de formulário, de nova a convertida, sem fit ou spam."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberta",
+            "waiting": "Aguardando",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "contacts.company_name": {
+          "label": "Empresa",
+          "options": {}
+        },
+        "contacts.language": {
+          "label": "Idioma",
+          "options": {}
+        },
+        "contacts.marketing_consent": {
+          "label": "Consentimento para e-mails de marketing",
+          "options": {}
+        },
+        "contacts.marketing_consent_on": {
+          "label": "Consentimento dado em",
+          "options": {}
+        },
+        "requests.stage": {
+          "label": "Etapa",
+          "options": {
+            "new": "Nova",
+            "contacted": "Contatada",
+            "qualified": "Qualificada",
+            "converted": "Convertida",
+            "not_a_fit": "Sem fit",
+            "spam": "Spam"
+          }
+        },
+        "requests.form": {
+          "label": "Formulário",
+          "options": {
+            "contact": "Formulário de contato",
+            "quote_request": "Pedido de orçamento",
+            "intake": "Formulário de triagem",
+            "callback": "Pedido de retorno",
+            "other": "Outro"
+          }
+        },
+        "requests.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "requests.service_interest": {
+          "label": "Serviço de interesse",
+          "options": {}
+        },
+        "requests.needed_by": {
+          "label": "Prazo",
+          "options": {
+            "asap": "O mais rápido possível",
+            "within_a_month": "Em até um mês",
+            "within_three_months": "Em até três meses",
+            "just_looking": "Só pesquisando",
+            "no_answer": "Sem resposta"
+          }
+        },
+        "requests.budget_band": {
+          "label": "Faixa de orçamento",
+          "options": {
+            "no_answer": "Sem resposta",
+            "low": "Baixa",
+            "medium": "Média",
+            "high": "Alta"
+          }
+        },
+        "requests.submitted_at": {
+          "label": "Recebida em",
+          "options": {}
+        },
+        "requests.first_response_at": {
+          "label": "Primeira resposta",
+          "options": {}
+        },
+        "requests.utm_source": {
+          "label": "Origem do visitante",
+          "options": {}
+        },
+        "requests.landing_page": {
+          "label": "Página do formulário",
+          "options": {}
+        },
+        "requests.repeat_submission": {
+          "label": "Já escreveu antes",
+          "options": {}
+        },
+        "requests.not_a_fit_reason": {
+          "label": "Motivo do sem fit",
+          "options": {
+            "out_of_area": "Fora da nossa região",
+            "no_budget": "Sem orçamento",
+            "wrong_service": "Serviço errado",
+            "no_response": "Sem resposta",
+            "duplicate": "Duplicada",
+            "other": "Outro"
+          }
+        },
+        "requests.closed_on": {
+          "label": "Encerrada em",
+          "options": {}
+        },
+        "requests.data_review_on": {
+          "label": "Revisar os dados em",
+          "options": {}
+        },
+        "requests.days_to_close": {
+          "label": "Dias do envio ao encerramento",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Responder",
+            "qualify_call": "Conversa de qualificação",
+            "send_quote": "Enviar um orçamento",
+            "convert": "Passar para o funil",
+            "chase": "Cobrar retorno",
+            "data_review": "Revisar os dados",
+            "other": "Outro"
+          }
+        }
+      },
+      "relationships": {
+        "request_contact": {
+          "sourceLabel": "Contato",
+          "targetLabel": "Solicitações"
+        },
+        "action_request": {
+          "sourceLabel": "Solicitação",
+          "targetLabel": "Tarefas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas as tarefas"
+        },
+        "requests_all": {
+          "name": "Todas as solicitações"
+        },
+        "requests_board": {
+          "name": "Quadro de solicitações"
+        },
+        "new_requests": {
+          "name": "Solicitações novas"
+        },
+        "closed_without_deal": {
+          "name": "Sem fit ou spam"
+        },
+        "contacts_all": {
+          "name": "Todos os contatos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tarefas"
+        },
+        "overdue_actions": {
+          "title": "Tarefas atrasadas"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        },
+        "requests_funnel": {
+          "title": "Solicitações por etapa"
+        },
+        "requests_per_week": {
+          "title": "Solicitações por semana"
+        },
+        "requests_by_form": {
+          "title": "Solicitações por formulário"
+        },
+        "new_requests_count": {
+          "title": "Solicitações novas"
+        },
+        "not_a_fit_reasons": {
+          "title": "Por que as solicitações não têm fit"
+        },
+        "average_days_to_close": {
+          "title": "Média de dias até o encerramento"
+        }
+      },
+      "knowledgePages": {
+        "form_playbook": {
+          "title": "Guia do formulário ao CRM",
+          "sections": [
+            "Quais formulários usamos e quem responde",
+            "Em quanto tempo respondemos"
+          ]
+        },
+        "privacy_notice": {
+          "title": "Aviso de privacidade dos formulários",
+          "sections": [
+            "O que informamos no formulário",
+            "Por quanto tempo guardamos uma solicitação"
+          ]
+        },
+        "spam_and_duplicates": {
+          "title": "Spam e envios repetidos",
+          "sections": [
+            "O que conta como spam",
+            "O que fazemos quando a mesma pessoa escreve de novo"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Criar o contato e a solicitação quando o formulário de contato for enviado",
+          "description": ""
+        },
+        "reply_task": {
+          "title": "Criar uma tarefa de resposta para o dia seguinte quando uma solicitação é criada",
+          "description": ""
+        },
+        "first_response_missed": {
+          "title": "Avisar o responsável quando uma solicitação continua nova um dia depois de recebida",
+          "description": ""
+        },
+        "chase_contacted": {
+          "title": "Cobrar retorno de uma solicitação contatada parada há 3 dias",
+          "description": ""
+        },
+        "converted_task": {
+          "title": "Passar a solicitação para o funil quando ela for convertida",
+          "description": ""
+        },
+        "review_date_not_a_fit": {
+          "title": "Definir a revisão dos dados em um ano quando uma solicitação não tem fit",
+          "description": ""
+        },
+        "data_review": {
+          "title": "Revisar os dados quando chegar a data de revisão",
+          "description": ""
+        },
+        "external_form_records": {
+          "title": "Criar o contato e a solicitação quando outra ferramenta de formulários enviar um envio",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Toda solicitação tem uma etapa.",
+        "submitted_field": "Toda solicitação registra quando foi recebida.",
+        "requests_board_view": "As solicitações abrem como quadro por etapa."
+      },
+      "prompt": {
+        "intro": "Configure no meu workspace do Customermates a ligação do formulário ao CRM: uma solicitação por envio com a origem, uma resposta devida, seis etapas, o consentimento e uma data de revisão dos dados, e acompanhamentos com data.",
+        "questions": [
+          "Quais formulários você usa e o que precisa saber para orçar ou encaminhar um contato?",
+          "Quem responde e em quanto tempo você se compromete a responder?",
+          "O que você informa às pessoas sobre os dados delas no formulário?",
+          "Você usa outra ferramenta de formulários, como Typeform, Tally ou Jotform?"
+        ]
+      }
+    }
+  }
+}

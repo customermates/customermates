@@ -1,0 +1,3381 @@
+{
+  "spec": {
+    "id": "tpl_whatsapp_enquiry_follow_up",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "whatsapp-enquiry-follow-up",
+    "family": "sales",
+    "kind": "pipeline",
+    "jurisdictions": [
+      "DE",
+      "FR",
+      "IT",
+      "ES",
+      "BR",
+      "PL",
+      "NL"
+    ],
+    "dashboardAudience": "me",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "notifications",
+      "calendarWrite"
+    ],
+    "pairedPages": {
+      "en": "/features/whatsapp-integration",
+      "de": "/features/whatsapp-integration",
+      "fr": "/features/whatsapp-integration",
+      "it": "/features/whatsapp-integration",
+      "es": "/features/whatsapp-integration",
+      "pt": "/features/whatsapp-integration",
+      "pl": "/features/whatsapp-integration",
+      "nl": "/features/whatsapp-integration"
+    },
+    "modules": [
+      "actions_core",
+      "actions_dashboard"
+    ],
+    "lists": [
+      {
+        "key": "contacts",
+        "role": "people",
+        "icon": "smartphone"
+      },
+      {
+        "key": "enquiries",
+        "role": "deals",
+        "icon": "message"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "contacts.whatsapp_opt_in",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "customer_started_chat",
+            "color": "success"
+          },
+          {
+            "key": "gave_permission",
+            "color": "success"
+          },
+          {
+            "key": "unknown"
+          },
+          {
+            "key": "opted_out",
+            "color": "destructive"
+          }
+        ]
+      },
+      {
+        "key": "contacts.last_order_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "contacts.reorder_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "enquiries.source",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "click_to_chat"
+          },
+          {
+            "key": "website"
+          },
+          {
+            "key": "instagram"
+          },
+          {
+            "key": "referral"
+          },
+          {
+            "key": "walk_in"
+          },
+          {
+            "key": "phone"
+          },
+          {
+            "key": "ad"
+          }
+        ]
+      },
+      {
+        "key": "enquiries.interest",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "enquiries.received_at",
+        "type": "dateTime",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "enquiries.quote_valid_until",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "enquiries.ordered_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "enquiries.service_date",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "enquiries.next_step_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "enquiries.lost_reason",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "price"
+          },
+          {
+            "key": "chose_competitor"
+          },
+          {
+            "key": "no_response"
+          },
+          {
+            "key": "timing"
+          },
+          {
+            "key": "not_available"
+          },
+          {
+            "key": "not_a_fit"
+          }
+        ]
+      },
+      {
+        "key": "enquiries.revisit_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "reply"
+          },
+          {
+            "key": "send_quote"
+          },
+          {
+            "key": "follow_up"
+          },
+          {
+            "key": "confirm_order"
+          },
+          {
+            "key": "request_payment"
+          },
+          {
+            "key": "confirm_appointment"
+          },
+          {
+            "key": "reorder_reminder"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "enquiries.stage",
+        "items": [
+          {
+            "key": "new_chat",
+            "outcome": "open",
+            "weight": 10
+          },
+          {
+            "key": "qualifying",
+            "outcome": "open",
+            "weight": 25
+          },
+          {
+            "key": "quote_sent",
+            "outcome": "open",
+            "weight": 55
+          },
+          {
+            "key": "awaiting_payment",
+            "outcome": "open",
+            "weight": 85
+          },
+          {
+            "key": "won",
+            "outcome": "won",
+            "weight": 100
+          },
+          {
+            "key": "lost",
+            "outcome": "lost",
+            "weight": 0
+          },
+          {
+            "key": "later",
+            "outcome": "open",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [
+      {
+        "key": "enquiries.weighted_value",
+        "type": "currency",
+        "expression": {
+          "op": "divide",
+          "left": {
+            "op": "multiply",
+            "left": {
+              "op": "field",
+              "field": "enquiries.value"
+            },
+            "right": {
+              "op": "optionWeight",
+              "field": "enquiries.stage"
+            }
+          },
+          "right": {
+            "op": "number",
+            "value": "100"
+          }
+        }
+      }
+    ],
+    "relationships": [
+      {
+        "key": "enquiry_contact",
+        "source": "enquiries",
+        "target": "contacts",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_enquiry",
+        "source": "actions",
+        "target": "enquiries",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "enquiries_board",
+        "list": "enquiries",
+        "default": true,
+        "layout": "board",
+        "groupBy": "enquiries.stage",
+        "sort": null,
+        "columns": [
+          "enquiries.interest",
+          "enquiries.quote_valid_until",
+          "enquiries.next_step_due"
+        ],
+        "summaries": [
+          {
+            "field": "enquiries.value",
+            "aggregation": "sum"
+          }
+        ],
+        "filters": []
+      },
+      {
+        "key": "enquiries_all",
+        "list": "enquiries",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "enquiries.next_step_due",
+          "direction": "asc"
+        },
+        "columns": [
+          "enquiries.stage",
+          "enquiries.interest",
+          "enquiries.source",
+          "enquiries.received_at",
+          "enquiries.next_step_due"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "open_quotes",
+        "list": "enquiries",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "enquiries.quote_valid_until",
+          "direction": "asc"
+        },
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "enquiries.stage",
+            "options": [
+              "quote_sent",
+              "awaiting_payment"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "later_to_revisit",
+        "list": "enquiries",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "enquiries.revisit_on",
+          "direction": "asc"
+        },
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "enquiries.stage",
+            "options": [
+              "later"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "contacts_all",
+        "list": "contacts",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "contacts.reorder_due",
+          "direction": "asc"
+        },
+        "columns": [
+          "contacts.whatsapp_opt_in",
+          "contacts.last_order_on",
+          "contacts.reorder_due"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "chart",
+        "key": "enquiries_funnel",
+        "list": "enquiries",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "enquiries.stage"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "enquiries.stage",
+            "options": [
+              "new_chat",
+              "qualifying",
+              "quote_sent",
+              "awaiting_payment",
+              "won"
+            ]
+          }
+        ],
+        "display": "funnelChart"
+      },
+      {
+        "kind": "chart",
+        "key": "open_quotes_value",
+        "list": "enquiries",
+        "aggregation": "sum",
+        "valueField": "enquiries.value",
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "enquiries.stage",
+            "options": [
+              "quote_sent",
+              "awaiting_payment"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "new_chats",
+        "list": "enquiries",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "enquiries.stage",
+            "options": [
+              "new_chat"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "calendar",
+        "key": "reorders_due",
+        "list": "contacts",
+        "layout": "upcoming",
+        "dateField": "contacts.reorder_due",
+        "amountField": null,
+        "filters": []
+      },
+      {
+        "kind": "calendar",
+        "key": "services_coming",
+        "list": "enquiries",
+        "layout": "upcoming",
+        "dateField": "enquiries.service_date",
+        "amountField": null,
+        "filters": []
+      },
+      {
+        "kind": "chart",
+        "key": "by_source",
+        "list": "enquiries",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "enquiries.source"
+        },
+        "filters": [],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "chart",
+        "key": "lost_reasons",
+        "list": "enquiries",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "enquiries.lost_reason"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "enquiries.stage",
+            "options": [
+              "lost"
+            ]
+          }
+        ],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_actions",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "enquiry_playbook",
+        "kind": "overview"
+      },
+      {
+        "key": "opt_in_rules",
+        "kind": "processes"
+      },
+      {
+        "key": "follow_up_rhythm",
+        "kind": "processes"
+      },
+      {
+        "key": "what_whatsapp_allows",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "enquiry_form_records",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "enquiry"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "contacts",
+            "enquiries"
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "forms"
+      },
+      {
+        "key": "reply_new_chat",
+        "trigger": {
+          "kind": "record_created",
+          "list": "enquiries"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "reply",
+          "assignee": "record_owner",
+          "about": "enquiries"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "first_reply_missed",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "enquiries.received_at",
+          "offsetDays": 1
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "enquiries.stage",
+            "options": [
+              "new_chat"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "notify",
+          "recipient": "record_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "quote_follow_up",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "enquiries.stage",
+          "to": "quote_sent"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "enquiries"
+        },
+        "dueOffsetDays": 2,
+        "needs": "rules"
+      },
+      {
+        "key": "quote_expiring",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "enquiries.quote_valid_until",
+          "offsetDays": 0
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "enquiries.stage",
+            "options": [
+              "quote_sent"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "enquiries"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "payment_request",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "enquiries.stage",
+          "to": "awaiting_payment"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "request_payment",
+          "assignee": "record_owner",
+          "about": "enquiries"
+        },
+        "dueOffsetDays": 1,
+        "needs": "rules"
+      },
+      {
+        "key": "won_reorder",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "enquiries.stage",
+          "to": "won"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "reorder_reminder",
+          "assignee": "record_owner",
+          "about": "enquiries"
+        },
+        "dueOffsetDays": 90,
+        "needs": "rules"
+      },
+      {
+        "key": "service_calendar",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "enquiries.stage",
+          "to": "won"
+        },
+        "condition": [],
+        "action": {
+          "kind": "add_calendar_event",
+          "dateField": "enquiries.service_date"
+        },
+        "dueOffsetDays": 0,
+        "needs": "calendarWrite"
+      },
+      {
+        "key": "appointment_confirm",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "enquiries.service_date",
+          "offsetDays": -1
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "confirm_appointment",
+          "assignee": "record_owner",
+          "about": "enquiries"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "later_revisit_date",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "enquiries.stage",
+          "to": "later"
+        },
+        "condition": [],
+        "action": {
+          "kind": "set_dates",
+          "dates": [
+            {
+              "field": "enquiries.revisit_on",
+              "offsetDays": 90
+            }
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "revisit_follow_up",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "enquiries.revisit_on",
+          "offsetDays": 0
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "enquiries"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "unanswered_sweep",
+        "trigger": {
+          "kind": "schedule",
+          "every": "day",
+          "list": "enquiries"
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "enquiries.stage",
+            "options": [
+              "new_chat"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "reply",
+          "assignee": "record_owner",
+          "about": "enquiries"
+        },
+        "dueOffsetDays": 0,
+        "needs": "today"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "stage_field",
+        "kind": "field_exists",
+        "ref": "enquiries.stage"
+      },
+      {
+        "key": "opt_in_field",
+        "kind": "field_exists",
+        "ref": "contacts.whatsapp_opt_in"
+      },
+      {
+        "key": "quote_valid_field",
+        "kind": "field_exists",
+        "ref": "enquiries.quote_valid_until"
+      },
+      {
+        "key": "enquiries_board_view",
+        "kind": "view_exists",
+        "ref": "enquiries_board"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://whatsappbusiness.com/policy/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://whatsappbusiness.com/resources/resource-library/small-business-use-whatsapp-business-app/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.nocrm.io/fr/blog/guide-whatsapp-business-crm",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.agendor.com.br/blog/crm-para-whatsapp/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.kommo.com/br/whatsapp/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.rdstation.com/demonstracao/crm/whatsapp-no-crm/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://scholarsarchive.byu.edu/facpub/9711",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://blog.2chat.co/create-a-mini-crm-integrated-with-whatsapp-with-airtable-and-2chat/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://customermates.com/en/docs/messaging-rate-limits",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://customermates.com/en/docs/app-profile",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.pipedrive.com/pl/blog/proces-sprzedazy",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "status": {
+      "en": "draft",
+      "de": "draft",
+      "fr": "draft",
+      "it": "draft",
+      "es": "draft",
+      "pt": "draft",
+      "pl": "draft",
+      "nl": "draft"
+    },
+    "publicPage": {
+      "en": "none",
+      "de": "none",
+      "fr": "none",
+      "it": "none",
+      "es": "proof",
+      "pt": "proof",
+      "pl": "none",
+      "nl": "none"
+    },
+    "publishWave": {}
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "WhatsApp-Anfragen nachfassen",
+      "summary": "Eine Pipeline für kleine Unternehmen, deren Kunden per WhatsApp schreiben: Anfrage festhalten, schnell antworten, Angebot senden, nach Tagen nachfassen, Auftrag bestätigen und an den Wiederkauf denken.",
+      "description": "WhatsApp-Chats zu bearbeiteten Anfragen machen: Jeder Chat wird zu einer Anfrage mit dem, was der Kunde möchte, dem Angebot und seiner Gültigkeit, einem terminierten nächsten Schritt, einer Zahlungsphase und einem Termin zur Wiedervorlage, wenn die Antwort später kam. Jeder Kontakt hält fest, ob er Nachrichten zugestimmt hat und wann eine Nachbestellung fällig ist. Antworten werden einzeln geschrieben und geprüft. Es gibt keine Rundsendungen, Kampagnen oder Chatbot-Menüs, und die offizielle WhatsApp Business Platform wird nicht genutzt. WhatsApp kann ein Konto einschränken, das gegen die Richtlinien genutzt wird.",
+      "lists": {
+        "actions": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "contacts": {
+          "label": "Kontakt",
+          "pluralLabel": "Kontakte",
+          "description": "Die Personen, die Ihnen schreiben, mit ihrer WhatsApp-Einwilligung und dem Nachbestelltermin."
+        },
+        "enquiries": {
+          "label": "Anfrage",
+          "pluralLabel": "Anfragen",
+          "description": "Eine Anfrage aus einem Chat, von der ersten Nachricht bis bestätigt, verloren oder später."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "contacts.whatsapp_opt_in": {
+          "label": "WhatsApp-Einwilligung",
+          "options": {
+            "customer_started_chat": "Kunde hat den Chat begonnen",
+            "gave_permission": "Hat zugestimmt",
+            "unknown": "Unbekannt",
+            "opted_out": "Wollte keine Nachrichten mehr"
+          }
+        },
+        "contacts.last_order_on": {
+          "label": "Letzte Bestellung",
+          "options": {}
+        },
+        "contacts.reorder_due": {
+          "label": "Nachbestellung fällig",
+          "options": {}
+        },
+        "enquiries.stage": {
+          "label": "Phase",
+          "options": {
+            "new_chat": "Neue Nachricht",
+            "qualifying": "Klärung",
+            "quote_sent": "Angebot gesendet",
+            "awaiting_payment": "Zahlung offen",
+            "won": "Auftrag bestätigt",
+            "lost": "Verloren",
+            "later": "Später"
+          }
+        },
+        "enquiries.source": {
+          "label": "Quelle",
+          "options": {
+            "click_to_chat": "WhatsApp-Link",
+            "website": "Website",
+            "instagram": "Instagram",
+            "referral": "Empfehlung",
+            "walk_in": "Persönlich",
+            "phone": "Telefon",
+            "ad": "Anzeige"
+          }
+        },
+        "enquiries.interest": {
+          "label": "Anliegen",
+          "options": {}
+        },
+        "enquiries.received_at": {
+          "label": "Erste Nachricht eingegangen",
+          "options": {}
+        },
+        "enquiries.quote_valid_until": {
+          "label": "Gültig bis",
+          "options": {}
+        },
+        "enquiries.ordered_on": {
+          "label": "Bestellt am",
+          "options": {}
+        },
+        "enquiries.service_date": {
+          "label": "Liefertermin oder Termin",
+          "options": {}
+        },
+        "enquiries.next_step_due": {
+          "label": "Wiedervorlage",
+          "options": {}
+        },
+        "enquiries.lost_reason": {
+          "label": "Verlustgrund",
+          "options": {
+            "price": "Preis",
+            "chose_competitor": "Wettbewerber gewählt",
+            "no_response": "Keine Rückmeldung",
+            "timing": "Zeitpunkt",
+            "not_available": "Nicht verfügbar",
+            "not_a_fit": "Passt nicht"
+          }
+        },
+        "enquiries.revisit_on": {
+          "label": "Melden am",
+          "options": {}
+        },
+        "enquiries.weighted_value": {
+          "label": "Gewichteter Wert",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "reply": "Antworten",
+            "send_quote": "Angebot senden",
+            "follow_up": "Nachfassen",
+            "confirm_order": "Auftrag bestätigen",
+            "request_payment": "Zahlung anfordern",
+            "confirm_appointment": "Termin bestätigen",
+            "reorder_reminder": "An Nachbestellung erinnern",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "enquiry_contact": {
+          "sourceLabel": "Kontakt",
+          "targetLabel": "Anfragen"
+        },
+        "action_enquiry": {
+          "sourceLabel": "Anfrage",
+          "targetLabel": "Aufgaben"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle Aufgaben"
+        },
+        "enquiries_board": {
+          "name": "Anfragen nach Phase"
+        },
+        "enquiries_all": {
+          "name": "Alle Anfragen"
+        },
+        "open_quotes": {
+          "name": "Angebote ohne Antwort"
+        },
+        "later_to_revisit": {
+          "name": "Später, zur Wiedervorlage"
+        },
+        "contacts_all": {
+          "name": "Alle Kontakte"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Anstehende Aufgaben"
+        },
+        "overdue_actions": {
+          "title": "Überfällige Aufgaben"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        },
+        "enquiries_funnel": {
+          "title": "Anfragen nach Phase"
+        },
+        "open_quotes_value": {
+          "title": "Wert der offenen Angebote"
+        },
+        "new_chats": {
+          "title": "Neue Nachrichten ohne Antwort"
+        },
+        "reorders_due": {
+          "title": "Anstehende Nachbestellungen"
+        },
+        "services_coming": {
+          "title": "Anstehende Lieferungen und Termine"
+        },
+        "by_source": {
+          "title": "Anfragen nach Quelle"
+        },
+        "lost_reasons": {
+          "title": "Warum Anfragen verloren gingen"
+        }
+      },
+      "knowledgePages": {
+        "enquiry_playbook": {
+          "title": "Leitfaden für WhatsApp-Anfragen",
+          "sections": [
+            "Antworten, festhalten, anbieten, nachfassen, bestätigen, erinnern",
+            "Wer antwortet und wie schnell"
+          ]
+        },
+        "opt_in_rules": {
+          "title": "Einwilligung und Abmeldung",
+          "sections": [
+            "Wann ein Kunde Nachrichten zugestimmt hat",
+            "Was passiert, wenn jemand keine Nachrichten mehr möchte"
+          ]
+        },
+        "follow_up_rhythm": {
+          "title": "Nachfass-Rhythmus und wann man aufhört",
+          "sections": [
+            "Tage zwischen Nachfassen nach einem Angebot",
+            "Die Abschlussnachricht und das Wiedervorlagedatum"
+          ]
+        },
+        "what_whatsapp_allows": {
+          "title": "Was WhatsApp erlaubt und was dieses Setup nicht tut",
+          "sections": [
+            "Keine Rundsendungen, Kampagnen oder Chatbots",
+            "Das Risiko eines verknüpften Kontos"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Kontakt und Anfrage anlegen, wenn das Anfrageformular mit WhatsApp-Feld abgeschickt wird",
+          "description": ""
+        },
+        "reply_new_chat": {
+          "title": "Eine Antwortaufgabe anlegen, wenn eine Anfrage entsteht",
+          "description": ""
+        },
+        "first_reply_missed": {
+          "title": "Den Zuständigen informieren, wenn eine Anfrage einen Tag später noch eine neue Nachricht ist",
+          "description": ""
+        },
+        "quote_follow_up": {
+          "title": "2 Tage nach dem Angebot nachfassen",
+          "description": ""
+        },
+        "quote_expiring": {
+          "title": "Nachfragen oder abschließen, wenn ein Angebot sein Gültig-bis-Datum erreicht",
+          "description": ""
+        },
+        "payment_request": {
+          "title": "Am Tag nach Eintritt in Zahlung offen die Zahlung anfordern",
+          "description": ""
+        },
+        "won_reorder": {
+          "title": "90 Tage nach der Auftragsbestätigung an die Nachbestellung erinnern",
+          "description": ""
+        },
+        "service_calendar": {
+          "title": "Liefertermin oder Termin in den Kalender eintragen, wenn der Auftrag bestätigt ist",
+          "description": ""
+        },
+        "appointment_confirm": {
+          "title": "Den Termin am Vortag bestätigen",
+          "description": ""
+        },
+        "later_revisit_date": {
+          "title": "Das Meldedatum auf 90 Tage setzen, wenn eine Anfrage auf Später geht",
+          "description": ""
+        },
+        "revisit_follow_up": {
+          "title": "Zum Meldedatum nachfassen",
+          "description": ""
+        },
+        "unanswered_sweep": {
+          "title": "Täglich für jede unbeantwortete neue Nachricht eine Antwortaufgabe anlegen",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Jede Anfrage hat eine Phase.",
+        "opt_in_field": "Jeder Kontakt hält seine WhatsApp-Einwilligung fest.",
+        "quote_valid_field": "Jedes Angebot hält fest, wie lange es gültig ist.",
+        "enquiries_board_view": "Die Anfragen öffnen sich als Board nach Phase."
+      },
+      "prompt": {
+        "intro": "Richte in meinem Customermates-Workspace das Nachfassen von WhatsApp-Anfragen ein: eine Anfrage je Chat mit Angebot und Gültigkeit, terminiertem nächstem Schritt, Zahlungsphase, Meldedatum und einem Nachbestelltermin je Kontakt, dazu die WhatsApp-Einwilligung des Kontakts. Schreibe Antworten einzeln zur Prüfung und sende nichts in Masse.",
+        "questions": [
+          "Wonach fragen Kunden Sie auf WhatsApp, und wie bieten Sie an?",
+          "Wie schnell möchten Sie auf eine neue Nachricht antworten?",
+          "Wie viele Tage warten Sie nach einem Angebot, bevor Sie nachfassen, und wann hören Sie auf?",
+          "Bestellen Kunden nach, und nach welcher Zeit?"
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "WhatsApp enquiry follow-up",
+      "summary": "A pipeline for a small business whose customers write on WhatsApp: record the enquiry, reply fast, send a quote, follow up in days, confirm the order and remember the repeat purchase.",
+      "description": "Turn WhatsApp chats into worked enquiries: every chat becomes an enquiry with what the customer wants, the quote and how long it is valid, a dated next step, a payment stage and a date to come back when the answer was later. Each contact records whether they agreed to be messaged and when a reorder is due. Replies are written one by one and reviewed. It does not send broadcasts, campaigns or chatbot menus, and it does not use the official WhatsApp Business Platform. WhatsApp may restrict an account used in a way its policy forbids.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "The people who write to you, with their WhatsApp permission and reorder date."
+        },
+        "enquiries": {
+          "label": "Enquiry",
+          "pluralLabel": "Enquiries",
+          "description": "One request from a chat, from the first message to ordered, lost or later."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "contacts.whatsapp_opt_in": {
+          "label": "WhatsApp permission",
+          "options": {
+            "customer_started_chat": "Customer started the chat",
+            "gave_permission": "Gave permission",
+            "unknown": "Unknown",
+            "opted_out": "Asked to stop"
+          }
+        },
+        "contacts.last_order_on": {
+          "label": "Last order",
+          "options": {}
+        },
+        "contacts.reorder_due": {
+          "label": "Reorder due",
+          "options": {}
+        },
+        "enquiries.stage": {
+          "label": "Stage",
+          "options": {
+            "new_chat": "New chat",
+            "qualifying": "Qualifying",
+            "quote_sent": "Quote sent",
+            "awaiting_payment": "Awaiting payment",
+            "won": "Order confirmed",
+            "lost": "Lost",
+            "later": "Later"
+          }
+        },
+        "enquiries.source": {
+          "label": "Source",
+          "options": {
+            "click_to_chat": "WhatsApp link",
+            "website": "Website",
+            "instagram": "Instagram",
+            "referral": "Referral",
+            "walk_in": "Walk-in",
+            "phone": "Phone",
+            "ad": "Ad"
+          }
+        },
+        "enquiries.interest": {
+          "label": "What they want",
+          "options": {}
+        },
+        "enquiries.received_at": {
+          "label": "First message received",
+          "options": {}
+        },
+        "enquiries.quote_valid_until": {
+          "label": "Quote valid until",
+          "options": {}
+        },
+        "enquiries.ordered_on": {
+          "label": "Ordered on",
+          "options": {}
+        },
+        "enquiries.service_date": {
+          "label": "Delivery or service date",
+          "options": {}
+        },
+        "enquiries.next_step_due": {
+          "label": "Next contact",
+          "options": {}
+        },
+        "enquiries.lost_reason": {
+          "label": "Lost reason",
+          "options": {
+            "price": "Price",
+            "chose_competitor": "Chose a competitor",
+            "no_response": "No response",
+            "timing": "Timing",
+            "not_available": "Not available",
+            "not_a_fit": "Not a fit"
+          }
+        },
+        "enquiries.revisit_on": {
+          "label": "Come back on",
+          "options": {}
+        },
+        "enquiries.weighted_value": {
+          "label": "Weighted value",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "reply": "Reply",
+            "send_quote": "Send the quote",
+            "follow_up": "Follow up",
+            "confirm_order": "Confirm the order",
+            "request_payment": "Ask for payment",
+            "confirm_appointment": "Confirm the appointment",
+            "reorder_reminder": "Reorder reminder",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "enquiry_contact": {
+          "sourceLabel": "Contact",
+          "targetLabel": "Enquiries"
+        },
+        "action_enquiry": {
+          "sourceLabel": "Enquiry",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "All actions"
+        },
+        "enquiries_board": {
+          "name": "Enquiries by stage"
+        },
+        "enquiries_all": {
+          "name": "All enquiries"
+        },
+        "open_quotes": {
+          "name": "Quotes waiting for an answer"
+        },
+        "later_to_revisit": {
+          "name": "Later, to come back to"
+        },
+        "contacts_all": {
+          "name": "All contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Upcoming actions"
+        },
+        "overdue_actions": {
+          "title": "Overdue actions"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        },
+        "enquiries_funnel": {
+          "title": "Enquiries by stage"
+        },
+        "open_quotes_value": {
+          "title": "Value of quotes waiting"
+        },
+        "new_chats": {
+          "title": "New chats to answer"
+        },
+        "reorders_due": {
+          "title": "Reorders coming up"
+        },
+        "services_coming": {
+          "title": "Deliveries and appointments coming up"
+        },
+        "by_source": {
+          "title": "Enquiries by source"
+        },
+        "lost_reasons": {
+          "title": "Why enquiries were lost"
+        }
+      },
+      "knowledgePages": {
+        "enquiry_playbook": {
+          "title": "WhatsApp enquiry playbook",
+          "sections": [
+            "Reply, record, quote, follow up, confirm, remember",
+            "Who answers and how fast"
+          ]
+        },
+        "opt_in_rules": {
+          "title": "Permission and opt-out rules",
+          "sections": [
+            "When a customer has agreed to be messaged",
+            "What happens when someone asks to stop"
+          ]
+        },
+        "follow_up_rhythm": {
+          "title": "Follow-up rhythm and when to stop",
+          "sections": [
+            "Days between follow-ups after a quote",
+            "The closing message and the revisit date"
+          ]
+        },
+        "what_whatsapp_allows": {
+          "title": "What WhatsApp allows and what this setup does not do",
+          "sections": [
+            "No broadcasts, campaigns or chatbots",
+            "The risk of using a linked account"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Create the contact and the enquiry when the enquiry form with the WhatsApp box is submitted",
+          "description": ""
+        },
+        "reply_new_chat": {
+          "title": "Create a reply task when an enquiry is created",
+          "description": ""
+        },
+        "first_reply_missed": {
+          "title": "Notify the owner when an enquiry is still a new chat a day later",
+          "description": ""
+        },
+        "quote_follow_up": {
+          "title": "Follow up 2 days after a quote is sent",
+          "description": ""
+        },
+        "quote_expiring": {
+          "title": "Ask or close when a quote reaches its valid-until date",
+          "description": ""
+        },
+        "payment_request": {
+          "title": "Ask for payment the day after an enquiry reaches awaiting payment",
+          "description": ""
+        },
+        "won_reorder": {
+          "title": "Create a reorder reminder 90 days after an order is confirmed",
+          "description": ""
+        },
+        "service_calendar": {
+          "title": "Add the delivery or appointment to the calendar when the order is confirmed",
+          "description": ""
+        },
+        "appointment_confirm": {
+          "title": "Confirm the appointment the day before",
+          "description": ""
+        },
+        "later_revisit_date": {
+          "title": "Set the come-back date to 90 days out when an enquiry moves to later",
+          "description": ""
+        },
+        "revisit_follow_up": {
+          "title": "Follow up on the come-back date",
+          "description": ""
+        },
+        "unanswered_sweep": {
+          "title": "Every day, create a reply task for each new chat nobody has answered",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Every enquiry has a stage.",
+        "opt_in_field": "Every contact records their WhatsApp permission.",
+        "quote_valid_field": "Every quote records how long it is valid.",
+        "enquiries_board_view": "The enquiries open as a board by stage."
+      },
+      "prompt": {
+        "intro": "Set up WhatsApp enquiry follow-up in my Customermates workspace: an enquiry for every chat with a quote and its validity, a dated next step, a payment stage, a come-back date and a reorder date per contact, plus the contact's WhatsApp permission. Write replies one by one for my review and send nothing in bulk.",
+        "questions": [
+          "What do customers ask you about on WhatsApp, and how do you quote?",
+          "How fast do you want to answer a new chat?",
+          "How many days do you wait after a quote before you follow up, and when do you stop?",
+          "Do customers reorder, and after how long?"
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "Seguimiento de consultas por WhatsApp",
+      "summary": "Un pipeline para una pequeña empresa cuyos clientes escriben por WhatsApp: anotar la consulta, responder rápido, enviar un presupuesto, hacer seguimiento en días, confirmar el pedido y recordar la recompra.",
+      "description": "Convierta los chats de WhatsApp en consultas trabajadas: cada chat pasa a ser una consulta con lo que quiere el cliente, el presupuesto y su validez, un próximo seguimiento con fecha, una fase de pago y una fecha para volver cuando la respuesta fue «más adelante». Cada contacto anota si aceptó recibir mensajes y cuándo toca reponer. Las respuestas se escriben una a una y se revisan. No envía difusiones, campañas ni menús de chatbot y no usa la plataforma oficial de WhatsApp Business. WhatsApp puede restringir una cuenta usada de una forma que su política prohíbe.",
+      "lists": {
+        "actions": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un siguiente paso con fecha por cada asunto abierto."
+        },
+        "contacts": {
+          "label": "Contacto",
+          "pluralLabel": "Contactos",
+          "description": "Las personas que le escriben, con su permiso de WhatsApp y su fecha de reposición."
+        },
+        "enquiries": {
+          "label": "Consulta",
+          "pluralLabel": "Consultas (oportunidades)",
+          "description": "Una petición de un chat, del primer mensaje a pedido confirmado, perdido o más adelante."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierta",
+            "waiting": "En espera",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "contacts.whatsapp_opt_in": {
+          "label": "Permiso de WhatsApp",
+          "options": {
+            "customer_started_chat": "El cliente inició el chat",
+            "gave_permission": "Dio su permiso",
+            "unknown": "Desconocido",
+            "opted_out": "Pidió que paremos"
+          }
+        },
+        "contacts.last_order_on": {
+          "label": "Último pedido",
+          "options": {}
+        },
+        "contacts.reorder_due": {
+          "label": "Reposición prevista",
+          "options": {}
+        },
+        "enquiries.stage": {
+          "label": "Fase",
+          "options": {
+            "new_chat": "Nuevo chat",
+            "qualifying": "En conversación",
+            "quote_sent": "Presupuesto enviado",
+            "awaiting_payment": "Pendiente de pago",
+            "won": "Pedido confirmado",
+            "lost": "Perdido",
+            "later": "Más adelante"
+          }
+        },
+        "enquiries.source": {
+          "label": "Origen",
+          "options": {
+            "click_to_chat": "Enlace de WhatsApp",
+            "website": "Sitio web",
+            "instagram": "Instagram",
+            "referral": "Recomendación",
+            "walk_in": "En persona",
+            "phone": "Teléfono",
+            "ad": "Anuncio"
+          }
+        },
+        "enquiries.interest": {
+          "label": "Producto de interés",
+          "options": {}
+        },
+        "enquiries.received_at": {
+          "label": "Primer mensaje recibido",
+          "options": {}
+        },
+        "enquiries.quote_valid_until": {
+          "label": "Presupuesto válido hasta",
+          "options": {}
+        },
+        "enquiries.ordered_on": {
+          "label": "Pedido el",
+          "options": {}
+        },
+        "enquiries.service_date": {
+          "label": "Fecha de entrega o cita",
+          "options": {}
+        },
+        "enquiries.next_step_due": {
+          "label": "Próximo seguimiento",
+          "options": {}
+        },
+        "enquiries.lost_reason": {
+          "label": "Motivo de la pérdida",
+          "options": {
+            "price": "Precio",
+            "chose_competitor": "Eligió a la competencia",
+            "no_response": "Sin respuesta",
+            "timing": "Momento",
+            "not_available": "No disponible",
+            "not_a_fit": "No encaja"
+          }
+        },
+        "enquiries.revisit_on": {
+          "label": "Volver a contactar el",
+          "options": {}
+        },
+        "enquiries.weighted_value": {
+          "label": "Valor ponderado",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Responder",
+            "send_quote": "Enviar el presupuesto",
+            "follow_up": "Dar seguimiento",
+            "confirm_order": "Confirmar el pedido",
+            "request_payment": "Pedir el pago",
+            "confirm_appointment": "Confirmar la cita",
+            "reorder_reminder": "Recordatorio de reposición",
+            "other": "Otro"
+          }
+        }
+      },
+      "relationships": {
+        "enquiry_contact": {
+          "sourceLabel": "Contacto",
+          "targetLabel": "Consultas (oportunidades)"
+        },
+        "action_enquiry": {
+          "sourceLabel": "Consulta",
+          "targetLabel": "Tareas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas las tareas"
+        },
+        "enquiries_board": {
+          "name": "Consultas por fase"
+        },
+        "enquiries_all": {
+          "name": "Todas las consultas"
+        },
+        "open_quotes": {
+          "name": "Presupuestos a la espera de respuesta"
+        },
+        "later_to_revisit": {
+          "name": "Más adelante, por retomar"
+        },
+        "contacts_all": {
+          "name": "Todos los contactos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tareas"
+        },
+        "overdue_actions": {
+          "title": "Tareas vencidas"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        },
+        "enquiries_funnel": {
+          "title": "Consultas por fase"
+        },
+        "open_quotes_value": {
+          "title": "Importe de los presupuestos en espera"
+        },
+        "new_chats": {
+          "title": "Chats nuevos por responder"
+        },
+        "reorders_due": {
+          "title": "Reposiciones próximas"
+        },
+        "services_coming": {
+          "title": "Entregas y citas próximas"
+        },
+        "by_source": {
+          "title": "Consultas por origen"
+        },
+        "lost_reasons": {
+          "title": "Por qué se pierden consultas"
+        }
+      },
+      "knowledgePages": {
+        "enquiry_playbook": {
+          "title": "Guía de consultas por WhatsApp",
+          "sections": [
+            "Responder, anotar, presupuestar, hacer seguimiento, confirmar, recordar",
+            "Quién responde y en cuánto tiempo"
+          ]
+        },
+        "opt_in_rules": {
+          "title": "Permiso y baja de mensajes",
+          "sections": [
+            "Cuándo un cliente ha aceptado recibir mensajes",
+            "Qué pasa cuando alguien pide que paremos"
+          ]
+        },
+        "follow_up_rhythm": {
+          "title": "Ritmo de seguimiento y cuándo parar",
+          "sections": [
+            "Días entre seguimientos tras un presupuesto",
+            "El mensaje de cierre y la fecha para volver"
+          ]
+        },
+        "what_whatsapp_allows": {
+          "title": "Qué permite WhatsApp y qué no hace esta configuración",
+          "sections": [
+            "Sin difusiones, campañas ni chatbots",
+            "El riesgo de usar una cuenta vinculada"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Crear el contacto y la consulta cuando se envía el formulario con la casilla de WhatsApp",
+          "description": ""
+        },
+        "reply_new_chat": {
+          "title": "Crear una tarea de respuesta cuando se crea una consulta",
+          "description": ""
+        },
+        "first_reply_missed": {
+          "title": "Avisar al responsable cuando una consulta sigue siendo un chat nuevo un día después",
+          "description": ""
+        },
+        "quote_follow_up": {
+          "title": "Dar seguimiento 2 días después de enviar un presupuesto",
+          "description": ""
+        },
+        "quote_expiring": {
+          "title": "Preguntar o cerrar cuando un presupuesto llega a su fecha de validez",
+          "description": ""
+        },
+        "payment_request": {
+          "title": "Pedir el pago el día después de pasar a pendiente de pago",
+          "description": ""
+        },
+        "won_reorder": {
+          "title": "Crear un recordatorio de reposición 90 días después de confirmar un pedido",
+          "description": ""
+        },
+        "service_calendar": {
+          "title": "Añadir la entrega o la cita al calendario cuando se confirma el pedido",
+          "description": ""
+        },
+        "appointment_confirm": {
+          "title": "Confirmar la cita el día antes",
+          "description": ""
+        },
+        "later_revisit_date": {
+          "title": "Fijar la fecha para volver a 90 días cuando una consulta pasa a más adelante",
+          "description": ""
+        },
+        "revisit_follow_up": {
+          "title": "Dar seguimiento en la fecha para volver",
+          "description": ""
+        },
+        "unanswered_sweep": {
+          "title": "Cada día, crear una tarea de respuesta por cada chat nuevo sin responder",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada consulta tiene una fase.",
+        "opt_in_field": "Cada contacto registra su permiso de WhatsApp.",
+        "quote_valid_field": "Cada presupuesto registra cuánto tiempo es válido.",
+        "enquiries_board_view": "Las consultas se abren como tablero por fase."
+      },
+      "prompt": {
+        "intro": "Configura en mi espacio de Customermates el seguimiento de consultas por WhatsApp: una consulta por chat con presupuesto y validez, próximo seguimiento con fecha, fase de pago, fecha para volver y fecha de reposición por contacto, además del permiso de WhatsApp del contacto. Escribe las respuestas una a una para mi revisión y no envíes nada en masa.",
+        "questions": [
+          "¿Qué le preguntan los clientes por WhatsApp y cómo presupuesta?",
+          "¿En cuánto tiempo quiere responder a un chat nuevo?",
+          "¿Cuántos días espera tras un presupuesto antes de hacer seguimiento y cuándo para?",
+          "¿Los clientes repiten pedidos y al cabo de cuánto tiempo?"
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "Suivi des demandes WhatsApp",
+      "summary": "Un pipeline pour une petite entreprise dont les clients écrivent sur WhatsApp : noter la demande, répondre vite, envoyer un devis, relancer en quelques jours, confirmer la commande et penser au réachat.",
+      "description": "Transformez les conversations WhatsApp en demandes suivies : chaque conversation devient une demande avec ce que veut le client, le devis et sa validité, une prochaine relance datée, une étape de paiement et une date pour revenir quand la réponse était « plus tard ». Chaque contact indique s'il a accepté de recevoir des messages et quand un réachat est attendu. Les réponses sont rédigées une à une et relues. Il n'envoie ni diffusions, ni campagnes, ni menus de chatbot, et n'utilise pas la plateforme officielle WhatsApp Business. WhatsApp peut restreindre un compte utilisé d'une façon que sa politique interdit.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Une prochaine étape datée par dossier ouvert."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "Les personnes qui vous écrivent, avec leur accord WhatsApp et leur date de réachat."
+        },
+        "enquiries": {
+          "label": "Demande",
+          "pluralLabel": "Demandes (affaires)",
+          "description": "Une demande venue d'une conversation, du premier message à commande confirmée, perdue ou plus tard."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "waiting": "En attente",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "contacts.whatsapp_opt_in": {
+          "label": "Accord WhatsApp",
+          "options": {
+            "customer_started_chat": "Le client a lancé la conversation",
+            "gave_permission": "A donné son accord",
+            "unknown": "Inconnu",
+            "opted_out": "A demandé l'arrêt"
+          }
+        },
+        "contacts.last_order_on": {
+          "label": "Dernière commande",
+          "options": {}
+        },
+        "contacts.reorder_due": {
+          "label": "Réachat attendu",
+          "options": {}
+        },
+        "enquiries.stage": {
+          "label": "Étape",
+          "options": {
+            "new_chat": "Nouveau message",
+            "qualifying": "Qualification",
+            "quote_sent": "Devis envoyé",
+            "awaiting_payment": "En attente de paiement",
+            "won": "Commande confirmée",
+            "lost": "Perdu",
+            "later": "Plus tard"
+          }
+        },
+        "enquiries.source": {
+          "label": "Source",
+          "options": {
+            "click_to_chat": "Lien WhatsApp",
+            "website": "Site web",
+            "instagram": "Instagram",
+            "referral": "Recommandation",
+            "walk_in": "Visite en boutique",
+            "phone": "Téléphone",
+            "ad": "Publicité"
+          }
+        },
+        "enquiries.interest": {
+          "label": "Besoin",
+          "options": {}
+        },
+        "enquiries.received_at": {
+          "label": "Premier message reçu",
+          "options": {}
+        },
+        "enquiries.quote_valid_until": {
+          "label": "Devis valable jusqu'au",
+          "options": {}
+        },
+        "enquiries.ordered_on": {
+          "label": "Commandé le",
+          "options": {}
+        },
+        "enquiries.service_date": {
+          "label": "Date de livraison ou de rendez-vous",
+          "options": {}
+        },
+        "enquiries.next_step_due": {
+          "label": "Prochaine relance",
+          "options": {}
+        },
+        "enquiries.lost_reason": {
+          "label": "Raison de la perte",
+          "options": {
+            "price": "Prix",
+            "chose_competitor": "A choisi un concurrent",
+            "no_response": "Sans réponse",
+            "timing": "Calendrier",
+            "not_available": "Indisponible",
+            "not_a_fit": "Ne convient pas"
+          }
+        },
+        "enquiries.revisit_on": {
+          "label": "Recontacter le",
+          "options": {}
+        },
+        "enquiries.weighted_value": {
+          "label": "Valeur pondérée",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "reply": "Répondre",
+            "send_quote": "Envoyer le devis",
+            "follow_up": "Relancer",
+            "confirm_order": "Confirmer la commande",
+            "request_payment": "Demander le paiement",
+            "confirm_appointment": "Confirmer le rendez-vous",
+            "reorder_reminder": "Rappel de réachat",
+            "other": "Autre"
+          }
+        }
+      },
+      "relationships": {
+        "enquiry_contact": {
+          "sourceLabel": "Contact",
+          "targetLabel": "Demandes (affaires)"
+        },
+        "action_enquiry": {
+          "sourceLabel": "Demande",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "enquiries_board": {
+          "name": "Demandes par étape"
+        },
+        "enquiries_all": {
+          "name": "Toutes les demandes"
+        },
+        "open_quotes": {
+          "name": "Devis en attente de réponse"
+        },
+        "later_to_revisit": {
+          "name": "Plus tard, à recontacter"
+        },
+        "contacts_all": {
+          "name": "Tous les contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Actions à venir"
+        },
+        "overdue_actions": {
+          "title": "Actions en retard"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        },
+        "enquiries_funnel": {
+          "title": "Demandes par étape"
+        },
+        "open_quotes_value": {
+          "title": "Montant des devis en attente"
+        },
+        "new_chats": {
+          "title": "Nouveaux messages à traiter"
+        },
+        "reorders_due": {
+          "title": "Réachats à venir"
+        },
+        "services_coming": {
+          "title": "Livraisons et rendez-vous à venir"
+        },
+        "by_source": {
+          "title": "Demandes par source"
+        },
+        "lost_reasons": {
+          "title": "Pourquoi des demandes sont perdues"
+        }
+      },
+      "knowledgePages": {
+        "enquiry_playbook": {
+          "title": "Guide des demandes WhatsApp",
+          "sections": [
+            "Répondre, noter, chiffrer, relancer, confirmer, se souvenir",
+            "Qui répond et en combien de temps"
+          ]
+        },
+        "opt_in_rules": {
+          "title": "Consentement et arrêt des messages",
+          "sections": [
+            "Quand un client a accepté de recevoir des messages",
+            "Ce qui se passe quand quelqu'un demande l'arrêt"
+          ]
+        },
+        "follow_up_rhythm": {
+          "title": "Rythme de relance et moment d'arrêter",
+          "sections": [
+            "Délai entre les relances après un devis",
+            "Le message de clôture et la date pour recontacter"
+          ]
+        },
+        "what_whatsapp_allows": {
+          "title": "Ce que WhatsApp permet et ce que ce montage ne fait pas",
+          "sections": [
+            "Pas de diffusions, de campagnes ni de chatbots",
+            "Le risque d'utiliser un compte lié"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Créer le contact et la demande quand le formulaire avec la case WhatsApp est envoyé",
+          "description": ""
+        },
+        "reply_new_chat": {
+          "title": "Créer une tâche de réponse quand une demande est créée",
+          "description": ""
+        },
+        "first_reply_missed": {
+          "title": "Prévenir le responsable quand une demande est encore un nouveau message un jour plus tard",
+          "description": ""
+        },
+        "quote_follow_up": {
+          "title": "Relancer 2 jours après l'envoi d'un devis",
+          "description": ""
+        },
+        "quote_expiring": {
+          "title": "Relancer ou clore quand un devis atteint sa date de validité",
+          "description": ""
+        },
+        "payment_request": {
+          "title": "Demander le paiement le lendemain de l'entrée en attente de paiement",
+          "description": ""
+        },
+        "won_reorder": {
+          "title": "Créer un rappel de réachat 90 jours après la confirmation d'une commande",
+          "description": ""
+        },
+        "service_calendar": {
+          "title": "Ajouter la livraison ou le rendez-vous à l'agenda quand la commande est confirmée",
+          "description": ""
+        },
+        "appointment_confirm": {
+          "title": "Confirmer le rendez-vous la veille",
+          "description": ""
+        },
+        "later_revisit_date": {
+          "title": "Fixer la date pour recontacter à 90 jours quand une demande passe à plus tard",
+          "description": ""
+        },
+        "revisit_follow_up": {
+          "title": "Relancer à la date pour recontacter",
+          "description": ""
+        },
+        "unanswered_sweep": {
+          "title": "Chaque jour, créer une tâche de réponse pour chaque nouveau message sans réponse",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Chaque demande a une étape.",
+        "opt_in_field": "Chaque contact indique son accord WhatsApp.",
+        "quote_valid_field": "Chaque devis indique sa durée de validité.",
+        "enquiries_board_view": "Les demandes s'ouvrent en tableau par étape."
+      },
+      "prompt": {
+        "intro": "Mets en place dans mon espace Customermates le suivi des demandes WhatsApp : une demande par conversation avec devis et validité, prochaine relance datée, étape de paiement, date pour recontacter et date de réachat par contact, ainsi que l'accord WhatsApp du contact. Rédige les réponses une à une pour relecture et n'envoie rien en masse.",
+        "questions": [
+          "Que vous demandent les clients sur WhatsApp, et comment chiffrez-vous ?",
+          "En combien de temps voulez-vous répondre à un nouveau message ?",
+          "Combien de jours attendez-vous après un devis avant de relancer, et quand arrêtez-vous ?",
+          "Vos clients rachètent-ils, et au bout de combien de temps ?"
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "Seguito delle richieste WhatsApp",
+      "summary": "Una pipeline per una piccola impresa i cui clienti scrivono su WhatsApp: registrare la richiesta, rispondere in fretta, inviare un preventivo, sollecitare dopo qualche giorno, confermare l'ordine e ricordare il riacquisto.",
+      "description": "Trasforma le chat WhatsApp in richieste seguite: ogni chat diventa una richiesta con ciò che vuole il cliente, il preventivo e la sua validità, un prossimo contatto con data, una fase di pagamento e una data per riprendere quando la risposta era «più avanti». Ogni contatto registra se ha accettato di ricevere messaggi e quando è previsto un riordino. Le risposte vengono scritte una per una e riviste. Non invia messaggi di massa, campagne o menu di chatbot e non usa la piattaforma ufficiale WhatsApp Business. WhatsApp può limitare un account usato in modo vietato dalle sue regole.",
+      "lists": {
+        "actions": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un prossimo passo con data per ogni pratica aperta."
+        },
+        "contacts": {
+          "label": "Contatto",
+          "pluralLabel": "Contatti",
+          "description": "Le persone che ti scrivono, con il loro consenso WhatsApp e la data di riordino."
+        },
+        "enquiries": {
+          "label": "Richiesta",
+          "pluralLabel": "Richieste (trattative)",
+          "description": "Una richiesta da una chat, dal primo messaggio a ordine confermato, perso o più avanti."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "waiting": "In attesa",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "contacts.whatsapp_opt_in": {
+          "label": "Consenso WhatsApp",
+          "options": {
+            "customer_started_chat": "Il cliente ha avviato la chat",
+            "gave_permission": "Ha dato il consenso",
+            "unknown": "Sconosciuto",
+            "opted_out": "Ha chiesto di smettere"
+          }
+        },
+        "contacts.last_order_on": {
+          "label": "Ultimo ordine",
+          "options": {}
+        },
+        "contacts.reorder_due": {
+          "label": "Riordino previsto",
+          "options": {}
+        },
+        "enquiries.stage": {
+          "label": "Fase",
+          "options": {
+            "new_chat": "Nuova chat",
+            "qualifying": "Qualificazione",
+            "quote_sent": "Preventivo inviato",
+            "awaiting_payment": "In attesa di pagamento",
+            "won": "Ordine confermato",
+            "lost": "Perso",
+            "later": "Più avanti"
+          }
+        },
+        "enquiries.source": {
+          "label": "Origine",
+          "options": {
+            "click_to_chat": "Link WhatsApp",
+            "website": "Sito web",
+            "instagram": "Instagram",
+            "referral": "Segnalazione",
+            "walk_in": "Di persona",
+            "phone": "Telefono",
+            "ad": "Annuncio"
+          }
+        },
+        "enquiries.interest": {
+          "label": "Prodotto di interesse",
+          "options": {}
+        },
+        "enquiries.received_at": {
+          "label": "Primo messaggio ricevuto",
+          "options": {}
+        },
+        "enquiries.quote_valid_until": {
+          "label": "Preventivo valido fino al",
+          "options": {}
+        },
+        "enquiries.ordered_on": {
+          "label": "Ordinato il",
+          "options": {}
+        },
+        "enquiries.service_date": {
+          "label": "Data di consegna o appuntamento",
+          "options": {}
+        },
+        "enquiries.next_step_due": {
+          "label": "Prossimo contatto",
+          "options": {}
+        },
+        "enquiries.lost_reason": {
+          "label": "Motivo della perdita",
+          "options": {
+            "price": "Prezzo",
+            "chose_competitor": "Ha scelto un concorrente",
+            "no_response": "Nessuna risposta",
+            "timing": "Tempi",
+            "not_available": "Non disponibile",
+            "not_a_fit": "Non adatto"
+          }
+        },
+        "enquiries.revisit_on": {
+          "label": "Ricontattare il",
+          "options": {}
+        },
+        "enquiries.weighted_value": {
+          "label": "Valore ponderato",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Rispondere",
+            "send_quote": "Inviare il preventivo",
+            "follow_up": "Sollecitare",
+            "confirm_order": "Confermare l'ordine",
+            "request_payment": "Chiedere il pagamento",
+            "confirm_appointment": "Confermare l'appuntamento",
+            "reorder_reminder": "Promemoria di riordino",
+            "other": "Altro"
+          }
+        }
+      },
+      "relationships": {
+        "enquiry_contact": {
+          "sourceLabel": "Contatto",
+          "targetLabel": "Richieste (trattative)"
+        },
+        "action_enquiry": {
+          "sourceLabel": "Richiesta",
+          "targetLabel": "Attività"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Tutte le attività"
+        },
+        "enquiries_board": {
+          "name": "Richieste per fase"
+        },
+        "enquiries_all": {
+          "name": "Tutte le richieste"
+        },
+        "open_quotes": {
+          "name": "Preventivi in attesa di risposta"
+        },
+        "later_to_revisit": {
+          "name": "Più avanti, da ricontattare"
+        },
+        "contacts_all": {
+          "name": "Tutti i contatti"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Attività in arrivo"
+        },
+        "overdue_actions": {
+          "title": "Attività scadute"
+        },
+        "activity_timeline": {
+          "title": "Attività recente"
+        },
+        "enquiries_funnel": {
+          "title": "Richieste per fase"
+        },
+        "open_quotes_value": {
+          "title": "Valore dei preventivi in attesa"
+        },
+        "new_chats": {
+          "title": "Nuove chat a cui rispondere"
+        },
+        "reorders_due": {
+          "title": "Riordini in arrivo"
+        },
+        "services_coming": {
+          "title": "Consegne e appuntamenti in arrivo"
+        },
+        "by_source": {
+          "title": "Richieste per origine"
+        },
+        "lost_reasons": {
+          "title": "Perché le richieste sono perse"
+        }
+      },
+      "knowledgePages": {
+        "enquiry_playbook": {
+          "title": "Guida alle richieste WhatsApp",
+          "sections": [
+            "Rispondere, registrare, quotare, sollecitare, confermare, ricordare",
+            "Chi risponde e in che tempi"
+          ]
+        },
+        "opt_in_rules": {
+          "title": "Consenso e interruzione dei messaggi",
+          "sections": [
+            "Quando un cliente ha accettato di ricevere messaggi",
+            "Che cosa succede quando qualcuno chiede di smettere"
+          ]
+        },
+        "follow_up_rhythm": {
+          "title": "Ritmo dei solleciti e quando fermarsi",
+          "sections": [
+            "Giorni tra i solleciti dopo un preventivo",
+            "Il messaggio di chiusura e la data per ricontattare"
+          ]
+        },
+        "what_whatsapp_allows": {
+          "title": "Che cosa consente WhatsApp e che cosa questa impostazione non fa",
+          "sections": [
+            "Nessun messaggio di massa, campagna o chatbot",
+            "Il rischio di usare un account collegato"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Creare contatto e richiesta quando viene inviato il modulo con la casella WhatsApp",
+          "description": ""
+        },
+        "reply_new_chat": {
+          "title": "Creare un'attività di risposta quando nasce una richiesta",
+          "description": ""
+        },
+        "first_reply_missed": {
+          "title": "Avvisare il responsabile quando una richiesta è ancora una nuova chat un giorno dopo",
+          "description": ""
+        },
+        "quote_follow_up": {
+          "title": "Sollecitare 2 giorni dopo l'invio di un preventivo",
+          "description": ""
+        },
+        "quote_expiring": {
+          "title": "Chiedere o chiudere quando un preventivo raggiunge la data di validità",
+          "description": ""
+        },
+        "payment_request": {
+          "title": "Chiedere il pagamento il giorno dopo l'ingresso in attesa di pagamento",
+          "description": ""
+        },
+        "won_reorder": {
+          "title": "Creare un promemoria di riordino 90 giorni dopo la conferma di un ordine",
+          "description": ""
+        },
+        "service_calendar": {
+          "title": "Aggiungere consegna o appuntamento all'agenda quando l'ordine è confermato",
+          "description": ""
+        },
+        "appointment_confirm": {
+          "title": "Confermare l'appuntamento il giorno prima",
+          "description": ""
+        },
+        "later_revisit_date": {
+          "title": "Fissare la data per ricontattare a 90 giorni quando una richiesta passa a più avanti",
+          "description": ""
+        },
+        "revisit_follow_up": {
+          "title": "Sollecitare alla data per ricontattare",
+          "description": ""
+        },
+        "unanswered_sweep": {
+          "title": "Ogni giorno, creare un'attività di risposta per ogni nuova chat senza risposta",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Ogni richiesta ha una fase.",
+        "opt_in_field": "Ogni contatto registra il suo consenso WhatsApp.",
+        "quote_valid_field": "Ogni preventivo indica per quanto tempo è valido.",
+        "enquiries_board_view": "Le richieste si aprono come bacheca per fase."
+      },
+      "prompt": {
+        "intro": "Imposta nel mio workspace Customermates il seguito delle richieste WhatsApp: una richiesta per ogni chat con preventivo e validità, prossimo contatto con data, fase di pagamento, data per ricontattare e data di riordino per contatto, più il consenso WhatsApp del contatto. Scrivi le risposte una per una per la mia revisione e non inviare nulla in massa.",
+        "questions": [
+          "Che cosa vi chiedono i clienti su WhatsApp e come quotate?",
+          "In quanto tempo volete rispondere a una nuova chat?",
+          "Quanti giorni aspettate dopo un preventivo prima di sollecitare e quando smettete?",
+          "I clienti riordinano e dopo quanto tempo?"
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "WhatsApp-aanvragen opvolgen",
+      "summary": "Een pijplijn voor een klein bedrijf waarvan de klanten via WhatsApp schrijven: de aanvraag vastleggen, snel antwoorden, een offerte sturen, binnen dagen opvolgen, de bestelling bevestigen en aan de herhaalaankoop denken.",
+      "description": "Maak van WhatsApp-gesprekken opgevolgde aanvragen: elk gesprek wordt een aanvraag met wat de klant wil, de offerte en de geldigheid, een volgende stap met datum, een betalingsfase en een datum om terug te komen als het antwoord later was. Elk contact legt vast of het berichten heeft toegestaan en wanneer een nabestelling wordt verwacht. Antwoorden worden stuk voor stuk geschreven en gecontroleerd. Geen massaberichten, campagnes of chatbotmenu's, en het gebruikt het officiële WhatsApp Business Platform niet. WhatsApp kan een account beperken dat wordt gebruikt op een manier die het beleid verbiedt.",
+      "lists": {
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén volgende stap met datum per open dossier."
+        },
+        "contacts": {
+          "label": "Contactpersoon",
+          "pluralLabel": "Contactpersonen",
+          "description": "De mensen die u schrijven, met hun WhatsApp-toestemming en nabestelddatum."
+        },
+        "enquiries": {
+          "label": "Aanvraag",
+          "pluralLabel": "Aanvragen (deals)",
+          "description": "Eén verzoek uit een gesprek, van eerste bericht tot besteld, verloren of later."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Wachtend",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "contacts.whatsapp_opt_in": {
+          "label": "WhatsApp-toestemming",
+          "options": {
+            "customer_started_chat": "Klant begon het gesprek",
+            "gave_permission": "Gaf toestemming",
+            "unknown": "Onbekend",
+            "opted_out": "Vroeg om te stoppen"
+          }
+        },
+        "contacts.last_order_on": {
+          "label": "Laatste bestelling",
+          "options": {}
+        },
+        "contacts.reorder_due": {
+          "label": "Nabestelling verwacht",
+          "options": {}
+        },
+        "enquiries.stage": {
+          "label": "Fase",
+          "options": {
+            "new_chat": "Nieuw bericht",
+            "qualifying": "Kwalificatie",
+            "quote_sent": "Offerte verstuurd",
+            "awaiting_payment": "Wacht op betaling",
+            "won": "Bestelling bevestigd",
+            "lost": "Verloren",
+            "later": "Later"
+          }
+        },
+        "enquiries.source": {
+          "label": "Bron",
+          "options": {
+            "click_to_chat": "WhatsApp-link",
+            "website": "Website",
+            "instagram": "Instagram",
+            "referral": "Aanbeveling",
+            "walk_in": "Langsgekomen",
+            "phone": "Telefoon",
+            "ad": "Advertentie"
+          }
+        },
+        "enquiries.interest": {
+          "label": "Interesse",
+          "options": {}
+        },
+        "enquiries.received_at": {
+          "label": "Eerste bericht ontvangen",
+          "options": {}
+        },
+        "enquiries.quote_valid_until": {
+          "label": "Offerte geldig tot",
+          "options": {}
+        },
+        "enquiries.ordered_on": {
+          "label": "Besteld op",
+          "options": {}
+        },
+        "enquiries.service_date": {
+          "label": "Leverdatum of afspraak",
+          "options": {}
+        },
+        "enquiries.next_step_due": {
+          "label": "Volgende stap",
+          "options": {}
+        },
+        "enquiries.lost_reason": {
+          "label": "Reden van verlies",
+          "options": {
+            "price": "Prijs",
+            "chose_competitor": "Koos een concurrent",
+            "no_response": "Geen reactie",
+            "timing": "Timing",
+            "not_available": "Niet beschikbaar",
+            "not_a_fit": "Past niet"
+          }
+        },
+        "enquiries.revisit_on": {
+          "label": "Terugkomen op",
+          "options": {}
+        },
+        "enquiries.weighted_value": {
+          "label": "Gewogen waarde",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "reply": "Antwoorden",
+            "send_quote": "Offerte sturen",
+            "follow_up": "Opvolgen",
+            "confirm_order": "Bestelling bevestigen",
+            "request_payment": "Betaling vragen",
+            "confirm_appointment": "Afspraak bevestigen",
+            "reorder_reminder": "Herinnering voor nabestelling",
+            "other": "Overig"
+          }
+        }
+      },
+      "relationships": {
+        "enquiry_contact": {
+          "sourceLabel": "Contactpersoon",
+          "targetLabel": "Aanvragen (deals)"
+        },
+        "action_enquiry": {
+          "sourceLabel": "Aanvraag",
+          "targetLabel": "Taken"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "enquiries_board": {
+          "name": "Aanvragen per fase"
+        },
+        "enquiries_all": {
+          "name": "Alle aanvragen"
+        },
+        "open_quotes": {
+          "name": "Offertes die op antwoord wachten"
+        },
+        "later_to_revisit": {
+          "name": "Later, om op terug te komen"
+        },
+        "contacts_all": {
+          "name": "Alle contactpersonen"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Aankomende acties"
+        },
+        "overdue_actions": {
+          "title": "Achterstallige acties"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        },
+        "enquiries_funnel": {
+          "title": "Aanvragen per fase"
+        },
+        "open_quotes_value": {
+          "title": "Waarde van wachtende offertes"
+        },
+        "new_chats": {
+          "title": "Nieuwe berichten om te beantwoorden"
+        },
+        "reorders_due": {
+          "title": "Komende nabestellingen"
+        },
+        "services_coming": {
+          "title": "Komende leveringen en afspraken"
+        },
+        "by_source": {
+          "title": "Aanvragen per bron"
+        },
+        "lost_reasons": {
+          "title": "Waarom aanvragen verloren gingen"
+        }
+      },
+      "knowledgePages": {
+        "enquiry_playbook": {
+          "title": "Draaiboek voor WhatsApp-aanvragen",
+          "sections": [
+            "Antwoorden, vastleggen, offreren, opvolgen, bevestigen, onthouden",
+            "Wie antwoordt en hoe snel"
+          ]
+        },
+        "opt_in_rules": {
+          "title": "Toestemming en afmelden",
+          "sections": [
+            "Wanneer een klant berichten heeft toegestaan",
+            "Wat er gebeurt als iemand vraagt om te stoppen"
+          ]
+        },
+        "follow_up_rhythm": {
+          "title": "Opvolgritme en wanneer te stoppen",
+          "sections": [
+            "Dagen tussen opvolgingen na een offerte",
+            "Het afsluitende bericht en de terugkomdatum"
+          ]
+        },
+        "what_whatsapp_allows": {
+          "title": "Wat WhatsApp toestaat en wat deze opzet niet doet",
+          "sections": [
+            "Geen massaberichten, campagnes of chatbots",
+            "Het risico van een gekoppeld account"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Contactpersoon en aanvraag aanmaken als het formulier met het WhatsApp-vakje is ingediend",
+          "description": ""
+        },
+        "reply_new_chat": {
+          "title": "Een taak om te antwoorden aanmaken als een aanvraag binnenkomt",
+          "description": ""
+        },
+        "first_reply_missed": {
+          "title": "De verantwoordelijke waarschuwen als een aanvraag een dag later nog een nieuw bericht is",
+          "description": ""
+        },
+        "quote_follow_up": {
+          "title": "2 dagen na het versturen van een offerte opvolgen",
+          "description": ""
+        },
+        "quote_expiring": {
+          "title": "Navragen of afsluiten als een offerte zijn geldigheidsdatum bereikt",
+          "description": ""
+        },
+        "payment_request": {
+          "title": "De dag nadat een aanvraag op wacht op betaling komt de betaling vragen",
+          "description": ""
+        },
+        "won_reorder": {
+          "title": "90 dagen na een bevestigde bestelling een herinnering voor nabestelling aanmaken",
+          "description": ""
+        },
+        "service_calendar": {
+          "title": "De levering of afspraak in de agenda zetten als de bestelling is bevestigd",
+          "description": ""
+        },
+        "appointment_confirm": {
+          "title": "De afspraak de dag ervoor bevestigen",
+          "description": ""
+        },
+        "later_revisit_date": {
+          "title": "De terugkomdatum op 90 dagen zetten als een aanvraag naar later gaat",
+          "description": ""
+        },
+        "revisit_follow_up": {
+          "title": "Op de terugkomdatum opvolgen",
+          "description": ""
+        },
+        "unanswered_sweep": {
+          "title": "Elke dag voor elk onbeantwoord nieuw bericht een taak om te antwoorden aanmaken",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Elke aanvraag heeft een fase.",
+        "opt_in_field": "Elk contact legt zijn WhatsApp-toestemming vast.",
+        "quote_valid_field": "Elke offerte legt vast hoe lang ze geldig is.",
+        "enquiries_board_view": "De aanvragen openen als bord per fase."
+      },
+      "prompt": {
+        "intro": "Richt in mijn Customermates-workspace het opvolgen van WhatsApp-aanvragen in: een aanvraag per gesprek met offerte en geldigheid, een volgende stap met datum, een betalingsfase, een terugkomdatum en een nabestelddatum per contact, plus de WhatsApp-toestemming van het contact. Schrijf antwoorden stuk voor stuk ter controle en stuur niets in bulk.",
+        "questions": [
+          "Waar vragen klanten u op WhatsApp naar en hoe offreert u?",
+          "Hoe snel wilt u op een nieuw bericht antwoorden?",
+          "Hoeveel dagen wacht u na een offerte voordat u opvolgt en wanneer stopt u?",
+          "Bestellen klanten opnieuw en na hoe lang?"
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Obsługa zapytań z WhatsApp",
+      "summary": "Lejek dla małej firmy, której klienci piszą na WhatsAppie: zapisać zapytanie, szybko odpowiedzieć, wysłać ofertę, przypomnieć po kilku dniach, potwierdzić zamówienie i pamiętać o ponownym zakupie.",
+      "description": "Zamieniaj rozmowy z WhatsAppa w obsłużone zapytania: każda rozmowa staje się zapytaniem z tym, czego chce klient, ofertą i jej ważnością, następnym kontaktem z terminem, etapem płatności i datą powrotu, gdy odpowiedź brzmiała „później”. Każdy kontakt zapisuje, czy zgodził się na wiadomości i kiedy spodziewane jest ponowne zamówienie. Odpowiedzi pisze się pojedynczo i sprawdza. Narzędzie nie wysyła wiadomości masowych, kampanii ani menu chatbota i nie korzysta z oficjalnej platformy WhatsApp Business. WhatsApp może ograniczyć konto używane w sposób sprzeczny z jego regulaminem.",
+      "lists": {
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jeden następny krok z terminem dla każdej otwartej sprawy."
+        },
+        "contacts": {
+          "label": "Kontakt",
+          "pluralLabel": "Kontakty",
+          "description": "Osoby, które do Ciebie piszą, ze zgodą na WhatsApp i terminem ponownego zamówienia."
+        },
+        "enquiries": {
+          "label": "Zapytanie",
+          "pluralLabel": "Zapytania (szanse)",
+          "description": "Jedna prośba z rozmowy, od pierwszej wiadomości do zamówienia, utraty lub później."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarte",
+            "waiting": "Oczekuje",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Odpowiedzialny",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "contacts.whatsapp_opt_in": {
+          "label": "Zgoda na WhatsApp",
+          "options": {
+            "customer_started_chat": "Klient sam zaczął rozmowę",
+            "gave_permission": "Wyraził zgodę",
+            "unknown": "Nieznana",
+            "opted_out": "Poprosił o zaprzestanie"
+          }
+        },
+        "contacts.last_order_on": {
+          "label": "Ostatnie zamówienie",
+          "options": {}
+        },
+        "contacts.reorder_due": {
+          "label": "Spodziewane ponowne zamówienie",
+          "options": {}
+        },
+        "enquiries.stage": {
+          "label": "Etap",
+          "options": {
+            "new_chat": "Nowa wiadomość",
+            "qualifying": "Kwalifikacja",
+            "quote_sent": "Oferta wysłana",
+            "awaiting_payment": "Oczekuje na płatność",
+            "won": "Zamówienie potwierdzone",
+            "lost": "Utracone",
+            "later": "Później"
+          }
+        },
+        "enquiries.source": {
+          "label": "Źródło",
+          "options": {
+            "click_to_chat": "Link do WhatsAppa",
+            "website": "Strona internetowa",
+            "instagram": "Instagram",
+            "referral": "Polecenie",
+            "walk_in": "Wizyta osobista",
+            "phone": "Telefon",
+            "ad": "Reklama"
+          }
+        },
+        "enquiries.interest": {
+          "label": "Zainteresowanie",
+          "options": {}
+        },
+        "enquiries.received_at": {
+          "label": "Pierwsza wiadomość otrzymana",
+          "options": {}
+        },
+        "enquiries.quote_valid_until": {
+          "label": "Oferta ważna do",
+          "options": {}
+        },
+        "enquiries.ordered_on": {
+          "label": "Zamówiono dnia",
+          "options": {}
+        },
+        "enquiries.service_date": {
+          "label": "Termin realizacji",
+          "options": {}
+        },
+        "enquiries.next_step_due": {
+          "label": "Następny kontakt",
+          "options": {}
+        },
+        "enquiries.lost_reason": {
+          "label": "Powód utraty",
+          "options": {
+            "price": "Cena",
+            "chose_competitor": "Wybrał konkurencję",
+            "no_response": "Brak odpowiedzi",
+            "timing": "Termin",
+            "not_available": "Niedostępne",
+            "not_a_fit": "Nie pasuje"
+          }
+        },
+        "enquiries.revisit_on": {
+          "label": "Wróć do klienta dnia",
+          "options": {}
+        },
+        "enquiries.weighted_value": {
+          "label": "Wartość ważona",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "reply": "Odpowiedzieć",
+            "send_quote": "Wysłać ofertę",
+            "follow_up": "Przypomnieć",
+            "confirm_order": "Potwierdzić zamówienie",
+            "request_payment": "Poprosić o płatność",
+            "confirm_appointment": "Potwierdzić termin",
+            "reorder_reminder": "Przypomnienie o ponownym zamówieniu",
+            "other": "Inne"
+          }
+        }
+      },
+      "relationships": {
+        "enquiry_contact": {
+          "sourceLabel": "Kontakt",
+          "targetLabel": "Zapytania (szanse)"
+        },
+        "action_enquiry": {
+          "sourceLabel": "Zapytanie",
+          "targetLabel": "Zadania"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "enquiries_board": {
+          "name": "Zapytania według etapu"
+        },
+        "enquiries_all": {
+          "name": "Wszystkie zapytania"
+        },
+        "open_quotes": {
+          "name": "Oferty czekające na odpowiedź"
+        },
+        "later_to_revisit": {
+          "name": "Później, do powrotu"
+        },
+        "contacts_all": {
+          "name": "Wszystkie kontakty"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Nadchodzące zadania"
+        },
+        "overdue_actions": {
+          "title": "Zaległe zadania"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        },
+        "enquiries_funnel": {
+          "title": "Zapytania według etapu"
+        },
+        "open_quotes_value": {
+          "title": "Wartość ofert w oczekiwaniu"
+        },
+        "new_chats": {
+          "title": "Nowe wiadomości do odpowiedzi"
+        },
+        "reorders_due": {
+          "title": "Nadchodzące ponowne zamówienia"
+        },
+        "services_coming": {
+          "title": "Nadchodzące realizacje i terminy"
+        },
+        "by_source": {
+          "title": "Zapytania według źródła"
+        },
+        "lost_reasons": {
+          "title": "Dlaczego zapytania zostały utracone"
+        }
+      },
+      "knowledgePages": {
+        "enquiry_playbook": {
+          "title": "Przewodnik po zapytaniach z WhatsAppa",
+          "sections": [
+            "Odpowiedzieć, zapisać, wycenić, przypomnieć, potwierdzić, pamiętać",
+            "Kto odpowiada i w jakim czasie"
+          ]
+        },
+        "opt_in_rules": {
+          "title": "Zgoda i rezygnacja z wiadomości",
+          "sections": [
+            "Kiedy klient zgodził się na wiadomości",
+            "Co się dzieje, gdy ktoś prosi o zaprzestanie"
+          ]
+        },
+        "follow_up_rhythm": {
+          "title": "Rytm przypomnień i kiedy przestać",
+          "sections": [
+            "Dni między przypomnieniami po ofercie",
+            "Wiadomość kończąca i data powrotu"
+          ]
+        },
+        "what_whatsapp_allows": {
+          "title": "Na co pozwala WhatsApp, a czego ta konfiguracja nie robi",
+          "sections": [
+            "Brak wiadomości masowych, kampanii i chatbotów",
+            "Ryzyko używania powiązanego konta"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Utworzyć kontakt i zapytanie po wysłaniu formularza z polem WhatsApp",
+          "description": ""
+        },
+        "reply_new_chat": {
+          "title": "Utworzyć zadanie odpowiedzi, gdy powstaje zapytanie",
+          "description": ""
+        },
+        "first_reply_missed": {
+          "title": "Powiadomić opiekuna, gdy zapytanie po dobie jest nadal nową wiadomością",
+          "description": ""
+        },
+        "quote_follow_up": {
+          "title": "Przypomnieć o ofercie 2 dni po jej wysłaniu",
+          "description": ""
+        },
+        "quote_expiring": {
+          "title": "Dopytać lub zamknąć, gdy oferta osiąga datę ważności",
+          "description": ""
+        },
+        "payment_request": {
+          "title": "Poprosić o płatność dzień po wejściu w etap oczekiwania na płatność",
+          "description": ""
+        },
+        "won_reorder": {
+          "title": "Utworzyć przypomnienie o ponownym zamówieniu 90 dni po potwierdzeniu zamówienia",
+          "description": ""
+        },
+        "service_calendar": {
+          "title": "Dodać termin realizacji do kalendarza, gdy zamówienie zostaje potwierdzone",
+          "description": ""
+        },
+        "appointment_confirm": {
+          "title": "Potwierdzić termin dzień wcześniej",
+          "description": ""
+        },
+        "later_revisit_date": {
+          "title": "Ustawić datę powrotu na 90 dni, gdy zapytanie przechodzi na później",
+          "description": ""
+        },
+        "revisit_follow_up": {
+          "title": "Odezwać się w dniu powrotu",
+          "description": ""
+        },
+        "unanswered_sweep": {
+          "title": "Codziennie tworzyć zadanie odpowiedzi dla każdej nowej wiadomości bez odpowiedzi",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Każde zapytanie ma etap.",
+        "opt_in_field": "Każdy kontakt zapisuje zgodę na WhatsApp.",
+        "quote_valid_field": "Każda oferta zapisuje, jak długo jest ważna.",
+        "enquiries_board_view": "Zapytania otwierają się jako tablica według etapu."
+      },
+      "prompt": {
+        "intro": "Skonfiguruj w moim workspace Customermates obsługę zapytań z WhatsAppa: jedno zapytanie na rozmowę z ofertą i jej ważnością, następnym kontaktem z terminem, etapem płatności, datą powrotu i terminem ponownego zamówienia na kontakt, a także zgodą kontaktu na WhatsApp. Pisz odpowiedzi pojedynczo do mojego sprawdzenia i niczego nie wysyłaj masowo.",
+        "questions": [
+          "O co klienci pytają Cię na WhatsAppie i jak wyceniasz?",
+          "W jakim czasie chcesz odpowiadać na nową wiadomość?",
+          "Ile dni czekasz po ofercie, zanim przypomnisz o sobie, i kiedy przestajesz?",
+          "Czy klienci zamawiają ponownie i po jakim czasie?"
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "Acompanhamento de atendimentos no WhatsApp",
+      "summary": "Um funil para uma pequena empresa cujos clientes escrevem no WhatsApp: registrar o atendimento, responder rápido, enviar o orçamento, fazer o retorno em dias, confirmar o pedido e lembrar da recompra.",
+      "description": "Transforme conversas do WhatsApp em atendimentos acompanhados: cada conversa vira um atendimento com o que o cliente quer, o orçamento e a validade, um próximo contato com data, uma etapa de pagamento e uma data para voltar quando a resposta foi «para depois». Cada contato registra se aceitou receber mensagens e quando é esperada uma recompra. As respostas são escritas uma a uma e revisadas. Não envia listas de transmissão, campanhas nem menus de chatbot e não usa a plataforma oficial do WhatsApp Business. O WhatsApp pode restringir uma conta usada de um jeito que a política dele proíbe.",
+      "lists": {
+        "actions": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um próximo passo com data para cada item em aberto."
+        },
+        "contacts": {
+          "label": "Contato",
+          "pluralLabel": "Contatos",
+          "description": "As pessoas que escrevem para você, com o consentimento do WhatsApp e a data de recompra."
+        },
+        "enquiries": {
+          "label": "Atendimento",
+          "pluralLabel": "Atendimentos (negócios)",
+          "description": "Um pedido vindo de uma conversa, da primeira mensagem a pedido confirmado, perdido ou para depois."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberta",
+            "waiting": "Aguardando",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "contacts.whatsapp_opt_in": {
+          "label": "Consentimento do WhatsApp",
+          "options": {
+            "customer_started_chat": "O cliente iniciou a conversa",
+            "gave_permission": "Deu consentimento",
+            "unknown": "Desconhecido",
+            "opted_out": "Pediu para parar"
+          }
+        },
+        "contacts.last_order_on": {
+          "label": "Último pedido",
+          "options": {}
+        },
+        "contacts.reorder_due": {
+          "label": "Recompra prevista",
+          "options": {}
+        },
+        "enquiries.stage": {
+          "label": "Etapa",
+          "options": {
+            "new_chat": "Novo contato",
+            "qualifying": "Em atendimento",
+            "quote_sent": "Orçamento enviado",
+            "awaiting_payment": "Aguardando pagamento",
+            "won": "Pedido confirmado",
+            "lost": "Perdido",
+            "later": "Para depois"
+          }
+        },
+        "enquiries.source": {
+          "label": "Origem",
+          "options": {
+            "click_to_chat": "Link do WhatsApp",
+            "website": "Site",
+            "instagram": "Instagram",
+            "referral": "Indicação",
+            "walk_in": "Presencial",
+            "phone": "Telefone",
+            "ad": "Anúncio"
+          }
+        },
+        "enquiries.interest": {
+          "label": "Produto de interesse",
+          "options": {}
+        },
+        "enquiries.received_at": {
+          "label": "Primeira mensagem recebida",
+          "options": {}
+        },
+        "enquiries.quote_valid_until": {
+          "label": "Validade do orçamento",
+          "options": {}
+        },
+        "enquiries.ordered_on": {
+          "label": "Pedido em",
+          "options": {}
+        },
+        "enquiries.service_date": {
+          "label": "Data de entrega ou instalação",
+          "options": {}
+        },
+        "enquiries.next_step_due": {
+          "label": "Próximo contato",
+          "options": {}
+        },
+        "enquiries.lost_reason": {
+          "label": "Motivo da perda",
+          "options": {
+            "price": "Preço",
+            "chose_competitor": "Escolheu a concorrência",
+            "no_response": "Sem resposta",
+            "timing": "Momento",
+            "not_available": "Indisponível",
+            "not_a_fit": "Não se encaixa"
+          }
+        },
+        "enquiries.revisit_on": {
+          "label": "Voltar a falar em",
+          "options": {}
+        },
+        "enquiries.weighted_value": {
+          "label": "Valor ponderado",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Responder",
+            "send_quote": "Enviar o orçamento",
+            "follow_up": "Fazer o retorno",
+            "confirm_order": "Confirmar o pedido",
+            "request_payment": "Pedir o pagamento",
+            "confirm_appointment": "Confirmar o agendamento",
+            "reorder_reminder": "Lembrete de recompra",
+            "other": "Outro"
+          }
+        }
+      },
+      "relationships": {
+        "enquiry_contact": {
+          "sourceLabel": "Contato",
+          "targetLabel": "Atendimentos (negócios)"
+        },
+        "action_enquiry": {
+          "sourceLabel": "Atendimento",
+          "targetLabel": "Tarefas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas as tarefas"
+        },
+        "enquiries_board": {
+          "name": "Atendimentos por etapa"
+        },
+        "enquiries_all": {
+          "name": "Todos os atendimentos"
+        },
+        "open_quotes": {
+          "name": "Orçamentos aguardando resposta"
+        },
+        "later_to_revisit": {
+          "name": "Para depois, a retomar"
+        },
+        "contacts_all": {
+          "name": "Todos os contatos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tarefas"
+        },
+        "overdue_actions": {
+          "title": "Tarefas atrasadas"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        },
+        "enquiries_funnel": {
+          "title": "Atendimentos por etapa"
+        },
+        "open_quotes_value": {
+          "title": "Valor dos orçamentos aguardando"
+        },
+        "new_chats": {
+          "title": "Novos contatos a responder"
+        },
+        "reorders_due": {
+          "title": "Recompras próximas"
+        },
+        "services_coming": {
+          "title": "Entregas e agendamentos próximos"
+        },
+        "by_source": {
+          "title": "Atendimentos por origem"
+        },
+        "lost_reasons": {
+          "title": "Por que atendimentos foram perdidos"
+        }
+      },
+      "knowledgePages": {
+        "enquiry_playbook": {
+          "title": "Guia de atendimentos no WhatsApp",
+          "sections": [
+            "Responder, registrar, orçar, fazer o retorno, confirmar, lembrar",
+            "Quem responde e em quanto tempo"
+          ]
+        },
+        "opt_in_rules": {
+          "title": "Consentimento e saída da lista",
+          "sections": [
+            "Quando um cliente aceitou receber mensagens",
+            "O que acontece quando alguém pede para parar"
+          ]
+        },
+        "follow_up_rhythm": {
+          "title": "Ritmo de retorno e quando parar",
+          "sections": [
+            "Dias entre retornos depois de um orçamento",
+            "A mensagem de encerramento e a data para voltar"
+          ]
+        },
+        "what_whatsapp_allows": {
+          "title": "O que o WhatsApp permite e o que esta configuração não faz",
+          "sections": [
+            "Sem listas de transmissão, campanhas ou chatbots",
+            "O risco de usar uma conta vinculada"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Criar o contato e o atendimento quando o formulário com a opção de WhatsApp for enviado",
+          "description": ""
+        },
+        "reply_new_chat": {
+          "title": "Criar uma tarefa de resposta quando um atendimento é criado",
+          "description": ""
+        },
+        "first_reply_missed": {
+          "title": "Avisar o responsável quando um atendimento continua como novo contato um dia depois",
+          "description": ""
+        },
+        "quote_follow_up": {
+          "title": "Fazer o retorno 2 dias depois de enviado um orçamento",
+          "description": ""
+        },
+        "quote_expiring": {
+          "title": "Perguntar ou encerrar quando um orçamento chega à validade",
+          "description": ""
+        },
+        "payment_request": {
+          "title": "Pedir o pagamento no dia seguinte à entrada em aguardando pagamento",
+          "description": ""
+        },
+        "won_reorder": {
+          "title": "Criar um lembrete de recompra 90 dias depois de confirmado um pedido",
+          "description": ""
+        },
+        "service_calendar": {
+          "title": "Colocar a entrega ou o agendamento na agenda quando o pedido é confirmado",
+          "description": ""
+        },
+        "appointment_confirm": {
+          "title": "Confirmar o agendamento no dia anterior",
+          "description": ""
+        },
+        "later_revisit_date": {
+          "title": "Definir a data para voltar em 90 dias quando um atendimento vai para depois",
+          "description": ""
+        },
+        "revisit_follow_up": {
+          "title": "Fazer o retorno na data para voltar",
+          "description": ""
+        },
+        "unanswered_sweep": {
+          "title": "Todo dia, criar uma tarefa de resposta para cada novo contato sem resposta",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Todo atendimento tem uma etapa.",
+        "opt_in_field": "Todo contato registra o consentimento do WhatsApp.",
+        "quote_valid_field": "Todo orçamento registra por quanto tempo é válido.",
+        "enquiries_board_view": "Os atendimentos abrem como quadro por etapa."
+      },
+      "prompt": {
+        "intro": "Configure no meu workspace do Customermates o acompanhamento de atendimentos no WhatsApp: um atendimento por conversa com orçamento e validade, próximo contato com data, etapa de pagamento, data para voltar e data de recompra por contato, além do consentimento do WhatsApp do contato. Escreva as respostas uma a uma para minha revisão e não envie nada em massa.",
+        "questions": [
+          "O que os clientes perguntam no WhatsApp e como você faz o orçamento?",
+          "Em quanto tempo você quer responder a um novo contato?",
+          "Quantos dias você espera depois de um orçamento antes do retorno e quando para?",
+          "Os clientes recompram e depois de quanto tempo?"
+        ]
+      }
+    }
+  }
+}
