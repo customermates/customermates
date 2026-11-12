@@ -46,6 +46,12 @@ async function connect(tools: McpTool[] = NAMED_TOOLS) {
   return { client, close: () => Promise.all([client.close(), server.close()]) };
 }
 
+function textOf(read: Awaited<ReturnType<Client["readResource"]>>): string {
+  const content = read.contents[0];
+  if (!content || !("text" in content)) throw new Error("Expected a text resource");
+  return content.text;
+}
+
 beforeEach(() => {
   state.shipped.clear();
   state.locale = "de";
@@ -88,7 +94,7 @@ describe("template MCP prompt and resources", () => {
     ALL.forEach((capability) => state.shipped.add(capability));
     const client = await open();
     const read = await client.readResource({ uri: "templates://client-tracker" });
-    const content = JSON.parse(String(read.contents[0].text)) as {
+    const content = JSON.parse(textOf(read)) as {
       slug: string;
       locale: string;
       spec: { slug: string };
@@ -109,7 +115,7 @@ describe("template MCP prompt and resources", () => {
     state.locale = "system";
     const client = await open();
     const read = await client.readResource({ uri: "templates://client-tracker" });
-    expect(JSON.parse(String(read.contents[0].text)).locale).toBe("en");
+    expect(JSON.parse(textOf(read)).locale).toBe("en");
   });
 
   it("serves the prompt of a template without asking for a new workspace", async () => {
