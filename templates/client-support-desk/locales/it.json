@@ -2,7 +2,7 @@
   "locale": "it",
   "name": "Assistenza clienti",
   "summary": "Un'assistenza leggera: ticket con priorità, tempo di prima risposta e scadenza di risoluzione, problemi noti che collegano più ticket a una causa e una valutazione di soddisfazione.",
-  "description": "Rispondi ai clienti da un unico posto: ogni ticket ha uno stato, una priorità, un tipo, un responsabile e l'orario entro cui devi una prima risposta e una soluzione. Collega i ticket a un problema noto per avvisare tutti quando è risolto e tieni d'occhio il termine di un mese di una richiesta GDPR. Pensato per qualche decina di ticket a settimana. Non è un centralino, una chat dal vivo, un portale clienti né un calendario con orari lavorativi.",
+  "description": "Rispondi ai clienti da un unico posto: ogni ticket ha uno stato, una priorità, un tipo, un responsabile e le scadenze per la prima risposta e per la soluzione. Collega i ticket a un problema noto per avvisare tutti quando è risolto e tieni sempre visibile il termine di un mese per una richiesta GDPR. Pensato per qualche decina di ticket a settimana. Non è un centralino, una chat dal vivo, un portale clienti né un calendario con orari lavorativi.",
   "lists": {
     "customers": { "label": "Cliente", "pluralLabel": "Clienti", "description": "Le persone che ti scrivono per chiedere aiuto." },
     "accounts": { "label": "Account", "pluralLabel": "Account", "description": "Le aziende dietro i tuoi clienti, con il loro piano di assistenza." },
@@ -53,8 +53,8 @@
   },
   "views": {
     "tickets_all": { "name": "Tutti i ticket" },
-    "tickets_board": { "name": "Bacheca dei ticket" },
-    "waiting_on_us": { "name": "In attesa di noi" },
+    "tickets_board": { "name": "Board dei ticket" },
+    "waiting_on_us": { "name": "In attesa di una nostra risposta" },
     "known_issues_all": { "name": "Tutti i problemi noti" },
     "customers_all": { "name": "Tutti i clienti" },
     "accounts_all": { "name": "Tutti gli account" }
@@ -62,7 +62,7 @@
   "widgets": {
     "tickets_by_status": { "title": "Ticket per stato" },
     "open_by_priority": { "title": "Ticket aperti per priorità" },
-    "waiting_on_us_count": { "title": "Ticket in attesa di noi" },
+    "waiting_on_us_count": { "title": "Ticket in attesa di una nostra risposta" },
     "responses_due": { "title": "Prime risposte in scadenza" },
     "average_rating": { "title": "Valutazione media" },
     "tickets_by_type": { "title": "Ticket per tipo" }
@@ -85,15 +85,15 @@
   "acceptanceChecks": {
     "status_field": "Ogni ticket ha uno stato.",
     "first_response_field": "Ogni ticket indica entro quando è dovuta la prima risposta.",
-    "tickets_board_view": "I ticket si aprono come bacheca per stato."
+    "tickets_board_view": "I ticket si aprono come board per stato."
   },
   "prompt": {
-    "intro": "Imposta nel mio workspace Customermates un'assistenza clienti: ticket con stato, priorità, tempo di prima risposta e scadenza di risoluzione, problemi noti collegati ai ticket, una valutazione di soddisfazione e attività di follow-up con data.",
+    "intro": "Imposta nel mio spazio di lavoro Customermates un'assistenza clienti: ticket con stato, priorità, tempo di prima risposta e scadenza di risoluzione, problemi noti collegati ai ticket, una valutazione di soddisfazione e attività di follow-up con data.",
     "questions": [
-      "Quanti ticket gestite a settimana e da quali canali arrivano?",
-      "Che tempi promettete per la prima risposta e la risoluzione, per priorità o piano di assistenza?",
+      "Quanti ticket gestisci a settimana e da quali canali arrivano?",
+      "Che tempi prometti per la prima risposta e la risoluzione, per priorità o piano di assistenza?",
       "Chi risponde e chi viene avvisato quando un ticket è in ritardo?",
-      "Ricevete richieste GDPR o segnalazioni da altri sistemi che devono diventare ticket?"
+      "Ricevi richieste GDPR o segnalazioni da altri sistemi che devono diventare ticket?"
     ]
   }
 }

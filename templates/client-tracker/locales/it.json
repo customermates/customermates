@@ -2,7 +2,7 @@
   "locale": "it",
   "name": "Anagrafica clienti",
   "summary": "Una riga per cliente, un responsabile, un prossimo passo con scadenza, più una revisione settimanale e una data di verifica dei dati per ogni cliente chiuso.",
-  "description": "Un’anagrafica clienti snella e disciplinata: sette stati, la data dell’ultimo contatto, una scadenza del prossimo passo che guida il lavoro, un ritmo di revisione per segmento e una data di verifica dei dati per i clienti chiusi. Referenti, attività con scadenza e conversazioni collegate stanno accanto a ogni cliente.",
+  "description": "Un'anagrafica clienti snella e disciplinata: sette stati, la data dell'ultimo contatto, una scadenza del prossimo passo che guida il lavoro, un ritmo di revisione per segmento e una data di verifica dei dati per i clienti chiusi. Referenti, attività con scadenza e conversazioni collegate stanno accanto a ogni cliente.",
   "lists": {
     "clients": { "label": "Cliente", "pluralLabel": "Clienti", "description": "Una riga per cliente, un responsabile, un prossimo passo con scadenza." },
     "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Le persone con cui lavori presso ogni cliente." }
@@ -28,11 +28,11 @@
     "clients.source": {
       "label": "Provenienza",
       "options": {
-        "referral": "Passaparola",
+        "referral": "Segnalazione",
         "website": "Sito web",
         "event": "Evento",
         "outbound": "Contatto diretto",
-        "existing_network": "Rete esistente",
+        "existing_network": "Rete di conoscenze",
         "other": "Altro"
       }
     },
@@ -66,7 +66,7 @@
     "actions.kind": {
       "label": "Tipo",
       "options": {
-        "check_in": "Verifica periodica",
+        "check_in": "Ricontatto",
         "reply": "Risposta",
         "request_document": "Richiesta di documento",
         "review": "Revisione",
@@ -104,11 +104,11 @@
     "value_by_segment": { "title": "Valore annuo per segmento" },
     "new_clients_per_month": { "title": "Nuovi clienti al mese" },
     "overdue_actions": { "title": "Attività scadute" },
-    "activity_timeline": { "title": "Attività recente" }
+    "activity_timeline": { "title": "Attività recenti" }
   },
   "knowledgePages": {
     "playbook": {
-      "title": "Guida all’anagrafica clienti",
+      "title": "Guida all'anagrafica clienti",
       "sections": ["Una riga, un responsabile, un prossimo passo con scadenza", "Che cosa significa ogni stato", "Aggiornare la riga lo stesso giorno di ogni chiamata o preventivo"]
     },
     "weekly_review": {
@@ -120,72 +120,72 @@
       "sections": ["Regola di ingresso e di uscita per ogni stato", "Sollecitare dopo 7 giorni, segnalare dopo 14", "Chi può cambiare uno stato"]
     },
     "message_templates": {
-      "title": "Modelli di messaggio: verifica periodica e riattivazione",
-      "sections": ["Verifica dopo un periodo di silenzio", "Sollecito a un cliente che deve rispondere", "Invito alla revisione", "Riattivazione dopo 90 giorni", "Chiusura cortese"]
+      "title": "Modelli di messaggio: ricontatto e riattivazione",
+      "sections": ["Ricontatto dopo un periodo di silenzio", "Sollecito a un cliente che deve rispondere", "Invito alla revisione", "Riattivazione dopo 90 giorni", "Chiusura cortese"]
     },
     "data_retention": {
-      "title": "Conservazione dei dati e privacy per l’anagrafica clienti",
+      "title": "Conservazione dei dati e privacy per l'anagrafica clienti",
       "sections": ["Finalità e dati conservati", "Periodo di conservazione per paese", "Prova del consenso", "Rispondere a una richiesta di accesso o cancellazione"]
     }
   },
   "rules": {
     "overdue_action_notice": {
-      "title": "Avvisare il responsabile che un’attività è scaduta",
-      "description": "Alla scadenza di un’attività aperta, il responsabile riceve un avviso."
+      "title": "Avvisare il responsabile che un'attività è scaduta",
+      "description": "Alla scadenza di un'attività aperta, il responsabile riceve un avviso."
     },
     "chase_waiting_client": {
       "title": "Sollecitare il cliente per la questione in sospeso",
-      "description": "Quando un cliente passa a In attesa del cliente, il suo responsabile riceve un’attività di sollecito dopo 7 giorni."
+      "description": "Quando un cliente passa a «In attesa del cliente», il suo responsabile riceve un'attività di sollecito dopo 7 giorni."
     },
     "review_before_due": {
       "title": "Rivedere la scheda del cliente",
-      "description": "Sette giorni prima della prossima revisione di un cliente attivo, viene creata un’attività di revisione per il responsabile."
+      "description": "Sette giorni prima della prossima revisione di un cliente attivo, viene creata un'attività di revisione per il responsabile."
     },
     "daily_next_step_sweep": {
-      "title": "Verifica periodica: nessuna attività aperta su questo cliente",
-      "description": "Ogni giorno, un cliente attivo o in avvio senza attività aperte collegate riceve un’attività di verifica con scadenza oggi."
+      "title": "Ricontatto: nessuna attività aperta su questo cliente",
+      "description": "Ogni giorno, un cliente attivo o in avvio senza attività aperte collegate riceve un'attività di ricontatto con scadenza oggi."
     },
     "stalled_client_sweep": {
-      "title": "Verifica periodica: nessun contatto da 45 giorni",
-      "description": "Ogni lunedì, un cliente attivo senza contatti da 45 giorni riceve un’attività di verifica. Lo stato non cambia mai da solo."
+      "title": "Ricontatto: nessun contatto da 45 giorni",
+      "description": "Ogni lunedì, un cliente attivo senza contatti da 45 giorni riceve un'attività di ricontatto. Lo stato non cambia mai da solo."
     },
     "closed_client_dates": {
       "title": "Impostare la data di chiusura e la data di verifica dei dati",
-      "description": "Quando un cliente viene chiuso, Chiuso il prende la data di oggi e Verifica dei dati il tre anni dopo. Adatta il periodo al tuo paese."
+      "description": "Quando un cliente viene chiuso, «Chiuso il» prende la data di oggi e «Verifica dei dati il» quella di tre anni dopo. Adatta il periodo al tuo paese."
     },
     "closed_client_data_review": {
       "title": "Verificare i dati di questo cliente chiuso",
-      "description": "Un’attività di verifica dei dati scade alla data di verifica dei dati."
+      "description": "Un'attività di verifica dei dati scade alla data di verifica dei dati."
     },
     "inactive_reactivation": {
       "title": "Chiedere se il cliente è ancora interessato",
-      "description": "Novanta giorni dopo il passaggio di un cliente a Inattivo, un’attività di verifica pone la domanda sulla riattivazione."
+      "description": "Novanta giorni dopo il passaggio di un cliente a «Inattivo», un'attività di ricontatto pone la domanda sulla riattivazione."
     },
     "enquiry_form_records": {
       "title": "Creare cliente e referente da una richiesta",
-      "description": "Un modulo di richiesta pubblico crea un cliente come Potenziale e il suo referente."
+      "description": "Un modulo di richiesta pubblico crea un cliente come «Potenziale» e il suo referente."
     },
     "enquiry_form_reply": {
       "title": "Rispondere alla richiesta",
-      "description": "Ogni richiesta riceve un’attività di risposta con scadenza il giorno dopo."
+      "description": "Ogni richiesta riceve un'attività di risposta con scadenza il giorno dopo."
     },
     "weekly_client_review": {
       "title": "Revisione clienti settimanale",
-      "description": "Ogni lunedì, un’attività di revisione elenca i clienti in ritardo, quelli senza prossimo passo e i potenziali fermi."
+      "description": "Ogni lunedì, un'attività di revisione elenca i clienti in ritardo, quelli senza prossimo passo e i potenziali fermi."
     }
   },
   "acceptanceChecks": {
     "status_field": "Ogni cliente ha uno stato tra i sette valori.",
     "next_step_date_field": "Ogni cliente ha un prossimo passo e una data per esso.",
-    "clients_default_view": "L’elenco dei clienti si apre ordinato per scadenza del prossimo passo.",
+    "clients_default_view": "L'elenco dei clienti si apre ordinato per scadenza del prossimo passo.",
     "overdue_widget": "La dashboard mostra quante attività sono scadute.",
-    "chase_rule": "Un cliente passato a In attesa del cliente riceve un’attività di sollecito.",
-    "playbook_page": "La knowledge base contiene la guida all’anagrafica clienti."
+    "chase_rule": "Un cliente passato a «In attesa del cliente» riceve un'attività di sollecito.",
+    "playbook_page": "La base di conoscenza contiene la guida all'anagrafica clienti."
   },
   "prompt": {
-    "intro": "Configura un’anagrafica clienti nel mio spazio di lavoro Customermates: una riga per cliente con un responsabile, uno stato, la data dell’ultimo contatto e un prossimo passo con scadenza, più i referenti, attività con scadenza, una revisione settimanale e una data di verifica dei dati per i clienti chiusi.",
+    "intro": "Configura un'anagrafica clienti nel mio spazio di lavoro Customermates: una riga per cliente con un responsabile, uno stato, la data dell'ultimo contatto e un prossimo passo con scadenza, più i referenti, attività con scadenza, una revisione settimanale e una data di verifica dei dati per i clienti chiusi.",
     "questions": [
-      "Quanti clienti segui oggi e chi altro lavora sull’anagrafica?",
+      "Quanti clienti segui oggi e chi altro lavora sull'anagrafica?",
       "Quali stati dei clienti usi già? Vanno rinominati o tolti alcuni dei sette?",
       "Con quale frequenza vuoi rivedere i clienti chiave, abituali e occasionali?",
       "In quale paese lavori, così da fissare il periodo di conservazione per i clienti chiusi?",
