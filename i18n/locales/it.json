@@ -1124,6 +1124,7 @@
         "themeSystem": "tema automatico, segui il sistema"
       },
       "page": {
+        "automations": "regole, regole di automazione, promemoria, quando se allora, trigger, notifiche, promemoria di data",
         "calendar": "planner, appuntamenti, riunioni, eventi, agenda, programmazione",
         "configure": "modello dati, schema, elenchi, campi, relazioni, Configura, campi personalizzati, oggetti",
         "dashboard": "home, panoramica, widget, grafici, report, analisi, KPI, metriche",
@@ -1332,10 +1333,10 @@
       "apiRateLimitReached": "Questo spazio di lavoro ha raggiunto il limite di richieste API e MCP del piano Free. Attendi e riprova, oppure passa a Starter per rimuovere il limite.",
       "automationRuleAdminRequired": "Solo il proprietario di un’automazione o un amministratore può disattivarla o eliminarla.",
       "automationRuleEditNotOwner": "Solo il proprietario di un’automazione può modificarla o attivarla.",
-      "automationRuleInvalid": "Questa automazione non si adatta al workspace: un elenco, un campo o una relazione che usa manca o non è adatto al suo trigger o alle sue azioni.",
+      "automationRuleInvalid": "Questa automazione non si adatta allo spazio di lavoro: un elenco, un campo o una relazione che usa manca o non è adatto al suo trigger o alle sue azioni.",
       "automationRuleLimitReached": "Il tuo piano include {limit} automazioni attive. Passa a un altro piano (da {price} per utente al mese) o disattiva un’altra automazione.",
       "automationRuleNotFound": "ID dell’automazione non trovato o non accessibile.",
-      "automationRuleOwnerIneligible": "Il proprietario di un’automazione deve essere un membro attivo di questo workspace.",
+      "automationRuleOwnerIneligible": "Il proprietario di un’automazione deve essere un membro attivo di questo spazio di lavoro.",
       "billingPortalUnavailable": "Il portale di fatturazione non è disponibile per questo spazio di lavoro. Contatta l’assistenza per apportare modifiche.",
       "bookingAnswerInvalid": "Una risposta manca o non è valida.",
       "bookingLinkLimitReached": "Puoi avere al massimo {limit} pagine di prenotazione. Eliminane una per crearne un’altra.",
@@ -3492,7 +3493,7 @@
     "greeting": "Ciao {firstName},",
     "instantIntro": "In Customermates c’è qualcosa che richiede la tua attenzione:",
     "preferencesHint": "Quanto spesso ricevere queste e-mail lo scegli per tipo di notifica in Profilo, Notifiche.",
-    "title": "Novità dal tuo workspace"
+    "title": "Novità dal tuo spazio di lavoro"
   },
   "Notifications": {
     "emailMode": {

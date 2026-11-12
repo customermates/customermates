@@ -5,6 +5,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Capability } from "@/core/capabilities/capabilities";
 
+import { templatePromptText } from "@/core/templates/template-prompt-text";
+
 const state = vi.hoisted(() => ({
   shipped: new Set<string>(),
   locale: "de",
@@ -130,11 +132,12 @@ describe("template MCP prompt and resources", () => {
     const text = String((prompt.messages[0].content as { text: string }).text);
     expect(prompt.messages[0].role).toBe("user");
     expect(text).toContain("# Kundenverwaltung");
+    const german = templatePromptText("de");
     expect(text).toContain("get_workspace_context");
-    expect(text).toContain("already connected");
+    expect(text).toContain(german.workspace.connected);
     expect(text).not.toContain("/signup");
-    expect(text).toContain("Create no sample");
-    expect(text).toContain("Send nothing");
+    expect(text).toContain(german.roadRules.noSamples);
+    expect(text).toContain(german.roadRules.sendNothing);
   });
 
   it("refuses an unknown template and one the deployment cannot run", async () => {

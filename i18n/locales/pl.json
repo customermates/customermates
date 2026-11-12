@@ -1124,6 +1124,7 @@
         "themeSystem": "motyw automatyczny, zgodny z systemem"
       },
       "page": {
+        "automations": "reguły, reguły automatyzacji, przypomnienia, gdy jeśli wtedy, wyzwalacze, powiadomienia, przypomnienia o dacie",
         "calendar": "kalendarz, planer, terminarz, spotkania, wydarzenia, agenda, terminy",
         "configure": "model danych, schemat, listy, pola, relacje, konfiguracja, pola niestandardowe, obiekty",
         "dashboard": "start, strona główna, przegląd, widżety, wykresy, raporty, analityka, KPI, wskaźniki",

@@ -1124,6 +1124,7 @@
         "themeSystem": "automatische Darstellung, wie System"
       },
       "page": {
+        "automations": "Regeln, Automatisierungsregeln, Erinnerungen, Wenn Falls Dann, Auslöser, Benachrichtigungen, Datumserinnerungen",
         "calendar": "Planer, Termine, Meetings, Ereignisse, Agenda, Terminplan",
         "configure": "Datenmodell, Schema, Listen, Felder, Beziehungen, Konfigurieren, eigene Felder, Objekte",
         "dashboard": "Startseite, Übersicht, Start, Widgets, Diagramme, Berichte, Auswertungen, KPIs, Kennzahlen",

@@ -1124,6 +1124,7 @@
         "themeSystem": "automatisch thema, systeem volgen"
       },
       "page": {
+        "automations": "regels, automatiseringsregels, herinneringen, wanneer als dan, triggers, meldingen, datumherinneringen",
         "calendar": "planner, agenda, planning, vergaderingen, meetings, afspraken, evenementen",
         "configure": "datamodel, schema, lijsten, velden, relaties, configureren, aangepaste velden, objecten",
         "dashboard": "home, overzicht, start, widgets, grafieken, rapporten, analyses, KPI's, statistieken",

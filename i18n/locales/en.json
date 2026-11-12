@@ -1124,6 +1124,7 @@
         "themeSystem": "automatic theme, follow system"
       },
       "page": {
+        "automations": "rules, automation rules, reminders, when if then, triggers, notifications, date reminders",
         "calendar": "planner, schedule, meetings, events, agenda, appointments",
         "configure": "data model, schema, lists, fields, relationships, Configure, custom fields, objects",
         "dashboard": "home, overview, start, widgets, charts, reports, analytics, KPIs, metrics",

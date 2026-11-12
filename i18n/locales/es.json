@@ -1124,6 +1124,7 @@
         "themeSystem": "tema automático, seguir el sistema"
       },
       "page": {
+        "automations": "reglas, reglas de automatización, recordatorios, cuando si entonces, disparadores, notificaciones, recordatorios de fecha",
         "calendar": "planificador, citas, reuniones, eventos, agenda, programación",
         "configure": "modelo de datos, esquema, listas, campos, relaciones, Configurar, campos personalizados, objetos",
         "dashboard": "inicio, resumen, widgets, gráficos, informes, análisis, KPI, métricas",

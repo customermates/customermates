@@ -86,6 +86,7 @@ const SETTINGS_NAVIGATION = {
   activity: "Audit log",
   apiKeys: "API keys & connectors",
   billing: "Billing",
+  booking: "Booking pages",
   channels: "Channels & calendars",
   deliveries: "Webhook log",
   general: "General",

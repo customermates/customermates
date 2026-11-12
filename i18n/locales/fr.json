@@ -1124,6 +1124,7 @@
         "themeSystem": "thème automatique, suivre le système"
       },
       "page": {
+        "automations": "règles, règles d’automatisation, rappels, quand si alors, déclencheurs, notifications, rappels de date",
         "calendar": "planificateur, rendez-vous, réunions, événements, agenda, planning",
         "configure": "modèle de données, schéma, listes, champs, relations, Configurer, champs personnalisés, objets",
         "dashboard": "accueil, aperçu, widgets, graphiques, rapports, analyses, KPI, indicateurs",
