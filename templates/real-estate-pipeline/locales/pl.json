@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Lejek nieruchomości",
-  "summary": "Dwa lejki, które spotykają się przy umowie: pozyskać i wypromować ofertę oraz obsłużyć kupującego, z prezentacjami, terminami i rutyną dla dawnych klientów.",
-  "description": "Biuro nieruchomości prowadzi stronę właściciela (wycena, umowa pośrednictwa, promocja, oferty) i stronę kupującego (kontakt, kwalifikacja, prezentacje, oferta), a potem wspólną fazę po podpisaniu umowy z twardymi terminami. Ten szablon śledzi obie, rodzaj umowy pośrednictwa i jej koniec, każdą prezentację z opinią, terminy po podpisaniu i rutynę z datami dla dawnych klientów. Wartość oferty to oczekiwana prowizja.",
+  "summary": "Dwa lejki, które spotykają się przy umowie: pozyskanie i promocja oferty oraz obsługa kupującego, z prezentacjami, terminami i rutyną dla dawnych klientów.",
+  "description": "Biuro nieruchomości prowadzi stronę właściciela (wycena, umowa pośrednictwa, promocja, oferty) i stronę kupującego (kontakt, kwalifikacja, prezentacje, oferta), a potem wspólną fazę po podpisaniu umowy z twardymi terminami. Szablon obsługuje obie strony, rodzaj umowy pośrednictwa i jej koniec, każdą prezentację z opinią, terminy po podpisaniu i rutynę z datami dla dawnych klientów. Wartość oferty to oczekiwana prowizja.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Właściciele, wynajmujący, kupujący, najemcy i polecający." },
     "organizations": { "label": "Organizacja", "pluralLabel": "Organizacje", "description": "Deweloperzy, banki, notariusze i partnerzy polecający." },
@@ -16,11 +16,11 @@
     "listings.stage": {
       "label": "Etap",
       "options": {
-        "owner_lead": "Kontakt właściciel",
+        "owner_lead": "Zgłoszenie właściciela",
         "valuation": "Wycena",
         "listing_proposal_sent": "Propozycja umowy pośrednictwa",
         "agreement_signed": "Umowa pośrednictwa podpisana",
-        "on_market": "W ofercie",
+        "on_market": "Aktywna na rynku",
         "offer_stage": "Oferta kupna",
         "under_contract": "Umowa przedwstępna",
         "completed": "Akt notarialny",
@@ -31,7 +31,7 @@
       "label": "Etap",
       "options": {
         "new_lead": "Nowe zapytanie",
-        "qualified": "Zakwalifikowany",
+        "qualified": "Zakwalifikowane",
         "viewing": "Prezentacja",
         "offer_made": "Złożona oferta",
         "under_contract": "Umowa przedwstępna",
@@ -56,7 +56,7 @@
       "options": { "email": "E-mail", "phone": "Telefon", "whatsapp": "WhatsApp", "portal": "Portal" }
     },
     "contacts.language": { "label": "Język" },
-    "contacts.marketing_consent_on": { "label": "Zgoda marketingowa dnia" },
+    "contacts.marketing_consent_on": { "label": "Data zgody marketingowej" },
     "contacts.last_contact": { "label": "Ostatni kontakt" },
     "organizations.org_type": {
       "label": "Rodzaj",
@@ -83,7 +83,7 @@
         "other": "Inna"
       }
     },
-    "listings.size_m2": { "label": "Powierzchnia w metrach kwadratowych" },
+    "listings.size_m2": { "label": "Powierzchnia (m²)" },
     "listings.rooms": { "label": "Pokoje" },
     "listings.asking_price": { "label": "Cena ofertowa" },
     "listings.source": {
@@ -102,28 +102,28 @@
       "label": "Rodzaj umowy pośrednictwa",
       "options": { "open": "Otwarta", "sole_agency": "Z ograniczoną wyłącznością", "exclusive": "Na wyłączność" }
     },
-    "listings.agreement_start": { "label": "Początek umowy pośrednictwa" },
-    "listings.agreement_end": { "label": "Koniec umowy pośrednictwa" },
-    "listings.commission_rate": { "label": "Prowizja w procentach" },
-    "listings.first_response_on": { "label": "Pierwsza odpowiedź dnia" },
-    "listings.valuation_on": { "label": "Wycena dnia" },
-    "listings.proposal_sent_on": { "label": "Propozycja umowy wysłana dnia" },
-    "listings.signed_on": { "label": "Umowa pośrednictwa podpisana dnia" },
-    "listings.live_on": { "label": "W ofercie od" },
-    "listings.first_offer_on": { "label": "Pierwsza oferta kupna dnia" },
-    "listings.contract_signed_on": { "label": "Umowa przedwstępna podpisana dnia" },
-    "listings.completion_on": { "label": "Akt notarialny dnia" },
+    "listings.agreement_start": { "label": "Data rozpoczęcia umowy pośrednictwa" },
+    "listings.agreement_end": { "label": "Data zakończenia umowy pośrednictwa" },
+    "listings.commission_rate": { "label": "Prowizja (%)" },
+    "listings.first_response_on": { "label": "Data pierwszej odpowiedzi" },
+    "listings.valuation_on": { "label": "Data wyceny" },
+    "listings.proposal_sent_on": { "label": "Data wysłania propozycji umowy" },
+    "listings.signed_on": { "label": "Data podpisania umowy pośrednictwa" },
+    "listings.live_on": { "label": "Aktywna od" },
+    "listings.first_offer_on": { "label": "Data pierwszej oferty kupna" },
+    "listings.contract_signed_on": { "label": "Data podpisania umowy przedwstępnej" },
+    "listings.completion_on": { "label": "Data aktu notarialnego" },
     "listings.energy_label": { "label": "Klasa energetyczna" },
     "listings.listing_url": { "label": "Link do ogłoszenia" },
     "listings.external_id": { "label": "Numer w Twoim innym programie" },
-    "listings.aml_checked_on": { "label": "Tożsamość sprawdzona dnia" },
+    "listings.aml_checked_on": { "label": "Data sprawdzenia tożsamości" },
     "listings.next_step": { "label": "Następny krok" },
     "listings.next_step_due": { "label": "Termin następnego kroku" },
     "listings.lost_reason": {
       "label": "Powód utraty",
       "options": {
         "price_too_high": "Zbyt wysoka cena",
-        "chose_other_agent": "Wybrał inne biuro",
+        "chose_other_agent": "Klient wybrał inne biuro",
         "owner_changed_mind": "Właściciel zmienił zdanie",
         "sold_privately": "Sprzedane we własnym zakresie",
         "agreement_expired": "Umowa wygasła",
@@ -148,14 +148,14 @@
       "label": "Finansowanie",
       "options": { "cash": "Gotówka", "pre_approved": "Wstępnie zatwierdzony kredyt", "mortgage_needed": "Kredyt do uzyskania", "unknown": "Nieznane" }
     },
-    "buyer_searches.preapproval_verified_on": { "label": "Wstępna decyzja kredytowa sprawdzona dnia" },
+    "buyer_searches.preapproval_verified_on": { "label": "Data sprawdzenia wstępnej decyzji kredytowej" },
     "buyer_searches.timeframe": {
-      "label": "Termin",
+      "label": "Planowany termin",
       "options": { "asap": "Jak najszybciej", "three_months": "W ciągu trzech miesięcy", "six_months": "W ciągu sześciu miesięcy", "later": "Później" }
     },
-    "buyer_searches.first_response_on": { "label": "Pierwsza odpowiedź dnia" },
-    "buyer_searches.last_activity_on": { "label": "Ostatnia aktywność dnia" },
-    "buyer_searches.aml_checked_on": { "label": "Tożsamość sprawdzona dnia" },
+    "buyer_searches.first_response_on": { "label": "Data pierwszej odpowiedzi" },
+    "buyer_searches.last_activity_on": { "label": "Data ostatniej aktywności" },
+    "buyer_searches.aml_checked_on": { "label": "Data sprawdzenia tożsamości" },
     "buyer_searches.next_step": { "label": "Następny krok" },
     "buyer_searches.next_step_due": { "label": "Termin następnego kroku" },
     "buyer_searches.lost_reason": {
@@ -165,16 +165,16 @@
         "financing_failed": "Odmowa finansowania",
         "stopped_searching": "Przestał szukać",
         "no_response": "Brak odpowiedzi",
-        "chose_other_agent": "Wybrał inne biuro"
+        "chose_other_agent": "Klient wybrał inne biuro"
       }
     },
-    "viewings.viewing_on": { "label": "Prezentacja dnia" },
+    "viewings.viewing_on": { "label": "Data prezentacji" },
     "viewings.interest": {
       "label": "Zainteresowanie",
       "options": { "none": "Brak", "low": "Niskie", "medium": "Średnie", "high": "Wysokie", "offer": "Oferta" }
     },
     "viewings.feedback": { "label": "Opinia po prezentacji" },
-    "viewings.feedback_sent_on": { "label": "Opinia wysłana dnia" },
+    "viewings.feedback_sent_on": { "label": "Data wysłania opinii" },
     "key_dates.kind": {
       "label": "Rodzaj",
       "options": {
@@ -188,9 +188,9 @@
       }
     },
     "key_dates.due_date": { "label": "Termin" },
-    "key_dates.status": { "label": "Status", "options": { "open": "Otwarty", "done": "Zrobiony", "waived": "Uchylony" } },
+    "key_dates.status": { "label": "Status", "options": { "open": "Otwarty", "done": "Zrobiony", "waived": "Niewymagany" } },
     "key_dates.source_ref": { "label": "Gdzie zapisano to w umowie" },
-    "key_dates.verified_by": { "label": "Sprawdził" },
+    "key_dates.verified_by": { "label": "Kto sprawdził" },
     "actions.kind": {
       "label": "Rodzaj",
       "options": {
@@ -224,7 +224,7 @@
   "views": {
     "listings_board": { "name": "Oferty wg etapu" },
     "listings_all": { "name": "Wszystkie oferty" },
-    "agreements_ending": { "name": "Umowy pośrednictwa na wyczerpaniu" },
+    "agreements_ending": { "name": "Umowy pośrednictwa kończące się wkrótce" },
     "buyer_board": { "name": "Kupujący wg etapu" },
     "leads_not_contacted": { "name": "Zapytania jeszcze bez kontaktu" },
     "viewings_all": { "name": "Prezentacje wg daty" },
@@ -238,11 +238,11 @@
     "listings_by_stage": { "title": "Prowizja wg etapu oferty" },
     "buyers_by_stage": { "title": "Poszukiwania kupujących wg etapu" },
     "viewings_coming": { "title": "Nadchodzące prezentacje" },
-    "agreements_ending_soon": { "title": "Umowy pośrednictwa na wyczerpaniu, w ofercie" },
+    "agreements_ending_soon": { "title": "Umowy pośrednictwa kończące się wkrótce, oferty aktywne" },
     "key_dates_next": { "title": "Otwarte terminy" },
-    "commission_per_month": { "title": "Zrealizowana prowizja miesięcznie" },
+    "commission_per_month": { "title": "Zrealizowana prowizja w poszczególnych miesiącach" },
     "new_leads_not_contacted": { "title": "Nowe zapytania jeszcze bez kontaktu" },
-    "listing_lost_reasons": { "title": "Dlaczego utracono oferty" },
+    "listing_lost_reasons": { "title": "Powody utraty ofert" },
     "days_live_to_offer": { "title": "Średnia liczba dni od publikacji do pierwszej oferty kupna" },
     "lead_sources": { "title": "Źródła ofert" },
     "under_contract_count": { "title": "Oferty z umową przedwstępną" },
@@ -294,7 +294,7 @@
       "sections": ["Odpowiedź na zapytanie", "Potwierdzenie wyceny", "Propozycja umowy pośrednictwa", "Informacja dla właściciela", "Opinia po prezentacji", "Zawiadomienie o ofercie kupna", "Podziękowanie"]
     },
     "data_rules": {
-      "title": "Zasady danych: tożsamość, uczciwe traktowanie, co zostaje poza systemem",
+      "title": "Zasady danych: tożsamość, równe traktowanie, co zostaje poza systemem",
       "sections": ["Zapisz, że tożsamość sprawdzono, nigdy samych dokumentów", "Kryteria poszukiwania opisują nieruchomość, nigdy osobę", "Przechowywanie"]
     }
   },
@@ -329,22 +329,22 @@
     },
     "agreement_end_review": {
       "title": "Omów umowę pośrednictwa: odnowić, przedłużyć lub zmienić cenę",
-      "description": "Trzydzieści dni przed końcem umowy oferta w sprzedaży dostaje zadanie dla opiekuna."
+      "description": "Trzydzieści dni przed końcem umowy oferta aktywna na rynku dostaje zadanie dla opiekuna."
     },
     "agreement_end_notice": {
-      "title": "Powiadom agenta, że umowa kończy się za tydzień",
+      "title": "Powiadom pośrednika, że umowa kończy się za tydzień",
       "description": "Siedem dni przed końcem umowy opiekun oferty dostaje powiadomienie, by zdecydować o odnowieniu."
     },
     "weekly_owner_update": {
       "title": "Wyślij informację właścicielowi",
-      "description": "Co tydzień oferta w sprzedaży dostaje zadanie, by przekazać właścicielowi prezentacje, opinie i zapytania."
+      "description": "Co tydzień oferta aktywna na rynku dostaje zadanie, by przekazać właścicielowi prezentacje, opinie i zapytania."
     },
     "viewing_feedback": {
       "title": "Zbierz opinię po prezentacji i wyślij ją właścicielowi",
       "description": "Dzień po prezentacji powstaje zadanie, jeśli nie zapisano opinii."
     },
     "offer_notice": {
-      "title": "Powiadom agenta, że trzeba przedstawić ofertę kupna",
+      "title": "Powiadom pośrednika, że trzeba przedstawić ofertę kupna",
       "description": "Gdy oferta osiąga etap Oferta kupna, opiekun dostaje powiadomienie, by przedstawić ją dziś."
     },
     "listing_key_dates": {
@@ -356,11 +356,11 @@
       "description": "Gdy poszukiwanie kupującego przechodzi do Umowy przedwstępnej, terminy powstają z umowy."
     },
     "key_date_calendar": {
-      "title": "Dodaj termin do kalendarza agenta",
-      "description": "Każdy nowy termin trafia do kalendarza agenta."
+      "title": "Dodaj termin do kalendarza pośrednika",
+      "description": "Każdy nowy termin trafia do kalendarza pośrednika."
     },
     "key_date_reminder": {
-      "title": "Powiadom agenta, że termin jest za dwa dni",
+      "title": "Powiadom pośrednika, że termin jest za dwa dni",
       "description": "Dwa dni przed otwartym terminem opiekun dostaje powiadomienie, by potwierdzić krok lub ponaglić."
     },
     "completed_handover": {
@@ -385,7 +385,7 @@
     },
     "listing_price_review": {
       "title": "Przegląd ceny i promocji z właścicielem",
-      "description": "W każdy poniedziałek oferta w sprzedaży bez prezentacji od 14 dni dostaje zadanie przeglądu."
+      "description": "W każdy poniedziałek oferta aktywna na rynku bez prezentacji od 14 dni dostaje zadanie przeglądu."
     },
     "past_client_monthly_touch": {
       "title": "Podtrzymaj kontakt z dawnym klientem",
@@ -406,7 +406,7 @@
       "Pracujesz dla właścicieli, dla kupujących czy dla obu stron? Sprzedajesz, wynajmujesz czy jedno i drugie?",
       "W jakim kraju pracujesz i jakich rodzajów umów pośrednictwa tam używasz?",
       "Jak docierają do Ciebie zapytania: portale nieruchomości, Twoja strona, WhatsApp czy polecenia?",
-      "Jaki program przechowuje Twoje oferty i publikuje je na portalach? Zapisuję tu tylko odniesienie, nic nie jest kopiowane.",
+      "Jaki program przechowuje Twoje oferty i publikuje je na portalach? Tutaj zapisujemy tylko link, nic nie jest kopiowane.",
       "Jakie terminy są ważne w Twoich umowach, na przykład zadatek, finansowanie, kontrola stanu lub notariusz?"
     ]
   }
