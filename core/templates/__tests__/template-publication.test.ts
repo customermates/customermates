@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { MARKETING_LOCALES } from "@/i18n/locale-registry";
+
 import {
   hubVisibility,
   indexableLocales,
@@ -104,10 +106,12 @@ describe("template listings", () => {
         locales: { de: localeOf({ publicPage: "own" }), en: localeOf({ publicPage: "proof" }), fr: localeOf() },
       }),
     );
-    expect(indexableLocales("a", ["en", "de", "fr", "it"], { index: both, shipped: ALL_CAPABILITIES })).toEqual([
-      "de",
-      "fr",
-    ]);
+    const locales = indexableLocales("a", MARKETING_LOCALES, { index: both, shipped: ALL_CAPABILITIES });
+
+    expect(locales).toHaveLength(2);
+    expect(locales).toContain("de");
+    expect(locales).toContain("fr");
+    expect(locales).not.toContain("en");
   });
 });
 

@@ -5883,14 +5883,14 @@
           "stays": "Visualizações, relações como vínculos, rollups e fórmulas como lógica, modelos e automações não são levados. O Notion não informa se os arquivos enviados vão na exportação."
         },
         "sheets": {
-          "export": "No Google Sheets escolha Arquivo, Fazer download, Microsoft Excel (.xlsx). No Excel mantenha o .xlsx ou salve como CSV UTF-8. O Customermates lê o .xlsx diretamente, então uma pasta de trabalho com uma planilha por lista é a entrada mais limpa.",
+          "export": "No Google Sheets abra o menu Arquivo e salve a pasta de trabalho como Microsoft Excel (.xlsx). No Excel mantenha o .xlsx ou salve como CSV UTF-8. O Customermates lê o .xlsx diretamente, então uma pasta de trabalho com uma planilha por lista é a entrada mais limpa.",
           "moves": "Uma planilha por lista: organizações, contatos e negócios viram listas, o texto das etapas vira opções de etapa, valores e datas viram campos. As linhas de interações viram tarefas com data ou notas, como você preferir.",
           "name": "Google Sheets e Excel",
           "replaces": "Um CRM mantido em uma pasta de trabalho, com planilhas de organizações, contatos, negócios e interações, ou uma única lista simples.",
           "stays": "As fórmulas chegam apenas como valores. Formatação condicional, gráficos, painéis, listas de validação e macros não são levados."
         },
         "smartsheet": {
-          "export": "Exporte a planilha para Excel ou Google Sheets pelo menu Arquivo. Proprietários, administradores e editores podem fazer isso nos planos pagos. Os comentários e o resumo da planilha vêm em abas separadas.",
+          "export": "Salve a planilha como pasta de trabalho do Excel pelo menu Arquivo. Proprietários, administradores e editores podem fazer isso nos planos pagos. Os comentários e o resumo da planilha vêm em abas separadas.",
           "moves": "A planilha exportada vira uma lista, o texto das listas suspensas vira opções de escolha e as colunas de contatos viram membros da equipe ou nomes de contato. Linhas pai e filha agrupadas são achatadas, e o agente pergunta a você sobre isso.",
           "name": "Smartsheet",
           "replaces": "Um controle de clientes ou planilha de CRM com uma lista suspensa para a etapa de venda.",

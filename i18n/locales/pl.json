@@ -5883,14 +5883,14 @@
           "stays": "Widoki, relacje jako powiązania, rollupy i formuły jako logika, szablony i automatyzacje nie są przenoszone. Notion nie podaje, czy przesłane pliki są w eksporcie."
         },
         "sheets": {
-          "export": "W Google Sheets wybierz Plik, Pobierz, Microsoft Excel (.xlsx). W Excelu zostaw plik .xlsx albo zapisz jako CSV UTF-8. Customermates czyta .xlsx bezpośrednio, więc skoroszyt z jednym arkuszem na listę to najczystsze wejście.",
+          "export": "W Google Sheets otwórz menu Plik i zapisz skoroszyt jako Microsoft Excel (.xlsx). W Excelu zostaw plik .xlsx albo zapisz jako CSV UTF-8. Customermates czyta .xlsx bezpośrednio, więc skoroszyt z jednym arkuszem na listę to najczystsze wejście.",
           "moves": "Jeden arkusz na listę: organizacje, kontakty i szanse stają się listami, tekst etapów staje się opcjami etapu, wartości i daty stają się polami. Wiersze interakcji stają się zadaniami z datą albo notatkami, jak wolisz.",
           "name": "Google Sheets i Excel",
           "replaces": "CRM prowadzony w skoroszycie, z arkuszami organizacji, kontaktów, szans i interakcji albo jedną płaską listą.",
           "stays": "Formuły trafiają tylko jako wartości. Formatowanie warunkowe, wykresy, pulpity, listy walidacji i makra nie są przenoszone."
         },
         "smartsheet": {
-          "export": "Wyeksportuj arkusz do Excela lub Google Sheets z menu Plik. Właściciele, administratorzy i edytorzy mogą to zrobić w planach płatnych. Komentarze i podsumowanie arkusza trafiają na osobne karty.",
+          "export": "Zapisz arkusz jako skoroszyt Excela z menu Plik. Właściciele, administratorzy i edytorzy mogą to zrobić w planach płatnych. Komentarze i podsumowanie arkusza trafiają na osobne karty.",
           "moves": "Wyeksportowany arkusz staje się listą, tekst list rozwijanych staje się opcjami wyboru, a kolumny kontaktów stają się członkami zespołu lub nazwami kontaktów. Zgrupowane wiersze nadrzędne i podrzędne są spłaszczane, o co agent Cię zapyta.",
           "name": "Smartsheet",
           "replaces": "Ewidencja klientów lub arkusz CRM z listą rozwijaną etapu sprzedaży.",

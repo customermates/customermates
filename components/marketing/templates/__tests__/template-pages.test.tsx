@@ -87,12 +87,7 @@ import { TemplateDetail } from "../template-detail";
 import { TemplateProofBlock } from "../template-proof-block";
 import { TemplatesHub } from "../template-hub";
 
-function publish(
-  slug: string,
-  locale: string,
-  publicPage: "own" | "proof" | "none",
-  index: TemplateIndex = BASELINE,
-) {
+function publish(slug: string, locale: string, publicPage: "own" | "proof" | "none", index: TemplateIndex = BASELINE) {
   return index.map((entry) =>
     entry.slug === slug
       ? {

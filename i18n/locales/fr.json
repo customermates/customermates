@@ -5883,14 +5883,14 @@
           "stays": "Les vues, les relations en tant que liens, les rollups et formules en tant que logique, les modèles et les automatisations ne sont pas repris. Notion n’indique pas si les fichiers importés figurent dans l’export."
         },
         "sheets": {
-          "export": "Dans Google Sheets, choisissez Fichier, Télécharger, Microsoft Excel (.xlsx). Dans Excel, gardez le .xlsx ou enregistrez en CSV UTF-8. Customermates lit directement le .xlsx : un classeur avec une feuille par liste est donc la meilleure source.",
+          "export": "Dans Google Sheets, ouvrez le menu Fichier et enregistrez le classeur au format Microsoft Excel (.xlsx). Dans Excel, gardez le .xlsx ou enregistrez en CSV UTF-8. Customermates lit directement le .xlsx : un classeur avec une feuille par liste est donc la meilleure source.",
           "moves": "Une feuille par liste : organisations, contacts et affaires deviennent des listes, le texte d’étape devient des options d’étape, les montants et les dates deviennent des champs. Les lignes d’interactions deviennent des actions datées ou des notes, selon votre choix.",
           "name": "Google Sheets et Excel",
           "replaces": "Un CRM tenu dans un classeur, avec des feuilles pour les organisations, contacts, affaires et interactions, ou une seule liste à plat.",
           "stays": "Les formules arrivent uniquement sous forme de valeurs. La mise en forme conditionnelle, les graphiques, les tableaux de bord, les listes de validation et les macros ne sont pas repris."
         },
         "smartsheet": {
-          "export": "Exportez la feuille vers Excel ou Google Sheets depuis le menu Fichier. Les propriétaires, administrateurs et éditeurs peuvent le faire avec les offres payantes. Les commentaires et le résumé de la feuille arrivent dans des onglets séparés.",
+          "export": "Enregistrez la feuille comme classeur Excel depuis le menu Fichier. Les propriétaires, administrateurs et éditeurs peuvent le faire avec les offres payantes. Les commentaires et le résumé de la feuille arrivent dans des onglets séparés.",
           "moves": "La feuille exportée devient une liste, le texte des listes déroulantes devient des options à choix, et les colonnes de contacts deviennent des membres de l’équipe ou des noms de contacts. Les lignes parents et enfants regroupées sont mises à plat, et l’agent vous interroge à ce sujet.",
           "name": "Smartsheet",
           "replaces": "Un suivi client ou une feuille CRM avec une liste déroulante pour l’étape de vente.",

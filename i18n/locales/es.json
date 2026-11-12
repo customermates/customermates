@@ -5883,14 +5883,14 @@
           "stays": "Las vistas, las relaciones como vínculos, los rollups y las fórmulas como lógica, las plantillas y las automatizaciones no se trasladan. Notion no indica si los archivos subidos van en la exportación."
         },
         "sheets": {
-          "export": "En Google Sheets elige Archivo, Descargar, Microsoft Excel (.xlsx). En Excel conserva el .xlsx o guarda como CSV UTF-8. Customermates lee el .xlsx directamente, así que un libro con una hoja por lista es la entrada más limpia.",
+          "export": "En Google Sheets abre el menú Archivo y guarda el libro como Microsoft Excel (.xlsx). En Excel conserva el .xlsx o guarda como CSV UTF-8. Customermates lee el .xlsx directamente, así que un libro con una hoja por lista es la entrada más limpia.",
           "moves": "Una hoja por lista: organizaciones, contactos y oportunidades pasan a ser listas, el texto de las etapas pasa a ser opciones de etapa, los valores y las fechas pasan a ser campos. Las filas de interacciones pasan a ser tareas con fecha o notas, como prefieras.",
           "name": "Google Sheets y Excel",
           "replaces": "Un CRM llevado en un libro, con hojas de organizaciones, contactos, oportunidades e interacciones, o una sola lista plana.",
           "stays": "Las fórmulas llegan solo como valores. El formato condicional, los gráficos, los paneles, las listas de validación y las macros no se trasladan."
         },
         "smartsheet": {
-          "export": "Exporta la hoja a Excel o Google Sheets desde el menú Archivo. Propietarios, administradores y editores pueden hacerlo en los planes de pago. Los comentarios y el resumen de la hoja llegan en pestañas aparte.",
+          "export": "Guarda la hoja como libro de Excel desde el menú Archivo. Propietarios, administradores y editores pueden hacerlo en los planes de pago. Los comentarios y el resumen de la hoja llegan en pestañas aparte.",
           "moves": "La hoja exportada pasa a ser una lista, el texto de los desplegables pasa a ser opciones y las columnas de contactos pasan a ser miembros del equipo o nombres de contacto. Las filas principales y secundarias agrupadas se aplanan, y el agente te lo consulta.",
           "name": "Smartsheet",
           "replaces": "Un seguimiento de clientes o una hoja de CRM con un desplegable para la etapa de venta.",

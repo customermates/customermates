@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { assembleSitemap } from "@/core/seo/sitemap";
+import { MARKETING_LOCALES } from "@/i18n/locale-registry";
 import { createTemplatesSources } from "@/core/templates/templates-source";
 
 import { ALL_CAPABILITIES, entryOf, indexOf, localeOf } from "./template-publication-fixtures";
@@ -65,7 +66,7 @@ describe("templates route sources", () => {
 describe("templates in the sitemap", () => {
   it("lists each own page with hreflang across the own locales plus x-default", () => {
     const { pages } = createTemplatesSources({ index, shipped: ALL_CAPABILITIES });
-    const routes = (["en", "de"] as const).flatMap((locale) =>
+    const routes = MARKETING_LOCALES.filter((locale) => locale === "en" || locale === "de").flatMap((locale) =>
       pages.getPages(locale).map((page) => ({ locale, routePath: `/templates/${page.slugs[0]}` })),
     );
     const entries = assembleSitemap(routes, "https://example.com");

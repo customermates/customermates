@@ -14,7 +14,7 @@ async function resolve(node: ReactNode): Promise<ReactNode> {
 
   const element = node as ReactElement<{ children?: ReactNode }>;
   if (typeof element.type === "function") return resolve(await (element.type as Component)(element.props));
-  if (element.type === Fragment) return resolve(element.props.children);
+  if ((element.type as unknown) === Fragment) return resolve(element.props.children);
   if (element.props.children === undefined) return element;
 
   return cloneElement(element, undefined, await resolve(element.props.children));

@@ -5883,14 +5883,14 @@
           "stays": "Weergaven, relaties als koppelingen, rollups en formules als logica, sjablonen en automatiseringen gaan niet mee. Notion zegt niet of geüploade bestanden in de export zitten."
         },
         "sheets": {
-          "export": "Kies in Google Sheets Bestand, Downloaden, Microsoft Excel (.xlsx). Houd in Excel het .xlsx-bestand of sla op als CSV UTF-8. Customermates leest .xlsx rechtstreeks, dus een werkmap met één blad per lijst is de schoonste invoer.",
+          "export": "Open in Google Sheets het menu Bestand en sla de werkmap op als Microsoft Excel (.xlsx). Houd in Excel het .xlsx-bestand of sla op als CSV UTF-8. Customermates leest .xlsx rechtstreeks, dus een werkmap met één blad per lijst is de schoonste invoer.",
           "moves": "Eén blad per lijst: organisaties, contacten en deals worden lijsten, fasetekst wordt fase-opties, waarden en datums worden velden. Interactierijen worden acties met een datum of notities, zoals je kiest.",
           "name": "Google Sheets en Excel",
           "replaces": "Een CRM in een werkmap, met bladen voor organisaties, contacten, deals en interacties, of één platte lijst.",
           "stays": "Formules komen alleen als waarden mee. Voorwaardelijke opmaak, grafieken, dashboards, validatielijsten en macro's gaan niet mee."
         },
         "smartsheet": {
-          "export": "Exporteer het blad via het bestandsmenu naar Excel of Google Sheets. Eigenaren, beheerders en bewerkers kunnen dit doen in de betaalde abonnementen. Opmerkingen en de bladsamenvatting komen op aparte tabbladen.",
+          "export": "Sla het blad via het bestandsmenu op als Excel-werkmap. Eigenaren, beheerders en bewerkers kunnen dit doen in de betaalde abonnementen. Opmerkingen en de bladsamenvatting komen op aparte tabbladen.",
           "moves": "Het geëxporteerde blad wordt een lijst, dropdowntekst wordt keuze-opties en contactkolommen worden teamleden of contactnamen. Gegroepeerde bovenliggende en onderliggende rijen worden platgeslagen, waar de agent je naar vraagt.",
           "name": "Smartsheet",
           "replaces": "Een klantenoverzicht of CRM-blad met een dropdown voor de verkoopfase.",

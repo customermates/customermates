@@ -5883,14 +5883,14 @@
           "stays": "Views, relations as links, rollups and formulas as logic, templates and automations do not travel. Notion does not say whether uploaded files are in the export."
         },
         "sheets": {
-          "export": "In Google Sheets choose File, Download, Microsoft Excel (.xlsx). In Excel keep the .xlsx or save as CSV UTF-8. Customermates reads .xlsx directly, so one workbook with one sheet per list is the cleanest input.",
+          "export": "In Google Sheets open the File menu and save the workbook as Microsoft Excel (.xlsx). In Excel keep the .xlsx or save as CSV UTF-8. Customermates reads .xlsx directly, so one workbook with one sheet per list is the cleanest input.",
           "moves": "One sheet per list: organizations, contacts and deals map to lists, stage text to stage options, values and dates to fields. Interaction rows become dated Actions or notes, as you choose.",
           "name": "Google Sheets and Excel",
           "replaces": "A CRM kept in a workbook, with sheets for organizations, contacts, deals and interactions, or one flat list.",
           "stays": "Formulas arrive as values only. Conditional formatting, charts, dashboards, validation lists and macros do not travel."
         },
         "smartsheet": {
-          "export": "Export the sheet to Excel or Google Sheets from the file menu. Owners, admins and editors can do this on paid plans. Comments and the sheet summary come on separate tabs.",
+          "export": "Save the sheet as an Excel workbook from the file menu. Owners, admins and editors can do this on paid plans. Comments and the sheet summary come on separate tabs.",
           "moves": "The exported sheet becomes a list, dropdown text becomes choice options, and contact columns become team members or contact names. Grouped parent and child rows are flattened, which the agent asks you about.",
           "name": "Smartsheet",
           "replaces": "A client tracker or CRM sheet with a deal stage dropdown.",

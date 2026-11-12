@@ -34,5 +34,7 @@ function entryOf({ spec, text }: TemplateBundle): TemplateIndexEntry {
 }
 
 export function buildTemplateIndex(bundles: Map<string, TemplateBundle>): TemplateIndex {
-  return [...bundles.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([, bundle]) => entryOf(bundle));
+  return [...bundles.entries()]
+    .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
+    .map(([, bundle]) => entryOf(bundle));
 }

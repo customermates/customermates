@@ -5883,14 +5883,14 @@
           "stays": "Viste, relazioni come collegamenti, rollup e formule come logica, modelli e automazioni non vengono trasferiti. Notion non dice se i file caricati sono inclusi nell'esportazione."
         },
         "sheets": {
-          "export": "In Google Sheets scegli File, Scarica, Microsoft Excel (.xlsx). In Excel tieni il file .xlsx oppure salva come CSV UTF-8. Customermates legge direttamente il .xlsx, quindi una cartella di lavoro con un foglio per elenco è l'origine più pulita.",
+          "export": "In Google Sheets apri il menu File e salva la cartella di lavoro come Microsoft Excel (.xlsx). In Excel tieni il file .xlsx oppure salva come CSV UTF-8. Customermates legge direttamente il .xlsx, quindi una cartella di lavoro con un foglio per elenco è l'origine più pulita.",
           "moves": "Un foglio per elenco: organizzazioni, contatti e trattative diventano elenchi, il testo delle fasi diventa opzioni di fase, valori e date diventano campi. Le righe delle interazioni diventano attività con data o note, come preferisci.",
           "name": "Google Sheets ed Excel",
           "replaces": "Un CRM tenuto in una cartella di lavoro, con fogli per organizzazioni, contatti, trattative e interazioni, oppure un unico elenco piatto.",
           "stays": "Le formule arrivano solo come valori. Formattazione condizionale, grafici, dashboard, elenchi di convalida e macro non vengono trasferiti."
         },
         "smartsheet": {
-          "export": "Esporta il foglio in Excel o Google Sheets dal menu File. Proprietari, amministratori e editor possono farlo nei piani a pagamento. I commenti e il riepilogo del foglio arrivano in schede separate.",
+          "export": "Salva il foglio come cartella di lavoro Excel dal menu File. Proprietari, amministratori e editor possono farlo nei piani a pagamento. I commenti e il riepilogo del foglio arrivano in schede separate.",
           "moves": "Il foglio esportato diventa un elenco, il testo dei menu a tendina diventa opzioni a scelta e le colonne dei contatti diventano membri del team o nomi di contatti. Le righe padre e figlio raggruppate vengono appiattite, e l'agente te lo chiede.",
           "name": "Smartsheet",
           "replaces": "Un foglio di anagrafica clienti o CRM con un menu a tendina per la fase di vendita.",

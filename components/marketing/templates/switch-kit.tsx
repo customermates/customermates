@@ -7,21 +7,17 @@ import { templateSignupPath } from "@/core/templates/template-page-model";
 import { templateVisibilityBySlug } from "@/core/templates/template-publication";
 import { isTemplateSlug } from "@/core/templates/template-slugs";
 import { templatePagePath } from "@/core/templates/templates-source";
-import { formattingTagFor } from "@/i18n/locale-registry";
+import { formattingTagFor, marketingLocaleOrDefault } from "@/i18n/locale-registry";
 
-export const SWITCH_KIT_TOOLS = ["sheets", "notion", "airtable", "trello", "smartsheet", "clickup"] as const;
-
-export type SwitchKitTool = (typeof SWITCH_KIT_TOOLS)[number];
-
-export const SWITCH_KIT_TEMPLATE = "custom-crm";
-
-export const SWITCH_KIT_CHECKED_ON = "2026-11-12";
+import {
+  SWITCH_KIT_CHECKED_ON,
+  SWITCH_KIT_TEMPLATE,
+  SWITCH_KIT_TOOLS,
+  type SwitchKitTool,
+  isSwitchKitTool,
+} from "./switch-kit-tools";
 
 type ToolCopy = { export: string; moves: string; name: string; replaces: string; stays: string };
-
-export function isSwitchKitTool(value: string): value is SwitchKitTool {
-  return (SWITCH_KIT_TOOLS as readonly string[]).includes(value);
-}
 
 type BlockProps = { heading?: "h2" | "h3"; locale: string; tool: SwitchKitTool };
 
@@ -29,7 +25,7 @@ export async function SwitchKitBlock({ heading = "h2", locale, tool }: BlockProp
   const t = await getTranslations("TemplatePages.switchKit");
   const Heading = heading;
   const copy = (t.raw("tools") as Record<SwitchKitTool, ToolCopy>)[tool];
-  const checked = new Intl.DateTimeFormat(formattingTagFor(locale), {
+  const checked = new Intl.DateTimeFormat(formattingTagFor(marketingLocaleOrDefault(locale)), {
     day: "numeric",
     month: "long",
     timeZone: "UTC",

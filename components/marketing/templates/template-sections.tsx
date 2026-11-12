@@ -6,7 +6,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { AppLink } from "@/components/shared/app-link";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { Step, Steps } from "@/components/marketing/process-steps";
-import { formattingTagFor } from "@/i18n/locale-registry";
+import { formattingTagFor, marketingLocaleOrDefault } from "@/i18n/locale-registry";
 
 import { TemplateCopyPrompt } from "./template-copy-prompt";
 import { TemplateStructure } from "./template-structure";
@@ -233,7 +233,7 @@ function hostOf(url: string): string {
 
 export async function TemplateSourcesSection({ locale, spec }: { locale: string; spec: TemplateSpec }) {
   const t = await getTranslations("TemplatePages");
-  const format = new Intl.DateTimeFormat(formattingTagFor(locale), {
+  const format = new Intl.DateTimeFormat(formattingTagFor(marketingLocaleOrDefault(locale)), {
     day: "numeric",
     month: "long",
     timeZone: "UTC",
