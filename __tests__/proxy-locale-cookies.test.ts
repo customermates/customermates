@@ -18,10 +18,10 @@ vi.mock("@/core/auth/better-auth", () => ({
 
 import proxy from "@/proxy";
 import { APP_LOCALE_COOKIE_NAME, CONTENT_LOCALE_COOKIE_NAME } from "@/i18n/locale-preference";
-import { APP_LOCALES, isContentLocale } from "@/i18n/locale-registry";
+import { CONTENT_LOCALES, isContentLocale } from "@/i18n/locale-registry";
 import { appRouting, contentRouting } from "@/i18n/routing";
 
-const APP_ONLY_LOCALE = APP_LOCALES.find((locale) => !isContentLocale(locale));
+const UNREGISTERED_LOCALE = "ja";
 
 function request(pathname: string, options: { acceptLanguage?: string; cookie?: string } = {}): NextRequest {
   const headers = new Headers();
@@ -121,6 +121,16 @@ describe("proxy locale preference cookies", () => {
     expect(subsequent.location).toMatch(/^http:\/\/localhost:4000\/de\/?$/);
   });
 
+  it("honours the content selection of every content locale at the locale-less root", async () => {
+    for (const locale of CONTENT_LOCALES) {
+      const subsequent = await call("/", {
+        acceptLanguage: "ja-JP,ja;q=0.9",
+        cookie: `${CONTENT_LOCALE_COOKIE_NAME}=${locale}`,
+      });
+      expect(subsequent.location, locale).toMatch(new RegExp(`^http://localhost:4000/${locale}/?$`));
+    }
+  });
+
   it("sends a locale-less content page to the remembered content locale", async () => {
     const remembered = await call("/pricing", {
       acceptLanguage: "en-US,en;q=0.9",
@@ -138,11 +148,11 @@ describe("proxy locale preference cookies", () => {
     });
     expect(staleApp.location).toBe("http://localhost:4000/fr/dashboard");
 
-    expect(APP_ONLY_LOCALE).toBeDefined();
-    const appOnlyContent = await call("/", {
+    expect(isContentLocale(UNREGISTERED_LOCALE)).toBe(false);
+    const unregisteredContent = await call("/", {
       acceptLanguage: "de-DE,de;q=0.9",
-      cookie: `${CONTENT_LOCALE_COOKIE_NAME}=${APP_ONLY_LOCALE}`,
+      cookie: `${CONTENT_LOCALE_COOKIE_NAME}=${UNREGISTERED_LOCALE}`,
     });
-    expect(appOnlyContent.location).toMatch(/^http:\/\/localhost:4000\/de\/?$/);
+    expect(unregisteredContent.location).toMatch(/^http:\/\/localhost:4000\/de\/?$/);
   });
 });

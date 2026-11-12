@@ -10,6 +10,8 @@ vi.mock("@/i18n/navigation", () => ({ usePathname: () => route.pathname }));
 
 import { LocaleMenu } from "../locale-menu";
 
+import { CONTENT_LOCALES } from "@/i18n/locale-registry";
+
 function markup(appMode: "cloud" | "self-hosted") {
   return renderToStaticMarkup(createElement(LocaleMenu, { appMode }));
 }
@@ -27,16 +29,13 @@ describe("LocaleMenu", () => {
     expect(markup("cloud")).toContain('src="https://flagcdn.com/de.svg"');
   });
 
-  it("offers French on every content page and never an app-only locale", () => {
-    route.pathname = "/pricing";
-    expect(markup("cloud")).toContain('hrefLang="fr"');
-
-    route.pathname = "/blog";
-    const blog = markup("cloud");
-    expect(blog).toContain('hrefLang="fr"');
-    expect(blog).toContain('hrefLang="de"');
-    expect(blog).toContain('hrefLang="it"');
-    expect(blog).not.toContain('hrefLang="es"');
+  it("offers every content locale on every content page and never an unregistered one", () => {
+    for (const pathname of ["/pricing", "/blog"]) {
+      route.pathname = pathname;
+      const html = markup("cloud");
+      for (const locale of CONTENT_LOCALES) expect(html, `${pathname} ${locale}`).toContain(`hrefLang="${locale}"`);
+      expect(html, pathname).not.toContain('hrefLang="ja"');
+    }
     route.pathname = "/pricing";
   });
 });

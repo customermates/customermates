@@ -13,6 +13,10 @@ import {
   phoneNumber,
 } from "../define-solution";
 import { inboxThreads, type InboxThreadPlan, type InboxThreadText } from "../inbox-threads";
+import { es } from "./locales/whatsapp-crm.es";
+import { pt } from "./locales/whatsapp-crm.pt";
+import { pl } from "./locales/whatsapp-crm.pl";
+import { nl } from "./locales/whatsapp-crm.nl";
 
 /**
  * WhatsApp customers: a small workshop that builds and installs counters, seating, shelving and office furniture for
@@ -659,7 +663,7 @@ const en = {
   },
 };
 
-type Strings = typeof en;
+export type Strings = typeof en;
 
 const de: Strings = {
   company: "Tischlerei Birkenholz",
@@ -1794,6 +1798,9 @@ function mailbox(name: string): string {
     .replace(/ö/g, "oe")
     .replace(/ü/g, "ue")
     .replace(/ß/g, "ss")
+    .replace(/ł/g, "l")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z]/g, "");
 }
 
@@ -1811,10 +1818,14 @@ const AGENT_EDITS: Record<string, AgentKeyName> = {
 
 export default defineSolution<Strings>({
   id: "whatsapp-crm",
-  strings: { en, de },
+  strings: { en, de, es, pt, pl, nl },
   story: {
     en: { currency: "USD", timeZone: "America/New_York" },
     de: { currency: "EUR", timeZone: "Europe/Berlin" },
+    es: { currency: "EUR", timeZone: "Europe/Madrid" },
+    pt: { currency: "BRL", timeZone: "America/Sao_Paulo" },
+    pl: { currency: "PLN", timeZone: "Europe/Warsaw" },
+    nl: { currency: "EUR", timeZone: "Europe/Amsterdam" },
   },
   build: (t, locale) => {
     const phone = (index: number) => phoneNumber(t.phones.mobile, index);

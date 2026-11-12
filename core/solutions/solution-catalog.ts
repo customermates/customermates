@@ -93,6 +93,10 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     workspaces: {
       en: { slug: "small-business", companyId: "10000000-0000-4000-8000-000000000001" },
       de: { slug: "kleine-unternehmen", companyId: "10000000-0000-4000-8000-000000000202" },
+      es: { slug: "pymes", companyId: "10000000-0000-4000-8000-000000000301" },
+      pt: { slug: "pequenas-empresas", companyId: "10000000-0000-4000-8000-000000000311" },
+      pl: { slug: "male-firmy", companyId: "10000000-0000-4000-8000-000000000321" },
+      nl: { slug: "kleine-bedrijven", companyId: "10000000-0000-4000-8000-000000000331" },
     },
   },
   {
@@ -106,6 +110,10 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     workspaces: {
       en: { slug: "consultants", companyId: "10000000-0000-4000-8000-000000000203" },
       de: { slug: "beratung", companyId: "10000000-0000-4000-8000-000000000003" },
+      es: { slug: "consultoria", companyId: "10000000-0000-4000-8000-000000000302" },
+      pt: { slug: "consultores", companyId: "10000000-0000-4000-8000-000000000312" },
+      pl: { slug: "doradztwo", companyId: "10000000-0000-4000-8000-000000000322" },
+      nl: { slug: "advies", companyId: "10000000-0000-4000-8000-000000000332" },
     },
   },
   {
@@ -119,6 +127,10 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     workspaces: {
       en: { slug: "agencies", companyId: "10000000-0000-4000-8000-000000000205" },
       de: { slug: "agenturen", companyId: "10000000-0000-4000-8000-000000000206" },
+      es: { slug: "agencias", companyId: "10000000-0000-4000-8000-000000000303" },
+      pt: { slug: "agencias-criativas", companyId: "10000000-0000-4000-8000-000000000313" },
+      pl: { slug: "agencje", companyId: "10000000-0000-4000-8000-000000000323" },
+      nl: { slug: "bureaus", companyId: "10000000-0000-4000-8000-000000000333" },
     },
   },
   {
@@ -132,6 +144,10 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     workspaces: {
       en: { slug: "freelancers", companyId: "10000000-0000-4000-8000-000000000207" },
       de: { slug: "selbststaendige", companyId: "10000000-0000-4000-8000-000000000208" },
+      es: { slug: "autonomos", companyId: "10000000-0000-4000-8000-000000000304" },
+      pt: { slug: "profissionais-autonomos", companyId: "10000000-0000-4000-8000-000000000314" },
+      pl: { slug: "freelancerzy", companyId: "10000000-0000-4000-8000-000000000324" },
+      nl: { slug: "zelfstandigen", companyId: "10000000-0000-4000-8000-000000000334" },
     },
   },
   {
@@ -145,6 +161,10 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     workspaces: {
       en: { slug: "founder-sales", companyId: "10000000-0000-4000-8000-000000000209" },
       de: { slug: "gruender-vertrieb", companyId: "10000000-0000-4000-8000-000000000210" },
+      es: { slug: "ventas-fundadores", companyId: "10000000-0000-4000-8000-000000000305" },
+      pt: { slug: "vendas-fundadores", companyId: "10000000-0000-4000-8000-000000000315" },
+      pl: { slug: "sprzedaz-zalozyciela", companyId: "10000000-0000-4000-8000-000000000325" },
+      nl: { slug: "oprichters-verkoop", companyId: "10000000-0000-4000-8000-000000000335" },
     },
   },
   {
@@ -163,6 +183,10 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     workspaces: {
       en: { slug: "client-management", companyId: "10000000-0000-4000-8000-000000000211" },
       de: { slug: "kundenverwaltung", companyId: "10000000-0000-4000-8000-000000000212" },
+      es: { slug: "gestion-de-clientes", companyId: "10000000-0000-4000-8000-000000000306" },
+      pt: { slug: "gestao-de-clientes", companyId: "10000000-0000-4000-8000-000000000316" },
+      pl: { slug: "zarzadzanie-klientami", companyId: "10000000-0000-4000-8000-000000000326" },
+      nl: { slug: "klantbeheer", companyId: "10000000-0000-4000-8000-000000000336" },
     },
   },
   {
@@ -176,6 +200,10 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     workspaces: {
       en: { slug: "sales-pipeline", companyId: "10000000-0000-4000-8000-000000000213" },
       de: { slug: "vertriebspipeline", companyId: "10000000-0000-4000-8000-000000000214" },
+      es: { slug: "pipeline-de-ventas", companyId: "10000000-0000-4000-8000-000000000307" },
+      pt: { slug: "pipeline-de-vendas", companyId: "10000000-0000-4000-8000-000000000317" },
+      pl: { slug: "pipeline-sprzedazy", companyId: "10000000-0000-4000-8000-000000000327" },
+      nl: { slug: "verkooppipeline", companyId: "10000000-0000-4000-8000-000000000337" },
     },
   },
   {
@@ -194,6 +222,10 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     workspaces: {
       en: { slug: "linkedin-sales", companyId: "10000000-0000-4000-8000-000000000215" },
       de: { slug: "linkedin-vertrieb", companyId: "10000000-0000-4000-8000-000000000216" },
+      es: { slug: "linkedin-ventas", companyId: "10000000-0000-4000-8000-000000000308" },
+      pt: { slug: "linkedin-vendas", companyId: "10000000-0000-4000-8000-000000000318" },
+      pl: { slug: "linkedin-sprzedaz", companyId: "10000000-0000-4000-8000-000000000328" },
+      nl: { slug: "linkedin-verkoop", companyId: "10000000-0000-4000-8000-000000000338" },
     },
   },
   {
@@ -212,6 +244,10 @@ const SOLUTION_DEFINITIONS: readonly SolutionDefinition[] = [
     workspaces: {
       en: { slug: "whatsapp", companyId: "10000000-0000-4000-8000-000000000217" },
       de: { slug: "whatsapp-kundenkontakt", companyId: "10000000-0000-4000-8000-000000000218" },
+      es: { slug: "whatsapp-clientes", companyId: "10000000-0000-4000-8000-000000000309" },
+      pt: { slug: "whatsapp-atendimento", companyId: "10000000-0000-4000-8000-000000000319" },
+      pl: { slug: "whatsapp-klienci", companyId: "10000000-0000-4000-8000-000000000329" },
+      nl: { slug: "whatsapp-klantcontact", companyId: "10000000-0000-4000-8000-000000000339" },
     },
   },
 ];

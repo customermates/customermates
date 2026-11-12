@@ -1,0 +1,228 @@
+---
+title: "Claude pour la vente : prompts pour la semaine commerciale"
+description: "Claude pour la vente : prompts pour la recherche, les appels, les relances et la revue du pipeline, avec votre CRM relié par MCP. Vérifié le 12 novembre 2026."
+
+relatedHrefs:
+  - /blog/claude-crm
+  - /blog/claude-connectors
+  - /blog/sales-follow-up-email
+  - /features/follow-up
+
+hero:
+  title: "Claude pour la vente : recherche, préparation d’appel, relances et revue du pipeline"
+  description: "Comment utiliser Claude dans une semaine commerciale quand les données clients vivent dans votre CRM : des prompts pour chaque tâche, ce qu’il faut relire avant d’envoyer et ce que Claude ne sait pas faire."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Retour au blog
+  by: par Benjamin Wagner
+  date: 2026-11-12
+  updated: 2026-11-12
+  tags:
+    - Claude pour la vente
+    - Claude
+    - IA en vente
+    - MCP
+    - Prompts de vente
+---
+
+# Claude pour la vente : guide pratique de la semaine commerciale
+
+Claude pour la vente, c’est faire de Claude votre partenaire de recherche et de rédaction pendant la semaine commerciale : il prépare des fiches de compte et des appels, rédige des relances et lit votre pipeline, tandis que les données clients restent dans votre CRM et que Claude les atteint via MCP. Claude rédige, résume et pose des questions ; une personne vérifie chaque fait et envoie chaque message.
+
+Ce guide suit une semaine commerciale : revue du pipeline le lundi, recherche et préparation d’appel, notes après le rendez-vous, brouillons de relance et contrôle du vendredi sur les affaires qui se taisent. Chaque étape propose un prompt à copier, ce qu’il faut vérifier et les limites qui s’appliquent. Customermates publie ce guide et y figure dans une section signalée vers la fin.
+
+<ArticleSummary title="En bref">
+  <SummaryItem label="Réponse courte">Donnez les faits à Claude via votre CRM, demandez-lui de préparer, et gardez la décision et le bouton d’envoi du côté d’une personne.</SummaryItem>
+  <SummaryItem label="Configuration">Un CRM avec un serveur MCP, ajouté dans Claude comme connecteur personnalisé. Anthropic propose les connecteurs personnalisés sur Free (un seul), Pro, Max, Ultra, Team et Enterprise.</SummaryItem>
+  <SummaryItem label="Limites">Claude devine les noms, fonctions et dates qu’on ne lui a pas donnés, n’envoie rien tout seul dans un simple chat, et ne réserve pas de rendez-vous, n’appelle pas et ne lance pas de séquences.</SummaryItem>
+  <SummaryItem label="Contrôle">Outils de lecture sur Always allow ; tout outil qui écrit ou envoie reste sur Needs approval.</SummaryItem>
+  <SummaryItem label="Transparence">Customermates publie ce guide. Les informations sur Claude ont été vérifiées le 12 novembre 2026 sur les pages d’Anthropic. Les prompts sont des modèles, pas des résultats mesurés.</SummaryItem>
+</ArticleSummary>
+
+## Que peut faire Claude dans une semaine commerciale ? [#sales-week]
+
+| Quand | Tâche | Ce que fait Claude | Ce que vous vérifiez |
+| --- | --- | --- | --- |
+| Lundi | Revue du pipeline | Lit les affaires ouvertes du CRM et liste celles sans activité récente ou sans prochaine étape | Que les champs sur lesquels il s’appuie sont bien renseignés dans le CRM |
+| Avant un appel | Recherche et préparation d’appel | Construit une fiche d’une page à partir de la fiche CRM, des notes passées et de ce que vous collez ou qu’une recherche web trouve | Noms, fonctions et dates, contre la source |
+| Après un appel | Notes vers le CRM | Transforme vos notes en résumé, prochaines étapes et mises à jour de champs | Les responsables et dates qu’il a devinés ; « non précisé » est la bonne réponse quand vos notes sont muettes |
+| Le jour même | Brouillon de relance | Lit le fil sur la fiche du client et rédige une réponse | Chaque promesse, chaque prix et chaque date ; c’est vous qui envoyez |
+| Vendredi | Contrôle des affaires silencieuses | Repère les clients à qui vous avez écrit en dernier sans réponse et rédige une relance | Si une relance convient à cette personne (suppose des e-mails ou des chats dans le CRM) |
+
+Claude répond quand vous demandez ; il ne surveille pas votre pipeline entre deux conversations. Pour une revue du lundi qui tourne sans vous, un CRM doté de son propre assistant planifié est le meilleur outil (Customermates Cloud propose des Routines pour cela, voir plus bas).
+
+## Que ne peut pas faire Claude en vente ? [#limits]
+
+| Claude ne peut pas | Pourquoi c’est important | Que faire |
+| --- | --- | --- |
+| Savoir ce que vous ne lui avez pas donné | Il comble les trous avec des noms, fonctions et dates plausibles. La recherche web d’Anthropic affiche ses sources, et son article d’aide recommande tout de même de les recouper | Demandez « non précisé » et le marquage des suppositions ; vérifiez tout ce qui part vers un acheteur |
+| Envoyer tout seul dans un simple chat | Sans connecteur, il n’existe aucune action d’envoi. Avec un connecteur qui a un outil d’envoi, l’appel envoie aussitôt | Demandez un brouillon et envoyez-le vous-même |
+| Atteindre un CRM qui n’est pas sur l’internet public | Anthropic exécute les connecteurs personnalisés depuis son cloud : le serveur MCP doit donc être joignable depuis internet (aide d’Anthropic, vérifiée le 12 novembre 2026) | Utilisez une adresse de CRM publique, ou un client comme Claude Code qui tourne sur votre machine |
+| Réserver des rendez-vous, appeler, lancer des séquences ou noter des leads | Customermates n’a ni téléphonie, ni moteur de séquences ou d’envoi en masse, ni scoring de leads, et ne lit les agendas connectés qu’en lecture | Prenez les outils prévus pour cela et laissez Claude écrire le texte |
+| Décider d’un prix ou d’un engagement | Ce sont des engagements que vous seul pouvez prendre | Gardez-les hors des prompts, ou relisez-les ligne par ligne |
+
+## Comment Claude accède-t-il aux données de vos clients ? [#client-data]
+
+| Voie | Fonctionnement | Fraîcheur | Convient pour | Attention à |
+| --- | --- | --- | --- | --- |
+| Coller | Vous collez des notes, un fil d’e-mails ou une page d’entreprise dans le chat | Aussi frais que ce que vous collez | Questions ponctuelles | On oublie vite le contexte qui compte |
+| Connaissances de projet | Vous importez des fichiers et des instructions dans un projet Claude. Anthropic liste les projets aussi sur Free (jusqu’à cinq), et le partage avec des collègues seulement sur Team et Enterprise | Aussi ancien que le fichier | Votre offre, votre client idéal, votre ton et quelques histoires clients | Les fichiers ne se mettent pas à jour seuls |
+| Connecteur CRM via MCP | Claude appelle les outils du CRM et lit et écrit des fiches en direct, avec vos droits | En direct | Équipes dont les clients et l’historique sont dans un CRM | La formule nécessaire des deux côtés, et les droits à régler |
+
+La troisième voie fait tenir la routine hebdomadaire, car Claude lit alors les mêmes fiches que vous. [Qu’est-ce qu’un serveur MCP](/blog/what-is-an-mcp-server) explique le protocole, le [guide des connecteurs Claude](/blog/claude-connectors) explique l’annuaire et les connecteurs personnalisés, et le [guide Claude CRM](/blog/claude-crm) compare les CRM qui offrent un connecteur Claude et selon quelle formule.
+
+Réunissez dans un seul projet votre offre en cinq phrases, votre client idéal, vos règles de ton et deux ou trois histoires clients que vous avez le droit de citer, pour que chaque chat commence avec ce contexte. Limitez-vous à ce que vous montreriez à un nouveau collègue.
+
+## Comment connecter Claude à mon CRM pour la vente ? [#connect]
+
+Les étapes sont les mêmes pour tout CRM doté d’un serveur MCP distant. Customermates sert ici d’exemple ; le [guide du connecteur](/docs/connect-custom-connector) donne toutes les étapes et un tableau de dépannage.
+
+<Steps>
+  <Step title="Vérifier qui peut ajouter le connecteur">
+    Sur Free, Pro et Max, vous l’ajoutez vous-même, et Free autorise un connecteur personnalisé. Sur Team, seuls les Owners et Primary Owners l’ajoutent, puis chaque membre se connecte individuellement.
+  </Step>
+  <Step title="Ajouter le CRM dans Claude">
+    Ouvrez **Customize › Connectors**, cliquez sur **+**, choisissez **Add custom connector**, donnez-lui un nom et collez l’URL du serveur. Dans Customermates, **Paramètres › Clés API et connecteurs**, **Ajouter**, **Claude**, **Compte Claude** affiche l’URL de votre espace de travail courant avec un bouton de copie.
+  </Step>
+  <Step title="Se connecter et approuver">
+    Le CRM ouvre une fenêtre de connexion. Lisez l’accès demandé, puis approuvez. Dès lors, Claude agit en votre nom, avec les droits de votre rôle.
+  </Step>
+  <Step title="Régler les droits des outils">
+    Sous **Customize › Connectors**, sélectionnez le connecteur. Anthropic vous laisse régler chaque permission sur Always allow, Needs approval ou Blocked. Autorisez la lecture ; tout ce qui écrit, envoie ou supprime reste sur Needs approval.
+  </Step>
+  <Step title="Valider avec une lecture et une modification">
+    Demandez vos affaires ouvertes à une étape. Modifiez ensuite un champ sur une fiche de test et ouvrez la fiche dans le CRM pour vérifier que le changement y est.
+  </Step>
+</Steps>
+
+Claude Code ajoute le même serveur depuis le terminal, avec une clé API à la place d’OAuth :
+
+```bash
+claude mcp add --transport http customermates https://<votre-adresse-customermates>/api/v1/mcp \
+  --header "x-api-key: VOTRE_CLE"
+```
+
+Claude Code enregistre l’entrée sans la tester : vérifiez la connexion avec `/mcp`. La portée par défaut est le projet courant seulement ; `--scope user` rend le serveur disponible dans tous vos projets. N’écrivez pas de clé API dans un fichier `.mcp.json` que vous versionnez. Le [guide CLI](/docs/connect-cli#claude-code) couvre Customermates dans Claude Code, et la [référence MCP](/docs/mcp) liste chaque outil.
+
+## Quels prompts pour quelle tâche ? [#prompts]
+
+Remplacez les crochets par des éléments de votre propre espace de travail. Customermates n’a pas d’étapes prédéfinies : utilisez vos propres noms d’étapes et de listes. Lancez le premier prompt en lecture seule avant de vous fier aux autres.
+
+### Lundi : revue du pipeline [#pipeline-review]
+
+```
+Liste mes affaires ouvertes avec l’organisation, l’étape, le montant et la date de la dernière note ou du dernier message.
+Signale les affaires sans activité depuis 14 jours et celles sans prochaine étape.
+Pour chaque affaire signalée, donne-moi une question à trancher avant la revue.
+Lecture seule. Ne modifie aucune fiche.
+```
+
+Vérifiez que la « prochaine étape » dont vous parlez existe comme champ dans votre espace de travail. Customermates n’a ni échéances ni statuts intégrés sur les tâches ; une prochaine étape datée sur une affaire est un champ date ordinaire que vous ajoutez, et personne n’est relancé automatiquement.
+
+### Avant l’appel : recherche et préparation [#call-prep]
+
+```
+J’ai un appel avec [nom] chez [organisation] à [heure]. Lis ses fiches dans le CRM :
+l’organisation, le contact, l’affaire ouverte, les cinq dernières notes et le dernier
+fil d’e-mails ou de LinkedIn. Donne-moi : ce dont nous avons convenu la dernière fois,
+ce qui reste ouvert, trois questions pour les dix premières minutes, et tout ce qui se
+contredit dans les fiches. Marque chaque affirmation « vient du CRM » ou « supposition ».
+```
+
+Séparez les faits du CRM et ceux du web. Si vous demandez à Claude de chercher des actualités sur l’entreprise, exigez la source de chaque élément et lisez la source de tout ce que vous direz à voix haute.
+
+### Après l’appel : notes vers le CRM [#notes-to-crm]
+
+```
+Voici mes notes de l’appel d’aujourd’hui avec [nom] chez [organisation] : [coller].
+Résume-les en trois phrases et liste les prochaines étapes avec responsable et date,
+comme indiqué dans les notes. Mets ensuite à jour l’affaire [organisation] : passe l’étape
+à [Proposition] et ajoute le résumé à ses notes. Si un responsable ou une date manque, écris « non précisé ».
+```
+
+Quand les outils d’écriture du connecteur sont sur Needs approval, Claude demande avant chaque modification. Après le premier essai, ouvrez la fiche et comparez-la à vos notes.
+
+### Le jour même : brouillon de relance [#follow-up-draft]
+
+```
+Trouve mon dernier fil avec [nom]. Résume-le en deux lignes, puis rédige une réponse
+de 120 mots au maximum qui confirme ce dont nous avons convenu et propose la prochaine
+étape. Enregistre-la comme brouillon. Ne l’envoie pas.
+```
+
+Il faut pour cela des e-mails ou des chats dans le CRM ; dans Customermates, c’est la [boîte de réception unifiée](/features/unified-inbox) à partir de Pro. Pour la formulation et le bon moment, le [guide de l’e-mail de relance commerciale](/blog/sales-follow-up-email) propose des structures pour les situations les plus courantes.
+
+## Claude convient-il à une équipe commerciale et à la prospection ? [#teams-and-prospecting]
+
+Pour une équipe, la formule compte plus que le prompt. Sur Team, un Owner ajoute le connecteur une fois et chaque membre se connecte individuellement : chacun travaille avec ses propres droits dans le CRM. Les Owners peuvent aussi régler Always allow, Needs approval ou Blocked pour toute l’organisation, et les membres ne peuvent pas le contourner. Les projets se partagent sur Team et Enterprise, en lecture ou en modification (aide d’Anthropic, vérifiée le 12 novembre 2026).
+
+Pour la prospection, Claude aide à réfléchir et à écrire : lequel de vos leads ouverts contacter en premier, ce que doit dire un premier message d’après ce que vous savez, comment répondre à une réaction. Il ne fournit pas de liste de contacts vérifiés, et Customermates n’a ni séquences, ni envoi en masse, ni enrichissement de leads. Si vous envoyez plus de quelques dizaines de messages par semaine avec des relances, utilisez un outil d’engagement commercial pour l’envoi et laissez Claude rédiger pour lui. En France, la prospection par e-mail à froid auprès de professionnels a ses règles propres : renseignez-vous avant d’automatiser quoi que ce soit.
+
+## Quel Claude choisir : l’application, Claude Code ou Mate ? [#which-claude]
+
+- **L’application Claude** convient à la plupart des gens. Vous ajoutez le connecteur une fois, et il fonctionne sur le web, sur ordinateur et sur mobile avec le même compte.
+- **Claude Code** tourne dans votre terminal. Il convient à ceux qui veulent scripter une routine ou garder prompts et modèles sous forme de fichiers, et il utilise le même serveur MCP avec une clé API. Anthropic l’inclut dans Pro.
+- **Mate** est l’assistant intégré à Customermates Cloud. Il utilise les crédits IA hébergés mensuels par utilisateur actif, rédige des réponses et exécute des Routines : des instructions enregistrées, selon un planning ou sur des évènements de fiche, qui appartiennent à un utilisateur et s’exécutent avec ses droits. Une routine peut envoyer des messages si ses instructions le demandent : écrivez-y donc « n’envoie rien ». La [page des routines](/docs/app-routines) liste ce qu’une routine peut faire.
+
+## Quelles règles protègent les données clients ? [#safety]
+
+- **Claude reçoit vos droits, pas moins.** Une connexion ou une clé API Customermates hérite des droits de son utilisateur ; il n’y a pas de portée par clé. Pour que Claude puisse moins, connectez-le comme utilisateur distinct avec un rôle plus étroit, ou ajoutez `?toolsets=records,messaging` à l’URL du point d’accès.
+- **Le client est le garde-fou.** Customermates demande aux clients connectés de confirmer avant de supprimer ou d’envoyer, mais ne l’impose pas. Votre protection, ce sont les permissions des outils dans Claude.
+- **Un envoi est un envoi.** `send_email` et `send_chat_message` partent immédiatement. Demandez des brouillons et envoyez depuis la boîte de réception.
+- **Ce que Claude lit va chez Anthropic.** Les résultats d’outils font partie de la conversation. Anthropic indique que, par défaut, elle n’utilise pas les entrées et sorties de ses produits commerciaux, comme l’API et Claude for Work, pour entraîner ses modèles, tandis que les offres grand public (Free, Pro, Max) relèvent de conditions et d’une politique distinctes (centre de confidentialité d’Anthropic, vérifié le 12 novembre 2026). Vérifiez quelles conditions couvrent votre formule, et si vous avez besoin d’un accord de sous-traitance (DPA), avant d’y mettre des données clients ; c’est une liste de contrôle de travail, pas un avis juridique.
+- **La limite de requêtes de la formule Free s’applique.** Sur la formule Free de Customermates, les requêtes REST et MCP réunies sont limitées à [[commercial.limit.free.apiRequestsPerMinute]] par minute et [[commercial.limit.free.apiRequestsPerDay]] par jour par espace de travail, et une revue du pipeline sur beaucoup d’affaires peut l’atteindre. Les formules payantes et les instances auto-hébergées n’ont aucune limite de requêtes.
+
+## Combien coûte Claude pour la vente ? [#cost]
+
+Tarifs de Claude sur [claude.com/pricing](https://claude.com/pricing), vérifiés le 12 novembre 2026, en dollars américains avec paiement mensuel : Pro coûte 20 $ par mois, Team Standard 25 $ par siège et par mois et Team Premium 125 $, pour des équipes de deux à 150 personnes. Avec un abonnement annuel, Pro revient à 17 $ par mois et Team Standard à 20 $ par siège. Pro inclut Claude Code.
+
+| Équipe | Claude | CRM, avec Customermates comme exemple |
+| --- | --- | --- |
+| Une personne, fiches seulement | Free avec un connecteur personnalisé (0 $), ou Pro à 20 $ | Starter : [[commercial.price.starter.monthly]] par mois |
+| Trois personnes, fiches seulement | Team Standard : 3 × 25 $ = 75 $ par mois | Starter, 3 sièges : [[commercial.price.starter.monthly.seats.3]] par mois |
+| Trois personnes, e-mail, LinkedIn et WhatsApp dans le CRM | Team Standard : 75 $ par mois | Pro, 3 sièges : [[commercial.price.pro.monthly.seats.3]] par mois |
+
+Customermates facture au mois et par utilisateur. Quand Claude travaille via MCP, le modèle tourne sur votre formule Claude : il ne consomme aucun crédit IA hébergé de Customermates. Les détails des formules sont sur la [page des tarifs](/pricing).
+
+## Où se situe Customermates ? [#customermates]
+
+*Transparence : Customermates publie ce guide.* Customermates est un CRM open source et IA native, développé en Allemagne pour les petites équipes au contact des clients : consultants, agences, autres entreprises de services et fondateurs. Son point d’accès MCP fait partie du cœur AGPL ; il fonctionne donc sur toutes les formules cloud et sur les installations auto-hébergées, avec [[derived.mcp.tools.total]] outils. Claude travaille avec les listes que vous créez, leurs notes et leurs champs, et la base de connaissances de l’espace de travail ; à partir de Pro, la même connexion atteint aussi les conversations e-mail, LinkedIn, WhatsApp, Instagram et Telegram.
+
+Le contrôle du vendredi, c’est la relance en une ligne : Claude lit le fil sur la fiche du client, repère où vous avez écrit en dernier sans réponse et rédige la relance, et vous la relisez, la modifiez et l’envoyez. Pour l’essayer avec votre propre compte Claude, [lancez l’essai gratuit de [[commercial.trial.days]] jours](/auth/signup?job=followup). Sans carte bancaire. La [page sur la relance client](/features/follow-up) montre comment la fiche du client, le fil et la prochaine étape datée s’articulent.
+
+Customermates n’est pas le bon choix si vous avez besoin d’un composeur téléphonique, de séquences d’e-mails ou d’une application mobile native, ou si votre équipe utilise HubSpot ou Salesforce et en est satisfaite : utilisez alors le connecteur de l’éditeur, décrit dans le [guide HubSpot MCP](/blog/hubspot-mcp) et le [guide Salesforce MCP](/blog/salesforce-mcp). Si vous préférez ChatGPT, le [guide ChatGPT pour la vente](/blog/chatgpt-for-sales) en donne les règles.
+
+## Questions fréquentes
+
+<Faq>
+<FaqItem question="Claude peut-il faire ma vente à ma place ?">
+Non. Claude peut rechercher, résumer, rédiger et suggérer, mais il ne détient ni votre pipeline ni une relation client, et dans un simple chat il n’envoie rien. Relié à des outils, il peut agir : c’est pourquoi une personne doit valider ce qui parvient à un acheteur.
+</FaqItem>
+
+<FaqItem question="Comment utiliser Claude pour la prospection ?">
+Servez-vous-en pour décider qui contacter en premier et pour écrire le premier message à partir de ce que vous savez de la personne. Il ne fournit pas de contacts vérifiés et ne lance pas de séquences. Pour le volume, utilisez un outil d’engagement commercial pour l’envoi et Claude pour les brouillons.
+</FaqItem>
+
+<FaqItem question="Faut-il une formule Claude payante pour la vente ?">
+Pas pour commencer. Free autorise un connecteur personnalisé et les projets. Team ajoute les projets partagés et les limites de connecteur à l’échelle de l’organisation, et certains connecteurs d’éditeurs, comme celui de HubSpot, exigent une formule payante. Pour des données clients, vérifiez quelles conditions couvrent votre formule.
+</FaqItem>
+
+<FaqItem question="Claude peut-il rédiger et envoyer des e-mails de relance ?">
+Il peut les rédiger, et enregistrer un brouillon si votre CRM a une boîte de réception et un outil de brouillon. Savoir s’il peut envoyer dépend des outils connectés et des permissions que vous réglez. Gardez les outils d’envoi sur Needs approval, ou demandez seulement des brouillons.
+</FaqItem>
+
+<FaqItem question="Quelle différence entre Claude et Claude Code pour la vente ?">
+Claude est l’application de chat ; Claude Code tourne dans le terminal. Les deux utilisent la même connexion MCP au CRM, par OAuth dans l’application et par clé API dans Claude Code. L’application suffit pour l’essentiel du travail commercial ; Claude Code convient aux routines scriptées.
+</FaqItem>
+
+<FaqItem question="Quel CRM fonctionne le mieux avec Claude pour la vente ?">
+Cela dépend de ce que Claude doit atteindre : les fiches seules, ou aussi l’historique d’e-mails et de chats. Le [guide Claude CRM](/blog/claude-crm) compare sept CRM selon la formule, le périmètre et les droits, vérifiés sur les pages de chaque éditeur.
+</FaqItem>
+
+<FaqItem question="Peut-on mettre des données clients dans Claude sans risque ?">
+Cela dépend de la formule, des conditions qui la couvrent et de vos permissions d’outils. Anthropic n’entraîne pas ses modèles sur les données de ses produits commerciaux par défaut, et les offres grand public ont leurs propres conditions. Ne saisissez que ce dont une tâche a besoin et voyez le reste avec votre délégué à la protection des données.
+</FaqItem>
+</Faq>
+
+Informations sur Claude vérifiées le 12 novembre 2026 sur [le guide d’Anthropic sur les connecteurs personnalisés](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp), [le guide d’Anthropic sur les permissions des connecteurs](https://support.claude.com/en/articles/11176164-use-connectors-to-extend-claude-s-capabilities), [le guide d’Anthropic sur les projets](https://support.claude.com/en/articles/9517075-what-are-projects), [le guide d’Anthropic sur la recherche web](https://support.claude.com/en/articles/10684626-enabling-and-using-web-search), [les tarifs de Claude](https://claude.com/pricing), [le centre de confidentialité d’Anthropic](https://privacy.claude.com/en/articles/7996868-is-my-data-used-for-model-training), [les conditions pour particuliers d’Anthropic](https://www.anthropic.com/legal/consumer-terms) et [la documentation MCP de Claude Code](https://code.claude.com/docs/en/mcp).

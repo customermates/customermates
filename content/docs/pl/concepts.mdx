@@ -1,0 +1,102 @@
+---
+title: "Model danych CRM: rekordy, powiązania i obliczenia"
+description: "Jak w modelu danych Customermates współdziałają listy, pola, relacje, sumy szans sprzedaży, uprawnienia, widżety i webhooki oraz jak działają obliczenia."
+---
+
+Customermates przechowuje dane CRM w konfigurowalnych listach. Każda przestrzeń robocza definiuje własne listy, takie jak Kontakty, Szanse sprzedaży, Projekty lub Zgłoszenia, i może w dowolnej chwili dodać kolejne bez nowego wydania. Każdy rekord ma stały identyfikator, więc zmiana nazwy listy lub pola nie psuje żadnych odwołań. Zapisany widok pokazuje rekordy listy bez ich kopiowania.
+
+## Jakie listy ma przestrzeń robocza i skąd się biorą? [#which-five-record-types-exist]
+
+Żadna lista nie jest wbudowana. W Customermates Cloud konfiguracja przestrzeni roboczej z AI w [kreatorze wdrożenia](/docs/app-onboarding) projektuje całą przestrzeń roboczą na podstawie Twoich odpowiedzi i, jeśli ją podasz, Twojej strony internetowej: każdą listę z jej polami, relacjami i obliczeniami, widoki list, przykładowe rekordy lub zaimportowany arkusz kalkulacyjny, pulpit i Bazę wiedzy. Przestrzeń robocza self-hosted zaczyna bez list: osoby zarządzające modelem danych tworzą je w sekcji [Model danych](app:configure). Przestrzenie robocze utworzone przed konfiguracją z AI zachowują listy, z którymi zaczęły.
+
+| Lista tworzona przez konfigurację | Kiedy | Co zawiera |
+| --- | --- | --- |
+| Osoby, na przykład Kontakty | Zawsze | Jeden rekord na osobę, z polem **Dane kontaktowe** i zdjęciem profilowym, aby wiadomości trafiały do właściwej osoby |
+| Zadania | Zawsze | Elementy pracy |
+| Organizacje | Zwykle | Firmy lub konta, do których należą Twoje osoby |
+| Szanse sprzedaży | Zwykle | Możliwości sprzedaży w etapach, z których każdy ma przypisane prawdopodobieństwo wygranej, z jednym etapem wygranym i jednym przegranym |
+| Oferta, na przykład Usługi lub Produkty | Gdy sprzedajesz produkty lub usługi | Twój katalog z cenami jednostkowymi; szanse sprzedaży dostają wtedy pozycje |
+
+Nazwy odpowiadają Twojej firmie, więc lista szans sprzedaży może nazywać się Okazje lub Zamówienia. Listy z konfiguracji to zwykłe listy: możesz zmieniać ich nazwy oraz rozszerzać lub zmieniać ich pola, relacje i układ w sekcji Model danych, tak jak w każdej utworzonej przez Ciebie liście. Aby dopasować wiadomości do rekordów, lista potrzebuje pola **Dane kontaktowe**: numerów telefonów, adresów e-mail i profili społecznościowych rekordu. Na numer telefonu można zadzwonić, a ponadto pasuje on do czatów WhatsApp z tego samego numeru. Lista osób z konfiguracji takie pole ma; możesz je dodać do każdej innej listy. To zwykłe pole, które możesz przesuwać, przypinać, filtrować i edytować jak każde inne; jeden identyfikator może pasować do kilku rekordów.
+
+## Jak obliczana jest łączna wartość szansy sprzedaży? [#how-is-a-deals-total-value-calculated]
+
+Gdy sprzedajesz produkty lub usługi, konfiguracja przestrzeni roboczej z AI dodaje do listy szans sprzedaży **Pozycje**, czyli podlistę: każdy wiersz należy do jednej szansy sprzedaży, jest edytowany w jej wnętrzu, ma jej dostęp i jest usuwany razem z nią. Każdy wiersz ma element oferty, ilość, tryb ceny i efektywną cenę jednostkową. **Kwota pozycji = ilość × efektywna cena jednostkowa**. Wartość szansy sprzedaży to suma kwot pozycji; bez pozycji jest to zwykła wartość pieniężna. Ten sam element oferty może występować w kilku wierszach. Cena na żywo podąża za późniejszymi zmianami ceny elementu oferty; cena zapisana zachowuje pobraną cenę. Każde pole kwoty ma własną walutę, a kwoty w różnych walutach nigdy nie są po cichu dodawane.
+
+Suma jest skonfigurowanym obliczeniem, więc osoba zarządzająca schematem może ją zmienić lub zamienić na wartość ręczną po obejrzeniu podglądu dotkniętych rekordów i widżetów. Brakujące dane wejściowe, wartość, której nie możesz zobaczyć, zero i błąd obliczenia to różne stany. Zobacz [ważony pipeline sprzedaży](#how-does-a-weighted-pipeline-work).
+
+## Jak relacje łączą rekordy, na przykład kontakt z kilkoma organizacjami? [#how-do-relationships-link-records]
+
+Relacja łączy dwie listy. Każda strona ma własną etykietę i każda strona dopuszcza jeden lub kilka rekordów, więc jeden kontakt może należeć do kilku organizacji, a projekt może łączyć kontakty i szanse sprzedaży. Oba rekordy pokazują powiązanie. W formularzu rekordu relacja jest polem: wybierz rekordy i kliknij **Zapisz**. W sekcji [Model danych](app:configure) dodajesz ją przez **Dodaj**, a potem **Relacja**, na stronie konfiguracji listy albo przeciągając od kropki jednej listy do drugiej na diagramie. Zakładka **Relacje** wyświetla każdą z nich jako wiersz z jej etykietą, liczbą powiązanych rekordów (na przykład **Jeden do wielu**) i drugą listą; lista bez żadnej pokazuje **Dodaj relację**. Panel ustawia obie etykiety, ile rekordów jest powiązanych i, w polu **Po usunięciu**, co dzieje się z powiązanymi rekordami.
+
+Relacja może też pokazywać wiadomości bezpośrednio powiązanych rekordów w Aktywnościach drugiej listy, ustawiane osobno dla każdego kierunku. Konfiguracja przestrzeni roboczej z AI włącza to dla relacji Twojej listy osób, więc szansa sprzedaży lub organizacja pokazuje wiadomości swoich powiązanych osób. W panelu relacji jeden przełącznik na kierunek włącza lub wyłącza to, na przykład **Pokaż ich wiadomości na liście: Organizacje**.
+
+Aplikacja sprawdza typy list, liczność relacji, duplikaty i to, co dzieje się przy usunięciu. Pobranie wartości z kilku powiązanych rekordów lub ich podsumowanie wymaga agregacji, takiej jak suma lub liczba.
+
+## Czym są pola i jakie są typy pól? [#what-are-custom-columns]
+
+Każda lista zaczyna z kilkoma polami, a Ty możesz dodawać własne; tabele pokazują je jako kolumny. Typy pól to Tekst, Tekst sformatowany, Liczba, Kwota pieniężna, Tak lub nie, Data, Data i godzina, Zakres dat, Zakres daty i godziny, Pojedynczy wybór, Wielokrotny wybór, Adres internetowy, Członek, Adres, Plik oraz Telefon, e-mail i social media. Numery telefonów i adresy e-mail nie mają własnego typu pola: należą do pola Dane kontaktowe listy, które ma typ Telefon, e-mail i social media. Pole Adres przechowuje jeden adres pocztowy, sprawdzany według formatu adresów jego kraju, zobacz [Jak wpisać adres?](/docs/app-records#how-do-i-enter-an-address). Pola tekstowe, adresów internetowych i plików mogą mieć włączoną opcję **Zezwalaj na kilka wartości** (pole pliku przechowuje wtedy do 20 plików, zobacz [Jak dołączyć pliki do rekordu?](/docs/app-records#how-do-i-attach-files-to-a-record)); w polach adresów internetowych **Po kliknięciu** ustawia, czy kliknięcie wartości otwiera ją w nowej karcie (domyślnie), czy ją kopiuje, zobacz [Rekordy CRM](/docs/app-records#what-is-special-about-each-record-type). Opcje wyboru zachowują stały identyfikator, gdy zmieniasz ich nazwy. Przełączenie pola Pojedynczy wybór na Wielokrotny wybór zachowuje wszystkie wartości; powrót działa tylko wtedy, gdy każdy rekord ma co najwyżej jedną opcję.
+
+Pole jest wpisywane ręcznie albo obliczane: na podstawie innych pól tego samego rekordu, pobierane z powiązanego rekordu albo zliczane lub sumowane z powiązanych rekordów. Wartość obliczana jest zawsze aktualna, chyba że zdecydujesz się zapisać ją w określonym momencie, na przykład przy tworzeniu rekordu. Formuły używają sprawdzanego języka wyrażeń i nigdy nie uruchamiają dowolnego kodu; cykle, niezgodne typy i zbyt kosztowne definicje są odrzucane. Pól można używać w filtrach, sortowaniu, widokach, widżetach, rutynach i Mate, o ile pozwala na to dostęp.
+
+## Czy mogę zmienić typ pola, gdy rekordy mają już wartości? [#can-i-change-a-fields-type]
+
+Tak. Wybierz inny **Typ wartości** w panelu pola; podgląd sprawdza każdą istniejącą wartość i konwertuje te, które pasują bez straty. Tekst staje się Liczbą, gdy jest zwykłą liczbą, taką jak `1250.50`, Datą, gdy jest zapisany jako `2026-10-12`, Datą i godziną w formacie ISO oraz Adresem internetowym, gdy jest poprawnym adresem. Tekst zgodny z etykietą opcji staje się tą opcją pola Pojedynczy wybór lub Wielokrotny wybór. Liczby, daty, wartości Tak lub nie i wybory stają się Tekstem. Przełączenie pola Pojedynczy wybór na Wielokrotny wybór zachowuje wszystkie wartości; powrót działa tylko wtedy, gdy każdy rekord ma co najwyżej jedną opcję.
+
+Gdy niektóre wartości nie pasują, zmiana jest blokowana, a podgląd podaje, ile rekordów ma takie wartości, i pokazuje do trzech z nich, na przykład: 2 rekordy mają w polu Budżet wartości niepasujące do tej zmiany, na przykład „n/a”, „tbd”. Najpierw je popraw lub wyczyść. Przez MCP i REST problem podglądu `existing_values_incompatible` niesie te same `count` i `examples`.
+
+## Jak dodać, zmienić lub usunąć pola, w tym pole etapu szansy sprzedaży? [#how-do-i-add-change-or-delete-a-custom-column]
+
+Otwórz [Model danych](app:configure), który pokazuje wszystkie listy jako diagram. Na każdej liście nagłówek otwiera stronę konfiguracji listy, treść pokazuje pierwsze pola (wpis taki jak **jeszcze 3 pola** rozwija resztę w miejscu, **Pokaż mniej** ją zwija), a liczba rekordów w stopce otwiera listę. Podlisty znajdują się w jednej ramce ze swoją listą nadrzędną i przesuwają się razem z nią. Pozycje i rozwinięte listy są dla Ciebie zapamiętywane; **Zresetuj układ** przywraca domyślny układ.
+
+Przycisk **+** na liście na diagramie i menu **Dodaj** na jej stronie konfiguracji oferują te same pozycje: **Pole**, **Pole obliczane**, **Relacja**, **Dane kontaktowe** (tylko gdy lista ich nie ma) i **Podlista**, każda we własnym panelu. **Podlista** otwiera panel taki jak **Nowa podlista listy Kontakty** i oprócz uprawnienia do modelu danych wymaga uprawnienia **Edycja** w wierszu **Użytkownicy i role**; podlista nie może mieć własnych podlist, a REST i MCP odrzucają taką zmianę z kodem `recordSublistNested`. Podlista taka jak Pozycje pokazuje **Podlista listy Szanse sprzedaży** na swojej stronie i na diagramie, z wyjaśnieniem, że każdy wpis należy do jednego rekordu typu Szansa sprzedaży, jest edytowany w jego wnętrzu, ma jego dostęp i jest usuwany razem z nim. Strona konfiguracji listy przełącza się między **Ogólne**, **Pola** i **Relacje**, a relacje pojawiają się jako wiersze tak jak pola. Pole etapu szansy sprzedaży znajduje się na stronie konfiguracji Twojej listy szans sprzedaży. Zanim zmiana zostanie zastosowana, pokazuje podgląd dotkniętych rekordów, widoków, widżetów, rutyn i formuł, a zmiany, które by coś zepsuły, są blokowane, dopóki ich nie rozwiążesz.
+
+Aby usunąć pole niestandardowe lub dowolne inne pole, listę albo relację, użyj **Usuń** w jej panelu lub w menu strony. Potwierdzenie wymienia wszystko, co jest dostosowywane automatycznie (filtry, kolumny i sortowania widoków, filtry i grupowania widżetów, widżet, który mierzył to pole, zamiast tego zlicza rekordy, webhooki usuwają je ze swojego wyzwalacza i są wstrzymywane, gdy było ich jedynym wyzwalaczem, a dane kontaktowe, zdjęcie profilowe i ustawienia kalendarza przestają go używać) i blokuje tylko to, co zostałoby źle obliczone: obliczenia, rutyny i pola kontrolujące dostęp do przestrzeni roboczej. Każde pole można usunąć, także to, które nadaje nazwy rekordom: nazwy nadaje wtedy następne pole tekstowe w kolejności pól listy, a potwierdzenie mówi, które; gdy nie zostanie żadne pole tekstowe, rekordy są wyświetlane jako bez nazwy. Przywrócenie pola oddaje mu rolę nazwy, chyba że od tego czasu zmieniono pole nazwy, i wstawia je z powrotem do danych kontaktowych, zdjęcia profilowego lub ustawień kalendarza; widżety, które teraz zliczają rekordy, i wyzwalacze webhooków pozostają bez zmian. Usunięte elementy trafiają do sekcji **Kosz**, skąd możesz je przywrócić przyciskiem **Przywróć** w ciągu 30 dni albo usunąć przyciskiem **Usuń trwale** po wpisaniu nazwy; po 30 dniach są usuwane trwale. Trwałe usunięcie usuwa też zapisane wartości, a w przypadku listy jej rekordy i powiązania.
+
+Nazwy są unikalne: nazwy list, nazwy pól w obrębie listy, etykiety relacji na stronę i etykiety opcji w polu, bez względu na wielkość liter i znaki diakrytyczne. Zarządzanie modelem danych to osobne uprawnienie, niezależne od edycji rekordów; nie daje ani dostępu do rekordów, ani zarządzania rolami.
+
+## Jak zbudować pole obliczane? [#how-do-i-build-a-calculated-field]
+
+Wybierz **Pole obliczane** w menu **Dodaj** listy na jej stronie konfiguracji w sekcji [Model danych](app:configure) albo otwórz tam istniejące pole obliczane. **Źródło wartości** określa, skąd pochodzi wartość: **Obliczana na podstawie tego rekordu**, **Pobierana z powiązanego rekordu** lub **Zliczana lub sumowana z powiązanych rekordów**. Typ wartości wynika z obliczenia i jest pokazywany przy wyniku, więc suma pól kwot pieniężnych jest kwotą pieniężną, a liczba rekordów jest liczbą.
+
+Sekcja **Obliczenie** rysuje obliczenie od góry do dołu tymi samymi blokami co diagram w sekcji Model danych. Dla wartości z powiązanych rekordów zaczyna się od samej listy, idzie za relacją pokazaną jako znacznik, taki jak **Pozycje · Jeden do wielu**, i kończy się w powiązanej liście przy **Pobierz Cena** albo, dla sumy, przy **Suma z Kwota** lub **Liczba z powiązanej listy Pozycje**. Obliczenie z rekordu wymienia swoje **Dane wejściowe**, a potem jeden blok na krok, taki jak **Pomnóż** z dwoma wejściami. Każdy wybór jest znacznikiem: kliknij go, aby przeszukać pola listy, pójść za jeszcze jedną relacją w **Idź dalej** albo wpisać **Stała wartość**. **Dodaj dane wejściowe** i **Dodaj krok** rozszerzają obliczenie, a menu **Więcej działań** kroku je usuwa.
+
+Ostatni blok pokazuje typ wyniku i przykład: rekord listy z wartością, którą daje mu to obliczenie, oraz strzałkę do pokazania innego rekordu. Pod blokami jedno zdanie mówi, co robi pole, na przykład „Pole Wartość sumuje wartości pola Kwota we wszystkich rekordach powiązanej listy Pozycje.” Gdy czegoś brakuje, zdanie to nazywa, na przykład „Wybierz wartość do zsumowania.”, a **Zapisz** zaznacza niekompletny blok.
+
+**Więcej opcji** ustawia **Aktualizacje**: **Zawsze aktualne**, **Zapisywane przy tworzeniu rekordu**, **Zapisywane przy zmianie pola** (wybierz pole i wartość, która to uruchamia) albo **Zapisywane na żądanie**. Przy zapisanej wartości możesz włączyć **Pozwól nadpisywać ręcznie**. Gdy w grę wchodzą powiązane rekordy, **Pokaż każdemu, kto widzi listę Szanse sprzedaży** pozwala ludziom zobaczyć tę wartość, nawet jeśli nie mogą otworzyć powiązanych rekordów; dla pojedynczej wartości z powiązanego rekordu lub sumy z jednego rekordu widzą dokładnie tę wartość, więc zmiana takiego obliczenia wymaga zgody administratora.
+
+## Jak zaokrąglane są obliczane kwoty pieniężne? [#how-are-calculated-money-values-rounded]
+
+Obliczane pole Kwota pieniężna bez ustawionej opcji **Miejsca po przecinku** zaokrągla wynik w górę od połowy do najmniejszej jednostki swojej waluty, zanim zostanie zapisany: dwa miejsca dla EUR lub USD, żadnego dla JPY, trzy dla KWD. Przy ustawionej opcji **Miejsca po przecinku** obliczona wartość zaokrągla się zamiast tego do tylu miejsc. Aplikacja, REST API, eksporty i webhooki zwracają zaokrągloną wartość. Każda wartość zaokrągla się osobno, więc suma szansy sprzedaży dodaje już zaokrąglone kwoty pozycji i może różnić się o cent od sumy niezaokrąglonych liczb. Zapisane wartości zmieniają się przy następnym przeliczeniu. Wpisane wartości nigdy nie są zaokrąglane; **Miejsca po przecinku** określają tylko sposób ich wyświetlania.
+
+## Jak działa ważony pipeline sprzedaży i jak obliczana jest wartość ważona? [#how-does-a-weighted-pipeline-work]
+
+**Wartość ważona szansy sprzedaży = wartość szansy sprzedaży × prawdopodobieństwo etapu / 100**. Etapy to pole Pojedynczy wybór, którego opcje mają każda prawdopodobieństwo od 0 do 100 procent, a konfiguracja przestrzeni roboczej z AI bierze je z szansy na wygraną każdego etapu. Wartość ważona to opcjonalne pole obliczane. Szansa sprzedaży o wartości 2600 przy 60 procentach wnosi 1560; etap z zerem procent wnosi zero, a brakujące prawdopodobieństwo zostawia wartość ważoną pustą. Zmieniona cena na żywo elementu oferty przelicza zależne wartości; zapisana cena wyceny nie.
+
+Osoba zarządzająca schematem edytuje etapy, ich prawdopodobieństwa lub formułę na stronie konfiguracji listy szans sprzedaży w sekcji [Model danych](app:configure), a podgląd pokazuje skutek dla istniejących szans sprzedaży i widżetów. Osoby, które nie mogą odczytać każdego wejścia obliczenia, widzą wartość ograniczoną zamiast sumy, a sama formuła jest pokazywana tylko osobom, które mogą odczytać wszystkie jej wejścia.
+
+## Czym są widżety? [#what-are-widgets]
+
+Widżet wykresu na [Pulpicie](app:dashboard) wybiera listę źródłową i agregację, pole wartości dla agregacji innych niż liczba, opcjonalne filtry, grupowanie i styl wyświetlania, na przykład sumę Wartości szansy sprzedaży według Etapu albo liczbę Projektów według Właściciela. Każdy rekord liczy się raz w liście, z której pochodzi; szansa sprzedaży powiązana z dwiema organizacjami liczy się w całości w obu grupach, więc zgrupowane sumy mogą przekraczać sumę ogólną. Wykres liczby ze źródłem w liście oferty zlicza jej rekordy; wykres ze źródłem Pozycje zlicza rekordy Pozycji. Widżety stosują te same reguły dostępu co listy. Widżety aktywności pokazują strumień zamiast liczby. Zobacz [Pulpit](/docs/app-dashboard).
+
+## Czym są webhooki? [#what-are-webhooks]
+
+[Webhook](app:settings/webhooks) lub rutyna może subskrybować zdarzenia rekordów jednej lub kilku list, opcjonalnie filtrowane według pól. Dostarczenia są kolejkowane po zapisaniu zmiany. Nieudane dostarczenie jest ponawiane z tą samą tożsamością zdarzenia i dostarczenia, więc odbiorca może zobaczyć jedno zdarzenie więcej niż raz. Dostęp jest sprawdzany ponownie w chwili wysyłki, a w dawnych dostarczeniach dane są redagowane dla osoby, która je przegląda. Zobacz [Webhooki](/docs/webhooks).
+
+## Czym jest tekst sformatowany i czy to markdown? [#what-is-formatted-text]
+
+Pole Tekst sformatowany przechowuje sformatowany tekst w rekordzie, taki jak notatki, opisy lub podsumowania. To pole jak każde inne: ma miejsce w przeglądzie, można je przypiąć lub ukryć i możesz dodać tyle, ile potrzebuje lista. Tekst jest przechowywany jako sprawdzany dokument, a nie jako ciąg markdown. Wszędzie, gdzie pojawia się jako zwykły tekst lub markdown, jest to konwersja tego samego dokumentu, a nie druga kopia.
+
+## Kim są użytkownicy, role i firma i co oznacza dostęp do odczytu Przypisane? [#who-are-users-roles-and-the-company]
+
+Członkowie to osoby w przestrzeni roboczej. [Role](app:settings/roles) przyznają tworzenie, odczyt, edycję i usuwanie osobno dla każdej listy. Dostęp do odczytu **Wszystkie** obejmuje każdy rekord listy, **Przypisane** tylko rekordy przypisane do danego członka, **Brak** nic. Edycja i usuwanie wymagają też dostępu do konkretnego rekordu. Nowe listy zaczynają bez dostępu. Każde wyszukiwanie, obliczenie, eksport, widżet i odpowiedź Mate stosuje dostęp czytającego.
+
+## Dalej [#next]
+
+- [Rekordy CRM](/docs/app-records): listy, edytory i widoki.
+- [Składnia filtrów](/docs/filter-syntax): filtry i operatory relacji.
+- [Katalog narzędzi MCP](/docs/mcp#tool-catalog): narzędzia rekordów i konfiguracji.
+
+## Dla agentów [#for-agents]
+
+Odczytuj identyfikatory list i pól przez `discover_record_types` i `get_record_model`. Każde odwołanie do rekordu niesie zarówno `typeId`, jak i `recordId`. Łącz lub rozłączaj rekordy przez `mutate_crm_record`, używając identyfikatorów relacji z `get_record_model`. Tekst sformatowany jest zapisywany jako typowana wartość `richText` albo dopisywany na końcu bieżącego tekstu przez `{fieldId, append}` w aktualizacji. `configure_record_model` pokazuje podgląd i stosuje zmianę schematu z oczekiwaną rewizją i kluczem idempotentności; nieaktualna rewizja wymaga nowego podglądu.

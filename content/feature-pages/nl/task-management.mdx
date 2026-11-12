@@ -1,0 +1,135 @@
+---
+title: "Taakbeheer in je CRM: taken gekoppeld aan elke deal"
+description: "Taakbeheer in je CRM: koppel taken aan contactpersonen, organisaties, deals en diensten, met toewijzing, notities en eigen velden voor elke follow-up."
+featureName: Taakbeheer
+
+relatedHrefs:
+  - /features/follow-up
+  - /features/pipeline
+  - /features/workflow-automation
+  - /blog/tickler-file
+
+sections:
+  visual:
+    kind: followUp
+  steps:
+    items:
+      - title: "Bepaal wat een datum betekent"
+        description: "Taken hebben geen veld voor een deadline. Voeg in Datamodel een veld van het type Datum toe aan Taken en geef het een naam die past bij wat je bedoelt, zoals \"Streefdatum\". Laat het weg als je team werkt vanuit een lijst op volgorde van prioriteit."
+      - title: "Pas het veld Status aan"
+        description: "Open in Datamodel het veld Status in de takenlijst en bewerk de opties. Een klein team heeft vaak genoeg aan Open, Wacht op klant en Afgerond. Voeg een veld Prioriteit met Enkele keuze toe als je op belang sorteert in plaats van op datum."
+      - title: "Maak taken waar het werk vandaan komt"
+        description: "Klik op Toevoegen bij Taken, of koppel een taak vanaf de pagina van de deal, de contactpersoon of de organisatie. Wijs de taak toe en koppel elk record waar hij over gaat, zodat hij op elk ervan verschijnt."
+      - title: "Sla je open taken op"
+        description: "Filter Toegewezen aan op jezelf en Status op alles behalve Afgerond en Gearchiveerd, sorteer oplopend op Streefdatum en sla het op als weergave \"Mijn open taken\". Die blijft van jou. Voor een lijst waar het hele team mee werkt, zoals \"Taken van deze week\", deel je een weergave met iedereen in de werkruimte of met geselecteerde rollen."
+      - title: "Vang deals zonder volgende stap"
+        description: "Filter bij Deals op Taken \"heeft geen\" en sluit je gewonnen en verloren fases uit. Sla het op als \"Deals zonder volgende stap\". Deze lijst is de reden om taken in het CRM te houden in plaats van in een aparte to-do-app."
+  highlights:
+    title: "In één oogopslag"
+    capture: homepage-record
+    items:
+      - title: "Wat een taak heeft"
+        description: "Naam, notities, een of meer toegewezen gebruikers, koppelingen naar contactpersonen, organisaties, deals en diensten, plus je eigen velden."
+      - title: "Abonnementen"
+        description: "Taken zitten in elk abonnement, van Starter tot self hosted. Mate en routines vragen Customermates Cloud en gebruiken gehoste AI-credits."
+      - title: "Weergaven"
+        description: "Tabel of bord, gegroepeerd op een keuzeveld zoals Status, met opgeslagen weergaven die je kunt delen."
+      - title: "Niet inbegrepen"
+        description: "Geen deadlines, herinneringen, meldingen, terugkerende taken, afhankelijkheden, tijdregistratie of Gantt-diagrammen."
+
+hero:
+  title: "Taakbeheer in je CRM: maak van elke belofte aan een klant een taak op diens record"
+  description: "Maak voor elke toegezegde follow-up een taak, koppel die aan de contactpersoon en de deal waar hij over gaat en wijs hem toe. Toon daarna de deals zonder taak. Voeg je eigen datumveld toe en laat Mate of je AI-client taken aanmaken op basis van een gesprek."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Bekijk de live demo
+  buttonRightHref: https://demo.customermates.com/nl/w/kleine-bedrijven/dashboard
+  hint: "✓ Geen creditcard nodig ✓ Eerste [[commercial.trial.days]] dagen gratis"
+
+cta:
+  action: "Vang elke deal op die geen volgende stap heeft"
+  description: "Voeg een veld Streefdatum toe, sla een weergave \"Mijn open taken\" en een weergave \"Deals zonder volgende stap\" op en bepaal dan of een routine de follow-ups moet opstellen."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Bekijk de live demo
+  buttonRightHref: https://demo.customermates.com/nl/w/kleine-bedrijven/dashboard
+  hint: "✓ Geen creditcard nodig ✓ Eerste [[commercial.trial.days]] dagen gratis"
+---
+
+Taakbeheer in je CRM betekent dat de to-do op het klantrecord staat: "stuur het herziene voorstel" hangt aan de deal en de contactpersoon waar het over gaat, zodat wie een van beide opent ziet wat er openstaat en wie het oppakt. In Customermates is een taak een record in een eigen lijst, Taken. Een taak heeft een naam, notities, toegewezen gebruikers, koppelingen naar contactpersonen, organisaties, deals en diensten, en de eigen velden die je toevoegt. Meer heeft hij niet.
+
+**Waar dit helpt bij follow-up.** Wat je tijdens een gesprek hebt beloofd, leeft in iemands hoofd totdat het een taak is. Als taak op de deal en de contactpersoon staat het op beide records, en een opgeslagen weergave van deals zonder enige taak toont elke klant van wie niemand de volgende stap heeft vastgelegd.
+
+Er is geen ingebouwde deadline, geen herinnering, geen melding bij achterstand en geen terugkerende taak. Een veld **Status** op taken is een gewoon veld met enkele keuze dat je aanmaakt, hernoemt of vervangt. Customermates past niet bij een team dat zijn week plant rond herinneringsmeldingen en taakdeadlines. Een CRM met geplande activiteiten past dan beter; de tabel hieronder noemt er twee. Wil je taken die hun klantcontext meedragen en die een AI kan aanmaken en bijwerken, lees dan verder.
+
+## Wat een taak is in Customermates
+
+| Onderdeel van een taak | Zo werkt het |
+|---|---|
+| Naam en notities | Notities zijn een veld met opgemaakte tekst. Ze kunnen checklists, afbeeldingen en tabellen bevatten, maar zijn geen werklogboek met versiegeschiedenis. |
+| Toegewezen | Een willekeurig aantal collega's. Filter op **Toegewezen** om de werkdruk van één persoon te zien, of gebruik "heeft geen" om taken te vinden waar niemand eigenaar van is. |
+| Koppelingen | Contactpersonen, organisaties, deals en diensten. Elk gekoppeld record toont zijn taken, zodat een dealpagina laat zien wat er nog moet gebeuren. |
+| Eigen velden | Elk veldtype, zoals Datum, Enkele keuze, Getal, Geldbedrag, Tekst, Webadres, Adres of Bestand. Voeg een veld **Streefdatum** of **Prioriteit** toe als je proces dat nodig heeft. |
+| Status | Geen vast veld. Nieuwe werkruimtes krijgen een veld **Status** met enkele keuze (Open, In uitvoering, Geblokkeerd, On hold, Afgerond, Gearchiveerd) dat je kunt bewerken. |
+| Bord | Groepeer op een keuzeveld en sleep kaarten tussen kolommen om de waarde te wijzigen. |
+
+Taken is een gewone lijst: hernoem hem, wijzig zijn velden of verwijder hem en herstel hem uit de Prullenbak, zoals elke andere lijst. Mensen die via de uitnodigingslink van je werkruimte binnenkomen, wachten op goedkeuring in **Instellingen > Leden**, en het werkruimtemenu telt ze mee voor iedereen die leden kan goedkeuren. De [gids over records](/docs/app-records) behandelt elke lijst, elk filter en elke bordfunctie.
+
+## Taakbeheer inrichten
+
+Kom je uit een spreadsheet of een andere tool? Taken importeer je uit een XLSX-werkmap of een CSV-bestand, met kolommen voor naam, notities, toegewezen gebruikers en gekoppelde records. Importeer eerst contactpersonen, organisaties en deals, zodat de koppelingen kunnen worden gevonden.
+
+## Laat AI taken aanmaken en controleren
+
+**In Customermates Cloud** kan Mate taken aanmaken, toewijzen en bijwerken op basis van een chatverzoek, met gehoste AI-credits. "Maak een taak voor Anna om het herziene voorstel naar Müller GmbH te sturen en koppel hem aan de deal Q4-retainer" is genoeg. Een [routine](/docs/app-routines) voert een opgeslagen instructie uit volgens een schema of bij een recordgebeurtenis, bijvoorbeeld:
+
+> Elke maandag om 8:00 uur: toon mijn taken waarvan de Streefdatum voor vandaag ligt en waarvan de Status niet Afgerond of Gearchiveerd is. Groepeer ze per gekoppelde organisatie en stel voor elke taak de volgende actie voor. Wijzig of verstuur niets.
+
+Routines draaien als hun eigenaar, met de toegang en de credits van die eigenaar, en je leest het resultaat in de details van de uitvoering. Customermates stuurt geen melding wanneer een uitvoering klaar is, dus een routine vervangt geen herinnering, tenzij iemand hem opent. Een andere handige routine reageert wanneer een deal wordt bijgewerkt en maakt, als de fase nu Gewonnen is, de onboardingtaken aan en koppelt ze aan de deal.
+
+**Met je eigen AI-client** kunnen Claude, ChatGPT of een andere client die via [MCP](/docs/mcp) is gekoppeld `mutate_crm_record` gebruiken op dezelfde records. Dat werkt ook op self hosted installaties, met de kosten van je AI-aanbieder in plaats van gehoste credits.
+
+**Met code** biedt de REST API taken aan, en [webhooks](/docs/webhooks) vuren af bij `record.created`, `record.updated` en `record.deleted` voor de lijst Taken. Een planner die je zelf draait, zoals n8n, kan een Streefdatum via de API lezen en een bericht sturen waar je maar wilt. n8n zit er niet bij; zie [workflowautomatisering](/features/workflow-automation) voor de opties.
+
+## Is Customermates een projectmanagementtool?
+
+Nee. Voor taakbeheer rond een klant is het geschikt, maar het plant geen projecten. Taken geven de overdracht van verkoop naar uitvoering de context die anders ontbreekt: de onboardingstappen voor een gewonnen deal, de documenten die een klant nog moet aanleveren, de interne controle voordat een voorstel de deur uit gaat. Je kunt een lijst Projecten toevoegen, maar er zijn geen taakafhankelijkheden, tijdlijnen, werkdrukgrafieken of tijdregistratie.
+
+Deze pagina wordt gepubliceerd door Customermates. De vergelijking hieronder noemt functies van leveranciers zoals ze die op 8 oktober 2026 op hun eigen pagina's vermelden.
+
+| Als je nodig hebt | Een betere keuze | Waarom |
+|---|---|---|
+| To-do's met een datum en herinneringen in het CRM | HubSpot of Pipedrive | De to-do's van HubSpot hebben een deadline met datum en tijd, e-mailherinneringen voor de taakeigenaar, prioriteit en een herhaalinstelling. Activiteiten in Pipedrive hebben datum, tijd en duur en worden als afgerond gemarkeerd, en Pipedrive noemt meldingen en e-mailherinneringen als onderdeel van zijn CRM. |
+| Projectplannen met afhankelijkheden en tijdlijnen | Asana, of Projects van Pipedrive | Asana biedt taakafhankelijkheden en tijdlijn- en Gantt-weergaven vanaf het Starter-abonnement. Projects van Pipedrive heeft eigen projectfases; het zit in Premium en hoger en is een betaalde add-on bij lagere abonnementen. |
+| Klanttaken naast e-mail-, LinkedIn- en WhatsApp-gesprekken, met AI die ermee aan de slag kan | Customermates | Taken koppelen aan dezelfde records als de [gecombineerde inbox](/features/unified-inbox) (Pro en hoger), en Mate of een MCP-client kan over beide heen werken. |
+
+Lever je projecten op, houd Customermates dan voor de klantrelatie en gebruik een projecttool voor het uitvoerende werk. Een webhook op wijzigingen aan deals of taken kan de overdracht doorgeven.
+
+## Wat het kost
+
+Taken zitten in elk abonnement. Een team van vijf op Starter betaalt [[commercial.price.starter.monthly.seats.5]] per maand, inclusief taken, eigen velden, borden en opgeslagen weergaven. Starter bevat [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per gebruiker en heeft geen inbox. Pro, voor vijf personen [[commercial.price.pro.monthly.seats.5]] per maand, voegt de gecombineerde inbox toe en [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per gebruiker. Mate gebruikt maandelijkse gehoste AI-credits per actieve gebruiker; de bedragen staan op de [prijspagina](/pricing). Er wordt maandelijks gefactureerd. De open-source kern zelf hosten kost geen licentiegeld, en de server draai je zelf.
+
+## Veelgestelde vragen
+
+<Faq>
+<FaqItem question="Heeft Customermates deadlines en herinneringen voor taken?">
+Nee. Taken hebben geen deadlineveld, geen herinneringen en geen meldingen. Voeg een eigen veld van het type Datum toe, sorteer een opgeslagen weergave erop en laat in Customermates Cloud een routine de taken tonen waarvan de datum is verstreken. Customermates stuurt geen herinneringsmails; daarvoor heb je een CRM met geplande activiteiten of je eigen planner die de API leest.
+</FaqItem>
+<FaqItem question="Kan ik de status van taken volgen op een kanbanbord?">
+Ja, via een veld met enkele keuze. Voeg een veld **Status** toe aan je takenlijst. Groepeer het bord erop en sleep kaarten tussen kolommen; je kunt de opties hernoemen of op een ander veld groeperen, zoals Prioriteit.
+</FaqItem>
+<FaqItem question="Kan ik een CRM gebruiken voor projectmanagement?">
+Voor een overdrachtschecklist bij een gewonnen deal wel. Voor projectplannen met afhankelijkheden, tijdlijnen of tijdregistratie gebruik je een projecttool naast het CRM. Je kunt een lijst Projecten toevoegen, maar Customermates plant geen projecten.
+</FaqItem>
+<FaqItem question="Is er een API voor taakbeheer?">
+Ja. Taken zijn beschikbaar via de REST API, de MCP-tool `mutate_crm_record` en webhookgebeurtenissen voor de lijst Taken. De [API-pagina](/features/api) geeft de details.
+</FaqItem>
+<FaqItem question="Kunnen taken automatisch worden aangemaakt?">
+Niet via een ingebouwde regel. In Customermates Cloud kan een routine taken aanmaken wanneer een record verandert, met gehoste AI-credits. Overal elders kan een workflow die je zelf draait reageren op een webhook en taken aanmaken via de API of MCP.
+</FaqItem>
+<FaqItem question="Kan ik alle taken van één klant zien?">
+Ja. Open de contactpersoon, organisatie of deal: de gekoppelde taken staan daar. Filter bij **Taken** op de gekoppelde organisatie of groepeer de tabel erop.
+</FaqItem>
+</Faq>
+
+Verificatie van de gegevens over concurrenten op 8 oktober 2026, aan de hand van [de takendocumentatie van HubSpot](https://knowledge.hubspot.com/tasks/create-tasks), [het artikel van Pipedrive over activiteiten](https://support.pipedrive.com/en/article/activities), [de pagina van Pipedrive over taakbeheer](https://www.pipedrive.com/de/products/project-management-software/crm-task-management), [het artikel van Pipedrive over Projects](https://support.pipedrive.com/en/article/projects-by-pipedrive) en [de prijspagina van Asana](https://asana.com/pricing).

@@ -204,6 +204,10 @@ describe("marketing visual fixture catalog", () => {
     expect(VISUAL_CONVERSATION_FIXTURES["gmail-rollout-next-steps"].localizedSubject).toEqual({
       de: "Nächste Schritte für den Rollout",
       en: "Next steps for the rollout",
+      es: "Próximos pasos del despliegue",
+      nl: "Volgende stappen voor de uitrol",
+      pl: "Kolejne kroki wdrożenia",
+      pt: "Próximos passos da implantação",
     });
   });
 

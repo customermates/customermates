@@ -5,6 +5,9 @@ import enMessages from "@/i18n/locales/en.json";
 import esMessages from "@/i18n/locales/es.json";
 import frMessages from "@/i18n/locales/fr.json";
 import itMessages from "@/i18n/locales/it.json";
+import nlMessages from "@/i18n/locales/nl.json";
+import plMessages from "@/i18n/locales/pl.json";
+import ptMessages from "@/i18n/locales/pt.json";
 import { APP_LOCALES, type AppLocale } from "@/i18n/locale-registry";
 
 import { roleDisplayName } from "../role-display-name";
@@ -15,6 +18,9 @@ const SYSTEM_NAMES = {
   es: esMessages.RoleModal.systemName,
   fr: frMessages.RoleModal.systemName,
   it: itMessages.RoleModal.systemName,
+  nl: nlMessages.RoleModal.systemName,
+  pl: plMessages.RoleModal.systemName,
+  pt: ptMessages.RoleModal.systemName,
 } satisfies Record<AppLocale, string>;
 
 describe("roleDisplayName", () => {

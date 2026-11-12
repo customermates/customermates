@@ -1,0 +1,256 @@
+---
+title: "Segmentacja klientów: kryteria, przykłady i jak ją zrobić"
+description: "Segmentacja klientów: definicja, cztery rodzaje i kryteria z przykładami B2B, korzyści, analiza ABC i RFM krok po kroku oraz ustawienie segmentów w CRM."
+
+relatedHrefs:
+  - /features/reporting
+  - /blog/key-account-management
+  - /blog/customer-acquisition
+  - /blog/customer-journey
+
+hero:
+  title: "Segmentacja klientów: kryteria, rodzaje, przykłady i jak ją ustawić w CRM"
+  description: "Czym jest segmentacja klientów, cztery rodzaje z przykładami B2B, jak grupować klientów według przychodów (ABC) lub zachowań zakupowych (RFM) oraz konfiguracja z polami, zapisanymi widokami i tablicą dla małego zespołu."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Wróć do bloga
+  by: autor Benjamin Wagner
+  date: 2026-11-03
+  tags:
+    - Segmentacja klientów
+    - Sprzedaż B2B
+    - Proces sprzedaży
+---
+
+# Segmentacja klientów: kryteria, rodzaje, przykłady i jak ją ustawić w CRM
+
+Segmentacja klientów polega na podzieleniu klientów na kilka grup, które łączy cecha zmieniająca sposób, w jaki im sprzedajesz, obsługujesz ich lub ustalasz dla nich ceny: branża, wielkość firmy, region, zachowania zakupowe albo przychód, który przynoszą. Cztery rodzaje, które wymienia większość poradników, to segmentacja demograficzna, geograficzna, psychograficzna i behawioralna. W B2B większość pracy wykonują cechy firmy i wartość klienta, a mały zespół może poprowadzić całość kilkoma polami, zapisanymi widokami i tablicą w CRM.
+
+Ten przewodnik definiuje segment klientów, pokazuje cztery rodzaje jako tabelę B2B ze źródłem danych i działaniem dla każdego, przeprowadza przez dwie metody, których małe zespoły używają najczęściej (analiza ABC według przychodów oraz RFM dla klientów, którzy zamawiają raz za razem), i kończy się konfiguracją w Customermates, otwartoźródłowym CRM, który go publikuje. Customermates nie ma automatycznej segmentacji, scoringu leadów ani kampanii e-mail, więc ostatnia sekcja mówi, co robisz ręcznie i kiedy lepiej pasuje narzędzie do automatyzacji marketingu.
+
+<ArticleSummary title="W skrócie">
+  <SummaryItem label="Definicja">Segmentacja klientów to dzielenie klientów na grupy o wspólnych cechach, żeby każda grupa dostawała traktowanie, które do niej pasuje. Segment klientów to jedna taka grupa.</SummaryItem>
+  <SummaryItem label="Cztery rodzaje">Demograficzna (w B2B: firmograficzna), geograficzna, behawioralna oraz potrzeby i wartość. Podręczniki dla konsumentów wymieniają psychograficzną tam, gdzie ten przewodnik wymienia potrzeby.</SummaryItem>
+  <SummaryItem label="Dwie metody dla małych zespołów">Analiza ABC szereguje klientów według przychodów. RFM ocenia świeżość, częstotliwość i wydatki klientów, którzy zamawiają ponownie i ponownie.</SummaryItem>
+  <SummaryItem label="Ile segmentów">Od trzech do pięciu, każdy z działaniem, które potrafisz nazwać. Segment bez działania to tylko etykieta.</SummaryItem>
+  <SummaryItem label="W Customermates">Pola Pojedynczy wybór, filtry i zapisane widoki, tablica i wykresy na pulpicie według segmentu, z wartościami, które ustawiasz sam. Bez automatycznych segmentów, scoringu i kampanii.</SummaryItem>
+</ArticleSummary>
+
+Do pracy sprzed momentu, w którym potencjalny klient wchodzi do Twojego pipeline'u, użyj [przewodnika po generowaniu leadów B2B](/blog/lead-generation), żeby wybrać kanał i zdefiniować, co uznajesz za leada.
+
+## Czym jest segmentacja klientów i czym jest segment klientów?
+
+Bain & Company definiuje segmentację klientów jako podział rynku na odrębne grupy klientów o podobnych cechach. **Segment klientów** to jedna z tych grup, na przykład „producenci zatrudniający od 50 do 250 osób” albo „klienci, którzy zamawiali w ostatnich 90 dniach”. **Model segmentacji klientów** to zestaw kryteriów plus reguła, która przypisuje każdego klienta do dokładnie jednego segmentu.
+
+Warto oddzielić dwa sąsiednie pojęcia. Segmentacja rynku dzieli cały rynek, także ludzi, którzy nigdy o Tobie nie słyszeli; segmentacja klientów działa na klientach i kontaktach, które znasz, czyli tych z Twojego CRM. Przykład segmentacji rynku: producent oprogramowania dla biur rachunkowych dzieli rynek na jednoosobowe biura, biura z kilkoma pracownikami i duże sieci, zanim ktokolwiek z nich cokolwiek kupi. Przykład segmentacji klientów: ten sam producent dzieli swoich obecnych klientów według tego, ile płacą i jak często korzystają z produktu. A model może być garścią spisanych reguł, co pokazuje ten przewodnik, albo klasteryzacją statystyczną, która grupuje klientów według wielu zmiennych naraz. Klasteryzacja wymaga narzędzi analitycznych i dużo danych, co zwykle przekracza potrzeby zespołu z kilkuset klientami.
+
+Segment warto zachować, gdy przechodzi cztery testy (to moja lista kontrolna, a nie standard):
+
+- **Rozpoznawalny:** pole w Twoim CRM mówi, do którego segmentu należy klient.
+- **Odmienny:** zrobiłbyś dla niego coś innego, na przykład inną ofertę, inny rytm kontaktu albo inną cenę.
+- **Wystarczająco duży:** tyle klientów lub przychodu, żeby inne traktowanie się opłaciło.
+- **Stabilny:** klienci nie zmieniają segmentu co tydzień, więc przegląd raz na kwartał wystarczy.
+
+Jeśli nie potrafisz nazwać działania dla segmentu, usuń go albo połącz z sąsiednim.
+
+## Po co segmentować klientów: korzyści dla małego zespołu [#korzysci-segmentacji-klientow]
+
+Segmentacja ma sens biznesowy, gdy zmienia to, co zespół robi w poniedziałek rano. Najczęstsze korzyści:
+
+- **Kolejność pracy.** Wiesz, do kogo zadzwonić najpierw: do klienta, który przynosi największy przychód, albo do tego, który przestał zamawiać.
+- **Oferta dopasowana do grupy.** Producent i gabinet medyczny pytają o co innego, więc inne studium przypadku i inne sformułowania lepiej do nich trafiają.
+- **Utrzymanie klientów.** Klient zagrożony jest widoczny, zanim odejdzie; więcej o tym w [przewodniku po pracy z obecnymi klientami](/blog/existing-customers).
+- **Rozsądny podział czasu.** Mali klienci dostają ofertę standardową, a czas opieki idzie tam, gdzie się opłaca.
+- **Ceny i pakiety.** Segment pokazuje, komu warto dać rabat, a komu pakiet z dodatkową obsługą.
+- **Lepsze pozyskiwanie.** Skoro wiesz, jak wygląda Twój najlepszy segment, szukasz kolejnych podobnych klientów, a nie wszystkich po kolei.
+
+Bez działania segmentacja niczego nie zmienia, dlatego każdy segment w tym przewodniku ma przypisane działanie.
+
+## Jakie są cztery rodzaje segmentacji klientów? [#cztery-rodzaje-segmentacji-klientow]
+
+Typowa odpowiedź wymienia cztery podstawy dla rynków konsumenckich: geograficzną, demograficzną, psychograficzną i behawioralną. Dla B2B [artykuł Wikipedii o segmentacji rynku](https://en.wikipedia.org/wiki/Market_segmentation) zauważa, że najczęściej stosowane podstawy to geografia i firmografia, czyli cechy takie jak wielkość firmy, sektor branży czy lokalizacja. Styl życia i osobowość (psychografia) są rzadko widoczne w przypadku firmy, więc tabela używa jako czwartej podstawy potrzeb i wartości. Podręczniki zaliczają to do behawioralnej, jako segmentację według korzyści lub potrzeb.
+
+| Podstawa | Przykładowe wartości w B2B | Skąd pochodzą dane | Co robisz inaczej w każdym segmencie |
+| --- | --- | --- | --- |
+| Firmograficzna (wersja B2B demograficznej) | Branża, wielkość firmy, forma prawna, liczba lat na rynku | Własny research, strona firmy, pierwsza rozmowa | Inne referencje i inne sformułowania dla każdej branży; oferta samoobsługowa dla małych firm i rozmowa dla dużych |
+| Geograficzna | Kraj, region, miasto, strefa czasowa | Adres rozliczeniowy lub dostawy | Język i waluta oferty, w jakich wydarzeniach uczestniczysz, kto odwiedza, a kto dzwoni |
+| Behawioralna | Data ostatniego zamówienia, liczba zamówień rocznie, kupione produkty, skąd klient o Tobie usłyszał | Twoje faktury i zamówienia, szanse sprzedaży i rozmowy w CRM | Kontakt po pierwszym zamówieniu, telefon odzyskujący klienta, gdy zamówienia ustają, oferta dodatkowa dla częstych kupujących |
+| Potrzeby i wartość | Problem, do którego Cię zatrudniają, roczny przychód, marża, potencjał wzrostu | Rozmowy rozpoznawcze, Twoje notatki, przychód na klienta | Z jaką ofertą wychodzisz i ile czasu opieki dostaje klient |
+
+Dla firmy, która sprzedaje konsumentom, kryteria wyglądają inaczej. Demograficzne to wiek, płeć, dochód i skład gospodarstwa domowego, geograficzne to region, wielkość miejscowości i klimat, psychograficzne to styl życia, wartości i zainteresowania, a behawioralne to częstotliwość zakupów, lojalność wobec marki i reakcja na promocje. Sklep internetowy z kosmetykami może więc wydzielić klientów, którzy kupują co miesiąc i reagują na zestawy, oraz tych, którzy kupili raz przy wyprzedaży.
+
+Zacznij od jednej lub dwóch podstaw. Tabela z pięcioma podstawami i dwunastoma segmentami wygląda gruntownie i jest ignorowana. Większość małych zespołów dobrze sobie radzi z podziałem firmograficznym dla tego, kim jest klient, plus wartością lub zachowaniem dla tego, jak działa i ile przynosi.
+
+Fakty stron trzecich w tej sekcji sprawdzono 3 listopada 2026 (zobacz źródła na końcu).
+
+Dla garstki klientów, którzy przynoszą większość Twojego przychodu, nasz przewodnik po [zarządzaniu kluczowymi klientami](/blog/key-account-management) opisuje kryteria wyboru, plany kont i rytm przeglądów.
+
+## Jaki jest przykład segmentu klientów?
+
+Trzy zmyślone firmy pokazują, jak podstawy się łączą, i dają przykłady segmentacji klientów. To ilustracje, a nie wzorce.
+
+| Firma | Podstawa | Przykładowe segmenty | Co się zmienia |
+| --- | --- | --- | --- |
+| Firma usług IT z 60 klientami | Firmograficzna, potem wartość | Producenci powyżej 100 pracowników, gabinety medyczne, wszyscy pozostali; w każdej grupie pięciu największych klientów | Studium przypadku i rola kontaktu w outreachu różnią się w zależności od branży; najwięksi klienci dostają wskazany kontakt i coroczny przegląd |
+| Hurtownia środków czystości | Behawioralna (RFM) | Stali, jednorazowi, zagrożeni, utraceni | Stali dostają telefon raz na kwartał, jednorazowi kontakt w sprawie drugiego zamówienia, zagrożeni osobisty telefon |
+| Agencja projektowa z klientami projektowymi | Wartość (ABC) | Kluczowi klienci, podstawowi, mali | Kluczowi klienci dostają wcześniejszy dostęp do mocy przerobowych, mali klienci dostają pakiet standardowy |
+
+Firmy konsumenckie, takie jak sklepy internetowe, segmentują według wieku, lokalizacji lub historii zakupów. Zespół B2B segmentuje firmy, a pracujący w nich ludzie dziedziczą segment swojej firmy.
+
+## Jakie jest pięć segmentów klientów?
+
+Nie ma standardowej listy pięciu. Liczba i nazwy wynikają z wybranych kryteriów, więc przewodnik, który wymienia pięć segmentów, pokazuje jeden model, a nie regułę. Dla małego zespołu B2B z powtarzalną sprzedażą jeden działający zestaw pięciu łączy wartość i zachowanie (moja propozycja, a nie standard branżowy):
+
+1. **Uśpieni:** brak zamówienia w ostatnich 12 miesiącach.
+2. **Nowi:** pierwsze zamówienie mniej niż 12 miesięcy temu. W przychodach są nisko tylko dlatego, że są nowi.
+3. **Kluczowi klienci:** klasa ABC A, klienci, którzy przynoszą większość Twojego przychodu.
+4. **Podstawowi:** klasa ABC B.
+5. **Mali:** klasa ABC C.
+
+Każdy klient jest w dokładnie jednym segmencie, więc zapisz reguły po kolei: najpierw Uśpieni, potem Nowi, potem A, B i C według przychodu. Bez kolejności pierwszeństwa nowy kluczowy klient trafia do dwóch segmentów.
+
+## Jak działa analiza ABC klientów według przychodów?
+
+Analiza ABC to powszechny sposób segmentacji bazy klientów według wartości i łatwo ją wykonać bez zespołu analitycznego. Szeregujesz klientów według przychodu i dzielisz listę na trzy klasy: A dla nielicznych klientów, którzy przynoszą większość przychodu, B dla środka, C dla długiego ogona. Podręcznikowe ujęcie to zasada Pareto, mniej więcej 80 procent wyniku z 20 procent przyczyn, co w sprzedaży oznacza piątą część klientów przynoszącą cztery piąte przychodu. Traktuj to jako praktyczną regułę. [Artykuł Wikipedii o zasadzie Pareto](https://en.wikipedia.org/wiki/Pareto_principle) nazywa podział 80:20 wygodną regułą praktyczną, a nie niezmiennym prawem, a [artykuł o analizie ABC](https://en.wikipedia.org/wiki/ABC_analysis) zauważa, że nie ma stałych progów dla klas. Progi ustawiasz Ty.
+
+1. **Wypisz każdego klienta z jego przychodem** za stały okres, zwykle ostatnie 12 miesięcy.
+2. **Posortuj od najwyższego do najniższego** i dodaj udział każdego klienta w łącznym przychodzie.
+3. **Zsumuj udziały** od góry, żeby każdy wiersz pokazywał udział skumulowany.
+4. **Narysuj dwie linie** tam, gdzie udział skumulowany przekracza Twoje progi, na przykład 70 i 90 procent. Klienci powyżej pierwszej linii to A, między liniami B, poniżej drugiej C.
+
+Oto wynik dla dziesięciu zmyślonych klientów (przychód w tysiącach w 12 miesiącach, razem 500):
+
+| Klient | Przychód | Udział w sumie | Udział skumulowany | Klasa |
+| --- | --- | --- | --- | --- |
+| 1 | 180 | 36% | 36% | A |
+| 2 | 110 | 22% | 58% | A |
+| 3 | 60 | 12% | 70% | A |
+| 4 | 40 | 8% | 78% | B |
+| 5 | 30 | 6% | 84% | B |
+| 6 | 25 | 5% | 89% | B |
+| 7 | 20 | 4% | 93% | C |
+| 8 | 15 | 3% | 96% | C |
+| 9 | 12 | 2,4% | 98,4% | C |
+| 10 | 8 | 1,6% | 100% | C |
+
+| Klasa | Klienci | Udział w liczbie klientów | Udział w przychodzie | Co robisz inaczej |
+| --- | --- | --- | --- | --- |
+| A | 3 | 30% | 70% | Wskazany opiekun, telefon co kwartał, wczesne ostrzeżenie, gdy coś się zmienia |
+| B | 3 | 30% | 19% | Regularny kontakt, jedno pytanie rocznie o to, co jeszcze możesz dla nich zrobić |
+| C | 4 | 40% | 11% | Oferta standardowa, mało pracy ręcznej, notatka, gdy któryś zaczyna rosnąć |
+
+Prawdziwe listy rzadko wyglądają jak 20 i 80. W tym przykładzie trzech najlepszych klientów, 30 procent listy, przynosi 70 procent przychodu i to jest normalne. Tabela pokazuje też ryzyko warte nazwania: sam klient 1 to 36 procent przychodu.
+
+Analiza ABC według przychodu ma ograniczenia. Przychód to nie zysk: duży klient, który wymaga dziesięciokrotnie więcej obsługi, może zarabiać dla Ciebie mniej niż mniejszy, więc tam, gdzie znasz marżę kontrybucyjną, użyj jej. Nowi klienci są nisko, bo dopiero zaczęli, dlatego zestaw pięciu segmentów powyżej wyłącza ich jako pierwszych. A metoda szereguje przeszłość, a nie potencjał, więc dodaj krótką notatkę o potencjale wzrostu dla klientów, których chcesz rozwijać.
+
+Gdy już wiesz, które segmenty przynoszą przychód, [przewodnik po pozyskiwaniu klientów](/blog/customer-acquisition) pokazuje, jak obliczyć, ile kosztuje każdy kanał na nowego klienta, żeby szukać kolejnych klientów podobnych do klasy A.
+
+## Jak działa analiza RFM i kiedy się sprawdza?
+
+RFM ocenia każdego klienta w trzech pytaniach: **świeżość** (recency: jak dawno było ostatnie zamówienie), **częstotliwość** (frequency: jak często zamawia) i **wartość pieniężna** (monetary: ile wydaje). [Artykuł Wikipedii o RFM](https://en.wikipedia.org/wiki/RFM_%28market_research%29) opisuje go jako metodę analizy wartości klienta i segmentacji klientów, szeroko stosowaną w marketingu katalogowym i bezpośrednim, i zauważa, że nie wymaga specjalistycznego oprogramowania statystycznego.
+
+Dla małego zespołu wystarczą trzy przedziały na pytanie. Progi poniżej to przykłady; ustaw swoje na podstawie tego, jak często Twoi klienci naprawdę zamawiają.
+
+| Ocena | Świeżość (dni od ostatniego zamówienia) | Częstotliwość (zamówienia w 12 miesiącach) | Wartość pieniężna (przychód w 12 miesiącach) |
+| --- | --- | --- | --- |
+| 3 | Do 90 dni | 6 lub więcej | Górna trzecia część Twoich klientów |
+| 2 | 91 do 365 dni | 2 do 5 | Środkowa trzecia część |
+| 1 | Ponad 365 dni | 0 lub 1 | Dolna trzecia część |
+
+Zamień oceny na cztery segmenty prostymi regułami, sprawdzanymi w tej kolejności:
+
+- **Utraceni:** świeżość 1. Nic od roku; zdecyduj raz, czy próbować ich odzyskać, czy odpuścić.
+- **Zagrożeni:** świeżość 2 i częstotliwość 2 lub 3. Zamawiali regularnie i ucichli; zadzwoń do nich w pierwszej kolejności.
+- **Jednorazowi:** częstotliwość 1 i świeżość 2 lub 3. Zamówili raz w ostatnim roku; zadbaj, żeby doszło do drugiego zamówienia.
+- **Stali:** świeżość 3 i częstotliwość 2 lub 3. Dbaj, żeby byli zadowoleni, i proś o polecenia.
+
+Każda kombinacja ocen trafia do dokładnie jednego z czterech.
+
+W każdym segmencie sortuj według oceny wartości pieniężnej, żeby dzwonić najpierw do najcenniejszych klientów.
+
+RFM pasuje do firm, w których klienci zamawiają ponownie: hurt, materiały eksploatacyjne, odnowienia, abonamenty obsługi. Nie pasuje do firmy, która sprzedaje jeden duży projekt co kilka lat, bo częstotliwość wynosi 1 prawie dla wszystkich. Tam użyj zamiast tego analizy ABC według przychodu i notatki o potrzebach i potencjale.
+
+## Jak segmentować klientów w pięciu krokach?
+
+1. **Zapisz cel w jednym zdaniu.** Na przykład: „zdecydować, kto dostaje kwartalny telefon”. Cel mówi, której podstawy użyć.
+2. **Wybierz jedną lub dwie podstawy** z tabeli powyżej i wypisz od trzech do pięciu segmentów ze spisaną regułą dla każdego.
+3. **Umieść dane w polach.** Segmentu, którego nie da się odczytać z pola, nie da się przefiltrować, zwizualizować na wykresie ani sprawdzić przez kolegę.
+4. **Przypisz każdego klienta i sprawdź dziesięciu ręcznie.** Jeśli nie zgadzasz się z wynikiem w trzech z dziesięciu, reguła wymaga poprawy.
+5. **Przypisz do każdego segmentu jedno działanie i jednego właściciela oraz ustaw datę przeglądu.** Dla większości małych zespołów wystarczy przegląd kwartalny.
+
+Segmenty wyostrzają też resztę pracy sprzedażowej. Profil docelowy, którego używasz do kwalifikowania leada (zobacz [prospekt a lead](/blog/prospect-vs-lead)), to spisany segment: klienci, których chcesz mieć więcej. A mapa [customer journey](/blog/customer-journey) działa najlepiej dla jednego segmentu naraz, ponieważ punkty styku dziesięcioosobowej agencji i trzystuosobowego producenta się różnią.
+
+## Jak ustawić segmentację klientów w Customermates?
+
+Customermates to nasz produkt, otwartoźródłowy CRM. Trzyma Twoich klientów, pracujące tam osoby i ich szanse sprzedaży w tych samych rekordach (a w planach z ujednoliconą skrzynką odbiorczą także ich wiadomości), a jego pola, filtry, zapisane widoki, tablica i wykresy na pulpicie wystarczają, żeby prowadzić powyższe segmenty. Nie przypisuje segmentów sam: wartość ustawiasz Ty, według spisanej wcześniej reguły.
+
+Segment się opłaca, gdy ktoś na jego podstawie działa: kluczowy klient dostaje telefon, uśpiony klient dostaje kontakt kontrolny. Ponieważ segment leży przy rekordzie obok rozmów, follow-up każdego segmentu ma gdzie się odbyć. W Customermates Cloud od planu Pro łączysz LinkedIn i e-mail, a Mate lub Twój własny agent AI przygotowuje kontakt kontrolny dla każdego klienta, którego następny krok jest należny, żebyś go sprawdził i wysłał.
+
+<Steps>
+  <Step title="Dodaj pola segmentu do Organizacji">W **Model danych** otwórz listę, która przechowuje firmy Twoich klientów, zwykle Organizacje, wybierz **Dodaj**, potem **Pole** i utwórz pole typu **Pojedynczy wybór** „Segment” z Twoimi opcjami (na przykład Kluczowy klient, Podstawowy, Mały, Nowy, Uśpiony). Dodaj też „Branża” i „Wielkość” (od 1 do 10, od 11 do 50, od 51 do 250, ponad 250 pracowników) jako pola typu **Pojedynczy wybór**, żeby wykresy mogły według nich grupować. Dla RFM lub ABC dodaj pole **Kwota pieniężna** „Przychód 12 miesięcy” i pole **Data** „Ostatnie zamówienie”. Nie ma tagów rekordów; odpowiednikiem, gdy firma należy do kilku grup, jest pole typu **Wielokrotny wybór**. Nowa przestrzeń robocza zaczyna bez list; w Customermates Cloud konfiguracja AI może je dla Ciebie utworzyć.</Step>
+  <Step title="Wypełnij pola">Kliknij wartość w tabeli, żeby zmienić ją na miejscu. Jeśli Twoi klienci mieszkają w arkuszu, dodaj kolumnę Segment i wczytaj plik przez **Dodaj z pliku** (Excel lub CSV): kreator mapuje kolumny i pozwala wybrać nowe lub istniejące rekordy. Pole obliczane może zsumować wartość szans sprzedaży powiązanych z organizacją, jeśli chcesz, żeby przychód był wyliczany; sprawdź, czy jego podgląd pokazuje to, co uznajesz za przychód. [Przewodnik po rekordach](/docs/app-records) opisuje pola, import i widoki.</Step>
+  <Step title="Zapisz widok dla każdego segmentu">Otwórz **Filtry**, wybierz Segment jest Kluczowy klient, posortuj po Przychód 12 miesięcy lub Ostatnie zamówienie i użyj **Zapisz jako widok**. Filtry łączą się spójnikiem I (AND), więc „Kluczowy klient i Branża Produkcja” działa; dla „Kluczowy klient lub Podstawowy” zaznacz obie wartości w tym samym filtrze Segment. W Kontaktach menu filtrów wyświetla też pola powiązanych list, więc możesz filtrować osoby według Segmentu ich organizacji. Udostępnij widok całemu zespołowi albo wybranym rolom, żeby wszyscy pracowali z tego samego segmentu; link do widoku prywatnego otwiera się jako niezapisane zmiany, które kolega może zapisać jako własny widok.</Step>
+  <Step title="Otwórz tablicę według segmentu">W **Wygląd** wybierz **Tablica** i pogrupuj według Segmentu. Każdy segment staje się kolumną, a przeciągnięcie karty przenosi firmę do innego segmentu. Tablica grupuje według pola wyboru ze swojej własnej listy, więc zostaw Segment w Organizacjach i tam otwórz tablicę.</Step>
+  <Step title="Pokaż segmenty na wykresach na pulpicie">Dodaj widżety wykresów: pierścieniowy, który liczy Organizacje według Segmentu, słupkowy Organizacji według Branży oraz wykres ze źródłem Szanse sprzedaży, który sumuje wartość szans pogrupowaną według Segmentu organizacji. Szansa powiązana z dwiema organizacjami liczy się w całości w obu grupach. Umieść je na nazwanym widoku pulpitu i udostępnij zespołowi albo użyj **Udostępnij jako szablon**, żeby koledzy zaczynali od własnej kopii. [Strona funkcji raportowania](/features/reporting) wymienia style wykresów, a [przewodnik po pulpicie](/docs/app-dashboard) edytor widżetów.</Step>
+</Steps>
+
+Wykresy pokazują, w którym miejscu jest dziś każdy segment. Nie śledzą, jak klienci przechodzą między segmentami w czasie. Ludzie i ich szanse sprzedaży zostają w tych samych [rekordach kontaktów i organizacji](/features/contact-management), więc segment widać wszędzie, gdzie pracujesz.
+
+W Customermates Cloud asystent Mate może sprawdzić jakość Twoich danych z użyciem hostowanych kredytów AI:
+
+> Pokaż mi wszystkie organizacje bez ustawionego Segmentu, razem z polem Przychód 12 miesięcy, od największego. Niczego nie zmieniaj.
+
+Jeśli wolisz Claude, ChatGPT lub innego klienta AI, [serwer MCP](/blog/what-is-an-mcp-server) daje mu dostęp do tych samych rekordów, z Twoim własnym dostawcą AI.
+
+Żeby wypróbować to na własnej liście klientów, [rozpocznij okres próbny](/auth/signup?job=followup): [[commercial.trial.days]] dni planu Pro bez karty kredytowej. Zaimportuj arkusz, dodaj pole Segment i ustaw pierwszy następny krok.
+
+<AcquisitionCallout title="Czego Customermates nie robi przy segmentacji klientów" variant="boundary">
+  Brak automatycznej segmentacji ani klasteryzacji: segmenty to wartości ustawiane ręcznie, przez import albo przez API. Brak scoringu leadów i wzbogacania danych, więc nie ocenia klientów ani nie uzupełnia za Ciebie branży i wielkości. Brak kampanii e-mail, sekwencji ani masowego outreachu: outreach to jedna przygotowana wiadomość naraz. Widok udostępniony jest dla kolegów tylko do odczytu, a filtry łączą się wyłącznie spójnikiem I (AND). Jeśli potrzebujesz segmentów, które aktualizują się same na podstawie zachowań na stronie lub w produkcie, segmentowanych kampanii e-mail albo klasteryzacji statystycznej na tysiącach klientów konsumenckich, użyj platformy do automatyzacji marketingu lub narzędzia analitycznego. Customermates pasuje do małego zespołu B2B z kilkuset klientami, garścią segmentów oraz notatkami, szansami sprzedaży i kontaktami w tym samym rekordzie.
+</AcquisitionCallout>
+
+## FAQ
+
+<Faq>
+<FaqItem question="Czym jest segmentacja klientów w prostych słowach?">
+Dzieleniem klientów na grupy, które łączy coś użytecznego, na przykład branża, wielkość, region, zachowania zakupowe lub przychód, tak żeby każda grupa dostawała ofertę, rytm kontaktu i uwagę, które do niej pasują. Segment klientów to jedna z tych grup.
+</FaqItem>
+
+<FaqItem question="Jakie są cztery rodzaje segmentacji klientów?">
+Demograficzna, geograficzna, psychograficzna i behawioralna to typowa lista dla konsumentów. W B2B demograficzna staje się firmograficzną (branża, wielkość firmy, lokalizacja), a psychograficzną często zastępują potrzeby i wartość, bo styl życia firmy rzadko jest widoczny. Na początek wybierz jedną lub dwie.
+</FaqItem>
+
+<FaqItem question="Jaki jest przykład segmentu klientów?">
+„Producenci zatrudniający od 50 do 250 osób”, „klienci, którzy zamawiali w ostatnich 90 dniach” i „trzej klienci, którzy przynoszą 70 procent przychodu” to segmenty. Każdy jest zdefiniowany regułą, którą możesz sprawdzić w polu, i każdy dostaje inne działanie.
+</FaqItem>
+
+<FaqItem question="Jakie jest pięć segmentów klientów?">
+Nie ma standardowej piątki. Działający zestaw dla małego zespołu B2B to Uśpieni, Nowi, Kluczowi klienci, Podstawowi i Mali, ze spisanymi regułami sprawdzanymi w tej kolejności. Liczba segmentów powinna wynikać z Twoich kryteriów i działań, które możesz podjąć, a nie z szablonu.
+</FaqItem>
+
+<FaqItem question="Jakie są kryteria segmentacji klientów?">
+W B2B najczęściej firmograficzne (branża, wielkość firmy, region), behawioralne (data i częstotliwość zamówień, źródło klienta) oraz wartość i potrzeby (przychód, marża, problem, który rozwiązujesz). W sprzedaży konsumenckiej dochodzą kryteria demograficzne i psychograficzne, takie jak wiek, styl życia czy zainteresowania.
+</FaqItem>
+
+<FaqItem question="Po co segmentować klientów?">
+Żeby wiedzieć, do kogo zadzwonić najpierw, jaką ofertę komu pokazać i na których klientach skupić czas opieki. Segmentacja pomaga też zauważyć klientów zagrożonych odejściem i szukać nowych klientów podobnych do najlepszego segmentu.
+</FaqItem>
+
+<FaqItem question="Czym różni się segmentacja rynku od segmentacji klientów?">
+Segmentacja rynku dzieli cały rynek, także ludzi, którzy o Tobie nie słyszeli, na przykład biura rachunkowe według wielkości. Segmentacja klientów dotyczy tych, których już znasz i masz w CRM, na przykład klientów według przychodu albo daty ostatniego zamówienia.
+</FaqItem>
+
+<FaqItem question="Czym jest model segmentacji klientów?">
+Kryteria, według których segmentujesz, plus reguła przypisująca każdego klienta do jednego segmentu, na przykład „klasa ABC według przychodu w ostatnich 12 miesiącach” albo przedziały RFM. Modele sięgają od kilku spisanych reguł po klasteryzację statystyczną; małe zespoły zwykle potrzebują tylko reguł.
+</FaqItem>
+
+<FaqItem question="Ile segmentów klientów powinna mieć mała firma?">
+Od trzech do pięciu. Każdy segment potrzebuje działania i właściciela, a zespół kilku osób nie obsłuży dwunastu różnych sposobów traktowania. Połącz segmenty, które traktowałbyś tak samo.
+</FaqItem>
+
+<FaqItem question="Czy Customermates może segmentować klientów automatycznie?">
+Nie. Customermates nie ma automatycznej segmentacji, scoringu leadów ani wzbogacania danych i nie ma kampanii e-mail. Pole Segment ustawiasz ręcznie, przez import albo przez API, a filtry, zapisane widoki, tablica i wykresy na pulpicie działają na jego podstawie.
+</FaqItem>
+</Faq>
+
+Fakty stron trzecich sprawdzono 3 listopada 2026 w [stronie Bain & Company o narzędziu zarządczym segmentacji klientów](https://www.bain.com/insights/management-tools-customer-segmentation/), w artykułach Wikipedii o [segmentacji rynku](https://en.wikipedia.org/wiki/Market_segmentation), [zasadzie Pareto](https://en.wikipedia.org/wiki/Pareto_principle), [analizie ABC](https://en.wikipedia.org/wiki/ABC_analysis) i [RFM](https://en.wikipedia.org/wiki/RFM_%28market_research%29). Opisane zachowanie Customermates pochodzi z dokumentacji produktu o [rekordach i widokach](/docs/app-records), [filtrach](/docs/filter-syntax) i [pulpitach](/docs/app-dashboard).

@@ -29,6 +29,8 @@ vi.mock("next/navigation", () => ({
 
 import StaticLayout, { revalidate } from "../layout";
 
+import { CONTENT_LOCALES } from "@/i18n/locale-registry";
+
 async function render() {
   const element = await StaticLayout({
     children: jsx("main", { children: "docs page" }),
@@ -51,9 +53,18 @@ describe("StaticLayout rendering", () => {
   });
 
   it("answers an app-only locale with a 404 instead of rendering marketing content", async () => {
-    await expect(StaticLayout({ children: null, params: Promise.resolve({ locale: "es" }) })).rejects.toThrow(
+    await expect(StaticLayout({ children: null, params: Promise.resolve({ locale: "ja" }) })).rejects.toThrow(
       "NEXT_HTTP_ERROR_FALLBACK;404",
     );
+  });
+
+  it.each(CONTENT_LOCALES)("renders marketing content for %s, a full content locale", async (locale) => {
+    const element = await StaticLayout({
+      children: jsx("main", { children: "page" }),
+      params: Promise.resolve({ locale }),
+    });
+    expect(renderToStaticMarkup(element)).toContain("page");
+    expect(state.setRequestLocale).toHaveBeenCalledWith(locale);
   });
 
   it("renders the shell for a partial marketing locale and leaves page scope to each page", async () => {

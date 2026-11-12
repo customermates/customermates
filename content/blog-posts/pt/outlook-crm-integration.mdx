@@ -1,0 +1,170 @@
+---
+title: "Integração Outlook CRM: add-in ou sincronização de e-mail"
+description: "Integração Outlook CRM: add-in, sincronização no servidor ou e-mail do Outlook dentro do CRM. Veja o que HubSpot, Dynamics 365 e Pipedrive oferecem."
+
+relatedHrefs:
+  - /features/outlook-integration
+  - /features/unified-inbox
+  - /blog/claude-connectors
+  - /blog/gmail-crm-integration
+
+hero:
+  title: "Integração Outlook CRM: add-in, sincronização no servidor ou a caixa de entrada do CRM"
+  description: "O que faz um add-in do Outlook e o que faz a sincronização no servidor, o que HubSpot, Dynamics 365, Salesforce e Pipedrive oferecem para o Outlook, por que o novo Outlook para Windows importa e como testar."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Voltar ao blog
+  by: por Benjamin Wagner
+  date: 2025-12-18
+  updated: 2026-10-08
+  tags:
+    - Integração Outlook CRM
+    - CRM para Microsoft 365
+    - Comparação de CRM
+---
+
+# Integração Outlook CRM: add-in, sincronização no servidor ou a caixa de entrada do CRM
+
+Uma integração Outlook CRM faz um de dois trabalhos, e as boas fazem os dois. Ela mostra os registros do CRM ao lado do e-mail que você está lendo no Outlook e copia e-mails e reuniões da sua caixa do Microsoft 365 para o contato e o negócio certos. O primeiro trabalho é feito por um add-in do Outlook. O segundo roda nos servidores do CRM, com o Outlook aberto ou não.
+
+Então a pergunta que importa é onde a sua equipe quer trabalhar. Se as pessoas vivem no Outlook o dia todo, escolha um CRM integrado ao Outlook, com um add-in sólido e sincronização no servidor. Se elas preferem responder e-mails pelo CRM, ao lado do negócio e dos outros canais, escolha um CRM que traga a caixa de e-mail para dentro. Uma verificação técnica vale para todo mundo: o novo Outlook para Windows só executa add-ins web, então plug-ins COM ou VSTO mais antigos deixam de funcionar nele.
+
+O Customermates publica este guia. O Customermates, um CRM nativo de IA, segue a terceira abordagem: não tem add-in do Outlook e traz o e-mail do Outlook para a própria caixa de entrada. Os detalhes dos fornecedores abaixo foram verificados em 8 de outubro de 2026 nas páginas dos próprios fornecedores, com links no final.
+
+<ArticleSummary title="Resumo rápido">
+  <SummaryItem label="Add-in">Um painel dentro do Outlook para consultar registros, registrar um e-mail ou criar um contato. Útil quando a equipe não sai do Outlook.</SummaryItem>
+  <SummaryItem label="Sincronização no servidor">E-mails e reuniões chegam ao CRM em segundo plano. É o que mantém os registros completos quando ninguém clica em "registrar".</SummaryItem>
+  <SummaryItem label="Caixa de e-mail no CRM">Você lê e responde o e-mail do Outlook dentro do CRM. Não há add-in para instalar ou manter, mas muda o lugar onde você trabalha.</SummaryItem>
+  <SummaryItem label="Novo Outlook">A Microsoft não oferece suporte a add-ins COM ou VSTO no novo Outlook para Windows. Pergunte a qualquer fornecedor se o add-in dele é um add-in web.</SummaryItem>
+  <SummaryItem label="Contatos e calendário">A sincronização de contatos e de calendário nos dois sentidos varia mais entre os CRMs do que o registro de e-mails. Confira um por um.</SummaryItem>
+</ArticleSummary>
+
+## Os três tipos de integração
+
+| Tipo | O que faz | Onde você trabalha | Confira antes de comprar |
+|---|---|---|---|
+| Add-in no Outlook | Mostra o contato, os negócios e o histórico correspondentes ao lado de um e-mail; registra esse e-mail ou reunião em um registro quando você clica | Outlook | Roda nos seus clientes do Outlook (Windows clássico e novo, Mac, web, celular); funciona com caixas compartilhadas, se você as usa |
+| Sincronização no servidor | Conecta a caixa de e-mail ao CRM via Exchange ou Microsoft 365 e copia e-mails enviados e recebidos, e muitas vezes reuniões, para os registros correspondentes | Outlook, com o CRM se preenchendo sozinho | Quais pastas sincronizam, com que rapidez, o que acontece com e-mail privado, se contatos e calendário sincronizam nos dois sentidos |
+| Caixa de e-mail dentro do CRM | Importa a caixa de e-mail para a caixa de entrada do CRM, onde você lê, responde e organiza e-mails ao lado do registro | O CRM | Se você ainda pode usar o Outlook em paralelo, se as respostas saem do seu endereço real, o que acontece com o calendário |
+
+A maioria dos CRMs da próxima tabela combina os dois primeiros: um add-in para consultar e a sincronização no servidor para manter tudo completo. O terceiro tipo serve a equipes cujas conversas com clientes se espalham entre e-mail e canais de chat, porque o CRM mostra todas em uma única lista.
+
+## O que os CRMs mais comuns oferecem para o Outlook
+
+| CRM | No Outlook | Sincronização com o CRM | Vale saber |
+|---|---|---|---|
+| HubSpot | Add-in HubSpot Sales Office 365 para rastrear e registrar e-mails e usar as ferramentas de vendas do HubSpot na caixa de entrada | Sua caixa de entrada precisa estar conectada ao HubSpot para usar o add-in | O HubSpot lista o add-in para todos os produtos e planos. O artigo de ajuda cita o Outlook para Windows clássico e novo, o Outlook para Mac clássico e novo e o Outlook na web |
+| Microsoft Dynamics 365 Sales | Dynamics 365 App for Outlook no desktop, na web e no celular: vincule e-mails, reuniões e compromissos a uma conta, oportunidade ou caso | A sincronização no servidor roda em segundo plano mais ou menos a cada 15 minutos; os contatos podem sincronizar entre o Exchange e o Dynamics 365 | Sem suporte a caixas compartilhadas do Microsoft 365. O Sales Professional é listado a US$ 65 por usuário por mês, pagos anualmente |
+| Salesforce | A integração com o Outlook, um painel lateral no Outlook | Einstein Activity Capture para sincronizar e-mails e eventos | O Salesforce for Outlook, o produto desktop mais antigo, está sendo desativado; o Salesforce recomenda a integração com o Outlook e o Einstein Activity Capture |
+| Pipedrive | Pipedrive for Outlook, um app do Marketplace criado pela Baymats AB, para desktop e web; teste gratuito de 7 dias e depois assinatura paga | Sincronização de e-mail no Growth e acima, com Office 365 / Outlook, Exchange (EWS) e IMAP; vincula conversas a negócios, leads ou projetos | A sincronização de e-mail também oferece rastreamento de abertura. O add-in é um produto de terceiros, com assinatura própria |
+| Customermates | Sem add-in | Caixa de e-mail do Outlook na caixa de entrada do CRM, no Pro e acima do Customermates Cloud; calendário somente leitura | Sem sincronização de contatos do Outlook e sem escrita no calendário. Detalhes nas próximas seções |
+
+Os preços mudam; o preço do Dynamics 365 foi verificado em 8 de outubro de 2026 na [página de preços da Microsoft](https://www.microsoft.com/en-us/dynamics-365/products/sales/pricing).
+
+## A verificação do novo Outlook para Windows
+
+A documentação para desenvolvedores da Microsoft é explícita: add-ins VSTO e COM não têm suporte no novo Outlook para Windows, e os fornecedores precisam migrar para um add-in web do Outlook. O Outlook clássico para Windows ainda os executa. Quando um usuário passa para o novo cliente, o Outlook instala as versões web dos add-ins COM existentes, quando elas existem.
+
+Dois detalhes da mesma página importam para quem compra um CRM. A Microsoft lista "CRM and tracking services" como um cenário compatível com add-ins web. Ela lista "data sync service", a sincronização bidirecional de itens de e-mail, como apenas parcialmente compatível. E o novo cliente exige, por ora, uma conta corporativa ou escolar do Microsoft 365 no Exchange Online; contas do Exchange local, híbrido e soberano ainda não têm suporte.
+
+Na prática: se a sua equipe está migrando para o novo Outlook, pergunte a cada fornecedor se o add-in dele é um add-in web e teste no novo cliente antes de migrar. A sincronização no servidor e a caixa de e-mail dentro do CRM não dependem do cliente Outlook.
+
+## Qual abordagem serve
+
+| Sua situação | O que procurar |
+|---|---|
+| A equipe trabalha no Outlook o dia todo e não quer uma segunda janela | Um add-in que rode em todos os seus clientes do Outlook, mais sincronização no servidor |
+| Você está no Microsoft 365, com um administrador de TI, Teams e Dataverse | Dynamics 365 Sales; é o CRM da própria Microsoft e o App for Outlook dele se apoia na sincronização no servidor |
+| Você precisa que os contatos do Outlook e os do CRM fiquem idênticos | Um CRM com sincronização de contatos nos dois sentidos, testada antes com a sua agenda de endereços |
+| A maioria das conversas com clientes acontece por e-mail mais LinkedIn ou WhatsApp | Um CRM que importe a caixa de e-mail para uma caixa de entrada compartilhada com esses canais |
+| Uma caixa da equipe, como vendas@, precisa ser visível para várias pessoas | Verifique o suporte a caixas compartilhadas de forma explícita; o Dynamics 365 App for Outlook, por exemplo, não oferece suporte a caixas compartilhadas do Microsoft 365 |
+| Você está migrando para o novo Outlook para Windows | Apenas add-ins web, ou uma abordagem que não precise de add-in |
+| A sua equipe usa o Google Workspace, não o Microsoft 365 | O guia de [integração do Gmail com CRM](/blog/gmail-crm-integration) traz as mesmas verificações |
+
+## Como o Outlook funciona no Customermates
+
+O Customermates segue a terceira rota. No Pro e acima do Customermates Cloud, uma conta do Outlook conectada alimenta a [caixa de entrada unificada](/features/unified-inbox), ao lado de LinkedIn, WhatsApp, Instagram e Telegram. Você continua usando o Outlook quando quiser; o e-mail que você envia por lá ainda chega à conversa no CRM. A [página da integração com o Outlook](/features/outlook-integration) lista exatamente o que sincroniza.
+
+<Steps>
+  <Step title="Conecte a conta">Abra **Configurações › Canais e calendários**, clique em **Conectar canal** e escolha **Outlook**. Você entra em uma página de conexão segura, e o histórico da caixa de e-mail é importado em segundo plano. O cartão mostra se e-mail, calendário ou os dois estão conectados.</Step>
+  <Step title="Escolha as pastas">A aba **Pastas** da conta tem um botão por pasta. Por padrão, todas as pastas ficam ativadas, exceto lixeira, spam ou lixo eletrônico, rascunhos e a pasta de todos os e-mails. Desative as pastas com e-mails privados.</Step>
+  <Step title="Vincule pessoas a contatos">Em uma conversa, abra **Configurações da conversa** e clique em **Vincular** ao lado de um participante, ou crie o contato a partir dali. O endereço é adicionado ao contato, então [toda conversa com ele aparece na linha do tempo desse contato](/blog/customer-interaction-management).</Step>
+  <Step title="Defina a assinatura">Na aba **E-mail** da conta, ative **Adicionar uma assinatura**. Ela é adicionada a todo e-mail enviado dessa conta, pela caixa de entrada, pela API REST ou pelo MCP.</Step>
+  <Step title="Decida o que a equipe vê">Uma conta nova é privada. No Pro você compartilha conversas individuais; no Business você pode compartilhar a conta inteira, por exemplo uma caixa vendas@, com todas as pessoas cujo papel pode ler a caixa de entrada.</Step>
+</Steps>
+
+O que sincroniza depois, e o que não sincroniza:
+
+| Objeto do Outlook | No Customermates |
+|---|---|
+| E-mails enviados e recebidos | Sim, das pastas que você ativou. As respostas saem da própria conta do Outlook |
+| Mover um e-mail para uma pasta | Sim, em contas Outlook e IMAP a mudança acontece também na caixa de e-mail real |
+| Eventos do calendário | Somente leitura. As reuniões aparecem na linha do tempo de atividades; o Customermates não cria, edita nem agenda eventos |
+| Contatos do Outlook (agenda de endereços) | Não sincronizam em nenhum dos sentidos. Os contatos são criados ao vincular um participante ou no CRM |
+| Tarefas do Outlook | Não sincronizam |
+
+O [guia da caixa de entrada](/docs/app-inbox) trata de permissões, rascunhos e filtros em detalhe.
+
+### Deixe o Mate ou o seu próprio cliente de IA cuidar do acompanhamento
+
+O motivo para trazer o Outlook para o Customermates é o acompanhamento: cada e-mail de cliente fica no registro do cliente, o Mate ou o seu próprio agente de IA redige a resposta e o próximo passo, você revisa e envia, e os próximos passos aparecem no seu painel.
+
+No Customermates Cloud, o Mate pode resumir uma conversa ou redigir uma resposta, e usa créditos de IA hospedados. Uma rotina executa uma instrução salva quando algo acontece. Para e-mails do Outlook, crie uma rotina com o gatilho **Quando algo muda**, escolha o evento **E-mail recebido** e escreva instruções como estas:
+
+> Quando chegar um e-mail de um contato que tem um negócio aberto atribuído a mim, leia a conversa e o negócio. Salve na conversa um rascunho de resposta que responda à pergunta em aberto. Não envie nada. Se o e-mail pedir uma reunião, diga isso no rascunho em vez de propor horários.
+
+A frase "não envie nada" importa. Uma rotina roda como o seu dono, com os canais do dono, e o Mate envia e-mails sem perguntar de novo quando uma instrução manda enviar. As [Rotinas](/docs/app-routines) listam os limites atuais. Se você prefere o seu próprio cliente de IA, como Claude ou ChatGPT, ele pode ler conversas e salvar rascunhos por MCP e usa o seu próprio provedor de IA em vez de créditos hospedados.
+
+### Quanto custa
+
+Uma equipe de cinco pessoas no Pro paga [[commercial.price.pro.monthly.seats.5]] por mês. Cada usuário recebe [[commercial.entitlement.pro.includedAccountsPerUser]] conta conectada, o bastante para uma caixa do Outlook por pessoa. Compartilhar a caixa inteira da equipe exige o Business, que custa [[commercial.price.business.monthly.seats.5]] por mês para as mesmas cinco pessoas e inclui [[commercial.entitlement.business.includedAccountsPerUser]] contas por usuário. O Starter, a [[commercial.price.starter.monthly]] por usuário, não tem caixa de entrada nem conexão com o Outlook. Veja os [preços](/pricing) para os créditos de IA hospedados por mês para cada usuário ativo.
+
+Para testar com o seu próprio Outlook, [comece seu teste](/auth/signup?job=followup): [[commercial.trial.days]] dias de Pro sem cartão de crédito.
+
+<AcquisitionCallout title="Onde o Customermates não é a melhor escolha" variant="boundary">
+Não existe add-in do Outlook, então os detalhes do CRM são consultados no Customermates, e não em um painel lateral do Outlook. Contatos e tarefas do Outlook não sincronizam, e os eventos do calendário são somente leitura. O Customermates não tem sequências de e-mail nem e-mail em massa. Uma instalação com hospedagem própria não tem caixa de entrada nem conexão com o Outlook; ela oferece REST, webhooks e MCP. Se a sua equipe precisa ficar dentro do Outlook, ou precisa de sincronização de contatos nos dois sentidos com a agenda de endereços do Exchange, escolha um CRM com add-in web e sincronização no servidor, da tabela acima.
+</AcquisitionCallout>
+
+## Teste qualquer CRM para Outlook antes de liberar para a equipe
+
+1. Envie um e-mail do Outlook para um contato conhecido. Ele deve aparecer nesse contato dentro do tempo de sincronização informado pelo fornecedor.
+2. Responda pelo celular. A resposta deve entrar na mesma conversa, e não criar um novo contato.
+3. Envie um e-mail a alguém que não está no CRM. Veja se o CRM cria um contato sozinho, pergunta a você ou ignora a mensagem, e qual desses comportamentos você quer.
+4. Coloque um e-mail privado em uma pasta que você excluiu. Ele não pode aparecer no CRM.
+5. Crie no Outlook uma reunião com um cliente. Veja onde ela aparece e se editá-la no CRM muda o Outlook.
+6. Abra o add-in, se houver, em todos os clientes do Outlook que a sua equipe usa, inclusive o novo Outlook para Windows.
+
+## Dá para usar o Outlook como CRM?
+
+Para um punhado de clientes, em parte. O Outlook tem contatos, categorias, tarefas e um calendário, e uma pasta por cliente leva você surpreendentemente longe. O que falta é um negócio com etapa e valor, uma lista de negócios abertos por pessoa e um histórico que um colega consiga ler quando você está ausente. O CRM da Microsoft é o Dynamics 365 Sales, licenciado separadamente do Microsoft 365. Quando você acompanha mais do que alguns negócios ao mesmo tempo, um CRM conectado ao Outlook dá menos trabalho do que pastas e categorias. Para uma etapa intermediária, veja o [modelo de CRM em Excel](/blog/excel-crm-template); para escolher o produto, o [guia para escolher um CRM](/blog/how-to-choose-crm) traz um plano de teste e pontuação.
+
+## Perguntas frequentes
+
+<Faq>
+<FaqItem question="Como integrar um CRM ao Outlook?">
+A maioria dos CRMs oferece duas partes. Primeiro conecte a sua caixa de e-mail nas configurações do CRM, para que os e-mails sincronizem no servidor. Depois instale o add-in do CRM pela loja de add-ins do Outlook, ou peça ao administrador do seu Microsoft 365 que o implante para todo mundo. No Customermates não há add-in: você conecta a conta do Outlook em **Configurações › Canais e calendários**, no Pro ou acima, e o e-mail aparece na caixa de entrada do CRM.
+</FaqItem>
+
+<FaqItem question="O Microsoft Outlook é um CRM, e o Microsoft 365 inclui um?">
+Não. O Outlook é um cliente de e-mail e calendário com contatos e tarefas, mas sem negócios, etapas nem funil. O CRM da Microsoft é o Dynamics 365 Sales, uma assinatura separada; a Microsoft lista o Sales Professional a US$ 65 por usuário por mês, pagos anualmente.
+</FaqItem>
+
+<FaqItem question="Os add-ins de CRM funcionam no novo Outlook para Windows?">
+Só os add-ins web funcionam. A Microsoft informa que add-ins COM e VSTO não têm suporte no novo Outlook para Windows, enquanto o Outlook clássico ainda os executa. Por ora, o novo cliente também exige uma conta corporativa ou escolar do Microsoft 365 no Exchange Online.
+</FaqItem>
+
+<FaqItem question="O Salesforce for Outlook vai ser descontinuado?">
+Sim. O Salesforce está desativando o Salesforce for Outlook, o produto desktop mais antigo, e recomenda a integração com o Outlook (um painel lateral no Outlook) e o Einstein Activity Capture para sincronizar e-mails e eventos. Consulte as notas de versão do Salesforce para saber a data que vale para a sua organização.
+</FaqItem>
+
+<FaqItem question="O HubSpot se integra ao Outlook, e é de graça?">
+Sim. O add-in HubSpot Sales Office 365 rastreia e registra e-mails e traz as ferramentas de vendas do HubSpot para o Outlook. O HubSpot o lista como disponível em todos os produtos e planos, e o artigo de ajuda não cita nenhuma cobrança separada pelo add-in. Sua caixa de entrada precisa estar conectada ao HubSpot antes.
+</FaqItem>
+
+<FaqItem question="Os contatos do CRM podem sincronizar com os contatos do Outlook?">
+Alguns CRMs fazem isso. O Dynamics 365, por exemplo, sincroniza contatos entre o Exchange e o aplicativo. O Customermates não: ele associa conversas a contatos pelo endereço de e-mail, e você vincula ou cria contatos no CRM.
+</FaqItem>
+</Faq>
+
+Detalhes dos fornecedores verificados em 8 de outubro de 2026 no [guia do add-in Office 365 do HubSpot](https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-office-365-add-in), na [visão geral do Dynamics 365 App for Outlook](https://learn.microsoft.com/en-us/dynamics365/outlook-app/overview), nos [requisitos do App for Outlook](https://learn.microsoft.com/en-us/dynamics365/outlook-app/support-info-deployment), nos [preços do Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales/pricing) e em [add-ins no novo Outlook para Windows](https://learn.microsoft.com/en-us/office/dev/add-ins/outlook/one-outlook), todos da Microsoft, no [guia de preparação para a desativação](https://help.salesforce.com/s/articleView?id=sales.outlookcrm_sfo_move_retire_prepare.htm&language=en_US&type=5) do Salesforce, e no [artigo sobre sincronização de e-mail](https://support.pipedrive.com/en/article/email-sync) e na [página do Pipedrive for Outlook](https://www.pipedrive.com/en/marketplace/app/pipedrive-for-outlook/594c78d1bdbacfbc) do Pipedrive.

@@ -167,7 +167,10 @@ function winAnsi(text: string): string {
       const code = character.charCodeAt(0);
       if (code < 0x80 || (code >= 0xa0 && code <= 0xff)) return character;
       const mapped = WIN_ANSI_EXTRA[character];
-      return mapped === undefined ? "?" : String.fromCharCode(mapped);
+      if (mapped !== undefined) return String.fromCharCode(mapped);
+      // Letters outside WinAnsi (Polish ą ć ę ł ń ś ź ż and similar) fall back to their base letter, not "?".
+      const base = character === "ł" ? "l" : character === "Ł" ? "L" : character.normalize("NFD").charAt(0);
+      return base.charCodeAt(0) < 0x80 ? base : "?";
     })
     .join("");
 }

@@ -1,0 +1,196 @@
+---
+title: "Dashboard CRM: co to jest, przykłady i jak go zbudować"
+description: "Dashboard CRM: jakie raporty zbudować i jak ustawić tygodniowy dashboard pipeline'u: wykresy szans sprzedaży, ważony pipeline i analiza rekordów przez Mate."
+featureName: Raporty CRM
+
+relatedHrefs:
+  - /features/pipeline
+  - /features/sales
+  - /features/workflow-automation
+  - /docs/app-dashboard
+
+sections:
+  visual:
+    kind: stage
+    solution: consultants
+    prompt: "Jesteśmy czteroosobową firmą doradztwa strategicznego. Śledź klientów, zlecenia i oferty oraz pomóż nam prowadzić follow-up z potencjalnymi klientami na LinkedIn."
+  steps:
+    title: "Ustaw tygodniowy dashboard pipeline'u"
+    items:
+      - title: "Sprawdź prawdopodobieństwa etapów"
+        description: "W „Model danych” otwórz „Szanse sprzedaży” i pole „Etap”, a następnie dostosuj „Prawdopodobieństwo %” każdej opcji. Podgląd pokazuje wpływ na szanse sprzedaży i widżety."
+      - title: "Dodaj pola, których potrzebują Twoje pytania"
+        description: "W „Model danych” otwórz „Szanse sprzedaży” i użyj „Dodaj › Pole” dla pola „Pojedynczy wybór” o nazwie „Źródło leada” (Polecenie, LinkedIn, Strona internetowa, Wydarzenie), drugiego pola „Pojedynczy wybór” o nazwie „Powód przegranej” oraz pola daty „Data zamknięcia”. Wykres może grupować tylko według tego, co zapisujesz."
+      - title: "Utwórz pierwszy wykres"
+        description: "Na „Pulpit” naciśnij „Dodaj widżet” i wybierz „Wykres słupkowy”. W sekcji „Dane” wybierz jako źródło „Szanse sprzedaży”, zsumuj „Wartość ważona” i pogrupuj według „Etap”. W filtrach wyklucz „Wygrana” i „Przegrana”, a potem naciśnij „Zapisz”."
+      - title: "Dodaj trzy kolejne"
+        description: "Wartość wygranych szans według źródła leada, wartość wygranych szans na organizację oraz liczbę przegranych szans według powodu przegranej. Przeciągaj je i zmieniaj rozmiar; układ zapisuje się za Ciebie."
+      - title: "Udostępnij dashboard zespołowi"
+        description: "Umieść wykresy w nazwanym widoku pulpitu, takim jak „Pipeline tygodniowy” („Nowy widok” nad widżetami), a potem wybierz „Udostępnij…” w jego menu. Wszyscy w przestrzeni roboczej albo wybrane przez Ciebie role widzą te same wykresy, tylko do odczytu, a każda liczba jest obliczana na podstawie ich własnego dostępu."
+  highlights:
+    title: "W skrócie"
+    capture: homepage-dashboard
+    items:
+      - title: "Co dostajesz"
+        description: "Widżety wykresów, które liczą rekordy albo sumują pola, takie jak wartość szansy sprzedaży i wartość ważona, pogrupowane według pola, według rekordu lub w czasie, a do tego widżet osi czasu aktywności."
+      - title: "Plany"
+        description: "Dashboardy i ważony pipeline wchodzą w skład każdego planu, od Startera za [[commercial.price.starter.monthly]] za użytkownika miesięcznie, oraz edycji self-hosted."
+      - title: "AI"
+        description: "W Customermates Cloud Mate odpowiada na pytania wymagające obliczeń na wielu rekordach, korzystając z hostowanych kredytów AI. Twój własny klient AI czyta te same dane przez MCP."
+      - title: "Nie wchodzi w skład"
+        description: "Bez śledzenia konwersji w czasie, czasu w etapie, celów, prognoz predykcyjnych i cyklicznych raportów e-mailem oraz bez dashboardu, który cały zespół edytuje wspólnie (udostępniony dashboard jest dla współpracowników tylko do odczytu)."
+
+hero:
+  title: "Dashboard CRM: które follow-upy czekają i ile wart jest Twój pipeline"
+  description: "Zbuduj dashboard z szansami sprzedaży według etapu, ważonym pipeline'em i listą Nadchodzące z tym, co jest na czas i po terminie, a potem udostępnij go zespołowi. W Customermates Cloud zapytaj Mate o liczby, których wykres nie pokaże."
+  buttonLeftText: "Zacznij [[commercial.trial.days]]-dniowy okres próbny"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Obejrzyj demo na żywo
+  buttonRightHref: https://demo.customermates.com/pl/w/male-firmy/dashboard
+  hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
+
+cta:
+  action: "Umieść follow-upy i pipeline na jednym dashboardzie"
+  description: "W okresie próbnym dodaj pole daty dla następnego kroku, widżet Nadchodzące i wykres ważonego pipeline'u. Dashboardy są w cenie od [[commercial.price.starter.monthly]] za użytkownika miesięcznie, z rozliczeniem miesięcznym."
+  buttonLeftText: "Zacznij [[commercial.trial.days]]-dniowy okres próbny"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Obejrzyj demo na żywo
+  buttonRightHref: https://demo.customermates.com/pl/w/male-firmy/dashboard
+  hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
+---
+
+Dashboard CRM to jedna strona z wykresami i listami, która na bieżąco liczy i sumuje to, co już jest w Twoim CRM, dzięki czemu pytania w rodzaju „co jest w pipeline?” albo „którzy klienci przynieśli najwięcej przychodów?” dostają odpowiedź bez arkusza kalkulacyjnego. W Customermates dzieje się to w trzech miejscach: na wykresach pulpitu, na listach pogrupowanych według pola i w wartości ważonej każdej szansy sprzedaży. Wszystko, co wymaga prawdziwej arytmetyki na wielu rekordach, takie jak mediana wartości transakcji albo ranking, trafia do Mate w Customermates Cloud, do Twojego własnego klienta AI przez MCP albo do Excela po eksporcie.
+
+Zakres jest celowo niewielki. Jeśli potrzebujesz śledzenia konwersji w czasie, czasu w etapie, kwot do zrealizowania albo prognoz przychodów, sekcja o ograniczeniach wymienia narzędzia, które to robią.
+
+## Co to jest dashboard CRM i jakie ma przykłady? [#co-to-jest-dashboard]
+
+Dashboard CRM zbiera w jednym miejscu liczby, na które zespół patrzy regularnie. Nie są one kopiowane do osobnego raportu, tylko liczone z rekordów, więc wykres zmienia się razem z nimi. Najczęstsze dashboardy małego zespołu:
+
+- **Dashboard pipeline'u:** wartość i wartość ważona szans według etapu oraz liczba otwartych szans.
+- **Dashboard źródeł:** skąd przychodzą leady i skąd pochodzi wygrany biznes.
+- **Dashboard follow-upów:** widżet Nadchodzące z datami następnych kroków i sekcją Po terminie oraz oś czasu aktywności.
+- **Dashboard klientów i usług:** przychody według organizacji i usługi oraz przegrane szanse według powodu.
+
+Dashboard skuteczności kampanii reklamowych potrzebuje danych z narzędzi reklamowych, a Customermates nie ma własnego połączenia z platformami reklamowymi, więc takie liczby zbiera inne narzędzie.
+
+## Jak zaprojektować dobry dashboard CRM? [#jak-zaprojektowac]
+
+Dobry dashboard odpowiada na kilka pytań, które ktoś zadaje regularnie, a nie pokazuje wszystkiego, co da się policzyć.
+
+1. **Wybierz odbiorcę i pytania.** Kto patrzy na dashboard i jaką decyzję ma podjąć? Pięć do siedmiu widżetów zwykle wystarcza.
+2. **Sprawdź, czy dane są w polach.** Wykres liczy i grupuje tylko to, co zapisujesz: bez pola „Źródło leada” nie zobaczysz wygranych według źródła.
+3. **Dobierz styl do pytania.** Liczba pokazuje jedną sumę, słupki porównania, obszar w czasie trendy, tabela rankingowa kolejność, a lejek bieżące etapy.
+4. **Udostępnij i ustal rytm.** Wskaż właściciela dashboardu i stały termin przeglądu, na przykład poniedziałek rano. Udostępniony dashboard jest dla współpracowników tylko do odczytu, a każda liczba jest obliczana według ich własnego dostępu.
+5. **Zbierz opinie i popraw.** Po dwóch tygodniach usuń widżety, na które nikt nie patrzy, i dodaj brakujące. Przepisy na konkretne wykresy są niżej.
+
+## Co może policzyć widżet wykresu
+
+Każdy wykres przyjmuje jedną listę jako źródło, agregację i grupowanie. Agregacja to liczba rekordów albo suma, średnia, minimum lub maksimum pola liczbowego lub kwotowego, takiego jak **Wartość** czy **Wartość ważona** w szansach sprzedaży.
+
+**Grupowanie** to **Bez grupowania** (jedna suma), pole takie jak Etap albo Źródło leada, **Każdy rekord**, **Przypisano do** lub pole, do którego dochodzisz przez relację. Dzięki temu dostajesz „wartość szans sprzedaży według etapu”, „wartość szans sprzedaży na organizację” albo „kwoty pozycji według usługi”. Pogrupuj według pola daty, **Utworzono** lub **Zaktualizowano** i wybierz **Przedział czasu**, aby dostać jedną wartość na dzień, tydzień, miesiąc, kwartał lub rok.
+
+**Wartość ważona** to pole obliczane w szansach sprzedaży: wartość szansy razy **Prawdopodobieństwo %** jej etapu, które ustawiasz przy każdej opcji pola Etap w **Model danych**. Gdy prawdopodobieństwa są ustawione, działa od pierwszej szansy sprzedaży.
+
+**Filtry** zawężają to, co liczy wykres, według dowolnego pola, także dat; powiązane pola pojawiają się jako **Lista › Pole**. Tak wykreślisz „wartość wygranych szans na organizację”: szanse sprzedaży jako źródło, filtr Etap to Wygrana, grupowanie według organizacji.
+
+**Style wykresów** to Liczba, Wykres słupkowy, Słupki poziome, Obszar w czasie, Tabela rankingowa, Pierścień, Lejek i Radar. Podgląd na żywo pokazuje wynik, zanim zapiszesz.
+
+Drugi rodzaj widżetu, **Oś czasu aktywności**, to kanał zmian w rekordach od najnowszych, a w planie Pro i wyższych także wiadomości i wydarzenia kalendarza z połączonych kont. Filtrujesz go według kategorii, konta lub powiązanych rekordów, na przykład „wszystko, co zdarzyło się przy szansach sprzedaży moich trzech największych klientów”.
+
+## Raporty, z których korzysta mały zespół, i jak zbudować każdy
+
+Te przepisy zakładają listę szans sprzedaży z polem pojedynczego wyboru Etap oraz dwoma kolejnymi polami pojedynczego wyboru, które dodajesz: „Źródło leada” i „Powód przegranej”.
+
+| Pytanie | Źródło | Miara | Grupowanie | Filtry |
+|---|---|---|---|---|
+| Co jest w pipeline, według etapu? | Szanse sprzedaży | Suma pola Wartość | Etap | Etap nie jest Wygrana ani Przegrana |
+| Ile to warte, jeśli prawdopodobieństwa etapów się sprawdzą? | Szanse sprzedaży | Suma pola Wartość ważona | Etap | Etap nie jest Wygrana ani Przegrana |
+| Skąd bierze się wygrany biznes? | Szanse sprzedaży | Suma pola Wartość | Źródło leada | Etap to Wygrana, własna data „Data zamknięcia” między pierwszym i ostatnim dniem kwartału |
+| Którzy klienci przynoszą najwięcej przychodów? | Szanse sprzedaży | Suma pola Wartość | Organizacja | Etap to Wygrana |
+| Które usługi się sprzedają? | Pozycje | Suma pola Kwota | Usługa | Szanse sprzedaży › Etap to Wygrana |
+| Dlaczego przegrywamy? | Szanse sprzedaży | Liczba | Powód przegranej | Etap to Przegrana |
+| Ile otwartej pracy jest do zrobienia? | Zadania | Liczba | Status | Status nie jest Ukończone ani Zarchiwizowane |
+
+Zadania nie mają wbudowanego terminu. Pole Status w ostatnim wierszu to pole pojedynczego wyboru, które dodajesz do listy zadań, a jego nazwę, opcje i istnienie zmienisz tak jak każdego innego pola.
+
+Na dwa pytania lepiej odpowiada lista niż wykres. **Kto pracuje nad którymi szansami sprzedaży?** Przełącz listę szans sprzedaży na tablicę i pogrupuj ją według **Przypisane**: każda osoba dostaje kolumnę z liczbą swoich szans i sumami. **Ile szans sprzedaży otwieramy miesięcznie?** Pogrupuj tabelę szans sprzedaży według daty utworzenia, w przedziałach miesięcznych. Zapisane jako widoki, oba są pod ręką jednym kliknięciem i możesz je udostępnić zespołowi.
+
+Trzecie pytanie dotyczy follow-upu: **Co jest następne w kolejce?** Dodaj widżet **Nadchodzące** na polu daty, takim jak Następny krok. Wypisuje rekordy z terminem w ciągu najbliższych 14 dni, z sekcją **Po terminie** dla wcześniejszych dat, więc następne kroki czekają na Twoim dashboardzie, gdy się logujesz. Odfiltruj zakończone rekordy, aby po terminie liczyły się tylko otwarte.
+
+## Jakiego planu potrzebujesz
+
+| Plan | Funkcje raportowania | Cena |
+|---|---|---|
+| Starter | Widżety wykresów, oś czasu aktywności ze zmianami rekordów, ważony pipeline, pogrupowane listy, eksport XLSX, REST, MCP | [[commercial.price.starter.monthly]] za użytkownika miesięcznie |
+| Pro | Starter plus wiadomości i wydarzenia kalendarza na osi czasu aktywności, przez wspólną skrzynkę odbiorczą | [[commercial.price.pro.monthly]] za użytkownika miesięcznie |
+| Business | Pro plus jedna oś czasu dla całego zespołu we wszystkich kanałach | [[commercial.price.business.monthly]] za użytkownika miesięcznie |
+| Self-hosted | Wykresy, ważony pipeline, eksport, REST i MCP na Twoim własnym serwerze; bez skrzynki odbiorczej, Mate i rutyn | Bez opłaty licencyjnej |
+
+Mate korzysta z hostowanych kredytów AI, wliczonych na aktywnego użytkownika i miesiąc w każdym płatnym planie Cloud; kwoty podaje [cennik](/pricing). Trzyosobowy zespół na Starterze płaci [[commercial.price.starter.monthly.seats.3]] miesięcznie, a pięcioosobowy zespół na Pro płaci [[commercial.price.pro.monthly.seats.5]]. Nie ma dodatku do raportowania ani opłaty za raport.
+
+## Czego raportowanie Customermates nie robi i z czego skorzystać zamiast tego
+
+Tę stronę publikuje Customermates. Dane dostawców sprawdzono 8 października 2026 na ich własnych stronach.
+
+| Czego potrzebujesz | W Customermates | Gdzie szukać |
+|---|---|---|
+| Prognoza przychodów wykraczająca poza wagi etapów | Niedostępne. Ważony pipeline mnoży wartość każdej szansy przez prawdopodobieństwo ustawione dla jej etapu, nic więcej. | [HubSpot Sales Hub](https://www.hubspot.com/pricing/sales) Professional i Enterprise zawierają prognozowanie; [Pipedrive](https://www.pipedrive.com/en/features/insights-and-reports) oferuje widok prognozy |
+| Własny kreator raportów ze wskaźnikami konwersji, celami i wieloma typami raportów | Niedostępne. Wykresy liczą i agregują; wykres Lejek pokazuje konwersję między krokami dla bieżących rekordów, ale nie ma celów ani konwersji w czasie. | HubSpot Sales Hub Professional (własne raporty); Pipedrive Insights (własne raporty, dashboardy i cele) |
+| Własne BI na surowych danych | Brak wbudowanego łącznika z narzędziem BI | Self-hosted: Twoje dane leżą we własnym PostgreSQL, który obsługuje [Metabase](https://www.metabase.com/docs/latest/databases/connecting); jego edycja Open Source jest bezpłatna i self-hosted. Użyj użytkownika bazy tylko do odczytu i licz się z poprawianiem zapytań po aktualizacji, bo tabele to wewnętrzny schemat produktu. |
+| Dashboard, który edytuje cały zespół | Niedostępne. Udostępniony dashboard jest dla współpracowników tylko do odczytu: widżety zmienia tylko jego właściciel, a **Duplikuj jako nowy widok** daje każdej osobie kopię do edycji. | |
+| Raporty e-mailem według harmonogramu | Brak wbudowanej funkcji | Rutyna w Customermates Cloud albo n8n, oba opisane niżej |
+
+Do jednorazowej analizy wyeksportuj listę jako arkusz Excel z menu **Więcej działań** listy szans sprzedaży. Eksport obejmuje widoczne kolumny, filtry i sortowanie, a resztę zrobi [tabela przestawna](https://support.microsoft.com/en-us/excel/get-started/create-a-pivottable-to-analyze-worksheet-data). Eksport działa na jednym typie rekordów naraz; limity wymienia [przewodnik po rekordach](/docs/app-records).
+
+## Jak raportowanie łączy się z Mate, MCP i API
+
+**Mate (Customermates Cloud).** Mate ma narzędzie analityczne tylko do odczytu do pytań, które wymagają arytmetyki na wielu rekordach: mediany, rankingu, współczynnika wygranych albo połączenia szans sprzedaży z organizacjami. Czyta rekordy, które widzi Twoja rola, liczy w izolowanym środowisku i niczego nie zmienia. Każde pytanie zużywa hostowane kredyty AI. Przykład:
+
+```text
+Dla szans sprzedaży, które od 1 lipca doszły do etapu Wygrana lub Przegrana: jaki jest współczynnik wygranych według źródła leada, jaka jest mediana wartości wygranych szans i które trzy organizacje przyniosły największą wartość wygranych?
+```
+
+Odpowiedzią jest wiadomość na czacie, a nie zapisany wykres. Mate może też tworzyć lub zmieniać widżety pulpitu za Ciebie, gdy je opiszesz.
+
+**Rutyny (Customermates Cloud).** Rutyna uruchamia zapisaną instrukcję według harmonogramu, na przykład „Co poniedziałek o 8:00 podsumuj otwarty pipeline według etapu i wypisz szanse sprzedaży nieaktualizowane od 30 dni.” Działa jako Ty, jej właściciel, z Twoim dostępem i kredytami, a podsumowanie uruchomienia zostaje przy rutynie. W planie Pro i wyższych może też wysłać to podsumowanie do Ciebie e-mailem z Twojej połączonej skrzynki; Mate wysyła bez ponownego pytania, więc napisz w instrukcji „szkic”, jeśli chcesz najpierw je przeczytać. Wyzwalacze i limity opisuje strona o [automatyzacji workflow](/features/workflow-automation).
+
+**Twój własny klient AI przez MCP.** Claude, ChatGPT i inni klienci MCP korzystają z serwera z [[derived.mcp.tools.total]] narzędziami w każdym planie i przy self-hostingu. Dzięki `query_crm_measure` klient oblicza sumy ze wszystkich pasujących rekordów, więc „jaki jest nasz ważony pipeline dla organizacji w Bawarii?” ma dokładną odpowiedź. Konfigurację opisuje [dokumentacja MCP](/docs/mcp).
+
+**REST i webhooki.** Jeśli raporty mają trafiać do innego systemu, czytaj rekordy przez [REST API](/features/api) albo odbieraj webhook przy każdej zmianie i prowadź własną tabelę raportową. [n8n](/docs/n8n) potrafi jedno i drugie według harmonogramu; działa osobno i nie jest częścią Customermates.
+
+## Najczęstsze pytania
+
+<Faq>
+<FaqItem question="Co to jest dashboard CRM?">
+To strona z wykresami i listami, która na bieżąco pokazuje najważniejsze liczby z CRM: wartość pipeline'u, wygrane według źródła, przychody na klienta i to, co czeka na następny krok. W Customermates budujesz go z widżetów pulpitu, a liczby pochodzą bezpośrednio z Twoich rekordów.
+</FaqItem>
+
+<FaqItem question="Ile wykresów powinien mieć dashboard CRM?">
+Zwykle pięć do siedmiu: tyle, ile pytań naprawdę zadajesz co tydzień. Każdy kolejny wykres utrudnia znalezienie tych, na których naprawdę Ci zależy.
+</FaqItem>
+
+<FaqItem question="Jakie są typowe raporty CRM?">
+W małym zespole pięć pokrywa większość decyzji: wartość pipeline'u według etapu, ważony pipeline, wygrane przychody według źródła leada, przychody na klienta i przegrane szanse według powodu. Wszystkie pięć to widżety wykresów w Customermates. Raporty aktywności, lejki konwersji i prognozy sprzedaży są częste w większych CRM; Customermates ma oś czasu aktywności i wykres lejka bieżących etapów, ale bez prognozy.
+</FaqItem>
+
+<FaqItem question="Czy Customermates może prognozować przychody?">
+Nie w sensie predykcyjnym. Liczy ważony pipeline: wartość każdej szansy sprzedaży razy prawdopodobieństwo wygranej, które ustawisz dla jej etapu. Nic nie uczy się na dawnych transakcjach ani nie przewiduje dat zamknięcia. Jeśli potrzebujesz tego, zajrzyj do HubSpot Sales Hub Professional albo do widoku prognozy w Pipedrive.
+</FaqItem>
+
+<FaqItem question="Czy mój zespół może współdzielić jeden dashboard?">
+Tak. W nazwanym widoku pulpitu, którego jesteś właścicielem, wybierz **Udostępnij…** i wskaż wszystkich w przestrzeni roboczej albo wybrane role. Współpracownicy widzą te same widżety i ten sam układ, tylko do odczytu, a każda liczba jest obliczana na podstawie ich własnego dostępu, więc dwie osoby mogą widzieć różne liczby na tym samym wykresie. Widżety zmieniasz tylko Ty; **Duplikuj jako nowy widok** daje współpracownikowi kopię do edycji. Głównego pulpitu nie można udostępnić, więc umieść wykresy w nazwanym widoku. Pojedynczy wykres można też wysłać przez **Udostępnij jako szablon**. Dla osób spoza przestrzeni roboczej widok pulpitu można opublikować przez link publiczny, tylko do odczytu i bez logowania, jeśli Twoja rola może publikować, a przestrzeń robocza dopuszcza linki publiczne.
+</FaqItem>
+
+<FaqItem question="Czy mogę wyeksportować raporty CRM do Excela?">
+Eksportujesz rekordy, a nie wykresy. Każda lista eksportuje się do arkusza Excel z bieżącymi filtrami, sortowaniem i widocznymi kolumnami, jeden typ rekordów naraz. CSV nie jest dostępny, więc zbuduj raport za pomocą tabeli przestawnej w Excelu.
+</FaqItem>
+
+<FaqItem question="Które raporty są w planie Starter?">
+W planie Starter są wszystkie widżety wykresów, ważony pipeline, pogrupowane listy, oś czasu aktywności ze zmianami rekordów i eksport XLSX. Pro dodaje do osi czasu wiadomości i wydarzenia kalendarza. Analiza Mate wymaga Customermates Cloud i hostowanych kredytów AI, które zawiera każdy płatny plan Cloud.
+</FaqItem>
+
+<FaqItem question="Czy mogę budować raporty w ChatGPT albo Claude?">
+Tak. Połącz klienta przez MCP, a będzie mógł wyświetlać i filtrować rekordy, liczyć sumy z pasujących szans sprzedaży i tworzyć widżety pulpitu. Model, jego subskrypcję i to, co robi z Twoimi danymi, określa Twój dostawca AI, a nie Customermates.
+</FaqItem>
+</Faq>

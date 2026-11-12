@@ -1,0 +1,241 @@
+---
+title: "CRM self hosted con Docker y PostgreSQL"
+description: "CRM self hosted: ejecuta la aplicación de Customermates y PostgreSQL en tu infraestructura con Docker Compose. Núcleo AGPL, MCP, REST y webhooks incluidos."
+featureName: CRM self hosted
+
+acquisition:
+  locale: es
+  slug: self-hosted
+  clusterId: open-source-self-hosted
+  role: hub
+  primaryIntent: Despliegue de un CRM self hosted
+  metadata:
+    title: "CRM self hosted con Docker y PostgreSQL"
+    description: "CRM self hosted: ejecuta la aplicación de Customermates y PostgreSQL en tu infraestructura con Docker Compose. Núcleo AGPL, MCP, REST y webhooks incluidos."
+  proof:
+    factReferences:
+      - product:agpl-community-core
+      - product:docker-postgresql-deployment
+      - product:self-hosted-starter-entitlements
+      - product:core-crm-records
+      - product:custom-fields-and-views
+      - product:mcp-tools
+      - product:rest-and-webhooks
+    excludedClaims:
+      - claim:no-self-hosted-inbox
+      - claim:no-hosted-ai-self-hosted
+  cta:
+    action: "¿Necesitas también seguimiento por LinkedIn y email? Prueba primero la nube"
+    description: "El autoalojamiento cubre los registros de clientes, REST, webhooks y MCP. Para las conversaciones de LinkedIn y email en cada cliente y las respuestas en borrador de Mate, prueba Customermates Cloud gratis durante [[commercial.trial.days]] días en Pro, sin tarjeta de crédito. El camino autoalojado sigue abierto."
+    buttonLeftText: "Empieza tu prueba de [[commercial.trial.days]] días"
+    buttonLeftHref: /auth/signup?job=followup
+    buttonRightText: "Lee la guía de instalación"
+    buttonRightHref: /docs/self-hosting
+    hint: "Quien opera el sistema se encarga de la infraestructura, las actualizaciones, las copias de seguridad y los proveedores conectados."
+  relatedHrefs:
+    - /docs/self-hosting
+    - /blog/open-source-crm
+    - /features/open-source-crm
+    - /features/unified-inbox
+  visual:
+    id: acquisition.self-hosted.es
+    locale: es
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "CRM self hosted: registros de clientes y siguientes pasos en tus propios servidores"
+      body: "Ejecuta la aplicación de Customermates y PostgreSQL en una infraestructura que controlas, con MCP para tu propio cliente de IA. La bandeja de entrada para las conversaciones de LinkedIn y email y los borradores de respuesta de Mate requieren Customermates Cloud."
+      checksum: fnv1a-7037da7e
+    kind: brand-illustration
+    pathway: converge
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "La aplicación y PostgreSQL funcionan juntos en una infraestructura que controlas."
+    depiction:
+      kind: relationship
+      productBehavior: true
+      statement: "La aplicación y PostgreSQL funcionan juntos en una infraestructura que controlas."
+    factReferences:
+      - product:self-hosted-deployment
+      - product:mcp-tools
+    focalLabel:
+      locale: es
+      text: Aplicación
+    semanticLabels:
+      - locale: es
+        text: PostgreSQL
+      - locale: es
+        text: Cliente MCP
+    focalSubject:
+      id: self-hosted-app
+      form: context-card
+    supportingSubjects:
+      - id: postgresql
+        form: context-card
+      - id: mcp-client
+        form: agent-cue
+        agentProvider: claude
+    accentTarget: self-hosted-app
+  structuredData:
+    types:
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
+
+sections:
+  visual:
+    kind: os
+  steps:
+    title: "Cómo evaluar el despliegue"
+    items:
+      - title: "Revisa el despliegue exacto"
+        description: "Lee la guía de autoalojamiento y consulta el archivo Compose actual en el repositorio."
+      - title: "Comprueba el límite de la edición"
+        description: "Confirma que el conjunto de funciones de Starter cubre los registros, las vistas y las interfaces que necesita tu flujo de trabajo."
+      - title: "Haz un inventario de los servicios externos"
+        description: "Anota cada proveedor de correo (Resend), OAuth, monitorización, flujos de trabajo o IA que pienses configurar y los datos que recibe cada uno."
+      - title: "Planifica la operación"
+        description: "Define las copias de seguridad, la restauración probada, las actualizaciones, el TLS, la monitorización y el control de acceso de tu entorno."
+      - title: "Prueba sin datos de clientes"
+        description: "Ejecuta el flujo de trabajo completo en un entorno que no sea de producción antes de que el sistema maneje registros reales."
+  highlights:
+    title: "De un vistazo"
+    capture: homepage-configure
+    items:
+      - title: "Funciona en tu infraestructura"
+        description: "La aplicación de Customermates y PostgreSQL 16 funcionan como dos servicios en el despliegue de Docker Compose del repositorio."
+      - title: "Lo que incluye"
+        description: "Registros básicos del CRM, campos personalizados y vistas, REST, webhooks y MCP con el conjunto de funciones de Starter."
+      - title: "Lo operas tú"
+        description: "Acceso de red, TLS, actualizaciones, copias de seguridad, pruebas de restauración, monitorización y cada proveedor externo que configures."
+      - title: "Límite solo de la nube"
+        description: "La mensajería conectada, la bandeja de entrada unificada, el calendario conectado, Mate alojado y los créditos de IA alojados quedan fuera del autoalojamiento."
+
+hero:
+  title: "CRM self hosted: registros de clientes y siguientes pasos en tus propios servidores"
+  description: "Ejecuta la aplicación de Customermates y PostgreSQL en una infraestructura que controlas, con MCP para tu propio cliente de IA. La bandeja de entrada para las conversaciones de LinkedIn y email y los borradores de respuesta de Mate requieren Customermates Cloud."
+  buttonLeftText: "Empieza tu prueba de [[commercial.trial.days]] días"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Lee la guía de instalación"
+  buttonRightHref: /docs/self-hosting
+  hint: "Núcleo AGPL • Docker Compose • PostgreSQL 16"
+
+cta:
+  action: "¿Necesitas también seguimiento por LinkedIn y email? Prueba primero la nube"
+  description: "El autoalojamiento cubre los registros de clientes, REST, webhooks y MCP. Para las conversaciones de LinkedIn y email en cada cliente y las respuestas en borrador de Mate, prueba Customermates Cloud gratis durante [[commercial.trial.days]] días en Pro, sin tarjeta de crédito. El camino autoalojado sigue abierto."
+  buttonLeftText: "Empieza tu prueba de [[commercial.trial.days]] días"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Lee la guía de instalación"
+  buttonRightHref: /docs/self-hosting
+  hint: "Quien opera el sistema se encarga de la infraestructura, las actualizaciones, las copias de seguridad y los proveedores conectados."
+---
+
+Customermates es un **CRM self hosted** que puedes ejecutar como dos servicios de Docker Compose: la aplicación y PostgreSQL 16. Encaja cuando tu equipo quiere operar la infraestructura de su CRM y usar un núcleo de código abierto. No es la edición autoalojada de todas las funciones de Customermates Cloud.
+
+Un CRM autoalojado funciona en servidores que controlas tú en lugar de en la nube del proveedor: decides dónde viven la aplicación y la base de datos, y te encargas de las actualizaciones, las copias de seguridad y la seguridad. Que el código sea abierto es otra cuestión, la de los derechos de licencia, que cubre la [guía de CRM de código abierto](/blog/open-source-crm). Esta página se centra en el lado operativo de Customermates.
+
+**Dónde encaja el seguimiento.** El autoalojamiento mantiene en tus propios servidores los registros de clientes, las fechas de los siguientes pasos, los paneles y MCP, de modo que tu propio cliente de IA puede leerlos y actualizarlos. No tiene la bandeja de entrada que pone las conversaciones de LinkedIn y email en cada cliente, ni tiene Mate, que redacta las respuestas. Si el motivo por el que quieres el CRM es el seguimiento en borrador de las conversaciones, empieza por Customermates Cloud; el autoalojamiento encaja mejor cuando pesa más el control sobre dónde funcionan los datos.
+
+<ProofRail label="Datos verificados del CRM autoalojado">
+  <ProofItem label="Despliegue">Docker Compose</ProofItem>
+  <ProofItem label="Base de datos">PostgreSQL 16</ProofItem>
+  <ProofItem label="Núcleo del CRM">Listas configurables, creadas en Modelo de datos</ProofItem>
+  <ProofItem label="Interfaces">REST, webhooks y MCP</ProofItem>
+  <ProofItem label="Funciones del plan">Base de Starter</ProofItem>
+</ProofRail>
+
+## ¿Qué se ejecuta en tu infraestructura?
+
+El despliegue de este CRM con Docker, tal como está en el repositorio, contiene:
+
+- la imagen de la aplicación de Customermates;
+- una base de datos PostgreSQL 16;
+- los registros básicos de contactos, organizaciones, oportunidades, servicios y tareas, más las listas que añadas; y
+- REST, webhooks y [acceso MCP para clientes de IA externos](/docs/mcp).
+
+El archivo Compose no incluye n8n, un modelo de IA, un proveedor de envío de emails ni un worker aparte. Los emails de autenticación siguen necesitando el servicio de envío externo configurado. Si conectas algún proveedor, esa integración la operas por separado y conviene que revises los datos que recibe.
+
+<AcquisitionCallout
+  title="El despliegue es más pequeño que el sistema completo"
+  variant="proof"
+>
+  La aplicación y la base de datos pueden funcionar en tu infraestructura mientras
+  el envío de correo con Resend, OAuth, la monitorización, las herramientas de flujos de trabajo y la IA
+  externa siguen siendo servicios aparte siempre que los configures. Haz un inventario
+  de esos proveedores antes de elegir el modelo de despliegue.
+</AcquisitionCallout>
+
+## ¿Qué incluye y qué no incluye?
+
+| Función                                                       | Customermates autoalojado |
+| ------------------------------------------------------------- | ------------------------- |
+| Contactos, organizaciones, oportunidades, servicios y tareas  | Incluido                  |
+| Campos personalizados, vistas de tabla y Kanban               | Incluido                  |
+| API REST, webhooks y MCP                                      | Incluido                  |
+| Base de funciones del plan                                    | Starter                   |
+| Asistente Mate alojado y créditos de IA alojados              | No incluido               |
+| Bandeja de entrada unificada y cuentas de mensajería conectadas | No incluida             |
+| Vista de calendario conectado de solo lectura                 | No incluida               |
+| Cuentas conectadas compartidas                                | No incluidas              |
+
+La [bandeja de entrada unificada del CRM](/features/unified-inbox) es una función de la nube gestionada a partir de Pro. El autoalojamiento se centra en el núcleo de código abierto del CRM y en los clientes MCP externos.
+
+## Límites entre el código abierto y el código comercial
+
+El material propio fuera de `ee/` tiene licencia AGPL-3.0-only. Dentro de `ee/`, el material tiene licencia comercial, salvo las imágenes, las fuentes, el CSS y el JavaScript del lado del cliente que se identifican como AGPL Client Material en la Sección 6 de `ee/LICENSE.md`. Revisa ambas licencias antes de modificar, redistribuir o usar el software en tu caso.
+
+Esa distinción importa cuando comparas un [CRM de código abierto](/blog/open-source-crm): un repositorio público por sí solo no te dice qué código puedes usar y bajo qué condiciones. Si estás valorando otros proyectos que se pueden autoalojar, las comparativas con [EspoCRM](/compare/espocrm-alternative) y [Twenty](/compare/twenty-alternative) muestran en qué se diferencian sus límites de despliegue y de licencia.
+
+## ¿Qué control ofrece un CRM autoalojado?
+
+Eliges dónde funcionan la aplicación y PostgreSQL y cómo configuras el acceso de red, las copias de seguridad, la retención y las actualizaciones. Es un control real sobre la infraestructura, pero no es una garantía automática de cumplimiento, seguridad ni aislamiento de la red.
+
+Los servicios conectados siguen siendo límites de tratamiento aparte. Los proveedores de OAuth, Resend para el correo, monitorización, las herramientas de flujos de trabajo y los proveedores de IA externos reciben lo que tu configuración les envía. Los diagnósticos de errores se quedan en tu servidor; las notificaciones del operador usan el destinatario y el proveedor de email que configures. No es una promesa general de ausencia de telemetría.
+
+## ¿CRM autoalojado o nube gestionada?
+
+| Elige el autoalojamiento cuando…                  | Elige la nube gestionada cuando…                                    |
+| ------------------------------------------------- | ------------------------------------------------------------------- |
+| tu equipo sabe operar Docker y PostgreSQL         | quieres que Customermates opere la aplicación y la base de datos    |
+| el límite de funciones de Starter te basta        | necesitas la bandeja de entrada unificada o la vista de calendario conectado |
+| quieres que clientes de IA externos usen MCP      | quieres las funciones de los planes de la nube y cuentas conectadas gestionadas |
+| te encargarás de las actualizaciones, las copias de seguridad y la recuperación | prefieres una suscripción con operación gestionada |
+
+Si quieres probar Customermates antes de operar tu propio servidor, la página sobre el [CRM de código abierto en la nube o autoalojado](/features/open-source-crm) pone los dos caminos lado a lado, con la prueba gratuita en la nube como arranque más rápido.
+
+Los registros se mueven entre instalaciones o desde otro CRM como libros XLSX, un tipo de registro cada vez y dentro de los límites de filas, o mediante la API REST, que también puede subir archivos a los campos de tipo Archivo. Una importación XLSX no incluye archivos adjuntos y no existe una transferencia completa de la cuenta, así que planifica un traslado grande como un proyecto de migración que validas.
+
+## Preguntas frecuentes
+
+<Faq>
+<FaqItem question="¿Customermates es totalmente de código abierto?">
+El material propio fuera de `ee/` es AGPL-3.0-only. Dentro de `ee/`, el material del lado del cliente identificado en la Sección 6 de `ee/LICENSE.md` también es AGPL-3.0-only; el resto del material propio usa la licencia comercial. Revisa ambos archivos de licencia para conocer el límite exacto.
+</FaqItem>
+
+<FaqItem question="¿El autoalojamiento incluye la bandeja de entrada unificada?">
+  No. Las instalaciones autoalojadas usan el conjunto de funciones de Starter, que
+  no tiene cuentas de mensajería, bandeja de entrada unificada, cuentas
+  compartidas ni vista de calendario conectado. Esas funciones pertenecen a los
+  planes de la nube gestionada a partir de Pro.
+</FaqItem>
+
+<FaqItem question="¿Puedo usar IA con el CRM autoalojado?">
+  Sí, mediante [MCP](/docs/mcp) y un cliente y un proveedor de IA externos que
+  eliges y pagas tú, por ejemplo Claude, como se describe en la [guía del CRM con
+  Claude](/blog/claude-crm). El asistente Mate, que solo existe en la nube, y los
+  créditos de IA alojados no forman parte del autoalojamiento.
+</FaqItem>
+
+<FaqItem question="¿El autoalojamiento hace que el CRM cumpla con el RGPD?">
+  Ningún modelo de despliegue crea cumplimiento por sí solo. El autoalojamiento
+  te permite elegir dónde están la aplicación y la base de datos, pero tu
+  organización sigue siendo responsable de la configuración, los proveedores, los
+  contratos, los controles de seguridad, la retención y la valoración legal.
+</FaqItem>
+
+<FaqItem question="¿Qué contiene el stack oficial de Docker Compose?">
+Contiene la aplicación de Customermates y PostgreSQL 16. El correo sale a través de Resend con tu propia clave de API. n8n, los modelos de IA, los proveedores de identidad y los servicios de monitorización son aparte cuando decides conectarlos.
+</FaqItem>
+</Faq>

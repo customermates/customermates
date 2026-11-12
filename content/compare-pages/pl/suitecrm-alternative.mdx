@@ -1,0 +1,248 @@
+---
+title: "Alternatywa dla SuiteCRM: porównanie CRM open source"
+description: "Alternatywa dla SuiteCRM: Customermates, EspoCRM, Twenty i Odoo porównane pod kątem licencji, kosztów hostingu, utrzymania PHP, kanałów czatu, MCP i migracji."
+competitorName: SuiteCRM
+
+relatedHrefs:
+  - /compare/espocrm-alternative
+  - /compare/vtiger-alternative
+  - /features/self-hosted
+  - /blog/open-source-crm
+
+sections:
+  reasons:
+    - title: "Rozmowy z klientami poza e-mailem"
+      description: "Przewodnik użytkownika SuiteCRM nie wymienia integracji z WhatsAppem, LinkedIn, Instagramem ani Telegramem. Od planu Pro Customermates zbiera je wszystkie razem ze skrzynką pocztową w jednej skrzynce, przy kliencie."
+    - title: "Szkic odpowiedzi od Mate lub Twojego agenta AI"
+      description: "W Customermates Cloud Mate streszcza wątki, przygotowuje szkice odpowiedzi, aktualizuje rekordy i buduje widoki. Serwer MCP jest w każdym planie i w instalacjach self-hosted, z [[derived.mcp.tools.total]] narzędzi."
+    - title: "CRM, którego nie musisz prowadzić"
+      description: "W Customermates Cloud nie ma nic do instalowania ani łatania. Jeśli chcesz własny serwer, rdzeń działa w self-hostingu jako dwa kontenery Docker: aplikacja i PostgreSQL 16."
+  switchSteps: true
+
+hero:
+  title: "Alternatywa dla SuiteCRM: porównanie Customermates i SuiteCRM"
+  description: "SuiteCRM też jest open source, ale PHP, aktualizacje i moduły prowadzisz sam. Customermates jest lżejszy: w Customermates Cloud od planu Pro rozmowy z LinkedIn, e-maila i WhatsAppa leżą przy kliencie, a Mate lub Twój własny agent AI przygotowuje szkic odpowiedzi. Szczegóły SuiteCRM sprawdzone 27 października 2026."
+  buttonLeftText: Zacznij [[commercial.trial.days]]-dniowy okres próbny
+  buttonLeftHref: /auth/signup
+  buttonRightText: Zobacz demo na żywo
+  buttonRightHref: https://demo.customermates.com/pl/w/male-firmy/dashboard
+  hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
+
+comparison:
+  competitorName: SuiteCRM
+  title: "Customermates vs. SuiteCRM: porównanie funkcji"
+  sections:
+  - title: Licencja i wdrożenie
+    features:
+      - name: Licencja open source
+        source: Rdzeń na licencji AGPL-3.0; ee/ na osobnej licencji komercyjnej
+        competitor: AGPL-3.0
+      - name: Self-hosting
+        source: Docker Compose z dwiema usługami, aplikacją i PostgreSQL 16
+        competitor: Pobranie i instalacja na własnym serwerze
+      - name: Technologia
+        source: TypeScript, Next.js, PostgreSQL
+        competitor: "SuiteCRM 8.10: PHP od 8.2 do 8.4, Apache 2.4, MySQL lub MariaDB"
+      - name: Zarządzana chmura
+        source: Customermates Cloud
+        competitor: SuiteCRM Hosted, od 50 GBP miesięcznie
+  - title: Ceny
+    features:
+      - name: Opłata licencyjna
+        source: "Brak przy self-hostingu; chmura za użytkownika: Starter [[commercial.price.starter.monthly]], Pro [[commercial.price.pro.monthly]], Business [[commercial.price.business.monthly]]"
+        competitor: Brak, bez opłat za użytkownika
+      - name: Za co płacisz
+        source: Stanowiska, rozliczane miesięcznie
+        competitor: "Hosting, wdrożenie i wsparcie; Standard Support 1200 GBP za 10 godzin"
+      - name: Wdrożenie z pomocą
+        source: Konfiguracja przestrzeni roboczej z pomocą AI w Customermates Cloud
+        competitor: Wdrożenie Quick Start od 2520 GBP
+      - name: Bezpłatny okres próbny
+        source: "[[commercial.trial.days]] dni"
+        competitor: 30 dni SuiteCRM Hosted
+  - title: Funkcje CRM
+    features:
+      - name: Standardowe typy rekordów
+        source: Własne listy; demo używa kontaktów, organizacji, szans sprzedaży, usług i zadań
+        competitor: Konta, kontakty, leady, szanse sprzedaży, sprawy i więcej
+      - name: Własne moduły i pola
+        source: Własne listy z typowanymi polami i relacjami, plus pola obliczane
+        competitor: Studio i Module Builder
+      - name: Ważony pipeline
+        source: Prawdopodobieństwo przy opcji etapu
+        competitor: Prawdopodobieństwo przy szansie sprzedaży
+      - name: Oferty, faktury, umowy
+        source: false
+        competitor: true
+      - name: Sprawy i baza wiedzy
+        source: false
+        competitor: true
+      - name: Workflowy i raporty
+        source: Pulpity, webhooki, węzeł społeczności n8n; Rutyny w Customermates Cloud
+        competitor: Workflowy, raporty i raporty cykliczne
+  - title: Komunikacja
+    features:
+      - name: E-mail
+        source: Gmail, Outlook i IMAP w ujednoliconej skrzynce odbiorczej (od Pro)
+        competitor: Konta poczty przychodzącej i wychodzącej, z OAuth
+      - name: LinkedIn, WhatsApp, Instagram, Telegram
+        source: Ujednolicona skrzynka odbiorcza (od Pro)
+        competitor: Brak w integracjach z przewodnika użytkownika
+      - name: Kampanie i listy docelowe
+        source: false
+        competitor: true
+  - title: AI i interfejsy
+    features:
+      - name: MCP dla klientów AI
+        source: "Wbudowany, [[derived.mcp.tools.total]] narzędzi, każdy plan i self-hosting"
+        competitor: Brak w dokumentacji
+      - name: AI w aplikacji
+        source: Mate (Customermates Cloud, kredyty AI w chmurze)
+        competitor: Brak w dokumentacji
+      - name: REST API
+        source: true
+        competitor: API v8
+
+cta:
+  action: Oceniasz alternatywy dla SuiteCRM?
+  description: "Uruchom okres próbny, wyeksportuj jedną listę z SuiteCRM i zaimportuj ją jako skoroszyt Excel, a potem podłącz skrzynkę pocztową lub WhatsApp. Szybko zobaczysz, czy Twoje dane i rozmowy pasują do modelu Customermates."
+  buttonLeftText: Zacznij [[commercial.trial.days]]-dniowy okres próbny
+  buttonLeftHref: /auth/signup
+  buttonRightText: Zobacz demo na żywo
+  buttonRightHref: https://demo.customermates.com/pl/w/male-firmy/dashboard
+  hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
+---
+
+> Właściwa alternatywa dla SuiteCRM zależy od tego, z czego chcesz zrezygnować. Żeby zostać przy CRM open source w PHP z mniejszym śladem i ceną w chmurze za użytkownika, spójrz na EspoCRM. Dla własnych obiektów w nowoczesnym produkcie hostowanym z bezpłatnym rdzeniem self-hosted spójrz na Twenty. Dla CRM, księgowości i magazynu w jednym systemie spójrz na Odoo. Customermates pasuje do małych zespołów pracujących z klientami, których klienci piszą na WhatsAppie, LinkedIn, Instagramie lub Telegramie, a nie tylko e-mailem, i które chcą, żeby asystent AI albo własny klient AI utrzymywał CRM w aktualnym stanie. Jeśli polegasz na ofertach, fakturach, sprawach lub kampaniach w samym CRM, SuiteCRM pozostaje lepszym narzędziem. To porównanie publikuje Customermates; każdy szczegół o SuiteCRM i o narzędziach firm trzecich pochodzi ze stron samych dostawców, sprawdzonych 27 października 2026.
+
+## Jaka alternatywa pasuje do jakiego zespołu
+
+| Twoja sytuacja | Sprawdź | Dlaczego |
+|---|---|---|
+| Wystawiasz oferty i faktury oraz obsługujesz sprawy wsparcia w CRM | Zostań przy SuiteCRM lub spójrz na Odoo | SuiteCRM ma oferty, faktury, umowy, sprawy i bazę wiedzy; Customermates nie ma żadnej z tych funkcji |
+| Wysyłasz kampanie do list docelowych | Zostań przy SuiteCRM | Kampanie, listy docelowe i szablony e-maili są częścią SuiteCRM; Customermates nie ma wysyłki masowej |
+| Chcesz otwartości SuiteCRM bez samodzielnego prowadzenia PHP i Apache | EspoCRM Cloud, SuiteCRM Hosted lub Customermates Cloud | Wszystkie trzy są zarządzane; Customermates w self-hostingu działa jako dwa kontenery Docker, jeśli później zechcesz własny serwer |
+| Klienci piszą do Ciebie na WhatsAppie, LinkedIn, Instagramie lub Telegramie, a nie tylko e-mailem | Customermates Pro lub Business | Te kanały dzielą jedną skrzynkę ze skrzynkami pocztowymi; przewodnik użytkownika SuiteCRM nie wymienia żadnego z nich |
+| Chcesz asystenta, który przygotowuje follow-upy i aktualizuje rekordy o ustalonej porze | Customermates Cloud | Mate i Rutyny działają tam na kredytach AI w chmurze |
+| Chcesz, żeby Claude, ChatGPT lub inny klient AI pracował w Twoim CRM | Customermates, Twenty lub EspoCRM | Wszystkie trzy oferują MCP; SuiteCRM dokumentuje API, ale nie serwer MCP |
+| Chcesz CRM, księgowość i magazyn w jednym systemie | Odoo | Zobacz [porównanie z Odoo](/compare/odoo) |
+
+## Czym jest SuiteCRM i dla kogo jest
+
+SuiteCRM to CRM open source napisany w PHP i publikowany na licencji AGPL-3.0 przez SuiteCRM Ltd. Zaczął jako fork ostatniej edycji open source SugarCRM, a dziś wydawane są dwie linie: SuiteCRM 7.15 i SuiteCRM 8.10, w której interfejs został przebudowany w Angularze. Obie można pobrać za darmo i uruchomić na własnym serwerze.
+
+Zakres jest szeroki. Przewodnik użytkownika SuiteCRM obejmuje leady, konta, kontakty i szanse sprzedaży; oferty, faktury, umowy i szablony PDF; kampanie, listy docelowe, ankiety i wydarzenia; sprawy, bazę wiedzy i śledzenie błędów; raporty, raporty cykliczne i workflowy; projekty; synchronizację kalendarza i mapy. Administratorzy budują własne pola i moduły w Studio i Module Builder, ustawiają role i grupy bezpieczeństwa i mogą podłączyć logowanie jednokrotne przez Azure SAML. Programiści dostają API v8.
+
+Jeśli prowadzisz sprzedaż, marketing i obsługę w jednym systemie i masz kogoś, kto go utrzymuje, SuiteCRM obejmuje więcej, niż robi to Customermates.
+
+## Dlaczego zespoły szukają alternatywy dla SuiteCRM
+
+**Płacisz za pracę wokół oprogramowania.** SuiteCRM nie pobiera opłaty licencyjnej ani za użytkownika. Jego cennik wymienia natomiast usługi, które możesz potrzebować: w pełni zarządzany hosting od 50 GBP miesięcznie, Standard Support za 1200 GBP za 10 godzin (wymagany przy hostingu zarządzanym, 20% taniej przy zakupie razem z nim), SuiteASSURED od 3350 GBP rocznie i wdrożenie Quick Start od 2520 GBP. W self-hostingu oprogramowanie jest bezpłatne, a aktualizacje i bezpieczeństwo prowadzi Twój zespół.
+
+**Samodzielne prowadzenie PHP.** SuiteCRM 8.10 wymaga Linuksa, Uniksa lub macOS z PHP od 8.2 do 8.4, Apache 2.4 oraz MySQL 8.0 lub 8.4 albo MariaDB od 10.6 do 11.8, według macierzy zgodności. Każde wydanie podrzędne przesuwa te wersje, więc aktualizacje obejmują pracę przy serwerze. Customermates działa jako dwa kontenery: aplikacja i PostgreSQL 16.
+
+**Szerokość, której nie używasz.** Mała firma doradcza lub agencja często potrzebuje kontaktów, szans sprzedaży i rozmów, a nie spraw, ankiet, umów i kampanii. Każdy dodatkowy moduł trzeba skonfigurować, ukryć albo wokół niego szkolić ludzi.
+
+**Rozmowy poza e-mailem.** SuiteCRM obsługuje konta poczty przychodzącej i wychodzącej, w tym OAuth Microsoft i Google. Jego przewodnik użytkownika nie wymienia integracji z WhatsAppem, LinkedIn, Instagramem ani Telegramem, więc te wątki zostają poza CRM, chyba że dodasz dodatek firmy trzeciej.
+
+## Ile płaci pięcioosobowy zespół
+
+Ceny SuiteCRM pochodzą ze [strony z cennikiem SuiteCRM](https://suitecrm.com/pricing/), sprawdzonej 27 października 2026, w funtach szterlingach. Customermates rozlicza się miesięcznie za użytkownika, w euro, bez minimalnej wielkości zespołu.
+
+| Konfiguracja dla pięciu osób | Rocznie | Jednorazowo |
+|---|---|---|
+| SuiteCRM self-hosted, wsparcie społeczności | Twój serwer i czas pracowników | Brak |
+| SuiteCRM Hosted ze Standard Support (własny przykład SuiteCRM) | 1560 GBP (600 GBP hosting, 960 GBP wsparcie) | 2520 GBP Quick Start, opcjonalnie |
+| SuiteCRM Hosted z SuiteASSURED (własny przykład SuiteCRM) | 3950 GBP (600 GBP hosting, 3350 GBP SuiteASSURED) | 2520 GBP Quick Start, opcjonalnie |
+| Customermates Starter | 12 × [[commercial.price.starter.monthly.seats.5]] | Brak |
+| Customermates Pro | 12 × [[commercial.price.pro.monthly.seats.5]] | Brak |
+| Customermates Business | 12 × [[commercial.price.business.monthly.seats.5]] | Brak |
+
+Te wiersze kupują różne rzeczy:
+
+- **Koszt SuiteCRM nie rośnie wraz z liczbą stanowisk.** Dla dużego zespołu hosting plus wsparcie może kosztować mniej niż jakikolwiek plan za użytkownika. Dla pięciu osób porównaj godziny wsparcia, z których naprawdę skorzystasz.
+- **Customermates Starter to podstawowy CRM bez skrzynki odbiorczej,** z Mate na kredytach AI w chmurze i [[commercial.entitlement.starter.includedRoutinesPerUser]] rutyną na użytkownika.
+- **Customermates Pro to cena skrzynki odbiorczej.** Każdy użytkownik podłącza [[commercial.entitlement.pro.includedAccountsPerUser]] konto, którym może być skrzynka pocztowa, LinkedIn, WhatsApp, Instagram lub Telegram. Business zawiera [[commercial.entitlement.business.includedAccountsPerUser]] konta na użytkownika oraz konta współdzielone z zespołem.
+
+W self-hostingu oba rdzenie nic nie kosztują w opłatach licencyjnych. Płacisz za serwer i czas na aktualizacje, kopie zapasowe i TLS.
+
+## Gdzie pasuje Customermates
+
+SuiteCRM to pakiet open source, który prowadzisz sam. Customermates to mniejszy CRM zbudowany wokół follow-upów: w Customermates Cloud od planu Pro rozmowy leżą przy rekordzie klienta, a Mate lub Twój własny agent AI przygotowuje szkic odpowiedzi i kolejnego kroku. Ty sprawdzasz, poprawiasz i wysyłasz.
+
+**Rozmowy z klientami obok szansy sprzedaży.** Od planu Pro [ujednolicona skrzynka odbiorcza](/features/unified-inbox) zbiera w jednej liście skrzynki Gmail, Outlook i IMAP, LinkedIn, WhatsApp, Instagram i Telegram, a Ty odpowiadasz w oryginalnym kanale. Powiąż uczestnika z kontaktem raz, a rozmowa trafi do tego kontaktu. Starter nie ma skrzynki odbiorczej.
+
+**AI, które robi pracę w CRM.** W Customermates Cloud Mate streszcza wątki, przygotowuje szkice odpowiedzi, aktualizuje rekordy i buduje widoki. Korzysta z kredytów AI w chmurze, z miesięcznym limitem na aktywnego użytkownika, podanym na [stronie z cennikiem](/pricing). Przed każdym usunięciem Mate prosi o świeże zatwierdzenie. Wysłanie wiadomości odbywa się bez niego, więc gdy chcesz najpierw przeczytać, każ mu zapisywać szkice. Rutyny uruchamiają zapisane polecenie o ustalonej porze lub gdy zmieni się rekord, zawsze jako ich właściciel.
+
+**Twój własny klient AI przez MCP.** [Serwer MCP](/docs/mcp) jest w każdym planie i w instalacjach self-hosted, z katalogiem [[derived.mcp.tools.total]] narzędzi. Claude, ChatGPT i inni klienci łączą się przez OAuth lub klucz API i działają z uprawnieniami podłączonego użytkownika. Wywołania modelu z Twojego klienta działają u Twojego własnego dostawcy AI.
+
+**Self-hosting bez PHP.** [Edycja self-hosted](/features/self-hosted) to rdzeń AGPL z REST, webhookami i MCP, wdrażany z Docker Compose. Nie ma skrzynki odbiorczej, Mate ani kredytów w chmurze.
+
+**Gdzie działa chmura.** W Customermates Cloud główna baza danych jest skonfigurowana w regionie AWS Frankfurt, dostępna jest [umowa powierzenia przetwarzania danych (DPA)](/dpa), a podmioty podprzetwarzające, w tym dostawcy z USA, są wymienione na stronach prawnych. Customermates nie ma żadnej certyfikacji zgodności.
+
+## Gdzie Customermates jest złym wyborem
+
+- **Brak ofert, faktur, umów i magazynu.**
+- **Brak spraw, kolejek zgłoszeń i bazy wiedzy dla klientów.**
+- **Brak kampanii, list docelowych, masowej wysyłki e-maili i sekwencji.** Wiadomości idą jedna po drugiej, napisane przez Ciebie lub przygotowane jako szkice przez Mate.
+- **Brak logowania jednokrotnego, natywnych aplikacji mobilnych i telefonii.** Uprawnienia dotyczą listy i działania, nie pojedynczego pola.
+- **Zadania nie mają wbudowanego terminu.** Dodaj własne pole daty, jeśli go potrzebujesz.
+
+## Przejście z SuiteCRM
+
+Większość danych sprzedażowych SuiteCRM ma bezpośrednie miejsce docelowe. W sekcji „Model danych” możesz nazwać swoje listy „Accounts” i „Opportunities”, dzięki czemu zespół zachowa własne słownictwo.
+
+| W SuiteCRM | W Customermates |
+|---|---|
+| Accounts | Lista organizacji o nazwie „Accounts” |
+| Kontakty | Kontakty |
+| Leady | Kontakty z polem Pojedynczy wybór, np. „Cykl życia” (Lead, Klient) |
+| Opportunities | Lista szans sprzedaży o nazwie „Opportunities” |
+| Produkty w ofertach | Lista usług, dodawanych do szans sprzedaży jako pozycje z ilościami |
+| Własne moduły | Twoje własne listy z polami i relacjami |
+| Oferty, faktury, sprawy, kampanie | Brak odpowiednika; zachowaj dedykowane narzędzie |
+
+Dodaj do swoich szans sprzedaży pole Pojedynczy wybór Etap z jedną opcją na każdy etap sprzedaży SuiteCRM i skopiuj prawdopodobieństwo każdego etapu do pola **Prawdopodobieństwo %** opcji. Wartość ważona mnoży wtedy wartość każdej szansy sprzedaży przez prawdopodobieństwo jej etapu. To arytmetyka na Twoich własnych liczbach, niczego nie przewiduje.
+
+<Steps>
+  <Step title="Wyeksportuj dane z SuiteCRM">Wyeksportuj każdą listę, którą chcesz zachować, z jej widoku listy: konta, kontakty, leady i szanse sprzedaży. Customermates importuje pliki CSV bez zmian.</Step>
+  <Step title="Przygotuj przestrzeń roboczą">Utwórz lub zmień nazwy list w sekcji „Model danych”, dodaj własne pola dla atrybutów, które zachowujesz, i ustaw prawdopodobieństwa etapów. W Customermates Cloud konfiguracja z pomocą AI może zbudować listy za Ciebie.</Step>
+  <Step title="Importuj jedną listę naraz">Najpierw zaimportuj organizacje, potem kontakty, na końcu szanse sprzedaży. Kolumny powiązań dopasowują rekordy po nazwie, więc kolumna konta przy kontakcie znajduje wcześniej zaimportowaną organizację. [Dokumentacja rekordów](/docs/app-records) podaje limity.</Step>
+  <Step title="Odbuduj filtry list jako widoki">Zamień każdy zapisany filtr SuiteCRM na zapisany widok. Te, których potrzebuje cały zespół, udostępnij z menu widoku **Udostępnij…**.</Step>
+  <Step title="Podłącz kanały i AI">W planie Pro lub w okresie próbnym podłącz skrzynkę pocztową, LinkedIn lub WhatsApp, a potem ustaw rutyny dla Mate albo podłącz własnego klienta AI przez MCP.</Step>
+</Steps>
+
+## Inne alternatywy dla SuiteCRM, które warto sprawdzić
+
+Tę listę publikuje Customermates. Szczegóły pochodzą ze stron samych dostawców.
+
+- **EspoCRM** jest najbliższym odpowiednikiem wśród CRM open source w PHP, z własnymi encjami, kampaniami i portalem klienta oraz płatnymi rozszerzeniami do raportów, workflowów i ofert. Jego plany w chmurze są wyceniane za użytkownika, z minimalną wielkością zespołu. [Porównanie z EspoCRM](/compare/espocrm-alternative) opisuje szczegóły.
+- **Twenty** pasuje do zespołów, które chcą własnych obiektów w produkcie hostowanym z bezpłatnym rdzeniem self-hosted, z serwerem MCP, webhookami oraz API REST i GraphQL. [Porównanie z Twenty](/compare/twenty-alternative) podaje aktualne ceny.
+- **Vtiger** oferuje hostowany CRM ze starszą edycją open source. Zobacz [porównanie z Vtiger](/compare/vtiger-alternative).
+- **Odoo** pasuje, gdy CRM jest jedną częścią prowadzenia firmy, obok księgowości, magazynu i HR.
+
+## Najczęstsze pytania
+
+<Faq>
+<FaqItem question="Czy SuiteCRM jest darmowy?">
+Oprogramowanie tak. SuiteCRM jest open source na licencji AGPL-3.0 i można go bezpłatnie pobrać i hostować na własnym serwerze, bez opłat za użytkownika. SuiteCRM Ltd sprzedaje hosting zarządzany od 50 GBP miesięcznie, godziny wsparcia, pakiet SuiteASSURED i wdrożenie, więc Twój realny koszt to hosting plus pomoc, którą kupisz.
+</FaqItem>
+
+<FaqItem question="Czy aktualna jest wersja SuiteCRM 7 czy SuiteCRM 8?">
+Obie są utrzymywane. Na stronie pobierania SuiteCRM 7.15 to najnowsze wydanie ugruntowanej linii, a SuiteCRM 8.10 to bieżące wydanie przebudowanej linii. SuiteCRM 8.10 obsługuje PHP od 8.2 do 8.4 z MySQL lub MariaDB.
+</FaqItem>
+
+<FaqItem question="Czy SuiteCRM ma asystenta AI lub serwer MCP?">
+Strona i dokumentacja SuiteCRM opisują API (v8), ale nie wbudowanego asystenta AI ani serwera MCP. Customermates ma serwer MCP wbudowany, z katalogiem [[derived.mcp.tools.total]] narzędzi w każdym planie i w instalacjach self-hosted, oraz Mate jako hostowanego asystenta w Customermates Cloud.
+</FaqItem>
+
+<FaqItem question="Jaka jest najlepsza alternatywa open source dla SuiteCRM?">
+To zależy od luki. EspoCRM jest najbliższy zakresem, z lżejszą konfiguracją, Twenty oferuje własne obiekty w nowoczesnym stosie, a Odoo dodaje księgowość i magazyn. Customermates pasuje do małych zespołów, które chcą rozmów z WhatsAppa, LinkedIn i e-maila obok swoich szans sprzedaży oraz klienta AI, który może aktualizować CRM.
+</FaqItem>
+
+<FaqItem question="Czy mogę przenieść dane z SuiteCRM do Customermates?">
+Tak, lista po liście. Wyeksportuj konta, kontakty, leady i szanse sprzedaży z SuiteCRM, zapisz je jako skoroszyty Excel i zaimportuj najpierw organizacje, potem kontakty, na końcu szanse sprzedaży. Oferty, faktury, sprawy i kampanie nie mają odpowiednika w Customermates.
+</FaqItem>
+</Faq>
+
+Szczegóły konkurenta sprawdzone 27 października 2026 na podstawie [strony z cennikiem](https://suitecrm.com/pricing/), [strony pobierania](https://suitecrm.com/download/), [SuiteASSURED](https://suitecrm.com/enterprise/suiteassured/), [macierzy zgodności](https://docs.suitecrm.com/8.x/admin/compatibility-matrix/), [dokumentacji](https://docs.suitecrm.com/), [strony głównej](https://suitecrm.com/) i [repozytorium SuiteCRM-Core](https://github.com/SuiteCRM/SuiteCRM-Core) SuiteCRM.

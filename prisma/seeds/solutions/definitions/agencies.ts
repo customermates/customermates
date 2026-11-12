@@ -12,6 +12,10 @@ import {
   phoneNumber,
 } from "../define-solution";
 import { inboxThreads, type InboxThreadPlan } from "../inbox-threads";
+import { es } from "./locales/agencies.es";
+import { pt } from "./locales/agencies.pt";
+import { pl } from "./locales/agencies.pl";
+import { nl } from "./locales/agencies.nl";
 
 /**
  * Agencies: a brand and content agency team wins pitches, turns them into projects and retainers, and sees the monthly
@@ -777,7 +781,7 @@ const en = {
   },
 };
 
-type Strings = typeof en;
+export type Strings = typeof en;
 
 const de: Strings = {
   countryCode: "de",
@@ -2232,6 +2236,9 @@ function mailbox(name: string): string {
     .replace(/ö/g, "oe")
     .replace(/ü/g, "ue")
     .replace(/ß/g, "ss")
+    .replace(/ł/g, "l")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z]/g, "");
 }
 
@@ -2248,10 +2255,14 @@ const AGENT_EDITS: Record<string, AgentKeyName> = {
 
 export default defineSolution<Strings>({
   id: "agencies",
-  strings: { en, de },
+  strings: { en, de, es, pt, pl, nl },
   story: {
     en: { currency: "USD", timeZone: "America/Chicago" },
     de: { currency: "EUR", timeZone: "Europe/Berlin" },
+    es: { currency: "EUR", timeZone: "Europe/Madrid" },
+    pt: { currency: "BRL", timeZone: "America/Sao_Paulo" },
+    pl: { currency: "PLN", timeZone: "Europe/Warsaw" },
+    nl: { currency: "EUR", timeZone: "Europe/Amsterdam" },
   },
   build: (t, locale) => {
     const office = (index: number) => phoneNumber(t.phones.office, index);

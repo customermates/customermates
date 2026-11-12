@@ -73,6 +73,150 @@
       "theme": "dark"
     },
     {
+      "locale": "es",
+      "main": {
+        "bytes": 154388,
+        "height": 1800,
+        "src": "/captures/solutions/light/smb-es.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 38874,
+        "height": 600,
+        "src": "/captures/solutions/light/smb-es-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "smb",
+      "theme": "light"
+    },
+    {
+      "locale": "es",
+      "main": {
+        "bytes": 153498,
+        "height": 1800,
+        "src": "/captures/solutions/dark/smb-es.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 38392,
+        "height": 600,
+        "src": "/captures/solutions/dark/smb-es-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "smb",
+      "theme": "dark"
+    },
+    {
+      "locale": "pt",
+      "main": {
+        "bytes": 159312,
+        "height": 1800,
+        "src": "/captures/solutions/light/smb-pt.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 40664,
+        "height": 600,
+        "src": "/captures/solutions/light/smb-pt-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "smb",
+      "theme": "light"
+    },
+    {
+      "locale": "pt",
+      "main": {
+        "bytes": 157522,
+        "height": 1800,
+        "src": "/captures/solutions/dark/smb-pt.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 40082,
+        "height": 600,
+        "src": "/captures/solutions/dark/smb-pt-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "smb",
+      "theme": "dark"
+    },
+    {
+      "locale": "pl",
+      "main": {
+        "bytes": 156262,
+        "height": 1800,
+        "src": "/captures/solutions/light/smb-pl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 39218,
+        "height": 600,
+        "src": "/captures/solutions/light/smb-pl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "smb",
+      "theme": "light"
+    },
+    {
+      "locale": "pl",
+      "main": {
+        "bytes": 155420,
+        "height": 1800,
+        "src": "/captures/solutions/dark/smb-pl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 38726,
+        "height": 600,
+        "src": "/captures/solutions/dark/smb-pl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "smb",
+      "theme": "dark"
+    },
+    {
+      "locale": "nl",
+      "main": {
+        "bytes": 150596,
+        "height": 1800,
+        "src": "/captures/solutions/light/smb-nl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 37802,
+        "height": 600,
+        "src": "/captures/solutions/light/smb-nl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "smb",
+      "theme": "light"
+    },
+    {
+      "locale": "nl",
+      "main": {
+        "bytes": 149908,
+        "height": 1800,
+        "src": "/captures/solutions/dark/smb-nl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 37320,
+        "height": 600,
+        "src": "/captures/solutions/dark/smb-nl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "smb",
+      "theme": "dark"
+    },
+    {
       "locale": "en",
       "main": {
         "bytes": 140844,
@@ -138,6 +282,150 @@
         "bytes": 29528,
         "height": 600,
         "src": "/captures/solutions/dark/consultants-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "consultants",
+      "theme": "dark"
+    },
+    {
+      "locale": "es",
+      "main": {
+        "bytes": 153048,
+        "height": 1800,
+        "src": "/captures/solutions/light/consultants-es.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 30542,
+        "height": 600,
+        "src": "/captures/solutions/light/consultants-es-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "consultants",
+      "theme": "light"
+    },
+    {
+      "locale": "es",
+      "main": {
+        "bytes": 150966,
+        "height": 1800,
+        "src": "/captures/solutions/dark/consultants-es.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 30438,
+        "height": 600,
+        "src": "/captures/solutions/dark/consultants-es-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "consultants",
+      "theme": "dark"
+    },
+    {
+      "locale": "pt",
+      "main": {
+        "bytes": 157470,
+        "height": 1800,
+        "src": "/captures/solutions/light/consultants-pt.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 32120,
+        "height": 600,
+        "src": "/captures/solutions/light/consultants-pt-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "consultants",
+      "theme": "light"
+    },
+    {
+      "locale": "pt",
+      "main": {
+        "bytes": 155286,
+        "height": 1800,
+        "src": "/captures/solutions/dark/consultants-pt.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 31978,
+        "height": 600,
+        "src": "/captures/solutions/dark/consultants-pt-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "consultants",
+      "theme": "dark"
+    },
+    {
+      "locale": "pl",
+      "main": {
+        "bytes": 152922,
+        "height": 1800,
+        "src": "/captures/solutions/light/consultants-pl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 28990,
+        "height": 600,
+        "src": "/captures/solutions/light/consultants-pl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "consultants",
+      "theme": "light"
+    },
+    {
+      "locale": "pl",
+      "main": {
+        "bytes": 151298,
+        "height": 1800,
+        "src": "/captures/solutions/dark/consultants-pl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 28890,
+        "height": 600,
+        "src": "/captures/solutions/dark/consultants-pl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "consultants",
+      "theme": "dark"
+    },
+    {
+      "locale": "nl",
+      "main": {
+        "bytes": 154812,
+        "height": 1800,
+        "src": "/captures/solutions/light/consultants-nl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 29434,
+        "height": 600,
+        "src": "/captures/solutions/light/consultants-nl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "consultants",
+      "theme": "light"
+    },
+    {
+      "locale": "nl",
+      "main": {
+        "bytes": 153026,
+        "height": 1800,
+        "src": "/captures/solutions/dark/consultants-nl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 29440,
+        "height": 600,
+        "src": "/captures/solutions/dark/consultants-nl-nav.webp",
         "width": 960
       },
       "placeholder": false,
@@ -217,6 +505,150 @@
       "theme": "dark"
     },
     {
+      "locale": "es",
+      "main": {
+        "bytes": 154056,
+        "height": 1800,
+        "src": "/captures/solutions/light/agencies-es.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 38174,
+        "height": 600,
+        "src": "/captures/solutions/light/agencies-es-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "agencies",
+      "theme": "light"
+    },
+    {
+      "locale": "es",
+      "main": {
+        "bytes": 154540,
+        "height": 1800,
+        "src": "/captures/solutions/dark/agencies-es.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 37894,
+        "height": 600,
+        "src": "/captures/solutions/dark/agencies-es-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "agencies",
+      "theme": "dark"
+    },
+    {
+      "locale": "pt",
+      "main": {
+        "bytes": 161786,
+        "height": 1800,
+        "src": "/captures/solutions/light/agencies-pt.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 38840,
+        "height": 600,
+        "src": "/captures/solutions/light/agencies-pt-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "agencies",
+      "theme": "light"
+    },
+    {
+      "locale": "pt",
+      "main": {
+        "bytes": 162250,
+        "height": 1800,
+        "src": "/captures/solutions/dark/agencies-pt.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 38410,
+        "height": 600,
+        "src": "/captures/solutions/dark/agencies-pt-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "agencies",
+      "theme": "dark"
+    },
+    {
+      "locale": "pl",
+      "main": {
+        "bytes": 154240,
+        "height": 1800,
+        "src": "/captures/solutions/light/agencies-pl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 38132,
+        "height": 600,
+        "src": "/captures/solutions/light/agencies-pl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "agencies",
+      "theme": "light"
+    },
+    {
+      "locale": "pl",
+      "main": {
+        "bytes": 156010,
+        "height": 1800,
+        "src": "/captures/solutions/dark/agencies-pl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 37688,
+        "height": 600,
+        "src": "/captures/solutions/dark/agencies-pl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "agencies",
+      "theme": "dark"
+    },
+    {
+      "locale": "nl",
+      "main": {
+        "bytes": 154150,
+        "height": 1800,
+        "src": "/captures/solutions/light/agencies-nl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 35824,
+        "height": 600,
+        "src": "/captures/solutions/light/agencies-nl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "agencies",
+      "theme": "light"
+    },
+    {
+      "locale": "nl",
+      "main": {
+        "bytes": 153756,
+        "height": 1800,
+        "src": "/captures/solutions/dark/agencies-nl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 35626,
+        "height": 600,
+        "src": "/captures/solutions/dark/agencies-nl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "agencies",
+      "theme": "dark"
+    },
+    {
       "locale": "en",
       "main": {
         "bytes": 131854,
@@ -282,6 +714,150 @@
         "bytes": 26878,
         "height": 600,
         "src": "/captures/solutions/dark/freelancers-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "freelancers",
+      "theme": "dark"
+    },
+    {
+      "locale": "es",
+      "main": {
+        "bytes": 139346,
+        "height": 1800,
+        "src": "/captures/solutions/light/freelancers-es.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 25722,
+        "height": 600,
+        "src": "/captures/solutions/light/freelancers-es-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "freelancers",
+      "theme": "light"
+    },
+    {
+      "locale": "es",
+      "main": {
+        "bytes": 137712,
+        "height": 1800,
+        "src": "/captures/solutions/dark/freelancers-es.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 25636,
+        "height": 600,
+        "src": "/captures/solutions/dark/freelancers-es-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "freelancers",
+      "theme": "dark"
+    },
+    {
+      "locale": "pt",
+      "main": {
+        "bytes": 150336,
+        "height": 1800,
+        "src": "/captures/solutions/light/freelancers-pt.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 28032,
+        "height": 600,
+        "src": "/captures/solutions/light/freelancers-pt-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "freelancers",
+      "theme": "light"
+    },
+    {
+      "locale": "pt",
+      "main": {
+        "bytes": 148722,
+        "height": 1800,
+        "src": "/captures/solutions/dark/freelancers-pt.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 27988,
+        "height": 600,
+        "src": "/captures/solutions/dark/freelancers-pt-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "freelancers",
+      "theme": "dark"
+    },
+    {
+      "locale": "pl",
+      "main": {
+        "bytes": 147156,
+        "height": 1800,
+        "src": "/captures/solutions/light/freelancers-pl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 26824,
+        "height": 600,
+        "src": "/captures/solutions/light/freelancers-pl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "freelancers",
+      "theme": "light"
+    },
+    {
+      "locale": "pl",
+      "main": {
+        "bytes": 145852,
+        "height": 1800,
+        "src": "/captures/solutions/dark/freelancers-pl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 26812,
+        "height": 600,
+        "src": "/captures/solutions/dark/freelancers-pl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "freelancers",
+      "theme": "dark"
+    },
+    {
+      "locale": "nl",
+      "main": {
+        "bytes": 144368,
+        "height": 1800,
+        "src": "/captures/solutions/light/freelancers-nl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 28176,
+        "height": 600,
+        "src": "/captures/solutions/light/freelancers-nl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "freelancers",
+      "theme": "light"
+    },
+    {
+      "locale": "nl",
+      "main": {
+        "bytes": 143252,
+        "height": 1800,
+        "src": "/captures/solutions/dark/freelancers-nl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 28186,
+        "height": 600,
+        "src": "/captures/solutions/dark/freelancers-nl-nav.webp",
         "width": 960
       },
       "placeholder": false,
@@ -361,6 +937,150 @@
       "theme": "dark"
     },
     {
+      "locale": "es",
+      "main": {
+        "bytes": 153950,
+        "height": 1800,
+        "src": "/captures/solutions/light/startups-es.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 36648,
+        "height": 600,
+        "src": "/captures/solutions/light/startups-es-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "startups",
+      "theme": "light"
+    },
+    {
+      "locale": "es",
+      "main": {
+        "bytes": 152568,
+        "height": 1800,
+        "src": "/captures/solutions/dark/startups-es.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 36118,
+        "height": 600,
+        "src": "/captures/solutions/dark/startups-es-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "startups",
+      "theme": "dark"
+    },
+    {
+      "locale": "pt",
+      "main": {
+        "bytes": 158350,
+        "height": 1800,
+        "src": "/captures/solutions/light/startups-pt.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 38244,
+        "height": 600,
+        "src": "/captures/solutions/light/startups-pt-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "startups",
+      "theme": "light"
+    },
+    {
+      "locale": "pt",
+      "main": {
+        "bytes": 156482,
+        "height": 1800,
+        "src": "/captures/solutions/dark/startups-pt.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 37596,
+        "height": 600,
+        "src": "/captures/solutions/dark/startups-pt-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "startups",
+      "theme": "dark"
+    },
+    {
+      "locale": "pl",
+      "main": {
+        "bytes": 159252,
+        "height": 1800,
+        "src": "/captures/solutions/light/startups-pl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 38470,
+        "height": 600,
+        "src": "/captures/solutions/light/startups-pl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "startups",
+      "theme": "light"
+    },
+    {
+      "locale": "pl",
+      "main": {
+        "bytes": 158358,
+        "height": 1800,
+        "src": "/captures/solutions/dark/startups-pl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 38062,
+        "height": 600,
+        "src": "/captures/solutions/dark/startups-pl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "startups",
+      "theme": "dark"
+    },
+    {
+      "locale": "nl",
+      "main": {
+        "bytes": 157730,
+        "height": 1800,
+        "src": "/captures/solutions/light/startups-nl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 37356,
+        "height": 600,
+        "src": "/captures/solutions/light/startups-nl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "startups",
+      "theme": "light"
+    },
+    {
+      "locale": "nl",
+      "main": {
+        "bytes": 156348,
+        "height": 1800,
+        "src": "/captures/solutions/dark/startups-nl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 36910,
+        "height": 600,
+        "src": "/captures/solutions/dark/startups-nl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "startups",
+      "theme": "dark"
+    },
+    {
       "locale": "en",
       "main": {
         "bytes": 153058,
@@ -426,6 +1146,150 @@
         "bytes": 39666,
         "height": 600,
         "src": "/captures/solutions/dark/client-management-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "client-management",
+      "theme": "dark"
+    },
+    {
+      "locale": "es",
+      "main": {
+        "bytes": 167148,
+        "height": 1800,
+        "src": "/captures/solutions/light/client-management-es.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 38608,
+        "height": 600,
+        "src": "/captures/solutions/light/client-management-es-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "client-management",
+      "theme": "light"
+    },
+    {
+      "locale": "es",
+      "main": {
+        "bytes": 166108,
+        "height": 1800,
+        "src": "/captures/solutions/dark/client-management-es.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 38450,
+        "height": 600,
+        "src": "/captures/solutions/dark/client-management-es-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "client-management",
+      "theme": "dark"
+    },
+    {
+      "locale": "pt",
+      "main": {
+        "bytes": 170264,
+        "height": 1800,
+        "src": "/captures/solutions/light/client-management-pt.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 39998,
+        "height": 600,
+        "src": "/captures/solutions/light/client-management-pt-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "client-management",
+      "theme": "light"
+    },
+    {
+      "locale": "pt",
+      "main": {
+        "bytes": 168988,
+        "height": 1800,
+        "src": "/captures/solutions/dark/client-management-pt.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 39790,
+        "height": 600,
+        "src": "/captures/solutions/dark/client-management-pt-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "client-management",
+      "theme": "dark"
+    },
+    {
+      "locale": "pl",
+      "main": {
+        "bytes": 162532,
+        "height": 1800,
+        "src": "/captures/solutions/light/client-management-pl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 37692,
+        "height": 600,
+        "src": "/captures/solutions/light/client-management-pl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "client-management",
+      "theme": "light"
+    },
+    {
+      "locale": "pl",
+      "main": {
+        "bytes": 161906,
+        "height": 1800,
+        "src": "/captures/solutions/dark/client-management-pl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 37456,
+        "height": 600,
+        "src": "/captures/solutions/dark/client-management-pl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "client-management",
+      "theme": "dark"
+    },
+    {
+      "locale": "nl",
+      "main": {
+        "bytes": 169064,
+        "height": 1800,
+        "src": "/captures/solutions/light/client-management-nl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 39096,
+        "height": 600,
+        "src": "/captures/solutions/light/client-management-nl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "client-management",
+      "theme": "light"
+    },
+    {
+      "locale": "nl",
+      "main": {
+        "bytes": 166878,
+        "height": 1800,
+        "src": "/captures/solutions/dark/client-management-nl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 38816,
+        "height": 600,
+        "src": "/captures/solutions/dark/client-management-nl-nav.webp",
         "width": 960
       },
       "placeholder": false,
@@ -505,6 +1369,150 @@
       "theme": "dark"
     },
     {
+      "locale": "es",
+      "main": {
+        "bytes": 148268,
+        "height": 1800,
+        "src": "/captures/solutions/light/sales-pipeline-es.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 54080,
+        "height": 600,
+        "src": "/captures/solutions/light/sales-pipeline-es-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "sales-pipeline",
+      "theme": "light"
+    },
+    {
+      "locale": "es",
+      "main": {
+        "bytes": 146394,
+        "height": 1800,
+        "src": "/captures/solutions/dark/sales-pipeline-es.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 53616,
+        "height": 600,
+        "src": "/captures/solutions/dark/sales-pipeline-es-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "sales-pipeline",
+      "theme": "dark"
+    },
+    {
+      "locale": "pt",
+      "main": {
+        "bytes": 157006,
+        "height": 1800,
+        "src": "/captures/solutions/light/sales-pipeline-pt.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 55692,
+        "height": 600,
+        "src": "/captures/solutions/light/sales-pipeline-pt-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "sales-pipeline",
+      "theme": "light"
+    },
+    {
+      "locale": "pt",
+      "main": {
+        "bytes": 154954,
+        "height": 1800,
+        "src": "/captures/solutions/dark/sales-pipeline-pt.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 55256,
+        "height": 600,
+        "src": "/captures/solutions/dark/sales-pipeline-pt-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "sales-pipeline",
+      "theme": "dark"
+    },
+    {
+      "locale": "pl",
+      "main": {
+        "bytes": 149310,
+        "height": 1800,
+        "src": "/captures/solutions/light/sales-pipeline-pl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 54502,
+        "height": 600,
+        "src": "/captures/solutions/light/sales-pipeline-pl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "sales-pipeline",
+      "theme": "light"
+    },
+    {
+      "locale": "pl",
+      "main": {
+        "bytes": 148226,
+        "height": 1800,
+        "src": "/captures/solutions/dark/sales-pipeline-pl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 53880,
+        "height": 600,
+        "src": "/captures/solutions/dark/sales-pipeline-pl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "sales-pipeline",
+      "theme": "dark"
+    },
+    {
+      "locale": "nl",
+      "main": {
+        "bytes": 154140,
+        "height": 1800,
+        "src": "/captures/solutions/light/sales-pipeline-nl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 52550,
+        "height": 600,
+        "src": "/captures/solutions/light/sales-pipeline-nl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "sales-pipeline",
+      "theme": "light"
+    },
+    {
+      "locale": "nl",
+      "main": {
+        "bytes": 152266,
+        "height": 1800,
+        "src": "/captures/solutions/dark/sales-pipeline-nl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 52476,
+        "height": 600,
+        "src": "/captures/solutions/dark/sales-pipeline-nl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "sales-pipeline",
+      "theme": "dark"
+    },
+    {
       "locale": "en",
       "main": {
         "bytes": 132832,
@@ -577,6 +1585,150 @@
       "theme": "dark"
     },
     {
+      "locale": "es",
+      "main": {
+        "bytes": 145292,
+        "height": 1800,
+        "src": "/captures/solutions/light/linkedin-crm-es.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 59842,
+        "height": 600,
+        "src": "/captures/solutions/light/linkedin-crm-es-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "linkedin-crm",
+      "theme": "light"
+    },
+    {
+      "locale": "es",
+      "main": {
+        "bytes": 143652,
+        "height": 1800,
+        "src": "/captures/solutions/dark/linkedin-crm-es.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 60266,
+        "height": 600,
+        "src": "/captures/solutions/dark/linkedin-crm-es-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "linkedin-crm",
+      "theme": "dark"
+    },
+    {
+      "locale": "pt",
+      "main": {
+        "bytes": 147456,
+        "height": 1800,
+        "src": "/captures/solutions/light/linkedin-crm-pt.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 60382,
+        "height": 600,
+        "src": "/captures/solutions/light/linkedin-crm-pt-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "linkedin-crm",
+      "theme": "light"
+    },
+    {
+      "locale": "pt",
+      "main": {
+        "bytes": 145602,
+        "height": 1800,
+        "src": "/captures/solutions/dark/linkedin-crm-pt.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 60600,
+        "height": 600,
+        "src": "/captures/solutions/dark/linkedin-crm-pt-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "linkedin-crm",
+      "theme": "dark"
+    },
+    {
+      "locale": "pl",
+      "main": {
+        "bytes": 151786,
+        "height": 1800,
+        "src": "/captures/solutions/light/linkedin-crm-pl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 61462,
+        "height": 600,
+        "src": "/captures/solutions/light/linkedin-crm-pl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "linkedin-crm",
+      "theme": "light"
+    },
+    {
+      "locale": "pl",
+      "main": {
+        "bytes": 150266,
+        "height": 1800,
+        "src": "/captures/solutions/dark/linkedin-crm-pl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 61820,
+        "height": 600,
+        "src": "/captures/solutions/dark/linkedin-crm-pl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "linkedin-crm",
+      "theme": "dark"
+    },
+    {
+      "locale": "nl",
+      "main": {
+        "bytes": 144024,
+        "height": 1800,
+        "src": "/captures/solutions/light/linkedin-crm-nl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 59692,
+        "height": 600,
+        "src": "/captures/solutions/light/linkedin-crm-nl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "linkedin-crm",
+      "theme": "light"
+    },
+    {
+      "locale": "nl",
+      "main": {
+        "bytes": 142460,
+        "height": 1800,
+        "src": "/captures/solutions/dark/linkedin-crm-nl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 59858,
+        "height": 600,
+        "src": "/captures/solutions/dark/linkedin-crm-nl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "linkedin-crm",
+      "theme": "dark"
+    },
+    {
       "locale": "en",
       "main": {
         "bytes": 130586,
@@ -642,6 +1794,150 @@
         "bytes": 48624,
         "height": 600,
         "src": "/captures/solutions/dark/whatsapp-crm-de-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "whatsapp-crm",
+      "theme": "dark"
+    },
+    {
+      "locale": "es",
+      "main": {
+        "bytes": 142296,
+        "height": 1800,
+        "src": "/captures/solutions/light/whatsapp-crm-es.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 51486,
+        "height": 600,
+        "src": "/captures/solutions/light/whatsapp-crm-es-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "whatsapp-crm",
+      "theme": "light"
+    },
+    {
+      "locale": "es",
+      "main": {
+        "bytes": 140978,
+        "height": 1800,
+        "src": "/captures/solutions/dark/whatsapp-crm-es.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 51128,
+        "height": 600,
+        "src": "/captures/solutions/dark/whatsapp-crm-es-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "whatsapp-crm",
+      "theme": "dark"
+    },
+    {
+      "locale": "pt",
+      "main": {
+        "bytes": 145418,
+        "height": 1800,
+        "src": "/captures/solutions/light/whatsapp-crm-pt.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 52226,
+        "height": 600,
+        "src": "/captures/solutions/light/whatsapp-crm-pt-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "whatsapp-crm",
+      "theme": "light"
+    },
+    {
+      "locale": "pt",
+      "main": {
+        "bytes": 144160,
+        "height": 1800,
+        "src": "/captures/solutions/dark/whatsapp-crm-pt.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 52030,
+        "height": 600,
+        "src": "/captures/solutions/dark/whatsapp-crm-pt-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "whatsapp-crm",
+      "theme": "dark"
+    },
+    {
+      "locale": "pl",
+      "main": {
+        "bytes": 142382,
+        "height": 1800,
+        "src": "/captures/solutions/light/whatsapp-crm-pl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 51962,
+        "height": 600,
+        "src": "/captures/solutions/light/whatsapp-crm-pl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "whatsapp-crm",
+      "theme": "light"
+    },
+    {
+      "locale": "pl",
+      "main": {
+        "bytes": 141480,
+        "height": 1800,
+        "src": "/captures/solutions/dark/whatsapp-crm-pl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 51864,
+        "height": 600,
+        "src": "/captures/solutions/dark/whatsapp-crm-pl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "whatsapp-crm",
+      "theme": "dark"
+    },
+    {
+      "locale": "nl",
+      "main": {
+        "bytes": 142908,
+        "height": 1800,
+        "src": "/captures/solutions/light/whatsapp-crm-nl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 49336,
+        "height": 600,
+        "src": "/captures/solutions/light/whatsapp-crm-nl-nav.webp",
+        "width": 960
+      },
+      "placeholder": false,
+      "solution": "whatsapp-crm",
+      "theme": "light"
+    },
+    {
+      "locale": "nl",
+      "main": {
+        "bytes": 142078,
+        "height": 1800,
+        "src": "/captures/solutions/dark/whatsapp-crm-nl.webp",
+        "width": 2880
+      },
+      "nav": {
+        "bytes": 49372,
+        "height": 600,
+        "src": "/captures/solutions/dark/whatsapp-crm-nl-nav.webp",
         "width": 960
       },
       "placeholder": false,

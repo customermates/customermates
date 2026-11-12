@@ -1,0 +1,160 @@
+---
+title: Claude en ChatGPT koppelen (eigen connector)
+description: "Voeg Customermates toe aan Claude (web, desktop, mobiel) of ChatGPT als eigen MCP-connector: inloggen met OAuth, zonder API-sleutel, met header-alternatief."
+---
+
+Customermates is een open-source, AI-native CRM dat je AI rechtstreeks via MCP bedient. De eigen connector is de eenvoudigste manier om te koppelen: plak één URL, log in bij Customermates en keur de toegang goed. Je hoeft geen API-sleutel te kopiëren, geen configuratiebestand te bewerken en geen tussenlaag te installeren. Je geeft één keer toestemming en de verbinding blijft bestaan.
+
+Dit is de aanbevolen route voor **Claude** (web, desktop en mobiel) en **ChatGPT**. Gebruik je een CLI of editor (Claude Code, Codex, Cursor, Gemini CLI), kies dan [de methode met een API-sleutel](/docs/connect-cli).
+
+> Claude biedt eigen connectoren op elk abonnement (Free, Pro, Max, Ultra, Team, Enterprise); Free staat één eigen connector toe (Anthropic-help, gecontroleerd op 3 november 2026). In ChatGPT zijn ze een betaalde functie (Plus, Pro, Business, Enterprise).
+
+## Welke URL plak ik? [#the-url]
+
+Elke werkruimte heeft een eigen MCP-URL:
+
+```
+<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>
+```
+
+`<BASE_URL>` is het adres waarop je Customermates opent, in de cloud of op je eigen instantie, en `<WORKSPACE_ID>` benoemt de werkruimte. Je hoeft de URL niet zelf samen te stellen: Customermates toont de URL van je huidige werkruimte met een kopieerknop onder [API-sleutels & connectoren](app:settings/api-keys) wanneer je op [Toevoegen](app:settings/api-keys?focus=generate) klikt en **Claude** kiest en daarna **Claude-account** (of **ChatGPT & Codex** en daarna **ChatGPT-app**), en in de onboardingstap **Koppel de AI die je al gebruikt**. Wissel van werkruimte om de URL van een andere te kopiëren.
+
+Omdat elke werkruimte een eigen URL heeft, kun je meerdere werkruimtes tegelijk aan Claude toevoegen, met één connector per werkruimte. Claude weigert een tweede connector met een URL die het al heeft ("A connector with this URL already exists in your organization"), dus een tweede werkruimte heeft een eigen URL nodig.
+
+`<BASE_URL>/api/v1/mcp` blijft werken: die levert dezelfde tools, en het toestemmingsscherm vraagt welke werkruimte de verbinding krijgt. Verbindingen die je er eerder mee hebt toegevoegd, blijven zoals ze waren.
+
+De connector werkt op elk Customermates-abonnement en op zelf gehoste instanties; alleen de tools voor berichten, agenda en social media vragen in de cloud een abonnement met berichten, Pro of hoger.
+
+## Hoe koppel ik Claude aan het Customermates-CRM? [#claude]
+
+Om Claude aan je CRM te koppelen, voeg je Customermates in Claude toe als eigen connector:
+
+<Steps>
+<Step title="Open het connectorformulier">
+**Claude → Settings → Connectors → Add custom connector.**
+</Step>
+<Step title="Plak de URL">
+Laat de authenticatie op de standaardinstelling staan (OAuth). Geen header, geen sleutel.
+</Step>
+<Step title="Log in en keur goed">
+Er opent een Customermates-venster. Log in en klik op **Goedkeuren** op het toestemmingsscherm.
+</Step>
+<Step title="Controleer of de tools zijn aangekomen">
+Terug in Claude staat Customermates met zijn tools in de lijst.
+</Step>
+</Steps>
+
+Voeg het één keer toe en het wordt gesynchroniseerd met Claude op web, desktop en mobiel. De verbinding hoort bij je Claude-account, niet bij één apparaat, en wordt op de achtergrond vernieuwd.
+
+Het kan ook met één klik: open in Customermates [API-sleutels & connectoren](app:settings/api-keys), klik op [Toevoegen](app:settings/api-keys?focus=generate), kies onder **Snelle koppelingen** **Claude**, daarna **Claude-account**, en klik op **Toevoegen aan Claude**. Dan opent het dialoogvenster van Claude voor het toevoegen van een connector, vooraf ingevuld met de URL van de huidige werkruimte en een connectornaam met de naam van de werkruimte erin (alleen Claude web en Teams). De onboardingstap **Koppel de AI die je al gebruikt** biedt dezelfde knop. **Toevoegen** vraagt **Aanmaken** op **API en webhooks**; heb je dat recht niet, plak de URL dan zoals hierboven.
+
+## Hoe koppel ik ChatGPT? [#chatgpt]
+
+Om ChatGPT te koppelen, open je in ChatGPT: **Settings → Connectors → Add connector → Custom connector (MCP)**.
+
+- **Name:** Customermates
+- **URL:** de URL van je werkruimte, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>` ([welke URL](#the-url))
+- **Authentication:** OAuth
+
+Sla op. ChatGPT opent een Customermates-venster. Log in en klik op **Goedkeuren** op het toestemmingsscherm. Alle Customermates-tools staan in de lijst, zonder sleutel om op te slaan of te vernieuwen.
+
+### Kan ChatGPT een API-sleutel gebruiken in plaats van OAuth? [#chatgpt-with-an-api-key]
+
+Ja. Voeg de connector op dezelfde manier toe, maar authenticeer met een header:
+
+<Steps>
+<Step title="Maak een sleutel aan">
+Open in Customermates [API-sleutels & connectoren](app:settings/api-keys), klik op **Toevoegen** en kies **Standaard API-sleutel**. Kopieer de tekenreeks van 64 tekens meteen: die wordt maar één keer getoond. Om een sleutel aan te maken heb je **Aanmaken** nodig op de rij **API en webhooks** van je rol, en voor de pagina zelf **Leestoegang** **Alle** op die rij; de ingebouwde rol **Beheerder** heeft beide. Zie [API-sleutels](/docs/api-keys).
+</Step>
+<Step title="Authenticeer met een header">
+Stel in het connectorformulier in: **Authentication: Header**, **Header name: `x-api-key`**, **Header value:** je sleutel.
+</Step>
+</Steps>
+
+Sla op. ChatGPT bereikt de server en toont alle tools. Customermates controleert de sleutel bij elk verzoek: met een onjuiste, afgekapte, verlopen of verwijderde sleutel antwoordt de server met HTTP `401` en een `WWW-Authenticate`-header en wordt er niets getoond, dus maak een nieuwe sleutel aan.
+
+## Wat toont het toestemmingsscherm? [#sign-in-and-approve]
+
+De connector opent een Customermates-venster:
+
+<Steps>
+<Step title="Log in">
+Of je bent al ingelogd.
+</Step>
+<Step title="Lees wat er wordt toegestaan">
+Het toestemmingsscherm, met de titel **… koppelen aan …**, noemt de app die verbinding maakt, toont waar die om vraagt (zoals **Je identiteit bevestigen**, **Je basisprofiel lezen**, **Je e-mailadres lezen** en **Verbonden blijven terwijl je weg bent**) en toont **Verbindingsbestemming** met de host waarnaar de toegang wordt gestuurd. Bij de URL van een werkruimte toont het scherm die werkruimte met haar avatar, en de verbinding krijgt precies die werkruimte. Bij `<BASE_URL>/api/v1/mcp` en meerdere werkruimtes vraagt het scherm welke werkruimte de verbinding krijgt; je huidige werkruimte staat al geselecteerd.
+</Step>
+<Step title="Keur goed">
+Klik op **Goedkeuren**, of op **Weigeren** om te weigeren.
+</Step>
+</Steps>
+
+Je keert terug naar je AI, gekoppeld, met de Customermates-tools in de lijst.
+
+Kun je de werkruimte van de URL niet koppelen, dan legt het scherm uit waarom en biedt het alleen **Weigeren** aan: je bent er geen lid van (log in met het account dat je daar gebruikt), je verzoek om lid te worden wacht op goedkeuring, je toegang is gedeactiveerd, je rol heeft geen **Leestoegang** **Alle** op **API en webhooks**, de werkruimte heeft geen actief abonnement, of bijgewerkte voorwaarden moeten nog worden geaccepteerd.
+
+De connector accepteert elke client, dus het toestemmingsscherm is de poort. Keur alleen een verbinding goed die je zelf hebt gestart, en klik op **Weigeren** bij alles wat je niet zelf hebt gestart. Koppelen via OAuth vraagt geen API-sleutel, maar je rol heeft wel **Leestoegang** **Alle** op **API en webhooks** nodig, net als bij elke MCP-verbinding; zonder dat recht weigert het scherm de verbinding.
+
+## Hoe lang blijft de verbinding geldig? [#it-syncs-and-stays-connected]
+
+- Voeg hem één keer toe in Claude web en hij verschijnt ook op **desktop en mobiel**. De verbinding hoort bij je Claude-account, niet bij één apparaat.
+- Hij wordt op de achtergrond vernieuwd. Gebruik hem binnen een willekeurig venster van 30 dagen en je hoeft nooit opnieuw toestemming te geven; ben je langer inactief, dan keur je één keer opnieuw goed.
+- Elke aanroep wordt uitgevoerd als de Customermates-gebruiker die heeft goedgekeurd, binnen de werkruimte die op het toestemmingsscherm is gekozen en met de rechten van de rol van die gebruiker daar. API-sleutels werken op dezelfde manier: ze erven de rechten van de eigenaar in de werkruimte waarin ze zijn aangemaakt, en je kunt rechten niet per sleutel beperken.
+- Een verbinding blijft in zijn werkruimte, ook na het vernieuwen van tokens. Wil je in meerdere werkruimtes werken, voeg dan per werkruimte één connector toe met de URL van die werkruimte; ze werken naast elkaar in hetzelfde Claude-account. Zie [Werkruimtes](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use).
+- Staat die gebruiker op **Inactief**, dan mislukt elke aanroep die werkruimtegegevens leest of wijzigt met "Je gebruikersaccount is inactief. Neem contact op met een werkruimtebeheerder." totdat een lid met **Bewerken** op **Gebruikers & rollen** die gebruiker terugzet op **Actief**.
+
+## Wat kan ik het eerst proberen? [#try-your-first-prompt]
+
+De server stuurt zijn instructies naar je AI zodra die verbinding maakt, dus de client kent de werkwijze en de veiligheidsregels al. In clients die MCP-prompts ondersteunen (zoals Claude) kun je ook de ingebouwde prompt `get-started` uitvoeren voor een persoonlijke start: je naam, je rol en een eerste samenvatting van je werkruimte.
+
+- *"Haal de laatste tien contacten op die ik heb aangemaakt. Zijn er zonder e-mailadres?"*
+- *"Maak een contact aan voor Jane Doe bij Initech, koppel het aan de organisatie Initech en start een deal voor 12 uur advieswerk."*
+- *"Zet het veld Status van de deal met Acme op Gewonnen en voeg een notitie toe dat het contract vandaag is getekend."*
+- *"Op welke klantgesprekken wacht een antwoord van mij? Schrijf een antwoord op het oudste gesprek en sla het op als concept."*
+
+Voor de antwoordprompt moet je op Customermates Cloud vanaf Pro een kanaal hebben gekoppeld; het concept blijft in het gesprek staan tot jij het controleert en verstuurt.
+
+Elke werkruimte definieert zijn eigen recordtypen, zoals contacten, deals of taken, en ook velden zoals de fase van een deal of de prioriteit van een taak worden per werkruimte ingesteld. Vraag je AI om `discover_record_types` en `get_record_model` aan te roepen om de relevante velden en toegestane waarden te zien voordat je schrijft.
+
+## Toolaanroepen bevestigen: welke kan ik altijd toestaan? [#confirming-tool-calls]
+
+Customermates onderbreekt een toolaanroep nooit om om bevestiging te vragen; dat doet je client, en daar bepaal je het zelf. In Claude: **Settings → Connectors → Customermates**, en zet daarna elke tool (of de groep met alleen lezen) op *Always allow* of *Ask*.
+
+- Leesacties (`get_*`, `list_*`, `search_*`) hebben de markering alleen-lezen, dus je kunt ze veilig toestaan.
+- Tools die kunnen verwijderen hebben de markering destructief en vermelden `IRREVERSIBLE`.
+- Tools die alleen aanmaken, wijzigen of versturen hebben geen van beide markeringen; samengevoegde tools met een verwijderactie, zoals `manage_webhooks`, hebben de markering destructief, en `manage_team` ook, omdat de actie `remove_member` de toegang van een lid intrekt. Tot de tools zonder markering horen `send_email`, `send_chat_message`, `request_support`, `manage_social_relations`, `publish_social_post` en `comment_on_social_post`, die echte mensen bereiken, en `move_email_thread`, dat e-mail in de echte mailbox verplaatst.
+
+Laat elke tool die niet alleen-lezen is op *Ask* staan. De volledige lijst staat in de [MCP-toolcatalogus](/docs/mcp#tool-catalog).
+
+## Wat als de verbinding mislukt? [#troubleshooting]
+
+| Symptoom | Oorzaak | Oplossing |
+|---|---|---|
+| "Couldn't register with the sign-in service" (Claude) of "Connector verification failed" (ChatGPT) | Server-URL onjuist of onbereikbaar | Kopieer de URL opnieuw uit Customermates ([welke URL](#the-url)), of gebruik precies `<BASE_URL>/api/v1/mcp`, met het adres waarop je Customermates opent als `<BASE_URL>` |
+| "A connector with this URL already exists in your organization" (Claude) | Die URL is al gekoppeld, mogelijk voor een andere werkruimte | Voeg de andere werkruimte toe met haar eigen URL, gekopieerd terwijl die werkruimte open is |
+| De URL van een werkruimte antwoordt met HTTP `401` en `error="invalid_token"` | De verbinding is voor een andere werkruimte goedgekeurd | Maak opnieuw verbinding; de client logt opnieuw in voor de werkruimte van de URL |
+| De URL van een werkruimte antwoordt met HTTP `403` en `error: workspace_mismatch` (headersleutel) | De API-sleutel hoort bij een andere werkruimte | Gebruik de URL van de werkruimte van de sleutel, of maak een sleutel aan in deze werkruimte |
+| De connector toont geen tools en de server antwoordt met HTTP `401` (ChatGPT met een header) | De waarde van `x-api-key` is onjuist, afgekapt, verlopen of verwijderd | Maak een nieuwe sleutel aan onder [API-sleutels & connectoren](app:settings/api-keys) en plak alle 64 tekens |
+| Elke aanroep die werkruimtegegevens leest of wijzigt meldt "Je gebruikersaccount is inactief. Neem contact op met een werkruimtebeheerder." | Je Customermates-gebruiker is op **Inactief** gezet | Een lid met **Bewerken** op **Gebruikers & rollen** zet je onder [Leden](app:settings/members) terug op **Actief** |
+| Geen optie "Add custom connector" | Free-abonnement | ChatGPT vraagt een betaald abonnement; Claude Free staat één eigen connector toe, dus verwijder eerst een andere. Zie [de CLI-methode](/docs/connect-cli) |
+| Goedgekeurd, maar er wordt niets gekoppeld | Je hebt goedgekeurd vanuit een ander account | Log in bij het juiste Customermates-account en probeer het opnieuw |
+| "Tool not found" | Verouderde connectorcache | Verwijder de connector en voeg hem opnieuw toe |
+| De server weigert het bijwerken van een relatie | Het relatie-ID of eindpunt ontbreekt of is niet toegankelijk | Vraag de agent om `get_record_model` te lezen en daarna `mutate_crm_record` te gebruiken met `link` of `unlink` |
+| Selectieveld geweigerd | Waarde staat niet in de optielijst van het veld | Vraag de agent om eerst `get_record_model` aan te roepen |
+| Een tool voor berichten, agenda of social media wordt geweigerd met een melding over het abonnement | De werkruimte heeft geen abonnement met berichten (Starter, zelf gehost, of geen actief abonnement of actieve proefperiode) | In de Cloud kiest een lid met **Bewerken** op **Bedrijf** onder [Facturering](app:settings/billing) Pro of hoger. Zelf gehoste instanties hebben geen berichten; gebruik voor deze tools Customermates Cloud |
+
+## Met een gratis abonnement of in een CLI? [#on-a-free-plan-or-in-a-cli]
+
+ChatGPT vraagt een betaald abonnement voor eigen connectoren (Claude Free staat er één toe), en CLI- en editorclients gebruiken de connectorflow helemaal niet. Beide authenticeren met een API-sleutel: zie [CLI en editors](/docs/connect-cli). Claude Desktop met een gratis abonnement kan het [alternatief met een configuratiebestand](/docs/connect-cli#claude-desktop-config-file) gebruiken.
+
+## Volgende stappen [#next]
+
+- [MCP-toolcatalogus](/docs/mcp#tool-catalog): alle tools die je AI kan aanroepen.
+- [Webhooks](/docs/webhooks): de andere helft van de agentische lus.
+- [CLI en editors](/docs/connect-cli): installatie met een API-sleutel voor Claude Code, Codex, Cursor en Gemini CLI.
+
+## Grok Bot [#grok-bot]
+
+Grok Bot kan in Customermates werken via zijn browser. Vraag de bot je Customermates-URL te openen, neem het inloggen over wanneer erom wordt gevraagd en beschrijf daarna de taak. Controleer concepten voordat je ze verstuurt. Voor deze browserwerkwijze heb je geen nieuwe Customermates API-sleutel nodig.
+
+Grok Bot en de chatconnectoren van Grok hebben een andere installatieflow. Voeg voor de chat van Grok een eigen MCP-connector toe met `<BASE_URL>/api/v1/mcp` en rond de authenticatie af. Zie de officiële [Grok Bot-appgids](https://docs.x.ai/grok-bot/computer-and-apps) en de [Grok-connectorgids](https://docs.x.ai/grok/connectors).

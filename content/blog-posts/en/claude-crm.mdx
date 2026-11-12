@@ -6,7 +6,7 @@ relatedHrefs:
   - /docs/connect-custom-connector
   - /blog/hubspot-mcp
   - /blog/what-is-an-mcp-server
-  - /blog/ai-crm
+  - /blog/claude-connectors
 
 hero:
   title: "Claude CRM: Connect Claude to Your CRM and Keep Control"
@@ -62,13 +62,15 @@ The tools come from the CRM, not from Claude, so the exact list depends on the v
 
 Claude picks the tools and the order on its own. That works well for a handful of records per request. For hundreds of rows, vendor limits apply (HubSpot's connector creates or updates 10 records at a time in bulk), and an import is the better tool.
 
+For a week-by-week routine with prompts for research, call prep, follow-up drafts and pipeline review, see [Claude for sales](/blog/claude-for-sales).
+
 ## Which CRMs have a Claude connector, ranked?
 
 This ranking is published by Customermates and uses three things the vendors' own documentation states: how much of the client conversation Claude can reach (email, LinkedIn and chat, not only records), how much Claude can write, and who controls the permissions. The fit test is a small client-facing team: a few seats, long email and chat histories, nobody to administer a platform. Checked on 10 November 2026 against each vendor's own MCP or connector page, linked in the second column. We read those pages and did not run every connector, so a row shows what the vendor documents, not a measurement. Customermates ranks first on its own criteria, so read the vendor pages before you decide.
 
 | # | CRM | How it connects to Claude | What Claude can do | Plan needed | Setup in one line |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Customermates (publisher), [connector guide](/docs/connect-custom-connector) and [MCP reference](/docs/mcp) | MCP server built into the product. Custom connector with OAuth in Claude, API key in Claude Code | [[derived.mcp.tools.total]] tools: read, create, update and delete records in every list you set up (for example contacts, organizations, deals and tasks), their notes and files, and the Knowledge Base. On Pro and higher also the [unified inbox](/features/unified-inbox) with email, LinkedIn, WhatsApp, Instagram and Telegram threads, drafts and sends | Every plan and self-hosted. Free shares 10 requests per minute and 200 per day per workspace; the inbox needs Pro or higher | Customize › Connectors › Add custom connector, paste your workspace URL, sign in, Approve |
+| 1 | Customermates (publisher), [connector guide](/docs/connect-custom-connector) and [MCP reference](/docs/mcp) | MCP server built into the product. Custom connector with OAuth in Claude, API key in Claude Code | [[derived.mcp.tools.total]] tools: read, create, update and delete records in every list you set up (for example contacts, organizations, deals and tasks), their notes and files, and the Knowledge Base. On Pro and higher also the [unified inbox](/features/unified-inbox) with email, LinkedIn, WhatsApp, Instagram and Telegram threads, drafts and sends | Every plan and self-hosted. Free shares [[commercial.limit.free.apiRequestsPerMinute]] requests per minute and [[commercial.limit.free.apiRequestsPerDay]] per day per workspace; the inbox needs Pro or higher | Customize › Connectors › Add custom connector, paste your workspace URL, sign in, Approve |
 | 2 | [Breakcold](https://docs.breakcold.com/api/mcp-applications/claude) | Official ("first party") MCP server at `https://mcp.breakcold.com/mcp/v1`, added in Claude as a custom connector with OAuth | Records including custom objects (create, update, archive), tasks, notes, meetings with transcripts, and the inbox: read conversations, set drafts, send messages. Its product page names email, LinkedIn, WhatsApp and Telegram. Records are archived, not deleted | Full MCP on every plan; its [product page](https://www.breakcold.com/crm/claude) lists from $49 per seat per month | Customize › Connectors › Add custom connector, paste the endpoint, sign in, enable it in the chat |
 | 3 | [Close](https://help.close.com/integrations/close-mcp-server) | Close describes its MCP server as officially supported across the Claude ecosystem: `https://mcp.close.com/mcp` with OAuth | Three scopes you choose when you connect: read only, read and write, or read, write and delete. The [tool list](https://developer.close.com/mcp/tools) covers leads, contacts, opportunities, tasks, notes, custom objects and email drafts (no send tool); calls, meeting transcripts and SMS are read only | The page names no Close plan. Claude: the organization connector library needs a paid plan, and on Free you add Close from the + menu in Claude Desktop | Settings › Connectors › Organization connectors, select Close, Connect, pick a scope |
 | 4 | [Attio](https://docs.attio.com/mcp/overview) | Official hosted MCP server at `https://mcp.attio.com/mcp`, found under Browse connectors in Claude, OAuth | Search, read, create and update records (people, companies, deals, custom objects), lists, notes, tasks and comments; merge records; delete only tasks and comments. Reads emails, meetings and call recordings, and lists no send tool. Writes ask for confirmation | The page names no plan for the connector; its SQL reporting tool is not on every plan | Settings › Connectors › Browse connectors, search Attio, Install, sign in |
@@ -102,7 +104,7 @@ Salesforce also runs hosted MCP servers that are separate from the Claude plugin
 
 ## How do I connect Claude to a CRM?
 
-The steps are the same for any CRM with a remote MCP server; the ranked table gives each vendor's own wording.
+The steps are the same for any CRM with a remote MCP server; the ranked table gives each vendor's own wording. The [Claude connectors guide](/blog/claude-connectors) explains directory and custom connectors and which Claude plans allow them.
 
 <Steps>
   <Step title="Check who can add the connector">
@@ -158,7 +160,7 @@ Customermates connects as a custom connector, which works on every Claude plan (
   </Step>
 </Steps>
 
-To give Claude fewer tools, append `?toolsets=records,messaging` to the endpoint URL; the [MCP reference](/docs/mcp) lists the toolsets, and the [connector guide](/docs/connect-custom-connector) has a troubleshooting table. On the Free plan, REST and MCP requests together are limited to 10 per minute and 200 per day per workspace, and a request over the limit gets HTTP 429; paid plans and self-hosted instances have no request limit.
+To give Claude fewer tools, append `?toolsets=records,messaging` to the endpoint URL; the [MCP reference](/docs/mcp) lists the toolsets, and the [connector guide](/docs/connect-custom-connector) has a troubleshooting table. On the Free plan, REST and MCP requests together are limited to [[commercial.limit.free.apiRequestsPerMinute]] per minute and [[commercial.limit.free.apiRequestsPerDay]] per day per workspace, and a request over the limit gets HTTP 429; paid plans and self-hosted instances have no request limit.
 
 ## Who controls what Claude writes
 

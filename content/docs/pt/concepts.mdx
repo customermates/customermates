@@ -1,0 +1,102 @@
+---
+title: "Modelo de dados do CRM: registros, vínculos e cálculos"
+description: "Como listas, campos, relacionamentos, total do negócio, pipeline ponderado, permissões, widgets e webhooks funcionam juntos no modelo de dados do CRM."
+---
+
+O Customermates guarda os dados do CRM em listas configuráveis. Cada espaço de trabalho define as próprias listas, como Contatos, Negócios, Projetos ou Candidaturas, e pode acrescentar outras a qualquer momento, sem esperar uma nova versão. Todo registro tem um ID estável, então renomear uma lista ou um campo não quebra nenhuma referência. Uma visualização salva mostra os registros de uma lista sem copiá-los.
+
+## Quais listas um espaço de trabalho tem, e de onde elas vêm? [#which-five-record-types-exist]
+
+Nenhuma lista é embutida. No Customermates Cloud, a configuração do espaço de trabalho com IA no [onboarding](/docs/app-onboarding) desenha o espaço de trabalho inteiro a partir das suas respostas e, se você informar um, do seu site: cada lista com seus campos, relacionamentos e cálculos, as visualizações das listas, registros de exemplo ou uma planilha importada, o painel e a Base de conhecimento. Um espaço de trabalho hospedado por conta própria começa sem listas: quem gerencia o modelo de dados as cria em [Modelo de dados](app:configure). Os espaços de trabalho criados antes da configuração com IA mantêm as listas com que começaram.
+
+| Lista que a configuração cria | Quando | O que ela guarda |
+| --- | --- | --- |
+| Pessoas, por exemplo Contatos | Sempre | Um registro por pessoa, com um campo **Dados de contato** e uma foto de perfil, para que as mensagens correspondam à pessoa certa |
+| Tarefas | Sempre | Itens de trabalho |
+| Organizações | Normalmente | As empresas ou contas a que as suas pessoas pertencem |
+| Negócios | Normalmente | Oportunidades de venda em etapas que têm, cada uma, uma chance de ganho, com uma etapa de ganho e uma de perda |
+| Ofertas, por exemplo Serviços ou Produtos | Quando você vende produtos ou serviços | O seu catálogo com preços unitários; os negócios passam então a ter itens de linha |
+
+Os nomes seguem o seu negócio, então a sua lista de negócios pode se chamar Oportunidades ou Pedidos. As listas da configuração são listas comuns: você pode renomeá-las e ampliar ou alterar os campos, os relacionamentos e o layout delas em Modelo de dados, como em qualquer lista que você cria. Para associar mensagens a registros, uma lista precisa de um campo **Dados de contato**: os telefones, os endereços de e-mail e os perfis sociais de um registro. Um telefone pode receber chamadas e também corresponde a conversas de WhatsApp do mesmo número. A lista de pessoas da configuração tem um desses campos; você pode adicionar um a qualquer outra lista. É um campo normal que você pode mover, fixar, filtrar e editar como qualquer outro; um mesmo identificador pode corresponder a vários registros.
+
+## Como o valor total de um negócio é calculado? [#how-is-a-deals-total-value-calculated]
+
+Quando você vende produtos ou serviços, a configuração do espaço de trabalho com IA dá à sua lista de negócios **Itens de linha**, uma sublista: cada linha pertence a um negócio, é editada dentro dele, compartilha o acesso dele e é removida com ele. Cada linha tem uma oferta, uma quantidade, um modo de preço e um preço unitário efetivo. **Valor da linha = quantidade × preço unitário efetivo**. O valor do negócio é a soma dos valores das linhas; sem itens de linha, é um simples valor monetário. A mesma oferta pode aparecer em várias linhas. O preço dinâmico acompanha as mudanças posteriores no preço da oferta; o preço salvo mantém o preço capturado. Todo campo monetário carrega a própria moeda, e valores em moedas diferentes nunca são somados em silêncio.
+
+O total é um cálculo configurado, então quem gerencia o esquema pode alterá-lo ou transformá-lo em um valor manual depois de ver a prévia dos registros e widgets afetados. Uma entrada ausente, um valor que você não pode ver, zero e um erro de cálculo são estados diferentes. Veja [pipeline ponderado](#how-does-a-weighted-pipeline-work).
+
+## Como os relacionamentos vinculam registros, por exemplo um contato a várias organizações? [#how-do-relationships-link-records]
+
+Um relacionamento conecta duas listas. Cada lado tem o próprio rótulo, e cada lado permite um ou vários registros, então um contato pode pertencer a várias organizações e um projeto pode vincular contatos e negócios. Os dois registros mostram o vínculo. No formulário do registro, um relacionamento é um campo: escolha os registros e clique em **Salvar**. Em [Modelo de dados](app:configure), você adiciona um com **Adicionar** e depois **Relacionamento**, na página de configuração de uma lista, ou arrastando do ponto de uma lista até outra no grafo. A aba **Relacionamentos** lista cada um como uma linha com o rótulo, quantos registros se vinculam (por exemplo **Um para muitos**) e a outra lista; uma lista sem nenhum mostra **Adicionar relacionamento**. O painel lateral define os dois rótulos, quantos registros se vinculam e, em **Ao excluir**, o que acontece com os registros vinculados.
+
+Um relacionamento também pode mostrar as mensagens de registros diretamente vinculados nas Atividades da outra lista, definido por direção. A configuração do espaço de trabalho com IA ativa isso nos relacionamentos da sua lista de pessoas, então um negócio ou uma organização mostra as mensagens das pessoas vinculadas. No painel lateral do relacionamento, uma chave por direção liga ou desliga isso, por exemplo **Mostrar as mensagens deles em Organizações**.
+
+O aplicativo verifica os tipos de lista, a cardinalidade, as duplicatas e o que acontece na exclusão. Um lookup ou rollup sobre vários registros vinculados precisa de uma agregação, como soma ou contagem.
+
+## O que são campos e quais tipos de campo existem? [#what-are-custom-columns]
+
+Toda lista começa com alguns campos, e você pode adicionar os seus; as tabelas os mostram como colunas. Os tipos de campo são Texto, Texto formatado, Número, Dinheiro, Sim ou não, Data, Data e hora, Período de datas, Período de data e hora, Escolha única, Múltipla escolha, Endereço web, Membro, Endereço, Arquivo e Telefone, e-mail e redes sociais. Telefones e endereços de e-mail não têm um tipo de campo próprio: pertencem ao campo Dados de contato de uma lista, que tem o tipo Telefone, e-mail e redes sociais. Um campo Endereço guarda um endereço postal, verificado contra o formato de endereço do país dele; veja [Como informo um endereço?](/docs/app-records#how-do-i-enter-an-address). Campos de texto, de endereço web e de arquivo podem **Permitir vários valores** (um campo de arquivo passa então a guardar até 20 arquivos; veja [Como anexo arquivos a um registro?](/docs/app-records#how-do-i-attach-files-to-a-record)); nos campos de endereço web, **Ao clicar** define se clicar em um valor o abre em uma nova aba (o padrão) ou o copia; veja [Registros do CRM](/docs/app-records#what-is-special-about-each-record-type). As opções de escolha mantêm um ID estável quando você as renomeia. Trocar um campo de Escolha única para Múltipla escolha mantém todos os valores; voltar só funciona enquanto cada registro tiver no máximo uma opção.
+
+Um campo é preenchido à mão ou calculado: a partir de outros campos do mesmo registro, obtido de um registro vinculado, ou contado ou totalizado a partir de registros vinculados. Um valor calculado está sempre atualizado, a menos que você escolha salvá-lo em um momento específico, como quando o registro é criado. As fórmulas usam uma linguagem de expressões verificada e nunca executam código arbitrário; ciclos, tipos incompatíveis e definições caras demais são rejeitados. Os campos podem ser usados em filtros, ordenação, visualizações, widgets, rotinas e no Mate, dentro do que o acesso permite.
+
+## Posso mudar o tipo de um campo quando os registros já têm valores? [#can-i-change-a-fields-type]
+
+Sim. Escolha outro **Tipo de valor** no painel lateral do campo; a prévia verifica cada valor existente e converte os que cabem sem perda. Um Texto vira Número quando é um número simples como `1250.50`, Data quando está escrito como `2026-10-12`, Data e hora em formato ISO e Endereço web quando é um endereço válido. Um texto que corresponde ao rótulo de uma opção vira essa opção de um campo de Escolha única ou Múltipla escolha. Números, datas, valores Sim ou não e escolhas viram Texto. Trocar Escolha única para Múltipla escolha mantém todos os valores; voltar só funciona enquanto cada registro tiver no máximo uma opção.
+
+Quando alguns valores não cabem, a mudança é bloqueada, e a prévia diz quantos registros têm esses valores e mostra até três deles, por exemplo: 2 registros têm valores em Orçamento que não são compatíveis com a alteração, por exemplo "n/a", "tbd". Corrija ou limpe esses valores primeiro. Por MCP e REST, o problema de prévia `existing_values_incompatible` traz os mesmos `count` e `examples`.
+
+## Como adiciono, altero ou excluo campos, inclusive o campo de etapa do negócio? [#how-do-i-add-change-or-delete-a-custom-column]
+
+Abra [Modelo de dados](app:configure), que mostra todas as listas como um grafo. Em cada lista, o cabeçalho abre a página de configuração dela, o corpo mostra os primeiros campos (uma entrada como **3 campos a mais** expande o restante no lugar, e **Mostrar menos** o recolhe) e a contagem de registros no rodapé abre a lista. As sublistas ficam em um mesmo quadro com a lista pai e se movem com ela. As posições e as listas expandidas são salvas para você; **Redefinir layout** restaura a disposição padrão.
+
+O botão **+** de uma lista no grafo e o menu **Adicionar** na página de configuração dela oferecem as mesmas entradas: **Campo**, **Campo calculado**, **Relacionamento**, **Dados de contato** (somente enquanto a lista não tiver um) e **Sublista**, cada uma no seu painel lateral. **Sublista** abre um painel como **Nova sublista de Contatos** e exige **Editar** em **Usuários e funções**, além da permissão do modelo de dados; uma sublista não pode ter sublistas próprias, e REST e MCP recusam essa mudança com `recordSublistNested`. Uma sublista como Itens de linha mostra **Sublista de Negócios** na página dela e no grafo, com a explicação de que cada entrada pertence a um registro de Negócio, é editada dentro dele, compartilha o acesso dele e é removida com ele. A página de configuração de uma lista alterna entre **Geral**, **Campos** e **Relacionamentos**, e os relacionamentos aparecem como linhas, como os campos. O campo de etapa do negócio fica na página de configuração da sua lista de negócios. Antes de uma mudança ser aplicada, ela mostra uma prévia dos registros, visualizações, widgets, rotinas e fórmulas afetados, e as mudanças que quebrariam algo ficam bloqueadas até você resolver o problema.
+
+Para excluir um campo personalizado ou qualquer outro campo, uma lista ou um relacionamento, use **Excluir** no painel lateral dele ou no menu da página. A confirmação lista tudo o que é ajustado automaticamente (filtros, colunas e ordenações de visualizações, filtros e agrupamentos de widgets, um widget que media o campo passa a contar registros, os webhooks o tiram do gatilho e são pausados quando ele era o único gatilho, e as configurações de dados de contato, foto de perfil ou calendário deixam de usá-lo) e bloqueia apenas o que passaria a calcular errado: cálculos, rotinas e os campos que controlam o acesso ao espaço de trabalho. Todo campo pode ser excluído, inclusive o que dá nome aos registros: o próximo campo de texto na ordem de campos da lista passa então a nomeá-los, e a confirmação diz qual; sem nenhum campo de texto, os registros aparecem como sem título. Restaurar o campo devolve a ele o papel de nome, a menos que o campo de nome tenha sido alterado desde então, e o coloca de volta nas configurações de dados de contato, foto de perfil ou calendário; os widgets que agora contam registros e os gatilhos de webhook continuam como estão. Os itens excluídos vão para a **Lixeira**, onde você pode **Restaurar** por 30 dias ou **Excluir permanentemente** depois de digitar o nome; passados os 30 dias, eles são excluídos permanentemente. Uma exclusão permanente também remove os valores guardados e, no caso de uma lista, os registros e os vínculos dela.
+
+Os nomes são únicos: nomes de listas, nomes de campos dentro de uma lista, rótulos de relacionamentos por lado e rótulos de opções por campo, sem diferenciar maiúsculas de minúsculas nem acentos. Gerenciar o modelo de dados é uma permissão própria, separada da edição de registros; ela não concede acesso a registros nem gerenciamento de funções.
+
+## Como crio um campo calculado? [#how-do-i-build-a-calculated-field]
+
+Escolha **Campo calculado** no menu **Adicionar** de uma lista, na página de configuração dela em [Modelo de dados](app:configure), ou abra ali um campo calculado existente. **Origem do valor** define de onde o valor vem: **Calculado a partir deste registro**, **Obtido de um registro vinculado** ou **Contado ou totalizado a partir de registros vinculados**. O tipo de valor decorre do cálculo e aparece no resultado, então um total de campos monetários é dinheiro e uma contagem é um número.
+
+A seção **Cálculo** desenha o cálculo de cima para baixo, com as mesmas caixas do grafo de Modelo de dados. Para um valor de registros vinculados, ela começa com a própria lista, segue um relacionamento mostrado como um chip, como **Itens de linha · Um para muitos**, e termina na lista vinculada com **Obter Preço** ou, para um total, **Soma de Valor** ou **Número de Itens de linha vinculados**. Um cálculo a partir do registro lista as suas **Entradas** e depois uma caixa por etapa, como **Multiplicar** com as duas entradas dela. Cada escolha é um chip: clique nele para pesquisar os campos da lista, seguir mais um relacionamento em **Ir além** ou informar um **Valor fixo**. **Adicionar entrada** e **Adicionar etapa** ampliam um cálculo, e o menu **Mais ações** de uma etapa a remove.
+
+A última caixa mostra o tipo do resultado e um exemplo: um registro da lista com o valor que este cálculo dá a ele, e uma seta para mostrar outro registro. Abaixo das caixas, uma frase diz o que o campo faz, por exemplo "Valor do negócio soma Valor de todos os Itens de linha vinculados." Enquanto algo estiver faltando, a frase o cita, como "Escolha qual valor somar.", e **Salvar** marca a caixa incompleta.
+
+**Mais opções** define **Atualizações**: **Sempre atualizado**, **Salvo quando o registro é criado**, **Salvo quando um campo muda** (escolha o campo e o valor que a aciona) ou **Salvo sob solicitação**. Um valor salvo pode ter a opção **Permitir que as pessoas o sobrescrevam**. Quando há registros vinculados envolvidos, **Mostrar para todos que podem ver Negócio** permite que as pessoas vejam este valor mesmo que não possam abrir os registros vinculados; para um único valor vinculado ou um total sobre um só registro, elas veem exatamente esse valor, então alterar um cálculo assim exige a aprovação de um administrador.
+
+## Como os valores monetários calculados são arredondados? [#how-are-calculated-money-values-rounded]
+
+Um campo Dinheiro calculado sem **Casas decimais** arredonda o resultado, com a regra de meio para cima, até a menor unidade da moeda antes de ser guardado: duas casas para EUR ou USD, nenhuma para JPY, três para KWD. Com **Casas decimais** definido, um valor calculado é arredondado para essa quantidade de casas. O aplicativo, a API REST, as exportações e os webhooks devolvem o valor arredondado. Cada valor é arredondado individualmente, então o total de um negócio soma valores de linha já arredondados e pode diferir em um centavo de uma soma de números não arredondados. Os valores guardados mudam quando são recalculados na próxima vez. Valores digitados nunca são arredondados; **Casas decimais** só define como eles são exibidos.
+
+## Como funciona um pipeline ponderado, e como o valor ponderado é calculado? [#how-does-a-weighted-pipeline-work]
+
+**Valor ponderado do negócio = valor do negócio × probabilidade da etapa / 100**. As etapas são um campo de Escolha única cujas opções carregam, cada uma, uma probabilidade de 0 a 100%, que a configuração do espaço de trabalho com IA toma da chance de ganho de cada etapa. O valor ponderado é um campo calculado opcional. Um negócio de 2.600 com 60% contribui com 1.560; uma etapa de 0% contribui com zero, e uma probabilidade ausente deixa o valor ponderado vazio. Uma mudança no preço dinâmico de uma oferta recalcula os valores dependentes; um preço de proposta salvo, não.
+
+Quem gerencia o esquema edita as etapas, as probabilidades delas ou a fórmula na página de configuração da lista de negócios em [Modelo de dados](app:configure), e a prévia mostra o efeito sobre os negócios e os widgets existentes. As pessoas que não podem ler todas as entradas de um cálculo veem um valor restrito em vez do total, e a própria fórmula só é mostrada a quem pode ler todas as entradas dela.
+
+## O que são widgets? [#what-are-widgets]
+
+Um widget de gráfico no [Painel](app:dashboard) escolhe uma lista de origem e uma agregação, um campo de valor para agregações diferentes de contagem, filtros opcionais, um agrupamento e um estilo de exibição, por exemplo a soma do Valor do negócio por Etapa ou a contagem de Projetos por Proprietário. Cada registro conta uma vez, na lista de onde vem; um negócio vinculado a duas organizações conta por inteiro nos dois grupos, então os totais agrupados podem passar do total geral. Um gráfico de contagem com origem em uma lista de ofertas conta os registros dela; um com origem em Itens de linha conta registros de Item de linha. Os widgets seguem as mesmas regras de acesso das listas. Os widgets de atividade mostram um feed em vez de um número. Veja [Painel](/docs/app-dashboard).
+
+## O que são webhooks? [#what-are-webhooks]
+
+Um [webhook](app:settings/webhooks) ou uma rotina pode se inscrever em eventos de registros de uma ou mais listas, opcionalmente filtrados por campos. As entregas entram na fila depois que a alteração é salva. Uma entrega com falha é repetida com a mesma identidade de evento e de entrega, então um receptor pode ver um mesmo evento mais de uma vez. O acesso é verificado de novo no momento do envio, e as entregas anteriores têm dados ocultados para quem as visualiza. Veja [Webhooks](/docs/webhooks).
+
+## O que é texto formatado, e é markdown? [#what-is-formatted-text]
+
+Um campo Texto formatado guarda texto formatado em um registro, como notas, descrições ou resumos. É um campo como qualquer outro: tem um lugar na visão geral, pode ser fixado ou ocultado, e você pode adicionar quantos uma lista precisar. O texto é guardado como um documento verificado, e não como uma string markdown. Onde quer que apareça como texto simples ou markdown, é uma conversão do mesmo documento, não uma segunda cópia.
+
+## Quem são os usuários, as funções e a empresa, e o que significa o acesso de leitura Atribuídos? [#who-are-users-roles-and-the-company]
+
+Os membros são as pessoas de um espaço de trabalho. As [Funções](app:settings/roles) concedem criar, ler, editar e excluir por lista. O acesso de leitura **Todos** cobre todos os registros da lista, **Atribuídos** apenas os registros atribuídos a esse membro, e **Nenhum** nada. Editar e excluir também exigem acesso ao registro específico. As listas novas começam sem acesso. Toda pesquisa, cálculo, exportação, widget e resposta do Mate aplica o acesso de quem lê.
+
+## Próximos passos [#next]
+
+- [Registros do CRM](/docs/app-records): listas, editores e visualizações.
+- [Sintaxe de filtros](/docs/filter-syntax): filtros e operadores de relacionamento.
+- [Catálogo de ferramentas MCP](/docs/mcp#tool-catalog): ferramentas de registros e de configuração.
+
+## Para agentes [#for-agents]
+
+Leia os IDs de listas e campos com `discover_record_types` e `get_record_model`. Toda referência de registro traz `typeId` e `recordId`. Vincule ou desvincule registros com `mutate_crm_record`, usando os IDs de relação de `get_record_model`. O texto formatado é gravado como um valor `richText` tipado, ou acrescentado ao fim do texto atual com `{fieldId, append}` em uma atualização. `configure_record_model` mostra a prévia e aplica uma mudança de esquema com uma revisão esperada e uma chave de idempotência; uma revisão desatualizada exige uma nova prévia.

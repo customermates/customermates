@@ -1,0 +1,143 @@
+---
+title: "Caixa de entrada do Customermates CRM: conversas e respostas"
+description: "A Caixa de entrada reúne e-mail, LinkedIn, WhatsApp, Instagram e Telegram em uma só lista: leia, responda, organize, compartilhe e vincule a registros."
+---
+
+## O que é a Caixa de entrada? [#what-is-the-inbox]
+
+A [Caixa de entrada](app:inbox) é a central de mensagens do Customermates Cloud: conversas de e-mail, LinkedIn, WhatsApp, Instagram e Telegram em uma só lista, com a atividade mais recente primeiro. Clique em uma conversa para lê-la ao lado da lista; em telas estreitas, a lista e a conversa se alternam. A partir de uma conversa, você responde no canal de origem, define o estado dela, move um e-mail para outra pasta, a compartilha com a sua equipe e vincula os participantes a registros. O Mate, ou o seu próprio agente de IA pelo [MCP](/docs/mcp), pode deixar uma resposta como rascunho na conversa; você revisa, edita e envia (veja [rascunhos](#how-do-drafts-and-attachments-work)). Você conecta as próprias contas em [Canais e calendários](app:settings/channels), veja [Guia do app, Perfil](/docs/app-profile).
+
+## Quem pode usar a Caixa de entrada, e por que ela fica bloqueada no Starter ou não existe na versão com hospedagem própria? [#who-can-use-the-inbox]
+
+As quatro condições precisam ser atendidas:
+
+- **Customermates Cloud.** As instalações com hospedagem própria não têm Caixa de entrada: o item da barra lateral fica oculto e abri-lo leva ao Painel.
+- **Um plano com mensagens:** Pro, Business, Max, Enterprise ou um teste. No Starter, a Caixa de entrada continua na barra lateral mas mostra **Faça upgrade para liberar as mensagens**, e **Faça upgrade do seu plano** abre o [Faturamento](app:settings/billing).
+- **Uma assinatura utilizável:** status **Ativa** ou um teste que não terminou. Enquanto o status é **Em atraso** ou **Cancelada**, a Caixa de entrada fica bloqueada do mesmo jeito.
+- **A sua função:** **Mensagens da caixa de entrada** com **Acesso de leitura** definido como **Todos**. Com **Nenhum**, o item da barra lateral fica oculto e abrir a Caixa de entrada leva ao Painel. A função **Administrador** sempre tem acesso.
+
+Enquanto o plano ou a assinatura bloqueia a Caixa de entrada, o aviso de upgrade continua visível e as atualizações em segundo plano das conversas e da contagem de não lidas param. Quando o acesso volta, reabrir a Caixa de entrada carrega as conversas de novo. As conversas privadas mantêm as configurações de visibilidade o tempo todo.
+
+## Preciso de um canal conectado? [#do-i-need-a-connected-channel]
+
+Não para abrir a Caixa de entrada: sem um canal seu, você ainda vê o que os colegas compartilham. Para enviar e receber nas suas próprias contas, você precisa de um. Uma Caixa de entrada vazia mostra **Nada aqui ainda**; membros com **Criar** em **Mensagens da caixa de entrada** recebem um botão **Canais** abaixo (quando o Mate está disponível, aparecem ali sugestões iniciais). Adicione uma conta de e-mail, LinkedIn, WhatsApp, Instagram ou Telegram com [Conectar canal](app:settings/channels?focus=connect), veja [Como conecto um canal?](/docs/app-profile#how-do-i-connect-a-channel). Canais por membro: Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; um teste conta como Pro.
+
+## Quais conversas eu vejo, e um administrador pode ler as minhas privadas? [#which-conversations-do-i-see]
+
+A lista combina os canais que você conectou, os canais que um colega compartilhou com todo o espaço de trabalho e conversas individuais que um colega compartilhou de um canal privado. As conversas privadas de um colega nunca aparecem, seja qual for a sua função, **Administrador** inclusive.
+
+Para contas de e-mail, só aparecem as pastas ativadas na aba **Pastas** da conta em [Canais e calendários](app:settings/channels). Por padrão, todas as pastas ficam ativadas, menos lixeira, lixo eletrônico ou spam, rascunhos e a pasta de todos os e-mails; se faltarem e-mails de um arquivo, confira a chave dessa pasta. Uma conversa sem nenhuma mensagem só aparece enquanto guarda um rascunho salvo.
+
+## Quais permissões a Caixa de entrada exige? [#which-permissions-does-the-inbox-need]
+
+As funções são editadas em [Funções](app:settings/roles). A Caixa de entrada usa a linha **Mensagens da caixa de entrada**: **Criar**, **Editar**, **Excluir** e **Acesso de leitura** **Nenhum** ou **Todos**.
+
+| Para fazer isto | A função precisa de |
+| --- | --- |
+| Ver a Caixa de entrada e ler conversas | **Mensagens da caixa de entrada**: **Acesso de leitura** **Todos** |
+| Responder, salvar ou enviar rascunhos, iniciar uma conversa a partir de um contato | **Mensagens da caixa de entrada**: **Criar** |
+| Descartar um rascunho | **Mensagens da caixa de entrada**: **Excluir** |
+| Mudar o estado, mover um e-mail, **Atualizar**, **Ressincronizar conversa**, carregar mensagens mais antigas, compartilhar uma conversa | **Mensagens da caixa de entrada**: **Editar** |
+| Vincular o endereço de um participante a um registro, ou criar um registro a partir dele | Acesso de leitura e de edição a esse registro; acesso de criação para um novo registro |
+| Vincular um registro a esta conversa específica | **Mensagens da caixa de entrada**: **Editar**, mais acesso de leitura e de edição ao registro |
+| Adicionar um campo Dados de contato a uma lista | **Modelo de dados** |
+
+Sem **Criar**, a caixa de resposta fica oculta. Sem **Editar**, a ação de mover fica oculta, o estado é uma etiqueta somente para leitura e abrir uma conversa não lida a mantém **Não lida**. Compartilhar uma conversa individual também exige que você seja o dono do canal dela.
+
+## Como pesquiso, filtro ou atualizo a Caixa de entrada? [#how-do-i-search-filter-or-refresh-the-inbox]
+
+A barra superior da [Caixa de entrada](app:inbox) tem:
+
+- **Filtros** pesquisa e filtra: digite um texto e escolha a entrada **contém** para encontrar conversas por assunto, texto das mensagens, nome da conversa e nomes ou endereços dos participantes (F abre o filtro). Ele também oferece **Estado**, **Registros vinculados**, **Participantes** (**não totalmente vinculado** encontra conversas com alguém que não tem um registro correspondente que você possa ler), **Provedor**, **Canal**, **Pasta de e-mail**, **Rascunho** (**tem pelo menos um** encontra conversas com um rascunho salvo), **Última mensagem** (**Enviado** ou **Recebido**), **Data da última mensagem** e **Última atividade**.
+- **Atualizar** busca novas mensagens na hora (**Caixa de entrada atualizada.**) e informa os canais que atingiram um limite de frequência, precisam ser reconectados ou não puderam ser atualizados. Exige **Editar**.
+- **Canais** abre [Canais e calendários](app:settings/channels), com um número quando há canais que precisam de atenção. Exige **Criar**.
+
+**Pasta de e-mail** agrupa as pastas sob a conta delas, para que pastas com o mesmo nome continuem separadas; **é um de** encontra conversas com uma mensagem visível em qualquer pasta selecionada, **não é um de** as exclui. **Última mensagem** e **Data da última mensagem** usam a última mensagem realmente enviada ou recebida; rascunhos, mensagens excluídas e eventos do sistema não contam. Para e-mails de três a sete dias atrás, adicione duas condições de **Data da última mensagem**: **Mais antigo que…** 3 dias e **7 dias**. **Última atividade** inclui rascunhos salvos. Todos os filtros respeitam o compartilhamento de contas e as pastas ativadas.
+
+A linha de visualizações começa com **Todas as conversas**, seguida das suas visualizações salvas e das visualizações que colegas compartilharam com você; clique em **Todas as conversas** para sair de uma visualização. A lista mostra 25 conversas por página (5, 10, 25 ou 100). O item da barra lateral mostra quantas das conversas que você vê estão **Não lida**.
+
+## Como abro uma conversa específica? [#how-do-i-open-a-specific-conversation]
+
+Clique na linha dela. O endereço do navegador passa então a apontar para essa conversa, e você pode salvá-lo nos favoritos ou enviá-lo a um colega que possa vê-la; um endereço que você não pode abrir leva de volta à Caixa de entrada. Para encontrar as conversas de um registro, escolha-o no filtro **Registros vinculados**: a correspondência usa os dados de contato do registro e ainda verifica o seu acesso a cada conversa. O Mate não abre uma conversa específica para você: ele abre a Caixa de entrada e nomeia a conversa.
+
+Com **Editar** em **Mensagens da caixa de entrada**, rolar até o topo de uma conversa busca mensagens mais antigas no provedor, uma vez por conversa até você recarregar. **Ressincronizar conversa** no cabeçalho busca a conversa inteira de novo.
+
+## O que há no cabeçalho da conversa? [#what-is-in-the-conversation-header]
+
+Ao lado do nome da conversa, da esquerda para a direita:
+
+| Controle | O que faz |
+| --- | --- |
+| **Mover conversa para a pasta…** (IMAP e Outlook) | Arquiva a conversa em outra pasta; exige **Editar** |
+| **Ressincronizar conversa** | Busca a conversa de novo; exige **Editar** |
+| Etiqueta **Conversa privada** ou **Conversa compartilhada** | Abre **Configurações da conversa** |
+| **Alguns participantes não têm nenhum registro vinculado que você possa ver** | Abre **Configurações da conversa**; aparece quando você pode criar ou editar registros em uma lista com um campo Dados de contato |
+| Etiqueta de estado | **Não lida**, **Aberta**, **Fechada** ou **Spam** |
+
+Em telas estreitas, as etiquetas mostram só ícones.
+
+As mensagens recebidas ficam à esquerda, as enviadas à direita. O cabeçalho compacto de um e-mail mostra remetente, horário e o primeiro destinatário; **Detalhes** (também em **Ações do e-mail**) mostra **De**, **Para**, **Cc** e **Cco**. O Cco só é visível em e-mails enviados, para o dono da conta e para colegas com acesso à conta inteira; compartilhar uma conversa individual nunca o revela. Clique em um endereço para copiá-lo. Um botão de pasta abaixo dos destinatários mostra onde esse e-mail está arquivado. Os e-mails escritos no Customermates e os e-mails de texto simples usam as cores e a fonte do app e seguem o seu tema claro ou escuro. Um HTML recebido que traz o próprio modo escuro é exibido no seu tema; os outros HTMLs recebidos mantêm o layout e as cores do remetente sobre um fundo claro. As imagens remotas só são carregadas depois de **Carregar imagens remotas**.
+
+## O que significam os estados da conversa? [#what-do-the-thread-states-mean]
+
+| Estado | Significado |
+| --- | --- |
+| **Não lida** | Nova, ou chegou uma nova mensagem |
+| **Aberta** | Lida, ainda precisa de atenção |
+| **Fechada** | Concluída |
+| **Spam** | Marcada como spam |
+
+Abrir uma conversa não lida a define como **Aberta** (só com **Editar**). O estado é compartilhado por todos que veem a conversa. Uma nova mensagem recebida a volta para **Não lida**, mesmo de **Fechada** ou **Spam**. **Spam** é só um rótulo: não oculta a conversa, não bloqueia o remetente nem denuncia nada ao provedor; use o filtro **Estado** para mantê-la fora de vista. Definir um estado nunca envia nada.
+
+## Como movo um e-mail para outra pasta? [#how-do-i-move-an-email-to-another-folder]
+
+Em conversas IMAP e Outlook, clique no botão de pasta de um e-mail e escolha um destino em **Mover este e-mail para…** para mover só esse e-mail, ou use **Mover conversa para a pasta…** no cabeçalho para arquivar a conversa inteira. As mensagens também são movidas na caixa de e-mail real. Enviados e Rascunhos nunca são destinos, e as mensagens neles ficam onde estão. Conversas do Gmail, membros sem **Editar** e colegas que veem uma conversa compartilhada de um canal privado podem ler os nomes das pastas, mas não recebem opções de mover; só o dono do canal as arquiva.
+
+Você pode continuar trabalhando enquanto a mudança acontece. As mensagens movidas para uma pasta desativada na aba **Pastas** da conta somem da conversa; quando não sobra nada visível, a confirmação diz que ela não aparece mais na sua Caixa de entrada. Se o provedor aplicar um limite de frequência no meio do caminho, uma mensagem avisa e você pode mover o restante depois.
+
+## Como compartilho uma conversa individual? [#how-do-i-share-a-single-conversation]
+
+Clique em **Conversa privada** ou **Conversa compartilhada** no cabeçalho para abrir **Configurações da conversa**. A chave **Compartilhar com a equipe** compartilha só esta conversa com todos cuja função pode ler a Caixa de entrada (**Compartilhada com o CRM**); desligá-la mostra **A conversa agora é privada**. Só o dono do canal pode usá-la, em um plano com mensagens e com **Editar**. Os colegas podem então ler a conversa, mudar o estado dela e ressincronizá-la, mas não movê-la, e só você pode responder enquanto o próprio canal é privado.
+
+Para compartilhar todas as conversas de um canal, ative **Visibilidade** na aba **Detalhes** do canal em [Canais e calendários](app:settings/channels) (Business, Max ou Enterprise). A chave por conversa passa então a ficar ligada e bloqueada.
+
+## Como vinculo participantes e registros? [#how-do-i-link-a-participant]
+
+As mensagens são associadas a registros pelos dados de contato: um registro cujo campo Dados de contato contém um endereço de e-mail, um número de telefone ou um perfil mostra todas as conversas com esse endereço. Um número de telefone também corresponde a conversas de WhatsApp do mesmo número. Abra **Configurações da conversa**. Em **Pessoas**, cada participante mostra, como etiquetas, os registros que você pode ver e que correspondem ao endereço dele. **Vincular** abre uma busca que adiciona o endereço aos dados de contato de um registro de qualquer lista que tenha um campo Dados de contato; o **✕** em uma etiqueta remove só essa correspondência. Um endereço pode pertencer a vários registros, por exemplo um contato e uma organização, e todas as outras conversas com o mesmo endereço acompanham. Campos de texto comuns nunca são usados para a correspondência.
+
+Em **Registros da conversa**, o seletor do campo (**Vincular registro**) anexa só esta conversa a um registro, por exemplo um negócio de uma lista sem campo Dados de contato; as outras conversas com o participante continuam separadas. Vincular nunca concede acesso a mensagens privadas nem a registros restritos.
+
+## Como respondo a uma conversa? [#how-do-i-reply-to-a-conversation]
+
+Clique em **Escreva uma resposta...** (e-mail) ou **Digite uma mensagem...** (chat) abaixo da conversa. As respostas de e-mail mostram **Assunto** e **Para**, preenchidos a partir da conversa; **Cc/Cco** adiciona esses campos, e qualquer combinação funciona desde que haja um destinatário válido. Você escreve o e-mail em um editor de Markdown, e a sua assinatura, se estiver ativada, é adicionada no envio. Os destinatários em Cco nunca são levados para uma resposta. As respostas de chat são texto simples. Use **Anexar arquivos** e **Inserir emoji** conforme precisar, depois **Enviar** ou Cmd/Ctrl+Enter; **Mais opções de envio** guarda **Salvar como rascunho**.
+
+Se o envio falhar, **Tentar novamente** só aparece quando tentar de novo pode ajudar (limite de frequência, instabilidade temporária). Quando o provedor rejeita uma mensagem, altere-a primeiro; depois de um tempo esgotado, confira a conversa, porque a mensagem pode já ter saído. Um canal que precisa ser reconectado é informado antes de qualquer envio, e só o dono dele pode reconectá-lo. As respostas saem do próprio canal da conversa, então você só pode responder em canais que são seus ou que estão compartilhados com o espaço de trabalho.
+
+## Como inicio uma nova conversa ou escrevo um novo e-mail para um contato? [#how-do-i-start-a-new-conversation]
+
+A Caixa de entrada não tem botão para uma nova conversa. Abra o registro da pessoa, por exemplo na sua lista de contatos, e clique no ícone **Nova mensagem** ao lado de um endereço de e-mail ou de um perfil nos dados de contato dela. Quando vários dos seus canais podem enviar, escolha um em **De**; para o LinkedIn com Sales Navigator ou Recruiter, **Enviar como** escolhe **Classic**, **InMail do Sales Navigator** ou **InMail do Recruiter**. Depois de **Enviar**, a mensagem sai em segundo plano (**Enviando mensagem**, depois **Mensagem enviada.**). Isso exige o Customermates Cloud e **Criar** em **Mensagens da caixa de entrada**.
+
+## Como funcionam os rascunhos e os anexos? [#how-do-drafts-and-attachments-work]
+
+**Salvar como rascunho** guarda uma mensagem sem enviá-la; enquanto você edita um rascunho salvo, o botão diz **Atualizar rascunho**. Um rascunho de resposta fica na conversa dele com **Enviar rascunho**, **Editar** e **Descartar**. Um rascunho de uma nova conversa aparece na lista como uma conversa própria ("Rascunho salvo. Encontre-o na caixa de entrada."), também quando você já tem um rascunho para as mesmas pessoas; o filtro **Rascunho** com **tem pelo menos um** lista todos eles. Uma conversa guarda um rascunho. Um novo InMail do LinkedIn não pode ser salvo como rascunho. Descartar não pode ser desfeito. O app, a API REST e o MCP compartilham os mesmos rascunhos.
+
+Cada versão salva de um rascunho é enviada no máximo uma vez. Se o rascunho mudou depois de você abri-lo, por exemplo em outra aba, pelo Mate ou por um agente, **Enviar** mantém o seu texto e oferece **Carregar versão mais recente** ou **Enviar o meu**. Se o envio não pôde ser confirmado, o rascunho não é enviado de novo: confira primeiro a conversa, no caso de e-mail também a sua pasta Enviados, depois edite e atualize o rascunho para enviá-lo mesmo assim. No caso de e-mail, assim que a cópia enviada desse envio anterior chega da sua caixa de e-mail, o rascunho conta como enviado e sai da caixa de entrada; ele então não é enviado de novo, nem depois de uma edição.
+
+Para isso, todo rascunho enviado deixa um registro de envio: os IDs dele, o estado e hashes do conteúdo enviado, nunca o conteúdo em si. No caso de e-mail, os hashes cobrem Para, Cc, assunto, texto e nomes dos anexos, e, para o envio exato, também Cco e o conteúdo dos anexos; no caso de chat, cobrem o texto e os anexos. O registro é excluído 30 dias depois da última alteração dele, quando o rascunho já não existe. Enquanto o rascunho ainda existe, por exemplo depois de um envio que não pôde ser confirmado, o registro permanece, para que o rascunho não saia duas vezes. Desconectar o canal exclui os registros dele.
+
+**Anexar arquivos** adiciona até 20 arquivos por mensagem, 15 MB no total. Os rascunhos não guardam anexos ("Remova os anexos antes de salvar este rascunho."). Nas mensagens recebidas, as mídias compatíveis abrem na própria mensagem, os outros arquivos são baixados e os itens sem suporte mostram **Não compatível**.
+
+## Como defino uma assinatura de e-mail? [#how-do-i-set-an-email-signature]
+
+A assinatura pertence a cada conta de e-mail que é sua: em [Canais e calendários](app:settings/channels), abra a conta do Gmail, do Outlook ou IMAP e use a aba **E-mail** dela. Defina fonte, tamanho e estilo de link, ative **Adicionar uma assinatura**, escolha um layout com ou sem logotipo e escreva o texto em Markdown. Enquanto está ativada, ela é adicionada abaixo de todo e-mail enviado dessa conta, pela Caixa de entrada, pela API REST ou pelo MCP, então não a cole na mensagem; o editor mostra uma pré-visualização dela. Todos os campos: [Aparência e assinatura do e-mail](/docs/app-profile#email-appearance-and-signature).
+
+## Para agentes [#tips-for-agents]
+
+Prefira as ferramentas do [MCP](/docs/mcp) a clicar: `get_messaging_threads` lê conversas, `update_messaging_thread` define o estado (REST `POST /api/v1/messaging/threads/{id}/state`), `move_email_thread` arquiva um e-mail (REST `POST /api/v1/messaging/threads/{id}/move`; falha para uma conversa compartilhada de um canal privado de outra pessoa), `send_email` e `send_chat_message` iniciam conversas, e `save_message_draft` (REST `POST /api/v1/messaging/drafts`) prepara uma para revisão; envie ou descarte um rascunho com o ID da mensagem e o `draftRevision` atual. `resolve_record_identifiers` encontra os registros que correspondem a um endereço, `manage_conversation_records` lê e altera os registros vinculados a uma conversa, e `mutate_crm_record` altera os dados de contato de um registro.
+
+**Mudança incompatível:** o envio de rascunhos salvos pela API REST mudou. `POST /api/v1/messaging/send-email` responde `200`, e `POST /api/v1/messaging/threads/{id}/messages` e `POST /api/v1/messaging/start-chat` respondem `201`, assim que a mensagem enviada é registrada, também quando a chamada repete um envio anterior da mesma revisão do rascunho; essa repetição traz `repeated: true` e não envia nada. Eles respondem `202` com um comprovante apenas enquanto a mensagem enviada ainda não foi registrada. Um `draftRevision` desatualizado ou destinatários alterados respondem `409` com customCode `draftChanged` ou `draftRecipientsChanged` em vez de `404`, e `DELETE /api/v1/messaging/drafts/{id}` com um `draftRevision` desatualizado responde `409` com customCode `draftChanged` em vez de `404`. `POST /api/v1/messaging/drafts`, como `save_message_draft` com `connectedAccountId`, cria uma nova conversa a cada chamada; atualize um rascunho salvo pela conversa dele com `POST /api/v1/messaging/threads/{id}/drafts` ou `threadId`.
+
+## Relacionados [#related]
+
+- [Guia do app, Perfil](/docs/app-profile): conecte as contas que alimentam a Caixa de entrada.
+- [Limites de frequência](/docs/messaging-rate-limits): os orçamentos por provedor para leituras e envios.

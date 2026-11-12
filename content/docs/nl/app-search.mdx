@@ -1,0 +1,57 @@
+---
+title: "Globaal zoeken in Customermates (Cmd/Ctrl+K)"
+description: "Zoek met Cmd/Ctrl+K vanaf elke pagina in de lijsten die je mag lezen: wat het vindt, waar een resultaat opent en waar je in plaats daarvan berichten zoekt."
+---
+
+Globaal zoeken opent boven de pagina waarop je zit, overal in de app: druk op Cmd/Ctrl+K, druk op / als er geen veld focus heeft, of klik op **Zoeken** in de zijbalk.
+
+## Wat vindt globaal zoeken, en op welke contactvelden zoekt het? [#what-does-global-search-find]
+
+De zoekfunctie doorzoekt de records in elke lijst die je kunt lezen, ook lijsten die je werkruimte zelf heeft gemaakt, en groepeert de treffers per lijst. Het zoekt op recordtitels en doorzoekbare veldwaarden, vindt contacten via elk e-mailadres of telefoonnummer in hun **Contactgegevens**, en vindt records op de namen en de tekst van hun [bijgevoegde bestanden](#does-search-look-inside-files). Waarden die je niet mag zien, worden niet doorzocht. Als je rol een lijst alleen leest met **Toegewezen**, krijg je alleen records waaraan je bent toegewezen. **Meer laden** haalt verdere treffers op.
+
+Voordat je typt, toont **Onlangs geopend** je laatste keuzes uit de zoekfunctie, die alleen in deze browser worden bewaard; **Wissen** maakt de lijst leeg. **Suggesties** eronder bieden aan wat past bij de pagina waarop je zit, bijvoorbeeld een record toevoegen aan de lijst die je open hebt. Met de pijltoetsen ga je door de treffers en Enter opent er een. Een record selecteren opent het in het detailpaneel.
+
+## Kijkt de zoekfunctie ook in bijgevoegde bestanden? [#does-search-look-inside-files]
+
+Ja. Kort nadat een bestand aan een record is gekoppeld, wordt de tekst eruit gehaald: de tekstlaag van een pdf, Word-documenten (.docx), elk blad van een Excel-werkmap (.xlsx), en csv-, platte-tekst-, Markdown-, json- en html-bestanden. De zoekfunctie vindt het record dan als al je woorden in dezelfde passage van een van zijn bestanden staan, ook verbogen vormen in het Engels, Duits, Spaans, Frans en Italiaans, en het laatste woord mag het begin van een langer woord zijn. De bestandsnaam wordt ook doorzocht. Gescande pdf's en afbeeldingen worden niet op inhoud doorzocht, omdat er geen tekstherkenning (OCR) is, en alleen de eerste 500.000 tekens van een bestand worden geïndexeerd, uit hooguit de eerste 1.000 pagina's van een pdf. Word- en Excel-bestanden die uitgepakt meer dan 128 MB beslaan, worden niet gelezen.
+
+De inhoud van een bestand wordt alleen doorzocht waar je het record en het veld met het bestand mag lezen. Een bestand dat van zijn record is verwijderd, een record in de [Prullenbak](/docs/app-trash) en een verwijderd veld worden niet meer gevonden. Het zoekvak in een lijst vindt records op dezelfde manier via de tekst van hun bestanden, en AI-clients die via [MCP](/docs/mcp#file-contents) zijn gekoppeld, kunnen de tekst van de bestanden die jij kunt lezen doorzoeken en lezen.
+
+## Hoe spring ik naar een lijst, weergave, pagina of instelling? [#how-do-i-jump-to-a-page-or-setting]
+
+Typ de naam of het begin van de woorden; opvulwoorden zoals "open", "ga naar" of "instellen" worden genegeerd, en een kleine typefout in één langer woord wordt vergeven. De zoekfunctie vindt ook elke lijst en zijn opgeslagen weergaven, de pagina's van de app, elke instelling op [Profiel & voorkeuren](app:settings/profile) en de andere instellingenpagina's, en acties zoals het thema wisselen of leden uitnodigen, ook met alledaagse woorden als "donkere modus" of "team". Het meest waarschijnlijke doel verschijnt bovenaan als **Beste resultaat**, en Enter opent het. Een lijst toont zijn opgeslagen weergaven ingesprongen eronder: Enter opent de lijst, pijl omlaag kiest een weergave. Een instelling opent zijn pagina met de instelling gemarkeerd. Acties tonen rechts hun sneltoets.
+
+Om de zoekopdracht te beperken, begin je met een letter en een spatie: **l** lijsten, **v** weergaven, **s** instellingen, **d** documentatie en **r** records, bijvoorbeeld "v open deals".
+
+## Hoe wijzig ik het record dat ik open heb? [#how-do-i-change-the-open-record]
+
+Als een record open is in het paneel of op zijn pagina, biedt de zoekfunctie er acties voor aan: **Wijzigen** van een keuze-, ja/nee- of lidveld, **Toewijzen aan**, **Toevoegen aan** een gerelateerde lijst en **Verwijderen**. Een actie kiezen opent de opties ervan in het zoekvak; Esc gaat een stap terug. Een wijziging wordt meteen opgeslagen, en Verwijderen vraagt zoals gebruikelijk om bevestiging. Deze acties verschijnen alleen als je het record mag bewerken en het geen niet-opgeslagen wijzigingen heeft.
+
+Berichten worden hier niet doorzocht; de [Inbox](app:inbox) heeft een eigen zoekfunctie. Gebruik voor een gefilterde of gesorteerde lijst met records in plaats daarvan een lijst, bijvoorbeeld je contactenlijst met **Filters** in de werkbalk. Om een record toe te voegen, zie [CRM-records](/docs/app-records#how-do-i-add-a-record).
+
+## Hoe zoekt de zoekfunctie op betekenis, en wat wordt er verzonden? [#how-does-search-match-by-meaning]
+
+De zoekfunctie vindt ook op betekenis en over talen heen: "Sprache" vindt **Weergavetaal**, "night mode" vindt het donkere thema, en de woorden die je voor een lijst of weergave zou gebruiken, vinden hem ook als zijn naam anders is. Maximaal drie passende onderdelen van deze documentatie verschijnen onder **Documentatie**, maximaal acht als je begint met **d**; elk opent de plek in de app die het beschrijft, of anders de documentatiepagina. Records worden alleen op hun woorden gevonden: een record-id vindt dat record, een zin tussen dubbele aanhalingstekens, zoals "Acme Corp", komt alleen overeen zoals hij is geschreven, en als niets overeenkomt, verschijnen records met een titel met een vergelijkbare spelling.
+
+Zoeken op betekenis gebeurt alleen als niets op naam overeenkomt: als geen pagina, instelling, actie, lijst of weergave een duidelijk **Beste resultaat** is en geen record je woorden bevat. Alleen dan ontvangt een embeddingmodel van Google via de Vercel AI Gateway je zoektekst, waarbij een klein deel van je AI-credits wordt gebruikt. Het ontvangt ook de namen van de pagina's, instellingen, acties, lijsten, weergaven en velden van je werkruimte, die alleen opnieuw worden verzonden als ze veranderen, en nooit de inhoud van records. Is de dienst traag of niet beschikbaar, dan toont de zoekfunctie meteen de treffers op naam. Zonder AI, bijvoorbeeld bij een zelf gehoste installatie, zoekt de zoekfunctie alleen op naam.
+
+## Hoe open ik een gefilterde lijst door hem te beschrijven? [#how-do-i-describe-what-to-open]
+
+Als geen resultaat een duidelijke overeenkomst is, luidt de eerste rij **Ga naar “…”** met je woorden. Druk op Enter en een klein AI-model zet het verzoek om in één plek: een lijst met filters, een van zijn weergaven, een pagina, een instelling of een actie. Bijvoorbeeld: in een werkruimte met een dealslijst opent "gewonnen deals die deze maand sluiten" die lijst met alleen de gewonnen deals die deze maand sluiten. De filters worden niet opgeslagen: de weergave toont als gewijzigd, en **Opslaan** of **Resetten** in **Filters** bewaart of verwerpt ze. Past het verzoek nergens bij, dan gaat het in plaats daarvan naar [Mate](/docs/app-assistant).
+
+Het model ontvangt je woorden en de namen van je lijsten, weergaven, velden en keuzes, nooit de inhoud van records, en gebruikt een klein deel van je AI-credits. Het meldt je nooit af en wijzigt, wijst toe of verwijdert nooit een record; die acties blijven in de zoekresultaten staan.
+
+## Voor agents [#which-stable-ids-does-it-have]
+
+Mate kan naar **Zoeken** in de zijbalk wijzen, maar kan het zoekvak niet openen of erin typen. Gebruik voor gefilterde, gesorteerde of geaggregeerde opzoekingen de recordquerytools in plaats van globaal zoeken.
+
+## Veelgestelde vragen [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Wat is de sneltoets?">
+Cmd+K op een Mac, Ctrl+K op Windows en Linux, overal in de app, of / als geen tekstveld focus heeft. Typ een vraag en druk op Tab om die in plaats daarvan aan [Mate](/docs/app-assistant) te geven; **Vraag het aan Mate** is ook de laatste rij van de resultaten. **Zoeken** in de zijbalk toont de toets voor jouw computer en opent dezelfde zoekfunctie. Alle sneltoetsen staan in [Welke sneltoetsen zijn er?](/docs/app-dashboard#keyboard-shortcuts).
+</FaqItem>
+<FaqItem question="Waar openen resultaten?">
+In het detailpaneel van het record, boven de pagina waarop je zat. Van daaruit kun je de volledige recordpagina openen, beschreven in [CRM-records](/docs/app-records#what-is-the-shared-layout-of-a-record-type).
+</FaqItem>
+</Faq>

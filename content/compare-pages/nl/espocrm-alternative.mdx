@@ -1,0 +1,256 @@
+---
+title: "EspoCRM alternatief: open source CRM voor kleine teams"
+description: "EspoCRM alternatief vergeleken: Customermates, SuiteCRM, Twenty en Odoo op licentie, hosting, kosten van extensies, chatkanalen, MCP en migratie."
+competitorName: EspoCRM
+
+relatedHrefs:
+  - /compare/twenty-alternative
+  - /compare/suitecrm-alternative
+  - /features/self-hosted
+  - /blog/open-source-crm
+
+sections:
+  reasons:
+    - title: "LinkedIn en WhatsApp naast e-mail"
+      description: "EspoCRM synchroniseert e-mail; de catalogus noemt geen officiële integratie voor WhatsApp, LinkedIn, Instagram of Telegram. Vanaf Pro zet Customermates ze allemaal in één inbox, bij de klant."
+    - title: "Mate of je eigen AI-agent stelt het antwoord op"
+      description: "De MCP-server zit in elk abonnement en bij self-hosted installaties, met [[derived.mcp.tools.total]] tools. In Customermates Cloud stelt Mate het antwoord en de volgende stap op, zodat jij ze kunt controleren."
+    - title: "Open source zonder extensielicenties"
+      description: "De self-hosted kern is AGPL-3.0, uitgerold met Docker Compose, en er wordt niets extra per instance gelicentieerd. Er zit geen inbox en geen Mate in; die draaien in Customermates Cloud."
+  switchSteps: true
+
+hero:
+  title: "EspoCRM alternatief: Customermates en EspoCRM vergeleken"
+  description: "EspoCRM is ook open source, dus het verschil zit in de opvolging. Customermates zet gesprekken uit LinkedIn, WhatsApp en e-mail vanaf Pro op het klantrecord, en Mate of je eigen AI-agent stelt het antwoord op. EspoCRM-gegevens gecontroleerd op 8 oktober 2026."
+  buttonLeftText: Start je proefperiode van [[commercial.trial.days]] dagen
+  buttonLeftHref: /auth/signup
+  buttonRightText: Bekijk de livedemo
+  buttonRightHref: https://demo.customermates.com/nl/w/kleine-bedrijven/dashboard
+  hint: "✓ Geen creditcard nodig ✓ De eerste [[commercial.trial.days]] dagen gratis"
+
+comparison:
+  competitorName: EspoCRM
+  title: "Customermates vs. EspoCRM: functievergelijking"
+  sections:
+  - title: Licentie & uitrol
+    features:
+      - name: Open source licentie
+        source: AGPL-3.0-kern; ee/ onder een aparte commerciële licentie
+        competitor: AGPLv3 (GPLv3 tot december 2023)
+      - name: Zelf hosten
+        source: Docker Compose met twee services, de app en PostgreSQL 16
+        competitor: Webinstaller, installatiescript of Docker
+      - name: Technologie
+        source: TypeScript, Next.js, PostgreSQL
+        competitor: PHP 8.3 tot 8.5 met MySQL, MariaDB of PostgreSQL
+      - name: Beheerde cloud
+        source: true
+        competitor: true
+      - name: Self-hosted add-ons
+        source: Niets te licentiëren; kern met REST, webhooks en MCP, geen inbox of Mate
+        competitor: Betaalde extensies, per instance gelicentieerd voor een beperkte periode
+  - title: Prijzen
+    features:
+      - name: Cloudprijs per gebruiker per maand
+        source: "Starter [[commercial.price.starter.monthly]], Pro [[commercial.price.pro.monthly]], Business [[commercial.price.business.monthly]]"
+        competitor: "Basic €12,90, Enterprise €22,00, Ultimate €59,00"
+      - name: Minimaal aantal gebruikers
+        source: Geen
+        competitor: 3 bij Basic, 5 bij Enterprise, 10 bij Ultimate
+      - name: Betaalperiode
+        source: Maandelijks
+        competitor: 6 maanden of 1 jaar (Basic en Enterprise)
+      - name: Gratis proefperiode
+        source: "[[commercial.trial.days]] dagen"
+        competitor: 30 dagen (cloud)
+  - title: CRM-functies
+    features:
+      - name: Standaard recordtypen
+        source: Contactpersonen, organisaties, deals, diensten, taken
+        competitor: Accounts, contactpersonen, leads, opportunities en meer
+      - name: Eigen entiteitstypen
+        source: Je eigen lijsten, met velden en relaties
+        competitor: Entity Manager
+      - name: Eigen velden
+        source: Zestien veldtypen, plus berekende velden
+        competitor: true
+      - name: Kansen per fase en gewogen pipeline
+        source: true
+        competitor: Kansen per fase van een opportunity
+      - name: Kanbanbord
+        source: true
+        competitor: true
+      - name: Rapporten, workflows, BPM
+        source: Dashboards, webhooks, n8n-communitynode; Routines in Customermates Cloud
+        competitor: Extensie Advanced Pack
+      - name: Offertes en voorraad
+        source: false
+        competitor: Extensie Sales Pack
+      - name: Klantenportaal
+        source: false
+        competitor: true
+  - title: Communicatie
+    features:
+      - name: E-mail
+        source: Gmail, Outlook en IMAP in de gecombineerde inbox (vanaf Pro)
+        competitor: E-mailsynchronisatie en verzenden in de kern; extensie Google Integration
+      - name: LinkedIn, WhatsApp, Instagram, Telegram
+        source: Gecombineerde inbox (vanaf Pro)
+        competitor: Geen officiële extensie vermeld
+      - name: Bulk-e-mail en campagnes
+        source: false
+        competitor: true
+  - title: AI & interfaces
+    features:
+      - name: MCP voor AI-clients
+        source: "Ingebouwd, [[derived.mcp.tools.total]] tools, elk abonnement en self-hosted"
+        competitor: Gratis MCP Extension (AGPLv3) met record- en Stream-tools
+      - name: AI in de app
+        source: Mate (Customermates Cloud, gehoste AI-credits)
+        competitor: Extensie Intelligence
+      - name: REST API
+        source: true
+        competitor: true
+
+cta:
+  action: Zoek je een EspoCRM alternatief?
+  description: "Start een proefperiode, exporteer één EspoCRM-lijst naar Excel en importeer die, en koppel daarna een mailbox of WhatsApp. Je ziet snel of je gegevens en gesprekken passen bij het model van Customermates."
+  buttonLeftText: Start je proefperiode van [[commercial.trial.days]] dagen
+  buttonLeftHref: /auth/signup
+  buttonRightText: Bekijk de livedemo
+  buttonRightHref: https://demo.customermates.com/nl/w/kleine-bedrijven/dashboard
+  hint: "✓ Geen creditcard nodig ✓ De eerste [[commercial.trial.days]] dagen gratis"
+---
+
+> Het juiste EspoCRM alternatief hangt af van wat je nodig hebt dat EspoCRM je niet geeft. Voor een ander gevestigd open source CRM met offertes en marketingfuncties kijk je naar SuiteCRM. Voor onbeperkt eigen objecten met een gratis self-hosted kern kijk je naar Twenty. Voor CRM, boekhouding en voorraad in één systeem kijk je naar Odoo. Customermates past bij kleine teams met veel klantcontact waarvan de klanten naast e-mail ook via WhatsApp, LinkedIn, Instagram of Telegram schrijven, en die een AI-assistent of hun eigen AI-client het CRM actueel willen laten houden. Ben je afhankelijk van campagnes of een klantenportaal, dan blijft EspoCRM het betere gereedschap. Customermates publiceert deze vergelijking; elk detail over EspoCRM en van derden komt van de eigen sites van de leveranciers, gecontroleerd op 8 oktober 2026.
+
+## Welk alternatief past bij welk team
+
+| Jouw situatie | Kijk naar | Waarom |
+|---|---|---|
+| Je modelleert je eigen recordtypen, zoals panden, polissen of dossiers | Blijf bij EspoCRM, of gebruik Twenty of Customermates | De Entity Manager van EspoCRM maakt eigen entiteiten en relaties; Twenty heeft onbeperkt eigen objecten. Customermates start zonder lijsten; je maakt zelf lijsten aan (contactpersonen, deals of iets anders) |
+| Je verstuurt nieuwsbrieven of campagnes vanuit het CRM | Blijf bij EspoCRM | Bulk-e-mail en campagnes zitten in de kern van EspoCRM; Customermates verstuurt niet in bulk |
+| Je hebt offertes of voorraad naast het CRM nodig | EspoCRM met het Sales Pack, SuiteCRM of Odoo | Customermates heeft geen van beide |
+| Klanten bereiken je naast e-mail ook via WhatsApp, LinkedIn, Instagram of Telegram | Customermates Pro of Business | Deze kanalen delen één inbox met je mailboxen; de extensiecatalogus van EspoCRM noemt geen van hen |
+| Je wilt een assistent die opvolging opstelt en records op een vast tijdstip bijwerkt | Customermates Cloud | Mate en Routines draaien daar op gehoste AI-credits |
+| Je host zelf en wilt een koppeling met een AI-client zonder add-ons per instance te licentiëren | Customermates-kern, of EspoCRM-kern met de gratis MCP Extension | Beide zijn AGPL; rapporten, workflows en BPM in EspoCRM blijven betaalde extensies |
+| Je wilt CRM, boekhouding en voorraad in één systeem | Odoo | Zie de [vergelijking met Odoo](/compare/odoo) |
+
+## Voor wie EspoCRM een goede keuze is
+
+EspoCRM bestaat al 12 jaar en zegt dat meer dan 50.000 bedrijven het gebruiken. Het is een klassiek verkoop- en service-CRM. Leads worden omgezet in accounts, contactpersonen en opportunities. Opportunities lopen via Prospecting, Qualification, Proposal en Negotiation naar Closed Won of Closed Lost, elke fase met een eigen kans. De kern voegt een agenda voor meetings en gesprekken toe, een Stream met recordwijzigingen, een zelfbedieningsportaal voor klanten, kanbanborden, bulk-e-mail en campagnes. Een beheerder kan in de Entity Manager eigen entiteiten, velden en relaties maken, en formulescripts berekenen velden of starten acties.
+
+De diepere modules zijn extensies. Het Advanced Pack voegt rapporten, workflows en businessprocesbeheer toe. Het Sales Pack voegt producten, offertes, inkopen en voorraad toe. Andere dekken projectbeheer, VoIP, Zoom, Stripe, MailChimp, Outlook en Google, waarbij de Google Integration Google Agenda synchroniseert, Google Contacten koppelt en veilige aanmelding voor e-mailaccounts afhandelt. Intelligence, de AI-extensie, biedt samenvattingen, slim plakken en een AI-e-mailschrijver op OpenAI, Gemini, Claude of een andere OpenAI-compatibele aanbieder. EspoCRM verspreidt ook een gratis MCP Extension onder AGPLv3, die AI-clients tools geeft om aan te maken, te lezen, bij te werken en te verwijderen, plus toegang tot de Stream.
+
+De prijspagina van EspoCRM noemt alle extensies als inbegrepen in de Cloud-abonnementen. Als je team zijn eigen datamodel wil ontwerpen en marketing vanuit het CRM wil draaien, dekt EspoCRM meer terrein dan Customermates.
+
+## Waarom teams een alternatief voor EspoCRM zoeken
+
+**Self-hosted extensies hebben een beperkte looptijd.** De EspoCRM-kern is gratis onder AGPLv3. Rapporten, workflows, BPM, offertes en de AI-extensie zijn betaald. De extensielicentieovereenkomst van EspoCRM geeft gebruik "on a single EspoCRM Application instance on a single server for the Licensed Period". Als die periode afloopt, verleng je of verwijder je de extensie. De extensiepagina's tonen geen prijzen, dus vraag EspoCRM om actuele prijzen voordat je een budget maakt.
+
+**Cloud-abonnementen worden voor zes of twaalf maanden gefactureerd.** EspoCRM Cloud Basic kost €12,90 per gebruiker per maand met minimaal 3 gebruikers, Enterprise €22,00 met minimaal 5 en Ultimate €59,00 met minimaal 10. Basic en Enterprise worden voor 6 maanden of een jaar gefactureerd. Gebruikers die na de aankoop worden toegevoegd, worden maandelijks in rekening gebracht.
+
+**Gesprekken buiten e-mail.** EspoCRM synchroniseert en verstuurt e-mail in de kern. De extensiecatalogus noemt geen officiële integratie voor WhatsApp, LinkedIn, Instagram of Telegram, dus die gesprekken blijven buiten het CRM tenzij je een integratie van derden toevoegt.
+
+**PHP zelf draaien.** Een self-hosted EspoCRM heeft Apache, Nginx of IIS nodig, PHP 8.3 tot 8.5 met een lijst vereiste PHP-extensies, en MySQL, MariaDB of PostgreSQL. EspoCRM documenteert ook een Docker-opzet. Customermates draait als twee containers: de app en PostgreSQL 16.
+
+## Wat een team van vijf personen betaalt
+
+Prijzen gecontroleerd op 8 oktober 2026 op de [prijspagina van EspoCRM](https://www.espocrm.com/cloud/). Customermates rekent maandelijks af per gebruiker, in euro, zonder minimale teamgrootte.
+
+| Abonnement voor vijf mensen | Per maand | Per betaalperiode |
+|---|---|---|
+| EspoCRM Cloud Basic | €64,50 | €387,00 voor 6 maanden, €774,00 voor een jaar |
+| EspoCRM Cloud Enterprise | €110,00 | €660,00 voor 6 maanden, €1.320,00 voor een jaar |
+| Customermates Starter | [[commercial.price.starter.monthly.seats.5]] | [[commercial.price.starter.monthly.seats.5]], maandelijks |
+| Customermates Pro | [[commercial.price.pro.monthly.seats.5]] | [[commercial.price.pro.monthly.seats.5]], maandelijks |
+| Customermates Business | [[commercial.price.business.monthly.seats.5]] | [[commercial.price.business.monthly.seats.5]], maandelijks |
+
+Deze rijen leveren verschillende dingen op:
+
+- **EspoCRM Basic en Customermates Starter kosten ongeveer evenveel.** Basic bevat elke extensie, campagnes, 3 GB bestandsopslag per gebruiker en 100.000 records. Starter is het kern-CRM met Mate op gehoste AI-credits en [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per gebruiker, zonder inbox. Voor klassieke CRM-modules geeft Basic je meer.
+- **Customermates Pro is wat de inbox kost.** Elke gebruiker koppelt [[commercial.entitlement.pro.includedAccountsPerUser]] account, dat een mailbox, LinkedIn, WhatsApp, Instagram of Telegram kan zijn. Geen enkel EspoCRM-abonnement bevat die chatkanalen.
+- **Business is voor mensen die meerdere kanalen per persoon nodig hebben.** Het bevat [[commercial.entitlement.business.includedAccountsPerUser]] accounts per gebruiker en accounts die met het team worden gedeeld.
+- **Kleine teams lopen tegen het minimum van EspoCRM aan.** Twee mensen op Basic betalen nog steeds voor drie, €38,70 per maand. Twee mensen op Customermates Pro betalen [[commercial.price.pro.monthly.seats.2]].
+
+Zelf gehost kosten beide kernen niets aan licentiekosten. Je betaalt voor de server en de tijd voor updates, back-ups en TLS.
+
+## Waar Customermates past
+
+EspoCRM en Customermates delen een open source start. Wat Customermates toevoegt, is de opvolging: in Customermates Cloud staan vanaf Pro gesprekken uit e-mail, LinkedIn en WhatsApp op het klantrecord, en Mate of je eigen AI-agent stelt het antwoord en de volgende stap op, zodat jij ze kunt controleren, aanpassen en versturen. Het is gebouwd in Duitsland.
+
+**Klantgesprekken naast de deal.** Vanaf Pro brengt de [gecombineerde inbox](/features/unified-inbox) Gmail-, Outlook- en IMAP-mailboxen, LinkedIn, WhatsApp, Instagram en Telegram samen in één lijst, en je antwoordt op het oorspronkelijke kanaal. Koppel een deelnemer één keer aan een contactpersoon, en het gesprek wordt bij die contactpersoon opgeslagen. Starter heeft geen inbox.
+
+**AI die het CRM-werk doet.** In Customermates Cloud vat Mate gesprekken samen, stelt antwoorden op, werkt records bij en bouwt weergaven. Het gebruikt gehoste AI-credits, een maandelijkse hoeveelheid per actieve gebruiker die op de [prijspagina](/pricing) staat. Mate vraagt vóór elke verwijdering opnieuw om goedkeuring. Een bericht versturen gaat zonder die vraag, dus zeg dat Mate concepten moet opslaan als je eerst wilt controleren. Routines voeren een opgeslagen instructie uit op een vast tijdstip of wanneer een record verandert, altijd als hun eigenaar.
+
+**Je eigen AI-client via MCP.** De [MCP-server](/docs/mcp) zit in elk abonnement en bij self-hosted installaties, met een catalogus van [[derived.mcp.tools.total]] tools. Claude, ChatGPT en andere clients koppelen met OAuth of een API-sleutel en handelen met de rechten van de gekoppelde gebruiker. De berichttools werken in Customermates Cloud alleen bij Pro en hoger, waar dezelfde koppeling inboxgesprekken toont, concepten opslaat en berichten verstuurt. Modelaanroepen van je client lopen via je eigen AI-aanbieder.
+
+**Zelf hosten zonder add-onlicenties.** De [self-hosted editie](/features/self-hosted) is de AGPL-kern met REST, webhooks en MCP, uitgerold met Docker Compose. Er wordt niets extra per instance gelicentieerd. Er zit geen inbox, geen Mate en geen gehoste credits in.
+
+**Waar de cloud draait.** In Customermates Cloud is de primaire database ingesteld in de AWS-regio Frankfurt, is een [verwerkersovereenkomst (DPA)](/dpa) beschikbaar en staan de subverwerkers, inclusief Amerikaanse aanbieders, op de juridische pagina's. Customermates heeft geen compliancecertificering.
+
+## Waar Customermates de verkeerde keuze is
+
+- **Geen bulk-e-mail, campagnes of sequences.** Berichten gaan één voor één, door jou geschreven of door Mate opgesteld.
+- **Geen klantenportaal, offertes, voorraad of telefonie.**
+- **Geen BPM of visuele workflowontwerper.** Automatisering loopt via Routines in Customermates Cloud, webhooks en de aparte n8n-communitynode.
+- **Taken hebben geen ingebouwde vervaldatum.** Voeg een eigen datumveld toe als je er een nodig hebt.
+- **Geen native mobiele apps en geen single sign-on.** Rechten gelden per lijst en actie, niet per veld.
+
+## Overstappen van EspoCRM
+
+De meeste verkoopgegevens uit EspoCRM hebben een directe plek. In Datamodel kun je organisaties hernoemen naar "Accounts" en deals naar "Opportunities", zodat je team zijn eigen woordenschat houdt.
+
+| In EspoCRM | In Customermates |
+|---|---|
+| Accounts | Organisaties, hernoemd naar "Accounts" |
+| Contactpersonen | Contactpersonen |
+| Leads | Contactpersonen met een veld van het type Enkele keuze zoals "Levenscyclus" (Lead, Klant) |
+| Opportunities | Deals, hernoemd naar "Opportunities" |
+| Producten uit het Sales Pack | Diensten, hernoemd naar "Producten", als regels met aantallen aan deals toegevoegd |
+| Eigen entiteiten | Je eigen lijsten, met velden en relaties |
+| Campagnes, bulk-e-mail, portaal | Geen equivalent; houd een speciaal hulpmiddel |
+
+De fasen sluiten bijna één op één aan. Fasen zijn in Customermates niet vooraf ingesteld: voeg in Datamodel een veld Fase van het type Enkele keuze toe aan je lijst met deals (in de cloud kan de AI-setup het aanmaken), met één optie per EspoCRM-fase, en kopieer je EspoCRM-kansen naar de **Waarschijnlijkheid %** van elke optie. De gewogen waarde vermenigvuldigt dan de waarde van elke deal met de kans van de fase. Dat is rekenwerk met je eigen cijfers en het voorspelt niets.
+
+<Steps>
+  <Step title="Exporteer uit EspoCRM">Exporteer elke lijst die je wilt bewaren naar een Excel-bestand: accounts, contactpersonen, leads en opportunities.</Step>
+  <Step title="Bereid de werkruimte voor">Hernoem lijsten in Datamodel, maak eigen velden voor de kenmerken die je bewaart en stel de kansen per fase in.</Step>
+  <Step title="Importeer één lijst tegelijk">Importeer eerst organisaties, dan contactpersonen, dan deals. Koppelkolommen vinden records op naam, dus de accountkolom van een contactpersoon vindt de organisatie die je eerder hebt geïmporteerd. Customermates importeert XLSX-, XLS- en CSV-bestanden; de [documentatie over records](/docs/app-records) noemt de limieten.</Step>
+  <Step title="Bouw lijsten opnieuw op als weergaven">Maak van elk EspoCRM-lijstfilter een opgeslagen weergave. Deel de weergaven die het hele team nodig heeft via het menu **Delen…** van de weergave.</Step>
+  <Step title="Koppel kanalen en AI">Koppel bij Pro of tijdens de proefperiode een mailbox, LinkedIn of WhatsApp, en stel daarna routines in voor Mate of koppel je eigen AI-client via MCP.</Step>
+</Steps>
+
+## Andere EspoCRM alternatieven om te bekijken
+
+Customermates publiceert deze lijst. De details komen van de site van elke leverancier, gecontroleerd op 8 oktober 2026.
+
+- **SuiteCRM** komt qua omvang het dichtst in de buurt. Het is open source, je kunt het op je eigen server hosten en SuiteCRM 8 is de huidige hoofdversie. De site benadrukt rapportage en dashboards, klantsegmentatie, gerichte marketing en offertes, en biedt een gehoste proefversie, support, implementatie, training en een beheerd pakket genaamd SuiteASSURED. De [vergelijking met SuiteCRM](/compare/suitecrm-alternative) behandelt de kosten en een migratiepad.
+- **Twenty** past bij teams die eigen objecten willen in een gehost product met een gratis self-hosted kern. Het heeft onbeperkt eigen objecten, een MCP-server, AI-agents, webhooks en REST- en GraphQL-API's. Cloud Pro kost $9 per gebruiker per maand bij jaarlijkse betaling. Organization, voor $39 per gebruiker per maand bij jaarlijkse betaling, voegt rechten op veld- en rijniveau en SAML- of OIDC-single sign-on toe (gecontroleerd op 9 november 2026). Je kunt de open source kern gratis zelf hosten. De [vergelijking met Twenty](/compare/twenty-alternative) gaat dieper in op de details.
+- **Odoo** past als het CRM één onderdeel is van het runnen van het bedrijf. Het gratis abonnement dekt één app met onbeperkt gebruikers op Odoo Online, de betaalde abonnementen bevatten alle apps van boekhouding tot voorraad en HR, en de Community-editie is een gratis open source download.
+
+## Veelgestelde vragen
+
+<Faq>
+<FaqItem question="Is EspoCRM gratis?">
+De kern wel. EspoCRM is open source onder AGPLv3 en gratis zelf te hosten. Rapporten, workflows, BPM, offertes en AI zijn betaalde extensies, per instance gelicentieerd voor een beperkte periode. EspoCRM Cloud begint bij €12,90 per gebruiker per maand bij Basic, met minimaal 3 gebruikers en facturering voor 6 maanden of een jaar, en bevat alle extensies.
+</FaqItem>
+
+<FaqItem question="Heeft EspoCRM een MCP-server?">
+Ja. EspoCRM verspreidt een gratis MCP Extension onder AGPLv3. Die loopt via de REST API van EspoCRM, biedt tools om aan te maken, te lezen, bij te werken en te verwijderen plus toegang tot de Stream, en laat een beheerder kiezen welke tools AI-clients zien. Customermates heeft de MCP-server ingebouwd, met een catalogus van [[derived.mcp.tools.total]] tools, in elk abonnement en bij self-hosted installaties; de inboxtools werken bij Pro en hoger in Customermates Cloud.
+</FaqItem>
+
+<FaqItem question="Wat is het beste open source alternatief voor EspoCRM?">
+Dat hangt af van de leemte. SuiteCRM komt qua omvang het dichtst in de buurt, Twenty biedt onbeperkt eigen objecten en Odoo voegt boekhouding en voorraad toe. Customermates past bij kleine teams die gesprekken via WhatsApp, LinkedIn en e-mail naast hun deals willen.
+</FaqItem>
+
+<FaqItem question="Is SuiteCRM echt gratis?">
+De software wel. SuiteCRM is open source en je kunt het zonder licentiekosten op je eigen server hosten. De SuiteCRM-site biedt ook een gehoste optie, support, implementatie, training en het pakket SuiteASSURED, dus je echte kosten zijn hosting plus de hulp die je inkoopt.
+</FaqItem>
+
+<FaqItem question="Kan Customermates e-mailcampagnes versturen zoals EspoCRM?">
+Nee. Customermates verstuurt één bericht tegelijk, zonder bulkverzending of sequences. Als campagnes ertoe doen, houd dan EspoCRM of gebruik een speciaal hulpmiddel voor e-mailmarketing en koppel dat via webhooks aan gebeurtenissen in het CRM.
+</FaqItem>
+</Faq>
+
+Verificatie van de gegevens van de concurrent op 8 oktober 2026 aan de hand van de [prijspagina](https://www.espocrm.com/cloud/), de [extensies](https://www.espocrm.com/extensions/), de [MCP Extension](https://www.espocrm.com/extensions/mcp/), [Intelligence](https://www.espocrm.com/extensions/intelligence/), het [Advanced Pack](https://www.espocrm.com/extensions/advanced-pack/), [Google Integration](https://www.espocrm.com/extensions/google-integration/), de [extensielicentieovereenkomst](https://www.espocrm.com/extension-license-agreement/), de [functies](https://www.espocrm.com/features/), de [aankondiging over de licentie](https://www.espocrm.com/blog/espocrm-license/), de [serververeisen](https://docs.espocrm.com/administration/server-configuration/), de [installatiegids](https://docs.espocrm.com/administration/installation/), de [gids voor verkoopbeheer](https://docs.espocrm.com/user-guide/sales-management/) en de [homepage](https://www.espocrm.com/) van EspoCRM, en aan de hand van [SuiteCRM](https://suitecrm.com/), de [prijzen van Twenty](https://twenty.com/pricing) en de [prijzen van Odoo](https://www.odoo.com/pricing).

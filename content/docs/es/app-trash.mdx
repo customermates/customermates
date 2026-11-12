@@ -1,0 +1,47 @@
+---
+title: "Papelera: deshacer eliminaciones y restaurar elementos"
+description: "Los registros, listas, campos, vistas, widgets, rutinas y páginas eliminados esperan 30 días en la Papelera, donde puedes restaurarlos o borrarlos ya."
+---
+
+En Customermates, eliminar mueve el elemento a la [Papelera](app:trash) en lugar de quitarlo al instante. Justo después de eliminar aparece durante unos segundos un mensaje con **Deshacer**; **Deshacer** recupera el elemento de inmediato. Una eliminación grande se ejecuta en segundo plano: el mensaje muestra **Moviendo a la papelera…** y ofrece **Deshacer** cuando termina. Después, el elemento espera 30 días en la Papelera y luego se elimina definitivamente por sí solo.
+
+## ¿Qué va a la Papelera? [#what-goes-to-trash]
+
+- Los registros de cualquier lista, por ejemplo un contacto o un negocio. Las filas de una sublista y los vínculos del registro se van con su registro y vuelven con él.
+- Las listas, campos, relaciones y campos de Datos de contacto eliminados en [Modelo de datos](app:configure).
+- Las vistas guardadas, las vistas del panel y los widgets del panel.
+- Las rutinas y las páginas de la [Base de conocimientos](app:wiki).
+
+Los miembros, las invitaciones, los roles, las claves de API, los webhooks y las cuentas conectadas no pasan a la Papelera: eliminarlos cambia el acceso, así que surte efecto de inmediato.
+
+Mientras un elemento está en la Papelera, desaparece de todo lo demás: las listas, la búsqueda, los totales y cálculos, los widgets, los filtros, las exportaciones, Mate, la API y MCP ya no lo ven, y las rutinas y los webhooks no se activan por él.
+
+## ¿Quién ve qué en la Papelera? [#who-sees-what]
+
+Todos encuentran **Papelera** en la barra lateral. Ves los elementos que podías ver y eliminar: los registros y la configuración que puedes eliminar, las páginas de la Base de conocimientos si tu rol puede eliminarlas, las rutinas si tienes el rol **Administrador**, y tus propias vistas guardadas y widgets, que también en la Papelera siguen siendo personales. Cada fila muestra el elemento, su tipo, quién lo eliminó, cuándo y cuántos días faltan para que se elimine definitivamente. En [Filtros](app:trash?focus=filter) puedes buscar elementos y acotarlos por tipo o por lista.
+
+## ¿Cómo restauro un elemento eliminado? [#how-do-i-restore]
+
+Abre la [Papelera](app:trash), pasa el cursor sobre la fila y haz clic en **Restaurar**, o selecciona varias filas y haz clic en **Restaurar** en la barra de selección. Restaurar requiere el mismo acceso que eliminar. Un registro restaurado vuelve con sus valores, vínculos y filas de sublistas. Un vínculo a un registro que mientras tanto se eliminó definitivamente no puede volver; el mensaje posterior a la restauración indica cuántos vínculos se descartaron. Una restauración grande se ejecuta en segundo plano: el registro muestra **Restaurando…** hasta que termina. Un registro cuya lista está a su vez en la Papelera solo se puede restaurar después de su lista, y una rutina se queda en la Papelera mientras su propietario ya tenga todas las rutinas que incluye su plan.
+
+Si otro cambio del espacio de trabajo mantiene el bloqueo de escritura, la restauración devuelve una respuesta de ocupado al cabo de unos cinco segundos sin modificar el elemento de la Papelera. Inténtalo de nuevo cuando ese cambio termine.
+
+Eliminar un campo en [Modelo de datos](app:configure) quita los filtros, columnas, órdenes y agrupaciones de las vistas guardadas que lo usan. La vista previa de la eliminación y el resultado nombran las vistas y los widgets afectados. Restaurar el campo no vuelve a crear esos ajustes. Si restauras una vista guardada después de que se eliminara su campo, `droppedViewReferences` indica lo que se quitó; el mensaje de la Papelera muestra los recuentos. Vuelve a crear los ajustes después de restaurar el campo.
+
+Un campo calculado restaurado recupera sus valores a partir de los valores y vínculos actuales de cada registro, incluidos los cambios hechos mientras estaba en la Papelera; un campo que guarda su valor en un momento concreto, como cuando se crea el registro, conserva los valores que había guardado antes. Un campo calculado se queda en la Papelera mientras exista un campo, una relación o una lista que lee, y lo mismo ocurre con un elemento que ya no encaja con la configuración o los datos actuales, por ejemplo un campo obligatorio que los registros creados entretanto dejan vacío. Selecciona un campo calculado junto con lo que lee y restáuralos en un solo paso, en cualquier orden. Cuando la restauración recalcula muchos registros, se ejecuta en segundo plano, y los registros, vistas u otros elementos seleccionados con ella se quedan en la Papelera hasta que termine; restáuralos de nuevo después.
+
+Al abrir un registro eliminado desde la Papelera, se muestra en solo lectura con el aviso **En la papelera** y un botón **Restaurar**; sus **Actividades** también se pueden leer ahí, pero no modificar. Por REST, `POST /api/v1/trash/query` lista los elementos de la Papelera y `POST /api/v1/trash/read` devuelve la misma vista de solo lectura de un registro eliminado; por MCP, `read_trash` los lista y, con `action: "read"` y el `typeId` y el `recordId` del registro, abre uno del mismo modo.
+
+## ¿Qué pasa si abro un enlace a una lista o vista eliminada? [#links-to-deleted-items]
+
+Un enlace a una lista que está en la Papelera, por ejemplo un marcador de una lista de Proyectos eliminada, muestra el nombre de la lista con **En la papelera**, cuándo se eliminó y cuántos días faltan. Si puedes ver la lista en la [Papelera](app:trash), allí aparece **Restaurar** y recupera la lista, y la página pasa a mostrarla. Sin ese acceso, y para una lista que no existe o que se eliminó definitivamente, el enlace muestra la pantalla de página no encontrada. Un enlace a una vista guardada que ya no existe o que no es tuya abre en su lugar la vista predeterminada de la lista y quita la vista de la dirección.
+
+## ¿Cómo elimino algo definitivamente? [#how-do-i-delete-permanently]
+
+En la [Papelera](app:trash), pasa el cursor sobre la fila y haz clic en **Eliminar definitivamente**, o selecciona varias filas y haz clic en **Eliminar definitivamente** en la barra de selección. La confirmación indica con exactitud qué desaparece, como el número de registros por lista y los vínculos. La eliminación definitiva no se puede deshacer. También borra del historial los valores de los campos del registro; el historial conserva solo quién lo modificó y cuándo.
+
+Los miembros con el rol **Administrador** pueden quitar de una vez todo lo que ven en la Papelera con **Vaciar papelera** en el menú **Más acciones** de la [Papelera](app:trash), que solo se muestra mientras la Papelera tenga elementos. Para confirmar, escribe **vaciar papelera**.
+
+## ¿Cuánto tiempo permanecen los elementos en la Papelera? [#how-long]
+
+30 días desde la eliminación. Cada fila muestra cuántos días faltan; el último día el elemento se elimina definitivamente sin más aviso, con el mismo efecto en su historial que si lo eliminaras definitivamente tú mismo. Una instancia autoalojada lo hace solo cuando se ejecuta su [tarea programada](/docs/self-hosting#scheduled-jobs) diaria.

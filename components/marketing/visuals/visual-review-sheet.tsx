@@ -34,6 +34,50 @@ const REVIEW_COPY = {
       "Compare focal hierarchy, native detail, claim discipline and responsive recomposition. Do not copy the benchmark geometry unless the new story independently earns it.",
     pathwayHeading: "Pathway benchmark",
   },
+  es: {
+    briefNote:
+      "Este brief puede crear su propia composición. El golden registrado del recorrido que aparece abajo define el nivel mínimo de calidad, no la geometría del nuevo visual.",
+    goldenBenchmark: "golden de referencia registrado",
+    goldenNote:
+      "Este golden de referencia calibra la jerarquía, la densidad y el comportamiento adaptable. Es una referencia de calidad, no una plantilla de composición para nuevos visuales.",
+    pathway: "recorrido",
+    pathwayGuidance:
+      "Compara la jerarquía focal, el detalle nativo, la disciplina de las afirmaciones y la recomposición adaptable. No copies la geometría de la referencia salvo que la nueva historia la justifique por sí sola.",
+    pathwayHeading: "Referencia del recorrido",
+  },
+  pt: {
+    briefNote:
+      "Este brief tem liberdade para criar a própria composição. O golden registrado do caminho abaixo define o padrão mínimo de qualidade, não a geometria do novo visual.",
+    goldenBenchmark: "golden de referência registrado",
+    goldenNote:
+      "Este golden de referência calibra hierarquia, densidade e comportamento responsivo. É uma referência de qualidade, não um modelo de composição para novos visuais.",
+    pathway: "caminho",
+    pathwayGuidance:
+      "Compare a hierarquia focal, o detalhe nativo, a disciplina das afirmações e a recomposição responsiva. Não copie a geometria da referência, a menos que a nova história a justifique por conta própria.",
+    pathwayHeading: "Referência do caminho",
+  },
+  pl: {
+    briefNote:
+      "Ten brief może mieć własną kompozycję. Zarejestrowany golden ścieżki poniżej wyznacza dolną granicę jakości, a nie geometrię nowej wizualizacji.",
+    goldenBenchmark: "zarejestrowany golden wzorcowy",
+    goldenNote:
+      "Ten golden wzorcowy kalibruje hierarchię, gęstość i zachowanie responsywne. To wzorzec jakości, a nie szablon kompozycji dla nowych wizualizacji.",
+    pathway: "ścieżka",
+    pathwayGuidance:
+      "Porównaj hierarchię ogniskową, natywne szczegóły, rzetelność twierdzeń i responsywną rekompozycję. Nie kopiuj geometrii wzorca, chyba że nowa historia sama ją uzasadnia.",
+    pathwayHeading: "Wzorzec ścieżki",
+  },
+  nl: {
+    briefNote:
+      "Deze brief mag een eigen compositie krijgen. De geregistreerde golden van het onderstaande pad bepaalt de kwaliteitsondergrens, niet de geometrie van de nieuwe visual.",
+    goldenBenchmark: "geregistreerde golden benchmark",
+    goldenNote:
+      "Deze golden benchmark kalibreert hiërarchie, dichtheid en responsief gedrag. Het is een kwaliteitsreferentie, geen compositiesjabloon voor nieuwe visuals.",
+    pathway: "pad",
+    pathwayGuidance:
+      "Vergelijk de focale hiërarchie, native details, claimdiscipline en responsieve hercompositie. Kopieer de geometrie van de benchmark alleen als het nieuwe verhaal die zelfstandig rechtvaardigt.",
+    pathwayHeading: "Padbenchmark",
+  },
 } as const satisfies Record<
   VisualLocale,
   {

@@ -8,6 +8,9 @@ import en from "timeago.js/lib/lang/en_US";
 import es from "timeago.js/lib/lang/es";
 import fr from "timeago.js/lib/lang/fr";
 import it from "timeago.js/lib/lang/it";
+import nl from "timeago.js/lib/lang/nl";
+import pl from "timeago.js/lib/lang/pl";
+import pt from "timeago.js/lib/lang/pt_BR";
 
 import type { AppLocale } from "@/i18n/locale-registry";
 
@@ -21,7 +24,7 @@ import {
 } from "./intl-number";
 import { agentCreditDisplay, formatAllowanceSharePct, type AgentCreditDisplay } from "@/core/commercial/agent-credits";
 
-const TIMEAGO_LOCALES = { de, en, es, fr, it } satisfies Record<AppLocale, Parameters<typeof register>[1]>;
+const TIMEAGO_LOCALES = { de, en, es, fr, it, pt, pl, nl } satisfies Record<AppLocale, Parameters<typeof register>[1]>;
 
 for (const [locale, definition] of Object.entries(TIMEAGO_LOCALES)) register(locale, definition);
 

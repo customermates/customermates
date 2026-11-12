@@ -1,0 +1,57 @@
+---
+title: "Szybki start CRM Customermates w kilka minut"
+heading: "Skonfiguruj przestrzeń roboczą w Customermates"
+description: "Od rejestracji do rekordu zaktualizowanego przez agenta w kilka minut: załóż konto, połącz Claude lub ChatGPT albo użyj klucza API w CLI lub edytorze."
+---
+
+Załóż konto, połącz klienta AI i zacznij zadawać pytania. Claude i ChatGPT łączą się przez konektor niestandardowy i nie potrzebują klucza API; klienty wiersza poleceń i edytory używają klucza API.
+
+## Jak się zarejestrować i jak długo trwa bezpłatny okres próbny? [#how-do-i-sign-up-and-how-long-is-the-free-trial]
+
+[Zarejestruj się](/auth/signup) bez karty kredytowej. Pierwsze [[commercial.trial.days]] dni to bezpłatny okres próbny planu Pro.
+
+W Customermates Cloud kreator wdrożenia pyta potem, od czego zacząć. **Skonfiguruj moją przestrzeń roboczą dla klientów** wymaga opisu Twojej firmy i kilku odpowiedzi: Mate projektuje Twoje listy, pipeline sprzedaży, pulpit i strony Bazy wiedzy, a po potwierdzeniu planu je tworzy. **Wracaj do rozmów z klientami** zapisuje w Bazie wiedzy playbook dopasowany do Twojej pracy i otwiera Kanały, w których podłączasz LinkedIn lub e-mail, żeby Mate mógł przygotowywać odpowiedzi do sprawdzenia i wysłania przez Ciebie. Szczegóły: [Kreator wdrożenia](/docs/app-onboarding).
+
+Po zakończeniu okresu próbnego przestrzeń robocza przechodzi na plan Free dla jednej osoby; pozostałe osoby są wstrzymane, dopóki nie wybierzesz planu. Aby zachować funkcje Pro po okresie próbnym, wybierz plan w sekcji [Rozliczenia](app:settings/billing?focus=plan-picker) w Ustawieniach, zanim ten okres się skończy; zobacz [co się dzieje po zakończeniu okresu próbnego](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails) i [jakie są plany](/docs/app-company#which-plans-are-there). Wybór planu wymaga uprawnienia **Edycja** w wierszu **Firma** Twojej roli. Ma je rola **Administrator**, którą dostaje osoba tworząca przestrzeń roboczą. [Samodzielnie hostowana](/docs/self-hosting) instancja nie ma okresu próbnego ani planu.
+
+## Jak połączyć Claude lub ChatGPT? [#how-do-i-connect-claude-or-chatgpt]
+
+Dodaj konektor niestandardowy:
+
+- **Claude** (przeglądarka, aplikacja na komputer, aplikacja mobilna): **Settings → Connectors → Add custom connector**.
+- **ChatGPT**: **Settings → Connectors → Add connector → Custom connector (MCP)**, z ustawieniem **Authentication** na OAuth.
+
+Wklej adres URL MCP Twojej przestrzeni roboczej, który Customermates pokazuje z przyciskiem kopiowania w kroku kreatora **Połącz AI, której już używasz** oraz w sekcji [Klucze API i konektory](app:settings/api-keys), zaloguj się i kliknij **Zatwierdź** na ekranie zgody. Działa też adres, pod którym otwierasz Customermates, z dopiskiem `/api/v1/mcp`; wtedy przestrzeń roboczą wybierasz na ekranie zgody. Pełne kroki: [Połącz przez konektor niestandardowy](/docs/connect-custom-connector#the-url).
+
+Po połączeniu serwer przedstawia klientowi swoje narzędzia i Twoją przestrzeń roboczą. W klientach obsługujących prompty MCP, takich jak Claude, wbudowany prompt `get-started` dodaje spersonalizowany start: Twoje imię, Twoją rolę i pierwsze podsumowanie przestrzeni roboczej.
+
+## Jak połączyć CLI lub edytor? [#how-do-i-connect-a-cli-or-editor]
+
+Otwórz [Klucze API i konektory](app:settings/api-keys), kliknij [Dodaj](app:settings/api-keys?focus=generate) i wybierz **Standardowy klucz API** albo wybierz swojego klienta w sekcji **Szybkie połączenia**, aby dostać klucz razem z fragmentem konfiguracji. Skopiuj klucz od razu: wyświetla się tylko raz. Utworzenie klucza wymaga uprawnienia **Tworzenie** w wierszu **API i webhooki** Twojej roli; ma je rola **Administrator**. Szczegóły: [Klucze API](/docs/api-keys). Potem wykonaj kroki dla swojego klienta:
+
+- [Claude Code](/docs/connect-cli#claude-code): jedno polecenie w terminalu
+- [Cursor](/docs/connect-cli#cursor): interfejs ustawień, dwa kliknięcia
+- [Codex](/docs/connect-cli#codex): jeden blok TOML w `~/.codex/config.toml`
+- [Gemini](/docs/connect-cli#gemini-cli): jeden blok ustawień
+
+## Co wypróbować najpierw? [#what-should-i-try-first]
+
+- *„Ustaw status szansy sprzedaży Acme na Wygrana i dodaj notatkę, że umowa została dziś podpisana.”*
+- *„Pokaż ostatnie dziesięć kontaktów dodanych przeze mnie. Czy któryś nie ma adresu e-mail?”*
+- *„Utwórz kontakt Jane Doe w firmie Initech, powiąż go z organizacją Initech i załóż szansę sprzedaży na 12 godzin konsultacji.”*
+- *„Które rozmowy z klientami czekają na moją odpowiedź? Przygotuj odpowiedź na najstarszą i zapisz ją jako szkic.”*
+
+Agent raportuje, co zrobił i co się zmieniło. Etapy szans sprzedaży i inne pola różnią się w zależności od przestrzeni roboczej; agent czyta Twoje, zanim zacznie zapisywać. Prompt z odpowiedzią wymaga kanału podłączonego w Customermates Cloud od planu Pro; szkic czeka w rozmowie, aż go sprawdzisz i wyślesz.
+
+## Jak przetestować webhook? [#how-do-i-test-a-webhook]
+
+Opcjonalnie, aby powiadamiać inne narzędzia o zmianach w CRM: otwórz [Webhooki](app:settings/webhooks) i kliknij [Dodaj](app:settings/webhooks?focus=add). W polu **URL** wpisz tymczasowy endpoint z [webhook.site](https://webhook.site), w sekcji **Zdarzenia** zaznacz **Rekord utworzony** i **Rekord zaktualizowany**, wybierz listy do obserwowania i kliknij **Zapisz**. Dodanie webhooka wymaga uprawnienia **Tworzenie** w wierszu **API i webhooki**, tak jak w przypadku kluczy API.
+
+Teraz utwórz lub zmień rekord na jednej z tych list. W ciągu kilku sekund dostawa trafia do webhook.site z pełnym ładunkiem i pojawia się w [Dzienniku webhooków](app:settings/webhook-deliveries). Więcej w sekcji [Webhooki](/docs/webhooks).
+
+## Dalej [#next]
+
+- [Podstawowe pojęcia](/docs/concepts): rekordy, pola i relacje w skrócie.
+- [Katalog narzędzi MCP](/docs/mcp#tool-catalog): wszystkie narzędzia, które Twoje AI może wywołać przez Model Context Protocol (MCP).
+
+Dla agentów: przed proponowaniem lub zapisem zmian odczytaj listy i pola przestrzeni roboczej przez `discover_record_types` i `get_record_model`.

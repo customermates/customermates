@@ -10,6 +10,9 @@ const CATEGORY_WORDS: Record<Exclude<WikiCrawlCategory, "other" | "blog">, Vocab
     es: ["precios"],
     fr: ["tarifs", "prix", "abonnement"],
     it: ["prezzi", "piani"],
+    pt: ["precos", "preços", "planos"],
+    pl: ["cennik", "ceny", "plany"],
+    nl: ["prijzen", "tarieven", "abonnement"],
   },
   policy: {
     en: [
@@ -42,6 +45,9 @@ const CATEGORY_WORDS: Record<Exclude<WikiCrawlCategory, "other" | "blog">, Vocab
     es: ["terminos", "términos", "privacidad", "reembolsos?", "devoluciones", "envios", "envíos", "garantia"],
     fr: ["conditions", "confidentialite", "confidentialité", "remboursements?", "retours", "livraison", "garantie"],
     it: ["termini", "rimborsi?", "resi", "spedizioni", "garanzia"],
+    pt: ["termos", "privacidade", "reembolso", "cancelamento", "seguranca", "lgpd"],
+    pl: ["regulamin", "prywatnosc", "polityka-prywatnosci", "zwroty", "rodo", "bezpieczenstwo"],
+    nl: ["voorwaarden", "privacy", "retour", "annulering", "beveiliging", "avg"],
   },
   help: {
     en: [
@@ -66,6 +72,9 @@ const CATEGORY_WORDS: Record<Exclude<WikiCrawlCategory, "other" | "blog">, Vocab
     es: ["ayuda", "soporte", "preguntas-frecuentes"],
     fr: ["aide", "assistance", "questions-frequentes"],
     it: ["aiuto", "supporto", "domande-frequenti", "documentazione"],
+    pt: ["ajuda", "suporte", "perguntas-frequentes", "central-de-ajuda"],
+    pl: ["pomoc", "wsparcie", "faq"],
+    nl: ["hulp", "ondersteuning", "veelgestelde-vragen", "klantenservice"],
   },
   product: {
     en: ["products?", "features?", "solutions?", "services?", "platform", "integrations?", "how-it-works"],
@@ -73,6 +82,9 @@ const CATEGORY_WORDS: Record<Exclude<WikiCrawlCategory, "other" | "blog">, Vocab
     es: ["productos?", "servicios?", "soluciones", "funciones"],
     fr: ["produits?", "fonctionnalites", "fonctionnalités"],
     it: ["prodotti", "servizi", "soluzioni", "funzionalita", "funzionalità"],
+    pt: ["produto", "recursos", "funcionalidades", "solucoes"],
+    pl: ["produkt", "funkcje", "rozwiazania"],
+    nl: ["product", "functies", "oplossingen"],
   },
   about: {
     en: ["about", "about-us", "company", "team", "mission", "story"],
@@ -80,6 +92,9 @@ const CATEGORY_WORDS: Record<Exclude<WikiCrawlCategory, "other" | "blog">, Vocab
     es: ["nosotros", "empresa", "equipo"],
     fr: ["a-propos", "entreprise", "equipe", "équipe"],
     it: ["chi-siamo", "azienda"],
+    pt: ["sobre", "quem-somos", "empresa", "contato"],
+    pl: ["o-nas", "firma", "kontakt"],
+    nl: ["over-ons", "bedrijf", "contact"],
   },
   customers: {
     en: ["customers?", "case-stud(?:y|ies)", "testimonials?", "industries", "use-cases?", "references?"],
@@ -87,6 +102,9 @@ const CATEGORY_WORDS: Record<Exclude<WikiCrawlCategory, "other" | "blog">, Vocab
     es: ["clientes", "casos"],
     fr: ["clients", "temoignages", "témoignages"],
     it: ["clienti", "casi"],
+    pt: ["clientes", "casos", "depoimentos"],
+    pl: ["klienci", "realizacje", "opinie"],
+    nl: ["klanten", "cases", "referenties"],
   },
 };
 
@@ -96,6 +114,9 @@ const BLOG_SECTION_WORDS: Vocabulary = {
   es: ["noticias"],
   fr: ["actualites", "actualités"],
   it: ["notizie"],
+  pt: ["noticias"],
+  pl: ["aktualnosci"],
+  nl: ["nieuws"],
 };
 
 const BLOG_WORDS: Vocabulary = { ...BLOG_SECTION_WORDS, en: [...BLOG_SECTION_WORDS.en, "articles?", "posts?"] };
@@ -131,6 +152,9 @@ const SKIPPED_PATH_WORDS: Vocabulary = {
   es: ["empleo"],
   fr: ["carrieres"],
   it: ["lavora-con-noi"],
+  pt: ["carreiras", "vagas", "carrinho", "conta"],
+  pl: ["kariera", "koszyk", "konto"],
+  nl: ["vacatures", "winkelwagen", "account"],
 };
 
 const SKIPPED_EXTENSIONS = [
@@ -181,6 +205,9 @@ const HELP_SUBDOMAINS: Vocabulary = {
   es: ["ayuda", "soporte"],
   fr: ["aide", "assistance"],
   it: ["aiuto", "supporto"],
+  pt: ["ajuda", "suporte"],
+  pl: ["pomoc", "wsparcie"],
+  nl: ["hulp", "support"],
 };
 
 const alternation = (vocabulary: Vocabulary) => Object.values(vocabulary).flat().join("|");

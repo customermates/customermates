@@ -1,0 +1,57 @@
+---
+title: "Busca global no CRM (Cmd/Ctrl+K)"
+description: "Busque em todas as listas que você pode ler, de qualquer página, com Cmd/Ctrl+K: o que a busca encontra, onde um resultado abre e onde buscar mensagens."
+---
+
+A busca global abre sobre a página em que você está, de qualquer lugar do aplicativo: pressione Cmd/Ctrl+K, pressione / quando nenhum campo estiver com o foco ou clique em **Pesquisar** na barra lateral.
+
+## O que a busca global encontra e em quais campos de contato ela procura? [#what-does-global-search-find]
+
+A busca vasculha os registros de todas as listas que você pode ler, inclusive as listas criadas pelo seu espaço de trabalho, e agrupa os resultados por lista. Ela compara títulos de registros e valores de campos pesquisáveis, encontra contatos por qualquer endereço de e-mail ou número de telefone em **Dados de contato** e encontra registros pelos nomes e pelo texto dos seus [arquivos anexados](#does-search-look-inside-files). Valores que você não tem permissão para ver não são pesquisados. Se a sua função lê uma lista apenas com **Atribuídos**, você só recebe os registros atribuídos a você. **Carregar mais** busca mais resultados.
+
+Antes de você digitar, **Abertos recentemente** mostra suas últimas escolhas na busca, guardadas apenas neste navegador; **Limpar** esvazia a lista. **Sugestões**, logo abaixo, oferecem o que combina com a página em que você está, por exemplo adicionar um registro à lista que está aberta. As setas percorrem os resultados e Enter abre um deles. Ao selecionar um registro, ele abre no painel de detalhes.
+
+## A busca olha dentro dos arquivos anexados? [#does-search-look-inside-files]
+
+Sim. Pouco depois de um arquivo ser anexado a um registro, o texto dele é extraído: a camada de texto de um PDF, documentos do Word (.docx), todas as planilhas de uma pasta de trabalho do Excel (.xlsx) e arquivos CSV, de texto simples, Markdown, JSON e HTML. A busca então encontra o registro quando todas as suas palavras aparecem no mesmo trecho de um dos arquivos dele, inclusive formas flexionadas em inglês, alemão, espanhol, francês e italiano, e a última palavra pode ser o começo de uma mais longa. O nome do arquivo também é pesquisado. PDFs digitalizados e imagens não são pesquisados pelo conteúdo, porque não há reconhecimento de texto (OCR), e só os primeiros 500.000 caracteres de um arquivo são indexados, das primeiras 1.000 páginas, no máximo, de um PDF. Arquivos do Word e do Excel que, descompactados, passam de 128 MB não são lidos.
+
+O conteúdo de um arquivo só é pesquisado onde você pode ler o registro e o campo que o contém. Um arquivo removido do registro, um registro na [Lixeira](/docs/app-trash) e um campo excluído deixam de ser encontrados. A caixa de busca de uma lista encontra registros pelo texto dos arquivos da mesma forma, e clientes de IA conectados pelo [MCP](/docs/mcp#file-contents) podem pesquisar e ler o texto dos arquivos que você pode ler.
+
+## Como vou direto a uma lista, visualização, página ou configuração? [#how-do-i-jump-to-a-page-or-setting]
+
+Digite o nome ou o começo das palavras dele; palavras de preenchimento como "abrir", "ir para" ou "configurar" são ignoradas, e um pequeno erro de digitação em uma única palavra mais longa é perdoado. A busca também encontra cada lista e as visualizações salvas dela, as páginas do aplicativo, cada configuração em [Perfil e preferências](app:settings/profile) e nas outras páginas de configurações, e ações como trocar o tema ou convidar membros, inclusive por palavras do dia a dia como "modo escuro" ou "equipe". O destino mais provável aparece no topo como **Melhor resultado**, e Enter o abre. Uma lista mostra suas visualizações salvas recuadas abaixo dela: Enter abre a lista, seta para baixo escolhe uma visualização. Uma configuração abre a página dela com a opção em destaque. As ações mostram o atalho de teclado à direita.
+
+Para restringir a busca, comece com uma letra e um espaço: **l** listas, **v** visualizações, **s** configurações, **d** documentação e **r** registros, por exemplo "v negócios abertos".
+
+## Como altero o registro que está aberto? [#how-do-i-change-the-open-record]
+
+Com um registro aberto no painel lateral ou na própria página, a busca oferece ações para ele: **Alterar** um campo de escolha, de sim/não ou de membro, **Atribuir a**, **Adicionar a** uma lista relacionada e **Excluir**. Escolher uma abre as opções dela dentro da caixa de busca; Esc volta uma etapa. Uma alteração é salva na hora, e Excluir pede confirmação como de costume. Essas ações só aparecem quando você pode editar o registro e ele não tem alterações não salvas.
+
+As mensagens não são pesquisadas aqui; a [Caixa de entrada](app:inbox) tem a própria busca. Para uma lista de registros filtrada ou ordenada, use uma lista, por exemplo a sua lista de contatos com **Filtros** na barra de ferramentas. Para adicionar um registro, veja [Registros do CRM](/docs/app-records#how-do-i-add-a-record).
+
+## Como a busca encontra por significado e o que é enviado? [#how-does-search-match-by-meaning]
+
+A busca também encontra por significado e entre idiomas: "Sprache" encontra **Idioma de exibição**, "night mode" encontra o tema escuro, e as palavras que você usaria para uma lista ou visualização a encontram mesmo quando o nome é outro. Até três trechos correspondentes desta documentação aparecem em **Documentação**, até oito quando você começa com **d**; cada um abre o lugar do aplicativo que descreve ou, se não houver, a página da documentação. Os registros são comparados só pelas palavras: um id de registro encontra esse registro, uma frase entre aspas duplas, como "Acme Corp", só corresponde exatamente como escrita, e quando nada corresponde aparecem registros com um título de grafia parecida.
+
+A busca por significado só entra quando nada corresponde pelo nome: quando nenhuma página, configuração, ação, lista ou visualização é um **Melhor resultado** claro e nenhum registro corresponde às suas palavras. Só então um modelo de embedding operado pelo Google, por meio do Vercel AI Gateway, recebe o texto da sua busca, usando uma pequena parte dos seus créditos de IA. Ele também recebe os nomes das páginas, configurações, ações, listas, visualizações e campos do seu espaço de trabalho, enviados de novo apenas quando mudam, nunca o conteúdo dos registros. Se o serviço estiver lento ou indisponível, a busca mostra na hora as correspondências por nome. Sem IA, por exemplo em uma instalação com hospedagem própria, a busca corresponde apenas pelo nome.
+
+## Como abro uma lista filtrada descrevendo o que quero? [#how-do-i-describe-what-to-open]
+
+Quando nenhum resultado é uma correspondência clara, a primeira linha mostra **Ir para “…”** com as suas palavras. Pressione Enter e um pequeno modelo de IA transforma o pedido em um único destino: uma lista com filtros, uma das visualizações dela, uma página, uma configuração ou uma ação. Por exemplo, em um espaço de trabalho com uma lista de negócios, "negócios ganhos com fechamento neste mês" abre essa lista mostrando apenas os negócios ganhos que fecham neste mês. Os filtros não são salvos: a visualização aparece como alterada, e **Salvar** ou **Redefinir** em **Filtros** os mantém ou descarta. Se o pedido não se encaixar em nada, ele vai para o [Mate](/docs/app-assistant).
+
+O modelo recebe as suas palavras e os nomes das suas listas, visualizações, campos e opções, nunca o conteúdo dos registros, e usa uma pequena parte dos seus créditos de IA. Ele nunca desconecta você nem altera, atribui ou exclui um registro; essas ações ficam nos resultados da busca.
+
+## Para agentes [#which-stable-ids-does-it-have]
+
+O Mate pode apontar para **Pesquisar** na barra lateral, mas não consegue abrir a caixa de busca nem digitar nela. Para consultas filtradas, ordenadas ou agregadas, use as ferramentas de consulta de registros em vez da busca global.
+
+## Perguntas frequentes [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Qual é o atalho de teclado?">
+Cmd+K no Mac, Ctrl+K no Windows e no Linux, de qualquer lugar do aplicativo, ou / quando nenhum campo de texto estiver com o foco. Digite uma pergunta e pressione Tab para passá-la ao [Mate](/docs/app-assistant); **Perguntar ao Mate** também é a última linha dos resultados. **Pesquisar**, na barra lateral, mostra a tecla do seu computador e abre a mesma busca. Todos os atalhos estão listados em [Quais atalhos de teclado existem?](/docs/app-dashboard#keyboard-shortcuts).
+</FaqItem>
+<FaqItem question="Onde os resultados abrem?">
+No painel de detalhes do registro, sobre a página em que você estava. De lá, você pode abrir a página completa do registro, descrita em [Registros do CRM](/docs/app-records#what-is-the-shared-layout-of-a-record-type).
+</FaqItem>
+</Faq>

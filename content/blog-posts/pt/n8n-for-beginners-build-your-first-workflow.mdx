@@ -1,0 +1,249 @@
+---
+title: "n8n tutorial: crie seu primeiro workflow passo a passo"
+description: "n8n tutorial para iniciantes: rode o n8n, monte e teste um workflow com webhook, publique, trate erros e envie leads de formulário para um CRM."
+
+relatedHrefs:
+  - /docs/n8n
+  - /docs/webhooks
+  - /features/workflow-automation
+  - /blog/n8n-mcp
+
+hero:
+  title: "n8n tutorial para iniciantes: crie e publique seu primeiro workflow"
+  description: "Inicie o n8n, monte um workflow de dois nós, teste com dados reais e publique. Depois crie um segundo workflow que transforma uma solicitação do site em um contato no CRM, com tratamento de erros desde o primeiro dia."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Voltar ao blog
+  by: por Benjamin Wagner
+  date: 2025-11-18
+  updated: 2026-10-08
+  tags:
+    - n8n
+    - Automação de workflows
+    - Integração com CRM
+    - Tutorial
+---
+
+# n8n tutorial para iniciantes: crie e publique seu primeiro workflow
+
+Este n8n tutorial leva você por um pequeno workflow completo, do começo ao fim: um gatilho que recebe dados, um nó que faz algo com eles, uma execução de teste e a etapa **Publish**, que faz o workflow rodar sem você. Tudo que é maior no n8n segue o mesmo padrão, só com mais nós. Aqui você vê esse primeiro workflow, a armadilha da URL de teste em que muita gente cai, o tratamento de erros e um segundo workflow que manda as solicitações do site para um CRM.
+
+Se você pensa em usar o n8n com MCP, a [comparação das rotas do n8n MCP, com um exemplo de versão fixada](/blog/n8n-mcp), mostra a diferença entre conectar o n8n a um servidor de dados de clientes e expor o próprio n8n a um cliente de IA. Escolha a direção antes de configurar as credenciais.
+
+<ArticleSummary title="Resumo rápido">
+  <SummaryItem label="Onde rodar">n8n Cloud para começar rápido, ou a Community Edition gratuita com hospedagem própria em Docker, se você consegue manter um servidor.</SummaryItem>
+  <SummaryItem label="Primeiro workflow">Gatilho Webhook, um nó If que confere os dados, um nó de e-mail. Teste e depois publique.</SummaryItem>
+  <SummaryItem label="Erro comum">Chamar a URL de teste depois de publicar. Um workflow publicado só escuta na URL de produção.</SummaryItem>
+  <SummaryItem label="Antes de confiar nele">Adicione um workflow de erro, para que uma execução com falha chegue até você em vez de falhar em silêncio.</SummaryItem>
+  <SummaryItem label="Exemplo de CRM">Dados de formulário viram um contato no CRM pelo nó HTTP Request, mostrado com a API REST do Customermates.</SummaryItem>
+</ArticleSummary>
+
+## O que é o n8n e para que serve? [#o-que-e-o-n8n]
+
+O n8n é uma plataforma de automação de workflows com editor visual: você liga um gatilho a uma sequência de nós (aplicativos, APIs, condições, código) para que sistemas diferentes trabalhem juntos sem ninguém copiar dados à mão. Serve para tarefas do tipo "quando isto acontecer, faça aquilo", como guardar o envio de um formulário em um CRM ou avisar a equipe quando um negócio muda de etapa. O código-fonte é público e existe uma edição gratuita que você hospeda por conta própria; há também o n8n Cloud, pago. Como usar, em cinco passos, é o que este tutorial faz: escolher onde rodar, criar um workflow com um gatilho, testar, publicar e configurar o tratamento de erros.
+
+## Os seis termos que você precisa conhecer
+
+A documentação do n8n usa um vocabulário pequeno. Quando esses termos fazem sentido, o editor também faz.
+
+| Termo | O que significa | Onde você vê |
+|---|---|---|
+| Workflow | Uma cadeia de nós executada da esquerda para a direita | O canvas |
+| Trigger (gatilho) | O primeiro nó, que inicia uma execução: um agendamento, uma chamada de webhook, um evento de um aplicativo ou um clique manual | O primeiro nó no canvas |
+| Nó (node) | Uma etapa: buscar dados, verificar uma condição, enviar uma mensagem, chamar uma API | Tudo que está no canvas |
+| Expressão | Um marcador que puxa dados de nós anteriores, como `{{ $json.email }}` | Qualquer campo, depois de mudá-lo para o modo de expressão |
+| Credencial | Um login ou chave de API guardado, que os nós reutilizam | Menu Credentials ou "Create new credential" em um nó |
+| Execução | Uma rodada completa de um workflow, não importa quantos nós ele tenha | A aba Executions |
+
+A última linha pesa no custo. A página de preços do n8n define uma execução como "a single run of your entire workflow" (uma única rodada do seu workflow inteiro), seja qual for o número de etapas ou o volume de dados processados. Um workflow de dez nós que roda uma vez é uma execução.
+
+## Nuvem ou hospedagem própria: onde rodar o n8n
+
+Você tem duas opções. O n8n Cloud não exige nada além de uma conta. A Community Edition é gratuita e roda na sua própria máquina ou servidor, que passa a ser sua responsabilidade manter.
+
+| Opção | Preço | O que você recebe |
+|---|---|---|
+| n8n Cloud Starter | € 20 por mês, cobrados anualmente | 2.500 execuções por mês, 5 execuções simultâneas, usuários ilimitados |
+| n8n Cloud Pro | € 50 por mês, cobrados anualmente | 10.000 execuções por mês, mais execuções simultâneas, papéis de administrador, histórico de workflows mais longo |
+| Community Edition (hospedagem própria) | Software gratuito, você paga pelo servidor | Roda na sua infraestrutura, sob a Sustainable Use License do n8n |
+
+Preços verificados em 8 de outubro de 2026 na [página de preços do n8n](https://n8n.io/pricing/). Há também cobrança mensal, que custa mais; a página apresenta a opção anual como 17% de economia. O teste do Cloud dá os recursos do Pro com limite de 1.000 execuções e não exige cartão de crédito.
+
+Duas diferenças mudam o que uma pessoa iniciante consegue fazer:
+
+- **Community nodes.** O n8n Cloud só instala community nodes verificados. Os não verificados exigem uma instância com hospedagem própria, segundo a [documentação de community nodes do n8n](https://docs.n8n.io/integrations/community-nodes/installation/).
+- **Licença.** A Community Edition é publicada sob a [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), que permite o uso "for your own internal business purposes or for non-commercial or personal use" (para fins internos da própria empresa ou para uso não comercial ou pessoal). Automatizar a sua própria empresa está coberto. Revender o n8n como serviço hospedado, não.
+
+**Escolha o Cloud** se quiser começar hoje e ninguém na equipe quiser manter um servidor. **Use hospedagem própria** se precisar de community nodes não verificados, quiser os dados na sua própria infraestrutura ou esperar tantas execuções que os limites custariam mais que um servidor pequeno.
+
+Para testar a Community Edition localmente, o Docker é o caminho mais curto. Esta é uma versão mínima do comando do [guia de Docker do n8n](https://docs.n8n.io/hosting/installation/docker/):
+
+```bash
+docker volume create n8n_data
+docker run -it --rm --name n8n -p 5678:5678 \
+  -v n8n_data:/home/node/.n8n n8nio/n8n
+```
+
+Depois abra `http://localhost:5678`. O guia acrescenta configurações de fuso horário e, para um servidor que roda o tempo todo, o n8n indica a configuração com Docker Compose e HTTPS. Uma instância local serve para aprender. Ela não é acessível pela internet, o que importa quando um serviço na nuvem precisa chamar o seu webhook.
+
+## n8n passo a passo: uma solicitação que envia um e-mail para você
+
+O workflow recebe um payload JSON, como um formulário de site enviaria, confere se ele traz um endereço de e-mail e manda os detalhes para o seu e-mail. Tem três nós e ensina todos os conceitos básicos.
+
+<Steps>
+  <Step title="Crie o workflow e adicione um gatilho Webhook">
+    Crie um novo workflow e adicione o nó **Webhook** como gatilho. Defina o método HTTP como `POST` e dê ao caminho um nome legível, como `inquiry`. O nó mostra duas URLs, uma de teste e uma de produção. Copie a URL de teste.
+  </Step>
+  <Step title="Envie dados de teste">
+    Clique em **Listen for test event**. O n8n passa a esperar uma chamada. Em um terminal, envie uma solicitação de exemplo para a URL de teste:
+
+    ```bash
+    curl -X POST "<your test URL>" \
+      -H "Content-Type: application/json" \
+      -d '{"firstName":"Lisa","lastName":"Meyer","email":"lisa@example.com","message":"Podemos conversar sobre um contrato recorrente?"}'
+    ```
+
+    O painel de saída do nó agora mostra os quatro campos. Fixe (pin) essa saída para que os próximos testes a reutilizem sem outra chamada curl.
+  </Step>
+  <Step title="Adicione um nó If">
+    Conecte um nó **If** e adicione uma condição: `{{ $json.body.email }}` não está vazio. Os dados do webhook chegam dentro de `body`, o detalhe que faz muita gente tropeçar na primeira expressão. Os itens que passam saem pelo ramo **true**.
+  </Step>
+  <Step title="Adicione um nó de e-mail no ramo true">
+    Adicione um nó **Gmail** (ou **Send Email** com credenciais SMTP). Crie a credencial quando o nó pedir. No assunto, escreva `Nova solicitação de {{ $json.body.firstName }} {{ $json.body.lastName }}` e coloque a mensagem e o endereço de e-mail no corpo.
+  </Step>
+  <Step title="Execute o workflow inteiro">
+    Clique em **Execute workflow** e envie a chamada curl de novo. Cada nó que rodou mostra o número de itens, e ao clicar em um nó você vê exatamente o que entrou e o que saiu. Se o e-mail chegar, a lógica funciona.
+  </Step>
+  <Step title="Publique e passe para a URL de produção">
+    Clique em **Publish**. A partir daí o workflow escuta na **URL de produção**, e é esse o endereço que o seu formulário deve chamar. As execuções de produção não aparecem no canvas; você as encontra na aba **Executions**.
+  </Step>
+</Steps>
+
+### URL de teste ou URL de produção?
+
+Confundir as duas URLs é uma causa frequente de perguntas do tipo "meu webhook não funciona". A [documentação do nó Webhook](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/) do n8n separa as duas:
+
+| | URL de teste | URL de produção |
+|---|---|---|
+| Fica ativa quando | Você clica em **Listen for test event** ou **Execute workflow** | O workflow está publicado |
+| Dados exibidos no canvas | Sim | Não, veja a aba **Executions** |
+| Use para | Construir e depurar | O formulário, o aplicativo ou o webhook do CRM de verdade |
+
+Se uma chamada à URL de produção retornar erro, verifique primeiro se o workflow está publicado e depois se quem chama usa o método certo (aqui, `POST`).
+
+## Adicione tratamento de erros antes de depender dele
+
+Um workflow publicado não avisa ninguém quando falha, a menos que você diga ao n8n para onde reportar as falhas. Duas configurações cobrem a maioria dos casos.
+
+1. **Um workflow de erro.** Crie um workflow separado que comece com o nó **Error Trigger** e envie para você um e-mail com o nome do workflow que falhou e a mensagem de erro. Depois abra o workflow original, vá em **Options > Settings** e escolha esse workflow em **Error workflow**. A [documentação de tratamento de erros](https://docs.n8n.io/flow-logic/error-handling/) lista os dados que o Error Trigger recebe.
+2. **Configurações do nó.** Todo nó tem uma aba de configurações. Para chamadas a APIs externas, ative **Retry On Fail**. Para etapas que podem falhar sem prejuízo, como uma etapa de log, defina **On Error** como **Continue**, para que o resto da execução ainda termine.
+
+Aproveite e dê nomes às coisas. "Solicitação: formulário do site para o CRM" em um e-mail de erro diz onde olhar. "Meu workflow 3" não diz.
+
+## Segundo workflow: solicitação do site direto para um CRM
+
+A versão útil do primeiro workflow guarda a solicitação onde a sua equipe trabalha com ela. O padrão é o mesmo para qualquer CRM com API REST: autenticar com uma chave de API, mapear os campos do formulário para os nomes de campo do CRM e enviar uma requisição HTTP. O exemplo abaixo usa o Customermates, o CRM que publica este guia, porque os detalhes da API são públicos.
+
+<Steps>
+  <Step title="Crie uma chave de API">
+    No Customermates, abra **Configurações → Chaves de API e conectores**, clique em **Adicionar** e escolha **Chave de API padrão**. A chave age com as permissões do usuário que a criou, então crie-a com um usuário que possa criar contatos. Os detalhes estão em [Chaves de API](/docs/api-keys).
+  </Step>
+  <Step title="Guarde-a como credencial do n8n">
+    No n8n, crie uma credencial **Header Auth** com o nome de cabeçalho `x-api-key` e a chave como valor. Todo nó que conversa com o CRM a reutiliza, então uma chave renovada é trocada em um só lugar.
+  </Step>
+  <Step title="Troque o nó de e-mail por um nó HTTP Request">
+    Primeiro busque os IDs uma única vez: `POST <your Customermates address>/api/v1/model/discover` com `{}` retorna o ID do tipo Contatos, e `POST /api/v1/model/read` com esse ID em `typeIds` retorna os IDs dos campos e a revisão atual do esquema. Depois, no ramo true do nó If, adicione um nó **HTTP Request**: método `POST`, URL `<your Customermates address>/api/v1/records/mutate`, autenticação pela credencial Header Auth e um corpo JSON:
+
+    ```json
+    {
+      "expectedRevision": 12,
+      "idempotencyKey": "inquiry-{{ $execution.id }}",
+      "mutation": {
+        "action": "create",
+        "typeId": "<Contacts type ID>",
+        "fields": [
+          { "fieldId": "<First name field ID>", "value": { "kind": "text", "value": "{{ $json.body.firstName }}" } },
+          { "fieldId": "<Last name field ID>", "value": { "kind": "text", "value": "{{ $json.body.lastName }}" } }
+        ],
+        "identities": [{ "provider": "mail", "value": "{{ $json.body.email }}" }]
+      }
+    }
+    ```
+
+    Troque `12` e os IDs entre colchetes angulares pelos valores de `model/read`. O endereço de e-mail vai em `identities` com o provedor `mail`, que é como o Customermates liga um contato às suas conversas por e-mail. A chave de idempotência faz uma execução repetida devolver o primeiro resultado em vez de criar um segundo contato. Para guardar a mensagem, acrescente-a depois às notas do contato com uma mutação `update`.
+  </Step>
+  <Step title="Mantenha o aviso">
+    Depois do nó HTTP Request, mantenha o nó de e-mail para que alguém veja o novo contato. Em seguida, teste com os dados fixados, confira o contato no CRM e publique.
+  </Step>
+</Steps>
+
+O sentido inverso também funciona. Em **Configurações → Webhooks → Adicionar**, o Customermates envia um POST para um nó Webhook do n8n quando acontece um evento assinado, por exemplo `record.created` para a lista Contatos ou `record.updated` para a lista Negócios. Defina um secret para que o n8n possa verificar a assinatura. A [referência de webhooks](/docs/webhooks) mostra o payload. Um detalhe prático: o Customermates Cloud não alcança uma instância do n8n em `localhost`, então esse sentido exige o n8n Cloud ou um n8n com hospedagem própria com endereço HTTPS público.
+
+Alguns detalhes da [documentação de integração com o n8n](/docs/n8n) poupam tempo de depuração:
+
+- Os vínculos mudam apenas pelas mutações `link` e `unlink`. Arrays de relação legados, como `organizationIds`, não são aceitos.
+- `updateMany` e `deleteMany` aceitam no máximo 100 registros por requisição, então divida lotes maiores.
+- As entregas de webhook não seguem uma ordem estrita. Use o `timestamp` do payload para ordená-las e o ID do evento para descartar duplicatas.
+
+Existe também um community node do Customermates, `@customermates/n8n-nodes-crm`, com um nó de ação para registros do CRM e um nó de gatilho para eventos de webhook. Ele tem um cronograma de versões próprio, então confira se ele oferece suporte à API de registros atual antes de usar as ações de CRM. Como o n8n Cloud só instala community nodes verificados, conte com a rota do nó HTTP Request ali e use o community node em um n8n com hospedagem própria.
+
+## n8n com IA: onde entra um modelo de linguagem? [#n8n-com-ia]
+
+O n8n tem nós de IA que chamam modelos de linguagem dentro de um workflow. No segundo workflow deste tutorial, um uso natural seria classificar a mensagem do formulário (pedido de orçamento, suporte, spam) antes de criar o contato, ou redigir um rascunho de resposta. Três cuidados valem desde o primeiro teste:
+
+1. **Mantenha o dado original.** Deixe o passo de IA em um ramo próprio e continue guardando a mensagem como ela chegou, para poder conferir a classificação.
+2. **Rascunho, não envio.** Não mande respostas automáticas a clientes sem revisão de uma pessoa. Salve o texto como rascunho ou envie-o primeiro para você.
+3. **Só os campos necessários.** O que o workflow envia a um modelo é tratado pelo provedor dele. Mande apenas os campos de que o passo precisa e, se houver dados pessoais, confira os termos do provedor e as regras da LGPD aplicáveis ao seu caso.
+
+Se a ideia é o contrário, ou seja, deixar um assistente de IA operar o seu CRM ou o próprio n8n, o caminho é o MCP: veja o [n8n MCP](/blog/n8n-mcp) e a comparação entre [MCP e API](/blog/mcp-vs-api). Para fluxos de CRM em que o n8n é a peça de ligação, a [página de automação de workflows](/features/workflow-automation) mostra o contexto.
+
+## Onde o Customermates entra, e onde não entra
+
+O n8n é um produto à parte. Ele não está incluído em nenhum plano do Customermates; você mesmo o roda ou assina o n8n Cloud. REST e MCP funcionam em todos os planos do Customermates Cloud, os webhooks em todos os planos pagos, que começam em [[commercial.price.starter.monthly]] por usuário por mês (veja os [preços](/pricing)), e os três funcionam na edição de código aberto com hospedagem própria.
+
+Nem toda automação de CRM precisa do n8n. Se a tarefa é "toda segunda-feira, revisar os negócios parados e redigir uma nota para cada um", isso pede mais julgamento do que ligações entre sistemas. No Customermates Cloud, uma [rotina](/docs/app-routines) roda o Mate, o assistente do aplicativo, em um agendamento ou em um evento de registro, com uma instrução salva, e usa créditos de IA hospedados. Se você prefere que o seu próprio cliente de IA trabalhe no CRM, conecte-o pelo [MCP](/docs/mcp). Use o n8n quando o trabalho for determinístico e passar por vários sistemas: formulário, CRM, planilha e chat da equipe.
+
+O que o n8n não faz é o próprio acompanhamento. Quando a solicitação vira um contato, a conversa com essa pessoa pode ficar no mesmo registro: conecte o LinkedIn e o e-mail no Customermates Cloud a partir do Pro, e o Mate ou o seu próprio agente de IA redige a resposta e o próximo passo para você revisar e enviar. Para testar isso nas suas próprias solicitações, [comece seu teste](/auth/signup?job=followup): [[commercial.trial.days]] dias de Pro sem cartão de crédito.
+
+Se você só precisa de contatos em uma planilha e de um e-mail por solicitação, não precisa de CRM para este tutorial. Um nó Google Sheets no ramo true resolve.
+
+## Perguntas frequentes
+
+<Faq>
+<FaqItem question="O que é o n8n?">
+É uma plataforma de automação de workflows com editor visual. Você liga um gatilho a nós que buscam dados, verificam condições, enviam mensagens ou chamam APIs, e o workflow roda sozinho depois de publicado. O código-fonte é público, e há uma edição gratuita com hospedagem própria e o n8n Cloud, pago.
+</FaqItem>
+
+<FaqItem question="Como usar o n8n?">
+Escolha onde rodar (n8n Cloud ou a Community Edition em Docker), crie um workflow com um gatilho, adicione os nós que fazem o trabalho, teste com dados reais e clique em **Publish**. Depois configure um workflow de erro para ser avisado quando uma execução falhar. O passo a passo completo está neste tutorial.
+</FaqItem>
+
+<FaqItem question="O n8n funciona com IA?">
+Sim. Há nós de IA que chamam modelos de linguagem dentro de um workflow, por exemplo para classificar mensagens ou redigir rascunhos. Revise o que o modelo produz antes de enviar algo a um cliente e mande ao modelo só os dados de que ele precisa.
+</FaqItem>
+
+<FaqItem question="É difícil aprender n8n?">
+O básico é rápido: o primeiro workflow deste tutorial usa três nós e uma expressão. A parte mais difícil é entender como os dados se movem entre os nós como itens e ler a documentação de API dos serviços que você conecta. Espere passar a maior parte do tempo de aprendizado no painel de saída, comparando o que um nó recebeu com o que ele produziu.
+</FaqItem>
+
+<FaqItem question="Preciso saber programar?">
+Não. O editor visual, as expressões e os nós nativos cobrem a maioria dos workflows de iniciante. O nó Code permite escrever JavaScript ou Python quando uma transformação fica complicada, mas ele é opcional. Você precisa saber ler JSON, porque é isso que cada nó mostra.
+</FaqItem>
+
+<FaqItem question="Quanto custa o n8n por mês?">
+A Community Edition com hospedagem própria é gratuita; você paga pelo servidor. O n8n Cloud Starter custa € 20 por mês e o Pro, € 50 por mês, ambos cobrados anualmente, com 2.500 e 10.000 execuções por mês, respectivamente (verificado em 8 de outubro de 2026 na [página de preços do n8n](https://n8n.io/pricing/)). A cobrança mensal custa mais.
+</FaqItem>
+
+<FaqItem question="O n8n é de código aberto?">
+O código-fonte é público no GitHub, mas a licença é a Sustainable Use License, não uma licença de código aberto aprovada pela OSI. Ela permite uso interno de negócios, uso não comercial e uso pessoal. Arquivos marcados como enterprise edition exigem uma n8n Enterprise License separada.
+</FaqItem>
+
+<FaqItem question="O que eu consigo fazer de fato com o n8n?">
+Qualquer coisa do tipo "quando isto acontecer, faça aquilo" entre sistemas que têm API: guardar envios de formulário em um CRM, copiar novos contatos para uma planilha, publicar uma mensagem para a equipe quando um negócio mudar, ou puxar dados em um agendamento e enviar um resumo. Com os nós de IA, ele também pode chamar modelos de linguagem dentro de um workflow.
+</FaqItem>
+
+<FaqItem question="Onde continuar depois deste tutorial?">
+O [tutorial n8n do primeiro workflow](https://docs.n8n.io/try-it-out/tutorial-first-workflow/), da própria documentação do n8n, monta um workflow agendado com um nó If e credenciais. Para um curso n8n completo, a [n8n Academy](https://learn.n8n.io/) tem os cursos Essentials, Integrations e In Practice. Para workflows de CRM, a [página do Customermates sobre o n8n](/n8n-crm) mostra como o CRM e o n8n se conectam.
+</FaqItem>
+</Faq>

@@ -1,0 +1,303 @@
+---
+title: "Planilha CRM em Excel: modelo grátis, colunas e fórmulas"
+description: "Planilha CRM em Excel grátis: modelo com seis abas, colunas, listas suspensas e fórmulas para funil e vendedores, pronto para importar em um CRM."
+
+relatedHrefs:
+  - /blog/google-sheets-crm
+  - /features/simple-crm
+  - /blog/digital-rolodex
+  - /blog/contact-list-template
+
+hero:
+  title: "Planilha CRM em Excel: um layout gratuito de seis abas que você pode importar depois"
+  description: "Cada coluna, lista suspensa e fórmula de uma planilha CRM que uma a três pessoas conseguem manter, com acompanhamento semanal por vendedor e regras de layout para cada aba entrar em um CRM sem redigitar."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Voltar ao blog
+  by: por Benjamin Wagner
+  date: 2025-12-25
+  updated: 2026-11-06
+  tags:
+    - Excel
+    - Modelo de CRM
+    - CRM em planilha
+    - Acompanhamento de vendas
+---
+
+# Planilha CRM em Excel: um layout gratuito de seis abas que você pode importar depois
+
+Uma planilha CRM (ou CRM no Excel) é uma pasta de trabalho que faz o papel de um CRM simples: ela apoia a gestão do relacionamento com clientes com uma aba para cada tipo de registro (empresas, contatos, negócios, atividades) e uma aba que conta e soma tudo. O layout abaixo é livre para copiar: digite os cabeçalhos em uma pasta de trabalho em branco, adicione as listas suspensas e cole as fórmulas. Ele se sustenta para uma a três pessoas que mantêm uma única cópia do arquivo, e cada aba é organizada de modo que possa entrar depois em um CRM por importação, sem redigitar uma linha.
+
+O Customermates publica este guia e é o CRM do exemplo de importação. A pasta de trabalho em si não precisa de nada além de uma versão atual do Excel.
+
+<ArticleSummary title="Em resumo">
+  <SummaryItem label="O que você monta">Seis abas: Lists, Companies, Contacts, Deals, Activities e um Dashboard com um acompanhamento semanal por vendedor.</SummaryItem>
+  <SummaryItem label="Formato do arquivo">Salve como .xlsx. O formato antigo .xls para em 65.536 linhas, e a coautoria do Excel exige .xlsx, .xlsm ou .xlsb guardado no OneDrive ou no SharePoint.</SummaryItem>
+  <SummaryItem label="Para quem serve">Uma a três pessoas, um único processo de vendas, algumas centenas de contatos ativos.</SummaryItem>
+  <SummaryItem label="Hora de migrar">Duas pessoas trabalham os mesmos negócios, um follow-up escapou porque ninguém filtrou a coluna de datas, ou os negócios andam em conversas de LinkedIn e WhatsApp que nunca chegam à planilha.</SummaryItem>
+  <SummaryItem label="Como migrar">Uma aba por importação: serviços e empresas primeiro, depois contatos, depois negócios.</SummaryItem>
+</ArticleSummary>
+
+Use o [modelo de lista de contatos](/blog/contact-list-template) para um diretório pequeno e compartilhado, com responsável e próximo passo definidos, antes de decidir se vale levá-lo para um CRM.
+
+Um sistema de CRM feito em Excel precisa das mesmas regras de operação de uma ferramenta dedicada: um responsável por linha, identificadores estáveis e um próximo passo claro. O layout das abas, sozinho, não faz ninguém cumprir essas regras.
+
+## Onde baixo o modelo CRM Excel verificado?
+
+Baixe a [pasta de trabalho de CRM em Excel gratuita, em inglês](/templates/crm-template-en.xlsx), ou a [pasta de trabalho de CRM em alemão](/templates/crm-template-de.xlsx). É um exemplo original e compacto, com seis abas de trabalho mais um Readme: Companies, Contacts, Deals, Activities, Dashboard e Lists. Ele é separado do layout mais completo, coluna por coluna, que vem abaixo; não cole as fórmulas abaixo no arquivo baixado sem conferir as referências de coluna.
+
+O exemplo mantém **um cliente e dois trabalhos** juntos, com IDs de origem estáveis. Tanto `JOB-001` quanto `JOB-002` apontam para `C-001`, mesmo que você renomeie o cliente. As datas são células de data, os estados usam listas suspensas e a busca do cliente usa o ID de origem. O dashboard traz 9.000 EUR em oportunidades de exemplo e 4.050 EUR de valor ponderado: 7.200 × 50% mais 1.800 × 25%. Os dois próximos passos em aberto continuam como atividades separadas.
+
+Verificado em 29 de outubro de 2026: escrevemos e reabrimos os dois arquivos XLSX com o ExcelJS, conferimos nomes de abas, células de data, referências de busca e resultados de fórmulas armazenados, e verificamos que não contêm macros nem conexões com pastas de trabalho externas. Não fizemos uma sessão visual no Microsoft Excel nem no LibreOffice. Abra a sua cópia no seu programa de planilhas, recalcule e confirme os dois totais de exemplo antes de trocar as linhas fictícias. Não some várias moedas em um único total sem uma regra de conversão explícita.
+
+### O que sobreviveu à verificação de importação local no CRM?
+
+Analisamos o exemplo em inglês e o transformamos em JSON ciente do esquema, e o importamos pelo endpoint MCP real do Customermates em um espaço de trabalho local sintético. Foi um teste de JSON/API, **não um teste do assistente nativo de XLSX do navegador**. Uma lista de exemplo separada manteve um valor e uma probabilidade digitados à mão; ela não substituiu em silêncio o cálculo padrão do valor do negócio.
+
+| Valor de origem | Verificação do estado salvo |
+| --- | --- |
+| `C-001`, `JOB-001`, `JOB-002` | Mantidos em campos Texto de ID de origem e em um mapa de ID de origem para ID do registro |
+| Um cliente, dois trabalhos | As duas relações salvas apontavam para o mesmo registro de cliente |
+| `Example owner` | Resolvido para o ID real do membro sintético; faça isso com os seus próprios membros |
+| Proposal / Qualified | Mapeados para os IDs reais das opções de escolha |
+| 7.200 / 1.800 EUR e 20 de novembro / 4 de dezembro de 2026 | Valor, moeda e data conferiram após a releitura e a exportação |
+| 50% / 25% | As probabilidades decimais conferiram após a exportação |
+
+Repetir a mesma importação com a sua chave de idempotência devolveu o mesmo resultado, sem adicionar mais dois trabalhos. Para uma migração de verdade, leia antes os IDs atuais de listas, campos e opções e depois siga o [contrato de importação JSON](/docs/app-records#bulk-import-over-the-api). Guarde um mapa dos IDs de origem da pasta de trabalho para os IDs de registro do CRM, releia os registros salvos e arquive a pasta de trabalho original. Isso não é uma migração de anexos, nem um recurso de desfazer, nem uma sincronização contínua.
+
+## Quatro regras de layout antes da primeira linha
+
+1. **Uma linha de cabeçalho, uma linha por registro.** Sem células mescladas, sem linhas em branco, sem subtotais no meio dos dados.
+2. **Transforme cada aba em uma tabela do Excel.** Selecione o intervalo, pressione Ctrl+T e dê um nome em Design da Tabela › Nome da Tabela: `Companies`, `Contacts`, `Deals`, `Activities`. As fórmulas abaixo usam esses nomes, e as tabelas crescem com as linhas novas.
+3. **Dê uma lista suspensa a cada lista fixa.** Use Dados › Validação de Dados, Permitir: Lista, com uma tabela da aba Lists como origem. O [guia de listas suspensas](https://support.microsoft.com/en-us/excel/get-started/create-a-drop-down-list) da Microsoft observa que as listas baseadas em uma tabela se atualizam sozinhas quando você adiciona ou remove itens.
+4. **Mantenha um ID de origem estável além dos nomes legíveis.** O layout abaixo usa nomes exatos para o mapeamento nativo de vínculos do XLSX. A pasta de trabalho compacta para download também guarda IDs de origem para as buscas e para um mapeamento posterior por JSON/API. Os nomes ajudam as pessoas a escolher um registro; preserve o mapa de ID de origem para ID do registro quando os nomes mudarem.
+
+## O modelo, aba por aba
+
+Os nomes das abas, das tabelas e das colunas, as etapas e os tipos de atividade ficam aqui em inglês, porque as fórmulas e a pasta de trabalho para download os usam; se você os traduzir, ajuste as fórmulas. As fórmulas estão escritas com os nomes de função em inglês e vírgulas como separadores. Um Excel em português mostra e exige os nomes traduzidos e o ponto e vírgula (por exemplo SOMASES para SUMIFS, CONT.SES para COUNTIFS, PROCX para XLOOKUP, HOJE para TODAY).
+
+### Lists
+
+Pequenas tabelas que alimentam as listas suspensas. A tabela de etapas também traz uma probabilidade de ganho, que a aba Deals consulta.
+
+| Tabela | Colunas | Valores iniciais |
+| --- | --- | --- |
+| `Stages` | Stage, Probability | Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100%, Lost 0% |
+| `ContactTypes` | Contact type | Lead, Cliente, Parceiro, Ex-cliente |
+| `Sources` | Source | Indicação, Site, LinkedIn, Evento, Outbound |
+| `ActivityTypes` | Type | Call, Email, Meeting, LinkedIn, WhatsApp |
+| `Team` | Name | Nome completo de todos que são responsáveis por registros |
+
+Essas etapas e probabilidades são um exemplo. O Customermates não tem etapas predefinidas: crie as mesmas opções no campo Etapa da sua lista de negócios em Modelo de dados (ou deixe a configuração com IA montá-las na nuvem), e a coluna Stage será importada depois sem renomear nada. Trate as porcentagens como um primeiro palpite e troque-as quando você tiver alguns meses de negócios ganhos e perdidos para contar.
+
+### Companies
+
+Colunas: Company (nome único), Industry (lista suspensa), Website, City, Country, Owner (lista suspensa a partir de `Team`), Notes. Decida de uma vez se você escreve "Ltda" ou "Ltda." e mantenha. Duas grafias são duas empresas para toda busca e para todo importador.
+
+### Contacts
+
+| Coluna | Conteúdo | Exemplo |
+| --- | --- | --- |
+| A First name | Texto | Sarah |
+| B Last name | Texto | Okafor |
+| C Company | Lista suspensa a partir da coluna Company de `Companies` | Brookfield Architects |
+| D Email | Texto | sarah@brookfield-architects.example |
+| E Phone | Guardado como texto, para o sinal de mais sobreviver | +44 113 496 0000 |
+| F LinkedIn | URL do perfil | linkedin.com/in/sarahokafor |
+| G Contact type | Lista suspensa a partir de `ContactTypes` | Cliente |
+| H Source | Lista suspensa a partir de `Sources` | Indicação |
+| I Owner | Lista suspensa a partir de `Team` | Anna Berg |
+| J Last contact | Data | 2025-11-28 |
+| K Notes | Texto curto | Prefere ligações antes das 10h |
+
+Mantenha nome e sobrenome separados: a maioria dos CRMs exige os dois para criar uma pessoa.
+
+### Deals
+
+| Coluna | Conteúdo | Exemplo |
+| --- | --- | --- |
+| A Deal | Texto | Revisão de segurança Brookfield Architects |
+| B Company | Lista suspensa a partir de `Companies` | Brookfield Architects |
+| C Contact | Nome completo do contato | Sarah Okafor |
+| D Value | Número | 18000 |
+| E Stage | Lista suspensa a partir de `Stages` | Proposal |
+| F Probability | Fórmula | 60% |
+| G Weighted | Fórmula | 10800 |
+| H Expected close | Data | 2026-01-31 |
+| I Owner | Lista suspensa a partir de `Team` | Anna Berg |
+| J Next step | Uma frase | Enviar o escopo revisado |
+| K Next step date | Data | 2025-12-04 |
+| L Closed on | Data, preenchida quando Won ou Lost | |
+| M Loss reason | Lista suspensa: Preço, Prazo, Concorrente, Sem decisão | |
+
+Digite as duas fórmulas uma única vez na primeira linha de dados; a tabela as preenche para baixo:
+
+```
+F  Probability   =XLOOKUP([@Stage],Stages[Stage],Stages[Probability],0)
+G  Weighted      =[@Value]*[@Probability]
+```
+
+O XLOOKUP exige o Excel para Microsoft 365, 2021 ou 2024. A [referência do XLOOKUP](https://support.microsoft.com/en-us/excel/functions/xlookup-function) da Microsoft diz que ele não está disponível no Excel 2016 e 2019, onde `=INDEX(Stages[Probability],MATCH([@Stage],Stages[Stage],0))` faz o mesmo.
+
+Para pintar de vermelho as datas de próximo passo vencidas, selecione as linhas de dados da coluna K e adicione uma regra em Página Inicial › Formatação Condicional › Nova Regra › "Usar uma fórmula para determinar quais células devem ser formatadas": `=AND($K2<>"",TODAY()>$K2)`. A cor só aparece para quem abre o arquivo. A pasta de trabalho em si não avisa ninguém.
+
+### Activities
+
+Uma linha por contato que importou: Date, Contact (nome completo), Deal (nome, ou vazio), Type (lista suspensa a partir de `ActivityTypes`), Owner, Summary (uma ou duas frases sobre o que foi dito e combinado) e Next step. É a única aba que responde a "o que dissemos a eles por último?", então preencha logo depois da ligação.
+
+### Dashboard
+
+Cinco números do funil:
+
+```
+Open pipeline      =SUMIFS(Deals[Value],Deals[Stage],"<>Won",Deals[Stage],"<>Lost")
+Weighted pipeline  =SUMIFS(Deals[Weighted],Deals[Stage],"<>Won",Deals[Stage],"<>Lost")
+Win rate           =COUNTIFS(Deals[Stage],"Won")/MAX(1,COUNTIFS(Deals[Stage],"Won")+COUNTIFS(Deals[Stage],"Lost"))
+Won this month     =SUMIFS(Deals[Value],Deals[Stage],"Won",Deals[Closed on],">="&EOMONTH(TODAY(),-1)+1)
+Past next steps    =COUNTIFS(Deals[Next step date],"<"&TODAY(),Deals[Stage],"<>Won",Deals[Stage],"<>Lost")
+```
+
+Para o funil por etapa, insira uma tabela dinâmica a partir de `Deals` com Stage em Linhas e Value em Valores e coloque um gráfico de barras sobre ela. Atualize-a depois das edições.
+
+Quando duas ou mais pessoas vendem, adicione um acompanhamento por vendedor. Coloque a segunda-feira da semana em B1 e um nome por linha a partir de A4, e depois copie para baixo estas fórmulas da linha 4:
+
+```
+Calls            =COUNTIFS(Activities[Owner],$A4,Activities[Type],"Call",Activities[Date],">="&$B$1,Activities[Date],"<"&$B$1+7)
+Meetings         =COUNTIFS(Activities[Owner],$A4,Activities[Type],"Meeting",Activities[Date],">="&$B$1,Activities[Date],"<"&$B$1+7)
+Open pipeline    =SUMIFS(Deals[Value],Deals[Owner],$A4,Deals[Stage],"<>Won",Deals[Stage],"<>Lost")
+Won this week    =SUMIFS(Deals[Value],Deals[Owner],$A4,Deals[Stage],"Won",Deals[Closed on],">="&$B$1,Deals[Closed on],"<"&$B$1+7)
+Past next steps  =COUNTIFS(Deals[Owner],$A4,Deals[Next step date],"<"&TODAY(),Deals[Stage],"<>Won",Deals[Stage],"<>Lost")
+```
+
+Muitas ligações com um funil parado apontam para um problema de qualificação. Uma contagem crescente de próximos passos vencidos aponta para um problema de follow-up. Use o acompanhamento para orientar a equipe, não como ranking público, ou as contagens de atividade começam a inflar.
+
+## Dicas para aproveitar a planilha CRM [#dicas-para-a-planilha]
+
+Uma planilha de CRM funciona enquanto alguém cuida dela. Cinco hábitos mantêm o modelo útil:
+
+- **Atualize logo depois de cada conversa.** Data do último contato, resumo na aba Activities e um próximo passo com data. Uma planilha preenchida às sextas já nasce desatualizada.
+- **Revise os dados uma vez por mês.** Procure empresas escritas de dois jeitos, contatos duplicados, negócios parados na mesma etapa e datas de próximo passo vencidas.
+- **Pergunte algo ao Dashboard.** Em qual etapa os negócios travam? Quantos próximos passos estão vencidos? Quem tem muitas ligações e pouco funil? Um número que ninguém lê é um número a menos para manter.
+- **Controle quem abre o arquivo.** Quem consegue abrir a pasta de trabalho lê todas as abas; compartilhe só com quem precisa e prefira o OneDrive ou o SharePoint a anexos por e-mail, para não multiplicar cópias.
+- **Faça backup e saiba a hora de sair.** Guarde uma cópia datada toda semana e releia a lista de verificação de migração abaixo a cada trimestre.
+
+## Excel, Google Sheets ou um CRM?
+
+| Se isto descreve você | Use | Atenção a |
+| --- | --- | --- |
+| Uma pessoa, algumas centenas de contatos, a maioria das conversas por e-mail | Este modelo de Excel na sua própria máquina | Mantenha uma única cópia e faça backup toda semana |
+| Duas ou três pessoas no Microsoft 365 que editam o mesmo arquivo | A pasta de trabalho no OneDrive ou no SharePoint com [coautoria](https://support.microsoft.com/en-us/excel/get-started/collaborate-on-excel-workbooks-at-the-same-time-with-co-authoring) | Exige uma assinatura do Microsoft 365 e .xlsx, .xlsm ou .xlsb |
+| Uma equipe que vive no Google Workspace | O mesmo layout no Google Sheets, veja o [guia de CRM no Google Sheets](/blog/google-sheets-crm) | Confira de novo cada fórmula depois de refazê-la |
+| Várias pessoas dividem negócios, follow-ups escapam, negócios andam em chats de LinkedIn ou WhatsApp | Um CRM | Planeje a importação abaixo antes de escolher um |
+
+## Onde uma planilha CRM deixa de funcionar
+
+O tamanho raramente é o motivo; estes limites aparecem primeiro.
+
+- **Vínculos são texto.** Renomeie uma empresa e todo contato, negócio e busca que usava o nome antigo passa a apontar para o nada, até você rodar Localizar e Substituir na pasta de trabalho inteira.
+- **O arquivo espera por você.** Uma data vermelha só ajuda quem abre a planilha, e as mensagens de e-mail, LinkedIn ou WhatsApp só chegam quando alguém digita um resumo.
+- **O acesso é tudo ou nada.** Quem consegue abrir a pasta de trabalho consegue ler todas as abas.
+- **Dados pessoais se espalham em cópias.** Pelo [GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj), uma pessoa pode perguntar o que você guarda sobre ela (artigo 15) e pedir que seja apagado (artigo 17). A LGPD, no Brasil, dá ao titular direitos parecidos, como acesso e eliminação dos dados (Art. 18); isto é só contexto geral, não aconselhamento jurídico. Com uma pasta de trabalho, atender a um pedido significa procurar cada cópia em cada notebook e em cada pasta de enviados.
+
+## Hora de migrar: uma lista de verificação
+
+- Duas ou mais pessoas atualizam os mesmos negócios em uma semana normal.
+- Um [follow-up](/features/follow-up) escapou porque a data dele estava em uma coluna que ninguém filtrava.
+- Você copia mensagens do LinkedIn ou do WhatsApp para a planilha, ou parou de fazer isso sem dizer a ninguém.
+- Consertar o Dashboard leva mais tempo do que lê-lo.
+- Alguém pergunta quem pode ver a lista de clientes, e a resposta honesta é "qualquer um com o arquivo".
+
+Se duas delas forem verdadeiras, eu migraria. Uma só costuma dar para resolver dentro da pasta de trabalho.
+
+## Levando o modelo para o Customermates [#moving-the-template-into-customermates]
+
+O Customermates importa pastas de trabalho do Excel (.xlsx ou .xls) e arquivos CSV, uma lista por vez. A [documentação de importação](/docs/app-records#how-do-i-import-or-export-records) traz as regras completas. Uma planilha só faz follow-up quando alguém se lembra de abri-la. Quando a planilha está no Customermates, as conversas de cada cliente ficam no registro do cliente (no Customermates Cloud a partir do Pro), o Mate ou o seu próprio agente de IA redige a resposta e o próximo passo, e a data do próximo passo alimenta o seu painel em vez de uma célula vermelha. Veja onde as colunas do modelo vão parar:
+
+| Coluna do modelo | Campo do Customermates |
+| --- | --- |
+| Company | Nome da organização |
+| First name, Last name | Nome e Sobrenome |
+| Company de um contato ou de um negócio | Organizações, associadas pelo nome |
+| Contact de um negócio | Contatos, associados pelo nome completo |
+| Email, Phone, LinkedIn | Dados de contato do contato |
+| Industry, Contact type, Source, Loss reason | Campos personalizados Escolha única |
+| Website; City, Country, Next step | Campo personalizado Endereço web; campos personalizados Texto |
+| Last contact, Expected close, Next step date, Closed on | Campos personalizados Data |
+| Stage | O campo Etapa do negócio |
+| Value | Itens de linha, veja o passo 2 |
+| Probability, Weighted | Deixados de fora: a probabilidade da etapa define o valor ponderado |
+| Owner | Atribuído a, associado pelo nome completo do membro da equipe |
+| Notes | Notas |
+| Próximos passos em aberto de Activities | Tarefas |
+
+<Steps>
+  <Step title="Crie primeiro os campos personalizados">Em **Modelo de dados**, abra a lista e escolha **Adicionar**, depois **Campo**. Para cada coluna de lista suspensa, crie um campo Escolha única cujos rótulos de opção sejam idênticos aos da sua aba Lists; a importação sinaliza toda célula que não for uma opção. Confira o campo de etapa e as probabilidades no seu espaço de trabalho; a configuração com IA e os espaços de trabalho existentes podem usar listas e opções diferentes. Crie ou ajuste as opções necessárias em Modelo de dados em vez de supor que elas coincidem com este exemplo.</Step>
+  <Step title="Decida como os valores dos negócios entram">O valor de um negócio no Customermates é a soma dos seus itens de linha, cada um com o preço de um serviço vezes a quantidade. Importe primeiro a sua lista de preços em **Serviços** (Nome e Preço são obrigatórios) e depois adicione os itens de linha, com as quantidades, em cada negócio. Se cada negócio tem o seu próprio preço, um campo de entrada Dinheiro pode guardar o número. Ele não substitui automaticamente o cálculo existente por itens de linha; quem gerencia o esquema precisa visualizar e mudar de propósito a configuração de valor e ponderação, se esse for o modelo pretendido.</Step>
+  <Step title="Importe na ordem das dependências">Serviços, depois empresas em Organizações, depois contatos, depois negócios. Os vínculos são associados pelo nome, sem diferenciar maiúsculas de minúsculas, então uma empresa precisa existir antes de um contato apontar para ela, e um nome que não corresponde a nenhum registro ou a vários é sinalizado. Uma vírgula separa nomes dentro de uma célula, então uma firma chamada "Hale, Brook and Partners" precisa ser renomeada antes da importação ou ter o vínculo definido à mão depois.</Step>
+  <Step title="Rode o assistente">Em cada lista, abra **Mais ações**, escolha **Adicionar de um arquivo** e selecione o arquivo. O assistente pergunta qual aba importar, então a pasta de trabalho pode manter as outras abas; salve-a como .xlsx. Hoje um arquivo pode ter até 10 MB e 5.000 linhas. Associe cada coluna a um campo; endereços de e-mail, telefones e perfis do LinkedIn vão para o campo Dados de contato do contato.</Step>
+  <Step title="Corrija ou pule as linhas com problema">A verificação lista cada problema por linha antes que algo seja adicionado. Corrija as células no Excel e verifique de novo, ou importe o resto e pule essas linhas. Uma importação não tem como ser desfeita, então rode dez linhas primeiro.</Step>
+  <Step title="Transforme os próximos passos em aberto em tarefas">De Activities, leve só os próximos passos em aberto, como tarefas vinculadas ao negócio e ao contato e atribuídas ao responsável. As tarefas não têm campo de data de vencimento, então adicione um campo personalizado Data para a data. O histórico mais antigo pode ir para as Notas do negócio ou ficar na pasta de trabalho arquivada.</Step>
+</Steps>
+
+### O que substitui o dashboard e as células vermelhas
+
+- **O funil** vira a lista Negócios como um quadro agrupado por Etapa, com valor total e ponderado por coluna; a [visão de pipeline](/features/pipeline) mostra como é.
+- **Os próximos passos vencidos** viram uma visualização salva de negócios com uma data de próximo passo, ordenada do mais antigo para o mais novo. Para negócios em que ninguém mexeu, filtre **Atualizado em** com **Mais antigo que…** e 14 dias.
+- **A checagem da manhã** pode rodar no Customermates Cloud. O Customermates não tem lembretes nem notificações, mas uma rotina programada para rodar todo dia às 08:00 pode executar uma instrução como esta, usando créditos de IA hospedados:
+
+> Liste os meus negócios em aberto cuja data do próximo passo é hoje ou anterior. Para cada um, crie uma tarefa vinculada ao negócio, atribuída a mim, com o nome "Follow-up" mais o nome do negócio. Não envie nem redija nenhuma mensagem.
+
+Uma rotina age com o acesso do seu dono, e o Mate envia mensagens quando é mandado, então a instrução precisa dizer o que ela não deve fazer. O Starter inclui [[commercial.entitlement.starter.includedRoutinesPerUser]] rotina por usuário e o Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]; a [documentação de rotinas](/docs/app-routines) lista os limites de execução.
+
+- **A aba Activities** dá lugar, no Pro e acima, à [caixa de entrada unificada](/features/unified-inbox), que mantém as conversas de e-mail, LinkedIn, WhatsApp, Instagram e Telegram junto do contato. O Pro inclui [[commercial.entitlement.pro.includedAccountsPerUser]] conta conectada por usuário, o Business [[commercial.entitlement.business.includedAccountsPerUser]]. O Starter não tem caixa de entrada.
+
+## Quanto custa e quando o Customermates é o passo errado
+
+| Equipe | Plano | Por mês |
+| --- | --- | --- |
+| 3 pessoas, CRM sem caixa de entrada | Starter, [[commercial.price.starter.monthly]] por usuário | [[commercial.price.starter.monthly.seats.3]] |
+| 3 pessoas, com a caixa de entrada unificada | Pro, [[commercial.price.pro.monthly]] por usuário | [[commercial.price.pro.monthly.seats.3]] |
+| Seu próprio servidor | Núcleo AGPL com hospedagem própria | Sem taxa de licença, mais a sua hospedagem; REST, webhooks e MCP, mas sem caixa de entrada e sem o Mate |
+
+A cobrança é mensal, e o teste hospedado dura [[commercial.trial.days]] dias no Pro, sem cartão de crédito: [comece o seu teste](/auth/signup?job=followup) e importe uma aba para ver os seus próprios negócios lá. Cada plano hospedado pago inclui créditos de IA hospedados mensais por usuário ativo; veja os [preços](/pricing).
+
+O Customermates tem [campos calculados](/docs/concepts#how-do-i-build-a-calculated-field), incluindo valores do mesmo registro e totais de registros vinculados. Ele é o passo errado se você precisa de uma planilha geral, com fórmulas de célula arbitrárias e layouts de pasta de trabalho; mantenha essa análise no Excel por meio da exportação. Também é o passo errado se a sua equipe precisa de discador telefônico, de campanhas de e-mail ou de um app nativo no celular: o Customermates não tem app mobile, telefonia nem ferramenta de campanhas. Procure um CRM que ofereça isso.
+
+## Perguntas frequentes
+
+<Faq>
+<FaqItem question="O que é uma planilha CRM?">
+Uma planilha CRM é uma pasta de trabalho do Excel (ou do Google Sheets) usada como um CRM simples: uma aba para empresas, uma para contatos, uma para negócios e uma para atividades, mais um dashboard que soma o funil. Serve para uma a três pessoas; quando mais gente edita os mesmos negócios, um CRM de verdade passa a compensar.
+</FaqItem>
+
+<FaqItem question="Como fazer uma planilha de CRM no Excel, passo a passo?">
+Crie as abas Lists, Companies, Contacts, Deals e Activities, escreva uma linha de cabeçalho em cada uma, transforme cada intervalo em tabela (Ctrl+T), adicione listas suspensas com Validação de Dados, cole as fórmulas de probabilidade e valor ponderado na aba Deals e monte o Dashboard com SUMIFS e COUNTIFS. As seções acima trazem cada coluna e cada fórmula.
+</FaqItem>
+
+<FaqItem question="Quais são os tipos de CRM?">
+A classificação clássica distingue o CRM operacional (rotina de vendas, atendimento e marketing), o analítico (análise dos dados dos clientes) e o colaborativo (informação compartilhada entre as áreas); algumas listas somam um quarto tipo, o estratégico. Uma planilha CRM faz o papel de um CRM operacional pequeno: registro, funil e próximos passos.
+</FaqItem>
+
+<FaqItem question="Dá para montar um CRM no Excel?">
+Dá, para uma equipe pequena. O layout de seis abas acima cobre empresas, contatos, negócios, atividades e um dashboard. O que o Excel não consegue fazer sozinho é avisar alguém, manter os vínculos quando um nome muda ou trazer conversas. O Excel é uma planilha, não um CRM; a Microsoft vende o CRM dela à parte, como [Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales).
+</FaqItem>
+
+<FaqItem question="Existe uma planilha de CRM em Excel gratuita?">
+O layout deste artigo e o exemplo XLSX para download acima são gratuitos e não precisam de nada além de um programa de planilhas compatível. O arquivo para download tem os cabeçalhos em inglês e em alemão; se preferir tudo em português, traduza os cabeçalhos e ajuste as fórmulas (nomes de função em português e ponto e vírgula). Se você baixar um modelo em outro lugar, confira três coisas antes de digitar dados: um registro por linha, contatos separados das empresas e nenhuma célula mesclada. Um modelo que falha nisso é difícil de importar em um CRM depois.
+</FaqItem>
+
+<FaqItem question="Quantos contatos um CRM em Excel aguenta?">
+Uma aba comporta 1.048.576 linhas segundo as [especificações do Excel](https://support.microsoft.com/en-us/excel/excel-specifications-and-limits) da Microsoft, e um arquivo do Google Sheets até 20 milhões de células segundo os [limites de arquivo do Google](https://support.google.com/drive/answer/37603). O limite prático são as pessoas, não as linhas: a lista de verificação acima vale muito antes de o arquivo encher. Hoje o Customermates lê até 5.000 linhas por arquivo de importação, então divida as abas maiores.
+</FaqItem>
+
+<FaqItem question="Um CRM pode ficar sincronizado com o meu arquivo do Excel?">
+O Customermates não. Importação e exportação são transferências de arquivo, uma lista por vez, sem sincronização ao vivo e sem exportação em CSV. Um vaivém funciona: exporte uma lista para .xlsx (até 5.000 registros), edite no Excel e importe de novo como **Registros existentes**, e a coluna ID do registro atualiza esses registros em vez de criar duplicados.
+</FaqItem>
+
+<FaqItem question="O que uma planilha de acompanhamento de vendas para vendedores deve ter?">
+Uma linha por vendedor por semana: ligações, reuniões, funil em aberto, receita ganha e o número de negócios com um próximo passo vencido. Calcule cada célula a partir das abas Deals e Activities com COUNTIFS e SUMIFS, como no acompanhamento acima, para que ninguém digite números que se afastam dos dados.
+</FaqItem>
+</Faq>
+
+Detalhes do Excel e do Google Sheets verificados em 8 de outubro de 2026 nas páginas da Microsoft [Excel specifications and limits](https://support.microsoft.com/en-us/excel/excel-specifications-and-limits), [Excel with earlier versions](https://support.microsoft.com/en-us/excel/use-excel-with-earlier-versions-of-excel), [co-authoring](https://support.microsoft.com/en-us/excel/get-started/collaborate-on-excel-workbooks-at-the-same-time-with-co-authoring), [drop-down lists](https://support.microsoft.com/en-us/excel/get-started/create-a-drop-down-list), [XLOOKUP](https://support.microsoft.com/en-us/excel/functions/xlookup-function) e [Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales), e nos [limites de arquivo do Drive](https://support.google.com/drive/answer/37603) do Google.

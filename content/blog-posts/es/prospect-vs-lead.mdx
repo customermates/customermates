@@ -1,0 +1,237 @@
+---
+title: "Diferencia entre lead y prospecto: definiciones y ejemplos"
+description: "Diferencia entre lead y prospecto: el prospecto ya pasó tu cualificación. Definiciones de contacto a cliente, una tabla por etapas y un ejemplo en el CRM."
+
+relatedHrefs:
+  - /blog/client-qualification
+  - /blog/sales-pipeline
+  - /features/lead-management
+  - /blog/customer-acquisition
+
+hero:
+  title: "Diferencia entre lead y prospecto: ¿qué es un prospecto y qué cambia?"
+  description: "Una respuesta clara a la diferencia entre lead y prospecto: un único conjunto de definiciones de contacto a cliente, con criterio de entrada, responsable y siguiente acción por etapa, y un ejemplo de cómo seguirlas en un CRM."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Volver al blog
+  by: por Benjamin Wagner
+  date: 2026-11-02
+  tags:
+    - Lead y prospecto
+    - Proceso de ventas
+    - Gestión de leads
+---
+
+# Diferencia entre lead y prospecto: ¿qué es un prospecto y qué cambia?
+
+La diferencia entre lead y prospecto se reduce a una pregunta: ¿alguien ha comprobado ya a esta persona o empresa frente a tus criterios? Un lead ha mostrado interés o ha sido identificado, pero sigue sin comprobarse; un prospecto es un lead que pasó esa comprobación y merece un esfuerzo activo de ventas. La palabra prospecto, por sí sola, significa simplemente un posible cliente futuro, es decir, un cliente potencial.
+
+Las empresas usan ambas palabras con bastante libertad, y la misma palabra puede significar cosas distintas en dos equipos de ventas. Esta guía ofrece un único conjunto de definiciones coherente para contacto, lead, MQL, prospecto, oportunidad y cliente, con el criterio de entrada, el responsable y la siguiente acción de cada etapa. Customermates, el CRM de código abierto que la publica, no tiene puntuación de leads ni enriquecimiento de datos, así que la última sección muestra las etapas como un campo, un tablero y tareas que configuras tú.
+
+<ArticleSummary title="De un vistazo">
+  <SummaryItem label="Lead">Ha mostrado interés o ha sido identificado, y nadie ha comprobado todavía si encaja.</SummaryItem>
+  <SummaryItem label="Prospecto">Un lead que pasó tu comprobación: encaja con tu perfil objetivo, tiene una necesidad y ventas ha confirmado lo básico.</SummaryItem>
+  <SummaryItem label="Oportunidad">Un negocio potencial concreto, con un alcance, un valor y una fecha de decisión prevista.</SummaryItem>
+  <SummaryItem label="La única regla">Escribe una definición por etapa, con un criterio de entrada que otra persona pueda comprobar en el CRM.</SummaryItem>
+  <SummaryItem label="En Customermates">Un campo de selección única en el contacto, un tablero por etapas y tareas para los siguientes pasos. Sin puntuación y sin enriquecimiento.</SummaryItem>
+</ArticleSummary>
+
+Para el trabajo previo a que un prospecto entre en tu pipeline, usa la [guía de generación de leads B2B](/blog/lead-generation) para elegir un canal y definir qué cuenta como lead.
+
+## ¿Qué es un prospecto y qué es un lead?
+
+Un **prospecto** es un posible cliente futuro. El [Cambridge Dictionary](https://dictionary.cambridge.org/dictionary/english/prospect) da exactamente ese sentido como el significado de la palabra en marketing. En ventas lleva además una comprobación: la persona o la empresa encaja con el tipo de cliente al que vendes y tiene un problema que puedes resolver.
+
+Un **lead** va antes. Es una persona o una empresa que ha mostrado interés en lo que vendes, por ejemplo al enviar una consulta, responder a tu mensaje, pedir una demo o llegar por una recomendación, y a la que nadie ha evaluado todavía. Salesforce describe un lead de la misma manera: un posible prospecto de ventas que expresó interés en un producto o servicio.
+
+Tres notas sobre las palabras. En español, «prospecto» también es el folleto que acompaña a un medicamento; aquí solo hablamos del posible cliente. En inglés corriente, «prospects» también significa perspectivas o posibilidades, como en «career prospects»; en ventas, «the prospects of a company» son sus clientes potenciales. Y «prospectar» (en inglés «to prospect») es un verbo: significa buscar y abordar a clientes potenciales, que es el trabajo que produce leads y prospectos.
+
+Por último, «lead» y «prospecto» se mezclan con una tercera expresión, «cliente potencial». Se usa para ambos: en la práctica quiere decir lo mismo que prospecto, y mucha gente lo emplea también para el lead. Por eso la pregunta útil no es qué palabra usas, sino qué comprobación pasó ya esa persona.
+
+Esta tabla resume lo que cambia entre un lead y un prospecto:
+
+| | Lead | Prospecto |
+| --- | --- | --- |
+| Qué es | Un contacto que mostró interés o fue identificado | Un lead que pasó tu comprobación de cualificación |
+| Qué sabes | Un nombre, una forma de localizarlo, normalmente el origen y lo que pidió | Necesidad, quién decide, rango de presupuesto y plazos, o los motivos por los que falta uno |
+| Quién lo trabaja | Quien responde primero | La persona que vende |
+| Objetivo | Responder y averiguar si encaja | Acordar una propuesta con alcance definido |
+| Si no prospera | Descalificarlo con un motivo, o aplazarlo con una fecha | Aplazarlo con una fecha para volver a mirarlo, o darlo por perdido |
+
+## ¿Cuál es la diferencia entre un lead y una oportunidad?
+
+Un lead es una persona o una empresa. Una oportunidad es un negocio potencial concreto: hay algo que vender, un valor y una fecha de decisión prevista. Un cliente puede tener varias oportunidades a lo largo de los años, y muchos leads nunca llegan a generar una.
+
+La conversión de leads de Salesforce muestra el orden. Según su [módulo de Trailhead sobre leads](https://trailhead.salesforce.com/content/learn/modules/leads_opportunities_lightning_experience/create-and-convert-leads-lightning), convertir un lead usa el registro del lead para crear una cuenta empresarial, un contacto y una oportunidad. El lead siempre va primero. Las etapas por las que pasa después una oportunidad, desde la primera demo hasta ganada o perdida, se tratan en la guía del [pipeline de ventas](/blog/sales-pipeline).
+
+## Contacto, lead, prospecto, oportunidad, cliente: ¿cuáles son las etapas?
+
+Este es un conjunto de definiciones que puedes copiar. Cada etapa tiene una prueba que otra persona podría ejecutar en tu CRM, un único responsable y una siguiente acción evidente.
+
+| Etapa | Qué significa | Entra cuando | Responsable | Siguiente acción |
+| --- | --- | --- | --- | --- |
+| Contacto | Una persona o empresa que sabes que existe y que podría encajar. Aún sin señales de interés. Algunos equipos los llaman suspects. | Nombre, una forma de localizarlos y un origen registrado | Quien los encontró | Comprobar el encaje con tu perfil objetivo y después contactar o descartar |
+| Lead | Un contacto que mostró interés o respondió | Una consulta, una respuesta, una recomendación, una solicitud de demo o una conversación en un evento | Marketing, o quien responde primero | Responder y después cualificar |
+| MQL (opcional) | Un lead que marketing considera listo para ventas, según reglas acordadas | Encaja con el perfil objetivo y realizó una acción acordada, como pedir precios | Marketing | Pasarlo a ventas, que lo acepta o lo devuelve con un motivo |
+| Prospecto (el mismo punto de control que el SQL) | Un cliente potencial cualificado | Las respuestas de cualificación están y el veredicto es sí | La persona que vende | Agendar la siguiente conversación y avanzar hacia una propuesta con alcance definido |
+| Oportunidad | Un negocio potencial concreto | Existe un negocio con un valor, una etapa y una fecha de decisión prevista | La persona que vende | Hacer avanzar la oportunidad por las etapas del pipeline |
+| Cliente | Una persona o empresa con al menos una oportunidad ganada | Se gana la primera oportunidad | Gestión de cuentas, o quien vende en un equipo pequeño | Hacer el onboarding, mantener el contacto, buscar la siguiente oportunidad |
+
+Fuera de la tabla quedan dos salidas: **Descalificado**, siempre con un motivo de una lista fija, y **Aplazado**, con una fecha para volver a mirarlo. Un equipo de tres personas sin departamento de marketing puede quitar la fila del MQL, porque cada consulta va directa a quien vende.
+
+Los criterios que hay detrás de «las respuestas de cualificación están» (necesidad, quién decide, rango de presupuesto, plazos) están en la guía de [cualificación de leads con BANT, CHAMP y MEDDIC](/blog/client-qualification). Para ver cómo se relacionan las etapas con lo que vive quien compra, consulta la [guía del recorrido del cliente](/blog/customer-journey).
+
+## ¿Por qué cada empresa define estos términos de forma distinta?
+
+Porque las palabras vienen de las herramientas y de los equipos, no de un estándar. Comprobado el 2 de noviembre de 2026 en las fuentes de la tabla:
+
+| Fuente | Lead | Prospecto | Oportunidad |
+| --- | --- | --- | --- |
+| [Etapas del ciclo de vida de HubSpot](https://knowledge.hubspot.com/records/use-lifecycle-stages) | Un contacto o una empresa que convirtió en tu sitio web o mediante otra interacción | No tiene una etapa propia; lo más cercano es el lead cualificado por ventas, cualificado por ventas como cliente potencial | Un contacto o una empresa asociados a un negocio |
+| [Salesforce Trailhead](https://trailhead.salesforce.com/content/learn/modules/leads_opportunities_lightning_experience/create-and-convert-leads-lightning) | Un posible prospecto de ventas que expresó interés | Se usa dentro de la definición de lead | Se crea al convertir un lead |
+| [Glosario de Superhuman Prospecting](https://superhumanprospecting.com/glossary/prospect/) | Se convierte en prospecto cuando encaja con el perfil de cliente ideal y cumple criterios acordados | Un cliente potencial que encaja con el perfil de cliente ideal | Un prospecto con un negocio claramente identificado, con alcance y valor |
+
+Hay una segunda división entre las ventas outbound e inbound. Algunos equipos outbound llaman prospecto a un objetivo investigado antes de que haya dicho una palabra y reservan «lead» para quien respondió; los equipos inbound suelen reservar «lead» para la primera señal de interés y «prospecto» para la etapa cualificada. Ambos usos existen, así que pregunta qué quiere decir un colega o un proveedor antes de comparar cifras.
+
+Lo importante es que tu equipo use un único conjunto de definiciones. Cuatro hábitos lo mantienen así:
+
+- **Una frase por etapa**, escrita donde el equipo pueda leerla.
+- **Un criterio de entrada que sea el valor de un campo**, no una impresión: «Prospecto significa que Necesidad, Quién decide y Plazos están rellenados y el veredicto es sí».
+- **Un responsable por etapa**, para que un registro nunca sea tarea de todos.
+- **Un motivo cada vez que un registro sale**, de una lista fija, para poder contar por qué fracasan los leads.
+
+## ¿Por qué importa clasificar bien a leads y prospectos? [#por-que-clasificar-bien]
+
+Clasificar bien no es un ejercicio de vocabulario; cambia cómo trabaja el equipo y qué números puedes creer:
+
+- **Tiempo de ventas en las personas correctas.** Si todo lo que entra se llama prospecto, quien vende dedica su semana a gente que nunca iba a comprar. Si un lead se queda sin comprobar, un cliente que sí encajaba espera una respuesta.
+- **Seguimiento a cada uno según su punto.** A un lead que acaba de preguntar le toca una respuesta rápida; a un prospecto, una propuesta con alcance; a una oportunidad, la siguiente etapa del pipeline. Con una sola etiqueta, el mensaje es el mismo para todos y casi nunca es el adecuado.
+- **Cifras comparables.** Cuántos leads pasan a prospecto, y cuántos prospectos a clientes, solo es una tasa útil si cada etapa significa lo mismo para quien la rellena hoy y para quien la rellenó el mes pasado.
+- **Marketing y ventas hablan de lo mismo.** Si marketing llama lead a un contacto y ventas lo llama prospecto, el traspaso se discute en cada reunión. Un criterio de entrada escrito lo convierte en una comprobación.
+
+## ¿Cómo defines un prospecto en tu propia empresa?
+
+Usa cuatro pruebas y llama prospecto a un lead solo cuando supere todas:
+
+1. **Encaje.** Coincide con tu perfil objetivo: el tipo de empresa, el tamaño, la región y el cargo al que vendes.
+2. **Necesidad.** Hay un problema que puedes resolver, dicho con las palabras de la persona, no solo en tu suposición.
+3. **Capacidad de compra.** Sabes quién decide y que el rango de presupuesto es realista.
+4. **Momento.** Hay un motivo para actuar en un periodo que te conviene, o una fecha para volver a mirarlo.
+
+Todo lo que no supere una prueba sigue siendo un lead, pasa a Aplazado con una fecha o se descalifica con un motivo. Guarda estas pruebas en un solo lugar y aplícalas siempre en el mismo orden. La guía de cualificación enlazada arriba recoge las preguntas que sirven para rellenarlas.
+
+En la práctica, convertir un lead en prospecto es una conversación corta, una llamada o un intercambio de mensajes, en la que compruebas las cuatro pruebas y anotas las respuestas en campos del registro. Si el lead aún no ha dicho nada que permita comprobarlas, la siguiente acción es una pregunta, no una propuesta. La sección sobre Customermates muestra cómo dejarlo anotado.
+
+## ¿Cómo se crea una lista de prospectos?
+
+Una lista de prospectos es una lista corta e investigada de empresas y personas que encajan con tu perfil objetivo. Una lista de 30 nombres bien elegidos vale más que 300 sacados de un directorio, porque cada contacto necesita un motivo.
+
+1. **Escribe el perfil objetivo.** De tres a cinco criterios: sector, tamaño de empresa, región, el cargo al que vendes y un desencadenante, como una contratación o un local nuevo. La [segmentación de clientes](/blog/customer-segmentation) convierte estos criterios en grupos que puedes filtrar y sobre los que puedes hacer informes.
+2. **Elige las fuentes.** Recomendaciones de clientes, empresas parecidas a tus mejores clientes, búsquedas en LinkedIn, eventos, asociaciones del sector, directorios y tus propias consultas antiguas.
+3. **Usa columnas fijas.** Quien edite la lista mantiene siempre las mismas (mira la tabla de más abajo).
+4. **Cualifica antes de invertir esfuerzo.** Los nombres sin comprobar siguen siendo Contactos. Solo los que superan tus pruebas pasan a ser prospectos.
+5. **Revisa las reglas de contacto.** Las reglas para llamadas y correo cambian según el país y entre consumidores y empresas. La guía de [llamadas en frío](/blog/cold-calling) recoge las reglas telefónicas de Estados Unidos, Reino Unido, Alemania y Francia, y la guía de [captación de clientes](/blog/customer-acquisition) trata las del correo.
+
+Columnas sugeridas para el paso 3:
+
+| Columna | Por qué importa |
+| --- | --- |
+| Empresa, persona y cargo | Nombra a la persona que quieres, no solo el departamento |
+| Origen | No puedes valorar un canal que no registraste |
+| Motivo para contactar | El desencadenante, que se convierte en tu frase de apertura |
+| Etapa | Contacto hasta que alguien haya respondido o haya sido cualificado |
+| Siguiente paso y fecha | Qué pasa después y cuándo |
+
+## ¿Cómo seguir estas etapas en Customermates?
+
+Customermates es nuestro producto. No tiene un registro separado de lead o prospecto ni conversión automática: una persona sigue siendo un único registro de contacto desde el primer mensaje hasta la oportunidad firmada, y la etapa es un campo que cambias tú, Mate o tu cliente de IA. Una oportunidad es un negocio vinculado a ese contacto.
+
+La etapa importa porque decide el siguiente seguimiento. Con LinkedIn y el correo conectados en Customermates Cloud desde Pro, la conversación vive en ese mismo contacto, Mate o tu propio agente de IA redacta la respuesta y el siguiente paso, tú lo revisas y lo envías, y los siguientes pasos aparecen en tu panel.
+
+<Steps>
+  <Step title="Añade un campo Ciclo de vida a Contactos">En **Modelo de datos**, abre Contactos, elige **Añadir** y después **Campo**, y crea un campo de **Selección única** «Ciclo de vida» con las opciones Contacto, Lead, Prospecto, Cliente y Descalificado. Añade un segundo campo de selección única «Origen» (Recomendación, Sitio web, LinkedIn, Evento, Outbound). Un espacio de trabajo nuevo empieza sin listas; en Customermates Cloud, la configuración con IA puede crear la lista Contactos por ti.</Step>
+  <Step title="Pasa la lista al tablero">En **Apariencia**, elige **Tablero** y agrupa por Ciclo de vida. Cada etapa se convierte en una columna; arrastra una tarjeta cuando cambie la etapa. Guarda la configuración como una vista, por ejemplo «Personas por etapa». Compártela con el equipo para que todos trabajen con el mismo tablero de etapas. La [guía de registros](/docs/app-records) documenta los tableros, las agrupaciones y las vistas guardadas.</Step>
+  <Step title="Dale a cada lead y prospecto un siguiente paso">Una lista de Tareas no trae de serie una fecha límite ni un estado, así que añade un campo de **Fecha** «Fecha límite» y un campo de **Selección única** «Estado» (Abierta, Completada), y vincula cada tarea a su contacto. Guarda una vista de Tareas con Estado Abierta, ordenada por Fecha límite, o ábrela como calendario. Customermates no tiene recordatorios: la vista es el sitio donde miras cada mañana. Más sobre este patrón en la [función de gestión de tareas](/features/task-management) y en el [flujo de seguimiento](/features/follow-up).</Step>
+  <Step title="Abre una oportunidad cuando un prospecto tenga alcance y valor">Crea una oportunidad, vincula el contacto y la organización, y deja que la etapa y el valor ponderado funcionen como se describe en la [función de pipeline](/features/pipeline). Cuando la oportunidad se gane, cambia el Ciclo de vida del contacto a Cliente.</Step>
+  <Step title="Cuenta las etapas">Añade al panel un widget de gráfico de barras que cuente los Contactos agrupados por Ciclo de vida. Muestra dónde está cada persona ahora; no sigue la conversión a lo largo del tiempo.</Step>
+</Steps>
+
+Así recorre una persona la configuración:
+
+| Día | Qué pasa | Ciclo de vida | En Customermates |
+| --- | --- | --- | --- |
+| 1 | Encuentras a Laura Weber, propietaria de Weber Haustechnik, en una lista de una asociación sectorial | Contacto | Registro de contacto creado, Origen Outbound, tarea «Comprobar el encaje» con fecha límite el día 3 |
+| 3 | Encaja con tu perfil y le envías un mensaje breve | Contacto | Tarea completada, nueva tarea «Seguimiento» con fecha límite el día 8 |
+| 6 | Responde y pregunta por los precios | Lead | Ciclo de vida cambiado a Lead, tarea «Llamada de cualificación» con fecha límite el día 7 |
+| 7 | En la llamada: necesidad confirmada, ella decide, el rango de presupuesto encaja, proyecto en el primer trimestre | Prospecto | Campos de cualificación rellenados, Ciclo de vida cambiado a Prospecto, tarea «Enviar la propuesta» con fecha límite el día 9 |
+| 9 | Envías una propuesta para un alcance definido | Prospecto | Oportunidad creada, vinculada a ella y a la empresa: esta es la oportunidad |
+| 21 | Firma | Cliente | Oportunidad ganada, Ciclo de vida cambiado a Cliente |
+
+Los campos de cualificación (necesidad, quién decide, presupuesto, plazos) son los mismos campos de selección única descritos en la [guía de cualificación de leads](/blog/client-qualification), y la [página de gestión de leads](/features/lead-management) muestra el modelo completo del lado del contacto.
+
+En Customermates Cloud, Mate, el asistente alojado, usa créditos de IA alojados y puede hacer la revisión semanal a partir de una frase:
+
+> Muéstrame todos los contactos con Ciclo de vida Lead que creé hace más de 14 días y que no tienen ninguna tarea abierta. No cambies nada todavía.
+
+Con tu propio cliente de IA, como Claude o ChatGPT, el [servidor MCP](/blog/what-is-an-mcp-server) le da acceso a los mismos registros, a cargo de tu proveedor de IA. Una instalación autoalojada no tiene Mate; los campos, el tablero, las tareas y el MCP funcionan igual.
+
+Para probarlo con tus propios leads, [empieza tu prueba](/auth/signup?job=followup): [[commercial.trial.days]] días de Pro sin tarjeta de crédito.
+
+<AcquisitionCallout title="Lo que Customermates no hace aquí" variant="boundary">
+  Sin puntuación de leads, sin enriquecimiento de datos y sin base de datos de leads: no encuentra prospectos ni los valora por ti. Sin formularios web para captar leads (una herramienta de formularios que ya uses puede crear contactos mediante la API REST o un flujo de n8n), sin traspaso automático de MQL y sin cambios automáticos de etapa, sin secuencias de correo y sin recordatorios. Si gestionas cientos de leads web al mes y necesitas puntuaciones, formularios y reglas de asignación, encaja mejor una plataforma de automatización de marketing o una suite de CRM más grande. Customermates encaja con un equipo pequeño cuyos leads llegan como conversaciones y que quiere la etapa, el siguiente paso y el historial en un único registro.
+</AcquisitionCallout>
+
+## Preguntas frecuentes
+
+<Faq>
+<FaqItem question="¿Cuál es la diferencia entre un prospecto y un lead?">
+Un lead ha mostrado interés o ha sido identificado, pero no está comprobado. Un prospecto es un lead que pasó tu comprobación de cualificación, así que encaja con tu perfil objetivo, tiene una necesidad y puede comprar. Un lead es una primera señal; un prospecto es la decisión de dedicar esfuerzo de ventas.
+</FaqItem>
+
+<FaqItem question="¿Qué significa prospecto en ventas?">
+Un posible cliente futuro, normalmente uno que encaja con tu perfil objetivo y ha sido cualificado. La prospección es la actividad de encontrar y abordar a esas personas o empresas.
+</FaqItem>
+
+<FaqItem question="¿Qué significa prospecto en marketing?">
+En marketing, un prospecto es una persona o una empresa a la que se espera convertir en cliente, normalmente porque ya encaja con el público objetivo y ha mostrado algo más que una curiosidad pasajera. Es la misma idea que en ventas, con una diferencia de matiz: marketing suele hablar de lead hasta que decide pasarlo a ventas, y ventas lo llama prospecto cuando lo acepta.
+</FaqItem>
+
+<FaqItem question="¿Qué se considera un lead?">
+Una persona o una empresa que ha mostrado interés en lo que vendes o ha sido identificada como posible cliente, y a la que nadie ha evaluado todavía. Ejemplos: alguien que envía una consulta, responde a tu mensaje, pide una demo o llega por una recomendación.
+</FaqItem>
+
+<FaqItem question="¿Cuánto se paga por un lead?">
+No hay un precio único: depende del canal, del sector y de lo que vendes. Lo que sí puedes calcular es tu propio coste por lead: el gasto de un canal en un periodo dividido entre los leads que trajo. Más útil aún es dividirlo entre los prospectos que salieron de ese canal, porque un lead barato que nunca se cualifica no compensa. Para eso hace falta registrar el origen de cada contacto, como en la tabla de columnas de arriba.
+</FaqItem>
+
+<FaqItem question="¿Cuáles son los tres niveles de clientes?">
+No hay un estándar, pero con las etapas de esta guía se pueden resumir en tres: lead (interés sin comprobar), prospecto (cualificado, con una conversación de ventas en marcha) y cliente (con al menos una oportunidad ganada). Contacto, oportunidad y las salidas Descalificado y Aplazado completan el cuadro.
+</FaqItem>
+
+<FaqItem question="¿Cuáles son los tres tipos de CRM?">
+Se suele hablar de CRM operativo (automatiza el trabajo diario de ventas, marketing y atención al cliente), analítico (convierte los datos de clientes en informes y previsiones) y colaborativo (comparte la información de cada cliente entre las áreas del equipo). Para ver qué hace un CRM en general, consulta la guía de [qué es un CRM](/blog/what-is-crm).
+</FaqItem>
+
+<FaqItem question="¿Qué son los prospectos en una empresa?">
+Son las personas y empresas a las que un negocio espera vender pero que todavía no han comprado. Los prospectos de una empresa son, por tanto, sus clientes potenciales, desde nombres fríos de una lista hasta compradores cualificados que ya están en conversación.
+</FaqItem>
+
+<FaqItem question="¿Un prospecto es lo mismo que una oportunidad?">
+No. Un prospecto es una persona o una empresa. Una oportunidad es un negocio potencial concreto, con un alcance, un valor y una fecha de decisión prevista. Un prospecto puede no tener todavía ninguna oportunidad, o tener varias con el tiempo.
+</FaqItem>
+
+<FaqItem question="¿Qué va primero, un lead o un prospecto?">
+En los modelos de HubSpot y Salesforce, primero va el lead y después la oportunidad. Donde la palabra prospecto nombra una etapa cualificada, como en el glosario de Superhuman, se sitúa entre ambos. Algunos equipos outbound invierten las palabras y llaman prospecto a un objetivo investigado antes de cualquier respuesta. Decide un orden y déjalo por escrito.
+</FaqItem>
+
+<FaqItem question="¿Cómo conviertes un lead en un prospecto?">
+Cualificándolo. Haz las preguntas que hay detrás de tus criterios (necesidad, quién decide, rango de presupuesto, plazos), registra las respuestas en campos y decide. Si las respuestas son sí, el lead se convierte en prospecto. Si no, descalifícalo con un motivo o aplázalo con una fecha.
+</FaqItem>
+
+<FaqItem question="¿Puede Customermates puntuar leads o encontrar prospectos por mí?">
+No. Customermates no tiene puntuación de leads, enriquecimiento de datos ni base de datos de leads. Guarda los contactos, las etapas, las tareas, las conversaciones y las oportunidades que le das, y Mate o tu cliente de IA pueden ayudarte a revisarlos.
+</FaqItem>
+</Faq>
+
+Definiciones de terceros comprobadas el 2 de noviembre de 2026 en la [entrada «prospect» del Cambridge Dictionary](https://dictionary.cambridge.org/dictionary/english/prospect), la [documentación de HubSpot sobre las etapas del ciclo de vida](https://knowledge.hubspot.com/records/use-lifecycle-stages), el [módulo de Salesforce Trailhead sobre leads y conversión](https://trailhead.salesforce.com/content/learn/modules/leads_opportunities_lightning_experience/create-and-convert-leads-lightning) y el [glosario de Superhuman Prospecting](https://superhumanprospecting.com/glossary/prospect/).

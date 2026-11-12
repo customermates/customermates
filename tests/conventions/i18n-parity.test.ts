@@ -32,7 +32,12 @@ const PRODUCT_NAMES = [
   "WhatsApp",
 ];
 
-const ALLOWED_LOCALIZED_NUMBERS = new Set(["fr:ContactPage.description", "fr:HomepagePricing.cloud.featureBusiness"]);
+const ALLOWED_LOCALIZED_NUMBERS = new Set([
+  "fr:ContactPage.description",
+  "fr:HomepagePricing.cloud.featureBusiness",
+  // Polish declines the sentence in four plural branches, each carrying the 30 days.
+  "pl:AgentChat.activity.consequence.recordsDelete",
+]);
 
 const PROTECTED_SOURCE_TERMS = ["open core"];
 
@@ -84,7 +89,10 @@ function messageProse(elements: MessageElement[]): string {
   return elements
     .map((element) => {
       if (element.type === LITERAL_ELEMENT) return String(element.value);
-      if (element.options) return Object.values(element.options).map((option) => messageProse(option.value)).join(" ");
+      if (element.options)
+        return Object.values(element.options)
+          .map((option) => messageProse(option.value))
+          .join(" ");
       if (element.children) return messageProse(element.children);
       return "";
     })
@@ -97,6 +105,46 @@ function isLocaleInvariantTemplate(message: string): boolean {
 }
 
 const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
+  // Dutch keeps these loanwords, product names and units as English does (record, filter, tone of voice).
+  "nl:AgentChat.activity.countedRecordInResource",
+  "nl:AgplGithubBadge.label",
+  "nl:Common.filters.palette.appliedCount",
+  "nl:ConnectedAccountsCard.channels.linkedinClassic",
+  "nl:ConnectedAccountsCard.channels.linkedinRecruiter",
+  "nl:ConnectedAccountsCard.channels.linkedinSalesNavigator",
+  "nl:ConnectedAccountsCard.emailFontFamilies.monospace",
+  "nl:ConnectedAccountsCard.emailLogoPlaceholder",
+  "nl:ContactPage.form.founderName",
+  "nl:DataView.views.recordCount",
+  "nl:DocsSidebar.openapi",
+  "nl:NavigationBar.public.linkedinCrm",
+  "nl:NavigationBar.public.openSourceCrm",
+  "nl:NavigationBar.public.providerSlack",
+  "nl:NavigationBar.public.whatsappCrm",
+  "nl:OnboardingPlaybooks.pages.toneOfVoice",
+  "nl:OnboardingWizard.ai.choices.claudeDesktop",
+  "nl:OnboardingWizard.ai.choices.openai",
+  "nl:Planner.filterCount",
+  "nl:RecordCalendarWidgets.dayLabelWithSum",
+  "nl:RecordModel.graph.accountUnit",
+  "nl:RecordModel.graph.recordUnit",
+  "nl:RecordWidgets.numberRecords",
+  "nl:Trash.kindInList",
+  "nl:Trash.permanentRecords",
+  // Product names, URLs and the founder name stay as they are in Portuguese and Polish.
+  "pt:ConnectedAccountsCard.channels.linkedinClassic",
+  "pt:ConnectedAccountsCard.emailLogoPlaceholder",
+  "pt:ContactPage.form.founderName",
+  "pt:DocsSidebar.openapi",
+  "pt:OnboardingWizard.ai.choices.claudeDesktop",
+  "pt:OnboardingWizard.ai.choices.openai",
+  "pl:ConnectedAccountsCard.channels.linkedinClassic",
+  "pl:ConnectedAccountsCard.emailLogoPlaceholder",
+  "pl:ContactPage.form.founderName",
+  "pl:DocsSidebar.openapi",
+  "pl:OnboardingWizard.ai.choices.claudeDesktop",
+  "pl:OnboardingWizard.ai.choices.openai",
+  "pl:AgplGithubBadge.label",
   // German dashboards abbreviate quarters with Q, as in English.
   "de:RecordWidgets.quarterLabel",
   // "Configuration" is the French word as well.
@@ -213,7 +261,13 @@ function icuStructure(value: string, locale: string): string {
       .flatMap((node): string[] => {
         if (node.type === 0) return [];
         if (node.options) {
-          const options = Object.entries(node.options)
+          // CLDR plural categories differ per language (Polish needs one, few, many and other), so cardinal and
+          // ordinal plurals compare their explicit =N cases plus the shape of the `other` branch; the categories
+          // each locale requires are checked separately by missingPluralCategories.
+          const entries = Object.entries(node.options).filter(
+            ([key]) => !node.pluralType || key.startsWith("=") || key === "other",
+          );
+          const options = entries
             .sort(([left], [right]) => left.localeCompare(right))
             .map(([key, option]) => `${key}{${visit(option.value)}}`)
             .join("|");
@@ -232,6 +286,43 @@ function icuStructure(value: string, locale: string): string {
   return visit(elements);
 }
 
+function missingPluralCategories(value: string, locale: string, reference?: string): string[] {
+  // A language's CLDR categories are required only for an argument the English source declines with categories
+  // itself (one/other); explicit =N cases are compared structurally instead, and =1 stands in for `one`.
+  const categorized = new Set<string>();
+  const collect = (nodes: IcuElement[]): void => {
+    for (const node of nodes) {
+      if (node.options) {
+        if (node.pluralType && Object.keys(node.options).some((key) => !key.startsWith("=") && key !== "other"))
+          categorized.add(String(node.value));
+        for (const option of Object.values(node.options)) collect(option.value);
+      }
+      if (node.children) collect(node.children);
+    }
+  };
+  collect(new IntlMessageFormat(reference ?? value, locale).getAst() as IcuElement[]);
+  const missing: string[] = [];
+  const visit = (nodes: IcuElement[]): void => {
+    for (const node of nodes) {
+      if (node.options) {
+        if (node.pluralType && categorized.has(String(node.value))) {
+          // Categories that some count from 0 to 200 selects; French, Italian, Spanish and Portuguese `many` only
+          // applies to compact millions and is not required.
+          const rules = new Intl.PluralRules(locale, { type: node.pluralType as Intl.PluralRuleType });
+          const required = new Set(Array.from({ length: 201 }, (_, n) => rules.select(n)));
+          for (const category of required)
+            if (category !== "other" && !(category in node.options) && !(category === "one" && "=1" in node.options))
+              missing.push(`${node.value}:${category}`);
+        }
+        for (const option of Object.values(node.options)) visit(option.value);
+      }
+      if (node.children) visit(node.children);
+    }
+  };
+  visit(new IntlMessageFormat(value, locale).getAst() as IcuElement[]);
+  return missing.sort();
+}
+
 describe("i18n parity", () => {
   const referenceLeaves = loadLocaleLeaves(DEFAULT_LOCALE);
   const otherRoutingLocales = ROUTING_LOCALES.filter((locale) => locale !== DEFAULT_LOCALE);
@@ -246,7 +337,15 @@ describe("i18n parity", () => {
   });
 
   it("still detects divergent ICU branches and rich-text nesting", () => {
-    expect(icuStructure("{count, plural, one {One} other {#}}", "en")).not.toBe(
+    expect(missingPluralCategories("{count, plural, other {#}}", "en", "{count, plural, one {One} other {#}}")).toEqual(
+      ["count:one"],
+    );
+    expect(missingPluralCategories("{count, plural, one {#} other {#}}", "pl")).toEqual(["count:few", "count:many"]);
+    expect(missingPluralCategories("{count, plural, one {#} few {#} many {#} other {#}}", "pl")).toEqual([]);
+    expect(
+      missingPluralCategories("{count, plural, =1 {1} other {#}}", "pl", "{count, plural, =1 {1} other {#}}"),
+    ).toEqual([]);
+    expect(icuStructure("{count, plural, =0 {None} other {#}}", "en")).not.toBe(
       icuStructure("{count, plural, other {#}}", "en"),
     );
     expect(icuStructure("<strong>{name}</strong>", "en")).not.toBe(icuStructure("{name}<strong></strong>", "en"));
@@ -337,6 +436,9 @@ describe("i18n parity", () => {
             const structure = icuStructure(value, locale);
             if (structure !== referenceStructure)
               mismatches.push(`${key}: ${DEFAULT_LOCALE}=[${referenceStructure}] ${locale}=[${structure}]`);
+            if (referenceValue.includes("plural,"))
+              for (const missing of missingPluralCategories(value, locale, referenceValue))
+                mismatches.push(`${locale}:${key} lacks the ${missing} plural category its language requires`);
           } catch (error) {
             mismatches.push(`${locale}:${key} does not compile: ${String(error)}`);
           }

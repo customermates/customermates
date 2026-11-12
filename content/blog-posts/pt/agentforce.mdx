@@ -1,0 +1,228 @@
+---
+title: "Agentforce da Salesforce: o que é, preços e configuração"
+description: "Agentforce da Salesforce: o que é, como os agentes de IA funcionam e quanto custam Flex Credits, add-ons e Foundations. Preços de 8 de outubro de 2026."
+
+relatedHrefs:
+  - /blog/salesforce-pricing
+  - /compare/salesforce-alternative
+  - /blog/agentic-crm
+  - /blog/salesforce-mcp
+
+hero:
+  title: "Salesforce Agentforce: como funcionam os agentes de IA e quanto custam"
+  description: "O Agentforce é a plataforma da Salesforce para agentes de IA que agem sobre os dados da Salesforce. Como um agente é construído, quanto custa cada modelo de preço, o que aconteceu com o Einstein e como começar com um único caso de uso."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Voltar ao blog
+  by: por Benjamin Wagner
+  date: 2026-05-07
+  updated: 2026-10-08
+  tags:
+    - Agentforce
+    - Salesforce
+    - Salesforce Einstein
+    - Agentes de IA
+    - Comparação de CRMs
+---
+
+# Agentforce explicado: agentes, créditos, Einstein e configuração
+
+O Salesforce Agentforce é a plataforma da Salesforce para agentes de IA que trabalham sobre os dados da sua org Salesforce. Os agentes voltados a clientes respondem no seu site, nos canais de mensagens e por telefone. Os agentes para funcionários trabalham dentro da Salesforce, por exemplo atualizando um registro ou resumindo um caso. Você paga por ação do agente com Flex Credits, por conversa com um cliente ou por usuário, por meio dos add-ons e das edições Max.
+
+O Agentforce não funciona sozinho. Ele precisa de uma org Salesforce, e a porta de entrada gratuita é o Salesforce Foundations, um add-on de US$ 0 para a Enterprise Edition e superiores. O Einstein, a marca mais antiga, hoje nomeia sobretudo a camada de baixo: o Einstein Trust Layer mascara dados e dá às respostas uma pontuação de toxicidade, enquanto o assistente que se chamava Einstein Copilot faz parte do Agentforce.
+
+Este guia é publicado pelo Customermates, um CRM de código aberto. Os fatos sobre a Salesforce vêm das páginas da própria Salesforce, verificadas em 8 de outubro de 2026 e com link no final. O Customermates aparece uma única vez, em uma seção própria e identificada.
+
+<ArticleSummary title="Em resumo">
+  <SummaryItem label="O que é">A plataforma da Salesforce para agentes de IA que respondem e agem sobre os dados da Salesforce, para clientes e para funcionários.</SummaryItem>
+  <SummaryItem label="O que exige">Uma org Salesforce. A página de preços do Sales diz que a IA pode ser adicionada a partir do Core, e a tabela de comparação dela marca alguns recursos do Agentforce como disponíveis para compra nas suítes menores.</SummaryItem>
+  <SummaryItem label="Preços de tabela">US$ 0,10 por ação padrão em Flex Credits, US$ 2 por conversa para agentes voltados a clientes, US$ 125 por usuário por mês nos add-ons para funcionários, edições Max a partir de US$ 550 por usuário por mês.</SummaryItem>
+  <SummaryItem label="Einstein">O Einstein Copilot foi renomeado e incorporado ao Agentforce. O Einstein Trust Layer mantém o nome e cuida do mascaramento, das pontuações de toxicidade e da trilha de auditoria.</SummaryItem>
+  <SummaryItem label="A quem serve">Organizações que já usam a Salesforce, mantêm os registros e os artigos do Knowledge em ordem e têm alguém para criar e testar agentes.</SummaryItem>
+</ArticleSummary>
+
+## Como funciona um agente do Agentforce
+
+Um agente é um papel, um conjunto de tópicos, instruções escritas e as ações que ele pode executar, tudo configurado no Agentforce Builder. Quando chega um pedido, o Atlas Reasoning Engine descobre o que a pessoa quer e qual ação executar em seguida. A Salesforce chama isso de raciocínio híbrido, que combina "deterministic logic and adaptive AI": o Agent Script guarda as etapas que precisam rodar sempre do mesmo jeito, e o modelo cuida do resto.
+
+| Componente | O que faz |
+|---|---|
+| Agentforce Builder | Onde você define o papel, os tópicos, as instruções e as ações permitidas de um agente |
+| Agent Script | Lógica fixa para as partes de uma conversa que não podem variar |
+| Atlas Reasoning Engine | Interpreta o pedido e escolhe a próxima ação |
+| Ações | Uma função que um agente executa, como atualizar um registro, resumir um caso ou responder a uma pergunta sobre um produto. Os Flex Credits são cobrados por ação |
+| Agentforce Data Library | Indexa artigos do Knowledge, textos enviados, arquivos HTML e PDF e resultados de busca na web, para que as respostas se apoiem no seu conteúdo |
+| Data 360 (antes Data Cloud) | A plataforma de dados da Salesforce, que unifica dados de outros sistemas em um único perfil de cliente |
+| Einstein Trust Layer | Mascara dados sensíveis, verifica a toxicidade das respostas e mantém uma trilha de auditoria |
+| Model Builder | Permite trazer o seu próprio modelo de linguagem, por exemplo da Anthropic, do Google, da OpenAI ou do Hugging Face |
+
+A Salesforce lista a web, o telefone, os apps, os portais de autoatendimento e os canais de mensagens como lugares para implantar agentes, além dos conectores de API da MuleSoft para alcançar sistemas fora da Salesforce.
+
+### Agentes para clientes, agentes para funcionários e voz [#agentes-clientes-funcionarios-voz]
+
+O Agentforce atende a dois públicos. Os agentes voltados a clientes respondem no site, nos canais de mensagens e por telefone, e podem ser cobrados por conversa. Os agentes para funcionários trabalham dentro da Salesforce, por exemplo atualizando um registro ou resumindo um caso, e podem ser cobrados em Flex Credits ou por usuário, pelos add-ons para Sales, Service e Field Service. A voz é um canal à parte na tabela de preços: uma ação de voz consome 30 créditos (US$ 0,15), contra 20 créditos (US$ 0,10) de uma ação padrão.
+
+### Uma pergunta, acompanhada até o fim
+
+Um cliente digita no chat do seu site: "Onde está meu pedido 4711?" O agente associa a pergunta ao tópico "Status do pedido", e o motor de raciocínio chama três ações: uma localiza o cliente, outra consulta o pedido e outra lê o status da entrega. Antes de o prompt seguir para o modelo de linguagem, o Trust Layer pode trocar o nome e o endereço de e-mail do cliente por marcadores. Quando a resposta volta, ela é verificada quanto à toxicidade, os valores reais são recolocados e a troca é gravada na trilha de auditoria.
+
+Cobradas em Flex Credits, essas três ações padrão consomem 60 créditos, ou seja, US$ 0,30. Cobrada por conversa, a mesma troca custa US$ 2. Essa diferença é a principal decisão de preço: o preço por conversa só sai mais barato quando uma conversa média passa de 20 ações padrão.
+
+## O Einstein Trust Layer e a sua pontuação de toxicidade
+
+O Trust Layer fica entre a Salesforce e o modelo de linguagem. A Salesforce lista recuperação segura de dados e grounding, mascaramento de dados, zero data retention (prompts e respostas nunca são armazenados nem usados para treinar os modelos de terceiros subjacentes), detecção de toxicidade e proteções de segurança.
+
+A pontuação de toxicidade é o que a maioria das pessoas procura na documentação. O módulo do Trailhead da Salesforce sobre a jornada da resposta explica que a pontuação geral vai de 0 a 1, em que 1 é o mais tóxico, e que ela abrange cinco categorias: violence, sexual, profanity, hate e physical. A trilha de auditoria guarda o prompt, a resposta original sem filtro, as eventuais pontuações de toxicidade e o feedback coletado ao longo do caminho. Revise-a depois de um piloto, antes de deixar um agente responder aos clientes sem supervisão.
+
+## Quanto custa o Agentforce
+
+Estes são os preços de tabela da Salesforce na [página de preços do Agentforce](https://www.salesforce.com/agentforce/pricing/), verificados em 8 de outubro de 2026.
+
+| Opção | Preço de tabela | O que você recebe |
+|---|---|---|
+| Salesforce Foundations | Add-on de US$ 0 | Agentforce Builder, Prompt Builder, Agent Script, Agentforce Coworker, Agentforce Vibes e uma franquia inicial de Flex Credits. Para a Enterprise Edition e superiores; a disponibilidade varia por edição e região |
+| Flex Credits | US$ 500 por 100.000 créditos | 20 créditos (US$ 0,10) por ação padrão, 30 créditos (US$ 0,15) por ação de voz |
+| Conversas | US$ 2 por conversa | Somente agentes voltados a clientes. Flex Credits e Conversas não são compatíveis na mesma org |
+| Agentforce User License | US$ 5 por usuário por mês, mais Flex Credits | Acesso ao Agentforce para todos os funcionários, objetos de CRM limitados, uso medido |
+| Add-ons do Agentforce para Sales, Service e Field Service | US$ 125 por usuário por mês | Uso do Agentforce sem medição para funcionários, mais Prompt Builder e análises de IA |
+| Edições Max | a partir de US$ 550 por usuário por mês | O add-on incluso, mais 2,75 milhões de Flex Credits por org por ano |
+
+A [página do Foundations](https://www.salesforce.com/crm/foundations/) lista atualmente 450.000 Flex Credits para Agentforce e Data 360 "to get started (restrictions apply)". Páginas mais antigas da Salesforce trazem números menores, então confirme o valor para a sua org.
+
+Você compra o uso adiantado pelo prazo do contrato (Pre-Purchase), assume um compromisso de base sem pagamento adiantado (Pre-Commit, que a Salesforce diz que ficará amplamente disponível mais adiante neste ano) ou paga apenas pelo que usa, sem compromisso (PayGo).
+
+Tudo isso se soma a uma edição da Salesforce. Na [página de preços do Sales](https://www.salesforce.com/sales/pricing/), o Starter Suite custa US$ 25, o Pro Suite US$ 100, o Core US$ 195, o Advanced US$ 395 e o Max US$ 550 por usuário por mês. O Starter Suite pode ser cobrado mensal ou anualmente; os outros quatro são cobrados anualmente.
+
+### Uma equipe de vendas de 10 pessoas, na prática
+
+| Configuração | Por mês | Por ano |
+|---|---:|---:|
+| Core mais o add-on Agentforce for Sales: 10 × US$ 195 + 10 × US$ 125 | US$ 3.200 | US$ 38.400 |
+| Max, que inclui Agentforce for Sales e Agentforce Coworker: 10 × US$ 550 | US$ 5.500 | US$ 66.000 |
+| Um agente de atendimento com 2.000 conversas de clientes por mês, com preço por conversa | US$ 4.000 | US$ 48.000 |
+| As mesmas 2.000 conversas em Flex Credits, com média de três ações padrão | US$ 600 | US$ 7.200 |
+
+As duas últimas linhas são alternativas, porque uma org usa Flex Credits ou Conversas, não os dois. Nenhum desses valores inclui o uso do Data 360 além dos créditos incluídos (a Salesforce observa que há cobrança por excedente), o trabalho de implantação nem qualquer desconto do seu contrato. Todas as edições e add-ons da Salesforce estão listados no [guia de preços da Salesforce](/blog/salesforce-pricing).
+
+Procurando um preço do Einstein GPT? As páginas de preços atuais da Salesforce não listam nenhum produto com esse nome. Recursos generativos como o Prompt Builder vêm com o Foundations, os add-ons e as edições Max, e as ações dos agentes são pagas em Flex Credits.
+
+## Agentforce, Einstein e os outros nomes novos
+
+A Salesforce renomeou vários produtos em pouco tempo, e é por isso que os resultados de busca se contradizem.
+
+| Nome que você pode ver | O que é hoje |
+|---|---|
+| Einstein | O nome mais antigo para a IA em toda a Salesforce. Sobrevive no Einstein Trust Layer |
+| Einstein Copilot | O assistente conversacional. Virou Agentforce Assistant e depois foi elevado a Agentforce |
+| Einstein GPT | Não é um produto separado nas páginas de preços de hoje |
+| Data Cloud | Renomeado para Data 360 |
+| Service Cloud | A documentação de ajuda da Salesforce agora o chama de Agentforce Service |
+| Agentforce 360 Platform | O nome da plataforma em que os agentes rodam |
+
+## Como adotar o Agentforce, um caso de uso por vez
+
+<Steps>
+  <Step title="Confira a sua edição">A página de preços do Sales diz que a IA pode ser adicionada a partir do Core, enquanto a tabela de comparação dela marca alguns recursos do Agentforce como disponíveis para compra no Starter Suite e no Pro Suite. O Foundations é para a Enterprise Edition e superiores, e a Salesforce diz que a disponibilidade varia por região, então pergunte ao seu executivo de contas o que a sua org recebe.</Step>
+  <Step title="Escolha um caso de uso com um número associado">Por exemplo, perguntas sobre o status de pedidos no chat do site, ou um resumo de oportunidade antes de uma ligação de vendas. Anote o número de hoje, como os tickets semanais sobre esse assunto, para que o piloto tenha algo a superar.</Step>
+  <Step title="Organize o que o agente vai ler">A Data Library baseia as respostas nos seus artigos do Knowledge, arquivos e fontes da web. Um artigo desatualizado vira uma resposta desatualizada.</Step>
+  <Step title="Crie o agente no Agentforce Builder">Defina o tópico, as instruções e as ações. Coloque no Agent Script tudo o que precisa acontecer sempre do mesmo jeito, como verificar quem é o cliente antes de mostrar os dados do pedido.</Step>
+  <Step title="Teste com perguntas reais do passado">Passe pelo agente um lote de perguntas genuínas de clientes ou de vendedores, depois leia a trilha de auditoria e as pontuações de toxicidade. Reescreva as instruções onde as respostas fugirem do esperado.</Step>
+  <Step title="Escolha o modelo de preço antes de entrar no ar">Flex Credits ou Conversas, não os dois na mesma org. Aplique o ponto de equilíbrio de 20 ações aos seus próprios volumes. O PayGo serve para um piloto; o Pre-Purchase faz sentido quando o volume já é conhecido.</Step>
+  <Step title="Entre no ar em um canal">Comece com um canal e um tópico, decida o que acontece quando o agente não souber responder e revise a trilha de auditoria toda semana antes de acrescentar o próximo tópico.</Step>
+</Steps>
+
+Sem um administrador de Salesforce na empresa, reserve orçamento para um parceiro de consultoria Salesforce. As perguntas gerais sobre a implantação, da limpeza de dados ao treinamento, estão no [guia de implantação de CRM](/blog/crm-implementation).
+
+## Quando o Agentforce serve e quando procurar outra opção
+
+| Sua situação | Melhor opção |
+|---|---|
+| Sua empresa roda na Salesforce e mantém os artigos do Knowledge em dia | Agentforce. Os agentes trabalham sobre registros e conteúdo que você já mantém |
+| Você precisa de um agente de atendimento no chat web, em mensagens ou no telefone o dia todo | Agentforce Service, com preço por conversa ou em Flex Credits |
+| Você está no Starter Suite ou no Pro Suite e quer experimentar agentes | Pergunte à Salesforce quais recursos do Agentforce a sua edição pode comprar; o Foundations exige a Enterprise Edition ou superior |
+| Você quer que o Claude ou o ChatGPT trabalhem nos seus dados da Salesforce a partir do seu próprio cliente de IA | Uma conexão MCP, tratada no [guia de MCP da Salesforce](/blog/salesforce-mcp) |
+| Você ainda não tem um CRM, ou tem uma equipe pequena e ninguém para cuidar da Salesforce | Um CRM menor cuja IA já faz parte do plano; o [guia de CRM agêntico](/blog/agentic-crm) explica o que procurar |
+
+## Onde o Customermates se encaixa
+
+Esta seção é sobre o Customermates, que publica este guia. O Customermates é um CRM de código aberto e nativo de IA, feito na Alemanha para pequenas equipes que atendem clientes: consultores, agências, outros negócios de serviços e fundadores. Ele não é um add-on da Salesforce e não tem um agente para o seu site ou a sua linha telefônica. É um CRM em que a IA faz o trabalho com os registros em torno dos relacionamentos com clientes.
+
+| Agentforce | O que mais se aproxima no Customermates | Diferença |
+|---|---|---|
+| Agentes e ações | O Mate, o assistente do Customermates Cloud, que usa créditos de IA hospedados, mais as [rotinas](/docs/app-routines): instruções salvas que rodam em um horário programado ou quando um registro muda | Um único assistente, sem construtor de agentes, sem voz. Exclusões e algumas ações de administração aguardam a sua aprovação |
+| Agentforce Data Library | A Base de conhecimento, escrita à mão ou importada do seu site pelo Mate | O Mate cita as páginas que usou |
+| Flex Credits | Créditos de IA hospedados mensais por usuário ativo, incluídos em cada plano pago | Sem preço por ação; veja os [preços](/pricing) |
+| Traga o seu próprio modelo | Claude, ChatGPT e outros clientes se conectam pelo [servidor MCP](/docs/mcp) e pelas suas [[derived.mcp.tools.total]] ferramentas, com a sua própria assinatura de IA | Funciona em todos os planos e em instalações com hospedagem própria |
+| Einstein Trust Layer | Cartões de aprovação para exclusões, convites para a equipe e algumas outras ações | Sem mascaramento de dados e sem pontuações de toxicidade |
+| Agentes de atendimento voltados a clientes | Nenhum | Sem chat no site, agente de voz nem telefonia |
+
+Uma rotina para uma consultoria poderia rodar **Em uma programação**, **Todos os dias** às 08:00, com estas instruções:
+
+```text
+Veja os negócios abertos atribuídos a mim. Para cada negócio, leia
+a última conversa com os contatos dele. Se o cliente foi o último a
+escrever e ainda não tem resposta, salve um rascunho de resposta
+nessa conversa, no idioma da conversa. Não envie nada.
+Termine com uma lista dos rascunhos que você salvou.
+```
+
+Uma rotina roda como o seu dono, com os canais conectados e as permissões dele, e recusa tudo o que exigiria aprovação. O Mate envia mensagens quando você pede, e é por isso que a instrução diz "Não envie nada". Rodando toda manhã, essa rotina é a promessa do follow-up em ponto pequeno: para cada cliente que escreveu por último, um rascunho de resposta espera na conversa, e você revisa, edita e envia.
+
+Para as mesmas 10 pessoas, o Pro custa [[commercial.price.pro.monthly.seats.10]] por mês. Isso inclui a [caixa de entrada unificada](/features/unified-inbox) com [[commercial.entitlement.pro.includedAccountsPerUser]] conta conectada por usuário (e-mail, LinkedIn, WhatsApp, Instagram ou Telegram), até [[commercial.entitlement.pro.includedRoutinesPerUser]] rotinas por usuário e créditos de IA hospedados mensais por usuário ativo. O Starter custa [[commercial.price.starter.monthly.seats.10]] por mês, com Mate e MCP, mas sem caixa de entrada. A cobrança é mensal. A hospedagem própria dá o núcleo AGPL com REST, webhooks e MCP, sem caixa de entrada, Mate nem rotinas. A rotina de rascunhos de resposta precisa da caixa de entrada, que começa no Pro, então [comece o teste de [[commercial.trial.days]] dias](/auth/signup?job=followup) para rodá-la nas suas próprias conversas. Sem cartão de crédito.
+
+O Customermates não tem um agente de atendimento de alto volume, nem um agente de voz, nem IA preditiva para grandes equipes de vendas. Se você precisa disso, ou se a sua empresa já construiu os processos dela na Salesforce, o Agentforce é o caminho mais curto, e a [comparação com alternativas à Salesforce](/compare/salesforce-alternative) ajuda se você estiver avaliando uma mudança.
+
+## Perguntas frequentes
+
+<Faq>
+<FaqItem question="O que é o Agentforce da Salesforce?">
+É a plataforma da Salesforce para agentes de IA que trabalham sobre os dados da sua org Salesforce. Os agentes voltados a clientes respondem no site, nos canais de mensagens e por telefone, e os agentes para funcionários atuam dentro da Salesforce, por exemplo atualizando um registro ou resumindo um caso.
+</FaqItem>
+
+<FaqItem question="O que é a Salesforce?">
+A Salesforce é uma fornecedora de CRM em nuvem. A página de preços do Sales compara as edições do Sales Cloud (Starter Suite, Pro Suite, Core, Advanced e Max), e o Agentforce é a plataforma de agentes de IA que roda sobre os dados dessas edições.
+</FaqItem>
+
+<FaqItem question="O Salesforce é gratuito?">
+Não como CRM completo. Nas páginas verificadas, o Starter Suite do Sales custa US$ 25 por usuário por mês. O que custa US$ 0 é o Salesforce Foundations, um add-on para a Enterprise Edition e superiores, que traz o Agentforce Builder, o Prompt Builder, o Agent Script e uma franquia inicial de Flex Credits. Ele depende de uma edição paga.
+</FaqItem>
+
+<FaqItem question="Quanto custa o Agentforce?">
+Os preços de tabela são US$ 0,10 por ação padrão em Flex Credits, US$ 2 por conversa para agentes voltados a clientes, US$ 125 por usuário por mês nos add-ons para funcionários e a partir de US$ 550 por usuário por mês nas edições Max. Os valores são em dólares e se somam a uma edição da Salesforce; para saber o total em reais, peça uma proposta ao executivo de contas.
+</FaqItem>
+
+<FaqItem question="O que é o Agentforce Builder, o agent builder da Salesforce?">
+É onde você define o papel, os tópicos, as instruções e as ações permitidas de um agente. A lógica que precisa rodar sempre do mesmo jeito fica no Agent Script, e o modelo cuida do resto.
+</FaqItem>
+
+<FaqItem question="O que é o Agentforce Voice?">
+A Salesforce lista o telefone entre os lugares onde os agentes podem ser implantados. No preço de tabela, uma ação de voz custa 30 créditos (US$ 0,15) em Flex Credits, contra 20 créditos (US$ 0,10) de uma ação padrão.
+</FaqItem>
+
+<FaqItem question="O Agentforce é gratuito na Salesforce?">
+Em parte. O Salesforce Foundations é um add-on de US$ 0 para orgs na Enterprise Edition e superiores, com Agentforce Builder, Prompt Builder, Agent Script e uma franquia inicial de Flex Credits, sujeitos a limites e condições. Depois disso, as ações custam US$ 0,10 cada em Flex Credits, ou você passa para o preço por conversa ou para um add-on por usuário.
+</FaqItem>
+
+<FaqItem question="A Salesforce foi renomeada para Agentforce?">
+Não. A empresa continua sendo a Salesforce, e a página de preços do Sales ainda compara as edições do Sales Cloud. Agentforce é o nome da plataforma de agentes, e a Salesforce começou a usá-lo em outros nomes de produtos, como Agentforce Service.
+</FaqItem>
+
+<FaqItem question="Qual é a diferença entre o Agentforce e o Salesforce Einstein?">
+O Einstein é o nome mais antigo para a IA em toda a Salesforce. O Agentforce é a plataforma de agentes que agem por conta própria. O Einstein Copilot passou a fazer parte do Agentforce, e o Einstein Trust Layer cuida do mascaramento, das verificações de toxicidade e da trilha de auditoria do Agentforce.
+</FaqItem>
+
+<FaqItem question="O Agentforce é a mesma coisa que o Copilot?">
+Não. Copilot é uma marca da Microsoft. O Sales agent da Microsoft, parte da oferta Copilot para vendedores, leva dados do Dynamics 365 Sales ou da Salesforce para o Outlook e o Teams, onde redige e-mails e registra itens de ação das reuniões. O Agentforce roda dentro da Salesforce e também pode responder aos seus clientes. Como o Sales agent pode ler a Salesforce, os dois podem conviver. O [guia de Copilot for Sales](/blog/copilot-for-sales) trata do lado da Microsoft.
+</FaqItem>
+
+<FaqItem question="O que é RAG no Agentforce?">
+Retrieval augmented generation: antes de o modelo responder, trechos relevantes do seu conteúdo são adicionados ao prompt. No Agentforce, a Data Library indexa para isso artigos do Knowledge, arquivos enviados e resultados de busca na web. Adicionar uma data library no Agentforce Builder configura a recuperação com as configurações padrão; o Data 360 é onde você faz o ajuste fino.
+</FaqItem>
+
+<FaqItem question="O Agentforce pode usar modelos do Claude ou da OpenAI?">
+Sim. A página da Salesforce sobre o Agentforce Assistant descreve o Model Builder, que permite trazer o seu próprio modelo de linguagem de grande porte de provedores como Anthropic, Google, OpenAI e Hugging Face. O zero data retention do Trust Layer se refere aos acordos da Salesforce com os provedores de modelos terceiros dela, então confira como ele se aplica a um modelo que você mesmo conecta.
+</FaqItem>
+</Faq>
+
+Detalhes da Salesforce e da Microsoft verificados em 8 de outubro de 2026 em [preços do Agentforce](https://www.salesforce.com/agentforce/pricing/), [preços do Sales](https://www.salesforce.com/sales/pricing/), [Salesforce Foundations](https://www.salesforce.com/crm/foundations/), [o que o Foundations inclui](https://www.salesforce.com/blog/small-business/what-does-foundations-do/), na [visão geral do Agentforce](https://www.salesforce.com/agentforce/), na [Agentforce 360 Platform](https://www.salesforce.com/platform/agentforce-platform/), no [Einstein Trust Layer](https://www.salesforce.com/eu/artificial-intelligence/trusted-ai/), no Trailhead sobre a [jornada da resposta do Trust Layer](https://trailhead.salesforce.com/content/learn/modules/the-einstein-trust-layer/follow-the-response-journey) e sobre o [RAG no Agentforce](https://trailhead.salesforce.com/content/learn/modules/retrieval-augmented-generation-quick-look/augment-prompts-with-relevant-knowledge), no [Agentforce Assistant, antes Einstein Copilot](https://www.salesforce.com/agentforce/einstein-copilot/), no [Data 360](https://www.salesforce.com/data/), em [O que é o Agentforce Service?](https://help.salesforce.com/s/articleView?id=service.service_cloud_def.htm&language=en_US&type=5) e na [documentação do Sales agent](https://learn.microsoft.com/en-us/microsoft-sales-copilot/introduction) da Microsoft.

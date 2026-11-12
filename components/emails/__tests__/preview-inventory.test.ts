@@ -33,6 +33,9 @@ import enMessages from "@/i18n/locales/en.json";
 import esMessages from "@/i18n/locales/es.json";
 import frMessages from "@/i18n/locales/fr.json";
 import itMessages from "@/i18n/locales/it.json";
+import nlMessages from "@/i18n/locales/nl.json";
+import plMessages from "@/i18n/locales/pl.json";
+import ptMessages from "@/i18n/locales/pt.json";
 import { APP_LOCALES, DEFAULT_LOCALE, formattingTagFor } from "@/i18n/locale-registry";
 import { LEGAL_DOCUMENT_VERSIONS, type LegalDocument } from "@/constants/legal-documents";
 import { walkFiles } from "@/tests/conventions/walk";
@@ -62,6 +65,9 @@ const CATALOGS = {
   es: esMessages,
   fr: frMessages,
   it: itMessages,
+  nl: nlMessages,
+  pl: plMessages,
+  pt: ptMessages,
 } as const;
 
 function catalog(locale: AppLocale): typeof enMessages {
@@ -547,7 +553,7 @@ describe("transactional email preview inventory", () => {
 
 describe("transactional email preview rendering", () => {
   it("covers every behavior in each of its locales", () => {
-    expect(LOCALIZED_PREVIEW_CASES).toHaveLength(64);
+    expect(LOCALIZED_PREVIEW_CASES).toHaveLength(100);
   });
 
   it.each(LOCALIZED_PREVIEW_CASES)(

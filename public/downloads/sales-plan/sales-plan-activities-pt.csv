@@ -1,0 +1,11 @@
+﻿Seção,Item,Responsável,Valor planejado,Unidade,Premissa ou cálculo,Data de revisão,Valor realizado,Próxima ação
+Período,Dados de planejamento fictícios; não são resultados reais; recalcule depois de editar; sem fórmulas ativas,,,,,,,
+Ações,Pacote de pesquisa de conta e contato,Marcos,60,horas,"120 × 0,5",2027-04-03,,
+Ações,Reunião qualificada com preparação e anotações,Rafael,45,horas,"30 × 1,5",2027-04-03,,
+Ações,Preparação da proposta,Rafael,48,horas,12 × 4,2027-04-03,,
+Ações,Pacote de follow-up de proposta,Juliana,24,horas,12 × 2,2027-04-03,,
+Ações,Revisão semanal do time,Rafael / Marcos / Juliana,18,horas,"12 × 1,5",2027-04-03,,
+Venda,Carga de venda planejada,Rafael,195,horas,60 + 45 + 48 + 24 + 18,2027-04-03,,
+Venda,Rafael,Rafael,99,horas,99 / 120,2027-04-03,,
+Venda,Marcos,Marcos,66,horas,66 / 96,2027-04-03,,
+Venda,Juliana,Juliana,30,horas,30 / 48,2027-04-03,,

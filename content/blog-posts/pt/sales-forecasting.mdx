@@ -1,0 +1,263 @@
+---
+title: "Forecast de vendas: o que é, como calcular e exemplo"
+description: "Forecast de vendas: o que é e como calcular. Pipeline ponderado, taxa de ganho e run-rate em um exemplo de 8 negócios, com fórmulas de planilha."
+
+relatedHrefs:
+  - /blog/sales-pipeline
+  - /features/reporting
+  - /blog/sales-plan-template
+  - /blog/crm-for-sales
+
+hero:
+  title: "Forecast de vendas: como prever a receita a partir do seu pipeline"
+  description: "Um exemplo prático com oito negócios, três métodos de previsão comparados lado a lado, as fórmulas para refazê-lo em uma planilha e os campos de negócio de que um CRM precisa para que o forecast seja confiável."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Voltar ao blog
+  by: por Benjamin Wagner
+  date: 2026-11-09
+  tags:
+    - Forecast de vendas
+    - Pipeline de vendas
+    - Processo de vendas
+---
+
+# Forecast de vendas: como prever a receita a partir do seu pipeline
+
+O forecast de vendas é a estimativa de quanta receita o seu time vai ganhar em um período futuro, em geral o próximo mês ou trimestre, a partir dos negócios do seu pipeline e dos seus resultados até agora. Para um time B2B pequeno, o método prático é o pipeline ponderado: multiplique o valor de cada negócio aberto pela probabilidade de ganho da sua etapa, some os negócios que devem fechar no período e acrescente o que você já ganhou.
+
+Este guia faz essa conta em oito negócios de exemplo, compara o resultado com um método de taxa de ganho e com um método de run-rate lado a lado, e lista os campos de que um registro de negócio precisa para você refazer o forecast em qualquer planilha. O Customermates publica este guia; a seção sobre previsão no Customermates é identificada como nossa e diz com franqueza o que o produto não faz.
+
+<ArticleSummary title="Em resumo">
+  <SummaryItem label="Definição">Um forecast de vendas é a sua melhor estimativa da receita que você vai ganhar em um período. Uma meta é o que você quer ganhar. São números diferentes.</SummaryItem>
+  <SummaryItem label="Fórmula central">Valor ponderado = valor do negócio × probabilidade da etapa. Forecast = ganho até agora + valor ponderado dos negócios abertos cuja data de fechamento prevista cai dentro do período.</SummaryItem>
+  <SummaryItem label="Nunca dependa de um só método">Calcule o pipeline ponderado, um número de taxa de ganho e um de run-rate, depois publique uma faixa e explique qualquer diferença entre eles.</SummaryItem>
+  <SummaryItem label="Campos de que todo negócio precisa">Valor, etapa, data de fechamento prevista, responsável e, quando o negócio é encerrado, a data em que foi ganho ou perdido.</SummaryItem>
+</ArticleSummary>
+
+Um forecast só é tão bom quanto o pipeline por trás dele. Se as suas etapas ainda não têm condições de entrada, comece pelo guia de [como montar e revisar um pipeline de vendas](/blog/sales-pipeline) e depois volte aqui. Para o lado da meta na comparação, o [modelo de plano de vendas de 90 dias](/blog/sales-plan-template) transforma uma meta de receita em contas, responsáveis e datas de revisão.
+
+## O que é forecast de vendas e como ele difere de uma meta ou de um plano?
+
+Um forecast diz o que provavelmente vai acontecer. Uma meta diz o que você quer que aconteça. Um plano diz o que você vai fazer a respeito da diferença. Misturá-los é um jeito comum de um forecast dar errado: um número empurrado em direção à meta deixa de ser um forecast.
+
+O livro de previsão de Rob J Hyndman e George Athanasopoulos diz o mesmo: prever é antecipar o futuro com a maior precisão possível, dada a informação disponível, as metas são o que você gostaria que acontecesse e o planejamento é a resposta às previsões e às metas ([seção 1.2](https://otexts.com/fpp3/planning.html), em inglês). Em um time de vendas, isso dá três números separados.
+
+| Termo | Pergunta que responde | Exemplo do caso prático abaixo |
+|---|---|---|
+| Forecast | O que provavelmente vamos ganhar neste trimestre? | 94.400 (método do pipeline ponderado) |
+| Meta | O que queremos ganhar neste trimestre? | 110.000 |
+| Plano | O que fazemos a respeito da diferença? | Nova prospecção e um esforço para antecipar um negócio grande |
+
+**Forecast, forecasting e previsão de vendas.** *Forecast* é a previsão em si, o número; *forecasting* é o processo de produzi-la e revisá-la ao longo do período. No dia a dia de vendas no Brasil, as duas palavras são usadas como sinônimos, e "previsão de vendas" é o equivalente em português. Já o *budget* (orçamento) é o plano financeiro fixado no começo do ano e raramente muda; o forecast é revisto durante o ano e mostra quanto do orçamento você está a caminho de cumprir.
+
+**O que o forecast conta.** Este guia faz o forecast do valor dos negócios ganhos: o valor dos negócios que você ganha no período, informado sem impostos e em uma única moeda. Não é receita reconhecida nem receita faturada. Essas seguem regras contábeis e datas de fatura, e um registro de negócio no CRM não as substitui.
+
+## Quais são os 7 passos da previsão de vendas?
+
+Não existe uma lista padrão de sete. O livro citado acima nomeia cinco passos básicos para qualquer tarefa de previsão: definição do problema, coleta de informações, análise preliminar, escolha e ajuste de modelos e uso e avaliação do modelo ([seção 1.6](https://otexts.com/fpp3/basic-steps.html)). Os guias de vendas contam de outro jeito. Para um forecast de pipeline, usamos estes sete:
+
+<Steps>
+  <Step title="Defina o período e o que conta">Nomeie o período (por exemplo, de 1º de outubro a 31 de dezembro) e decida que você conta o valor dos negócios ganhos, sem impostos, em uma única moeda.</Step>
+  <Step title="Limpe o pipeline">Leve cada negócio para a etapa que ele realmente alcançou e encerre os negócios que ninguém toca há semanas. Negócios parados inflam um forecast sem que se perceba.</Step>
+  <Step title="Confira quatro dados em cada negócio aberto">Valor, etapa, data de fechamento prevista e responsável. Um negócio sem um deles fica fora do forecast e vai para uma lista de correções, em vez de ser chutado.</Step>
+  <Step title="Defina as probabilidades das etapas a partir do seu histórico">Use os seus próprios negócios ganhos e perdidos. Enquanto não tiver o suficiente, comece com valores provisórios e rotule-os como suposições.</Step>
+  <Step title="Calcule de duas formas">O pipeline ponderado dos negócios com vencimento no período e uma conferência por taxa de ganho ou por run-rate.</Step>
+  <Step title="Publique uma faixa, não um ponto">Dê um piso, um valor esperado e um melhor caso, e nomeie os dois ou três maiores negócios que fazem o resultado oscilar.</Step>
+  <Step title="Compare com o resultado real">No fim do período, registre quanto o forecast errou e ajuste as probabilidades.</Step>
+</Steps>
+
+## Qual é um exemplo de forecast de vendas?
+
+Aqui está um que você refaz em uma planilha em dez minutos. Todos os números são inventados. As premissas:
+
+- O forecast é feito em 9 de novembro de 2026 para o trimestre que termina em 31 de dezembro de 2026.
+- O valor é o valor total do contrato, sem impostos, em reais.
+- As probabilidades das etapas são Qualificação 20%, Demo 40%, Proposta 60% e Negociação 80%: os valores iniciais do nosso [guia de pipeline de vendas](/blog/sales-pipeline). Troque-os pelos seus assim que puder.
+- 38.000 já foram ganhos neste trimestre. A meta é 110.000.
+- Só contam os negócios cuja data de fechamento prevista cai dentro do trimestre.
+
+| Negócio | Etapa | Valor | Fechamento previsto | Probabilidade | Valor ponderado | Conta neste trimestre? |
+|---|---|---|---|---|---|---|
+| A: Empresa de logística, contrato de serviço de 12 meses | Negociação | 24.000 | 27 nov | 80% | 19.200 | Sim |
+| B: Grupo odontológico, implantação | Proposta | 12.000 | 4 dez | 60% | 7.200 | Sim |
+| C: Estúdio de design, retainer | Negociação | 6.000 | 10 dez | 80% | 4.800 | Sim |
+| D: Empresa de engenharia, projeto de plataforma | Proposta | 30.000 | 15 dez | 60% | 18.000 | Sim |
+| E: Escritório de advocacia, piloto | Demo | 9.000 | 18 dez | 40% | 3.600 | Sim |
+| F: Produtor de alimentos, série de workshops | Qualificação | 18.000 | 22 dez | 20% | 3.600 | Sim |
+| G: Fornecedor de máquinas, pacote de serviços | Qualificação | 15.000 | 20 jan 2027 | 20% | 3.000 | Não |
+| H: Rede de clínicas, várias unidades | Demo | 45.000 | 15 fev 2027 | 40% | 18.000 | Não |
+| **Com vencimento neste trimestre (A a F)** | | **99.000** | | | **56.400** | |
+
+O pipeline ponderado do trimestre é 56.400. Somando os 38.000 já ganhos, o forecast é de **94.400**, o que fica 15.600 abaixo da meta de 110.000.
+
+Os negócios G e H são pipeline real, com 60.000 em valor e 21.000 ponderados, mas devem fechar depois de 31 de dezembro. Deixar a regra da data de fora teria somado 21.000 e produzido um forecast de 115.400, acima da meta pelo motivo errado.
+
+Repare em quanto um único negócio move o número. O negócio D representa 18.000 dos 94.400, cerca de um quinto. Se ele escorregar para janeiro, o forecast cai para 76.400 com uma única edição. Um valor ponderado é uma média sobre muitos negócios; nenhum negócio individual fecha a 60%. Ele fecha ou não fecha.
+
+**A planilha.** Coloque os oito negócios nas linhas 2 a 9, com Valor na coluna C, Fechamento previsto na coluna D, Probabilidade na coluna E e Valor ponderado na coluna F.
+
+```text
+Valor ponderado (F2, copiada para baixo)   =C2*E2
+Pipeline ponderado do trimestre            =SOMASES(F2:F9;D2:D9;">="&DATA(2026;10;1);D2:D9;"<="&DATA(2026;12;31))
+Valor em aberto do trimestre               =SOMASES(C2:C9;D2:D9;">="&DATA(2026;10;1);D2:D9;"<="&DATA(2026;12;31))
+Forecast                                   =38000+(pipeline ponderado do trimestre)
+```
+
+As fórmulas funcionam no Excel e no Planilhas Google em português, com nomes de função e separadores em português; em uma instalação em inglês, use SUMIFS, DATE e vírgulas. Mantenha o número de ganhos até agora em uma célula própria e atualize-o a partir do CRM antes de cada revisão.
+
+## Qual é o melhor modelo para a previsão de vendas?
+
+Não existe um melhor modelo, só o que se encaixa nos dados que você tem. Estes são os métodos que um time pequeno realmente consegue usar, com o ponto fraco de cada um.
+
+| Método | Como calcular | Precisa de | Ponto fraco |
+|---|---|---|---|
+| Commit (piso) | Ganho até agora + negócios da última etapa aberta pelo valor total. Esta é a nossa própria definição, não um padrão | Uma etapa que signifique que o comprador está decidindo | Ignora tudo o que está mais cedo no pipeline |
+| Pipeline ponderado | Ganho até agora + valor × probabilidade da etapa, para os negócios com vencimento no período | Probabilidades das etapas e datas de fechamento previstas | As probabilidades são chutes até serem calibradas; poucos negócios grandes dominam |
+| Taxa de ganho × pipeline | Ganho até agora + valor em aberto com vencimento no período × taxa de ganho por valor | Cerca de um ano de negócios ganhos e perdidos | Trata um negócio de primeira call e um em negociação do mesmo jeito |
+| Run-rate histórico | Valor médio ganho nos últimos quatro períodos | Quatro ou mais períodos comparáveis | Cego ao pipeline atual e ao crescimento |
+| Ticket médio × negócios esperados | Número de negócios que você espera ganhar no período × o ticket médio dos negócios ganhos | Ticket médio e taxa de conversão estáveis | Ignora o tamanho de cada negócio aberto |
+| Modelos estatísticos (séries temporais, regressão) | Ajustados por software aos resultados passados | Muitos períodos de histórico estável | A maioria dos times pequenos fecha poucos negócios para ajustar um |
+
+Para comparar os quatro primeiros no exemplo, acrescente mais dois fatos inventados. Nos últimos doze meses o time ganhou 360.000 e perdeu 540.000 em valor, uma taxa de ganho de 360.000 ÷ (360.000 + 540.000) = 40%. Nos últimos quatro trimestres, ganhou 78.000, 88.000, 99.000 e 95.000.
+
+| Método | Cálculo | Forecast do 4º trimestre | Frente à meta de 110.000 |
+|---|---|---|---|
+| Commit (piso) | 38.000 + 24.000 + 6.000 | 68.000 | 42.000 abaixo |
+| Taxa de ganho × pipeline | 38.000 + 40% × 99.000 | 77.600 | 32.400 abaixo |
+| Run-rate histórico | (78.000 + 88.000 + 99.000 + 95.000) ÷ 4 | 90.000 | 20.000 abaixo |
+| Pipeline ponderado | 38.000 + 56.400 | 94.400 | 15.600 abaixo |
+| Melhor caso | 38.000 + 99.000 | 137.000 | 27.000 acima |
+
+Três coisas para ler nele:
+
+1. **A diferença é real.** Todo número esperado fica abaixo da meta. Se um método dissesse 115.000 e os outros dissessem de 80.000 a 94.000, você desconfiaria do método isolado, não comemoraria.
+2. **Os métodos diferem por um motivo.** A taxa de ganho fixa de 40% é uma mistura sobre todos os negócios desde o primeiro contato, enquanto os negócios abertos aqui estão, na maioria, em etapas avançadas. O número ponderado implica que 57% do valor em aberto é ganho (56.400 ÷ 99.000). Ou os negócios estão incomumente avançados, ou as probabilidades das etapas são generosas demais. Só a comparação com resultados reais, abaixo, diz qual dos dois.
+3. **O run-rate ignora o pipeline por completo.** É uma checagem de sanidade, não um forecast. Aqui ele fica entre os outros números, o que tranquiliza, mas não prova nada.
+
+Qual deles apresentar primeiro depende do seu histórico. Um time com apenas um punhado de negócios encerrados deve mostrar os números de commit e ponderado e dizer que as probabilidades são suposições. Um time com um ano ou mais de negócios deve abrir com um pipeline ponderado calibrado e manter a taxa de ganho e o run-rate como conferências. Quando dois métodos divergem muito, descubra por quê antes de apresentar um número.
+
+## Quais são os quatro tipos de previsão?
+
+As fontes agrupam os métodos de previsão de maneiras diferentes, então não existe uma lista oficial de quatro. Este agrupamento é o que consideramos útil para um time de vendas:
+
+1. **Julgamento:** a decisão do vendedor ou do gestor sobre cada negócio. É a única opção quando você não tem histórico.
+2. **Baseada no pipeline:** ponderação por etapa e commit, como acima.
+3. **Histórica:** run-rate, taxa de ganho e padrões sazonais de períodos anteriores.
+4. **Modelos estatísticos:** modelos de séries temporais e de regressão ajustados por software.
+
+O capítulo do livro sobre [previsões por julgamento](https://otexts.com/fpp3/judgmental.html) descreve a mesma divisão em termos gerais: julgamento sozinho quando não há dados, previsões estatísticas ajustadas por julgamento quando há, ou as duas produzidas separadamente e combinadas. Na prática, a combinação útil para um time pequeno é um número calculado mais uma observação do gestor sobre os negócios que não se encaixam na aritmética.
+
+## Como manter um forecast de vendas preciso?
+
+- **Salve um retrato e compare depois.** No mesmo dia de cada mês, salve o forecast e a lista de negócios por trás dele. No fim do período, compare: erro = (real − forecast) ÷ forecast. Por exemplo, um forecast de 92.000 contra um real de 95.000 dá +3,3%. Se o erro pende para o mesmo lado em três períodos seguidos, mude as probabilidades em vez de culpar a sorte.
+- **Calibre cada etapa.** A probabilidade de uma etapa é o valor ganho dos negócios que algum dia chegaram a ela, dividido pelo valor de todos os negócios que chegaram a ela. Se 220.000 de 400.000 foram ganhos a partir de Proposta, a probabilidade de Proposta é 55%. No exemplo, isso reduziria os negócios B e D e tiraria 2.100 do número ponderado do trimestre.
+- **Mantenha as datas de fechamento honestas.** Um negócio cuja data de fechamento prevista está no passado não entra no forecast deste período até alguém dar uma nova data. Mude as datas quando os compradores escorregarem e conte com que frequência isso acontece.
+- **Observe a concentração.** Liste os três maiores negócios ao lado do total. Se um negócio é um quinto do número, diga isso.
+- **Revise toda semana.** A revisão de 30 minutos do [guia de pipeline de vendas](/blog/sales-pipeline) também é onde as datas de fechamento e os próximos passos são corrigidos.
+
+## Quais são os erros mais comuns no forecast de vendas? [#erros-comuns-forecast]
+
+Quase todo forecast ruim vem de um destes cinco erros:
+
+1. **Misturar forecast e meta.** O número é puxado para a meta e deixa de ser uma estimativa. Se a meta é 110.000 e o forecast é 94.400, escreva as duas coisas.
+2. **Partir de suposições em vez de histórico.** Probabilidades "de cabeça" servem no começo, mas precisam ser trocadas pelos seus resultados reais assim que você tiver negócios encerrados suficientes.
+3. **Manter negócios parados e datas vencidas.** Um negócio sem contato há semanas e com a data de fechamento no passado infla o número sem que ninguém perceba.
+4. **Ignorar o ponto de vista do comprador.** Uma etapa só avançou de verdade quando o comprador fez algo (marcou uma reunião, pediu a proposta, trouxe quem decide), não quando o vendedor mandou uma mensagem.
+5. **Esquecer a sazonalidade e os fatores externos.** No Brasil, o calendário pesa: o Carnaval, as férias de julho e de fim de ano, a Black Friday e o Natal mudam o ritmo de decisão de muitos compradores, e o varejo e os serviços sentem isso de forma diferente. Compare o trimestre com o mesmo trimestre do ano anterior, não só com o anterior.
+
+Um sexto erro é o de processo: não comparar o forecast com o real. Sem essa conta, o erro se repete trimestre após trimestre.
+
+## Como conduzir uma reunião de forecast? [#reuniao-de-forecast]
+
+Um forecast fica melhor quando é discutido em voz alta, com os números na mesma tela. Uma reunião semanal de 30 minutos basta para um time pequeno:
+
+- **Prepare antes.** Cada responsável atualiza etapa, valor, data de fechamento prevista e próximo passo dos seus negócios antes da reunião, não durante.
+- **Comece pelos maiores negócios.** Eles movem o número; os pequenos ficam para a revisão do [pipeline de vendas](/blog/sales-pipeline).
+- **Para cada negócio, pergunte o que mudou.** Houve um fato novo desde a última semana? Se não houve, a data de fechamento prevista provavelmente está otimista.
+- **Registre as decisões.** Quem corrige o quê e até quando, e qual é o forecast depois das correções.
+- **Salve o número.** O retrato da semana é o que você vai comparar com o resultado no fim do período.
+
+## Quais campos do CRM um negócio precisa para o forecast de vendas?
+
+Todos os números acima vêm de um punhado de campos. Se o seu CRM os guarda como campos estruturados em vez de anotações, um forecast é um filtro e uma soma.
+
+| Campo | Tipo | O que faz pelo forecast | Regra |
+|---|---|---|---|
+| Valor | Dinheiro | A base de todos os cálculos | Sem impostos, uma única moeda e o mesmo significado em todo negócio (por exemplo, o valor do contrato no primeiro ano) |
+| Etapa | Escolha única | Define a probabilidade | Uma condição de entrada verificável por etapa |
+| Probabilidade da etapa | Porcentagem em cada etapa | Transforma o valor em valor ponderado | Revisada a cada trimestre com os resultados reais |
+| Valor ponderado | Calculado | Valor × probabilidade ÷ 100 | Nunca digitado à mão |
+| Fechamento previsto | Data | Coloca o negócio em um período | Obrigatório a partir da etapa de proposta; alterado quando escorrega |
+| Responsável | Pessoa | Quem responde pelo negócio; forecast por pessoa | Exatamente um |
+| Fechado em | Data | Quando um negócio foi ganho ou perdido; alimenta o ganho até agora, a taxa de ganho e o run-rate | Definido quando a etapa vira Ganho ou Perdido |
+| Motivo da perda | Escolha única | Mostra por que a taxa de ganho se move | Obrigatório em todo negócio perdido |
+| Origem do lead | Escolha única | Taxa de ganho por origem | Opcional, mas barato de registrar na criação |
+| Próximo passo e a sua data | Texto e data | Encontra negócios parados antes que inflem o número | Um negócio sem próximo passo fica fora do Commit |
+| Organização e contato | Vínculos com outros registros | Contexto e o histórico de conversas por trás do negócio | Vincule todo negócio aos dois |
+
+Um décimo segundo campo opcional é uma categoria de forecast (Commit, Melhor caso, Pipeline) que registra a avaliação do próprio responsável, separada da probabilidade da etapa. Adicione-o só se o seu time realmente for usá-lo para sobrepor a lógica das etapas.
+
+## Como fazer previsão de vendas no Customermates
+
+Esta seção descreve o nosso próprio produto. O Customermates é um [CRM para equipes de vendas](/blog/crm-for-sales) de código aberto, feito na Alemanha. Ele calcula um pipeline ponderado e o mostra em gráficos; não prevê. Aqui está a configuração para o caso prático.
+
+<Steps>
+  <Step title="Defina as probabilidades das etapas">Em **Modelo de dados**, abra Negócios e o campo **Etapa**, e defina **Probabilidade %** em cada opção. Uma prévia mostra o efeito sobre os negócios e widgets existentes antes de você salvar. O valor ponderado é um campo calculado nos negócios: **Valor** × probabilidade ÷ 100. Se a sua lista foi configurada à mão, confira se ele existe e adicione-o se não existir. Os [conceitos principais](/docs/concepts#how-does-a-weighted-pipeline-work) explicam o cálculo.</Step>
+  <Step title="Adicione os campos de data">Use **Adicionar › Campo** para adicionar um campo de Data "Fechamento previsto" e um campo de Data "Fechado em". Adicione também um campo de Escolha única "Motivo da perda". Um gráfico só consegue agrupar e filtrar pelo que você registra.</Step>
+  <Step title="Monte os widgets do trimestre">No **Painel**, use **Adicionar widget**: um gráfico de barras que soma o **Valor ponderado** agrupado por Etapa, filtrado por Etapa não é Ganho nem Perdido e Fechamento previsto entre o primeiro e o último dia do trimestre; um widget de Número que soma o **Valor** de Etapa é Ganho e Fechado em dentro do trimestre (ganho até agora); um widget de Número que soma o **Valor** dos mesmos negócios abertos (o valor em aberto). Um gráfico de Área ao longo do tempo com **Intervalo de tempo** mensal, agrupado por Fechamento previsto, mostra quando o valor ponderado vence.</Step>
+  <Step title="Salve um retrato quando publicar">Na lista de negócios, abra **Mais ações** e escolha **Exportar como Excel (.xlsx)**. A exportação mantém os seus filtros e a ordenação, comporta até 5.000 registros e tem uma coluna para cada campo que você pode ler. Salve-a com a data no nome do arquivo. Este é o seu retrato para a comparação posterior e a sua base para a taxa de ganho e o run-rate em uma planilha.</Step>
+</Steps>
+
+A taxa de ganho por valor precisa de dois totais dos seus negócios encerrados: a soma de **Valor** de Ganho e de Perdido, cada uma filtrada por Fechado em. Você consegue ler os dois em widgets de Número. No Customermates Cloud, você também pode pedir ao Mate que os calcule, o que usa créditos de IA hospedados; com o seu próprio cliente de IA pelo [servidor MCP](/docs/mcp), os totais vêm da ferramenta `query_crm_measure`. De qualquer forma, é aritmética sobre os seus negócios encerrados, não uma previsão.
+
+Um gráfico conta apenas os negócios que o seu perfil de acesso consegue ler, então quem publica o forecast precisa de acesso de leitura a todos eles. O [guia do painel](/docs/app-dashboard) documenta todas as opções de widget, e a página de [relatórios de CRM](/features/reporting) lista os outros relatórios que um time pequeno monta. Os próprios negócios ficam no [quadro de pipeline](/features/pipeline).
+
+**Quanto custa.** Widgets de gráfico, o pipeline ponderado e a exportação para Excel estão em todos os planos, a partir do Starter por [[commercial.price.starter.monthly]] por usuário por mês, com cobrança mensal. A edição com hospedagem própria também os inclui. A [página de preços](/pricing) traz os detalhes.
+
+<AcquisitionCallout title="Onde o Customermates é a escolha errada para forecast" variant="boundary">
+O Customermates multiplica os valores dos negócios pelas probabilidades das etapas que você define e soma o resultado. Ele não prevê quais negócios vão fechar, não sugere probabilidades de ganho nem ajusta um modelo estatístico ao seu histórico. Mostra os negócios como estão agora e não tem relatório dos totais passados do pipeline, então salve uma exportação no dia em que publicar um forecast. Não tem cotas nem consolidação de forecasts pelo gestor; um campo de categoria que você adiciona pode virar gráfico, mas nada o verifica nem o consolida. Não tem cotações nem faturamento, então ganho significa o valor do negócio que você informa, não receita faturada nem reconhecida. Se você precisa de previsão preditiva, envio de forecasts por vendedor ou modelagem de cenários, use uma ferramenta de forecast específica.
+</AcquisitionCallout>
+
+## FAQ
+
+<Faq>
+<FaqItem question="O que é forecast de vendas?">
+O forecast de vendas é a estimativa da receita que um time vai ganhar em um período futuro, como um mês ou trimestre, a partir dos seus negócios abertos e dos resultados passados. É diferente de uma meta, que é o que você quer ganhar.
+</FaqItem>
+
+<FaqItem question="Como calcular um forecast de vendas?">
+Multiplique o valor de cada negócio aberto pela probabilidade da sua etapa, some os valores ponderados dos negócios que devem fechar no período e acrescente a receita já ganha nesse período. Confira o resultado com um número de taxa de ganho (valor em aberto × a sua taxa de ganho por valor) e um de run-rate (a média dos seus últimos quatro períodos).
+</FaqItem>
+
+<FaqItem question="Qual é o melhor modelo para a previsão de vendas?">
+Nenhum serve para todos os times. Um pipeline ponderado funciona para times pequenos com regras de etapa e datas de fechamento. A taxa de ganho e o run-rate precisam de um histórico de negócios encerrados. Os modelos estatísticos precisam de muitos períodos de resultados estáveis. Calcule pelo menos dois e publique uma faixa.
+</FaqItem>
+
+<FaqItem question="Qual é a diferença entre forecast e forecasting?">
+Forecast é a previsão em si, o número que você publica. Forecasting é o processo de produzi-la: limpar o pipeline, calcular, publicar uma faixa e comparar depois com o resultado real. Em vendas, as duas palavras costumam ser usadas como sinônimos.
+</FaqItem>
+
+<FaqItem question="Como montar um forecast de vendas?">
+Defina o período, limpe o pipeline, confira valor, etapa, data de fechamento prevista e responsável em cada negócio, defina as probabilidades das etapas a partir do seu histórico, calcule o pipeline ponderado e uma conferência por taxa de ganho ou run-rate, e publique uma faixa em vez de um único número. Os sete passos acima detalham cada etapa, e a seção com o exemplo de oito negócios mostra a conta completa.
+</FaqItem>
+
+<FaqItem question="Quais são as 7 etapas de vendas?">
+Uma divisão clássica do processo de vendas tem sete etapas: prospecção, preparação, abordagem, apresentação, tratamento de objeções, fechamento e pós-venda. Elas não são os sete passos do forecast, mas alimentam o pipeline: o forecast conta os negócios nas etapas do seu funil, e o guia sobre o [pipeline de vendas](/blog/sales-pipeline) mostra como definir cada etapa com uma condição de entrada.
+</FaqItem>
+
+<FaqItem question="Qual é a diferença entre um forecast de vendas e uma meta de vendas?">
+Um forecast é a estimativa do que você provavelmente vai ganhar, calculada a partir do pipeline. Uma meta é o número que você quer atingir. O plano é o que você faz a respeito da diferença entre os dois.
+</FaqItem>
+
+<FaqItem question="Qual é a precisão de um forecast de vendas?">
+Não existe um número universal honesto, porque ele depende do tamanho dos seus negócios, da duração do ciclo e da sua disciplina. Meça o seu: compare cada forecast com o resultado real e acompanhe o erro ao longo de vários períodos. Um erro constante em uma direção pode ser corrigido; um erro aleatório significa que os dados de entrada não são confiáveis.
+</FaqItem>
+
+<FaqItem question="O Customermates consegue fazer forecast de vendas?">
+Ele calcula um pipeline ponderado: o valor do negócio vezes a probabilidade que você define para a etapa, mostrado em gráficos do painel e exportável para o Excel. Não prevê fechamentos, não sugere probabilidades nem modela o seu histórico. Para isso, use uma ferramenta de forecast específica.
+</FaqItem>
+</Faq>
+
+Fontes de terceiros verificadas em 9 de novembro de 2026: Hyndman e Athanasopoulos, *Forecasting: Principles and Practice*, 3ª edição, [seção 1.2](https://otexts.com/fpp3/planning.html), [seção 1.6](https://otexts.com/fpp3/basic-steps.html) e [capítulo 6](https://otexts.com/fpp3/judgmental.html). Todos os valores de negócios, taxas de ganho e resultados trimestrais do caso prático são inventados para ilustração.

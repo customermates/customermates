@@ -1,0 +1,283 @@
+---
+title: "Hospedagem própria do Customermates com Docker Compose"
+description: "Rode o Customermates no seu servidor com Docker Compose: instalação, .env, e-mail, cadastro, atualizações, backups e diferenças em relação ao Cloud."
+---
+
+A hospedagem própria roda o Customermates a partir de dois arquivos, `docker-compose.yml` e `.env`, com `docker compose up -d`. Você baixa os dois do [repositório do Customermates](https://github.com/customermates/customermates) com `curl`; não é preciso `git clone` nem etapa de build. O arquivo Compose inicia dois contêineres: o PostgreSQL 16 (`postgres:16-alpine`) e a imagem do aplicativo `ghcr.io/customermates/customermates:latest`, que aplica as migrações pendentes do banco de dados a cada inicialização. As migrações criam a extensão `pg_trgm`: ela é confiável no PostgreSQL 13 e posteriores, mas alguns provedores gerenciados exigem que você a libere antes.
+
+## Devo usar hospedagem própria ou a nuvem? [#should-i-self-host-or-use-the-cloud]
+
+| Fator de decisão | Nuvem gerenciada | Hospedagem própria |
+|---|---|---|
+| Operação do aplicativo e do banco de dados | O Customermates opera | Você opera Docker, PostgreSQL, acesso de rede, TLS, atualizações e backups |
+| Registros e visualizações básicos do CRM | Incluídos conforme o plano | Base do plano Starter |
+| Caixa de entrada unificada e calendários conectados | Disponíveis nos planos Cloud com direito a eles | Não incluídos |
+| Acesso à IA | MCP externo, mais o assistente hospedado Mate com os créditos de IA hospedada do seu plano | MCP externo com o seu próprio cliente e provedor |
+| Provedores conectados | Configurados dentro do produto gerenciado | Você configura e avalia cada provedor externo |
+| Preço | Assinatura Cloud por usuário a partir de [[commercial.price.starter.monthly]] por mês | Sua infraestrutura, seus provedores e o tempo de quem opera |
+
+A hospedagem própria permite escolher onde o aplicativo e o banco de dados rodam. Ela não cria, por si só, uma garantia de segurança, conformidade, privacidade ou isolamento de rede; a sua organização continua responsável pela configuração, pelos provedores, pelos contratos, pela retenção e pelos controles de operação. Compare o custo operacional total em vez de presumir que um modelo é mais barato: infraestrutura, backups, testes de restauração, monitoramento, atualizações, resposta a incidentes e provedores externos.
+
+Os registros passam entre o Cloud e a hospedagem própria como pastas de trabalho do Excel, uma lista por vez. Uma migração da plataforma inteira é um projeto desenhado e validado à parte.
+
+## A hospedagem própria é gratuita e preciso de licença? [#is-self-hosting-free-and-do-i-need-a-license]
+
+Uma instância de hospedagem própria comporta qualquer número de espaços de trabalho, e um mesmo login pode pertencer a vários deles ([Espaços de trabalho](/docs/app-workspaces#how-do-workspaces-work-when-self-hosting)). Nenhum espaço de trabalho tem assinatura nem teste: cada um começa ativo, não conta licenças e não cobra nada. Você paga apenas pela sua própria infraestrutura e pelos seus provedores.
+
+O Customermates é open core. O código fora de `ee/`, e o material em `ee/` que é servido ao navegador, é licenciado sob AGPL-3.0-only. O código do lado do servidor em `ee/` está sob a Customermates Commercial License, que permite rodar a imagem oficial com `APP_MODE=self-hosted`, inclusive em produção, como uma Community Build, desde que os recursos exclusivos do Cloud permaneçam desativados. Os termos exatos estão em `LICENSE` e `ee/LICENSE.md`. Comprar um plano Cloud não desbloqueia nada em uma instalação de hospedagem própria.
+
+## Quais recursos não estão disponíveis na hospedagem própria? [#which-features-are-not-available-when-self-hosting]
+
+Toda instalação de hospedagem própria usa o conjunto de recursos do Starter. Estes recursos exclusivos do Cloud permanecem desativados, mesmo que você também pague por um plano Cloud: contas de mensagens conectadas (e-mail, LinkedIn, WhatsApp, Instagram, Telegram), a Caixa de entrada unificada, calendários conectados e seus eventos, o assistente hospedado Mate com os créditos de IA hospedada dele, as Rotinas, que o Mate executa, e a configuração do espaço de trabalho por IA no onboarding, então um novo espaço de trabalho começa sem listas. Clientes de IA externos continuam funcionando pelo MCP com o seu próprio provedor de IA. O SSO empresarial (SAML) e a marca própria (white-label) não estão implementados em nenhum dos dois modelos de implantação.
+
+O aplicativo oculta o que não se aplica: a barra lateral não mostra Caixa de entrada nem Rotinas, as Configurações não têm a página Faturamento nem a Canais e calendários, e o editor de funções oculta as linhas **Mensagens da caixa de entrada** e **Rotinas**. Abrir uma dessas páginas pela URL leva você de volta ao Painel.
+
+Todo o resto funciona como no Cloud: listas e visualizações, importação e exportação do Excel, Modelo de dados, widgets do painel, membros e funções, o Registro de atividades, REST, webhooks e MCP.
+
+## Como instalo e hospedo o Customermates com Docker Compose? [#how-do-i-install-customermates-with-docker-compose]
+
+Você precisa do Docker com o Docker Compose v2; a imagem é compilada para `linux/amd64` e `linux/arm64`. Um nome de domínio só é necessário para HTTPS.
+
+<Steps>
+<Step title="Baixe os dois arquivos">
+```bash
+mkdir customermates && cd customermates
+curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/docker-compose.yml -o docker-compose.yml
+curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/.env.selfhost.template -o .env
+```
+</Step>
+<Step title="Preencha o .env">
+Substitua os valores de exemplo no `.env` antes da primeira inicialização: no mínimo `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET` (por exemplo, gerado com `openssl rand -hex 32`), `BASE_URL`, `RESEND_API_KEY` e `RESEND_OPERATOR_EMAIL`. Sem uma `RESEND_API_KEY` funcionando, nenhum e-mail sai, então ninguém consegue confirmar o próprio endereço de e-mail e toda conta nova fica retida após 24 horas.
+</Step>
+<Step title="Inicie">
+```bash
+docker compose up -d
+docker compose logs -f app
+```
+A primeira inicialização leva cerca de um minuto, enquanto as migrações rodam. Depois, abra `<BASE_URL>/auth/signup`, por padrão `http://localhost:4000/auth/signup`.
+</Step>
+<Step title="Cadastre-se">
+Cadastre-se, escolha **Criar um novo espaço de trabalho** e conclua o assistente; a sua conta se torna **Administrador**. Veja [Como crio a primeira conta na minha instância?](#how-do-i-create-the-first-account-on-my-instance).
+</Step>
+</Steps>
+
+## Quais variáveis de ambiente vão no .env? [#env-values]
+
+- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: usuário, senha e nome do banco de dados (modelo: `postgres`, `change-this-password`, `customermates`). Defina-os antes da primeira inicialização. O PostgreSQL os aplica uma única vez, quando cria o volume do banco de dados, então uma mudança posterior no `.env` não altera o banco existente, e o aplicativo deixa de conseguir se conectar.
+- `BETTER_AUTH_SECRET`: uma string aleatória longa que assina as sessões de login. Alterá-la depois desconecta todo mundo, então guarde uma cópia junto com os seus backups.
+- `BASE_URL`: o endereço exato que as pessoas abrem no navegador, veja [Qual deve ser o valor de BASE_URL?](#base-url).
+- `APP_PORT`: a porta do host em que o aplicativo é publicado, `4000` por padrão.
+- `RESEND_API_KEY`, `RESEND_OPERATOR_EMAIL`: envio de e-mail; `RESEND_API_KEY` não pode ficar vazia. Veja [Como configuro o e-mail com o Resend, e posso usar SMTP?](#how-do-i-set-up-email-with-resend-and-can-i-use-smtp).
+- `APP_MODE`: deixe em `self-hosted`; o arquivo Compose define esse valor para o próprio aplicativo.
+- `WEBHOOK_BLOCK_PRIVATE_DESTINATIONS`: opcional; defina `true` para bloquear requisições de webhook para endereços privados, de loopback e de link local. Os destinos privados são permitidos por padrão, para que os webhooks alcancem serviços na sua rede. Aceita apenas `true` ou `false`.
+- `CRON_SECRET`: opcional, comentado no modelo; o segredo das chamadas de manutenção agendadas, veja [Quais tarefas agendadas preciso executar?](#scheduled-jobs).
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AZURE_AD_CLIENT_ID`, `AZURE_AD_CLIENT_SECRET`: opcionais, comentados no modelo, veja [Os usuários podem entrar com Google ou Microsoft?](#can-users-sign-in-with-google-or-microsoft).
+- `ADDRESS_LOOKUP_URL`: opcional, comentado no modelo; acrescenta a busca de endereços por um serviço Photon que você mesmo roda, veja [Como os endereços são conferidos e como acrescento a busca de endereços?](#address-lookup).
+- `POSTAL_CODE_DATA_URL`: opcional, comentado no modelo; a fonte dos códigos postais para as sugestões de cidade e região: o GeoNames quando não definida, a URL de um espelho ou `off`, veja [Como os endereços são conferidos e como acrescento a busca de endereços?](#address-lookup).
+- `FILE_STORAGE_DRIVER`, `FILE_MAX_UPLOAD_BYTES` e as variáveis `S3_`: opcionais, comentadas no modelo; onde os campos de arquivo guardam os arquivos e qual o tamanho máximo de cada um, veja [Onde os arquivos ficam guardados na hospedagem própria?](#file-storage).
+
+Mantenha o `.env` fora do controle de versão. Aplique as alterações com `docker compose up -d`.
+
+## Qual deve ser o valor de BASE_URL? [#base-url]
+
+Defina `BASE_URL` exatamente como o endereço que as pessoas digitam no navegador: esquema, nome do host e, a menos que seja 80 ou 443, a porta, sem caminho. Exemplos: `https://crm.example.com` ou `http://192.168.1.20:4000`. O valor do modelo, `http://localhost:4000`, só funciona na máquina que roda o Docker. O aplicativo se recusa a iniciar se `BASE_URL` contiver um caminho, uma query ou credenciais.
+
+O Customermates monta estes endereços a partir de `BASE_URL`:
+
+- os redirecionamentos de login, os links dos e-mails de convite e de outros e-mails e o endereço OAuth do MCP;
+- em uma página da documentação, o endereço MCP nos trechos de instalação e por trás de **Copiar configuração MCP**, **Copiar comando MCP**, **Conectar ao Cursor** e **Conectar ao VS Code**, e o endereço da página que **Abrir no ChatGPT** e **Abrir no Claude** repassam;
+- na referência da API REST, a **Server URL**, os exemplos de código e o endereço que **Send** chama;
+- os links em `llms.txt` e `llms-full.txt` (páginas em Markdown puro), os endereços em `sitemap.xml` e `robots.txt` e os links canônicos das páginas públicas;
+- a `url` que `search_docs`, `get_docs_page`, `search` e `fetch` retornam, cuja origem os agentes colocam na frente de uma rota do aplicativo para montar um link completo.
+
+Uma requisição que chega sob outro nome de host, endereço IP ou porta continua recebendo endereços que apontam para `BASE_URL`: depois de entrar na conta, os usuários podem cair no endereço errado, e **Send** na referência da API REST falha, porque o navegador não deixa uma página aberta sob outro endereço chamar a API em `BASE_URL`.
+
+Três endereços que o aplicativo mostra para você copiar usam, em vez disso, o endereço com que o navegador abriu o aplicativo: o **Link de convite** na aba **Compartilhar link** de **Convidar usuário** e da etapa de convite do onboarding, o endereço MCP em **Conexões rápidas** e na etapa de onboarding **Conecte a IA que você já usa**, e os links de **Copiar link** em uma visualização salva. Copie-os de um navegador que use o endereço público.
+
+Quando você mudar o domínio ou `APP_PORT`, atualize também `BASE_URL` e rode `docker compose up -d`. Com um endereço `https://`, os cookies de login são marcados como Secure, então o aplicativo precisa ser aberto por HTTPS.
+
+## Como coloco o Customermates atrás de um proxy reverso com HTTPS? [#how-do-i-put-customermates-behind-a-reverse-proxy-with-https]
+
+Aponte um proxy reverso como Caddy, nginx ou Traefik para a porta do aplicativo (`4000`, ou o seu `APP_PORT`) e defina `BASE_URL` com o endereço público `https://`. O Caddy obtém o certificado TLS sozinho:
+
+```text
+crm.example.com {
+  reverse_proxy localhost:4000
+}
+```
+
+O aplicativo toma o esquema e o host dos seus links de `BASE_URL`, então cabeçalhos encaminhados como `X-Forwarded-Proto` não são necessários. O proxy precisa repassar o cabeçalho `Host` original, porque o aplicativo rejeita envios de formulário cuja origem não corresponda a ele, inclusive o login e o cadastro. O Caddy e o Traefik fazem isso por padrão; no nginx, acrescente `proxy_set_header Host $host;`. O arquivo Compose publica a porta do aplicativo em todas as interfaces de rede; se só o proxy deve alcançá-la, altere o mapeamento em `docker-compose.yml` para `"127.0.0.1:${APP_PORT:-4000}:4000"` ou bloqueie a porta no firewall.
+
+## Como configuro o e-mail com o Resend, e posso usar SMTP? [#how-do-i-set-up-email-with-resend-and-can-i-use-smtp]
+
+O Customermates envia e-mail apenas pelo [Resend](https://resend.com); não há opção de SMTP. Verifique o seu domínio de envio no Resend, crie uma chave de API e defina:
+
+- `RESEND_API_KEY`: a chave de API do Resend.
+- `RESEND_OPERATOR_EMAIL`: o endereço do remetente, em um domínio verificado no Resend. Todo e-mail sai como `Customermates <RESEND_OPERATOR_EMAIL>`. O mesmo endereço recebe um e-mail "New User Registration" quando alguém salva a etapa de perfil do assistente (veja [Quem pode se cadastrar](#who-can-sign-up-on-my-instance)) e as mensagens enviadas por **Enviar feedback** no menu pessoal.
+
+O aplicativo envia por e-mail links de verificação, redefinições de senha e convites. Quando um e-mail não consegue sair, o cadastro continua funcionando: os novos usuários podem usar a conta por 24 horas e depois ficam retidos em **Verificação de e-mail**, junto com as chaves de API e as conexões MCP deles, até verificarem. **Esqueceu a senha?** não envia nada, **Enviar feedback** falha, e a aba **Compartilhar link** de **Convidar usuário** continua funcionando.
+
+- Sem `RESEND_API_KEY`, todo envio falha com `RESEND_API_KEY is not configured` no log do aplicativo, e os convites por e-mail falham com um erro.
+- Se o Resend rejeitar um e-mail, ou o servidor não conseguir alcançar o Resend de jeito nenhum, por exemplo atrás de um firewall que descarta o tráfego de saída ou sem acesso à internet, o envio desiste em no máximo 10 segundos e o log do aplicativo mostra `[EmailService] Email not sent` com o assunto, o domínio do destinatário e o motivo do Resend. **Enviar convites** então informa os convites que não puderam ser enviados e mantém no formulário apenas os endereços deles, e as chamadas de convite por REST e MCP retornam o número deles como `failed` e os endereços como `failedEmails`. Enviar um convite de novo, por exemplo depois de um tempo esgotado, não envia e-mail duas vezes para o mesmo endereço em 24 horas. Sem conexão com o Resend, o cadastro e **Esqueceu a senha?** levam esses 10 segundos.
+
+Se os e-mails não estiverem chegando, confira o log do aplicativo, confira se o domínio do remetente está verificado e procure por envios rejeitados no painel do Resend.
+
+## Como crio a primeira conta na minha instância? [#how-do-i-create-the-first-account-on-my-instance]
+
+Abra `<BASE_URL>/auth/signup` e cadastre-se com e-mail e senha em **Criar conta**, ou com Google ou Microsoft, se você os configurou. Na tela seguinte, escolha **Criar um novo espaço de trabalho**. A primeira etapa do assistente pede o seu nome, o seu sobrenome e o idioma de exibição e cria o espaço de trabalho; você pode pular as demais etapas e fechar o assistente com **Concluir**. A conta que cria o espaço de trabalho recebe a função integrada **Administrador**, que tem todas as permissões. O novo espaço de trabalho ainda não tem listas: crie as de que precisa em [Modelo de dados](app:configure), ou com **Criar lista** no Painel vazio; veja [Conceitos principais](/docs/concepts#which-five-record-types-exist).
+
+Clique no link de verificação do e-mail em até 24 horas. Uma conta que ainda não foi verificada 24 horas depois do cadastro fica retida em **Verificação de e-mail**, onde **Reenviar e-mail de verificação** envia um link novo.
+
+Depois, abra [Membros](app:settings/members), convide colegas de equipe com [Adicionar](app:settings/members?focus=add), aprove-os ali quando se cadastrarem e defina o que eles podem fazer em [Funções](app:settings/roles); veja [Membros e funções](/docs/app-company).
+
+## Quem pode se cadastrar na minha instância? [#who-can-sign-up-on-my-instance]
+
+Qualquer pessoa que consiga acessar o seu `BASE_URL` pode se cadastrar; o cadastro não pode ser desativado. Um novo usuário que escolhe **Criar um novo espaço de trabalho** recebe um espaço de trabalho separado, com o próprio **Administrador**, isolado do seu, mas guardado no seu banco de dados; só um **Administrador** de um espaço de trabalho pode excluí-lo, veja [Como excluo um espaço de trabalho?](/docs/app-workspaces#how-do-i-delete-a-workspace). Todo usuário conectado também pode adicionar espaços de trabalho a qualquer momento com **Criar espaço de trabalho** no menu de espaços de trabalho. Um e-mail "New User Registration" vai para `RESEND_OPERATOR_EMAIL` quando alguém salva a etapa de perfil do assistente e, em um login com Google ou Microsoft, também quando alguém entra antes de salvá-la. Quem se cadastra com e-mail e senha mas nunca salva essa etapa não envia nenhum, e a notificação só chega se o Resend a aceitar, então ela não é um registro completo dos cadastros.
+
+Se a instância deve atender apenas uma equipe, limite quem pode alcançá-la, por exemplo com uma VPN, uma lista de IPs permitidos ou autenticação no proxy reverso; os clientes MCP e REST então precisam do mesmo acesso.
+
+Os colegas entram por um convite: [Adicionar](app:settings/members?focus=add) em [Membros](app:settings/members) abre **Convidar usuário** com uma aba **Compartilhar link** e uma aba **Enviar e-mails**. Os novos membros ficam com o status **Aguardando aprovação** até um membro com **Editar** em **Usuários e funções** abri-los, atribuir uma **Função** e definir o **Status** como **Ativo**.
+
+## Os usuários podem entrar com Google ou Microsoft? [#can-users-sign-in-with-google-or-microsoft]
+
+Sim, depois que você os configurar. Registre um cliente OAuth no Google, ou um registro de aplicativo no Microsoft Entra ID, com o URI de redirecionamento `<BASE_URL>/api/auth/callback/google` ou `<BASE_URL>/api/auth/callback/microsoft`. O provedor Microsoft usa o endpoint `common`, então registre o aplicativo para contas de qualquer diretório organizacional.
+
+No `.env`, remova o `#` na frente das linhas dos provedores que você usa, preencha `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET`, ou `AZURE_AD_CLIENT_ID` e `AZURE_AD_CLIENT_SECRET`, e depois rode `docker compose up -d`. O arquivo Compose repassa os quatro valores ao aplicativo; se o seu `docker-compose.yml` ainda não os lista, baixe-o de novo com o comando `curl` dos passos de instalação. Um provedor só aparece quando os dois valores dele estão definidos: a página de login então mostra **Continuar com Google** ou **Continuar com Microsoft**, e a página de cadastro **Cadastrar-se com Google** ou **Cadastrar-se com Microsoft**. O SSO empresarial por SAML não está implementado.
+
+## Como conecto um cliente de IA à minha instância de hospedagem própria? [#how-do-i-connect-an-ai-client-to-my-self-hosted-instance]
+
+O endpoint MCP é `<BASE_URL>/api/v1/mcp`, por exemplo `https://crm.example.com/api/v1/mcp`. Há duas formas de autenticar:
+
+- **Chave de API** no cabeçalho `x-api-key`, para clientes que rodam na sua máquina: Claude Code, Claude Desktop, Codex, Cursor e Gemini CLI. Crie a chave com [Adicionar](app:settings/api-keys?focus=generate) em [Chaves de API e conectores](app:settings/api-keys); **Conexões rápidas** ali mostra o trecho de configuração com o endereço sob o qual você abriu o aplicativo. O cliente só precisa alcançar a URL, então um endereço da rede local funciona. Veja [Conectar clientes de CLI e editores](/docs/connect-cli).
+- **Login por OAuth**, para clientes que se conectam a partir da nuvem do próprio provedor, como um conector personalizado do Claude. Eles exigem um `BASE_URL` acessível pela internet por HTTPS. Veja [Conectar o Claude e o ChatGPT](/docs/connect-custom-connector).
+
+O Assistente hospedado no aplicativo é exclusivo do Cloud: o Mate não está disponível em instâncias de hospedagem própria. O MCP externo usa o seu próprio provedor de IA. O SSO empresarial e a marca própria (white-label) não estão implementados em nenhum dos dois modelos de implantação.
+
+## Como os endereços são conferidos e como acrescento a busca de endereços? [#address-lookup]
+
+A conferência de endereços não exige configuração. Todo servidor confere os endereços com o formato de endereço do respectivo país, que acompanha o aplicativo, e preenche a cidade e a região a partir do código postal, veja [Como informo um endereço?](/docs/app-records#how-do-i-enter-an-address). Nada de um registro sai do seu servidor para isso.
+
+Os códigos postais são carregados do [GeoNames](https://www.geonames.org). Na primeira vez que alguém informa um endereço de um país, uma tarefa em segundo plano baixa o arquivo público desse país em `https://download.geonames.org/export/zip`, confere-o e guarda os códigos postais no seu banco de dados PostgreSQL; depois de 90 dias, ela baixa o arquivo de novo. Apenas o arquivo público é baixado: nenhum dado de registros, texto de busca ou endereço IP dos seus usuários é enviado. Enquanto um país não está carregado, ou enquanto o download dele falha, as verificações de formato continuam rodando, e só faltam as sugestões de cidade e região e a verificação da cidade. `POSTAL_CODE_DATA_URL` define a fonte dos arquivos:
+
+- Não definida: o GeoNames. O servidor precisa de acesso HTTPS de saída a `download.geonames.org`.
+- `off`: nenhum download. As verificações de formato continuam rodando, mas nada sugere uma cidade ou região, e a cidade não é conferida.
+- A URL de um espelho, por exemplo `https://mirror.example.com/geonames`: um servidor que oferece os arquivos do GeoNames com os mesmos nomes, como `DE.zip`, `US.zip` ou `CA_full.csv.zip`.
+
+Como em `ADDRESS_LOOKUP_URL`, abaixo, o Customermates nunca segue um redirecionamento, e um nome de host que resolve para um endereço privado só é aceito quando o próprio host configurado é privado.
+
+Um servidor de hospedagem própria também pode buscar endereços enquanto as pessoas digitam, com um serviço [Photon](https://github.com/komoot/photon) que você mesmo roda sobre dados do OpenStreetMap. Defina `ADDRESS_LOOKUP_URL` com ele, e os campos de endereço ganham **Pesquisar endereço** e **Verificar endereço**: um endereço escolhido ou correspondido ali é guardado como verificado, com a posição do edifício. O seu servidor envia ao Photon apenas o texto da busca ou o endereço que está sendo conferido, o idioma da pessoa e o país escolhido, então o Photon nunca vê os endereços IP nem as sessões das pessoas. Cada contêiner do aplicativo permite 30 buscas a cada 10 segundos por pessoa e responde buscas idênticas do próprio cache por 10 minutos. Sem `ADDRESS_LOOKUP_URL`, o padrão, as pessoas digitam o endereço por conta própria; o Customermates Cloud não tem busca de endereços.
+
+Para rodar o Photon, baixe o jar do Photon em [releases](https://github.com/komoot/photon/releases/latest), salve-o como `photon.jar` e baixe um índice de busca do planeta inteiro ou de um país em [download1.graphhopper.com/public](https://download1.graphhopper.com/public/) que corresponda à versão do Photon. O Photon precisa do Java 21 ou posterior e de memória compatível com o índice: para o índice do planeta, cerca de 95 GB em disco, o Photon recomenda pelo menos 64 GB de RAM, enquanto o índice de um país precisa de muito menos. Descompacte o índice de modo que `photon_data` fique ao lado do jar em `/srv/photon` e depois inicie o Photon na rede do projeto Compose, que leva o nome da pasta dele, aqui `customermates`, com um heap do Java (`-Xmx`) que caiba no seu índice:
+
+```bash
+docker run -d --name photon --restart unless-stopped \
+  --network customermates_default \
+  -v /srv/photon:/photon -w /photon \
+  eclipse-temurin:21-jre \
+  java -Xmx4g -jar photon.jar serve -listen-ip 0.0.0.0
+```
+
+Depois, defina `ADDRESS_LOOKUP_URL=http://photon:2322` no `.env` e rode `docker compose up -d`. O Customermates chama apenas o host configurado e nunca segue um redirecionamento. Um nome de host que resolve para um endereço privado só é aceito quando o próprio host configurado é privado: um endereço IP em uma faixa privada, `localhost`, um nome sem ponto como `photon`, ou um nome em `.local`, `.internal`, `.lan` ou `.home.arpa`. Quando o serviço não responde em 2 segundos, as pessoas veem que a busca de endereços está indisponível e ainda podem digitar o endereço. Remova a definição de `ADDRESS_LOOKUP_URL` para desativar a busca de novo; os endereços guardados mantêm a verificação.
+
+## Como atualizo uma instalação de hospedagem própria? [#how-do-i-update-a-self-hosted-installation]
+
+Faça um backup primeiro, depois baixe as novas imagens e recrie os contêineres:
+
+```bash
+docker compose pull
+docker compose up -d
+docker compose ps
+```
+
+A tag `latest` é recompilada a partir da branch principal sempre que ela muda, então cada pull pode trazer novos recursos e migrações do banco de dados. As migrações rodam a cada inicialização e só avançam: iniciar uma imagem mais antiga depois de uma migração não é um rollback seguro. Para voltar atrás, restaure o backup feito antes da atualização e inicie a imagem anterior pela tag `sha-` dela. `docker compose pull` também atualiza o `postgres:16-alpine` dentro do PostgreSQL 16.
+
+Para decidir quando as atualizações acontecem, fixe a imagem em `docker-compose.yml` em uma tag de build em vez de `latest`. Toda imagem também recebe a tag `sha-` seguida do ID curto do commit, por exemplo `ghcr.io/customermates/customermates:sha-<commit>`.
+
+**Atualização a partir de uma versão anterior a 14 de outubro de 2026:** a versão que tornou listas, campos e cálculos configuráveis converte os dados de CRM de cada espaço de trabalho quando a nova imagem inicia pela primeira vez. Registros, valores, vínculos, responsáveis, páginas da Base de conhecimento, membros, funções e chaves de API são mantidos. Todo widget do painel, as visualizações salvas e as configurações pessoais das listas de registros, a terminologia escolhida para as listas e o registro de auditoria são removidos, então o histórico recomeça na atualização, e todo webhook é desativado até você reativá-lo com os eventos de registro que ele deve enviar. Antes dessa atualização, faça o backup e rode o inventário somente leitura das [notas de migração](https://github.com/customermates/customermates/blob/main/prisma/migrations/20261010000000_dynamic_record_model/README.md#before-deploying), por exemplo em `docker compose exec postgres sh -c 'psql -U "$POSTGRES_USER" "$POSTGRES_DB"'`, para listar os webhooks que ela desativa. Se a conversão recusar dados que não consegue converter, ela não altera nada, o aplicativo não inicia e o log dele nomeia os campos e o número de valores recusados: restaure o backup, inicie a imagem anterior, corrija esses registros e atualize de novo.
+
+A partir de um clone do repositório, `scripts/selfhost-update.sh` executa essa atualização para você: ele grava um backup em `backups/` e depois baixa as imagens e recria os contêineres. Ao lado dele, `scripts/selfhost-setup.sh` cria o `.env` a partir do modelo, confere os valores obrigatórios e inicia a instância, `scripts/selfhost-restart.sh` recria o contêiner do aplicativo para que ele assimile as mudanças do `.env`, e `scripts/selfhost-reset.sh` exclui todos os dados como `docker compose down -v` depois que você digita `RESET`.
+
+## Como aplico as alterações do .env? [#apply-env-changes]
+
+Rode `docker compose up -d`. Ele recria os contêineres cuja configuração mudou, para que iniciem com os novos valores do `.env`. `docker compose restart` mantém o ambiente antigo e não aplica as alterações do `.env`.
+
+## Onde ficam os logs e como resolvo problemas? [#where-are-the-logs-and-how-do-i-troubleshoot]
+
+```bash
+docker compose logs -f app
+docker compose logs -f postgres
+docker compose ps
+docker compose exec app sh
+```
+
+O aplicativo grava os logs na saída do contêiner. As tarefas em segundo plano, como as entregas de webhook, rodam dentro do contêiner do aplicativo por uma fila apoiada no PostgreSQL, no mesmo banco de dados; não há um serviço de worker separado. A imagem publicada desativa a telemetria do Next.js e do Prisma. Os erros aparecem apenas nesses logs. Todo e-mail que o Resend rejeitou ou não respondeu a tempo é registrado como `[EmailService] Email not sent` com o motivo do Resend.
+
+## Onde os arquivos ficam guardados na hospedagem própria? [#file-storage]
+
+Os campos de arquivo guardam os arquivos no banco de dados PostgreSQL por padrão, então o backup com `pg_dump` os inclui. Um arquivo pode ter no máximo `FILE_MAX_UPLOAD_BYTES` bytes, 1073741824 (1 GB) quando não definido; acima disso, um espaço de trabalho de hospedagem própria não tem outro limite de armazenamento além do seu disco. Para muitos arquivos ou arquivos grandes, guarde-os em um bucket compatível com S3, como AWS S3, MinIO, Cloudflare R2 ou o armazenamento de objetos da Hetzner ou da OVH:
+
+- `FILE_STORAGE_DRIVER=s3`, mais `S3_BUCKET`, `S3_ACCESS_KEY_ID` e `S3_SECRET_ACCESS_KEY` de um bucket privado.
+- `S3_ENDPOINT` para todo provedor que não seja a AWS, por exemplo `https://fsn1.your-objectstorage.com`, e `S3_REGION` quando o provedor precisar de uma (`us-east-1` quando não definida).
+- `S3_FORCE_PATH_STYLE=true` para o MinIO e outros servidores que endereçam o bucket no caminho em vez de no nome do host.
+
+Os clientes de API devem enviar arquivos S3 maiores que 25 MiB para a URL de upload retornada por `/v1/files/uploads`. A rota de conteúdo do aplicativo aceita arquivos S3 menores e transmite os uploads do banco de dados até o limite de arquivo configurado.
+
+Os navegadores enviam os novos arquivos direto para o bucket, então as regras de CORS dele precisam permitir `PUT` com os cabeçalhos `Content-Type` e `If-None-Match` a partir do seu `BASE_URL`. Um link de upload grava um arquivo uma única vez: o bucket recusa um segundo upload nele, então um arquivo não pode ser substituído depois de salvo. AWS S3, MinIO e Cloudflare R2 oferecem esse suporte; um armazenamento que ignora `If-None-Match` aceita um segundo upload até o link expirar, depois de 15 minutos. Os downloads sempre passam pelo aplicativo, que confere o acesso antes. Um arquivo permanece onde foi enviado: depois de uma mudança para `s3`, os arquivos anteriores continuam no banco de dados e ainda abrem, e as variáveis S3 precisam continuar definidas enquanto o bucket tiver arquivos. Faça o backup do bucket junto com o banco de dados. A chamada diária a `/api/cron/lifecycle` exclui os arquivos removidos de registros há 30 dias e os uploads que nunca foram salvos, veja [Quais tarefas agendadas preciso executar?](#scheduled-jobs).
+
+## Como crio e restauro backups do banco de dados? [#backups]
+
+Todos os dados ficam no banco de dados PostgreSQL: registros, usuários, configurações, o Registro de atividades e a fila de tarefas em segundo plano, e os arquivos dos campos de arquivo, a menos que `FILE_STORAGE_DRIVER` seja `s3` (então faça o backup do bucket também). O contêiner do aplicativo não guarda dados. Faça o backup do banco de dados com `pg_dump` pelo contêiner do Postgres, cuja porta o arquivo Compose não publica:
+
+```bash
+(
+  umask 077
+  mkdir -p backups && chmod 700 backups
+  docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' \
+    | gzip > backups/customermates-$(date +%Y%m%d).sql.gz
+)
+```
+
+Rode-o todo dia a partir de um agendador como o cron e copie os arquivos para um armazenamento separado ou externo. Guarde uma cópia do `.env` com eles, armazenada com segurança e fora do controle de versão: restaurar com um `BETTER_AUTH_SECRET` diferente desconecta todo mundo.
+
+Para restaurar, pare o aplicativo, substitua o banco de dados por um vazio, carregue o dump e inicie de novo:
+
+```bash
+docker compose stop app
+docker compose exec -T postgres sh -c 'dropdb -U "$POSTGRES_USER" "$POSTGRES_DB" && createdb -U "$POSTGRES_USER" "$POSTGRES_DB"'
+gunzip -c backups/customermates-20260923.sql.gz \
+  | docker compose exec -T postgres sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" "$POSTGRES_DB"'
+docker compose up -d
+```
+
+Teste a restauração com regularidade em uma máquina separada. Mudar para uma nova versão principal do PostgreSQL, que o arquivo Compose fixa em 16, também exige um dump e uma restauração na nova versão.
+
+## Quais tarefas agendadas preciso executar? [#scheduled-jobs]
+
+O Cloud chama dois endpoints de manutenção em um agendamento; uma instância de hospedagem própria só os executa quando você os chama. Sem o diário, os itens da [Lixeira](/docs/app-trash) nunca são excluídos em definitivo depois dos 30 dias.
+
+- `/api/cron/lifecycle`, uma vez por dia: exclui os itens da Lixeira cujos 30 dias passaram, os arquivos removidos de registros há 30 dias e os uploads que nunca foram salvos, e executa o restante da manutenção diária. Em uma instância de hospedagem própria, ele pula as tarefas do Cloud para testes, assinaturas e contas conectadas.
+- `/api/cron/record-deliveries`, a cada 5 minutos (opcional): inicia as entregas de webhook devidas, o processamento de eventos, a extração de texto de arquivos anexados e outros trabalhos de registros em segundo plano que nenhuma tarefa em execução assumiu, por exemplo depois de uma reinicialização do contêiner.
+
+Os dois respondem HTTP `401`, a menos que o aplicativo tenha um `CRON_SECRET` e a requisição o envie como `Authorization: Bearer <secret>`. O modelo tem uma linha `CRON_SECRET` comentada ao lado de `BETTER_AUTH_SECRET`, e o arquivo Compose a repassa ao aplicativo; se o seu `docker-compose.yml` ainda não lista `CRON_SECRET`, baixe-o de novo com o comando `curl` dos passos de instalação. Descomente a linha, ou acrescente-a a um `.env` criado antes de ela existir, defina um valor aleatório longo, por exemplo gerado com `openssl rand -hex 32`, rode `docker compose up -d` e agende as chamadas no host, por exemplo com `crontab -e`:
+
+```bash
+0 3 * * * curl -fsS -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:4000/api/cron/lifecycle
+*/5 * * * * curl -fsS -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:4000/api/cron/record-deliveries
+```
+
+Use o seu `APP_PORT` no lugar de `4000`. Uma chamada bem-sucedida responde `{"ok":true,...}`. Se uma das tarefas falhar, a chamada responde HTTP `500` e o log do aplicativo nomeia a tarefa que falhou; com `curl -fsS`, o cron então relata a falha.
+
+## Como redefino todos os dados? [#how-do-i-reset-all-data]
+
+```bash
+docker compose down -v
+docker compose up -d
+```
+
+`-v` exclui o volume do PostgreSQL com todos os espaços de trabalho, usuários e registros da instância. Isso não pode ser desfeito, então faça um backup antes se você puder precisar dos dados. A próxima inicialização cria um banco de dados vazio, e a primeira pessoa que se cadastrar cria um novo espaço de trabalho.
+
+## Próximos passos [#next]
+
+- [Arquitetura e segurança](/docs/architecture-security): o que você está rodando.
+- [Chaves de API](/docs/api-keys): boas práticas com chaves.
+- [Conecte sua IA](/docs/connect-custom-connector): aponte um cliente MCP para a sua instância.

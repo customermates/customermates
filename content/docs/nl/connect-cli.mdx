@@ -1,0 +1,103 @@
+---
+title: "CLI en editors koppelen aan Customermates (API-sleutel)"
+description: "Koppel Claude Code, Codex, Cursor of Gemini CLI met een API-sleutel aan Customermates: één sectie per client, plus het alternatief voor Claude Desktop."
+---
+
+Customermates is het open-source, AI-native CRM. Na het koppelen leest en schrijft je codeeragent contacten, deals en notities zonder de terminal te verlaten. Alle clients op deze pagina authenticeren op dezelfde manier: met een API-sleutel in de header `x-api-key` naar `<BASE_URL>/api/v1/mcp`, waarbij `<BASE_URL>` het adres is waarop je Customermates opent, in de cloud of op je eigen instantie. De fragmenten hieronder bevatten al het adres van de site die deze pagina toont; open je Customermates op een ander adres, vervang dan dat adres en ook `YOUR_KEY`.
+
+> Gebruik je liever de **app** van Claude of ChatGPT? Die koppel je met [de eigen connector](/docs/connect-custom-connector) (OAuth, zonder sleutel).
+
+## API-sleutel aanmaken [#create-an-api-key]
+
+Open in Customermates [API-sleutels & connectoren](app:settings/api-keys), klik op [Toevoegen](app:settings/api-keys?focus=generate) en kies **Standaard API-sleutel**. Geef de sleutel de naam van de client (bijvoorbeeld `Claude Code`); zonder waarde bij **Verloopt over** verloopt hij nooit. De sleutel van 64 tekens wordt maar één keer getoond, dus kopieer hem meteen. **Snelle koppelingen** in hetzelfde dialoogvenster doet dit voor je: het geeft de sleutel de naam van de client, laat hem na 365 dagen verlopen en toont het installatiefragment met de sleutel al ingevuld en de vervaldatum eronder.
+
+Om een sleutel aan te maken heb je **Aanmaken** nodig op de rij **API en webhooks** van je rol, en voor de pagina zelf **Leestoegang** **Alle** op die rij; de ingebouwde rol **Beheerder** heeft beide. Een sleutel erft de rechten van de gebruiker die hem heeft aangemaakt; je kunt rechten niet per sleutel beperken. Maak één sleutel per client aan, zodat je er één kunt intrekken zonder de andere aan te raken; het activiteitenlog noteert de gebruiker van wie een sleutel is, niet de sleutel zelf. API-sleutels en MCP werken op elk abonnement en op zelf gehoste instanties. Details: [API-sleutels](/docs/api-keys).
+
+## Claude Code [#claude-code]
+
+Claude Code voegt MCP-servers toe via zijn CLI. Eén opdracht regelt de installatie. Voer die uit in een willekeurige terminal en vervang `YOUR_KEY`:
+
+<McpInstallSnippet tool="claudeCode" />
+
+Je hoeft niet te herstarten of een configuratiebestand te bewerken. Claude Code maakt automatisch verbinding. Voer `claude mcp list` uit om te controleren of `customermates` in de lijst staat.
+
+**Scope:** de opdracht gebruikt standaard de lokale scope. Voeg `--scope user` toe om Customermates overal op je machine beschikbaar te maken, of `--scope project` om het naar de `.mcp.json` van een repository te schrijven, zodat je teamgenoten het ook krijgen.
+
+## Codex [#codex]
+
+Codex maakt rechtstreeks verbinding met Customermates via Streamable HTTP. `codex mcp add customermates --url <BASE_URL>/api/v1/mcp` voegt de server-URL toe, maar die CLI-opdracht heeft geen optie voor een eigen `x-api-key`-header. Open voor toegang met een API-sleutel `~/.codex/config.toml` (maak het bestand aan als het ontbreekt) en voeg het volledige blok hieronder toe, waarbij je `YOUR_KEY` vervangt:
+
+<McpInstallSnippet tool="codex" />
+
+Wil je de sleutel uit je omgeving halen in plaats van hem in het bestand op te slaan, vervang dan de regel `http_headers` van het blok hierboven door:
+
+```toml
+env_http_headers = { "x-api-key" = "CUSTOMERMATES_API_KEY" }
+```
+
+Exporteer daarna `CUSTOMERMATES_API_KEY` in het profiel van je shell. Nieuwe sessies pakken de server op, dus sluit de huidige sessie af en begin een nieuwe.
+
+Hetzelfde HTTP-endpoint accepteert ook OAuth. Log je liever in, voeg dan de URL toe met `codex mcp add customermates --url <BASE_URL>/api/v1/mcp` en voer daarna `codex mcp login customermates` uit. De stdio-bridge die hieronder wordt beschreven is bedoeld voor Claude Desktop-clients die er een nodig hebben.
+
+## Cursor [#cursor]
+
+Open voor de Cursor-installatie **Settings → Tools & MCP → Add new MCP server** en plak dit, waarbij je `YOUR_KEY` vervangt:
+
+<McpInstallSnippet tool="cursor" />
+
+Cursor herlaadt direct, dus herstarten is niet nodig. De tools verschijnen meteen in Composer. Wil je het bestand zelf bewerken, dan komt hetzelfde blok in `~/.cursor/mcp.json` (globaal) of `<project>/.cursor/mcp.json` (per project), binnen `mcpServers`.
+
+## Gemini CLI [#gemini-cli]
+
+De Gemini CLI laadt MCP-servers uit `~/.gemini/settings.json`. Voeg dit samen met je bestaande inhoud en vervang `YOUR_KEY`:
+
+<McpInstallSnippet tool="gemini" />
+
+Staan er in `mcpServers` al items, voeg dan `customermates` toe naast de bestaande in plaats van het object te overschrijven.
+
+## Claude Desktop (configuratiebestand) [#claude-desktop-config-file]
+
+De aanbevolen weg voor Claude Desktop is de [connector](/docs/connect-custom-connector#claude): OAuth, geen sleutel, gesynchroniseerd tussen je apparaten. Heb je een gratis abonnement, of gebruik je liever een vaste sleutel, dan werkt het configuratiebestand hieronder ook.
+
+Open **Claude → Settings → Developer → Edit Config**, of het bestand zelf:
+
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
+Voeg dit samen met je bestaande inhoud en vervang `YOUR_KEY`:
+
+<McpInstallSnippet tool="claudeDesktop" />
+
+`mcp-remote` is een tussenlaag waarmee Claude Desktop via stdio kan praten met een externe HTTP-MCP-server. Het wordt bij de eerste keer via `npx` gedownload, dus je hebt Node 18+ nodig in je `PATH`.
+
+Herstart daarna: sluit de app helemaal af (⌘Q op macOS, het venster sluiten is niet genoeg) en open hem opnieuw. Customermates verschijnt in het toolspaneel met de CRM-tools in de lijst.
+
+## Probeer je eerste prompt [#try-your-first-prompt]
+
+De server levert verbindingsinstructies die zijn toolaanbod, de veiligheidsregels en het ophalen van relevante Kennisbankpagina's beschrijven. Clients bepalen zelf of ze die instructies aan hun agent doorgeven. Doet die van jou dat niet, voeg dan de regel voor het ophalen van de Kennisbank toe aan de vaste instructies van die client. In clients die MCP-prompts ondersteunen (zoals Claude Code) kun je de ingebouwde prompt `get-started` uitvoeren voor een begeleide start: die leest eerst je werkruimte en de relevante Kennisbankpagina's en vraagt daarna alleen om ontbrekende informatie.
+
+- _"Zet het veld Status van de deal met Acme op 'Gewonnen' en voeg een notitie toe dat het contract vandaag is getekend."_
+- _"Haal de laatste tien contacten op die ik heb aangemaakt. Zijn er zonder e-mailadres?"_
+- _"Maak een contact aan voor Jane Doe bij Initech, koppel het aan de organisatie Initech en start een deal voor 12 uur advieswerk."_
+- _"Op welke klantgesprekken wacht een antwoord van mij? Schrijf een antwoord op het oudste gesprek en sla het op als concept."_
+
+Voor de antwoordprompt moet je op Customermates Cloud vanaf Pro een kanaal hebben gekoppeld; het concept blijft in het gesprek staan tot jij het controleert en verstuurt.
+
+Elke werkruimte definieert zijn eigen recordtypen, zoals contacten, deals of taken, en ook attributen zoals de fase van een deal of de prioriteit van een taak hangen af van de configuratie van de werkruimte. Roep `discover_record_types` aan en daarna `get_record_model` voor de relevante type-ID's voordat je schrijft.
+
+## Problemen oplossen [#troubleshooting]
+
+| Client | Symptoom | Oorzaak | Oplossing |
+| --- | --- | --- | --- |
+| Claude Desktop | `npx: command not found` | Geen Node in de `PATH` | Installeer Node 18+ via [nodejs.org](https://nodejs.org/en) |
+| Claude Desktop | Toolspaneel leeg na het wijzigen van de configuratie | Claude Desktop herlaadt MCP-configuraties niet direct | Sluit de app helemaal af (⌘Q) en open hem opnieuw |
+| Codex | TOML-parseerfout | Waarden in inline-tabellen gebruiken `=`, geen `:` | Controleer de regel `env_http_headers = { ... }` |
+| Alle | De client kan geen verbinding maken of toont geen tools; de server antwoordt met HTTP `401` | De sleutel is onjuist of afgekapt, of een sleutel die werkte is verlopen (sleutels uit **Snelle koppelingen** verlopen na 365 dagen) of verwijderd. De server controleert de header `x-api-key` bij elk verzoek en antwoordt met `401` en een `WWW-Authenticate`-header voordat er een tool wordt getoond, ook voor het opzoeken van documentatie | Maak een nieuwe sleutel aan onder [API-sleutels & connectoren](app:settings/api-keys), plak alle 64 tekens en werk de client bij |
+| Alle | Een verbinding die werkte mislukt nu met "Je gebruikersaccount is inactief. Neem contact op met een werkruimtebeheerder." | De eigenaar van de sleutel is op **Inactief** gezet | Een lid met **Bewerken** op **Gebruikers & rollen** zet die persoon onder [Leden](app:settings/members) terug op **Actief**, en de bestaande sleutel werkt weer |
+| Alle | Het bijwerken van een relatie wordt geweigerd | Een relatie-ID of eindpunt ontbreekt of is niet toegankelijk | Vraag de agent om `get_record_model` te lezen en daarna `mutate_crm_record` te gebruiken met `link` of `unlink` en stabiele recordverwijzingen |
+
+## Volgende stappen [#next]
+
+- [Eigen connector](/docs/connect-custom-connector): de OAuth-route voor de apps van Claude en ChatGPT.
+- [MCP-toolcatalogus](/docs/mcp#tool-catalog): alle tools die de agent kan aanroepen.
+- [Webhooks](/docs/webhooks): abonneer andere systemen op wijzigingen in het CRM.

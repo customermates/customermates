@@ -1,0 +1,47 @@
+---
+title: "Kosz: cofnij usunięcie i przywróć elementy"
+description: "Usunięte rekordy, listy, pola, widoki, widżety, rutyny i strony czekają w Koszu 30 dni, a Ty możesz je w tym czasie przywrócić albo usunąć trwale."
+---
+
+Usunięcie w Customermates przenosi element do [Kosza](app:trash) zamiast usuwać go od razu. Tuż po usunięciu przez kilka sekund widać komunikat z przyciskiem **Cofnij**; **Cofnij** natychmiast przywraca element. Duże usunięcie działa w tle: komunikat informuje, że elementy są przenoszone do Kosza, a przycisk **Cofnij** pojawia się po zakończeniu. Potem element czeka w Koszu 30 dni i po tym czasie sam zostaje usunięty trwale.
+
+## Co trafia do Kosza? [#what-goes-to-trash]
+
+- Rekordy każdej listy, na przykład kontakt lub szansa sprzedaży. Wiersze podlisty i powiązania rekordu idą razem z nim i razem z nim wracają.
+- Listy, pola, relacje i pola Dane kontaktowe usunięte w sekcji [Model danych](app:configure).
+- Zapisane widoki, widoki pulpitu i widżety pulpitu.
+- Rutyny i strony [Bazy wiedzy](app:wiki).
+
+Członkowie, zaproszenia, role, klucze API, webhooki i połączone konta nie trafiają do Kosza: ich usunięcie zmienia dostęp, więc działa natychmiast.
+
+Dopóki element jest w Koszu, nie ma go nigdzie indziej: listy, wyszukiwanie, sumy i obliczenia, widżety, filtry, eksporty, Mate, API i MCP już go nie widzą, a rutyny i webhooki nie uruchamiają się dla niego.
+
+## Kto co widzi w Koszu? [#who-sees-what]
+
+**Kosz** jest na pasku bocznym dla każdego. Widzisz te elementy, które możesz zobaczyć i usunąć: rekordy i konfigurację, które możesz usunąć, strony Bazy wiedzy, jeśli Twoja rola pozwala je usuwać, rutyny, jeśli masz rolę **Administrator**, oraz własne zapisane widoki i widżety, które w Koszu również pozostają osobiste. Każdy wiersz pokazuje element, jego rodzaj, kto go usunął, kiedy i ile dni zostało do trwałego usunięcia. W [Filtrach](app:trash?focus=filter) wyszukaj elementy i zawęź je według rodzaju lub listy.
+
+## Jak przywrócić usunięty element? [#how-do-i-restore]
+
+Otwórz [Kosz](app:trash), najedź kursorem na wiersz i kliknij **Przywróć** albo zaznacz kilka wierszy i kliknij **Przywróć** na pasku zaznaczenia. Przywracanie wymaga takiego samego dostępu jak usuwanie. Przywrócony rekord wraca ze swoimi wartościami, powiązaniami i wierszami podlist. Powiązanie z rekordem, który w międzyczasie został usunięty trwale, nie może wrócić; komunikat po przywróceniu podaje, ile powiązań pominięto. Duże przywracanie działa w tle: rekord pokazuje **Przywracanie…**, dopóki się nie zakończy. Rekord, którego lista sama jest w Koszu, można przywrócić dopiero po przywróceniu jego listy, a rutyna zostaje w Koszu, dopóki jej właściciel ma już wszystkie rutyny, które obejmuje jego plan.
+
+Jeśli inna zmiana w przestrzeni roboczej trzyma blokadę zapisu, przywracanie po około pięciu sekundach zwraca odpowiedź, że system jest zajęty, i nie zmienia elementu w Koszu. Spróbuj ponownie, gdy tamta zmiana się skończy.
+
+Usunięcie pola w sekcji [Model danych](app:configure) usuwa filtry, kolumny, sortowania i grupowania zapisanych widoków, które z niego korzystają. Podgląd usunięcia i jego wynik wymieniają, których widoków i widżetów to dotyczy. Przywrócenie pola nie odtwarza tych ustawień. Jeśli przywrócisz zapisany widok po usunięciu jego pola, `droppedViewReferences` podaje, co zostało usunięte; komunikat w Koszu pokazuje liczby. Po przywróceniu pola ustaw to wszystko ponownie.
+
+Przywrócone pole obliczane odzyskuje wartości na podstawie bieżących wartości i powiązań każdego rekordu, także zmian wprowadzonych, gdy było w Koszu; pole, które zapisuje wartość w określonym momencie, na przykład przy tworzeniu rekordu, zachowuje wartości zapisane wcześniej. Pole obliczane zostaje w Koszu, dopóki istnieje pole, relacja lub lista, które odczytuje, i tak samo element, który nie pasuje już do bieżącej konfiguracji lub danych, na przykład pole wymagane, które rekordy utworzone w międzyczasie zostawiają puste. Zaznacz pole obliczane razem z tym, co odczytuje, i przywróć je jednym krokiem, w dowolnej kolejności. Gdy przywracanie przelicza wiele rekordów, działa w tle, a rekordy, widoki i inne elementy zaznaczone razem z nim zostają w Koszu do jego zakończenia; przywróć je ponownie po zakończeniu.
+
+Otwarcie usuniętego rekordu z Kosza pokazuje go tylko do odczytu z banerem **W Koszu** i przyciskiem **Przywróć**; jego **Aktywności** też można tam czytać, ale nie zmieniać. Przez REST `POST /api/v1/trash/query` wyświetla elementy Kosza, a `POST /api/v1/trash/read` zwraca ten sam widok tylko do odczytu usuniętego rekordu; przez MCP `read_trash` je wyświetla, a z `action: "read"` oraz `typeId` i `recordId` rekordu otwiera jeden z nich w ten sam sposób.
+
+## Co się stanie, gdy otworzę link do usuniętej listy lub widoku? [#links-to-deleted-items]
+
+Link do listy, która jest w Koszu, na przykład zakładka przeglądarki z usuniętą listą Projekty, pokazuje nazwę listy z napisem **W Koszu**, datę usunięcia i liczbę pozostałych dni. Jeśli widzisz listę w [Koszu](app:trash), pojawia się tam przycisk **Przywróć**, który przywraca listę, a strona zaczyna ją wtedy pokazywać. Bez takiego dostępu, a także dla listy, która nie istnieje lub została usunięta trwale, link pokazuje ekran „Nie znaleziono strony”. Link do zapisanego widoku, który już nie istnieje lub nie jest Twój, otwiera zamiast niego domyślny widok listy i usuwa widok z adresu.
+
+## Jak usunąć coś trwale? [#how-do-i-delete-permanently]
+
+W [Koszu](app:trash) najedź kursorem na wiersz i kliknij **Usuń trwale** albo zaznacz kilka wierszy i kliknij **Usuń trwale** na pasku zaznaczenia. Potwierdzenie podaje dokładnie, co zniknie, na przykład liczbę rekordów na listę i powiązań. Trwałego usunięcia nie można cofnąć. Usuwa ono też z historii rekordu wartości jego pól; historia zachowuje tylko informację, kto go zmienił i kiedy.
+
+Członkowie z rolą **Administrator** mogą usunąć naraz wszystko, co widzą w Koszu, przez **Opróżnij kosz** w menu **Więcej działań** w [Koszu](app:trash); ta opcja jest widoczna tylko wtedy, gdy Kosz zawiera elementy. Aby potwierdzić, wpisz **opróżnij kosz**.
+
+## Jak długo elementy zostają w Koszu? [#how-long]
+
+30 dni od usunięcia. Każdy wiersz pokazuje, ile dni zostało; ostatniego dnia element jest usuwany trwale bez dodatkowego powiadomienia, z takim samym skutkiem dla jego historii jak własnoręczne trwałe usunięcie. Instancja self-hosted robi to tylko wtedy, gdy uruchamia się jej codzienne [zadanie cykliczne](/docs/self-hosting#scheduled-jobs).

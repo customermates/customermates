@@ -1,0 +1,280 @@
+---
+title: "Pronóstico de ventas: métodos, fórmulas y ejemplo resuelto"
+description: "Pronóstico de ventas: cómo calcularlo con pipeline ponderado, tasa de éxito y run-rate, con un ejemplo resuelto, fórmulas para Excel y errores a evitar."
+
+relatedHrefs:
+  - /blog/sales-pipeline
+  - /features/reporting
+  - /blog/sales-plan-template
+  - /blog/crm-for-sales
+
+hero:
+  title: "Pronóstico de ventas: cómo prever los ingresos a partir de tu pipeline"
+  description: "Un ejemplo resuelto con ocho oportunidades, tres métodos de pronóstico comparados lado a lado, las fórmulas para reconstruirlo en una hoja de cálculo y los campos que un CRM necesita en cada oportunidad para poder fiarse del pronóstico."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Volver al blog
+  by: por Benjamin Wagner
+  date: 2026-11-09
+  tags:
+    - Pronóstico de ventas
+    - Pipeline de ventas
+    - Proceso de ventas
+---
+
+# Pronóstico de ventas: cómo prever los ingresos a partir de tu pipeline
+
+El pronóstico de ventas (también llamado previsión de ventas, sobre todo en España, o proyección de ventas y forecast de ventas, del inglés sales forecasting) es la estimación de cuántos ingresos ganará tu equipo en un periodo futuro, normalmente el mes o el trimestre siguiente, a partir de las oportunidades de tu pipeline y de tus resultados hasta ahora. Para un equipo B2B pequeño, el método práctico es un pipeline ponderado: multiplica el importe de cada oportunidad abierta por la probabilidad de ganar de su etapa, suma las que se espera cerrar en el periodo y añade lo que ya has ganado.
+
+Esta guía lo calcula con ocho oportunidades de ejemplo, compara el resultado con un método de tasa de éxito y con uno de run-rate, lado a lado, y enumera los campos que necesita el registro de una oportunidad para que puedas reconstruir el pronóstico en cualquier hoja de cálculo. Customermates publica esta guía; la sección sobre el pronóstico en Customermates está marcada como nuestra y dice con claridad lo que el producto no hace.
+
+<ArticleSummary title="De un vistazo">
+  <SummaryItem label="Definición">Un pronóstico de ventas es tu mejor estimación de los ingresos que ganarás en un periodo. Un objetivo es lo que quieres ganar. Son números distintos.</SummaryItem>
+  <SummaryItem label="Fórmula básica">Valor ponderado = importe de la oportunidad × probabilidad de la etapa. Pronóstico = ganado hasta ahora + valor ponderado de las oportunidades abiertas cuya fecha de cierre prevista cae dentro del periodo.</SummaryItem>
+  <SummaryItem label="No te apoyes en un solo método">Calcula el pipeline ponderado, una cifra de tasa de éxito y una de run-rate, y después publica un rango y explica cualquier diferencia entre ellas.</SummaryItem>
+  <SummaryItem label="Campos que necesita toda oportunidad">Importe, etapa, fecha de cierre prevista, responsable y, una vez cerrada, la fecha en que se ganó o se perdió.</SummaryItem>
+</ArticleSummary>
+
+Un pronóstico es tan bueno como el pipeline que hay detrás. Si tus etapas todavía no tienen condiciones de entrada, empieza con la guía para [construir y revisar un pipeline de ventas](/blog/sales-pipeline) y vuelve aquí. Para el lado del objetivo, la [plantilla de plan de ventas a 90 días](/blog/sales-plan-template) convierte una meta de ingresos en cuentas, responsables y fechas de revisión.
+
+## ¿Qué es el pronóstico de ventas y en qué se diferencia de un objetivo o de un plan?
+
+Un pronóstico dice qué es probable que ocurra. Un objetivo dice qué quieres que ocurra. Un plan dice qué harás respecto a la diferencia. Mezclarlos es una forma habitual de que un pronóstico salga mal: un número empujado hacia el objetivo deja de ser un pronóstico.
+
+El libro de texto de pronósticos de Rob J Hyndman y George Athanasopoulos lo plantea igual: pronosticar es predecir el futuro con la mayor exactitud posible según la información disponible, los objetivos son lo que te gustaría que ocurriera y planificar es la respuesta a los pronósticos y a los objetivos ([sección 1.2](https://otexts.com/fpp3/planning.html)). En un equipo de ventas eso te da tres números separados.
+
+| Término | Pregunta a la que responde | Ejemplo del ejemplo resuelto de más abajo |
+|---|---|---|
+| Pronóstico | ¿Qué probablemente ganaremos este trimestre? | 94.400 (método del pipeline ponderado) |
+| Objetivo | ¿Qué queremos ganar este trimestre? | 110.000 |
+| Plan | ¿Qué hacemos respecto a la diferencia? | Nueva prospección y un empujón para adelantar una oportunidad grande |
+
+**Qué cuenta el pronóstico.** Esta guía pronostica el valor de las oportunidades ganadas: el importe de las oportunidades que ganas en el periodo, introducido sin impuestos y en una sola moneda. No son ingresos reconocidos ni facturados. Esos siguen las reglas contables y las fechas de factura, y el registro de una oportunidad en el CRM no los sustituye.
+
+## ¿Para qué sirve el pronóstico de ventas y qué ventajas tiene? [#para-que-sirve]
+
+Un pronóstico no se hace para acertar al euro, sino para decidir con tiempo. Estas son las ventajas que más notan los equipos pequeños:
+
+- **Decisiones de dinero y de personas con margen.** Contratar, comprar, invertir en publicidad o comprometer capacidad de entrega depende de cuánto se espera ganar, y esperar a que cierre el trimestre es llegar tarde.
+- **Ver la brecha cuando todavía se puede cerrar.** En el ejemplo resuelto, el pronóstico dice con semanas de antelación que faltan 15.600 para el objetivo; la respuesta es prospectar más o adelantar una oportunidad, no esperar.
+- **Un pipeline más limpio.** Para calcularlo hace falta que cada oportunidad tenga importe, etapa, fecha de cierre y responsable, y pedir esos cuatro datos saca a la luz las oportunidades estancadas.
+- **Conversaciones con datos.** Cuando una sola oportunidad pesa una quinta parte del número, el equipo lo ve y lo discute en lugar de descubrirlo la última semana.
+
+Un pronóstico que nadie compara con el resultado real no mejora; la sección sobre precisión explica cómo medir el error.
+
+## ¿Cuáles son los 7 pasos del pronóstico?
+
+No existe una lista estándar de siete. El libro de texto citado nombra cinco pasos básicos para cualquier tarea de pronóstico: definición del problema, recopilación de información, análisis preliminar, elección y ajuste de modelos, y uso y evaluación del modelo ([sección 1.6](https://otexts.com/fpp3/basic-steps.html)). Las guías de ventas cuentan de otra manera. Para un pronóstico de pipeline usamos estos siete:
+
+<Steps>
+  <Step title="Define el periodo y qué cuenta">Nombra el periodo (por ejemplo, del 1 de octubre al 31 de diciembre) y decide que cuentas el valor de las oportunidades ganadas, sin impuestos y en una sola moneda.</Step>
+  <Step title="Limpia el pipeline">Pasa cada oportunidad a la etapa que ha alcanzado de verdad y cierra las que nadie ha tocado en semanas. Las oportunidades estancadas inflan un pronóstico sin hacer ruido.</Step>
+  <Step title="Comprueba cuatro datos en cada oportunidad abierta">Importe, etapa, fecha de cierre prevista y responsable. Una oportunidad a la que le falte uno de ellos queda fuera del pronóstico y pasa a una lista para corregir, en lugar de adivinarse.</Step>
+  <Step title="Fija las probabilidades de cada etapa con tu historial">Usa tus propias oportunidades ganadas y perdidas. Mientras no tengas suficientes, empieza con valores provisionales y márcalos como supuestos.</Step>
+  <Step title="Calcula de dos maneras">El pipeline ponderado de las oportunidades que vencen en el periodo y una comprobación cruzada con la tasa de éxito o el run-rate.</Step>
+  <Step title="Publica un rango, no un punto">Da un suelo, una cifra esperada y un mejor caso, y nombra las dos o tres oportunidades más grandes que hacen oscilar el resultado.</Step>
+  <Step title="Compáralo con el resultado real">Al final del periodo, anota cuánto se desvió el pronóstico y ajusta las probabilidades.</Step>
+</Steps>
+
+## ¿Cuál es un ejemplo de pronóstico de ventas?
+
+Aquí tienes uno que puedes reconstruir en una hoja de cálculo en diez minutos. Todas las cifras son inventadas. Los supuestos:
+
+- El pronóstico se hace el 9 de noviembre de 2026 para el trimestre que termina el 31 de diciembre de 2026.
+- El importe es el valor total del contrato, sin impuestos, en dólares.
+- Las probabilidades de las etapas son Cualificación 20%, Demo 40%, Propuesta 60% y Negociación 80%: los valores iniciales de nuestra [guía del pipeline de ventas](/blog/sales-pipeline). Sustitúyelos por los tuyos en cuanto puedas.
+- Ya se han ganado 38.000 este trimestre. El objetivo es 110.000.
+- Solo cuentan las oportunidades cuya fecha de cierre prevista cae dentro del trimestre.
+
+| Oportunidad | Etapa | Importe | Cierre previsto | Probabilidad | Valor ponderado | ¿Cuenta este trimestre? |
+|---|---|---|---|---|---|---|
+| A: Empresa de logística, contrato de servicio de 12 meses | Negociación | 24.000 | 27 nov | 80% | 19.200 | Sí |
+| B: Grupo dental, despliegue | Propuesta | 12.000 | 4 dic | 60% | 7.200 | Sí |
+| C: Estudio de diseño, retainer | Negociación | 6.000 | 10 dic | 80% | 4.800 | Sí |
+| D: Empresa de ingeniería, proyecto de plataforma | Propuesta | 30.000 | 15 dic | 60% | 18.000 | Sí |
+| E: Despacho de abogados, piloto | Demo | 9.000 | 18 dic | 40% | 3.600 | Sí |
+| F: Productor de alimentos, serie de talleres | Cualificación | 18.000 | 22 dic | 20% | 3.600 | Sí |
+| G: Proveedor de maquinaria, paquete de servicio | Cualificación | 15.000 | 20 ene 2027 | 20% | 3.000 | No |
+| H: Red de clínicas, varias sedes | Demo | 45.000 | 15 feb 2027 | 40% | 18.000 | No |
+| **Pendiente de cierre este trimestre (A a F)** | | **99.000** | | | **56.400** | |
+
+El pipeline ponderado del trimestre es 56.400. Suma los 38.000 ya ganados y el pronóstico es **94.400**, es decir, 15.600 por debajo del objetivo de 110.000.
+
+Las oportunidades G y H son pipeline real, con 60.000 de importe y 21.000 ponderados, pero se espera que cierren después del 31 de diciembre. Si te saltaras la regla de la fecha, habrías sumado 21.000 y habrías obtenido un pronóstico de 115.400, por encima del objetivo por el motivo equivocado.
+
+Fíjate en cuánto mueve el número una sola oportunidad. La oportunidad D aporta 18.000 de los 94.400, aproximadamente una quinta parte. Si se retrasa a enero, el pronóstico baja a 76.400 con una sola edición. Un valor ponderado es un promedio sobre muchas oportunidades; ninguna oportunidad cierra al 60%. Cierra o no cierra.
+
+**La hoja de cálculo.** Pon las ocho oportunidades en las filas 2 a 9, con el Importe en la columna C, el Cierre previsto en la columna D, la Probabilidad en la columna E y el Valor ponderado en la columna F.
+
+```text
+Valor ponderado (F2, copiado hacia abajo)   =C2*E2
+Pipeline ponderado del trimestre            =SUMIFS(F2:F9,D2:D9,">="&DATE(2026,10,1),D2:D9,"<="&DATE(2026,12,31))
+Importe abierto del trimestre               =SUMIFS(C2:C9,D2:D9,">="&DATE(2026,10,1),D2:D9,"<="&DATE(2026,12,31))
+Pronóstico                                  =38000+(pipeline ponderado del trimestre)
+```
+
+Las fórmulas funcionan en Excel y en Google Sheets. Están escritas con los nombres de función en inglés; en una hoja con configuración en español, SUMIFS se llama SUMAR.SI.CONJUNTO y DATE se llama FECHA, y según tu configuración regional los argumentos se separan con coma o con punto y coma. Guarda la cifra de ganado hasta ahora en su propia celda y actualízala desde el CRM antes de cada revisión.
+
+## ¿Cuál es el mejor modelo de pronóstico de ventas?
+
+No hay un mejor modelo, solo el que encaja con los datos que tienes. Estos son los métodos que un equipo pequeño puede usar de verdad, con el punto débil de cada uno.
+
+| Método | Cómo se calcula | Qué necesita | Punto débil |
+|---|---|---|---|
+| Commit (suelo) | Ganado hasta ahora + oportunidades de la última etapa abierta por su importe completo. Es una definición nuestra, no un estándar | Una etapa que signifique que el comprador está decidiendo | Ignora todo lo que está antes en el pipeline |
+| Pipeline ponderado | Ganado hasta ahora + importe × probabilidad de la etapa, de las oportunidades que vencen en el periodo | Probabilidades por etapa y fechas de cierre previstas | Las probabilidades son conjeturas hasta que se calibran; unas pocas oportunidades grandes dominan |
+| Tasa de éxito × pipeline | Ganado hasta ahora + importe abierto que vence en el periodo × tasa de éxito por valor | Un año más o menos de oportunidades ganadas y perdidas | Trata igual una oportunidad de la primera llamada y una en negociación |
+| Run-rate histórico | Valor medio ganado de los últimos cuatro periodos | Cuatro o más periodos comparables | Ciego al pipeline actual y al crecimiento |
+| Modelos estadísticos (series temporales, regresión) | Ajustados a resultados pasados por software | Muchos periodos de historial estable | La mayoría de los equipos pequeños cierra muy pocas oportunidades para ajustar uno |
+
+Para comparar los cuatro primeros en el ejemplo, añade dos datos más, también inventados. En los últimos doce meses el equipo ganó 360.000 y perdió 540.000 por valor, una tasa de éxito de 360.000 ÷ (360.000 + 540.000) = 40%. En los últimos cuatro trimestres ganó 78.000, 88.000, 99.000 y 95.000.
+
+| Método | Cálculo | Pronóstico del T4 | Frente al objetivo de 110.000 |
+|---|---|---|---|
+| Commit (suelo) | 38.000 + 24.000 + 6.000 | 68.000 | 42.000 por debajo |
+| Tasa de éxito × pipeline | 38.000 + 40% × 99.000 | 77.600 | 32.400 por debajo |
+| Run-rate histórico | (78.000 + 88.000 + 99.000 + 95.000) ÷ 4 | 90.000 | 20.000 por debajo |
+| Pipeline ponderado | 38.000 + 56.400 | 94.400 | 15.600 por debajo |
+| Mejor caso | 38.000 + 99.000 | 137.000 | 27.000 por encima |
+
+Tres cosas que leer en la tabla:
+
+1. **La brecha es real.** Todas las cifras esperadas están por debajo del objetivo. Si un método dijera 115.000 y los demás dijeran entre 80.000 y 94.000, sospecharías de ese único método, no lo celebrarías.
+2. **Los métodos difieren por un motivo.** La tasa de éxito fija del 40% es una mezcla de todas las oportunidades desde el primer contacto, mientras que las oportunidades abiertas de aquí están casi todas en etapas avanzadas. La cifra ponderada implica que se gana el 57% del importe abierto (56.400 ÷ 99.000). O las oportunidades están excepcionalmente avanzadas, o las probabilidades de las etapas son demasiado generosas. Solo la comparación con resultados reales, más abajo, te dice cuál.
+3. **El run-rate ignora por completo el pipeline.** Es una comprobación de cordura, no un pronóstico. Aquí queda entre las otras cifras, lo cual tranquiliza pero no demuestra nada.
+
+Con cuál abrir depende de tu historial. Un equipo con solo un puñado de oportunidades cerradas debe mostrar las cifras de commit y ponderada y decir que las probabilidades son supuestos. Un equipo con un año o más de oportunidades debe abrir con un pipeline ponderado calibrado y mantener la tasa de éxito y el run-rate como comprobaciones cruzadas. Cuando dos métodos discrepan mucho, averigua por qué antes de presentar un número.
+
+## ¿Cuáles son los cuatro tipos de pronóstico?
+
+Las fuentes agrupan los métodos de pronóstico de forma distinta, así que no hay una lista oficial de cuatro. Esta agrupación es la que nos resulta útil para un equipo de ventas:
+
+1. **Juicio:** la decisión del vendedor o del responsable sobre cada oportunidad. Es la única opción cuando no tienes historial.
+2. **Basado en el pipeline:** ponderación por etapas y commit, como arriba.
+3. **Histórico:** run-rate, tasa de éxito y patrones estacionales de periodos pasados.
+4. **Modelos estadísticos:** modelos de series temporales y de regresión ajustados por software.
+
+El capítulo del libro de texto sobre [pronósticos de juicio](https://otexts.com/fpp3/judgmental.html) describe la misma división en términos generales: el juicio solo cuando no hay datos, pronósticos estadísticos ajustados por el juicio cuando los hay, o ambos producidos por separado y combinados. En la práctica, la combinación útil para un equipo pequeño es un número calculado más una nota del responsable sobre las oportunidades que no encajan con la aritmética.
+
+## ¿Por qué fallan los pronósticos de ventas? [#por-que-fallan]
+
+Casi siempre por uno de estos errores, y todos se pueden comprobar en el propio CRM:
+
+1. **Confundir pronóstico y objetivo.** Un número empujado hacia la meta deja de ser un pronóstico.
+2. **Oportunidades estancadas.** Una oportunidad que nadie toca desde hace semanas sigue sumando valor ponderado.
+3. **Probabilidades de oficio.** Sin historial, las probabilidades por etapa son conjeturas; márcalas como supuestos y calíbralas cada trimestre.
+4. **Fechas de cierre que no se mueven.** Una fecha en el pasado, o puesta por costumbre, coloca la oportunidad en el periodo equivocado.
+5. **Un solo método.** Si solo calculas el pipeline ponderado, no tienes con qué comprobarlo: calcula al menos dos y publica un rango.
+6. **No mirar la concentración.** Una oportunidad grande puede mover una quinta parte del total, como la D del ejemplo.
+7. **No comparar con el resultado real.** Sin la instantánea del inicio del periodo no sabes cuánto te equivocaste ni hacia qué lado.
+8. **Mezclar lo que cuenta.** A veces importe del contrato y a veces ingresos facturados, o importes con y sin impuestos, o en monedas distintas.
+
+## ¿Cómo mantienes preciso un pronóstico de ventas?
+
+- **Guarda una instantánea y contrástala.** El mismo día de cada mes, guarda el pronóstico y la lista de oportunidades que hay detrás. Al final del periodo, compara: error = (real − pronóstico) ÷ pronóstico. Por ejemplo, un pronóstico de 92.000 frente a un real de 95.000 es +3,3%. Si el error se inclina hacia el mismo lado tres periodos seguidos, cambia las probabilidades en lugar de culpar a la suerte.
+- **Calibra cada etapa.** La probabilidad de una etapa es el valor ganado de las oportunidades que alguna vez la alcanzaron, dividido entre el valor de todas las que la alcanzaron. Si de 400.000 que llegaron a Propuesta se ganaron 220.000, la probabilidad de Propuesta es 55%. En el ejemplo, eso bajaría las oportunidades B y D y restaría 2.100 a la cifra ponderada del trimestre.
+- **Mantén honestas las fechas de cierre.** Una oportunidad cuya fecha de cierre prevista está en el pasado no entra en el pronóstico de este periodo hasta que alguien le dé una fecha nueva. Mueve las fechas cuando los compradores se retrasen y cuenta con qué frecuencia lo hacen.
+- **Vigila la concentración.** Lista las tres oportunidades más grandes junto al total. Si una oportunidad es una quinta parte del número, dilo.
+- **Revisa cada semana.** La revisión de 30 minutos de la [guía del pipeline de ventas](/blog/sales-pipeline) es también donde se corrigen las fechas de cierre y los siguientes pasos.
+
+## ¿Qué campos del CRM necesita una oportunidad para el pronóstico de ventas?
+
+Todos los números de arriba salen de un puñado de campos. Si tu CRM los guarda como campos estructurados y no como notas, un pronóstico es un filtro y una suma.
+
+| Campo | Tipo | Qué aporta al pronóstico | Regla |
+|---|---|---|---|
+| Importe | Dinero | La base de todos los cálculos | Sin impuestos, una sola moneda y el mismo significado en todas las oportunidades (por ejemplo, valor del contrato del primer año) |
+| Etapa | Selección única | Decide la probabilidad | Una condición de entrada comprobable por etapa |
+| Probabilidad de la etapa | Porcentaje en cada etapa | Convierte el importe en valor ponderado | Revisada cada trimestre con los resultados reales |
+| Valor ponderado | Calculado | Importe × probabilidad ÷ 100 | Nunca se escribe a mano |
+| Fecha de cierre prevista | Fecha | Sitúa la oportunidad en un periodo | Obligatoria desde la etapa de propuesta; se mueve cuando se retrasa |
+| Responsable | Persona | Quién responde de la oportunidad; pronóstico por persona | Exactamente uno |
+| Cerrada el | Fecha | Cuándo se ganó o se perdió una oportunidad; alimenta el ganado hasta ahora, la tasa de éxito y el run-rate | Se fija cuando la etapa pasa a Ganada o Perdida |
+| Motivo de pérdida | Selección única | Muestra por qué se mueve la tasa de éxito | Obligatorio en toda oportunidad perdida |
+| Origen del lead | Selección única | Tasa de éxito por origen | Opcional, pero barato de registrar al crearla |
+| Siguiente paso y su fecha | Texto y fecha | Detecta las oportunidades estancadas antes de que inflen el número | Una oportunidad sin siguiente paso queda fuera del Commit |
+| Organización y contacto | Vínculos a otros registros | Contexto, y el historial de conversaciones que hay detrás de la oportunidad | Vincula cada oportunidad a ambos |
+
+Un duodécimo campo opcional es una categoría de pronóstico (Commit, Mejor caso, Pipeline) que registra la decisión del propio responsable, separada de la probabilidad de la etapa. Añádelo solo si tu equipo lo va a usar de verdad para anular la lógica de las etapas.
+
+## ¿Qué herramientas sirven para pronosticar y qué papel tiene la IA? [#herramientas-e-ia]
+
+Para un equipo pequeño hay tres niveles, y cada uno sirve mientras los datos de entrada sean buenos:
+
+- **Una hoja de cálculo** (Excel o Google Sheets) con las fórmulas del ejemplo. Basta con unas pocas decenas de oportunidades abiertas: exporta las oportunidades del CRM, calcula y guarda una copia con la fecha en el nombre.
+- **El propio CRM**, cuando guarda importe, etapa, probabilidad y fecha de cierre como campos. Entonces el pronóstico es un filtro y una suma que se actualiza solo, sin exportar nada.
+- **Una herramienta específica de pronóstico**, cuando necesitas pronóstico por vendedor, consolidación por equipos, cuotas o escenarios.
+
+La IA ayuda en tareas concretas: resumir el estado del pipeline, avisar de las oportunidades sin siguiente paso o con la fecha de cierre vencida, hacer la aritmética sobre tus registros o redactar el borrador del resumen para la reunión de revisión. Lo que no hace es arreglar datos malos: una IA que lee fechas de cierre inventadas produce un pronóstico inventado, solo que mejor redactado. Si una herramienta te ofrece una probabilidad de cierre «predicha», pregunta con qué historial se calcula y compárala con tus resultados reales, igual que harías con cualquier otro método.
+
+## Cómo hacer un pronóstico de ventas en Customermates
+
+Esta sección describe nuestro propio producto. Customermates es un [CRM para equipos de ventas](/blog/crm-for-sales) de código abierto, hecho en Alemania. Calcula un pipeline ponderado y lo muestra en gráficos; no predice. Esta es la configuración para el ejemplo resuelto.
+
+<Steps>
+  <Step title="Fija las probabilidades de las etapas">En **Modelo de datos**, abre Oportunidades y el campo **Etapa**, y fija **Probabilidad %** en cada opción. Una vista previa muestra el efecto en las oportunidades y los widgets existentes antes de guardar. El valor ponderado es un campo calculado de las oportunidades: **Valor** × probabilidad ÷ 100. Si tu lista se configuró a mano, comprueba que exista y añádelo si no. Los [conceptos básicos](/docs/concepts#how-does-a-weighted-pipeline-work) explican el cálculo.</Step>
+  <Step title="Añade los campos de fecha">Usa **Añadir › Campo** para añadir un campo de Fecha «Cierre previsto» y un campo de Fecha «Cerrada el». Añade también un campo de Selección única «Motivo de pérdida». Un gráfico solo puede agrupar y filtrar por lo que registras.</Step>
+  <Step title="Crea los widgets del trimestre">En el **Panel**, **Añadir widget**: un gráfico de barras que suma **Valor ponderado** agrupado por Etapa, filtrado por Etapa no es Ganada ni Perdida y Cierre previsto entre el primer y el último día del trimestre; un widget de Número que suma **Valor** con Etapa es Ganada y Cerrada el dentro del trimestre (ganado hasta ahora); un widget de Número que suma **Valor** de esas mismas oportunidades abiertas (el importe abierto). Un gráfico de Área en el tiempo con un **Intervalo de tiempo** mensual, agrupado por Cierre previsto, muestra cuándo vence el valor ponderado.</Step>
+  <Step title="Guarda una instantánea cuando publiques">Desde la lista de oportunidades, abre **Más acciones** y elige **Exportar como Excel (.xlsx)**. La exportación conserva tus filtros y tu orden, admite hasta 5.000 registros y tiene una columna por cada campo que puedes leer. Guárdala con la fecha en el nombre del archivo. Es tu instantánea para la contrastación y tu punto de partida para la tasa de éxito y el run-rate en una hoja de cálculo.</Step>
+</Steps>
+
+La tasa de éxito por valor necesita dos totales de tus oportunidades cerradas: la suma de **Valor** de las Ganadas y de las Perdidas, cada una filtrada por Cerrada el. Puedes leer ambas en widgets de Número. En Customermates Cloud también puedes pedirle a Mate que las calcule, lo que usa créditos de IA alojados; con tu propio cliente de IA sobre el [servidor MCP](/docs/mcp), los totales salen de la herramienta `query_crm_measure`. En ambos casos es aritmética sobre tus oportunidades cerradas, no una predicción.
+
+Un gráfico solo cuenta las oportunidades que tu rol puede leer, así que quien publique el pronóstico necesita acceso de lectura a todas. La [guía del panel](/docs/app-dashboard) documenta todas las opciones de los widgets, y la [página de informes del CRM](/features/reporting) enumera los otros informes que construye un equipo pequeño. Las oportunidades en sí viven en el [tablero del pipeline](/features/pipeline).
+
+**Cuánto cuesta.** Los widgets de gráficos, el pipeline ponderado y la exportación a Excel están en todos los planes, desde Starter a [[commercial.price.starter.monthly]] por usuario al mes, facturado mensualmente. La edición autoalojada también los incluye. La [página de precios](/pricing) tiene los detalles.
+
+<AcquisitionCallout title="Dónde Customermates no es la mejor opción para pronosticar" variant="boundary">
+Customermates multiplica los valores de las oportunidades por las probabilidades de etapa que fijas y suma el resultado. No predice qué oportunidades cerrarán, no sugiere probabilidades de éxito ni ajusta un modelo estadístico a tu historial. Muestra las oportunidades tal como están ahora y no tiene un informe de totales pasados del pipeline, así que guarda una exportación el día en que publiques un pronóstico. No tiene cuotas ni consolidación de pronósticos por responsable; una categoría que añadas se puede graficar, pero nada la comprueba ni la consolida. No tiene presupuestos ni facturación, así que ganado significa el valor de la oportunidad que introduces, no ingresos facturados ni reconocidos. Si necesitas pronóstico predictivo, envíos de pronóstico por vendedor o modelado de escenarios, usa una herramienta de pronóstico específica.
+</AcquisitionCallout>
+
+## Preguntas frecuentes
+
+<Faq>
+<FaqItem question="¿Qué es el pronóstico de ventas?">
+El pronóstico de ventas es la estimación de los ingresos que ganará un equipo en un periodo futuro, como un mes o un trimestre, a partir de sus oportunidades abiertas y de sus resultados pasados. Es distinto de un objetivo, que es lo que quieres ganar.
+</FaqItem>
+
+<FaqItem question="¿Cómo se calcula un pronóstico de ventas?">
+Multiplica el importe de cada oportunidad abierta por la probabilidad de su etapa, suma los valores ponderados de las oportunidades que se espera cerrar en el periodo y añade los ingresos ya ganados en ese periodo. Contrasta el resultado con una cifra de tasa de éxito (importe abierto × tu tasa de éxito por valor) y con una de run-rate (el promedio de tus últimos cuatro periodos).
+</FaqItem>
+
+<FaqItem question="¿Para qué sirve el pronóstico de ventas?">
+Para decidir con tiempo: cuánto contratar o invertir, si falta pipeline para llegar al objetivo y qué oportunidades hay que mover. También obliga a mantener limpios el importe, la etapa y la fecha de cierre de cada oportunidad.
+</FaqItem>
+
+<FaqItem question="¿Cómo se hace una proyección de ventas sin datos históricos?">
+Con el pipeline ponderado y probabilidades provisionales por etapa que marcas como supuestos, más el juicio del responsable sobre cada oportunidad. Guarda cada pronóstico y compáralo con el resultado: tras unos periodos tendrás tu propio historial para calibrar las probabilidades y añadir la tasa de éxito y el run-rate.
+</FaqItem>
+
+<FaqItem question="¿Cuáles son los tres tipos de pronósticos?">
+Una agrupación habitual distingue los cualitativos (basados en el juicio de expertos o vendedores), los de series temporales (extrapolan el historial) y los causales (relacionan las ventas con factores como el precio o la publicidad). No hay una lista oficial: esta guía usa cuatro grupos pensados para un equipo de ventas, los de la sección sobre los cuatro tipos de pronóstico.
+</FaqItem>
+
+<FaqItem question="¿Se puede hacer un pronóstico de ventas en Excel?">
+Sí. Con las oportunidades en filas (importe, fecha de cierre prevista y probabilidad), el valor ponderado es una multiplicación y el pronóstico del periodo es una suma condicionada por la fecha, como en las fórmulas del ejemplo resuelto. En una hoja en español, SUMIFS se llama SUMAR.SI.CONJUNTO y DATE, FECHA.
+</FaqItem>
+
+<FaqItem question="¿Qué es la regla 3-3-3 en ventas?">
+No es un método de pronóstico y no tiene una definición única: distintos formadores de ventas usan el nombre para rutinas diferentes de prospección o de contacto. Si la encuentras en un artículo, comprueba cómo la define antes de aplicarla. Para pronosticar, lo que cuenta son las tres cifras que compara esta guía: pipeline ponderado, tasa de éxito y run-rate.
+</FaqItem>
+
+<FaqItem question="¿Cuál es el mejor modelo de pronóstico de ventas?">
+No hay ninguno que encaje con todos los equipos. Un pipeline ponderado funciona para equipos pequeños con reglas de etapa y fechas de cierre. La tasa de éxito y el run-rate necesitan un historial de oportunidades cerradas. Los modelos estadísticos necesitan muchos periodos de resultados estables. Calcula al menos dos y publica un rango.
+</FaqItem>
+
+<FaqItem question="¿Cuál es la diferencia entre un pronóstico de ventas y un objetivo de ventas?">
+Un pronóstico es la estimación de lo que probablemente ganarás, calculada a partir del pipeline. Un objetivo es el número que quieres alcanzar. El plan es lo que haces respecto a la diferencia entre ambos.
+</FaqItem>
+
+<FaqItem question="¿Qué precisión tiene un pronóstico de ventas?">
+No existe una cifra universal honesta, porque depende del tamaño de tus oportunidades, de la duración del ciclo y de tu disciplina. Mide la tuya: compara cada pronóstico con el resultado real y sigue el error durante varios periodos. Un error constante en una dirección se puede corregir; uno aleatorio significa que los datos de entrada no son fiables.
+</FaqItem>
+
+<FaqItem question="¿Puede Customermates pronosticar las ventas?">
+Calcula un pipeline ponderado: el valor de la oportunidad por la probabilidad que fijas en la etapa, mostrado en gráficos del panel y exportable a Excel. No predice cierres, no sugiere probabilidades ni modela tu historial. Para eso, usa una herramienta de pronóstico específica.
+</FaqItem>
+</Faq>
+
+Fuentes de terceros comprobadas el 9 de noviembre de 2026: Hyndman y Athanasopoulos, *Forecasting: Principles and Practice*, 3.ª edición (en inglés), [sección 1.2](https://otexts.com/fpp3/planning.html), [sección 1.6](https://otexts.com/fpp3/basic-steps.html) y [capítulo 6](https://otexts.com/fpp3/judgmental.html). Todos los importes de oportunidades, tasas de éxito y resultados trimestrales del ejemplo resuelto son inventados con fines ilustrativos.

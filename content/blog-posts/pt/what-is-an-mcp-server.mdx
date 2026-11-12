@@ -1,0 +1,252 @@
+---
+title: "O que é MCP? Model Context Protocol e servidor MCP"
+description: "O que é MCP: o Model Context Protocol liga Claude, ChatGPT e Cursor aos seus sistemas. Servidor local ou remoto, MCP vs API e RAG, riscos e exemplo de CRM."
+
+hero:
+  title: "O que é MCP? Uma explicação simples, com um exemplo real"
+  description: "Um servidor MCP permite que um cliente de IA como o Claude, o ChatGPT ou o Cursor leia e altere dados em outro sistema. O que ele expõe, onde roda, como difere de uma API, os riscos e um exemplo real."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Voltar ao blog
+  by: por Benjamin Wagner
+  date: 2026-10-30
+  tags:
+    - MCP
+    - Model Context Protocol
+    - Agentes de IA
+    - CRM
+
+relatedHrefs:
+  - /docs/mcp
+  - /blog/claude-connectors
+  - /blog/mcp-vs-api
+  - /features/open-source-crm
+---
+
+# O que é MCP? Uma explicação simples, com um exemplo real
+
+O que é MCP? MCP é a sigla de Model Context Protocol (Protocolo de Contexto de Modelo), um padrão aberto que permite que aplicativos de IA como o Claude, o ChatGPT ou o Cursor se conectem a outros sistemas do mesmo jeito, sem uma integração sob medida para cada um. Um servidor MCP é o programa que fica na frente de um desses sistemas, seja uma pasta de arquivos, um banco de dados ou um CRM, e oferece à IA ferramentas, dados e templates de prompt, decidindo o que ela pode ver e fazer ali.
+
+A Anthropic apresentou o MCP em 25 de novembro de 2024 como um padrão aberto para conectar assistentes de IA aos sistemas onde os dados vivem. Desde então, os principais clientes de IA passaram a oferecer suporte, e muitos fornecedores de software operam os próprios servidores. Este guia explica as peças em termos simples e depois percorre um servidor real para dados de negócio: o servidor MCP embutido no Customermates, o CRM de código aberto que publica este artigo.
+
+Para uma integração fixa e um cliente de IA, compare [MCP versus API na mesma tarefa com registros de clientes](/blog/mcp-vs-api). A descoberta de ferramentas muda a forma como o cliente encontra uma operação; autenticação e permissões continuam valendo.
+
+Para um fluxo no n8n, a [comparação das rotas de MCP no n8n, com um exemplo de versão fixa](/blog/n8n-mcp) distingue conectar o n8n a um servidor de dados de clientes de expor o próprio n8n a um cliente de IA. Escolha a direção antes de configurar as credenciais.
+
+<ArticleSummary title="Resumo">
+  <SummaryItem label="Em uma frase">
+    Um servidor MCP é um programa que dá aos clientes de IA ferramentas para
+    chamar, recursos para ler e prompts como ponto de partida, em um único
+    formato padrão.
+  </SummaryItem>
+  <SummaryItem label="Onde roda">
+    Servidores locais rodam na sua própria máquina e falam com um cliente.
+    Servidores remotos rodam como serviços web e atendem muitos clientes via
+    HTTP.
+  </SummaryItem>
+  <SummaryItem label="Versus uma API">
+    A API é para código que já sabe qual endpoint precisa. Um servidor MCP
+    descreve suas ações para que uma IA possa descobri-las e chamá-las sozinha.
+  </SummaryItem>
+  <SummaryItem label="Principal risco">
+    Uma IA conectada age com as suas permissões. Confie na origem, dê a ela o
+    acesso mais restrito que funcione e mantenha as aprovações ligadas para
+    gravações.
+  </SummaryItem>
+</ArticleSummary>
+
+## Para que serve o MCP? Benefícios e exemplos de uso [#para-que-serve-o-mcp]
+
+Sem um padrão, cada aplicativo de IA precisaria de uma integração própria com cada sistema: um conector para o Claude, outro para o ChatGPT, outro para o Cursor. Com o MCP, o fornecedor publica um servidor uma vez, e qualquer cliente que fale MCP consegue usá-lo. Na prática, isso traz quatro benefícios:
+
+- **Dados atuais, não só o que o modelo aprendeu.** A IA consulta o sistema na hora do pedido, em vez de responder de memória ou de um texto que você colou na conversa.
+- **Ações, não só respostas.** Além de ler, a IA pode criar uma tarefa, atualizar um registro ou preparar um rascunho, sempre dentro das permissões da sua conta.
+- **Uma integração, vários clientes.** Quem troca do Claude para o ChatGPT ou para o Cursor não refaz a conexão com os sistemas; o servidor continua o mesmo.
+- **Descoberta automática.** O cliente pergunta ao servidor o que ele oferece, então uma ferramenta nova aparece sem que o cliente precise ser atualizado.
+
+Alguns usos comuns: pedir à IA que leia e resuma os arquivos de uma pasta, que consulte um banco de dados local, que investigue um erro registrado no Sentry ou que encontre um cliente no CRM e deixe uma tarefa criada. É por isso que o MCP aparece tanto na conversa sobre programação com IA quanto na de agentes: ele é a camada entre o modelo e as ferramentas.
+
+## Como o MCP funciona: host, cliente e servidor?
+
+A [visão geral da arquitetura do MCP](https://modelcontextprotocol.io/docs/learn/architecture) nomeia três participantes:
+
+- **Host:** o aplicativo de IA em que você trabalha, como o Claude Desktop, o ChatGPT, o Cursor ou o VS Code.
+- **Cliente:** um componente dentro do host que mantém uma conexão com um servidor. Um host que se conecta a cinco servidores roda cinco clientes.
+- **Servidor:** o programa que fornece o contexto e as ações, por exemplo um servidor de sistema de arquivos ou o endpoint MCP de um CRM.
+
+Por baixo dos panos, cliente e servidor trocam mensagens JSON-RPC 2.0. O cliente pergunta ao servidor o que ele oferece, o modelo de IA escolhe uma ferramenta quando o seu pedido precisa de uma, o host envia a chamada e o servidor devolve o resultado, que volta para a conversa. Você digita "encontre o último e-mail da Acme", e o modelo decide qual ferramenta responde a isso.
+
+## O que um servidor MCP expõe? Ferramentas, recursos e prompts
+
+A [especificação do MCP](https://modelcontextprotocol.io/specification/latest) define três coisas que um servidor pode oferecer:
+
+| Primitiva | O que é | Quem usa | Exemplo |
+| --- | --- | --- | --- |
+| Ferramentas | Funções que o modelo de IA pode chamar para agir ou consultar algo | O modelo decide quando chamar uma | Buscar registros, criar uma tarefa, enviar um e-mail |
+| Recursos | Dados que o cliente pode ler como contexto | O usuário ou o aplicativo os escolhe | O conteúdo de um arquivo, o esquema de um banco de dados, um catálogo de páginas |
+| Prompts | Modelos de mensagem prontos para um trabalho recorrente | O usuário os inicia, muitas vezes por um menu | "Resumir este espaço de trabalho", "Revisar este pull request" |
+
+Toda primitiva é descobrível: o cliente chama `tools/list`, `resources/list` ou `prompts/list` e recebe nomes, descrições e, no caso das ferramentas, um JSON Schema das entradas. É por isso que um cliente MCP não precisa de código de integração escrito à mão para cada servidor. A maioria dos servidores prioriza ferramentas; recursos e prompts são opcionais, e nem todo cliente os mostra.
+
+## Um servidor MCP é um servidor de verdade? Local ou remoto
+
+Sim e não. "Servidor" descreve o papel no protocolo, não uma máquina em um data center. A documentação do MCP chama um servidor de "local" quando o host o inicia como um processo no seu computador e conversa com ele por entrada e saída padrão (stdio), e de "remoto" quando ele roda como um serviço web que os clientes acessam por Streamable HTTP.
+
+| | Servidor MCP local | Servidor MCP remoto |
+| --- | --- | --- |
+| Onde roda | No seu computador, iniciado pelo aplicativo de IA | No servidor web do fornecedor ou no seu próprio |
+| Transporte | stdio (entrada e saída padrão) | Streamable HTTP |
+| Clientes por servidor | Em geral um | Muitos |
+| Como você o adiciona | Um comando no arquivo de configuração do cliente, por exemplo `npx` ou `uvx` mais um pacote | Uma URL e depois login com OAuth ou uma chave de API |
+| Login | Muitas vezes nenhum, ou uma chave em uma variável de ambiente | OAuth ou uma chave de API por usuário |
+| Atualizações | Você atualiza o pacote | O operador atualiza o servidor para todos |
+| Uso típico | Arquivos, bancos de dados locais, ferramentas de desenvolvimento na sua máquina | Dados de SaaS, como CRM, tickets, documentos |
+| Funciona em clientes de navegador e de celular | Não, esses clientes não conseguem iniciar processos locais | Sim, se o cliente der suporte a servidores remotos |
+| Principal risco | Executa código na sua máquina com os seus direitos | Age na sua conta com as suas permissões |
+| Exemplos | O servidor de referência de sistema de arquivos | O servidor hospedado da Sentry, o servidor da HubSpot em mcp.hubspot.com, o endpoint do Customermates |
+
+Para dados de negócio, os servidores remotos viraram a norma: nada para instalar, um só lugar para atualizar e login por usuário. Os conectores personalizados do Claude, por exemplo, são servidores MCP remotos, enquanto os servidores locais são configurados à parte no Claude Desktop.
+
+## Servidor MCP ou API: o que muda?
+
+Um servidor MCP não substitui uma API. Na maioria dos casos, ele fica por cima de uma: cada ferramenta chama a mesma lógica de aplicação ou o mesmo endpoint REST que um desenvolvedor chamaria.
+
+| Pergunta | API REST | Servidor MCP |
+| --- | --- | --- |
+| Quem chama | Código que um desenvolvedor escreveu para uma tarefa conhecida | Um modelo de IA, por qualquer cliente MCP |
+| Como as ações são encontradas | Documentação, lida por uma pessoa | `tools/list` em tempo de execução, com descrições e esquemas de entrada |
+| Esforço de integração | Uma integração por app e por cliente | Um servidor, utilizável de qualquer cliente MCP |
+| Saída | Dados para um programa | Texto e conteúdo estruturado para a conversa de um modelo |
+| Permissões | A chave de API ou o token | As mesmas credenciais; o servidor deve aplicar as mesmas regras |
+
+Use a API quando você conhece a operação exata, por exemplo uma sincronização noturna. Use o MCP quando uma pessoa pede ajuda a uma IA e a IA deve escolher sozinha os passos certos. O Customermates oferece os dois lado a lado: a [API REST com especificação OpenAPI](/features/api) para código e o endpoint MCP para clientes de IA, ambos com as mesmas permissões.
+
+## MCP ou RAG: qual é a diferença? [#mcp-ou-rag]
+
+RAG (retrieval-augmented generation, geração aumentada por recuperação) é uma técnica: antes de responder, o sistema busca trechos relevantes em uma base de documentos e os coloca no contexto do modelo. O MCP é um protocolo: define como o aplicativo de IA descobre e chama ferramentas e lê recursos de um sistema externo.
+
+Os dois não competem. Um servidor MCP pode expor uma ferramenta de busca que faz RAG por trás, e um fluxo de RAG pode usar MCP para chegar às suas fontes. Como regra prática, use RAG quando o problema é achar o trecho certo em muito texto, e use MCP quando a IA precisa consultar dados vivos de um sistema ou agir nele.
+
+## O ChatGPT usa MCP? E o Claude, o Cursor e o Gemini?
+
+Sim. Verificado em 30 de outubro de 2026:
+
+- **Claude:** os conectores personalizados são servidores MCP remotos. A central de ajuda da Anthropic os lista para os planos Free (um conector), Pro, Max, Team e Enterprise, no claude.ai, no Claude Desktop e nos aplicativos móveis. O Claude Desktop também pode rodar servidores locais a partir do arquivo de configuração, e o Claude Code se conecta aos dois tipos. O [guia de conectores do Claude](/blog/claude-connectors) compara os conectores do diretório e os personalizados.
+- **ChatGPT:** o ChatGPT se conecta a servidores MCP remotos personalizados por HTTPS. A documentação para desenvolvedores da OpenAI descreve como adicionar um como servidor MCP personalizado; quais planos podem adicioná-los, e o nome do recurso, mudaram várias vezes, então confira a página atual da OpenAI para o seu plano. A API da OpenAI também aceita servidores MCP remotos como ferramenta e, por padrão, pede aprovação antes de compartilhar dados com um deles.
+- **Cursor, VS Code, Gemini CLI, Codex:** todos atuam como hosts MCP. A própria documentação do MCP usa o VS Code como host de exemplo.
+
+Um servidor que segue a especificação funciona com todos eles, embora os clientes difiram no que suportam. Alguns mostram só ferramentas e ignoram recursos e prompts, e eles tratam as aprovações de maneiras diferentes.
+
+## Você precisa de um servidor MCP?
+
+A maioria das pessoas nunca constrói um. Você conecta os servidores que os fornecedores do seu software já operam, do mesmo jeito que instala um aplicativo. Você só precisa de um servidor próprio quando um sistema interno ou uma ferramenta de nicho não tem nenhum e você quer que um cliente de IA trabalhe com ele.
+
+Antes de conectar o servidor de um fornecedor, confira três coisas: se é o servidor oficial do fornecedor ou um projeto da comunidade, o que ele pode gravar ou excluir e qual plano ele exige dos dois lados. Nossos guias do [servidor MCP da HubSpot](/blog/hubspot-mcp) e do [Salesforce MCP](/blog/salesforce-mcp) mostram como dois servidores oficiais podem ser diferentes, e o [guia de Claude e CRM](/blog/claude-crm) compara os conectores de vários CRMs.
+
+## Como criar um servidor MCP? [#como-criar-um-servidor-mcp]
+
+Se você decidir construir o seu, o caminho para um caso simples é curto:
+
+1. **Escolha o que expor.** Comece por uma ou duas ferramentas somente leitura, com nome e descrição claros: é por elas que o modelo decide quando chamar cada uma.
+2. **Use um SDK.** O projeto MCP mantém SDKs oficiais em várias linguagens, por exemplo TypeScript e Python. Eles cuidam do protocolo, e você escreve só a lógica de cada ferramenta e o esquema da entrada.
+3. **Escolha o transporte.** stdio para um servidor local, Streamable HTTP para um servidor remoto que várias pessoas vão usar.
+4. **Teste antes de conectar a uma IA.** Uma ferramenta de inspeção, como o MCP Inspector, lista as ferramentas do servidor e deixa você chamá-las à mão.
+5. **Defina autenticação e permissões.** Um servidor remoto precisa saber quem está chamando e aplicar a esse usuário as mesmas regras do aplicativo por trás dele.
+
+## O MCP é de código aberto? [#mcp-open-source]
+
+O protocolo é aberto: a especificação é pública e qualquer pessoa pode implementar um cliente ou um servidor. Isso não significa que todo servidor seja de código aberto. O servidor de um fornecedor pode ter código fechado, e os servidores da comunidade costumam ter o código aberto, o que permite lê-lo antes de rodar. No Customermates os dois se somam: o [endpoint MCP](/docs/mcp) faz parte da edição de código aberto que você [hospeda por conta própria](/features/self-hosted).
+
+## Um servidor MCP de negócios de verdade, de ponta a ponta
+
+A maioria das explicações para em uma ferramenta de previsão do tempo. Aqui está como é um servidor de produção para dados de clientes, usando o Customermates como exemplo. Todos os detalhes abaixo vêm da [referência pública do MCP](/docs/mcp).
+
+**O endpoint.** O Customermates opera um servidor remoto em `/api/v1/mcp` no endereço que você usa para o app, além de uma URL específica do espaço de trabalho com as mesmas ferramentas travadas nesse espaço de trabalho. Ele fala Streamable HTTP. O endpoint faz parte de todos os planos Cloud e das instalações com hospedagem própria; quando você hospeda por conta própria a edição de código aberto, ele continua sendo um servidor remoto, só que na sua própria infraestrutura.
+
+**A conexão.** No Claude e no ChatGPT, você adiciona a URL como conector personalizado, faz login e aprova ([configuração do conector personalizado](/docs/connect-custom-connector)). Claude Code, Codex, Cursor e Gemini CLI se conectam com uma chave de API no cabeçalho `x-api-key` ([configuração da CLI](/docs/connect-cli)). De qualquer forma, o cliente age como exatamente um usuário em exatamente um espaço de trabalho, e conectar exige acesso de leitura a API e webhooks na função desse usuário.
+
+**O que ele expõe.** As três primitivas:
+
+- **Ferramentas:** até [[derived.mcp.tools.total]] ferramentas para registros, o modelo de dados, visualizações salvas, a Base de conhecimento, painéis, rotinas, webhooks, tarefas administrativas, mensagens e posts sociais. As ferramentas de mensagens, calendário e redes sociais funcionam no Pro e acima no Customermates Cloud. Um parâmetro de URL, `?toolsets=`, reduz a lista aos grupos de que um cliente precisa.
+- **Recursos:** um catálogo da Base de conhecimento que os clientes com suporte a recursos podem listar e ler.
+- **Prompts:** um prompt `get-started` que resume o espaço de trabalho para uma primeira sessão.
+
+**Um pedido típico.** Você pede: "Encontre a Acme e adicione uma tarefa para enviar a proposta revisada." O cliente primeiro chama `get_workspace_context` para conhecer o usuário, as funções e as orientações da empresa, depois `search_crm_records` para encontrar a Acme, `get_record_model` para ver os campos da lista Tarefas e, por fim, `mutate_crm_record` para criar a tarefa e vinculá-la à Acme. Cada chamada roda com as suas permissões; uma lista que você não pode editar no app também não pode ser editada por MCP.
+
+**Proteções, e o que elas não são.** O catálogo marca quais ferramentas são somente leitura e quais podem excluir dados. As exclusões movem os registros para a Lixeira por 30 dias, e `preview_crm_deletion` mostra o efeito antes. Textos escritos por clientes, como notas e e-mails, voltam entre marcadores de conteúdo não confiável, para que o modelo os trate como dados e não como instruções. O servidor também orienta os clientes a confirmar com o usuário antes de excluir ou enviar. Este último ponto é uma orientação ao cliente, não uma trava dentro do servidor: quando um cliente autorizado chama uma ferramenta, ela roda. Configure as aprovações no seu cliente de acordo.
+
+**Quem paga pela IA.** Um cliente externo como o Claude ou o ChatGPT usa a sua própria assinatura de IA. O CRM não roda o modelo.
+
+**Para que serve.** Para um time que atende clientes, o trabalho útil é o follow-up: com LinkedIn e e-mail conectados no Customermates Cloud a partir do Pro, o seu próprio Claude ou ChatGPT lê a conversa no registro do cliente e prepara o rascunho da resposta e do próximo passo para você revisar e enviar. Para experimentar, [inicie o seu teste](/auth/signup?job=followup): [[commercial.trial.days]] dias de Pro sem cartão de crédito.
+
+O Customermates é a escolha errada se você só quer conectar uma IA ao CRM que já usa; nesse caso, use o servidor do próprio CRM. Ele serve quando você está escolhendo um CRM e quer o servidor MCP, os dados e o [código aberto](/features/open-source-crm) em um único produto.
+
+## Quais são os riscos de segurança dos servidores MCP?
+
+A especificação afirma que as ferramentas representam execução arbitrária de código e que as descrições de ferramentas devem ser tratadas como não confiáveis, a menos que venham de um servidor confiável. As [boas práticas de segurança do MCP](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices), a Anthropic e a OpenAI apontam estes riscos:
+
+- **Prompt injection.** Um servidor malicioso, ou um texto malicioso dentro dos seus próprios dados, pode carregar instruções ocultas que conduzem o modelo, por exemplo para enviar dados a outro lugar.
+- **Acesso demais.** Um token com escopos amplos, ou um usuário com direitos de administrador, dá à IA tudo o que aquela conta pode fazer.
+- **Execução local de código.** Um servidor local é um programa na sua máquina. Um pacote adulterado ou um comando de inicialização nocivo em um arquivo de configuração roda com os seus direitos.
+- **Ferramentas que mudam.** O operador pode mudar o que uma ferramenta faz depois que você a aprovou.
+- **Uso indevido de tokens.** Servidores que aceitam ou repassam tokens que não foram emitidos para eles quebram o limite de segurança; a especificação de autorização proíbe isso, o chamado "token passthrough".
+- **Dados saindo do seu controle.** Tudo o que o cliente de IA lê é processado pelo provedor de IA desse cliente, sob os termos desse provedor.
+
+## Checklist de segurança antes de conectar um servidor
+
+1. **Use servidores oficiais de fornecedores em que você confia.** Para servidores da comunidade, leia o código ou o pacote antes de executá-lo.
+2. **Conecte-se como um usuário com apenas os direitos de que o trabalho precisa.** A IA os herda; uma chave de API muitas vezes carrega todas as permissões do usuário.
+3. **Comece por leituras.** Libere gravações quando as leituras se comportarem bem e mantenha exclusões e envios atrás de uma confirmação no cliente.
+4. **Reduza a lista de ferramentas** onde o servidor permitir e desligue as ferramentas de que uma tarefa não precisa.
+5. **Aprove "sempre" só para ferramentas somente leitura.** Revise toda chamada de gravação, pelo menos no começo.
+6. **Para servidores locais, leia o comando de inicialização exato** e prefira uma sandbox ou um contêiner.
+7. **Revise as telas de consentimento do OAuth** e negue escopos que pareçam desnecessários.
+8. **Confira para onde os dados vão.** Para dados de clientes na UE, verifique os termos de processamento do provedor de IA e o seu registro das operações de tratamento antes de conectar.
+9. **Revogue o que você não usa mais.** Exclua chaves de API antigas e desconecte conectores que você deixou de usar.
+
+## Perguntas frequentes
+
+<Faq>
+<FaqItem question="O que é um servidor MCP, em termos simples?">
+É um adaptador entre um assistente de IA e outro sistema. O servidor diz à IA quais ações e dados oferece, a IA pede o que precisa e o servidor executa o pedido com as suas permissões.
+</FaqItem>
+
+<FaqItem question="Qual é a diferença entre um cliente MCP e um servidor MCP?">
+O cliente vive dentro do aplicativo de IA, por exemplo o Claude ou o Cursor, e mantém a conexão. O servidor é o programa do outro lado, que oferece ferramentas, recursos e prompts. Um aplicativo pode rodar muitos clientes, um por servidor conectado.
+</FaqItem>
+
+<FaqItem question="O MCP é só para o Claude?">
+Não. A Anthropic criou o MCP como um padrão aberto, e hoje o ChatGPT, o Cursor, o VS Code, o Gemini CLI, o Codex e muitos outros aplicativos atuam como clientes MCP. Um servidor construído conforme a especificação funciona com qualquer um deles, dentro do suporte de recursos de cada cliente.
+</FaqItem>
+
+<FaqItem question="Preciso programar para usar um servidor MCP?">
+Não. Servidores remotos são adicionados com uma URL e um login. Servidores locais exigem uma linha em um arquivo de configuração, o que é um pouco mais técnico. Você só escreve código para construir um servidor próprio.
+</FaqItem>
+
+<FaqItem question="Um servidor MCP pode excluir os meus dados?">
+Se ele oferece uma ferramenta de exclusão e a sua conta pode excluir, sim. Confira quais ferramentas um servidor oferece, conecte-se com as permissões mais restritas que funcionem e mantenha as confirmações ligadas para chamadas destrutivas no seu cliente. Alguns servidores, como o da HubSpot, não documentam nenhuma exclusão; o Customermates oferece exclusões que movem os registros para a Lixeira por 30 dias.
+</FaqItem>
+
+<FaqItem question="Servidores MCP são gratuitos?">
+O protocolo é gratuito e aberto. Se um servidor específico custa dinheiro depende do fornecedor e do plano; a assinatura do seu cliente de IA é um custo à parte.
+</FaqItem>
+
+<FaqItem question="O que é MCP em IA e na programação?">
+Em IA, MCP é o protocolo que liga um assistente ou um agente a ferramentas e dados externos. Na programação, é o que permite a um editor ou agente de código, como o Cursor ou o VS Code, usar ferramentas do seu projeto: ler arquivos, consultar um banco de dados, abrir um ticket. Quem programa também usa os SDKs do MCP para construir servidores próprios.
+</FaqItem>
+
+<FaqItem question="O MCP substitui as APIs?">
+Não. Um servidor MCP costuma ficar por cima de uma API e chamar a mesma lógica por trás. A API atende o código que já sabe qual operação precisa; o MCP deixa uma IA descobrir as operações e escolher sozinha. A [comparação entre MCP e API](/blog/mcp-vs-api) mostra a diferença em uma tarefa real.
+</FaqItem>
+
+<FaqItem question="MCP e RAG são a mesma coisa?">
+Não. RAG é uma técnica para trazer trechos de documentos ao contexto do modelo; MCP é o protocolo pelo qual a IA chama ferramentas e lê recursos de outro sistema. Eles se combinam, e a seção sobre [MCP ou RAG](#mcp-ou-rag) explica como.
+</FaqItem>
+
+<FaqItem question="Como criar um servidor MCP?">
+Escolha uma ou duas ferramentas somente leitura, use um SDK oficial (TypeScript e Python estão entre os disponíveis), escolha stdio para um servidor local ou Streamable HTTP para um remoto, teste com uma ferramenta de inspeção e só então conecte a uma IA. Os cinco passos estão em [como criar um servidor MCP](#como-criar-um-servidor-mcp).
+</FaqItem>
+</Faq>
+
+Fontes: verificadas em 30 de outubro de 2026 na [especificação do MCP](https://modelcontextprotocol.io/specification/latest), na [visão geral da arquitetura do MCP](https://modelcontextprotocol.io/docs/learn/architecture), nas [boas práticas de segurança do MCP](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices), no [anúncio do MCP pela Anthropic](https://www.anthropic.com/news/model-context-protocol), no [guia da Anthropic sobre conectores personalizados com MCP remoto](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp), no [guia da OpenAI para conectar um servidor MCP no ChatGPT](https://developers.openai.com/plugins/deploy/connect-chatgpt) e no [guia da OpenAI de servidores MCP para a API](https://developers.openai.com/api/docs/guides/tools-connectors-mcp).

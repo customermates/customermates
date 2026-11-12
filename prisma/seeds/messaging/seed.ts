@@ -512,6 +512,7 @@ export async function seedWorkspaceMessaging(
     }
 
     const sentMessageCount = fixture.messages.filter((entry) => entry.draft !== true).length;
+    const hasDraft = sentMessageCount < fixture.messages.length;
     let sentSoFar = 0;
     for (const message of fixture.messages) {
       messageIndex += 1;
@@ -519,9 +520,12 @@ export async function seedWorkspaceMessaging(
       const recipients = attendees.filter((attendee) => attendee.attendeeId !== sender.attendeeId);
       const sentPosition = message.draft === true ? sentMessageCount - 1 : sentSoFar;
       if (message.draft !== true) sentSoFar += 1;
+      // A draft is the latest message of its thread and answers the last sent one, which sits a minute earlier: messages
+      // at the same instant come back in no fixed order, and the draft could show above the message it answers.
       const sentAt = officeMinutesBefore(
         latestAt,
-        (sentMessageCount - 1 - sentPosition) * messageGapMinutes(fixture),
+        (sentMessageCount - 1 - sentPosition) * messageGapMinutes(fixture) +
+          (message.draft !== true && hasDraft ? 1 : 0),
         fixtures.timeZone,
       );
       const reactionSender = message.reaction

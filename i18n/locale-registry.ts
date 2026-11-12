@@ -9,10 +9,18 @@ type LocaleCapabilities = {
   textSearchConfig: TextSearchConfig;
   iso6393: string;
   defaultCurrency: string;
-  assetLocale: "en" | "de";
+  assetLocale: "en" | "de" | "es" | "pt" | "pl" | "nl";
 };
 
-export type TextSearchConfig = "english" | "german" | "french" | "italian" | "spanish";
+export type TextSearchConfig =
+  | "english"
+  | "german"
+  | "french"
+  | "italian"
+  | "spanish"
+  | "portuguese"
+  | "dutch"
+  | "simple";
 
 export const LOCALE_REGISTRY = {
   en: {
@@ -70,15 +78,54 @@ export const LOCALE_REGISTRY = {
   es: {
     offeredAsDisplayLanguage: true,
     offeredAsFormattingLocale: true,
-    hasPublishedContent: false,
-    marketingPaths: [],
+    hasPublishedContent: true,
+    marketingPaths: "all",
     formattingTag: "es-ES",
     flagCode: "es",
     validationTag: "es",
     textSearchConfig: "spanish",
     iso6393: "spa",
     defaultCurrency: "EUR",
-    assetLocale: "en",
+    assetLocale: "es",
+  },
+  pt: {
+    offeredAsDisplayLanguage: true,
+    offeredAsFormattingLocale: true,
+    hasPublishedContent: true,
+    marketingPaths: "all",
+    formattingTag: "pt-BR",
+    flagCode: "br",
+    validationTag: "pt",
+    textSearchConfig: "portuguese",
+    iso6393: "por",
+    defaultCurrency: "EUR",
+    assetLocale: "pt",
+  },
+  pl: {
+    offeredAsDisplayLanguage: true,
+    offeredAsFormattingLocale: true,
+    hasPublishedContent: true,
+    marketingPaths: "all",
+    formattingTag: "pl-PL",
+    flagCode: "pl",
+    validationTag: "pl",
+    textSearchConfig: "simple",
+    iso6393: "pol",
+    defaultCurrency: "EUR",
+    assetLocale: "pl",
+  },
+  nl: {
+    offeredAsDisplayLanguage: true,
+    offeredAsFormattingLocale: true,
+    hasPublishedContent: true,
+    marketingPaths: "all",
+    formattingTag: "nl-NL",
+    flagCode: "nl",
+    validationTag: "nl",
+    textSearchConfig: "dutch",
+    iso6393: "nld",
+    defaultCurrency: "EUR",
+    assetLocale: "nl",
   },
 } as const satisfies Record<string, LocaleCapabilities>;
 

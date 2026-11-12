@@ -1,0 +1,283 @@
+---
+title: "Customermates zelf hosten met Docker Compose"
+description: "Draai Customermates op je eigen server met Docker Compose: installatie, .env, e-mail, aanmelding, updates, back-ups, herstel en de verschillen met Cloud."
+---
+
+Zelf hosten draait Customermates vanuit twee bestanden, `docker-compose.yml` en `.env`, met `docker compose up -d`. Je haalt beide met `curl` uit de [Customermates-repo](https://github.com/customermates/customermates); je hebt geen `git clone` en geen buildstap nodig. Het Compose-bestand start twee containers: PostgreSQL 16 (`postgres:16-alpine`) en de app-image `ghcr.io/customermates/customermates:latest`, die bij elke start openstaande databasemigraties toepast. De migraties maken de extensie `pg_trgm` aan: die is trusted vanaf PostgreSQL 13, maar sommige beheerde providers vragen je haar eerst op een allowlist te zetten.
+
+## Moet ik zelf hosten of de cloud gebruiken? [#should-i-self-host-or-use-the-cloud]
+
+| Beslisfactor | Beheerde cloud | Zelf gehost |
+|---|---|---|
+| Beheer van applicatie en database | Customermates beheert ze | Jij beheert Docker, PostgreSQL, netwerktoegang, TLS, updates en back-ups |
+| Kern-CRM-records en weergaven | Inbegrepen per abonnement | Basis van Starter |
+| Gedeelde inbox en gekoppelde agenda's | Beschikbaar in cloudabonnementen die ze bevatten | Niet inbegrepen |
+| AI-toegang | Externe MCP, plus de gehoste assistent Mate met de gehoste AI-credits van je abonnement | Externe MCP met je eigen client en provider |
+| Gekoppelde providers | Geconfigureerd binnen het beheerde product | Jij configureert en beoordeelt elke externe provider |
+| Prijs | Cloudabonnement per gebruiker vanaf [[commercial.price.starter.monthly]] per maand | Je eigen infrastructuur, providers en beheertijd |
+
+Zelf hosten laat je kiezen waar de applicatie en de database draaien. Het geeft op zichzelf geen garantie voor beveiliging, compliance, privacy of een air gap; je organisatie blijft verantwoordelijk voor configuratie, providers, contracten, bewaartermijnen en beheermaatregelen. Vergelijk de totale beheerkosten in plaats van aan te nemen dat het ene model goedkoper is: infrastructuur, back-ups, hersteltests, monitoring, updates, incidentafhandeling en externe providers.
+
+Records verhuizen tussen cloud en zelf gehost als Excel-werkmappen, één lijst tegelijk. Een migratie van het hele platform is een apart ontworpen en gevalideerd project.
+
+## Is zelf hosten gratis, en heb ik een licentie nodig? [#is-self-hosting-free-and-do-i-need-a-license]
+
+Een zelf gehoste instantie bevat een willekeurig aantal werkruimtes, en één login kan bij meerdere ervan horen ([Werkruimtes](/docs/app-workspaces#how-do-workspaces-work-when-self-hosting)). Geen enkele werkruimte heeft een abonnement of een proefperiode: elk begint actief, telt geen plekken en factureert niets. Je betaalt alleen voor je eigen infrastructuur en providers.
+
+Customermates is open core. Code buiten `ee/`, en materiaal in `ee/` dat aan de browser wordt geleverd, valt onder AGPL-3.0-only. De servercode in `ee/` valt onder de Customermates Commercial License, die toestaat de officiële image met `APP_MODE=self-hosted` te draaien, ook in productie, als Community Build, zolang de functies die alleen in de cloud bestaan uit blijven. De exacte voorwaarden staan in `LICENSE` en `ee/LICENSE.md`. Een cloudabonnement kopen ontgrendelt niets in een zelf gehoste installatie.
+
+## Welke functies zijn niet beschikbaar bij zelf hosten? [#which-features-are-not-available-when-self-hosting]
+
+Elke zelf gehoste installatie gebruikt de functieset van Starter. Deze functies die alleen in de cloud bestaan, blijven uit, ook als je daarnaast voor een cloudabonnement betaalt: gekoppelde berichtenaccounts (e-mail, LinkedIn, WhatsApp, Instagram, Telegram), de gedeelde Inbox, gekoppelde agenda's en hun afspraken, de gehoste assistent Mate met zijn gehoste AI-credits, Routines, die Mate uitvoert, en de AI-setup in de onboarding, zodat een nieuwe werkruimte zonder lijsten begint. Externe AI-clients werken nog steeds via MCP met je eigen AI-provider. Enterprise-SSO (SAML) en white-labeling zijn in geen van beide implementatiemodellen geïmplementeerd.
+
+De app verbergt wat niet van toepassing is: de zijbalk toont geen Inbox of Routines, Instellingen heeft geen pagina Facturering of Kanalen & agenda's, en de roleditor verbergt de rijen **Inboxberichten** en **Routines**. Als je een van die pagina's via de URL opent, kom je terug op het Dashboard.
+
+Al het andere werkt zoals in de cloud: lijsten en weergaven, Excel-import en -export, Datamodel, dashboardwidgets, leden en rollen, het Activiteitenlog, REST, webhooks en MCP.
+
+## Hoe installeer ik Customermates en host ik het zelf met Docker Compose? [#how-do-i-install-customermates-with-docker-compose]
+
+Je hebt Docker met Docker Compose v2 nodig; de image is gebouwd voor `linux/amd64` en `linux/arm64`. Een domeinnaam is alleen nodig voor HTTPS.
+
+<Steps>
+<Step title="Haal de twee bestanden op">
+```bash
+mkdir customermates && cd customermates
+curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/docker-compose.yml -o docker-compose.yml
+curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/.env.selfhost.template -o .env
+```
+</Step>
+<Step title="Vul .env in">
+Vervang vóór de eerste start de plaatshouderwaarden in `.env`: minimaal `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET` (bijvoorbeeld uit `openssl rand -hex 32`), `BASE_URL`, `RESEND_API_KEY` en `RESEND_OPERATOR_EMAIL`. Zonder werkende `RESEND_API_KEY` gaat er geen e-mail uit, dus niemand kan zijn e-mailadres bevestigen en elk nieuw account wordt na 24 uur vastgezet.
+</Step>
+<Step title="Start">
+```bash
+docker compose up -d
+docker compose logs -f app
+```
+De eerste start duurt ongeveer een minuut terwijl de migraties lopen. Open daarna `<BASE_URL>/auth/signup`, standaard `http://localhost:4000/auth/signup`.
+</Step>
+<Step title="Registreer">
+Registreer, kies **Een nieuwe werkruimte aanmaken** en doorloop de wizard; je account wordt **Beheerder**. Zie [Hoe maak ik het eerste account op mijn instantie aan?](#how-do-i-create-the-first-account-on-my-instance).
+</Step>
+</Steps>
+
+## Welke omgevingsvariabelen komen in .env? [#env-values]
+
+- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: databasegebruiker, wachtwoord en naam (sjabloon: `postgres`, `change-this-password`, `customermates`). Stel ze in vóór de eerste start. PostgreSQL past ze één keer toe, wanneer het het databasevolume aanmaakt, dus een latere wijziging in `.env` verandert de bestaande database niet, en de app kan dan niet meer verbinden.
+- `BETTER_AUTH_SECRET`: een lange willekeurige string die inlogsessies ondertekent. Als je hem later wijzigt, worden alle gebruikers uitgelogd, dus bewaar een kopie bij je back-ups.
+- `BASE_URL`: het exacte adres dat mensen in de browser openen, zie [Op welke waarde moet BASE_URL staan?](#base-url).
+- `APP_PORT`: de hostpoort waarop de app wordt gepubliceerd, standaard `4000`.
+- `RESEND_API_KEY`, `RESEND_OPERATOR_EMAIL`: e-mailbezorging; `RESEND_API_KEY` mag niet leeg zijn. Zie [Hoe stel ik e-mail in met Resend, en kan ik SMTP gebruiken?](#how-do-i-set-up-email-with-resend-and-can-i-use-smtp).
+- `APP_MODE`: laat hem op `self-hosted` staan; het Compose-bestand stelt deze waarde voor de app zelf in.
+- `WEBHOOK_BLOCK_PRIVATE_DESTINATIONS`: optioneel; stel `true` in om webhookverzoeken naar privé-, loopback- en link-local-adressen te blokkeren. Privébestemmingen zijn standaard toegestaan, zodat webhooks diensten in je netwerk kunnen bereiken. Accepteert alleen `true` of `false`.
+- `CRON_SECRET`: optioneel, in het sjabloon uitgecommentarieerd; de secret voor de geplande onderhoudsaanroepen, zie [Welke geplande taken moet ik draaien?](#scheduled-jobs).
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AZURE_AD_CLIENT_ID`, `AZURE_AD_CLIENT_SECRET`: optioneel, in het sjabloon uitgecommentarieerd, zie [Kunnen gebruikers inloggen met Google of Microsoft?](#can-users-sign-in-with-google-or-microsoft).
+- `ADDRESS_LOOKUP_URL`: optioneel, in het sjabloon uitgecommentarieerd; voegt adreszoeken toe via een Photon-service die je zelf draait, zie [Hoe worden adressen gecontroleerd, en hoe voeg ik adreszoeken toe?](#address-lookup).
+- `POSTAL_CODE_DATA_URL`: optioneel, in het sjabloon uitgecommentarieerd; de bron van de postcodes voor suggesties van plaats en regio: GeoNames als hij niet is ingesteld, de URL van een mirror, of `off`, zie [Hoe worden adressen gecontroleerd, en hoe voeg ik adreszoeken toe?](#address-lookup).
+- `FILE_STORAGE_DRIVER`, `FILE_MAX_UPLOAD_BYTES` en de `S3_`-variabelen: optioneel, in het sjabloon uitgecommentarieerd; waar bestandsvelden hun bestanden bewaren en hoe groot één bestand mag zijn, zie [Waar worden bestanden opgeslagen als ik zelf host?](#file-storage).
+
+Houd `.env` buiten versiebeheer. Pas wijzigingen toe met `docker compose up -d`.
+
+## Op welke waarde moet BASE_URL staan? [#base-url]
+
+Stel `BASE_URL` in op precies het adres dat mensen in de browser typen: schema, hostnaam en, tenzij het 80 of 443 is, de poort, zonder pad. Voorbeelden: `https://crm.example.com` of `http://192.168.1.20:4000`. De sjabloonwaarde `http://localhost:4000` werkt alleen op de machine waarop Docker draait. De app weigert te starten als `BASE_URL` een pad, een query of inloggegevens bevat.
+
+Customermates bouwt deze adressen op uit `BASE_URL`:
+
+- redirects bij het inloggen, de links in uitnodigingen en andere e-mails, en het MCP-OAuth-adres;
+- op een documentatiepagina het MCP-adres in de installatiefragmenten en achter **MCP-configuratie kopiëren**, **MCP-opdracht kopiëren**, **Verbinden met Cursor** en **Verbinden met VS Code**, en het paginaadres dat **Openen in ChatGPT** en **Openen in Claude** doorgeven;
+- in de REST API-referentie de **Server URL**, de codevoorbeelden en het adres dat **Send** aanroept;
+- de links in `llms.txt` en `llms-full.txt` (ruwe markdownpagina's), de adressen in `sitemap.xml` en `robots.txt`, en de canonieke links van de openbare pagina's;
+- de `url` die `search_docs`, `get_docs_page`, `search` en `fetch` teruggeven, waarvan agents de origin voor een app-route zetten om een volledige link te bouwen.
+
+Een verzoek dat onder een andere hostnaam, een ander IP-adres of een andere poort binnenkomt, krijgt nog steeds adressen die naar `BASE_URL` wijzen: na het inloggen kunnen gebruikers op het verkeerde adres terechtkomen, en **Send** in de REST API-referentie mislukt, omdat de browser niet toestaat dat een pagina die onder een ander adres is geopend de API op `BASE_URL` aanroept.
+
+Drie adressen die de app je laat kopiëren, gebruiken in plaats daarvan het adres waarmee de browser de app opende: de **Uitnodigingslink** op het tabblad **Link delen** van **Gebruiker uitnodigen** en van de uitnodigingsstap in de onboarding, het MCP-adres onder **Snelle koppelingen** en in de onboardingstap **Koppel de AI die je al gebruikt**, en de links van **Link kopiëren** bij een opgeslagen weergave. Kopieer ze vanuit een browser die het openbare adres gebruikt.
+
+Als je het domein of `APP_PORT` wijzigt, werk dan ook `BASE_URL` bij en voer `docker compose up -d` uit. Bij een `https://`-adres worden inlogcookies als Secure gemarkeerd, dus de app moet dan via HTTPS worden geopend.
+
+## Hoe zet ik Customermates achter een reverse proxy met HTTPS? [#how-do-i-put-customermates-behind-a-reverse-proxy-with-https]
+
+Richt een reverse proxy zoals Caddy, nginx of Traefik op de apppoort (`4000`, of je `APP_PORT`) en stel `BASE_URL` in op het openbare `https://`-adres. Caddy haalt het TLS-certificaat zelf op:
+
+```text
+crm.example.com {
+  reverse_proxy localhost:4000
+}
+```
+
+De app neemt het schema en de host voor zijn links uit `BASE_URL`, dus doorgestuurde headers zoals `X-Forwarded-Proto` zijn niet vereist. De proxy moet de oorspronkelijke `Host`-header doorgeven, omdat de app formulierverzoeken weigert waarvan de origin er niet mee overeenkomt, ook bij inloggen en aanmelden. Caddy en Traefik doen dit standaard; voeg in nginx `proxy_set_header Host $host;` toe. Het Compose-bestand publiceert de apppoort op alle netwerkinterfaces; als alleen de proxy er bij moet kunnen, wijzig dan de mapping in `docker-compose.yml` naar `"127.0.0.1:${APP_PORT:-4000}:4000"` of blokkeer de poort in je firewall.
+
+## Hoe stel ik e-mail in met Resend, en kan ik SMTP gebruiken? [#how-do-i-set-up-email-with-resend-and-can-i-use-smtp]
+
+Customermates verstuurt e-mail alleen via [Resend](https://resend.com); er is geen SMTP-optie. Verifieer je verzenddomein in Resend, maak een API-sleutel aan en stel in:
+
+- `RESEND_API_KEY`: de Resend-API-sleutel.
+- `RESEND_OPERATOR_EMAIL`: het afzenderadres, op een domein dat in Resend is geverifieerd. Elke e-mail gaat uit als `Customermates <RESEND_OPERATOR_EMAIL>`. Hetzelfde adres ontvangt een e-mail "New User Registration" wanneer iemand de profielstap van de wizard opslaat (zie [Wie kan zich aanmelden?](#who-can-sign-up-on-my-instance)) en de berichten die via **Feedback sturen** in het persoonlijke menu worden verstuurd.
+
+De app mailt verificatielinks, wachtwoordresets en uitnodigingen. Als een e-mail niet kan worden verstuurd, werkt registreren nog steeds: nieuwe gebruikers kunnen hun account 24 uur gebruiken en worden daarna vastgezet op **E-mailverificatie**, samen met hun API-sleutels en MCP-koppelingen, totdat ze verifiëren. **Wachtwoord vergeten?** verstuurt niets, **Feedback sturen** mislukt, en het tabblad **Link delen** van **Gebruiker uitnodigen** blijft werken.
+
+- Zonder `RESEND_API_KEY` mislukt elke verzending met `RESEND_API_KEY is not configured` in het applog, en e-mailuitnodigingen mislukken met een fout.
+- Als Resend een e-mail weigert, of de server Resend helemaal niet kan bereiken, bijvoorbeeld achter een firewall die uitgaand verkeer blokkeert of zonder internettoegang, geeft de verzending na maximaal 10 seconden op en toont het applog `[EmailService] Email not sent` met het onderwerp, het domein van de ontvanger en de reden van Resend. **Uitnodigingen versturen** meldt dan de uitnodigingen die niet konden worden verstuurd en houdt alleen hun adressen in het formulier, en de REST- en MCP-uitnodigingsaanroepen geven hun aantal terug als `failed` en de adressen als `failedEmails`. Een uitnodiging opnieuw versturen, bijvoorbeeld na een time-out, mailt een adres niet twee keer binnen 24 uur. Zonder verbinding met Resend kosten registreren en **Wachtwoord vergeten?** die 10 seconden.
+
+Als e-mails niet aankomen, controleer dan het applog, controleer of het afzenderdomein is geverifieerd en zoek naar geweigerde verzendingen in het Resend-dashboard.
+
+## Hoe maak ik het eerste account op mijn instantie aan? [#how-do-i-create-the-first-account-on-my-instance]
+
+Open `<BASE_URL>/auth/signup` en registreer je met e-mail en wachtwoord onder **Account aanmaken**, of met Google of Microsoft als je die hebt geconfigureerd. Kies op het volgende scherm **Een nieuwe werkruimte aanmaken**. De eerste stap van de wizard vraagt je voornaam, achternaam en weergavetaal en maakt de werkruimte aan; je kunt de overige stappen overslaan en de wizard sluiten met **Afronden**. Het account dat de werkruimte aanmaakt, krijgt de ingebouwde rol **Beheerder**, die alle rechten heeft. De nieuwe werkruimte heeft nog geen lijsten: maak de lijsten die je nodig hebt aan in het [Datamodel](app:configure), of met **Lijst maken** op het lege Dashboard; zie [Kernconcepten](/docs/concepts#which-five-record-types-exist).
+
+Klik binnen 24 uur op de verificatielink in de e-mail. Een account dat 24 uur na het registreren nog niet is geverifieerd, wordt vastgezet op **E-mailverificatie**, waar **Verificatie-e-mail opnieuw verzenden** een nieuwe link verstuurt.
+
+Open daarna [Leden](app:settings/members), nodig teamgenoten uit met [Toevoegen](app:settings/members?focus=add), keur ze daar goed zodra ze zich hebben geregistreerd en stel in wat ze mogen doen onder [Rollen](app:settings/roles); zie [Leden en rollen](/docs/app-company).
+
+## Wie kan zich aanmelden op mijn instantie? [#who-can-sign-up-on-my-instance]
+
+Iedereen die je `BASE_URL` kan bereiken, kan zich registreren; registratie kan niet worden uitgeschakeld. Een nieuwe gebruiker die **Een nieuwe werkruimte aanmaken** kiest, krijgt een aparte werkruimte met een eigen **Beheerder**, gescheiden van de jouwe maar opgeslagen in jouw database; alleen een **Beheerder** van een werkruimte kan haar verwijderen, zie [Hoe verwijder ik een werkruimte?](/docs/app-workspaces#how-do-i-delete-a-workspace). Elke ingelogde gebruiker kan ook op elk moment werkruimtes toevoegen met **Werkruimte aanmaken** in het werkruimtemenu. Een e-mail "New User Registration" gaat naar `RESEND_OPERATOR_EMAIL` wanneer iemand de profielstap van de wizard opslaat, en bij inloggen met Google of Microsoft ook wanneer iemand inlogt voordat hij die stap heeft opgeslagen. Wie zich met e-mail en wachtwoord registreert maar die stap nooit opslaat, stuurt er geen, en de melding komt alleen aan als Resend haar accepteert, dus het is geen volledig overzicht van aanmeldingen.
+
+Als de instantie maar één team moet bedienen, beperk dan wie erbij kan, bijvoorbeeld met een VPN, een IP-allowlist of authenticatie op de reverse proxy; MCP- en REST-clients hebben dan dezelfde toegang nodig.
+
+Teamgenoten voegen zich toe via een uitnodiging: [Toevoegen](app:settings/members?focus=add) op [Leden](app:settings/members) opent **Gebruiker uitnodigen** met een tabblad **Link delen** en een tabblad **E-mails versturen**. Nieuwe leden wachten met de status **Wacht op goedkeuring** tot een lid met **Bewerken** op **Gebruikers & rollen** hen opent, een **Rol** geeft en de **Status** op **Actief** zet.
+
+## Kunnen gebruikers inloggen met Google of Microsoft? [#can-users-sign-in-with-google-or-microsoft]
+
+Ja, zodra je ze configureert. Registreer een OAuth-client bij Google, of een app-registratie in Microsoft Entra ID, met de redirect-URI `<BASE_URL>/api/auth/callback/google` of `<BASE_URL>/api/auth/callback/microsoft`. De Microsoft-provider gebruikt het endpoint `common`, dus registreer de app voor accounts in elke organisatiemap.
+
+Haal in `.env` de `#` weg voor de regels van de providers die je gebruikt, vul `GOOGLE_CLIENT_ID` en `GOOGLE_CLIENT_SECRET` in, of `AZURE_AD_CLIENT_ID` en `AZURE_AD_CLIENT_SECRET`, en voer dan `docker compose up -d` uit. Het Compose-bestand geeft alle vier de waarden door aan de app; als je `docker-compose.yml` ze nog niet vermeldt, haal hem dan opnieuw op met de `curl`-opdracht uit de installatiestappen. Een provider verschijnt alleen als beide waarden zijn ingesteld: de inlogpagina toont dan **Doorgaan met Google** of **Doorgaan met Microsoft**, en de aanmeldpagina **Registreren met Google** of **Registreren met Microsoft**. Enterprise-SSO via SAML is niet geïmplementeerd.
+
+## Hoe koppel ik een AI-client aan mijn zelf gehoste instantie? [#how-do-i-connect-an-ai-client-to-my-self-hosted-instance]
+
+Het MCP-endpoint is `<BASE_URL>/api/v1/mcp`, bijvoorbeeld `https://crm.example.com/api/v1/mcp`. Er zijn twee manieren om te authenticeren:
+
+- **API-sleutel** in de header `x-api-key`, voor clients die op je eigen machine draaien: Claude Code, Claude Desktop, Codex, Cursor en Gemini CLI. Maak de sleutel aan met [Toevoegen](app:settings/api-keys?focus=generate) op [API-sleutels & connectoren](app:settings/api-keys); **Snelle koppelingen** daar toont het installatiefragment met het adres waaronder je de app opende. De client hoeft de URL alleen te kunnen bereiken, dus een adres in het lokale netwerk werkt. Zie [CLI- en editorclients koppelen](/docs/connect-cli).
+- **OAuth-login**, voor clients die vanuit de cloud van hun provider koppelen, zoals een eigen connector van Claude. Die vragen een `BASE_URL` die via HTTPS vanaf internet bereikbaar is. Zie [Claude en ChatGPT koppelen](/docs/connect-custom-connector).
+
+De gehoste Assistent in de app bestaat alleen in de cloud: Mate is niet beschikbaar op zelf gehoste instanties. Externe MCP gebruikt je eigen AI-provider. Enterprise-SSO en white-labeling zijn in geen van beide implementatiemodellen geïmplementeerd.
+
+## Hoe worden adressen gecontroleerd, en hoe voeg ik adreszoeken toe? [#address-lookup]
+
+Adrescontroles vragen geen installatie. Elke server controleert adressen tegen de adresnotatie van hun land, die met de app wordt meegeleverd, en vult plaats en regio aan uit de postcode, zie [Hoe voer ik een adres in?](/docs/app-records#how-do-i-enter-an-address). Hiervoor verlaat niets van een record je server.
+
+De postcodes worden geladen uit [GeoNames](https://www.geonames.org). De eerste keer dat iemand een adres in een land invoert, downloadt een achtergrondtaak het openbare bestand van dat land van `https://download.geonames.org/export/zip`, controleert het en bewaart de postcodes in je PostgreSQL-database; na 90 dagen downloadt hij het bestand opnieuw. Alleen het openbare bestand wordt gedownload: er worden geen recordgegevens, zoektekst of IP-adressen van je gebruikers verstuurd. Zolang een land niet is geladen, of terwijl de download ervan mislukt, draaien de notatiecontroles nog steeds, en ontbreken alleen de suggesties voor plaats en regio en de plaatscontrole. `POSTAL_CODE_DATA_URL` stelt de bron van de bestanden in:
+
+- Niet ingesteld: GeoNames. De server heeft uitgaande HTTPS-toegang tot `download.geonames.org` nodig.
+- `off`: geen downloads. De notatiecontroles draaien nog steeds, maar niets stelt een plaats of regio voor, en de plaats wordt niet gecontroleerd.
+- De URL van een mirror, bijvoorbeeld `https://mirror.example.com/geonames`: een server die de GeoNames-bestanden onder dezelfde namen aanbiedt, zoals `DE.zip`, `US.zip` of `CA_full.csv.zip`.
+
+Net als bij `ADDRESS_LOOKUP_URL` hieronder volgt Customermates nooit een redirect, en een hostnaam die naar een privéadres oplost, wordt alleen geaccepteerd als de geconfigureerde host zelf privé is.
+
+Een zelf gehoste server kan ook adressen zoeken terwijl mensen typen, met een [Photon](https://github.com/komoot/photon)-service die je zelf draait op OpenStreetMap-gegevens. Stel `ADDRESS_LOOKUP_URL` erop in, en adresvelden krijgen **Adres zoeken** en **Adres controleren**: een adres dat daar is gekozen of gevonden, wordt als geverifieerd opgeslagen, met de positie van het gebouw. Je server stuurt Photon alleen de zoektekst of het adres dat wordt gecontroleerd, de taal van de persoon en het gekozen land, dus Photon ziet nooit de IP-adressen of sessies van mensen. Elke appcontainer staat elke persoon 30 zoekopdrachten in 10 seconden toe en beantwoordt identieke zoekopdrachten 10 minuten uit zijn eigen cache. Zonder `ADDRESS_LOOKUP_URL`, de standaard, typen mensen het adres zelf; Customermates Cloud heeft geen adreszoeken.
+
+Om Photon te draaien, download je het Photon-jar-bestand van de [releases](https://github.com/komoot/photon/releases/latest), sla je het op als `photon.jar` en download je een zoekindex voor de hele planeet of voor één land van [download1.graphhopper.com/public](https://download1.graphhopper.com/public/) die bij de Photon-versie past. Photon heeft Java 21 of hoger nodig en geheugen dat bij de index past: voor de planeetindex, ongeveer 95 GB schijfruimte, raadt Photon minstens 64 GB RAM aan, terwijl een landindex veel minder nodig heeft. Pak de index uit zodat `photon_data` naast het jar-bestand in `/srv/photon` staat en start Photon dan in het netwerk van het Compose-project, dat is genoemd naar zijn map, hier `customermates`, met een Java-heap (`-Xmx`) die bij je index past:
+
+```bash
+docker run -d --name photon --restart unless-stopped \
+  --network customermates_default \
+  -v /srv/photon:/photon -w /photon \
+  eclipse-temurin:21-jre \
+  java -Xmx4g -jar photon.jar serve -listen-ip 0.0.0.0
+```
+
+Stel daarna `ADDRESS_LOOKUP_URL=http://photon:2322` in `.env` in en voer `docker compose up -d` uit. Customermates roept alleen de geconfigureerde host aan en volgt nooit een redirect. Een hostnaam die naar een privéadres oplost, wordt alleen geaccepteerd als de geconfigureerde host zelf privé is: een IP-adres in een privébereik, `localhost`, een naam zonder punt zoals `photon`, of een naam onder `.local`, `.internal`, `.lan` of `.home.arpa`. Als de service niet binnen 2 seconden antwoordt, zien mensen dat adreszoeken niet beschikbaar is en kunnen ze het adres nog steeds typen. Haal `ADDRESS_LOOKUP_URL` weg om het zoeken weer uit te zetten; opgeslagen adressen behouden hun verificatie.
+
+## Hoe update ik een zelf gehoste installatie? [#how-do-i-update-a-self-hosted-installation]
+
+Maak eerst een back-up, haal dan de nieuwe images op en maak de containers opnieuw aan:
+
+```bash
+docker compose pull
+docker compose up -d
+docker compose ps
+```
+
+De tag `latest` wordt vanuit de hoofdtak opnieuw gebouwd zodra hij verandert, dus elke pull kan nieuwe functies en databasemigraties brengen. Migraties lopen bij elke start en gaan alleen vooruit: een oudere image starten na een migratie is geen veilige rollback. Om terug te draaien, herstel je de back-up van vóór de update en start je de vorige image met zijn `sha-`-tag. `docker compose pull` ververst ook `postgres:16-alpine` binnen PostgreSQL 16.
+
+Om te bepalen wanneer updates plaatsvinden, pin je de image in `docker-compose.yml` op een buildtag in plaats van op `latest`. Elke image is ook getagd met `sha-` gevolgd door de korte commit-id, bijvoorbeeld `ghcr.io/customermates/customermates:sha-<commit>`.
+
+**Updaten vanaf een release van vóór 14 oktober 2026:** de release die lijsten, velden en berekeningen configureerbaar maakte, zet de CRM-gegevens van elke werkruimte om wanneer de nieuwe image voor het eerst start. Records, waarden, koppelingen, toegewezen personen, Kennisbank-pagina's, leden, rollen en API-sleutels blijven behouden. Elke dashboardwidget, de opgeslagen weergaven en persoonlijke instellingen van de recordlijsten, de terminologie die voor de lijsten is gekozen en de auditlog worden verwijderd, zodat de geschiedenis opnieuw begint bij de update, en elke webhook wordt uitgezet totdat je hem weer aanzet met de recordgebeurtenissen die hij moet versturen. Maak vóór deze update de back-up en voer de alleen-lezen inventarisatie uit de [migratienotities](https://github.com/customermates/customermates/blob/main/prisma/migrations/20261010000000_dynamic_record_model/README.md#before-deploying) uit, bijvoorbeeld in `docker compose exec postgres sh -c 'psql -U "$POSTGRES_USER" "$POSTGRES_DB"'`, om de webhooks te tonen die hij uitzet. Als de omzetting gegevens weigert die ze niet kan omzetten, verandert ze niets, start de app niet en noemt het log de velden en het aantal waarden dat ze weigerde: herstel de back-up, start de vorige image, corrigeer die records en update opnieuw.
+
+Vanuit een kloon van de repository voert `scripts/selfhost-update.sh` deze update voor je uit: het schrijft een back-up naar `backups/` en haalt daarna de images op en maakt de containers opnieuw aan. Ernaast maakt `scripts/selfhost-setup.sh` `.env` aan uit het sjabloon, controleert de vereiste waarden en start de instantie, maakt `scripts/selfhost-restart.sh` de appcontainer opnieuw aan zodat hij wijzigingen in `.env` oppikt, en verwijdert `scripts/selfhost-reset.sh` alle gegevens zoals `docker compose down -v` zodra je `RESET` typt.
+
+## Hoe pas ik wijzigingen in .env toe? [#apply-env-changes]
+
+Voer `docker compose up -d` uit. Het maakt de containers opnieuw aan waarvan de configuratie is gewijzigd, zodat ze met de nieuwe waarden uit `.env` starten. `docker compose restart` behoudt de oude omgeving en past wijzigingen in `.env` niet toe.
+
+## Waar staan de logs, en hoe los ik problemen op? [#where-are-the-logs-and-how-do-i-troubleshoot]
+
+```bash
+docker compose logs -f app
+docker compose logs -f postgres
+docker compose ps
+docker compose exec app sh
+```
+
+De app schrijft zijn logs naar de containeruitvoer. Achtergrondtaken zoals webhookbezorgingen draaien in de appcontainer via een wachtrij op PostgreSQL in dezelfde database; er is geen aparte workerdienst. De gepubliceerde image zet de telemetrie van Next.js en Prisma uit. Fouten verschijnen alleen in deze logs. Elke e-mail die Resend heeft geweigerd of niet op tijd heeft beantwoord, wordt gelogd als `[EmailService] Email not sent` met de reden van Resend.
+
+## Waar worden bestanden opgeslagen als ik zelf host? [#file-storage]
+
+Bestandsvelden bewaren hun bestanden standaard in de PostgreSQL-database, dus de back-up met `pg_dump` bevat ze. Een bestand mag maximaal `FILE_MAX_UPLOAD_BYTES` bytes groot zijn, 1073741824 (1 GB) als dit niet is ingesteld; daarboven heeft een zelf gehoste werkruimte geen andere opslaglimiet dan je schijf. Bewaar bij veel of grote bestanden ze in een S3-compatibele bucket zoals AWS S3, MinIO, Cloudflare R2 of de objectopslag van Hetzner of OVH:
+
+- `FILE_STORAGE_DRIVER=s3`, plus `S3_BUCKET`, `S3_ACCESS_KEY_ID` en `S3_SECRET_ACCESS_KEY` van een privébucket.
+- `S3_ENDPOINT` voor elke andere provider dan AWS, bijvoorbeeld `https://fsn1.your-objectstorage.com`, en `S3_REGION` als de provider er een nodig heeft (`us-east-1` als hij niet is ingesteld).
+- `S3_FORCE_PATH_STYLE=true` voor MinIO en andere servers die de bucket in het pad adresseren in plaats van in de hostnaam.
+
+API-clients moeten S3-bestanden groter dan 25 MiB naar de upload-URL sturen die `/v1/files/uploads` teruggeeft. De contentroute van de app accepteert kleinere S3-bestanden en streamt database-uploads tot de geconfigureerde bestandslimiet.
+
+Browsers sturen nieuwe bestanden rechtstreeks naar de bucket, dus de CORS-regels ervan moeten `PUT` met de headers `Content-Type` en `If-None-Match` vanaf je `BASE_URL` toestaan. Een uploadlink schrijft een bestand maar één keer: de bucket weigert een tweede upload ernaartoe, dus een bestand kan na het opslaan niet worden vervangen. AWS S3, MinIO en Cloudflare R2 ondersteunen dit; een opslag die `If-None-Match` negeert, accepteert een tweede upload totdat de link na 15 minuten verloopt. Downloads lopen altijd via de app, die eerst de toegang controleert. Een bestand blijft waar het is geüpload: na een overstap naar `s3` blijven eerdere bestanden in de database staan en gaan ze nog steeds open, en de S3-variabelen moeten ingesteld blijven zolang de bucket bestanden bevat. Maak een back-up van de bucket samen met de database. De dagelijkse aanroep van `/api/cron/lifecycle` verwijdert bestanden die 30 dagen geleden van records zijn verwijderd en uploads die nooit zijn opgeslagen, zie [Welke geplande taken moet ik draaien?](#scheduled-jobs).
+
+## Hoe maak en herstel ik databaseback-ups? [#backups]
+
+Alle gegevens staan in de PostgreSQL-database: records, gebruikers, instellingen, het Activiteitenlog en de wachtrij voor achtergrondtaken, en de bestanden van bestandsvelden tenzij `FILE_STORAGE_DRIVER` `s3` is (maak dan ook een back-up van de bucket). De appcontainer bewaart geen gegevens. Maak een back-up van de database met `pg_dump` via de Postgres-container, waarvan het Compose-bestand de poort niet publiceert:
+
+```bash
+(
+  umask 077
+  mkdir -p backups && chmod 700 backups
+  docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' \
+    | gzip > backups/customermates-$(date +%Y%m%d).sql.gz
+)
+```
+
+Voer dit dagelijks uit vanuit een planner zoals cron en kopieer de bestanden naar aparte of externe opslag. Bewaar er een kopie van `.env` bij, veilig opgeslagen en buiten versiebeheer: herstellen met een andere `BETTER_AUTH_SECRET` logt alle gebruikers uit.
+
+Om te herstellen, stop je de app, vervang je de database door een lege, laad je de dump en start je weer:
+
+```bash
+docker compose stop app
+docker compose exec -T postgres sh -c 'dropdb -U "$POSTGRES_USER" "$POSTGRES_DB" && createdb -U "$POSTGRES_USER" "$POSTGRES_DB"'
+gunzip -c backups/customermates-20260923.sql.gz \
+  | docker compose exec -T postgres sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" "$POSTGRES_DB"'
+docker compose up -d
+```
+
+Test het herstel regelmatig op een aparte machine. Overstappen naar een nieuwe hoofdversie van PostgreSQL, die het Compose-bestand op 16 vastzet, vraagt ook een dump en een herstel in de nieuwe versie.
+
+## Welke geplande taken moet ik draaien? [#scheduled-jobs]
+
+De cloud roept op schema twee onderhoudsendpoints aan; een zelf gehoste instantie voert ze alleen uit als je ze aanroept. Zonder de dagelijkse worden items in de [Prullenbak](/docs/app-trash) na hun 30 dagen nooit definitief verwijderd.
+
+- `/api/cron/lifecycle`, één keer per dag: verwijdert items in de Prullenbak waarvan de 30 dagen voorbij zijn, bestanden die 30 dagen geleden van records zijn verwijderd en uploads die nooit zijn opgeslagen, en voert het andere dagelijkse onderhoud uit. Op een zelf gehoste instantie slaat hij cloudtaken voor proefperiodes, abonnementen en gekoppelde accounts over.
+- `/api/cron/record-deliveries`, elke 5 minuten (optioneel): start bezorgingen van webhooks die aan de beurt zijn, verwerking van gebeurtenissen, tekstuitlezing van gekoppelde bestanden en ander achtergrondwerk aan records dat geen draaiende taak heeft opgepakt, bijvoorbeeld na een herstart van een container.
+
+Beide antwoorden met HTTP `401` tenzij de app een `CRON_SECRET` heeft en het verzoek die meestuurt als `Authorization: Bearer <secret>`. Het sjabloon heeft een uitgecommentarieerde regel `CRON_SECRET` naast `BETTER_AUTH_SECRET`, en het Compose-bestand geeft hem door aan de app; als je `docker-compose.yml` `CRON_SECRET` nog niet vermeldt, download hem dan opnieuw met de `curl`-opdracht uit de installatiestappen. Haal het commentaar bij de regel weg, of voeg hem toe aan een `.env` die is aangemaakt voordat hij bestond, stel een lange willekeurige waarde in, bijvoorbeeld uit `openssl rand -hex 32`, voer `docker compose up -d` uit en plan de aanroepen op de host, bijvoorbeeld met `crontab -e`:
+
+```bash
+0 3 * * * curl -fsS -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:4000/api/cron/lifecycle
+*/5 * * * * curl -fsS -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:4000/api/cron/record-deliveries
+```
+
+Gebruik je `APP_PORT` in plaats van `4000`. Een geslaagde aanroep antwoordt `{"ok":true,...}`. Als een van zijn taken mislukt, antwoordt de aanroep met HTTP `500` en noemt het applog de mislukte taak; met `curl -fsS` meldt cron de fout dan.
+
+## Hoe reset ik alle gegevens? [#how-do-i-reset-all-data]
+
+```bash
+docker compose down -v
+docker compose up -d
+```
+
+`-v` verwijdert het PostgreSQL-volume met elke werkruimte, gebruiker en elk record op de instantie. Dit kan niet ongedaan worden gemaakt, dus maak eerst een back-up als je de gegevens misschien nodig hebt. De volgende start maakt een lege database aan, en de eerste persoon die zich registreert, maakt een nieuwe werkruimte aan.
+
+## Volgende stappen [#next]
+
+- [Architectuur en beveiliging](/docs/architecture-security): wat je draait.
+- [API-sleutels](/docs/api-keys): omgang met sleutels.
+- [Verbind je AI](/docs/connect-custom-connector): wijs een MCP-client naar je instantie.

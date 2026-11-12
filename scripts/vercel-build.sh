@@ -62,5 +62,7 @@ fi
 # on an 8 GB build machine. CI's browser build skips the type check too but keeps the 6 GiB default on its 16 GB runner.
 # 2026-11-11: with four content locales the webpack compile hit the 4 GiB ceiling (heap out of memory at about 3.6 GiB
 # live), so the Vercel heap is 6 GiB again; that still leaves about 2 GB of the 8 GB machine for the OS and workers.
-export NEXT_BUILD_HEAP_MB="${NEXT_BUILD_HEAP_MB:-6144}"
+# 2026-11-11, eight content locales: 6 GiB plus two static workers was killed at 8 GB; with one static worker and no
+# webpack cache (next.config.ts) a 4.5 GiB heap builds with a 6.5 GB peak, while 4 GiB is too small for the compile.
+export NEXT_BUILD_HEAP_MB="${NEXT_BUILD_HEAP_MB:-4608}"
 yarn build

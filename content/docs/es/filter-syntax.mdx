@@ -1,0 +1,99 @@
+---
+title: "Sintaxis de filtros para consultas de registros del CRM"
+description: "Filtros tipados sobre campos y relaciones del modelo de registros configurable del CRM, con operadores, ejemplos de consulta y uso desde MCP y desde REST."
+---
+
+Las listas del CRM, las vistas guardadas, los widgets, las consultas REST y la herramienta MCP `query_crm_records` usan el mismo modelo de consulta de registros. Descubre el tipo con `discover_record_types` y lee los ID estables de sus campos y relaciones con `get_record_model`. Todas las listas usan la misma forma de consulta, tanto si las creó la configuración del espacio de trabajo con IA como si las creó una persona. Las herramientas de mensajería tienen filtros aparte.
+
+## ¿Dónde se aplican los filtros? [#where-do-filters-apply]
+
+Una consulta de registros identifica un único `typeId`. Sus `filters` comprueban campos de ese tipo; `relationships` comprueba los registros vinculados; `relatedFilters` sigue la ruta de una relación declarada. Las reglas de cada array se combinan con AND. `search` busca texto en todos los campos legibles que admiten búsqueda. El backend aplica a cada consulta y a cada ruta relacionada los permisos del espacio de trabajo y de los registros.
+
+## ¿Cómo filtro una lista en la aplicación? [#how-do-i-filter-a-list-in-the-app]
+
+Abre la lista, por ejemplo la de oportunidades, y haz clic en **Filtros** en su barra de herramientas. Elige un campo en **Filtrar por** o escribe su nombre en **Añadir filtro…**; ahí también aparecen las listas vinculadas, como una lista de organizaciones. Elige la condición y después los valores, y la lista se actualiza al instante. Los filtros activos aparecen como chips en la parte superior; quita uno con su ×, o todos con **Borrar**. **Preguntar a Mate**, en el mismo cuadro, convierte una descripción escrita con tus propias palabras en filtros. Todas las listas funcionan igual, y una vista guardada muestra los mismos registros en lugar de copiarlos.
+
+## ¿Qué aspecto tiene una regla de filtro y puedo combinar reglas con OR? [#what-does-a-filter-rule-look-like]
+
+Cada filtro de campo tiene un `fieldId` estable, un `operator`, un `value` escalar tipado (o `null`) y, de forma opcional, `values` para los operadores de conjunto o de rango. Por ejemplo:
+
+```json
+{
+  "typeId": "00000000-0000-4000-8000-000000000001",
+  "filters": [
+    {
+      "fieldId": "00000000-0000-4000-8000-000000000002",
+      "operator": "contains",
+      "value": { "kind": "text", "value": "Acme" }
+    }
+  ]
+}
+```
+
+Usa `in` para que coincida cualquiera de varios valores de un mismo campo. Para expresar un OR entre campos distintos, ejecuta consultas separadas o usa una consulta adecuada sobre registros relacionados; el array de filtros ordinario se combina con AND. Una consulta admite hasta 50 reglas de campo y 500 caracteres de `search`.
+
+## ¿Qué operadores existen? [#which-operators-exist]
+
+El contrato de consulta de registros admite 16 operadores de campo. El tipo y el comportamiento de cada campo determinan cuáles son válidos; el backend rechaza las combinaciones incompatibles.
+
+| Operadores | Significado |
+|---|---|
+| `eq`, `ne` | Igual o distinto de un valor tipado |
+| `contains`, `startsWith` | Comparación de texto sin distinguir mayúsculas de minúsculas; `contains` también comprueba si una fecha cae dentro de un rango |
+| `gt`, `gte`, `lt`, `lte` | Comparación ordenada sobre números y fechas compatibles |
+| `in`, `notIn` | Pertenencia a `values`, con un máximo de 100 valores tipados |
+| `all` | Solo campos de opción múltiple: el registro contiene todas las opciones de `values` |
+| `between` | Intervalo de fechas inclusivo, indicado con dos valores |
+| `inLastDays`, `notInLastDays` | Ventana relativa con un número entero positivo de días; `notInLastDays` coincide con los valores estrictamente anteriores a esa ventana |
+| `empty`, `notEmpty` | Valor ausente o presente; `value` es `null` |
+
+`eq` sobre texto es exacto; `contains` y `startsWith` ignoran las mayúsculas y minúsculas. Las comparaciones de moneda exigen una moneda coincidente. Los valores ausentes, cero, restringidos y con error de cálculo son distintos; un resultado restringido no puede servir para deducir datos ocultos mediante filtros u ordenación.
+
+### ¿Qué operadores de fecha existen, por ejemplo para los últimos 7 días? [#which-date-operators-exist]
+
+Los campos de fecha y de fecha y hora admiten las comparaciones ordenadas que corresponden y `between`. Las fechas del sistema usan `system:createdAt` y `system:updatedAt` como ID de campo. `inLastDays` y `notInLastDays` toman un escalar decimal sin moneda, como `{"kind":"decimal","value":"7","currency":null}`. `inLastDays` incluye los valores a partir de la medianoche UTC de N días antes del reloj de la consulta; `notInLastDays` (**Más antiguo que…** en la aplicación) coincide con los valores estrictamente anteriores a ese límite, así que `notInLastDays` 3 junto con `inLastDays` 7 encuentra los valores de entre tres y siete días atrás. Las ventanas relativas usan el reloj de la consulta; los cálculos guardados no cambian en silencio con el paso del tiempo.
+
+### ¿Qué operadores funcionan con los campos de texto? [#which-operators-work-on-text-fields]
+
+Los campos de texto y de URL admiten los operadores de texto adecuados a su tipo de valor. Los números de teléfono y las direcciones de correo viven en el campo de datos de contacto de una lista (tipo de valor `channels`, **Teléfono, correo y redes sociales** en la aplicación), que admite `contains`, `startsWith`, `empty` y `notEmpty` sobre sus identificadores, pero no se puede ordenar ni agrupar; la búsqueda de la lista también lo recorre, así que al buscar un número o una dirección se encuentra su registro. Un campo que guarda varios valores se busca elemento por elemento. Los términos de búsqueda tratan el signo de porcentaje y el guion bajo como caracteres literales, no como comodines de SQL.
+
+### ¿Qué operadores de relación existen, por ejemplo para encontrar contactos sin organización? [#which-relationship-operators-exist]
+
+Los filtros de relación son independientes de los filtros de campo. Indica `relationId`, `direction` (`outgoing` o `incoming`), `operator` (`any` o `none`) y `recordIds`. Pon `recordIds` en `null` para cualquier registro vinculado al que tengas acceso, o indica ID concretos para comprobar registros determinados. Un filtro `none` con `recordIds: null` encuentra los registros sin un vínculo accesible de esa relación. La definición de la relación aporta los tipos de los extremos y la cardinalidad.
+
+### ¿Cómo filtro por un campo personalizado y qué operadores funcionan con él? [#which-operators-work-on-custom-columns]
+
+Usa el ID del campo que devuelve `get_record_model`, nunca su etiqueta editable. Un campo de entrada, de fórmula, de búsqueda (lookup) o de resumen (rollup) se puede filtrar cuando su tipo de valor admite el operador y quien lee puede acceder al valor. Los filtros de selección usan ID de opción estables. Un campo de opción múltiple acepta `in` (tiene alguna de las opciones), `all` (las tiene todas), `notIn` (no tiene ninguna, incluidos los registros sin valor), `empty` y `notEmpty`; no se puede ordenar. La misma regla vale para los campos de todas las listas.
+
+## ¿Qué nombres de campo puedo usar? [#which-field-names-can-i-use]
+
+Usa los ID estables de campo que devuelve `get_record_model`. Las claves de sistema `system:createdAt`, `system:updatedAt` y `system:assignedTo` están disponibles donde se admiten. Las relaciones usan en `relationships` los ID de su definición, no nombres como `organizationIds`. Un campo, un tipo o una relación a los que se cambia el nombre conservan su ID, así que las vistas guardadas y las consultas de la IA siguen siendo válidas.
+
+Las listas de la bandeja de entrada también exponen `connectedAccountId`, `emailFolder` específico de cada cuenta, `lastMessageDirection`, `lastMessageSentAt` y `lastMessageAt`. Llama primero a `get_messaging_threads` sin filtros (o a `manage_data_views` con `action: "config"`, la superficie Bandeja de entrada y `section: "filters"`) y copia el `filterableFields.options[].value` exacto de una cuenta o de una carpeta. `emailFolder` acepta `in` y `notIn`; cada referencia a una carpeta incluye su cuenta. Las opciones de carpeta aportan `groupKey` (identidad de la cuenta) y `groupLabel` (encabezado), de modo que se forman grupos separados aunque dos cuentas tengan el mismo nombre visible. `lastMessageDirection` acepta `inbound`/`outbound` con `in`/`notIn` e ignora los borradores, los mensajes ocultos o eliminados y los eventos del sistema. `lastMessageSentAt` aplica los filtros de fecha a ese mismo último mensaje real. Combina `notInLastDays` con el valor 3 e `inLastDays` con el valor 7 en este campo para los mensajes de entre tres y siete días de antigüedad; se pueden combinar con los filtros de cuenta, carpeta y dirección. `lastMessageAt` filtra la última actividad e incluye la actividad de los borradores. Consulta los [filtros de la bandeja de entrada](/docs/app-inbox#how-do-i-search-filter-or-refresh-the-inbox).
+
+## Ejemplos [#examples]
+
+Contactos vinculados a una organización concreta:
+
+```json
+{
+  "relationships": [{
+    "relationId": "00000000-0000-4000-8000-000000000003",
+    "direction": "outgoing",
+    "operator": "any",
+    "recordIds": ["00000000-0000-4000-8000-000000000004"]
+  }]
+}
+```
+
+Los registros sin ningún vínculo accesible a través de esa relación usan `"operator":"none"` y `"recordIds":null`. Para un campo de fecha anterior a julio de 2024, usa un valor `date` tipado con `lt`. Para un campo de selección, usa `in` y sus ID de opción en `values`. Combina estas condiciones en la misma consulta para exigir ambas.
+
+## ¿Uso searchTerm (búsqueda de texto libre) o un filtro? [#free-text-search-or-a-filter]
+
+Usa `search` cuando cualquier campo de texto legible y con búsqueda pueda contener la frase. La consulta de registros actual llama a esta propiedad `search`; las API antiguas por entidad la llamaban `searchTerm`. Usa `filters` cuando importen el campo o la comparación exactos. La búsqueda y los filtros se combinan con AND. Los datos de contacto solo pueden participar en la búsqueda en un tipo con la capacidad protegida de identidad de persona y con el acceso que corresponda a quien lee.
+
+## Siguientes pasos [#next]
+
+- [Conceptos clave](/docs/concepts): campos y relaciones configurados.
+- [Catálogo de herramientas MCP](/docs/mcp#tool-catalog): `query_crm_records` y descubrimiento del esquema.
+- [Registros del CRM](/docs/app-records): filtros de las listas y vistas guardadas.

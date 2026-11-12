@@ -1,0 +1,209 @@
+---
+title: "Sales dashboard maken in je CRM: cijfers, voorbeeld, stappen"
+description: "Sales dashboard maken in je CRM: welke cijfers erop horen, een voorbeeld en de stappen voor grafieken, gewogen pipeline en een lijst met wat aan de beurt is."
+featureName: CRM-rapportage
+
+relatedHrefs:
+  - /features/pipeline
+  - /features/sales
+  - /features/workflow-automation
+  - /docs/app-dashboard
+
+sections:
+  visual:
+    kind: stage
+    solution: consultants
+    prompt: "Wij zijn een strategiebureau met vier mensen. Houd klanten, opdrachten en voorstellen bij en help ons prospects op LinkedIn op te volgen."
+  steps:
+    title: "Een wekelijks pipelinedashboard opzetten"
+    items:
+      - title: "Controleer de kansen per fase"
+        description: "Open in Datamodel Deals en het veld Fase, en pas de Waarschijnlijkheid % van elke optie aan. Een voorbeeldweergave toont het effect op deals en widgets."
+      - title: "Voeg de velden toe die je vragen nodig hebben"
+        description: "Gebruik in Datamodel op Deals Toevoegen › Veld voor een Enkele keuze \"Leadbron\" (Verwijzing, LinkedIn, Website, Evenement), een Enkele keuze \"Reden van verlies\" en een datumveld \"Afgesloten op\". Een grafiek kan alleen groeperen op wat je vastlegt."
+      - title: "Maak de eerste grafiek"
+        description: "Druk op het Dashboard op Widget toevoegen en kies Staafdiagram. Kies onder Gegevens Deals als bron, tel de Gewogen waarde op en groepeer op Fase. Sluit Gewonnen en Verloren uit in de filters en druk op Opslaan."
+      - title: "Voeg er nog drie toe"
+        description: "Waarde van gewonnen deals per Leadbron, waarde van gewonnen deals per organisatie en het aantal verloren deals per Reden van verlies. Sleep ze en pas hun grootte aan; de indeling wordt voor je bewaard."
+      - title: "Deel het dashboard met je team"
+        description: "Zet de grafieken op een benoemde dashboardweergave zoals \"Wekelijkse pipeline\" (Nieuwe weergave boven de widgets) en kies in het menu Delen…. Iedereen in de werkruimte of de rollen die je kiest ziet dezelfde grafieken, alleen-lezen, en elk getal wordt berekend met de eigen toegang van die persoon."
+  highlights:
+    title: "In één oogopslag"
+    capture: homepage-dashboard
+    items:
+      - title: "Wat je krijgt"
+        description: "Grafiekwidgets die records tellen of velden optellen, zoals dealwaarde en gewogen waarde, gegroepeerd op een veld, per record of in de tijd, plus een widget voor de activiteitentijdlijn."
+      - title: "Abonnementen"
+        description: "Dashboards en de gewogen pipeline zitten in elk abonnement, vanaf Starter voor [[commercial.price.starter.monthly]] per gebruiker per maand, en in de zelf gehoste editie."
+      - title: "AI"
+        description: "In Customermates Cloud beantwoordt Mate vragen die rekenwerk over veel records vragen, met gehoste AI-credits. Je eigen AI-client leest dezelfde gegevens via MCP."
+      - title: "Niet inbegrepen"
+        description: "Geen conversietracking in de tijd, tijd in fase, doelen, voorspellende prognoses of geplande rapportmails, en geen dashboard dat het hele team samen bewerkt (een gedeeld dashboard is voor collega's alleen-lezen)."
+
+hero:
+  title: "Sales dashboard: zie welke opvolging aan de beurt is en wat je pipeline waard is"
+  description: "Bouw een dashboard met deals per fase, gewogen pipeline en een lijst Aankomend met wat aan de beurt en achterstallig is, en deel het met je team. Vraag in Customermates Cloud aan Mate om de cijfers die een grafiek niet kan tonen."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Bekijk de livedemo
+  buttonRightHref: https://demo.customermates.com/nl/w/kleine-bedrijven/dashboard
+  hint: "✓ Geen creditcard nodig ✓ De eerste [[commercial.trial.days]] dagen gratis"
+
+cta:
+  action: "Zet opvolging en pipeline op één dashboard"
+  description: "Voeg tijdens de proefperiode een datumveld voor de volgende stap, een widget Aankomend en een grafiek met de gewogen pipeline toe. Dashboards zijn inbegrepen vanaf [[commercial.price.starter.monthly]] per gebruiker per maand, maandelijks gefactureerd."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Bekijk de livedemo
+  buttonRightHref: https://demo.customermates.com/nl/w/kleine-bedrijven/dashboard
+  hint: "✓ Geen creditcard nodig ✓ De eerste [[commercial.trial.days]] dagen gratis"
+---
+
+Een sales dashboard in je CRM telt en somt op wat al in je CRM staat, zodat vragen als "wat zit er in de pipeline?" of "welke klanten brachten de meeste omzet?" een antwoord krijgen zonder spreadsheet. In Customermates gebeurt dat op drie plekken: dashboardgrafieken, lijsten gegroepeerd op een veld en de gewogen waarde op elke deal. Alles wat echt rekenwerk vraagt over veel records, zoals een mediane dealgrootte of een ranglijst, gaat naar Mate in Customermates Cloud, naar je eigen AI-client via MCP, of naar Excel na een export.
+
+CRM rapportage is hier bewust klein gehouden. Heb je conversietracking in de tijd, tijd in fase, quota of omzetprognoses nodig, dan noemt het onderdeel over de beperkingen tools die dat wel doen.
+
+## Wat is een sales dashboard en hoe maak je een goed dashboard? [#wat-is-een-sales-dashboard]
+
+Een sales dashboard is één scherm met de cijfers waarop je je verkoop stuurt: wat er in de pipeline zit, wat gewonnen en verloren is en welke opvolging nu aan de beurt is. De cijfers komen live uit de records in je CRM, dus niemand hoeft een overzicht bij te werken. Een goed dashboard beantwoordt de paar vragen die je elke week stelt, en niet meer.
+
+Zo maak je het:
+
+1. **Begin bij de vragen, niet bij de grafieken.** Schrijf op welke beslissingen het dashboard moet helpen nemen, bijvoorbeeld "waar bel ik deze week?" en "hoe gezond is de pipeline?".
+2. **Leg vast waarop je later wilt groeperen.** Een grafiek kan alleen groeperen op wat je invult, zoals Leadbron of Reden van verlies.
+3. **Houd het klein.** Vijf tot acht widgets, één vraag per widget.
+4. **Zet bovenaan wat actie vraagt.** De widget **Aankomend** met wat aan de beurt en achterstallig is, vóór de totalen.
+5. **Laat het team dezelfde cijfers zien.** Deel de dashboardweergave en kijk er elke week naar.
+
+Welke KPI's je daarnaast in een wekelijkse review bekijkt, staat op de pagina over [sales KPI's](/features/sales). De volgende onderdelen laten zien hoe je elk cijfer in Customermates bouwt.
+
+## Wat een grafiekwidget kan berekenen
+
+Elke grafiek neemt één lijst als bron, een aggregatie en een groepering. De aggregatie is het aantal records, of de som, het gemiddelde, het minimum of het maximum van een getal- of geldveld, zoals **Waarde** of **Gewogen waarde** op deals.
+
+**Groepering** is **Geen groepering** (één totaal), een veld zoals Fase of Leadbron, elk record, **Toegewezen aan**, of een veld dat je via een relatie bereikt. Zo krijg je "dealwaarde per fase", "dealwaarde per organisatie" of "regelbedragen per dienst". Groepeer op een datumveld, **Aangemaakt op** of **Bijgewerkt op** en kies een **Tijdsinterval** voor één waarde per dag, week, maand, kwartaal of jaar.
+
+**Gewogen waarde** is een berekend veld op deals: de waarde van de deal maal de **Waarschijnlijkheid %** van de bijbehorende fase, die je instelt op elke optie van het veld Fase in **Datamodel**. Zodra de kansen zijn ingesteld, werkt het vanaf de eerste deal.
+
+**Filters** beperken wat een grafiek telt, op elk veld, ook datums; gekoppelde velden verschijnen als **Lijst › Veld**. Zo maak je een grafiek van "waarde van gewonnen deals per organisatie": deals als bron, een filter op Fase is Gewonnen, gegroepeerd op organisatie.
+
+**Diagramstijlen** zijn Getal, Staafdiagram, Horizontale balken, Vlakdiagram in de tijd, Ranglijst, Donut, Trechter en Radar. Een live voorbeeld toont het resultaat voordat je opslaat.
+
+Het tweede soort widget, de **Activiteitentijdlijn**, is een feed van recordwijzigingen met de nieuwste bovenaan, en in Pro en hoger ook berichten en agenda-afspraken van gekoppelde accounts. Je filtert hem op categorie, account of gerelateerde records, bijvoorbeeld "alles wat er gebeurde bij de deals van mijn drie grootste klanten".
+
+## Rapporten voor een klein team en hoe je elk bouwt
+
+Deze recepten gaan uit van een lijst met deals met een veld Fase met enkele keuze plus twee velden met enkele keuze die je zelf toevoegt: "Leadbron" en "Reden van verlies".
+
+| Vraag | Bron | Maat | Groepering | Filters |
+|---|---|---|---|---|
+| Wat zit er in de pipeline, per fase? | Deals | Som van Waarde | Fase | Fase is niet Gewonnen of Verloren |
+| Wat is het waard als de kansen per fase kloppen? | Deals | Som van Gewogen waarde | Fase | Fase is niet Gewonnen of Verloren |
+| Waar komt gewonnen werk vandaan? | Deals | Som van Waarde | Leadbron | Fase is Gewonnen, eigen datum "Afgesloten op" tussen de eerste en laatste dag van het kwartaal |
+| Welke klanten brengen de meeste omzet? | Deals | Som van Waarde | Organisatie | Fase is Gewonnen |
+| Welke diensten verkopen? | Regelitems | Som van Bedrag | Dienst | Deals › Fase is Gewonnen |
+| Waarom verliezen we? | Deals | Aantal | Reden van verlies | Fase is Verloren |
+| Hoeveel openstaand werk is er? | Taken | Aantal | Status | Status is niet Afgerond of Gearchiveerd |
+
+Taken hebben geen ingebouwde vervaldatum. Het veld Status in de laatste rij is een veld met enkele keuze dat je aan je takenlijst toevoegt, en je kunt het net als elk ander veld hernoemen, wijzigen of verwijderen.
+
+Twee vragen beantwoord je beter met een lijst dan met een grafiek. **Wie werkt aan welke deals?** Schakel de lijst met deals over op het bord en groepeer op **Toegewezen**: elke persoon krijgt een kolom met het aantal deals en de totalen. **Hoeveel deals openden we per maand?** Groepeer de dealtabel op aanmaakdatum, per maand. Opgeslagen als weergaven blijven ze beide één klik weg, en je kunt ze met het team delen.
+
+Een derde vraag gaat over opvolging: **Wat is de volgende stap?** Voeg een widget **Aankomend** toe op een datumveld zoals Volgende stap. Hij toont de records die de komende 14 dagen aan de beurt zijn, met een sectie **Achterstallig** voor eerdere datums, zodat de volgende stappen op je dashboard staan als je inlogt. Filter afgeronde records weg, zodat alleen open records als achterstallig tellen.
+
+## Voorbeeld van een sales dashboard voor een team van vier [#voorbeeld-sales-dashboard]
+
+Dit is een indeling met de recepten hierboven, van boven naar beneden gelezen:
+
+| Plek | Widget | Vraag die hij beantwoordt |
+|---|---|---|
+| Bovenaan | **Aankomend** op het datumveld Volgende stap | Wat is er vandaag aan de beurt en wat is achterstallig? |
+| Daaronder | Getal: som van Waarde van open deals | Hoeveel ligt er open? |
+| Daaronder | Staafdiagram: som van Gewogen waarde per Fase | Wat is de pipeline waard als de kansen kloppen? |
+| Midden | Donut: waarde van gewonnen deals per Leadbron | Welke kanalen leveren werk op? |
+| Midden | Ranglijst: waarde van gewonnen deals per organisatie | Welke klanten brengen het meest op? |
+| Onder | Horizontale balken: aantal verloren deals per Reden van verlies | Waarom verliezen we? |
+| Onderaan | **Activiteitentijdlijn** | Wat gebeurde er de afgelopen dagen bij mijn deals? |
+
+Sleep de widgets in de volgorde die bij jouw week past, en sla de weergave op onder een naam als "Wekelijkse pipeline". Een ander team met andere vragen krijgt andere widgets: het gaat om de vragen, niet om de grafiektypen.
+
+## Welk abonnement je nodig hebt
+
+| Abonnement | Rapportagefuncties | Prijs |
+|---|---|---|
+| Starter | Grafiekwidgets, activiteitentijdlijn van recordwijzigingen, gewogen pipeline, gegroepeerde lijsten, XLSX-export, REST, MCP | [[commercial.price.starter.monthly]] per gebruiker per maand |
+| Pro | Starter plus berichten en agenda-afspraken in de activiteitentijdlijn, via de gecombineerde inbox | [[commercial.price.pro.monthly]] per gebruiker per maand |
+| Business | Pro plus één tijdlijn voor het hele team over alle kanalen | [[commercial.price.business.monthly]] per gebruiker per maand |
+| Zelf gehost | Grafieken, gewogen pipeline, export, REST en MCP op je eigen server; geen inbox, Mate of routines | Geen licentiekosten |
+
+Mate gebruikt gehoste AI-credits, per actieve gebruiker per maand inbegrepen in elk betaald Cloud-abonnement; de [prijspagina](/pricing) noemt de bedragen. Een team van drie op Starter betaalt [[commercial.price.starter.monthly.seats.3]] per maand, en een team van vijf op Pro betaalt [[commercial.price.pro.monthly.seats.5]]. Er is geen rapportage-add-on en geen kosten per rapport.
+
+## Wat de rapportage van Customermates niet doet, en wat je dan gebruikt
+
+Customermates publiceert deze pagina. Gegevens van leveranciers: verificatie op 8 oktober 2026 op de eigen pagina's van de leveranciers.
+
+| Je hebt nodig | In Customermates | Waar je kijkt |
+|---|---|---|
+| Omzetprognoses voorbij de kansen per fase | Niet beschikbaar. De gewogen pipeline vermenigvuldigt de waarde van elke deal met de kans die jij voor de bijbehorende fase instelt, meer niet. | [HubSpot Sales Hub](https://www.hubspot.com/pricing/sales) Professional en Enterprise bevatten prognoses; [Pipedrive](https://www.pipedrive.com/en/features/insights-and-reports) biedt een prognoseweergave |
+| Een eigen rapportbouwer met conversiepercentages, doelen en veel rapporttypes | Niet beschikbaar. Grafieken tellen en aggregeren; een Trechter toont de conversie van stap tot stap van de huidige records, maar er zijn geen doelen of conversie in de tijd. | HubSpot Sales Hub Professional (eigen rapporten); Pipedrive Insights (eigen rapporten, dashboards en doelen) |
+| Je eigen BI op de ruwe gegevens | Geen ingebouwde koppeling met een BI-tool | Zelf gehost: je gegevens staan in je eigen PostgreSQL, die [Metabase](https://www.metabase.com/docs/latest/databases/connecting) ondersteunt; de Open Source-editie is gratis en zelf te hosten. Gebruik een databasegebruiker met alleen leesrechten en reken erop dat je queries na een upgrade moet aanpassen, want de tabellen zijn het interne schema van het product. |
+| Een dashboard dat het hele team bewerkt | Niet beschikbaar. Een gedeeld dashboard is voor collega's alleen-lezen: alleen de eigenaar wijzigt de widgets, en **Dupliceren als nieuwe weergave** geeft iedereen een bewerkbare kopie. | |
+| Rapportmails volgens een schema | Niet ingebouwd | Een routine in Customermates Cloud, of n8n, beide hieronder beschreven |
+
+Exporteer de lijst voor een eenmalige analyse als Excel-werkmap via het menu **Meer acties** van de lijst met deals. De export neemt de zichtbare kolommen, filters en sortering over, en een [draaitabel](https://support.microsoft.com/en-us/excel/get-started/create-a-pivottable-to-analyze-worksheet-data) doet de rest. Een export loopt per recordtype; de [handleiding voor records](/docs/app-records) noemt de limieten.
+
+## Hoe rapportage samenhangt met Mate, MCP en de API
+
+**Mate (Customermates Cloud).** Mate heeft een analysetool met alleen leesrechten voor vragen die rekenwerk over veel records vragen: een mediaan, een ranglijst, een winstkans of een koppeling tussen deals en organisaties. Het leest de records die jouw rol kan zien, rekent in een geïsoleerde sandbox en wijzigt niets. Elke vraag gebruikt gehoste AI-credits. Een voorbeeld:
+
+```text
+Wat is voor deals die sinds 1 juli op Gewonnen of Verloren zijn beland de winstkans per leadbron, wat is de mediane waarde van gewonnen deals en welke drie organisaties brachten de meeste gewonnen waarde?
+```
+
+Het antwoord is een chatbericht, geen opgeslagen grafiek. Mate kan ook dashboardwidgets voor je maken of wijzigen als je ze beschrijft.
+
+**Routines (Customermates Cloud).** Een routine voert een opgeslagen instructie uit volgens een schema, zoals "Vat elke maandag om 8:00 de open pipeline per fase samen en toon de deals die in 30 dagen niet zijn bijgewerkt." Ze draait als jij, haar eigenaar, met jouw toegang en credits, en de samenvatting van de run blijft bij de routine staan. In Pro en hoger kan ze die samenvatting ook per e-mail naar je sturen vanuit je gekoppelde mailbox; Mate verstuurt zonder opnieuw te vragen, dus zet "concept" in de instructie als je het eerst wilt lezen. Zie [workflowautomatisering](/features/workflow-automation) voor triggers en limieten.
+
+**Je eigen AI-client via MCP.** Claude, ChatGPT en andere MCP-clients gebruiken [[derived.mcp.tools.total]] tools in elk abonnement en bij zelf hosten. Met `query_crm_measure` berekent een client totalen over alle overeenkomende records, zodat "wat is onze gewogen pipeline voor organisaties in Beieren?" een exact antwoord heeft. De [MCP-documentatie](/docs/mcp) beschrijft de installatie.
+
+**REST en webhooks.** Horen rapporten in een ander systeem thuis, lees dan records via de [REST API](/features/api) of ontvang een webhook bij elke wijziging en houd je eigen rapportagetabel actueel. [n8n](/docs/n8n) kan beide volgens een schema doen; het draait los en maakt geen deel uit van Customermates.
+
+## Veelgestelde vragen
+
+<Faq>
+<FaqItem question="Wat is een sales dashboard?">
+Een sales dashboard toont op één scherm de cijfers waarop je verkoop stuurt: pipelinewaarde per fase, gewonnen en verloren deals en wat er aan de beurt is. In Customermates bouw je het uit grafiekwidgets en de widget Aankomend op je eigen records.
+</FaqItem>
+
+<FaqItem question="Hoe maak je een goed sales dashboard?">
+Begin bij de vragen die je elke week stelt, niet bij de grafieken. Leg de velden vast waarop je wilt groeperen, houd het bij vijf tot acht widgets en zet bovenaan wat actie vraagt. Deel de weergave met je team en kijk er wekelijks naar. De stappen staan hierboven.
+</FaqItem>
+
+<FaqItem question="Is Excel genoeg voor een sales dashboard?">
+Voor één persoon met een handvol deals kan een spreadsheet volstaan. Werken meerdere mensen aan dezelfde deals, dan loopt een spreadsheet snel achter. Een dashboard in je CRM rekent live mee met de records, en je kunt altijd een lijst naar Excel exporteren voor een eenmalige analyse.
+</FaqItem>
+
+<FaqItem question="Wat zijn typische CRM-rapporten?">
+Voor een klein team dekken vijf rapporten de meeste beslissingen: pipelinewaarde per fase, gewogen pipeline, gewonnen omzet per leadbron, omzet per klant en verloren deals per reden. Alle vijf zijn grafiekwidgets in Customermates. Activiteitsrapporten, conversietrechters en verkoopprognoses komen vaak voor in grotere CRM's; Customermates heeft een activiteitentijdlijn en een trechtergrafiek van de huidige fasen, maar geen prognose.
+</FaqItem>
+
+<FaqItem question="Kan Customermates omzet voorspellen?">
+Niet in voorspellende zin. Het berekent een gewogen pipeline: de waarde van elke deal maal de winkans die jij voor de bijbehorende fase instelt. Er leert niets van eerdere deals en er worden geen afsluitdatums voorspeld. Heb je dat nodig, kijk dan naar HubSpot Sales Hub Professional of de prognoseweergave van Pipedrive.
+</FaqItem>
+
+<FaqItem question="Kan mijn team één dashboard delen?">
+Ja. Kies in een benoemde dashboardweergave die van jou is **Delen…** en kies iedereen in de werkruimte of geselecteerde rollen. Teamgenoten zien dezelfde widgets en indeling, alleen-lezen, en elk getal wordt berekend met hun eigen toegang, dus twee mensen kunnen in dezelfde grafiek verschillende getallen zien. Alleen jij wijzigt de widgets; **Dupliceren als nieuwe weergave** geeft een teamgenoot een bewerkbare kopie. Het hoofddashboard kan niet worden gedeeld, dus zet de grafieken op een benoemde weergave. Eén grafiek kan ook los worden gedeeld met **Delen als sjabloon**. Voor mensen buiten de werkruimte kan een dashboardweergave via een openbare link worden gepubliceerd, alleen-lezen en zonder inloggen, als je rol mag publiceren en de werkruimte openbare links toestaat.
+</FaqItem>
+
+<FaqItem question="Kan ik CRM-rapporten naar Excel exporteren?">
+Je exporteert records, geen grafieken. Elke lijst exporteert naar een Excel-werkmap met de huidige filters, sortering en zichtbare kolommen, één recordtype tegelijk. CSV wordt niet aangeboden, dus bouw het rapport met een draaitabel in Excel.
+</FaqItem>
+
+<FaqItem question="Welke rapporten zitten in het Starter-abonnement?">
+Alle grafiekwidgets, de gewogen pipeline, gegroepeerde lijsten, de activiteitentijdlijn van recordwijzigingen en XLSX-export zitten in Starter. Pro voegt berichten en agenda-afspraken aan de tijdlijn toe. De analyse van Mate vraagt Customermates Cloud en gehoste AI-credits, die elk betaald Cloud-abonnement bevat.
+</FaqItem>
+
+<FaqItem question="Kan ik rapporten bouwen met ChatGPT of Claude?">
+Ja. Koppel de client via MCP en hij kan records tonen en filteren, totalen berekenen over overeenkomende deals en dashboardwidgets maken. Het model, het abonnement en wat het met je gegevens doet, vallen onder je AI-provider, niet onder Customermates.
+</FaqItem>
+</Faq>

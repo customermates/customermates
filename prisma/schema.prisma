@@ -1049,6 +1049,9 @@ enum Locale {
   es
   fr
   it
+  pt
+  pl
+  nl
 }
 
 enum Theme {

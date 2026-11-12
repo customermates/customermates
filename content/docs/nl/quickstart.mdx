@@ -1,0 +1,57 @@
+---
+title: "Customermates CRM Quickstart: in minuten ingericht"
+heading: "Richt je Customermates-werkruimte in"
+description: "Van aanmelding tot je eerste door een agent bijgewerkte record in minuten: maak een account, koppel Claude of ChatGPT of gebruik een API-sleutel voor je CLI."
+---
+
+Maak een account, koppel een AI-client en begin met vragen stellen. Claude en ChatGPT koppel je met een eigen connector, zonder API-sleutel; CLI-clients en editors gebruiken een API-sleutel.
+
+## Hoe meld ik me aan, en hoe lang duurt de gratis proefperiode? [#how-do-i-sign-up-and-how-long-is-the-free-trial]
+
+[Meld je aan](/auth/signup) zonder creditcard. De eerste [[commercial.trial.days]] dagen zijn een gratis proefperiode van het Pro-abonnement.
+
+In Customermates Cloud vraagt de onboarding daarna wat je als eerste wilt doen. **Mijn klantwerkruimte inrichten** vraagt om een beschrijving van je bedrijf en een paar antwoorden: Mate ontwerpt je lijsten, pipeline, dashboard en Kennisbank-pagina's en bouwt ze zodra je het plan bevestigt. **Klantgesprekken opvolgen** schrijft een playbook voor jouw soort werk in je Kennisbank en opent Kanalen, zodat je LinkedIn of e-mail kunt koppelen en Mate antwoorden kan voorbereiden die jij nakijkt en verstuurt. Details: [Onboardingwizard](/docs/app-onboarding).
+
+Als de proefperiode afloopt, gaat de werkruimte over naar het Free-abonnement voor één persoon; iedereen die er verder in zit, wordt gepauzeerd tot je een abonnement kiest. Wil je de Pro-functies na de proefperiode houden, kies dan voor het einde een abonnement onder [Facturering](app:settings/billing?focus=plan-picker) in Instellingen; lees [wat er gebeurt als de proefperiode afloopt](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails) en [welke abonnementen er zijn](/docs/app-company#which-plans-are-there). Een abonnement kiezen vraagt **Bewerken** op de rij **Bedrijf** van je rol. De rol **Beheerder**, die de maker van de werkruimte krijgt, heeft dat. Een [zelf gehoste](/docs/self-hosting) instantie heeft geen proefperiode en geen abonnement.
+
+## Hoe koppel ik Claude of ChatGPT? [#how-do-i-connect-claude-or-chatgpt]
+
+Voeg een eigen connector toe:
+
+- **Claude** (web, desktop, mobiel): **Settings → Connectors → Add custom connector**.
+- **ChatGPT**: **Settings → Connectors → Add connector → Custom connector (MCP)**, met **Authentication** op OAuth.
+
+Plak de MCP-URL van je werkruimte. Customermates toont die met een kopieerknop in de onboardingstap **Koppel de AI die je al gebruikt** en onder [API-sleutels & connectoren](app:settings/api-keys). Log in en klik op **Goedkeuren** in het toestemmingsscherm. Het adres waarop je Customermates opent, gevolgd door `/api/v1/mcp`, werkt ook; dan kies je de werkruimte in het toestemmingsscherm. Alle stappen: [Koppelen met een eigen connector](/docs/connect-custom-connector#the-url).
+
+Bij het koppelen geeft de server de client uitleg over zijn tools en over je werkruimte. In clients die MCP-prompts ondersteunen, zoals Claude, geeft de ingebouwde prompt `get-started` een persoonlijke start: je naam, je rol en een eerste samenvatting van je werkruimte.
+
+## Hoe koppel ik een CLI of editor? [#how-do-i-connect-a-cli-or-editor]
+
+Open [API-sleutels & connectoren](app:settings/api-keys), klik op [Toevoegen](app:settings/api-keys?focus=generate) en kies **Standaard API-sleutel**, of kies je client onder **Snelle koppelingen** om de sleutel samen met het bijbehorende configuratiefragment te krijgen. Kopieer de sleutel nu: hij wordt maar één keer getoond. Een sleutel aanmaken vraagt **Aanmaken** op de rij **API en webhooks** van je rol; de rol **Beheerder** heeft dat. Details: [API-sleutels](/docs/api-keys). Volg daarna de stappen van je client:
+
+- [Claude Code](/docs/connect-cli#claude-code): één terminalopdracht
+- [Cursor](/docs/connect-cli#cursor): via de instellingen, twee klikken
+- [Codex](/docs/connect-cli#codex): één TOML-blok in `~/.codex/config.toml`
+- [Gemini](/docs/connect-cli#gemini-cli): één instellingenblok
+
+## Wat kan ik het best als eerste proberen? [#what-should-i-try-first]
+
+- *"Zet de status van de Acme-deal op Gewonnen en voeg een notitie toe dat het contract vandaag is getekend."*
+- *"Haal de laatste tien contactpersonen op die ik heb aangemaakt. Zitten er zonder e-mailadres tussen?"*
+- *"Maak een contactpersoon aan voor Jane Doe bij Initech, koppel die aan de organisatie Initech en start een deal voor 12 uur advies."*
+- *"Welke klantgesprekken wachten op mijn antwoord? Schrijf een antwoord voor het oudste gesprek en bewaar het als concept."*
+
+De agent meldt wat hij heeft gedaan en wat er is veranderd. Dealfases en andere velden verschillen per werkruimte; de agent leest die van jou voordat hij schrijft. Voor de antwoordprompt moet in Customermates Cloud vanaf Pro een kanaal gekoppeld zijn; het concept blijft in het gesprek staan tot je het nakijkt en verstuurt.
+
+## Hoe test ik een webhook? [#how-do-i-test-a-webhook]
+
+Optioneel, om andere tools te laten weten dat het CRM verandert: open [Webhooks](app:settings/webhooks) en klik op [Toevoegen](app:settings/webhooks?focus=add). Vul bij **URL** een wegwerp-endpoint van [webhook.site](https://webhook.site) in, selecteer **Record aangemaakt** en **Record bijgewerkt** onder **Gebeurtenissen**, kies de lijsten die je wilt volgen en klik op **Opslaan**. Een webhook toevoegen vraagt **Aanmaken** op de rij **API en webhooks**, net als bij API-sleutels.
+
+Maak of wijzig nu een record in een van die lijsten. Binnen enkele seconden komt de bezorging met de volledige payload binnen bij webhook.site en verschijnt ze in het [Webhooklog](app:settings/webhook-deliveries). Meer in [Webhooks](/docs/webhooks).
+
+## Volgende stappen [#next]
+
+- [Kernconcepten](/docs/concepts): records, velden en relaties in één oogopslag.
+- [MCP-toolcatalogus](/docs/mcp#tool-catalog): alle tools die je AI kan aanroepen via het Model Context Protocol (MCP).
+
+Voor agents: lees de lijsten en velden van de werkruimte met `discover_record_types` en `get_record_model` voordat je wijzigingen voorstelt of schrijft.

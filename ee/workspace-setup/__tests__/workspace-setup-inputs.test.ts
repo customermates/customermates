@@ -10,7 +10,10 @@ describe("company settings from the company answers", () => {
       value: { format: "singleChoice" as const, value },
     });
     expect(setupCompanySettings({ country: answer("CH"), language: answer("fr") })).toEqual({ formattingLocale: "fr" });
-    expect(setupCompanySettings({ country: answer("XX"), language: answer("pt") })).toEqual({});
+    expect(setupCompanySettings({ country: answer("XX"), language: answer("pt") })).toEqual({ formattingLocale: "pt" });
+    expect(setupCompanySettings({ country: answer("XX"), language: answer("pl") })).toEqual({ formattingLocale: "pl" });
+    expect(setupCompanySettings({ country: answer("XX"), language: answer("nl") })).toEqual({ formattingLocale: "nl" });
+    expect(setupCompanySettings({ country: answer("XX"), language: answer("ja") })).toEqual({});
     expect(setupCompanySettings({})).toEqual({});
   });
 });
