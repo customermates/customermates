@@ -1,11 +1,11 @@
 {
   "locale": "es",
   "name": "Despacho fiscal y contable",
-  "summary": "Un puesto de trabajo de despacho con dos flujos: conseguir un encargo, con identificación PBC/FT y hoja de encargo, y hacer el trabajo recurrente por cliente, con un calendario de plazos verificado por una segunda persona.",
-  "description": "Lleve un despacho fiscal o contable en un solo lugar: encargos de la consulta al encargo activo con un paso de identificación de prevención del blanqueo en medio, expedientes recurrentes por cliente y periodo con el estado a la espera de documentación, y un calendario de plazos con aviso previo y la persona que verificó cada fecha. La plantilla es la capa de relación, prueba de plazos y seguimiento junto a su programa de despacho. No calcula fechas legales, no presenta declaraciones, no lleva la contabilidad, no hace nóminas ni factura el tiempo y no guarda NIF ni copias de documentos de identidad.",
+  "summary": "Un espacio de trabajo para un despacho con dos flujos: conseguir un encargo, con identificación PBC/FT y hoja de encargo, y hacer el trabajo recurrente por cliente, con un calendario de plazos verificado por una segunda persona.",
+  "description": "Lleva un despacho fiscal o contable en un solo lugar: encargos de la consulta al encargo activo con un paso de identificación de prevención del blanqueo en medio, expedientes recurrentes por cliente y periodo con el estado a la espera de documentación, y un calendario de plazos con aviso previo y la persona que verificó cada fecha. La plantilla es la capa de relación, constancia de plazos y seguimiento junto a tu programa de despacho. No calcula fechas legales, no presenta declaraciones, no lleva la contabilidad, no hace nóminas ni factura el tiempo y no guarda NIF ni copias de documentos de identidad.",
   "lists": {
-    "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Las personas de sus clientes que envían documentación y firman." },
-    "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Particulares, autónomos, sociedades y asociaciones para los que trabaja." },
+    "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Las personas de tus clientes que envían documentación y firman." },
+    "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Particulares, autónomos, sociedades y asociaciones para los que trabajas." },
     "mandates": { "label": "Encargo", "pluralLabel": "Encargos", "description": "Un encargo de la consulta a activo o rechazado." },
     "jobs": { "label": "Expediente", "pluralLabel": "Expedientes", "description": "Trabajo recurrente para un cliente y un periodo, como el cierre mensual o la declaración del IVA." },
     "deadlines": { "label": "Plazo", "pluralLabel": "Plazos", "description": "Una fecha legal o de la administración con su fuente, un aviso previo y la persona que la verificó." }
@@ -29,7 +29,7 @@
       "options": { "bookkeeping": "Contabilidad", "payroll": "Nóminas", "vat_returns": "IVA", "annual_accounts": "Cuentas anuales", "tax_returns": "Declaraciones de impuestos", "advisory": "Asesoramiento" }
     },
     "mandates.fee_model": { "label": "Honorarios", "options": { "fixed_monthly": "Cuota mensual fija", "hourly": "Por horas", "per_filing": "Por declaración", "value_based": "Según valor" } },
-    "mandates.next_step_due": { "label": "Siguiente paso antes de" },
+    "mandates.next_step_due": { "label": "Fecha del siguiente paso" },
     "mandates.lost_reason": {
       "label": "Motivo",
       "options": { "capacity": "Sin capacidad", "risk_declined": "Rechazado por riesgo", "scope_mismatch": "Alcance inadecuado", "price": "Precio", "chose_other_advisor": "Eligió otro asesor", "no_response": "Sin respuesta" }
@@ -49,13 +49,13 @@
     "jobs.notice_received_on": { "label": "Notificación recibida el" },
     "deadlines.kind": {
       "label": "Tipo",
-      "options": { "vat_return": "Declaración del IVA", "vat_payment": "Pago del IVA", "payroll_report": "Declaración de nóminas", "annual_accounts": "Cuentas anuales", "tax_return": "Declaración de impuestos", "appeal": "Recurso", "payment": "Pago", "aml_review": "Revisión del riesgo", "other": "Otro" }
+      "options": { "vat_return": "Declaración del IVA", "vat_payment": "Pago del IVA", "payroll_report": "Retenciones de nóminas", "annual_accounts": "Cuentas anuales", "tax_return": "Declaración de impuestos", "appeal": "Recurso", "payment": "Pago", "aml_review": "Revisión del riesgo", "other": "Otro" }
     },
     "deadlines.due_date": { "label": "Vencimiento" },
     "deadlines.pre_deadline": { "label": "Aviso previo" },
     "deadlines.source_ref": { "label": "Fuente de la fecha" },
     "deadlines.verified_by": { "label": "Verificado por" },
-    "deadlines.status": { "label": "Estado", "options": { "open": "Abierto", "in_progress": "En curso", "filed": "Presentado", "extended": "Ampliado", "cancelled": "Cancelado" } },
+    "deadlines.status": { "label": "Estado", "options": { "open": "Abierto", "in_progress": "En curso", "filed": "Presentado", "extended": "Prorrogado", "cancelled": "Cancelado" } },
     "actions.kind": {
       "label": "Tipo",
       "options": {
@@ -98,16 +98,16 @@
     "aml_reviews": { "title": "Revisiones de riesgo pendientes" }
   },
   "knowledgePages": {
-    "operating_guide": { "title": "Cómo funciona el despacho", "sections": ["Los dos flujos: conseguir un encargo y hacer el trabajo", "Quién responsable de cada fase y la regla de una tarea con fecha por expediente abierto"] },
+    "operating_guide": { "title": "Cómo funciona el despacho", "sections": ["Los dos flujos: conseguir un encargo y hacer el trabajo", "Quién es responsable de cada fase y la regla de una tarea con fecha por expediente abierto"] },
     "onboarding_and_aml": { "title": "Alta del cliente e identificación", "sections": ["Identificar al cliente y al titular real, nivel de riesgo", "Lista de control de la hoja de encargo (aquí no se guardan copias de documentos de identidad)"] },
-    "deadline_control": { "title": "Control de plazos", "sections": ["Cómo se introduce una fecha con su fuente y la verifica una segunda persona", "Revisión del aviso previo y decisión sobre una ampliación"] },
+    "deadline_control": { "title": "Control de plazos", "sections": ["Cómo se introduce una fecha con su fuente y la verifica una segunda persona", "Revisión del aviso previo y decisión sobre una prórroga"] },
     "document_checklists": { "title": "Solicitudes de documentación por servicio", "sections": ["Qué pedimos en cada servicio y para cuándo", "Recordatorios y qué hacer cuando falta documentación"] }
   },
   "rules": {
-    "proposal_follow_up": { "title": "Dar seguimiento a un presupuesto 3 días después de enviarlo" },
+    "proposal_follow_up": { "title": "Hacer seguimiento de un presupuesto 3 días después de enviarlo" },
     "aml_identification": { "title": "Identificar al cliente en 2 días cuando un encargo llega a la fase de identificación" },
     "onboarding_set": { "title": "Pedir el apoderamiento y la primera documentación cuando un encargo pasa a activo" },
-    "recontact_not_going_ahead": { "title": "Fijar el siguiente paso a 90 días cuando un encargo no prospera" },
+    "recontact_not_going_ahead": { "title": "Fijar el siguiente paso dentro de 90 días cuando un encargo no prospera" },
     "documents_chase": { "title": "Reclamar la documentación 3 días antes de la fecha prevista" },
     "documents_overdue_notice": { "title": "Avisar al responsable cuando la documentación vence y sigue sin llegar" },
     "pre_deadline_check": { "title": "Avisar al responsable en el aviso previo de un plazo abierto" },
@@ -125,12 +125,12 @@
     "deadline_control_page": "La base de conocimiento contiene una página sobre el control de plazos."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de Customermates un despacho fiscal y contable: encargos de la consulta a activo con un paso de identificación, expedientes recurrentes por cliente y periodo, un calendario de plazos con aviso previo y verificador, y seguimientos con fecha. No calcules nunca fechas legales y no guardes copias de documentos de identidad.",
+    "intro": "Configura en mi espacio de trabajo de Customermates un despacho fiscal y contable: encargos de la consulta a activo con un paso de identificación, expedientes recurrentes por cliente y periodo, un calendario de plazos con aviso previo y verificador, y seguimientos con fecha. No calcules nunca fechas legales y no guardes copias de documentos de identidad.",
     "questions": [
-      "¿Qué servicios ofrece y qué expedientes recurrentes lleva por cliente?",
-      "¿En qué país trabaja y qué plazos controla?",
+      "¿Qué servicios ofreces y qué expedientes recurrentes llevas por cliente?",
+      "¿En qué país trabajas y qué plazos controlas?",
       "¿Quién prepara, quién revisa y quién verifica un plazo?",
-      "¿Cómo identifica a los clientes nuevos y cada cuánto revisa su nivel de riesgo?"
+      "¿Cómo identificas a los clientes nuevos y cada cuánto revisas su nivel de riesgo?"
     ]
   }
 }
