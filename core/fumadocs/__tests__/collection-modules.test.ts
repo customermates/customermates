@@ -107,7 +107,7 @@ describe("collectionModules", () => {
     const server = { watcher: { on: (_name: string, handler: (typeof handlers)[number]) => handlers.push(handler) } };
     const plugin = collectionModules({ lastModified: () => Promise.resolve(null) });
 
-    plugin.configureServer?.call({ core }, server as unknown as ServerContext);
+    await plugin.configureServer?.call({ core }, server as unknown as ServerContext);
     const [handler] = handlers;
 
     await handler("change", join(directory, "en", "a.mdx"));

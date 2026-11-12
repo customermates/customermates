@@ -2,11 +2,7 @@ import { z } from "zod";
 
 import type { McpTool } from "./mcp-tool";
 
-import {
-  MCP_GET_STARTED_PROMPT_INFO,
-  MCP_SERVER_INFO,
-  MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO,
-} from "./server-metadata";
+import { MCP_GET_STARTED_PROMPT_INFO, MCP_SERVER_INFO, MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO } from "./server-metadata";
 
 export function buildMcpServerCard(tools: readonly McpTool[]) {
   return {

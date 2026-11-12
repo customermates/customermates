@@ -5,7 +5,7 @@ export type AutomationTemplateContext = {
 
 export const RECORD_NAME_TOKEN = "{{record.name}}";
 
-const PLACEHOLDER =/\{\{\s*([a-zA-Z]+\.[a-zA-Z]+)\s*\}\}/g;
+const PLACEHOLDER = /\{\{\s*([a-zA-Z]+\.[a-zA-Z]+)\s*\}\}/g;
 
 export function renderAutomationTemplate(text: string, context: AutomationTemplateContext): string {
   return text.replace(PLACEHOLDER, (match, path: string) => {

@@ -104,7 +104,11 @@ describe("template plans in the Mate planner", () => {
   it("gives the model the plan of the chosen template as the reference instead of the closest solution", async () => {
     const { instance, models, run } = planner();
     models.generate.mockResolvedValue({ ok: false, failure: "generation", rejection: "stop" });
-    const chosen = { ...input, answers: { ...input.answers, workWith: workWith("clients") }, templateSlug: "client-tracker" };
+    const chosen = {
+      ...input,
+      answers: { ...input.answers, workWith: workWith("clients") },
+      templateSlug: "client-tracker",
+    };
     await run(() => instance.attempt("model", chosen, emptySetupPlanPart(1), { model: null, knowledge: null }));
     const prompt = String(models.generate.mock.calls[0][0].prompt);
     expect(prompt).toContain("Reference template: ");
@@ -209,7 +213,9 @@ describe("template plans in the Mate setup steps", () => {
 
 describe("starting a Mate setup with a template", () => {
   it("accepts a known template slug and rejects an unknown one", () => {
-    expect(StartWorkspaceSetupSchema.safeParse({ websiteUrl: null, templateSlug: "client-tracker" }).success).toBe(true);
+    expect(StartWorkspaceSetupSchema.safeParse({ websiteUrl: null, templateSlug: "client-tracker" }).success).toBe(
+      true,
+    );
     expect(StartWorkspaceSetupSchema.safeParse({ websiteUrl: null }).success).toBe(true);
     expect(StartWorkspaceSetupSchema.safeParse({ websiteUrl: null, templateSlug: "nope" }).success).toBe(false);
   });

@@ -473,7 +473,9 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     );
     if (!started.ok) throw new Error(JSON.stringify(started.error));
     const setupId = started.data.setupId;
-    expect((await ws.run(() => di.getWorkspaceSetupRepo().get(setupId)))?.interview.templateSlug).toBe("sales-pipeline");
+    expect((await ws.run(() => di.getWorkspaceSetupRepo().get(setupId)))?.interview.templateSlug).toBe(
+      "sales-pipeline",
+    );
     const again = await ws.run(() =>
       di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null, templateSlug: "sales-pipeline" }),
     );
@@ -507,7 +509,9 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(confirmed).toEqual({ ok: true, data: { setupId } });
     await build(ws, setupId);
     const model = await ws.run(() => createTestRecordRepo().getModel());
-    expect(model.types.map((type) => type.label)).toContain(getTemplateText("sales-pipeline", "en").lists.opportunities.label);
+    expect(model.types.map((type) => type.label)).toContain(
+      getTemplateText("sales-pipeline", "en").lists.opportunities.label,
+    );
   });
 
   it("restarts a setup that was started with another template", async () => {
