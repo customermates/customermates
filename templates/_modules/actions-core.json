@@ -107,7 +107,7 @@
           "options": { "open": "Otwarte", "waiting": "Oczekuje", "done": "Zrobione", "cancelled": "Anulowane" }
         },
         "actions.due": { "label": "Termin" },
-        "actions.owner": { "label": "Odpowiedzialny" },
+        "actions.owner": { "label": "Osoba odpowiedzialna" },
         "actions.outcome": { "label": "Wynik" }
       }
     },

@@ -11,7 +11,7 @@
     "contacts.company_name": { "label": "Firma" },
     "contacts.language": { "label": "Język" },
     "contacts.marketing_consent": { "label": "Zgoda na e-maile marketingowe" },
-    "contacts.marketing_consent_on": { "label": "Zgoda udzielona dnia" },
+    "contacts.marketing_consent_on": { "label": "Data udzielenia zgody" },
     "requests.stage": {
       "label": "Etap",
       "options": { "new": "Nowe", "contacted": "Skontaktowane", "qualified": "Zakwalifikowane", "converted": "Przekazane do lejka", "not_a_fit": "Nietrafione", "spam": "Spam" }
