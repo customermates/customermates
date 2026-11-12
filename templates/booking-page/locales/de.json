@@ -71,7 +71,7 @@
     "bookings_by_source": { "title": "Buchungen nach Quelle" }
   },
   "knowledgePages": {
-    "appointment_types_rules": { "title": "Terminarten und Verfügbarkeit", "sections": ["Arten, Dauer, Pufferzeit und Vorlaufzeit", "Sprechzeiten und Tageslimits"] },
+    "appointment_types_rules": { "title": "Terminarten und Verfügbarkeit", "sections": ["Arten, Dauer, Pufferzeit und Vorlaufzeit", "Öffnungszeiten und Tageslimits"] },
     "reminder_policy": { "title": "Erinnerungen und Nichterscheinen", "sections": ["Erinnerungen 3 Tage und 1 Tag vorher", "Was wir nach einem Nichterscheinen tun"] },
     "cancellation_policy": { "title": "Absage und Verschiebung", "sections": ["Bis wann Kunden absagen können", "Wie ein neuer Termin angeboten wird"] }
   },

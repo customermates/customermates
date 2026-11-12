@@ -54,7 +54,7 @@
     "intakes.kickoff_on": { "label": "Kickoff am" },
     "intakes.fee_model": {
       "label": "Honorarmodell",
-      "options": { "fixed": "Festpreis", "hourly": "Stundensatz", "retainer": "Pauschale pro Monat", "other": "Sonstige" }
+      "options": { "fixed": "Festpreis", "hourly": "Stundensatz", "retainer": "Monatspauschale", "other": "Sonstige" }
     },
     "intakes.deposit_required": { "label": "Vorschuss erforderlich" },
     "intakes.deposit_received_on": { "label": "Vorschuss erhalten am" },
@@ -75,7 +75,7 @@
         "not_a_fit": "Passt nicht",
         "no_capacity": "Keine Kapazität",
         "no_response": "Keine Antwort",
-        "client_withdrew": "Mandant zog zurück",
+        "client_withdrew": "Mandant hat zurückgezogen",
         "risk": "Risiko",
         "other": "Sonstiges"
       }
@@ -91,7 +91,7 @@
         "identity": "Ausweis",
         "proof_of_address": "Adressnachweis",
         "company_register": "Handelsregisterauszug",
-        "prior_year_return": "Vorjahreserklärung",
+        "prior_year_return": "Steuererklärung des Vorjahres",
         "contract": "Vertrag",
         "questionnaire": "Fragebogen",
         "access_credentials": "Zugangsdaten",
@@ -143,7 +143,7 @@
   },
   "widgets": {
     "intakes_by_stage": { "title": "Offene Aufnahmen nach Phase" },
-    "open_intakes_by_owner": { "title": "Offene Aufnahmen je Betreuer" },
+    "open_intakes_by_owner": { "title": "Offene Aufnahmen je Zuständigem" },
     "enquiries_without_reply": { "title": "Anfragen ohne erste Antwort" },
     "documents_outstanding": { "title": "Ausstehende Unterlagen" },
     "awaiting_signature_count": { "title": "Wartet auf Unterschrift" },
