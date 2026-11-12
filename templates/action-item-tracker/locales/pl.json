@@ -1,8 +1,8 @@
 {
   "locale": "pl",
-  "name": "Plan działań",
-  "summary": "Każde zadanie z jedną osobą odpowiedzialną i terminem, powiązane ze spotkaniem, decyzją lub projektem, z którego wynika, z cotygodniowym przeglądem i zamknięciem z dowodem.",
-  "description": "Lista zadań wynikających ze spotkań, projektów, audytów i próśb klientów: sześć statusów, priorytet, osoba odpowiedzialna, termin, data powrotu do sprawy, rejestr decyzji i sprawdzenie skuteczności po działaniach korygujących. Przypomnienia pochodzą z reguł automatyzacji i powiadomień.",
+  "name": "Rejestr zadań i działań",
+  "summary": "Każde zadanie z jedną osobą odpowiedzialną i terminem, powiązane ze spotkaniem, decyzją lub projektem, z którego wynika, z cotygodniowym przeglądem i zamykaniem z dowodem wykonania.",
+  "description": "Lista zadań wynikających ze spotkań, projektów, audytów i próśb klientów: sześć statusów, priorytet, osoba odpowiedzialna, termin, termin kontrolny, rejestr decyzji i sprawdzenie skuteczności po działaniach korygujących. Przypomnienia pochodzą z reguł automatyzacji i powiadomień.",
   "lists": {
     "people": { "label": "Osoba", "pluralLabel": "Osoby", "description": "Zespół, partnerzy, klienci i dostawcy." },
     "meetings": { "label": "Spotkanie", "pluralLabel": "Spotkania", "description": "Skąd biorą się zadania i decyzje." },
@@ -28,31 +28,31 @@
       "label": "Rodzaj spotkania",
       "options": { "team": "Spotkanie zespołu", "project": "Spotkanie projektowe", "steering": "Komitet sterujący", "customer": "Spotkanie z klientem", "audit": "Audyt lub przegląd" }
     },
-    "meetings.held_at": { "label": "Odbyło się" },
+    "meetings.held_at": { "label": "Data spotkania" },
     "meetings.agenda_url": { "label": "Link do agendy" },
     "meetings.minutes_url": { "label": "Link do protokołu" },
-    "meetings.minutes_sent_on": { "label": "Protokół wysłano dnia" },
-    "meetings.next_meeting_on": { "label": "Następne spotkanie dnia" },
+    "meetings.minutes_sent_on": { "label": "Data wysłania protokołu" },
+    "meetings.next_meeting_on": { "label": "Data następnego spotkania" },
     "decisions.decision_text": { "label": "Decyzja" },
     "decisions.status": { "label": "Status", "options": { "valid": "Obowiązuje", "superseded": "Zastąpiona", "revoked": "Uchylona" } },
-    "decisions.decided_on": { "label": "Podjęto dnia" },
-    "decisions.review_on": { "label": "Przegląd dnia" },
-    "projects.owner": { "label": "Odpowiedzialny" },
-    "projects.start_date": { "label": "Początek" },
-    "projects.end_date": { "label": "Koniec" },
+    "decisions.decided_on": { "label": "Data podjęcia" },
+    "decisions.review_on": { "label": "Data przeglądu" },
+    "projects.owner": { "label": "Osoba odpowiedzialna" },
+    "projects.start_date": { "label": "Data rozpoczęcia" },
+    "projects.end_date": { "label": "Data zakończenia" },
     "actions.priority": { "label": "Priorytet", "options": { "high": "Wysoki", "medium": "Średni", "low": "Niski" } },
     "actions.kind": {
       "label": "Rodzaj",
-      "options": { "action": "Zadanie", "follow_up": "Ponowny kontakt", "review": "Przegląd", "corrective": "Działanie korygujące", "preventive": "Działanie zapobiegawcze", "customer_request": "Prośba klienta" }
+      "options": { "action": "Zadanie", "follow_up": "Kontynuacja", "review": "Przegląd", "corrective": "Działanie korygujące", "preventive": "Działanie zapobiegawcze", "customer_request": "Prośba klienta" }
     },
     "actions.source": {
       "label": "Źródło",
       "options": { "meeting": "Spotkanie", "email": "E-mail", "project_plan": "Plan projektu", "audit": "Audyt lub kontrola", "complaint": "Reklamacja", "incident": "Incydent" }
     },
-    "actions.owner": { "label": "Odpowiedzialny" },
+    "actions.owner": { "label": "Osoba odpowiedzialna" },
     "actions.due": { "label": "Termin" },
-    "actions.follow_up_on": { "label": "Powrót do sprawy dnia" },
-    "actions.done_on": { "label": "Zrobiono dnia" },
+    "actions.follow_up_on": { "label": "Termin kontrolny" },
+    "actions.done_on": { "label": "Data wykonania" },
     "actions.blocker_note": { "label": "Co blokuje" },
     "actions.proof_url": { "label": "Link do dowodu" },
     "actions.outcome": { "label": "Wynik" },
@@ -75,28 +75,28 @@
     "actions_by_status": { "title": "Zadania wg statusu" },
     "overdue_count": { "title": "Zaległe zadania" },
     "blocked_count": { "title": "Zablokowane zadania" },
-    "due_soon": { "title": "Wkrótce do zrobienia" },
-    "open_by_owner": { "title": "Otwarte zadania na osobę" },
-    "done_per_month": { "title": "Zrobione miesięcznie" },
+    "due_soon": { "title": "Zbliżające się terminy" },
+    "open_by_owner": { "title": "Otwarte zadania wg osoby" },
+    "done_per_month": { "title": "Zrobione w poszczególnych miesiącach" },
     "actions_by_source": { "title": "Zadania wg źródła" },
     "average_days_late": { "title": "Średnie opóźnienie w dniach" },
     "activity_timeline": { "title": "Ostatnia aktywność" }
   },
   "knowledgePages": {
-    "how_we_write_an_action": { "title": "Jak zapisujemy zadanie", "sections": ["Jeden czasownik, jedna osoba, jedna data", "Jak wygląda zadanie zrobione"] },
-    "weekly_action_review": { "title": "Cotygodniowy 15-minutowy przegląd zadań", "sections": ["Zablokowane, opóźnione, bez następnego kroku", "Zmień termin, deleguj lub anuluj"] },
-    "closing_with_proof": { "title": "Zamykanie zadania z dowodem", "sections": ["Podlinkuj dowód", "Sprawdzenie skuteczności działań korygujących"] }
+    "how_we_write_an_action": { "title": "Jak zapisujemy zadanie", "sections": ["Jeden czasownik, jedna osoba, jedna data", "Jak wygląda wykonane zadanie"] },
+    "weekly_action_review": { "title": "Cotygodniowy 15-minutowy przegląd zadań", "sections": ["Zablokowane, opóźnione, bez następnego kroku", "Zmień termin, przekaż komuś innemu lub anuluj"] },
+    "closing_with_proof": { "title": "Zamykanie zadania z dowodem", "sections": ["Dołącz link do dowodu", "Sprawdzenie skuteczności działań korygujących"] }
   },
   "rules": {
     "minutes_after_meeting": { "title": "Wyślij protokół i listę zadań po spotkaniu" },
-    "unblock_action": { "title": "Wskaż, kto może odblokować zadanie, które zostało zablokowane" },
-    "due_reminder": { "title": "Przypomnij odpowiedzialnemu dwa dni przed terminem" },
-    "overdue_notice": { "title": "Powiadom odpowiedzialnego dzień po przekroczeniu terminu" },
-    "follow_up_date": { "title": "Wróć do zadania w dniu powrotu do sprawy" },
+    "unblock_action": { "title": "Wskaż, kto może odblokować zadanie, gdy zostanie zablokowane" },
+    "due_reminder": { "title": "Przypomnij osobie odpowiedzialnej o terminie na dwa dni przed jego upływem" },
+    "overdue_notice": { "title": "Powiadom osobę odpowiedzialną dzień po przekroczeniu terminu zadania" },
+    "follow_up_date": { "title": "Wróć do zadania w terminie kontrolnym" },
     "effectiveness_check": { "title": "Sprawdź skuteczność działania korygującego lub zapobiegawczego po 30 dniach" },
-    "weekly_action_review": { "title": "Przeprowadź przegląd zadań w każdy poniedziałek" },
-    "decision_review": { "title": "Przejrzyj decyzję w dniu przeglądu" },
-    "request_form_action": { "title": "Utwórz zadanie z prośby wysłanej formularzem" }
+    "weekly_action_review": { "title": "Przeprowadź cotygodniowy przegląd zadań w każdy poniedziałek" },
+    "decision_review": { "title": "Przejrzyj decyzję w terminie jej przeglądu" },
+    "request_form_action": { "title": "Utwórz zadanie z prośby wysłanej przez formularz" }
   },
   "acceptanceChecks": {
     "status_field": "Każde zadanie ma jeden z sześciu statusów.",
@@ -104,12 +104,12 @@
     "overdue_widget": "Pulpit pokazuje, ile zadań jest zaległych."
   },
   "prompt": {
-    "intro": "Skonfiguruj plan działań w mojej przestrzeni roboczej Customermates: zadania z sześcioma statusami, priorytetem, osobą odpowiedzialną, terminem i datą powrotu do sprawy, powiązane ze spotkaniami, decyzjami i projektami, do tego cotygodniowy przegląd.",
+    "intro": "Skonfiguruj rejestr zadań i działań w mojej przestrzeni roboczej Customermates: zadania z sześcioma statusami, priorytetem, osobą odpowiedzialną, terminem i terminem kontrolnym, powiązane ze spotkaniami, decyzjami i projektami, do tego cotygodniowy przegląd.",
     "questions": [
       "Skąd biorą się Twoje zadania: spotkania, projekty, audyty, klienci?",
-      "Kto odpowiada za zadania i kto decyduje, gdy zmienia się termin lub zadanie jest anulowane?",
+      "Kto odpowiada za zadania i kto decyduje o zmianie terminu lub anulowaniu zadania?",
       "Czy potrzebujesz działań korygujących i zapobiegawczych ze sprawdzeniem skuteczności, jak w ISO 9001?",
-      "Czy protokoły trzymasz gdzie indziej? Tutaj zapisywany jest tylko odnośnik."
+      "Czy protokoły prowadzisz w innym miejscu? Tutaj zapisujemy tylko link do nich."
     ]
   }
 }
