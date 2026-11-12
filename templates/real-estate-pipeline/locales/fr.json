@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Pipeline immobilier",
-  "summary": "Deux pipelines qui se rejoignent au compromis : décrocher et commercialiser le bien, et suivre l’acquéreur, avec les visites, les dates clés et une routine pour les anciens clients.",
-  "description": "Une agence immobilière mène un côté propriétaire (estimation, mandat, commercialisation, offres) et un côté acquéreur (prospect, qualification, visites, offre), puis une phase commune sous compromis avec des dates impératives. Ce modèle suit les deux, le type de mandat et sa date de fin, chaque visite avec son retour, les dates clés après la signature et une routine datée pour les anciens clients. La valeur d’un bien contient les honoraires attendus.",
+  "summary": "Deux pipelines qui se rejoignent au compromis : décrocher et commercialiser le bien, et suivre l’acquéreur, avec les visites, les dates clés et une routine pour les anciens clients.",
+  "description": "Une agence immobilière mène un côté propriétaire (estimation, mandat, commercialisation, offres) et un côté acquéreur (prospect, qualification, visites, offre), puis une phase commune sous compromis avec des dates impératives. Ce modèle suit les deux, le type de mandat et sa date de fin, chaque visite avec son retour, les dates clés après la signature et une routine datée pour les anciens clients. La valeur d’un bien correspond aux honoraires attendus.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Propriétaires, bailleurs, acquéreurs, locataires et apporteurs d’affaires." },
     "organizations": { "label": "Organisation", "pluralLabel": "Organisations", "description": "Promoteurs, banques, notaires et partenaires apporteurs." },
@@ -123,7 +123,7 @@
       "label": "Motif de perte",
       "options": {
         "price_too_high": "Prix trop élevé",
-        "chose_other_agent": "A choisi un autre agent",
+        "chose_other_agent": "A choisi une autre agence",
         "owner_changed_mind": "Le propriétaire a changé d’avis",
         "sold_privately": "Vendu entre particuliers",
         "agreement_expired": "Mandat expiré",
@@ -165,7 +165,7 @@
         "financing_failed": "Financement refusé",
         "stopped_searching": "A arrêté de chercher",
         "no_response": "Pas de réponse",
-        "chose_other_agent": "A choisi un autre agent"
+        "chose_other_agent": "A choisi une autre agence"
       }
     },
     "viewings.viewing_on": { "label": "Visite le" },
@@ -189,7 +189,7 @@
     },
     "key_dates.due_date": { "label": "Échéance" },
     "key_dates.status": { "label": "Statut", "options": { "open": "Ouverte", "done": "Faite", "waived": "Levée" } },
-    "key_dates.source_ref": { "label": "Où c’est écrit dans le compromis" },
+    "key_dates.source_ref": { "label": "Référence dans le compromis" },
     "key_dates.verified_by": { "label": "Vérifié par" },
     "actions.kind": {
       "label": "Type",
@@ -242,20 +242,20 @@
     "key_dates_next": { "title": "Dates clés ouvertes" },
     "commission_per_month": { "title": "Honoraires conclus par mois" },
     "new_leads_not_contacted": { "title": "Nouvelles demandes pas encore contactées" },
-    "listing_lost_reasons": { "title": "Pourquoi des biens ont été perdus" },
-    "days_live_to_offer": { "title": "Moyenne de jours entre diffusion et première offre" },
+    "listing_lost_reasons": { "title": "Motifs de perte des biens" },
+    "days_live_to_offer": { "title": "Délai moyen entre diffusion et première offre" },
     "lead_sources": { "title": "Origine des biens" },
     "under_contract_count": { "title": "Biens sous compromis" },
     "actions_due": { "title": "Tâches à faire" }
   },
   "knowledgePages": {
     "operating_guide": {
-      "title": "Mode d’emploi : pipeline immobilier",
+      "title": "Mode d’emploi : pipeline immobilier",
       "sections": ["Deux pipelines, une tâche datée par dossier ouvert", "Ce que signifie chaque étape", "Ce qui reste hors de l’espace de travail"]
     },
     "lead_response": {
       "title": "Délai de réponse aux demandes et questions de qualification",
-      "sections": ["Répondre le jour même", "Questions à l’acquéreur : délai, financement, critères indispensables", "Questions au propriétaire : calendrier et documents", "Noter de façon neutre"]
+      "sections": ["Répondre le jour même", "Questions à l’acquéreur : délai, financement, critères indispensables", "Questions au propriétaire : calendrier et documents", "Noter de façon neutre"]
     },
     "valuation_checklist": {
       "title": "Check-list de la visite d’estimation",
@@ -294,7 +294,7 @@
       "sections": ["Réponse à une demande", "Confirmation d’estimation", "Proposition de mandat", "Point au propriétaire", "Retour de visite", "Avis d’offre", "Remerciement"]
     },
     "data_rules": {
-      "title": "Règles sur les données : identification, équité, ce qui reste dehors",
+      "title": "Règles sur les données : identification, équité, ce qui reste dehors",
       "sections": ["Noter que l’identification a été vérifiée, jamais les pièces", "Les critères de recherche décrivent le bien, jamais la personne", "Durée de conservation"]
     }
   },
@@ -325,26 +325,26 @@
     },
     "prepare_property": {
       "title": "Préparer le bien et le diffuser",
-      "description": "Photos, plan, diagnostic et documents ; inscrire le mandat au registre là où c’est exigé ; puis diffuser. Échéance trois jours après la signature du mandat."
+      "description": "Photos, plan, diagnostic et documents ; inscrire le mandat au registre là où c’est exigé ; puis diffuser. Échéance trois jours après la signature du mandat."
     },
     "agreement_end_review": {
-      "title": "Faire le point sur le mandat : renouveler, prolonger ou rééchelonner le prix",
+      "title": "Faire le point sur le mandat : renouveler, prolonger ou revoir le prix",
       "description": "Trente jours avant la fin du mandat, un bien en diffusion reçoit une tâche pour le responsable."
     },
     "agreement_end_notice": {
-      "title": "Prévenir l’agent que le mandat se termine dans une semaine",
+      "title": "Prévenir le négociateur que le mandat se termine dans une semaine",
       "description": "Sept jours avant la fin du mandat, le responsable du bien est averti pour décider du renouvellement."
     },
     "weekly_owner_update": {
       "title": "Envoyer le point au propriétaire",
-      "description": "Chaque semaine, un bien en diffusion reçoit une tâche pour rapporter au propriétaire visites, retours et demandes."
+      "description": "Chaque semaine, un bien en diffusion reçoit une tâche pour rendre compte au propriétaire des visites, retours et demandes."
     },
     "viewing_feedback": {
       "title": "Recueillir le retour de visite et l’envoyer au propriétaire",
       "description": "Le lendemain d’une visite, une tâche est créée si aucun retour n’est enregistré."
     },
     "offer_notice": {
-      "title": "Prévenir l’agent qu’une offre doit être présentée",
+      "title": "Prévenir le négociateur qu’une offre doit être présentée",
       "description": "Quand un bien atteint l’étape Offre, le responsable du bien est averti pour présenter l’offre le jour même."
     },
     "listing_key_dates": {
@@ -356,11 +356,11 @@
       "description": "Quand une recherche acquéreur passe sous compromis, les dates clés sont créées à partir du compromis."
     },
     "key_date_calendar": {
-      "title": "Ajouter la date clé à l’agenda de l’agent",
-      "description": "Chaque nouvelle date clé est inscrite dans l’agenda de l’agent."
+      "title": "Ajouter la date clé à l’agenda du négociateur",
+      "description": "Chaque nouvelle date clé est inscrite dans l’agenda du négociateur."
     },
     "key_date_reminder": {
-      "title": "Prévenir l’agent qu’une date clé est dans deux jours",
+      "title": "Prévenir le négociateur qu’une date clé est dans deux jours",
       "description": "Deux jours avant une date clé ouverte, le responsable est averti pour confirmer l’étape ou relancer."
     },
     "completed_handover": {
@@ -397,17 +397,17 @@
     "buyer_stage_field": "Chaque recherche acquéreur a l’une des sept étapes.",
     "agreement_end_field": "Chaque bien note la date de fin de son mandat.",
     "key_dates_list": "Les dates qui suivent la signature du compromis sont suivies dans leur propre liste.",
-    "listings_board_view": "La liste des biens s’ouvre en tableau par étape.",
+    "listings_board_view": "La liste des biens s’ouvre en board par étape.",
     "operating_guide_page": "La base de connaissances contient le mode d’emploi."
   },
   "prompt": {
-    "intro": "Mets en place un pipeline immobilier dans mon espace Customermates : des biens avec le type de mandat et sa date de fin, des recherches acquéreurs, des visites avec retour, les dates clés après la signature du compromis et une tâche datée pour chaque dossier ouvert.",
+    "intro": "Mets en place un pipeline immobilier dans mon espace de travail Customermates : des biens avec le type de mandat et sa date de fin, des recherches acquéreurs, des visites avec retour, les dates clés après la signature du compromis et une tâche datée pour chaque dossier ouvert.",
     "questions": [
-      "Travaillez-vous pour des propriétaires, pour des acquéreurs ou pour les deux ? Vendez-vous, louez-vous ou les deux ?",
-      "Dans quel pays travaillez-vous, et quels types de mandat y utilisez-vous ?",
-      "Comment les demandes vous parviennent-elles : portails immobiliers, votre site, WhatsApp ou recommandations ?",
-      "Quel logiciel contient vos biens et les diffuse sur les portails ? Une référence y est gardée ici, rien n’est copié.",
-      "Quelles dates clés comptent dans vos contrats, par exemple dépôt de garantie, financement, diagnostics ou notaire ?"
+      "Travaillez-vous pour des propriétaires, pour des acquéreurs ou pour les deux ? Vendez-vous, louez-vous ou les deux ?",
+      "Dans quel pays travaillez-vous, et quels types de mandat y utilisez-vous ?",
+      "Comment les demandes vous parviennent-elles : portails immobiliers, votre site, WhatsApp ou recommandations ?",
+      "Quel logiciel contient vos biens et les diffuse sur les portails ? Seule une référence est gardée ici, rien n’est copié.",
+      "Quelles dates clés comptent dans vos contrats, par exemple dépôt de garantie, financement, diagnostics ou notaire ?"
     ]
   }
 }
