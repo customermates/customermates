@@ -77,6 +77,11 @@ function slugCompletions(value: string): string[] {
   return offeredTemplateSlugs().filter((slug) => slug.startsWith(prefix));
 }
 
+function describePromptArgument(schema: z.ZodString, description: string) {
+  const definition = { ...schema._zod.def, description };
+  return schema.clone(definition);
+}
+
 function registerTemplatePrompt(server: McpServer) {
   server.registerPrompt(
     MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO.name,
@@ -85,7 +90,10 @@ function registerTemplatePrompt(server: McpServer) {
       description: MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO.description,
       argsSchema: {
         template: completable(
-          z.string().min(1).max(60).describe(MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO.arguments[0].description),
+          describePromptArgument(
+            z.string().min(1).max(60),
+            MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO.arguments[0].description,
+          ),
           slugCompletions,
         ),
       },

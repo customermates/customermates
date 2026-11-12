@@ -140,6 +140,15 @@ describe("template MCP prompt and resources", () => {
     expect(text).toContain(german.roadRules.sendNothing);
   });
 
+  it("lists the prompt with the title and argument description the public server card shows", async () => {
+    ALL.forEach((capability) => state.shipped.add(capability));
+    const client = await open();
+    const listed = (await client.listPrompts()).prompts.find(
+      (prompt) => prompt.name === MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO.name,
+    );
+    expect(listed).toEqual(MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO);
+  });
+
   it("refuses an unknown template and one the deployment cannot run", async () => {
     state.shipped.add("forms");
     const client = await open();
