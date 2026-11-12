@@ -2,7 +2,7 @@
   "locale": "pl",
   "name": "Członkowie i darczyńcy",
   "summary": "Jeden rejestr członków, darczyńców i wolontariuszy: członkostwa z terminem składki, darowizny z podziękowaniem i potwierdzeniem oraz lejek dużych darowizn i grantów.",
-  "description": "Dla stowarzyszeń, fundacji i parafii: kto Was wspiera i jak, które członkostwo trwa do kiedy, która darowizna czeka jeszcze na podziękowanie lub potwierdzenie i która duża darowizna lub grant jest w toku. Narzędzie nie wystawia potwierdzeń ani nie pobiera składek, pokazuje tylko, które są do zrobienia.",
+  "description": "Dla stowarzyszeń, klubów, fundacji i parafii: kto Cię wspiera i jak, które członkostwo trwa do kiedy, która darowizna czeka jeszcze na podziękowanie lub potwierdzenie i która duża darowizna lub grant jest w toku. Narzędzie nie wystawia potwierdzeń ani nie pobiera składek, pokazuje tylko, które są do zrobienia.",
   "lists": {
     "supporters": { "label": "Sympatyk", "pluralLabel": "Sympatycy", "description": "Członkowie, darczyńcy, wolontariusze, goście i zarząd." },
     "memberships": { "label": "Członkostwo", "pluralLabel": "Członkostwa", "description": "Jedno członkostwo ze składką i terminem odnowienia." },
@@ -12,7 +12,7 @@
   "fields": {
     "memberships.status": {
       "label": "Status",
-      "options": { "applied": "Deklaracja członkowska", "active": "Członek", "grace_period": "Zaległość w składce", "lapsed": "Wygasłe", "resigned": "Skreślenie" }
+      "options": { "applied": "Deklaracja członkowska", "active": "Aktywne", "grace_period": "Zaległość w składce", "lapsed": "Wygasłe", "resigned": "Rezygnacja" }
     },
     "gift_opportunities.stage": {
       "label": "Etap",
@@ -27,14 +27,14 @@
       "label": "Relacja",
       "options": { "prospect": "Potencjalny", "active": "Aktywny", "lapsed": "Nieaktywny", "former": "Były", "do_not_contact": "Nie kontaktować" }
     },
-    "supporters.joined_on": { "label": "Wstąpił dnia" },
+    "supporters.joined_on": { "label": "Data wstąpienia" },
     "supporters.relationship_owner": { "label": "Opiekun" },
     "supporters.contact_consent": { "label": "Zgoda na kontakt", "options": { "granted": "Udzielona", "not_granted": "Nieudzielona", "unknown": "Nieznana" } },
     "supporters.consent_date": { "label": "Data zgody" },
     "supporters.last_contact_on": { "label": "Ostatni kontakt" },
     "memberships.level": {
       "label": "Rodzaj członkostwa",
-      "options": { "regular": "Zwykłe", "reduced": "Ulgowe", "family": "Rodzinne", "youth": "Młodzieżowe", "supporting": "Wspierające", "honorary": "Honorowe" }
+      "options": { "regular": "Zwyczajne", "reduced": "Ulgowe", "family": "Rodzinne", "youth": "Młodzieżowe", "supporting": "Wspierające", "honorary": "Honorowe" }
     },
     "memberships.fee": { "label": "Składka" },
     "memberships.billing_cycle": {
@@ -45,22 +45,22 @@
       "label": "Stan składki",
       "options": { "open": "Do zapłaty", "paid": "Zapłacona", "reminded": "Po przypomnieniu", "overdue": "Zaległa", "waived": "Umorzona" }
     },
-    "memberships.mandate_on_file": { "label": "Zgoda na polecenie zapłaty w aktach" },
-    "memberships.started_on": { "label": "Początek dnia" },
+    "memberships.mandate_on_file": { "label": "Zgoda na polecenie zapłaty złożona" },
+    "memberships.started_on": { "label": "Data rozpoczęcia" },
     "memberships.renewal_due": { "label": "Termin składki" },
     "memberships.end_reason": {
       "label": "Powód zakończenia",
       "options": { "moved_away": "Przeprowadzka", "cost": "Koszt", "lost_interest": "Utrata zainteresowania", "dissatisfied": "Niezadowolenie", "unpaid_fees": "Niezapłacone składki", "other": "Inny" }
     },
-    "gifts.received_on": { "label": "Otrzymano dnia" },
+    "gifts.received_on": { "label": "Data otrzymania" },
     "gifts.amount": { "label": "Kwota" },
     "gifts.gift_type": {
       "label": "Rodzaj darowizny",
-      "options": { "one_off": "Jednorazowa", "recurring": "Cykliczna", "pledge_payment": "Wpłata z zobowiązania", "in_kind": "Rzeczowa", "legacy": "Zapis" }
+      "options": { "one_off": "Jednorazowa", "recurring": "Cykliczna", "pledge_payment": "Wpłata z zobowiązania", "in_kind": "Rzeczowa", "legacy": "Zapis testamentowy" }
     },
     "gifts.fund": {
       "label": "Przeznaczenie",
-      "options": { "unrestricted": "Dowolne", "restricted_project": "Konkretny projekt", "appeal": "Zbiórka", "event": "Wydarzenie", "in_memory": "Ku pamięci" }
+      "options": { "unrestricted": "Cel dowolny", "restricted_project": "Konkretny projekt", "appeal": "Zbiórka", "event": "Wydarzenie", "in_memory": "Ku pamięci" }
     },
     "gifts.acknowledgement_status": {
       "label": "Podziękowanie",
@@ -72,12 +72,12 @@
     },
     "gift_opportunities.kind": {
       "label": "Rodzaj",
-      "options": { "major_gift": "Duża darowizna", "grant": "Grant", "sponsorship": "Sponsoring firmowy", "legacy": "Zapis", "campaign_pledge": "Zobowiązanie w kampanii" }
+      "options": { "major_gift": "Duża darowizna", "grant": "Grant", "sponsorship": "Sponsoring firmowy", "legacy": "Zapis testamentowy", "campaign_pledge": "Zobowiązanie w kampanii" }
     },
-    "gift_opportunities.solicitor": { "label": "Prosi" },
+    "gift_opportunities.solicitor": { "label": "Kto prosi o wsparcie" },
     "gift_opportunities.ask_date": { "label": "Data prośby" },
-    "gift_opportunities.decision_on": { "label": "Decyzja dnia" },
-    "gift_opportunities.report_due": { "label": "Sprawozdanie do dnia" },
+    "gift_opportunities.decision_on": { "label": "Data decyzji" },
+    "gift_opportunities.report_due": { "label": "Termin sprawozdania" },
     "actions.kind": {
       "label": "Rodzaj",
       "options": {
@@ -110,7 +110,7 @@
   },
   "widgets": {
     "memberships_by_status": { "title": "Członkostwa wg statusu" },
-    "gifts_per_month": { "title": "Darowizny miesięcznie" },
+    "gifts_per_month": { "title": "Darowizny w poszczególnych miesiącach" },
     "gifts_by_fund": { "title": "Darowizny wg przeznaczenia" },
     "open_pipeline_value": { "title": "Duże darowizny w toku" },
     "renewals_coming": { "title": "Nadchodzące terminy składek" },
@@ -119,7 +119,7 @@
   "knowledgePages": {
     "register_rules": { "title": "Co zawiera rejestr i co zostaje poza nim", "sections": ["Cel i podstawa prawna", "Pola obowiązkowe i dobrowolne", "Zgoda i przechowywanie"] },
     "renewals_and_fees": { "title": "Składki i przypomnienia", "sections": ["Zawiadomienie po 60 i po 30 dniach", "Zaległość i skreślenie zgodnie ze statutem"] },
-    "receipts_and_thanks": { "title": "Podziękowania i potwierdzenia darowizn", "sections": ["Podziękuj w ciągu dwóch dni", "Kiedy potwierdzenie jest możliwe i w jakim wzorze"] }
+    "receipts_and_thanks": { "title": "Podziękowania i potwierdzenia darowizn", "sections": ["Podziękuj w ciągu dwóch dni", "Kiedy potwierdzenie jest możliwe i w jakiej formie"] }
   },
   "rules": {
     "thank_donor": { "title": "Podziękuj darczyńcy, gdy darowizna zostanie zapisana" },
@@ -139,10 +139,10 @@
   "prompt": {
     "intro": "Skonfiguruj rejestr członków i darczyńców w mojej przestrzeni roboczej Customermates: sympatycy, członkostwa ze składką i terminem, darowizny z podziękowaniem i stanem potwierdzenia oraz lejek dużych darowizn i grantów.",
     "questions": [
-      "Czy jesteście stowarzyszeniem, fundacją czy parafią? Macie członków, darczyńców, wolontariuszy?",
-      "Jakich rodzajów członkostwa i jakich składek używacie i jak są pobierane?",
-      "W jakim kraju jesteście zarejestrowani i jakie potwierdzenie darowizny tam wystawiacie?",
-      "Jaki program prowadzi Wasze płatności lub księgowość? Tutaj zapisywane jest tylko odniesienie."
+      "Czy prowadzisz stowarzyszenie, klub, fundację czy parafię? Masz członków, darczyńców, wolontariuszy?",
+      "Jakich rodzajów członkostwa i jakich składek używasz i jak są pobierane?",
+      "W jakim kraju jest zarejestrowana Twoja organizacja i jakie potwierdzenie darowizny tam wystawia?",
+      "Jaki program prowadzi płatności lub księgowość Twojej organizacji? Tutaj zapisujemy tylko link."
     ]
   }
 }

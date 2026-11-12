@@ -1,8 +1,8 @@
 {
   "locale": "pl",
-  "name": "Broker ubezpieczeniowy",
+  "name": "Lejek dla brokera ubezpieczeniowego",
   "summary": "Dwa lejki dla brokera ubezpieczeniowego: nowa sprzedaż od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą oraz sprawa odnowienia dla każdej polisy, która startuje od 120 do 45 dni przed końcem ochrony.",
-  "description": "Prowadź nową sprzedaż i odnowienia obok siebie: szanse od pierwszego zapytania przez analizę potrzeb, zapytania ofertowe, rekomendację i ofertę oraz decyzję do wystawionej polisy, datę udokumentowania rekomendacji przy każdej ofercie oraz polisy z terminem odnowienia, które same otwierają sprawę odnowienia. Szablon przechowuje odwołanie do dokumentacji rekomendacji i do polisy w Twoim systemie, nigdy danych o zdrowiu, szczegółów szkód, danych bankowych ani kopii dokumentów tożsamości. To nie administracja polisami, porównywarka ani kalkulator składek, likwidacja szkód ani rozliczanie prowizji.",
+  "description": "Prowadź nową sprzedaż i odnowienia obok siebie: szanse od pierwszego zapytania przez analizę potrzeb, zapytania ofertowe, rekomendację i ofertę oraz decyzję do wystawionej polisy, datę udokumentowania rekomendacji przy każdej ofercie oraz polisy z terminem odnowienia, które same otwierają sprawę odnowienia. Szablon przechowuje link do dokumentacji rekomendacji i do polisy w Twoim systemie, nigdy danych o zdrowiu, szczegółów szkód, danych bankowych ani kopii dokumentów tożsamości. To nie jest system do administrowania polisami, porównywarka ani kalkulator składek, likwidacja szkód ani rozliczanie prowizji.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Ubezpieczający, potencjalni klienci, decydenci i polecający." },
     "opportunities": { "label": "Szansa sprzedaży", "pluralLabel": "Szanse sprzedaży", "description": "Nowa sprzedaż od pierwszego zapytania do wystawionej polisy lub utraty." },
@@ -12,24 +12,24 @@
   "fields": {
     "contacts.contact_role": { "label": "Rola", "options": { "policyholder": "Ubezpieczający", "prospect": "Potencjalny klient", "decision_maker": "Decydent", "referrer": "Polecający" } },
     "contacts.preferred_channel": { "label": "Preferowany kanał", "options": { "email": "E-mail", "phone": "Telefon", "whatsapp": "WhatsApp", "post": "Poczta" } },
-    "contacts.broker_mandate_on": { "label": "Pełnomocnictwo brokerskie podpisano dnia" },
+    "contacts.broker_mandate_on": { "label": "Data podpisania pełnomocnictwa brokerskiego" },
     "opportunities.stage": {
       "label": "Etap",
-      "options": { "lead": "Zapytanie", "needs_analysis": "Analiza potrzeb", "quotes_requested": "Zapytania ofertowe", "offer_presented": "Rekomendacja i oferta", "awaiting_decision": "Decyzja", "application_submitted": "Wniosek złożony", "bound": "Polisa wystawiona", "lost": "Utracona" }
+      "options": { "lead": "Zapytanie", "needs_analysis": "Analiza potrzeb", "quotes_requested": "Zapytania ofertowe", "offer_presented": "Rekomendacja i oferta", "awaiting_decision": "Czeka na decyzję", "application_submitted": "Wniosek złożony", "bound": "Polisa wystawiona", "lost": "Utracona" }
     },
     "opportunities.line": {
       "label": "Rodzaj ubezpieczenia",
       "options": { "motor": "Komunikacyjne", "home_contents": "Dom i mieszkanie", "liability": "OC", "legal_expenses": "Ochrona prawna", "life_pension": "Na życie i emerytalne", "health": "Zdrowotne", "commercial_property": "Majątek firmy", "commercial_liability": "OC firmy", "cyber": "Cyber", "other": "Inne" }
     },
     "opportunities.source": { "label": "Źródło", "options": { "referral": "Polecenie", "web_form": "Formularz na stronie", "comparison_portal": "Porównywarka", "existing_client": "Obecny klient", "partner": "Partner", "event": "Wydarzenie" } },
-    "opportunities.needs_analysis_on": { "label": "Analiza potrzeb dnia" },
-    "opportunities.advice_documented_on": { "label": "Rekomendację udokumentowano dnia" },
+    "opportunities.needs_analysis_on": { "label": "Data analizy potrzeb" },
+    "opportunities.advice_documented_on": { "label": "Data udokumentowania rekomendacji" },
     "opportunities.advice_record_ref": { "label": "Link do dokumentacji rekomendacji" },
     "opportunities.decision_expected": { "label": "Spodziewana decyzja" },
-    "opportunities.next_step_due": { "label": "Następny krok do" },
+    "opportunities.next_step_due": { "label": "Termin następnego kroku" },
     "opportunities.lost_reason": {
       "label": "Powód utraty",
-      "options": { "price": "Cena", "coverage_not_matching": "Niedopasowany zakres ochrony", "stayed_with_current": "Został przy obecnym ubezpieczycielu", "no_response": "Brak odpowiedzi", "declined_by_carrier": "Odrzucone przez ubezpieczyciela", "timing": "Termin" }
+      "options": { "price": "Cena", "coverage_not_matching": "Niedopasowany zakres ochrony", "stayed_with_current": "Klient został przy obecnym ubezpieczycielu", "no_response": "Brak odpowiedzi", "declined_by_carrier": "Odrzucone przez ubezpieczyciela", "timing": "Nieodpowiedni moment" }
     },
     "opportunities.producer": { "label": "Opiekun" },
     "policies.policy_ref": { "label": "Numer polisy" },
@@ -48,10 +48,10 @@
       "options": { "upcoming": "Nadchodzące", "review_started": "Przegląd rozpoczęty", "market_check": "Sprawdzenie rynku", "offer_sent": "Oferta wysłana", "awaiting_client": "Czeka na klienta", "renewed": "Odnowiona", "lapsed": "Nieodnowiona" }
     },
     "renewals.renewal_date": { "label": "Termin odnowienia" },
-    "renewals.offer_sent_on": { "label": "Ofertę wysłano dnia" },
-    "renewals.decision_on": { "label": "Klient zdecydował dnia" },
+    "renewals.offer_sent_on": { "label": "Data wysłania oferty" },
+    "renewals.decision_on": { "label": "Data decyzji klienta" },
     "renewals.premium_change_percent": { "label": "Zmiana składki (%)" },
-    "renewals.advice_documented_on": { "label": "Rekomendację udokumentowano dnia" },
+    "renewals.advice_documented_on": { "label": "Data udokumentowania rekomendacji" },
     "renewals.lost_reason": {
       "label": "Powód utraty",
       "options": { "price": "Cena", "switched_broker": "Zmienił brokera", "switched_carrier": "Zmienił ubezpieczyciela", "business_closed": "Firma zamknięta", "no_response": "Brak odpowiedzi", "other": "Inny" }
@@ -84,27 +84,27 @@
     "offers_no_advice": { "title": "Oferty bez dokumentacji rekomendacji" },
     "renewals_by_stage": { "title": "Otwarte odnowienia według etapu" },
     "active_premium": { "title": "Składka roczna aktywnych polis" },
-    "lost_reasons": { "title": "Dlaczego szanse sprzedaży zostały utracone" }
+    "lost_reasons": { "title": "Powody utraty szans" }
   },
   "knowledgePages": {
-    "operating_guide": { "title": "Jak działa biurko brokera", "sections": ["Dwa lejki: nowa sprzedaż i odnowienia", "Kto odpowiada za który etap i zasada jednego zadania z terminem na otwarty element"] },
-    "advice_documentation": { "title": "Analiza potrzeb i dokumentacja rekomendacji", "sections": ["O co pytamy i co zapisujemy przed ofertą", "Gdzie jest dokumentacja: tutaj zapisywane jest tylko odwołanie"] },
+    "operating_guide": { "title": "Jak działa biuro brokerskie", "sections": ["Dwa lejki: nowa sprzedaż i odnowienia", "Kto odpowiada za który etap i zasada jednego zadania z terminem na otwarty element"] },
+    "advice_documentation": { "title": "Analiza potrzeb i dokumentacja rekomendacji", "sections": ["O co pytamy i co zapisujemy przed ofertą", "Gdzie jest dokumentacja: tutaj zapisujemy tylko link"] },
     "renewal_playbook": { "title": "Przewodnik po odnowieniu", "sections": ["Firmy od 120 dni, klienci indywidualni od 45 dni przed terminem", "Przegląd, sprawdzenie rynku, oferta i decyzja przed terminem wypowiedzenia"] },
-    "policy_data_rules": { "title": "Dane polis: co zostaje w systemie brokera", "sections": ["Stan polisy i rozliczenia prowizji zostają w systemie brokera", "Co ta przestrzeń przechowuje, a czego nigdy"] }
+    "policy_data_rules": { "title": "Dane polis: co zostaje w systemie brokera", "sections": ["Stan polisy i rozliczenia prowizji zostają w systemie brokera", "Co przechowuje ta przestrzeń robocza, a czego nigdy"] }
   },
   "rules": {
-    "enquiry_form_records": { "title": "Utworzyć kontakt i szansę sprzedaży po wysłaniu formularza zapytania" },
-    "respond_new_lead": { "title": "Odpowiedzieć na nowe zapytanie następnego dnia" },
-    "needs_analysis_task": { "title": "Udokumentować rekomendację w ciągu 3 dni, gdy szansa osiągnie analizę potrzeb" },
-    "quotes_chase": { "title": "Ponaglić ubezpieczycieli 3 dni po zapytaniach ofertowych" },
-    "offer_follow_up": { "title": "Przypomnieć o ofercie dzień po jej przedstawieniu" },
-    "bound_welcome": { "title": "Zadzwonić do klienta tydzień po wystawieniu polisy" },
-    "renewal_commercial": { "title": "Otworzyć sprawę odnowienia 120 dni przed terminem aktywnej polisy firmowej" },
-    "renewal_personal": { "title": "Otworzyć sprawę odnowienia 45 dni przed terminem aktywnej polisy indywidualnej" },
-    "renewal_review_task": { "title": "Przejrzeć odnowienie w ciągu tygodnia od otwarcia sprawy" },
-    "renewal_offer_chase": { "title": "Powiadomić opiekuna, gdy oferta odnowienia czeka na klienta 7 dni" },
-    "decision_deadline_notice": { "title": "Powiadomić opiekuna 30 dni przed terminem, by potwierdzić decyzję klienta" },
-    "unpaid_premium_notice": { "title": "Napisać do klienta, gdy system brokera zgłasza nieopłaconą składkę" }
+    "enquiry_form_records": { "title": "Utwórz kontakt i szansę sprzedaży po wysłaniu formularza" },
+    "respond_new_lead": { "title": "Odpowiedz na nowe zapytanie następnego dnia" },
+    "needs_analysis_task": { "title": "Udokumentuj rekomendację w ciągu 3 dni, gdy szansa trafi na etap analizy potrzeb" },
+    "quotes_chase": { "title": "Ponagl ubezpieczycieli 3 dni po zapytaniach ofertowych" },
+    "offer_follow_up": { "title": "Przypomnij o ofercie dzień po jej przedstawieniu" },
+    "bound_welcome": { "title": "Zadzwoń do klienta tydzień po wystawieniu polisy" },
+    "renewal_commercial": { "title": "Otwórz sprawę odnowienia 120 dni przed terminem aktywnej polisy firmowej" },
+    "renewal_personal": { "title": "Otwórz sprawę odnowienia 45 dni przed terminem aktywnej polisy indywidualnej" },
+    "renewal_review_task": { "title": "Przejrzyj odnowienie w ciągu tygodnia od otwarcia sprawy" },
+    "renewal_offer_chase": { "title": "Powiadom opiekuna, gdy oferta odnowienia czeka na klienta 7 dni" },
+    "decision_deadline_notice": { "title": "Powiadom opiekuna 30 dni przed terminem, by potwierdzić decyzję klienta" },
+    "unpaid_premium_notice": { "title": "Napisz do klienta, gdy system brokera zgłasza nieopłaconą składkę" }
   },
   "acceptanceChecks": {
     "opportunity_stage_field": "Każda szansa sprzedaży ma etap.",
@@ -114,11 +114,11 @@
     "advice_documentation_page": "Baza wiedzy zawiera stronę o dokumentacji rekomendacji."
   },
   "prompt": {
-    "intro": "Skonfiguruj w moim workspace Customermates lejek dla brokera ubezpieczeniowego: nowa sprzedaż od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą, polisy z terminem odnowienia i sprawa odnowienia dla każdej oraz zaplanowane przypomnienia. Nie zapisuj danych o zdrowiu, szczegółów szkód ani kopii dokumentów tożsamości.",
+    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates lejek dla brokera ubezpieczeniowego: nowa sprzedaż od zapytania do wystawionej polisy z udokumentowaną rekomendacją przed ofertą, polisy z terminem odnowienia i sprawa odnowienia dla każdej oraz zaplanowane kolejne kroki. Nie zapisuj danych o zdrowiu, szczegółów szkód ani kopii dokumentów tożsamości.",
     "questions": [
-      "Jakie rodzaje ubezpieczeń pośredniczysz i obsługujesz firmy, klientów indywidualnych czy obu?",
+      "W jakich rodzajach ubezpieczeń pośredniczysz i czy obsługujesz firmy, klientów indywidualnych, czy obu?",
       "Ile czasu przed terminem zaczynasz odnowienie i jaki jest zwykły okres wypowiedzenia?",
-      "Gdzie trzymasz dokumentację rekomendacji i dane polis? Tutaj zapisywane są tylko linki.",
+      "Gdzie przechowujesz dokumentację rekomendacji i dane polis? Tutaj zapisujemy tylko linki.",
       "W jakim kraju działasz i jakie obowiązki doradcze Cię dotyczą?"
     ]
   }

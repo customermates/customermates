@@ -1,12 +1,12 @@
 {
   "locale": "pl",
   "name": "Przyjmowanie klientów w kancelarii",
-  "summary": "Przyjmowanie klientów w stałych krokach: zapytanie, weryfikacja konfliktu interesów, konsultacja, oferta, umowa i pełnomocnictwo z zaliczką oraz pisemne pismo dla każdego, kto nie zostaje klientem.",
-  "description": "Przyjmuj klientów w stałej kolejności: każde zapytanie zapisuje dziedzinę prawa, najbliższy znany termin, weryfikację konfliktu interesów i kto ją wykonał, potem konsultację, ofertę i podpisaną umowę. Lista stron wspiera weryfikację konfliktu, sprawy mają datę pełnomocnictwa i datę przechowywania, a odrzuceni lub milczący potencjalni klienci dostają pisemne pismo o niepodjęciu sprawy. Narzędzie zapisuje odwołanie do sprawy, nigdy okoliczności sprawy, treści objętych tajemnicą, danych o zdrowiu ani danych drugiej strony. To nie zarządzanie sprawami, rozliczanie środków klientów, źródło terminów procesowych ani fakturowanie.",
+  "summary": "Przyjmowanie klientów w stałych krokach: zapytanie, weryfikacja konfliktu interesów, konsultacja, oferta, umowa i pełnomocnictwo z zaliczką oraz pismo o niepodjęciu sprawy dla każdego, kto nie zostaje klientem.",
+  "description": "Przyjmuj klientów w stałej kolejności: każde zapytanie zapisuje dziedzinę prawa, najbliższy znany termin, weryfikację konfliktu interesów i kto ją wykonał, potem konsultację, ofertę i podpisaną umowę. Lista stron wspiera weryfikację konfliktu, sprawy mają datę pełnomocnictwa i datę przechowywania, a odrzuceni lub milczący potencjalni klienci dostają pismo o niepodjęciu sprawy. Narzędzie zapisuje odnośnik do sprawy, nigdy okoliczności sprawy, treści objętych tajemnicą zawodową, danych o zdrowiu ani danych drugiej strony. To nie jest system do zarządzania sprawami, rozliczania środków klientów, śledzenia terminów procesowych ani fakturowania.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Potencjalni klienci, klienci, byli klienci i polecający." },
     "inquiries": { "label": "Zapytanie", "pluralLabel": "Zapytania", "description": "Jedna prośba o pomoc prawną, od pierwszego kontaktu do sprawy lub odmowy." },
-    "matters": { "label": "Sprawa", "pluralLabel": "Sprawy", "description": "Odwołanie do sprawy w systemie kancelarii, z datą pełnomocnictwa i datą przechowywania." },
+    "matters": { "label": "Sprawa", "pluralLabel": "Sprawy", "description": "Odnośnik do sprawy w systemie kancelarii, z datą pełnomocnictwa i datą przechowywania." },
     "parties": { "label": "Strona", "pluralLabel": "Strony", "description": "Strony przeciwne i powiązane, przechowywane na potrzeby weryfikacji konfliktu." }
   },
   "fields": {
@@ -14,40 +14,40 @@
     "contacts.preferred_channel": { "label": "Preferowany kanał", "options": { "email": "E-mail", "phone": "Telefon", "whatsapp": "WhatsApp", "post": "Poczta" } },
     "inquiries.stage": {
       "label": "Etap",
-      "options": { "new_inquiry": "Zapytanie", "screening": "Weryfikacja konfliktu interesów", "consultation": "Konsultacja", "fee_proposal_sent": "Oferta wysłana", "agreement_signed": "Umowa i pełnomocnictwo podpisane", "matter_opened": "Sprawa otwarta", "declined_by_firm": "Odrzucone", "not_retained": "Bez zlecenia" }
+      "options": { "new_inquiry": "Zapytanie", "screening": "Weryfikacja konfliktu interesów", "consultation": "Konsultacja", "fee_proposal_sent": "Oferta wysłana", "agreement_signed": "Umowa i pełnomocnictwo podpisane", "matter_opened": "Sprawa otwarta", "declined_by_firm": "Odmówiono przyjęcia", "not_retained": "Bez zlecenia" }
     },
     "inquiries.practice_area": {
       "label": "Dziedzina prawa",
       "options": { "employment": "Prawo pracy", "family": "Prawo rodzinne", "civil_contract": "Prawo cywilne i umowy", "real_estate": "Nieruchomości", "corporate": "Prawo spółek", "criminal": "Prawo karne", "immigration": "Prawo imigracyjne", "inheritance": "Spadki", "administrative": "Prawo administracyjne", "other": "Inna" }
     },
-    "inquiries.source": { "label": "Źródło", "options": { "web_form": "Formularz na stronie", "phone": "Telefon", "referral": "Polecenie", "whatsapp": "WhatsApp", "walk_in": "Wizyta w kancelarii", "directory": "Katalog" } },
+    "inquiries.source": { "label": "Źródło", "options": { "web_form": "Formularz na stronie", "phone": "Telefon", "referral": "Polecenie", "whatsapp": "WhatsApp", "walk_in": "Wizyta w kancelarii", "directory": "Katalog prawników" } },
     "inquiries.urgent_deadline": { "label": "Najbliższy znany termin" },
     "inquiries.deadline_source": { "label": "Skąd pochodzi termin" },
     "inquiries.conflict_check": {
       "label": "Weryfikacja konfliktu interesów",
-      "options": { "pending": "Do wykonania", "cleared": "Brak konfliktu", "cleared_with_waiver": "Wyjaśniony za zgodą", "conflict_found": "Wykryto konflikt" }
+      "options": { "pending": "Do wykonania", "cleared": "Brak konfliktu", "cleared_with_waiver": "Dopuszczone za zgodą", "conflict_found": "Wykryto konflikt" }
     },
-    "inquiries.consultation_on": { "label": "Konsultacja" },
-    "inquiries.fee_model": { "label": "Wynagrodzenie", "options": { "hourly": "Godzinowo", "fixed": "Ryczałt", "success_fee": "Za wynik", "insurance_or_legal_aid": "Ubezpieczenie lub pomoc prawna z urzędu", "mixed": "Mieszane" } },
-    "inquiries.advance_requested_on": { "label": "Zaliczkę zażądano dnia" },
-    "inquiries.advance_received_on": { "label": "Zaliczkę otrzymano dnia" },
-    "inquiries.responsible_lawyer": { "label": "Prowadzący prawnik" },
-    "inquiries.next_step_due": { "label": "Następny krok do" },
+    "inquiries.consultation_on": { "label": "Data konsultacji" },
+    "inquiries.fee_model": { "label": "Model wynagrodzenia", "options": { "hourly": "Godzinowo", "fixed": "Ryczałt", "success_fee": "Za wynik", "insurance_or_legal_aid": "Ubezpieczenie lub pomoc prawna z urzędu", "mixed": "Mieszane" } },
+    "inquiries.advance_requested_on": { "label": "Data żądania zaliczki" },
+    "inquiries.advance_received_on": { "label": "Data otrzymania zaliczki" },
+    "inquiries.responsible_lawyer": { "label": "Prawnik prowadzący" },
+    "inquiries.next_step_due": { "label": "Termin następnego kroku" },
     "inquiries.lost_reason": {
       "label": "Dlaczego bez zlecenia",
-      "options": { "conflict": "Konflikt interesów", "outside_practice_area": "Poza naszymi dziedzinami", "capacity": "Brak mocy przerobowych", "time_limit_referred_out": "Termin, skierowany gdzie indziej", "fee": "Wynagrodzenie", "chose_other_lawyer": "Wybrał innego prawnika", "no_response": "Brak odpowiedzi", "self_resolved": "Sprawa rozwiązała się sama" }
+      "options": { "conflict": "Konflikt interesów", "outside_practice_area": "Poza naszymi dziedzinami", "capacity": "Brak mocy przerobowych", "time_limit_referred_out": "Pilny termin, skierowano do innej kancelarii", "fee": "Wysokość wynagrodzenia", "chose_other_lawyer": "Klient wybrał innego prawnika", "no_response": "Brak odpowiedzi", "self_resolved": "Sprawa rozwiązała się sama" }
     },
-    "inquiries.non_engagement_letter_on": { "label": "Pismo o niepodjęciu sprawy wysłano dnia" },
-    "matters.matter_ref": { "label": "Odwołanie w systemie kancelarii" },
+    "inquiries.non_engagement_letter_on": { "label": "Data wysłania pisma o niepodjęciu sprawy" },
+    "matters.matter_ref": { "label": "Numer sprawy w systemie kancelarii" },
     "matters.status": { "label": "Status", "options": { "open": "Otwarta", "on_hold": "Wstrzymana", "closed": "Zamknięta" } },
-    "matters.opened_on": { "label": "Otwarto dnia" },
+    "matters.opened_on": { "label": "Data otwarcia" },
     "matters.poa_valid_until": { "label": "Pełnomocnictwo ważne do" },
     "matters.retention_until": { "label": "Przechowuj do" },
     "parties.party_role": { "label": "Rola", "options": { "opposing_party": "Strona przeciwna", "related_party": "Strona powiązana", "co_client": "Współklient", "insurer": "Ubezpieczyciel", "third_party": "Osoba trzecia" } },
-    "parties.party_type": { "label": "Typ", "options": { "person": "Osoba", "organisation": "Organizacja" } },
+    "parties.party_type": { "label": "Typ", "options": { "person": "Osoba fizyczna", "organisation": "Firma lub organizacja" } },
     "actions.kind": {
       "label": "Rodzaj",
-      "options": { "reply": "Odpowiedzieć", "conflict_check": "Wykonać weryfikację konfliktu", "consultation_prep": "Przygotować konsultację", "fee_proposal": "Wysłać ofertę", "follow_up": "Przypomnieć", "advance": "Zażądać zaliczki", "letter": "Napisać pismo", "other": "Inne" }
+      "options": { "reply": "Odpowiedzieć", "conflict_check": "Wykonać weryfikację konfliktu", "consultation_prep": "Przygotować konsultację", "fee_proposal": "Wysłać ofertę", "follow_up": "Przypomnieć o sobie", "advance": "Poprosić o zaliczkę", "letter": "Napisać pismo", "other": "Inne" }
     }
   },
   "relationships": {
@@ -74,28 +74,28 @@
     "consultations_coming": { "title": "Nadchodzące konsultacje" },
     "conflicts_pending": { "title": "Weryfikacje konfliktu do wykonania" },
     "inquiries_by_source": { "title": "Zapytania według źródła" },
-    "lost_reasons": { "title": "Dlaczego zapytania nie stały się sprawami" },
+    "lost_reasons": { "title": "Powody braku zlecenia" },
     "poa_expiring": { "title": "Wygasające pełnomocnictwa" }
   },
   "knowledgePages": {
     "operating_guide": { "title": "Jak działa przyjmowanie klientów", "sections": ["Pierwszy kontakt i pytania wstępne", "Kto odpowiada i w jakim czasie"] },
     "conflict_check": { "title": "Procedura weryfikacji konfliktu interesów", "sections": ["Co sprawdzamy: strony, klientów i byłych klientów", "Jak zapisujemy wynik i co robimy przy konflikcie"] },
-    "time_limit_triage": { "title": "Sortowanie pilnych terminów", "sections": ["Pytanie o najbliższy znany termin przy pierwszym kontakcie", "Przyjąć, skierować gdzie indziej albo ostrzec pisemnie"] },
+    "time_limit_triage": { "title": "Ocena pilnych terminów", "sections": ["Pytanie o najbliższy znany termin przy pierwszym kontakcie", "Przyjąć sprawę, skierować do innej kancelarii albo ostrzec pisemnie"] },
     "engagement_checklist": { "title": "Lista kontrolna umowy i pełnomocnictwa", "sections": ["Wynagrodzenie, pełnomocnictwo i zaliczka", "Pisma o niepodjęciu sprawy i zakończeniu"] }
   },
   "rules": {
-    "inquiry_form_records": { "title": "Utworzyć kontakt i zapytanie po wysłaniu formularza zapytania" },
-    "acknowledge_inquiry": { "title": "Odpowiedzieć na nowe zapytanie następnego dnia i zaproponować konsultację" },
-    "urgent_deadline_alert": { "title": "Powiadomić prowadzącego 14 dni przed terminem otwartego zapytania" },
-    "conflict_check_task": { "title": "Wykonać weryfikację konfliktu dzień po wejściu w ten etap" },
-    "fee_proposal_task": { "title": "Wysłać ofertę dzień po konsultacji" },
-    "proposal_follow_up": { "title": "Przypomnieć o ofercie 3 dni po jej wysłaniu" },
-    "agreement_signed_set": { "title": "Zażądać zaliczki 2 dni po podpisaniu umowy" },
-    "advance_chase": { "title": "Powiadomić prowadzącego, gdy zaliczki nadal brak 7 dni po żądaniu" },
-    "letter_declined": { "title": "Napisać pismo o niepodjęciu sprawy, gdy kancelaria odrzuca zapytanie" },
-    "letter_not_retained": { "title": "Napisać pismo o niepodjęciu sprawy, gdy potencjalny klient nie zleca sprawy" },
-    "poa_renewal": { "title": "Odnowić pełnomocnictwo 30 dni przed wygaśnięciem" },
-    "closing_letter": { "title": "Napisać pismo kończące tydzień po zamknięciu sprawy" }
+    "inquiry_form_records": { "title": "Utwórz kontakt i zapytanie po wysłaniu formularza" },
+    "acknowledge_inquiry": { "title": "Odpowiedz na nowe zapytanie następnego dnia i zaproponuj konsultację" },
+    "urgent_deadline_alert": { "title": "Powiadom prawnika prowadzącego 14 dni przed terminem otwartego zapytania" },
+    "conflict_check_task": { "title": "Wykonaj weryfikację konfliktu dzień po tym, jak zapytanie trafi na ten etap" },
+    "fee_proposal_task": { "title": "Wyślij ofertę dzień po konsultacji" },
+    "proposal_follow_up": { "title": "Przypomnij o ofercie 3 dni po jej wysłaniu" },
+    "agreement_signed_set": { "title": "Poproś o zaliczkę 2 dni po podpisaniu umowy" },
+    "advance_chase": { "title": "Powiadom prawnika prowadzącego, gdy zaliczki nadal brak 7 dni po prośbie o wpłatę" },
+    "letter_declined": { "title": "Napisz pismo o niepodjęciu sprawy, gdy kancelaria odmawia przyjęcia zapytania" },
+    "letter_not_retained": { "title": "Napisz pismo o niepodjęciu sprawy, gdy potencjalny klient nie zleca sprawy" },
+    "poa_renewal": { "title": "Odnów pełnomocnictwo 30 dni przed wygaśnięciem" },
+    "closing_letter": { "title": "Napisz pismo kończące tydzień po zamknięciu sprawy" }
   },
   "acceptanceChecks": {
     "stage_field": "Każde zapytanie ma jeden z ośmiu etapów.",
@@ -105,12 +105,12 @@
     "conflict_check_page": "Baza wiedzy zawiera stronę o weryfikacji konfliktu interesów."
   },
   "prompt": {
-    "intro": "Skonfiguruj w moim workspace Customermates przyjmowanie klientów w kancelarii: zapytania z weryfikacją konfliktu interesów, najbliższym znanym terminem, konsultacją, ofertą i podpisaną umową, sprawy jako odwołania do systemu kancelarii, strony na potrzeby weryfikacji konfliktu i pisemne pisma o niepodjęciu sprawy. Nie zapisuj okoliczności sprawy ani treści objętych tajemnicą.",
+    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates przyjmowanie klientów w kancelarii: zapytania z weryfikacją konfliktu interesów, najbliższym znanym terminem, konsultacją, ofertą i podpisaną umową, sprawy jako odnośniki do systemu kancelarii, strony na potrzeby weryfikacji konfliktu i pisma o niepodjęciu sprawy. Nie zapisuj okoliczności sprawy ani treści objętych tajemnicą.",
     "questions": [
       "Jakie dziedziny prawa przyjmujesz, a jakie kierujesz do innych?",
       "Jak wykonujesz weryfikację konfliktu interesów i kto ją zatwierdza?",
       "Jakie modele wynagrodzenia i jaką zaliczkę stosujesz?",
-      "Z jakiego systemu kancelarii korzystasz? Tutaj zapisywane jest tylko odwołanie do sprawy."
+      "Z jakiego systemu kancelarii korzystasz? Tutaj zapisujemy tylko odnośnik do sprawy."
     ]
   }
 }
