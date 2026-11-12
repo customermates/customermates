@@ -904,6 +904,7 @@
     "paused": "En pause",
     "removeQuestion": "Retirer la question",
     "saved": "Page de réservation enregistrée",
+    "selfHostedNote": "Les pages de réservation utilisent la connexion d’agenda hébergée et ne sont pas disponibles en auto-hébergement.",
     "unavailableField": "Champ devenu indisponible",
     "upcoming": "{count, plural, =0 {Aucune réservation à venir} one {# réservation à venir} other {# réservations à venir}}",
     "weekdays": {
@@ -2977,7 +2978,6 @@
     "add": "Ajouter un webhook entrant",
     "addRow": "Ajouter un champ",
     "clearSecret": "Supprimer le secret de signature",
-    "close": "Fermer",
     "deleted": "Webhook entrant supprimé",
     "deliveries": "Livraisons",
     "deliveriesTitle": "Livraisons de {name}",
@@ -3021,7 +3021,6 @@
     "rotated": "Adresse remplacée. Mettez-la à jour dans l'autre système.",
     "sample": "Exemple de corps (JSON)",
     "sampleInvalid": "L'exemple n'est pas un objet JSON valide.",
-    "save": "Enregistrer",
     "saved": "Webhook entrant enregistré",
     "security": "Vérification de la signature",
     "signatureHeader": "En-tête de signature",
@@ -3514,7 +3513,7 @@
       "description": "La cloche affiche toujours tout. Choisissez ici à quelle fréquence chaque type vous parvient aussi par e-mail.",
       "title": "E-mails de notification"
     },
-    "title": "Notifications",
+    "title": "Vos notifications",
     "unread": "Non lue"
   },
   "NotificationEmail": {
@@ -4243,8 +4242,8 @@
       "redirectUrl": "Rediriger plutôt vers cette adresse (facultatif)",
       "required": "Obligatoire",
       "requiredByList": "Exigé par la liste",
-      "save": "Enregistrer le formulaire",
       "saved": "Formulaire enregistré",
+      "saveForm": "Enregistrer le formulaire",
       "sectionConsent": "Consentement",
       "sectionFields": "Questions",
       "sectionPage": "Page",

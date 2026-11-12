@@ -76,7 +76,7 @@ function useRecordHeaderActions({ store, name, deletion, layout, onOpenPage }: H
   const customizing = layout?.isPersonalizing === true;
   const actions: AppModalActionProps[] = [
     ...(askAi && !customizing ? [askAi] : []),
-    ...(record && !customizing && !store.trash && store.rootStore.appMode !== "self-hosted"
+    ...(record && !customizing && !store.trash
       ? [
           {
             id: "schedule-meeting",

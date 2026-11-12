@@ -29,17 +29,17 @@ type Props = {
   links: BookingLinkDto[];
   setup: BookingSetup;
   locked?: boolean;
-  demo?: boolean;
+  unavailable?: "demo" | "selfHosted";
 };
 
-const BookingLinksPageViewContent = observer(function BookingLinksPageView({ links, setup, locked, demo }: Props) {
+const BookingLinksPageViewContent = observer(function BookingLinksPageView({ links, setup, locked, unavailable }: Props) {
   const t = useTranslations();
   const router = useRouter();
   const root = useRootStore();
   const store = root.bookingLinkModalStore;
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const refresh = useMemo(() => () => router.refresh(), [router]);
-  const disabled = Boolean(locked || demo || setup.blockedReason);
+  const disabled = Boolean(locked || unavailable || setup.blockedReason);
 
   useEffect(() => {
     store.configure(setup, refresh);
@@ -67,9 +67,15 @@ const BookingLinksPageViewContent = observer(function BookingLinksPageView({ lin
     <div className="flex flex-col gap-4" data-booking-page="">
       <p className="text-sm text-muted-foreground">{t("Booking.description")}</p>
 
-      {demo ? <Alert description={t("Booking.demoNote")} role="status" variant="info" /> : null}
+      {unavailable ? (
+        <Alert
+          description={unavailable === "demo" ? t("Booking.demoNote") : t("Booking.selfHostedNote")}
+          role="status"
+          variant="info"
+        />
+      ) : null}
 
-      {!demo && !locked && setup.blockedReason === "noCalendar" ? (
+      {!unavailable && !locked && setup.blockedReason === "noCalendar" ? (
         <Alert
           action={
             <ConnectChannelButton
@@ -84,7 +90,7 @@ const BookingLinksPageViewContent = observer(function BookingLinksPageView({ lin
         />
       ) : null}
 
-      {!demo && !locked && setup.blockedReason === "needsReconnect" ? (
+      {!unavailable && !locked && setup.blockedReason === "needsReconnect" ? (
         <Alert description={t("ScheduleMeeting.blocked.needsReconnect")} role="status" variant="warning" />
       ) : null}
 

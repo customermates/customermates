@@ -137,11 +137,17 @@ export class ScheduleMeetingModalStore extends BaseModalStore<ScheduleMeetingFor
     try {
       const options = await actionData(meetingOptionsAction(this.record ? { record: this.record } : {}));
       runInAction(() => {
+        const recordTypeId = this.record?.typeId;
+        const followUp = recordTypeId
+          ? options.actionLists.find((list) => list.linkableTypeIds.includes(recordTypeId))
+          : undefined;
         this.options = options;
         this.form = {
           ...this.form,
           calendarId: options.calendars[0]?.id ?? "",
           attendees: options.attendees.map((attendee) => attendee.email),
+          followUpTypeId: followUp?.typeId ?? "",
+          followUpDateFieldId: followUp?.dateFields[0]?.id ?? "",
         };
         this.savedState = { ...this.form };
       });

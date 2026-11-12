@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-
 import { Resource } from "@/generated/prisma";
 
 import { BookingLinksPageView } from "../components/booking-links-page-view";
@@ -16,17 +14,19 @@ import { unwrapPage } from "@/core/validation/next/unwrap-page";
 import { bookingSetup } from "@/ee/calendar/booking-setup";
 import { effectivePlanId, getEntitlements } from "@/ee/subscription/entitlements";
 import { env } from "@/env";
-import { appRedirectHref } from "@/features/auth/next/app-redirect";
 import { requireAccess } from "@/features/auth/next/require";
 
 export default async function BookingLinksPage() {
   await requireAccess({ resource: Resource.inboxMessages });
 
-  if (env.APP_MODE === "self-hosted") redirect(await appRedirectHref("/dashboard"));
-  if (env.APP_MODE === "demo")
+  if (env.APP_MODE !== "cloud")
     return (
       <PageContainer>
-        <BookingLinksPageView demo links={[]} setup={{ calendars: [], lists: [], blockedReason: "noCalendar" }} />
+        <BookingLinksPageView
+          links={[]}
+          setup={{ calendars: [], lists: [], blockedReason: "noCalendar" }}
+          unavailable={env.APP_MODE === "demo" ? "demo" : "selfHosted"}
+        />
       </PageContainer>
     );
 
