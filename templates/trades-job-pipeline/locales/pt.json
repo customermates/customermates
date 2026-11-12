@@ -2,7 +2,7 @@
   "locale": "pt",
   "name": "Obras e serviços",
   "summary": "Um funil para uma empresa de serviços e obras: solicitação, visita técnica, orçamento e retorno, e depois a execução de agendada a paga, com datas de arrependimento, garantia e manutenção em cada serviço.",
-  "description": "Acompanhe um serviço da primeira ligação à última nota: clientes e obras onde você atua, serviços com uma etapa comercial e uma situação da obra separada, validade do orçamento, visita e cronograma, data de arrependimento para contratos com consumidores, fim da garantia e contratos de manutenção que trazem novo trabalho. Guarda o serviço, as datas e o retorno. Não é uma ferramenta de orçamentos e notas, um sistema de escala de equipes nem um controle de horas. As datas legais são campos que você confirma, não aconselhamento jurídico.",
+  "description": "Acompanhe um serviço da primeira ligação à última nota: clientes e obras onde você atua, serviços com uma etapa comercial e um status da obra separado, validade do orçamento, visita e cronograma, data de arrependimento para contratos com consumidores, fim da garantia e contratos de manutenção que trazem novo trabalho. Guarde o serviço, as datas e o retorno. Não é uma ferramenta de orçamentos e notas, um sistema de escala de equipes nem um controle de horas. As datas legais são campos que você confirma, não aconselhamento jurídico.",
   "lists": {
     "customers": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Moradores, proprietários, administradoras de condomínio e empresas para quem você trabalha." },
     "sites": { "label": "Obra", "pluralLabel": "Obras", "description": "O endereço onde o trabalho acontece, que pode ser diferente do cliente." },
@@ -22,7 +22,7 @@
       "options": { "enquiry": "Solicitação", "assessment": "Visita técnica", "to_quote": "Orçamento a elaborar", "quote_sent": "Orçamento enviado", "negotiating": "Negociação", "won": "Aprovado", "lost": "Perdido" }
     },
     "jobs.work_status": {
-      "label": "Situação da obra",
+      "label": "Status da obra",
       "options": { "not_scheduled": "Sem data", "scheduled": "Agendada", "in_progress": "Em andamento", "completed": "Concluída", "invoiced": "Faturada", "paid": "Paga" }
     },
     "jobs.work_type": {
@@ -41,7 +41,7 @@
       "options": { "price": "Preço", "timing": "Prazo", "chose_competitor": "Escolheu a concorrência", "no_response": "Sem resposta", "job_cancelled": "Serviço cancelado", "other": "Outro" }
     },
     "agreements.interval": { "label": "Periodicidade", "options": { "monthly": "Mensal", "quarterly": "Trimestral", "twice_yearly": "Semestral", "yearly": "Anual" } },
-    "agreements.status": { "label": "Situação", "options": { "active": "Ativo", "paused": "Pausado", "ended": "Encerrado" } },
+    "agreements.status": { "label": "Status", "options": { "active": "Ativo", "paused": "Pausado", "ended": "Encerrado" } },
     "agreements.next_due": { "label": "Próxima visita" },
     "agreements.renewal_on": { "label": "Renovação em" },
     "actions.kind": {
@@ -80,7 +80,7 @@
     "jobs_funnel": { "title": "Serviços por etapa" },
     "open_quotes_value": { "title": "Valor dos orçamentos em aberto" },
     "visits_coming": { "title": "Visitas próximas" },
-    "jobs_by_work_status": { "title": "Serviços aprovados por situação da obra" },
+    "jobs_by_work_status": { "title": "Serviços aprovados por status da obra" },
     "lost_reasons": { "title": "Por que serviços são perdidos" },
     "warranties_ending": { "title": "Garantias terminando" },
     "services_due": { "title": "Visitas de manutenção a fazer" }
@@ -88,7 +88,7 @@
   "knowledgePages": {
     "operating_guide": { "title": "Da solicitação ao serviço aprovado", "sections": ["Resposta, visita e orçamento: quem faz o quê e em quanto tempo", "Revisão semanal de orçamentos em aberto, serviços a faturar e notas em atraso"] },
     "quote_checklist": { "title": "Checklist do orçamento", "sections": ["Escopo, exclusões, preço, validade e sinal", "Data de início, condições de pagamento e mensagens de retorno"] },
-    "withdrawal_and_acceptance": { "title": "Arrependimento, entrega e aceite", "sections": ["Direito de arrependimento do consumidor em contratos fora do estabelecimento e serviços de emergência", "Checklist de entrega e aceite"] },
+    "withdrawal_and_acceptance": { "title": "Arrependimento, entrega e aceite", "sections": ["Direito de arrependimento do consumidor em contratos fora do estabelecimento (7 dias, CDC, art. 49)", "Checklist de entrega e aceite"] },
     "warranty_and_service": { "title": "Garantia, defeitos e contratos de manutenção", "sections": ["Como um defeito é tratado", "Oferecer e renovar um contrato de manutenção"] }
   },
   "rules": {
@@ -97,7 +97,7 @@
     "quote_after_visit": { "title": "Enviar o orçamento em até 2 dias depois da visita" },
     "quote_follow_up": { "title": "Fazer o retorno 3 dias depois de enviar um orçamento" },
     "quote_expiring": { "title": "Fazer o retorno 3 dias antes de um orçamento vencer" },
-    "withdrawal_clock": { "title": "Definir o fim do prazo de arrependimento de 14 dias quando um serviço é aprovado" },
+    "withdrawal_clock": { "title": "Definir o fim do prazo de arrependimento quando um serviço é aprovado" },
     "payment_check": { "title": "Conferir um serviço faturado 3 dias depois do vencimento do pagamento" },
     "warranty_check": { "title": "Perguntar sobre defeitos 30 dias antes do fim da garantia" },
     "service_due": { "title": "Marcar a visita de manutenção 30 dias antes do vencimento" },
@@ -105,12 +105,12 @@
   },
   "acceptanceChecks": {
     "stage_field": "Todo serviço tem uma etapa comercial.",
-    "work_status_field": "Todo serviço tem uma situação da obra própria.",
+    "work_status_field": "Todo serviço tem um status da obra próprio.",
     "warranty_field": "Todo serviço registra até quando vai a garantia.",
     "jobs_board_view": "Os serviços abrem como quadro por etapa."
   },
   "prompt": {
-    "intro": "Configure no meu workspace do Customermates um funil para uma empresa de obras e serviços: clientes, obras, serviços com etapa comercial e situação da obra, validade do orçamento, datas de visita e de obra, fim da garantia e contratos de manutenção, com acompanhamentos com data.",
+    "intro": "Configure no meu espaço de trabalho do Customermates um funil para uma empresa de obras e serviços: clientes, obras, serviços com etapa comercial e status da obra, validade do orçamento, datas de visita e de obra, fim da garantia e contratos de manutenção, com acompanhamentos com data.",
     "questions": [
       "Quais serviços você executa e para quem: pessoas físicas, proprietários ou empresas?",
       "Em quanto tempo você responde a uma solicitação e envia o orçamento depois da visita?",

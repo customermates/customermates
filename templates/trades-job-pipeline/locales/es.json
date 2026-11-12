@@ -2,9 +2,9 @@
   "locale": "es",
   "name": "Trabajos para oficios",
   "summary": "Un pipeline para una empresa de oficios: solicitud, visita técnica, presupuesto y seguimiento, y luego el trabajo de programado a pagado, con fechas de desistimiento, garantía y mantenimiento en cada trabajo.",
-  "description": "Siga un trabajo desde la primera llamada hasta la última factura: clientes y obras donde trabaja, trabajos con una fase comercial y un estado de ejecución aparte, validez del presupuesto, visita y calendario, fecha de desistimiento en contratos con consumidores, fin de la garantía y contratos de mantenimiento que traen nuevo trabajo. Guarda el trabajo, las fechas y el seguimiento. No es una herramienta de presupuestos y facturas, un sistema de planificación de equipos ni un control de horas. Las fechas legales son campos que usted confirma, no asesoramiento jurídico.",
+  "description": "Sigue un trabajo desde la primera llamada hasta la última factura: clientes y obras donde trabajas, trabajos con una fase comercial y un estado de ejecución aparte, validez del presupuesto, visita y calendario, fecha de desistimiento en contratos con consumidores, fin de la garantía y contratos de mantenimiento que traen nuevo trabajo. Guarda el trabajo, las fechas y el seguimiento. No es una herramienta de presupuestos y facturas, un sistema de planificación de equipos ni un control de horas. Las fechas legales son campos que tú confirmas, no asesoramiento jurídico.",
   "lists": {
-    "customers": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Particulares, propietarios, administradores de fincas y empresas para los que trabaja." },
+    "customers": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Particulares, propietarios, administradores de fincas y empresas para los que trabajas." },
     "sites": { "label": "Obra", "pluralLabel": "Obras", "description": "La dirección donde se hace el trabajo, que puede ser distinta de la del cliente." },
     "jobs": { "label": "Trabajo", "pluralLabel": "Trabajos", "description": "Un trabajo, de la solicitud a aceptado o perdido, y después durante la ejecución." },
     "agreements": { "label": "Contrato de mantenimiento", "pluralLabel": "Contratos de mantenimiento", "description": "Mantenimiento recurrente de una obra, con la próxima visita y la fecha de renovación." }
@@ -37,7 +37,7 @@
     "jobs.warranty_ends": { "label": "Garantía hasta" },
     "jobs.payment_due": { "label": "Vencimiento del pago" },
     "jobs.lost_reason": {
-      "label": "Motivo de la pérdida",
+      "label": "Motivo de pérdida",
       "options": { "price": "Precio", "timing": "Plazos", "chose_competitor": "Eligió a la competencia", "no_response": "Sin respuesta", "job_cancelled": "Trabajo cancelado", "other": "Otro" }
     },
     "agreements.interval": { "label": "Periodicidad", "options": { "monthly": "Mensual", "quarterly": "Trimestral", "twice_yearly": "Semestral", "yearly": "Anual" } },
@@ -50,7 +50,7 @@
         "call_back": "Devolver la llamada",
         "book_visit": "Concertar una visita",
         "send_quote": "Enviar el presupuesto",
-        "follow_up_quote": "Dar seguimiento al presupuesto",
+        "follow_up_quote": "Hacer seguimiento del presupuesto",
         "confirm_schedule": "Confirmar el calendario",
         "handover": "Entregar y anotar la aceptación",
         "check_payment": "Comprobar el pago",
@@ -95,8 +95,8 @@
     "enquiry_form_records": { "title": "Crear el cliente, la obra y el trabajo cuando se envía el formulario de solicitud" },
     "call_back_new": { "title": "Devolver la llamada a una solicitud nueva el mismo día" },
     "quote_after_visit": { "title": "Enviar el presupuesto en los 2 días siguientes a la visita" },
-    "quote_follow_up": { "title": "Dar seguimiento 3 días después de enviar un presupuesto" },
-    "quote_expiring": { "title": "Dar seguimiento 3 días antes de que venza un presupuesto" },
+    "quote_follow_up": { "title": "Hacer seguimiento 3 días después de enviar un presupuesto" },
+    "quote_expiring": { "title": "Hacer seguimiento 3 días antes de que venza un presupuesto" },
     "withdrawal_clock": { "title": "Fijar el fin del plazo de desistimiento de 14 días cuando se acepta un trabajo" },
     "payment_check": { "title": "Comprobar un trabajo facturado 3 días después del vencimiento del pago" },
     "warranty_check": { "title": "Preguntar por defectos 30 días antes de que termine la garantía" },
@@ -110,12 +110,12 @@
     "jobs_board_view": "Los trabajos se abren como tablero por fase."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de Customermates un pipeline para una empresa de oficios: clientes, obras, trabajos con fase comercial y estado de ejecución, validez del presupuesto, fechas de visita y de obra, fin de garantía y contratos de mantenimiento, con seguimientos con fecha.",
+    "intro": "Configura en mi espacio de trabajo de Customermates un pipeline para una empresa de oficios: clientes, obras, trabajos con fase comercial y estado de ejecución, validez del presupuesto, fechas de visita y de obra, fin de garantía y contratos de mantenimiento, con seguimientos con fecha.",
     "questions": [
-      "¿Qué trabajos realiza y para quién: particulares, propietarios o empresas?",
-      "¿En cuánto tiempo responde a una solicitud y envía el presupuesto tras la visita?",
-      "¿Cuánto tiempo son válidos sus presupuestos y cuánto dura su garantía?",
-      "¿Vende contratos de mantenimiento para trabajo recurrente?"
+      "¿Qué trabajos realizas y para quién: particulares, propietarios o empresas?",
+      "¿En cuánto tiempo respondes a una solicitud y envías el presupuesto tras la visita?",
+      "¿Cuánto tiempo son válidos tus presupuestos y cuánto dura tu garantía?",
+      "¿Vendes contratos de mantenimiento para trabajo recurrente?"
     ]
   }
 }

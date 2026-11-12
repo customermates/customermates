@@ -4,7 +4,7 @@
   "summary": "Un dealflow para un fondo pequeño o un business angel: ocho etapas de la detección al cierre o al rechazo, quién presentó cada operación, un motivo de rechazo y una fecha para retomar.",
   "description": "Sigue startups e inversores desde la detección, el filtrado, las reuniones y la due diligence hasta el term sheet. Cada operación anota quién la presentó, cuánto encaja con la tesis, el papel de lead, un enlace a la data room, el motivo del rechazo y cuándo volver a mirarla. Es una herramienta de relaciones, no una tabla de capitalización, ni una data room legal, ni un modelo de puntuación. Las ponderaciones son aproximadas y tuyas.",
   "lists": {
-    "people": { "label": "Persona", "pluralLabel": "Personas", "description": "Fundadores, inversores, coinversores y presentadores." },
+    "people": { "label": "Persona", "pluralLabel": "Personas", "description": "Fundadores, inversores, coinversores y quienes presentan operaciones." },
     "organizations": { "label": "Organización", "pluralLabel": "Organizaciones", "description": "Startups, fondos, sindicatos y aceleradoras." },
     "deals": { "label": "Operación", "pluralLabel": "Operaciones", "description": "Una oportunidad de inversión de la detección al cierre o al rechazo." }
   },
@@ -15,7 +15,7 @@
     },
     "people.person_role": {
       "label": "Función",
-      "options": { "founder": "Fundador", "investor": "Socio inversor", "angel": "Business angel", "co_investor": "Coinversor", "introducer": "Presentador", "advisor": "Asesor" }
+      "options": { "founder": "Fundador", "investor": "Socio inversor", "angel": "Business angel", "co_investor": "Coinversor", "introducer": "Quien presenta", "advisor": "Asesor" }
     },
     "people.focus_stages": {
       "label": "Etapas de interés",
@@ -56,10 +56,10 @@
     "deals.closed_on": { "label": "Cierre el" },
     "deals.nda_signed": { "label": "NDA firmado" },
     "deals.pass_reason": {
-      "label": "Motivo del rechazo",
+      "label": "Motivo de rechazo",
       "options": { "thesis_mismatch": "Fuera de tesis", "team": "Equipo", "market": "Mercado", "too_early": "Demasiado pronto", "valuation": "Valoración", "timing": "Momento", "other": "Otro" }
     },
-    "deals.revisit_on": { "label": "Retomar el" },
+    "deals.revisit_on": { "label": "Fecha para retomar" },
     "deals.data_room_url": { "label": "Enlace de la data room" },
     "deals.days_to_term_sheet": { "label": "Días de la primera reunión al term sheet" },
     "deals.weighted_value": { "label": "Valor ponderado" },
@@ -74,7 +74,7 @@
         "write_memo": "Escribir el memo",
         "send_pass_note": "Enviar un rechazo",
         "revisit": "Retomar el contacto",
-        "thank_introducer": "Agradecer o recordar al presentador",
+        "thank_introducer": "Agradecer o recordar a quien presentó",
         "other": "Otro"
       }
     }
@@ -110,7 +110,7 @@
     "revisit_deal": { "title": "Retomar una operación rechazada en su fecha" },
     "diligence_checklist": { "title": "Iniciar la lista de due diligence cuando se acuerda un term sheet" },
     "first_check_in_after_close": { "title": "Hacer un seguimiento 30 días después del cierre" },
-    "intro_nudge": { "title": "Recordar al presentador una semana después de pedir la presentación" }
+    "intro_nudge": { "title": "Recordar a quien presentó una semana después de pedir la presentación" }
   },
   "acceptanceChecks": {
     "stage_field": "Cada operación tiene una de las ocho etapas.",
