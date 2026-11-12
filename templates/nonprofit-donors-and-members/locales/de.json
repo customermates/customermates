@@ -2,12 +2,12 @@
   "locale": "de",
   "name": "Mitglieder- und Spendenverwaltung",
   "summary": "Ein Register für Mitglieder, Spender und Ehrenamtliche: Mitgliedschaften mit Fälligkeit, Spenden mit Dank und Zuwendungsbestätigung, dazu eine Pipeline für Großspenden und Förderanträge.",
-  "description": "Für Vereine, gemeinnützige Organisationen und Gemeinden: wer Sie unterstützt und wie, welche Mitgliedschaft bis wann läuft, welche Spende noch einen Dank oder eine Zuwendungsbestätigung braucht und welche Großspende oder Förderung gerade läuft. Es stellt keine Zuwendungsbestätigungen aus und zieht keine Beiträge ein, es zeigt, welche fällig sind.",
+  "description": "Für Vereine, gemeinnützige Organisationen und Kirchengemeinden: wer Sie unterstützt und wie, welche Mitgliedschaft bis wann läuft, welche Spende noch einen Dank oder eine Zuwendungsbestätigung braucht und welche Großspende oder Förderung gerade läuft. Es stellt keine Zuwendungsbestätigungen aus und zieht keine Beiträge ein, es zeigt, welche fällig sind.",
   "lists": {
     "supporters": { "label": "Unterstützer", "pluralLabel": "Unterstützer", "description": "Mitglieder, Spender, Ehrenamtliche, Gäste und Vorstand." },
     "memberships": { "label": "Mitgliedschaft", "pluralLabel": "Mitgliedschaften", "description": "Eine Mitgliedschaft mit Beitrag und Fälligkeit." },
     "gifts": { "label": "Spende", "pluralLabel": "Spenden", "description": "Jede Spende mit Dank und Zuwendungsbestätigung." },
-    "gift_opportunities": { "label": "Spendenchance", "pluralLabel": "Spendenchancen", "description": "Großspenden, Förderungen und Sponsoring in Arbeit." }
+    "gift_opportunities": { "label": "Spendenvorhaben", "pluralLabel": "Spendenvorhaben", "description": "Großspenden, Förderungen und Sponsoring in Arbeit." }
   },
   "fields": {
     "memberships.status": {
@@ -96,17 +96,17 @@
   "relationships": {
     "membership_supporter": { "sourceLabel": "Mitglied", "targetLabel": "Mitgliedschaften" },
     "gift_supporter": { "sourceLabel": "Spender", "targetLabel": "Spenden" },
-    "opportunity_supporter": { "sourceLabel": "Interessent", "targetLabel": "Spendenchancen" },
+    "opportunity_supporter": { "sourceLabel": "Interessent", "targetLabel": "Spendenvorhaben" },
     "action_supporter": { "sourceLabel": "Unterstützer", "targetLabel": "Aufgaben" }
   },
   "views": {
     "supporters_all": { "name": "Alle Unterstützer" },
     "memberships_all": { "name": "Alle Mitgliedschaften" },
     "memberships_board": { "name": "Mitgliedschaften nach Status" },
-    "fees_to_chase": { "name": "Beiträge anzumahnen" },
+    "fees_to_chase": { "name": "Zu mahnende Beiträge" },
     "gifts_all": { "name": "Alle Spenden" },
-    "receipts_to_issue": { "name": "Zuwendungsbestätigungen auszustellen" },
-    "opportunities_board": { "name": "Spendenchancen" }
+    "receipts_to_issue": { "name": "Auszustellende Zuwendungsbestätigungen" },
+    "opportunities_board": { "name": "Spendenvorhaben" }
   },
   "widgets": {
     "memberships_by_status": { "title": "Mitgliedschaften nach Status" },
@@ -139,7 +139,7 @@
   "prompt": {
     "intro": "Richte ein Register für Mitglieder und Spender in meinem Customermates-Workspace ein: Unterstützer, Mitgliedschaften mit Beitrag und Fälligkeit, Spenden mit Dank und Status der Zuwendungsbestätigung und eine Pipeline für Großspenden und Förderungen.",
     "questions": [
-      "Sind Sie ein Verein, eine gemeinnützige Organisation oder eine Gemeinde? Welche von Mitgliedern, Spendern und Ehrenamtlichen haben Sie?",
+      "Sind Sie ein Verein, eine gemeinnützige Organisation oder eine Kirchengemeinde? Welche von Mitgliedern, Spendern und Ehrenamtlichen haben Sie?",
       "Welche Beitragsarten und Beiträge nutzen Sie, und wie werden sie eingezogen?",
       "In welchem Land sind Sie eingetragen, und welche Zuwendungsbestätigung stellen Sie dort aus?",
       "Welche Software führt Zahlungen oder Buchhaltung? Hier wird nur ein Verweis gespeichert."
