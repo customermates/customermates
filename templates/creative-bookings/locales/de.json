@@ -15,7 +15,7 @@
     },
     "bookings.delivery": {
       "label": "Lieferung",
-      "options": { "not_started": "Nicht begonnen", "preparing": "In Vorbereitung", "shoot_done": "Shooting erledigt", "editing": "In Bearbeitung", "client_review": "Kundenprüfung", "delivered": "Geliefert", "cancelled": "Abgesagt oder verschoben" }
+      "options": { "not_started": "Nicht begonnen", "preparing": "In Vorbereitung", "shoot_done": "Shooting erledigt", "editing": "In Bearbeitung", "client_review": "Kunde prüft", "delivered": "Geliefert", "cancelled": "Abgesagt oder verschoben" }
     },
     "people.contact_role": {
       "label": "Rolle",
@@ -83,7 +83,7 @@
         "consult": "Beratungsgespräch",
         "send_proposal": "Angebot senden",
         "send_contract": "Vertrag senden",
-        "chase_payment": "Zahlung anmahnen",
+        "chase_payment": "Zahlung nachfassen",
         "send_questionnaire": "Fragebogen senden",
         "build_timeline": "Ablaufplan erstellen",
         "shoot_day": "Shooting-Tag",
@@ -104,7 +104,7 @@
     "bookings_board": { "name": "Buchungen nach Phase" },
     "bookings_all": { "name": "Alle Buchungen nach Datum" },
     "delivery_board": { "name": "Lieferung nach Status" },
-    "payments_due": { "name": "Restzahlungen anzumahnen" },
+    "payments_due": { "name": "Restzahlungen nachfassen" },
     "people_all": { "name": "Alle Personen" },
     "partners_all": { "name": "Alle Partner" }
   },
@@ -124,9 +124,9 @@
   "rules": {
     "reply_to_inquiry": { "title": "Eine neue Anfrage binnen eines Tages beantworten" },
     "send_contract": { "title": "Den Vertrag senden, wenn der Termin reserviert wird" },
-    "chase_payment_after_signing": { "title": "Drei Tage nach der Unterschrift die Anzahlung anmahnen" },
+    "chase_payment_after_signing": { "title": "Drei Tage nach der Unterschrift an die Anzahlung erinnern" },
     "questionnaire_before_event": { "title": "45 Tage vor einem gebuchten Event den Fragebogen senden" },
-    "balance_reminder": { "title": "Eine Woche vor der Fälligkeit die Restzahlung anmahnen" },
+    "balance_reminder": { "title": "Eine Woche vor der Fälligkeit an die Restzahlung erinnern" },
     "edit_after_shoot": { "title": "Die Bearbeitung beginnen, wenn das Shooting erledigt ist" },
     "request_review": { "title": "Zwei Wochen nach der Lieferung um eine Bewertung bitten" },
     "anniversary_note": { "title": "Am Jahrestag eine Nachricht schreiben" },

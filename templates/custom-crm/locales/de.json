@@ -69,7 +69,7 @@
   "knowledgePages": {
     "how_we_use_this_crm": { "title": "So nutzen wir dieses CRM", "sections": ["Was hineingehört und wer es pflegt", "Phasen und wann eine Chance weiterrückt"] },
     "data_entry_rules": { "title": "Regeln für die Dateneingabe", "sections": ["Namen, E-Mails und ein Datensatz pro Person", "Ein nächster Schritt mit Datum bei jeder offenen Chance"] },
-    "import_notes": { "title": "Importnotizen: was woher kam", "sections": ["Quellwerkzeug und Exportdatum", "Was nicht mitgekommen ist und warum"] }
+    "import_notes": { "title": "Importnotizen: was woher kam", "sections": ["Quellsystem und Exportdatum", "Was nicht mitgekommen ist und warum"] }
   },
   "rules": {
     "next_action_per_stage": { "title": "Eine Folgeaufgabe anlegen, wenn eine Verkaufschance die Phase wechselt" },
