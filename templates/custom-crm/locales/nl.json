@@ -4,7 +4,7 @@
   "summary": "Een CRM rond jouw manier van werken: contacten, bedrijven, deals en acties met datum, met een import uit je spreadsheet of oude tool en een wekelijkse controle.",
   "description": "Begin met de vier lijsten die elk CRM nodig heeft en pas ze aan: fasen, velden en weergaven zijn van jou. Bedoeld voor wie een spreadsheet, Notion, Airtable of Trello achterlaat en zijn gegevens zonder project in een CRM wil. Het onthoudt waar elk record vandaan is geïmporteerd.",
   "lists": {
-    "contacts": { "label": "Contact", "pluralLabel": "Contacten", "description": "De mensen met wie je te maken hebt." },
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen met wie je te maken hebt." },
     "organizations": { "label": "Bedrijf", "pluralLabel": "Bedrijven", "description": "Bedrijven en andere organisaties." },
     "opportunities": { "label": "Deal", "pluralLabel": "Deals", "description": "Eén deal van lead tot gewonnen of verloren." }
   },
@@ -34,11 +34,11 @@
     "organizations.address": { "label": "Adres" },
     "organizations.imported_from": { "label": "Geïmporteerd uit" },
     "opportunities.owner": { "label": "Eigenaar" },
-    "opportunities.expected_close": { "label": "Verwachte afsluiting" },
+    "opportunities.expected_close": { "label": "Verwachte afsluitdatum" },
     "opportunities.next_step": { "label": "Volgende stap" },
     "opportunities.next_step_due": { "label": "Datum volgende stap" },
     "opportunities.lost_reason": {
-      "label": "Reden verloren",
+      "label": "Reden van verlies",
       "options": { "price": "Prijs", "competitor": "Concurrent", "no_decision": "Geen besluit", "timing": "Timing", "no_response": "Geen reactie", "not_a_fit": "Past niet", "other": "Overig" }
     },
     "opportunities.weighted_value": { "label": "Gewogen waarde" },
@@ -48,7 +48,7 @@
     }
   },
   "relationships": {
-    "contact_organization": { "sourceLabel": "Bedrijf", "targetLabel": "Contacten" },
+    "contact_organization": { "sourceLabel": "Bedrijf", "targetLabel": "Contactpersonen" },
     "opportunity_organization": { "sourceLabel": "Bedrijf", "targetLabel": "Deals" },
     "action_opportunity": { "sourceLabel": "Deal", "targetLabel": "Acties" }
   },
@@ -57,13 +57,13 @@
     "opportunities_all": { "name": "Alle deals" },
     "no_next_step": { "name": "Zonder volgende stap" },
     "organizations_all": { "name": "Alle bedrijven" },
-    "contacts_all": { "name": "Alle contacten" }
+    "contacts_all": { "name": "Alle contactpersonen" }
   },
   "widgets": {
     "pipeline_funnel": { "title": "Open deals per fase" },
     "open_value": { "title": "Open waarde" },
     "open_weighted_value": { "title": "Open gewogen waarde" },
-    "lost_reasons": { "title": "Redenen verloren" },
+    "lost_reasons": { "title": "Redenen van verlies" },
     "deals_without_next_step": { "title": "Deals zonder volgende stap" }
   },
   "knowledgePages": {
@@ -74,10 +74,10 @@
   "rules": {
     "next_action_per_stage": { "title": "Maak een vervolgactie aan wanneer een deal van fase wisselt" },
     "set_a_next_step": { "title": "Vraag om een volgende stap bij elke open deal zonder" },
-    "next_step_notice": { "title": "Meld de eigenaar wanneer een volgende stap aan de beurt is" },
-    "expected_close_passed": { "title": "Bekijk een open deal de dag na de verwachte afsluiting" },
+    "next_step_notice": { "title": "Informeer de eigenaar wanneer een volgende stap aan de beurt is" },
+    "expected_close_passed": { "title": "Bekijk een open deal de dag na de verwachte afsluitdatum" },
     "weekly_review": { "title": "Houd elke vrijdag de wekelijkse controle" },
-    "enquiry_form_records": { "title": "Maak contact, bedrijf en deal aan uit een aanvraagformulier" },
+    "enquiry_form_records": { "title": "Maak contactpersoon, bedrijf en deal aan uit een aanvraagformulier" },
     "webhook_upsert": { "title": "Maak of werk records bij uit de oude tool via een inkomende webhook" }
   },
   "acceptanceChecks": {
@@ -86,7 +86,7 @@
     "how_we_use_page": "De kennisbank legt uit hoe het team het CRM gebruikt."
   },
   "prompt": {
-    "intro": "Richt een CRM op maat in mijn Customermates-werkruimte in: contacten, bedrijven, deals met fasen en acties met datum, een import uit mijn spreadsheet of oude tool en een wekelijkse controle.",
+    "intro": "Richt een CRM op maat in mijn Customermates-werkruimte in: contactpersonen, bedrijven, deals met fasen en acties met datum, een import uit mijn spreadsheet of oude tool en een wekelijkse controle.",
     "questions": [
       "Uit welke tool of spreadsheet komen je records en kun je die exporteren?",
       "Welke fasen doorloopt een deal in jouw bedrijf?",
