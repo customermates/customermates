@@ -1,0 +1,116 @@
+{
+  "locale": "en",
+  "name": "Law firm intake",
+  "summary": "A gated intake for a law firm: inquiry, conflict check, consultation, fee proposal, signed engagement with power of attorney and advance, and a written non-engagement letter for everyone who does not become a client.",
+  "description": "Take clients on in a fixed order: every inquiry records its practice area, the earliest known time limit, the conflict check and who made it, then the consultation, the fee proposal and the signed engagement. A list of parties supports the conflict search, matters carry the power of attorney date and a retention date, and declined or silent prospects get a written non-engagement letter. It holds a pointer to the case, never case facts, privileged content, health data or opponents' details. It is not matter management, trust accounting, a procedural deadline authority or billing.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Prospects, clients, former clients and referrers." },
+    "inquiries": { "label": "Inquiry", "pluralLabel": "Inquiries", "description": "One request for legal help, from the first contact to a matter or a decline." },
+    "matters": { "label": "Matter", "pluralLabel": "Matters", "description": "A pointer to the case in your case system, with the power of attorney date and the retention date." },
+    "parties": { "label": "Party", "pluralLabel": "Parties", "description": "Opposing and related parties, kept for the conflict check." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Role", "options": { "prospect": "Prospect", "client": "Client", "former_client": "Former client", "referrer": "Referrer" } },
+    "contacts.preferred_channel": { "label": "Preferred channel", "options": { "email": "Email", "phone": "Phone", "whatsapp": "WhatsApp", "post": "Post" } },
+    "inquiries.stage": {
+      "label": "Stage",
+      "options": { "new_inquiry": "New inquiry", "screening": "Conflict check", "consultation": "Consultation", "fee_proposal_sent": "Fee proposal sent", "agreement_signed": "Agreement signed", "matter_opened": "Matter opened", "declined_by_firm": "Declined by the firm", "not_retained": "Not retained" }
+    },
+    "inquiries.practice_area": {
+      "label": "Practice area",
+      "options": { "employment": "Employment", "family": "Family", "civil_contract": "Civil and contract", "real_estate": "Real estate", "corporate": "Corporate", "criminal": "Criminal", "immigration": "Immigration", "inheritance": "Inheritance", "administrative": "Administrative", "other": "Other" }
+    },
+    "inquiries.source": { "label": "Source", "options": { "web_form": "Web form", "phone": "Phone", "referral": "Referral", "whatsapp": "WhatsApp", "walk_in": "Walk-in", "directory": "Directory" } },
+    "inquiries.urgent_deadline": { "label": "Earliest known time limit" },
+    "inquiries.deadline_source": { "label": "Where the time limit comes from" },
+    "inquiries.conflict_check": {
+      "label": "Conflict check",
+      "options": { "pending": "Pending", "cleared": "Cleared", "cleared_with_waiver": "Cleared with waiver", "conflict_found": "Conflict found" }
+    },
+    "inquiries.consultation_on": { "label": "Consultation" },
+    "inquiries.fee_model": { "label": "Fee model", "options": { "hourly": "Hourly", "fixed": "Fixed fee", "success_fee": "Success fee", "insurance_or_legal_aid": "Insurance or legal aid", "mixed": "Mixed" } },
+    "inquiries.advance_requested_on": { "label": "Advance requested on" },
+    "inquiries.advance_received_on": { "label": "Advance received on" },
+    "inquiries.responsible_lawyer": { "label": "Responsible lawyer" },
+    "inquiries.next_step_due": { "label": "Next step due" },
+    "inquiries.lost_reason": {
+      "label": "Why no engagement",
+      "options": { "conflict": "Conflict", "outside_practice_area": "Outside our practice areas", "capacity": "No capacity", "time_limit_referred_out": "Time limit, referred out", "fee": "Fee", "chose_other_lawyer": "Chose another lawyer", "no_response": "No response", "self_resolved": "Resolved itself" }
+    },
+    "inquiries.non_engagement_letter_on": { "label": "Non-engagement letter sent on" },
+    "matters.matter_ref": { "label": "Reference in the case system" },
+    "matters.status": { "label": "Status", "options": { "open": "Open", "on_hold": "On hold", "closed": "Closed" } },
+    "matters.opened_on": { "label": "Opened on" },
+    "matters.poa_valid_until": { "label": "Power of attorney valid until" },
+    "matters.retention_until": { "label": "Keep until" },
+    "parties.party_role": { "label": "Role", "options": { "opposing_party": "Opposing party", "related_party": "Related party", "co_client": "Co-client", "insurer": "Insurer", "third_party": "Third party" } },
+    "parties.party_type": { "label": "Type", "options": { "person": "Person", "organisation": "Organisation" } },
+    "actions.kind": {
+      "label": "Kind",
+      "options": { "reply": "Reply", "conflict_check": "Run the conflict check", "consultation_prep": "Prepare the consultation", "fee_proposal": "Send the fee proposal", "follow_up": "Follow up", "advance": "Collect the advance", "letter": "Write a letter", "other": "Other" }
+    }
+  },
+  "relationships": {
+    "inquiry_contact": { "sourceLabel": "Contact", "targetLabel": "Inquiries" },
+    "matter_contact": { "sourceLabel": "Client", "targetLabel": "Matters" },
+    "matter_inquiry": { "sourceLabel": "Inquiry", "targetLabel": "Matters" },
+    "party_inquiry": { "sourceLabel": "Inquiry", "targetLabel": "Parties" },
+    "party_matter": { "sourceLabel": "Matter", "targetLabel": "Parties" },
+    "action_inquiry": { "sourceLabel": "Inquiry", "targetLabel": "Actions" },
+    "action_matter": { "sourceLabel": "Matter", "targetLabel": "Actions" }
+  },
+  "views": {
+    "inquiries_board": { "name": "Inquiries by stage" },
+    "inquiries_all": { "name": "All inquiries" },
+    "with_time_limit": { "name": "Open inquiries with a time limit" },
+    "conflicts_to_check": { "name": "Conflict checks pending" },
+    "matters_all": { "name": "All matters" },
+    "parties_all": { "name": "All parties" },
+    "contacts_all": { "name": "All contacts" }
+  },
+  "widgets": {
+    "inquiries_funnel": { "title": "Inquiries by stage" },
+    "urgent_time_limits": { "title": "Time limits of open inquiries" },
+    "consultations_coming": { "title": "Consultations coming up" },
+    "conflicts_pending": { "title": "Conflict checks pending" },
+    "inquiries_by_source": { "title": "Inquiries by source" },
+    "lost_reasons": { "title": "Why inquiries did not become matters" },
+    "poa_expiring": { "title": "Powers of attorney expiring" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "How the intake desk runs", "sections": ["First contact and screening questions", "Who answers and how fast"] },
+    "conflict_check": { "title": "Conflict check procedure", "sections": ["What is searched: parties, clients and former clients", "How the result is recorded and what happens on a conflict"] },
+    "time_limit_triage": { "title": "Urgent time-limit triage", "sections": ["Asking for the earliest known time limit at first contact", "Accept, refer out or warn the inquirer in writing"] },
+    "engagement_checklist": { "title": "Fee agreement and engagement checklist", "sections": ["Fee model, power of attorney and advance", "Non-engagement and closing letters"] }
+  },
+  "rules": {
+    "inquiry_form_records": { "title": "Create the contact and the inquiry when the inquiry form is submitted" },
+    "acknowledge_inquiry": { "title": "Reply to a new inquiry the next day and offer a consultation" },
+    "urgent_deadline_alert": { "title": "Notify the lead 14 days before the time limit of an open inquiry" },
+    "conflict_check_task": { "title": "Run the conflict check the day after an inquiry reaches screening" },
+    "fee_proposal_task": { "title": "Send the fee proposal the day after the consultation" },
+    "proposal_follow_up": { "title": "Follow up 3 days after the fee proposal is sent" },
+    "agreement_signed_set": { "title": "Collect the advance 2 days after the agreement is signed" },
+    "advance_chase": { "title": "Notify the owner when the advance is still missing 7 days after the request" },
+    "letter_declined": { "title": "Write the non-engagement letter when the firm declines an inquiry" },
+    "letter_not_retained": { "title": "Write the non-engagement letter when a prospect does not retain the firm" },
+    "poa_renewal": { "title": "Renew the power of attorney 30 days before it expires" },
+    "closing_letter": { "title": "Write the closing letter a week after a matter is closed" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Every inquiry has one of eight stages.",
+    "conflict_check_field": "Every inquiry records its conflict check.",
+    "urgent_deadline_field": "Every inquiry records the earliest known time limit.",
+    "inquiries_board_view": "The inquiries open as a board by stage.",
+    "conflict_check_page": "The knowledge base holds a page on the conflict check."
+  },
+  "prompt": {
+    "intro": "Set up a law firm intake in my Customermates workspace: inquiries with a conflict check, the earliest known time limit, consultation, fee proposal and signed engagement, matters as pointers to the case system, parties for the conflict search and written non-engagement letters. Store no case facts or privileged content.",
+    "questions": [
+      "Which practice areas do you take, and which do you refer out?",
+      "How do you run the conflict check, and who signs it off?",
+      "What fee models and what advance do you use?",
+      "Which case system do you use? Only a reference to the matter is kept here."
+    ]
+  }
+}

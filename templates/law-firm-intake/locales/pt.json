@@ -1,0 +1,116 @@
+{
+  "locale": "pt",
+  "name": "Atendimento de clientes para advocacia",
+  "summary": "Um atendimento em etapas fixas: contato, triagem de conflito e urgência, consulta, proposta de honorários, contrato e procuração assinados e uma carta escrita para quem não vira cliente.",
+  "description": "Receba clientes em uma ordem fixa: cada atendimento registra a área do direito, o prazo mais próximo conhecido, a checagem de conflito e quem a fez, depois a consulta, a proposta de honorários e o contrato assinado. Uma lista de partes apoia a checagem de conflito, os casos levam a data da procuração e uma data de guarda, e interessados recusados ou silenciosos recebem uma carta escrita de não contratação. Guarda uma referência ao caso, nunca fatos do processo, conteúdo sigiloso, dados de saúde ou dados da parte contrária. Não é gestão de processos, contabilidade de valores de clientes, fonte de prazos processuais nem cobrança.",
+  "lists": {
+    "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "Interessados, clientes, ex-clientes e indicadores." },
+    "inquiries": { "label": "Atendimento", "pluralLabel": "Atendimentos", "description": "Um pedido de ajuda jurídica, do primeiro contato a um caso ou uma recusa." },
+    "matters": { "label": "Caso", "pluralLabel": "Casos (processos)", "description": "Uma referência ao processo no sistema do escritório, com a data da procuração e a data de guarda." },
+    "parties": { "label": "Parte", "pluralLabel": "Partes", "description": "Partes contrárias e relacionadas, guardadas para a checagem de conflito." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Papel", "options": { "prospect": "Interessado", "client": "Cliente", "former_client": "Ex-cliente", "referrer": "Indicador" } },
+    "contacts.preferred_channel": { "label": "Canal preferido", "options": { "email": "E-mail", "phone": "Telefone", "whatsapp": "WhatsApp", "post": "Correio" } },
+    "inquiries.stage": {
+      "label": "Etapa",
+      "options": { "new_inquiry": "Novo contato", "screening": "Triagem (conflito e urgência)", "consultation": "Consulta", "fee_proposal_sent": "Proposta de honorários", "agreement_signed": "Contrato e procuração", "matter_opened": "Caso aberto", "declined_by_firm": "Recusado", "not_retained": "Não contratado" }
+    },
+    "inquiries.practice_area": {
+      "label": "Área do direito",
+      "options": { "employment": "Trabalhista", "family": "Família", "civil_contract": "Cível e contratos", "real_estate": "Imobiliário", "corporate": "Empresarial", "criminal": "Penal", "immigration": "Imigração", "inheritance": "Sucessões", "administrative": "Administrativo", "other": "Outra" }
+    },
+    "inquiries.source": { "label": "Origem", "options": { "web_form": "Formulário do site", "phone": "Telefone", "referral": "Indicação", "whatsapp": "WhatsApp", "walk_in": "Presencial", "directory": "Diretório" } },
+    "inquiries.urgent_deadline": { "label": "Prazo mais próximo conhecido" },
+    "inquiries.deadline_source": { "label": "De onde vem o prazo" },
+    "inquiries.conflict_check": {
+      "label": "Checagem de conflito",
+      "options": { "pending": "Pendente", "cleared": "Sem conflito", "cleared_with_waiver": "Liberado com anuência", "conflict_found": "Conflito encontrado" }
+    },
+    "inquiries.consultation_on": { "label": "Consulta" },
+    "inquiries.fee_model": { "label": "Honorários", "options": { "hourly": "Por hora", "fixed": "Valor fixo", "success_fee": "Êxito", "insurance_or_legal_aid": "Seguro ou assistência judiciária", "mixed": "Misto" } },
+    "inquiries.advance_requested_on": { "label": "Adiantamento pedido em" },
+    "inquiries.advance_received_on": { "label": "Adiantamento recebido em" },
+    "inquiries.responsible_lawyer": { "label": "Advogado responsável" },
+    "inquiries.next_step_due": { "label": "Próximo passo até" },
+    "inquiries.lost_reason": {
+      "label": "Por que não houve contratação",
+      "options": { "conflict": "Conflito de interesses", "outside_practice_area": "Fora das nossas áreas", "capacity": "Sem capacidade", "time_limit_referred_out": "Prazo, encaminhado a outro", "fee": "Honorários", "chose_other_lawyer": "Escolheu outro advogado", "no_response": "Sem resposta", "self_resolved": "Resolveu sozinho" }
+    },
+    "inquiries.non_engagement_letter_on": { "label": "Carta de não contratação enviada em" },
+    "matters.matter_ref": { "label": "Referência no sistema do escritório" },
+    "matters.status": { "label": "Situação", "options": { "open": "Aberto", "on_hold": "Suspenso", "closed": "Encerrado" } },
+    "matters.opened_on": { "label": "Aberto em" },
+    "matters.poa_valid_until": { "label": "Procuração válida até" },
+    "matters.retention_until": { "label": "Guardar até" },
+    "parties.party_role": { "label": "Papel", "options": { "opposing_party": "Parte contrária", "related_party": "Parte relacionada", "co_client": "Cocliente", "insurer": "Seguradora", "third_party": "Terceiro" } },
+    "parties.party_type": { "label": "Tipo", "options": { "person": "Pessoa", "organisation": "Organização" } },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "reply": "Responder", "conflict_check": "Fazer a checagem de conflito", "consultation_prep": "Preparar a consulta", "fee_proposal": "Enviar a proposta de honorários", "follow_up": "Fazer o retorno", "advance": "Cobrar o adiantamento", "letter": "Redigir uma carta", "other": "Outro" }
+    }
+  },
+  "relationships": {
+    "inquiry_contact": { "sourceLabel": "Contato", "targetLabel": "Atendimentos" },
+    "matter_contact": { "sourceLabel": "Cliente", "targetLabel": "Casos (processos)" },
+    "matter_inquiry": { "sourceLabel": "Atendimento", "targetLabel": "Casos (processos)" },
+    "party_inquiry": { "sourceLabel": "Atendimento", "targetLabel": "Partes" },
+    "party_matter": { "sourceLabel": "Caso", "targetLabel": "Partes" },
+    "action_inquiry": { "sourceLabel": "Atendimento", "targetLabel": "Tarefas" },
+    "action_matter": { "sourceLabel": "Caso", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "inquiries_board": { "name": "Atendimentos por etapa" },
+    "inquiries_all": { "name": "Todos os atendimentos" },
+    "with_time_limit": { "name": "Atendimentos abertos com prazo" },
+    "conflicts_to_check": { "name": "Checagens de conflito pendentes" },
+    "matters_all": { "name": "Todos os casos" },
+    "parties_all": { "name": "Todas as partes" },
+    "contacts_all": { "name": "Todos os contatos" }
+  },
+  "widgets": {
+    "inquiries_funnel": { "title": "Atendimentos por etapa" },
+    "urgent_time_limits": { "title": "Prazos dos atendimentos abertos" },
+    "consultations_coming": { "title": "Consultas próximas" },
+    "conflicts_pending": { "title": "Checagens de conflito pendentes" },
+    "inquiries_by_source": { "title": "Atendimentos por origem" },
+    "lost_reasons": { "title": "Por que atendimentos não viram casos" },
+    "poa_expiring": { "title": "Procurações vencendo" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Como funciona o atendimento", "sections": ["Primeiro contato e perguntas de triagem", "Quem responde e em quanto tempo"] },
+    "conflict_check": { "title": "Procedimento de checagem de conflito", "sections": ["O que se busca: partes, clientes e ex-clientes", "Como o resultado é registrado e o que fazer se houver conflito"] },
+    "time_limit_triage": { "title": "Triagem de prazos urgentes", "sections": ["Perguntar pelo prazo mais próximo conhecido no primeiro contato", "Aceitar, encaminhar ou avisar o interessado por escrito"] },
+    "engagement_checklist": { "title": "Checklist de contrato de honorários e procuração", "sections": ["Honorários, procuração e adiantamento", "Cartas de não contratação e de encerramento"] }
+  },
+  "rules": {
+    "inquiry_form_records": { "title": "Criar o contato e o atendimento quando o formulário de atendimento for enviado" },
+    "acknowledge_inquiry": { "title": "Responder a um atendimento novo no dia seguinte e oferecer uma consulta" },
+    "urgent_deadline_alert": { "title": "Avisar o responsável 14 dias antes do prazo de um atendimento aberto" },
+    "conflict_check_task": { "title": "Fazer a checagem de conflito no dia seguinte à entrada na triagem" },
+    "fee_proposal_task": { "title": "Enviar a proposta de honorários no dia seguinte à consulta" },
+    "proposal_follow_up": { "title": "Fazer o retorno 3 dias depois de enviada a proposta" },
+    "agreement_signed_set": { "title": "Cobrar o adiantamento 2 dias depois da assinatura do contrato" },
+    "advance_chase": { "title": "Avisar o responsável quando o adiantamento falta 7 dias depois do pedido" },
+    "letter_declined": { "title": "Redigir a carta de não contratação quando o escritório recusa um atendimento" },
+    "letter_not_retained": { "title": "Redigir a carta de não contratação quando um interessado não contrata o escritório" },
+    "poa_renewal": { "title": "Renovar a procuração 30 dias antes de vencer" },
+    "closing_letter": { "title": "Redigir a carta de encerramento uma semana depois de encerrado um caso" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Todo atendimento está em uma das oito etapas.",
+    "conflict_check_field": "Todo atendimento registra a checagem de conflito.",
+    "urgent_deadline_field": "Todo atendimento registra o prazo mais próximo conhecido.",
+    "inquiries_board_view": "Os atendimentos abrem como quadro por etapa.",
+    "conflict_check_page": "A base de conhecimento tem uma página sobre a checagem de conflito."
+  },
+  "prompt": {
+    "intro": "Configure no meu workspace do Customermates um atendimento de clientes para um escritório de advocacia: atendimentos com checagem de conflito, prazo mais próximo conhecido, consulta, proposta de honorários e contrato assinado, casos como referências ao sistema do escritório, partes para a checagem de conflito e cartas escritas de não contratação. Não guarde fatos do processo nem conteúdo sigiloso.",
+    "questions": [
+      "Quais áreas do direito você atende e quais encaminha a outros?",
+      "Como você faz a checagem de conflito e quem a aprova?",
+      "Que modelos de honorários e que adiantamento você usa?",
+      "Qual sistema de gestão você usa? Aqui só se guarda uma referência ao caso."
+    ]
+  }
+}

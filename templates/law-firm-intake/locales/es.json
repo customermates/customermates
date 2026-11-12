@@ -1,0 +1,116 @@
+{
+  "locale": "es",
+  "name": "Alta de clientes para despachos de abogados",
+  "summary": "Un alta de clientes en pasos fijos: consulta, conflicto de intereses, primera reunión, presupuesto, hoja de encargo y poder firmados con provisión de fondos, y una carta escrita para quien no llega a ser cliente.",
+  "description": "Dé de alta a los clientes en un orden fijo: cada consulta registra el área, el plazo más próximo conocido, la comprobación de conflicto de intereses y quién la hizo, luego la reunión, el presupuesto y la hoja de encargo firmada. Una lista de partes apoya la comprobación de conflictos, los expedientes llevan la fecha del poder y una fecha de conservación, y los posibles clientes rechazados o en silencio reciben una carta escrita de no contratación. Guarda una referencia al expediente, nunca hechos del caso, contenido sujeto a secreto profesional, datos de salud ni datos de la parte contraria. No es gestión de expedientes, contabilidad de fondos de clientes, fuente de plazos procesales ni facturación.",
+  "lists": {
+    "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Posibles clientes, clientes, antiguos clientes y quienes recomiendan." },
+    "inquiries": { "label": "Consulta", "pluralLabel": "Consultas", "description": "Una petición de ayuda jurídica, del primer contacto a un expediente o un rechazo." },
+    "matters": { "label": "Expediente", "pluralLabel": "Expedientes", "description": "Una referencia al caso en su programa de gestión, con la fecha del poder y la de conservación." },
+    "parties": { "label": "Parte", "pluralLabel": "Partes", "description": "Partes contrarias y vinculadas, guardadas para la comprobación de conflictos." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Papel", "options": { "prospect": "Posible cliente", "client": "Cliente", "former_client": "Antiguo cliente", "referrer": "Quien recomienda" } },
+    "contacts.preferred_channel": { "label": "Canal preferido", "options": { "email": "Correo electrónico", "phone": "Teléfono", "whatsapp": "WhatsApp", "post": "Correo postal" } },
+    "inquiries.stage": {
+      "label": "Fase",
+      "options": { "new_inquiry": "Consulta", "screening": "Conflicto de intereses", "consultation": "Primera reunión", "fee_proposal_sent": "Presupuesto enviado", "agreement_signed": "Hoja de encargo firmada", "matter_opened": "Expediente abierto", "declined_by_firm": "Rechazado", "not_retained": "No contratado" }
+    },
+    "inquiries.practice_area": {
+      "label": "Área",
+      "options": { "employment": "Laboral", "family": "Familia", "civil_contract": "Civil y contratos", "real_estate": "Inmobiliario", "corporate": "Mercantil", "criminal": "Penal", "immigration": "Extranjería", "inheritance": "Sucesiones", "administrative": "Administrativo", "other": "Otra" }
+    },
+    "inquiries.source": { "label": "Origen", "options": { "web_form": "Formulario web", "phone": "Teléfono", "referral": "Recomendación", "whatsapp": "WhatsApp", "walk_in": "Visita al despacho", "directory": "Directorio" } },
+    "inquiries.urgent_deadline": { "label": "Plazo más próximo conocido" },
+    "inquiries.deadline_source": { "label": "De dónde sale el plazo" },
+    "inquiries.conflict_check": {
+      "label": "Conflicto de intereses",
+      "options": { "pending": "Pendiente", "cleared": "Sin conflicto", "cleared_with_waiver": "Resuelto con consentimiento", "conflict_found": "Conflicto detectado" }
+    },
+    "inquiries.consultation_on": { "label": "Primera reunión" },
+    "inquiries.fee_model": { "label": "Honorarios", "options": { "hourly": "Por horas", "fixed": "Cuota fija", "success_fee": "A resultado", "insurance_or_legal_aid": "Seguro o justicia gratuita", "mixed": "Mixto" } },
+    "inquiries.advance_requested_on": { "label": "Provisión solicitada el" },
+    "inquiries.advance_received_on": { "label": "Provisión recibida el" },
+    "inquiries.responsible_lawyer": { "label": "Abogado responsable" },
+    "inquiries.next_step_due": { "label": "Siguiente paso antes de" },
+    "inquiries.lost_reason": {
+      "label": "Por qué no hubo encargo",
+      "options": { "conflict": "Conflicto de intereses", "outside_practice_area": "Fuera de nuestras áreas", "capacity": "Sin capacidad", "time_limit_referred_out": "Plazo, derivado a otro", "fee": "Honorarios", "chose_other_lawyer": "Eligió otro abogado", "no_response": "Sin respuesta", "self_resolved": "Se resolvió solo" }
+    },
+    "inquiries.non_engagement_letter_on": { "label": "Carta de no contratación enviada el" },
+    "matters.matter_ref": { "label": "Referencia en el programa de gestión" },
+    "matters.status": { "label": "Estado", "options": { "open": "Abierto", "on_hold": "En pausa", "closed": "Cerrado" } },
+    "matters.opened_on": { "label": "Abierto el" },
+    "matters.poa_valid_until": { "label": "Poder válido hasta" },
+    "matters.retention_until": { "label": "Conservar hasta" },
+    "parties.party_role": { "label": "Papel", "options": { "opposing_party": "Parte contraria", "related_party": "Parte vinculada", "co_client": "Cocliente", "insurer": "Aseguradora", "third_party": "Tercero" } },
+    "parties.party_type": { "label": "Tipo", "options": { "person": "Persona", "organisation": "Organización" } },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "reply": "Responder", "conflict_check": "Hacer la comprobación de conflictos", "consultation_prep": "Preparar la reunión", "fee_proposal": "Enviar el presupuesto", "follow_up": "Dar seguimiento", "advance": "Solicitar la provisión de fondos", "letter": "Redactar una carta", "other": "Otro" }
+    }
+  },
+  "relationships": {
+    "inquiry_contact": { "sourceLabel": "Contacto", "targetLabel": "Consultas" },
+    "matter_contact": { "sourceLabel": "Cliente", "targetLabel": "Expedientes" },
+    "matter_inquiry": { "sourceLabel": "Consulta", "targetLabel": "Expedientes" },
+    "party_inquiry": { "sourceLabel": "Consulta", "targetLabel": "Partes" },
+    "party_matter": { "sourceLabel": "Expediente", "targetLabel": "Partes" },
+    "action_inquiry": { "sourceLabel": "Consulta", "targetLabel": "Tareas" },
+    "action_matter": { "sourceLabel": "Expediente", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "inquiries_board": { "name": "Consultas por fase" },
+    "inquiries_all": { "name": "Todas las consultas" },
+    "with_time_limit": { "name": "Consultas abiertas con plazo" },
+    "conflicts_to_check": { "name": "Conflictos por comprobar" },
+    "matters_all": { "name": "Todos los expedientes" },
+    "parties_all": { "name": "Todas las partes" },
+    "contacts_all": { "name": "Todos los contactos" }
+  },
+  "widgets": {
+    "inquiries_funnel": { "title": "Consultas por fase" },
+    "urgent_time_limits": { "title": "Plazos de las consultas abiertas" },
+    "consultations_coming": { "title": "Reuniones próximas" },
+    "conflicts_pending": { "title": "Conflictos por comprobar" },
+    "inquiries_by_source": { "title": "Consultas por origen" },
+    "lost_reasons": { "title": "Por qué las consultas no pasan a expediente" },
+    "poa_expiring": { "title": "Poderes que vencen" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Cómo funciona el alta de clientes", "sections": ["Primer contacto y preguntas de clasificación", "Quién responde y en cuánto tiempo"] },
+    "conflict_check": { "title": "Procedimiento de conflicto de intereses", "sections": ["Qué se busca: partes, clientes y antiguos clientes", "Cómo se anota el resultado y qué hacer si hay conflicto"] },
+    "time_limit_triage": { "title": "Clasificación de plazos urgentes", "sections": ["Preguntar por el plazo más próximo conocido en el primer contacto", "Aceptar, derivar o avisar por escrito a quien consulta"] },
+    "engagement_checklist": { "title": "Lista de control de hoja de encargo y presupuesto", "sections": ["Honorarios, poder y provisión de fondos", "Cartas de no contratación y de cierre"] }
+  },
+  "rules": {
+    "inquiry_form_records": { "title": "Crear el contacto y la consulta cuando se envía el formulario de consulta" },
+    "acknowledge_inquiry": { "title": "Responder a una consulta nueva al día siguiente y ofrecer una reunión" },
+    "urgent_deadline_alert": { "title": "Avisar a la persona a cargo 14 días antes del plazo de una consulta abierta" },
+    "conflict_check_task": { "title": "Hacer la comprobación de conflictos el día después de pasar a esa fase" },
+    "fee_proposal_task": { "title": "Enviar el presupuesto el día siguiente a la reunión" },
+    "proposal_follow_up": { "title": "Dar seguimiento 3 días después de enviar el presupuesto" },
+    "agreement_signed_set": { "title": "Solicitar la provisión de fondos 2 días después de firmar la hoja de encargo" },
+    "advance_chase": { "title": "Avisar al responsable cuando falta la provisión 7 días después de pedirla" },
+    "letter_declined": { "title": "Redactar la carta de no contratación cuando el despacho rechaza una consulta" },
+    "letter_not_retained": { "title": "Redactar la carta de no contratación cuando un posible cliente no encarga el asunto" },
+    "poa_renewal": { "title": "Renovar el poder 30 días antes de que venza" },
+    "closing_letter": { "title": "Redactar la carta de cierre una semana después de cerrar un expediente" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada consulta tiene una de las ocho fases.",
+    "conflict_check_field": "Cada consulta registra su comprobación de conflictos.",
+    "urgent_deadline_field": "Cada consulta registra el plazo más próximo conocido.",
+    "inquiries_board_view": "Las consultas se abren como tablero por fase.",
+    "conflict_check_page": "La base de conocimiento contiene una página sobre el conflicto de intereses."
+  },
+  "prompt": {
+    "intro": "Configura en mi espacio de Customermates un alta de clientes para un despacho de abogados: consultas con comprobación de conflictos, plazo más próximo conocido, reunión, presupuesto y hoja de encargo firmada, expedientes como referencias a su programa de gestión, partes para la comprobación de conflictos y cartas escritas de no contratación. No guardes hechos del caso ni contenido sujeto a secreto profesional.",
+    "questions": [
+      "¿Qué áreas lleva y cuáles deriva a otros despachos?",
+      "¿Cómo hace la comprobación de conflictos y quién la da por buena?",
+      "¿Qué modelos de honorarios y qué provisión de fondos usa?",
+      "¿Qué programa de gestión usa? Aquí solo se guarda una referencia al expediente."
+    ]
+  }
+}

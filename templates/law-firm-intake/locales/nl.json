@@ -1,0 +1,116 @@
+{
+  "locale": "nl",
+  "name": "Intake voor advocatenkantoren",
+  "summary": "Een intake in vaste stappen: aanvraag, conflictcheck, intake, offerte, getekende opdrachtbevestiging met volmacht en voorschot, en een schriftelijke brief voor iedereen die geen cliënt wordt.",
+  "description": "Neem cliënten in een vaste volgorde aan: elke aanvraag legt het rechtsgebied vast, de vroegst bekende termijn, de conflictcheck en wie die deed, daarna de intake, de offerte en de getekende opdrachtbevestiging. Een lijst met partijen ondersteunt de conflictcheck, zaken dragen de datum van de volmacht en een bewaardatum, en afgewezen of stille aanvragers krijgen een schriftelijke brief dat het kantoor de zaak niet aanneemt. Het bewaart een verwijzing naar het dossier, nooit feiten van de zaak, vertrouwelijke inhoud, gezondheidsgegevens of gegevens van de wederpartij. Geen dossierbeheer, geen derdengeldenadministratie, geen bron voor procestermijnen en geen facturatie.",
+  "lists": {
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "Aanvragers, cliënten, voormalige cliënten en doorverwijzers." },
+    "inquiries": { "label": "Aanvraag", "pluralLabel": "Aanvragen", "description": "Eén verzoek om juridische hulp, van eerste contact tot een zaak of een afwijzing." },
+    "matters": { "label": "Zaak", "pluralLabel": "Zaken (dossiers)", "description": "Een verwijzing naar het dossier in uw kantoorsysteem, met de datum van de volmacht en de bewaardatum." },
+    "parties": { "label": "Partij", "pluralLabel": "Partijen", "description": "Wederpartijen en gerelateerde partijen, bewaard voor de conflictcheck." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Rol", "options": { "prospect": "Aanvrager", "client": "Cliënt", "former_client": "Voormalige cliënt", "referrer": "Doorverwijzer" } },
+    "contacts.preferred_channel": { "label": "Voorkeurskanaal", "options": { "email": "E-mail", "phone": "Telefoon", "whatsapp": "WhatsApp", "post": "Post" } },
+    "inquiries.stage": {
+      "label": "Fase",
+      "options": { "new_inquiry": "Aanvraag", "screening": "Conflictcheck", "consultation": "Intake", "fee_proposal_sent": "Offerte", "agreement_signed": "Opdrachtbevestiging getekend", "matter_opened": "Dossier geopend", "declined_by_firm": "Afgewezen", "not_retained": "Niet doorgegaan" }
+    },
+    "inquiries.practice_area": {
+      "label": "Rechtsgebied",
+      "options": { "employment": "Arbeidsrecht", "family": "Familierecht", "civil_contract": "Civiel recht en contracten", "real_estate": "Vastgoedrecht", "corporate": "Ondernemingsrecht", "criminal": "Strafrecht", "immigration": "Vreemdelingenrecht", "inheritance": "Erfrecht", "administrative": "Bestuursrecht", "other": "Overig" }
+    },
+    "inquiries.source": { "label": "Bron", "options": { "web_form": "Webformulier", "phone": "Telefoon", "referral": "Doorverwijzing", "whatsapp": "WhatsApp", "walk_in": "Aan de balie", "directory": "Gids" } },
+    "inquiries.urgent_deadline": { "label": "Vroegst bekende termijn" },
+    "inquiries.deadline_source": { "label": "Waar de termijn vandaan komt" },
+    "inquiries.conflict_check": {
+      "label": "Conflictcheck",
+      "options": { "pending": "Open", "cleared": "Geen conflict", "cleared_with_waiver": "Opgelost met toestemming", "conflict_found": "Conflict gevonden" }
+    },
+    "inquiries.consultation_on": { "label": "Intake" },
+    "inquiries.fee_model": { "label": "Tarief", "options": { "hourly": "Uurtarief", "fixed": "Vast bedrag", "success_fee": "Resultaatafhankelijk", "insurance_or_legal_aid": "Rechtsbijstandverzekering of toevoeging", "mixed": "Gemengd" } },
+    "inquiries.advance_requested_on": { "label": "Voorschot gevraagd op" },
+    "inquiries.advance_received_on": { "label": "Voorschot ontvangen op" },
+    "inquiries.responsible_lawyer": { "label": "Verantwoordelijk advocaat" },
+    "inquiries.next_step_due": { "label": "Volgende stap voor" },
+    "inquiries.lost_reason": {
+      "label": "Waarom geen opdracht",
+      "options": { "conflict": "Belangenconflict", "outside_practice_area": "Buiten onze rechtsgebieden", "capacity": "Geen capaciteit", "time_limit_referred_out": "Termijn, doorverwezen", "fee": "Tarief", "chose_other_lawyer": "Koos een andere advocaat", "no_response": "Geen reactie", "self_resolved": "Heeft zich opgelost" }
+    },
+    "inquiries.non_engagement_letter_on": { "label": "Brief over niet aannemen verstuurd op" },
+    "matters.matter_ref": { "label": "Verwijzing in het kantoorsysteem" },
+    "matters.status": { "label": "Status", "options": { "open": "Open", "on_hold": "On hold", "closed": "Gesloten" } },
+    "matters.opened_on": { "label": "Geopend op" },
+    "matters.poa_valid_until": { "label": "Volmacht geldig tot" },
+    "matters.retention_until": { "label": "Bewaren tot" },
+    "parties.party_role": { "label": "Rol", "options": { "opposing_party": "Wederpartij", "related_party": "Gerelateerde partij", "co_client": "Medecliënt", "insurer": "Verzekeraar", "third_party": "Derde" } },
+    "parties.party_type": { "label": "Type", "options": { "person": "Persoon", "organisation": "Organisatie" } },
+    "actions.kind": {
+      "label": "Soort",
+      "options": { "reply": "Reageren", "conflict_check": "Conflictcheck uitvoeren", "consultation_prep": "Intake voorbereiden", "fee_proposal": "Offerte sturen", "follow_up": "Opvolgen", "advance": "Voorschot opvragen", "letter": "Brief opstellen", "other": "Overig" }
+    }
+  },
+  "relationships": {
+    "inquiry_contact": { "sourceLabel": "Contactpersoon", "targetLabel": "Aanvragen" },
+    "matter_contact": { "sourceLabel": "Cliënt", "targetLabel": "Zaken (dossiers)" },
+    "matter_inquiry": { "sourceLabel": "Aanvraag", "targetLabel": "Zaken (dossiers)" },
+    "party_inquiry": { "sourceLabel": "Aanvraag", "targetLabel": "Partijen" },
+    "party_matter": { "sourceLabel": "Zaak", "targetLabel": "Partijen" },
+    "action_inquiry": { "sourceLabel": "Aanvraag", "targetLabel": "Taken" },
+    "action_matter": { "sourceLabel": "Zaak", "targetLabel": "Taken" }
+  },
+  "views": {
+    "inquiries_board": { "name": "Aanvragen per fase" },
+    "inquiries_all": { "name": "Alle aanvragen" },
+    "with_time_limit": { "name": "Open aanvragen met een termijn" },
+    "conflicts_to_check": { "name": "Openstaande conflictchecks" },
+    "matters_all": { "name": "Alle zaken" },
+    "parties_all": { "name": "Alle partijen" },
+    "contacts_all": { "name": "Alle contactpersonen" }
+  },
+  "widgets": {
+    "inquiries_funnel": { "title": "Aanvragen per fase" },
+    "urgent_time_limits": { "title": "Termijnen van open aanvragen" },
+    "consultations_coming": { "title": "Komende intakes" },
+    "conflicts_pending": { "title": "Openstaande conflictchecks" },
+    "inquiries_by_source": { "title": "Aanvragen per bron" },
+    "lost_reasons": { "title": "Waarom aanvragen geen zaak werden" },
+    "poa_expiring": { "title": "Volmachten die aflopen" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Hoe de intake draait", "sections": ["Eerste contact en vragen voor de beoordeling", "Wie antwoordt en hoe snel"] },
+    "conflict_check": { "title": "Procedure voor de conflictcheck", "sections": ["Waarop wordt gezocht: partijen, cliënten en voormalige cliënten", "Hoe de uitkomst wordt vastgelegd en wat te doen bij een conflict"] },
+    "time_limit_triage": { "title": "Beoordeling van spoedeisende termijnen", "sections": ["Bij het eerste contact naar de vroegst bekende termijn vragen", "Aannemen, doorverwijzen of de aanvrager schriftelijk waarschuwen"] },
+    "engagement_checklist": { "title": "Checklist opdrachtbevestiging en offerte", "sections": ["Tarief, volmacht en voorschot", "Brieven over niet aannemen en afsluiting"] }
+  },
+  "rules": {
+    "inquiry_form_records": { "title": "Contactpersoon en aanvraag aanmaken als het aanvraagformulier is ingediend" },
+    "acknowledge_inquiry": { "title": "Een nieuwe aanvraag de volgende dag beantwoorden en een intake aanbieden" },
+    "urgent_deadline_alert": { "title": "De verantwoordelijke 14 dagen voor de termijn van een open aanvraag waarschuwen" },
+    "conflict_check_task": { "title": "De conflictcheck uitvoeren de dag nadat een aanvraag die fase bereikt" },
+    "fee_proposal_task": { "title": "De offerte sturen de dag na de intake" },
+    "proposal_follow_up": { "title": "3 dagen na het versturen van de offerte opvolgen" },
+    "agreement_signed_set": { "title": "Het voorschot opvragen 2 dagen na de getekende opdrachtbevestiging" },
+    "advance_chase": { "title": "De verantwoordelijke waarschuwen als het voorschot 7 dagen na het verzoek nog ontbreekt" },
+    "letter_declined": { "title": "De brief over niet aannemen opstellen als het kantoor een aanvraag afwijst" },
+    "letter_not_retained": { "title": "De brief over niet aannemen opstellen als een aanvrager de opdracht niet geeft" },
+    "poa_renewal": { "title": "De volmacht 30 dagen voor het verlopen vernieuwen" },
+    "closing_letter": { "title": "De afsluitbrief opstellen een week nadat een zaak is gesloten" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Elke aanvraag heeft een van de acht fasen.",
+    "conflict_check_field": "Elke aanvraag legt de conflictcheck vast.",
+    "urgent_deadline_field": "Elke aanvraag legt de vroegst bekende termijn vast.",
+    "inquiries_board_view": "De aanvragen openen als bord per fase.",
+    "conflict_check_page": "De kennisbank bevat een pagina over de conflictcheck."
+  },
+  "prompt": {
+    "intro": "Richt in mijn Customermates-workspace een intake voor een advocatenkantoor in: aanvragen met conflictcheck, vroegst bekende termijn, intake, offerte en getekende opdrachtbevestiging, zaken als verwijzingen naar het kantoorsysteem, partijen voor de conflictcheck en schriftelijke brieven over niet aannemen. Bewaar geen feiten van de zaak of vertrouwelijke inhoud.",
+    "questions": [
+      "Welke rechtsgebieden neemt u aan en welke verwijst u door?",
+      "Hoe voert u de conflictcheck uit en wie tekent die af?",
+      "Welke tariefmodellen en welk voorschot gebruikt u?",
+      "Welk kantoorsysteem gebruikt u? Hier wordt alleen een verwijzing naar het dossier bewaard."
+    ]
+  }
+}

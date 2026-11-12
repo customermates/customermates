@@ -1,0 +1,116 @@
+{
+  "locale": "de",
+  "name": "Mandatsaufnahme für Kanzleien",
+  "summary": "Eine Mandatsaufnahme in festen Schritten: Anfrage, Kollisionsprüfung, Erstberatung, Mandatsangebot, unterschriebene Mandatsvereinbarung mit Vollmacht und Vorschuss und ein schriftliches Schreiben an alle, die kein Mandat werden.",
+  "description": "Mandanten in fester Reihenfolge aufnehmen: Jede Anfrage hält Rechtsgebiet, den frühesten bekannten Fristablauf, die Kollisionsprüfung und wer sie durchgeführt hat fest, dann Erstberatung, Mandatsangebot und unterschriebene Vereinbarung. Eine Liste der Beteiligten stützt die Kollisionsprüfung, Mandate tragen das Datum der Vollmacht und einen Löschtermin, und abgelehnte oder verstummte Interessenten erhalten ein schriftliches Schreiben. Die Vorlage hält einen Verweis auf die Akte, niemals Falldetails, Mandatsgeheimnisse, Gesundheitsdaten oder Angaben zur Gegenseite. Keine Aktenführung, keine Fremdgeldverwaltung, keine Quelle für Verfahrensfristen und keine Abrechnung.",
+  "lists": {
+    "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Interessenten, Mandanten, frühere Mandanten und Empfehler." },
+    "inquiries": { "label": "Anfrage", "pluralLabel": "Anfragen", "description": "Eine Bitte um Rechtsrat, vom ersten Kontakt bis zum Mandat oder zur Absage." },
+    "matters": { "label": "Mandat", "pluralLabel": "Mandate", "description": "Ein Verweis auf die Akte im Kanzleisystem, mit Vollmachtsdatum und Löschtermin." },
+    "parties": { "label": "Beteiligter", "pluralLabel": "Beteiligte", "description": "Gegner und verbundene Beteiligte, für die Kollisionsprüfung vorgehalten." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Rolle", "options": { "prospect": "Interessent", "client": "Mandant", "former_client": "Früherer Mandant", "referrer": "Empfehler" } },
+    "contacts.preferred_channel": { "label": "Bevorzugter Kanal", "options": { "email": "E-Mail", "phone": "Telefon", "whatsapp": "WhatsApp", "post": "Post" } },
+    "inquiries.stage": {
+      "label": "Phase",
+      "options": { "new_inquiry": "Anfrage", "screening": "Kollisionsprüfung", "consultation": "Erstberatung", "fee_proposal_sent": "Mandatsangebot", "agreement_signed": "Mandatsvereinbarung", "matter_opened": "Akte angelegt", "declined_by_firm": "Abgelehnt", "not_retained": "Nicht beauftragt" }
+    },
+    "inquiries.practice_area": {
+      "label": "Rechtsgebiet",
+      "options": { "employment": "Arbeitsrecht", "family": "Familienrecht", "civil_contract": "Zivil- und Vertragsrecht", "real_estate": "Immobilienrecht", "corporate": "Gesellschaftsrecht", "criminal": "Strafrecht", "immigration": "Ausländerrecht", "inheritance": "Erbrecht", "administrative": "Verwaltungsrecht", "other": "Sonstiges" }
+    },
+    "inquiries.source": { "label": "Quelle", "options": { "web_form": "Webformular", "phone": "Telefon", "referral": "Empfehlung", "whatsapp": "WhatsApp", "walk_in": "Persönlich", "directory": "Verzeichnis" } },
+    "inquiries.urgent_deadline": { "label": "Frühester bekannter Fristablauf" },
+    "inquiries.deadline_source": { "label": "Woher die Frist stammt" },
+    "inquiries.conflict_check": {
+      "label": "Kollisionsprüfung",
+      "options": { "pending": "Offen", "cleared": "Unbedenklich", "cleared_with_waiver": "Unbedenklich mit Einwilligung", "conflict_found": "Kollision festgestellt" }
+    },
+    "inquiries.consultation_on": { "label": "Erstberatung" },
+    "inquiries.fee_model": { "label": "Vergütung", "options": { "hourly": "Stundensatz", "fixed": "Pauschale", "success_fee": "Erfolgshonorar", "insurance_or_legal_aid": "Rechtsschutz oder Beratungshilfe", "mixed": "Gemischt" } },
+    "inquiries.advance_requested_on": { "label": "Vorschuss angefordert am" },
+    "inquiries.advance_received_on": { "label": "Vorschuss eingegangen am" },
+    "inquiries.responsible_lawyer": { "label": "Verantwortlicher Anwalt" },
+    "inquiries.next_step_due": { "label": "Nächster Schritt bis" },
+    "inquiries.lost_reason": {
+      "label": "Grund für kein Mandat",
+      "options": { "conflict": "Interessenkollision", "outside_practice_area": "Außerhalb unserer Rechtsgebiete", "capacity": "Keine Kapazität", "time_limit_referred_out": "Frist, weitervermittelt", "fee": "Honorar", "chose_other_lawyer": "Anderen Anwalt gewählt", "no_response": "Keine Rückmeldung", "self_resolved": "Hat sich erledigt" }
+    },
+    "inquiries.non_engagement_letter_on": { "label": "Schreiben zur Nichtbeauftragung am" },
+    "matters.matter_ref": { "label": "Aktenzeichen im Kanzleisystem" },
+    "matters.status": { "label": "Status", "options": { "open": "Offen", "on_hold": "Ruhend", "closed": "Abgeschlossen" } },
+    "matters.opened_on": { "label": "Angelegt am" },
+    "matters.poa_valid_until": { "label": "Vollmacht gültig bis" },
+    "matters.retention_until": { "label": "Löschen am" },
+    "parties.party_role": { "label": "Rolle", "options": { "opposing_party": "Gegner", "related_party": "Verbundener Beteiligter", "co_client": "Mitmandant", "insurer": "Versicherer", "third_party": "Dritter" } },
+    "parties.party_type": { "label": "Art", "options": { "person": "Person", "organisation": "Organisation" } },
+    "actions.kind": {
+      "label": "Art",
+      "options": { "reply": "Antworten", "conflict_check": "Kollisionsprüfung durchführen", "consultation_prep": "Erstberatung vorbereiten", "fee_proposal": "Mandatsangebot senden", "follow_up": "Nachfassen", "advance": "Vorschuss einfordern", "letter": "Schreiben verfassen", "other": "Sonstiges" }
+    }
+  },
+  "relationships": {
+    "inquiry_contact": { "sourceLabel": "Ansprechpartner", "targetLabel": "Anfragen" },
+    "matter_contact": { "sourceLabel": "Mandant", "targetLabel": "Mandate" },
+    "matter_inquiry": { "sourceLabel": "Anfrage", "targetLabel": "Mandate" },
+    "party_inquiry": { "sourceLabel": "Anfrage", "targetLabel": "Beteiligte" },
+    "party_matter": { "sourceLabel": "Mandat", "targetLabel": "Beteiligte" },
+    "action_inquiry": { "sourceLabel": "Anfrage", "targetLabel": "Aufgaben" },
+    "action_matter": { "sourceLabel": "Mandat", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "inquiries_board": { "name": "Anfragen nach Phase" },
+    "inquiries_all": { "name": "Alle Anfragen" },
+    "with_time_limit": { "name": "Offene Anfragen mit Frist" },
+    "conflicts_to_check": { "name": "Offene Kollisionsprüfungen" },
+    "matters_all": { "name": "Alle Mandate" },
+    "parties_all": { "name": "Alle Beteiligten" },
+    "contacts_all": { "name": "Alle Ansprechpartner" }
+  },
+  "widgets": {
+    "inquiries_funnel": { "title": "Anfragen nach Phase" },
+    "urgent_time_limits": { "title": "Fristen offener Anfragen" },
+    "consultations_coming": { "title": "Anstehende Erstberatungen" },
+    "conflicts_pending": { "title": "Offene Kollisionsprüfungen" },
+    "inquiries_by_source": { "title": "Anfragen nach Quelle" },
+    "lost_reasons": { "title": "Warum Anfragen kein Mandat wurden" },
+    "poa_expiring": { "title": "Auslaufende Vollmachten" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "So läuft die Mandatsaufnahme", "sections": ["Erstkontakt und Fragen zur Einordnung", "Wer antwortet und wie schnell"] },
+    "conflict_check": { "title": "Ablauf der Kollisionsprüfung", "sections": ["Was geprüft wird: Beteiligte, Mandanten und frühere Mandanten", "Wie das Ergebnis festgehalten wird und was bei einer Kollision geschieht"] },
+    "time_limit_triage": { "title": "Einordnung eilbedürftiger Fristen", "sections": ["Den frühesten bekannten Fristablauf beim Erstkontakt erfragen", "Annehmen, weitervermitteln oder den Anfragenden schriftlich warnen"] },
+    "engagement_checklist": { "title": "Checkliste Honorarvereinbarung und Mandat", "sections": ["Vergütung, Vollmacht und Vorschuss", "Schreiben zur Nichtbeauftragung und zum Abschluss"] }
+  },
+  "rules": {
+    "inquiry_form_records": { "title": "Ansprechpartner und Anfrage anlegen, wenn das Anfrageformular abgeschickt wird" },
+    "acknowledge_inquiry": { "title": "Eine neue Anfrage am nächsten Tag beantworten und eine Erstberatung anbieten" },
+    "urgent_deadline_alert": { "title": "Die Leitung 14 Tage vor dem Fristablauf einer offenen Anfrage informieren" },
+    "conflict_check_task": { "title": "Die Kollisionsprüfung am Tag nach Eintritt in die Prüfungsphase durchführen" },
+    "fee_proposal_task": { "title": "Am Tag nach der Erstberatung das Mandatsangebot senden" },
+    "proposal_follow_up": { "title": "3 Tage nach dem Mandatsangebot nachfassen" },
+    "agreement_signed_set": { "title": "2 Tage nach der unterschriebenen Vereinbarung den Vorschuss einfordern" },
+    "advance_chase": { "title": "Den Zuständigen informieren, wenn der Vorschuss 7 Tage nach der Anforderung fehlt" },
+    "letter_declined": { "title": "Das Schreiben zur Nichtbeauftragung verfassen, wenn die Kanzlei eine Anfrage ablehnt" },
+    "letter_not_retained": { "title": "Das Schreiben zur Nichtbeauftragung verfassen, wenn ein Interessent kein Mandat erteilt" },
+    "poa_renewal": { "title": "Die Vollmacht 30 Tage vor Ablauf erneuern" },
+    "closing_letter": { "title": "Eine Woche nach Abschluss eines Mandats das Abschlussschreiben verfassen" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Jede Anfrage hat eine von acht Phasen.",
+    "conflict_check_field": "Jede Anfrage hält ihre Kollisionsprüfung fest.",
+    "urgent_deadline_field": "Jede Anfrage hält den frühesten bekannten Fristablauf fest.",
+    "inquiries_board_view": "Die Anfragen öffnen sich als Board nach Phase.",
+    "conflict_check_page": "Die Wissensdatenbank enthält eine Seite zur Kollisionsprüfung."
+  },
+  "prompt": {
+    "intro": "Richte in meinem Customermates-Workspace eine Mandatsaufnahme für die Kanzlei ein: Anfragen mit Kollisionsprüfung, frühestem bekanntem Fristablauf, Erstberatung, Mandatsangebot und unterschriebener Vereinbarung, Mandate als Verweise auf das Kanzleisystem, Beteiligte für die Kollisionsprüfung und schriftliche Schreiben zur Nichtbeauftragung. Speichere keine Falldetails und keine Mandatsgeheimnisse.",
+    "questions": [
+      "Welche Rechtsgebiete nehmen Sie an, und welche vermitteln Sie weiter?",
+      "Wie führen Sie die Kollisionsprüfung durch, und wer zeichnet sie ab?",
+      "Welche Vergütungsmodelle und welchen Vorschuss nutzen Sie?",
+      "Welches Kanzleisystem nutzen Sie? Hier wird nur ein Verweis auf die Akte gespeichert."
+    ]
+  }
+}

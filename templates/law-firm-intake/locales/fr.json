@@ -1,0 +1,116 @@
+{
+  "locale": "fr",
+  "name": "Prise de dossier pour avocats",
+  "summary": "Une prise de dossier en étapes fixes : demande, vérification des conflits, premier rendez-vous, convention d'honoraires, lettre de mission et pouvoir signés avec provision, et un courrier écrit pour chaque personne qui ne devient pas cliente.",
+  "description": "Prenez les clients en charge dans un ordre fixe : chaque demande consigne le domaine du droit, le délai le plus proche connu, la vérification des conflits et qui l'a faite, puis le rendez-vous, la convention d'honoraires et la lettre de mission signée. Une liste de parties soutient la recherche de conflits, les dossiers portent la date du pouvoir et une date de conservation, et les prospects refusés ou silencieux reçoivent un courrier écrit de non-engagement. Le modèle garde un renvoi vers le dossier, jamais les faits de l'affaire, le secret professionnel, les données de santé ni les informations sur la partie adverse. Ce n'est ni de la gestion de dossiers, ni de la comptabilité de fonds clients, ni une source de délais de procédure, ni de la facturation.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Prospects, clients, anciens clients et prescripteurs." },
+    "inquiries": { "label": "Demande", "pluralLabel": "Demandes", "description": "Une demande d'aide juridique, du premier contact à un dossier ou un refus." },
+    "matters": { "label": "Dossier", "pluralLabel": "Dossiers", "description": "Un renvoi vers l'affaire dans votre logiciel, avec la date du pouvoir et la date de conservation." },
+    "parties": { "label": "Partie", "pluralLabel": "Parties", "description": "Parties adverses et liées, conservées pour la vérification des conflits." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Rôle", "options": { "prospect": "Prospect", "client": "Client", "former_client": "Ancien client", "referrer": "Prescripteur" } },
+    "contacts.preferred_channel": { "label": "Canal préféré", "options": { "email": "E-mail", "phone": "Téléphone", "whatsapp": "WhatsApp", "post": "Courrier" } },
+    "inquiries.stage": {
+      "label": "Étape",
+      "options": { "new_inquiry": "Demande", "screening": "Vérification des conflits", "consultation": "Premier rendez-vous", "fee_proposal_sent": "Convention d'honoraires envoyée", "agreement_signed": "Lettre de mission signée", "matter_opened": "Dossier ouvert", "declined_by_firm": "Refusé", "not_retained": "Non donné suite" }
+    },
+    "inquiries.practice_area": {
+      "label": "Domaine du droit",
+      "options": { "employment": "Droit du travail", "family": "Droit de la famille", "civil_contract": "Droit civil et des contrats", "real_estate": "Droit immobilier", "corporate": "Droit des sociétés", "criminal": "Droit pénal", "immigration": "Droit des étrangers", "inheritance": "Successions", "administrative": "Droit administratif", "other": "Autre" }
+    },
+    "inquiries.source": { "label": "Source", "options": { "web_form": "Formulaire web", "phone": "Téléphone", "referral": "Recommandation", "whatsapp": "WhatsApp", "walk_in": "Visite au cabinet", "directory": "Annuaire" } },
+    "inquiries.urgent_deadline": { "label": "Délai le plus proche connu" },
+    "inquiries.deadline_source": { "label": "Origine du délai" },
+    "inquiries.conflict_check": {
+      "label": "Vérification des conflits",
+      "options": { "pending": "En attente", "cleared": "Aucun conflit", "cleared_with_waiver": "Levé avec accord", "conflict_found": "Conflit constaté" }
+    },
+    "inquiries.consultation_on": { "label": "Premier rendez-vous" },
+    "inquiries.fee_model": { "label": "Honoraires", "options": { "hourly": "Au temps passé", "fixed": "Forfait", "success_fee": "Honoraire de résultat", "insurance_or_legal_aid": "Protection juridique ou aide juridictionnelle", "mixed": "Mixte" } },
+    "inquiries.advance_requested_on": { "label": "Provision demandée le" },
+    "inquiries.advance_received_on": { "label": "Provision reçue le" },
+    "inquiries.responsible_lawyer": { "label": "Avocat responsable" },
+    "inquiries.next_step_due": { "label": "Prochaine étape avant le" },
+    "inquiries.lost_reason": {
+      "label": "Pourquoi pas de mission",
+      "options": { "conflict": "Conflit d'intérêts", "outside_practice_area": "Hors de nos domaines", "capacity": "Pas de capacité", "time_limit_referred_out": "Délai, orienté ailleurs", "fee": "Honoraires", "chose_other_lawyer": "A choisi un autre avocat", "no_response": "Sans réponse", "self_resolved": "Réglé de lui-même" }
+    },
+    "inquiries.non_engagement_letter_on": { "label": "Courrier de non-engagement envoyé le" },
+    "matters.matter_ref": { "label": "Référence dans le logiciel de gestion" },
+    "matters.status": { "label": "Statut", "options": { "open": "Ouvert", "on_hold": "En suspens", "closed": "Clos" } },
+    "matters.opened_on": { "label": "Ouvert le" },
+    "matters.poa_valid_until": { "label": "Pouvoir valable jusqu'au" },
+    "matters.retention_until": { "label": "Conserver jusqu'au" },
+    "parties.party_role": { "label": "Rôle", "options": { "opposing_party": "Partie adverse", "related_party": "Partie liée", "co_client": "Co-client", "insurer": "Assureur", "third_party": "Tiers" } },
+    "parties.party_type": { "label": "Type", "options": { "person": "Personne", "organisation": "Organisation" } },
+    "actions.kind": {
+      "label": "Type",
+      "options": { "reply": "Répondre", "conflict_check": "Faire la vérification des conflits", "consultation_prep": "Préparer le rendez-vous", "fee_proposal": "Envoyer la convention d'honoraires", "follow_up": "Relancer", "advance": "Demander la provision", "letter": "Rédiger un courrier", "other": "Autre" }
+    }
+  },
+  "relationships": {
+    "inquiry_contact": { "sourceLabel": "Contact", "targetLabel": "Demandes" },
+    "matter_contact": { "sourceLabel": "Client", "targetLabel": "Dossiers" },
+    "matter_inquiry": { "sourceLabel": "Demande", "targetLabel": "Dossiers" },
+    "party_inquiry": { "sourceLabel": "Demande", "targetLabel": "Parties" },
+    "party_matter": { "sourceLabel": "Dossier", "targetLabel": "Parties" },
+    "action_inquiry": { "sourceLabel": "Demande", "targetLabel": "Actions" },
+    "action_matter": { "sourceLabel": "Dossier", "targetLabel": "Actions" }
+  },
+  "views": {
+    "inquiries_board": { "name": "Demandes par étape" },
+    "inquiries_all": { "name": "Toutes les demandes" },
+    "with_time_limit": { "name": "Demandes ouvertes avec un délai" },
+    "conflicts_to_check": { "name": "Vérifications de conflits en attente" },
+    "matters_all": { "name": "Tous les dossiers" },
+    "parties_all": { "name": "Toutes les parties" },
+    "contacts_all": { "name": "Tous les contacts" }
+  },
+  "widgets": {
+    "inquiries_funnel": { "title": "Demandes par étape" },
+    "urgent_time_limits": { "title": "Délais des demandes ouvertes" },
+    "consultations_coming": { "title": "Rendez-vous à venir" },
+    "conflicts_pending": { "title": "Vérifications de conflits en attente" },
+    "inquiries_by_source": { "title": "Demandes par source" },
+    "lost_reasons": { "title": "Pourquoi des demandes ne deviennent pas des dossiers" },
+    "poa_expiring": { "title": "Pouvoirs qui expirent" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Comment fonctionne la prise de dossier", "sections": ["Premier contact et questions de tri", "Qui répond et en combien de temps"] },
+    "conflict_check": { "title": "Procédure de vérification des conflits", "sections": ["Ce qui est recherché : parties, clients et anciens clients", "Comment le résultat est consigné et que faire en cas de conflit"] },
+    "time_limit_triage": { "title": "Tri des délais urgents", "sections": ["Demander le délai le plus proche connu dès le premier contact", "Accepter, orienter ailleurs ou avertir la personne par écrit"] },
+    "engagement_checklist": { "title": "Liste de contrôle convention d'honoraires et lettre de mission", "sections": ["Honoraires, pouvoir et provision", "Courriers de non-engagement et de clôture"] }
+  },
+  "rules": {
+    "inquiry_form_records": { "title": "Créer le contact et la demande quand le formulaire de demande est envoyé" },
+    "acknowledge_inquiry": { "title": "Répondre à une nouvelle demande le lendemain et proposer un rendez-vous" },
+    "urgent_deadline_alert": { "title": "Prévenir l'avocat responsable 14 jours avant le délai d'une demande ouverte" },
+    "conflict_check_task": { "title": "Faire la vérification des conflits le lendemain de l'entrée en étape de vérification" },
+    "fee_proposal_task": { "title": "Envoyer la convention d'honoraires le lendemain du rendez-vous" },
+    "proposal_follow_up": { "title": "Relancer 3 jours après l'envoi de la convention d'honoraires" },
+    "agreement_signed_set": { "title": "Demander la provision 2 jours après la signature de la lettre de mission" },
+    "advance_chase": { "title": "Prévenir le responsable quand la provision manque 7 jours après la demande" },
+    "letter_declined": { "title": "Rédiger le courrier de non-engagement quand le cabinet refuse une demande" },
+    "letter_not_retained": { "title": "Rédiger le courrier de non-engagement quand un prospect ne confie pas le dossier" },
+    "poa_renewal": { "title": "Renouveler le pouvoir 30 jours avant son expiration" },
+    "closing_letter": { "title": "Rédiger le courrier de clôture une semaine après la clôture d'un dossier" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Chaque demande a l'une des huit étapes.",
+    "conflict_check_field": "Chaque demande consigne sa vérification des conflits.",
+    "urgent_deadline_field": "Chaque demande consigne le délai le plus proche connu.",
+    "inquiries_board_view": "Les demandes s'ouvrent en tableau par étape.",
+    "conflict_check_page": "La base de connaissances contient une page sur la vérification des conflits."
+  },
+  "prompt": {
+    "intro": "Mets en place dans mon espace Customermates une prise de dossier pour un cabinet d'avocats : demandes avec vérification des conflits, délai le plus proche connu, rendez-vous, convention d'honoraires et lettre de mission signée, dossiers comme renvois vers le logiciel du cabinet, parties pour la recherche de conflits et courriers écrits de non-engagement. Ne stocke aucun fait de l'affaire ni information couverte par le secret.",
+    "questions": [
+      "Quels domaines du droit acceptez-vous, et lesquels orientez-vous ailleurs ?",
+      "Comment faites-vous la vérification des conflits, et qui la valide ?",
+      "Quels modes d'honoraires et quelle provision utilisez-vous ?",
+      "Quel logiciel de gestion utilisez-vous ? Seule une référence au dossier est conservée ici."
+    ]
+  }
+}
