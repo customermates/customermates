@@ -14,7 +14,7 @@ import {
   staleGeneratedFiles,
 } from "@/scripts/lib/template-generated";
 import {
-  GENERATED_ROOT,
+  BUNDLES_ROOT,
   TEMPLATES_ROOT,
   buildTemplateBundle,
   buildTemplateBundles,
@@ -45,7 +45,7 @@ function editJson(path: string, change: (value: Record<string, unknown>) => void
 describe("template sources", () => {
   it("has a folder and a registry entry for every slug", () => {
     expect(templateSlugsOnDisk()).toEqual([...TEMPLATE_SLUGS].sort());
-    for (const slug of TEMPLATE_SLUGS) expect(existsSync(join(GENERATED_ROOT, `${slug}.json`))).toBe(true);
+    for (const slug of TEMPLATE_SLUGS) expect(existsSync(join(BUNDLES_ROOT, `${slug}.json`))).toBe(true);
   });
 
   it(`matches the generated files (run ${GENERATED_COMMAND} after editing a template)`, () => {

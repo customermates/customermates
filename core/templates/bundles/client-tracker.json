@@ -1,0 +1,1832 @@
+{
+  "spec": {
+    "id": "tpl_client_tracker",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "client-tracker",
+    "family": "clients",
+    "kind": "tracker",
+    "jurisdictions": [
+      "global"
+    ],
+    "dashboardAudience": "me",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "notifications"
+    ],
+    "pairedPages": {
+      "en": "/features/contact-management",
+      "de": "/features/contact-management"
+    },
+    "modules": [
+      "actions_core"
+    ],
+    "lists": [
+      {
+        "key": "clients",
+        "icon": "building"
+      },
+      {
+        "key": "contacts",
+        "role": "people",
+        "icon": "contact"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "clients.segment",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "a_key"
+          },
+          {
+            "key": "b_regular"
+          },
+          {
+            "key": "c_occasional"
+          }
+        ]
+      },
+      {
+        "key": "clients.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "clients.source",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "referral"
+          },
+          {
+            "key": "website"
+          },
+          {
+            "key": "event"
+          },
+          {
+            "key": "outbound"
+          },
+          {
+            "key": "existing_network"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "clients.client_since",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "clients.last_contact",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "clients.next_step",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "clients.next_step_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "clients.review_interval",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "monthly"
+          },
+          {
+            "key": "quarterly"
+          },
+          {
+            "key": "half_yearly"
+          },
+          {
+            "key": "yearly"
+          }
+        ]
+      },
+      {
+        "key": "clients.next_review",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "clients.annual_value",
+        "type": "currency",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "clients.website",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "clients.address",
+        "type": "address",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "clients.registration_id",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "clients.closed_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "clients.data_review_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "contacts.job_title",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "contacts.contact_role",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "decision_maker"
+          },
+          {
+            "key": "day_to_day"
+          },
+          {
+            "key": "billing"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "contacts.preferred_channel",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "email"
+          },
+          {
+            "key": "phone"
+          },
+          {
+            "key": "whatsapp"
+          },
+          {
+            "key": "linkedin"
+          },
+          {
+            "key": "in_person"
+          }
+        ]
+      },
+      {
+        "key": "contacts.language",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "contacts.marketing_consent",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "contacts.consent_date",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "check_in"
+          },
+          {
+            "key": "reply"
+          },
+          {
+            "key": "request_document"
+          },
+          {
+            "key": "review"
+          },
+          {
+            "key": "chase"
+          },
+          {
+            "key": "data_review"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "clients.status",
+        "items": [
+          {
+            "key": "prospect"
+          },
+          {
+            "key": "onboarding"
+          },
+          {
+            "key": "active"
+          },
+          {
+            "key": "waiting_on_client"
+          },
+          {
+            "key": "at_risk"
+          },
+          {
+            "key": "inactive"
+          },
+          {
+            "key": "closed"
+          }
+        ]
+      }
+    ],
+    "calculations": [],
+    "relationships": [
+      {
+        "key": "contact_client",
+        "source": "contacts",
+        "target": "clients",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_client",
+        "source": "actions",
+        "target": "clients",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_contact",
+        "source": "actions",
+        "target": "contacts",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "clients_all",
+        "list": "clients",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "clients.next_step_due",
+          "direction": "asc"
+        },
+        "columns": [
+          "clients.status",
+          "clients.owner",
+          "clients.segment",
+          "clients.last_contact",
+          "clients.next_step",
+          "clients.next_step_due"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "clients_board",
+        "list": "clients",
+        "default": false,
+        "layout": "board",
+        "groupBy": "clients.status",
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "needs_next_step",
+        "list": "clients",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "clients.status",
+            "options": [
+              "active",
+              "onboarding"
+            ]
+          },
+          {
+            "operator": "empty",
+            "field": "clients.next_step_due"
+          }
+        ]
+      },
+      {
+        "key": "overdue_next_step",
+        "list": "clients",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "clients.next_step_due",
+          "direction": "asc"
+        },
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "inLastDays",
+            "field": "clients.next_step_due",
+            "days": 3650
+          }
+        ]
+      },
+      {
+        "key": "waiting_on_client",
+        "list": "clients",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "clients.status",
+            "options": [
+              "waiting_on_client"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "at_risk",
+        "list": "clients",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "clients.status",
+            "options": [
+              "at_risk"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "data_review_due",
+        "list": "clients",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "clients.data_review_on",
+          "direction": "asc"
+        },
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "clients.status",
+            "options": [
+              "closed"
+            ]
+          },
+          {
+            "operator": "notEmpty",
+            "field": "clients.data_review_on"
+          }
+        ]
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "contacts_all",
+        "list": "contacts",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "contacts.contact_role",
+          "contacts.preferred_channel",
+          "contacts.language"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "calendar",
+        "key": "review_calendar",
+        "list": "clients",
+        "layout": "month",
+        "dateField": "clients.next_review",
+        "amountField": null,
+        "filters": []
+      },
+      {
+        "kind": "chart",
+        "key": "clients_by_status",
+        "list": "clients",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "clients.status"
+        },
+        "filters": [],
+        "display": "doughnutChart"
+      },
+      {
+        "kind": "chart",
+        "key": "clients_by_segment",
+        "list": "clients",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "clients.segment"
+        },
+        "filters": [],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "chart",
+        "key": "clients_per_owner",
+        "list": "clients",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "clients.owner"
+        },
+        "filters": [],
+        "display": "rankedTable"
+      },
+      {
+        "kind": "chart",
+        "key": "active_without_next_step",
+        "list": "clients",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "clients.status",
+            "options": [
+              "active",
+              "onboarding"
+            ]
+          },
+          {
+            "operator": "empty",
+            "field": "clients.next_step_due"
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "waiting_on_client_count",
+        "list": "clients",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "clients.status",
+            "options": [
+              "waiting_on_client"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "at_risk_count",
+        "list": "clients",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "clients.status",
+            "options": [
+              "at_risk"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "value_by_segment",
+        "list": "clients",
+        "aggregation": "sum",
+        "valueField": "clients.annual_value",
+        "groupBy": {
+          "path": [],
+          "field": "clients.segment"
+        },
+        "filters": [],
+        "display": "verticalBarChart"
+      },
+      {
+        "kind": "chart",
+        "key": "new_clients_per_month",
+        "list": "clients",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "clients.client_since",
+          "dateInterval": "month"
+        },
+        "filters": [],
+        "display": "areaChart"
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_actions",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "playbook",
+        "kind": "processes"
+      },
+      {
+        "key": "weekly_review",
+        "kind": "processes"
+      },
+      {
+        "key": "status_definitions",
+        "kind": "processes"
+      },
+      {
+        "key": "message_templates",
+        "kind": "salesPlaybook"
+      },
+      {
+        "key": "data_retention",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "overdue_action_notice",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "actions.due",
+          "offsetDays": 0
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "notify",
+          "recipient": "record_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "chase_waiting_client",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "clients.status",
+          "to": "waiting_on_client"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "chase",
+          "assignee": "record_owner",
+          "about": "clients"
+        },
+        "dueOffsetDays": 7,
+        "needs": "today"
+      },
+      {
+        "key": "review_before_due",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "clients.next_review",
+          "offsetDays": -7
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "clients.status",
+            "options": [
+              "active"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "record_owner",
+          "about": "clients"
+        },
+        "dueOffsetDays": 7,
+        "needs": "rules"
+      },
+      {
+        "key": "daily_next_step_sweep",
+        "trigger": {
+          "kind": "schedule",
+          "every": "day",
+          "list": "clients"
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "clients.status",
+            "options": [
+              "active",
+              "onboarding"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "check_in",
+          "assignee": "record_owner",
+          "about": "clients"
+        },
+        "dueOffsetDays": 0,
+        "needs": "today"
+      },
+      {
+        "key": "stalled_client_sweep",
+        "trigger": {
+          "kind": "schedule",
+          "every": "week",
+          "weekday": 1,
+          "list": "clients"
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "clients.status",
+            "options": [
+              "active"
+            ]
+          },
+          {
+            "operator": "olderThanDays",
+            "field": "clients.last_contact",
+            "days": 45
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "check_in",
+          "assignee": "record_owner",
+          "about": "clients"
+        },
+        "dueOffsetDays": 0,
+        "needs": "today"
+      },
+      {
+        "key": "closed_client_dates",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "clients.status",
+          "to": "closed"
+        },
+        "condition": [],
+        "action": {
+          "kind": "set_dates",
+          "dates": [
+            {
+              "field": "clients.closed_on",
+              "offsetDays": 0
+            },
+            {
+              "field": "clients.data_review_on",
+              "offsetDays": 1095
+            }
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "today"
+      },
+      {
+        "key": "closed_client_data_review",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "clients.status",
+          "to": "closed"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "data_review",
+          "assignee": "record_owner",
+          "about": "clients"
+        },
+        "dueOffsetDays": 1095,
+        "needs": "today"
+      },
+      {
+        "key": "inactive_reactivation",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "clients.status",
+          "to": "inactive"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "check_in",
+          "assignee": "record_owner",
+          "about": "clients"
+        },
+        "dueOffsetDays": 90,
+        "needs": "today"
+      },
+      {
+        "key": "enquiry_form_records",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "enquiry"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "clients",
+            "contacts"
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "forms"
+      },
+      {
+        "key": "enquiry_form_reply",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "enquiry"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "reply",
+          "assignee": "workspace_owner",
+          "about": "clients"
+        },
+        "dueOffsetDays": 1,
+        "needs": "forms"
+      },
+      {
+        "key": "weekly_client_review",
+        "trigger": {
+          "kind": "schedule",
+          "every": "week",
+          "weekday": 1
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "workspace_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "today"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "status_field",
+        "kind": "field_exists",
+        "ref": "clients.status"
+      },
+      {
+        "key": "next_step_date_field",
+        "kind": "field_exists",
+        "ref": "clients.next_step_due"
+      },
+      {
+        "key": "clients_default_view",
+        "kind": "view_exists",
+        "ref": "clients_all"
+      },
+      {
+        "key": "overdue_widget",
+        "kind": "widget_exists",
+        "ref": "overdue_actions"
+      },
+      {
+        "key": "chase_rule",
+        "kind": "rule_exists",
+        "ref": "chase_waiting_client"
+      },
+      {
+        "key": "playbook_page",
+        "kind": "page_exists",
+        "ref": "playbook"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://capsulecrm.com/blog/customer-tracking-spreadsheet/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://capsulecrm.com/blog/free-client-tracker-template/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://clustdoc.com/blog/best-client-management-software/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.hubspot.com/resources/templates/customer-relationship-management",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.cnil.fr/fr/cnil-direct/question/gestion-des-clients-et-prospects-que-faire",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.cnil.fr/sites/cnil/files/atoms/files/referentiel_traitements-donnees-caractere-personnel_gestion-activites-commerciales.pdf",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.ihk.de/ulm/hauptnavigation/mitgliedsunternehmen/beraten-informieren/recht-steuern/auskuenfte-zum-steuerrecht/bilanzierung-rechnungslegung-steuerpruefung/aufbewahrungspflichten-6694208",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.omie.com.br/blog/cadastro-de-clientes/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.agendor.com.br/blog/significado-gestao-clientes/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://factorial.es/blog/ficha-de-cliente-como-elaborar-una-base-de-datos/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.12h15.fr/outils-gestion-donnees-clients/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.b2bmarketeers.nl/relatiebeheer-wat-is-dat-eigenlijk/",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "status": {
+      "en": "draft",
+      "de": "draft"
+    },
+    "publicPage": {
+      "en": "own",
+      "de": "none"
+    }
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Kundenverwaltung",
+      "summary": "Eine Zeile pro Kunde, ein Betreuer, ein terminierter nächster Schritt, dazu eine wöchentliche Durchsicht und ein Prüfdatum für jeden beendeten Kunden.",
+      "description": "Eine schlanke Kundenkartei mit sieben Status, dem Datum des letzten Kontakts, einer Wiedervorlage, die die Arbeit steuert, einem Prüfrhythmus je Segment und einem Löschprüfdatum für beendete Kunden. Ansprechpartner, terminierte Wiedervorlagen und verknüpfte Unterhaltungen stehen direkt am Kunden.",
+      "lists": {
+        "actions": {
+          "label": "Wiedervorlage",
+          "pluralLabel": "Wiedervorlagen",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "clients": {
+          "label": "Kunde",
+          "pluralLabel": "Kunden",
+          "description": "Eine Zeile pro Kunde, ein Betreuer, ein terminierter nächster Schritt."
+        },
+        "contacts": {
+          "label": "Ansprechpartner",
+          "pluralLabel": "Ansprechpartner",
+          "description": "Die Personen, mit denen Sie bei jedem Kunden zu tun haben."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "clients.status": {
+          "label": "Status",
+          "options": {
+            "prospect": "Interessent",
+            "onboarding": "Einrichtung",
+            "active": "Aktiv",
+            "waiting_on_client": "Wartet auf Kunde",
+            "at_risk": "Gefährdet",
+            "inactive": "Ruhend",
+            "closed": "Beendet"
+          }
+        },
+        "clients.segment": {
+          "label": "Segment",
+          "options": {
+            "a_key": "A-Kunde",
+            "b_regular": "B-Kunde",
+            "c_occasional": "C-Kunde"
+          }
+        },
+        "clients.owner": {
+          "label": "Betreuer",
+          "options": {}
+        },
+        "clients.source": {
+          "label": "Herkunft",
+          "options": {
+            "referral": "Empfehlung",
+            "website": "Website",
+            "event": "Veranstaltung",
+            "outbound": "Eigene Akquise",
+            "existing_network": "Bestehendes Netzwerk",
+            "other": "Sonstiges"
+          }
+        },
+        "clients.client_since": {
+          "label": "Kunde seit",
+          "options": {}
+        },
+        "clients.last_contact": {
+          "label": "Letzter Kontakt",
+          "options": {}
+        },
+        "clients.next_step": {
+          "label": "Nächster Schritt",
+          "options": {}
+        },
+        "clients.next_step_due": {
+          "label": "Wiedervorlage am",
+          "options": {}
+        },
+        "clients.review_interval": {
+          "label": "Prüfintervall",
+          "options": {
+            "monthly": "Monatlich",
+            "quarterly": "Vierteljährlich",
+            "half_yearly": "Halbjährlich",
+            "yearly": "Jährlich"
+          }
+        },
+        "clients.next_review": {
+          "label": "Nächste Prüfung",
+          "options": {}
+        },
+        "clients.annual_value": {
+          "label": "Jahreswert",
+          "options": {}
+        },
+        "clients.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "clients.address": {
+          "label": "Anschrift",
+          "options": {}
+        },
+        "clients.registration_id": {
+          "label": "Handelsregisternummer oder USt-IdNr.",
+          "options": {}
+        },
+        "clients.closed_on": {
+          "label": "Beendet am",
+          "options": {}
+        },
+        "clients.data_review_on": {
+          "label": "Datenprüfung am",
+          "options": {}
+        },
+        "contacts.job_title": {
+          "label": "Position",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Rolle",
+          "options": {
+            "decision_maker": "Entscheider",
+            "day_to_day": "Tagesgeschäft",
+            "billing": "Buchhaltung",
+            "other": "Sonstige"
+          }
+        },
+        "contacts.preferred_channel": {
+          "label": "Bevorzugter Kanal",
+          "options": {
+            "email": "E-Mail",
+            "phone": "Telefon",
+            "whatsapp": "WhatsApp",
+            "linkedin": "LinkedIn",
+            "in_person": "Persönlich"
+          }
+        },
+        "contacts.language": {
+          "label": "Sprache",
+          "options": {}
+        },
+        "contacts.marketing_consent": {
+          "label": "Werbeeinwilligung",
+          "options": {}
+        },
+        "contacts.consent_date": {
+          "label": "Datum der Einwilligung",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "check_in": "Nachfassen",
+            "reply": "Antworten",
+            "request_document": "Unterlage anfordern",
+            "review": "Prüfung",
+            "chase": "Erinnern",
+            "data_review": "Datenprüfung",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Kunde",
+          "targetLabel": "Ansprechpartner"
+        },
+        "action_client": {
+          "sourceLabel": "Kunde",
+          "targetLabel": "Wiedervorlagen"
+        },
+        "action_contact": {
+          "sourceLabel": "Ansprechpartner",
+          "targetLabel": "Wiedervorlagen"
+        }
+      },
+      "views": {
+        "clients_all": {
+          "name": "Alle Kunden"
+        },
+        "clients_board": {
+          "name": "Kunden nach Status"
+        },
+        "needs_next_step": {
+          "name": "Ohne nächsten Schritt"
+        },
+        "overdue_next_step": {
+          "name": "Überfällige Wiedervorlagen"
+        },
+        "waiting_on_client": {
+          "name": "Wartet auf Kunde"
+        },
+        "at_risk": {
+          "name": "Gefährdet"
+        },
+        "data_review_due": {
+          "name": "Datenprüfung fällig"
+        },
+        "actions_all": {
+          "name": "Alle Wiedervorlagen"
+        },
+        "contacts_all": {
+          "name": "Alle Ansprechpartner"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Anstehende Wiedervorlagen"
+        },
+        "review_calendar": {
+          "title": "Kundenprüfungen im Monat"
+        },
+        "clients_by_status": {
+          "title": "Kunden nach Status"
+        },
+        "clients_by_segment": {
+          "title": "Kunden nach Segment"
+        },
+        "clients_per_owner": {
+          "title": "Kunden je Betreuer"
+        },
+        "active_without_next_step": {
+          "title": "Aktive Kunden ohne nächsten Schritt"
+        },
+        "waiting_on_client_count": {
+          "title": "Wartet auf Kunde"
+        },
+        "at_risk_count": {
+          "title": "Gefährdet"
+        },
+        "value_by_segment": {
+          "title": "Jahreswert nach Segment"
+        },
+        "new_clients_per_month": {
+          "title": "Neue Kunden pro Monat"
+        },
+        "overdue_actions": {
+          "title": "Überfällige Wiedervorlagen"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivitäten"
+        }
+      },
+      "knowledgePages": {
+        "playbook": {
+          "title": "Leitfaden Kundenverwaltung",
+          "sections": [
+            "Eine Zeile, ein Betreuer, ein terminierter nächster Schritt",
+            "Was jeder Status bedeutet",
+            "Die Zeile am Tag jedes Anrufs oder Angebots aktualisieren"
+          ]
+        },
+        "weekly_review": {
+          "title": "Wöchentliche Kundendurchsicht in 15 Minuten",
+          "sections": [
+            "Nach Wiedervorlage und Status sortieren",
+            "Überfällig, aktiv ohne nächsten Schritt, stockende Interessenten",
+            "Am Ende steht bei jeder Zeile ein Datum"
+          ]
+        },
+        "status_definitions": {
+          "title": "Definition der Kundenstatus",
+          "sections": [
+            "Eintritts- und Austrittsregel je Status",
+            "Nach 7 Tagen erinnern, nach 14 Tagen eskalieren",
+            "Wer einen Status ändern darf"
+          ]
+        },
+        "message_templates": {
+          "title": "Vorlagen für Nachfassen und Reaktivierung",
+          "sections": [
+            "Nachfassen nach einer ruhigen Phase",
+            "Erinnerung bei wartendem Kunden",
+            "Einladung zur Durchsicht",
+            "Reaktivierung nach 90 Tagen",
+            "Höflicher Abschluss"
+          ]
+        },
+        "data_retention": {
+          "title": "Aufbewahrung und Datenschutz in der Kundenkartei",
+          "sections": [
+            "Zweck und gespeicherte Daten",
+            "Aufbewahrungsfristen (DSGVO, HGB, AO)",
+            "Nachweis der Einwilligung",
+            "Auskunfts- und Löschersuchen beantworten"
+          ]
+        }
+      },
+      "rules": {
+        "overdue_action_notice": {
+          "title": "Betreuer über eine überfällige Wiedervorlage informieren",
+          "description": "Sobald das Fälligkeitsdatum einer offenen Wiedervorlage erreicht ist, wird der Zuständige benachrichtigt."
+        },
+        "chase_waiting_client": {
+          "title": "Beim Kunden an den offenen Punkt erinnern",
+          "description": "Wechselt ein Kunde auf Wartet auf Kunde, erhält der Betreuer nach 7 Tagen eine Wiedervorlage zum Erinnern."
+        },
+        "review_before_due": {
+          "title": "Kundenakte prüfen",
+          "description": "Sieben Tage vor dem nächsten Prüftermin eines aktiven Kunden entsteht eine Prüfungs-Wiedervorlage für den Betreuer."
+        },
+        "daily_next_step_sweep": {
+          "title": "Nachfassen: keine offene Wiedervorlage bei diesem Kunden",
+          "description": "Täglich erhält ein aktiver oder in der Einrichtung befindlicher Kunde ohne offene verknüpfte Wiedervorlage eine Wiedervorlage zum Nachfassen, fällig heute."
+        },
+        "stalled_client_sweep": {
+          "title": "Nachfassen: seit 45 Tagen kein Kontakt",
+          "description": "Jeden Montag erhält ein aktiver Kunde ohne Kontakt seit 45 Tagen eine Wiedervorlage zum Nachfassen. Der Status ändert sich nie von selbst."
+        },
+        "closed_client_dates": {
+          "title": "Beendigungsdatum und Datenprüfungsdatum setzen",
+          "description": "Wird ein Kunde beendet, wird Beendet am auf heute und Datenprüfung am auf drei Jahre später gesetzt. Passen Sie die Frist an Ihre Pflichten an."
+        },
+        "closed_client_data_review": {
+          "title": "Daten dieses beendeten Kunden prüfen",
+          "description": "Zum Datum der Datenprüfung wird eine Wiedervorlage zur Datenprüfung fällig."
+        },
+        "inactive_reactivation": {
+          "title": "Fragen, ob der Kunde noch relevant ist",
+          "description": "Neunzig Tage nachdem ein Kunde auf Ruhend gesetzt wurde, stellt eine Wiedervorlage die Reaktivierungsfrage."
+        },
+        "enquiry_form_records": {
+          "title": "Kunde und Ansprechpartner aus einer Anfrage anlegen",
+          "description": "Ein öffentliches Anfrageformular legt einen Kunden als Interessent und dessen Ansprechpartner an."
+        },
+        "enquiry_form_reply": {
+          "title": "Die Anfrage beantworten",
+          "description": "Jede Anfrage erhält eine Wiedervorlage zum Antworten, fällig am nächsten Tag."
+        },
+        "weekly_client_review": {
+          "title": "Wöchentliche Kundendurchsicht",
+          "description": "Jeden Montag listet eine Wiedervorlage überfällige Kunden, Kunden ohne nächsten Schritt und stockende Interessenten auf."
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Jeder Kunde hat einen Status aus den sieben Werten.",
+        "next_step_date_field": "Jeder Kunde hat einen nächsten Schritt und ein Datum dafür.",
+        "clients_default_view": "Die Kundenliste öffnet sich nach Wiedervorlage sortiert.",
+        "overdue_widget": "Das Dashboard zeigt, wie viele Wiedervorlagen überfällig sind.",
+        "chase_rule": "Ein Kunde, der auf Wartet auf Kunde gesetzt wird, erhält eine Wiedervorlage zum Erinnern.",
+        "playbook_page": "Die Wissensdatenbank enthält den Leitfaden zur Kundenverwaltung."
+      },
+      "prompt": {
+        "intro": "Richte in meinem Customermates-Workspace eine Kundenverwaltung ein: eine Zeile pro Kunde mit einem Betreuer, einem Status, dem Datum des letzten Kontakts und einer terminierten Wiedervorlage, dazu Ansprechpartner, terminierte Aufgaben, eine wöchentliche Durchsicht und ein Prüfdatum für beendete Kunden.",
+        "questions": [
+          "Wie viele Kunden betreuen Sie heute, und wer arbeitet noch an der Kartei mit?",
+          "Welche Kundenstatus nutzen Sie schon? Soll einer der sieben umbenannt oder weggelassen werden?",
+          "Wie oft möchten Sie A-, B- und C-Kunden durchsehen?",
+          "In welchem Land arbeiten Sie, damit die Aufbewahrungsfrist für beendete Kunden gesetzt werden kann?",
+          "Führen Sie Rechnungen in einem anderen Programm? Wenn ja, in welchem, damit hier keine Rechnungsfelder entstehen."
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Client tracker",
+      "summary": "One row per client, one owner, one dated next step, plus a weekly review and a retention date for every closed client.",
+      "description": "A short, disciplined client list: a status from seven values, a last-contact date, a next-step date that drives the work, a review rhythm per segment and a data-retention date for closed clients. Contacts, dated Actions and linked conversations sit next to every client.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "clients": {
+          "label": "Client",
+          "pluralLabel": "Clients",
+          "description": "One row per client, one owner, one dated next step."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "The people you deal with at each client."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "clients.status": {
+          "label": "Status",
+          "options": {
+            "prospect": "Prospect",
+            "onboarding": "Onboarding",
+            "active": "Active",
+            "waiting_on_client": "Waiting on client",
+            "at_risk": "At risk",
+            "inactive": "Inactive",
+            "closed": "Closed"
+          }
+        },
+        "clients.segment": {
+          "label": "Segment",
+          "options": {
+            "a_key": "A: key client",
+            "b_regular": "B: regular client",
+            "c_occasional": "C: occasional client"
+          }
+        },
+        "clients.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "clients.source": {
+          "label": "Source",
+          "options": {
+            "referral": "Referral",
+            "website": "Website",
+            "event": "Event",
+            "outbound": "Outbound",
+            "existing_network": "Existing network",
+            "other": "Other"
+          }
+        },
+        "clients.client_since": {
+          "label": "Client since",
+          "options": {}
+        },
+        "clients.last_contact": {
+          "label": "Last contact",
+          "options": {}
+        },
+        "clients.next_step": {
+          "label": "Next step",
+          "options": {}
+        },
+        "clients.next_step_due": {
+          "label": "Next step due",
+          "options": {}
+        },
+        "clients.review_interval": {
+          "label": "Review interval",
+          "options": {
+            "monthly": "Monthly",
+            "quarterly": "Quarterly",
+            "half_yearly": "Every six months",
+            "yearly": "Yearly"
+          }
+        },
+        "clients.next_review": {
+          "label": "Next review",
+          "options": {}
+        },
+        "clients.annual_value": {
+          "label": "Annual value",
+          "options": {}
+        },
+        "clients.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "clients.address": {
+          "label": "Address",
+          "options": {}
+        },
+        "clients.registration_id": {
+          "label": "Company registration or VAT number",
+          "options": {}
+        },
+        "clients.closed_on": {
+          "label": "Closed on",
+          "options": {}
+        },
+        "clients.data_review_on": {
+          "label": "Data review on",
+          "options": {}
+        },
+        "contacts.job_title": {
+          "label": "Job title",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Role",
+          "options": {
+            "decision_maker": "Decision maker",
+            "day_to_day": "Day-to-day contact",
+            "billing": "Billing",
+            "other": "Other"
+          }
+        },
+        "contacts.preferred_channel": {
+          "label": "Preferred channel",
+          "options": {
+            "email": "Email",
+            "phone": "Phone",
+            "whatsapp": "WhatsApp",
+            "linkedin": "LinkedIn",
+            "in_person": "In person"
+          }
+        },
+        "contacts.language": {
+          "label": "Language",
+          "options": {}
+        },
+        "contacts.marketing_consent": {
+          "label": "Marketing consent",
+          "options": {}
+        },
+        "contacts.consent_date": {
+          "label": "Consent date",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "check_in": "Check-in",
+            "reply": "Reply",
+            "request_document": "Request document",
+            "review": "Review",
+            "chase": "Chase",
+            "data_review": "Data review",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Contacts"
+        },
+        "action_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Actions"
+        },
+        "action_contact": {
+          "sourceLabel": "Contact",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "clients_all": {
+          "name": "All clients"
+        },
+        "clients_board": {
+          "name": "Clients by status"
+        },
+        "needs_next_step": {
+          "name": "Needs a next step"
+        },
+        "overdue_next_step": {
+          "name": "Overdue next steps"
+        },
+        "waiting_on_client": {
+          "name": "Waiting on client"
+        },
+        "at_risk": {
+          "name": "At risk"
+        },
+        "data_review_due": {
+          "name": "Data review due"
+        },
+        "actions_all": {
+          "name": "All actions"
+        },
+        "contacts_all": {
+          "name": "All contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Upcoming actions"
+        },
+        "review_calendar": {
+          "title": "Client reviews this month"
+        },
+        "clients_by_status": {
+          "title": "Clients by status"
+        },
+        "clients_by_segment": {
+          "title": "Clients by segment"
+        },
+        "clients_per_owner": {
+          "title": "Clients per owner"
+        },
+        "active_without_next_step": {
+          "title": "Active clients without a next step"
+        },
+        "waiting_on_client_count": {
+          "title": "Waiting on client"
+        },
+        "at_risk_count": {
+          "title": "At risk"
+        },
+        "value_by_segment": {
+          "title": "Annual value by segment"
+        },
+        "new_clients_per_month": {
+          "title": "New clients per month"
+        },
+        "overdue_actions": {
+          "title": "Overdue actions"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        }
+      },
+      "knowledgePages": {
+        "playbook": {
+          "title": "Client tracker playbook",
+          "sections": [
+            "One row, one owner, one dated next step",
+            "What each status means",
+            "Update the row the same day as every call or quote"
+          ]
+        },
+        "weekly_review": {
+          "title": "Weekly 15-minute client review",
+          "sections": [
+            "Sort by next step due and status",
+            "Overdue, active without a next step, stalled prospects",
+            "End with a date on every row"
+          ]
+        },
+        "status_definitions": {
+          "title": "Client status definitions",
+          "sections": [
+            "Entry and exit rule per status",
+            "Chase after 7 days, escalate after 14",
+            "Who may change a status"
+          ]
+        },
+        "message_templates": {
+          "title": "Check-in and reactivation message templates",
+          "sections": [
+            "Check-in after a quiet period",
+            "Waiting-on-client chase",
+            "Review invitation",
+            "Reactivation after 90 days",
+            "Polite close"
+          ]
+        },
+        "data_retention": {
+          "title": "Data retention and privacy for the client file",
+          "sections": [
+            "Purpose and what is kept",
+            "Retention period per country",
+            "Consent evidence",
+            "Answering an access or deletion request"
+          ]
+        }
+      },
+      "rules": {
+        "overdue_action_notice": {
+          "title": "Tell the owner that an Action is overdue",
+          "description": "When the due date of an open Action is reached, the owner is notified."
+        },
+        "chase_waiting_client": {
+          "title": "Chase the client for the open item",
+          "description": "When a client moves to Waiting on client, the client owner gets a chase Action after 7 days."
+        },
+        "review_before_due": {
+          "title": "Review the client file",
+          "description": "Seven days before the next review date of an active client, a review Action is created for the owner."
+        },
+        "daily_next_step_sweep": {
+          "title": "Check in: no open Action on this client",
+          "description": "Each day, an active or onboarding client without an open linked Action gets a check-in Action due today."
+        },
+        "stalled_client_sweep": {
+          "title": "Check in: no contact for 45 days",
+          "description": "Each Monday, an active client with no contact for 45 days gets a check-in Action. The status never changes by itself."
+        },
+        "closed_client_dates": {
+          "title": "Set the close date and the data review date",
+          "description": "When a client is closed, Closed on is set to today and Data review on to three years later. Adjust the period to your country."
+        },
+        "closed_client_data_review": {
+          "title": "Review the data of this closed client",
+          "description": "A data review Action falls due at the data review date."
+        },
+        "inactive_reactivation": {
+          "title": "Ask whether the client is still relevant",
+          "description": "Ninety days after a client becomes Inactive, a check-in Action asks the reactivation question."
+        },
+        "enquiry_form_records": {
+          "title": "Create the client and the contact from an enquiry",
+          "description": "A public enquiry form creates a client as Prospect and its contact."
+        },
+        "enquiry_form_reply": {
+          "title": "Reply to the enquiry",
+          "description": "Every enquiry gets a reply Action due the next day."
+        },
+        "weekly_client_review": {
+          "title": "Weekly client review",
+          "description": "Each Monday, one review Action lists overdue clients, clients without a next step and stalled prospects."
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Every client has a status from the seven values.",
+        "next_step_date_field": "Every client has a next step and a date for it.",
+        "clients_default_view": "The client list opens sorted by next step due.",
+        "overdue_widget": "The dashboard shows how many Actions are overdue.",
+        "chase_rule": "A client moved to Waiting on client gets a chase Action.",
+        "playbook_page": "The Knowledge Base holds the client tracker playbook."
+      },
+      "prompt": {
+        "intro": "Set up a client tracker in my Customermates workspace: one row per client with one owner, a status, a last-contact date and a dated next step, plus contacts, dated Actions, a weekly review and a retention date for closed clients.",
+        "questions": [
+          "How many clients do you look after today, and who else works on the file?",
+          "Which client statuses do you already use? Should any of the seven be renamed or left out?",
+          "How often do you want to review key clients, regular clients and occasional clients?",
+          "In which country do you work, so that the retention period for closed clients can be set?",
+          "Do you keep invoices elsewhere? If yes, which tool, so that no billing fields are added here."
+        ]
+      }
+    }
+  }
+}
