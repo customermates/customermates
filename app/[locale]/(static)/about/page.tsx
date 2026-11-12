@@ -9,7 +9,7 @@ import { PageHero } from "@/components/marketing/page-hero";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
-import { aboutSource } from "@/core/fumadocs/source";
+import { aboutBodySource } from "@/core/fumadocs/body-sources/about";
 import { founderProfileSchema } from "@/core/seo/schemas";
 import { contentLocaleOrDefault } from "@/i18n/locale-registry";
 import { enableStaticLocale, type StaticLocaleProps } from "@/i18n/static-locale";
@@ -23,7 +23,7 @@ export default async function AboutPage({ params }: StaticLocaleProps) {
   await enableStaticLocale(params);
 
   const locale = contentLocaleOrDefault(await getLocale());
-  const page = aboutSource.getPage(["about"], locale);
+  const page = aboutBodySource.getPage(["about"], locale);
 
   if (!page) notFound();
 

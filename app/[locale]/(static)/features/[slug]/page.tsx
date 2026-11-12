@@ -13,6 +13,7 @@ import { PageEnding } from "@/components/marketing/page-ending";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { featurePagesSource } from "@/core/fumadocs/source";
+import { featurePagesBodySource } from "@/core/fumadocs/body-sources/feature-pages";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { breadcrumbListSchema, webPageSchema } from "@/core/seo/schemas";
 import { resolvePageLastModified } from "@/core/seo/sitemap";
@@ -53,7 +54,7 @@ export default async function FeaturePage({ params }: Props) {
 
   const [rawLocale, t] = await Promise.all([getLocale(), getTranslations("StructuredData.breadcrumb")]);
   const locale = marketingLocaleOrDefault(rawLocale);
-  const page = featurePagesSource.getPage([slug], locale);
+  const page = featurePagesBodySource.getPage([slug], locale);
 
   if (!page) notFound();
 

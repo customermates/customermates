@@ -14,6 +14,7 @@ import { productDemoForIndustry } from "@/components/marketing/product-demo-conf
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { forPagesSource } from "@/core/fumadocs/source";
+import { forPagesBodySource } from "@/core/fumadocs/body-sources/for-pages";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { breadcrumbListSchema, webPageSchema } from "@/core/seo/schemas";
 import { resolvePageLastModified } from "@/core/seo/sitemap";
@@ -52,7 +53,7 @@ export default async function ForIndustryPage({ params }: Props) {
 
   const [rawLocale, t] = await Promise.all([getLocale(), getTranslations("StructuredData.breadcrumb")]);
   const locale = marketingLocaleOrDefault(rawLocale);
-  const page = forPagesSource.getPage([industry], locale);
+  const page = forPagesBodySource.getPage([industry], locale);
 
   if (!page) notFound();
 

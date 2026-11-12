@@ -7,6 +7,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 
 import { IntlLink } from "@/i18n/navigation";
 import { blogPostsSource, blogSource } from "@/core/fumadocs/source";
+import { blogPostsBodySource } from "@/core/fumadocs/body-sources/blog-posts";
 import { Footer } from "@/app/components/footer";
 import { HeadingText } from "@/components/marketing/heading-text";
 import { LandingArticle } from "@/components/marketing/landing-article";
@@ -50,7 +51,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
 
   const [{ slug }, rawLocale, t] = await Promise.all([params, getLocale(), getTranslations()]);
   const locale = contentLocaleOrDefault(rawLocale);
-  const page = blogPostsSource.getPage([slug], locale);
+  const page = blogPostsBodySource.getPage([slug], locale);
   const blog = blogSource.getPage(["blog"], locale);
 
   if (!page || !blog) notFound();

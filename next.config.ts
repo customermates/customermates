@@ -86,6 +86,12 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  // Each frontmatter module the content heads import depends on its MDX file at build time, so every route that reads
+  // a head (metadata, footer, sitemap, hubs) traced all of content/** (34 MB). Nothing reads content/ at run time.
+  outputFileTracingExcludes: {
+    "/**": ["./content/**"],
+  },
+
   images: {
     formats: ["image/avif", "image/webp"],
     // 90 is the film poster's quality (components/marketing/product-film-poster-blur.ts); 75 is the default.

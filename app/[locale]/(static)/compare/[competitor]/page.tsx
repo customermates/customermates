@@ -14,6 +14,7 @@ import { PageEnding } from "@/components/marketing/page-ending";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { comparePagesSource } from "@/core/fumadocs/source";
+import { comparePagesBodySource } from "@/core/fumadocs/body-sources/compare-pages";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { breadcrumbListSchema, webPageSchema } from "@/core/seo/schemas";
 import { resolvePageLastModified } from "@/core/seo/sitemap";
@@ -55,7 +56,7 @@ export default async function CompetitorComparePage({ params }: Props) {
   const t = await getTranslations("StructuredData.breadcrumb");
   const eyebrows = await compareEyebrows();
   const { competitor } = await params;
-  const page = comparePagesSource.getPage([competitor], locale);
+  const page = comparePagesBodySource.getPage([competitor], locale);
 
   if (!page) notFound();
 
