@@ -107,6 +107,7 @@ import {
   updateWebhookOperation,
 } from "@/features/webhook/webhook-rest.openapi";
 import { routineApiPaths } from "@/ee/routines/routines.openapi";
+import { automationRuleApiPaths } from "@/features/automation-rules/automation-rules.openapi";
 import { RoutineDtoSchema } from "@/ee/routines/routine.schema";
 import { WebhookPublicDtoSchema } from "@/features/webhook/webhook.schema";
 
@@ -154,6 +155,7 @@ export function generateOpenApiSpec() {
         patch: updateUserProfileOperation,
       },
       ...routineApiPaths,
+      ...automationRuleApiPaths,
       "/v1/webhooks": {
         get: listWebhooksOperation,
         post: createWebhookOperation,

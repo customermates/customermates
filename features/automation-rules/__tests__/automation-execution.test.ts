@@ -213,7 +213,7 @@ describe("automation effects", () => {
       { kind: "setField" as const, fields: [{ fieldId: STAGE, value: null }] },
       { ...notify, recipients: { ruleOwner: true, assignees: false, userIds: [] }, notificationKind: "ruleAlert" as const },
     ];
-    const { outcomes, failure } = await runner.run(effects, context());
+    const { outcomes, failure } = await runner.run(effects as never, context());
     expect(failure).toBe("A required field is missing");
     expect(outcomes.map((outcome) => outcome.status)).toEqual(["failed", "skipped"]);
   });
@@ -441,7 +441,7 @@ describe("admitting events", () => {
   beforeEach(() => {
     repo = new FakeAutomationRuleRepo();
     dispatch = vi.fn().mockResolvedValue(undefined);
-    admission = new AutomationRuleAdmission(repo, { dispatch }, () => NOW);
+    admission = new AutomationRuleAdmission(repo, { dispatch } as never, () => NOW);
   });
 
   const admit = (event: ReturnType<typeof recordEvent> | Record<string, unknown>) => admission.admit(event as never);
@@ -597,7 +597,7 @@ describe("sweeping date-reached rules", () => {
     repo = new FakeAutomationRuleRepo();
     dispatch = vi.fn().mockResolvedValue(undefined);
     const discard = new DiscardAutomationRuleRunInteractor(repo, () => NOW);
-    sweep = new SweepAutomationRulesInteractor(repo, { dispatch }, discard);
+    sweep = new SweepAutomationRulesInteractor(repo, { dispatch } as never, discard);
     seedRule(repo, { triggerKind: "dateReached", trigger });
   });
 
@@ -668,7 +668,11 @@ describe("sweeping date-reached rules", () => {
     dispatch.mockClear();
     await expect(sweep.invoke(NOW)).resolves.toMatchObject({ automationRunsRedispatched: 1 });
     expect(dispatch).toHaveBeenCalledWith("run-automation-rule", { runId: queued, companyId: COMPANY, ownerUserId: OWNER });
-    const discardSweep = new SweepAutomationRulesInteractor(orphan, { dispatch }, new DiscardAutomationRuleRunInteractor(orphan, () => NOW));
+    const discardSweep = new SweepAutomationRulesInteractor(
+      orphan,
+      { dispatch } as never,
+      new DiscardAutomationRuleRunInteractor(orphan, () => NOW),
+    );
     await discardSweep.invoke(NOW);
     expect(orphan.runs.get(orphanRun)?.status).toBe("skipped");
   });
