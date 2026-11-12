@@ -52,7 +52,17 @@ export function templateResourceContents(slug: TemplateSlug, locale: string) {
   const text = getTemplateText(slug, locale);
   const { plan, extras } = compileTemplate(spec, text);
   const automationRules = compileTemplateAutomation(spec, extras.rules);
-  return { slug, locale: text.locale, name: text.name, summary: text.summary, spec, text, plan, extras, automationRules };
+  return {
+    slug,
+    locale: text.locale,
+    name: text.name,
+    summary: text.summary,
+    spec,
+    text,
+    plan,
+    extras,
+    automationRules,
+  };
 }
 
 export function templatePromptText(slug: TemplateSlug, locale: string): string {

@@ -20,9 +20,7 @@ describe("compileTemplateAutomation", () => {
       if (proposal.supported) {
         expect(proposal.effects.length).toBeGreaterThan(0);
         expect(proposal.name.length).toBeGreaterThan(0);
-      } else {
-        expect(proposal.reason.length).toBeGreaterThan(0);
-      }
+      } else expect(proposal.reason.length).toBeGreaterThan(0);
     }
   });
 
@@ -85,8 +83,8 @@ describe("compileTemplateAutomation", () => {
       supported: false,
       reason: expect.stringContaining("calendar capability"),
     });
-    expect(proposals("founder-sales-pipeline").proposals.find((proposal) => proposal.key === "recapReply")).toMatchObject(
-      { supported: false, reason: expect.stringContaining("agent routine") },
-    );
+    expect(
+      proposals("founder-sales-pipeline").proposals.find((proposal) => proposal.key === "recapReply"),
+    ).toMatchObject({ supported: false, reason: expect.stringContaining("agent routine") });
   });
 });

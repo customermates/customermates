@@ -84,7 +84,9 @@ describe("template MCP prompt and resources", () => {
     ALL.forEach((capability) => state.shipped.add(capability));
     const client = await open();
     const listed = (await client.listResources()).resources;
-    expect(listed.map((resource) => resource.uri).sort()).toEqual(TEMPLATE_SLUGS.map((slug) => `templates://${slug}`).sort());
+    expect(listed.map((resource) => resource.uri).sort()).toEqual(
+      TEMPLATE_SLUGS.map((slug) => `templates://${slug}`).sort(),
+    );
     expect(listed.find((resource) => resource.uri === "templates://client-tracker")?.title).toBe("Kundenverwaltung");
     const templates = (await client.listResourceTemplates()).resourceTemplates;
     expect(templates.map((template) => template.uriTemplate)).toContain("templates://{slug}");
