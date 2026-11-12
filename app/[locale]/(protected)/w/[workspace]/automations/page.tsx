@@ -28,7 +28,7 @@ export default async function AutomationsPage({ searchParams }: Props) {
 
   const params = await searchParams;
   const [rules, model] = await Promise.all([
-    unwrapPage(getGetAutomationRulesInteractor().invoke({ pageSize: 100 } as never)),
+    unwrapPage(getGetAutomationRulesInteractor().invoke({ page: 1, pageSize: 100, owner: "all" })),
     unwrapPage(getGetRecordModelInteractor().invoke({})),
   ]);
 

@@ -14,7 +14,7 @@ export default async function ProfileSettingsPage() {
   const [userDetails, account, notificationPreferences] = await Promise.all([
     unwrapPage(getGetUserDetailsInteractor().invoke()),
     resolveRequestAccountState(),
-    unwrapPage(getGetNotificationPreferencesInteractor().invoke({} as never)),
+    unwrapPage(getGetNotificationPreferencesInteractor().invoke()),
   ]);
 
   const emailVerified = account.emailVerified ?? false;
