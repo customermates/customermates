@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { loadTemplateBundle } from "@/core/templates/template-bundle-loader";
 import { TEMPLATE_SLUGS } from "@/core/templates/template-slugs";
-import { getTemplate, getTemplateText } from "@/core/templates/template-registry";
+import { getTemplate, getTemplateText } from "@/core/templates/__tests__/template-fixtures";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 
 import { renderOnboardingTemplatePrompt } from "../onboarding-template-prompt";

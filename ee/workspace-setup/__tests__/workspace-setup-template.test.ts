@@ -112,7 +112,7 @@ describe("template plans in the Mate planner", () => {
     await run(() => instance.attempt("model", chosen, emptySetupPlanPart(1), { model: null, knowledge: null }));
     const prompt = String(models.generate.mock.calls[0][0].prompt);
     expect(prompt).toContain("Reference template: ");
-    expect(prompt).toContain(getTemplateText("client-tracker", "en").lists.clients.pluralLabel);
+    expect(prompt).toContain((await getTemplateText("client-tracker", "en")).lists.clients.pluralLabel);
     expect(prompt).not.toContain("Freelancers");
   });
 
@@ -220,8 +220,10 @@ describe("starting a Mate setup with a template", () => {
     expect(StartWorkspaceSetupSchema.safeParse({ websiteUrl: null, templateSlug: "nope" }).success).toBe(false);
   });
 
-  it("compiles the plan with the currency of the setup and refuses an unknown slug", () => {
-    expect(templateSetupPlan("client-tracker", { language: "en", currency: "USD" })?.workspace.currency).toBe("USD");
-    expect(templateSetupPlan("nope", { language: "en", currency: "USD" })).toBeNull();
+  it("compiles the plan with the currency of the setup and refuses an unknown slug", async () => {
+    expect((await templateSetupPlan("client-tracker", { language: "en", currency: "USD" }))?.workspace.currency).toBe(
+      "USD",
+    );
+    expect(await templateSetupPlan("nope", { language: "en", currency: "USD" })).toBeNull();
   });
 });

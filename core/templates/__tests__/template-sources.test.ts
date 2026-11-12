@@ -5,7 +5,7 @@ import { join, relative } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 
 import { RECORD_TYPE_ICON_KEYS } from "@/components/records/record-type-icon";
-import { TEMPLATE_SLUGS, getTemplate, getTemplateText } from "@/core/templates/template-registry";
+import { TEMPLATE_SLUGS } from "@/core/templates/template-registry";
 import { TemplateBundleSchema, TemplateLocaleSchema } from "@/core/templates/template-spec.schema";
 import {
   GENERATED_COMMAND,
@@ -21,6 +21,8 @@ import {
   readTemplateModules,
   templateSlugsOnDisk,
 } from "@/scripts/lib/template-sources";
+
+import { getTemplate, getTemplateText } from "./template-fixtures";
 
 const REPO = process.cwd();
 const scratch: string[] = [];

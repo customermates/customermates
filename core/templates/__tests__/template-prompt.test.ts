@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { renderTemplatePrompt, templateSignupUrl } from "@/core/templates/template-prompt";
-import { TEMPLATE_SLUGS, getTemplate } from "@/core/templates/template-registry";
+import { TEMPLATE_SLUGS } from "@/core/templates/template-registry";
 
 import type { Capability } from "@/core/capabilities/capabilities";
 
-import { cloneSpec, cloneText } from "./template-fixtures";
+import { cloneSpec, cloneText, getTemplate } from "./template-fixtures";
 
 const SIGNUP = "https://customermates.com/signup";
 const DASHES = new RegExp(`[${String.fromCharCode(0x2013, 0x2014)}]`);

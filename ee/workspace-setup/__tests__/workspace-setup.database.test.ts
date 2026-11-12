@@ -500,7 +500,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(state.generate).not.toHaveBeenCalled();
     const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
     expect(setup?.plan?.recordModel.lists.map((list) => list.label)).toContain(
-      getTemplateText("sales-pipeline", "en").lists.opportunities.label,
+      (await getTemplateText("sales-pipeline", "en")).lists.opportunities.label,
     );
 
     const confirmed = await ws.run(() =>
@@ -510,7 +510,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     await build(ws, setupId);
     const model = await ws.run(() => createTestRecordRepo().getModel());
     expect(model.types.map((type) => type.label)).toContain(
-      getTemplateText("sales-pipeline", "en").lists.opportunities.label,
+      (await getTemplateText("sales-pipeline", "en")).lists.opportunities.label,
     );
   });
 

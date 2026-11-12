@@ -5,7 +5,7 @@ import type { TemplateRuleInputs } from "@/core/templates/template-rule-inputs";
 
 import { compileTemplate } from "@/core/templates/compile-template";
 import { compileTemplateAutomation } from "@/core/templates/compile-template-automation";
-import { getTemplate, getTemplateText } from "@/core/templates/template-registry";
+import { loadTemplate } from "@/core/templates/template-registry";
 import { isTemplateSlug } from "@/core/templates/template-slugs";
 import { templateRuleInputs } from "@/core/templates/template-rule-inputs";
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
@@ -52,10 +52,12 @@ export class AgentTemplateRules {
     if (!existing.ok) return null;
     const present = new Set(existing.data.items.map((rule) => rule.name));
 
-    const spec = getTemplate(slug);
     const language = setup.answers.language?.value;
     const country = setup.answers.country?.value;
-    const text = getTemplateText(slug, appLocaleOrDefault(language?.format === "singleChoice" ? language.value : null));
+    const { spec, text } = await loadTemplate(
+      slug,
+      appLocaleOrDefault(language?.format === "singleChoice" ? language.value : null),
+    );
     const { extras } = compileTemplate(spec, text, {
       country: country?.format === "singleChoice" ? country.value : null,
     });

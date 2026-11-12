@@ -5,7 +5,7 @@ import type { WorkspaceSetupRecord } from "@/ee/workspace-setup/workspace-setup.
 import { describe, expect, it, vi } from "vitest";
 
 import { compileTemplate } from "@/core/templates/compile-template";
-import { getTemplate, getTemplateText } from "@/core/templates/template-registry";
+import { getTemplate, getTemplateText } from "@/core/templates/__tests__/template-fixtures";
 import { isApprovalFreeActionCall } from "@/ee/agent-chat/gated-tools";
 import {
   AgentTemplateRules,

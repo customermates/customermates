@@ -12,10 +12,9 @@ import { compileTemplateAutomation } from "@/core/templates/compile-template-aut
 import { renderTemplatePrompt } from "@/core/templates/template-prompt";
 import {
   type TemplateDeployment,
-  getTemplate,
-  getTemplateText,
   isTemplateOffered,
   listTemplates,
+  loadTemplate,
 } from "@/core/templates/template-registry";
 import { type TemplateSlug, TEMPLATE_SLUGS, isTemplateSlug } from "@/core/templates/template-slugs";
 import { env } from "@/env";
@@ -47,9 +46,8 @@ function offeredSlug(value: unknown): TemplateSlug {
   return value;
 }
 
-export function templateResourceContents(slug: TemplateSlug, locale: string) {
-  const spec = getTemplate(slug);
-  const text = getTemplateText(slug, locale);
+export async function templateResourceContents(slug: TemplateSlug, locale: string) {
+  const { spec, text } = await loadTemplate(slug, locale);
   const { plan, extras } = compileTemplate(spec, text);
   const automationRules = compileTemplateAutomation(spec, extras.rules);
   return {
@@ -65,8 +63,9 @@ export function templateResourceContents(slug: TemplateSlug, locale: string) {
   };
 }
 
-export function templatePromptText(slug: TemplateSlug, locale: string): string {
-  return renderTemplatePrompt(getTemplate(slug), getTemplateText(slug, locale), {
+export async function templatePromptText(slug: TemplateSlug, locale: string): Promise<string> {
+  const { spec, text } = await loadTemplate(slug, locale);
+  return renderTemplatePrompt(spec, text, {
     deployment: deployment(),
     signupUrl: `${env.BASE_URL}/signup`,
     connected: true,
@@ -97,7 +96,7 @@ function registerTemplatePrompt(server: McpServer) {
         messages: [
           {
             role: "user" as const,
-            content: { type: "text" as const, text: templatePromptText(slug, await workspaceLocale()) },
+            content: { type: "text" as const, text: await templatePromptText(slug, await workspaceLocale()) },
           },
         ],
       };
@@ -117,8 +116,8 @@ function registerTemplateResources(server: McpServer) {
             .map((listing) => ({
               uri: `templates://${listing.slug}`,
               name: listing.slug,
-              title: listing.text.name,
-              description: listing.text.summary,
+              title: listing.name,
+              description: listing.summary,
               mimeType: MCP_TEMPLATE_RESOURCE_INFO.mimeType,
             })),
         };
@@ -137,7 +136,7 @@ function registerTemplateResources(server: McpServer) {
           {
             uri: uri.href,
             mimeType: MCP_TEMPLATE_RESOURCE_INFO.mimeType,
-            text: JSON.stringify(templateResourceContents(slug, await workspaceLocale())),
+            text: JSON.stringify(await templateResourceContents(slug, await workspaceLocale())),
           },
         ],
       };
