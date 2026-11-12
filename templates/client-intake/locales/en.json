@@ -33,7 +33,7 @@
     "contacts.privacy_notice_sent_on": { "label": "Privacy notice sent on" },
     "clients.client_type": {
       "label": "Client type",
-      "options": { "company": "Company", "sole_trader": "Sole trader", "individual": "Individual", "organisation": "Organisation" }
+      "options": { "company": "Company", "sole_trader": "Sole trader", "individual": "Individual", "organisation": "Organization" }
     },
     "clients.owner": { "label": "Owner" },
     "clients.website": { "label": "Website" },
@@ -159,7 +159,7 @@
     },
     "intake_questionnaire": {
       "title": "Intake questionnaire by client type",
-      "sections": ["Company, sole trader, individual, organisation", "Questions that decide fit", "What you never ask for"]
+      "sections": ["Company, sole trader, individual, organization", "Questions that decide fit", "What you never ask for"]
     },
     "document_requests_guide": {
       "title": "Document request list and chase messages",

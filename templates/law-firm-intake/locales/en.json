@@ -44,7 +44,7 @@
     "matters.poa_valid_until": { "label": "Power of attorney valid until" },
     "matters.retention_until": { "label": "Keep until" },
     "parties.party_role": { "label": "Role", "options": { "opposing_party": "Opposing party", "related_party": "Related party", "co_client": "Co-client", "insurer": "Insurer", "third_party": "Third party" } },
-    "parties.party_type": { "label": "Type", "options": { "person": "Person", "organisation": "Organisation" } },
+    "parties.party_type": { "label": "Type", "options": { "person": "Person", "organisation": "Organization" } },
     "actions.kind": {
       "label": "Kind",
       "options": { "reply": "Reply", "conflict_check": "Run the conflict check", "consultation_prep": "Prepare the consultation", "fee_proposal": "Send the fee proposal", "follow_up": "Follow up", "advance": "Collect the advance", "letter": "Write a letter", "other": "Other" }

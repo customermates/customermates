@@ -69,7 +69,7 @@
     "bookings.gallery_url": { "label": "Gallery link" },
     "bookings.usage_rights": {
       "label": "Usage rights",
-      "options": { "private_use": "Private use", "portfolio_and_social": "Portfolio and social", "commercial_licence": "Commercial licence", "not_decided": "Not decided" }
+      "options": { "private_use": "Private use", "portfolio_and_social": "Portfolio and social", "commercial_licence": "Commercial license", "not_decided": "Not decided" }
     },
     "bookings.lost_reason": {
       "label": "Lost reason",
