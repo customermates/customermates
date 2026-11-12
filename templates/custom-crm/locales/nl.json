@@ -1,7 +1,7 @@
 {
   "locale": "nl",
   "name": "CRM op maat",
-  "summary": "Een CRM rond jouw manier van werken: contacten, bedrijven, deals en acties met datum, met een import uit je spreadsheet of oude tool en een wekelijkse controle.",
+  "summary": "Een CRM rond jouw manier van werken: contactpersonen, bedrijven, deals en acties met datum, met een import uit je spreadsheet of oude tool en een wekelijkse controle.",
   "description": "Begin met de vier lijsten die elk CRM nodig heeft en pas ze aan: fasen, velden en weergaven zijn van jou. Bedoeld voor wie een spreadsheet, Notion, Airtable of Trello achterlaat en zijn gegevens zonder project in een CRM wil. Het onthoudt waar elk record vandaan is geïmporteerd.",
   "lists": {
     "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen met wie je te maken hebt." },

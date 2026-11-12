@@ -2,9 +2,9 @@
   "locale": "nl",
   "name": "Sales van de oprichter",
   "summary": "Een korte pijplijn voor een oprichter die zelf verkoopt: gesprekken, verkenning, een optionele pilot met vaste einddatum, een offerte en een gepauzeerde status met een datum om terug te komen.",
-  "description": "Verkoop als oprichter met een handvol tot enkele tientallen open gesprekken: elke deal legt het probleem in de woorden van de klant vast, de urgentie, de budgetstatus en of de beslisser betrokken is; een pilot heeft een einddatum en zegt of hij betaald is; een stille deal wordt gepauzeerd met een datum om terug te komen in plaats van achterna te worden gelopen. De gewichten zijn grof, want een oprichter heeft nog geen slagingspercentage, en aan u om in te stellen. Geen massale sequenties, geen fondsenwerving en geen forecast voor een team met meerdere verkopers.",
+  "description": "Verkopen als oprichter met een handvol tot enkele tientallen open gesprekken: elke deal legt het probleem in de woorden van de klant vast, de urgentie, de budgetstatus en of de beslisser betrokken is; een pilot heeft een einddatum en zegt of hij betaald is; een stille deal wordt gepauzeerd met een datum om terug te komen in plaats van achterna te worden gelopen. De gewichten zijn grof, want een oprichter heeft nog geen slagingspercentage, en jij stelt ze zelf in. Geen geautomatiseerde mailsequenties op volume, geen kapitaalronde en geen forecast voor een team met meerdere verkopers.",
   "lists": {
-    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen met wie u praat, met hun rol in de koopbeslissing." },
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen met wie je praat, met hun rol in de koopbeslissing." },
     "companies": { "label": "Bedrijf", "pluralLabel": "Bedrijven", "description": "Prospects, pilots, klanten en partners." },
     "opportunities": { "label": "Deal", "pluralLabel": "Deals", "description": "Eén mogelijke verkoop, van eerste gesprek tot gewonnen, verloren of gepauzeerd." }
   },
@@ -20,14 +20,14 @@
     },
     "opportunities.source": { "label": "Bron", "options": { "own_network": "Eigen netwerk", "introduction": "Introductie", "inbound": "Inkomend", "community": "Community", "outbound": "Uitgaand", "event": "Evenement" } },
     "opportunities.problem": { "label": "Het probleem, in hun woorden" },
-    "opportunities.urgency": { "label": "Urgentie", "options": { "burning": "Brandend", "important": "Belangrijk", "nice_to_have": "Leuk om te hebben" } },
+    "opportunities.urgency": { "label": "Urgentie", "options": { "burning": "Acuut", "important": "Belangrijk", "nice_to_have": "Leuk om te hebben" } },
     "opportunities.budget_status": { "label": "Budget", "options": { "unknown": "Onbekend", "has_budget": "Heeft budget", "needs_budget": "Heeft budget nodig", "no_budget": "Geen budget" } },
     "opportunities.decision_maker_engaged": { "label": "Beslisser betrokken" },
     "opportunities.pilot_end": { "label": "Einde pilot" },
     "opportunities.pilot_paid": { "label": "Pilot is betaald" },
-    "opportunities.expected_close": { "label": "Verwachte afsluiting" },
+    "opportunities.expected_close": { "label": "Verwachte afsluitdatum" },
     "opportunities.revisit_on": { "label": "Terugkomen op" },
-    "opportunities.next_step_due": { "label": "Volgende stap voor" },
+    "opportunities.next_step_due": { "label": "Volgende stap uiterlijk op" },
     "opportunities.lost_reason": {
       "label": "Reden van verlies",
       "options": { "no_budget": "Geen budget", "no_urgency": "Geen urgentie", "competitor": "Koos een concurrent", "built_in_house": "Zelf gebouwd", "wrong_buyer": "Verkeerde gesprekspartner", "no_response": "Geen reactie", "not_a_fit": "Past niet" }
@@ -42,7 +42,7 @@
     "contact_company": { "sourceLabel": "Bedrijf", "targetLabel": "Contactpersonen" },
     "opportunity_company": { "sourceLabel": "Bedrijf", "targetLabel": "Deals" },
     "opportunity_contacts": { "sourceLabel": "Contactpersonen", "targetLabel": "Deals" },
-    "action_opportunity": { "sourceLabel": "Deal", "targetLabel": "Taken" }
+    "action_opportunity": { "sourceLabel": "Deal", "targetLabel": "Acties" }
   },
   "views": {
     "opportunities_board": { "name": "Deals per fase" },
@@ -66,7 +66,7 @@
     "founder_playbook": { "title": "Verkoopgids voor de oprichter", "sections": ["Aan wie we verkopen en wat we hebben geleerd", "Wekelijkse terugblik van de oprichter"] },
     "discovery_questions": { "title": "Vragen voor het verkennende gesprek", "sections": ["Probleem, urgentie, budget en beslissers", "Wat na het gesprek wordt vastgelegd"] },
     "pilot_plan": { "title": "Pilotplan en beoordelingsformulier", "sections": ["Vaste einddatum en succescriteria", "Standaard betaald en hoe een pilot een contract wordt"] },
-    "when_to_hire": { "title": "Wanneer de eerste verkoper komt", "sections": ["Signalen dat de verkoop zich zonder u herhaalt", "Wat eerst wordt overgedragen"] }
+    "when_to_hire": { "title": "Wanneer de eerste verkoper komt", "sections": ["Signalen dat de verkoop zich zonder jou herhaalt", "Wat eerst wordt overgedragen"] }
   },
   "rules": {
     "enquiry_form_records": { "title": "Contactpersoon, bedrijf en deal aanmaken als het aanvraagformulier is ingediend" },
@@ -87,12 +87,12 @@
     "opportunities_board_view": "De deals openen als bord per fase."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-workspace een verkooppijplijn voor oprichters in: deals van eerste gesprek tot gewonnen met verkennende notities, een optionele pilot met vaste einddatum, een gepauzeerde status met terugkomdatum en opvolging met datum. Stuur niets automatisch.",
+    "intro": "Richt in mijn Customermates-werkruimte een verkooppijplijn voor oprichters in: deals van eerste gesprek tot gewonnen met verkennende notities, een optionele pilot met vaste einddatum, een gepauzeerde status met terugkomdatum en opvolging met datum. Stuur niets automatisch.",
     "questions": [
-      "Wat verkoopt u en wie heeft er tot nu toe bij u gekocht?",
-      "Doet u pilots of proeven en zijn die betaald?",
-      "Hoe lang loopt u een stille deal achterna voordat u hem pauzeert?",
-      "Waar beginnen uw gesprekken: uw netwerk, introducties, inkomend of evenementen?"
+      "Wat verkoop je en wie heeft er tot nu toe bij je gekocht?",
+      "Doe je pilots of proeven en zijn die betaald?",
+      "Hoe lang loop je een stille deal achterna voordat je hem pauzeert?",
+      "Waar beginnen je gesprekken: je netwerk, introducties, inkomend of evenementen?"
     ]
   }
 }

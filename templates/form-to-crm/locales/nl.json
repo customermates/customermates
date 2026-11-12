@@ -1,10 +1,10 @@
 {
   "locale": "nl",
   "name": "Formulier naar CRM",
-  "summary": "Aanvragen uit webformulieren omzetten in opgevolgde leads: een aanvraag per inzending met bron, een verschuldigd antwoord, een fase van nieuw tot omgezet, en spam en niet passend apart.",
-  "description": "Elke aanvraag uit een contact-, offerte- of intakeformulier wordt een aanvraag gekoppeld aan een contactpersoon, met het formulier waaruit ze kwam, waar de bezoeker vandaan kwam, wanneer het nodig is en een antwoord dat de volgende dag verschuldigd is. Aanvragen lopen van nieuw tot omgezet, niet passend of spam, en een aanvraag zonder antwoord wordt gemeld. Toestemming en een controledatum horen bij de verzamelde gegevens. Geen formulierenbouwer voor betalingen, quizzen of het uploaden van gevoelige documenten.",
+  "summary": "Aanvragen uit webformulieren omzetten in opgevolgde leads: een aanvraag per inzending met bron, een uiterste antwoorddatum, een fase van nieuw tot omgezet, en spam en niet passend apart.",
+  "description": "Elke aanvraag uit een contact-, offerte- of intakeformulier wordt een aanvraag gekoppeld aan een contactpersoon, met het formulier waaruit ze kwam, waar de bezoeker vandaan kwam, wanneer het nodig is en een uiterste antwoorddatum de volgende dag. Aanvragen lopen van nieuw tot omgezet, niet passend of spam, en een aanvraag zonder antwoord wordt gesignaleerd. Toestemming en een controledatum horen bij de verzamelde gegevens. Geen formulierenbouwer voor betalingen, quizzen of het uploaden van gevoelige documenten.",
   "lists": {
-    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen die u via een formulier schrijven." },
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen die je via een formulier schrijven." },
     "requests": { "label": "Aanvraag", "pluralLabel": "Aanvragen", "description": "Eén inzending van een formulier, van nieuw tot omgezet, niet passend of spam." }
   },
   "fields": {
@@ -20,10 +20,10 @@
     "requests.owner": { "label": "Eigenaar" },
     "requests.service_interest": { "label": "Gewenste dienst" },
     "requests.needed_by": {
-      "label": "Gewenst voor",
-      "options": { "asap": "Zo snel mogelijk", "within_a_month": "Binnen een maand", "within_three_months": "Binnen drie maanden", "just_looking": "Gewoon oriënteren", "no_answer": "Geen antwoord" }
+      "label": "Gewenst uiterlijk",
+      "options": { "asap": "Zo snel mogelijk", "within_a_month": "Binnen een maand", "within_three_months": "Binnen drie maanden", "just_looking": "Gewoon oriënteren", "no_answer": "Niet ingevuld" }
     },
-    "requests.budget_band": { "label": "Budget", "options": { "no_answer": "Geen antwoord", "low": "Laag", "medium": "Gemiddeld", "high": "Hoog" } },
+    "requests.budget_band": { "label": "Budget", "options": { "no_answer": "Niet ingevuld", "low": "Laag", "medium": "Gemiddeld", "high": "Hoog" } },
     "requests.submitted_at": { "label": "Ontvangen" },
     "requests.first_response_at": { "label": "Eerste reactie" },
     "requests.utm_source": { "label": "Waar de bezoeker vandaan kwam" },
@@ -43,7 +43,7 @@
   },
   "relationships": {
     "request_contact": { "sourceLabel": "Contactpersoon", "targetLabel": "Aanvragen" },
-    "action_request": { "sourceLabel": "Aanvraag", "targetLabel": "Taken" }
+    "action_request": { "sourceLabel": "Aanvraag", "targetLabel": "Acties" }
   },
   "views": {
     "requests_all": { "name": "Alle aanvragen" },
@@ -67,11 +67,11 @@
   },
   "rules": {
     "enquiry_form_records": { "title": "Contactpersoon en aanvraag aanmaken als het aanvraagformulier is ingediend" },
-    "reply_task": { "title": "Een taak om de volgende dag te antwoorden aanmaken als een aanvraag binnenkomt" },
+    "reply_task": { "title": "Een actie om de volgende dag te antwoorden aanmaken als een aanvraag binnenkomt" },
     "first_response_missed": { "title": "De teamleider waarschuwen als een aanvraag een dag na ontvangst nog nieuw is" },
     "chase_contacted": { "title": "Een gecontacteerde aanvraag opvolgen die 3 dagen stilstaat" },
     "converted_task": { "title": "De aanvraag aan de pijplijn overdragen als ze wordt omgezet" },
-    "review_date_not_a_fit": { "title": "De controle van gegevens op een jaar zetten als een aanvraag niet past" },
+    "review_date_not_a_fit": { "title": "De controledatum van de gegevens op een jaar later zetten als een aanvraag niet past" },
     "data_review": { "title": "De gegevens controleren als de controledatum is bereikt" },
     "external_form_records": { "title": "Contactpersoon en aanvraag aanmaken als een ander formuliertool een inzending stuurt" }
   },
@@ -81,12 +81,12 @@
     "requests_board_view": "De aanvragen openen als bord per fase."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-workspace de stap van formulier naar CRM in: een aanvraag per inzending met bron, een verschuldigd antwoord, zes fasen, toestemming en een controledatum voor gegevens, en opvolging met datum.",
+    "intro": "Richt in mijn Customermates-werkruimte de stap van formulier naar CRM in: een aanvraag per inzending met bron, een uiterste antwoorddatum, zes fasen, toestemming en een controledatum voor gegevens, en opvolging met datum.",
     "questions": [
-      "Welke formulieren gebruikt u en wat moet u weten om een aanvraag te prijzen of door te sturen?",
-      "Wie antwoordt en binnen welke tijd belooft u te reageren?",
-      "Wat vertelt u mensen bij het formulier over hun gegevens?",
-      "Gebruikt u een ander formuliertool zoals Typeform, Tally of Jotform?"
+      "Welke formulieren gebruik je en wat moet je weten om een aanvraag te prijzen of door te sturen?",
+      "Wie antwoordt en binnen welke tijd beloof je te reageren?",
+      "Wat vertel je mensen bij het formulier over hun gegevens?",
+      "Gebruik je een ander formuliertool zoals Typeform, Tally of Jotform?"
     ]
   }
 }
