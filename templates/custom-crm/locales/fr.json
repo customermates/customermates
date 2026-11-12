@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "CRM sur mesure",
-  "summary": "Un CRM construit autour de votre façon de travailler : contacts, entreprises, affaires et actions datées, avec un import depuis votre tableur ou votre ancien outil et une revue hebdomadaire.",
-  "description": "Partez des quatre listes dont tout CRM a besoin et adaptez-les : étapes, champs et vues sont à vous. Pensé pour ceux qui quittent un fichier Excel, Notion, Airtable ou Trello et veulent leurs données dans un CRM sans projet. Il garde la trace de l’origine de chaque fiche importée.",
+  "summary": "Un CRM construit autour de votre façon de travailler : contacts, entreprises, affaires et actions datées, avec un import depuis votre tableur ou votre ancien outil et une revue hebdomadaire.",
+  "description": "Partez des quatre listes dont tout CRM a besoin et adaptez-les : étapes, champs et vues sont à vous. Pensé pour ceux qui quittent un fichier Excel, Notion, Airtable ou Trello et veulent leurs données dans un CRM sans projet. Il garde la trace de l’origine de chaque fiche importée.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes avec lesquelles vous travaillez." },
     "organizations": { "label": "Entreprise", "pluralLabel": "Entreprises", "description": "Sociétés et autres organismes." },
@@ -39,7 +39,7 @@
     "opportunities.next_step_due": { "label": "Échéance de la prochaine action" },
     "opportunities.lost_reason": {
       "label": "Motif de perte",
-      "options": { "price": "Prix", "competitor": "Concurrent", "no_decision": "Pas de décision", "timing": "Calendrier", "no_response": "Pas de réponse", "not_a_fit": "Pas adapté", "other": "Autre" }
+      "options": { "price": "Prix", "competitor": "Concurrent", "no_decision": "Pas de décision", "timing": "Calendrier", "no_response": "Pas de réponse", "not_a_fit": "Ne convient pas", "other": "Autre" }
     },
     "opportunities.weighted_value": { "label": "Valeur pondérée" },
     "actions.kind": {
@@ -61,18 +61,18 @@
   },
   "widgets": {
     "pipeline_funnel": { "title": "Affaires ouvertes par étape" },
-    "open_value": { "title": "Montant ouvert" },
-    "open_weighted_value": { "title": "Valeur pondérée ouverte" },
+    "open_value": { "title": "Montant des affaires ouvertes" },
+    "open_weighted_value": { "title": "Valeur pondérée des affaires ouvertes" },
     "lost_reasons": { "title": "Motifs de perte" },
     "deals_without_next_step": { "title": "Affaires sans prochaine action" }
   },
   "knowledgePages": {
     "how_we_use_this_crm": { "title": "Comment nous utilisons ce CRM", "sections": ["Ce qui y entre et qui le met à jour", "Étapes et quand une affaire avance"] },
     "data_entry_rules": { "title": "Règles de saisie", "sections": ["Noms, e-mails et une fiche par personne", "Une prochaine action datée sur chaque affaire ouverte"] },
-    "import_notes": { "title": "Notes d’import : ce qui vient d’où", "sections": ["Outil d’origine et date d’export", "Ce qui n’a pas suivi et pourquoi"] }
+    "import_notes": { "title": "Notes d’import : ce qui vient d’où", "sections": ["Outil d’origine et date d’export", "Ce qui n’a pas suivi et pourquoi"] }
   },
   "rules": {
-    "next_action_per_stage": { "title": "Créer une action de suite quand une affaire change d’étape" },
+    "next_action_per_stage": { "title": "Créer une action de suivi quand une affaire change d’étape" },
     "set_a_next_step": { "title": "Demander une prochaine action sur chaque affaire ouverte qui n’en a pas" },
     "next_step_notice": { "title": "Prévenir le responsable quand une prochaine action arrive à échéance" },
     "expected_close_passed": { "title": "Revoir une affaire ouverte le lendemain de sa date de signature prévue" },
@@ -82,16 +82,16 @@
   },
   "acceptanceChecks": {
     "stage_field": "Chaque affaire a une étape.",
-    "board_view": "Le pipeline s’ouvre en tableau par étape, avec les totaux.",
+    "board_view": "Le pipeline s’ouvre en board par étape, avec les totaux.",
     "how_we_use_page": "La base de connaissances explique comment l’équipe utilise le CRM."
   },
   "prompt": {
-    "intro": "Mets en place un CRM sur mesure dans mon espace Customermates : contacts, entreprises, affaires avec étapes et actions datées, un import depuis mon tableur ou mon ancien outil et une revue hebdomadaire.",
+    "intro": "Mets en place un CRM sur mesure dans mon espace de travail Customermates : contacts, entreprises, affaires avec étapes et actions datées, un import depuis mon tableur ou mon ancien outil et une revue hebdomadaire.",
     "questions": [
-      "De quel outil ou tableur viennent vos fiches, et peut-on l’exporter ?",
-      "Par quelles étapes passe une affaire dans votre activité ?",
-      "Quels champs utilisez-vous vraiment aujourd’hui, et lesquels pouvez-vous laisser derrière vous ?",
-      "Qui travaille dans le CRM, et qui est responsable de quelles fiches ?"
+      "De quel outil ou tableur viennent vos fiches, et peut-on l’exporter ?",
+      "Par quelles étapes passe une affaire dans votre activité ?",
+      "Quels champs utilisez-vous vraiment aujourd’hui, et lesquels pouvez-vous abandonner ?",
+      "Qui travaille dans le CRM, et qui est responsable de quelles fiches ?"
     ]
   }
 }
