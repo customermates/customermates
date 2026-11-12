@@ -1,0 +1,69 @@
+---
+title: "Automations: Rules Without AI, Reminders and Notifications"
+description: "Automations run when something happens and it matches, without AI: build one with When, If and Then, get reminders, the notification bell and emails."
+---
+
+An automation is a rule that runs without AI: when something happens and it matches, Customermates does what you set up. It can create a follow-up task, set a field, tell you or your team in the notification bell and by email, or call a webhook. Automations work on every plan and on self-hosted instances. They are not [Routines](app:routines): a routine lets Mate work on its own, an automation does exactly what its three cards say and nothing else.
+
+The **Automations** page sits next to **Routines** in the sidebar. Who sees it follows the **Routines** row of their role in [Roles](app:settings/roles): **Read access** **All** shows every automation in the workspace, **Assigned** only your own, and **None** hides the page. Creating needs **Create**.
+
+## How do I create an automation? [#how-do-i-create-an-automation]
+
+Open **Automations** and click **New automation**, or click **Automate this list** in the toolbar of any list to start with that list already chosen. Give it a **Name** and fill the three cards, then save. A saved automation is switched on.
+
+- **When** chooses the list and what starts the rule: **A record is created**, **A record is updated**, **A field changes** (optionally **To value**, so it only fires when the field changes to that value) or **A date is reached**.
+- **If (optional)** adds conditions on the record that started the rule: **is**, **is not**, **is empty**, **is not empty**, **is before today plus** or **is after today plus** a number of days. All conditions must match.
+- **Then** lists what happens, in order: **Set a field**, **Create a record**, **Notify** or **Call a webhook**. **Create a record** is how an automation makes a follow-up task: choose the tasks list, the **Title field** and **Title**, the **Due date field** and **Due in days**, whether to **Assign to me**, and how to **Link to the triggering record as**. In titles and details, `{{record.name}}` is replaced by the name of the record and `{{rule.name}}` by the name of the automation.
+
+Rules for form submissions, incoming webhooks and arriving messages exist too. You create them with `manage_rules` over MCP or REST, and the page lists them; a trigger or action the builder cannot edit shows a note and stays as it is.
+
+## How do I get a reminder before a date? [#how-do-i-get-a-reminder-before-a-date]
+
+Open a list that has a date or date and time field, open **More actions** in the toolbar and choose **Remind me about** followed by the field name. The builder opens with a **A date is reached** trigger for that field, so you only choose **Days**, **Before or after**, the **At hour (0 to 23)** and the **Time zone**, then add a **Notify** action that tells you. The reminder reaches you in the notification bell and, by your preference, by email.
+
+A date rule fires once per record, when the date shifted by your offset is reached. It is checked every few minutes. A rule you create or switch on later still catches dates that were reached within the last 7 days, and a record whose date you change to another day fires again for the new date. **Preview** over MCP or REST lists the records a date rule would hit next.
+
+## How do automations run, and what does the history show? [#how-do-automations-run]
+
+An automation runs as its owner, with the owner's permissions: it can never do more than its owner could. The creator is the owner. Only the owner can change or switch on an automation; an administrator can also switch one off or delete it. If the owner stops being an active member, the automation switches itself off and says so.
+
+A run happens once per record and trigger. What an automation changes never starts the same automation again, and a chain stops after two rules, so two automations cannot start each other forever. If an action fails, the actions after it do not run.
+
+Click **History** on an automation to see its runs, newest first. Each run shows its status (**Queued**, **Running**, **Done**, **Skipped** or **Failed**), the result of every action and a link to **Open the record**. A skipped run says why: the conditions were not met, the automation was off, the record is gone or not readable for the owner, the owner changed, or the owner is no longer active or no longer has access to automations.
+
+Deleting an automation removes it and its run history for good, so switch it off instead if you may need it again.
+
+## How do notifications and email preferences work? [#how-do-notifications-work]
+
+The bell in the top bar shows how many notifications are unread. Open it to see the latest ones, open the record behind each, or choose **Mark all as read**. Notifications come from five kinds of events: **Assigned to you**, **Due today**, **Form submissions**, **Replies received** and **Automation alerts**. The bell always shows everything and keeps notifications for 90 days.
+
+Whether a kind also reaches you by email is your choice, per kind, in the **Notification emails** card on [Profile & preferences](app:settings/profile): **Email right away**, **Daily digest** or **No email**. Until you change it, assignments, form submissions and automation alerts arrive right away, and due dates and replies arrive in the daily digest. The digest is one email a day with what has not been emailed yet.
+
+## How many automations does my plan include? [#how-many-automations-does-my-plan-include]
+
+The limit counts automations that are switched on: Free includes [[commercial.entitlement.free.activeRules]], Starter [[commercial.entitlement.starter.activeRules]], and Pro, Business, Max and Enterprise [[commercial.entitlement.pro.activeRules]]. Switching an automation off frees its slot at once. At the limit, creating or switching on another one is refused with a prompt to upgrade under [Billing](app:settings/billing) or to switch another automation off. Self-hosted instances have no plan, so no limit applies there.
+
+## How does Mate manage automations? [#how-does-mate-manage-automations]
+
+In a chat, Mate can list your automations, read one and its run history and preview which records a date rule would hit, without asking first. Creating, changing, switching on or off and deleting an automation each ask for your approval. When Mate has set up your workspace from a template, it offers the rules of that template once, after the lists exist, and creates each one only after you approve it; rules that need an agent routine or a trigger the rules engine does not have are named with the reason instead.
+
+## For agents [#for-agents]
+
+Use `manage_rules` over [MCP](/docs/mcp), with the actions `list`, `get`, `runs`, `create`, `update`, `enable`, `disable`, `delete` and `preview`. Omitting `enabled` on `create` produces a live automation, so pass `enabled: false` to save a draft. Triggers are `recordCreated`, `recordUpdated`, `fieldChanged`, `dateReached`, `messageReceived`, `formSubmitted` and `webhookReceived`; list and field ids come from `discover_record_types` and `get_record_model`. A plan refusal arrives with the limit and the upgrade price. REST has the same operations as `POST /api/v1/rules/list`, `read`, `runs`, `create`, `update`, `enable`, `disable`, `delete` and `preview`, with read permission on **Routines** for the reads and create permission for creating; see the [API reference](/docs/openapi).
+
+## Frequently asked questions [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Is an automation the same as a routine?">
+No. A routine opens a conversation and lets Mate work, uses the owner's Mate allowance and exists on Customermates Cloud only. An automation runs a fixed when, if and then rule without AI, on every plan and on self-hosted instances. See [Routines](/docs/app-routines) for the other kind.
+</FaqItem>
+<FaqItem question="Why did my automation not run for a record?">
+Open **History** on the automation. A skipped run names the reason, such as unmet conditions or an owner who is no longer active. A date rule also needs a date in the field, and it fires once per record and date.
+</FaqItem>
+<FaqItem question="Can I send an email to a customer from an automation?">
+Not directly. An automation does not send emails or messages itself. It can notify members of your workspace, which may reach them by email, and it can call one of your webhooks, for example to start an [n8n](/docs/n8n) workflow that sends something.
+</FaqItem>
+<FaqItem question="Who gets the notification when an automation tells someone?">
+The action chooses: **Tell me** reaches the owner of the automation, **Tell the people it is assigned to** reaches the members the triggering record is assigned to. The notification appears in their bell and follows their email preference for **Automation alerts**.
+</FaqItem>
+</Faq>

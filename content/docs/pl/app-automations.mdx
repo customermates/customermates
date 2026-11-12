@@ -1,0 +1,69 @@
+---
+title: "Automatyzacje: reguły bez AI, przypomnienia i powiadomienia"
+description: "Automatyzacje działają bez AI, gdy coś się wydarzy i pasuje: buduj je z Gdy, Jeśli i Wtedy, z przypomnieniami, dzwonkiem powiadomień i e-mailami."
+---
+
+Automatyzacja to reguła działająca bez AI: gdy coś się wydarzy i pasuje, Customermates robi to, co skonfigurowano. Może utworzyć zadanie następcze, ustawić pole, powiadomić Ciebie lub Twój zespół w dzwonku powiadomień i e-mailem albo wywołać webhook. Automatyzacje działają w każdym planie i na instancjach self-hosted. To nie są [Rutyny](app:routines): rutyna pozwala Mate pracować samodzielnie, a automatyzacja robi dokładnie to, co mówią jej trzy karty, i nic więcej.
+
+Strona **Automatyzacje** znajduje się na pasku bocznym obok **Rutyn**. To, kto ją widzi, wynika z wiersza **Rutyny** w roli danej osoby w sekcji [Role](app:settings/roles): **Dostęp do odczytu** ustawiony na **Wszystkie** pokazuje wszystkie automatyzacje w przestrzeni roboczej, **Przypisane** tylko własne, a **Brak** ukrywa stronę. Tworzenie wymaga uprawnienia **Tworzenie**.
+
+## Jak utworzyć automatyzację? [#how-do-i-create-an-automation]
+
+Otwórz **Automatyzacje** i kliknij **Nowa automatyzacja** albo kliknij **Zautomatyzuj tę listę** na pasku narzędzi dowolnej listy, aby zacząć z już wybraną listą. Nadaj jej **Nazwę**, wypełnij trzy karty i zapisz. Zapisana automatyzacja jest włączona.
+
+- **Gdy** wybiera listę i to, co uruchamia regułę: **Powstaje rekord**, **Rekord zostaje zmieniony**, **Zmienia się pole** (opcjonalnie **Na wartość**, aby reguła uruchamiała się tylko wtedy, gdy pole zmieni się na tę wartość) albo **Nadchodzi data**.
+- **Jeśli (opcjonalnie)** dodaje warunki dla rekordu, który uruchomił regułę: **jest**, **nie jest**, **jest puste**, **nie jest puste**, **jest przed dniem dzisiejszym plus** lub **jest po dniu dzisiejszym plus** liczba dni. Wszystkie warunki muszą być spełnione.
+- **Wtedy** wymienia po kolei, co się dzieje: **Ustaw pole**, **Utwórz rekord**, **Powiadom** lub **Wywołaj webhook**. **Utwórz rekord** to sposób, w jaki automatyzacja tworzy zadanie następcze: wybierz listę zadań, **Pole tytułu** i **Tytuł**, **Pole terminu** i **Termin za dni**, czy **Przypisz do mnie** oraz jak **Powiąż z rekordem wyzwalającym jako**. W tytułach i szczegółach `{{record.name}}` zastępuje nazwa rekordu, a `{{rule.name}}` nazwa automatyzacji.
+
+Istnieją też reguły dla wysłanych formularzy, przychodzących webhooków i nadchodzących wiadomości. Tworzysz je przez `manage_rules` w MCP lub REST, a strona je wyświetla; wyzwalacz lub działanie, których kreator nie może edytować, pokazują notatkę i pozostają bez zmian.
+
+## Jak dostać przypomnienie przed datą? [#how-do-i-get-a-reminder-before-a-date]
+
+Otwórz listę, która ma pole daty lub daty i godziny, otwórz **Więcej działań** na pasku narzędzi i wybierz **Przypomnij mi o** z nazwą pola. Kreator otwiera się z wyzwalaczem **Nadchodzi data** dla tego pola, więc wybierasz tylko **Dni**, **Przed czy po**, **O godzinie (0 do 23)** i **Strefa czasowa** oraz dodajesz działanie **Powiadom**, które powiadamia Ciebie. Przypomnienie dociera do Ciebie w dzwonku powiadomień i, zgodnie z Twoją preferencją, e-mailem.
+
+Reguła daty uruchamia się raz na rekord, gdy nadejdzie data przesunięta o Twoją różnicę. Jest sprawdzana co kilka minut. Reguła utworzona lub włączona później nadal obejmuje daty, które nadeszły w ciągu ostatnich 7 dni, a rekord, któremu zmienisz datę na inny dzień, uruchamia się ponownie dla nowej daty. **Preview** przez MCP lub REST wylicza rekordy, które reguła daty objęłaby następnie.
+
+## Jak działają automatyzacje i co pokazuje historia? [#how-do-automations-run]
+
+Automatyzacja działa jako jej właściciel, z jego uprawnieniami: nigdy nie może zrobić więcej, niż mógłby właściciel. Właścicielem jest twórca. Tylko właściciel może zmienić lub włączyć automatyzację; administrator może ją też wyłączyć lub usunąć. Jeśli właściciel przestanie być aktywnym członkiem, automatyzacja sama się wyłączy i to zaznaczy.
+
+Uruchomienie następuje raz na rekord i wyzwalacz. To, co automatyzacja zmienia, nigdy nie uruchamia tej samej automatyzacji ponownie, a łańcuch kończy się po dwóch regułach, więc dwie automatyzacje nie uruchamiają się nawzajem bez końca. Jeśli działanie się nie powiedzie, kolejne działania się nie wykonują.
+
+Kliknij **Historia** przy automatyzacji, aby zobaczyć jej uruchomienia, od najnowszych. Każde uruchomienie pokazuje status (**W kolejce**, **W toku**, **Zakończona**, **Pominięta** lub **Niepowodzenie**), wynik każdego działania i link **Otwórz rekord**. Pominięte uruchomienie podaje powód: warunki nie były spełnione, automatyzacja była wyłączona, rekordu już nie ma lub właściciel nie może go odczytać, właściciel się zmienił albo nie jest już aktywny lub nie ma już dostępu do automatyzacji.
+
+Usunięcie automatyzacji kasuje ją razem z historią bezpowrotnie; zamiast tego wyłącz ją, jeśli może się jeszcze przydać.
+
+## Jak działają powiadomienia i preferencje e-mail? [#how-do-notifications-work]
+
+Dzwonek na górnym pasku pokazuje, ile powiadomień jest nieprzeczytanych. Otwórz go, aby zobaczyć najnowsze, otworzyć rekord, którego dotyczą, lub wybrać **Oznacz wszystkie jako przeczytane**. Powiadomienia pochodzą z pięciu rodzajów zdarzeń: **Przypisane do Ciebie**, **Termin dziś**, **Wysłane formularze**, **Otrzymane odpowiedzi** i **Alerty automatyzacji**. Dzwonek zawsze pokazuje wszystko i przechowuje powiadomienia przez 90 dni.
+
+To, czy dany rodzaj dociera do Ciebie także e-mailem, zależy od Ciebie, osobno dla każdego rodzaju, w karcie **E-maile z powiadomieniami** w sekcji [Profil i preferencje](app:settings/profile): **E-mail od razu**, **Dzienne podsumowanie** lub **Bez e-maila**. Dopóki nic nie zmienisz, przypisania, wysłane formularze i alerty automatyzacji przychodzą od razu, a terminy i odpowiedzi w dziennym podsumowaniu. Podsumowanie to jeden e-mail dziennie z tym, o czym nie wysłano jeszcze e-maila.
+
+## Ile automatyzacji obejmuje mój plan? [#how-many-automations-does-my-plan-include]
+
+Limit liczy włączone automatyzacje: Free obejmuje [[commercial.entitlement.free.activeRules]], Starter [[commercial.entitlement.starter.activeRules]], a Pro, Business, Max i Enterprise [[commercial.entitlement.pro.activeRules]]. Wyłączenie automatyzacji od razu zwalnia jej miejsce. Przy limicie utworzenie lub włączenie kolejnej zostaje odrzucone z zachętą do zmiany planu w sekcji [Rozliczenia](app:settings/billing) lub do wyłączenia innej automatyzacji. Instancje self-hosted nie mają planu, więc nie obowiązuje tam żaden limit.
+
+## Jak Mate zarządza automatyzacjami? [#how-does-mate-manage-automations]
+
+W czacie Mate może wylistować Twoje automatyzacje, odczytać jedną z historią uruchomień i pokazać z wyprzedzeniem, które rekordy objęłaby reguła daty, bez pytania o zgodę. Utworzenie, zmiana, włączenie lub wyłączenie oraz usunięcie automatyzacji wymagają każdorazowo Twojej akceptacji. Gdy Mate skonfigurował Twoją przestrzeń roboczą na podstawie szablonu, raz proponuje reguły tego szablonu, gdy listy już istnieją, i tworzy każdą dopiero po Twojej akceptacji; reguły wymagające rutyny agenta lub wyzwalacza, którego silnik reguł nie ma, są wymienione wraz z powodem.
+
+## Dla agentów [#for-agents]
+
+Użyj `manage_rules` przez [MCP](/docs/mcp), z akcjami `list`, `get`, `runs`, `create`, `update`, `enable`, `disable`, `delete` i `preview`. Pominięcie `enabled` przy `create` daje działającą automatyzację; przekaż `enabled: false`, aby zapisać szkic. Wyzwalacze to `recordCreated`, `recordUpdated`, `fieldChanged`, `dateReached`, `messageReceived`, `formSubmitted` i `webhookReceived`; identyfikatory list i pól pochodzą z `discover_record_types` i `get_record_model`. Odmowa wynikająca z planu przychodzi z limitem i ceną ulepszenia. REST ma te same operacje jako `POST /api/v1/rules/list`, `read`, `runs`, `create`, `update`, `enable`, `disable`, `delete` i `preview`, z uprawnieniem do odczytu **Rutyn** dla odczytów i uprawnieniem do tworzenia dla tworzenia; zobacz [dokumentację API](/docs/openapi).
+
+## Najczęstsze pytania [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Czy automatyzacja to to samo co rutyna?">
+Nie. Rutyna otwiera rozmowę i pozwala Mate pracować, zużywa limit Mate właściciela i istnieje tylko w Customermates Cloud. Automatyzacja wykonuje stałą regułę gdy, jeśli, wtedy bez AI, w każdym planie i na instancjach self-hosted. Drugi rodzaj opisują [rutyny](/docs/app-routines).
+</FaqItem>
+<FaqItem question="Dlaczego moja automatyzacja nie uruchomiła się dla rekordu?">
+Otwórz **Historię** automatyzacji. Pominięte uruchomienie podaje powód, na przykład niespełnione warunki lub właściciela, który nie jest już aktywny. Reguła daty potrzebuje też daty w polu i uruchamia się raz na rekord i datę.
+</FaqItem>
+<FaqItem question="Czy automatyzacja może wysłać e-mail do klienta?">
+Nie bezpośrednio. Automatyzacja sama nie wysyła e-maili ani wiadomości. Może powiadamiać członków Twojej przestrzeni roboczej, co może do nich dotrzeć także e-mailem, i może wywołać jeden z Twoich webhooków, na przykład aby uruchomić przepływ [n8n](/docs/n8n), który coś wyśle.
+</FaqItem>
+<FaqItem question="Kto dostaje powiadomienie, gdy automatyzacja kogoś powiadamia?">
+Decyduje działanie: **Powiadom mnie** trafia do właściciela automatyzacji, **Powiadom przypisane osoby** trafia do członków, którym przypisano rekord wyzwalający. Powiadomienie pojawia się w ich dzwonku i podlega ich preferencji e-mail dla **Alerty automatyzacji**.
+</FaqItem>
+</Faq>
