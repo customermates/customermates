@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Dealflow d’investisseur",
-  "summary": "Un dealflow pour un petit fonds ou un business angel : huit étapes de l’identification au closing ou au refus, l’apporteur sur chaque dossier, un motif de refus et une date de reprise de contact.",
-  "description": "Suivre startups et investisseurs de la détection au term sheet : screening, rencontres, due diligence. Chaque dossier note qui l’a apporté, son adéquation à la thèse, le rôle de lead, un lien vers la data room, le motif de refus et la date de reprise. C’est un outil de relation, pas une table de capitalisation, ni une data room juridique, ni un modèle de notation. Les pondérations sont approximatives et à vous de les fixer.",
+  "summary": "Un dealflow pour un petit fonds ou un business angel : huit étapes de l’identification au closing ou au refus, l’apporteur sur chaque dossier, un motif de refus et une date de reprise de contact.",
+  "description": "Suivez startups et investisseurs de la détection au term sheet : screening, rencontres, due diligence. Chaque dossier note qui l’a apporté, son adéquation à la thèse, le rôle de lead, un lien vers la data room, le motif de refus et la date de reprise. C’est un outil de relation, pas une table de capitalisation, ni une data room juridique, ni un modèle de notation. Les pondérations sont approximatives et à vous de les fixer.",
   "lists": {
     "people": { "label": "Personne", "pluralLabel": "Personnes", "description": "Fondateurs, investisseurs, co-investisseurs et apporteurs." },
     "organizations": { "label": "Organisation", "pluralLabel": "Organisations", "description": "Startups, fonds, syndicats et accélérateurs." },
@@ -38,7 +38,7 @@
     "organizations.country": { "label": "Pays" },
     "organizations.conflict_check": { "label": "Vérification des conflits d’intérêts", "options": { "to_check": "À vérifier", "clear": "Aucun conflit", "conflict": "Conflit" } },
     "deals.round": {
-      "label": "Tour",
+      "label": "Tour de financement",
       "options": { "pre_seed": "Pré-amorçage", "seed": "Amorçage", "series_a": "Série A", "series_b": "Série B", "bridge": "Tour relais" }
     },
     "deals.lead_role": { "label": "Notre rôle", "options": { "lead": "Lead", "follow": "Suiveur", "undecided": "À décider" } },
@@ -115,15 +115,15 @@
   "acceptanceChecks": {
     "stage_field": "Chaque dossier a l’une des huit étapes.",
     "pass_reason_field": "Chaque dossier note pourquoi il a été refusé.",
-    "board_view": "Les dossiers s’ouvrent en tableau par étape."
+    "board_view": "Les dossiers s’ouvrent en board par étape."
   },
   "prompt": {
-    "intro": "Mets en place un dealflow dans mon espace Customermates : des dossiers avec huit étapes, l’apporteur, l’adéquation à la thèse, le rôle de lead, un motif de refus et une date de reprise, plus startups, investisseurs et relances datées.",
+    "intro": "Mets en place un dealflow dans mon espace de travail Customermates : des dossiers avec huit étapes, l’apporteur, l’adéquation à la thèse, le rôle de lead, un motif de refus et une date de reprise, plus startups, investisseurs et relances datées.",
     "questions": [
-      "Dans quels stades et secteurs investissez-vous, et quelle est votre taille de ticket habituelle ?",
-      "Comment les dossiers vous parviennent-ils, et qui les apporte ?",
-      "Qui décide à chaque étape, et quand refusez-vous ?",
-      "Où gardez-vous les documents juridiques et la data room ? Seul un lien est gardé ici."
+      "Dans quels stades et secteurs investissez-vous, et quelle est votre taille de ticket habituelle ?",
+      "Comment les dossiers vous parviennent-ils, et qui les apporte ?",
+      "Qui décide à chaque étape, et quand refusez-vous ?",
+      "Où gardez-vous les documents juridiques et la data room ? Seul un lien est gardé ici."
     ]
   }
 }
