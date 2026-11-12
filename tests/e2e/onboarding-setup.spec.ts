@@ -10,35 +10,20 @@ import { collectPageErrors, expect, test } from "./fixtures";
 import { moveWithKeyboard } from "./keyboard-drag";
 import { uniqueWorkspaceName } from "./workspace-names";
 import { clickHydrated, e2eAppMode } from "./workspace-switching";
+import { openGoalOfNewWorkspace } from "./workspace-setup";
 import { appPath, appUrlPattern, workspaceSlugOf } from "./app-paths";
 
 test.skip(e2eAppMode() !== "cloud", "The guided workspace setup runs in the cloud only");
 
-// A legacy workspace another administrator set up leaves the login its trial, so the new workspace opens its wizard.
-async function openGoalOfNewWorkspace(page: Page, database: Client, workspace: BrowserWorkspace, name: string) {
-  await database.query('UPDATE "Company" SET "createdByAuthUserId"=NULL WHERE id=$1', [workspace.companyId]);
-  await database.query(
-    'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName",status,"agreeToTerms","onboardingWizardCompletedAt","createdAt","updatedAt") SELECT $1,"companyId","roleId",$2,\'Clara\',\'Founder\',\'active\',true,NOW(),"createdAt" - interval \'1 day\',NOW() FROM "User" WHERE id=$3',
-    [randomUUID(), `clara-${randomUUID()}@example.test`, workspace.userId],
-  );
-  await page.goto(appPath(workspace.slug, "/settings/workspaces"));
-  await clickHydrated(page.getByRole("button", { name: "Create workspace", exact: true }));
-  const dialog = page.getByRole("dialog", { name: "Create workspace" });
-  await dialog.locator("#create-workspace-name").fill(name);
-  await dialog.locator("#create-workspace-terms").click();
-  await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
-  await expect(page).toHaveURL(/\/en(?:\/w\/[a-z0-9-]+)?\/onboarding\/wizard$/);
-  await expect(
-    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.goal.title, exact: true }),
-  ).toBeVisible();
-  const { rows } = await database.query<{ id: string }>('SELECT id FROM "Company" WHERE name=$1', [name]);
-  return rows[0].id;
-}
-
 async function openSetupOfNewWorkspace(page: Page, database: Client, workspace: BrowserWorkspace, name: string) {
   const companyId = await openGoalOfNewWorkspace(page, database, workspace, name);
-  await expect(page.getByRole("radio", { name: new RegExp(`^${goal.workspace.title}`) })).toBeChecked();
+  await expect(page.getByRole("radio", { name: new RegExp(`^${goal.agent.title}`) })).toBeChecked();
+  await clickHydrated(page.getByRole("radio", { name: new RegExp(`^${goal.workspace.title}`) }));
   await clickHydrated(page.locator("#onboarding-goal-continue"));
+  await expect(
+    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.template.title, exact: true }),
+  ).toBeVisible();
+  await clickHydrated(page.locator("#onboarding-template-none"));
   await expect(
     page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.setup.startTitle, exact: true }),
   ).toBeVisible();
@@ -226,7 +211,36 @@ test("starting with an empty workspace skips only the guided setup and continues
   expect(errors).toEqual([]);
 });
 
-test("a new workspace asks what to do first, preselects the workspace setup and records the choice", async ({
+test("a new workspace offers the own agent first, Mate second and starting empty as the quiet footer", async ({
+  page,
+  database,
+  workspace,
+}, testInfo) => {
+  const errors = collectPageErrors(page);
+  await openGoalOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Choice Order"));
+
+  const options = page.getByRole("radiogroup", { name: goal.optionsLabel, exact: true });
+  const radios = options.getByRole("radio");
+  await expect(radios).toHaveCount(2);
+  await expect(radios.nth(0)).toHaveAccessibleName(new RegExp(`^${goal.agent.title}`));
+  await expect(radios.nth(0)).toBeChecked();
+  await expect(page.locator('label[for="onboarding-goal-agent"]')).toContainText(goal.recommended);
+  await expect(radios.nth(1)).toHaveAccessibleName(new RegExp(`^${goal.workspace.title}`));
+  await expect(radios.nth(1)).not.toBeChecked();
+  await expect(page.locator("#onboarding-goal-empty")).toHaveText(setup.empty.action);
+  const [agentBox, mateBox, emptyBox] = await Promise.all(
+    [page.locator('label[for="onboarding-goal-agent"]'), page.locator('label[for="onboarding-goal-workspace"]'), page.locator("#onboarding-goal-empty")].map(
+      (target) => target.boundingBox(),
+    ),
+  );
+  if (!agentBox || !mateBox || !emptyBox) throw new Error("The setup choices must be visible");
+  expect(mateBox.y).toBeGreaterThan(agentBox.y + agentBox.height - 1);
+  expect(emptyBox.y).toBeGreaterThan(mateBox.y + mateBox.height - 1);
+  await page.screenshot({ path: testInfo.outputPath("goal-choice-order.png"), fullPage: true });
+  expect(errors).toEqual([]);
+});
+
+test("choosing Mate records the choice and a reload resumes on the template step", async ({
   page,
   database,
   workspace,
@@ -237,9 +251,10 @@ test("a new workspace asks what to do first, preselects the workspace setup and 
   expect(await funnelEvents(database, companyId)).toEqual([{ type: "jobSelected", job: "workspace" }]);
   await page.reload();
   await expect(
-    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.setup.startTitle, exact: true }),
+    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.template.title, exact: true }),
   ).toBeVisible();
-  await page.screenshot({ path: testInfo.outputPath("goal-resumes-setup.png"), fullPage: true });
+  await expect(page.getByRole("radio", { checked: true })).toHaveCount(1);
+  await page.screenshot({ path: testInfo.outputPath("goal-resumes-template.png"), fullPage: true });
   expect(errors).toEqual([]);
 });
 
@@ -331,13 +346,40 @@ test("connecting an own AI agent skips the setup interview and opens the AI conn
   const errors = collectPageErrors(page);
   const companyId = await openGoalOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Agent Studio"));
 
-  await clickHydrated(page.getByRole("radio", { name: new RegExp(`^${goal.agent.title}`) }));
+  await expect(page.getByRole("radio", { name: new RegExp(`^${goal.agent.title}`) })).toBeChecked();
   await clickHydrated(page.locator("#onboarding-goal-continue"));
 
   const steps = englishMessages.OnboardingWizard.steps;
-  await expect(page.getByRole("heading", { level: 1, name: steps.ai.title, exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: steps.connect.title, exact: true })).toBeVisible();
   expect(await funnelEvents(database, companyId)).toEqual([{ type: "jobSelected", job: "agent" }]);
   await page.reload();
+  await expect(page.getByRole("heading", { level: 1, name: steps.connect.title, exact: true })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("the quiet footer link starts an empty workspace without a template and skips the agent steps", async ({
+  page,
+  database,
+  workspace,
+}) => {
+  const errors = collectPageErrors(page);
+  const companyId = await openGoalOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Quiet Studio"));
+
+  await clickHydrated(page.locator("#onboarding-goal-empty"));
+  const confirm = page.getByRole("alertdialog", { name: setup.empty.title });
+  await expect(confirm).toContainText(setup.empty.description);
+  await confirm.getByRole("button", { name: setup.empty.confirm, exact: true }).click();
+
+  const steps = englishMessages.OnboardingWizard.steps;
+  await expect(page.getByRole("heading", { level: 1, name: steps.invite.title, exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("heading", { level: 1, name: steps.invite.title, exact: true })).toBeVisible();
+  await page.getByRole("button", { name: englishMessages.OnboardingWizard.next, exact: true }).click();
   await expect(page.getByRole("heading", { level: 1, name: steps.ai.title, exact: true })).toBeVisible();
+  await page.getByRole("button", { name: englishMessages.OnboardingWizard.finish, exact: true }).click();
+
+  await expect(page).toHaveURL(appUrlPattern(await workspaceSlugOf(database, companyId), "/dashboard$"));
+  const lists = await database.query('SELECT 1 FROM "RecordTypeDefinition" WHERE "companyId"=$1', [companyId]);
+  expect(lists.rowCount).toBe(0);
   expect(errors).toEqual([]);
 });
