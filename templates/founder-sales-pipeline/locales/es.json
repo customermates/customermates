@@ -1,0 +1,98 @@
+{
+  "locale": "es",
+  "name": "Ventas lideradas por el fundador",
+  "summary": "Un pipeline corto para un fundador que vende en persona: conversaciones, descubrimiento, un piloto opcional con fecha de fin fija, una propuesta y un estado en pausa con fecha para retomar.",
+  "description": "Venda como fundador con de un puñado a unas decenas de conversaciones abiertas: cada oportunidad registra el problema con las palabras del cliente, la urgencia, el estado del presupuesto y si el decisor está implicado; un piloto tiene fecha de fin e indica si es de pago; una operación silenciosa se pone en pausa con una fecha para retomarla en lugar de perseguirla. Los pesos son aproximados, porque un fundador aún no tiene historial de cierres, y los fija usted. No es envío de secuencias en volumen, captación de inversión ni previsión para un equipo con varios vendedores.",
+  "lists": {
+    "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Las personas con las que habla, con su papel en la decisión de compra." },
+    "companies": { "label": "Empresa", "pluralLabel": "Empresas", "description": "Prospectos, pilotos, clientes y socios." },
+    "opportunities": { "label": "Oportunidad", "pluralLabel": "Oportunidades", "description": "Una posible venta, de la primera conversación a ganada, perdida o en pausa." }
+  },
+  "fields": {
+    "contacts.buying_role": { "label": "Papel en la compra", "options": { "decision_maker": "Decisor", "budget_holder": "Responsable del presupuesto", "champion": "Impulsor interno", "user": "Usuario", "other": "Otro" } },
+    "contacts.outreach_consent": { "label": "Acepta ser contactado" },
+    "companies.relationship": { "label": "Relación", "options": { "prospect": "Prospecto", "pilot": "Piloto", "customer": "Cliente", "churned": "Perdido", "partner": "Socio" } },
+    "companies.size": { "label": "Tamaño", "options": { "micro": "De 1 a 10 personas", "small": "De 11 a 50 personas", "medium": "De 51 a 250 personas", "large": "Más de 250 personas" } },
+    "companies.website": { "label": "Sitio web" },
+    "opportunities.stage": {
+      "label": "Fase",
+      "options": { "new": "Conversación", "discovery_done": "Descubrimiento", "pilot": "Piloto", "proposal": "Propuesta", "won": "Ganada", "lost": "Perdida", "parked": "En pausa" }
+    },
+    "opportunities.source": { "label": "Origen", "options": { "own_network": "Red personal", "introduction": "Presentación", "inbound": "Entrante", "community": "Comunidad", "outbound": "Prospección", "event": "Evento" } },
+    "opportunities.problem": { "label": "El problema, con sus palabras" },
+    "opportunities.urgency": { "label": "Urgencia", "options": { "burning": "Urgentísima", "important": "Importante", "nice_to_have": "Deseable" } },
+    "opportunities.budget_status": { "label": "Presupuesto", "options": { "unknown": "Desconocido", "has_budget": "Tiene presupuesto", "needs_budget": "Necesita presupuesto", "no_budget": "Sin presupuesto" } },
+    "opportunities.decision_maker_engaged": { "label": "Decisor implicado" },
+    "opportunities.pilot_end": { "label": "Fin del piloto" },
+    "opportunities.pilot_paid": { "label": "El piloto es de pago" },
+    "opportunities.expected_close": { "label": "Cierre esperado" },
+    "opportunities.revisit_on": { "label": "Retomar el" },
+    "opportunities.next_step_due": { "label": "Siguiente paso antes de" },
+    "opportunities.lost_reason": {
+      "label": "Motivo de la pérdida",
+      "options": { "no_budget": "Sin presupuesto", "no_urgency": "Sin urgencia", "competitor": "Eligió a la competencia", "built_in_house": "Lo desarrolló internamente", "wrong_buyer": "Interlocutor equivocado", "no_response": "Sin respuesta", "not_a_fit": "No encaja" }
+    },
+    "opportunities.weighted_value": { "label": "Valor ponderado" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "reply": "Responder con un resumen", "call": "Llamar", "intro_request": "Pedir una presentación", "pilot_check": "Revisar el piloto", "proposal": "Enviar la propuesta", "follow_up": "Dar seguimiento", "handover": "Traspasar", "review": "Hacer balance", "other": "Otro" }
+    }
+  },
+  "relationships": {
+    "contact_company": { "sourceLabel": "Empresa", "targetLabel": "Contactos" },
+    "opportunity_company": { "sourceLabel": "Empresa", "targetLabel": "Oportunidades" },
+    "opportunity_contacts": { "sourceLabel": "Contactos", "targetLabel": "Oportunidades" },
+    "action_opportunity": { "sourceLabel": "Oportunidad", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Oportunidades por fase" },
+    "opportunities_all": { "name": "Todas las oportunidades" },
+    "parked_to_revisit": { "name": "En pausa, por retomar" },
+    "without_next_step": { "name": "Abiertas sin siguiente paso" },
+    "companies_all": { "name": "Todas las empresas" },
+    "contacts_all": { "name": "Todos los contactos" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Oportunidades por fase" },
+    "weighted_pipeline": { "title": "Pipeline ponderado" },
+    "customers_won": { "title": "Clientes ganados" },
+    "pilots_running": { "title": "Pilotos en curso" },
+    "pilot_ends": { "title": "Pilotos que terminan" },
+    "revisits_coming": { "title": "Operaciones en pausa por retomar" },
+    "urgency_split": { "title": "Oportunidades abiertas por urgencia" },
+    "lost_reasons": { "title": "Por qué se pierden oportunidades" }
+  },
+  "knowledgePages": {
+    "founder_playbook": { "title": "Guía de ventas del fundador", "sections": ["A quién vendemos y qué hemos aprendido", "Revisión semanal del fundador"] },
+    "discovery_questions": { "title": "Preguntas de la llamada de descubrimiento", "sections": ["Problema, urgencia, presupuesto y decisores", "Qué anotar después de la llamada"] },
+    "pilot_plan": { "title": "Plan del piloto y hoja de evaluación", "sections": ["Fecha de fin fija y criterios de éxito", "De pago por defecto y cómo el piloto pasa a contrato"] },
+    "when_to_hire": { "title": "Cuándo contratar al primer vendedor", "sections": ["Señales de que la venta se repite sin usted", "Qué traspasar primero"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Crear el contacto, la empresa y la oportunidad cuando se envía el formulario de consulta" },
+    "recap_reply": { "title": "Responder con un resumen personal y un siguiente paso el día después de empezar una conversación" },
+    "discovery_proposal": { "title": "Enviar el plan del piloto o la propuesta 2 días después del descubrimiento" },
+    "pilot_start_check": { "title": "Revisar el piloto 14 días después de empezar" },
+    "pilot_review": { "title": "Hacer la llamada de decisión 3 días antes de que termine el piloto" },
+    "proposal_follow_up": { "title": "Dar seguimiento 3 días después de enviar una propuesta" },
+    "parked_revisit_date": { "title": "Fijar la fecha para retomar a 90 días cuando una operación se pone en pausa" },
+    "revisit_reopen": { "title": "Reabrir la conversación en la fecha para retomar" },
+    "won_handover": { "title": "Traspasar al cliente el día después de ganar una operación" },
+    "won_intro_request": { "title": "Pedir una presentación al cliente 30 días después de ganar" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada oportunidad tiene una fase.",
+    "problem_field": "Cada oportunidad registra el problema con las palabras del cliente.",
+    "pilot_end_field": "Cada piloto tiene una fecha de fin.",
+    "opportunities_board_view": "Las oportunidades se abren como tablero por fase."
+  },
+  "prompt": {
+    "intro": "Configura en mi espacio de Customermates un pipeline de ventas del fundador: oportunidades de la primera conversación a ganada con notas de descubrimiento, un piloto opcional con fecha de fin fija, un estado en pausa con fecha para retomar y seguimientos con fecha. No envíes nada automáticamente.",
+    "questions": [
+      "¿Qué vende y quién le ha comprado hasta ahora?",
+      "¿Hace pilotos o pruebas y son de pago?",
+      "¿Cuánto tiempo persigue una operación silenciosa antes de ponerla en pausa?",
+      "¿Dónde empiezan sus conversaciones: su red, presentaciones, entrantes o eventos?"
+    ]
+  }
+}

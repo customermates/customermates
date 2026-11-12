@@ -1,0 +1,98 @@
+{
+  "locale": "pl",
+  "name": "Sprzedaż prowadzona przez założyciela",
+  "summary": "Krótki lejek dla założyciela, który sprzedaje osobiście: rozmowy, analiza potrzeb, opcjonalny pilotaż ze stałym terminem zakończenia, oferta i status wstrzymane z datą powrotu.",
+  "description": "Sprzedawaj jako założyciel, mając od kilku do kilkudziesięciu otwartych rozmów: każda szansa zapisuje problem słowami klienta, pilność, stan budżetu i to, czy decydent jest zaangażowany; pilotaż ma termin zakończenia i informację, czy jest płatny; cicha szansa jest wstrzymywana z datą powrotu zamiast być ścigana. Wagi są przybliżone, bo założyciel nie ma jeszcze historii zamknięć, i to Ty je ustawiasz. To nie masowa wysyłka sekwencji, pozyskiwanie finansowania ani prognoza dla zespołu z kilkoma handlowcami.",
+  "lists": {
+    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Osoby, z którymi rozmawiasz, z ich rolą w decyzji zakupowej." },
+    "companies": { "label": "Firma", "pluralLabel": "Firmy", "description": "Potencjalni klienci, pilotaże, klienci i partnerzy." },
+    "opportunities": { "label": "Szansa sprzedaży", "pluralLabel": "Szanse sprzedaży", "description": "Jedna możliwa sprzedaż, od pierwszej rozmowy do wygranej, przegranej lub wstrzymanej." }
+  },
+  "fields": {
+    "contacts.buying_role": { "label": "Rola w zakupie", "options": { "decision_maker": "Decydent", "budget_holder": "Dysponent budżetu", "champion": "Rzecznik wewnętrzny", "user": "Użytkownik", "other": "Inna" } },
+    "contacts.outreach_consent": { "label": "Zgoda na kontakt" },
+    "companies.relationship": { "label": "Relacja", "options": { "prospect": "Potencjalny klient", "pilot": "Pilotaż", "customer": "Klient", "churned": "Utracony", "partner": "Partner" } },
+    "companies.size": { "label": "Wielkość", "options": { "micro": "1 do 10 osób", "small": "11 do 50 osób", "medium": "51 do 250 osób", "large": "Ponad 250 osób" } },
+    "companies.website": { "label": "Strona internetowa" },
+    "opportunities.stage": {
+      "label": "Etap",
+      "options": { "new": "Rozmowa", "discovery_done": "Analiza potrzeb", "pilot": "Pilotaż lub test", "proposal": "Oferta", "won": "Wygrana", "lost": "Przegrana", "parked": "Wstrzymane" }
+    },
+    "opportunities.source": { "label": "Źródło", "options": { "own_network": "Własna sieć kontaktów", "introduction": "Polecenie z przedstawieniem", "inbound": "Zapytanie przychodzące", "community": "Społeczność", "outbound": "Kontakt wychodzący", "event": "Wydarzenie" } },
+    "opportunities.problem": { "label": "Problem słowami klienta" },
+    "opportunities.urgency": { "label": "Pilność", "options": { "burning": "Palący", "important": "Ważny", "nice_to_have": "Miło mieć" } },
+    "opportunities.budget_status": { "label": "Budżet", "options": { "unknown": "Nieznany", "has_budget": "Ma budżet", "needs_budget": "Musi zdobyć budżet", "no_budget": "Brak budżetu" } },
+    "opportunities.decision_maker_engaged": { "label": "Decydent zaangażowany" },
+    "opportunities.pilot_end": { "label": "Koniec pilotażu" },
+    "opportunities.pilot_paid": { "label": "Pilotaż jest płatny" },
+    "opportunities.expected_close": { "label": "Spodziewane zamknięcie" },
+    "opportunities.revisit_on": { "label": "Wróć do sprawy dnia" },
+    "opportunities.next_step_due": { "label": "Następny krok do" },
+    "opportunities.lost_reason": {
+      "label": "Powód utraty",
+      "options": { "no_budget": "Brak budżetu", "no_urgency": "Brak pilności", "competitor": "Wybrał konkurencję", "built_in_house": "Zbudował we własnym zakresie", "wrong_buyer": "Zły rozmówca", "no_response": "Brak odpowiedzi", "not_a_fit": "Nie pasuje" }
+    },
+    "opportunities.weighted_value": { "label": "Wartość ważona" },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": { "reply": "Odpowiedzieć z podsumowaniem", "call": "Zadzwonić", "intro_request": "Poprosić o przedstawienie", "pilot_check": "Sprawdzić pilotaż", "proposal": "Wysłać ofertę", "follow_up": "Przypomnieć", "handover": "Przekazać", "review": "Podsumować", "other": "Inne" }
+    }
+  },
+  "relationships": {
+    "contact_company": { "sourceLabel": "Firma", "targetLabel": "Kontakty" },
+    "opportunity_company": { "sourceLabel": "Firma", "targetLabel": "Szanse sprzedaży" },
+    "opportunity_contacts": { "sourceLabel": "Kontakty", "targetLabel": "Szanse sprzedaży" },
+    "action_opportunity": { "sourceLabel": "Szansa sprzedaży", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Szanse według etapu" },
+    "opportunities_all": { "name": "Wszystkie szanse sprzedaży" },
+    "parked_to_revisit": { "name": "Wstrzymane, do powrotu" },
+    "without_next_step": { "name": "Otwarte bez następnego kroku" },
+    "companies_all": { "name": "Wszystkie firmy" },
+    "contacts_all": { "name": "Wszystkie kontakty" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Szanse według etapu" },
+    "weighted_pipeline": { "title": "Lejek ważony" },
+    "customers_won": { "title": "Pozyskani klienci" },
+    "pilots_running": { "title": "Trwające pilotaże" },
+    "pilot_ends": { "title": "Kończące się pilotaże" },
+    "revisits_coming": { "title": "Wstrzymane szanse do powrotu" },
+    "urgency_split": { "title": "Otwarte szanse według pilności" },
+    "lost_reasons": { "title": "Dlaczego szanse zostały utracone" }
+  },
+  "knowledgePages": {
+    "founder_playbook": { "title": "Przewodnik sprzedaży założyciela", "sections": ["Komu sprzedajemy i czego się nauczyliśmy", "Tygodniowy przegląd założyciela"] },
+    "discovery_questions": { "title": "Pytania na rozmowę odkrywczą", "sections": ["Problem, pilność, budżet i decydenci", "Co zapisać po rozmowie"] },
+    "pilot_plan": { "title": "Plan pilotażu i karta oceny", "sections": ["Stały termin zakończenia i kryteria sukcesu", "Płatny domyślnie i jak pilotaż zamienia się w umowę"] },
+    "when_to_hire": { "title": "Kiedy zatrudnić pierwszego handlowca", "sections": ["Sygnały, że sprzedaż powtarza się bez Ciebie", "Co przekazać najpierw"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Utworzyć kontakt, firmę i szansę sprzedaży po wysłaniu formularza zapytania" },
+    "recap_reply": { "title": "Odpowiedzieć z osobistym podsumowaniem i następnym krokiem dzień po rozpoczęciu rozmowy" },
+    "discovery_proposal": { "title": "Wysłać plan pilotażu lub ofertę 2 dni po analizie potrzeb" },
+    "pilot_start_check": { "title": "Sprawdzić pilotaż 14 dni po starcie" },
+    "pilot_review": { "title": "Przeprowadzić rozmowę decyzyjną 3 dni przed końcem pilotażu" },
+    "proposal_follow_up": { "title": "Przypomnieć o ofercie 3 dni po jej wysłaniu" },
+    "parked_revisit_date": { "title": "Ustawić powrót do sprawy na 90 dni, gdy szansa zostaje wstrzymana" },
+    "revisit_reopen": { "title": "Wznowić rozmowę w dniu powrotu do sprawy" },
+    "won_handover": { "title": "Przekazać klienta dzień po wygranej" },
+    "won_intro_request": { "title": "Poprosić klienta o przedstawienie 30 dni po wygranej" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Każda szansa sprzedaży ma etap.",
+    "problem_field": "Każda szansa zapisuje problem słowami klienta.",
+    "pilot_end_field": "Każdy pilotaż ma termin zakończenia.",
+    "opportunities_board_view": "Szanse otwierają się jako tablica według etapu."
+  },
+  "prompt": {
+    "intro": "Skonfiguruj w moim workspace Customermates lejek sprzedaży prowadzonej przez założyciela: szanse od pierwszej rozmowy do wygranej z notatkami z analizy potrzeb, opcjonalny pilotaż ze stałym terminem zakończenia, status wstrzymane z datą powrotu i zaplanowane przypomnienia. Niczego nie wysyłaj automatycznie.",
+    "questions": [
+      "Co sprzedajesz i kto już od Ciebie kupił?",
+      "Czy prowadzisz pilotaże lub testy i czy są płatne?",
+      "Jak długo ścigasz cichą szansę, zanim ją wstrzymasz?",
+      "Skąd biorą się Twoje rozmowy: z sieci kontaktów, poleceń, zapytań czy wydarzeń?"
+    ]
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "locale": "de",
+  "name": "Vertrieb im Gründerteam",
+  "summary": "Eine kurze Pipeline für Gründer, die selbst verkaufen: Gespräche, Bedarfsklärung, ein optionaler Pilot mit festem Enddatum, ein Angebot und ein Zurückgestellt-Status mit Wiedervorlage.",
+  "description": "Als Gründer verkaufen, mit einer Handvoll bis einigen Dutzend offenen Gesprächen: Jede Verkaufschance hält das Problem in den Worten des Kunden, die Dringlichkeit, den Budgetstand und fest, ob der Entscheider eingebunden ist; ein Pilot hat ein Enddatum und sagt, ob er bezahlt wird; ein stiller Deal wird mit Wiedervorlage zurückgestellt, statt ihm nachzulaufen. Die Gewichte sind grob, denn ein Gründer hat noch keine Abschlussquote, und Ihre Sache. Kein Massenversand von Folgen, keine Finanzierungsrunde und keine Prognose für ein Team mit mehreren Verkäufern.",
+  "lists": {
+    "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Die Personen, mit denen Sie sprechen, mit ihrer Rolle in der Kaufentscheidung." },
+    "companies": { "label": "Unternehmen", "pluralLabel": "Unternehmen", "description": "Interessenten, Pilotkunden, Kunden und Partner." },
+    "opportunities": { "label": "Verkaufschance", "pluralLabel": "Verkaufschancen", "description": "Ein möglicher Verkauf, vom ersten Gespräch bis gewonnen, verloren oder zurückgestellt." }
+  },
+  "fields": {
+    "contacts.buying_role": { "label": "Rolle beim Kauf", "options": { "decision_maker": "Entscheider", "budget_holder": "Budgetverantwortlicher", "champion": "Fürsprecher", "user": "Anwender", "other": "Sonstige" } },
+    "contacts.outreach_consent": { "label": "Kontakt erlaubt" },
+    "companies.relationship": { "label": "Beziehung", "options": { "prospect": "Interessent", "pilot": "Pilotkunde", "customer": "Kunde", "churned": "Abgewandert", "partner": "Partner" } },
+    "companies.size": { "label": "Größe", "options": { "micro": "1 bis 10 Personen", "small": "11 bis 50 Personen", "medium": "51 bis 250 Personen", "large": "Mehr als 250 Personen" } },
+    "companies.website": { "label": "Website" },
+    "opportunities.stage": {
+      "label": "Phase",
+      "options": { "new": "Gespräch", "discovery_done": "Bedarf geklärt", "pilot": "Pilot oder Testphase", "proposal": "Angebot", "won": "Gewonnen", "lost": "Verloren", "parked": "Zurückgestellt" }
+    },
+    "opportunities.source": { "label": "Quelle", "options": { "own_network": "Eigenes Netzwerk", "introduction": "Vorstellung", "inbound": "Anfrage", "community": "Community", "outbound": "Direktansprache", "event": "Veranstaltung" } },
+    "opportunities.problem": { "label": "Das Problem, in seinen Worten" },
+    "opportunities.urgency": { "label": "Dringlichkeit", "options": { "burning": "Brennt", "important": "Wichtig", "nice_to_have": "Wünschenswert" } },
+    "opportunities.budget_status": { "label": "Budget", "options": { "unknown": "Unbekannt", "has_budget": "Budget vorhanden", "needs_budget": "Braucht Budget", "no_budget": "Kein Budget" } },
+    "opportunities.decision_maker_engaged": { "label": "Entscheider eingebunden" },
+    "opportunities.pilot_end": { "label": "Pilotende" },
+    "opportunities.pilot_paid": { "label": "Pilot ist bezahlt" },
+    "opportunities.expected_close": { "label": "Erwarteter Abschluss" },
+    "opportunities.revisit_on": { "label": "Wiedervorlage" },
+    "opportunities.next_step_due": { "label": "Nächster Schritt bis" },
+    "opportunities.lost_reason": {
+      "label": "Verlustgrund",
+      "options": { "no_budget": "Kein Budget", "no_urgency": "Keine Dringlichkeit", "competitor": "Wettbewerber gewählt", "built_in_house": "Selbst gebaut", "wrong_buyer": "Falscher Ansprechpartner", "no_response": "Keine Rückmeldung", "not_a_fit": "Passt nicht" }
+    },
+    "opportunities.weighted_value": { "label": "Gewichteter Wert" },
+    "actions.kind": {
+      "label": "Art",
+      "options": { "reply": "Mit Zusammenfassung antworten", "call": "Anrufen", "intro_request": "Um eine Vorstellung bitten", "pilot_check": "Pilot prüfen", "proposal": "Angebot senden", "follow_up": "Nachfassen", "handover": "Übergeben", "review": "Auswerten", "other": "Sonstiges" }
+    }
+  },
+  "relationships": {
+    "contact_company": { "sourceLabel": "Unternehmen", "targetLabel": "Ansprechpartner" },
+    "opportunity_company": { "sourceLabel": "Unternehmen", "targetLabel": "Verkaufschancen" },
+    "opportunity_contacts": { "sourceLabel": "Ansprechpartner", "targetLabel": "Verkaufschancen" },
+    "action_opportunity": { "sourceLabel": "Verkaufschance", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Verkaufschancen nach Phase" },
+    "opportunities_all": { "name": "Alle Verkaufschancen" },
+    "parked_to_revisit": { "name": "Zurückgestellt, zur Wiedervorlage" },
+    "without_next_step": { "name": "Offen ohne nächsten Schritt" },
+    "companies_all": { "name": "Alle Unternehmen" },
+    "contacts_all": { "name": "Alle Ansprechpartner" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Verkaufschancen nach Phase" },
+    "weighted_pipeline": { "title": "Gewichtete Pipeline" },
+    "customers_won": { "title": "Gewonnene Kunden" },
+    "pilots_running": { "title": "Laufende Piloten" },
+    "pilot_ends": { "title": "Endende Piloten" },
+    "revisits_coming": { "title": "Zurückgestellte Deals zur Wiedervorlage" },
+    "urgency_split": { "title": "Offene Deals nach Dringlichkeit" },
+    "lost_reasons": { "title": "Warum Deals verloren gingen" }
+  },
+  "knowledgePages": {
+    "founder_playbook": { "title": "Vertriebsleitfaden für Gründer", "sections": ["An wen wir verkaufen und was wir gelernt haben", "Wöchentlicher Rückblick des Gründers"] },
+    "discovery_questions": { "title": "Fragen im Erstgespräch", "sections": ["Problem, Dringlichkeit, Budget und Entscheider", "Was nach dem Gespräch festgehalten wird"] },
+    "pilot_plan": { "title": "Pilotplan und Bewertungsbogen", "sections": ["Festes Enddatum und Erfolgskriterien", "Bezahlt als Standard und wie ein Pilot zum Vertrag wird"] },
+    "when_to_hire": { "title": "Wann der erste Vertriebsmitarbeiter kommt", "sections": ["Anzeichen, dass sich der Verkauf ohne Sie wiederholt", "Was zuerst übergeben wird"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Ansprechpartner, Unternehmen und Verkaufschance anlegen, wenn das Anfrageformular abgeschickt wird" },
+    "recap_reply": { "title": "Am Tag nach Beginn eines Gesprächs mit persönlicher Zusammenfassung und einem nächsten Schritt antworten" },
+    "discovery_proposal": { "title": "2 Tage nach geklärtem Bedarf Pilotplan oder Angebot senden" },
+    "pilot_start_check": { "title": "14 Tage nach Pilotbeginn nachsehen" },
+    "pilot_review": { "title": "3 Tage vor Pilotende das Entscheidungsgespräch führen" },
+    "proposal_follow_up": { "title": "3 Tage nach dem Angebot nachfassen" },
+    "parked_revisit_date": { "title": "Die Wiedervorlage auf 90 Tage setzen, wenn ein Deal zurückgestellt wird" },
+    "revisit_reopen": { "title": "Zur Wiedervorlage das Gespräch wieder aufnehmen" },
+    "won_handover": { "title": "Am Tag nach einem Gewinn den Kunden übergeben" },
+    "won_intro_request": { "title": "30 Tage nach einem Gewinn den Kunden um eine Vorstellung bitten" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Jede Verkaufschance hat eine Phase.",
+    "problem_field": "Jede Verkaufschance hält das Problem in den Worten des Kunden fest.",
+    "pilot_end_field": "Jeder Pilot hat ein Enddatum.",
+    "opportunities_board_view": "Die Verkaufschancen öffnen sich als Board nach Phase."
+  },
+  "prompt": {
+    "intro": "Richte in meinem Customermates-Workspace eine Vertriebspipeline für Gründer ein: Verkaufschancen vom ersten Gespräch bis gewonnen mit Notizen zur Bedarfsklärung, ein optionaler Pilot mit festem Enddatum, ein Zurückgestellt-Status mit Wiedervorlage und terminierte Folgeaufgaben. Sende nichts automatisch.",
+    "questions": [
+      "Was verkaufen Sie, und wer hat bisher bei Ihnen gekauft?",
+      "Führen Sie Piloten oder Testphasen durch, und sind sie bezahlt?",
+      "Wie lange laufen Sie einem stillen Deal nach, bevor Sie ihn zurückstellen?",
+      "Wo beginnen Ihre Gespräche: im Netzwerk, durch Vorstellungen, per Anfrage oder auf Veranstaltungen?"
+    ]
+  }
+}
