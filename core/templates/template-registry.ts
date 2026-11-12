@@ -5,7 +5,10 @@ import type { TemplateSlug } from "./template-slugs";
 import { SHIPPED_CAPABILITIES } from "@/core/capabilities/capabilities";
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
+import actionItemTracker from "./bundles/action-item-tracker.json";
+import clientIntake from "./bundles/client-intake.json";
 import clientTracker from "./bundles/client-tracker.json";
+import contentCalendar from "./bundles/content-calendar.json";
 import realEstatePipeline from "./bundles/real-estate-pipeline.json";
 import salesPipeline from "./bundles/sales-pipeline.json";
 import { TEMPLATE_SLUGS } from "./template-slugs";
@@ -18,7 +21,10 @@ export type TemplateDeployment = "cloud" | "self-hosted";
 export const CLOUD_ONLY_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>(["calendarWrite"]);
 
 const BUNDLES: Readonly<Record<TemplateSlug, TemplateBundle>> = {
+  "action-item-tracker": actionItemTracker as unknown as TemplateBundle,
+  "client-intake": clientIntake as unknown as TemplateBundle,
   "client-tracker": clientTracker as unknown as TemplateBundle,
+  "content-calendar": contentCalendar as unknown as TemplateBundle,
   "real-estate-pipeline": realEstatePipeline as unknown as TemplateBundle,
   "sales-pipeline": salesPipeline as unknown as TemplateBundle,
 };

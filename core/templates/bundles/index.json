@@ -1,5 +1,178 @@
 [
   {
+    "slug": "action-item-tracker",
+    "family": "operations",
+    "kind": "tracker",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "notifications"
+    ],
+    "pairedPages": {
+      "en": "/features/task-management",
+      "de": "/features/task-management",
+      "fr": "/features/task-management",
+      "it": "/features/task-management",
+      "es": "/features/task-management",
+      "pt": "/features/task-management",
+      "pl": "/features/task-management",
+      "nl": "/features/task-management"
+    },
+    "reviewedAt": "2026-11-12",
+    "counts": {
+      "lists": 5,
+      "fields": 28,
+      "views": 6,
+      "widgets": 9,
+      "rules": 9
+    },
+    "locales": {
+      "de": {
+        "name": "Maßnahmenplan",
+        "summary": "Jede Maßnahme mit einem Verantwortlichen und einer Frist, verknüpft mit Besprechung, Beschluss oder Projekt, mit wöchentlicher Durchsicht und Abschluss mit Nachweis.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "en": {
+        "name": "Action item tracker",
+        "summary": "Every action with one owner and a due date, linked to the meeting, decision or project it came from, with a weekly review and a way to close it with proof.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "es": {
+        "name": "Plan de acción",
+        "summary": "Cada acción con un responsable y una fecha límite, vinculada a la reunión, la decisión o el proyecto de donde sale, con revisión semanal y cierre con prueba.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "fr": {
+        "name": "Plan d’action",
+        "summary": "Chaque action avec un pilote et une échéance, liée à la réunion, à la décision ou au projet dont elle vient, avec une revue hebdomadaire et une clôture avec preuve.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "it": {
+        "name": "Piano d’azione",
+        "summary": "Ogni azione con un responsabile e una scadenza, collegata alla riunione, alla decisione o al progetto da cui nasce, con una revisione settimanale e la chiusura con prova.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "nl": {
+        "name": "Actielijst",
+        "summary": "Elke actie met één eigenaar en een deadline, gekoppeld aan het overleg, het besluit of het project waaruit ze komt, met een wekelijkse controle en afsluiting met bewijs.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "pl": {
+        "name": "Plan działań",
+        "summary": "Każde zadanie z jedną osobą odpowiedzialną i terminem, powiązane ze spotkaniem, decyzją lub projektem, z którego wynika, z cotygodniowym przeglądem i zamknięciem z dowodem.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "pt": {
+        "name": "Plano de ação",
+        "summary": "Cada ação com um responsável e um prazo, vinculada à reunião, à decisão ou ao projeto de onde vem, com revisão semanal e encerramento com comprovação.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      }
+    }
+  },
+  {
+    "slug": "client-intake",
+    "family": "intake",
+    "kind": "checklist",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "calendarWrite",
+      "notifications"
+    ],
+    "pairedPages": {
+      "en": "/for/professional-services",
+      "de": "/for/professional-services",
+      "fr": "/for/professional-services",
+      "it": "/for/professional-services",
+      "es": "/for/professional-services",
+      "pt": "/for/professional-services",
+      "pl": "/for/professional-services",
+      "nl": "/for/professional-services"
+    },
+    "reviewedAt": "2026-11-12",
+    "counts": {
+      "lists": 5,
+      "fields": 45,
+      "views": 10,
+      "widgets": 12,
+      "rules": 11
+    },
+    "locales": {
+      "de": {
+        "name": "Mandantenaufnahme und Onboarding",
+        "summary": "Eine Aufnahme pro Mandat: Anfrage, Vorprüfung, Fragebogen, Unterlagenanforderung, Auftragsbestätigung und Kickoff, mit einem Termin je Phase und einem Grund bei Ablehnung.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "en": {
+        "name": "Client intake and onboarding",
+        "summary": "One intake per engagement: enquiry, screening, form, document requests, agreement and kickoff, with a dated step at every stage and a reason when you decline.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "es": {
+        "name": "Ficha de cliente y alta",
+        "summary": "Un alta por encargo: solicitud, valoración, cuestionario, documentación solicitada, hoja de encargo y reunión de arranque, con un paso fechado en cada etapa y un motivo cuando rechazas.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "fr": {
+        "name": "Fiche client et intégration",
+        "summary": "Une intégration par mission : demande, qualification, questionnaire, pièces demandées, lettre de mission et réunion de lancement, avec une étape datée à chaque phase et un motif en cas de refus.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "it": {
+        "name": "Scheda cliente e accoglienza",
+        "summary": "Un’accoglienza per incarico: richiesta, valutazione, questionario, documenti richiesti, lettera d’incarico e riunione di avvio, con un passo datato a ogni fase e un motivo quando rifiuti.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "nl": {
+        "name": "Klantintake en onboarding",
+        "summary": "Eén intake per opdracht: aanvraag, eerste screening, intakeformulier, documenten, overeenkomst en kickoff, met een stap met datum in elke fase en een reden als je afwijst.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "pl": {
+        "name": "Karta klienta i wdrożenie",
+        "summary": "Jedno wdrożenie na zlecenie: zapytanie, wstępna kwalifikacja, ankieta, dokumenty, umowa i spotkanie startowe, z datowanym krokiem na każdym etapie i powodem, gdy odmawiasz.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "pt": {
+        "name": "Ficha cadastral de clientes e integração",
+        "summary": "Uma integração por contrato: solicitação, triagem, questionário, documentos solicitados, contrato e reunião de kickoff, com um passo datado em cada etapa e um motivo quando você recusa.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      }
+    }
+  },
+  {
     "slug": "client-tracker",
     "family": "clients",
     "kind": "tracker",
@@ -85,6 +258,82 @@
       "pt": {
         "name": "Cadastro de clientes",
         "summary": "Uma linha por cliente, um responsável, um próximo contato com data, mais uma revisão semanal e uma data de revisão dos dados para cada cliente encerrado.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      }
+    }
+  },
+  {
+    "slug": "content-calendar",
+    "family": "content",
+    "kind": "tracker",
+    "requiresCapabilities": [
+      "forms",
+      "rules"
+    ],
+    "pairedPages": {},
+    "reviewedAt": "2026-11-12",
+    "counts": {
+      "lists": 5,
+      "fields": 37,
+      "views": 7,
+      "widgets": 10,
+      "rules": 8
+    },
+    "locales": {
+      "de": {
+        "name": "Redaktionsplan",
+        "summary": "Eine Zeile pro Beitrag mit Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, dazu Kampagnen, Aktionstage und eine wöchentliche Redaktionsroutine.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "en": {
+        "name": "Content calendar",
+        "summary": "One row per piece with a status, an owner, a reviewer and a publish date, plus campaigns, key dates and a weekly editorial routine.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "es": {
+        "name": "Calendario editorial",
+        "summary": "Una fila por pieza con estado, responsable, revisor y fecha de publicación, más campañas, fechas clave y una rutina editorial semanal.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "fr": {
+        "name": "Calendrier éditorial",
+        "summary": "Une ligne par contenu avec un statut, un responsable, un relecteur et une date de publication, plus des campagnes, des dates clés et une routine éditoriale hebdomadaire.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "it": {
+        "name": "Calendario editoriale",
+        "summary": "Una riga per contenuto con stato, responsabile, revisore e data di pubblicazione, più campagne, date chiave e una routine editoriale settimanale.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "nl": {
+        "name": "Contentkalender",
+        "summary": "Eén regel per stuk met status, eigenaar, reviewer en publicatiedatum, plus campagnes, vaste data en een wekelijkse redactieroutine.",
+        "status": "draft",
+        "publicPage": "own",
+        "page": null
+      },
+      "pl": {
+        "name": "Kalendarz treści",
+        "summary": "Jeden wiersz na materiał ze statusem, osobą odpowiedzialną, recenzentem i datą publikacji, do tego kampanie, ważne daty i cotygodniowa rutyna redakcyjna.",
+        "status": "draft",
+        "publicPage": "none",
+        "page": null
+      },
+      "pt": {
+        "name": "Calendário editorial",
+        "summary": "Uma linha por conteúdo com status, responsável, revisor e data de publicação, mais campanhas, datas-chave e uma rotina editorial semanal.",
         "status": "draft",
         "publicPage": "own",
         "page": null

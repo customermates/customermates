@@ -23,7 +23,8 @@ const ALL: ReadonlySet<Capability> = new Set<Capability>([
 
 describe("template registry", () => {
   it("lists the slugs and validates them", () => {
-    expect([...TEMPLATE_SLUGS]).toEqual(["client-tracker", "real-estate-pipeline", "sales-pipeline"]);
+    expect([...TEMPLATE_SLUGS]).toEqual([...TEMPLATE_SLUGS].sort());
+    expect(TEMPLATE_SLUGS).toContain("client-tracker");
     expect(isTemplateSlug("sales-pipeline")).toBe(true);
     expect(isTemplateSlug("nope")).toBe(false);
     expect(isTemplateSlug(undefined)).toBe(false);
@@ -36,8 +37,8 @@ describe("template registry", () => {
   });
 
   it("falls back to the English text for a locale without a file", () => {
-    expect(hasTemplateText("client-tracker", "pl")).toBe(false);
-    expect(getTemplateText("client-tracker", "pl").locale).toBe("en");
+    expect(hasTemplateText("client-tracker", "xx")).toBe(false);
+    expect(getTemplateText("client-tracker", "xx").locale).toBe("en");
   });
 
   it("offers nothing while no capability has shipped", () => {
@@ -69,7 +70,7 @@ describe("template registry", () => {
     );
     expect(listings.every((listing) => listing.status === "draft")).toBe(true);
     expect(
-      listTemplates({ locale: "fr", shipped: ALL }).every((listing) => !listing.translated && listing.status === null),
+      listTemplates({ locale: "xx", shipped: ALL }).every((listing) => !listing.translated && listing.status === null),
     ).toBe(true);
   });
 

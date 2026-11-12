@@ -1,4 +1,11 @@
-export const TEMPLATE_SLUGS = ["client-tracker", "real-estate-pipeline", "sales-pipeline"] as const;
+export const TEMPLATE_SLUGS = [
+  "action-item-tracker",
+  "client-intake",
+  "client-tracker",
+  "content-calendar",
+  "real-estate-pipeline",
+  "sales-pipeline",
+] as const;
 
 export type TemplateSlug = (typeof TEMPLATE_SLUGS)[number];
 

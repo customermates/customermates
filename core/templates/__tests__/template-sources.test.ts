@@ -95,9 +95,10 @@ describe("template sources", () => {
 
   it("reads the shared modules", () => {
     const modules = readTemplateModules();
-    expect([...modules.keys()]).toEqual(["actions_core"]);
+    expect([...modules.keys()]).toEqual(["actions_core", "actions_dashboard"]);
     const shipped = new Set(TEMPLATE_SLUGS.flatMap((slug) => Object.keys(getTemplate(slug).status)));
-    expect(Object.keys(modules.get("actions_core")?.text ?? {}).sort()).toEqual([...shipped].sort());
+    for (const key of modules.keys())
+      expect(Object.keys(modules.get(key)?.text ?? {}).sort()).toEqual([...shipped].sort());
   });
 
   it("rejects a template that names an unknown module", () => {
@@ -125,11 +126,11 @@ describe("template sources", () => {
     expect(() => buildTemplateBundle("client-tracker", root)).toThrow("widgets.overdue_actions is missing");
   });
 
-  it("rejects a locale file for a locale the status does not list", () => {
+  it("rejects a locale file for a locale the app does not have", () => {
     const root = copyTemplates();
-    cpSync(join(root, "client-tracker", "locales", "en.json"), join(root, "client-tracker", "locales", "fr.json"));
-    editJson(join(root, "client-tracker", "locales", "fr.json"), (text) => {
-      text.locale = "fr";
+    cpSync(join(root, "client-tracker", "locales", "en.json"), join(root, "client-tracker", "locales", "ja.json"));
+    editJson(join(root, "client-tracker", "locales", "ja.json"), (text) => {
+      text.locale = "ja";
     });
     expect(() => buildTemplateBundle("client-tracker", root)).toThrow();
   });
