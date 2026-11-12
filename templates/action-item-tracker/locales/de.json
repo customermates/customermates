@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Maßnahmenplan",
-  "summary": "Jede Maßnahme mit einem Verantwortlichen und einer Frist, verknüpft mit Besprechung, Beschluss oder Projekt, mit wöchentlicher Durchsicht und Abschluss mit Nachweis.",
-  "description": "Eine Maßnahmenliste für alles, was aus Besprechungen, Projekten, Audits und Kundenanfragen folgt: sechs Status, Priorität, Verantwortlicher, Frist, Wiedervorlage, ein Beschlussprotokoll und eine Wirksamkeitsprüfung nach Korrekturmaßnahmen. Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen.",
+  "summary": "Jede Maßnahme mit einem Verantwortlichen und einer Deadline, verknüpft mit Besprechung, Beschluss oder Projekt, mit wöchentlicher Durchsicht und Abschluss mit Nachweis.",
+  "description": "Eine Maßnahmenliste für alles, was aus Besprechungen, Projekten, Audits und Kundenanfragen folgt: sechs Status, Priorität, Verantwortlicher, Deadline, Wiedervorlage, ein Beschlussprotokoll und eine Wirksamkeitsprüfung nach Korrekturmaßnahmen. Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen.",
   "lists": {
     "people": { "label": "Person", "pluralLabel": "Personen", "description": "Teammitglieder, Partner, Kunden und Lieferanten." },
     "meetings": { "label": "Besprechung", "pluralLabel": "Besprechungen", "description": "Woher Maßnahmen und Beschlüsse kommen." },
@@ -26,7 +26,7 @@
     "people.team": { "label": "Team" },
     "meetings.meeting_type": {
       "label": "Art der Besprechung",
-      "options": { "team": "Teambesprechung", "project": "Projektbesprechung", "steering": "Lenkungskreis", "customer": "Kundentermin", "audit": "Audit oder Review" }
+      "options": { "team": "Teambesprechung", "project": "Projektbesprechung", "steering": "Lenkungsausschuss", "customer": "Kundentermin", "audit": "Audit oder Review" }
     },
     "meetings.held_at": { "label": "Stattgefunden am" },
     "meetings.agenda_url": { "label": "Link zur Tagesordnung" },
@@ -49,7 +49,7 @@
       "label": "Quelle",
       "options": { "meeting": "Besprechung", "email": "E-Mail", "project_plan": "Projektplan", "audit": "Audit oder Prüfung", "complaint": "Reklamation", "incident": "Vorfall" }
     },
-    "actions.owner": { "label": "Verantwortlicher" },
+    "actions.owner": { "label": "Verantwortlich" },
     "actions.due": { "label": "Deadline" },
     "actions.follow_up_on": { "label": "Wiedervorlage am" },
     "actions.done_on": { "label": "Erledigt am" },
@@ -89,7 +89,7 @@
   },
   "rules": {
     "minutes_after_meeting": { "title": "Nach einer Besprechung Protokoll und Maßnahmenliste versenden" },
-    "unblock_action": { "title": "Benennen, wer eine blockierte Maßnahme lösen kann" },
+    "unblock_action": { "title": "Festlegen, wer die Blockade einer Maßnahme auflösen kann" },
     "due_reminder": { "title": "Den Verantwortlichen zwei Tage vor der Deadline erinnern" },
     "overdue_notice": { "title": "Den Verantwortlichen am Tag nach Überschreiten der Deadline informieren" },
     "follow_up_date": { "title": "Die Maßnahme am Tag der Wiedervorlage erneut ansehen" },
@@ -104,7 +104,7 @@
     "overdue_widget": "Das Dashboard zeigt, wie viele Maßnahmen überfällig sind."
   },
   "prompt": {
-    "intro": "Richte einen Maßnahmenplan in meinem Customermates-Workspace ein: Maßnahmen mit sechs Status, Priorität, Verantwortlichem, Frist und Wiedervorlage, verknüpft mit Besprechungen, Beschlüssen und Projekten, dazu eine wöchentliche Durchsicht.",
+    "intro": "Richte einen Maßnahmenplan in meinem Customermates-Workspace ein: Maßnahmen mit sechs Status, Priorität, Verantwortlichem, Deadline und Wiedervorlage, verknüpft mit Besprechungen, Beschlüssen und Projekten, dazu eine wöchentliche Durchsicht.",
     "questions": [
       "Woher kommen Ihre Maßnahmen: Besprechungen, Projekte, Audits, Kunden?",
       "Wer verantwortet Maßnahmen, und wer entscheidet, wenn eine neu terminiert oder abgebrochen wird?",

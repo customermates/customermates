@@ -2,11 +2,11 @@
   "locale": "de",
   "name": "Agentur-Kundenpipeline",
   "summary": "Eine Pipeline für Marketing- und Kreativagenturen: Neugeschäft vom ersten Gespräch bis zum Abschluss mit Pitch-Entscheidung, und laufende Retainer mit Verlängerungstermin, Kündigungsfrist, Quartalsgespräch und Ampel.",
-  "description": "Kunden gewinnen und halten an einem Ort: Neugeschäft über Gespräch, Qualifizierung, Briefing oder Pitch, Angebot und Verhandlung, ein Gewinn, der ein Onboarding in fünf Schritten startet, und Retainer und Projekte, die folgen, mit Monatsbudget, Verlängerungstermin, Kündigungsfrist und dem nächsten Quartalsgespräch. Budgets werden erfasst, wenn der Kunde sie nennt, nie geschätzt. Zugangsdaten, Markenmaterial und Zugriff auf Werbekonten gehören nie in den Workspace. Kein Projektmanagement, keine Zeiterfassung, keine Retainer-Abrechnung und kein Reporting.",
+  "description": "Kunden gewinnen und halten an einem Ort: Neugeschäft über Gespräch, Qualifizierung, Briefing oder Pitch, Angebot und Verhandlung, ein gewonnener Auftrag, der ein Onboarding in fünf Schritten startet, und Retainer und Projekte, die folgen, mit Monatsbudget, Verlängerungstermin, Kündigungsfrist und dem nächsten Quartalsgespräch. Budgets werden erfasst, wenn der Kunde sie nennt, nie geschätzt. Zugangsdaten, Markenmaterial und Zugriff auf Werbekonten gehören nie in den Workspace. Kein Projektmanagement, keine Zeiterfassung, keine Retainer-Abrechnung und kein Reporting.",
   "lists": {
     "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Entscheider, Marketingleitung, Einkauf und Ansprechpartner im Tagesgeschäft." },
     "clients": { "label": "Kunde", "pluralLabel": "Kunden", "description": "Interessenten, Kunden, frühere Kunden und Partner." },
-    "opportunities": { "label": "Chance", "pluralLabel": "Neugeschäft", "description": "Ein möglicher Auftrag, vom ersten Gespräch bis gewonnen oder verloren." },
+    "opportunities": { "label": "Chance", "pluralLabel": "Chancen", "description": "Ein möglicher Auftrag, vom ersten Gespräch bis gewonnen oder verloren." },
     "engagements": { "label": "Laufender Auftrag", "pluralLabel": "Retainer und Projekte", "description": "Ein laufender Retainer oder ein Projekt mit Honorar, Verlängerungstermin, Kündigungsfrist und Ampel." }
   },
   "fields": {
@@ -31,19 +31,19 @@
     "opportunities.next_step_due": { "label": "Nächster Schritt bis" },
     "opportunities.lost_reason": {
       "label": "Verlustgrund",
-      "options": { "price": "Preis", "chose_other_agency": "Andere Agentur gewählt", "in_house": "Macht es intern", "budget_cut": "Budget gekürzt", "no_decision": "Keine Entscheidung", "scope_mismatch": "Umfang passt nicht", "no_response": "Keine Rückmeldung" }
+      "options": { "price": "Preis", "chose_other_agency": "Andere Agentur gewählt", "in_house": "Wird intern umgesetzt", "budget_cut": "Budget gekürzt", "no_decision": "Keine Entscheidung", "scope_mismatch": "Umfang passt nicht", "no_response": "Keine Rückmeldung" }
     },
     "engagements.engagement_status": { "label": "Status", "options": { "onboarding": "Onboarding", "active": "Aktiv", "at_risk": "Gefährdet", "paused": "Pausiert", "ended": "Beendet" } },
     "engagements.health": { "label": "Ampel", "options": { "green": "Grün", "amber": "Gelb", "red": "Rot" } },
     "engagements.start_date": { "label": "Beginn" },
     "engagements.renewal_date": { "label": "Verlängerung am" },
     "engagements.notice_days": { "label": "Kündigungsfrist (Tage)" },
-    "engagements.monthly_fee": { "label": "Monatsbudget" },
+    "engagements.monthly_fee": { "label": "Monatshonorar" },
     "engagements.next_qbr_on": { "label": "Nächstes Quartalsgespräch" },
     "engagements.account_manager": { "label": "Kundenberater" },
     "engagements.ended_reason": {
       "label": "Grund für das Ende",
-      "options": { "client_ended": "Kunde hat beendet", "agency_ended": "Agentur hat beendet", "project_completed": "Projekt abgeschlossen", "budget": "Budget", "in_house": "Ins Haus geholt", "moved_agency": "Zu anderer Agentur gewechselt" }
+      "options": { "client_ended": "Kunde hat beendet", "agency_ended": "Agentur hat beendet", "project_completed": "Projekt abgeschlossen", "budget": "Budget", "in_house": "Intern übernommen", "moved_agency": "Zu einer anderen Agentur gewechselt" }
     },
     "actions.kind": {
       "label": "Art",
@@ -52,14 +52,14 @@
   },
   "relationships": {
     "contact_client": { "sourceLabel": "Kunde", "targetLabel": "Ansprechpartner" },
-    "opportunity_client": { "sourceLabel": "Kunde", "targetLabel": "Neugeschäft" },
+    "opportunity_client": { "sourceLabel": "Kunde", "targetLabel": "Chancen" },
     "engagement_client": { "sourceLabel": "Kunde", "targetLabel": "Retainer und Projekte" },
     "engagement_opportunity": { "sourceLabel": "Chance", "targetLabel": "Retainer und Projekte" },
     "action_opportunity": { "sourceLabel": "Chance", "targetLabel": "Aufgaben" },
     "action_engagement": { "sourceLabel": "Laufender Auftrag", "targetLabel": "Aufgaben" }
   },
   "views": {
-    "opportunities_board": { "name": "Neugeschäft nach Phase" },
+    "opportunities_board": { "name": "Chancen nach Phase" },
     "opportunities_all": { "name": "Alle Chancen" },
     "engagements_all": { "name": "Alle Retainer und Projekte" },
     "at_risk_engagements": { "name": "Aufträge auf Gelb und Rot" },
@@ -67,7 +67,7 @@
     "contacts_all": { "name": "Alle Ansprechpartner" }
   },
   "widgets": {
-    "opportunities_funnel": { "title": "Neugeschäft nach Phase" },
+    "opportunities_funnel": { "title": "Chancen nach Phase" },
     "recurring_revenue": { "title": "Monatlich wiederkehrender Umsatz" },
     "pipeline_fees": { "title": "Monatshonorare in der Pipeline" },
     "renewals_coming": { "title": "Anstehende Verlängerungen" },
@@ -78,7 +78,7 @@
   },
   "knowledgePages": {
     "operating_guide": { "title": "So läuft die Agentur-Pipeline", "sections": ["Phasen und wer sie verantwortet", "Qualifizierungsfragen: Ziele, Dringlichkeit, Budget, Entscheider"] },
-    "pitch_go_no_go": { "title": "Checkliste Pitch: teilnehmen oder nicht", "sections": ["Kosten des Pitchs, Zahl der Agenturen und Abschlagshonorar", "Kriterien und wer entscheidet"] },
+    "pitch_go_no_go": { "title": "Checkliste Pitch: teilnehmen oder nicht", "sections": ["Kosten des Pitchs, Zahl der Agenturen und Pitchhonorar", "Kriterien und wer entscheidet"] },
     "onboarding_checklist": { "title": "Onboarding in fünf Schritten", "sections": ["Begrüßung und Zahlung, Material und Zeitplan", "Kick-off binnen fünf Tagen und Ablauf der Lieferung"] },
     "renewal_playbook": { "title": "Leitfaden Verlängerung und Quartalsgespräch", "sections": ["Rückblick mit Ergebnissen und Ausbauoptionen", "Kündigungsfenster und Verlängerungsangebot"] }
   },
@@ -89,7 +89,7 @@
     "pitch_go_no_go": { "title": "Am Tag, an dem eine Chance Briefing oder Pitch erreicht, über Teilnahme entscheiden" },
     "pitch_rehearsal": { "title": "Den Zuständigen 3 Tage vor einem Pitch erinnern" },
     "proposal_follow_up": { "title": "2 Tage nach dem Angebot anrufen" },
-    "onboarding_set": { "title": "Den Tag nach einem Gewinn die Onboarding-Schritte starten" },
+    "onboarding_set": { "title": "Am Tag nach einem gewonnenen Auftrag die Onboarding-Schritte starten" },
     "lost_feedback": { "title": "2 Tage nach einem Verlust um Feedback bitten" },
     "renewal_review": { "title": "90 Tage vor der Verlängerung eines laufenden Auftrags die Verlängerung prüfen" },
     "renewal_notice": { "title": "45 Tage vor der Verlängerung den Zuständigen zur Klärung der Absicht des Kunden erinnern" },
