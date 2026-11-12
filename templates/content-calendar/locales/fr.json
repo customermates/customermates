@@ -2,9 +2,9 @@
   "locale": "fr",
   "name": "Calendrier éditorial",
   "summary": "Une ligne par contenu avec un statut, un responsable, un relecteur et une date de publication, plus des campagnes, des dates clés et une routine éditoriale hebdomadaire.",
-  "description": "Un calendrier éditorial pour blog, newsletter, réseaux sociaux et vidéo : sept statuts de l’idée à publié, un calendrier de publication, un pilier de contenu par contenu, une vérification de la mention de partenariat pour les contenus rémunérés ou offerts et un point sur les résultats après 30 jours. Il planifie et suit, il ne publie pas.",
+  "description": "Un calendrier éditorial pour blog, newsletter, réseaux sociaux et vidéo : sept statuts de l’idée à la publication, un calendrier de publication, un pilier de contenu par contenu, une vérification de la mention de partenariat pour les contenus rémunérés ou offerts et un point sur les résultats après 30 jours. Il planifie et suit, il ne publie pas.",
   "lists": {
-    "people": { "label": "Personne", "pluralLabel": "Personnes", "description": "Auteurs, rédacteurs, relecteurs, validateurs et invités." },
+    "people": { "label": "Personne", "pluralLabel": "Personnes", "description": "Auteurs, rédacteurs en chef, relecteurs, validateurs et invités." },
     "pieces": { "label": "Contenu", "pluralLabel": "Contenus", "description": "Un contenu de l’idée à la publication." },
     "campaigns": { "label": "Campagne", "pluralLabel": "Campagnes", "description": "Un thème qui regroupe plusieurs contenus." },
     "key_dates": { "label": "Date clé", "pluralLabel": "Dates clés", "description": "Fêtes, événements et lancements autour desquels planifier." }
@@ -42,7 +42,7 @@
     },
     "pieces.pillar": {
       "label": "Pilier de contenu",
-      "options": { "educate": "Éduquer", "prove": "Prouver", "product": "Produit", "community": "Communauté", "behind_the_scenes": "Coulisses" }
+      "options": { "educate": "Éduquer", "prove": "Preuves", "product": "Produit", "community": "Communauté", "behind_the_scenes": "Coulisses" }
     },
     "pieces.channels": {
       "label": "Canaux",
@@ -74,11 +74,11 @@
     "pieces.published_url": { "label": "Lien du contenu publié" },
     "pieces.published_on": { "label": "Publié le" },
     "pieces.reach": { "label": "Portée" },
-    "pieces.engagements": { "label": "Engagements" },
+    "pieces.engagements": { "label": "Interactions" },
     "pieces.clicks": { "label": "Clics" },
     "pieces.killed_reason": {
       "label": "Motif d’abandon",
-      "options": { "off_topic": "Hors sujet", "duplicate": "Doublon", "no_owner": "Sans responsable", "stale": "Périmé", "replaced": "Remplacé", "client_declined": "Refusé par le client" }
+      "options": { "off_topic": "Hors sujet", "duplicate": "Doublon", "no_owner": "Sans responsable", "stale": "Obsolète", "replaced": "Remplacé", "client_declined": "Refusé par le client" }
     },
     "campaigns.goal": { "label": "Objectif" },
     "campaigns.start_date": { "label": "Début" },
@@ -88,7 +88,7 @@
     "key_dates.date": { "label": "Date" },
     "key_dates.date_type": {
       "label": "Type",
-      "options": { "holiday": "Jour férié", "industry_event": "Événement du secteur", "product_launch": "Lancement de produit", "awareness_day": "Journée thématique", "own_event": "Événement propre", "deadline": "Échéance" }
+      "options": { "holiday": "Jour férié", "industry_event": "Événement du secteur", "product_launch": "Lancement de produit", "awareness_day": "Journée thématique", "own_event": "Notre événement", "deadline": "Échéance" }
     },
     "key_dates.idea_note": { "label": "Idée de contenu" },
     "actions.kind": {
@@ -151,12 +151,12 @@
     "calendar_widget": "Le tableau de bord montre le calendrier de publication."
   },
   "prompt": {
-    "intro": "Mets en place un calendrier éditorial dans mon espace Customermates : des contenus avec sept statuts, un responsable, un relecteur et une date de publication, des campagnes, des dates clés, une vérification des mentions de partenariat et une routine éditoriale hebdomadaire.",
+    "intro": "Mets en place un calendrier éditorial dans mon espace de travail Customermates : des contenus avec sept statuts, un responsable, un relecteur et une date de publication, des campagnes, des dates clés, une vérification des mentions de partenariat et une routine éditoriale hebdomadaire.",
     "questions": [
-      "Que publiez-vous, sur quels canaux, et à quel rythme ?",
-      "Qui écrit, qui relit et qui valide ? Un client intervient-il ?",
-      "Quels piliers de contenu utilisez-vous, et lesquels des sept statuts vous servent ?",
-      "Quel outil publie les contenus ? Ils y restent, et seuls le lien et la date sont gardés ici."
+      "Que publiez-vous, sur quels canaux, et à quel rythme ?",
+      "Qui écrit, qui relit et qui valide ? Un client intervient-il ?",
+      "Quels piliers de contenu utilisez-vous, et lesquels des sept statuts vous servent ?",
+      "Quel outil publie les contenus ? Ils y restent, et seuls le lien et la date sont gardés ici."
     ]
   }
 }
