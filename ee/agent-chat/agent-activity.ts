@@ -603,16 +603,10 @@ function countedResourceCopy(
   t: AgentTranslator,
   resource: string | undefined,
 ) {
-  const fallback = resource ?? t("AgentChat.activity.defaultRecords");
-  if (count === undefined) return fallback;
-  if (count === 1 && resourceKey) {
-    return t("AgentChat.activity.countedSingular", {
-      resource: t(`AgentChat.activity.resourceSingular.${resourceKey}`),
-    });
-  }
-  if (count === 1 && resource) return t("AgentChat.activity.countedRecordInResource", { resource });
+  if (count === undefined) return resource ?? t("AgentChat.activity.defaultRecords");
+  const key = resourceKey ?? "records";
 
-  return t("AgentChat.activity.countedResource", { count, resource: fallback });
+  return t(`AgentChat.activity.counted.${key}`, { count });
 }
 
 function agentConsequenceDetail(activity: AgentActivityDescriptor, t: AgentTranslator) {

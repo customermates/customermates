@@ -152,7 +152,9 @@ describe("record widget display types", () => {
     expect(view.querySelector<HTMLElement>('[data-slot="widget-number"] p')?.style.color).toBe(
       "var(--chart-success-text)",
     );
-    expect(context(view)).toBe('RecordWidgets.numberContextAverage{"count":43,"label":"open deals","average":"€58K"}');
+    expect(context(view)).toBe(
+      'RecordWidgets.numberContextAverageList{"count":43,"label":"open deals","average":"€58K"}',
+    );
     render({
       displayOptions: number,
       measure: measure(null),
@@ -160,7 +162,7 @@ describe("record widget display types", () => {
       data: result({ count: 1, result: euro("950.5") }, []),
     });
     expect(view.querySelector('[data-slot="widget-number-value"]')?.textContent).toBe("€950.50");
-    expect(context(view)).toBe('RecordWidgets.numberContextAverage{"count":1,"label":"deal","average":"€950.50"}');
+    expect(context(view)).toBe('RecordWidgets.numberContextAverageList{"count":1,"label":"deal","average":"€950.50"}');
     render({
       displayOptions: number,
       measure: measure(null, "count"),

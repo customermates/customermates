@@ -106,7 +106,7 @@ function isLocaleInvariantTemplate(message: string): boolean {
 
 const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   // Dutch keeps these loanwords, product names and units as English does (record, filter, tone of voice).
-  "nl:AgentChat.activity.countedRecordInResource",
+  "nl:AgentChat.activity.counted.records",
   "nl:AgplGithubBadge.label",
   "nl:Common.filters.palette.appliedCount",
   "nl:ConnectedAccountsCard.channels.linkedinClassic",
@@ -154,9 +154,8 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "fr:ConnectedAccountsCard.emailLogoPlaceholder",
   "it:ConnectedAccountsCard.emailLogoPlaceholder",
   "fr:OperatorWorkspaces.stats.threads",
-  "it:AgentChat.activity.countedRecordInResource",
   "fr:AgentChat.activity.resource.messages",
-  "fr:AgentChat.activity.resourceSingular.messages",
+  "fr:AgentChat.activity.counted.messages",
   "de:ConnectedAccountsCard.channels.linkedinClassic",
   "de:ConnectedAccountsCard.channels.linkedinRecruiter",
   "de:ConnectedAccountsCard.channels.linkedinSalesNavigator",

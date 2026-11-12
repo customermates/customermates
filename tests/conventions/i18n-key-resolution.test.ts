@@ -435,10 +435,11 @@ const AGENT_READ_ONLY_SUGGESTION_KEYS = [
   "AgentChat.suggestions.readOnly.tour",
 ];
 
-const AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS = [
-  "AgentChat.activity.resourceSingular.messages",
-  "AgentChat.activity.resourceSingular.widgets",
-  "AgentChat.activity.resourceSingular.wiki",
+const AGENT_ACTIVITY_COUNTED_KEYS = [
+  "AgentChat.activity.counted.messages",
+  "AgentChat.activity.counted.records",
+  "AgentChat.activity.counted.widgets",
+  "AgentChat.activity.counted.wiki",
 ];
 const AGENT_ACTIVITY_STATE_KEYS = AGENT_ACTIVITY_COPY_KINDS.flatMap((kind) =>
   (["done", "error", "running"] as const).map((state) => `AgentChat.activity.state.${kind}.${state}`),
@@ -624,7 +625,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["WebhookDeliveryModal.deliveryStatus.${*}", WEBHOOK_DELIVERY_STATUS_KEYS],
   ["documents.${*}", LEGAL_DOCUMENT_KEYS],
   ["AgentChat.activity.resource.${*}", AGENT_ACTIVITY_RESOURCE_KEYS],
-  ["AgentChat.activity.resourceSingular.${*}", AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS],
+  ["AgentChat.activity.counted.${*}", AGENT_ACTIVITY_COUNTED_KEYS],
   ["AgentChat.activity.label.${*}", AGENT_ACTIVITY_LABEL_KEYS],
   ["AgentChat.activity.state.${*}.${*}", AGENT_ACTIVITY_STATE_KEYS],
   ["AgentChat.activity.approval.${*}", AGENT_ACTIVITY_APPROVAL_KEYS],
@@ -688,6 +689,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/components/upsell/upsell-cta.tsx :: t :: Subscription.planNames.${plan}",
   "features/record-files/record-file-upload.service.ts :: t :: Subscription.planNames.${upgradePlan}",
   "app/components/navigation/trial-sidebar-card.tsx :: t :: Subscription.planNames.${MESSAGING_UPSELL_PLAN}",
+  "app/components/schedule-meeting/schedule-meeting-modal.tsx :: t :: Subscription.planNames.${MESSAGING_UPSELL_PLAN}",
   "app/components/upsell/free-plan-feature-overlay.tsx :: t :: Subscription.planNames.${plan}",
   "app/components/upsell/plan-paused-banner.tsx :: t :: Subscription.planNames.${plan}",
   "app/[locale]/(public)/auth/paused/plan-paused-card.tsx :: t :: Subscription.planNames.${FREE_PLAN_UPGRADE_PLAN}",
@@ -859,7 +861,7 @@ export const DYNAMIC_KEY_SITES = [
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.approval.${copyKind}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.label.${name}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resource.${activity.resource}",
-  "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resourceSingular.${resourceKey}",
+  "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.counted.${key}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.state.${copyKind}.${name}",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.label",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.prompt",
