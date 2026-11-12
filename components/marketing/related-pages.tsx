@@ -12,6 +12,8 @@ import {
   forPagesSource,
 } from "@/core/fumadocs/source";
 import { compareDisplayTitle } from "@/core/seo/compare-title";
+import { pagePublicationOptions } from "@/core/templates/template-deployment";
+import { templateVisibilityBySlug } from "@/core/templates/template-publication";
 import { contentLocaleOrDefault, isMarketingPathPublished } from "@/i18n/locale-registry";
 import { type RelatedRouteSegment, type RelatedTargetResolver, resolveRelatedTarget } from "./related-target";
 
@@ -66,6 +68,15 @@ const RELATED_SEGMENTS: Record<RelatedRouteSegment, RelatedTargetResolver> = {
       title: page.data.industryName,
     };
   },
+  templates: (slug, locale) => {
+    const found = templateVisibilityBySlug(slug, locale, pagePublicationOptions());
+    if (found?.visibility !== "own") return null;
+
+    return {
+      description: found.locale.page?.metaDescription ?? found.locale.summary,
+      title: found.locale.name,
+    };
+  },
 };
 
 export async function RelatedPages({ children }: { children: ReactNode }) {
@@ -97,6 +108,7 @@ export async function RelatedPage({ href }: { href: string }) {
     docs: t("NavigationBar.docs"),
     features: t("StructuredData.breadcrumb.features"),
     for: t("StructuredData.breadcrumb.industries"),
+    templates: t("TemplatePages.breadcrumbTemplates"),
   }[segment];
 
   return (

@@ -1,4 +1,4 @@
-export const RELATED_ROUTE_SEGMENTS = ["blog", "compare", "docs", "features", "for"] as const;
+export const RELATED_ROUTE_SEGMENTS = ["blog", "compare", "docs", "features", "for", "templates"] as const;
 
 export type RelatedRouteSegment = (typeof RELATED_ROUTE_SEGMENTS)[number];
 
@@ -19,7 +19,7 @@ export function resolveRelatedTarget(
   alternativeTitle: (competitor: string) => string,
   resolvers: Record<RelatedRouteSegment, RelatedTargetResolver>,
 ): ResolvedRelatedTarget {
-  const match = /^\/(blog|compare|docs|features|for)\/([^/]+)$/u.exec(href);
+  const match = /^\/(blog|compare|docs|features|for|templates)\/([^/]+)$/u.exec(href);
   if (!match) throw new Error(`RelatedPage href "${href}" is not a related-page route`);
 
   const segment = match[1] as RelatedRouteSegment;

@@ -129,7 +129,7 @@ export const ctaSchema = z.object({
 });
 
 export const relatedHrefsSchema = z
-  .array(z.string().regex(/^\/(?:blog|compare|docs|features|for)\/[a-z0-9]+(?:-[a-z0-9]+)*$/u))
+  .array(z.string().regex(/^\/(?:blog|compare|docs|features|for|templates)\/[a-z0-9]+(?:-[a-z0-9]+)*$/u))
   .length(4)
   .refine((items) => new Set(items).size === items.length, "Related page links must be unique");
 
