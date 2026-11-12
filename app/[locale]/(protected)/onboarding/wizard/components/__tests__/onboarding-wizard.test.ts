@@ -89,6 +89,7 @@ const choice = (
   signupJob: null,
   preselectedJob: selectedJob ?? "agent",
   suggestedPlaybook: null,
+  discoveryResolved: false,
   ...over,
 });
 
@@ -391,7 +392,7 @@ describe("OnboardingWizard", () => {
     const html = renderWizard({
       profileCompleted: true,
       setupStatus: AVAILABLE,
-      jobChoice: { selectedJob: null, signupJob: "followup", preselectedJob: "followup", suggestedPlaybook: null },
+      jobChoice: choice(null, { signupJob: "followup", preselectedJob: "followup" }),
     });
 
     expect(html).toContain("OnboardingWizard.steps.goal.title");

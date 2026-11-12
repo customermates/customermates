@@ -23,7 +23,7 @@ import { Reveal } from "@/components/shared/reveal";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
-import type { SignupJourneyInput } from "@/features/acquisition/signup-source";
+import type { SignupRequest } from "@/features/acquisition/signup-source";
 
 type Props = {
   invitationIntent?: string;
@@ -168,7 +168,7 @@ const SignUpFormContent = observer(({ invitationIntent, inviterName, socialProvi
   );
 });
 
-function SignUpFormWithJourney({ signupJourney, ...props }: Props & { signupJourney?: SignupJourneyInput }) {
+function SignUpFormWithJourney({ signupJourney, ...props }: Props & { signupJourney?: SignupRequest }) {
   const { signUpStore } = useRootStore();
   useState(() => {
     if (signupJourney) signUpStore.setSignupJourney(signupJourney);

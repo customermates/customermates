@@ -189,6 +189,8 @@ export class RegisterUserInteractor {
     }
     if (companyId && (await this.repo.hasLeftMembershipUnscoped(registrationData.email, companyId)))
       await this.authService.revokeMembershipCredentials(sessionUserId, companyId);
+    const signupLastPage =
+      !companyId && isNewCloudCompany ? await this.repo.takeSignupLastPageUnscoped(sessionUserId) : null;
     const tenantUser = companyId
       ? await this.repo.registerExistingCompany({
           ...registrationData,
@@ -203,6 +205,7 @@ export class RegisterUserInteractor {
             createdByAuthUserId: sessionUserId,
             trial: await startsWithTrial(sessionUserId, this.repo),
             signupTemplate: env.APP_MODE === "cloud" ? signupTemplate : null,
+            signupLastPage,
           },
         });
 

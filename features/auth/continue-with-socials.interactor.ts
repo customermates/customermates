@@ -10,6 +10,7 @@ import { runAfterResponse } from "@/core/utils/after-response";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { redirectTo } from "./auth-outcome";
 import { callbackUrlSchema } from "./callback-url.schema";
+import { SignupLastPageSchema } from "@/features/acquisition/signup-last-page";
 
 import { mustVerifyEmail } from "./email-verification-grace";
 import { onboardingIntentFromPath, pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
@@ -18,6 +19,7 @@ const Schema = z.object({
   provider: z.enum(["google", "microsoft"]),
   callbackURL: callbackUrlSchema.optional(),
   errorCallbackURL: callbackUrlSchema.optional(),
+  signupLastPage: SignupLastPageSchema.nullable().optional(),
 });
 type ContinueWithSocialsData = Data<typeof Schema>;
 

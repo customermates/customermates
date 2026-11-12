@@ -11,6 +11,7 @@ export type OnboardingJobChoiceView = {
   signupJob: OnboardingJob | null;
   preselectedJob: OnboardingJob;
   suggestedPlaybook: OnboardingPlaybook | null;
+  discoveryResolved: boolean;
 };
 
 @TenantInteractor()

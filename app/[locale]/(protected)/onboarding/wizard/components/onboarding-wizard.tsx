@@ -26,10 +26,11 @@ import { cn } from "@/core/utils/cn";
 import { isTemplateSlug } from "@/core/templates/template-slugs";
 
 import { OnboardingArtwork, OnboardingMilestones } from "./onboarding-artwork";
-import { connectsAgentWithVerification, resolveWizardResume } from "./onboarding-wizard-flow";
+import { connectsAgentWithVerification, isMilestoneStep, resolveWizardResume } from "./onboarding-wizard-flow";
 
 import { StepProfile } from "./step-profile";
 import { StepGoal, StepGoalFooter } from "./step-goal";
+import { StepSource } from "./step-source";
 import { StepPlaybook } from "./step-playbook";
 import { StepAi, StepAiFooter } from "./step-ai";
 import { StepTemplate, StepTemplateFooter } from "./step-template";
@@ -53,6 +54,7 @@ type Props = {
   templates?: readonly OnboardingTemplateCard[];
   templatePreselection?: OnboardingTemplatePreselection;
   onboardingIntent?: string;
+  sourceAvailable?: boolean;
   inviterName?: string;
   isInvited?: boolean;
   canNameWorkspace?: boolean;
@@ -89,6 +91,7 @@ const OnboardingWizardContent = observer(
     templates = NO_TEMPLATES,
     templatePreselection = NO_PRESELECTION,
     onboardingIntent,
+    sourceAvailable: sourceOffered = false,
     inviterName,
     isInvited = false,
     canNameWorkspace = false,
@@ -105,6 +108,7 @@ const OnboardingWizardContent = observer(
     const selfHosted = appMode === "self-hosted";
     const chooseAvailable = !isInvited && appMode !== "demo";
     const templatesAvailable = chooseAvailable && templates.length > 0;
+    const sourceAvailable = chooseAvailable && sourceOffered && appMode === "cloud";
     const setupAvailable = profileCompleted
       ? Boolean(setupStatus?.available) && !isInvited
       : appMode === "cloud" && !isInvited;
@@ -115,6 +119,8 @@ const OnboardingWizardContent = observer(
       setupAvailable,
       chooseAvailable,
       templatesAvailable,
+      sourceAvailable,
+      sourceResolved: jobChoice?.discoveryResolved,
       setupStepCompleted,
       jobSelected: !jobChoice || jobChoice.selectedJob !== null,
       job: jobChoice?.preselectedJob ?? (chooseAvailable ? PRESELECTED_ONBOARDING_JOB : undefined),
@@ -149,6 +155,7 @@ const OnboardingWizardContent = observer(
       initialJobChoice,
       chooseAvailable,
       templatesAvailable,
+      sourceAvailable,
       emptyChosen,
       selfHosted,
       initialTemplate,
@@ -156,14 +163,17 @@ const OnboardingWizardContent = observer(
     const [initializedKey, setInitializedKey] = useState<string | null>(null);
     const isStepSynchronized = initializedKey === initializationKey;
     const currentStep: WizardStep = isStepSynchronized ? onboardingWizardStore.currentStep : steps[initialStepIndex];
-    const currentStepIndex = isStepSynchronized ? onboardingWizardStore.currentStepIndex : initialStepIndex;
     const visibleSteps = isStepSynchronized ? onboardingWizardStore.steps : steps;
     const connectsAgent = isStepSynchronized
       ? onboardingWizardStore.connectsAgent
       : connectsAgentWithVerification({ setupAvailable, chooseAvailable, templatesAvailable }, flow);
-    const milestoneSteps = visibleSteps.filter((step) => step !== "prompt");
-    const milestoneIndex = currentStep === "prompt" ? milestoneSteps.indexOf("template") : currentStepIndex;
-    const jobOpen = visibleSteps.includes("goal") && (currentStep === "profile" || currentStep === "goal");
+    const milestoneSteps = visibleSteps.filter(isMilestoneStep).filter((step) => step !== "prompt");
+    const milestoneIndex = milestoneSteps.indexOf(
+      currentStep === "prompt" ? "template" : currentStep === "source" ? "goal" : currentStep,
+    );
+    const jobOpen =
+      visibleSteps.includes("goal") &&
+      (currentStep === "profile" || currentStep === "source" || currentStep === "goal");
     const progressText = jobOpen
       ? t("OnboardingWizard.progressOpen", { current: milestoneIndex + 1 })
       : t("OnboardingWizard.progress", { current: milestoneIndex + 1, total: milestoneSteps.length });
@@ -178,6 +188,7 @@ const OnboardingWizardContent = observer(
       onboardingWizardStore.initialize(resumeStepIndex, userId, savedProgress, setupAvailable, initialJobChoice, {
         chooseAvailable,
         templatesAvailable,
+        sourceAvailable,
         emptyChosen,
         selfHosted,
         template: initialTemplate,
@@ -201,6 +212,7 @@ const OnboardingWizardContent = observer(
       savedProgress,
       selfHosted,
       setupAvailable,
+      sourceAvailable,
       templatesAvailable,
       userId,
     ]);
@@ -228,6 +240,8 @@ const OnboardingWizardContent = observer(
               onboardingIntent={onboardingIntent}
             />
           );
+        case "source":
+          return isStepSynchronized ? <StepSource /> : <div aria-busy="true" className="min-h-36" />;
         case "goal":
           return isStepSynchronized ? <StepGoal /> : <div aria-busy="true" className="min-h-36" />;
         case "playbook":

@@ -3,8 +3,23 @@ import type { OnboardingWizardProgress } from "@/features/onboarding-wizard/onbo
 
 import { DEFAULT_ONBOARDING_JOB } from "@/features/onboarding-funnel/onboarding-job";
 
-export const WIZARD_STEPS = ["profile", "goal", "playbook", "setup", "invite", "ai", "template", "prompt"] as const;
+export const WIZARD_STEPS = [
+  "profile",
+  "goal",
+  "playbook",
+  "setup",
+  "invite",
+  "ai",
+  "template",
+  "prompt",
+  "source",
+] as const;
 export type WizardStep = (typeof WIZARD_STEPS)[number];
+export type MilestoneStep = Exclude<WizardStep, "source">;
+
+export function isMilestoneStep(step: WizardStep): step is MilestoneStep {
+  return step !== "source";
+}
 
 export type WizardFlowKey = OnboardingJob | "empty";
 
@@ -12,6 +27,7 @@ export type WizardFlowContext = {
   setupAvailable: boolean;
   chooseAvailable?: boolean;
   templatesAvailable?: boolean;
+  sourceAvailable?: boolean;
 };
 
 const PLAIN_STEPS: readonly WizardStep[] = ["profile", "invite", "ai"];
@@ -22,15 +38,22 @@ const AGENT_TEMPLATE_STEPS: readonly WizardStep[] = ["profile", "goal", "ai", "t
 const SETUP_STEPS: readonly WizardStep[] = ["profile", "goal", "setup", "invite", "ai"];
 const SETUP_TEMPLATE_STEPS: readonly WizardStep[] = ["profile", "goal", "template", "setup", "invite", "ai"];
 
-export function wizardSteps(context: WizardFlowContext, flow: WizardFlowKey = DEFAULT_ONBOARDING_JOB): WizardStep[] {
+function coreWizardSteps(context: WizardFlowContext, flow: WizardFlowKey): readonly WizardStep[] {
   const choose = context.chooseAvailable ?? false;
   const templates = context.templatesAvailable ?? false;
-  if (!context.setupAvailable && !choose) return [...PLAIN_STEPS];
-  if (flow === "empty") return [...EMPTY_STEPS];
+  if (!context.setupAvailable && !choose) return PLAIN_STEPS;
+  if (flow === "empty") return EMPTY_STEPS;
   const agentSteps = choose && templates ? AGENT_TEMPLATE_STEPS : AGENT_STEPS;
-  if (!context.setupAvailable || flow === "agent") return [...agentSteps];
-  if (flow === "followup") return [...FOLLOWUP_STEPS];
-  return [...(choose && templates ? SETUP_TEMPLATE_STEPS : SETUP_STEPS)];
+  if (!context.setupAvailable || flow === "agent") return agentSteps;
+  if (flow === "followup") return FOLLOWUP_STEPS;
+  return choose && templates ? SETUP_TEMPLATE_STEPS : SETUP_STEPS;
+}
+
+export function wizardSteps(context: WizardFlowContext, flow: WizardFlowKey = DEFAULT_ONBOARDING_JOB): WizardStep[] {
+  const steps = [...coreWizardSteps(context, flow)];
+  if (context.sourceAvailable && (context.chooseAvailable ?? false) && steps[0] === "profile")
+    steps.splice(1, 0, "source");
+  return steps;
 }
 
 export function connectsAgentWithVerification(context: WizardFlowContext, flow: WizardFlowKey): boolean {
@@ -51,6 +74,7 @@ export type WizardResumeInput = WizardFlowContext & {
   job?: OnboardingJob;
   setupStarted?: boolean;
   savedStep?: PersistedStep;
+  sourceResolved?: boolean;
 };
 
 export type WizardResume = { steps: WizardStep[]; resumeStepIndex: number; flow: WizardFlowKey };
@@ -84,6 +108,7 @@ export function resolveWizardResume(input: WizardResumeInput): WizardResume {
     setupAvailable: input.setupAvailable && !input.isInvited,
     chooseAvailable: (input.chooseAvailable ?? false) && !input.isInvited,
     templatesAvailable: input.templatesAvailable ?? false,
+    sourceAvailable: (input.sourceAvailable ?? false) && !input.isInvited,
   };
   const job = input.job ?? DEFAULT_ONBOARDING_JOB;
   const open = owner && !input.setupStepCompleted;
@@ -91,11 +116,19 @@ export function resolveWizardResume(input: WizardResumeInput): WizardResume {
   const steps = wizardSteps(context, flow);
   if (!input.profileCompleted) return { steps, resumeStepIndex: 0, flow };
 
+  const awaitingSource =
+    open &&
+    steps.includes("source") &&
+    !(input.sourceResolved ?? true) &&
+    !(input.jobSelected ?? true) &&
+    !input.setupStarted;
   const resumeStep: WizardStep = !owner
     ? "invite"
-    : open
-      ? resumeStepOpen(input, steps, job)
-      : resumeStepAfterSetup(steps, flow, input.savedStep);
+    : awaitingSource
+      ? "source"
+      : open
+        ? resumeStepOpen(input, steps, job)
+        : resumeStepAfterSetup(steps, flow, input.savedStep);
   const positions = [resumeStep, "invite", "goal", "profile"].map((step) => steps.indexOf(step as WizardStep));
   return { steps, resumeStepIndex: positions.find((position) => position !== -1) ?? 0, flow };
 }

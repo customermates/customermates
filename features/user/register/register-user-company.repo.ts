@@ -5,6 +5,7 @@ export type WorkspaceSetup = {
   createdByAuthUserId?: string | null;
   trial?: boolean;
   signupTemplate?: string | null;
+  signupLastPage?: string | null;
 };
 
 export abstract class RegisterUserCompanyRepo {

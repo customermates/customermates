@@ -3807,6 +3807,21 @@
       "stepsLabel": "Próximos pasos",
       "watching": "Estamos atentos al primer cambio de tu agente. Aquí ves enseguida cuándo empieza a construir."
     },
+    "source": {
+      "choices": {
+        "aiAssistant": "Un asistente de IA (ChatGPT, Claude, Perplexity)",
+        "articleOrVideo": "Un artículo o un vídeo",
+        "directory": "Un directorio o un listado",
+        "other": "Otro",
+        "recommendation": "Una recomendación",
+        "searchEngine": "Un buscador",
+        "socialMedia": "Redes sociales"
+      },
+      "detailLabel": "¿Dónde nos encontraste?",
+      "detailPlaceholder": "¿Dónde fue? (opcional)",
+      "optionsLabel": "Cómo conociste Customermates",
+      "skip": "Omitir"
+    },
     "steps": {
       "ai": {
         "subtitle": "Elige una herramienta de IA para conectarla a tu espacio de trabajo y a su conocimiento. Conecta una ahora, añade otras más adelante o salta este paso.",
@@ -3848,6 +3863,10 @@
         "subtitle": "Lo que leímos en tu sitio web ya está rellenado. Revísalo y cambia lo que no encaje.",
         "title": "Configura tu espacio de trabajo",
         "withoutWebsiteSubtitle": "Unas preguntas rápidas sobre lo que quieres seguir. La mayoría se responden con un clic."
+      },
+      "source": {
+        "subtitle": "Una pregunta opcional. Solo nos ayuda a ver qué canales funcionan, y puedes omitirla.",
+        "title": "¿Cómo nos encontraste?"
       },
       "template": {
         "subtitle": "Tu agente la adapta a ti y muestra el plan antes de cambiar nada.",

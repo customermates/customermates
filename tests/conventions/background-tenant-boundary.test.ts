@@ -18,6 +18,8 @@ const AUTHENTICATED_TENANT_ENTRYPOINTS = [
   "core/decorators/tenant-interactor.decorator.ts",
   "features/acquisition/withdraw-ad-attribution.interactor.ts",
   "features/onboarding-funnel/apply-onboarding-playbook.interactor.ts",
+  "features/onboarding-funnel/get-onboarding-agent-status.interactor.ts",
+  "features/onboarding-funnel/record-discovery-answer.interactor.ts",
   "features/onboarding-funnel/select-onboarding-job.interactor.ts",
   "features/onboarding-wizard/complete-onboarding-setup-step.interactor.ts",
   "features/onboarding-wizard/complete-onboarding-wizard.interactor.ts",

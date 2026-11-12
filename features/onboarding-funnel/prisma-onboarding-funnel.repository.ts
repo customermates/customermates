@@ -34,11 +34,31 @@ export class PrismaOnboardingFunnelRepo
 
   async findOnboardingJobChoice(): Promise<OnboardingJobChoice> {
     const { companyId } = this.user;
-    const [selectedJob, source] = await Promise.all([
+    const [selectedJob, source, company] = await Promise.all([
       this.selectedJob(companyId),
       this.prisma.companySignupSource.findFirst({ where: { companyId }, select: { job: true, landingPath: true } }),
+      this.prisma.company.findUnique({
+        where: { id: companyId },
+        select: { discoveryAnsweredAt: true, createdByAuthUserId: true },
+      }),
     ]);
-    return { selectedJob, signupJob: source?.job ?? null, signupLandingPath: source?.landingPath ?? null };
+    const discoveryResolved =
+      Boolean(company?.discoveryAnsweredAt) ||
+      (company?.createdByAuthUserId != null && (await this.hasAnsweredDiscoveryUnscoped(company.createdByAuthUserId)));
+    return {
+      selectedJob,
+      signupJob: source?.job ?? null,
+      signupLandingPath: source?.landingPath ?? null,
+      discoveryResolved,
+    };
+  }
+
+  @BypassTenantGuard
+  async hasAnsweredDiscoveryUnscoped(authUserId: string): Promise<boolean> {
+    const answered = await this.prisma.company.count({
+      where: { createdByAuthUserId: authUserId, discoveryAnsweredAt: { not: null } },
+    });
+    return answered > 0;
   }
 
   async findOnboardingTemplateChoice(): Promise<OnboardingTemplateChoice> {

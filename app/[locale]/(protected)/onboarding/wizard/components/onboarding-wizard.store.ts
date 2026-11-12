@@ -10,6 +10,7 @@ import {
   applyOnboardingPlaybookAction,
   completeOnboardingSetupStepAction,
   completeOnboardingWizardAction,
+  recordDiscoveryAnswerAction,
   saveOnboardingWizardProgressAction,
   selectOnboardingJobAction,
 } from "../actions";
@@ -19,6 +20,11 @@ import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
 import { readOnboardingWizardProgress } from "@/features/onboarding-wizard/onboarding-wizard-progress.schema";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { isTemplateSlug } from "@/core/templates/template-slugs";
+import {
+  DISCOVERY_DETAIL_MAX_LENGTH,
+  parseDiscoveryChoice,
+  type DiscoveryChoice,
+} from "@/features/onboarding-funnel/discovery-answer";
 import { cloudMateSignupUrl } from "@/features/onboarding-templates/cloud-signup-url";
 import { buildLocalePath } from "@/i18n/locale-registry";
 import {
@@ -47,6 +53,7 @@ export type WizardJobChoice = {
 export type WizardFlowOptions = {
   chooseAvailable?: boolean;
   templatesAvailable?: boolean;
+  sourceAvailable?: boolean;
   emptyChosen?: boolean;
   selfHosted?: boolean;
   template?: TemplateSlug | null;
@@ -64,6 +71,9 @@ export class OnboardingWizardStore {
   setupAvailable = true;
   chooseAvailable = false;
   templatesAvailable = false;
+  sourceAvailable = false;
+  selectedDiscovery: DiscoveryChoice | null = null;
+  discoveryDetail = "";
   emptyChosen = false;
   selfHosted = false;
   cloudTrialOpened = false;
@@ -98,6 +108,7 @@ export class OnboardingWizardStore {
       setupAvailable: this.setupAvailable,
       chooseAvailable: this.chooseAvailable,
       templatesAvailable: this.templatesAvailable,
+      sourceAvailable: this.sourceAvailable,
     };
   }
 
@@ -159,6 +170,7 @@ export class OnboardingWizardStore {
     this.setupAvailable = setupAvailable;
     this.chooseAvailable = flow.chooseAvailable ?? false;
     this.templatesAvailable = flow.templatesAvailable ?? false;
+    this.sourceAvailable = flow.sourceAvailable ?? false;
     this.emptyChosen = flow.emptyChosen ?? false;
     this.selfHosted = flow.selfHosted ?? false;
     this.selectedJob = jobChoice.selectedJob;
@@ -188,6 +200,29 @@ export class OnboardingWizardStore {
   setSelectedJob = (value: string) => {
     const job = parseOnboardingJob(value);
     if (job && !this.isSubmitting) this.selectedJob = job;
+  };
+
+  setSelectedDiscovery = (value: string) => {
+    const choice = parseDiscoveryChoice(value);
+    if (choice && !this.isSubmitting) this.selectedDiscovery = choice;
+  };
+
+  setDiscoveryDetail = (value: string) => {
+    this.discoveryDetail = value.slice(0, DISCOVERY_DETAIL_MAX_LENGTH);
+  };
+
+  answerSource = async (skip = false): Promise<void> => {
+    if (this.isSubmitting || this.currentStep !== "source") return;
+    const choice = skip ? null : this.selectedDiscovery;
+    if (!skip && choice === null) return;
+    this.setIsSubmitting(true);
+    try {
+      await recordDiscoveryAnswerAction({ choice, detail: this.discoveryDetail }).catch(reportApplicationError);
+      if (this.currentStep !== "source") return;
+      this.moveTo(this.steps[this.currentStepIndex + 1], { closeBehind: true });
+    } finally {
+      this.setIsSubmitting(false);
+    }
   };
 
   setSelectedPlaybook = (value: string) => {

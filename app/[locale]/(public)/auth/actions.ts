@@ -25,6 +25,12 @@ import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
 import { buildLocalePath } from "@/i18n/locale-registry";
 import { rememberSignupJourney } from "@/features/acquisition/next/signup-journey-cookie";
+import { signupLastPageFromRequest } from "@/features/acquisition/signup-source";
+
+function lastPageOf(signupJourney: unknown): { signupLastPage?: string } {
+  const signupLastPage = signupLastPageFromRequest(signupJourney);
+  return signupLastPage ? { signupLastPage } : {};
+}
 
 export async function signInWithEmailAction(data: EmailSignInData) {
   const result = await getSignInWithEmailInteractor().invoke(data);
@@ -51,6 +57,7 @@ export async function continueWithGoogleAction(
     provider: "google",
     callbackURL,
     errorCallbackURL,
+    ...lastPageOf(signupJourney),
   });
   if (isRedirect(result)) redirect(result.redirect);
 
@@ -67,6 +74,7 @@ export async function continueWithMicrosoftAction(
     provider: "microsoft",
     callbackURL,
     errorCallbackURL,
+    ...lastPageOf(signupJourney),
   });
   if (isRedirect(result)) redirect(result.redirect);
 
@@ -74,8 +82,11 @@ export async function continueWithMicrosoftAction(
 }
 
 export async function signUpWithEmailAction(data: EmailSignUpData, signupJourney?: unknown) {
-  if (signupJourney !== undefined && data.onboardingIntent === undefined) await rememberSignupJourney(signupJourney);
-  const result = await getSignUpWithEmailInteractor().invoke(data);
+  const fromSignupForm = signupJourney !== undefined && data.onboardingIntent === undefined;
+  if (fromSignupForm) await rememberSignupJourney(signupJourney);
+  const result = await getSignUpWithEmailInteractor().invoke(
+    fromSignupForm ? { ...data, ...lastPageOf(signupJourney) } : data,
+  );
   if (isRedirect(result)) redirect(buildLocalePath(await getLocale(), result.redirect));
 
   return serializeResult(result);

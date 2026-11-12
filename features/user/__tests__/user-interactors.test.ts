@@ -71,6 +71,7 @@ describe("RegisterUserInteractor", () => {
       countCreatedWorkspacesUnscoped: vi.fn().mockResolvedValue(0),
       hasLeftMembershipUnscoped: vi.fn().mockResolvedValue(false),
       registerExistingCompany: vi.fn().mockResolvedValue(mockTenantUser),
+      takeSignupLastPageUnscoped: vi.fn().mockResolvedValue(null),
     };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
@@ -697,10 +698,57 @@ describe("RegisterUserInteractor", () => {
     expect(mockRepo.hasCreatedWorkspaceUnscoped).toHaveBeenCalledWith(USER_ID);
     expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
       expect.objectContaining({
-        workspace: { name: "Acme Sales", createdByAuthUserId: USER_ID, trial: true, signupTemplate: null },
+        workspace: {
+          name: "Acme Sales",
+          createdByAuthUserId: USER_ID,
+          trial: true,
+          signupTemplate: null,
+          signupLastPage: null,
+        },
       }),
     );
     expect(mockRegistration.createCompanyAndUser.mock.calls[0]?.[0]).not.toHaveProperty("workspaceName");
+  });
+
+  it("moves the last page before signup from the pending login onto the new cloud company", async () => {
+    mutableEnv.APP_MODE = "cloud";
+    mockRepo.takeSignupLastPageUnscoped.mockResolvedValue("/en/for/law-firms");
+
+    await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        avatarUrl: null,
+        agreeToTerms: true,
+      },
+      { target: { type: "createCompany" } },
+    );
+
+    expect(mockRepo.takeSignupLastPageUnscoped).toHaveBeenCalledWith(USER_ID);
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
+      expect.objectContaining({ workspace: expect.objectContaining({ signupLastPage: "/en/for/law-firms" }) }),
+    );
+  });
+
+  it("does not take the last page before signup outside a new cloud company", async () => {
+    mutableEnv.APP_MODE = "self-hosted";
+
+    await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        avatarUrl: null,
+        agreeToTerms: true,
+      },
+      { target: { type: "createCompany" } },
+    );
+
+    expect(mockRepo.takeSignupLastPageUnscoped).not.toHaveBeenCalled();
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
+      expect.objectContaining({ workspace: expect.objectContaining({ signupLastPage: null }) }),
+    );
   });
 
   it("stores the template the visitor chose on the new company", async () => {
@@ -720,7 +768,13 @@ describe("RegisterUserInteractor", () => {
 
     expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
       expect.objectContaining({
-        workspace: { name: "Acme Sales", createdByAuthUserId: USER_ID, trial: true, signupTemplate: "client-tracker" },
+        workspace: {
+          name: "Acme Sales",
+          createdByAuthUserId: USER_ID,
+          trial: true,
+          signupTemplate: "client-tracker",
+          signupLastPage: null,
+        },
       }),
     );
   });
@@ -742,7 +796,13 @@ describe("RegisterUserInteractor", () => {
 
     expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
       expect.objectContaining({
-        workspace: { name: null, createdByAuthUserId: USER_ID, trial: false, signupTemplate: null },
+        workspace: {
+          name: null,
+          createdByAuthUserId: USER_ID,
+          trial: false,
+          signupTemplate: null,
+          signupLastPage: null,
+        },
       }),
     );
   });

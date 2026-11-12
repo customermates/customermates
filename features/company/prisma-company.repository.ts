@@ -18,6 +18,7 @@ import type { BillingUsageRepo } from "@/features/billing-usage/billing-usage.re
 import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard-company.repo";
 import type { InviteTokenRepo } from "@/features/company/invite-token-validation.repo";
 import type { RecordAgentFirstCallRepo } from "@/features/onboarding-funnel/record-agent-first-call.repo";
+import type { DiscoveryAnswerRepo, DiscoveryAnswerWrite } from "@/features/onboarding-funnel/discovery-answer.repo";
 import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user-company.repo";
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-subscription.repo";
 import type { GetCompanyRepo } from "./get-company.repo";
@@ -74,6 +75,7 @@ export class PrismaCompanyRepo
     UpsertRoutineSubscriptionRepo,
     RegisterUserCompanyRepo,
     RecordAgentFirstCallRepo,
+    DiscoveryAnswerRepo,
     WorkspaceDeletionRepo,
     WorkspaceSlugRepo,
     PlanInviteRepo
@@ -491,6 +493,7 @@ export class PrismaCompanyRepo
             slug,
             createdByAuthUserId: setup.createdByAuthUserId ?? null,
             signupTemplate: setup.signupTemplate ?? null,
+            signupLastPage: setup.signupLastPage ?? null,
           },
         ],
         skipDuplicates: true,
@@ -545,6 +548,19 @@ export class PrismaCompanyRepo
     const { count } = await this.prisma.company.updateMany({
       where: { id: this.user.companyId, agentFirstCallAt: null },
       data: { agentFirstCallAt: new Date() },
+    });
+    return count === 1;
+  }
+
+  async recordDiscoveryAnswer({ userId, choice, detail }: DiscoveryAnswerWrite) {
+    const { count } = await this.prisma.company.updateMany({
+      where: { id: this.user.companyId, discoveryAnsweredAt: null },
+      data: {
+        discoveryChoice: choice,
+        discoveryDetail: detail,
+        discoveryUserId: userId,
+        discoveryAnsweredAt: new Date(),
+      },
     });
     return count === 1;
   }

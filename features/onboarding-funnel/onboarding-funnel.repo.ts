@@ -7,6 +7,7 @@ export type OnboardingJobChoice = {
   selectedJob: OnboardingJob | null;
   signupJob: OnboardingJob | null;
   signupLandingPath: string | null;
+  discoveryResolved: boolean;
 };
 
 export type FunnelEventInput = { type: FunnelEventType; occurredAt: Date; job?: OnboardingJob };

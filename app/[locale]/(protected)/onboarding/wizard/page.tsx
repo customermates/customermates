@@ -133,6 +133,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
         sessionLastName={sessionLastName}
         setupStatus={setupStatus}
         setupStepCompleted={setupStepCompleted}
+        sourceAvailable={choosing && env.APP_MODE === "cloud"}
         templatePreselection={templatePreselection}
         templates={templates}
         userId={user?.role?.isSystemRole ? user.id : undefined}

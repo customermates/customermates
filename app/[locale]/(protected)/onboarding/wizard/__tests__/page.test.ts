@@ -233,6 +233,26 @@ describe("OnboardingWizardPage authentication detours", () => {
     expect(mocks.getJobChoice).not.toHaveBeenCalled();
   });
 
+  it("offers the optional source question to a cloud owner only", async () => {
+    registeredOwner(null);
+    const cloud = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+    expect(cloud.props.children.props).toMatchObject({ sourceAvailable: true });
+
+    mocks.env.APP_MODE = "self-hosted";
+    registeredOwner(null);
+    const selfHosted = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+    expect(selfHosted.props.children.props).toMatchObject({ sourceAvailable: false });
+
+    mocks.env.APP_MODE = "cloud";
+    mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({
+      sessionUser: { id: "user-a", email: "member@example.com", companyId: "company-a" },
+      user: { companyId: "company-a", role: { isSystemRole: false }, onboardingWikiStepCompletedAt: null },
+    });
+    const invited = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+    expect(invited.props.children.props).toMatchObject({ sourceAvailable: false });
+  });
+
   it("offers the templates of the language and the cloud, and preselects from the signup", async () => {
     registeredOwner(null);
     const cards = [{ slug: "client-tracker", name: "Client tracker" }];

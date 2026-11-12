@@ -3807,6 +3807,21 @@
       "stepsLabel": "Next steps",
       "watching": "Watching for your agent's first change. We tell you here as soon as it starts building."
     },
+    "source": {
+      "choices": {
+        "aiAssistant": "An AI assistant (ChatGPT, Claude, Perplexity)",
+        "articleOrVideo": "An article or video",
+        "directory": "A directory or listing",
+        "other": "Somewhere else",
+        "recommendation": "A recommendation",
+        "searchEngine": "A search engine",
+        "socialMedia": "Social media"
+      },
+      "detailLabel": "Where did you find us?",
+      "detailPlaceholder": "Where was it? (optional)",
+      "optionsLabel": "How you found Customermates",
+      "skip": "Skip"
+    },
     "steps": {
       "ai": {
         "subtitle": "Choose an AI tool to connect with your workspace and its knowledge. Connect one now, add others later, or skip this step.",
@@ -3848,6 +3863,10 @@
         "subtitle": "What we read on your website is already filled in. Check it and change anything that is off.",
         "title": "Set up your workspace",
         "withoutWebsiteSubtitle": "A few quick questions about what you want to keep track of. Most take one click."
+      },
+      "source": {
+        "subtitle": "One optional question. It only helps us see which channels work, and you can skip it.",
+        "title": "How did you find us?"
       },
       "template": {
         "subtitle": "Your agent adapts it to you and shows the plan before changing anything.",

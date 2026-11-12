@@ -252,6 +252,7 @@ import { SelectOnboardingJobInteractor } from "@/features/onboarding-funnel/sele
 import { ApplyOnboardingPlaybookInteractor } from "@/features/onboarding-funnel/apply-onboarding-playbook.interactor";
 import { RecordAgentConnectedInteractor } from "@/features/onboarding-funnel/record-agent-connected.interactor";
 import { RecordAgentFirstCallInteractor } from "@/features/onboarding-funnel/record-agent-first-call.interactor";
+import { RecordDiscoveryAnswerInteractor } from "@/features/onboarding-funnel/record-discovery-answer.interactor";
 import { GetOnboardingAgentStatusInteractor } from "@/features/onboarding-funnel/get-onboarding-agent-status.interactor";
 import { GetOnboardingTemplatePromptInteractor } from "@/features/onboarding-templates/get-onboarding-template-prompt.interactor";
 import { GetOnboardingTemplateChoiceInteractor } from "@/features/onboarding-templates/get-onboarding-template-choice.interactor";
@@ -1333,7 +1334,7 @@ export const getUpdateUserDetailsInteractor = () =>
 export const getCompleteOnboardingWizardInteractor = () =>
   new CompleteOnboardingWizardInteractor(getUserRepo(), getRouteGuardService());
 export const getCompleteOnboardingSetupStepInteractor = () =>
-  new CompleteOnboardingSetupStepInteractor(getUserRepo(), getRouteGuardService());
+  new CompleteOnboardingSetupStepInteractor(getUserRepo(), getRouteGuardService(), getOnboardingFunnelRepo());
 
 export const getOnboardingFunnelRepo = () => new PrismaOnboardingFunnelRepo();
 export const getGetOnboardingJobChoiceInteractor = () =>
@@ -1349,6 +1350,8 @@ export const getApplyOnboardingPlaybookInteractor = () =>
   );
 export const getRecordAgentConnectedInteractor = () => new RecordAgentConnectedInteractor(getOnboardingFunnelRepo());
 export const getRecordAgentFirstCallInteractor = () => new RecordAgentFirstCallInteractor(getCompanyRepo());
+export const getRecordDiscoveryAnswerInteractor = () =>
+  new RecordDiscoveryAnswerInteractor(getCompanyRepo(), getRouteGuardService());
 export const getGetOnboardingAgentStatusInteractor = () =>
   new GetOnboardingAgentStatusInteractor(getOnboardingFunnelRepo(), getRouteGuardService());
 export const getGetOnboardingTemplatePromptInteractor = () =>
@@ -1474,7 +1477,7 @@ export const getJoinWorkspaceInteractor = () =>
 export const getSignInWithEmailInteractor = () => new SignInWithEmailInteractor(getAuthService());
 
 export const getSignUpWithEmailInteractor = () =>
-  new SignUpWithEmailInteractor(getAuthService(), getOnboardingIntentService());
+  new SignUpWithEmailInteractor(getAuthService(), getOnboardingIntentService(), getUserRepo());
 
 export const getRequestPasswordResetInteractor = () =>
   new RequestPasswordResetInteractor(getAuthService(), getOnboardingIntentService());

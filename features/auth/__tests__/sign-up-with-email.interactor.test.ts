@@ -86,3 +86,57 @@ describe("SignUpWithEmailInteractor when the account already exists", () => {
     expect(isEmailPendingVerification).not.toHaveBeenCalled();
   });
 });
+
+describe("SignUpWithEmailInteractor and the last page before signup", () => {
+  function withRepo(args: { error?: string; failToRecord?: boolean }) {
+    const recordSignupLastPageUnscoped = vi
+      .fn()
+      .mockImplementation(() => (args.failToRecord ? Promise.reject(new Error("down")) : Promise.resolve()));
+    const registerWithEmail = vi
+      .fn()
+      .mockResolvedValue(args.error ? { ok: false, error: args.error } : { ok: true, user: { id: "new-user" } });
+    const interactor = new SignUpWithEmailInteractor(
+      { registerWithEmail, isEmailPendingVerification: vi.fn().mockResolvedValue(false) } as unknown as AuthService,
+      onboardingIntentService as never,
+      { recordSignupLastPageUnscoped },
+    );
+    return { interactor, recordSignupLastPageUnscoped, registerWithEmail };
+  }
+
+  it("keeps the page on the new login so the company can take it at creation", async () => {
+    const { interactor, recordSignupLastPageUnscoped, registerWithEmail } = withRepo({});
+
+    await expect(interactor.invoke({ ...signUpData, signupLastPage: "/en/for/law-firms" })).resolves.toEqual({
+      redirect: "/onboarding",
+    });
+    expect(recordSignupLastPageUnscoped).toHaveBeenCalledExactlyOnceWith("new-user", "/en/for/law-firms");
+    expect(registerWithEmail.mock.calls[0]?.[0]).not.toHaveProperty("signupLastPage");
+  });
+
+  it("records nothing without a page and nothing when the registration failed", async () => {
+    const withoutPage = withRepo({});
+    await withoutPage.interactor.invoke(signUpData);
+    expect(withoutPage.recordSignupLastPageUnscoped).not.toHaveBeenCalled();
+
+    const failed = withRepo({ error: "generic" });
+    await failed.interactor.invoke({ ...signUpData, signupLastPage: "/en/pricing" });
+    expect(failed.recordSignupLastPageUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("rejects a page that is not a plain same-site path before registering", async () => {
+    const { interactor, registerWithEmail } = withRepo({});
+
+    const result = await interactor.invoke({ ...signUpData, signupLastPage: "https://evil.example/?token=1" });
+
+    expect(result).toMatchObject({ ok: false });
+    expect(registerWithEmail).not.toHaveBeenCalled();
+  });
+
+  it("never fails the signup when the page cannot be stored", async () => {
+    const { interactor } = withRepo({ failToRecord: true });
+
+    await expect(interactor.invoke({ ...signUpData, signupLastPage: "/en/pricing" })).resolves.toEqual({
+      redirect: "/onboarding",
+    });
+  });
+});

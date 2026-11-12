@@ -4,6 +4,7 @@ import type { RegisterOnboardingProfileData } from "@/features/user/register/reg
 import type { SaveOnboardingWizardProgressData } from "@/features/onboarding-wizard/save-onboarding-wizard-progress.interactor";
 import type { SelectOnboardingJobData } from "@/features/onboarding-funnel/select-onboarding-job.interactor";
 import type { ApplyOnboardingPlaybookData } from "@/features/onboarding-funnel/apply-onboarding-playbook.interactor";
+import type { RecordDiscoveryAnswerData } from "@/features/onboarding-funnel/record-discovery-answer.interactor";
 
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
@@ -14,6 +15,7 @@ import {
   getApplyOnboardingPlaybookInteractor,
   getCompleteOnboardingSetupStepInteractor,
   getCompleteOnboardingWizardInteractor,
+  getRecordDiscoveryAnswerInteractor,
   getRegisterOnboardingProfileInteractor,
   getSaveOnboardingWizardProgressInteractor,
   getSelectOnboardingJobInteractor,
@@ -75,6 +77,10 @@ export async function completeOnboardingSetupStepAction() {
 
 export async function selectOnboardingJobAction(data: SelectOnboardingJobData) {
   return serializeTypedResult(await settleInLocale(getSelectOnboardingJobInteractor().invoke(data)));
+}
+
+export async function recordDiscoveryAnswerAction(data: RecordDiscoveryAnswerData) {
+  return serializeTypedResult(await settleInLocale(getRecordDiscoveryAnswerInteractor().invoke(data)));
 }
 
 export async function applyOnboardingPlaybookAction(data: Pick<ApplyOnboardingPlaybookData, "playbook">) {

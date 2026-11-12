@@ -57,8 +57,37 @@ async function completeSetupStepInDatabase(page: Page) {
   }
 }
 
+export async function skipSourceQuestion(page: Page) {
+  const source = page.getByRole("heading", {
+    level: 1,
+    name: englishMessages.OnboardingWizard.steps.source.title,
+    exact: true,
+  });
+  const goal = page.getByRole("heading", {
+    level: 1,
+    name: englishMessages.OnboardingWizard.steps.goal.title,
+    exact: true,
+  });
+  await expect(source.or(goal)).toBeVisible();
+  if (await source.isVisible()) await clickHydrated(page.locator("#onboarding-source-skip"));
+}
+
 // A legacy workspace another administrator set up leaves the login its trial, so the new workspace opens its wizard.
 export async function openGoalOfNewWorkspace(page: Page, database: Client, workspace: BrowserWorkspace, name: string) {
+  const companyId = await openWizardOfNewWorkspace(page, database, workspace, name);
+  await skipSourceQuestion(page);
+  await expect(
+    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.goal.title, exact: true }),
+  ).toBeVisible();
+  return companyId;
+}
+
+export async function openWizardOfNewWorkspace(
+  page: Page,
+  database: Client,
+  workspace: BrowserWorkspace,
+  name: string,
+) {
   await database.query('UPDATE "Company" SET "createdByAuthUserId"=NULL WHERE id=$1', [workspace.companyId]);
   await database.query(
     'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName",status,"agreeToTerms","onboardingWizardCompletedAt","createdAt","updatedAt") SELECT $1,"companyId","roleId",$2,\'Clara\',\'Founder\',\'active\',true,NOW(),"createdAt" - interval \'1 day\',NOW() FROM "User" WHERE id=$3',
@@ -71,9 +100,6 @@ export async function openGoalOfNewWorkspace(page: Page, database: Client, works
   await dialog.locator("#create-workspace-terms").click();
   await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
   await expect(page).toHaveURL(/\/en(?:\/w\/[a-z0-9-]+)?\/onboarding\/wizard$/);
-  await expect(
-    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.goal.title, exact: true }),
-  ).toBeVisible();
   const { rows } = await database.query<{ id: string }>('SELECT id FROM "Company" WHERE name=$1', [name]);
   return rows[0].id;
 }
@@ -85,6 +111,8 @@ export async function finishOnboarding(page: Page) {
   const setup = heading(steps.setup.startTitle).or(heading(steps.setup.title));
   const invite = heading(steps.invite.title);
   const goal = heading(steps.goal.title).or(heading(steps.goal.titleSelfHosted));
+  await expect(heading(steps.source.title).or(goal).or(setup).or(invite)).toBeVisible();
+  if (await heading(steps.source.title).isVisible()) await clickHydrated(page.locator("#onboarding-source-skip"));
   await expect(goal.or(setup).or(invite)).toBeVisible();
   if (!(await invite.isVisible())) {
     await completeSetupStepInDatabase(page);

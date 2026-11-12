@@ -226,7 +226,17 @@ describe("OnboardingWizardStore", () => {
   it("contains Profile, the workspace setup, Invite, and AI in order", () => {
     const store = new OnboardingWizardStore(rootStore);
 
-    expect(WIZARD_STEPS).toEqual(["profile", "goal", "playbook", "setup", "invite", "ai", "template", "prompt"]);
+    expect(WIZARD_STEPS).toEqual([
+      "profile",
+      "goal",
+      "playbook",
+      "setup",
+      "invite",
+      "ai",
+      "template",
+      "prompt",
+      "source",
+    ]);
     expect(store.totalSteps).toBe(5);
     expect(store.currentStep).toBe("profile");
   });

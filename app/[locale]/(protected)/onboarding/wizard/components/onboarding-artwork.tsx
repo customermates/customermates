@@ -29,8 +29,9 @@ import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/core/utils/cn";
 
 import type { WizardStep } from "./onboarding-wizard.store";
+import type { MilestoneStep } from "./onboarding-wizard-flow";
 
-type SceneStep = Exclude<WizardStep, "setup" | "goal" | "playbook" | "template" | "prompt">;
+type SceneStep = Exclude<WizardStep, "setup" | "goal" | "playbook" | "template" | "prompt" | "source">;
 const STEP_ICONS = {
   profile: UserRound,
   goal: Compass,
@@ -233,8 +234,8 @@ export function OnboardingMilestones({
   steps,
 }: {
   current: number;
-  labels: Record<WizardStep, string>;
-  steps: readonly WizardStep[];
+  labels: Record<MilestoneStep, string>;
+  steps: readonly MilestoneStep[];
 }) {
   return (
     <ol className="flex items-start">

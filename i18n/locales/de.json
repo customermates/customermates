@@ -3807,6 +3807,21 @@
       "stepsLabel": "Nächste Schritte",
       "watching": "Wir achten auf die erste Änderung deines Agenten. Hier siehst du sofort, sobald er zu bauen beginnt."
     },
+    "source": {
+      "choices": {
+        "aiAssistant": "Über einen KI-Assistenten (ChatGPT, Claude, Perplexity)",
+        "articleOrVideo": "Über einen Artikel oder ein Video",
+        "directory": "Über ein Verzeichnis oder eine Auflistung",
+        "other": "Anders",
+        "recommendation": "Durch eine Empfehlung",
+        "searchEngine": "Über eine Suchmaschine",
+        "socialMedia": "Über soziale Medien"
+      },
+      "detailLabel": "Wo hast du uns gefunden?",
+      "detailPlaceholder": "Wo war das? (optional)",
+      "optionsLabel": "Wie du Customermates gefunden hast",
+      "skip": "Überspringen"
+    },
     "steps": {
       "ai": {
         "subtitle": "Wähle ein KI-Tool und verbinde es mit deinem Workspace und seinem Wissen. Verbinde jetzt eines, ergänze später weitere oder überspringe diesen Schritt.",
@@ -3848,6 +3863,10 @@
         "subtitle": "Was wir auf deiner Website gelesen haben, ist schon ausgefüllt. Prüfe es und ändere, was nicht passt.",
         "title": "Richte deinen Workspace ein",
         "withoutWebsiteSubtitle": "Ein paar kurze Fragen dazu, was du festhalten möchtest. Die meisten beantwortest du mit einem Klick."
+      },
+      "source": {
+        "subtitle": "Eine optionale Frage. Sie hilft uns nur zu sehen, welche Kanäle funktionieren, und du kannst sie überspringen.",
+        "title": "Wie hast du uns gefunden?"
       },
       "template": {
         "subtitle": "Dein Agent passt sie an dich an und zeigt den Plan, bevor er etwas ändert.",

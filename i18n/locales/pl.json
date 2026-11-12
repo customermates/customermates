@@ -3807,6 +3807,21 @@
       "stepsLabel": "Kolejne kroki",
       "watching": "Czekamy na pierwszą zmianę wprowadzoną przez Twojego agenta. Tutaj zobaczysz od razu, gdy zacznie budować."
     },
+    "source": {
+      "choices": {
+        "aiAssistant": "Od asystenta AI (ChatGPT, Claude, Perplexity)",
+        "articleOrVideo": "Z artykułu lub filmu",
+        "directory": "Z katalogu lub zestawienia",
+        "other": "Skądinąd",
+        "recommendation": "Z polecenia",
+        "searchEngine": "Z wyszukiwarki",
+        "socialMedia": "Z mediów społecznościowych"
+      },
+      "detailLabel": "Skąd o nas wiesz?",
+      "detailPlaceholder": "Skąd dokładnie? (opcjonalnie)",
+      "optionsLabel": "Skąd znasz Customermates",
+      "skip": "Pomiń"
+    },
     "steps": {
       "ai": {
         "subtitle": "Wybierz narzędzie AI, które połączysz ze swoją przestrzenią roboczą i jej wiedzą. Połącz jedno teraz, dodaj kolejne później albo pomiń ten krok.",
@@ -3848,6 +3863,10 @@
         "subtitle": "To, co odczytaliśmy z Twojej strony, jest już wypełnione. Sprawdź to i popraw, co się nie zgadza.",
         "title": "Skonfiguruj swoją przestrzeń roboczą",
         "withoutWebsiteSubtitle": "Kilka szybkich pytań o to, czego chcesz pilnować. Większość wymaga jednego kliknięcia."
+      },
+      "source": {
+        "subtitle": "Jedno pytanie, opcjonalne. Pomaga nam tylko zobaczyć, które kanały działają, i możesz je pominąć.",
+        "title": "Skąd o nas wiesz?"
       },
       "template": {
         "subtitle": "Twój agent dopasuje go do Ciebie i pokaże plan, zanim cokolwiek zmieni.",

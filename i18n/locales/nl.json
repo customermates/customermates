@@ -3807,6 +3807,21 @@
       "stepsLabel": "Volgende stappen",
       "watching": "We letten op de eerste wijziging van je agent. Hier zie je meteen wanneer hij begint te bouwen."
     },
+    "source": {
+      "choices": {
+        "aiAssistant": "Een AI-assistent (ChatGPT, Claude, Perplexity)",
+        "articleOrVideo": "Een artikel of video",
+        "directory": "Een directory of overzichtssite",
+        "other": "Ergens anders",
+        "recommendation": "Een aanbeveling",
+        "searchEngine": "Een zoekmachine",
+        "socialMedia": "Sociale media"
+      },
+      "detailLabel": "Waar heb je ons gevonden?",
+      "detailPlaceholder": "Waar was dat? (optioneel)",
+      "optionsLabel": "Hoe je Customermates hebt gevonden",
+      "skip": "Overslaan"
+    },
     "steps": {
       "ai": {
         "subtitle": "Kies een AI-tool om te koppelen met je werkruimte en de bijbehorende kennis. Koppel er nu een, voeg later andere toe of sla deze stap over.",
@@ -3848,6 +3863,10 @@
         "subtitle": "Wat we op je website hebben gelezen is al ingevuld. Controleer het en pas aan wat niet klopt.",
         "title": "Je werkruimte inrichten",
         "withoutWebsiteSubtitle": "Een paar korte vragen over wat je wilt bijhouden. De meeste beantwoord je met één klik."
+      },
+      "source": {
+        "subtitle": "Eén optionele vraag. Ze helpt ons alleen om te zien welke kanalen werken, en je kunt haar overslaan.",
+        "title": "Hoe heb je ons gevonden?"
       },
       "template": {
         "subtitle": "Je agent past het op jou aan en toont het plan voordat er iets verandert.",

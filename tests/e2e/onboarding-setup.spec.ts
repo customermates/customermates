@@ -381,5 +381,7 @@ test("the quiet footer link starts an empty workspace without a template and ski
   await expect(page).toHaveURL(appUrlPattern(await workspaceSlugOf(database, companyId), "/dashboard$"));
   const lists = await database.query('SELECT 1 FROM "RecordTypeDefinition" WHERE "companyId"=$1', [companyId]);
   expect(lists.rowCount).toBe(0);
+  const events = await database.query('SELECT type::text FROM "CompanyFunnelEvent" WHERE "companyId"=$1', [companyId]);
+  expect(events.rows).toEqual([{ type: "jobSelected" }]);
   expect(errors).toEqual([]);
 });

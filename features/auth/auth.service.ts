@@ -318,6 +318,7 @@ export class AuthService {
     provider: "google" | "microsoft";
     callbackURL?: string;
     errorCallbackURL?: string;
+    signupLastPage?: string | null;
   }) {
     const requestHeaders = await headers();
     const requestOrigin = requestHeaders.get("origin") ?? env.BASE_URL;
@@ -334,6 +335,7 @@ export class AuthService {
         provider: args.provider,
         callbackURL: args.callbackURL ?? "/",
         errorCallbackURL: args.errorCallbackURL ?? "/auth/signin",
+        ...(args.signupLastPage ? { additionalData: { signupLastPage: args.signupLastPage } } : {}),
       },
     });
 

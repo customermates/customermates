@@ -47,7 +47,8 @@ describe("guarded account-state route contract", () => {
     expect(registrationBoundary).toContain('target = { type: "createCompany" }');
     expect(actions).toContain("getCompleteOnboardingWizardInteractor().invoke()");
     expect(actions.match(/serializeResult\(/g)).toHaveLength(1);
-    expect(actions.match(/serializeTypedResult\(/g)).toHaveLength(5);
+    expect(actions.match(/serializeTypedResult\(/g)).toHaveLength(6);
+    expect(actions).toContain("getRecordDiscoveryAnswerInteractor().invoke(data)");
     expect(actions).toContain("getApplyOnboardingPlaybookInteractor().invoke({ playbook: data.playbook, locale })");
     expect(actions).toContain("getCompleteOnboardingSetupStepInteractor().invoke()");
     expect(actions).toContain("getSaveOnboardingWizardProgressInteractor().invoke(data)");

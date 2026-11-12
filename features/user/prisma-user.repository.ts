@@ -686,6 +686,25 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
+  async recordSignupLastPageUnscoped(authUserId: string, page: string) {
+    await this.prisma.authUser.updateMany({
+      where: { id: authUserId, companyId: null, signupLastPage: null },
+      data: { signupLastPage: page },
+    });
+  }
+
+  @BypassTenantGuard
+  async takeSignupLastPageUnscoped(authUserId: string) {
+    const authUser = await this.prisma.authUser.findUnique({
+      where: { id: authUserId },
+      select: { signupLastPage: true },
+    });
+    if (!authUser?.signupLastPage) return null;
+    await this.prisma.authUser.updateMany({ where: { id: authUserId }, data: { signupLastPage: null } });
+    return authUser.signupLastPage;
+  }
+
+  @BypassTenantGuard
   async countCreatedWorkspacesUnscoped(authUserId: string) {
     const created = await this.prisma.company.count({
       where: { createdByAuthUserId: authUserId },

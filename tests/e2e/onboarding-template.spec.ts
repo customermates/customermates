@@ -6,7 +6,7 @@ import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { collectPageErrors, expect, test } from "./fixtures";
 import { uniqueWorkspaceName } from "./workspace-names";
 import { insertStarterModel } from "./workspace";
-import { createWorkspaceFromSettings, openGoalOfNewWorkspace } from "./workspace-setup";
+import { createWorkspaceFromSettings, openGoalOfNewWorkspace, openWizardOfNewWorkspace } from "./workspace-setup";
 import { clickHydrated, e2eAppMode } from "./workspace-switching";
 import { appUrlPattern, workspaceSlugOf } from "./app-paths";
 
@@ -250,6 +250,69 @@ test.describe("cloud onboarding with templates", () => {
     await clickHydrated(page.locator("#onboarding-template-continue"));
     await expect(heading(page, steps.setup.startTitle)).toBeVisible();
     expect(await funnelEvents(database, companyId)).toEqual([{ type: "jobSelected", job: "workspace" }]);
+    expect(errors).toEqual([]);
+  });
+
+  test("the optional source question follows the profile, stores the answer with the user and is not asked again", async ({
+    page,
+    database,
+    workspace,
+  }, testInfo) => {
+    const errors = collectPageErrors(page);
+    const companyId = await openWizardOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Source Answer"));
+
+    await expect(heading(page, steps.source.title)).toBeVisible();
+    await expect(page.getByText(steps.source.subtitle, { exact: true })).toBeVisible();
+    const options = page.getByRole("radiogroup", { name: wizard.source.optionsLabel, exact: true });
+    await expect(options.getByRole("radio")).toHaveCount(Object.keys(wizard.source.choices).length);
+    await expect(options.getByRole("radio", { checked: true })).toHaveCount(0);
+    await expect(page.locator("#onboarding-source-continue")).toBeDisabled();
+    await expect(page.locator("#onboarding-source-skip")).toBeEnabled();
+    await expect(page.locator("#onboarding-source-detail")).toHaveCount(0);
+    await expectNoHorizontalOverflow(page);
+    await page.setViewportSize({ width: 1280, height: 900 });
+
+    await clickHydrated(page.locator("#onboarding-source-other"));
+    await page.locator("#onboarding-source-detail").fill("a podcast");
+    await page.screenshot({ path: testInfo.outputPath("source-question.png"), fullPage: true });
+    await clickHydrated(page.locator("#onboarding-source-continue"));
+    await expect(heading(page, steps.goal.title)).toBeVisible();
+
+    const { rows } = await database.query<{ choice: string; detail: string; answeredBy: string; owner: string }>(
+      'SELECT c."discoveryChoice" AS choice, c."discoveryDetail" AS detail, c."discoveryUserId" AS "answeredBy", u.id AS owner FROM "Company" c JOIN "User" u ON u."companyId"=c.id AND u.id=c."discoveryUserId" WHERE c.id=$1',
+      [companyId],
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ choice: "other", detail: "a podcast" });
+    expect(rows[0].answeredBy).toBe(rows[0].owner);
+
+    await page.reload();
+    await expect(heading(page, steps.goal.title)).toBeVisible();
+    await expect(heading(page, steps.source.title)).toHaveCount(0);
+    expect(errors).toEqual([]);
+  });
+
+  test("skipping the source question keeps the wizard on its usual steps and does not ask again", async ({
+    page,
+    database,
+    workspace,
+  }) => {
+    const errors = collectPageErrors(page);
+    const companyId = await openWizardOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Source Skip"));
+
+    await expect(heading(page, steps.source.title)).toBeVisible();
+    await clickHydrated(page.locator("#onboarding-source-skip"));
+    await expect(heading(page, steps.goal.title)).toBeVisible();
+
+    const { rows } = await database.query<{ choice: string | null; answeredAt: Date | null }>(
+      'SELECT "discoveryChoice" AS choice, "discoveryAnsweredAt" AS "answeredAt" FROM "Company" WHERE id=$1',
+      [companyId],
+    );
+    expect(rows[0].choice).toBeNull();
+    expect(rows[0].answeredAt).toBeInstanceOf(Date);
+
+    await page.reload();
+    await expect(heading(page, steps.goal.title)).toBeVisible();
     expect(errors).toEqual([]);
   });
 });

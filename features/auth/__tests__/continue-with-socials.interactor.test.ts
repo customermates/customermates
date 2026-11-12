@@ -69,6 +69,22 @@ describe("ContinueWithSocialsInteractor callback validation", () => {
     expect(continueWithSocials).toHaveBeenCalledWith({ provider });
   });
 
+  it("hands the last page before signup to the auth service and rejects anything but a same-site path", async () => {
+    const continueWithSocials = vi.fn().mockResolvedValue({ redirect: false });
+    const interactor = new ContinueWithSocialsInteractor(
+      { continueWithSocials } as unknown as AuthService,
+      { listMembershipsUnscoped: vi.fn().mockResolvedValue([]) } as unknown as FindUserRepo,
+    );
+
+    await interactor.invoke({ provider: "google", signupLastPage: "/en/for/law-firms" });
+    expect(continueWithSocials).toHaveBeenCalledWith({ provider: "google", signupLastPage: "/en/for/law-firms" });
+
+    continueWithSocials.mockClear();
+    const refused = await interactor.invoke({ provider: "google", signupLastPage: "https://evil.example/" });
+    expect(refused).toMatchObject({ ok: false });
+    expect(continueWithSocials).not.toHaveBeenCalled();
+  });
+
   it("returns the provider redirect", async () => {
     const interactor = new ContinueWithSocialsInteractor(
       {

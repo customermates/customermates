@@ -174,3 +174,101 @@ describe("resuming the wizard", () => {
     });
   });
 });
+
+describe("the optional source question", () => {
+  const CLOUD_WITH_SOURCE = { ...CLOUD, sourceAvailable: true };
+
+  it("adds exactly one step after the profile for a cloud owner on every path", () => {
+    expect(wizardSteps(CLOUD_WITH_SOURCE, "agent")).toEqual(["profile", "source", "goal", "ai", "template", "prompt"]);
+    expect(wizardSteps(CLOUD_WITH_SOURCE, "workspace")).toEqual([
+      "profile",
+      "source",
+      "goal",
+      "template",
+      "setup",
+      "invite",
+      "ai",
+    ]);
+    expect(wizardSteps(CLOUD_WITH_SOURCE, "followup")).toEqual(["profile", "source", "goal", "playbook"]);
+    expect(wizardSteps(CLOUD_WITH_SOURCE, "empty")).toEqual(["profile", "source", "goal", "invite", "ai"]);
+    expect(wizardSteps(CLOUD_WITH_SOURCE, "empty")).toHaveLength(wizardSteps(CLOUD, "empty").length + 1);
+  });
+
+  it("leaves the steps untouched unless the question is offered", () => {
+    expect(wizardSteps(CLOUD, "empty")).toEqual(["profile", "goal", "invite", "ai"]);
+    expect(wizardSteps({ ...SELF_HOSTED, sourceAvailable: false }, "agent")).toEqual([
+      "profile",
+      "goal",
+      "ai",
+      "template",
+      "prompt",
+    ]);
+  });
+
+  it("never asks an invited member", () => {
+    expect(
+      wizardSteps(
+        { setupAvailable: false, chooseAvailable: false, templatesAvailable: false, sourceAvailable: true },
+        "agent",
+      ),
+    ).toEqual(["profile", "invite", "ai"]);
+    expect(
+      resolveWizardResume({
+        ...CLOUD_WITH_SOURCE,
+        profileCompleted: true,
+        isInvited: true,
+        setupStepCompleted: false,
+        sourceResolved: false,
+        jobSelected: false,
+      }).steps,
+    ).not.toContain("source");
+  });
+
+  it("saves the source step as a step a reload folds into the team step", () => {
+    expect(persistedWizardStep("source")).toBe("invite");
+  });
+
+  describe("resuming", () => {
+    const owner = { ...CLOUD_WITH_SOURCE, profileCompleted: true, isInvited: false, setupStepCompleted: false };
+
+    it("opens on the question right after the profile while it is neither answered nor skipped", () => {
+      expect(resolveWizardResume({ ...owner, jobSelected: false, sourceResolved: false, job: "agent" })).toEqual({
+        steps: ["profile", "source", "goal", "ai", "template", "prompt"],
+        resumeStepIndex: 1,
+        flow: "agent",
+      });
+    });
+
+    it("moves on to the goal step once the question was answered or skipped", () => {
+      expect(
+        resolveWizardResume({ ...owner, jobSelected: false, sourceResolved: true, job: "agent" }).resumeStepIndex,
+      ).toBe(2);
+    });
+
+    it("does not bring the question back after the owner went past the goal step", () => {
+      expect(
+        resolveWizardResume({ ...owner, jobSelected: true, sourceResolved: false, job: "agent", savedStep: "ai" })
+          .resumeStepIndex,
+      ).toBe(3);
+      expect(
+        resolveWizardResume({
+          ...owner,
+          jobSelected: true,
+          sourceResolved: false,
+          job: "workspace",
+          setupStarted: true,
+        }).resumeStepIndex,
+      ).toBe(4);
+    });
+
+    it("does not resume on the question when the state of it is unknown", () => {
+      expect(resolveWizardResume({ ...owner, jobSelected: false, job: "agent" }).resumeStepIndex).toBe(2);
+    });
+
+    it("keeps a first visit on the profile step", () => {
+      expect(
+        resolveWizardResume({ ...owner, profileCompleted: false, sourceResolved: false, job: "agent" }).resumeStepIndex,
+      ).toBe(0);
+    });
+  });
+});

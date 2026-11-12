@@ -6,6 +6,7 @@ import {
   SIGNUP_JOB_QUERY_PARAM,
   parseOnboardingJob,
 } from "@/features/onboarding-funnel/onboarding-job";
+import { SignupLastPageSchema, signupLastPageFromReferer } from "./signup-last-page";
 
 export const SIGNUP_JOURNEY_COOKIE_NAME = "cm_signup_journey";
 export const SIGNUP_TEMPLATE_QUERY_PARAM = "template";
@@ -49,6 +50,16 @@ export type SignupJourneyInput = z.infer<typeof SignupJourneyInputSchema>;
 
 export const SignupJourneySchema = SignupJourneyInputSchema.extend({ capturedAt: z.iso.datetime() });
 export type SignupJourney = z.infer<typeof SignupJourneySchema>;
+
+const LastPageCarrierSchema = z.object({ lastPage: SignupLastPageSchema.nullable().default(null) });
+
+export const SignupRequestSchema = SignupJourneyInputSchema.extend(LastPageCarrierSchema.shape);
+export type SignupRequest = SignupJourneyInput & { lastPage?: string | null };
+
+export function signupLastPageFromRequest(input: unknown): string | null {
+  const parsed = LastPageCarrierSchema.safeParse(input);
+  return parsed.success ? parsed.data.lastPage : null;
+}
 
 export const RegistrationSignupSourceSchema = SignupJourneyInputSchema.omit({ template: true }).extend({
   marketingConsentedAt: z.date().nullable(),
@@ -110,6 +121,14 @@ export function signupJourneyFromRequest(args: {
     utmMedium: campaignValue(args.searchParams[UTM_QUERY_PARAMS.utmMedium]),
     utmCampaign: campaignValue(args.searchParams[UTM_QUERY_PARAMS.utmCampaign]),
   };
+}
+
+export function signupRequestFromRequest(args: {
+  searchParams: SearchParams;
+  referer: string | null;
+  baseUrl: string;
+}): SignupRequest {
+  return { ...signupJourneyFromRequest(args), lastPage: signupLastPageFromReferer(args) };
 }
 
 export function withoutMarketingFields<T extends SignupJourneyInput>(journey: T): T {
