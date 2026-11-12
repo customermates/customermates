@@ -5,7 +5,7 @@
   "description": "Ein Team von zwei bis fünfzehn Personen auf einer Liste führen: Jede Aufgabe hat Status, Priorität, Verantwortlichen und Fälligkeitstermin, und Überfälliges oder Blockiertes sehen Sie auf einen Blick. Wiederkehrende Aufgaben erzeugen sich selbst, Anfragen von Kollegen oder Kunden kommen über ein Formular, und eine blockierte oder liegengebliebene Aufgabe erinnert ihren Verantwortlichen. Kein Sprint-Werkzeug, keine Gantt-Planung, keine Zeiterfassung und kein Personalsystem.",
   "lists": {
     "requesters": { "label": "Anfragender", "pluralLabel": "Anfragende", "description": "Die Personen außerhalb des Teams, die Arbeit anfragen." },
-    "projects": { "label": "Projekt", "pluralLabel": "Projekte", "description": "Ein Bündel von Aufgaben mit Verantwortlichem, Verlauf und Termin." },
+    "projects": { "label": "Projekt", "pluralLabel": "Projekte", "description": "Ein Bündel von Aufgaben mit Verantwortlichem, Ampel und Termin." },
     "tasks": { "label": "Aufgabe", "pluralLabel": "Aufgaben", "description": "Eine Arbeit mit einem Verantwortlichen und einem Termin." },
     "recurring": { "label": "Wiederkehrende Aufgabe", "pluralLabel": "Wiederkehrende Aufgaben", "description": "Eine Aufgabe, die wöchentlich, monatlich, vierteljährlich oder jährlich wiederkommt." }
   },
@@ -19,7 +19,7 @@
       "label": "Status",
       "options": { "planned": "Geplant", "active": "Aktiv", "on_hold": "Pausiert", "done": "Abgeschlossen", "cancelled": "Abgebrochen" }
     },
-    "projects.health": { "label": "Verlauf", "options": { "on_track": "Im Plan", "at_risk": "Gefährdet", "off_track": "Außer Plan" } },
+    "projects.health": { "label": "Ampel", "options": { "on_track": "Im Plan", "at_risk": "Gefährdet", "off_track": "Außer Plan" } },
     "projects.owner": { "label": "Verantwortlich" },
     "projects.due_date": { "label": "Fällig am" },
     "projects.repo_url": { "label": "Link zum Repository" },

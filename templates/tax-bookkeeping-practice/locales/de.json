@@ -2,7 +2,7 @@
   "locale": "de",
   "name": "Steuerkanzlei",
   "summary": "Ein Kanzleiarbeitsplatz mit zwei Abläufen: ein Mandat gewinnen, mit Identifizierung und Mandatsvertrag, und die laufende Arbeit je Mandant erledigen, mit einem Fristenregister, das eine zweite Person verifiziert.",
-  "description": "Eine Steuer- oder Buchhaltungskanzlei an einem Ort führen: Mandate von der Anfrage bis zum aktiven Mandat mit einer Identifizierung nach Geldwäschegesetz dazwischen, wiederkehrende Vorgänge je Mandant und Zeitraum mit dem Status Wartet auf Unterlagen und ein Fristenregister mit Vorfrist und der Person, die jede Frist verifiziert hat. Die Vorlage ist die Ebene für Beziehung, Fristennachweis und Nachfassen neben Ihrer Kanzleisoftware. Sie berechnet keine gesetzlichen Fristen, reicht nichts ein, führt keine Bücher, rechnet keine Löhne und keine Zeit ab und speichert weder Steuer-IDs noch Ausweiskopien.",
+  "description": "Eine Steuerkanzlei oder ein Buchhaltungsbüro an einem Ort führen: Mandate von der Anfrage bis zum aktiven Mandat mit einer Identifizierung nach Geldwäschegesetz dazwischen, wiederkehrende Vorgänge je Mandant und Zeitraum mit dem Status Wartet auf Unterlagen und ein Fristenregister mit Vorfrist und der Person, die jede Frist verifiziert hat. Die Vorlage ist die Ebene für Beziehung, Fristennachweis und Nachfassen neben Ihrer Kanzleisoftware. Sie berechnet keine gesetzlichen Fristen, reicht nichts ein, führt keine Bücher, rechnet keine Löhne und keine Zeit ab und speichert weder Steuer-IDs noch Ausweiskopien.",
   "lists": {
     "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Personen bei Ihren Mandanten, die Unterlagen schicken und unterschreiben." },
     "clients": { "label": "Mandant", "pluralLabel": "Mandanten", "description": "Privatpersonen, Einzelunternehmer, Gesellschaften und Vereine, für die Sie tätig sind." },
@@ -28,10 +28,10 @@
       "label": "Leistungen",
       "options": { "bookkeeping": "Buchhaltung", "payroll": "Lohn und Gehalt", "vat_returns": "Umsatzsteuer", "annual_accounts": "Jahresabschluss", "tax_returns": "Steuererklärungen", "advisory": "Beratung" }
     },
-    "mandates.fee_model": { "label": "Vergütung", "options": { "fixed_monthly": "Monatspauschale", "hourly": "Nach Zeit", "per_filing": "Je Erklärung", "value_based": "Wertbasiert" } },
+    "mandates.fee_model": { "label": "Vergütung", "options": { "fixed_monthly": "Monatspauschale", "hourly": "Nach Zeitaufwand", "per_filing": "Je Erklärung", "value_based": "Wertbasiert" } },
     "mandates.next_step_due": { "label": "Nächster Schritt bis" },
     "mandates.lost_reason": {
-      "label": "Grund",
+      "label": "Verlustgrund",
       "options": { "capacity": "Keine Kapazität", "risk_declined": "Wegen Risiko abgelehnt", "scope_mismatch": "Umfang passt nicht", "price": "Preis", "chose_other_advisor": "Anderen Berater gewählt", "no_response": "Keine Rückmeldung" }
     },
     "jobs.status": {
@@ -49,7 +49,7 @@
     "jobs.notice_received_on": { "label": "Bescheid eingegangen am" },
     "deadlines.kind": {
       "label": "Art",
-      "options": { "vat_return": "Umsatzsteuer-Voranmeldung", "vat_payment": "Umsatzsteuerzahlung", "payroll_report": "Lohnmeldung", "annual_accounts": "Jahresabschluss", "tax_return": "Steuererklärung", "appeal": "Einspruchsfrist", "payment": "Zahlung", "aml_review": "Risikoprüfung", "other": "Sonstiges" }
+      "options": { "vat_return": "Umsatzsteuer-Voranmeldung", "vat_payment": "Umsatzsteuerzahlung", "payroll_report": "Lohnsteuer-Anmeldung", "annual_accounts": "Jahresabschluss", "tax_return": "Steuererklärung", "appeal": "Einspruchsfrist", "payment": "Zahlung", "aml_review": "Risikoprüfung", "other": "Sonstiges" }
     },
     "deadlines.due_date": { "label": "Fällig am" },
     "deadlines.pre_deadline": { "label": "Vorfrist" },
