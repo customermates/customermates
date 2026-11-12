@@ -224,7 +224,7 @@ describe("signup journey cookie", () => {
   });
 
   it("reads a cookie written before templates existed", () => {
-    const { template: _template, ...legacy } = journey;
+    const legacy = Object.fromEntries(Object.entries(journey).filter(([key]) => key !== "template"));
     const encoded = Buffer.from(JSON.stringify(legacy)).toString("base64url");
 
     expect(decodeSignupJourneyCookie(encoded)).toEqual(journey);

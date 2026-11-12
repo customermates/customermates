@@ -10,11 +10,7 @@ import { useTranslations } from "next-intl";
 
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { AskAiAction } from "@/components/ui/ask-ai-action";
-import {
-  TopBarActionButton,
-  TopBarPrimaryButton,
-  TopBarMenuButton,
-} from "@/components/shared/top-bar-action-buttons";
+import { TopBarActionButton, TopBarPrimaryButton, TopBarMenuButton } from "@/components/shared/top-bar-action-buttons";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { DataViewDisplayOptions } from "./header/display-options";

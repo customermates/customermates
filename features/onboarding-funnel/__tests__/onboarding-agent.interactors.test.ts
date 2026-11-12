@@ -8,10 +8,7 @@ import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 
 import { GetOnboardingAgentStatusInteractor } from "../get-onboarding-agent-status.interactor";
-import {
-  RecordAgentFirstCallInteractor,
-  forgetRecordedAgentFirstCalls,
-} from "../record-agent-first-call.interactor";
+import { RecordAgentFirstCallInteractor, forgetRecordedAgentFirstCalls } from "../record-agent-first-call.interactor";
 
 const owner = createMockUser({ onboardingWizardCompletedAt: null });
 

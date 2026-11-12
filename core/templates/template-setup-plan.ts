@@ -8,7 +8,10 @@ import { isTemplateSlug } from "./template-slugs";
 
 export type TemplateSetupPlanOptions = { language: string; currency: string };
 
-export function templateSetupPlan(slug: string | null | undefined, options: TemplateSetupPlanOptions): SetupPlan | null {
+export function templateSetupPlan(
+  slug: string | null | undefined,
+  options: TemplateSetupPlanOptions,
+): SetupPlan | null {
   if (!isTemplateSlug(slug)) return null;
   const { plan } = compileTemplate(getTemplate(slug), getTemplateText(slug, options.language));
   const parsed = SetupPlanSchema.safeParse({ ...plan, workspace: { ...plan.workspace, currency: options.currency } });

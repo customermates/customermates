@@ -371,7 +371,11 @@ export function PublicBookingView({ page, token }: { page: PublicBookingPage; to
       ) : null}
 
       {slot ? (
-        <form className="flex flex-col gap-4" data-booking-form="" onSubmit={(event) => runUserAction(() => submit(event))}>
+        <form
+          className="flex flex-col gap-4"
+          data-booking-form=""
+          onSubmit={(event) => runUserAction(() => submit(event))}
+        >
           <p className="text-sm font-medium">{dayLabel(slot.startsAt)}</p>
 
           <div className="space-y-1.5">
