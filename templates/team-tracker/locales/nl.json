@@ -2,10 +2,10 @@
   "locale": "nl",
   "name": "Teamtaken",
   "summary": "Een werkoverzicht voor een klein team: projecten, taken met één eigenaar en één deadline, terugkerende taken en verzoeken van buiten het team op dezelfde lijst.",
-  "description": "Houd een team van twee tot vijftien mensen op één lijst: elke taak heeft een status, een prioriteit, een eigenaar en een deadline, en wat te laat of geblokkeerd is zie je in één oogopslag. Terugkerende taken maken zichzelf aan, verzoeken van collega's of klanten komen binnen via een formulier en een geblokkeerde of stilstaande taak herinnert zijn eigenaar. Geen sprinttool, geen Gantt-planner, geen urenregistratie en geen hr-systeem.",
+  "description": "Houd een team van twee tot vijftien mensen op één lijst: elke taak heeft een status, een prioriteit, een eigenaar en een deadline, en wat te laat of geblokkeerd is zie je in één oogopslag. Terugkerende taken maken zichzelf aan, verzoeken van collega's of klanten komen binnen via een formulier en een geblokkeerde of stilstaande taak stuurt zijn eigenaar een herinnering. Geen sprinttool, geen Gantt-planner, geen urenregistratie en geen hr-systeem.",
   "lists": {
     "requesters": { "label": "Aanvrager", "pluralLabel": "Aanvragers", "description": "De mensen buiten het team die werk vragen." },
-    "projects": { "label": "Project", "pluralLabel": "Projecten", "description": "Een bundel taken met eigenaar, gezondheid en deadline." },
+    "projects": { "label": "Project", "pluralLabel": "Projecten", "description": "Een bundel taken met eigenaar, stoplicht en deadline." },
     "tasks": { "label": "Taak", "pluralLabel": "Taken", "description": "Eén stuk werk met één eigenaar en één deadline." },
     "recurring": { "label": "Terugkerende taak", "pluralLabel": "Terugkerende taken", "description": "Een taak die elke week, maand, kwartaal of jaar terugkomt." }
   },
@@ -19,7 +19,7 @@
       "label": "Status",
       "options": { "planned": "Gepland", "active": "Actief", "on_hold": "On hold", "done": "Klaar", "cancelled": "Geannuleerd" }
     },
-    "projects.health": { "label": "Gezondheid", "options": { "on_track": "Op koers", "at_risk": "In gevaar", "off_track": "Uit koers" } },
+    "projects.health": { "label": "Stoplicht", "options": { "on_track": "Op koers", "at_risk": "Loopt risico", "off_track": "Uit koers" } },
     "projects.owner": { "label": "Eigenaar" },
     "projects.due_date": { "label": "Deadline" },
     "projects.repo_url": { "label": "Link naar de repository" },
@@ -27,7 +27,7 @@
       "label": "Status",
       "options": { "backlog": "Backlog", "todo": "Te doen", "in_progress": "In uitvoering", "in_review": "In review", "blocked": "Geblokkeerd", "done": "Klaar", "cancelled": "Geannuleerd" }
     },
-    "tasks.kind": { "label": "Soort", "options": { "task": "Taak", "bug": "Bug", "feature": "Functie", "chore": "Routinetaak", "request": "Verzoek" } },
+    "tasks.kind": { "label": "Soort", "options": { "task": "Taak", "bug": "Bug", "feature": "Feature", "chore": "Routinetaak", "request": "Verzoek" } },
     "tasks.priority": { "label": "Prioriteit", "options": { "urgent": "Urgent", "high": "Hoog", "medium": "Gemiddeld", "low": "Laag" } },
     "tasks.owner": { "label": "Eigenaar" },
     "tasks.due": { "label": "Deadline" },
@@ -35,7 +35,7 @@
     "tasks.done_on": { "label": "Klaar op" },
     "tasks.blocked_reason": { "label": "Reden van blokkade" },
     "tasks.external_url": { "label": "Link (pull request of ticket)" },
-    "recurring.cadence": { "label": "Herhaalt", "options": { "weekly": "Wekelijks", "monthly": "Maandelijks", "quarterly": "Elk kwartaal", "yearly": "Jaarlijks" } },
+    "recurring.cadence": { "label": "Herhaling", "options": { "weekly": "Wekelijks", "monthly": "Maandelijks", "quarterly": "Elk kwartaal", "yearly": "Jaarlijks" } },
     "recurring.next_due": { "label": "Volgende deadline" },
     "recurring.owner": { "label": "Eigenaar" }
   },
@@ -55,8 +55,8 @@
   "widgets": {
     "tasks_by_status": { "title": "Taken per status" },
     "open_by_priority": { "title": "Open taken per prioriteit" },
-    "overdue_tasks": { "title": "Taken over de deadline" },
-    "due_soon": { "title": "Taken met een deadline in de buurt" },
+    "overdue_tasks": { "title": "Achterstallige taken" },
+    "due_soon": { "title": "Taken met een naderende deadline" },
     "blocked_count": { "title": "Geblokkeerde taken" },
     "activity_timeline": { "title": "Recente activiteit" }
   },
@@ -70,7 +70,7 @@
     "due_tomorrow": { "title": "De eigenaar de dag voor de deadline waarschuwen" },
     "overdue_task": { "title": "De teamleider de dag na de deadline waarschuwen" },
     "blocked_stale": { "title": "De teamleider waarschuwen als een taak 3 dagen geblokkeerd blijft" },
-    "stale_in_progress": { "title": "De eigenaar herinneren als een taak 5 dagen niet is bewogen" },
+    "stale_in_progress": { "title": "De eigenaar een herinnering sturen als een taak 5 dagen stilstaat" },
     "recurring_due": { "title": "Een taak aanmaken als een terugkerende taak aan de beurt is" },
     "task_from_git": { "title": "Een taak aanmaken als de Git-dienst een gebeurtenis stuurt" },
     "request_form": { "title": "Taak en aanvrager aanmaken als het aanvraagformulier is ingediend" }
@@ -81,10 +81,10 @@
     "tasks_board_view": "De taken openen als bord per status."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-workspace een teamoverzicht in: projecten, taken met één eigenaar en één deadline, terugkerende taken, verzoeken van buiten het team en herinneringen voor werk dat te laat of geblokkeerd is.",
+    "intro": "Richt in mijn Customermates-werkruimte een teamoverzicht in: projecten, taken met één eigenaar en één deadline, terugkerende taken, verzoeken van buiten het team en herinneringen voor werk dat te laat of geblokkeerd is.",
     "questions": [
       "Hoeveel mensen telt het team en waar werken ze aan?",
-      "Welke statussen gebruikt u nu in Trello, Jira, Asana of een spreadsheet?",
+      "Welke statussen gebruik je nu in Trello, Jira, Asana of een spreadsheet?",
       "Welke taken komen elke week of maand terug en wie is eigenaar?",
       "Waar komen verzoeken vandaan en moeten ze via een formulier binnenkomen?"
     ]
