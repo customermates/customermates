@@ -2,7 +2,7 @@
   "locale": "pl",
   "name": "Kalendarz treści",
   "summary": "Jeden wiersz na materiał ze statusem, osobą odpowiedzialną, recenzentem i datą publikacji, do tego kampanie, ważne daty i cotygodniowa rutyna redakcyjna.",
-  "description": "Harmonogram publikacji dla bloga, newslettera, mediów społecznościowych i wideo: siedem statusów od pomysłu do opublikowanego, kalendarz publikacji, filar treści przy każdym materiale, kontrola oznaczenia reklamy dla treści płatnych lub otrzymanych w prezencie i sprawdzenie wyników po 30 dniach. Planuje i śledzi, nie publikuje.",
+  "description": "Kalendarz redakcyjny dla bloga, newslettera, mediów społecznościowych i wideo: siedem statusów od pomysłu do opublikowanego, kalendarz publikacji, filar treści przy każdym materiale, kontrola oznaczenia reklamy dla treści płatnych lub powstałych w zamian za produkt i sprawdzenie wyników po 30 dniach. Planuje i śledzi, nie publikuje.",
   "lists": {
     "people": { "label": "Osoba", "pluralLabel": "Osoby", "description": "Autorzy, redaktorzy, recenzenci, osoby akceptujące i goście." },
     "pieces": { "label": "Materiał", "pluralLabel": "Materiały", "description": "Jeden materiał od pomysłu do publikacji." },
@@ -23,7 +23,7 @@
       "options": { "author": "Autor", "editor": "Redaktor", "reviewer": "Recenzent", "approver": "Osoba akceptująca", "client_contact": "Kontakt po stronie klienta", "guest": "Gość lub rozmówca" }
     },
     "people.profile_url": { "label": "Link do profilu" },
-    "pieces.owner": { "label": "Odpowiedzialny" },
+    "pieces.owner": { "label": "Osoba odpowiedzialna" },
     "pieces.reviewer": { "label": "Recenzent" },
     "pieces.format": {
       "label": "Format",
@@ -63,28 +63,28 @@
     "pieces.draft_url": { "label": "Link do szkicu" },
     "pieces.target_keyword": { "label": "Słowo kluczowe" },
     "pieces.call_to_action": { "label": "Wezwanie do działania" },
-    "pieces.draft_due": { "label": "Szkic do dnia" },
-    "pieces.review_due": { "label": "Akceptacja do dnia" },
-    "pieces.publish_at": { "label": "Publikacja dnia" },
+    "pieces.draft_due": { "label": "Termin szkicu" },
+    "pieces.review_due": { "label": "Termin akceptacji" },
+    "pieces.publish_at": { "label": "Data publikacji" },
     "pieces.ad_disclosure": {
       "label": "Oznaczenie reklamy",
-      "options": { "none": "Brak", "paid_partnership": "Płatna współpraca lub reklama", "gifted_product": "Produkt otrzymany w prezencie", "affiliate_link": "Link afiliacyjny" }
+      "options": { "none": "Brak", "paid_partnership": "Płatna współpraca lub reklama", "gifted_product": "Produkt otrzymany bezpłatnie", "affiliate_link": "Link afiliacyjny" }
     },
     "pieces.disclosure_checked": { "label": "Oznaczenie sprawdzone" },
     "pieces.published_url": { "label": "Link do opublikowanego materiału" },
-    "pieces.published_on": { "label": "Opublikowano dnia" },
+    "pieces.published_on": { "label": "Data opublikowania" },
     "pieces.reach": { "label": "Zasięg" },
     "pieces.engagements": { "label": "Interakcje" },
     "pieces.clicks": { "label": "Kliknięcia" },
     "pieces.killed_reason": {
       "label": "Powód odrzucenia",
-      "options": { "off_topic": "Poza tematem", "duplicate": "Duplikat", "no_owner": "Brak odpowiedzialnego", "stale": "Nieaktualny", "replaced": "Zastąpiony", "client_declined": "Klient odrzucił" }
+      "options": { "off_topic": "Poza tematem", "duplicate": "Duplikat", "no_owner": "Brak osoby odpowiedzialnej", "stale": "Nieaktualny", "replaced": "Zastąpiony", "client_declined": "Klient odrzucił" }
     },
     "campaigns.goal": { "label": "Cel" },
-    "campaigns.start_date": { "label": "Początek" },
-    "campaigns.end_date": { "label": "Koniec" },
+    "campaigns.start_date": { "label": "Data rozpoczęcia" },
+    "campaigns.end_date": { "label": "Data zakończenia" },
     "campaigns.budget": { "label": "Budżet" },
-    "campaigns.owner": { "label": "Odpowiedzialny" },
+    "campaigns.owner": { "label": "Osoba odpowiedzialna" },
     "key_dates.date": { "label": "Data" },
     "key_dates.date_type": {
       "label": "Rodzaj",
@@ -94,7 +94,7 @@
     "actions.kind": {
       "label": "Rodzaj",
       "options": {
-        "write_brief": "Napisać brief",
+        "write_brief": "Napisanie briefu",
         "draft": "Szkic",
         "review": "Przegląd",
         "revise": "Poprawki",
@@ -123,15 +123,15 @@
   "widgets": {
     "publishing_calendar": { "title": "Kalendarz publikacji" },
     "pieces_by_stage": { "title": "Materiały wg statusu" },
-    "open_pieces_by_owner": { "title": "Otwarte materiały na osobę" },
+    "open_pieces_by_owner": { "title": "Otwarte materiały wg osoby odpowiedzialnej" },
     "pieces_by_pillar": { "title": "Materiały wg filaru" },
-    "published_per_month": { "title": "Opublikowane miesięcznie" },
+    "published_per_month": { "title": "Opublikowane w poszczególnych miesiącach" },
     "reach_by_pillar": { "title": "Zasięg wg filaru" },
     "key_dates_coming": { "title": "Nadchodzące ważne daty" }
   },
   "knowledgePages": {
     "content_pillars": { "title": "Filary treści i proporcje", "sections": ["Filary i udział każdego z nich", "Co należy do którego filaru"] },
-    "editorial_rhythm": { "title": "Rytm publikacji i cotygodniowe spotkanie redakcyjne", "sections": ["Sloty dla każdego kanału", "Opublikowane, zagrożone, zablokowane", "Statusy i kto je zmienia"] },
+    "editorial_rhythm": { "title": "Rytm publikacji i cotygodniowe spotkanie redakcyjne", "sections": ["Terminy publikacji dla każdego kanału", "Opublikowane, zagrożone, zablokowane", "Statusy i kto je zmienia"] },
     "review_and_approval": { "title": "Czas na przegląd i akceptację", "sections": ["Kto przegląda i w ile dni", "Akceptacja klienta, gdy jest potrzebna"] },
     "disclosure_checklist": { "title": "Lista kontrolna oznaczania reklam i współpracy", "sections": ["Kiedy post trzeba oznaczyć", "Sformułowanie i miejsce oznaczenia", "Kontrola przed publikacją"] }
   },
@@ -139,11 +139,11 @@
     "review_task": { "title": "Utwórz zadanie przeglądu, gdy materiał trafia do akceptacji" },
     "schedule_task": { "title": "Utwórz zadanie zaplanowania, gdy materiał zostaje zaakceptowany" },
     "at_risk_before_publish": { "title": "Zgłoś materiał, który trzy dni przed publikacją jest wciąż szkicem" },
-    "measure_after_30_days": { "title": "Utwórz sprawdzenie wyników po publikacji materiału" },
+    "measure_after_30_days": { "title": "Utwórz zadanie sprawdzenia wyników po publikacji materiału" },
     "stale_piece": { "title": "Przejrzyj materiał, który od 14 dni stoi w pracy lub akceptacji" },
     "weekly_editorial_prep": { "title": "Przygotuj w każdy poniedziałek spotkanie redakcyjne" },
     "plan_for_key_date": { "title": "Zaplanuj treści trzy tygodnie przed ważną datą" },
-    "idea_form_piece": { "title": "Utwórz materiał z pomysłu przesłanego formularzem" }
+    "idea_form_piece": { "title": "Utwórz materiał z pomysłu przesłanego przez formularz" }
   },
   "acceptanceChecks": {
     "stage_field": "Każdy materiał ma jeden z siedmiu statusów.",
@@ -156,7 +156,7 @@
       "Co publikujesz, w jakich kanałach i jak często?",
       "Kto pisze, kto przegląda i kto akceptuje? Czy uczestniczy klient?",
       "Jakich filarów treści używasz i które z siedmiu statusów są Ci potrzebne?",
-      "Jakie narzędzie publikuje treści? Zostają tam, a tutaj trzymane są tylko odnośnik i data."
+      "Jakie narzędzie publikuje treści? Zostają tam, a tutaj zapisujemy tylko link i datę."
     ]
   }
 }

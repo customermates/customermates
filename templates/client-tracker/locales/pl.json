@@ -1,6 +1,6 @@
 {
   "locale": "pl",
-  "name": "Kartoteka klientów",
+  "name": "Baza klientów",
   "summary": "Jeden wiersz na klienta, jeden opiekun, jeden następny krok z terminem, do tego cotygodniowy przegląd i data przeglądu danych dla każdego zakończonego klienta.",
   "description": "Zwięzła, zdyscyplinowana baza klientów: siedem statusów, data ostatniego kontaktu, termin następnego kroku, który napędza pracę, rytm przeglądów dla każdego segmentu i data przeglądu danych dla klientów zakończonych. Osoby kontaktowe, zadania z terminem i powiązane rozmowy są obok każdego klienta.",
   "lists": {
@@ -12,7 +12,7 @@
       "label": "Status",
       "options": {
         "prospect": "Potencjalny",
-        "onboarding": "Wdrożenie",
+        "onboarding": "W trakcie wdrożenia",
         "active": "Aktywny",
         "waiting_on_client": "Oczekuje na klienta",
         "at_risk": "Zagrożony",
@@ -36,7 +36,7 @@
         "other": "Inne"
       }
     },
-    "clients.client_since": { "label": "Klientem od" },
+    "clients.client_since": { "label": "Klient od" },
     "clients.last_contact": { "label": "Ostatni kontakt" },
     "clients.next_step": { "label": "Następny krok" },
     "clients.next_step_due": { "label": "Termin następnego kroku" },
@@ -49,8 +49,8 @@
     "clients.website": { "label": "Strona internetowa" },
     "clients.address": { "label": "Adres" },
     "clients.registration_id": { "label": "NIP" },
-    "clients.closed_on": { "label": "Zakończono dnia" },
-    "clients.data_review_on": { "label": "Przegląd danych dnia" },
+    "clients.closed_on": { "label": "Data zakończenia współpracy" },
+    "clients.data_review_on": { "label": "Data przeglądu danych" },
     "contacts.job_title": { "label": "Stanowisko" },
     "contacts.contact_role": {
       "label": "Rola",
@@ -88,7 +88,7 @@
     "overdue_next_step": { "name": "Zaległe następne kroki" },
     "waiting_on_client": { "name": "Oczekuje na klienta" },
     "at_risk": { "name": "Zagrożeni" },
-    "data_review_due": { "name": "Przegląd danych do zrobienia" },
+    "data_review_due": { "name": "Do przeglądu danych" },
     "actions_all": { "name": "Wszystkie zadania" },
     "contacts_all": { "name": "Wszystkie osoby kontaktowe" }
   },
@@ -97,18 +97,18 @@
     "review_calendar": { "title": "Przeglądy klientów w tym miesiącu" },
     "clients_by_status": { "title": "Klienci wg statusu" },
     "clients_by_segment": { "title": "Klienci wg segmentu" },
-    "clients_per_owner": { "title": "Klienci na opiekuna" },
+    "clients_per_owner": { "title": "Klienci wg opiekuna" },
     "active_without_next_step": { "title": "Aktywni klienci bez następnego kroku" },
     "waiting_on_client_count": { "title": "Oczekuje na klienta" },
     "at_risk_count": { "title": "Zagrożeni" },
     "value_by_segment": { "title": "Wartość roczna wg segmentu" },
-    "new_clients_per_month": { "title": "Nowi klienci miesięcznie" },
+    "new_clients_per_month": { "title": "Nowi klienci w poszczególnych miesiącach" },
     "overdue_actions": { "title": "Zaległe zadania" },
     "activity_timeline": { "title": "Ostatnia aktywność" }
   },
   "knowledgePages": {
     "playbook": {
-      "title": "Instrukcja kartoteki klientów",
+      "title": "Instrukcja bazy klientów",
       "sections": ["Jeden wiersz, jeden opiekun, jeden następny krok z terminem", "Co oznacza każdy status", "Aktualizuj wiersz tego samego dnia po każdej rozmowie lub ofercie"]
     },
     "weekly_review": {
@@ -124,7 +124,7 @@
       "sections": ["Kontakt kontrolny po okresie ciszy", "Ponaglenie klienta, który ma odpowiedzieć", "Zaproszenie na przegląd", "Reaktywacja po 90 dniach", "Uprzejme zamknięcie"]
     },
     "data_retention": {
-      "title": "Przechowywanie danych i RODO w kartotece klientów",
+      "title": "Przechowywanie danych i RODO w bazie klientów",
       "sections": ["Cel i przechowywane dane", "Okres przechowywania w zależności od kraju", "Dowód zgody", "Odpowiedź na wniosek o dostęp lub usunięcie"]
     }
   },
@@ -151,7 +151,7 @@
     },
     "closed_client_dates": {
       "title": "Ustaw datę zakończenia i datę przeglądu danych",
-      "description": "Gdy klient zostaje zakończony, pole Zakończono dnia dostaje dzisiejszą datę, a Przegląd danych dnia datę za trzy lata. Dostosuj okres do swojego kraju."
+      "description": "Gdy klient dostaje status Zakończony, pole Data zakończenia współpracy dostaje dzisiejszą datę, a Data przeglądu danych datę za trzy lata. Dostosuj okres do swojego kraju."
     },
     "closed_client_data_review": {
       "title": "Przejrzyj dane tego zakończonego klienta",
@@ -163,7 +163,7 @@
     },
     "enquiry_form_records": {
       "title": "Utwórz klienta i osobę kontaktową z zapytania",
-      "description": "Publiczny formularz zapytania tworzy klienta jako Potencjalnego oraz jego osobę kontaktową."
+      "description": "Publiczny formularz zapytania tworzy klienta ze statusem Potencjalny oraz jego osobę kontaktową."
     },
     "enquiry_form_reply": {
       "title": "Odpowiedz na zapytanie",
@@ -180,16 +180,16 @@
     "clients_default_view": "Lista klientów otwiera się posortowana według terminu następnego kroku.",
     "overdue_widget": "Pulpit pokazuje, ile zadań jest zaległych.",
     "chase_rule": "Klient przeniesiony do statusu Oczekuje na klienta dostaje zadanie ponaglenia.",
-    "playbook_page": "Baza wiedzy zawiera instrukcję kartoteki klientów."
+    "playbook_page": "Baza wiedzy zawiera instrukcję bazy klientów."
   },
   "prompt": {
-    "intro": "Skonfiguruj kartotekę klientów w mojej przestrzeni roboczej Customermates: jeden wiersz na klienta z opiekunem, statusem, datą ostatniego kontaktu i następnym krokiem z terminem, do tego osoby kontaktowe, zadania z terminem, cotygodniowy przegląd i data przeglądu danych dla klientów zakończonych.",
+    "intro": "Skonfiguruj bazę klientów w mojej przestrzeni roboczej Customermates: jeden wiersz na klienta z opiekunem, statusem, datą ostatniego kontaktu i następnym krokiem z terminem, do tego osoby kontaktowe, zadania z terminem, cotygodniowy przegląd i data przeglądu danych dla klientów zakończonych.",
     "questions": [
-      "Ilu klientów obsługujesz dziś i kto jeszcze pracuje na kartotece?",
+      "Ilu klientów obsługujesz dziś i kto jeszcze pracuje w bazie?",
       "Jakich statusów klientów już używasz? Czy któryś z siedmiu zmienić lub pominąć?",
       "Jak często chcesz przeglądać klientów kluczowych, stałych i okazjonalnych?",
       "W jakim kraju pracujesz, aby ustawić okres przechowywania danych klientów zakończonych?",
-      "Czy faktury trzymasz gdzie indziej? Jeśli tak, w jakim narzędziu, żeby nie dodawać tu pól rozliczeniowych."
+      "Czy faktury prowadzisz w innym narzędziu? Jeśli tak, w jakim, żebyśmy nie dodawali tu pól rozliczeniowych."
     ]
   }
 }
