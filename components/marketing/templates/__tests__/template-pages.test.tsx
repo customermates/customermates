@@ -188,6 +188,10 @@ describe("a template page", () => {
     expect(html).toContain('"dateModified":"2026-11-12T00:00:00.000Z"');
   });
 
+  it("emits no HowTo data, which Google no longer documents or shows", async () => {
+    expect(await detail()).not.toContain('"@type":"HowTo"');
+  });
+
   it("offers no related templates on a proof page", async () => {
     state.index = publish("sales-pipeline", "en", "proof", publish("client-tracker", "en", "own"));
 
