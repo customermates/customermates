@@ -63,6 +63,26 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
     approvalFreeActions: ["list", "runs", "create", "update", "pause", "run_now"],
     readOnlyActions: ["list", "runs"],
   },
+  manage_rules: {
+    approvalFreeActions: ["list", "get", "runs", "preview"],
+    readOnlyActions: ["list", "get", "runs", "preview"],
+  },
+  manage_forms: {
+    approvalFreeActions: ["list", "get", "fields"],
+    readOnlyActions: ["list", "get", "fields"],
+  },
+  manage_incoming_webhooks: {
+    approvalFreeActions: ["list", "get", "fields", "test", "deliveries"],
+    readOnlyActions: ["list", "get", "fields", "test", "deliveries"],
+  },
+  schedule_meeting: {
+    approvalFreeActions: ["options", "slots"],
+    readOnlyActions: ["options", "slots"],
+  },
+  manage_booking_links: {
+    approvalFreeActions: ["list", "get"],
+    readOnlyActions: ["list", "get"],
+  },
   manage_wiki_pages: {
     approvalFreeActions: ["list", "search", "get", "gaps", "create", "update"],
     readOnlyActions: ["list", "search", "get", "gaps"],

@@ -28,12 +28,14 @@ import { manageFormsTool } from "@/features/mcp-tools/form.mcp-tools";
 import { manageIncomingWebhooksTool } from "@/features/mcp-tools/incoming-webhook.mcp-tools";
 import { manageWidgetsTool } from "@/features/mcp-tools/widget.mcp-tools";
 import { manageRoutinesTool } from "@/features/mcp-tools/routine.mcp-tools";
+import { manageRulesTool } from "@/features/mcp-tools/rule.mcp-tools";
 import { requestSupportTool } from "@/features/mcp-tools/support.mcp-tools";
 import { getOperatorUsageTool } from "@/features/mcp-tools/operator.mcp-tools";
 import { manageWikiPagesTool } from "@/features/mcp-tools/wiki.mcp-tools";
 import { exportCrmRecordsTool, importCrmRecordsTool } from "@/features/mcp-tools/data-transfer.mcp-tools";
 import { manageRecordFilesTool } from "@/features/mcp-tools/record-file.mcp-tools";
 import { manageConnectedAccountsTool } from "@/features/mcp-tools/connected-account.mcp-tools";
+import { manageBookingLinksTool, scheduleMeetingTool } from "@/features/mcp-tools/calendar-write.mcp-tools";
 import {
   connectMessagingAccountTool,
   discardMessageDraftTool,
@@ -106,6 +108,8 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
     manageConversationRecordsTool,
     connectMessagingAccountTool,
     manageConnectedAccountsTool,
+    scheduleMeetingTool,
+    manageBookingLinksTool,
   ],
   social: [
     getSocialPostsTool,
@@ -121,7 +125,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
   ],
   docs: [searchDocsTool, getDocsPageTool],
   widgets: [manageWidgetsTool],
-  routines: [manageRoutinesTool],
+  routines: [manageRoutinesTool, manageRulesTool],
   webhooks: [manageWebhooksTool, manageIncomingWebhooksTool],
   admin: [updateMyProfileTool, manageTeamTool, manageRolesTool],
   support: [requestSupportTool],
@@ -134,7 +138,7 @@ export const MCP_OPERATOR_TOOLS: McpTool[] = [getOperatorUsageTool];
 const CLOUD_ONLY_MCP_TOOLS: ReadonlySet<McpTool> = new Set([
   ...MCP_TOOL_GROUPS.messaging.filter((tool) => tool !== getActivitiesTool),
   ...MCP_TOOL_GROUPS.social,
-  ...MCP_TOOL_GROUPS.routines,
+  ...MCP_TOOL_GROUPS.routines.filter((tool) => tool !== manageRulesTool),
 ]);
 
 function isMcpToolOffered(tool: McpTool, appMode: AppMode): boolean {
