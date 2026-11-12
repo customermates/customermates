@@ -286,7 +286,7 @@ test.describe("self-hosted onboarding", () => {
     await expect(cloud).toContainText("Mate runs in Customermates Cloud.");
     await page.screenshot({ path: testInfo.outputPath("self-hosted-goal.png"), fullPage: true });
 
-    await clickHydrated(page.getByRole("radio", { name: new RegExp(`^${goal.cloud.title}`) }));
+    await clickHydrated(page.getByRole("radio", { name: goal.cloud.title }));
     await clickHydrated(page.locator("#onboarding-goal-continue"));
     await expect(page.getByRole("status").filter({ hasText: goal.cloud.opened })).toBeVisible();
     await expect(heading(page, steps.goal.titleSelfHosted)).toBeVisible();
