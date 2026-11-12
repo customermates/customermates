@@ -1,0 +1,97 @@
+{
+  "locale": "en",
+  "name": "Custom CRM",
+  "summary": "A CRM built around how you work: contacts, organizations, opportunities and dated actions, with an import from your spreadsheet or old tool and a weekly review.",
+  "description": "Start from the four lists every CRM needs and change them to fit: stages, fields and views are yours. Meant for people leaving a spreadsheet, Notion, Airtable or Trello who want their data in a CRM without a project. It keeps a note of where each record was imported from.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "The people you deal with." },
+    "organizations": { "label": "Organization", "pluralLabel": "Organizations", "description": "Companies and other bodies." },
+    "opportunities": { "label": "Opportunity", "pluralLabel": "Opportunities", "description": "One deal from lead to won or lost." }
+  },
+  "fields": {
+    "opportunities.stage": {
+      "label": "Stage",
+      "options": { "lead": "Lead", "qualified": "Qualified", "proposal": "Proposal", "negotiation": "Negotiation", "won": "Won", "lost": "Lost" }
+    },
+    "contacts.job_title": { "label": "Job title" },
+    "contacts.contact_role": {
+      "label": "Role",
+      "options": { "decision_maker": "Decision maker", "influencer": "Influencer", "user": "User", "billing": "Billing", "other": "Other" }
+    },
+    "contacts.language": { "label": "Language" },
+    "contacts.last_contact": { "label": "Last contact" },
+    "contacts.consent": { "label": "Consent to contact" },
+    "organizations.relationship": {
+      "label": "Relationship",
+      "options": { "prospect": "Prospect", "customer": "Customer", "former_customer": "Former customer", "partner": "Partner", "other": "Other" }
+    },
+    "organizations.owner": { "label": "Owner" },
+    "organizations.source": {
+      "label": "Source",
+      "options": { "referral": "Referral", "website": "Website", "event": "Event", "outbound": "Outbound", "import": "Import", "other": "Other" }
+    },
+    "organizations.website": { "label": "Website" },
+    "organizations.address": { "label": "Address" },
+    "organizations.imported_from": { "label": "Imported from" },
+    "opportunities.owner": { "label": "Owner" },
+    "opportunities.expected_close": { "label": "Expected close" },
+    "opportunities.next_step": { "label": "Next step" },
+    "opportunities.next_step_due": { "label": "Next step due" },
+    "opportunities.lost_reason": {
+      "label": "Lost reason",
+      "options": { "price": "Price", "competitor": "Competitor", "no_decision": "No decision", "timing": "Timing", "no_response": "No response", "not_a_fit": "Not a fit", "other": "Other" }
+    },
+    "opportunities.weighted_value": { "label": "Weighted value" },
+    "actions.kind": {
+      "label": "Kind",
+      "options": { "call": "Call", "email": "Email", "meeting": "Meeting", "follow_up": "Follow-up", "review": "Review", "other": "Other" }
+    }
+  },
+  "relationships": {
+    "contact_organization": { "sourceLabel": "Organization", "targetLabel": "Contacts" },
+    "opportunity_organization": { "sourceLabel": "Organization", "targetLabel": "Opportunities" },
+    "action_opportunity": { "sourceLabel": "Opportunity", "targetLabel": "Actions" }
+  },
+  "views": {
+    "pipeline_board": { "name": "Pipeline" },
+    "opportunities_all": { "name": "All opportunities" },
+    "no_next_step": { "name": "No next step" },
+    "organizations_all": { "name": "All organizations" },
+    "contacts_all": { "name": "All contacts" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Open opportunities by stage" },
+    "open_value": { "title": "Open value" },
+    "open_weighted_value": { "title": "Open weighted value" },
+    "lost_reasons": { "title": "Lost reasons" },
+    "deals_without_next_step": { "title": "Deals without a next step" }
+  },
+  "knowledgePages": {
+    "how_we_use_this_crm": { "title": "How we use this CRM", "sections": ["What goes in and who updates it", "Stages and when a deal moves"] },
+    "data_entry_rules": { "title": "Data entry rules", "sections": ["Names, emails and one record per person", "A next step with a date on every open deal"] },
+    "import_notes": { "title": "Import notes: what came from where", "sections": ["Source tool and export date", "What did not travel and why"] }
+  },
+  "rules": {
+    "next_action_per_stage": { "title": "Create a follow-up Action when an opportunity changes stage" },
+    "set_a_next_step": { "title": "Ask for a next step on every open opportunity that has none" },
+    "next_step_notice": { "title": "Tell the owner when a next step is due" },
+    "expected_close_passed": { "title": "Review an open opportunity the day after its expected close" },
+    "weekly_review": { "title": "Run the weekly review every Friday" },
+    "enquiry_form_records": { "title": "Create the contact, organization and opportunity from an enquiry form" },
+    "webhook_upsert": { "title": "Create or update records from the old tool through an incoming webhook" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Every opportunity has a stage.",
+    "board_view": "The pipeline opens as a board by stage with totals.",
+    "how_we_use_page": "The Knowledge Base explains how the team uses the CRM."
+  },
+  "prompt": {
+    "intro": "Set up a custom CRM in my Customermates workspace: contacts, organizations, opportunities with stages and dated actions, an import from my spreadsheet or old tool and a weekly review.",
+    "questions": [
+      "Which tool or spreadsheet do your records come from, and can you export it?",
+      "What stages does a deal go through in your business?",
+      "Which fields do you really use today, and which can you leave behind?",
+      "Who works in the CRM, and who owns which records?"
+    ]
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "locale": "es",
+  "name": "CRM a medida",
+  "summary": "Un CRM construido en torno a tu forma de trabajar: contactos, empresas, oportunidades y tareas con fecha, con una importación desde tu hoja de cálculo o tu herramienta anterior y una revisión semanal.",
+  "description": "Parte de las cuatro listas que necesita todo CRM y adáptalas: etapas, campos y vistas son tuyos. Pensado para quien deja una hoja de Excel, Notion, Airtable o Trello y quiere sus datos en un CRM sin montar un proyecto. Anota de dónde se importó cada registro.",
+  "lists": {
+    "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Las personas con las que tratas." },
+    "organizations": { "label": "Empresa", "pluralLabel": "Empresas", "description": "Sociedades y otras entidades." },
+    "opportunities": { "label": "Oportunidad", "pluralLabel": "Oportunidades", "description": "Una oportunidad del lead a ganada o perdida." }
+  },
+  "fields": {
+    "opportunities.stage": {
+      "label": "Etapa",
+      "options": { "lead": "Lead", "qualified": "Calificado", "proposal": "Propuesta", "negotiation": "Negociación", "won": "Ganada", "lost": "Perdida" }
+    },
+    "contacts.job_title": { "label": "Cargo" },
+    "contacts.contact_role": {
+      "label": "Función",
+      "options": { "decision_maker": "Decisor", "influencer": "Prescriptor", "user": "Usuario", "billing": "Facturación", "other": "Otro" }
+    },
+    "contacts.language": { "label": "Idioma" },
+    "contacts.last_contact": { "label": "Última interacción" },
+    "contacts.consent": { "label": "Consentimiento de contacto" },
+    "organizations.relationship": {
+      "label": "Relación",
+      "options": { "prospect": "Potencial", "customer": "Cliente", "former_customer": "Excliente", "partner": "Socio", "other": "Otro" }
+    },
+    "organizations.owner": { "label": "Responsable" },
+    "organizations.source": {
+      "label": "Origen",
+      "options": { "referral": "Recomendación", "website": "Sitio web", "event": "Evento", "outbound": "Prospección", "import": "Importación", "other": "Otro" }
+    },
+    "organizations.website": { "label": "Sitio web" },
+    "organizations.address": { "label": "Dirección" },
+    "organizations.imported_from": { "label": "Importado desde" },
+    "opportunities.owner": { "label": "Responsable" },
+    "opportunities.expected_close": { "label": "Cierre previsto" },
+    "opportunities.next_step": { "label": "Siguiente paso" },
+    "opportunities.next_step_due": { "label": "Fecha del siguiente paso" },
+    "opportunities.lost_reason": {
+      "label": "Motivo de pérdida",
+      "options": { "price": "Precio", "competitor": "Competidor", "no_decision": "Sin decisión", "timing": "Momento", "no_response": "Sin respuesta", "not_a_fit": "No encaja", "other": "Otro" }
+    },
+    "opportunities.weighted_value": { "label": "Valor ponderado" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "call": "Llamada", "email": "Correo", "meeting": "Reunión", "follow_up": "Seguimiento", "review": "Revisión", "other": "Otro" }
+    }
+  },
+  "relationships": {
+    "contact_organization": { "sourceLabel": "Empresa", "targetLabel": "Contactos" },
+    "opportunity_organization": { "sourceLabel": "Empresa", "targetLabel": "Oportunidades" },
+    "action_opportunity": { "sourceLabel": "Oportunidad", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "pipeline_board": { "name": "Pipeline" },
+    "opportunities_all": { "name": "Todas las oportunidades" },
+    "no_next_step": { "name": "Sin siguiente paso" },
+    "organizations_all": { "name": "Todas las empresas" },
+    "contacts_all": { "name": "Todos los contactos" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Oportunidades abiertas por etapa" },
+    "open_value": { "title": "Valor abierto" },
+    "open_weighted_value": { "title": "Valor ponderado abierto" },
+    "lost_reasons": { "title": "Motivos de pérdida" },
+    "deals_without_next_step": { "title": "Oportunidades sin siguiente paso" }
+  },
+  "knowledgePages": {
+    "how_we_use_this_crm": { "title": "Cómo usamos este CRM", "sections": ["Qué entra y quién lo actualiza", "Etapas y cuándo avanza una oportunidad"] },
+    "data_entry_rules": { "title": "Reglas de entrada de datos", "sections": ["Nombres, correos y un registro por persona", "Un siguiente paso con fecha en cada oportunidad abierta"] },
+    "import_notes": { "title": "Notas de importación: qué vino de dónde", "sections": ["Herramienta de origen y fecha de exportación", "Qué no se trasladó y por qué"] }
+  },
+  "rules": {
+    "next_action_per_stage": { "title": "Crear una tarea de seguimiento cuando una oportunidad cambia de etapa" },
+    "set_a_next_step": { "title": "Pedir un siguiente paso en cada oportunidad abierta que no lo tenga" },
+    "next_step_notice": { "title": "Avisar al responsable cuando vence un siguiente paso" },
+    "expected_close_passed": { "title": "Revisar una oportunidad abierta el día después de su cierre previsto" },
+    "weekly_review": { "title": "Hacer la revisión semanal cada viernes" },
+    "enquiry_form_records": { "title": "Crear contacto, empresa y oportunidad desde un formulario de consulta" },
+    "webhook_upsert": { "title": "Crear o actualizar registros de la herramienta anterior mediante un webhook entrante" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada oportunidad tiene una etapa.",
+    "board_view": "El pipeline se abre como tablero por etapa, con totales.",
+    "how_we_use_page": "La base de conocimiento explica cómo usa el equipo el CRM."
+  },
+  "prompt": {
+    "intro": "Configura un CRM a medida en mi espacio de trabajo de Customermates: contactos, empresas, oportunidades con etapas y tareas con fecha, una importación desde mi hoja de cálculo o mi herramienta anterior y una revisión semanal.",
+    "questions": [
+      "¿De qué herramienta u hoja de cálculo vienen tus registros y se puede exportar?",
+      "¿Por qué etapas pasa una oportunidad en tu negocio?",
+      "¿Qué campos usas de verdad hoy y cuáles puedes dejar atrás?",
+      "¿Quién trabaja en el CRM y quién es responsable de qué registros?"
+    ]
+  }
+}

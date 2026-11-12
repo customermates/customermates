@@ -1,0 +1,97 @@
+{
+  "locale": "it",
+  "name": "CRM su misura",
+  "summary": "Un CRM costruito intorno al tuo modo di lavorare: contatti, aziende, trattative e attività con scadenza, con un’importazione dal tuo foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
+  "description": "Parti dalle quattro liste di cui ogni CRM ha bisogno e adattale: fasi, campi e viste sono tuoi. Pensato per chi lascia un foglio Excel, Notion, Airtable o Trello e vuole i propri dati in un CRM senza un progetto. Tiene nota di dove è stato importato ogni record.",
+  "lists": {
+    "contacts": { "label": "Contatto", "pluralLabel": "Contatti", "description": "Le persone con cui hai a che fare." },
+    "organizations": { "label": "Azienda", "pluralLabel": "Aziende", "description": "Società e altri enti." },
+    "opportunities": { "label": "Trattativa", "pluralLabel": "Trattative", "description": "Una trattativa dal contatto a vinta o persa." }
+  },
+  "fields": {
+    "opportunities.stage": {
+      "label": "Fase",
+      "options": { "lead": "Nuovo contatto", "qualified": "Qualificato", "proposal": "Preventivo", "negotiation": "Negoziazione", "won": "Vinta", "lost": "Persa" }
+    },
+    "contacts.job_title": { "label": "Ruolo aziendale" },
+    "contacts.contact_role": {
+      "label": "Funzione",
+      "options": { "decision_maker": "Decisore", "influencer": "Influenzatore", "user": "Utilizzatore", "billing": "Amministrazione", "other": "Altro" }
+    },
+    "contacts.language": { "label": "Lingua" },
+    "contacts.last_contact": { "label": "Ultimo contatto" },
+    "contacts.consent": { "label": "Consenso al contatto" },
+    "organizations.relationship": {
+      "label": "Relazione",
+      "options": { "prospect": "Potenziale", "customer": "Cliente", "former_customer": "Ex cliente", "partner": "Partner", "other": "Altro" }
+    },
+    "organizations.owner": { "label": "Responsabile" },
+    "organizations.source": {
+      "label": "Provenienza",
+      "options": { "referral": "Passaparola", "website": "Sito web", "event": "Evento", "outbound": "Contatto diretto", "import": "Importazione", "other": "Altro" }
+    },
+    "organizations.website": { "label": "Sito web" },
+    "organizations.address": { "label": "Indirizzo" },
+    "organizations.imported_from": { "label": "Importato da" },
+    "opportunities.owner": { "label": "Responsabile" },
+    "opportunities.expected_close": { "label": "Chiusura prevista" },
+    "opportunities.next_step": { "label": "Prossimo passo" },
+    "opportunities.next_step_due": { "label": "Scadenza del prossimo passo" },
+    "opportunities.lost_reason": {
+      "label": "Motivo della perdita",
+      "options": { "price": "Prezzo", "competitor": "Concorrente", "no_decision": "Nessuna decisione", "timing": "Tempi", "no_response": "Nessuna risposta", "not_a_fit": "Non adatto", "other": "Altro" }
+    },
+    "opportunities.weighted_value": { "label": "Valore ponderato" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "call": "Chiamata", "email": "E-mail", "meeting": "Incontro", "follow_up": "Sollecito", "review": "Revisione", "other": "Altro" }
+    }
+  },
+  "relationships": {
+    "contact_organization": { "sourceLabel": "Azienda", "targetLabel": "Contatti" },
+    "opportunity_organization": { "sourceLabel": "Azienda", "targetLabel": "Trattative" },
+    "action_opportunity": { "sourceLabel": "Trattativa", "targetLabel": "Attività" }
+  },
+  "views": {
+    "pipeline_board": { "name": "Pipeline" },
+    "opportunities_all": { "name": "Tutte le trattative" },
+    "no_next_step": { "name": "Senza prossimo passo" },
+    "organizations_all": { "name": "Tutte le aziende" },
+    "contacts_all": { "name": "Tutti i contatti" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Trattative aperte per fase" },
+    "open_value": { "title": "Valore aperto" },
+    "open_weighted_value": { "title": "Valore ponderato aperto" },
+    "lost_reasons": { "title": "Motivi della perdita" },
+    "deals_without_next_step": { "title": "Trattative senza prossimo passo" }
+  },
+  "knowledgePages": {
+    "how_we_use_this_crm": { "title": "Come usiamo questo CRM", "sections": ["Che cosa vi entra e chi lo aggiorna", "Fasi e quando una trattativa avanza"] },
+    "data_entry_rules": { "title": "Regole di inserimento dei dati", "sections": ["Nomi, e-mail e un record per persona", "Un prossimo passo con data su ogni trattativa aperta"] },
+    "import_notes": { "title": "Note sull’importazione: che cosa viene da dove", "sections": ["Strumento di origine e data di esportazione", "Che cosa non è arrivato e perché"] }
+  },
+  "rules": {
+    "next_action_per_stage": { "title": "Creare un’attività di seguito quando una trattativa cambia fase" },
+    "set_a_next_step": { "title": "Chiedere un prossimo passo su ogni trattativa aperta che non ne ha" },
+    "next_step_notice": { "title": "Avvisare il responsabile quando un prossimo passo scade" },
+    "expected_close_passed": { "title": "Rivedere una trattativa aperta il giorno dopo la chiusura prevista" },
+    "weekly_review": { "title": "Fare la revisione settimanale ogni venerdì" },
+    "enquiry_form_records": { "title": "Creare contatto, azienda e trattativa da un modulo di richiesta" },
+    "webhook_upsert": { "title": "Creare o aggiornare record dal vecchio strumento tramite un webhook in entrata" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Ogni trattativa ha una fase.",
+    "board_view": "La pipeline si apre come bacheca per fase, con i totali.",
+    "how_we_use_page": "La knowledge base spiega come il team usa il CRM."
+  },
+  "prompt": {
+    "intro": "Configura un CRM su misura nel mio spazio di lavoro Customermates: contatti, aziende, trattative con fasi e attività con scadenza, un’importazione dal mio foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
+    "questions": [
+      "Da quale strumento o foglio di calcolo vengono i tuoi record e si può esportare?",
+      "Quali fasi attraversa una trattativa nella tua attività?",
+      "Quali campi usi davvero oggi e quali puoi lasciare indietro?",
+      "Chi lavora nel CRM e chi è responsabile di quali record?"
+    ]
+  }
+}
