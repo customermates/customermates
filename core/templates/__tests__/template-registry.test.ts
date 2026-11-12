@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { SHIPPED_CAPABILITIES } from "@/core/capabilities/capabilities";
 import {
   CLOUD_ONLY_CAPABILITIES,
   TEMPLATE_SLUGS,
@@ -42,9 +41,9 @@ describe("template registry", () => {
   });
 
   it("offers nothing while no capability has shipped", () => {
-    expect(SHIPPED_CAPABILITIES.size).toBe(0);
-    for (const slug of TEMPLATE_SLUGS) expect(isTemplateOffered(slug, { deployment: "cloud" })).toBe(false);
-    expect(listTemplates({ locale: "en", publishedOnly: true })).toEqual([]);
+    const shipped = new Set<Capability>();
+    for (const slug of TEMPLATE_SLUGS) expect(isTemplateOffered(slug, { deployment: "cloud", shipped })).toBe(false);
+    expect(listTemplates({ locale: "en", publishedOnly: true, shipped })).toEqual([]);
   });
 
   it("offers a template once every capability it requires has shipped", () => {
