@@ -2,7 +2,7 @@
   "locale": "nl",
   "name": "Sales pipeline",
   "summary": "Zeven fasen met uitstapcriteria en weging, een volgende stap met datum bij elke open deal, redenen voor gewonnen en verloren en een fasewijziging die de volgende actie aanmaakt.",
-  "description": "Een pipeline voor een klein salesteam: vijf open fasen, Gewonnen en Verloren, een gewogen waarde per deal, het besluitvormingsteam bij de deal, een reden voor verlies en een reden voor winst, en de wekelijkse controle. De wegingen zijn een weging van de pipeline, geen prognose: vervang ze door je eigen sluitingspercentages na 20 tot 30 gesloten deals.",
+  "description": "Een pipeline voor een klein salesteam: vijf open fasen, Gewonnen en Verloren, een gewogen waarde per deal, het besluitvormingsteam bij de deal, een reden voor verlies en een reden voor winst, en de wekelijkse controle. De weging is een indicatie voor de pipeline, geen prognose: vervang haar door je eigen slagingspercentages na 20 tot 30 gesloten deals.",
   "lists": {
     "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen aan de kant van de koper, met hun rol in de beslissing." },
     "accounts": { "label": "Bedrijf", "pluralLabel": "Bedrijven", "description": "De bedrijven waaraan je verkoopt." },
@@ -65,14 +65,14 @@
       }
     },
     "opportunities.first_contact_on": { "label": "Eerste contact" },
-    "opportunities.expected_close": { "label": "Verwachte afsluiting" },
+    "opportunities.expected_close": { "label": "Verwachte afsluitdatum" },
     "opportunities.closed_on": { "label": "Gesloten op" },
     "opportunities.next_step": { "label": "Volgende stap" },
     "opportunities.next_step_due": { "label": "Datum volgende stap" },
     "opportunities.decision_date": { "label": "Beslisdatum" },
     "opportunities.competitor": { "label": "Concurrent" },
     "opportunities.lost_reason": {
-      "label": "Reden verloren",
+      "label": "Reden van verlies",
       "options": {
         "price": "Prijs",
         "competitor": "Concurrent",
@@ -83,7 +83,7 @@
         "other": "Overig"
       }
     },
-    "opportunities.won_reason": { "label": "Reden gewonnen" },
+    "opportunities.won_reason": { "label": "Reden van winst" },
     "opportunities.weighted_value": { "label": "Gewogen waarde" },
     "opportunities.cycle_days": { "label": "Looptijd in dagen" },
     "actions.kind": {
@@ -125,11 +125,11 @@
     "open_value": { "title": "Open waarde" },
     "open_weighted_value": { "title": "Open gewogen waarde" },
     "won_last_90_days": { "title": "Gewonnen in de laatste 90 dagen" },
-    "lost_reasons": { "title": "Redenen verloren" },
+    "lost_reasons": { "title": "Redenen van verlies" },
     "pipeline_by_owner": { "title": "Open waarde per eigenaar" },
     "deals_without_next_step": { "title": "Deals zonder volgende stap" },
     "upcoming_actions": { "title": "Aankomende en achterstallige acties" },
-    "expected_closes": { "title": "Verwachte afsluitingen" }
+    "expected_closes": { "title": "Verwachte afsluitdata" }
   },
   "knowledgePages": {
     "stages_exit_criteria": {
@@ -146,7 +146,7 @@
     },
     "weekly_review": {
       "title": "Wekelijkse pipelinecontrole",
-      "sections": ["Deals die stilstaan", "Deals voorbij hun verwachte afsluiting", "Deals zonder volgende stap", "De top vijf op gewogen waarde"]
+      "sections": ["Deals die stilstaan", "Deals voorbij hun verwachte afsluitdatum", "Deals zonder volgende stap", "De top vijf op gewogen waarde"]
     },
     "win_loss_review": {
       "title": "Terugblik op winst en verlies",
@@ -164,23 +164,23 @@
     },
     "book_discovery_call": {
       "title": "Plan de kennismaking in",
-      "description": "Wanneer een deal Gekwalificeerd wordt, valt een afspraakactie over 3 dagen."
+      "description": "Wanneer een deal Gekwalificeerd wordt, staat over 3 dagen een afspraakactie klaar."
     },
     "send_proposal": {
       "title": "Stuur de offerte",
-      "description": "Wanneer een deal Kennismaking bereikt, valt een offerteactie over 5 dagen."
+      "description": "Wanneer een deal Kennismaking bereikt, staat over 5 dagen een offerteactie klaar."
     },
     "follow_up_proposal": {
       "title": "Volg de offerte op",
-      "description": "Drie dagen nadat de offerte is verstuurd, valt een opvolgactie."
+      "description": "Drie dagen nadat de offerte is verstuurd, staat er een opvolgactie klaar."
     },
     "second_proposal_follow_up": {
       "title": "Tweede opvolging van de offerte",
-      "description": "Tien dagen nadat de offerte is verstuurd, valt een tweede opvolgactie. Sluit hem als de prospect al heeft gereageerd."
+      "description": "Tien dagen nadat de offerte is verstuurd, staat een tweede opvolgactie klaar. Sluit die als de prospect al heeft gereageerd."
     },
     "confirm_decision": {
       "title": "Bevestig de beslisdatum en de beslisser",
-      "description": "Wanneer een deal Onderhandeling bereikt, valt een opvolgactie over 5 dagen."
+      "description": "Wanneer een deal Onderhandeling bereikt, staat over 5 dagen een opvolgactie klaar."
     },
     "won_close_date": {
       "title": "Stel de afsluitdatum in",
@@ -188,34 +188,34 @@
     },
     "won_handover": {
       "title": "Draag de gewonnen deal over",
-      "description": "De dag na winst valt een overdrachtsactie. Noteer de reden voor winst."
+      "description": "De dag na winst staat een overdrachtsactie klaar. Noteer de reden van winst."
     },
     "lost_revisit": {
       "title": "Benader de verloren deal opnieuw",
-      "description": "Negentig dagen na verlies vraagt een opvolgactie of de timing is veranderd. Noteer eerst de reden voor verlies."
+      "description": "Negentig dagen na verlies vraagt een opvolgactie of de timing is veranderd. Noteer eerst de reden van verlies."
     },
     "stale_deal_sweep": {
       "title": "Haal de stilstaande deal terug of kwalificeer hem af",
       "description": "Een open deal die 14 dagen in dezelfde fase bleef, krijgt een opvolgactie."
     },
     "expected_close_passed": {
-      "title": "Werk de verwachte afsluiting bij of sluit de deal",
+      "title": "Werk de verwachte afsluitdatum bij of sluit de deal",
       "description": "Wanneer de verwachte afsluitdatum van een open deal is verstreken, wordt een controleactie aangemaakt."
     },
     "next_step_due_notice": {
-      "title": "Meld de eigenaar dat een volgende stap aan de beurt is",
+      "title": "Informeer de eigenaar dat een volgende stap aan de beurt is",
       "description": "Op de datum van de volgende stap van een open deal krijgt de eigenaar een melding."
     },
     "weekly_pipeline_report": {
       "title": "Wekelijks pipelinerapport",
-      "description": "Elke vrijdag somt één controleactie aantallen en waarde per fase en eigenaar op, gewonnen en verloren deals met redenen en deals voorbij hun verwachte afsluiting."
+      "description": "Elke vrijdag somt één controleactie aantallen en waarde per fase en eigenaar op, gewonnen en verloren deals met redenen en deals voorbij hun verwachte afsluitdatum."
     },
     "enquiry_form_records": {
       "title": "Maak contactpersoon, bedrijf en deal aan uit een aanvraag",
       "description": "Een webformulier voor aanvragen maakt de contactpersoon, het bedrijf en een deal in de fase Nieuw aan."
     },
     "enquiry_form_notice": {
-      "title": "Meld de eigenaar de aanvraag",
+      "title": "Informeer de eigenaar over de aanvraag",
       "description": "De eigenaar krijgt een melding van elke nieuwe aanvraag."
     },
     "fill_missing_value": {
@@ -223,7 +223,7 @@
       "description": "Een deal die Kennismaking bereikt zonder waarde, krijgt een controleactie."
     },
     "fill_expected_close": {
-      "title": "Vul de verwachte afsluiting van deze deal in",
+      "title": "Vul de verwachte afsluitdatum van deze deal in",
       "description": "Een deal die Offerte verstuurd bereikt zonder verwachte afsluitdatum, krijgt een controleactie."
     }
   },
@@ -241,7 +241,7 @@
       "Wat verkoop je en hoeveel mensen verkopen het?",
       "Welke stappen doorloopt een deal van eerste contact tot handtekening? Welke van de zeven fasen passen en welke hebben een andere naam nodig?",
       "Hoe lang duurt een gemiddelde deal en na hoeveel dagen zonder beweging telt een deal als stilstaand?",
-      "Welke sluitingspercentages heb je uit eerdere deals? Zonder cijfers blijven de standaardwegingen.",
+      "Welke slagingspercentages heb je uit eerdere deals? Zonder cijfers blijven de standaardwegingen.",
       "Waar maak je offertes? Die blijven daar en hier wordt alleen een link bewaard."
     ]
   }

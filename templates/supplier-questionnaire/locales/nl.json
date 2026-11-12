@@ -2,9 +2,9 @@
   "locale": "nl",
   "name": "Leveranciersvragenlijst",
   "summary": "Een leveranciersregister met kwalificatievragenlijst, certificaten met vervaldatum, risiconiveau, goedkeuringsbeslissing en de datum van de volgende beoordeling.",
-  "description": "Kwalificeer leveranciers en onderaannemers op één plek: verstuur een vragenlijst, verzamel certificaten en verklaringen met hun geldigheidsdatum, deel elke leverancier in naar risico, leg de beslissing vast (goedkeuren, voorwaardelijk goedkeuren, escaleren, afwijzen) en zie wat als eerste verloopt. De sjabloon coördineert bewijs. Hij oordeelt niet over naleving van wetgeving, screent geen sanctielijsten of financieel risico en vervangt uw kwaliteitssysteem, ERP of documentarchief niet.",
+  "description": "Kwalificeer leveranciers en onderaannemers op één plek: verstuur een vragenlijst, verzamel certificaten en verklaringen met hun geldigheidsdatum, deel elke leverancier in naar risico, leg de beslissing vast (goedkeuren, voorwaardelijk goedkeuren, escaleren, afwijzen) en zie wat als eerste verloopt. De sjabloon coördineert bewijs. Het oordeelt niet over naleving van wetgeving, screent geen sanctielijsten of financieel risico en vervangt je kwaliteitssysteem, ERP of documentarchief niet.",
   "lists": {
-    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "Mensen bij uw leveranciers die vragenlijsten invullen en documenten sturen." },
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "Mensen bij je leveranciers die vragenlijsten invullen en documenten sturen." },
     "suppliers": { "label": "Leverancier", "pluralLabel": "Leveranciers", "description": "Elke leverancier of onderaannemer, van kandidaat tot goedgekeurd of geblokkeerd." },
     "questionnaires": { "label": "Vragenlijst", "pluralLabel": "Vragenlijsten", "description": "Eén vragenlijst aan één leverancier, met deadline en beslissing." },
     "documents": { "label": "Document", "pluralLabel": "Documenten", "description": "Certificaten, verklaringen en overeenkomsten met hun geldigheidsdatum." }
@@ -50,7 +50,7 @@
     "questionnaires.form_link": { "label": "Link naar het formulier" },
     "documents.doc_type": {
       "label": "Soort document",
-      "options": { "quality_certificate": "Kwaliteitscertificaat", "environmental_certificate": "Milieucertificaat", "security_certificate": "Beveiligingscertificaat", "insurance": "Verzekering", "tax_clearance": "Verklaring betalingsgedrag", "registration_extract": "KvK-uittreksel", "data_processing_agreement": "Verwerkersovereenkomst", "other": "Overig" }
+      "options": { "quality_certificate": "Kwaliteitscertificaat", "environmental_certificate": "Milieucertificaat", "security_certificate": "Beveiligingscertificaat", "insurance": "Verzekeringsbewijs", "tax_clearance": "Verklaring betalingsgedrag", "registration_extract": "KvK-uittreksel", "data_processing_agreement": "Verwerkersovereenkomst", "other": "Overig" }
     },
     "documents.status": {
       "label": "Status",
@@ -63,11 +63,11 @@
     "actions.kind": {
       "label": "Soort",
       "options": {
-        "send_questionnaire": "De vragenlijst versturen",
-        "chase_supplier": "De leverancier herinneren",
-        "review_answers": "De antwoorden beoordelen",
-        "request_document": "Een document opvragen",
-        "verify_document": "Een document controleren",
+        "send_questionnaire": "Vragenlijst versturen",
+        "chase_supplier": "Leverancier een herinnering sturen",
+        "review_answers": "Antwoorden beoordelen",
+        "request_document": "Document opvragen",
+        "verify_document": "Document controleren",
         "decide": "Beslissen",
         "re_evaluate": "Herbeoordelen",
         "other": "Overig"
@@ -78,7 +78,7 @@
     "contact_supplier": { "sourceLabel": "Leverancier", "targetLabel": "Contactpersonen" },
     "questionnaire_supplier": { "sourceLabel": "Leverancier", "targetLabel": "Vragenlijsten" },
     "document_supplier": { "sourceLabel": "Leverancier", "targetLabel": "Documenten" },
-    "action_supplier": { "sourceLabel": "Leverancier", "targetLabel": "Taken" }
+    "action_supplier": { "sourceLabel": "Leverancier", "targetLabel": "Acties" }
   },
   "views": {
     "suppliers_all": { "name": "Alle leveranciers" },
@@ -93,7 +93,7 @@
     "suppliers_by_risk": { "title": "Leveranciers per risiconiveau" },
     "documents_expiring": { "title": "Documenten die verlopen" },
     "questionnaires_open": { "title": "Vragenlijsten die op antwoord wachten" },
-    "reviews_coming": { "title": "Beoordelingen die eraan komen" },
+    "reviews_coming": { "title": "Komende beoordelingen" },
     "documents_expired": { "title": "Verlopen documenten" }
   },
   "knowledgePages": {
@@ -102,13 +102,13 @@
     "re_evaluation": { "title": "Planning van herbeoordelingen", "sections": ["Beoordelingsdata per risiconiveau", "Gebeurtenissen die een eerdere beoordeling uitlokken"] }
   },
   "rules": {
-    "chase_questionnaire": { "title": "De leverancier herinneren als een vragenlijst de deadline overschrijdt" },
+    "chase_questionnaire": { "title": "De leverancier een herinnering sturen als een vragenlijst de deadline overschrijdt" },
     "review_answers": { "title": "De antwoorden beoordelen 3 dagen na ontvangst van een vragenlijst" },
-    "renew_document": { "title": "Een vernieuwd document opvragen 30 dagen voor het verloopt" },
+    "renew_document": { "title": "Een vernieuwd document opvragen 30 dagen voordat het verloopt" },
     "document_expiry_notice": { "title": "De verantwoordelijke waarschuwen als een document verloopt" },
     "re_evaluate_supplier": { "title": "Een herbeoordeling starten 14 dagen voor de volgende beoordeling" },
     "decide_after_review": { "title": "Binnen 5 dagen beslissen als een leverancier in beoordeling gaat" },
-    "registration_form_records": { "title": "De leverancier en contactpersoon aanmaken als het registratieformulier is verstuurd" }
+    "registration_form_records": { "title": "De leverancier en contactpersoon aanmaken als het registratieformulier is ingediend" }
   },
   "acceptanceChecks": {
     "status_field": "Elke leverancier heeft een kwalificatiestatus.",
@@ -118,10 +118,10 @@
   "prompt": {
     "intro": "Richt in mijn Customermates-werkruimte een leveranciersregister in: leveranciers met een risiconiveau en kwalificatiestatus, vragenlijsten met deadlines en een beslissing, documenten met geldigheidsdatums en opvolgacties met een datum.",
     "questions": [
-      "Hoeveel leveranciers heeft u en hoe deelt u ze in naar risico?",
-      "Welke certificaten of verklaringen vraagt u op en hoe lang is elk geldig?",
+      "Hoeveel leveranciers heb je en hoe deel je ze in naar risico?",
+      "Welke certificaten of verklaringen vraag je op en hoe lang is elk geldig?",
       "Wie beoordeelt de antwoorden en wie keurt een leverancier goed?",
-      "Hoe vaak beoordeelt u een leverancier opnieuw? Bestanden blijven in uw documentsysteem en hier wordt alleen een link bewaard."
+      "Hoe vaak beoordeel je een leverancier opnieuw? Bestanden blijven in je documentsysteem en hier wordt alleen een link bewaard."
     ]
   }
 }
