@@ -83,7 +83,12 @@ function ports(record: AutomationRecordView | null = view()) {
   };
   const notifications = { notify: vi.fn().mockResolvedValue({ created: 2 }) };
   const webhooks = { send: vi.fn().mockResolvedValue({ sent: true, statusCode: 200 }) };
-  return { records, notifications, webhooks, runner: new AutomationEffectRunner(records as never, notifications, webhooks) };
+  return {
+    records,
+    notifications,
+    webhooks,
+    runner: new AutomationEffectRunner(records as never, notifications, webhooks),
+  };
 }
 
 function context(trigger: Record<string, unknown> = { kind: "recordCreated", typeId: TYPE }) {
@@ -128,7 +133,15 @@ describe("automation effects", () => {
       assignedUserIds: [OTHER_USER, OWNER],
       link: { relationId: RELATION, direction: "outgoing" as const },
     };
-    const trigger = { kind: "dateReached", typeId: TYPE, fieldId: STAGE, days: 1, direction: "before", atHour: 8, timezone: "Asia/Tokyo" };
+    const trigger = {
+      kind: "dateReached",
+      typeId: TYPE,
+      fieldId: STAGE,
+      days: 1,
+      direction: "before",
+      atHour: 8,
+      timezone: "Asia/Tokyo",
+    };
     const { outcomes } = await runner.run([effect], context(trigger));
     expect(outcomes[0]).toMatchObject({ kind: "createRecord", status: "applied", recordRef: { recordId: "created" } });
     const call = records.mutate.mock.calls[0]?.[0] as { idempotencyKey: string; mutation: Record<string, unknown> };
@@ -148,7 +161,16 @@ describe("automation effects", () => {
   it("gives a date and time due field a moment two days from now", async () => {
     const { records, runner } = ports();
     await runner.run(
-      [{ kind: "createRecord", typeId: TASKS, due: { fieldId: NEXT_STEP, offsetDays: 2 }, fields: [], assignToRuleOwner: false, assignedUserIds: [] }],
+      [
+        {
+          kind: "createRecord",
+          typeId: TASKS,
+          due: { fieldId: NEXT_STEP, offsetDays: 2 },
+          fields: [],
+          assignToRuleOwner: false,
+          assignedUserIds: [],
+        },
+      ],
       context(),
     );
     const call = records.mutate.mock.calls[0]?.[0] as { mutation: { fields: unknown[] } };
@@ -183,7 +205,10 @@ describe("automation effects", () => {
   it("skips a notification that has nobody to tell", async () => {
     const { notifications, runner } = ports(view({ assignedUserIds: [] }));
     const effect = { kind: "notify" as const, recipients: { assignees: true }, title: "x" };
-    const { outcomes } = await runner.run([{ ...effect, recipients: { ruleOwner: false, assignees: true, userIds: [] }, notificationKind: "ruleAlert" }], context());
+    const { outcomes } = await runner.run(
+      [{ ...effect, recipients: { ruleOwner: false, assignees: true, userIds: [] }, notificationKind: "ruleAlert" }],
+      context(),
+    );
     expect(outcomes).toEqual([{ kind: "notify", status: "skipped", detail: "noRecipients" }]);
     expect(notifications.notify).not.toHaveBeenCalled();
   });
@@ -201,9 +226,15 @@ describe("automation effects", () => {
       }),
     );
     webhooks.send.mockResolvedValueOnce({ sent: false, reason: "plan" });
-    expect((await runner.run([effect], context())).outcomes[0]).toMatchObject({ status: "skipped", detail: "webhook:plan" });
+    expect((await runner.run([effect], context())).outcomes[0]).toMatchObject({
+      status: "skipped",
+      detail: "webhook:plan",
+    });
     webhooks.send.mockResolvedValueOnce({ sent: false, statusCode: 500 });
-    expect((await runner.run([effect], context())).outcomes[0]).toMatchObject({ status: "failed", detail: "webhookStatus:500" });
+    expect((await runner.run([effect], context())).outcomes[0]).toMatchObject({
+      status: "failed",
+      detail: "webhookStatus:500",
+    });
   });
 
   it("stops at the first failed effect and skips the rest", async () => {
@@ -211,7 +242,11 @@ describe("automation effects", () => {
     records.mutate.mockResolvedValueOnce({ ok: false, message: "A required field is missing" });
     const effects = [
       { kind: "setField" as const, fields: [{ fieldId: STAGE, value: null }] },
-      { ...notify, recipients: { ruleOwner: true, assignees: false, userIds: [] }, notificationKind: "ruleAlert" as const },
+      {
+        ...notify,
+        recipients: { ruleOwner: true, assignees: false, userIds: [] },
+        notificationKind: "ruleAlert" as const,
+      },
     ];
     const { outcomes, failure } = await runner.run(effects as never, context());
     expect(failure).toBe("A required field is missing");
@@ -221,7 +256,10 @@ describe("automation effects", () => {
   it("turns an unexpected error into a failed effect instead of throwing", async () => {
     const { records, runner } = ports();
     records.read.mockRejectedValueOnce(new Error("boom"));
-    const { outcomes, failure } = await runner.run([{ kind: "setField", fields: [{ fieldId: STAGE, value: null }] }], context());
+    const { outcomes, failure } = await runner.run(
+      [{ kind: "setField", fields: [{ fieldId: STAGE, value: null }] }],
+      context(),
+    );
     expect(outcomes[0]).toEqual({ kind: "setField", status: "failed", detail: "unexpectedError" });
     expect(failure).toBe("unexpectedError");
   });
@@ -233,7 +271,9 @@ function seedRun(repo: FakeAutomationRuleRepo, ruleOverrides: Record<string, unk
     triggerKind: "recordCreated",
     typeId: TYPE,
     trigger: { kind: "recordCreated", typeId: TYPE },
-    effects: [{ ...notify, recipients: { ruleOwner: true, assignees: false, userIds: [] }, notificationKind: "ruleAlert" }],
+    effects: [
+      { ...notify, recipients: { ruleOwner: true, assignees: false, userIds: [] }, notificationKind: "ruleAlert" },
+    ],
     ...ruleOverrides,
   });
   return repo.admitRunUnscoped({
@@ -283,7 +323,8 @@ describe("running a rule", () => {
   it("re-claims a run that stayed running for longer than ten minutes", async () => {
     const runId = (await seedRun(repo)) as string;
     const stuck = repo.runs.get(runId);
-    if (stuck) repo.runs.set(runId, { ...stuck, status: "running", startedAt: new Date(NOW.getTime() - 11 * 60 * 1000) });
+    if (stuck)
+      repo.runs.set(runId, { ...stuck, status: "running", startedAt: new Date(NOW.getTime() - 11 * 60 * 1000) });
     const { interactor: instance } = interactor();
     await expect(run(instance, runId)).resolves.toEqual({ ok: true, data: { status: "applied" } });
   });
@@ -328,7 +369,11 @@ describe("running a rule", () => {
 
   it("skips when the owner no longer has any access to automations", async () => {
     const runId = (await seedRun(repo)) as string;
-    const limited = { ...createMockUserWithPermissions([{ resource: Resource.wiki, action: Action.readAll }]), id: OWNER, companyId: COMPANY };
+    const limited = {
+      ...createMockUserWithPermissions([{ resource: Resource.wiki, action: Action.readAll }]),
+      id: OWNER,
+      companyId: COMPANY,
+    };
     const { interactor: instance } = interactor();
     expect(await run(instance, runId, limited)).toEqual({ ok: true, data: { status: "skipped" } });
     expect(repo.runs.get(runId)?.outcome).toMatchObject({ reason: "ownerNotPermitted" });
@@ -377,10 +422,14 @@ describe("running a rule", () => {
   it("discards a run whose owner is gone and disables the rule", async () => {
     const runId = (await seedRun(repo)) as string;
     const discard = new DiscardAutomationRuleRunInteractor(repo, () => NOW);
-    await expect(discard.invoke({ runId, companyId: COMPANY, reason: "ownerInactive" })).resolves.toEqual({ discarded: true });
+    await expect(discard.invoke({ runId, companyId: COMPANY, reason: "ownerInactive" })).resolves.toEqual({
+      discarded: true,
+    });
     expect(repo.runs.get(runId)).toMatchObject({ status: "skipped" });
     expect(repo.rules.get(RULE)).toMatchObject({ enabled: false, disabledReason: "ownerInactive" });
-    await expect(discard.invoke({ runId, companyId: COMPANY, reason: "ownerInactive" })).resolves.toEqual({ discarded: false });
+    await expect(discard.invoke({ runId, companyId: COMPANY, reason: "ownerInactive" })).resolves.toEqual({
+      discarded: false,
+    });
   });
 });
 
@@ -455,7 +504,11 @@ describe("admitting events", () => {
       companyId: COMPANY,
       ownerUserId: OWNER,
     });
-    expect([...repo.runs.values()][0]).toMatchObject({ occurrenceKey: `event:${UUID("1")}`, recordId: RECORD, typeId: TYPE });
+    expect([...repo.runs.values()][0]).toMatchObject({
+      occurrenceKey: `event:${UUID("1")}`,
+      recordId: RECORD,
+      typeId: TYPE,
+    });
   });
 
   it("is idempotent when the same event is delivered twice", async () => {
@@ -603,15 +656,28 @@ describe("sweeping date-reached rules", () => {
 
   it("fires once the offset date and hour are reached, and only once", async () => {
     repo.candidates = [{ recordId: RECORD, fieldValue: "2026-11-13" }];
-    await expect(sweep.invoke(new Date("2026-11-12T06:59:00.000Z"))).resolves.toMatchObject({ automationRulesAdmitted: 0 });
-    await expect(sweep.invoke(new Date("2026-11-12T07:00:00.000Z"))).resolves.toMatchObject({ automationRulesAdmitted: 1 });
-    await expect(sweep.invoke(new Date("2026-11-12T07:05:00.000Z"))).resolves.toMatchObject({ automationRulesAdmitted: 0 });
+    await expect(sweep.invoke(new Date("2026-11-12T06:59:00.000Z"))).resolves.toMatchObject({
+      automationRulesAdmitted: 0,
+    });
+    await expect(sweep.invoke(new Date("2026-11-12T07:00:00.000Z"))).resolves.toMatchObject({
+      automationRulesAdmitted: 1,
+    });
+    await expect(sweep.invoke(new Date("2026-11-12T07:05:00.000Z"))).resolves.toMatchObject({
+      automationRulesAdmitted: 0,
+    });
     expect(dispatch).toHaveBeenCalledTimes(1);
-    expect([...repo.runs.values()][0]).toMatchObject({ recordId: RECORD, occurrenceKey: `date:${RECORD}:${NEXT_STEP}:2026-11-13:before1` });
+    expect([...repo.runs.values()][0]).toMatchObject({
+      recordId: RECORD,
+      occurrenceKey: `date:${RECORD}:${NEXT_STEP}:2026-11-13:before1`,
+    });
   });
 
   it("reads the hour in the rule's time zone", async () => {
-    seedRule(repo, { id: RULE_B, triggerKind: "dateReached", trigger: { ...trigger, timezone: "America/Los_Angeles" } });
+    seedRule(repo, {
+      id: RULE_B,
+      triggerKind: "dateReached",
+      trigger: { ...trigger, timezone: "America/Los_Angeles" },
+    });
     repo.candidates = [{ recordId: RECORD, fieldValue: "2026-11-13" }];
     await sweep.invoke(new Date("2026-11-12T07:30:00.000Z"));
     expect([...repo.runs.values()].map((run) => run.ruleId)).toEqual([RULE]);
@@ -643,8 +709,12 @@ describe("sweeping date-reached rules", () => {
       trigger: { ...trigger, days: 2, direction: "after", timezone: "UTC" },
     });
     repo.candidates = [{ recordId: RECORD, fieldValue: "2026-11-10T07:00:00.000Z" }];
-    await expect(sweep.invoke(new Date("2026-11-12T06:59:00.000Z"))).resolves.toMatchObject({ automationRulesAdmitted: 0 });
-    await expect(sweep.invoke(new Date("2026-11-12T07:00:00.000Z"))).resolves.toMatchObject({ automationRulesAdmitted: 1 });
+    await expect(sweep.invoke(new Date("2026-11-12T06:59:00.000Z"))).resolves.toMatchObject({
+      automationRulesAdmitted: 0,
+    });
+    await expect(sweep.invoke(new Date("2026-11-12T07:00:00.000Z"))).resolves.toMatchObject({
+      automationRulesAdmitted: 1,
+    });
   });
 
   it("skips rules without an owner and disabled rules", async () => {
@@ -661,13 +731,20 @@ describe("sweeping date-reached rules", () => {
     const orphan = new FakeAutomationRuleRepo();
     const orphanRun = (await seedRun(orphan, { ownerUserId: null })) as string;
     const old = new Date("2026-11-12T07:00:00.000Z");
-    for (const [store, id] of [[repo, queued], [orphan, orphanRun]] as const) {
+    for (const [store, id] of [
+      [repo, queued],
+      [orphan, orphanRun],
+    ] as const) {
       const run = store.runs.get(id);
       if (run) store.runs.set(id, { ...run, createdAt: old });
     }
     dispatch.mockClear();
     await expect(sweep.invoke(NOW)).resolves.toMatchObject({ automationRunsRedispatched: 1 });
-    expect(dispatch).toHaveBeenCalledWith("run-automation-rule", { runId: queued, companyId: COMPANY, ownerUserId: OWNER });
+    expect(dispatch).toHaveBeenCalledWith("run-automation-rule", {
+      runId: queued,
+      companyId: COMPANY,
+      ownerUserId: OWNER,
+    });
     const discardSweep = new SweepAutomationRulesInteractor(
       orphan,
       { dispatch } as never,

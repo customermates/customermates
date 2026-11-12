@@ -2,7 +2,8 @@ import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
-import { AutomationRunStatus, AutomationTriggerKind, NotificationKind, Status } from "@/generated/prisma";
+import type { NotificationKind } from "@/generated/prisma";
+import { AutomationRunStatus, AutomationTriggerKind, Status } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { TimeZoneSchema } from "@/core/utils/time-zone";
 import { zx } from "@/core/validation/validation.utils";
@@ -40,7 +41,11 @@ export const AUTOMATION_CONDITION_OPERATORS = [
 ] as const;
 export type AutomationConditionOperator = (typeof AUTOMATION_CONDITION_OPERATORS)[number];
 
-export const AUTOMATION_NOTIFY_KINDS = ["ruleAlert", "dueToday", "replyReceived"] as const satisfies readonly (keyof typeof NotificationKind)[];
+export const AUTOMATION_NOTIFY_KINDS = [
+  "ruleAlert",
+  "dueToday",
+  "replyReceived",
+] as const satisfies readonly (keyof typeof NotificationKind)[];
 
 const TypeIdSchema = z.uuid().describe("Stable id of the list (record type), from discover_record_types.");
 const FieldIdSchema = z.uuid().describe("Stable id of the field, from get_record_model.");
@@ -128,12 +133,7 @@ export const AutomationConditionSchema = z
     fieldId: FieldIdSchema,
     operator: z.enum(AUTOMATION_CONDITION_OPERATORS),
     value: RecordScalarSchema.optional().describe("Compared value for equals, notEquals, before and after."),
-    values: z
-      .array(RecordScalarSchema)
-      .min(1)
-      .max(50)
-      .optional()
-      .describe("Accepted values for in and notIn."),
+    values: z.array(RecordScalarSchema).min(1).max(50).optional().describe("Accepted values for in and notIn."),
     relativeDays: z
       .number()
       .int()
@@ -211,12 +211,13 @@ export const NotifyEffectSchema = z
   .strict()
   .superRefine((effect, ctx) => {
     const { ruleOwner, assignees, userIds } = effect.recipients;
-    if (!ruleOwner && !assignees && userIds.length === 0)
+    if (!ruleOwner && !assignees && userIds.length === 0) {
       ctx.addIssue({
         code: "custom",
         path: ["recipients"],
         params: { error: CustomErrorCode.automationRuleInvalid },
       });
+    }
   })
   .describe("Adds a notification to the bell of the chosen members, with an email when their preference asks for one.");
 
@@ -248,14 +249,17 @@ export function triggerHasRecord(trigger: AutomationTrigger): boolean {
   return RECORD_TRIGGER_KINDS.has(trigger.kind) || triggerTypeId(trigger) !== null;
 }
 
-export function automationRuleFinalStateIssues(
-  rule: { trigger: AutomationTrigger; conditions: AutomationCondition[]; effects: AutomationEffect[] },
-): string[] {
+export function automationRuleFinalStateIssues(rule: {
+  trigger: AutomationTrigger;
+  conditions: AutomationCondition[];
+  effects: AutomationEffect[];
+}): string[] {
   const issues: string[] = [];
   const hasRecord = triggerHasRecord(rule.trigger);
   if (!hasRecord && rule.conditions.length > 0) issues.push("conditions");
   if (!hasRecord && rule.effects.some((effect) => effect.kind === "setField")) issues.push("effects");
-  if (!hasRecord && rule.effects.some((effect) => effect.kind === "createRecord" && effect.link)) issues.push("effects");
+  if (!hasRecord && rule.effects.some((effect) => effect.kind === "createRecord" && effect.link))
+    issues.push("effects");
   if (rule.effects.some((effect) => effect.kind === "notify" && effect.recipients.assignees) && !hasRecord)
     issues.push("effects");
   return issues;
@@ -297,9 +301,10 @@ const UpsertFieldsSchema = z.object({
 
 export const UpsertAutomationRuleSchema = UpsertFieldsSchema.strict().superRefine((data, ctx) => {
   if (!data.id) {
-    for (const key of ["name", "trigger", "effects"] as const)
+    for (const key of ["name", "trigger", "effects"] as const) {
       if (data[key] === undefined)
         ctx.addIssue({ code: "custom", path: [key], params: { error: CustomErrorCode.mustNotBeBlank } });
+    }
   }
   if (data.trigger && data.effects) {
     for (const path of automationRuleFinalStateIssues({
@@ -345,7 +350,11 @@ export const AutomationRuleRunDtoSchema = z.object({
 export type AutomationRuleRunDto = Data<typeof AutomationRuleRunDtoSchema>;
 
 export const GetAutomationRuleRunsSchema = z
-  .object({ id: z.uuid(), page: z.number().int().min(1).default(1), pageSize: z.number().int().min(1).max(100).default(25) })
+  .object({
+    id: z.uuid(),
+    page: z.number().int().min(1).default(1),
+    pageSize: z.number().int().min(1).max(100).default(25),
+  })
   .strict();
 export type GetAutomationRuleRunsData = z.output<typeof GetAutomationRuleRunsSchema>;
 
@@ -372,7 +381,10 @@ export const AutomationRulePageSchema = z.object({
 export type AutomationRulePage = z.infer<typeof AutomationRulePageSchema>;
 
 export const PreviewAutomationRuleSchema = z
-  .object({ id: z.uuid().optional(), rule: UpsertFieldsSchema.omit({ id: true, name: true, enabled: true }).optional() })
+  .object({
+    id: z.uuid().optional(),
+    rule: UpsertFieldsSchema.omit({ id: true, name: true, enabled: true }).optional(),
+  })
   .strict();
 export type PreviewAutomationRuleData = z.output<typeof PreviewAutomationRuleSchema>;
 

@@ -50,7 +50,7 @@ const FIELD = "22222222-2222-4222-8222-222222222222";
 type Params = z.input<typeof manageRulesTool.inputSchema>;
 
 function run(params: Record<string, unknown>) {
-  const parsed = manageRulesTool.inputSchema.parse(params) as Parameters<typeof manageRulesTool.execute>[0];
+  const parsed = manageRulesTool.inputSchema.parse(params);
   return manageRulesTool.execute(parsed);
 }
 
@@ -135,7 +135,10 @@ describe("manage_rules", () => {
 
   it("switches rules on and off, reads one, shows runs and deletes", async () => {
     spies.enable.mockResolvedValue({ ok: true, data: { ...rule, enabled: false, disabledReason: "disabledByUser" } });
-    expect(structured(await run({ action: "disable", id: RULE }))).toMatchObject({ enabled: false, disabledReason: "disabledByUser" });
+    expect(structured(await run({ action: "disable", id: RULE }))).toMatchObject({
+      enabled: false,
+      disabledReason: "disabledByUser",
+    });
     expect(spies.enable).toHaveBeenLastCalledWith({ id: RULE, enabled: false });
     spies.enable.mockResolvedValue({ ok: true, data: rule });
     await run({ action: "enable", id: RULE });
@@ -162,14 +165,20 @@ describe("manage_rules", () => {
   });
 
   it("previews a saved rule or an inline date rule", async () => {
-    spies.preview.mockResolvedValue({ ok: true, data: { supported: true, total: 1, recordIds: [RULE], alreadyFired: 0 } });
+    spies.preview.mockResolvedValue({
+      ok: true,
+      data: { supported: true, total: 1, recordIds: [RULE], alreadyFired: 0 },
+    });
     const dateTrigger = { kind: "dateReached", typeId: TYPE, fieldId: FIELD, days: 1, direction: "before" };
     await run({ action: "preview", id: RULE });
     expect(spies.preview).toHaveBeenLastCalledWith({ id: RULE, rule: undefined });
     const inline = await run({ action: "preview", trigger: dateTrigger });
     expect(spies.preview).toHaveBeenLastCalledWith({
       id: undefined,
-      rule: { trigger: expect.objectContaining({ kind: "dateReached", atHour: 8, timezone: "UTC" }), conditions: undefined },
+      rule: {
+        trigger: expect.objectContaining({ kind: "dateReached", atHour: 8, timezone: "UTC" }),
+        conditions: undefined,
+      },
     });
     expect(structured(inline)).toMatchObject({ supported: true, total: 1 });
   });
@@ -190,12 +199,15 @@ describe("manage_rules", () => {
 
   it("rejects conditions and effects the schema does not know before running anything", () => {
     const bad = (extra: Record<string, unknown>) =>
-      manageRulesTool.inputSchema.safeParse({ action: "create", name: "x", trigger, effects: [notify], ...extra }).success;
+      manageRulesTool.inputSchema.safeParse({ action: "create", name: "x", trigger, effects: [notify], ...extra })
+        .success;
     expect(bad({})).toBe(true);
     expect(bad({ conditions: [{ fieldId: FIELD, operator: "equals" }] })).toBe(false);
     expect(bad({ effects: [{ kind: "sendEmail" }] })).toBe(false);
     expect(bad({ effects: [] })).toBe(false);
-    expect(bad({ trigger: { kind: "dateReached", typeId: TYPE, fieldId: FIELD, days: -1, direction: "before" } })).toBe(false);
+    expect(bad({ trigger: { kind: "dateReached", typeId: TYPE, fieldId: FIELD, days: -1, direction: "before" } })).toBe(
+      false,
+    );
   });
 
   it("documents the keys of each action in its action description", () => {
@@ -204,7 +216,18 @@ describe("manage_rules", () => {
     };
     const action = schema.properties.action;
     for (const name of action.enum ?? []) expect(action.description).toContain(name);
-    for (const key of ["id", "name", "enabled", "trigger", "conditions", "effects", "typeId", "owner", "page", "pageSize"])
+    for (const key of [
+      "id",
+      "name",
+      "enabled",
+      "trigger",
+      "conditions",
+      "effects",
+      "typeId",
+      "owner",
+      "page",
+      "pageSize",
+    ])
       expect(schema.properties[key]?.description ?? "", key).not.toEqual("");
   });
 });

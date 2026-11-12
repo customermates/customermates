@@ -46,7 +46,12 @@ const RECORD_MODEL = {
   ],
   fields: [
     field(NAME, DEALS, "text"),
-    field(STAGE, DEALS, "select", { options: [{ id: "won", label: "Won" }, { id: "lost", label: "Lost" }] }),
+    field(STAGE, DEALS, "select", {
+      options: [
+        { id: "won", label: "Won" },
+        { id: "lost", label: "Lost" },
+      ],
+    }),
     field(CLOSE, DEALS, "date"),
     field(AMOUNT, DEALS, "currency", { format: { currency: "EUR" } }),
     field(TAGS, DEALS, "select", { multiple: true, options: [{ id: "vip", label: "VIP" }] }),
@@ -55,7 +60,16 @@ const RECORD_MODEL = {
     field(TITLE, TASKS, "text"),
     field(DUE, TASKS, "date"),
   ],
-  relationships: [{ id: RELATION, sourceTypeId: TASKS, targetTypeId: DEALS, sourceLabel: "Deal", targetLabel: "Actions", archived: false }],
+  relationships: [
+    {
+      id: RELATION,
+      sourceTypeId: TASKS,
+      targetTypeId: DEALS,
+      sourceLabel: "Deal",
+      targetLabel: "Actions",
+      archived: false,
+    },
+  ],
 } as unknown as RecordModelView;
 
 const MODEL: AutomationBuilderModel = toAutomationBuilderModel(RECORD_MODEL);
@@ -104,21 +118,24 @@ describe("turning a draft into a rule", () => {
   it("builds a valid rule from the default draft and stays valid against the model", () => {
     const input = convert(draft());
     expect(UpsertAutomationRuleSchema.safeParse(input).success).toBe(true);
-    expect(input).toMatchObject({ name: "Follow up", enabled: true, trigger: { kind: "recordUpdated", typeId: DEALS, fieldIds: [] } });
+    expect(input).toMatchObject({
+      name: "Follow up",
+      enabled: true,
+      trigger: { kind: "recordUpdated", typeId: DEALS, fieldIds: [] },
+    });
     const parsed = UpsertAutomationRuleSchema.parse(input);
-    expect(
-      automationModelIssues(
-        { trigger: parsed.trigger!, conditions: parsed.conditions ?? [], effects: parsed.effects! },
-        RECORD_MODEL,
-      ),
-    ).toEqual([]);
+    const { trigger, effects } = parsed;
+    if (!trigger || !effects) throw new Error("the draft must produce a trigger and effects");
+    expect(automationModelIssues({ trigger, conditions: parsed.conditions ?? [], effects }, RECORD_MODEL)).toEqual([]);
   });
 
   it("names every problem of an incomplete draft", () => {
     const bad = draft({
       name: " ",
       conditions: [{ fieldId: STAGE, operator: "equals", value: "" }],
-      effects: [{ kind: "notify", toOwner: false, toAssignees: false, notificationKind: "ruleAlert", title: "", body: "" }],
+      effects: [
+        { kind: "notify", toOwner: false, toAssignees: false, notificationKind: "ruleAlert", title: "", body: "" },
+      ],
     });
     expect(draftToUpsert(bad, MODEL)).toEqual({ ok: false, issues: ["name", "conditions.0", "effects.0"] });
     expect(draftToUpsert(draft({ effects: [] }), MODEL)).toEqual({ ok: false, issues: ["effects"] });
@@ -132,7 +149,12 @@ describe("turning a draft into a rule", () => {
       fieldId: STAGE,
       to: { kind: "select", value: "won" },
     });
-    expect(draftToUpsert(draft({ trigger: { ...draft().trigger, kind: "fieldChanged", fieldId: STAGE, value: "nope" } }), MODEL).ok).toBe(false);
+    expect(
+      draftToUpsert(
+        draft({ trigger: { ...draft().trigger, kind: "fieldChanged", fieldId: STAGE, value: "nope" } }),
+        MODEL,
+      ).ok,
+    ).toBe(false);
     expect(convert(draft({ trigger: { ...draft().trigger, kind: "fieldChanged", fieldId: STAGE } })).trigger).toEqual({
       kind: "fieldChanged",
       typeId: DEALS,
@@ -218,14 +240,27 @@ describe("turning a draft into a rule", () => {
   });
 
   it("refuses a calculated field as a target and record effects on a message rule", () => {
-    expect(draftToUpsert(draft({ effects: [{ kind: "setField", fieldId: FORMULA, value: "1" }] }), MODEL).ok).toBe(false);
+    expect(draftToUpsert(draft({ effects: [{ kind: "setField", fieldId: FORMULA, value: "1" }] }), MODEL).ok).toBe(
+      false,
+    );
     const message = draft({ trigger: { ...draft().trigger, kind: "messageReceived" } });
-    expect(draftToUpsert({ ...message, effects: [{ kind: "setField", fieldId: STAGE, value: "won" }] }, MODEL).ok).toBe(false);
+    expect(draftToUpsert({ ...message, effects: [{ kind: "setField", fieldId: STAGE, value: "won" }] }, MODEL).ok).toBe(
+      false,
+    );
     const notifyOwner = convert(message);
     expect(notifyOwner.trigger).toEqual({ kind: "messageReceived", channel: "any" });
     const assignees = draft({
       trigger: { ...draft().trigger, kind: "messageReceived" },
-      effects: [{ kind: "notify", toOwner: false, toAssignees: true, notificationKind: "replyReceived", title: "Reply", body: "" }],
+      effects: [
+        {
+          kind: "notify",
+          toOwner: false,
+          toAssignees: true,
+          notificationKind: "replyReceived",
+          title: "Reply",
+          body: "",
+        },
+      ],
     });
     expect(draftToUpsert(assignees, MODEL).ok).toBe(false);
   });
@@ -238,13 +273,26 @@ describe("opening a saved rule", () => {
     owner: null,
     name: "Closing reminder",
     enabled: true,
-    trigger: { kind: "dateReached", typeId: DEALS, fieldId: CLOSE, days: 2, direction: "before", atHour: 9, timezone: TZ },
+    trigger: {
+      kind: "dateReached",
+      typeId: DEALS,
+      fieldId: CLOSE,
+      days: 2,
+      direction: "before",
+      atHour: 9,
+      timezone: TZ,
+    },
     conditions: [
       { fieldId: STAGE, operator: "equals", value: { kind: "select", value: "won" } },
       { fieldId: TAGS, operator: "in", values: [{ kind: "select", value: "vip" }] },
     ],
     effects: [
-      { kind: "notify", recipients: { ruleOwner: true, assignees: false, userIds: [] }, notificationKind: "dueToday", title: "{{record.name}}" },
+      {
+        kind: "notify",
+        recipients: { ruleOwner: true, assignees: false, userIds: [] },
+        notificationKind: "dueToday",
+        title: "{{record.name}}",
+      },
       {
         kind: "createRecord",
         typeId: TASKS,

@@ -5,7 +5,10 @@ import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import type { AutomationBuilderField, AutomationBuilderModel } from "@/features/automation-rules/automation-builder-model";
+import type {
+  AutomationBuilderField,
+  AutomationBuilderModel,
+} from "@/features/automation-rules/automation-builder-model";
 import type {
   AutomationDraft,
   DraftCondition,
@@ -36,6 +39,7 @@ import {
   fieldOfList,
   listOf,
 } from "@/features/automation-rules/automation-draft";
+import { RECORD_NAME_TOKEN } from "@/features/automation-rules/automation-template";
 
 import { upsertAutomationRuleAction } from "../actions";
 
@@ -112,7 +116,7 @@ function ValueInput({
   onChange: (value: string) => void;
 }) {
   const t = useTranslations();
-  if (field?.valueType === "select")
+  if (field?.valueType === "select") {
     return (
       <Choose
         items={field.options}
@@ -122,7 +126,8 @@ function ValueInput({
         onChange={onChange}
       />
     );
-  if (field?.valueType === "boolean")
+  }
+  if (field?.valueType === "boolean") {
     return (
       <Choose
         items={BOOLEAN_OPTIONS.map((option) => ({ id: option, label: t(`AutomationRules.builder.boolean.${option}`) }))}
@@ -132,6 +137,7 @@ function ValueInput({
         onChange={onChange}
       />
     );
+  }
   return (
     <Input
       aria-label={label}
@@ -193,7 +199,7 @@ export function AutomationBuilder({ draft: initial, model, onClose, onSaved }: P
         return;
       }
       toast.success(t("Common.notifications.updated"));
-      onSaved(result.data as AutomationRuleDto);
+      onSaved(result.data);
     });
   };
 
@@ -237,7 +243,10 @@ export function AutomationBuilder({ draft: initial, model, onClose, onSaved }: P
                 <div className="flex flex-wrap gap-3">
                   <Labeled label={t("AutomationRules.builder.event")}>
                     <Choose
-                      items={DRAFT_TRIGGER_KINDS.map((kind) => ({ id: kind, label: t(`AutomationRules.trigger.${kind}`) }))}
+                      items={DRAFT_TRIGGER_KINDS.map((kind) => ({
+                        id: kind,
+                        label: t(`AutomationRules.trigger.${kind}`),
+                      }))}
                       label={t("AutomationRules.builder.event")}
                       placeholder={choose}
                       value={trigger.kind}
@@ -327,7 +336,10 @@ export function AutomationBuilder({ draft: initial, model, onClose, onSaved }: P
                   </Labeled>
 
                   <Labeled label={t("AutomationRules.builder.timezone")}>
-                    <Input value={trigger.timezone} onChange={(event) => setTrigger({ timezone: event.target.value })} />
+                    <Input
+                      value={trigger.timezone}
+                      onChange={(event) => setTrigger({ timezone: event.target.value })}
+                    />
                   </Labeled>
                 </div>
               )}
@@ -533,7 +545,7 @@ function blankEffect(kind: string, model: AutomationBuilderModel, triggerTypeId:
       kind: "createRecord",
       typeId: list?.id ?? "",
       titleFieldId: title?.id ?? "",
-      title: "{{record.name}}",
+      title: RECORD_NAME_TOKEN,
       dueFieldId: "",
       dueDays: "",
       assignToOwner: true,
@@ -546,7 +558,7 @@ function blankEffect(kind: string, model: AutomationBuilderModel, triggerTypeId:
     toOwner: true,
     toAssignees: false,
     notificationKind: "ruleAlert",
-    title: "{{record.name}}",
+    title: RECORD_NAME_TOKEN,
     body: "",
   };
 }
@@ -587,7 +599,11 @@ function NotifyEditor({
 
       <div className="flex flex-wrap items-center gap-6">
         <span className="flex items-center gap-2">
-          <Switch checked={effect.toOwner} id="notify-owner" onCheckedChange={(toOwner) => onChange({ ...effect, toOwner })} />
+          <Switch
+            checked={effect.toOwner}
+            id="notify-owner"
+            onCheckedChange={(toOwner) => onChange({ ...effect, toOwner })}
+          />
 
           <Label htmlFor="notify-owner">{t("AutomationRules.builder.toOwner")}</Label>
         </span>

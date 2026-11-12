@@ -124,7 +124,10 @@ export function triggerMatchesEvent(trigger: AutomationTrigger, event: Automatio
       return after?.state === "value" && scalarEquals(after.value, trigger.to);
     }
     case "messageReceived":
-      return event.triggerKinds.includes("messageReceived") && (trigger.channel === "any" || trigger.channel === event.channel);
+      return (
+        event.triggerKinds.includes("messageReceived") &&
+        (trigger.channel === "any" || trigger.channel === event.channel)
+      );
     case "formSubmitted":
     case "webhookReceived":
       return (

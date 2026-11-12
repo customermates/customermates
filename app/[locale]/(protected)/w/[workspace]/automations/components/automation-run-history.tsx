@@ -96,12 +96,17 @@ export function AutomationRunHistory({ rule, onClose }: Props) {
                   <p className="text-xs text-muted-foreground">{t(`AutomationRules.reason.${run.reason}`)}</p>
                 )}
 
-                {run.effects.map((effect, index) => (
-                  <p key={index} className="text-xs text-muted-foreground">
-                    {t(`AutomationRules.effect.${effect.kind}`)}: {t(`AutomationRules.outcome.${effect.status}`)}
-                    {effect.detail && effect.status !== "applied" ? ` (${effect.detail})` : ""}
-                  </p>
-                ))}
+                {run.effects.map((effect, index) => {
+                  const kind = t(`AutomationRules.effect.${effect.kind}`);
+                  const outcome = t(`AutomationRules.outcome.${effect.status}`);
+                  const detail = effect.detail && effect.status !== "applied" ? ` (${effect.detail})` : "";
+
+                  return (
+                    <p key={index} className="text-xs text-muted-foreground">
+                      {`${kind}: ${outcome}${detail}`}
+                    </p>
+                  );
+                })}
 
                 {run.error && run.effects.length === 0 && <p className="text-xs text-destructive">{run.error}</p>}
               </li>

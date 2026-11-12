@@ -24,10 +24,11 @@ function triggerIssues(model: RecordModelView, trigger: AutomationTrigger): stri
   const typeId = triggerTypeId(trigger);
   if (!typeId) return [];
   if (!typeExists(model, typeId)) return ["trigger.typeId"];
-  if (trigger.kind === "recordUpdated")
+  if (trigger.kind === "recordUpdated") {
     return trigger.fieldIds.flatMap((fieldId, index) =>
       fieldOf(model, typeId, fieldId) ? [] : [`trigger.fieldIds.${index}`],
     );
+  }
   if (trigger.kind === "fieldChanged") return fieldOf(model, typeId, trigger.fieldId) ? [] : ["trigger.fieldId"];
   if (trigger.kind === "dateReached") {
     const field = fieldOf(model, typeId, trigger.fieldId);

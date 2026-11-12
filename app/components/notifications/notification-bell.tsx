@@ -56,8 +56,7 @@ export function NotificationBell() {
       await refresh();
     });
 
-  const label =
-    unreadCount > 0 ? t("Notifications.openUnread", { count: unreadCount }) : t("Notifications.open");
+  const label = unreadCount > 0 ? t("Notifications.openUnread", { count: unreadCount }) : t("Notifications.open");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -92,7 +91,9 @@ export function NotificationBell() {
         </div>
 
         {!loaded || items.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-muted-foreground">{loaded ? t("Notifications.empty") : t("Notifications.loading")}</p>
+          <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+            {loaded ? t("Notifications.empty") : t("Notifications.loading")}
+          </p>
         ) : (
           <ul className="max-h-96 divide-y divide-border overflow-y-auto">
             {items.map((item) => {
@@ -120,7 +121,8 @@ export function NotificationBell() {
                   </span>
                 </>
               );
-              const className = "flex w-full flex-col gap-1 px-4 py-3 text-start hover:bg-accent focus-visible:bg-accent";
+              const className =
+                "flex w-full flex-col gap-1 px-4 py-3 text-start hover:bg-accent focus-visible:bg-accent";
 
               return (
                 <li key={item.id}>

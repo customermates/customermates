@@ -38,7 +38,10 @@ function condition(input: Partial<AutomationCondition> & Pick<AutomationConditio
 const text = (content: string): CalculatedValue => ({ state: "value", value: { kind: "text", value: content } });
 const select = (id: string): CalculatedValue => ({ state: "value", value: { kind: "select", value: id } });
 const date = (day: string): CalculatedValue => ({ state: "value", value: { kind: "date", value: day } });
-const dateTime = (instant: string): CalculatedValue => ({ state: "value", value: { kind: "dateTime", value: instant } });
+const dateTime = (instant: string): CalculatedValue => ({
+  state: "value",
+  value: { kind: "dateTime", value: instant },
+});
 const missing: CalculatedValue = { state: "missing" };
 
 describe("automation conditions", () => {
@@ -47,17 +50,17 @@ describe("automation conditions", () => {
     expect(scalarEquals({ kind: "text", value: "a" }, { kind: "text", value: "A" })).toBe(false);
     expect(scalarEquals({ kind: "text", value: "1" }, { kind: "select", value: "1" })).toBe(false);
     expect(
-      scalarEquals({ kind: "decimal", value: "10.50", currency: "EUR" }, { kind: "decimal", value: "10.5", currency: "EUR" }),
+      scalarEquals(
+        { kind: "decimal", value: "10.50", currency: "EUR" },
+        { kind: "decimal", value: "10.5", currency: "EUR" },
+      ),
     ).toBe(true);
     expect(
       scalarEquals({ kind: "decimal", value: "10", currency: "EUR" }, { kind: "decimal", value: "10", currency: null }),
     ).toBe(false);
-    expect(
-      scalarEquals(
-        { kind: "selectList", value: ["a", "b"] },
-        { kind: "selectList", value: ["b", "a"] },
-      ),
-    ).toBe(true);
+    expect(scalarEquals({ kind: "selectList", value: ["a", "b"] }, { kind: "selectList", value: ["b", "a"] })).toBe(
+      true,
+    );
     expect(
       scalarEquals(
         { kind: "dateTime", value: "2026-11-12T10:00:00.000Z" },
@@ -68,17 +71,39 @@ describe("automation conditions", () => {
 
   it("handles equals, notEquals, in and notIn", () => {
     const stage = select("won");
-    expect(evaluateCondition(condition({ operator: "equals", value: { kind: "select", value: "won" } }), value(stage), CONTEXT)).toBe(true);
-    expect(evaluateCondition(condition({ operator: "notEquals", value: { kind: "select", value: "won" } }), value(stage), CONTEXT)).toBe(false);
     expect(
       evaluateCondition(
-        condition({ operator: "in", values: [{ kind: "select", value: "lost" }, { kind: "select", value: "won" }] }),
+        condition({ operator: "equals", value: { kind: "select", value: "won" } }),
         value(stage),
         CONTEXT,
       ),
     ).toBe(true);
     expect(
-      evaluateCondition(condition({ operator: "notIn", values: [{ kind: "select", value: "lost" }] }), value(stage), CONTEXT),
+      evaluateCondition(
+        condition({ operator: "notEquals", value: { kind: "select", value: "won" } }),
+        value(stage),
+        CONTEXT,
+      ),
+    ).toBe(false);
+    expect(
+      evaluateCondition(
+        condition({
+          operator: "in",
+          values: [
+            { kind: "select", value: "lost" },
+            { kind: "select", value: "won" },
+          ],
+        }),
+        value(stage),
+        CONTEXT,
+      ),
+    ).toBe(true);
+    expect(
+      evaluateCondition(
+        condition({ operator: "notIn", values: [{ kind: "select", value: "lost" }] }),
+        value(stage),
+        CONTEXT,
+      ),
     ).toBe(true);
     expect(
       evaluateCondition(
@@ -95,8 +120,20 @@ describe("automation conditions", () => {
     expect(evaluateCondition(condition({ operator: "notEmpty" }), value(text("x")), CONTEXT)).toBe(true);
     expect(evaluateCondition(condition({ operator: "notEmpty" }), value(missing), CONTEXT)).toBe(false);
     const restricted: CalculatedValue = { state: "restricted" };
-    expect(evaluateCondition(condition({ operator: "equals", value: { kind: "text", value: "x" } }), value(restricted), CONTEXT)).toBe(false);
-    expect(evaluateCondition(condition({ operator: "notEquals", value: { kind: "text", value: "x" } }), value(missing), CONTEXT)).toBe(false);
+    expect(
+      evaluateCondition(
+        condition({ operator: "equals", value: { kind: "text", value: "x" } }),
+        value(restricted),
+        CONTEXT,
+      ),
+    ).toBe(false);
+    expect(
+      evaluateCondition(
+        condition({ operator: "notEquals", value: { kind: "text", value: "x" } }),
+        value(missing),
+        CONTEXT,
+      ),
+    ).toBe(false);
   });
 
   it("compares dates against a value and against today in the time zone", () => {
@@ -142,9 +179,12 @@ describe("automation conditions", () => {
     expect(AutomationConditionSchema.safeParse({ fieldId: FIELD, operator: "equals" }).success).toBe(false);
     expect(AutomationConditionSchema.safeParse({ fieldId: FIELD, operator: "in" }).success).toBe(false);
     expect(AutomationConditionSchema.safeParse({ fieldId: FIELD, operator: "before" }).success).toBe(false);
-    expect(AutomationConditionSchema.safeParse({ fieldId: FIELD, operator: "before", relativeDays: -2 }).success).toBe(true);
+    expect(AutomationConditionSchema.safeParse({ fieldId: FIELD, operator: "before", relativeDays: -2 }).success).toBe(
+      true,
+    );
     expect(
-      AutomationConditionSchema.safeParse({ fieldId: FIELD, operator: "empty", value: { kind: "text", value: "x" } }).success,
+      AutomationConditionSchema.safeParse({ fieldId: FIELD, operator: "empty", value: { kind: "text", value: "x" } })
+        .success,
     ).toBe(false);
   });
 });
@@ -156,18 +196,21 @@ describe("date reached timing", () => {
     expect(dateReachedFireAt(trigger, { kind: "date", value: "2026-11-20" })?.toISOString()).toBe(
       "2026-11-18T07:00:00.000Z",
     );
-    expect(dateReachedFireAt({ ...trigger, direction: "after", days: 1 }, { kind: "date", value: "2026-11-20" })?.toISOString()).toBe(
-      "2026-11-21T07:00:00.000Z",
-    );
+    expect(
+      dateReachedFireAt(
+        { ...trigger, direction: "after", days: 1 },
+        { kind: "date", value: "2026-11-20" },
+      )?.toISOString(),
+    ).toBe("2026-11-21T07:00:00.000Z");
     expect(dateReachedFireAt({ ...trigger, days: 0 }, { kind: "date", value: "2026-11-20" })?.toISOString()).toBe(
       "2026-11-20T07:00:00.000Z",
     );
   });
 
   it("follows daylight saving time when shifting by calendar days", () => {
-    expect(dateReachedFireAt({ ...trigger, days: 2, atHour: 8 }, { kind: "date", value: "2027-03-30" })?.toISOString()).toBe(
-      "2027-03-28T06:00:00.000Z",
-    );
+    expect(
+      dateReachedFireAt({ ...trigger, days: 2, atHour: 8 }, { kind: "date", value: "2027-03-30" })?.toISOString(),
+    ).toBe("2027-03-28T06:00:00.000Z");
     const shifted = dateReachedFireAt(
       { days: 1, direction: "before", atHour: 8, timezone: "Europe/Berlin" },
       { kind: "dateTime", value: "2027-03-28T09:00:00.000Z" },

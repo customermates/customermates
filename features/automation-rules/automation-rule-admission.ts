@@ -47,12 +47,13 @@ export class AutomationRuleAdmission implements EventAdmission {
         depth: descriptor.chain.length,
         scheduledFor: this.clock(),
       });
-      if (runId)
+      if (runId) {
         await this.background.dispatch("run-automation-rule", {
           runId,
           companyId: event.companyId,
           ownerUserId: rule.ownerUserId,
         });
+      }
     }
   }
 }

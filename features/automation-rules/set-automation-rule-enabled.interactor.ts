@@ -35,11 +35,12 @@ export class SetAutomationRuleEnabledInteractor extends AuthenticatedInteractor<
       return failAuthorization(CustomErrorCode.automationRuleAdminRequired, ["id"]);
     if (enabled && !rule.enabled) {
       const allowance = await this.limits.activeRuleAllowance();
-      if (allowance.limit !== null && (await this.repo.countActiveRules(rule.id)) >= allowance.limit)
+      if (allowance.limit !== null && (await this.repo.countActiveRules(rule.id)) >= allowance.limit) {
         return failConflict(CustomErrorCode.automationRuleLimitReached, [], {
           limit: allowance.limit,
           price: allowance.price,
         });
+      }
     }
     const updated = await this.repo.setEnabled(id, enabled, enabled ? null : "disabledByUser");
     if (!updated) return failNotFound(CustomErrorCode.automationRuleNotFound, ["id"]);

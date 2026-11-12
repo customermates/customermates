@@ -28,7 +28,11 @@ export type AutomationNotifyPort = {
   notify(input: NotifyMembersInput): Promise<{ created: number }>;
 };
 
-export type AutomationWebhookResult = { sent: boolean; reason?: "missing" | "disabled" | "plan"; statusCode?: number | null };
+export type AutomationWebhookResult = {
+  sent: boolean;
+  reason?: "missing" | "disabled" | "plan";
+  statusCode?: number | null;
+};
 
 export type AutomationWebhookPort = {
   send(input: {

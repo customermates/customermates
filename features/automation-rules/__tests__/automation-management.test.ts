@@ -77,7 +77,14 @@ const MODEL = {
 const notify = { kind: "notify", recipients: { ruleOwner: true }, title: "Closing: {{record.name}}" };
 const reminder = {
   name: "Closing reminder",
-  trigger: { kind: "dateReached", typeId: DEALS, fieldId: CLOSE, days: 2, direction: "before", timezone: "Europe/Berlin" },
+  trigger: {
+    kind: "dateReached",
+    typeId: DEALS,
+    fieldId: CLOSE,
+    days: 2,
+    direction: "before",
+    timezone: "Europe/Berlin",
+  },
   effects: [notify],
 };
 
@@ -97,7 +104,10 @@ function recordsPort() {
   };
 }
 
-function issueOf(result: { ok: boolean; error?: { issues: Array<{ path: PropertyKey[]; params?: Record<string, unknown> }> } }) {
+function issueOf(result: {
+  ok: boolean;
+  error?: { issues: Array<{ path: PropertyKey[]; params?: Record<string, unknown> }> };
+}) {
   const issue = result.error?.issues[0];
   return { path: issue?.path, error: issue?.params?.error };
 }
@@ -118,7 +128,11 @@ describe("saving a rule", () => {
     if (!result.ok) return;
     expect(result.data).toMatchObject({ name: "Closing reminder", enabled: true, ownerUserId: OWNER });
     expect(result.data.trigger).toMatchObject({ kind: "dateReached", atHour: 8, timezone: "Europe/Berlin" });
-    expect([...repo.rules.values()][0]).toMatchObject({ triggerKind: "dateReached", typeId: DEALS, ownerUserId: OWNER });
+    expect([...repo.rules.values()][0]).toMatchObject({
+      triggerKind: "dateReached",
+      typeId: DEALS,
+      ownerUserId: OWNER,
+    });
   });
 
   it("refuses a rule that points at a field or relation the workspace does not have", async () => {
@@ -128,7 +142,10 @@ describe("saving a rule", () => {
       [{ ...reminder, trigger: { ...reminder.trigger, typeId: missing } }, ["trigger", "typeId"]],
       [{ ...reminder, conditions: [{ fieldId: TITLE, operator: "empty" }] }, ["conditions", "0", "fieldId"]],
       [
-        { ...reminder, effects: [{ kind: "setField", fields: [{ fieldId: CALC, value: { kind: "text", value: "x" } }] }] },
+        {
+          ...reminder,
+          effects: [{ kind: "setField", fields: [{ fieldId: CALC, value: { kind: "text", value: "x" } }] }],
+        },
         ["effects", "0", "fields", "0", "fieldId"],
       ],
       [
@@ -226,8 +243,11 @@ describe("switching a rule on and off", () => {
   });
 
   const toggle = (limits = unlimited()) => new SetAutomationRuleEnabledInteractor(repo, limits);
-  const set = (instance: SetAutomationRuleEnabledInteractor, input: { id: string; enabled: boolean }, user = mockUser) =>
-    runWithTenant(user, () => instance.invoke(input as never));
+  const set = (
+    instance: SetAutomationRuleEnabledInteractor,
+    input: { id: string; enabled: boolean },
+    user = mockUser,
+  ) => runWithTenant(user, () => instance.invoke(input as never));
 
   it("lets the owner switch it off and on again", async () => {
     repo.addRule({ id: RULE, trigger: reminder.trigger, effects: [notify] });
@@ -295,11 +315,16 @@ describe("reading rules", () => {
 
   it("lists every rule, narrowed by list or owner", async () => {
     const list = new GetAutomationRulesInteractor(repo);
-    const run = (input: Record<string, unknown>, user = mockUser) => runWithTenant(user, () => list.invoke(input as never));
+    const run = (input: Record<string, unknown>, user = mockUser) =>
+      runWithTenant(user, () => list.invoke(input as never));
     await expect(run({})).resolves.toMatchObject({ ok: true, data: { total: 2 } });
     await expect(run({ typeId: TASKS })).resolves.toMatchObject({ ok: true, data: { total: 1 } });
     await expect(run({ owner: "mine" })).resolves.toMatchObject({ ok: true, data: { total: 1 } });
-    const own = { ...createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readOwn }]), id: OWNER, companyId: COMPANY };
+    const own = {
+      ...createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readOwn }]),
+      id: OWNER,
+      companyId: COMPANY,
+    };
     await expect(run({}, own)).resolves.toMatchObject({ ok: true, data: { total: 1 } });
   });
 
@@ -317,8 +342,15 @@ describe("reading rules", () => {
     });
     const runs = new GetAutomationRuleRunsInteractor(repo);
     const run = (id: string, user = mockUser) => runWithTenant(user, () => runs.invoke({ id } as never));
-    await expect(run(RULE)).resolves.toMatchObject({ ok: true, data: { total: 1, items: [{ ruleId: RULE, effects: [] }] } });
-    const own = { ...createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readOwn }]), id: COLLEAGUE, companyId: COMPANY };
+    await expect(run(RULE)).resolves.toMatchObject({
+      ok: true,
+      data: { total: 1, items: [{ ruleId: RULE, effects: [] }] },
+    });
+    const own = {
+      ...createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readOwn }]),
+      id: COLLEAGUE,
+      companyId: COMPANY,
+    };
     expect((await run(RULE, own)).ok).toBe(false);
     expect((await run("00000000-0000-4000-8000-0000000000ff")).ok).toBe(false);
   });
@@ -349,7 +381,13 @@ describe("previewing a date rule", () => {
   });
 
   it("leaves out records that already fired and records that miss a condition", async () => {
-    const stored = repo.addRule({ id: RULE, trigger: reminder.trigger, effects: [notify], triggerKind: "dateReached", typeId: DEALS });
+    const stored = repo.addRule({
+      id: RULE,
+      trigger: reminder.trigger,
+      effects: [notify],
+      triggerKind: "dateReached",
+      typeId: DEALS,
+    });
     repo.candidates = [{ recordId: RECORD, fieldValue: "2026-11-14" }];
     await repo.admitRunUnscoped({
       companyId: COMPANY,
@@ -362,10 +400,18 @@ describe("previewing a date rule", () => {
       depth: 0,
       scheduledFor: NOW,
     });
-    await expect(run(preview(), { id: RULE })).resolves.toMatchObject({ ok: true, data: { total: 0, alreadyFired: 1 } });
-    const lost = new Map<string, CalculatedValue>([[STAGE, { state: "value", value: { kind: "select", value: "lost" } }]]);
+    await expect(run(preview(), { id: RULE })).resolves.toMatchObject({
+      ok: true,
+      data: { total: 0, alreadyFired: 1 },
+    });
+    const lost = new Map<string, CalculatedValue>([
+      [STAGE, { state: "value", value: { kind: "select", value: "lost" } }],
+    ]);
     const filtered = await run(preview({ values: lost }), {
-      rule: { trigger: reminder.trigger, conditions: [{ fieldId: STAGE, operator: "equals", value: { kind: "select", value: "won" } }] },
+      rule: {
+        trigger: reminder.trigger,
+        conditions: [{ fieldId: STAGE, operator: "equals", value: { kind: "select", value: "won" } }],
+      },
     });
     expect(filtered).toMatchObject({ ok: true, data: { total: 0 } });
   });

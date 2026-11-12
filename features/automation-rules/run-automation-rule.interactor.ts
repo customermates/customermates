@@ -38,7 +38,10 @@ function parseRule(rule: StoredAutomationRule) {
 }
 
 @TenantInteractor()
-export class RunAutomationRuleInteractor extends AuthenticatedInteractor<RunAutomationRuleData, RunAutomationRuleOutcome> {
+export class RunAutomationRuleInteractor extends AuthenticatedInteractor<
+  RunAutomationRuleData,
+  RunAutomationRuleOutcome
+> {
   constructor(
     private readonly repo: AutomationRuleRepo,
     private readonly runner: AutomationEffectRunner,

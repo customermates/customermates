@@ -2,7 +2,11 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { z } from "zod";
 
-import { ConflictApiResponse, NotFoundApiResponse, StructuredApiResponses } from "@/core/api/structured-interactor-handler";
+import {
+  ConflictApiResponse,
+  NotFoundApiResponse,
+  StructuredApiResponses,
+} from "@/core/api/structured-interactor-handler";
 
 import {
   AutomationRuleDtoSchema,

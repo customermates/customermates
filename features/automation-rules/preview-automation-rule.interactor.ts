@@ -55,8 +55,14 @@ export class PreviewAutomationRuleInteractor extends AuthenticatedInteractor<
     const conditions = z
       .array(AutomationConditionSchema)
       .parse(data.rule?.conditions ?? (stored ? stored.conditions : []));
-    const effects = z.array(AutomationEffectSchema).catch([]).parse(stored?.effects ?? []);
-    const modelIssue = automationModelIssues({ trigger: trigger.data, conditions, effects }, await this.records.model())[0];
+    const effects = z
+      .array(AutomationEffectSchema)
+      .catch([])
+      .parse(stored?.effects ?? []);
+    const modelIssue = automationModelIssues(
+      { trigger: trigger.data, conditions, effects },
+      await this.records.model(),
+    )[0];
     if (modelIssue) return fail(CustomErrorCode.automationRuleInvalid, modelIssue.split("."));
     if (trigger.data.kind !== "dateReached")
       return { ok: true as const, data: { supported: false, total: 0, recordIds: [], alreadyFired: 0 } };
@@ -77,10 +83,20 @@ export class PreviewAutomationRuleInteractor extends AuthenticatedInteractor<
         value: candidate.fieldValue,
       });
       return fireAt && isDateReachedDue(fireAt, now, AUTOMATION_DATE_LOOKBACK_DAYS)
-        ? [{ recordId: candidate.recordId, key: dateOccurrenceKey(dateTrigger, candidate.recordId, candidate.fieldValue) }]
+        ? [
+            {
+              recordId: candidate.recordId,
+              key: dateOccurrenceKey(dateTrigger, candidate.recordId, candidate.fieldValue),
+            },
+          ]
         : [];
     });
-    const fired = stored ? await this.repo.findOccurrences(stored.id, due.map((item) => item.key)) : new Set<string>();
+    const fired = stored
+      ? await this.repo.findOccurrences(
+          stored.id,
+          due.map((item) => item.key),
+        )
+      : new Set<string>();
     const open = due.filter((item) => !fired.has(item.key));
     const matching: string[] = [];
     for (const item of open) {

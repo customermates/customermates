@@ -94,9 +94,10 @@ export class FakeNotificationRepo extends NotificationRepo {
 
   findDigestUsersUnscoped(since: Date, limit: number) {
     const keys = new Map<string, { companyId: string; userId: string }>();
-    for (const row of this.rows)
+    for (const row of this.rows) {
       if (!row.emailedAt && !row.readAt && row.createdAt >= since)
         keys.set(`${row.companyId}:${row.userId}`, { companyId: row.companyId, userId: row.userId });
+    }
     return Promise.resolve([...keys.values()].slice(0, limit));
   }
 

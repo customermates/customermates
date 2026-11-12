@@ -3,11 +3,7 @@ import type { GetRecordModelInteractor } from "@/features/records/get-record-mod
 import type { MutateRecordInteractor } from "@/features/records/mutate-record.interactor";
 import type { CalculatedValue, RecordDto, RecordModelView, RecordRef } from "@/features/records/record-model.schema";
 import type { RecordMutation } from "@/features/records/record-query.schema";
-import type {
-  AutomationMutationResult,
-  AutomationRecordPort,
-  AutomationRecordView,
-} from "./automation-ports";
+import type { AutomationMutationResult, AutomationRecordPort, AutomationRecordView } from "./automation-ports";
 
 function recordName(record: RecordDto, model: RecordModelView): string {
   const primary = model.types.find((type) => type.id === record.ref.typeId)?.primaryFieldId;

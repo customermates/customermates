@@ -74,7 +74,10 @@ describe("notifying members", () => {
   it("stores one notification per member and emails instant kinds", async () => {
     const mail = mailer();
     const service = new NotificationService(repo, mail, () => NOW);
-    await expect(service.notify({ ...base, recipients: [ME, COLLEAGUE, ME] })).resolves.toEqual({ created: 2, emailed: 2 });
+    await expect(service.notify({ ...base, recipients: [ME, COLLEAGUE, ME] })).resolves.toEqual({
+      created: 2,
+      emailed: 2,
+    });
     expect(repo.rows.map((row) => row.userId).sort()).toEqual([ME, COLLEAGUE].sort());
     expect(mail.sendInstant).toHaveBeenCalledTimes(2);
     expect(repo.rows.every((row) => row.emailedAt?.getTime() === NOW.getTime())).toBe(true);
@@ -157,9 +160,15 @@ describe("the inbox", () => {
   it("marks chosen notifications or all of them as read, only for the caller", async () => {
     const mark = new MarkNotificationsReadInteractor(repo, () => NOW);
     const [first] = repo.rows;
-    await expect(asMe(() => mark.invoke({ ids: [first?.id] } as never))).resolves.toEqual({ ok: true, data: { marked: 1 } });
+    await expect(asMe(() => mark.invoke({ ids: [first?.id] } as never))).resolves.toEqual({
+      ok: true,
+      data: { marked: 1 },
+    });
     const colleagueRow = repo.rows.find((row) => row.userId === COLLEAGUE);
-    await expect(asMe(() => mark.invoke({ ids: [colleagueRow?.id] } as never))).resolves.toEqual({ ok: true, data: { marked: 0 } });
+    await expect(asMe(() => mark.invoke({ ids: [colleagueRow?.id] } as never))).resolves.toEqual({
+      ok: true,
+      data: { marked: 0 },
+    });
     await expect(asMe(() => mark.invoke({ all: true } as never))).resolves.toEqual({ ok: true, data: { marked: 2 } });
     const inbox = new GetNotificationsInteractor(repo);
     await expect(asMe(() => inbox.invoke({ unreadOnly: true } as never))).resolves.toMatchObject({
@@ -179,7 +188,12 @@ describe("the inbox", () => {
     expect(before.data.preferences).toHaveLength(5);
     expect(before.data.preferences.find((item) => item.kind === "dueToday")?.emailMode).toBe("digest");
     const after = await asMe(() =>
-      write.invoke({ preferences: [{ kind: "dueToday", emailMode: "off" }, { kind: "assigned", emailMode: "digest" }] } as never),
+      write.invoke({
+        preferences: [
+          { kind: "dueToday", emailMode: "off" },
+          { kind: "assigned", emailMode: "digest" },
+        ],
+      } as never),
     );
     if (!after.ok) throw new Error("expected preferences");
     expect(after.data.preferences.find((item) => item.kind === "dueToday")?.emailMode).toBe("off");
@@ -222,7 +236,7 @@ describe("the daily digest", () => {
   it("leaves notifications unsent when the mail cannot be delivered, and skips read ones", async () => {
     await seed("dueToday", ME);
     await seed("dueToday", ME);
-    repo.rows[0]!.readAt = NOW;
+    repo.rows[0].readAt = NOW;
     const refusing = mailer(false);
     const digest = new SendNotificationDigestInteractor(repo, refusing);
     await expect(digest.invoke(NOW)).resolves.toMatchObject({ notificationDigests: 0 });

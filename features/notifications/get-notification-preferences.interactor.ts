@@ -10,7 +10,11 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
-import { DEFAULT_NOTIFICATION_EMAIL_MODES, NOTIFICATION_KINDS, NotificationPreferencesSchema } from "./notification.schema";
+import {
+  DEFAULT_NOTIFICATION_EMAIL_MODES,
+  NOTIFICATION_KINDS,
+  NotificationPreferencesSchema,
+} from "./notification.schema";
 
 const NoInputSchema = z.object({}).strict();
 

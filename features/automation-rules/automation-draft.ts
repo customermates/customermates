@@ -77,7 +77,8 @@ export function fieldOfList(model: AutomationBuilderModel, typeId: string, field
 }
 
 export function draftHasRecord(trigger: DraftTrigger): boolean {
-  if (trigger.kind === "other") return trigger.kept !== null && "typeId" in trigger.kept && Boolean(trigger.kept.typeId);
+  if (trigger.kind === "other")
+    return trigger.kept !== null && "typeId" in trigger.kept && Boolean(trigger.kept.typeId);
   return trigger.kind !== "messageReceived";
 }
 
@@ -87,7 +88,8 @@ export function scalarFor(field: AutomationBuilderField, text: string): RecordSc
     if (!field.options.some((option) => option.id === value)) return null;
     return field.multiple ? { kind: "selectList", value: [value] } : { kind: "select", value };
   }
-  if (field.valueType === "boolean") return value === "true" || value === "false" ? { kind: "boolean", value: value === "true" } : null;
+  if (field.valueType === "boolean")
+    return value === "true" || value === "false" ? { kind: "boolean", value: value === "true" } : null;
   if (NUMBER_TYPES.has(field.valueType))
     return /^-?(?:0|[1-9]\d*)(?:\.\d+)?$/.test(value) ? { kind: "decimal", value, currency: field.currency } : null;
   if (field.valueType === "date") return /^\d{4}-\d{2}-\d{2}$/.test(value) ? { kind: "date", value } : null;
@@ -104,7 +106,10 @@ function textFor(scalar: RecordScalar | null | undefined): string {
   return "";
 }
 
-export function emptyDraft(model: AutomationBuilderModel, options: { typeId?: string; timezone: string }): AutomationDraft {
+export function emptyDraft(
+  model: AutomationBuilderModel,
+  options: { typeId?: string; timezone: string },
+): AutomationDraft {
   const typeId = options.typeId && listOf(model, options.typeId) ? options.typeId : (model.lists[0]?.id ?? "");
   return {
     name: "",
@@ -174,13 +179,22 @@ function toTrigger(draft: DraftTrigger, model: AutomationBuilderModel): Automati
   const atHour = Number(draft.atHour);
   if (!DATE_TYPES.has(field.valueType) || !Number.isInteger(days) || days < 0 || days > 3650) return null;
   if (!Number.isInteger(atHour) || atHour < 0 || atHour > 23 || !draft.timezone) return null;
-  return { kind: "dateReached", typeId, fieldId: field.id, days, direction: draft.direction, atHour, timezone: draft.timezone };
+  return {
+    kind: "dateReached",
+    typeId,
+    fieldId: field.id,
+    days,
+    direction: draft.direction,
+    atHour,
+    timezone: draft.timezone,
+  };
 }
 
 function toCondition(draft: DraftCondition, model: AutomationBuilderModel, typeId: string): AutomationCondition | null {
   const field = fieldOfList(model, typeId, draft.fieldId);
   if (!field) return null;
-  if (draft.operator === "empty" || draft.operator === "notEmpty") return { fieldId: field.id, operator: draft.operator };
+  if (draft.operator === "empty" || draft.operator === "notEmpty")
+    return { fieldId: field.id, operator: draft.operator };
   if (draft.operator === "before" || draft.operator === "after") {
     const days = Number(draft.value === "" ? "0" : draft.value);
     if (!DATE_TYPES.has(field.valueType) || !Number.isInteger(days)) return null;
@@ -188,16 +202,21 @@ function toCondition(draft: DraftCondition, model: AutomationBuilderModel, typeI
   }
   const scalar = scalarFor(field, draft.value);
   if (!scalar) return null;
-  if (field.valueType === "select" && field.multiple)
+  if (field.valueType === "select" && field.multiple) {
     return {
       fieldId: field.id,
       operator: draft.operator === "equals" ? "in" : "notIn",
       values: [{ kind: "select", value: draft.value.trim() }],
     };
+  }
   return { fieldId: field.id, operator: draft.operator, value: scalar };
 }
 
-function toEffect(draft: DraftEffect, model: AutomationBuilderModel, trigger: AutomationTrigger | null): AutomationEffect | null {
+function toEffect(
+  draft: DraftEffect,
+  model: AutomationBuilderModel,
+  trigger: AutomationTrigger | null,
+): AutomationEffect | null {
   if (draft.kind === "kept") return draft.effect;
   const triggerType = trigger && "typeId" in trigger ? (trigger.typeId ?? null) : null;
   if (draft.kind === "notify") {
@@ -234,14 +253,17 @@ function toEffect(draft: DraftEffect, model: AutomationBuilderModel, trigger: Au
     assignToRuleOwner: draft.assignToOwner,
     assignedUserIds: [],
     ...(relation
-      ? { link: { relationId: relation.id, direction: relation.sourceTypeId === list.id ? ("outgoing" as const) : ("incoming" as const) } }
+      ? {
+          link: {
+            relationId: relation.id,
+            direction: relation.sourceTypeId === list.id ? ("outgoing" as const) : ("incoming" as const),
+          },
+        }
       : {}),
   };
 }
 
-export type DraftConversion =
-  | { ok: true; input: UpsertAutomationRuleInput }
-  | { ok: false; issues: string[] };
+export type DraftConversion = { ok: true; input: UpsertAutomationRuleInput } | { ok: false; issues: string[] };
 
 export function draftToUpsert(draft: AutomationDraft, model: AutomationBuilderModel): DraftConversion {
   const issues: string[] = [];
@@ -279,12 +301,13 @@ function conditionToDraft(condition: AutomationCondition, field: AutomationBuild
     return { fieldId: condition.fieldId, operator: condition.operator, value: "" };
   if (condition.operator === "before" || condition.operator === "after")
     return { fieldId: condition.fieldId, operator: condition.operator, value: String(condition.relativeDays ?? 0) };
-  if (condition.operator === "in" || condition.operator === "notIn")
+  if (condition.operator === "in" || condition.operator === "notIn") {
     return {
       fieldId: condition.fieldId,
       operator: condition.operator === "in" ? "equals" : "notEquals",
       value: textFor(condition.values?.[0]),
     };
+  }
   return {
     fieldId: condition.fieldId,
     operator: condition.operator === "notEquals" ? "notEquals" : "equals",
@@ -293,7 +316,7 @@ function conditionToDraft(condition: AutomationCondition, field: AutomationBuild
 }
 
 function effectToDraft(effect: AutomationEffect, triggerType: string | null): DraftEffect {
-  if (effect.kind === "notify" && effect.recipients.userIds.length === 0)
+  if (effect.kind === "notify" && effect.recipients.userIds.length === 0) {
     return {
       kind: "notify",
       toOwner: effect.recipients.ruleOwner,
@@ -302,19 +325,21 @@ function effectToDraft(effect: AutomationEffect, triggerType: string | null): Dr
       title: effect.title,
       body: effect.body ?? "",
     };
-  if (effect.kind === "setField" && effect.fields.length === 1 && effect.fields[0]?.value)
+  }
+  if (effect.kind === "setField" && effect.fields.length === 1 && effect.fields[0]?.value) {
     return {
       kind: "setField",
       fieldId: effect.fields[0].fieldId,
       value: textFor(effect.fields[0].value as RecordScalar),
     };
+  }
   if (
     effect.kind === "createRecord" &&
     effect.fields.length === 0 &&
     effect.assignedUserIds.length === 0 &&
     effect.title &&
     (!effect.link || triggerType)
-  )
+  ) {
     return {
       kind: "createRecord",
       typeId: effect.typeId,
@@ -325,6 +350,7 @@ function effectToDraft(effect: AutomationEffect, triggerType: string | null): Dr
       assignToOwner: effect.assignToRuleOwner,
       relationId: effect.link?.relationId ?? "",
     };
+  }
   return { kind: "kept", effect };
 }
 
@@ -355,7 +381,11 @@ export function ruleToDraft(rule: AutomationRuleDto, model: AutomationBuilderMod
       timezone: trigger.kind === "dateReached" ? trigger.timezone : base.timezone,
       kept: supported ? null : trigger,
     },
-    conditions: rule.conditions.map((condition) => conditionToDraft(condition, fieldOfList(model, typeId, condition.fieldId))),
-    effects: rule.effects.map((effect) => effectToDraft(effect, "typeId" in trigger && trigger.typeId ? trigger.typeId : null)),
+    conditions: rule.conditions.map((condition) =>
+      conditionToDraft(condition, fieldOfList(model, typeId, condition.fieldId)),
+    ),
+    effects: rule.effects.map((effect) =>
+      effectToDraft(effect, "typeId" in trigger && trigger.typeId ? trigger.typeId : null),
+    ),
   };
 }

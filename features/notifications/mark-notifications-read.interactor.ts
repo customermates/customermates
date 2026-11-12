@@ -1,4 +1,4 @@
-import { z } from "zod";
+import type { z } from "zod";
 
 import type { Validated } from "@/core/validation/validation.utils";
 import type { NotificationRepo } from "./notification.repo";

@@ -62,11 +62,12 @@ export class UpsertAutomationRuleInteractor extends AuthenticatedInteractor<
 
     if (state.enabled && !previous?.enabled) {
       const allowance = await this.limits.activeRuleAllowance();
-      if (allowance.limit !== null && (await this.repo.countActiveRules(previous?.id)) >= allowance.limit)
+      if (allowance.limit !== null && (await this.repo.countActiveRules(previous?.id)) >= allowance.limit) {
         return failConflict(CustomErrorCode.automationRuleLimitReached, [], {
           limit: allowance.limit,
           price: allowance.price,
         });
+      }
     }
 
     const saved = await this.repo.saveRule({

@@ -56,7 +56,12 @@ export class NotificationService {
     );
     const byUser = new Map(recipients.map((recipient) => [recipient.id, recipient]));
     const pending = new Map(
-      (await this.repo.findNotificationsUnscoped(companyId, created.map((row) => row.id))).map((item) => [item.id, item]),
+      (
+        await this.repo.findNotificationsUnscoped(
+          companyId,
+          created.map((row) => row.id),
+        )
+      ).map((item) => [item.id, item]),
     );
     const sent: string[] = [];
     for (const row of created) {

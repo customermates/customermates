@@ -4,10 +4,7 @@ import type { NotificationRepo } from "./notification.repo";
 import * as ErrorReporter from "@/core/observability/server";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
-import {
-  NOTIFICATION_DIGEST_WINDOW_HOURS,
-  NOTIFICATION_RETENTION_DAYS,
-} from "./notification.schema";
+import { NOTIFICATION_DIGEST_WINDOW_HOURS, NOTIFICATION_RETENTION_DAYS } from "./notification.schema";
 import { effectiveEmailMode } from "./notification.service";
 
 const USER_BATCH_LIMIT = 500;

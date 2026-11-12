@@ -58,7 +58,7 @@ NotificationEmail.PreviewProps = {
   ...PREVIEW_EMAIL_LAYOUT_PROPS,
   greeting: t.greeting.replace("{firstName}", "Sofia"),
   intro: t.digestIntro,
-  items: [{ title: "Follow up with Hoffmann Consulting", body: "The proposal was sent 3 days ago." }],
+  items: [{ title: t.title, body: t.digestIntro }],
   cta: t.cta,
   href: "https://app.example.test/records",
   preferencesHint: t.preferencesHint,

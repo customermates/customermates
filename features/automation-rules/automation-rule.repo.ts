@@ -92,7 +92,11 @@ export abstract class AutomationRuleRepo {
   }): Promise<{ items: StoredAutomationRule[]; total: number }>;
   abstract findRule(id: string): Promise<StoredAutomationRule | null>;
   abstract saveRule(data: AutomationRuleWrite): Promise<StoredAutomationRule>;
-  abstract setEnabled(id: string, enabled: boolean, disabledReason: string | null): Promise<StoredAutomationRule | null>;
+  abstract setEnabled(
+    id: string,
+    enabled: boolean,
+    disabledReason: string | null,
+  ): Promise<StoredAutomationRule | null>;
   abstract deleteRule(id: string): Promise<boolean>;
   abstract countActiveRules(excludeId?: string): Promise<number>;
   abstract findRuns(args: {

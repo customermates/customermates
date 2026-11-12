@@ -20,12 +20,13 @@ async function runAutomationRuleStep(payload: RunAutomationRuleWorkflowPayload):
   const outcome = await asBackgroundOwner(payload.ownerUserId, () =>
     getRunAutomationRuleInteractor().invoke({ runId: payload.runId }),
   );
-  if (outcome === GONE)
+  if (outcome === GONE) {
     await getDiscardAutomationRuleRunInteractor().invoke({
       runId: payload.runId,
       companyId: payload.companyId,
       reason: "ownerInactive",
     });
+  }
 }
 runAutomationRuleStep.maxRetries = 0;
 

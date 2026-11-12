@@ -1,5 +1,5 @@
 import { TZDate } from "@date-fns/tz";
-import { addDays } from "date-fns";
+import { addDays, format } from "date-fns";
 
 const CANDIDATE_SLACK_DAYS = 2;
 
@@ -9,12 +9,7 @@ type DateValue = { kind: "date" | "dateTime"; value: string };
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 export function localDay(instant: Date, timeZone: string): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(instant);
+  return format(new TZDate(instant, timeZone), "yyyy-MM-dd");
 }
 
 export function shiftDay(day: string, days: number): string {

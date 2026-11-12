@@ -26,7 +26,8 @@ export class GetAutomationRuleInteractor extends AuthenticatedInteractor<Automat
   @ValidateOutput(AutomationRuleDtoSchema)
   async invoke({ id }: AutomationRuleIdData): Validated<AutomationRuleDto> {
     const rule = await this.repo.findRule(id);
-    const visible = rule && (roleReadScope(this.user.role, Resource.routines) === "all" || rule.ownerUserId === this.user.id);
+    const visible =
+      rule && (roleReadScope(this.user.role, Resource.routines) === "all" || rule.ownerUserId === this.user.id);
     if (!rule || !visible) return failNotFound(CustomErrorCode.automationRuleNotFound, ["id"]);
     return { ok: true as const, data: toAutomationRuleDto(rule) };
   }

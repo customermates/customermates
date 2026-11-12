@@ -57,7 +57,9 @@ export function toAutomationBuilderModel(model: RecordModelView): AutomationBuil
   return {
     lists,
     relationships: model.relationships
-      .filter((relation) => !relation.archived && listIds.has(relation.sourceTypeId) && listIds.has(relation.targetTypeId))
+      .filter(
+        (relation) => !relation.archived && listIds.has(relation.sourceTypeId) && listIds.has(relation.targetTypeId),
+      )
       .map((relation) => ({
         id: relation.id,
         sourceTypeId: relation.sourceTypeId,

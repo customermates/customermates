@@ -20,7 +20,13 @@ import { Switch } from "@/components/ui/switch";
 import { browserTimeZone } from "@/core/utils/time-zone";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { emptyDraft, fieldOfList, listOf, reminderDraft, ruleToDraft } from "@/features/automation-rules/automation-draft";
+import {
+  emptyDraft,
+  fieldOfList,
+  listOf,
+  reminderDraft,
+  ruleToDraft,
+} from "@/features/automation-rules/automation-draft";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 import { deleteAutomationRuleAction, setAutomationRuleEnabledAction } from "../actions";
@@ -58,10 +64,7 @@ const AutomationsViewContent = ({ initialRules, model, prefill }: Props) => {
   const [pending, startTransition] = useTransition();
 
   const create = useCallback(() => setDraft(emptyDraft(model, { timezone: browserTimeZone() })), [model]);
-  const topBar = useMemo(
-    () => <TopBarPrimaryButton label={t("AutomationRules.new")} onClick={create} />,
-    [create, t],
-  );
+  const topBar = useMemo(() => <TopBarPrimaryButton label={t("AutomationRules.new")} onClick={create} />, [create, t]);
   useSetTopBarActions(topBar);
 
   const replace = (rule: AutomationRuleDto) =>
@@ -78,7 +81,7 @@ const AutomationsViewContent = ({ initialRules, model, prefill }: Props) => {
         toastZodErrorTree(result.error);
         return;
       }
-      replace(result.data as AutomationRuleDto);
+      replace(result.data);
     });
 
   const remove = (rule: AutomationRuleDto) =>
@@ -181,7 +184,11 @@ const AutomationsViewContent = ({ initialRules, model, prefill }: Props) => {
                     </span>
 
                     <div className="flex items-center gap-1">
-                      <Button size="sm" variant="ghost" onClick={() => setDraft(ruleToDraft(rule, model, browserTimeZone()))}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setDraft(ruleToDraft(rule, model, browserTimeZone()))}
+                      >
                         <Pencil aria-hidden="true" className="size-4" />
 
                         {t("AutomationRules.edit")}

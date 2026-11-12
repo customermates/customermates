@@ -27,6 +27,8 @@ export async function deleteAutomationRuleAction(data: AutomationRuleIdData) {
   return serializeResult(getDeleteAutomationRuleInteractor().invoke(data));
 }
 
-export async function getAutomationRuleRunsAction(data: Pick<GetAutomationRuleRunsData, "id"> & Partial<GetAutomationRuleRunsData>) {
+export async function getAutomationRuleRunsAction(
+  data: Pick<GetAutomationRuleRunsData, "id"> & Partial<GetAutomationRuleRunsData>,
+) {
   return serializeTypedResult(getGetAutomationRuleRunsInteractor().invoke(data as GetAutomationRuleRunsData));
 }

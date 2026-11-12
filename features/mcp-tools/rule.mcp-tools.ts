@@ -16,14 +16,7 @@ import {
   AutomationTriggerSchema,
 } from "@/features/automation-rules/automation-rule.schema";
 
-import {
-  MCP_PAGE_SIZE_DESCRIPTION,
-  mcpMessageFailure,
-  mcpPage,
-  mcpPageSize,
-  runInteractor,
-  toonResult,
-} from "./utils";
+import { MCP_PAGE_SIZE_DESCRIPTION, mcpMessageFailure, mcpPage, mcpPageSize, runInteractor, toonResult } from "./utils";
 
 const ManageRulesSchema = z.object({
   action: z
@@ -145,7 +138,7 @@ export const manageRulesTool = {
     const { id } = params;
     if (!id && params.action !== "preview") return mcpMessageFailure(`${params.action} needs id`, ["id"]);
 
-    if (params.action === "update" && id)
+    if (params.action === "update" && id) {
       return runInteractor(
         getUpsertAutomationRuleInteractor().invoke({
           id,
@@ -157,21 +150,25 @@ export const manageRulesTool = {
         }),
         (data) => toonResult({ ...data }),
       );
+    }
 
     if (params.action === "get" && id)
       return runInteractor(getGetAutomationRuleInteractor().invoke({ id }), (data) => toonResult({ ...data }));
 
-    if (params.action === "runs" && id)
+    if (params.action === "runs" && id) {
       return runInteractor(
         getGetAutomationRuleRunsInteractor().invoke({ id, page: params.page, pageSize: params.pageSize }),
         (data) => toonResult({ total: data.total, page: params.page, pageSize: params.pageSize, items: data.items }),
       );
+    }
 
-    if ((params.action === "enable" || params.action === "disable") && id)
+    if ((params.action === "enable" || params.action === "disable") && id) {
       return runInteractor(
         getSetAutomationRuleEnabledInteractor().invoke({ id, enabled: params.action === "enable" }),
-        (data) => toonResult({ id: data.id, name: data.name, enabled: data.enabled, disabledReason: data.disabledReason }),
+        (data) =>
+          toonResult({ id: data.id, name: data.name, enabled: data.enabled, disabledReason: data.disabledReason }),
       );
+    }
 
     if (params.action === "delete" && id)
       return runInteractor(getDeleteAutomationRuleInteractor().invoke({ id }), (data) => toonResult({ ...data }));

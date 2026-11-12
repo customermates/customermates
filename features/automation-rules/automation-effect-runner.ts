@@ -40,11 +40,12 @@ function dueAssignment(
 ): FieldAssignment | null {
   const field = model.fields.find((item) => item.id === due.fieldId && item.typeId === typeId);
   if (!field) return null;
-  if (field.valueType === "dateTime")
+  if (field.valueType === "dateTime") {
     return {
       fieldId: due.fieldId,
       value: { kind: "dateTime", value: new Date(context.now.getTime() + due.offsetDays * DAY_MS).toISOString() },
     };
+  }
   const day = shiftDay(localDay(context.now, triggerTimeZone(context.rule.trigger)), due.offsetDays);
   return { fieldId: due.fieldId, value: { kind: "date", value: day } };
 }
@@ -119,11 +120,12 @@ export class AutomationEffectRunner {
     const model = await this.records.model();
     const template = { record: trigger ? { name: trigger.name } : undefined, rule: { name: context.rule.name } };
     const fields: FieldAssignment[] = [...effect.fields];
-    if (effect.title)
+    if (effect.title) {
       fields.push({
         fieldId: effect.title.fieldId,
         value: { kind: "text", value: renderAutomationTemplate(effect.title.text, template).slice(0, 200) },
       });
+    }
     if (effect.due) {
       const assignment = dueAssignment(model, effect.typeId, effect.due, context);
       if (assignment) fields.push(assignment);
@@ -137,7 +139,11 @@ export class AutomationEffectRunner {
       fields,
       ...(assignedUserIds.length ? { assignedUserIds } : {}),
       ...(effect.link && context.recordRef
-        ? { links: [{ relationId: effect.link.relationId, direction: effect.link.direction, record: context.recordRef }] }
+        ? {
+            links: [
+              { relationId: effect.link.relationId, direction: effect.link.direction, record: context.recordRef },
+            ],
+          }
         : {}),
     };
     const result = await this.records.mutate({ idempotencyKey: `rule:${context.runId}:${index}`, mutation });
@@ -152,7 +158,10 @@ export class AutomationEffectRunner {
   ): Promise<AutomationEffectOutcome> {
     const kind = effect.kind;
     let record: AutomationRecordView | null = null;
-    if (context.recordRef && (effect.recipients.assignees || /\{\{\s*record\./.test(`${effect.title}${effect.body ?? ""}`)))
+    if (
+      context.recordRef &&
+      (effect.recipients.assignees || /\{\{\s*record\./.test(`${effect.title}${effect.body ?? ""}`))
+    )
       record = await this.records.read(context.recordRef);
     const recipients = new Set<string>(effect.recipients.userIds);
     if (effect.recipients.ruleOwner) recipients.add(context.rule.ownerUserId);
