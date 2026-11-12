@@ -1,0 +1,248 @@
+{
+  "locale": "pt",
+  "name": "Funil de vendas",
+  "summary": "Sete etapas com critérios de saída e pesos, um próximo passo com data em cada negócio aberto, motivos de ganho e de perda e uma mudança de etapa que cria a próxima tarefa.",
+  "description": "Um funil para uma equipe comercial pequena: cinco etapas abertas, Ganho e Perdido, um valor ponderado por negócio, o comitê de compra no negócio, um motivo da perda e um motivo do ganho, e a revisão semanal. Os pesos são uma ponderação do funil, não uma previsão: troque-os pelas suas próprias taxas de conversão depois de 20 a 30 negócios encerrados.",
+  "lists": {
+    "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas do lado comprador, com o papel de cada uma na decisão." },
+    "accounts": { "label": "Empresa", "pluralLabel": "Empresas", "description": "As empresas para as quais você vende." },
+    "opportunities": { "label": "Negócio", "pluralLabel": "Negócios", "description": "Um negócio, do primeiro contato até ganho ou perdido." }
+  },
+  "fields": {
+    "opportunities.stage": {
+      "label": "Etapa",
+      "options": {
+        "new": "Novo lead",
+        "qualified": "Qualificado",
+        "discovery": "Reunião de diagnóstico",
+        "proposal_sent": "Proposta enviada",
+        "negotiation": "Negociação",
+        "won": "Ganho",
+        "lost": "Perdido"
+      }
+    },
+    "contacts.job_title": { "label": "Cargo" },
+    "contacts.buying_role": {
+      "label": "Papel na compra",
+      "options": {
+        "decision_maker": "Decisor",
+        "budget_holder": "Responsável pelo orçamento",
+        "champion": "Defensor interno",
+        "influencer": "Influenciador",
+        "user": "Usuário",
+        "blocker": "Opositor"
+      }
+    },
+    "contacts.language": { "label": "Idioma" },
+    "contacts.outreach_consent": { "label": "Consentimento para contato comercial" },
+    "accounts.relationship": {
+      "label": "Relacionamento",
+      "options": { "prospect": "Prospect", "customer": "Cliente", "former_customer": "Ex-cliente", "partner": "Parceiro" }
+    },
+    "accounts.size": {
+      "label": "Porte",
+      "options": { "micro": "De 1 a 10", "small": "De 11 a 50", "medium": "De 51 a 250", "large": "251 ou mais" }
+    },
+    "accounts.industry": { "label": "Setor" },
+    "accounts.website": { "label": "Site" },
+    "accounts.address": { "label": "Endereço" },
+    "accounts.owner": { "label": "Responsável" },
+    "opportunities.owner": { "label": "Responsável" },
+    "opportunities.deal_type": {
+      "label": "Tipo de negócio",
+      "options": { "new_business": "Cliente novo", "expansion": "Expansão", "renewal": "Renovação" }
+    },
+    "opportunities.source": {
+      "label": "Origem",
+      "options": {
+        "referral": "Indicação",
+        "inbound": "Contato recebido",
+        "outbound": "Prospecção ativa",
+        "event": "Evento",
+        "partner": "Parceiro",
+        "existing_customer": "Cliente atual",
+        "other": "Outra"
+      }
+    },
+    "opportunities.first_contact_on": { "label": "Primeiro contato" },
+    "opportunities.expected_close": { "label": "Previsão de fechamento" },
+    "opportunities.closed_on": { "label": "Fechado em" },
+    "opportunities.next_step": { "label": "Próximo passo" },
+    "opportunities.next_step_due": { "label": "Data do próximo passo" },
+    "opportunities.decision_date": { "label": "Data da decisão" },
+    "opportunities.competitor": { "label": "Concorrente" },
+    "opportunities.lost_reason": {
+      "label": "Motivo da perda",
+      "options": {
+        "price": "Preço",
+        "competitor": "Concorrente",
+        "no_budget_or_decision": "Sem orçamento ou decisão",
+        "timing": "Momento",
+        "no_response": "Sem resposta",
+        "not_a_fit": "Sem aderência",
+        "other": "Outro"
+      }
+    },
+    "opportunities.won_reason": { "label": "Motivo do ganho" },
+    "opportunities.weighted_value": { "label": "Valor ponderado" },
+    "opportunities.cycle_days": { "label": "Ciclo em dias" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "call": "Ligação",
+        "email": "E-mail",
+        "meeting": "Reunião",
+        "proposal": "Proposta",
+        "follow_up": "Retorno",
+        "handover": "Passagem",
+        "review": "Revisão",
+        "other": "Outro"
+      }
+    }
+  },
+  "relationships": {
+    "contact_account": { "sourceLabel": "Empresa", "targetLabel": "Contatos" },
+    "opportunity_account": { "sourceLabel": "Empresa", "targetLabel": "Negócios" },
+    "opportunity_contacts": { "sourceLabel": "Comitê de compra", "targetLabel": "Negócios" },
+    "action_opportunity": { "sourceLabel": "Negócio", "targetLabel": "Tarefas" },
+    "action_contact": { "sourceLabel": "Contato", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "pipeline_board": { "name": "Funil" },
+    "opportunities_all": { "name": "Todos os negócios" },
+    "no_next_step": { "name": "Sem próximo passo" },
+    "won_handover": { "name": "Ganhos, a repassar" },
+    "lost_to_revisit": { "name": "Perdidos, a retomar" },
+    "actions_all": { "name": "Todas as tarefas" },
+    "accounts_all": { "name": "Todas as empresas" },
+    "contacts_all": { "name": "Todos os contatos" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Negócios abertos por etapa" },
+    "open_value_by_stage": { "title": "Valor aberto por etapa" },
+    "weighted_value_by_stage": { "title": "Valor ponderado por etapa" },
+    "open_opportunities": { "title": "Negócios abertos" },
+    "open_value": { "title": "Valor aberto" },
+    "open_weighted_value": { "title": "Valor ponderado aberto" },
+    "won_last_90_days": { "title": "Ganhos nos últimos 90 dias" },
+    "lost_reasons": { "title": "Motivos da perda" },
+    "pipeline_by_owner": { "title": "Valor aberto por responsável" },
+    "deals_without_next_step": { "title": "Negócios sem próximo passo" },
+    "upcoming_actions": { "title": "Tarefas próximas e atrasadas" },
+    "expected_closes": { "title": "Fechamentos previstos" }
+  },
+  "knowledgePages": {
+    "stages_exit_criteria": {
+      "title": "Etapas de venda e critérios de saída",
+      "sections": ["Critério de entrada e de saída de cada etapa", "Quem move um negócio e com qual evidência", "Pesos e quando substituí-los"]
+    },
+    "qualification_questions": {
+      "title": "Perguntas de qualificação",
+      "sections": ["Orçamento, autoridade, necessidade e prazo", "O que acontece se o prospect não fizer nada", "Quem mais decide"]
+    },
+    "proposal_cadence": {
+      "title": "Ritmo de propostas e retornos",
+      "sections": ["Retornar após 3 e após 10 dias", "Uma mensagem de encerramento", "Depois, uma data para retomar"]
+    },
+    "weekly_review": {
+      "title": "Revisão semanal do funil",
+      "sections": ["Negócios parados", "Negócios além da previsão de fechamento", "Negócios sem próximo passo", "Os cinco maiores por valor ponderado"]
+    },
+    "win_loss_review": {
+      "title": "Análise de ganhos e perdas",
+      "sections": ["Ler todo mês os motivos da perda e os concorrentes", "Ler os motivos do ganho", "Uma tarefa de melhoria"]
+    },
+    "message_templates": {
+      "title": "Modelos de mensagem de retorno",
+      "sections": ["Primeira resposta", "Depois da reunião de diagnóstico", "Mensagem de envio da proposta", "Cobrança de retorno da proposta", "Encerramento: talvez não seja o momento", "Retomada após 90 dias"]
+    }
+  },
+  "rules": {
+    "qualify_new_opportunity": {
+      "title": "Qualificar o novo negócio",
+      "description": "Um novo negócio recebe uma tarefa de ligação para o dia seguinte."
+    },
+    "book_discovery_call": {
+      "title": "Agendar a reunião de diagnóstico",
+      "description": "Quando um negócio vira Qualificado, uma tarefa de reunião vence em 3 dias."
+    },
+    "send_proposal": {
+      "title": "Enviar a proposta",
+      "description": "Quando um negócio chega a Reunião de diagnóstico, uma tarefa de proposta vence em 5 dias."
+    },
+    "follow_up_proposal": {
+      "title": "Cobrar retorno da proposta",
+      "description": "Três dias depois do envio da proposta vence uma tarefa de retorno."
+    },
+    "second_proposal_follow_up": {
+      "title": "Segundo retorno da proposta",
+      "description": "Dez dias depois do envio da proposta vence uma segunda tarefa de retorno. Conclua-a se o prospect já respondeu."
+    },
+    "confirm_decision": {
+      "title": "Confirmar a data da decisão e o decisor",
+      "description": "Quando um negócio chega a Negociação, uma tarefa de retorno vence em 5 dias."
+    },
+    "won_close_date": {
+      "title": "Definir a data de fechamento",
+      "description": "Quando um negócio é ganho, Fechado em recebe a data de hoje."
+    },
+    "won_handover": {
+      "title": "Repassar o negócio ganho",
+      "description": "Uma tarefa de passagem vence no dia seguinte ao ganho. Registre o motivo do ganho."
+    },
+    "lost_revisit": {
+      "title": "Retomar o negócio perdido",
+      "description": "Noventa dias depois da perda, uma tarefa de retorno pergunta se o momento mudou. Registre antes o motivo da perda."
+    },
+    "stale_deal_sweep": {
+      "title": "Reativar ou descartar o negócio parado",
+      "description": "Um negócio aberto que ficou 14 dias na mesma etapa recebe uma tarefa de retorno."
+    },
+    "expected_close_passed": {
+      "title": "Atualizar a previsão de fechamento ou encerrar o negócio",
+      "description": "Quando a previsão de fechamento de um negócio aberto passa, é criada uma tarefa de revisão."
+    },
+    "next_step_due_notice": {
+      "title": "Avisar o responsável de que um próximo passo vence",
+      "description": "Na data do próximo passo de um negócio aberto, o responsável é avisado."
+    },
+    "weekly_pipeline_report": {
+      "title": "Relatório semanal do funil",
+      "description": "Toda sexta-feira, uma tarefa de revisão lista quantidades e valor por etapa e responsável, negócios ganhos e perdidos com os motivos e negócios além da previsão de fechamento."
+    },
+    "enquiry_form_records": {
+      "title": "Criar contato, empresa e negócio a partir de uma solicitação",
+      "description": "Um formulário de solicitação na web cria o contato, a empresa e um negócio na etapa Novo lead."
+    },
+    "enquiry_form_notice": {
+      "title": "Avisar o responsável da solicitação",
+      "description": "O responsável é avisado de cada nova solicitação."
+    },
+    "fill_missing_value": {
+      "title": "Preencher o valor deste negócio",
+      "description": "Um negócio que chega a Reunião de diagnóstico sem valor recebe uma tarefa de revisão."
+    },
+    "fill_expected_close": {
+      "title": "Preencher a previsão de fechamento deste negócio",
+      "description": "Um negócio que chega a Proposta enviada sem previsão de fechamento recebe uma tarefa de revisão."
+    }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada negócio tem uma das sete etapas.",
+    "weighted_value_field": "Cada negócio mostra o valor ponderado.",
+    "pipeline_board_view": "A lista de negócios abre como quadro por etapa, com totais.",
+    "funnel_widget": "O painel mostra os negócios abertos por etapa como funil.",
+    "proposal_follow_up_rule": "Um negócio que chega a Proposta enviada recebe uma tarefa de retorno.",
+    "stages_page": "A base de conhecimento contém as etapas e seus critérios de saída."
+  },
+  "prompt": {
+    "intro": "Configure um funil de vendas no meu espaço de trabalho do Customermates: negócios com sete etapas e pesos, um valor ponderado, um próximo passo com data em cada negócio aberto, motivos de perda e de ganho, o comitê de compra em cada negócio e uma tarefa criada a cada mudança de etapa.",
+    "questions": [
+      "O que você vende e quantas pessoas vendem?",
+      "Por quais passos um negócio passa do primeiro contato à assinatura? Quais das sete etapas servem e quais precisam de outro nome?",
+      "Quanto dura um negócio típico e depois de quantos dias sem movimento ele deve ser considerado parado?",
+      "Quais taxas de conversão você tem de negócios passados? Se não tiver, os pesos padrão ficam.",
+      "Onde você faz as propostas? Elas ficam lá e aqui só se guarda um link."
+    ]
+  }
+}

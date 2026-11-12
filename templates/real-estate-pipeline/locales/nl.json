@@ -1,0 +1,413 @@
+{
+  "locale": "nl",
+  "name": "Makelaarspipeline",
+  "summary": "Twee pipelines die samenkomen bij de koopovereenkomst: de woning binnenhalen en op de markt brengen, en de koper begeleiden, met bezichtigingen, sleutelmomenten en een routine voor oud-klanten.",
+  "description": "Een makelaarskantoor werkt aan een verkopersdeel (waardebepaling, opdracht, verkoop starten, biedingen) en een kopersdeel (aanvraag, kwalificatie, bezichtigingen, bod), daarna aan één gedeelde fase na de koopovereenkomst met harde data. Dit sjabloon volgt beide, het type opdracht en de einddatum, elke bezichtiging met terugkoppeling, de sleutelmomenten na ondertekening en een routine met data voor oud-klanten. De waarde bij een woning is de verwachte courtage.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacten", "description": "Eigenaren, verhuurders, kopers, huurders en verwijzers." },
+    "organizations": { "label": "Organisatie", "pluralLabel": "Organisaties", "description": "Ontwikkelaars, banken, notarissen en verwijzende partners." },
+    "listings": { "label": "Woning", "pluralLabel": "Woningen", "description": "De opdracht van de eigenaar en de pipeline daarvan. De waarde is de verwachte courtage." },
+    "buyer_searches": { "label": "Zoekopdracht koper", "pluralLabel": "Zoekopdrachten kopers", "description": "Eén zoekopdracht van een koper of huurder, van aanvraag tot overdracht." },
+    "viewings": { "label": "Bezichtiging", "pluralLabel": "Bezichtigingen", "description": "Elke bezichtiging met terugkoppeling." },
+    "key_dates": { "label": "Sleutelmoment", "pluralLabel": "Sleutelmomenten", "description": "Data die lopen na ondertekening van de koopovereenkomst." },
+    "actions": { "label": "Taak", "pluralLabel": "Taken", "description": "Eén volgende stap met datum per open woning of zoekopdracht." }
+  },
+  "fields": {
+    "listings.stage": {
+      "label": "Fase",
+      "options": {
+        "owner_lead": "Aanvraag verkoper",
+        "valuation": "Waardebepaling",
+        "listing_proposal_sent": "Opdrachtvoorstel verstuurd",
+        "agreement_signed": "Opdracht getekend",
+        "on_market": "Verkoop gestart",
+        "offer_stage": "Bod",
+        "under_contract": "Koopovereenkomst",
+        "completed": "Notaris en overdracht",
+        "lost": "Verloren"
+      }
+    },
+    "buyer_searches.stage": {
+      "label": "Fase",
+      "options": {
+        "new_lead": "Nieuwe aanvraag",
+        "qualified": "Gekwalificeerd",
+        "viewing": "Bezichtiging",
+        "offer_made": "Bod uitgebracht",
+        "under_contract": "Koopovereenkomst",
+        "completed": "Notaris en overdracht",
+        "lost": "Verloren"
+      }
+    },
+    "contacts.contact_role": {
+      "label": "Rol",
+      "options": {
+        "seller": "Verkoper",
+        "landlord": "Verhuurder",
+        "buyer": "Koper",
+        "tenant": "Huurder",
+        "investor": "Belegger",
+        "referrer": "Verwijzer",
+        "other": "Overig"
+      }
+    },
+    "contacts.preferred_channel": {
+      "label": "Voorkeurskanaal",
+      "options": { "email": "E-mail", "phone": "Telefoon", "whatsapp": "WhatsApp", "portal": "Portaal" }
+    },
+    "contacts.language": { "label": "Taal" },
+    "contacts.marketing_consent_on": { "label": "Toestemming voor marketing op" },
+    "contacts.last_contact": { "label": "Laatste contact" },
+    "organizations.org_type": {
+      "label": "Type",
+      "options": {
+        "developer": "Ontwikkelaar",
+        "investor": "Belegger",
+        "bank_or_lender": "Bank of geldverstrekker",
+        "notary_or_lawyer": "Notaris of advocaat",
+        "referral_partner": "Verwijzende partner",
+        "other": "Overig"
+      }
+    },
+    "organizations.website": { "label": "Website" },
+    "listings.transaction_type": { "label": "Koop of huur", "options": { "sale": "Koop", "let": "Huur" } },
+    "listings.address": { "label": "Adres" },
+    "listings.property_type": {
+      "label": "Type woning",
+      "options": {
+        "apartment": "Appartement",
+        "house": "Woonhuis",
+        "land": "Bouwgrond",
+        "commercial": "Bedrijfsruimte",
+        "parking_or_storage": "Parkeerplaats of berging",
+        "other": "Overig"
+      }
+    },
+    "listings.size_m2": { "label": "Oppervlakte in vierkante meters" },
+    "listings.rooms": { "label": "Kamers" },
+    "listings.asking_price": { "label": "Vraagprijs" },
+    "listings.source": {
+      "label": "Herkomst",
+      "options": {
+        "referral": "Verwijzing",
+        "portal": "Portaal",
+        "web_form": "Webformulier",
+        "whatsapp": "WhatsApp",
+        "canvassing": "Acquisitie op straat",
+        "past_client": "Oud-klant",
+        "expired_listing": "Verlopen opdracht"
+      }
+    },
+    "listings.agreement_type": {
+      "label": "Type opdracht",
+      "options": { "open": "Open", "sole_agency": "Beperkte exclusiviteit", "exclusive": "Exclusief" }
+    },
+    "listings.agreement_start": { "label": "Begin van de opdracht" },
+    "listings.agreement_end": { "label": "Einde van de opdracht" },
+    "listings.commission_rate": { "label": "Courtage in procenten" },
+    "listings.first_response_on": { "label": "Eerste reactie op" },
+    "listings.valuation_on": { "label": "Waardebepaling op" },
+    "listings.proposal_sent_on": { "label": "Opdrachtvoorstel verstuurd op" },
+    "listings.signed_on": { "label": "Opdracht getekend op" },
+    "listings.live_on": { "label": "Verkoop gestart op" },
+    "listings.first_offer_on": { "label": "Eerste bod op" },
+    "listings.contract_signed_on": { "label": "Koopovereenkomst getekend op" },
+    "listings.completion_on": { "label": "Overdracht op" },
+    "listings.energy_label": { "label": "Energielabel" },
+    "listings.listing_url": { "label": "Link naar de advertentie" },
+    "listings.external_id": { "label": "Referentie in je andere software" },
+    "listings.aml_checked_on": { "label": "Identiteit gecontroleerd op" },
+    "listings.next_step": { "label": "Volgende stap" },
+    "listings.next_step_due": { "label": "Datum volgende stap" },
+    "listings.lost_reason": {
+      "label": "Reden verloren",
+      "options": {
+        "price_too_high": "Prijs te hoog",
+        "chose_other_agent": "Koos een andere makelaar",
+        "owner_changed_mind": "Eigenaar bedacht zich",
+        "sold_privately": "Zelf verkocht",
+        "agreement_expired": "Opdracht verlopen",
+        "unrealistic_expectations": "Onrealistische verwachtingen"
+      }
+    },
+    "listings.days_to_first_offer": { "label": "Dagen van start verkoop tot eerste bod" },
+    "buyer_searches.source": {
+      "label": "Herkomst",
+      "options": {
+        "portal": "Portaal",
+        "web_form": "Webformulier",
+        "whatsapp": "WhatsApp",
+        "referral": "Verwijzing",
+        "walk_in": "Binnenloper",
+        "past_client": "Oud-klant"
+      }
+    },
+    "buyer_searches.criteria": { "label": "Zoekcriteria" },
+    "buyer_searches.budget_max": { "label": "Maximaal budget" },
+    "buyer_searches.financing": {
+      "label": "Financiering",
+      "options": { "cash": "Contant", "pre_approved": "Hypotheek goedgekeurd", "mortgage_needed": "Hypotheek nog nodig", "unknown": "Onbekend" }
+    },
+    "buyer_searches.preapproval_verified_on": { "label": "Goedkeuring hypotheek gecontroleerd op" },
+    "buyer_searches.timeframe": {
+      "label": "Termijn",
+      "options": { "asap": "Zo snel mogelijk", "three_months": "Binnen drie maanden", "six_months": "Binnen zes maanden", "later": "Later" }
+    },
+    "buyer_searches.first_response_on": { "label": "Eerste reactie op" },
+    "buyer_searches.last_activity_on": { "label": "Laatste activiteit op" },
+    "buyer_searches.aml_checked_on": { "label": "Identiteit gecontroleerd op" },
+    "buyer_searches.next_step": { "label": "Volgende stap" },
+    "buyer_searches.next_step_due": { "label": "Datum volgende stap" },
+    "buyer_searches.lost_reason": {
+      "label": "Reden verloren",
+      "options": {
+        "bought_elsewhere": "Elders gekocht",
+        "financing_failed": "Financiering mislukt",
+        "stopped_searching": "Gestopt met zoeken",
+        "no_response": "Geen reactie",
+        "chose_other_agent": "Koos een andere makelaar"
+      }
+    },
+    "viewings.viewing_on": { "label": "Bezichtiging op" },
+    "viewings.interest": {
+      "label": "Interesse",
+      "options": { "none": "Geen", "low": "Laag", "medium": "Gemiddeld", "high": "Hoog", "offer": "Bod" }
+    },
+    "viewings.feedback": { "label": "Terugkoppeling" },
+    "viewings.feedback_sent_on": { "label": "Terugkoppeling verstuurd op" },
+    "key_dates.kind": {
+      "label": "Soort",
+      "options": {
+        "reservation_deposit_due": "Waarborgsom te storten",
+        "financing_deadline": "Uiterste datum financiering",
+        "inspection_deadline": "Uiterste datum bouwkundige keuring",
+        "cooling_off_ends": "Einde bedenktijd",
+        "notary_appointment": "Afspraak bij de notaris",
+        "handover": "Sleuteloverdracht",
+        "other": "Overig"
+      }
+    },
+    "key_dates.due_date": { "label": "Datum" },
+    "key_dates.status": { "label": "Status", "options": { "open": "Open", "done": "Klaar", "waived": "Vervallen" } },
+    "key_dates.source_ref": { "label": "Waar het in de overeenkomst staat" },
+    "key_dates.verified_by": { "label": "Gecontroleerd door" },
+    "actions.kind": {
+      "label": "Soort",
+      "options": {
+        "call": "Telefoongesprek",
+        "viewing": "Bezichtiging",
+        "valuation": "Waardebepaling",
+        "listing_proposal": "Opdrachtvoorstel",
+        "offer": "Bod",
+        "key_date": "Sleutelmoment",
+        "owner_update": "Update aan de eigenaar",
+        "nurture": "Contact onderhouden",
+        "other": "Overig"
+      }
+    }
+  },
+  "relationships": {
+    "contact_organization": { "sourceLabel": "Organisatie", "targetLabel": "Contacten" },
+    "listing_owner": { "sourceLabel": "Eigenaar", "targetLabel": "Woningen" },
+    "listing_referrer": { "sourceLabel": "Verwijzer", "targetLabel": "Doorverwezen woningen" },
+    "buyer_search_contact": { "sourceLabel": "Koper", "targetLabel": "Zoekopdrachten kopers" },
+    "buyer_search_listing": { "sourceLabel": "Woning waarop geboden is", "targetLabel": "Zoekopdrachten kopers" },
+    "viewing_listing": { "sourceLabel": "Woning", "targetLabel": "Bezichtigingen" },
+    "viewing_buyer_search": { "sourceLabel": "Zoekopdracht koper", "targetLabel": "Bezichtigingen" },
+    "key_date_listing": { "sourceLabel": "Woning", "targetLabel": "Sleutelmomenten" },
+    "key_date_buyer_search": { "sourceLabel": "Zoekopdracht koper", "targetLabel": "Sleutelmomenten" },
+    "action_contact": { "sourceLabel": "Contact", "targetLabel": "Taken" },
+    "action_listing": { "sourceLabel": "Woning", "targetLabel": "Taken" },
+    "action_buyer_search": { "sourceLabel": "Zoekopdracht koper", "targetLabel": "Taken" },
+    "action_viewing": { "sourceLabel": "Bezichtiging", "targetLabel": "Taken" }
+  },
+  "views": {
+    "listings_board": { "name": "Woningen per fase" },
+    "listings_all": { "name": "Alle woningen" },
+    "agreements_ending": { "name": "Opdrachten die aflopen" },
+    "buyer_board": { "name": "Kopers per fase" },
+    "leads_not_contacted": { "name": "Aanvragen nog niet gecontacteerd" },
+    "viewings_all": { "name": "Bezichtigingen op datum" },
+    "key_dates_all": { "name": "Sleutelmomenten" },
+    "actions_all": { "name": "Alle taken" },
+    "actions_overdue": { "name": "Achterstallige taken" },
+    "contacts_all": { "name": "Alle contacten" },
+    "organizations_all": { "name": "Alle organisaties" }
+  },
+  "widgets": {
+    "listings_by_stage": { "title": "Courtage per fase van de woning" },
+    "buyers_by_stage": { "title": "Zoekopdrachten kopers per fase" },
+    "viewings_coming": { "title": "Aankomende bezichtigingen" },
+    "agreements_ending_soon": { "title": "Opdrachten die aflopen, in verkoop" },
+    "key_dates_next": { "title": "Open sleutelmomenten" },
+    "commission_per_month": { "title": "Gerealiseerde courtage per maand" },
+    "new_leads_not_contacted": { "title": "Nieuwe aanvragen nog niet gecontacteerd" },
+    "listing_lost_reasons": { "title": "Waarom woningen verloren gingen" },
+    "days_live_to_offer": { "title": "Gemiddeld aantal dagen van start verkoop tot eerste bod" },
+    "lead_sources": { "title": "Herkomst van de woningen" },
+    "under_contract_count": { "title": "Woningen onder koopovereenkomst" },
+    "actions_due": { "title": "Taken die aan de beurt zijn" }
+  },
+  "knowledgePages": {
+    "operating_guide": {
+      "title": "Werkwijze: makelaarspipeline",
+      "sections": ["Twee pipelines, één taak met datum per open dossier", "Wat elke fase betekent", "Wat buiten de werkruimte blijft"]
+    },
+    "lead_response": {
+      "title": "Reactienorm op aanvragen en kwalificatievragen",
+      "sections": ["Dezelfde dag antwoorden", "Vragen aan de koper: termijn, financiering, harde wensen", "Vragen aan de eigenaar: timing en documenten", "Neutraal vastleggen"]
+    },
+    "valuation_checklist": {
+      "title": "Checklist waardebepaling",
+      "sections": ["Documenten om te verzamelen", "Vergelijkingsmateriaal", "Toestemming voor foto’s"]
+    },
+    "agreement_checklist": {
+      "title": "Checklist opdrachtvoorstel en opdracht",
+      "sections": ["Type opdracht en looptijd", "Courtage en wie betaalt", "Informatie over herroeping", "Vorm van de opdracht", "Einddatum invullen"]
+    },
+    "marketing_launch": {
+      "title": "Checklist start verkoop",
+      "sections": ["Foto’s en plattegrond", "Energielabel", "Prijscontrole", "Publicatie op portalen", "Akkoord van de eigenaar"]
+    },
+    "viewing_routine": {
+      "title": "Bezichtigingsroutine en sjabloon voor terugkoppeling",
+      "sections": ["Vooraf bevestigen", "De bezichtiging vastleggen", "Binnen een dag terugkoppelen aan de eigenaar"]
+    },
+    "offer_handling": {
+      "title": "Afhandeling van biedingen",
+      "sections": ["Het bod dezelfde dag voorleggen", "Schriftelijk bod en voorwaarden", "Identificatie van de partijen", "Wie beslist"]
+    },
+    "under_contract_timeline": {
+      "title": "Tijdlijn na de koopovereenkomst en sleutelmomenten",
+      "sections": ["Elke datum uit de overeenkomst lezen en noteren waar hij staat", "Waarborgsom, financiering, keuring en bedenktijd", "Notaris en overdracht"]
+    },
+    "closing_handover": {
+      "title": "Checklist overdracht",
+      "sections": ["Sleutels en meterstanden", "Akte en inschrijving", "Courtagefactuur in je boekhoudtool", "Archief"]
+    },
+    "past_client_routine": {
+      "title": "Routine voor oud-klanten",
+      "sections": ["Maandelijks een teken van leven", "Jubileumbelletje", "Verwijzers bedanken", "Om een review vragen"]
+    },
+    "message_templates": {
+      "title": "Berichtsjablonen",
+      "sections": ["Antwoord op een aanvraag", "Bevestiging van de waardebepaling", "Opdrachtvoorstel", "Update aan de eigenaar", "Terugkoppeling bezichtiging", "Bericht over een bod", "Bedankje"]
+    },
+    "data_rules": {
+      "title": "Gegevensregels: identificatie, eerlijke behandeling, wat er buiten blijft",
+      "sections": ["Noteer dat de identiteit is gecontroleerd, nooit de documenten", "Zoekcriteria beschrijven de woning, nooit de persoon", "Bewaartermijn"]
+    }
+  },
+  "rules": {
+    "portal_lead_contact": {
+      "title": "Neem vandaag contact op met de nieuwe aanvraag",
+      "description": "Een aanvraag via een woningportaal of WhatsApp krijgt een belactie voor dezelfde dag."
+    },
+    "prepare_valuation": {
+      "title": "Bereid de waardebepaling en de documentenlijst voor",
+      "description": "Wanneer een woning naar Waardebepaling gaat, valt een taak voor de waardebepaling de volgende dag."
+    },
+    "send_listing_proposal": {
+      "title": "Stuur het opdrachtvoorstel",
+      "description": "Na de datum van de waardebepaling krijgt een woning die nog in Waardebepaling staat een voorsteltaak voor de volgende dag."
+    },
+    "proposal_message_day_2": {
+      "title": "Volg het opdrachtvoorstel op met een bericht",
+      "description": "Twee dagen nadat het voorstel is verstuurd."
+    },
+    "proposal_call_day_5": {
+      "title": "Bel over het opdrachtvoorstel",
+      "description": "Vijf dagen nadat het voorstel is verstuurd."
+    },
+    "proposal_final_call_day_10": {
+      "title": "Laatste telefoontje over het opdrachtvoorstel",
+      "description": "Tien dagen nadat het voorstel is verstuurd."
+    },
+    "prepare_property": {
+      "title": "Bereid de woning voor en publiceer",
+      "description": "Foto’s, plattegrond, energielabel en documenten; daarna publiceren. Deadline drie dagen nadat de opdracht is getekend."
+    },
+    "agreement_end_review": {
+      "title": "Bespreek de opdracht: verlengen, aanpassen of de prijs herzien",
+      "description": "Dertig dagen voor het einde van de opdracht krijgt een woning in verkoop een taak voor de eigenaar van het dossier."
+    },
+    "agreement_end_notice": {
+      "title": "Meld de makelaar dat de opdracht over een week afloopt",
+      "description": "Zeven dagen voor het einde van de opdracht krijgt de behandelaar van de woning een melding om over verlenging te beslissen."
+    },
+    "weekly_owner_update": {
+      "title": "Stuur de update aan de eigenaar",
+      "description": "Elke week krijgt een woning in verkoop een taak om bezichtigingen, terugkoppelingen en aanvragen aan de eigenaar door te geven."
+    },
+    "viewing_feedback": {
+      "title": "Haal de terugkoppeling van de bezichtiging op en stuur die naar de eigenaar",
+      "description": "De dag na een bezichtiging wordt een taak aangemaakt als er geen terugkoppeling is vastgelegd."
+    },
+    "offer_notice": {
+      "title": "Meld de makelaar dat een bod moet worden voorgelegd",
+      "description": "Wanneer een woning de fase Bod bereikt, krijgt de behandelaar een melding om het bod vandaag voor te leggen."
+    },
+    "listing_key_dates": {
+      "title": "Maak de sleutelmomenten aan uit de overeenkomst",
+      "description": "Wanneer een woning onder koopovereenkomst komt, worden de sleutelmomenten uit de overeenkomst aangemaakt."
+    },
+    "buyer_key_dates": {
+      "title": "Maak de sleutelmomenten aan uit de overeenkomst van de koper",
+      "description": "Wanneer een zoekopdracht van een koper onder koopovereenkomst komt, worden de sleutelmomenten uit de overeenkomst aangemaakt."
+    },
+    "key_date_calendar": {
+      "title": "Zet het sleutelmoment in de agenda van de makelaar",
+      "description": "Elk nieuw sleutelmoment wordt in de eigen agenda van de makelaar gezet."
+    },
+    "key_date_reminder": {
+      "title": "Meld de makelaar dat een sleutelmoment over twee dagen is",
+      "description": "Twee dagen voor een open sleutelmoment krijgt de behandelaar een melding om de stap te bevestigen of aan te sporen."
+    },
+    "completed_handover": {
+      "title": "Draag over en vraag om een review",
+      "description": "Checklist overdracht, bedankje en verzoek om een review, met deadline zeven dagen na de overdracht."
+    },
+    "completed_anniversary": {
+      "title": "Jubileumbelletje",
+      "description": "Een jaar na de overdracht valt een taak om contact te onderhouden."
+    },
+    "identify_before_contract": {
+      "title": "Leg de identificatie van de partijen vast",
+      "description": "Wanneer een woning de fase Bod bereikt, vraagt een taak om vast te leggen dat de identiteit voor de overeenkomst is gecontroleerd."
+    },
+    "identify_buyer_offer": {
+      "title": "Leg de identificatie van de koper vast",
+      "description": "Wanneer een zoekopdracht van een koper Bod uitgebracht bereikt, vraagt een taak om vast te leggen dat de identiteit is gecontroleerd."
+    },
+    "buyer_re_engage": {
+      "title": "Benader de koper opnieuw met nieuwe passende woningen",
+      "description": "Elke maandag krijgt een zoekopdracht in de fase Bezichtiging zonder activiteit in zeven dagen een taak om contact te onderhouden."
+    },
+    "listing_price_review": {
+      "title": "Prijs en marketing bespreken met de eigenaar",
+      "description": "Elke maandag krijgt een woning in verkoop zonder bezichtiging in 14 dagen een controletaak."
+    },
+    "past_client_monthly_touch": {
+      "title": "Onderhoud het contact met de oud-klant",
+      "description": "Elke maandag krijgt een oud-klant zonder contact in 30 dagen een taak om contact te onderhouden."
+    }
+  },
+  "acceptanceChecks": {
+    "listing_stage_field": "Elke woning heeft een van de negen fasen.",
+    "buyer_stage_field": "Elke zoekopdracht van een koper heeft een van de zeven fasen.",
+    "agreement_end_field": "Elke woning legt vast wanneer de opdracht afloopt.",
+    "key_dates_list": "De data na ondertekening worden in een eigen lijst bijgehouden.",
+    "listings_board_view": "De woningenlijst opent als bord per fase.",
+    "operating_guide_page": "De kennisbank bevat de werkwijze."
+  },
+  "prompt": {
+    "intro": "Richt een makelaarspipeline in mijn Customermates-werkruimte in: woningen met het type opdracht en de einddatum, zoekopdrachten van kopers, bezichtigingen met terugkoppeling, sleutelmomenten na ondertekening van de koopovereenkomst en een taak met datum bij elk open dossier.",
+    "questions": [
+      "Werk je voor verkopers, voor kopers of voor beide? Verkoop je, verhuur je of allebei?",
+      "In welk land werk je en welke soorten opdracht gebruik je daar?",
+      "Hoe komen aanvragen bij je binnen: woningportalen, je website, WhatsApp of verwijzingen?",
+      "Welke software bevat je woningen en publiceert ze op portalen? Hier wordt alleen een verwijzing bewaard, er wordt niets gekopieerd.",
+      "Welke sleutelmomenten tellen in je overeenkomsten, bijvoorbeeld waarborgsom, financiering, keuring of notaris?"
+    ]
+  }
+}

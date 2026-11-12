@@ -1,0 +1,195 @@
+{
+  "locale": "es",
+  "name": "Ficha de clientes",
+  "summary": "Una fila por cliente, un responsable, una próxima acción con fecha, más una revisión semanal y una fecha de revisión de datos para cada cliente dado de baja.",
+  "description": "Una base de datos de clientes breve y disciplinada: siete estados, la fecha de la última interacción, una fecha de próxima acción que marca el trabajo, un ritmo de revisión por segmento y una fecha de revisión de datos para los clientes dados de baja. Personas de contacto, tareas con fecha y conversaciones vinculadas están junto a cada cliente.",
+  "lists": {
+    "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Una fila por cliente, un responsable, una próxima acción con fecha." },
+    "contacts": { "label": "Persona de contacto", "pluralLabel": "Personas de contacto", "description": "Las personas con las que trabajas en cada cliente." }
+  },
+  "fields": {
+    "clients.status": {
+      "label": "Estado",
+      "options": {
+        "prospect": "Potencial",
+        "onboarding": "Alta",
+        "active": "Activo",
+        "waiting_on_client": "A la espera del cliente",
+        "at_risk": "En riesgo",
+        "inactive": "Inactivo",
+        "closed": "Baja"
+      }
+    },
+    "clients.segment": {
+      "label": "Segmento",
+      "options": { "a_key": "A: cliente clave", "b_regular": "B: cliente habitual", "c_occasional": "C: cliente ocasional" }
+    },
+    "clients.owner": { "label": "Responsable" },
+    "clients.source": {
+      "label": "Origen",
+      "options": {
+        "referral": "Recomendación",
+        "website": "Sitio web",
+        "event": "Evento",
+        "outbound": "Prospección",
+        "existing_network": "Red existente",
+        "other": "Otro"
+      }
+    },
+    "clients.client_since": { "label": "Cliente desde" },
+    "clients.last_contact": { "label": "Última interacción" },
+    "clients.next_step": { "label": "Próxima acción" },
+    "clients.next_step_due": { "label": "Fecha de la próxima acción" },
+    "clients.review_interval": {
+      "label": "Frecuencia de revisión",
+      "options": { "monthly": "Mensual", "quarterly": "Trimestral", "half_yearly": "Semestral", "yearly": "Anual" }
+    },
+    "clients.next_review": { "label": "Próxima revisión" },
+    "clients.annual_value": { "label": "Valor anual" },
+    "clients.website": { "label": "Sitio web" },
+    "clients.address": { "label": "Dirección" },
+    "clients.registration_id": { "label": "NIF o CIF" },
+    "clients.closed_on": { "label": "Baja el" },
+    "clients.data_review_on": { "label": "Revisión de datos el" },
+    "contacts.job_title": { "label": "Cargo" },
+    "contacts.contact_role": {
+      "label": "Función",
+      "options": { "decision_maker": "Decisor", "day_to_day": "Contacto del día a día", "billing": "Facturación", "other": "Otro" }
+    },
+    "contacts.preferred_channel": {
+      "label": "Canal preferido",
+      "options": { "email": "Correo electrónico", "phone": "Teléfono", "whatsapp": "WhatsApp", "linkedin": "LinkedIn", "in_person": "En persona" }
+    },
+    "contacts.language": { "label": "Idioma" },
+    "contacts.marketing_consent": { "label": "Consentimiento comercial" },
+    "contacts.consent_date": { "label": "Fecha del consentimiento" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "check_in": "Seguimiento",
+        "reply": "Respuesta",
+        "request_document": "Petición de documento",
+        "review": "Revisión",
+        "chase": "Recordatorio",
+        "data_review": "Revisión de datos",
+        "other": "Otro"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Cliente", "targetLabel": "Personas de contacto" },
+    "action_client": { "sourceLabel": "Cliente", "targetLabel": "Tareas" },
+    "action_contact": { "sourceLabel": "Persona de contacto", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "clients_all": { "name": "Todos los clientes" },
+    "clients_board": { "name": "Clientes por estado" },
+    "needs_next_step": { "name": "Sin próxima acción" },
+    "overdue_next_step": { "name": "Próximas acciones vencidas" },
+    "waiting_on_client": { "name": "A la espera del cliente" },
+    "at_risk": { "name": "En riesgo" },
+    "data_review_due": { "name": "Revisión de datos pendiente" },
+    "actions_all": { "name": "Todas las tareas" },
+    "contacts_all": { "name": "Todas las personas de contacto" }
+  },
+  "widgets": {
+    "upcoming_actions": { "title": "Próximas tareas" },
+    "review_calendar": { "title": "Revisiones de clientes del mes" },
+    "clients_by_status": { "title": "Clientes por estado" },
+    "clients_by_segment": { "title": "Clientes por segmento" },
+    "clients_per_owner": { "title": "Clientes por responsable" },
+    "active_without_next_step": { "title": "Clientes activos sin próxima acción" },
+    "waiting_on_client_count": { "title": "A la espera del cliente" },
+    "at_risk_count": { "title": "En riesgo" },
+    "value_by_segment": { "title": "Valor anual por segmento" },
+    "new_clients_per_month": { "title": "Clientes nuevos por mes" },
+    "overdue_actions": { "title": "Tareas vencidas" },
+    "activity_timeline": { "title": "Actividad reciente" }
+  },
+  "knowledgePages": {
+    "playbook": {
+      "title": "Guía de la ficha de clientes",
+      "sections": ["Una fila, un responsable, una próxima acción con fecha", "Qué significa cada estado", "Actualizar la fila el mismo día de cada llamada o presupuesto"]
+    },
+    "weekly_review": {
+      "title": "Revisión semanal de clientes de 15 minutos",
+      "sections": ["Ordenar por fecha de próxima acción y por estado", "Vencidos, activos sin próxima acción, potenciales parados", "Terminar con una fecha en cada fila"]
+    },
+    "status_definitions": {
+      "title": "Definición de los estados de cliente",
+      "sections": ["Regla de entrada y de salida de cada estado", "Recordar a los 7 días, escalar a los 14", "Quién puede cambiar un estado"]
+    },
+    "message_templates": {
+      "title": "Plantillas de mensajes: seguimiento y reactivación",
+      "sections": ["Seguimiento tras un periodo de silencio", "Recordatorio a un cliente que debe responder", "Invitación a la revisión", "Reactivación a los 90 días", "Cierre cortés"]
+    },
+    "data_retention": {
+      "title": "Conservación de datos y protección de datos de la ficha de clientes",
+      "sections": ["Finalidad y datos conservados", "Plazo de conservación según el país", "Prueba del consentimiento", "Responder a una solicitud de acceso o supresión"]
+    }
+  },
+  "rules": {
+    "overdue_action_notice": {
+      "title": "Avisar al responsable de que una tarea está vencida",
+      "description": "Al llegar la fecha de una tarea abierta, se avisa al responsable."
+    },
+    "chase_waiting_client": {
+      "title": "Recordar al cliente el asunto pendiente",
+      "description": "Cuando un cliente pasa a A la espera del cliente, su responsable recibe una tarea de recordatorio a los 7 días."
+    },
+    "review_before_due": {
+      "title": "Revisar la ficha del cliente",
+      "description": "Siete días antes de la próxima revisión de un cliente activo, se crea una tarea de revisión para el responsable."
+    },
+    "daily_next_step_sweep": {
+      "title": "Seguimiento: ninguna tarea abierta con este cliente",
+      "description": "Cada día, un cliente activo o en alta sin tarea abierta vinculada recibe una tarea de seguimiento para hoy."
+    },
+    "stalled_client_sweep": {
+      "title": "Seguimiento: sin contacto desde hace 45 días",
+      "description": "Cada lunes, un cliente activo sin contacto desde hace 45 días recibe una tarea de seguimiento. El estado nunca cambia solo."
+    },
+    "closed_client_dates": {
+      "title": "Fijar la fecha de baja y la fecha de revisión de datos",
+      "description": "Cuando se da de baja a un cliente, Baja el toma la fecha de hoy y Revisión de datos el tres años después. Ajusta el plazo a tu país."
+    },
+    "closed_client_data_review": {
+      "title": "Revisar los datos de este cliente dado de baja",
+      "description": "Una tarea de revisión de datos vence en la fecha de revisión de datos."
+    },
+    "inactive_reactivation": {
+      "title": "Preguntar si el cliente sigue interesado",
+      "description": "Noventa días después de que un cliente pase a Inactivo, una tarea de seguimiento plantea la pregunta de la reactivación."
+    },
+    "enquiry_form_records": {
+      "title": "Crear el cliente y la persona de contacto a partir de una consulta",
+      "description": "Un formulario público de consulta crea un cliente como Potencial y su persona de contacto."
+    },
+    "enquiry_form_reply": {
+      "title": "Responder a la consulta",
+      "description": "Cada consulta recibe una tarea de respuesta para el día siguiente."
+    },
+    "weekly_client_review": {
+      "title": "Revisión semanal de clientes",
+      "description": "Cada lunes, una tarea de revisión lista los clientes con retraso, los que no tienen próxima acción y los potenciales parados."
+    }
+  },
+  "acceptanceChecks": {
+    "status_field": "Cada cliente tiene un estado de entre los siete valores.",
+    "next_step_date_field": "Cada cliente tiene una próxima acción y una fecha para ella.",
+    "clients_default_view": "La lista de clientes se abre ordenada por fecha de próxima acción.",
+    "overdue_widget": "El panel muestra cuántas tareas están vencidas.",
+    "chase_rule": "Un cliente que pasa a A la espera del cliente recibe una tarea de recordatorio.",
+    "playbook_page": "La base de conocimiento contiene la guía de la ficha de clientes."
+  },
+  "prompt": {
+    "intro": "Configura una ficha de clientes en mi espacio de trabajo de Customermates: una fila por cliente con un responsable, un estado, la fecha de la última interacción y una próxima acción con fecha, más las personas de contacto, tareas con fecha, una revisión semanal y una fecha de revisión de datos para los clientes dados de baja.",
+    "questions": [
+      "¿Cuántos clientes llevas hoy y quién más trabaja con la ficha?",
+      "¿Qué estados de cliente usas ya? ¿Hay que renombrar o quitar alguno de los siete?",
+      "¿Con qué frecuencia quieres revisar a los clientes clave, habituales y ocasionales?",
+      "¿En qué país trabajas, para fijar el plazo de conservación de los clientes dados de baja?",
+      "¿Guardas las facturas en otro sitio? Si es así, ¿en qué herramienta, para no añadir aquí campos de facturación?"
+    ]
+  }
+}

@@ -1,0 +1,248 @@
+{
+  "locale": "it",
+  "name": "Pipeline commerciale",
+  "summary": "Sette fasi con criteri di uscita e pesi, un prossimo passo con scadenza su ogni trattativa aperta, motivi di vittoria e di perdita e un cambio di fase che crea la prossima attività.",
+  "description": "Una pipeline per un piccolo team di vendita: cinque fasi aperte, Vinta e Persa, un valore ponderato per trattativa, il comitato d’acquisto sulla trattativa, un motivo della perdita e un motivo della vittoria, e la revisione settimanale. I pesi sono una ponderazione della pipeline, non una previsione: sostituiscili con i tuoi tassi di chiusura dopo 20 o 30 trattative chiuse.",
+  "lists": {
+    "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Le persone lato acquirente, con il loro ruolo nella decisione." },
+    "accounts": { "label": "Azienda", "pluralLabel": "Aziende", "description": "Le aziende a cui vendi." },
+    "opportunities": { "label": "Trattativa", "pluralLabel": "Trattative", "description": "Una trattativa, dal primo contatto a vinta o persa." }
+  },
+  "fields": {
+    "opportunities.stage": {
+      "label": "Fase",
+      "options": {
+        "new": "Nuovo contatto",
+        "qualified": "Qualificato",
+        "discovery": "Analisi esigenze",
+        "proposal_sent": "Preventivo inviato",
+        "negotiation": "Negoziazione",
+        "won": "Vinta",
+        "lost": "Persa"
+      }
+    },
+    "contacts.job_title": { "label": "Ruolo aziendale" },
+    "contacts.buying_role": {
+      "label": "Ruolo nell’acquisto",
+      "options": {
+        "decision_maker": "Decisore",
+        "budget_holder": "Responsabile del budget",
+        "champion": "Sostenitore interno",
+        "influencer": "Influenzatore",
+        "user": "Utilizzatore",
+        "blocker": "Oppositore"
+      }
+    },
+    "contacts.language": { "label": "Lingua" },
+    "contacts.outreach_consent": { "label": "Consenso al contatto commerciale" },
+    "accounts.relationship": {
+      "label": "Relazione",
+      "options": { "prospect": "Potenziale", "customer": "Cliente", "former_customer": "Ex cliente", "partner": "Partner" }
+    },
+    "accounts.size": {
+      "label": "Dimensione",
+      "options": { "micro": "da 1 a 10", "small": "da 11 a 50", "medium": "da 51 a 250", "large": "251 e oltre" }
+    },
+    "accounts.industry": { "label": "Settore" },
+    "accounts.website": { "label": "Sito web" },
+    "accounts.address": { "label": "Indirizzo" },
+    "accounts.owner": { "label": "Responsabile" },
+    "opportunities.owner": { "label": "Responsabile" },
+    "opportunities.deal_type": {
+      "label": "Tipo di trattativa",
+      "options": { "new_business": "Nuovo cliente", "expansion": "Ampliamento", "renewal": "Rinnovo" }
+    },
+    "opportunities.source": {
+      "label": "Provenienza",
+      "options": {
+        "referral": "Passaparola",
+        "inbound": "Richiesta in entrata",
+        "outbound": "Contatto diretto",
+        "event": "Evento",
+        "partner": "Partner",
+        "existing_customer": "Cliente esistente",
+        "other": "Altro"
+      }
+    },
+    "opportunities.first_contact_on": { "label": "Primo contatto" },
+    "opportunities.expected_close": { "label": "Chiusura prevista" },
+    "opportunities.closed_on": { "label": "Chiusa il" },
+    "opportunities.next_step": { "label": "Prossimo passo" },
+    "opportunities.next_step_due": { "label": "Scadenza del prossimo passo" },
+    "opportunities.decision_date": { "label": "Data della decisione" },
+    "opportunities.competitor": { "label": "Concorrente" },
+    "opportunities.lost_reason": {
+      "label": "Motivo della perdita",
+      "options": {
+        "price": "Prezzo",
+        "competitor": "Concorrente",
+        "no_budget_or_decision": "Nessun budget o decisione",
+        "timing": "Tempi",
+        "no_response": "Nessuna risposta",
+        "not_a_fit": "Non adatto",
+        "other": "Altro"
+      }
+    },
+    "opportunities.won_reason": { "label": "Motivo della vittoria" },
+    "opportunities.weighted_value": { "label": "Valore ponderato" },
+    "opportunities.cycle_days": { "label": "Ciclo in giorni" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "call": "Chiamata",
+        "email": "E-mail",
+        "meeting": "Incontro",
+        "proposal": "Preventivo",
+        "follow_up": "Sollecito",
+        "handover": "Passaggio di consegne",
+        "review": "Revisione",
+        "other": "Altro"
+      }
+    }
+  },
+  "relationships": {
+    "contact_account": { "sourceLabel": "Azienda", "targetLabel": "Referenti" },
+    "opportunity_account": { "sourceLabel": "Azienda", "targetLabel": "Trattative" },
+    "opportunity_contacts": { "sourceLabel": "Comitato d’acquisto", "targetLabel": "Trattative" },
+    "action_opportunity": { "sourceLabel": "Trattativa", "targetLabel": "Attività" },
+    "action_contact": { "sourceLabel": "Referente", "targetLabel": "Attività" }
+  },
+  "views": {
+    "pipeline_board": { "name": "Pipeline" },
+    "opportunities_all": { "name": "Tutte le trattative" },
+    "no_next_step": { "name": "Senza prossimo passo" },
+    "won_handover": { "name": "Vinte, da passare in consegna" },
+    "lost_to_revisit": { "name": "Perse, da riprendere" },
+    "actions_all": { "name": "Tutte le attività" },
+    "accounts_all": { "name": "Tutte le aziende" },
+    "contacts_all": { "name": "Tutti i referenti" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Trattative aperte per fase" },
+    "open_value_by_stage": { "title": "Valore aperto per fase" },
+    "weighted_value_by_stage": { "title": "Valore ponderato per fase" },
+    "open_opportunities": { "title": "Trattative aperte" },
+    "open_value": { "title": "Valore aperto" },
+    "open_weighted_value": { "title": "Valore ponderato aperto" },
+    "won_last_90_days": { "title": "Vinte negli ultimi 90 giorni" },
+    "lost_reasons": { "title": "Motivi della perdita" },
+    "pipeline_by_owner": { "title": "Valore aperto per responsabile" },
+    "deals_without_next_step": { "title": "Trattative senza prossimo passo" },
+    "upcoming_actions": { "title": "Attività in arrivo e scadute" },
+    "expected_closes": { "title": "Chiusure previste" }
+  },
+  "knowledgePages": {
+    "stages_exit_criteria": {
+      "title": "Fasi di vendita e criteri di uscita",
+      "sections": ["Criterio di ingresso e di uscita per ogni fase", "Chi può spostare una trattativa e con quali prove", "Pesi e quando sostituirli"]
+    },
+    "qualification_questions": {
+      "title": "Domande di qualificazione",
+      "sections": ["Budget, autorità, bisogno e tempi", "Che cosa succede se il potenziale cliente non fa nulla", "Chi altro decide"]
+    },
+    "proposal_cadence": {
+      "title": "Ritmo di preventivi e solleciti",
+      "sections": ["Sollecitare dopo 3 e dopo 10 giorni", "Un messaggio di chiusura", "Poi una data per riprendere il contatto"]
+    },
+    "weekly_review": {
+      "title": "Revisione settimanale della pipeline",
+      "sections": ["Trattative ferme", "Trattative oltre la chiusura prevista", "Trattative senza prossimo passo", "Le prime cinque per valore ponderato"]
+    },
+    "win_loss_review": {
+      "title": "Analisi di vittorie e perdite",
+      "sections": ["Leggere ogni mese i motivi della perdita e i concorrenti", "Leggere i motivi della vittoria", "Un’attività di miglioramento"]
+    },
+    "message_templates": {
+      "title": "Modelli di messaggio di sollecito",
+      "sections": ["Prima risposta", "Dopo l’analisi delle esigenze", "Messaggio di accompagnamento del preventivo", "Sollecito del preventivo", "Chiusura: forse non è il momento giusto", "Ripresa del contatto dopo 90 giorni"]
+    }
+  },
+  "rules": {
+    "qualify_new_opportunity": {
+      "title": "Qualificare la nuova trattativa",
+      "description": "Una nuova trattativa riceve un’attività di chiamata con scadenza il giorno dopo."
+    },
+    "book_discovery_call": {
+      "title": "Fissare l’incontro di analisi delle esigenze",
+      "description": "Quando una trattativa diventa Qualificato, un’attività di incontro scade tra 3 giorni."
+    },
+    "send_proposal": {
+      "title": "Inviare il preventivo",
+      "description": "Quando una trattativa arriva ad Analisi esigenze, un’attività di preventivo scade tra 5 giorni."
+    },
+    "follow_up_proposal": {
+      "title": "Sollecitare il preventivo",
+      "description": "Tre giorni dopo l’invio del preventivo scade un’attività di sollecito."
+    },
+    "second_proposal_follow_up": {
+      "title": "Secondo sollecito del preventivo",
+      "description": "Dieci giorni dopo l’invio del preventivo scade una seconda attività di sollecito. Chiudila se il potenziale cliente ha già risposto."
+    },
+    "confirm_decision": {
+      "title": "Confermare la data della decisione e il decisore",
+      "description": "Quando una trattativa arriva a Negoziazione, un’attività di sollecito scade tra 5 giorni."
+    },
+    "won_close_date": {
+      "title": "Impostare la data di chiusura",
+      "description": "Quando una trattativa è vinta, Chiusa il prende la data di oggi."
+    },
+    "won_handover": {
+      "title": "Passare in consegna la trattativa vinta",
+      "description": "Un’attività di passaggio di consegne scade il giorno dopo la vittoria. Registra il motivo della vittoria."
+    },
+    "lost_revisit": {
+      "title": "Riprendere la trattativa persa",
+      "description": "Novanta giorni dopo la perdita, un’attività di sollecito chiede se i tempi sono cambiati. Registra prima il motivo della perdita."
+    },
+    "stale_deal_sweep": {
+      "title": "Rilanciare o scartare la trattativa ferma",
+      "description": "Una trattativa aperta rimasta 14 giorni nella stessa fase riceve un’attività di sollecito."
+    },
+    "expected_close_passed": {
+      "title": "Aggiornare la chiusura prevista o chiudere la trattativa",
+      "description": "Quando la data di chiusura prevista di una trattativa aperta è passata, viene creata un’attività di revisione."
+    },
+    "next_step_due_notice": {
+      "title": "Avvisare il responsabile che un prossimo passo scade",
+      "description": "Alla data del prossimo passo di una trattativa aperta, il responsabile riceve un avviso."
+    },
+    "weekly_pipeline_report": {
+      "title": "Rapporto settimanale sulla pipeline",
+      "description": "Ogni venerdì, un’attività di revisione elenca numero e valore per fase e responsabile, trattative vinte e perse con i motivi e trattative oltre la chiusura prevista."
+    },
+    "enquiry_form_records": {
+      "title": "Creare referente, azienda e trattativa da una richiesta",
+      "description": "Un modulo di richiesta sul web crea il referente, l’azienda e una trattativa nella fase Nuovo contatto."
+    },
+    "enquiry_form_notice": {
+      "title": "Avvisare il responsabile della richiesta",
+      "description": "Il responsabile riceve un avviso per ogni nuova richiesta."
+    },
+    "fill_missing_value": {
+      "title": "Inserire il valore di questa trattativa",
+      "description": "Una trattativa che arriva ad Analisi esigenze senza valore riceve un’attività di revisione."
+    },
+    "fill_expected_close": {
+      "title": "Inserire la chiusura prevista di questa trattativa",
+      "description": "Una trattativa che arriva a Preventivo inviato senza data di chiusura prevista riceve un’attività di revisione."
+    }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Ogni trattativa ha una delle sette fasi.",
+    "weighted_value_field": "Ogni trattativa mostra il suo valore ponderato.",
+    "pipeline_board_view": "L’elenco delle trattative si apre come bacheca per fase, con i totali.",
+    "funnel_widget": "La dashboard mostra le trattative aperte per fase come imbuto.",
+    "proposal_follow_up_rule": "Una trattativa che arriva a Preventivo inviato riceve un’attività di sollecito.",
+    "stages_page": "La knowledge base contiene le fasi e i loro criteri di uscita."
+  },
+  "prompt": {
+    "intro": "Configura una pipeline commerciale nel mio spazio di lavoro Customermates: trattative con sette fasi e pesi, un valore ponderato, un prossimo passo con scadenza su ogni trattativa aperta, motivi della perdita e della vittoria, il comitato d’acquisto su ogni trattativa e un’attività creata a ogni cambio di fase.",
+    "questions": [
+      "Che cosa vendi e quante persone lo vendono?",
+      "Quali passaggi attraversa una trattativa dal primo contatto alla firma? Quali delle sette fasi vanno bene e quali vanno rinominate?",
+      "Quanto dura una trattativa tipica e dopo quanti giorni senza movimento va considerata ferma?",
+      "Quali tassi di chiusura hai sulle trattative passate? Se non ne hai, restano i pesi predefiniti.",
+      "Dove prepari i preventivi? Restano lì e qui si conserva solo un collegamento."
+    ]
+  }
+}

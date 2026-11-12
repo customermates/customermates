@@ -440,6 +440,13 @@ function identityIssues(spec: TemplateSpecObject, report: Report) {
     report(["publicPage"], "status and publicPage need the same locales.");
   for (const locale of Object.keys(spec.pairedPages))
     if (!locales.includes(locale)) report(["pairedPages", locale], "Unknown locale.");
+  for (const locale of locales) {
+    const own = spec.publicPage[locale] === "own";
+    if (own && !spec.publishWave[locale]) report(["publishWave", locale], "An own page needs a publish wave.");
+    if (!own && spec.publishWave[locale]) report(["publishWave", locale], "Only an own page has a publish wave.");
+  }
+  for (const locale of Object.keys(spec.publishWave))
+    if (!locales.includes(locale)) report(["publishWave", locale], "Unknown locale.");
   if (new Set(spec.jurisdictions).size !== spec.jurisdictions.length)
     report(["jurisdictions"], "Jurisdictions repeat.");
 }

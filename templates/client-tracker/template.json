@@ -5,11 +5,20 @@
   "slug": "client-tracker",
   "family": "clients",
   "kind": "tracker",
-  "jurisdictions": ["global"],
+  "jurisdictions": ["DE", "FR", "IT", "ES", "BR", "PL", "NL"],
   "dashboardAudience": "me",
   "modules": ["actions_core"],
   "requiresCapabilities": ["forms", "rules", "notifications"],
-  "pairedPages": { "en": "/features/contact-management", "de": "/features/contact-management" },
+  "pairedPages": {
+    "en": "/features/contact-management",
+    "de": "/features/contact-management",
+    "fr": "/features/contact-management",
+    "it": "/features/contact-management",
+    "es": "/features/contact-management",
+    "pt": "/features/contact-management",
+    "pl": "/features/contact-management",
+    "nl": "/features/contact-management"
+  },
   "lists": [
     { "key": "clients", "icon": "building" },
     { "key": "contacts", "role": "people", "icon": "contact" }
@@ -384,6 +393,7 @@
     { "url": "https://www.b2bmarketeers.nl/relatiebeheer-wat-is-dat-eigenlijk/", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "status": { "en": "draft", "de": "draft" },
-  "publicPage": { "en": "own", "de": "none" }
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "own", "de": "own", "fr": "own", "it": "own", "es": "none", "pt": "own", "pl": "own", "nl": "own" },
+  "publishWave": { "en": "wave2", "de": "wave2", "fr": "wave1", "it": "wave1", "pt": "wave1", "pl": "wave1", "nl": "wave2" }
 }

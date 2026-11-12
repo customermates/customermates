@@ -9,7 +9,16 @@
   "dashboardAudience": "team",
   "modules": ["actions_core"],
   "requiresCapabilities": ["rules", "calendarWrite", "notifications", "incomingWebhooks"],
-  "pairedPages": { "en": "/for/real-estate", "de": "/for/real-estate" },
+  "pairedPages": {
+    "en": "/for/real-estate",
+    "de": "/for/real-estate",
+    "fr": "/for/real-estate",
+    "it": "/for/real-estate",
+    "es": "/for/real-estate",
+    "pt": "/for/real-estate",
+    "pl": "/for/real-estate",
+    "nl": "/for/real-estate"
+  },
   "lists": [
     { "key": "contacts", "role": "people", "icon": "contact" },
     { "key": "organizations", "icon": "building" },
@@ -680,6 +689,6 @@
     { "url": "https://www.chavesnamao.com.br/blog/mercado-imobiliario/funil-imobiliario/", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "status": { "en": "draft", "de": "draft" },
-  "publicPage": { "en": "proof", "de": "proof" }
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "proof", "de": "proof", "fr": "proof", "it": "proof", "es": "proof", "pt": "proof", "pl": "proof", "nl": "none" }
 }

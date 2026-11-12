@@ -9,7 +9,16 @@
   "dashboardAudience": "team",
   "modules": ["actions_core"],
   "requiresCapabilities": ["forms", "rules", "notifications"],
-  "pairedPages": { "en": "/features/pipeline", "de": "/features/pipeline" },
+  "pairedPages": {
+    "en": "/features/pipeline",
+    "de": "/features/pipeline",
+    "fr": "/features/pipeline",
+    "it": "/features/pipeline",
+    "es": "/features/pipeline",
+    "pt": "/features/pipeline",
+    "pl": "/features/pipeline",
+    "nl": "/features/pipeline"
+  },
   "lists": [
     { "key": "contacts", "role": "people", "icon": "contact" },
     { "key": "accounts", "icon": "building" },
@@ -494,6 +503,7 @@
     { "url": "https://www.pipedrive.com/de/blog/crm-vertrieb", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
-  "status": { "en": "draft", "de": "draft" },
-  "publicPage": { "en": "own", "de": "none" }
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "own", "de": "own", "fr": "own", "it": "none", "es": "none", "pt": "own", "pl": "none", "nl": "none" },
+  "publishWave": { "en": "hold", "de": "wave2", "fr": "wave2", "pt": "hold" }
 }
