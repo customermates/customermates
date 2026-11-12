@@ -1,10 +1,10 @@
 {
   "locale": "fr",
   "name": "Adhérents et donateurs",
-  "summary": "Un registre unique pour adhérents, donateurs et bénévoles : adhésions avec date d’échéance, dons avec remerciement et reçu fiscal, et un suivi des grands dons et subventions.",
-  "description": "Pour associations, fondations et paroisses : qui vous soutient et comment, quelle adhésion court jusqu’à quand, quel don attend encore un remerciement ou un reçu fiscal, et quel grand don ou quelle subvention est en cours. L’outil n’émet pas de reçus fiscaux et n’encaisse pas les cotisations : il vous montre lesquels sont à faire.",
+  "summary": "Un registre unique pour adhérents, donateurs et bénévoles : adhésions avec date d’échéance, dons avec remerciement et reçu fiscal, et un suivi des grands dons et subventions.",
+  "description": "Pour associations, clubs, organismes caritatifs et paroisses : qui vous soutient et comment, quelle adhésion court jusqu’à quand, quel don attend encore un remerciement ou un reçu fiscal, et quel grand don ou quelle subvention est en cours. L’outil n’émet pas de reçus fiscaux et n’encaisse pas les cotisations : il vous montre lesquels sont à faire.",
   "lists": {
-    "supporters": { "label": "Soutien", "pluralLabel": "Soutiens", "description": "Adhérents, donateurs, bénévoles, invités et membres du bureau." },
+    "supporters": { "label": "Personne", "pluralLabel": "Personnes", "description": "Adhérents, donateurs, bénévoles, invités et membres du bureau." },
     "memberships": { "label": "Adhésion", "pluralLabel": "Adhésions", "description": "Une adhésion avec sa cotisation et son échéance." },
     "gifts": { "label": "Don", "pluralLabel": "Dons", "description": "Chaque don avec son remerciement et son reçu fiscal." },
     "gift_opportunities": { "label": "Piste de don", "pluralLabel": "Pistes de dons", "description": "Grands dons, subventions et mécénats en cours." }
@@ -27,14 +27,14 @@
       "label": "Relation",
       "options": { "prospect": "Prospect", "active": "Actif", "lapsed": "Inactif", "former": "Ancien", "do_not_contact": "Ne pas contacter" }
     },
-    "supporters.joined_on": { "label": "Arrivé le" },
+    "supporters.joined_on": { "label": "Date d’arrivée" },
     "supporters.relationship_owner": { "label": "Référent" },
     "supporters.contact_consent": { "label": "Consentement au contact", "options": { "granted": "Accordé", "not_granted": "Non accordé", "unknown": "Inconnu" } },
     "supporters.consent_date": { "label": "Date du consentement" },
     "supporters.last_contact_on": { "label": "Dernier contact" },
     "memberships.level": {
-      "label": "Formule",
-      "options": { "regular": "Normale", "reduced": "Tarif réduit", "family": "Famille", "youth": "Jeune", "supporting": "Membre bienfaiteur", "honorary": "Membre d’honneur" }
+      "label": "Catégorie",
+      "options": { "regular": "Plein tarif", "reduced": "Tarif réduit", "family": "Famille", "youth": "Jeune", "supporting": "Membre bienfaiteur", "honorary": "Membre d’honneur" }
     },
     "memberships.fee": { "label": "Montant de la cotisation" },
     "memberships.billing_cycle": {
@@ -52,7 +52,7 @@
       "label": "Motif de départ",
       "options": { "moved_away": "Déménagement", "cost": "Coût", "lost_interest": "Perte d’intérêt", "dissatisfied": "Insatisfaction", "unpaid_fees": "Cotisations impayées", "other": "Autre" }
     },
-    "gifts.received_on": { "label": "Reçu le" },
+    "gifts.received_on": { "label": "Date de réception" },
     "gifts.amount": { "label": "Montant" },
     "gifts.gift_type": {
       "label": "Type de don",
@@ -64,11 +64,11 @@
     },
     "gifts.acknowledgement_status": {
       "label": "Remerciement",
-      "options": { "to_acknowledge": "À remercier", "acknowledged": "Remercié", "not_needed": "Inutile" }
+      "options": { "to_acknowledge": "À remercier", "acknowledged": "Remercié", "not_needed": "Sans objet" }
     },
     "gifts.receipt_status": {
       "label": "Reçu fiscal",
-      "options": { "not_needed": "Inutile", "to_issue": "À émettre", "issued": "Émis", "annual_summary_sent": "Récapitulatif annuel envoyé" }
+      "options": { "not_needed": "Sans objet", "to_issue": "À émettre", "issued": "Émis", "annual_summary_sent": "Récapitulatif annuel envoyé" }
     },
     "gift_opportunities.kind": {
       "label": "Type",
@@ -97,10 +97,10 @@
     "membership_supporter": { "sourceLabel": "Adhérent", "targetLabel": "Adhésions" },
     "gift_supporter": { "sourceLabel": "Donateur", "targetLabel": "Dons" },
     "opportunity_supporter": { "sourceLabel": "Prospect", "targetLabel": "Pistes de dons" },
-    "action_supporter": { "sourceLabel": "Soutien", "targetLabel": "Actions" }
+    "action_supporter": { "sourceLabel": "Personne", "targetLabel": "Actions" }
   },
   "views": {
-    "supporters_all": { "name": "Tous les soutiens" },
+    "supporters_all": { "name": "Toutes les personnes" },
     "memberships_all": { "name": "Toutes les adhésions" },
     "memberships_board": { "name": "Adhésions par statut" },
     "fees_to_chase": { "name": "Cotisations à relancer" },
@@ -129,7 +129,7 @@
     "renewal_reminder": { "title": "Relancer un adhérent dont la cotisation est à payer 30 jours avant l’échéance" },
     "expiry_notice": { "title": "Relancer la cotisation impayée le jour de l’échéance" },
     "report_to_funder": { "title": "Préparer le compte rendu au financeur deux semaines avant l’échéance" },
-    "join_form_records": { "title": "Créer le soutien et l’adhésion à partir d’un formulaire d’adhésion" }
+    "join_form_records": { "title": "Créer la personne et l’adhésion à partir d’un formulaire d’adhésion" }
   },
   "acceptanceChecks": {
     "status_field": "Chaque adhésion a un statut.",
@@ -137,12 +137,12 @@
     "receipt_field": "Chaque don indique si un reçu fiscal est à émettre."
   },
   "prompt": {
-    "intro": "Mets en place un registre d’adhérents et de donateurs dans mon espace Customermates : des soutiens, des adhésions avec cotisation et date d’échéance, des dons avec remerciement et état du reçu fiscal, et un suivi des grands dons et subventions.",
+    "intro": "Mets en place un registre d’adhérents et de donateurs dans mon espace de travail Customermates : des personnes, des adhésions avec cotisation et date d’échéance, des dons avec remerciement et état du reçu fiscal, et un suivi des grands dons et subventions.",
     "questions": [
-      "Êtes-vous une association, une fondation ou une paroisse ? Avez-vous des adhérents, des donateurs, des bénévoles ?",
-      "Quelles formules d’adhésion et quelles cotisations utilisez-vous, et comment sont-elles encaissées ?",
-      "Dans quel pays êtes-vous déclaré, et quel reçu fiscal y émettez-vous ?",
-      "Quel logiciel tient vos paiements ou votre comptabilité ? Seule une référence est gardée ici."
+      "Êtes-vous une association ou un club, un organisme caritatif ou une paroisse ? Avez-vous des adhérents, des donateurs, des bénévoles ?",
+      "Quelles catégories d’adhésion et quelles cotisations utilisez-vous, et comment sont-elles encaissées ?",
+      "Dans quel pays votre organisation est-elle enregistrée, et quel reçu fiscal y émettez-vous ?",
+      "Quel logiciel tient vos paiements ou votre comptabilité ? Seule une référence est gardée ici."
     ]
   }
 }
