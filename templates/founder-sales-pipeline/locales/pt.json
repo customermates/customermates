@@ -2,32 +2,32 @@
   "locale": "pt",
   "name": "Venda consultiva do fundador",
   "summary": "Um funil curto para um fundador que vende pessoalmente: conversas, diagnóstico, um piloto opcional com data de término fixa, uma proposta e um estado pausado com data para retomar.",
-  "description": "Venda como fundador com de um punhado a algumas dezenas de conversas abertas: cada negócio registra o problema nas palavras do cliente, a urgência, a situação do orçamento e se o decisor está envolvido; um piloto tem data de término e diz se é pago; um negócio silencioso é pausado com uma data para retomar em vez de ser perseguido. Os pesos são aproximados, porque um fundador ainda não tem histórico de fechamentos, e cabem a você. Não é disparo de sequências em volume, captação de investimento nem previsão para um time com vários vendedores.",
+  "description": "Venda como fundador com entre um punhado e algumas dezenas de conversas abertas: cada negócio registra o problema nas palavras do cliente, a urgência, a situação do orçamento e se o decisor está envolvido; um piloto tem data de término e diz se é pago; um negócio silencioso é pausado com uma data para retomar em vez de ser perseguido. Os pesos são aproximados, porque um fundador ainda não tem histórico de fechamentos, e cabem a você. Não serve para disparar sequências em volume, captar investimento nem prever as vendas de uma equipe com vários vendedores.",
   "lists": {
     "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas com quem você conversa, com o papel delas na decisão de compra." },
     "companies": { "label": "Empresa", "pluralLabel": "Empresas", "description": "Prospects, pilotos, clientes e parceiros." },
     "opportunities": { "label": "Negócio", "pluralLabel": "Negócios", "description": "Uma possível venda, da primeira conversa a ganho, perdido ou pausado." }
   },
   "fields": {
-    "contacts.buying_role": { "label": "Papel na compra", "options": { "decision_maker": "Decisor", "budget_holder": "Dono do orçamento", "champion": "Defensor interno", "user": "Usuário", "other": "Outro" } },
+    "contacts.buying_role": { "label": "Papel na compra", "options": { "decision_maker": "Decisor", "budget_holder": "Responsável pelo orçamento", "champion": "Defensor interno", "user": "Usuário", "other": "Outro" } },
     "contacts.outreach_consent": { "label": "Aceita ser contatado" },
-    "companies.relationship": { "label": "Relação", "options": { "prospect": "Prospect", "pilot": "Piloto", "customer": "Cliente", "churned": "Perdido", "partner": "Parceiro" } },
+    "companies.relationship": { "label": "Relacionamento", "options": { "prospect": "Prospect", "pilot": "Piloto", "customer": "Cliente", "churned": "Ex-cliente", "partner": "Parceiro" } },
     "companies.size": { "label": "Porte", "options": { "micro": "De 1 a 10 pessoas", "small": "De 11 a 50 pessoas", "medium": "De 51 a 250 pessoas", "large": "Mais de 250 pessoas" } },
     "companies.website": { "label": "Site" },
     "opportunities.stage": {
       "label": "Etapa",
       "options": { "new": "Conversa", "discovery_done": "Diagnóstico", "pilot": "Piloto ou teste", "proposal": "Proposta", "won": "Ganho", "lost": "Perdido", "parked": "Pausado" }
     },
-    "opportunities.source": { "label": "Origem", "options": { "own_network": "Rede pessoal", "introduction": "Apresentação", "inbound": "Entrada", "community": "Comunidade", "outbound": "Prospecção ativa", "event": "Evento" } },
-    "opportunities.problem": { "label": "O problema, nas palavras dele" },
-    "opportunities.urgency": { "label": "Urgência", "options": { "burning": "Urgentíssima", "important": "Importante", "nice_to_have": "Desejável" } },
+    "opportunities.source": { "label": "Origem", "options": { "own_network": "Rede pessoal", "introduction": "Indicação", "inbound": "Contato recebido", "community": "Comunidade", "outbound": "Prospecção ativa", "event": "Evento" } },
+    "opportunities.problem": { "label": "O problema, nas palavras do cliente" },
+    "opportunities.urgency": { "label": "Urgência", "options": { "burning": "Muito urgente", "important": "Importante", "nice_to_have": "Desejável" } },
     "opportunities.budget_status": { "label": "Orçamento", "options": { "unknown": "Desconhecido", "has_budget": "Tem orçamento", "needs_budget": "Precisa de orçamento", "no_budget": "Sem orçamento" } },
     "opportunities.decision_maker_engaged": { "label": "Decisor envolvido" },
     "opportunities.pilot_end": { "label": "Fim do piloto" },
     "opportunities.pilot_paid": { "label": "O piloto é pago" },
-    "opportunities.expected_close": { "label": "Fechamento esperado" },
+    "opportunities.expected_close": { "label": "Previsão de fechamento" },
     "opportunities.revisit_on": { "label": "Retomar em" },
-    "opportunities.next_step_due": { "label": "Próximo passo até" },
+    "opportunities.next_step_due": { "label": "Data do próximo passo" },
     "opportunities.lost_reason": {
       "label": "Motivo da perda",
       "options": { "no_budget": "Sem orçamento", "no_urgency": "Sem urgência", "competitor": "Escolheu a concorrência", "built_in_house": "Desenvolveu internamente", "wrong_buyer": "Interlocutor errado", "no_response": "Sem resposta", "not_a_fit": "Não se encaixa" }
@@ -35,7 +35,7 @@
     "opportunities.weighted_value": { "label": "Valor ponderado" },
     "actions.kind": {
       "label": "Tipo",
-      "options": { "reply": "Responder com um resumo", "call": "Ligar", "intro_request": "Pedir uma apresentação", "pilot_check": "Acompanhar o piloto", "proposal": "Enviar a proposta", "follow_up": "Fazer o retorno", "handover": "Passar o bastão", "review": "Fazer o balanço", "other": "Outro" }
+      "options": { "reply": "Responder com um resumo", "call": "Ligar", "intro_request": "Pedir uma indicação", "pilot_check": "Acompanhar o piloto", "proposal": "Enviar a proposta", "follow_up": "Fazer o retorno", "handover": "Passar o bastão", "review": "Fazer o balanço", "other": "Outro" }
     }
   },
   "relationships": {
@@ -60,7 +60,7 @@
     "pilot_ends": { "title": "Pilotos terminando" },
     "revisits_coming": { "title": "Negócios pausados a retomar" },
     "urgency_split": { "title": "Negócios abertos por urgência" },
-    "lost_reasons": { "title": "Por que negócios foram perdidos" }
+    "lost_reasons": { "title": "Por que perdemos negócios" }
   },
   "knowledgePages": {
     "founder_playbook": { "title": "Guia de vendas do fundador", "sections": ["Para quem vendemos e o que aprendemos", "Revisão semanal do fundador"] },
@@ -74,11 +74,11 @@
     "discovery_proposal": { "title": "Enviar o plano do piloto ou a proposta 2 dias depois do diagnóstico" },
     "pilot_start_check": { "title": "Acompanhar o piloto 14 dias depois do início" },
     "pilot_review": { "title": "Fazer a conversa de decisão 3 dias antes do fim do piloto" },
-    "proposal_follow_up": { "title": "Fazer o retorno 3 dias depois de enviada uma proposta" },
+    "proposal_follow_up": { "title": "Fazer o retorno 3 dias depois de enviar uma proposta" },
     "parked_revisit_date": { "title": "Definir a retomada para 90 dias quando um negócio é pausado" },
     "revisit_reopen": { "title": "Reabrir a conversa na data de retomada" },
     "won_handover": { "title": "Passar o cliente adiante no dia seguinte a um ganho" },
-    "won_intro_request": { "title": "Pedir uma apresentação ao cliente 30 dias depois de um ganho" }
+    "won_intro_request": { "title": "Pedir indicações ao cliente 30 dias depois de um ganho" }
   },
   "acceptanceChecks": {
     "stage_field": "Todo negócio tem uma etapa.",
@@ -87,12 +87,12 @@
     "opportunities_board_view": "Os negócios abrem como quadro por etapa."
   },
   "prompt": {
-    "intro": "Configure no meu workspace do Customermates um funil de venda consultiva do fundador: negócios da primeira conversa a ganho com notas de diagnóstico, um piloto opcional com data de término fixa, um estado pausado com data para retomar e acompanhamentos com data. Não envie nada automaticamente.",
+    "intro": "Configure no meu espaço de trabalho do Customermates um funil de venda consultiva do fundador: negócios da primeira conversa a ganho com notas de diagnóstico, um piloto opcional com data de término fixa, um estado pausado com data para retomar e acompanhamentos com data. Não envie nada automaticamente.",
     "questions": [
       "O que você vende e quem já comprou de você?",
       "Você faz pilotos ou testes e eles são pagos?",
       "Por quanto tempo você insiste em um negócio silencioso antes de pausá-lo?",
-      "Onde suas conversas começam: rede pessoal, apresentações, entrada ou eventos?"
+      "Onde suas conversas começam: rede pessoal, indicações, contato recebido ou eventos?"
     ]
   }
 }

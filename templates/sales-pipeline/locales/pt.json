@@ -94,7 +94,7 @@
         "meeting": "Reunião",
         "proposal": "Proposta",
         "follow_up": "Retorno",
-        "handover": "Passagem",
+        "handover": "Repasse",
         "review": "Revisão",
         "other": "Outro"
       }
@@ -134,7 +134,7 @@
   "knowledgePages": {
     "stages_exit_criteria": {
       "title": "Etapas de venda e critérios de saída",
-      "sections": ["Critério de entrada e de saída de cada etapa", "Quem move um negócio e com qual evidência", "Pesos e quando substituí-los"]
+      "sections": ["Critério de entrada e de saída de cada etapa", "Quem move um negócio e com que comprovação", "Pesos e quando substituí-los"]
     },
     "qualification_questions": {
       "title": "Perguntas de qualificação",
@@ -154,7 +154,7 @@
     },
     "message_templates": {
       "title": "Modelos de mensagem de retorno",
-      "sections": ["Primeira resposta", "Depois da reunião de diagnóstico", "Mensagem de envio da proposta", "Cobrança de retorno da proposta", "Encerramento: talvez não seja o momento", "Retomada após 90 dias"]
+      "sections": ["Primeira resposta", "Depois da reunião de diagnóstico", "Mensagem de envio da proposta", "Retorno sobre a proposta", "Encerramento: talvez não seja o momento", "Retomada após 90 dias"]
     }
   },
   "rules": {
@@ -176,7 +176,7 @@
     },
     "second_proposal_follow_up": {
       "title": "Segundo retorno da proposta",
-      "description": "Dez dias depois do envio da proposta vence uma segunda tarefa de retorno. Conclua-a se o prospect já respondeu."
+      "description": "Dez dias depois do envio da proposta vence uma segunda tarefa de retorno. Conclua a tarefa se o prospect já respondeu."
     },
     "confirm_decision": {
       "title": "Confirmar a data da decisão e o decisor",
@@ -188,7 +188,7 @@
     },
     "won_handover": {
       "title": "Repassar o negócio ganho",
-      "description": "Uma tarefa de passagem vence no dia seguinte ao ganho. Registre o motivo do ganho."
+      "description": "Uma tarefa de repasse vence no dia seguinte ao ganho. Registre o motivo do ganho."
     },
     "lost_revisit": {
       "title": "Retomar o negócio perdido",
@@ -212,7 +212,7 @@
     },
     "enquiry_form_records": {
       "title": "Criar contato, empresa e negócio a partir de uma solicitação",
-      "description": "Um formulário de solicitação na web cria o contato, a empresa e um negócio na etapa Novo lead."
+      "description": "Um formulário de solicitação no site cria o contato, a empresa e um negócio na etapa Novo lead."
     },
     "enquiry_form_notice": {
       "title": "Avisar o responsável da solicitação",
@@ -241,7 +241,7 @@
       "O que você vende e quantas pessoas vendem?",
       "Por quais passos um negócio passa do primeiro contato à assinatura? Quais das sete etapas servem e quais precisam de outro nome?",
       "Quanto dura um negócio típico e depois de quantos dias sem movimento ele deve ser considerado parado?",
-      "Quais taxas de conversão você tem de negócios passados? Se não tiver, os pesos padrão ficam.",
+      "Quais taxas de conversão você tem de negócios passados? Se não tiver, mantemos os pesos padrão.",
       "Onde você faz as propostas? Elas ficam lá e aqui só se guarda um link."
     ]
   }

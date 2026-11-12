@@ -2,7 +2,7 @@
   "locale": "es",
   "name": "Pipeline de ventas",
   "summary": "Siete etapas con criterios de salida y ponderación, un siguiente paso con fecha en cada oportunidad abierta, motivos de pérdida y de victoria y un cambio de etapa que crea la siguiente tarea.",
-  "description": "Un pipeline para un equipo comercial pequeño: cinco etapas abiertas, Ganada y Perdida, un valor ponderado por oportunidad, el comité de compra en la oportunidad, un motivo de pérdida y un motivo de victoria, y la revisión semanal. Las ponderaciones son una ponderación del pipeline, no una previsión: sustitúyelas por tus propias tasas de cierre tras 20 o 30 oportunidades cerradas.",
+  "description": "Un pipeline para un equipo comercial pequeño: cinco etapas abiertas, Ganada y Perdida, un valor ponderado por oportunidad, el comité de compra en la oportunidad, un motivo de pérdida y un motivo de victoria, y la revisión semanal. Las ponderaciones sirven para valorar el pipeline, no para prever ventas: sustitúyelas por tus propias tasas de cierre cuando tengas entre 20 y 30 oportunidades cerradas.",
   "lists": {
     "contacts": { "label": "Persona de contacto", "pluralLabel": "Personas de contacto", "description": "Las personas del lado comprador, con su papel en la decisión." },
     "accounts": { "label": "Empresa", "pluralLabel": "Empresas", "description": "Las empresas a las que vendes." },
@@ -12,9 +12,9 @@
     "opportunities.stage": {
       "label": "Etapa",
       "options": {
-        "new": "Nuevo",
-        "qualified": "Calificado",
-        "discovery": "Reunión de descubrimiento",
+        "new": "Nueva",
+        "qualified": "Cualificada",
+        "discovery": "Reunión de diagnóstico",
         "proposal_sent": "Presupuesto enviado",
         "negotiation": "Negociación",
         "won": "Ganada",
@@ -30,14 +30,14 @@
         "champion": "Impulsor interno",
         "influencer": "Prescriptor",
         "user": "Usuario",
-        "blocker": "Opositor"
+        "blocker": "Detractor"
       }
     },
     "contacts.language": { "label": "Idioma" },
     "contacts.outreach_consent": { "label": "Consentimiento para contacto comercial" },
     "accounts.relationship": {
       "label": "Relación",
-      "options": { "prospect": "Potencial", "customer": "Cliente", "former_customer": "Excliente", "partner": "Socio" }
+      "options": { "prospect": "Cliente potencial", "customer": "Cliente", "former_customer": "Excliente", "partner": "Socio" }
     },
     "accounts.size": {
       "label": "Tamaño",
@@ -137,8 +137,8 @@
       "sections": ["Criterio de entrada y de salida de cada etapa", "Quién mueve una oportunidad y con qué prueba", "Ponderaciones y cuándo sustituirlas"]
     },
     "qualification_questions": {
-      "title": "Preguntas de calificación",
-      "sections": ["Presupuesto, autoridad, necesidad y plazo", "Qué pasa si el potencial cliente no hace nada", "Quién más decide"]
+      "title": "Preguntas de cualificación",
+      "sections": ["Presupuesto, autoridad, necesidad y plazo", "Qué pasa si el cliente potencial no hace nada", "Quién más decide"]
     },
     "proposal_cadence": {
       "title": "Ritmo de presupuestos y seguimientos",
@@ -149,26 +149,26 @@
       "sections": ["Oportunidades estancadas", "Oportunidades pasadas de su cierre previsto", "Oportunidades sin siguiente paso", "Las cinco primeras por valor ponderado"]
     },
     "win_loss_review": {
-      "title": "Análisis de victorias y pérdidas",
+      "title": "Análisis de oportunidades ganadas y perdidas",
       "sections": ["Leer cada mes los motivos de pérdida y los competidores", "Leer los motivos de victoria", "Una tarea de mejora"]
     },
     "message_templates": {
       "title": "Plantillas de mensajes de seguimiento",
-      "sections": ["Primera respuesta", "Tras la reunión de descubrimiento", "Mensaje de envío del presupuesto", "Seguimiento del presupuesto", "Cierre: puede que no sea el momento", "Retomar a los 90 días"]
+      "sections": ["Primera respuesta", "Tras la reunión de diagnóstico", "Mensaje de envío del presupuesto", "Seguimiento del presupuesto", "Cierre: puede que no sea el momento", "Retomar a los 90 días"]
     }
   },
   "rules": {
     "qualify_new_opportunity": {
-      "title": "Calificar la nueva oportunidad",
+      "title": "Cualificar la nueva oportunidad",
       "description": "Una oportunidad nueva recibe una tarea de llamada para el día siguiente."
     },
     "book_discovery_call": {
-      "title": "Agendar la reunión de descubrimiento",
-      "description": "Cuando una oportunidad pasa a Calificado, una tarea de reunión vence en 3 días."
+      "title": "Agendar la reunión de diagnóstico",
+      "description": "Cuando una oportunidad pasa a Cualificada, una tarea de reunión vence en 3 días."
     },
     "send_proposal": {
       "title": "Enviar el presupuesto",
-      "description": "Cuando una oportunidad llega a Reunión de descubrimiento, una tarea de presupuesto vence en 5 días."
+      "description": "Cuando una oportunidad llega a Reunión de diagnóstico, una tarea de presupuesto vence en 5 días."
     },
     "follow_up_proposal": {
       "title": "Hacer seguimiento del presupuesto",
@@ -176,7 +176,7 @@
     },
     "second_proposal_follow_up": {
       "title": "Segundo seguimiento del presupuesto",
-      "description": "Diez días después de enviar el presupuesto vence una segunda tarea de seguimiento. Ciérrala si el potencial cliente ya respondió."
+      "description": "Diez días después de enviar el presupuesto vence una segunda tarea de seguimiento. Ciérrala si el cliente potencial ya respondió."
     },
     "confirm_decision": {
       "title": "Confirmar la fecha de decisión y al decisor",
@@ -212,7 +212,7 @@
     },
     "enquiry_form_records": {
       "title": "Crear persona de contacto, empresa y oportunidad a partir de una consulta",
-      "description": "Un formulario de consulta web crea la persona de contacto, la empresa y una oportunidad en la etapa Nuevo."
+      "description": "Un formulario de consulta web crea la persona de contacto, la empresa y una oportunidad en la etapa Nueva."
     },
     "enquiry_form_notice": {
       "title": "Avisar al responsable de la consulta",
@@ -220,7 +220,7 @@
     },
     "fill_missing_value": {
       "title": "Completar el valor de esta oportunidad",
-      "description": "Una oportunidad que llega a Reunión de descubrimiento sin valor recibe una tarea de revisión."
+      "description": "Una oportunidad que llega a Reunión de diagnóstico sin valor recibe una tarea de revisión."
     },
     "fill_expected_close": {
       "title": "Completar el cierre previsto de esta oportunidad",
@@ -239,10 +239,10 @@
     "intro": "Configura un pipeline de ventas en mi espacio de trabajo de Customermates: oportunidades con siete etapas y ponderaciones, un valor ponderado, un siguiente paso con fecha en cada oportunidad abierta, motivos de pérdida y de victoria, el comité de compra en cada oportunidad y una tarea creada en cada cambio de etapa.",
     "questions": [
       "¿Qué vendes y cuántas personas lo venden?",
-      "¿Por qué pasos va una oportunidad desde el primer contacto hasta la firma? ¿Cuáles de las siete etapas encajan y cuáles necesitan otro nombre?",
+      "¿Qué pasos sigue una oportunidad desde el primer contacto hasta la firma? ¿Cuáles de las siete etapas encajan y cuáles necesitan otro nombre?",
       "¿Cuánto dura una oportunidad típica y tras cuántos días sin movimiento debe considerarse estancada?",
-      "¿Qué tasas de cierre tienes de oportunidades pasadas? Si no tienes, se mantienen las ponderaciones por defecto.",
-      "¿Dónde haces los presupuestos? Se quedan allí y aquí solo se guarda un enlace."
+      "¿Qué tasas de cierre tienes de oportunidades anteriores? Si no las tienes, se mantienen las ponderaciones por defecto.",
+      "¿Dónde preparas los presupuestos? Se quedan allí y aquí solo se guarda un enlace."
     ]
   }
 }
