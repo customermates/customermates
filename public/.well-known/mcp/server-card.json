@@ -48965,6 +48965,18 @@
       "name": "get-started",
       "title": "Get started",
       "description": "Personalized CRM kickoff: read the workspace and Knowledge Base, then ask what to focus on"
+    },
+    {
+      "name": "setup-from-template",
+      "title": "Set up from a template",
+      "description": "Build a workspace from a Customermates template: read the workspace first, propose the plan, then build only after approval",
+      "arguments": [
+        {
+          "name": "template",
+          "description": "The template slug, for example client-tracker",
+          "required": true
+        }
+      ]
     }
   ]
 }

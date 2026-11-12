@@ -36,6 +36,15 @@ describe("renderTemplatePrompt", () => {
     expect(text).not.toContain("signup");
   });
 
+  it("skips the signup for an assistant that is already connected to the workspace", () => {
+    const text = prompt("client-tracker", { connected: true });
+    expect(text).toContain("## 1. This workspace");
+    expect(text).toContain("already connected");
+    expect(text).not.toContain("signup");
+    expect(text).not.toContain("Get a workspace");
+    expect(text).toContain("## 2. Before you write anything");
+  });
+
   it("reads the workspace first, proposes before writing, creates no samples and sends nothing", () => {
     const text = prompt("sales-pipeline");
     expect(text).toContain("Call get_workspace_context");

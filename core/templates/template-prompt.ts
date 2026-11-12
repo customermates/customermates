@@ -6,7 +6,12 @@ import { SHIPPED_CAPABILITIES } from "@/core/capabilities/capabilities";
 
 import { needText } from "./compile-template-support";
 
-type PromptOptions = { deployment: TemplateDeployment; signupUrl: string; shipped?: ReadonlySet<Capability> };
+type PromptOptions = {
+  deployment: TemplateDeployment;
+  signupUrl: string;
+  shipped?: ReadonlySet<Capability>;
+  connected?: boolean;
+};
 
 const TYPE_WORDS: Readonly<Record<string, string>> = {
   text: "text",
@@ -36,6 +41,12 @@ export function templateSignupUrl(signupUrl: string, slug: string): string {
 }
 
 function workspaceSection(spec: TemplateSpec, options: PromptOptions): string[] {
+  if (options.connected) {
+    return [
+      "## 1. This workspace",
+      "You are already connected to the Customermates workspace that will hold this template. Work in it and do not create another one.",
+    ];
+  }
   if (options.deployment === "cloud") {
     return [
       "## 1. Get a workspace",
