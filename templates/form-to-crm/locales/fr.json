@@ -1,8 +1,8 @@
 {
   "locale": "fr",
-  "name": "Formulaire vers CRM",
-  "summary": "Transformer les demandes des formulaires web en prospects suivis : une demande par envoi avec sa source, une réponse à donner, une étape de nouveau à converti, et le spam et le sans suite à part.",
-  "description": "Chaque demande venue d'un formulaire de contact, de devis ou d'accueil devient une demande reliée à un contact, avec le formulaire d'origine, la provenance du visiteur, le besoin pour quand et une réponse due le lendemain. Les demandes passent de nouveau à converti, sans suite ou spam, et une demande restée sans réponse est signalée. Le consentement et une date de revue accompagnent les données collectées. Ce n'est pas un créateur de formulaires pour des paiements, des quiz ou le dépôt de documents sensibles.",
+  "name": "Du formulaire au CRM",
+  "summary": "Transformez les demandes des formulaires web en prospects suivis : une demande par envoi avec sa source, une réponse à donner, une étape de nouveau à converti, et les demandes sans suite et le spam mis à part.",
+  "description": "Chaque message reçu par un formulaire de contact, de devis ou d’accueil devient une demande reliée à un contact, avec le formulaire d’origine, la provenance du visiteur, le délai souhaité et une réponse due le lendemain. Les demandes passent de nouveau à converti, sans suite ou spam, et une demande restée sans réponse est signalée. Le consentement et une date de revue accompagnent les données collectées. Ce n’est pas un créateur de formulaires pour des paiements, des quiz ou le dépôt de documents sensibles.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes qui vous écrivent par un formulaire." },
     "requests": { "label": "Demande", "pluralLabel": "Demandes", "description": "Un envoi de formulaire, de nouveau à converti, sans suite ou spam." }
@@ -16,11 +16,11 @@
       "label": "Étape",
       "options": { "new": "Nouveau", "contacted": "Contacté", "qualified": "Qualifié", "converted": "Converti", "not_a_fit": "Sans suite", "spam": "Spam" }
     },
-    "requests.form": { "label": "Formulaire", "options": { "contact": "Formulaire de contact", "quote_request": "Demande de devis", "intake": "Formulaire d'accueil", "callback": "Demande de rappel", "other": "Autre" } },
+    "requests.form": { "label": "Formulaire", "options": { "contact": "Formulaire de contact", "quote_request": "Demande de devis", "intake": "Formulaire d’accueil", "callback": "Demande de rappel", "other": "Autre" } },
     "requests.owner": { "label": "Responsable" },
     "requests.service_interest": { "label": "Prestation souhaitée" },
     "requests.needed_by": {
-      "label": "Besoin pour le",
+      "label": "Besoin avant le",
       "options": { "asap": "Dès que possible", "within_a_month": "Dans le mois", "within_three_months": "Dans les trois mois", "just_looking": "Simple renseignement", "no_answer": "Sans réponse" }
     },
     "requests.budget_band": { "label": "Budget", "options": { "no_answer": "Sans réponse", "low": "Faible", "medium": "Moyen", "high": "Élevé" } },
@@ -30,12 +30,12 @@
     "requests.landing_page": { "label": "Page du formulaire" },
     "requests.repeat_submission": { "label": "A déjà écrit" },
     "requests.not_a_fit_reason": {
-      "label": "Raison du sans suite",
+      "label": "Motif du classement sans suite",
       "options": { "out_of_area": "Hors de notre zone", "no_budget": "Pas de budget", "wrong_service": "Mauvaise prestation", "no_response": "Sans réponse", "duplicate": "Doublon", "other": "Autre" }
     },
     "requests.closed_on": { "label": "Clôturée le" },
     "requests.data_review_on": { "label": "Revoir les données le" },
-    "requests.days_to_close": { "label": "Jours entre l'envoi et la clôture" },
+    "requests.days_to_close": { "label": "Jours entre l’envoi et la clôture" },
     "actions.kind": {
       "label": "Type",
       "options": { "reply": "Répondre", "qualify_call": "Appel de qualification", "send_quote": "Envoyer un devis", "convert": "Passer au pipeline", "chase": "Relancer", "data_review": "Revoir les données", "other": "Autre" }
@@ -47,7 +47,7 @@
   },
   "views": {
     "requests_all": { "name": "Toutes les demandes" },
-    "requests_board": { "name": "Tableau des demandes" },
+    "requests_board": { "name": "Board des demandes" },
     "new_requests": { "name": "Nouvelles demandes" },
     "closed_without_deal": { "name": "Sans suite ou spam" },
     "contacts_all": { "name": "Tous les contacts" }
@@ -57,36 +57,36 @@
     "requests_per_week": { "title": "Demandes par semaine" },
     "requests_by_form": { "title": "Demandes par formulaire" },
     "new_requests_count": { "title": "Nouvelles demandes" },
-    "not_a_fit_reasons": { "title": "Raisons des demandes sans suite" },
+    "not_a_fit_reasons": { "title": "Motifs des demandes sans suite" },
     "average_days_to_close": { "title": "Nombre moyen de jours avant clôture" }
   },
   "knowledgePages": {
     "form_playbook": { "title": "Guide du formulaire au CRM", "sections": ["Quels formulaires nous utilisons et qui répond", "En combien de temps nous répondons"] },
-    "privacy_notice": { "title": "Mentions d'information des formulaires", "sections": ["Ce que nous indiquons au niveau du formulaire", "Durée de conservation d'une demande"] },
+    "privacy_notice": { "title": "Mentions d’information des formulaires", "sections": ["Ce que nous indiquons au niveau du formulaire", "Durée de conservation d’une demande"] },
     "spam_and_duplicates": { "title": "Spam et envois répétés", "sections": ["Ce qui compte comme du spam", "Ce que nous faisons quand la même personne écrit à nouveau"] }
   },
   "rules": {
     "enquiry_form_records": { "title": "Créer le contact et la demande quand le formulaire de demande est envoyé" },
     "reply_task": { "title": "Créer une tâche de réponse pour le lendemain quand une demande est créée" },
     "first_response_missed": { "title": "Prévenir le responsable quand une demande est encore nouvelle un jour après sa réception" },
-    "chase_contacted": { "title": "Relancer une demande contactée qui n'a pas bougé depuis 3 jours" },
+    "chase_contacted": { "title": "Relancer une demande contactée qui n’a pas bougé depuis 3 jours" },
     "converted_task": { "title": "Passer la demande au pipeline quand elle est convertie" },
     "review_date_not_a_fit": { "title": "Fixer la revue des données à un an quand une demande est sans suite" },
     "data_review": { "title": "Revoir les données quand la date de revue arrive" },
-    "external_form_records": { "title": "Créer le contact et la demande quand un autre outil de formulaire envoie un envoi" }
+    "external_form_records": { "title": "Créer le contact et la demande quand un autre outil de formulaire transmet un envoi" }
   },
   "acceptanceChecks": {
     "stage_field": "Chaque demande a une étape.",
     "submitted_field": "Chaque demande indique quand elle a été reçue.",
-    "requests_board_view": "Les demandes s'ouvrent en tableau par étape."
+    "requests_board_view": "Les demandes s’ouvrent en board par étape."
   },
   "prompt": {
-    "intro": "Mets en place dans mon espace Customermates le passage du formulaire au CRM : une demande par envoi avec sa source, une réponse à donner, six étapes, le consentement et une date de revue des données, et des relances datées.",
+    "intro": "Mets en place dans mon espace de travail Customermates le passage du formulaire au CRM : une demande par envoi avec sa source, une réponse à donner, six étapes, le consentement et une date de revue des données, et des relances datées.",
     "questions": [
-      "Quels formulaires utilisez-vous, et que devez-vous savoir pour chiffrer ou orienter une demande ?",
-      "Qui répond, et sous quel délai vous engagez-vous à répondre ?",
-      "Que dites-vous aux personnes sur leurs données au niveau du formulaire ?",
-      "Utilisez-vous un autre outil de formulaire comme Typeform, Tally ou Jotform ?"
+      "Quels formulaires utilisez-vous, et que devez-vous savoir pour chiffrer ou orienter une demande ?",
+      "Qui répond, et sous quel délai vous engagez-vous à répondre ?",
+      "Que dites-vous aux personnes, dans le formulaire, sur l’usage de leurs données ?",
+      "Utilisez-vous un autre outil de formulaire comme Typeform, Tally ou Jotform ?"
     ]
   }
 }
