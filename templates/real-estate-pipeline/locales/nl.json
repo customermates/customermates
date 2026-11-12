@@ -53,7 +53,7 @@
     },
     "contacts.preferred_channel": {
       "label": "Voorkeurskanaal",
-      "options": { "email": "E-mail", "phone": "Telefoon", "whatsapp": "WhatsApp", "portal": "Portaal" }
+      "options": { "email": "E-mail", "phone": "Telefoon", "whatsapp": "WhatsApp", "portal": "Woningportaal" }
     },
     "contacts.language": { "label": "Taal" },
     "contacts.marketing_consent_on": { "label": "Toestemming voor marketing op" },
@@ -90,10 +90,10 @@
       "label": "Herkomst",
       "options": {
         "referral": "Verwijzing",
-        "portal": "Portaal",
+        "portal": "Woningportaal",
         "web_form": "Webformulier",
         "whatsapp": "WhatsApp",
-        "canvassing": "Acquisitie op straat",
+        "canvassing": "Koude acquisitie",
         "past_client": "Oud-klant",
         "expired_listing": "Verlopen opdracht"
       }
@@ -120,7 +120,7 @@
     "listings.next_step": { "label": "Volgende stap" },
     "listings.next_step_due": { "label": "Datum volgende stap" },
     "listings.lost_reason": {
-      "label": "Reden verloren",
+      "label": "Reden van verlies",
       "options": {
         "price_too_high": "Prijs te hoog",
         "chose_other_agent": "Koos een andere makelaar",
@@ -134,7 +134,7 @@
     "buyer_searches.source": {
       "label": "Herkomst",
       "options": {
-        "portal": "Portaal",
+        "portal": "Woningportaal",
         "web_form": "Webformulier",
         "whatsapp": "WhatsApp",
         "referral": "Verwijzing",
@@ -159,7 +159,7 @@
     "buyer_searches.next_step": { "label": "Volgende stap" },
     "buyer_searches.next_step_due": { "label": "Datum volgende stap" },
     "buyer_searches.lost_reason": {
-      "label": "Reden verloren",
+      "label": "Reden van verlies",
       "options": {
         "bought_elsewhere": "Elders gekocht",
         "financing_failed": "Financiering mislukt",
@@ -225,7 +225,7 @@
     "listings_board": { "name": "Woningen per fase" },
     "listings_all": { "name": "Alle woningen" },
     "agreements_ending": { "name": "Opdrachten die aflopen" },
-    "buyer_board": { "name": "Kopers per fase" },
+    "buyer_board": { "name": "Zoekopdrachten kopers per fase" },
     "leads_not_contacted": { "name": "Aanvragen nog niet gecontacteerd" },
     "viewings_all": { "name": "Bezichtigingen op datum" },
     "key_dates_all": { "name": "Sleutelmomenten" },
@@ -300,16 +300,16 @@
   },
   "rules": {
     "portal_lead_contact": {
-      "title": "Neem vandaag contact op met de nieuwe aanvraag",
+      "title": "Neem vandaag contact op met de nieuwe aanvrager",
       "description": "Een aanvraag via een woningportaal of WhatsApp krijgt een belactie voor dezelfde dag."
     },
     "prepare_valuation": {
       "title": "Bereid de waardebepaling en de documentenlijst voor",
-      "description": "Wanneer een woning naar Waardebepaling gaat, valt een taak voor de waardebepaling de volgende dag."
+      "description": "Wanneer een woning naar Waardebepaling gaat, staat de volgende dag een taak voor de waardebepaling klaar."
     },
     "send_listing_proposal": {
       "title": "Stuur het opdrachtvoorstel",
-      "description": "Na de datum van de waardebepaling krijgt een woning die nog in Waardebepaling staat een voorsteltaak voor de volgende dag."
+      "description": "Na de datum van de waardebepaling krijgt een woning die nog in Waardebepaling staat een taak voor het opdrachtvoorstel, met deadline de volgende dag."
     },
     "proposal_message_day_2": {
       "title": "Volg het opdrachtvoorstel op met een bericht",
@@ -332,7 +332,7 @@
       "description": "Dertig dagen voor het einde van de opdracht krijgt een woning in verkoop een taak voor de eigenaar van het dossier."
     },
     "agreement_end_notice": {
-      "title": "Meld de makelaar dat de opdracht over een week afloopt",
+      "title": "Informeer de makelaar dat de opdracht over een week afloopt",
       "description": "Zeven dagen voor het einde van de opdracht krijgt de behandelaar van de woning een melding om over verlenging te beslissen."
     },
     "weekly_owner_update": {
@@ -344,7 +344,7 @@
       "description": "De dag na een bezichtiging wordt een taak aangemaakt als er geen terugkoppeling is vastgelegd."
     },
     "offer_notice": {
-      "title": "Meld de makelaar dat een bod moet worden voorgelegd",
+      "title": "Informeer de makelaar dat een bod moet worden voorgelegd",
       "description": "Wanneer een woning de fase Bod bereikt, krijgt de behandelaar een melding om het bod vandaag voor te leggen."
     },
     "listing_key_dates": {
@@ -360,7 +360,7 @@
       "description": "Elk nieuw sleutelmoment wordt in de eigen agenda van de makelaar gezet."
     },
     "key_date_reminder": {
-      "title": "Meld de makelaar dat een sleutelmoment over twee dagen is",
+      "title": "Informeer de makelaar dat een sleutelmoment over twee dagen is",
       "description": "Twee dagen voor een open sleutelmoment krijgt de behandelaar een melding om de stap te bevestigen of aan te sporen."
     },
     "completed_handover": {
@@ -369,7 +369,7 @@
     },
     "completed_anniversary": {
       "title": "Jubileumbelletje",
-      "description": "Een jaar na de overdracht valt een taak om contact te onderhouden."
+      "description": "Een jaar na de overdracht staat een taak om contact te onderhouden klaar."
     },
     "identify_before_contract": {
       "title": "Leg de identificatie van de partijen vast",

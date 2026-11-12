@@ -2,10 +2,10 @@
   "locale": "nl",
   "name": "Wervingsbureau",
   "summary": "Een werkplek voor een wervingsbureau of zelfstandige recruiter: vacatures van aanvraag tot plaatsing, één regel in het proces per kandidaat, fee- en garantiedata, nazorg en een bewaardatum bij elke kandidaat.",
-  "description": "Voer het bureau op één plek: opdrachtgevers en hun voorwaarden, vacatures met een fase en een verwachte fee, kandidaten die per vacature worden voorgesteld met eigen fasen, plaatsingen met het einde van de garantie en nazorgmomenten, en een controledatum voor de gegevens van elke kandidaat. Geschikt voor een bureau van één tot vijf recruiters. Geen vacaturesite, geen cv-parser, geen tool voor massamailing en geen systeem voor uren en loon, en er wordt niets automatisch naar kandidaten of opdrachtgevers gestuurd.",
+  "description": "Beheer het bureau op één plek: opdrachtgevers en hun voorwaarden, vacatures met een fase en een verwachte fee, kandidaten die per vacature worden voorgesteld met eigen fasen, plaatsingen met het einde van de garantie en nazorgmomenten, en een controledatum voor de gegevens van elke kandidaat. Geschikt voor een bureau van één tot vijf recruiters. Geen vacaturesite, geen cv-parser, geen tool voor massamailing en geen systeem voor uren en loon, en er wordt niets automatisch naar kandidaten of opdrachtgevers gestuurd.",
   "lists": {
     "people": { "label": "Persoon", "pluralLabel": "Personen", "description": "Kandidaten, contactpersonen bij opdrachtgevers en verwijzers." },
-    "clients": { "label": "Opdrachtgever", "pluralLabel": "Opdrachtgevers", "description": "Bedrijven waarvoor u werft, met fee en garantievoorwaarden." },
+    "clients": { "label": "Opdrachtgever", "pluralLabel": "Opdrachtgevers", "description": "Bedrijven waarvoor je werft, met fee en garantievoorwaarden." },
     "jobs": { "label": "Vacature", "pluralLabel": "Vacatures", "description": "Eén zoekopdracht voor één opdrachtgever, van aanvraag tot geplaatst of verloren." },
     "submissions": { "label": "Voorgestelde kandidaat", "pluralLabel": "Voorgestelde kandidaten", "description": "Eén kandidaat op één vacature, met een eigen fase." },
     "placements": { "label": "Plaatsing", "pluralLabel": "Plaatsingen", "description": "Een kandidaat die heeft geaccepteerd, met startdatum, fee en einde van de garantie." }
@@ -30,14 +30,14 @@
     },
     "people.source": {
       "label": "Bron",
-      "options": { "referral": "Aanbeveling", "linkedin": "LinkedIn", "job_board": "Vacaturesite", "own_database": "Eigen database", "event": "Evenement", "inbound": "Zelf gemeld", "other": "Overig" }
+      "options": { "referral": "Aanbeveling", "linkedin": "LinkedIn", "job_board": "Vacaturesite", "own_database": "Eigen database", "event": "Evenement", "inbound": "Zelf gesolliciteerd", "other": "Overig" }
     },
-    "people.salary_expectation": { "label": "Salarisindicatie" },
+    "people.salary_expectation": { "label": "Salarisverwachting" },
     "people.notice_period": { "label": "Opzegtermijn" },
     "people.location": { "label": "Woonplaats" },
     "people.data_basis": {
       "label": "Grondslag voor het bewaren van gegevens",
-      "options": { "pre_contract": "Stappen voor een overeenkomst", "talent_pool_consent": "Toestemming voor het talentenbestand", "legitimate_interest": "Zelf gevonden, gerechtvaardigd belang" }
+      "options": { "pre_contract": "Stappen voor een overeenkomst", "talent_pool_consent": "Toestemming voor de talentpool", "legitimate_interest": "Zelf gevonden, gerechtvaardigd belang" }
     },
     "people.retain_until": { "label": "Bewaren tot" },
     "people.last_contact": { "label": "Laatste contact" },
@@ -57,7 +57,7 @@
     "clients.website": { "label": "Website" },
     "clients.next_touch": { "label": "Volgend contact" },
     "clients.owner": { "label": "Eigenaar" },
-    "jobs.salary": { "label": "Salaris" },
+    "jobs.salary": { "label": "Bruto jaarsalaris" },
     "jobs.fee_percent": { "label": "Fee (%)" },
     "jobs.opened_on": { "label": "Geopend op" },
     "jobs.filled_on": { "label": "Vervuld op" },
@@ -67,7 +67,7 @@
     "jobs.must_haves": { "label": "Eisen en wensen" },
     "jobs.brief_url": { "label": "Link naar de intake" },
     "jobs.next_step": { "label": "Volgende stap" },
-    "jobs.next_step_due": { "label": "Volgende stap voor" },
+    "jobs.next_step_due": { "label": "Volgende stap uiterlijk op" },
     "jobs.lost_reason": {
       "label": "Reden van verlies",
       "options": { "client_filled_internally": "Opdrachtgever vulde intern in", "client_froze_search": "Opdrachtgever zette de search stil", "filled_by_competitor": "Vervuld door een concurrent", "terms_not_agreed": "Voorwaarden niet akkoord", "role_cancelled": "Functie vervallen", "no_suitable_candidates": "Geen geschikte kandidaten" }
@@ -77,7 +77,7 @@
     "jobs.weighted_fee": { "label": "Gewogen fee" },
     "submissions.submitted_on": { "label": "Voorgesteld op" },
     "submissions.interview_at": { "label": "Gesprek" },
-    "submissions.feedback_due": { "label": "Feedback opdrachtgever voor" },
+    "submissions.feedback_due": { "label": "Feedback opdrachtgever uiterlijk op" },
     "submissions.rejection_reason": {
       "label": "Reden van afwijzing",
       "options": { "skills": "Vaardigheden", "culture_fit": "Cultuurmatch", "salary_mismatch": "Salaris past niet", "other_offer": "Ander aanbod", "no_response": "Geen reactie", "location_or_notice": "Standplaats of opzegtermijn" }
@@ -119,11 +119,11 @@
     "submission_candidate": { "sourceLabel": "Kandidaat", "targetLabel": "Voorgestelde kandidaten" },
     "placement_job": { "sourceLabel": "Vacature", "targetLabel": "Plaatsingen" },
     "placement_candidate": { "sourceLabel": "Kandidaat", "targetLabel": "Plaatsingen" },
-    "action_person": { "sourceLabel": "Persoon", "targetLabel": "Taken" },
-    "action_job": { "sourceLabel": "Vacature", "targetLabel": "Taken" },
-    "action_submission": { "sourceLabel": "Voorgestelde kandidaat", "targetLabel": "Taken" },
-    "action_client": { "sourceLabel": "Opdrachtgever", "targetLabel": "Taken" },
-    "action_placement": { "sourceLabel": "Plaatsing", "targetLabel": "Taken" }
+    "action_person": { "sourceLabel": "Persoon", "targetLabel": "Acties" },
+    "action_job": { "sourceLabel": "Vacature", "targetLabel": "Acties" },
+    "action_submission": { "sourceLabel": "Voorgestelde kandidaat", "targetLabel": "Acties" },
+    "action_client": { "sourceLabel": "Opdrachtgever", "targetLabel": "Acties" },
+    "action_placement": { "sourceLabel": "Plaatsing", "targetLabel": "Acties" }
   },
   "views": {
     "jobs_board": { "name": "Vacatures per fase" },
@@ -147,20 +147,20 @@
     "average_days_to_fill": { "title": "Gemiddeld aantal dagen tot vervulling" }
   },
   "knowledgePages": {
-    "operating_guide": { "title": "Hoe het bureau draait", "sections": ["De twee pijplijnen: vacatures en kandidaten", "Wie welke fase bezit en de regel van één Actie met datum per open item"] },
-    "client_intake_call": { "title": "Intakegesprek met de opdrachtgever", "sections": ["Functie, standplaats, werkvorm, salarisschaal en startdatum", "Eisen, wensen, waarom de functie openstaat en wie beslist"] },
-    "terms_checklist": { "title": "Fee, garantie en exclusiviteit", "sections": ["Grondslag van de fee, wanneer ze verdiend is en betalingstermijn", "Duur en gevolg van de garantie, exclusiviteit (gebruik uw eigen contract, dit is geen juridisch advies)"] },
-    "screening_call": { "title": "Screeningsgesprek met de kandidaat", "sections": ["Motivatie, opzegtermijn, salarisindicatie, andere trajecten", "Wat u niet vraagt en niet vastlegt"] },
-    "submission_email": { "title": "Een kandidaat voorstellen aan de opdrachtgever", "sections": ["Samenvatting in drie regels en waarom deze persoon", "Beschikbaarheid, salarisindicatie en het cv als bijlage (een concept, nooit automatisch verzonden)"] },
+    "operating_guide": { "title": "Hoe het bureau draait", "sections": ["De twee pijplijnen: vacatures en kandidaten", "Wie voor welke fase verantwoordelijk is en de regel van één actie met datum per open item"] },
+    "client_intake_call": { "title": "Intakegesprek met de opdrachtgever", "sections": ["Functie, standplaats, werkvorm, salarisrange en startdatum", "Eisen, wensen, waarom de functie openstaat en wie beslist"] },
+    "terms_checklist": { "title": "Fee, garantie en exclusiviteit", "sections": ["Grondslag van de fee, wanneer ze verdiend is en betalingstermijn", "Duur en gevolg van de garantie, exclusiviteit (gebruik je eigen contract, dit is geen juridisch advies)"] },
+    "screening_call": { "title": "Screeningsgesprek met de kandidaat", "sections": ["Motivatie, opzegtermijn, salarisverwachting, andere trajecten", "Wat je niet vraagt en niet vastlegt"] },
+    "submission_email": { "title": "Een kandidaat voorstellen aan de opdrachtgever", "sections": ["Samenvatting in drie regels en waarom deze persoon", "Beschikbaarheid, salarisverwachting en het cv als bijlage (een concept, nooit automatisch verzonden)"] },
     "interview_routine": { "title": "Gesprek voorbereiden en nabespreken", "sections": ["De kandidaat en de contactpersoon briefen", "De uitkomst binnen een dag vastleggen"] },
-    "candidate_data": { "title": "Kandidaatgegevens: grondslag, informatie en bewaartermijn", "sections": ["Bewaartermijn per land en de privacyverklaring", "Toestemming voor het talentenbestand en de controledatum"] },
+    "candidate_data": { "title": "Kandidaatgegevens: grondslag, informatie en bewaartermijn", "sections": ["Bewaartermijn per land en de privacyverklaring", "Toestemming voor de talentpool en de controledatum"] },
     "aftercare_routine": { "title": "Nazorg na plaatsing van dag 1 tot dag 90", "sections": ["Contactmomenten bij de start, na een week, 30, 60 en 90 dagen", "Einde van de garantie en de factuur voor de fee"] }
   },
   "rules": {
     "chase_terms": { "title": "De getekende voorwaarden opvragen drie dagen nadat een vacature op voorwaarden akkoord staat" },
     "request_client_feedback": { "title": "De opdrachtgever twee dagen na het voorstellen van een kandidaat om feedback vragen" },
     "prepare_interview": { "title": "De kandidaat de dag voor een gesprek bij de opdrachtgever briefen" },
-    "debrief_interview": { "title": "Op de dag van een gesprek de kandidaat en de opdrachtgever nabellen" },
+    "debrief_interview": { "title": "Op de dag van een gesprek het gesprek nabespreken met de kandidaat en de opdrachtgever" },
     "chase_offer_decision": { "title": "Twee dagen na een aanbod naar de beslissing van de kandidaat vragen" },
     "start_day_confirmation": { "title": "De start bevestigen op de eerste dag van een plaatsing" },
     "check_in_week_1": { "title": "Een week na de start even navragen" },
@@ -184,12 +184,12 @@
     "candidate_data_page": "De kennisbank bevat een pagina over kandidaatgegevens en bewaartermijnen."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-workspace een wervingsbureau in: opdrachtgevers met hun voorwaarden, vacatures in negen fasen met een verwachte fee, één voorgestelde kandidaat per kandidaat en vacature, plaatsingen met het einde van de garantie en nazorgmomenten, en een bewaardatum bij elke kandidaat.",
+    "intro": "Richt in mijn Customermates-werkruimte een wervingsbureau in: opdrachtgevers met hun voorwaarden, vacatures in negen fasen met een verwachte fee, één voordracht per kandidaat en vacature, plaatsingen met het einde van de garantie en nazorgmomenten, en een bewaardatum bij elke kandidaat.",
     "questions": [
-      "Werkt u op basis van succes, met voorschot of allebei, en welke fee en garantie spreekt u meestal af?",
-      "Hoeveel vacatures en kandidaten behandelt u tegelijk en wie bezit welke fase?",
-      "Hoe lang bewaart u kandidaatgegevens en in welke landen werft u?",
-      "Waar bewaart u getekende voorwaarden en facturen? Hier staat alleen een link of een nummer."
+      "Werk je op basis van succes, met voorschot of allebei, en welke fee en garantie spreek je meestal af?",
+      "Hoeveel vacatures en kandidaten behandel je tegelijk en wie is verantwoordelijk voor welke fase?",
+      "Hoe lang bewaar je kandidaatgegevens en in welke landen werf je?",
+      "Waar bewaar je getekende voorwaarden en facturen? Hier staat alleen een link of een nummer."
     ]
   }
 }
