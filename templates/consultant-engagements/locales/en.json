@@ -1,0 +1,104 @@
+{
+  "locale": "en",
+  "name": "Consultant engagements",
+  "summary": "A pipeline for an independent consultant: engagements from introduction to won with an acceptance check before the offer, a follow-up date agreed on the proposal call, and deliverables that gate delivery and closeout.",
+  "description": "Run a consulting practice in one place: engagements through discovery, scoping, proposal and decision, the date of the follow-up agreed with the sponsor, an acceptance check (capacity, independence, confidentiality) before the offer, deliverables with their due and acceptance dates, and a closeout that asks for feedback and a testimonial. It stores the pipeline, the relationships and the delivery gates. It is not time tracking, invoicing, proposal e-signature or resource planning, and it holds no confidential client data.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Sponsors, day-to-day contacts, people who sign off and referrers." },
+    "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Prospects, clients, former clients and referral partners." },
+    "engagements": { "label": "Engagement", "pluralLabel": "Engagements", "description": "One piece of consulting work, from the first introduction to delivery and closeout." },
+    "deliverables": { "label": "Deliverable", "pluralLabel": "Deliverables", "description": "A milestone you hand over, with its due date and acceptance." }
+  },
+  "fields": {
+    "contacts.role_in_engagement": { "label": "Role", "options": { "sponsor": "Sponsor", "day_to_day": "Day-to-day contact", "signs_off": "Signs off", "referrer": "Referrer", "influencer": "Influencer" } },
+    "contacts.relationship_strength": { "label": "Relationship", "options": { "strong": "Strong", "warm": "Warm", "new": "New" } },
+    "contacts.last_meeting": { "label": "Last meeting" },
+    "clients.relationship": { "label": "Relationship", "options": { "prospect": "Prospect", "client": "Client", "former_client": "Former client", "referral_partner": "Referral partner" } },
+    "clients.industry": { "label": "Industry" },
+    "engagements.stage": {
+      "label": "Stage",
+      "options": { "introduction": "Introduction", "discovery": "Discovery", "scoping": "Scoping", "proposal_sent": "Proposal sent", "decision": "Decision", "won": "Won", "lost": "Lost" }
+    },
+    "engagements.engagement_type": { "label": "Type", "options": { "diagnostic": "Diagnostic", "advisory_review": "Advisory review", "workshop": "Workshop", "interim": "Interim role", "retainer": "Retainer", "training": "Training" } },
+    "engagements.referral_source": { "label": "How it came in", "options": { "client_referral": "Client referral", "peer_referral": "Peer referral", "event_or_talk": "Event or talk", "content": "Content", "existing_client": "Existing client", "marketplace": "Marketplace" } },
+    "engagements.day_rate": { "label": "Day rate" },
+    "engagements.days_estimated": { "label": "Days estimated" },
+    "engagements.estimated_fee": { "label": "Estimated fee" },
+    "engagements.acceptance_checked_on": { "label": "Acceptance checked on" },
+    "engagements.proposal_follow_up_on": { "label": "Follow-up agreed for" },
+    "engagements.decision_expected": { "label": "Decision expected" },
+    "engagements.start_date": { "label": "Start date" },
+    "engagements.end_date": { "label": "End date" },
+    "engagements.delivery_status": { "label": "Delivery status", "options": { "not_started": "Not started", "kickoff_scheduled": "Kickoff scheduled", "in_delivery": "In delivery", "wrapping_up": "Wrapping up", "completed": "Completed" } },
+    "engagements.next_step_due": { "label": "Next step due" },
+    "engagements.lost_reason": {
+      "label": "Lost reason",
+      "options": { "timing": "Timing", "budget": "Budget", "in_house": "Doing it in-house", "other_advisor": "Chose another advisor", "scope_changed": "Scope changed", "no_decision": "No decision", "no_response": "No response" }
+    },
+    "deliverables.status": { "label": "Status", "options": { "planned": "Planned", "in_progress": "In progress", "delivered": "Delivered", "accepted": "Accepted" } },
+    "deliverables.kind": { "label": "Kind", "options": { "interview_summary": "Interview summary", "workshop": "Workshop", "report": "Report", "recommendation": "Recommendation", "training_session": "Training session", "handover": "Handover" } },
+    "deliverables.due_date": { "label": "Due date" },
+    "deliverables.owner": { "label": "Owner" },
+    "actions.kind": {
+      "label": "Kind",
+      "options": { "reply": "Reply", "write_up": "Write up the conversation", "acceptance_check": "Check acceptance", "proposal": "Write the proposal", "follow_up": "Follow up", "kickoff": "Kickoff", "deliver": "Deliver", "feedback": "Ask for feedback", "other": "Other" }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Client", "targetLabel": "Contacts" },
+    "engagement_client": { "sourceLabel": "Client", "targetLabel": "Engagements" },
+    "engagement_sponsor": { "sourceLabel": "Sponsor and contacts", "targetLabel": "Engagements" },
+    "deliverable_engagement": { "sourceLabel": "Engagement", "targetLabel": "Deliverables" },
+    "action_engagement": { "sourceLabel": "Engagement", "targetLabel": "Actions" }
+  },
+  "views": {
+    "engagements_board": { "name": "Engagements by stage" },
+    "engagements_all": { "name": "All engagements" },
+    "in_delivery": { "name": "Won and not yet completed" },
+    "deliverables_all": { "name": "All deliverables" },
+    "clients_all": { "name": "All clients" },
+    "contacts_all": { "name": "All contacts" }
+  },
+  "widgets": {
+    "engagements_funnel": { "title": "Engagements by stage" },
+    "open_value": { "title": "Value of proposals in play" },
+    "decisions_coming": { "title": "Decisions expected" },
+    "deliverables_due": { "title": "Deliverables due" },
+    "engagements_ending": { "title": "Engagements ending" },
+    "by_type": { "title": "Won engagements by type" },
+    "lost_reasons": { "title": "Why engagements were lost" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "How the practice runs", "sections": ["Stages, and the rule of one dated next step per open engagement", "What stays outside: time tracking and invoicing"] },
+    "discovery_guide": { "title": "Discovery conversation guide", "sections": ["The problem in the client's words, stakeholders and budget signals", "What to write up the next day"] },
+    "acceptance_check": { "title": "Acceptance check before the offer", "sections": ["Capacity, independence, confidentiality and fit", "Who decides to take the work"] },
+    "proposal_and_follow_up": { "title": "Proposal structure and follow-up", "sections": ["Options offered and the recommended one", "Agreeing the follow-up date on the proposal call"] }
+  },
+  "rules": {
+    "discovery_writeup": { "title": "Write up the discovery conversation the next day" },
+    "acceptance_check": { "title": "Check acceptance the day after an engagement reaches scoping" },
+    "proposal_follow_up": { "title": "Follow up 3 days after the proposal is sent" },
+    "decision_date": { "title": "Ask for the decision on the expected decision date" },
+    "won_kickoff": { "title": "Schedule the kickoff the day after an engagement is won" },
+    "lost_review": { "title": "Ask what could have been done differently 2 days after an engagement is lost" },
+    "deliverable_due_notice": { "title": "Notify the owner 3 days before a deliverable is due" },
+    "closeout_report": { "title": "Hand over the final report on the end date" },
+    "testimonial_ask": { "title": "Ask for a testimonial 14 days after the end date" },
+    "followup_after_end": { "title": "Propose follow-up work 30 days after the end date" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Every engagement has a stage.",
+    "follow_up_field": "Every proposal records the follow-up date agreed with the sponsor.",
+    "acceptance_checked_field": "Every engagement records when acceptance was checked.",
+    "engagements_board_view": "The engagements open as a board by stage."
+  },
+  "prompt": {
+    "intro": "Set up consultant engagements in my Customermates workspace: engagements from introduction to won with an acceptance check and a follow-up date agreed on the proposal call, deliverables with due and acceptance dates, and a closeout that asks for feedback. Store no confidential client data.",
+    "questions": [
+      "What kinds of engagements do you sell, and at which day rate?",
+      "How do you decide whether to accept a piece of work?",
+      "How long do you usually wait after a proposal before you follow up?",
+      "Which deliverables mark a milestone you invoice?"
+    ]
+  }
+}

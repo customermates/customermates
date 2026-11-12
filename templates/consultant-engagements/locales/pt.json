@@ -1,0 +1,104 @@
+{
+  "locale": "pt",
+  "name": "Projetos de consultoria",
+  "summary": "Um funil para um consultor independente: projetos do contato ao projeto ganho com checagem de aceitação antes da proposta, uma data de retorno combinada na conversa da proposta e entregáveis que regulam a execução e o encerramento.",
+  "description": "Conduza uma consultoria em um só lugar: projetos por diagnóstico, escopo, proposta e decisão, a data de retorno combinada com o patrocinador, uma checagem de aceitação (capacidade, independência, confidencialidade) antes da proposta, entregáveis com prazo e aceite, e um encerramento que pede feedback e um depoimento. Guarda o funil, os relacionamentos e as etapas de entrega. Não é controle de horas, emissão de notas, assinatura eletrônica de propostas nem planejamento de recursos, e não contém dados confidenciais do cliente.",
+  "lists": {
+    "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "Patrocinadores, contatos do dia a dia, quem assina e indicadores." },
+    "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Prospects, clientes, ex-clientes e parceiros que indicam." },
+    "engagements": { "label": "Projeto", "pluralLabel": "Projetos", "description": "Um trabalho de consultoria, do primeiro contato à entrega e ao encerramento." },
+    "deliverables": { "label": "Entregável", "pluralLabel": "Entregáveis", "description": "Um marco que você entrega, com prazo e aceite." }
+  },
+  "fields": {
+    "contacts.role_in_engagement": { "label": "Papel", "options": { "sponsor": "Patrocinador", "day_to_day": "Contato do dia a dia", "signs_off": "Dá o aval", "referrer": "Indicador", "influencer": "Influenciador" } },
+    "contacts.relationship_strength": { "label": "Relacionamento", "options": { "strong": "Forte", "warm": "Bom", "new": "Novo" } },
+    "contacts.last_meeting": { "label": "Última reunião" },
+    "clients.relationship": { "label": "Relação", "options": { "prospect": "Prospect", "client": "Cliente", "former_client": "Ex-cliente", "referral_partner": "Parceiro que indica" } },
+    "clients.industry": { "label": "Setor" },
+    "engagements.stage": {
+      "label": "Etapa",
+      "options": { "introduction": "Contato", "discovery": "Diagnóstico", "scoping": "Escopo", "proposal_sent": "Proposta enviada", "decision": "Decisão", "won": "Ganho", "lost": "Perdido" }
+    },
+    "engagements.engagement_type": { "label": "Tipo", "options": { "diagnostic": "Diagnóstico", "advisory_review": "Revisão consultiva", "workshop": "Workshop", "interim": "Gestão interina", "retainer": "Consultoria recorrente", "training": "Treinamento" } },
+    "engagements.referral_source": { "label": "Como chegou", "options": { "client_referral": "Indicação de cliente", "peer_referral": "Indicação de colega", "event_or_talk": "Evento ou palestra", "content": "Conteúdo publicado", "existing_client": "Cliente existente", "marketplace": "Plataforma" } },
+    "engagements.day_rate": { "label": "Valor da diária" },
+    "engagements.days_estimated": { "label": "Dias estimados" },
+    "engagements.estimated_fee": { "label": "Honorários estimados" },
+    "engagements.acceptance_checked_on": { "label": "Aceitação checada em" },
+    "engagements.proposal_follow_up_on": { "label": "Retorno combinado para" },
+    "engagements.decision_expected": { "label": "Decisão esperada" },
+    "engagements.start_date": { "label": "Início" },
+    "engagements.end_date": { "label": "Fim" },
+    "engagements.delivery_status": { "label": "Execução", "options": { "not_started": "Não iniciada", "kickoff_scheduled": "Kickoff agendado", "in_delivery": "Em andamento", "wrapping_up": "Em encerramento", "completed": "Concluída" } },
+    "engagements.next_step_due": { "label": "Próximo passo até" },
+    "engagements.lost_reason": {
+      "label": "Motivo da perda",
+      "options": { "timing": "Momento", "budget": "Orçamento", "in_house": "Fará internamente", "other_advisor": "Escolheu outro consultor", "scope_changed": "Escopo mudou", "no_decision": "Sem decisão", "no_response": "Sem resposta" }
+    },
+    "deliverables.status": { "label": "Situação", "options": { "planned": "Planejado", "in_progress": "Em andamento", "delivered": "Entregue", "accepted": "Aceito" } },
+    "deliverables.kind": { "label": "Tipo", "options": { "interview_summary": "Resumo de entrevistas", "workshop": "Workshop", "report": "Relatório", "recommendation": "Recomendação", "training_session": "Sessão de treinamento", "handover": "Passagem de bastão" } },
+    "deliverables.due_date": { "label": "Prazo" },
+    "deliverables.owner": { "label": "Responsável" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "reply": "Responder", "write_up": "Registrar a conversa", "acceptance_check": "Checar a aceitação", "proposal": "Escrever a proposta", "follow_up": "Fazer o retorno", "kickoff": "Kickoff", "deliver": "Entregar", "feedback": "Pedir feedback", "other": "Outro" }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Cliente", "targetLabel": "Contatos" },
+    "engagement_client": { "sourceLabel": "Cliente", "targetLabel": "Projetos" },
+    "engagement_sponsor": { "sourceLabel": "Patrocinador e contatos", "targetLabel": "Projetos" },
+    "deliverable_engagement": { "sourceLabel": "Projeto", "targetLabel": "Entregáveis" },
+    "action_engagement": { "sourceLabel": "Projeto", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "engagements_board": { "name": "Projetos por etapa" },
+    "engagements_all": { "name": "Todos os projetos" },
+    "in_delivery": { "name": "Ganhos e ainda não concluídos" },
+    "deliverables_all": { "name": "Todos os entregáveis" },
+    "clients_all": { "name": "Todos os clientes" },
+    "contacts_all": { "name": "Todos os contatos" }
+  },
+  "widgets": {
+    "engagements_funnel": { "title": "Projetos por etapa" },
+    "open_value": { "title": "Valor das propostas em andamento" },
+    "decisions_coming": { "title": "Decisões esperadas" },
+    "deliverables_due": { "title": "Entregáveis a entregar" },
+    "engagements_ending": { "title": "Projetos terminando" },
+    "by_type": { "title": "Projetos ganhos por tipo" },
+    "lost_reasons": { "title": "Por que projetos foram perdidos" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Como funciona a consultoria", "sections": ["As etapas e a regra de um próximo passo com data por projeto aberto", "O que fica de fora: controle de horas e faturamento"] },
+    "discovery_guide": { "title": "Guia da conversa de diagnóstico", "sections": ["O problema nas palavras do cliente, os envolvidos e os sinais de orçamento", "O que registrar no dia seguinte"] },
+    "acceptance_check": { "title": "Checagem de aceitação antes da proposta", "sections": ["Capacidade, independência, confidencialidade e adequação", "Quem decide aceitar o trabalho"] },
+    "proposal_and_follow_up": { "title": "Estrutura da proposta e retorno", "sections": ["Opções oferecidas e a recomendada", "Combinar a data de retorno na conversa da proposta"] }
+  },
+  "rules": {
+    "discovery_writeup": { "title": "Registrar a conversa de diagnóstico no dia seguinte" },
+    "acceptance_check": { "title": "Checar a aceitação no dia seguinte à entrada no escopo" },
+    "proposal_follow_up": { "title": "Fazer o retorno 3 dias depois de enviada a proposta" },
+    "decision_date": { "title": "Pedir a decisão na data de decisão esperada" },
+    "won_kickoff": { "title": "Agendar o kickoff no dia seguinte a um projeto ganho" },
+    "lost_review": { "title": "Perguntar o que poderia ter sido diferente 2 dias depois de perder um projeto" },
+    "deliverable_due_notice": { "title": "Avisar o responsável 3 dias antes do prazo de um entregável" },
+    "closeout_report": { "title": "Entregar o relatório final na data de fim" },
+    "testimonial_ask": { "title": "Pedir um depoimento 14 dias depois da data de fim" },
+    "followup_after_end": { "title": "Propor novo trabalho 30 dias depois da data de fim" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Todo projeto tem uma etapa.",
+    "follow_up_field": "Toda proposta registra a data de retorno combinada com o patrocinador.",
+    "acceptance_checked_field": "Todo projeto registra quando a aceitação foi checada.",
+    "engagements_board_view": "Os projetos abrem como quadro por etapa."
+  },
+  "prompt": {
+    "intro": "Configure no meu workspace do Customermates projetos de consultoria: projetos do contato ao ganho com checagem de aceitação e data de retorno combinada na conversa da proposta, entregáveis com prazo e aceite, e um encerramento que pede feedback. Não guarde dados confidenciais do cliente.",
+    "questions": [
+      "Que tipos de projeto você vende e a qual valor de diária?",
+      "Como você decide se aceita um trabalho?",
+      "Quanto tempo você espera depois de uma proposta antes de fazer o retorno?",
+      "Quais entregáveis marcam um marco que você fatura?"
+    ]
+  }
+}

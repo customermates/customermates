@@ -1,0 +1,161 @@
+{
+  "id": "tpl_consultant_engagements",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "consultant-engagements",
+  "family": "professional-services",
+  "kind": "pipeline",
+  "jurisdictions": ["DE", "FR", "IT", "ES", "BR", "PL", "NL"],
+  "dashboardAudience": "me",
+  "modules": ["actions_core", "actions_dashboard"],
+  "requiresCapabilities": ["rules", "notifications"],
+  "pairedPages": {
+    "en": "/for/consultants",
+    "de": "/for/consultants",
+    "fr": "/for/consultants",
+    "it": "/for/consultants",
+    "es": "/for/consultants",
+    "pt": "/for/consultants",
+    "pl": "/for/consultants",
+    "nl": "/for/consultants"
+  },
+  "lists": [
+    { "key": "contacts", "role": "people", "icon": "contact" },
+    { "key": "clients", "icon": "building" },
+    { "key": "engagements", "role": "deals", "icon": "briefcase" },
+    { "key": "deliverables", "icon": "milestone" }
+  ],
+  "stages": [
+    {
+      "field": "engagements.stage",
+      "items": [
+        { "key": "introduction", "outcome": "open", "weight": 10 },
+        { "key": "discovery", "outcome": "open", "weight": 20 },
+        { "key": "scoping", "outcome": "open", "weight": 35 },
+        { "key": "proposal_sent", "outcome": "open", "weight": 55 },
+        { "key": "decision", "outcome": "open", "weight": 75 },
+        { "key": "won", "outcome": "won", "weight": 100 },
+        { "key": "lost", "outcome": "lost", "weight": 0 }
+      ]
+    },
+    {
+      "field": "deliverables.status",
+      "items": [
+        { "key": "planned", "outcome": "open", "weight": 0 },
+        { "key": "in_progress", "outcome": "open", "weight": 0 },
+        { "key": "delivered", "outcome": "open", "weight": 0 },
+        { "key": "accepted", "outcome": "won", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "contacts.role_in_engagement", "type": "select", "options": [{ "key": "sponsor" }, { "key": "day_to_day" }, { "key": "signs_off" }, { "key": "referrer" }, { "key": "influencer" }] },
+    { "key": "contacts.relationship_strength", "type": "select", "options": [{ "key": "strong", "color": "success" }, { "key": "warm" }, { "key": "new", "color": "secondary" }] },
+    { "key": "contacts.last_meeting", "type": "date" },
+    { "key": "clients.relationship", "type": "select", "options": [{ "key": "prospect" }, { "key": "client", "color": "success" }, { "key": "former_client", "color": "secondary" }, { "key": "referral_partner" }] },
+    { "key": "clients.industry", "type": "text" },
+    { "key": "engagements.engagement_type", "type": "select", "options": [{ "key": "diagnostic" }, { "key": "advisory_review" }, { "key": "workshop" }, { "key": "interim" }, { "key": "retainer" }, { "key": "training" }] },
+    { "key": "engagements.referral_source", "type": "select", "options": [{ "key": "client_referral" }, { "key": "peer_referral" }, { "key": "event_or_talk" }, { "key": "content" }, { "key": "existing_client" }, { "key": "marketplace" }] },
+    { "key": "engagements.day_rate", "type": "currency" },
+    { "key": "engagements.days_estimated", "type": "number" },
+    { "key": "engagements.acceptance_checked_on", "type": "date" },
+    { "key": "engagements.proposal_follow_up_on", "type": "date" },
+    { "key": "engagements.decision_expected", "type": "date" },
+    { "key": "engagements.start_date", "type": "date" },
+    { "key": "engagements.end_date", "type": "date" },
+    { "key": "engagements.delivery_status", "type": "select", "options": [{ "key": "not_started" }, { "key": "kickoff_scheduled", "color": "info" }, { "key": "in_delivery", "color": "warning" }, { "key": "wrapping_up" }, { "key": "completed", "color": "success" }] },
+    { "key": "engagements.next_step_due", "type": "date" },
+    { "key": "engagements.lost_reason", "type": "select", "options": [{ "key": "timing" }, { "key": "budget" }, { "key": "in_house" }, { "key": "other_advisor" }, { "key": "scope_changed" }, { "key": "no_decision" }, { "key": "no_response" }] },
+    { "key": "deliverables.kind", "type": "select", "options": [{ "key": "interview_summary" }, { "key": "workshop" }, { "key": "report" }, { "key": "recommendation" }, { "key": "training_session" }, { "key": "handover" }] },
+    { "key": "deliverables.due_date", "type": "date" },
+    { "key": "deliverables.owner", "type": "member" },
+    {
+      "key": "actions.kind",
+      "type": "select",
+      "options": [{ "key": "reply" }, { "key": "write_up" }, { "key": "acceptance_check" }, { "key": "proposal" }, { "key": "follow_up" }, { "key": "kickoff" }, { "key": "deliver" }, { "key": "feedback" }, { "key": "other" }]
+    }
+  ],
+  "calculations": [
+    {
+      "key": "engagements.estimated_fee",
+      "type": "currency",
+      "expression": { "op": "multiply", "left": { "op": "field", "field": "engagements.days_estimated" }, "right": { "op": "field", "field": "engagements.day_rate" } }
+    }
+  ],
+  "relationships": [
+    { "key": "contact_client", "source": "contacts", "target": "clients", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "engagement_client", "source": "engagements", "target": "clients", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "engagement_sponsor", "source": "engagements", "target": "contacts", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "deliverable_engagement", "source": "deliverables", "target": "engagements", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_engagement", "source": "actions", "target": "engagements", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    { "key": "engagements_board", "list": "engagements", "default": true, "layout": "board", "groupBy": "engagements.stage", "columns": ["engagements.engagement_type", "engagements.day_rate", "engagements.decision_expected"], "summaries": [{ "field": "engagements.value", "aggregation": "sum" }] },
+    { "key": "engagements_all", "list": "engagements", "default": false, "layout": "table", "sort": { "field": "engagements.next_step_due", "direction": "asc" }, "columns": ["engagements.stage", "engagements.engagement_type", "engagements.day_rate", "engagements.next_step_due"] },
+    { "key": "in_delivery", "list": "engagements", "default": false, "layout": "table", "sort": { "field": "engagements.end_date", "direction": "asc" }, "filters": [{ "operator": "in", "field": "engagements.stage", "options": ["won"] }, { "operator": "notIn", "field": "engagements.delivery_status", "options": ["completed"] }] },
+    { "key": "deliverables_all", "list": "deliverables", "default": true, "layout": "table", "sort": { "field": "deliverables.due_date", "direction": "asc" }, "columns": ["deliverables.status", "deliverables.kind", "deliverables.due_date", "deliverables.owner"] },
+    { "key": "clients_all", "list": "clients", "default": true, "layout": "table", "columns": ["clients.relationship", "clients.industry"] },
+    { "key": "contacts_all", "list": "contacts", "default": true, "layout": "table", "sort": { "field": "contacts.last_meeting", "direction": "asc" }, "columns": ["contacts.role_in_engagement", "contacts.relationship_strength", "contacts.last_meeting"] }
+  ],
+  "widgets": [
+    { "kind": "chart", "key": "engagements_funnel", "list": "engagements", "aggregation": "count", "groupBy": { "field": "engagements.stage" }, "filters": [{ "operator": "in", "field": "engagements.stage", "options": ["introduction", "discovery", "scoping", "proposal_sent", "decision", "won"] }], "display": "funnelChart" },
+    { "kind": "chart", "key": "open_value", "list": "engagements", "aggregation": "sum", "valueField": "engagements.value", "filters": [{ "operator": "in", "field": "engagements.stage", "options": ["scoping", "proposal_sent", "decision"] }], "display": "number" },
+    { "kind": "calendar", "key": "decisions_coming", "list": "engagements", "layout": "upcoming", "dateField": "engagements.decision_expected", "filters": [{ "operator": "in", "field": "engagements.stage", "options": ["proposal_sent", "decision"] }] },
+    { "kind": "calendar", "key": "deliverables_due", "list": "deliverables", "layout": "upcoming", "dateField": "deliverables.due_date", "filters": [{ "operator": "in", "field": "deliverables.status", "options": ["planned", "in_progress"] }] },
+    { "kind": "calendar", "key": "engagements_ending", "list": "engagements", "layout": "upcoming", "dateField": "engagements.end_date" },
+    { "kind": "chart", "key": "by_type", "list": "engagements", "aggregation": "count", "groupBy": { "field": "engagements.engagement_type" }, "filters": [{ "operator": "in", "field": "engagements.stage", "options": ["won"] }], "display": "doughnutChart" },
+    { "kind": "chart", "key": "lost_reasons", "list": "engagements", "aggregation": "count", "groupBy": { "field": "engagements.lost_reason" }, "filters": [{ "operator": "in", "field": "engagements.stage", "options": ["lost"] }], "display": "horizontalBarChart" }
+  ],
+  "knowledgePages": [
+    { "key": "operating_guide", "kind": "overview" },
+    { "key": "discovery_guide", "kind": "processes" },
+    { "key": "acceptance_check", "kind": "processes" },
+    { "key": "proposal_and_follow_up", "kind": "processes" }
+  ],
+  "followUpRules": [
+    { "key": "discovery_writeup", "trigger": { "kind": "field_changed", "field": "engagements.stage", "to": "discovery" }, "action": { "kind": "create_task", "taskKind": "write_up", "assignee": "record_owner", "about": "engagements" }, "dueOffsetDays": 1, "needs": "rules" },
+    { "key": "acceptance_check", "trigger": { "kind": "field_changed", "field": "engagements.stage", "to": "scoping" }, "action": { "kind": "create_task", "taskKind": "acceptance_check", "assignee": "record_owner", "about": "engagements" }, "dueOffsetDays": 1, "needs": "rules" },
+    { "key": "proposal_follow_up", "trigger": { "kind": "field_changed", "field": "engagements.stage", "to": "proposal_sent" }, "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "engagements" }, "dueOffsetDays": 3, "needs": "rules" },
+    {
+      "key": "decision_date",
+      "trigger": { "kind": "date_reached", "field": "engagements.decision_expected", "offsetDays": 0 },
+      "condition": [{ "operator": "in", "field": "engagements.stage", "options": ["proposal_sent", "decision"] }],
+      "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "engagements" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "won_kickoff", "trigger": { "kind": "field_changed", "field": "engagements.stage", "to": "won" }, "action": { "kind": "create_task", "taskKind": "kickoff", "assignee": "record_owner", "about": "engagements" }, "dueOffsetDays": 1, "needs": "rules" },
+    { "key": "lost_review", "trigger": { "kind": "field_changed", "field": "engagements.stage", "to": "lost" }, "action": { "kind": "create_task", "taskKind": "feedback", "assignee": "record_owner", "about": "engagements" }, "dueOffsetDays": 2, "needs": "rules" },
+    {
+      "key": "deliverable_due_notice",
+      "trigger": { "kind": "date_reached", "field": "deliverables.due_date", "offsetDays": -3 },
+      "condition": [{ "operator": "in", "field": "deliverables.status", "options": ["planned", "in_progress"] }],
+      "action": { "kind": "notify", "recipient": "record_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    { "key": "closeout_report", "trigger": { "kind": "date_reached", "field": "engagements.end_date", "offsetDays": 0 }, "action": { "kind": "create_task", "taskKind": "deliver", "assignee": "record_owner", "about": "engagements" }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "testimonial_ask", "trigger": { "kind": "date_reached", "field": "engagements.end_date", "offsetDays": 14 }, "action": { "kind": "create_task", "taskKind": "feedback", "assignee": "record_owner", "about": "engagements" }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "followup_after_end", "trigger": { "kind": "date_reached", "field": "engagements.end_date", "offsetDays": 30 }, "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "engagements" }, "dueOffsetDays": 0, "needs": "rules" }
+  ],
+  "acceptanceChecks": [
+    { "key": "stage_field", "kind": "field_exists", "ref": "engagements.stage" },
+    { "key": "follow_up_field", "kind": "field_exists", "ref": "engagements.proposal_follow_up_on" },
+    { "key": "acceptance_checked_field", "kind": "field_exists", "ref": "engagements.acceptance_checked_on" },
+    { "key": "engagements_board_view", "kind": "view_exists", "ref": "engagements_board" }
+  ],
+  "sources": [
+    { "url": "https://www.consultingsuccess.com/crms-for-consultants", "checkedOn": "2026-11-12" },
+    { "url": "https://alanweiss.com/million-dollar-consulting-mindset-newsletter/2012-09.php", "checkedOn": "2026-11-12" },
+    { "url": "https://www.bitrix24.com/articles/proposal-to-kickoff-consulting-delivery-workflow.php", "checkedOn": "2026-11-12" },
+    { "url": "https://www.projectmanagertemplate.com/post/managing-consulting-projects-ultimate-guide", "checkedOn": "2026-11-12" },
+    { "url": "https://static1.creately.com/guides/consulting-process/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.ihk.de/rhein-neckar/gruendung/unternehmensfuehrung/beratung/beauftragung-beratungsunternehmen-939208", "checkedOn": "2026-11-12" },
+    { "url": "https://www.bdu.de/fileadmin/user_data/dokumente/pdf-download/Tipps_Zusammenarbeit_Unternehmensberatungen.pdf", "checkedOn": "2026-11-12" },
+    { "url": "https://www.bdu.de/media/119763/grundlagen-unternehmensrestrukturierung.pdf", "checkedOn": "2026-11-12" },
+    { "url": "https://openclassrooms.com/fr/courses/5164356-construisez-votre-strategie-commerciale-d-independant/5367416-maitrisez-votre-cycle-de-vente", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "proof", "de": "none", "fr": "none", "it": "none", "es": "none", "pt": "none", "pl": "none", "nl": "none" }
+}

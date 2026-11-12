@@ -1,0 +1,104 @@
+{
+  "locale": "nl",
+  "name": "Adviesopdrachten",
+  "summary": "Een pijplijn voor een zelfstandig adviseur: opdrachten van kennismaking tot gewonnen met een acceptatiecheck vóór de offerte, een bij het offertegesprek afgesproken opvolgdatum en resultaten die uitvoering en afsluiting bewaken.",
+  "description": "Voer een adviespraktijk op één plek: opdrachten via verkenning, afbakening, voorstel en beslissing, de met de opdrachtgever afgesproken opvolgdatum, een acceptatiecheck (capaciteit, onafhankelijkheid, vertrouwelijkheid) vóór de offerte, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback en een referentie vraagt. Het bewaart de pijplijn, de relaties en de opleverpunten. Geen urenregistratie, geen facturering, geen elektronische handtekening voor voorstellen en geen capaciteitsplanning, en geen vertrouwelijke gegevens van de klant.",
+  "lists": {
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "Opdrachtgevers, dagelijkse contactpersonen, wie tekent en doorverwijzers." },
+    "clients": { "label": "Klant", "pluralLabel": "Klanten", "description": "Prospects, klanten, voormalige klanten en doorverwijspartners." },
+    "engagements": { "label": "Opdracht", "pluralLabel": "Opdrachten", "description": "Eén adviesopdracht, van eerste kennismaking tot uitvoering en afsluiting." },
+    "deliverables": { "label": "Resultaat", "pluralLabel": "Resultaten", "description": "Een mijlpaal die u oplevert, met opleverdatum en acceptatie." }
+  },
+  "fields": {
+    "contacts.role_in_engagement": { "label": "Rol", "options": { "sponsor": "Opdrachtgever", "day_to_day": "Dagelijks contact", "signs_off": "Tekent af", "referrer": "Doorverwijzer", "influencer": "Beïnvloeder" } },
+    "contacts.relationship_strength": { "label": "Relatie", "options": { "strong": "Sterk", "warm": "Goed", "new": "Nieuw" } },
+    "contacts.last_meeting": { "label": "Laatste afspraak" },
+    "clients.relationship": { "label": "Relatie", "options": { "prospect": "Prospect", "client": "Klant", "former_client": "Voormalige klant", "referral_partner": "Doorverwijspartner" } },
+    "clients.industry": { "label": "Sector" },
+    "engagements.stage": {
+      "label": "Fase",
+      "options": { "introduction": "Kennismaking", "discovery": "Verkenning", "scoping": "Afbakening", "proposal_sent": "Voorstel verstuurd", "decision": "Beslissing", "won": "Gewonnen", "lost": "Verloren" }
+    },
+    "engagements.engagement_type": { "label": "Type", "options": { "diagnostic": "Diagnose", "advisory_review": "Adviserende toets", "workshop": "Workshop", "interim": "Interimopdracht", "retainer": "Doorlopend advies", "training": "Training" } },
+    "engagements.referral_source": { "label": "Hoe het binnenkwam", "options": { "client_referral": "Aanbeveling van een klant", "peer_referral": "Aanbeveling van een vakgenoot", "event_or_talk": "Evenement of lezing", "content": "Gepubliceerde content", "existing_client": "Bestaande klant", "marketplace": "Platform" } },
+    "engagements.day_rate": { "label": "Dagtarief" },
+    "engagements.days_estimated": { "label": "Geschatte dagen" },
+    "engagements.estimated_fee": { "label": "Geschatte honorering" },
+    "engagements.acceptance_checked_on": { "label": "Acceptatie gecontroleerd op" },
+    "engagements.proposal_follow_up_on": { "label": "Opvolging afgesproken voor" },
+    "engagements.decision_expected": { "label": "Beslissing verwacht" },
+    "engagements.start_date": { "label": "Startdatum" },
+    "engagements.end_date": { "label": "Einddatum" },
+    "engagements.delivery_status": { "label": "Uitvoering", "options": { "not_started": "Niet gestart", "kickoff_scheduled": "Kick-off ingepland", "in_delivery": "In uitvoering", "wrapping_up": "Wordt afgerond", "completed": "Afgerond" } },
+    "engagements.next_step_due": { "label": "Volgende stap voor" },
+    "engagements.lost_reason": {
+      "label": "Reden van verlies",
+      "options": { "timing": "Timing", "budget": "Budget", "in_house": "Doet het intern", "other_advisor": "Koos een andere adviseur", "scope_changed": "Omvang veranderd", "no_decision": "Geen beslissing", "no_response": "Geen reactie" }
+    },
+    "deliverables.status": { "label": "Status", "options": { "planned": "Gepland", "in_progress": "In uitvoering", "delivered": "Opgeleverd", "accepted": "Geaccepteerd" } },
+    "deliverables.kind": { "label": "Soort", "options": { "interview_summary": "Samenvatting van interviews", "workshop": "Workshop", "report": "Rapport", "recommendation": "Aanbeveling", "training_session": "Trainingssessie", "handover": "Overdracht" } },
+    "deliverables.due_date": { "label": "Opleverdatum" },
+    "deliverables.owner": { "label": "Eigenaar" },
+    "actions.kind": {
+      "label": "Soort",
+      "options": { "reply": "Reageren", "write_up": "Gesprek uitwerken", "acceptance_check": "Acceptatie controleren", "proposal": "Voorstel schrijven", "follow_up": "Opvolgen", "kickoff": "Kick-off", "deliver": "Opleveren", "feedback": "Om feedback vragen", "other": "Overig" }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Klant", "targetLabel": "Contactpersonen" },
+    "engagement_client": { "sourceLabel": "Klant", "targetLabel": "Opdrachten" },
+    "engagement_sponsor": { "sourceLabel": "Opdrachtgever en contactpersonen", "targetLabel": "Opdrachten" },
+    "deliverable_engagement": { "sourceLabel": "Opdracht", "targetLabel": "Resultaten" },
+    "action_engagement": { "sourceLabel": "Opdracht", "targetLabel": "Taken" }
+  },
+  "views": {
+    "engagements_board": { "name": "Opdrachten per fase" },
+    "engagements_all": { "name": "Alle opdrachten" },
+    "in_delivery": { "name": "Gewonnen en nog niet afgerond" },
+    "deliverables_all": { "name": "Alle resultaten" },
+    "clients_all": { "name": "Alle klanten" },
+    "contacts_all": { "name": "Alle contactpersonen" }
+  },
+  "widgets": {
+    "engagements_funnel": { "title": "Opdrachten per fase" },
+    "open_value": { "title": "Waarde van lopende voorstellen" },
+    "decisions_coming": { "title": "Verwachte beslissingen" },
+    "deliverables_due": { "title": "Op te leveren resultaten" },
+    "engagements_ending": { "title": "Opdrachten die aflopen" },
+    "by_type": { "title": "Gewonnen opdrachten per type" },
+    "lost_reasons": { "title": "Waarom opdrachten verloren gingen" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Hoe de praktijk draait", "sections": ["Fasen en de regel van één volgende stap met datum per open opdracht", "Wat erbuiten blijft: urenregistratie en facturering"] },
+    "discovery_guide": { "title": "Gids voor het verkennende gesprek", "sections": ["Het probleem in de woorden van de klant, betrokkenen en budgetsignalen", "Wat de volgende dag wordt vastgelegd"] },
+    "acceptance_check": { "title": "Acceptatiecheck vóór de offerte", "sections": ["Capaciteit, onafhankelijkheid, vertrouwelijkheid en match", "Wie beslist om de opdracht aan te nemen"] },
+    "proposal_and_follow_up": { "title": "Opbouw van het voorstel en opvolging", "sections": ["Aangeboden opties en de aanbevolen optie", "De opvolgdatum afspreken in het gesprek over het voorstel"] }
+  },
+  "rules": {
+    "discovery_writeup": { "title": "Het verkennende gesprek de volgende dag uitwerken" },
+    "acceptance_check": { "title": "De acceptatie controleren de dag nadat een opdracht de afbakening bereikt" },
+    "proposal_follow_up": { "title": "3 dagen na het versturen van het voorstel opvolgen" },
+    "decision_date": { "title": "Op de verwachte beslisdatum om de beslissing vragen" },
+    "won_kickoff": { "title": "De kick-off inplannen de dag na een gewonnen opdracht" },
+    "lost_review": { "title": "2 dagen na een verloren opdracht vragen wat anders had gekund" },
+    "deliverable_due_notice": { "title": "De eigenaar 3 dagen voor de opleverdatum van een resultaat waarschuwen" },
+    "closeout_report": { "title": "Op de einddatum het eindrapport overdragen" },
+    "testimonial_ask": { "title": "14 dagen na de einddatum om een referentie vragen" },
+    "followup_after_end": { "title": "30 dagen na de einddatum vervolgwerk voorstellen" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Elke opdracht heeft een fase.",
+    "follow_up_field": "Elk voorstel legt de met de opdrachtgever afgesproken opvolgdatum vast.",
+    "acceptance_checked_field": "Elke opdracht legt vast wanneer de acceptatie is gecontroleerd.",
+    "engagements_board_view": "De opdrachten openen als bord per fase."
+  },
+  "prompt": {
+    "intro": "Richt in mijn Customermates-workspace adviesopdrachten in: opdrachten van kennismaking tot gewonnen met een acceptatiecheck en een bij het voorstelgesprek afgesproken opvolgdatum, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback vraagt. Bewaar geen vertrouwelijke gegevens van de klant.",
+    "questions": [
+      "Welke soorten opdrachten verkoopt u en tegen welk dagtarief?",
+      "Hoe beslist u of u een opdracht aanneemt?",
+      "Hoe lang wacht u na een voorstel voordat u opvolgt?",
+      "Welke resultaten zijn mijlpalen die u factureert?"
+    ]
+  }
+}
