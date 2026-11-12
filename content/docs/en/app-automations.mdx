@@ -13,7 +13,7 @@ Open **Automations** and click **New automation**, or click **Automate this list
 
 - **When** chooses the list and what starts the rule: **A record is created**, **A record is updated**, **A field changes** (optionally **To value**, so it only fires when the field changes to that value) or **A date is reached**.
 - **If (optional)** adds conditions on the record that started the rule: **is**, **is not**, **is empty**, **is not empty**, **is before today plus** or **is after today plus** a number of days. All conditions must match.
-- **Then** lists what happens, in order: **Set a field**, **Create a record**, **Notify** or **Call a webhook**. **Create a record** is how an automation makes a follow-up task: choose the tasks list, the **Title field** and **Title**, the **Due date field** and **Due in days**, whether to **Assign to me**, and how to **Link to the triggering record as**. In titles and details, `{{record.name}}` is replaced by the name of the record and `{{rule.name}}` by the name of the automation.
+- **Then** lists what happens, in order: **Set a field**, **Create a record**, **Notify** or **Call a webhook**. **Create a record** is how an automation makes a follow-up: choose the list the new record goes into, the **Title field** and **Title**, the **Due date field** and **Due in days**, whether to **Assign to me**, and how to **Link to the triggering record as**. In titles and details, `{{record.name}}` is replaced by the name of the record and `{{rule.name}}` by the name of the automation.
 
 Rules for form submissions, incoming webhooks and arriving messages exist too. You create them with `manage_rules` over MCP or REST, and the page lists them; a trigger or action the builder cannot edit shows a note and stays as it is.
 
