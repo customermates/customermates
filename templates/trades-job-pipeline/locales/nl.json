@@ -2,9 +2,9 @@
   "locale": "nl",
   "name": "Opdrachten voor vakmensen",
   "summary": "Een pijplijn voor een vakbedrijf: aanvraag, opname, offerte en opvolging, daarna het werk zelf van ingepland tot betaald, met bedenktijd-, garantie- en onderhoudsdata bij elke opdracht.",
-  "description": "Volg een opdracht van het eerste telefoontje tot de laatste factuur: klanten en projectlocaties waar u werkt, opdrachten met een verkoopfase en een aparte werkstatus, geldigheid van de offerte, opname en planning, einde van de bedenktijd bij consumentencontracten, einde van de garantie en onderhoudscontracten die vervolgwerk opleveren. Het bewaart de opdracht, de data en de opvolging. Geen programma voor offertes en facturen, geen planning van ploegen en geen urenregistratie. Wettelijke data zijn velden die u zelf bevestigt, geen juridisch advies.",
+  "description": "Volg een opdracht van het eerste telefoontje tot de laatste factuur: klanten en projectlocaties waar je werkt, opdrachten met een verkoopfase en een aparte werkstatus, geldigheid van de offerte, opname en planning, einde van de bedenktijd bij consumentencontracten, einde van de garantie en onderhoudscontracten die vervolgwerk opleveren. Het bewaart de opdracht, de data en de opvolging. Geen programma voor offertes en facturen, geen planning van ploegen en geen urenregistratie. Wettelijke data zijn velden die je zelf bevestigt, geen juridisch advies.",
   "lists": {
-    "customers": { "label": "Klant", "pluralLabel": "Klanten", "description": "Huiseigenaren, verhuurders, vastgoedbeheerders en bedrijven voor wie u werkt." },
+    "customers": { "label": "Klant", "pluralLabel": "Klanten", "description": "Huiseigenaren, verhuurders, vastgoedbeheerders en bedrijven voor wie je werkt." },
     "sites": { "label": "Locatie", "pluralLabel": "Locaties", "description": "Het adres waar het werk gebeurt, dat kan afwijken van dat van de klant." },
     "jobs": { "label": "Opdracht", "pluralLabel": "Opdrachten", "description": "Eén stuk werk, van aanvraag tot opdracht of verloren, daarna door de uitvoering." },
     "agreements": { "label": "Onderhoudscontract", "pluralLabel": "Onderhoudscontracten", "description": "Terugkerend onderhoud van een locatie, met het volgende bezoek en de verlengingsdatum." }
@@ -35,7 +35,7 @@
     "jobs.scheduled_start": { "label": "Start werk" },
     "jobs.completed_on": { "label": "Opgeleverd op" },
     "jobs.warranty_ends": { "label": "Garantie tot" },
-    "jobs.payment_due": { "label": "Betaaltermijn tot" },
+    "jobs.payment_due": { "label": "Betalen uiterlijk op" },
     "jobs.lost_reason": {
       "label": "Reden van verlies",
       "options": { "price": "Prijs", "timing": "Timing", "chose_competitor": "Koos een concurrent", "no_response": "Geen reactie", "job_cancelled": "Opdracht geannuleerd", "other": "Overig" }
@@ -65,7 +65,7 @@
     "job_customer": { "sourceLabel": "Klant", "targetLabel": "Opdrachten" },
     "job_site": { "sourceLabel": "Locatie", "targetLabel": "Opdrachten" },
     "agreement_site": { "sourceLabel": "Locatie", "targetLabel": "Onderhoudscontracten" },
-    "action_job": { "sourceLabel": "Opdracht", "targetLabel": "Taken" }
+    "action_job": { "sourceLabel": "Opdracht", "targetLabel": "Acties" }
   },
   "views": {
     "jobs_board": { "name": "Opdrachten per fase" },
@@ -110,12 +110,12 @@
     "jobs_board_view": "De opdrachten openen als bord per fase."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-workspace een pijplijn voor een vakbedrijf in: klanten, locaties, opdrachten met verkoopfase en werkstatus, geldigheid van de offerte, opname- en uitvoeringsdata, einde van de garantie en onderhoudscontracten, met opvolging met datum.",
+    "intro": "Richt in mijn Customermates-werkruimte een pijplijn voor een vakbedrijf in: klanten, locaties, opdrachten met verkoopfase en werkstatus, geldigheid van de offerte, opname- en uitvoeringsdata, einde van de garantie en onderhoudscontracten, met opvolging met datum.",
     "questions": [
-      "Welk werk voert u uit en voor wie: particulieren, verhuurders of bedrijven?",
-      "Hoe snel beantwoordt u een aanvraag en stuurt u na de opname een offerte?",
-      "Hoe lang zijn uw offertes geldig en hoe lang is uw garantie?",
-      "Verkoopt u onderhoudscontracten voor terugkerend werk?"
+      "Welk werk voer je uit en voor wie: particulieren, verhuurders of bedrijven?",
+      "Hoe snel beantwoord je een aanvraag en stuur je na de opname een offerte?",
+      "Hoe lang zijn je offertes geldig en hoe lang is je garantie?",
+      "Verkoop je onderhoudscontracten voor terugkerend werk?"
     ]
   }
 }

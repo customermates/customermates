@@ -74,7 +74,7 @@
         "write_memo": "Memo schrijven",
         "send_pass_note": "Afwijzing sturen",
         "revisit": "Terugkomen",
-        "thank_introducer": "Introducer bedanken of herinneren",
+        "thank_introducer": "Introducer bedanken of een herinnering sturen",
         "other": "Overig"
       }
     }
@@ -109,8 +109,8 @@
     "pass_note": { "title": "Stuur een afwijzing wanneer een deal wordt afgewezen" },
     "revisit_deal": { "title": "Kom op de afgesproken datum terug op een afgewezen deal" },
     "diligence_checklist": { "title": "Start de due-diligencelijst wanneer een term sheet is afgesproken" },
-    "first_check_in_after_close": { "title": "Neem 30 dagen na het sluiten contact op" },
-    "intro_nudge": { "title": "Herinner de introducer een week nadat een introductie is gevraagd" }
+    "first_check_in_after_close": { "title": "Neem 30 dagen na de closing contact op" },
+    "intro_nudge": { "title": "Stuur de introducer een herinnering een week nadat een introductie is gevraagd" }
   },
   "acceptanceChecks": {
     "stage_field": "Elke deal heeft een van de acht fasen.",
