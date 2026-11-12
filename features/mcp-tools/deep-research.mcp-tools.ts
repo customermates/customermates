@@ -56,9 +56,7 @@ const SearchOutputSchema = z.object({
     z.object({
       id: z
         .string()
-        .describe(
-          "Result id, pass to fetch: 'wiki:<uuid>', 'file:<uuid>', 'record:<typeId>:<recordId>', or 'doc:<locale>:<slug>'",
-        ),
+        .describe("Result id: 'wiki:<uuid>', 'file:<uuid>', 'record:<typeId>:<recordId>', or 'doc:<locale>:<slug>'"),
       title: z.string().describe("Display name of the Knowledge Base page, file, record, or product docs page"),
       url: z.string().describe("Canonical app or docs URL; for a file, the record it is attached to"),
       snippet: z
@@ -80,10 +78,10 @@ const SearchOutputSchema = z.object({
         .int()
         .nonnegative()
         .optional()
-        .describe("Pass to fetch as offset to open the Knowledge Base page or file at the matched section"),
+        .describe("Start offset of the matched section of the Knowledge Base page or file"),
       record: z
         .object({
-          id: z.string().describe("The record the file is attached to, as 'record:<typeId>:<recordId>' for fetch"),
+          id: z.string().describe("The record the file is attached to, as 'record:<typeId>:<recordId>'"),
           title: z.string().describe("Display name of that record"),
         })
         .optional()
@@ -115,7 +113,7 @@ const FetchOutputSchema = z.object({
     .nonnegative()
     .nullable()
     .optional()
-    .describe("Next Knowledge Base or file chunk offset, or null at the end"),
+    .describe("Offset of the following Knowledge Base or file chunk, or null at the end"),
   totalChars: z
     .number()
     .int()
@@ -367,11 +365,10 @@ export const searchTool = {
   title: "Search workspace knowledge",
   description:
     "Required by ChatGPT company-knowledge and deep-research connectors. Returns relevant Knowledge Base pages, files attached to records, CRM records, and product documentation in one list, without totals or filters. " +
-    "Knowledge Base and file results match the query's words in full text and, with AI credits, also by meaning, and carry a snippet with the matched terms in **, the matched section, and its offset: fetch with that offset to open at the answer, then follow linked Knowledge Base pages. " +
-    "A file result (file:<uuid>) comes from the extracted text of a file on a record you can read and names that record; its snippet arrives between untrusted-content markers. " +
-    "A misspelled word that matches no Knowledge Base page or file is corrected from their own words, and didYouMean names the corrected query; when no result fits, search again with other words. " +
-    "For focused CRM or product-doc queries prefer search_crm_records or query_crm_records, query_crm_measure for totals, or search_docs. " +
-    "Links into the app in the docs are full URLs on this instance and open the reader's own workspace; pass them on unchanged.",
+    "Knowledge Base and file results match the query's words in full text and, with AI credits, also by meaning, and carry a snippet with the matched terms in **, the matched section, and its offset, the start of the matched section. " +
+    "A file result (file:<uuid>) comes from the extracted text of a file on a record the caller can read and names that record; its snippet arrives between untrusted-content markers. " +
+    "A misspelled word that matches no Knowledge Base page or file is corrected from their own words, and didYouMean names the corrected query. " +
+    "Links into the app in the docs are full URLs on this instance and open the reader's own workspace.",
   annotations: {
     readOnlyHint: true,
     idempotentHint: true,
@@ -431,13 +428,13 @@ export const fetchTool = {
   name: "fetch",
   title: "Read workspace knowledge",
   description:
-    "Read a result from search, including Knowledge Base Markdown by wiki:<uuid> and the extracted text of a file by file:<uuid>. " +
-    "Knowledge Base pages may also be fetched by their exact relative, localized, or same-origin absolute Knowledge Base URL. " +
-    "Knowledge Base content is returned in bounded chunks with absolute internal links and a source URL for citations; pass nextOffset back as offset until it is null. If updatedAt differs from the previous chunk, restart at offset 0. Knowledge Base Read is required for Knowledge Base pages. " +
+    "Returns the content behind a result id, including Knowledge Base Markdown for wiki:<uuid> and the extracted text of a file for file:<uuid>. " +
+    "Knowledge Base pages can also be read by their exact relative, localized, or same-origin absolute Knowledge Base URL. " +
+    "Knowledge Base content is returned in bounded chunks with absolute internal links and a source URL for citations; nextOffset is the offset of the following chunk and is null at the end, and metadata.updatedAt differs from the previous chunk's when the page changed between chunks. Knowledge Base Read is required for Knowledge Base pages. " +
     "File text arrives in the same bounded chunks between untrusted-content markers and needs read access to the record and field holding the file; metadata names the record and the extraction status, and a file without extractable text returns why. " +
-    "Start at a search result's offset to land on the matched section; at offset 0 a multi-chunk page or file also returns an outline of its headings with their offsets. " +
-    "Compatible with ChatGPT company knowledge and deep research. For focused CRM or product-documentation retrieval, prefer read_crm_record or get_docs_page. " +
-    "Links into the app in the docs are full URLs on this instance and open the reader's own workspace; pass them on unchanged.",
+    "An offset starts the chunk at that position, so a search result's offset lands on the matched section; at offset 0 a multi-chunk page or file also returns an outline of its headings with their offsets. " +
+    "Compatible with ChatGPT company knowledge and deep research. " +
+    "Links into the app in the docs are full URLs on this instance and open the reader's own workspace.",
   annotations: {
     readOnlyHint: true,
     idempotentHint: true,
@@ -448,16 +445,14 @@ export const fetchTool = {
     id: z
       .string()
       .min(1)
-      .describe(
-        "A result id returned by search: 'wiki:<uuid>', 'file:<uuid>', 'record:<typeId>:<recordId>', or 'doc:<locale>:<slug>'",
-      ),
+      .describe("A result id: 'wiki:<uuid>', 'file:<uuid>', 'record:<typeId>:<recordId>', or 'doc:<locale>:<slug>'"),
     offset: z.coerce
       .number()
       .int()
       .min(0)
       .default(0)
       .describe(
-        "For Knowledge Base and file results, the offset from search or the nextOffset from the previous fetch; start at 0",
+        "For Knowledge Base and file results, the chunk start offset: the offset of a matched section or the nextOffset of the previous chunk; 0 starts at the beginning",
       ),
   }),
   outputSchema: FetchOutputSchema,

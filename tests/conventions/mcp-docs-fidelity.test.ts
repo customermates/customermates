@@ -5,6 +5,7 @@ import { join } from "node:path";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
+import { TOOL_GUIDANCE } from "@/features/mcp-tools/tool-guidance";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
 const ENFORCED = true;
@@ -154,7 +155,7 @@ describe("MCP tool description quality", () => {
       const violations: string[] = [];
       for (const tool of await loadRegistry()) {
         if (CONNECTOR_MINIMUM_TOOLS.has(tool.name)) {
-          if (!/prefer [a-z_]+/.test(tool.description))
+          if (!/prefer [a-z_]+/.test(TOOL_GUIDANCE[tool.name] ?? ""))
             violations.push(`${tool.name}: connector stub must point interactive agents at the preferred tool`);
           continue;
         }

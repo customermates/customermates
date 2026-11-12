@@ -214,7 +214,7 @@ const RecordScalarShapeSchema = z
   })
   .strict();
 const RECORD_SCALAR_DESCRIPTION =
-  "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts.";
+  "Typed CRM value; only the fields for the selected kind are allowed. A decimal carries a currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts.";
 export const RecordScalarSchema =
   RecordScalarShapeSchema.describe(RECORD_SCALAR_DESCRIPTION).pipe(ValidatedRecordScalarSchema);
 export type RecordScalar = z.infer<typeof RecordScalarSchema>;
@@ -235,7 +235,7 @@ const RecordScalarInputSchema = RecordScalarShapeSchema.extend({
     .min(1)
     .max(4096)
     .optional()
-    .describe("Address only, instead of value: a candidateToken from an address lookup stores the verified address."),
+    .describe("Address only, in place of value: a candidateToken from an address lookup stores the verified address."),
 })
   .describe(RECORD_SCALAR_DESCRIPTION)
   .pipe(z.discriminatedUnion("kind", [...RECORD_SCALAR_VARIANTS, RecordAddressWriteSchema]));
@@ -412,7 +412,7 @@ export const RecordFieldSchema = z
     typeId: z.uuid(),
     label: RecordNameSchema,
     valueType: RecordValueTypeSchema.describe(
-      "channels: the contact details field, called Phone, email & social in the app: phone numbers, email addresses and social profiles that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). There are no phone or email types: phone numbers and email addresses belong in channels. file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value.",
+      "channels: the contact details field, shown as Phone, email & social in the app: phone numbers, email addresses and social profiles that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, not required, not multiple and not calculated; its values are the record's identities (read and written through identities, not fields). There are no phone or email types: phone numbers and email addresses belong in channels. file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value.",
     ),
     behavior: FieldBehaviorSchema,
     required: z.boolean(),
@@ -420,7 +420,7 @@ export const RecordFieldSchema = z
       .boolean()
       .optional()
       .describe(
-        "Allows several values: text and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
+        "Allows several values: text and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files rather than one.",
       ),
     format: z
       .object({
@@ -437,7 +437,7 @@ export const RecordFieldSchema = z
           .nullable()
           .optional()
           .describe(
-            "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
+            "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, dials a phone number, opens a profile or the map; copy copies it.",
           ),
         providerAvatar: z
           .boolean()

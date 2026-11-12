@@ -28,7 +28,7 @@ export const ResolveRecordIdentitiesResultSchema = z
       .number()
       .int()
       .nonnegative()
-      .describe("Workspace schema revision for expectedRevision in a following record mutation."),
+      .describe("Workspace schema revision, usable as expectedRevision of a record mutation."),
     matches: z.array(
       RecordIdentityInputSchema.pick({ provider: true, value: true })
         .extend({
@@ -38,7 +38,7 @@ export const ResolveRecordIdentitiesResultSchema = z
                 .number()
                 .int()
                 .positive()
-                .describe("Current record version for expectedVersion in an updateMany target."),
+                .describe("Current record version, usable as expectedVersion of an updateMany target."),
             }).strict(),
           ),
         })
@@ -47,7 +47,7 @@ export const ResolveRecordIdentitiesResultSchema = z
   })
   .strict()
   .describe(
-    "matches follow the input order. A record linked through several identifiers appears under each of them: deduplicate by typeId and recordId before building updateMany targets. Resolve every input with more than one record before updating; never pick one arbitrarily.",
+    "matches follow the input order. A record linked through several identifiers appears under each of them, so one typeId and recordId pair can occur in several matches.",
   );
 type Output = z.infer<typeof ResolveRecordIdentitiesResultSchema>;
 

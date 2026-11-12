@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mcpToolResultText, type McpToolResult } from "../mcp-tool";
+import { TOOL_GUIDANCE } from "../tool-guidance";
 
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { MOCK_ENV_MODULE, createMockDiModule, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
@@ -52,19 +53,23 @@ beforeEach(() => {
 
 describe("linkedin_search_sales_leads lead rows", () => {
   it("documents the explicit company-profile handoff", () => {
-    expect(searchSalesLeadsTool.description).toContain("get_social_profile and profileType=company");
-    expect(searchSalesLeadsTool.description).toContain(
-      "linkedin_search_sales_leads.items[].current_positions[].company_id",
-    );
-    expect(searchSalesCompaniesTool.description).toContain("get_social_profile and profileType=company");
+    expect(searchSalesLeadsTool.description).toContain("current_positions (company, role, company_id, company_url)");
+    expect(searchSalesLeadsTool.description).toContain("company profile lookup");
+    expect(searchSalesCompaniesTool.description).toContain("company profile lookup");
     expect(searchSalesCompaniesTool.description).toContain("items[].id");
-    expect(manageSalesListsTool.description).toContain("get_social_profile with profileType=company");
-    expect(manageSalesListsTool.description).toContain(
-      "linkedin_search_sales_leads.items[].id or get_social_profile.id",
+    expect(manageSalesListsTool.description).toContain("a company_id is accepted by a company profile lookup");
+    expect(manageSalesListsTool.description).toContain("a messaging-thread participant identifier");
+    expect(TOOL_GUIDANCE.linkedin_search_sales_leads).toContain(
+      "current_positions[].company_id works with get_social_profile",
     );
-    expect(manageSalesListsTool.description).toContain("linkedin_search_sales_companies.items[].id");
-    expect(manageSalesListsTool.description).toContain("get_messaging_threads.items[].participants[].identifier");
-    expect(manageSalesListsTool.description).toContain("get_messaging_threads.thread.participants[].identifier");
+    expect(TOOL_GUIDANCE.linkedin_search_sales_companies).toContain(
+      "works with get_social_profile (profileType=company)",
+    );
+    expect(TOOL_GUIDANCE.linkedin_manage_sales_lists).toContain(
+      "a linkedin_search_sales_leads items[].id or a get_social_profile.id",
+    );
+    expect(TOOL_GUIDANCE.linkedin_manage_sales_lists).toContain("linkedin_search_sales_companies items[].id");
+    expect(TOOL_GUIDANCE.linkedin_manage_sales_lists).toContain("get_messaging_threads participant identifier");
   });
 
   it("includes current_positions with company, role and company identifiers", async () => {

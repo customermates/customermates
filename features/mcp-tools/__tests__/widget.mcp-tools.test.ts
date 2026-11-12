@@ -12,6 +12,7 @@ import { createTranslator } from "next-intl";
 
 import messages from "@/i18n/locales/en.json";
 
+import { TOOL_GUIDANCE } from "@/features/mcp-tools/tool-guidance";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { MOCK_ENV_MODULE, MOCK_ZOD_MODULE, createMockDiModule } from "@/tests/helpers/interactor-test-setup";
 
@@ -660,7 +661,7 @@ describe("manage_widgets description", () => {
       description: expect.stringContaining("update: id, expectedVersion, expectedRevision, idempotencyKey"),
     });
     expect(schema.properties?.expectedRevision).toMatchObject({
-      description: expect.stringContaining("get_record_model"),
+      description: expect.stringContaining("configuration revision"),
     });
     expect(schema.properties?.expectedVersion).toMatchObject({ description: expect.stringContaining("get or list") });
     expect(schema.properties?.idempotencyKey).toMatchObject({
@@ -672,7 +673,10 @@ describe("manage_widgets description", () => {
 
   it("keeps widgets for widget requests and sends data questions to the record query tools", () => {
     expect(manageWidgetsTool.description).toContain(
-      "Use this when the user asks to see, create, change or delete their dashboard widgets. A widget you create stays on their dashboard, so never create or update one to work out an answer; answer data questions with query_crm_measure or query_crm_records instead.",
+      "Reads, creates, changes and deletes dashboard widgets. A created widget stays on the dashboard.",
+    );
+    expect(TOOL_GUIDANCE.manage_widgets).toContain(
+      "Use when the user asks to see, create, change or delete dashboard widgets. A created widget stays on their dashboard, so never create or update one to work out an answer; answer data questions with query_crm_measure or query_crm_records.",
     );
     expect(manageWidgetsTool.description).not.toContain("answers questions like");
     expect(manageWidgetsTool.description).not.toContain("analyze_records");

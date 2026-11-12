@@ -52,6 +52,7 @@ import {
   publishSocialPostTool,
   commentOnSocialPostTool,
 } from "../social-posts.mcp-tools";
+import { TOOL_GUIDANCE } from "../tool-guidance";
 import {
   UNTRUSTED_RECORD_TEXT_CLOSE,
   UNTRUSTED_RECORD_TEXT_HANDLING,
@@ -213,13 +214,18 @@ describe("get_social_posts routing", () => {
       authorIdentifier: "me",
       limit: 10,
     });
-    expect(getSocialPostsTool.description).toContain("repeat the same connectedAccountId, authorIdentifier and limit");
-    expect(getSocialPostsTool.description).toContain("get_social_posts.items[].author.id");
-    expect(getSocialPostsTool.description).toContain("get_social_posts.author.id");
-    expect(getSocialPostsTool.description).toContain("get_social_post_engagement.items[].author.id");
-    expect(getSocialPostsTool.description).toContain("get_social_post_engagement.items[].sender.id");
-    expect(getSocialPostsTool.description).toContain("manage_social_relations.items[].user.id");
+    expect(getSocialPostsTool.description).toContain("repeats the same connectedAccountId, authorIdentifier and limit");
+    expect(getSocialPostsTool.description).toContain("the author id of a post or comment");
+    expect(getSocialPostsTool.description).toContain("the sender id of a reaction");
+    expect(getSocialPostsTool.description).toContain("the user id of a connection invitation");
     expect(getSocialPostsTool.description).not.toContain("member_id");
+    expect(TOOL_GUIDANCE.get_social_posts).toContain(
+      "an author.id from get_social_posts or get_social_post_engagement",
+    );
+    expect(TOOL_GUIDANCE.get_social_posts).toContain("a reaction sender.id from get_social_post_engagement");
+    expect(TOOL_GUIDANCE.get_social_posts).toContain("a user.id from manage_social_relations action=list");
+    expect(TOOL_GUIDANCE.get_social_posts).toContain("get_messaging_threads participant identifier");
+    expect(TOOL_GUIDANCE.get_social_posts).not.toContain("member_id");
   });
 });
 
@@ -363,17 +369,17 @@ describe("get_social_profile", () => {
     expect(mcpToolResultText(result)).toContain("profile_type: person");
     expect(mcpToolResultText(result)).toContain("type: organization");
     expect(getSocialProfileTool.inputSchema.shape.identifier.description).toContain(
-      "get_messaging_threads.items[].participants[].identifier",
+      "a messaging-thread participant identifier",
     );
     expect(getSocialProfileTool.inputSchema.shape.identifier.description).toContain(
-      "get_messaging_threads.thread.participants[].identifier",
+      "the author id of a post or comment",
     );
-    expect(getSocialProfileTool.inputSchema.shape.identifier.description).toContain(
-      "get_social_posts.items[].author.id",
-    );
-    expect(getSocialProfileTool.inputSchema.shape.identifier.description).toContain("get_social_posts.author.id");
     expect(getSocialProfileTool.inputSchema.shape.identifier.description).not.toContain("member_id");
     expect(getSocialProfileTool.description).not.toContain("member_id");
+    expect(TOOL_GUIDANCE.get_social_profile).toContain("items[].participants[].identifier");
+    expect(TOOL_GUIDANCE.get_social_profile).toContain("thread.participants[].identifier");
+    expect(TOOL_GUIDANCE.get_social_profile).toContain("an author.id from get_social_posts");
+    expect(TOOL_GUIDANCE.get_social_profile).not.toContain("member_id");
   });
 
   it("maps ongoing experience entries into current_positions", async () => {
@@ -400,9 +406,10 @@ describe("get_social_profile", () => {
 
 describe("manage_social_relations routing", () => {
   it("documents profile resolution instead of a nonexistent participant id", () => {
-    expect(manageSocialRelationsTool.description).toContain("get_messaging_threads.items[].participants[].identifier");
-    expect(manageSocialRelationsTool.description).toContain("get_messaging_threads.thread.participants[].identifier");
-    expect(manageSocialRelationsTool.description).toContain("manage_social_relations.items[].user.id");
+    expect(manageSocialRelationsTool.description).toContain("messaging-thread participant identifier");
+    expect(TOOL_GUIDANCE.manage_social_relations).toContain("items[].participants[].identifier");
+    expect(TOOL_GUIDANCE.manage_social_relations).toContain("thread.participants[].identifier");
+    expect(TOOL_GUIDANCE.manage_social_relations).toContain("get_social_profile first");
   });
 
   it("lists received requests for action=list", async () => {

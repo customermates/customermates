@@ -61,7 +61,7 @@ export const AddressCheckResultSchema = z
         status: z
           .enum(["ready", "loading", "unavailable", "notChecked"])
           .describe(
-            "ready: the directory was searched; loading: the country's postal codes are being loaded, try again in a minute; unavailable: no directory for this country or it is switched off on this server; notChecked: no country, no postal code, or an error above.",
+            "ready: the directory was searched; loading: the country's postal codes are being loaded, which takes about a minute; unavailable: no directory for this country or it is switched off on this server; notChecked: no country, no postal code, or an error above.",
           ),
         match: z
           .enum(["exact", "area", "none"])
@@ -72,12 +72,10 @@ export const AddressCheckResultSchema = z
         places: z
           .array(PostalCodePlaceSchema)
           .max(MAX_POSTAL_CODE_PLACES)
-          .describe(
-            "Cities and regions of the postal code, most likely first; use them to fill an empty city or region.",
-          ),
+          .describe("Cities and regions of the postal code, most likely first."),
       })
       .strict(),
-    attribution: z.string().nullable().describe("Source credit to show with places from the postal code directory."),
+    attribution: z.string().nullable().describe("Source credit for places from the postal code directory."),
   })
   .strict();
 export type AddressCheckResult = Data<typeof AddressCheckResultSchema>;

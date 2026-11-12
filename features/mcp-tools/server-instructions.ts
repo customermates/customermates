@@ -1,3 +1,4 @@
+import { buildToolGuidance } from "./tool-guidance";
 import { MCP_TOOLSET_DISCOVERY_TOOL_NAMES, MCP_TOOLSET_KEYS } from "./toolsets";
 
 export const TOOL_APPROVAL_INSTRUCTION =
@@ -129,6 +130,9 @@ export function buildMcpServerInstructions(toolNames: Iterable<string>): string 
       "connect_messaging_account returns a browser link for the user to finish authentication; hand over that link and never claim the account is connected until a later read confirms it.",
     );
   }
+
+  const guidance = buildToolGuidance(names);
+  if (guidance) paragraphs.push(guidance);
 
   paragraphs.push(
     `All tools are enabled by default. Appending ?toolsets=records,messaging to the server URL narrows the surface to the listed toolsets; omitting it keeps everything. Toolsets: ${MCP_TOOLSET_KEYS.join(", ")}. ${Object.entries(

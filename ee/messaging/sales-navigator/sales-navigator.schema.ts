@@ -312,7 +312,7 @@ export const SalesCompanyFiltersSchema = z.object({
       z.enum(["HIRING_ON_LINKEDIN", "RECENT_LEADERSHIP_CHANGE", "RECENT_FUNDING_EVENTS", "FIRST_DEGREE_CONNECTIONS"]),
     )
     .optional(),
-  saved_accounts: z.boolean().optional().describe("Include all your saved accounts in the results"),
+  saved_accounts: z.boolean().optional().describe("Include all the account's saved accounts in the results"),
   account_list: SalesParamIdsFilterSchema.optional().describe("Parameter ids of type ACCOUNT_LIST"),
 });
 export type SalesCompanyFilters = z.infer<typeof SalesCompanyFiltersSchema>;

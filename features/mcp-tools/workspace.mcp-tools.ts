@@ -58,11 +58,10 @@ const ListUsersOutputSchema = z.object({
 });
 
 const WORKSPACE_CONTEXT_FIELDS_DESCRIPTION =
-  "Discover accessible types and their editable labels with discover_record_types; get_record_model returns their current fields and permissions. " +
-  "Each role carries its full permission list; without role management only your own role is listed. Match roleId values from list_users against it. " +
+  "Each role carries its full permission list; without role management only the user's own role is listed, and a user's roleId matches a role id. " +
   "Each connected account includes { id, provider, status, emailAddress, displayName, shared, isOwner, lastSyncedAt, linkedinProducts }; " +
-  "use the id as connectedAccountId for send_email and send_chat_message and check status before sending. " +
-  "For LinkedIn, linkedinProducts lists which products the account can send from (classic, sales_navigator, recruiter); only pass a linkedinProduct that appears there.";
+  "the id is the connectedAccountId of that account and status is its connection status. " +
+  "For LinkedIn, linkedinProducts lists which products the account can send from (classic, sales_navigator, recruiter).";
 
 async function workspaceContext(wikiPage: number | null) {
   const [userResult, companyResult, rolesResult, accountsResult, wikiResult] = await Promise.all([
@@ -110,11 +109,11 @@ export const getWorkspaceContextTool = {
   name: "get_workspace_context",
   title: "Get workspace context",
   description:
-    "Use this when starting a session: returns the current user, company (the workspace, with its name; null for an unnamed workspace), role catalog with permissions, connected messaging accounts, and the Knowledge Base in one call. " +
+    "Returns the current user, company (the workspace, with its name; null for an unnamed workspace), role catalog with permissions, connected messaging accounts, and the Knowledge Base in one response. " +
     "This connection is bound to exactly one workspace: every tool reads and writes only that workspace, and another workspace of the same login needs its own connection. " +
-    "On the first page wiki.guide is the Operating Guide (follow it; nextOffset marks where the full page continues) and wiki.procedures lists procedures with whenToUse (read the matching one before acting). " +
-    "wiki.items are knowledge pages, ten per page in creation order, each with id, title, url, timestamps and a short opening excerpt, never the complete page. " +
-    "Pass wiki.nextPage as wikiPage to continue. wiki is omitted without Knowledge Base Read. " +
+    "On the first page wiki.guide is the Operating Guide (nextOffset marks where the full page continues) and wiki.procedures lists procedures with whenToUse. " +
+    "wiki.items are knowledge pages, ten per page in creation order, each with id, title, url, timestamps and a short opening excerpt, not the complete page. " +
+    "wiki.nextPage is the wikiPage value of the following catalog page. wiki is omitted without Knowledge Base Read. " +
     WORKSPACE_CONTEXT_FIELDS_DESCRIPTION,
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: z.object({
@@ -128,7 +127,7 @@ export function hostedWorkspaceContextTool() {
   return {
     ...getWorkspaceContextTool,
     description:
-      "Use this when starting a session: returns the current user, company (the workspace, with its name; null for an unnamed workspace), role catalog with permissions, and connected messaging accounts in one call. " +
+      "Returns the current user, company (the workspace, with its name; null for an unnamed workspace), role catalog with permissions, and connected messaging accounts in one response. " +
       WORKSPACE_CONTEXT_FIELDS_DESCRIPTION,
     inputSchema: z.object({}),
     execute: () => workspaceContext(null),
@@ -152,9 +151,9 @@ export const listUsersTool = {
   name: "list_users",
   title: "List users",
   description:
-    "Use this when you need the workspace members: returns { id, firstName, lastName, email, roleId, status } per user. " +
+    "Returns the workspace members as { id, firstName, lastName, email, roleId, status } per user. " +
     "Optional: searchTerm (matches firstName/lastName), filters, sortDescriptor, page, pageSize. " +
-    "Use list_users.items[].id as userId for manage_team update_member and for assignedUserIds in record tools; match roleId against get_workspace_context.roles[].id for the role name and permissions.",
+    "Each id is the user id of that member (the userId of a team member update and an assignedUserIds value on records); roleId is the id of a role in the workspace role catalog.",
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: ListUsersSchema,
   outputSchema: ListUsersOutputSchema,

@@ -62,12 +62,14 @@ const ManageRecordFilesSchema = z.object({
     .int()
     .positive()
     .optional()
-    .describe("upload with recordId and attach: the record version you read; the current version when omitted."),
+    .describe(
+      "upload with recordId and attach: the record version the write is based on; the current version when omitted.",
+    ),
   fileId: z
     .uuid()
     .optional()
     .describe(
-      "read: a file id from a file value, a record's files list or a file the user attached in a chat. attach: a pending file you uploaded, such as a file the user attached in a chat. rename: a file in a record's file field or a pending file you uploaded.",
+      "read: a file id from a file value, a record's files list or a file the user attached in a chat. attach: a pending file uploaded by the caller, such as a file the user attached in a chat. rename: a file in a record's file field or a pending file uploaded by the caller.",
     ),
   offset: z.coerce
     .number()
@@ -75,7 +77,7 @@ const ManageRecordFilesSchema = z.object({
     .min(0)
     .optional()
     .describe("read: character offset into the extracted text, 0 or the prior nextOffset."),
-  query: z.string().max(200).optional().describe("search: words to find in the text of the files you can read."),
+  query: z.string().max(200).optional().describe("search: words to find in the text of the files the caller can read."),
   limit: z.coerce.number().int().min(1).optional().describe("search: how many files to return, at most 10."),
 });
 type ManageRecordFilesInput = z.infer<typeof ManageRecordFilesSchema>;
@@ -117,7 +119,7 @@ const ManageRecordFilesOutputSchema = z.looseObject({
   operationId: z
     .string()
     .optional()
-    .describe("upload and attach: a background operation that finishes the write; read it with read_crm_operation."),
+    .describe("upload and attach: the id of a background operation that finishes the write."),
   fileId: z.string().optional(),
   upload: z
     .looseObject({
@@ -127,8 +129,10 @@ const ManageRecordFilesOutputSchema = z.looseObject({
       expiresAt: z.string(),
     })
     .optional()
-    .describe("create_upload: send exactly size bytes to url with method and headers before expiresAt."),
-  curl: z.string().optional().describe("create_upload: a ready command; replace the file path."),
+    .describe(
+      "create_upload: the upload target, which accepts exactly size bytes sent to url with method and headers until expiresAt.",
+    ),
+  curl: z.string().optional().describe("create_upload: a ready curl command with a placeholder file path."),
   downloadUrl: z.string().optional().describe("read: a link to the file content valid for 15 minutes."),
   downloadUrlExpiresAt: z.string().optional(),
   textAvailable: z.boolean().optional().describe("read: whether the file's extracted text can be read."),
@@ -158,7 +162,7 @@ export const manageRecordFilesTool = {
   name: "manage_record_files",
   title: "Upload, attach and read record files",
   description:
-    "Upload files into a file field and read files. upload sends the content as base64 (at most 3 MB) and, with recordId, writes the file into that record's file field at once; mode append adds it after the existing files (default when the field holds several), replace keeps only the new file (default for single-file fields). Without recordId the file stays pending: write its id into the field with mutate_crm_record within 24 hours, sending the full list of file ids. create_upload is for larger files and coding agents: it returns a PUT URL with headers that accepts exactly size bytes for 15 minutes and a curl command; then write the returned fileId into the field with mutate_crm_record. attach writes a pending file you uploaded into a record's file field: a file the user attached to a chat message (its fileId is in the message) or an upload without recordId. It is a record update like upload with recordId (mode append or replace, expectedVersion); a file already in that field is returned unchanged, and once attached the record's and field's access rules apply to it. read takes a fileId from a file value, a record's files list or a chat attachment and returns the file's details, a downloadUrl that works for 15 minutes and, once text extraction has run, the file's text in chunks: start with offset 0 and pass nextOffset until it is null. rename gives a file a new name (folders are refused; a name without an extension keeps the current one); for a file in a record's file field it is a record update that needs edit access to the field and shows in the record's activity. search finds files you can read by the words in their extracted text and returns each with its record, a snippet and the offset to pass to read. To remove a file from a record, write the field's list without its id with mutate_crm_record. Uploads count against the workspace storage and the size limit per file.",
+    "Uploads files into a file field and reads, renames and searches files. upload sends the content as base64 (at most 3 MB) and, with recordId, writes the file into that record's file field at once; mode append adds it after the existing files (default when the field holds several), replace keeps only the new file (default for single-file fields). Without recordId the file stays pending for 24 hours and reaches a record when its id is written into a file field as part of the field's full list of file ids. create_upload is for larger files and coding agents: it returns a PUT URL with headers that accepts exactly size bytes for 15 minutes, a curl command and the fileId of the pending file. attach writes a pending file into a record's file field: a file attached to a chat message (its fileId is in the message) or an upload without recordId. It is a record update like upload with recordId (mode append or replace, expectedVersion); a file already in that field is returned unchanged, and once attached the record's and field's access rules apply to it. read takes a fileId from a file value, a record's files list or a chat attachment and returns the file's details, a downloadUrl that works for 15 minutes and, once text extraction has run, the file's text in chunks: offset 0 starts the text and each result's nextOffset continues it until it is null. rename gives a file a new name (folders are refused; a name without an extension keeps the current one); for a file in a record's file field it is a record update that needs edit access to the field and shows in the record's activity. search finds files the caller can read by the words in their extracted text and returns each with its record, a snippet and the offset to read from. A file leaves a record when the field's list is written without its id. Uploads count against the workspace storage and the size limit per file. Extracted text and snippets arrive between untrusted-content markers.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   inputSchema: ManageRecordFilesSchema,
   outputSchema: ManageRecordFilesOutputSchema,

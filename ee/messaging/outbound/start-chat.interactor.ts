@@ -60,7 +60,9 @@ export const BaseStartChatInputSchema = z.object({
   inmail: z
     .boolean()
     .optional()
-    .describe("LinkedIn classic only: send as InMail to message people outside your network (uses InMail credit)"),
+    .describe(
+      "LinkedIn classic only: send as InMail to message people outside the sender's network (uses an InMail credit)",
+    ),
   inmailSubject: z
     .string()
     .max(998)
@@ -72,7 +74,7 @@ export const BaseStartChatInputSchema = z.object({
     .uuid()
     .optional()
     .describe(
-      "Saved new-conversation draft to send. Each draft revision is sent at most once: repeating the call returns the first result",
+      "Id of the saved new-conversation draft to send. Each draft revision is sent at most once; a repeated send returns the first result",
     ),
   draftRevision: DraftRevisionSchema.optional().describe(
     "Opaque revision returned with the saved draft; required whenever draftMessageId is provided",

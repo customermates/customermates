@@ -14,7 +14,10 @@ import { failConflict } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { DiscardDraftRepo } from "./discard-draft.repo";
 
-export const DiscardDraftSchema = z.object({ messageId: z.uuid(), draftRevision: DraftRevisionSchema });
+export const DiscardDraftSchema = z.object({
+  messageId: z.uuid().describe("Id of the draft message to discard"),
+  draftRevision: DraftRevisionSchema.describe("Opaque revision of the draft, as returned when it was saved"),
+});
 export type DiscardDraftData = Data<typeof DiscardDraftSchema>;
 
 @TenantInteractor({ resource: Resource.inboxMessages, manage: "delete" })

@@ -47,7 +47,7 @@ export const BaseSendChatMessageSchema = z.object({
     .uuid()
     .optional()
     .describe(
-      "Saved draft to send. Each draft revision is sent at most once: repeating the call returns the first result",
+      "Id of the saved draft to send. Each draft revision is sent at most once; a repeated send returns the first result",
     ),
   draftRevision: DraftRevisionSchema.optional().describe(
     "Opaque revision returned with the saved draft; required whenever draftMessageId is provided",

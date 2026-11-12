@@ -26,10 +26,10 @@ export const CalendarWidgetQuerySchema = z
     layout: z
       .enum(CALENDAR_WIDGET_LAYOUTS)
       .describe(
-        "upcoming lists the records of the next days, with an overdue section for earlier dates; month shows a heat grid of the month with each day's count or sum.",
+        "upcoming lists the records of the coming days, with an overdue section for earlier dates; month shows a heat grid of the month with each day's count or sum.",
       ),
     timeZone: TimeZoneSchema.describe(
-      "IANA time zone that sets today and the day of a date-time value, such as Europe/Berlin. Date-only values never shift.",
+      "IANA time zone that sets today and the day of a date-time value, such as Europe/Berlin. Date-only values stay on their calendar date.",
     ),
     days: z
       .number()
@@ -49,7 +49,7 @@ export const CalendarWidgetQuerySchema = z
       .nullable()
       .default(null)
       .describe(
-        "Optional number or currency field: upcoming shows it next to each record, month sums it per day when aggregation is sum.",
+        "Optional number or currency field: upcoming shows it beside each record, month sums it per day when aggregation is sum.",
       ),
     aggregation: z
       .enum(["count", "sum"])
@@ -72,7 +72,7 @@ export const CalendarWidgetWindowSchema = z
     { message: `A window spans 1 to ${CALENDAR_WIDGET_WINDOW_DAYS} days`, path: ["to"] },
   )
   .describe(
-    `Days to read instead of the widget's own range, from and to included, at most ${CALENDAR_WIDGET_WINDOW_DAYS} days.`,
+    `Days to read in place of the widget's own range, from and to included, at most ${CALENDAR_WIDGET_WINDOW_DAYS} days.`,
   );
 export type CalendarWidgetWindow = z.infer<typeof CalendarWidgetWindowSchema>;
 
