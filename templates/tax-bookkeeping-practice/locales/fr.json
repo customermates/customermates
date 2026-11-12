@@ -1,0 +1,136 @@
+{
+  "locale": "fr",
+  "name": "Cabinet d'expertise comptable",
+  "summary": "Un poste de travail de cabinet avec deux flux : obtenir une mission, avec vigilance LCB-FT et lettre de mission, et faire le travail récurrent par client, avec un registre d'échéances vérifié par une seconde personne.",
+  "description": "Pilotez un cabinet d'expertise comptable au même endroit : missions de la demande à la mission active avec une étape de vigilance LCB-FT entre les deux, dossiers récurrents par client et période avec le statut en attente de pièces, et registre d'échéances avec une pré-échéance et la personne qui a vérifié chaque date. Le modèle est la couche relation, preuve des échéances et relances à côté de votre logiciel de cabinet. Il ne calcule pas les dates légales, ne dépose rien, ne tient pas la comptabilité, ne fait pas la paie ni la facturation du temps, et ne conserve ni numéros fiscaux ni copies de pièces d'identité.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes chez vos clients qui envoient les pièces et signent." },
+    "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Particuliers, entrepreneurs individuels, sociétés et associations pour lesquels vous intervenez." },
+    "mandates": { "label": "Mission", "pluralLabel": "Missions", "description": "Un engagement de la demande à actif ou refusé." },
+    "jobs": { "label": "Dossier de travaux", "pluralLabel": "Dossiers de travaux", "description": "Travail récurrent pour un client et une période, comme une clôture mensuelle ou une déclaration de TVA." },
+    "deadlines": { "label": "Échéance", "pluralLabel": "Échéances", "description": "Une date légale ou administrative avec sa source, une pré-échéance et la personne qui l'a vérifiée." }
+  },
+  "fields": {
+    "contacts.preferred_channel": { "label": "Canal préféré", "options": { "email": "E-mail", "phone": "Téléphone", "portal": "Portail", "whatsapp": "WhatsApp", "post": "Courrier" } },
+    "clients.client_type": { "label": "Type", "options": { "individual": "Particulier", "sole_trader": "Entrepreneur individuel", "company": "Société", "association": "Association" } },
+    "clients.vat_frequency": { "label": "Déclarations de TVA", "options": { "monthly": "Mensuelles", "quarterly": "Trimestrielles", "annual": "Annuelles", "not_applicable": "Sans objet" } },
+    "clients.authorisation_on": { "label": "Mandat de représentation depuis le" },
+    "clients.aml_risk": {
+      "label": "Risque LCB-FT",
+      "options": { "not_assessed": "Non évalué", "low": "Faible", "standard": "Standard", "enhanced": "Renforcé", "declined": "Refusé" }
+    },
+    "clients.aml_next_review": { "label": "Prochaine revue du risque" },
+    "mandates.stage": {
+      "label": "Étape",
+      "options": { "inquiry": "Demande", "intro_call": "Premier rendez-vous", "proposal_sent": "Proposition", "aml_check": "Vigilance LCB-FT", "engagement_letter_out": "Lettre de mission envoyée", "active": "Actif", "declined": "Refusé", "not_going_ahead": "Sans suite" }
+    },
+    "mandates.services": {
+      "label": "Prestations",
+      "options": { "bookkeeping": "Tenue comptable", "payroll": "Paie", "vat_returns": "TVA", "annual_accounts": "Comptes annuels", "tax_returns": "Déclarations fiscales", "advisory": "Conseil" }
+    },
+    "mandates.fee_model": { "label": "Honoraires", "options": { "fixed_monthly": "Forfait mensuel", "hourly": "Au temps passé", "per_filing": "Par déclaration", "value_based": "À la valeur" } },
+    "mandates.next_step_due": { "label": "Prochaine étape avant le" },
+    "mandates.lost_reason": {
+      "label": "Motif",
+      "options": { "capacity": "Pas de capacité", "risk_declined": "Refusé pour le risque", "scope_mismatch": "Périmètre inadapté", "price": "Prix", "chose_other_advisor": "A choisi un autre conseil", "no_response": "Sans réponse" }
+    },
+    "jobs.status": {
+      "label": "Statut",
+      "options": { "planned": "Prévu", "waiting_for_documents": "En attente de pièces", "in_preparation": "En préparation", "in_review": "En revue", "client_approval": "En attente de l'accord du client", "submitted": "Déposé", "waiting_for_authority": "En attente de l'administration", "done": "Terminé" }
+    },
+    "jobs.job_type": {
+      "label": "Type de travaux",
+      "options": { "monthly_bookkeeping": "Tenue mensuelle", "payroll_run": "Paie du mois", "vat_return": "Déclaration de TVA", "annual_accounts": "Comptes annuels", "tax_return": "Déclaration fiscale", "year_end": "Clôture d'exercice" }
+    },
+    "jobs.period": { "label": "Période" },
+    "jobs.documents_due": { "label": "Pièces à fournir avant le" },
+    "jobs.internal_due": { "label": "Échéance interne" },
+    "jobs.reviewer": { "label": "Relecteur" },
+    "jobs.notice_received_on": { "label": "Avis de l'administration reçu le" },
+    "deadlines.kind": {
+      "label": "Type",
+      "options": { "vat_return": "Déclaration de TVA", "vat_payment": "Paiement de la TVA", "payroll_report": "Déclaration sociale", "annual_accounts": "Comptes annuels", "tax_return": "Déclaration fiscale", "appeal": "Recours", "payment": "Paiement", "aml_review": "Revue du risque", "other": "Autre" }
+    },
+    "deadlines.due_date": { "label": "Échéance" },
+    "deadlines.pre_deadline": { "label": "Pré-échéance" },
+    "deadlines.source_ref": { "label": "Source de la date" },
+    "deadlines.verified_by": { "label": "Vérifiée par" },
+    "deadlines.status": { "label": "Statut", "options": { "open": "Ouverte", "in_progress": "En cours", "filed": "Déposée", "extended": "Prorogée", "cancelled": "Annulée" } },
+    "actions.kind": {
+      "label": "Type",
+      "options": {
+        "request_documents": "Demander des pièces",
+        "chase_documents": "Relancer pour les pièces",
+        "chase_approval": "Relancer pour l'accord ou la signature",
+        "review": "Relire",
+        "reply": "Répondre",
+        "aml": "Identification et niveau de risque",
+        "filing": "Dépôt",
+        "other": "Autre"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Client", "targetLabel": "Contacts" },
+    "mandate_client": { "sourceLabel": "Client", "targetLabel": "Missions" },
+    "job_client": { "sourceLabel": "Client", "targetLabel": "Dossiers de travaux" },
+    "deadline_client": { "sourceLabel": "Client", "targetLabel": "Échéances" },
+    "action_job": { "sourceLabel": "Dossier de travaux", "targetLabel": "Actions" },
+    "action_client": { "sourceLabel": "Client", "targetLabel": "Actions" }
+  },
+  "views": {
+    "mandates_board": { "name": "Missions par étape" },
+    "mandates_all": { "name": "Toutes les missions" },
+    "jobs_board": { "name": "Dossiers par statut" },
+    "jobs_waiting_documents": { "name": "En attente de pièces" },
+    "deadlines_all": { "name": "Toutes les échéances" },
+    "unverified_deadlines": { "name": "Échéances non vérifiées" },
+    "clients_all": { "name": "Tous les clients" },
+    "contacts_all": { "name": "Tous les contacts" }
+  },
+  "widgets": {
+    "deadlines_coming": { "title": "Échéances à venir" },
+    "unverified_count": { "title": "Échéances ouvertes sans vérificateur" },
+    "jobs_by_status": { "title": "Dossiers ouverts par statut" },
+    "documents_waiting": { "title": "Dossiers en attente de pièces" },
+    "jobs_waiting_on_client": { "title": "Dossiers en attente de l'accord du client" },
+    "mandates_funnel": { "title": "Missions par étape" },
+    "aml_reviews": { "title": "Revues du risque à faire" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Comment fonctionne le cabinet", "sections": ["Les deux flux : obtenir une mission et faire le travail", "Qui est responsable de quelle étape et la règle d'une action datée par dossier ouvert"] },
+    "onboarding_and_aml": { "title": "Entrée en relation et vigilance LCB-FT", "sections": ["Identifier le client et le bénéficiaire effectif, niveau de risque", "Liste de contrôle de la lettre de mission (aucune copie de pièce d'identité n'est conservée ici)"] },
+    "deadline_control": { "title": "Contrôle des échéances", "sections": ["Comment une date est saisie avec sa source et vérifiée par une seconde personne", "Contrôle de la pré-échéance et décision de prorogation"] },
+    "document_checklists": { "title": "Demandes de pièces par prestation", "sections": ["Ce que nous demandons pour chaque prestation et pour quand", "Relances et suite à donner quand des pièces manquent"] }
+  },
+  "rules": {
+    "proposal_follow_up": { "title": "Relancer une proposition 3 jours après son envoi" },
+    "aml_identification": { "title": "Identifier le client sous 2 jours quand une mission atteint l'étape de vigilance" },
+    "onboarding_set": { "title": "Demander le mandat de représentation et les premières pièces quand une mission devient active" },
+    "recontact_not_going_ahead": { "title": "Fixer la prochaine étape à 90 jours quand une mission est sans suite" },
+    "documents_chase": { "title": "Relancer pour les pièces 3 jours avant la date prévue" },
+    "documents_overdue_notice": { "title": "Prévenir le responsable quand les pièces sont dues et toujours absentes" },
+    "pre_deadline_check": { "title": "Prévenir le responsable à la pré-échéance d'une échéance ouverte" },
+    "due_date_escalation": { "title": "Prévenir l'associé 2 jours avant une échéance ouverte" },
+    "approval_chase": { "title": "Relancer l'accord du client après 5 jours d'attente" },
+    "notice_check": { "title": "Examiner un avis de l'administration dans les 3 jours suivant sa réception" },
+    "aml_review": { "title": "Revoir le niveau de risque quand la prochaine revue arrive" },
+    "monthly_close_jobs": { "title": "Créer les dossiers mensuels au début de chaque mois" }
+  },
+  "acceptanceChecks": {
+    "mandate_stage_field": "Chaque mission a une étape.",
+    "job_status_field": "Chaque dossier a un statut, y compris en attente de pièces.",
+    "deadline_due_field": "Chaque échéance indique sa date.",
+    "deadline_verifier_field": "Chaque échéance indique qui l'a vérifiée.",
+    "deadline_control_page": "La base de connaissances contient une page sur le contrôle des échéances."
+  },
+  "prompt": {
+    "intro": "Mets en place dans mon espace Customermates un cabinet d'expertise comptable : missions de la demande à actif avec une étape de vigilance, dossiers récurrents par client et période, registre d'échéances avec pré-échéance et vérificateur, et relances datées. Ne calcule jamais de dates légales et ne stocke aucune copie de pièce d'identité.",
+    "questions": [
+      "Quelles prestations proposez-vous, et quels dossiers récurrents tenez-vous par client ?",
+      "Dans quel pays exercez-vous, et quelles échéances suivez-vous ?",
+      "Qui prépare, qui relit, et qui vérifie une échéance ?",
+      "Comment identifiez-vous les nouveaux clients, et à quelle fréquence revoyez-vous leur niveau de risque ?"
+    ]
+  }
+}

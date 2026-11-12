@@ -1,0 +1,194 @@
+{
+  "id": "tpl_tax_bookkeeping_practice",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "tax-bookkeeping-practice",
+  "family": "professional-services",
+  "kind": "pipeline",
+  "jurisdictions": ["DE", "FR", "IT", "ES", "BR", "PL", "NL"],
+  "dashboardAudience": "team",
+  "modules": ["actions_core", "actions_dashboard"],
+  "requiresCapabilities": ["rules", "notifications"],
+  "pairedPages": {
+    "en": "/for/accountants",
+    "de": "/for/accountants",
+    "fr": "/for/accountants",
+    "it": "/for/accountants",
+    "es": "/for/accountants",
+    "pt": "/for/accountants",
+    "pl": "/for/accountants",
+    "nl": "/for/accountants"
+  },
+  "lists": [
+    { "key": "contacts", "role": "people", "icon": "contact" },
+    { "key": "clients", "icon": "building" },
+    { "key": "mandates", "role": "deals", "icon": "signature" },
+    { "key": "jobs", "icon": "clipboard" },
+    { "key": "deadlines", "icon": "alarm" }
+  ],
+  "stages": [
+    {
+      "field": "mandates.stage",
+      "items": [
+        { "key": "inquiry", "outcome": "open", "weight": 10 },
+        { "key": "intro_call", "outcome": "open", "weight": 25 },
+        { "key": "proposal_sent", "outcome": "open", "weight": 50 },
+        { "key": "aml_check", "outcome": "open", "weight": 70 },
+        { "key": "engagement_letter_out", "outcome": "open", "weight": 85 },
+        { "key": "active", "outcome": "won", "weight": 100 },
+        { "key": "declined", "outcome": "lost", "weight": 0 },
+        { "key": "not_going_ahead", "outcome": "lost", "weight": 0 }
+      ]
+    },
+    {
+      "field": "jobs.status",
+      "items": [
+        { "key": "planned", "outcome": "open", "weight": 0 },
+        { "key": "waiting_for_documents", "outcome": "open", "weight": 0 },
+        { "key": "in_preparation", "outcome": "open", "weight": 0 },
+        { "key": "in_review", "outcome": "open", "weight": 0 },
+        { "key": "client_approval", "outcome": "open", "weight": 0 },
+        { "key": "submitted", "outcome": "open", "weight": 0 },
+        { "key": "waiting_for_authority", "outcome": "open", "weight": 0 },
+        { "key": "done", "outcome": "won", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "contacts.preferred_channel", "type": "select", "options": [{ "key": "email" }, { "key": "phone" }, { "key": "portal" }, { "key": "whatsapp" }, { "key": "post" }] },
+    { "key": "clients.client_type", "type": "select", "options": [{ "key": "individual" }, { "key": "sole_trader" }, { "key": "company" }, { "key": "association" }] },
+    { "key": "clients.vat_frequency", "type": "select", "options": [{ "key": "monthly" }, { "key": "quarterly" }, { "key": "annual" }, { "key": "not_applicable" }] },
+    { "key": "clients.authorisation_on", "type": "date" },
+    { "key": "clients.aml_risk", "type": "select", "options": [{ "key": "not_assessed" }, { "key": "low", "color": "success" }, { "key": "standard" }, { "key": "enhanced", "color": "warning" }, { "key": "declined", "color": "destructive" }] },
+    { "key": "clients.aml_next_review", "type": "date" },
+    { "key": "mandates.services", "type": "select", "options": [{ "key": "bookkeeping" }, { "key": "payroll" }, { "key": "vat_returns" }, { "key": "annual_accounts" }, { "key": "tax_returns" }, { "key": "advisory" }] },
+    { "key": "mandates.fee_model", "type": "select", "options": [{ "key": "fixed_monthly" }, { "key": "hourly" }, { "key": "per_filing" }, { "key": "value_based" }] },
+    { "key": "mandates.next_step_due", "type": "date" },
+    { "key": "mandates.lost_reason", "type": "select", "options": [{ "key": "capacity" }, { "key": "risk_declined" }, { "key": "scope_mismatch" }, { "key": "price" }, { "key": "chose_other_advisor" }, { "key": "no_response" }] },
+    { "key": "jobs.job_type", "type": "select", "options": [{ "key": "monthly_bookkeeping" }, { "key": "payroll_run" }, { "key": "vat_return" }, { "key": "annual_accounts" }, { "key": "tax_return" }, { "key": "year_end" }] },
+    { "key": "jobs.period", "type": "text" },
+    { "key": "jobs.documents_due", "type": "date" },
+    { "key": "jobs.internal_due", "type": "date" },
+    { "key": "jobs.reviewer", "type": "member" },
+    { "key": "jobs.notice_received_on", "type": "date" },
+    {
+      "key": "deadlines.kind",
+      "type": "select",
+      "options": [{ "key": "vat_return" }, { "key": "vat_payment" }, { "key": "payroll_report" }, { "key": "annual_accounts" }, { "key": "tax_return" }, { "key": "appeal", "color": "warning" }, { "key": "payment" }, { "key": "aml_review" }, { "key": "other" }]
+    },
+    { "key": "deadlines.due_date", "type": "date" },
+    { "key": "deadlines.pre_deadline", "type": "date" },
+    { "key": "deadlines.source_ref", "type": "text" },
+    { "key": "deadlines.verified_by", "type": "member" },
+    { "key": "deadlines.status", "type": "select", "options": [{ "key": "open" }, { "key": "in_progress", "color": "info" }, { "key": "filed", "color": "success" }, { "key": "extended" }, { "key": "cancelled", "color": "secondary" }] },
+    {
+      "key": "actions.kind",
+      "type": "select",
+      "options": [{ "key": "request_documents" }, { "key": "chase_documents" }, { "key": "chase_approval" }, { "key": "review" }, { "key": "reply" }, { "key": "aml" }, { "key": "filing" }, { "key": "other" }]
+    }
+  ],
+  "relationships": [
+    { "key": "contact_client", "source": "contacts", "target": "clients", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "mandate_client", "source": "mandates", "target": "clients", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "job_client", "source": "jobs", "target": "clients", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "deadline_client", "source": "deadlines", "target": "clients", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_job", "source": "actions", "target": "jobs", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_client", "source": "actions", "target": "clients", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    { "key": "mandates_board", "list": "mandates", "default": true, "layout": "board", "groupBy": "mandates.stage", "columns": ["mandates.services", "mandates.fee_model", "mandates.next_step_due"] },
+    { "key": "mandates_all", "list": "mandates", "default": false, "layout": "table", "sort": { "field": "mandates.next_step_due", "direction": "asc" }, "columns": ["mandates.stage", "mandates.services", "mandates.fee_model", "mandates.next_step_due"] },
+    { "key": "jobs_board", "list": "jobs", "default": true, "layout": "board", "groupBy": "jobs.status", "sort": { "field": "jobs.internal_due", "direction": "asc" }, "columns": ["jobs.job_type", "jobs.period", "jobs.documents_due", "jobs.internal_due"] },
+    { "key": "jobs_waiting_documents", "list": "jobs", "default": false, "layout": "table", "sort": { "field": "jobs.documents_due", "direction": "asc" }, "filters": [{ "operator": "in", "field": "jobs.status", "options": ["waiting_for_documents"] }] },
+    { "key": "deadlines_all", "list": "deadlines", "default": true, "layout": "table", "sort": { "field": "deadlines.due_date", "direction": "asc" }, "columns": ["deadlines.kind", "deadlines.status", "deadlines.pre_deadline", "deadlines.verified_by"] },
+    { "key": "unverified_deadlines", "list": "deadlines", "default": false, "layout": "table", "sort": { "field": "deadlines.due_date", "direction": "asc" }, "filters": [{ "operator": "in", "field": "deadlines.status", "options": ["open", "in_progress"] }, { "operator": "empty", "field": "deadlines.verified_by" }] },
+    { "key": "clients_all", "list": "clients", "default": true, "layout": "table", "columns": ["clients.client_type", "clients.vat_frequency", "clients.aml_risk", "clients.aml_next_review"] },
+    { "key": "contacts_all", "list": "contacts", "default": true, "layout": "table", "columns": ["contacts.preferred_channel"] }
+  ],
+  "widgets": [
+    { "kind": "calendar", "key": "deadlines_coming", "list": "deadlines", "layout": "upcoming", "dateField": "deadlines.due_date", "filters": [{ "operator": "in", "field": "deadlines.status", "options": ["open", "in_progress"] }] },
+    { "kind": "chart", "key": "unverified_count", "list": "deadlines", "aggregation": "count", "filters": [{ "operator": "in", "field": "deadlines.status", "options": ["open", "in_progress"] }, { "operator": "empty", "field": "deadlines.verified_by" }], "display": "number" },
+    { "kind": "chart", "key": "jobs_by_status", "list": "jobs", "aggregation": "count", "groupBy": { "field": "jobs.status" }, "filters": [{ "operator": "notIn", "field": "jobs.status", "options": ["done"] }], "display": "horizontalBarChart" },
+    { "kind": "chart", "key": "documents_waiting", "list": "jobs", "aggregation": "count", "filters": [{ "operator": "in", "field": "jobs.status", "options": ["waiting_for_documents"] }], "display": "number" },
+    { "kind": "chart", "key": "jobs_waiting_on_client", "list": "jobs", "aggregation": "count", "filters": [{ "operator": "in", "field": "jobs.status", "options": ["client_approval"] }], "display": "number" },
+    { "kind": "chart", "key": "mandates_funnel", "list": "mandates", "aggregation": "count", "groupBy": { "field": "mandates.stage" }, "filters": [{ "operator": "in", "field": "mandates.stage", "options": ["inquiry", "intro_call", "proposal_sent", "aml_check", "engagement_letter_out", "active"] }], "display": "funnelChart" },
+    { "kind": "calendar", "key": "aml_reviews", "list": "clients", "layout": "upcoming", "dateField": "clients.aml_next_review" }
+  ],
+  "knowledgePages": [
+    { "key": "operating_guide", "kind": "overview" },
+    { "key": "onboarding_and_aml", "kind": "processes" },
+    { "key": "deadline_control", "kind": "processes" },
+    { "key": "document_checklists", "kind": "processes" }
+  ],
+  "followUpRules": [
+    { "key": "proposal_follow_up", "trigger": { "kind": "field_changed", "field": "mandates.stage", "to": "proposal_sent" }, "action": { "kind": "create_task", "taskKind": "reply", "assignee": "record_owner", "about": "mandates" }, "dueOffsetDays": 3, "needs": "rules" },
+    { "key": "aml_identification", "trigger": { "kind": "field_changed", "field": "mandates.stage", "to": "aml_check" }, "action": { "kind": "create_task", "taskKind": "aml", "assignee": "record_owner", "about": "mandates" }, "dueOffsetDays": 2, "needs": "rules" },
+    { "key": "onboarding_set", "trigger": { "kind": "field_changed", "field": "mandates.stage", "to": "active" }, "action": { "kind": "create_task", "taskKind": "request_documents", "assignee": "record_owner", "about": "mandates" }, "dueOffsetDays": 1, "needs": "rules" },
+    { "key": "recontact_not_going_ahead", "trigger": { "kind": "field_changed", "field": "mandates.stage", "to": "not_going_ahead" }, "action": { "kind": "set_dates", "dates": [{ "field": "mandates.next_step_due", "offsetDays": 90 }] }, "dueOffsetDays": 0, "needs": "rules" },
+    {
+      "key": "documents_chase",
+      "trigger": { "kind": "date_reached", "field": "jobs.documents_due", "offsetDays": -3 },
+      "condition": [{ "operator": "in", "field": "jobs.status", "options": ["waiting_for_documents"] }],
+      "action": { "kind": "create_task", "taskKind": "chase_documents", "assignee": "record_owner", "about": "jobs" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    {
+      "key": "documents_overdue_notice",
+      "trigger": { "kind": "date_reached", "field": "jobs.documents_due", "offsetDays": 0 },
+      "condition": [{ "operator": "in", "field": "jobs.status", "options": ["waiting_for_documents"] }],
+      "action": { "kind": "notify", "recipient": "record_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    {
+      "key": "pre_deadline_check",
+      "trigger": { "kind": "date_reached", "field": "deadlines.pre_deadline", "offsetDays": 0 },
+      "condition": [{ "operator": "in", "field": "deadlines.status", "options": ["open", "in_progress"] }],
+      "action": { "kind": "notify", "recipient": "record_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    {
+      "key": "due_date_escalation",
+      "trigger": { "kind": "date_reached", "field": "deadlines.due_date", "offsetDays": -2 },
+      "condition": [{ "operator": "in", "field": "deadlines.status", "options": ["open", "in_progress"] }],
+      "action": { "kind": "notify", "recipient": "workspace_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    {
+      "key": "approval_chase",
+      "trigger": { "kind": "unchanged_for", "field": "jobs.status", "days": 5 },
+      "condition": [{ "operator": "in", "field": "jobs.status", "options": ["client_approval"] }],
+      "action": { "kind": "create_task", "taskKind": "chase_approval", "assignee": "record_owner", "about": "jobs" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "notice_check", "trigger": { "kind": "date_reached", "field": "jobs.notice_received_on", "offsetDays": 0 }, "action": { "kind": "create_task", "taskKind": "review", "assignee": "record_owner", "about": "jobs" }, "dueOffsetDays": 3, "needs": "rules" },
+    { "key": "aml_review", "trigger": { "kind": "date_reached", "field": "clients.aml_next_review", "offsetDays": 0 }, "action": { "kind": "create_task", "taskKind": "aml", "assignee": "record_owner", "about": "clients" }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "monthly_close_jobs", "trigger": { "kind": "schedule", "every": "month", "list": "clients" }, "action": { "kind": "create_records", "lists": ["jobs"] }, "dueOffsetDays": 10, "needs": "rules" }
+  ],
+  "acceptanceChecks": [
+    { "key": "mandate_stage_field", "kind": "field_exists", "ref": "mandates.stage" },
+    { "key": "job_status_field", "kind": "field_exists", "ref": "jobs.status" },
+    { "key": "deadline_due_field", "kind": "field_exists", "ref": "deadlines.due_date" },
+    { "key": "deadline_verifier_field", "kind": "field_exists", "ref": "deadlines.verified_by" },
+    { "key": "deadline_control_page", "kind": "page_exists", "ref": "deadline_control" }
+  ],
+  "sources": [
+    { "url": "https://karbonhq.com/templates/individual-tax-return-itr12", "checkedOn": "2026-11-12" },
+    { "url": "https://www.myfirm360.com/blog/tax-preparation-workflow/", "checkedOn": "2026-11-12" },
+    { "url": "https://accountants.intuit.com/taxprocenter/practice-management/an-efficient-workflow-can-help-you-speed-your-way-through-tax-season/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.datev.de/web/de/steuerberatung/loesungen/kanzleimanagement/kanzleiprozesse-optimieren-und-steuern/mandanten-digital-anbahnen/datev-mandatsanbahnung", "checkedOn": "2026-11-12" },
+    { "url": "https://www.deubner-steuern.de/themen/transparenzregister/geldwaeschegesetz/sorgfaltspflichten.html", "checkedOn": "2026-11-12" },
+    { "url": "https://www.fiscal-focus.it/quotidiano/altre-tematiche/infoprofessioni/antiriciclaggio-commercialisti-autovalutazione-obbligatoria-entro-il-27-maggio-2026-anche-per-i-clienti-dichiarativi,3,183740", "checkedOn": "2026-11-12" },
+    { "url": "https://hayot-expertise.fr/en/blog/aml-cft-french-accountant-2026-tracfin-client-due-diligence", "checkedOn": "2026-11-12" },
+    { "url": "https://pomoc.wfirma.pl/-nawiazanie-wspolpracy-z-nowym-klientem-w-biurze-rachunkowym", "checkedOn": "2026-11-12" },
+    { "url": "https://poradnikprzedsiebiorcy.pl/-wspolpraca-klienta-z-biurem-rachunkowym-jak-powinna-wygladac", "checkedOn": "2026-11-12" },
+    { "url": "https://www.onderneming.nl/belasting/btw-aangifte/", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "proof", "de": "proof", "fr": "proof", "it": "proof", "es": "none", "pt": "proof", "pl": "proof", "nl": "none" }
+}
