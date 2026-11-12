@@ -63,7 +63,7 @@
       "widgets": {
         "upcoming_actions": { "title": "Attività in arrivo" },
         "overdue_actions": { "title": "Attività scadute" },
-        "activity_timeline": { "title": "Attività recente" }
+        "activity_timeline": { "title": "Attività recenti" }
       }
     },
     "es": {
