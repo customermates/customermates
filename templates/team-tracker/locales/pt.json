@@ -2,7 +2,7 @@
   "locale": "pt",
   "name": "Acompanhamento da equipe",
   "summary": "Um acompanhamento de trabalho para uma equipe pequena: projetos, tarefas com um responsável e um prazo, tarefas recorrentes e pedidos de fora da equipe na mesma lista.",
-  "description": "Mantenha uma equipe de duas a quinze pessoas em uma só lista: cada tarefa tem situação, prioridade, responsável e prazo, e você vê de relance o que está atrasado ou bloqueado. Tarefas recorrentes se criam sozinhas, pedidos de colegas ou clientes chegam por um formulário e uma tarefa bloqueada ou parada avisa o responsável. Não é uma ferramenta de sprints, um Gantt, um controle de horas nem um sistema de RH.",
+  "description": "Mantenha uma equipe de duas a quinze pessoas em uma só lista: cada tarefa tem status, prioridade, responsável e prazo, e você vê de relance o que está atrasado ou bloqueado. Tarefas recorrentes são criadas sozinhas, pedidos de colegas ou clientes chegam por um formulário e uma tarefa bloqueada ou parada avisa o responsável. Não é uma ferramenta de sprints, um Gantt, um controle de horas nem um sistema de RH.",
   "lists": {
     "requesters": { "label": "Solicitante", "pluralLabel": "Solicitantes", "description": "As pessoas de fora da equipe que pedem trabalho." },
     "projects": { "label": "Projeto", "pluralLabel": "Projetos", "description": "Um conjunto de tarefas com responsável, saúde e prazo." },
@@ -11,28 +11,28 @@
   },
   "fields": {
     "requesters.relation": {
-      "label": "Relação",
+      "label": "Relacionamento",
       "options": { "customer": "Cliente", "colleague": "Colega", "partner": "Parceiro", "vendor": "Fornecedor", "other": "Outro" }
     },
     "requesters.team": { "label": "Equipe" },
     "projects.status": {
-      "label": "Situação",
+      "label": "Status",
       "options": { "planned": "Planejado", "active": "Ativo", "on_hold": "Pausado", "done": "Concluído", "cancelled": "Cancelado" }
     },
-    "projects.health": { "label": "Saúde", "options": { "on_track": "No prazo", "at_risk": "Em risco", "off_track": "Fora do rumo" } },
+    "projects.health": { "label": "Saúde", "options": { "on_track": "No prazo", "at_risk": "Em risco", "off_track": "Atrasado" } },
     "projects.owner": { "label": "Responsável" },
     "projects.due_date": { "label": "Prazo" },
     "projects.repo_url": { "label": "Link do repositório" },
     "tasks.status": {
-      "label": "Situação",
-      "options": { "backlog": "Backlog", "todo": "A fazer", "in_progress": "Em andamento", "in_review": "Em revisão", "blocked": "Bloqueada", "done": "Feito", "cancelled": "Cancelada" }
+      "label": "Status",
+      "options": { "backlog": "Backlog", "todo": "A fazer", "in_progress": "Em andamento", "in_review": "Em revisão", "blocked": "Bloqueada", "done": "Concluída", "cancelled": "Cancelada" }
     },
-    "tasks.kind": { "label": "Tipo", "options": { "task": "Tarefa", "bug": "Bug", "feature": "Funcionalidade", "chore": "Rotina", "request": "Pedido" } },
+    "tasks.kind": { "label": "Tipo", "options": { "task": "Tarefa", "bug": "Bug", "feature": "Funcionalidade", "chore": "Manutenção", "request": "Pedido" } },
     "tasks.priority": { "label": "Prioridade", "options": { "urgent": "Urgente", "high": "Alta", "medium": "Média", "low": "Baixa" } },
     "tasks.owner": { "label": "Responsável" },
     "tasks.due": { "label": "Prazo" },
     "tasks.original_due": { "label": "Prazo original" },
-    "tasks.done_on": { "label": "Feito em" },
+    "tasks.done_on": { "label": "Concluída em" },
     "tasks.blocked_reason": { "label": "Motivo do bloqueio" },
     "tasks.external_url": { "label": "Link (pull request ou chamado)" },
     "recurring.cadence": { "label": "Repete", "options": { "weekly": "Toda semana", "monthly": "Todo mês", "quarterly": "Todo trimestre", "yearly": "Todo ano" } },
@@ -53,7 +53,7 @@
     "requesters_all": { "name": "Todos os solicitantes" }
   },
   "widgets": {
-    "tasks_by_status": { "title": "Tarefas por situação" },
+    "tasks_by_status": { "title": "Tarefas por status" },
     "open_by_priority": { "title": "Tarefas abertas por prioridade" },
     "overdue_tasks": { "title": "Tarefas atrasadas" },
     "due_soon": { "title": "Tarefas com prazo próximo" },
@@ -61,7 +61,7 @@
     "activity_timeline": { "title": "Atividade recente" }
   },
   "knowledgePages": {
-    "how_we_work": { "title": "Como trabalhamos", "sections": ["Situações, prioridades e o que significa feito", "Um responsável e uma data por tarefa"] },
+    "how_we_work": { "title": "Como trabalhamos", "sections": ["Status, prioridades e o que significa concluída", "Um responsável e uma data por tarefa"] },
     "weekly_review": { "title": "Revisão semanal", "sections": ["Atrasos, bloqueios e tarefas sem responsável", "O que muda nesta semana"] },
     "triage": { "title": "Triagem de pedidos e bugs", "sections": ["Quem decide o que entra", "Gravidade e prioridade"] }
   },
@@ -76,15 +76,15 @@
     "request_form": { "title": "Criar a tarefa e o solicitante quando o formulário de pedido for enviado" }
   },
   "acceptanceChecks": {
-    "status_field": "Toda tarefa tem uma situação.",
+    "status_field": "Toda tarefa tem um status.",
     "due_field": "Toda tarefa tem um prazo.",
-    "tasks_board_view": "As tarefas abrem como quadro por situação."
+    "tasks_board_view": "As tarefas abrem como quadro por status."
   },
   "prompt": {
-    "intro": "Configure no meu workspace do Customermates um acompanhamento da equipe: projetos, tarefas com um responsável e um prazo, tarefas recorrentes, pedidos de fora da equipe e lembretes para o trabalho atrasado ou bloqueado.",
+    "intro": "Configure no meu espaço de trabalho do Customermates um acompanhamento da equipe: projetos, tarefas com um responsável e um prazo, tarefas recorrentes, pedidos de fora da equipe e lembretes para o trabalho atrasado ou bloqueado.",
     "questions": [
       "Quantas pessoas tem a equipe e no que elas trabalham?",
-      "Quais situações você usa hoje no Trello, Jira, Asana ou em uma planilha?",
+      "Quais status você usa hoje no Trello, Jira, Asana ou em uma planilha?",
       "Quais tarefas voltam toda semana ou todo mês e quem é responsável?",
       "De onde vêm os pedidos e eles devem chegar por um formulário?"
     ]

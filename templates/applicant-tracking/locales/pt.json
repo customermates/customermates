@@ -2,7 +2,7 @@
   "locale": "pt",
   "name": "Acompanhamento de candidaturas",
   "summary": "Um acompanhamento de seleção para uma pequena empresa: vagas, candidatos, uma candidatura por vaga em nove etapas, uma avaliação por entrevistador e uma data para excluir os reprovados.",
-  "description": "Conduza a seleção em um só lugar: cada vaga tem situação, gestor e faixa salarial; cada candidatura avança de recebida a admitido ou reprovado, com data da entrevista, prazo de resposta à proposta e motivo da reprovação; cada entrevistador preenche uma avaliação. As candidaturas reprovadas recebem uma data de guarda para você lembrar de excluí-las ou pedir consentimento. Não é um site de vagas, um leitor de currículos, uma plataforma de testes, uma ferramenta de carta-proposta e assinatura eletrônica nem uma autoridade jurídica sobre prazos de guarda.",
+  "description": "Conduza a seleção em um só lugar: cada vaga tem status, gestor e faixa salarial; cada candidatura avança de recebida a admitido ou reprovado, com data da entrevista, prazo de resposta à proposta e motivo da reprovação; cada entrevistador preenche uma avaliação. As candidaturas reprovadas recebem uma data de guarda para você lembrar de excluí-las ou pedir consentimento. Não é um site de vagas, um leitor de currículos, uma plataforma de testes, uma ferramenta de carta-proposta e assinatura eletrônica nem uma autoridade jurídica sobre prazos de guarda.",
   "lists": {
     "applicants": { "label": "Candidato", "pluralLabel": "Candidatos", "description": "As pessoas que se candidatam, com a origem e o consentimento para o banco de talentos." },
     "jobs": { "label": "Vaga", "pluralLabel": "Vagas", "description": "Cada vaga aberta com o gestor e a faixa salarial." },
@@ -16,9 +16,9 @@
     },
     "applicants.location": { "label": "Cidade" },
     "applicants.salary_expectation": { "label": "Pretensão salarial" },
-    "applicants.pool_consent": { "label": "Consentimento banco de talentos" },
+    "applicants.pool_consent": { "label": "Consentimento para o banco de talentos" },
     "jobs.status": {
-      "label": "Situação",
+      "label": "Status",
       "options": { "draft": "Rascunho", "open": "Aberta", "on_hold": "Pausada", "filled": "Preenchida", "cancelled": "Cancelada" }
     },
     "jobs.department": { "label": "Área" },
@@ -47,7 +47,7 @@
         "acknowledge": "Confirmar o recebimento",
         "screen": "Fazer a triagem da candidatura",
         "schedule_interview": "Agendar uma entrevista",
-        "collect_scorecards": "Recolher as avaliações",
+        "collect_scorecards": "Coletar as avaliações",
         "chase_offer": "Cobrar a resposta à proposta",
         "close_message": "Enviar uma mensagem de encerramento",
         "retention_review": "Revisar a guarda dos dados",
@@ -84,7 +84,7 @@
   "rules": {
     "application_form_records": { "title": "Criar o candidato e a candidatura quando o formulário de candidatura for enviado" },
     "acknowledge_application": { "title": "Confirmar uma nova candidatura em até 2 dias" },
-    "collect_scorecards": { "title": "Recolher as avaliações no dia da entrevista" },
+    "collect_scorecards": { "title": "Coletar as avaliações no dia da entrevista" },
     "scorecard_reminder": { "title": "Lembrar o responsável no dia seguinte à entrevista" },
     "chase_offer": { "title": "Cobrar a resposta 5 dias depois de uma proposta" },
     "rejection_retention": { "title": "Definir a guarda em 180 dias quando uma candidatura é reprovada" },
@@ -97,7 +97,7 @@
     "applications_board_view": "As candidaturas abrem como quadro por etapa."
   },
   "prompt": {
-    "intro": "Configure no meu workspace do Customermates um acompanhamento de candidaturas: vagas com gestor e faixa salarial, candidatos, candidaturas em nove etapas, avaliações de entrevista, uma data de guarda para os reprovados e acompanhamentos com data.",
+    "intro": "Configure no meu espaço de trabalho do Customermates um acompanhamento de candidaturas: vagas com gestor e faixa salarial, candidatos, candidaturas em nove etapas, avaliações de entrevista, uma data de guarda para os reprovados e acompanhamentos com data.",
     "questions": [
       "Quantas vagas ficam abertas ao mesmo tempo e quem contrata para cada uma?",
       "De onde vêm os candidatos e você usa um formulário de candidatura?",

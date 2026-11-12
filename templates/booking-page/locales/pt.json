@@ -1,8 +1,8 @@
 {
   "locale": "pt",
   "name": "Agendamento online",
-  "summary": "Uma agenda de atendimentos para quem presta serviços: tipos de atendimento com duração e antecedência mínima, cada agendamento com situação, lembretes e resultado, e um próximo passo em cada um.",
-  "description": "Receba agendamentos de chamadas, consultas ou visitas e guarde tudo no CRM: poucos tipos de atendimento com duração, intervalo e antecedência mínima, um agendamento que cria a pessoa e o atendimento, um evento na agenda quando você confirma, dois lembretes e um resultado registrado depois de cada atendimento. Agenda só o tempo das pessoas. Não é um sistema de reserva de salas ou recursos, uma ferramenta de ingressos, um sistema de consultas médicas nem um meio de pagamento.",
+  "summary": "Uma agenda de atendimentos para quem presta serviços: tipos de atendimento com duração e antecedência mínima, cada agendamento com status, lembretes e resultado, e um próximo passo em cada um.",
+  "description": "Receba agendamentos de chamadas, consultas ou visitas e guarde tudo no CRM: poucos tipos de atendimento com duração, intervalo e antecedência mínima, um agendamento que cria a pessoa e o atendimento, um evento na agenda quando você confirma, dois lembretes e um resultado registrado depois de cada atendimento. Gerencia apenas o tempo das pessoas. Não é um sistema de reserva de salas ou recursos, uma ferramenta de ingressos, um sistema de consultas médicas nem um meio de pagamento.",
   "lists": {
     "people": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas que agendam com você." },
     "appointment_types": { "label": "Tipo de atendimento", "pluralLabel": "Tipos de atendimento", "description": "Um tipo de atendimento com duração, intervalo, antecedência mínima e preço." },
@@ -23,11 +23,11 @@
     "appointment_types.price": { "label": "Preço" },
     "appointment_types.active": { "label": "Ativo" },
     "appointments.status": {
-      "label": "Situação",
+      "label": "Status",
       "options": { "requested": "Solicitado", "confirmed": "Confirmado", "rescheduled": "Remarcado", "held": "Realizado", "no_show": "Faltou", "cancelled_by_client": "Cancelado pelo cliente", "cancelled_by_us": "Cancelado por nós" }
     },
     "appointments.start_at": { "label": "Início" },
-    "appointments.source": { "label": "Origem", "options": { "booking_page": "Página de agendamento", "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Telefone", "manual": "Lançado à mão" } },
+    "appointments.source": { "label": "Origem", "options": { "booking_page": "Página de agendamento", "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Telefone", "manual": "Lançado manualmente" } },
     "appointments.meeting_url": { "label": "Link da reunião" },
     "appointments.outcome": {
       "label": "Resultado",
@@ -64,7 +64,7 @@
   },
   "widgets": {
     "upcoming_appointments": { "title": "Próximos atendimentos" },
-    "appointments_by_status": { "title": "Atendimentos por situação" },
+    "appointments_by_status": { "title": "Atendimentos por status" },
     "outcomes_of_held": { "title": "Resultados dos atendimentos realizados" },
     "requests_waiting": { "title": "Solicitações aguardando resposta" },
     "no_shows": { "title": "Faltas" },
@@ -86,12 +86,12 @@
     "follow_up_held": { "title": "Enviar o acompanhamento no dia seguinte a um atendimento realizado" }
   },
   "acceptanceChecks": {
-    "status_field": "Todo atendimento tem uma situação.",
+    "status_field": "Todo atendimento tem um status.",
     "start_field": "Todo atendimento registra quando começa.",
-    "appointments_board_view": "Os atendimentos abrem como quadro por situação."
+    "appointments_board_view": "Os atendimentos abrem como quadro por status."
   },
   "prompt": {
-    "intro": "Configure no meu workspace do Customermates um agendamento online: tipos de atendimento com duração, intervalo e antecedência mínima, atendimentos com situação e resultado, lembretes antes de cada atendimento e um acompanhamento depois.",
+    "intro": "Configure no meu espaço de trabalho do Customermates um agendamento online: tipos de atendimento com duração, intervalo e antecedência mínima, atendimentos com status e resultado, lembretes antes de cada atendimento e um acompanhamento depois.",
     "questions": [
       "Quais tipos de atendimento você oferece e quanto dura cada um?",
       "De quanta antecedência você precisa e com quanto tempo de antecedência dá para agendar?",

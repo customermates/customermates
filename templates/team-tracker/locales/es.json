@@ -2,7 +2,7 @@
   "locale": "es",
   "name": "Seguimiento del equipo",
   "summary": "Un seguimiento del trabajo para un equipo pequeño: proyectos, tareas con un responsable y un vencimiento, tareas recurrentes y solicitudes externas en la misma lista.",
-  "description": "Mantenga a un equipo de dos a quince personas en una sola lista: cada tarea tiene un estado, una prioridad, un responsable y un vencimiento, y se ve de un vistazo lo que va con retraso o bloqueado. Las tareas recurrentes se crean solas, las solicitudes de compañeros o clientes llegan por un formulario y una tarea bloqueada o parada avisa a su responsable. No es una herramienta de sprints, un diagrama de Gantt, un control de horas ni un sistema de RR. HH.",
+  "description": "Mantén a un equipo de dos a quince personas en una sola lista: cada tarea tiene un estado, una prioridad, un responsable y un vencimiento, y se ve de un vistazo lo que va con retraso o bloqueado. Las tareas recurrentes se crean solas, las solicitudes de compañeros o clientes llegan por un formulario y una tarea bloqueada o parada avisa a su responsable. No es una herramienta de sprints, un diagrama de Gantt, un control de horas ni un sistema de RR. HH.",
   "lists": {
     "requesters": { "label": "Solicitante", "pluralLabel": "Solicitantes", "description": "Las personas ajenas al equipo que piden trabajo." },
     "projects": { "label": "Proyecto", "pluralLabel": "Proyectos", "description": "Un conjunto de tareas con responsable, estado de salud y vencimiento." },
@@ -27,7 +27,7 @@
       "label": "Estado",
       "options": { "backlog": "Backlog", "todo": "Por hacer", "in_progress": "En curso", "in_review": "En revisión", "blocked": "Bloqueada", "done": "Hecha", "cancelled": "Cancelada" }
     },
-    "tasks.kind": { "label": "Tipo", "options": { "task": "Tarea", "bug": "Error", "feature": "Funcionalidad", "chore": "Rutina", "request": "Solicitud" } },
+    "tasks.kind": { "label": "Tipo", "options": { "task": "Tarea", "bug": "Error", "feature": "Funcionalidad", "chore": "Mantenimiento", "request": "Solicitud" } },
     "tasks.priority": { "label": "Prioridad", "options": { "urgent": "Urgente", "high": "Alta", "medium": "Media", "low": "Baja" } },
     "tasks.owner": { "label": "Responsable" },
     "tasks.due": { "label": "Vencimiento" },
@@ -68,7 +68,7 @@
   "rules": {
     "task_assigned": { "title": "Avisar al nuevo responsable cuando se le asigna una tarea" },
     "due_tomorrow": { "title": "Avisar al responsable el día antes del vencimiento" },
-    "overdue_task": { "title": "Avisar a la persona a cargo el día después del vencimiento" },
+    "overdue_task": { "title": "Avisar a la persona a cargo al día siguiente del vencimiento" },
     "blocked_stale": { "title": "Avisar a la persona a cargo cuando una tarea sigue bloqueada 3 días" },
     "stale_in_progress": { "title": "Recordar al responsable cuando una tarea lleva 5 días sin moverse" },
     "recurring_due": { "title": "Crear una tarea cuando vence una tarea recurrente" },
@@ -81,10 +81,10 @@
     "tasks_board_view": "Las tareas se abren como tablero por estado."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de Customermates un seguimiento del equipo: proyectos, tareas con un responsable y un vencimiento, tareas recurrentes, solicitudes de fuera del equipo y avisos para el trabajo retrasado o bloqueado.",
+    "intro": "Configura en mi espacio de trabajo de Customermates un seguimiento del equipo: proyectos, tareas con un responsable y un vencimiento, tareas recurrentes, solicitudes de fuera del equipo y avisos para el trabajo retrasado o bloqueado.",
     "questions": [
       "¿Cuántas personas tiene el equipo y en qué trabajan?",
-      "¿Qué estados usa hoy en Trello, Jira, Asana o una hoja de cálculo?",
+      "¿Qué estados usas hoy en Trello, Jira, Asana o una hoja de cálculo?",
       "¿Qué tareas vuelven cada semana o cada mes y quién es responsable?",
       "¿De dónde vienen las solicitudes y deben llegar por un formulario?"
     ]

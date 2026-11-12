@@ -2,7 +2,7 @@
   "locale": "es",
   "name": "Seguimiento de candidaturas",
   "summary": "Un seguimiento de selección para una pequeña empresa: vacantes, candidatos, una candidatura por vacante en nueve fases, una ficha de evaluación por entrevistador y una fecha para eliminar los descartes.",
-  "description": "Gestione la selección en un solo lugar: cada vacante tiene un estado, un responsable y un rango salarial; cada candidatura avanza de recibida a incorporada o descartada, con la fecha de entrevista, el plazo de respuesta a la oferta y el motivo de descarte; cada entrevistador rellena una ficha de evaluación. Las candidaturas descartadas reciben una fecha de conservación para que se acuerde de eliminarlas o de pedir consentimiento. No es un portal de empleo, un lector de currículos, una plataforma de pruebas, una herramienta de cartas de oferta y firma electrónica ni una autoridad legal sobre los plazos de conservación.",
+  "description": "Gestiona la selección en un solo lugar: cada vacante tiene un estado, un responsable y un rango salarial; cada candidatura avanza de recibida a incorporada o descartada, con la fecha de entrevista, el plazo de respuesta a la oferta y el motivo de descarte; cada entrevistador rellena una ficha de evaluación. Las candidaturas descartadas reciben una fecha de conservación para que te acuerdes de eliminarlas o de pedir consentimiento. No es un portal de empleo, un lector de currículos, una plataforma de pruebas, una herramienta de cartas de oferta y firma electrónica ni una autoridad legal sobre los plazos de conservación.",
   "lists": {
     "applicants": { "label": "Candidato", "pluralLabel": "Candidatos", "description": "Las personas que se presentan, con su origen y su consentimiento para futuros procesos." },
     "jobs": { "label": "Vacante", "pluralLabel": "Vacantes", "description": "Cada puesto abierto con su responsable y su rango salarial." },
@@ -85,7 +85,7 @@
     "application_form_records": { "title": "Crear el candidato y la candidatura cuando se envía el formulario de candidatura" },
     "acknowledge_application": { "title": "Confirmar una candidatura nueva en un plazo de 2 días" },
     "collect_scorecards": { "title": "Recoger las fichas el día de la entrevista" },
-    "scorecard_reminder": { "title": "Recordar al responsable el día después de una entrevista" },
+    "scorecard_reminder": { "title": "Recordar al responsable al día siguiente de una entrevista" },
     "chase_offer": { "title": "Reclamar la respuesta 5 días después de una oferta" },
     "rejection_retention": { "title": "Fijar la conservación a 180 días cuando se descarta una candidatura" },
     "job_filled_close": { "title": "Escribir al resto de candidatos cuando se cubre una vacante" },
@@ -97,12 +97,12 @@
     "applications_board_view": "Las candidaturas se abren como tablero por fase."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de Customermates un seguimiento de candidaturas: vacantes con responsable y rango salarial, candidatos, candidaturas en nueve fases, fichas de evaluación, una fecha de conservación para los descartes y seguimientos con fecha.",
+    "intro": "Configura en mi espacio de trabajo de Customermates un seguimiento de candidaturas: vacantes con responsable y rango salarial, candidatos, candidaturas en nueve fases, fichas de evaluación, una fecha de conservación para los descartes y seguimientos con fecha.",
     "questions": [
-      "¿Cuántas vacantes tiene abiertas a la vez y quién selecciona para cada una?",
-      "¿De dónde vienen los candidatos y usa un formulario de candidatura?",
-      "¿Cuánto tiempo conserva las candidaturas descartadas y mantiene una bolsa de talento con consentimiento?",
-      "¿Qué rondas de entrevistas hace y quién rellena una ficha de evaluación?"
+      "¿Cuántas vacantes tienes abiertas a la vez y quién selecciona para cada una?",
+      "¿De dónde vienen los candidatos y usas un formulario de candidatura?",
+      "¿Cuánto tiempo conservas las candidaturas descartadas y mantienes una bolsa de talento con consentimiento?",
+      "¿Qué rondas de entrevistas haces y quién rellena una ficha de evaluación?"
     ]
   }
 }
