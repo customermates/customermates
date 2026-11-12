@@ -55,8 +55,8 @@
     "opportunity_client": { "sourceLabel": "Klant", "targetLabel": "Kansen" },
     "engagement_client": { "sourceLabel": "Klant", "targetLabel": "Lopende opdrachten" },
     "engagement_opportunity": { "sourceLabel": "Kans", "targetLabel": "Lopende opdrachten" },
-    "action_opportunity": { "sourceLabel": "Kans", "targetLabel": "Taken" },
-    "action_engagement": { "sourceLabel": "Lopende opdracht", "targetLabel": "Taken" }
+    "action_opportunity": { "sourceLabel": "Kans", "targetLabel": "Acties" },
+    "action_engagement": { "sourceLabel": "Lopende opdracht", "targetLabel": "Acties" }
   },
   "views": {
     "opportunities_board": { "name": "Kansen per fase" },

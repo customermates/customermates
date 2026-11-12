@@ -53,7 +53,7 @@
   "relationships": {
     "appointment_person": { "sourceLabel": "Contactpersoon", "targetLabel": "Afspraken" },
     "appointment_type": { "sourceLabel": "Afspraaktype", "targetLabel": "Afspraken" },
-    "action_appointment": { "sourceLabel": "Afspraak", "targetLabel": "Taken" }
+    "action_appointment": { "sourceLabel": "Afspraak", "targetLabel": "Acties" }
   },
   "views": {
     "appointments_all": { "name": "Alle afspraken" },

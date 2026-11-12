@@ -59,7 +59,7 @@
     "application_applicant": { "sourceLabel": "Sollicitant", "targetLabel": "Sollicitaties" },
     "application_job": { "sourceLabel": "Vacature", "targetLabel": "Sollicitaties" },
     "scorecard_application": { "sourceLabel": "Sollicitatie", "targetLabel": "Beoordelingsformulieren" },
-    "action_application": { "sourceLabel": "Sollicitatie", "targetLabel": "Taken" }
+    "action_application": { "sourceLabel": "Sollicitatie", "targetLabel": "Acties" }
   },
   "views": {
     "applications_all": { "name": "Alle sollicitaties" },

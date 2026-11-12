@@ -15,7 +15,7 @@
         "onboarding": "Opstart",
         "active": "Actief",
         "waiting_on_client": "Wacht op klant",
-        "at_risk": "Risico",
+        "at_risk": "Loopt risico",
         "inactive": "Inactief",
         "closed": "Beëindigd"
       }
@@ -85,9 +85,9 @@
     "clients_all": { "name": "Alle klanten" },
     "clients_board": { "name": "Klanten per status" },
     "needs_next_step": { "name": "Zonder volgende stap" },
-    "overdue_next_step": { "name": "Verlopen volgende stappen" },
+    "overdue_next_step": { "name": "Achterstallige volgende stappen" },
     "waiting_on_client": { "name": "Wacht op klant" },
-    "at_risk": { "name": "Risico" },
+    "at_risk": { "name": "Loopt risico" },
     "data_review_due": { "name": "Gegevenscontrole aan de beurt" },
     "actions_all": { "name": "Alle acties" },
     "contacts_all": { "name": "Alle contactpersonen" }
@@ -100,7 +100,7 @@
     "clients_per_owner": { "title": "Klanten per accountmanager" },
     "active_without_next_step": { "title": "Actieve klanten zonder volgende stap" },
     "waiting_on_client_count": { "title": "Wacht op klant" },
-    "at_risk_count": { "title": "Risico" },
+    "at_risk_count": { "title": "Loopt risico" },
     "value_by_segment": { "title": "Jaarwaarde per segment" },
     "new_clients_per_month": { "title": "Nieuwe klanten per maand" },
     "overdue_actions": { "title": "Achterstallige acties" },
@@ -113,7 +113,7 @@
     },
     "weekly_review": {
       "title": "Wekelijkse klantcontrole van 15 minuten",
-      "sections": ["Sorteer op datum volgende stap en status", "Verlopen, actief zonder volgende stap, prospects die stilvallen", "Sluit af met een datum op elke regel"]
+      "sections": ["Sorteer op datum volgende stap en status", "Achterstallig, actief zonder volgende stap, prospects die stilvallen", "Sluit af met een datum op elke regel"]
     },
     "status_definitions": {
       "title": "Definitie van de klantstatussen",
@@ -130,7 +130,7 @@
   },
   "rules": {
     "overdue_action_notice": {
-      "title": "Meld de accountmanager dat een actie te laat is",
+      "title": "Informeer de accountmanager dat een actie te laat is",
       "description": "Op de deadline van een open actie krijgt de accountmanager een melding."
     },
     "chase_waiting_client": {
@@ -151,11 +151,11 @@
     },
     "closed_client_dates": {
       "title": "Stel de beëindigingsdatum en de gegevenscontrole in",
-      "description": "Wanneer een klant wordt beëindigd, krijgt Beëindigd op de datum van vandaag en Gegevenscontrole op drie jaar later. Pas de termijn aan je land aan."
+      "description": "Wanneer een klant wordt beëindigd, krijgt Beëindigd op de datum van vandaag en Gegevenscontrole op drie jaar later. Pas de termijn aan voor je land."
     },
     "closed_client_data_review": {
       "title": "Controleer de gegevens van deze beëindigde klant",
-      "description": "Een actie voor de gegevenscontrole valt op de datum van de gegevenscontrole."
+      "description": "Op de datum van de gegevenscontrole staat een actie voor de gegevenscontrole klaar."
     },
     "inactive_reactivation": {
       "title": "Vraag of de klant nog relevant is",
@@ -185,7 +185,7 @@
   "prompt": {
     "intro": "Richt een klantenbestand in mijn Customermates-werkruimte in: één regel per klant met een accountmanager, een status, de datum van het laatste contact en een volgende stap met datum, plus contactpersonen, acties met datum, een wekelijkse controle en een controledatum voor beëindigde klanten.",
     "questions": [
-      "Hoeveel klanten begeleid je nu en wie werkt er nog meer met het bestand?",
+      "Hoeveel klanten heb je nu en wie werkt er nog meer met het bestand?",
       "Welke klantstatussen gebruik je al? Moet een van de zeven worden hernoemd of weggelaten?",
       "Hoe vaak wil je sleutelklanten, vaste klanten en incidentele klanten controleren?",
       "In welk land werk je, zodat de bewaartermijn voor beëindigde klanten kan worden ingesteld?",
