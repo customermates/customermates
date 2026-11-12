@@ -58,7 +58,7 @@
     },
     "documents.requested_on": { "label": "Richiesto il" },
     "documents.received_on": { "label": "Ricevuto il" },
-    "documents.valid_until": { "label": "Scadenza validità" },
+    "documents.valid_until": { "label": "Valido fino al" },
     "documents.evidence_link": { "label": "Link al file" },
     "actions.kind": {
       "label": "Tipo",
@@ -82,7 +82,7 @@
   },
   "views": {
     "suppliers_all": { "name": "Tutti i fornitori" },
-    "suppliers_board": { "name": "Bacheca di qualifica" },
+    "suppliers_board": { "name": "Board di qualifica" },
     "documents_all": { "name": "Tutti i documenti" },
     "expired_documents": { "name": "Scaduti o rifiutati" },
     "questionnaires_all": { "name": "Tutti i questionari" },
@@ -107,21 +107,21 @@
     "renew_document": { "title": "Chiedere il documento rinnovato 30 giorni prima della scadenza" },
     "document_expiry_notice": { "title": "Avvisare il responsabile quando un documento scade" },
     "re_evaluate_supplier": { "title": "Avviare una rivalutazione 14 giorni prima della prossima" },
-    "decide_after_review": { "title": "Decidere entro 5 giorni quando un fornitore passa in valutazione" },
+    "decide_after_review": { "title": "Decidere entro 5 giorni quando un fornitore passa a «In valutazione»" },
     "registration_form_records": { "title": "Creare fornitore e referente quando il modulo di registrazione viene inviato" }
   },
   "acceptanceChecks": {
     "status_field": "Ogni fornitore ha uno stato di qualifica.",
     "valid_until_field": "Ogni documento indica fino a quando è valido.",
-    "suppliers_board_view": "I fornitori si aprono come bacheca per stato."
+    "suppliers_board_view": "I fornitori si aprono come board per stato."
   },
   "prompt": {
-    "intro": "Imposta nel mio workspace Customermates un albo fornitori: fornitori con livello di rischio e stato di qualifica, questionari con scadenze e decisione, documenti con data di scadenza e attività di follow-up con data.",
+    "intro": "Imposta nel mio spazio di lavoro Customermates un albo fornitori: fornitori con livello di rischio e stato di qualifica, questionari con scadenze e decisione, documenti con data di scadenza e attività di follow-up con data.",
     "questions": [
-      "Quanti fornitori avete e come li dividete per livello di rischio?",
-      "Quali certificati o documenti richiedete e quanto dura la validità di ciascuno?",
+      "Quanti fornitori hai e come li dividi per livello di rischio?",
+      "Quali certificati o documenti richiedi e quanto dura la validità di ciascuno?",
       "Chi esamina le risposte e chi qualifica un fornitore?",
-      "Ogni quanto rivalutate un fornitore? I file restano nel vostro sistema documentale, qui si conserva solo un link."
+      "Ogni quanto rivaluti un fornitore? I file restano nel tuo sistema documentale, qui si conserva solo un link."
     ]
   }
 }
