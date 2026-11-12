@@ -97,7 +97,15 @@
     "quote_after_visit": { "title": "Envoyer le devis dans les 2 jours suivant la visite" },
     "quote_follow_up": { "title": "Relancer 3 jours après l’envoi d’un devis" },
     "quote_expiring": { "title": "Relancer 3 jours avant l’expiration d’un devis" },
-    "withdrawal_clock": { "title": "Fixer la fin du délai de rétractation de 14 jours quand un dossier est accepté" },
+    "withdrawal_clock": {
+      "title": "Fixer la fin du délai de rétractation de 14 jours quand un dossier est accepté",
+      "variants": {
+        "BR": {
+          "title": "Fixer la fin du délai de rétractation de 7 jours quand un dossier est accepté (Brésil)",
+          "description": "Selon le code brésilien de la consommation (CDC, art. 49), le client peut se rétracter sous 7 jours quand le contrat est conclu hors de l’établissement, par exemple à son domicile."
+        }
+      }
+    },
     "payment_check": { "title": "Vérifier un dossier facturé 3 jours après l’échéance de paiement" },
     "warranty_check": { "title": "Demander s’il y a des défauts 30 jours avant la fin de la garantie" },
     "service_due": { "title": "Fixer la visite d’entretien 30 jours avant son échéance" },

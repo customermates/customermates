@@ -4,8 +4,8 @@
   "summary": "Ein schlanker Support-Desk: Tickets mit Priorität, Reaktionszeit und Lösungsfrist, bekannte Probleme, die viele Tickets einer Ursache zuordnen, und eine Zufriedenheitsbewertung.",
   "description": "Kunden von einem Ort aus betreuen: Jedes Ticket hat Status, Priorität, Typ, Zuständigen und die Zeit, bis zu der Sie eine erste Antwort und eine Lösung schulden. Verknüpfen Sie Tickets mit einem bekannten Problem, damit alle erfahren, wann es behoben ist, und behalten Sie die Monatsfrist einer DSGVO-Anfrage im Blick. Gedacht für einige Dutzend Tickets pro Woche. Kein Telefonsystem, kein Live-Chat, kein Kundenportal und kein Kalender mit Geschäftszeiten.",
   "lists": {
-    "customers": { "label": "Kunde", "pluralLabel": "Kunden", "description": "Die Personen, die sich mit einer Frage an Sie wenden." },
-    "accounts": { "label": "Konto", "pluralLabel": "Konten", "description": "Die Unternehmen hinter Ihren Kunden, mit ihrem Supportvertrag." },
+    "customers": { "label": "Kunde", "pluralLabel": "Kunden", "description": "Die Personen, die sich mit einer Frage an dich wenden." },
+    "accounts": { "label": "Konto", "pluralLabel": "Konten", "description": "Die Unternehmen hinter deinen Kunden, mit ihrem Supportvertrag." },
     "tickets": { "label": "Ticket", "pluralLabel": "Tickets", "description": "Eine Anfrage, von der ersten Nachricht bis zur Lösung." },
     "known_issues": { "label": "Bekanntes Problem", "pluralLabel": "Bekannte Probleme", "description": "Eine Ursache hinter vielen Tickets, mit Umgehungslösung und Behebungsdatum." }
   },
@@ -78,7 +78,15 @@
     "nudge_customer": { "title": "Kunden nach 3 Tagen Wartezeit erinnern" },
     "send_survey": { "title": "Am Tag nach der Lösung die Zufriedenheitsumfrage senden" },
     "close_solved": { "title": "Ticket schließen, das 4 Tage lang gelöst blieb" },
-    "data_request_clock": { "title": "Lösung auf 30 Tage setzen, wenn ein Ticket ein Auskunftsersuchen wird" },
+    "data_request_clock": {
+      "title": "Lösung auf 30 Tage setzen, wenn ein Ticket ein Auskunftsersuchen wird",
+      "variants": {
+        "BR": {
+          "title": "Lösung auf 15 Tage setzen, wenn ein Ticket ein Auskunftsersuchen wird (Brasilien, LGPD)",
+          "description": "Nach Art. 19 LGPD ist eine vollständige Antwort auf ein Auskunfts- oder Bestätigungsersuchen binnen 15 Tagen fällig."
+        }
+      }
+    },
     "known_issue_fixed": { "title": "Kunden informieren, wenn ein bekanntes Problem behoben ist" },
     "ticket_from_webhook": { "title": "Ticket anlegen, wenn ein anderes System eine Meldung schickt" }
   },
@@ -90,10 +98,10 @@
   "prompt": {
     "intro": "Richte in meinem Customermates-Workspace einen Kundensupport ein: Tickets mit Status, Priorität, Reaktionszeit und Lösungsfrist, bekannte Probleme mit Verknüpfung zu Tickets, eine Zufriedenheitsbewertung und terminierte Folgeaufgaben.",
     "questions": [
-      "Wie viele Tickets bearbeiten Sie pro Woche, und über welche Kanäle kommen sie?",
-      "Wie schnell versprechen Sie Erstantwort und Lösung, je nach Priorität oder Supportvertrag?",
+      "Wie viele Tickets bearbeitest du pro Woche, und über welche Kanäle kommen sie?",
+      "Wie schnell versprichst du Erstantwort und Lösung, je nach Priorität oder Supportvertrag?",
       "Wer antwortet, und wer erfährt, wenn ein Ticket zu spät ist?",
-      "Erhalten Sie Auskunftsersuchen oder Meldungen anderer Systeme, die zu Tickets werden sollen?"
+      "Erhältst du Auskunftsersuchen oder Meldungen anderer Systeme, die zu Tickets werden sollen?"
     ]
   }
 }

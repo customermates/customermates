@@ -97,7 +97,15 @@
     "quote_after_visit": { "title": "Inviare il preventivo entro 2 giorni dal sopralluogo" },
     "quote_follow_up": { "title": "Sollecitare 3 giorni dopo l'invio di un preventivo" },
     "quote_expiring": { "title": "Sollecitare 3 giorni prima della scadenza di un preventivo" },
-    "withdrawal_clock": { "title": "Fissare la fine dei 14 giorni di recesso quando una commessa è accettata" },
+    "withdrawal_clock": {
+      "title": "Fissare la fine dei 14 giorni di recesso quando una commessa è accettata",
+      "variants": {
+        "BR": {
+          "title": "Fissare la fine dei 7 giorni di recesso quando una commessa è accettata (Brasile)",
+          "description": "Secondo il codice brasiliano del consumo (CDC, art. 49), il cliente può recedere entro 7 giorni se il contratto è stato concluso fuori dai locali commerciali, per esempio a casa sua."
+        }
+      }
+    },
     "payment_check": { "title": "Verificare una commessa fatturata 3 giorni dopo la scadenza del pagamento" },
     "warranty_check": { "title": "Chiedere se ci sono difetti 30 giorni prima della fine della garanzia" },
     "service_due": { "title": "Fissare l'intervento di manutenzione 30 giorni prima della scadenza" },

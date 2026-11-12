@@ -87,7 +87,15 @@
     "collect_scorecards": { "title": "Recoger las fichas el día de la entrevista" },
     "scorecard_reminder": { "title": "Recordar al responsable al día siguiente de una entrevista" },
     "chase_offer": { "title": "Reclamar la respuesta 5 días después de una oferta" },
-    "rejection_retention": { "title": "Fijar la conservación a 180 días cuando se descarta una candidatura" },
+    "rejection_retention": {
+      "title": "Fijar la conservación a 180 días cuando se descarta una candidatura",
+      "variants": {
+        "PL": {
+          "title": "Fijar la conservación a 30 días cuando se descarta una candidatura (Polonia: más tiempo solo con consentimiento)",
+          "description": "La autoridad polaca de protección de datos (UODO) espera que los datos del candidato se supriman al terminar el proceso, salvo que haya consentido futuros procesos. Es un valor por defecto: fija el plazo de tu propia política de conservación y, si hay consentimiento, una fecha posterior a mano."
+        }
+      }
+    },
     "job_filled_close": { "title": "Escribir al resto de candidatos cuando se cubre una vacante" },
     "retention_review": { "title": "Revisar una candidatura cuando llega su fecha de conservación" }
   },

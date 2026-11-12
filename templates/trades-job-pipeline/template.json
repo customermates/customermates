@@ -115,7 +115,7 @@
       "dueOffsetDays": 0,
       "needs": "rules"
     },
-    { "key": "withdrawal_clock", "trigger": { "kind": "field_changed", "field": "jobs.stage", "to": "won" }, "action": { "kind": "set_dates", "dates": [{ "field": "jobs.withdrawal_ends", "offsetDays": 14 }] }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "withdrawal_clock", "trigger": { "kind": "field_changed", "field": "jobs.stage", "to": "won" }, "action": { "kind": "set_dates", "dates": [{ "field": "jobs.withdrawal_ends", "offsetDays": 14 }] }, "dueOffsetDays": 0, "needs": "rules", "variants": { "BR": { "action": { "kind": "set_dates", "dates": [{ "field": "jobs.withdrawal_ends", "offsetDays": 7 }] } } } },
     {
       "key": "payment_check",
       "trigger": { "kind": "date_reached", "field": "jobs.payment_due", "offsetDays": 3 },
@@ -151,7 +151,8 @@
     { "url": "https://das-programm.io/gewerke/dachdecker-software/", "checkedOn": "2026-11-12" },
     { "url": "https://hero-software.de/features/kundenverwaltung-crm", "checkedOn": "2026-11-12" },
     { "url": "https://www.salesforce.com/crm/crm-for-contractors/", "checkedOn": "2026-11-12" },
-    { "url": "https://monday.com/blog/crm-and-sales/crm-for-construction/", "checkedOn": "2026-11-12" }
+    { "url": "https://monday.com/blog/crm-and-sales/crm-for-construction/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
   "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },

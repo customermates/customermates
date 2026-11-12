@@ -98,7 +98,7 @@
     { "key": "collect_scorecards", "trigger": { "kind": "date_reached", "field": "applications.interview_at", "offsetDays": 0 }, "action": { "kind": "create_task", "taskKind": "collect_scorecards", "assignee": "record_owner", "about": "applications" }, "dueOffsetDays": 1, "needs": "rules" },
     { "key": "scorecard_reminder", "trigger": { "kind": "date_reached", "field": "applications.interview_at", "offsetDays": 1 }, "action": { "kind": "notify", "recipient": "record_owner" }, "dueOffsetDays": 0, "needs": "notifications" },
     { "key": "chase_offer", "trigger": { "kind": "field_changed", "field": "applications.stage", "to": "offer" }, "action": { "kind": "create_task", "taskKind": "chase_offer", "assignee": "record_owner", "about": "applications" }, "dueOffsetDays": 5, "needs": "rules" },
-    { "key": "rejection_retention", "trigger": { "kind": "field_changed", "field": "applications.stage", "to": "rejected" }, "action": { "kind": "set_dates", "dates": [{ "field": "applications.retain_until", "offsetDays": 180 }] }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "rejection_retention", "trigger": { "kind": "field_changed", "field": "applications.stage", "to": "rejected" }, "action": { "kind": "set_dates", "dates": [{ "field": "applications.retain_until", "offsetDays": 180 }] }, "dueOffsetDays": 0, "needs": "rules", "variants": { "PL": { "action": { "kind": "set_dates", "dates": [{ "field": "applications.retain_until", "offsetDays": 30 }] } } } },
     { "key": "job_filled_close", "trigger": { "kind": "field_changed", "field": "jobs.status", "to": "filled" }, "action": { "kind": "create_task", "taskKind": "close_message", "assignee": "record_owner", "about": "jobs" }, "dueOffsetDays": 1, "needs": "rules" },
     { "key": "retention_review", "trigger": { "kind": "date_reached", "field": "applications.retain_until", "offsetDays": 0 }, "action": { "kind": "create_task", "taskKind": "retention_review", "assignee": "record_owner", "about": "applications" }, "dueOffsetDays": 0, "needs": "rules" }
   ],
@@ -119,6 +119,7 @@
     { "url": "https://www.smartsheet.com/content/applicant-tracking-templates", "checkedOn": "2026-11-12" },
     { "url": "https://www.airtable.com/templates/professional/expksc99BziBsZRgR/applicant-tracking-system", "checkedOn": "2026-11-12" },
     { "url": "https://www.hubspot.com/resources/templates/recruitment-tracking-spreadsheet", "checkedOn": "2026-11-12" },
+    { "url": "https://uodo.gov.pl/file/1469", "checkedOn": "2026-11-12" },
     { "url": "https://www.jazzhr.com/insights/best-free-ats", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",

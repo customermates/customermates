@@ -87,7 +87,15 @@
     "collect_scorecards": { "title": "Collect the scorecards on the day of an interview" },
     "scorecard_reminder": { "title": "Remind the owner the day after an interview" },
     "chase_offer": { "title": "Chase the decision 5 days after an offer" },
-    "rejection_retention": { "title": "Set the retention date to 180 days out when an application is rejected" },
+    "rejection_retention": {
+      "title": "Set the retention date to 180 days out when an application is rejected",
+      "variants": {
+        "PL": {
+          "title": "Set the retention date to 30 days out when an application is rejected (Poland: longer only with consent)",
+          "description": "Poland's data protection authority (UODO) expects candidate data to be deleted once the recruitment ends, unless the candidate consented to future recruitment. This is a default: set the period your own retention policy requires, and a later date by hand where there is consent."
+        }
+      }
+    },
     "job_filled_close": { "title": "Send a closing message to the other applicants when a job is filled" },
     "retention_review": { "title": "Review an application when its retention date arrives" }
   },

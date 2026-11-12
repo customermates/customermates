@@ -1,12 +1,12 @@
 {
   "locale": "en",
   "name": "Trades job pipeline",
-  "summary": "A pipeline for a trade business: enquiry, site visit, quote and follow-up, then the work itself from scheduled to paid, with withdrawal, warranty and service dates on every job.",
+  "summary": "A pipeline for a trade business: inquiry, site visit, quote and follow-up, then the work itself from scheduled to paid, with withdrawal, warranty and service dates on every job.",
   "description": "Follow a job from the first call to the last invoice: customers and the sites you work at, jobs with a sales stage and a separate work status, quote validity, the visit and the schedule, a withdrawal date for consumer contracts, warranty end and service agreements that bring repeat work. It stores the job, the dates and the follow-up. It is not a quoting or invoicing tool, a dispatch system or a timesheet. Legal dates are fields you confirm, not legal advice.",
   "lists": {
     "customers": { "label": "Customer", "pluralLabel": "Customers", "description": "Homeowners, landlords, property managers and companies you work for." },
     "sites": { "label": "Site", "pluralLabel": "Sites", "description": "The address where the work happens, which can differ from the customer." },
-    "jobs": { "label": "Job", "pluralLabel": "Jobs", "description": "One piece of work, from enquiry to won or lost, then through the work itself." },
+    "jobs": { "label": "Job", "pluralLabel": "Jobs", "description": "One piece of work, from inquiry to won or lost, then through the work itself." },
     "agreements": { "label": "Service agreement", "pluralLabel": "Service agreements", "description": "Recurring maintenance for a site, with the next visit and the renewal date." }
   },
   "fields": {
@@ -19,7 +19,7 @@
     "sites.access_notes": { "label": "Access notes" },
     "jobs.stage": {
       "label": "Stage",
-      "options": { "enquiry": "Enquiry", "assessment": "Site visit", "to_quote": "Quote to write", "quote_sent": "Quote sent", "negotiating": "Negotiating", "won": "Won", "lost": "Lost" }
+      "options": { "enquiry": "Inquiry", "assessment": "Site visit", "to_quote": "Quote to write", "quote_sent": "Quote sent", "negotiating": "Negotiating", "won": "Won", "lost": "Lost" }
     },
     "jobs.work_status": {
       "label": "Work status",
@@ -86,18 +86,26 @@
     "services_due": { "title": "Service visits due" }
   },
   "knowledgePages": {
-    "operating_guide": { "title": "How enquiries become jobs", "sections": ["Reply, visit and quote: who does what and how fast", "Weekly review of open quotes, jobs to invoice and unpaid invoices"] },
+    "operating_guide": { "title": "How inquiries become jobs", "sections": ["Reply, visit and quote: who does what and how fast", "Weekly review of open quotes, jobs to invoice and unpaid invoices"] },
     "quote_checklist": { "title": "Quote checklist", "sections": ["Scope, exclusions, price, validity and deposit", "Start date, payment terms and follow-up messages"] },
     "withdrawal_and_acceptance": { "title": "Withdrawal, handover and acceptance", "sections": ["Consumer withdrawal for contracts at the customer's home and emergency work", "Handover and acceptance checklist"] },
     "warranty_and_service": { "title": "Warranty, defects and service agreements", "sections": ["How a defect is handled", "Offering and renewing a service agreement"] }
   },
   "rules": {
-    "enquiry_form_records": { "title": "Create the customer, the site and the job when the enquiry form is submitted" },
-    "call_back_new": { "title": "Call back a new enquiry the same day" },
+    "enquiry_form_records": { "title": "Create the customer, the site and the job when the inquiry form is submitted" },
+    "call_back_new": { "title": "Call back a new inquiry the same day" },
     "quote_after_visit": { "title": "Send the quote within 2 days of the site visit" },
     "quote_follow_up": { "title": "Follow up 3 days after a quote is sent" },
     "quote_expiring": { "title": "Follow up 3 days before a quote expires" },
-    "withdrawal_clock": { "title": "Set the end of the 14-day withdrawal period when a job is won" },
+    "withdrawal_clock": {
+      "title": "Set the end of the 14-day withdrawal period when a job is won",
+      "variants": {
+        "BR": {
+          "title": "Set the end of the 7-day withdrawal period when a job is won (Brazil, CDC art. 49)",
+          "description": "Under Brazil's consumer code (CDC art. 49), a customer can withdraw within 7 days when the contract was made outside the business premises, for example at their home."
+        }
+      }
+    },
     "payment_check": { "title": "Check an invoiced job 3 days after the payment is due" },
     "warranty_check": { "title": "Ask about defects 30 days before the warranty ends" },
     "service_due": { "title": "Book the service visit 30 days before it is due" },
@@ -113,7 +121,7 @@
     "intro": "Set up a trades job pipeline in my Customermates workspace: customers, sites, jobs with a sales stage and a work status, quote validity, visit and schedule dates, warranty end and service agreements, with dated follow-ups.",
     "questions": [
       "Which kinds of work do you do, and for whom: homeowners, landlords or companies?",
-      "How quickly do you answer an enquiry and send a quote after the visit?",
+      "How quickly do you answer an inquiry and send a quote after the visit?",
       "How long are your quotes valid, and how long is your warranty?",
       "Do you sell service agreements for repeat work?"
     ]

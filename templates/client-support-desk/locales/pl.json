@@ -78,7 +78,15 @@
     "nudge_customer": { "title": "Przypomnij klientowi po 3 dniach oczekiwania" },
     "send_survey": { "title": "Wyślij ankietę zadowolenia dzień po rozwiązaniu zgłoszenia" },
     "close_solved": { "title": "Zamknij zgłoszenie, które pozostaje rozwiązane od 4 dni" },
-    "data_request_clock": { "title": "Ustaw termin rozwiązania na 30 dni, gdy zgłoszenie staje się wnioskiem RODO" },
+    "data_request_clock": {
+      "title": "Ustaw termin rozwiązania na 30 dni, gdy zgłoszenie staje się wnioskiem RODO",
+      "variants": {
+        "BR": {
+          "title": "Ustaw termin rozwiązania na 15 dni, gdy zgłoszenie staje się wnioskiem LGPD (Brazylia)",
+          "description": "Zgodnie z art. 19 LGPD pełna odpowiedź na wniosek o dostęp lub potwierdzenie przetwarzania jest należna w ciągu 15 dni."
+        }
+      }
+    },
     "known_issue_fixed": { "title": "Poinformuj klientów, gdy znany problem zostanie naprawiony" },
     "ticket_from_webhook": { "title": "Utwórz zgłoszenie, gdy inny system wyśle alert" }
   },

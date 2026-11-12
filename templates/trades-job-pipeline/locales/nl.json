@@ -92,16 +92,24 @@
     "warranty_and_service": { "title": "Garantie, gebreken en onderhoudscontracten", "sections": ["Hoe een gebrek wordt afgehandeld", "Een onderhoudscontract aanbieden en verlengen"] }
   },
   "rules": {
-    "enquiry_form_records": { "title": "Klant, locatie en opdracht aanmaken als het aanvraagformulier is ingediend" },
-    "call_back_new": { "title": "Een nieuwe aanvraag dezelfde dag terugbellen" },
-    "quote_after_visit": { "title": "De offerte binnen 2 dagen na de opname sturen" },
-    "quote_follow_up": { "title": "3 dagen na het versturen van een offerte opvolgen" },
-    "quote_expiring": { "title": "3 dagen voordat een offerte verloopt opvolgen" },
-    "withdrawal_clock": { "title": "Het einde van de bedenktijd van 14 dagen vastleggen als een opdracht is gewonnen" },
-    "payment_check": { "title": "Een gefactureerde opdracht 3 dagen na de betaaltermijn controleren" },
-    "warranty_check": { "title": "30 dagen voor het einde van de garantie naar gebreken vragen" },
-    "service_due": { "title": "Het onderhoudsbezoek 30 dagen voor de vervaldatum inplannen" },
-    "visit_calendar": { "title": "De opname in de agenda zetten als een opdracht de opnamefase bereikt" }
+    "enquiry_form_records": { "title": "Maak een klant, een locatie en een opdracht aan als het aanvraagformulier is ingediend" },
+    "call_back_new": { "title": "Bel een nieuwe aanvraag dezelfde dag terug" },
+    "quote_after_visit": { "title": "Stuur de offerte binnen 2 dagen na de opname" },
+    "quote_follow_up": { "title": "Volg een offerte 3 dagen na het versturen op" },
+    "quote_expiring": { "title": "Volg een offerte 3 dagen voordat ze verloopt op" },
+    "withdrawal_clock": {
+      "title": "Leg het einde van de bedenktijd van 14 dagen vast als een opdracht is gewonnen",
+      "variants": {
+        "BR": {
+          "title": "Leg het einde van de bedenktijd van 7 dagen vast als een opdracht is gewonnen (Brazilië)",
+          "description": "Volgens het Braziliaanse consumentenwetboek (CDC, art. 49) kan een klant binnen 7 dagen afzien als het contract buiten het bedrijfspand is gesloten, bijvoorbeeld bij hem thuis."
+        }
+      }
+    },
+    "payment_check": { "title": "Controleer een gefactureerde opdracht 3 dagen na de betaaltermijn" },
+    "warranty_check": { "title": "Vraag 30 dagen voor het einde van de garantie naar gebreken" },
+    "service_due": { "title": "Plan het onderhoudsbezoek 30 dagen voor de vervaldatum in" },
+    "visit_calendar": { "title": "Zet de opname in de agenda als een opdracht de opnamefase bereikt" }
   },
   "acceptanceChecks": {
     "stage_field": "Elke opdracht heeft een verkoopfase.",

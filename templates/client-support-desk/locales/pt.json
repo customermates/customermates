@@ -78,7 +78,15 @@
     "nudge_customer": { "title": "Lembrar o cliente após 3 dias de espera" },
     "send_survey": { "title": "Enviar a pesquisa de satisfação no dia seguinte à resolução" },
     "close_solved": { "title": "Fechar um chamado que ficou resolvido por 4 dias" },
-    "data_request_clock": { "title": "Definir a resolução em 30 dias quando um chamado vira solicitação LGPD" },
+    "data_request_clock": {
+      "title": "Definir a resolução em 30 dias quando um chamado vira solicitação de dados",
+      "variants": {
+        "BR": {
+          "title": "Definir a resolução em 15 dias quando um chamado vira solicitação LGPD",
+          "description": "Pelo art. 19 da LGPD, a resposta completa a um pedido de acesso ou de confirmação é devida em até 15 dias."
+        }
+      }
+    },
     "known_issue_fixed": { "title": "Avisar os clientes quando um problema conhecido é corrigido" },
     "ticket_from_webhook": { "title": "Abrir um chamado quando outro sistema envia um alerta" }
   },

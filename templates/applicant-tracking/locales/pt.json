@@ -87,7 +87,15 @@
     "collect_scorecards": { "title": "Coletar as avaliações no dia da entrevista" },
     "scorecard_reminder": { "title": "Lembrar o responsável no dia seguinte à entrevista" },
     "chase_offer": { "title": "Cobrar a resposta 5 dias depois de uma proposta" },
-    "rejection_retention": { "title": "Definir a guarda em 180 dias quando uma candidatura é reprovada" },
+    "rejection_retention": {
+      "title": "Definir a guarda em 180 dias quando uma candidatura é reprovada",
+      "variants": {
+        "PL": {
+          "title": "Definir a guarda em 30 dias quando uma candidatura é reprovada (Polônia: mais tempo só com consentimento)",
+          "description": "A autoridade polonesa de proteção de dados (UODO) espera que os dados do candidato sejam excluídos ao fim do processo, salvo consentimento para processos futuros. É um valor padrão: defina o prazo da sua própria política de retenção e, havendo consentimento, uma data posterior à mão."
+        }
+      }
+    },
     "job_filled_close": { "title": "Escrever aos demais candidatos quando uma vaga é preenchida" },
     "retention_review": { "title": "Revisar uma candidatura quando chegar a data de guarda" }
   },

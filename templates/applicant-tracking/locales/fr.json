@@ -87,7 +87,15 @@
     "collect_scorecards": { "title": "Recueillir les fiches d’entretien le jour de l’entretien" },
     "scorecard_reminder": { "title": "Relancer le responsable le lendemain d’un entretien" },
     "chase_offer": { "title": "Relancer pour la réponse 5 jours après une proposition" },
-    "rejection_retention": { "title": "Fixer la date de conservation à 180 jours quand une candidature est refusée" },
+    "rejection_retention": {
+      "title": "Fixer la date de conservation à 180 jours quand une candidature est refusée",
+      "variants": {
+        "PL": {
+          "title": "Fixer la date de conservation à 30 jours quand une candidature est refusée (Pologne : plus long seulement avec consentement)",
+          "description": "L’autorité polonaise de protection des données (UODO) attend que les données d’un candidat soient supprimées à la fin du recrutement, sauf si le candidat a consenti à de futurs recrutements. C’est une valeur par défaut : fixez le délai de votre propre politique de conservation et, en cas de consentement, une date plus tardive à la main."
+        }
+      }
+    },
     "job_filled_close": { "title": "Écrire aux autres candidats quand une offre est pourvue" },
     "retention_review": { "title": "Revoir une candidature quand sa date de conservation arrive" }
   },

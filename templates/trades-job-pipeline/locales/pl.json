@@ -97,7 +97,15 @@
     "quote_after_visit": { "title": "Wyślij ofertę w ciągu 2 dni od oględzin" },
     "quote_follow_up": { "title": "Przypomnij o ofercie 3 dni po jej wysłaniu" },
     "quote_expiring": { "title": "Przypomnij o ofercie 3 dni przed końcem jej ważności" },
-    "withdrawal_clock": { "title": "Ustaw koniec 14-dniowego terminu odstąpienia, gdy zlecenie zostanie przyjęte" },
+    "withdrawal_clock": {
+      "title": "Ustaw koniec 14-dniowego terminu odstąpienia, gdy zlecenie zostanie przyjęte",
+      "variants": {
+        "BR": {
+          "title": "Ustaw koniec 7-dniowego terminu odstąpienia, gdy zlecenie zostanie przyjęte (Brazylia)",
+          "description": "Zgodnie z brazylijskim kodeksem ochrony konsumenta (CDC, art. 49) klient może odstąpić od umowy w ciągu 7 dni, gdy zawarto ją poza lokalem przedsiębiorcy, na przykład w jego domu."
+        }
+      }
+    },
     "payment_check": { "title": "Sprawdź zafakturowane zlecenie 3 dni po terminie płatności" },
     "warranty_check": { "title": "Zapytaj o usterki 30 dni przed końcem rękojmi" },
     "service_due": { "title": "Umów wizytę serwisową 30 dni przed terminem" },

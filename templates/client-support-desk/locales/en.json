@@ -78,7 +78,15 @@
     "nudge_customer": { "title": "Nudge the customer after 3 days of waiting" },
     "send_survey": { "title": "Send the satisfaction survey the day after a ticket is solved" },
     "close_solved": { "title": "Close a ticket that stayed solved for 4 days" },
-    "data_request_clock": { "title": "Set the solution date to 30 days out when a ticket becomes a data request" },
+    "data_request_clock": {
+      "title": "Set the solution date to 30 days out when a ticket becomes a data request",
+      "variants": {
+        "BR": {
+          "title": "Set the solution date to 15 days out when a ticket becomes a data request (Brazil, LGPD)",
+          "description": "Under LGPD art. 19, a full answer to a data subject's access or confirmation request is due within 15 days."
+        }
+      }
+    },
     "known_issue_fixed": { "title": "Tell the customers when a known issue is fixed" },
     "ticket_from_webhook": { "title": "Create a ticket when another system sends an alert" }
   },

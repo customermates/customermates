@@ -82,14 +82,22 @@
     "candidate_messages": { "title": "Berichten aan kandidaten", "sections": ["Ontvangstbevestiging, uitnodiging, aanbod", "Afsluitend bericht voor elke afgewezen kandidaat"] }
   },
   "rules": {
-    "application_form_records": { "title": "Sollicitant en sollicitatie aanmaken zodra het sollicitatieformulier is ingediend" },
-    "acknowledge_application": { "title": "Een nieuwe sollicitatie binnen 2 dagen bevestigen" },
-    "collect_scorecards": { "title": "De beoordelingsformulieren verzamelen op de dag van het gesprek" },
-    "scorecard_reminder": { "title": "De verantwoordelijke de dag na een gesprek een herinnering sturen" },
-    "chase_offer": { "title": "5 dagen na een aanbod naar het antwoord vragen" },
-    "rejection_retention": { "title": "De bewaardatum op 180 dagen zetten als een sollicitatie wordt afgewezen" },
-    "job_filled_close": { "title": "De overige kandidaten een afsluitend bericht sturen als een vacature is vervuld" },
-    "retention_review": { "title": "Een sollicitatie nalopen als de bewaardatum is bereikt" }
+    "application_form_records": { "title": "Maak een sollicitant en een sollicitatie aan zodra het sollicitatieformulier is ingediend" },
+    "acknowledge_application": { "title": "Bevestig een nieuwe sollicitatie binnen 2 dagen" },
+    "collect_scorecards": { "title": "Verzamel de beoordelingsformulieren op de dag van het gesprek" },
+    "scorecard_reminder": { "title": "Stuur de verantwoordelijke de dag na een gesprek een herinnering" },
+    "chase_offer": { "title": "Vraag 5 dagen na een aanbod naar het antwoord" },
+    "rejection_retention": {
+      "title": "Zet de bewaardatum op 180 dagen als een sollicitatie wordt afgewezen",
+      "variants": {
+        "PL": {
+          "title": "Zet de bewaardatum op 30 dagen als een sollicitatie wordt afgewezen (Polen: langer alleen met toestemming)",
+          "description": "De Poolse toezichthouder (UODO) verwacht dat sollicitantgegevens worden verwijderd zodra de procedure is afgerond, tenzij de kandidaat toestemming gaf voor toekomstige procedures. Dit is een standaardwaarde: stel de termijn van je eigen bewaarbeleid in en bij toestemming handmatig een latere datum."
+        }
+      }
+    },
+    "job_filled_close": { "title": "Stuur de overige kandidaten een afsluitend bericht als een vacature is vervuld" },
+    "retention_review": { "title": "Loop een sollicitatie na als de bewaardatum is bereikt" }
   },
   "acceptanceChecks": {
     "stage_field": "Elke sollicitatie zit in een van de negen fasen.",

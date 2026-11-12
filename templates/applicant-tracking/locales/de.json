@@ -87,7 +87,15 @@
     "collect_scorecards": { "title": "Am Gesprächstag die Interviewbögen einsammeln" },
     "scorecard_reminder": { "title": "Den Zuständigen am Tag nach dem Gespräch erinnern" },
     "chase_offer": { "title": "5 Tage nach einem Angebot nach der Entscheidung fragen" },
-    "rejection_retention": { "title": "Löschdatum auf 180 Tage setzen, wenn eine Bewerbung abgelehnt wird" },
+    "rejection_retention": {
+      "title": "Löschdatum auf 180 Tage setzen, wenn eine Bewerbung abgelehnt wird",
+      "variants": {
+        "PL": {
+          "title": "Löschdatum auf 30 Tage setzen, wenn eine Bewerbung abgelehnt wird (Polen: länger nur mit Einwilligung)",
+          "description": "Die polnische Datenschutzbehörde (UODO) erwartet, dass Bewerberdaten nach Abschluss des Verfahrens gelöscht werden, außer der Bewerber hat in künftige Verfahren eingewilligt. Das ist ein Standardwert: Setze die Frist deiner eigenen Aufbewahrungsrichtlinie und bei Einwilligung ein späteres Datum von Hand."
+        }
+      }
+    },
     "job_filled_close": { "title": "Den übrigen Bewerbern absagen, wenn eine Stelle besetzt ist" },
     "retention_review": { "title": "Eine Bewerbung prüfen, wenn ihr Löschdatum erreicht ist" }
   },
@@ -100,8 +108,8 @@
     "intro": "Richte in meinem Customermates-Workspace ein Bewerbermanagement ein: Stellen mit Fachvorgesetztem und Gehaltsspanne, Bewerber, Bewerbungen durch neun Phasen, Interviewbögen, ein Löschdatum für Absagen und terminierte Folgeaufgaben.",
     "questions": [
       "Wie viele Stellen sind gleichzeitig offen, und wer stellt jeweils ein?",
-      "Woher kommen die Bewerber, und nutzen Sie ein Bewerbungsformular?",
-      "Wie lange bewahren Sie Absagen auf, und führen Sie einen Talentpool mit Einwilligung?",
+      "Woher kommen die Bewerber, und nutzt du ein Bewerbungsformular?",
+      "Wie lange bewahrst du Absagen auf, und führst du einen Talentpool mit Einwilligung?",
       "Welche Gesprächsrunden gibt es, und wer legt einen Interviewbogen ab?"
     ]
   }

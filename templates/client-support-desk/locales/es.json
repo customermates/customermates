@@ -78,7 +78,15 @@
     "nudge_customer": { "title": "Recordar al cliente tras 3 días de espera" },
     "send_survey": { "title": "Enviar la encuesta de satisfacción al día siguiente de resolver" },
     "close_solved": { "title": "Cerrar un ticket que lleva 4 días resuelto" },
-    "data_request_clock": { "title": "Fijar la resolución a 30 días cuando un ticket pasa a ser una solicitud de datos" },
+    "data_request_clock": {
+      "title": "Fijar la resolución a 30 días cuando un ticket pasa a ser una solicitud de datos",
+      "variants": {
+        "BR": {
+          "title": "Fijar la resolución a 15 días cuando un ticket pasa a ser una solicitud de datos (Brasil, LGPD)",
+          "description": "Según el art. 19 de la LGPD, la respuesta completa a una solicitud de acceso o de confirmación debe darse en 15 días."
+        }
+      }
+    },
     "known_issue_fixed": { "title": "Avisar a los clientes cuando se corrige una incidencia conocida" },
     "ticket_from_webhook": { "title": "Crear un ticket cuando otro sistema envía una alerta" }
   },

@@ -97,7 +97,15 @@
     "quote_after_visit": { "title": "Enviar el presupuesto en los 2 días siguientes a la visita" },
     "quote_follow_up": { "title": "Hacer seguimiento 3 días después de enviar un presupuesto" },
     "quote_expiring": { "title": "Hacer seguimiento 3 días antes de que venza un presupuesto" },
-    "withdrawal_clock": { "title": "Fijar el fin del plazo de desistimiento de 14 días cuando se acepta un trabajo" },
+    "withdrawal_clock": {
+      "title": "Fijar el fin del plazo de desistimiento de 14 días cuando se acepta un trabajo",
+      "variants": {
+        "BR": {
+          "title": "Fijar el fin del plazo de desistimiento de 7 días cuando se acepta un trabajo (Brasil)",
+          "description": "Según el código brasileño del consumidor (CDC, art. 49), el cliente puede desistir en 7 días cuando el contrato se firmó fuera del establecimiento, por ejemplo en su domicilio."
+        }
+      }
+    },
     "payment_check": { "title": "Comprobar un trabajo facturado 3 días después del vencimiento del pago" },
     "warranty_check": { "title": "Preguntar por defectos 30 días antes de que termine la garantía" },
     "service_due": { "title": "Concertar la visita de mantenimiento 30 días antes de su vencimiento" },

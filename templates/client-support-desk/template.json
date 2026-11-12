@@ -114,7 +114,7 @@
       "dueOffsetDays": 0,
       "needs": "rules"
     },
-    { "key": "data_request_clock", "trigger": { "kind": "field_changed", "field": "tickets.type", "to": "data_request" }, "action": { "kind": "set_dates", "dates": [{ "field": "tickets.resolution_due", "offsetDays": 30 }] }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "data_request_clock", "trigger": { "kind": "field_changed", "field": "tickets.type", "to": "data_request" }, "action": { "kind": "set_dates", "dates": [{ "field": "tickets.resolution_due", "offsetDays": 30 }] }, "dueOffsetDays": 0, "needs": "rules", "variants": { "BR": { "action": { "kind": "set_dates", "dates": [{ "field": "tickets.resolution_due", "offsetDays": 15 }] } } } },
     { "key": "known_issue_fixed", "trigger": { "kind": "field_changed", "field": "known_issues.status", "to": "fixed" }, "action": { "kind": "create_task", "taskKind": "tell_customer_fixed", "assignee": "record_owner", "about": "known_issues" }, "dueOffsetDays": 1, "needs": "rules" },
     { "key": "ticket_from_webhook", "trigger": { "kind": "webhook_received", "source": "monitoring" }, "action": { "kind": "create_records", "lists": ["tickets"] }, "dueOffsetDays": 0, "needs": "incomingWebhooks" }
   ],
@@ -133,7 +133,8 @@
     { "url": "https://smartsheet.com/solutions/help-desk-ticket-tracker-and-form", "checkedOn": "2026-11-12" },
     { "url": "https://www.freshworks.com/de/ticketing-system/free/", "checkedOn": "2026-11-12" },
     { "url": "https://www.edpb.europa.eu/system/files/2023-04/edpb_guidelines_202201_data_subject_rights_access_v2_en.pdf", "checkedOn": "2026-11-12" },
-    { "url": "https://www.planalto.gov.br/ccivil_03/_Ato2019-2022/2022/Decreto/D11034.htm", "checkedOn": "2026-11-12" }
+    { "url": "https://www.planalto.gov.br/ccivil_03/_Ato2019-2022/2022/Decreto/D11034.htm", "checkedOn": "2026-11-12" },
+    { "url": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm", "checkedOn": "2026-11-12" }
   ],
   "reviewedAt": "2026-11-12",
   "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },

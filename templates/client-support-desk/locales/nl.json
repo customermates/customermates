@@ -73,14 +73,22 @@
     "data_requests": { "title": "AVG-verzoeken", "sections": ["Identiteit controleren, registreren, binnen een maand antwoorden", "Wie beslist"] }
   },
   "rules": {
-    "ticket_created": { "title": "Een actie om te reageren aanmaken zodra een ticket binnenkomt" },
-    "first_response_missed": { "title": "De leiding waarschuwen als de eerste reactie te laat is" },
-    "nudge_customer": { "title": "De klant na 3 dagen wachten een herinnering sturen" },
-    "send_survey": { "title": "De dag na het oplossen de tevredenheidsenquête versturen" },
-    "close_solved": { "title": "Een ticket sluiten dat 4 dagen opgelost bleef" },
-    "data_request_clock": { "title": "De oplostermijn op 30 dagen zetten als een ticket een AVG-verzoek wordt" },
-    "known_issue_fixed": { "title": "Klanten informeren als een bekend probleem is opgelost" },
-    "ticket_from_webhook": { "title": "Een ticket aanmaken als een ander systeem een melding stuurt" }
+    "ticket_created": { "title": "Maak een actie om te reageren aan zodra een ticket binnenkomt" },
+    "first_response_missed": { "title": "Waarschuw de leiding als de eerste reactie te laat is" },
+    "nudge_customer": { "title": "Stuur de klant een herinnering na 3 dagen wachten" },
+    "send_survey": { "title": "Verstuur de dag na het oplossen de tevredenheidsenquête" },
+    "close_solved": { "title": "Sluit een ticket dat 4 dagen opgelost bleef" },
+    "data_request_clock": {
+      "title": "Zet de oplostermijn op 30 dagen als een ticket een AVG-verzoek wordt",
+      "variants": {
+        "BR": {
+          "title": "Zet de oplostermijn op 15 dagen als een ticket een LGPD-verzoek wordt (Brazilië)",
+          "description": "Volgens art. 19 LGPD is een volledig antwoord op een inzage- of bevestigingsverzoek binnen 15 dagen verschuldigd."
+        }
+      }
+    },
+    "known_issue_fixed": { "title": "Informeer klanten als een bekend probleem is opgelost" },
+    "ticket_from_webhook": { "title": "Maak een ticket aan als een ander systeem een melding stuurt" }
   },
   "acceptanceChecks": {
     "status_field": "Elk ticket heeft een status.",

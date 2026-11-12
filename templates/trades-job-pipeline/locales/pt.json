@@ -97,7 +97,15 @@
     "quote_after_visit": { "title": "Enviar o orçamento em até 2 dias depois da visita" },
     "quote_follow_up": { "title": "Fazer o retorno 3 dias depois de enviar um orçamento" },
     "quote_expiring": { "title": "Fazer o retorno 3 dias antes de um orçamento vencer" },
-    "withdrawal_clock": { "title": "Definir o fim do prazo de arrependimento quando um serviço é aprovado" },
+    "withdrawal_clock": {
+      "title": "Definir o fim do prazo de arrependimento de 14 dias quando um serviço é aprovado",
+      "variants": {
+        "BR": {
+          "title": "Definir o fim do prazo de arrependimento de 7 dias quando um serviço é aprovado",
+          "description": "Pelo Código de Defesa do Consumidor (art. 49), o cliente pode desistir em até 7 dias quando o contrato foi feito fora do estabelecimento, por exemplo na casa dele."
+        }
+      }
+    },
     "payment_check": { "title": "Conferir um serviço faturado 3 dias depois do vencimento do pagamento" },
     "warranty_check": { "title": "Perguntar sobre defeitos 30 dias antes do fim da garantia" },
     "service_due": { "title": "Marcar a visita de manutenção 30 dias antes do vencimento" },

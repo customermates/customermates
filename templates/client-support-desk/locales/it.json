@@ -78,7 +78,15 @@
     "nudge_customer": { "title": "Sollecitare il cliente dopo 3 giorni di attesa" },
     "send_survey": { "title": "Inviare il sondaggio di soddisfazione il giorno dopo la risoluzione" },
     "close_solved": { "title": "Chiudere un ticket rimasto risolto per 4 giorni" },
-    "data_request_clock": { "title": "Fissare la risoluzione a 30 giorni quando un ticket diventa una richiesta GDPR" },
+    "data_request_clock": {
+      "title": "Fissare la risoluzione a 30 giorni quando un ticket diventa una richiesta GDPR",
+      "variants": {
+        "BR": {
+          "title": "Fissare la risoluzione a 15 giorni quando un ticket diventa una richiesta LGPD (Brasile)",
+          "description": "Secondo l'art. 19 della LGPD, la risposta completa a una richiesta di accesso o di conferma va data entro 15 giorni."
+        }
+      }
+    },
     "known_issue_fixed": { "title": "Avvisare i clienti quando un problema noto è corretto" },
     "ticket_from_webhook": { "title": "Creare un ticket quando un altro sistema invia una segnalazione" }
   },

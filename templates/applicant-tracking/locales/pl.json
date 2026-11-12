@@ -87,7 +87,15 @@
     "collect_scorecards": { "title": "Zbierz karty ocen w dniu rozmowy" },
     "scorecard_reminder": { "title": "Przypomnij osobie odpowiedzialnej dzień po rozmowie" },
     "chase_offer": { "title": "Ponagl kandydata o odpowiedź 5 dni po złożeniu oferty" },
-    "rejection_retention": { "title": "Ustaw datę przechowywania na 180 dni po odrzuceniu aplikacji" },
+    "rejection_retention": {
+      "title": "Ustaw datę przechowywania na 180 dni po odrzuceniu aplikacji",
+      "variants": {
+        "PL": {
+          "title": "Ustaw datę przechowywania na 30 dni po odrzuceniu aplikacji (dłużej tylko za zgodą kandydata)",
+          "description": "Według poradnika UODO dane kandydata usuwa się po zakończeniu rekrutacji, chyba że kandydat zgodził się na udział w przyszłych rekrutacjach. To ustawienie domyślne: ustaw termin zgodny z polityką retencji firmy, a przy zgodzie kandydata późniejszą datę wpisz ręcznie."
+        }
+      }
+    },
     "job_filled_close": { "title": "Napisz do pozostałych kandydatów, gdy oferta zostanie obsadzona" },
     "retention_review": { "title": "Sprawdź aplikację, gdy nadejdzie jej data przechowywania" }
   },

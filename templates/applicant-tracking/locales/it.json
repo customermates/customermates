@@ -87,7 +87,15 @@
     "collect_scorecards": { "title": "Raccogliere le schede il giorno del colloquio" },
     "scorecard_reminder": { "title": "Ricordare al responsabile il giorno dopo il colloquio" },
     "chase_offer": { "title": "Sollecitare la risposta 5 giorni dopo un'offerta" },
-    "rejection_retention": { "title": "Impostare la data di conservazione a 180 giorni quando una candidatura viene scartata" },
+    "rejection_retention": {
+      "title": "Impostare la data di conservazione a 180 giorni quando una candidatura viene scartata",
+      "variants": {
+        "PL": {
+          "title": "Impostare la data di conservazione a 30 giorni quando una candidatura viene scartata (Polonia: più a lungo solo con consenso)",
+          "description": "L'autorità polacca per la protezione dei dati (UODO) si aspetta che i dati del candidato siano cancellati al termine della selezione, salvo consenso del candidato a selezioni future. È un valore predefinito: imposta il termine della tua politica di conservazione e, in caso di consenso, una data successiva a mano."
+        }
+      }
+    },
     "job_filled_close": { "title": "Scrivere agli altri candidati quando una posizione è coperta" },
     "retention_review": { "title": "Rivedere una candidatura quando arriva la data di conservazione" }
   },
