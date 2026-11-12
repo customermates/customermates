@@ -645,7 +645,6 @@ model WorkspaceSetup {
   userId           String
   status           WorkspaceSetupStatus @default(interview)
   websiteUrl       String?
-  templateSlug     String?              @db.VarChar(64)
   crawlId          String?
   answers          Json                 @default("{}")
   interview        Json                 @default("{}")
