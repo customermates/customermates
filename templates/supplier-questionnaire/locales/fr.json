@@ -2,7 +2,7 @@
   "locale": "fr",
   "name": "Questionnaire fournisseurs",
   "summary": "Un registre de fournisseurs avec questionnaire de qualification, documents et date de validité, niveau de risque, décision de référencement et date de la prochaine évaluation.",
-  "description": "Qualifiez fournisseurs et sous-traitants au même endroit : envoyez un questionnaire, collectez certificats et attestations avec leur date de validité, classez chaque fournisseur par niveau de risque, consignez la décision (référencer, référencer sous conditions, escalader, refuser) et voyez ce qui expire en premier. Le modèle coordonne les justificatifs. Il ne décide pas de la conformité juridique, ne filtre ni les sanctions ni le risque financier et ne remplace ni votre système qualité, ni votre ERP, ni votre archive de documents.",
+  "description": "Qualifiez fournisseurs et sous-traitants au même endroit : envoyez un questionnaire, collectez certificats et attestations avec leur date de validité, classez chaque fournisseur par niveau de risque, consignez la décision (référencer, référencer sous conditions, escalader, refuser) et voyez ce qui expire en premier. Il coordonne les justificatifs. Il ne décide pas de la conformité juridique, ne filtre ni les sanctions ni le risque financier et ne remplace ni votre système qualité, ni votre ERP, ni votre archive de documents.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes chez vos fournisseurs qui répondent aux questionnaires et envoient les documents." },
     "suppliers": { "label": "Fournisseur", "pluralLabel": "Fournisseurs", "description": "Chaque fournisseur ou sous-traitant, de candidat à référencé ou bloqué." },
@@ -17,7 +17,7 @@
     "contacts.language": { "label": "Langue" },
     "suppliers.status": {
       "label": "Statut",
-      "options": { "candidate": "Candidat", "questionnaire_sent": "Questionnaire envoyé", "under_review": "En revue", "approved": "Référencé", "approved_with_conditions": "Référencé sous conditions", "blocked": "Bloqué", "offboarded": "Sorti" }
+      "options": { "candidate": "Candidat", "questionnaire_sent": "Questionnaire envoyé", "under_review": "En revue", "approved": "Référencé", "approved_with_conditions": "Référencé sous conditions", "blocked": "Bloqué", "offboarded": "Déréférencé" }
     },
     "suppliers.risk_tier": { "label": "Niveau de risque", "options": { "low": "Faible", "moderate": "Modéré", "high": "Élevé", "critical": "Critique" } },
     "suppliers.category": {
@@ -27,7 +27,7 @@
     "suppliers.country": { "label": "Pays" },
     "suppliers.critical_supplier": { "label": "Fournisseur critique" },
     "suppliers.processes_personal_data": { "label": "Traite des données personnelles" },
-    "suppliers.review_owner": { "label": "Responsable de l'évaluation" },
+    "suppliers.review_owner": { "label": "Responsable de l’évaluation" },
     "suppliers.qualified_on": { "label": "Qualifié le" },
     "suppliers.next_review": { "label": "Prochaine évaluation" },
     "questionnaires.kind": {
@@ -46,11 +46,11 @@
       "label": "Décision",
       "options": { "approve": "Référencer", "approve_with_conditions": "Référencer sous conditions", "escalate": "Escalader", "reject": "Refuser" }
     },
-    "questionnaires.reviewer": { "label": "Examinateur" },
+    "questionnaires.reviewer": { "label": "Évaluateur" },
     "questionnaires.form_link": { "label": "Lien du formulaire" },
     "documents.doc_type": {
       "label": "Type de document",
-      "options": { "quality_certificate": "Certificat qualité", "environmental_certificate": "Certificat environnemental", "security_certificate": "Certificat de sécurité", "insurance": "Attestation d'assurance", "tax_clearance": "Attestation fiscale", "registration_extract": "Extrait Kbis", "data_processing_agreement": "Accord de sous-traitance des données", "other": "Autre" }
+      "options": { "quality_certificate": "Certificat qualité", "environmental_certificate": "Certificat environnemental", "security_certificate": "Certificat de sécurité", "insurance": "Attestation d’assurance", "tax_clearance": "Attestation fiscale", "registration_extract": "Extrait Kbis", "data_processing_agreement": "Contrat de sous-traitance des données", "other": "Autre" }
     },
     "documents.status": {
       "label": "Statut",
@@ -58,7 +58,7 @@
     },
     "documents.requested_on": { "label": "Demandé le" },
     "documents.received_on": { "label": "Reçu le" },
-    "documents.valid_until": { "label": "Valable jusqu'au" },
+    "documents.valid_until": { "label": "Valable jusqu’au" },
     "documents.evidence_link": { "label": "Lien vers le fichier" },
     "actions.kind": {
       "label": "Type",
@@ -82,7 +82,7 @@
   },
   "views": {
     "suppliers_all": { "name": "Tous les fournisseurs" },
-    "suppliers_board": { "name": "Tableau de qualification" },
+    "suppliers_board": { "name": "Board de qualification" },
     "documents_all": { "name": "Tous les documents" },
     "expired_documents": { "name": "Expirés ou refusés" },
     "questionnaires_all": { "name": "Tous les questionnaires" },
@@ -99,29 +99,29 @@
   "knowledgePages": {
     "qualification_process": { "title": "Procédure de qualification des fournisseurs", "sections": ["Besoin, critères et qui valide", "Questionnaire, documents, décision"] },
     "document_requirements": { "title": "Certificats et attestations demandés", "sections": ["Par catégorie et niveau de risque", "Durée de validité de chacun"] },
-    "re_evaluation": { "title": "Calendrier de réévaluation", "sections": ["Dates d'évaluation par niveau de risque", "Événements qui déclenchent une évaluation anticipée"] }
+    "re_evaluation": { "title": "Calendrier de réévaluation", "sections": ["Dates d’évaluation par niveau de risque", "Événements qui déclenchent une évaluation anticipée"] }
   },
   "rules": {
-    "chase_questionnaire": { "title": "Relancer le fournisseur quand l'échéance d'un questionnaire est dépassée" },
-    "review_answers": { "title": "Examiner les réponses 3 jours après la réception d'un questionnaire" },
+    "chase_questionnaire": { "title": "Relancer le fournisseur quand l’échéance d’un questionnaire est dépassée" },
+    "review_answers": { "title": "Examiner les réponses 3 jours après la réception d’un questionnaire" },
     "renew_document": { "title": "Demander un document renouvelé 30 jours avant son expiration" },
     "document_expiry_notice": { "title": "Prévenir le responsable quand un document expire" },
     "re_evaluate_supplier": { "title": "Lancer une réévaluation 14 jours avant la prochaine évaluation" },
-    "decide_after_review": { "title": "Décider sous 5 jours quand un fournisseur passe en revue" },
+    "decide_after_review": { "title": "Décider sous 5 jours quand un fournisseur passe à « En revue »" },
     "registration_form_records": { "title": "Créer le fournisseur et le contact quand le formulaire de référencement est envoyé" }
   },
   "acceptanceChecks": {
     "status_field": "Chaque fournisseur a un statut de qualification.",
-    "valid_until_field": "Chaque document indique jusqu'à quand il est valable.",
-    "suppliers_board_view": "Les fournisseurs s'ouvrent en tableau par statut."
+    "valid_until_field": "Chaque document indique jusqu’à quand il est valable.",
+    "suppliers_board_view": "Les fournisseurs s’ouvrent en board par statut."
   },
   "prompt": {
-    "intro": "Mets en place dans mon espace Customermates un registre de fournisseurs : fournisseurs avec niveau de risque et statut de qualification, questionnaires avec échéances et décision, documents avec date de validité et relances datées.",
+    "intro": "Mets en place dans mon espace de travail Customermates un registre de fournisseurs : fournisseurs avec niveau de risque et statut de qualification, questionnaires avec échéances et décision, documents avec date de validité et relances datées.",
     "questions": [
-      "Combien de fournisseurs avez-vous, et comment les répartissez-vous par niveau de risque ?",
-      "Quels certificats ou attestations demandez-vous, et quelle est la durée de validité de chacun ?",
-      "Qui examine les réponses et qui référence un fournisseur ?",
-      "À quelle fréquence réévaluez-vous un fournisseur ? Les fichiers restent dans votre système de documents, seul un lien est conservé ici."
+      "Combien de fournisseurs avez-vous, et comment les répartissez-vous par niveau de risque ?",
+      "Quels certificats ou attestations demandez-vous, et quelle est la durée de validité de chacun ?",
+      "Qui examine les réponses et qui référence un fournisseur ?",
+      "À quelle fréquence réévaluez-vous un fournisseur ? Les fichiers restent dans votre système de documents, seul un lien est conservé ici."
     ]
   }
 }
