@@ -71,6 +71,11 @@ const nextConfig: NextConfig = {
   compress: true,
 
   outputFileTracingIncludes: {
+    // The template bundles and the raw docs manifest are read from disk at run time (core/utils/runtime-json.ts) and
+    // are not in the webpack graph: as JSON modules they were emitted once per server layer and chunk group (the
+    // manifest four to six times, 7 to 8 MB each) and, with the rest of the branch's growth, took the Vercel build
+    // over its heap. Any route can reach them through the dependency container, so every route keeps them.
+    "/**": ["./core/templates/bundles/*.json", "./generated/raw-docs-manifest.json"],
     "/.well-known/workflow/v1/flow": [
       "./node_modules/quickjs-wasi/package.json",
       "./node_modules/quickjs-wasi/dist/*.js",

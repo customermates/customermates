@@ -47,5 +47,6 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/generated ./generated
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/core/fumadocs ./core/fumadocs
+COPY --from=builder /app/core/templates/bundles ./core/templates/bundles
 EXPOSE 4000
 CMD ["sh", "-c", "npx prisma migrate deploy && yarn workflow:setup && exec yarn start"]
