@@ -211,12 +211,12 @@
       "description": "Each Friday, one review Action lists counts and value per stage and owner, won and lost deals with reasons, and deals past their expected close."
     },
     "enquiry_form_records": {
-      "title": "Create the contact, account and opportunity from an enquiry",
-      "description": "A web enquiry form creates the contact, the account and an opportunity in the New stage."
+      "title": "Create the contact, account and opportunity from an inquiry",
+      "description": "A web inquiry form creates the contact, the account and an opportunity in the New stage."
     },
     "enquiry_form_notice": {
-      "title": "Tell the owner about the enquiry",
-      "description": "The owner is notified of every new enquiry."
+      "title": "Tell the owner about the inquiry",
+      "description": "The owner is notified of every new inquiry."
     },
     "fill_missing_value": {
       "title": "Fill in the value of this deal",

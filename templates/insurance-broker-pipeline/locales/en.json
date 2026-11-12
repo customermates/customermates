@@ -93,7 +93,7 @@
     "policy_data_rules": { "title": "Policy data: what lives in the agency system", "sections": ["Policy truth and commission statements stay in the agency system", "What this workspace keeps and what it never holds"] }
   },
   "rules": {
-    "enquiry_form_records": { "title": "Create the contact and the opportunity when the enquiry form is submitted" },
+    "enquiry_form_records": { "title": "Create the contact and the opportunity when the inquiry form is submitted" },
     "respond_new_lead": { "title": "Respond to a new lead the next day" },
     "needs_analysis_task": { "title": "Record the advice within 3 days when an opportunity reaches needs analysis" },
     "quotes_chase": { "title": "Chase the insurers 3 days after quotes are requested" },

@@ -162,12 +162,12 @@
       "description": "Ninety days after a client becomes Inactive, a check-in Action asks the reactivation question."
     },
     "enquiry_form_records": {
-      "title": "Create the client and the contact from an enquiry",
-      "description": "A public enquiry form creates a client as Prospect and its contact."
+      "title": "Create the client and the contact from an inquiry",
+      "description": "A public inquiry form creates a client as Prospect and its contact."
     },
     "enquiry_form_reply": {
-      "title": "Reply to the enquiry",
-      "description": "Every enquiry gets a reply Action due the next day."
+      "title": "Reply to the inquiry",
+      "description": "Every inquiry gets a reply Action due the next day."
     },
     "weekly_client_review": {
       "title": "Weekly client review",

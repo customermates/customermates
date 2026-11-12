@@ -69,7 +69,7 @@
     "when_to_hire": { "title": "When to hire the first salesperson", "sections": ["Signals that the sale repeats without you", "What to hand over first"] }
   },
   "rules": {
-    "enquiry_form_records": { "title": "Create the contact, the company and the opportunity when the enquiry form is submitted" },
+    "enquiry_form_records": { "title": "Create the contact, the company and the opportunity when the inquiry form is submitted" },
     "recap_reply": { "title": "Reply with a personal recap and one next step the day after a conversation starts" },
     "discovery_proposal": { "title": "Send the pilot plan or proposal 2 days after discovery is done" },
     "pilot_start_check": { "title": "Check on the pilot 14 days after it starts" },

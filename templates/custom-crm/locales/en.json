@@ -77,7 +77,7 @@
     "next_step_notice": { "title": "Tell the owner when a next step is due" },
     "expected_close_passed": { "title": "Review an open opportunity the day after its expected close" },
     "weekly_review": { "title": "Run the weekly review every Friday" },
-    "enquiry_form_records": { "title": "Create the contact, organization and opportunity from an enquiry form" },
+    "enquiry_form_records": { "title": "Create the contact, organization and opportunity from an inquiry form" },
     "webhook_upsert": { "title": "Create or update records from the old tool through an incoming webhook" }
   },
   "acceptanceChecks": {

@@ -1,8 +1,8 @@
 {
   "locale": "en",
   "name": "Form to CRM",
-  "summary": "Turn web form enquiries into worked leads: a request for every submission with its source, a reply due, a stage from new to converted, and spam and not-a-fit kept apart.",
-  "description": "Every enquiry from a contact, quote or intake form becomes a request linked to a contact, with the form it came from, where the visitor arrived from, when it is needed and a reply due the next day. Requests move from new to converted, not a fit or spam, and a request nobody answered is flagged. Consent and a review date are kept for the data you collect. It is not a form builder for payments, quizzes or file uploads of sensitive documents.",
+  "summary": "Turn web form inquiries into worked leads: a request for every submission with its source, a reply due, a stage from new to converted, and spam and not-a-fit kept apart.",
+  "description": "Every inquiry from a contact, quote or intake form becomes a request linked to a contact, with the form it came from, where the visitor arrived from, when it is needed and a reply due the next day. Requests move from new to converted, not a fit or spam, and a request nobody answered is flagged. Consent and a review date are kept for the data you collect. It is not a form builder for payments, quizzes or file uploads of sensitive documents.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "The people who write to you through a form." },
     "requests": { "label": "Request", "pluralLabel": "Requests", "description": "One form submission, from new to converted, not a fit or spam." }
@@ -62,11 +62,11 @@
   },
   "knowledgePages": {
     "form_playbook": { "title": "Form to CRM playbook", "sections": ["Which forms we run and who answers", "How fast we reply"] },
-    "privacy_notice": { "title": "Privacy notice for forms", "sections": ["What we tell people at the form", "How long we keep an enquiry"] },
+    "privacy_notice": { "title": "Privacy notice for forms", "sections": ["What we tell people at the form", "How long we keep an inquiry"] },
     "spam_and_duplicates": { "title": "Spam and repeat submissions", "sections": ["What counts as spam", "What we do when the same person writes again"] }
   },
   "rules": {
-    "enquiry_form_records": { "title": "Create the contact and the request when the enquiry form is submitted" },
+    "enquiry_form_records": { "title": "Create the contact and the request when the inquiry form is submitted" },
     "reply_task": { "title": "Create a reply task, due the next day, when a request is created" },
     "first_response_missed": { "title": "Notify the lead when a request is still new a day after it was submitted" },
     "chase_contacted": { "title": "Chase a contacted request that has not moved for 3 days" },
@@ -83,7 +83,7 @@
   "prompt": {
     "intro": "Set up form to CRM in my Customermates workspace: a request for every form submission with its source, a reply due, six stages, consent and a data review date, and dated follow-ups.",
     "questions": [
-      "Which forms do you run, and what do you need to know to price or route an enquiry?",
+      "Which forms do you run, and what do you need to know to price or route an inquiry?",
       "Who answers, and how fast do you promise to reply?",
       "What do you tell people about their data at the form?",
       "Do you use another form tool such as Typeform, Tally or Jotform?"

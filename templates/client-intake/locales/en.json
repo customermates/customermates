@@ -1,19 +1,19 @@
 {
   "locale": "en",
   "name": "Client intake and onboarding",
-  "summary": "One intake per engagement: enquiry, screening, form, document requests, agreement and kickoff, with a dated step at every stage and a reason when you decline.",
+  "summary": "One intake per engagement: inquiry, screening, form, document requests, agreement and kickoff, with a dated step at every stage and a reason when you decline.",
   "description": "A short pipeline for taking on a new client: reply within a day, screen for fit, send the intake form, collect documents, send the agreement, start. Regulated professions can record who verified identity and when, never the document itself. Not an e-signature, KYC or payment tool.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "The people at each client: primary, billing, signatory." },
     "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Companies, sole traders and individuals you take on." },
-    "intakes": { "label": "Intake", "pluralLabel": "Intakes", "description": "One intake per engagement, from enquiry to onboarded or declined." },
+    "intakes": { "label": "Intake", "pluralLabel": "Intakes", "description": "One intake per engagement, from inquiry to onboarded or declined." },
     "document_requests": { "label": "Document request", "pluralLabel": "Document requests", "description": "One row per document you ask a client for." }
   },
   "fields": {
     "intakes.stage": {
       "label": "Stage",
       "options": {
-        "enquiry": "Enquiry",
+        "enquiry": "Inquiry",
         "screening": "Screening",
         "form_sent": "Intake form sent",
         "review_checks": "Review and checks",
@@ -144,7 +144,7 @@
   "widgets": {
     "intakes_by_stage": { "title": "Open intakes by stage" },
     "open_intakes_by_owner": { "title": "Open intakes per owner" },
-    "enquiries_without_reply": { "title": "Enquiries without a first response" },
+    "enquiries_without_reply": { "title": "Inquiries without a first response" },
     "documents_outstanding": { "title": "Documents outstanding" },
     "awaiting_signature_count": { "title": "Awaiting signature" },
     "average_days_to_reply": { "title": "Average days to first response" },
@@ -179,7 +179,7 @@
     }
   },
   "rules": {
-    "reply_to_enquiry": { "title": "Reply to the enquiry", "description": "A new intake gets a reply Action due the next day." },
+    "reply_to_enquiry": { "title": "Reply to the inquiry", "description": "A new intake gets a reply Action due the next day." },
     "chase_form": { "title": "Chase the intake form", "description": "Three days after the form is sent, a chase Action falls due." },
     "chase_document": { "title": "Chase the missing document", "description": "When the needed-by date of an open document request is reached, a chase Action is created." },
     "review_received_document": { "title": "Review the received document", "description": "When a document is marked received, a review Action is due the next day." },
@@ -188,7 +188,7 @@
     "kickoff_event": { "title": "Put the kickoff in the calendar", "description": "When the kickoff date is set, the event is written to the owner's calendar." },
     "first_value_check": { "title": "Check the first result", "description": "Fourteen days after onboarding, a check Action asks whether the client has seen a first result." },
     "stalled_intake": { "title": "Review the stalled intake", "description": "An open intake that stayed in the same stage for 7 days gets a review Action." },
-    "intake_form_records": { "title": "Create the client, contact and intake from the form", "description": "A public intake form creates the client, the contact and an intake in the Enquiry stage." },
+    "intake_form_records": { "title": "Create the client, contact and intake from the form", "description": "A public intake form creates the client, the contact and an intake in the Inquiry stage." },
     "intake_form_notice": { "title": "Tell the owner about the new intake", "description": "The workspace owner is notified of every submission." }
   },
   "acceptanceChecks": {

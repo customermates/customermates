@@ -7,7 +7,7 @@
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Owners, landlords, buyers, tenants and referrers." },
     "organizations": { "label": "Organization", "pluralLabel": "Organizations", "description": "Developers, lenders, notaries and referral partners." },
     "listings": { "label": "Listing", "pluralLabel": "Listings", "description": "The owner mandate and its pipeline. Value is the expected commission." },
-    "buyer_searches": { "label": "Buyer search", "pluralLabel": "Buyer searches", "description": "One buyer or tenant search, from enquiry to closing." },
+    "buyer_searches": { "label": "Buyer search", "pluralLabel": "Buyer searches", "description": "One buyer or tenant search, from inquiry to closing." },
     "viewings": { "label": "Viewing", "pluralLabel": "Viewings", "description": "Every viewing with its feedback." },
     "key_dates": { "label": "Key date", "pluralLabel": "Key dates", "description": "Dates that run after the contract is signed." },
     "actions": { "label": "Task", "pluralLabel": "Tasks", "description": "One dated next step per open listing or buyer search." }
@@ -337,7 +337,7 @@
     },
     "weekly_owner_update": {
       "title": "Send the owner update",
-      "description": "Each week, a listing on the market gets a task to report viewings, feedback and enquiries to the owner."
+      "description": "Each week, a listing on the market gets a task to report viewings, feedback and inquiries to the owner."
     },
     "viewing_feedback": {
       "title": "Collect the viewing feedback and send it to the owner",
@@ -419,13 +419,13 @@
       "It does not manage transactions, escrow or e-signature. Contracts and signatures stay with your notary and your signing tool.",
       "It is not property management: rent, maintenance and tenant accounts are a separate job.",
       "It does not value properties and does not do accounting or commission splits.",
-      "It sends nothing automatically. WhatsApp enquiries arrive in the inbox and replies are drafts you review.",
+      "It sends nothing automatically. WhatsApp inquiries arrive in the inbox and replies are drafts you review.",
       "Keep copies of identity documents, income and bank records out of it. The template stores only the date on which identification was verified."
     ],
     "faq": [
       {
         "question": "Why two pipelines for a real estate agent?",
-        "answer": "Owners and buyers move through different steps. The owner side runs from valuation and listing proposal to a signed agreement and being on the market; the buyer side from enquiry through viewings to an offer. They meet at the contract, where the key dates are shared."
+        "answer": "Owners and buyers move through different steps. The owner side runs from valuation and listing proposal to a signed agreement and being on the market; the buyer side from inquiry through viewings to an offer. They meet at the contract, where the key dates are shared."
       },
       {
         "question": "Which dates does the template track?",
@@ -433,7 +433,7 @@
       },
       {
         "question": "Can I use it with my property software or portal?",
-        "answer": "Yes. The portals and your own software keep the listing data and publishing. The template is the pipeline, key-date and follow-up layer next to them, and leads from portals reach you by email in your connected inbox or through an incoming webhook, while WhatsApp enquiries arrive in the inbox once the account is connected."
+        "answer": "Yes. The portals and your own software keep the listing data and publishing. The template is the pipeline, key-date and follow-up layer next to them, and leads from portals reach you by email in your connected inbox or through an incoming webhook, while WhatsApp inquiries arrive in the inbox once the account is connected."
       },
       {
         "question": "Does the agent contact owners or buyers?",
@@ -446,7 +446,7 @@
     "questions": [
       "Do you work for owners, for buyers or for both? Do you sell, let or both?",
       "In which country do you work, and which agreement types do you use there?",
-      "How do enquiries reach you: property portals, your website, WhatsApp or referrals?",
+      "How do inquiries reach you: property portals, your website, WhatsApp or referrals?",
       "Which software holds your listings and publishes them to portals? A reference to it is kept here, nothing is copied.",
       "Which key dates matter in your contracts, for example deposit, financing, inspection or notary?"
     ]
