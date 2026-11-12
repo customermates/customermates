@@ -61,7 +61,7 @@ const REFERENCES = [
     name: "Apple",
     takes: [
       "Scale and whitespace: big confident type, one message per viewport.",
-      "Frosted sticky navigation over the page.",
+      "Sticky navigation on a solid bar, so nothing shows through it while scrolling.",
       "Scroll-driven reveals that ease content into place.",
       "Generous touch targets on phones (44 px and up).",
     ],

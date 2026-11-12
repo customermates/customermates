@@ -167,4 +167,30 @@ test.describe("public navbar", () => {
       await visitor.close();
     }
   });
+
+  test("stays solid so cards scrolled under it do not show through", async ({ browser }, testInfo) => {
+    const visitor = await anonymous(browser, testInfo);
+    try {
+      const { page } = visitor;
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto("/en/pricing");
+      const header = page.locator("[data-public-scrollport] > header");
+      await expect(page.locator('[data-pricing-featured="true"]')).toBeVisible();
+      await page.locator("[data-public-scrollport]").evaluate((scrollport) => {
+        scrollport.scrollTop = 400;
+      });
+
+      const surface = await header.evaluate((element) => {
+        const style = getComputedStyle(element);
+        const probe = document.createElement("canvas").getContext("2d")!;
+        probe.fillStyle = style.backgroundColor;
+        probe.fillRect(0, 0, 1, 1);
+        return { alpha: probe.getImageData(0, 0, 1, 1).data[3], backdrop: style.backdropFilter };
+      });
+      expect(surface).toEqual({ alpha: 255, backdrop: "none" });
+      expect(visitor.errors).toEqual([]);
+    } finally {
+      await visitor.close();
+    }
+  });
 });
