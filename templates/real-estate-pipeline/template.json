@@ -1,0 +1,685 @@
+{
+  "id": "tpl_real_estate_pipeline",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "real-estate-pipeline",
+  "family": "property",
+  "kind": "pipeline",
+  "jurisdictions": ["global"],
+  "dashboardAudience": "team",
+  "modules": ["actions_core"],
+  "requiresCapabilities": ["rules", "calendarWrite", "notifications", "incomingWebhooks"],
+  "pairedPages": { "en": "/for/real-estate", "de": "/for/real-estate" },
+  "lists": [
+    { "key": "contacts", "role": "people", "icon": "contact" },
+    { "key": "organizations", "icon": "building" },
+    { "key": "listings", "role": "deals", "icon": "home" },
+    { "key": "buyer_searches", "icon": "target" },
+    { "key": "viewings", "icon": "calendarCheck" },
+    { "key": "key_dates", "icon": "alarm" }
+  ],
+  "stages": [
+    {
+      "field": "listings.stage",
+      "items": [
+        { "key": "owner_lead", "outcome": "open", "weight": 5 },
+        { "key": "valuation", "outcome": "open", "weight": 15 },
+        { "key": "listing_proposal_sent", "outcome": "open", "weight": 35 },
+        { "key": "agreement_signed", "outcome": "open", "weight": 60 },
+        { "key": "on_market", "outcome": "open", "weight": 70 },
+        { "key": "offer_stage", "outcome": "open", "weight": 85 },
+        { "key": "under_contract", "outcome": "open", "weight": 95 },
+        { "key": "completed", "outcome": "won", "weight": 100 },
+        { "key": "lost", "outcome": "lost", "weight": 0 }
+      ]
+    },
+    {
+      "field": "buyer_searches.stage",
+      "items": [
+        { "key": "new_lead", "outcome": "open", "weight": 5 },
+        { "key": "qualified", "outcome": "open", "weight": 20 },
+        { "key": "viewing", "outcome": "open", "weight": 40 },
+        { "key": "offer_made", "outcome": "open", "weight": 65 },
+        { "key": "under_contract", "outcome": "open", "weight": 90 },
+        { "key": "completed", "outcome": "won", "weight": 100 },
+        { "key": "lost", "outcome": "lost", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    {
+      "key": "contacts.contact_role",
+      "type": "select",
+      "options": [
+        { "key": "seller" },
+        { "key": "landlord" },
+        { "key": "buyer" },
+        { "key": "tenant" },
+        { "key": "investor" },
+        { "key": "referrer" },
+        { "key": "other" }
+      ]
+    },
+    {
+      "key": "contacts.preferred_channel",
+      "type": "select",
+      "options": [{ "key": "email" }, { "key": "phone" }, { "key": "whatsapp" }, { "key": "portal" }]
+    },
+    { "key": "contacts.language", "type": "text" },
+    { "key": "contacts.marketing_consent_on", "type": "date" },
+    { "key": "contacts.last_contact", "type": "date" },
+    {
+      "key": "organizations.org_type",
+      "type": "select",
+      "options": [
+        { "key": "developer" },
+        { "key": "investor" },
+        { "key": "bank_or_lender" },
+        { "key": "notary_or_lawyer" },
+        { "key": "referral_partner" },
+        { "key": "other" }
+      ]
+    },
+    { "key": "organizations.website", "type": "url" },
+    {
+      "key": "listings.transaction_type",
+      "type": "select",
+      "options": [{ "key": "sale" }, { "key": "let" }]
+    },
+    { "key": "listings.address", "type": "address" },
+    {
+      "key": "listings.property_type",
+      "type": "select",
+      "options": [
+        { "key": "apartment" },
+        { "key": "house" },
+        { "key": "land" },
+        { "key": "commercial" },
+        { "key": "parking_or_storage" },
+        { "key": "other" }
+      ]
+    },
+    { "key": "listings.size_m2", "type": "number" },
+    { "key": "listings.rooms", "type": "number" },
+    { "key": "listings.asking_price", "type": "currency" },
+    {
+      "key": "listings.source",
+      "type": "select",
+      "options": [
+        { "key": "referral" },
+        { "key": "portal" },
+        { "key": "web_form" },
+        { "key": "whatsapp" },
+        { "key": "canvassing" },
+        { "key": "past_client" },
+        { "key": "expired_listing" }
+      ]
+    },
+    {
+      "key": "listings.agreement_type",
+      "type": "select",
+      "options": [{ "key": "open" }, { "key": "sole_agency" }, { "key": "exclusive" }]
+    },
+    { "key": "listings.agreement_start", "type": "date" },
+    { "key": "listings.agreement_end", "type": "date" },
+    { "key": "listings.commission_rate", "type": "number" },
+    { "key": "listings.first_response_on", "type": "date" },
+    { "key": "listings.valuation_on", "type": "date" },
+    { "key": "listings.proposal_sent_on", "type": "date" },
+    { "key": "listings.signed_on", "type": "date" },
+    { "key": "listings.live_on", "type": "date" },
+    { "key": "listings.first_offer_on", "type": "date" },
+    { "key": "listings.contract_signed_on", "type": "date" },
+    { "key": "listings.completion_on", "type": "date" },
+    { "key": "listings.energy_label", "type": "text" },
+    { "key": "listings.listing_url", "type": "url" },
+    { "key": "listings.external_id", "type": "text" },
+    { "key": "listings.aml_checked_on", "type": "date" },
+    { "key": "listings.next_step", "type": "text" },
+    { "key": "listings.next_step_due", "type": "date" },
+    {
+      "key": "listings.lost_reason",
+      "type": "select",
+      "options": [
+        { "key": "price_too_high" },
+        { "key": "chose_other_agent" },
+        { "key": "owner_changed_mind" },
+        { "key": "sold_privately" },
+        { "key": "agreement_expired" },
+        { "key": "unrealistic_expectations" }
+      ]
+    },
+    {
+      "key": "buyer_searches.source",
+      "type": "select",
+      "options": [
+        { "key": "portal" },
+        { "key": "web_form" },
+        { "key": "whatsapp" },
+        { "key": "referral" },
+        { "key": "walk_in" },
+        { "key": "past_client" }
+      ]
+    },
+    { "key": "buyer_searches.criteria", "type": "richText" },
+    { "key": "buyer_searches.budget_max", "type": "currency" },
+    {
+      "key": "buyer_searches.financing",
+      "type": "select",
+      "options": [{ "key": "cash" }, { "key": "pre_approved" }, { "key": "mortgage_needed" }, { "key": "unknown" }]
+    },
+    { "key": "buyer_searches.preapproval_verified_on", "type": "date" },
+    {
+      "key": "buyer_searches.timeframe",
+      "type": "select",
+      "options": [{ "key": "asap" }, { "key": "three_months" }, { "key": "six_months" }, { "key": "later" }]
+    },
+    { "key": "buyer_searches.first_response_on", "type": "date" },
+    { "key": "buyer_searches.last_activity_on", "type": "date" },
+    { "key": "buyer_searches.aml_checked_on", "type": "date" },
+    { "key": "buyer_searches.next_step", "type": "text" },
+    { "key": "buyer_searches.next_step_due", "type": "date" },
+    {
+      "key": "buyer_searches.lost_reason",
+      "type": "select",
+      "options": [
+        { "key": "bought_elsewhere" },
+        { "key": "financing_failed" },
+        { "key": "stopped_searching" },
+        { "key": "no_response" },
+        { "key": "chose_other_agent" }
+      ]
+    },
+    { "key": "viewings.viewing_on", "type": "dateTime" },
+    {
+      "key": "viewings.interest",
+      "type": "select",
+      "options": [{ "key": "none" }, { "key": "low" }, { "key": "medium" }, { "key": "high" }, { "key": "offer" }]
+    },
+    { "key": "viewings.feedback", "type": "richText" },
+    { "key": "viewings.feedback_sent_on", "type": "date" },
+    {
+      "key": "key_dates.kind",
+      "type": "select",
+      "options": [
+        { "key": "reservation_deposit_due" },
+        { "key": "financing_deadline" },
+        { "key": "inspection_deadline" },
+        { "key": "cooling_off_ends" },
+        { "key": "notary_appointment" },
+        { "key": "handover" },
+        { "key": "other" }
+      ]
+    },
+    { "key": "key_dates.due_date", "type": "date" },
+    {
+      "key": "key_dates.status",
+      "type": "select",
+      "options": [{ "key": "open" }, { "key": "done", "color": "success" }, { "key": "waived", "color": "secondary" }]
+    },
+    { "key": "key_dates.source_ref", "type": "text" },
+    { "key": "key_dates.verified_by", "type": "member" },
+    {
+      "key": "actions.kind",
+      "type": "select",
+      "options": [
+        { "key": "call" },
+        { "key": "viewing" },
+        { "key": "valuation" },
+        { "key": "listing_proposal" },
+        { "key": "offer" },
+        { "key": "key_date" },
+        { "key": "owner_update" },
+        { "key": "nurture" },
+        { "key": "other" }
+      ]
+    }
+  ],
+  "calculations": [
+    {
+      "key": "listings.days_to_first_offer",
+      "type": "number",
+      "expression": { "op": "daysBetween", "from": "listings.live_on", "to": "listings.first_offer_on" }
+    }
+  ],
+  "relationships": [
+    { "key": "contact_organization", "source": "contacts", "target": "organizations", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "listing_owner", "source": "listings", "target": "contacts", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "listing_referrer", "source": "listings", "target": "contacts", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "buyer_search_contact", "source": "buyer_searches", "target": "contacts", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "buyer_search_listing", "source": "buyer_searches", "target": "listings", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "viewing_listing", "source": "viewings", "target": "listings", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "viewing_buyer_search", "source": "viewings", "target": "buyer_searches", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "key_date_listing", "source": "key_dates", "target": "listings", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "key_date_buyer_search", "source": "key_dates", "target": "buyer_searches", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_contact", "source": "actions", "target": "contacts", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_listing", "source": "actions", "target": "listings", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_buyer_search", "source": "actions", "target": "buyer_searches", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_viewing", "source": "actions", "target": "viewings", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    {
+      "key": "listings_board",
+      "list": "listings",
+      "default": true,
+      "layout": "board",
+      "groupBy": "listings.stage",
+      "sort": { "field": "listings.next_step_due", "direction": "asc" },
+      "columns": ["listings.asking_price", "listings.agreement_end", "listings.next_step_due"],
+      "summaries": [{ "field": "listings.value", "aggregation": "sum" }]
+    },
+    {
+      "key": "listings_all",
+      "list": "listings",
+      "default": false,
+      "layout": "table",
+      "sort": { "field": "listings.next_step_due", "direction": "asc" },
+      "columns": [
+        "listings.stage",
+        "listings.transaction_type",
+        "listings.address",
+        "listings.asking_price",
+        "listings.agreement_end",
+        "listings.next_step_due"
+      ]
+    },
+    {
+      "key": "agreements_ending",
+      "list": "listings",
+      "default": false,
+      "layout": "table",
+      "sort": { "field": "listings.agreement_end", "direction": "asc" },
+      "filters": [
+        { "operator": "in", "field": "listings.stage", "options": ["on_market"] },
+        { "operator": "notEmpty", "field": "listings.agreement_end" }
+      ]
+    },
+    {
+      "key": "buyer_board",
+      "list": "buyer_searches",
+      "default": true,
+      "layout": "board",
+      "groupBy": "buyer_searches.stage",
+      "sort": { "field": "buyer_searches.next_step_due", "direction": "asc" },
+      "columns": ["buyer_searches.budget_max", "buyer_searches.financing", "buyer_searches.timeframe", "buyer_searches.next_step_due"]
+    },
+    {
+      "key": "leads_not_contacted",
+      "list": "buyer_searches",
+      "default": false,
+      "layout": "table",
+      "filters": [
+        { "operator": "in", "field": "buyer_searches.stage", "options": ["new_lead"] },
+        { "operator": "empty", "field": "buyer_searches.first_response_on" }
+      ]
+    },
+    {
+      "key": "viewings_all",
+      "list": "viewings",
+      "default": true,
+      "layout": "table",
+      "sort": { "field": "viewings.viewing_on", "direction": "asc" },
+      "columns": ["viewings.viewing_on", "viewings.interest", "viewings.feedback_sent_on"]
+    },
+    {
+      "key": "key_dates_all",
+      "list": "key_dates",
+      "default": true,
+      "layout": "table",
+      "sort": { "field": "key_dates.due_date", "direction": "asc" },
+      "columns": ["key_dates.kind", "key_dates.due_date", "key_dates.status", "key_dates.verified_by"]
+    },
+    {
+      "key": "actions_all",
+      "list": "actions",
+      "default": true,
+      "layout": "table",
+      "sort": { "field": "actions.due", "direction": "asc" },
+      "columns": ["actions.due", "actions.status", "actions.kind", "actions.owner"]
+    },
+    {
+      "key": "actions_overdue",
+      "list": "actions",
+      "default": false,
+      "layout": "table",
+      "sort": { "field": "actions.due", "direction": "asc" },
+      "filters": [
+        { "operator": "in", "field": "actions.status", "options": ["open"] },
+        { "operator": "inLastDays", "field": "actions.due", "days": 3650 }
+      ]
+    },
+    {
+      "key": "contacts_all",
+      "list": "contacts",
+      "default": true,
+      "layout": "table",
+      "columns": ["contacts.contact_role", "contacts.preferred_channel", "contacts.language", "contacts.last_contact"]
+    },
+    {
+      "key": "organizations_all",
+      "list": "organizations",
+      "default": true,
+      "layout": "table",
+      "columns": ["organizations.org_type", "organizations.website"]
+    }
+  ],
+  "widgets": [
+    {
+      "kind": "chart",
+      "key": "listings_by_stage",
+      "list": "listings",
+      "aggregation": "sum",
+      "valueField": "listings.value",
+      "groupBy": { "field": "listings.stage" },
+      "display": "verticalBarChart"
+    },
+    {
+      "kind": "chart",
+      "key": "buyers_by_stage",
+      "list": "buyer_searches",
+      "aggregation": "count",
+      "groupBy": { "field": "buyer_searches.stage" },
+      "display": "horizontalBarChart"
+    },
+    { "kind": "calendar", "key": "viewings_coming", "list": "viewings", "layout": "upcoming", "dateField": "viewings.viewing_on" },
+    {
+      "kind": "calendar",
+      "key": "agreements_ending_soon",
+      "list": "listings",
+      "layout": "upcoming",
+      "dateField": "listings.agreement_end",
+      "filters": [{ "operator": "in", "field": "listings.stage", "options": ["on_market"] }]
+    },
+    {
+      "kind": "calendar",
+      "key": "key_dates_next",
+      "list": "key_dates",
+      "layout": "upcoming",
+      "dateField": "key_dates.due_date",
+      "filters": [{ "operator": "in", "field": "key_dates.status", "options": ["open"] }]
+    },
+    {
+      "kind": "chart",
+      "key": "commission_per_month",
+      "list": "listings",
+      "aggregation": "sum",
+      "valueField": "listings.value",
+      "groupBy": { "field": "listings.completion_on", "dateInterval": "month" },
+      "filters": [{ "operator": "in", "field": "listings.stage", "options": ["completed"] }],
+      "display": "areaChart"
+    },
+    {
+      "kind": "chart",
+      "key": "new_leads_not_contacted",
+      "list": "buyer_searches",
+      "aggregation": "count",
+      "filters": [
+        { "operator": "in", "field": "buyer_searches.stage", "options": ["new_lead"] },
+        { "operator": "empty", "field": "buyer_searches.first_response_on" }
+      ],
+      "display": "number"
+    },
+    {
+      "kind": "chart",
+      "key": "listing_lost_reasons",
+      "list": "listings",
+      "aggregation": "count",
+      "groupBy": { "field": "listings.lost_reason" },
+      "display": "doughnutChart"
+    },
+    {
+      "kind": "chart",
+      "key": "days_live_to_offer",
+      "list": "listings",
+      "aggregation": "average",
+      "valueField": "listings.days_to_first_offer",
+      "display": "number"
+    },
+    {
+      "kind": "chart",
+      "key": "lead_sources",
+      "list": "listings",
+      "aggregation": "count",
+      "groupBy": { "field": "listings.source" },
+      "display": "doughnutChart"
+    },
+    {
+      "kind": "chart",
+      "key": "under_contract_count",
+      "list": "listings",
+      "aggregation": "count",
+      "filters": [{ "operator": "in", "field": "listings.stage", "options": ["under_contract"] }],
+      "display": "number"
+    },
+    {
+      "kind": "calendar",
+      "key": "actions_due",
+      "list": "actions",
+      "layout": "upcoming",
+      "dateField": "actions.due",
+      "filters": [{ "operator": "in", "field": "actions.status", "options": ["open", "waiting"] }]
+    }
+  ],
+  "knowledgePages": [
+    { "key": "operating_guide", "kind": "overview" },
+    { "key": "lead_response", "kind": "salesPlaybook" },
+    { "key": "valuation_checklist", "kind": "processes" },
+    { "key": "agreement_checklist", "kind": "processes" },
+    { "key": "marketing_launch", "kind": "processes" },
+    { "key": "viewing_routine", "kind": "processes" },
+    { "key": "offer_handling", "kind": "processes" },
+    { "key": "under_contract_timeline", "kind": "processes" },
+    { "key": "closing_handover", "kind": "processes" },
+    { "key": "past_client_routine", "kind": "processes" },
+    { "key": "message_templates", "kind": "salesPlaybook" },
+    { "key": "data_rules", "kind": "processes" }
+  ],
+  "followUpRules": [
+    {
+      "key": "portal_lead_contact",
+      "trigger": { "kind": "webhook_received", "source": "portal" },
+      "action": { "kind": "create_task", "taskKind": "call", "assignee": "workspace_owner", "about": "contacts" },
+      "dueOffsetDays": 0,
+      "needs": "incomingWebhooks"
+    },
+    {
+      "key": "prepare_valuation",
+      "trigger": { "kind": "field_changed", "field": "listings.stage", "to": "valuation" },
+      "action": { "kind": "create_task", "taskKind": "valuation", "assignee": "record_owner", "about": "listings" },
+      "dueOffsetDays": 1,
+      "needs": "rules"
+    },
+    {
+      "key": "send_listing_proposal",
+      "trigger": { "kind": "date_reached", "field": "listings.valuation_on", "offsetDays": 0 },
+      "condition": [{ "operator": "in", "field": "listings.stage", "options": ["valuation"] }],
+      "action": { "kind": "create_task", "taskKind": "listing_proposal", "assignee": "record_owner", "about": "listings" },
+      "dueOffsetDays": 1,
+      "needs": "rules"
+    },
+    {
+      "key": "proposal_message_day_2",
+      "trigger": { "kind": "field_changed", "field": "listings.stage", "to": "listing_proposal_sent" },
+      "action": { "kind": "create_task", "taskKind": "other", "assignee": "record_owner", "about": "listings" },
+      "dueOffsetDays": 2,
+      "needs": "rules"
+    },
+    {
+      "key": "proposal_call_day_5",
+      "trigger": { "kind": "field_changed", "field": "listings.stage", "to": "listing_proposal_sent" },
+      "action": { "kind": "create_task", "taskKind": "call", "assignee": "record_owner", "about": "listings" },
+      "dueOffsetDays": 5,
+      "needs": "rules"
+    },
+    {
+      "key": "proposal_final_call_day_10",
+      "trigger": { "kind": "field_changed", "field": "listings.stage", "to": "listing_proposal_sent" },
+      "action": { "kind": "create_task", "taskKind": "call", "assignee": "record_owner", "about": "listings" },
+      "dueOffsetDays": 10,
+      "needs": "rules"
+    },
+    {
+      "key": "prepare_property",
+      "trigger": { "kind": "field_changed", "field": "listings.stage", "to": "agreement_signed" },
+      "action": { "kind": "create_task", "taskKind": "other", "assignee": "record_owner", "about": "listings" },
+      "dueOffsetDays": 3,
+      "needs": "rules"
+    },
+    {
+      "key": "agreement_end_review",
+      "trigger": { "kind": "date_reached", "field": "listings.agreement_end", "offsetDays": -30 },
+      "condition": [{ "operator": "in", "field": "listings.stage", "options": ["on_market"] }],
+      "action": { "kind": "create_task", "taskKind": "owner_update", "assignee": "record_owner", "about": "listings" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    {
+      "key": "agreement_end_notice",
+      "trigger": { "kind": "date_reached", "field": "listings.agreement_end", "offsetDays": -7 },
+      "condition": [{ "operator": "in", "field": "listings.stage", "options": ["on_market"] }],
+      "action": { "kind": "notify", "recipient": "record_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    {
+      "key": "weekly_owner_update",
+      "trigger": { "kind": "schedule", "every": "week", "list": "listings" },
+      "condition": [{ "operator": "in", "field": "listings.stage", "options": ["on_market"] }],
+      "action": { "kind": "create_task", "taskKind": "owner_update", "assignee": "record_owner", "about": "listings" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    {
+      "key": "viewing_feedback",
+      "trigger": { "kind": "date_reached", "field": "viewings.viewing_on", "offsetDays": 0 },
+      "condition": [{ "operator": "empty", "field": "viewings.feedback" }],
+      "action": { "kind": "create_task", "taskKind": "owner_update", "assignee": "workspace_owner", "about": "viewings" },
+      "dueOffsetDays": 1,
+      "needs": "rules"
+    },
+    {
+      "key": "offer_notice",
+      "trigger": { "kind": "field_changed", "field": "listings.stage", "to": "offer_stage" },
+      "action": { "kind": "notify", "recipient": "record_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    {
+      "key": "listing_key_dates",
+      "trigger": { "kind": "field_changed", "field": "listings.stage", "to": "under_contract" },
+      "action": { "kind": "create_records", "lists": ["key_dates"] },
+      "dueOffsetDays": 1,
+      "needs": "rules"
+    },
+    {
+      "key": "buyer_key_dates",
+      "trigger": { "kind": "field_changed", "field": "buyer_searches.stage", "to": "under_contract" },
+      "action": { "kind": "create_records", "lists": ["key_dates"] },
+      "dueOffsetDays": 1,
+      "needs": "rules"
+    },
+    {
+      "key": "key_date_calendar",
+      "trigger": { "kind": "record_created", "list": "key_dates" },
+      "action": { "kind": "add_calendar_event", "dateField": "key_dates.due_date" },
+      "dueOffsetDays": 0,
+      "needs": "calendarWrite"
+    },
+    {
+      "key": "key_date_reminder",
+      "trigger": { "kind": "date_reached", "field": "key_dates.due_date", "offsetDays": -2 },
+      "condition": [{ "operator": "in", "field": "key_dates.status", "options": ["open"] }],
+      "action": { "kind": "notify", "recipient": "record_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    {
+      "key": "completed_handover",
+      "trigger": { "kind": "field_changed", "field": "listings.stage", "to": "completed" },
+      "action": { "kind": "create_task", "taskKind": "other", "assignee": "record_owner", "about": "listings" },
+      "dueOffsetDays": 7,
+      "needs": "rules"
+    },
+    {
+      "key": "completed_anniversary",
+      "trigger": { "kind": "field_changed", "field": "listings.stage", "to": "completed" },
+      "action": { "kind": "create_task", "taskKind": "nurture", "assignee": "record_owner", "about": "listings" },
+      "dueOffsetDays": 365,
+      "needs": "rules"
+    },
+    {
+      "key": "identify_before_contract",
+      "trigger": { "kind": "field_changed", "field": "listings.stage", "to": "offer_stage" },
+      "action": { "kind": "create_task", "taskKind": "other", "assignee": "record_owner", "about": "listings" },
+      "dueOffsetDays": 1,
+      "needs": "rules"
+    },
+    {
+      "key": "identify_buyer_offer",
+      "trigger": { "kind": "field_changed", "field": "buyer_searches.stage", "to": "offer_made" },
+      "action": { "kind": "create_task", "taskKind": "other", "assignee": "record_owner", "about": "buyer_searches" },
+      "dueOffsetDays": 1,
+      "needs": "rules"
+    },
+    {
+      "key": "buyer_re_engage",
+      "trigger": { "kind": "schedule", "every": "week", "weekday": 1, "list": "buyer_searches" },
+      "condition": [
+        { "operator": "in", "field": "buyer_searches.stage", "options": ["viewing"] },
+        { "operator": "olderThanDays", "field": "buyer_searches.last_activity_on", "days": 7 }
+      ],
+      "action": { "kind": "create_task", "taskKind": "nurture", "assignee": "record_owner", "about": "buyer_searches" },
+      "dueOffsetDays": 0,
+      "needs": "today"
+    },
+    {
+      "key": "listing_price_review",
+      "trigger": { "kind": "schedule", "every": "week", "weekday": 1, "list": "listings" },
+      "condition": [{ "operator": "in", "field": "listings.stage", "options": ["on_market"] }],
+      "action": { "kind": "create_task", "taskKind": "owner_update", "assignee": "record_owner", "about": "listings" },
+      "dueOffsetDays": 0,
+      "needs": "today"
+    },
+    {
+      "key": "past_client_monthly_touch",
+      "trigger": { "kind": "schedule", "every": "week", "weekday": 1, "list": "contacts" },
+      "condition": [{ "operator": "olderThanDays", "field": "contacts.last_contact", "days": 30 }],
+      "action": { "kind": "create_task", "taskKind": "nurture", "assignee": "workspace_owner", "about": "contacts" },
+      "dueOffsetDays": 3,
+      "needs": "today"
+    }
+  ],
+  "acceptanceChecks": [
+    { "key": "listing_stage_field", "kind": "field_exists", "ref": "listings.stage" },
+    { "key": "buyer_stage_field", "kind": "field_exists", "ref": "buyer_searches.stage" },
+    { "key": "agreement_end_field", "kind": "field_exists", "ref": "listings.agreement_end" },
+    { "key": "key_dates_list", "kind": "list_exists", "ref": "key_dates" },
+    { "key": "listings_board_view", "kind": "view_exists", "ref": "listings_board" },
+    { "key": "operating_guide_page", "kind": "page_exists", "ref": "operating_guide" }
+  ],
+  "sources": [
+    { "url": "https://prospeo.io/s/real-estate-pipeline-stages", "checkedOn": "2026-11-12" },
+    { "url": "https://www.serif.ai/guides/real-estate-transaction-coordinator-checklist", "checkedOn": "2026-11-12" },
+    { "url": "https://www.agendor.com.br/blog/funil-de-vendas-imobiliario/", "checkedOn": "2026-11-12" },
+    { "url": "https://monday.com/crm/marketplace/template/comprehensive-real-estate-crm-solution", "checkedOn": "2026-11-12" },
+    { "url": "https://wiseagent.com/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.salesforce.com/crm/real-estate-crm/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.la-boite-immo.com/logiciel-immobilier", "checkedOn": "2026-11-12" },
+    {
+      "url": "https://economie.gouv.fr/dgccrf/les-fiches-pratiques-et-les-faq/lagent-immobilier-les-regles-qui-encadrent-la-profession",
+      "checkedOn": "2026-11-12"
+    },
+    { "url": "https://www.aroundhome.de/immobilienverkauf/maklervertrag/", "checkedOn": "2026-11-12" },
+    { "url": "https://realadvisor.it/it/blog/mandato-agenzia-immobiliare-e-vendita-privata", "checkedOn": "2026-11-12" },
+    { "url": "https://realadvisor.es/es/pro/blog/modelo-de-encargo-de-venta-exclusivo", "checkedOn": "2026-11-12" },
+    { "url": "https://sonarhome.pl/blog/artykuly/umowa-posrednictwa-na-wylacznosc-a-otwarta-umowa-posrednictwa", "checkedOn": "2026-11-12" },
+    {
+      "url": "https://mooijekindvleut.nl/app/uploads/2025/10/Stappenplan-Alles-over-een-Huis-Verkopen-Mooijekind-Vleut-Makelaars.pdf",
+      "checkedOn": "2026-11-12"
+    },
+    { "url": "https://www.chavesnamao.com.br/blog/mercado-imobiliario/funil-imobiliario/", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft" },
+  "publicPage": { "en": "proof", "de": "proof" }
+}

@@ -1,0 +1,248 @@
+{
+  "locale": "en",
+  "name": "Sales pipeline",
+  "summary": "Seven stages with exit criteria and weights, a dated next step on every open deal, lost and won reasons, and a stage change that creates the next Action.",
+  "description": "A pipeline for a small sales team: five open stages, Won and Lost, a weighted value per deal, the buying committee on the deal, a lost reason and a won reason, and the weekly review. Weights are a pipeline weighting, not a forecast: replace them with your own close rates after 20 to 30 closed deals.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "The people on the buying side, with their role in the decision." },
+    "accounts": { "label": "Account", "pluralLabel": "Accounts", "description": "The companies you sell to." },
+    "opportunities": { "label": "Opportunity", "pluralLabel": "Opportunities", "description": "One deal, from first contact to won or lost." }
+  },
+  "fields": {
+    "opportunities.stage": {
+      "label": "Stage",
+      "options": {
+        "new": "New",
+        "qualified": "Qualified",
+        "discovery": "Discovery",
+        "proposal_sent": "Proposal sent",
+        "negotiation": "Negotiation",
+        "won": "Won",
+        "lost": "Lost"
+      }
+    },
+    "contacts.job_title": { "label": "Job title" },
+    "contacts.buying_role": {
+      "label": "Buying role",
+      "options": {
+        "decision_maker": "Decision maker",
+        "budget_holder": "Budget holder",
+        "champion": "Champion",
+        "influencer": "Influencer",
+        "user": "User",
+        "blocker": "Blocker"
+      }
+    },
+    "contacts.language": { "label": "Language" },
+    "contacts.outreach_consent": { "label": "Outreach consent" },
+    "accounts.relationship": {
+      "label": "Relationship",
+      "options": { "prospect": "Prospect", "customer": "Customer", "former_customer": "Former customer", "partner": "Partner" }
+    },
+    "accounts.size": {
+      "label": "Size",
+      "options": { "micro": "1 to 10", "small": "11 to 50", "medium": "51 to 250", "large": "251 and more" }
+    },
+    "accounts.industry": { "label": "Industry" },
+    "accounts.website": { "label": "Website" },
+    "accounts.address": { "label": "Address" },
+    "accounts.owner": { "label": "Owner" },
+    "opportunities.owner": { "label": "Owner" },
+    "opportunities.deal_type": {
+      "label": "Deal type",
+      "options": { "new_business": "New business", "expansion": "Expansion", "renewal": "Renewal" }
+    },
+    "opportunities.source": {
+      "label": "Source",
+      "options": {
+        "referral": "Referral",
+        "inbound": "Inbound",
+        "outbound": "Outbound",
+        "event": "Event",
+        "partner": "Partner",
+        "existing_customer": "Existing customer",
+        "other": "Other"
+      }
+    },
+    "opportunities.first_contact_on": { "label": "First contact" },
+    "opportunities.expected_close": { "label": "Expected close" },
+    "opportunities.closed_on": { "label": "Closed on" },
+    "opportunities.next_step": { "label": "Next step" },
+    "opportunities.next_step_due": { "label": "Next step due" },
+    "opportunities.decision_date": { "label": "Decision date" },
+    "opportunities.competitor": { "label": "Competitor" },
+    "opportunities.lost_reason": {
+      "label": "Lost reason",
+      "options": {
+        "price": "Price",
+        "competitor": "Competitor",
+        "no_budget_or_decision": "No budget or decision",
+        "timing": "Timing",
+        "no_response": "No response",
+        "not_a_fit": "Not a fit",
+        "other": "Other"
+      }
+    },
+    "opportunities.won_reason": { "label": "Won reason" },
+    "opportunities.weighted_value": { "label": "Weighted value" },
+    "opportunities.cycle_days": { "label": "Cycle in days" },
+    "actions.kind": {
+      "label": "Kind",
+      "options": {
+        "call": "Call",
+        "email": "Email",
+        "meeting": "Meeting",
+        "proposal": "Proposal",
+        "follow_up": "Follow-up",
+        "handover": "Handover",
+        "review": "Review",
+        "other": "Other"
+      }
+    }
+  },
+  "relationships": {
+    "contact_account": { "sourceLabel": "Account", "targetLabel": "Contacts" },
+    "opportunity_account": { "sourceLabel": "Account", "targetLabel": "Opportunities" },
+    "opportunity_contacts": { "sourceLabel": "Buying committee", "targetLabel": "Opportunities" },
+    "action_opportunity": { "sourceLabel": "Opportunity", "targetLabel": "Actions" },
+    "action_contact": { "sourceLabel": "Contact", "targetLabel": "Actions" }
+  },
+  "views": {
+    "pipeline_board": { "name": "Pipeline" },
+    "opportunities_all": { "name": "All opportunities" },
+    "no_next_step": { "name": "No next step" },
+    "won_handover": { "name": "Won, to hand over" },
+    "lost_to_revisit": { "name": "Lost, to revisit" },
+    "actions_all": { "name": "All actions" },
+    "accounts_all": { "name": "All accounts" },
+    "contacts_all": { "name": "All contacts" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Open opportunities by stage" },
+    "open_value_by_stage": { "title": "Open value by stage" },
+    "weighted_value_by_stage": { "title": "Weighted value by stage" },
+    "open_opportunities": { "title": "Open opportunities" },
+    "open_value": { "title": "Open value" },
+    "open_weighted_value": { "title": "Open weighted value" },
+    "won_last_90_days": { "title": "Won in the last 90 days" },
+    "lost_reasons": { "title": "Lost reasons" },
+    "pipeline_by_owner": { "title": "Open value by owner" },
+    "deals_without_next_step": { "title": "Deals without a next step" },
+    "upcoming_actions": { "title": "Upcoming and overdue actions" },
+    "expected_closes": { "title": "Expected closes" }
+  },
+  "knowledgePages": {
+    "stages_exit_criteria": {
+      "title": "Sales stages and exit criteria",
+      "sections": ["Entry and exit criterion per stage", "Who may move a deal and on what evidence", "Weights and when to replace them"]
+    },
+    "qualification_questions": {
+      "title": "Qualification questions",
+      "sections": ["Budget, authority, need and timing", "What happens if the prospect does nothing", "Who else decides"]
+    },
+    "proposal_cadence": {
+      "title": "Proposal and follow-up cadence",
+      "sections": ["Follow up after 3 and after 10 days", "One closing message", "Then a callback date"]
+    },
+    "weekly_review": {
+      "title": "Weekly pipeline review",
+      "sections": ["Stale deals", "Deals past their expected close", "Deals without a next step", "Top five by weighted value"]
+    },
+    "win_loss_review": {
+      "title": "Win and loss review",
+      "sections": ["Read the lost reasons and competitors each month", "Read the won reasons", "One improvement Action"]
+    },
+    "message_templates": {
+      "title": "Follow-up message templates",
+      "sections": ["First reply", "After discovery", "Proposal cover note", "Proposal chase", "Closing: the timing may not be right", "Revisit after 90 days"]
+    }
+  },
+  "rules": {
+    "qualify_new_opportunity": {
+      "title": "Qualify the new opportunity",
+      "description": "A new opportunity gets a call Action due the next day."
+    },
+    "book_discovery_call": {
+      "title": "Book the discovery call",
+      "description": "When a deal becomes Qualified, a meeting Action is due in 3 days."
+    },
+    "send_proposal": {
+      "title": "Send the proposal",
+      "description": "When a deal reaches Discovery, a proposal Action is due in 5 days."
+    },
+    "follow_up_proposal": {
+      "title": "Follow up on the proposal",
+      "description": "Three days after the proposal is sent, a follow-up Action falls due."
+    },
+    "second_proposal_follow_up": {
+      "title": "Second follow-up on the proposal",
+      "description": "Ten days after the proposal is sent, a second follow-up Action falls due. Close it if the prospect has already replied."
+    },
+    "confirm_decision": {
+      "title": "Confirm the decision date and the decision maker",
+      "description": "When a deal reaches Negotiation, a follow-up Action is due in 5 days."
+    },
+    "won_close_date": {
+      "title": "Set the close date",
+      "description": "When a deal is won, Closed on is set to today."
+    },
+    "won_handover": {
+      "title": "Hand the won deal over",
+      "description": "A handover Action is due the day after a deal is won. Record the won reason."
+    },
+    "lost_revisit": {
+      "title": "Revisit the lost deal",
+      "description": "Ninety days after a deal is lost, a follow-up Action asks whether the timing has changed. Record the lost reason first."
+    },
+    "stale_deal_sweep": {
+      "title": "Revive or disqualify the stale deal",
+      "description": "An open deal that stayed in the same stage for 14 days gets a follow-up Action."
+    },
+    "expected_close_passed": {
+      "title": "Update the expected close or close the deal",
+      "description": "When the expected close date of an open deal has passed, a review Action is created."
+    },
+    "next_step_due_notice": {
+      "title": "Tell the owner that a next step is due",
+      "description": "When the next step date of an open deal is reached, the owner is notified."
+    },
+    "weekly_pipeline_report": {
+      "title": "Weekly pipeline report",
+      "description": "Each Friday, one review Action lists counts and value per stage and owner, won and lost deals with reasons, and deals past their expected close."
+    },
+    "enquiry_form_records": {
+      "title": "Create the contact, account and opportunity from an enquiry",
+      "description": "A web enquiry form creates the contact, the account and an opportunity in the New stage."
+    },
+    "enquiry_form_notice": {
+      "title": "Tell the owner about the enquiry",
+      "description": "The owner is notified of every new enquiry."
+    },
+    "fill_missing_value": {
+      "title": "Fill in the value of this deal",
+      "description": "A deal that reaches Discovery without a value gets a review Action."
+    },
+    "fill_expected_close": {
+      "title": "Fill in the expected close of this deal",
+      "description": "A deal that reaches Proposal sent without an expected close date gets a review Action."
+    }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Every opportunity has one of seven stages.",
+    "weighted_value_field": "Every opportunity shows its weighted value.",
+    "pipeline_board_view": "The opportunity list opens as a board by stage with totals.",
+    "funnel_widget": "The dashboard shows open opportunities by stage as a funnel.",
+    "proposal_follow_up_rule": "A deal that reaches Proposal sent gets a follow-up Action.",
+    "stages_page": "The Knowledge Base holds the stages and their exit criteria."
+  },
+  "prompt": {
+    "intro": "Set up a sales pipeline in my Customermates workspace: opportunities with seven stages and weights, a weighted value, a dated next step on every open deal, lost and won reasons, the buying committee on each deal, and an Action created at every stage change.",
+    "questions": [
+      "What do you sell, and how many people sell it?",
+      "What does a deal go through from first contact to signature? Which of the seven stages fit, and which need other names?",
+      "How long does a typical deal take, and how many days without movement should count as stale?",
+      "Which close rates do you have from past deals? If none, the default weights stay.",
+      "Where do you make quotes? They stay there, and only a link is kept here."
+    ]
+  }
+}

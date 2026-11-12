@@ -1,0 +1,413 @@
+{
+  "locale": "en",
+  "name": "Real estate pipeline",
+  "summary": "Two pipelines that meet at the contract: win and market the listing, and work the buyer, with viewings, key dates and a routine for past clients.",
+  "description": "A real estate practice runs an owner side (valuation, listing agreement, marketing, offers) and a buyer side (lead, qualification, viewings, offer), then one shared under-contract phase with hard dates. This template tracks both, the agreement type and its end date, every viewing with its feedback, the key dates after signature and a dated routine for past clients. Value on a listing holds the expected commission.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Owners, landlords, buyers, tenants and referrers." },
+    "organizations": { "label": "Organization", "pluralLabel": "Organizations", "description": "Developers, lenders, notaries and referral partners." },
+    "listings": { "label": "Listing", "pluralLabel": "Listings", "description": "The owner mandate and its pipeline. Value is the expected commission." },
+    "buyer_searches": { "label": "Buyer search", "pluralLabel": "Buyer searches", "description": "One buyer or tenant search, from enquiry to closing." },
+    "viewings": { "label": "Viewing", "pluralLabel": "Viewings", "description": "Every viewing with its feedback." },
+    "key_dates": { "label": "Key date", "pluralLabel": "Key dates", "description": "Dates that run after the contract is signed." },
+    "actions": { "label": "Task", "pluralLabel": "Tasks", "description": "One dated next step per open listing or buyer search." }
+  },
+  "fields": {
+    "listings.stage": {
+      "label": "Stage",
+      "options": {
+        "owner_lead": "Owner lead",
+        "valuation": "Valuation",
+        "listing_proposal_sent": "Listing proposal sent",
+        "agreement_signed": "Agreement signed",
+        "on_market": "On the market",
+        "offer_stage": "Offer stage",
+        "under_contract": "Under contract",
+        "completed": "Completed",
+        "lost": "Lost"
+      }
+    },
+    "buyer_searches.stage": {
+      "label": "Stage",
+      "options": {
+        "new_lead": "New lead",
+        "qualified": "Qualified",
+        "viewing": "Viewing",
+        "offer_made": "Offer made",
+        "under_contract": "Under contract",
+        "completed": "Completed",
+        "lost": "Lost"
+      }
+    },
+    "contacts.contact_role": {
+      "label": "Role",
+      "options": {
+        "seller": "Seller",
+        "landlord": "Landlord",
+        "buyer": "Buyer",
+        "tenant": "Tenant",
+        "investor": "Investor",
+        "referrer": "Referrer",
+        "other": "Other"
+      }
+    },
+    "contacts.preferred_channel": {
+      "label": "Preferred channel",
+      "options": { "email": "Email", "phone": "Phone", "whatsapp": "WhatsApp", "portal": "Portal" }
+    },
+    "contacts.language": { "label": "Language" },
+    "contacts.marketing_consent_on": { "label": "Marketing consent on" },
+    "contacts.last_contact": { "label": "Last contact" },
+    "organizations.org_type": {
+      "label": "Type",
+      "options": {
+        "developer": "Developer",
+        "investor": "Investor",
+        "bank_or_lender": "Bank or lender",
+        "notary_or_lawyer": "Notary or lawyer",
+        "referral_partner": "Referral partner",
+        "other": "Other"
+      }
+    },
+    "organizations.website": { "label": "Website" },
+    "listings.transaction_type": { "label": "Sale or let", "options": { "sale": "Sale", "let": "Let" } },
+    "listings.address": { "label": "Address" },
+    "listings.property_type": {
+      "label": "Property type",
+      "options": {
+        "apartment": "Apartment",
+        "house": "House",
+        "land": "Land",
+        "commercial": "Commercial",
+        "parking_or_storage": "Parking or storage",
+        "other": "Other"
+      }
+    },
+    "listings.size_m2": { "label": "Size in square metres" },
+    "listings.rooms": { "label": "Rooms" },
+    "listings.asking_price": { "label": "Asking price" },
+    "listings.source": {
+      "label": "Source",
+      "options": {
+        "referral": "Referral",
+        "portal": "Portal",
+        "web_form": "Web form",
+        "whatsapp": "WhatsApp",
+        "canvassing": "Canvassing",
+        "past_client": "Past client",
+        "expired_listing": "Expired listing"
+      }
+    },
+    "listings.agreement_type": {
+      "label": "Agreement type",
+      "options": { "open": "Open", "sole_agency": "Sole agency", "exclusive": "Exclusive" }
+    },
+    "listings.agreement_start": { "label": "Agreement start" },
+    "listings.agreement_end": { "label": "Agreement end" },
+    "listings.commission_rate": { "label": "Commission rate in percent" },
+    "listings.first_response_on": { "label": "First response on" },
+    "listings.valuation_on": { "label": "Valuation on" },
+    "listings.proposal_sent_on": { "label": "Proposal sent on" },
+    "listings.signed_on": { "label": "Agreement signed on" },
+    "listings.live_on": { "label": "Live on" },
+    "listings.first_offer_on": { "label": "First offer on" },
+    "listings.contract_signed_on": { "label": "Contract signed on" },
+    "listings.completion_on": { "label": "Completion on" },
+    "listings.energy_label": { "label": "Energy label" },
+    "listings.listing_url": { "label": "Listing link" },
+    "listings.external_id": { "label": "Reference in your other software" },
+    "listings.aml_checked_on": { "label": "Identification checked on" },
+    "listings.next_step": { "label": "Next step" },
+    "listings.next_step_due": { "label": "Next step due" },
+    "listings.lost_reason": {
+      "label": "Lost reason",
+      "options": {
+        "price_too_high": "Price too high",
+        "chose_other_agent": "Chose another agent",
+        "owner_changed_mind": "Owner changed their mind",
+        "sold_privately": "Sold privately",
+        "agreement_expired": "Agreement expired",
+        "unrealistic_expectations": "Unrealistic expectations"
+      }
+    },
+    "listings.days_to_first_offer": { "label": "Days from live to first offer" },
+    "buyer_searches.source": {
+      "label": "Source",
+      "options": {
+        "portal": "Portal",
+        "web_form": "Web form",
+        "whatsapp": "WhatsApp",
+        "referral": "Referral",
+        "walk_in": "Walk-in",
+        "past_client": "Past client"
+      }
+    },
+    "buyer_searches.criteria": { "label": "Search criteria" },
+    "buyer_searches.budget_max": { "label": "Maximum budget" },
+    "buyer_searches.financing": {
+      "label": "Financing",
+      "options": { "cash": "Cash", "pre_approved": "Pre-approved", "mortgage_needed": "Mortgage needed", "unknown": "Unknown" }
+    },
+    "buyer_searches.preapproval_verified_on": { "label": "Pre-approval verified on" },
+    "buyer_searches.timeframe": {
+      "label": "Timeframe",
+      "options": { "asap": "As soon as possible", "three_months": "Within three months", "six_months": "Within six months", "later": "Later" }
+    },
+    "buyer_searches.first_response_on": { "label": "First response on" },
+    "buyer_searches.last_activity_on": { "label": "Last activity on" },
+    "buyer_searches.aml_checked_on": { "label": "Identification checked on" },
+    "buyer_searches.next_step": { "label": "Next step" },
+    "buyer_searches.next_step_due": { "label": "Next step due" },
+    "buyer_searches.lost_reason": {
+      "label": "Lost reason",
+      "options": {
+        "bought_elsewhere": "Bought elsewhere",
+        "financing_failed": "Financing failed",
+        "stopped_searching": "Stopped searching",
+        "no_response": "No response",
+        "chose_other_agent": "Chose another agent"
+      }
+    },
+    "viewings.viewing_on": { "label": "Viewing on" },
+    "viewings.interest": {
+      "label": "Interest",
+      "options": { "none": "None", "low": "Low", "medium": "Medium", "high": "High", "offer": "Offer" }
+    },
+    "viewings.feedback": { "label": "Feedback" },
+    "viewings.feedback_sent_on": { "label": "Feedback sent on" },
+    "key_dates.kind": {
+      "label": "Kind",
+      "options": {
+        "reservation_deposit_due": "Reservation deposit due",
+        "financing_deadline": "Financing deadline",
+        "inspection_deadline": "Inspection deadline",
+        "cooling_off_ends": "Cooling-off period ends",
+        "notary_appointment": "Notary appointment",
+        "handover": "Handover",
+        "other": "Other"
+      }
+    },
+    "key_dates.due_date": { "label": "Due date" },
+    "key_dates.status": { "label": "Status", "options": { "open": "Open", "done": "Done", "waived": "Waived" } },
+    "key_dates.source_ref": { "label": "Where it is written in the contract" },
+    "key_dates.verified_by": { "label": "Verified by" },
+    "actions.kind": {
+      "label": "Kind",
+      "options": {
+        "call": "Call",
+        "viewing": "Viewing",
+        "valuation": "Valuation",
+        "listing_proposal": "Listing proposal",
+        "offer": "Offer",
+        "key_date": "Key date",
+        "owner_update": "Owner update",
+        "nurture": "Keep in touch",
+        "other": "Other"
+      }
+    }
+  },
+  "relationships": {
+    "contact_organization": { "sourceLabel": "Organization", "targetLabel": "Contacts" },
+    "listing_owner": { "sourceLabel": "Owner", "targetLabel": "Listings" },
+    "listing_referrer": { "sourceLabel": "Referrer", "targetLabel": "Referred listings" },
+    "buyer_search_contact": { "sourceLabel": "Buyer", "targetLabel": "Buyer searches" },
+    "buyer_search_listing": { "sourceLabel": "Property under offer", "targetLabel": "Buyer searches" },
+    "viewing_listing": { "sourceLabel": "Property", "targetLabel": "Viewings" },
+    "viewing_buyer_search": { "sourceLabel": "Buyer search", "targetLabel": "Viewings" },
+    "key_date_listing": { "sourceLabel": "Property", "targetLabel": "Key dates" },
+    "key_date_buyer_search": { "sourceLabel": "Buyer search", "targetLabel": "Key dates" },
+    "action_contact": { "sourceLabel": "Contact", "targetLabel": "Tasks" },
+    "action_listing": { "sourceLabel": "Listing", "targetLabel": "Tasks" },
+    "action_buyer_search": { "sourceLabel": "Buyer search", "targetLabel": "Tasks" },
+    "action_viewing": { "sourceLabel": "Viewing", "targetLabel": "Tasks" }
+  },
+  "views": {
+    "listings_board": { "name": "Listings by stage" },
+    "listings_all": { "name": "All listings" },
+    "agreements_ending": { "name": "Agreements ending" },
+    "buyer_board": { "name": "Buyers by stage" },
+    "leads_not_contacted": { "name": "Leads not yet contacted" },
+    "viewings_all": { "name": "Viewings by date" },
+    "key_dates_all": { "name": "Key dates" },
+    "actions_all": { "name": "All tasks" },
+    "actions_overdue": { "name": "Overdue tasks" },
+    "contacts_all": { "name": "All contacts" },
+    "organizations_all": { "name": "All organizations" }
+  },
+  "widgets": {
+    "listings_by_stage": { "title": "Commission by listing stage" },
+    "buyers_by_stage": { "title": "Buyer searches by stage" },
+    "viewings_coming": { "title": "Viewings coming up" },
+    "agreements_ending_soon": { "title": "Agreements ending, on the market" },
+    "key_dates_next": { "title": "Open key dates" },
+    "commission_per_month": { "title": "Commission completed per month" },
+    "new_leads_not_contacted": { "title": "New leads not yet contacted" },
+    "listing_lost_reasons": { "title": "Why listings were lost" },
+    "days_live_to_offer": { "title": "Average days from live to first offer" },
+    "lead_sources": { "title": "Listing sources" },
+    "under_contract_count": { "title": "Listings under contract" },
+    "actions_due": { "title": "Tasks due" }
+  },
+  "knowledgePages": {
+    "operating_guide": {
+      "title": "Operating guide: real estate pipeline",
+      "sections": ["Two pipelines, one dated task per open record", "What each stage means", "What stays out of the workspace"]
+    },
+    "lead_response": {
+      "title": "Lead response standard and qualification questions",
+      "sections": ["Answer the same day", "Buyer questions: timeframe, financing, must-haves", "Owner questions: timing and documents", "Record neutrally"]
+    },
+    "valuation_checklist": {
+      "title": "Valuation visit checklist",
+      "sections": ["Documents to collect", "Comparable data", "Permission for photographs"]
+    },
+    "agreement_checklist": {
+      "title": "Listing proposal and agreement checklist",
+      "sections": ["Agreement type and term", "Commission and who pays", "Withdrawal information", "Form of the agreement and any register entry", "Enter the end date"]
+    },
+    "marketing_launch": {
+      "title": "Marketing launch checklist",
+      "sections": ["Photos and floor plan", "Energy label", "Price check", "Portal publication", "Owner approval"]
+    },
+    "viewing_routine": {
+      "title": "Viewing routine and feedback template",
+      "sections": ["Confirm in advance", "Log the viewing", "Send the feedback to the owner within a day"]
+    },
+    "offer_handling": {
+      "title": "Offer handling",
+      "sections": ["Present the offer the same day", "Written offer and conditions", "Identification of the parties", "Who decides"]
+    },
+    "under_contract_timeline": {
+      "title": "Under-contract timeline and key dates",
+      "sections": ["Read every date from the contract and note where", "Deposit, financing, inspection and cooling-off dates", "Notary appointment and handover"]
+    },
+    "closing_handover": {
+      "title": "Closing and handover checklist",
+      "sections": ["Keys and meter readings", "Deed or recording", "Commission invoice in your accounting tool", "Archive"]
+    },
+    "past_client_routine": {
+      "title": "Past-client routine",
+      "sections": ["Monthly touch", "Anniversary call", "Thank referrals", "Ask for a review"]
+    },
+    "message_templates": {
+      "title": "Message templates",
+      "sections": ["Lead reply", "Valuation confirmation", "Listing proposal", "Owner update", "Viewing feedback", "Offer notice", "Thank-you"]
+    },
+    "data_rules": {
+      "title": "Data rules: identification, fairness, what stays out",
+      "sections": ["Record that identification was checked, never the documents", "Search criteria describe the property, never the person", "Retention"]
+    }
+  },
+  "rules": {
+    "portal_lead_contact": {
+      "title": "Contact the new lead today",
+      "description": "A lead that arrives from a property portal or WhatsApp gets a call task due the same day."
+    },
+    "prepare_valuation": {
+      "title": "Prepare the valuation and the document checklist",
+      "description": "When a listing moves to Valuation, a valuation task is due the next day."
+    },
+    "send_listing_proposal": {
+      "title": "Send the listing proposal",
+      "description": "After the valuation date, a listing still in Valuation gets a proposal task due the next day."
+    },
+    "proposal_message_day_2": {
+      "title": "Follow up on the listing proposal by message",
+      "description": "Two days after the proposal is sent."
+    },
+    "proposal_call_day_5": {
+      "title": "Call about the listing proposal",
+      "description": "Five days after the proposal is sent."
+    },
+    "proposal_final_call_day_10": {
+      "title": "Final call about the listing proposal",
+      "description": "Ten days after the proposal is sent."
+    },
+    "prepare_property": {
+      "title": "Prepare the property and publish",
+      "description": "Photos, plan, energy label and documents; enter the agreement in the register where one is required; then publish. Due three days after the agreement is signed."
+    },
+    "agreement_end_review": {
+      "title": "Review the agreement: renew, extend or re-price",
+      "description": "Thirty days before the agreement ends, a listing on the market gets an owner task."
+    },
+    "agreement_end_notice": {
+      "title": "Tell the agent that the agreement ends in a week",
+      "description": "Seven days before the agreement ends, the owner of the listing is notified to decide on renewal."
+    },
+    "weekly_owner_update": {
+      "title": "Send the owner update",
+      "description": "Each week, a listing on the market gets a task to report viewings, feedback and enquiries to the owner."
+    },
+    "viewing_feedback": {
+      "title": "Collect the viewing feedback and send it to the owner",
+      "description": "The day after a viewing, a task is created if no feedback is recorded."
+    },
+    "offer_notice": {
+      "title": "Tell the agent that an offer needs presenting",
+      "description": "When a listing reaches the offer stage, the owner of the listing is notified to present the offer today."
+    },
+    "listing_key_dates": {
+      "title": "Create the key dates from the contract",
+      "description": "When a listing is under contract, its key dates are created from the contract."
+    },
+    "buyer_key_dates": {
+      "title": "Create the key dates from the buyer's contract",
+      "description": "When a buyer search is under contract, the key dates are created from the contract."
+    },
+    "key_date_calendar": {
+      "title": "Add the key date to the agent's calendar",
+      "description": "Every new key date is written to the agent's own calendar."
+    },
+    "key_date_reminder": {
+      "title": "Tell the agent that a key date is two days away",
+      "description": "Two days before an open key date, the owner is notified to confirm the step or chase."
+    },
+    "completed_handover": {
+      "title": "Hand over and ask for a review",
+      "description": "Handover checklist, thank-you and review request, due seven days after completion."
+    },
+    "completed_anniversary": {
+      "title": "Anniversary call",
+      "description": "One year after completion, a keep-in-touch task is due."
+    },
+    "identify_before_contract": {
+      "title": "Record the identification of the parties",
+      "description": "When a listing reaches the offer stage, a task asks you to record that identification was checked before the contract."
+    },
+    "identify_buyer_offer": {
+      "title": "Record the identification of the buyer",
+      "description": "When a buyer search reaches Offer made, a task asks you to record that identification was checked."
+    },
+    "buyer_re_engage": {
+      "title": "Re-engage the buyer with new matching listings",
+      "description": "Each Monday, a buyer search in the Viewing stage with no activity for seven days gets a keep-in-touch task."
+    },
+    "listing_price_review": {
+      "title": "Price and marketing review with the owner",
+      "description": "Each Monday, a listing on the market with no viewing for 14 days gets a review task."
+    },
+    "past_client_monthly_touch": {
+      "title": "Keep in touch with the past client",
+      "description": "Each Monday, a past client with no contact for 30 days gets a keep-in-touch task."
+    }
+  },
+  "acceptanceChecks": {
+    "listing_stage_field": "Every listing has one of nine stages.",
+    "buyer_stage_field": "Every buyer search has one of seven stages.",
+    "agreement_end_field": "Every listing records when its agreement ends.",
+    "key_dates_list": "The contract dates after signature are tracked in their own list.",
+    "listings_board_view": "The listing list opens as a board by stage.",
+    "operating_guide_page": "The Knowledge Base holds the operating guide."
+  },
+  "prompt": {
+    "intro": "Set up a real estate pipeline in my Customermates workspace: listings with the agreement type and end date, buyer searches, viewings with feedback, key dates after the contract is signed, and a dated task for every open record.",
+    "questions": [
+      "Do you work for owners, for buyers or for both? Do you sell, let or both?",
+      "In which country do you work, and which agreement types do you use there?",
+      "How do enquiries reach you: property portals, your website, WhatsApp or referrals?",
+      "Which software holds your listings and publishes them to portals? A reference to it is kept here, nothing is copied.",
+      "Which key dates matter in your contracts, for example deposit, financing, inspection or notary?"
+    ]
+  }
+}

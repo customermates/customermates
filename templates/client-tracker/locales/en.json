@@ -1,0 +1,195 @@
+{
+  "locale": "en",
+  "name": "Client tracker",
+  "summary": "One row per client, one owner, one dated next step, plus a weekly review and a retention date for every closed client.",
+  "description": "A short, disciplined client list: a status from seven values, a last-contact date, a next-step date that drives the work, a review rhythm per segment and a data-retention date for closed clients. Contacts, dated Actions and linked conversations sit next to every client.",
+  "lists": {
+    "clients": { "label": "Client", "pluralLabel": "Clients", "description": "One row per client, one owner, one dated next step." },
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "The people you deal with at each client." }
+  },
+  "fields": {
+    "clients.status": {
+      "label": "Status",
+      "options": {
+        "prospect": "Prospect",
+        "onboarding": "Onboarding",
+        "active": "Active",
+        "waiting_on_client": "Waiting on client",
+        "at_risk": "At risk",
+        "inactive": "Inactive",
+        "closed": "Closed"
+      }
+    },
+    "clients.segment": {
+      "label": "Segment",
+      "options": { "a_key": "A: key client", "b_regular": "B: regular client", "c_occasional": "C: occasional client" }
+    },
+    "clients.owner": { "label": "Owner" },
+    "clients.source": {
+      "label": "Source",
+      "options": {
+        "referral": "Referral",
+        "website": "Website",
+        "event": "Event",
+        "outbound": "Outbound",
+        "existing_network": "Existing network",
+        "other": "Other"
+      }
+    },
+    "clients.client_since": { "label": "Client since" },
+    "clients.last_contact": { "label": "Last contact" },
+    "clients.next_step": { "label": "Next step" },
+    "clients.next_step_due": { "label": "Next step due" },
+    "clients.review_interval": {
+      "label": "Review interval",
+      "options": { "monthly": "Monthly", "quarterly": "Quarterly", "half_yearly": "Every six months", "yearly": "Yearly" }
+    },
+    "clients.next_review": { "label": "Next review" },
+    "clients.annual_value": { "label": "Annual value" },
+    "clients.website": { "label": "Website" },
+    "clients.address": { "label": "Address" },
+    "clients.registration_id": { "label": "Company registration or VAT number" },
+    "clients.closed_on": { "label": "Closed on" },
+    "clients.data_review_on": { "label": "Data review on" },
+    "contacts.job_title": { "label": "Job title" },
+    "contacts.contact_role": {
+      "label": "Role",
+      "options": { "decision_maker": "Decision maker", "day_to_day": "Day-to-day contact", "billing": "Billing", "other": "Other" }
+    },
+    "contacts.preferred_channel": {
+      "label": "Preferred channel",
+      "options": { "email": "Email", "phone": "Phone", "whatsapp": "WhatsApp", "linkedin": "LinkedIn", "in_person": "In person" }
+    },
+    "contacts.language": { "label": "Language" },
+    "contacts.marketing_consent": { "label": "Marketing consent" },
+    "contacts.consent_date": { "label": "Consent date" },
+    "actions.kind": {
+      "label": "Kind",
+      "options": {
+        "check_in": "Check-in",
+        "reply": "Reply",
+        "request_document": "Request document",
+        "review": "Review",
+        "chase": "Chase",
+        "data_review": "Data review",
+        "other": "Other"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Client", "targetLabel": "Contacts" },
+    "action_client": { "sourceLabel": "Client", "targetLabel": "Actions" },
+    "action_contact": { "sourceLabel": "Contact", "targetLabel": "Actions" }
+  },
+  "views": {
+    "clients_all": { "name": "All clients" },
+    "clients_board": { "name": "Clients by status" },
+    "needs_next_step": { "name": "Needs a next step" },
+    "overdue_next_step": { "name": "Overdue next steps" },
+    "waiting_on_client": { "name": "Waiting on client" },
+    "at_risk": { "name": "At risk" },
+    "data_review_due": { "name": "Data review due" },
+    "actions_all": { "name": "All actions" },
+    "contacts_all": { "name": "All contacts" }
+  },
+  "widgets": {
+    "upcoming_actions": { "title": "Upcoming actions" },
+    "review_calendar": { "title": "Client reviews this month" },
+    "clients_by_status": { "title": "Clients by status" },
+    "clients_by_segment": { "title": "Clients by segment" },
+    "clients_per_owner": { "title": "Clients per owner" },
+    "active_without_next_step": { "title": "Active clients without a next step" },
+    "waiting_on_client_count": { "title": "Waiting on client" },
+    "at_risk_count": { "title": "At risk" },
+    "value_by_segment": { "title": "Annual value by segment" },
+    "new_clients_per_month": { "title": "New clients per month" },
+    "overdue_actions": { "title": "Overdue actions" },
+    "activity_timeline": { "title": "Recent activity" }
+  },
+  "knowledgePages": {
+    "playbook": {
+      "title": "Client tracker playbook",
+      "sections": ["One row, one owner, one dated next step", "What each status means", "Update the row the same day as every call or quote"]
+    },
+    "weekly_review": {
+      "title": "Weekly 15-minute client review",
+      "sections": ["Sort by next step due and status", "Overdue, active without a next step, stalled prospects", "End with a date on every row"]
+    },
+    "status_definitions": {
+      "title": "Client status definitions",
+      "sections": ["Entry and exit rule per status", "Chase after 7 days, escalate after 14", "Who may change a status"]
+    },
+    "message_templates": {
+      "title": "Check-in and reactivation message templates",
+      "sections": ["Check-in after a quiet period", "Waiting-on-client chase", "Review invitation", "Reactivation after 90 days", "Polite close"]
+    },
+    "data_retention": {
+      "title": "Data retention and privacy for the client file",
+      "sections": ["Purpose and what is kept", "Retention period per country", "Consent evidence", "Answering an access or deletion request"]
+    }
+  },
+  "rules": {
+    "overdue_action_notice": {
+      "title": "Tell the owner that an Action is overdue",
+      "description": "When the due date of an open Action is reached, the owner is notified."
+    },
+    "chase_waiting_client": {
+      "title": "Chase the client for the open item",
+      "description": "When a client moves to Waiting on client, the client owner gets a chase Action after 7 days."
+    },
+    "review_before_due": {
+      "title": "Review the client file",
+      "description": "Seven days before the next review date of an active client, a review Action is created for the owner."
+    },
+    "daily_next_step_sweep": {
+      "title": "Check in: no open Action on this client",
+      "description": "Each day, an active or onboarding client without an open linked Action gets a check-in Action due today."
+    },
+    "stalled_client_sweep": {
+      "title": "Check in: no contact for 45 days",
+      "description": "Each Monday, an active client with no contact for 45 days gets a check-in Action. The status never changes by itself."
+    },
+    "closed_client_dates": {
+      "title": "Set the close date and the data review date",
+      "description": "When a client is closed, Closed on is set to today and Data review on to three years later. Adjust the period to your country."
+    },
+    "closed_client_data_review": {
+      "title": "Review the data of this closed client",
+      "description": "A data review Action falls due at the data review date."
+    },
+    "inactive_reactivation": {
+      "title": "Ask whether the client is still relevant",
+      "description": "Ninety days after a client becomes Inactive, a check-in Action asks the reactivation question."
+    },
+    "enquiry_form_records": {
+      "title": "Create the client and the contact from an enquiry",
+      "description": "A public enquiry form creates a client as Prospect and its contact."
+    },
+    "enquiry_form_reply": {
+      "title": "Reply to the enquiry",
+      "description": "Every enquiry gets a reply Action due the next day."
+    },
+    "weekly_client_review": {
+      "title": "Weekly client review",
+      "description": "Each Monday, one review Action lists overdue clients, clients without a next step and stalled prospects."
+    }
+  },
+  "acceptanceChecks": {
+    "status_field": "Every client has a status from the seven values.",
+    "next_step_date_field": "Every client has a next step and a date for it.",
+    "clients_default_view": "The client list opens sorted by next step due.",
+    "overdue_widget": "The dashboard shows how many Actions are overdue.",
+    "chase_rule": "A client moved to Waiting on client gets a chase Action.",
+    "playbook_page": "The Knowledge Base holds the client tracker playbook."
+  },
+  "prompt": {
+    "intro": "Set up a client tracker in my Customermates workspace: one row per client with one owner, a status, a last-contact date and a dated next step, plus contacts, dated Actions, a weekly review and a retention date for closed clients.",
+    "questions": [
+      "How many clients do you look after today, and who else works on the file?",
+      "Which client statuses do you already use? Should any of the seven be renamed or left out?",
+      "How often do you want to review key clients, regular clients and occasional clients?",
+      "In which country do you work, so that the retention period for closed clients can be set?",
+      "Do you keep invoices elsewhere? If yes, which tool, so that no billing fields are added here."
+    ]
+  }
+}

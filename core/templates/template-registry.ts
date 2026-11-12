@@ -5,9 +5,9 @@ import type { TemplateSlug } from "./template-slugs";
 import { SHIPPED_CAPABILITIES } from "@/core/capabilities/capabilities";
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
-import clientTracker from "./generated/client-tracker.json";
-import realEstatePipeline from "./generated/real-estate-pipeline.json";
-import salesPipeline from "./generated/sales-pipeline.json";
+import clientTracker from "./bundles/client-tracker.json";
+import realEstatePipeline from "./bundles/real-estate-pipeline.json";
+import salesPipeline from "./bundles/sales-pipeline.json";
 import { TEMPLATE_SLUGS } from "./template-slugs";
 
 export { TEMPLATE_SLUGS, isTemplateSlug } from "./template-slugs";

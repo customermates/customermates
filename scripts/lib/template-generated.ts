@@ -7,7 +7,7 @@ import { z } from "zod";
 
 import { TemplateLocaleSchema, TemplateSpecObjectSchema } from "@/core/templates/template-spec.schema";
 
-import { GENERATED_ROOT, TEMPLATES_ROOT, buildTemplateBundles } from "./template-sources";
+import { BUNDLES_ROOT, TEMPLATES_ROOT, buildTemplateBundles } from "./template-sources";
 
 export const GENERATED_COMMAND = "yarn templates:generate";
 
@@ -43,7 +43,7 @@ function readme(bundles: Map<string, TemplateBundle>): string {
     "- `<slug>/locales/<code>.json`: only the text of one app locale.",
     "- `_modules/*.json`: blocks shared by several templates (structure and text).",
     "- `schema/*.json`: JSON Schemas generated from the Zod schemas in `core/templates/template-spec.schema.ts`.",
-    "- `core/templates/generated/<slug>.json`: the validated bundle the app reads.",
+    "- `core/templates/bundles/<slug>.json`: the validated bundle the app reads.",
     "",
     "| Template | Family | Kind | Lists | Fields | Widgets | Rules | Needs | Locales |",
     "| --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- |",
@@ -55,7 +55,7 @@ function readme(bundles: Map<string, TemplateBundle>): string {
 export function generatedOutputs(): Map<string, string> {
   const bundles = buildTemplateBundles();
   const outputs = new Map<string, string>();
-  for (const [slug, bundle] of bundles) outputs.set(join(GENERATED_ROOT, `${slug}.json`), json(bundle));
+  for (const [slug, bundle] of bundles) outputs.set(join(BUNDLES_ROOT, `${slug}.json`), json(bundle));
   outputs.set(join(TEMPLATES_ROOT, "README.md"), readme(bundles));
   outputs.set(
     join(TEMPLATES_ROOT, "schema", "template.schema.json"),
@@ -69,10 +69,10 @@ export function generatedOutputs(): Map<string, string> {
 }
 
 export function staleGeneratedFiles(outputs: Map<string, string>): string[] {
-  if (!existsSync(GENERATED_ROOT)) return [];
-  return readdirSync(GENERATED_ROOT)
+  if (!existsSync(BUNDLES_ROOT)) return [];
+  return readdirSync(BUNDLES_ROOT)
     .filter((name) => name.endsWith(".json"))
-    .map((name) => join(GENERATED_ROOT, name))
+    .map((name) => join(BUNDLES_ROOT, name))
     .filter((path) => !outputs.has(path));
 }
 

@@ -1,0 +1,45 @@
+{
+  "key": "actions_core",
+  "description": "The tasks list every follow-up template shares: an Action with a status, a due date, an owner and an outcome. A template adds its own kind field.",
+  "lists": [{ "key": "actions", "role": "tasks", "icon": "check" }],
+  "fields": [
+    {
+      "key": "actions.status",
+      "type": "select",
+      "options": [{ "key": "open" }, { "key": "waiting", "color": "warning" }, { "key": "done", "color": "success" }, { "key": "cancelled", "color": "secondary" }]
+    },
+    { "key": "actions.due", "type": "date" },
+    { "key": "actions.owner", "type": "member" },
+    { "key": "actions.outcome", "type": "richText" }
+  ],
+  "text": {
+    "en": {
+      "lists": {
+        "actions": { "label": "Action", "pluralLabel": "Actions", "description": "One dated next step per open item." }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": { "open": "Open", "waiting": "Waiting", "done": "Done", "cancelled": "Cancelled" }
+        },
+        "actions.due": { "label": "Due date" },
+        "actions.owner": { "label": "Owner" },
+        "actions.outcome": { "label": "Outcome" }
+      }
+    },
+    "de": {
+      "lists": {
+        "actions": { "label": "Aufgabe", "pluralLabel": "Aufgaben", "description": "Ein terminierter nächster Schritt pro offenem Vorgang." }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": { "open": "Offen", "waiting": "Wartet", "done": "Erledigt", "cancelled": "Abgebrochen" }
+        },
+        "actions.due": { "label": "Fällig am" },
+        "actions.owner": { "label": "Zuständig" },
+        "actions.outcome": { "label": "Ergebnis" }
+      }
+    }
+  }
+}

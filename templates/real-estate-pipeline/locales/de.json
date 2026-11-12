@@ -1,0 +1,413 @@
+{
+  "locale": "de",
+  "name": "Immobilien-Pipeline",
+  "summary": "Zwei Pipelines, die sich beim Kaufvertrag treffen: Objekt hereinholen und vermarkten, Interessenten betreuen, mit Besichtigungen, Fristen und einer Routine für frühere Kunden.",
+  "description": "Ein Maklerbüro arbeitet auf der Eigentümerseite (Bewertung, Maklerauftrag, Vermarktung, Angebote) und auf der Interessentenseite (Anfrage, Qualifizierung, Besichtigungen, Angebot) und danach in einer gemeinsamen Phase nach dem Kaufvertrag mit festen Terminen. Diese Vorlage hält beide Seiten fest, dazu die Art des Maklerauftrags mit Laufzeitende, jede Besichtigung mit Rückmeldung, die Fristen nach Vertragsabschluss und eine terminierte Routine für frühere Kunden. Der Wert eines Objekts steht für die erwartete Provision.",
+  "lists": {
+    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Eigentümer, Vermieter, Käufer, Mieter und Empfehler." },
+    "organizations": { "label": "Organisation", "pluralLabel": "Organisationen", "description": "Bauträger, Banken, Notare und Empfehlungspartner." },
+    "listings": { "label": "Objekt", "pluralLabel": "Objekte", "description": "Der Maklerauftrag des Eigentümers und seine Pipeline. Der Wert ist die erwartete Provision." },
+    "buyer_searches": { "label": "Suchauftrag", "pluralLabel": "Suchaufträge", "description": "Ein Suchauftrag eines Käufers oder Mieters von der Anfrage bis zum Abschluss." },
+    "viewings": { "label": "Besichtigung", "pluralLabel": "Besichtigungen", "description": "Jede Besichtigung mit ihrer Rückmeldung." },
+    "key_dates": { "label": "Frist", "pluralLabel": "Fristen und Termine", "description": "Termine, die nach der Vertragsunterzeichnung laufen." },
+    "actions": { "label": "Aufgabe", "pluralLabel": "Aufgaben", "description": "Ein terminierter nächster Schritt pro offenem Objekt oder Suchauftrag." }
+  },
+  "fields": {
+    "listings.stage": {
+      "label": "Phase",
+      "options": {
+        "owner_lead": "Eigentümeranfrage",
+        "valuation": "Bewertungstermin",
+        "listing_proposal_sent": "Maklerauftrag angeboten",
+        "agreement_signed": "Maklerauftrag unterschrieben",
+        "on_market": "Im Vertrieb",
+        "offer_stage": "Kaufpreisverhandlung",
+        "under_contract": "Kaufvertrag",
+        "completed": "Abgeschlossen",
+        "lost": "Verloren"
+      }
+    },
+    "buyer_searches.stage": {
+      "label": "Phase",
+      "options": {
+        "new_lead": "Anfrage",
+        "qualified": "Qualifiziert",
+        "viewing": "Besichtigung",
+        "offer_made": "Angebot abgegeben",
+        "under_contract": "Kaufvertrag",
+        "completed": "Abgeschlossen",
+        "lost": "Verloren"
+      }
+    },
+    "contacts.contact_role": {
+      "label": "Rolle",
+      "options": {
+        "seller": "Verkäufer",
+        "landlord": "Vermieter",
+        "buyer": "Käufer",
+        "tenant": "Mieter",
+        "investor": "Kapitalanleger",
+        "referrer": "Empfehler",
+        "other": "Sonstige"
+      }
+    },
+    "contacts.preferred_channel": {
+      "label": "Bevorzugter Kanal",
+      "options": { "email": "E-Mail", "phone": "Telefon", "whatsapp": "WhatsApp", "portal": "Immobilienportal" }
+    },
+    "contacts.language": { "label": "Sprache" },
+    "contacts.marketing_consent_on": { "label": "Werbeeinwilligung am" },
+    "contacts.last_contact": { "label": "Letzter Kontakt" },
+    "organizations.org_type": {
+      "label": "Art",
+      "options": {
+        "developer": "Bauträger",
+        "investor": "Kapitalanleger",
+        "bank_or_lender": "Bank oder Kreditgeber",
+        "notary_or_lawyer": "Notar oder Rechtsanwalt",
+        "referral_partner": "Empfehlungspartner",
+        "other": "Sonstige"
+      }
+    },
+    "organizations.website": { "label": "Website" },
+    "listings.transaction_type": { "label": "Verkauf oder Vermietung", "options": { "sale": "Verkauf", "let": "Vermietung" } },
+    "listings.address": { "label": "Anschrift" },
+    "listings.property_type": {
+      "label": "Objektart",
+      "options": {
+        "apartment": "Wohnung",
+        "house": "Haus",
+        "land": "Grundstück",
+        "commercial": "Gewerbe",
+        "parking_or_storage": "Stellplatz oder Lager",
+        "other": "Sonstiges"
+      }
+    },
+    "listings.size_m2": { "label": "Fläche in Quadratmetern" },
+    "listings.rooms": { "label": "Zimmer" },
+    "listings.asking_price": { "label": "Angebotspreis" },
+    "listings.source": {
+      "label": "Herkunft",
+      "options": {
+        "referral": "Empfehlung",
+        "portal": "Immobilienportal",
+        "web_form": "Webformular",
+        "whatsapp": "WhatsApp",
+        "canvassing": "Akquise",
+        "past_client": "Früherer Kunde",
+        "expired_listing": "Abgelaufener Auftrag"
+      }
+    },
+    "listings.agreement_type": {
+      "label": "Art des Maklerauftrags",
+      "options": { "open": "Einfacher Maklerauftrag", "sole_agency": "Alleinauftrag", "exclusive": "Qualifizierter Alleinauftrag" }
+    },
+    "listings.agreement_start": { "label": "Beginn des Maklerauftrags" },
+    "listings.agreement_end": { "label": "Ende des Maklerauftrags" },
+    "listings.commission_rate": { "label": "Provision in Prozent" },
+    "listings.first_response_on": { "label": "Erste Antwort am" },
+    "listings.valuation_on": { "label": "Bewertung am" },
+    "listings.proposal_sent_on": { "label": "Auftragsangebot gesendet am" },
+    "listings.signed_on": { "label": "Maklerauftrag unterschrieben am" },
+    "listings.live_on": { "label": "Veröffentlicht am" },
+    "listings.first_offer_on": { "label": "Erstes Angebot am" },
+    "listings.contract_signed_on": { "label": "Kaufvertrag unterschrieben am" },
+    "listings.completion_on": { "label": "Abschluss am" },
+    "listings.energy_label": { "label": "Energieausweis" },
+    "listings.listing_url": { "label": "Link zur Anzeige" },
+    "listings.external_id": { "label": "Kennung in Ihrer Maklersoftware" },
+    "listings.aml_checked_on": { "label": "Identifizierung geprüft am" },
+    "listings.next_step": { "label": "Nächster Schritt" },
+    "listings.next_step_due": { "label": "Wiedervorlage" },
+    "listings.lost_reason": {
+      "label": "Verlustgrund",
+      "options": {
+        "price_too_high": "Preis zu hoch",
+        "chose_other_agent": "Anderen Makler gewählt",
+        "owner_changed_mind": "Eigentümer hat es sich anders überlegt",
+        "sold_privately": "Privat verkauft",
+        "agreement_expired": "Auftrag abgelaufen",
+        "unrealistic_expectations": "Unrealistische Erwartungen"
+      }
+    },
+    "listings.days_to_first_offer": { "label": "Tage von Veröffentlichung bis zum ersten Angebot" },
+    "buyer_searches.source": {
+      "label": "Herkunft",
+      "options": {
+        "portal": "Immobilienportal",
+        "web_form": "Webformular",
+        "whatsapp": "WhatsApp",
+        "referral": "Empfehlung",
+        "walk_in": "Laufkundschaft",
+        "past_client": "Früherer Kunde"
+      }
+    },
+    "buyer_searches.criteria": { "label": "Suchkriterien" },
+    "buyer_searches.budget_max": { "label": "Höchstbudget" },
+    "buyer_searches.financing": {
+      "label": "Finanzierung",
+      "options": { "cash": "Barzahlung", "pre_approved": "Finanzierungszusage liegt vor", "mortgage_needed": "Darlehen nötig", "unknown": "Unbekannt" }
+    },
+    "buyer_searches.preapproval_verified_on": { "label": "Finanzierungszusage geprüft am" },
+    "buyer_searches.timeframe": {
+      "label": "Zeitrahmen",
+      "options": { "asap": "So bald wie möglich", "three_months": "Innerhalb von drei Monaten", "six_months": "Innerhalb von sechs Monaten", "later": "Später" }
+    },
+    "buyer_searches.first_response_on": { "label": "Erste Antwort am" },
+    "buyer_searches.last_activity_on": { "label": "Letzte Aktivität am" },
+    "buyer_searches.aml_checked_on": { "label": "Identifizierung geprüft am" },
+    "buyer_searches.next_step": { "label": "Nächster Schritt" },
+    "buyer_searches.next_step_due": { "label": "Wiedervorlage" },
+    "buyer_searches.lost_reason": {
+      "label": "Verlustgrund",
+      "options": {
+        "bought_elsewhere": "Anderswo gekauft",
+        "financing_failed": "Finanzierung geplatzt",
+        "stopped_searching": "Suche beendet",
+        "no_response": "Keine Antwort",
+        "chose_other_agent": "Anderen Makler gewählt"
+      }
+    },
+    "viewings.viewing_on": { "label": "Besichtigung am" },
+    "viewings.interest": {
+      "label": "Interesse",
+      "options": { "none": "Keins", "low": "Gering", "medium": "Mittel", "high": "Hoch", "offer": "Angebot" }
+    },
+    "viewings.feedback": { "label": "Rückmeldung" },
+    "viewings.feedback_sent_on": { "label": "Rückmeldung gesendet am" },
+    "key_dates.kind": {
+      "label": "Art",
+      "options": {
+        "reservation_deposit_due": "Reservierungsgebühr fällig",
+        "financing_deadline": "Finanzierungsfrist",
+        "inspection_deadline": "Prüffrist",
+        "cooling_off_ends": "Widerrufsfrist endet",
+        "notary_appointment": "Notartermin",
+        "handover": "Übergabe",
+        "other": "Sonstiges"
+      }
+    },
+    "key_dates.due_date": { "label": "Fällig am" },
+    "key_dates.status": { "label": "Status", "options": { "open": "Offen", "done": "Erledigt", "waived": "Entfällt" } },
+    "key_dates.source_ref": { "label": "Fundstelle im Vertrag" },
+    "key_dates.verified_by": { "label": "Geprüft von" },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "call": "Anruf",
+        "viewing": "Besichtigung",
+        "valuation": "Bewertung",
+        "listing_proposal": "Auftragsangebot",
+        "offer": "Angebot",
+        "key_date": "Frist",
+        "owner_update": "Eigentümerbericht",
+        "nurture": "Kontakt pflegen",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "contact_organization": { "sourceLabel": "Organisation", "targetLabel": "Kontakte" },
+    "listing_owner": { "sourceLabel": "Eigentümer", "targetLabel": "Objekte" },
+    "listing_referrer": { "sourceLabel": "Empfehler", "targetLabel": "Empfohlene Objekte" },
+    "buyer_search_contact": { "sourceLabel": "Interessent", "targetLabel": "Suchaufträge" },
+    "buyer_search_listing": { "sourceLabel": "Objekt im Angebot", "targetLabel": "Suchaufträge" },
+    "viewing_listing": { "sourceLabel": "Objekt", "targetLabel": "Besichtigungen" },
+    "viewing_buyer_search": { "sourceLabel": "Suchauftrag", "targetLabel": "Besichtigungen" },
+    "key_date_listing": { "sourceLabel": "Objekt", "targetLabel": "Fristen und Termine" },
+    "key_date_buyer_search": { "sourceLabel": "Suchauftrag", "targetLabel": "Fristen und Termine" },
+    "action_contact": { "sourceLabel": "Kontakt", "targetLabel": "Aufgaben" },
+    "action_listing": { "sourceLabel": "Objekt", "targetLabel": "Aufgaben" },
+    "action_buyer_search": { "sourceLabel": "Suchauftrag", "targetLabel": "Aufgaben" },
+    "action_viewing": { "sourceLabel": "Besichtigung", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "listings_board": { "name": "Objekte nach Phase" },
+    "listings_all": { "name": "Alle Objekte" },
+    "agreements_ending": { "name": "Auslaufende Maklerverträge" },
+    "buyer_board": { "name": "Suchaufträge nach Phase" },
+    "leads_not_contacted": { "name": "Anfragen ohne Antwort" },
+    "viewings_all": { "name": "Besichtigungen nach Datum" },
+    "key_dates_all": { "name": "Fristen und Termine" },
+    "actions_all": { "name": "Alle Aufgaben" },
+    "actions_overdue": { "name": "Überfällige Aufgaben" },
+    "contacts_all": { "name": "Alle Kontakte" },
+    "organizations_all": { "name": "Alle Organisationen" }
+  },
+  "widgets": {
+    "listings_by_stage": { "title": "Provision nach Objektphase" },
+    "buyers_by_stage": { "title": "Suchaufträge nach Phase" },
+    "viewings_coming": { "title": "Anstehende Besichtigungen" },
+    "agreements_ending_soon": { "title": "Auslaufende Maklerverträge im Vertrieb" },
+    "key_dates_next": { "title": "Offene Fristen und Termine" },
+    "commission_per_month": { "title": "Abgeschlossene Provision pro Monat" },
+    "new_leads_not_contacted": { "title": "Neue Anfragen ohne Antwort" },
+    "listing_lost_reasons": { "title": "Warum Objekte verloren gingen" },
+    "days_live_to_offer": { "title": "Durchschnittliche Tage bis zum ersten Angebot" },
+    "lead_sources": { "title": "Herkunft der Objekte" },
+    "under_contract_count": { "title": "Objekte mit Kaufvertrag" },
+    "actions_due": { "title": "Fällige Aufgaben" }
+  },
+  "knowledgePages": {
+    "operating_guide": {
+      "title": "Arbeitsanleitung: Immobilien-Pipeline",
+      "sections": ["Zwei Pipelines, eine terminierte Aufgabe je offenem Datensatz", "Was jede Phase bedeutet", "Was nicht in den Workspace gehört"]
+    },
+    "lead_response": {
+      "title": "Antwortstandard und Qualifizierungsfragen",
+      "sections": ["Am selben Tag antworten", "Fragen an Interessenten: Zeitrahmen, Finanzierung, Muss-Kriterien", "Fragen an Eigentümer: Zeitplan und Unterlagen", "Neutral erfassen"]
+    },
+    "valuation_checklist": {
+      "title": "Checkliste Bewertungstermin",
+      "sections": ["Zu sammelnde Unterlagen", "Vergleichsdaten", "Erlaubnis für Fotos"]
+    },
+    "agreement_checklist": {
+      "title": "Checkliste Auftragsangebot und Maklerauftrag",
+      "sections": ["Art und Laufzeit des Auftrags", "Provision und wer sie zahlt", "Widerrufsbelehrung", "Form des Auftrags (Textform) und gegebenenfalls Registereintrag", "Ende des Auftrags eintragen"]
+    },
+    "marketing_launch": {
+      "title": "Checkliste Vermarktungsstart",
+      "sections": ["Fotos und Grundriss", "Energieausweis", "Preisprüfung", "Veröffentlichung auf Portalen", "Freigabe durch den Eigentümer"]
+    },
+    "viewing_routine": {
+      "title": "Besichtigungsroutine und Vorlage für die Rückmeldung",
+      "sections": ["Vorab bestätigen", "Besichtigung erfassen", "Rückmeldung innerhalb eines Tages an den Eigentümer"]
+    },
+    "offer_handling": {
+      "title": "Umgang mit Angeboten",
+      "sections": ["Angebot am selben Tag vorlegen", "Schriftliches Angebot und Bedingungen", "Identifizierung der Parteien", "Wer entscheidet"]
+    },
+    "under_contract_timeline": {
+      "title": "Ablauf nach dem Kaufvertrag und Fristen",
+      "sections": ["Jede Frist aus dem Vertrag lesen und die Fundstelle notieren", "Fristen für Anzahlung, Finanzierung, Prüfung und Widerruf", "Notartermin und Übergabe"]
+    },
+    "closing_handover": {
+      "title": "Checkliste Abschluss und Übergabe",
+      "sections": ["Schlüssel und Zählerstände", "Grundbucheintrag", "Provisionsrechnung in Ihrem Buchhaltungsprogramm", "Ablage"]
+    },
+    "past_client_routine": {
+      "title": "Routine für frühere Kunden",
+      "sections": ["Monatlicher Kontakt", "Anruf zum Jahrestag", "Empfehlungen danken", "Um eine Bewertung bitten"]
+    },
+    "message_templates": {
+      "title": "Nachrichtenvorlagen",
+      "sections": ["Antwort auf eine Anfrage", "Bestätigung des Bewertungstermins", "Auftragsangebot", "Bericht an den Eigentümer", "Rückmeldung zur Besichtigung", "Mitteilung zu einem Angebot", "Dank"]
+    },
+    "data_rules": {
+      "title": "Datenregeln: Identifizierung, Gleichbehandlung, was draußen bleibt",
+      "sections": ["Nur festhalten, dass identifiziert wurde, nie die Dokumente", "Suchkriterien beschreiben das Objekt, nie die Person", "Aufbewahrung"]
+    }
+  },
+  "rules": {
+    "portal_lead_contact": {
+      "title": "Neue Anfrage heute kontaktieren",
+      "description": "Eine Anfrage über ein Immobilienportal oder WhatsApp erhält eine Anruf-Aufgabe, fällig am selben Tag."
+    },
+    "prepare_valuation": {
+      "title": "Bewertung und Unterlagenliste vorbereiten",
+      "description": "Wechselt ein Objekt auf Bewertungstermin, ist am nächsten Tag eine Bewertungs-Aufgabe fällig."
+    },
+    "send_listing_proposal": {
+      "title": "Maklerauftrag anbieten",
+      "description": "Nach dem Bewertungstermin erhält ein Objekt, das noch auf Bewertungstermin steht, eine Aufgabe zum Auftragsangebot, fällig am nächsten Tag."
+    },
+    "proposal_message_day_2": {
+      "title": "Zum Auftragsangebot per Nachricht nachfassen",
+      "description": "Zwei Tage nach dem Auftragsangebot."
+    },
+    "proposal_call_day_5": {
+      "title": "Zum Auftragsangebot anrufen",
+      "description": "Fünf Tage nach dem Auftragsangebot."
+    },
+    "proposal_final_call_day_10": {
+      "title": "Letzter Anruf zum Auftragsangebot",
+      "description": "Zehn Tage nach dem Auftragsangebot."
+    },
+    "prepare_property": {
+      "title": "Objekt vorbereiten und veröffentlichen",
+      "description": "Fotos, Grundriss, Energieausweis und Unterlagen; den Auftrag dort ins Register eintragen, wo eines vorgeschrieben ist; dann veröffentlichen. Fällig drei Tage nach der Unterschrift."
+    },
+    "agreement_end_review": {
+      "title": "Maklerauftrag prüfen: verlängern oder Preis anpassen",
+      "description": "Dreißig Tage vor Ende des Auftrags erhält ein Objekt im Vertrieb eine Eigentümer-Aufgabe."
+    },
+    "agreement_end_notice": {
+      "title": "Makler informieren: Der Auftrag endet in einer Woche",
+      "description": "Sieben Tage vor Ende des Auftrags wird der Zuständige des Objekts benachrichtigt, damit er über die Verlängerung entscheidet."
+    },
+    "weekly_owner_update": {
+      "title": "Bericht an den Eigentümer senden",
+      "description": "Jede Woche erhält ein Objekt im Vertrieb eine Aufgabe, dem Eigentümer über Besichtigungen, Rückmeldungen und Anfragen zu berichten."
+    },
+    "viewing_feedback": {
+      "title": "Rückmeldung zur Besichtigung einholen und an den Eigentümer senden",
+      "description": "Am Tag nach einer Besichtigung entsteht eine Aufgabe, wenn noch keine Rückmeldung erfasst ist."
+    },
+    "offer_notice": {
+      "title": "Makler informieren: Ein Angebot muss vorgelegt werden",
+      "description": "Erreicht ein Objekt die Kaufpreisverhandlung, wird der Zuständige benachrichtigt, damit das Angebot heute vorgelegt wird."
+    },
+    "listing_key_dates": {
+      "title": "Fristen aus dem Kaufvertrag anlegen",
+      "description": "Ist ein Objekt im Kaufvertrag, werden seine Fristen aus dem Vertrag angelegt."
+    },
+    "buyer_key_dates": {
+      "title": "Fristen aus dem Kaufvertrag des Interessenten anlegen",
+      "description": "Ist ein Suchauftrag im Kaufvertrag, werden die Fristen aus dem Vertrag angelegt."
+    },
+    "key_date_calendar": {
+      "title": "Frist in den Kalender des Maklers eintragen",
+      "description": "Jede neue Frist wird in den eigenen Kalender des Maklers geschrieben."
+    },
+    "key_date_reminder": {
+      "title": "Makler informieren: Eine Frist läuft in zwei Tagen ab",
+      "description": "Zwei Tage vor einer offenen Frist wird der Zuständige benachrichtigt, damit er den Schritt bestätigt oder nachhakt."
+    },
+    "completed_handover": {
+      "title": "Übergeben und um eine Bewertung bitten",
+      "description": "Übergabe-Checkliste, Dank und Bitte um eine Bewertung, fällig sieben Tage nach dem Abschluss."
+    },
+    "completed_anniversary": {
+      "title": "Anruf zum Jahrestag",
+      "description": "Ein Jahr nach dem Abschluss ist eine Aufgabe zur Kontaktpflege fällig."
+    },
+    "identify_before_contract": {
+      "title": "Identifizierung der Parteien festhalten",
+      "description": "Erreicht ein Objekt die Kaufpreisverhandlung, erinnert eine Aufgabe daran festzuhalten, dass vor dem Vertrag identifiziert wurde."
+    },
+    "identify_buyer_offer": {
+      "title": "Identifizierung des Käufers festhalten",
+      "description": "Erreicht ein Suchauftrag Angebot abgegeben, erinnert eine Aufgabe daran festzuhalten, dass identifiziert wurde."
+    },
+    "buyer_re_engage": {
+      "title": "Interessenten mit neuen passenden Objekten wieder ansprechen",
+      "description": "Jeden Montag erhält ein Suchauftrag in der Phase Besichtigung ohne Aktivität seit sieben Tagen eine Aufgabe zur Kontaktpflege."
+    },
+    "listing_price_review": {
+      "title": "Preis und Vermarktung mit dem Eigentümer prüfen",
+      "description": "Jeden Montag erhält ein Objekt im Vertrieb ohne Besichtigung seit 14 Tagen eine Prüfungs-Aufgabe."
+    },
+    "past_client_monthly_touch": {
+      "title": "Kontakt zum früheren Kunden pflegen",
+      "description": "Jeden Montag erhält ein früherer Kunde ohne Kontakt seit 30 Tagen eine Aufgabe zur Kontaktpflege."
+    }
+  },
+  "acceptanceChecks": {
+    "listing_stage_field": "Jedes Objekt hat eine von neun Phasen.",
+    "buyer_stage_field": "Jeder Suchauftrag hat eine von sieben Phasen.",
+    "agreement_end_field": "Jedes Objekt hält fest, wann der Maklerauftrag endet.",
+    "key_dates_list": "Die Termine nach Vertragsabschluss werden in einer eigenen Liste geführt.",
+    "listings_board_view": "Die Objektliste öffnet sich als Board nach Phase.",
+    "operating_guide_page": "Die Wissensdatenbank enthält die Arbeitsanleitung."
+  },
+  "prompt": {
+    "intro": "Richte in meinem Customermates-Workspace eine Immobilien-Pipeline ein: Objekte mit Art und Ende des Maklerauftrags, Suchaufträge, Besichtigungen mit Rückmeldung, Fristen nach dem Kaufvertrag und eine terminierte Aufgabe für jeden offenen Datensatz.",
+    "questions": [
+      "Arbeiten Sie für Eigentümer, für Käufer oder für beide? Verkaufen, vermieten oder beides?",
+      "Welche Arten von Maklerauftrag nutzen Sie, und was gilt dafür bei Ihnen?",
+      "Wie erreichen Sie Anfragen: Immobilienportale, Ihre Website, WhatsApp oder Empfehlungen?",
+      "Welche Software verwaltet Ihre Objekte und veröffentlicht sie auf Portalen? Hier wird nur eine Kennung geführt, nichts wird kopiert.",
+      "Welche Fristen sind in Ihren Verträgen wichtig, zum Beispiel Anzahlung, Finanzierung, Prüfung oder Notar?"
+    ]
+  }
+}

@@ -1,0 +1,1921 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^tpl_[a-z0-9_]+$"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "slug": {
+      "type": "string",
+      "maxLength": 48,
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "family": {
+      "type": "string",
+      "enum": [
+        "sales",
+        "clients",
+        "property",
+        "recruiting",
+        "professional-services",
+        "operations",
+        "content",
+        "intake",
+        "community",
+        "trades",
+        "investing",
+        "custom"
+      ]
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "pipeline",
+        "tracker",
+        "register",
+        "checklist"
+      ]
+    },
+    "jurisdictions": {
+      "minItems": 1,
+      "maxItems": 12,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(?:global|[A-Z]{2})$"
+      }
+    },
+    "dashboardAudience": {
+      "default": "team",
+      "type": "string",
+      "enum": [
+        "me",
+        "team",
+        "management"
+      ]
+    },
+    "requiresCapabilities": {
+      "maxItems": 5,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "forms",
+          "rules",
+          "calendarWrite",
+          "notifications",
+          "incomingWebhooks"
+        ]
+      }
+    },
+    "pairedPages": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^\\/(?:for|features)\\/[a-z0-9-]+$"
+      }
+    },
+    "modules": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+      }
+    },
+    "lists": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "people",
+              "tasks",
+              "deals",
+              "offerings"
+            ]
+          },
+          "icon": {
+            "type": "string",
+            "pattern": "^[a-z][a-zA-Z]{0,39}$"
+          },
+          "color": {
+            "type": "string",
+            "enum": [
+              "default",
+              "secondary",
+              "destructive",
+              "success",
+              "warning",
+              "info"
+            ]
+          }
+        },
+        "required": [
+          "key",
+          "icon"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "fields": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "richText",
+              "number",
+              "currency",
+              "boolean",
+              "date",
+              "dateTime",
+              "select",
+              "url",
+              "member",
+              "address",
+              "file",
+              "dateRange",
+              "channels"
+            ]
+          },
+          "required": {
+            "default": false,
+            "type": "boolean"
+          },
+          "multiple": {
+            "default": false,
+            "type": "boolean"
+          },
+          "options": {
+            "default": [],
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                },
+                "color": {
+                  "type": "string",
+                  "enum": [
+                    "default",
+                    "secondary",
+                    "destructive",
+                    "success",
+                    "warning",
+                    "info"
+                  ]
+                }
+              },
+              "required": [
+                "key"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "key",
+          "type"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "stages": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+          },
+          "items": {
+            "minItems": 2,
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                },
+                "color": {
+                  "type": "string",
+                  "enum": [
+                    "default",
+                    "secondary",
+                    "destructive",
+                    "success",
+                    "warning",
+                    "info"
+                  ]
+                },
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "open",
+                    "won",
+                    "lost"
+                  ]
+                },
+                "weight": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100
+                }
+              },
+              "required": [
+                "key"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "field",
+          "items"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "calculations": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "number",
+              "currency",
+              "date",
+              "boolean",
+              "text"
+            ]
+          },
+          "expression": {
+            "$ref": "#/$defs/__schema0"
+          }
+        },
+        "required": [
+          "key",
+          "type",
+          "expression"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "relationships": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+          },
+          "source": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+          },
+          "target": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+          },
+          "sourceCardinality": {
+            "type": "string",
+            "enum": [
+              "one",
+              "many"
+            ]
+          },
+          "targetCardinality": {
+            "type": "string",
+            "enum": [
+              "one",
+              "many"
+            ]
+          }
+        },
+        "required": [
+          "key",
+          "source",
+          "target",
+          "sourceCardinality",
+          "targetCardinality"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "views": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+          },
+          "list": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+          },
+          "default": {
+            "type": "boolean"
+          },
+          "layout": {
+            "type": "string",
+            "enum": [
+              "table",
+              "board"
+            ]
+          },
+          "groupBy": {
+            "default": null,
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                  },
+                  {
+                    "type": "string",
+                    "enum": [
+                      "system:createdAt",
+                      "system:updatedAt",
+                      "system:assignedTo"
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sort": {
+            "default": null,
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "system:createdAt",
+                          "system:updatedAt",
+                          "system:assignedTo"
+                        ]
+                      }
+                    ]
+                  },
+                  "direction": {
+                    "type": "string",
+                    "enum": [
+                      "asc",
+                      "desc"
+                    ]
+                  }
+                },
+                "required": [
+                  "field",
+                  "direction"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "columns": {
+            "default": [],
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+            }
+          },
+          "summaries": {
+            "default": [],
+            "maxItems": 4,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                },
+                "aggregation": {
+                  "type": "string",
+                  "enum": [
+                    "sum",
+                    "average",
+                    "min",
+                    "max"
+                  ]
+                }
+              },
+              "required": [
+                "field",
+                "aggregation"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "filters": {
+            "default": [],
+            "maxItems": 4,
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "operator": {
+                      "type": "string",
+                      "enum": [
+                        "in",
+                        "notIn"
+                      ]
+                    },
+                    "field": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                    },
+                    "options": {
+                      "minItems": 1,
+                      "maxItems": 20,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                      }
+                    }
+                  },
+                  "required": [
+                    "operator",
+                    "field",
+                    "options"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "operator": {
+                      "type": "string",
+                      "enum": [
+                        "inLastDays",
+                        "notInLastDays"
+                      ]
+                    },
+                    "field": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "system:createdAt",
+                            "system:updatedAt",
+                            "system:assignedTo"
+                          ]
+                        }
+                      ]
+                    },
+                    "days": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 3650
+                    }
+                  },
+                  "required": [
+                    "operator",
+                    "field",
+                    "days"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "operator": {
+                      "type": "string",
+                      "enum": [
+                        "empty",
+                        "notEmpty"
+                      ]
+                    },
+                    "field": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "system:createdAt",
+                            "system:updatedAt",
+                            "system:assignedTo"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "operator",
+                    "field"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "key",
+          "list",
+          "default",
+          "layout"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "widgets": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "chart"
+              },
+              "key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+              },
+              "list": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+              },
+              "aggregation": {
+                "type": "string",
+                "enum": [
+                  "count",
+                  "sum",
+                  "average",
+                  "min",
+                  "max"
+                ]
+              },
+              "valueField": {
+                "default": null,
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "groupBy": {
+                "default": null,
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "path": {
+                        "default": [],
+                        "maxItems": 2,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "relationship": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                            },
+                            "direction": {
+                              "type": "string",
+                              "enum": [
+                                "outgoing",
+                                "incoming"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "relationship",
+                            "direction"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "field": {
+                        "default": null,
+                        "anyOf": [
+                          {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                              },
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "system:createdAt",
+                                  "system:updatedAt",
+                                  "system:assignedTo"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "dateInterval": {
+                        "type": "string",
+                        "enum": [
+                          "day",
+                          "week",
+                          "month",
+                          "quarter",
+                          "year"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "filters": {
+                "default": [],
+                "maxItems": 4,
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "operator": {
+                          "type": "string",
+                          "enum": [
+                            "in",
+                            "notIn"
+                          ]
+                        },
+                        "field": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                        },
+                        "options": {
+                          "minItems": 1,
+                          "maxItems": 20,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                          }
+                        }
+                      },
+                      "required": [
+                        "operator",
+                        "field",
+                        "options"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "operator": {
+                          "type": "string",
+                          "enum": [
+                            "inLastDays",
+                            "notInLastDays"
+                          ]
+                        },
+                        "field": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "system:createdAt",
+                                "system:updatedAt",
+                                "system:assignedTo"
+                              ]
+                            }
+                          ]
+                        },
+                        "days": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 3650
+                        }
+                      },
+                      "required": [
+                        "operator",
+                        "field",
+                        "days"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "operator": {
+                          "type": "string",
+                          "enum": [
+                            "empty",
+                            "notEmpty"
+                          ]
+                        },
+                        "field": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "system:createdAt",
+                                "system:updatedAt",
+                                "system:assignedTo"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "operator",
+                        "field"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              },
+              "display": {
+                "type": "string",
+                "enum": [
+                  "number",
+                  "verticalBarChart",
+                  "horizontalBarChart",
+                  "areaChart",
+                  "rankedTable",
+                  "doughnutChart",
+                  "funnelChart",
+                  "radarChart"
+                ]
+              },
+              "size": {
+                "type": "string",
+                "enum": [
+                  "small",
+                  "medium",
+                  "large",
+                  "wide"
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "key",
+              "list",
+              "aggregation",
+              "display"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "calendar"
+              },
+              "key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+              },
+              "list": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+              },
+              "layout": {
+                "type": "string",
+                "enum": [
+                  "upcoming",
+                  "month"
+                ]
+              },
+              "dateField": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+              },
+              "amountField": {
+                "default": null,
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "filters": {
+                "default": [],
+                "maxItems": 4,
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "operator": {
+                          "type": "string",
+                          "enum": [
+                            "in",
+                            "notIn"
+                          ]
+                        },
+                        "field": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                        },
+                        "options": {
+                          "minItems": 1,
+                          "maxItems": 20,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                          }
+                        }
+                      },
+                      "required": [
+                        "operator",
+                        "field",
+                        "options"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "operator": {
+                          "type": "string",
+                          "enum": [
+                            "inLastDays",
+                            "notInLastDays"
+                          ]
+                        },
+                        "field": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "system:createdAt",
+                                "system:updatedAt",
+                                "system:assignedTo"
+                              ]
+                            }
+                          ]
+                        },
+                        "days": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 3650
+                        }
+                      },
+                      "required": [
+                        "operator",
+                        "field",
+                        "days"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "operator": {
+                          "type": "string",
+                          "enum": [
+                            "empty",
+                            "notEmpty"
+                          ]
+                        },
+                        "field": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "system:createdAt",
+                                "system:updatedAt",
+                                "system:assignedTo"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "operator",
+                        "field"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "key",
+              "list",
+              "layout",
+              "dateField"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "map"
+              },
+              "key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+              },
+              "list": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+              },
+              "addressField": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+              },
+              "colorField": {
+                "default": null,
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "sizeField": {
+                "default": null,
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "detailField": {
+                "default": null,
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "filters": {
+                "default": [],
+                "maxItems": 4,
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "operator": {
+                          "type": "string",
+                          "enum": [
+                            "in",
+                            "notIn"
+                          ]
+                        },
+                        "field": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                        },
+                        "options": {
+                          "minItems": 1,
+                          "maxItems": 20,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                          }
+                        }
+                      },
+                      "required": [
+                        "operator",
+                        "field",
+                        "options"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "operator": {
+                          "type": "string",
+                          "enum": [
+                            "inLastDays",
+                            "notInLastDays"
+                          ]
+                        },
+                        "field": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "system:createdAt",
+                                "system:updatedAt",
+                                "system:assignedTo"
+                              ]
+                            }
+                          ]
+                        },
+                        "days": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 3650
+                        }
+                      },
+                      "required": [
+                        "operator",
+                        "field",
+                        "days"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "operator": {
+                          "type": "string",
+                          "enum": [
+                            "empty",
+                            "notEmpty"
+                          ]
+                        },
+                        "field": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "system:createdAt",
+                                "system:updatedAt",
+                                "system:assignedTo"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "operator",
+                        "field"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "key",
+              "list",
+              "addressField"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "activity"
+              },
+              "key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+              }
+            },
+            "required": [
+              "kind",
+              "key"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "knowledgePages": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "overview",
+              "productsPricing",
+              "idealCustomer",
+              "salesPlaybook",
+              "faq",
+              "processes",
+              "toneOfVoice",
+              "competitor"
+            ]
+          }
+        },
+        "required": [
+          "key",
+          "kind"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "followUpRules": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+          },
+          "trigger": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "record_created"
+                  },
+                  "list": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "list"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "field_changed"
+                  },
+                  "field": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                  },
+                  "to": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "field"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "date_reached"
+                  },
+                  "field": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                  },
+                  "offsetDays": {
+                    "type": "integer",
+                    "minimum": -3650,
+                    "maximum": 3650
+                  }
+                },
+                "required": [
+                  "kind",
+                  "field",
+                  "offsetDays"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "unchanged_for"
+                  },
+                  "field": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                  },
+                  "days": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 3650
+                  }
+                },
+                "required": [
+                  "kind",
+                  "field",
+                  "days"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "schedule"
+                  },
+                  "every": {
+                    "type": "string",
+                    "enum": [
+                      "day",
+                      "week",
+                      "month"
+                    ]
+                  },
+                  "weekday": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 7
+                  },
+                  "list": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "every"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "form_submitted"
+                  },
+                  "form": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "form"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "webhook_received"
+                  },
+                  "source": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "source"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "condition": {
+            "default": [],
+            "maxItems": 4,
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "operator": {
+                      "type": "string",
+                      "enum": [
+                        "in",
+                        "notIn"
+                      ]
+                    },
+                    "field": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                    },
+                    "options": {
+                      "minItems": 1,
+                      "maxItems": 20,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                      }
+                    }
+                  },
+                  "required": [
+                    "operator",
+                    "field",
+                    "options"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "operator": {
+                      "type": "string",
+                      "enum": [
+                        "empty",
+                        "notEmpty",
+                        "passed"
+                      ]
+                    },
+                    "field": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                    }
+                  },
+                  "required": [
+                    "operator",
+                    "field"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "operator": {
+                      "type": "string",
+                      "const": "olderThanDays"
+                    },
+                    "field": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                    },
+                    "days": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 3650
+                    }
+                  },
+                  "required": [
+                    "operator",
+                    "field",
+                    "days"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "action": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "create_task"
+                  },
+                  "taskKind": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                  },
+                  "assignee": {
+                    "type": "string",
+                    "enum": [
+                      "record_owner",
+                      "workspace_owner"
+                    ]
+                  },
+                  "about": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "taskKind",
+                  "assignee"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "notify"
+                  },
+                  "recipient": {
+                    "type": "string",
+                    "enum": [
+                      "record_owner",
+                      "workspace_owner"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "recipient"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "add_calendar_event"
+                  },
+                  "dateField": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "dateField"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "create_records"
+                  },
+                  "lists": {
+                    "minItems": 1,
+                    "maxItems": 4,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                    }
+                  }
+                },
+                "required": [
+                  "kind",
+                  "lists"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "set_dates"
+                  },
+                  "dates": {
+                    "minItems": 1,
+                    "maxItems": 4,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+                        },
+                        "offsetDays": {
+                          "type": "integer",
+                          "minimum": -3650,
+                          "maximum": 3650
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "offsetDays"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "kind",
+                  "dates"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "dueOffsetDays": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3650
+          },
+          "needs": {
+            "type": "string",
+            "enum": [
+              "today",
+              "forms",
+              "rules",
+              "calendarWrite",
+              "notifications",
+              "incomingWebhooks"
+            ]
+          }
+        },
+        "required": [
+          "key",
+          "trigger",
+          "action",
+          "dueOffsetDays",
+          "needs"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "acceptanceChecks": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "list_exists",
+              "field_exists",
+              "view_exists",
+              "widget_exists",
+              "rule_exists",
+              "page_exists"
+            ]
+          },
+          "ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          }
+        },
+        "required": [
+          "key",
+          "kind",
+          "ref"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "sources": {
+      "minItems": 1,
+      "maxItems": 30,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "checkedOn": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          }
+        },
+        "required": [
+          "url",
+          "checkedOn"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "reviewedAt": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "status": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "enum": [
+          "draft",
+          "reviewed",
+          "published"
+        ]
+      }
+    },
+    "publicPage": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "enum": [
+          "own",
+          "proof",
+          "none"
+        ]
+      }
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "schemaVersion",
+    "slug",
+    "family",
+    "kind",
+    "jurisdictions",
+    "requiresCapabilities",
+    "pairedPages",
+    "sources",
+    "reviewedAt",
+    "status",
+    "publicPage"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "__schema0": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "const": "field"
+            },
+            "field": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+            }
+          },
+          "required": [
+            "op",
+            "field"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "const": "number"
+            },
+            "value": {
+              "type": "string",
+              "pattern": "^-?(?:0|[1-9]\\d{0,14})(?:\\.\\d{1,6})?$"
+            }
+          },
+          "required": [
+            "op",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "enum": [
+                "add",
+                "subtract",
+                "multiply",
+                "divide"
+              ]
+            },
+            "left": {
+              "$ref": "#/$defs/__schema0"
+            },
+            "right": {
+              "$ref": "#/$defs/__schema0"
+            }
+          },
+          "required": [
+            "op",
+            "left",
+            "right"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "const": "optionWeight"
+            },
+            "field": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+            }
+          },
+          "required": [
+            "op",
+            "field"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "const": "daysBetween"
+            },
+            "from": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+            },
+            "to": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+            }
+          },
+          "required": [
+            "op",
+            "from",
+            "to"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "const": "related"
+            },
+            "relationship": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+            },
+            "direction": {
+              "type": "string",
+              "enum": [
+                "outgoing",
+                "incoming"
+              ]
+            },
+            "field": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+            },
+            "reducer": {
+              "type": "string",
+              "enum": [
+                "one",
+                "sum",
+                "count",
+                "average",
+                "min",
+                "max"
+              ]
+            }
+          },
+          "required": [
+            "op",
+            "relationship",
+            "direction",
+            "field",
+            "reducer"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,499 @@
+{
+  "id": "tpl_sales_pipeline",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "sales-pipeline",
+  "family": "sales",
+  "kind": "pipeline",
+  "jurisdictions": ["global"],
+  "dashboardAudience": "team",
+  "modules": ["actions_core"],
+  "requiresCapabilities": ["forms", "rules", "notifications"],
+  "pairedPages": { "en": "/features/pipeline", "de": "/features/pipeline" },
+  "lists": [
+    { "key": "contacts", "role": "people", "icon": "contact" },
+    { "key": "accounts", "icon": "building" },
+    { "key": "opportunities", "role": "deals", "icon": "handshake" }
+  ],
+  "stages": [
+    {
+      "field": "opportunities.stage",
+      "items": [
+        { "key": "new", "outcome": "open", "weight": 10 },
+        { "key": "qualified", "outcome": "open", "weight": 25 },
+        { "key": "discovery", "outcome": "open", "weight": 40 },
+        { "key": "proposal_sent", "outcome": "open", "weight": 60 },
+        { "key": "negotiation", "outcome": "open", "weight": 80 },
+        { "key": "won", "outcome": "won", "weight": 100 },
+        { "key": "lost", "outcome": "lost", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "contacts.job_title", "type": "text" },
+    {
+      "key": "contacts.buying_role",
+      "type": "select",
+      "options": [
+        { "key": "decision_maker" },
+        { "key": "budget_holder" },
+        { "key": "champion" },
+        { "key": "influencer" },
+        { "key": "user" },
+        { "key": "blocker" }
+      ]
+    },
+    { "key": "contacts.language", "type": "text" },
+    { "key": "contacts.outreach_consent", "type": "boolean" },
+    {
+      "key": "accounts.relationship",
+      "type": "select",
+      "options": [{ "key": "prospect" }, { "key": "customer" }, { "key": "former_customer" }, { "key": "partner" }]
+    },
+    {
+      "key": "accounts.size",
+      "type": "select",
+      "options": [{ "key": "micro" }, { "key": "small" }, { "key": "medium" }, { "key": "large" }]
+    },
+    { "key": "accounts.industry", "type": "text" },
+    { "key": "accounts.website", "type": "url" },
+    { "key": "accounts.address", "type": "address" },
+    { "key": "accounts.owner", "type": "member" },
+    { "key": "opportunities.owner", "type": "member" },
+    {
+      "key": "opportunities.deal_type",
+      "type": "select",
+      "options": [{ "key": "new_business" }, { "key": "expansion" }, { "key": "renewal" }]
+    },
+    {
+      "key": "opportunities.source",
+      "type": "select",
+      "options": [
+        { "key": "referral" },
+        { "key": "inbound" },
+        { "key": "outbound" },
+        { "key": "event" },
+        { "key": "partner" },
+        { "key": "existing_customer" },
+        { "key": "other" }
+      ]
+    },
+    { "key": "opportunities.first_contact_on", "type": "date" },
+    { "key": "opportunities.expected_close", "type": "date" },
+    { "key": "opportunities.closed_on", "type": "date" },
+    { "key": "opportunities.next_step", "type": "text" },
+    { "key": "opportunities.next_step_due", "type": "date" },
+    { "key": "opportunities.decision_date", "type": "date" },
+    { "key": "opportunities.competitor", "type": "text" },
+    {
+      "key": "opportunities.lost_reason",
+      "type": "select",
+      "options": [
+        { "key": "price" },
+        { "key": "competitor" },
+        { "key": "no_budget_or_decision" },
+        { "key": "timing" },
+        { "key": "no_response" },
+        { "key": "not_a_fit" },
+        { "key": "other" }
+      ]
+    },
+    { "key": "opportunities.won_reason", "type": "text" },
+    {
+      "key": "actions.kind",
+      "type": "select",
+      "options": [
+        { "key": "call" },
+        { "key": "email" },
+        { "key": "meeting" },
+        { "key": "proposal" },
+        { "key": "follow_up" },
+        { "key": "handover" },
+        { "key": "review" },
+        { "key": "other" }
+      ]
+    }
+  ],
+  "calculations": [
+    {
+      "key": "opportunities.weighted_value",
+      "type": "currency",
+      "expression": {
+        "op": "divide",
+        "left": {
+          "op": "multiply",
+          "left": { "op": "field", "field": "opportunities.value" },
+          "right": { "op": "optionWeight", "field": "opportunities.stage" }
+        },
+        "right": { "op": "number", "value": "100" }
+      }
+    },
+    {
+      "key": "opportunities.cycle_days",
+      "type": "number",
+      "expression": { "op": "daysBetween", "from": "opportunities.first_contact_on", "to": "opportunities.closed_on" }
+    }
+  ],
+  "relationships": [
+    { "key": "contact_account", "source": "contacts", "target": "accounts", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "opportunity_account", "source": "opportunities", "target": "accounts", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "opportunity_contacts", "source": "opportunities", "target": "contacts", "sourceCardinality": "many", "targetCardinality": "many" },
+    { "key": "action_opportunity", "source": "actions", "target": "opportunities", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_contact", "source": "actions", "target": "contacts", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    {
+      "key": "pipeline_board",
+      "list": "opportunities",
+      "default": true,
+      "layout": "board",
+      "groupBy": "opportunities.stage",
+      "sort": { "field": "opportunities.next_step_due", "direction": "asc" },
+      "columns": ["opportunities.value", "opportunities.weighted_value", "opportunities.owner", "opportunities.next_step_due"],
+      "summaries": [
+        { "field": "opportunities.value", "aggregation": "sum" },
+        { "field": "opportunities.weighted_value", "aggregation": "sum" }
+      ]
+    },
+    {
+      "key": "opportunities_all",
+      "list": "opportunities",
+      "default": false,
+      "layout": "table",
+      "sort": { "field": "opportunities.next_step_due", "direction": "asc" },
+      "columns": [
+        "opportunities.stage",
+        "opportunities.value",
+        "opportunities.weighted_value",
+        "opportunities.owner",
+        "opportunities.next_step_due"
+      ]
+    },
+    {
+      "key": "no_next_step",
+      "list": "opportunities",
+      "default": false,
+      "layout": "table",
+      "filters": [
+        { "operator": "notIn", "field": "opportunities.stage", "options": ["won", "lost"] },
+        { "operator": "empty", "field": "opportunities.next_step_due" }
+      ]
+    },
+    {
+      "key": "won_handover",
+      "list": "opportunities",
+      "default": false,
+      "layout": "table",
+      "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["won"] }]
+    },
+    {
+      "key": "lost_to_revisit",
+      "list": "opportunities",
+      "default": false,
+      "layout": "table",
+      "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["lost"] }]
+    },
+    {
+      "key": "actions_all",
+      "list": "actions",
+      "default": true,
+      "layout": "table",
+      "sort": { "field": "actions.due", "direction": "asc" },
+      "columns": ["actions.due", "actions.status", "actions.kind", "actions.owner"]
+    },
+    {
+      "key": "accounts_all",
+      "list": "accounts",
+      "default": true,
+      "layout": "table",
+      "columns": ["accounts.relationship", "accounts.size", "accounts.industry", "accounts.owner"]
+    },
+    {
+      "key": "contacts_all",
+      "list": "contacts",
+      "default": true,
+      "layout": "table",
+      "columns": ["contacts.buying_role", "contacts.language"]
+    }
+  ],
+  "widgets": [
+    {
+      "kind": "chart",
+      "key": "pipeline_funnel",
+      "list": "opportunities",
+      "aggregation": "count",
+      "groupBy": { "field": "opportunities.stage" },
+      "filters": [{ "operator": "notIn", "field": "opportunities.stage", "options": ["won", "lost"] }],
+      "display": "funnelChart",
+      "size": "large"
+    },
+    {
+      "kind": "chart",
+      "key": "open_value_by_stage",
+      "list": "opportunities",
+      "aggregation": "sum",
+      "valueField": "opportunities.value",
+      "groupBy": { "field": "opportunities.stage" },
+      "filters": [{ "operator": "notIn", "field": "opportunities.stage", "options": ["won", "lost"] }],
+      "display": "verticalBarChart"
+    },
+    {
+      "kind": "chart",
+      "key": "weighted_value_by_stage",
+      "list": "opportunities",
+      "aggregation": "sum",
+      "valueField": "opportunities.weighted_value",
+      "groupBy": { "field": "opportunities.stage" },
+      "filters": [{ "operator": "notIn", "field": "opportunities.stage", "options": ["won", "lost"] }],
+      "display": "verticalBarChart"
+    },
+    {
+      "kind": "chart",
+      "key": "open_opportunities",
+      "list": "opportunities",
+      "aggregation": "count",
+      "filters": [{ "operator": "notIn", "field": "opportunities.stage", "options": ["won", "lost"] }],
+      "display": "number"
+    },
+    {
+      "kind": "chart",
+      "key": "open_value",
+      "list": "opportunities",
+      "aggregation": "sum",
+      "valueField": "opportunities.value",
+      "filters": [{ "operator": "notIn", "field": "opportunities.stage", "options": ["won", "lost"] }],
+      "display": "number"
+    },
+    {
+      "kind": "chart",
+      "key": "open_weighted_value",
+      "list": "opportunities",
+      "aggregation": "sum",
+      "valueField": "opportunities.weighted_value",
+      "filters": [{ "operator": "notIn", "field": "opportunities.stage", "options": ["won", "lost"] }],
+      "display": "number"
+    },
+    {
+      "kind": "chart",
+      "key": "won_last_90_days",
+      "list": "opportunities",
+      "aggregation": "sum",
+      "valueField": "opportunities.value",
+      "filters": [
+        { "operator": "in", "field": "opportunities.stage", "options": ["won"] },
+        { "operator": "inLastDays", "field": "opportunities.closed_on", "days": 90 }
+      ],
+      "display": "number"
+    },
+    {
+      "kind": "chart",
+      "key": "lost_reasons",
+      "list": "opportunities",
+      "aggregation": "count",
+      "groupBy": { "field": "opportunities.lost_reason" },
+      "display": "doughnutChart"
+    },
+    {
+      "kind": "chart",
+      "key": "pipeline_by_owner",
+      "list": "opportunities",
+      "aggregation": "sum",
+      "valueField": "opportunities.value",
+      "groupBy": { "field": "opportunities.owner" },
+      "filters": [{ "operator": "notIn", "field": "opportunities.stage", "options": ["won", "lost"] }],
+      "display": "rankedTable"
+    },
+    {
+      "kind": "chart",
+      "key": "deals_without_next_step",
+      "list": "opportunities",
+      "aggregation": "count",
+      "filters": [
+        { "operator": "notIn", "field": "opportunities.stage", "options": ["won", "lost"] },
+        { "operator": "empty", "field": "opportunities.next_step_due" }
+      ],
+      "display": "number"
+    },
+    {
+      "kind": "calendar",
+      "key": "upcoming_actions",
+      "list": "actions",
+      "layout": "upcoming",
+      "dateField": "actions.due",
+      "filters": [{ "operator": "in", "field": "actions.status", "options": ["open", "waiting"] }]
+    },
+    {
+      "kind": "calendar",
+      "key": "expected_closes",
+      "list": "opportunities",
+      "layout": "month",
+      "dateField": "opportunities.expected_close",
+      "amountField": "opportunities.value"
+    }
+  ],
+  "knowledgePages": [
+    { "key": "stages_exit_criteria", "kind": "processes" },
+    { "key": "qualification_questions", "kind": "salesPlaybook" },
+    { "key": "proposal_cadence", "kind": "salesPlaybook" },
+    { "key": "weekly_review", "kind": "processes" },
+    { "key": "win_loss_review", "kind": "processes" },
+    { "key": "message_templates", "kind": "salesPlaybook" }
+  ],
+  "followUpRules": [
+    {
+      "key": "qualify_new_opportunity",
+      "trigger": { "kind": "record_created", "list": "opportunities" },
+      "action": { "kind": "create_task", "taskKind": "call", "assignee": "record_owner", "about": "opportunities" },
+      "dueOffsetDays": 1,
+      "needs": "today"
+    },
+    {
+      "key": "book_discovery_call",
+      "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "qualified" },
+      "action": { "kind": "create_task", "taskKind": "meeting", "assignee": "record_owner", "about": "opportunities" },
+      "dueOffsetDays": 3,
+      "needs": "today"
+    },
+    {
+      "key": "send_proposal",
+      "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "discovery" },
+      "action": { "kind": "create_task", "taskKind": "proposal", "assignee": "record_owner", "about": "opportunities" },
+      "dueOffsetDays": 5,
+      "needs": "today"
+    },
+    {
+      "key": "follow_up_proposal",
+      "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "proposal_sent" },
+      "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "opportunities" },
+      "dueOffsetDays": 3,
+      "needs": "today"
+    },
+    {
+      "key": "second_proposal_follow_up",
+      "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "proposal_sent" },
+      "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "opportunities" },
+      "dueOffsetDays": 10,
+      "needs": "today"
+    },
+    {
+      "key": "confirm_decision",
+      "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "negotiation" },
+      "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "opportunities" },
+      "dueOffsetDays": 5,
+      "needs": "today"
+    },
+    {
+      "key": "won_close_date",
+      "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "won" },
+      "action": { "kind": "set_dates", "dates": [{ "field": "opportunities.closed_on", "offsetDays": 0 }] },
+      "dueOffsetDays": 0,
+      "needs": "today"
+    },
+    {
+      "key": "won_handover",
+      "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "won" },
+      "action": { "kind": "create_task", "taskKind": "handover", "assignee": "record_owner", "about": "opportunities" },
+      "dueOffsetDays": 1,
+      "needs": "today"
+    },
+    {
+      "key": "lost_revisit",
+      "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "lost" },
+      "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "opportunities" },
+      "dueOffsetDays": 90,
+      "needs": "today"
+    },
+    {
+      "key": "stale_deal_sweep",
+      "trigger": { "kind": "unchanged_for", "field": "opportunities.stage", "days": 14 },
+      "condition": [
+        { "operator": "in", "field": "opportunities.stage", "options": ["new", "qualified", "discovery", "proposal_sent", "negotiation"] }
+      ],
+      "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "opportunities" },
+      "dueOffsetDays": 0,
+      "needs": "today"
+    },
+    {
+      "key": "expected_close_passed",
+      "trigger": { "kind": "date_reached", "field": "opportunities.expected_close", "offsetDays": 1 },
+      "condition": [
+        { "operator": "in", "field": "opportunities.stage", "options": ["new", "qualified", "discovery", "proposal_sent", "negotiation"] }
+      ],
+      "action": { "kind": "create_task", "taskKind": "review", "assignee": "record_owner", "about": "opportunities" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    {
+      "key": "next_step_due_notice",
+      "trigger": { "kind": "date_reached", "field": "opportunities.next_step_due", "offsetDays": 0 },
+      "condition": [
+        { "operator": "in", "field": "opportunities.stage", "options": ["new", "qualified", "discovery", "proposal_sent", "negotiation"] }
+      ],
+      "action": { "kind": "notify", "recipient": "record_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    {
+      "key": "weekly_pipeline_report",
+      "trigger": { "kind": "schedule", "every": "week", "weekday": 5 },
+      "action": { "kind": "create_task", "taskKind": "review", "assignee": "workspace_owner" },
+      "dueOffsetDays": 0,
+      "needs": "today"
+    },
+    {
+      "key": "enquiry_form_records",
+      "trigger": { "kind": "form_submitted", "form": "enquiry" },
+      "action": { "kind": "create_records", "lists": ["contacts", "accounts", "opportunities"] },
+      "dueOffsetDays": 0,
+      "needs": "forms"
+    },
+    {
+      "key": "enquiry_form_notice",
+      "trigger": { "kind": "form_submitted", "form": "enquiry" },
+      "action": { "kind": "notify", "recipient": "workspace_owner" },
+      "dueOffsetDays": 1,
+      "needs": "notifications"
+    },
+    {
+      "key": "fill_missing_value",
+      "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "discovery" },
+      "condition": [{ "operator": "empty", "field": "opportunities.value" }],
+      "action": { "kind": "create_task", "taskKind": "review", "assignee": "record_owner", "about": "opportunities" },
+      "dueOffsetDays": 1,
+      "needs": "today"
+    },
+    {
+      "key": "fill_expected_close",
+      "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "proposal_sent" },
+      "condition": [{ "operator": "empty", "field": "opportunities.expected_close" }],
+      "action": { "kind": "create_task", "taskKind": "review", "assignee": "record_owner", "about": "opportunities" },
+      "dueOffsetDays": 1,
+      "needs": "today"
+    }
+  ],
+  "acceptanceChecks": [
+    { "key": "stage_field", "kind": "field_exists", "ref": "opportunities.stage" },
+    { "key": "weighted_value_field", "kind": "field_exists", "ref": "opportunities.weighted_value" },
+    { "key": "pipeline_board_view", "kind": "view_exists", "ref": "pipeline_board" },
+    { "key": "funnel_widget", "kind": "widget_exists", "ref": "pipeline_funnel" },
+    { "key": "proposal_follow_up_rule", "kind": "rule_exists", "ref": "follow_up_proposal" },
+    { "key": "stages_page", "kind": "page_exists", "ref": "stages_exit_criteria" }
+  ],
+  "sources": [
+    { "url": "https://www.salesforce.com/sales/pipeline/management/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.superoffice.com/blog/sales-pipeline-management-tips/", "checkedOn": "2026-11-12" },
+    { "url": "https://knowledge.hubspot.com/object-settings/set-up-and-customize-pipelines", "checkedOn": "2026-11-12" },
+    { "url": "https://www.pipedrive.com/es/blog/como-hacer-un-pipeline-de-ventas", "checkedOn": "2026-11-12" },
+    { "url": "https://www.pipedrive.com/en/resources/free-sales-pipeline-template", "checkedOn": "2026-11-12" },
+    { "url": "https://uptoo.fr/blog/pipeline-commercial-definition-outils-tout-savoir/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.teamsystem.com/magazine/crm/pipeline-di-vendita/", "checkedOn": "2026-11-12" },
+    { "url": "https://pipedrive.com/pl/blog/proces-sprzedazy", "checkedOn": "2026-11-12" },
+    { "url": "https://attio.com/help/reference/managing-your-data/attributes/formula-attribute-examples", "checkedOn": "2026-11-12" },
+    { "url": "https://attio.com/templates/sales/ecv-and-pcd-reminder", "checkedOn": "2026-11-12" },
+    { "url": "https://www.conversion.com.br/blog/planilha-funil-de-vendas", "checkedOn": "2026-11-12" },
+    { "url": "https://www.pipedrive.com/de/blog/crm-vertrieb", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft" },
+  "publicPage": { "en": "own", "de": "none" }
+}

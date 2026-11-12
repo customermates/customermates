@@ -17,7 +17,7 @@ import {
 import { templateTextIssues } from "@/core/templates/template-text-validation";
 
 export const TEMPLATES_ROOT = join(process.cwd(), "templates");
-export const GENERATED_ROOT = join(process.cwd(), "core", "templates", "generated");
+export const BUNDLES_ROOT = join(process.cwd(), "core", "templates", "bundles");
 
 const NON_TEMPLATE_DIRECTORIES = new Set(["_modules", "schema"]);
 const MODULE_ARRAYS = [
