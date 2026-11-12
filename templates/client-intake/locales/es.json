@@ -6,7 +6,7 @@
   "lists": {
     "contacts": { "label": "Persona de contacto", "pluralLabel": "Personas de contacto", "description": "Las personas de cada cliente: contacto principal, facturación, firmante." },
     "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Empresas, autónomos y particulares a los que das de alta." },
-    "intakes": { "label": "Alta", "pluralLabel": "Altas", "description": "Un alta por encargo, desde la solicitud hasta incorporado o rechazado." },
+    "intakes": { "label": "Alta", "pluralLabel": "Altas", "description": "Un alta por encargo, desde la solicitud hasta cliente activo o rechazado." },
     "document_requests": { "label": "Documento solicitado", "pluralLabel": "Documentos solicitados", "description": "Una fila por cada documento que pides a un cliente." }
   },
   "fields": {
@@ -20,7 +20,7 @@
         "agreement_sent": "Hoja de encargo enviada",
         "ready_to_start": "Listo para empezar",
         "kickoff_scheduled": "Reunión de arranque",
-        "onboarded": "Incorporado",
+        "onboarded": "Cliente activo",
         "declined": "Rechazado"
       }
     },
@@ -90,8 +90,8 @@
       "options": {
         "identity": "Documento de identidad",
         "proof_of_address": "Justificante de domicilio",
-        "company_register": "Nota del Registro Mercantil",
-        "prior_year_return": "Declaración del año anterior",
+        "company_register": "Nota simple del Registro Mercantil",
+        "prior_year_return": "Declaración de impuestos del año anterior",
         "contract": "Contrato",
         "questionnaire": "Cuestionario",
         "access_credentials": "Claves de acceso",
@@ -163,7 +163,7 @@
     },
     "document_requests_guide": {
       "title": "Lista de documentos y mensajes de recordatorio",
-      "sections": ["Lista estándar por servicio", "Primera petición y recordatorios", "Cuando un documento hay que corregirlo"]
+      "sections": ["Lista estándar por servicio", "Primera petición y recordatorios", "Cuando hay que corregir un documento"]
     },
     "agreement_checklist": {
       "title": "Lista de la hoja de encargo",
@@ -189,7 +189,7 @@
     "first_value_check": { "title": "Comprobar el primer resultado", "description": "Catorce días después del alta, una tarea de comprobación pregunta si el cliente ha visto un primer resultado." },
     "stalled_intake": { "title": "Revisar el alta estancada", "description": "Un alta abierta que lleva 7 días en la misma etapa recibe una tarea de revisión." },
     "intake_form_records": { "title": "Crear cliente, persona de contacto y alta desde el formulario", "description": "Un formulario público de alta crea el cliente, la persona de contacto y un alta en la etapa Solicitud." },
-    "intake_form_notice": { "title": "Avisar al responsable del alta nueva", "description": "Se avisa al titular del espacio de trabajo de cada envío." }
+    "intake_form_notice": { "title": "Avisar al propietario del alta nueva", "description": "Se avisa al propietario del espacio de trabajo de cada envío." }
   },
   "acceptanceChecks": {
     "stage_field": "Cada alta tiene una de las nueve etapas.",

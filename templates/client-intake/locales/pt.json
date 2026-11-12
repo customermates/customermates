@@ -56,8 +56,8 @@
       "label": "Modelo de honorários",
       "options": { "fixed": "Valor fixo", "hourly": "Por hora", "retainer": "Mensalidade", "other": "Outro" }
     },
-    "intakes.deposit_required": { "label": "Sinal exigido" },
-    "intakes.deposit_received_on": { "label": "Sinal recebido em" },
+    "intakes.deposit_required": { "label": "Adiantamento exigido" },
+    "intakes.deposit_received_on": { "label": "Adiantamento recebido em" },
     "intakes.identity_verified_on": { "label": "Identidade conferida em" },
     "intakes.identity_verified_by": { "label": "Identidade conferida por" },
     "intakes.conflict_check": {
@@ -167,7 +167,7 @@
     },
     "agreement_checklist": {
       "title": "Checklist do contrato",
-      "sections": ["Escopo, modelo de honorários e sinal", "Quem assina e em qual ferramenta", "O que fazer se ficar sem assinatura"]
+      "sections": ["Escopo, modelo de honorários e adiantamento", "Quem assina e em qual ferramenta", "O que fazer se ficar sem assinatura"]
     },
     "regulated_checks": {
       "title": "Conferência de identidade, conflito e risco em profissões regulamentadas",
@@ -189,7 +189,7 @@
     "first_value_check": { "title": "Conferir o primeiro resultado", "description": "Quatorze dias depois da integração, uma tarefa de conferência pergunta se o cliente já viu um primeiro resultado." },
     "stalled_intake": { "title": "Revisar a integração parada", "description": "Uma integração aberta que ficou 7 dias na mesma etapa recebe uma tarefa de revisão." },
     "intake_form_records": { "title": "Criar cliente, contato e integração a partir do formulário", "description": "Um formulário público de integração cria o cliente, o contato e uma integração na etapa Solicitação." },
-    "intake_form_notice": { "title": "Avisar o responsável da nova integração", "description": "O dono do espaço de trabalho é avisado de cada envio." }
+    "intake_form_notice": { "title": "Avisar o proprietário sobre a nova integração", "description": "O proprietário do espaço de trabalho é avisado de cada envio." }
   },
   "acceptanceChecks": {
     "stage_field": "Cada integração tem uma das nove etapas.",

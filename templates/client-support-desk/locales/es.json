@@ -2,10 +2,10 @@
   "locale": "es",
   "name": "Soporte al cliente",
   "summary": "Un soporte ligero: tickets con prioridad, tiempo de primera respuesta y plazo de resolución, incidencias conocidas que unen varios tickets a una causa y una valoración de satisfacción.",
-  "description": "Atienda a sus clientes desde un solo lugar: cada ticket tiene un estado, una prioridad, un tipo, un responsable y la hora hasta la que debe una primera respuesta y una solución. Vincule los tickets a una incidencia conocida para avisar a todos cuando se resuelva y mantenga a la vista el plazo de un mes de una solicitud de datos. Pensado para unas decenas de tickets por semana. No es una centralita, un chat en vivo, un portal de clientes ni un calendario de horario laboral.",
+  "description": "Atiende a tus clientes desde un solo lugar: cada ticket tiene un estado, una prioridad, un tipo, un responsable y la fecha límite de la primera respuesta y de la solución. Vincula los tickets a una incidencia conocida para avisar a todos cuando se resuelva y mantén a la vista el plazo de un mes de una solicitud de datos. Pensado para unas decenas de tickets por semana. No es una centralita, un chat en vivo, un portal de clientes ni un calendario de horario laboral.",
   "lists": {
-    "customers": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Las personas que le escriben para pedir ayuda." },
-    "accounts": { "label": "Cuenta", "pluralLabel": "Cuentas", "description": "Las empresas detrás de sus clientes, con su plan de soporte." },
+    "customers": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Las personas que te escriben para pedir ayuda." },
+    "accounts": { "label": "Cuenta", "pluralLabel": "Cuentas", "description": "Las empresas detrás de tus clientes, con su plan de soporte." },
     "tickets": { "label": "Ticket", "pluralLabel": "Tickets", "description": "Una solicitud de ayuda, del primer mensaje a la resolución." },
     "known_issues": { "label": "Incidencia conocida", "pluralLabel": "Incidencias conocidas", "description": "Una causa detrás de varios tickets, con su solución provisional y su fecha de corrección." }
   },
@@ -54,7 +54,7 @@
   "views": {
     "tickets_all": { "name": "Todos los tickets" },
     "tickets_board": { "name": "Tablero de tickets" },
-    "waiting_on_us": { "name": "Esperando respuesta nuestra" },
+    "waiting_on_us": { "name": "Esperando nuestra respuesta" },
     "known_issues_all": { "name": "Todas las incidencias conocidas" },
     "customers_all": { "name": "Todos los clientes" },
     "accounts_all": { "name": "Todas las cuentas" }
@@ -62,7 +62,7 @@
   "widgets": {
     "tickets_by_status": { "title": "Tickets por estado" },
     "open_by_priority": { "title": "Tickets abiertos por prioridad" },
-    "waiting_on_us_count": { "title": "Tickets esperando respuesta nuestra" },
+    "waiting_on_us_count": { "title": "Tickets esperando nuestra respuesta" },
     "responses_due": { "title": "Primeras respuestas pendientes" },
     "average_rating": { "title": "Valoración media" },
     "tickets_by_type": { "title": "Tickets por tipo" }
@@ -76,7 +76,7 @@
     "ticket_created": { "title": "Crear una tarea de respuesta cuando se crea un ticket" },
     "first_response_missed": { "title": "Avisar al responsable cuando la primera respuesta va con retraso" },
     "nudge_customer": { "title": "Recordar al cliente tras 3 días de espera" },
-    "send_survey": { "title": "Enviar la encuesta de satisfacción el día después de resolver" },
+    "send_survey": { "title": "Enviar la encuesta de satisfacción al día siguiente de resolver" },
     "close_solved": { "title": "Cerrar un ticket que lleva 4 días resuelto" },
     "data_request_clock": { "title": "Fijar la resolución a 30 días cuando un ticket pasa a ser una solicitud de datos" },
     "known_issue_fixed": { "title": "Avisar a los clientes cuando se corrige una incidencia conocida" },
@@ -88,12 +88,12 @@
     "tickets_board_view": "Los tickets se abren como tablero por estado."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de Customermates un soporte al cliente: tickets con estado, prioridad, tiempo de primera respuesta y plazo de resolución, incidencias conocidas vinculadas a los tickets, una valoración de satisfacción y seguimientos con fecha.",
+    "intro": "Configura en mi espacio de trabajo de Customermates un soporte al cliente: tickets con estado, prioridad, tiempo de primera respuesta y plazo de resolución, incidencias conocidas vinculadas a los tickets, una valoración de satisfacción y seguimientos con fecha.",
     "questions": [
-      "¿Cuántos tickets gestiona por semana y por qué canales llegan?",
-      "¿Qué plazos promete para la primera respuesta y la resolución, según la prioridad o el plan de soporte?",
+      "¿Cuántos tickets gestionas por semana y por qué canales llegan?",
+      "¿Qué plazos prometes para la primera respuesta y la resolución, según la prioridad o el plan de soporte?",
       "¿Quién responde y a quién se avisa cuando un ticket va con retraso?",
-      "¿Recibe solicitudes de datos o alertas de otros sistemas que deban convertirse en tickets?"
+      "¿Recibes solicitudes de datos o alertas de otros sistemas que deban convertirse en tickets?"
     ]
   }
 }

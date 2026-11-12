@@ -2,7 +2,7 @@
   "locale": "pt",
   "name": "Atendimento ao cliente",
   "summary": "Um atendimento enxuto: chamados com prioridade, prazo de primeira resposta e prazo de resolução, problemas conhecidos que ligam vários chamados a uma causa e uma nota de satisfação.",
-  "description": "Atenda seus clientes em um só lugar: cada chamado tem situação, prioridade, tipo, responsável e o prazo em que você deve uma primeira resposta e uma solução. Ligue os chamados a um problema conhecido para avisar a todos quando for resolvido e mantenha à vista o prazo de um mês de uma solicitação da LGPD. Pensado para algumas dezenas de chamados por semana. Não é uma central telefônica, um chat ao vivo, um portal do cliente nem um calendário de horário comercial.",
+  "description": "Atenda seus clientes em um só lugar: cada chamado tem status, prioridade, tipo, responsável e o prazo em que você deve uma primeira resposta e uma solução. Vincule os chamados a um problema conhecido para avisar a todos quando for resolvido e mantenha à vista o prazo de uma solicitação de titular da LGPD. Pensado para algumas dezenas de chamados por semana. Não é uma central telefônica, um chat ao vivo, um portal do cliente nem um calendário de horário comercial.",
   "lists": {
     "customers": { "label": "Cliente", "pluralLabel": "Clientes", "description": "As pessoas que escrevem para você pedindo ajuda." },
     "accounts": { "label": "Conta", "pluralLabel": "Contas", "description": "As empresas por trás dos seus clientes, com o plano de suporte." },
@@ -15,7 +15,7 @@
     "accounts.support_plan": { "label": "Plano de suporte", "options": { "standard": "Padrão", "priority": "Prioritário", "none": "Nenhum" } },
     "accounts.contract_end": { "label": "Fim do contrato" },
     "tickets.status": {
-      "label": "Situação",
+      "label": "Status",
       "options": { "new": "Novo", "open": "Aberto", "pending_customer": "Aguardando cliente", "on_hold": "Aguardando terceiros", "solved": "Resolvido", "closed": "Fechado", "spam_or_duplicate": "Spam ou duplicado" }
     },
     "tickets.priority": { "label": "Prioridade", "options": { "urgent": "Urgente", "high": "Alta", "normal": "Normal", "low": "Baixa" } },
@@ -27,7 +27,7 @@
     "tickets.solved_on": { "label": "Resolvido em" },
     "tickets.rating": { "label": "Avaliação" },
     "known_issues.status": {
-      "label": "Situação",
+      "label": "Status",
       "options": { "investigating": "Em investigação", "workaround_available": "Solução alternativa disponível", "fixed": "Corrigido", "wont_fix": "Não será corrigido" }
     },
     "known_issues.workaround": { "label": "Solução alternativa" },
@@ -39,7 +39,7 @@
         "nudge_customer": "Lembrar o cliente",
         "send_survey": "Enviar a pesquisa de satisfação",
         "close_ticket": "Fechar o chamado",
-        "tell_customer_fixed": "Avisar o cliente que foi corrigido",
+        "tell_customer_fixed": "Avisar o cliente de que foi corrigido",
         "verify_identity": "Verificar a identidade",
         "other": "Outro"
       }
@@ -60,7 +60,7 @@
     "accounts_all": { "name": "Todas as contas" }
   },
   "widgets": {
-    "tickets_by_status": { "title": "Chamados por situação" },
+    "tickets_by_status": { "title": "Chamados por status" },
     "open_by_priority": { "title": "Chamados abertos por prioridade" },
     "waiting_on_us_count": { "title": "Chamados aguardando nossa resposta" },
     "responses_due": { "title": "Primeiras respostas a dar" },
@@ -68,9 +68,9 @@
     "tickets_by_type": { "title": "Chamados por tipo" }
   },
   "knowledgePages": {
-    "how_we_run_support": { "title": "Como funciona o nosso atendimento", "sections": ["Situações e prioridades", "Metas de primeira resposta e de resolução", "Quem está de plantão"] },
+    "how_we_run_support": { "title": "Como funciona o nosso atendimento", "sections": ["Status e prioridades", "Metas de primeira resposta e de resolução", "Quem está de plantão"] },
     "triage_and_replies": { "title": "Triagem e respostas padrão", "sections": ["Tipo, prioridade e responsável", "Primeira resposta, pedido de informações, corrigido, sem retorno"] },
-    "data_requests": { "title": "Solicitações de titulares (LGPD)", "sections": ["Verificar a identidade, registrar, responder em um mês", "Quem decide"] }
+    "data_requests": { "title": "Solicitações de titulares (LGPD)", "sections": ["Verificar a identidade, registrar e responder dentro do prazo legal (acesso e confirmação: até 15 dias)", "Quem decide"] }
   },
   "rules": {
     "ticket_created": { "title": "Criar uma tarefa de resposta quando um chamado é aberto" },
@@ -83,12 +83,12 @@
     "ticket_from_webhook": { "title": "Abrir um chamado quando outro sistema envia um alerta" }
   },
   "acceptanceChecks": {
-    "status_field": "Todo chamado tem uma situação.",
+    "status_field": "Todo chamado tem um status.",
     "first_response_field": "Todo chamado registra o prazo da primeira resposta.",
-    "tickets_board_view": "Os chamados abrem como quadro por situação."
+    "tickets_board_view": "Os chamados abrem como quadro por status."
   },
   "prompt": {
-    "intro": "Configure no meu workspace do Customermates um atendimento ao cliente: chamados com situação, prioridade, prazo de primeira resposta e prazo de resolução, problemas conhecidos ligados aos chamados, uma nota de satisfação e acompanhamentos com data.",
+    "intro": "Configure no meu espaço de trabalho do Customermates um atendimento ao cliente: chamados com status, prioridade, prazo de primeira resposta e prazo de resolução, problemas conhecidos ligados aos chamados, uma nota de satisfação e acompanhamentos com data.",
     "questions": [
       "Quantos chamados você atende por semana e por quais canais eles chegam?",
       "Que prazos você promete para a primeira resposta e a resolução, por prioridade ou plano de suporte?",
