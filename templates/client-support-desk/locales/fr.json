@@ -1,12 +1,12 @@
 {
   "locale": "fr",
   "name": "Support client",
-  "summary": "Un support léger : tickets avec priorité, délai de première réponse et échéance de résolution, problèmes connus qui relient plusieurs tickets à une cause, et note de satisfaction.",
-  "description": "Répondez à vos clients depuis un seul endroit : chaque ticket a un statut, une priorité, un type, un responsable et l'heure à laquelle vous devez une première réponse et une solution. Reliez les tickets à un problème connu pour prévenir tout le monde de sa résolution et gardez sous les yeux le délai d'un mois d'une demande RGPD. Prévu pour quelques dizaines de tickets par semaine. Ce n'est ni un standard téléphonique, ni un chat en direct, ni un portail client, ni un calendrier d'heures ouvrées.",
+  "summary": "Un support léger : tickets avec priorité, délai de première réponse et échéance de résolution, problèmes connus qui relient plusieurs tickets à une cause, et note de satisfaction.",
+  "description": "Répondez à vos clients depuis un seul endroit : chaque ticket a un statut, une priorité, un type, un responsable et les échéances de première réponse et de résolution. Reliez les tickets à un problème connu pour prévenir tout le monde de sa résolution et gardez bien visible le délai d’un mois d’une demande RGPD. Prévu pour quelques dizaines de tickets par semaine. Ce n’est ni un standard téléphonique, ni un chat en direct, ni un portail client, ni un calendrier d’heures ouvrées.",
   "lists": {
-    "customers": { "label": "Client", "pluralLabel": "Clients", "description": "Les personnes qui vous écrivent pour obtenir de l'aide." },
+    "customers": { "label": "Client", "pluralLabel": "Clients", "description": "Les personnes qui vous écrivent pour obtenir de l’aide." },
     "accounts": { "label": "Compte", "pluralLabel": "Comptes", "description": "Les entreprises derrière vos clients, avec leur formule de support." },
-    "tickets": { "label": "Ticket", "pluralLabel": "Tickets", "description": "Une demande d'aide, du premier message à la résolution." },
+    "tickets": { "label": "Ticket", "pluralLabel": "Tickets", "description": "Une demande d’aide, du premier message à la résolution." },
     "known_issues": { "label": "Problème connu", "pluralLabel": "Problèmes connus", "description": "Une cause derrière plusieurs tickets, avec son contournement et sa date de correction." }
   },
   "fields": {
@@ -16,11 +16,11 @@
     "accounts.contract_end": { "label": "Fin du contrat" },
     "tickets.status": {
       "label": "Statut",
-      "options": { "new": "Nouveau", "open": "Ouvert", "pending_customer": "En attente du client", "on_hold": "En attente d'un tiers", "solved": "Résolu", "closed": "Fermé", "spam_or_duplicate": "Spam ou doublon" }
+      "options": { "new": "Nouveau", "open": "Ouvert", "pending_customer": "En attente du client", "on_hold": "En attente d’un tiers", "solved": "Résolu", "closed": "Fermé", "spam_or_duplicate": "Spam ou doublon" }
     },
     "tickets.priority": { "label": "Priorité", "options": { "urgent": "Urgente", "high": "Haute", "normal": "Normale", "low": "Basse" } },
     "tickets.type": { "label": "Type", "options": { "question": "Question", "problem": "Problème", "request": "Demande", "complaint": "Réclamation", "data_request": "Demande RGPD" } },
-    "tickets.channel": { "label": "Canal", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "form": "Formulaire de demande", "phone": "Téléphone", "webhook": "Alerte d'un autre système" } },
+    "tickets.channel": { "label": "Canal", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "form": "Formulaire de demande", "phone": "Téléphone", "webhook": "Alerte d’un autre système" } },
     "tickets.assignee": { "label": "Assigné à" },
     "tickets.first_response_due": { "label": "Première réponse avant" },
     "tickets.resolution_due": { "label": "Résolution avant" },
@@ -37,10 +37,10 @@
       "options": {
         "reply": "Répondre",
         "nudge_customer": "Relancer le client",
-        "send_survey": "Envoyer l'enquête de satisfaction",
+        "send_survey": "Envoyer l’enquête de satisfaction",
         "close_ticket": "Fermer le ticket",
-        "tell_customer_fixed": "Prévenir le client que c'est corrigé",
-        "verify_identity": "Vérifier l'identité",
+        "tell_customer_fixed": "Prévenir le client que c’est corrigé",
+        "verify_identity": "Vérifier l’identité",
         "other": "Autre"
       }
     }
@@ -53,7 +53,7 @@
   },
   "views": {
     "tickets_all": { "name": "Tous les tickets" },
-    "tickets_board": { "name": "Tableau des tickets" },
+    "tickets_board": { "name": "Board des tickets" },
     "waiting_on_us": { "name": "En attente de notre réponse" },
     "known_issues_all": { "name": "Tous les problèmes connus" },
     "customers_all": { "name": "Tous les clients" },
@@ -69,14 +69,14 @@
   },
   "knowledgePages": {
     "how_we_run_support": { "title": "Comment fonctionne notre support", "sections": ["Statuts et priorités", "Objectifs de première réponse et de résolution", "Qui est de permanence"] },
-    "triage_and_replies": { "title": "Tri et réponses types", "sections": ["Type, priorité et responsable", "Première réponse, demande d'informations, corrigé, sans réponse"] },
-    "data_requests": { "title": "Demandes RGPD", "sections": ["Vérifier l'identité, consigner, répondre sous un mois", "Qui décide"] }
+    "triage_and_replies": { "title": "Tri et réponses types", "sections": ["Type, priorité et responsable", "Première réponse, demande d’informations, corrigé, sans réponse"] },
+    "data_requests": { "title": "Demandes RGPD", "sections": ["Vérifier l’identité, consigner, répondre sous un mois", "Qui décide"] }
   },
   "rules": {
     "ticket_created": { "title": "Créer une tâche de réponse quand un ticket est créé" },
     "first_response_missed": { "title": "Prévenir le responsable quand la première réponse est en retard" },
-    "nudge_customer": { "title": "Relancer le client après 3 jours d'attente" },
-    "send_survey": { "title": "Envoyer l'enquête de satisfaction le lendemain de la résolution" },
+    "nudge_customer": { "title": "Relancer le client après 3 jours d’attente" },
+    "send_survey": { "title": "Envoyer l’enquête de satisfaction le lendemain de la résolution" },
     "close_solved": { "title": "Fermer un ticket resté résolu pendant 4 jours" },
     "data_request_clock": { "title": "Fixer la résolution à 30 jours quand un ticket devient une demande RGPD" },
     "known_issue_fixed": { "title": "Prévenir les clients quand un problème connu est corrigé" },
@@ -85,15 +85,15 @@
   "acceptanceChecks": {
     "status_field": "Chaque ticket a un statut.",
     "first_response_field": "Chaque ticket indique avant quand la première réponse est due.",
-    "tickets_board_view": "Les tickets s'ouvrent en tableau par statut."
+    "tickets_board_view": "Les tickets s’ouvrent en board par statut."
   },
   "prompt": {
-    "intro": "Mets en place dans mon espace Customermates un support client : tickets avec statut, priorité, délai de première réponse et échéance de résolution, problèmes connus reliés aux tickets, note de satisfaction et relances datées.",
+    "intro": "Mets en place dans mon espace de travail Customermates un support client : tickets avec statut, priorité, délai de première réponse et échéance de résolution, problèmes connus reliés aux tickets, note de satisfaction et relances datées.",
     "questions": [
-      "Combien de tickets traitez-vous par semaine, et par quels canaux arrivent-ils ?",
-      "Quels délais promettez-vous pour la première réponse et la résolution, selon la priorité ou la formule de support ?",
-      "Qui répond, et qui est prévenu quand un ticket est en retard ?",
-      "Recevez-vous des demandes RGPD ou des alertes d'autres systèmes qui doivent devenir des tickets ?"
+      "Combien de tickets traitez-vous par semaine, et par quels canaux arrivent-ils ?",
+      "Quels délais promettez-vous pour la première réponse et la résolution, selon la priorité ou la formule de support ?",
+      "Qui répond, et qui est prévenu quand un ticket est en retard ?",
+      "Recevez-vous des demandes RGPD ou des alertes d’autres systèmes qui doivent devenir des tickets ?"
     ]
   }
 }

@@ -1,10 +1,10 @@
 {
   "locale": "fr",
   "name": "Fichier client",
-  "summary": "Une ligne par client, un responsable, une prochaine relance datée, avec une revue hebdomadaire et une date de revue des données pour chaque client clos.",
-  "description": "Un fichier client court et rigoureux : sept statuts, la date du dernier contact, une date de prochaine relance qui pilote le travail, un rythme de revue par segment et une date de revue des données pour les clients clos. Les contacts, les actions datées et les conversations liées se trouvent à côté de chaque client.",
+  "summary": "Une ligne par client, un responsable, une prochaine action datée, avec une revue hebdomadaire et une date de revue des données pour chaque client clos.",
+  "description": "Un fichier client court et rigoureux : sept statuts, la date du dernier contact, une échéance de prochaine action qui pilote le travail, un rythme de revue par segment et une date de revue des données pour les clients clos. Les contacts, les actions datées et les conversations liées se trouvent à côté de chaque client.",
   "lists": {
-    "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Une ligne par client, un responsable, une prochaine relance datée." },
+    "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Une ligne par client, un responsable, une prochaine action datée." },
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes avec lesquelles vous travaillez chez chaque client." }
   },
   "fields": {
@@ -22,7 +22,7 @@
     },
     "clients.segment": {
       "label": "Segment",
-      "options": { "a_key": "A : client clé", "b_regular": "B : client régulier", "c_occasional": "C : client occasionnel" }
+      "options": { "a_key": "A : client clé", "b_regular": "B : client régulier", "c_occasional": "C : client occasionnel" }
     },
     "clients.owner": { "label": "Responsable de compte" },
     "clients.source": {
@@ -39,7 +39,7 @@
     "clients.client_since": { "label": "Client depuis" },
     "clients.last_contact": { "label": "Dernier contact" },
     "clients.next_step": { "label": "Prochaine action" },
-    "clients.next_step_due": { "label": "Date de relance" },
+    "clients.next_step_due": { "label": "Échéance de la prochaine action" },
     "clients.review_interval": {
       "label": "Fréquence de revue",
       "options": { "monthly": "Mensuelle", "quarterly": "Trimestrielle", "half_yearly": "Semestrielle", "yearly": "Annuelle" }
@@ -85,7 +85,7 @@
     "clients_all": { "name": "Tous les clients" },
     "clients_board": { "name": "Clients par statut" },
     "needs_next_step": { "name": "Sans prochaine action" },
-    "overdue_next_step": { "name": "Relances en retard" },
+    "overdue_next_step": { "name": "Prochaines actions en retard" },
     "waiting_on_client": { "name": "En attente du client" },
     "at_risk": { "name": "À risque" },
     "data_review_due": { "name": "Revue des données à faire" },
@@ -113,15 +113,15 @@
     },
     "weekly_review": {
       "title": "Revue clients hebdomadaire de 15 minutes",
-      "sections": ["Trier par date de relance et par statut", "En retard, actifs sans prochaine action, prospects à l’arrêt", "Terminer avec une date sur chaque ligne"]
+      "sections": ["Trier par échéance et par statut", "En retard, actifs sans prochaine action, prospects à l’arrêt", "Terminer avec une date sur chaque ligne"]
     },
     "status_definitions": {
       "title": "Définition des statuts clients",
       "sections": ["Règle d’entrée et de sortie de chaque statut", "Relancer après 7 jours, remonter après 14", "Qui peut changer un statut"]
     },
     "message_templates": {
-      "title": "Modèles de messages : prise de nouvelles et réactivation",
-      "sections": ["Prise de nouvelles après un temps calme", "Relance d’un client qui doit répondre", "Invitation à la revue", "Réactivation après 90 jours", "Clôture courtoise"]
+      "title": "Modèles de messages : prise de nouvelles et réactivation",
+      "sections": ["Prise de nouvelles après une période sans contact", "Relance d’un client qui doit répondre", "Invitation à la revue", "Réactivation après 90 jours", "Clôture courtoise"]
     },
     "data_retention": {
       "title": "Conservation des données et RGPD pour le fichier client",
@@ -135,23 +135,23 @@
     },
     "chase_waiting_client": {
       "title": "Relancer le client pour l’élément en attente",
-      "description": "Quand un client passe à En attente du client, son responsable reçoit une action de relance au bout de 7 jours."
+      "description": "Quand un client passe à « En attente du client », son responsable reçoit une action de relance au bout de 7 jours."
     },
     "review_before_due": {
       "title": "Revoir le dossier du client",
       "description": "Sept jours avant la prochaine revue d’un client actif, une action de revue est créée pour le responsable."
     },
     "daily_next_step_sweep": {
-      "title": "Prendre des nouvelles : aucune action ouverte sur ce client",
+      "title": "Prendre des nouvelles : aucune action ouverte sur ce client",
       "description": "Chaque jour, un client actif ou en mise en route sans action ouverte liée reçoit une action de prise de nouvelles pour le jour même."
     },
     "stalled_client_sweep": {
-      "title": "Prendre des nouvelles : aucun contact depuis 45 jours",
+      "title": "Prendre des nouvelles : aucun contact depuis 45 jours",
       "description": "Chaque lundi, un client actif sans contact depuis 45 jours reçoit une action de prise de nouvelles. Le statut ne change jamais tout seul."
     },
     "closed_client_dates": {
       "title": "Renseigner la date de clôture et la date de revue des données",
-      "description": "Quand un client est clos, Clos le prend la date du jour et Revue des données le trois ans plus tard. Adaptez la durée à votre pays."
+      "description": "Quand un client est clos, « Clos le » prend la date du jour et « Revue des données le » celle de trois ans plus tard. Adaptez la durée à votre pays."
     },
     "closed_client_data_review": {
       "title": "Revoir les données de ce client clos",
@@ -159,11 +159,11 @@
     },
     "inactive_reactivation": {
       "title": "Demander si le client est encore concerné",
-      "description": "Quatre-vingt-dix jours après le passage d’un client à Inactif, une action de prise de nouvelles pose la question de la réactivation."
+      "description": "Quatre-vingt-dix jours après le passage d’un client à « Inactif », une action de prise de nouvelles pose la question de la réactivation."
     },
     "enquiry_form_records": {
       "title": "Créer le client et le contact à partir d’une demande",
-      "description": "Un formulaire de demande public crée un client en Prospect et son contact."
+      "description": "Un formulaire de demande public crée un client en « Prospect » et son contact."
     },
     "enquiry_form_reply": {
       "title": "Répondre à la demande",
@@ -177,19 +177,19 @@
   "acceptanceChecks": {
     "status_field": "Chaque client a un statut parmi les sept valeurs.",
     "next_step_date_field": "Chaque client a une prochaine action et une date pour elle.",
-    "clients_default_view": "La liste des clients s’ouvre triée par date de relance.",
+    "clients_default_view": "La liste des clients s’ouvre triée par échéance de la prochaine action.",
     "overdue_widget": "Le tableau de bord indique combien d’actions sont en retard.",
-    "chase_rule": "Un client passé à En attente du client reçoit une action de relance.",
+    "chase_rule": "Un client passé à « En attente du client » reçoit une action de relance.",
     "playbook_page": "La base de connaissances contient le mode d’emploi du fichier client."
   },
   "prompt": {
-    "intro": "Mets en place un fichier client dans mon espace Customermates : une ligne par client avec un responsable, un statut, la date du dernier contact et une prochaine action datée, plus les contacts, des actions datées, une revue hebdomadaire et une date de revue des données pour les clients clos.",
+    "intro": "Mets en place un fichier client dans mon espace de travail Customermates : une ligne par client avec un responsable, un statut, la date du dernier contact et une prochaine action datée, plus les contacts, des actions datées, une revue hebdomadaire et une date de revue des données pour les clients clos.",
     "questions": [
-      "Combien de clients suivez-vous aujourd’hui, et qui d’autre travaille sur le fichier ?",
-      "Quels statuts clients utilisez-vous déjà ? Faut-il renommer ou retirer certains des sept ?",
-      "À quelle fréquence voulez-vous revoir les clients clés, réguliers et occasionnels ?",
-      "Dans quel pays travaillez-vous, pour fixer la durée de conservation des clients clos ?",
-      "Gardez-vous vos factures ailleurs ? Si oui, dans quel outil, pour ne pas ajouter de champs de facturation ici."
+      "Combien de clients suivez-vous aujourd’hui, et qui d’autre travaille sur le fichier ?",
+      "Quels statuts clients utilisez-vous déjà ? Faut-il renommer ou retirer certains des sept ?",
+      "À quelle fréquence voulez-vous revoir les clients clés, réguliers et occasionnels ?",
+      "Dans quel pays travaillez-vous, pour fixer la durée de conservation des clients clos ?",
+      "Gardez-vous vos factures ailleurs ? Si oui, dans quel outil, pour ne pas ajouter de champs de facturation ici."
     ]
   }
 }
