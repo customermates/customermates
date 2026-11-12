@@ -1196,7 +1196,7 @@
         "data_requests": {
           "title": "Auskunftsersuchen nach DSGVO",
           "sections": [
-            "Identität prüfen, erfassen, binnen eines Monats antworten",
+            "Identität prüfen, erfassen, binnen der gesetzlichen Frist antworten (ein Monat nach DSGVO, 15 Tage nach LGPD)",
             "Wer entscheidet"
           ]
         }
@@ -1515,7 +1515,7 @@
         "data_requests": {
           "title": "Data requests",
           "sections": [
-            "Verify identity, log, answer within one month",
+            "Verify identity, log, answer within the statutory deadline (one month under the GDPR, 15 days under the LGPD)",
             "Who decides"
           ]
         }
@@ -1834,7 +1834,7 @@
         "data_requests": {
           "title": "Solicitudes de datos (RGPD)",
           "sections": [
-            "Verificar la identidad, registrar, responder en un mes",
+            "Verificar la identidad, registrar, responder dentro del plazo legal (un mes según el RGPD, 15 días según la LGPD)",
             "Quién decide"
           ]
         }
@@ -2153,7 +2153,7 @@
         "data_requests": {
           "title": "Demandes RGPD",
           "sections": [
-            "Vérifier l’identité, consigner, répondre sous un mois",
+            "Vérifier l’identité, consigner, répondre dans le délai légal (un mois selon le RGPD, 15 jours selon la LGPD)",
             "Qui décide"
           ]
         }
@@ -2472,7 +2472,7 @@
         "data_requests": {
           "title": "Richieste GDPR",
           "sections": [
-            "Verificare l'identità, registrare, rispondere entro un mese",
+            "Verificare l'identità, registrare, rispondere entro il termine di legge (un mese secondo il GDPR, 15 giorni secondo la LGPD)",
             "Chi decide"
           ]
         }
@@ -2791,7 +2791,7 @@
         "data_requests": {
           "title": "AVG-verzoeken",
           "sections": [
-            "Identiteit controleren, registreren, binnen een maand antwoorden",
+            "Identiteit controleren, registreren, binnen de wettelijke termijn antwoorden (een maand volgens de AVG, 15 dagen volgens de LGPD)",
             "Wie beslist"
           ]
         }
@@ -3110,7 +3110,7 @@
         "data_requests": {
           "title": "Wnioski RODO",
           "sections": [
-            "Zweryfikować tożsamość, zapisać, odpowiedzieć w ciągu miesiąca",
+            "Zweryfikować tożsamość, zapisać, odpowiedzieć w ustawowym terminie (miesiąc według RODO, 15 dni według LGPD)",
             "Kto decyduje"
           ]
         }
@@ -3429,7 +3429,7 @@
         "data_requests": {
           "title": "Solicitações de titulares (LGPD)",
           "sections": [
-            "Verificar a identidade, registrar e responder dentro do prazo legal (acesso e confirmação: até 15 dias)",
+            "Verificar a identidade, registrar e responder dentro do prazo legal (um mês pelo GDPR, 15 dias pela LGPD)",
             "Quem decide"
           ]
         }

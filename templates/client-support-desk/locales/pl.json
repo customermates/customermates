@@ -70,7 +70,7 @@
   "knowledgePages": {
     "how_we_run_support": { "title": "Jak prowadzimy obsługę klienta", "sections": ["Statusy i priorytety", "Cele pierwszej odpowiedzi i rozwiązania", "Kto ma dyżur"] },
     "triage_and_replies": { "title": "Sortowanie i gotowe odpowiedzi", "sections": ["Typ, priorytet i osoba odpowiedzialna", "Pierwsza odpowiedź, prośba o informacje, naprawione, brak odpowiedzi"] },
-    "data_requests": { "title": "Wnioski RODO", "sections": ["Zweryfikować tożsamość, zapisać, odpowiedzieć w ciągu miesiąca", "Kto decyduje"] }
+    "data_requests": { "title": "Wnioski RODO", "sections": ["Zweryfikować tożsamość, zapisać, odpowiedzieć w ustawowym terminie (miesiąc według RODO, 15 dni według LGPD)", "Kto decyduje"] }
   },
   "rules": {
     "ticket_created": { "title": "Utwórz zadanie odpowiedzi, gdy powstaje zgłoszenie" },

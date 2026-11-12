@@ -70,7 +70,7 @@
   "knowledgePages": {
     "how_we_run_support": { "title": "Hoe wij onze klantenservice organiseren", "sections": ["Statussen en prioriteiten", "Doelen voor eerste reactie en oplossing", "Wie dienst heeft"] },
     "triage_and_replies": { "title": "Triage en standaardantwoorden", "sections": ["Type, prioriteit en eigenaar", "Eerste reactie, meer informatie nodig, opgelost, geen reactie"] },
-    "data_requests": { "title": "AVG-verzoeken", "sections": ["Identiteit controleren, registreren, binnen een maand antwoorden", "Wie beslist"] }
+    "data_requests": { "title": "AVG-verzoeken", "sections": ["Identiteit controleren, registreren, binnen de wettelijke termijn antwoorden (een maand volgens de AVG, 15 dagen volgens de LGPD)", "Wie beslist"] }
   },
   "rules": {
     "ticket_created": { "title": "Maak een actie om te reageren aan zodra een ticket binnenkomt" },

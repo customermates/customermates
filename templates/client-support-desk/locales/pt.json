@@ -70,7 +70,7 @@
   "knowledgePages": {
     "how_we_run_support": { "title": "Como funciona o nosso atendimento", "sections": ["Status e prioridades", "Metas de primeira resposta e de resolução", "Quem está de plantão"] },
     "triage_and_replies": { "title": "Triagem e respostas padrão", "sections": ["Tipo, prioridade e responsável", "Primeira resposta, pedido de informações, corrigido, sem retorno"] },
-    "data_requests": { "title": "Solicitações de titulares (LGPD)", "sections": ["Verificar a identidade, registrar e responder dentro do prazo legal (acesso e confirmação: até 15 dias)", "Quem decide"] }
+    "data_requests": { "title": "Solicitações de titulares (LGPD)", "sections": ["Verificar a identidade, registrar e responder dentro do prazo legal (um mês pelo GDPR, 15 dias pela LGPD)", "Quem decide"] }
   },
   "rules": {
     "ticket_created": { "title": "Criar uma tarefa de resposta quando um chamado é aberto" },

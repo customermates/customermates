@@ -70,7 +70,7 @@
   "knowledgePages": {
     "how_we_run_support": { "title": "So läuft unser Support", "sections": ["Status und Prioritäten", "Ziele für Erstantwort und Lösung", "Wer Dienst hat"] },
     "triage_and_replies": { "title": "Einordnung und Standardantworten", "sections": ["Typ, Priorität und Zuständiger", "Erstantwort, Rückfrage, behoben, keine Antwort"] },
-    "data_requests": { "title": "Auskunftsersuchen nach DSGVO", "sections": ["Identität prüfen, erfassen, binnen eines Monats antworten", "Wer entscheidet"] }
+    "data_requests": { "title": "Auskunftsersuchen nach DSGVO", "sections": ["Identität prüfen, erfassen, binnen der gesetzlichen Frist antworten (ein Monat nach DSGVO, 15 Tage nach LGPD)", "Wer entscheidet"] }
   },
   "rules": {
     "ticket_created": { "title": "Antwortaufgabe anlegen, wenn ein Ticket entsteht" },

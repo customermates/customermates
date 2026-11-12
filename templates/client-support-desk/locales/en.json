@@ -70,7 +70,7 @@
   "knowledgePages": {
     "how_we_run_support": { "title": "How we run support", "sections": ["Statuses and priorities", "Reply and solution targets", "Who is on duty"] },
     "triage_and_replies": { "title": "Triage and standard replies", "sections": ["Type, priority and owner", "First reply, need more information, fixed, no response"] },
-    "data_requests": { "title": "Data requests", "sections": ["Verify identity, log, answer within one month", "Who decides"] }
+    "data_requests": { "title": "Data requests", "sections": ["Verify identity, log, answer within the statutory deadline (one month under the GDPR, 15 days under the LGPD)", "Who decides"] }
   },
   "rules": {
     "ticket_created": { "title": "Create a reply task when a ticket is created" },

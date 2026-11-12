@@ -70,7 +70,7 @@
   "knowledgePages": {
     "how_we_run_support": { "title": "Cómo gestionamos el soporte", "sections": ["Estados y prioridades", "Objetivos de primera respuesta y de resolución", "Quién está de guardia"] },
     "triage_and_replies": { "title": "Clasificación y respuestas tipo", "sections": ["Tipo, prioridad y responsable", "Primera respuesta, pedir más información, resuelto, sin respuesta"] },
-    "data_requests": { "title": "Solicitudes de datos (RGPD)", "sections": ["Verificar la identidad, registrar, responder en un mes", "Quién decide"] }
+    "data_requests": { "title": "Solicitudes de datos (RGPD)", "sections": ["Verificar la identidad, registrar, responder dentro del plazo legal (un mes según el RGPD, 15 días según la LGPD)", "Quién decide"] }
   },
   "rules": {
     "ticket_created": { "title": "Crear una tarea de respuesta cuando se crea un ticket" },
