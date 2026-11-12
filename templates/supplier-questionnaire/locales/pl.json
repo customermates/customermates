@@ -27,8 +27,8 @@
     "suppliers.country": { "label": "Kraj" },
     "suppliers.critical_supplier": { "label": "Dostawca krytyczny" },
     "suppliers.processes_personal_data": { "label": "Przetwarza dane osobowe" },
-    "suppliers.review_owner": { "label": "Odpowiedzialny za ocenę" },
-    "suppliers.qualified_on": { "label": "Zakwalifikowany dnia" },
+    "suppliers.review_owner": { "label": "Osoba odpowiedzialna za ocenę" },
+    "suppliers.qualified_on": { "label": "Data kwalifikacji" },
     "suppliers.next_review": { "label": "Następna ocena" },
     "questionnaires.kind": {
       "label": "Rodzaj",
@@ -36,17 +36,17 @@
     },
     "questionnaires.status": {
       "label": "Status",
-      "options": { "draft": "Szkic", "sent": "Wysłany", "partial": "Odpowiedź częściowa", "received": "Otrzymany", "reviewed": "Sprawdzony" }
+      "options": { "draft": "Szkic", "sent": "Wysłany", "partial": "Częściowo wypełniony", "received": "Otrzymany", "reviewed": "Sprawdzony" }
     },
-    "questionnaires.sent_on": { "label": "Wysłano dnia" },
+    "questionnaires.sent_on": { "label": "Data wysłania" },
     "questionnaires.due_on": { "label": "Termin" },
-    "questionnaires.received_on": { "label": "Otrzymano dnia" },
+    "questionnaires.received_on": { "label": "Data otrzymania" },
     "questionnaires.score": { "label": "Punkty" },
     "questionnaires.decision": {
       "label": "Decyzja",
       "options": { "approve": "Zatwierdzić", "approve_with_conditions": "Zatwierdzić warunkowo", "escalate": "Eskalować", "reject": "Odrzucić" }
     },
-    "questionnaires.reviewer": { "label": "Oceniający" },
+    "questionnaires.reviewer": { "label": "Osoba oceniająca" },
     "questionnaires.form_link": { "label": "Link do formularza" },
     "documents.doc_type": {
       "label": "Rodzaj dokumentu",
@@ -54,11 +54,11 @@
     },
     "documents.status": {
       "label": "Status",
-      "options": { "requested": "Zamówiony", "received": "Otrzymany", "under_review": "W ocenie", "accepted": "Przyjęty", "rejected": "Odrzucony", "expired": "Wygasły" }
+      "options": { "requested": "Oczekiwany", "received": "Otrzymany", "under_review": "W ocenie", "accepted": "Przyjęty", "rejected": "Odrzucony", "expired": "Wygasły" }
     },
-    "documents.requested_on": { "label": "Zamówiono dnia" },
-    "documents.received_on": { "label": "Otrzymano dnia" },
-    "documents.valid_until": { "label": "Ważne do" },
+    "documents.requested_on": { "label": "Data prośby" },
+    "documents.received_on": { "label": "Data otrzymania" },
+    "documents.valid_until": { "label": "Ważny do" },
     "documents.evidence_link": { "label": "Link do pliku" },
     "actions.kind": {
       "label": "Rodzaj",
@@ -91,7 +91,7 @@
   "widgets": {
     "suppliers_by_status": { "title": "Dostawcy według statusu" },
     "suppliers_by_risk": { "title": "Dostawcy według poziomu ryzyka" },
-    "documents_expiring": { "title": "Dokumenty bliskie wygaśnięcia" },
+    "documents_expiring": { "title": "Dokumenty, które wkrótce wygasną" },
     "questionnaires_open": { "title": "Kwestionariusze czekające na odpowiedź" },
     "reviews_coming": { "title": "Nadchodzące oceny" },
     "documents_expired": { "title": "Wygasłe dokumenty" }
@@ -102,13 +102,13 @@
     "re_evaluation": { "title": "Harmonogram ponownych ocen", "sections": ["Terminy ocen według poziomu ryzyka", "Zdarzenia, które przyspieszają ocenę"] }
   },
   "rules": {
-    "chase_questionnaire": { "title": "Ponaglić dostawcę, gdy kwestionariusz przekroczy termin" },
-    "review_answers": { "title": "Sprawdzić odpowiedzi 3 dni po otrzymaniu kwestionariusza" },
-    "renew_document": { "title": "Poprosić o odnowiony dokument 30 dni przed wygaśnięciem" },
-    "document_expiry_notice": { "title": "Powiadomić odpowiedzialnego, gdy dokument wygaśnie" },
-    "re_evaluate_supplier": { "title": "Rozpocząć ponowną ocenę 14 dni przed następną oceną" },
-    "decide_after_review": { "title": "Zdecydować w 5 dni, gdy dostawca trafia do oceny" },
-    "registration_form_records": { "title": "Utworzyć dostawcę i kontakt po wysłaniu formularza rejestracyjnego" }
+    "chase_questionnaire": { "title": "Ponagl dostawcę, gdy kwestionariusz przekroczy termin" },
+    "review_answers": { "title": "Sprawdź odpowiedzi 3 dni po otrzymaniu kwestionariusza" },
+    "renew_document": { "title": "Poproś o odnowiony dokument 30 dni przed wygaśnięciem" },
+    "document_expiry_notice": { "title": "Powiadom osobę odpowiedzialną, gdy dokument wygaśnie" },
+    "re_evaluate_supplier": { "title": "Rozpocznij ponowną ocenę 14 dni przed następną oceną" },
+    "decide_after_review": { "title": "Podejmij decyzję w ciągu 5 dni, gdy dostawca trafi do oceny" },
+    "registration_form_records": { "title": "Utwórz dostawcę i kontakt po wysłaniu formularza rejestracyjnego" }
   },
   "acceptanceChecks": {
     "status_field": "Każdy dostawca ma status kwalifikacji.",
@@ -116,12 +116,12 @@
     "suppliers_board_view": "Dostawcy otwierają się jako tablica według statusu."
   },
   "prompt": {
-    "intro": "Skonfiguruj w moim workspace Customermates rejestr dostawców: dostawców z poziomem ryzyka i statusem kwalifikacji, kwestionariusze z terminami i decyzją, dokumenty z datą ważności oraz terminowe zadania następcze.",
+    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates rejestr dostawców: dostawców z poziomem ryzyka i statusem kwalifikacji, kwestionariusze z terminami i decyzją, dokumenty z datą ważności oraz zadania z terminem.",
     "questions": [
       "Ilu masz dostawców i jak dzielisz ich według ryzyka?",
       "O jakie certyfikaty lub zaświadczenia prosisz i jak długo ważny jest każdy z nich?",
       "Kto sprawdza odpowiedzi, a kto zatwierdza dostawcę?",
-      "Jak często oceniasz dostawcę ponownie? Pliki zostają w Twoim systemie dokumentów, a tutaj przechowywany jest tylko link."
+      "Jak często oceniasz dostawcę ponownie? Pliki zostają w Twoim systemie dokumentów, a tutaj zapisujemy tylko link."
     ]
   }
 }
