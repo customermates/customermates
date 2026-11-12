@@ -1,0 +1,94 @@
+{
+  "locale": "en",
+  "name": "WhatsApp enquiry follow-up",
+  "summary": "A pipeline for a small business whose customers write on WhatsApp: record the enquiry, reply fast, send a quote, follow up in days, confirm the order and remember the repeat purchase.",
+  "description": "Turn WhatsApp chats into worked enquiries: every chat becomes an enquiry with what the customer wants, the quote and how long it is valid, a dated next step, a payment stage and a date to come back when the answer was later. Each contact records whether they agreed to be messaged and when a reorder is due. Replies are written one by one and reviewed. It does not send broadcasts, campaigns or chatbot menus, and it does not use the official WhatsApp Business Platform. WhatsApp may restrict an account used in a way its policy forbids.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "The people who write to you, with their WhatsApp permission and reorder date." },
+    "enquiries": { "label": "Enquiry", "pluralLabel": "Enquiries", "description": "One request from a chat, from the first message to ordered, lost or later." }
+  },
+  "fields": {
+    "contacts.whatsapp_opt_in": {
+      "label": "WhatsApp permission",
+      "options": { "customer_started_chat": "Customer started the chat", "gave_permission": "Gave permission", "unknown": "Unknown", "opted_out": "Asked to stop" }
+    },
+    "contacts.last_order_on": { "label": "Last order" },
+    "contacts.reorder_due": { "label": "Reorder due" },
+    "enquiries.stage": {
+      "label": "Stage",
+      "options": { "new_chat": "New chat", "qualifying": "Qualifying", "quote_sent": "Quote sent", "awaiting_payment": "Awaiting payment", "won": "Order confirmed", "lost": "Lost", "later": "Later" }
+    },
+    "enquiries.source": { "label": "Source", "options": { "click_to_chat": "WhatsApp link", "website": "Website", "instagram": "Instagram", "referral": "Referral", "walk_in": "Walk-in", "phone": "Phone", "ad": "Ad" } },
+    "enquiries.interest": { "label": "What they want" },
+    "enquiries.received_at": { "label": "First message received" },
+    "enquiries.quote_valid_until": { "label": "Quote valid until" },
+    "enquiries.ordered_on": { "label": "Ordered on" },
+    "enquiries.service_date": { "label": "Delivery or service date" },
+    "enquiries.next_step_due": { "label": "Next contact" },
+    "enquiries.lost_reason": {
+      "label": "Lost reason",
+      "options": { "price": "Price", "chose_competitor": "Chose a competitor", "no_response": "No response", "timing": "Timing", "not_available": "Not available", "not_a_fit": "Not a fit" }
+    },
+    "enquiries.revisit_on": { "label": "Come back on" },
+    "enquiries.weighted_value": { "label": "Weighted value" },
+    "actions.kind": {
+      "label": "Kind",
+      "options": { "reply": "Reply", "send_quote": "Send the quote", "follow_up": "Follow up", "confirm_order": "Confirm the order", "request_payment": "Ask for payment", "confirm_appointment": "Confirm the appointment", "reorder_reminder": "Reorder reminder", "other": "Other" }
+    }
+  },
+  "relationships": {
+    "enquiry_contact": { "sourceLabel": "Contact", "targetLabel": "Enquiries" },
+    "action_enquiry": { "sourceLabel": "Enquiry", "targetLabel": "Actions" }
+  },
+  "views": {
+    "enquiries_board": { "name": "Enquiries by stage" },
+    "enquiries_all": { "name": "All enquiries" },
+    "open_quotes": { "name": "Quotes waiting for an answer" },
+    "later_to_revisit": { "name": "Later, to come back to" },
+    "contacts_all": { "name": "All contacts" }
+  },
+  "widgets": {
+    "enquiries_funnel": { "title": "Enquiries by stage" },
+    "open_quotes_value": { "title": "Value of quotes waiting" },
+    "new_chats": { "title": "New chats to answer" },
+    "reorders_due": { "title": "Reorders coming up" },
+    "services_coming": { "title": "Deliveries and appointments coming up" },
+    "by_source": { "title": "Enquiries by source" },
+    "lost_reasons": { "title": "Why enquiries were lost" }
+  },
+  "knowledgePages": {
+    "enquiry_playbook": { "title": "WhatsApp enquiry playbook", "sections": ["Reply, record, quote, follow up, confirm, remember", "Who answers and how fast"] },
+    "opt_in_rules": { "title": "Permission and opt-out rules", "sections": ["When a customer has agreed to be messaged", "What happens when someone asks to stop"] },
+    "follow_up_rhythm": { "title": "Follow-up rhythm and when to stop", "sections": ["Days between follow-ups after a quote", "The closing message and the revisit date"] },
+    "what_whatsapp_allows": { "title": "What WhatsApp allows and what this setup does not do", "sections": ["No broadcasts, campaigns or chatbots", "The risk of using a linked account"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Create the contact and the enquiry when the enquiry form with the WhatsApp box is submitted" },
+    "reply_new_chat": { "title": "Create a reply task when an enquiry is created" },
+    "first_reply_missed": { "title": "Notify the owner when an enquiry is still a new chat a day later" },
+    "quote_follow_up": { "title": "Follow up 2 days after a quote is sent" },
+    "quote_expiring": { "title": "Ask or close when a quote reaches its valid-until date" },
+    "payment_request": { "title": "Ask for payment the day after an enquiry reaches awaiting payment" },
+    "won_reorder": { "title": "Create a reorder reminder 90 days after an order is confirmed" },
+    "service_calendar": { "title": "Add the delivery or appointment to the calendar when the order is confirmed" },
+    "appointment_confirm": { "title": "Confirm the appointment the day before" },
+    "later_revisit_date": { "title": "Set the come-back date to 90 days out when an enquiry moves to later" },
+    "revisit_follow_up": { "title": "Follow up on the come-back date" },
+    "unanswered_sweep": { "title": "Every day, create a reply task for each new chat nobody has answered" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Every enquiry has a stage.",
+    "opt_in_field": "Every contact records their WhatsApp permission.",
+    "quote_valid_field": "Every quote records how long it is valid.",
+    "enquiries_board_view": "The enquiries open as a board by stage."
+  },
+  "prompt": {
+    "intro": "Set up WhatsApp enquiry follow-up in my Customermates workspace: an enquiry for every chat with a quote and its validity, a dated next step, a payment stage, a come-back date and a reorder date per contact, plus the contact's WhatsApp permission. Write replies one by one for my review and send nothing in bulk.",
+    "questions": [
+      "What do customers ask you about on WhatsApp, and how do you quote?",
+      "How fast do you want to answer a new chat?",
+      "How many days do you wait after a quote before you follow up, and when do you stop?",
+      "Do customers reorder, and after how long?"
+    ]
+  }
+}

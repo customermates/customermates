@@ -1,0 +1,94 @@
+{
+  "locale": "pt",
+  "name": "Acompanhamento de atendimentos no WhatsApp",
+  "summary": "Um funil para uma pequena empresa cujos clientes escrevem no WhatsApp: registrar o atendimento, responder rápido, enviar o orçamento, fazer o retorno em dias, confirmar o pedido e lembrar da recompra.",
+  "description": "Transforme conversas do WhatsApp em atendimentos acompanhados: cada conversa vira um atendimento com o que o cliente quer, o orçamento e a validade, um próximo contato com data, uma etapa de pagamento e uma data para voltar quando a resposta foi «para depois». Cada contato registra se aceitou receber mensagens e quando é esperada uma recompra. As respostas são escritas uma a uma e revisadas. Não envia listas de transmissão, campanhas nem menus de chatbot e não usa a plataforma oficial do WhatsApp Business. O WhatsApp pode restringir uma conta usada de um jeito que a política dele proíbe.",
+  "lists": {
+    "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas que escrevem para você, com o consentimento do WhatsApp e a data de recompra." },
+    "enquiries": { "label": "Atendimento", "pluralLabel": "Atendimentos (negócios)", "description": "Um pedido vindo de uma conversa, da primeira mensagem a pedido confirmado, perdido ou para depois." }
+  },
+  "fields": {
+    "contacts.whatsapp_opt_in": {
+      "label": "Consentimento do WhatsApp",
+      "options": { "customer_started_chat": "O cliente iniciou a conversa", "gave_permission": "Deu consentimento", "unknown": "Desconhecido", "opted_out": "Pediu para parar" }
+    },
+    "contacts.last_order_on": { "label": "Último pedido" },
+    "contacts.reorder_due": { "label": "Recompra prevista" },
+    "enquiries.stage": {
+      "label": "Etapa",
+      "options": { "new_chat": "Novo contato", "qualifying": "Em atendimento", "quote_sent": "Orçamento enviado", "awaiting_payment": "Aguardando pagamento", "won": "Pedido confirmado", "lost": "Perdido", "later": "Para depois" }
+    },
+    "enquiries.source": { "label": "Origem", "options": { "click_to_chat": "Link do WhatsApp", "website": "Site", "instagram": "Instagram", "referral": "Indicação", "walk_in": "Presencial", "phone": "Telefone", "ad": "Anúncio" } },
+    "enquiries.interest": { "label": "Produto de interesse" },
+    "enquiries.received_at": { "label": "Primeira mensagem recebida" },
+    "enquiries.quote_valid_until": { "label": "Validade do orçamento" },
+    "enquiries.ordered_on": { "label": "Pedido em" },
+    "enquiries.service_date": { "label": "Data de entrega ou instalação" },
+    "enquiries.next_step_due": { "label": "Próximo contato" },
+    "enquiries.lost_reason": {
+      "label": "Motivo da perda",
+      "options": { "price": "Preço", "chose_competitor": "Escolheu a concorrência", "no_response": "Sem resposta", "timing": "Momento", "not_available": "Indisponível", "not_a_fit": "Não se encaixa" }
+    },
+    "enquiries.revisit_on": { "label": "Voltar a falar em" },
+    "enquiries.weighted_value": { "label": "Valor ponderado" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "reply": "Responder", "send_quote": "Enviar o orçamento", "follow_up": "Fazer o retorno", "confirm_order": "Confirmar o pedido", "request_payment": "Pedir o pagamento", "confirm_appointment": "Confirmar o agendamento", "reorder_reminder": "Lembrete de recompra", "other": "Outro" }
+    }
+  },
+  "relationships": {
+    "enquiry_contact": { "sourceLabel": "Contato", "targetLabel": "Atendimentos (negócios)" },
+    "action_enquiry": { "sourceLabel": "Atendimento", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "enquiries_board": { "name": "Atendimentos por etapa" },
+    "enquiries_all": { "name": "Todos os atendimentos" },
+    "open_quotes": { "name": "Orçamentos aguardando resposta" },
+    "later_to_revisit": { "name": "Para depois, a retomar" },
+    "contacts_all": { "name": "Todos os contatos" }
+  },
+  "widgets": {
+    "enquiries_funnel": { "title": "Atendimentos por etapa" },
+    "open_quotes_value": { "title": "Valor dos orçamentos aguardando" },
+    "new_chats": { "title": "Novos contatos a responder" },
+    "reorders_due": { "title": "Recompras próximas" },
+    "services_coming": { "title": "Entregas e agendamentos próximos" },
+    "by_source": { "title": "Atendimentos por origem" },
+    "lost_reasons": { "title": "Por que atendimentos foram perdidos" }
+  },
+  "knowledgePages": {
+    "enquiry_playbook": { "title": "Guia de atendimentos no WhatsApp", "sections": ["Responder, registrar, orçar, fazer o retorno, confirmar, lembrar", "Quem responde e em quanto tempo"] },
+    "opt_in_rules": { "title": "Consentimento e saída da lista", "sections": ["Quando um cliente aceitou receber mensagens", "O que acontece quando alguém pede para parar"] },
+    "follow_up_rhythm": { "title": "Ritmo de retorno e quando parar", "sections": ["Dias entre retornos depois de um orçamento", "A mensagem de encerramento e a data para voltar"] },
+    "what_whatsapp_allows": { "title": "O que o WhatsApp permite e o que esta configuração não faz", "sections": ["Sem listas de transmissão, campanhas ou chatbots", "O risco de usar uma conta vinculada"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Criar o contato e o atendimento quando o formulário com a opção de WhatsApp for enviado" },
+    "reply_new_chat": { "title": "Criar uma tarefa de resposta quando um atendimento é criado" },
+    "first_reply_missed": { "title": "Avisar o responsável quando um atendimento continua como novo contato um dia depois" },
+    "quote_follow_up": { "title": "Fazer o retorno 2 dias depois de enviado um orçamento" },
+    "quote_expiring": { "title": "Perguntar ou encerrar quando um orçamento chega à validade" },
+    "payment_request": { "title": "Pedir o pagamento no dia seguinte à entrada em aguardando pagamento" },
+    "won_reorder": { "title": "Criar um lembrete de recompra 90 dias depois de confirmado um pedido" },
+    "service_calendar": { "title": "Colocar a entrega ou o agendamento na agenda quando o pedido é confirmado" },
+    "appointment_confirm": { "title": "Confirmar o agendamento no dia anterior" },
+    "later_revisit_date": { "title": "Definir a data para voltar em 90 dias quando um atendimento vai para depois" },
+    "revisit_follow_up": { "title": "Fazer o retorno na data para voltar" },
+    "unanswered_sweep": { "title": "Todo dia, criar uma tarefa de resposta para cada novo contato sem resposta" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Todo atendimento tem uma etapa.",
+    "opt_in_field": "Todo contato registra o consentimento do WhatsApp.",
+    "quote_valid_field": "Todo orçamento registra por quanto tempo é válido.",
+    "enquiries_board_view": "Os atendimentos abrem como quadro por etapa."
+  },
+  "prompt": {
+    "intro": "Configure no meu workspace do Customermates o acompanhamento de atendimentos no WhatsApp: um atendimento por conversa com orçamento e validade, próximo contato com data, etapa de pagamento, data para voltar e data de recompra por contato, além do consentimento do WhatsApp do contato. Escreva as respostas uma a uma para minha revisão e não envie nada em massa.",
+    "questions": [
+      "O que os clientes perguntam no WhatsApp e como você faz o orçamento?",
+      "Em quanto tempo você quer responder a um novo contato?",
+      "Quantos dias você espera depois de um orçamento antes do retorno e quando para?",
+      "Os clientes recompram e depois de quanto tempo?"
+    ]
+  }
+}

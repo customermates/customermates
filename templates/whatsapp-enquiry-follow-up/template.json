@@ -1,0 +1,153 @@
+{
+  "id": "tpl_whatsapp_enquiry_follow_up",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "whatsapp-enquiry-follow-up",
+  "family": "sales",
+  "kind": "pipeline",
+  "jurisdictions": ["DE", "FR", "IT", "ES", "BR", "PL", "NL"],
+  "dashboardAudience": "me",
+  "modules": ["actions_core", "actions_dashboard"],
+  "requiresCapabilities": ["forms", "rules", "notifications", "calendarWrite"],
+  "pairedPages": {
+    "en": "/features/whatsapp-integration",
+    "de": "/features/whatsapp-integration",
+    "fr": "/features/whatsapp-integration",
+    "it": "/features/whatsapp-integration",
+    "es": "/features/whatsapp-integration",
+    "pt": "/features/whatsapp-integration",
+    "pl": "/features/whatsapp-integration",
+    "nl": "/features/whatsapp-integration"
+  },
+  "lists": [
+    { "key": "contacts", "role": "people", "icon": "smartphone" },
+    { "key": "enquiries", "role": "deals", "icon": "message" }
+  ],
+  "stages": [
+    {
+      "field": "enquiries.stage",
+      "items": [
+        { "key": "new_chat", "outcome": "open", "weight": 10 },
+        { "key": "qualifying", "outcome": "open", "weight": 25 },
+        { "key": "quote_sent", "outcome": "open", "weight": 55 },
+        { "key": "awaiting_payment", "outcome": "open", "weight": 85 },
+        { "key": "won", "outcome": "won", "weight": 100 },
+        { "key": "lost", "outcome": "lost", "weight": 0 },
+        { "key": "later", "outcome": "open", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "contacts.whatsapp_opt_in", "type": "select", "options": [{ "key": "customer_started_chat", "color": "success" }, { "key": "gave_permission", "color": "success" }, { "key": "unknown" }, { "key": "opted_out", "color": "destructive" }] },
+    { "key": "contacts.last_order_on", "type": "date" },
+    { "key": "contacts.reorder_due", "type": "date" },
+    { "key": "enquiries.source", "type": "select", "options": [{ "key": "click_to_chat" }, { "key": "website" }, { "key": "instagram" }, { "key": "referral" }, { "key": "walk_in" }, { "key": "phone" }, { "key": "ad" }] },
+    { "key": "enquiries.interest", "type": "text" },
+    { "key": "enquiries.received_at", "type": "dateTime" },
+    { "key": "enquiries.quote_valid_until", "type": "date" },
+    { "key": "enquiries.ordered_on", "type": "date" },
+    { "key": "enquiries.service_date", "type": "date" },
+    { "key": "enquiries.next_step_due", "type": "date" },
+    { "key": "enquiries.lost_reason", "type": "select", "options": [{ "key": "price" }, { "key": "chose_competitor" }, { "key": "no_response" }, { "key": "timing" }, { "key": "not_available" }, { "key": "not_a_fit" }] },
+    { "key": "enquiries.revisit_on", "type": "date" },
+    {
+      "key": "actions.kind",
+      "type": "select",
+      "options": [{ "key": "reply" }, { "key": "send_quote" }, { "key": "follow_up" }, { "key": "confirm_order" }, { "key": "request_payment" }, { "key": "confirm_appointment" }, { "key": "reorder_reminder" }, { "key": "other" }]
+    }
+  ],
+  "calculations": [
+    {
+      "key": "enquiries.weighted_value",
+      "type": "currency",
+      "expression": {
+        "op": "divide",
+        "left": { "op": "multiply", "left": { "op": "field", "field": "enquiries.value" }, "right": { "op": "optionWeight", "field": "enquiries.stage" } },
+        "right": { "op": "number", "value": "100" }
+      }
+    }
+  ],
+  "relationships": [
+    { "key": "enquiry_contact", "source": "enquiries", "target": "contacts", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_enquiry", "source": "actions", "target": "enquiries", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    { "key": "enquiries_board", "list": "enquiries", "default": true, "layout": "board", "groupBy": "enquiries.stage", "columns": ["enquiries.interest", "enquiries.quote_valid_until", "enquiries.next_step_due"], "summaries": [{ "field": "enquiries.value", "aggregation": "sum" }] },
+    { "key": "enquiries_all", "list": "enquiries", "default": false, "layout": "table", "sort": { "field": "enquiries.next_step_due", "direction": "asc" }, "columns": ["enquiries.stage", "enquiries.interest", "enquiries.source", "enquiries.received_at", "enquiries.next_step_due"] },
+    { "key": "open_quotes", "list": "enquiries", "default": false, "layout": "table", "sort": { "field": "enquiries.quote_valid_until", "direction": "asc" }, "filters": [{ "operator": "in", "field": "enquiries.stage", "options": ["quote_sent", "awaiting_payment"] }] },
+    { "key": "later_to_revisit", "list": "enquiries", "default": false, "layout": "table", "sort": { "field": "enquiries.revisit_on", "direction": "asc" }, "filters": [{ "operator": "in", "field": "enquiries.stage", "options": ["later"] }] },
+    { "key": "contacts_all", "list": "contacts", "default": true, "layout": "table", "sort": { "field": "contacts.reorder_due", "direction": "asc" }, "columns": ["contacts.whatsapp_opt_in", "contacts.last_order_on", "contacts.reorder_due"] }
+  ],
+  "widgets": [
+    { "kind": "chart", "key": "enquiries_funnel", "list": "enquiries", "aggregation": "count", "groupBy": { "field": "enquiries.stage" }, "filters": [{ "operator": "in", "field": "enquiries.stage", "options": ["new_chat", "qualifying", "quote_sent", "awaiting_payment", "won"] }], "display": "funnelChart" },
+    { "kind": "chart", "key": "open_quotes_value", "list": "enquiries", "aggregation": "sum", "valueField": "enquiries.value", "filters": [{ "operator": "in", "field": "enquiries.stage", "options": ["quote_sent", "awaiting_payment"] }], "display": "number" },
+    { "kind": "chart", "key": "new_chats", "list": "enquiries", "aggregation": "count", "filters": [{ "operator": "in", "field": "enquiries.stage", "options": ["new_chat"] }], "display": "number" },
+    { "kind": "calendar", "key": "reorders_due", "list": "contacts", "layout": "upcoming", "dateField": "contacts.reorder_due" },
+    { "kind": "calendar", "key": "services_coming", "list": "enquiries", "layout": "upcoming", "dateField": "enquiries.service_date" },
+    { "kind": "chart", "key": "by_source", "list": "enquiries", "aggregation": "count", "groupBy": { "field": "enquiries.source" }, "display": "horizontalBarChart" },
+    { "kind": "chart", "key": "lost_reasons", "list": "enquiries", "aggregation": "count", "groupBy": { "field": "enquiries.lost_reason" }, "filters": [{ "operator": "in", "field": "enquiries.stage", "options": ["lost"] }], "display": "horizontalBarChart" }
+  ],
+  "knowledgePages": [
+    { "key": "enquiry_playbook", "kind": "overview" },
+    { "key": "opt_in_rules", "kind": "processes" },
+    { "key": "follow_up_rhythm", "kind": "processes" },
+    { "key": "what_whatsapp_allows", "kind": "processes" }
+  ],
+  "followUpRules": [
+    { "key": "enquiry_form_records", "trigger": { "kind": "form_submitted", "form": "enquiry" }, "action": { "kind": "create_records", "lists": ["contacts", "enquiries"] }, "dueOffsetDays": 0, "needs": "forms" },
+    { "key": "reply_new_chat", "trigger": { "kind": "record_created", "list": "enquiries" }, "action": { "kind": "create_task", "taskKind": "reply", "assignee": "record_owner", "about": "enquiries" }, "dueOffsetDays": 0, "needs": "rules" },
+    {
+      "key": "first_reply_missed",
+      "trigger": { "kind": "date_reached", "field": "enquiries.received_at", "offsetDays": 1 },
+      "condition": [{ "operator": "in", "field": "enquiries.stage", "options": ["new_chat"] }],
+      "action": { "kind": "notify", "recipient": "record_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    { "key": "quote_follow_up", "trigger": { "kind": "field_changed", "field": "enquiries.stage", "to": "quote_sent" }, "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "enquiries" }, "dueOffsetDays": 2, "needs": "rules" },
+    {
+      "key": "quote_expiring",
+      "trigger": { "kind": "date_reached", "field": "enquiries.quote_valid_until", "offsetDays": 0 },
+      "condition": [{ "operator": "in", "field": "enquiries.stage", "options": ["quote_sent"] }],
+      "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "enquiries" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "payment_request", "trigger": { "kind": "field_changed", "field": "enquiries.stage", "to": "awaiting_payment" }, "action": { "kind": "create_task", "taskKind": "request_payment", "assignee": "record_owner", "about": "enquiries" }, "dueOffsetDays": 1, "needs": "rules" },
+    { "key": "won_reorder", "trigger": { "kind": "field_changed", "field": "enquiries.stage", "to": "won" }, "action": { "kind": "create_task", "taskKind": "reorder_reminder", "assignee": "record_owner", "about": "enquiries" }, "dueOffsetDays": 90, "needs": "rules" },
+    { "key": "service_calendar", "trigger": { "kind": "field_changed", "field": "enquiries.stage", "to": "won" }, "action": { "kind": "add_calendar_event", "dateField": "enquiries.service_date" }, "dueOffsetDays": 0, "needs": "calendarWrite" },
+    { "key": "appointment_confirm", "trigger": { "kind": "date_reached", "field": "enquiries.service_date", "offsetDays": -1 }, "action": { "kind": "create_task", "taskKind": "confirm_appointment", "assignee": "record_owner", "about": "enquiries" }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "later_revisit_date", "trigger": { "kind": "field_changed", "field": "enquiries.stage", "to": "later" }, "action": { "kind": "set_dates", "dates": [{ "field": "enquiries.revisit_on", "offsetDays": 90 }] }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "revisit_follow_up", "trigger": { "kind": "date_reached", "field": "enquiries.revisit_on", "offsetDays": 0 }, "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "enquiries" }, "dueOffsetDays": 0, "needs": "rules" },
+    {
+      "key": "unanswered_sweep",
+      "trigger": { "kind": "schedule", "every": "day", "list": "enquiries" },
+      "condition": [{ "operator": "in", "field": "enquiries.stage", "options": ["new_chat"] }],
+      "action": { "kind": "create_task", "taskKind": "reply", "assignee": "record_owner", "about": "enquiries" },
+      "dueOffsetDays": 0,
+      "needs": "today"
+    }
+  ],
+  "acceptanceChecks": [
+    { "key": "stage_field", "kind": "field_exists", "ref": "enquiries.stage" },
+    { "key": "opt_in_field", "kind": "field_exists", "ref": "contacts.whatsapp_opt_in" },
+    { "key": "quote_valid_field", "kind": "field_exists", "ref": "enquiries.quote_valid_until" },
+    { "key": "enquiries_board_view", "kind": "view_exists", "ref": "enquiries_board" }
+  ],
+  "sources": [
+    { "url": "https://whatsappbusiness.com/policy/", "checkedOn": "2026-11-12" },
+    { "url": "https://whatsappbusiness.com/resources/resource-library/small-business-use-whatsapp-business-app/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.nocrm.io/fr/blog/guide-whatsapp-business-crm", "checkedOn": "2026-11-12" },
+    { "url": "https://www.agendor.com.br/blog/crm-para-whatsapp/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.kommo.com/br/whatsapp/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.rdstation.com/demonstracao/crm/whatsapp-no-crm/", "checkedOn": "2026-11-12" },
+    { "url": "https://scholarsarchive.byu.edu/facpub/9711", "checkedOn": "2026-11-12" },
+    { "url": "https://blog.2chat.co/create-a-mini-crm-integrated-with-whatsapp-with-airtable-and-2chat/", "checkedOn": "2026-11-12" },
+    { "url": "https://customermates.com/en/docs/messaging-rate-limits", "checkedOn": "2026-11-12" },
+    { "url": "https://customermates.com/en/docs/app-profile", "checkedOn": "2026-11-12" },
+    { "url": "https://www.pipedrive.com/pl/blog/proces-sprzedazy", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "none", "de": "none", "fr": "none", "it": "none", "es": "proof", "pt": "proof", "pl": "none", "nl": "none" }
+}

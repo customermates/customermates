@@ -1,0 +1,94 @@
+{
+  "locale": "de",
+  "name": "WhatsApp-Anfragen nachfassen",
+  "summary": "Eine Pipeline für kleine Unternehmen, deren Kunden per WhatsApp schreiben: Anfrage festhalten, schnell antworten, Angebot senden, nach Tagen nachfassen, Auftrag bestätigen und an den Wiederkauf denken.",
+  "description": "WhatsApp-Chats zu bearbeiteten Anfragen machen: Jeder Chat wird zu einer Anfrage mit dem, was der Kunde möchte, dem Angebot und seiner Gültigkeit, einem terminierten nächsten Schritt, einer Zahlungsphase und einem Termin zur Wiedervorlage, wenn die Antwort später kam. Jeder Kontakt hält fest, ob er Nachrichten zugestimmt hat und wann eine Nachbestellung fällig ist. Antworten werden einzeln geschrieben und geprüft. Es gibt keine Rundsendungen, Kampagnen oder Chatbot-Menüs, und die offizielle WhatsApp Business Platform wird nicht genutzt. WhatsApp kann ein Konto einschränken, das gegen die Richtlinien genutzt wird.",
+  "lists": {
+    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen, die Ihnen schreiben, mit ihrer WhatsApp-Einwilligung und dem Nachbestelltermin." },
+    "enquiries": { "label": "Anfrage", "pluralLabel": "Anfragen", "description": "Eine Anfrage aus einem Chat, von der ersten Nachricht bis bestätigt, verloren oder später." }
+  },
+  "fields": {
+    "contacts.whatsapp_opt_in": {
+      "label": "WhatsApp-Einwilligung",
+      "options": { "customer_started_chat": "Kunde hat den Chat begonnen", "gave_permission": "Hat zugestimmt", "unknown": "Unbekannt", "opted_out": "Wollte keine Nachrichten mehr" }
+    },
+    "contacts.last_order_on": { "label": "Letzte Bestellung" },
+    "contacts.reorder_due": { "label": "Nachbestellung fällig" },
+    "enquiries.stage": {
+      "label": "Phase",
+      "options": { "new_chat": "Neue Nachricht", "qualifying": "Klärung", "quote_sent": "Angebot gesendet", "awaiting_payment": "Zahlung offen", "won": "Auftrag bestätigt", "lost": "Verloren", "later": "Später" }
+    },
+    "enquiries.source": { "label": "Quelle", "options": { "click_to_chat": "WhatsApp-Link", "website": "Website", "instagram": "Instagram", "referral": "Empfehlung", "walk_in": "Persönlich", "phone": "Telefon", "ad": "Anzeige" } },
+    "enquiries.interest": { "label": "Anliegen" },
+    "enquiries.received_at": { "label": "Erste Nachricht eingegangen" },
+    "enquiries.quote_valid_until": { "label": "Gültig bis" },
+    "enquiries.ordered_on": { "label": "Bestellt am" },
+    "enquiries.service_date": { "label": "Liefertermin oder Termin" },
+    "enquiries.next_step_due": { "label": "Wiedervorlage" },
+    "enquiries.lost_reason": {
+      "label": "Verlustgrund",
+      "options": { "price": "Preis", "chose_competitor": "Wettbewerber gewählt", "no_response": "Keine Rückmeldung", "timing": "Zeitpunkt", "not_available": "Nicht verfügbar", "not_a_fit": "Passt nicht" }
+    },
+    "enquiries.revisit_on": { "label": "Melden am" },
+    "enquiries.weighted_value": { "label": "Gewichteter Wert" },
+    "actions.kind": {
+      "label": "Art",
+      "options": { "reply": "Antworten", "send_quote": "Angebot senden", "follow_up": "Nachfassen", "confirm_order": "Auftrag bestätigen", "request_payment": "Zahlung anfordern", "confirm_appointment": "Termin bestätigen", "reorder_reminder": "An Nachbestellung erinnern", "other": "Sonstiges" }
+    }
+  },
+  "relationships": {
+    "enquiry_contact": { "sourceLabel": "Kontakt", "targetLabel": "Anfragen" },
+    "action_enquiry": { "sourceLabel": "Anfrage", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "enquiries_board": { "name": "Anfragen nach Phase" },
+    "enquiries_all": { "name": "Alle Anfragen" },
+    "open_quotes": { "name": "Angebote ohne Antwort" },
+    "later_to_revisit": { "name": "Später, zur Wiedervorlage" },
+    "contacts_all": { "name": "Alle Kontakte" }
+  },
+  "widgets": {
+    "enquiries_funnel": { "title": "Anfragen nach Phase" },
+    "open_quotes_value": { "title": "Wert der offenen Angebote" },
+    "new_chats": { "title": "Neue Nachrichten ohne Antwort" },
+    "reorders_due": { "title": "Anstehende Nachbestellungen" },
+    "services_coming": { "title": "Anstehende Lieferungen und Termine" },
+    "by_source": { "title": "Anfragen nach Quelle" },
+    "lost_reasons": { "title": "Warum Anfragen verloren gingen" }
+  },
+  "knowledgePages": {
+    "enquiry_playbook": { "title": "Leitfaden für WhatsApp-Anfragen", "sections": ["Antworten, festhalten, anbieten, nachfassen, bestätigen, erinnern", "Wer antwortet und wie schnell"] },
+    "opt_in_rules": { "title": "Einwilligung und Abmeldung", "sections": ["Wann ein Kunde Nachrichten zugestimmt hat", "Was passiert, wenn jemand keine Nachrichten mehr möchte"] },
+    "follow_up_rhythm": { "title": "Nachfass-Rhythmus und wann man aufhört", "sections": ["Tage zwischen Nachfassen nach einem Angebot", "Die Abschlussnachricht und das Wiedervorlagedatum"] },
+    "what_whatsapp_allows": { "title": "Was WhatsApp erlaubt und was dieses Setup nicht tut", "sections": ["Keine Rundsendungen, Kampagnen oder Chatbots", "Das Risiko eines verknüpften Kontos"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Kontakt und Anfrage anlegen, wenn das Anfrageformular mit WhatsApp-Feld abgeschickt wird" },
+    "reply_new_chat": { "title": "Eine Antwortaufgabe anlegen, wenn eine Anfrage entsteht" },
+    "first_reply_missed": { "title": "Den Zuständigen informieren, wenn eine Anfrage einen Tag später noch eine neue Nachricht ist" },
+    "quote_follow_up": { "title": "2 Tage nach dem Angebot nachfassen" },
+    "quote_expiring": { "title": "Nachfragen oder abschließen, wenn ein Angebot sein Gültig-bis-Datum erreicht" },
+    "payment_request": { "title": "Am Tag nach Eintritt in Zahlung offen die Zahlung anfordern" },
+    "won_reorder": { "title": "90 Tage nach der Auftragsbestätigung an die Nachbestellung erinnern" },
+    "service_calendar": { "title": "Liefertermin oder Termin in den Kalender eintragen, wenn der Auftrag bestätigt ist" },
+    "appointment_confirm": { "title": "Den Termin am Vortag bestätigen" },
+    "later_revisit_date": { "title": "Das Meldedatum auf 90 Tage setzen, wenn eine Anfrage auf Später geht" },
+    "revisit_follow_up": { "title": "Zum Meldedatum nachfassen" },
+    "unanswered_sweep": { "title": "Täglich für jede unbeantwortete neue Nachricht eine Antwortaufgabe anlegen" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Jede Anfrage hat eine Phase.",
+    "opt_in_field": "Jeder Kontakt hält seine WhatsApp-Einwilligung fest.",
+    "quote_valid_field": "Jedes Angebot hält fest, wie lange es gültig ist.",
+    "enquiries_board_view": "Die Anfragen öffnen sich als Board nach Phase."
+  },
+  "prompt": {
+    "intro": "Richte in meinem Customermates-Workspace das Nachfassen von WhatsApp-Anfragen ein: eine Anfrage je Chat mit Angebot und Gültigkeit, terminiertem nächstem Schritt, Zahlungsphase, Meldedatum und einem Nachbestelltermin je Kontakt, dazu die WhatsApp-Einwilligung des Kontakts. Schreibe Antworten einzeln zur Prüfung und sende nichts in Masse.",
+    "questions": [
+      "Wonach fragen Kunden Sie auf WhatsApp, und wie bieten Sie an?",
+      "Wie schnell möchten Sie auf eine neue Nachricht antworten?",
+      "Wie viele Tage warten Sie nach einem Angebot, bevor Sie nachfassen, und wann hören Sie auf?",
+      "Bestellen Kunden nach, und nach welcher Zeit?"
+    ]
+  }
+}

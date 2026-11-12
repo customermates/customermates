@@ -1,0 +1,94 @@
+{
+  "locale": "pl",
+  "name": "Obsługa zapytań z WhatsApp",
+  "summary": "Lejek dla małej firmy, której klienci piszą na WhatsAppie: zapisać zapytanie, szybko odpowiedzieć, wysłać ofertę, przypomnieć po kilku dniach, potwierdzić zamówienie i pamiętać o ponownym zakupie.",
+  "description": "Zamieniaj rozmowy z WhatsAppa w obsłużone zapytania: każda rozmowa staje się zapytaniem z tym, czego chce klient, ofertą i jej ważnością, następnym kontaktem z terminem, etapem płatności i datą powrotu, gdy odpowiedź brzmiała „później”. Każdy kontakt zapisuje, czy zgodził się na wiadomości i kiedy spodziewane jest ponowne zamówienie. Odpowiedzi pisze się pojedynczo i sprawdza. Narzędzie nie wysyła wiadomości masowych, kampanii ani menu chatbota i nie korzysta z oficjalnej platformy WhatsApp Business. WhatsApp może ograniczyć konto używane w sposób sprzeczny z jego regulaminem.",
+  "lists": {
+    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Osoby, które do Ciebie piszą, ze zgodą na WhatsApp i terminem ponownego zamówienia." },
+    "enquiries": { "label": "Zapytanie", "pluralLabel": "Zapytania (szanse)", "description": "Jedna prośba z rozmowy, od pierwszej wiadomości do zamówienia, utraty lub później." }
+  },
+  "fields": {
+    "contacts.whatsapp_opt_in": {
+      "label": "Zgoda na WhatsApp",
+      "options": { "customer_started_chat": "Klient sam zaczął rozmowę", "gave_permission": "Wyraził zgodę", "unknown": "Nieznana", "opted_out": "Poprosił o zaprzestanie" }
+    },
+    "contacts.last_order_on": { "label": "Ostatnie zamówienie" },
+    "contacts.reorder_due": { "label": "Spodziewane ponowne zamówienie" },
+    "enquiries.stage": {
+      "label": "Etap",
+      "options": { "new_chat": "Nowa wiadomość", "qualifying": "Kwalifikacja", "quote_sent": "Oferta wysłana", "awaiting_payment": "Oczekuje na płatność", "won": "Zamówienie potwierdzone", "lost": "Utracone", "later": "Później" }
+    },
+    "enquiries.source": { "label": "Źródło", "options": { "click_to_chat": "Link do WhatsAppa", "website": "Strona internetowa", "instagram": "Instagram", "referral": "Polecenie", "walk_in": "Wizyta osobista", "phone": "Telefon", "ad": "Reklama" } },
+    "enquiries.interest": { "label": "Zainteresowanie" },
+    "enquiries.received_at": { "label": "Pierwsza wiadomość otrzymana" },
+    "enquiries.quote_valid_until": { "label": "Oferta ważna do" },
+    "enquiries.ordered_on": { "label": "Zamówiono dnia" },
+    "enquiries.service_date": { "label": "Termin realizacji" },
+    "enquiries.next_step_due": { "label": "Następny kontakt" },
+    "enquiries.lost_reason": {
+      "label": "Powód utraty",
+      "options": { "price": "Cena", "chose_competitor": "Wybrał konkurencję", "no_response": "Brak odpowiedzi", "timing": "Termin", "not_available": "Niedostępne", "not_a_fit": "Nie pasuje" }
+    },
+    "enquiries.revisit_on": { "label": "Wróć do klienta dnia" },
+    "enquiries.weighted_value": { "label": "Wartość ważona" },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": { "reply": "Odpowiedzieć", "send_quote": "Wysłać ofertę", "follow_up": "Przypomnieć", "confirm_order": "Potwierdzić zamówienie", "request_payment": "Poprosić o płatność", "confirm_appointment": "Potwierdzić termin", "reorder_reminder": "Przypomnienie o ponownym zamówieniu", "other": "Inne" }
+    }
+  },
+  "relationships": {
+    "enquiry_contact": { "sourceLabel": "Kontakt", "targetLabel": "Zapytania (szanse)" },
+    "action_enquiry": { "sourceLabel": "Zapytanie", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "enquiries_board": { "name": "Zapytania według etapu" },
+    "enquiries_all": { "name": "Wszystkie zapytania" },
+    "open_quotes": { "name": "Oferty czekające na odpowiedź" },
+    "later_to_revisit": { "name": "Później, do powrotu" },
+    "contacts_all": { "name": "Wszystkie kontakty" }
+  },
+  "widgets": {
+    "enquiries_funnel": { "title": "Zapytania według etapu" },
+    "open_quotes_value": { "title": "Wartość ofert w oczekiwaniu" },
+    "new_chats": { "title": "Nowe wiadomości do odpowiedzi" },
+    "reorders_due": { "title": "Nadchodzące ponowne zamówienia" },
+    "services_coming": { "title": "Nadchodzące realizacje i terminy" },
+    "by_source": { "title": "Zapytania według źródła" },
+    "lost_reasons": { "title": "Dlaczego zapytania zostały utracone" }
+  },
+  "knowledgePages": {
+    "enquiry_playbook": { "title": "Przewodnik po zapytaniach z WhatsAppa", "sections": ["Odpowiedzieć, zapisać, wycenić, przypomnieć, potwierdzić, pamiętać", "Kto odpowiada i w jakim czasie"] },
+    "opt_in_rules": { "title": "Zgoda i rezygnacja z wiadomości", "sections": ["Kiedy klient zgodził się na wiadomości", "Co się dzieje, gdy ktoś prosi o zaprzestanie"] },
+    "follow_up_rhythm": { "title": "Rytm przypomnień i kiedy przestać", "sections": ["Dni między przypomnieniami po ofercie", "Wiadomość kończąca i data powrotu"] },
+    "what_whatsapp_allows": { "title": "Na co pozwala WhatsApp, a czego ta konfiguracja nie robi", "sections": ["Brak wiadomości masowych, kampanii i chatbotów", "Ryzyko używania powiązanego konta"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Utworzyć kontakt i zapytanie po wysłaniu formularza z polem WhatsApp" },
+    "reply_new_chat": { "title": "Utworzyć zadanie odpowiedzi, gdy powstaje zapytanie" },
+    "first_reply_missed": { "title": "Powiadomić opiekuna, gdy zapytanie po dobie jest nadal nową wiadomością" },
+    "quote_follow_up": { "title": "Przypomnieć o ofercie 2 dni po jej wysłaniu" },
+    "quote_expiring": { "title": "Dopytać lub zamknąć, gdy oferta osiąga datę ważności" },
+    "payment_request": { "title": "Poprosić o płatność dzień po wejściu w etap oczekiwania na płatność" },
+    "won_reorder": { "title": "Utworzyć przypomnienie o ponownym zamówieniu 90 dni po potwierdzeniu zamówienia" },
+    "service_calendar": { "title": "Dodać termin realizacji do kalendarza, gdy zamówienie zostaje potwierdzone" },
+    "appointment_confirm": { "title": "Potwierdzić termin dzień wcześniej" },
+    "later_revisit_date": { "title": "Ustawić datę powrotu na 90 dni, gdy zapytanie przechodzi na później" },
+    "revisit_follow_up": { "title": "Odezwać się w dniu powrotu" },
+    "unanswered_sweep": { "title": "Codziennie tworzyć zadanie odpowiedzi dla każdej nowej wiadomości bez odpowiedzi" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Każde zapytanie ma etap.",
+    "opt_in_field": "Każdy kontakt zapisuje zgodę na WhatsApp.",
+    "quote_valid_field": "Każda oferta zapisuje, jak długo jest ważna.",
+    "enquiries_board_view": "Zapytania otwierają się jako tablica według etapu."
+  },
+  "prompt": {
+    "intro": "Skonfiguruj w moim workspace Customermates obsługę zapytań z WhatsAppa: jedno zapytanie na rozmowę z ofertą i jej ważnością, następnym kontaktem z terminem, etapem płatności, datą powrotu i terminem ponownego zamówienia na kontakt, a także zgodą kontaktu na WhatsApp. Pisz odpowiedzi pojedynczo do mojego sprawdzenia i niczego nie wysyłaj masowo.",
+    "questions": [
+      "O co klienci pytają Cię na WhatsAppie i jak wyceniasz?",
+      "W jakim czasie chcesz odpowiadać na nową wiadomość?",
+      "Ile dni czekasz po ofercie, zanim przypomnisz o sobie, i kiedy przestajesz?",
+      "Czy klienci zamawiają ponownie i po jakim czasie?"
+    ]
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "locale": "it",
+  "name": "Seguito delle richieste WhatsApp",
+  "summary": "Una pipeline per una piccola impresa i cui clienti scrivono su WhatsApp: registrare la richiesta, rispondere in fretta, inviare un preventivo, sollecitare dopo qualche giorno, confermare l'ordine e ricordare il riacquisto.",
+  "description": "Trasforma le chat WhatsApp in richieste seguite: ogni chat diventa una richiesta con ciò che vuole il cliente, il preventivo e la sua validità, un prossimo contatto con data, una fase di pagamento e una data per riprendere quando la risposta era «più avanti». Ogni contatto registra se ha accettato di ricevere messaggi e quando è previsto un riordino. Le risposte vengono scritte una per una e riviste. Non invia messaggi di massa, campagne o menu di chatbot e non usa la piattaforma ufficiale WhatsApp Business. WhatsApp può limitare un account usato in modo vietato dalle sue regole.",
+  "lists": {
+    "contacts": { "label": "Contatto", "pluralLabel": "Contatti", "description": "Le persone che ti scrivono, con il loro consenso WhatsApp e la data di riordino." },
+    "enquiries": { "label": "Richiesta", "pluralLabel": "Richieste (trattative)", "description": "Una richiesta da una chat, dal primo messaggio a ordine confermato, perso o più avanti." }
+  },
+  "fields": {
+    "contacts.whatsapp_opt_in": {
+      "label": "Consenso WhatsApp",
+      "options": { "customer_started_chat": "Il cliente ha avviato la chat", "gave_permission": "Ha dato il consenso", "unknown": "Sconosciuto", "opted_out": "Ha chiesto di smettere" }
+    },
+    "contacts.last_order_on": { "label": "Ultimo ordine" },
+    "contacts.reorder_due": { "label": "Riordino previsto" },
+    "enquiries.stage": {
+      "label": "Fase",
+      "options": { "new_chat": "Nuova chat", "qualifying": "Qualificazione", "quote_sent": "Preventivo inviato", "awaiting_payment": "In attesa di pagamento", "won": "Ordine confermato", "lost": "Perso", "later": "Più avanti" }
+    },
+    "enquiries.source": { "label": "Origine", "options": { "click_to_chat": "Link WhatsApp", "website": "Sito web", "instagram": "Instagram", "referral": "Segnalazione", "walk_in": "Di persona", "phone": "Telefono", "ad": "Annuncio" } },
+    "enquiries.interest": { "label": "Prodotto di interesse" },
+    "enquiries.received_at": { "label": "Primo messaggio ricevuto" },
+    "enquiries.quote_valid_until": { "label": "Preventivo valido fino al" },
+    "enquiries.ordered_on": { "label": "Ordinato il" },
+    "enquiries.service_date": { "label": "Data di consegna o appuntamento" },
+    "enquiries.next_step_due": { "label": "Prossimo contatto" },
+    "enquiries.lost_reason": {
+      "label": "Motivo della perdita",
+      "options": { "price": "Prezzo", "chose_competitor": "Ha scelto un concorrente", "no_response": "Nessuna risposta", "timing": "Tempi", "not_available": "Non disponibile", "not_a_fit": "Non adatto" }
+    },
+    "enquiries.revisit_on": { "label": "Ricontattare il" },
+    "enquiries.weighted_value": { "label": "Valore ponderato" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "reply": "Rispondere", "send_quote": "Inviare il preventivo", "follow_up": "Sollecitare", "confirm_order": "Confermare l'ordine", "request_payment": "Chiedere il pagamento", "confirm_appointment": "Confermare l'appuntamento", "reorder_reminder": "Promemoria di riordino", "other": "Altro" }
+    }
+  },
+  "relationships": {
+    "enquiry_contact": { "sourceLabel": "Contatto", "targetLabel": "Richieste (trattative)" },
+    "action_enquiry": { "sourceLabel": "Richiesta", "targetLabel": "Attività" }
+  },
+  "views": {
+    "enquiries_board": { "name": "Richieste per fase" },
+    "enquiries_all": { "name": "Tutte le richieste" },
+    "open_quotes": { "name": "Preventivi in attesa di risposta" },
+    "later_to_revisit": { "name": "Più avanti, da ricontattare" },
+    "contacts_all": { "name": "Tutti i contatti" }
+  },
+  "widgets": {
+    "enquiries_funnel": { "title": "Richieste per fase" },
+    "open_quotes_value": { "title": "Valore dei preventivi in attesa" },
+    "new_chats": { "title": "Nuove chat a cui rispondere" },
+    "reorders_due": { "title": "Riordini in arrivo" },
+    "services_coming": { "title": "Consegne e appuntamenti in arrivo" },
+    "by_source": { "title": "Richieste per origine" },
+    "lost_reasons": { "title": "Perché le richieste sono perse" }
+  },
+  "knowledgePages": {
+    "enquiry_playbook": { "title": "Guida alle richieste WhatsApp", "sections": ["Rispondere, registrare, quotare, sollecitare, confermare, ricordare", "Chi risponde e in che tempi"] },
+    "opt_in_rules": { "title": "Consenso e interruzione dei messaggi", "sections": ["Quando un cliente ha accettato di ricevere messaggi", "Che cosa succede quando qualcuno chiede di smettere"] },
+    "follow_up_rhythm": { "title": "Ritmo dei solleciti e quando fermarsi", "sections": ["Giorni tra i solleciti dopo un preventivo", "Il messaggio di chiusura e la data per ricontattare"] },
+    "what_whatsapp_allows": { "title": "Che cosa consente WhatsApp e che cosa questa impostazione non fa", "sections": ["Nessun messaggio di massa, campagna o chatbot", "Il rischio di usare un account collegato"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Creare contatto e richiesta quando viene inviato il modulo con la casella WhatsApp" },
+    "reply_new_chat": { "title": "Creare un'attività di risposta quando nasce una richiesta" },
+    "first_reply_missed": { "title": "Avvisare il responsabile quando una richiesta è ancora una nuova chat un giorno dopo" },
+    "quote_follow_up": { "title": "Sollecitare 2 giorni dopo l'invio di un preventivo" },
+    "quote_expiring": { "title": "Chiedere o chiudere quando un preventivo raggiunge la data di validità" },
+    "payment_request": { "title": "Chiedere il pagamento il giorno dopo l'ingresso in attesa di pagamento" },
+    "won_reorder": { "title": "Creare un promemoria di riordino 90 giorni dopo la conferma di un ordine" },
+    "service_calendar": { "title": "Aggiungere consegna o appuntamento all'agenda quando l'ordine è confermato" },
+    "appointment_confirm": { "title": "Confermare l'appuntamento il giorno prima" },
+    "later_revisit_date": { "title": "Fissare la data per ricontattare a 90 giorni quando una richiesta passa a più avanti" },
+    "revisit_follow_up": { "title": "Sollecitare alla data per ricontattare" },
+    "unanswered_sweep": { "title": "Ogni giorno, creare un'attività di risposta per ogni nuova chat senza risposta" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Ogni richiesta ha una fase.",
+    "opt_in_field": "Ogni contatto registra il suo consenso WhatsApp.",
+    "quote_valid_field": "Ogni preventivo indica per quanto tempo è valido.",
+    "enquiries_board_view": "Le richieste si aprono come bacheca per fase."
+  },
+  "prompt": {
+    "intro": "Imposta nel mio workspace Customermates il seguito delle richieste WhatsApp: una richiesta per ogni chat con preventivo e validità, prossimo contatto con data, fase di pagamento, data per ricontattare e data di riordino per contatto, più il consenso WhatsApp del contatto. Scrivi le risposte una per una per la mia revisione e non inviare nulla in massa.",
+    "questions": [
+      "Che cosa vi chiedono i clienti su WhatsApp e come quotate?",
+      "In quanto tempo volete rispondere a una nuova chat?",
+      "Quanti giorni aspettate dopo un preventivo prima di sollecitare e quando smettete?",
+      "I clienti riordinano e dopo quanto tempo?"
+    ]
+  }
+}
