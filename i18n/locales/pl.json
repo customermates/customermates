@@ -3258,6 +3258,7 @@
     "addPickerDescription": "Wybierz typ rekordu, który chcesz utworzyć.",
     "addPickerTitle": "Utwórz nowy…",
     "affiliate": "Program partnerski",
+    "automations": "Automatyzacje",
     "dashboard": "Pulpit",
     "data": "Dane",
     "docs": "Dokumentacja",
@@ -3334,6 +3335,7 @@
         "whatsappCrm": "Czaty WhatsApp dopasowane do klientów"
       },
       "startups": "Startupy",
+      "templates": "Szablony",
       "whatsappCrm": "CRM dla WhatsApp"
     },
     "routines": "Rutyny",
@@ -3348,6 +3350,172 @@
     "documentTitle": "Nie znaleziono strony | Customermates",
     "subtitle": "Ta strona wyjechała na wakacje, nic nam nie mówiąc",
     "title": "Ups! Trafiasz w pustkę"
+  },
+  "AutomationRules": {
+    "active": "Włącz lub wyłącz {name}",
+    "automate": "Zautomatyzuj tę listę",
+    "builder": {
+      "action": "Działanie",
+      "active": "Aktywna",
+      "addCondition": "Dodaj warunek",
+      "addEffect": "Dodaj działanie",
+      "after": "po",
+      "anyField": "Dowolne pole",
+      "assignToOwner": "Przypisz do mnie",
+      "atHour": "O godzinie (0 do 23)",
+      "before": "przed",
+      "body": "Szczegóły (opcjonalnie)",
+      "boolean": {
+        "false": "Nie",
+        "true": "Tak"
+      },
+      "choose": "Wybierz…",
+      "dateField": "Pole daty",
+      "days": "Dni",
+      "daysFromToday": "Dni od dziś",
+      "direction": "Przed czy po",
+      "dueDays": "Termin za dni",
+      "dueField": "Pole terminu",
+      "event": "Zdarzenie",
+      "field": "Pole",
+      "fixConditions": "Uzupełnij każdy warunek albo go usuń.",
+      "fixEffect": "Uzupełnij to działanie.",
+      "fixTrigger": "Uzupełnij wyzwalacz: wybierz pole i poprawną wartość.",
+      "if": "Jeśli (opcjonalnie)",
+      "incomplete": "Ta automatyzacja nie jest jeszcze kompletna.",
+      "keptEffect": "Tego działania ({kind}) nie można tu edytować i pozostaje bez zmian.",
+      "keptTrigger": "Tego wyzwalacza nie można tu edytować i pozostaje bez zmian.",
+      "linkTo": "Powiąż z rekordem wyzwalającym jako",
+      "list": "Lista",
+      "name": "Nazwa",
+      "namePlaceholder": "Na przykład: przypomnij mi przed zamknięciem transakcji",
+      "noDueDate": "Bez terminu",
+      "noLink": "Nie powiązuj",
+      "notificationKind": "Pojawia się w dzwonku jako",
+      "operator": "Warunek",
+      "placeholders": "W tytułach i szczegółach {recordName} zastępuje nazwa rekordu, a {ruleName} nazwa tej automatyzacji.",
+      "then": "Wtedy",
+      "timezone": "Strefa czasowa",
+      "title": "Tytuł",
+      "titleEdit": "Edytuj automatyzację",
+      "titleField": "Pole tytułu",
+      "titleNew": "Nowa automatyzacja",
+      "toAssignees": "Powiadom przypisane osoby",
+      "toOwner": "Powiadom mnie",
+      "toValue": "Na wartość (opcjonalnie)",
+      "value": "Wartość",
+      "when": "Gdy"
+    },
+    "deleteMessage": "Usunąć „{name}” wraz z historią? Tego nie można cofnąć.",
+    "deleteTitle": "Usuń automatyzację",
+    "disabledReason": {
+      "disabledByUser": "Wyłączona.",
+      "ownerInactive": "Wyłączona, bo jej właściciel nie jest już aktywnym członkiem.",
+      "ownerMissing": "Wyłączona, bo nie ma właściciela."
+    },
+    "edit": "Edytuj",
+    "effect": {
+      "callWebhook": "Wywołaj webhook",
+      "createRecord": "Utwórz rekord",
+      "notify": "Powiadom",
+      "setField": "Ustaw pole"
+    },
+    "emptyBody": "Przypomnij sobie przed zamknięciem transakcji, utwórz zadanie kontaktowe, gdy rekord się zmieni, albo powiadom zespół, gdy wpłynie formularz.",
+    "emptyTitle": "Brak automatyzacji",
+    "history": {
+      "empty": "Brak uruchomień",
+      "open": "Historia",
+      "record": "Otwórz rekord",
+      "title": "Uruchomienia „{name}”"
+    },
+    "lastRun": "Ostatnie uruchomienie {time}",
+    "neverRun": "Jeszcze nie uruchomiona",
+    "new": "Nowa automatyzacja",
+    "notificationKind": {
+      "dueToday": "Termin dziś",
+      "replyReceived": "Otrzymano odpowiedź",
+      "ruleAlert": "Alert automatyzacji"
+    },
+    "operator": {
+      "after": "jest po dniu dzisiejszym plus",
+      "before": "jest przed dniem dzisiejszym plus",
+      "empty": "jest puste",
+      "equals": "jest",
+      "notEmpty": "nie jest puste",
+      "notEquals": "nie jest"
+    },
+    "outcome": {
+      "applied": "wykonane",
+      "failed": "nie udało się",
+      "skipped": "pominięte"
+    },
+    "reason": {
+      "conditionsNotMet": "Warunki nie były spełnione.",
+      "ownerChanged": "Właściciel się zmienił.",
+      "ownerInactive": "Właściciel nie jest już aktywnym członkiem.",
+      "ownerMissing": "Automatyzacja nie ma właściciela.",
+      "ownerNotPermitted": "Właściciel nie ma już dostępu do automatyzacji.",
+      "recordUnavailable": "Rekord już nie istnieje albo właściciel nie może go odczytać.",
+      "ruleDisabled": "Automatyzacja była wyłączona."
+    },
+    "remindBefore": "Przypomnij mi o {field}",
+    "status": {
+      "applied": "Zakończona",
+      "failed": "Niepowodzenie",
+      "queued": "W kolejce",
+      "running": "W toku",
+      "skipped": "Pominięta"
+    },
+    "subtitle": "Reguły bez AI: gdy coś się wydarzy i pasuje, wykonaj to.",
+    "summary": {
+      "dateReached": "{direction, select, before {{days, plural, =0 {W dniu daty {field} w {list}} one {# dzień przed {field} w {list}} few {# dni przed {field} w {list}} many {# dni przed {field} w {list}} other {# dnia przed {field} w {list}}}} other {{days, plural, =0 {W dniu daty {field} w {list}} one {# dzień po {field} w {list}} few {# dni po {field} w {list}} many {# dni po {field} w {list}} other {# dnia po {field} w {list}}}}}",
+      "fieldChanged": "Gdy zmieni się {field} w {list}",
+      "formSubmitted": "Gdy formularz zostanie wysłany",
+      "messageReceived": "Gdy nadejdzie wiadomość",
+      "recordCreated": "Gdy w {list} powstanie rekord",
+      "recordUpdated": "Gdy rekord w {list} zostanie zmieniony",
+      "webhookReceived": "Gdy przychodzący webhook dostarczy dane"
+    },
+    "title": "Automatyzacje",
+    "trigger": {
+      "dateReached": "Nadchodzi data",
+      "fieldChanged": "Zmienia się pole",
+      "messageReceived": "Nadchodzi wiadomość",
+      "recordCreated": "Powstaje rekord",
+      "recordUpdated": "Rekord zostaje zmieniony"
+    }
+  },
+  "Notifications": {
+    "emailMode": {
+      "digest": "Dzienne podsumowanie",
+      "instant": "E-mail od razu",
+      "off": "Bez e-maila"
+    },
+    "empty": "Wszystko na bieżąco.",
+    "kindHelp": {
+      "assigned": "Gdy rekord zostanie do Ciebie przypisany.",
+      "dueToday": "Przypomnienia o datach, które nadchodzą dziś.",
+      "formSubmission": "Gdy ktoś wyśle jeden z Twoich formularzy.",
+      "replyReceived": "Gdy nadejdzie wiadomość, na którą czekasz.",
+      "ruleAlert": "Gdy jedna z Twoich automatyzacji coś zgłosi."
+    },
+    "kinds": {
+      "assigned": "Przypisane do Ciebie",
+      "dueToday": "Termin dziś",
+      "formSubmission": "Wysłane formularze",
+      "replyReceived": "Otrzymane odpowiedzi",
+      "ruleAlert": "Alerty automatyzacji"
+    },
+    "loading": "Wczytywanie powiadomień…",
+    "markAllRead": "Oznacz wszystkie jako przeczytane",
+    "open": "Otwórz powiadomienia",
+    "openUnread": "Otwórz powiadomienia, nieprzeczytane: {count}",
+    "preferences": {
+      "description": "Dzwonek zawsze pokazuje wszystko. Tutaj ustawiasz, jak często każdy rodzaj dociera do Ciebie także e-mailem.",
+      "title": "E-maile z powiadomieniami"
+    },
+    "title": "Powiadomienia",
+    "unread": "Nieprzeczytane"
   },
   "NotificationEmail": {
     "cta": "Otwórz Customermates",

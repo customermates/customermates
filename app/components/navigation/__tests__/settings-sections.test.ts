@@ -10,6 +10,7 @@ describe("settings sections", () => {
       "profile",
       "workspaces",
       "channels",
+      "booking",
       "api-keys",
     ]);
     expect(SETTINGS_SECTIONS.workspace.map(({ slug }) => slug)).toEqual([
@@ -45,6 +46,7 @@ describe("settings sections", () => {
       "profile",
       "workspaces",
       "channels",
+      "booking",
       "api-keys",
     ]);
   });

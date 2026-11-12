@@ -521,6 +521,8 @@ export const SETTINGS_NAV_DESCRIPTIONS: Record<SettingsSlug, string> = {
     "Settings link to Workspaces, every workspace the person belongs to with role, status and plan, and Switch, Leave and Create workspace",
   channels:
     "Settings link to Channels & calendars, the connected accounts for email, calendars, LinkedIn, WhatsApp, Instagram and Telegram",
+  booking:
+    "Settings link to Booking pages, the public links where anyone can book a meeting in the person's connected calendar",
   "api-keys": "Settings link to API keys & connectors for the REST API, MCP clients and AI connectors",
   general: "Settings link to General, the workspace name and Leave workspace",
   members: "Settings link to Members, the team members of the workspace and their roles",

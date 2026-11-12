@@ -3335,6 +3335,7 @@
         "whatsappCrm": "WhatsApp chats matched to customers"
       },
       "startups": "Startups",
+      "templates": "Templates",
       "whatsappCrm": "WhatsApp CRM"
     },
     "routines": "Routines",
@@ -3355,6 +3356,7 @@
     "automate": "Automate this list",
     "builder": {
       "action": "Action",
+      "active": "Active",
       "addCondition": "Add a condition",
       "addEffect": "Add an action",
       "after": "after",

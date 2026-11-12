@@ -3258,6 +3258,7 @@
     "addPickerDescription": "Kies het type record dat je wilt aanmaken.",
     "addPickerTitle": "Nieuw aanmaken…",
     "affiliate": "Affiliateprogramma",
+    "automations": "Automatiseringen",
     "dashboard": "Dashboard",
     "data": "Data",
     "docs": "Documentatie",
@@ -3334,6 +3335,7 @@
         "whatsappCrm": "WhatsApp-chats gekoppeld aan klanten"
       },
       "startups": "Startups",
+      "templates": "Sjablonen",
       "whatsappCrm": "WhatsApp CRM"
     },
     "routines": "Routines",
@@ -3348,6 +3350,172 @@
     "documentTitle": "Pagina niet gevonden | Customermates",
     "subtitle": "Deze pagina is op vakantie gegaan zonder het ons te vertellen",
     "title": "Oeps! Je bent in de leegte beland"
+  },
+  "AutomationRules": {
+    "active": "{name} aan- of uitzetten",
+    "automate": "Deze lijst automatiseren",
+    "builder": {
+      "action": "Actie",
+      "active": "Actief",
+      "addCondition": "Voorwaarde toevoegen",
+      "addEffect": "Actie toevoegen",
+      "after": "na",
+      "anyField": "Elk veld",
+      "assignToOwner": "Aan mij toewijzen",
+      "atHour": "Om uur (0 tot 23)",
+      "before": "voor",
+      "body": "Details (optioneel)",
+      "boolean": {
+        "false": "Nee",
+        "true": "Ja"
+      },
+      "choose": "Kies…",
+      "dateField": "Datumveld",
+      "days": "Dagen",
+      "daysFromToday": "Dagen vanaf vandaag",
+      "direction": "Voor of na",
+      "dueDays": "Verloopt over dagen",
+      "dueField": "Veld voor de deadline",
+      "event": "Gebeurtenis",
+      "field": "Veld",
+      "fixConditions": "Vul elke voorwaarde in of verwijder haar.",
+      "fixEffect": "Vul deze actie in.",
+      "fixTrigger": "Vul de trigger in: kies een veld en een geldige waarde.",
+      "if": "Als (optioneel)",
+      "incomplete": "Deze automatisering is nog niet compleet.",
+      "keptEffect": "Deze actie ({kind}) kan hier niet worden bewerkt en blijft zoals ze is.",
+      "keptTrigger": "Deze trigger kan hier niet worden bewerkt en blijft zoals hij is.",
+      "linkTo": "Koppelen aan het startende record als",
+      "list": "Lijst",
+      "name": "Naam",
+      "namePlaceholder": "Bijvoorbeeld: herinner me voordat een deal sluit",
+      "noDueDate": "Geen deadline",
+      "noLink": "Niet koppelen",
+      "notificationKind": "Verschijnt in de bel als",
+      "operator": "Voorwaarde",
+      "placeholders": "In titels en details wordt {recordName} vervangen door de naam van het record en {ruleName} door de naam van deze automatisering.",
+      "then": "Dan",
+      "timezone": "Tijdzone",
+      "title": "Titel",
+      "titleEdit": "Automatisering bewerken",
+      "titleField": "Titelveld",
+      "titleNew": "Nieuwe automatisering",
+      "toAssignees": "De toegewezen personen op de hoogte stellen",
+      "toOwner": "Mij op de hoogte stellen",
+      "toValue": "Naar waarde (optioneel)",
+      "value": "Waarde",
+      "when": "Wanneer"
+    },
+    "deleteMessage": "“{name}” en de geschiedenis verwijderen? Dit kan niet ongedaan worden gemaakt.",
+    "deleteTitle": "Automatisering verwijderen",
+    "disabledReason": {
+      "disabledByUser": "Uitgezet.",
+      "ownerInactive": "Uitgezet omdat de eigenaar geen actief lid meer is.",
+      "ownerMissing": "Uitgezet omdat ze geen eigenaar heeft."
+    },
+    "edit": "Bewerken",
+    "effect": {
+      "callWebhook": "Een webhook aanroepen",
+      "createRecord": "Een record aanmaken",
+      "notify": "Melden",
+      "setField": "Een veld instellen"
+    },
+    "emptyBody": "Herinner jezelf voordat een deal sluit, maak een opvolgtaak als een record verandert of laat je team weten dat er een formulier binnenkomt.",
+    "emptyTitle": "Nog geen automatiseringen",
+    "history": {
+      "empty": "Nog geen uitvoeringen",
+      "open": "Geschiedenis",
+      "record": "Record openen",
+      "title": "Uitvoeringen van “{name}”"
+    },
+    "lastRun": "Laatst uitgevoerd {time}",
+    "neverRun": "Nog niet uitgevoerd",
+    "new": "Nieuwe automatisering",
+    "notificationKind": {
+      "dueToday": "Vandaag aan de beurt",
+      "replyReceived": "Antwoord ontvangen",
+      "ruleAlert": "Melding van een automatisering"
+    },
+    "operator": {
+      "after": "ligt na vandaag plus",
+      "before": "ligt voor vandaag plus",
+      "empty": "is leeg",
+      "equals": "is",
+      "notEmpty": "is niet leeg",
+      "notEquals": "is niet"
+    },
+    "outcome": {
+      "applied": "uitgevoerd",
+      "failed": "mislukt",
+      "skipped": "overgeslagen"
+    },
+    "reason": {
+      "conditionsNotMet": "De voorwaarden waren niet vervuld.",
+      "ownerChanged": "De eigenaar is gewijzigd.",
+      "ownerInactive": "De eigenaar is geen actief lid meer.",
+      "ownerMissing": "De automatisering heeft geen eigenaar.",
+      "ownerNotPermitted": "De eigenaar heeft geen toegang meer tot automatiseringen.",
+      "recordUnavailable": "Het record bestaat niet meer of is niet leesbaar voor de eigenaar.",
+      "ruleDisabled": "De automatisering stond uit."
+    },
+    "remindBefore": "Herinner me aan {field}",
+    "status": {
+      "applied": "Voltooid",
+      "failed": "Mislukt",
+      "queued": "In de wachtrij",
+      "running": "Bezig",
+      "skipped": "Overgeslagen"
+    },
+    "subtitle": "Regels zonder AI: als er iets gebeurt en het past, doe dan dit.",
+    "summary": {
+      "dateReached": "{direction, select, before {{days, plural, =0 {Op de datum van {field} in {list}} one {# dag voor {field} in {list}} other {# dagen voor {field} in {list}}}} other {{days, plural, =0 {Op de datum van {field} in {list}} one {# dag na {field} in {list}} other {# dagen na {field} in {list}}}}}",
+      "fieldChanged": "Wanneer {field} verandert in {list}",
+      "formSubmitted": "Wanneer een formulier wordt verstuurd",
+      "messageReceived": "Wanneer er een bericht binnenkomt",
+      "recordCreated": "Wanneer in {list} een record wordt aangemaakt",
+      "recordUpdated": "Wanneer een record in {list} wordt bijgewerkt",
+      "webhookReceived": "Wanneer een inkomende webhook gegevens aanlevert"
+    },
+    "title": "Automatiseringen",
+    "trigger": {
+      "dateReached": "Een datum is bereikt",
+      "fieldChanged": "Een veld verandert",
+      "messageReceived": "Er komt een bericht binnen",
+      "recordCreated": "Er wordt een record aangemaakt",
+      "recordUpdated": "Een record wordt bijgewerkt"
+    }
+  },
+  "Notifications": {
+    "emailMode": {
+      "digest": "Dagelijkse samenvatting",
+      "instant": "Direct per e-mail",
+      "off": "Geen e-mail"
+    },
+    "empty": "Je bent helemaal bij.",
+    "kindHelp": {
+      "assigned": "Wanneer een record aan jou wordt toegewezen.",
+      "dueToday": "Herinneringen voor datums die vandaag aanbreken.",
+      "formSubmission": "Wanneer iemand een van je formulieren verstuurt.",
+      "replyReceived": "Wanneer een bericht binnenkomt waar je op wachtte.",
+      "ruleAlert": "Wanneer een van je automatiseringen je iets meldt."
+    },
+    "kinds": {
+      "assigned": "Aan jou toegewezen",
+      "dueToday": "Vandaag aan de beurt",
+      "formSubmission": "Ingevulde formulieren",
+      "replyReceived": "Ontvangen antwoorden",
+      "ruleAlert": "Meldingen van automatiseringen"
+    },
+    "loading": "Meldingen laden…",
+    "markAllRead": "Alles als gelezen markeren",
+    "open": "Meldingen openen",
+    "openUnread": "Meldingen openen, {count} ongelezen",
+    "preferences": {
+      "description": "De bel toont altijd alles. Kies hier hoe vaak elke soort je ook per e-mail bereikt.",
+      "title": "E-mails over meldingen"
+    },
+    "title": "Meldingen",
+    "unread": "Ongelezen"
   },
   "NotificationEmail": {
     "cta": "Customermates openen",

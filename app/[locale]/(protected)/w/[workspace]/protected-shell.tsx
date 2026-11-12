@@ -27,6 +27,8 @@ import { GlobalKeyboardShortcuts } from "@/app/components/keyboard-shortcuts/glo
 import { KeyboardShortcutsDialog } from "@/app/components/keyboard-shortcuts/keyboard-shortcuts-dialog";
 import { ViewPicker } from "@/components/data-view/views/view-picker";
 import { CreateWorkspaceModal } from "@/app/components/workspaces/create-workspace-modal";
+import { ScheduleMeetingModal } from "@/app/components/schedule-meeting/schedule-meeting-modal";
+import { BookingLinkModal } from "./settings/(account)/components/booking-link-modal";
 
 const ConnectedAccountModal = dynamic(
   () => import("./settings/(account)/components/connected-account-modal").then((mod) => mod.ConnectedAccountModal),
@@ -100,6 +102,10 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
           <ConnectedAccountModal />
 
           <ConnectUpsellModal />
+
+          <ScheduleMeetingModal />
+
+          <BookingLinkModal />
 
           <TimelineDetailModal />
 

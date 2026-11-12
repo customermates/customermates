@@ -3335,6 +3335,7 @@
         "whatsappCrm": "WhatsApp-Chats passend zu Kunden"
       },
       "startups": "Startups",
+      "templates": "Vorlagen",
       "whatsappCrm": "WhatsApp-CRM"
     },
     "routines": "Routinen",
@@ -3355,6 +3356,7 @@
     "automate": "Diese Liste automatisieren",
     "builder": {
       "action": "Aktion",
+      "active": "Aktiv",
       "addCondition": "Bedingung hinzufügen",
       "addEffect": "Aktion hinzufügen",
       "after": "nach",

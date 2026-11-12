@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 
 import {
   Building2,
+  CalendarClock,
   CreditCard,
   History,
   KeyRound,
@@ -37,6 +38,13 @@ export const SETTINGS_SECTIONS: Record<SettingsSection, SettingsSubroute[]> = {
       slug: "channels",
       icon: Mail,
       labelKey: "SettingsNav.channels",
+      resource: Resource.inboxMessages,
+      cloudOnly: true,
+    },
+    {
+      slug: "booking",
+      icon: CalendarClock,
+      labelKey: "SettingsNav.booking",
       resource: Resource.inboxMessages,
       cloudOnly: true,
     },

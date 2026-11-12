@@ -4,6 +4,7 @@ export type SettingsSlug =
   | "profile"
   | "workspaces"
   | "channels"
+  | "booking"
   | "api-keys"
   | "general"
   | "members"

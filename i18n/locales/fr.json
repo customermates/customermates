@@ -3258,8 +3258,9 @@
     "addPickerDescription": "Choisissez le type d’enregistrement à créer.",
     "addPickerTitle": "Créer…",
     "affiliate": "Programme d’affiliation",
+    "automations": "Automatisations",
     "dashboard": "Tableau de bord",
-    "data": "Données",
+    "data":"Données",
     "docs": "Documentation",
     "features": "Fonctionnalités",
     "inbox": "Boîte de réception",
@@ -3334,6 +3335,7 @@
         "whatsappCrm": "Discussions WhatsApp liées aux clients"
       },
       "startups": "Start-ups",
+      "templates": "Modèles",
       "whatsappCrm": "CRM WhatsApp"
     },
     "routines": "Routines",
@@ -3348,6 +3350,172 @@
     "documentTitle": "Page introuvable | Customermates",
     "subtitle": "Cette page est partie en vacances sans nous prévenir",
     "title": "Oups ! Vous êtes entré dans le vide"
+  },
+  "AutomationRules": {
+    "active": "Activer ou désactiver {name}",
+    "automate": "Automatiser cette liste",
+    "builder": {
+      "action": "Action",
+      "active": "Active",
+      "addCondition": "Ajouter une condition",
+      "addEffect": "Ajouter une action",
+      "after": "après",
+      "anyField": "N’importe quel champ",
+      "assignToOwner": "Me l’assigner",
+      "atHour": "À l’heure (0 à 23)",
+      "before": "avant",
+      "body": "Détails (facultatif)",
+      "boolean": {
+        "false": "Non",
+        "true": "Oui"
+      },
+      "choose": "Choisir…",
+      "dateField": "Champ de date",
+      "days": "Jours",
+      "daysFromToday": "Jours à partir d’aujourd’hui",
+      "direction": "Avant ou après",
+      "dueDays": "Échéance en jours",
+      "dueField": "Champ d’échéance",
+      "event": "Événement",
+      "field": "Champ",
+      "fixConditions": "Complétez chaque condition ou supprimez-la.",
+      "fixEffect": "Complétez cette action.",
+      "fixTrigger": "Complétez le déclencheur : choisissez un champ et une valeur valide.",
+      "if": "Si (facultatif)",
+      "incomplete": "Cette automatisation n’est pas encore complète.",
+      "keptEffect": "Cette action ({kind}) ne peut pas être modifiée ici et reste telle quelle.",
+      "keptTrigger": "Ce déclencheur ne peut pas être modifié ici et reste tel quel.",
+      "linkTo": "Lier à l’enregistrement déclencheur comme",
+      "list": "Liste",
+      "name": "Nom",
+      "namePlaceholder": "Par exemple : me rappeler avant la clôture d’une affaire",
+      "noDueDate": "Pas d’échéance",
+      "noLink": "Ne pas lier",
+      "notificationKind": "Apparaît dans la cloche comme",
+      "operator": "Condition",
+      "placeholders": "Dans les titres et les détails, {recordName} est remplacé par le nom de l’enregistrement et {ruleName} par le nom de cette automatisation.",
+      "then": "Alors",
+      "timezone": "Fuseau horaire",
+      "title": "Titre",
+      "titleEdit": "Modifier l’automatisation",
+      "titleField": "Champ de titre",
+      "titleNew": "Nouvelle automatisation",
+      "toAssignees": "Prévenir les personnes assignées",
+      "toOwner": "Me prévenir",
+      "toValue": "Vers la valeur (facultatif)",
+      "value": "Valeur",
+      "when": "Quand"
+    },
+    "deleteMessage": "Supprimer « {name} » et son historique ? Cette action est irréversible.",
+    "deleteTitle": "Supprimer l’automatisation",
+    "disabledReason": {
+      "disabledByUser": "Désactivée.",
+      "ownerInactive": "Désactivée, car son propriétaire n’est plus un membre actif.",
+      "ownerMissing": "Désactivée, car elle n’a pas de propriétaire."
+    },
+    "edit": "Modifier",
+    "effect": {
+      "callWebhook": "Appeler un webhook",
+      "createRecord": "Créer un enregistrement",
+      "notify": "Notifier",
+      "setField": "Définir un champ"
+    },
+    "emptyBody": "Rappelez-vous avant la clôture d’une affaire, créez une tâche de suivi quand un enregistrement change ou prévenez votre équipe à l’arrivée d’un formulaire.",
+    "emptyTitle": "Aucune automatisation pour l’instant",
+    "history": {
+      "empty": "Aucune exécution pour l’instant",
+      "open": "Historique",
+      "record": "Ouvrir l’enregistrement",
+      "title": "Exécutions de « {name} »"
+    },
+    "lastRun": "Dernière exécution {time}",
+    "neverRun": "Pas encore exécutée",
+    "new": "Nouvelle automatisation",
+    "notificationKind": {
+      "dueToday": "À faire aujourd’hui",
+      "replyReceived": "Réponse reçue",
+      "ruleAlert": "Alerte d’automatisation"
+    },
+    "operator": {
+      "after": "est après aujourd’hui plus",
+      "before": "est avant aujourd’hui plus",
+      "empty": "est vide",
+      "equals": "est",
+      "notEmpty": "n’est pas vide",
+      "notEquals": "n’est pas"
+    },
+    "outcome": {
+      "applied": "effectué",
+      "failed": "échec",
+      "skipped": "ignoré"
+    },
+    "reason": {
+      "conditionsNotMet": "Les conditions n’étaient pas remplies.",
+      "ownerChanged": "Le propriétaire a changé.",
+      "ownerInactive": "Le propriétaire n’est plus un membre actif.",
+      "ownerMissing": "L’automatisation n’a pas de propriétaire.",
+      "ownerNotPermitted": "Le propriétaire n’a plus accès aux automatisations.",
+      "recordUnavailable": "L’enregistrement n’existe plus ou le propriétaire ne peut pas le lire.",
+      "ruleDisabled": "L’automatisation était désactivée."
+    },
+    "remindBefore": "Me rappeler {field}",
+    "status": {
+      "applied": "Terminée",
+      "failed": "Échec",
+      "queued": "En attente",
+      "running": "En cours",
+      "skipped": "Ignorée"
+    },
+    "subtitle": "Des règles sans IA : quand quelque chose se produit et correspond, alors on fait ceci.",
+    "summary": {
+      "dateReached": "{direction, select, before {{days, plural, =0 {À la date de {field} dans {list}} one {# jour avant {field} dans {list}} other {# jours avant {field} dans {list}}}} other {{days, plural, =0 {À la date de {field} dans {list}} one {# jour après {field} dans {list}} other {# jours après {field} dans {list}}}}}",
+      "fieldChanged": "Quand {field} change dans {list}",
+      "formSubmitted": "Quand un formulaire est envoyé",
+      "messageReceived": "Quand un message arrive",
+      "recordCreated": "Quand un enregistrement est créé dans {list}",
+      "recordUpdated": "Quand un enregistrement de {list} est modifié",
+      "webhookReceived": "Quand un webhook entrant livre des données"
+    },
+    "title": "Automatisations",
+    "trigger": {
+      "dateReached": "Une date est atteinte",
+      "fieldChanged": "Un champ change",
+      "messageReceived": "Un message est reçu",
+      "recordCreated": "Un enregistrement est créé",
+      "recordUpdated": "Un enregistrement est modifié"
+    }
+  },
+  "Notifications": {
+    "emailMode": {
+      "digest": "Résumé quotidien",
+      "instant": "E-mail immédiat",
+      "off": "Pas d’e-mail"
+    },
+    "empty": "Vous êtes à jour.",
+    "kindHelp": {
+      "assigned": "Quand un enregistrement vous est assigné.",
+      "dueToday": "Rappels des dates qui arrivent aujourd’hui.",
+      "formSubmission": "Quand quelqu’un envoie l’un de vos formulaires.",
+      "replyReceived": "Quand arrive un message que vous attendiez.",
+      "ruleAlert": "Quand l’une de vos automatisations vous signale quelque chose."
+    },
+    "kinds": {
+      "assigned": "Assigné à vous",
+      "dueToday": "À faire aujourd’hui",
+      "formSubmission": "Réponses aux formulaires",
+      "replyReceived": "Réponses reçues",
+      "ruleAlert": "Alertes d’automatisation"
+    },
+    "loading": "Chargement des notifications…",
+    "markAllRead": "Tout marquer comme lu",
+    "open": "Ouvrir les notifications",
+    "openUnread": "Ouvrir les notifications, {count} non lues",
+    "preferences": {
+      "description": "La cloche affiche toujours tout. Choisissez ici à quelle fréquence chaque type vous parvient aussi par e-mail.",
+      "title": "E-mails de notification"
+    },
+    "title": "Notifications",
+    "unread": "Non lue"
   },
   "NotificationEmail": {
     "cta": "Ouvrir Customermates",
