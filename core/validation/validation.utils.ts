@@ -86,6 +86,8 @@ const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.connectedAccountNotFound,
   CustomErrorCode.roleNotFound,
   CustomErrorCode.routineNotFound,
+  CustomErrorCode.automationRuleNotFound,
+  CustomErrorCode.notificationNotFound,
   CustomErrorCode.threadNotFound,
   CustomErrorCode.messageNotFound,
   CustomErrorCode.recordFileNotFound,
@@ -98,6 +100,7 @@ const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.workspaceSetupNotFound,
 ]);
 const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.automationRuleLimitReached,
   CustomErrorCode.planWebhooksNotIncluded,
   CustomErrorCode.planSeatSwapUnavailable,
   CustomErrorCode.planMemberLimitReached,
