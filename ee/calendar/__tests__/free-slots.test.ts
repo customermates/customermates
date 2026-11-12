@@ -134,7 +134,13 @@ describe("isFreeSlot", () => {
 
 describe("WorkingHoursSchema", () => {
   it("rejects overlapping windows, reversed windows and malformed times", () => {
-    const overlapping = { ...DEFAULT_WORKING_HOURS, monday: [{ start: "09:00", end: "12:00" }, { start: "11:00", end: "13:00" }] };
+    const overlapping = {
+      ...DEFAULT_WORKING_HOURS,
+      monday: [
+        { start: "09:00", end: "12:00" },
+        { start: "11:00", end: "13:00" },
+      ],
+    };
     const reversed = { ...DEFAULT_WORKING_HOURS, monday: [{ start: "12:00", end: "09:00" }] };
     const malformed = { ...DEFAULT_WORKING_HOURS, monday: [{ start: "9:00", end: "12:00" }] };
 

@@ -113,7 +113,9 @@ export class ScheduleMeetingInteractor extends AuthenticatedInteractor<ScheduleM
 
     return {
       failure: await fail(
-        own.accountsNeedingReconnect > 0 ? CustomErrorCode.calendarNeedsReconnect : CustomErrorCode.calendarWriteUnavailable,
+        own.accountsNeedingReconnect > 0
+          ? CustomErrorCode.calendarNeedsReconnect
+          : CustomErrorCode.calendarWriteUnavailable,
         ["calendarId"],
       ),
     };

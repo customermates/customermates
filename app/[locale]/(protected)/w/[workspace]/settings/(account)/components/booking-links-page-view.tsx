@@ -5,7 +5,6 @@ import type { BookingSetup } from "@/ee/calendar/booking-setup";
 
 import { useEffect, useMemo } from "react";
 import { observer } from "mobx-react-lite";
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ArrowUpRight, CalendarClock, Pencil, Plus, Trash2 } from "lucide-react";
 
@@ -23,7 +22,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
-import { IntlLink } from "@/i18n/navigation";
+import { IntlLink, useRouter } from "@/i18n/navigation";
 
 type Props = {
   links: BookingLinkDto[];
@@ -32,7 +31,12 @@ type Props = {
   unavailable?: "demo" | "selfHosted";
 };
 
-const BookingLinksPageViewContent = observer(function BookingLinksPageView({ links, setup, locked, unavailable }: Props) {
+const BookingLinksPageViewContent = observer(function BookingLinksPageView({
+  links,
+  setup,
+  locked,
+  unavailable,
+}: Props) {
   const t = useTranslations();
   const router = useRouter();
   const root = useRootStore();
@@ -126,11 +130,7 @@ const BookingLinksPageViewContent = observer(function BookingLinksPageView({ lin
                 <CopyableCode value={link.url} />
 
                 <div className="flex flex-wrap gap-2">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={(event) => store.start(link, event.currentTarget)}
-                  >
+                  <Button size="sm" variant="secondary" onClick={(event) => store.start(link, event.currentTarget)}>
                     <Pencil aria-hidden className="size-4" />
 
                     {t("Booking.edit")}

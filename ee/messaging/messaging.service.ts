@@ -714,7 +714,10 @@ export class MessagingService {
         }),
       );
 
-      return { ok: true, data: await this.completeCalendarEvent(raw, input.accountId, input.calendarId, input.eventId) };
+      return {
+        ok: true,
+        data: await this.completeCalendarEvent(raw, input.accountId, input.calendarId, input.eventId),
+      };
     } catch (err) {
       return this.mapSendError(err);
     }
@@ -747,7 +750,9 @@ export class MessagingService {
     calendarId: string,
     knownEventId?: string,
   ): Promise<UnipileCalendarEventRecord> {
-    const created = z.looseObject({ id: z.string().min(1).optional(), event_id: z.string().min(1).optional() }).parse(raw);
+    const created = z
+      .looseObject({ id: z.string().min(1).optional(), event_id: z.string().min(1).optional() })
+      .parse(raw);
     const eventId = created.id ?? created.event_id ?? knownEventId;
     if (!eventId) throw new z.ZodError([{ code: "custom", message: "The calendar event id is missing", path: ["id"] }]);
 

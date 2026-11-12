@@ -19,7 +19,7 @@ import { requireAccess } from "@/features/auth/next/require";
 export default async function BookingLinksPage() {
   await requireAccess({ resource: Resource.inboxMessages });
 
-  if (env.APP_MODE !== "cloud")
+  if (env.APP_MODE !== "cloud") {
     return (
       <PageContainer>
         <BookingLinksPageView
@@ -29,10 +29,11 @@ export default async function BookingLinksPage() {
         />
       </PageContainer>
     );
+  }
 
   const subscription = await unwrapPage(getGetSubscriptionInteractor().invoke());
   const locked = !getEntitlements(effectivePlanId(subscription)).messaging;
-  if (locked)
+  if (locked) {
     return (
       <PageContainer padded={false}>
         <MessagingUpsellOverlay reason="plan">
@@ -42,6 +43,7 @@ export default async function BookingLinksPage() {
         </MessagingUpsellOverlay>
       </PageContainer>
     );
+  }
 
   const [links, meeting, model] = await Promise.all([
     unwrapPage(getGetBookingLinksInteractor().invoke()),

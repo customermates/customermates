@@ -197,10 +197,15 @@ export class MeetingRecordService {
           : null;
     if (!dateValue) return null;
 
-    return this.create(model, input.target.typeId, [
-      { fieldId: type.primaryFieldId, value: { kind: "text", value: input.title } },
-      { fieldId: date.id, value: dateValue },
-    ], input.links);
+    return this.create(
+      model,
+      input.target.typeId,
+      [
+        { fieldId: type.primaryFieldId, value: { kind: "text", value: input.title } },
+        { fieldId: date.id, value: dateValue },
+      ],
+      input.links,
+    );
   }
 
   async findOrCreatePerson(input: { typeId: string; email: string; name: string }): Promise<RecordRef | null> {
@@ -241,16 +246,19 @@ export class MeetingRecordService {
     const start = input.startFieldId
       ? model.fields.find((field) => field.id === input.startFieldId && field.typeId === type.id && !field.archived)
       : null;
-    if (start?.valueType === "dateTime") fields.push({ fieldId: start.id, value: { kind: "dateTime", value: input.startsAt.toISOString() } });
-    if (start?.valueType === "date")
+    if (start?.valueType === "dateTime")
+      fields.push({ fieldId: start.id, value: { kind: "dateTime", value: input.startsAt.toISOString() } });
+    if (start?.valueType === "date") {
       fields.push({
         fieldId: start.id,
         value: { kind: "date", value: zonedDate(input.startsAt, input.timeZone) },
       });
+    }
     for (const answer of input.answers) {
       const field = model.fields.find((item) => item.id === answer.fieldId && item.typeId === type.id);
       const value = field && isAnswerableField(field) ? answerScalar(field, answer.value) : null;
-      if (field && value && !fields.some((entry) => entry.fieldId === field.id)) fields.push({ fieldId: field.id, value });
+      if (field && value && !fields.some((entry) => entry.fieldId === field.id))
+        fields.push({ fieldId: field.id, value });
     }
 
     return this.create(model, type.id, fields, input.links);

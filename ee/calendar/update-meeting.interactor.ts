@@ -46,7 +46,8 @@ export class UpdateMeetingInteractor extends AuthenticatedInteractor<UpdateMeeti
       location: data.location,
       attendeeEmails: data.attendees ? [...new Set(data.attendees.map((attendee) => attendee.email))] : undefined,
       startsAt,
-      endsAt: startsAt && data.durationMinutes ? new Date(startsAt.getTime() + data.durationMinutes * MINUTE_MS) : undefined,
+      endsAt:
+        startsAt && data.durationMinutes ? new Date(startsAt.getTime() + data.durationMinutes * MINUTE_MS) : undefined,
       timeZone: data.timeZone,
       notifyAttendees: data.sendInvites,
     };

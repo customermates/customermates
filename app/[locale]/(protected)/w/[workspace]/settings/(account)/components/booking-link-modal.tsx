@@ -78,7 +78,10 @@ export const BookingLinkModal = observer(() => {
             <div className="grid gap-3 sm:grid-cols-2">
               <FormSelect
                 id="durationMinutes"
-                items={DURATIONS.map((minutes) => ({ value: String(minutes), label: t("Booking.minutes", { minutes }) }))}
+                items={DURATIONS.map((minutes) => ({
+                  value: String(minutes),
+                  label: t("Booking.minutes", { minutes }),
+                }))}
                 label={t("Booking.fields.duration")}
                 value={String(form.durationMinutes)}
                 onValueChange={(value) => store.onChange("durationMinutes", Number(value))}
@@ -176,7 +179,9 @@ export const BookingLinkModal = observer(() => {
               id="personTypeId"
               items={[
                 noneItem,
-                ...setup.lists.filter((list) => list.hasChannels).map((list) => ({ value: list.id, label: list.label })),
+                ...setup.lists
+                  .filter((list) => list.hasChannels)
+                  .map((list) => ({ value: list.id, label: list.label })),
               ]}
               label={t("Booking.fields.personList")}
               value={form.personTypeId || NONE}
@@ -187,7 +192,9 @@ export const BookingLinkModal = observer(() => {
               id="recordTypeId"
               items={[
                 noneItem,
-                ...setup.lists.filter((list) => list.primaryFieldId).map((list) => ({ value: list.id, label: list.label })),
+                ...setup.lists
+                  .filter((list) => list.primaryFieldId)
+                  .map((list) => ({ value: list.id, label: list.label })),
               ]}
               label={t("Booking.fields.recordList")}
               value={form.recordTypeId || NONE}
@@ -257,7 +264,7 @@ export const BookingLinkModal = observer(() => {
             <FormSwitch id="enabled" label={t("Booking.fields.enabled")} />
           </AppCardBody>
 
-          <UnsavedChangesBar creating={!form.id} anchorScope="booking-link-modal" store={store} />
+          <UnsavedChangesBar anchorScope="booking-link-modal" creating={!form.id} store={store} />
         </AppCard>
       </AppForm>
     </AppModal>

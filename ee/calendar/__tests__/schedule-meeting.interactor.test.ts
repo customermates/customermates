@@ -51,10 +51,7 @@ const INPUT = {
   startsAt: "2026-11-17T09:00:00.000Z",
   durationMinutes: 30,
   timeZone: "Europe/Berlin",
-  attendees: [
-    { email: "Ada@Example.com", name: "Ada" },
-    { email: "ada@example.com" },
-  ],
+  attendees: [{ email: "Ada@Example.com", name: "Ada" }, { email: "ada@example.com" }],
   records: [DEAL],
 };
 
@@ -106,13 +103,19 @@ function build(overrides: { access?: object; writer?: object; records?: object; 
     records,
     entitlements,
     bookings,
-    schedule: new ScheduleMeetingInteractor(access as never, writer as never, links as never, records as never, entitlements as never),
+    schedule: new ScheduleMeetingInteractor(
+      access as never,
+      writer as never,
+      links as never,
+      records as never,
+      entitlements as never,
+    ),
     update: new UpdateMeetingInteractor(access as never, writer as never, links as never, entitlements as never),
     cancel: new CancelMeetingInteractor(access as never, writer as never, bookings as never, entitlements as never),
   };
 }
 
-const run = <T,>(work: () => Promise<T>) => runWithTenant(mockUser, work);
+const run = <T>(work: () => Promise<T>) => runWithTenant(mockUser, work);
 
 function code(result: { ok: boolean; error?: unknown }) {
   if (result.ok) return null;
@@ -126,7 +129,10 @@ describe("ScheduleMeetingInteractor", () => {
     const { schedule, writer, links, records } = build();
 
     const result = await run(() =>
-      schedule.invoke({ ...INPUT, followUp: { typeId: ACTION.typeId, dateFieldId: "50000000-0000-4000-8000-000000000001" } } as never),
+      schedule.invoke({
+        ...INPUT,
+        followUp: { typeId: ACTION.typeId, dateFieldId: "50000000-0000-4000-8000-000000000001" },
+      } as never),
     );
 
     expect(result.ok).toBe(true);
@@ -161,7 +167,10 @@ describe("ScheduleMeetingInteractor", () => {
     const { schedule, links } = build({ records: { createAction: vi.fn().mockResolvedValue(null) } });
 
     const result = await run(() =>
-      schedule.invoke({ ...INPUT, followUp: { typeId: ACTION.typeId, dateFieldId: "50000000-0000-4000-8000-000000000001" } } as never),
+      schedule.invoke({
+        ...INPUT,
+        followUp: { typeId: ACTION.typeId, dateFieldId: "50000000-0000-4000-8000-000000000001" },
+      } as never),
     );
 
     expect(result.ok).toBe(true);
@@ -181,8 +190,12 @@ describe("ScheduleMeetingInteractor", () => {
   });
 
   it("refuses without a connected calendar and tells whether a reconnect would help", async () => {
-    const none = build({ access: { listOwnCalendars: vi.fn().mockResolvedValue({ calendars: [], accountsNeedingReconnect: 0 }) } });
-    const stale = build({ access: { listOwnCalendars: vi.fn().mockResolvedValue({ calendars: [], accountsNeedingReconnect: 1 }) } });
+    const none = build({
+      access: { listOwnCalendars: vi.fn().mockResolvedValue({ calendars: [], accountsNeedingReconnect: 0 }) },
+    });
+    const stale = build({
+      access: { listOwnCalendars: vi.fn().mockResolvedValue({ calendars: [], accountsNeedingReconnect: 1 }) },
+    });
 
     expect(code(await run(() => none.schedule.invoke(INPUT as never)))).toBe(CustomErrorCode.calendarWriteUnavailable);
     expect(code(await run(() => stale.schedule.invoke(INPUT as never)))).toBe(CustomErrorCode.calendarNeedsReconnect);
@@ -197,7 +210,9 @@ describe("ScheduleMeetingInteractor", () => {
     const withCalendar = { ...INPUT, calendarId: CALENDAR.id };
 
     expect(code(await run(() => other.schedule.invoke(withCalendar as never)))).toBe(CustomErrorCode.calendarNotFound);
-    expect(code(await run(() => stale.schedule.invoke(withCalendar as never)))).toBe(CustomErrorCode.calendarNeedsReconnect);
+    expect(code(await run(() => stale.schedule.invoke(withCalendar as never)))).toBe(
+      CustomErrorCode.calendarNeedsReconnect,
+    );
   });
 
   it("refuses records the caller cannot read before calling the provider", async () => {
@@ -248,7 +263,12 @@ describe("UpdateMeetingInteractor", () => {
     const { update, writer } = build({ access: { findOwnEvent: vi.fn().mockResolvedValue(ROW) } });
 
     const result = await run(() =>
-      update.invoke({ id: EVENT_ID, startsAt: "2026-11-18T10:00:00.000Z", durationMinutes: 45, timeZone: "Europe/Berlin" } as never),
+      update.invoke({
+        id: EVENT_ID,
+        startsAt: "2026-11-18T10:00:00.000Z",
+        durationMinutes: 45,
+        timeZone: "Europe/Berlin",
+      } as never),
     );
 
     expect(result.ok && result.data.records).toEqual([DEAL]);
@@ -267,7 +287,9 @@ describe("UpdateMeetingInteractor", () => {
     const owned = build({ access: { findOwnEvent: vi.fn().mockResolvedValue(ROW) } });
     const foreign = build();
 
-    expect((await run(() => owned.update.invoke({ id: EVENT_ID, startsAt: "2026-11-18T10:00:00.000Z" } as never))).ok).toBe(false);
+    expect(
+      (await run(() => owned.update.invoke({ id: EVENT_ID, startsAt: "2026-11-18T10:00:00.000Z" } as never))).ok,
+    ).toBe(false);
     expect(code(await run(() => foreign.update.invoke({ id: EVENT_ID, title: "x" } as never)))).toBe(
       CustomErrorCode.calendarEventNotFound,
     );
@@ -303,7 +325,9 @@ describe("CancelMeetingInteractor", () => {
     });
     const foreign = build();
 
-    expect(code(await run(() => refused.cancel.invoke({ id: EVENT_ID })))).toBe(CustomErrorCode.unipileProviderRejected);
+    expect(code(await run(() => refused.cancel.invoke({ id: EVENT_ID })))).toBe(
+      CustomErrorCode.unipileProviderRejected,
+    );
     expect(refused.bookings.cancelForCalendarEvent).not.toHaveBeenCalled();
     expect(code(await run(() => foreign.cancel.invoke({ id: EVENT_ID })))).toBe(CustomErrorCode.calendarEventNotFound);
   });

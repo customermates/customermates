@@ -4,7 +4,6 @@ import type { BookingLinkDto, BookingQuestion } from "@/ee/calendar/booking.sche
 import type { BookingSetup } from "@/ee/calendar/booking-setup";
 import type { WorkingHours, WorkingWeekday } from "@/ee/calendar/working-hours";
 
-
 import { action, makeObservable, observable } from "mobx";
 
 import { Resource } from "@/generated/prisma";
@@ -124,7 +123,10 @@ export class BookingLinkModalStore extends BaseModalStore<BookingLinkForm> {
   setDay = (day: WorkingWeekday, patch: { open?: boolean; start?: string; end?: string }) => {
     const first = this.form.workingHours[day][0] ?? { start: "09:00", end: "17:00" };
     const open = patch.open ?? this.form.workingHours[day].length > 0;
-    this.onChange(`workingHours.${day}`, open ? [{ start: patch.start ?? first.start, end: patch.end ?? first.end }] : []);
+    this.onChange(
+      `workingHours.${day}`,
+      open ? [{ start: patch.start ?? first.start, end: patch.end ?? first.end }] : [],
+    );
   };
 
   addQuestion = (fieldId: string) => {

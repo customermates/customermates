@@ -28,11 +28,12 @@ export class PrismaCalendarEventLinkRepo extends TenantRepository implements Cal
       select: { calendarEventId: true, typeId: true, recordId: true },
       orderBy: [{ createdAt: "asc" }, { recordId: "asc" }],
     });
-    for (const row of rows)
+    for (const row of rows) {
       links.set(row.calendarEventId, [
         ...(links.get(row.calendarEventId) ?? []),
         { typeId: row.typeId, recordId: row.recordId },
       ]);
+    }
 
     return links;
   }

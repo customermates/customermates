@@ -53,7 +53,9 @@ export const ScheduleMeetingModal = observer(() => {
   ) : blocked ? (
     <Alert
       description={
-        blocked === "needsReconnect" ? t("ScheduleMeeting.blocked.needsReconnect") : t("ScheduleMeeting.blocked.noCalendar")
+        blocked === "needsReconnect"
+          ? t("ScheduleMeeting.blocked.needsReconnect")
+          : t("ScheduleMeeting.blocked.noCalendar")
       }
       role="status"
       variant="warning"
@@ -90,13 +92,7 @@ export const ScheduleMeetingModal = observer(() => {
                     onValueChange={store.setDate}
                   />
 
-                  <FormInput
-                    required
-                    id="time"
-                    label={t("ScheduleMeeting.fields.time")}
-                    step={900}
-                    type="time"
-                  />
+                  <FormInput required id="time" label={t("ScheduleMeeting.fields.time")} step={900} type="time" />
                 </div>
 
                 <FormSelect

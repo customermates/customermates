@@ -24,7 +24,9 @@ export type BookingQuestion = z.infer<typeof BookingQuestionSchema>;
 const LinkFieldsSchema = z.object({
   calendarId: z
     .uuid()
-    .describe("A writable calendar from the meeting options. Booked meetings are created in it and its busy time hides slots."),
+    .describe(
+      "A writable calendar from the meeting options. Booked meetings are created in it and its busy time hides slots.",
+    ),
   title: z.string().trim().min(1).max(120),
   description: z.string().trim().max(2000).nullable(),
   durationMinutes: z.number().int().min(5).max(BOOKING_MAX_DURATION_MINUTES),
@@ -38,11 +40,15 @@ const LinkFieldsSchema = z.object({
   horizonDays: z.number().int().min(1).max(BOOKING_MAX_HORIZON_DAYS).describe("How many days ahead slots are offered."),
   timeZone: TimeZoneSchema.describe("Time zone of the working hours."),
   workingHours: WorkingHoursSchema,
-  withVideo: z.boolean().describe("Ask the provider for a video link: Google Meet on Google, Microsoft Teams on Outlook."),
+  withVideo: z
+    .boolean()
+    .describe("Ask the provider for a video link: Google Meet on Google, Microsoft Teams on Outlook."),
   personTypeId: z
     .uuid()
     .nullable()
-    .describe("The list whose record is found or created for the visitor, one per email. It needs a contact details field."),
+    .describe(
+      "The list whose record is found or created for the visitor, one per email. It needs a contact details field.",
+    ),
   recordTypeId: z
     .uuid()
     .nullable()
@@ -63,8 +69,10 @@ export const SaveBookingLinkSchema = LinkFieldsSchema.partial()
   .strict()
   .superRefine((data, ctx) => {
     if (data.id) return;
-    for (const key of ["calendarId", "title", "durationMinutes", "timeZone"] as const)
-      if (data[key] === undefined) ctx.addIssue({ code: "custom", message: "Required to create a booking link", path: [key] });
+    for (const key of ["calendarId", "title", "durationMinutes", "timeZone"] as const) {
+      if (data[key] === undefined)
+        ctx.addIssue({ code: "custom", message: "Required to create a booking link", path: [key] });
+    }
   });
 export type SaveBookingLinkData = z.infer<typeof SaveBookingLinkSchema>;
 export type SaveBookingLinkInput = z.input<typeof SaveBookingLinkSchema>;
@@ -114,11 +122,19 @@ export type BookingLinkRow = {
   upcomingBookings: number;
 };
 
-export const PublicAnswerValueSchema = z.union([z.string().max(BOOKING_ANSWER_MAX_CHARS), z.number().finite(), z.boolean()]);
+export const PublicAnswerValueSchema = z.union([
+  z.string().max(BOOKING_ANSWER_MAX_CHARS),
+  z.number().finite(),
+  z.boolean(),
+]);
 
 export const PublicBookingQuerySchema = z
   .object({
-    token: z.string().min(16).max(64).regex(/^[A-Za-z0-9_-]+$/),
+    token: z
+      .string()
+      .min(16)
+      .max(64)
+      .regex(/^[A-Za-z0-9_-]+$/),
     visitor: z.string().max(64).nullish(),
   })
   .strict();

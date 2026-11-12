@@ -74,12 +74,26 @@ const ROW: BookingLinkRow = {
 
 const MODEL = {
   revision: 1,
-  types: [
-    { id: PEOPLE, label: "People", primaryFieldId: NAME, archived: false, embedded: false },
-  ],
+  types: [{ id: PEOPLE, label: "People", primaryFieldId: NAME, archived: false, embedded: false }],
   fields: [
-    { id: NAME, typeId: PEOPLE, label: "Name", valueType: "text", behavior: { kind: "input" }, archived: false, options: [] },
-    { id: CHANNELS, typeId: PEOPLE, label: "Contact", valueType: "channels", behavior: { kind: "input" }, archived: false, options: [] },
+    {
+      id: NAME,
+      typeId: PEOPLE,
+      label: "Name",
+      valueType: "text",
+      behavior: { kind: "input" },
+      archived: false,
+      options: [],
+    },
+    {
+      id: CHANNELS,
+      typeId: PEOPLE,
+      label: "Contact",
+      valueType: "channels",
+      behavior: { kind: "input" },
+      archived: false,
+      options: [],
+    },
   ],
   relationships: [],
 } as unknown as RecordModelView;
@@ -104,14 +118,20 @@ function build(options: { repo?: object; access?: object; records?: object } = {
     repo,
     access,
     records,
-    save: new SaveBookingLinkInteractor(repo as never, access as never, records as never, entitlements as never, BASE_URL),
+    save: new SaveBookingLinkInteractor(
+      repo as never,
+      access as never,
+      records as never,
+      entitlements as never,
+      BASE_URL,
+    ),
     list: new GetBookingLinksInteractor(repo as never, entitlements as never, BASE_URL),
     get: new GetBookingLinkByIdInteractor(repo as never, entitlements as never, BASE_URL),
     remove: new DeleteBookingLinkInteractor(repo as never, entitlements as never),
   };
 }
 
-const run = <T,>(work: () => Promise<T>) => runWithTenant(mockUser, work);
+const run = <T>(work: () => Promise<T>) => runWithTenant(mockUser, work);
 
 function code(result: { ok: boolean; error?: unknown }) {
   return result.ok ? null : serializeInteractorFailure(result.error as never).issues[0]?.customCode;
@@ -180,7 +200,9 @@ describe("SaveBookingLinkInteractor", () => {
 
   it("refuses a calendar the caller does not own and a stale connection", async () => {
     const foreign = build({ access: { findOwnCalendar: vi.fn().mockResolvedValue(null) } });
-    const stale = build({ access: { findOwnCalendar: vi.fn().mockResolvedValue({ id: CALENDAR_ID, accountStatus: "credentials" }) } });
+    const stale = build({
+      access: { findOwnCalendar: vi.fn().mockResolvedValue({ id: CALENDAR_ID, accountStatus: "credentials" }) },
+    });
 
     expect(code(await run(() => foreign.save.invoke(CREATE)))).toBe(CustomErrorCode.calendarNotFound);
     expect(code(await run(() => stale.save.invoke(CREATE)))).toBe(CustomErrorCode.calendarNeedsReconnect);
@@ -196,7 +218,9 @@ describe("SaveBookingLinkInteractor", () => {
       },
     });
 
-    expect(code(await run(() => save.invoke({ ...CREATE, personTypeId: PEOPLE })))).toBe(CustomErrorCode.bookingListInvalid);
+    expect(code(await run(() => save.invoke({ ...CREATE, personTypeId: PEOPLE })))).toBe(
+      CustomErrorCode.bookingListInvalid,
+    );
   });
 
   it("accepts a visitor list with contact details", async () => {
@@ -220,7 +244,9 @@ describe("SaveBookingLinkInteractor", () => {
   it("answers not found when updating a link the caller does not own", async () => {
     const { save } = build({ repo: { find: vi.fn().mockResolvedValue(null) } });
 
-    expect(code(await run(() => save.invoke({ id: LINK_ID, enabled: false })))).toBe(CustomErrorCode.bookingLinkNotFound);
+    expect(code(await run(() => save.invoke({ id: LINK_ID, enabled: false })))).toBe(
+      CustomErrorCode.bookingLinkNotFound,
+    );
   });
 });
 
@@ -230,8 +256,10 @@ describe("DeleteBookingLinkInteractor", () => {
       ok: true,
       data: { id: LINK_ID, deleted: true },
     });
-    expect(code(await run(() => build({ repo: { delete: vi.fn().mockResolvedValue(false) } }).remove.invoke({ id: LINK_ID })))).toBe(
-      CustomErrorCode.bookingLinkNotFound,
-    );
+    expect(
+      code(
+        await run(() => build({ repo: { delete: vi.fn().mockResolvedValue(false) } }).remove.invoke({ id: LINK_ID })),
+      ),
+    ).toBe(CustomErrorCode.bookingLinkNotFound);
   });
 });

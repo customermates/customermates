@@ -40,13 +40,35 @@ const STARTS_AT = "2026-11-17T09:00:00.000Z";
 
 const MODEL = {
   revision: 1,
-  types: [
-    { id: ACTIONS, label: "Actions", primaryFieldId: TITLE, archived: false, embedded: false },
-  ],
+  types: [{ id: ACTIONS, label: "Actions", primaryFieldId: TITLE, archived: false, embedded: false }],
   fields: [
-    { id: TITLE, typeId: ACTIONS, label: "Title", valueType: "text", behavior: { kind: "input" }, archived: false, options: [] },
-    { id: DUE, typeId: ACTIONS, label: "Due", valueType: "dateTime", behavior: { kind: "input" }, archived: false, options: [] },
-    { id: NOTE, typeId: ACTIONS, label: "Topic", valueType: "text", behavior: { kind: "input" }, archived: false, options: [] },
+    {
+      id: TITLE,
+      typeId: ACTIONS,
+      label: "Title",
+      valueType: "text",
+      behavior: { kind: "input" },
+      archived: false,
+      options: [],
+    },
+    {
+      id: DUE,
+      typeId: ACTIONS,
+      label: "Due",
+      valueType: "dateTime",
+      behavior: { kind: "input" },
+      archived: false,
+      options: [],
+    },
+    {
+      id: NOTE,
+      typeId: ACTIONS,
+      label: "Topic",
+      valueType: "text",
+      behavior: { kind: "input" },
+      archived: false,
+      options: [],
+    },
   ],
   relationships: [],
 } as unknown as RecordModelView;
@@ -183,7 +205,11 @@ describe("SubmitPublicBookingInteractor", () => {
         description: "Ada Lovelace <ada@example.com>\nTopic: Pricing",
       }),
     );
-    expect(records.findOrCreatePerson).toHaveBeenCalledWith({ typeId: PEOPLE, email: "ada@example.com", name: "Ada Lovelace" });
+    expect(records.findOrCreatePerson).toHaveBeenCalledWith({
+      typeId: PEOPLE,
+      email: "ada@example.com",
+      name: "Ada Lovelace",
+    });
     expect(records.createBookingRecord).toHaveBeenCalledWith(
       expect.objectContaining({
         typeId: ACTIONS,

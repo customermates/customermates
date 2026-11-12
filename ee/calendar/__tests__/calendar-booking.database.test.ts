@@ -145,7 +145,9 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
 
     const first = await w.as(w.admin, () => repo.reserve(reservation(link.id)));
     const second = await w.as(w.admin, () => repo.reserve(reservation(link.id, START, "bob@example.test")));
-    const otherStart = await w.as(w.admin, () => repo.reserve(reservation(link.id, new Date(START.getTime() + 3_600_000))));
+    const otherStart = await w.as(w.admin, () =>
+      repo.reserve(reservation(link.id, new Date(START.getTime() + 3_600_000))),
+    );
 
     expect(first).toEqual({ id: expect.any(String) });
     expect(second).toBeNull();
@@ -193,7 +195,10 @@ describeDatabase("booking links and reservations", { timeout: 60_000 }, () => {
     await w.as(w.admin, () => repo.reserve(reservation(link.id, future)));
     const old = await w.as(w.admin, () => repo.reserve(reservation(link.id, stale, "old@example.test")));
     await runWithoutTenant(() =>
-      prisma.booking.update({ where: { id: old?.id as string }, data: { createdAt: new Date(Date.now() - 3_600_000) } }),
+      prisma.booking.update({
+        where: { id: old?.id as string },
+        data: { createdAt: new Date(Date.now() - 3_600_000) },
+      }),
     );
 
     const busy = await w.as(w.admin, () => repo.busyForOwner(new Date(), new Date(stale.getTime() + 86_400_000)));

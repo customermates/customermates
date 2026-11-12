@@ -34,8 +34,7 @@ function stubFetch(body: unknown, status = 200) {
     vi
       .fn()
       .mockImplementation(
-        () =>
-          new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } }),
+        () => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } }),
       ),
   );
 }
@@ -69,7 +68,10 @@ describe("MessagingService calendar write", () => {
   it("creates an event with attendees, a UTC start and end, the zone and an invitation", async () => {
     stubFetch(EVENT, 201);
 
-    const result = await new MessagingService().createCalendarEvent({ ...BASE_INPUT, conferenceProvider: "google_meet" });
+    const result = await new MessagingService().createCalendarEvent({
+      ...BASE_INPUT,
+      conferenceProvider: "google_meet",
+    });
 
     expect(result).toMatchObject({ ok: true, data: { id: "evt_1" } });
     const sent = request();

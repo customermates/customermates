@@ -7,11 +7,7 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 
 import type { BookingLinkRow } from "./booking.schema";
 import type { BookingLinkLookup, BookingLinkRepo, BookingLinkWrite } from "./booking-link.repo";
-import type {
-  BookingConfirmation,
-  BookingReservationInput,
-  BookingReservationRepo,
-} from "./booking-reservation.repo";
+import type { BookingConfirmation, BookingReservationInput, BookingReservationRepo } from "./booking-reservation.repo";
 import type { BusyInterval } from "./free-slots";
 
 const RESERVATION_TTL_MS = 10 * 60_000;

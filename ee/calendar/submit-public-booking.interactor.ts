@@ -16,7 +16,12 @@ import type { MeetingRecordService } from "./meeting-record.service";
 import type { PublicBookingAccess } from "./public-booking-access";
 import type { BookingLinkLookup } from "./booking-link.repo";
 
-import { type PublicBookingSubmitResult, type SubmitPublicBookingData, BOOKING_OPEN_PER_EMAIL, SubmitPublicBookingSchema } from "./booking.schema";
+import {
+  type PublicBookingSubmitResult,
+  type SubmitPublicBookingData,
+  BOOKING_OPEN_PER_EMAIL,
+  SubmitPublicBookingSchema,
+} from "./booking.schema";
 import { checkBookingAnswers, describeBookingAnswers } from "./booking-answers";
 import { publicQuestions } from "./public-booking-questions";
 
@@ -50,8 +55,12 @@ export class SubmitPublicBookingInteractor {
 
   async invoke(input: unknown): Promise<PublicBookingSubmitResult> {
     const parsed = SubmitPublicBookingSchema.safeParse(input);
-    if (!parsed.success)
-      return { status: "invalid", fields: [...new Set(parsed.error.issues.map((issue) => String(issue.path[0] ?? "")))] };
+    if (!parsed.success) {
+      return {
+        status: "invalid",
+        fields: [...new Set(parsed.error.issues.map((issue) => String(issue.path[0] ?? "")))],
+      };
+    }
     if (parsed.data.website.trim()) return { status: "invalid", fields: ["website"] };
 
     return this.access.open(parsed.data.token, parsed.data.visitor, (link) => this.book(link, parsed.data));
@@ -161,7 +170,11 @@ export class SubmitPublicBookingInteractor {
         },
       };
       await safely("booking-form-submitted", () =>
-        this.events.publish(DomainEvent.FORM_SUBMITTED, { entityId: reservation.id, payload }, { systemCompanyId: link.companyId }),
+        this.events.publish(
+          DomainEvent.FORM_SUBMITTED,
+          { entityId: reservation.id, payload },
+          { systemCompanyId: link.companyId },
+        ),
       );
     }
 

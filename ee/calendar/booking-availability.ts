@@ -43,7 +43,11 @@ export class BookingAvailability {
   async isOpen(link: BookingLinkRow, now: Date, startsAt: Date): Promise<boolean> {
     const rules = bookingRules(link);
     const margin = (link.bufferMinutes + link.durationMinutes) * MINUTE_MS + DAY_MS;
-    const busy = await this.busyBetween(new Date(startsAt.getTime() - margin), new Date(startsAt.getTime() + margin), link);
+    const busy = await this.busyBetween(
+      new Date(startsAt.getTime() - margin),
+      new Date(startsAt.getTime() + margin),
+      link,
+    );
 
     return isFreeSlot({ rules, now, busy }, startsAt);
   }

@@ -62,10 +62,7 @@ const MODEL = {
     field(TITLE, ACTIONS, "text"),
     field(DUE, ACTIONS, "dateTime"),
   ],
-  relationships: [
-    relationship(ACTION_LINK_TO_DEAL, ACTIONS, DEALS),
-    relationship(DEAL_PEOPLE, DEALS, PEOPLE),
-  ],
+  relationships: [relationship(ACTION_LINK_TO_DEAL, ACTIONS, DEALS), relationship(DEAL_PEOPLE, DEALS, PEOPLE)],
   accessPresets: [],
   capabilities: [],
 } as unknown as RecordModelView;
@@ -146,7 +143,9 @@ describe("MeetingRecordService.createAction", () => {
 describe("MeetingRecordService.findOrCreatePerson", () => {
   it("returns the existing Person of that email without writing", async () => {
     const { all, mutate } = ports({
-      identities: { resolve: vi.fn().mockResolvedValue([{ provider: "mail", value: "ada@example.com", records: [{ ref: ADA }] }]) },
+      identities: {
+        resolve: vi.fn().mockResolvedValue([{ provider: "mail", value: "ada@example.com", records: [{ ref: ADA }] }]),
+      },
     });
 
     const person = await new MeetingRecordService(all).findOrCreatePerson({
@@ -234,8 +233,8 @@ describe("MeetingRecordService.createBookingRecord", () => {
 
 describe("MeetingRecordService.suggestAttendees", () => {
   it("offers the record's own email and the emails of linked People, once each", async () => {
-    const read = vi.fn().mockImplementation(({ typeId, recordId }: { typeId: string; recordId: string }) => {
-      if (typeId === DEALS)
+    const read = vi.fn().mockImplementation(({ typeId }: { typeId: string }) => {
+      if (typeId === DEALS) {
         return Promise.resolve({
           ok: true,
           data: {
@@ -250,6 +249,7 @@ describe("MeetingRecordService.suggestAttendees", () => {
             ],
           },
         });
+      }
       return Promise.resolve({
         ok: true,
         data: {

@@ -45,12 +45,12 @@ export class SaveBookingLinkInteractor extends AuthenticatedInteractor<SaveBooki
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
-    const current = data.id ? await this.repo.find(data.id) : null;
-    if (data.id && !current) return failNotFound(CustomErrorCode.bookingLinkNotFound, ["id"]);
+    const { id, ...changes } = data;
+    const current = id ? await this.repo.find(id) : null;
+    if (id && !current) return failNotFound(CustomErrorCode.bookingLinkNotFound, ["id"]);
     if (!current && (await this.repo.countOwn()) >= BOOKING_LINK_LIMIT_PER_USER)
       return fail(CustomErrorCode.bookingLinkLimitReached, [], { limit: BOOKING_LINK_LIMIT_PER_USER });
 
-    const { id: _id, ...changes } = data;
     const merged = {
       calendarId: changes.calendarId ?? current?.calendarId ?? "",
       title: changes.title ?? current?.title ?? "",
@@ -66,8 +66,7 @@ export class SaveBookingLinkInteractor extends AuthenticatedInteractor<SaveBooki
       recordTypeId: changes.recordTypeId !== undefined ? changes.recordTypeId : (current?.recordTypeId ?? null),
       startFieldId: changes.startFieldId !== undefined ? changes.startFieldId : (current?.startFieldId ?? null),
       questions: changes.questions ?? (current ? storedQuestions(current.questions) : []),
-      successMessage:
-        changes.successMessage !== undefined ? changes.successMessage : (current?.successMessage ?? null),
+      successMessage: changes.successMessage !== undefined ? changes.successMessage : (current?.successMessage ?? null),
       enabled: changes.enabled ?? current?.enabled ?? true,
     } satisfies BookingLinkWrite;
 
@@ -79,8 +78,7 @@ export class SaveBookingLinkInteractor extends AuthenticatedInteractor<SaveBooki
     }
 
     const listsChanged =
-      !current ||
-      ["personTypeId", "recordTypeId", "startFieldId", "questions"].some((key) => key in changes);
+      !current || ["personTypeId", "recordTypeId", "startFieldId", "questions"].some((key) => key in changes);
     if (listsChanged && (merged.personTypeId || merged.recordTypeId || merged.questions.length)) {
       const model = await this.records.loadModel();
       const invalid = model ? invalidBookingList(model, merged) : ["recordTypeId"];

@@ -18,7 +18,6 @@ import {
   FreeSlotsSchema,
   MeetingActionListSchema,
   MeetingAttendeeSuggestionSchema,
-  MeetingOptionsSchema,
   MeetingSchema,
   ScheduleMeetingSchema,
   UpdateMeetingSchema,
@@ -37,8 +36,9 @@ const ScheduleMeetingToolSchema = z
       .describe(
         "options: record; slots: durationMinutes, timeZone, from, days, workingHours, bufferMinutes; create: title, startsAt, durationMinutes, timeZone, calendarId, description, location, attendees, videoLink, sendInvites, records, followUp; update: id, title, startsAt, durationMinutes, timeZone, description, location, attendees, sendInvites; cancel: id, comment.",
       ),
-    record: RecordRefSchema.optional()
-      .describe("options only: the record the meeting is for, to get attendee suggestions from its linked People."),
+    record: RecordRefSchema.optional().describe(
+      "options only: the record the meeting is for, to get attendee suggestions from its linked People.",
+    ),
     id: UpdateMeetingSchema.shape.id.optional(),
     calendarId: ScheduleMeetingSchema.shape.calendarId,
     title: ScheduleMeetingSchema.shape.title.optional(),
@@ -101,11 +101,12 @@ export const scheduleMeetingTool = {
     if (!parsed.success) return mcpValidationFailure(parsed.error);
     const { action, record, comment, from, days, workingHours, bufferMinutes, ...fields } = parsed.data;
 
-    if (action === "options")
+    if (action === "options") {
       return runInteractor(getGetMeetingOptionsInteractor().invoke({ ...(record ? { record } : {}) }), (data) =>
         toonResult({ action, ...data }),
       );
-    if (action === "slots")
+    }
+    if (action === "slots") {
       return runInteractor(
         getGetFreeSlotsInteractor().invoke({
           durationMinutes: fields.durationMinutes,
@@ -117,14 +118,17 @@ export const scheduleMeetingTool = {
         } as never),
         (data) => toonResult({ action, ...data }),
       );
-    if (action === "create")
+    }
+    if (action === "create") {
       return runInteractor(getScheduleMeetingInteractor().invoke(fields as never), (meeting) =>
         toonResult({ action, meeting }),
       );
-    if (action === "update")
+    }
+    if (action === "update") {
       return runInteractor(getUpdateMeetingInteractor().invoke(updateFields(fields) as never), (meeting) =>
         toonResult({ action, meeting }),
       );
+    }
 
     return runInteractor(getCancelMeetingInteractor().invoke({ id: fields.id, comment } as never), (cancelled) =>
       toonResult({ action, cancelled }),
@@ -133,8 +137,11 @@ export const scheduleMeetingTool = {
 } satisfies McpTool;
 
 function updateFields(fields: Record<string, unknown>) {
-  const { calendarId: _calendarId, videoLink: _videoLink, records: _records, followUp: _followUp, ...update } = fields;
-  return update;
+  return Object.fromEntries(
+    ["id", "title", "description", "location", "startsAt", "durationMinutes", "timeZone", "attendees", "sendInvites"]
+      .filter((key) => fields[key] !== undefined)
+      .map((key) => [key, fields[key]]),
+  );
 }
 
 const BOOKING_ACTIONS = ["list", "get", "save", "delete"] as const;
@@ -200,19 +207,25 @@ export const manageBookingLinksTool = {
     if (!parsed.success) return mcpValidationFailure(parsed.error);
     const { action, id, ...fields } = parsed.data;
 
-    if (action === "list")
-      return runInteractor(getGetBookingLinksInteractor().invoke(), (data) => toonResult({ action, items: data.items }));
-    if (action === "get")
+    if (action === "list") {
+      return runInteractor(getGetBookingLinksInteractor().invoke(), (data) =>
+        toonResult({ action, items: data.items }),
+      );
+    }
+    if (action === "get") {
       return runInteractor(getGetBookingLinkByIdInteractor().invoke({ id: id as string }), (bookingLink) =>
         toonResult({ action, bookingLink }),
       );
-    if (action === "delete")
+    }
+    if (action === "delete") {
       return runInteractor(getDeleteBookingLinkInteractor().invoke({ id: id as string }), (deleted) =>
         toonResult({ action, deleted }),
       );
+    }
 
-    return runInteractor(getSaveBookingLinkInteractor().invoke({ ...(id ? { id } : {}), ...fields } as never), (bookingLink) =>
-      toonResult({ action, bookingLink }),
+    return runInteractor(
+      getSaveBookingLinkInteractor().invoke({ ...(id ? { id } : {}), ...fields } as never),
+      (bookingLink) => toonResult({ action, bookingLink }),
     );
   },
 } satisfies McpTool;

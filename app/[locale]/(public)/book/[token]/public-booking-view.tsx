@@ -70,7 +70,7 @@ function QuestionField({
     </Label>
   );
 
-  if (question.kind === "boolean")
+  if (question.kind === "boolean") {
     return (
       <div className="flex items-center gap-2">
         <Checkbox
@@ -83,8 +83,9 @@ function QuestionField({
         {label}
       </div>
     );
+  }
 
-  if (question.kind === "select")
+  if (question.kind === "select") {
     return (
       <div className="space-y-1.5">
         {label}
@@ -104,8 +105,9 @@ function QuestionField({
         </Select>
       </div>
     );
+  }
 
-  if (question.kind === "text")
+  if (question.kind === "text") {
     return (
       <div className="space-y-1.5">
         {label}
@@ -120,6 +122,7 @@ function QuestionField({
         />
       </div>
     );
+  }
 
   return (
     <div className="space-y-1.5">
@@ -236,7 +239,7 @@ export function PublicBookingView({ page, token }: { page: PublicBookingPage; to
     }
   }
 
-  if (confirmed)
+  if (confirmed) {
     return (
       <Frame>
         <div className="flex flex-col gap-3" data-booking-confirmed="">
@@ -249,15 +252,23 @@ export function PublicBookingView({ page, token }: { page: PublicBookingPage; to
           <p className="text-sm text-muted-foreground">{dayLabel(confirmed.startsAt)}</p>
 
           {confirmed.conferenceUrl ? (
-            <a className="text-sm text-primary underline" href={confirmed.conferenceUrl} rel="noopener noreferrer" target="_blank">
+            <a
+              className="text-sm text-primary underline"
+              href={confirmed.conferenceUrl}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
               {t("PublicBooking.joinLink")}
             </a>
           ) : null}
 
-          <p className="text-sm text-muted-foreground">{confirmed.successMessage ?? t("PublicBooking.confirmedText")}</p>
+          <p className="text-sm text-muted-foreground">
+            {confirmed.successMessage ?? t("PublicBooking.confirmedText")}
+          </p>
         </div>
       </Frame>
     );
+  }
 
   return (
     <Frame>
@@ -323,7 +334,11 @@ export function PublicBookingView({ page, token }: { page: PublicBookingPage; to
               mode="single"
               selected={
                 selectedDate
-                  ? new Date(Number(selectedDate.slice(0, 4)), Number(selectedDate.slice(5, 7)) - 1, Number(selectedDate.slice(8, 10)))
+                  ? new Date(
+                      Number(selectedDate.slice(0, 4)),
+                      Number(selectedDate.slice(5, 7)) - 1,
+                      Number(selectedDate.slice(8, 10)),
+                    )
                   : undefined
               }
               onSelect={(day) => {
@@ -355,7 +370,7 @@ export function PublicBookingView({ page, token }: { page: PublicBookingPage; to
       ) : null}
 
       {slot ? (
-        <form className="flex flex-col gap-4" data-booking-form="" onSubmit={submit}>
+        <form className="flex flex-col gap-4" data-booking-form="" onSubmit={(event) => void submit(event)}>
           <p className="text-sm font-medium">{dayLabel(slot.startsAt)}</p>
 
           <div className="space-y-1.5">
@@ -403,10 +418,10 @@ export function PublicBookingView({ page, token }: { page: PublicBookingPage; to
               value={answers[question.fieldId]}
               onChange={(value) =>
                 setAnswers((current) => {
-                  const next = { ...current };
-                  if (value === undefined) delete next[question.fieldId];
-                  else next[question.fieldId] = value;
-                  return next;
+                  const others = Object.fromEntries(
+                    Object.entries(current).filter(([fieldId]) => fieldId !== question.fieldId),
+                  );
+                  return value === undefined ? others : { ...others, [question.fieldId]: value };
                 })
               }
             />
