@@ -37,7 +37,9 @@ describe("GetOnboardingTemplatePromptInteractor", () => {
 
     expect(result).toMatchObject({ ok: true });
     const prompt = (result as { data: { prompt: string } }).data.prompt;
-    expect(prompt).toContain("## 1. Your workspace");
+    expect(prompt).toContain("## 1. Dein Workspace");
+    expect(prompt).not.toContain("## 1. Your workspace");
+    expect(prompt).not.toContain("?template=");
     expect(prompt).toContain("https://app.example.test/api/v1/mcp/w/6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f");
     expect(loadBundle).toHaveBeenCalledExactlyOnceWith("sales-pipeline");
   });

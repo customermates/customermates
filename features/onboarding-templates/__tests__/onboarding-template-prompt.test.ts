@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { loadTemplateBundle } from "@/core/templates/template-bundle-loader";
 import { TEMPLATE_SLUGS } from "@/core/templates/template-slugs";
 import { getTemplate, getTemplateText } from "@/core/templates/template-registry";
+import { APP_LOCALES } from "@/i18n/locale-registry";
 
 import { renderOnboardingTemplatePrompt } from "../onboarding-template-prompt";
 
@@ -60,6 +61,22 @@ describe("the template prompt shown in onboarding", () => {
     expect(headings[0]).toBe("## 1. Your workspace");
     expect(headings[1]).toBe("## 2. Before you write anything");
     expect(headings.at(-1)).toMatch(/^## 9\. Questions for me$/);
+  });
+
+  it.each(APP_LOCALES)("tells a %s user their workspace exists instead of how to get one", (locale) => {
+    const prompt = renderOnboardingTemplatePrompt({
+      spec: getTemplate("sales-pipeline"),
+      text: getTemplateText("sales-pipeline", locale),
+      deployment: "cloud",
+      baseUrl: BASE_URL,
+      mcpUrl: MCP_URL,
+    });
+
+    expect(prompt).toContain(MCP_URL);
+    expect(prompt).not.toContain("## 1. Get a workspace");
+    expect(prompt).not.toContain("?template=");
+    expect(prompt).not.toContain("<your instance address>");
+    expect(prompt.split("\n").filter((line) => /^## 1\./.test(line))).toHaveLength(1);
   });
 
   it("writes the prompt in the locale's wording for the names and questions", () => {
