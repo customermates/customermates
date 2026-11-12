@@ -2,11 +2,11 @@
   "locale": "nl",
   "name": "Intake voor advocatenkantoren",
   "summary": "Een intake in vaste stappen: aanvraag, conflictcheck, intake, offerte, getekende opdrachtbevestiging met volmacht en voorschot, en een schriftelijke brief voor iedereen die geen cliënt wordt.",
-  "description": "Neem cliënten in een vaste volgorde aan: elke aanvraag legt het rechtsgebied vast, de vroegst bekende termijn, de conflictcheck en wie die deed, daarna de intake, de offerte en de getekende opdrachtbevestiging. Een lijst met partijen ondersteunt de conflictcheck, zaken dragen de datum van de volmacht en een bewaardatum, en afgewezen of stille aanvragers krijgen een schriftelijke brief dat het kantoor de zaak niet aanneemt. Het bewaart een verwijzing naar het dossier, nooit feiten van de zaak, vertrouwelijke inhoud, gezondheidsgegevens of gegevens van de wederpartij. Geen dossierbeheer, geen derdengeldenadministratie, geen bron voor procestermijnen en geen facturatie.",
+  "description": "Cliënten in een vaste volgorde aannemen: elke aanvraag legt het rechtsgebied vast, de vroegst bekende termijn, de conflictcheck en wie die deed, daarna de intake, de offerte en de getekende opdrachtbevestiging. Een lijst met partijen ondersteunt de conflictcheck, zaken dragen de datum van de volmacht en een bewaardatum, en afgewezen of stille aanvragers krijgen een schriftelijke brief dat het kantoor de zaak niet aanneemt. Het bewaart een verwijzing naar het dossier, nooit feiten van de zaak, vertrouwelijke inhoud, gezondheidsgegevens of gegevens van de wederpartij. Geen dossierbeheer, geen derdengeldenadministratie, geen bron voor procestermijnen en geen facturatie.",
   "lists": {
     "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "Aanvragers, cliënten, voormalige cliënten en doorverwijzers." },
     "inquiries": { "label": "Aanvraag", "pluralLabel": "Aanvragen", "description": "Eén verzoek om juridische hulp, van eerste contact tot een zaak of een afwijzing." },
-    "matters": { "label": "Zaak", "pluralLabel": "Zaken (dossiers)", "description": "Een verwijzing naar het dossier in uw kantoorsysteem, met de datum van de volmacht en de bewaardatum." },
+    "matters": { "label": "Zaak", "pluralLabel": "Zaken", "description": "Een verwijzing naar het dossier in je kantoorsysteem, met de datum van de volmacht en de bewaardatum." },
     "parties": { "label": "Partij", "pluralLabel": "Partijen", "description": "Wederpartijen en gerelateerde partijen, bewaard voor de conflictcheck." }
   },
   "fields": {
@@ -25,19 +25,19 @@
     "inquiries.deadline_source": { "label": "Waar de termijn vandaan komt" },
     "inquiries.conflict_check": {
       "label": "Conflictcheck",
-      "options": { "pending": "Open", "cleared": "Geen conflict", "cleared_with_waiver": "Opgelost met toestemming", "conflict_found": "Conflict gevonden" }
+      "options": { "pending": "Open", "cleared": "Geen conflict", "cleared_with_waiver": "Geen conflict, met toestemming", "conflict_found": "Conflict gevonden" }
     },
     "inquiries.consultation_on": { "label": "Intake" },
     "inquiries.fee_model": { "label": "Tarief", "options": { "hourly": "Uurtarief", "fixed": "Vast bedrag", "success_fee": "Resultaatafhankelijk", "insurance_or_legal_aid": "Rechtsbijstandverzekering of toevoeging", "mixed": "Gemengd" } },
     "inquiries.advance_requested_on": { "label": "Voorschot gevraagd op" },
     "inquiries.advance_received_on": { "label": "Voorschot ontvangen op" },
-    "inquiries.responsible_lawyer": { "label": "Verantwoordelijk advocaat" },
-    "inquiries.next_step_due": { "label": "Volgende stap voor" },
+    "inquiries.responsible_lawyer": { "label": "Verantwoordelijke advocaat" },
+    "inquiries.next_step_due": { "label": "Volgende stap uiterlijk op" },
     "inquiries.lost_reason": {
       "label": "Waarom geen opdracht",
       "options": { "conflict": "Belangenconflict", "outside_practice_area": "Buiten onze rechtsgebieden", "capacity": "Geen capaciteit", "time_limit_referred_out": "Termijn, doorverwezen", "fee": "Tarief", "chose_other_lawyer": "Koos een andere advocaat", "no_response": "Geen reactie", "self_resolved": "Heeft zich opgelost" }
     },
-    "inquiries.non_engagement_letter_on": { "label": "Brief over niet aannemen verstuurd op" },
+    "inquiries.non_engagement_letter_on": { "label": "Afwijzingsbrief verstuurd op" },
     "matters.matter_ref": { "label": "Verwijzing in het kantoorsysteem" },
     "matters.status": { "label": "Status", "options": { "open": "Open", "on_hold": "On hold", "closed": "Gesloten" } },
     "matters.opened_on": { "label": "Geopend op" },
@@ -52,12 +52,12 @@
   },
   "relationships": {
     "inquiry_contact": { "sourceLabel": "Contactpersoon", "targetLabel": "Aanvragen" },
-    "matter_contact": { "sourceLabel": "Cliënt", "targetLabel": "Zaken (dossiers)" },
-    "matter_inquiry": { "sourceLabel": "Aanvraag", "targetLabel": "Zaken (dossiers)" },
+    "matter_contact": { "sourceLabel": "Cliënt", "targetLabel": "Zaken" },
+    "matter_inquiry": { "sourceLabel": "Aanvraag", "targetLabel": "Zaken" },
     "party_inquiry": { "sourceLabel": "Aanvraag", "targetLabel": "Partijen" },
     "party_matter": { "sourceLabel": "Zaak", "targetLabel": "Partijen" },
-    "action_inquiry": { "sourceLabel": "Aanvraag", "targetLabel": "Taken" },
-    "action_matter": { "sourceLabel": "Zaak", "targetLabel": "Taken" }
+    "action_inquiry": { "sourceLabel": "Aanvraag", "targetLabel": "Acties" },
+    "action_matter": { "sourceLabel": "Zaak", "targetLabel": "Acties" }
   },
   "views": {
     "inquiries_board": { "name": "Aanvragen per fase" },
@@ -81,7 +81,7 @@
     "operating_guide": { "title": "Hoe de intake draait", "sections": ["Eerste contact en vragen voor de beoordeling", "Wie antwoordt en hoe snel"] },
     "conflict_check": { "title": "Procedure voor de conflictcheck", "sections": ["Waarop wordt gezocht: partijen, cliënten en voormalige cliënten", "Hoe de uitkomst wordt vastgelegd en wat te doen bij een conflict"] },
     "time_limit_triage": { "title": "Beoordeling van spoedeisende termijnen", "sections": ["Bij het eerste contact naar de vroegst bekende termijn vragen", "Aannemen, doorverwijzen of de aanvrager schriftelijk waarschuwen"] },
-    "engagement_checklist": { "title": "Checklist opdrachtbevestiging en offerte", "sections": ["Tarief, volmacht en voorschot", "Brieven over niet aannemen en afsluiting"] }
+    "engagement_checklist": { "title": "Checklist opdrachtbevestiging en offerte", "sections": ["Tarief, volmacht en voorschot", "Afwijzings- en afsluitbrieven"] }
   },
   "rules": {
     "inquiry_form_records": { "title": "Contactpersoon en aanvraag aanmaken als het aanvraagformulier is ingediend" },
@@ -92,8 +92,8 @@
     "proposal_follow_up": { "title": "3 dagen na het versturen van de offerte opvolgen" },
     "agreement_signed_set": { "title": "Het voorschot opvragen 2 dagen na de getekende opdrachtbevestiging" },
     "advance_chase": { "title": "De verantwoordelijke waarschuwen als het voorschot 7 dagen na het verzoek nog ontbreekt" },
-    "letter_declined": { "title": "De brief over niet aannemen opstellen als het kantoor een aanvraag afwijst" },
-    "letter_not_retained": { "title": "De brief over niet aannemen opstellen als een aanvrager de opdracht niet geeft" },
+    "letter_declined": { "title": "De afwijzingsbrief opstellen als het kantoor een aanvraag afwijst" },
+    "letter_not_retained": { "title": "De afwijzingsbrief opstellen als een aanvrager de opdracht niet geeft" },
     "poa_renewal": { "title": "De volmacht 30 dagen voor het verlopen vernieuwen" },
     "closing_letter": { "title": "De afsluitbrief opstellen een week nadat een zaak is gesloten" }
   },
@@ -105,12 +105,12 @@
     "conflict_check_page": "De kennisbank bevat een pagina over de conflictcheck."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-workspace een intake voor een advocatenkantoor in: aanvragen met conflictcheck, vroegst bekende termijn, intake, offerte en getekende opdrachtbevestiging, zaken als verwijzingen naar het kantoorsysteem, partijen voor de conflictcheck en schriftelijke brieven over niet aannemen. Bewaar geen feiten van de zaak of vertrouwelijke inhoud.",
+    "intro": "Richt in mijn Customermates-werkruimte een intake voor een advocatenkantoor in: aanvragen met conflictcheck, vroegst bekende termijn, intake, offerte en getekende opdrachtbevestiging, zaken als verwijzingen naar het kantoorsysteem, partijen voor de conflictcheck en schriftelijke afwijzingsbrieven. Bewaar geen feiten van de zaak of vertrouwelijke inhoud.",
     "questions": [
-      "Welke rechtsgebieden neemt u aan en welke verwijst u door?",
-      "Hoe voert u de conflictcheck uit en wie tekent die af?",
-      "Welke tariefmodellen en welk voorschot gebruikt u?",
-      "Welk kantoorsysteem gebruikt u? Hier wordt alleen een verwijzing naar het dossier bewaard."
+      "Welke rechtsgebieden neem je aan en welke verwijs je door?",
+      "Hoe voer je de conflictcheck uit en wie tekent die af?",
+      "Welke tariefmodellen en welk voorschot gebruik je?",
+      "Welk kantoorsysteem gebruik je? Hier wordt alleen een verwijzing naar het dossier bewaard."
     ]
   }
 }
