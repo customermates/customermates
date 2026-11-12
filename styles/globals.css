@@ -819,6 +819,10 @@
     outline: none;
   }
 
+  [data-radix-popper-content-wrapper]:has(> [data-slot="tooltip-content"]) {
+    pointer-events: none;
+  }
+
   body {
     @apply bg-background text-foreground text-sm;
     font-feature-settings: "cv11", "ss01", "ss03";
