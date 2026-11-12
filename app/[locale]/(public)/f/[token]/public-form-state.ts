@@ -26,7 +26,8 @@ export function missingFormValues(
   contact: { email: string; consent: boolean },
 ): FormErrors {
   const errors: FormErrors = {};
-  for (const field of form.fields) if (field.required && isEmpty(field, values[field.fieldId])) errors[field.fieldId] = "required";
+  for (const field of form.fields)
+    if (field.required && isEmpty(field, values[field.fieldId])) errors[field.fieldId] = "required";
   if (form.person && contact.email.trim().length === 0) errors.email = "required";
   if (form.consent && !contact.consent) errors.consent = "consent";
   return errors;

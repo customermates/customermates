@@ -9,8 +9,14 @@ import {
   getListPublicFormsInteractor,
   getUpsertPublicFormInteractor,
 } from "@/core/di";
-import { createZodError } from "@/core/validation/validation.utils";
-import { PublicFormConfigSchema } from "@/features/public-form/public-form.schema";
+import {
+  DisablePublicFormSchema,
+  GetPublicFormEditorSchema,
+  GetPublicFormSchema,
+  ListPublicFormsSchema,
+  PublicFormConfigSchema,
+  UpsertPublicFormSchema,
+} from "@/features/public-form/public-form.schema";
 
 const FORM_ACTIONS = ["list", "get", "fields", "create", "update", "disable"] as const;
 
@@ -49,22 +55,6 @@ const ManageFormsOutputSchema = z
     "list returns items; get, create, update and disable return the form with its public url and embedSnippet; fields returns the fields a form can use and the people lists it can link to.",
   );
 
-function missing(key: "id" | "typeId") {
-  return mcpValidationFailure(createZodError(`${key} is required`, [key]));
-}
-
-function save(params: ManageFormsParams) {
-  return runInteractor(
-    getUpsertPublicFormInteractor().invoke({
-      ...(params.action === "update" ? { id: params.id } : { typeId: params.typeId }),
-      name: params.name,
-      enabled: params.enabled,
-      config: params.config,
-    }),
-    (data) => toonResult({ ...data }),
-  );
-}
-
 export const manageFormsTool = {
   name: "manage_forms",
   title: "Manage public forms",
@@ -80,26 +70,39 @@ export const manageFormsTool = {
   outputSchema: ManageFormsOutputSchema,
   execute: async (params: ManageFormsParams) => {
     switch (params.action) {
-      case "list":
-        return runInteractor(getListPublicFormsInteractor().invoke({ typeId: params.typeId }), (data) =>
+      case "list": {
+        const parsed = ListPublicFormsSchema.safeParse({ typeId: params.typeId });
+        if (!parsed.success) return mcpValidationFailure(parsed.error);
+        return runInteractor(getListPublicFormsInteractor().invoke(parsed.data), (data) =>
           toonResult({ items: data.items }),
         );
-      case "get":
-        if (!params.id) return missing("id");
-        return runInteractor(getGetPublicFormInteractor().invoke({ id: params.id }), (data) => toonResult({ ...data }));
-      case "fields":
-        if (!params.typeId) return missing("typeId");
-        return runInteractor(getGetPublicFormEditorInteractor().invoke({ typeId: params.typeId }), (data) =>
-          toonResult({ ...data }),
-        );
-      case "disable":
-        if (!params.id) return missing("id");
-        return runInteractor(getDisablePublicFormInteractor().invoke({ id: params.id }), (data) =>
-          toonResult({ ...data }),
-        );
+      }
+      case "get": {
+        const parsed = GetPublicFormSchema.safeParse({ id: params.id });
+        if (!parsed.success) return mcpValidationFailure(parsed.error);
+        return runInteractor(getGetPublicFormInteractor().invoke(parsed.data), (data) => toonResult({ ...data }));
+      }
+      case "fields": {
+        const parsed = GetPublicFormEditorSchema.safeParse({ typeId: params.typeId });
+        if (!parsed.success) return mcpValidationFailure(parsed.error);
+        return runInteractor(getGetPublicFormEditorInteractor().invoke(parsed.data), (data) => toonResult({ ...data }));
+      }
+      case "disable": {
+        const parsed = DisablePublicFormSchema.safeParse({ id: params.id });
+        if (!parsed.success) return mcpValidationFailure(parsed.error);
+        return runInteractor(getDisablePublicFormInteractor().invoke(parsed.data), (data) => toonResult({ ...data }));
+      }
       case "create":
-      case "update":
-        return save(params);
+      case "update": {
+        const parsed = UpsertPublicFormSchema.safeParse({
+          ...(params.action === "update" ? { id: params.id } : { typeId: params.typeId }),
+          name: params.name,
+          enabled: params.enabled,
+          config: params.config,
+        });
+        if (!parsed.success) return mcpValidationFailure(parsed.error);
+        return runInteractor(getUpsertPublicFormInteractor().invoke(parsed.data), (data) => toonResult({ ...data }));
+      }
     }
   },
 };

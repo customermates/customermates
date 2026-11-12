@@ -44,7 +44,9 @@ export type PublicFormConsent = z.infer<typeof PublicFormConsentSchema>;
 export const PublicFormSuccessSchema = z
   .object({
     message: FormTextSchema(500),
-    redirectUrl: HttpUrlSchema.nullable().describe("Where to send the visitor after sending, or null to show the message."),
+    redirectUrl: HttpUrlSchema.nullable().describe(
+      "Where to send the visitor after sending, or null to show the message.",
+    ),
   })
   .strict();
 
@@ -146,9 +148,7 @@ export const FormPeopleListOptionSchema = z
   .object({
     typeId: z.uuid(),
     label: z.string(),
-    relationships: z.array(
-      z.object({ id: z.uuid(), sourceLabel: z.string(), targetLabel: z.string() }).strict(),
-    ),
+    relationships: z.array(z.object({ id: z.uuid(), sourceLabel: z.string(), targetLabel: z.string() }).strict()),
     nameFields: z.array(z.object({ fieldId: z.uuid(), label: z.string(), primary: z.boolean() }).strict()),
   })
   .strict();

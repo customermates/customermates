@@ -112,10 +112,6 @@ export function resolveAppMode(source: Environment): AppMode {
   return appMode;
 }
 
-export const PUBLIC_FORM_FRAME_ANCESTORS_POLICY = "frame-ancestors *";
-
-export const PUBLIC_FORM_PATH_PATTERN = "[^/]+/f/[^/]+";
-
 export function frameAncestorsPolicy(appMode: AppMode): string {
   return appMode === "demo"
     ? "frame-ancestors 'self' https://customermates.com https://*.customermates.com"

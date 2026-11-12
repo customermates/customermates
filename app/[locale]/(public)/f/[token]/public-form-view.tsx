@@ -1,7 +1,10 @@
 "use client";
 
-import type { FormEvent } from "react";
-import type { PublicFormView as PublicFormModel } from "@/features/public-form/public-form.schema";
+import type {
+  PublicFormSubmitResult,
+  PublicFormView as PublicFormModel,
+  SubmitPublicFormInput,
+} from "@/features/public-form/public-form.schema";
 import type { FormErrors, FormValues } from "./public-form-state";
 
 import Image from "next/image";
@@ -12,10 +15,10 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
 
 import { publicSignupHref } from "../../p/[token]/public-signup";
-import { submitPublicFormAction } from "./actions";
 import { PublicFormFieldInput } from "./public-form-field-input";
 import { initialFormValues, missingFormValues } from "./public-form-state";
 
@@ -24,7 +27,7 @@ type Props = {
   token: string;
   locale: string;
   embedded: boolean;
-  preview?: boolean;
+  onSubmit?: (input: SubmitPublicFormInput) => Promise<PublicFormSubmitResult>;
 };
 
 type Phase = { kind: "editing" } | { kind: "sent"; message: string } | { kind: "blocked" };
@@ -45,16 +48,28 @@ function Badge() {
       rel="noopener"
       target="_top"
     >
-      <Image alt="" className="size-4 rounded dark:hidden" height={16} src="/images/light/customermates-square.svg" width={16} />
+      <Image
+        alt=""
+        className="size-4 rounded dark:hidden"
+        height={16}
+        src="/images/light/customermates-square.svg"
+        width={16}
+      />
 
-      <Image alt="" className="hidden size-4 rounded dark:block" height={16} src="/images/dark/customermates-square.svg" width={16} />
+      <Image
+        alt=""
+        className="hidden size-4 rounded dark:block"
+        height={16}
+        src="/images/dark/customermates-square.svg"
+        width={16}
+      />
 
       <span>{t("PublicForm.badge")}</span>
     </a>
   );
 }
 
-export function PublicFormView({ form, token, locale, embedded, preview = false }: Props) {
+export function PublicFormView({ form, token, locale, embedded, onSubmit }: Props) {
   const t = useTranslations();
   const [values, setValues] = useState<FormValues>(() => initialFormValues(form.fields));
   const [email, setEmail] = useState("");
@@ -65,18 +80,17 @@ export function PublicFormView({ form, token, locale, embedded, preview = false 
   const [phase, setPhase] = useState<Phase>({ kind: "editing" });
   const [sending, setSending] = useState(false);
 
-  const locked = sending || preview;
+  const locked = sending || !onSubmit;
 
-  const submit = async (event: FormEvent) => {
-    event.preventDefault();
-    if (locked) return;
+  const submit = async () => {
+    if (!onSubmit || locked) return;
     const missing = missingFormValues(form, values, { email, consent });
     setErrors(missing);
     if (Object.keys(missing).length > 0) return;
 
     setSending(true);
     try {
-      const result = await submitPublicFormAction({
+      const result = await onSubmit({
         token,
         renderToken: form.renderToken,
         locale,
@@ -100,7 +114,7 @@ export function PublicFormView({ form, token, locale, embedded, preview = false 
 
   const wrapper = cn("min-h-full w-full bg-background", embedded ? "p-0" : "px-4 py-8 md:py-12");
 
-  if (phase.kind !== "editing")
+  if (phase.kind !== "editing") {
     return (
       <div className={wrapper} id="public-form">
         <main className="mx-auto flex w-full max-w-xl flex-col gap-4" role="status">
@@ -114,6 +128,7 @@ export function PublicFormView({ form, token, locale, embedded, preview = false 
         </main>
       </div>
     );
+  }
 
   return (
     <div className={wrapper} id="public-form">
@@ -130,7 +145,14 @@ export function PublicFormView({ form, token, locale, embedded, preview = false 
           ) : null}
         </header>
 
-        <form className="flex flex-col gap-5" noValidate onSubmit={submit}>
+        <form
+          noValidate
+          className="flex flex-col gap-5"
+          onSubmit={(event) => {
+            event.preventDefault();
+            runUserAction(() => submit());
+          }}
+        >
           {Object.keys(errors).length > 0 ? (
             <p className="text-sm text-destructive" id="public-form-error-summary" role="alert">
               {t("PublicForm.errors.summary")}
@@ -149,8 +171,8 @@ export function PublicFormView({ form, token, locale, embedded, preview = false 
                 </Label>
 
                 <Input
-                  aria-invalid={Boolean(errors.email)}
                   aria-required
+                  aria-invalid={Boolean(errors.email)}
                   autoComplete="email"
                   disabled={locked}
                   id="public-form-email"
@@ -197,7 +219,7 @@ export function PublicFormView({ form, token, locale, embedded, preview = false 
             />
           ))}
 
-          <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+          <div aria-hidden className="absolute -left-[9999px] size-0 overflow-hidden">
             <label htmlFor="public-form-website">{t("PublicForm.honeypot")}</label>
 
             <input

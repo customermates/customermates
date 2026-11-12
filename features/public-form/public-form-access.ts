@@ -68,13 +68,7 @@ export class PublicFormAccess {
     }
 
     const form = await this.lookup.findFormUnscoped(formId);
-    if (
-      !form ||
-      !form.enabled ||
-      !form.company.allowPublicLinks ||
-      form.company.deletingAt ||
-      form.type.archived
-    )
+    if (!form || !form.enabled || !form.company.allowPublicLinks || form.company.deletingAt || form.type.archived)
       return PUBLIC_FORM_UNAVAILABLE;
     const config = parsePublicFormConfig(form.config);
     if (!config) return PUBLIC_FORM_UNAVAILABLE;

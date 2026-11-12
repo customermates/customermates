@@ -11,10 +11,18 @@ import type {
 import type { GetP13nData } from "@/features/p13n/get-p13n.interactor";
 import type { UpsertP13nData } from "@/features/p13n/upsert-p13n.interactor";
 import type { ManagePublicLinkData } from "@/features/public-link/public-link.schema";
+import type {
+  DisablePublicFormData,
+  GetPublicFormEditorData,
+  UpsertPublicFormData,
+} from "@/features/public-form/public-form.schema";
 
 import {
   getDeleteDataViewInteractor,
+  getDisablePublicFormInteractor,
   getGetDataViewShareOptionsInteractor,
+  getGetPublicFormEditorInteractor,
+  getUpsertPublicFormInteractor,
   getHideSharedDataViewInteractor,
   getManagePublicLinkInteractor,
   getShareDataViewInteractor,
@@ -64,4 +72,16 @@ export async function hideSharedDataViewAction(data: HideSharedDataViewData) {
 
 export async function getDataViewShareOptionsAction() {
   return serializeResult(getGetDataViewShareOptionsInteractor().invoke());
+}
+
+export async function getPublicFormEditorAction(data: GetPublicFormEditorData) {
+  return serializeResult(getGetPublicFormEditorInteractor().invoke(data));
+}
+
+export async function upsertPublicFormAction(data: UpsertPublicFormData) {
+  return serializeResult(getUpsertPublicFormInteractor().invoke(data));
+}
+
+export async function disablePublicFormAction(data: DisablePublicFormData) {
+  return serializeResult(getDisablePublicFormInteractor().invoke(data));
 }

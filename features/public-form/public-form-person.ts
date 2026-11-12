@@ -47,8 +47,7 @@ export async function createPerson(
     mutation: {
       action: "create",
       typeId: person.typeId,
-      fields:
-        name && person.nameFieldId ? [{ fieldId: person.nameFieldId, value: { kind: "text", value: name } }] : [],
+      fields: name && person.nameFieldId ? [{ fieldId: person.nameFieldId, value: { kind: "text", value: name } }] : [],
       identities: [{ provider: "mail", value: email }],
     },
   });

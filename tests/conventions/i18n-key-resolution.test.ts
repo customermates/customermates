@@ -928,6 +928,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/shared/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${currentLocale}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${locale}",
+  "components/public-form/public-form-settings.tsx :: t :: Common.locales.${locale}",
   "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-field.tsx :: t :: Common.locales.${locale}",
   "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-interview.tsx :: t.raw :: WorkspaceSetup.suggestedSteps.${suggestion}",
   "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-screen-summary.ts :: t :: Common.locales.${value.value}",

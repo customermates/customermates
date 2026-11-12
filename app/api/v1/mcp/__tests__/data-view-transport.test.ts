@@ -101,6 +101,7 @@ describe("saved-view MCP HTTP transport", () => {
       "fetch",
       "manage_calendar",
       "manage_data_views",
+      "manage_forms",
       "manage_record_detail_layout",
       "search",
     ]);

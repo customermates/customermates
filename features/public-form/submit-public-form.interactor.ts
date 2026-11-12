@@ -112,11 +112,12 @@ export class SubmitPublicFormInteractor {
 
     const built = buildFormAnswers(config, form.typeId, model.fields, data);
     const consentMissing = config.consent !== null && data.consent !== true;
-    if (!built.ok || consentMissing)
+    if (!built.ok || consentMissing) {
       return {
         status: "invalid",
         errors: { ...(built.ok ? {} : built.errors), ...(consentMissing ? { consent: "consent" } : {}) },
       };
+    }
     return this.persist(context, model, built);
   }
 

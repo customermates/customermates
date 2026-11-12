@@ -61,7 +61,11 @@ export class PrismaPublicFormRepo extends TenantRepository implements PublicForm
       where: { id, companyId: this.companyId },
       data: {
         ...(patch.name === undefined ? {} : { name: patch.name }),
-        ...(patch.enabled === undefined ? {} : patch.enabled ? { enabled: true, createdById: this.userId } : { enabled: false }),
+        ...(patch.enabled === undefined
+          ? {}
+          : patch.enabled
+            ? { enabled: true, createdById: this.userId }
+            : { enabled: false }),
         ...(patch.config === undefined ? {} : { config: patch.config }),
         ...(patch.consentVersion === undefined ? {} : { consentVersion: patch.consentVersion }),
       },

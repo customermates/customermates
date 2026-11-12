@@ -99,8 +99,13 @@ function convertText(field: RecordField, raw: FormAnswerValue | undefined): Conv
   if (field.valueType === "richText")
     return { kind: "value", value: { kind: "richText", documentJson: richTextDocument(text) }, display: text };
   if (field.valueType === "url") {
-    const valid = z.url({ protocol: /^https?$/ }).max(2000).safeParse(text).success;
-    return valid ? { kind: "value", value: { kind: "text", value: text }, display: text } : { kind: "error", error: "invalid" };
+    const valid = z
+      .url({ protocol: /^https?$/ })
+      .max(2000)
+      .safeParse(text).success;
+    return valid
+      ? { kind: "value", value: { kind: "text", value: text }, display: text }
+      : { kind: "error", error: "invalid" };
   }
   return { kind: "value", value: { kind: "text", value: text }, display: text };
 }
@@ -184,10 +189,13 @@ export function buildFormAnswers(
       if (!email) errors.email = "email";
     }
     const rawName = (input.name ?? "").trim();
-    if (config.person.nameLabel && hasTextValue(rawName))
+    if (config.person.nameLabel && hasTextValue(rawName)) {
       if (rawName.length > 200) errors.name = "invalid";
       else name = rawName;
+    }
   }
 
-  return Object.keys(errors).length > 0 ? { ok: false, errors } : { ok: true, fields, identities, display, email, name };
+  return Object.keys(errors).length > 0
+    ? { ok: false, errors }
+    : { ok: true, fields, identities, display, email, name };
 }

@@ -118,7 +118,7 @@ function Control(props: ControlProps) {
   const { field } = props;
   if (field.valueType === "boolean") return <BooleanControl {...props} />;
   if (field.valueType === "select") return <ChoiceControl {...props} />;
-  if (field.valueType === "richText")
+  if (field.valueType === "richText") {
     return (
       <Textarea
         aria-describedby={props.describedBy}
@@ -132,6 +132,7 @@ function Control(props: ControlProps) {
         onChange={(event) => props.onChange(event.target.value)}
       />
     );
+  }
   return <InputControl {...props} />;
 }
 

@@ -48,7 +48,8 @@ export const publicFormApiPaths = {
     post: structuredOperation({
       operationId: "readForm",
       summary: "Read a public form",
-      description: "Returns one public form with its public url, embed snippet, definition and usage. An id that does not exist answers 404.",
+      description:
+        "Returns one public form with its public url, embed snippet, definition and usage. An id that does not exist answers 404.",
       requires: REQUIRES,
       tag: "forms",
       input: GetPublicFormSchema,

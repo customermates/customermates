@@ -21,7 +21,7 @@ import { PublicFormTab } from "@/components/public-form/public-form-tab";
 import { CopyableCode } from "@/components/shared/copyable-code";
 import { Label } from "@/components/ui/label";
 import { RadioGroup } from "@/components/ui/radio-group";
-import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { copyToClipboard } from "@/core/utils/clipboard";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
@@ -236,9 +236,7 @@ export function ShareViewDialog({ kind, formTypeId = null, link, view, onOpenCha
         ) : null}
 
         {showForm && tab === "form" && formTypeId ? (
-          <AppCardBody>
-            <PublicFormTab typeId={formTypeId} />
-          </AppCardBody>
+          <PublicFormTab typeId={formTypeId} onClose={() => onOpenChange(false)} />
         ) : null}
 
         <AppCardBody className={showForm && tab === "form" ? "hidden" : "flex flex-col gap-4"}>

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
+import { submitPublicFormAction } from "./actions";
 import { PublicFormUnavailable } from "./public-form-unavailable";
 import { PublicFormView } from "./public-form-view";
 
@@ -34,5 +35,13 @@ export default async function PublicFormPage({ params, searchParams }: Props) {
   if (form.locale && form.locale !== locale)
     redirect(`${buildLocalePath(form.locale, `/f/${token}`)}${embed === "1" ? "?embed=1" : ""}`);
 
-  return <PublicFormView embedded={embed === "1"} form={form} locale={locale} token={token} />;
+  return (
+    <PublicFormView
+      embedded={embed === "1"}
+      form={form}
+      locale={locale}
+      token={token}
+      onSubmit={submitPublicFormAction}
+    />
+  );
 }

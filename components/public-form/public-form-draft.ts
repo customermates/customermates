@@ -76,7 +76,10 @@ export function initialDraft(editor: PublicFormEditor, texts: DraftTexts): FormD
     personTypeId: person?.typeId ?? firstPeople?.typeId ?? "",
     personRelationshipId: person?.relationshipId ?? firstPeople?.relationships[0]?.id ?? "",
     personNameFieldId:
-      person?.nameFieldId ?? firstPeople?.nameFields.find((field) => field.primary)?.fieldId ?? firstPeople?.nameFields[0]?.fieldId ?? "",
+      person?.nameFieldId ??
+      firstPeople?.nameFields.find((field) => field.primary)?.fieldId ??
+      firstPeople?.nameFields[0]?.fieldId ??
+      "",
     emailLabel: person?.emailLabel ?? texts.emailLabel,
     nameLabel: person?.nameLabel ?? texts.nameLabel,
     consentEnabled: config !== null && config.consent !== null,

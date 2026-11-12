@@ -43,8 +43,9 @@ export class GetPublicFormEditorInteractor extends AuthenticatedInteractor<GetPu
     if (!type || !policy.actor || !policy.canReadType(type.id))
       return failNotFound(CustomErrorCode.recordTypeNotFound, ["typeId"]);
 
-    const permitted = rolePermits(this.user.role, Resource.publicLinks, Action.create) && policy.allowed(type.id, "create");
-    if (!permitted || !workspaceAllows)
+    const permitted =
+      rolePermits(this.user.role, Resource.publicLinks, Action.create) && policy.allowed(type.id, "create");
+    if (!permitted || !workspaceAllows) {
       return {
         ok: true as const,
         data: {
@@ -56,6 +57,7 @@ export class GetPublicFormEditorInteractor extends AuthenticatedInteractor<GetPu
           reason: !workspaceAllows ? ("workspaceDisabled" as const) : ("permissionDenied" as const),
         },
       };
+    }
 
     const stored = await this.repo.findFormOfType(type.id);
     const usage = await readPublicFormUsage(this.repo, this.quota, this.settings.now?.() ?? new Date());

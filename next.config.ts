@@ -10,11 +10,8 @@ import { createMDX } from "fumadocs-mdx/next";
 import { withWorkflow } from "workflow/next";
 
 import { env } from "@/env";
-import {
-  frameAncestorsPolicy,
-  PUBLIC_FORM_FRAME_ANCESTORS_POLICY,
-  PUBLIC_FORM_PATH_PATTERN,
-} from "@/core/config/environment";
+import { frameAncestorsPolicy } from "@/core/config/environment";
+import { PUBLIC_FORM_FRAME_POLICY, PUBLIC_FORM_FRAME_SOURCE } from "@/core/config/public-form-frame";
 import { permanentAliasRedirects, retiredAppRouteRedirects } from "@/core/seo/route-aliases";
 import { recordFileParserPackages } from "@/features/record-file-index/record-file-parser-packages";
 
@@ -162,16 +159,16 @@ const nextConfig: NextConfig = {
   headers() {
     return Promise.resolve([
       {
-        source: `/:path((?!api/v1/files/[^/]+/content$|${PUBLIC_FORM_PATH_PATTERN}$).*)`,
+        source: "/:path((?!api/v1/files/[^/]+/content$).*)",
         headers: [
           { key: "Content-Security-Policy", value: frameAncestorsPolicy(env.APP_MODE) },
           { key: "X-Content-Type-Options", value: "nosniff" },
         ],
       },
       {
-        source: "/:locale/f/:token",
+        source: PUBLIC_FORM_FRAME_SOURCE,
         headers: [
-          { key: "Content-Security-Policy", value: PUBLIC_FORM_FRAME_ANCESTORS_POLICY },
+          { key: "Content-Security-Policy", value: PUBLIC_FORM_FRAME_POLICY },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "no-referrer" },
         ],

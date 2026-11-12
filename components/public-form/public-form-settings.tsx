@@ -57,12 +57,13 @@ function PersonSettings({ draft, editor, onChange }: Props) {
     });
   };
 
-  if (lists.length === 0)
+  if (lists.length === 0) {
     return (
       <p className="text-xs text-muted-foreground" id="public-form-person-unavailable">
         {t("PublicForm.builder.personUnavailable")}
       </p>
     );
+  }
 
   return (
     <div className="flex flex-col gap-3">
