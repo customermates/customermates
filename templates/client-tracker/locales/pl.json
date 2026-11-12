@@ -31,7 +31,7 @@
         "referral": "Polecenie",
         "website": "Strona internetowa",
         "event": "Wydarzenie",
-        "outbound": "Kontakt własny",
+        "outbound": "Kontakt wychodzący",
         "existing_network": "Dotychczasowa sieć kontaktów",
         "other": "Inne"
       }

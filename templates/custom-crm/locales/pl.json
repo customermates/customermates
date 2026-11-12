@@ -1,11 +1,11 @@
 {
   "locale": "pl",
   "name": "Własny CRM",
-  "summary": "CRM zbudowany wokół Twojego sposobu pracy: kontakty, firmy, szanse sprzedaży i zadania z terminem, z importem z arkusza lub starego narzędzia i cotygodniowym przeglądem.",
-  "description": "Zacznij od czterech list, których potrzebuje każdy CRM, i dopasuj je: etapy, pola i widoki należą do Ciebie. Dla tych, którzy odchodzą od arkusza, Notion, Airtable lub Trello i chcą mieć dane w CRM bez projektu. Zapisuje, skąd zaimportowano każdy rekord.",
+  "summary": "CRM zbudowany wokół Twojego sposobu pracy: kontakty, organizacje, szanse sprzedaży i zadania z terminem, z importem z arkusza lub starego narzędzia i cotygodniowym przeglądem.",
+  "description": "Zacznij od czterech list, których potrzebuje każdy CRM, i dopasuj je: etapy, pola i widoki należą do Ciebie. Dla tych, którzy odchodzą od arkusza, Notion, Airtable lub Trello i chcą mieć dane w CRM bez osobnego projektu wdrożeniowego. Zapisuje, skąd zaimportowano każdy rekord.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Osoby, z którymi masz do czynienia." },
-    "organizations": { "label": "Firma", "pluralLabel": "Firmy", "description": "Spółki i inne podmioty." },
+    "organizations": { "label": "Organizacja", "pluralLabel": "Organizacje", "description": "Firmy i inne podmioty." },
     "opportunities": { "label": "Szansa sprzedaży", "pluralLabel": "Szanse sprzedaży", "description": "Jedna szansa od leada do wygranej lub przegranej." }
   },
   "fields": {
@@ -28,7 +28,7 @@
     "organizations.owner": { "label": "Opiekun" },
     "organizations.source": {
       "label": "Źródło",
-      "options": { "referral": "Polecenie", "website": "Strona internetowa", "event": "Wydarzenie", "outbound": "Kontakt własny", "import": "Import", "other": "Inne" }
+      "options": { "referral": "Polecenie", "website": "Strona internetowa", "event": "Wydarzenie", "outbound": "Kontakt wychodzący", "import": "Import", "other": "Inne" }
     },
     "organizations.website": { "label": "Strona internetowa" },
     "organizations.address": { "label": "Adres" },
@@ -39,7 +39,7 @@
     "opportunities.next_step_due": { "label": "Termin następnego kroku" },
     "opportunities.lost_reason": {
       "label": "Powód przegranej",
-      "options": { "price": "Cena", "competitor": "Konkurent", "no_decision": "Brak decyzji", "timing": "Termin", "no_response": "Brak odpowiedzi", "not_a_fit": "Brak dopasowania", "other": "Inny" }
+      "options": { "price": "Cena", "competitor": "Konkurent", "no_decision": "Brak decyzji", "timing": "Nieodpowiedni moment", "no_response": "Brak odpowiedzi", "not_a_fit": "Brak dopasowania", "other": "Inny" }
     },
     "opportunities.weighted_value": { "label": "Wartość ważona" },
     "actions.kind": {
@@ -48,21 +48,21 @@
     }
   },
   "relationships": {
-    "contact_organization": { "sourceLabel": "Firma", "targetLabel": "Kontakty" },
-    "opportunity_organization": { "sourceLabel": "Firma", "targetLabel": "Szanse sprzedaży" },
+    "contact_organization": { "sourceLabel": "Organizacja", "targetLabel": "Kontakty" },
+    "opportunity_organization": { "sourceLabel": "Organizacja", "targetLabel": "Szanse sprzedaży" },
     "action_opportunity": { "sourceLabel": "Szansa sprzedaży", "targetLabel": "Zadania" }
   },
   "views": {
     "pipeline_board": { "name": "Lejek" },
     "opportunities_all": { "name": "Wszystkie szanse" },
     "no_next_step": { "name": "Bez następnego kroku" },
-    "organizations_all": { "name": "Wszystkie firmy" },
+    "organizations_all": { "name": "Wszystkie organizacje" },
     "contacts_all": { "name": "Wszystkie kontakty" }
   },
   "widgets": {
     "pipeline_funnel": { "title": "Otwarte szanse wg etapu" },
-    "open_value": { "title": "Otwarta wartość" },
-    "open_weighted_value": { "title": "Otwarta wartość ważona" },
+    "open_value": { "title": "Wartość otwartych szans" },
+    "open_weighted_value": { "title": "Ważona wartość otwartych szans" },
     "lost_reasons": { "title": "Powody przegranej" },
     "deals_without_next_step": { "title": "Szanse bez następnego kroku" }
   },
@@ -72,12 +72,12 @@
     "import_notes": { "title": "Notatki z importu: co skąd pochodzi", "sections": ["Narzędzie źródłowe i data eksportu", "Co nie przeszło i dlaczego"] }
   },
   "rules": {
-    "next_action_per_stage": { "title": "Utwórz zadanie następcze, gdy szansa zmienia etap" },
-    "set_a_next_step": { "title": "Poproś o następny krok przy każdej otwartej szansie, która go nie ma" },
+    "next_action_per_stage": { "title": "Utwórz zadanie z kolejnym krokiem, gdy szansa zmienia etap" },
+    "set_a_next_step": { "title": "Ustal następny krok dla każdej otwartej szansy, która go nie ma" },
     "next_step_notice": { "title": "Powiadom opiekuna, gdy nadchodzi termin następnego kroku" },
     "expected_close_passed": { "title": "Przejrzyj otwartą szansę dzień po planowanym zamknięciu" },
     "weekly_review": { "title": "Przeprowadź cotygodniowy przegląd w każdy piątek" },
-    "enquiry_form_records": { "title": "Utwórz kontakt, firmę i szansę z formularza zapytania" },
+    "enquiry_form_records": { "title": "Utwórz kontakt, organizację i szansę z formularza zapytania" },
     "webhook_upsert": { "title": "Utwórz lub zaktualizuj rekordy ze starego narzędzia przez przychodzący webhook" }
   },
   "acceptanceChecks": {
@@ -86,7 +86,7 @@
     "how_we_use_page": "Baza wiedzy wyjaśnia, jak zespół korzysta z CRM."
   },
   "prompt": {
-    "intro": "Skonfiguruj własny CRM w mojej przestrzeni roboczej Customermates: kontakty, firmy, szanse sprzedaży z etapami i zadania z terminem, import z mojego arkusza lub starego narzędzia i cotygodniowy przegląd.",
+    "intro": "Skonfiguruj własny CRM w mojej przestrzeni roboczej Customermates: kontakty, organizacje, szanse sprzedaży z etapami i zadania z terminem, import z mojego arkusza lub starego narzędzia i cotygodniowy przegląd.",
     "questions": [
       "Z jakiego narzędzia lub arkusza pochodzą Twoje rekordy i czy da się je wyeksportować?",
       "Przez jakie etapy przechodzi szansa w Twojej firmie?",

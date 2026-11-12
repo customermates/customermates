@@ -1,12 +1,12 @@
 {
   "locale": "pl",
   "name": "Rezerwacje dla twórców",
-  "summary": "Dla fotografów, filmowców i organizatorów wydarzeń: lejek od zapytania do rezerwacji, etap dostawy po terminie, kontrola zaliczki i dopłaty oraz notatka na każdą rocznicę.",
-  "description": "Jeden wiersz na rezerwację z dwoma etapami: sprzedaż (od zapytania do zarezerwowanego) i dostawa (sesja zrobiona do dostarczonego). Termin jest blokowany do podpisania umowy i wpłaty zaliczki, dopłata ma własny termin, a po każdej dostawie prosisz o opinię. Umowy, faktury i galerie zostają w Twoich narzędziach, tu trzymane są linki.",
+  "summary": "Dla fotografów, filmowców i organizatorów wydarzeń: lejek od zapytania do rezerwacji, etap przekazania materiałów po terminie, kontrola zaliczki i dopłaty oraz notatka na każdą rocznicę.",
+  "description": "Jeden wiersz na rezerwację z dwoma etapami: sprzedaż (od zapytania do zarezerwowanego) i przekazanie materiałów (od zrobionej sesji do przekazanych zdjęć lub filmu). Termin jest blokowany do podpisania umowy i wpłaty zaliczki, dopłata ma własny termin, a po każdym przekazaniu materiałów prosisz o opinię. Umowy, faktury i galerie zostają w Twoich narzędziach, tutaj zapisujemy tylko linki.",
   "lists": {
     "people": { "label": "Osoba", "pluralLabel": "Osoby", "description": "Klienci, partnerzy klientów, organizatorzy i osoby kontaktowe w lokalach." },
     "partners": { "label": "Partner", "pluralLabel": "Partnerzy", "description": "Lokale, organizatorzy, cateringi i inni dostawcy, z którymi pracujesz." },
-    "bookings": { "label": "Rezerwacja", "pluralLabel": "Rezerwacje", "description": "Jedno zlecenie od zapytania do dostawy." }
+    "bookings": { "label": "Rezerwacja", "pluralLabel": "Rezerwacje", "description": "Jedno zlecenie od zapytania do przekazania materiałów." }
   },
   "fields": {
     "bookings.stage": {
@@ -14,8 +14,8 @@
       "options": { "inquiry": "Zapytanie", "consultation": "Rozmowa wstępna", "proposal_sent": "Oferta wysłana", "date_on_hold": "Termin zablokowany", "booked": "Zarezerwowane", "lost": "Utracone" }
     },
     "bookings.delivery": {
-      "label": "Dostawa",
-      "options": { "not_started": "Nie rozpoczęto", "preparing": "Przygotowania", "shoot_done": "Sesja zrobiona", "editing": "Obróbka", "client_review": "Akceptacja klienta", "delivered": "Dostarczone", "cancelled": "Odwołane lub przełożone" }
+      "label": "Przekazanie materiałów",
+      "options": { "not_started": "Nie rozpoczęto", "preparing": "Przygotowania", "shoot_done": "Sesja zrobiona", "editing": "Obróbka", "client_review": "Akceptacja klienta", "delivered": "Przekazane", "cancelled": "Odwołane lub przełożone" }
     },
     "people.contact_role": {
       "label": "Rola",
@@ -53,19 +53,19 @@
     "bookings.deposit_amount": { "label": "Kwota zaliczki" },
     "bookings.deposit_status": {
       "label": "Zaliczka",
-      "options": { "not_due": "Niewymagana", "requested": "Zażądana", "paid": "Wpłacona", "refunded": "Zwrócona", "kept": "Zatrzymana" }
+      "options": { "not_due": "Niewymagana", "requested": "Do wpłaty", "paid": "Wpłacona", "refunded": "Zwrócona", "kept": "Zatrzymana" }
     },
-    "bookings.balance_due_on": { "label": "Dopłata do dnia" },
+    "bookings.balance_due_on": { "label": "Termin dopłaty" },
     "bookings.balance_status": {
       "label": "Dopłata",
-      "options": { "not_due": "Niewymagana", "requested": "Zażądana", "paid": "Wpłacona", "overdue": "Zaległa" }
+      "options": { "not_due": "Niewymagana", "requested": "Do wpłaty", "paid": "Wpłacona", "overdue": "Zaległa" }
     },
     "bookings.questionnaire_status": {
       "label": "Ankieta",
       "options": { "not_sent": "Niewysłana", "sent": "Wysłana", "received": "Otrzymana" }
     },
-    "bookings.delivery_due_on": { "label": "Dostawa do dnia" },
-    "bookings.delivered_on": { "label": "Dostarczono dnia" },
+    "bookings.delivery_due_on": { "label": "Termin przekazania materiałów" },
+    "bookings.delivered_on": { "label": "Data przekazania materiałów" },
     "bookings.gallery_url": { "label": "Link do galerii" },
     "bookings.usage_rights": {
       "label": "Prawa do wykorzystania",
@@ -73,7 +73,7 @@
     },
     "bookings.lost_reason": {
       "label": "Powód utraty",
-      "options": { "date_taken": "Termin zajęty", "price": "Cena", "chose_another": "Wybrał innego twórcę", "cancelled_or_postponed": "Wydarzenie odwołane lub przełożone", "no_response": "Brak odpowiedzi", "style_mismatch": "Niedopasowany styl" }
+      "options": { "date_taken": "Termin zajęty", "price": "Cena", "chose_another": "Klient wybrał innego twórcę", "cancelled_or_postponed": "Wydarzenie odwołane lub przełożone", "no_response": "Brak odpowiedzi", "style_mismatch": "Styl nie pasuje" }
     },
     "bookings.weighted_value": { "label": "Wartość ważona" },
     "actions.kind": {
@@ -85,10 +85,10 @@
         "send_contract": "Wysłać umowę",
         "chase_payment": "Ponaglić płatność",
         "send_questionnaire": "Wysłać ankietę",
-        "build_timeline": "Przygotować plan dnia",
+        "build_timeline": "Przygotować harmonogram dnia",
         "shoot_day": "Dzień sesji",
         "edit": "Obróbka",
-        "deliver": "Dostawa",
+        "deliver": "Przekazanie materiałów",
         "request_review": "Poprosić o opinię",
         "anniversary": "Życzenia rocznicowe",
         "other": "Inne"
@@ -103,7 +103,7 @@
   "views": {
     "bookings_board": { "name": "Rezerwacje wg etapu" },
     "bookings_all": { "name": "Wszystkie rezerwacje wg daty" },
-    "delivery_board": { "name": "Dostawa wg stanu" },
+    "delivery_board": { "name": "Przekazanie materiałów wg stanu" },
     "payments_due": { "name": "Dopłaty do ponaglenia" },
     "people_all": { "name": "Wszystkie osoby" },
     "partners_all": { "name": "Wszyscy partnerzy" }
@@ -111,15 +111,15 @@
   "widgets": {
     "pipeline_by_stage": { "title": "Otwarte zapytania wg etapu" },
     "shoots_coming": { "title": "Zarezerwowane terminy" },
-    "deposits_outstanding": { "title": "Zażądane zaliczki" },
+    "deposits_outstanding": { "title": "Zaliczki do wpłaty" },
     "balances_coming": { "title": "Nadchodzące dopłaty" },
     "booked_per_month": { "title": "Zarezerwowana wartość wg miesiąca wydarzenia" },
-    "lost_reasons": { "title": "Dlaczego utracono zapytania" }
+    "lost_reasons": { "title": "Powody utraty zapytań" }
   },
   "knowledgePages": {
-    "booking_workflow": { "title": "Przebieg rezerwacji", "sections": ["Od zapytania do rezerwacji: odpowiedź w ciągu doby, blokada terminu, podpis, zaliczka", "Od sesji do dostawy: obróbka, akceptacja, galeria"] },
+    "booking_workflow": { "title": "Przebieg rezerwacji", "sections": ["Od zapytania do rezerwacji: odpowiedź w ciągu doby, blokada terminu, podpis, zaliczka", "Od sesji do przekazania materiałów: obróbka, akceptacja, galeria"] },
     "contract_checklist": { "title": "Lista kontrolna umowy i płatności", "sections": ["Co obejmuje pakiet, a czego nie", "Zaliczka, dopłata i odwołanie", "Prawa do wykorzystania i zgoda na wizerunek"] },
-    "delivery_and_usage": { "title": "Dostawa, podgląd i prośba o opinię", "sections": ["Termin dostawy i podgląd", "Gdzie jest galeria", "Poproś o opinię"] }
+    "delivery_and_usage": { "title": "Przekazanie materiałów, podgląd i prośba o opinię", "sections": ["Termin przekazania i podgląd", "Gdzie jest galeria", "Poproś o opinię"] }
   },
   "rules": {
     "reply_to_inquiry": { "title": "Odpowiedz na nowe zapytanie w ciągu doby" },
@@ -127,8 +127,8 @@
     "chase_payment_after_signing": { "title": "Ponagl zaliczkę trzy dni po podpisaniu umowy" },
     "questionnaire_before_event": { "title": "Wyślij ankietę 45 dni przed zarezerwowanym wydarzeniem" },
     "balance_reminder": { "title": "Ponagl dopłatę tydzień przed terminem" },
-    "edit_after_shoot": { "title": "Zacznij obróbkę, gdy sesja jest zrobiona" },
-    "request_review": { "title": "Poproś o opinię dwa tygodnie po dostawie" },
+    "edit_after_shoot": { "title": "Zacznij obróbkę po zakończeniu sesji" },
+    "request_review": { "title": "Poproś o opinię dwa tygodnie po przekazaniu materiałów" },
     "anniversary_note": { "title": "Napisz życzenia w dniu rocznicy" },
     "inquiry_form_records": { "title": "Utwórz osobę i rezerwację z formularza zapytania" }
   },
@@ -138,12 +138,12 @@
     "bookings_board_view": "Rezerwacje otwierają się jako tablica według etapów."
   },
   "prompt": {
-    "intro": "Skonfiguruj rezerwacje dla twórców w mojej przestrzeni roboczej Customermates: lejek od zapytania do rezerwacji, etap dostawy po terminie, kontrola zaliczki i dopłaty, ankieta przed wydarzeniem, prośba o opinię i życzenia rocznicowe.",
+    "intro": "Skonfiguruj rezerwacje dla twórców w mojej przestrzeni roboczej Customermates: lejek od zapytania do rezerwacji, etap przekazania materiałów po terminie, kontrola zaliczki i dopłaty, ankieta przed wydarzeniem, prośba o opinię i życzenia rocznicowe.",
     "questions": [
       "Co fotografujesz, filmujesz lub organizujesz i ile rezerwacji masz w roku?",
       "Przez jakie kroki przechodzi klient od zapytania do rezerwacji i kiedy blokujesz termin?",
       "Jak przyjmujesz zaliczki i dopłaty? Faktury zostają w Twoim narzędziu.",
-      "Gdzie dostarczasz galerie? Tutaj trzymany jest tylko link."
+      "Gdzie udostępniasz galerie? Tutaj zapisujemy tylko link."
     ]
   }
 }

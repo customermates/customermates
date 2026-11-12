@@ -41,7 +41,7 @@
     "clients.registration_id": { "label": "NIP, REGON lub KRS" },
     "clients.source": {
       "label": "Źródło",
-      "options": { "referral": "Polecenie", "website": "Strona internetowa", "event": "Wydarzenie", "outbound": "Kontakt własny", "partner": "Partner", "other": "Inne" }
+      "options": { "referral": "Polecenie", "website": "Strona internetowa", "event": "Wydarzenie", "outbound": "Kontakt wychodzący", "partner": "Partner", "other": "Inne" }
     },
     "intakes.owner": { "label": "Osoba odpowiedzialna" },
     "intakes.service": { "label": "Usługa" },
