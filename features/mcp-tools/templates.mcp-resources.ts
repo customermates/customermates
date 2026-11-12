@@ -8,6 +8,7 @@ import { z } from "zod";
 import { getUserService } from "@/core/di";
 import { resolveActiveTenantUser } from "@/core/decorators/resolve-tenant-user";
 import { compileTemplate } from "@/core/templates/compile-template";
+import { compileTemplateAutomation } from "@/core/templates/compile-template-automation";
 import { renderTemplatePrompt } from "@/core/templates/template-prompt";
 import {
   type TemplateDeployment,
@@ -50,7 +51,8 @@ export function templateResourceContents(slug: TemplateSlug, locale: string) {
   const spec = getTemplate(slug);
   const text = getTemplateText(slug, locale);
   const { plan, extras } = compileTemplate(spec, text);
-  return { slug, locale: text.locale, name: text.name, summary: text.summary, spec, text, plan, extras };
+  const automationRules = compileTemplateAutomation(spec, extras.rules);
+  return { slug, locale: text.locale, name: text.name, summary: text.summary, spec, text, plan, extras, automationRules };
 }
 
 export function templatePromptText(slug: TemplateSlug, locale: string): string {
