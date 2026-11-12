@@ -4,13 +4,12 @@ import { mcpValidationFailure, runInteractor, toonResult } from "./utils";
 
 import { getManageIncomingWebhookInteractor } from "@/core/di";
 import {
+  IncomingWebhookBodySchema,
   IncomingWebhookMappingSchema,
   ManageIncomingWebhookSchema,
 } from "@/features/incoming-webhook/incoming-webhook.schema";
 
 const ACTIONS = ["list", "get", "fields", "create", "update", "delete", "test", "deliveries"] as const;
-
-const PayloadSchema = z.record(z.string(), z.unknown());
 
 const ManageIncomingWebhooksSchema = z.object({
   action: z
@@ -44,9 +43,13 @@ const ManageIncomingWebhooksSchema = z.object({
     .describe(
       "When set, every request must carry a valid signature in signatureHeader. update: omit to keep, null to clear. The secret is never returned.",
     ),
-  samplePayload: PayloadSchema.nullable().optional().describe("An example body kept with the endpoint for test."),
+  samplePayload: IncomingWebhookBodySchema.nullable()
+    .optional()
+    .describe("An example body kept with the endpoint for test."),
   rotateUrl: z.boolean().optional().describe("update only. true replaces the secret URL; the old URL stops working."),
-  payload: PayloadSchema.optional().describe("test only. The body to try; defaults to the stored samplePayload."),
+  payload: IncomingWebhookBodySchema.optional().describe(
+    "test only. The body to try; defaults to the stored samplePayload.",
+  ),
   limit: z
     .number()
     .int()

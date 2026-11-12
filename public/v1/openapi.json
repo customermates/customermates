@@ -107821,7 +107821,12 @@
                           "samplePayload": {
                             "anyOf": [
                               {
-                                "$ref": "#/components/schemas/__schema3"
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {},
+                                "description": "A JSON object, such as the body another system posts to the endpoint."
                               },
                               {
                                 "type": "null"
@@ -107953,7 +107958,12 @@
                         "samplePayload": {
                           "anyOf": [
                             {
-                              "$ref": "#/components/schemas/__schema3"
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {},
+                              "description": "A JSON object, such as the body another system posts to the endpoint."
                             },
                             {
                               "type": "null"
@@ -108142,7 +108152,12 @@
                           "payload": {
                             "anyOf": [
                               {
-                                "$ref": "#/components/schemas/__schema4"
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {},
+                                "description": "A JSON object, such as the body another system posts to the endpoint."
                               },
                               {
                                 "type": "null"
@@ -108451,7 +108466,12 @@
                           "samplePayload": {
                             "anyOf": [
                               {
-                                "$ref": "#/components/schemas/__schema3"
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {},
+                                "description": "A JSON object, such as the body another system posts to the endpoint."
                               },
                               {
                                 "type": "null"
@@ -108583,7 +108603,12 @@
                         "samplePayload": {
                           "anyOf": [
                             {
-                              "$ref": "#/components/schemas/__schema3"
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {},
+                              "description": "A JSON object, such as the body another system posts to the endpoint."
                             },
                             {
                               "type": "null"
@@ -108772,7 +108797,12 @@
                           "payload": {
                             "anyOf": [
                               {
-                                "$ref": "#/components/schemas/__schema4"
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {},
+                                "description": "A JSON object, such as the body another system posts to the endpoint."
                               },
                               {
                                 "type": "null"
@@ -109081,7 +109111,12 @@
                           "samplePayload": {
                             "anyOf": [
                               {
-                                "$ref": "#/components/schemas/__schema3"
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {},
+                                "description": "A JSON object, such as the body another system posts to the endpoint."
                               },
                               {
                                 "type": "null"
@@ -109213,7 +109248,12 @@
                         "samplePayload": {
                           "anyOf": [
                             {
-                              "$ref": "#/components/schemas/__schema3"
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {},
+                              "description": "A JSON object, such as the body another system posts to the endpoint."
                             },
                             {
                               "type": "null"
@@ -109402,7 +109442,12 @@
                           "payload": {
                             "anyOf": [
                               {
-                                "$ref": "#/components/schemas/__schema4"
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {},
+                                "description": "A JSON object, such as the body another system posts to the endpoint."
                               },
                               {
                                 "type": "null"
@@ -109691,7 +109736,12 @@
                     "maxLength": 256
                   },
                   "samplePayload": {
-                    "$ref": "#/components/schemas/__schema0"
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {},
+                    "description": "A JSON object, such as the body another system posts to the endpoint."
                   }
                 },
                 "required": [
@@ -109805,7 +109855,12 @@
                           "samplePayload": {
                             "anyOf": [
                               {
-                                "$ref": "#/components/schemas/__schema3"
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {},
+                                "description": "A JSON object, such as the body another system posts to the endpoint."
                               },
                               {
                                 "type": "null"
@@ -109937,7 +109992,12 @@
                         "samplePayload": {
                           "anyOf": [
                             {
-                              "$ref": "#/components/schemas/__schema3"
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {},
+                              "description": "A JSON object, such as the body another system posts to the endpoint."
                             },
                             {
                               "type": "null"
@@ -110126,7 +110186,12 @@
                           "payload": {
                             "anyOf": [
                               {
-                                "$ref": "#/components/schemas/__schema4"
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {},
+                                "description": "A JSON object, such as the body another system posts to the endpoint."
                               },
                               {
                                 "type": "null"
@@ -110414,7 +110479,12 @@
                   "samplePayload": {
                     "anyOf": [
                       {
-                        "$ref": "#/components/schemas/__schema1"
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {},
+                        "description": "A JSON object, such as the body another system posts to the endpoint."
                       },
                       {
                         "type": "null"
@@ -110534,7 +110604,12 @@
                           "samplePayload": {
                             "anyOf": [
                               {
-                                "$ref": "#/components/schemas/__schema3"
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {},
+                                "description": "A JSON object, such as the body another system posts to the endpoint."
                               },
                               {
                                 "type": "null"
@@ -110666,7 +110741,12 @@
                         "samplePayload": {
                           "anyOf": [
                             {
-                              "$ref": "#/components/schemas/__schema3"
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {},
+                              "description": "A JSON object, such as the body another system posts to the endpoint."
                             },
                             {
                               "type": "null"
@@ -110855,7 +110935,12 @@
                           "payload": {
                             "anyOf": [
                               {
-                                "$ref": "#/components/schemas/__schema4"
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {},
+                                "description": "A JSON object, such as the body another system posts to the endpoint."
                               },
                               {
                                 "type": "null"
@@ -111164,7 +111249,12 @@
                           "samplePayload": {
                             "anyOf": [
                               {
-                                "$ref": "#/components/schemas/__schema3"
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {},
+                                "description": "A JSON object, such as the body another system posts to the endpoint."
                               },
                               {
                                 "type": "null"
@@ -111296,7 +111386,12 @@
                         "samplePayload": {
                           "anyOf": [
                             {
-                              "$ref": "#/components/schemas/__schema3"
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {},
+                              "description": "A JSON object, such as the body another system posts to the endpoint."
                             },
                             {
                               "type": "null"
@@ -111485,7 +111580,12 @@
                           "payload": {
                             "anyOf": [
                               {
-                                "$ref": "#/components/schemas/__schema4"
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {},
+                                "description": "A JSON object, such as the body another system posts to the endpoint."
                               },
                               {
                                 "type": "null"
@@ -111690,7 +111790,12 @@
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   },
                   "payload": {
-                    "$ref": "#/components/schemas/__schema2"
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {},
+                    "description": "A JSON object, such as the body another system posts to the endpoint."
                   }
                 },
                 "required": [
@@ -111802,7 +111907,12 @@
                           "samplePayload": {
                             "anyOf": [
                               {
-                                "$ref": "#/components/schemas/__schema3"
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {},
+                                "description": "A JSON object, such as the body another system posts to the endpoint."
                               },
                               {
                                 "type": "null"
@@ -111934,7 +112044,12 @@
                         "samplePayload": {
                           "anyOf": [
                             {
-                              "$ref": "#/components/schemas/__schema3"
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {},
+                              "description": "A JSON object, such as the body another system posts to the endpoint."
                             },
                             {
                               "type": "null"
@@ -112123,7 +112238,12 @@
                           "payload": {
                             "anyOf": [
                               {
-                                "$ref": "#/components/schemas/__schema4"
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {},
+                                "description": "A JSON object, such as the body another system posts to the endpoint."
                               },
                               {
                                 "type": "null"
@@ -112438,7 +112558,12 @@
                           "samplePayload": {
                             "anyOf": [
                               {
-                                "$ref": "#/components/schemas/__schema3"
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {},
+                                "description": "A JSON object, such as the body another system posts to the endpoint."
                               },
                               {
                                 "type": "null"
@@ -112570,7 +112695,12 @@
                         "samplePayload": {
                           "anyOf": [
                             {
-                              "$ref": "#/components/schemas/__schema3"
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {},
+                              "description": "A JSON object, such as the body another system posts to the endpoint."
                             },
                             {
                               "type": "null"
@@ -112759,7 +112889,12 @@
                           "payload": {
                             "anyOf": [
                               {
-                                "$ref": "#/components/schemas/__schema4"
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {},
+                                "description": "A JSON object, such as the body another system posts to the endpoint."
                               },
                               {
                                 "type": "null"
@@ -166066,99 +166201,6 @@
   },
   "components": {
     "schemas": {
-      "__schema0": {
-        "anyOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number"
-          },
-          {
-            "type": "boolean"
-          },
-          {
-            "type": "null"
-          },
-          {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/__schema0"
-            }
-          },
-          {
-            "type": "object",
-            "propertyNames": {
-              "type": "string"
-            },
-            "additionalProperties": {
-              "$ref": "#/components/schemas/__schema0"
-            }
-          }
-        ]
-      },
-      "__schema1": {
-        "anyOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number"
-          },
-          {
-            "type": "boolean"
-          },
-          {
-            "type": "null"
-          },
-          {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/__schema1"
-            }
-          },
-          {
-            "type": "object",
-            "propertyNames": {
-              "type": "string"
-            },
-            "additionalProperties": {
-              "$ref": "#/components/schemas/__schema1"
-            }
-          }
-        ]
-      },
-      "__schema2": {
-        "anyOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number"
-          },
-          {
-            "type": "boolean"
-          },
-          {
-            "type": "null"
-          },
-          {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/__schema2"
-            }
-          },
-          {
-            "type": "object",
-            "propertyNames": {
-              "type": "string"
-            },
-            "additionalProperties": {
-              "$ref": "#/components/schemas/__schema2"
-            }
-          }
-        ]
-      },
       "CalculationExpression": {
         "oneOf": [
           {
@@ -168795,68 +168837,6 @@
           "connectedAccountId",
           "attendeeIdentifiers",
           "text"
-        ]
-      },
-      "__schema3": {
-        "anyOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number"
-          },
-          {
-            "type": "boolean"
-          },
-          {
-            "type": "null"
-          },
-          {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/__schema3"
-            }
-          },
-          {
-            "type": "object",
-            "propertyNames": {
-              "type": "string"
-            },
-            "additionalProperties": {
-              "$ref": "#/components/schemas/__schema3"
-            }
-          }
-        ]
-      },
-      "__schema4": {
-        "anyOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number"
-          },
-          {
-            "type": "boolean"
-          },
-          {
-            "type": "null"
-          },
-          {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/__schema4"
-            }
-          },
-          {
-            "type": "object",
-            "propertyNames": {
-              "type": "string"
-            },
-            "additionalProperties": {
-              "$ref": "#/components/schemas/__schema4"
-            }
-          }
         ]
       },
       "RecordAddress": {

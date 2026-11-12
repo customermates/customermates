@@ -23,6 +23,10 @@ export type IncomingWebhookOutcome = (typeof INCOMING_WEBHOOK_OUTCOMES)[number];
 
 const JSON_PATH = /^[A-Za-z0-9_$-]+(?:\.[A-Za-z0-9_$-]+|\[\d{1,4}\])*$/u;
 
+export const IncomingWebhookBodySchema = z
+  .record(z.string(), z.unknown())
+  .describe("A JSON object, such as the body another system posts to the endpoint.");
+
 export const IncomingWebhookFieldMappingSchema = z
   .object({
     path: z
@@ -74,7 +78,7 @@ export const IncomingWebhookDtoSchema = z
     hasSigningSecret: z.boolean(),
     signatureHeader: z.string(),
     mapping: IncomingWebhookMappingSchema,
-    samplePayload: z.json().nullable(),
+    samplePayload: IncomingWebhookBodySchema.nullable(),
     lastReceivedAt: z.string().nullable(),
     createdAt: z.string(),
     updatedAt: z.string(),
@@ -90,7 +94,7 @@ export const IncomingWebhookDeliveryDtoSchema = z
     message: z.string().nullable(),
     recordId: z.uuid().nullable(),
     payloadBytes: z.number().int(),
-    payload: z.json().nullable(),
+    payload: IncomingWebhookBodySchema.nullable(),
     createdAt: z.string(),
   })
   .strict();
@@ -140,7 +144,7 @@ export const ManageIncomingWebhookSchema = z
         enabled: z.boolean().optional(),
         signatureHeader: SignatureHeaderSchema.optional(),
         signingSecret: z.string().min(8).max(256).optional(),
-        samplePayload: z.json().optional(),
+        samplePayload: IncomingWebhookBodySchema.optional(),
       })
       .strict(),
     z
@@ -152,12 +156,12 @@ export const ManageIncomingWebhookSchema = z
         enabled: z.boolean().optional(),
         signatureHeader: SignatureHeaderSchema.optional(),
         signingSecret: z.string().min(8).max(256).nullable().optional(),
-        samplePayload: z.json().nullable().optional(),
+        samplePayload: IncomingWebhookBodySchema.nullable().optional(),
         rotateUrl: z.boolean().optional(),
       })
       .strict(),
     z.object({ action: z.literal("delete"), id: z.uuid() }).strict(),
-    z.object({ action: z.literal("test"), id: z.uuid(), payload: z.json().optional() }).strict(),
+    z.object({ action: z.literal("test"), id: z.uuid(), payload: IncomingWebhookBodySchema.optional() }).strict(),
     z
       .object({
         action: z.literal("deliveries"),

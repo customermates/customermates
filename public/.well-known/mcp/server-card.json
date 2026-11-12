@@ -51357,7 +51357,8 @@
                 "propertyNames": {
                   "type": "string"
                 },
-                "additionalProperties": {}
+                "additionalProperties": {},
+                "description": "A JSON object, such as the body another system posts to the endpoint."
               },
               {
                 "type": "null"
