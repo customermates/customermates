@@ -1,0 +1,114 @@
+{
+  "locale": "es",
+  "name": "Pipeline de clientes para agencias",
+  "summary": "Un pipeline para una agencia de marketing o creativa: oportunidades de la primera conversación a la firma con decisión sobre el concurso, e igualas en curso con fecha de renovación, preaviso, revisión trimestral e indicador de salud.",
+  "description": "Gane y conserve clientes en un solo lugar: oportunidades a través de conversación, cualificación, briefing o concurso, propuesta y negociación, una victoria que inicia un onboarding de cinco pasos, e igualas y proyectos que siguen, con cuota mensual, fecha de renovación, preaviso y próxima revisión trimestral. Los presupuestos se anotan cuando el cliente los indica, nunca se suponen. Los accesos, los materiales de marca y el acceso a cuentas publicitarias no van nunca al espacio de trabajo. No es gestión de proyectos, control de horas, facturación de igualas ni informes.",
+  "lists": {
+    "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Decisores, responsables de marketing, compras y contactos del día a día." },
+    "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Prospectos, clientes, antiguos clientes y socios." },
+    "opportunities": { "label": "Oportunidad", "pluralLabel": "Oportunidades", "description": "Un posible trabajo, de la primera conversación a ganado o perdido." },
+    "engagements": { "label": "Iguala", "pluralLabel": "Igualas y proyectos", "description": "Una iguala o un proyecto en curso con su cuota, fecha de renovación, preaviso y salud." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Cargo", "options": { "decision_maker": "Decisor", "marketing_lead": "Responsable de marketing", "procurement": "Compras", "day_to_day": "Contacto del día a día", "referrer": "Quien recomienda" } },
+    "contacts.preferred_channel": { "label": "Canal preferido", "options": { "email": "Correo electrónico", "phone": "Teléfono", "linkedin": "LinkedIn", "whatsapp": "WhatsApp", "chat": "Slack o chat" } },
+    "clients.relationship": { "label": "Relación", "options": { "prospect": "Prospecto", "client": "Cliente", "former_client": "Antiguo cliente", "partner": "Socio" } },
+    "clients.website": { "label": "Sitio web" },
+    "opportunities.stage": {
+      "label": "Fase",
+      "options": { "prospect": "Prospecto", "conversation": "Conversación", "qualified": "Cualificado", "brief_or_pitch": "Briefing o concurso", "proposal_sent": "Propuesta enviada", "negotiation": "Negociación", "won": "Ganado", "lost": "Perdido" }
+    },
+    "opportunities.opportunity_type": { "label": "Tipo", "options": { "retainer": "Iguala", "project": "Proyecto", "audit_or_workshop": "Auditoría o taller", "one_off": "Trabajo puntual" } },
+    "opportunities.services": {
+      "label": "Servicios",
+      "options": { "seo": "SEO", "paid_media": "Publicidad de pago", "social": "Redes sociales", "content": "Contenidos", "web": "Web", "branding": "Branding", "pr": "Relaciones públicas" }
+    },
+    "opportunities.source": { "label": "Origen", "options": { "referral": "Recomendación", "inbound": "Entrante", "outbound": "Prospección", "existing_client": "Cliente existente", "event": "Evento", "marketplace": "Marketplace" } },
+    "opportunities.competitive_pitch": { "label": "Concurso competitivo" },
+    "opportunities.pitch_date": { "label": "Fecha de la presentación" },
+    "opportunities.monthly_fee": { "label": "Cuota mensual" },
+    "opportunities.decision_expected": { "label": "Decisión esperada" },
+    "opportunities.next_step_due": { "label": "Siguiente paso antes de" },
+    "opportunities.lost_reason": {
+      "label": "Motivo de la pérdida",
+      "options": { "price": "Precio", "chose_other_agency": "Eligió otra agencia", "in_house": "Lo hace internamente", "budget_cut": "Recorte de presupuesto", "no_decision": "Sin decisión", "scope_mismatch": "Alcance inadecuado", "no_response": "Sin respuesta" }
+    },
+    "engagements.engagement_status": { "label": "Estado", "options": { "onboarding": "Onboarding", "active": "Activa", "at_risk": "En riesgo", "paused": "En pausa", "ended": "Terminada" } },
+    "engagements.health": { "label": "Salud", "options": { "green": "Verde", "amber": "Ámbar", "red": "Rojo" } },
+    "engagements.start_date": { "label": "Inicio" },
+    "engagements.renewal_date": { "label": "Renovación el" },
+    "engagements.notice_days": { "label": "Preaviso (días)" },
+    "engagements.monthly_fee": { "label": "Iguala mensual" },
+    "engagements.next_qbr_on": { "label": "Próxima revisión trimestral" },
+    "engagements.account_manager": { "label": "Responsable de cuenta" },
+    "engagements.ended_reason": {
+      "label": "Por qué terminó",
+      "options": { "client_ended": "La terminó el cliente", "agency_ended": "La terminó la agencia", "project_completed": "Proyecto completado", "budget": "Presupuesto", "in_house": "Pasó a hacerse internamente", "moved_agency": "Pasó a otra agencia" }
+    },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "call": "Llamar", "email": "Escribir un correo", "proposal": "Preparar propuesta o presentación", "onboarding": "Paso de onboarding", "report": "Informe", "qbr": "Revisión trimestral", "renewal": "Renovación", "other": "Otro" }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Cliente", "targetLabel": "Contactos" },
+    "opportunity_client": { "sourceLabel": "Cliente", "targetLabel": "Oportunidades" },
+    "engagement_client": { "sourceLabel": "Cliente", "targetLabel": "Igualas y proyectos" },
+    "engagement_opportunity": { "sourceLabel": "Oportunidad", "targetLabel": "Igualas y proyectos" },
+    "action_opportunity": { "sourceLabel": "Oportunidad", "targetLabel": "Tareas" },
+    "action_engagement": { "sourceLabel": "Iguala", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Oportunidades por fase" },
+    "opportunities_all": { "name": "Todas las oportunidades" },
+    "engagements_all": { "name": "Todas las igualas y proyectos" },
+    "at_risk_engagements": { "name": "Igualas en ámbar y rojo" },
+    "clients_all": { "name": "Todos los clientes" },
+    "contacts_all": { "name": "Todos los contactos" }
+  },
+  "widgets": {
+    "opportunities_funnel": { "title": "Oportunidades por fase" },
+    "recurring_revenue": { "title": "Ingresos mensuales recurrentes" },
+    "pipeline_fees": { "title": "Cuotas mensuales en el pipeline" },
+    "renewals_coming": { "title": "Renovaciones próximas" },
+    "qbrs_coming": { "title": "Revisiones trimestrales próximas" },
+    "health_split": { "title": "Salud de las igualas en curso" },
+    "pitches_coming": { "title": "Presentaciones próximas" },
+    "lost_reasons": { "title": "Por qué se pierden oportunidades" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Cómo funciona el pipeline de la agencia", "sections": ["Las fases y quién responde de ellas", "Preguntas de cualificación: objetivos, urgencia, presupuesto, decisores"] },
+    "pitch_go_no_go": { "title": "Lista de control: presentarse o no al concurso", "sections": ["Coste de presentarse, número de agencias e indemnización", "Criterios y quién decide"] },
+    "onboarding_checklist": { "title": "Onboarding en cinco pasos", "sections": ["Bienvenida y pago, materiales y calendario", "Reunión de arranque en cinco días y flujo de entrega"] },
+    "renewal_playbook": { "title": "Guía de renovación y revisión trimestral", "sections": ["Balance de resultados y opciones de ampliación", "Ventana de preaviso y propuesta de renovación"] }
+  },
+  "rules": {
+    "brief_form_records": { "title": "Crear el contacto y la oportunidad cuando se envía el formulario de briefing" },
+    "respond_to_brief": { "title": "Responder a una oportunidad nueva en un día" },
+    "qualify_check": { "title": "Confirmar el rango de presupuesto y el decisor 2 días después de cualificar" },
+    "pitch_go_no_go": { "title": "Decidir si se participa el día en que una oportunidad llega a briefing o concurso" },
+    "pitch_rehearsal": { "title": "Recordar al responsable 3 días antes de una presentación" },
+    "proposal_follow_up": { "title": "Llamar 2 días después de enviar una propuesta" },
+    "onboarding_set": { "title": "Iniciar los pasos de onboarding el día después de ganar un trato" },
+    "lost_feedback": { "title": "Pedir opinión 2 días después de perder una oportunidad" },
+    "renewal_review": { "title": "Revisar la renovación 90 días antes de que venza una iguala" },
+    "renewal_notice": { "title": "Avisar al responsable 45 días antes de la renovación para confirmar la intención del cliente" },
+    "qbr_due": { "title": "Preparar la revisión trimestral en su fecha" },
+    "health_red": { "title": "Avisar a la persona a cargo cuando una iguala pasa a rojo" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada oportunidad tiene una fase.",
+    "renewal_date_field": "Cada iguala registra su fecha de renovación.",
+    "notice_days_field": "Cada iguala registra su preaviso.",
+    "opportunities_board_view": "Las oportunidades se abren como tablero por fase."
+  },
+  "prompt": {
+    "intro": "Configura en mi espacio de Customermates un pipeline de clientes para una agencia: oportunidades con decisión sobre el concurso, igualas y proyectos con fecha de renovación, preaviso, revisión trimestral e indicador de salud, y seguimientos con fecha. No guardes nunca accesos de clientes ni materiales de marca.",
+    "questions": [
+      "¿Qué servicios vende y trabaja con igualas, proyectos o ambos?",
+      "¿Cómo decide si participa en un concurso competitivo?",
+      "¿Cuál es el preaviso habitual y la duración del contrato?",
+      "¿Cada cuánto revisa los resultados con un cliente?"
+    ]
+  }
+}

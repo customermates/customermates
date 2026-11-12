@@ -1,0 +1,114 @@
+{
+  "locale": "nl",
+  "name": "Klantenpijplijn voor bureaus",
+  "summary": "Een pijplijn voor een marketing- of creatief bureau: kansen van eerste gesprek tot getekende opdracht met een pitchbeslissing, en lopende retainers met verlengingsdatum, opzegtermijn, kwartaalgesprek en gezondheidsindicator.",
+  "description": "Win en behoud klanten op één plek: kansen via gesprek, kwalificatie, briefing of pitch, offerte en onderhandeling, een gewonnen kans die een onboarding in vijf stappen start, en retainers en projecten die volgen, met maandelijkse retainer, verlengingsdatum, opzegtermijn en het volgende kwartaalgesprek. Budgetten worden vastgelegd als de klant ze noemt, nooit geraden. Inloggegevens, merkmateriaal en toegang tot advertentieaccounts horen nooit in de workspace. Geen projectmanagement, geen urenregistratie, geen facturering van retainers en geen rapportage.",
+  "lists": {
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "Beslissers, marketingleiders, inkoop en dagelijkse contactpersonen." },
+    "clients": { "label": "Klant", "pluralLabel": "Klanten", "description": "Prospects, klanten, voormalige klanten en partners." },
+    "opportunities": { "label": "Kans", "pluralLabel": "Kansen", "description": "Een mogelijke opdracht, van eerste gesprek tot gewonnen of verloren." },
+    "engagements": { "label": "Retainer", "pluralLabel": "Retainers", "description": "Een lopende retainer of lopend project met fee, verlengingsdatum, opzegtermijn en gezondheid." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Rol", "options": { "decision_maker": "Beslisser", "marketing_lead": "Marketingleider", "procurement": "Inkoop", "day_to_day": "Dagelijks contact", "referrer": "Doorverwijzer" } },
+    "contacts.preferred_channel": { "label": "Voorkeurskanaal", "options": { "email": "E-mail", "phone": "Telefoon", "linkedin": "LinkedIn", "whatsapp": "WhatsApp", "chat": "Slack of chat" } },
+    "clients.relationship": { "label": "Relatie", "options": { "prospect": "Prospect", "client": "Klant", "former_client": "Voormalige klant", "partner": "Partner" } },
+    "clients.website": { "label": "Website" },
+    "opportunities.stage": {
+      "label": "Fase",
+      "options": { "prospect": "Kennismaking", "conversation": "Gesprek", "qualified": "Gekwalificeerd", "brief_or_pitch": "Briefing of pitch", "proposal_sent": "Offerte verstuurd", "negotiation": "Onderhandeling", "won": "Gewonnen", "lost": "Verloren" }
+    },
+    "opportunities.opportunity_type": { "label": "Type", "options": { "retainer": "Retainer", "project": "Project", "audit_or_workshop": "Audit of workshop", "one_off": "Eenmalig" } },
+    "opportunities.services": {
+      "label": "Diensten",
+      "options": { "seo": "SEO", "paid_media": "Betaalde advertenties", "social": "Social media", "content": "Content", "web": "Web", "branding": "Branding", "pr": "PR" }
+    },
+    "opportunities.source": { "label": "Bron", "options": { "referral": "Aanbeveling", "inbound": "Inkomend", "outbound": "Uitgaand", "existing_client": "Bestaande klant", "event": "Evenement", "marketplace": "Marktplaats" } },
+    "opportunities.competitive_pitch": { "label": "Concurrerende pitch" },
+    "opportunities.pitch_date": { "label": "Pitchdatum" },
+    "opportunities.monthly_fee": { "label": "Maandelijkse retainer" },
+    "opportunities.decision_expected": { "label": "Beslissing verwacht" },
+    "opportunities.next_step_due": { "label": "Volgende stap voor" },
+    "opportunities.lost_reason": {
+      "label": "Reden van verlies",
+      "options": { "price": "Prijs", "chose_other_agency": "Koos een ander bureau", "in_house": "Doet het intern", "budget_cut": "Budget gekort", "no_decision": "Geen beslissing", "scope_mismatch": "Omvang past niet", "no_response": "Geen reactie" }
+    },
+    "engagements.engagement_status": { "label": "Status", "options": { "onboarding": "Onboarding", "active": "Actief", "at_risk": "In gevaar", "paused": "Gepauzeerd", "ended": "Beëindigd" } },
+    "engagements.health": { "label": "Gezondheid", "options": { "green": "Groen", "amber": "Oranje", "red": "Rood" } },
+    "engagements.start_date": { "label": "Startdatum" },
+    "engagements.renewal_date": { "label": "Verlenging op" },
+    "engagements.notice_days": { "label": "Opzegtermijn (dagen)" },
+    "engagements.monthly_fee": { "label": "Maandelijkse retainer" },
+    "engagements.next_qbr_on": { "label": "Volgend kwartaalgesprek" },
+    "engagements.account_manager": { "label": "Accountmanager" },
+    "engagements.ended_reason": {
+      "label": "Waarom het eindigde",
+      "options": { "client_ended": "Klant beëindigde het", "agency_ended": "Bureau beëindigde het", "project_completed": "Project afgerond", "budget": "Budget", "in_house": "Naar intern verhuisd", "moved_agency": "Naar een ander bureau" }
+    },
+    "actions.kind": {
+      "label": "Soort",
+      "options": { "call": "Bellen", "email": "E-mail schrijven", "proposal": "Offerte of pitch voorbereiden", "onboarding": "Onboardingstap", "report": "Rapport", "qbr": "Kwartaalgesprek", "renewal": "Verlenging", "other": "Overig" }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Klant", "targetLabel": "Contactpersonen" },
+    "opportunity_client": { "sourceLabel": "Klant", "targetLabel": "Kansen" },
+    "engagement_client": { "sourceLabel": "Klant", "targetLabel": "Retainers" },
+    "engagement_opportunity": { "sourceLabel": "Kans", "targetLabel": "Retainers" },
+    "action_opportunity": { "sourceLabel": "Kans", "targetLabel": "Taken" },
+    "action_engagement": { "sourceLabel": "Retainer", "targetLabel": "Taken" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Kansen per fase" },
+    "opportunities_all": { "name": "Alle kansen" },
+    "engagements_all": { "name": "Alle retainers" },
+    "at_risk_engagements": { "name": "Retainers op oranje en rood" },
+    "clients_all": { "name": "Alle klanten" },
+    "contacts_all": { "name": "Alle contactpersonen" }
+  },
+  "widgets": {
+    "opportunities_funnel": { "title": "Kansen per fase" },
+    "recurring_revenue": { "title": "Maandelijks terugkerende omzet" },
+    "pipeline_fees": { "title": "Maandelijkse fees in de pijplijn" },
+    "renewals_coming": { "title": "Komende verlengingen" },
+    "qbrs_coming": { "title": "Komende kwartaalgesprekken" },
+    "health_split": { "title": "Gezondheid van lopende retainers" },
+    "pitches_coming": { "title": "Komende pitches" },
+    "lost_reasons": { "title": "Waarom kansen verloren gingen" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Hoe de pijplijn van het bureau draait", "sections": ["De fasen en wie ze bezit", "Kwalificatievragen: doelen, urgentie, budget, beslissers"] },
+    "pitch_go_no_go": { "title": "Checklist: meedoen aan een pitch of niet", "sections": ["Kosten van de pitch, aantal bureaus en pitchvergoeding", "Criteria en wie beslist"] },
+    "onboarding_checklist": { "title": "Onboarding in vijf stappen", "sections": ["Welkom en betaling, materiaal en planning", "Kick-off binnen vijf dagen en het leverproces"] },
+    "renewal_playbook": { "title": "Draaiboek verlenging en kwartaalgesprek", "sections": ["Terugblik met resultaten en uitbreidingsopties", "Opzegvenster en het verlengingsvoorstel"] }
+  },
+  "rules": {
+    "brief_form_records": { "title": "Contactpersoon en kans aanmaken als het briefingformulier is ingediend" },
+    "respond_to_brief": { "title": "Een nieuwe kans binnen een dag beantwoorden" },
+    "qualify_check": { "title": "Budgetbereik en beslisser bevestigen 2 dagen na de kwalificatie" },
+    "pitch_go_no_go": { "title": "Besluiten over meedoen op de dag dat een kans briefing of pitch bereikt" },
+    "pitch_rehearsal": { "title": "De verantwoordelijke 3 dagen voor een pitch herinneren" },
+    "proposal_follow_up": { "title": "2 dagen na het versturen van een offerte bellen" },
+    "onboarding_set": { "title": "De dag na een gewonnen kans de onboardingstappen starten" },
+    "lost_feedback": { "title": "2 dagen na een verloren kans om feedback vragen" },
+    "renewal_review": { "title": "De verlenging 90 dagen voor het aflopen van een retainer beoordelen" },
+    "renewal_notice": { "title": "De verantwoordelijke 45 dagen voor verlenging laten bevestigen wat de klant van plan is" },
+    "qbr_due": { "title": "Het kwartaalgesprek op de afgesproken datum voorbereiden" },
+    "health_red": { "title": "De teamleider waarschuwen als een retainer op rood springt" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Elke kans heeft een fase.",
+    "renewal_date_field": "Elke retainer legt zijn verlengingsdatum vast.",
+    "notice_days_field": "Elke retainer legt zijn opzegtermijn vast.",
+    "opportunities_board_view": "De kansen openen als bord per fase."
+  },
+  "prompt": {
+    "intro": "Richt in mijn Customermates-workspace een klantenpijplijn voor een bureau in: kansen met een pitchbeslissing, retainers en projecten met verlengingsdatum, opzegtermijn, kwartaalgesprek en gezondheidsindicator, en opvolging met datum. Bewaar nooit inloggegevens van klanten of merkmateriaal.",
+    "questions": [
+      "Welke diensten verkoopt u en werkt u met retainers, projecten of beide?",
+      "Hoe beslist u of u meedoet aan een concurrerende pitch?",
+      "Wat is de gebruikelijke opzegtermijn en looptijd van het contract?",
+      "Hoe vaak bespreekt u resultaten met een klant?"
+    ]
+  }
+}
