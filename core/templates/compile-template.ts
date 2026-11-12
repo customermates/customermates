@@ -201,7 +201,11 @@ function planWidget(widget: TemplateWidget, text: TemplateLocale): SetupWidget {
   }
 }
 
-export function compileTemplate(spec: TemplateSpec, text: TemplateLocale): CompiledTemplate {
+export function compileTemplate(
+  spec: TemplateSpec,
+  text: TemplateLocale,
+  options: { country?: string | null } = {},
+): CompiledTemplate {
   const plan: SetupPlan = {
     version: 1,
     workspace: { currency: localeDefaultCurrency(text.locale), dashboardAudience: spec.dashboardAudience },
@@ -223,7 +227,7 @@ export function compileTemplate(spec: TemplateSpec, text: TemplateLocale): Compi
     },
     importMapping: null,
   };
-  return { plan, extras: compileTemplateExtras(spec, text) };
+  return { plan, extras: compileTemplateExtras(spec, text, options) };
 }
 
 export function compileTemplateToSetupPlan(spec: TemplateSpec, text: TemplateLocale): SetupPlan {

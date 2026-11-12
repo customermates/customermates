@@ -5,6 +5,7 @@ type LocaleCapabilities = {
   marketingPaths: "all" | readonly string[];
   formattingTag: string;
   flagCode: string;
+  countryCode: string;
   validationTag: string;
   textSearchConfig: TextSearchConfig;
   iso6393: string;
@@ -30,6 +31,7 @@ export const LOCALE_REGISTRY = {
     marketingPaths: "all",
     formattingTag: "en-US",
     flagCode: "us",
+    countryCode: "US",
     validationTag: "en",
     textSearchConfig: "english",
     iso6393: "eng",
@@ -43,6 +45,7 @@ export const LOCALE_REGISTRY = {
     marketingPaths: "all",
     formattingTag: "de-DE",
     flagCode: "de",
+    countryCode: "DE",
     validationTag: "de",
     textSearchConfig: "german",
     iso6393: "deu",
@@ -56,6 +59,7 @@ export const LOCALE_REGISTRY = {
     marketingPaths: "all",
     formattingTag: "fr-FR",
     flagCode: "fr",
+    countryCode: "FR",
     validationTag: "fr",
     textSearchConfig: "french",
     iso6393: "fra",
@@ -69,6 +73,7 @@ export const LOCALE_REGISTRY = {
     marketingPaths: "all",
     formattingTag: "it-IT",
     flagCode: "it",
+    countryCode: "IT",
     validationTag: "it",
     textSearchConfig: "italian",
     iso6393: "ita",
@@ -82,6 +87,7 @@ export const LOCALE_REGISTRY = {
     marketingPaths: "all",
     formattingTag: "es-ES",
     flagCode: "es",
+    countryCode: "ES",
     validationTag: "es",
     textSearchConfig: "spanish",
     iso6393: "spa",
@@ -95,6 +101,7 @@ export const LOCALE_REGISTRY = {
     marketingPaths: "all",
     formattingTag: "pt-BR",
     flagCode: "br",
+    countryCode: "BR",
     validationTag: "pt",
     textSearchConfig: "portuguese",
     iso6393: "por",
@@ -108,6 +115,7 @@ export const LOCALE_REGISTRY = {
     marketingPaths: "all",
     formattingTag: "pl-PL",
     flagCode: "pl",
+    countryCode: "PL",
     validationTag: "pl",
     textSearchConfig: "simple",
     iso6393: "pol",
@@ -121,6 +129,7 @@ export const LOCALE_REGISTRY = {
     marketingPaths: "all",
     formattingTag: "nl-NL",
     flagCode: "nl",
+    countryCode: "NL",
     validationTag: "nl",
     textSearchConfig: "dutch",
     iso6393: "nld",
@@ -261,6 +270,10 @@ export function assetLocaleFor(locale: LocaleCode): AssetLocale {
 
 export function flagCodeFor(locale: LocaleCode): string {
   return LOCALE_REGISTRY[locale].flagCode;
+}
+
+export function countryCodeFor(locale: unknown): string {
+  return LOCALE_REGISTRY[isLocaleCode(locale) ? locale : DEFAULT_LOCALE].countryCode;
 }
 
 export function textSearchConfigFor(locale: unknown): TextSearchConfig {

@@ -11,6 +11,7 @@ import { SETUP_PLAN_LIMITS } from "@/features/workspace-setup/setup-plan.schema"
 
 import { camelFieldRef, camelKey, refList } from "./template-keys";
 import { templateFieldIndex, templateRoleList } from "./template-fields";
+import { resolveTemplateRule } from "./template-rule-variants";
 
 type Path = (string | number)[];
 type Report = (path: Path, message: string) => void;
@@ -395,6 +396,14 @@ function ruleIssues(spec: TemplateSpecObject, report: Report, index: Index) {
     triggerIssues(spec, rule, path, index, report);
     conditionIssues(rule, path, index, report);
     actionIssues(spec, rule, path, index, report);
+    for (const country of Object.keys(rule.variants ?? {})) {
+      const variantPath: Path = [...path, "variants", country];
+      if (!spec.jurisdictions.includes(country)) report(variantPath, `${country} is not one of the jurisdictions.`);
+      const variant = resolveTemplateRule(rule, country);
+      triggerIssues(spec, variant, variantPath, index, report);
+      conditionIssues(variant, variantPath, index, report);
+      actionIssues(spec, variant, variantPath, index, report);
+    }
   });
   const needed = new Set(spec.followUpRules.flatMap((rule) => (rule.needs === "today" ? [] : [rule.needs])));
   const declared = new Set(spec.requiresCapabilities);

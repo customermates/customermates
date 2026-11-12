@@ -7,6 +7,7 @@ import { SHIPPED_CAPABILITIES } from "@/core/capabilities/capabilities";
 
 import { needText } from "./compile-template-support";
 import { fillPrompt, pluralPrompt, promptLocale, templatePromptText } from "./template-prompt-text";
+import { resolveTemplateRule, templateCountry, templateRuleText } from "./template-rule-variants";
 
 type PromptOptions = {
   deployment: TemplateDeployment;
@@ -14,6 +15,7 @@ type PromptOptions = {
   shipped?: ReadonlySet<Capability>;
   connected?: boolean;
   mcpUrl?: string;
+  country?: string | null;
 };
 
 function bullet(text: string): string {
@@ -147,10 +149,12 @@ function ruleSection(
   text: TemplateLocale,
   shipped: ReadonlySet<Capability>,
   copy: TemplatePromptText,
+  country: string,
 ): string[] {
   if (!spec.followUpRules.length) return [];
-  const lines = spec.followUpRules.map((rule) => {
-    const label = needText(text.rules, rule.key, "rules");
+  const lines = spec.followUpRules.map((declared) => {
+    const rule = resolveTemplateRule(declared, country);
+    const label = templateRuleText(needText(text.rules, declared.key, "rules"), declared, country);
     return bullet(
       `${label.title}${label.description ? `: ${label.description}` : ""}, ${dueText(rule, copy, text.locale)} [${availability(rule, shipped, copy)}]`,
     );
@@ -187,7 +191,7 @@ export function renderTemplatePrompt(spec: TemplateSpec, text: TemplateLocale, o
     relationshipSection(spec, text, copy),
     viewSection(spec, text, copy),
     pageSection(spec, text, copy),
-    ruleSection(spec, text, shipped, copy),
+    ruleSection(spec, text, shipped, copy, templateCountry(text.locale, options.country)),
     questionSection(text, copy),
     ruleOfTheRoad(copy),
   ];

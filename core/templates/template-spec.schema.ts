@@ -310,13 +310,27 @@ export const RuleActionSchema = z.discriminatedUnion("kind", [
   }),
 ]);
 
+const COUNTRY_PATTERN = /^[A-Z]{2}$/;
+const DueOffsetDaysSchema = z.number().int().min(0).max(3_650);
+const CountryKeySchema = z.string().regex(COUNTRY_PATTERN, "Use an ISO 3166-1 alpha-2 country code in capitals.");
+
+const RuleVariantSchema = z
+  .strictObject({
+    trigger: RuleTriggerSchema.optional(),
+    condition: z.array(RuleConditionSchema).max(4).optional(),
+    action: RuleActionSchema.optional(),
+    dueOffsetDays: DueOffsetDaysSchema.optional(),
+  })
+  .refine((variant) => Object.keys(variant).length > 0, "A variant changes at least one part of the rule.");
+
 const FollowUpRuleSchema = z.strictObject({
   key: TemplateKeySchema,
   trigger: RuleTriggerSchema,
   condition: z.array(RuleConditionSchema).max(4).default([]),
   action: RuleActionSchema,
-  dueOffsetDays: z.number().int().min(0).max(3_650),
+  dueOffsetDays: DueOffsetDaysSchema,
   needs: z.enum(TEMPLATE_RULE_NEEDS),
+  variants: z.record(CountryKeySchema, RuleVariantSchema).optional(),
 });
 
 const AcceptanceCheckSchema = z.strictObject({
@@ -406,9 +420,18 @@ const PageTextSchema = z.strictObject({
   sections: z.array(z.string().trim().min(1).max(200)).min(1).max(TEMPLATE_LIMITS.pageSections),
 });
 
+const RuleTitleSchema = z.string().trim().min(1).max(TEMPLATE_LIMITS.ruleTitleLength);
+const RuleDescriptionSchema = z.string().trim().max(TEMPLATE_LIMITS.ruleDescriptionLength);
+
 const RuleTextSchema = z.strictObject({
-  title: z.string().trim().min(1).max(TEMPLATE_LIMITS.ruleTitleLength),
-  description: z.string().trim().max(TEMPLATE_LIMITS.ruleDescriptionLength).default(""),
+  title: RuleTitleSchema,
+  description: RuleDescriptionSchema.default(""),
+  variants: z
+    .record(
+      CountryKeySchema,
+      z.strictObject({ title: RuleTitleSchema, description: RuleDescriptionSchema.default("") }),
+    )
+    .optional(),
 });
 
 export const TemplateTextBodyShape = {

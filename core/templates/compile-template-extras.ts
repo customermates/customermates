@@ -2,6 +2,7 @@ import type { TemplateAcceptanceCheck, TemplateLocale, TemplateRule, TemplateSpe
 
 import { needText, planField, planFilters } from "./compile-template-support";
 import { camelFieldRef, camelKey } from "./template-keys";
+import { resolveTemplateRule, templateCountry, templateRuleText } from "./template-rule-variants";
 
 export type CompiledRule = {
   key: string;
@@ -105,9 +106,10 @@ function camelAction(action: TemplateRule["action"]): TemplateRule["action"] {
   }
 }
 
-function compileRules(spec: TemplateSpec, text: TemplateLocale): CompiledRule[] {
-  return spec.followUpRules.map((rule) => {
-    const copy = needText(text.rules, rule.key, "rules");
+function compileRules(spec: TemplateSpec, text: TemplateLocale, country: string): CompiledRule[] {
+  return spec.followUpRules.map((declared) => {
+    const rule = resolveTemplateRule(declared, country);
+    const copy = templateRuleText(needText(text.rules, declared.key, "rules"), declared, country);
     return {
       key: camelKey(rule.key),
       title: copy.title,
@@ -163,9 +165,13 @@ function compileAcceptanceChecks(spec: TemplateSpec, text: TemplateLocale): Comp
   }));
 }
 
-export function compileTemplateExtras(spec: TemplateSpec, text: TemplateLocale): TemplateExtras {
+export function compileTemplateExtras(
+  spec: TemplateSpec,
+  text: TemplateLocale,
+  options: { country?: string | null } = {},
+): TemplateExtras {
   return {
-    rules: compileRules(spec, text),
+    rules: compileRules(spec, text, templateCountry(text.locale, options.country)),
     savedViews: compileSavedViews(spec, text),
     postBuildFields: compilePostBuildFields(spec, text),
     acceptanceChecks: compileAcceptanceChecks(spec, text),

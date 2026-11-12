@@ -54,8 +54,11 @@ export class AgentTemplateRules {
 
     const spec = getTemplate(slug);
     const language = setup.answers.language?.value;
+    const country = setup.answers.country?.value;
     const text = getTemplateText(slug, appLocaleOrDefault(language?.format === "singleChoice" ? language.value : null));
-    const { extras } = compileTemplate(spec, text);
+    const { extras } = compileTemplate(spec, text, {
+      country: country?.format === "singleChoice" ? country.value : null,
+    });
     const model = await this.records.getModel();
     const inputs = templateRuleInputs(
       compileTemplateAutomation(spec, extras.rules),

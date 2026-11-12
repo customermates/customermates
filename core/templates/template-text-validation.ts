@@ -79,6 +79,9 @@ export function templateTextIssues(spec: TemplateSpec, text: TemplateLocale, loc
       spec.followUpRules.map((rule) => rule.key),
       text.rules,
     ),
+    ...spec.followUpRules.flatMap((rule) =>
+      sameKeys(`rules.${rule.key}.variants`, Object.keys(rule.variants ?? {}), text.rules[rule.key]?.variants ?? {}),
+    ),
     ...sameKeys(
       "acceptanceChecks",
       spec.acceptanceChecks.map((check) => check.key),

@@ -6,6 +6,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { AppLink } from "@/components/shared/app-link";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { Step, Steps } from "@/components/marketing/process-steps";
+import { resolveTemplateRule, templateCountry, templateRuleText } from "@/core/templates/template-rule-variants";
 import { formattingTagFor, marketingLocaleOrDefault } from "@/i18n/locale-registry";
 
 import { TemplateCopyPrompt } from "./template-copy-prompt";
@@ -124,6 +125,7 @@ export async function TemplateRoutineSection({
   text: TemplateLocale;
 }) {
   const t = await getTranslations("TemplatePages");
+  const country = templateCountry(text.locale);
 
   return (
     <MarketingSection
@@ -148,23 +150,27 @@ export async function TemplateRoutineSection({
           <h3 className="mk-eyebrow mb-4">{t("rulesTitle")}</h3>
 
           <ul className="grid grid-cols-1 gap-3 md:grid-cols-2" data-template-rules="">
-            {spec.followUpRules.map((rule) => (
-              <li key={rule.key} className="mk-card flex flex-col gap-2 p-5">
-                <p className="text-sm font-semibold">{text.rules[rule.key]?.title}</p>
+            {spec.followUpRules.map((declared) => {
+              const rule = resolveTemplateRule(declared, country);
+              const declaredCopy = text.rules[declared.key];
+              const copy = declaredCopy ? templateRuleText(declaredCopy, declared, country) : null;
 
-                {text.rules[rule.key]?.description ? (
-                  <p className="text-sm leading-6 text-subdued">{text.rules[rule.key]?.description}</p>
-                ) : null}
+              return (
+                <li key={rule.key} className="mk-card flex flex-col gap-2 p-5">
+                  <p className="text-sm font-semibold">{copy?.title}</p>
 
-                <p className="mt-auto flex flex-wrap gap-1.5 pt-2">
-                  <AppChip variant="secondary">{rule.needs === "today" ? t("ruleAgent") : t("ruleEngine")}</AppChip>
+                  {copy?.description ? <p className="text-sm leading-6 text-subdued">{copy.description}</p> : null}
 
-                  <AppChip variant="secondary">
-                    {rule.dueOffsetDays > 0 ? t("ruleDueAfter", { days: rule.dueOffsetDays }) : t("ruleDueSame")}
-                  </AppChip>
-                </p>
-              </li>
-            ))}
+                  <p className="mt-auto flex flex-wrap gap-1.5 pt-2">
+                    <AppChip variant="secondary">{rule.needs === "today" ? t("ruleAgent") : t("ruleEngine")}</AppChip>
+
+                    <AppChip variant="secondary">
+                      {rule.dueOffsetDays > 0 ? t("ruleDueAfter", { days: rule.dueOffsetDays }) : t("ruleDueSame")}
+                    </AppChip>
+                  </p>
+                </li>
+              );
+            })}
           </ul>
         </>
       ) : null}
