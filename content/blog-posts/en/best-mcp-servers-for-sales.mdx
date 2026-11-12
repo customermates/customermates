@@ -1,0 +1,199 @@
+---
+title: "Best MCP Servers for Sales: 8 Checked in 2026"
+description: "The best MCP servers for sales, ranked and checked on 12 November 2026: HubSpot, Pipedrive, Attio, Salesforce, Gmail, Outlook, n8n and Customermates."
+
+hero:
+  title: "Best MCP Servers for Sales and Client Work, Ranked and Checked"
+  description: "Eight MCP servers for sales and client work, ranked on four checks: who runs it, whether it is generally available, what it reaches and how a salesperson signs in. Each row is dated and sourced."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Back to Blog
+  by: by Benjamin Wagner
+  date: 2026-11-12
+  tags:
+    - Best MCP Servers
+    - MCP
+    - AI Agents
+    - Sales
+
+relatedHrefs:
+  - /blog/hubspot-mcp
+  - /blog/salesforce-mcp
+  - /blog/claude-crm
+  - /docs/mcp
+---
+
+# Best MCP Servers for Sales and Client Work, Checked 12 November 2026
+
+The best MCP servers for sales are the ones your CRM vendor runs itself: HubSpot's remote server, the hosted servers of Pipedrive and Attio and, for large organizations with administrators, Salesforce Hosted MCP Servers. Email is weaker. Google's Gmail server is a developer preview that drafts and labels but does not send, and Microsoft's Work IQ server needs a tenant administrator to switch it on. Below, eight servers are ranked for sales and client work, with the maintainer, hosting, sign-in and write scope of each.
+
+Disclosure: Customermates, an open-source CRM with its own MCP server, publishes this list and is one of the eight entries. Every row was checked on 12 November 2026 against the vendor's own documentation or official repository, linked in the table. We read those pages and did not run every server, so a row shows what the vendor documents, not a measurement.
+
+<ArticleSummary title="At a glance">
+  <SummaryItem label="CRM servers">
+    HubSpot, Pipedrive and Attio run their own remote servers with OAuth
+    sign-in, read and write access, and no record delete in their docs
+    (Attio deletes only tasks and comments).
+  </SummaryItem>
+  <SummaryItem label="Large organizations">
+    Salesforce Hosted MCP Servers are the most controllable, but an admin has
+    to enable them, create an External Client App and run Enterprise Edition or
+    above.
+  </SummaryItem>
+  <SummaryItem label="Email">
+    Gmail's server is a developer preview without a send tool. Microsoft's Work
+    IQ server can send, but a Global Administrator sets it up once.
+  </SummaryItem>
+  <SummaryItem label="Not on the list">
+    LinkedIn: we found no MCP server run by LinkedIn, and its help centre
+    forbids software that automates activity on its site.
+  </SummaryItem>
+</ArticleSummary>
+
+## How did we rank them? [#how-we-ranked]
+
+Four checks, each answered from the vendor's own pages:
+
+1. **Who runs it?** A server the vendor operates ranks above a community project.
+2. **Is it generally available?** A preview, a beta or an end-of-life notice ranks lower.
+3. **What does it reach?** Client records and activities count, and so do the conversations a sales week depends on.
+4. **How does a salesperson connect?** An OAuth sign-in counts; a cloud project, an admin ticket or an API key to guard does not.
+
+The fit test is a small client-facing team: a few seats, long email histories, nobody to administer a platform. A large Salesforce org with admins would put row 5 first among the CRM servers. This is an editorial ranking, not a benchmark: we compared documentation, not answer quality or speed. Servers for developers (code, databases, browsers) are out of scope; for the general idea, start with [what an MCP server is](/blog/what-is-an-mcp-server).
+
+## Which MCP servers are best for sales? [#ranking]
+
+| # | Server | Best for | Where it stops |
+| --- | --- | --- | --- |
+| 1 | HubSpot remote MCP server | Teams that run HubSpot and want records, activities and conversations in one server | No delete in the documented write access; activity data is blocked when Sensitive Data is on |
+| 2 | Pipedrive MCP | Pipeline-first sales teams on any Pipedrive plan | Delete is not documented; usage counts against plan token limits |
+| 3 | Attio MCP | A custom data model with lists, notes and tasks | Deletes only tasks and comments; one SQL tool is not on every plan |
+| 4 | Customermates MCP (publisher) | Small client-facing teams that want conversations beside the records, with an open-source core | Messaging tools need Pro in the cloud; no field-level permissions; no sequences, telephony or invoicing |
+| 5 | Salesforce Hosted MCP Servers | Organizations that already run Salesforce and have admins | Needs an admin, an External Client App and Enterprise Edition or above |
+| 6 | Microsoft Work IQ MCP | Outlook mail, calendar and Teams inside a Microsoft 365 tenant | A Global Administrator sets it up, plus a usage-based billing plan in Copilot Studio |
+| 7 | Gmail MCP server (Google) | Reading threads and drafting replies in Gmail | Developer preview; no send or delete tool listed; needs your own Google Cloud project |
+| 8 | n8n instance-level MCP server | Running fixed workflows you built, from an AI client | Not a data source: it reaches only the workflows you enable |
+
+Customermates ranks fourth, not first: HubSpot, Pipedrive and Attio pass the same four checks and have much larger user bases. It ranks above Salesforce only because of the small-team fit test. If you want more CRMs with a Claude connector, such as Close, Breakcold, folk and Zoho CRM, the [Claude CRM ranking](/blog/claude-crm) covers them.
+
+## What are the facts behind each row? [#facts]
+
+Checked on 12 November 2026. "Official" means the vendor itself runs or publishes the server.
+
+| Server | Maintainer | Hosting | Sign-in | Reads and writes | Source |
+| --- | --- | --- | --- | --- | --- |
+| HubSpot | HubSpot, official | Remote, `https://mcp.hubspot.com` | OAuth with PKCE, as the signed-in user | Reads CRM records, activities, conversations and marketing content; writes records, activities, landing pages, blog posts, campaigns, email drafts, pipelines and properties; delete is not documented | [Integration guide](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server), [GA changelog](https://developers.hubspot.com/changelog/remote-hubspot-mcp-server-is-now-generally-available) |
+| Pipedrive | Pipedrive, official | Remote, `https://mcp.pipedrive.ai/mcp` | OAuth, as your Pipedrive user | Reads deals, people, organizations, leads and pipeline data; creates and updates deals, contacts and activities, creates and converts leads; delete is not documented | [Feature page](https://www.pipedrive.com/en/features/mcp-server), [launch announcement](https://www.pipedrive.com/en/newsroom/pipedrive-launches-native-mcp-server-bringing-crm-workflows-directly-into-ai-assistants), [ChatGPT guide](https://support.pipedrive.com/en/article/mcp-chatgpt) |
+| Attio | Attio, official | Remote, `https://mcp.attio.com/mcp` | OAuth, no API key | Searches, reads, creates and updates records, lists, notes, tasks and comments; deletes only tasks and comments | [Attio MCP docs](https://docs.attio.com/mcp/overview) |
+| Customermates | Customermates, official (our own product) | Remote, in the cloud or on your own server | OAuth custom connector in Claude and ChatGPT; API key for CLI clients | [[derived.mcp.tools.total]] tools: reads, creates, updates and deletes records in the lists you set up, plus notes, files and the Knowledge Base; on Pro and above in the cloud also reads, drafts and sends messages | [MCP reference](/docs/mcp), [connector guide](/docs/connect-custom-connector) |
+| Salesforce | Salesforce, official | Remote, hosted by Salesforce | OAuth through an External Client App with the `mcp_api` and `refresh_token` scopes | `platform/sobject-reads` is read only; `platform/sobject-all` reads, writes and deletes; custom servers are possible | [Official repository](https://github.com/forcedotcom/mcp-hosted), [FAQ](https://github.com/forcedotcom/mcp-hosted/wiki/FAQ), [quick start](https://github.com/forcedotcom/mcp-hosted/wiki/Quick-Start-Guide) |
+| Microsoft Work IQ | Microsoft, official | Remote, one endpoint, governed per tenant | Microsoft Entra ID | Reads, creates, updates and deletes Microsoft 365 entities such as mail, calendar events and Teams chats; sends mail through an action | [Work IQ MCP overview](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/work-iq/mcp/overview), [tenant setup](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/work-iq/enable-work-iq) |
+| Gmail | Google, official | Remote, `https://gmailmcp.googleapis.com/mcp/v1` | OAuth 2.0 with an OAuth client from your own Google Cloud project | Searches and reads threads, lists labels and drafts, creates drafts, adds and removes labels; no send or delete tool is listed | [Configuration guide](https://developers.google.com/workspace/gmail/api/guides/configure-mcp-server), [MCP reference](https://developers.google.com/workspace/gmail/api/reference/mcp) |
+| n8n | n8n, official | Remote, on your own n8n instance (Cloud or self-hosted) | OAuth or a personal access token | Searches and runs the workflows you enable; from n8n 2.13.0 it also builds and edits workflows | [n8n documentation](https://docs.n8n.io/connect/connect-to-n8n-mcp-server/) |
+
+## What should you know before you connect each one? [#details]
+
+### HubSpot [#hubspot]
+
+HubSpot's server has been generally available to all HubSpot accounts since 13 April 2026. If your account has Sensitive Data turned on, activity objects (calls, emails, meetings, notes and tasks) are blocked through MCP. Every call runs with the signed-in user's permissions. HubSpot's search has no vector search, so the AI finds records by filters and properties, not by meaning, and some tools need paid hubs: quotes need Revenue Hub Professional or Enterprise. Routes, limits and a rollout checklist are in our [HubSpot MCP guide](/blog/hubspot-mcp).
+
+### Pipedrive [#pipedrive]
+
+Pipedrive announced its server on 30 June 2026 for customers on all plans. Sign-in is OAuth, and the assistant can only see and change what your Pipedrive user can; actions are recorded in Pipedrive's change log. Usage is limited by token allowances tied to your plan, and Pipedrive sells more tokens. For a manual connection in ChatGPT, Pipedrive's guide names a Pro, Business, Enterprise or Edu ChatGPT plan.
+
+### Attio [#attio]
+
+Attio hosts its server at `mcp.attio.com/mcp`; you sign in as yourself and need no API key. Its docs name Claude Desktop, Claude.ai, ChatGPT and Cursor, and say writes ask for confirmation. The docs list no tool that deletes records, lists or notes, and the `query-particle-sql` tool is not available on every billing plan.
+
+### Customermates [#customermates]
+
+The endpoint is part of every plan, including Free, which shares [[commercial.limit.free.apiRequestsPerMinute]] requests per minute and [[commercial.limit.free.apiRequestsPerDay]] per day per workspace, and it works on self-hosted installations too. Every call runs as the signed-in user with that user's role permissions. The server tells clients to confirm before deleting or sending, but that is guidance to the client: once an authorized client calls a tool, it runs, so set approvals in your client. Setup takes four steps, described in the [custom connector guide](/docs/connect-custom-connector).
+
+### Salesforce [#salesforce]
+
+An admin activates each server under Setup, API Catalog, MCP Servers; they are off by default. Only External Client Apps can authenticate, not legacy Connected Apps. The agent gets the signed-in user's permissions, field-level security included, and that user's name appears in the audit trail. Salesforce's developer pages could not be opened by our checker on 12 November, so the billing rules rest on our [Salesforce MCP guide](/blog/salesforce-mcp), last checked on 8 October 2026. Do not confuse the hosted servers with the Salesforce DX MCP server (`@salesforce/mcp`): that local developer tool reached end of life on 2 November 2026 and its repository is archived.
+
+### Microsoft Work IQ [#microsoft]
+
+Work IQ MCP exposes Microsoft 365 through a few generic tools that act on resource paths, so new workloads add paths, not tools. Microsoft's example for sending mail is `do_action /me/sendMail`. The overview marks only the `retrieve` tool as public preview. A Global Administrator creates the Work IQ service principal once, and Microsoft lists a usage-based billing plan in Copilot Studio as a prerequisite. Microsoft's older application-specific Mail server is a preview that its docs call backward compatibility only, and they point new projects to Work IQ.
+
+### Gmail [#gmail]
+
+Google's Gmail server is a Developer Preview in the Google Workspace Developer Preview Program. You enable the Gmail API and the Gmail MCP API in a Google Cloud project, create an OAuth client and consent screen with the `gmail.readonly` and `gmail.compose` scopes, and connect from a host such as Claude. Google's guide says Claude on the web or desktop needs a paid Claude plan. Because no tool sends, the AI prepares a draft and you send it from Gmail.
+
+### n8n [#n8n]
+
+n8n's server is a gateway to your automations, not to client data. The owner or an admin switches it on under Settings, Instance-level MCP, and access to each workflow is opt-in. Choose it when a fixed sequence (look up a customer, create a task) should run the same way every time. Our [n8n MCP guide](/blog/n8n-mcp) shows a tested example.
+
+## Why is LinkedIn not on the list? [#linkedin]
+
+On 12 November 2026 we found no MCP server run by LinkedIn. Community servers exist, and they differ in how they reach LinkedIn, so read what each one does before you connect an account: LinkedIn's help centre says it does not permit third-party software, including crawlers, bots and browser extensions, that scrapes or automates activity on its site, and that members risk restricted or shut-down accounts ([LinkedIn help](https://www.linkedin.com/help/linkedin/answer/a1341387), checked on 12 November 2026). If LinkedIn conversations are part of your sales week, the cleaner route is a CRM that connects LinkedIn as a messaging channel: on Customermates Cloud from Pro, the [unified inbox](/features/unified-inbox) holds those conversations on the client record, and the MCP messaging tools read and draft in them.
+
+## Which server fits which sales job? [#which-fits]
+
+| Your situation | Start with |
+| --- | --- |
+| You run HubSpot and want records, activities and inbox conversations | HubSpot's server, then the [HubSpot MCP guide](/blog/hubspot-mcp) |
+| You run Pipedrive | Pipedrive's server, with a plan whose token limit fits your use |
+| You want a custom data model with lists and reports | Attio |
+| You run Salesforce with admins and custom logic | Salesforce Hosted MCP Servers, starting with `platform/sobject-reads` in a sandbox |
+| You are choosing a first CRM and want the MCP server, the conversations and an open-source core in one product | Customermates |
+| You want the AI to read your mailbox and draft replies | Gmail's server if you accept a preview, Microsoft Work IQ if you run Microsoft 365 |
+| Your mailbox is IMAP, not Gmail or Microsoft 365 | Neither Google's nor Microsoft's server applies; Customermates connects Gmail, Outlook and IMAP mailboxes on Cloud from Pro |
+| You want fixed steps across several tools | n8n's server |
+
+Where Customermates is the wrong choice: if you already run HubSpot, Pipedrive, Attio or Salesforce, use that vendor's server and keep your data where it is. Customermates has no sequences or mass outreach, no telephony, no quotes or invoicing and no field-level permissions, its tool catalog is fixed (you extend it through REST and webhooks), and the messaging tools need Pro in the cloud. It fits a consultancy, an agency or a founder-led team choosing its first real CRM. To see whether follow-up works for you, [start your trial](/auth/signup?job=followup): [[commercial.trial.days]] days of Pro with no credit card.
+
+## How do you try an MCP server safely? [#try-safely]
+
+<Steps>
+  <Step title="Pick one job">
+    Choose a task you can verify, such as "list open deals with no activity in 14 days" or "draft a reply to the oldest unanswered thread".
+  </Step>
+  <Step title="Connect with the vendor's own sign-in">
+    Use OAuth as yourself, not a shared admin key, and a sandbox or test account first where the vendor offers one.
+  </Step>
+  <Step title="Allow reads, keep writes on Ask">
+    In your client, set read-only tools to always allow and every tool that creates, changes, deletes or sends to ask first.
+  </Step>
+  <Step title="Check one answer against the CRM">
+    Open the record the AI described and compare it. Widen access only after a few checks pass.
+  </Step>
+</Steps>
+
+An MCP server decides what the AI may reach; your client decides what it may do without asking. The [security checklist](/blog/what-is-an-mcp-server) lists what to review before you connect any server, and [MCP vs API](/blog/mcp-vs-api) shows when a plain REST call is the better tool.
+
+## Frequently asked questions [#faq]
+
+<Faq>
+<FaqItem question="What are the best MCP servers for sales?">
+For client records, HubSpot's remote server, Pipedrive's server and Attio's server rank first on our checks, because each is run by the vendor, usable with an OAuth sign-in and able to read and write. Salesforce Hosted MCP Servers fit organizations with admins, and Customermates fits small client-facing teams. For email, Google's Gmail server is a preview and Microsoft's Work IQ server needs a tenant administrator.
+</FaqItem>
+
+<FaqItem question="Is there an official LinkedIn MCP server?">
+We found none on 12 November 2026. Community servers exist, but LinkedIn's help centre says it does not permit third-party software that scrapes or automates activity on its site, so check what a server does before you connect your account.
+</FaqItem>
+
+<FaqItem question="Can an MCP server send emails for me?">
+It depends on the server. Google's Gmail server lists no send tool, only drafts and labels. Microsoft's Work IQ server can send mail through an action, and Customermates can send on Pro and above in the cloud. In every case your client decides whether a send needs your approval, so keep sending on Ask.
+</FaqItem>
+
+<FaqItem question="Are MCP servers free?">
+The servers themselves are not the main cost. HubSpot's is available to all accounts, Pipedrive's to every plan within plan token limits and Customermates' on every plan with Free-plan request limits. Salesforce's needs Enterprise Edition or above and usage billing, Microsoft's Work IQ needs a Copilot Studio billing plan, and your AI client has its own subscription.
+</FaqItem>
+
+<FaqItem question="Are community MCP servers safe for client data?">
+Not by default. A community server is software someone else maintains, and a local one runs on your machine with the credentials you give it. Prefer the vendor's own server, read a community server's code before you run it and give it the least access that does the job.
+</FaqItem>
+
+<FaqItem question="What happens to client data when an AI client reads it?">
+Whatever the client reads from a server is processed by that client's AI provider under the provider's terms, not under the CRM vendor's data processing terms. Before you connect client data, check the AI provider's terms and your own records of processing.
+</FaqItem>
+
+<FaqItem question="Do I need an MCP server at all?">
+Only if you want an AI client such as Claude or ChatGPT to work with your CRM or mailbox directly. For a fixed integration, a REST call or an n8n workflow is often simpler; [MCP vs API](/blog/mcp-vs-api) explains the difference.
+</FaqItem>
+</Faq>
+
+Sources, all checked on 12 November 2026: the [HubSpot remote MCP guide](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server) and [GA changelog](https://developers.hubspot.com/changelog/remote-hubspot-mcp-server-is-now-generally-available), [Pipedrive's MCP page](https://www.pipedrive.com/en/features/mcp-server), [launch announcement](https://www.pipedrive.com/en/newsroom/pipedrive-launches-native-mcp-server-bringing-crm-workflows-directly-into-ai-assistants), [Claude guide](https://support.pipedrive.com/en/article/mcp-claude) and [ChatGPT guide](https://support.pipedrive.com/en/article/mcp-chatgpt), [Attio's MCP docs](https://docs.attio.com/mcp/overview), the [Salesforce hosted MCP repository](https://github.com/forcedotcom/mcp-hosted) with its [FAQ](https://github.com/forcedotcom/mcp-hosted/wiki/FAQ) and [quick start](https://github.com/forcedotcom/mcp-hosted/wiki/Quick-Start-Guide), the [Salesforce DX MCP repository](https://github.com/salesforcecli/mcp), Microsoft's [Work IQ MCP overview](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/work-iq/mcp/overview), [tenant setup](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/work-iq/enable-work-iq) and [Mail server reference](https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-mail-tools), Google's [Gmail MCP configuration guide](https://developers.google.com/workspace/gmail/api/guides/configure-mcp-server) and [reference](https://developers.google.com/workspace/gmail/api/reference/mcp), the [n8n MCP documentation](https://docs.n8n.io/connect/connect-to-n8n-mcp-server/) and [LinkedIn's help article on third-party software](https://www.linkedin.com/help/linkedin/answer/a1341387). Customermates details come from our own [MCP reference](/docs/mcp).
