@@ -1,0 +1,115 @@
+{
+  "locale": "nl",
+  "name": "Actielijst",
+  "summary": "Elke actie met één eigenaar en een deadline, gekoppeld aan het overleg, het besluit of het project waaruit ze komt, met een wekelijkse controle en afsluiting met bewijs.",
+  "description": "Een actiepuntenlijst voor wat uit overleggen, projecten, audits en klantverzoeken volgt: zes statussen, een prioriteit, een eigenaar, een deadline, een opvolgdatum, een besluitenlijst en een effectiviteitscontrole na corrigerende acties. Herinneringen komen uit automatiseringsregels en meldingen.",
+  "lists": {
+    "people": { "label": "Persoon", "pluralLabel": "Personen", "description": "Teamleden, partners, klanten en leveranciers." },
+    "meetings": { "label": "Overleg", "pluralLabel": "Overleggen", "description": "Waar acties en besluiten vandaan komen." },
+    "decisions": { "label": "Besluit", "pluralLabel": "Besluiten", "description": "De besluitenlijst met een controledatum." },
+    "projects": { "label": "Project", "pluralLabel": "Projecten", "description": "Het project waartoe een actie behoort." },
+    "actions": { "label": "Actie", "pluralLabel": "Acties", "description": "Eén eigenaar en één deadline per actie." }
+  },
+  "fields": {
+    "actions.status": {
+      "label": "Status",
+      "options": { "open": "Open", "in_progress": "In uitvoering", "blocked": "Geblokkeerd", "in_review": "Ter beoordeling", "done": "Afgerond", "cancelled": "Geannuleerd" }
+    },
+    "projects.status": {
+      "label": "Status",
+      "options": { "planned": "Gepland", "active": "Actief", "on_hold": "On hold", "done": "Afgerond" }
+    },
+    "people.person_role": {
+      "label": "Rol",
+      "options": { "team_member": "Teamlid", "external": "Externe partner", "customer": "Klant", "supplier": "Leverancier", "other": "Overig" }
+    },
+    "people.team": { "label": "Team" },
+    "meetings.meeting_type": {
+      "label": "Soort overleg",
+      "options": { "team": "Teamoverleg", "project": "Projectoverleg", "steering": "Stuurgroep", "customer": "Klantgesprek", "audit": "Audit of review" }
+    },
+    "meetings.held_at": { "label": "Gehouden op" },
+    "meetings.agenda_url": { "label": "Link naar agenda" },
+    "meetings.minutes_url": { "label": "Link naar notulen" },
+    "meetings.minutes_sent_on": { "label": "Notulen verstuurd op" },
+    "meetings.next_meeting_on": { "label": "Volgend overleg op" },
+    "decisions.decision_text": { "label": "Besluit" },
+    "decisions.status": { "label": "Status", "options": { "valid": "Geldig", "superseded": "Vervangen", "revoked": "Ingetrokken" } },
+    "decisions.decided_on": { "label": "Besloten op" },
+    "decisions.review_on": { "label": "Controle op" },
+    "projects.owner": { "label": "Eigenaar" },
+    "projects.start_date": { "label": "Start" },
+    "projects.end_date": { "label": "Einde" },
+    "actions.priority": { "label": "Prioriteit", "options": { "high": "Hoog", "medium": "Gemiddeld", "low": "Laag" } },
+    "actions.kind": {
+      "label": "Soort",
+      "options": { "action": "Actie", "follow_up": "Opvolging", "review": "Controle", "corrective": "Corrigerende actie", "preventive": "Preventieve actie", "customer_request": "Klantverzoek" }
+    },
+    "actions.source": {
+      "label": "Bron",
+      "options": { "meeting": "Overleg", "email": "E-mail", "project_plan": "Projectplan", "audit": "Audit of inspectie", "complaint": "Klacht", "incident": "Incident" }
+    },
+    "actions.owner": { "label": "Eigenaar" },
+    "actions.due": { "label": "Deadline" },
+    "actions.follow_up_on": { "label": "Opvolgen op" },
+    "actions.done_on": { "label": "Afgerond op" },
+    "actions.blocker_note": { "label": "Wat blokkeert" },
+    "actions.proof_url": { "label": "Link naar bewijs" },
+    "actions.outcome": { "label": "Resultaat" },
+    "actions.days_late": { "label": "Dagen te laat" }
+  },
+  "relationships": {
+    "action_meeting": { "sourceLabel": "Overleg", "targetLabel": "Acties" },
+    "action_project": { "sourceLabel": "Project", "targetLabel": "Acties" },
+    "decision_meeting": { "sourceLabel": "Overleg", "targetLabel": "Besluiten" }
+  },
+  "views": {
+    "actions_all": { "name": "Alle acties" },
+    "actions_board": { "name": "Acties per status" },
+    "blocked_actions": { "name": "Geblokkeerd" },
+    "overdue_list": { "name": "Achterstallig" },
+    "meetings_all": { "name": "Alle overleggen" },
+    "decisions_all": { "name": "Besluitenlijst" }
+  },
+  "widgets": {
+    "actions_by_status": { "title": "Acties per status" },
+    "overdue_count": { "title": "Achterstallige acties" },
+    "blocked_count": { "title": "Geblokkeerde acties" },
+    "due_soon": { "title": "Binnenkort aan de beurt" },
+    "open_by_owner": { "title": "Open acties per eigenaar" },
+    "done_per_month": { "title": "Afgerond per maand" },
+    "actions_by_source": { "title": "Acties per bron" },
+    "average_days_late": { "title": "Gemiddeld aantal dagen te laat" },
+    "activity_timeline": { "title": "Recente activiteit" }
+  },
+  "knowledgePages": {
+    "how_we_write_an_action": { "title": "Hoe we een actie opschrijven", "sections": ["Eén werkwoord, één eigenaar, één datum", "Hoe een afgeronde actie eruitziet"] },
+    "weekly_action_review": { "title": "Wekelijkse actiecontrole van 15 minuten", "sections": ["Geblokkeerd, schuivend, zonder volgende stap", "Opnieuw dateren, delegeren of annuleren"] },
+    "closing_with_proof": { "title": "Een actie afsluiten met bewijs", "sections": ["Het bewijs koppelen", "Effectiviteitscontrole bij corrigerende acties"] }
+  },
+  "rules": {
+    "minutes_after_meeting": { "title": "Stuur na een overleg de notulen en de actielijst" },
+    "unblock_action": { "title": "Benoem wie een geblokkeerde actie kan losmaken" },
+    "due_reminder": { "title": "Herinner de eigenaar twee dagen voor de deadline" },
+    "overdue_notice": { "title": "Meld de eigenaar de dag nadat de deadline is verstreken" },
+    "follow_up_date": { "title": "Bekijk de actie opnieuw op de opvolgdatum" },
+    "effectiveness_check": { "title": "Controleer na 30 dagen de effectiviteit van een corrigerende of preventieve actie" },
+    "weekly_action_review": { "title": "Houd elke maandag de wekelijkse actiecontrole" },
+    "decision_review": { "title": "Beoordeel een besluit op de controledatum" },
+    "request_form_action": { "title": "Maak een actie aan uit een verzoek via een formulier" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Elke actie heeft een van de zes statussen.",
+    "due_field": "Elke actie heeft een eigenaar en een deadline.",
+    "overdue_widget": "Het dashboard toont hoeveel acties achterstallig zijn."
+  },
+  "prompt": {
+    "intro": "Richt een actielijst in mijn Customermates-werkruimte in: acties met zes statussen, een prioriteit, een eigenaar, een deadline en een opvolgdatum, gekoppeld aan overleggen, besluiten en projecten, plus een wekelijkse controle.",
+    "questions": [
+      "Waar komen je acties vandaan: overleggen, projecten, audits, klanten?",
+      "Wie is eigenaar van acties en wie beslist wanneer er een wordt verzet of geannuleerd?",
+      "Heb je corrigerende en preventieve acties met effectiviteitscontrole nodig, zoals in ISO 9001?",
+      "Bewaar je notulen elders? Hier wordt alleen een link bewaard."
+    ]
+  }
+}

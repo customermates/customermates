@@ -1,0 +1,216 @@
+{
+  "id": "tpl_action_item_tracker",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "action-item-tracker",
+  "family": "operations",
+  "kind": "tracker",
+  "jurisdictions": ["global"],
+  "dashboardAudience": "team",
+  "modules": [],
+  "requiresCapabilities": ["forms", "rules", "notifications"],
+  "pairedPages": {
+    "en": "/features/task-management",
+    "de": "/features/task-management",
+    "fr": "/features/task-management",
+    "it": "/features/task-management",
+    "es": "/features/task-management",
+    "pt": "/features/task-management",
+    "pl": "/features/task-management",
+    "nl": "/features/task-management"
+  },
+  "lists": [
+    { "key": "people", "role": "people", "icon": "contact" },
+    { "key": "meetings", "icon": "calendarCheck" },
+    { "key": "decisions", "icon": "gavel" },
+    { "key": "projects", "icon": "kanban" },
+    { "key": "actions", "role": "tasks", "icon": "check" }
+  ],
+  "stages": [
+    {
+      "field": "actions.status",
+      "items": [
+        { "key": "open", "outcome": "open", "weight": 0 },
+        { "key": "in_progress", "outcome": "open", "weight": 0 },
+        { "key": "blocked", "outcome": "open", "weight": 0 },
+        { "key": "in_review", "outcome": "open", "weight": 0 },
+        { "key": "done", "outcome": "won", "weight": 100 },
+        { "key": "cancelled", "outcome": "lost", "weight": 0 }
+      ]
+    },
+    {
+      "field": "projects.status",
+      "items": [
+        { "key": "planned", "outcome": "open", "weight": 0 },
+        { "key": "active", "outcome": "open", "weight": 0 },
+        { "key": "on_hold", "outcome": "open", "weight": 0 },
+        { "key": "done", "outcome": "won", "weight": 100 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "people.person_role", "type": "select", "options": [{ "key": "team_member" }, { "key": "external" }, { "key": "customer" }, { "key": "supplier" }, { "key": "other" }] },
+    { "key": "people.team", "type": "text" },
+    { "key": "meetings.meeting_type", "type": "select", "options": [{ "key": "team" }, { "key": "project" }, { "key": "steering" }, { "key": "customer" }, { "key": "audit" }] },
+    { "key": "meetings.held_at", "type": "dateTime" },
+    { "key": "meetings.agenda_url", "type": "url" },
+    { "key": "meetings.minutes_url", "type": "url" },
+    { "key": "meetings.minutes_sent_on", "type": "date" },
+    { "key": "meetings.next_meeting_on", "type": "date" },
+    { "key": "decisions.decision_text", "type": "richText" },
+    { "key": "decisions.status", "type": "select", "options": [{ "key": "valid", "color": "success" }, { "key": "superseded", "color": "secondary" }, { "key": "revoked", "color": "destructive" }] },
+    { "key": "decisions.decided_on", "type": "date" },
+    { "key": "decisions.review_on", "type": "date" },
+    { "key": "projects.owner", "type": "member" },
+    { "key": "projects.start_date", "type": "date" },
+    { "key": "projects.end_date", "type": "date" },
+    { "key": "actions.priority", "type": "select", "options": [{ "key": "high", "color": "destructive" }, { "key": "medium", "color": "warning" }, { "key": "low", "color": "secondary" }] },
+    { "key": "actions.kind", "type": "select", "options": [{ "key": "action" }, { "key": "follow_up" }, { "key": "review" }, { "key": "corrective" }, { "key": "preventive" }, { "key": "customer_request" }] },
+    { "key": "actions.source", "type": "select", "options": [{ "key": "meeting" }, { "key": "email" }, { "key": "project_plan" }, { "key": "audit" }, { "key": "complaint" }, { "key": "incident" }] },
+    { "key": "actions.owner", "type": "member" },
+    { "key": "actions.due", "type": "date" },
+    { "key": "actions.follow_up_on", "type": "date" },
+    { "key": "actions.done_on", "type": "date" },
+    { "key": "actions.blocker_note", "type": "text" },
+    { "key": "actions.proof_url", "type": "url" },
+    { "key": "actions.outcome", "type": "richText" }
+  ],
+  "calculations": [
+    { "key": "actions.days_late", "type": "number", "expression": { "op": "daysBetween", "from": "actions.due", "to": "actions.done_on" } }
+  ],
+  "relationships": [
+    { "key": "action_meeting", "source": "actions", "target": "meetings", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_project", "source": "actions", "target": "projects", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "decision_meeting", "source": "decisions", "target": "meetings", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    {
+      "key": "actions_all",
+      "list": "actions",
+      "default": true,
+      "layout": "table",
+      "sort": { "field": "actions.due", "direction": "asc" },
+      "columns": ["actions.status", "actions.priority", "actions.owner", "actions.due", "actions.source"]
+    },
+    { "key": "actions_board", "list": "actions", "default": false, "layout": "board", "groupBy": "actions.status" },
+    {
+      "key": "blocked_actions",
+      "list": "actions",
+      "default": false,
+      "layout": "table",
+      "filters": [{ "operator": "in", "field": "actions.status", "options": ["blocked"] }]
+    },
+    {
+      "key": "overdue_list",
+      "list": "actions",
+      "default": false,
+      "layout": "table",
+      "sort": { "field": "actions.due", "direction": "asc" },
+      "filters": [
+        { "operator": "notIn", "field": "actions.status", "options": ["done", "cancelled"] },
+        { "operator": "inLastDays", "field": "actions.due", "days": 3650 }
+      ]
+    },
+    { "key": "meetings_all", "list": "meetings", "default": true, "layout": "table", "sort": { "field": "meetings.held_at", "direction": "desc" }, "columns": ["meetings.meeting_type", "meetings.held_at", "meetings.minutes_sent_on"] },
+    { "key": "decisions_all", "list": "decisions", "default": true, "layout": "table", "sort": { "field": "decisions.decided_on", "direction": "desc" }, "columns": ["decisions.status", "decisions.decided_on", "decisions.review_on"] }
+  ],
+  "widgets": [
+    { "kind": "chart", "key": "actions_by_status", "list": "actions", "aggregation": "count", "groupBy": { "field": "actions.status" }, "display": "doughnutChart" },
+    {
+      "kind": "chart",
+      "key": "overdue_count",
+      "list": "actions",
+      "aggregation": "count",
+      "filters": [
+        { "operator": "notIn", "field": "actions.status", "options": ["done", "cancelled"] },
+        { "operator": "inLastDays", "field": "actions.due", "days": 3650 }
+      ],
+      "display": "number"
+    },
+    { "kind": "chart", "key": "blocked_count", "list": "actions", "aggregation": "count", "filters": [{ "operator": "in", "field": "actions.status", "options": ["blocked"] }], "display": "number" },
+    {
+      "kind": "calendar",
+      "key": "due_soon",
+      "list": "actions",
+      "layout": "upcoming",
+      "dateField": "actions.due",
+      "filters": [{ "operator": "notIn", "field": "actions.status", "options": ["done", "cancelled"] }]
+    },
+    {
+      "kind": "chart",
+      "key": "open_by_owner",
+      "list": "actions",
+      "aggregation": "count",
+      "groupBy": { "field": "actions.owner" },
+      "filters": [{ "operator": "notIn", "field": "actions.status", "options": ["done", "cancelled"] }],
+      "display": "rankedTable"
+    },
+    { "kind": "chart", "key": "done_per_month", "list": "actions", "aggregation": "count", "groupBy": { "field": "actions.done_on", "dateInterval": "month" }, "display": "areaChart" },
+    { "kind": "chart", "key": "actions_by_source", "list": "actions", "aggregation": "count", "groupBy": { "field": "actions.source" }, "display": "horizontalBarChart" },
+    { "kind": "chart", "key": "average_days_late", "list": "actions", "aggregation": "average", "valueField": "actions.days_late", "display": "number" },
+    { "kind": "activity", "key": "activity_timeline" }
+  ],
+  "knowledgePages": [
+    { "key": "how_we_write_an_action", "kind": "overview" },
+    { "key": "weekly_action_review", "kind": "processes" },
+    { "key": "closing_with_proof", "kind": "processes" }
+  ],
+  "followUpRules": [
+    {
+      "key": "minutes_after_meeting",
+      "trigger": { "kind": "date_reached", "field": "meetings.held_at", "offsetDays": 0 },
+      "condition": [{ "operator": "empty", "field": "meetings.minutes_sent_on" }],
+      "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "workspace_owner", "about": "meetings" },
+      "dueOffsetDays": 1,
+      "needs": "rules"
+    },
+    { "key": "unblock_action", "trigger": { "kind": "field_changed", "field": "actions.status", "to": "blocked" }, "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "actions" }, "dueOffsetDays": 2, "needs": "today" },
+    {
+      "key": "due_reminder",
+      "trigger": { "kind": "date_reached", "field": "actions.due", "offsetDays": -2 },
+      "condition": [{ "operator": "notIn", "field": "actions.status", "options": ["done", "cancelled"] }],
+      "action": { "kind": "notify", "recipient": "record_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    {
+      "key": "overdue_notice",
+      "trigger": { "kind": "date_reached", "field": "actions.due", "offsetDays": 1 },
+      "condition": [{ "operator": "notIn", "field": "actions.status", "options": ["done", "cancelled"] }],
+      "action": { "kind": "notify", "recipient": "record_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    { "key": "follow_up_date", "trigger": { "kind": "date_reached", "field": "actions.follow_up_on", "offsetDays": 0 }, "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "actions" }, "dueOffsetDays": 0, "needs": "rules" },
+    {
+      "key": "effectiveness_check",
+      "trigger": { "kind": "field_changed", "field": "actions.status", "to": "done" },
+      "condition": [{ "operator": "in", "field": "actions.kind", "options": ["corrective", "preventive"] }],
+      "action": { "kind": "create_task", "taskKind": "review", "assignee": "record_owner", "about": "actions" },
+      "dueOffsetDays": 30,
+      "needs": "today"
+    },
+    { "key": "weekly_action_review", "trigger": { "kind": "schedule", "every": "week", "weekday": 1 }, "action": { "kind": "create_task", "taskKind": "review", "assignee": "workspace_owner" }, "dueOffsetDays": 0, "needs": "today" },
+    { "key": "decision_review", "trigger": { "kind": "date_reached", "field": "decisions.review_on", "offsetDays": 0 }, "action": { "kind": "create_task", "taskKind": "review", "assignee": "workspace_owner", "about": "decisions" }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "request_form_action", "trigger": { "kind": "form_submitted", "form": "request" }, "action": { "kind": "create_records", "lists": ["actions"] }, "dueOffsetDays": 2, "needs": "forms" }
+  ],
+  "acceptanceChecks": [
+    { "key": "status_field", "kind": "field_exists", "ref": "actions.status" },
+    { "key": "due_field", "kind": "field_exists", "ref": "actions.due" },
+    { "key": "overdue_widget", "kind": "widget_exists", "ref": "overdue_count" }
+  ],
+  "sources": [
+    { "url": "https://www.projectmanager.com/blog/guide-to-action-items", "checkedOn": "2026-11-12" },
+    { "url": "https://www.read.ai/articles/action-item-tracking-best-practices-tools", "checkedOn": "2026-11-12" },
+    { "url": "https://www.smartsheet.com/content/action-items-templates", "checkedOn": "2026-11-12" },
+    { "url": "https://asana.com/templates/action-log", "checkedOn": "2026-11-12" },
+    { "url": "https://www.whk-controlling.de/wissen/massnahmenplan-vorlage", "checkedOn": "2026-11-12" },
+    { "url": "https://ecommercenapratica.com/blog/planilha-5w2h/", "checkedOn": "2026-11-12" },
+    { "url": "https://gotranscript.com/fr/blog/rolling-action-log-reunions-recurrentes-carryover-modele", "checkedOn": "2026-11-12" },
+    { "url": "https://www.vertex42.com/ExcelTemplates/action-items-template.html", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "own", "de": "own", "fr": "own", "it": "none", "es": "none", "pt": "own", "pl": "none", "nl": "own" },
+  "publishWave": { "en": "hold", "de": "wave2", "fr": "wave2", "pt": "wave1", "nl": "wave1" }
+}

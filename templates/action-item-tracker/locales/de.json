@@ -1,0 +1,115 @@
+{
+  "locale": "de",
+  "name": "Maßnahmenplan",
+  "summary": "Jede Maßnahme mit einem Verantwortlichen und einer Frist, verknüpft mit Besprechung, Beschluss oder Projekt, mit wöchentlicher Durchsicht und Abschluss mit Nachweis.",
+  "description": "Eine Maßnahmenliste für alles, was aus Besprechungen, Projekten, Audits und Kundenanfragen folgt: sechs Status, Priorität, Verantwortlicher, Frist, Wiedervorlage, ein Beschlussprotokoll und eine Wirksamkeitsprüfung nach Korrekturmaßnahmen. Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen.",
+  "lists": {
+    "people": { "label": "Person", "pluralLabel": "Personen", "description": "Teammitglieder, Partner, Kunden und Lieferanten." },
+    "meetings": { "label": "Besprechung", "pluralLabel": "Besprechungen", "description": "Woher Maßnahmen und Beschlüsse kommen." },
+    "decisions": { "label": "Beschluss", "pluralLabel": "Beschlüsse", "description": "Das Beschlussprotokoll mit Prüfdatum." },
+    "projects": { "label": "Projekt", "pluralLabel": "Projekte", "description": "Das Projekt, zu dem eine Maßnahme gehört." },
+    "actions": { "label": "Maßnahme", "pluralLabel": "Maßnahmen", "description": "Ein Verantwortlicher und eine Frist je Maßnahme." }
+  },
+  "fields": {
+    "actions.status": {
+      "label": "Status",
+      "options": { "open": "Offen", "in_progress": "In Bearbeitung", "blocked": "Blockiert", "in_review": "In Prüfung", "done": "Erledigt", "cancelled": "Abgebrochen" }
+    },
+    "projects.status": {
+      "label": "Status",
+      "options": { "planned": "Geplant", "active": "Aktiv", "on_hold": "Pausiert", "done": "Abgeschlossen" }
+    },
+    "people.person_role": {
+      "label": "Rolle",
+      "options": { "team_member": "Teammitglied", "external": "Externer Partner", "customer": "Kunde", "supplier": "Lieferant", "other": "Sonstige" }
+    },
+    "people.team": { "label": "Team" },
+    "meetings.meeting_type": {
+      "label": "Art der Besprechung",
+      "options": { "team": "Teambesprechung", "project": "Projektbesprechung", "steering": "Lenkungskreis", "customer": "Kundentermin", "audit": "Audit oder Review" }
+    },
+    "meetings.held_at": { "label": "Stattgefunden am" },
+    "meetings.agenda_url": { "label": "Link zur Tagesordnung" },
+    "meetings.minutes_url": { "label": "Link zum Protokoll" },
+    "meetings.minutes_sent_on": { "label": "Protokoll versendet am" },
+    "meetings.next_meeting_on": { "label": "Nächste Besprechung am" },
+    "decisions.decision_text": { "label": "Beschluss" },
+    "decisions.status": { "label": "Status", "options": { "valid": "Gültig", "superseded": "Ersetzt", "revoked": "Aufgehoben" } },
+    "decisions.decided_on": { "label": "Beschlossen am" },
+    "decisions.review_on": { "label": "Prüfung am" },
+    "projects.owner": { "label": "Verantwortlich" },
+    "projects.start_date": { "label": "Start" },
+    "projects.end_date": { "label": "Ende" },
+    "actions.priority": { "label": "Priorität", "options": { "high": "Hoch", "medium": "Mittel", "low": "Niedrig" } },
+    "actions.kind": {
+      "label": "Art",
+      "options": { "action": "Maßnahme", "follow_up": "Nachverfolgung", "review": "Prüfung", "corrective": "Korrekturmaßnahme", "preventive": "Vorbeugungsmaßnahme", "customer_request": "Kundenanfrage" }
+    },
+    "actions.source": {
+      "label": "Quelle",
+      "options": { "meeting": "Besprechung", "email": "E-Mail", "project_plan": "Projektplan", "audit": "Audit oder Prüfung", "complaint": "Reklamation", "incident": "Vorfall" }
+    },
+    "actions.owner": { "label": "Verantwortlicher" },
+    "actions.due": { "label": "Deadline" },
+    "actions.follow_up_on": { "label": "Wiedervorlage am" },
+    "actions.done_on": { "label": "Erledigt am" },
+    "actions.blocker_note": { "label": "Was blockiert" },
+    "actions.proof_url": { "label": "Link zum Nachweis" },
+    "actions.outcome": { "label": "Ergebnis" },
+    "actions.days_late": { "label": "Tage verspätet" }
+  },
+  "relationships": {
+    "action_meeting": { "sourceLabel": "Besprechung", "targetLabel": "Maßnahmen" },
+    "action_project": { "sourceLabel": "Projekt", "targetLabel": "Maßnahmen" },
+    "decision_meeting": { "sourceLabel": "Besprechung", "targetLabel": "Beschlüsse" }
+  },
+  "views": {
+    "actions_all": { "name": "Alle Maßnahmen" },
+    "actions_board": { "name": "Maßnahmen nach Status" },
+    "blocked_actions": { "name": "Blockiert" },
+    "overdue_list": { "name": "Überfällig" },
+    "meetings_all": { "name": "Alle Besprechungen" },
+    "decisions_all": { "name": "Beschlussprotokoll" }
+  },
+  "widgets": {
+    "actions_by_status": { "title": "Maßnahmen nach Status" },
+    "overdue_count": { "title": "Überfällige Maßnahmen" },
+    "blocked_count": { "title": "Blockierte Maßnahmen" },
+    "due_soon": { "title": "Bald fällig" },
+    "open_by_owner": { "title": "Offene Maßnahmen je Verantwortlichem" },
+    "done_per_month": { "title": "Erledigt pro Monat" },
+    "actions_by_source": { "title": "Maßnahmen nach Quelle" },
+    "average_days_late": { "title": "Durchschnittliche Verspätung in Tagen" },
+    "activity_timeline": { "title": "Letzte Aktivität" }
+  },
+  "knowledgePages": {
+    "how_we_write_an_action": { "title": "So formulieren wir eine Maßnahme", "sections": ["Ein Verb, ein Verantwortlicher, ein Datum", "Woran man erkennt, dass sie erledigt ist"] },
+    "weekly_action_review": { "title": "Wöchentliche Maßnahmen-Durchsicht in 15 Minuten", "sections": ["Blockiert, verzögert, ohne nächsten Schritt", "Neu terminieren, delegieren oder abbrechen"] },
+    "closing_with_proof": { "title": "Maßnahme mit Nachweis abschließen", "sections": ["Den Nachweis verlinken", "Wirksamkeitsprüfung bei Korrekturmaßnahmen"] }
+  },
+  "rules": {
+    "minutes_after_meeting": { "title": "Nach einer Besprechung Protokoll und Maßnahmenliste versenden" },
+    "unblock_action": { "title": "Benennen, wer eine blockierte Maßnahme lösen kann" },
+    "due_reminder": { "title": "Den Verantwortlichen zwei Tage vor der Deadline erinnern" },
+    "overdue_notice": { "title": "Den Verantwortlichen am Tag nach Überschreiten der Deadline informieren" },
+    "follow_up_date": { "title": "Die Maßnahme am Tag der Wiedervorlage erneut ansehen" },
+    "effectiveness_check": { "title": "Wirksamkeit einer Korrektur- oder Vorbeugungsmaßnahme nach 30 Tagen prüfen" },
+    "weekly_action_review": { "title": "Jeden Montag die Maßnahmen-Durchsicht durchführen" },
+    "decision_review": { "title": "Einen Beschluss zum Prüfdatum überprüfen" },
+    "request_form_action": { "title": "Aus einer über ein Formular gesendeten Anfrage eine Maßnahme anlegen" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Jede Maßnahme hat einen von sechs Status.",
+    "due_field": "Jede Maßnahme hat einen Verantwortlichen und eine Deadline.",
+    "overdue_widget": "Das Dashboard zeigt, wie viele Maßnahmen überfällig sind."
+  },
+  "prompt": {
+    "intro": "Richte einen Maßnahmenplan in meinem Customermates-Workspace ein: Maßnahmen mit sechs Status, Priorität, Verantwortlichem, Frist und Wiedervorlage, verknüpft mit Besprechungen, Beschlüssen und Projekten, dazu eine wöchentliche Durchsicht.",
+    "questions": [
+      "Woher kommen Ihre Maßnahmen: Besprechungen, Projekte, Audits, Kunden?",
+      "Wer verantwortet Maßnahmen, und wer entscheidet, wenn eine neu terminiert oder abgebrochen wird?",
+      "Brauchen Sie Korrektur- und Vorbeugungsmaßnahmen mit Wirksamkeitsprüfung, etwa nach ISO 9001?",
+      "Führen Sie Protokolle anderswo? Hier wird nur ein Link dazu gespeichert."
+    ]
+  }
+}

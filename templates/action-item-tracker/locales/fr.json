@@ -1,0 +1,115 @@
+{
+  "locale": "fr",
+  "name": "Plan d’action",
+  "summary": "Chaque action avec un pilote et une échéance, liée à la réunion, à la décision ou au projet dont elle vient, avec une revue hebdomadaire et une clôture avec preuve.",
+  "description": "Un tableau de suivi des actions issues des réunions, des projets, des audits et des demandes clients : six statuts, une priorité, un pilote, une échéance, une date de relance, un relevé de décisions et une vérification d’efficacité après les actions correctives. Les rappels viennent des règles d’automatisation et des notifications.",
+  "lists": {
+    "people": { "label": "Personne", "pluralLabel": "Personnes", "description": "Équipe, partenaires, clients et fournisseurs." },
+    "meetings": { "label": "Réunion", "pluralLabel": "Réunions", "description": "D’où viennent les actions et les décisions." },
+    "decisions": { "label": "Décision", "pluralLabel": "Décisions", "description": "Le relevé de décisions avec une date de revue." },
+    "projects": { "label": "Projet", "pluralLabel": "Projets", "description": "Le projet auquel une action se rattache." },
+    "actions": { "label": "Action", "pluralLabel": "Actions", "description": "Un pilote et une échéance par action." }
+  },
+  "fields": {
+    "actions.status": {
+      "label": "Statut",
+      "options": { "open": "À faire", "in_progress": "En cours", "blocked": "Bloquée", "in_review": "En revue", "done": "Faite", "cancelled": "Annulée" }
+    },
+    "projects.status": {
+      "label": "Statut",
+      "options": { "planned": "Prévu", "active": "Actif", "on_hold": "En pause", "done": "Terminé" }
+    },
+    "people.person_role": {
+      "label": "Rôle",
+      "options": { "team_member": "Membre de l’équipe", "external": "Partenaire externe", "customer": "Client", "supplier": "Fournisseur", "other": "Autre" }
+    },
+    "people.team": { "label": "Équipe" },
+    "meetings.meeting_type": {
+      "label": "Type de réunion",
+      "options": { "team": "Réunion d’équipe", "project": "Réunion de projet", "steering": "Comité de pilotage", "customer": "Réunion client", "audit": "Audit ou revue" }
+    },
+    "meetings.held_at": { "label": "Tenue le" },
+    "meetings.agenda_url": { "label": "Lien de l’ordre du jour" },
+    "meetings.minutes_url": { "label": "Lien du compte rendu" },
+    "meetings.minutes_sent_on": { "label": "Compte rendu envoyé le" },
+    "meetings.next_meeting_on": { "label": "Prochaine réunion le" },
+    "decisions.decision_text": { "label": "Décision" },
+    "decisions.status": { "label": "Statut", "options": { "valid": "En vigueur", "superseded": "Remplacée", "revoked": "Annulée" } },
+    "decisions.decided_on": { "label": "Décidée le" },
+    "decisions.review_on": { "label": "Revue le" },
+    "projects.owner": { "label": "Responsable" },
+    "projects.start_date": { "label": "Début" },
+    "projects.end_date": { "label": "Fin" },
+    "actions.priority": { "label": "Priorité", "options": { "high": "Haute", "medium": "Moyenne", "low": "Basse" } },
+    "actions.kind": {
+      "label": "Type",
+      "options": { "action": "Action", "follow_up": "Relance", "review": "Revue", "corrective": "Action corrective", "preventive": "Action préventive", "customer_request": "Demande client" }
+    },
+    "actions.source": {
+      "label": "Origine",
+      "options": { "meeting": "Réunion", "email": "E-mail", "project_plan": "Plan de projet", "audit": "Audit ou contrôle", "complaint": "Réclamation", "incident": "Incident" }
+    },
+    "actions.owner": { "label": "Pilote" },
+    "actions.due": { "label": "Échéance" },
+    "actions.follow_up_on": { "label": "Relance le" },
+    "actions.done_on": { "label": "Faite le" },
+    "actions.blocker_note": { "label": "Ce qui bloque" },
+    "actions.proof_url": { "label": "Lien de la preuve" },
+    "actions.outcome": { "label": "Résultat" },
+    "actions.days_late": { "label": "Jours de retard" }
+  },
+  "relationships": {
+    "action_meeting": { "sourceLabel": "Réunion", "targetLabel": "Actions" },
+    "action_project": { "sourceLabel": "Projet", "targetLabel": "Actions" },
+    "decision_meeting": { "sourceLabel": "Réunion", "targetLabel": "Décisions" }
+  },
+  "views": {
+    "actions_all": { "name": "Toutes les actions" },
+    "actions_board": { "name": "Actions par statut" },
+    "blocked_actions": { "name": "Bloquées" },
+    "overdue_list": { "name": "En retard" },
+    "meetings_all": { "name": "Toutes les réunions" },
+    "decisions_all": { "name": "Relevé de décisions" }
+  },
+  "widgets": {
+    "actions_by_status": { "title": "Actions par statut" },
+    "overdue_count": { "title": "Actions en retard" },
+    "blocked_count": { "title": "Actions bloquées" },
+    "due_soon": { "title": "Bientôt à échéance" },
+    "open_by_owner": { "title": "Actions ouvertes par pilote" },
+    "done_per_month": { "title": "Faites par mois" },
+    "actions_by_source": { "title": "Actions par origine" },
+    "average_days_late": { "title": "Retard moyen en jours" },
+    "activity_timeline": { "title": "Activité récente" }
+  },
+  "knowledgePages": {
+    "how_we_write_an_action": { "title": "Comment nous rédigeons une action", "sections": ["Un verbe, un pilote, une date", "À quoi ressemble « fait »"] },
+    "weekly_action_review": { "title": "Revue hebdomadaire des actions en 15 minutes", "sections": ["Bloquées, qui glissent, sans prochaine étape", "Redater, déléguer ou annuler"] },
+    "closing_with_proof": { "title": "Clore une action avec une preuve", "sections": ["Lier la preuve", "Vérification d’efficacité des actions correctives"] }
+  },
+  "rules": {
+    "minutes_after_meeting": { "title": "Envoyer le compte rendu et la liste d’actions après une réunion" },
+    "unblock_action": { "title": "Nommer qui peut débloquer une action qui passe à bloquée" },
+    "due_reminder": { "title": "Rappeler au pilote deux jours avant l’échéance" },
+    "overdue_notice": { "title": "Prévenir le pilote le lendemain du dépassement de l’échéance" },
+    "follow_up_date": { "title": "Reprendre l’action à sa date de relance" },
+    "effectiveness_check": { "title": "Vérifier l’efficacité d’une action corrective ou préventive après 30 jours" },
+    "weekly_action_review": { "title": "Mener la revue hebdomadaire des actions chaque lundi" },
+    "decision_review": { "title": "Revoir une décision à sa date de revue" },
+    "request_form_action": { "title": "Créer une action à partir d’une demande envoyée par formulaire" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Chaque action a l’un des six statuts.",
+    "due_field": "Chaque action a un pilote et une échéance.",
+    "overdue_widget": "Le tableau de bord montre combien d’actions sont en retard."
+  },
+  "prompt": {
+    "intro": "Mets en place un plan d’action dans mon espace Customermates : des actions avec six statuts, une priorité, un pilote, une échéance et une date de relance, liées aux réunions, aux décisions et aux projets, plus une revue hebdomadaire.",
+    "questions": [
+      "D’où viennent vos actions : réunions, projets, audits, clients ?",
+      "Qui pilote les actions, et qui décide quand l’une est redatée ou annulée ?",
+      "Avez-vous besoin d’actions correctives et préventives avec vérification d’efficacité, comme en ISO 9001 ?",
+      "Gardez-vous les comptes rendus ailleurs ? Seul un lien y est conservé ici."
+    ]
+  }
+}

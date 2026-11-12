@@ -1,0 +1,115 @@
+{
+  "locale": "en",
+  "name": "Action item tracker",
+  "summary": "Every action with one owner and a due date, linked to the meeting, decision or project it came from, with a weekly review and a way to close it with proof.",
+  "description": "A tracker for the actions that come out of meetings, projects, audits and customer requests: six statuses, a priority, an owner, a due date, a follow-up date, a decision log and a check after corrective actions. Reminders come from automation rules and notifications.",
+  "lists": {
+    "people": { "label": "Person", "pluralLabel": "People", "description": "Team members, partners, customers and suppliers." },
+    "meetings": { "label": "Meeting", "pluralLabel": "Meetings", "description": "Where actions and decisions come from." },
+    "decisions": { "label": "Decision", "pluralLabel": "Decisions", "description": "The decision log with a review date." },
+    "projects": { "label": "Project", "pluralLabel": "Projects", "description": "The project an action belongs to." },
+    "actions": { "label": "Action", "pluralLabel": "Actions", "description": "One owner and one due date per action." }
+  },
+  "fields": {
+    "actions.status": {
+      "label": "Status",
+      "options": { "open": "Open", "in_progress": "In progress", "blocked": "Blocked", "in_review": "In review", "done": "Done", "cancelled": "Cancelled" }
+    },
+    "projects.status": {
+      "label": "Status",
+      "options": { "planned": "Planned", "active": "Active", "on_hold": "On hold", "done": "Done" }
+    },
+    "people.person_role": {
+      "label": "Role",
+      "options": { "team_member": "Team member", "external": "External partner", "customer": "Customer", "supplier": "Supplier", "other": "Other" }
+    },
+    "people.team": { "label": "Team" },
+    "meetings.meeting_type": {
+      "label": "Meeting type",
+      "options": { "team": "Team meeting", "project": "Project meeting", "steering": "Steering committee", "customer": "Customer meeting", "audit": "Audit or review" }
+    },
+    "meetings.held_at": { "label": "Held at" },
+    "meetings.agenda_url": { "label": "Agenda link" },
+    "meetings.minutes_url": { "label": "Minutes link" },
+    "meetings.minutes_sent_on": { "label": "Minutes sent on" },
+    "meetings.next_meeting_on": { "label": "Next meeting on" },
+    "decisions.decision_text": { "label": "Decision" },
+    "decisions.status": { "label": "Status", "options": { "valid": "Valid", "superseded": "Superseded", "revoked": "Revoked" } },
+    "decisions.decided_on": { "label": "Decided on" },
+    "decisions.review_on": { "label": "Review on" },
+    "projects.owner": { "label": "Owner" },
+    "projects.start_date": { "label": "Start date" },
+    "projects.end_date": { "label": "End date" },
+    "actions.priority": { "label": "Priority", "options": { "high": "High", "medium": "Medium", "low": "Low" } },
+    "actions.kind": {
+      "label": "Kind",
+      "options": { "action": "Action", "follow_up": "Follow-up", "review": "Review", "corrective": "Corrective action", "preventive": "Preventive action", "customer_request": "Customer request" }
+    },
+    "actions.source": {
+      "label": "Source",
+      "options": { "meeting": "Meeting", "email": "Email", "project_plan": "Project plan", "audit": "Audit or inspection", "complaint": "Complaint", "incident": "Incident" }
+    },
+    "actions.owner": { "label": "Owner" },
+    "actions.due": { "label": "Due date" },
+    "actions.follow_up_on": { "label": "Follow up on" },
+    "actions.done_on": { "label": "Done on" },
+    "actions.blocker_note": { "label": "What blocks it" },
+    "actions.proof_url": { "label": "Proof link" },
+    "actions.outcome": { "label": "Outcome" },
+    "actions.days_late": { "label": "Days late" }
+  },
+  "relationships": {
+    "action_meeting": { "sourceLabel": "Meeting", "targetLabel": "Actions" },
+    "action_project": { "sourceLabel": "Project", "targetLabel": "Actions" },
+    "decision_meeting": { "sourceLabel": "Meeting", "targetLabel": "Decisions" }
+  },
+  "views": {
+    "actions_all": { "name": "All actions" },
+    "actions_board": { "name": "Actions by status" },
+    "blocked_actions": { "name": "Blocked" },
+    "overdue_list": { "name": "Overdue" },
+    "meetings_all": { "name": "All meetings" },
+    "decisions_all": { "name": "Decision log" }
+  },
+  "widgets": {
+    "actions_by_status": { "title": "Actions by status" },
+    "overdue_count": { "title": "Overdue actions" },
+    "blocked_count": { "title": "Blocked actions" },
+    "due_soon": { "title": "Due soon" },
+    "open_by_owner": { "title": "Open actions per owner" },
+    "done_per_month": { "title": "Done per month" },
+    "actions_by_source": { "title": "Actions by source" },
+    "average_days_late": { "title": "Average days late" },
+    "activity_timeline": { "title": "Recent activity" }
+  },
+  "knowledgePages": {
+    "how_we_write_an_action": { "title": "How we write an action", "sections": ["One verb, one owner, one date", "What done looks like"] },
+    "weekly_action_review": { "title": "Weekly 15-minute action review", "sections": ["Blocked, slipping, no next step", "Re-date, delegate or cancel"] },
+    "closing_with_proof": { "title": "Closing an action with proof", "sections": ["Link the proof", "Effectiveness check for corrective actions"] }
+  },
+  "rules": {
+    "minutes_after_meeting": { "title": "Send the minutes and the action list after a meeting" },
+    "unblock_action": { "title": "Name who can unblock an action that becomes blocked" },
+    "due_reminder": { "title": "Remind the owner two days before an action is due" },
+    "overdue_notice": { "title": "Tell the owner the day after an action became overdue" },
+    "follow_up_date": { "title": "Look at the action again on its follow-up date" },
+    "effectiveness_check": { "title": "Check the effectiveness of a corrective or preventive action after 30 days" },
+    "weekly_action_review": { "title": "Run the weekly action review every Monday" },
+    "decision_review": { "title": "Review a decision on its review date" },
+    "request_form_action": { "title": "Create an action from a request sent through a form" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Every action has one of six statuses.",
+    "due_field": "Every action has an owner and a due date.",
+    "overdue_widget": "The dashboard shows how many actions are overdue."
+  },
+  "prompt": {
+    "intro": "Set up an action item tracker in my Customermates workspace: actions with six statuses, a priority, an owner, a due date and a follow-up date, linked to meetings, decisions and projects, plus a weekly review.",
+    "questions": [
+      "Where do your actions come from: meetings, projects, audits, customers?",
+      "Who owns actions, and who decides when one is re-dated or cancelled?",
+      "Do you need corrective and preventive actions with an effectiveness check, as in ISO 9001?",
+      "Do you keep minutes elsewhere? Only a link to them is kept here."
+    ]
+  }
+}
