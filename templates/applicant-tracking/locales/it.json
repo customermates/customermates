@@ -1,0 +1,108 @@
+{
+  "locale": "it",
+  "name": "Tracciamento candidature",
+  "summary": "Un tracker di selezione per una piccola azienda: posizioni aperte, candidati, una candidatura per posizione in nove fasi, una scheda di valutazione per ogni intervistatore e una data di cancellazione per gli scartati.",
+  "description": "Gestisci la selezione in un unico posto: ogni posizione ha uno stato, un responsabile e una fascia retributiva; ogni candidatura avanza da ricevuta ad assunto o scartato, con data del colloquio, scadenza dell'offerta e motivo dello scarto; ogni intervistatore compila una scheda di valutazione. Le candidature scartate ricevono una data di conservazione per ricordarti di cancellarle o di chiedere il consenso. Non è un job board, un parser di CV, una piattaforma di test, uno strumento per lettere d'offerta e firma elettronica né un'autorità legale sui tempi di conservazione.",
+  "lists": {
+    "applicants": { "label": "Candidato", "pluralLabel": "Candidati", "description": "Le persone che si candidano, con la fonte e il consenso alla banca CV." },
+    "jobs": { "label": "Posizione aperta", "pluralLabel": "Posizioni aperte", "description": "Ogni posizione con il suo responsabile e la fascia retributiva." },
+    "applications": { "label": "Candidatura", "pluralLabel": "Candidature", "description": "Un candidato per una posizione, da ricevuta ad assunto o scartato." },
+    "scorecards": { "label": "Scheda di valutazione", "pluralLabel": "Schede di valutazione", "description": "Voto e raccomandazione di un intervistatore per una candidatura." }
+  },
+  "fields": {
+    "applicants.source": {
+      "label": "Fonte",
+      "options": { "careers_page": "Pagina carriere", "job_board": "Portale di annunci", "referral": "Segnalazione", "linkedin": "LinkedIn", "agency": "Agenzia", "other": "Altro" }
+    },
+    "applicants.location": { "label": "Località" },
+    "applicants.salary_expectation": { "label": "RAL richiesta" },
+    "applicants.pool_consent": { "label": "Consenso banca CV" },
+    "jobs.status": {
+      "label": "Stato",
+      "options": { "draft": "Bozza", "open": "Aperta", "on_hold": "In pausa", "filled": "Coperta", "cancelled": "Annullata" }
+    },
+    "jobs.department": { "label": "Reparto" },
+    "jobs.hiring_manager": { "label": "Responsabile della selezione" },
+    "jobs.pay_min": { "label": "Retribuzione da" },
+    "jobs.pay_max": { "label": "Retribuzione fino a" },
+    "jobs.apply_by": { "label": "Candidature entro" },
+    "applications.stage": {
+      "label": "Fase",
+      "options": { "new": "Ricevuta", "screening": "Preselezione", "interview_1": "Colloquio conoscitivo", "interview_2": "Colloquio tecnico", "reference_check": "Referenze", "offer": "Offerta", "hired": "Assunto", "rejected": "Scartato", "withdrawn": "Ritirato" }
+    },
+    "applications.interview_at": { "label": "Colloquio" },
+    "applications.offer_decision_due": { "label": "Risposta all'offerta entro" },
+    "applications.rejection_reason": {
+      "label": "Motivo dello scarto",
+      "options": { "skills": "Competenze", "experience": "Esperienza", "salary_mismatch": "Retribuzione non adeguata", "other_offer": "Ha accettato un'altra offerta", "position_filled": "Posizione coperta", "other": "Altro" }
+    },
+    "applications.retain_until": { "label": "Conservare fino al" },
+    "scorecards.interviewer": { "label": "Intervistatore" },
+    "scorecards.round": { "label": "Giro", "options": { "screening": "Preselezione", "interview_1": "Colloquio conoscitivo", "interview_2": "Colloquio tecnico" } },
+    "scorecards.rating": { "label": "Voto" },
+    "scorecards.recommendation": { "label": "Raccomandazione", "options": { "strong_no": "Decisamente no", "no": "No", "yes": "Sì", "strong_yes": "Decisamente sì" } },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "acknowledge": "Confermare la ricezione",
+        "screen": "Preselezionare la candidatura",
+        "schedule_interview": "Fissare un colloquio",
+        "collect_scorecards": "Raccogliere le schede",
+        "chase_offer": "Sollecitare la risposta all'offerta",
+        "close_message": "Inviare un messaggio di chiusura",
+        "retention_review": "Rivedere la conservazione",
+        "other": "Altro"
+      }
+    }
+  },
+  "relationships": {
+    "application_applicant": { "sourceLabel": "Candidato", "targetLabel": "Candidature" },
+    "application_job": { "sourceLabel": "Posizione aperta", "targetLabel": "Candidature" },
+    "scorecard_application": { "sourceLabel": "Candidatura", "targetLabel": "Schede di valutazione" },
+    "action_application": { "sourceLabel": "Candidatura", "targetLabel": "Attività" }
+  },
+  "views": {
+    "applications_all": { "name": "Tutte le candidature" },
+    "applications_board": { "name": "Bacheca di selezione" },
+    "jobs_all": { "name": "Tutte le posizioni" },
+    "applicants_all": { "name": "Tutti i candidati" },
+    "scorecards_all": { "name": "Tutte le schede di valutazione" }
+  },
+  "widgets": {
+    "applications_funnel": { "title": "Candidature per fase" },
+    "applicants_by_source": { "title": "Candidati per fonte" },
+    "interviews_coming": { "title": "Colloqui in arrivo" },
+    "open_jobs": { "title": "Posizioni aperte" },
+    "rejection_reasons": { "title": "Motivi di scarto" },
+    "retention_coming": { "title": "Candidature da cancellare o rinnovare a breve" }
+  },
+  "knowledgePages": {
+    "hiring_process": { "title": "Processo di selezione e chi decide", "sections": ["Fasi e responsabili", "Che cosa cerchiamo in preselezione e nei colloqui"] },
+    "form_and_retention": { "title": "Modulo di candidatura e conservazione dei dati", "sections": ["Dati richiesti e informativa privacy", "Per quanto tempo conserviamo le candidature scartate"] },
+    "candidate_messages": { "title": "Messaggi ai candidati", "sections": ["Conferma di ricezione, invito, offerta", "Messaggio di chiusura per ogni candidato non selezionato"] }
+  },
+  "rules": {
+    "application_form_records": { "title": "Creare candidato e candidatura quando viene inviato il modulo di candidatura" },
+    "acknowledge_application": { "title": "Confermare una nuova candidatura entro 2 giorni" },
+    "collect_scorecards": { "title": "Raccogliere le schede il giorno del colloquio" },
+    "scorecard_reminder": { "title": "Ricordare al responsabile il giorno dopo il colloquio" },
+    "chase_offer": { "title": "Sollecitare la risposta 5 giorni dopo un'offerta" },
+    "rejection_retention": { "title": "Fissare la conservazione a 180 giorni quando una candidatura viene scartata" },
+    "job_filled_close": { "title": "Scrivere agli altri candidati quando una posizione è coperta" },
+    "retention_review": { "title": "Rivedere una candidatura quando arriva la data di conservazione" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Ogni candidatura ha una delle nove fasi.",
+    "retain_until_field": "Ogni candidatura indica fino a quando viene conservata.",
+    "applications_board_view": "Le candidature si aprono come bacheca per fase."
+  },
+  "prompt": {
+    "intro": "Imposta nel mio workspace Customermates il tracciamento delle candidature: posizioni con responsabile e fascia retributiva, candidati, candidature in nove fasi, schede di valutazione, una data di conservazione per gli scartati e attività di follow-up con data.",
+    "questions": [
+      "Quante posizioni sono aperte contemporaneamente e chi seleziona per ciascuna?",
+      "Da dove arrivano i candidati e usate un modulo di candidatura?",
+      "Per quanto tempo conservate le candidature scartate e tenete una banca CV con consenso?",
+      "Quali giri di colloquio svolgete e chi compila una scheda di valutazione?"
+    ]
+  }
+}

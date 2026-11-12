@@ -1,0 +1,108 @@
+{
+  "locale": "pt",
+  "name": "Acompanhamento de candidaturas",
+  "summary": "Um acompanhamento de seleção para uma pequena empresa: vagas, candidatos, uma candidatura por vaga em nove etapas, uma avaliação por entrevistador e uma data para excluir os reprovados.",
+  "description": "Conduza a seleção em um só lugar: cada vaga tem situação, gestor e faixa salarial; cada candidatura avança de recebida a admitido ou reprovado, com data da entrevista, prazo de resposta à proposta e motivo da reprovação; cada entrevistador preenche uma avaliação. As candidaturas reprovadas recebem uma data de guarda para você lembrar de excluí-las ou pedir consentimento. Não é um site de vagas, um leitor de currículos, uma plataforma de testes, uma ferramenta de carta-proposta e assinatura eletrônica nem uma autoridade jurídica sobre prazos de guarda.",
+  "lists": {
+    "applicants": { "label": "Candidato", "pluralLabel": "Candidatos", "description": "As pessoas que se candidatam, com a origem e o consentimento para o banco de talentos." },
+    "jobs": { "label": "Vaga", "pluralLabel": "Vagas", "description": "Cada vaga aberta com o gestor e a faixa salarial." },
+    "applications": { "label": "Candidatura", "pluralLabel": "Candidaturas", "description": "Um candidato para uma vaga, de recebida a admitido ou reprovado." },
+    "scorecards": { "label": "Avaliação", "pluralLabel": "Avaliações", "description": "A nota e a recomendação de um entrevistador para uma candidatura." }
+  },
+  "fields": {
+    "applicants.source": {
+      "label": "Origem",
+      "options": { "careers_page": "Página de carreiras", "job_board": "Site de vagas", "referral": "Indicação", "linkedin": "LinkedIn", "agency": "Consultoria de RH", "other": "Outra" }
+    },
+    "applicants.location": { "label": "Cidade" },
+    "applicants.salary_expectation": { "label": "Pretensão salarial" },
+    "applicants.pool_consent": { "label": "Consentimento banco de talentos" },
+    "jobs.status": {
+      "label": "Situação",
+      "options": { "draft": "Rascunho", "open": "Aberta", "on_hold": "Pausada", "filled": "Preenchida", "cancelled": "Cancelada" }
+    },
+    "jobs.department": { "label": "Área" },
+    "jobs.hiring_manager": { "label": "Gestor da vaga" },
+    "jobs.pay_min": { "label": "Salário a partir de" },
+    "jobs.pay_max": { "label": "Salário até" },
+    "jobs.apply_by": { "label": "Inscrições até" },
+    "applications.stage": {
+      "label": "Etapa",
+      "options": { "new": "Recebida", "screening": "Triagem", "interview_1": "Entrevista com RH", "interview_2": "Entrevista com gestor", "reference_check": "Checagem de referências", "offer": "Proposta", "hired": "Admitido", "rejected": "Reprovado", "withdrawn": "Desistiu" }
+    },
+    "applications.interview_at": { "label": "Entrevista" },
+    "applications.offer_decision_due": { "label": "Resposta à proposta até" },
+    "applications.rejection_reason": {
+      "label": "Motivo da reprovação",
+      "options": { "skills": "Competências", "experience": "Experiência", "salary_mismatch": "Salário incompatível", "other_offer": "Aceitou outra proposta", "position_filled": "Vaga preenchida", "other": "Outro" }
+    },
+    "applications.retain_until": { "label": "Manter até" },
+    "scorecards.interviewer": { "label": "Entrevistador" },
+    "scorecards.round": { "label": "Rodada", "options": { "screening": "Triagem", "interview_1": "Entrevista com RH", "interview_2": "Entrevista com gestor" } },
+    "scorecards.rating": { "label": "Nota" },
+    "scorecards.recommendation": { "label": "Recomendação", "options": { "strong_no": "Com certeza não", "no": "Não", "yes": "Sim", "strong_yes": "Com certeza sim" } },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "acknowledge": "Confirmar o recebimento",
+        "screen": "Fazer a triagem da candidatura",
+        "schedule_interview": "Agendar uma entrevista",
+        "collect_scorecards": "Recolher as avaliações",
+        "chase_offer": "Cobrar a resposta à proposta",
+        "close_message": "Enviar uma mensagem de encerramento",
+        "retention_review": "Revisar a guarda dos dados",
+        "other": "Outro"
+      }
+    }
+  },
+  "relationships": {
+    "application_applicant": { "sourceLabel": "Candidato", "targetLabel": "Candidaturas" },
+    "application_job": { "sourceLabel": "Vaga", "targetLabel": "Candidaturas" },
+    "scorecard_application": { "sourceLabel": "Candidatura", "targetLabel": "Avaliações" },
+    "action_application": { "sourceLabel": "Candidatura", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "applications_all": { "name": "Todas as candidaturas" },
+    "applications_board": { "name": "Quadro de seleção" },
+    "jobs_all": { "name": "Todas as vagas" },
+    "applicants_all": { "name": "Todos os candidatos" },
+    "scorecards_all": { "name": "Todas as avaliações" }
+  },
+  "widgets": {
+    "applications_funnel": { "title": "Candidaturas por etapa" },
+    "applicants_by_source": { "title": "Candidatos por origem" },
+    "interviews_coming": { "title": "Entrevistas próximas" },
+    "open_jobs": { "title": "Vagas abertas" },
+    "rejection_reasons": { "title": "Motivos de reprovação" },
+    "retention_coming": { "title": "Candidaturas para excluir ou renovar em breve" }
+  },
+  "knowledgePages": {
+    "hiring_process": { "title": "Processo seletivo e quem decide", "sections": ["Etapas e responsáveis", "O que buscamos na triagem e nas entrevistas"] },
+    "form_and_retention": { "title": "Formulário de candidatura e guarda dos dados", "sections": ["Dados que pedimos e aviso de privacidade", "Por quanto tempo guardamos candidaturas reprovadas"] },
+    "candidate_messages": { "title": "Mensagens aos candidatos", "sections": ["Confirmação, convite, proposta", "Mensagem de encerramento para cada candidato não selecionado"] }
+  },
+  "rules": {
+    "application_form_records": { "title": "Criar o candidato e a candidatura quando o formulário de candidatura for enviado" },
+    "acknowledge_application": { "title": "Confirmar uma nova candidatura em até 2 dias" },
+    "collect_scorecards": { "title": "Recolher as avaliações no dia da entrevista" },
+    "scorecard_reminder": { "title": "Lembrar o responsável no dia seguinte à entrevista" },
+    "chase_offer": { "title": "Cobrar a resposta 5 dias depois de uma proposta" },
+    "rejection_retention": { "title": "Definir a guarda em 180 dias quando uma candidatura é reprovada" },
+    "job_filled_close": { "title": "Escrever aos demais candidatos quando uma vaga é preenchida" },
+    "retention_review": { "title": "Revisar uma candidatura quando chegar a data de guarda" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Toda candidatura está em uma das nove etapas.",
+    "retain_until_field": "Toda candidatura registra até quando é mantida.",
+    "applications_board_view": "As candidaturas abrem como quadro por etapa."
+  },
+  "prompt": {
+    "intro": "Configure no meu workspace do Customermates um acompanhamento de candidaturas: vagas com gestor e faixa salarial, candidatos, candidaturas em nove etapas, avaliações de entrevista, uma data de guarda para os reprovados e acompanhamentos com data.",
+    "questions": [
+      "Quantas vagas ficam abertas ao mesmo tempo e quem contrata para cada uma?",
+      "De onde vêm os candidatos e você usa um formulário de candidatura?",
+      "Por quanto tempo você guarda candidaturas reprovadas e mantém um banco de talentos com consentimento?",
+      "Quais rodadas de entrevista você faz e quem preenche uma avaliação?"
+    ]
+  }
+}

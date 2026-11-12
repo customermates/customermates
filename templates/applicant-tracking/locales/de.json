@@ -1,0 +1,108 @@
+{
+  "locale": "de",
+  "name": "Bewerbermanagement",
+  "summary": "Ein Bewerbertracker für kleine Unternehmen: Stellen, Bewerber, eine Bewerbung je Stelle durch neun Phasen, ein Interviewbogen je Gesprächsführer und ein Löschtermin für Absagen.",
+  "description": "Das Recruiting an einem Ort steuern: Jede Stelle hat Status, Fachvorgesetzten und Gehaltsspanne; jede Bewerbung läuft vom Eingang bis zur Einstellung oder Absage, mit Gesprächstermin, Angebotsfrist und Absagegrund; jeder Gesprächsführer legt einen Interviewbogen ab. Abgelehnte Bewerbungen erhalten ein Löschdatum, damit Sie sie rechtzeitig löschen oder eine Einwilligung einholen. Kein Stellenportal, kein CV-Parser, keine Testplattform, kein Werkzeug für Vertragsangebote oder elektronische Unterschriften und keine Rechtsauskunft zu Aufbewahrungsfristen.",
+  "lists": {
+    "applicants": { "label": "Bewerber", "pluralLabel": "Bewerber", "description": "Die Personen, die sich bewerben, mit Quelle und Einwilligung zum Talentpool." },
+    "jobs": { "label": "Stelle", "pluralLabel": "Stellen", "description": "Jede offene Position mit Fachvorgesetztem und Gehaltsspanne." },
+    "applications": { "label": "Bewerbung", "pluralLabel": "Bewerbungen", "description": "Ein Bewerber für eine Stelle, vom Eingang bis zur Einstellung oder Absage." },
+    "scorecards": { "label": "Interviewbogen", "pluralLabel": "Interviewbögen", "description": "Bewertung und Empfehlung eines Gesprächsführers zu einer Bewerbung." }
+  },
+  "fields": {
+    "applicants.source": {
+      "label": "Quelle",
+      "options": { "careers_page": "Karriereseite", "job_board": "Jobbörse", "referral": "Empfehlung", "linkedin": "LinkedIn", "agency": "Agentur", "other": "Sonstige" }
+    },
+    "applicants.location": { "label": "Wohnort" },
+    "applicants.salary_expectation": { "label": "Gehaltsvorstellung" },
+    "applicants.pool_consent": { "label": "Einwilligung Talentpool" },
+    "jobs.status": {
+      "label": "Status",
+      "options": { "draft": "Entwurf", "open": "Offen", "on_hold": "Pausiert", "filled": "Besetzt", "cancelled": "Abgesagt" }
+    },
+    "jobs.department": { "label": "Abteilung" },
+    "jobs.hiring_manager": { "label": "Fachvorgesetzter" },
+    "jobs.pay_min": { "label": "Gehalt ab" },
+    "jobs.pay_max": { "label": "Gehalt bis" },
+    "jobs.apply_by": { "label": "Bewerbung bis" },
+    "applications.stage": {
+      "label": "Phase",
+      "options": { "new": "Eingang", "screening": "Vorauswahl", "interview_1": "Telefoninterview", "interview_2": "Vorstellungsgespräch", "reference_check": "Referenzen", "offer": "Angebot", "hired": "Eingestellt", "rejected": "Absage", "withdrawn": "Zurückgezogen" }
+    },
+    "applications.interview_at": { "label": "Gespräch am" },
+    "applications.offer_decision_due": { "label": "Antwort auf Angebot bis" },
+    "applications.rejection_reason": {
+      "label": "Absagegrund",
+      "options": { "skills": "Qualifikation", "experience": "Erfahrung", "salary_mismatch": "Gehalt passt nicht", "other_offer": "Hat anderes Angebot angenommen", "position_filled": "Stelle besetzt", "other": "Sonstiger" }
+    },
+    "applications.retain_until": { "label": "Löschen am" },
+    "scorecards.interviewer": { "label": "Gesprächsführer" },
+    "scorecards.round": { "label": "Runde", "options": { "screening": "Vorauswahl", "interview_1": "Erstgespräch", "interview_2": "Zweitgespräch" } },
+    "scorecards.rating": { "label": "Bewertung" },
+    "scorecards.recommendation": { "label": "Empfehlung", "options": { "strong_no": "Klar nein", "no": "Nein", "yes": "Ja", "strong_yes": "Klar ja" } },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "acknowledge": "Eingang bestätigen",
+        "screen": "Bewerbung vorauswählen",
+        "schedule_interview": "Gespräch terminieren",
+        "collect_scorecards": "Interviewbögen einsammeln",
+        "chase_offer": "Antwort auf Angebot nachfassen",
+        "close_message": "Absage schicken",
+        "retention_review": "Aufbewahrung prüfen",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "application_applicant": { "sourceLabel": "Bewerber", "targetLabel": "Bewerbungen" },
+    "application_job": { "sourceLabel": "Stelle", "targetLabel": "Bewerbungen" },
+    "scorecard_application": { "sourceLabel": "Bewerbung", "targetLabel": "Interviewbögen" },
+    "action_application": { "sourceLabel": "Bewerbung", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "applications_all": { "name": "Alle Bewerbungen" },
+    "applications_board": { "name": "Bewerbungs-Board" },
+    "jobs_all": { "name": "Alle Stellen" },
+    "applicants_all": { "name": "Alle Bewerber" },
+    "scorecards_all": { "name": "Alle Interviewbögen" }
+  },
+  "widgets": {
+    "applications_funnel": { "title": "Bewerbungen nach Phase" },
+    "applicants_by_source": { "title": "Bewerber nach Quelle" },
+    "interviews_coming": { "title": "Anstehende Gespräche" },
+    "open_jobs": { "title": "Offene Stellen" },
+    "rejection_reasons": { "title": "Absagegründe" },
+    "retention_coming": { "title": "Bald zu löschende oder zu erneuernde Bewerbungen" }
+  },
+  "knowledgePages": {
+    "hiring_process": { "title": "Ablauf der Einstellung und wer entscheidet", "sections": ["Phasen und Zuständigkeiten", "Worauf wir bei Vorauswahl und Gesprächen achten"] },
+    "form_and_retention": { "title": "Bewerbungsformular und Aufbewahrung", "sections": ["Abgefragte Angaben und Datenschutzhinweis", "Wie lange wir Absagen aufbewahren"] },
+    "candidate_messages": { "title": "Nachrichten an Bewerber", "sections": ["Eingangsbestätigung, Einladung, Angebot", "Absage an jeden nicht berücksichtigten Bewerber"] }
+  },
+  "rules": {
+    "application_form_records": { "title": "Bewerber und Bewerbung anlegen, wenn das Bewerbungsformular abgeschickt wird" },
+    "acknowledge_application": { "title": "Eine neue Bewerbung innerhalb von 2 Tagen bestätigen" },
+    "collect_scorecards": { "title": "Am Gesprächstag die Interviewbögen einsammeln" },
+    "scorecard_reminder": { "title": "Den Zuständigen am Tag nach dem Gespräch erinnern" },
+    "chase_offer": { "title": "5 Tage nach einem Angebot nach der Entscheidung fragen" },
+    "rejection_retention": { "title": "Löschdatum auf 180 Tage setzen, wenn eine Bewerbung abgelehnt wird" },
+    "job_filled_close": { "title": "Den übrigen Bewerbern absagen, wenn eine Stelle besetzt ist" },
+    "retention_review": { "title": "Eine Bewerbung prüfen, wenn ihr Löschdatum erreicht ist" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Jede Bewerbung hat eine von neun Phasen.",
+    "retain_until_field": "Jede Bewerbung hält fest, wie lange sie aufbewahrt wird.",
+    "applications_board_view": "Die Bewerbungen öffnen sich als Board nach Phase."
+  },
+  "prompt": {
+    "intro": "Richte in meinem Customermates-Workspace ein Bewerbermanagement ein: Stellen mit Fachvorgesetztem und Gehaltsspanne, Bewerber, Bewerbungen durch neun Phasen, Interviewbögen, ein Löschdatum für Absagen und terminierte Folgeaufgaben.",
+    "questions": [
+      "Wie viele Stellen sind gleichzeitig offen, und wer stellt jeweils ein?",
+      "Woher kommen die Bewerber, und nutzen Sie ein Bewerbungsformular?",
+      "Wie lange bewahren Sie Absagen auf, und führen Sie einen Talentpool mit Einwilligung?",
+      "Welche Gesprächsrunden gibt es, und wer legt einen Interviewbogen ab?"
+    ]
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "locale": "en",
+  "name": "Applicant tracking",
+  "summary": "A hiring tracker for a small business: jobs, applicants, one application per job through nine stages, a scorecard per interviewer and a date to delete rejected applications.",
+  "description": "Run hiring from one place: each job has a status, a hiring manager and a pay range; each application moves from new to hired or rejected with its interview time, offer deadline and rejection reason; every interviewer files a scorecard. Rejected applications get a retention date so you remember to delete them or ask for consent. It is not a job board, a CV parser, an assessment platform, an offer-letter or e-signature tool, or a legal authority on retention periods.",
+  "lists": {
+    "applicants": { "label": "Applicant", "pluralLabel": "Applicants", "description": "The people who apply, with their source and talent pool consent." },
+    "jobs": { "label": "Job", "pluralLabel": "Jobs", "description": "Each open position with its hiring manager and pay range." },
+    "applications": { "label": "Application", "pluralLabel": "Applications", "description": "One applicant for one job, from received to hired or rejected." },
+    "scorecards": { "label": "Scorecard", "pluralLabel": "Scorecards", "description": "One interviewer's rating and recommendation for one application." }
+  },
+  "fields": {
+    "applicants.source": {
+      "label": "Source",
+      "options": { "careers_page": "Careers page", "job_board": "Job board", "referral": "Referral", "linkedin": "LinkedIn", "agency": "Agency", "other": "Other" }
+    },
+    "applicants.location": { "label": "Location" },
+    "applicants.salary_expectation": { "label": "Salary expectation" },
+    "applicants.pool_consent": { "label": "Agreed to the talent pool" },
+    "jobs.status": {
+      "label": "Status",
+      "options": { "draft": "Draft", "open": "Open", "on_hold": "On hold", "filled": "Filled", "cancelled": "Cancelled" }
+    },
+    "jobs.department": { "label": "Department" },
+    "jobs.hiring_manager": { "label": "Hiring manager" },
+    "jobs.pay_min": { "label": "Pay from" },
+    "jobs.pay_max": { "label": "Pay up to" },
+    "jobs.apply_by": { "label": "Apply by" },
+    "applications.stage": {
+      "label": "Stage",
+      "options": { "new": "New", "screening": "Screening", "interview_1": "First interview", "interview_2": "Second interview", "reference_check": "Reference check", "offer": "Offer", "hired": "Hired", "rejected": "Rejected", "withdrawn": "Withdrawn" }
+    },
+    "applications.interview_at": { "label": "Interview" },
+    "applications.offer_decision_due": { "label": "Offer decision due" },
+    "applications.rejection_reason": {
+      "label": "Rejection reason",
+      "options": { "skills": "Skills", "experience": "Experience", "salary_mismatch": "Salary mismatch", "other_offer": "Took another offer", "position_filled": "Position filled", "other": "Other" }
+    },
+    "applications.retain_until": { "label": "Keep until" },
+    "scorecards.interviewer": { "label": "Interviewer" },
+    "scorecards.round": { "label": "Round", "options": { "screening": "Screening", "interview_1": "First interview", "interview_2": "Second interview" } },
+    "scorecards.rating": { "label": "Rating" },
+    "scorecards.recommendation": { "label": "Recommendation", "options": { "strong_no": "Strong no", "no": "No", "yes": "Yes", "strong_yes": "Strong yes" } },
+    "actions.kind": {
+      "label": "Kind",
+      "options": {
+        "acknowledge": "Acknowledge the application",
+        "screen": "Screen the application",
+        "schedule_interview": "Schedule an interview",
+        "collect_scorecards": "Collect the scorecards",
+        "chase_offer": "Chase the offer decision",
+        "close_message": "Send a closing message",
+        "retention_review": "Review retention",
+        "other": "Other"
+      }
+    }
+  },
+  "relationships": {
+    "application_applicant": { "sourceLabel": "Applicant", "targetLabel": "Applications" },
+    "application_job": { "sourceLabel": "Job", "targetLabel": "Applications" },
+    "scorecard_application": { "sourceLabel": "Application", "targetLabel": "Scorecards" },
+    "action_application": { "sourceLabel": "Application", "targetLabel": "Actions" }
+  },
+  "views": {
+    "applications_all": { "name": "All applications" },
+    "applications_board": { "name": "Hiring board" },
+    "jobs_all": { "name": "All jobs" },
+    "applicants_all": { "name": "All applicants" },
+    "scorecards_all": { "name": "All scorecards" }
+  },
+  "widgets": {
+    "applications_funnel": { "title": "Applications by stage" },
+    "applicants_by_source": { "title": "Applicants by source" },
+    "interviews_coming": { "title": "Interviews coming up" },
+    "open_jobs": { "title": "Open jobs" },
+    "rejection_reasons": { "title": "Rejection reasons" },
+    "retention_coming": { "title": "Applications to delete or renew soon" }
+  },
+  "knowledgePages": {
+    "hiring_process": { "title": "Hiring process and who decides", "sections": ["Stages and owners", "What we look for in screening and interviews"] },
+    "form_and_retention": { "title": "Application form and data retention", "sections": ["Fields we ask for and the privacy notice", "How long we keep rejected applications"] },
+    "candidate_messages": { "title": "Candidate messages", "sections": ["Acknowledgement, invitation, offer", "Closing message for every unsuccessful applicant"] }
+  },
+  "rules": {
+    "application_form_records": { "title": "Create the applicant and the application when the application form is submitted" },
+    "acknowledge_application": { "title": "Acknowledge a new application within 2 days" },
+    "collect_scorecards": { "title": "Collect the scorecards on the day of an interview" },
+    "scorecard_reminder": { "title": "Remind the owner the day after an interview" },
+    "chase_offer": { "title": "Chase the decision 5 days after an offer" },
+    "rejection_retention": { "title": "Set the retention date to 180 days out when an application is rejected" },
+    "job_filled_close": { "title": "Send a closing message to the other applicants when a job is filled" },
+    "retention_review": { "title": "Review an application when its retention date arrives" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Every application has one of nine stages.",
+    "retain_until_field": "Every application records how long it is kept.",
+    "applications_board_view": "The applications open as a board by stage."
+  },
+  "prompt": {
+    "intro": "Set up applicant tracking in my Customermates workspace: jobs with a hiring manager and pay range, applicants, applications through nine stages, interview scorecards, a retention date for rejected applications and dated follow-ups.",
+    "questions": [
+      "How many jobs are open at a time, and who hires for each?",
+      "Where do applicants come from, and do you use an application form?",
+      "How long do you keep rejected applications, and do you keep a talent pool with consent?",
+      "Which interview rounds do you run, and who files a scorecard?"
+    ]
+  }
+}
