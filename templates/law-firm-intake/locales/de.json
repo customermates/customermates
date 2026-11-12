@@ -1,8 +1,8 @@
 {
   "locale": "de",
   "name": "Mandatsaufnahme für Kanzleien",
-  "summary": "Eine Mandatsaufnahme in festen Schritten: Anfrage, Kollisionsprüfung, Erstberatung, Mandatsangebot, unterschriebene Mandatsvereinbarung mit Vollmacht und Vorschuss und ein schriftliches Schreiben an alle, die kein Mandat werden.",
-  "description": "Mandanten in fester Reihenfolge aufnehmen: Jede Anfrage hält Rechtsgebiet, den frühesten bekannten Fristablauf, die Kollisionsprüfung und wer sie durchgeführt hat fest, dann Erstberatung, Mandatsangebot und unterschriebene Vereinbarung. Eine Liste der Beteiligten stützt die Kollisionsprüfung, Mandate tragen das Datum der Vollmacht und einen Löschtermin, und abgelehnte oder verstummte Interessenten erhalten ein schriftliches Schreiben. Die Vorlage hält einen Verweis auf die Akte, niemals Falldetails, Mandatsgeheimnisse, Gesundheitsdaten oder Angaben zur Gegenseite. Keine Aktenführung, keine Fremdgeldverwaltung, keine Quelle für Verfahrensfristen und keine Abrechnung.",
+  "summary": "Eine Mandatsaufnahme in festen Schritten: Anfrage, Kollisionsprüfung, Erstberatung, Mandatsangebot, unterschriebene Mandatsvereinbarung mit Vollmacht und Vorschuss und ein Absageschreiben an alle, die nicht Mandant werden.",
+  "description": "Mandanten in fester Reihenfolge aufnehmen: Jede Anfrage hält Rechtsgebiet, den frühesten bekannten Fristablauf, die Kollisionsprüfung und wer sie durchgeführt hat fest, dann Erstberatung, Mandatsangebot und unterschriebene Vereinbarung. Eine Liste der Beteiligten stützt die Kollisionsprüfung, Mandate tragen das Datum der Vollmacht und einen Löschtermin, und abgelehnte oder verstummte Interessenten erhalten ein schriftliches Absageschreiben. Die Vorlage hält einen Verweis auf die Akte, niemals Falldetails, Mandatsgeheimnisse, Gesundheitsdaten oder Angaben zur Gegenseite. Keine Aktenführung, keine Fremdgeldverwaltung, keine Quelle für Verfahrensfristen und keine Abrechnung.",
   "lists": {
     "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Interessenten, Mandanten, frühere Mandanten und Empfehler." },
     "inquiries": { "label": "Anfrage", "pluralLabel": "Anfragen", "description": "Eine Bitte um Rechtsrat, vom ersten Kontakt bis zum Mandat oder zur Absage." },
@@ -37,7 +37,7 @@
       "label": "Grund für kein Mandat",
       "options": { "conflict": "Interessenkollision", "outside_practice_area": "Außerhalb unserer Rechtsgebiete", "capacity": "Keine Kapazität", "time_limit_referred_out": "Frist, weitervermittelt", "fee": "Honorar", "chose_other_lawyer": "Anderen Anwalt gewählt", "no_response": "Keine Rückmeldung", "self_resolved": "Hat sich erledigt" }
     },
-    "inquiries.non_engagement_letter_on": { "label": "Schreiben zur Nichtbeauftragung am" },
+    "inquiries.non_engagement_letter_on": { "label": "Absageschreiben gesendet am" },
     "matters.matter_ref": { "label": "Aktenzeichen im Kanzleisystem" },
     "matters.status": { "label": "Status", "options": { "open": "Offen", "on_hold": "Ruhend", "closed": "Abgeschlossen" } },
     "matters.opened_on": { "label": "Angelegt am" },
@@ -81,19 +81,19 @@
     "operating_guide": { "title": "So läuft die Mandatsaufnahme", "sections": ["Erstkontakt und Fragen zur Einordnung", "Wer antwortet und wie schnell"] },
     "conflict_check": { "title": "Ablauf der Kollisionsprüfung", "sections": ["Was geprüft wird: Beteiligte, Mandanten und frühere Mandanten", "Wie das Ergebnis festgehalten wird und was bei einer Kollision geschieht"] },
     "time_limit_triage": { "title": "Einordnung eilbedürftiger Fristen", "sections": ["Den frühesten bekannten Fristablauf beim Erstkontakt erfragen", "Annehmen, weitervermitteln oder den Anfragenden schriftlich warnen"] },
-    "engagement_checklist": { "title": "Checkliste Honorarvereinbarung und Mandat", "sections": ["Vergütung, Vollmacht und Vorschuss", "Schreiben zur Nichtbeauftragung und zum Abschluss"] }
+    "engagement_checklist": { "title": "Checkliste Honorarvereinbarung und Mandat", "sections": ["Vergütung, Vollmacht und Vorschuss", "Absage- und Abschlussschreiben"] }
   },
   "rules": {
     "inquiry_form_records": { "title": "Ansprechpartner und Anfrage anlegen, wenn das Anfrageformular abgeschickt wird" },
     "acknowledge_inquiry": { "title": "Eine neue Anfrage am nächsten Tag beantworten und eine Erstberatung anbieten" },
     "urgent_deadline_alert": { "title": "Die Leitung 14 Tage vor dem Fristablauf einer offenen Anfrage informieren" },
-    "conflict_check_task": { "title": "Die Kollisionsprüfung am Tag nach Eintritt in die Prüfungsphase durchführen" },
+    "conflict_check_task": { "title": "Die Kollisionsprüfung am Tag nach Eintritt in die Phase „Kollisionsprüfung“ durchführen" },
     "fee_proposal_task": { "title": "Am Tag nach der Erstberatung das Mandatsangebot senden" },
     "proposal_follow_up": { "title": "3 Tage nach dem Mandatsangebot nachfassen" },
     "agreement_signed_set": { "title": "2 Tage nach der unterschriebenen Vereinbarung den Vorschuss einfordern" },
     "advance_chase": { "title": "Den Zuständigen informieren, wenn der Vorschuss 7 Tage nach der Anforderung fehlt" },
-    "letter_declined": { "title": "Das Schreiben zur Nichtbeauftragung verfassen, wenn die Kanzlei eine Anfrage ablehnt" },
-    "letter_not_retained": { "title": "Das Schreiben zur Nichtbeauftragung verfassen, wenn ein Interessent kein Mandat erteilt" },
+    "letter_declined": { "title": "Das Absageschreiben verfassen, wenn die Kanzlei eine Anfrage ablehnt" },
+    "letter_not_retained": { "title": "Das Absageschreiben verfassen, wenn ein Interessent kein Mandat erteilt" },
     "poa_renewal": { "title": "Die Vollmacht 30 Tage vor Ablauf erneuern" },
     "closing_letter": { "title": "Eine Woche nach Abschluss eines Mandats das Abschlussschreiben verfassen" }
   },
@@ -105,7 +105,7 @@
     "conflict_check_page": "Die Wissensdatenbank enthält eine Seite zur Kollisionsprüfung."
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace eine Mandatsaufnahme für die Kanzlei ein: Anfragen mit Kollisionsprüfung, frühestem bekanntem Fristablauf, Erstberatung, Mandatsangebot und unterschriebener Vereinbarung, Mandate als Verweise auf das Kanzleisystem, Beteiligte für die Kollisionsprüfung und schriftliche Schreiben zur Nichtbeauftragung. Speichere keine Falldetails und keine Mandatsgeheimnisse.",
+    "intro": "Richte in meinem Customermates-Workspace eine Mandatsaufnahme für die Kanzlei ein: Anfragen mit Kollisionsprüfung, frühestem bekanntem Fristablauf, Erstberatung, Mandatsangebot und unterschriebener Vereinbarung, Mandate als Verweise auf das Kanzleisystem, Beteiligte für die Kollisionsprüfung und schriftliche Absageschreiben. Speichere keine Falldetails und keine Mandatsgeheimnisse.",
     "questions": [
       "Welche Rechtsgebiete nehmen Sie an, und welche vermitteln Sie weiter?",
       "Wie führen Sie die Kollisionsprüfung durch, und wer zeichnet sie ab?",

@@ -5,9 +5,9 @@
   "description": "Neugeschäft und Verlängerungen nebeneinander führen: Anfragen von der ersten Anfrage über Bedarfsanalyse, Angebotsanfrage, Beratung und Entscheidung bis zur erhaltenen Police, ein Datum der Beratungsdokumentation an jedem Angebot und Verträge mit ihrer Hauptfälligkeit, die selbst einen Verlängerungsfall eröffnen. Die Vorlage hält einen Verweis auf das Beratungsprotokoll und auf den Vertrag in Ihrem Maklerverwaltungsprogramm, niemals Gesundheitsdaten, Schadendetails, Bankdaten oder Ausweiskopien. Keine Vertragsverwaltung, keine Vergleichs- oder Tarifrechner, keine Schadenbearbeitung und keine Courtage-Abrechnung.",
   "lists": {
     "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Versicherungsnehmer, Interessenten, Entscheider und Empfehler." },
-    "opportunities": { "label": "Anfrage", "pluralLabel": "Neugeschäft (Anfragen)", "description": "Neugeschäft von der ersten Anfrage bis zur Police oder zum Verlust." },
+    "opportunities": { "label": "Anfrage", "pluralLabel": "Anfragen", "description": "Neugeschäft von der ersten Anfrage bis zur Police oder zum Verlust." },
     "policies": { "label": "Vertrag", "pluralLabel": "Verträge", "description": "Ein Versicherungsvertrag mit Sparte, Hauptfälligkeit und Link zum Maklerverwaltungsprogramm." },
-    "renewals": { "label": "Verlängerung", "pluralLabel": "Hauptfälligkeiten (Verlängerungen)", "description": "Der jährliche Verlängerungsfall eines Vertrags." }
+    "renewals": { "label": "Verlängerung", "pluralLabel": "Verlängerungen", "description": "Der jährliche Verlängerungsfall eines Vertrags." }
   },
   "fields": {
     "contacts.contact_role": { "label": "Rolle", "options": { "policyholder": "Versicherungsnehmer", "prospect": "Interessent", "decision_maker": "Entscheider", "referrer": "Empfehler" } },
@@ -19,7 +19,7 @@
     },
     "opportunities.line": {
       "label": "Sparte",
-      "options": { "motor": "Kfz", "home_contents": "Wohngebäude und Hausrat", "liability": "Haftpflicht", "legal_expenses": "Rechtsschutz", "life_pension": "Leben und Altersvorsorge", "health": "Kranken", "commercial_property": "Gewerbliche Sachversicherung", "commercial_liability": "Betriebshaftpflicht", "cyber": "Cyber", "other": "Sonstige" }
+      "options": { "motor": "Kfz", "home_contents": "Wohngebäude und Hausrat", "liability": "Haftpflicht", "legal_expenses": "Rechtsschutz", "life_pension": "Leben und Altersvorsorge", "health": "Krankenversicherung", "commercial_property": "Gewerbliche Sachversicherung", "commercial_liability": "Betriebshaftpflicht", "cyber": "Cyber", "other": "Sonstige" }
     },
     "opportunities.source": { "label": "Quelle", "options": { "referral": "Empfehlung", "web_form": "Webformular", "comparison_portal": "Vergleichsportal", "existing_client": "Bestandskunde", "partner": "Partner", "event": "Veranstaltung" } },
     "opportunities.needs_analysis_on": { "label": "Bedarfsanalyse am" },
@@ -35,10 +35,10 @@
     "policies.policy_ref": { "label": "Versicherungsscheinnummer" },
     "policies.line": {
       "label": "Sparte",
-      "options": { "motor": "Kfz", "home_contents": "Wohngebäude und Hausrat", "liability": "Haftpflicht", "legal_expenses": "Rechtsschutz", "life_pension": "Leben und Altersvorsorge", "health": "Kranken", "commercial_property": "Gewerbliche Sachversicherung", "commercial_liability": "Betriebshaftpflicht", "cyber": "Cyber", "other": "Sonstige" }
+      "options": { "motor": "Kfz", "home_contents": "Wohngebäude und Hausrat", "liability": "Haftpflicht", "legal_expenses": "Rechtsschutz", "life_pension": "Leben und Altersvorsorge", "health": "Krankenversicherung", "commercial_property": "Gewerbliche Sachversicherung", "commercial_liability": "Betriebshaftpflicht", "cyber": "Cyber", "other": "Sonstige" }
     },
     "policies.line_group": { "label": "Segment", "options": { "commercial": "Gewerbe", "personal": "Privat" } },
-    "policies.status": { "label": "Status", "options": { "pending": "Beantragt", "active": "Aktiv", "lapsed": "Beitragsfrei oder erloschen", "cancelled": "Gekündigt" } },
+    "policies.status": { "label": "Status", "options": { "pending": "Beantragt", "active": "Aktiv", "lapsed": "Erloschen", "cancelled": "Gekündigt" } },
     "policies.renewal_date": { "label": "Hauptfälligkeit" },
     "policies.annual_premium": { "label": "Jahresbeitrag" },
     "policies.notice_days": { "label": "Kündigungsfrist (Tage)" },
@@ -49,7 +49,7 @@
     },
     "renewals.renewal_date": { "label": "Hauptfälligkeit" },
     "renewals.offer_sent_on": { "label": "Angebot gesendet am" },
-    "renewals.decision_on": { "label": "Kunde entschieden am" },
+    "renewals.decision_on": { "label": "Entscheidung des Kunden am" },
     "renewals.premium_change_percent": { "label": "Beitragsänderung (%)" },
     "renewals.advice_documented_on": { "label": "Beratung dokumentiert am" },
     "renewals.lost_reason": {
@@ -62,10 +62,10 @@
     }
   },
   "relationships": {
-    "opportunity_contact": { "sourceLabel": "Ansprechpartner", "targetLabel": "Neugeschäft (Anfragen)" },
+    "opportunity_contact": { "sourceLabel": "Ansprechpartner", "targetLabel": "Anfragen" },
     "policy_contact": { "sourceLabel": "Versicherungsnehmer", "targetLabel": "Verträge" },
     "policy_opportunity": { "sourceLabel": "Anfrage", "targetLabel": "Verträge" },
-    "renewal_policy": { "sourceLabel": "Vertrag", "targetLabel": "Hauptfälligkeiten (Verlängerungen)" },
+    "renewal_policy": { "sourceLabel": "Vertrag", "targetLabel": "Verlängerungen" },
     "action_opportunity": { "sourceLabel": "Anfrage", "targetLabel": "Aufgaben" },
     "action_renewal": { "sourceLabel": "Verlängerung", "targetLabel": "Aufgaben" },
     "action_policy": { "sourceLabel": "Vertrag", "targetLabel": "Aufgaben" }
