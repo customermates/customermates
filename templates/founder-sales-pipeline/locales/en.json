@@ -2,7 +2,7 @@
   "locale": "en",
   "name": "Founder sales pipeline",
   "summary": "A short pipeline for a founder who sells personally: conversations, discovery, an optional pilot with a fixed end date, a proposal, and a parked state with a date to come back.",
-  "description": "Sell as the founder with a handful to a few dozen open conversations: each opportunity records the problem in the customer's words, urgency, budget status and whether the decision maker is engaged; a pilot has an end date and says whether it is paid; a quiet deal is parked with a date to revisit instead of being chased. Weights are rough, since a founder has no close-rate history yet, and yours to set. It is not outbound sequencing at volume, fundraising or a forecast for a team with several sellers.",
+  "description": "Sell as the founder with a handful to a few dozen open conversations: each opportunity records the problem in the customer's words, urgency, budget status and whether the decision maker is engaged; a pilot has an end date and says whether it is paid; a quiet deal is parked with a date to revisit instead of being chased. Weights are rough, since a founder has no close-rate history yet, and they are yours to set. It is not outbound sequencing at volume, fundraising or a forecast for a team with several sellers.",
   "lists": {
     "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "The people you talk to, with their role in the buying decision." },
     "companies": { "label": "Company", "pluralLabel": "Companies", "description": "Prospects, pilots, customers and partners." },
