@@ -27,15 +27,15 @@
       "options": { "requested": "Richiesto", "confirmed": "Confermato", "rescheduled": "Spostato", "held": "Svolto", "no_show": "Assente", "cancelled_by_client": "Annullato dal cliente", "cancelled_by_us": "Annullato da noi" }
     },
     "appointments.start_at": { "label": "Inizio" },
-    "appointments.source": { "label": "Fonte", "options": { "booking_page": "Pagina di prenotazione", "email": "Email", "whatsapp": "WhatsApp", "phone": "Telefono", "manual": "Inserito a mano" } },
-    "appointments.meeting_url": { "label": "Link della riunione" },
+    "appointments.source": { "label": "Fonte", "options": { "booking_page": "Pagina di prenotazione", "email": "Email", "whatsapp": "WhatsApp", "phone": "Telefono", "manual": "Inserito manualmente" } },
+    "appointments.meeting_url": { "label": "Link alla riunione" },
     "appointments.outcome": {
       "label": "Esito",
       "options": { "not_decided": "Non ancora deciso", "qualified": "Qualificato", "second_call": "Serve una seconda chiamata", "proposal_needed": "Serve una proposta", "won": "Chiuso durante la chiamata", "not_a_fit": "Non adatto" }
     },
     "appointments.cancel_reason": {
       "label": "Motivo dell'annullamento",
-      "options": { "schedule_conflict": "Impegno in conflitto", "other_provider": "Ha trovato un altro fornitore", "no_longer_needed": "Non gli serve più", "personal": "Motivo personale", "other": "Altro" }
+      "options": { "schedule_conflict": "Impegno concomitante", "other_provider": "Ha scelto un altro professionista", "no_longer_needed": "Non serve più", "personal": "Motivo personale", "other": "Altro" }
     },
     "actions.kind": {
       "label": "Tipo",
@@ -43,7 +43,7 @@
         "confirm_booking": "Confermare la prenotazione",
         "send_reminder": "Inviare un promemoria",
         "prepare_call": "Preparare l'appuntamento",
-        "send_follow_up": "Inviare il seguito",
+        "send_follow_up": "Inviare il follow-up",
         "offer_new_slot": "Proporre un nuovo orario",
         "record_outcome": "Registrare l'esito",
         "other": "Altro"
@@ -57,7 +57,7 @@
   },
   "views": {
     "appointments_all": { "name": "Tutti gli appuntamenti" },
-    "appointments_board": { "name": "Bacheca degli appuntamenti" },
+    "appointments_board": { "name": "Board degli appuntamenti" },
     "missed_or_cancelled": { "name": "Mancati o annullati" },
     "appointment_types_all": { "name": "Tutti i tipi di appuntamento" },
     "people_all": { "name": "Tutti i contatti" }
@@ -73,7 +73,7 @@
   "knowledgePages": {
     "appointment_types_rules": { "title": "Tipi di appuntamento e disponibilità", "sections": ["Tipi, durate, pause e preavviso", "Orari e limiti giornalieri"] },
     "reminder_policy": { "title": "Promemoria e assenze", "sections": ["Promemoria 3 giorni e 1 giorno prima", "Che cosa facciamo dopo un'assenza"] },
-    "cancellation_policy": { "title": "Annullamento e cambio data", "sections": ["Fino a quando un cliente può annullare", "Come viene proposto un nuovo orario"] }
+    "cancellation_policy": { "title": "Annullamento e spostamento", "sections": ["Fino a quando un cliente può annullare", "Come viene proposto un nuovo orario"] }
   },
   "rules": {
     "booking_form_records": { "title": "Creare contatto e appuntamento quando viene inviato il modulo di prenotazione" },
@@ -83,20 +83,20 @@
     "second_reminder": { "title": "Inviare un secondo promemoria 1 giorno prima di un appuntamento confermato" },
     "record_outcome": { "title": "Registrare l'esito dopo che un appuntamento confermato ha avuto luogo" },
     "no_show_new_slot": { "title": "Proporre un nuovo orario il giorno dopo un'assenza" },
-    "follow_up_held": { "title": "Inviare il seguito il giorno dopo un appuntamento svolto" }
+    "follow_up_held": { "title": "Inviare il follow-up il giorno dopo un appuntamento svolto" }
   },
   "acceptanceChecks": {
     "status_field": "Ogni appuntamento ha uno stato.",
     "start_field": "Ogni appuntamento indica quando inizia.",
-    "appointments_board_view": "Gli appuntamenti si aprono come bacheca per stato."
+    "appointments_board_view": "Gli appuntamenti si aprono come board per stato."
   },
   "prompt": {
-    "intro": "Imposta nel mio workspace Customermates una prenotazione online: tipi di appuntamento con durata, pausa e preavviso, appuntamenti con stato ed esito, promemoria prima di ogni appuntamento e un seguito dopo.",
+    "intro": "Imposta nel mio spazio di lavoro Customermates una prenotazione online: tipi di appuntamento con durata, pausa e preavviso, appuntamenti con stato ed esito, promemoria prima di ogni appuntamento e un follow-up dopo.",
     "questions": [
-      "Quali tipi di appuntamento offrite e quanto dura ciascuno?",
-      "Quanto preavviso vi serve e con quanto anticipo si può prenotare?",
+      "Quali tipi di appuntamento offri e quanto dura ciascuno?",
+      "Quanto preavviso ti serve e con quanto anticipo si può prenotare?",
       "Quali domande deve compilare un cliente al momento della prenotazione?",
-      "Come gestite oggi le assenze e le disdette tardive?"
+      "Come gestisci oggi le assenze e le disdette tardive?"
     ]
   }
 }

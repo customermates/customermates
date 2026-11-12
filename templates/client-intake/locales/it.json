@@ -1,12 +1,12 @@
 {
   "locale": "it",
   "name": "Scheda cliente e accoglienza",
-  "summary": "Un’accoglienza per incarico: richiesta, valutazione, questionario, documenti richiesti, lettera d’incarico e riunione di avvio, con un passo datato a ogni fase e un motivo quando rifiuti.",
-  "description": "Una breve pipeline per accogliere un nuovo cliente: rispondere entro un giorno, valutare l’adeguatezza, inviare il questionario, raccogliere i documenti, inviare la lettera d’incarico, partire. Le professioni regolamentate annotano chi ha verificato l’identità e quando, mai il documento. Non è uno strumento di firma elettronica, di antiriciclaggio o di pagamento.",
+  "summary": "Un'accoglienza per incarico: richiesta, valutazione, questionario, documenti richiesti, lettera d'incarico e riunione di avvio, con un passaggio datato a ogni fase e un motivo quando rifiuti.",
+  "description": "Una breve pipeline per accogliere un nuovo cliente: rispondere entro un giorno, valutare l'adeguatezza, inviare il questionario, raccogliere i documenti, inviare la lettera d'incarico, partire. Le professioni regolamentate annotano chi ha verificato l'identità e quando, mai il documento. Non è uno strumento di firma elettronica, di antiriciclaggio o di pagamento.",
   "lists": {
     "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Le persone presso ogni cliente: referente principale, amministrazione, firmatario." },
     "clients": { "label": "Cliente", "pluralLabel": "Clienti", "description": "Aziende, ditte individuali e privati che accogli." },
-    "intakes": { "label": "Accoglienza", "pluralLabel": "Accoglienze", "description": "Un’accoglienza per incarico, dalla richiesta ad acquisito o rifiutato." },
+    "intakes": { "label": "Accoglienza", "pluralLabel": "Accoglienze", "description": "Un'accoglienza per incarico, dalla richiesta ad acquisito o rifiutato." },
     "document_requests": { "label": "Documento richiesto", "pluralLabel": "Documenti richiesti", "description": "Una riga per ogni documento che chiedi a un cliente." }
   },
   "fields": {
@@ -17,8 +17,8 @@
         "screening": "Valutazione",
         "form_sent": "Questionario inviato",
         "review_checks": "Verifica",
-        "agreement_sent": "Lettera d’incarico inviata",
-        "ready_to_start": "Pronto all’avvio",
+        "agreement_sent": "Lettera d'incarico inviata",
+        "ready_to_start": "Pronto all'avvio",
         "kickoff_scheduled": "Riunione di avvio",
         "onboarded": "Acquisito",
         "declined": "Rifiutato"
@@ -41,7 +41,7 @@
     "clients.registration_id": { "label": "Partita IVA o codice fiscale" },
     "clients.source": {
       "label": "Provenienza",
-      "options": { "referral": "Passaparola", "website": "Sito web", "event": "Evento", "outbound": "Contatto diretto", "partner": "Partner", "other": "Altro" }
+      "options": { "referral": "Segnalazione", "website": "Sito web", "event": "Evento", "outbound": "Contatto diretto", "partner": "Partner", "other": "Altro" }
     },
     "intakes.owner": { "label": "Responsabile" },
     "intakes.service": { "label": "Servizio" },
@@ -49,8 +49,8 @@
     "intakes.first_response_on": { "label": "Prima risposta il" },
     "intakes.form_sent_on": { "label": "Questionario inviato il" },
     "intakes.form_received_on": { "label": "Questionario ricevuto il" },
-    "intakes.agreement_sent_on": { "label": "Lettera d’incarico inviata il" },
-    "intakes.agreement_signed_on": { "label": "Lettera d’incarico firmata il" },
+    "intakes.agreement_sent_on": { "label": "Lettera d'incarico inviata il" },
+    "intakes.agreement_signed_on": { "label": "Lettera d'incarico firmata il" },
     "intakes.kickoff_on": { "label": "Avvio il" },
     "intakes.fee_model": {
       "label": "Modello di compenso",
@@ -84,14 +84,14 @@
     "intakes.next_step": { "label": "Prossimo passo" },
     "intakes.next_step_due": { "label": "Scadenza del prossimo passo" },
     "intakes.days_to_first_response": { "label": "Giorni alla prima risposta" },
-    "intakes.days_to_kickoff": { "label": "Giorni all’avvio" },
+    "intakes.days_to_kickoff": { "label": "Giorni all'avvio" },
     "document_requests.kind": {
       "label": "Tipo",
       "options": {
-        "identity": "Documento d’identità",
-        "proof_of_address": "Prova di residenza",
+        "identity": "Documento d'identità",
+        "proof_of_address": "Attestazione di residenza",
         "company_register": "Visura camerale",
-        "prior_year_return": "Dichiarazione dell’anno precedente",
+        "prior_year_return": "Dichiarazione dei redditi dell'anno precedente",
         "contract": "Contratto",
         "questionnaire": "Questionario",
         "access_credentials": "Credenziali di accesso",
@@ -102,7 +102,7 @@
       "label": "Stato",
       "options": { "requested": "Richiesto", "partial": "Ricevuto in parte", "received": "Ricevuto", "needs_correction": "Da correggere", "not_needed": "Non necessario" }
     },
-    "document_requests.requested_on": { "label": "Documenti richiesti il" },
+    "document_requests.requested_on": { "label": "Richiesto il" },
     "document_requests.needed_by": { "label": "Da consegnare entro" },
     "document_requests.received_on": { "label": "Ricevuto il" },
     "document_requests.where_stored": { "label": "Dove è conservato" },
@@ -115,7 +115,7 @@
         "chase_document": "Sollecitare un documento",
         "review": "Revisione",
         "check": "Verifica",
-        "send_agreement": "Inviare la lettera d’incarico",
+        "send_agreement": "Inviare la lettera d'incarico",
         "chase_signature": "Sollecitare la firma",
         "kickoff": "Avvio",
         "decline_letter": "Lettera di rifiuto",
@@ -148,7 +148,7 @@
     "documents_outstanding": { "title": "Documenti in sospeso" },
     "awaiting_signature_count": { "title": "In attesa di firma" },
     "average_days_to_reply": { "title": "Media dei giorni alla prima risposta" },
-    "average_days_to_kickoff": { "title": "Media dei giorni all’avvio" },
+    "average_days_to_kickoff": { "title": "Media dei giorni all'avvio" },
     "decline_reasons": { "title": "Motivi del rifiuto" },
     "new_intakes_per_month": { "title": "Nuove accoglienze al mese" }
   },
@@ -159,14 +159,14 @@
     },
     "intake_questionnaire": {
       "title": "Questionario per tipo di cliente",
-      "sections": ["Società, ditta individuale, privato, associazione", "Domande che decidono l’adeguatezza", "Che cosa non chiedi mai"]
+      "sections": ["Società, ditta individuale, privato, associazione", "Domande che decidono l'adeguatezza", "Che cosa non chiedi mai"]
     },
     "document_requests_guide": {
       "title": "Elenco dei documenti e messaggi di sollecito",
       "sections": ["Elenco standard per servizio", "Prima richiesta e solleciti", "Quando un documento va corretto"]
     },
     "agreement_checklist": {
-      "title": "Checklist della lettera d’incarico",
+      "title": "Checklist della lettera d'incarico",
       "sections": ["Ambito, modello di compenso e acconto", "Chi firma e con quale strumento", "Che cosa fare se resta non firmata"]
     },
     "regulated_checks": {
@@ -174,39 +174,39 @@
       "sections": ["Annotare chi ha verificato e quando, mai il documento", "Ricerca di conflitti prima di iniziare", "Livello di rischio e quando rifiutare"]
     },
     "privacy_at_intake": {
-      "title": "Privacy: che cosa raccogliamo all’accoglienza e perché",
+      "title": "Privacy: che cosa raccogliamo all'accoglienza e perché",
       "sections": ["Finalità e base giuridica", "Che cosa resta fuori dallo spazio di lavoro", "Conservazione e richieste di cancellazione"]
     }
   },
   "rules": {
-    "reply_to_enquiry": { "title": "Rispondere alla richiesta", "description": "Una nuova accoglienza riceve un’attività di risposta con scadenza il giorno dopo." },
-    "chase_form": { "title": "Sollecitare il questionario", "description": "Tre giorni dopo l’invio del questionario scade un’attività di sollecito." },
-    "chase_document": { "title": "Sollecitare il documento mancante", "description": "Alla data limite di un documento richiesto ancora aperto viene creata un’attività di sollecito." },
-    "review_received_document": { "title": "Controllare il documento ricevuto", "description": "Quando un documento è segnato come ricevuto, un’attività di controllo scade il giorno dopo." },
-    "chase_signature": { "title": "Sollecitare la firma", "description": "Sette giorni dopo l’invio della lettera d’incarico scade un’attività di sollecito." },
-    "decline_letter": { "title": "Inviare la lettera di rifiuto", "description": "Un’accoglienza rifiutata riceve un’attività di lettera con scadenza il giorno dopo. Indica che non esiste alcun incarico e cita eventuali termini vicini." },
-    "kickoff_event": { "title": "Inserire la riunione di avvio nel calendario", "description": "Quando la data di avvio è impostata, l’evento viene scritto nel calendario del responsabile." },
-    "first_value_check": { "title": "Verificare il primo risultato", "description": "Quattordici giorni dopo l’acquisizione, un’attività di verifica chiede se il cliente ha visto un primo risultato." },
-    "stalled_intake": { "title": "Rivedere l’accoglienza ferma", "description": "Un’accoglienza aperta rimasta 7 giorni nella stessa fase riceve un’attività di revisione." },
-    "intake_form_records": { "title": "Creare cliente, referente e accoglienza dal modulo", "description": "Un modulo di accoglienza pubblico crea il cliente, il referente e un’accoglienza nella fase Richiesta." },
+    "reply_to_enquiry": { "title": "Rispondere alla richiesta", "description": "Una nuova accoglienza riceve un'attività di risposta con scadenza il giorno dopo." },
+    "chase_form": { "title": "Sollecitare il questionario", "description": "Tre giorni dopo l'invio del questionario scade un'attività di sollecito." },
+    "chase_document": { "title": "Sollecitare il documento mancante", "description": "Alla data limite di un documento richiesto ancora aperto viene creata un'attività di sollecito." },
+    "review_received_document": { "title": "Controllare il documento ricevuto", "description": "Quando un documento è segnato come ricevuto, un'attività di controllo scade il giorno dopo." },
+    "chase_signature": { "title": "Sollecitare la firma", "description": "Sette giorni dopo l'invio della lettera d'incarico scade un'attività di sollecito." },
+    "decline_letter": { "title": "Inviare la lettera di rifiuto", "description": "Un'accoglienza rifiutata riceve un'attività di lettera con scadenza il giorno dopo. Precisa che non esiste alcun incarico e indica eventuali termini in scadenza." },
+    "kickoff_event": { "title": "Inserire la riunione di avvio nel calendario", "description": "Quando la data di avvio è impostata, l'evento viene scritto nel calendario del responsabile." },
+    "first_value_check": { "title": "Verificare il primo risultato", "description": "Quattordici giorni dopo l'acquisizione, un'attività di verifica chiede se il cliente ha visto un primo risultato." },
+    "stalled_intake": { "title": "Rivedere l'accoglienza ferma", "description": "Un'accoglienza aperta rimasta 7 giorni nella stessa fase riceve un'attività di revisione." },
+    "intake_form_records": { "title": "Creare cliente, referente e accoglienza dal modulo", "description": "Un modulo di accoglienza pubblico crea il cliente, il referente e un'accoglienza nella fase Richiesta." },
     "intake_form_notice": { "title": "Avvisare il responsabile della nuova accoglienza", "description": "Il titolare dello spazio di lavoro riceve un avviso a ogni invio." }
   },
   "acceptanceChecks": {
     "stage_field": "Ogni accoglienza ha una delle nove fasi.",
     "first_response_field": "Ogni accoglienza registra quando hai risposto per la prima volta.",
     "document_requests_list": "I documenti richiesti sono seguiti in un elenco proprio.",
-    "intakes_board_view": "L’elenco delle accoglienze si può vedere come bacheca per fase.",
-    "chase_signature_rule": "Una lettera d’incarico inviata riceve un’attività di sollecito dopo 7 giorni.",
-    "process_page": "La knowledge base contiene il processo di accoglienza."
+    "intakes_board_view": "L'elenco delle accoglienze si può vedere come board per fase.",
+    "chase_signature_rule": "Una lettera d'incarico inviata riceve un'attività di sollecito dopo 7 giorni.",
+    "process_page": "La base di conoscenza contiene il processo di accoglienza."
   },
   "prompt": {
-    "intro": "Configura l’accoglienza dei clienti nel mio spazio di lavoro Customermates: un’accoglienza per incarico con nove fasi, documenti richiesti, un passo datato a ogni fase, un motivo del rifiuto e verifiche facoltative di identità, conflitto e rischio che annotano chi ha verificato e quando.",
+    "intro": "Configura l'accoglienza dei clienti nel mio spazio di lavoro Customermates: un'accoglienza per incarico con nove fasi, documenti richiesti, un passaggio datato a ogni fase, un motivo del rifiuto e verifiche facoltative di identità, conflitto e rischio che annotano chi ha verificato e quando.",
     "questions": [
       "Che cosa vendi e chi sono i tuoi clienti: società, ditte individuali o privati?",
       "Quali passaggi attraversa oggi un nuovo cliente e quali delle nove fasi non ti servono?",
-      "La tua professione è regolamentata, così che identità, conflitto o rischio vadano registrati? In quale paese?",
-      "Quali documenti chiedi sempre e dove li conservi? Qui si tiene solo un collegamento.",
-      "Dove firmano i clienti la lettera d’incarico? Resta lì e qui si tengono le date."
+      "La tua professione è regolamentata e richiede di registrare verifiche di identità, conflitto o rischio? In quale paese?",
+      "Quali documenti chiedi sempre e dove li conservi? Qui si tiene solo un link.",
+      "Dove firmano i clienti la lettera d'incarico? Resta lì e qui si tengono le date."
     ]
   }
 }
