@@ -1,0 +1,212 @@
+{
+  "locale": "de",
+  "name": "Mandantenaufnahme und Onboarding",
+  "summary": "Eine Aufnahme pro Mandat: Anfrage, Vorprüfung, Fragebogen, Unterlagenanforderung, Auftragsbestätigung und Kickoff, mit einem Termin je Phase und einem Grund bei Ablehnung.",
+  "description": "Eine kurze Pipeline für die Aufnahme neuer Kunden und Mandanten: binnen eines Tages antworten, auf Passung prüfen, Fragebogen senden, Unterlagen einholen, Auftragsbestätigung senden, starten. Regulierte Berufe halten fest, wer wann identifiziert hat, nie das Dokument selbst. Kein Werkzeug für elektronische Signatur, Geldwäscheprüfung oder Zahlungen.",
+  "lists": {
+    "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Die Personen beim Mandanten: Hauptkontakt, Buchhaltung, Unterzeichner." },
+    "clients": { "label": "Mandant", "pluralLabel": "Mandanten", "description": "Unternehmen, Einzelunternehmer und Privatpersonen, die Sie aufnehmen." },
+    "intakes": { "label": "Aufnahme", "pluralLabel": "Aufnahmen", "description": "Eine Aufnahme pro Mandat, von der Anfrage bis aufgenommen oder abgelehnt." },
+    "document_requests": { "label": "Unterlagenanforderung", "pluralLabel": "Unterlagenanforderungen", "description": "Eine Zeile pro Unterlage, die Sie vom Mandanten anfordern." }
+  },
+  "fields": {
+    "intakes.stage": {
+      "label": "Phase",
+      "options": {
+        "enquiry": "Anfrage",
+        "screening": "Vorprüfung",
+        "form_sent": "Fragebogen versendet",
+        "review_checks": "Prüfung und Identifizierung",
+        "agreement_sent": "Auftragsbestätigung versendet",
+        "ready_to_start": "Startbereit",
+        "kickoff_scheduled": "Kickoff geplant",
+        "onboarded": "Aufgenommen",
+        "declined": "Abgelehnt"
+      }
+    },
+    "contacts.job_title": { "label": "Position" },
+    "contacts.contact_role": {
+      "label": "Rolle",
+      "options": { "primary": "Hauptansprechpartner", "billing": "Buchhaltung", "signatory": "Unterzeichner", "technical": "Technik", "other": "Sonstige" }
+    },
+    "contacts.language": { "label": "Sprache" },
+    "contacts.privacy_notice_sent_on": { "label": "Datenschutzhinweis gesendet am" },
+    "clients.client_type": {
+      "label": "Mandantenart",
+      "options": { "company": "Unternehmen", "sole_trader": "Einzelunternehmer", "individual": "Privatperson", "organisation": "Verein oder Organisation" }
+    },
+    "clients.owner": { "label": "Betreuer" },
+    "clients.website": { "label": "Website" },
+    "clients.address": { "label": "Anschrift" },
+    "clients.registration_id": { "label": "Handelsregister- oder Steuernummer" },
+    "clients.source": {
+      "label": "Herkunft",
+      "options": { "referral": "Empfehlung", "website": "Website", "event": "Veranstaltung", "outbound": "Eigene Akquise", "partner": "Partner", "other": "Sonstige" }
+    },
+    "intakes.owner": { "label": "Zuständig" },
+    "intakes.service": { "label": "Leistung" },
+    "intakes.received_on": { "label": "Eingegangen am" },
+    "intakes.first_response_on": { "label": "Erste Antwort am" },
+    "intakes.form_sent_on": { "label": "Fragebogen gesendet am" },
+    "intakes.form_received_on": { "label": "Fragebogen erhalten am" },
+    "intakes.agreement_sent_on": { "label": "Auftragsbestätigung gesendet am" },
+    "intakes.agreement_signed_on": { "label": "Auftragsbestätigung unterschrieben am" },
+    "intakes.kickoff_on": { "label": "Kickoff am" },
+    "intakes.fee_model": {
+      "label": "Honorarmodell",
+      "options": { "fixed": "Festpreis", "hourly": "Stundensatz", "retainer": "Pauschale pro Monat", "other": "Sonstige" }
+    },
+    "intakes.deposit_required": { "label": "Vorschuss erforderlich" },
+    "intakes.deposit_received_on": { "label": "Vorschuss erhalten am" },
+    "intakes.identity_verified_on": { "label": "Identifiziert am" },
+    "intakes.identity_verified_by": { "label": "Identifiziert durch" },
+    "intakes.conflict_check": {
+      "label": "Interessenkonflikt-Prüfung",
+      "options": { "not_required": "Nicht erforderlich", "pending": "Offen", "clear": "Unbedenklich", "conflict_found": "Konflikt festgestellt" }
+    },
+    "intakes.risk_rating": {
+      "label": "Risikoeinstufung",
+      "options": { "not_assessed": "Nicht bewertet", "low": "Gering", "standard": "Normal", "high": "Hoch" }
+    },
+    "intakes.decline_reason": {
+      "label": "Ablehnungsgrund",
+      "options": {
+        "conflict": "Interessenkonflikt",
+        "not_a_fit": "Passt nicht",
+        "no_capacity": "Keine Kapazität",
+        "no_response": "Keine Antwort",
+        "client_withdrew": "Mandant zog zurück",
+        "risk": "Risiko",
+        "other": "Sonstiges"
+      }
+    },
+    "intakes.decline_notice_sent_on": { "label": "Absage gesendet am" },
+    "intakes.next_step": { "label": "Nächster Schritt" },
+    "intakes.next_step_due": { "label": "Wiedervorlage am" },
+    "intakes.days_to_first_response": { "label": "Tage bis zur ersten Antwort" },
+    "intakes.days_to_kickoff": { "label": "Tage bis zum Kickoff" },
+    "document_requests.kind": {
+      "label": "Art",
+      "options": {
+        "identity": "Ausweis",
+        "proof_of_address": "Adressnachweis",
+        "company_register": "Handelsregisterauszug",
+        "prior_year_return": "Vorjahreserklärung",
+        "contract": "Vertrag",
+        "questionnaire": "Fragebogen",
+        "access_credentials": "Zugangsdaten",
+        "other": "Sonstige"
+      }
+    },
+    "document_requests.status": {
+      "label": "Status",
+      "options": { "requested": "Angefordert", "partial": "Teilweise erhalten", "received": "Erhalten", "needs_correction": "Muss korrigiert werden", "not_needed": "Nicht nötig" }
+    },
+    "document_requests.requested_on": { "label": "Angefordert am" },
+    "document_requests.needed_by": { "label": "Frist bis" },
+    "document_requests.received_on": { "label": "Erhalten am" },
+    "document_requests.where_stored": { "label": "Ablageort" },
+    "document_requests.owner": { "label": "Zuständig" },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "reply": "Antwort",
+        "chase_form": "Fragebogen nachfassen",
+        "chase_document": "Unterlage nachfassen",
+        "review": "Prüfung",
+        "check": "Kontrolle",
+        "send_agreement": "Auftragsbestätigung senden",
+        "chase_signature": "Unterschrift nachfassen",
+        "kickoff": "Kickoff",
+        "decline_letter": "Absage",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Mandant", "targetLabel": "Ansprechpartner" },
+    "intake_client": { "sourceLabel": "Mandant", "targetLabel": "Aufnahmen" },
+    "intake_contact": { "sourceLabel": "Hauptansprechpartner", "targetLabel": "Aufnahmen" },
+    "document_request_intake": { "sourceLabel": "Aufnahme", "targetLabel": "Unterlagenanforderungen" },
+    "action_intake": { "sourceLabel": "Aufnahme", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "intakes_all": { "name": "Alle Aufnahmen" },
+    "intakes_board": { "name": "Aufnahmen nach Phase" },
+    "awaiting_signature": { "name": "Wartet auf Unterschrift" },
+    "no_first_response": { "name": "Ohne erste Antwort" },
+    "declined_intakes": { "name": "Abgelehnt" },
+    "document_requests_all": { "name": "Alle Unterlagenanforderungen" },
+    "documents_outstanding": { "name": "Wartet auf Unterlagen" },
+    "clients_all": { "name": "Alle Mandanten" },
+    "contacts_all": { "name": "Alle Ansprechpartner" }
+  },
+  "widgets": {
+    "intakes_by_stage": { "title": "Offene Aufnahmen nach Phase" },
+    "open_intakes_by_owner": { "title": "Offene Aufnahmen je Betreuer" },
+    "enquiries_without_reply": { "title": "Anfragen ohne erste Antwort" },
+    "documents_outstanding": { "title": "Ausstehende Unterlagen" },
+    "awaiting_signature_count": { "title": "Wartet auf Unterschrift" },
+    "average_days_to_reply": { "title": "Durchschnittliche Tage bis zur ersten Antwort" },
+    "average_days_to_kickoff": { "title": "Durchschnittliche Tage bis zum Kickoff" },
+    "decline_reasons": { "title": "Ablehnungsgründe" },
+    "new_intakes_per_month": { "title": "Neue Aufnahmen pro Monat" }
+  },
+  "knowledgePages": {
+    "intake_process": {
+      "title": "Ablauf der Mandantenaufnahme",
+      "sections": ["Die neun Phasen und was jede abschließt", "Wer antwortet, wer prüft, wer unterschreibt", "Zeitrahmen: binnen eines Tages antworten, nach 3 und 7 Tagen nachfassen"]
+    },
+    "intake_questionnaire": {
+      "title": "Fragebogen nach Mandantenart",
+      "sections": ["Unternehmen, Einzelunternehmer, Privatperson, Verein", "Fragen, die über die Passung entscheiden", "Wonach Sie nie fragen"]
+    },
+    "document_requests_guide": {
+      "title": "Unterlagenliste und Erinnerungsnachrichten",
+      "sections": ["Standardliste je Leistung", "Erste Anforderung und Erinnerungen", "Wenn eine Unterlage korrigiert werden muss"]
+    },
+    "agreement_checklist": {
+      "title": "Checkliste Auftragsbestätigung",
+      "sections": ["Umfang, Honorarmodell und Vorschuss", "Wer in welchem Werkzeug unterschreibt", "Was zu tun ist, wenn die Unterschrift fehlt"]
+    },
+    "regulated_checks": {
+      "title": "Identifizierung, Konflikt- und Risikoprüfung für regulierte Berufe",
+      "sections": ["Festhalten, wer wann geprüft hat, nie das Dokument", "Konfliktabfrage vor Arbeitsbeginn", "Risikoeinstufung und wann abzulehnen ist"]
+    },
+    "privacy_at_intake": {
+      "title": "Datenschutz: was wir bei der Aufnahme erheben und warum",
+      "sections": ["Zweck und Rechtsgrundlage", "Was nicht in den Workspace gehört", "Aufbewahrung und Löschanfragen"]
+    }
+  },
+  "rules": {
+    "reply_to_enquiry": { "title": "Auf die Anfrage antworten", "description": "Eine neue Aufnahme erhält eine Antwortaufgabe, fällig am nächsten Tag." },
+    "chase_form": { "title": "Fragebogen nachfassen", "description": "Drei Tage nach dem Versand des Fragebogens wird eine Nachfrageaufgabe fällig." },
+    "chase_document": { "title": "Fehlende Unterlage nachfassen", "description": "Erreicht die Frist einer offenen Unterlagenanforderung ihr Datum, entsteht eine Nachfrageaufgabe." },
+    "review_received_document": { "title": "Erhaltene Unterlage prüfen", "description": "Wird eine Unterlage als erhalten markiert, ist am nächsten Tag eine Prüfaufgabe fällig." },
+    "chase_signature": { "title": "Unterschrift nachfassen", "description": "Sieben Tage nach dem Versand der Auftragsbestätigung wird eine Nachfrageaufgabe fällig." },
+    "decline_letter": { "title": "Absage senden", "description": "Eine abgelehnte Aufnahme erhält eine Absageaufgabe für den nächsten Tag. Schreiben Sie, dass kein Mandat besteht, und nennen Sie nahende Fristen." },
+    "kickoff_event": { "title": "Kickoff in den Kalender eintragen", "description": "Ist das Kickoff-Datum gesetzt, wird der Termin in den Kalender des Zuständigen geschrieben." },
+    "first_value_check": { "title": "Erstes Ergebnis prüfen", "description": "Vierzehn Tage nach der Aufnahme fragt eine Kontrollaufgabe, ob der Mandant ein erstes Ergebnis gesehen hat." },
+    "stalled_intake": { "title": "Festgefahrene Aufnahme prüfen", "description": "Eine offene Aufnahme, die 7 Tage in derselben Phase blieb, erhält eine Prüfaufgabe." },
+    "intake_form_records": { "title": "Mandant, Ansprechpartner und Aufnahme aus dem Formular anlegen", "description": "Ein öffentliches Aufnahmeformular legt den Mandanten, den Ansprechpartner und eine Aufnahme in der Phase Anfrage an." },
+    "intake_form_notice": { "title": "Den Zuständigen über die neue Aufnahme informieren", "description": "Die Inhaberin oder der Inhaber des Workspaces wird über jede Einsendung benachrichtigt." }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Jede Aufnahme hat eine von neun Phasen.",
+    "first_response_field": "Jede Aufnahme hält fest, wann Sie zuerst geantwortet haben.",
+    "document_requests_list": "Unterlagenanforderungen stehen in einer eigenen Liste.",
+    "intakes_board_view": "Die Aufnahmeliste lässt sich als Board nach Phase ansehen.",
+    "chase_signature_rule": "Eine versendete Auftragsbestätigung erhält nach 7 Tagen eine Nachfrageaufgabe.",
+    "process_page": "Die Wissensdatenbank enthält den Aufnahmeablauf."
+  },
+  "prompt": {
+    "intro": "Richte die Mandantenaufnahme in meinem Customermates-Workspace ein: eine Aufnahme pro Mandat mit neun Phasen, Unterlagenanforderungen, einem Termin in jeder Phase, einem Ablehnungsgrund und optionalen Identifizierungs-, Konflikt- und Risikoprüfungen, die festhalten, wer wann geprüft hat.",
+    "questions": [
+      "Was verkaufen Sie, und wer sind Ihre Mandanten: Unternehmen, Einzelunternehmer oder Privatpersonen?",
+      "Welche Schritte durchläuft ein neuer Mandant heute, und welche der neun Phasen brauchen Sie nicht?",
+      "Ist Ihr Beruf reguliert, sodass Identifizierung, Konflikt- oder Risikoprüfung festgehalten werden müssen? In welchem Land?",
+      "Welche Unterlagen fordern Sie immer an, und wo legen Sie sie ab? Hier wird nur ein Link gespeichert.",
+      "Wo unterschreiben Mandanten die Auftragsbestätigung? Sie bleibt dort, die Daten werden hier festgehalten."
+    ]
+  }
+}

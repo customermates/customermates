@@ -1,0 +1,212 @@
+{
+  "locale": "pl",
+  "name": "Karta klienta i wdrożenie",
+  "summary": "Jedno wdrożenie na zlecenie: zapytanie, wstępna kwalifikacja, ankieta, dokumenty, umowa i spotkanie startowe, z datowanym krokiem na każdym etapie i powodem, gdy odmawiasz.",
+  "description": "Krótki lejek przyjęcia nowego klienta: odpowiedź w ciągu doby, ocena dopasowania, wysłanie ankiety, zebranie dokumentów, wysłanie umowy, start. Zawody regulowane zapisują, kto i kiedy zweryfikował tożsamość, nigdy samego dokumentu. To nie narzędzie do podpisu elektronicznego, przeciwdziałania praniu pieniędzy ani płatności.",
+  "lists": {
+    "contacts": { "label": "Osoba kontaktowa", "pluralLabel": "Osoby kontaktowe", "description": "Osoby u każdego klienta: główny kontakt, rozliczenia, osoba podpisująca." },
+    "clients": { "label": "Klient", "pluralLabel": "Klienci", "description": "Firmy, jednoosobowe działalności i osoby prywatne, które przyjmujesz." },
+    "intakes": { "label": "Wdrożenie", "pluralLabel": "Wdrożenia", "description": "Jedno wdrożenie na zlecenie, od zapytania do wdrożonego lub odrzuconego." },
+    "document_requests": { "label": "Zamówiony dokument", "pluralLabel": "Zamówione dokumenty", "description": "Jeden wiersz na dokument, o który prosisz klienta." }
+  },
+  "fields": {
+    "intakes.stage": {
+      "label": "Etap",
+      "options": {
+        "enquiry": "Zapytanie",
+        "screening": "Wstępna kwalifikacja",
+        "form_sent": "Ankieta wysłana",
+        "review_checks": "Weryfikacja",
+        "agreement_sent": "Umowa wysłana",
+        "ready_to_start": "Gotowy do startu",
+        "kickoff_scheduled": "Spotkanie startowe",
+        "onboarded": "Wdrożony",
+        "declined": "Odrzucony"
+      }
+    },
+    "contacts.job_title": { "label": "Stanowisko" },
+    "contacts.contact_role": {
+      "label": "Rola",
+      "options": { "primary": "Główny kontakt", "billing": "Rozliczenia", "signatory": "Osoba podpisująca", "technical": "Techniczny", "other": "Inna" }
+    },
+    "contacts.language": { "label": "Język" },
+    "contacts.privacy_notice_sent_on": { "label": "Klauzula informacyjna wysłana dnia" },
+    "clients.client_type": {
+      "label": "Rodzaj klienta",
+      "options": { "company": "Firma", "sole_trader": "Jednoosobowa działalność", "individual": "Osoba prywatna", "organisation": "Stowarzyszenie lub organizacja" }
+    },
+    "clients.owner": { "label": "Opiekun" },
+    "clients.website": { "label": "Strona internetowa" },
+    "clients.address": { "label": "Adres" },
+    "clients.registration_id": { "label": "NIP, REGON lub KRS" },
+    "clients.source": {
+      "label": "Źródło",
+      "options": { "referral": "Polecenie", "website": "Strona internetowa", "event": "Wydarzenie", "outbound": "Kontakt własny", "partner": "Partner", "other": "Inne" }
+    },
+    "intakes.owner": { "label": "Odpowiedzialny" },
+    "intakes.service": { "label": "Usługa" },
+    "intakes.received_on": { "label": "Otrzymano dnia" },
+    "intakes.first_response_on": { "label": "Pierwsza odpowiedź dnia" },
+    "intakes.form_sent_on": { "label": "Ankieta wysłana dnia" },
+    "intakes.form_received_on": { "label": "Ankieta otrzymana dnia" },
+    "intakes.agreement_sent_on": { "label": "Umowa wysłana dnia" },
+    "intakes.agreement_signed_on": { "label": "Umowa podpisana dnia" },
+    "intakes.kickoff_on": { "label": "Spotkanie startowe dnia" },
+    "intakes.fee_model": {
+      "label": "Model wynagrodzenia",
+      "options": { "fixed": "Kwota stała", "hourly": "Za godzinę", "retainer": "Abonament miesięczny", "other": "Inny" }
+    },
+    "intakes.deposit_required": { "label": "Wymagana zaliczka" },
+    "intakes.deposit_received_on": { "label": "Zaliczka otrzymana dnia" },
+    "intakes.identity_verified_on": { "label": "Tożsamość zweryfikowana dnia" },
+    "intakes.identity_verified_by": { "label": "Tożsamość zweryfikował" },
+    "intakes.conflict_check": {
+      "label": "Sprawdzenie konfliktu interesów",
+      "options": { "not_required": "Niewymagane", "pending": "W toku", "clear": "Brak konfliktu", "conflict_found": "Wykryto konflikt" }
+    },
+    "intakes.risk_rating": {
+      "label": "Ocena ryzyka",
+      "options": { "not_assessed": "Nieocenione", "low": "Niskie", "standard": "Standardowe", "high": "Wysokie" }
+    },
+    "intakes.decline_reason": {
+      "label": "Powód odmowy",
+      "options": {
+        "conflict": "Konflikt interesów",
+        "not_a_fit": "Brak dopasowania",
+        "no_capacity": "Brak możliwości",
+        "no_response": "Brak odpowiedzi",
+        "client_withdrew": "Klient się wycofał",
+        "risk": "Ryzyko",
+        "other": "Inny"
+      }
+    },
+    "intakes.decline_notice_sent_on": { "label": "Odmowa wysłana dnia" },
+    "intakes.next_step": { "label": "Następny krok" },
+    "intakes.next_step_due": { "label": "Termin następnego kroku" },
+    "intakes.days_to_first_response": { "label": "Dni do pierwszej odpowiedzi" },
+    "intakes.days_to_kickoff": { "label": "Dni do spotkania startowego" },
+    "document_requests.kind": {
+      "label": "Rodzaj",
+      "options": {
+        "identity": "Dokument tożsamości",
+        "proof_of_address": "Potwierdzenie adresu",
+        "company_register": "Odpis z rejestru",
+        "prior_year_return": "Zeznanie z poprzedniego roku",
+        "contract": "Umowa",
+        "questionnaire": "Ankieta",
+        "access_credentials": "Dane dostępowe",
+        "other": "Inny"
+      }
+    },
+    "document_requests.status": {
+      "label": "Status",
+      "options": { "requested": "Zamówiony", "partial": "Otrzymany częściowo", "received": "Otrzymany", "needs_correction": "Wymaga poprawy", "not_needed": "Niepotrzebny" }
+    },
+    "document_requests.requested_on": { "label": "Dokumenty zamówione dnia" },
+    "document_requests.needed_by": { "label": "Termin" },
+    "document_requests.received_on": { "label": "Otrzymano dnia" },
+    "document_requests.where_stored": { "label": "Gdzie jest przechowywany" },
+    "document_requests.owner": { "label": "Odpowiedzialny" },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": {
+        "reply": "Odpowiedź",
+        "chase_form": "Ponaglić ankietę",
+        "chase_document": "Ponaglić dokument",
+        "review": "Przegląd",
+        "check": "Kontrola",
+        "send_agreement": "Wysłać umowę",
+        "chase_signature": "Ponaglić podpis",
+        "kickoff": "Spotkanie startowe",
+        "decline_letter": "Pismo z odmową",
+        "other": "Inne"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Klient", "targetLabel": "Osoby kontaktowe" },
+    "intake_client": { "sourceLabel": "Klient", "targetLabel": "Wdrożenia" },
+    "intake_contact": { "sourceLabel": "Główny kontakt", "targetLabel": "Wdrożenia" },
+    "document_request_intake": { "sourceLabel": "Wdrożenie", "targetLabel": "Zamówione dokumenty" },
+    "action_intake": { "sourceLabel": "Wdrożenie", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "intakes_all": { "name": "Wszystkie wdrożenia" },
+    "intakes_board": { "name": "Wdrożenia wg etapu" },
+    "awaiting_signature": { "name": "Czeka na podpis" },
+    "no_first_response": { "name": "Bez pierwszej odpowiedzi" },
+    "declined_intakes": { "name": "Odrzucone" },
+    "document_requests_all": { "name": "Wszystkie zamówione dokumenty" },
+    "documents_outstanding": { "name": "Czeka na dokumenty" },
+    "clients_all": { "name": "Wszyscy klienci" },
+    "contacts_all": { "name": "Wszystkie osoby kontaktowe" }
+  },
+  "widgets": {
+    "intakes_by_stage": { "title": "Otwarte wdrożenia wg etapu" },
+    "open_intakes_by_owner": { "title": "Otwarte wdrożenia na opiekuna" },
+    "enquiries_without_reply": { "title": "Zapytania bez pierwszej odpowiedzi" },
+    "documents_outstanding": { "title": "Brakujące dokumenty" },
+    "awaiting_signature_count": { "title": "Czeka na podpis" },
+    "average_days_to_reply": { "title": "Średnia liczba dni do pierwszej odpowiedzi" },
+    "average_days_to_kickoff": { "title": "Średnia liczba dni do spotkania startowego" },
+    "decline_reasons": { "title": "Powody odmów" },
+    "new_intakes_per_month": { "title": "Nowe wdrożenia miesięcznie" }
+  },
+  "knowledgePages": {
+    "intake_process": {
+      "title": "Proces przyjęcia klienta",
+      "sections": ["Dziewięć etapów i co zamyka każdy z nich", "Kto odpowiada, kto kwalifikuje, kto podpisuje", "Ramy czasowe: odpowiedź w ciągu doby, ponaglenie po 3 i po 7 dniach"]
+    },
+    "intake_questionnaire": {
+      "title": "Ankieta wg rodzaju klienta",
+      "sections": ["Firma, jednoosobowa działalność, osoba prywatna, stowarzyszenie", "Pytania rozstrzygające o dopasowaniu", "O co nigdy nie pytasz"]
+    },
+    "document_requests_guide": {
+      "title": "Lista dokumentów i wiadomości ponaglające",
+      "sections": ["Standardowa lista dla usługi", "Pierwsza prośba i przypomnienia", "Gdy dokument wymaga poprawy"]
+    },
+    "agreement_checklist": {
+      "title": "Lista kontrolna umowy",
+      "sections": ["Zakres, model wynagrodzenia i zaliczka", "Kto podpisuje i w jakim narzędziu", "Co robić, gdy umowa pozostaje niepodpisana"]
+    },
+    "regulated_checks": {
+      "title": "Weryfikacja tożsamości, konfliktu i ryzyka w zawodach regulowanych",
+      "sections": ["Zapisz, kto i kiedy sprawdził, nigdy dokumentu", "Sprawdzenie konfliktów przed rozpoczęciem pracy", "Ocena ryzyka i kiedy odmówić"]
+    },
+    "privacy_at_intake": {
+      "title": "Prywatność: co zbieramy przy przyjęciu i dlaczego",
+      "sections": ["Cel i podstawa prawna", "Co zostaje poza przestrzenią roboczą", "Przechowywanie i wnioski o usunięcie"]
+    }
+  },
+  "rules": {
+    "reply_to_enquiry": { "title": "Odpowiedz na zapytanie", "description": "Nowe wdrożenie dostaje zadanie odpowiedzi z terminem na następny dzień." },
+    "chase_form": { "title": "Ponagl ankietę", "description": "Trzy dni po wysłaniu ankiety przypada zadanie ponaglenia." },
+    "chase_document": { "title": "Ponagl brakujący dokument", "description": "Gdy upływa termin otwartego zamówionego dokumentu, powstaje zadanie ponaglenia." },
+    "review_received_document": { "title": "Sprawdź otrzymany dokument", "description": "Gdy dokument oznaczono jako otrzymany, zadanie kontroli przypada następnego dnia." },
+    "chase_signature": { "title": "Ponagl podpis", "description": "Siedem dni po wysłaniu umowy przypada zadanie ponaglenia." },
+    "decline_letter": { "title": "Wyślij pismo z odmową", "description": "Odrzucone wdrożenie dostaje zadanie pisma z terminem na następny dzień. Napisz, że zlecenie nie istnieje, i wskaż zbliżające się terminy." },
+    "kickoff_event": { "title": "Wpisz spotkanie startowe do kalendarza", "description": "Gdy ustawiono datę spotkania, wydarzenie trafia do kalendarza odpowiedzialnego." },
+    "first_value_check": { "title": "Sprawdź pierwszy wynik", "description": "Czternaście dni po wdrożeniu zadanie kontrolne pyta, czy klient zobaczył pierwszy wynik." },
+    "stalled_intake": { "title": "Przejrzyj zablokowane wdrożenie", "description": "Otwarte wdrożenie, które przez 7 dni zostało na tym samym etapie, dostaje zadanie przeglądu." },
+    "intake_form_records": { "title": "Utwórz klienta, osobę kontaktową i wdrożenie z formularza", "description": "Publiczny formularz przyjęcia tworzy klienta, osobę kontaktową i wdrożenie na etapie Zapytanie." },
+    "intake_form_notice": { "title": "Powiadom odpowiedzialnego o nowym wdrożeniu", "description": "Właściciel przestrzeni roboczej dostaje powiadomienie o każdym zgłoszeniu." }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Każde wdrożenie ma jeden z dziewięciu etapów.",
+    "first_response_field": "Każde wdrożenie zapisuje, kiedy pierwszy raz odpowiedziano.",
+    "document_requests_list": "Zamówione dokumenty są śledzone na własnej liście.",
+    "intakes_board_view": "Listę wdrożeń można zobaczyć jako tablicę wg etapów.",
+    "chase_signature_rule": "Wysłana umowa dostaje zadanie ponaglenia po 7 dniach.",
+    "process_page": "Baza wiedzy zawiera proces przyjęcia."
+  },
+  "prompt": {
+    "intro": "Skonfiguruj przyjmowanie klientów w mojej przestrzeni roboczej Customermates: jedno wdrożenie na zlecenie z dziewięcioma etapami, zamówione dokumenty, datowany krok na każdym etapie, powód odmowy oraz opcjonalna weryfikacja tożsamości, konfliktu i ryzyka, która zapisuje, kto i kiedy sprawdził.",
+    "questions": [
+      "Co sprzedajesz i kim są Twoi klienci: firmami, jednoosobowymi działalnościami czy osobami prywatnymi?",
+      "Jakie kroki przechodzi dziś nowy klient i których z dziewięciu etapów nie potrzebujesz?",
+      "Czy Twój zawód jest regulowany, tak że tożsamość, konflikt lub ryzyko trzeba zapisywać? W jakim kraju?",
+      "O jakie dokumenty zawsze prosisz i gdzie je przechowujesz? Tutaj trzymany jest tylko odnośnik.",
+      "Gdzie klienci podpisują umowę? Zostaje tam, a tutaj trzymane są daty."
+    ]
+  }
+}

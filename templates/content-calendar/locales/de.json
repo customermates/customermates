@@ -1,0 +1,162 @@
+{
+  "locale": "de",
+  "name": "Redaktionsplan",
+  "summary": "Eine Zeile pro Beitrag mit Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, dazu Kampagnen, Aktionstage und eine wöchentliche Redaktionsroutine.",
+  "description": "Ein Redaktionsplan für Blog, Newsletter, Social Media und Video: sieben Status von Idee bis veröffentlicht, ein Veröffentlichungskalender, eine Content-Säule pro Beitrag, eine Werbekennzeichnungs-Prüfung für bezahlte oder geschenkte Inhalte und eine Erfolgskontrolle nach 30 Tagen. Er plant und verfolgt, er veröffentlicht nicht.",
+  "lists": {
+    "people": { "label": "Person", "pluralLabel": "Personen", "description": "Autoren, Redakteure, Prüfer, Freigebende und Gäste." },
+    "pieces": { "label": "Beitrag", "pluralLabel": "Beiträge", "description": "Ein Inhalt von der Idee bis zur Veröffentlichung." },
+    "campaigns": { "label": "Kampagne", "pluralLabel": "Kampagnen", "description": "Ein Thema, das mehrere Beiträge bündelt." },
+    "key_dates": { "label": "Aktionstag", "pluralLabel": "Aktionstage", "description": "Feiertage, Veranstaltungen und Launches, um die herum Inhalte geplant werden." }
+  },
+  "fields": {
+    "pieces.stage": {
+      "label": "Status",
+      "options": { "idea": "Idee", "drafting": "Entwurf", "in_review": "In Prüfung", "approved": "Freigegeben", "scheduled": "Geplant", "published": "Veröffentlicht", "killed": "Verworfen" }
+    },
+    "campaigns.status": {
+      "label": "Status",
+      "options": { "planned": "Geplant", "running": "Läuft", "done": "Abgeschlossen", "dropped": "Gestrichen" }
+    },
+    "people.person_role": {
+      "label": "Rolle",
+      "options": { "author": "Autor", "editor": "Redakteur", "reviewer": "Prüfer", "approver": "Freigebender", "client_contact": "Kundenkontakt", "guest": "Gast oder Interviewpartner" }
+    },
+    "people.profile_url": { "label": "Profil-Link" },
+    "pieces.owner": { "label": "Verantwortlich" },
+    "pieces.reviewer": { "label": "Prüfer" },
+    "pieces.format": {
+      "label": "Format",
+      "options": {
+        "blog_post": "Blogartikel",
+        "newsletter": "Newsletter",
+        "short_video": "Kurzvideo",
+        "long_video": "Langes Video",
+        "carousel": "Karussell",
+        "image_post": "Bildbeitrag",
+        "text_post": "Textbeitrag",
+        "podcast": "Podcast-Folge",
+        "webinar": "Webinar",
+        "case_study": "Fallstudie"
+      }
+    },
+    "pieces.pillar": {
+      "label": "Content-Säule",
+      "options": { "educate": "Wissen vermitteln", "prove": "Belegen", "product": "Produkt", "community": "Community", "behind_the_scenes": "Hinter den Kulissen" }
+    },
+    "pieces.channels": {
+      "label": "Kanäle",
+      "options": {
+        "blog": "Blog",
+        "newsletter": "Newsletter",
+        "linkedin": "LinkedIn",
+        "instagram": "Instagram",
+        "facebook": "Facebook",
+        "tiktok": "TikTok",
+        "youtube": "YouTube",
+        "x": "X",
+        "podcast": "Podcast",
+        "other": "Sonstige"
+      }
+    },
+    "pieces.brief_url": { "label": "Link zum Briefing" },
+    "pieces.draft_url": { "label": "Link zum Entwurf" },
+    "pieces.target_keyword": { "label": "Ziel-Keyword" },
+    "pieces.call_to_action": { "label": "Call-to-Action" },
+    "pieces.draft_due": { "label": "Entwurf fällig am" },
+    "pieces.review_due": { "label": "Prüfung fällig am" },
+    "pieces.publish_at": { "label": "Veröffentlichung am" },
+    "pieces.ad_disclosure": {
+      "label": "Werbekennzeichnung",
+      "options": { "none": "Keine", "paid_partnership": "Bezahlte Partnerschaft oder Werbung", "gifted_product": "Geschenktes Produkt", "affiliate_link": "Affiliate-Link" }
+    },
+    "pieces.disclosure_checked": { "label": "Kennzeichnung geprüft" },
+    "pieces.published_url": { "label": "Link zum veröffentlichten Beitrag" },
+    "pieces.published_on": { "label": "Veröffentlicht am" },
+    "pieces.reach": { "label": "Reichweite" },
+    "pieces.engagements": { "label": "Interaktionen" },
+    "pieces.clicks": { "label": "Klicks" },
+    "pieces.killed_reason": {
+      "label": "Grund für das Verwerfen",
+      "options": { "off_topic": "Thema verfehlt", "duplicate": "Doppelt", "no_owner": "Kein Verantwortlicher", "stale": "Überholt", "replaced": "Ersetzt", "client_declined": "Kunde lehnte ab" }
+    },
+    "campaigns.goal": { "label": "Ziel" },
+    "campaigns.start_date": { "label": "Start" },
+    "campaigns.end_date": { "label": "Ende" },
+    "campaigns.budget": { "label": "Budget" },
+    "campaigns.owner": { "label": "Verantwortlich" },
+    "key_dates.date": { "label": "Datum" },
+    "key_dates.date_type": {
+      "label": "Art",
+      "options": { "holiday": "Feiertag", "industry_event": "Branchenveranstaltung", "product_launch": "Produktlaunch", "awareness_day": "Aktionstag", "own_event": "Eigene Veranstaltung", "deadline": "Frist" }
+    },
+    "key_dates.idea_note": { "label": "Inhaltsidee" },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "write_brief": "Briefing schreiben",
+        "draft": "Entwurf",
+        "review": "Prüfung",
+        "revise": "Überarbeitung",
+        "approve": "Freigabe",
+        "schedule": "Einplanen",
+        "publish": "Veröffentlichen",
+        "measure": "Erfolg messen",
+        "plan": "Planung",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "piece_campaign": { "sourceLabel": "Kampagne", "targetLabel": "Beiträge" },
+    "piece_author": { "sourceLabel": "Autor", "targetLabel": "Beiträge" },
+    "action_piece": { "sourceLabel": "Beitrag", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "pieces_all": { "name": "Alle Beiträge" },
+    "pieces_board": { "name": "Beiträge nach Status" },
+    "in_review_pieces": { "name": "In Prüfung" },
+    "campaigns_all": { "name": "Alle Kampagnen" },
+    "key_dates_all": { "name": "Aktionstage" },
+    "people_all": { "name": "Alle Personen" }
+  },
+  "widgets": {
+    "publishing_calendar": { "title": "Veröffentlichungskalender" },
+    "pieces_by_stage": { "title": "Beiträge nach Status" },
+    "open_pieces_by_owner": { "title": "Offene Beiträge je Verantwortlichem" },
+    "pieces_by_pillar": { "title": "Beiträge nach Content-Säule" },
+    "published_per_month": { "title": "Veröffentlicht pro Monat" },
+    "reach_by_pillar": { "title": "Reichweite nach Content-Säule" },
+    "key_dates_coming": { "title": "Anstehende Aktionstage" }
+  },
+  "knowledgePages": {
+    "content_pillars": { "title": "Content-Säulen und Mix", "sections": ["Die Säulen und ihr Anteil", "Was zu welcher Säule gehört"] },
+    "editorial_rhythm": { "title": "Veröffentlichungsrhythmus und wöchentliche Redaktionssitzung", "sections": ["Slots je Kanal", "Erschienen, gefährdet, blockiert", "Status und wer sie setzt"] },
+    "review_and_approval": { "title": "Prüf- und Freigabezeiten", "sections": ["Wer prüft und in wie vielen Tagen", "Kundenfreigabe, wenn nötig"] },
+    "disclosure_checklist": { "title": "Checkliste Werbekennzeichnung und Partnerschaften", "sections": ["Wann ein Beitrag gekennzeichnet werden muss", "Wortlaut und Platzierung", "Prüfung vor der Veröffentlichung"] }
+  },
+  "rules": {
+    "review_task": { "title": "Prüfaufgabe anlegen, wenn ein Beitrag in die Prüfung geht" },
+    "schedule_task": { "title": "Einplanungsaufgabe anlegen, wenn ein Beitrag freigegeben ist" },
+    "at_risk_before_publish": { "title": "Beitrag melden, der drei Tage vor der Veröffentlichung noch im Entwurf ist" },
+    "measure_after_30_days": { "title": "Erfolgskontrolle anlegen, wenn ein Beitrag veröffentlicht ist" },
+    "stale_piece": { "title": "Beitrag prüfen, der 14 Tage im Entwurf oder in der Prüfung liegt" },
+    "weekly_editorial_prep": { "title": "Jeden Montag die Redaktionssitzung vorbereiten" },
+    "plan_for_key_date": { "title": "Drei Wochen vor einem Aktionstag Inhalte planen" },
+    "idea_form_piece": { "title": "Aus einer über ein Formular eingereichten Idee einen Beitrag anlegen" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Jeder Beitrag hat einen von sieben Status.",
+    "publish_field": "Jeder Beitrag hat ein Veröffentlichungsdatum mit Uhrzeit.",
+    "calendar_widget": "Das Dashboard zeigt den Veröffentlichungskalender."
+  },
+  "prompt": {
+    "intro": "Richte einen Redaktionsplan in meinem Customermates-Workspace ein: Beiträge mit sieben Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, Kampagnen, Aktionstage, eine Kennzeichnungsprüfung und eine wöchentliche Redaktionsroutine.",
+    "questions": [
+      "Was veröffentlichen Sie, auf welchen Kanälen und wie oft?",
+      "Wer schreibt, wer prüft und wer gibt frei? Ist ein Kunde beteiligt?",
+      "Welche Content-Säulen nutzen Sie, und welche der sieben Status brauchen Sie?",
+      "Mit welchem Werkzeug wird veröffentlicht? Dort bleibt der Inhalt, hier werden nur Link und Datum festgehalten."
+    ]
+  }
+}

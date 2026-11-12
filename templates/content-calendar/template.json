@@ -1,0 +1,177 @@
+{
+  "id": "tpl_content_calendar",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "content-calendar",
+  "family": "content",
+  "kind": "tracker",
+  "jurisdictions": ["global"],
+  "dashboardAudience": "team",
+  "modules": ["actions_core", "actions_dashboard"],
+  "requiresCapabilities": ["forms", "rules"],
+  "pairedPages": {},
+  "lists": [
+    { "key": "people", "role": "people", "icon": "contact" },
+    { "key": "pieces", "icon": "newspaper" },
+    { "key": "campaigns", "icon": "megaphone" },
+    { "key": "key_dates", "icon": "calendar" }
+  ],
+  "stages": [
+    {
+      "field": "pieces.stage",
+      "items": [
+        { "key": "idea", "outcome": "open", "weight": 0 },
+        { "key": "drafting", "outcome": "open", "weight": 0 },
+        { "key": "in_review", "outcome": "open", "weight": 0 },
+        { "key": "approved", "outcome": "open", "weight": 0 },
+        { "key": "scheduled", "outcome": "open", "weight": 0 },
+        { "key": "published", "outcome": "won", "weight": 100 },
+        { "key": "killed", "outcome": "lost", "weight": 0 }
+      ]
+    },
+    {
+      "field": "campaigns.status",
+      "items": [
+        { "key": "planned", "outcome": "open", "weight": 0 },
+        { "key": "running", "outcome": "open", "weight": 0 },
+        { "key": "done", "outcome": "won", "weight": 100 },
+        { "key": "dropped", "outcome": "lost", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "people.person_role", "type": "select", "options": [{ "key": "author" }, { "key": "editor" }, { "key": "reviewer" }, { "key": "approver" }, { "key": "client_contact" }, { "key": "guest" }] },
+    { "key": "people.profile_url", "type": "url" },
+    { "key": "pieces.owner", "type": "member" },
+    { "key": "pieces.reviewer", "type": "member" },
+    { "key": "pieces.format", "type": "select", "options": [{ "key": "blog_post" }, { "key": "newsletter" }, { "key": "short_video" }, { "key": "long_video" }, { "key": "carousel" }, { "key": "image_post" }, { "key": "text_post" }, { "key": "podcast" }, { "key": "webinar" }, { "key": "case_study" }] },
+    { "key": "pieces.pillar", "type": "select", "options": [{ "key": "educate" }, { "key": "prove" }, { "key": "product" }, { "key": "community" }, { "key": "behind_the_scenes" }] },
+    { "key": "pieces.channels", "type": "select", "multiple": true, "options": [{ "key": "blog" }, { "key": "newsletter" }, { "key": "linkedin" }, { "key": "instagram" }, { "key": "facebook" }, { "key": "tiktok" }, { "key": "youtube" }, { "key": "x" }, { "key": "podcast" }, { "key": "other" }] },
+    { "key": "pieces.brief_url", "type": "url" },
+    { "key": "pieces.draft_url", "type": "url" },
+    { "key": "pieces.target_keyword", "type": "text" },
+    { "key": "pieces.call_to_action", "type": "text" },
+    { "key": "pieces.draft_due", "type": "date" },
+    { "key": "pieces.review_due", "type": "date" },
+    { "key": "pieces.publish_at", "type": "dateTime" },
+    { "key": "pieces.ad_disclosure", "type": "select", "options": [{ "key": "none" }, { "key": "paid_partnership" }, { "key": "gifted_product" }, { "key": "affiliate_link" }] },
+    { "key": "pieces.disclosure_checked", "type": "boolean" },
+    { "key": "pieces.published_url", "type": "url" },
+    { "key": "pieces.published_on", "type": "date" },
+    { "key": "pieces.reach", "type": "number" },
+    { "key": "pieces.engagements", "type": "number" },
+    { "key": "pieces.clicks", "type": "number" },
+    { "key": "pieces.killed_reason", "type": "select", "options": [{ "key": "off_topic" }, { "key": "duplicate" }, { "key": "no_owner" }, { "key": "stale" }, { "key": "replaced" }, { "key": "client_declined" }] },
+    { "key": "campaigns.goal", "type": "text" },
+    { "key": "campaigns.start_date", "type": "date" },
+    { "key": "campaigns.end_date", "type": "date" },
+    { "key": "campaigns.budget", "type": "currency" },
+    { "key": "campaigns.owner", "type": "member" },
+    { "key": "key_dates.date", "type": "date" },
+    { "key": "key_dates.date_type", "type": "select", "options": [{ "key": "holiday" }, { "key": "industry_event" }, { "key": "product_launch" }, { "key": "awareness_day" }, { "key": "own_event" }, { "key": "deadline" }] },
+    { "key": "key_dates.idea_note", "type": "text" },
+    { "key": "actions.kind", "type": "select", "options": [{ "key": "write_brief" }, { "key": "draft" }, { "key": "review" }, { "key": "revise" }, { "key": "approve" }, { "key": "schedule" }, { "key": "publish" }, { "key": "measure" }, { "key": "plan" }, { "key": "other" }] }
+  ],
+  "relationships": [
+    { "key": "piece_campaign", "source": "pieces", "target": "campaigns", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "piece_author", "source": "pieces", "target": "people", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_piece", "source": "actions", "target": "pieces", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    {
+      "key": "pieces_all",
+      "list": "pieces",
+      "default": true,
+      "layout": "table",
+      "sort": { "field": "pieces.publish_at", "direction": "asc" },
+      "columns": ["pieces.stage", "pieces.owner", "pieces.format", "pieces.channels", "pieces.publish_at"]
+    },
+    { "key": "pieces_board", "list": "pieces", "default": false, "layout": "board", "groupBy": "pieces.stage" },
+    {
+      "key": "in_review_pieces",
+      "list": "pieces",
+      "default": false,
+      "layout": "table",
+      "filters": [{ "operator": "in", "field": "pieces.stage", "options": ["in_review"] }]
+    },
+    { "key": "campaigns_all", "list": "campaigns", "default": true, "layout": "table", "columns": ["campaigns.status", "campaigns.start_date", "campaigns.end_date", "campaigns.owner"] },
+    { "key": "key_dates_all", "list": "key_dates", "default": true, "layout": "table", "sort": { "field": "key_dates.date", "direction": "asc" }, "columns": ["key_dates.date", "key_dates.date_type"] },
+    { "key": "people_all", "list": "people", "default": true, "layout": "table", "columns": ["people.person_role", "people.profile_url"] }
+  ],
+  "widgets": [
+    {
+      "kind": "calendar",
+      "key": "publishing_calendar",
+      "list": "pieces",
+      "layout": "month",
+      "dateField": "pieces.publish_at",
+      "filters": [{ "operator": "notIn", "field": "pieces.stage", "options": ["killed"] }]
+    },
+    { "kind": "chart", "key": "pieces_by_stage", "list": "pieces", "aggregation": "count", "groupBy": { "field": "pieces.stage" }, "display": "horizontalBarChart" },
+    {
+      "kind": "chart",
+      "key": "open_pieces_by_owner",
+      "list": "pieces",
+      "aggregation": "count",
+      "groupBy": { "field": "pieces.owner" },
+      "filters": [{ "operator": "notIn", "field": "pieces.stage", "options": ["published", "killed"] }],
+      "display": "rankedTable"
+    },
+    { "kind": "chart", "key": "pieces_by_pillar", "list": "pieces", "aggregation": "count", "groupBy": { "field": "pieces.pillar" }, "display": "doughnutChart" },
+    { "kind": "chart", "key": "published_per_month", "list": "pieces", "aggregation": "count", "groupBy": { "field": "pieces.published_on", "dateInterval": "month" }, "display": "areaChart" },
+    { "kind": "chart", "key": "reach_by_pillar", "list": "pieces", "aggregation": "sum", "valueField": "pieces.reach", "groupBy": { "field": "pieces.pillar" }, "display": "verticalBarChart" },
+    { "kind": "calendar", "key": "key_dates_coming", "list": "key_dates", "layout": "upcoming", "dateField": "key_dates.date" }
+  ],
+  "knowledgePages": [
+    { "key": "content_pillars", "kind": "overview" },
+    { "key": "editorial_rhythm", "kind": "processes" },
+    { "key": "review_and_approval", "kind": "processes" },
+    { "key": "disclosure_checklist", "kind": "processes" }
+  ],
+  "followUpRules": [
+    { "key": "review_task", "trigger": { "kind": "field_changed", "field": "pieces.stage", "to": "in_review" }, "action": { "kind": "create_task", "taskKind": "review", "assignee": "record_owner", "about": "pieces" }, "dueOffsetDays": 2, "needs": "today" },
+    { "key": "schedule_task", "trigger": { "kind": "field_changed", "field": "pieces.stage", "to": "approved" }, "action": { "kind": "create_task", "taskKind": "schedule", "assignee": "record_owner", "about": "pieces" }, "dueOffsetDays": 1, "needs": "today" },
+    {
+      "key": "at_risk_before_publish",
+      "trigger": { "kind": "date_reached", "field": "pieces.publish_at", "offsetDays": -3 },
+      "condition": [{ "operator": "in", "field": "pieces.stage", "options": ["idea", "drafting", "in_review"] }],
+      "action": { "kind": "create_task", "taskKind": "plan", "assignee": "record_owner", "about": "pieces" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "measure_after_30_days", "trigger": { "kind": "field_changed", "field": "pieces.stage", "to": "published" }, "action": { "kind": "create_task", "taskKind": "measure", "assignee": "record_owner", "about": "pieces" }, "dueOffsetDays": 30, "needs": "today" },
+    {
+      "key": "stale_piece",
+      "trigger": { "kind": "unchanged_for", "field": "pieces.stage", "days": 14 },
+      "condition": [{ "operator": "in", "field": "pieces.stage", "options": ["drafting", "in_review"] }],
+      "action": { "kind": "create_task", "taskKind": "review", "assignee": "record_owner", "about": "pieces" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "weekly_editorial_prep", "trigger": { "kind": "schedule", "every": "week", "weekday": 1 }, "action": { "kind": "create_task", "taskKind": "plan", "assignee": "workspace_owner" }, "dueOffsetDays": 0, "needs": "today" },
+    { "key": "plan_for_key_date", "trigger": { "kind": "date_reached", "field": "key_dates.date", "offsetDays": -21 }, "action": { "kind": "create_task", "taskKind": "plan", "assignee": "workspace_owner", "about": "key_dates" }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "idea_form_piece", "trigger": { "kind": "form_submitted", "form": "idea" }, "action": { "kind": "create_records", "lists": ["pieces"] }, "dueOffsetDays": 0, "needs": "forms" }
+  ],
+  "acceptanceChecks": [
+    { "key": "stage_field", "kind": "field_exists", "ref": "pieces.stage" },
+    { "key": "publish_field", "kind": "field_exists", "ref": "pieces.publish_at" },
+    { "key": "calendar_widget", "kind": "widget_exists", "ref": "publishing_calendar" }
+  ],
+  "sources": [
+    { "url": "https://resources.rework.com/guides/content-marketer-playbooks/editorial-calendars-that-ship", "checkedOn": "2026-11-12" },
+    { "url": "https://sproutsocial.com/insights/social-media-calendar-template/", "checkedOn": "2026-11-12" },
+    { "url": "https://blog.hubspot.de/marketing/social-media-kalender", "checkedOn": "2026-11-12" },
+    { "url": "https://www.bitrix24.com/articles/build-content-calendar-survives-reality.php", "checkedOn": "2026-11-12" },
+    { "url": "https://distribb.io/blog/content-calendar-template", "checkedOn": "2026-11-12" },
+    { "url": "https://blog.socialmediastrategiessummit.com/free-content-calendar-templates/", "checkedOn": "2026-11-12" },
+    { "url": "https://lacontent.it/calendario-editoriale/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.ftc.gov/business-guidance/resources/disclosures-101-social-media-influencers", "checkedOn": "2026-11-12" },
+    { "url": "https://www.airtable.com/templates/content-calendar/exp3FNmOkdHZvprXB", "checkedOn": "2026-11-12" },
+    { "url": "https://www.notion.com/templates/category/content-calendar", "checkedOn": "2026-11-12" },
+    { "url": "https://offers.hubspot.com/social-media-content-calendar", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "own", "de": "own", "fr": "own", "it": "own", "es": "own", "pt": "own", "pl": "none", "nl": "own" },
+  "publishWave": { "en": "wave2", "de": "wave1", "fr": "wave2", "it": "wave1", "es": "wave2", "pt": "hold", "nl": "wave1" }
+}
