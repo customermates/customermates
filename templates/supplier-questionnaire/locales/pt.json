@@ -16,7 +16,7 @@
     },
     "contacts.language": { "label": "Idioma" },
     "suppliers.status": {
-      "label": "Situação",
+      "label": "Status",
       "options": { "candidate": "Candidato", "questionnaire_sent": "Questionário enviado", "under_review": "Em análise", "approved": "Homologado", "approved_with_conditions": "Homologado com restrições", "blocked": "Reprovado", "offboarded": "Descredenciado" }
     },
     "suppliers.risk_tier": { "label": "Nível de risco", "options": { "low": "Baixo", "moderate": "Médio", "high": "Alto", "critical": "Crítico" } },
@@ -35,7 +35,7 @@
       "options": { "registration": "Cadastro", "qualification": "Qualificação", "re_evaluation": "Reavaliação", "regulatory_evidence": "Evidências regulatórias" }
     },
     "questionnaires.status": {
-      "label": "Situação",
+      "label": "Status",
       "options": { "draft": "Rascunho", "sent": "Enviado", "partial": "Resposta parcial", "received": "Recebido", "reviewed": "Analisado" }
     },
     "questionnaires.sent_on": { "label": "Enviado em" },
@@ -53,7 +53,7 @@
       "options": { "quality_certificate": "Certificado de qualidade", "environmental_certificate": "Certificado ambiental", "security_certificate": "Certificado de segurança", "insurance": "Seguro", "tax_clearance": "Certidão negativa", "registration_extract": "Contrato social", "data_processing_agreement": "Contrato de operador (LGPD)", "other": "Outro" }
     },
     "documents.status": {
-      "label": "Situação",
+      "label": "Status",
       "options": { "requested": "Solicitado", "received": "Recebido", "under_review": "Em análise", "accepted": "Aceito", "rejected": "Recusado", "expired": "Vencido" }
     },
     "documents.requested_on": { "label": "Solicitado em" },
@@ -89,7 +89,7 @@
     "contacts_all": { "name": "Todos os contatos" }
   },
   "widgets": {
-    "suppliers_by_status": { "title": "Fornecedores por situação" },
+    "suppliers_by_status": { "title": "Fornecedores por status" },
     "suppliers_by_risk": { "title": "Fornecedores por nível de risco" },
     "documents_expiring": { "title": "Documentos a vencer" },
     "questionnaires_open": { "title": "Questionários aguardando resposta" },
@@ -111,12 +111,12 @@
     "registration_form_records": { "title": "Criar o fornecedor e o contato quando o formulário de cadastro for enviado" }
   },
   "acceptanceChecks": {
-    "status_field": "Cada fornecedor tem uma situação de qualificação.",
+    "status_field": "Cada fornecedor tem um status de qualificação.",
     "valid_until_field": "Cada documento registra até quando é válido.",
-    "suppliers_board_view": "Os fornecedores abrem como quadro por situação."
+    "suppliers_board_view": "Os fornecedores abrem como quadro por status."
   },
   "prompt": {
-    "intro": "Configure no meu workspace do Customermates um cadastro de fornecedores: fornecedores com nível de risco e situação de qualificação, questionários com prazos e decisão, documentos com data de validade e acompanhamentos com data.",
+    "intro": "Configure no meu espaço de trabalho do Customermates um cadastro de fornecedores: fornecedores com nível de risco e status de qualificação, questionários com prazos e decisão, documentos com data de validade e acompanhamentos com data.",
     "questions": [
       "Quantos fornecedores você tem e como os divide por nível de risco?",
       "Quais certificados ou certidões você pede e quanto tempo vale cada um?",

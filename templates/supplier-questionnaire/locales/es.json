@@ -2,16 +2,16 @@
   "locale": "es",
   "name": "Cuestionario de proveedores",
   "summary": "Un registro de proveedores con cuestionario de homologación, documentos con fecha de vencimiento, nivel de riesgo, decisión de homologación y fecha de la próxima evaluación.",
-  "description": "Homologue proveedores y subcontratistas en un solo lugar: envíe un cuestionario, reúna certificados y documentación con su fecha de validez, clasifique cada proveedor por nivel de riesgo, registre la decisión (homologar, homologar con condiciones, escalar, rechazar) y vea qué vence primero. La plantilla coordina las evidencias. No decide el cumplimiento legal, no consulta sanciones ni riesgo financiero y no sustituye su sistema de calidad, su ERP ni su archivo de documentos.",
+  "description": "Homologa proveedores y subcontratistas en un solo lugar: envía un cuestionario, reúne certificados y documentación con su fecha de validez, clasifica cada proveedor por nivel de riesgo, registra la decisión (homologar, homologar con condiciones, escalar, rechazar) y consulta qué vence primero. La plantilla coordina las evidencias. No decide el cumplimiento legal, no consulta sanciones ni riesgo financiero y no sustituye tu sistema de calidad, tu ERP ni tu archivo de documentos.",
   "lists": {
-    "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Las personas de sus proveedores que responden los cuestionarios y envían documentos." },
+    "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Las personas de tus proveedores que responden los cuestionarios y envían documentos." },
     "suppliers": { "label": "Proveedor", "pluralLabel": "Proveedores", "description": "Cada proveedor o subcontratista, de candidato a homologado o bloqueado." },
     "questionnaires": { "label": "Cuestionario", "pluralLabel": "Cuestionarios", "description": "Un cuestionario enviado a un proveedor, con su fecha límite y su decisión." },
     "documents": { "label": "Documento", "pluralLabel": "Documentos", "description": "Certificados, acreditaciones y contratos con su fecha de validez." }
   },
   "fields": {
     "contacts.contact_role": {
-      "label": "Cargo",
+      "label": "Función",
       "options": { "sales": "Comercial", "quality": "Calidad", "compliance": "Cumplimiento", "finance": "Finanzas", "other": "Otro" }
     },
     "contacts.language": { "label": "Idioma" },
@@ -50,7 +50,7 @@
     "questionnaires.form_link": { "label": "Enlace al formulario" },
     "documents.doc_type": {
       "label": "Tipo de documento",
-      "options": { "quality_certificate": "Certificado de calidad", "environmental_certificate": "Certificado ambiental", "security_certificate": "Certificado de seguridad", "insurance": "Seguro", "tax_clearance": "Certificado de estar al corriente", "registration_extract": "Nota del registro mercantil", "data_processing_agreement": "Contrato de encargado del tratamiento", "other": "Otro" }
+      "options": { "quality_certificate": "Certificado de calidad", "environmental_certificate": "Certificado ambiental", "security_certificate": "Certificado de seguridad", "insurance": "Seguro", "tax_clearance": "Certificado de estar al corriente (Hacienda y Seguridad Social)", "registration_extract": "Nota simple del Registro Mercantil", "data_processing_agreement": "Contrato de encargado del tratamiento", "other": "Otro" }
     },
     "documents.status": {
       "label": "Estado",
@@ -102,7 +102,7 @@
     "re_evaluation": { "title": "Calendario de reevaluación", "sections": ["Fechas de evaluación por nivel de riesgo", "Hechos que adelantan la evaluación"] }
   },
   "rules": {
-    "chase_questionnaire": { "title": "Reclamar al proveedor cuando un cuestionario pasa de su fecha límite" },
+    "chase_questionnaire": { "title": "Reclamar al proveedor cuando un cuestionario supera su fecha límite" },
     "review_answers": { "title": "Revisar las respuestas 3 días después de recibir un cuestionario" },
     "renew_document": { "title": "Pedir el documento renovado 30 días antes de que venza" },
     "document_expiry_notice": { "title": "Avisar al responsable cuando un documento vence" },
@@ -116,12 +116,12 @@
     "suppliers_board_view": "Los proveedores se abren como tablero por estado."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de Customermates un registro de proveedores: proveedores con nivel de riesgo y estado de homologación, cuestionarios con fechas límite y decisión, documentos con fecha de validez y seguimientos con fecha.",
+    "intro": "Configura en mi espacio de trabajo de Customermates un registro de proveedores: proveedores con nivel de riesgo y estado de homologación, cuestionarios con fechas límite y decisión, documentos con fecha de validez y seguimientos con fecha.",
     "questions": [
-      "¿Cuántos proveedores tiene y cómo los divide por nivel de riesgo?",
-      "¿Qué certificados o documentos pide y cuánto tiempo es válido cada uno?",
+      "¿Cuántos proveedores tienes y cómo los divides por nivel de riesgo?",
+      "¿Qué certificados o documentos pides y cuánto tiempo es válido cada uno?",
       "¿Quién revisa las respuestas y quién homologa a un proveedor?",
-      "¿Cada cuánto reevalúa a un proveedor? Los archivos se quedan en su sistema de documentos y aquí solo se guarda un enlace."
+      "¿Cada cuánto reevalúas a un proveedor? Los archivos se quedan en tu sistema de documentos y aquí solo se guarda un enlace."
     ]
   }
 }

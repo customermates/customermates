@@ -1,7 +1,7 @@
 {
   "locale": "es",
   "name": "Consultora de selección de personal",
-  "summary": "Un puesto de trabajo para una consultora de selección o un reclutador independiente: procesos desde el briefing hasta la incorporación, una ficha por candidato y proceso, fechas de honorarios y garantía, seguimiento posterior y una fecha de conservación de cada candidato.",
+  "summary": "Un espacio de trabajo para una consultora de selección o un reclutador independiente: procesos desde el briefing hasta la incorporación, una ficha por candidato y proceso, fechas de honorarios y garantía, seguimiento posterior y una fecha de conservación de cada candidato.",
   "description": "Lleva tu consultora en un solo sitio: clientes y sus condiciones, procesos de selección con una etapa y unos honorarios previstos, candidatos presentados por proceso con su propia etapa, incorporaciones con el fin de la garantía y el seguimiento posterior, y una fecha de revisión de conservación en cada candidato. Encaja con un equipo de una a cinco personas. No es un portal de empleo, ni un lector de CV, ni una herramienta de envíos masivos, ni un sistema de partes de horas y nóminas. No se envía nada automáticamente a candidatos ni a clientes.",
   "lists": {
     "people": { "label": "Persona", "pluralLabel": "Candidatos y contactos", "description": "Candidatos, contactos en el cliente y prescriptores." },
@@ -13,7 +13,7 @@
   "fields": {
     "jobs.stage": {
       "label": "Etapa",
-      "options": { "lead": "Solicitud", "brief": "Briefing", "terms_agreed": "Condiciones firmadas", "searching": "Búsqueda", "submitted": "Terna presentada", "interviews": "Entrevistas con el cliente", "offer": "Oferta", "placed": "Incorporado", "lost": "Perdido" }
+      "options": { "lead": "Solicitud", "brief": "Briefing", "terms_agreed": "Condiciones firmadas", "searching": "Búsqueda", "submitted": "Shortlist presentada", "interviews": "Entrevistas con el cliente", "offer": "Oferta", "placed": "Incorporado", "lost": "Perdido" }
     },
     "submissions.stage": {
       "label": "Etapa",
@@ -32,7 +32,7 @@
       "label": "Origen",
       "options": { "referral": "Recomendación", "linkedin": "LinkedIn", "job_board": "Portal de empleo", "own_database": "Base de datos propia", "event": "Evento", "inbound": "Candidatura espontánea", "other": "Otro" }
     },
-    "people.salary_expectation": { "label": "Expectativa salarial" },
+    "people.salary_expectation": { "label": "Pretensión salarial" },
     "people.notice_period": { "label": "Preaviso" },
     "people.location": { "label": "Ubicación" },
     "people.data_basis": {
@@ -44,7 +44,7 @@
     "people.owner": { "label": "Responsable" },
     "clients.client_status": {
       "label": "Estado",
-      "options": { "prospect": "Potencial", "active_client": "Cliente activo", "past_client": "Cliente anterior", "do_not_contact": "No contactar" }
+      "options": { "prospect": "Cliente potencial", "active_client": "Cliente activo", "past_client": "Cliente anterior", "do_not_contact": "No contactar" }
     },
     "clients.agreement_type": {
       "label": "Acuerdo",
@@ -149,9 +149,9 @@
   "knowledgePages": {
     "operating_guide": { "title": "Cómo funciona la consultora", "sections": ["Los dos pipelines: procesos y candidatos", "Quién lleva cada etapa, y la regla de una tarea con fecha por cada asunto abierto"] },
     "client_intake_call": { "title": "Llamada de briefing con el cliente", "sections": ["Puesto, lugar, modalidad, rango salarial y fecha de inicio", "Requisitos imprescindibles y deseables, por qué se abre el puesto y quién decide"] },
-    "terms_checklist": { "title": "Honorarios, garantía y exclusividad", "sections": ["Base de cálculo, cuándo se devengan y plazo de pago", "Duración y remedio de la garantía, exclusividad (usa tu propio contrato, esto no es asesoramiento jurídico)"] },
-    "screening_call": { "title": "Guía de la llamada de cribado", "sections": ["Motivación, preaviso, expectativa salarial, otros procesos", "Qué no preguntar y qué no registrar"] },
-    "submission_email": { "title": "Presentar un candidato al cliente", "sections": ["Resumen en tres líneas y por qué esta persona", "Disponibilidad, expectativa y CV adjunto (un borrador, nunca enviado de forma automática)"] },
+    "terms_checklist": { "title": "Honorarios, garantía y exclusividad", "sections": ["Base de cálculo, cuándo se devengan y plazo de pago", "Duración y alcance de la garantía (reposición o reembolso), exclusividad (usa tu propio contrato, esto no es asesoramiento jurídico)"] },
+    "screening_call": { "title": "Guía de la llamada de cribado", "sections": ["Motivación, preaviso, pretensión salarial, otros procesos", "Qué no preguntar y qué no registrar"] },
+    "submission_email": { "title": "Presentar un candidato al cliente", "sections": ["Resumen en tres líneas y por qué esta persona", "Disponibilidad, pretensión salarial y CV adjunto (un borrador, nunca enviado de forma automática)"] },
     "interview_routine": { "title": "Preparación y debriefing de entrevistas", "sections": ["Preparar al candidato y al contacto del cliente", "Registrar el resultado en un día"] },
     "candidate_data": { "title": "Datos de candidatos: base, información y conservación", "sections": ["Plazos de conservación e información sobre privacidad", "Consentimiento para la bolsa de talento y fecha de revisión"] },
     "aftercare_routine": { "title": "Seguimiento posterior del día 1 al día 90", "sections": ["Contactos al inicio, a la semana, a los 30, 60 y 90 días", "Fin de la garantía y facturación de los honorarios"] }

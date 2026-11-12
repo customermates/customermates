@@ -1,10 +1,10 @@
 {
   "locale": "pt",
   "name": "Consultoria de recrutamento",
-  "summary": "Uma mesa de trabalho para consultoria de recrutamento ou recrutador independente: vagas da solicitação à contratação, uma ficha por candidato e vaga, datas de honorários e garantia, acompanhamento pós-contratação e uma data de retenção para cada candidato.",
+  "summary": "Um espaço de trabalho para consultoria de recrutamento ou recrutador independente: vagas da solicitação à contratação, uma ficha por candidato e vaga, datas de honorários e garantia, acompanhamento pós-contratação e uma data de retenção para cada candidato.",
   "description": "Conduza a consultoria em um só lugar: clientes e suas condições, vagas com uma etapa e honorários previstos, candidatos indicados por vaga com etapa própria, contratações com o fim do período de garantia e o acompanhamento pós-contratação, e uma data de revisão de retenção em cada candidato. Serve para uma equipe de uma a cinco pessoas. Não é um portal de vagas, nem um leitor de currículos, nem uma ferramenta de disparos em massa, nem um sistema de ponto e folha de pagamento. Nada é enviado automaticamente a candidatos ou clientes.",
   "lists": {
-    "people": { "label": "Pessoa", "pluralLabel": "Candidatos e contatos", "description": "Candidatos, contatos no cliente e indicadores." },
+    "people": { "label": "Pessoa", "pluralLabel": "Candidatos e contatos", "description": "Candidatos, contatos no cliente e quem indica." },
     "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "As empresas para as quais você recruta, com honorários e garantia." },
     "jobs": { "label": "Vaga", "pluralLabel": "Vagas", "description": "Uma busca para um cliente, da solicitação à contratação ou à perda." },
     "submissions": { "label": "Candidato indicado", "pluralLabel": "Candidatos indicados", "description": "Um candidato em uma vaga, com etapa própria." },
@@ -21,11 +21,11 @@
     },
     "people.person_type": {
       "label": "Tipo",
-      "options": { "candidate": "Candidato", "client_contact": "Contato do cliente", "referrer": "Indicador", "other": "Outro" }
+      "options": { "candidate": "Candidato", "client_contact": "Contato do cliente", "referrer": "Quem indicou", "other": "Outro" }
     },
     "people.job_title": { "label": "Cargo" },
     "people.candidate_status": {
-      "label": "Situação do candidato",
+      "label": "Status do candidato",
       "options": { "active": "Em busca ativa", "passive": "Passivo", "placed": "Contratado", "do_not_contact": "Não contatar", "archived": "Arquivado" }
     },
     "people.source": {
@@ -43,7 +43,7 @@
     "people.last_contact": { "label": "Último contato" },
     "people.owner": { "label": "Responsável" },
     "clients.client_status": {
-      "label": "Situação",
+      "label": "Status",
       "options": { "prospect": "Prospect", "active_client": "Cliente ativo", "past_client": "Ex-cliente", "do_not_contact": "Não contatar" }
     },
     "clients.agreement_type": {
@@ -67,7 +67,7 @@
     "jobs.must_haves": { "label": "Requisitos obrigatórios e desejáveis" },
     "jobs.brief_url": { "label": "Link do briefing" },
     "jobs.next_step": { "label": "Próximo passo" },
-    "jobs.next_step_due": { "label": "Prazo do próximo passo" },
+    "jobs.next_step_due": { "label": "Data do próximo passo" },
     "jobs.lost_reason": {
       "label": "Motivo da perda",
       "options": { "client_filled_internally": "O cliente preencheu internamente", "client_froze_search": "O cliente congelou a busca", "filled_by_competitor": "Preenchida por um concorrente", "terms_not_agreed": "Condições não acordadas", "role_cancelled": "Vaga cancelada", "no_suitable_candidates": "Sem candidatos adequados" }
@@ -90,7 +90,7 @@
     "placements.invoice_reference": { "label": "Referência da nota fiscal" },
     "placements.guarantee_ends": { "label": "Fim da garantia" },
     "placements.status": {
-      "label": "Situação",
+      "label": "Status",
       "options": { "in_guarantee": "Em garantia", "guarantee_passed": "Garantia concluída", "fell_out_replaced": "Saiu, reposto", "fell_out_refunded": "Saiu, reembolsado" }
     },
     "actions.kind": {
@@ -149,7 +149,7 @@
   "knowledgePages": {
     "operating_guide": { "title": "Como a consultoria funciona", "sections": ["Os dois funis: vagas e candidatos", "Quem cuida de cada etapa, e a regra de uma tarefa com data para cada item aberto"] },
     "client_intake_call": { "title": "Reunião de briefing com o cliente", "sections": ["Cargo, local, modelo de trabalho, faixa salarial e data de início", "Requisitos obrigatórios e desejáveis, por que a vaga está aberta e quem decide"] },
-    "terms_checklist": { "title": "Honorários, garantia e exclusividade", "sections": ["Base de cálculo, quando são devidos e prazo de pagamento", "Prazo e remédio da garantia, exclusividade (use o seu próprio contrato, isto não é consultoria jurídica)"] },
+    "terms_checklist": { "title": "Honorários, garantia e exclusividade", "sections": ["Base de cálculo, quando são devidos e prazo de pagamento", "Prazo e forma de reposição da garantia, exclusividade (use o seu próprio contrato, isto não é consultoria jurídica)"] },
     "screening_call": { "title": "Roteiro da conversa de triagem", "sections": ["Motivação, aviso prévio, pretensão salarial, outros processos", "O que não perguntar e o que não registrar"] },
     "submission_email": { "title": "Indicar um candidato ao cliente", "sections": ["Resumo em três linhas e por que essa pessoa", "Disponibilidade, pretensão e currículo em anexo (um rascunho, nunca enviado automaticamente)"] },
     "interview_routine": { "title": "Preparação e debriefing das entrevistas", "sections": ["Orientar o candidato e o contato do cliente", "Registrar o resultado em até um dia"] },
