@@ -1,0 +1,125 @@
+{
+  "locale": "nl",
+  "name": "Verzekeringsadviseur",
+  "summary": "Twee pijplijnen voor een verzekeringsadviseur: nieuwe zaken van aanvraag tot polis met het advies vastgelegd vóór de offerte, en een prolongatiezaak voor elke polis die 120 tot 45 dagen voor de vervaldatum begint.",
+  "description": "Voer nieuwe zaken en prolongaties naast elkaar: aanvragen van eerste vraag via behoefteanalyse, offertes opvragen, advies en beslissing tot een ontvangen polis, een datum van vastgelegd advies bij elke offerte, en polissen met hun hoofdvervaldatum die zelf een prolongatiezaak openen. Het bewaart een verwijzing naar het adviesdossier en naar de polis in uw administratiesysteem, nooit gezondheidsgegevens, schadedetails, bankgegevens of kopieën van identiteitsbewijzen. Geen polisadministratie, geen vergelijker of premieberekening, geen schadebehandeling en geen provisie-afstemming.",
+  "lists": {
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "Verzekeringnemers, prospects, beslissers en doorverwijzers." },
+    "opportunities": { "label": "Aanvraag", "pluralLabel": "Aanvragen", "description": "Een nieuwe zaak van eerste vraag tot polis of verlies." },
+    "policies": { "label": "Polis", "pluralLabel": "Polissen", "description": "Een polis met branche, hoofdvervaldatum en een link naar het administratiesysteem." },
+    "renewals": { "label": "Prolongatie", "pluralLabel": "Prolongaties", "description": "De jaarlijkse prolongatiezaak van één polis." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Rol", "options": { "policyholder": "Verzekeringnemer", "prospect": "Prospect", "decision_maker": "Beslisser", "referrer": "Doorverwijzer" } },
+    "contacts.preferred_channel": { "label": "Voorkeurskanaal", "options": { "email": "E-mail", "phone": "Telefoon", "whatsapp": "WhatsApp", "post": "Post" } },
+    "contacts.broker_mandate_on": { "label": "Volmacht getekend op" },
+    "opportunities.stage": {
+      "label": "Fase",
+      "options": { "lead": "Aanvraag", "needs_analysis": "Behoefteanalyse", "quotes_requested": "Offertes opvragen", "offer_presented": "Advies en offerte", "awaiting_decision": "Beslissing", "application_submitted": "Aanvraag ingediend", "bound": "Polis ontvangen", "lost": "Verloren" }
+    },
+    "opportunities.line": {
+      "label": "Branche",
+      "options": { "motor": "Motorrijtuigen", "home_contents": "Woonhuis en inboedel", "liability": "Aansprakelijkheid", "legal_expenses": "Rechtsbijstand", "life_pension": "Leven en pensioen", "health": "Zorg", "commercial_property": "Zakelijke opstal en inventaris", "commercial_liability": "Bedrijfsaansprakelijkheid", "cyber": "Cyber", "other": "Overig" }
+    },
+    "opportunities.source": { "label": "Bron", "options": { "referral": "Aanbeveling", "web_form": "Webformulier", "comparison_portal": "Vergelijker", "existing_client": "Bestaande klant", "partner": "Partner", "event": "Evenement" } },
+    "opportunities.needs_analysis_on": { "label": "Behoefteanalyse op" },
+    "opportunities.advice_documented_on": { "label": "Advies vastgelegd op" },
+    "opportunities.advice_record_ref": { "label": "Link naar het adviesdossier" },
+    "opportunities.decision_expected": { "label": "Beslissing verwacht" },
+    "opportunities.next_step_due": { "label": "Volgende stap voor" },
+    "opportunities.lost_reason": {
+      "label": "Reden van verlies",
+      "options": { "price": "Prijs", "coverage_not_matching": "Dekking paste niet", "stayed_with_current": "Bleef bij de huidige verzekeraar", "no_response": "Geen reactie", "declined_by_carrier": "Door verzekeraar geweigerd", "timing": "Timing" }
+    },
+    "opportunities.producer": { "label": "Adviseur" },
+    "policies.policy_ref": { "label": "Polisnummer" },
+    "policies.line": {
+      "label": "Branche",
+      "options": { "motor": "Motorrijtuigen", "home_contents": "Woonhuis en inboedel", "liability": "Aansprakelijkheid", "legal_expenses": "Rechtsbijstand", "life_pension": "Leven en pensioen", "health": "Zorg", "commercial_property": "Zakelijke opstal en inventaris", "commercial_liability": "Bedrijfsaansprakelijkheid", "cyber": "Cyber", "other": "Overig" }
+    },
+    "policies.line_group": { "label": "Segment", "options": { "commercial": "Zakelijk", "personal": "Particulier" } },
+    "policies.status": { "label": "Status", "options": { "pending": "In aanvraag", "active": "Lopend", "lapsed": "Vervallen door wanbetaling", "cancelled": "Opgezegd" } },
+    "policies.renewal_date": { "label": "Hoofdvervaldatum" },
+    "policies.annual_premium": { "label": "Jaarpremie" },
+    "policies.notice_days": { "label": "Opzegtermijn (dagen)" },
+    "policies.system_ref": { "label": "Link in het administratiesysteem" },
+    "renewals.stage": {
+      "label": "Fase",
+      "options": { "upcoming": "Aankomend", "review_started": "Beoordeling gestart", "market_check": "Marktcheck", "offer_sent": "Offerte verstuurd", "awaiting_client": "Wacht op de klant", "renewed": "Geprolongeerd", "lapsed": "Niet geprolongeerd" }
+    },
+    "renewals.renewal_date": { "label": "Hoofdvervaldatum" },
+    "renewals.offer_sent_on": { "label": "Offerte verstuurd op" },
+    "renewals.decision_on": { "label": "Klant besloot op" },
+    "renewals.premium_change_percent": { "label": "Premiewijziging (%)" },
+    "renewals.advice_documented_on": { "label": "Advies vastgelegd op" },
+    "renewals.lost_reason": {
+      "label": "Reden van verlies",
+      "options": { "price": "Prijs", "switched_broker": "Andere adviseur gekozen", "switched_carrier": "Andere verzekeraar gekozen", "business_closed": "Bedrijf gestopt", "no_response": "Geen reactie", "other": "Overig" }
+    },
+    "actions.kind": {
+      "label": "Soort",
+      "options": { "call": "Bellen", "send_quote": "Offerte sturen", "chase_carrier": "Verzekeraar nabellen", "advice_record": "Advies vastleggen", "renewal_review": "Prolongatie beoordelen", "cross_sell": "Cross-sellcontrole", "letter": "Brief opstellen", "other": "Overig" }
+    }
+  },
+  "relationships": {
+    "opportunity_contact": { "sourceLabel": "Contactpersoon", "targetLabel": "Aanvragen" },
+    "policy_contact": { "sourceLabel": "Verzekeringnemer", "targetLabel": "Polissen" },
+    "policy_opportunity": { "sourceLabel": "Aanvraag", "targetLabel": "Polissen" },
+    "renewal_policy": { "sourceLabel": "Polis", "targetLabel": "Prolongaties" },
+    "action_opportunity": { "sourceLabel": "Aanvraag", "targetLabel": "Taken" },
+    "action_renewal": { "sourceLabel": "Prolongatie", "targetLabel": "Taken" },
+    "action_policy": { "sourceLabel": "Polis", "targetLabel": "Taken" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Nieuwe zaken per fase" },
+    "opportunities_all": { "name": "Alle aanvragen" },
+    "offers_without_advice": { "name": "Offertes zonder adviesdossier" },
+    "renewals_board": { "name": "Prolongaties per fase" },
+    "policies_all": { "name": "Alle polissen" },
+    "contacts_all": { "name": "Alle contactpersonen" }
+  },
+  "widgets": {
+    "opportunities_funnel": { "title": "Nieuwe zaken per fase" },
+    "renewals_coming": { "title": "Komende hoofdvervaldata" },
+    "offers_no_advice": { "title": "Offertes zonder adviesdossier" },
+    "renewals_by_stage": { "title": "Open prolongaties per fase" },
+    "active_premium": { "title": "Jaarpremie van lopende polissen" },
+    "lost_reasons": { "title": "Waarom aanvragen verloren gingen" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Hoe de adviseurswerkplek draait", "sections": ["De twee pijplijnen: nieuwe zaken en prolongaties", "Wie welke fase bezit en de regel van één Actie met datum per open item"] },
+    "advice_documentation": { "title": "Behoefteanalyse en vastlegging van het advies", "sections": ["Wat voor een offerte wordt gevraagd en vastgelegd", "Waar het dossier staat: hier staat alleen een verwijzing"] },
+    "renewal_playbook": { "title": "Draaiboek prolongatie", "sections": ["Zakelijk vanaf 120 dagen, particulier vanaf 45 dagen voor de hoofdvervaldatum", "Beoordeling, marktcheck, offerte en beslissing vóór de opzegdatum"] },
+    "policy_data_rules": { "title": "Polisgegevens: wat in het administratiesysteem blijft", "sections": ["De waarheid over de polis en de provisie-overzichten blijven in het administratiesysteem", "Wat deze workspace bewaart en wat nooit"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Contactpersoon en aanvraag aanmaken als het aanvraagformulier is ingediend" },
+    "respond_new_lead": { "title": "Een nieuwe aanvraag de volgende dag beantwoorden" },
+    "needs_analysis_task": { "title": "Het advies binnen 3 dagen vastleggen als een aanvraag de behoefteanalyse bereikt" },
+    "quotes_chase": { "title": "De verzekeraars 3 dagen na het opvragen van offertes nabellen" },
+    "offer_follow_up": { "title": "De dag na het presenteren van een offerte opvolgen" },
+    "bound_welcome": { "title": "De klant een week nadat de polis is ontvangen bellen" },
+    "renewal_commercial": { "title": "Een prolongatiezaak openen 120 dagen voor de hoofdvervaldatum van een lopende zakelijke polis" },
+    "renewal_personal": { "title": "Een prolongatiezaak openen 45 dagen voor de hoofdvervaldatum van een lopende particuliere polis" },
+    "renewal_review_task": { "title": "De prolongatie binnen een week na het openen van de zaak beoordelen" },
+    "renewal_offer_chase": { "title": "De verantwoordelijke waarschuwen als een prolongatieofferte 7 dagen op de klant wacht" },
+    "decision_deadline_notice": { "title": "De verantwoordelijke 30 dagen voor de hoofdvervaldatum laten bevestigen wat de klant besluit" },
+    "unpaid_premium_notice": { "title": "De klant schrijven als het administratiesysteem een onbetaalde premie meldt" }
+  },
+  "acceptanceChecks": {
+    "opportunity_stage_field": "Elke aanvraag heeft een fase.",
+    "advice_documented_field": "Elke aanvraag legt vast wanneer het advies is vastgelegd.",
+    "renewal_date_field": "Elke polis legt haar hoofdvervaldatum vast.",
+    "renewals_board_view": "De prolongaties openen als bord per fase.",
+    "advice_documentation_page": "De kennisbank bevat een pagina over het vastleggen van het advies."
+  },
+  "prompt": {
+    "intro": "Richt in mijn Customermates-workspace een pijplijn voor een verzekeringsadviseur in: nieuwe zaken van aanvraag tot polis met het advies vastgelegd vóór de offerte, polissen met een hoofdvervaldatum en een prolongatiezaak voor elk, en opvolging met datum. Bewaar geen gezondheidsgegevens, schadedetails of kopieën van identiteitsbewijzen.",
+    "questions": [
+      "Welke branches bemiddelt u en bedient u zakelijke klanten, particulieren of beide?",
+      "Hoe lang voor de hoofdvervaldatum begint u een prolongatie en wat is de gebruikelijke opzegtermijn?",
+      "Waar bewaart u het adviesdossier en de polisgegevens? Hier staan alleen links.",
+      "In welk land werkt u en welke adviesplichten gelden voor u?"
+    ]
+  }
+}

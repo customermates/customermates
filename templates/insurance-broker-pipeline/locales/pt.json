@@ -1,0 +1,125 @@
+{
+  "locale": "pt",
+  "name": "Corretora de seguros",
+  "summary": "Dois funis para uma corretora de seguros: vendas novas do lead à apólice emitida com a recomendação documentada antes da proposta, e um caso de renovação para cada apólice que começa de 120 a 45 dias antes do vencimento.",
+  "description": "Conduza vendas novas e renovações lado a lado: negociações do primeiro contato à qualificação, à cotação, à proposta e à decisão até a apólice emitida, uma data de recomendação documentada em cada proposta, e apólices com a data de vigência que abrem sozinhas um caso de renovação. Guarda uma referência ao registro da recomendação e à apólice no seu sistema, nunca dados de saúde, detalhes de sinistros, dados bancários ou cópias de documentos de identidade. Não é administração de apólices, um comparador ou motor de tarifação, regulação de sinistros nem conciliação de comissões.",
+  "lists": {
+    "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "Segurados, interessados, decisores e indicadores." },
+    "opportunities": { "label": "Negociação", "pluralLabel": "Negociações", "description": "Uma venda nova do primeiro contato à apólice emitida ou à perda." },
+    "policies": { "label": "Apólice", "pluralLabel": "Apólices", "description": "Uma apólice com o ramo, a vigência e um link para o sistema da corretora." },
+    "renewals": { "label": "Renovação", "pluralLabel": "Renovações", "description": "O caso de renovação anual de uma apólice." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Papel", "options": { "policyholder": "Segurado", "prospect": "Interessado", "decision_maker": "Decisor", "referrer": "Indicador" } },
+    "contacts.preferred_channel": { "label": "Canal preferido", "options": { "email": "E-mail", "phone": "Telefone", "whatsapp": "WhatsApp", "post": "Correio" } },
+    "contacts.broker_mandate_on": { "label": "Carta de nomeação assinada em" },
+    "opportunities.stage": {
+      "label": "Etapa",
+      "options": { "lead": "Lead", "needs_analysis": "Qualificação", "quotes_requested": "Cotação", "offer_presented": "Proposta", "awaiting_decision": "Decisão do cliente", "application_submitted": "Emissão", "bound": "Apólice emitida", "lost": "Perdido" }
+    },
+    "opportunities.line": {
+      "label": "Ramo",
+      "options": { "motor": "Automóvel", "home_contents": "Residencial", "liability": "Responsabilidade civil", "legal_expenses": "Proteção jurídica", "life_pension": "Vida e previdência", "health": "Saúde", "commercial_property": "Patrimonial empresarial", "commercial_liability": "Responsabilidade civil empresarial", "cyber": "Cibernético", "other": "Outro" }
+    },
+    "opportunities.source": { "label": "Origem", "options": { "referral": "Indicação", "web_form": "Formulário do site", "comparison_portal": "Comparador", "existing_client": "Cliente existente", "partner": "Parceiro", "event": "Evento" } },
+    "opportunities.needs_analysis_on": { "label": "Análise de necessidades em" },
+    "opportunities.advice_documented_on": { "label": "Recomendação documentada em" },
+    "opportunities.advice_record_ref": { "label": "Link do registro da recomendação" },
+    "opportunities.decision_expected": { "label": "Decisão esperada" },
+    "opportunities.next_step_due": { "label": "Próximo passo até" },
+    "opportunities.lost_reason": {
+      "label": "Motivo da perda",
+      "options": { "price": "Preço", "coverage_not_matching": "Coberturas inadequadas", "stayed_with_current": "Ficou com a seguradora atual", "no_response": "Sem resposta", "declined_by_carrier": "Recusado pela seguradora", "timing": "Momento" }
+    },
+    "opportunities.producer": { "label": "Corretor responsável" },
+    "policies.policy_ref": { "label": "Número da apólice" },
+    "policies.line": {
+      "label": "Ramo",
+      "options": { "motor": "Automóvel", "home_contents": "Residencial", "liability": "Responsabilidade civil", "legal_expenses": "Proteção jurídica", "life_pension": "Vida e previdência", "health": "Saúde", "commercial_property": "Patrimonial empresarial", "commercial_liability": "Responsabilidade civil empresarial", "cyber": "Cibernético", "other": "Outro" }
+    },
+    "policies.line_group": { "label": "Segmento", "options": { "commercial": "Empresas", "personal": "Pessoas físicas" } },
+    "policies.status": { "label": "Situação", "options": { "pending": "Em emissão", "active": "Vigente", "lapsed": "Cancelada por falta de pagamento", "cancelled": "Cancelada" } },
+    "policies.renewal_date": { "label": "Fim da vigência" },
+    "policies.annual_premium": { "label": "Prêmio anual" },
+    "policies.notice_days": { "label": "Aviso prévio (dias)" },
+    "policies.system_ref": { "label": "Link no sistema da corretora" },
+    "renewals.stage": {
+      "label": "Etapa",
+      "options": { "upcoming": "A vencer", "review_started": "Revisão iniciada", "market_check": "Cotação no mercado", "offer_sent": "Proposta enviada", "awaiting_client": "Aguardando o cliente", "renewed": "Renovada", "lapsed": "Não renovada" }
+    },
+    "renewals.renewal_date": { "label": "Fim da vigência" },
+    "renewals.offer_sent_on": { "label": "Proposta enviada em" },
+    "renewals.decision_on": { "label": "Cliente decidiu em" },
+    "renewals.premium_change_percent": { "label": "Variação do prêmio (%)" },
+    "renewals.advice_documented_on": { "label": "Recomendação documentada em" },
+    "renewals.lost_reason": {
+      "label": "Motivo da perda",
+      "options": { "price": "Preço", "switched_broker": "Trocou de corretora", "switched_carrier": "Trocou de seguradora", "business_closed": "Negócio encerrado", "no_response": "Sem resposta", "other": "Outro" }
+    },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "call": "Ligar", "send_quote": "Enviar a proposta", "chase_carrier": "Cobrar a seguradora", "advice_record": "Documentar a recomendação", "renewal_review": "Revisar a renovação", "cross_sell": "Revisão de venda cruzada", "letter": "Redigir uma carta", "other": "Outro" }
+    }
+  },
+  "relationships": {
+    "opportunity_contact": { "sourceLabel": "Contato", "targetLabel": "Negociações" },
+    "policy_contact": { "sourceLabel": "Segurado", "targetLabel": "Apólices" },
+    "policy_opportunity": { "sourceLabel": "Negociação", "targetLabel": "Apólices" },
+    "renewal_policy": { "sourceLabel": "Apólice", "targetLabel": "Renovações" },
+    "action_opportunity": { "sourceLabel": "Negociação", "targetLabel": "Tarefas" },
+    "action_renewal": { "sourceLabel": "Renovação", "targetLabel": "Tarefas" },
+    "action_policy": { "sourceLabel": "Apólice", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Vendas novas por etapa" },
+    "opportunities_all": { "name": "Todas as negociações" },
+    "offers_without_advice": { "name": "Propostas sem registro da recomendação" },
+    "renewals_board": { "name": "Renovações por etapa" },
+    "policies_all": { "name": "Todas as apólices" },
+    "contacts_all": { "name": "Todos os contatos" }
+  },
+  "widgets": {
+    "opportunities_funnel": { "title": "Vendas novas por etapa" },
+    "renewals_coming": { "title": "Renovações próximas" },
+    "offers_no_advice": { "title": "Propostas sem registro da recomendação" },
+    "renewals_by_stage": { "title": "Renovações abertas por etapa" },
+    "active_premium": { "title": "Prêmio anual das apólices vigentes" },
+    "lost_reasons": { "title": "Por que negociações foram perdidas" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Como funciona a mesa da corretora", "sections": ["Os dois funis: vendas novas e renovações", "Quem responde por cada etapa e a regra de uma tarefa com data por item aberto"] },
+    "advice_documentation": { "title": "Análise de necessidades e documentação da recomendação", "sections": ["O que se pergunta e se registra antes de uma proposta", "Onde fica o registro: aqui só se guarda uma referência"] },
+    "renewal_playbook": { "title": "Guia de renovação", "sections": ["Empresas a partir de 120 dias, pessoas físicas a partir de 45 dias antes do vencimento", "Revisão, cotação no mercado, proposta e decisão antes do prazo de aviso"] },
+    "policy_data_rules": { "title": "Dados das apólices: o que fica no sistema da corretora", "sections": ["A verdade da apólice e os extratos de comissão ficam no sistema da corretora", "O que este espaço guarda e o que nunca guarda"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Criar o contato e a negociação quando o formulário de solicitação for enviado" },
+    "respond_new_lead": { "title": "Responder a um lead novo no dia seguinte" },
+    "needs_analysis_task": { "title": "Documentar a recomendação em 3 dias quando uma negociação chega à qualificação" },
+    "quotes_chase": { "title": "Cobrar as seguradoras 3 dias depois de pedir as cotações" },
+    "offer_follow_up": { "title": "Fazer o retorno no dia seguinte à apresentação de uma proposta" },
+    "bound_welcome": { "title": "Ligar para o cliente uma semana depois da emissão da apólice" },
+    "renewal_commercial": { "title": "Abrir um caso de renovação 120 dias antes do fim da vigência de uma apólice empresarial" },
+    "renewal_personal": { "title": "Abrir um caso de renovação 45 dias antes do fim da vigência de uma apólice de pessoa física" },
+    "renewal_review_task": { "title": "Revisar a renovação em até uma semana da abertura do caso" },
+    "renewal_offer_chase": { "title": "Avisar o responsável quando uma proposta de renovação espera o cliente há 7 dias" },
+    "decision_deadline_notice": { "title": "Avisar o responsável 30 dias antes do vencimento para confirmar a decisão do cliente" },
+    "unpaid_premium_notice": { "title": "Escrever ao cliente quando o sistema da corretora avisar de um prêmio não pago" }
+  },
+  "acceptanceChecks": {
+    "opportunity_stage_field": "Toda negociação tem uma etapa.",
+    "advice_documented_field": "Toda negociação registra quando a recomendação foi documentada.",
+    "renewal_date_field": "Toda apólice registra o fim da vigência.",
+    "renewals_board_view": "As renovações abrem como quadro por etapa.",
+    "advice_documentation_page": "A base de conhecimento tem uma página sobre a documentação da recomendação."
+  },
+  "prompt": {
+    "intro": "Configure no meu workspace do Customermates um funil para uma corretora de seguros: vendas novas do lead à apólice emitida com a recomendação documentada antes da proposta, apólices com fim de vigência e um caso de renovação para cada uma, e acompanhamentos com data. Não guarde dados de saúde, detalhes de sinistros nem cópias de documentos de identidade.",
+    "questions": [
+      "Quais ramos você trabalha e atende empresas, pessoas físicas ou os dois?",
+      "Com quanta antecedência do vencimento você começa uma renovação e qual é o aviso prévio habitual?",
+      "Onde você guarda o registro da recomendação e os dados das apólices? Aqui só se guardam links.",
+      "Em qual país você atua e quais deveres de orientação se aplicam a você?"
+    ]
+  }
+}

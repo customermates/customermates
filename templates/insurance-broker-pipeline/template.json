@@ -1,0 +1,193 @@
+{
+  "id": "tpl_insurance_broker_pipeline",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "insurance-broker-pipeline",
+  "family": "professional-services",
+  "kind": "pipeline",
+  "jurisdictions": ["DE", "FR", "IT", "ES", "BR", "PL", "NL"],
+  "dashboardAudience": "team",
+  "modules": ["actions_core", "actions_dashboard"],
+  "requiresCapabilities": ["forms", "rules", "notifications", "incomingWebhooks"],
+  "pairedPages": {
+    "en": "/for/financial-advisors",
+    "de": "/for/financial-advisors",
+    "fr": "/for/financial-advisors",
+    "it": "/for/financial-advisors",
+    "es": "/for/financial-advisors",
+    "pt": "/for/financial-advisors",
+    "pl": "/for/financial-advisors",
+    "nl": "/for/financial-advisors"
+  },
+  "lists": [
+    { "key": "contacts", "role": "people", "icon": "contact" },
+    { "key": "opportunities", "role": "deals", "icon": "shield" },
+    { "key": "policies", "icon": "contract" },
+    { "key": "renewals", "icon": "repeat" }
+  ],
+  "stages": [
+    {
+      "field": "opportunities.stage",
+      "items": [
+        { "key": "lead", "outcome": "open", "weight": 10 },
+        { "key": "needs_analysis", "outcome": "open", "weight": 25 },
+        { "key": "quotes_requested", "outcome": "open", "weight": 40 },
+        { "key": "offer_presented", "outcome": "open", "weight": 60 },
+        { "key": "awaiting_decision", "outcome": "open", "weight": 75 },
+        { "key": "application_submitted", "outcome": "open", "weight": 90 },
+        { "key": "bound", "outcome": "won", "weight": 100 },
+        { "key": "lost", "outcome": "lost", "weight": 0 }
+      ]
+    },
+    {
+      "field": "renewals.stage",
+      "items": [
+        { "key": "upcoming", "outcome": "open", "weight": 30 },
+        { "key": "review_started", "outcome": "open", "weight": 45 },
+        { "key": "market_check", "outcome": "open", "weight": 60 },
+        { "key": "offer_sent", "outcome": "open", "weight": 80 },
+        { "key": "awaiting_client", "outcome": "open", "weight": 90 },
+        { "key": "renewed", "outcome": "won", "weight": 100 },
+        { "key": "lapsed", "outcome": "lost", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "contacts.contact_role", "type": "select", "options": [{ "key": "policyholder" }, { "key": "prospect" }, { "key": "decision_maker" }, { "key": "referrer" }] },
+    { "key": "contacts.preferred_channel", "type": "select", "options": [{ "key": "email" }, { "key": "phone" }, { "key": "whatsapp" }, { "key": "post" }] },
+    { "key": "contacts.broker_mandate_on", "type": "date" },
+    {
+      "key": "opportunities.line",
+      "type": "select",
+      "options": [{ "key": "motor" }, { "key": "home_contents" }, { "key": "liability" }, { "key": "legal_expenses" }, { "key": "life_pension" }, { "key": "health" }, { "key": "commercial_property" }, { "key": "commercial_liability" }, { "key": "cyber" }, { "key": "other" }]
+    },
+    { "key": "opportunities.source", "type": "select", "options": [{ "key": "referral" }, { "key": "web_form" }, { "key": "comparison_portal" }, { "key": "existing_client" }, { "key": "partner" }, { "key": "event" }] },
+    { "key": "opportunities.needs_analysis_on", "type": "date" },
+    { "key": "opportunities.advice_documented_on", "type": "date" },
+    { "key": "opportunities.advice_record_ref", "type": "url" },
+    { "key": "opportunities.decision_expected", "type": "date" },
+    { "key": "opportunities.next_step_due", "type": "date" },
+    { "key": "opportunities.lost_reason", "type": "select", "options": [{ "key": "price" }, { "key": "coverage_not_matching" }, { "key": "stayed_with_current" }, { "key": "no_response" }, { "key": "declined_by_carrier" }, { "key": "timing" }] },
+    { "key": "opportunities.producer", "type": "member" },
+    { "key": "policies.policy_ref", "type": "text" },
+    {
+      "key": "policies.line",
+      "type": "select",
+      "options": [{ "key": "motor" }, { "key": "home_contents" }, { "key": "liability" }, { "key": "legal_expenses" }, { "key": "life_pension" }, { "key": "health" }, { "key": "commercial_property" }, { "key": "commercial_liability" }, { "key": "cyber" }, { "key": "other" }]
+    },
+    { "key": "policies.line_group", "type": "select", "options": [{ "key": "commercial" }, { "key": "personal" }] },
+    { "key": "policies.status", "type": "select", "options": [{ "key": "pending" }, { "key": "active", "color": "success" }, { "key": "lapsed", "color": "warning" }, { "key": "cancelled", "color": "secondary" }] },
+    { "key": "policies.renewal_date", "type": "date" },
+    { "key": "policies.annual_premium", "type": "currency" },
+    { "key": "policies.notice_days", "type": "number" },
+    { "key": "policies.system_ref", "type": "url" },
+    { "key": "renewals.renewal_date", "type": "date" },
+    { "key": "renewals.offer_sent_on", "type": "date" },
+    { "key": "renewals.decision_on", "type": "date" },
+    { "key": "renewals.premium_change_percent", "type": "number" },
+    { "key": "renewals.advice_documented_on", "type": "date" },
+    { "key": "renewals.lost_reason", "type": "select", "options": [{ "key": "price" }, { "key": "switched_broker" }, { "key": "switched_carrier" }, { "key": "business_closed" }, { "key": "no_response" }, { "key": "other" }] },
+    {
+      "key": "actions.kind",
+      "type": "select",
+      "options": [{ "key": "call" }, { "key": "send_quote" }, { "key": "chase_carrier" }, { "key": "advice_record" }, { "key": "renewal_review" }, { "key": "cross_sell" }, { "key": "letter" }, { "key": "other" }]
+    }
+  ],
+  "relationships": [
+    { "key": "opportunity_contact", "source": "opportunities", "target": "contacts", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "policy_contact", "source": "policies", "target": "contacts", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "policy_opportunity", "source": "policies", "target": "opportunities", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "renewal_policy", "source": "renewals", "target": "policies", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_opportunity", "source": "actions", "target": "opportunities", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_renewal", "source": "actions", "target": "renewals", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_policy", "source": "actions", "target": "policies", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    { "key": "opportunities_board", "list": "opportunities", "default": true, "layout": "board", "groupBy": "opportunities.stage", "columns": ["opportunities.line", "opportunities.producer", "opportunities.decision_expected"], "summaries": [{ "field": "opportunities.value", "aggregation": "sum" }] },
+    { "key": "opportunities_all", "list": "opportunities", "default": false, "layout": "table", "sort": { "field": "opportunities.next_step_due", "direction": "asc" }, "columns": ["opportunities.stage", "opportunities.line", "opportunities.producer", "opportunities.next_step_due"] },
+    { "key": "offers_without_advice", "list": "opportunities", "default": false, "layout": "table", "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["offer_presented", "awaiting_decision", "application_submitted"] }, { "operator": "empty", "field": "opportunities.advice_documented_on" }] },
+    { "key": "renewals_board", "list": "renewals", "default": true, "layout": "board", "groupBy": "renewals.stage", "sort": { "field": "renewals.renewal_date", "direction": "asc" }, "columns": ["renewals.renewal_date", "renewals.offer_sent_on", "renewals.premium_change_percent"] },
+    { "key": "policies_all", "list": "policies", "default": true, "layout": "table", "sort": { "field": "policies.renewal_date", "direction": "asc" }, "columns": ["policies.status", "policies.line", "policies.line_group", "policies.renewal_date", "policies.annual_premium"] },
+    { "key": "contacts_all", "list": "contacts", "default": true, "layout": "table", "columns": ["contacts.contact_role", "contacts.preferred_channel", "contacts.broker_mandate_on"] }
+  ],
+  "widgets": [
+    { "kind": "chart", "key": "opportunities_funnel", "list": "opportunities", "aggregation": "count", "groupBy": { "field": "opportunities.stage" }, "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["lead", "needs_analysis", "quotes_requested", "offer_presented", "awaiting_decision", "application_submitted", "bound"] }], "display": "funnelChart" },
+    { "kind": "calendar", "key": "renewals_coming", "list": "policies", "layout": "upcoming", "dateField": "policies.renewal_date", "filters": [{ "operator": "in", "field": "policies.status", "options": ["active"] }] },
+    { "kind": "chart", "key": "offers_no_advice", "list": "opportunities", "aggregation": "count", "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["offer_presented", "awaiting_decision", "application_submitted"] }, { "operator": "empty", "field": "opportunities.advice_documented_on" }], "display": "number" },
+    { "kind": "chart", "key": "renewals_by_stage", "list": "renewals", "aggregation": "count", "groupBy": { "field": "renewals.stage" }, "filters": [{ "operator": "notIn", "field": "renewals.stage", "options": ["renewed", "lapsed"] }], "display": "horizontalBarChart" },
+    { "kind": "chart", "key": "active_premium", "list": "policies", "aggregation": "sum", "valueField": "policies.annual_premium", "filters": [{ "operator": "in", "field": "policies.status", "options": ["active"] }], "display": "number" },
+    { "kind": "chart", "key": "lost_reasons", "list": "opportunities", "aggregation": "count", "groupBy": { "field": "opportunities.lost_reason" }, "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["lost"] }], "display": "horizontalBarChart" }
+  ],
+  "knowledgePages": [
+    { "key": "operating_guide", "kind": "overview" },
+    { "key": "advice_documentation", "kind": "processes" },
+    { "key": "renewal_playbook", "kind": "processes" },
+    { "key": "policy_data_rules", "kind": "processes" }
+  ],
+  "followUpRules": [
+    { "key": "enquiry_form_records", "trigger": { "kind": "form_submitted", "form": "enquiry" }, "action": { "kind": "create_records", "lists": ["contacts", "opportunities"] }, "dueOffsetDays": 0, "needs": "forms" },
+    { "key": "respond_new_lead", "trigger": { "kind": "record_created", "list": "opportunities" }, "action": { "kind": "create_task", "taskKind": "call", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 1, "needs": "rules" },
+    { "key": "needs_analysis_task", "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "needs_analysis" }, "action": { "kind": "create_task", "taskKind": "advice_record", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 3, "needs": "rules" },
+    { "key": "quotes_chase", "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "quotes_requested" }, "action": { "kind": "create_task", "taskKind": "chase_carrier", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 3, "needs": "rules" },
+    { "key": "offer_follow_up", "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "offer_presented" }, "action": { "kind": "create_task", "taskKind": "call", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 1, "needs": "rules" },
+    { "key": "bound_welcome", "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "bound" }, "action": { "kind": "create_task", "taskKind": "call", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 7, "needs": "rules" },
+    {
+      "key": "renewal_commercial",
+      "trigger": { "kind": "date_reached", "field": "policies.renewal_date", "offsetDays": -120 },
+      "condition": [{ "operator": "in", "field": "policies.line_group", "options": ["commercial"] }, { "operator": "in", "field": "policies.status", "options": ["active"] }],
+      "action": { "kind": "create_records", "lists": ["renewals"] },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    {
+      "key": "renewal_personal",
+      "trigger": { "kind": "date_reached", "field": "policies.renewal_date", "offsetDays": -45 },
+      "condition": [{ "operator": "in", "field": "policies.line_group", "options": ["personal"] }, { "operator": "in", "field": "policies.status", "options": ["active"] }],
+      "action": { "kind": "create_records", "lists": ["renewals"] },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "renewal_review_task", "trigger": { "kind": "record_created", "list": "renewals" }, "action": { "kind": "create_task", "taskKind": "renewal_review", "assignee": "record_owner", "about": "renewals" }, "dueOffsetDays": 7, "needs": "rules" },
+    {
+      "key": "renewal_offer_chase",
+      "trigger": { "kind": "unchanged_for", "field": "renewals.stage", "days": 7 },
+      "condition": [{ "operator": "in", "field": "renewals.stage", "options": ["offer_sent"] }],
+      "action": { "kind": "notify", "recipient": "record_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    {
+      "key": "decision_deadline_notice",
+      "trigger": { "kind": "date_reached", "field": "policies.renewal_date", "offsetDays": -30 },
+      "condition": [{ "operator": "in", "field": "policies.status", "options": ["active"] }],
+      "action": { "kind": "notify", "recipient": "record_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    { "key": "unpaid_premium_notice", "trigger": { "kind": "webhook_received", "source": "agency_system" }, "action": { "kind": "create_task", "taskKind": "letter", "assignee": "workspace_owner", "about": "policies" }, "dueOffsetDays": 1, "needs": "incomingWebhooks" }
+  ],
+  "acceptanceChecks": [
+    { "key": "opportunity_stage_field", "kind": "field_exists", "ref": "opportunities.stage" },
+    { "key": "advice_documented_field", "kind": "field_exists", "ref": "opportunities.advice_documented_on" },
+    { "key": "renewal_date_field", "kind": "field_exists", "ref": "policies.renewal_date" },
+    { "key": "renewals_board_view", "kind": "view_exists", "ref": "renewals_board" },
+    { "key": "advice_documentation_page", "kind": "page_exists", "ref": "advice_documentation" }
+  ],
+  "sources": [
+    { "url": "https://telecrm.in/blog/insurance-sales-pipeline/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.taskade.com/templates/sales-pipeline/insurance-sales-pipeline", "checkedOn": "2026-11-12" },
+    { "url": "https://www.insurancejournal.com/blogs/fulcrum/2026/05/15/869588.htm", "checkedOn": "2026-11-12" },
+    { "url": "https://innowise.com/blog/best-crm-for-insurance/", "checkedOn": "2026-11-12" },
+    { "url": "https://agger.com.br/blog/crm-corretores-de-seguros/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.salesforce.com/financial-services/insurance-agency-management-software/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.convergehub.com/?p=20392", "checkedOn": "2026-11-12" },
+    { "url": "https://www.iww.de/vvp/maklerrecht/maklerrechtberatungsprotokoll-ist-bei-uebernahme-eines-versicherungsvertrags-eine-beratung-und-dokumentation-erforderlich-f161021", "checkedOn": "2026-11-12" },
+    { "url": "https://piu.org.pl/wp-content/uploads/2019/03/WU-2018-04-02-Czajkowska.pdf", "checkedOn": "2026-11-12" },
+    { "url": "https://selectra.info/assurance/actualites/marche/avis-echeance-assurance-loi-chatel-resiliation", "checkedOn": "2026-11-12" },
+    { "url": "https://www.facile.it/assicurazioni/news/tacito-rinnovo-e-assicurazioni-per-quali-tipologie-di-polizze-e-ancora-previsto.html", "checkedOn": "2026-11-12" },
+    { "url": "https://revistaapolice.com.br/2026/06/renovacao-de-seguro-auto-ainda-exige-processos-manuais/", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "proof", "de": "none", "fr": "proof", "it": "none", "es": "none", "pt": "proof", "pl": "proof", "nl": "none" }
+}

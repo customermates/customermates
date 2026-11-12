@@ -1,0 +1,125 @@
+{
+  "locale": "de",
+  "name": "Versicherungsmakler",
+  "summary": "Zwei Pipelines für den Versicherungsmakler: Neugeschäft von der Anfrage bis zur Police mit dokumentierter Beratung vor dem Angebot, und ein Verlängerungsfall für jeden Vertrag, der 120 bis 45 Tage vor der Hauptfälligkeit startet.",
+  "description": "Neugeschäft und Verlängerungen nebeneinander führen: Anfragen von der ersten Anfrage über Bedarfsanalyse, Angebotsanfrage, Beratung und Entscheidung bis zur erhaltenen Police, ein Datum der Beratungsdokumentation an jedem Angebot und Verträge mit ihrer Hauptfälligkeit, die selbst einen Verlängerungsfall eröffnen. Die Vorlage hält einen Verweis auf das Beratungsprotokoll und auf den Vertrag in Ihrem Maklerverwaltungsprogramm, niemals Gesundheitsdaten, Schadendetails, Bankdaten oder Ausweiskopien. Keine Vertragsverwaltung, keine Vergleichs- oder Tarifrechner, keine Schadenbearbeitung und keine Courtage-Abrechnung.",
+  "lists": {
+    "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Versicherungsnehmer, Interessenten, Entscheider und Empfehler." },
+    "opportunities": { "label": "Anfrage", "pluralLabel": "Neugeschäft (Anfragen)", "description": "Neugeschäft von der ersten Anfrage bis zur Police oder zum Verlust." },
+    "policies": { "label": "Vertrag", "pluralLabel": "Verträge", "description": "Ein Versicherungsvertrag mit Sparte, Hauptfälligkeit und Link zum Maklerverwaltungsprogramm." },
+    "renewals": { "label": "Verlängerung", "pluralLabel": "Hauptfälligkeiten (Verlängerungen)", "description": "Der jährliche Verlängerungsfall eines Vertrags." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Rolle", "options": { "policyholder": "Versicherungsnehmer", "prospect": "Interessent", "decision_maker": "Entscheider", "referrer": "Empfehler" } },
+    "contacts.preferred_channel": { "label": "Bevorzugter Kanal", "options": { "email": "E-Mail", "phone": "Telefon", "whatsapp": "WhatsApp", "post": "Post" } },
+    "contacts.broker_mandate_on": { "label": "Maklervollmacht unterschrieben am" },
+    "opportunities.stage": {
+      "label": "Phase",
+      "options": { "lead": "Anfrage", "needs_analysis": "Bedarfsanalyse", "quotes_requested": "Angebotsanfrage an Versicherer", "offer_presented": "Beratung und Angebot", "awaiting_decision": "Entscheidung", "application_submitted": "Antrag eingereicht", "bound": "Police erhalten", "lost": "Verloren" }
+    },
+    "opportunities.line": {
+      "label": "Sparte",
+      "options": { "motor": "Kfz", "home_contents": "Wohngebäude und Hausrat", "liability": "Haftpflicht", "legal_expenses": "Rechtsschutz", "life_pension": "Leben und Altersvorsorge", "health": "Kranken", "commercial_property": "Gewerbliche Sachversicherung", "commercial_liability": "Betriebshaftpflicht", "cyber": "Cyber", "other": "Sonstige" }
+    },
+    "opportunities.source": { "label": "Quelle", "options": { "referral": "Empfehlung", "web_form": "Webformular", "comparison_portal": "Vergleichsportal", "existing_client": "Bestandskunde", "partner": "Partner", "event": "Veranstaltung" } },
+    "opportunities.needs_analysis_on": { "label": "Bedarfsanalyse am" },
+    "opportunities.advice_documented_on": { "label": "Beratung dokumentiert am" },
+    "opportunities.advice_record_ref": { "label": "Link zum Beratungsprotokoll" },
+    "opportunities.decision_expected": { "label": "Entscheidung erwartet" },
+    "opportunities.next_step_due": { "label": "Nächster Schritt bis" },
+    "opportunities.lost_reason": {
+      "label": "Verlustgrund",
+      "options": { "price": "Preis", "coverage_not_matching": "Deckung passte nicht", "stayed_with_current": "Beim bisherigen Versicherer geblieben", "no_response": "Keine Rückmeldung", "declined_by_carrier": "Vom Versicherer abgelehnt", "timing": "Zeitpunkt" }
+    },
+    "opportunities.producer": { "label": "Betreuer" },
+    "policies.policy_ref": { "label": "Versicherungsscheinnummer" },
+    "policies.line": {
+      "label": "Sparte",
+      "options": { "motor": "Kfz", "home_contents": "Wohngebäude und Hausrat", "liability": "Haftpflicht", "legal_expenses": "Rechtsschutz", "life_pension": "Leben und Altersvorsorge", "health": "Kranken", "commercial_property": "Gewerbliche Sachversicherung", "commercial_liability": "Betriebshaftpflicht", "cyber": "Cyber", "other": "Sonstige" }
+    },
+    "policies.line_group": { "label": "Segment", "options": { "commercial": "Gewerbe", "personal": "Privat" } },
+    "policies.status": { "label": "Status", "options": { "pending": "Beantragt", "active": "Aktiv", "lapsed": "Beitragsfrei oder erloschen", "cancelled": "Gekündigt" } },
+    "policies.renewal_date": { "label": "Hauptfälligkeit" },
+    "policies.annual_premium": { "label": "Jahresbeitrag" },
+    "policies.notice_days": { "label": "Kündigungsfrist (Tage)" },
+    "policies.system_ref": { "label": "Link im Maklerverwaltungsprogramm" },
+    "renewals.stage": {
+      "label": "Phase",
+      "options": { "upcoming": "Anstehend", "review_started": "Prüfung begonnen", "market_check": "Marktvergleich", "offer_sent": "Angebot gesendet", "awaiting_client": "Wartet auf den Kunden", "renewed": "Verlängert", "lapsed": "Nicht verlängert" }
+    },
+    "renewals.renewal_date": { "label": "Hauptfälligkeit" },
+    "renewals.offer_sent_on": { "label": "Angebot gesendet am" },
+    "renewals.decision_on": { "label": "Kunde entschieden am" },
+    "renewals.premium_change_percent": { "label": "Beitragsänderung (%)" },
+    "renewals.advice_documented_on": { "label": "Beratung dokumentiert am" },
+    "renewals.lost_reason": {
+      "label": "Verlustgrund",
+      "options": { "price": "Preis", "switched_broker": "Makler gewechselt", "switched_carrier": "Versicherer gewechselt", "business_closed": "Betrieb aufgegeben", "no_response": "Keine Rückmeldung", "other": "Sonstiger" }
+    },
+    "actions.kind": {
+      "label": "Art",
+      "options": { "call": "Anrufen", "send_quote": "Angebot senden", "chase_carrier": "Beim Versicherer nachfassen", "advice_record": "Beratung dokumentieren", "renewal_review": "Verlängerung prüfen", "cross_sell": "Cross-Selling prüfen", "letter": "Schreiben verfassen", "other": "Sonstiges" }
+    }
+  },
+  "relationships": {
+    "opportunity_contact": { "sourceLabel": "Ansprechpartner", "targetLabel": "Neugeschäft (Anfragen)" },
+    "policy_contact": { "sourceLabel": "Versicherungsnehmer", "targetLabel": "Verträge" },
+    "policy_opportunity": { "sourceLabel": "Anfrage", "targetLabel": "Verträge" },
+    "renewal_policy": { "sourceLabel": "Vertrag", "targetLabel": "Hauptfälligkeiten (Verlängerungen)" },
+    "action_opportunity": { "sourceLabel": "Anfrage", "targetLabel": "Aufgaben" },
+    "action_renewal": { "sourceLabel": "Verlängerung", "targetLabel": "Aufgaben" },
+    "action_policy": { "sourceLabel": "Vertrag", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Neugeschäft nach Phase" },
+    "opportunities_all": { "name": "Alle Anfragen" },
+    "offers_without_advice": { "name": "Angebote ohne Beratungsprotokoll" },
+    "renewals_board": { "name": "Verlängerungen nach Phase" },
+    "policies_all": { "name": "Alle Verträge" },
+    "contacts_all": { "name": "Alle Ansprechpartner" }
+  },
+  "widgets": {
+    "opportunities_funnel": { "title": "Neugeschäft nach Phase" },
+    "renewals_coming": { "title": "Anstehende Hauptfälligkeiten" },
+    "offers_no_advice": { "title": "Angebote ohne Beratungsprotokoll" },
+    "renewals_by_stage": { "title": "Offene Verlängerungen nach Phase" },
+    "active_premium": { "title": "Jahresbeitrag aktiver Verträge" },
+    "lost_reasons": { "title": "Warum Anfragen verloren gingen" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "So läuft der Maklerarbeitsplatz", "sections": ["Die zwei Pipelines: Neugeschäft und Verlängerungen", "Wer welche Phase verantwortet und die Regel einer terminierten Aufgabe je offenem Vorgang"] },
+    "advice_documentation": { "title": "Bedarfsanalyse und Beratungsdokumentation", "sections": ["Was vor einem Angebot erfragt und festgehalten wird", "Wo das Protokoll liegt: hier steht nur ein Verweis"] },
+    "renewal_playbook": { "title": "Leitfaden Verlängerung", "sections": ["Gewerbe ab 120 Tagen, Privat ab 45 Tagen vor der Hauptfälligkeit", "Prüfung, Marktvergleich, Angebot und Entscheidung vor der Kündigungsfrist"] },
+    "policy_data_rules": { "title": "Vertragsdaten: was im Maklerverwaltungsprogramm liegt", "sections": ["Vertragsstand und Courtageabrechnung bleiben im Maklerverwaltungsprogramm", "Was dieser Workspace hält und was nie"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Ansprechpartner und Anfrage anlegen, wenn das Anfrageformular abgeschickt wird" },
+    "respond_new_lead": { "title": "Eine neue Anfrage am nächsten Tag beantworten" },
+    "needs_analysis_task": { "title": "Die Beratung binnen 3 Tagen dokumentieren, wenn eine Anfrage die Bedarfsanalyse erreicht" },
+    "quotes_chase": { "title": "3 Tage nach der Angebotsanfrage bei den Versicherern nachfassen" },
+    "offer_follow_up": { "title": "Am Tag nach dem Angebot nachfassen" },
+    "bound_welcome": { "title": "Eine Woche nach Erhalt der Police den Kunden anrufen" },
+    "renewal_commercial": { "title": "120 Tage vor der Hauptfälligkeit eines aktiven Gewerbevertrags einen Verlängerungsfall eröffnen" },
+    "renewal_personal": { "title": "45 Tage vor der Hauptfälligkeit eines aktiven Privatvertrags einen Verlängerungsfall eröffnen" },
+    "renewal_review_task": { "title": "Die Verlängerung binnen einer Woche nach Eröffnung des Falls prüfen" },
+    "renewal_offer_chase": { "title": "Den Zuständigen informieren, wenn ein Verlängerungsangebot 7 Tage auf den Kunden wartet" },
+    "decision_deadline_notice": { "title": "30 Tage vor der Hauptfälligkeit die Entscheidung des Kunden bestätigen lassen" },
+    "unpaid_premium_notice": { "title": "Den Kunden anschreiben, wenn das Maklerverwaltungsprogramm einen offenen Beitrag meldet" }
+  },
+  "acceptanceChecks": {
+    "opportunity_stage_field": "Jede Anfrage hat eine Phase.",
+    "advice_documented_field": "Jede Anfrage hält fest, wann die Beratung dokumentiert wurde.",
+    "renewal_date_field": "Jeder Vertrag hält seine Hauptfälligkeit fest.",
+    "renewals_board_view": "Die Verlängerungen öffnen sich als Board nach Phase.",
+    "advice_documentation_page": "Die Wissensdatenbank enthält eine Seite zur Beratungsdokumentation."
+  },
+  "prompt": {
+    "intro": "Richte in meinem Customermates-Workspace eine Pipeline für den Versicherungsmakler ein: Neugeschäft von der Anfrage bis zur Police mit dokumentierter Beratung vor dem Angebot, Verträge mit Hauptfälligkeit und je einen Verlängerungsfall, und terminierte Folgeaufgaben. Speichere keine Gesundheitsdaten, Schadendetails oder Ausweiskopien.",
+    "questions": [
+      "Welche Sparten vermitteln Sie, und betreuen Sie Gewerbekunden, Privatkunden oder beide?",
+      "Wie lange vor der Hauptfälligkeit beginnen Sie die Verlängerung, und wie lang ist die übliche Kündigungsfrist?",
+      "Wo bewahren Sie Beratungsprotokoll und Vertragsdaten auf? Hier stehen nur Links.",
+      "In welchem Land arbeiten Sie, und welche Beratungspflichten gelten für Sie?"
+    ]
+  }
+}
