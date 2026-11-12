@@ -2,6 +2,7 @@ import type { TemplatePublicationOptions } from "./template-publication";
 
 import { buildLocalePath } from "@/i18n/locale-registry";
 
+import { pagePublicationOptions } from "./template-deployment";
 import { getTemplateIndex } from "./template-index";
 import { hubVisibility, ownPageSlugs } from "./template-publication";
 
@@ -77,7 +78,7 @@ export function createTemplatesSources(options: TemplatePublicationOptions = {})
   return { hub, pages };
 }
 
-export const templatesSources = createTemplatesSources();
+export const templatesSources = createTemplatesSources(pagePublicationOptions());
 
 export const templatesHubSource = templatesSources.hub;
 
