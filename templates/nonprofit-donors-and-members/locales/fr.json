@@ -1,0 +1,148 @@
+{
+  "locale": "fr",
+  "name": "Adhérents et donateurs",
+  "summary": "Un registre unique pour adhérents, donateurs et bénévoles : adhésions avec date d’échéance, dons avec remerciement et reçu fiscal, et un suivi des grands dons et subventions.",
+  "description": "Pour associations, fondations et paroisses : qui vous soutient et comment, quelle adhésion court jusqu’à quand, quel don attend encore un remerciement ou un reçu fiscal, et quel grand don ou quelle subvention est en cours. L’outil n’émet pas de reçus fiscaux et n’encaisse pas les cotisations : il vous montre lesquels sont à faire.",
+  "lists": {
+    "supporters": { "label": "Soutien", "pluralLabel": "Soutiens", "description": "Adhérents, donateurs, bénévoles, invités et membres du bureau." },
+    "memberships": { "label": "Adhésion", "pluralLabel": "Adhésions", "description": "Une adhésion avec sa cotisation et son échéance." },
+    "gifts": { "label": "Don", "pluralLabel": "Dons", "description": "Chaque don avec son remerciement et son reçu fiscal." },
+    "gift_opportunities": { "label": "Piste de don", "pluralLabel": "Pistes de dons", "description": "Grands dons, subventions et mécénats en cours." }
+  },
+  "fields": {
+    "memberships.status": {
+      "label": "Statut",
+      "options": { "applied": "Adhésion en attente", "active": "Adhérent à jour", "grace_period": "Cotisation à renouveler", "lapsed": "Adhésion échue", "resigned": "Démission" }
+    },
+    "gift_opportunities.stage": {
+      "label": "Étape",
+      "options": { "identified": "Identifiée", "qualified": "Qualifiée", "cultivation": "Relation en cours", "ask_made": "Demande faite", "pledged": "Promesse reçue", "received": "Reçue", "declined": "Refusée" }
+    },
+    "supporters.member_number": { "label": "Numéro d’adhérent" },
+    "supporters.supporter_types": {
+      "label": "Type de soutien",
+      "options": { "member": "Adhérent", "donor": "Donateur", "volunteer": "Bénévole", "guest": "Invité", "board_member": "Membre du bureau" }
+    },
+    "supporters.lifecycle_status": {
+      "label": "Relation",
+      "options": { "prospect": "Prospect", "active": "Actif", "lapsed": "Inactif", "former": "Ancien", "do_not_contact": "Ne pas contacter" }
+    },
+    "supporters.joined_on": { "label": "Arrivé le" },
+    "supporters.relationship_owner": { "label": "Référent" },
+    "supporters.contact_consent": { "label": "Consentement au contact", "options": { "granted": "Accordé", "not_granted": "Non accordé", "unknown": "Inconnu" } },
+    "supporters.consent_date": { "label": "Date du consentement" },
+    "supporters.last_contact_on": { "label": "Dernier contact" },
+    "memberships.level": {
+      "label": "Formule",
+      "options": { "regular": "Normale", "reduced": "Tarif réduit", "family": "Famille", "youth": "Jeune", "supporting": "Membre bienfaiteur", "honorary": "Membre d’honneur" }
+    },
+    "memberships.fee": { "label": "Montant de la cotisation" },
+    "memberships.billing_cycle": {
+      "label": "Périodicité",
+      "options": { "yearly": "Annuelle", "quarterly": "Trimestrielle", "monthly": "Mensuelle", "one_off": "Unique", "none": "Aucune" }
+    },
+    "memberships.fee_status": {
+      "label": "État de la cotisation",
+      "options": { "open": "À payer", "paid": "Payée", "reminded": "Relancée", "overdue": "En retard", "waived": "Offerte" }
+    },
+    "memberships.mandate_on_file": { "label": "Mandat de prélèvement au dossier" },
+    "memberships.started_on": { "label": "Début le" },
+    "memberships.renewal_due": { "label": "Date d’échéance" },
+    "memberships.end_reason": {
+      "label": "Motif de départ",
+      "options": { "moved_away": "Déménagement", "cost": "Coût", "lost_interest": "Perte d’intérêt", "dissatisfied": "Insatisfaction", "unpaid_fees": "Cotisations impayées", "other": "Autre" }
+    },
+    "gifts.received_on": { "label": "Reçu le" },
+    "gifts.amount": { "label": "Montant" },
+    "gifts.gift_type": {
+      "label": "Type de don",
+      "options": { "one_off": "Don ponctuel", "recurring": "Don régulier", "pledge_payment": "Versement sur promesse", "in_kind": "Don en nature", "legacy": "Legs" }
+    },
+    "gifts.fund": {
+      "label": "Affectation",
+      "options": { "unrestricted": "Non affecté", "restricted_project": "Projet précis", "appeal": "Appel à dons", "event": "Événement", "in_memory": "En mémoire de" }
+    },
+    "gifts.acknowledgement_status": {
+      "label": "Remerciement",
+      "options": { "to_acknowledge": "À remercier", "acknowledged": "Remercié", "not_needed": "Inutile" }
+    },
+    "gifts.receipt_status": {
+      "label": "Reçu fiscal",
+      "options": { "not_needed": "Inutile", "to_issue": "À émettre", "issued": "Émis", "annual_summary_sent": "Récapitulatif annuel envoyé" }
+    },
+    "gift_opportunities.kind": {
+      "label": "Type",
+      "options": { "major_gift": "Grand don", "grant": "Subvention", "sponsorship": "Mécénat d’entreprise", "legacy": "Legs", "campaign_pledge": "Promesse de campagne" }
+    },
+    "gift_opportunities.solicitor": { "label": "Demandé par" },
+    "gift_opportunities.ask_date": { "label": "Date de la demande" },
+    "gift_opportunities.decision_on": { "label": "Décision le" },
+    "gift_opportunities.report_due": { "label": "Compte rendu à remettre le" },
+    "actions.kind": {
+      "label": "Type",
+      "options": {
+        "thank_donor": "Remercier un donateur",
+        "issue_receipt": "Émettre un reçu fiscal",
+        "welcome_member": "Accueillir un adhérent",
+        "renewal_notice": "Avis de renouvellement",
+        "chase_fee": "Relancer une cotisation",
+        "ask": "Demande",
+        "report_to_funder": "Rendre compte à un financeur",
+        "call_or_visit": "Appel ou visite",
+        "other": "Autre"
+      }
+    }
+  },
+  "relationships": {
+    "membership_supporter": { "sourceLabel": "Adhérent", "targetLabel": "Adhésions" },
+    "gift_supporter": { "sourceLabel": "Donateur", "targetLabel": "Dons" },
+    "opportunity_supporter": { "sourceLabel": "Prospect", "targetLabel": "Pistes de dons" },
+    "action_supporter": { "sourceLabel": "Soutien", "targetLabel": "Actions" }
+  },
+  "views": {
+    "supporters_all": { "name": "Tous les soutiens" },
+    "memberships_all": { "name": "Toutes les adhésions" },
+    "memberships_board": { "name": "Adhésions par statut" },
+    "fees_to_chase": { "name": "Cotisations à relancer" },
+    "gifts_all": { "name": "Tous les dons" },
+    "receipts_to_issue": { "name": "Reçus fiscaux à émettre" },
+    "opportunities_board": { "name": "Pistes de dons" }
+  },
+  "widgets": {
+    "memberships_by_status": { "title": "Adhésions par statut" },
+    "gifts_per_month": { "title": "Dons par mois" },
+    "gifts_by_fund": { "title": "Dons par affectation" },
+    "open_pipeline_value": { "title": "Grands dons en cours" },
+    "renewals_coming": { "title": "Renouvellements à venir" },
+    "receipts_to_issue_count": { "title": "Reçus fiscaux à émettre" }
+  },
+  "knowledgePages": {
+    "register_rules": { "title": "Ce que contient le registre et ce qui reste dehors", "sections": ["Finalité et base légale", "Champs obligatoires et facultatifs", "Consentement et conservation"] },
+    "renewals_and_fees": { "title": "Renouvellements et relances de cotisation", "sections": ["Avis à 60 et à 30 jours", "Période de grâce et fin d’adhésion selon vos statuts"] },
+    "receipts_and_thanks": { "title": "Remerciements et reçus fiscaux", "sections": ["Remercier sous deux jours", "Quand un reçu est possible et sous quel modèle"] }
+  },
+  "rules": {
+    "thank_donor": { "title": "Remercier le donateur quand un don est enregistré" },
+    "issue_receipt": { "title": "Émettre le reçu fiscal quand un don est marqué à émettre" },
+    "welcome_member": { "title": "Accueillir l’adhérent quand une demande d’adhésion arrive" },
+    "renewal_notice": { "title": "Envoyer un avis de renouvellement 60 jours avant l’échéance d’une adhésion active" },
+    "renewal_reminder": { "title": "Relancer un adhérent dont la cotisation est à payer 30 jours avant l’échéance" },
+    "expiry_notice": { "title": "Relancer la cotisation impayée le jour de l’échéance" },
+    "report_to_funder": { "title": "Préparer le compte rendu au financeur deux semaines avant l’échéance" },
+    "join_form_records": { "title": "Créer le soutien et l’adhésion à partir d’un formulaire d’adhésion" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Chaque adhésion a un statut.",
+    "renewal_field": "Chaque adhésion a une date d’échéance.",
+    "receipt_field": "Chaque don indique si un reçu fiscal est à émettre."
+  },
+  "prompt": {
+    "intro": "Mets en place un registre d’adhérents et de donateurs dans mon espace Customermates : des soutiens, des adhésions avec cotisation et date d’échéance, des dons avec remerciement et état du reçu fiscal, et un suivi des grands dons et subventions.",
+    "questions": [
+      "Êtes-vous une association, une fondation ou une paroisse ? Avez-vous des adhérents, des donateurs, des bénévoles ?",
+      "Quelles formules d’adhésion et quelles cotisations utilisez-vous, et comment sont-elles encaissées ?",
+      "Dans quel pays êtes-vous déclaré, et quel reçu fiscal y émettez-vous ?",
+      "Quel logiciel tient vos paiements ou votre comptabilité ? Seule une référence est gardée ici."
+    ]
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "locale": "de",
+  "name": "Mitglieder- und Spendenverwaltung",
+  "summary": "Ein Register für Mitglieder, Spender und Ehrenamtliche: Mitgliedschaften mit Fälligkeit, Spenden mit Dank und Zuwendungsbestätigung, dazu eine Pipeline für Großspenden und Förderanträge.",
+  "description": "Für Vereine, gemeinnützige Organisationen und Gemeinden: wer Sie unterstützt und wie, welche Mitgliedschaft bis wann läuft, welche Spende noch einen Dank oder eine Zuwendungsbestätigung braucht und welche Großspende oder Förderung gerade läuft. Es stellt keine Zuwendungsbestätigungen aus und zieht keine Beiträge ein, es zeigt, welche fällig sind.",
+  "lists": {
+    "supporters": { "label": "Unterstützer", "pluralLabel": "Unterstützer", "description": "Mitglieder, Spender, Ehrenamtliche, Gäste und Vorstand." },
+    "memberships": { "label": "Mitgliedschaft", "pluralLabel": "Mitgliedschaften", "description": "Eine Mitgliedschaft mit Beitrag und Fälligkeit." },
+    "gifts": { "label": "Spende", "pluralLabel": "Spenden", "description": "Jede Spende mit Dank und Zuwendungsbestätigung." },
+    "gift_opportunities": { "label": "Spendenchance", "pluralLabel": "Spendenchancen", "description": "Großspenden, Förderungen und Sponsoring in Arbeit." }
+  },
+  "fields": {
+    "memberships.status": {
+      "label": "Status",
+      "options": { "applied": "Aufnahmeantrag", "active": "Aktiv", "grace_period": "Beitragsverzug", "lapsed": "Erloschen", "resigned": "Austritt" }
+    },
+    "gift_opportunities.stage": {
+      "label": "Phase",
+      "options": { "identified": "Erkannt", "qualified": "Qualifiziert", "cultivation": "Beziehungspflege", "ask_made": "Bitte gestellt", "pledged": "Zugesagt", "received": "Eingegangen", "declined": "Abgelehnt" }
+    },
+    "supporters.member_number": { "label": "Mitgliedsnummer" },
+    "supporters.supporter_types": {
+      "label": "Art der Unterstützung",
+      "options": { "member": "Mitglied", "donor": "Spender", "volunteer": "Ehrenamtliche", "guest": "Gast", "board_member": "Vorstand" }
+    },
+    "supporters.lifecycle_status": {
+      "label": "Beziehung",
+      "options": { "prospect": "Interessent", "active": "Aktiv", "lapsed": "Ruhend", "former": "Ehemalig", "do_not_contact": "Nicht kontaktieren" }
+    },
+    "supporters.joined_on": { "label": "Eintritt am" },
+    "supporters.relationship_owner": { "label": "Betreuer" },
+    "supporters.contact_consent": { "label": "Einwilligung zur Kontaktaufnahme", "options": { "granted": "Erteilt", "not_granted": "Nicht erteilt", "unknown": "Unbekannt" } },
+    "supporters.consent_date": { "label": "Datum der Einwilligung" },
+    "supporters.last_contact_on": { "label": "Letzter Kontakt" },
+    "memberships.level": {
+      "label": "Beitragsart",
+      "options": { "regular": "Regulär", "reduced": "Ermäßigt", "family": "Familie", "youth": "Jugend", "supporting": "Fördermitglied", "honorary": "Ehrenmitglied" }
+    },
+    "memberships.fee": { "label": "Beitrag" },
+    "memberships.billing_cycle": {
+      "label": "Zahlweise",
+      "options": { "yearly": "Jährlich", "quarterly": "Vierteljährlich", "monthly": "Monatlich", "one_off": "Einmalig", "none": "Keine" }
+    },
+    "memberships.fee_status": {
+      "label": "Beitragsstatus",
+      "options": { "open": "Offen", "paid": "Bezahlt", "reminded": "Erinnert", "overdue": "Überfällig", "waived": "Erlassen" }
+    },
+    "memberships.mandate_on_file": { "label": "SEPA-Lastschriftmandat vorhanden" },
+    "memberships.started_on": { "label": "Beginn am" },
+    "memberships.renewal_due": { "label": "Fälligkeit" },
+    "memberships.end_reason": {
+      "label": "Austrittsgrund",
+      "options": { "moved_away": "Umzug", "cost": "Kosten", "lost_interest": "Kein Interesse mehr", "dissatisfied": "Unzufrieden", "unpaid_fees": "Unbezahlte Beiträge", "other": "Sonstiges" }
+    },
+    "gifts.received_on": { "label": "Eingegangen am" },
+    "gifts.amount": { "label": "Betrag" },
+    "gifts.gift_type": {
+      "label": "Spendenart",
+      "options": { "one_off": "Einmalspende", "recurring": "Dauerspende", "pledge_payment": "Zahlung auf Zusage", "in_kind": "Sachspende", "legacy": "Nachlass" }
+    },
+    "gifts.fund": {
+      "label": "Verwendungszweck",
+      "options": { "unrestricted": "Ohne Zweckbindung", "restricted_project": "Projektbezogen", "appeal": "Spendenaufruf", "event": "Veranstaltung", "in_memory": "Zum Gedenken" }
+    },
+    "gifts.acknowledgement_status": {
+      "label": "Dank",
+      "options": { "to_acknowledge": "Dank offen", "acknowledged": "Bedankt", "not_needed": "Nicht nötig" }
+    },
+    "gifts.receipt_status": {
+      "label": "Zuwendungsbestätigung",
+      "options": { "not_needed": "Nicht nötig", "to_issue": "Auszustellen", "issued": "Ausgestellt", "annual_summary_sent": "Sammelbestätigung gesendet" }
+    },
+    "gift_opportunities.kind": {
+      "label": "Art",
+      "options": { "major_gift": "Großspende", "grant": "Förderung", "sponsorship": "Unternehmenssponsoring", "legacy": "Nachlass", "campaign_pledge": "Zusage zu einer Kampagne" }
+    },
+    "gift_opportunities.solicitor": { "label": "Angefragt von" },
+    "gift_opportunities.ask_date": { "label": "Datum der Anfrage" },
+    "gift_opportunities.decision_on": { "label": "Entscheidung am" },
+    "gift_opportunities.report_due": { "label": "Bericht fällig am" },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "thank_donor": "Spender danken",
+        "issue_receipt": "Zuwendungsbestätigung ausstellen",
+        "welcome_member": "Mitglied begrüßen",
+        "renewal_notice": "Beitragsankündigung",
+        "chase_fee": "Beitrag anmahnen",
+        "ask": "Anfrage",
+        "report_to_funder": "Bericht an Geldgeber",
+        "call_or_visit": "Anruf oder Besuch",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "membership_supporter": { "sourceLabel": "Mitglied", "targetLabel": "Mitgliedschaften" },
+    "gift_supporter": { "sourceLabel": "Spender", "targetLabel": "Spenden" },
+    "opportunity_supporter": { "sourceLabel": "Interessent", "targetLabel": "Spendenchancen" },
+    "action_supporter": { "sourceLabel": "Unterstützer", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "supporters_all": { "name": "Alle Unterstützer" },
+    "memberships_all": { "name": "Alle Mitgliedschaften" },
+    "memberships_board": { "name": "Mitgliedschaften nach Status" },
+    "fees_to_chase": { "name": "Beiträge anzumahnen" },
+    "gifts_all": { "name": "Alle Spenden" },
+    "receipts_to_issue": { "name": "Zuwendungsbestätigungen auszustellen" },
+    "opportunities_board": { "name": "Spendenchancen" }
+  },
+  "widgets": {
+    "memberships_by_status": { "title": "Mitgliedschaften nach Status" },
+    "gifts_per_month": { "title": "Spenden pro Monat" },
+    "gifts_by_fund": { "title": "Spenden nach Verwendungszweck" },
+    "open_pipeline_value": { "title": "Offene Spendenpipeline" },
+    "renewals_coming": { "title": "Anstehende Beitragsfälligkeiten" },
+    "receipts_to_issue_count": { "title": "Auszustellende Zuwendungsbestätigungen" }
+  },
+  "knowledgePages": {
+    "register_rules": { "title": "Was das Register enthält und was draußen bleibt", "sections": ["Zweck und Rechtsgrundlage", "Pflichtangaben und freiwillige Angaben", "Einwilligung und Aufbewahrung"] },
+    "renewals_and_fees": { "title": "Beitragsfälligkeit und Mahnungen", "sections": ["Ankündigung 60 und 30 Tage vorher", "Beitragsverzug und Ende der Mitgliedschaft nach Satzung"] },
+    "receipts_and_thanks": { "title": "Dank und Zuwendungsbestätigungen", "sections": ["Binnen zwei Tagen danken", "Wann eine Zuwendungsbestätigung zulässig ist und in welchem Muster"] }
+  },
+  "rules": {
+    "thank_donor": { "title": "Dem Spender danken, wenn eine Spende erfasst ist" },
+    "issue_receipt": { "title": "Zuwendungsbestätigung ausstellen, wenn eine Spende dafür markiert ist" },
+    "welcome_member": { "title": "Das Mitglied begrüßen, wenn ein Aufnahmeantrag eingeht" },
+    "renewal_notice": { "title": "60 Tage vor der Fälligkeit einer aktiven Mitgliedschaft den Beitrag ankündigen" },
+    "renewal_reminder": { "title": "Ein Mitglied mit offenem Beitrag 30 Tage vor der Fälligkeit erinnern" },
+    "expiry_notice": { "title": "Am Tag der Fälligkeit den unbezahlten Beitrag anmahnen" },
+    "report_to_funder": { "title": "Den Bericht an den Geldgeber zwei Wochen vor der Frist vorbereiten" },
+    "join_form_records": { "title": "Unterstützer und Mitgliedschaft aus einem Beitrittsformular anlegen" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Jede Mitgliedschaft hat einen Status.",
+    "renewal_field": "Jede Mitgliedschaft hat ein Fälligkeitsdatum.",
+    "receipt_field": "Jede Spende zeigt, ob eine Zuwendungsbestätigung fällig ist."
+  },
+  "prompt": {
+    "intro": "Richte ein Register für Mitglieder und Spender in meinem Customermates-Workspace ein: Unterstützer, Mitgliedschaften mit Beitrag und Fälligkeit, Spenden mit Dank und Status der Zuwendungsbestätigung und eine Pipeline für Großspenden und Förderungen.",
+    "questions": [
+      "Sind Sie ein Verein, eine gemeinnützige Organisation oder eine Gemeinde? Welche von Mitgliedern, Spendern und Ehrenamtlichen haben Sie?",
+      "Welche Beitragsarten und Beiträge nutzen Sie, und wie werden sie eingezogen?",
+      "In welchem Land sind Sie eingetragen, und welche Zuwendungsbestätigung stellen Sie dort aus?",
+      "Welche Software führt Zahlungen oder Buchhaltung? Hier wird nur ein Verweis gespeichert."
+    ]
+  }
+}

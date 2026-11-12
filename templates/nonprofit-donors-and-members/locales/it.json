@@ -1,0 +1,148 @@
+{
+  "locale": "it",
+  "name": "Soci e donatori",
+  "summary": "Un unico registro per soci, donatori e volontari: tesseramenti con scadenza, donazioni con ringraziamento e ricevuta, e una pipeline per grandi donazioni e bandi.",
+  "description": "Per associazioni, enti del terzo settore e parrocchie: chi vi sostiene e come, quale tessera dura fino a quando, quale donazione attende ancora un ringraziamento o una ricevuta e quale grande donazione o bando è in corso. Non emette ricevute fiscali né incassa quote: mostra quali sono da fare.",
+  "lists": {
+    "supporters": { "label": "Sostenitore", "pluralLabel": "Sostenitori", "description": "Soci, donatori, volontari, ospiti e consiglieri." },
+    "memberships": { "label": "Tesseramento", "pluralLabel": "Tesseramenti", "description": "Un’iscrizione con quota e scadenza." },
+    "gifts": { "label": "Erogazione liberale", "pluralLabel": "Erogazioni liberali", "description": "Ogni donazione con ringraziamento e ricevuta." },
+    "gift_opportunities": { "label": "Opportunità di donazione", "pluralLabel": "Opportunità di donazione", "description": "Grandi donazioni, bandi e sponsorizzazioni in corso." }
+  },
+  "fields": {
+    "memberships.status": {
+      "label": "Stato",
+      "options": { "applied": "Domanda di ammissione", "active": "Socio attivo", "grace_period": "Quota da rinnovare", "lapsed": "Socio decaduto", "resigned": "Dimissioni" }
+    },
+    "gift_opportunities.stage": {
+      "label": "Fase",
+      "options": { "identified": "Individuata", "qualified": "Qualificata", "cultivation": "Relazione in corso", "ask_made": "Richiesta fatta", "pledged": "Promessa ricevuta", "received": "Ricevuta", "declined": "Rifiutata" }
+    },
+    "supporters.member_number": { "label": "Numero tessera" },
+    "supporters.supporter_types": {
+      "label": "Tipo di sostegno",
+      "options": { "member": "Socio", "donor": "Donatore", "volunteer": "Volontario", "guest": "Ospite", "board_member": "Consigliere" }
+    },
+    "supporters.lifecycle_status": {
+      "label": "Relazione",
+      "options": { "prospect": "Potenziale", "active": "Attivo", "lapsed": "Inattivo", "former": "Ex", "do_not_contact": "Non contattare" }
+    },
+    "supporters.joined_on": { "label": "Iscritto dal" },
+    "supporters.relationship_owner": { "label": "Referente" },
+    "supporters.contact_consent": { "label": "Consenso al contatto", "options": { "granted": "Concesso", "not_granted": "Non concesso", "unknown": "Sconosciuto" } },
+    "supporters.consent_date": { "label": "Data del consenso" },
+    "supporters.last_contact_on": { "label": "Ultimo contatto" },
+    "memberships.level": {
+      "label": "Tipo di quota",
+      "options": { "regular": "Ordinaria", "reduced": "Ridotta", "family": "Famiglia", "youth": "Giovani", "supporting": "Sostenitore", "honorary": "Onorario" }
+    },
+    "memberships.fee": { "label": "Quota associativa" },
+    "memberships.billing_cycle": {
+      "label": "Periodicità",
+      "options": { "yearly": "Annuale", "quarterly": "Trimestrale", "monthly": "Mensile", "one_off": "Una tantum", "none": "Nessuna" }
+    },
+    "memberships.fee_status": {
+      "label": "Stato della quota",
+      "options": { "open": "Da pagare", "paid": "Pagata", "reminded": "Sollecitata", "overdue": "Scaduta", "waived": "Condonata" }
+    },
+    "memberships.mandate_on_file": { "label": "Mandato di addebito in archivio" },
+    "memberships.started_on": { "label": "Inizio il" },
+    "memberships.renewal_due": { "label": "Scadenza tessera" },
+    "memberships.end_reason": {
+      "label": "Motivo della fine",
+      "options": { "moved_away": "Trasferimento", "cost": "Costo", "lost_interest": "Perdita di interesse", "dissatisfied": "Insoddisfazione", "unpaid_fees": "Quote non pagate", "other": "Altro" }
+    },
+    "gifts.received_on": { "label": "Ricevuta il" },
+    "gifts.amount": { "label": "Importo" },
+    "gifts.gift_type": {
+      "label": "Tipo di erogazione",
+      "options": { "one_off": "Una tantum", "recurring": "Ricorrente", "pledge_payment": "Pagamento di una promessa", "in_kind": "In natura", "legacy": "Lascito" }
+    },
+    "gifts.fund": {
+      "label": "Destinazione",
+      "options": { "unrestricted": "Libera", "restricted_project": "Progetto specifico", "appeal": "Campagna di raccolta", "event": "Evento", "in_memory": "In memoria" }
+    },
+    "gifts.acknowledgement_status": {
+      "label": "Ringraziamento",
+      "options": { "to_acknowledge": "Da ringraziare", "acknowledged": "Ringraziato", "not_needed": "Non necessario" }
+    },
+    "gifts.receipt_status": {
+      "label": "Ricevuta",
+      "options": { "not_needed": "Non necessaria", "to_issue": "Da emettere", "issued": "Emessa", "annual_summary_sent": "Riepilogo annuale inviato" }
+    },
+    "gift_opportunities.kind": {
+      "label": "Tipo",
+      "options": { "major_gift": "Grande donazione", "grant": "Bando o contributo", "sponsorship": "Sponsorizzazione aziendale", "legacy": "Lascito", "campaign_pledge": "Promessa di campagna" }
+    },
+    "gift_opportunities.solicitor": { "label": "Richiesto da" },
+    "gift_opportunities.ask_date": { "label": "Data della richiesta" },
+    "gift_opportunities.decision_on": { "label": "Decisione il" },
+    "gift_opportunities.report_due": { "label": "Rendicontazione entro" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "thank_donor": "Ringraziare un donatore",
+        "issue_receipt": "Emettere una ricevuta",
+        "welcome_member": "Accogliere un socio",
+        "renewal_notice": "Avviso di rinnovo",
+        "chase_fee": "Sollecitare una quota",
+        "ask": "Richiesta",
+        "report_to_funder": "Rendicontare a un finanziatore",
+        "call_or_visit": "Chiamata o visita",
+        "other": "Altro"
+      }
+    }
+  },
+  "relationships": {
+    "membership_supporter": { "sourceLabel": "Socio", "targetLabel": "Tesseramenti" },
+    "gift_supporter": { "sourceLabel": "Donatore", "targetLabel": "Erogazioni liberali" },
+    "opportunity_supporter": { "sourceLabel": "Potenziale donatore", "targetLabel": "Opportunità di donazione" },
+    "action_supporter": { "sourceLabel": "Sostenitore", "targetLabel": "Attività" }
+  },
+  "views": {
+    "supporters_all": { "name": "Tutti i sostenitori" },
+    "memberships_all": { "name": "Tutti i tesseramenti" },
+    "memberships_board": { "name": "Tesseramenti per stato" },
+    "fees_to_chase": { "name": "Quote da sollecitare" },
+    "gifts_all": { "name": "Tutte le erogazioni" },
+    "receipts_to_issue": { "name": "Ricevute da emettere" },
+    "opportunities_board": { "name": "Opportunità di donazione" }
+  },
+  "widgets": {
+    "memberships_by_status": { "title": "Tesseramenti per stato" },
+    "gifts_per_month": { "title": "Erogazioni al mese" },
+    "gifts_by_fund": { "title": "Erogazioni per destinazione" },
+    "open_pipeline_value": { "title": "Grandi donazioni in corso" },
+    "renewals_coming": { "title": "Rinnovi in arrivo" },
+    "receipts_to_issue_count": { "title": "Ricevute da emettere" }
+  },
+  "knowledgePages": {
+    "register_rules": { "title": "Che cosa contiene il registro e che cosa resta fuori", "sections": ["Finalità e base giuridica", "Campi obbligatori e facoltativi", "Consenso e conservazione"] },
+    "renewals_and_fees": { "title": "Rinnovi e solleciti delle quote", "sections": ["Avviso a 60 e a 30 giorni", "Periodo di tolleranza e decadenza secondo lo statuto"] },
+    "receipts_and_thanks": { "title": "Ringraziamenti e ricevute", "sections": ["Ringraziare entro due giorni", "Quando è ammessa una ricevuta e in quale forma"] }
+  },
+  "rules": {
+    "thank_donor": { "title": "Ringraziare il donatore quando una donazione è registrata" },
+    "issue_receipt": { "title": "Emettere la ricevuta quando una donazione è segnata da emettere" },
+    "welcome_member": { "title": "Accogliere il socio quando arriva una domanda di ammissione" },
+    "renewal_notice": { "title": "Inviare un avviso di rinnovo 60 giorni prima della scadenza di una tessera attiva" },
+    "renewal_reminder": { "title": "Ricordare a un socio con quota da pagare 30 giorni prima della scadenza" },
+    "expiry_notice": { "title": "Sollecitare la quota non pagata il giorno della scadenza" },
+    "report_to_funder": { "title": "Preparare la rendicontazione al finanziatore due settimane prima del termine" },
+    "join_form_records": { "title": "Creare il sostenitore e il tesseramento da un modulo di adesione" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Ogni tesseramento ha uno stato.",
+    "renewal_field": "Ogni tesseramento ha una data di scadenza.",
+    "receipt_field": "Ogni erogazione indica se una ricevuta è da emettere."
+  },
+  "prompt": {
+    "intro": "Configura un registro di soci e donatori nel mio spazio di lavoro Customermates: sostenitori, tesseramenti con quota e scadenza, erogazioni con ringraziamento e stato della ricevuta, e una pipeline per grandi donazioni e bandi.",
+    "questions": [
+      "Siete un’associazione, un ente benefico o una parrocchia? Avete soci, donatori, volontari?",
+      "Quali tipi di quota e quali importi usate e come vengono incassati?",
+      "In quale paese siete registrati e quale ricevuta emettete lì?",
+      "Quale software tiene i pagamenti o la contabilità? Qui si conserva solo un riferimento."
+    ]
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "locale": "pt",
+  "name": "Associados e doadores",
+  "summary": "Um registro único de associados, doadores e voluntários: mensalidades com data de renovação, doações com agradecimento e recibo, e um acompanhamento de grandes doações e editais.",
+  "description": "Para associações, igrejas, ONGs e clubes: quem apoia você e como, qual vínculo dura até quando, qual doação ainda espera agradecimento ou recibo e qual grande doação ou edital está em andamento. Não emite recibos nem cobra mensalidades: mostra quais estão pendentes. Dados sobre religião são sensíveis pela LGPD: registre só o necessário.",
+  "lists": {
+    "supporters": { "label": "Apoiador", "pluralLabel": "Apoiadores", "description": "Associados, doadores, voluntários, visitantes e diretoria." },
+    "memberships": { "label": "Associação", "pluralLabel": "Associações", "description": "Um vínculo com mensalidade e data de renovação." },
+    "gifts": { "label": "Doação", "pluralLabel": "Doações", "description": "Cada doação com agradecimento e recibo." },
+    "gift_opportunities": { "label": "Oportunidade de doação", "pluralLabel": "Oportunidades de doação", "description": "Grandes doações, editais e patrocínios em andamento." }
+  },
+  "fields": {
+    "memberships.status": {
+      "label": "Status",
+      "options": { "applied": "Solicitação", "active": "Associado ativo", "grace_period": "Mensalidade a renovar", "lapsed": "Vencida", "resigned": "Desligamento" }
+    },
+    "gift_opportunities.stage": {
+      "label": "Etapa",
+      "options": { "identified": "Identificada", "qualified": "Qualificada", "cultivation": "Relacionamento", "ask_made": "Pedido feito", "pledged": "Compromisso recebido", "received": "Recebida", "declined": "Recusada" }
+    },
+    "supporters.member_number": { "label": "Número de associado" },
+    "supporters.supporter_types": {
+      "label": "Tipo de apoio",
+      "options": { "member": "Associado", "donor": "Doador", "volunteer": "Voluntário", "guest": "Visitante", "board_member": "Membro da diretoria" }
+    },
+    "supporters.lifecycle_status": {
+      "label": "Relacionamento",
+      "options": { "prospect": "Potencial", "active": "Ativo", "lapsed": "Inativo", "former": "Ex-associado", "do_not_contact": "Não contatar" }
+    },
+    "supporters.joined_on": { "label": "Entrada em" },
+    "supporters.relationship_owner": { "label": "Responsável" },
+    "supporters.contact_consent": { "label": "Consentimento LGPD para contato", "options": { "granted": "Concedido", "not_granted": "Não concedido", "unknown": "Desconhecido" } },
+    "supporters.consent_date": { "label": "Data do consentimento" },
+    "supporters.last_contact_on": { "label": "Último contato" },
+    "memberships.level": {
+      "label": "Categoria",
+      "options": { "regular": "Regular", "reduced": "Reduzida", "family": "Família", "youth": "Jovem", "supporting": "Contribuinte", "honorary": "Honorário" }
+    },
+    "memberships.fee": { "label": "Mensalidade ou anuidade" },
+    "memberships.billing_cycle": {
+      "label": "Periodicidade",
+      "options": { "yearly": "Anual", "quarterly": "Trimestral", "monthly": "Mensal", "one_off": "Única", "none": "Nenhuma" }
+    },
+    "memberships.fee_status": {
+      "label": "Situação do pagamento",
+      "options": { "open": "Em aberto", "paid": "Paga", "reminded": "Cobrada", "overdue": "Atrasada", "waived": "Isenta" }
+    },
+    "memberships.mandate_on_file": { "label": "Débito automático autorizado" },
+    "memberships.started_on": { "label": "Início em" },
+    "memberships.renewal_due": { "label": "Renovação em" },
+    "memberships.end_reason": {
+      "label": "Motivo do desligamento",
+      "options": { "moved_away": "Mudança", "cost": "Custo", "lost_interest": "Perda de interesse", "dissatisfied": "Insatisfação", "unpaid_fees": "Mensalidades em atraso", "other": "Outro" }
+    },
+    "gifts.received_on": { "label": "Recebida em" },
+    "gifts.amount": { "label": "Valor" },
+    "gifts.gift_type": {
+      "label": "Tipo de doação",
+      "options": { "one_off": "Única", "recurring": "Recorrente", "pledge_payment": "Pagamento de compromisso", "in_kind": "Em bens", "legacy": "Legado" }
+    },
+    "gifts.fund": {
+      "label": "Destinação",
+      "options": { "unrestricted": "Livre", "restricted_project": "Projeto específico", "appeal": "Campanha", "event": "Evento", "in_memory": "Em memória de" }
+    },
+    "gifts.acknowledgement_status": {
+      "label": "Agradecimento",
+      "options": { "to_acknowledge": "A agradecer", "acknowledged": "Agradecido", "not_needed": "Dispensado" }
+    },
+    "gifts.receipt_status": {
+      "label": "Recibo",
+      "options": { "not_needed": "Dispensado", "to_issue": "A emitir", "issued": "Emitido", "annual_summary_sent": "Resumo anual enviado" }
+    },
+    "gift_opportunities.kind": {
+      "label": "Tipo",
+      "options": { "major_gift": "Grande doação", "grant": "Edital ou subvenção", "sponsorship": "Patrocínio de empresa", "legacy": "Legado", "campaign_pledge": "Compromisso de campanha" }
+    },
+    "gift_opportunities.solicitor": { "label": "Solicitado por" },
+    "gift_opportunities.ask_date": { "label": "Data do pedido" },
+    "gift_opportunities.decision_on": { "label": "Decisão em" },
+    "gift_opportunities.report_due": { "label": "Prestação de contas até" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "thank_donor": "Agradecer um doador",
+        "issue_receipt": "Emitir um recibo",
+        "welcome_member": "Receber um associado",
+        "renewal_notice": "Aviso de renovação",
+        "chase_fee": "Cobrar uma mensalidade",
+        "ask": "Pedido",
+        "report_to_funder": "Prestar contas a um financiador",
+        "call_or_visit": "Ligação ou visita",
+        "other": "Outro"
+      }
+    }
+  },
+  "relationships": {
+    "membership_supporter": { "sourceLabel": "Associado", "targetLabel": "Associações" },
+    "gift_supporter": { "sourceLabel": "Doador", "targetLabel": "Doações" },
+    "opportunity_supporter": { "sourceLabel": "Potencial doador", "targetLabel": "Oportunidades de doação" },
+    "action_supporter": { "sourceLabel": "Apoiador", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "supporters_all": { "name": "Todos os apoiadores" },
+    "memberships_all": { "name": "Todas as associações" },
+    "memberships_board": { "name": "Associações por status" },
+    "fees_to_chase": { "name": "Mensalidades a cobrar" },
+    "gifts_all": { "name": "Todas as doações" },
+    "receipts_to_issue": { "name": "Recibos a emitir" },
+    "opportunities_board": { "name": "Oportunidades de doação" }
+  },
+  "widgets": {
+    "memberships_by_status": { "title": "Associações por status" },
+    "gifts_per_month": { "title": "Doações por mês" },
+    "gifts_by_fund": { "title": "Doações por destinação" },
+    "open_pipeline_value": { "title": "Grandes doações em andamento" },
+    "renewals_coming": { "title": "Renovações a caminho" },
+    "receipts_to_issue_count": { "title": "Recibos a emitir" }
+  },
+  "knowledgePages": {
+    "register_rules": { "title": "O que o registro guarda e o que fica de fora", "sections": ["Finalidade e base legal", "Campos obrigatórios e voluntários", "Consentimento e retenção"] },
+    "renewals_and_fees": { "title": "Renovações e cobrança de mensalidades", "sections": ["Aviso aos 60 e aos 30 dias", "Prazo de tolerância e desligamento conforme o estatuto"] },
+    "receipts_and_thanks": { "title": "Agradecimentos e recibos", "sections": ["Agradecer em até dois dias", "Quando um recibo é possível e em qual modelo"] }
+  },
+  "rules": {
+    "thank_donor": { "title": "Agradecer o doador quando uma doação é registrada" },
+    "issue_receipt": { "title": "Emitir o recibo quando uma doação é marcada para emitir" },
+    "welcome_member": { "title": "Receber o associado quando chega uma solicitação" },
+    "renewal_notice": { "title": "Enviar um aviso de renovação 60 dias antes do vencimento de um vínculo ativo" },
+    "renewal_reminder": { "title": "Lembrar um associado com pagamento em aberto 30 dias antes da renovação" },
+    "expiry_notice": { "title": "Cobrar a mensalidade não paga no dia do vencimento" },
+    "report_to_funder": { "title": "Preparar a prestação de contas ao financiador duas semanas antes do prazo" },
+    "join_form_records": { "title": "Criar o apoiador e a associação a partir de um formulário de adesão" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Cada associação tem um status.",
+    "renewal_field": "Cada associação tem uma data de renovação.",
+    "receipt_field": "Cada doação mostra se há um recibo a emitir."
+  },
+  "prompt": {
+    "intro": "Configure um registro de associados e doadores no meu espaço de trabalho do Customermates: apoiadores, associações com mensalidade e data de renovação, doações com agradecimento e situação do recibo, e um acompanhamento de grandes doações e editais.",
+    "questions": [
+      "Vocês são uma associação, uma ONG ou uma igreja? Têm associados, doadores, voluntários?",
+      "Quais categorias e valores de mensalidade vocês usam e como são cobrados?",
+      "Em que país vocês estão registrados e que recibo emitem lá?",
+      "Qual software guarda seus pagamentos ou a contabilidade? Aqui só se guarda uma referência."
+    ]
+  }
+}

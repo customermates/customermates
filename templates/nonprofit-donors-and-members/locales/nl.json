@@ -1,0 +1,148 @@
+{
+  "locale": "nl",
+  "name": "Leden en donateurs",
+  "summary": "Eén register voor leden, donateurs en vrijwilligers: lidmaatschappen met contributiedatum, giften met bedankje en bewijs, en een pijplijn voor grote giften en subsidies.",
+  "description": "Voor verenigingen, stichtingen en kerken: wie jullie steunt en hoe, welk lidmaatschap tot wanneer loopt, welke gift nog een bedankje of bewijs nodig heeft en welke grote gift of subsidie loopt. Het geeft geen giftenbewijzen af en int geen contributie, maar laat zien welke aan de beurt zijn.",
+  "lists": {
+    "supporters": { "label": "Supporter", "pluralLabel": "Supporters", "description": "Leden, donateurs, vrijwilligers, gasten en bestuursleden." },
+    "memberships": { "label": "Lidmaatschap", "pluralLabel": "Lidmaatschappen", "description": "Eén lidmaatschap met contributie en verlengdatum." },
+    "gifts": { "label": "Gift", "pluralLabel": "Giften", "description": "Elke gift met bedankje en bewijs." },
+    "gift_opportunities": { "label": "Gift in voorbereiding", "pluralLabel": "Giften in voorbereiding", "description": "Grote giften, subsidies en sponsoring in behandeling." }
+  },
+  "fields": {
+    "memberships.status": {
+      "label": "Status",
+      "options": { "applied": "Aanmelding", "active": "Actief lid", "grace_period": "Contributie open", "lapsed": "Verlopen", "resigned": "Opgezegd" }
+    },
+    "gift_opportunities.stage": {
+      "label": "Fase",
+      "options": { "identified": "Gesignaleerd", "qualified": "Gekwalificeerd", "cultivation": "Relatie opbouwen", "ask_made": "Verzoek gedaan", "pledged": "Toegezegd", "received": "Ontvangen", "declined": "Afgewezen" }
+    },
+    "supporters.member_number": { "label": "Lidnummer" },
+    "supporters.supporter_types": {
+      "label": "Soort steun",
+      "options": { "member": "Lid", "donor": "Donateur", "volunteer": "Vrijwilliger", "guest": "Gast", "board_member": "Bestuurslid" }
+    },
+    "supporters.lifecycle_status": {
+      "label": "Relatie",
+      "options": { "prospect": "Prospect", "active": "Actief", "lapsed": "Inactief", "former": "Voormalig", "do_not_contact": "Niet benaderen" }
+    },
+    "supporters.joined_on": { "label": "Lid sinds" },
+    "supporters.relationship_owner": { "label": "Contactpersoon bij ons" },
+    "supporters.contact_consent": { "label": "Toestemming voor contact", "options": { "granted": "Gegeven", "not_granted": "Niet gegeven", "unknown": "Onbekend" } },
+    "supporters.consent_date": { "label": "Datum toestemming" },
+    "supporters.last_contact_on": { "label": "Laatste contact" },
+    "memberships.level": {
+      "label": "Soort lidmaatschap",
+      "options": { "regular": "Regulier", "reduced": "Gereduceerd", "family": "Gezin", "youth": "Jeugd", "supporting": "Steunend", "honorary": "Erelid" }
+    },
+    "memberships.fee": { "label": "Contributie" },
+    "memberships.billing_cycle": {
+      "label": "Betaalperiode",
+      "options": { "yearly": "Jaarlijks", "quarterly": "Per kwartaal", "monthly": "Maandelijks", "one_off": "Eenmalig", "none": "Geen" }
+    },
+    "memberships.fee_status": {
+      "label": "Status contributie",
+      "options": { "open": "Open", "paid": "Betaald", "reminded": "Herinnerd", "overdue": "Achterstallig", "waived": "Kwijtgescholden" }
+    },
+    "memberships.mandate_on_file": { "label": "Machtiging incasso aanwezig" },
+    "memberships.started_on": { "label": "Begin op" },
+    "memberships.renewal_due": { "label": "Verlengdatum" },
+    "memberships.end_reason": {
+      "label": "Reden einde",
+      "options": { "moved_away": "Verhuisd", "cost": "Kosten", "lost_interest": "Geen interesse meer", "dissatisfied": "Ontevreden", "unpaid_fees": "Onbetaalde contributie", "other": "Overig" }
+    },
+    "gifts.received_on": { "label": "Ontvangen op" },
+    "gifts.amount": { "label": "Bedrag" },
+    "gifts.gift_type": {
+      "label": "Soort gift",
+      "options": { "one_off": "Eenmalig", "recurring": "Periodiek", "pledge_payment": "Betaling op toezegging", "in_kind": "In natura", "legacy": "Nalatenschap" }
+    },
+    "gifts.fund": {
+      "label": "Bestemming",
+      "options": { "unrestricted": "Vrij te besteden", "restricted_project": "Specifiek project", "appeal": "Actie", "event": "Evenement", "in_memory": "In herinnering aan" }
+    },
+    "gifts.acknowledgement_status": {
+      "label": "Bedankje",
+      "options": { "to_acknowledge": "Nog te bedanken", "acknowledged": "Bedankt", "not_needed": "Niet nodig" }
+    },
+    "gifts.receipt_status": {
+      "label": "Giftenbewijs",
+      "options": { "not_needed": "Niet nodig", "to_issue": "Af te geven", "issued": "Afgegeven", "annual_summary_sent": "Jaaroverzicht verstuurd" }
+    },
+    "gift_opportunities.kind": {
+      "label": "Soort",
+      "options": { "major_gift": "Grote gift", "grant": "Subsidie", "sponsorship": "Bedrijfssponsoring", "legacy": "Nalatenschap", "campaign_pledge": "Toezegging bij een actie" }
+    },
+    "gift_opportunities.solicitor": { "label": "Gevraagd door" },
+    "gift_opportunities.ask_date": { "label": "Datum van het verzoek" },
+    "gift_opportunities.decision_on": { "label": "Besluit op" },
+    "gift_opportunities.report_due": { "label": "Verslag uiterlijk op" },
+    "actions.kind": {
+      "label": "Soort",
+      "options": {
+        "thank_donor": "Donateur bedanken",
+        "issue_receipt": "Giftenbewijs afgeven",
+        "welcome_member": "Lid welkom heten",
+        "renewal_notice": "Verlengingsbericht",
+        "chase_fee": "Contributie aanmanen",
+        "ask": "Verzoek",
+        "report_to_funder": "Verslag aan een fonds",
+        "call_or_visit": "Bellen of bezoeken",
+        "other": "Overig"
+      }
+    }
+  },
+  "relationships": {
+    "membership_supporter": { "sourceLabel": "Lid", "targetLabel": "Lidmaatschappen" },
+    "gift_supporter": { "sourceLabel": "Donateur", "targetLabel": "Giften" },
+    "opportunity_supporter": { "sourceLabel": "Prospect", "targetLabel": "Giften in voorbereiding" },
+    "action_supporter": { "sourceLabel": "Supporter", "targetLabel": "Acties" }
+  },
+  "views": {
+    "supporters_all": { "name": "Alle supporters" },
+    "memberships_all": { "name": "Alle lidmaatschappen" },
+    "memberships_board": { "name": "Lidmaatschappen per status" },
+    "fees_to_chase": { "name": "Contributie aan te manen" },
+    "gifts_all": { "name": "Alle giften" },
+    "receipts_to_issue": { "name": "Giftenbewijzen af te geven" },
+    "opportunities_board": { "name": "Giften in voorbereiding" }
+  },
+  "widgets": {
+    "memberships_by_status": { "title": "Lidmaatschappen per status" },
+    "gifts_per_month": { "title": "Giften per maand" },
+    "gifts_by_fund": { "title": "Giften per bestemming" },
+    "open_pipeline_value": { "title": "Lopende grote giften" },
+    "renewals_coming": { "title": "Aankomende verlengingen" },
+    "receipts_to_issue_count": { "title": "Giftenbewijzen af te geven" }
+  },
+  "knowledgePages": {
+    "register_rules": { "title": "Wat het register bevat en wat erbuiten blijft", "sections": ["Doel en grondslag", "Verplichte en vrijwillige velden", "Toestemming en bewaartermijn"] },
+    "renewals_and_fees": { "title": "Verlengingen en herinneringen voor contributie", "sections": ["Bericht na 60 en 30 dagen", "Respijt en beëindiging volgens de statuten"] },
+    "receipts_and_thanks": { "title": "Bedankjes en giftenbewijzen", "sections": ["Binnen twee dagen bedanken", "Wanneer een bewijs kan en in welke vorm"] }
+  },
+  "rules": {
+    "thank_donor": { "title": "Bedank de donateur zodra een gift is vastgelegd" },
+    "issue_receipt": { "title": "Geef het giftenbewijs af zodra een gift daarvoor is gemarkeerd" },
+    "welcome_member": { "title": "Heet het lid welkom zodra een aanmelding binnenkomt" },
+    "renewal_notice": { "title": "Stuur een verlengingsbericht 60 dagen voor de verlenging van een actief lidmaatschap" },
+    "renewal_reminder": { "title": "Herinner een lid met open contributie 30 dagen voor de verlenging" },
+    "expiry_notice": { "title": "Maan de onbetaalde contributie aan op de dag van verlopen" },
+    "report_to_funder": { "title": "Bereid het verslag aan het fonds twee weken voor de deadline voor" },
+    "join_form_records": { "title": "Maak supporter en lidmaatschap aan uit een aanmeldformulier" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Elk lidmaatschap heeft een status.",
+    "renewal_field": "Elk lidmaatschap heeft een verlengdatum.",
+    "receipt_field": "Elke gift toont of een giftenbewijs nodig is."
+  },
+  "prompt": {
+    "intro": "Richt een register voor leden en donateurs in mijn Customermates-werkruimte in: supporters, lidmaatschappen met contributie en verlengdatum, giften met bedankje en status van het bewijs, en een pijplijn voor grote giften en subsidies.",
+    "questions": [
+      "Zijn jullie een vereniging, een stichting of een kerk? Hebben jullie leden, donateurs, vrijwilligers?",
+      "Welke soorten lidmaatschap en welke contributie gebruiken jullie en hoe wordt die geïnd?",
+      "In welk land zijn jullie geregistreerd en welk giftenbewijs geven jullie daar af?",
+      "Welke software beheert jullie betalingen of boekhouding? Hier wordt alleen een verwijzing bewaard."
+    ]
+  }
+}

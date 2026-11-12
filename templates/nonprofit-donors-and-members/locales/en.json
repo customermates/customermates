@@ -1,0 +1,148 @@
+{
+  "locale": "en",
+  "name": "Donors and members",
+  "summary": "One register for members, donors and volunteers: memberships with a renewal date, gifts with thanks and receipts, and a pipeline for major gifts and grants.",
+  "description": "For associations, clubs, charities and congregations: who supports you and how, which membership runs until when, which gift still needs a thank-you or a receipt, and which large gift or grant is in progress. It does not issue tax receipts or collect payments; it tells you which ones are due.",
+  "lists": {
+    "supporters": { "label": "Supporter", "pluralLabel": "Supporters", "description": "Members, donors, volunteers, guests and board members." },
+    "memberships": { "label": "Membership", "pluralLabel": "Memberships", "description": "One membership with its fee and renewal date." },
+    "gifts": { "label": "Gift", "pluralLabel": "Gifts", "description": "Each donation with its thanks and receipt." },
+    "gift_opportunities": { "label": "Gift opportunity", "pluralLabel": "Gift opportunities", "description": "Major gifts, grants and sponsorships in progress." }
+  },
+  "fields": {
+    "memberships.status": {
+      "label": "Status",
+      "options": { "applied": "Applied", "active": "Active", "grace_period": "Grace period", "lapsed": "Lapsed", "resigned": "Resigned" }
+    },
+    "gift_opportunities.stage": {
+      "label": "Stage",
+      "options": { "identified": "Identified", "qualified": "Qualified", "cultivation": "Cultivation", "ask_made": "Ask made", "pledged": "Pledged", "received": "Received", "declined": "Declined" }
+    },
+    "supporters.member_number": { "label": "Member number" },
+    "supporters.supporter_types": {
+      "label": "Supporter type",
+      "options": { "member": "Member", "donor": "Donor", "volunteer": "Volunteer", "guest": "Guest", "board_member": "Board member" }
+    },
+    "supporters.lifecycle_status": {
+      "label": "Relationship",
+      "options": { "prospect": "Prospect", "active": "Active", "lapsed": "Lapsed", "former": "Former", "do_not_contact": "Do not contact" }
+    },
+    "supporters.joined_on": { "label": "Joined on" },
+    "supporters.relationship_owner": { "label": "Relationship owner" },
+    "supporters.contact_consent": { "label": "Consent to contact", "options": { "granted": "Granted", "not_granted": "Not granted", "unknown": "Unknown" } },
+    "supporters.consent_date": { "label": "Consent date" },
+    "supporters.last_contact_on": { "label": "Last contact" },
+    "memberships.level": {
+      "label": "Level",
+      "options": { "regular": "Regular", "reduced": "Reduced", "family": "Family", "youth": "Youth", "supporting": "Supporting", "honorary": "Honorary" }
+    },
+    "memberships.fee": { "label": "Fee" },
+    "memberships.billing_cycle": {
+      "label": "Billing cycle",
+      "options": { "yearly": "Yearly", "quarterly": "Quarterly", "monthly": "Monthly", "one_off": "One-off", "none": "None" }
+    },
+    "memberships.fee_status": {
+      "label": "Fee status",
+      "options": { "open": "Open", "paid": "Paid", "reminded": "Reminded", "overdue": "Overdue", "waived": "Waived" }
+    },
+    "memberships.mandate_on_file": { "label": "Direct debit mandate on file" },
+    "memberships.started_on": { "label": "Started on" },
+    "memberships.renewal_due": { "label": "Renewal due" },
+    "memberships.end_reason": {
+      "label": "End reason",
+      "options": { "moved_away": "Moved away", "cost": "Cost", "lost_interest": "Lost interest", "dissatisfied": "Dissatisfied", "unpaid_fees": "Unpaid fees", "other": "Other" }
+    },
+    "gifts.received_on": { "label": "Received on" },
+    "gifts.amount": { "label": "Amount" },
+    "gifts.gift_type": {
+      "label": "Gift type",
+      "options": { "one_off": "One-off", "recurring": "Recurring", "pledge_payment": "Pledge payment", "in_kind": "In kind", "legacy": "Legacy" }
+    },
+    "gifts.fund": {
+      "label": "Fund",
+      "options": { "unrestricted": "Unrestricted", "restricted_project": "Restricted project", "appeal": "Appeal", "event": "Event", "in_memory": "In memory" }
+    },
+    "gifts.acknowledgement_status": {
+      "label": "Thank-you",
+      "options": { "to_acknowledge": "To thank", "acknowledged": "Thanked", "not_needed": "Not needed" }
+    },
+    "gifts.receipt_status": {
+      "label": "Tax receipt",
+      "options": { "not_needed": "Not needed", "to_issue": "To issue", "issued": "Issued", "annual_summary_sent": "Annual summary sent" }
+    },
+    "gift_opportunities.kind": {
+      "label": "Kind",
+      "options": { "major_gift": "Major gift", "grant": "Grant", "sponsorship": "Corporate sponsorship", "legacy": "Legacy", "campaign_pledge": "Campaign pledge" }
+    },
+    "gift_opportunities.solicitor": { "label": "Asked by" },
+    "gift_opportunities.ask_date": { "label": "Ask date" },
+    "gift_opportunities.decision_on": { "label": "Decision on" },
+    "gift_opportunities.report_due": { "label": "Report due" },
+    "actions.kind": {
+      "label": "Kind",
+      "options": {
+        "thank_donor": "Thank a donor",
+        "issue_receipt": "Issue a receipt",
+        "welcome_member": "Welcome a member",
+        "renewal_notice": "Renewal notice",
+        "chase_fee": "Chase a fee",
+        "ask": "Ask",
+        "report_to_funder": "Report to a funder",
+        "call_or_visit": "Call or visit",
+        "other": "Other"
+      }
+    }
+  },
+  "relationships": {
+    "membership_supporter": { "sourceLabel": "Supporter", "targetLabel": "Memberships" },
+    "gift_supporter": { "sourceLabel": "Donor", "targetLabel": "Gifts" },
+    "opportunity_supporter": { "sourceLabel": "Prospect", "targetLabel": "Gift opportunities" },
+    "action_supporter": { "sourceLabel": "Supporter", "targetLabel": "Actions" }
+  },
+  "views": {
+    "supporters_all": { "name": "All supporters" },
+    "memberships_all": { "name": "All memberships" },
+    "memberships_board": { "name": "Memberships by status" },
+    "fees_to_chase": { "name": "Fees to chase" },
+    "gifts_all": { "name": "All gifts" },
+    "receipts_to_issue": { "name": "Receipts to issue" },
+    "opportunities_board": { "name": "Gift opportunities" }
+  },
+  "widgets": {
+    "memberships_by_status": { "title": "Memberships by status" },
+    "gifts_per_month": { "title": "Gifts per month" },
+    "gifts_by_fund": { "title": "Gifts by fund" },
+    "open_pipeline_value": { "title": "Open gift pipeline" },
+    "renewals_coming": { "title": "Renewals coming up" },
+    "receipts_to_issue_count": { "title": "Receipts to issue" }
+  },
+  "knowledgePages": {
+    "register_rules": { "title": "What the register holds and what stays out", "sections": ["Purpose and legal basis", "Which fields are required and which are voluntary", "Consent and retention"] },
+    "renewals_and_fees": { "title": "Renewals and fee reminders", "sections": ["Notice at 60 and 30 days", "Grace period and lapse under your statute"] },
+    "receipts_and_thanks": { "title": "Thank-yous and tax receipts", "sections": ["Thank within two days", "When a receipt is allowed and in which format"] }
+  },
+  "rules": {
+    "thank_donor": { "title": "Thank the donor when a gift is recorded" },
+    "issue_receipt": { "title": "Issue the tax receipt when a gift is marked to issue" },
+    "welcome_member": { "title": "Welcome the member when an application comes in" },
+    "renewal_notice": { "title": "Send a renewal notice 60 days before an active membership renews" },
+    "renewal_reminder": { "title": "Remind a member whose fee is open 30 days before renewal" },
+    "expiry_notice": { "title": "Chase the fee on the day a membership expires unpaid" },
+    "report_to_funder": { "title": "Prepare the report to a funder two weeks before it is due" },
+    "join_form_records": { "title": "Create the supporter and the membership from a join form" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Every membership has a status.",
+    "renewal_field": "Every membership has a renewal date.",
+    "receipt_field": "Every gift shows whether a receipt is due."
+  },
+  "prompt": {
+    "intro": "Set up a register of donors and members in my Customermates workspace: supporters, memberships with a fee and a renewal date, gifts with thanks and receipt status, and a pipeline for major gifts and grants.",
+    "questions": [
+      "Are you an association or club, a charity or a congregation? Which of members, donors and volunteers do you have?",
+      "Which membership levels and fees do you use, and how are fees collected?",
+      "In which country are you registered, and which tax receipt do you issue there?",
+      "Which software holds your payments or accounting? Only a reference is kept here."
+    ]
+  }
+}
