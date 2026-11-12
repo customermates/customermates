@@ -5,7 +5,7 @@
   "description": "Eine Zeile pro Buchung mit zwei Phasen: Vertrieb (Anfrage bis gebucht) und Lieferung (Shooting erledigt bis geliefert). Termine werden gesichert, bis Vertrag und Anzahlung da sind, die Restzahlung hat eine eigene Fälligkeit, und nach jeder Lieferung wird um eine Bewertung gebeten. Verträge, Rechnungen und Galerien bleiben in Ihren eigenen Werkzeugen, hier stehen die Links.",
   "lists": {
     "people": { "label": "Person", "pluralLabel": "Personen", "description": "Kunden, Partner der Kunden, Planer und Ansprechpartner der Location." },
-    "partners": { "label": "Partner", "pluralLabel": "Partner", "description": "Locations, Planer, Caterer und andere Dienstleister, mit denen Sie arbeiten." },
+    "partners": { "label": "Partner", "pluralLabel": "Partner", "description": "Locations, Planer, Caterer und andere Dienstleister, mit denen du arbeitest." },
     "bookings": { "label": "Buchung", "pluralLabel": "Buchungen", "description": "Ein Auftrag von der Anfrage bis zur Lieferung." }
   },
   "fields": {
@@ -140,10 +140,10 @@
   "prompt": {
     "intro": "Richte Buchungen für Kreative in meinem Customermates-Workspace ein: eine Pipeline von der Anfrage bis zur Buchung, eine Lieferphase nach dem Termin, Anzahlung und Restzahlung, einen Fragebogen vor dem Event, eine Bitte um Bewertung und Jahrestags-Grüße.",
     "questions": [
-      "Was fotografieren, filmen oder planen Sie, und wie viele Buchungen haben Sie im Jahr?",
-      "Welche Schritte durchläuft ein Kunde von der Anfrage bis zur Buchung, und wann reservieren Sie den Termin?",
-      "Wie nehmen Sie Anzahlungen und Restzahlungen entgegen? Rechnungen bleiben in Ihrem eigenen Werkzeug.",
-      "Wo liefern Sie Galerien aus? Hier wird nur der Link gespeichert."
+      "Was fotografierst, filmst oder planst du, und wie viele Buchungen hast du im Jahr?",
+      "Welche Schritte durchläuft ein Kunde von der Anfrage bis zur Buchung, und wann reservierst du den Termin?",
+      "Wie nimmst du Anzahlungen und Restzahlungen entgegen? Rechnungen bleiben in deinem eigenen Werkzeug.",
+      "Wo lieferst du Galerien aus? Hier wird nur der Link gespeichert."
     ]
   }
 }

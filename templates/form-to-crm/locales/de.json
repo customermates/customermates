@@ -4,7 +4,7 @@
   "summary": "Anfragen aus Formularen zu bearbeiteten Kontakten machen: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, Phase von neu bis übergeben, Spam und „Kein Bedarf“ getrennt.",
   "description": "Jede Anfrage aus einem Kontakt-, Angebots- oder Anfrageformular wird zu einer Anfrage mit Verknüpfung zum Kontakt, mit dem Formular, aus dem sie kam, der Herkunft des Besuchers, dem Zeitpunkt, bis wann sie gebraucht wird, und einer Antwort, die am nächsten Tag fällig ist. Anfragen laufen von neu bis übergeben, kein Bedarf oder Spam, und eine unbeantwortete Anfrage wird gemeldet. Einwilligung und ein Prüftermin gehören zu den erhobenen Daten. Kein Formularbaukasten für Zahlungen, Quiz oder den Upload sensibler Dokumente.",
   "lists": {
-    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen, die Ihnen über ein Formular schreiben." },
+    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen, die dir über ein Formular schreiben." },
     "requests": { "label": "Anfrage", "pluralLabel": "Anfragen", "description": "Eine Formulareinsendung, von neu bis übergeben, kein Bedarf oder Spam." }
   },
   "fields": {
@@ -83,10 +83,10 @@
   "prompt": {
     "intro": "Richte in meinem Customermates-Workspace die Verbindung von Formular zu CRM ein: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, sechs Phasen, Einwilligung und Prüftermin sowie terminierte Folgeaufgaben.",
     "questions": [
-      "Welche Formulare betreiben Sie, und was müssen Sie wissen, um eine Anfrage zu bepreisen oder zuzuordnen?",
-      "Wer antwortet, und wie schnell versprechen Sie eine Antwort?",
-      "Was teilen Sie den Personen am Formular über ihre Daten mit?",
-      "Nutzen Sie ein anderes Formular-Tool wie Typeform, Tally oder Jotform?"
+      "Welche Formulare betreibst du, und was musst du wissen, um eine Anfrage zu bepreisen oder zuzuordnen?",
+      "Wer antwortet, und wie schnell versprichst du eine Antwort?",
+      "Was teilst du den Personen am Formular über ihre Daten mit?",
+      "Nutzt du ein anderes Formular-Tool wie Typeform, Tally oder Jotform?"
     ]
   }
 }

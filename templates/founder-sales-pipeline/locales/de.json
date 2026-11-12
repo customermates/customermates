@@ -4,7 +4,7 @@
   "summary": "Eine kurze Pipeline für Gründer, die selbst verkaufen: Gespräche, Bedarfsklärung, ein optionaler Pilot mit festem Enddatum, ein Angebot und ein Zurückgestellt-Status mit Wiedervorlage.",
   "description": "Als Gründer verkaufen, mit einer Handvoll bis einigen Dutzend offenen Gesprächen: Jede Verkaufschance hält das Problem in den Worten des Kunden, die Dringlichkeit und den Budgetstand fest und vermerkt, ob der Entscheider eingebunden ist; ein Pilot hat ein Enddatum und sagt, ob er bezahlt wird; ein stiller Deal wird mit Wiedervorlage zurückgestellt, statt ihm nachzulaufen. Die Gewichte sind grob, denn ein Gründer hat noch keine Abschlussquote, und Sie legen sie selbst fest. Kein Massenversand von Mail-Sequenzen, kein Fundraising und keine Prognose für ein Team mit mehreren Verkäufern.",
   "lists": {
-    "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Die Personen, mit denen Sie sprechen, mit ihrer Rolle in der Kaufentscheidung." },
+    "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Die Personen, mit denen du sprichst, mit ihrer Rolle in der Kaufentscheidung." },
     "companies": { "label": "Unternehmen", "pluralLabel": "Unternehmen", "description": "Interessenten, Pilotkunden, Kunden und Partner." },
     "opportunities": { "label": "Verkaufschance", "pluralLabel": "Verkaufschancen", "description": "Ein möglicher Verkauf, vom ersten Gespräch bis gewonnen, verloren oder zurückgestellt." }
   },
@@ -66,7 +66,7 @@
     "founder_playbook": { "title": "Vertriebsleitfaden für Gründer", "sections": ["An wen wir verkaufen und was wir gelernt haben", "Wöchentlicher Rückblick des Gründers"] },
     "discovery_questions": { "title": "Fragen im Erstgespräch", "sections": ["Problem, Dringlichkeit, Budget und Entscheider", "Was nach dem Gespräch festgehalten wird"] },
     "pilot_plan": { "title": "Pilotplan und Bewertungsbogen", "sections": ["Festes Enddatum und Erfolgskriterien", "Bezahlt als Standard und wie ein Pilot zum Vertrag wird"] },
-    "when_to_hire": { "title": "Wann der erste Vertriebsmitarbeiter kommt", "sections": ["Anzeichen, dass sich der Verkauf ohne Sie wiederholt", "Was zuerst übergeben wird"] }
+    "when_to_hire": { "title": "Wann der erste Vertriebsmitarbeiter kommt", "sections": ["Anzeichen, dass sich der Verkauf ohne dich wiederholt", "Was zuerst übergeben wird"] }
   },
   "rules": {
     "enquiry_form_records": { "title": "Ansprechpartner, Unternehmen und Verkaufschance anlegen, wenn das Anfrageformular abgeschickt wird" },
@@ -89,10 +89,10 @@
   "prompt": {
     "intro": "Richte in meinem Customermates-Workspace eine Vertriebspipeline für Gründer ein: Verkaufschancen vom ersten Gespräch bis gewonnen mit Notizen zur Bedarfsklärung, ein optionaler Pilot mit festem Enddatum, ein Zurückgestellt-Status mit Wiedervorlage und terminierte Folgeaufgaben. Sende nichts automatisch.",
     "questions": [
-      "Was verkaufen Sie, und wer hat bisher bei Ihnen gekauft?",
-      "Führen Sie Piloten oder Testphasen durch, und sind sie bezahlt?",
-      "Wie lange laufen Sie einem stillen Deal nach, bevor Sie ihn zurückstellen?",
-      "Wo beginnen Ihre Gespräche: im Netzwerk, durch Vorstellungen, per Anfrage oder auf Veranstaltungen?"
+      "Was verkaufst du, und wer hat bisher bei dir gekauft?",
+      "Führst du Piloten oder Testphasen durch, und sind sie bezahlt?",
+      "Wie lange läufst du einem stillen Deal nach, bevor du ihn zurückstellst?",
+      "Wo beginnen deine Gespräche: im Netzwerk, durch Vorstellungen, per Anfrage oder auf Veranstaltungen?"
     ]
   }
 }

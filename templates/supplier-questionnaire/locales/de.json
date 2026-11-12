@@ -4,7 +4,7 @@
   "summary": "Ein Lieferantenregister mit Selbstauskunft, Zertifikaten mit Ablaufdatum, Risikoklasse, Freigabeentscheidung und Termin für die nächste Bewertung.",
   "description": "Lieferanten und Auftragnehmer an einem Ort qualifizieren: Fragebogen versenden, Zertifikate und Bescheinigungen mit ihrem Gültig-bis-Datum sammeln, jeden Lieferanten nach Risiko einstufen, die Entscheidung festhalten (freigeben, bedingt freigeben, eskalieren, ablehnen) und sehen, was als Nächstes abläuft. Die Vorlage koordiniert Nachweise. Sie entscheidet nicht über rechtliche Konformität, prüft keine Sanktionslisten oder Bonität und ersetzt weder Ihr Qualitätssystem noch Ihr ERP oder Ihr Dokumentenarchiv.",
   "lists": {
-    "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Personen bei Ihren Lieferanten, die Fragebögen beantworten und Dokumente schicken." },
+    "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Personen bei deinen Lieferanten, die Fragebögen beantworten und Dokumente schicken." },
     "suppliers": { "label": "Lieferant", "pluralLabel": "Lieferanten", "description": "Jeder Lieferant und Auftragnehmer, vom Kandidaten bis freigegeben oder gesperrt." },
     "questionnaires": { "label": "Fragebogen", "pluralLabel": "Fragebögen", "description": "Ein Fragebogen an einen Lieferanten, mit Frist und Entscheidung." },
     "documents": { "label": "Dokument", "pluralLabel": "Dokumente", "description": "Zertifikate, Bescheinigungen und Verträge mit ihrem Gültig-bis-Datum." }
@@ -118,10 +118,10 @@
   "prompt": {
     "intro": "Richte in meinem Customermates-Workspace ein Lieferantenregister ein: Lieferanten mit Risikoklasse und Qualifizierungsstatus, Fragebögen mit Fristen und Entscheidung, Dokumente mit Gültig-bis-Datum und terminierte Folgeaufgaben.",
     "questions": [
-      "Wie viele Lieferanten haben Sie, und wie teilen Sie sie nach Risiko ein?",
-      "Welche Zertifikate oder Bescheinigungen verlangen Sie, und wie lange ist jedes gültig?",
+      "Wie viele Lieferanten hast du, und wie teilst du sie nach Risiko ein?",
+      "Welche Zertifikate oder Bescheinigungen verlangst du, und wie lange ist jedes gültig?",
       "Wer prüft die Antworten, und wer gibt einen Lieferanten frei?",
-      "Wie oft bewerten Sie einen Lieferanten neu? Dateien bleiben in Ihrem Dokumentensystem, hier steht nur ein Link."
+      "Wie oft bewertest du einen Lieferanten neu? Dateien bleiben in deinem Dokumentensystem, hier steht nur ein Link."
     ]
   }
 }

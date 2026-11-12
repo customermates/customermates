@@ -153,9 +153,9 @@
   "prompt": {
     "intro": "Richte einen Redaktionsplan in meinem Customermates-Workspace ein: Beiträge mit sieben Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, Kampagnen, Anlässe, eine Kennzeichnungsprüfung und eine wöchentliche Redaktionsroutine.",
     "questions": [
-      "Was veröffentlichen Sie, auf welchen Kanälen und wie oft?",
+      "Was veröffentlichst du, auf welchen Kanälen und wie oft?",
       "Wer schreibt, wer prüft und wer gibt frei? Ist ein Kunde beteiligt?",
-      "Welche Content-Säulen nutzen Sie, und welche der sieben Status brauchen Sie?",
+      "Welche Content-Säulen nutzt du, und welche der sieben Status brauchst du?",
       "Mit welchem Werkzeug wird veröffentlicht? Dort bleibt der Inhalt, hier werden nur Link und Datum festgehalten."
     ]
   }

@@ -116,10 +116,10 @@
   "prompt": {
     "intro": "Richte in meinem Customermates-Workspace eine Pipeline für den Versicherungsmakler ein: Neugeschäft von der Anfrage bis zur Police mit dokumentierter Beratung vor dem Angebot, Verträge mit Hauptfälligkeit und je einen Verlängerungsfall, und terminierte Folgeaufgaben. Speichere keine Gesundheitsdaten, Schadendetails oder Ausweiskopien.",
     "questions": [
-      "Welche Sparten vermitteln Sie, und betreuen Sie Gewerbekunden, Privatkunden oder beide?",
-      "Wie lange vor der Hauptfälligkeit beginnen Sie die Verlängerung, und wie lang ist die übliche Kündigungsfrist?",
-      "Wo bewahren Sie Beratungsprotokoll und Vertragsdaten auf? Hier stehen nur Links.",
-      "In welchem Land arbeiten Sie, und welche Beratungspflichten gelten für Sie?"
+      "Welche Sparten vermittelst du, und betreust du Gewerbekunden, Privatkunden oder beide?",
+      "Wie lange vor der Hauptfälligkeit beginnst du die Verlängerung, und wie lang ist die übliche Kündigungsfrist?",
+      "Wo bewahrst du Beratungsprotokoll und Vertragsdaten auf? Hier stehen nur Links.",
+      "In welchem Land arbeitest du, und welche Beratungspflichten gelten für dich?"
     ]
   }
 }

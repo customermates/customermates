@@ -4,8 +4,8 @@
   "summary": "Ein Kanzleiarbeitsplatz mit zwei Abläufen: ein Mandat gewinnen, mit Identifizierung und Mandatsvertrag, und die laufende Arbeit je Mandant erledigen, mit einem Fristenregister, das eine zweite Person verifiziert.",
   "description": "Eine Steuerkanzlei oder ein Buchhaltungsbüro an einem Ort führen: Mandate von der Anfrage bis zum aktiven Mandat mit einer Identifizierung nach Geldwäschegesetz dazwischen, wiederkehrende Vorgänge je Mandant und Zeitraum mit dem Status Wartet auf Unterlagen und ein Fristenregister mit Vorfrist und der Person, die jede Frist verifiziert hat. Die Vorlage ist die Ebene für Beziehung, Fristennachweis und Nachfassen neben Ihrer Kanzleisoftware. Sie berechnet keine gesetzlichen Fristen, reicht nichts ein, führt keine Bücher, rechnet keine Löhne und keine Zeit ab und speichert weder Steuer-IDs noch Ausweiskopien.",
   "lists": {
-    "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Personen bei Ihren Mandanten, die Unterlagen schicken und unterschreiben." },
-    "clients": { "label": "Mandant", "pluralLabel": "Mandanten", "description": "Privatpersonen, Einzelunternehmer, Gesellschaften und Vereine, für die Sie tätig sind." },
+    "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Personen bei deinen Mandanten, die Unterlagen schicken und unterschreiben." },
+    "clients": { "label": "Mandant", "pluralLabel": "Mandanten", "description": "Privatpersonen, Einzelunternehmer, Gesellschaften und Vereine, für die du tätig bist." },
     "mandates": { "label": "Mandat", "pluralLabel": "Mandate", "description": "Ein Auftrag von der Anfrage bis aktiv oder abgelehnt." },
     "jobs": { "label": "Vorgang", "pluralLabel": "Vorgänge", "description": "Wiederkehrende Arbeit für einen Mandanten und Zeitraum, etwa Monatsabschluss oder Umsatzsteuer-Voranmeldung." },
     "deadlines": { "label": "Frist", "pluralLabel": "Fristen", "description": "Ein gesetzlicher oder behördlicher Termin mit Quelle, Vorfrist und der Person, die ihn verifiziert hat." }
@@ -127,10 +127,10 @@
   "prompt": {
     "intro": "Richte in meinem Customermates-Workspace eine Steuerkanzlei ein: Mandate von der Anfrage bis aktiv mit Identifizierung, wiederkehrende Vorgänge je Mandant und Zeitraum, ein Fristenregister mit Vorfrist und Verifizierung und terminierte Folgeaufgaben. Berechne niemals gesetzliche Fristen und speichere keine Ausweiskopien.",
     "questions": [
-      "Welche Leistungen bieten Sie an, und welche wiederkehrenden Vorgänge führen Sie je Mandant?",
-      "In welchem Land arbeiten Sie, und welche Fristen verfolgen Sie?",
+      "Welche Leistungen bietest du an, und welche wiederkehrenden Vorgänge führst du je Mandant?",
+      "In welchem Land arbeitest du, und welche Fristen verfolgst du?",
       "Wer bereitet vor, wer prüft, und wer verifiziert eine Frist?",
-      "Wie identifizieren Sie neue Mandanten, und wie oft prüfen Sie deren Risikoeinstufung?"
+      "Wie identifizierst du neue Mandanten, und wie oft prüfst du deren Risikoeinstufung?"
     ]
   }
 }

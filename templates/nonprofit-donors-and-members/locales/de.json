@@ -139,9 +139,9 @@
   "prompt": {
     "intro": "Richte ein Register für Mitglieder und Spender in meinem Customermates-Workspace ein: Unterstützer, Mitgliedschaften mit Beitrag und Fälligkeit, Spenden mit Dank und Status der Zuwendungsbestätigung und eine Pipeline für Großspenden und Förderungen.",
     "questions": [
-      "Sind Sie ein Verein, eine gemeinnützige Organisation oder eine Kirchengemeinde? Welche von Mitgliedern, Spendern und Ehrenamtlichen haben Sie?",
-      "Welche Beitragsarten und Beiträge nutzen Sie, und wie werden sie eingezogen?",
-      "In welchem Land sind Sie eingetragen, und welche Zuwendungsbestätigung stellen Sie dort aus?",
+      "Führst du einen Verein, eine gemeinnützige Organisation oder eine Kirchengemeinde? Welche von Mitgliedern, Spendern und Ehrenamtlichen hast du?",
+      "Welche Beitragsarten und Beiträge nutzt du, und wie werden sie eingezogen?",
+      "In welchem Land bist du eingetragen, und welche Zuwendungsbestätigung stellst du dort aus?",
       "Welche Software führt Zahlungen oder Buchhaltung? Hier wird nur ein Verweis gespeichert."
     ]
   }

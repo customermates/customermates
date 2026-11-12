@@ -115,7 +115,7 @@
     "listings.completion_on": { "label": "Abschluss am" },
     "listings.energy_label": { "label": "Energieausweis" },
     "listings.listing_url": { "label": "Link zur Anzeige" },
-    "listings.external_id": { "label": "Kennung in Ihrer Maklersoftware" },
+    "listings.external_id": { "label": "Kennung in deiner Maklersoftware" },
     "listings.aml_checked_on": { "label": "Identifizierung geprüft am" },
     "listings.next_step": { "label": "Nächster Schritt" },
     "listings.next_step_due": { "label": "Wiedervorlage" },
@@ -283,7 +283,7 @@
     },
     "closing_handover": {
       "title": "Checkliste Abschluss und Übergabe",
-      "sections": ["Schlüssel und Zählerstände", "Grundbucheintrag", "Provisionsrechnung in Ihrem Buchhaltungsprogramm", "Ablage"]
+      "sections": ["Schlüssel und Zählerstände", "Grundbucheintrag", "Provisionsrechnung in deinem Buchhaltungsprogramm", "Ablage"]
     },
     "past_client_routine": {
       "title": "Routine für frühere Kunden",
@@ -444,11 +444,11 @@
   "prompt": {
     "intro": "Richte in meinem Customermates-Workspace eine Immobilien-Pipeline ein: Objekte mit Art und Ende des Maklerauftrags, Suchaufträge, Besichtigungen mit Rückmeldung, Fristen nach dem Kaufvertrag und eine terminierte Aufgabe für jeden offenen Datensatz.",
     "questions": [
-      "Arbeiten Sie für Eigentümer, für Käufer oder für beide? Verkaufen, vermieten oder beides?",
-      "In welchem Land arbeiten Sie, und welche Arten von Maklerauftrag nutzen Sie dort?",
-      "Wie erreichen Sie Anfragen: Immobilienportale, Ihre Website, WhatsApp oder Empfehlungen?",
-      "Welche Software verwaltet Ihre Objekte und veröffentlicht sie auf Portalen? Hier wird nur eine Kennung geführt, nichts wird kopiert.",
-      "Welche Fristen sind in Ihren Verträgen wichtig, zum Beispiel Anzahlung, Finanzierung, Prüfung oder Notar?"
+      "Arbeitest du für Eigentümer, für Käufer oder für beide? Verkaufen, vermieten oder beides?",
+      "In welchem Land arbeitest du, und welche Arten von Maklerauftrag nutzt du dort?",
+      "Wie erreichen dich Anfragen: Immobilienportale, deine Website, WhatsApp oder Empfehlungen?",
+      "Welche Software verwaltet deine Objekte und veröffentlicht sie auf Portalen? Hier wird nur eine Kennung geführt, nichts wird kopiert.",
+      "Welche Fristen sind in deinen Verträgen wichtig, zum Beispiel Anzahlung, Finanzierung, Prüfung oder Notar?"
     ]
   }
 }

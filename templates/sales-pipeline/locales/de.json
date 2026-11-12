@@ -5,7 +5,7 @@
   "description": "Eine Pipeline für ein kleines Vertriebsteam: fünf offene Phasen, Gewonnen und Verloren, ein gewichteter Wert je Verkaufschance, das Entscheidergremium an der Chance, Verlust- und Gewinngrund und die wöchentliche Durchsicht. Die Gewichtung ist eine Pipeline-Gewichtung und keine Prognose: Ersetzen Sie sie nach 20 bis 30 abgeschlossenen Chancen durch Ihre eigenen Abschlussquoten.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen auf der Kundenseite mit ihrer Rolle in der Entscheidung." },
-    "accounts": { "label": "Unternehmen", "pluralLabel": "Unternehmen", "description": "Die Firmen, an die Sie verkaufen." },
+    "accounts": { "label": "Unternehmen", "pluralLabel": "Unternehmen", "description": "Die Firmen, an die du verkaufst." },
     "opportunities": { "label": "Verkaufschance", "pluralLabel": "Verkaufschancen", "description": "Eine Chance vom ersten Kontakt bis gewonnen oder verloren." }
   },
   "fields": {
@@ -134,7 +134,7 @@
   "knowledgePages": {
     "stages_exit_criteria": {
       "title": "Vertriebsphasen und Abschlusskriterien",
-      "sections": ["Eintritts- und Austrittskriterium je Phase", "Wer eine Chance verschieben darf und mit welchem Nachweis", "Gewichtung und wann Sie sie ersetzen"]
+      "sections": ["Eintritts- und Austrittskriterium je Phase", "Wer eine Chance verschieben darf und mit welchem Nachweis", "Gewichtung und wann du sie ersetzt"]
     },
     "qualification_questions": {
       "title": "Qualifizierungsfragen",
@@ -176,7 +176,7 @@
     },
     "second_proposal_follow_up": {
       "title": "Zweites Nachfassen zum Angebot",
-      "description": "Zehn Tage nach dem Angebot wird eine zweite Aufgabe zum Nachfassen fällig. Schließen Sie sie, wenn der Interessent schon geantwortet hat."
+      "description": "Zehn Tage nach dem Angebot wird eine zweite Aufgabe zum Nachfassen fällig. Schließe sie, wenn der Interessent schon geantwortet hat."
     },
     "confirm_decision": {
       "title": "Entscheidungstermin und Entscheider bestätigen",
@@ -188,11 +188,11 @@
     },
     "won_handover": {
       "title": "Gewonnene Chance übergeben",
-      "description": "Am Tag nach dem Abschluss ist eine Übergabe-Aufgabe fällig. Tragen Sie den Gewinngrund ein."
+      "description": "Am Tag nach dem Abschluss ist eine Übergabe-Aufgabe fällig. Trage den Gewinngrund ein."
     },
     "lost_revisit": {
       "title": "Verlorene Chance wieder aufgreifen",
-      "description": "Neunzig Tage nach dem Verlust fragt eine Aufgabe zum Nachfassen, ob sich der Zeitpunkt geändert hat. Tragen Sie vorher den Verlustgrund ein."
+      "description": "Neunzig Tage nach dem Verlust fragt eine Aufgabe zum Nachfassen, ob sich der Zeitpunkt geändert hat. Trage vorher den Verlustgrund ein."
     },
     "stale_deal_sweep": {
       "title": "Stockende Chance wiederbeleben oder aussortieren",
@@ -279,11 +279,11 @@
   "prompt": {
     "intro": "Richte in meinem Customermates-Workspace eine Vertriebspipeline ein: Verkaufschancen mit sieben Phasen und Gewichtung, einem gewichteten Wert, einem terminierten nächsten Schritt bei jeder offenen Chance, Verlust- und Gewinngründen, dem Entscheidergremium an jeder Chance und einer Aufgabe bei jedem Phasenwechsel.",
     "questions": [
-      "Was verkaufen Sie, und wie viele Personen verkaufen es?",
+      "Was verkaufst du, und wie viele Personen verkaufen es?",
       "Welche Schritte durchläuft eine Chance vom Erstkontakt bis zur Unterschrift? Welche der sieben Phasen passen, und welche brauchen andere Namen?",
       "Wie lange dauert eine typische Chance, und nach wie vielen Tagen ohne Bewegung gilt sie als stockend?",
-      "Welche Abschlussquoten kennen Sie aus früheren Chancen? Gibt es keine, bleibt die Standard-Gewichtung.",
-      "Wo erstellen Sie Angebote? Sie bleiben dort, hier wird nur ein Link gespeichert."
+      "Welche Abschlussquoten kennst du aus früheren Chancen? Gibt es keine, bleibt die Standard-Gewichtung.",
+      "Wo erstellst du Angebote? Sie bleiben dort, hier wird nur ein Link gespeichert."
     ]
   }
 }

@@ -5,7 +5,7 @@
   "description": "Eine schlanke Kundenkartei mit sieben Status, dem Datum des letzten Kontakts, einer Wiedervorlage, die die Arbeit steuert, einem Prüfrhythmus je Segment und einem Löschprüfdatum für beendete Kunden. Ansprechpartner, terminierte Wiedervorlagen und verknüpfte Unterhaltungen stehen direkt am Kunden.",
   "lists": {
     "clients": { "label": "Kunde", "pluralLabel": "Kunden", "description": "Eine Zeile pro Kunde, ein Betreuer, ein terminierter nächster Schritt." },
-    "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Die Personen, mit denen Sie bei jedem Kunden zu tun haben." },
+    "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Die Personen, mit denen du bei jedem Kunden zu tun hast." },
     "actions": { "label": "Wiedervorlage", "pluralLabel": "Wiedervorlagen", "description": "Ein terminierter nächster Schritt pro offenem Vorgang." }
   },
   "fields": {
@@ -152,7 +152,7 @@
     },
     "closed_client_dates": {
       "title": "Beendigungsdatum und Datenprüfungsdatum setzen",
-      "description": "Wird ein Kunde beendet, wird „Beendet am“ auf heute und „Datenprüfung am“ auf drei Jahre später gesetzt. Passen Sie die Frist an Ihre Pflichten an."
+      "description": "Wird ein Kunde beendet, wird „Beendet am“ auf heute und „Datenprüfung am“ auf drei Jahre später gesetzt. Passe die Frist an deine Pflichten an."
     },
     "closed_client_data_review": {
       "title": "Daten dieses beendeten Kunden prüfen",
@@ -226,11 +226,11 @@
   "prompt": {
     "intro": "Richte in meinem Customermates-Workspace eine Kundenverwaltung ein: eine Zeile pro Kunde mit einem Betreuer, einem Status, dem Datum des letzten Kontakts und einer terminierten Wiedervorlage, dazu Ansprechpartner, terminierte Wiedervorlagen, eine wöchentliche Durchsicht und ein Prüfdatum für beendete Kunden.",
     "questions": [
-      "Wie viele Kunden betreuen Sie heute, und wer arbeitet noch an der Kartei mit?",
-      "Welche Kundenstatus nutzen Sie schon? Soll einer der sieben umbenannt oder weggelassen werden?",
-      "Wie oft möchten Sie A-, B- und C-Kunden durchsehen?",
-      "In welchem Land arbeiten Sie, damit die Aufbewahrungsfrist für beendete Kunden gesetzt werden kann?",
-      "Führen Sie Rechnungen in einem anderen Programm? Wenn ja, in welchem, damit hier keine Rechnungsfelder entstehen."
+      "Wie viele Kunden betreust du heute, und wer arbeitet noch an der Kartei mit?",
+      "Welche Kundenstatus nutzt du schon? Soll einer der sieben umbenannt oder weggelassen werden?",
+      "Wie oft möchtest du A-, B- und C-Kunden durchsehen?",
+      "In welchem Land arbeitest du, damit die Aufbewahrungsfrist für beendete Kunden gesetzt werden kann?",
+      "Führst du Rechnungen in einem anderen Programm? Wenn ja, in welchem, damit hier keine Rechnungsfelder entstehen."
     ]
   }
 }

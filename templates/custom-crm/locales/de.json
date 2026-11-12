@@ -1,10 +1,10 @@
 {
   "locale": "de",
   "name": "Eigenes CRM",
-  "summary": "Ein CRM nach Ihrer Arbeitsweise: Kontakte, Firmen, Verkaufschancen und terminierte Aufgaben, mit Import aus Ihrer Tabelle oder dem alten Werkzeug und einer wöchentlichen Durchsicht.",
+  "summary": "Ein CRM nach der eigenen Arbeitsweise: Kontakte, Firmen, Verkaufschancen und terminierte Aufgaben, mit Import aus der eigenen Tabelle oder dem alten Werkzeug und einer wöchentlichen Durchsicht.",
   "description": "Starten Sie mit den vier Listen, die jedes CRM braucht, und passen Sie sie an: Phasen, Felder und Ansichten gehören Ihnen. Gedacht für alle, die eine Excel-Tabelle, Notion, Airtable oder Trello verlassen und ihre Daten ohne Projekt in ein CRM bringen wollen. Es merkt sich, woher jeder Datensatz importiert wurde.",
   "lists": {
-    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen, mit denen Sie zu tun haben." },
+    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen, mit denen du zu tun hast." },
     "organizations": { "label": "Firma", "pluralLabel": "Firmen", "description": "Unternehmen und andere Einrichtungen." },
     "opportunities": { "label": "Verkaufschance", "pluralLabel": "Verkaufschancen", "description": "Eine Chance vom Lead bis gewonnen oder verloren." }
   },
@@ -88,9 +88,9 @@
   "prompt": {
     "intro": "Richte ein eigenes CRM in meinem Customermates-Workspace ein: Kontakte, Firmen, Verkaufschancen mit Phasen und terminierten Aufgaben, einen Import aus meiner Tabelle oder dem alten Werkzeug und eine wöchentliche Durchsicht.",
     "questions": [
-      "Aus welchem Werkzeug oder welcher Tabelle stammen Ihre Datensätze, und lässt sie sich exportieren?",
-      "Welche Phasen durchläuft eine Chance in Ihrem Geschäft?",
-      "Welche Felder nutzen Sie heute wirklich, und welche lassen Sie zurück?",
+      "Aus welchem Werkzeug oder welcher Tabelle stammen deine Datensätze, und lässt sie sich exportieren?",
+      "Welche Phasen durchläuft eine Chance in deinem Geschäft?",
+      "Welche Felder nutzt du heute wirklich, und welche lässt du zurück?",
       "Wer arbeitet im CRM, und wer betreut welche Datensätze?"
     ]
   }

@@ -105,10 +105,10 @@
   "prompt": {
     "intro": "Richte in meinem Customermates-Workspace eine Kundenpipeline für die Agentur ein: Chancen mit Pitch-Entscheidung, laufende Aufträge für Retainer und Projekte mit Verlängerungstermin, Kündigungsfrist, Quartalsgespräch und Ampel sowie terminierte Folgeaufgaben. Speichere niemals Kundenzugänge oder Markenmaterial.",
     "questions": [
-      "Welche Leistungen verkaufen Sie, und arbeiten Sie mit Retainern, Projekten oder beidem?",
-      "Wie entscheiden Sie, ob Sie an einem Wettbewerbspitch teilnehmen?",
+      "Welche Leistungen verkaufst du, und arbeitest du mit Retainern, Projekten oder beidem?",
+      "Wie entscheidest du, ob du an einem Wettbewerbspitch teilnimmst?",
       "Wie lang ist die übliche Kündigungsfrist und Vertragslaufzeit?",
-      "Wie oft besprechen Sie Ergebnisse mit einem Kunden?"
+      "Wie oft besprichst du Ergebnisse mit einem Kunden?"
     ]
   }
 }

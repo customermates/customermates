@@ -106,10 +106,10 @@
   "prompt": {
     "intro": "Richte einen Maßnahmenplan in meinem Customermates-Workspace ein: Maßnahmen mit sechs Status, Priorität, Verantwortlichem, Deadline und Wiedervorlage, verknüpft mit Besprechungen, Beschlüssen und Projekten, dazu eine wöchentliche Durchsicht.",
     "questions": [
-      "Woher kommen Ihre Maßnahmen: Besprechungen, Projekte, Audits, Kunden?",
+      "Woher kommen deine Maßnahmen: Besprechungen, Projekte, Audits, Kunden?",
       "Wer verantwortet Maßnahmen, und wer entscheidet, wenn eine neu terminiert oder abgebrochen wird?",
-      "Brauchen Sie Korrektur- und Vorbeugungsmaßnahmen mit Wirksamkeitsprüfung, etwa nach ISO 9001?",
-      "Führen Sie Protokolle anderswo? Hier wird nur ein Link dazu gespeichert."
+      "Brauchst du Korrektur- und Vorbeugungsmaßnahmen mit Wirksamkeitsprüfung, etwa nach ISO 9001?",
+      "Führst du Protokolle anderswo? Hier wird nur ein Link dazu gespeichert."
     ]
   }
 }

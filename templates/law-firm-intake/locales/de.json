@@ -107,10 +107,10 @@
   "prompt": {
     "intro": "Richte in meinem Customermates-Workspace eine Mandatsaufnahme für die Kanzlei ein: Anfragen mit Kollisionsprüfung, frühestem bekanntem Fristablauf, Erstberatung, Mandatsangebot und unterschriebener Vereinbarung, Mandate als Verweise auf das Kanzleisystem, Beteiligte für die Kollisionsprüfung und schriftliche Absageschreiben. Speichere keine Falldetails und keine Mandatsgeheimnisse.",
     "questions": [
-      "Welche Rechtsgebiete nehmen Sie an, und welche vermitteln Sie weiter?",
-      "Wie führen Sie die Kollisionsprüfung durch, und wer zeichnet sie ab?",
-      "Welche Vergütungsmodelle und welchen Vorschuss nutzen Sie?",
-      "Welches Kanzleisystem nutzen Sie? Hier wird nur ein Verweis auf die Akte gespeichert."
+      "Welche Rechtsgebiete nimmst du an, und welche vermittelst du weiter?",
+      "Wie führst du die Kollisionsprüfung durch, und wer zeichnet sie ab?",
+      "Welche Vergütungsmodelle und welchen Vorschuss nutzt du?",
+      "Welches Kanzleisystem nutzt du? Hier wird nur ein Verweis auf die Akte gespeichert."
     ]
   }
 }

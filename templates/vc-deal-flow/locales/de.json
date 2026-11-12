@@ -120,9 +120,9 @@
   "prompt": {
     "intro": "Richte einen Dealflow in meinem Customermates-Workspace ein: Deals mit acht Phasen, Vermittler, Passung zur Anlagethese, eigener Rolle, Absagegrund und Wiedervorlagetermin, dazu Startups, Investoren und terminierte Nachfassaufgaben.",
     "questions": [
-      "In welche Phasen und Branchen investieren Sie, und wie groß ist Ihre übliche Ticketgröße?",
-      "Wie erreichen Sie die Deals, und wer vermittelt sie?",
-      "Wer entscheidet in welcher Phase, und wann sagen Sie ab?",
+      "In welche Phasen und Branchen investierst du, und wie groß ist deine übliche Ticketgröße?",
+      "Wie erreichst du die Deals, und wer vermittelt sie?",
+      "Wer entscheidet in welcher Phase, und wann sagst du ab?",
       "Wo liegen Rechtsdokumente und Datenraum? Hier wird nur ein Link gespeichert."
     ]
   }

@@ -4,7 +4,7 @@
   "summary": "Ein Terminregister für Dienstleister: Terminarten mit Dauer und Vorlaufzeit, jede Buchung mit Status, Erinnerungen und Ergebnis, und zu jeder ein nächster Schritt.",
   "description": "Buchungen für Gespräche, Beratungen oder Besichtigungen annehmen und im CRM halten: wenige Terminarten mit Dauer, Pufferzeit und Vorlaufzeit, eine Buchung legt Person und Termin an, nach der Bestätigung entsteht ein Kalendereintrag, zwei Erinnerungen gehen raus, und nach jedem Termin wird das Ergebnis festgehalten. Gebucht wird nur Zeit von Personen. Kein System für Räume oder Ressourcen, kein Ticketverkauf, keine Praxissoftware und kein Zahlungsdienst.",
   "lists": {
-    "people": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen, die bei Ihnen buchen." },
+    "people": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen, die bei dir buchen." },
     "appointment_types": { "label": "Terminart", "pluralLabel": "Terminarten", "description": "Eine Art von Termin mit Dauer, Pufferzeit, Vorlaufzeit und Preis." },
     "appointments": { "label": "Termin", "pluralLabel": "Termine", "description": "Eine Buchung, von angefragt bis stattgefunden, nicht erschienen oder abgesagt." }
   },
@@ -93,10 +93,10 @@
   "prompt": {
     "intro": "Richte in meinem Customermates-Workspace eine Terminbuchung ein: Terminarten mit Dauer, Pufferzeit und Vorlaufzeit, Termine mit Status und Ergebnis, Erinnerungen vor jedem Termin und ein Nachfassen danach.",
     "questions": [
-      "Welche Terminarten bieten Sie an, und wie lange dauert jede?",
-      "Wie viel Vorlaufzeit brauchen Sie, und wie weit im Voraus kann man buchen?",
+      "Welche Terminarten bietest du an, und wie lange dauert jede?",
+      "Wie viel Vorlaufzeit brauchst du, und wie weit im Voraus kann man buchen?",
       "Welche Fragen soll ein Kunde bei der Buchung beantworten?",
-      "Wie gehen Sie heute mit Nichterscheinen und kurzfristigen Absagen um?"
+      "Wie gehst du heute mit Nichterscheinen und kurzfristigen Absagen um?"
     ]
   }
 }

@@ -5,9 +5,9 @@
   "description": "Eine kurze Pipeline für die Aufnahme neuer Kunden und Mandanten: binnen eines Tages antworten, auf Passung prüfen, Fragebogen senden, Unterlagen einholen, Auftragsbestätigung senden, starten. Regulierte Berufe halten fest, wer wann identifiziert hat, nie das Dokument selbst. Kein Werkzeug für elektronische Signatur, Geldwäscheprüfung oder Zahlungen.",
   "lists": {
     "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Die Personen beim Mandanten: Hauptkontakt, Buchhaltung, Unterzeichner." },
-    "clients": { "label": "Mandant", "pluralLabel": "Mandanten", "description": "Unternehmen, Einzelunternehmer und Privatpersonen, die Sie aufnehmen." },
+    "clients": { "label": "Mandant", "pluralLabel": "Mandanten", "description": "Unternehmen, Einzelunternehmer und Privatpersonen, die du aufnimmst." },
     "intakes": { "label": "Aufnahme", "pluralLabel": "Aufnahmen", "description": "Eine Aufnahme pro Mandat, von der Anfrage bis aufgenommen oder abgelehnt." },
-    "document_requests": { "label": "Unterlagenanforderung", "pluralLabel": "Unterlagenanforderungen", "description": "Eine Zeile pro Unterlage, die Sie vom Mandanten anfordern." }
+    "document_requests": { "label": "Unterlagenanforderung", "pluralLabel": "Unterlagenanforderungen", "description": "Eine Zeile pro Unterlage, die du vom Mandanten anforderst." }
   },
   "fields": {
     "intakes.stage": {
@@ -159,7 +159,7 @@
     },
     "intake_questionnaire": {
       "title": "Fragebogen nach Mandantenart",
-      "sections": ["Unternehmen, Einzelunternehmer, Privatperson, Verein", "Fragen, die über die Passung entscheiden", "Wonach Sie nie fragen"]
+      "sections": ["Unternehmen, Einzelunternehmer, Privatperson, Verein", "Fragen, die über die Passung entscheiden", "Wonach du nie fragst"]
     },
     "document_requests_guide": {
       "title": "Unterlagenliste und Erinnerungsnachrichten",
@@ -184,7 +184,7 @@
     "chase_document": { "title": "Fehlende Unterlage nachfassen", "description": "Erreicht die Frist einer offenen Unterlagenanforderung ihr Datum, entsteht eine Nachfrageaufgabe." },
     "review_received_document": { "title": "Erhaltene Unterlage prüfen", "description": "Wird eine Unterlage als erhalten markiert, ist am nächsten Tag eine Prüfaufgabe fällig." },
     "chase_signature": { "title": "Unterschrift nachfassen", "description": "Sieben Tage nach dem Versand der Auftragsbestätigung wird eine Nachfrageaufgabe fällig." },
-    "decline_letter": { "title": "Absage senden", "description": "Eine abgelehnte Aufnahme erhält eine Absageaufgabe für den nächsten Tag. Schreiben Sie, dass kein Mandat besteht, und nennen Sie nahende Fristen." },
+    "decline_letter": { "title": "Absage senden", "description": "Eine abgelehnte Aufnahme erhält eine Absageaufgabe für den nächsten Tag. Schreibe, dass kein Mandat besteht, und nenne nahende Fristen." },
     "kickoff_event": { "title": "Kickoff in den Kalender eintragen", "description": "Ist das Kickoff-Datum gesetzt, wird der Termin in den Kalender des Zuständigen geschrieben." },
     "first_value_check": { "title": "Erstes Ergebnis prüfen", "description": "Vierzehn Tage nach der Aufnahme fragt eine Kontrollaufgabe, ob der Mandant ein erstes Ergebnis gesehen hat." },
     "stalled_intake": { "title": "Festgefahrene Aufnahme prüfen", "description": "Eine offene Aufnahme, die 7 Tage in derselben Phase blieb, erhält eine Prüfaufgabe." },
@@ -193,7 +193,7 @@
   },
   "acceptanceChecks": {
     "stage_field": "Jede Aufnahme hat eine von neun Phasen.",
-    "first_response_field": "Jede Aufnahme hält fest, wann Sie zuerst geantwortet haben.",
+    "first_response_field": "Jede Aufnahme hält fest, wann du zuerst geantwortet hast.",
     "document_requests_list": "Unterlagenanforderungen stehen in einer eigenen Liste.",
     "intakes_board_view": "Die Aufnahmeliste lässt sich als Board nach Phase ansehen.",
     "chase_signature_rule": "Eine versendete Auftragsbestätigung erhält nach 7 Tagen eine Nachfrageaufgabe.",
@@ -202,10 +202,10 @@
   "prompt": {
     "intro": "Richte die Mandantenaufnahme in meinem Customermates-Workspace ein: eine Aufnahme pro Mandat mit neun Phasen, Unterlagenanforderungen, einem Termin in jeder Phase, einem Ablehnungsgrund und optionalen Identifizierungs-, Konflikt- und Risikoprüfungen, die festhalten, wer wann geprüft hat.",
     "questions": [
-      "Was verkaufen Sie, und wer sind Ihre Mandanten: Unternehmen, Einzelunternehmer oder Privatpersonen?",
-      "Welche Schritte durchläuft ein neuer Mandant heute, und welche der neun Phasen brauchen Sie nicht?",
-      "Ist Ihr Beruf reguliert, sodass Identifizierung, Konflikt- oder Risikoprüfung festgehalten werden müssen? In welchem Land?",
-      "Welche Unterlagen fordern Sie immer an, und wo legen Sie sie ab? Hier wird nur ein Link gespeichert.",
+      "Was verkaufst du, und wer sind deine Mandanten: Unternehmen, Einzelunternehmer oder Privatpersonen?",
+      "Welche Schritte durchläuft ein neuer Mandant heute, und welche der neun Phasen brauchst du nicht?",
+      "Ist dein Beruf reguliert, sodass Identifizierung, Konflikt- oder Risikoprüfung festgehalten werden müssen? In welchem Land?",
+      "Welche Unterlagen forderst du immer an, und wo legst du sie ab? Hier wird nur ein Link gespeichert.",
       "Wo unterschreiben Mandanten die Auftragsbestätigung? Sie bleibt dort, die Daten werden hier festgehalten."
     ]
   }

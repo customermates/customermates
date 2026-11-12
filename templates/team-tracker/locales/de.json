@@ -84,7 +84,7 @@
     "intro": "Richte in meinem Customermates-Workspace einen Team-Aufgabentracker ein: Projekte, Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben, Anfragen von außerhalb des Teams und Erinnerungen für Überfälliges oder Blockiertes.",
     "questions": [
       "Wie viele Personen hat das Team, und woran arbeiten sie?",
-      "Welche Status nutzen Sie heute in Trello, Jira, Asana oder einer Tabelle?",
+      "Welche Status nutzt du heute in Trello, Jira, Asana oder einer Tabelle?",
       "Welche Aufgaben kommen jede Woche oder jeden Monat wieder, und wer ist zuständig?",
       "Woher kommen Anfragen, und sollen sie über ein Formular eingehen?"
     ]

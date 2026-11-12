@@ -4,7 +4,7 @@
   "summary": "Eine Pipeline für kleine Unternehmen, deren Kunden per WhatsApp schreiben: Anfrage festhalten, schnell antworten, Angebot senden, nach Tagen nachfassen, Auftrag bestätigen und an den Wiederkauf denken.",
   "description": "WhatsApp-Chats zu bearbeiteten Anfragen machen: Jeder Chat wird zu einer Anfrage mit dem, was der Kunde möchte, dem Angebot und seiner Gültigkeit, einem terminierten nächsten Schritt, einer Zahlungsphase und einem Termin zur Wiedervorlage, wenn die Antwort später kam. Jeder Kontakt hält fest, ob er Nachrichten zugestimmt hat und wann eine Nachbestellung fällig ist. Antworten werden einzeln geschrieben und geprüft. Es gibt keine Rundsendungen, Kampagnen oder Chatbot-Menüs, und die offizielle WhatsApp Business Platform wird nicht genutzt. WhatsApp kann ein Konto einschränken, das gegen die Richtlinien genutzt wird.",
   "lists": {
-    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen, die Ihnen schreiben, mit ihrer WhatsApp-Einwilligung und dem Nachbestelltermin." },
+    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen, die dir schreiben, mit ihrer WhatsApp-Einwilligung und dem Nachbestelltermin." },
     "enquiries": { "label": "Anfrage", "pluralLabel": "Anfragen", "description": "Eine Anfrage aus einem Chat, von der ersten Nachricht bis bestätigt, verloren oder später." }
   },
   "fields": {
@@ -85,9 +85,9 @@
   "prompt": {
     "intro": "Richte in meinem Customermates-Workspace das Nachfassen von WhatsApp-Anfragen ein: eine Anfrage je Chat mit Angebot und Gültigkeit, terminiertem nächstem Schritt, Zahlungsphase, Datum der Wiederansprache und einem Nachbestelltermin je Kontakt, dazu die WhatsApp-Einwilligung des Kontakts. Schreibe Antworten einzeln zur Prüfung und sende nichts in Masse.",
     "questions": [
-      "Wonach fragen Kunden Sie auf WhatsApp, und wie erstellen Sie Angebote?",
-      "Wie schnell möchten Sie auf eine neue Nachricht antworten?",
-      "Wie viele Tage warten Sie nach einem Angebot, bevor Sie nachfassen, und wann hören Sie auf?",
+      "Wonach fragen dich Kunden auf WhatsApp, und wie erstellst du Angebote?",
+      "Wie schnell möchtest du auf eine neue Nachricht antworten?",
+      "Wie viele Tage wartest du nach einem Angebot, bevor du nachfasst, und wann hörst du auf?",
       "Bestellen Kunden nach, und nach welcher Zeit?"
     ]
   }

@@ -7,7 +7,7 @@
     "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Auftraggeber, Ansprechpartner im Tagesgeschäft, Freigebende und Empfehler." },
     "clients": { "label": "Kunde", "pluralLabel": "Kunden", "description": "Interessenten, Kunden, frühere Kunden und Empfehlungspartner." },
     "engagements": { "label": "Beratungsauftrag", "pluralLabel": "Beratungsaufträge", "description": "Eine Beratungsleistung, vom ersten Kontakt bis zu Durchführung und Abschluss." },
-    "deliverables": { "label": "Ergebnis", "pluralLabel": "Ergebnisse (Meilensteine)", "description": "Ein Meilenstein, den Sie übergeben, mit Fälligkeit und Abnahme." }
+    "deliverables": { "label": "Ergebnis", "pluralLabel": "Ergebnisse (Meilensteine)", "description": "Ein Meilenstein, den du übergibst, mit Fälligkeit und Abnahme." }
   },
   "fields": {
     "contacts.role_in_engagement": { "label": "Rolle", "options": { "sponsor": "Auftraggeber", "day_to_day": "Ansprechpartner im Tagesgeschäft", "signs_off": "Gibt frei", "referrer": "Empfehler", "influencer": "Einflussnehmer" } },
@@ -95,10 +95,10 @@
   "prompt": {
     "intro": "Richte in meinem Customermates-Workspace Beratungsaufträge ein: Aufträge vom Erstkontakt bis zur Auftragserteilung mit Annahmeprüfung und einem im Angebotsgespräch vereinbarten Nachfasstermin, Ergebnisse mit Fälligkeits- und Abnahmedatum und einen Abschluss, der um Rückmeldung bittet. Speichere keine vertraulichen Kundendaten.",
     "questions": [
-      "Welche Arten von Aufträgen verkaufen Sie, und zu welchem Tagessatz?",
-      "Wie entscheiden Sie, ob Sie einen Auftrag annehmen?",
-      "Wie lange warten Sie nach einem Angebot, bevor Sie nachfassen?",
-      "Welche Ergebnisse sind Meilensteine, die Sie abrechnen?"
+      "Welche Arten von Aufträgen verkaufst du, und zu welchem Tagessatz?",
+      "Wie entscheidest du, ob du einen Auftrag annimmst?",
+      "Wie lange wartest du nach einem Angebot, bevor du nachfasst?",
+      "Welche Ergebnisse sind Meilensteine, die du abrechnest?"
     ]
   }
 }

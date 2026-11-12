@@ -5,7 +5,7 @@
   "description": "Führen Sie Ihre Personalvermittlung an einem Ort: Kunden mit Vermittlungsvertrag, Aufträge mit Phase und erwarteter Provision, vorgestellte Kandidaten je Auftrag mit eigener Phase, Vermittlungen mit Ende der Garantiezeit und Nachbetreuung sowie ein Datum für die Löschprüfung bei jedem Kandidaten. Passend für ein Team aus einer bis fünf Personen. Es ist keine Jobbörse, kein Lebenslauf-Parser, kein Tool für Massenansprache und keine Zeiterfassung mit Lohnabrechnung. Nichts geht automatisch an Kandidaten oder Kunden.",
   "lists": {
     "people": { "label": "Person", "pluralLabel": "Personen", "description": "Kandidaten, Ansprechpartner beim Kunden und Empfehler." },
-    "clients": { "label": "Kunde", "pluralLabel": "Kunden", "description": "Unternehmen, für die Sie suchen, mit Provisions- und Garantiebedingungen." },
+    "clients": { "label": "Kunde", "pluralLabel": "Kunden", "description": "Unternehmen, für die du suchst, mit Provisions- und Garantiebedingungen." },
     "jobs": { "label": "Auftrag", "pluralLabel": "Aufträge", "description": "Eine Suche für einen Kunden, von der Anfrage bis besetzt oder verloren." },
     "submissions": { "label": "Vorschlag", "pluralLabel": "Vorschläge", "description": "Ein Kandidat auf einen Auftrag, mit eigener Phase." },
     "placements": { "label": "Vermittlung", "pluralLabel": "Vermittlungen", "description": "Ein Kandidat, der zugesagt hat, mit Eintrittsdatum, Provision und Ende der Garantiezeit." }
@@ -149,8 +149,8 @@
   "knowledgePages": {
     "operating_guide": { "title": "So arbeitet die Personalvermittlung", "sections": ["Die zwei Pipelines: Aufträge und Kandidaten", "Wer welche Phase verantwortet, und die Regel: eine terminierte Aufgabe je offenem Vorgang"] },
     "client_intake_call": { "title": "Auftragsgespräch mit dem Kunden: Anforderungsprofil", "sections": ["Position, Einsatzort, Arbeitsmodell, Gehaltsrahmen und Eintrittstermin", "Muss- und Kann-Kriterien, Grund der Vakanz und wer entscheidet"] },
-    "terms_checklist": { "title": "Provision, Garantie und Exklusivität", "sections": ["Berechnungsgrundlage, Fälligkeit und Zahlungsziel", "Garantiezeit und Ersatzbesetzung, Exklusivität (nutzen Sie Ihren eigenen Vertrag, keine Rechtsberatung)"] },
-    "screening_call": { "title": "Leitfaden für das Kandidatengespräch", "sections": ["Motivation, Kündigungsfrist, Gehaltswunsch, andere Verfahren", "Was Sie nicht fragen und nicht festhalten"] },
+    "terms_checklist": { "title": "Provision, Garantie und Exklusivität", "sections": ["Berechnungsgrundlage, Fälligkeit und Zahlungsziel", "Garantiezeit und Ersatzbesetzung, Exklusivität (nutze deinen eigenen Vertrag, keine Rechtsberatung)"] },
+    "screening_call": { "title": "Leitfaden für das Kandidatengespräch", "sections": ["Motivation, Kündigungsfrist, Gehaltswunsch, andere Verfahren", "Was du nicht fragst und nicht festhältst"] },
     "submission_email": { "title": "Kandidaten beim Kunden vorstellen", "sections": ["Kurzprofil in drei Zeilen und warum diese Person", "Verfügbarkeit, Gehaltswunsch und Lebenslauf im Anhang (ein Entwurf, nie automatisch gesendet)"] },
     "interview_routine": { "title": "Vorbereitung und Nachbesprechung von Gesprächen", "sections": ["Kandidat und Ansprechpartner beim Kunden briefen", "Ergebnis innerhalb eines Tages festhalten"] },
     "candidate_data": { "title": "Kandidatendaten: Grundlage, Information und Löschfristen", "sections": ["Aufbewahrung je Land und Datenschutzhinweis", "Einwilligung für den Talentpool und Datum der Prüfung"] },
@@ -186,9 +186,9 @@
   "prompt": {
     "intro": "Richte in meinem Customermates-Workspace eine Personalvermittlung ein: Kunden mit ihren Konditionen, Aufträge mit neun Phasen und erwarteter Provision, einen Vorschlag je Kandidat und Auftrag, Vermittlungen mit Garantieende und Nachbetreuung sowie ein Löschdatum für jeden Kandidaten.",
     "questions": [
-      "Arbeiten Sie erfolgsabhängig, retained oder beides, und welche Provision und Garantiezeit vereinbaren Sie üblicherweise?",
-      "Wie viele Aufträge und Kandidaten betreuen Sie gleichzeitig, und wer verantwortet welche Phase?",
-      "Wie lange speichern Sie Kandidatendaten, und in welchen Ländern suchen Sie?",
+      "Arbeitest du erfolgsabhängig, retained oder beides, und welche Provision und Garantiezeit vereinbarst du üblicherweise?",
+      "Wie viele Aufträge und Kandidaten betreust du gleichzeitig, und wer verantwortet welche Phase?",
+      "Wie lange speicherst du Kandidatendaten, und in welchen Ländern suchst du?",
       "Wo liegen unterschriebene Verträge und Rechnungen? Hier wird nur ein Link oder eine Referenz gespeichert."
     ]
   }
