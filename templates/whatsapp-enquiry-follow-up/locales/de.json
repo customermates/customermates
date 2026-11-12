@@ -10,7 +10,7 @@
   "fields": {
     "contacts.whatsapp_opt_in": {
       "label": "WhatsApp-Einwilligung",
-      "options": { "customer_started_chat": "Kunde hat den Chat begonnen", "gave_permission": "Hat zugestimmt", "unknown": "Unbekannt", "opted_out": "Wollte keine Nachrichten mehr" }
+      "options": { "customer_started_chat": "Kunde hat den Chat begonnen", "gave_permission": "Hat zugestimmt", "unknown": "Unbekannt", "opted_out": "Keine Nachrichten mehr gewünscht" }
     },
     "contacts.last_order_on": { "label": "Letzte Bestellung" },
     "contacts.reorder_due": { "label": "Nachbestellung fällig" },
@@ -29,7 +29,7 @@
       "label": "Verlustgrund",
       "options": { "price": "Preis", "chose_competitor": "Wettbewerber gewählt", "no_response": "Keine Rückmeldung", "timing": "Zeitpunkt", "not_available": "Nicht verfügbar", "not_a_fit": "Passt nicht" }
     },
-    "enquiries.revisit_on": { "label": "Melden am" },
+    "enquiries.revisit_on": { "label": "Wiederansprache am" },
     "enquiries.weighted_value": { "label": "Gewichteter Wert" },
     "actions.kind": {
       "label": "Art",
@@ -68,12 +68,12 @@
     "first_reply_missed": { "title": "Den Zuständigen informieren, wenn eine Anfrage einen Tag später noch eine neue Nachricht ist" },
     "quote_follow_up": { "title": "2 Tage nach dem Angebot nachfassen" },
     "quote_expiring": { "title": "Nachfragen oder abschließen, wenn ein Angebot sein Gültig-bis-Datum erreicht" },
-    "payment_request": { "title": "Am Tag nach Eintritt in Zahlung offen die Zahlung anfordern" },
+    "payment_request": { "title": "Am Tag nach Eintritt in die Phase „Zahlung offen“ die Zahlung anfordern" },
     "won_reorder": { "title": "90 Tage nach der Auftragsbestätigung an die Nachbestellung erinnern" },
     "service_calendar": { "title": "Liefertermin oder Termin in den Kalender eintragen, wenn der Auftrag bestätigt ist" },
     "appointment_confirm": { "title": "Den Termin am Vortag bestätigen" },
-    "later_revisit_date": { "title": "Das Meldedatum auf 90 Tage setzen, wenn eine Anfrage auf Später geht" },
-    "revisit_follow_up": { "title": "Zum Meldedatum nachfassen" },
+    "later_revisit_date": { "title": "Das Datum der Wiederansprache auf 90 Tage setzen, wenn eine Anfrage auf „Später“ geht" },
+    "revisit_follow_up": { "title": "Zur Wiederansprache nachfassen" },
     "unanswered_sweep": { "title": "Täglich für jede unbeantwortete neue Nachricht eine Antwortaufgabe anlegen" }
   },
   "acceptanceChecks": {
@@ -83,9 +83,9 @@
     "enquiries_board_view": "Die Anfragen öffnen sich als Board nach Phase."
   },
   "prompt": {
-    "intro": "Richte in meinem Customermates-Workspace das Nachfassen von WhatsApp-Anfragen ein: eine Anfrage je Chat mit Angebot und Gültigkeit, terminiertem nächstem Schritt, Zahlungsphase, Meldedatum und einem Nachbestelltermin je Kontakt, dazu die WhatsApp-Einwilligung des Kontakts. Schreibe Antworten einzeln zur Prüfung und sende nichts in Masse.",
+    "intro": "Richte in meinem Customermates-Workspace das Nachfassen von WhatsApp-Anfragen ein: eine Anfrage je Chat mit Angebot und Gültigkeit, terminiertem nächstem Schritt, Zahlungsphase, Datum der Wiederansprache und einem Nachbestelltermin je Kontakt, dazu die WhatsApp-Einwilligung des Kontakts. Schreibe Antworten einzeln zur Prüfung und sende nichts in Masse.",
     "questions": [
-      "Wonach fragen Kunden Sie auf WhatsApp, und wie bieten Sie an?",
+      "Wonach fragen Kunden Sie auf WhatsApp, und wie erstellen Sie Angebote?",
       "Wie schnell möchten Sie auf eine neue Nachricht antworten?",
       "Wie viele Tage warten Sie nach einem Angebot, bevor Sie nachfassen, und wann hören Sie auf?",
       "Bestellen Kunden nach, und nach welcher Zeit?"

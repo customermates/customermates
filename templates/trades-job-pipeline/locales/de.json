@@ -14,7 +14,7 @@
       "label": "Art",
       "options": { "private": "Privatkunde", "landlord": "Vermieter", "property_manager": "Hausverwaltung", "commercial": "Gewerbekunde", "builder_contractor": "Bauunternehmen" }
     },
-    "customers.marketing_ok": { "label": "Einwilligung Werbung" },
+    "customers.marketing_ok": { "label": "Einwilligung zu Werbung" },
     "sites.address": { "label": "Adresse" },
     "sites.access_notes": { "label": "Hinweise zum Zugang" },
     "jobs.stage": {
@@ -37,7 +37,7 @@
     "jobs.warranty_ends": { "label": "Gewährleistung bis" },
     "jobs.payment_due": { "label": "Zahlungsziel" },
     "jobs.lost_reason": {
-      "label": "Grund für Verloren",
+      "label": "Verlustgrund",
       "options": { "price": "Preis", "timing": "Zeitpunkt", "chose_competitor": "Anderer Anbieter gewählt", "no_response": "Keine Rückmeldung", "job_cancelled": "Auftrag abgesagt", "other": "Sonstiger" }
     },
     "agreements.interval": { "label": "Turnus", "options": { "monthly": "Monatlich", "quarterly": "Vierteljährlich", "twice_yearly": "Halbjährlich", "yearly": "Jährlich" } },
