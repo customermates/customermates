@@ -1,13 +1,13 @@
 {
   "locale": "nl",
   "name": "Adviesopdrachten",
-  "summary": "Een pijplijn voor een zelfstandig adviseur: opdrachten van kennismaking tot gewonnen met een acceptatiecheck vóór de offerte, een bij het offertegesprek afgesproken opvolgdatum en resultaten die uitvoering en afsluiting bewaken.",
-  "description": "Voer een adviespraktijk op één plek: opdrachten via verkenning, afbakening, voorstel en beslissing, de met de opdrachtgever afgesproken opvolgdatum, een acceptatiecheck (capaciteit, onafhankelijkheid, vertrouwelijkheid) vóór de offerte, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback en een referentie vraagt. Het bewaart de pijplijn, de relaties en de opleverpunten. Geen urenregistratie, geen facturering, geen elektronische handtekening voor voorstellen en geen capaciteitsplanning, en geen vertrouwelijke gegevens van de klant.",
+  "summary": "Een pijplijn voor een zelfstandig adviseur: opdrachten van kennismaking tot gewonnen met een acceptatiecheck vóór het voorstel, een bij het offertegesprek afgesproken opvolgdatum en resultaten die uitvoering en afsluiting bewaken.",
+  "description": "Beheer een adviespraktijk op één plek: opdrachten via verkenning, afbakening, voorstel en beslissing, de met de opdrachtgever afgesproken opvolgdatum, een acceptatiecheck (capaciteit, onafhankelijkheid, vertrouwelijkheid) vóór het voorstel, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback en een referentie vraagt. Het bewaart de pijplijn, de relaties en de opleverpunten. Geen urenregistratie, geen facturering, geen elektronische handtekening voor voorstellen en geen capaciteitsplanning, en geen vertrouwelijke gegevens van de klant.",
   "lists": {
-    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "Opdrachtgevers, dagelijkse contactpersonen, wie tekent en doorverwijzers." },
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "Opdrachtgevers, dagelijkse contactpersonen, mensen die goedkeuren en doorverwijzers." },
     "clients": { "label": "Klant", "pluralLabel": "Klanten", "description": "Prospects, klanten, voormalige klanten en doorverwijspartners." },
     "engagements": { "label": "Opdracht", "pluralLabel": "Opdrachten", "description": "Eén adviesopdracht, van eerste kennismaking tot uitvoering en afsluiting." },
-    "deliverables": { "label": "Resultaat", "pluralLabel": "Resultaten", "description": "Een mijlpaal die u oplevert, met opleverdatum en acceptatie." }
+    "deliverables": { "label": "Resultaat", "pluralLabel": "Resultaten", "description": "Een mijlpaal die je oplevert, met opleverdatum en acceptatie." }
   },
   "fields": {
     "contacts.role_in_engagement": { "label": "Rol", "options": { "sponsor": "Opdrachtgever", "day_to_day": "Dagelijks contact", "signs_off": "Tekent af", "referrer": "Doorverwijzer", "influencer": "Beïnvloeder" } },
@@ -23,17 +23,17 @@
     "engagements.referral_source": { "label": "Hoe het binnenkwam", "options": { "client_referral": "Aanbeveling van een klant", "peer_referral": "Aanbeveling van een vakgenoot", "event_or_talk": "Evenement of lezing", "content": "Gepubliceerde content", "existing_client": "Bestaande klant", "marketplace": "Platform" } },
     "engagements.day_rate": { "label": "Dagtarief" },
     "engagements.days_estimated": { "label": "Geschatte dagen" },
-    "engagements.estimated_fee": { "label": "Geschatte honorering" },
+    "engagements.estimated_fee": { "label": "Geschatte fee" },
     "engagements.acceptance_checked_on": { "label": "Acceptatie gecontroleerd op" },
-    "engagements.proposal_follow_up_on": { "label": "Opvolging afgesproken voor" },
+    "engagements.proposal_follow_up_on": { "label": "Opvolging afgesproken op" },
     "engagements.decision_expected": { "label": "Beslissing verwacht" },
     "engagements.start_date": { "label": "Startdatum" },
     "engagements.end_date": { "label": "Einddatum" },
     "engagements.delivery_status": { "label": "Uitvoering", "options": { "not_started": "Niet gestart", "kickoff_scheduled": "Kick-off ingepland", "in_delivery": "In uitvoering", "wrapping_up": "Wordt afgerond", "completed": "Afgerond" } },
-    "engagements.next_step_due": { "label": "Volgende stap voor" },
+    "engagements.next_step_due": { "label": "Volgende stap uiterlijk op" },
     "engagements.lost_reason": {
       "label": "Reden van verlies",
-      "options": { "timing": "Timing", "budget": "Budget", "in_house": "Doet het intern", "other_advisor": "Koos een andere adviseur", "scope_changed": "Omvang veranderd", "no_decision": "Geen beslissing", "no_response": "Geen reactie" }
+      "options": { "timing": "Timing", "budget": "Budget", "in_house": "Pakt het intern op", "other_advisor": "Koos een andere adviseur", "scope_changed": "Omvang veranderd", "no_decision": "Geen beslissing", "no_response": "Geen reactie" }
     },
     "deliverables.status": { "label": "Status", "options": { "planned": "Gepland", "in_progress": "In uitvoering", "delivered": "Opgeleverd", "accepted": "Geaccepteerd" } },
     "deliverables.kind": { "label": "Soort", "options": { "interview_summary": "Samenvatting van interviews", "workshop": "Workshop", "report": "Rapport", "recommendation": "Aanbeveling", "training_session": "Trainingssessie", "handover": "Overdracht" } },
@@ -49,7 +49,7 @@
     "engagement_client": { "sourceLabel": "Klant", "targetLabel": "Opdrachten" },
     "engagement_sponsor": { "sourceLabel": "Opdrachtgever en contactpersonen", "targetLabel": "Opdrachten" },
     "deliverable_engagement": { "sourceLabel": "Opdracht", "targetLabel": "Resultaten" },
-    "action_engagement": { "sourceLabel": "Opdracht", "targetLabel": "Taken" }
+    "action_engagement": { "sourceLabel": "Opdracht", "targetLabel": "Acties" }
   },
   "views": {
     "engagements_board": { "name": "Opdrachten per fase" },
@@ -71,7 +71,7 @@
   "knowledgePages": {
     "operating_guide": { "title": "Hoe de praktijk draait", "sections": ["Fasen en de regel van één volgende stap met datum per open opdracht", "Wat erbuiten blijft: urenregistratie en facturering"] },
     "discovery_guide": { "title": "Gids voor het verkennende gesprek", "sections": ["Het probleem in de woorden van de klant, betrokkenen en budgetsignalen", "Wat de volgende dag wordt vastgelegd"] },
-    "acceptance_check": { "title": "Acceptatiecheck vóór de offerte", "sections": ["Capaciteit, onafhankelijkheid, vertrouwelijkheid en match", "Wie beslist om de opdracht aan te nemen"] },
+    "acceptance_check": { "title": "Acceptatiecheck vóór het voorstel", "sections": ["Capaciteit, onafhankelijkheid, vertrouwelijkheid en match", "Wie beslist om de opdracht aan te nemen"] },
     "proposal_and_follow_up": { "title": "Opbouw van het voorstel en opvolging", "sections": ["Aangeboden opties en de aanbevolen optie", "De opvolgdatum afspreken in het gesprek over het voorstel"] }
   },
   "rules": {
@@ -93,12 +93,12 @@
     "engagements_board_view": "De opdrachten openen als bord per fase."
   },
   "prompt": {
-    "intro": "Richt in mijn Customermates-workspace adviesopdrachten in: opdrachten van kennismaking tot gewonnen met een acceptatiecheck en een bij het voorstelgesprek afgesproken opvolgdatum, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback vraagt. Bewaar geen vertrouwelijke gegevens van de klant.",
+    "intro": "Richt in mijn Customermates-werkruimte adviesopdrachten in: opdrachten van kennismaking tot gewonnen met een acceptatiecheck en een bij het voorstelgesprek afgesproken opvolgdatum, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback vraagt. Bewaar geen vertrouwelijke gegevens van de klant.",
     "questions": [
-      "Welke soorten opdrachten verkoopt u en tegen welk dagtarief?",
-      "Hoe beslist u of u een opdracht aanneemt?",
-      "Hoe lang wacht u na een voorstel voordat u opvolgt?",
-      "Welke resultaten zijn mijlpalen die u factureert?"
+      "Welke soorten opdrachten verkoop je en tegen welk dagtarief?",
+      "Hoe beslis je of je een opdracht aanneemt?",
+      "Hoe lang wacht je na een voorstel voordat je opvolgt?",
+      "Welke resultaten zijn mijlpalen die je factureert?"
     ]
   }
 }

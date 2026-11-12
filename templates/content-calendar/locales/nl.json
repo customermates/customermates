@@ -1,13 +1,13 @@
 {
   "locale": "nl",
   "name": "Contentkalender",
-  "summary": "Eén regel per stuk met status, eigenaar, reviewer en publicatiedatum, plus campagnes, vaste data en een wekelijkse redactieroutine.",
+  "summary": "Eén regel per stuk met status, eigenaar, reviewer en publicatiedatum, plus campagnes, belangrijke data en een wekelijkse redactieroutine.",
   "description": "Een redactiekalender voor blog, nieuwsbrief, social media en video: zeven statussen van idee tot gepubliceerd, een publicatiekalender, een contentpijler per stuk, een controle op reclamelabels voor betaalde of cadeau gekregen content en een resultaatcheck na 30 dagen. Hij plant en volgt, hij publiceert niet.",
   "lists": {
     "people": { "label": "Persoon", "pluralLabel": "Personen", "description": "Auteurs, redacteuren, reviewers, goedkeurders en gasten." },
     "pieces": { "label": "Contentstuk", "pluralLabel": "Contentstukken", "description": "Eén stuk content van idee tot gepubliceerd." },
     "campaigns": { "label": "Campagne", "pluralLabel": "Campagnes", "description": "Een thema dat meerdere stukken bundelt." },
-    "key_dates": { "label": "Vaste datum", "pluralLabel": "Vaste data", "description": "Feestdagen, evenementen en lanceringen om content omheen te plannen." }
+    "key_dates": { "label": "Belangrijke datum", "pluralLabel": "Belangrijke data", "description": "Feestdagen, evenementen en lanceringen om content omheen te plannen." }
   },
   "fields": {
     "pieces.stage": {
@@ -16,7 +16,7 @@
     },
     "campaigns.status": {
       "label": "Status",
-      "options": { "planned": "Gepland", "running": "Loopt", "done": "Afgerond", "dropped": "Vervallen" }
+      "options": { "planned": "Gepland", "running": "Lopend", "done": "Afgerond", "dropped": "Vervallen" }
     },
     "people.person_role": {
       "label": "Rol",
@@ -117,7 +117,7 @@
     "pieces_board": { "name": "Contentstukken per status" },
     "in_review_pieces": { "name": "In review" },
     "campaigns_all": { "name": "Alle campagnes" },
-    "key_dates_all": { "name": "Vaste data" },
+    "key_dates_all": { "name": "Belangrijke data" },
     "people_all": { "name": "Alle personen" }
   },
   "widgets": {
@@ -127,22 +127,22 @@
     "pieces_by_pillar": { "title": "Contentstukken per pijler" },
     "published_per_month": { "title": "Gepubliceerd per maand" },
     "reach_by_pillar": { "title": "Bereik per pijler" },
-    "key_dates_coming": { "title": "Aankomende vaste data" }
+    "key_dates_coming": { "title": "Aankomende belangrijke data" }
   },
   "knowledgePages": {
     "content_pillars": { "title": "Contentpijlers en verdeling", "sections": ["De pijlers en het aandeel van elk", "Wat onder welke pijler valt"] },
-    "editorial_rhythm": { "title": "Publicatieritme en wekelijks redactieoverleg", "sections": ["Slots per kanaal", "Verschenen, in gevaar, geblokkeerd", "Statussen en wie ze wijzigt"] },
+    "editorial_rhythm": { "title": "Publicatieritme en wekelijks redactieoverleg", "sections": ["Slots per kanaal", "Verschenen, loopt risico, geblokkeerd", "Statussen en wie ze wijzigt"] },
     "review_and_approval": { "title": "Doorlooptijd voor review en goedkeuring", "sections": ["Wie reviewt en in hoeveel dagen", "Goedkeuring door de klant waar nodig"] },
     "disclosure_checklist": { "title": "Checklist voor reclamelabels en samenwerkingen", "sections": ["Wanneer een post een label nodig heeft", "Formulering en plaatsing", "Controle voor publicatie"] }
   },
   "rules": {
     "review_task": { "title": "Maak een reviewactie aan wanneer een stuk naar review gaat" },
     "schedule_task": { "title": "Maak een inplanactie aan wanneer een stuk is goedgekeurd" },
-    "at_risk_before_publish": { "title": "Meld een stuk dat drie dagen voor publicatie nog een concept is" },
+    "at_risk_before_publish": { "title": "Signaleer een stuk dat drie dagen voor publicatie nog een concept is" },
     "measure_after_30_days": { "title": "Maak een resultaatcheck aan nadat een stuk is gepubliceerd" },
     "stale_piece": { "title": "Bekijk een stuk dat 14 dagen in concept of review staat" },
     "weekly_editorial_prep": { "title": "Bereid elke maandag het redactieoverleg voor" },
-    "plan_for_key_date": { "title": "Plan content drie weken voor een vaste datum" },
+    "plan_for_key_date": { "title": "Plan content drie weken voor een belangrijke datum" },
     "idea_form_piece": { "title": "Maak een contentstuk aan uit een idee dat via een formulier binnenkomt" }
   },
   "acceptanceChecks": {
@@ -151,7 +151,7 @@
     "calendar_widget": "Het dashboard toont de publicatiekalender."
   },
   "prompt": {
-    "intro": "Richt een contentkalender in mijn Customermates-werkruimte in: contentstukken met zeven statussen, een eigenaar, een reviewer en een publicatiedatum, campagnes, vaste data, een controle op reclamelabels en een wekelijkse redactieroutine.",
+    "intro": "Richt een contentkalender in mijn Customermates-werkruimte in: contentstukken met zeven statussen, een eigenaar, een reviewer en een publicatiedatum, campagnes, belangrijke data, een controle op reclamelabels en een wekelijkse redactieroutine.",
     "questions": [
       "Wat publiceer je, op welke kanalen en hoe vaak?",
       "Wie schrijft, wie reviewt en wie keurt goed? Is er een klant bij betrokken?",
