@@ -1,0 +1,127 @@
+{
+  "locale": "en",
+  "name": "Supplier questionnaire",
+  "summary": "A supplier register with a qualification questionnaire, certificates with expiry dates, a risk tier, an approval decision and a date for the next review.",
+  "description": "Qualify suppliers and contractors in one place: send a questionnaire, collect certificates and clearances with their valid-until dates, tier each supplier by risk, record the decision (approve, approve with conditions, escalate, reject) and see what expires next. It coordinates evidence. It does not decide legal compliance, screen sanctions or financial risk, or replace your quality system, ERP or document archive.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "People at your suppliers who answer questionnaires and send documents." },
+    "suppliers": { "label": "Supplier", "pluralLabel": "Suppliers", "description": "Every supplier or contractor, from candidate to approved or blocked." },
+    "questionnaires": { "label": "Questionnaire", "pluralLabel": "Questionnaires", "description": "One questionnaire sent to one supplier, with its due date and decision." },
+    "documents": { "label": "Document", "pluralLabel": "Documents", "description": "Certificates, clearances and agreements with their valid-until dates." }
+  },
+  "fields": {
+    "contacts.contact_role": {
+      "label": "Role",
+      "options": { "sales": "Sales", "quality": "Quality", "compliance": "Compliance", "finance": "Finance", "other": "Other" }
+    },
+    "contacts.language": { "label": "Language" },
+    "suppliers.status": {
+      "label": "Status",
+      "options": { "candidate": "Candidate", "questionnaire_sent": "Questionnaire sent", "under_review": "Under review", "approved": "Approved", "approved_with_conditions": "Approved with conditions", "blocked": "Blocked", "offboarded": "Offboarded" }
+    },
+    "suppliers.risk_tier": { "label": "Risk tier", "options": { "low": "Low", "moderate": "Moderate", "high": "High", "critical": "Critical" } },
+    "suppliers.category": {
+      "label": "Category",
+      "options": { "raw_materials": "Raw materials", "components": "Components", "services": "Services", "subcontracting": "Subcontracting", "software_it": "Software and IT", "logistics": "Logistics" }
+    },
+    "suppliers.country": { "label": "Country" },
+    "suppliers.critical_supplier": { "label": "Critical supplier" },
+    "suppliers.processes_personal_data": { "label": "Processes personal data" },
+    "suppliers.review_owner": { "label": "Review owner" },
+    "suppliers.qualified_on": { "label": "Qualified on" },
+    "suppliers.next_review": { "label": "Next review" },
+    "questionnaires.kind": {
+      "label": "Kind",
+      "options": { "registration": "Registration", "qualification": "Qualification", "re_evaluation": "Re-evaluation", "regulatory_evidence": "Regulatory evidence" }
+    },
+    "questionnaires.status": {
+      "label": "Status",
+      "options": { "draft": "Draft", "sent": "Sent", "partial": "Partly answered", "received": "Received", "reviewed": "Reviewed" }
+    },
+    "questionnaires.sent_on": { "label": "Sent on" },
+    "questionnaires.due_on": { "label": "Due on" },
+    "questionnaires.received_on": { "label": "Received on" },
+    "questionnaires.score": { "label": "Score" },
+    "questionnaires.decision": {
+      "label": "Decision",
+      "options": { "approve": "Approve", "approve_with_conditions": "Approve with conditions", "escalate": "Escalate", "reject": "Reject" }
+    },
+    "questionnaires.reviewer": { "label": "Reviewer" },
+    "questionnaires.form_link": { "label": "Form link" },
+    "documents.doc_type": {
+      "label": "Document type",
+      "options": { "quality_certificate": "Quality certificate", "environmental_certificate": "Environmental certificate", "security_certificate": "Security certificate", "insurance": "Insurance", "tax_clearance": "Tax clearance", "registration_extract": "Registration extract", "data_processing_agreement": "Data processing agreement", "other": "Other" }
+    },
+    "documents.status": {
+      "label": "Status",
+      "options": { "requested": "Requested", "received": "Received", "under_review": "Under review", "accepted": "Accepted", "rejected": "Rejected", "expired": "Expired" }
+    },
+    "documents.requested_on": { "label": "Requested on" },
+    "documents.received_on": { "label": "Received on" },
+    "documents.valid_until": { "label": "Valid until" },
+    "documents.evidence_link": { "label": "Link to the file" },
+    "actions.kind": {
+      "label": "Kind",
+      "options": {
+        "send_questionnaire": "Send the questionnaire",
+        "chase_supplier": "Chase the supplier",
+        "review_answers": "Review the answers",
+        "request_document": "Request a document",
+        "verify_document": "Verify a document",
+        "decide": "Decide",
+        "re_evaluate": "Re-evaluate",
+        "other": "Other"
+      }
+    }
+  },
+  "relationships": {
+    "contact_supplier": { "sourceLabel": "Supplier", "targetLabel": "Contacts" },
+    "questionnaire_supplier": { "sourceLabel": "Supplier", "targetLabel": "Questionnaires" },
+    "document_supplier": { "sourceLabel": "Supplier", "targetLabel": "Documents" },
+    "action_supplier": { "sourceLabel": "Supplier", "targetLabel": "Actions" }
+  },
+  "views": {
+    "suppliers_all": { "name": "All suppliers" },
+    "suppliers_board": { "name": "Qualification board" },
+    "documents_all": { "name": "All documents" },
+    "expired_documents": { "name": "Expired or rejected" },
+    "questionnaires_all": { "name": "All questionnaires" },
+    "contacts_all": { "name": "All contacts" }
+  },
+  "widgets": {
+    "suppliers_by_status": { "title": "Suppliers by status" },
+    "suppliers_by_risk": { "title": "Suppliers by risk tier" },
+    "documents_expiring": { "title": "Documents expiring" },
+    "questionnaires_open": { "title": "Questionnaires waiting for an answer" },
+    "reviews_coming": { "title": "Reviews coming up" },
+    "documents_expired": { "title": "Expired documents" }
+  },
+  "knowledgePages": {
+    "qualification_process": { "title": "Supplier qualification procedure", "sections": ["Need, criteria and who approves", "Questionnaire, documents, decision"] },
+    "document_requirements": { "title": "Certificates and clearances we ask for", "sections": ["By category and risk tier", "How long each is valid"] },
+    "re_evaluation": { "title": "Re-evaluation schedule", "sections": ["Review dates by risk tier", "Events that trigger an early review"] }
+  },
+  "rules": {
+    "chase_questionnaire": { "title": "Chase the supplier when a questionnaire is past its due date" },
+    "review_answers": { "title": "Review the answers 3 days after a questionnaire is received" },
+    "renew_document": { "title": "Ask for a renewed document 30 days before it expires" },
+    "document_expiry_notice": { "title": "Notify the owner when a document expires" },
+    "re_evaluate_supplier": { "title": "Start a re-evaluation 14 days before the next review" },
+    "decide_after_review": { "title": "Decide within 5 days when a supplier goes under review" },
+    "registration_form_records": { "title": "Create the supplier and contact when the registration form is submitted" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Every supplier has a qualification status.",
+    "valid_until_field": "Every document records when it stops being valid.",
+    "suppliers_board_view": "The suppliers open as a board by status."
+  },
+  "prompt": {
+    "intro": "Set up a supplier register in my Customermates workspace: suppliers with a risk tier and a qualification status, questionnaires with due dates and a decision, documents with valid-until dates, and dated follow-ups.",
+    "questions": [
+      "How many suppliers do you have, and how do you split them by risk?",
+      "Which certificates or clearances do you ask for, and how long is each valid?",
+      "Who reviews the answers and who approves a supplier?",
+      "How often do you re-evaluate a supplier? Files stay in your document system and only a link is kept here."
+    ]
+  }
+}

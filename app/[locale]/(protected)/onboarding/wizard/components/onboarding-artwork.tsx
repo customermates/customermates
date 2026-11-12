@@ -7,8 +7,10 @@ import {
   Blocks,
   BookOpen,
   Check,
+  ClipboardCheck,
   Compass,
   Languages,
+  LayoutTemplate,
   Link2,
   Mail,
   Plus,
@@ -28,7 +30,7 @@ import { cn } from "@/core/utils/cn";
 
 import type { WizardStep } from "./onboarding-wizard.store";
 
-type SceneStep = Exclude<WizardStep, "setup" | "goal" | "playbook">;
+type SceneStep = Exclude<WizardStep, "setup" | "goal" | "playbook" | "template" | "prompt">;
 const STEP_ICONS = {
   profile: UserRound,
   goal: Compass,
@@ -36,6 +38,8 @@ const STEP_ICONS = {
   setup: Blocks,
   invite: UsersRound,
   ai: Sparkles,
+  template: LayoutTemplate,
+  prompt: ClipboardCheck,
 };
 
 const NARROW_CONNECTOR = "M40 32C68 32 68 56 96 56";

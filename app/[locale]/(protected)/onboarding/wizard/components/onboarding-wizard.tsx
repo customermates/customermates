@@ -4,11 +4,16 @@ import type { OnboardingWizardProgress } from "@/features/onboarding-wizard/onbo
 import type { WorkspaceSetupStatusView } from "@/ee/workspace-setup/workspace-setup-status";
 import type { WizardJobChoice, WizardStep } from "./onboarding-wizard.store";
 import type { OnboardingJobChoiceView } from "@/features/onboarding-funnel/get-onboarding-job-choice.interactor";
+import type {
+  OnboardingTemplateCard,
+  OnboardingTemplatePreselection,
+} from "@/features/onboarding-templates/onboarding-template-offer";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { comparer, reaction } from "mobx";
 import { useTranslations } from "next-intl";
+import { CircleCheck } from "lucide-react";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -18,19 +23,25 @@ import { WizardProgress } from "@/components/shared/wizard-progress";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
+import { isTemplateSlug } from "@/core/templates/template-slugs";
 
 import { OnboardingArtwork, OnboardingMilestones } from "./onboarding-artwork";
-import { wizardSteps } from "./onboarding-wizard.store";
+import { connectsAgentWithVerification, resolveWizardResume } from "./onboarding-wizard-flow";
 
 import { StepProfile } from "./step-profile";
-import { StepGoal } from "./step-goal";
+import { StepGoal, StepGoalFooter } from "./step-goal";
 import { StepPlaybook } from "./step-playbook";
 import { StepAi, StepAiFooter } from "./step-ai";
+import { StepTemplate, StepTemplateFooter } from "./step-template";
+import { StepPrompt, StepPromptFooter } from "./step-prompt";
 import { StepInvite } from "./step-invite";
 import { StepSetup, useHydratedSetupStore } from "./setup/step-setup";
 import { resolveSetupStage } from "./setup/setup-interview-state";
+import { useSelectedAgentName } from "./use-selected-agent-name";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
-import { DEFAULT_ONBOARDING_JOB, type OnboardingJob } from "@/features/onboarding-funnel/onboarding-job";
+import { PRESELECTED_ONBOARDING_JOB } from "@/features/onboarding-funnel/onboarding-job";
+
+export { resolveWizardResume } from "./onboarding-wizard-flow";
 
 type Props = {
   profileCompleted: boolean;
@@ -39,6 +50,8 @@ type Props = {
   setupStatus?: WorkspaceSetupStatusView;
   setupStepCompleted?: boolean;
   jobChoice?: OnboardingJobChoiceView;
+  templates?: readonly OnboardingTemplateCard[];
+  templatePreselection?: OnboardingTemplatePreselection;
   onboardingIntent?: string;
   inviterName?: string;
   isInvited?: boolean;
@@ -51,36 +64,15 @@ type Props = {
 };
 
 const UNAVAILABLE_SETUP: WorkspaceSetupStatusView = { available: false, reason: "selfHosted", setup: null };
-
-export function resolveWizardResume({
-  profileCompleted,
-  isInvited,
-  setupAvailable,
-  setupStepCompleted,
-  jobSelected = true,
-  job = DEFAULT_ONBOARDING_JOB,
-}: {
-  profileCompleted: boolean;
-  isInvited: boolean;
-  setupAvailable: boolean;
-  setupStepCompleted: boolean;
-  jobSelected?: boolean;
-  job?: OnboardingJob;
-}) {
-  const ownSteps = setupAvailable && !isInvited && !setupStepCompleted && (job === "followup" || job === "agent");
-  const steps = wizardSteps(setupAvailable, ownSteps ? job : DEFAULT_ONBOARDING_JOB);
-  if (!profileCompleted) return { steps, resumeStepIndex: 0 };
-  const chosenStep: WizardStep = !ownSteps ? "setup" : job === "followup" ? "playbook" : "ai";
-  const resumeStep: WizardStep =
-    isInvited || setupStepCompleted || !setupAvailable ? "invite" : jobSelected ? chosenStep : "goal";
-  return { steps, resumeStepIndex: steps.indexOf(resumeStep) };
-}
+const NO_TEMPLATES: readonly OnboardingTemplateCard[] = [];
+const NO_PRESELECTION: OnboardingTemplatePreselection = { slug: null, reason: null };
 
 export function wizardJobChoice(
   view: Pick<OnboardingJobChoiceView, "preselectedJob" | "signupJob" | "suggestedPlaybook"> | undefined,
+  fallbackJob: WizardJobChoice["selectedJob"] = PRESELECTED_ONBOARDING_JOB,
 ): WizardJobChoice {
   return {
-    selectedJob: view?.preselectedJob ?? DEFAULT_ONBOARDING_JOB,
+    selectedJob: view?.preselectedJob ?? fallbackJob,
     suggestedJob: view?.signupJob ?? null,
     suggestedPlaybook: view?.suggestedPlaybook ?? null,
   };
@@ -94,6 +86,8 @@ const OnboardingWizardContent = observer(
     setupStatus,
     setupStepCompleted = false,
     jobChoice,
+    templates = NO_TEMPLATES,
+    templatePreselection = NO_PRESELECTION,
     onboardingIntent,
     inviterName,
     isInvited = false,
@@ -107,17 +101,25 @@ const OnboardingWizardContent = observer(
     const t = useTranslations();
     const workspace = workspaceName?.trim() ?? "";
     const { onboardingWizardStore, appMode } = useRootStore();
+    const agentName = useSelectedAgentName();
+    const selfHosted = appMode === "self-hosted";
+    const chooseAvailable = !isInvited && appMode !== "demo";
+    const templatesAvailable = chooseAvailable && templates.length > 0;
     const setupAvailable = profileCompleted
       ? Boolean(setupStatus?.available) && !isInvited
       : appMode === "cloud" && !isInvited;
     const { store: setupStore, ready: setupReady } = useHydratedSetupStore(setupStatus ?? UNAVAILABLE_SETUP);
-    const { steps, resumeStepIndex } = resolveWizardResume({
+    const { steps, resumeStepIndex, flow } = resolveWizardResume({
       profileCompleted,
       isInvited,
       setupAvailable,
+      chooseAvailable,
+      templatesAvailable,
       setupStepCompleted,
       jobSelected: !jobChoice || jobChoice.selectedJob !== null,
-      job: jobChoice?.preselectedJob,
+      job: jobChoice?.preselectedJob ?? (chooseAvailable ? PRESELECTED_ONBOARDING_JOB : undefined),
+      setupStarted: Boolean(setupStatus?.setup),
+      savedStep: savedProgress?.step,
     });
     const preselectedJob = jobChoice?.preselectedJob;
     const signupJob = jobChoice?.signupJob;
@@ -128,36 +130,59 @@ const OnboardingWizardContent = observer(
           preselectedJob === undefined
             ? undefined
             : { preselectedJob, signupJob: signupJob ?? null, suggestedPlaybook: suggestedPlaybook ?? null },
+          chooseAvailable ? PRESELECTED_ONBOARDING_JOB : undefined,
         ),
-      [preselectedJob, signupJob, suggestedPlaybook],
+      [chooseAvailable, preselectedJob, signupJob, suggestedPlaybook],
     );
-    const resumesSavedStep = steps[resumeStepIndex] === "invite" && profileCompleted;
-    const initialStepIndex = resumesSavedStep && savedProgress?.step === "ai" ? steps.indexOf("ai") : resumeStepIndex;
+    const savedTemplate = savedProgress?.template ?? null;
+    const initialTemplate =
+      savedTemplate !== null && isTemplateSlug(savedTemplate) && templates.some((card) => card.slug === savedTemplate)
+        ? savedTemplate
+        : templatePreselection.slug;
+    const emptyChosen = flow === "empty";
+    const initialStepIndex = resumeStepIndex;
     const initializationKey = JSON.stringify([
       resumeStepIndex,
       userId,
       savedProgress,
       setupAvailable,
       initialJobChoice,
+      chooseAvailable,
+      templatesAvailable,
+      emptyChosen,
+      selfHosted,
+      initialTemplate,
     ]);
     const [initializedKey, setInitializedKey] = useState<string | null>(null);
     const isStepSynchronized = initializedKey === initializationKey;
     const currentStep: WizardStep = isStepSynchronized ? onboardingWizardStore.currentStep : steps[initialStepIndex];
     const currentStepIndex = isStepSynchronized ? onboardingWizardStore.currentStepIndex : initialStepIndex;
-    const isFirstStep = isStepSynchronized ? onboardingWizardStore.isFirstStep : initialStepIndex <= resumeStepIndex;
     const visibleSteps = isStepSynchronized ? onboardingWizardStore.steps : steps;
-    const totalSteps = visibleSteps.length;
+    const connectsAgent = isStepSynchronized
+      ? onboardingWizardStore.connectsAgent
+      : connectsAgentWithVerification({ setupAvailable, chooseAvailable, templatesAvailable }, flow);
+    const milestoneSteps = visibleSteps.filter((step) => step !== "prompt");
+    const milestoneIndex = currentStep === "prompt" ? milestoneSteps.indexOf("template") : currentStepIndex;
     const jobOpen = visibleSteps.includes("goal") && (currentStep === "profile" || currentStep === "goal");
     const progressText = jobOpen
-      ? t("OnboardingWizard.progressOpen", { current: currentStepIndex + 1 })
-      : t("OnboardingWizard.progress", { current: currentStepIndex + 1, total: totalSteps });
+      ? t("OnboardingWizard.progressOpen", { current: milestoneIndex + 1 })
+      : t("OnboardingWizard.progress", { current: milestoneIndex + 1, total: milestoneSteps.length });
     const { isSubmitting, next, back } = onboardingWizardStore;
+    const isFirstStep = isStepSynchronized ? onboardingWizardStore.isFirstStep : initialStepIndex <= resumeStepIndex;
     const headingRef = useRef<HTMLHeadingElement>(null);
     const previousStep = useRef(currentStep);
     const setupStage = setupReady ? setupStore.stage : resolveSetupStage(setupStatus ?? UNAVAILABLE_SETUP);
+    const selectedTemplateName = templates.find((card) => card.slug === onboardingWizardStore.selectedTemplate)?.name;
 
     useEffect(() => {
-      onboardingWizardStore.initialize(resumeStepIndex, userId, savedProgress, setupAvailable, initialJobChoice);
+      onboardingWizardStore.initialize(
+        resumeStepIndex,
+        userId,
+        savedProgress,
+        setupAvailable,
+        initialJobChoice,
+        { chooseAvailable, templatesAvailable, emptyChosen, selfHosted, template: initialTemplate },
+      );
       setInitializedKey(initializationKey);
       return reaction(
         () => onboardingWizardStore.progress,
@@ -167,12 +192,17 @@ const OnboardingWizardContent = observer(
         { equals: comparer.structural },
       );
     }, [
+      chooseAvailable,
+      emptyChosen,
       initialJobChoice,
+      initialTemplate,
       initializationKey,
       onboardingWizardStore,
       resumeStepIndex,
       savedProgress,
+      selfHosted,
       setupAvailable,
+      templatesAvailable,
       userId,
     ]);
 
@@ -205,6 +235,14 @@ const OnboardingWizardContent = observer(
           return isStepSynchronized ? <StepPlaybook /> : <div aria-busy="true" className="min-h-36" />;
         case "ai":
           return isStepSynchronized ? <StepAi /> : <div aria-busy="true" className="min-h-36" />;
+        case "template":
+          return isStepSynchronized ? (
+            <StepTemplate cards={templates} preselection={templatePreselection} />
+          ) : (
+            <div aria-busy="true" className="min-h-36" />
+          );
+        case "prompt":
+          return isStepSynchronized ? <StepPrompt /> : <div aria-busy="true" className="min-h-36" />;
         case "setup":
           return setupReady ? <StepSetup /> : <div aria-busy="true" className="min-h-36" />;
         case "invite":
@@ -219,7 +257,15 @@ const OnboardingWizardContent = observer(
       ? t("WorkspaceSetup.plan.title")
       : startStage
         ? t("OnboardingWizard.steps.setup.startTitle")
-        : t(`OnboardingWizard.steps.${currentStep}.title`);
+        : currentStep === "goal" && selfHosted
+          ? t("OnboardingWizard.steps.goal.titleSelfHosted")
+          : currentStep === "ai" && connectsAgent
+            ? t("OnboardingWizard.steps.connect.title")
+            : currentStep === "prompt"
+              ? agentName
+                ? t("OnboardingWizard.steps.prompt.title", { agent: agentName })
+                : t("OnboardingWizard.steps.prompt.titleGeneric")
+              : t(`OnboardingWizard.steps.${currentStep}.title`);
     const planPending = currentStep === "setup" && (setupStage === "planning" || setupStage === "planFailed");
     const subtitle = planStage
       ? t("WorkspaceSetup.plan.subtitle")
@@ -233,7 +279,23 @@ const OnboardingWizardContent = observer(
               : t("OnboardingWizard.steps.profile.invitedSubtitle")
             : currentStep === "setup" && setupReady && !setupStore.setup?.websiteUrl
               ? t("OnboardingWizard.steps.setup.withoutWebsiteSubtitle")
-              : t(`OnboardingWizard.steps.${currentStep}.subtitle`);
+              : currentStep === "goal" && selfHosted
+                ? t("OnboardingWizard.steps.goal.subtitleSelfHosted")
+                : currentStep === "ai" && connectsAgent
+                  ? t("OnboardingWizard.steps.connect.subtitle")
+                  : currentStep === "template" && !connectsAgent
+                    ? t("OnboardingWizard.steps.template.subtitleMate")
+                    : currentStep === "prompt"
+                      ? t("OnboardingWizard.steps.prompt.subtitle", { template: selectedTemplateName ?? "" })
+                      : t(`OnboardingWizard.steps.${currentStep}.subtitle`);
+    const showArtwork =
+      currentStep === "profile" || currentStep === "invite" || (currentStep === "ai" && !connectsAgent);
+    const agentBadge =
+      currentStep === "template" && connectsAgent && onboardingWizardStore.agentConnected
+        ? agentName
+          ? t("OnboardingWizard.template.connected", { agent: agentName })
+          : t("OnboardingWizard.template.connectedGeneric")
+        : null;
 
     return (
       <AppCard
@@ -241,48 +303,58 @@ const OnboardingWizardContent = observer(
           "relative shadow-xl shadow-primary/5",
           currentStep === "goal" || currentStep === "playbook"
             ? "max-w-3xl"
-            : currentStep !== "setup"
-              ? "max-w-2xl"
-              : planStage
-                ? "max-w-5xl"
-                : "max-w-3xl",
+            : currentStep === "template"
+              ? "max-w-4xl"
+              : currentStep !== "setup"
+                ? "max-w-2xl"
+                : planStage
+                  ? "max-w-5xl"
+                  : "max-w-3xl",
         )}
       >
         <AppCardBody>
-          {currentStep !== "setup" && currentStep !== "goal" && currentStep !== "playbook" ? (
-            <OnboardingArtwork step={currentStep} />
-          ) : null}
+          {showArtwork ? <OnboardingArtwork step={currentStep as "profile" | "invite" | "ai"} /> : null}
 
-          <div className="flex flex-col gap-1">
-            {!isInvited && <div className="text-xs text-muted-foreground">{progressText}</div>}
+          <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+            <div className="flex min-w-0 flex-col gap-1">
+              <h1 ref={headingRef} className="text-2xl font-semibold" tabIndex={-1}>
+                {title}
+              </h1>
 
-            <h1 ref={headingRef} className="text-2xl font-semibold" tabIndex={-1}>
-              {title}
-            </h1>
+              <p className="text-sm text-muted-foreground">{subtitle}</p>
+            </div>
 
-            <p className="text-sm text-muted-foreground">{subtitle}</p>
+            {agentBadge ? (
+              <span className="inline-flex items-center gap-1.5 text-sm font-medium text-success" role="status">
+                <CircleCheck aria-hidden="true" className="size-4" />
+
+                {agentBadge}
+              </span>
+            ) : null}
           </div>
 
           {!isInvited && (
             <>
               <OnboardingMilestones
-                current={currentStepIndex}
+                current={milestoneIndex}
                 labels={{
                   profile: t("OnboardingWizard.milestones.profile"),
                   goal: t("OnboardingWizard.milestones.goal"),
                   playbook: t("OnboardingWizard.milestones.playbook"),
                   setup: t("OnboardingWizard.milestones.setup"),
                   invite: t("OnboardingWizard.milestones.invite"),
-                  ai: t("OnboardingWizard.milestones.ai"),
+                  ai: connectsAgent ? t("OnboardingWizard.milestones.connect") : t("OnboardingWizard.milestones.ai"),
+                  template: t("OnboardingWizard.milestones.template"),
+                  prompt: t("OnboardingWizard.milestones.template"),
                 }}
-                steps={visibleSteps}
+                steps={milestoneSteps}
               />
 
               <div className="sr-only">
                 <WizardProgress
-                  current={currentStepIndex + 1}
+                  current={milestoneIndex + 1}
                   label={t("OnboardingWizard.progressLabel")}
-                  total={totalSteps}
+                  total={milestoneSteps.length}
                   valueText={progressText}
                 />
               </div>
@@ -315,7 +387,10 @@ const OnboardingWizardContent = observer(
           </AppCardFooter>
         )}
 
+        {currentStep === "goal" && isStepSynchronized ? <StepGoalFooter /> : null}
         {currentStep === "ai" && isStepSynchronized ? <StepAiFooter /> : null}
+        {currentStep === "template" && isStepSynchronized ? <StepTemplateFooter cards={templates} /> : null}
+        {currentStep === "prompt" && isStepSynchronized ? <StepPromptFooter /> : null}
       </AppCard>
     );
   },

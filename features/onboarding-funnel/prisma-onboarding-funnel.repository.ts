@@ -1,4 +1,9 @@
-import type { FunnelEventInput, OnboardingFunnelRepo, OnboardingJobChoice } from "./onboarding-funnel.repo";
+import type {
+  FunnelEventInput,
+  OnboardingFunnelRepo,
+  OnboardingJobChoice,
+  OnboardingTemplateChoice,
+} from "./onboarding-funnel.repo";
 import type { OnboardingAgentStatus, OnboardingAgentStatusRepo } from "./onboarding-agent.repo";
 import type { OnboardingJob } from "./onboarding-job";
 
@@ -34,6 +39,15 @@ export class PrismaOnboardingFunnelRepo
       this.prisma.companySignupSource.findFirst({ where: { companyId }, select: { job: true, landingPath: true } }),
     ]);
     return { selectedJob, signupJob: source?.job ?? null, signupLandingPath: source?.landingPath ?? null };
+  }
+
+  async findOnboardingTemplateChoice(): Promise<OnboardingTemplateChoice> {
+    const { companyId } = this.user;
+    const [company, source] = await Promise.all([
+      this.prisma.company.findUnique({ where: { id: companyId }, select: { signupTemplate: true } }),
+      this.prisma.companySignupSource.findFirst({ where: { companyId }, select: { landingPath: true } }),
+    ]);
+    return { signupTemplate: company?.signupTemplate ?? null, signupLandingPath: source?.landingPath ?? null };
   }
 
   private async insertOnce(companyId: string, { type, occurredAt, job }: FunnelEventInput): Promise<boolean> {

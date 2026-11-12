@@ -11,8 +11,14 @@ export type OnboardingJobChoice = {
 
 export type FunnelEventInput = { type: FunnelEventType; occurredAt: Date; job?: OnboardingJob };
 
+export type OnboardingTemplateChoice = {
+  signupTemplate: string | null;
+  signupLandingPath: string | null;
+};
+
 export abstract class OnboardingFunnelRepo {
   abstract recordFunnelEvent(event: FunnelEventInput): Promise<boolean>;
   abstract recordFunnelEventUnscoped(event: FunnelEventInput & { companyId: string }): Promise<boolean>;
   abstract findOnboardingJobChoice(): Promise<OnboardingJobChoice>;
+  abstract findOnboardingTemplateChoice(): Promise<OnboardingTemplateChoice>;
 }

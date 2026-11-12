@@ -122,7 +122,7 @@ export const domTestFiles = [
   "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/__tests__/record-inline-assignees.dom.test.tsx",
   "components/editor/__tests__/editor-link-picker.test.ts",
   "app/**/onboarding/wizard/components/setup/__tests__/*.dom.test.ts",
-  "app/**/onboarding/wizard/components/__tests__/step-playbook.dom.test.ts",
+  "app/**/onboarding/wizard/components/__tests__/*.dom.test.ts",
   "app/**/settings/**/__tests__/onboarding-channels-hint.dom.test.ts",
   "app/**/settings/**/__tests__/connected-accounts-status-toast.dom.test.ts",
   "components/wiki/__tests__/wiki-refresh-safety.test.ts",

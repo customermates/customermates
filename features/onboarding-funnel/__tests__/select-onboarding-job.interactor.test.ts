@@ -12,14 +12,20 @@ const owner = { ...createMockUser({ onboardingWikiStepCompletedAt: null }), comp
 
 describe("SelectOnboardingJobInteractor", () => {
   let funnel: { recordFunnelEvent: ReturnType<typeof vi.fn> };
-  let setupStep: { markOnboardingSetupStepCompleted: ReturnType<typeof vi.fn> };
+  let setupStep: {
+    markOnboardingSetupStepCompleted: ReturnType<typeof vi.fn>;
+    reopenOnboardingSetupStep: ReturnType<typeof vi.fn>;
+  };
   let routeGuardService: { resolveAccountState: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     vi.clearAllMocks();
     (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "cloud";
     funnel = { recordFunnelEvent: vi.fn().mockResolvedValue(true) };
-    setupStep = { markOnboardingSetupStepCompleted: vi.fn().mockResolvedValue(undefined) };
+    setupStep = {
+      markOnboardingSetupStepCompleted: vi.fn().mockResolvedValue(undefined),
+      reopenOnboardingSetupStep: vi.fn().mockResolvedValue(undefined),
+    };
     routeGuardService = { resolveAccountState: vi.fn().mockResolvedValue({ state: "onboarding", user: owner }) };
   });
 
@@ -37,6 +43,7 @@ describe("SelectOnboardingJobInteractor", () => {
       job: "workspace",
     });
     expect(setupStep.markOnboardingSetupStepCompleted).not.toHaveBeenCalled();
+    expect(setupStep.reopenOnboardingSetupStep).toHaveBeenCalledExactlyOnceWith({ userId: owner.id });
   });
 
   it("skips the setup interview and opens the AI connection for the agent job", async () => {
@@ -45,6 +52,7 @@ describe("SelectOnboardingJobInteractor", () => {
       data: { job: "agent", next: "ai" },
     });
     expect(setupStep.markOnboardingSetupStepCompleted).toHaveBeenCalledExactlyOnceWith({ userId: owner.id });
+    expect(setupStep.reopenOnboardingSetupStep).not.toHaveBeenCalled();
   });
 
   it("continues to the job playbook for the follow-up job and keeps onboarding open", async () => {

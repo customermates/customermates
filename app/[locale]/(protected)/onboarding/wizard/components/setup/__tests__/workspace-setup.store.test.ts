@@ -496,3 +496,36 @@ describe("WorkspaceSetupStore", () => {
     expect(workspaceNotice.notifyWorkspaceChanged).toHaveBeenCalledOnce();
   });
 });
+
+describe("starting a setup from a chosen template", () => {
+  function startStore(selectedTemplate: string | null) {
+    const store = new WorkspaceSetupStore({
+      localeStore: { locale: "de" },
+      onboardingWizardStore: { selectedTemplate },
+    } as unknown as RootStore);
+    store.hydrate({ available: true, setup: null });
+    return store;
+  }
+
+  it("sends the template the owner picked with the start", async () => {
+    actions.startWorkspaceSetupAction.mockResolvedValue({ ok: true, data: { setupId: SETUP_ID } });
+    const store = startStore("sales-pipeline");
+
+    await store.start("https://example.com");
+
+    expect(actions.startWorkspaceSetupAction).toHaveBeenCalledExactlyOnceWith({
+      websiteUrl: "https://example.com",
+      locale: "de",
+      templateSlug: "sales-pipeline",
+    });
+  });
+
+  it("starts as before without a template", async () => {
+    actions.startWorkspaceSetupAction.mockResolvedValue({ ok: true, data: { setupId: SETUP_ID } });
+    const store = startStore(null);
+
+    await store.start(null);
+
+    expect(actions.startWorkspaceSetupAction).toHaveBeenCalledExactlyOnceWith({ websiteUrl: null, locale: "de" });
+  });
+});

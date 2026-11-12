@@ -3685,11 +3685,30 @@
         }
       }
     },
+    "connect": {
+      "checkAgain": "Vérifier à nouveau",
+      "connected": "Connecté. Votre agent a atteint cet espace de travail.",
+      "failed": "Impossible de vérifier la connexion. Réessayez dans un instant.",
+      "skip": "Je me connecterai plus tard",
+      "statusLabel": "État de la connexion",
+      "waiting": "En attente du premier appel de {agent}. La coche apparaît toute seule dès que {agent} est connecté.",
+      "waitingGeneric": "En attente du premier appel de votre agent. La coche apparaît toute seule dès que votre agent est connecté."
+    },
+    "continue": "Continuer",
     "finish": "Terminer",
     "goal": {
       "agent": {
-        "description": "Utilisez Claude, ChatGPT ou un client CLI avec votre espace via MCP.",
-        "title": "Connecter mon propre agent IA"
+        "anyClient": "Tout client MCP",
+        "description": "Connectez-le à Customermates, collez un modèle, et il construit vos listes, votre pipeline et vos relances.",
+        "descriptionSelfHosted": "Connectez-le à cette instance, collez un modèle, et il construit vos listes, votre pipeline et vos relances.",
+        "providersLabel": "Agents IA pris en charge",
+        "steps": {
+          "approve": "Coller et approuver le plan",
+          "connect": "Connecter votre agent",
+          "template": "Choisir un modèle"
+        },
+        "stepsLabel": "Comment ça marche",
+        "title": "Utiliser l’agent IA que vous avez déjà"
       },
       "channelsHint": {
         "action": "Ouvrir le tableau de bord",
@@ -3708,15 +3727,22 @@
         "salesNavigator": "Vous utilisez Sales Navigator ? Connectez plutôt LinkedIn avec Sales Navigator",
         "title": "Connectez d’abord LinkedIn"
       },
+      "cloud": {
+        "badge": "Cloud",
+        "description": "Mate fonctionne dans Customermates Cloud. Votre premier espace cloud éligible bénéficie de {days} jours de Pro, sans carte bancaire. Ouvre un espace cloud distinct.",
+        "opened": "Nous avons ouvert Customermates Cloud dans un nouvel onglet. Rien de cette instance n’y a été envoyé. Vous pouvez continuer la configuration ici.",
+        "title": "Vous préférez Mate ? Essayez le cloud géré"
+      },
       "followup": {
         "description": "Choisissez un playbook, connectez LinkedIn, puis voyez qui attend une réponse.",
         "title": "Relancer mes conversations clients"
       },
       "optionsLabel": "Premières étapes",
+      "recommended": "Recommandé",
       "suggested": "Suggéré",
       "workspace": {
-        "description": "Répondez à quelques questions. Nous créons vos listes, vues et tableau de bord.",
-        "title": "Configurer mon espace clients"
+        "description": "Choisissez un modèle et notre agent intégré construit l’espace ici. Rien à connecter.",
+        "title": "Laisser Mate le configurer pour moi"
       }
     },
     "invite": {
@@ -3737,11 +3763,13 @@
     },
     "milestones": {
       "ai": "Outils IA",
-      "goal": "Objectif",
+      "connect": "Connexion",
+      "goal": "Configuration",
       "invite": "Équipe",
       "playbook": "Playbook",
       "profile": "Vous",
-      "setup": "Espace"
+      "setup": "Espace",
+      "template": "Modèle"
     },
     "next": "Suivant",
     "playbook": {
@@ -3757,14 +3785,40 @@
     "progress": "Étape {current} sur {total}",
     "progressLabel": "Progression de la configuration",
     "progressOpen": "Étape {current}",
+    "prompt": {
+      "changed": "Votre agent a commencé à construire. Ouvrez votre espace pour suivre.",
+      "copied": "Copié",
+      "copy": "Copier le prompt",
+      "copyFailed": "La copie n’a pas fonctionné ici. Le prompt est sélectionné : appuyez sur Ctrl+C ou Cmd+C pour le copier.",
+      "failed": "Impossible de charger le prompt.",
+      "go": "Aller à mon espace",
+      "loading": "Préparation de votre prompt…",
+      "openIn": "Ouvrir dans {agent}",
+      "promptLabel": "Prompt du modèle",
+      "retry": "Réessayer",
+      "steps": {
+        "approve": "Approuver le plan qu’il vous montre",
+        "copy": "Copier le prompt",
+        "paste": "Le coller dans une nouvelle conversation {agent}",
+        "pasteGeneric": "Le coller dans une nouvelle conversation avec votre agent"
+      },
+      "stepsLabel": "Étapes suivantes",
+      "watching": "Nous surveillons la première modification de votre agent. Vous le voyez ici dès qu’il commence à construire."
+    },
     "steps": {
       "ai": {
         "subtitle": "Choisissez un outil d’IA à connecter à votre espace de travail et à ses connaissances. Connectez-en un maintenant, ajoutez-en d’autres plus tard ou passez cette étape.",
         "title": "Connectez l’IA que vous utilisez déjà"
       },
+      "connect": {
+        "subtitle": "Quel agent utilisez-vous ? Nous vous montrons les étapes exactes pour lui.",
+        "title": "Connecter votre agent"
+      },
       "goal": {
-        "subtitle": "Choisissez un point de départ. Le reste peut attendre.",
-        "title": "Par quoi voulez-vous commencer ?"
+        "subtitle": "Choisissez un modèle adapté à votre façon de travailler. Vous vérifiez chaque modification avant qu’elle soit appliquée.",
+        "subtitleSelfHosted": "Vos données restent sur votre serveur. Votre propre agent se connecte via MCP et construit l’espace de travail à partir d’un modèle.",
+        "title": "Comment configurer votre espace de travail ?",
+        "titleSelfHosted": "Comment configurer cette instance ?"
       },
       "invite": {
         "subtitle": "Invitez vos collègues avec un lien partagé ou des invitations individuelles par e-mail. Vous pouvez aussi continuer seul et les inviter plus tard.",
@@ -3780,6 +3834,11 @@
         "subtitle": "Ajoutez votre nom pour que votre équipe vous reconnaisse et choisissez la langue que vous souhaitez utiliser. Vous pourrez modifier les deux plus tard dans votre profil.",
         "title": "Personnalisez votre espace de travail"
       },
+      "prompt": {
+        "subtitle": "{template} : votre agent pose quelques questions, puis vous montre le plan à approuver.",
+        "title": "Collez ceci dans {agent}",
+        "titleGeneric": "Collez ceci dans votre agent"
+      },
       "setup": {
         "planningSubtitle": "Vos réponses sont enregistrées. Mate en fait un plan pour votre espace de travail, que vous vérifiez avant que quoi que ce soit ne soit créé.",
         "startSubtitle": "Nous créons vos listes, vos étapes, votre tableau de bord et quelques pages de base de connaissances. Vous pourrez tout modifier plus tard.",
@@ -3787,7 +3846,44 @@
         "subtitle": "Ce que nous avons lu sur votre site est déjà rempli. Vérifiez-le et corrigez ce qui ne convient pas.",
         "title": "Configurez votre espace de travail",
         "withoutWebsiteSubtitle": "Quelques questions rapides sur ce que vous voulez suivre. La plupart se règlent en un clic."
+      },
+      "template": {
+        "subtitle": "Votre agent l’adapte à vous et montre le plan avant de modifier quoi que ce soit.",
+        "subtitleMate": "Mate l’adapte à vous et montre le plan avant de construire quoi que ce soit.",
+        "title": "Choisir un modèle"
       }
+    },
+    "template": {
+      "browseAll": "Voir les {count} modèles",
+      "connected": "{agent} connecté",
+      "connectedGeneric": "Agent connecté",
+      "counts": "{lists, plural, one {# liste} other {# listes}} · {views, plural, one {# vue} other {# vues}} · {rules, plural, one {# règle de relance} other {# règles de relance}}",
+      "countsNoRules": "{lists, plural, one {# liste} other {# listes}} · {views, plural, one {# vue} other {# vues}}",
+      "empty": "Aucun modèle ne correspond à votre recherche.",
+      "families": {
+        "clients": "Clients",
+        "community": "Communauté",
+        "content": "Contenu",
+        "custom": "Sur mesure",
+        "intake": "Demandes",
+        "investing": "Investissement",
+        "operations": "Opérations",
+        "professionalServices": "Services professionnels",
+        "property": "Immobilier",
+        "recruiting": "Recrutement",
+        "sales": "Ventes",
+        "trades": "Artisanat"
+      },
+      "filterAll": "Tous",
+      "filtersLabel": "Types de modèles",
+      "none": "Aucun modèle",
+      "optionsLabel": "Modèles",
+      "recommended": "Recommandé",
+      "searchLabel": "Rechercher un modèle",
+      "searchPlaceholder": "Rechercher un modèle",
+      "showFewer": "Afficher moins",
+      "suggested": "Suggéré pour vous",
+      "use": "Utiliser {name}"
     }
   },
   "OperatorAudit": {

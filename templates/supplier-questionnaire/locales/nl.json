@@ -1,0 +1,127 @@
+{
+  "locale": "nl",
+  "name": "Leveranciersvragenlijst",
+  "summary": "Een leveranciersregister met kwalificatievragenlijst, certificaten met vervaldatum, risiconiveau, goedkeuringsbeslissing en de datum van de volgende beoordeling.",
+  "description": "Kwalificeer leveranciers en onderaannemers op één plek: verstuur een vragenlijst, verzamel certificaten en verklaringen met hun geldigheidsdatum, deel elke leverancier in naar risico, leg de beslissing vast (goedkeuren, voorwaardelijk goedkeuren, escaleren, afwijzen) en zie wat als eerste verloopt. De sjabloon coördineert bewijs. Hij oordeelt niet over naleving van wetgeving, screent geen sanctielijsten of financieel risico en vervangt uw kwaliteitssysteem, ERP of documentarchief niet.",
+  "lists": {
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "Mensen bij uw leveranciers die vragenlijsten invullen en documenten sturen." },
+    "suppliers": { "label": "Leverancier", "pluralLabel": "Leveranciers", "description": "Elke leverancier of onderaannemer, van kandidaat tot goedgekeurd of geblokkeerd." },
+    "questionnaires": { "label": "Vragenlijst", "pluralLabel": "Vragenlijsten", "description": "Eén vragenlijst aan één leverancier, met deadline en beslissing." },
+    "documents": { "label": "Document", "pluralLabel": "Documenten", "description": "Certificaten, verklaringen en overeenkomsten met hun geldigheidsdatum." }
+  },
+  "fields": {
+    "contacts.contact_role": {
+      "label": "Functie",
+      "options": { "sales": "Verkoop", "quality": "Kwaliteit", "compliance": "Compliance", "finance": "Financiën", "other": "Overig" }
+    },
+    "contacts.language": { "label": "Taal" },
+    "suppliers.status": {
+      "label": "Status",
+      "options": { "candidate": "Kandidaat", "questionnaire_sent": "Vragenlijst verstuurd", "under_review": "In beoordeling", "approved": "Goedgekeurd", "approved_with_conditions": "Voorwaardelijk goedgekeurd", "blocked": "Geblokkeerd", "offboarded": "Uitgefaseerd" }
+    },
+    "suppliers.risk_tier": { "label": "Risiconiveau", "options": { "low": "Laag", "moderate": "Gemiddeld", "high": "Hoog", "critical": "Kritiek" } },
+    "suppliers.category": {
+      "label": "Categorie",
+      "options": { "raw_materials": "Grondstoffen", "components": "Componenten", "services": "Diensten", "subcontracting": "Onderaanneming", "software_it": "Software en IT", "logistics": "Logistiek" }
+    },
+    "suppliers.country": { "label": "Land" },
+    "suppliers.critical_supplier": { "label": "Kritieke leverancier" },
+    "suppliers.processes_personal_data": { "label": "Verwerkt persoonsgegevens" },
+    "suppliers.review_owner": { "label": "Verantwoordelijk voor de beoordeling" },
+    "suppliers.qualified_on": { "label": "Gekwalificeerd op" },
+    "suppliers.next_review": { "label": "Volgende beoordeling" },
+    "questionnaires.kind": {
+      "label": "Soort",
+      "options": { "registration": "Registratie", "qualification": "Kwalificatie", "re_evaluation": "Herbeoordeling", "regulatory_evidence": "Bewijs voor regelgeving" }
+    },
+    "questionnaires.status": {
+      "label": "Status",
+      "options": { "draft": "Concept", "sent": "Verstuurd", "partial": "Gedeeltelijk beantwoord", "received": "Ontvangen", "reviewed": "Beoordeeld" }
+    },
+    "questionnaires.sent_on": { "label": "Verstuurd op" },
+    "questionnaires.due_on": { "label": "Deadline" },
+    "questionnaires.received_on": { "label": "Ontvangen op" },
+    "questionnaires.score": { "label": "Score" },
+    "questionnaires.decision": {
+      "label": "Beslissing",
+      "options": { "approve": "Goedkeuren", "approve_with_conditions": "Voorwaardelijk goedkeuren", "escalate": "Escaleren", "reject": "Afwijzen" }
+    },
+    "questionnaires.reviewer": { "label": "Beoordelaar" },
+    "questionnaires.form_link": { "label": "Link naar het formulier" },
+    "documents.doc_type": {
+      "label": "Soort document",
+      "options": { "quality_certificate": "Kwaliteitscertificaat", "environmental_certificate": "Milieucertificaat", "security_certificate": "Beveiligingscertificaat", "insurance": "Verzekering", "tax_clearance": "Verklaring betalingsgedrag", "registration_extract": "KvK-uittreksel", "data_processing_agreement": "Verwerkersovereenkomst", "other": "Overig" }
+    },
+    "documents.status": {
+      "label": "Status",
+      "options": { "requested": "Opgevraagd", "received": "Ontvangen", "under_review": "In beoordeling", "accepted": "Geaccepteerd", "rejected": "Afgewezen", "expired": "Verlopen" }
+    },
+    "documents.requested_on": { "label": "Opgevraagd op" },
+    "documents.received_on": { "label": "Ontvangen op" },
+    "documents.valid_until": { "label": "Geldig tot" },
+    "documents.evidence_link": { "label": "Link naar het bestand" },
+    "actions.kind": {
+      "label": "Soort",
+      "options": {
+        "send_questionnaire": "De vragenlijst versturen",
+        "chase_supplier": "De leverancier herinneren",
+        "review_answers": "De antwoorden beoordelen",
+        "request_document": "Een document opvragen",
+        "verify_document": "Een document controleren",
+        "decide": "Beslissen",
+        "re_evaluate": "Herbeoordelen",
+        "other": "Overig"
+      }
+    }
+  },
+  "relationships": {
+    "contact_supplier": { "sourceLabel": "Leverancier", "targetLabel": "Contactpersonen" },
+    "questionnaire_supplier": { "sourceLabel": "Leverancier", "targetLabel": "Vragenlijsten" },
+    "document_supplier": { "sourceLabel": "Leverancier", "targetLabel": "Documenten" },
+    "action_supplier": { "sourceLabel": "Leverancier", "targetLabel": "Taken" }
+  },
+  "views": {
+    "suppliers_all": { "name": "Alle leveranciers" },
+    "suppliers_board": { "name": "Kwalificatiebord" },
+    "documents_all": { "name": "Alle documenten" },
+    "expired_documents": { "name": "Verlopen of afgewezen" },
+    "questionnaires_all": { "name": "Alle vragenlijsten" },
+    "contacts_all": { "name": "Alle contactpersonen" }
+  },
+  "widgets": {
+    "suppliers_by_status": { "title": "Leveranciers per status" },
+    "suppliers_by_risk": { "title": "Leveranciers per risiconiveau" },
+    "documents_expiring": { "title": "Documenten die verlopen" },
+    "questionnaires_open": { "title": "Vragenlijsten die op antwoord wachten" },
+    "reviews_coming": { "title": "Beoordelingen die eraan komen" },
+    "documents_expired": { "title": "Verlopen documenten" }
+  },
+  "knowledgePages": {
+    "qualification_process": { "title": "Procedure voor leveranciersgoedkeuring", "sections": ["Behoefte, criteria en wie goedkeurt", "Vragenlijst, documenten, beslissing"] },
+    "document_requirements": { "title": "Certificaten en verklaringen die we opvragen", "sections": ["Per categorie en risiconiveau", "Hoe lang elk document geldig is"] },
+    "re_evaluation": { "title": "Planning van herbeoordelingen", "sections": ["Beoordelingsdata per risiconiveau", "Gebeurtenissen die een eerdere beoordeling uitlokken"] }
+  },
+  "rules": {
+    "chase_questionnaire": { "title": "De leverancier herinneren als een vragenlijst de deadline overschrijdt" },
+    "review_answers": { "title": "De antwoorden beoordelen 3 dagen na ontvangst van een vragenlijst" },
+    "renew_document": { "title": "Een vernieuwd document opvragen 30 dagen voor het verloopt" },
+    "document_expiry_notice": { "title": "De verantwoordelijke waarschuwen als een document verloopt" },
+    "re_evaluate_supplier": { "title": "Een herbeoordeling starten 14 dagen voor de volgende beoordeling" },
+    "decide_after_review": { "title": "Binnen 5 dagen beslissen als een leverancier in beoordeling gaat" },
+    "registration_form_records": { "title": "De leverancier en contactpersoon aanmaken als het registratieformulier is verstuurd" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Elke leverancier heeft een kwalificatiestatus.",
+    "valid_until_field": "Elk document legt vast tot wanneer het geldig is.",
+    "suppliers_board_view": "De leveranciers openen als bord per status."
+  },
+  "prompt": {
+    "intro": "Richt in mijn Customermates-werkruimte een leveranciersregister in: leveranciers met een risiconiveau en kwalificatiestatus, vragenlijsten met deadlines en een beslissing, documenten met geldigheidsdatums en opvolgacties met een datum.",
+    "questions": [
+      "Hoeveel leveranciers heeft u en hoe deelt u ze in naar risico?",
+      "Welke certificaten of verklaringen vraagt u op en hoe lang is elk geldig?",
+      "Wie beoordeelt de antwoorden en wie keurt een leverancier goed?",
+      "Hoe vaak beoordeelt u een leverancier opnieuw? Bestanden blijven in uw documentsysteem en hier wordt alleen een link bewaard."
+    ]
+  }
+}

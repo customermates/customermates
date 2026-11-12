@@ -437,6 +437,14 @@ export class PrismaUserRepo
     });
   }
 
+  async reopenOnboardingSetupStep(args: RepoArgs<CompleteOnboardingSetupStepRepo, "reopenOnboardingSetupStep">) {
+    const { companyId } = this.user;
+    await this.prisma.user.updateMany({
+      data: { onboardingWikiStepCompletedAt: null },
+      where: { id: args.userId, companyId },
+    });
+  }
+
   @Transaction
   async adminUpdateDetailsOrThrow(args: RepoArgs<AdminUpdateUserDetailsRepo, "adminUpdateDetailsOrThrow">) {
     const { companyId } = this.user;

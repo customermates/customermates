@@ -3685,11 +3685,30 @@
         }
       }
     },
+    "connect": {
+      "checkAgain": "Sprawdź ponownie",
+      "connected": "Połączono. Twój agent dotarł do tej przestrzeni roboczej.",
+      "failed": "Nie udało się sprawdzić połączenia. Spróbuj za chwilę.",
+      "skip": "Połączę później",
+      "statusLabel": "Stan połączenia",
+      "waiting": "Czekamy na pierwsze wywołanie od {agent}. Znacznik pojawi się sam, gdy tylko {agent} zostanie połączony.",
+      "waitingGeneric": "Czekamy na pierwsze wywołanie od Twojego agenta. Znacznik pojawi się sam, gdy tylko agent zostanie połączony."
+    },
+    "continue": "Kontynuuj",
     "finish": "Zakończ",
     "goal": {
       "agent": {
-        "description": "Używaj Claude, ChatGPT lub klienta CLI ze swoją przestrzenią roboczą przez MCP.",
-        "title": "Podłącz własnego agenta AI"
+        "anyClient": "Dowolny klient MCP",
+        "description": "Połącz go z Customermates, wklej szablon, a on zbuduje Twoje listy, pipeline i follow-upy.",
+        "descriptionSelfHosted": "Połącz go z tą instancją, wklej szablon, a on zbuduje Twoje listy, pipeline i follow-upy.",
+        "providersLabel": "Obsługiwani agenci AI",
+        "steps": {
+          "approve": "Wklej i zatwierdź plan",
+          "connect": "Połącz agenta",
+          "template": "Wybierz szablon"
+        },
+        "stepsLabel": "Jak to działa",
+        "title": "Użyj agenta AI, którego już masz"
       },
       "channelsHint": {
         "action": "Otwórz pulpit",
@@ -3708,15 +3727,22 @@
         "salesNavigator": "Używasz Sales Navigator? Połącz zamiast tego LinkedIn z Sales Navigator",
         "title": "Najpierw połącz LinkedIn"
       },
+      "cloud": {
+        "badge": "Cloud",
+        "description": "Mate działa w Customermates Cloud. Pierwsza kwalifikująca się przestrzeń w chmurze dostaje {days} dni Pro, bez karty. Otwiera osobną przestrzeń w chmurze.",
+        "opened": "Otworzyliśmy Customermates Cloud w nowej karcie. Nic z tej instancji tam nie wysłano. Możesz dalej konfigurować tutaj.",
+        "title": "Wolisz Mate? Wypróbuj zarządzaną chmurę"
+      },
       "followup": {
         "description": "Wybierz playbook, połącz LinkedIn i zobacz, kto czeka na odpowiedź.",
         "title": "Wracaj do rozmów z klientami"
       },
       "optionsLabel": "Pierwsze kroki",
+      "recommended": "Zalecane",
       "suggested": "Sugerowane",
       "workspace": {
-        "description": "Odpowiedz na kilka pytań. Zbudujemy Twoje listy, widoki i pulpit.",
-        "title": "Skonfiguruj moją przestrzeń roboczą dla klientów"
+        "description": "Wybierz szablon, a nasz wbudowany agent zbuduje przestrzeń tutaj. Nic do podłączania.",
+        "title": "Niech Mate skonfiguruje to za mnie"
       }
     },
     "invite": {
@@ -3737,11 +3763,13 @@
     },
     "milestones": {
       "ai": "Narzędzia AI",
-      "goal": "Cel",
+      "connect": "Połączenie",
+      "goal": "Konfiguracja",
       "invite": "Zespół",
       "playbook": "Playbook",
       "profile": "Ty",
-      "setup": "Przestrzeń robocza"
+      "setup": "Przestrzeń robocza",
+      "template": "Szablon"
     },
     "next": "Dalej",
     "playbook": {
@@ -3757,14 +3785,40 @@
     "progress": "Krok {current} z {total}",
     "progressLabel": "Postęp wdrożenia",
     "progressOpen": "Krok {current}",
+    "prompt": {
+      "changed": "Twój agent zaczął budować. Otwórz przestrzeń, aby śledzić postępy.",
+      "copied": "Skopiowano",
+      "copy": "Kopiuj prompt",
+      "copyFailed": "Kopiowanie tutaj nie zadziałało. Prompt jest zaznaczony: skopiuj go skrótem Ctrl+C lub Cmd+C.",
+      "failed": "Nie udało się wczytać promptu.",
+      "go": "Przejdź do mojej przestrzeni",
+      "loading": "Przygotowujemy prompt…",
+      "openIn": "Otwórz w {agent}",
+      "promptLabel": "Prompt szablonu",
+      "retry": "Spróbuj ponownie",
+      "steps": {
+        "approve": "Zatwierdź plan, który pokaże",
+        "copy": "Skopiuj prompt",
+        "paste": "Wklej go w nowej rozmowie z {agent}",
+        "pasteGeneric": "Wklej go w nowej rozmowie ze swoim agentem"
+      },
+      "stepsLabel": "Kolejne kroki",
+      "watching": "Czekamy na pierwszą zmianę wprowadzoną przez Twojego agenta. Tutaj zobaczysz od razu, gdy zacznie budować."
+    },
     "steps": {
       "ai": {
         "subtitle": "Wybierz narzędzie AI, które połączysz ze swoją przestrzenią roboczą i jej wiedzą. Połącz jedno teraz, dodaj kolejne później albo pomiń ten krok.",
         "title": "Połącz AI, której już używasz"
       },
+      "connect": {
+        "subtitle": "Z którego agenta korzystasz? Pokażemy dokładne kroki dla niego.",
+        "title": "Połącz swojego agenta"
+      },
       "goal": {
-        "subtitle": "Wybierz jedną opcję na start. Pozostałe możesz zrobić w dowolnym momencie.",
-        "title": "Co chcesz zrobić najpierw?"
+        "subtitle": "Wybierz szablon pasujący do Twojego sposobu pracy. Każdą zmianę sprawdzasz, zanim zostanie zastosowana.",
+        "subtitleSelfHosted": "Twoje dane zostają na Twoim serwerze. Twój własny agent łączy się przez MCP i buduje przestrzeń roboczą z szablonu.",
+        "title": "Jak skonfigurować Twoją przestrzeń roboczą?",
+        "titleSelfHosted": "Jak skonfigurować tę instancję?"
       },
       "invite": {
         "subtitle": "Zaproś współpracowników wspólnym linkiem lub pojedynczymi zaproszeniami e-mail. Możesz też kontynuować samodzielnie i zaprosić ludzi później.",
@@ -3780,14 +3834,56 @@
         "subtitle": "Dodaj swoje imię, aby współpracownicy mogli Cię rozpoznać, i wybierz język, którego chcesz używać. Oba ustawienia możesz później zmienić w profilu.",
         "title": "Dostosuj tę przestrzeń roboczą do siebie"
       },
+      "prompt": {
+        "subtitle": "{template}: Twój agent zada kilka pytań, a potem pokaże plan do zatwierdzenia.",
+        "title": "Wklej to do {agent}",
+        "titleGeneric": "Wklej to do swojego agenta"
+      },
       "setup": {
-        "planningSubtitle": "Twoje odpowiedzi są zapisane. Mate zamienia je w plan dla Twojej przestrzeni roboczej, który sprawdzasz, zanim cokolwiek zostanie zbudowane.",
+        "planningSubtitle":"Twoje odpowiedzi są zapisane. Mate zamienia je w plan dla Twojej przestrzeni roboczej, który sprawdzasz, zanim cokolwiek zostanie zbudowane.",
         "startSubtitle": "Budujemy Twoje listy, kroki, pulpit i kilka stron bazy wiedzy. Wszystko możesz później zmienić.",
         "startTitle": "Jak chcesz skonfigurować swoją przestrzeń roboczą?",
         "subtitle": "To, co odczytaliśmy z Twojej strony, jest już wypełnione. Sprawdź to i popraw, co się nie zgadza.",
         "title": "Skonfiguruj swoją przestrzeń roboczą",
         "withoutWebsiteSubtitle": "Kilka szybkich pytań o to, czego chcesz pilnować. Większość wymaga jednego kliknięcia."
+      },
+      "template": {
+        "subtitle": "Twój agent dopasuje go do Ciebie i pokaże plan, zanim cokolwiek zmieni.",
+        "subtitleMate": "Mate dopasuje go do Ciebie i pokaże plan, zanim cokolwiek zbuduje.",
+        "title": "Wybierz szablon"
       }
+    },
+    "template": {
+      "browseAll": "Pokaż wszystkie szablony ({count})",
+      "connected": "{agent}: połączono",
+      "connectedGeneric": "Agent połączony",
+      "counts": "{lists, plural, one {# lista} few {# listy} many {# list} other {# listy}} · {views, plural, one {# widok} few {# widoki} many {# widoków} other {# widoku}} · {rules, plural, one {# reguła follow-upu} few {# reguły follow-upu} many {# reguł follow-upu} other {# reguły follow-upu}}",
+      "countsNoRules": "{lists, plural, one {# lista} few {# listy} many {# list} other {# listy}} · {views, plural, one {# widok} few {# widoki} many {# widoków} other {# widoku}}",
+      "empty": "Żaden szablon nie pasuje do wyszukiwania.",
+      "families": {
+        "clients": "Klienci",
+        "community": "Społeczność",
+        "content": "Treści",
+        "custom": "Własne",
+        "intake": "Zapytania",
+        "investing": "Inwestowanie",
+        "operations": "Operacje",
+        "professionalServices": "Usługi profesjonalne",
+        "property": "Nieruchomości",
+        "recruiting": "Rekrutacja",
+        "sales": "Sprzedaż",
+        "trades": "Rzemiosło"
+      },
+      "filterAll": "Wszystkie",
+      "filtersLabel": "Rodzaje szablonów",
+      "none": "Bez szablonu",
+      "optionsLabel": "Szablony",
+      "recommended": "Zalecane",
+      "searchLabel": "Szukaj szablonów",
+      "searchPlaceholder": "Szukaj szablonów",
+      "showFewer": "Pokaż mniej",
+      "suggested": "Sugerowane dla Ciebie",
+      "use": "Użyj: {name}"
     }
   },
   "OperatorAudit": {

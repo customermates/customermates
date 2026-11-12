@@ -5,6 +5,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const actions = vi.hoisted(() => ({ registerProfileAction: vi.fn() }));
 
 vi.mock("../../actions", () => actions);
+vi.mock("../../onboarding-agent-actions", () => ({
+  getOnboardingAgentStatusAction: vi.fn(),
+  getOnboardingTemplatePromptAction: vi.fn(),
+}));
 
 import { StepProfileStore } from "../step-profile.store";
 

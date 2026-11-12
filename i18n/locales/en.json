@@ -3685,11 +3685,30 @@
         }
       }
     },
+    "connect": {
+      "checkAgain": "Check again",
+      "connected": "Connected. Your agent reached this workspace.",
+      "failed": "We could not check the connection. Try again in a moment.",
+      "skip": "I'll connect later",
+      "statusLabel": "Connection status",
+      "waiting": "Waiting for the first call from {agent}. This ticks off by itself once {agent} is connected.",
+      "waitingGeneric": "Waiting for your agent's first call. This ticks off by itself once your agent is connected."
+    },
+    "continue": "Continue",
     "finish": "Finish",
     "goal": {
       "agent": {
-        "description": "Use Claude, ChatGPT or a CLI client with your workspace through MCP.",
-        "title": "Connect my own AI agent"
+        "anyClient": "Any MCP client",
+        "description": "Connect it to Customermates, paste a template, and it builds your lists, pipeline and follow-ups.",
+        "descriptionSelfHosted": "Connect it to this instance, paste a template, and it builds your lists, pipeline and follow-ups.",
+        "providersLabel": "Supported AI agents",
+        "steps": {
+          "approve": "Paste and approve the plan",
+          "connect": "Connect your agent",
+          "template": "Pick a template"
+        },
+        "stepsLabel": "How it works",
+        "title": "Use the AI agent you already have"
       },
       "channelsHint": {
         "action": "Open dashboard",
@@ -3708,15 +3727,22 @@
         "salesNavigator": "Using Sales Navigator? Connect LinkedIn with Sales Navigator instead",
         "title": "Connect LinkedIn first"
       },
+      "cloud": {
+        "badge": "Cloud",
+        "description": "Mate runs in Customermates Cloud. Your first eligible cloud workspace gets {days} days of Pro, no card needed. Opens a separate cloud workspace.",
+        "opened": "We opened Customermates Cloud in a new tab. Nothing from this instance was sent there. You can keep setting up here.",
+        "title": "Prefer Mate? Try the managed cloud"
+      },
       "followup": {
         "description": "Pick a playbook, connect LinkedIn, then see who is waiting for a reply.",
         "title": "Follow up client conversations"
       },
       "optionsLabel": "First steps",
+      "recommended": "Recommended",
       "suggested": "Suggested",
       "workspace": {
-        "description": "Answer a few questions. We build your lists, views and dashboard.",
-        "title": "Set up my client workspace"
+        "description": "Pick a template and our built-in agent builds the workspace here. Nothing to connect.",
+        "title": "Let Mate set it up for me"
       }
     },
     "invite": {
@@ -3737,11 +3763,13 @@
     },
     "milestones": {
       "ai": "AI tools",
-      "goal": "Goal",
+      "connect": "Connect",
+      "goal": "Setup",
       "invite": "Team",
       "playbook": "Playbook",
       "profile": "You",
-      "setup": "Workspace"
+      "setup": "Workspace",
+      "template": "Template"
     },
     "next": "Next",
     "playbook": {
@@ -3757,14 +3785,40 @@
     "progress": "Step {current} of {total}",
     "progressLabel": "Onboarding progress",
     "progressOpen": "Step {current}",
+    "prompt": {
+      "changed": "Your agent started building. Open your workspace to follow along.",
+      "copied": "Copied",
+      "copy": "Copy prompt",
+      "copyFailed": "Copying did not work here. The prompt is selected: press Ctrl+C or Cmd+C to copy it.",
+      "failed": "We could not load the prompt.",
+      "go": "Go to my workspace",
+      "loading": "Preparing your prompt…",
+      "openIn": "Open in {agent}",
+      "promptLabel": "Template prompt",
+      "retry": "Try again",
+      "steps": {
+        "approve": "Approve the plan it shows you",
+        "copy": "Copy the prompt",
+        "paste": "Paste it into a new {agent} chat",
+        "pasteGeneric": "Paste it into a new chat with your agent"
+      },
+      "stepsLabel": "Next steps",
+      "watching": "Watching for your agent's first change. We tell you here as soon as it starts building."
+    },
     "steps": {
       "ai": {
         "subtitle": "Choose an AI tool to connect with your workspace and its knowledge. Connect one now, add others later, or skip this step.",
         "title": "Connect the AI you already use"
       },
+      "connect": {
+        "subtitle": "Which agent do you use? We show the exact steps for it.",
+        "title": "Connect your agent"
+      },
       "goal": {
-        "subtitle": "Pick one to start. You can do the others any time.",
-        "title": "What do you want to do first?"
+        "subtitle": "Pick a template for the way you work. You review every change before it is applied.",
+        "subtitleSelfHosted": "Your data stays on your server. Your own agent connects over MCP and builds the workspace from a template.",
+        "title": "How should we set up your workspace?",
+        "titleSelfHosted": "How should we set up this instance?"
       },
       "invite": {
         "subtitle": "Invite colleagues with a shared link or individual email invitations. You can also continue on your own and invite people later.",
@@ -3780,6 +3834,11 @@
         "subtitle": "Add your name so your teammates can recognize you, and choose the language you want to use. You can change both later in your profile.",
         "title": "Make this workspace yours"
       },
+      "prompt": {
+        "subtitle": "{template}: your agent asks a few questions, then shows the plan for your approval.",
+        "title": "Paste this into {agent}",
+        "titleGeneric": "Paste this into your agent"
+      },
       "setup": {
         "planningSubtitle": "Your answers are saved. Mate turns them into a plan for your workspace that you review before anything is built.",
         "startSubtitle": "We build your lists, steps, dashboard and a few Knowledge Base pages. You can change everything later.",
@@ -3787,7 +3846,44 @@
         "subtitle": "What we read on your website is already filled in. Check it and change anything that is off.",
         "title": "Set up your workspace",
         "withoutWebsiteSubtitle": "A few quick questions about what you want to keep track of. Most take one click."
+      },
+      "template": {
+        "subtitle": "Your agent adapts it to you and shows the plan before changing anything.",
+        "subtitleMate": "Mate adapts it to you and shows the plan before building anything.",
+        "title": "Pick a template"
       }
+    },
+    "template": {
+      "browseAll": "Browse all {count} templates",
+      "connected": "{agent} connected",
+      "connectedGeneric": "Agent connected",
+      "counts": "{lists, plural, one {# list} other {# lists}} · {views, plural, one {# view} other {# views}} · {rules, plural, one {# follow-up rule} other {# follow-up rules}}",
+      "countsNoRules": "{lists, plural, one {# list} other {# lists}} · {views, plural, one {# view} other {# views}}",
+      "empty": "No template matches your search.",
+      "families": {
+        "clients": "Client services",
+        "community": "Community",
+        "content": "Content",
+        "custom": "Custom",
+        "intake": "Intake",
+        "investing": "Investing",
+        "operations": "Operations",
+        "professionalServices": "Professional services",
+        "property": "Property",
+        "recruiting": "Recruiting",
+        "sales": "Sales",
+        "trades": "Trades"
+      },
+      "filterAll": "All",
+      "filtersLabel": "Template types",
+      "none": "No template",
+      "optionsLabel": "Templates",
+      "recommended": "Recommended",
+      "searchLabel": "Search templates",
+      "searchPlaceholder": "Search templates",
+      "showFewer": "Show fewer",
+      "suggested": "Suggested for you",
+      "use": "Use {name}"
     }
   },
   "OperatorAudit": {

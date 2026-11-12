@@ -1,0 +1,142 @@
+{
+  "id": "tpl_supplier_questionnaire",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "supplier-questionnaire",
+  "family": "operations",
+  "kind": "register",
+  "jurisdictions": ["DE", "FR", "IT", "ES", "BR", "PL", "NL"],
+  "dashboardAudience": "team",
+  "modules": ["actions_core", "actions_dashboard"],
+  "requiresCapabilities": ["forms", "rules", "notifications"],
+  "pairedPages": {},
+  "lists": [
+    { "key": "contacts", "role": "people", "icon": "contact" },
+    { "key": "suppliers", "icon": "factory" },
+    { "key": "questionnaires", "icon": "clipboard" },
+    { "key": "documents", "icon": "files" }
+  ],
+  "stages": [
+    {
+      "field": "suppliers.status",
+      "items": [
+        { "key": "candidate", "outcome": "open", "weight": 0 },
+        { "key": "questionnaire_sent", "outcome": "open", "weight": 0 },
+        { "key": "under_review", "outcome": "open", "weight": 0 },
+        { "key": "approved", "outcome": "won", "weight": 0 },
+        { "key": "approved_with_conditions", "outcome": "won", "weight": 0 },
+        { "key": "blocked", "outcome": "lost", "weight": 0 },
+        { "key": "offboarded", "outcome": "lost", "weight": 0 }
+      ]
+    },
+    {
+      "field": "documents.status",
+      "items": [
+        { "key": "requested", "outcome": "open", "weight": 0 },
+        { "key": "received", "outcome": "open", "weight": 0 },
+        { "key": "under_review", "outcome": "open", "weight": 0 },
+        { "key": "accepted", "outcome": "won", "weight": 0 },
+        { "key": "rejected", "outcome": "lost", "weight": 0 },
+        { "key": "expired", "outcome": "lost", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "contacts.contact_role", "type": "select", "options": [{ "key": "sales" }, { "key": "quality" }, { "key": "compliance" }, { "key": "finance" }, { "key": "other" }] },
+    { "key": "contacts.language", "type": "text" },
+    { "key": "suppliers.risk_tier", "type": "select", "options": [{ "key": "low", "color": "success" }, { "key": "moderate" }, { "key": "high", "color": "warning" }, { "key": "critical", "color": "destructive" }] },
+    { "key": "suppliers.category", "type": "select", "options": [{ "key": "raw_materials" }, { "key": "components" }, { "key": "services" }, { "key": "subcontracting" }, { "key": "software_it" }, { "key": "logistics" }] },
+    { "key": "suppliers.country", "type": "text" },
+    { "key": "suppliers.critical_supplier", "type": "boolean" },
+    { "key": "suppliers.processes_personal_data", "type": "boolean" },
+    { "key": "suppliers.review_owner", "type": "member" },
+    { "key": "suppliers.qualified_on", "type": "date" },
+    { "key": "suppliers.next_review", "type": "date" },
+    { "key": "questionnaires.kind", "type": "select", "options": [{ "key": "registration" }, { "key": "qualification" }, { "key": "re_evaluation" }, { "key": "regulatory_evidence" }] },
+    { "key": "questionnaires.status", "type": "select", "options": [{ "key": "draft" }, { "key": "sent" }, { "key": "partial", "color": "warning" }, { "key": "received", "color": "success" }, { "key": "reviewed", "color": "success" }] },
+    { "key": "questionnaires.sent_on", "type": "date" },
+    { "key": "questionnaires.due_on", "type": "date" },
+    { "key": "questionnaires.received_on", "type": "date" },
+    { "key": "questionnaires.score", "type": "number" },
+    { "key": "questionnaires.decision", "type": "select", "options": [{ "key": "approve" }, { "key": "approve_with_conditions" }, { "key": "escalate" }, { "key": "reject" }] },
+    { "key": "questionnaires.reviewer", "type": "member" },
+    { "key": "questionnaires.form_link", "type": "url" },
+    { "key": "documents.doc_type", "type": "select", "options": [{ "key": "quality_certificate" }, { "key": "environmental_certificate" }, { "key": "security_certificate" }, { "key": "insurance" }, { "key": "tax_clearance" }, { "key": "registration_extract" }, { "key": "data_processing_agreement" }, { "key": "other" }] },
+    { "key": "documents.requested_on", "type": "date" },
+    { "key": "documents.received_on", "type": "date" },
+    { "key": "documents.valid_until", "type": "date" },
+    { "key": "documents.evidence_link", "type": "url" },
+    { "key": "actions.kind", "type": "select", "options": [{ "key": "send_questionnaire" }, { "key": "chase_supplier" }, { "key": "review_answers" }, { "key": "request_document" }, { "key": "verify_document" }, { "key": "decide" }, { "key": "re_evaluate" }, { "key": "other" }] }
+  ],
+  "relationships": [
+    { "key": "contact_supplier", "source": "contacts", "target": "suppliers", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "questionnaire_supplier", "source": "questionnaires", "target": "suppliers", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "document_supplier", "source": "documents", "target": "suppliers", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_supplier", "source": "actions", "target": "suppliers", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    { "key": "suppliers_all", "list": "suppliers", "default": true, "layout": "table", "sort": { "field": "suppliers.next_review", "direction": "asc" }, "columns": ["suppliers.status", "suppliers.risk_tier", "suppliers.category", "suppliers.review_owner", "suppliers.next_review"] },
+    { "key": "suppliers_board", "list": "suppliers", "default": false, "layout": "board", "groupBy": "suppliers.status" },
+    { "key": "documents_all", "list": "documents", "default": true, "layout": "table", "sort": { "field": "documents.valid_until", "direction": "asc" }, "columns": ["documents.doc_type", "documents.status", "documents.valid_until"] },
+    { "key": "expired_documents", "list": "documents", "default": false, "layout": "table", "filters": [{ "operator": "in", "field": "documents.status", "options": ["expired", "rejected"] }] },
+    { "key": "questionnaires_all", "list": "questionnaires", "default": true, "layout": "table", "sort": { "field": "questionnaires.due_on", "direction": "asc" }, "columns": ["questionnaires.kind", "questionnaires.status", "questionnaires.due_on", "questionnaires.decision"] },
+    { "key": "contacts_all", "list": "contacts", "default": true, "layout": "table", "columns": ["contacts.contact_role", "contacts.language"] }
+  ],
+  "widgets": [
+    { "kind": "chart", "key": "suppliers_by_status", "list": "suppliers", "aggregation": "count", "groupBy": { "field": "suppliers.status" }, "display": "doughnutChart" },
+    { "kind": "chart", "key": "suppliers_by_risk", "list": "suppliers", "aggregation": "count", "groupBy": { "field": "suppliers.risk_tier" }, "display": "horizontalBarChart" },
+    { "kind": "calendar", "key": "documents_expiring", "list": "documents", "layout": "upcoming", "dateField": "documents.valid_until", "filters": [{ "operator": "in", "field": "documents.status", "options": ["accepted"] }] },
+    { "kind": "chart", "key": "questionnaires_open", "list": "questionnaires", "aggregation": "count", "filters": [{ "operator": "in", "field": "questionnaires.status", "options": ["sent", "partial"] }], "display": "number" },
+    { "kind": "calendar", "key": "reviews_coming", "list": "suppliers", "layout": "upcoming", "dateField": "suppliers.next_review" },
+    { "kind": "chart", "key": "documents_expired", "list": "documents", "aggregation": "count", "filters": [{ "operator": "in", "field": "documents.status", "options": ["expired"] }], "display": "number" }
+  ],
+  "knowledgePages": [
+    { "key": "qualification_process", "kind": "overview" },
+    { "key": "document_requirements", "kind": "processes" },
+    { "key": "re_evaluation", "kind": "processes" }
+  ],
+  "followUpRules": [
+    {
+      "key": "chase_questionnaire",
+      "trigger": { "kind": "date_reached", "field": "questionnaires.due_on", "offsetDays": 0 },
+      "condition": [{ "operator": "in", "field": "questionnaires.status", "options": ["sent", "partial"] }],
+      "action": { "kind": "create_task", "taskKind": "chase_supplier", "assignee": "record_owner", "about": "questionnaires" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "review_answers", "trigger": { "kind": "field_changed", "field": "questionnaires.status", "to": "received" }, "action": { "kind": "create_task", "taskKind": "review_answers", "assignee": "record_owner", "about": "questionnaires" }, "dueOffsetDays": 3, "needs": "rules" },
+    {
+      "key": "renew_document",
+      "trigger": { "kind": "date_reached", "field": "documents.valid_until", "offsetDays": -30 },
+      "condition": [{ "operator": "in", "field": "documents.status", "options": ["accepted"] }],
+      "action": { "kind": "create_task", "taskKind": "request_document", "assignee": "record_owner", "about": "documents" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "document_expiry_notice", "trigger": { "kind": "date_reached", "field": "documents.valid_until", "offsetDays": 0 }, "action": { "kind": "notify", "recipient": "record_owner" }, "dueOffsetDays": 0, "needs": "notifications" },
+    { "key": "re_evaluate_supplier", "trigger": { "kind": "date_reached", "field": "suppliers.next_review", "offsetDays": -14 }, "action": { "kind": "create_task", "taskKind": "re_evaluate", "assignee": "record_owner", "about": "suppliers" }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "decide_after_review", "trigger": { "kind": "field_changed", "field": "suppliers.status", "to": "under_review" }, "action": { "kind": "create_task", "taskKind": "decide", "assignee": "record_owner", "about": "suppliers" }, "dueOffsetDays": 5, "needs": "today" },
+    { "key": "registration_form_records", "trigger": { "kind": "form_submitted", "form": "supplier_registration" }, "action": { "kind": "create_records", "lists": ["suppliers", "contacts"] }, "dueOffsetDays": 0, "needs": "forms" }
+  ],
+  "acceptanceChecks": [
+    { "key": "status_field", "kind": "field_exists", "ref": "suppliers.status" },
+    { "key": "valid_until_field", "kind": "field_exists", "ref": "documents.valid_until" },
+    { "key": "suppliers_board_view", "kind": "view_exists", "ref": "suppliers_board" }
+  ],
+  "sources": [
+    { "url": "https://www.cybersecurity360.it/legal/privacy-dati-personali/gestione-fornitori-la-fase-di-qualifica-dinamica-per-la-conformita-al-decreto-nis-2-e-al-gdpr/", "checkedOn": "2026-11-12" },
+    { "url": "https://riskledger.com/resources/vendor-questionnaire", "checkedOn": "2026-11-12" },
+    { "url": "https://www.haufe-akademie.de/blog/glossar/lieferantenbewertung/", "checkedOn": "2026-11-12" },
+    { "url": "https://asana.com/de/resources/supplier-evaluation", "checkedOn": "2026-11-12" },
+    { "url": "https://nimbi.com.br/3-perigos-de-nao-se-fazer-homologacao-de-fornecedores", "checkedOn": "2026-11-12" },
+    { "url": "https://advisera.com/9001academy/it/documentation/elenco-dei-fornitori-qualificati/", "checkedOn": "2026-11-12" },
+    { "url": "https://vinciworks.com/blog/eudr-delayed-again-what-changed-what-is-now-fixed-and-what-businesses-should-do-in-2026/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.taylorwessing.com/de/insights-and-events/insights/2026/01/lksg", "checkedOn": "2026-11-12" },
+    { "url": "https://www.lecoindesentrepreneurs.fr/sous-traitance-verifications-du-donneur-dordre/", "checkedOn": "2026-11-12" },
+    { "url": "https://pagecrawl.io/blog/vendor-risk-assessment-template", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "own", "de": "own", "fr": "own", "it": "own", "es": "own", "pt": "own", "pl": "own", "nl": "own" },
+  "publishWave": { "en": "wave2", "de": "wave2", "fr": "wave2", "it": "wave2", "es": "wave2", "pt": "wave2", "pl": "wave2", "nl": "wave2" }
+}

@@ -3685,11 +3685,30 @@
         }
       }
     },
+    "connect": {
+      "checkAgain": "Opnieuw controleren",
+      "connected": "Verbonden. Je agent heeft deze werkruimte bereikt.",
+      "failed": "We konden de verbinding niet controleren. Probeer het zo opnieuw.",
+      "skip": "Later verbinden",
+      "statusLabel": "Verbindingsstatus",
+      "waiting": "Wachten op de eerste aanroep van {agent}. Het vinkje verschijnt vanzelf zodra {agent} is verbonden.",
+      "waitingGeneric": "Wachten op de eerste aanroep van je agent. Het vinkje verschijnt vanzelf zodra je agent is verbonden."
+    },
+    "continue": "Doorgaan",
     "finish": "Afronden",
     "goal": {
       "agent": {
-        "description": "Gebruik Claude, ChatGPT of een CLI-client met je werkruimte via MCP.",
-        "title": "Mijn eigen AI-agent koppelen"
+        "anyClient": "Elke MCP-client",
+        "description": "Koppel hem aan Customermates, plak een sjabloon, en hij bouwt je lijsten, pipeline en opvolgstappen.",
+        "descriptionSelfHosted": "Koppel hem aan deze instantie, plak een sjabloon, en hij bouwt je lijsten, pipeline en opvolgstappen.",
+        "providersLabel": "Ondersteunde AI-agents",
+        "steps": {
+          "approve": "Plak en keur het plan goed",
+          "connect": "Koppel je agent",
+          "template": "Kies een sjabloon"
+        },
+        "stepsLabel": "Zo werkt het",
+        "title": "Gebruik de AI-agent die je al hebt"
       },
       "channelsHint": {
         "action": "Dashboard openen",
@@ -3708,15 +3727,22 @@
         "salesNavigator": "Gebruik je Sales Navigator? Koppel LinkedIn dan met Sales Navigator",
         "title": "Koppel eerst LinkedIn"
       },
+      "cloud": {
+        "badge": "Cloud",
+        "description": "Mate draait in Customermates Cloud. Je eerste in aanmerking komende cloudwerkruimte krijgt {days} dagen Pro, zonder kaart. Opent een aparte cloudwerkruimte.",
+        "opened": "We hebben Customermates Cloud in een nieuw tabblad geopend. Er is niets van deze instantie naartoe gestuurd. Je kunt hier verder inrichten.",
+        "title": "Liever Mate? Probeer de beheerde cloud"
+      },
       "followup": {
         "description": "Kies een playbook, koppel LinkedIn en zie wie op een antwoord wacht.",
         "title": "Klantgesprekken opvolgen"
       },
       "optionsLabel": "Eerste stappen",
+      "recommended": "Aanbevolen",
       "suggested": "Voorgesteld",
       "workspace": {
-        "description": "Beantwoord een paar vragen. Wij bouwen je lijsten, weergaven en dashboard.",
-        "title": "Mijn klantwerkruimte inrichten"
+        "description": "Kies een sjabloon en onze ingebouwde agent bouwt de werkruimte hier. Niets om te koppelen.",
+        "title": "Laat Mate het voor me inrichten"
       }
     },
     "invite": {
@@ -3737,11 +3763,13 @@
     },
     "milestones": {
       "ai": "AI-tools",
-      "goal": "Doel",
+      "connect": "Koppelen",
+      "goal": "Inrichting",
       "invite": "Team",
       "playbook": "Playbook",
       "profile": "Jij",
-      "setup": "Werkruimte"
+      "setup": "Werkruimte",
+      "template": "Sjabloon"
     },
     "next": "Volgende",
     "playbook": {
@@ -3757,14 +3785,40 @@
     "progress": "Stap {current} van {total}",
     "progressLabel": "Voortgang van de onboarding",
     "progressOpen": "Stap {current}",
+    "prompt": {
+      "changed": "Je agent is begonnen met bouwen. Open je werkruimte om mee te kijken.",
+      "copied": "Gekopieerd",
+      "copy": "Prompt kopiëren",
+      "copyFailed": "Kopiëren werkte hier niet. De prompt is geselecteerd: kopieer hem met Ctrl+C of Cmd+C.",
+      "failed": "We konden de prompt niet laden.",
+      "go": "Naar mijn werkruimte",
+      "loading": "Je prompt wordt voorbereid…",
+      "openIn": "Openen in {agent}",
+      "promptLabel": "Sjabloonprompt",
+      "retry": "Opnieuw proberen",
+      "steps": {
+        "approve": "Keur het plan goed dat hij toont",
+        "copy": "Kopieer de prompt",
+        "paste": "Plak hem in een nieuwe chat met {agent}",
+        "pasteGeneric": "Plak hem in een nieuwe chat met je agent"
+      },
+      "stepsLabel": "Volgende stappen",
+      "watching": "We letten op de eerste wijziging van je agent. Hier zie je meteen wanneer hij begint te bouwen."
+    },
     "steps": {
       "ai": {
         "subtitle": "Kies een AI-tool om te koppelen met je werkruimte en de bijbehorende kennis. Koppel er nu een, voeg later andere toe of sla deze stap over.",
         "title": "Koppel de AI die je al gebruikt"
       },
+      "connect": {
+        "subtitle": "Welke agent gebruik je? We laten de exacte stappen ervoor zien.",
+        "title": "Koppel je agent"
+      },
       "goal": {
-        "subtitle": "Kies er één om mee te beginnen. De rest kun je op elk moment doen.",
-        "title": "Wat wil je het eerst doen?"
+        "subtitle": "Kies een sjabloon dat bij je manier van werken past. Je controleert elke wijziging voordat die wordt toegepast.",
+        "subtitleSelfHosted": "Je gegevens blijven op je eigen server. Je eigen agent koppelt via MCP en bouwt de werkruimte uit een sjabloon.",
+        "title": "Hoe richten we je werkruimte in?",
+        "titleSelfHosted": "Hoe richten we deze instantie in?"
       },
       "invite": {
         "subtitle": "Nodig collega's uit met een gedeelde link of met individuele e-mailuitnodigingen. Je kunt ook eerst alleen verder en later mensen uitnodigen.",
@@ -3780,14 +3834,56 @@
         "subtitle": "Voeg je naam toe zodat je teamgenoten je herkennen en kies de taal die je wilt gebruiken. Je kunt beide later wijzigen in je profiel.",
         "title": "Maak deze werkruimte van jou"
       },
+      "prompt": {
+        "subtitle": "{template}: je agent stelt een paar vragen en toont dan het plan ter goedkeuring.",
+        "title": "Plak dit in {agent}",
+        "titleGeneric": "Plak dit in je agent"
+      },
       "setup": {
-        "planningSubtitle": "Je antwoorden zijn opgeslagen. Mate maakt er een plan voor je werkruimte van dat je controleert voordat er iets wordt gebouwd.",
+        "planningSubtitle":"Je antwoorden zijn opgeslagen. Mate maakt er een plan voor je werkruimte van dat je controleert voordat er iets wordt gebouwd.",
         "startSubtitle": "Wij bouwen je lijsten, stappen, dashboard en een paar kennisbankpagina's. Je kunt alles later wijzigen.",
         "startTitle": "Hoe wil je je werkruimte inrichten?",
         "subtitle": "Wat we op je website hebben gelezen is al ingevuld. Controleer het en pas aan wat niet klopt.",
         "title": "Je werkruimte inrichten",
         "withoutWebsiteSubtitle": "Een paar korte vragen over wat je wilt bijhouden. De meeste beantwoord je met één klik."
+      },
+      "template": {
+        "subtitle": "Je agent past het op jou aan en toont het plan voordat er iets verandert.",
+        "subtitleMate": "Mate past het op jou aan en toont het plan voordat er iets wordt gebouwd.",
+        "title": "Kies een sjabloon"
       }
+    },
+    "template": {
+      "browseAll": "Alle {count} sjablonen bekijken",
+      "connected": "{agent} verbonden",
+      "connectedGeneric": "Agent verbonden",
+      "counts": "{lists, plural, one {# lijst} other {# lijsten}} · {views, plural, one {# weergave} other {# weergaven}} · {rules, plural, one {# opvolgregel} other {# opvolgregels}}",
+      "countsNoRules": "{lists, plural, one {# lijst} other {# lijsten}} · {views, plural, one {# weergave} other {# weergaven}}",
+      "empty": "Geen sjabloon past bij je zoekopdracht.",
+      "families": {
+        "clients": "Klanten",
+        "community": "Community",
+        "content": "Content",
+        "custom": "Op maat",
+        "intake": "Aanvragen",
+        "investing": "Beleggen",
+        "operations": "Operatie",
+        "professionalServices": "Zakelijke dienstverlening",
+        "property": "Vastgoed",
+        "recruiting": "Werving",
+        "sales": "Verkoop",
+        "trades": "Ambachten"
+      },
+      "filterAll": "Alle",
+      "filtersLabel": "Soorten sjablonen",
+      "none": "Geen sjabloon",
+      "optionsLabel": "Sjablonen",
+      "recommended": "Aanbevolen",
+      "searchLabel": "Sjablonen zoeken",
+      "searchPlaceholder": "Sjablonen zoeken",
+      "showFewer": "Minder tonen",
+      "suggested": "Voorgesteld voor jou",
+      "use": "{name} gebruiken"
     }
   },
   "OperatorAudit": {

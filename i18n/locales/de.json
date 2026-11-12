@@ -3685,11 +3685,30 @@
         }
       }
     },
+    "connect": {
+      "checkAgain": "Erneut prüfen",
+      "connected": "Verbunden. Dein Agent hat diesen Workspace erreicht.",
+      "failed": "Wir konnten die Verbindung nicht prüfen. Versuche es gleich noch einmal.",
+      "skip": "Später verbinden",
+      "statusLabel": "Verbindungsstatus",
+      "waiting": "Warte auf den ersten Aufruf von {agent}. Das Häkchen erscheint von selbst, sobald {agent} verbunden ist.",
+      "waitingGeneric": "Warte auf den ersten Aufruf deines Agenten. Das Häkchen erscheint von selbst, sobald dein Agent verbunden ist."
+    },
+    "continue": "Weiter",
     "finish": "Fertig",
     "goal": {
       "agent": {
-        "description": "Nutze Claude, ChatGPT oder einen CLI-Client über MCP mit deinem Workspace.",
-        "title": "Meinen eigenen KI-Agenten verbinden"
+        "anyClient": "Beliebiger MCP-Client",
+        "description": "Verbinde ihn mit Customermates, füge eine Vorlage ein, und er baut deine Listen, deine Pipeline und deine Nachfass-Schritte.",
+        "descriptionSelfHosted": "Verbinde ihn mit dieser Instanz, füge eine Vorlage ein, und er baut deine Listen, deine Pipeline und deine Nachfass-Schritte.",
+        "providersLabel": "Unterstützte KI-Agenten",
+        "steps": {
+          "approve": "Einfügen und Plan freigeben",
+          "connect": "Agent verbinden",
+          "template": "Vorlage wählen"
+        },
+        "stepsLabel": "So funktioniert es",
+        "title": "Den KI-Agenten nutzen, den du schon hast"
       },
       "channelsHint": {
         "action": "Dashboard öffnen",
@@ -3708,15 +3727,22 @@
         "salesNavigator": "Du nutzt Sales Navigator? Verbinde LinkedIn stattdessen mit Sales Navigator",
         "title": "Verbinde zuerst LinkedIn"
       },
+      "cloud": {
+        "badge": "Cloud",
+        "description": "Mate läuft in Customermates Cloud. Dein erster berechtigter Cloud-Workspace erhält {days} Tage Pro, ganz ohne Karte. Öffnet einen separaten Cloud-Workspace.",
+        "opened": "Wir haben Customermates Cloud in einem neuen Tab geöffnet. Von dieser Instanz wurde nichts dorthin gesendet. Du kannst hier weiter einrichten.",
+        "title": "Lieber Mate? Teste die verwaltete Cloud"
+      },
       "followup": {
         "description": "Wähle ein Playbook, verbinde LinkedIn und sieh, wer auf eine Antwort wartet.",
         "title": "Bei Kundengesprächen nachfassen"
       },
       "optionsLabel": "Erste Schritte",
+      "recommended": "Empfohlen",
       "suggested": "Vorgeschlagen",
       "workspace": {
-        "description": "Beantworte ein paar Fragen. Wir bauen deine Listen, Ansichten und dein Dashboard.",
-        "title": "Workspace für meine Kunden einrichten"
+        "description": "Wähle eine Vorlage, und unser integrierter Agent baut den Workspace hier. Nichts zu verbinden.",
+        "title": "Mate richtet es für mich ein"
       }
     },
     "invite": {
@@ -3737,11 +3763,13 @@
     },
     "milestones": {
       "ai": "KI-Tools",
-      "goal": "Ziel",
+      "connect": "Verbinden",
+      "goal": "Einrichtung",
       "invite": "Team",
       "playbook": "Playbook",
       "profile": "Du",
-      "setup": "Workspace"
+      "setup": "Workspace",
+      "template": "Vorlage"
     },
     "next": "Weiter",
     "playbook": {
@@ -3757,14 +3785,40 @@
     "progress": "Schritt {current} von {total}",
     "progressLabel": "Fortschritt der Einrichtung",
     "progressOpen": "Schritt {current}",
+    "prompt": {
+      "changed": "Dein Agent hat angefangen zu bauen. Öffne deinen Workspace, um zuzusehen.",
+      "copied": "Kopiert",
+      "copy": "Prompt kopieren",
+      "copyFailed": "Kopieren hat hier nicht geklappt. Der Prompt ist markiert: Mit Strg+C oder Cmd+C kopierst du ihn.",
+      "failed": "Wir konnten den Prompt nicht laden.",
+      "go": "Zu meinem Workspace",
+      "loading": "Prompt wird vorbereitet…",
+      "openIn": "In {agent} öffnen",
+      "promptLabel": "Vorlagen-Prompt",
+      "retry": "Erneut versuchen",
+      "steps": {
+        "approve": "Gib den Plan frei, den er dir zeigt",
+        "copy": "Den Prompt kopieren",
+        "paste": "In einen neuen {agent}-Chat einfügen",
+        "pasteGeneric": "In einen neuen Chat mit deinem Agenten einfügen"
+      },
+      "stepsLabel": "Nächste Schritte",
+      "watching": "Wir achten auf die erste Änderung deines Agenten. Hier siehst du sofort, sobald er zu bauen beginnt."
+    },
     "steps": {
       "ai": {
         "subtitle": "Wähle ein KI-Tool und verbinde es mit deinem Workspace und seinem Wissen. Verbinde jetzt eines, ergänze später weitere oder überspringe diesen Schritt.",
         "title": "Verbinde die KI, die du schon nutzt"
       },
+      "connect": {
+        "subtitle": "Welchen Agenten nutzt du? Wir zeigen dir die genauen Schritte dafür.",
+        "title": "Agent verbinden"
+      },
       "goal": {
-        "subtitle": "Wähle einen Einstieg. Den Rest kannst du jederzeit nachholen.",
-        "title": "Womit möchtest du anfangen?"
+        "subtitle": "Wähle eine Vorlage für deine Arbeitsweise. Du prüfst jede Änderung, bevor sie angewendet wird.",
+        "subtitleSelfHosted": "Deine Daten bleiben auf deinem Server. Dein eigener Agent verbindet sich über MCP und baut den Workspace aus einer Vorlage.",
+        "title": "Wie sollen wir deinen Workspace einrichten?",
+        "titleSelfHosted": "Wie sollen wir diese Instanz einrichten?"
       },
       "invite": {
         "subtitle": "Lade andere über einen gemeinsamen Link oder einzelne E-Mails ein. Du kannst auch allein weitermachen und dein Team später einladen.",
@@ -3780,6 +3834,11 @@
         "subtitle": "Ergänze deinen Namen, damit dein Team dich erkennt, und wähle die Sprache, die du nutzen möchtest. Beides lässt sich später in deinem Profil ändern.",
         "title": "Mach diesen Workspace zu deinem"
       },
+      "prompt": {
+        "subtitle": "{template}: Dein Agent stellt ein paar Fragen und zeigt dir dann den Plan zur Freigabe.",
+        "title": "Füge das in {agent} ein",
+        "titleGeneric": "Füge das in deinen Agenten ein"
+      },
       "setup": {
         "planningSubtitle": "Deine Antworten sind gespeichert. Mate macht daraus einen Plan für deinen Workspace, den du prüfst, bevor etwas angelegt wird.",
         "startSubtitle": "Wir legen deine Listen, Schritte, das Dashboard und ein paar Seiten der Wissensdatenbank an. Du kannst später alles ändern.",
@@ -3787,7 +3846,44 @@
         "subtitle": "Was wir auf deiner Website gelesen haben, ist schon ausgefüllt. Prüfe es und ändere, was nicht passt.",
         "title": "Richte deinen Workspace ein",
         "withoutWebsiteSubtitle": "Ein paar kurze Fragen dazu, was du festhalten möchtest. Die meisten beantwortest du mit einem Klick."
+      },
+      "template": {
+        "subtitle": "Dein Agent passt sie an dich an und zeigt den Plan, bevor er etwas ändert.",
+        "subtitleMate": "Mate passt sie an dich an und zeigt den Plan, bevor etwas gebaut wird.",
+        "title": "Vorlage wählen"
       }
+    },
+    "template": {
+      "browseAll": "Alle {count} Vorlagen ansehen",
+      "connected": "{agent} verbunden",
+      "connectedGeneric": "Agent verbunden",
+      "counts": "{lists, plural, one {# Liste} other {# Listen}} · {views, plural, one {# Ansicht} other {# Ansichten}} · {rules, plural, one {# Nachfass-Regel} other {# Nachfass-Regeln}}",
+      "countsNoRules": "{lists, plural, one {# Liste} other {# Listen}} · {views, plural, one {# Ansicht} other {# Ansichten}}",
+      "empty": "Keine Vorlage passt zu deiner Suche.",
+      "families": {
+        "clients": "Kundenarbeit",
+        "community": "Community",
+        "content": "Inhalte",
+        "custom": "Eigene",
+        "intake": "Anfragen",
+        "investing": "Investieren",
+        "operations": "Betrieb",
+        "professionalServices": "Beratung und Dienstleistung",
+        "property": "Immobilien",
+        "recruiting": "Recruiting",
+        "sales": "Vertrieb",
+        "trades": "Handwerk"
+      },
+      "filterAll": "Alle",
+      "filtersLabel": "Vorlagentypen",
+      "none": "Keine Vorlage",
+      "optionsLabel": "Vorlagen",
+      "recommended": "Empfohlen",
+      "searchLabel": "Vorlagen durchsuchen",
+      "searchPlaceholder": "Vorlagen durchsuchen",
+      "showFewer": "Weniger anzeigen",
+      "suggested": "Für dich vorgeschlagen",
+      "use": "{name} verwenden"
     }
   },
   "OperatorAudit": {

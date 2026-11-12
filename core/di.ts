@@ -254,6 +254,7 @@ import { RecordAgentConnectedInteractor } from "@/features/onboarding-funnel/rec
 import { RecordAgentFirstCallInteractor } from "@/features/onboarding-funnel/record-agent-first-call.interactor";
 import { GetOnboardingAgentStatusInteractor } from "@/features/onboarding-funnel/get-onboarding-agent-status.interactor";
 import { GetOnboardingTemplatePromptInteractor } from "@/features/onboarding-templates/get-onboarding-template-prompt.interactor";
+import { GetOnboardingTemplateChoiceInteractor } from "@/features/onboarding-templates/get-onboarding-template-choice.interactor";
 import { loadTemplateBundle } from "@/core/templates/template-bundle-loader";
 import { NextAdAttributionCookieRepo } from "@/features/acquisition/next/ad-attribution-cookie";
 import { ReadAdAttributionConsentInteractor } from "@/features/acquisition/read-ad-attribution-consent.interactor";
@@ -1351,6 +1352,8 @@ export const getGetOnboardingAgentStatusInteractor = () =>
   new GetOnboardingAgentStatusInteractor(getOnboardingFunnelRepo(), getRouteGuardService());
 export const getGetOnboardingTemplatePromptInteractor = () =>
   new GetOnboardingTemplatePromptInteractor(loadTemplateBundle, getRouteGuardService());
+export const getGetOnboardingTemplateChoiceInteractor = () =>
+  new GetOnboardingTemplateChoiceInteractor(getOnboardingFunnelRepo());
 
 export const getGetOnboardingWizardProgressInteractor = () =>
   new GetOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService(), getAuthService());

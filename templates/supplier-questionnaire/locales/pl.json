@@ -1,0 +1,127 @@
+{
+  "locale": "pl",
+  "name": "Kwestionariusz dostawcy",
+  "summary": "Rejestr dostawców z kwestionariuszem kwalifikacyjnym, certyfikatami z datą ważności, poziomem ryzyka, decyzją o zatwierdzeniu i terminem następnej oceny.",
+  "description": "Kwalifikuj dostawców i podwykonawców w jednym miejscu: wyślij kwestionariusz, zbieraj certyfikaty i zaświadczenia z datą ważności, przypisz każdemu dostawcy poziom ryzyka, zapisz decyzję (zatwierdzić, zatwierdzić warunkowo, eskalować, odrzucić) i zobacz, co wygasa jako następne. Szablon porządkuje dowody. Nie rozstrzyga o zgodności z prawem, nie sprawdza list sankcyjnych ani kondycji finansowej i nie zastępuje systemu jakości, ERP ani archiwum dokumentów.",
+  "lists": {
+    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Osoby u dostawców, które wypełniają kwestionariusze i przesyłają dokumenty." },
+    "suppliers": { "label": "Dostawca", "pluralLabel": "Dostawcy", "description": "Każdy dostawca i podwykonawca, od kandydata do zatwierdzonego lub zablokowanego." },
+    "questionnaires": { "label": "Kwestionariusz", "pluralLabel": "Kwestionariusze", "description": "Jeden kwestionariusz wysłany do jednego dostawcy, z terminem i decyzją." },
+    "documents": { "label": "Dokument", "pluralLabel": "Dokumenty", "description": "Certyfikaty, zaświadczenia i umowy z datą ważności." }
+  },
+  "fields": {
+    "contacts.contact_role": {
+      "label": "Funkcja",
+      "options": { "sales": "Sprzedaż", "quality": "Jakość", "compliance": "Compliance", "finance": "Finanse", "other": "Inna" }
+    },
+    "contacts.language": { "label": "Język" },
+    "suppliers.status": {
+      "label": "Status",
+      "options": { "candidate": "Kandydat", "questionnaire_sent": "Kwestionariusz wysłany", "under_review": "W ocenie", "approved": "Zatwierdzony", "approved_with_conditions": "Zatwierdzony warunkowo", "blocked": "Zablokowany", "offboarded": "Wycofany" }
+    },
+    "suppliers.risk_tier": { "label": "Poziom ryzyka", "options": { "low": "Niski", "moderate": "Umiarkowany", "high": "Wysoki", "critical": "Krytyczny" } },
+    "suppliers.category": {
+      "label": "Kategoria",
+      "options": { "raw_materials": "Surowce", "components": "Komponenty", "services": "Usługi", "subcontracting": "Podwykonawstwo", "software_it": "Oprogramowanie i IT", "logistics": "Logistyka" }
+    },
+    "suppliers.country": { "label": "Kraj" },
+    "suppliers.critical_supplier": { "label": "Dostawca krytyczny" },
+    "suppliers.processes_personal_data": { "label": "Przetwarza dane osobowe" },
+    "suppliers.review_owner": { "label": "Odpowiedzialny za ocenę" },
+    "suppliers.qualified_on": { "label": "Zakwalifikowany dnia" },
+    "suppliers.next_review": { "label": "Następna ocena" },
+    "questionnaires.kind": {
+      "label": "Rodzaj",
+      "options": { "registration": "Rejestracja", "qualification": "Kwalifikacja", "re_evaluation": "Ponowna ocena", "regulatory_evidence": "Dowody wymagane przepisami" }
+    },
+    "questionnaires.status": {
+      "label": "Status",
+      "options": { "draft": "Szkic", "sent": "Wysłany", "partial": "Odpowiedź częściowa", "received": "Otrzymany", "reviewed": "Sprawdzony" }
+    },
+    "questionnaires.sent_on": { "label": "Wysłano dnia" },
+    "questionnaires.due_on": { "label": "Termin" },
+    "questionnaires.received_on": { "label": "Otrzymano dnia" },
+    "questionnaires.score": { "label": "Punkty" },
+    "questionnaires.decision": {
+      "label": "Decyzja",
+      "options": { "approve": "Zatwierdzić", "approve_with_conditions": "Zatwierdzić warunkowo", "escalate": "Eskalować", "reject": "Odrzucić" }
+    },
+    "questionnaires.reviewer": { "label": "Oceniający" },
+    "questionnaires.form_link": { "label": "Link do formularza" },
+    "documents.doc_type": {
+      "label": "Rodzaj dokumentu",
+      "options": { "quality_certificate": "Certyfikat jakości", "environmental_certificate": "Certyfikat środowiskowy", "security_certificate": "Certyfikat bezpieczeństwa", "insurance": "Ubezpieczenie", "tax_clearance": "Zaświadczenie o niezaleganiu", "registration_extract": "Odpis z rejestru", "data_processing_agreement": "Umowa powierzenia przetwarzania danych", "other": "Inny" }
+    },
+    "documents.status": {
+      "label": "Status",
+      "options": { "requested": "Zamówiony", "received": "Otrzymany", "under_review": "W ocenie", "accepted": "Przyjęty", "rejected": "Odrzucony", "expired": "Wygasły" }
+    },
+    "documents.requested_on": { "label": "Zamówiono dnia" },
+    "documents.received_on": { "label": "Otrzymano dnia" },
+    "documents.valid_until": { "label": "Ważne do" },
+    "documents.evidence_link": { "label": "Link do pliku" },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": {
+        "send_questionnaire": "Wysłać kwestionariusz",
+        "chase_supplier": "Ponaglić dostawcę",
+        "review_answers": "Sprawdzić odpowiedzi",
+        "request_document": "Poprosić o dokument",
+        "verify_document": "Zweryfikować dokument",
+        "decide": "Podjąć decyzję",
+        "re_evaluate": "Ocenić ponownie",
+        "other": "Inne"
+      }
+    }
+  },
+  "relationships": {
+    "contact_supplier": { "sourceLabel": "Dostawca", "targetLabel": "Kontakty" },
+    "questionnaire_supplier": { "sourceLabel": "Dostawca", "targetLabel": "Kwestionariusze" },
+    "document_supplier": { "sourceLabel": "Dostawca", "targetLabel": "Dokumenty" },
+    "action_supplier": { "sourceLabel": "Dostawca", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "suppliers_all": { "name": "Wszyscy dostawcy" },
+    "suppliers_board": { "name": "Tablica kwalifikacji" },
+    "documents_all": { "name": "Wszystkie dokumenty" },
+    "expired_documents": { "name": "Wygasłe lub odrzucone" },
+    "questionnaires_all": { "name": "Wszystkie kwestionariusze" },
+    "contacts_all": { "name": "Wszystkie kontakty" }
+  },
+  "widgets": {
+    "suppliers_by_status": { "title": "Dostawcy według statusu" },
+    "suppliers_by_risk": { "title": "Dostawcy według poziomu ryzyka" },
+    "documents_expiring": { "title": "Dokumenty bliskie wygaśnięcia" },
+    "questionnaires_open": { "title": "Kwestionariusze czekające na odpowiedź" },
+    "reviews_coming": { "title": "Nadchodzące oceny" },
+    "documents_expired": { "title": "Wygasłe dokumenty" }
+  },
+  "knowledgePages": {
+    "qualification_process": { "title": "Procedura kwalifikacji dostawców", "sections": ["Potrzeba, kryteria i kto zatwierdza", "Kwestionariusz, dokumenty, decyzja"] },
+    "document_requirements": { "title": "Certyfikaty i zaświadczenia, o które prosimy", "sections": ["Według kategorii i poziomu ryzyka", "Jak długo ważny jest każdy z nich"] },
+    "re_evaluation": { "title": "Harmonogram ponownych ocen", "sections": ["Terminy ocen według poziomu ryzyka", "Zdarzenia, które przyspieszają ocenę"] }
+  },
+  "rules": {
+    "chase_questionnaire": { "title": "Ponaglić dostawcę, gdy kwestionariusz przekroczy termin" },
+    "review_answers": { "title": "Sprawdzić odpowiedzi 3 dni po otrzymaniu kwestionariusza" },
+    "renew_document": { "title": "Poprosić o odnowiony dokument 30 dni przed wygaśnięciem" },
+    "document_expiry_notice": { "title": "Powiadomić odpowiedzialnego, gdy dokument wygaśnie" },
+    "re_evaluate_supplier": { "title": "Rozpocząć ponowną ocenę 14 dni przed następną oceną" },
+    "decide_after_review": { "title": "Zdecydować w 5 dni, gdy dostawca trafia do oceny" },
+    "registration_form_records": { "title": "Utworzyć dostawcę i kontakt po wysłaniu formularza rejestracyjnego" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Każdy dostawca ma status kwalifikacji.",
+    "valid_until_field": "Każdy dokument zapisuje, do kiedy jest ważny.",
+    "suppliers_board_view": "Dostawcy otwierają się jako tablica według statusu."
+  },
+  "prompt": {
+    "intro": "Skonfiguruj w moim workspace Customermates rejestr dostawców: dostawców z poziomem ryzyka i statusem kwalifikacji, kwestionariusze z terminami i decyzją, dokumenty z datą ważności oraz terminowe zadania następcze.",
+    "questions": [
+      "Ilu masz dostawców i jak dzielisz ich według ryzyka?",
+      "O jakie certyfikaty lub zaświadczenia prosisz i jak długo ważny jest każdy z nich?",
+      "Kto sprawdza odpowiedzi, a kto zatwierdza dostawcę?",
+      "Jak często oceniasz dostawcę ponownie? Pliki zostają w Twoim systemie dokumentów, a tutaj przechowywany jest tylko link."
+    ]
+  }
+}

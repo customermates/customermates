@@ -3685,11 +3685,30 @@
         }
       }
     },
+    "connect": {
+      "checkAgain": "Verificar novamente",
+      "connected": "Conectado. Seu agente chegou a este espaço de trabalho.",
+      "failed": "Não foi possível verificar a conexão. Tente novamente em instantes.",
+      "skip": "Conectar depois",
+      "statusLabel": "Status da conexão",
+      "waiting": "Aguardando a primeira chamada de {agent}. A marca aparece sozinha assim que {agent} estiver conectado.",
+      "waitingGeneric": "Aguardando a primeira chamada do seu agente. A marca aparece sozinha assim que seu agente estiver conectado."
+    },
+    "continue": "Continuar",
     "finish": "Concluir",
     "goal": {
       "agent": {
-        "description": "Use Claude, ChatGPT ou um cliente de CLI com seu espaço de trabalho por meio do MCP.",
-        "title": "Conectar meu próprio agente de IA"
+        "anyClient": "Qualquer cliente MCP",
+        "description": "Conecte-o ao Customermates, cole um modelo e ele monta suas listas, seu pipeline e seus acompanhamentos.",
+        "descriptionSelfHosted": "Conecte-o a esta instância, cole um modelo e ele monta suas listas, seu pipeline e seus acompanhamentos.",
+        "providersLabel": "Agentes de IA compatíveis",
+        "steps": {
+          "approve": "Cole e aprove o plano",
+          "connect": "Conecte seu agente",
+          "template": "Escolha um modelo"
+        },
+        "stepsLabel": "Como funciona",
+        "title": "Use o agente de IA que você já tem"
       },
       "channelsHint": {
         "action": "Abrir painel",
@@ -3708,15 +3727,22 @@
         "salesNavigator": "Você usa o Sales Navigator? Conecte o LinkedIn com o Sales Navigator em vez disso",
         "title": "Conecte o LinkedIn primeiro"
       },
+      "cloud": {
+        "badge": "Cloud",
+        "description": "O Mate roda no Customermates Cloud. Seu primeiro espaço cloud elegível ganha {days} dias de Pro, sem cartão. Abre um espaço cloud separado.",
+        "opened": "Abrimos o Customermates Cloud em uma nova aba. Nada desta instância foi enviado para lá. Você pode continuar a configuração aqui.",
+        "title": "Prefere o Mate? Experimente a nuvem gerenciada"
+      },
       "followup": {
         "description": "Escolha um playbook, conecte o LinkedIn e veja quem está esperando uma resposta.",
         "title": "Acompanhar conversas com clientes"
       },
       "optionsLabel": "Primeiros passos",
+      "recommended": "Recomendado",
       "suggested": "Sugerido",
       "workspace": {
-        "description": "Responda a algumas perguntas. Nós criamos suas listas, visualizações e painel.",
-        "title": "Configurar meu espaço de clientes"
+        "description": "Escolha um modelo e nosso agente integrado monta o espaço aqui. Nada para conectar.",
+        "title": "Deixar o Mate configurar para mim"
       }
     },
     "invite": {
@@ -3737,11 +3763,13 @@
     },
     "milestones": {
       "ai": "Ferramentas de IA",
-      "goal": "Objetivo",
+      "connect": "Conectar",
+      "goal": "Configuração",
       "invite": "Equipe",
       "playbook": "Playbook",
       "profile": "Você",
-      "setup": "Espaço"
+      "setup": "Espaço",
+      "template": "Modelo"
     },
     "next": "Próximo",
     "playbook": {
@@ -3757,14 +3785,40 @@
     "progress": "Etapa {current} de {total}",
     "progressLabel": "Progresso da configuração inicial",
     "progressOpen": "Etapa {current}",
+    "prompt": {
+      "changed": "Seu agente começou a montar. Abra seu espaço para acompanhar.",
+      "copied": "Copiado",
+      "copy": "Copiar prompt",
+      "copyFailed": "A cópia não funcionou aqui. O prompt está selecionado: pressione Ctrl+C ou Cmd+C para copiá-lo.",
+      "failed": "Não foi possível carregar o prompt.",
+      "go": "Ir para meu espaço",
+      "loading": "Preparando seu prompt…",
+      "openIn": "Abrir no {agent}",
+      "promptLabel": "Prompt do modelo",
+      "retry": "Tentar novamente",
+      "steps": {
+        "approve": "Aprove o plano que ele mostrar",
+        "copy": "Copie o prompt",
+        "paste": "Cole em uma nova conversa no {agent}",
+        "pasteGeneric": "Cole em uma nova conversa com seu agente"
+      },
+      "stepsLabel": "Próximos passos",
+      "watching": "Estamos de olho na primeira alteração do seu agente. Aqui você vê assim que ele começar a montar."
+    },
     "steps": {
       "ai": {
         "subtitle": "Escolha uma ferramenta de IA para conectar ao seu espaço de trabalho e ao conhecimento dele. Conecte uma agora, adicione outras depois ou pule esta etapa.",
         "title": "Conecte a IA que você já usa"
       },
+      "connect": {
+        "subtitle": "Qual agente você usa? Mostramos os passos exatos para ele.",
+        "title": "Conecte seu agente"
+      },
       "goal": {
-        "subtitle": "Escolha uma opção para começar. Você pode fazer as outras quando quiser.",
-        "title": "O que você quer fazer primeiro?"
+        "subtitle": "Escolha um modelo para o seu jeito de trabalhar. Você revisa cada alteração antes de ela ser aplicada.",
+        "subtitleSelfHosted": "Seus dados ficam no seu servidor. Seu próprio agente se conecta por MCP e monta o espaço de trabalho a partir de um modelo.",
+        "title": "Como devemos configurar seu espaço de trabalho?",
+        "titleSelfHosted": "Como devemos configurar esta instância?"
       },
       "invite": {
         "subtitle": "Convide colegas com um link compartilhado ou com convites individuais por e-mail. Você também pode continuar sozinho e convidar as pessoas depois.",
@@ -3780,14 +3834,56 @@
         "subtitle": "Adicione seu nome para que seus colegas de equipe reconheçam você e escolha o idioma que quer usar. Você pode alterar os dois depois no seu perfil.",
         "title": "Deixe este espaço de trabalho com a sua cara"
       },
+      "prompt": {
+        "subtitle": "{template}: seu agente faz algumas perguntas e depois mostra o plano para você aprovar.",
+        "title": "Cole isto no {agent}",
+        "titleGeneric": "Cole isto no seu agente"
+      },
       "setup": {
-        "planningSubtitle": "Suas respostas foram salvas. O Mate as transforma em um plano para o seu espaço de trabalho, que você revisa antes de qualquer coisa ser criada.",
+        "planningSubtitle":"Suas respostas foram salvas. O Mate as transforma em um plano para o seu espaço de trabalho, que você revisa antes de qualquer coisa ser criada.",
         "startSubtitle": "Criamos suas listas, etapas, painel e algumas páginas da base de conhecimento. Você pode mudar tudo depois.",
         "startTitle": "Como você quer configurar seu espaço de trabalho?",
         "subtitle": "O que lemos no seu site já está preenchido. Confira e corrija o que estiver errado.",
         "title": "Configure seu espaço de trabalho",
         "withoutWebsiteSubtitle": "Algumas perguntas rápidas sobre o que você quer acompanhar. A maioria leva só um clique."
+      },
+      "template": {
+        "subtitle": "Seu agente adapta o modelo a você e mostra o plano antes de alterar qualquer coisa.",
+        "subtitleMate": "O Mate adapta o modelo a você e mostra o plano antes de montar qualquer coisa.",
+        "title": "Escolha um modelo"
       }
+    },
+    "template": {
+      "browseAll": "Ver todos os {count} modelos",
+      "connected": "{agent} conectado",
+      "connectedGeneric": "Agente conectado",
+      "counts": "{lists, plural, one {# lista} other {# listas}} · {views, plural, one {# visualização} other {# visualizações}} · {rules, plural, one {# regra de acompanhamento} other {# regras de acompanhamento}}",
+      "countsNoRules": "{lists, plural, one {# lista} other {# listas}} · {views, plural, one {# visualização} other {# visualizações}}",
+      "empty": "Nenhum modelo corresponde à sua busca.",
+      "families": {
+        "clients": "Clientes",
+        "community": "Comunidade",
+        "content": "Conteúdo",
+        "custom": "Personalizados",
+        "intake": "Solicitações",
+        "investing": "Investimentos",
+        "operations": "Operações",
+        "professionalServices": "Serviços profissionais",
+        "property": "Imobiliário",
+        "recruiting": "Recrutamento",
+        "sales": "Vendas",
+        "trades": "Ofícios"
+      },
+      "filterAll": "Todos",
+      "filtersLabel": "Tipos de modelo",
+      "none": "Sem modelo",
+      "optionsLabel": "Modelos",
+      "recommended": "Recomendado",
+      "searchLabel": "Buscar modelos",
+      "searchPlaceholder": "Buscar modelos",
+      "showFewer": "Mostrar menos",
+      "suggested": "Sugerido para você",
+      "use": "Usar {name}"
     }
   },
   "OperatorAudit": {

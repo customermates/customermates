@@ -390,12 +390,19 @@ const DEFAULT_DATA_OPTION_KEYS = [
   "Common.defaultData.task.options.onHold",
   "Common.defaultData.task.options.open",
 ] as const;
-const ONBOARDING_STEP_TITLE_KEYS = ["profile", "goal", "playbook", "setup", "invite", "ai"].map(
+const ONBOARDING_STEP_TITLE_KEYS = ["profile", "goal", "playbook", "setup", "invite", "ai", "template", "prompt"].map(
   (step) => `OnboardingWizard.steps.${step}.title`,
 );
-const ONBOARDING_STEP_SUBTITLE_KEYS = ["profile", "goal", "playbook", "setup", "invite", "ai"].map(
-  (step) => `OnboardingWizard.steps.${step}.subtitle`,
-);
+const ONBOARDING_STEP_SUBTITLE_KEYS = [
+  "profile",
+  "goal",
+  "playbook",
+  "setup",
+  "invite",
+  "ai",
+  "template",
+  "prompt",
+].map((step) => `OnboardingWizard.steps.${step}.subtitle`);
 const ONBOARDING_CHOICE_KEYS = [
   "chatgpt",
   "claude",

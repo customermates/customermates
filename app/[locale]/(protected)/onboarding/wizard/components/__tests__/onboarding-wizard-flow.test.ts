@@ -1,0 +1,158 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  connectsAgentWithVerification,
+  persistedWizardStep,
+  resolveWizardResume,
+  wizardSteps,
+} from "../onboarding-wizard-flow";
+
+const CLOUD = { setupAvailable: true, chooseAvailable: true, templatesAvailable: true };
+const CLOUD_NO_TEMPLATES = { ...CLOUD, templatesAvailable: false };
+const SELF_HOSTED = { setupAvailable: false, chooseAvailable: true, templatesAvailable: true };
+
+describe("wizard steps", () => {
+  it("keeps the connect, template and prompt steps for the user's own agent", () => {
+    expect(wizardSteps(CLOUD, "agent")).toEqual(["profile", "goal", "ai", "template", "prompt"]);
+    expect(wizardSteps(SELF_HOSTED, "agent")).toEqual(["profile", "goal", "ai", "template", "prompt"]);
+  });
+
+  it("puts the template step before Mate's setup", () => {
+    expect(wizardSteps(CLOUD, "workspace")).toEqual(["profile", "goal", "template", "setup", "invite", "ai"]);
+  });
+
+  it("skips the template and prompt steps while no template is offered", () => {
+    expect(wizardSteps(CLOUD_NO_TEMPLATES, "agent")).toEqual(["profile", "goal", "ai"]);
+    expect(wizardSteps(CLOUD_NO_TEMPLATES, "workspace")).toEqual(["profile", "goal", "setup", "invite", "ai"]);
+  });
+
+  it("keeps the follow-up playbook path and the empty workspace path short", () => {
+    expect(wizardSteps(CLOUD, "followup")).toEqual(["profile", "goal", "playbook"]);
+    expect(wizardSteps(CLOUD, "empty")).toEqual(["profile", "goal", "invite", "ai"]);
+    expect(wizardSteps(SELF_HOSTED, "empty")).toEqual(["profile", "goal", "invite", "ai"]);
+  });
+
+  it("shows a self-hosted owner the agent steps whatever the highlighted card, since Mate is a cloud trial there", () => {
+    expect(wizardSteps(SELF_HOSTED, "workspace")).toEqual(["profile", "goal", "ai", "template", "prompt"]);
+    expect(wizardSteps(SELF_HOSTED, "followup")).toEqual(["profile", "goal", "ai", "template", "prompt"]);
+  });
+
+  it("gives an invited member only the profile, team and AI steps", () => {
+    expect(wizardSteps({ setupAvailable: false, chooseAvailable: false, templatesAvailable: false }, "agent")).toEqual(
+      ["profile", "invite", "ai"],
+    );
+  });
+
+  it("verifies the connection only where the owner chooses how to set up", () => {
+    expect(connectsAgentWithVerification(CLOUD, "agent")).toBe(true);
+    expect(connectsAgentWithVerification(CLOUD, "workspace")).toBe(false);
+    expect(connectsAgentWithVerification({ setupAvailable: true }, "agent")).toBe(false);
+    expect(connectsAgentWithVerification({ setupAvailable: false }, "agent")).toBe(false);
+  });
+
+  it("saves the steps a reload can resume and folds the others into the team step", () => {
+    expect(persistedWizardStep("ai")).toBe("ai");
+    expect(persistedWizardStep("template")).toBe("template");
+    expect(persistedWizardStep("prompt")).toBe("prompt");
+    expect(persistedWizardStep("goal")).toBe("invite");
+    expect(persistedWizardStep("setup")).toBe("invite");
+  });
+});
+
+describe("resuming the wizard", () => {
+  const owner = { ...CLOUD, profileCompleted: true, isInvited: false };
+
+  it("opens on the goal step until the owner chose", () => {
+    expect(
+      resolveWizardResume({ ...owner, setupStepCompleted: false, jobSelected: false, job: "agent" }),
+    ).toEqual({ steps: ["profile", "goal", "ai", "template", "prompt"], resumeStepIndex: 1, flow: "agent" });
+  });
+
+  it("starts a new owner without a profile on the profile step with the agent flow highlighted", () => {
+    expect(
+      resolveWizardResume({ ...CLOUD, profileCompleted: false, isInvited: false, setupStepCompleted: false, job: "agent" }),
+    ).toEqual({ steps: ["profile", "goal", "ai", "template", "prompt"], resumeStepIndex: 0, flow: "agent" });
+  });
+
+  it("resumes the agent flow on the saved step and defaults to the connect step", () => {
+    const agent = { ...owner, setupStepCompleted: true, jobSelected: true, job: "agent" as const };
+
+    expect(resolveWizardResume({ ...agent, savedStep: "prompt" }).resumeStepIndex).toBe(4);
+    expect(resolveWizardResume({ ...agent, savedStep: "template" }).resumeStepIndex).toBe(3);
+    expect(resolveWizardResume({ ...agent, savedStep: "ai" }).resumeStepIndex).toBe(2);
+    expect(resolveWizardResume({ ...agent, savedStep: "invite" }).resumeStepIndex).toBe(2);
+    expect(resolveWizardResume({ ...agent, savedStep: undefined }).flow).toBe("agent");
+  });
+
+  it("resumes the agent flow before the choice is saved on the connect step", () => {
+    expect(
+      resolveWizardResume({ ...owner, setupStepCompleted: false, jobSelected: true, job: "agent" }).resumeStepIndex,
+    ).toBe(2);
+  });
+
+  it("resumes Mate's flow on the template step until the setup started, then on the setup", () => {
+    const mate = { ...owner, setupStepCompleted: false, jobSelected: true, job: "workspace" as const };
+
+    expect(resolveWizardResume(mate)).toMatchObject({
+      steps: ["profile", "goal", "template", "setup", "invite", "ai"],
+      resumeStepIndex: 2,
+    });
+    expect(resolveWizardResume({ ...mate, setupStarted: true }).resumeStepIndex).toBe(3);
+    expect(resolveWizardResume({ ...mate, templatesAvailable: false }).resumeStepIndex).toBe(2);
+  });
+
+  it("resumes on the team step once Mate's setup was completed and keeps a saved AI step", () => {
+    const done = { ...owner, setupStepCompleted: true, jobSelected: true, job: "workspace" as const };
+
+    expect(resolveWizardResume(done)).toMatchObject({
+      steps: ["profile", "goal", "template", "setup", "invite", "ai"],
+      resumeStepIndex: 4,
+      flow: "workspace",
+    });
+    expect(resolveWizardResume({ ...done, savedStep: "ai" }).resumeStepIndex).toBe(5);
+    expect(resolveWizardResume({ ...done, savedStep: "template" }).resumeStepIndex).toBe(4);
+  });
+
+  it("resumes the empty workspace path on the team step", () => {
+    expect(resolveWizardResume({ ...owner, setupStepCompleted: true, jobSelected: false })).toEqual({
+      steps: ["profile", "goal", "invite", "ai"],
+      resumeStepIndex: 2,
+      flow: "empty",
+    });
+  });
+
+  it("falls back to the empty path for a configured workspace where Mate's setup is gone", () => {
+    expect(
+      resolveWizardResume({
+        ...owner,
+        setupAvailable: false,
+        setupStepCompleted: true,
+        jobSelected: true,
+        job: "workspace",
+      }),
+    ).toMatchObject({ steps: ["profile", "goal", "invite", "ai"], resumeStepIndex: 2, flow: "empty" });
+  });
+
+  it("opens a self-hosted owner on the goal step and later on the connect step", () => {
+    const hosted = { ...SELF_HOSTED, profileCompleted: true, isInvited: false };
+
+    expect(resolveWizardResume({ ...hosted, setupStepCompleted: false, jobSelected: false, job: "agent" })).toMatchObject(
+      { resumeStepIndex: 1, flow: "agent" },
+    );
+    expect(
+      resolveWizardResume({ ...hosted, setupStepCompleted: true, jobSelected: true, job: "agent", savedStep: "ai" }),
+    ).toMatchObject({ steps: ["profile", "goal", "ai", "template", "prompt"], resumeStepIndex: 2 });
+  });
+
+  it("never offers an invited member the owner's steps", () => {
+    expect(
+      resolveWizardResume({ ...CLOUD, profileCompleted: true, isInvited: true, setupStepCompleted: false, job: "agent" }),
+    ).toEqual({ steps: ["profile", "invite", "ai"], resumeStepIndex: 1, flow: "agent" });
+  });
+
+  it("keeps the follow-up path at the playbook", () => {
+    expect(
+      resolveWizardResume({ ...owner, setupStepCompleted: false, jobSelected: true, job: "followup" }),
+    ).toEqual({ steps: ["profile", "goal", "playbook"], resumeStepIndex: 2, flow: "followup" });
+  });
+});
