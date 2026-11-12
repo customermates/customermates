@@ -2,7 +2,7 @@
   "locale": "de",
   "name": "Vertrieb im Gründerteam",
   "summary": "Eine kurze Pipeline für Gründer, die selbst verkaufen: Gespräche, Bedarfsklärung, ein optionaler Pilot mit festem Enddatum, ein Angebot und ein Zurückgestellt-Status mit Wiedervorlage.",
-  "description": "Als Gründer verkaufen, mit einer Handvoll bis einigen Dutzend offenen Gesprächen: Jede Verkaufschance hält das Problem in den Worten des Kunden, die Dringlichkeit, den Budgetstand und fest, ob der Entscheider eingebunden ist; ein Pilot hat ein Enddatum und sagt, ob er bezahlt wird; ein stiller Deal wird mit Wiedervorlage zurückgestellt, statt ihm nachzulaufen. Die Gewichte sind grob, denn ein Gründer hat noch keine Abschlussquote, und Ihre Sache. Kein Massenversand von Folgen, keine Finanzierungsrunde und keine Prognose für ein Team mit mehreren Verkäufern.",
+  "description": "Als Gründer verkaufen, mit einer Handvoll bis einigen Dutzend offenen Gesprächen: Jede Verkaufschance hält das Problem in den Worten des Kunden, die Dringlichkeit und den Budgetstand fest und vermerkt, ob der Entscheider eingebunden ist; ein Pilot hat ein Enddatum und sagt, ob er bezahlt wird; ein stiller Deal wird mit Wiedervorlage zurückgestellt, statt ihm nachzulaufen. Die Gewichte sind grob, denn ein Gründer hat noch keine Abschlussquote, und Sie legen sie selbst fest. Kein Massenversand von Mail-Sequenzen, kein Fundraising und keine Prognose für ein Team mit mehreren Verkäufern.",
   "lists": {
     "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Die Personen, mit denen Sie sprechen, mit ihrer Rolle in der Kaufentscheidung." },
     "companies": { "label": "Unternehmen", "pluralLabel": "Unternehmen", "description": "Interessenten, Pilotkunden, Kunden und Partner." },
@@ -19,7 +19,7 @@
       "options": { "new": "Gespräch", "discovery_done": "Bedarf geklärt", "pilot": "Pilot oder Testphase", "proposal": "Angebot", "won": "Gewonnen", "lost": "Verloren", "parked": "Zurückgestellt" }
     },
     "opportunities.source": { "label": "Quelle", "options": { "own_network": "Eigenes Netzwerk", "introduction": "Vorstellung", "inbound": "Anfrage", "community": "Community", "outbound": "Direktansprache", "event": "Veranstaltung" } },
-    "opportunities.problem": { "label": "Das Problem, in seinen Worten" },
+    "opportunities.problem": { "label": "Das Problem in den Worten des Kunden" },
     "opportunities.urgency": { "label": "Dringlichkeit", "options": { "burning": "Brennt", "important": "Wichtig", "nice_to_have": "Wünschenswert" } },
     "opportunities.budget_status": { "label": "Budget", "options": { "unknown": "Unbekannt", "has_budget": "Budget vorhanden", "needs_budget": "Braucht Budget", "no_budget": "Kein Budget" } },
     "opportunities.decision_maker_engaged": { "label": "Entscheider eingebunden" },
@@ -77,8 +77,8 @@
     "proposal_follow_up": { "title": "3 Tage nach dem Angebot nachfassen" },
     "parked_revisit_date": { "title": "Die Wiedervorlage auf 90 Tage setzen, wenn ein Deal zurückgestellt wird" },
     "revisit_reopen": { "title": "Zur Wiedervorlage das Gespräch wieder aufnehmen" },
-    "won_handover": { "title": "Am Tag nach einem Gewinn den Kunden übergeben" },
-    "won_intro_request": { "title": "30 Tage nach einem Gewinn den Kunden um eine Vorstellung bitten" }
+    "won_handover": { "title": "Am Tag nach dem Abschluss den Kunden übergeben" },
+    "won_intro_request": { "title": "30 Tage nach dem Abschluss den Kunden um eine Vorstellung bitten" }
   },
   "acceptanceChecks": {
     "stage_field": "Jede Verkaufschance hat eine Phase.",

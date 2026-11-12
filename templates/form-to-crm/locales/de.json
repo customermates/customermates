@@ -1,7 +1,7 @@
 {
   "locale": "de",
   "name": "Kontaktformular mit CRM",
-  "summary": "Anfragen aus Formularen zu bearbeiteten Kontakten machen: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, Phase von neu bis übergeben, Spam und Kein Bedarf getrennt.",
+  "summary": "Anfragen aus Formularen zu bearbeiteten Kontakten machen: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, Phase von neu bis übergeben, Spam und „Kein Bedarf“ getrennt.",
   "description": "Jede Anfrage aus einem Kontakt-, Angebots- oder Anfrageformular wird zu einer Anfrage mit Verknüpfung zum Kontakt, mit dem Formular, aus dem sie kam, der Herkunft des Besuchers, dem Zeitpunkt, bis wann sie gebraucht wird, und einer Antwort, die am nächsten Tag fällig ist. Anfragen laufen von neu bis übergeben, kein Bedarf oder Spam, und eine unbeantwortete Anfrage wird gemeldet. Einwilligung und ein Prüftermin gehören zu den erhobenen Daten. Kein Formularbaukasten für Zahlungen, Quiz oder den Upload sensibler Dokumente.",
   "lists": {
     "contacts": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen, die Ihnen über ein Formular schreiben." },
@@ -10,7 +10,7 @@
   "fields": {
     "contacts.company_name": { "label": "Firma" },
     "contacts.language": { "label": "Sprache" },
-    "contacts.marketing_consent": { "label": "Einwilligung Werbung" },
+    "contacts.marketing_consent": { "label": "Einwilligung zu Werbe-E-Mails" },
     "contacts.marketing_consent_on": { "label": "Einwilligung erteilt am" },
     "requests.stage": {
       "label": "Phase",
@@ -30,7 +30,7 @@
     "requests.landing_page": { "label": "Seite des Formulars" },
     "requests.repeat_submission": { "label": "Schon einmal geschrieben" },
     "requests.not_a_fit_reason": {
-      "label": "Grund für Kein Bedarf",
+      "label": "Grund für „Kein Bedarf“",
       "options": { "out_of_area": "Außerhalb unseres Gebiets", "no_budget": "Kein Budget", "wrong_service": "Falsche Leistung", "no_response": "Keine Antwort", "duplicate": "Duplikat", "other": "Sonstiger" }
     },
     "requests.closed_on": { "label": "Abgeschlossen am" },
@@ -57,7 +57,7 @@
     "requests_per_week": { "title": "Anfragen pro Woche" },
     "requests_by_form": { "title": "Anfragen nach Formular" },
     "new_requests_count": { "title": "Neue Anfragen" },
-    "not_a_fit_reasons": { "title": "Gründe für Kein Bedarf" },
+    "not_a_fit_reasons": { "title": "Gründe für „Kein Bedarf“" },
     "average_days_to_close": { "title": "Durchschnittliche Tage bis zum Abschluss" }
   },
   "knowledgePages": {
@@ -71,9 +71,9 @@
     "first_response_missed": { "title": "Die Leitung informieren, wenn eine Anfrage einen Tag nach Eingang noch neu ist" },
     "chase_contacted": { "title": "Eine kontaktierte Anfrage nachfassen, die sich 3 Tage nicht bewegt hat" },
     "converted_task": { "title": "Die Anfrage an die Pipeline übergeben, wenn sie als übergeben markiert wird" },
-    "review_date_not_a_fit": { "title": "Prüftermin auf ein Jahr setzen, wenn eine Anfrage als Kein Bedarf endet" },
+    "review_date_not_a_fit": { "title": "Prüftermin auf ein Jahr setzen, wenn eine Anfrage als „Kein Bedarf“ endet" },
     "data_review": { "title": "Die Daten prüfen, wenn der Prüftermin erreicht ist" },
-    "external_form_records": { "title": "Kontakt und Anfrage anlegen, wenn ein anderes Formularwerkzeug eine Einsendung schickt" }
+    "external_form_records": { "title": "Kontakt und Anfrage anlegen, wenn ein anderes Formular-Tool eine Einsendung schickt" }
   },
   "acceptanceChecks": {
     "stage_field": "Jede Anfrage hat eine Phase.",
@@ -86,7 +86,7 @@
       "Welche Formulare betreiben Sie, und was müssen Sie wissen, um eine Anfrage zu bepreisen oder zuzuordnen?",
       "Wer antwortet, und wie schnell versprechen Sie eine Antwort?",
       "Was teilen Sie den Personen am Formular über ihre Daten mit?",
-      "Nutzen Sie ein anderes Formularwerkzeug wie Typeform, Tally oder Jotform?"
+      "Nutzen Sie ein anderes Formular-Tool wie Typeform, Tally oder Jotform?"
     ]
   }
 }
