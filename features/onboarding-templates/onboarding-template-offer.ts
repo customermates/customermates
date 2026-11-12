@@ -66,7 +66,9 @@ function templatePairedWithLandingPath(
   const landingLocale = routingLocaleFromPathname(landingPath) ?? DEFAULT_LOCALE;
   const path = stripLocalePrefix(landingPath);
   const offered = new Set(cards.map((card) => card.slug));
-  const match = index.find((entry) => offered.has(entry.slug as TemplateSlug) && entry.pairedPages[landingLocale] === path);
+  const match = index.find(
+    (entry) => offered.has(entry.slug as TemplateSlug) && entry.pairedPages[landingLocale] === path,
+  );
   return match && isTemplateSlug(match.slug) ? match.slug : null;
 }
 

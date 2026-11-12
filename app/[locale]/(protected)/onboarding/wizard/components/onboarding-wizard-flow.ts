@@ -62,7 +62,11 @@ function resumeStepOpen(input: WizardResumeInput, steps: readonly WizardStep[], 
   return (input.templatesAvailable ?? false) && !input.setupStarted ? "template" : "setup";
 }
 
-function resumeStepAfterSetup(steps: readonly WizardStep[], flow: WizardFlowKey, savedStep?: PersistedStep): WizardStep {
+function resumeStepAfterSetup(
+  steps: readonly WizardStep[],
+  flow: WizardFlowKey,
+  savedStep?: PersistedStep,
+): WizardStep {
   if (flow === "agent" && savedStep !== undefined && steps.includes(savedStep)) return savedStep;
   if (flow !== "agent" && savedStep === "ai") return "ai";
   return steps.includes("invite") ? "invite" : "ai";

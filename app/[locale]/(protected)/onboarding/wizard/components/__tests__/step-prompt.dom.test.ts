@@ -47,7 +47,10 @@ let root: Root;
 let store: OnboardingWizardStore;
 const assign = vi.fn();
 
-async function renderPrompt(provider: "claude" | "openai" | "cursor" | null = "claude", openAiMethod: string | null = null) {
+async function renderPrompt(
+  provider: "claude" | "openai" | "cursor" | null = "claude",
+  openAiMethod: string | null = null,
+) {
   const ai = {
     reset: vi.fn(),
     restoreSelection: vi.fn(),
@@ -124,9 +127,7 @@ describe("StepPrompt", () => {
       vi.advanceTimersByTime(3_000);
       await Promise.resolve();
     });
-    expect(container.querySelector("#onboarding-template-copy")?.textContent).toContain(
-      "OnboardingWizard.prompt.copy",
-    );
+    expect(container.querySelector("#onboarding-template-copy")?.textContent).toContain("OnboardingWizard.prompt.copy");
     expect(container.querySelector("#onboarding-template-copy")?.textContent).not.toContain(
       "OnboardingWizard.prompt.copied",
     );

@@ -175,14 +175,13 @@ const OnboardingWizardContent = observer(
     const selectedTemplateName = templates.find((card) => card.slug === onboardingWizardStore.selectedTemplate)?.name;
 
     useEffect(() => {
-      onboardingWizardStore.initialize(
-        resumeStepIndex,
-        userId,
-        savedProgress,
-        setupAvailable,
-        initialJobChoice,
-        { chooseAvailable, templatesAvailable, emptyChosen, selfHosted, template: initialTemplate },
-      );
+      onboardingWizardStore.initialize(resumeStepIndex, userId, savedProgress, setupAvailable, initialJobChoice, {
+        chooseAvailable,
+        templatesAvailable,
+        emptyChosen,
+        selfHosted,
+        template: initialTemplate,
+      });
       setInitializedKey(initializationKey);
       return reaction(
         () => onboardingWizardStore.progress,
@@ -313,7 +312,7 @@ const OnboardingWizardContent = observer(
         )}
       >
         <AppCardBody>
-          {showArtwork ? <OnboardingArtwork step={currentStep as "profile" | "invite" | "ai"} /> : null}
+          {showArtwork ? <OnboardingArtwork step={currentStep} /> : null}
 
           <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
             <div className="flex min-w-0 flex-col gap-1">
@@ -388,8 +387,11 @@ const OnboardingWizardContent = observer(
         )}
 
         {currentStep === "goal" && isStepSynchronized ? <StepGoalFooter /> : null}
+
         {currentStep === "ai" && isStepSynchronized ? <StepAiFooter /> : null}
+
         {currentStep === "template" && isStepSynchronized ? <StepTemplateFooter cards={templates} /> : null}
+
         {currentStep === "prompt" && isStepSynchronized ? <StepPromptFooter /> : null}
       </AppCard>
     );

@@ -31,7 +31,7 @@ export const StepPrompt = observer(() => {
   const t = useTranslations();
   const { onboardingWizardStore: store } = useRootStore();
   const agent = useSelectedAgentName();
-  const promptRef = useRef<HTMLPreElement>(null);
+  const promptRef = useRef<HTMLDivElement>(null);
   const [copyState, setCopyState] = useState<CopyState>("idle");
   useAgentStatusPolling(store, !store.agentChanged);
 
@@ -68,19 +68,22 @@ export const StepPrompt = observer(() => {
         </div>
       ) : (
         <div className="relative">
-          <pre
+          <div
             ref={promptRef}
             aria-busy={!ready}
             aria-label={t("OnboardingWizard.prompt.promptLabel")}
+            aria-multiline="true"
+            aria-readonly="true"
             className={cn(
-              "max-h-56 min-h-32 overflow-auto rounded-lg border border-border bg-muted/60 p-4 pr-32 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap",
+              "max-h-56 min-h-32 overflow-auto rounded-lg border border-border bg-muted/60 p-4 pr-32 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none",
               !ready && "animate-pulse motion-reduce:animate-none",
             )}
             id="onboarding-template-prompt"
+            role="textbox"
             tabIndex={0}
           >
             {ready ? store.promptText : t("OnboardingWizard.prompt.loading")}
-          </pre>
+          </div>
 
           <Button
             className="absolute top-3 right-3"

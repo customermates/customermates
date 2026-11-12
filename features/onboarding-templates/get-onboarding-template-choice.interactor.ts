@@ -1,4 +1,7 @@
-import type { OnboardingFunnelRepo, OnboardingTemplateChoice } from "@/features/onboarding-funnel/onboarding-funnel.repo";
+import type {
+  OnboardingFunnelRepo,
+  OnboardingTemplateChoice,
+} from "@/features/onboarding-funnel/onboarding-funnel.repo";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 

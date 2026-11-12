@@ -38,9 +38,11 @@ describe("wizard steps", () => {
   });
 
   it("gives an invited member only the profile, team and AI steps", () => {
-    expect(wizardSteps({ setupAvailable: false, chooseAvailable: false, templatesAvailable: false }, "agent")).toEqual(
-      ["profile", "invite", "ai"],
-    );
+    expect(wizardSteps({ setupAvailable: false, chooseAvailable: false, templatesAvailable: false }, "agent")).toEqual([
+      "profile",
+      "invite",
+      "ai",
+    ]);
   });
 
   it("verifies the connection only where the owner chooses how to set up", () => {
@@ -63,14 +65,22 @@ describe("resuming the wizard", () => {
   const owner = { ...CLOUD, profileCompleted: true, isInvited: false };
 
   it("opens on the goal step until the owner chose", () => {
-    expect(
-      resolveWizardResume({ ...owner, setupStepCompleted: false, jobSelected: false, job: "agent" }),
-    ).toEqual({ steps: ["profile", "goal", "ai", "template", "prompt"], resumeStepIndex: 1, flow: "agent" });
+    expect(resolveWizardResume({ ...owner, setupStepCompleted: false, jobSelected: false, job: "agent" })).toEqual({
+      steps: ["profile", "goal", "ai", "template", "prompt"],
+      resumeStepIndex: 1,
+      flow: "agent",
+    });
   });
 
   it("starts a new owner without a profile on the profile step with the agent flow highlighted", () => {
     expect(
-      resolveWizardResume({ ...CLOUD, profileCompleted: false, isInvited: false, setupStepCompleted: false, job: "agent" }),
+      resolveWizardResume({
+        ...CLOUD,
+        profileCompleted: false,
+        isInvited: false,
+        setupStepCompleted: false,
+        job: "agent",
+      }),
     ).toEqual({ steps: ["profile", "goal", "ai", "template", "prompt"], resumeStepIndex: 0, flow: "agent" });
   });
 
@@ -136,9 +146,9 @@ describe("resuming the wizard", () => {
   it("opens a self-hosted owner on the goal step and later on the connect step", () => {
     const hosted = { ...SELF_HOSTED, profileCompleted: true, isInvited: false };
 
-    expect(resolveWizardResume({ ...hosted, setupStepCompleted: false, jobSelected: false, job: "agent" })).toMatchObject(
-      { resumeStepIndex: 1, flow: "agent" },
-    );
+    expect(
+      resolveWizardResume({ ...hosted, setupStepCompleted: false, jobSelected: false, job: "agent" }),
+    ).toMatchObject({ resumeStepIndex: 1, flow: "agent" });
     expect(
       resolveWizardResume({ ...hosted, setupStepCompleted: true, jobSelected: true, job: "agent", savedStep: "ai" }),
     ).toMatchObject({ steps: ["profile", "goal", "ai", "template", "prompt"], resumeStepIndex: 2 });
@@ -146,13 +156,21 @@ describe("resuming the wizard", () => {
 
   it("never offers an invited member the owner's steps", () => {
     expect(
-      resolveWizardResume({ ...CLOUD, profileCompleted: true, isInvited: true, setupStepCompleted: false, job: "agent" }),
+      resolveWizardResume({
+        ...CLOUD,
+        profileCompleted: true,
+        isInvited: true,
+        setupStepCompleted: false,
+        job: "agent",
+      }),
     ).toEqual({ steps: ["profile", "invite", "ai"], resumeStepIndex: 1, flow: "agent" });
   });
 
   it("keeps the follow-up path at the playbook", () => {
-    expect(
-      resolveWizardResume({ ...owner, setupStepCompleted: false, jobSelected: true, job: "followup" }),
-    ).toEqual({ steps: ["profile", "goal", "playbook"], resumeStepIndex: 2, flow: "followup" });
+    expect(resolveWizardResume({ ...owner, setupStepCompleted: false, jobSelected: true, job: "followup" })).toEqual({
+      steps: ["profile", "goal", "playbook"],
+      resumeStepIndex: 2,
+      flow: "followup",
+    });
   });
 });

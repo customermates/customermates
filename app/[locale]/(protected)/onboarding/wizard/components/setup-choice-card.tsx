@@ -18,7 +18,17 @@ type Props = {
   selected: boolean;
 };
 
-export function SetupChoiceCard({ id, value, title, description, badge, leading, children, disabled, selected }: Props) {
+export function SetupChoiceCard({
+  id,
+  value,
+  title,
+  description,
+  badge,
+  leading,
+  children,
+  disabled,
+  selected,
+}: Props) {
   return (
     <div className="relative min-w-0">
       <RadioGroupItem className="peer absolute top-4 left-4 z-10" disabled={disabled} id={id} value={value} />

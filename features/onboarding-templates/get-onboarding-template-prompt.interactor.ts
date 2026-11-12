@@ -7,7 +7,6 @@ import type { OnboardingTemplateDeployment } from "./onboarding-template-offer";
 
 import { z } from "zod";
 
-import { runWithTenant } from "@/core/decorators/tenant-context";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { TEMPLATE_SLUGS } from "@/core/templates/template-slugs";
@@ -59,7 +58,7 @@ export class GetOnboardingTemplatePromptInteractor {
     const text = bundle?.text[data.locale] ?? bundle?.text[DEFAULT_LOCALE];
     if (!bundle || !text) return { ok: true as const, data: { prompt: null } };
 
-    return runWithTenant(user, async () => ({
+    return {
       ok: true as const,
       data: {
         prompt: renderOnboardingTemplatePrompt({
@@ -70,6 +69,6 @@ export class GetOnboardingTemplatePromptInteractor {
           mcpUrl: mcpWorkspaceUrl(env.BASE_URL, user.companyId),
         }),
       },
-    }));
+    };
   }
 }

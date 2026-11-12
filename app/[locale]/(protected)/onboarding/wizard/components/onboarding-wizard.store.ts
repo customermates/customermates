@@ -28,7 +28,12 @@ import {
 } from "@/features/onboarding-funnel/onboarding-job";
 import { parseOnboardingPlaybook, type OnboardingPlaybook } from "@/features/onboarding-funnel/onboarding-playbook";
 
-import { connectsAgentWithVerification, persistedWizardStep, wizardSteps, type WizardStep } from "./onboarding-wizard-flow";
+import {
+  connectsAgentWithVerification,
+  persistedWizardStep,
+  wizardSteps,
+  type WizardStep,
+} from "./onboarding-wizard-flow";
 
 export { WIZARD_STEPS, wizardSteps } from "./onboarding-wizard-flow";
 export type { WizardStep } from "./onboarding-wizard-flow";

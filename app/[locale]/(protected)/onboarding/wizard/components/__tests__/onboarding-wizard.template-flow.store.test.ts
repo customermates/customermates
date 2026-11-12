@@ -47,7 +47,10 @@ beforeEach(() => {
   actions.saveOnboardingWizardProgressAction.mockImplementation(({ progress }) =>
     Promise.resolve({ ok: true, data: progress }),
   );
-  agentActions.getOnboardingAgentStatusAction.mockResolvedValue({ ok: true, data: { connected: false, schemaRevision: 3 } });
+  agentActions.getOnboardingAgentStatusAction.mockResolvedValue({
+    ok: true,
+    data: { connected: false, schemaRevision: 3 },
+  });
 });
 
 describe("the user's own agent", () => {
@@ -84,10 +87,17 @@ describe("the user's own agent", () => {
 
   it("finishes the wizard from the connect step when no template is offered", async () => {
     const { store } = atGoal("agent", { chooseAvailable: true, templatesAvailable: false });
-    store.initialize(2, "owner-a", undefined, true, { selectedJob: "agent", suggestedJob: null }, {
-      chooseAvailable: true,
-      templatesAvailable: false,
-    });
+    store.initialize(
+      2,
+      "owner-a",
+      undefined,
+      true,
+      { selectedJob: "agent", suggestedJob: null },
+      {
+        chooseAvailable: true,
+        templatesAvailable: false,
+      },
+    );
 
     await store.continueFromConnect();
 
@@ -133,7 +143,13 @@ describe("the user's own agent", () => {
     store.initialize(
       4,
       "owner-a",
-      { step: "prompt", inviteTab: "link", ai: store.savedProgress?.ai ?? initialAi(), template: "client-tracker", schemaBaseline: 7 },
+      {
+        step: "prompt",
+        inviteTab: "link",
+        ai: store.savedProgress?.ai ?? initialAi(),
+        template: "client-tracker",
+        schemaBaseline: 7,
+      },
       true,
       { selectedJob: "agent", suggestedJob: null },
       { ...CLOUD_FLOW, template: "sales-pipeline" },

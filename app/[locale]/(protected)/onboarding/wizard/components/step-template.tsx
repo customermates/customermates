@@ -38,7 +38,9 @@ const TemplateCounts = ({ counts }: { counts: OnboardingTemplateCard["counts"] }
 
   return (
     <span className="text-xs font-medium text-foreground/80">
-      {counts.rules > 0 ? t("OnboardingWizard.template.counts", counts) : t("OnboardingWizard.template.countsNoRules", counts)}
+      {counts.rules > 0
+        ? t("OnboardingWizard.template.counts", counts)
+        : t("OnboardingWizard.template.countsNoRules", counts)}
     </span>
   );
 };
@@ -131,7 +133,10 @@ export const StepTemplate = observer(({ cards, preselection }: Props) => {
           </div>
 
           <div className="relative w-full sm:w-56">
-            <Search aria-hidden="true" className="pointer-events-none absolute top-2.5 left-3 size-4 text-muted-foreground" />
+            <Search
+              aria-hidden="true"
+              className="pointer-events-none absolute top-2.5 left-3 size-4 text-muted-foreground"
+            />
 
             <Input
               aria-label={t("OnboardingWizard.template.searchLabel")}

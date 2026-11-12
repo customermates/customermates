@@ -133,7 +133,7 @@ describe("connecting the user's own agent", () => {
     expect(status()?.textContent).toContain("OnboardingWizard.connect.connected");
     expect(buttonById("onboarding-connect-continue")?.disabled).toBe(false);
     expect(harness.stopPoll).toHaveBeenCalled();
-    expect([...status()!.querySelectorAll("button")]).toHaveLength(0);
+    expect(status()?.querySelectorAll("button")).toHaveLength(0);
   });
 
   it("checks again on request and says when the check itself failed", async () => {
@@ -141,7 +141,7 @@ describe("connecting the user's own agent", () => {
     harness.status.mockResolvedValue({ ok: false, failure: { kind: "validation", issues: [] } });
 
     await act(async () => {
-      [...status()!.querySelectorAll("button")][0].click();
+      status()?.querySelector("button")?.click();
       await Promise.resolve();
       await Promise.resolve();
     });
@@ -176,7 +176,8 @@ describe("connecting the user's own agent", () => {
 
   it("goes back to the goal step from the provider chooser and to the chooser from a provider screen", async () => {
     const ai = await renderConnect();
-    const back = () => [...container.querySelectorAll("button")].find((button) => button.textContent === "Common.actions.back");
+    const back = () =>
+      [...container.querySelectorAll("button")].find((button) => button.textContent === "Common.actions.back");
 
     await act(async () => {
       back()?.click();
@@ -212,10 +213,17 @@ describe("the ordinary AI step", () => {
       backToProviders: vi.fn(),
     };
     store = new OnboardingWizardStore({ stepAiStore: ai, localeStore: { locale: "en" } } as never);
-    store.initialize(4, undefined, undefined, true, { selectedJob: "workspace", suggestedJob: null }, {
-      chooseAvailable: true,
-      templatesAvailable: false,
-    });
+    store.initialize(
+      4,
+      undefined,
+      undefined,
+      true,
+      { selectedJob: "workspace", suggestedJob: null },
+      {
+        chooseAvailable: true,
+        templatesAvailable: false,
+      },
+    );
     harness.rootStore = { onboardingWizardStore: store, stepAiStore: ai };
 
     await act(async () => {

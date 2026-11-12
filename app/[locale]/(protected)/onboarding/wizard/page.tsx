@@ -124,8 +124,6 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
         inviterName={invitation?.inviterName}
         isInvited={isInvited}
         jobChoice={jobChoice}
-        templatePreselection={templatePreselection}
-        templates={templates}
         onboardingIntent={effectiveIntent?.intent}
         profileCompleted={Boolean(user)}
         savedProgress={savedProgress?.data}
@@ -135,6 +133,8 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
         sessionLastName={sessionLastName}
         setupStatus={setupStatus}
         setupStepCompleted={setupStepCompleted}
+        templatePreselection={templatePreselection}
+        templates={templates}
         userId={user?.role?.isSystemRole ? user.id : undefined}
         workspaceName={invitation?.companyName}
       />

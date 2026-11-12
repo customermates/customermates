@@ -1,3 +1,5 @@
+import type * as CapabilitiesModule from "@/core/capabilities/capabilities";
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ACCOUNT_STATES, accountStateRedirect } from "@/features/auth/account-state";
@@ -6,7 +8,7 @@ import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/capabilities/capabilities", async (importOriginal) => {
-  const original = await importOriginal<typeof import("@/core/capabilities/capabilities")>();
+  const original = await importOriginal<typeof CapabilitiesModule>();
   return { ...original, SHIPPED_CAPABILITIES: new Set(original.CAPABILITIES) };
 });
 

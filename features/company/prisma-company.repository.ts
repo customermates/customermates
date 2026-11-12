@@ -17,7 +17,7 @@ import type { ProcessLemonSqueezyWebhookRepo } from "@/ee/subscription/process-l
 import type { BillingUsageRepo } from "@/features/billing-usage/billing-usage.repo";
 import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard-company.repo";
 import type { InviteTokenRepo } from "@/features/company/invite-token-validation.repo";
-import type { RecordAgentFirstCallRepo } from "@/features/onboarding-funnel/onboarding-agent.repo";
+import type { RecordAgentFirstCallRepo } from "@/features/onboarding-funnel/record-agent-first-call.repo";
 import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user-company.repo";
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-subscription.repo";
 import type { GetCompanyRepo } from "./get-company.repo";

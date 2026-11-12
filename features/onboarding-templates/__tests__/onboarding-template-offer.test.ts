@@ -94,9 +94,9 @@ describe("offered template cards", () => {
   });
 
   it("drops a template whose slug the library does not know", () => {
-    expect(offeredTemplateCards({ locale: "en", deployment: "cloud", shipped: ALL, index: [entry("unknown")] })).toEqual(
-      [],
-    );
+    expect(
+      offeredTemplateCards({ locale: "en", deployment: "cloud", shipped: ALL, index: [entry("unknown")] }),
+    ).toEqual([]);
   });
 
   it("offers every real template with text in the locale once its capabilities ship", () => {
@@ -133,9 +133,9 @@ describe("template preselection", () => {
     expect(
       preselectOnboardingTemplate({ cards, signupTemplate: null, landingPath: "/en/for/consultants", index }),
     ).toEqual({ slug: "client-tracker", reason: "page" });
-    expect(
-      preselectOnboardingTemplate({ cards, signupTemplate: null, landingPath: "/de/for/berater", index }),
-    ).toEqual({ slug: "client-tracker", reason: "page" });
+    expect(preselectOnboardingTemplate({ cards, signupTemplate: null, landingPath: "/de/for/berater", index })).toEqual(
+      { slug: "client-tracker", reason: "page" },
+    );
   });
 
   it("recommends the default template when nothing points at another one", () => {
@@ -160,9 +160,9 @@ describe("template preselection", () => {
   });
 
   it("preselects nothing when no template is offered", () => {
-    expect(preselectOnboardingTemplate({ cards: [], signupTemplate: "client-tracker", landingPath: null, index })).toEqual(
-      { slug: null, reason: null },
-    );
+    expect(
+      preselectOnboardingTemplate({ cards: [], signupTemplate: "client-tracker", landingPath: null, index }),
+    ).toEqual({ slug: null, reason: null });
   });
 
   it("ignores a forged signup template value", () => {

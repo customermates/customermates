@@ -66,7 +66,9 @@ export const AgentConnectionStatus = observer(() => {
 
       {connected ? null : (
         <Button disabled={checking} size="sm" type="button" variant="ghost" onClick={() => void checkAgain()}>
-          {checking ? <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" /> : null}
+          {checking ? (
+            <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" />
+          ) : null}
 
           {t("OnboardingWizard.connect.checkAgain")}
         </Button>

@@ -35,12 +35,41 @@ let container: HTMLDivElement;
 let root: Root;
 let store: OnboardingWizardStore;
 
-const FAMILIES = ["sales", "clients", "property", "recruiting", "operations", "content", "intake", "community"] as const;
+const FAMILIES = [
+  "sales",
+  "clients",
+  "property",
+  "recruiting",
+  "operations",
+  "content",
+  "intake",
+  "community",
+] as const;
+
+const nativeInputValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
 
 const THREE: OnboardingTemplateCard[] = [
-  { slug: "sales-pipeline", family: "sales", name: "Sales pipeline", summary: "Deals to proposals.", counts: { lists: 4, views: 8, rules: 17 } },
-  { slug: "client-tracker", family: "clients", name: "Client tracker", summary: "One row per client.", counts: { lists: 3, views: 9, rules: 0 } },
-  { slug: "real-estate-pipeline", family: "property", name: "Real estate", summary: "Listings and viewings.", counts: { lists: 7, views: 11, rules: 23 } },
+  {
+    slug: "sales-pipeline",
+    family: "sales",
+    name: "Sales pipeline",
+    summary: "Deals to proposals.",
+    counts: { lists: 4, views: 8, rules: 17 },
+  },
+  {
+    slug: "client-tracker",
+    family: "clients",
+    name: "Client tracker",
+    summary: "One row per client.",
+    counts: { lists: 3, views: 9, rules: 0 },
+  },
+  {
+    slug: "real-estate-pipeline",
+    family: "property",
+    name: "Real estate",
+    summary: "Listings and viewings.",
+    counts: { lists: 7, views: 11, rules: 23 },
+  },
 ];
 
 function manyCards(count: number): OnboardingTemplateCard[] {
@@ -53,16 +82,26 @@ function manyCards(count: number): OnboardingTemplateCard[] {
   }));
 }
 
-async function setup(cards: OnboardingTemplateCard[], preselection: { slug: string | null; reason: "default" | "signup" | "page" | null }) {
+async function setup(
+  cards: OnboardingTemplateCard[],
+  preselection: { slug: string | null; reason: "default" | "signup" | "page" | null },
+) {
   store = new OnboardingWizardStore({
     stepAiStore: { reset: vi.fn(), restoreSelection: vi.fn() },
     localeStore: { locale: "en" },
   } as never);
-  store.initialize(3, "owner-a", undefined, true, { selectedJob: "agent", suggestedJob: null }, {
-    chooseAvailable: true,
-    templatesAvailable: true,
-    template: (preselection.slug ?? null) as never,
-  });
+  store.initialize(
+    3,
+    "owner-a",
+    undefined,
+    true,
+    { selectedJob: "agent", suggestedJob: null },
+    {
+      chooseAvailable: true,
+      templatesAvailable: true,
+      template: (preselection.slug ?? null) as never,
+    },
+  );
   harness.rootStore = { onboardingWizardStore: store };
   await act(async () => {
     root.render(createElement(StepTemplate, { cards, preselection: preselection as never }));
@@ -146,16 +185,14 @@ describe("StepTemplate", () => {
     const search = container.querySelector<HTMLInputElement>('input[type="search"]');
     expect(search?.getAttribute("aria-label")).toBe("OnboardingWizard.template.searchLabel");
     await act(async () => {
-      const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
-      setValue?.call(search, "listings");
+      nativeInputValue?.set?.call(search, "listings");
       search?.dispatchEvent(new Event("input", { bubbles: true }));
       await Promise.resolve();
     });
     expect(radios().map((radio) => radio.id)).toEqual(["onboarding-template-real-estate-pipeline"]);
 
     await act(async () => {
-      const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
-      setValue?.call(search, "zzz");
+      nativeInputValue?.set?.call(search, "zzz");
       search?.dispatchEvent(new Event("input", { bubbles: true }));
       await Promise.resolve();
     });

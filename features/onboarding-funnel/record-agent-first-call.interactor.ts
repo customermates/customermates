@@ -1,5 +1,5 @@
 import type { Validated } from "@/core/validation/validation.utils";
-import type { RecordAgentFirstCallRepo } from "./onboarding-agent.repo";
+import type { RecordAgentFirstCallRepo } from "./record-agent-first-call.repo";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";

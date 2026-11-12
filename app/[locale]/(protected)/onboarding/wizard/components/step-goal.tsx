@@ -127,7 +127,7 @@ export const StepGoal = observer(() => {
         onValueChange={store.setSelectedJob}
       >
         {jobs.map((job) => {
-          if (job === "agent")
+          if (job === "agent") {
             return (
               <SetupChoiceCard
                 key={job}
@@ -149,7 +149,8 @@ export const StepGoal = observer(() => {
                 <AgentSteps />
               </SetupChoiceCard>
             );
-          if (job === "workspace")
+          }
+          if (job === "workspace") {
             return (
               <SetupChoiceCard
                 key={job}
@@ -171,6 +172,7 @@ export const StepGoal = observer(() => {
                 value={job}
               />
             );
+          }
           return (
             <SetupChoiceCard
               key={job}

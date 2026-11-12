@@ -284,7 +284,10 @@ describe("OnboardingWizardPage authentication detours", () => {
 
     const page = await OnboardingWizardPage({ searchParams: Promise.resolve({ intent: "signed.create" }) });
 
-    expect(page.props.children.props).toMatchObject({ templates: [{ slug: "client-tracker" }], profileCompleted: false });
+    expect(page.props.children.props).toMatchObject({
+      templates: [{ slug: "client-tracker" }],
+      profileCompleted: false,
+    });
     expect(mocks.getTemplateChoice).not.toHaveBeenCalled();
   });
 

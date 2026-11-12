@@ -32,7 +32,13 @@ vi.mock("@/components/modal/confirm-dialog", () => ({
     onConfirm?: () => unknown;
     confirmLabel?: ReactNode;
   }) =>
-    open ? createElement("button", { id: "confirm-empty", type: "button", onClick: () => void onConfirm?.() }, confirmLabel) : null,
+    open
+      ? createElement(
+          "button",
+          { id: "confirm-empty", type: "button", onClick: () => void onConfirm?.() },
+          confirmLabel,
+        )
+      : null,
 }));
 vi.mock("../../actions", () => ({
   applyOnboardingPlaybookAction: vi.fn(),
@@ -59,7 +65,13 @@ async function renderGoal(
   job: "agent" | "workspace" | "followup",
   options: { selfHosted?: boolean; suggestedJob?: "followup" | null } = {},
 ) {
-  const ai = { reset: vi.fn(), restoreSelection: vi.fn(), selection: {}, selectedProvider: null, forgetApiKeyIds: vi.fn() };
+  const ai = {
+    reset: vi.fn(),
+    restoreSelection: vi.fn(),
+    selection: {},
+    selectedProvider: null,
+    forgetApiKeyIds: vi.fn(),
+  };
   store = new OnboardingWizardStore({ stepAiStore: ai, localeStore: { locale: "de" } } as never);
   store.initialize(
     1,
