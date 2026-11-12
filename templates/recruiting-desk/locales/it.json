@@ -1,7 +1,7 @@
 {
   "locale": "it",
   "name": "Ricerca e selezione del personale",
-  "summary": "Una scrivania per agenzia di ricerca e selezione o recruiter indipendente: incarichi dal briefing all'inserimento, una scheda per candidato e incarico, scadenze di fee e garanzia, ricontatti dopo l'inserimento e una data di conservazione per ogni candidato.",
+  "summary": "Uno strumento per agenzie di ricerca e selezione o recruiter indipendenti: incarichi dal briefing all'inserimento, una scheda per candidato e incarico, scadenze di fee e garanzia, ricontatti dopo l'inserimento e una data di conservazione per ogni candidato.",
   "description": "Gestisci l'agenzia in un unico posto: clienti e condizioni di incarico, incarichi con una fase e una fee prevista, candidati presentati per incarico con la propria fase, inserimenti con la fine del periodo di garanzia e i ricontatti dopo l'ingresso, e una data di revisione della conservazione su ogni candidato. Adatto a un team da una a cinque persone. Non è un job board, né un parser di CV, né uno strumento di invii di massa, né un sistema di timesheet e paghe. Nulla viene inviato automaticamente a candidati o clienti.",
   "lists": {
     "people": { "label": "Persona", "pluralLabel": "Candidati e referenti", "description": "Candidati, referenti presso il cliente e segnalatori." },
@@ -13,7 +13,7 @@
   "fields": {
     "jobs.stage": {
       "label": "Fase",
-      "options": { "lead": "Richiesta", "brief": "Briefing", "terms_agreed": "Incarico firmato", "searching": "Ricerca", "submitted": "Short list presentata", "interviews": "Colloqui in azienda", "offer": "Offerta", "placed": "Inserito", "lost": "Perso" }
+      "options": { "lead": "Richiesta", "brief": "Briefing", "terms_agreed": "Condizioni concordate", "searching": "Ricerca", "submitted": "Short list presentata", "interviews": "Colloqui in azienda", "offer": "Offerta", "placed": "Inserito", "lost": "Perso" }
     },
     "submissions.stage": {
       "label": "Fase",
@@ -37,9 +37,9 @@
     "people.location": { "label": "Sede" },
     "people.data_basis": {
       "label": "Base per conservare i dati",
-      "options": { "pre_contract": "Misure precontrattuali", "talent_pool_consent": "Consenso per la banca dati", "legitimate_interest": "Individuato, legittimo interesse" }
+      "options": { "pre_contract": "Misure precontrattuali", "talent_pool_consent": "Consenso per future selezioni", "legitimate_interest": "Individuato, legittimo interesse" }
     },
-    "people.retain_until": { "label": "Conserva fino al" },
+    "people.retain_until": { "label": "Conservare fino al" },
     "people.last_contact": { "label": "Ultimo contatto" },
     "people.owner": { "label": "Responsabile" },
     "clients.client_status": {
@@ -60,7 +60,7 @@
     "jobs.salary": { "label": "RAL prevista" },
     "jobs.fee_percent": { "label": "Fee (%)" },
     "jobs.opened_on": { "label": "Aperto il" },
-    "jobs.filled_on": { "label": "Chiuso il" },
+    "jobs.filled_on": { "label": "Coperto il" },
     "jobs.exclusive": { "label": "In esclusiva" },
     "jobs.location": { "label": "Sede di lavoro" },
     "jobs.work_model": { "label": "Modalità di lavoro", "options": { "on_site": "In sede", "hybrid": "Ibrido", "remote": "Da remoto" } },
@@ -143,17 +143,17 @@
     "interviews_coming": { "title": "Colloqui in arrivo" },
     "guarantees_ending": { "title": "Garanzie in scadenza" },
     "retention_due": { "title": "Dati dei candidati da rivedere" },
-    "lost_reasons": { "title": "Perché si sono persi gli incarichi" },
+    "lost_reasons": { "title": "Motivi di perdita degli incarichi" },
     "average_days_to_fill": { "title": "Giorni medi per coprire una posizione" }
   },
   "knowledgePages": {
-    "operating_guide": { "title": "Come funziona la scrivania", "sections": ["Le due pipeline: incarichi e candidati", "Chi segue quale fase, e la regola di un'attività con data per ogni pratica aperta"] },
+    "operating_guide": { "title": "Come funziona l'attività di ricerca", "sections": ["Le due pipeline: incarichi e candidati", "Chi segue quale fase, e la regola di un'attività con data per ogni pratica aperta"] },
     "client_intake_call": { "title": "Chiamata di briefing con il cliente: scheda dell'incarico", "sections": ["Ruolo, sede, modalità di lavoro, fascia retributiva e data di inizio", "Requisiti indispensabili e preferenziali, motivo dell'apertura e chi decide"] },
     "terms_checklist": { "title": "Fee, garanzia ed esclusiva", "sections": ["Base di calcolo, quando matura e termini di pagamento", "Durata e rimedio della garanzia, esclusiva (usa il tuo contratto, non è consulenza legale)"] },
-    "screening_call": { "title": "Guida al colloquio di screening", "sections": ["Motivazione, preavviso, aspettativa retributiva, altri processi", "Cosa non chiedere e cosa non registrare"] },
+    "screening_call": { "title": "Guida al colloquio di screening", "sections": ["Motivazione, preavviso, aspettativa retributiva, altri processi", "Che cosa non chiedere e che cosa non registrare"] },
     "submission_email": { "title": "Presentare un candidato al cliente", "sections": ["Sintesi in tre righe e perché questa persona", "Disponibilità, aspettative e CV in allegato (una bozza, mai inviata in automatico)"] },
     "interview_routine": { "title": "Preparazione e debriefing dei colloqui", "sections": ["Fare il briefing al candidato e al referente del cliente", "Registrare l'esito entro un giorno"] },
-    "candidate_data": { "title": "Dati dei candidati: base giuridica, informativa e conservazione", "sections": ["Tempi di conservazione e informativa privacy", "Consenso per la banca dati e data di revisione"] },
+    "candidate_data": { "title": "Dati dei candidati: base giuridica, informativa e conservazione", "sections": ["Tempi di conservazione e informativa privacy", "Consenso per future selezioni e data di revisione"] },
     "aftercare_routine": { "title": "Ricontatti dopo l'inserimento dal giorno 1 al giorno 90", "sections": ["Ricontatti all'inizio, dopo una settimana, a 30, 60 e 90 giorni", "Fine della garanzia e fatturazione della fee"] }
   },
   "rules": {
@@ -180,11 +180,11 @@
     "submission_stage_field": "Ogni candidato ha una fase propria su un incarico.",
     "guarantee_end_field": "Ogni inserimento registra quando finisce la garanzia.",
     "retain_until_field": "Ogni persona registra fino a quando i suoi dati sono conservati.",
-    "jobs_board_view": "Gli incarichi si aprono come bacheca per fase.",
+    "jobs_board_view": "Gli incarichi si aprono come board per fase.",
     "candidate_data_page": "La base di conoscenza contiene una pagina sui dati dei candidati e sulla conservazione."
   },
   "prompt": {
-    "intro": "Configura nel mio spazio di lavoro Customermates una scrivania di ricerca e selezione: clienti con le loro condizioni, incarichi con nove fasi e una fee prevista, una candidatura per candidato e incarico, inserimenti con la fine della garanzia e i ricontatti, e una data di conservazione per ogni candidato.",
+    "intro": "Configura nel mio spazio di lavoro Customermates un sistema per la ricerca e selezione del personale: clienti con le loro condizioni, incarichi con nove fasi e una fee prevista, una candidatura per candidato e incarico, inserimenti con la fine della garanzia e i ricontatti, e una data di conservazione per ogni candidato.",
     "questions": [
       "Lavori a successo, in retained o in entrambi i modi, e che fee e garanzia concordi di solito?",
       "Quanti incarichi e candidati gestisci in parallelo e chi segue quale fase?",
