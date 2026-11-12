@@ -33155,7 +33155,7 @@
     {
       "name": "manage_forms",
       "title": "Manage public forms",
-      "description": "Use this when you need to publish or change a public form that lets anyone outside the workspace add a record to a list without signing in. Each list has at most one form. Submissions create a record in that list as the member who last turned the form on, with the form named as its source in the record's activity; an optional linked person is found or created by email (one person per email). action fields lists the fields a form can use (input fields of type text, formatted text, number, currency, yes/no, date, single or multiple choice, link and contact details) and the people lists it can link to; read it before create. action create requires typeId, name and config. action update requires id and replaces config when given. action disable turns the form off at once; the same link works again after update with enabled true. Free plan forms accept a monthly number of submissions and show a Made with Customermates badge; paid plans and self-hosted workspaces have neither. A workspace administrator can turn public links and forms off in the workspace settings. Each get, create and update result carries url, the public link, and embedSnippet, an iframe to paste into a web page. Visitors only ever see the questions in config.fields, never other fields of the record.",
+      "description": "Publishes and changes public forms that let anyone outside the workspace add a record to a list without signing in. Each list has at most one form. Submissions create a record in that list as the member who last turned the form on, with the form named as its source in the record's activity; an optional linked person is found or created by email (one person per email). action fields lists the fields a form can use (input fields of type text, formatted text, number, currency, yes/no, date, single or multiple choice, link and contact details) and the people lists it can link to. action create requires typeId, name and config. action update requires id and replaces config when given. action disable turns the form off at once; the same link works again after update with enabled true. Free plan forms accept a monthly number of submissions and show a Made with Customermates badge; paid plans and self-hosted workspaces have neither. A workspace administrator can turn public links and forms off in the workspace settings. Each get, create and update result carries url, the public link, and embedSnippet, an iframe to paste into a web page. Visitors see only the questions in config.fields, not other fields of the record.",
       "execution": {
         "taskSupport": "forbidden"
       },
@@ -36952,7 +36952,7 @@
     {
       "name": "schedule_meeting",
       "title": "Schedule, move and cancel meetings",
-      "description": "Creates, moves and cancels meetings in the caller's own connected Google or Microsoft calendar, and finds free slots from the synced calendars. Needs the inbox plan (Pro and up) and a connected calendar; it is not available when self-hosting. Call options first for the writable calendars, attendee suggestions from a record and its linked People, and the lists that can receive a follow-up Action. slots returns free start times within working hours that do not overlap synced events. create makes the event, links it to the given records so it appears on their activity timeline, and with followUp also creates a record in that list at the meeting start. SIDE EFFECT: create, update and cancel change a real calendar, and unless sendInvites is false the provider sends invitations or updates to every attendee. Confirm title, time, time zone and attendees with the user before calling create or update. cancel notifies the attendees and cancels the event permanently for them. Only events created through this tool or the app and owned by the caller can be changed; event ids come from create or from get_calendars.",
+      "description": "Creates, moves and cancels meetings in the caller's own connected Google or Microsoft calendar, and finds free slots from the synced calendars. Needs the inbox plan (Pro and up) and a connected calendar; it is not available when self-hosting. options returns the writable calendars, attendee suggestions from a record and its linked People, and the lists that can receive a follow-up Action. slots returns free start times within working hours that avoid synced events. create makes the event, links it to the given records so it appears on their activity timeline, and with followUp also creates a record in that list at the meeting start. SIDE EFFECT: create, update and cancel change a real calendar, and unless sendInvites is false the provider sends invitations or updates to every attendee. cancel notifies the attendees and cancels the event permanently for them. Only events created through this tool or the app and owned by the caller can be changed; an event id is the id returned by create or the id of a synced calendar event.",
       "execution": {
         "taskSupport": "forbidden"
       },
@@ -37589,7 +37589,7 @@
     {
       "name": "manage_booking_links",
       "title": "Manage public booking pages",
-      "description": "Lists, creates, changes and deletes the caller's public booking pages, a link where anyone can book a meeting in the caller's connected calendar without an account. Needs the inbox plan (Pro and up) and a connected calendar; it is not available when self-hosting. A booking link carries the meeting duration, a buffer, minimum notice, how many days ahead slots are offered, working hours in a time zone, an optional video link and the visitor questions. Each question is a field of recordTypeId, the list that receives one record per booking; personTypeId names the list whose record is found or created for the visitor, one per email. Call schedule_meeting options for calendarId, and get_record_model for list and field ids. save with an id changes only the keys sent, and questions and workingHours replace the whole value. The page shows free slots from the synced calendars and creates the calendar event, the Person and the record when someone books; every booking also emits the form.submitted event, so rules can react. delete permanently removes the link and its booking history; meetings already booked stay in the calendar.",
+      "description": "Lists, creates, changes and deletes the caller's public booking pages, a link where anyone can book a meeting in the caller's connected calendar without an account. Needs the inbox plan (Pro and up) and a connected calendar; it is not available when self-hosting. A booking link carries the meeting duration, a buffer, minimum notice, how many days ahead slots are offered, working hours in a time zone, an optional video link and the visitor questions. Each question is a field of recordTypeId, the list that receives one record per booking; personTypeId names the list whose record is found or created for the visitor, one per email. calendarId is the id of one of the caller's writable calendars; personTypeId, recordTypeId and startFieldId are the stable ids of lists and fields of the record model. save with an id changes only the keys sent, and questions and workingHours replace the whole value. The page shows free slots from the synced calendars and creates the calendar event, the Person and the record when someone books; every booking also emits the form.submitted event, so rules can react. delete permanently removes the link and its booking history; meetings already booked stay in the calendar.",
       "execution": {
         "taskSupport": "forbidden"
       },
@@ -47395,7 +47395,7 @@
     {
       "name": "manage_rules",
       "title": "Manage rules",
-      "description": "Use this to read, create, change or remove automation rules: deterministic when-if-then rules that run without AI, on every plan and on self-hosted instances. A rule has a trigger (a record created or updated, a field changed to a value, a date reached with an offset in days before or after, a message received, a form submitted or an incoming webhook), optional conditions on the triggering record and one or more effects (set a field, create a record such as an Action, notify members, call a webhook). A rule runs once per record and occurrence, as its owner, with the owner's permissions: it can never do more than the owner could. Changes a rule makes never start the same rule again, and a chain stops after two rules. action list returns compact summaries; get returns one rule in full; runs returns one rule's history, newest first, each with its status, the affected record and the outcome of every effect. action create needs name, trigger and effects; omitting enabled produces a LIVE rule. Plans limit the number of active rules; the refusal names the limit. action update changes only the keys supplied; trigger, conditions and effects REPLACE their previous value. Only the owner may change or enable a rule. action enable and disable switch a rule on and off; its history is kept; an administrator may also disable. action delete removes the rule and its history permanently and is IRREVERSIBLE; prefer disable. action preview lists which records a date-reached rule would hit on its next sweep (at most 200 are checked), without running anything.",
+      "description": "Reads, creates, changes and removes automation rules: deterministic when-if-then rules that run without AI, on every plan and on self-hosted instances. A rule has a trigger (a record created or updated, a field changed to a value, a date reached with an offset in days before or after, a message received, a form submitted or an incoming webhook), optional conditions on the triggering record and one or more effects (set a field, create a record such as an Action, notify members, send an outbound webhook). A rule runs once per record and occurrence, as its owner, with the owner's permissions: it cannot do more than the owner could. Changes a rule makes cannot start the same rule again, and a chain stops after two rules. action list returns compact summaries; get returns one rule in full; runs returns one rule's history, newest first, each with its status, the affected record and the outcome of every effect. action create needs name, trigger and effects; omitting enabled produces a LIVE rule and enabled false creates a draft. Plans limit the number of active rules; the refusal names the limit. action update changes only the keys supplied; trigger, conditions and effects REPLACE their previous value. Only the owner may change or enable a rule. action enable and disable switch a rule on and off; its history is kept; an administrator may also disable. action delete removes the rule and its history permanently and is IRREVERSIBLE. action preview lists which records a date-reached rule would hit on its upcoming sweep (at most 200 are checked), without running anything.",
       "execution": {
         "taskSupport": "forbidden"
       },
@@ -47435,7 +47435,7 @@
             "type": "boolean"
           },
           "trigger": {
-            "description": "When the rule fires. Required on create; on update REPLACES the trigger. kind is recordCreated, recordUpdated, fieldChanged, dateReached (a date or date and time field, days before or after, at an hour in a time zone), messageReceived, formSubmitted or webhookReceived. List, field and relationship ids come from discover_record_types and get_record_model.",
+            "description": "When the rule fires. Required on create; on update REPLACES the trigger. kind is recordCreated, recordUpdated, fieldChanged, dateReached (a date or date and time field, days before or after, at an hour in a time zone), messageReceived, formSubmitted or webhookReceived. List and field ids are the stable ids of the record model.",
             "oneOf": [
               {
                 "type": "object",
@@ -47448,7 +47448,7 @@
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                    "description": "Stable id of the list (record type), from discover_record_types."
+                    "description": "Stable id of the list (record type)."
                   }
                 },
                 "required": [
@@ -47469,7 +47469,7 @@
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                    "description": "Stable id of the list (record type), from discover_record_types."
+                    "description": "Stable id of the list (record type)."
                   },
                   "fieldIds": {
                     "default": [],
@@ -47480,7 +47480,7 @@
                       "type": "string",
                       "format": "uuid",
                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                      "description": "Stable id of the field, from get_record_model."
+                      "description": "Stable id of the field."
                     }
                   }
                 },
@@ -47502,13 +47502,13 @@
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                    "description": "Stable id of the list (record type), from discover_record_types."
+                    "description": "Stable id of the list (record type)."
                   },
                   "fieldId": {
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                    "description": "Stable id of the field, from get_record_model."
+                    "description": "Stable id of the field."
                   },
                   "to": {
                     "description": "Fire only when the field changed to exactly this value.",
@@ -47684,7 +47684,7 @@
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                    "description": "Stable id of the list (record type), from discover_record_types."
+                    "description": "Stable id of the list (record type)."
                   },
                   "fieldId": {
                     "type": "string",
@@ -47765,7 +47765,7 @@
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                    "description": "Stable id of the list (record type), from discover_record_types."
+                    "description": "Stable id of the list (record type)."
                   },
                   "sourceId": {
                     "description": "Restrict the rule to one form.",
@@ -47791,7 +47791,7 @@
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                    "description": "Stable id of the list (record type), from discover_record_types."
+                    "description": "Stable id of the list (record type)."
                   },
                   "sourceId": {
                     "description": "Restrict the rule to one incoming webhook endpoint.",
@@ -47819,7 +47819,7 @@
                   "type": "string",
                   "format": "uuid",
                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                  "description": "Stable id of the field, from get_record_model."
+                  "description": "Stable id of the field."
                 },
                 "operator": {
                   "type": "string",
@@ -48145,11 +48145,11 @@
                       "kind"
                     ],
                     "additionalProperties": false,
-                    "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
+                    "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal carries a currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
                   }
                 },
                 "relativeDays": {
-                  "description": "For before and after instead of value: today plus this many days, read when the rule runs.",
+                  "description": "For before and after, in place of value: today plus this many days, read when the rule runs.",
                   "type": "integer",
                   "minimum": -3650,
                   "maximum": 3650
@@ -48338,7 +48338,7 @@
                                     "pattern": "^[^\\u0000]*$"
                                   },
                                   "candidateToken": {
-                                    "description": "Address only, instead of value: a candidateToken from an address lookup stores the verified address.",
+                                    "description": "Address only, in place of value: a candidateToken from an address lookup stores the verified address.",
                                     "type": "string",
                                     "minLength": 1,
                                     "maxLength": 4096
@@ -48348,7 +48348,7 @@
                                   "kind"
                                 ],
                                 "additionalProperties": false,
-                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
+                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal carries a currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
                               },
                               {
                                 "type": "null"
@@ -48391,7 +48391,7 @@
                           "type": "string",
                           "format": "uuid",
                           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                          "description": "Stable id of the field, from get_record_model."
+                          "description": "Stable id of the field."
                         },
                         "text": {
                           "type": "string",
@@ -48590,7 +48590,7 @@
                                     "pattern": "^[^\\u0000]*$"
                                   },
                                   "candidateToken": {
-                                    "description": "Address only, instead of value: a candidateToken from an address lookup stores the verified address.",
+                                    "description": "Address only, in place of value: a candidateToken from an address lookup stores the verified address.",
                                     "type": "string",
                                     "minLength": 1,
                                     "maxLength": 4096
@@ -48600,7 +48600,7 @@
                                   "kind"
                                 ],
                                 "additionalProperties": false,
-                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
+                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal carries a currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
                               },
                               {
                                 "type": "null"
@@ -51232,7 +51232,7 @@
     {
       "name": "manage_incoming_webhooks",
       "title": "Manage incoming webhooks",
-      "description": "Use this when an outside system such as a form tool, a website, GitHub or Stripe should create or update records in a list by posting JSON to a secret URL. Each endpoint belongs to one list and maps JSON paths of the body to its fields; mode upsert updates the record whose match field equals the mapped value and creates one otherwise. action fields lists the fields a mapping can fill; read it before create. action create requires typeId, name and mapping and returns webhook.url, the secret address that receives POST requests. Set signingSecret to require an HMAC-SHA256 signature of the raw body in signatureHeader. Requests larger than 256 KB or arriving too fast are refused. action test shows what a body would write, field by field, without writing anything; action deliveries shows the delivery log with the outcome of each request. action update with rotateUrl true replaces the secret address. action delete is IRREVERSIBLE. Records are created as the member who created the endpoint, with the endpoint named as their source. Incoming webhooks need a plan with webhooks on the cloud and work on every self-hosted workspace.",
+      "description": "Lets an outside system such as a form tool, a website, GitHub or Stripe create or update records in a list by posting JSON to a secret URL. Each endpoint belongs to one list and maps JSON paths of the body to its fields; mode upsert updates the record whose match field equals the mapped value and creates one otherwise. action fields lists the fields a mapping can fill. action create requires typeId, name and mapping and returns webhook.url, the secret address that receives POST requests. With signingSecret set, every request must carry an HMAC-SHA256 signature of the raw body in signatureHeader. Requests larger than 256 KB or arriving too fast are refused. action test shows what a body would write, field by field, without writing anything; action deliveries shows the delivery log with the outcome of each request. action update with rotateUrl true replaces the secret address. action delete is IRREVERSIBLE. Records are created as the member who created the endpoint, with the endpoint named as their source. Incoming webhooks need a plan with webhooks on the cloud and work on every self-hosted workspace.",
       "execution": {
         "taskSupport": "forbidden"
       },
@@ -51280,7 +51280,7 @@
                   "create",
                   "upsert"
                 ],
-                "description": "create always adds a record; upsert updates the record that matches."
+                "description": "create adds a record for every request; upsert updates the record that matches."
               },
               "matchFieldId": {
                 "anyOf": [
@@ -51340,7 +51340,7 @@
             "type": "string"
           },
           "signingSecret": {
-            "description": "When set, every request must carry a valid signature in signatureHeader. update: omit to keep, null to clear. The secret is never returned.",
+            "description": "When set, every request must carry a valid signature in signatureHeader. update: omit to keep, null to clear. The secret is not returned.",
             "anyOf": [
               {
                 "type": "string"
@@ -52544,7 +52544,7 @@
     {
       "name": "setup-from-template",
       "title": "Set up from a template",
-      "description": "Build a workspace from a Customermates template: read the workspace first, propose the plan, then build only after approval",
+      "description": "Sets up a workspace from a Customermates template: reads the workspace first, proposes the plan and builds only after approval",
       "arguments": [
         {
           "name": "template",

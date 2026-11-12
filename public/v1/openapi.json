@@ -107767,7 +107767,7 @@
                                   "create",
                                   "upsert"
                                 ],
-                                "description": "create always adds a record; upsert updates the record that matches."
+                                "description": "create adds a record for every request; upsert updates the record that matches."
                               },
                               "matchFieldId": {
                                 "anyOf": [
@@ -107904,7 +107904,7 @@
                                 "create",
                                 "upsert"
                               ],
-                              "description": "create always adds a record; upsert updates the record that matches."
+                              "description": "create adds a record for every request; upsert updates the record that matches."
                             },
                             "matchFieldId": {
                               "anyOf": [
@@ -108412,7 +108412,7 @@
                                   "create",
                                   "upsert"
                                 ],
-                                "description": "create always adds a record; upsert updates the record that matches."
+                                "description": "create adds a record for every request; upsert updates the record that matches."
                               },
                               "matchFieldId": {
                                 "anyOf": [
@@ -108549,7 +108549,7 @@
                                 "create",
                                 "upsert"
                               ],
-                              "description": "create always adds a record; upsert updates the record that matches."
+                              "description": "create adds a record for every request; upsert updates the record that matches."
                             },
                             "matchFieldId": {
                               "anyOf": [
@@ -109057,7 +109057,7 @@
                                   "create",
                                   "upsert"
                                 ],
-                                "description": "create always adds a record; upsert updates the record that matches."
+                                "description": "create adds a record for every request; upsert updates the record that matches."
                               },
                               "matchFieldId": {
                                 "anyOf": [
@@ -109194,7 +109194,7 @@
                                 "create",
                                 "upsert"
                               ],
-                              "description": "create always adds a record; upsert updates the record that matches."
+                              "description": "create adds a record for every request; upsert updates the record that matches."
                             },
                             "matchFieldId": {
                               "anyOf": [
@@ -109671,7 +109671,7 @@
                           "create",
                           "upsert"
                         ],
-                        "description": "create always adds a record; upsert updates the record that matches."
+                        "description": "create adds a record for every request; upsert updates the record that matches."
                       },
                       "matchFieldId": {
                         "anyOf": [
@@ -109801,7 +109801,7 @@
                                   "create",
                                   "upsert"
                                 ],
-                                "description": "create always adds a record; upsert updates the record that matches."
+                                "description": "create adds a record for every request; upsert updates the record that matches."
                               },
                               "matchFieldId": {
                                 "anyOf": [
@@ -109938,7 +109938,7 @@
                                 "create",
                                 "upsert"
                               ],
-                              "description": "create always adds a record; upsert updates the record that matches."
+                              "description": "create adds a record for every request; upsert updates the record that matches."
                             },
                             "matchFieldId": {
                               "anyOf": [
@@ -110405,7 +110405,7 @@
                           "create",
                           "upsert"
                         ],
-                        "description": "create always adds a record; upsert updates the record that matches."
+                        "description": "create adds a record for every request; upsert updates the record that matches."
                       },
                       "matchFieldId": {
                         "anyOf": [
@@ -110550,7 +110550,7 @@
                                   "create",
                                   "upsert"
                                 ],
-                                "description": "create always adds a record; upsert updates the record that matches."
+                                "description": "create adds a record for every request; upsert updates the record that matches."
                               },
                               "matchFieldId": {
                                 "anyOf": [
@@ -110687,7 +110687,7 @@
                                 "create",
                                 "upsert"
                               ],
-                              "description": "create always adds a record; upsert updates the record that matches."
+                              "description": "create adds a record for every request; upsert updates the record that matches."
                             },
                             "matchFieldId": {
                               "anyOf": [
@@ -111195,7 +111195,7 @@
                                   "create",
                                   "upsert"
                                 ],
-                                "description": "create always adds a record; upsert updates the record that matches."
+                                "description": "create adds a record for every request; upsert updates the record that matches."
                               },
                               "matchFieldId": {
                                 "anyOf": [
@@ -111332,7 +111332,7 @@
                                 "create",
                                 "upsert"
                               ],
-                              "description": "create always adds a record; upsert updates the record that matches."
+                              "description": "create adds a record for every request; upsert updates the record that matches."
                             },
                             "matchFieldId": {
                               "anyOf": [
@@ -111853,7 +111853,7 @@
                                   "create",
                                   "upsert"
                                 ],
-                                "description": "create always adds a record; upsert updates the record that matches."
+                                "description": "create adds a record for every request; upsert updates the record that matches."
                               },
                               "matchFieldId": {
                                 "anyOf": [
@@ -111990,7 +111990,7 @@
                                 "create",
                                 "upsert"
                               ],
-                              "description": "create always adds a record; upsert updates the record that matches."
+                              "description": "create adds a record for every request; upsert updates the record that matches."
                             },
                             "matchFieldId": {
                               "anyOf": [
@@ -112504,7 +112504,7 @@
                                   "create",
                                   "upsert"
                                 ],
-                                "description": "create always adds a record; upsert updates the record that matches."
+                                "description": "create adds a record for every request; upsert updates the record that matches."
                               },
                               "matchFieldId": {
                                 "anyOf": [
@@ -112641,7 +112641,7 @@
                                 "create",
                                 "upsert"
                               ],
-                              "description": "create always adds a record; upsert updates the record that matches."
+                              "description": "create adds a record for every request; upsert updates the record that matches."
                             },
                             "matchFieldId": {
                               "anyOf": [
@@ -121301,7 +121301,7 @@
                                     "type": "string",
                                     "format": "uuid",
                                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                    "description": "Stable id of the list (record type), from discover_record_types."
+                                    "description": "Stable id of the list (record type)."
                                   }
                                 },
                                 "required": [
@@ -121322,7 +121322,7 @@
                                     "type": "string",
                                     "format": "uuid",
                                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                    "description": "Stable id of the list (record type), from discover_record_types."
+                                    "description": "Stable id of the list (record type)."
                                   },
                                   "fieldIds": {
                                     "default": [],
@@ -121333,7 +121333,7 @@
                                       "type": "string",
                                       "format": "uuid",
                                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                      "description": "Stable id of the field, from get_record_model."
+                                      "description": "Stable id of the field."
                                     }
                                   }
                                 },
@@ -121356,13 +121356,13 @@
                                     "type": "string",
                                     "format": "uuid",
                                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                    "description": "Stable id of the list (record type), from discover_record_types."
+                                    "description": "Stable id of the list (record type)."
                                   },
                                   "fieldId": {
                                     "type": "string",
                                     "format": "uuid",
                                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                    "description": "Stable id of the field, from get_record_model."
+                                    "description": "Stable id of the field."
                                   },
                                   "to": {
                                     "description": "Fire only when the field changed to exactly this value.",
@@ -121690,7 +121690,7 @@
                                     "type": "string",
                                     "format": "uuid",
                                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                    "description": "Stable id of the list (record type), from discover_record_types."
+                                    "description": "Stable id of the list (record type)."
                                   },
                                   "fieldId": {
                                     "type": "string",
@@ -121774,7 +121774,7 @@
                                     "type": "string",
                                     "format": "uuid",
                                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                    "description": "Stable id of the list (record type), from discover_record_types."
+                                    "description": "Stable id of the list (record type)."
                                   },
                                   "sourceId": {
                                     "description": "Restrict the rule to one form.",
@@ -121800,7 +121800,7 @@
                                     "type": "string",
                                     "format": "uuid",
                                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                    "description": "Stable id of the list (record type), from discover_record_types."
+                                    "description": "Stable id of the list (record type)."
                                   },
                                   "sourceId": {
                                     "description": "Restrict the rule to one incoming webhook endpoint.",
@@ -121827,7 +121827,7 @@
                                   "type": "string",
                                   "format": "uuid",
                                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                  "description": "Stable id of the field, from get_record_model."
+                                  "description": "Stable id of the field."
                                 },
                                 "operator": {
                                   "type": "string",
@@ -122460,7 +122460,7 @@
                                   }
                                 },
                                 "relativeDays": {
-                                  "description": "For before and after instead of value: today plus this many days, read when the rule runs.",
+                                  "description": "For before and after, in place of value: today plus this many days, read when the rule runs.",
                                   "type": "integer",
                                   "minimum": -3650,
                                   "maximum": 3650
@@ -122848,7 +122848,7 @@
                                           "type": "string",
                                           "format": "uuid",
                                           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                          "description": "Stable id of the field, from get_record_model."
+                                          "description": "Stable id of the field."
                                         },
                                         "text": {
                                           "type": "string",
@@ -123690,7 +123690,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             }
                           },
                           "required": [
@@ -123711,7 +123711,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "fieldIds": {
                               "default": [],
@@ -123722,7 +123722,7 @@
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                "description": "Stable id of the field, from get_record_model."
+                                "description": "Stable id of the field."
                               }
                             }
                           },
@@ -123745,13 +123745,13 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "fieldId": {
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the field, from get_record_model."
+                              "description": "Stable id of the field."
                             },
                             "to": {
                               "description": "Fire only when the field changed to exactly this value.",
@@ -124079,7 +124079,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "fieldId": {
                               "type": "string",
@@ -124163,7 +124163,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "sourceId": {
                               "description": "Restrict the rule to one form.",
@@ -124189,7 +124189,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "sourceId": {
                               "description": "Restrict the rule to one incoming webhook endpoint.",
@@ -124216,7 +124216,7 @@
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the field, from get_record_model."
+                            "description": "Stable id of the field."
                           },
                           "operator": {
                             "type": "string",
@@ -124849,7 +124849,7 @@
                             }
                           },
                           "relativeDays": {
-                            "description": "For before and after instead of value: today plus this many days, read when the rule runs.",
+                            "description": "For before and after, in place of value: today plus this many days, read when the rule runs.",
                             "type": "integer",
                             "minimum": -3650,
                             "maximum": 3650
@@ -125237,7 +125237,7 @@
                                     "type": "string",
                                     "format": "uuid",
                                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                    "description": "Stable id of the field, from get_record_model."
+                                    "description": "Stable id of the field."
                                   },
                                   "text": {
                                     "type": "string",
@@ -126318,7 +126318,7 @@
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the list (record type), from discover_record_types."
+                            "description": "Stable id of the list (record type)."
                           }
                         },
                         "required": [
@@ -126339,7 +126339,7 @@
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the list (record type), from discover_record_types."
+                            "description": "Stable id of the list (record type)."
                           },
                           "fieldIds": {
                             "default": [],
@@ -126350,7 +126350,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the field, from get_record_model."
+                              "description": "Stable id of the field."
                             }
                           }
                         },
@@ -126372,13 +126372,13 @@
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the list (record type), from discover_record_types."
+                            "description": "Stable id of the list (record type)."
                           },
                           "fieldId": {
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the field, from get_record_model."
+                            "description": "Stable id of the field."
                           },
                           "to": {
                             "description": "Fire only when the field changed to exactly this value.",
@@ -126491,7 +126491,7 @@
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the list (record type), from discover_record_types."
+                            "description": "Stable id of the list (record type)."
                           },
                           "fieldId": {
                             "type": "string",
@@ -126572,7 +126572,7 @@
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the list (record type), from discover_record_types."
+                            "description": "Stable id of the list (record type)."
                           },
                           "sourceId": {
                             "description": "Restrict the rule to one form.",
@@ -126598,7 +126598,7 @@
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the list (record type), from discover_record_types."
+                            "description": "Stable id of the list (record type)."
                           },
                           "sourceId": {
                             "description": "Restrict the rule to one incoming webhook endpoint.",
@@ -126626,7 +126626,7 @@
                           "type": "string",
                           "format": "uuid",
                           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                          "description": "Stable id of the field, from get_record_model."
+                          "description": "Stable id of the field."
                         },
                         "operator": {
                           "type": "string",
@@ -126826,11 +126826,11 @@
                               "kind"
                             ],
                             "additionalProperties": false,
-                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
+                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal carries a currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
                           }
                         },
                         "relativeDays": {
-                          "description": "For before and after instead of value: today plus this many days, read when the rule runs.",
+                          "description": "For before and after, in place of value: today plus this many days, read when the rule runs.",
                           "type": "integer",
                           "minimum": -3650,
                           "maximum": 3650
@@ -126955,7 +126955,7 @@
                                             "pattern": "^[^\\u0000]*$"
                                           },
                                           "candidateToken": {
-                                            "description": "Address only, instead of value: a candidateToken from an address lookup stores the verified address.",
+                                            "description": "Address only, in place of value: a candidateToken from an address lookup stores the verified address.",
                                             "type": "string",
                                             "minLength": 1,
                                             "maxLength": 4096
@@ -126965,7 +126965,7 @@
                                           "kind"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
+                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal carries a currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
                                       },
                                       {
                                         "type": "null"
@@ -127008,7 +127008,7 @@
                                   "type": "string",
                                   "format": "uuid",
                                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                  "description": "Stable id of the field, from get_record_model."
+                                  "description": "Stable id of the field."
                                 },
                                 "text": {
                                   "type": "string",
@@ -127144,7 +127144,7 @@
                                             "pattern": "^[^\\u0000]*$"
                                           },
                                           "candidateToken": {
-                                            "description": "Address only, instead of value: a candidateToken from an address lookup stores the verified address.",
+                                            "description": "Address only, in place of value: a candidateToken from an address lookup stores the verified address.",
                                             "type": "string",
                                             "minLength": 1,
                                             "maxLength": 4096
@@ -127154,7 +127154,7 @@
                                           "kind"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
+                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal carries a currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
                                       },
                                       {
                                         "type": "null"
@@ -127436,7 +127436,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             }
                           },
                           "required": [
@@ -127457,7 +127457,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "fieldIds": {
                               "default": [],
@@ -127468,7 +127468,7 @@
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                "description": "Stable id of the field, from get_record_model."
+                                "description": "Stable id of the field."
                               }
                             }
                           },
@@ -127491,13 +127491,13 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "fieldId": {
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the field, from get_record_model."
+                              "description": "Stable id of the field."
                             },
                             "to": {
                               "description": "Fire only when the field changed to exactly this value.",
@@ -127825,7 +127825,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "fieldId": {
                               "type": "string",
@@ -127909,7 +127909,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "sourceId": {
                               "description": "Restrict the rule to one form.",
@@ -127935,7 +127935,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "sourceId": {
                               "description": "Restrict the rule to one incoming webhook endpoint.",
@@ -127962,7 +127962,7 @@
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the field, from get_record_model."
+                            "description": "Stable id of the field."
                           },
                           "operator": {
                             "type": "string",
@@ -128595,7 +128595,7 @@
                             }
                           },
                           "relativeDays": {
-                            "description": "For before and after instead of value: today plus this many days, read when the rule runs.",
+                            "description": "For before and after, in place of value: today plus this many days, read when the rule runs.",
                             "type": "integer",
                             "minimum": -3650,
                             "maximum": 3650
@@ -128983,7 +128983,7 @@
                                     "type": "string",
                                     "format": "uuid",
                                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                    "description": "Stable id of the field, from get_record_model."
+                                    "description": "Stable id of the field."
                                   },
                                   "text": {
                                     "type": "string",
@@ -129700,7 +129700,7 @@
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the list (record type), from discover_record_types."
+                            "description": "Stable id of the list (record type)."
                           }
                         },
                         "required": [
@@ -129721,7 +129721,7 @@
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the list (record type), from discover_record_types."
+                            "description": "Stable id of the list (record type)."
                           },
                           "fieldIds": {
                             "default": [],
@@ -129732,7 +129732,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the field, from get_record_model."
+                              "description": "Stable id of the field."
                             }
                           }
                         },
@@ -129754,13 +129754,13 @@
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the list (record type), from discover_record_types."
+                            "description": "Stable id of the list (record type)."
                           },
                           "fieldId": {
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the field, from get_record_model."
+                            "description": "Stable id of the field."
                           },
                           "to": {
                             "description": "Fire only when the field changed to exactly this value.",
@@ -129873,7 +129873,7 @@
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the list (record type), from discover_record_types."
+                            "description": "Stable id of the list (record type)."
                           },
                           "fieldId": {
                             "type": "string",
@@ -129954,7 +129954,7 @@
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the list (record type), from discover_record_types."
+                            "description": "Stable id of the list (record type)."
                           },
                           "sourceId": {
                             "description": "Restrict the rule to one form.",
@@ -129980,7 +129980,7 @@
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the list (record type), from discover_record_types."
+                            "description": "Stable id of the list (record type)."
                           },
                           "sourceId": {
                             "description": "Restrict the rule to one incoming webhook endpoint.",
@@ -130008,7 +130008,7 @@
                           "type": "string",
                           "format": "uuid",
                           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                          "description": "Stable id of the field, from get_record_model."
+                          "description": "Stable id of the field."
                         },
                         "operator": {
                           "type": "string",
@@ -130208,11 +130208,11 @@
                               "kind"
                             ],
                             "additionalProperties": false,
-                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
+                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal carries a currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
                           }
                         },
                         "relativeDays": {
-                          "description": "For before and after instead of value: today plus this many days, read when the rule runs.",
+                          "description": "For before and after, in place of value: today plus this many days, read when the rule runs.",
                           "type": "integer",
                           "minimum": -3650,
                           "maximum": 3650
@@ -130337,7 +130337,7 @@
                                             "pattern": "^[^\\u0000]*$"
                                           },
                                           "candidateToken": {
-                                            "description": "Address only, instead of value: a candidateToken from an address lookup stores the verified address.",
+                                            "description": "Address only, in place of value: a candidateToken from an address lookup stores the verified address.",
                                             "type": "string",
                                             "minLength": 1,
                                             "maxLength": 4096
@@ -130347,7 +130347,7 @@
                                           "kind"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
+                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal carries a currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
                                       },
                                       {
                                         "type": "null"
@@ -130390,7 +130390,7 @@
                                   "type": "string",
                                   "format": "uuid",
                                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                  "description": "Stable id of the field, from get_record_model."
+                                  "description": "Stable id of the field."
                                 },
                                 "text": {
                                   "type": "string",
@@ -130526,7 +130526,7 @@
                                             "pattern": "^[^\\u0000]*$"
                                           },
                                           "candidateToken": {
-                                            "description": "Address only, instead of value: a candidateToken from an address lookup stores the verified address.",
+                                            "description": "Address only, in place of value: a candidateToken from an address lookup stores the verified address.",
                                             "type": "string",
                                             "minLength": 1,
                                             "maxLength": 4096
@@ -130536,7 +130536,7 @@
                                           "kind"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
+                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal carries a currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
                                       },
                                       {
                                         "type": "null"
@@ -130821,7 +130821,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             }
                           },
                           "required": [
@@ -130842,7 +130842,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "fieldIds": {
                               "default": [],
@@ -130853,7 +130853,7 @@
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                "description": "Stable id of the field, from get_record_model."
+                                "description": "Stable id of the field."
                               }
                             }
                           },
@@ -130876,13 +130876,13 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "fieldId": {
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the field, from get_record_model."
+                              "description": "Stable id of the field."
                             },
                             "to": {
                               "description": "Fire only when the field changed to exactly this value.",
@@ -131210,7 +131210,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "fieldId": {
                               "type": "string",
@@ -131294,7 +131294,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "sourceId": {
                               "description": "Restrict the rule to one form.",
@@ -131320,7 +131320,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "sourceId": {
                               "description": "Restrict the rule to one incoming webhook endpoint.",
@@ -131347,7 +131347,7 @@
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the field, from get_record_model."
+                            "description": "Stable id of the field."
                           },
                           "operator": {
                             "type": "string",
@@ -131980,7 +131980,7 @@
                             }
                           },
                           "relativeDays": {
-                            "description": "For before and after instead of value: today plus this many days, read when the rule runs.",
+                            "description": "For before and after, in place of value: today plus this many days, read when the rule runs.",
                             "type": "integer",
                             "minimum": -3650,
                             "maximum": 3650
@@ -132368,7 +132368,7 @@
                                     "type": "string",
                                     "format": "uuid",
                                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                    "description": "Stable id of the field, from get_record_model."
+                                    "description": "Stable id of the field."
                                   },
                                   "text": {
                                     "type": "string",
@@ -133197,7 +133197,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             }
                           },
                           "required": [
@@ -133218,7 +133218,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "fieldIds": {
                               "default": [],
@@ -133229,7 +133229,7 @@
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                "description": "Stable id of the field, from get_record_model."
+                                "description": "Stable id of the field."
                               }
                             }
                           },
@@ -133252,13 +133252,13 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "fieldId": {
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the field, from get_record_model."
+                              "description": "Stable id of the field."
                             },
                             "to": {
                               "description": "Fire only when the field changed to exactly this value.",
@@ -133586,7 +133586,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "fieldId": {
                               "type": "string",
@@ -133670,7 +133670,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "sourceId": {
                               "description": "Restrict the rule to one form.",
@@ -133696,7 +133696,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "sourceId": {
                               "description": "Restrict the rule to one incoming webhook endpoint.",
@@ -133723,7 +133723,7 @@
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the field, from get_record_model."
+                            "description": "Stable id of the field."
                           },
                           "operator": {
                             "type": "string",
@@ -134356,7 +134356,7 @@
                             }
                           },
                           "relativeDays": {
-                            "description": "For before and after instead of value: today plus this many days, read when the rule runs.",
+                            "description": "For before and after, in place of value: today plus this many days, read when the rule runs.",
                             "type": "integer",
                             "minimum": -3650,
                             "maximum": 3650
@@ -134744,7 +134744,7 @@
                                     "type": "string",
                                     "format": "uuid",
                                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                    "description": "Stable id of the field, from get_record_model."
+                                    "description": "Stable id of the field."
                                   },
                                   "text": {
                                     "type": "string",
@@ -135573,7 +135573,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             }
                           },
                           "required": [
@@ -135594,7 +135594,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "fieldIds": {
                               "default": [],
@@ -135605,7 +135605,7 @@
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                "description": "Stable id of the field, from get_record_model."
+                                "description": "Stable id of the field."
                               }
                             }
                           },
@@ -135628,13 +135628,13 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "fieldId": {
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the field, from get_record_model."
+                              "description": "Stable id of the field."
                             },
                             "to": {
                               "description": "Fire only when the field changed to exactly this value.",
@@ -135962,7 +135962,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "fieldId": {
                               "type": "string",
@@ -136046,7 +136046,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "sourceId": {
                               "description": "Restrict the rule to one form.",
@@ -136072,7 +136072,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the list (record type), from discover_record_types."
+                              "description": "Stable id of the list (record type)."
                             },
                             "sourceId": {
                               "description": "Restrict the rule to one incoming webhook endpoint.",
@@ -136099,7 +136099,7 @@
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                            "description": "Stable id of the field, from get_record_model."
+                            "description": "Stable id of the field."
                           },
                           "operator": {
                             "type": "string",
@@ -136732,7 +136732,7 @@
                             }
                           },
                           "relativeDays": {
-                            "description": "For before and after instead of value: today plus this many days, read when the rule runs.",
+                            "description": "For before and after, in place of value: today plus this many days, read when the rule runs.",
                             "type": "integer",
                             "minimum": -3650,
                             "maximum": 3650
@@ -137120,7 +137120,7 @@
                                     "type": "string",
                                     "format": "uuid",
                                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                    "description": "Stable id of the field, from get_record_model."
+                                    "description": "Stable id of the field."
                                   },
                                   "text": {
                                     "type": "string",
@@ -137986,7 +137986,7 @@
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                "description": "Stable id of the list (record type), from discover_record_types."
+                                "description": "Stable id of the list (record type)."
                               }
                             },
                             "required": [
@@ -138007,7 +138007,7 @@
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                "description": "Stable id of the list (record type), from discover_record_types."
+                                "description": "Stable id of the list (record type)."
                               },
                               "fieldIds": {
                                 "default": [],
@@ -138018,7 +138018,7 @@
                                   "type": "string",
                                   "format": "uuid",
                                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                  "description": "Stable id of the field, from get_record_model."
+                                  "description": "Stable id of the field."
                                 }
                               }
                             },
@@ -138040,13 +138040,13 @@
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                "description": "Stable id of the list (record type), from discover_record_types."
+                                "description": "Stable id of the list (record type)."
                               },
                               "fieldId": {
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                "description": "Stable id of the field, from get_record_model."
+                                "description": "Stable id of the field."
                               },
                               "to": {
                                 "description": "Fire only when the field changed to exactly this value.",
@@ -138159,7 +138159,7 @@
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                "description": "Stable id of the list (record type), from discover_record_types."
+                                "description": "Stable id of the list (record type)."
                               },
                               "fieldId": {
                                 "type": "string",
@@ -138240,7 +138240,7 @@
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                "description": "Stable id of the list (record type), from discover_record_types."
+                                "description": "Stable id of the list (record type)."
                               },
                               "sourceId": {
                                 "description": "Restrict the rule to one form.",
@@ -138266,7 +138266,7 @@
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                "description": "Stable id of the list (record type), from discover_record_types."
+                                "description": "Stable id of the list (record type)."
                               },
                               "sourceId": {
                                 "description": "Restrict the rule to one incoming webhook endpoint.",
@@ -138294,7 +138294,7 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                              "description": "Stable id of the field, from get_record_model."
+                              "description": "Stable id of the field."
                             },
                             "operator": {
                               "type": "string",
@@ -138494,11 +138494,11 @@
                                   "kind"
                                 ],
                                 "additionalProperties": false,
-                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
+                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal carries a currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
                               }
                             },
                             "relativeDays": {
-                              "description": "For before and after instead of value: today plus this many days, read when the rule runs.",
+                              "description": "For before and after, in place of value: today plus this many days, read when the rule runs.",
                               "type": "integer",
                               "minimum": -3650,
                               "maximum": 3650
@@ -138623,7 +138623,7 @@
                                                 "pattern": "^[^\\u0000]*$"
                                               },
                                               "candidateToken": {
-                                                "description": "Address only, instead of value: a candidateToken from an address lookup stores the verified address.",
+                                                "description": "Address only, in place of value: a candidateToken from an address lookup stores the verified address.",
                                                 "type": "string",
                                                 "minLength": 1,
                                                 "maxLength": 4096
@@ -138633,7 +138633,7 @@
                                               "kind"
                                             ],
                                             "additionalProperties": false,
-                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
+                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal carries a currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
                                           },
                                           {
                                             "type": "null"
@@ -138676,7 +138676,7 @@
                                       "type": "string",
                                       "format": "uuid",
                                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
-                                      "description": "Stable id of the field, from get_record_model."
+                                      "description": "Stable id of the field."
                                     },
                                     "text": {
                                       "type": "string",
@@ -138812,7 +138812,7 @@
                                                 "pattern": "^[^\\u0000]*$"
                                               },
                                               "candidateToken": {
-                                                "description": "Address only, instead of value: a candidateToken from an address lookup stores the verified address.",
+                                                "description": "Address only, in place of value: a candidateToken from an address lookup stores the verified address.",
                                                 "type": "string",
                                                 "minLength": 1,
                                                 "maxLength": 4096
@@ -138822,7 +138822,7 @@
                                               "kind"
                                             ],
                                             "additionalProperties": false,
-                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
+                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal carries a currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts."
                                           },
                                           {
                                             "type": "null"
