@@ -126,7 +126,7 @@ export class OnboardingWizardStore {
   }
 
   get connectsAgent(): boolean {
-    return connectsAgentWithVerification(this.flowContext, this.selectedJob);
+    return connectsAgentWithVerification(this.flowContext, this.flowKey);
   }
 
   get isCloudMateUpsell(): boolean {

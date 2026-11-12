@@ -245,6 +245,24 @@ describe("the empty workspace", () => {
     expect(store.steps).toEqual(["profile", "goal", "invite", "ai"]);
     expect(store.currentStep).toBe("invite");
     expect(store.isFirstStep).toBe(true);
+    expect(store.connectsAgent).toBe(false);
+  });
+
+  it("keeps the plain AI step after a reload even though the own agent is still preselected", () => {
+    const { store } = newStore();
+
+    store.initialize(
+      2,
+      "owner-a",
+      undefined,
+      true,
+      { selectedJob: "agent", suggestedJob: null },
+      { ...CLOUD_FLOW, emptyChosen: true },
+    );
+
+    expect(store.steps).toEqual(["profile", "goal", "invite", "ai"]);
+    expect(store.currentStep).toBe("invite");
+    expect(store.connectsAgent).toBe(false);
   });
 
   it("stays on the goal step when the server refuses", async () => {
