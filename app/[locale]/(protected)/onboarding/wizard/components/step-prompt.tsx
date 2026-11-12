@@ -91,7 +91,7 @@ export const StepPrompt = observer(() => {
             id="onboarding-template-copy"
             size="sm"
             type="button"
-            onClick={() => void copy()}
+            onClick={() => runUserAction(copy)}
           >
             {copyState === "copied" ? (
               <Check aria-hidden="true" className="size-4" />

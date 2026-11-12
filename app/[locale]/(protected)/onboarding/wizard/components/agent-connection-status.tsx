@@ -6,7 +6,7 @@ import { CircleCheck, Loader2 } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { reportApplicationError } from "@/core/errors/report-application-error";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 
@@ -65,7 +65,7 @@ export const AgentConnectionStatus = observer(() => {
       <span className="min-w-0 flex-1 text-muted-foreground">{message}</span>
 
       {connected ? null : (
-        <Button disabled={checking} size="sm" type="button" variant="ghost" onClick={() => void checkAgain()}>
+        <Button disabled={checking} size="sm" type="button" variant="ghost" onClick={() => runUserAction(checkAgain)}>
           {checking ? (
             <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" />
           ) : null}

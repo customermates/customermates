@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { browserTimeZone } from "@/core/utils/time-zone";
 import { calendarDateOf } from "@/features/record-calendar/calendar-date";
 import { zonedDate } from "@/features/record-calendar/zoned-time";
@@ -178,7 +179,7 @@ export function PublicBookingView({ page, token }: { page: PublicBookingPage; to
   }, [token]);
 
   useEffect(() => {
-    void loadSlots();
+    void loadSlots().catch(reportApplicationError);
   }, [loadSlots]);
 
   const byDate = useMemo(() => {
@@ -370,7 +371,7 @@ export function PublicBookingView({ page, token }: { page: PublicBookingPage; to
       ) : null}
 
       {slot ? (
-        <form className="flex flex-col gap-4" data-booking-form="" onSubmit={(event) => void submit(event)}>
+        <form className="flex flex-col gap-4" data-booking-form="" onSubmit={(event) => runUserAction(() => submit(event))}>
           <p className="text-sm font-medium">{dayLabel(slot.startsAt)}</p>
 
           <div className="space-y-1.5">

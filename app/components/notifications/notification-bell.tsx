@@ -9,6 +9,7 @@ import type { NotificationDto } from "@/features/notifications/notification.sche
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 import { actionDataOrNull } from "@/core/utils/action-data";
 import { cn } from "@/core/utils/cn";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
@@ -37,15 +38,15 @@ export function NotificationBell() {
   }, []);
 
   useEffect(() => {
-    void refresh();
+    void refresh().catch(reportApplicationError);
     const timer = window.setInterval(() => {
-      if (document.visibilityState === "visible") void refresh();
+      if (document.visibilityState === "visible") void refresh().catch(reportApplicationError);
     }, POLL_INTERVAL_MS);
     return () => window.clearInterval(timer);
   }, [refresh]);
 
   useEffect(() => {
-    if (open) void refresh();
+    if (open) void refresh().catch(reportApplicationError);
   }, [open, refresh]);
 
   const markRead = (ids: string[] | null) =>

@@ -11,6 +11,7 @@ import { AppModal } from "@/components/modal/app-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 import { actionDataOrNull } from "@/core/utils/action-data";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { IntlLink } from "@/i18n/navigation";
@@ -40,12 +41,17 @@ export function AutomationRunHistory({ rule, onClose }: Props) {
     if (!ruleId) return;
     let active = true;
     setLoading(true);
-    void actionDataOrNull(getAutomationRuleRunsAction({ id: ruleId, page: 1, pageSize: PAGE_SIZE })).then((page) => {
-      if (!active) return;
-      setRuns(page?.items ?? []);
-      setTotal(page?.total ?? 0);
-      setLoading(false);
-    });
+    void actionDataOrNull(getAutomationRuleRunsAction({ id: ruleId, page: 1, pageSize: PAGE_SIZE }))
+      .then((page) => {
+        if (!active) return;
+        setRuns(page?.items ?? []);
+        setTotal(page?.total ?? 0);
+        setLoading(false);
+      })
+      .catch((error: unknown) => {
+        reportApplicationError(error);
+        if (active) setLoading(false);
+      });
     return () => {
       active = false;
     };
@@ -56,10 +62,15 @@ export function AutomationRunHistory({ rule, onClose }: Props) {
     setLoading(true);
     void actionDataOrNull(
       getAutomationRuleRunsAction({ id: ruleId, page: Math.floor(runs.length / PAGE_SIZE) + 1, pageSize: PAGE_SIZE }),
-    ).then((page) => {
-      setRuns((current) => [...current, ...(page?.items ?? [])]);
-      setLoading(false);
-    });
+    )
+      .then((page) => {
+        setRuns((current) => [...current, ...(page?.items ?? [])]);
+        setLoading(false);
+      })
+      .catch((error: unknown) => {
+        reportApplicationError(error);
+        setLoading(false);
+      });
   };
 
   return (
