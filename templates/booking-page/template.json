@@ -1,0 +1,134 @@
+{
+  "id": "tpl_booking_page",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "booking-page",
+  "family": "operations",
+  "kind": "tracker",
+  "jurisdictions": ["global"],
+  "dashboardAudience": "me",
+  "modules": ["actions_core", "actions_dashboard"],
+  "requiresCapabilities": ["forms", "rules", "calendarWrite", "notifications"],
+  "pairedPages": {},
+  "lists": [
+    { "key": "people", "role": "people", "icon": "contact" },
+    { "key": "appointment_types", "icon": "clock" },
+    { "key": "appointments", "icon": "calendarCheck" }
+  ],
+  "stages": [
+    {
+      "field": "appointments.status",
+      "items": [
+        { "key": "requested", "outcome": "open", "weight": 0 },
+        { "key": "confirmed", "outcome": "open", "weight": 0 },
+        { "key": "rescheduled", "outcome": "open", "weight": 0 },
+        { "key": "held", "outcome": "won", "weight": 0 },
+        { "key": "no_show", "outcome": "lost", "weight": 0 },
+        { "key": "cancelled_by_client", "outcome": "lost", "weight": 0 },
+        { "key": "cancelled_by_us", "outcome": "lost", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "people.preferred_channel", "type": "select", "options": [{ "key": "email" }, { "key": "whatsapp" }, { "key": "phone" }] },
+    { "key": "people.time_zone", "type": "text" },
+    { "key": "appointment_types.duration_minutes", "type": "number" },
+    { "key": "appointment_types.buffer_minutes", "type": "number" },
+    { "key": "appointment_types.min_notice_hours", "type": "number" },
+    { "key": "appointment_types.booking_window_days", "type": "number" },
+    { "key": "appointment_types.daily_limit", "type": "number" },
+    { "key": "appointment_types.location_type", "type": "select", "options": [{ "key": "video_call" }, { "key": "phone" }, { "key": "office" }, { "key": "client_site" }] },
+    { "key": "appointment_types.price", "type": "currency" },
+    { "key": "appointment_types.active", "type": "boolean" },
+    { "key": "appointments.start_at", "type": "dateTime" },
+    { "key": "appointments.source", "type": "select", "options": [{ "key": "booking_page" }, { "key": "email" }, { "key": "whatsapp" }, { "key": "phone" }, { "key": "manual" }] },
+    { "key": "appointments.meeting_url", "type": "url" },
+    {
+      "key": "appointments.outcome",
+      "type": "select",
+      "options": [{ "key": "not_decided" }, { "key": "qualified", "color": "success" }, { "key": "second_call" }, { "key": "proposal_needed" }, { "key": "won", "color": "success" }, { "key": "not_a_fit", "color": "secondary" }]
+    },
+    { "key": "appointments.cancel_reason", "type": "select", "options": [{ "key": "schedule_conflict" }, { "key": "other_provider" }, { "key": "no_longer_needed" }, { "key": "personal" }, { "key": "other" }] },
+    {
+      "key": "actions.kind",
+      "type": "select",
+      "options": [{ "key": "confirm_booking" }, { "key": "send_reminder" }, { "key": "prepare_call" }, { "key": "send_follow_up" }, { "key": "offer_new_slot" }, { "key": "record_outcome" }, { "key": "other" }]
+    }
+  ],
+  "relationships": [
+    { "key": "appointment_person", "source": "appointments", "target": "people", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "appointment_type", "source": "appointments", "target": "appointment_types", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_appointment", "source": "actions", "target": "appointments", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    { "key": "appointments_all", "list": "appointments", "default": true, "layout": "table", "sort": { "field": "appointments.start_at", "direction": "asc" }, "columns": ["appointments.status", "appointments.start_at", "appointments.source", "appointments.outcome"] },
+    { "key": "appointments_board", "list": "appointments", "default": false, "layout": "board", "groupBy": "appointments.status" },
+    { "key": "missed_or_cancelled", "list": "appointments", "default": false, "layout": "table", "filters": [{ "operator": "in", "field": "appointments.status", "options": ["no_show", "cancelled_by_client", "cancelled_by_us"] }] },
+    { "key": "appointment_types_all", "list": "appointment_types", "default": true, "layout": "table", "columns": ["appointment_types.duration_minutes", "appointment_types.location_type", "appointment_types.price", "appointment_types.active"] },
+    { "key": "people_all", "list": "people", "default": true, "layout": "table", "columns": ["people.preferred_channel", "people.time_zone"] }
+  ],
+  "widgets": [
+    { "kind": "calendar", "key": "upcoming_appointments", "list": "appointments", "layout": "upcoming", "dateField": "appointments.start_at", "filters": [{ "operator": "in", "field": "appointments.status", "options": ["requested", "confirmed", "rescheduled"] }] },
+    { "kind": "chart", "key": "appointments_by_status", "list": "appointments", "aggregation": "count", "groupBy": { "field": "appointments.status" }, "display": "doughnutChart" },
+    { "kind": "chart", "key": "outcomes_of_held", "list": "appointments", "aggregation": "count", "groupBy": { "field": "appointments.outcome" }, "filters": [{ "operator": "in", "field": "appointments.status", "options": ["held"] }], "display": "horizontalBarChart" },
+    { "kind": "chart", "key": "requests_waiting", "list": "appointments", "aggregation": "count", "filters": [{ "operator": "in", "field": "appointments.status", "options": ["requested"] }], "display": "number" },
+    { "kind": "chart", "key": "no_shows", "list": "appointments", "aggregation": "count", "filters": [{ "operator": "in", "field": "appointments.status", "options": ["no_show"] }], "display": "number" },
+    { "kind": "chart", "key": "bookings_by_source", "list": "appointments", "aggregation": "count", "groupBy": { "field": "appointments.source" }, "display": "horizontalBarChart" }
+  ],
+  "knowledgePages": [
+    { "key": "appointment_types_rules", "kind": "overview" },
+    { "key": "reminder_policy", "kind": "processes" },
+    { "key": "cancellation_policy", "kind": "processes" }
+  ],
+  "followUpRules": [
+    { "key": "booking_form_records", "trigger": { "kind": "form_submitted", "form": "booking" }, "action": { "kind": "create_records", "lists": ["people", "appointments"] }, "dueOffsetDays": 0, "needs": "forms" },
+    { "key": "confirm_event", "trigger": { "kind": "field_changed", "field": "appointments.status", "to": "confirmed" }, "action": { "kind": "add_calendar_event", "dateField": "appointments.start_at" }, "dueOffsetDays": 0, "needs": "calendarWrite" },
+    { "key": "notify_new_booking", "trigger": { "kind": "record_created", "list": "appointments" }, "action": { "kind": "notify", "recipient": "workspace_owner" }, "dueOffsetDays": 0, "needs": "notifications" },
+    {
+      "key": "first_reminder",
+      "trigger": { "kind": "date_reached", "field": "appointments.start_at", "offsetDays": -3 },
+      "condition": [{ "operator": "in", "field": "appointments.status", "options": ["confirmed"] }],
+      "action": { "kind": "create_task", "taskKind": "send_reminder", "assignee": "record_owner", "about": "appointments" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    {
+      "key": "second_reminder",
+      "trigger": { "kind": "date_reached", "field": "appointments.start_at", "offsetDays": -1 },
+      "condition": [{ "operator": "in", "field": "appointments.status", "options": ["confirmed"] }],
+      "action": { "kind": "create_task", "taskKind": "send_reminder", "assignee": "record_owner", "about": "appointments" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    {
+      "key": "record_outcome",
+      "trigger": { "kind": "date_reached", "field": "appointments.start_at", "offsetDays": 0 },
+      "condition": [{ "operator": "in", "field": "appointments.status", "options": ["confirmed"] }],
+      "action": { "kind": "create_task", "taskKind": "record_outcome", "assignee": "record_owner", "about": "appointments" },
+      "dueOffsetDays": 1,
+      "needs": "rules"
+    },
+    { "key": "no_show_new_slot", "trigger": { "kind": "field_changed", "field": "appointments.status", "to": "no_show" }, "action": { "kind": "create_task", "taskKind": "offer_new_slot", "assignee": "record_owner", "about": "appointments" }, "dueOffsetDays": 1, "needs": "today" },
+    { "key": "follow_up_held", "trigger": { "kind": "field_changed", "field": "appointments.status", "to": "held" }, "action": { "kind": "create_task", "taskKind": "send_follow_up", "assignee": "record_owner", "about": "appointments" }, "dueOffsetDays": 1, "needs": "today" }
+  ],
+  "acceptanceChecks": [
+    { "key": "status_field", "kind": "field_exists", "ref": "appointments.status" },
+    { "key": "start_field", "kind": "field_exists", "ref": "appointments.start_at" },
+    { "key": "appointments_board_view", "kind": "view_exists", "ref": "appointments_board" }
+  ],
+  "sources": [
+    { "url": "https://calendly.com/help/how-to-fine-tune-your-availability-settings", "checkedOn": "2026-11-12" },
+    { "url": "https://cal.com/help/event-types/booking-questions", "checkedOn": "2026-11-12" },
+    { "url": "https://cal.com/blog/calendly-alternatives", "checkedOn": "2026-11-12" },
+    { "url": "https://knowledge.hubspot.com/meetings-tool/create-and-edit-scheduling-pages", "checkedOn": "2026-11-12" },
+    { "url": "https://support.pipedrive.com/en/article/scheduler", "checkedOn": "2026-11-12" },
+    { "url": "https://schedulingkit.com/hub/scheduling/how-to-create-booking-page-that-converts", "checkedOn": "2026-11-12" },
+    { "url": "https://www.schedulingkit.com/statistics/appointment-reminder-statistics", "checkedOn": "2026-11-12" },
+    { "url": "https://www.nsw.gov.au/departments-and-agencies/behavioural-insights-unit/blog/using-reminders-to-cut-missed-hospital-appointments", "checkedOn": "2026-11-12" },
+    { "url": "https://www.jivochat.com.br/blog/ferramentas/sistema-de-agendamento-online.html", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "own", "de": "own", "fr": "own", "it": "own", "es": "own", "pt": "own", "pl": "own", "nl": "own" },
+  "publishWave": { "en": "wave2", "de": "wave2", "fr": "wave2", "it": "wave2", "es": "wave2", "pt": "wave2", "pl": "wave2", "nl": "wave2" }
+}

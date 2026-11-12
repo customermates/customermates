@@ -1,0 +1,102 @@
+{
+  "locale": "nl",
+  "name": "Online afspraken maken",
+  "summary": "Een afsprakenregister voor dienstverleners: afspraaktypes met duur en minimale termijn, elke boeking met status, herinneringen en uitkomst, en bij elk een volgende stap.",
+  "description": "Neem boekingen aan voor gesprekken, consulten of bezichtigingen en bewaar ze in de CRM: een paar afspraaktypes met duur, buffer en minimale termijn, een boeking die de persoon en de afspraak aanmaakt, een agenda-item zodra u bevestigt, twee herinneringen en een uitkomst na elke afspraak. Het boekt alleen tijd van mensen. Geen systeem voor het reserveren van ruimtes of middelen, geen ticketverkoop, geen afsprakensysteem voor de zorg en geen betaaldienst.",
+  "lists": {
+    "people": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen die bij u boeken." },
+    "appointment_types": { "label": "Afspraaktype", "pluralLabel": "Afspraaktypes", "description": "Een soort afspraak met duur, buffer, minimale termijn en prijs." },
+    "appointments": { "label": "Afspraak", "pluralLabel": "Afspraken", "description": "Eén boeking, van aangevraagd tot gehouden, niet verschenen of geannuleerd." }
+  },
+  "fields": {
+    "people.preferred_channel": { "label": "Voorkeurskanaal", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Telefoon" } },
+    "people.time_zone": { "label": "Tijdzone" },
+    "appointment_types.duration_minutes": { "label": "Duur (minuten)" },
+    "appointment_types.buffer_minutes": { "label": "Buffer erna (minuten)" },
+    "appointment_types.min_notice_hours": { "label": "Minimale termijn (uren)" },
+    "appointment_types.booking_window_days": { "label": "Boekbaar tot (dagen vooruit)" },
+    "appointment_types.daily_limit": { "label": "Limiet per dag" },
+    "appointment_types.location_type": {
+      "label": "Waar",
+      "options": { "video_call": "Videogesprek", "phone": "Telefoon", "office": "Op kantoor", "client_site": "Bij de klant" }
+    },
+    "appointment_types.price": { "label": "Prijs" },
+    "appointment_types.active": { "label": "Actief" },
+    "appointments.status": {
+      "label": "Status",
+      "options": { "requested": "Aangevraagd", "confirmed": "Bevestigd", "rescheduled": "Verzet", "held": "Gehouden", "no_show": "Niet verschenen", "cancelled_by_client": "Geannuleerd door klant", "cancelled_by_us": "Geannuleerd door ons" }
+    },
+    "appointments.start_at": { "label": "Begint" },
+    "appointments.source": { "label": "Bron", "options": { "booking_page": "Boekingspagina", "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Telefoon", "manual": "Handmatig ingevoerd" } },
+    "appointments.meeting_url": { "label": "Link naar de vergadering" },
+    "appointments.outcome": {
+      "label": "Uitkomst",
+      "options": { "not_decided": "Nog niet beslist", "qualified": "Gekwalificeerd", "second_call": "Tweede gesprek nodig", "proposal_needed": "Offerte nodig", "won": "Gewonnen in het gesprek", "not_a_fit": "Past niet" }
+    },
+    "appointments.cancel_reason": {
+      "label": "Reden van annulering",
+      "options": { "schedule_conflict": "Agendaconflict", "other_provider": "Andere aanbieder gevonden", "no_longer_needed": "Niet meer nodig", "personal": "Persoonlijke reden", "other": "Overig" }
+    },
+    "actions.kind": {
+      "label": "Soort",
+      "options": {
+        "confirm_booking": "Boeking bevestigen",
+        "send_reminder": "Herinnering sturen",
+        "prepare_call": "Afspraak voorbereiden",
+        "send_follow_up": "Opvolging sturen",
+        "offer_new_slot": "Nieuw moment aanbieden",
+        "record_outcome": "Uitkomst vastleggen",
+        "other": "Overig"
+      }
+    }
+  },
+  "relationships": {
+    "appointment_person": { "sourceLabel": "Contactpersoon", "targetLabel": "Afspraken" },
+    "appointment_type": { "sourceLabel": "Afspraaktype", "targetLabel": "Afspraken" },
+    "action_appointment": { "sourceLabel": "Afspraak", "targetLabel": "Taken" }
+  },
+  "views": {
+    "appointments_all": { "name": "Alle afspraken" },
+    "appointments_board": { "name": "Afsprakenbord" },
+    "missed_or_cancelled": { "name": "Gemist of geannuleerd" },
+    "appointment_types_all": { "name": "Alle afspraaktypes" },
+    "people_all": { "name": "Alle contactpersonen" }
+  },
+  "widgets": {
+    "upcoming_appointments": { "title": "Komende afspraken" },
+    "appointments_by_status": { "title": "Afspraken per status" },
+    "outcomes_of_held": { "title": "Uitkomsten van gehouden afspraken" },
+    "requests_waiting": { "title": "Aanvragen die op antwoord wachten" },
+    "no_shows": { "title": "Niet verschenen" },
+    "bookings_by_source": { "title": "Boekingen per bron" }
+  },
+  "knowledgePages": {
+    "appointment_types_rules": { "title": "Afspraaktypes en beschikbaarheid", "sections": ["Types, duur, buffers en minimale termijn", "Openingstijden en limieten per dag"] },
+    "reminder_policy": { "title": "Herinneringen en niet verschijnen", "sections": ["Herinneringen 3 dagen en 1 dag van tevoren", "Wat we doen na een no-show"] },
+    "cancellation_policy": { "title": "Annuleren en verzetten", "sections": ["Tot wanneer een klant kan annuleren", "Hoe een nieuw moment wordt aangeboden"] }
+  },
+  "rules": {
+    "booking_form_records": { "title": "Contactpersoon en afspraak aanmaken als het boekingsformulier is ingediend" },
+    "confirm_event": { "title": "Een agenda-item toevoegen als een afspraak wordt bevestigd" },
+    "notify_new_booking": { "title": "De eigenaar waarschuwen als er een boeking binnenkomt" },
+    "first_reminder": { "title": "Een eerste herinnering sturen 3 dagen voor een bevestigde afspraak" },
+    "second_reminder": { "title": "Een tweede herinnering sturen 1 dag voor een bevestigde afspraak" },
+    "record_outcome": { "title": "De uitkomst vastleggen nadat een bevestigde afspraak heeft plaatsgevonden" },
+    "no_show_new_slot": { "title": "De dag na een no-show een nieuw moment aanbieden" },
+    "follow_up_held": { "title": "De dag na een gehouden afspraak de opvolging sturen" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Elke afspraak heeft een status.",
+    "start_field": "Elke afspraak legt vast wanneer ze begint.",
+    "appointments_board_view": "De afspraken openen als bord per status."
+  },
+  "prompt": {
+    "intro": "Richt in mijn Customermates-workspace online afspraken in: afspraaktypes met duur, buffer en minimale termijn, afspraken met status en uitkomst, herinneringen vóór elke afspraak en een opvolging erna.",
+    "questions": [
+      "Welke soorten afspraken biedt u aan en hoe lang duurt elke?",
+      "Hoeveel termijn heeft u nodig en hoe ver vooruit kan men boeken?",
+      "Welke vragen moet een klant bij het boeken beantwoorden?",
+      "Hoe gaat u nu om met no-shows en late annuleringen?"
+    ]
+  }
+}

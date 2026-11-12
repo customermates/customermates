@@ -1,0 +1,102 @@
+{
+  "locale": "de",
+  "name": "Terminbuchung",
+  "summary": "Ein Terminregister für Dienstleister: Terminarten mit Dauer und Vorlaufzeit, jede Buchung mit Status, Erinnerungen und Ergebnis, und zu jeder ein nächster Schritt.",
+  "description": "Buchungen für Gespräche, Beratungen oder Besichtigungen annehmen und im CRM halten: wenige Terminarten mit Dauer, Pufferzeit und Vorlaufzeit, eine Buchung legt Person und Termin an, nach der Bestätigung entsteht ein Kalendereintrag, zwei Erinnerungen gehen raus, und nach jedem Termin wird das Ergebnis festgehalten. Gebucht wird nur Zeit von Personen. Kein System für Räume oder Ressourcen, kein Ticketverkauf, keine Praxissoftware und kein Zahlungsdienst.",
+  "lists": {
+    "people": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen, die bei Ihnen buchen." },
+    "appointment_types": { "label": "Terminart", "pluralLabel": "Terminarten", "description": "Eine Art von Termin mit Dauer, Pufferzeit, Vorlaufzeit und Preis." },
+    "appointments": { "label": "Termin", "pluralLabel": "Termine", "description": "Eine Buchung, von angefragt bis stattgefunden, nicht erschienen oder abgesagt." }
+  },
+  "fields": {
+    "people.preferred_channel": { "label": "Bevorzugter Kanal", "options": { "email": "E-Mail", "whatsapp": "WhatsApp", "phone": "Telefon" } },
+    "people.time_zone": { "label": "Zeitzone" },
+    "appointment_types.duration_minutes": { "label": "Dauer (Minuten)" },
+    "appointment_types.buffer_minutes": { "label": "Pufferzeit danach (Minuten)" },
+    "appointment_types.min_notice_hours": { "label": "Vorlaufzeit (Stunden)" },
+    "appointment_types.booking_window_days": { "label": "Buchbar bis (Tage im Voraus)" },
+    "appointment_types.daily_limit": { "label": "Tageslimit" },
+    "appointment_types.location_type": {
+      "label": "Wo",
+      "options": { "video_call": "Videogespräch", "phone": "Telefon", "office": "Im Büro", "client_site": "Beim Kunden" }
+    },
+    "appointment_types.price": { "label": "Preis" },
+    "appointment_types.active": { "label": "Aktiv" },
+    "appointments.status": {
+      "label": "Status",
+      "options": { "requested": "Angefragt", "confirmed": "Bestätigt", "rescheduled": "Verschoben", "held": "Stattgefunden", "no_show": "Nicht erschienen", "cancelled_by_client": "Vom Kunden abgesagt", "cancelled_by_us": "Von uns abgesagt" }
+    },
+    "appointments.start_at": { "label": "Beginn" },
+    "appointments.source": { "label": "Quelle", "options": { "booking_page": "Buchungsseite", "email": "E-Mail", "whatsapp": "WhatsApp", "phone": "Telefon", "manual": "Von Hand eingetragen" } },
+    "appointments.meeting_url": { "label": "Link zum Gespräch" },
+    "appointments.outcome": {
+      "label": "Ergebnis",
+      "options": { "not_decided": "Noch offen", "qualified": "Qualifiziert", "second_call": "Zweites Gespräch nötig", "proposal_needed": "Angebot nötig", "won": "Im Gespräch gewonnen", "not_a_fit": "Passt nicht" }
+    },
+    "appointments.cancel_reason": {
+      "label": "Absagegrund",
+      "options": { "schedule_conflict": "Terminkonflikt", "other_provider": "Anderen Anbieter gefunden", "no_longer_needed": "Nicht mehr nötig", "personal": "Persönlicher Grund", "other": "Sonstiger" }
+    },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "confirm_booking": "Buchung bestätigen",
+        "send_reminder": "Erinnerung senden",
+        "prepare_call": "Termin vorbereiten",
+        "send_follow_up": "Nachfassen",
+        "offer_new_slot": "Neuen Termin anbieten",
+        "record_outcome": "Ergebnis festhalten",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "appointment_person": { "sourceLabel": "Kontakt", "targetLabel": "Termine" },
+    "appointment_type": { "sourceLabel": "Terminart", "targetLabel": "Termine" },
+    "action_appointment": { "sourceLabel": "Termin", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "appointments_all": { "name": "Alle Termine" },
+    "appointments_board": { "name": "Termin-Board" },
+    "missed_or_cancelled": { "name": "Nicht erschienen oder abgesagt" },
+    "appointment_types_all": { "name": "Alle Terminarten" },
+    "people_all": { "name": "Alle Kontakte" }
+  },
+  "widgets": {
+    "upcoming_appointments": { "title": "Anstehende Termine" },
+    "appointments_by_status": { "title": "Termine nach Status" },
+    "outcomes_of_held": { "title": "Ergebnisse der stattgefundenen Termine" },
+    "requests_waiting": { "title": "Anfragen ohne Antwort" },
+    "no_shows": { "title": "Nicht erschienen" },
+    "bookings_by_source": { "title": "Buchungen nach Quelle" }
+  },
+  "knowledgePages": {
+    "appointment_types_rules": { "title": "Terminarten und Verfügbarkeit", "sections": ["Arten, Dauer, Pufferzeit und Vorlaufzeit", "Sprechzeiten und Tageslimits"] },
+    "reminder_policy": { "title": "Erinnerungen und Nichterscheinen", "sections": ["Erinnerungen 3 Tage und 1 Tag vorher", "Was wir nach einem Nichterscheinen tun"] },
+    "cancellation_policy": { "title": "Absage und Verschiebung", "sections": ["Bis wann Kunden absagen können", "Wie ein neuer Termin angeboten wird"] }
+  },
+  "rules": {
+    "booking_form_records": { "title": "Kontakt und Termin anlegen, wenn das Buchungsformular abgeschickt wird" },
+    "confirm_event": { "title": "Einen Kalendereintrag anlegen, wenn ein Termin bestätigt wird" },
+    "notify_new_booking": { "title": "Den Inhaber informieren, wenn eine Buchung eingeht" },
+    "first_reminder": { "title": "3 Tage vor einem bestätigten Termin eine erste Erinnerung senden" },
+    "second_reminder": { "title": "1 Tag vor einem bestätigten Termin eine zweite Erinnerung senden" },
+    "record_outcome": { "title": "Das Ergebnis festhalten, nachdem ein bestätigter Termin stattgefunden hat" },
+    "no_show_new_slot": { "title": "Am Tag nach einem Nichterscheinen einen neuen Termin anbieten" },
+    "follow_up_held": { "title": "Am Tag nach einem stattgefundenen Termin nachfassen" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Jeder Termin hat einen Status.",
+    "start_field": "Jeder Termin hält fest, wann er beginnt.",
+    "appointments_board_view": "Die Termine öffnen sich als Board nach Status."
+  },
+  "prompt": {
+    "intro": "Richte in meinem Customermates-Workspace eine Terminbuchung ein: Terminarten mit Dauer, Pufferzeit und Vorlaufzeit, Termine mit Status und Ergebnis, Erinnerungen vor jedem Termin und ein Nachfassen danach.",
+    "questions": [
+      "Welche Terminarten bieten Sie an, und wie lange dauert jede?",
+      "Wie viel Vorlaufzeit brauchen Sie, und wie weit im Voraus kann man buchen?",
+      "Welche Fragen soll ein Kunde bei der Buchung beantworten?",
+      "Wie gehen Sie heute mit Nichterscheinen und kurzfristigen Absagen um?"
+    ]
+  }
+}

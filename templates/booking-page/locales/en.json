@@ -1,0 +1,102 @@
+{
+  "locale": "en",
+  "name": "Booking page",
+  "summary": "An appointment register for a service professional: appointment types with duration and notice, every booking with its status, reminders and outcome, and a next step on each.",
+  "description": "Take bookings for calls, consultations or viewings and keep them in the CRM: a few appointment types with a duration, a buffer and a minimum notice, a booking that creates the person and the appointment, a calendar event once you confirm, two reminders and an outcome recorded after every appointment. It books people's time only. It is not a room or resource booking system, a ticketing tool, a medical appointment system or a payment processor.",
+  "lists": {
+    "people": { "label": "Person", "pluralLabel": "People", "description": "The people who book with you." },
+    "appointment_types": { "label": "Appointment type", "pluralLabel": "Appointment types", "description": "A kind of appointment with its duration, buffer, notice and price." },
+    "appointments": { "label": "Appointment", "pluralLabel": "Appointments", "description": "One booking, from requested to held, missed or cancelled." }
+  },
+  "fields": {
+    "people.preferred_channel": { "label": "Preferred channel", "options": { "email": "Email", "whatsapp": "WhatsApp", "phone": "Phone" } },
+    "people.time_zone": { "label": "Time zone" },
+    "appointment_types.duration_minutes": { "label": "Duration (minutes)" },
+    "appointment_types.buffer_minutes": { "label": "Buffer after (minutes)" },
+    "appointment_types.min_notice_hours": { "label": "Minimum notice (hours)" },
+    "appointment_types.booking_window_days": { "label": "Bookable up to (days ahead)" },
+    "appointment_types.daily_limit": { "label": "Daily limit" },
+    "appointment_types.location_type": {
+      "label": "Where",
+      "options": { "video_call": "Video call", "phone": "Phone", "office": "At the office", "client_site": "At the client's site" }
+    },
+    "appointment_types.price": { "label": "Price" },
+    "appointment_types.active": { "label": "Active" },
+    "appointments.status": {
+      "label": "Status",
+      "options": { "requested": "Requested", "confirmed": "Confirmed", "rescheduled": "Rescheduled", "held": "Held", "no_show": "No-show", "cancelled_by_client": "Cancelled by the client", "cancelled_by_us": "Cancelled by us" }
+    },
+    "appointments.start_at": { "label": "Starts" },
+    "appointments.source": { "label": "Source", "options": { "booking_page": "Booking page", "email": "Email", "whatsapp": "WhatsApp", "phone": "Phone", "manual": "Entered by hand" } },
+    "appointments.meeting_url": { "label": "Meeting link" },
+    "appointments.outcome": {
+      "label": "Outcome",
+      "options": { "not_decided": "Not decided yet", "qualified": "Qualified", "second_call": "Needs a second call", "proposal_needed": "Proposal needed", "won": "Won on the call", "not_a_fit": "Not a fit" }
+    },
+    "appointments.cancel_reason": {
+      "label": "Cancellation reason",
+      "options": { "schedule_conflict": "Schedule conflict", "other_provider": "Found another provider", "no_longer_needed": "No longer needed", "personal": "Personal reason", "other": "Other" }
+    },
+    "actions.kind": {
+      "label": "Kind",
+      "options": {
+        "confirm_booking": "Confirm the booking",
+        "send_reminder": "Send a reminder",
+        "prepare_call": "Prepare the appointment",
+        "send_follow_up": "Send the follow-up",
+        "offer_new_slot": "Offer a new slot",
+        "record_outcome": "Record the outcome",
+        "other": "Other"
+      }
+    }
+  },
+  "relationships": {
+    "appointment_person": { "sourceLabel": "Person", "targetLabel": "Appointments" },
+    "appointment_type": { "sourceLabel": "Appointment type", "targetLabel": "Appointments" },
+    "action_appointment": { "sourceLabel": "Appointment", "targetLabel": "Actions" }
+  },
+  "views": {
+    "appointments_all": { "name": "All appointments" },
+    "appointments_board": { "name": "Appointment board" },
+    "missed_or_cancelled": { "name": "Missed or cancelled" },
+    "appointment_types_all": { "name": "All appointment types" },
+    "people_all": { "name": "All people" }
+  },
+  "widgets": {
+    "upcoming_appointments": { "title": "Upcoming appointments" },
+    "appointments_by_status": { "title": "Appointments by status" },
+    "outcomes_of_held": { "title": "Outcomes of held appointments" },
+    "requests_waiting": { "title": "Requests waiting for an answer" },
+    "no_shows": { "title": "No-shows" },
+    "bookings_by_source": { "title": "Bookings by source" }
+  },
+  "knowledgePages": {
+    "appointment_types_rules": { "title": "Appointment types and availability", "sections": ["Types, durations, buffers and notice", "Opening hours and daily limits"] },
+    "reminder_policy": { "title": "Reminder and no-show policy", "sections": ["Reminders 3 days and 1 day before", "What we do after a no-show"] },
+    "cancellation_policy": { "title": "Cancellation and rescheduling", "sections": ["How late a client can cancel", "How a new slot is offered"] }
+  },
+  "rules": {
+    "booking_form_records": { "title": "Create the person and the appointment when the booking form is submitted" },
+    "confirm_event": { "title": "Add a calendar event when an appointment is confirmed" },
+    "notify_new_booking": { "title": "Notify the owner when a booking arrives" },
+    "first_reminder": { "title": "Send a first reminder 3 days before a confirmed appointment" },
+    "second_reminder": { "title": "Send a second reminder 1 day before a confirmed appointment" },
+    "record_outcome": { "title": "Record the outcome after a confirmed appointment has taken place" },
+    "no_show_new_slot": { "title": "Offer a new slot the day after a no-show" },
+    "follow_up_held": { "title": "Send the follow-up the day after an appointment was held" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Every appointment has a status.",
+    "start_field": "Every appointment records when it starts.",
+    "appointments_board_view": "The appointments open as a board by status."
+  },
+  "prompt": {
+    "intro": "Set up a booking page in my Customermates workspace: appointment types with duration, buffer and notice, appointments with a status and an outcome, reminders before each appointment and a follow-up after it.",
+    "questions": [
+      "Which kinds of appointments do you offer, and how long is each?",
+      "How much notice do you need, and how far ahead can people book?",
+      "Which questions should a client answer when booking?",
+      "How do you handle no-shows and late cancellations today?"
+    ]
+  }
+}
