@@ -2,15 +2,15 @@
   "locale": "es",
   "name": "Seguimiento de consultas por WhatsApp",
   "summary": "Un pipeline para una pequeña empresa cuyos clientes escriben por WhatsApp: anotar la consulta, responder rápido, enviar un presupuesto, hacer seguimiento en días, confirmar el pedido y recordar la recompra.",
-  "description": "Convierta los chats de WhatsApp en consultas trabajadas: cada chat pasa a ser una consulta con lo que quiere el cliente, el presupuesto y su validez, un próximo seguimiento con fecha, una fase de pago y una fecha para volver cuando la respuesta fue «más adelante». Cada contacto anota si aceptó recibir mensajes y cuándo toca reponer. Las respuestas se escriben una a una y se revisan. No envía difusiones, campañas ni menús de chatbot y no usa la plataforma oficial de WhatsApp Business. WhatsApp puede restringir una cuenta usada de una forma que su política prohíbe.",
+  "description": "Convierte los chats de WhatsApp en consultas trabajadas: cada chat pasa a ser una consulta con lo que quiere el cliente, el presupuesto y su validez, un próximo seguimiento con fecha, una fase de pago y una fecha para volver cuando la respuesta fue «más adelante». Cada contacto anota si aceptó recibir mensajes y cuándo toca reponer. Las respuestas se escriben una a una y se revisan. No envía difusiones, campañas ni menús de chatbot y no usa la plataforma oficial de WhatsApp Business. WhatsApp puede restringir una cuenta usada de una forma que su política prohíbe.",
   "lists": {
-    "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Las personas que le escriben, con su permiso de WhatsApp y su fecha de reposición." },
+    "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Las personas que te escriben, con su permiso de WhatsApp y su fecha de reposición." },
     "enquiries": { "label": "Consulta", "pluralLabel": "Consultas (oportunidades)", "description": "Una petición de un chat, del primer mensaje a pedido confirmado, perdido o más adelante." }
   },
   "fields": {
     "contacts.whatsapp_opt_in": {
       "label": "Permiso de WhatsApp",
-      "options": { "customer_started_chat": "El cliente inició el chat", "gave_permission": "Dio su permiso", "unknown": "Desconocido", "opted_out": "Pidió que paremos" }
+      "options": { "customer_started_chat": "El cliente inició el chat", "gave_permission": "Dio su permiso", "unknown": "Desconocido", "opted_out": "Pidió que no le escribamos más" }
     },
     "contacts.last_order_on": { "label": "Último pedido" },
     "contacts.reorder_due": { "label": "Reposición prevista" },
@@ -26,14 +26,14 @@
     "enquiries.service_date": { "label": "Fecha de entrega o cita" },
     "enquiries.next_step_due": { "label": "Próximo seguimiento" },
     "enquiries.lost_reason": {
-      "label": "Motivo de la pérdida",
+      "label": "Motivo de pérdida",
       "options": { "price": "Precio", "chose_competitor": "Eligió a la competencia", "no_response": "Sin respuesta", "timing": "Momento", "not_available": "No disponible", "not_a_fit": "No encaja" }
     },
     "enquiries.revisit_on": { "label": "Volver a contactar el" },
     "enquiries.weighted_value": { "label": "Valor ponderado" },
     "actions.kind": {
       "label": "Tipo",
-      "options": { "reply": "Responder", "send_quote": "Enviar el presupuesto", "follow_up": "Dar seguimiento", "confirm_order": "Confirmar el pedido", "request_payment": "Pedir el pago", "confirm_appointment": "Confirmar la cita", "reorder_reminder": "Recordatorio de reposición", "other": "Otro" }
+      "options": { "reply": "Responder", "send_quote": "Enviar el presupuesto", "follow_up": "Hacer seguimiento", "confirm_order": "Confirmar el pedido", "request_payment": "Pedir el pago", "confirm_appointment": "Confirmar la cita", "reorder_reminder": "Recordatorio de reposición", "other": "Otro" }
     }
   },
   "relationships": {
@@ -58,7 +58,7 @@
   },
   "knowledgePages": {
     "enquiry_playbook": { "title": "Guía de consultas por WhatsApp", "sections": ["Responder, anotar, presupuestar, hacer seguimiento, confirmar, recordar", "Quién responde y en cuánto tiempo"] },
-    "opt_in_rules": { "title": "Permiso y baja de mensajes", "sections": ["Cuándo un cliente ha aceptado recibir mensajes", "Qué pasa cuando alguien pide que paremos"] },
+    "opt_in_rules": { "title": "Permiso y baja de mensajes", "sections": ["Cuándo un cliente ha aceptado recibir mensajes", "Qué pasa cuando alguien pide que no le escribamos más"] },
     "follow_up_rhythm": { "title": "Ritmo de seguimiento y cuándo parar", "sections": ["Días entre seguimientos tras un presupuesto", "El mensaje de cierre y la fecha para volver"] },
     "what_whatsapp_allows": { "title": "Qué permite WhatsApp y qué no hace esta configuración", "sections": ["Sin difusiones, campañas ni chatbots", "El riesgo de usar una cuenta vinculada"] }
   },
@@ -66,14 +66,14 @@
     "enquiry_form_records": { "title": "Crear el contacto y la consulta cuando se envía el formulario con la casilla de WhatsApp" },
     "reply_new_chat": { "title": "Crear una tarea de respuesta cuando se crea una consulta" },
     "first_reply_missed": { "title": "Avisar al responsable cuando una consulta sigue siendo un chat nuevo un día después" },
-    "quote_follow_up": { "title": "Dar seguimiento 2 días después de enviar un presupuesto" },
+    "quote_follow_up": { "title": "Hacer seguimiento 2 días después de enviar un presupuesto" },
     "quote_expiring": { "title": "Preguntar o cerrar cuando un presupuesto llega a su fecha de validez" },
-    "payment_request": { "title": "Pedir el pago el día después de pasar a pendiente de pago" },
+    "payment_request": { "title": "Pedir el pago al día siguiente de pasar a pendiente de pago" },
     "won_reorder": { "title": "Crear un recordatorio de reposición 90 días después de confirmar un pedido" },
     "service_calendar": { "title": "Añadir la entrega o la cita al calendario cuando se confirma el pedido" },
     "appointment_confirm": { "title": "Confirmar la cita el día antes" },
-    "later_revisit_date": { "title": "Fijar la fecha para volver a 90 días cuando una consulta pasa a más adelante" },
-    "revisit_follow_up": { "title": "Dar seguimiento en la fecha para volver" },
+    "later_revisit_date": { "title": "Fijar la fecha para volver dentro de 90 días cuando una consulta pasa a más adelante" },
+    "revisit_follow_up": { "title": "Hacer seguimiento en la fecha para volver" },
     "unanswered_sweep": { "title": "Cada día, crear una tarea de respuesta por cada chat nuevo sin responder" }
   },
   "acceptanceChecks": {
@@ -83,11 +83,11 @@
     "enquiries_board_view": "Las consultas se abren como tablero por fase."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de Customermates el seguimiento de consultas por WhatsApp: una consulta por chat con presupuesto y validez, próximo seguimiento con fecha, fase de pago, fecha para volver y fecha de reposición por contacto, además del permiso de WhatsApp del contacto. Escribe las respuestas una a una para mi revisión y no envíes nada en masa.",
+    "intro": "Configura en mi espacio de trabajo de Customermates el seguimiento de consultas por WhatsApp: una consulta por chat con presupuesto y validez, próximo seguimiento con fecha, fase de pago, fecha para volver y fecha de reposición por contacto, además del permiso de WhatsApp del contacto. Escribe las respuestas una a una para mi revisión y no envíes nada en masa.",
     "questions": [
-      "¿Qué le preguntan los clientes por WhatsApp y cómo presupuesta?",
-      "¿En cuánto tiempo quiere responder a un chat nuevo?",
-      "¿Cuántos días espera tras un presupuesto antes de hacer seguimiento y cuándo para?",
+      "¿Qué te preguntan los clientes por WhatsApp y cómo presupuestas?",
+      "¿En cuánto tiempo quieres responder a un chat nuevo?",
+      "¿Cuántos días esperas tras un presupuesto antes de hacer seguimiento y cuándo paras?",
       "¿Los clientes repiten pedidos y al cabo de cuánto tiempo?"
     ]
   }
