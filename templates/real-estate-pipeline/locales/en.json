@@ -433,7 +433,7 @@
       },
       {
         "question": "Can I use it with my property software or portal?",
-        "answer": "Yes. The portals and your own software keep the listing data and publishing. The template is the pipeline, key-date and follow-up layer next to them, and leads from portals or WhatsApp can come into the workspace when the matching integration is switched on."
+        "answer": "Yes. The portals and your own software keep the listing data and publishing. The template is the pipeline, key-date and follow-up layer next to them, and leads from portals reach you by email in your connected inbox or through an incoming webhook, while WhatsApp enquiries arrive in the inbox once the account is connected."
       },
       {
         "question": "Does the agent contact owners or buyers?",
