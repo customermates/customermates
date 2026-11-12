@@ -1893,7 +1893,7 @@ path:focus {
   position: relative;
   display: grid;
   place-items: center;
-  height: 27rem;
+  height: 34rem;
   overflow: visible;
 }
 
@@ -1909,7 +1909,7 @@ path:focus {
   position: relative;
   width: 13rem;
   height: 13rem;
-  margin-top: 10rem;
+  margin-top: 18rem;
   transform: rotateX(58deg) rotateZ(-42deg);
   transform-style: preserve-3d;
 }
@@ -1922,7 +1922,13 @@ path:focus {
   .homepage-os-stack {
     width: 17rem;
     height: 17rem;
-    margin-top: 13rem;
+    margin-top: 17rem;
+  }
+}
+
+@media (max-width: 39.99rem) {
+  .homepage-os-chip:nth-child(n + 3) {
+    display: none;
   }
 }
 

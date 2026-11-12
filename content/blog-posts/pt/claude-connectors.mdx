@@ -1,0 +1,208 @@
+---
+title: "Conectores do Claude: o que são, planos e configuração"
+description: "Conectores do Claude explicados: diretório ou personalizado, planos que permitem, permissões por ferramenta e tabela verificada para e-mail, agenda e CRM."
+
+relatedHrefs:
+  - /blog/claude-crm
+  - /docs/connect-custom-connector
+  - /blog/what-is-an-mcp-server
+  - /docs/mcp
+
+hero:
+  title: "Conectores do Claude: o que são, quais planos permitem e como adicionar um"
+  description: "O que é um conector do Claude, como um conector do diretório se diferencia de um personalizado, quais planos podem adicioná-los, o que os conectores de Gmail, Calendar, Drive, Microsoft 365, HubSpot e Customermates permitem ao Claude e quais permissões definir."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Voltar ao blog
+  by: por Benjamin Wagner
+  date: 2026-11-12
+  tags:
+    - Conectores do Claude
+    - MCP
+    - Agentes de IA
+    - CRM
+---
+
+# Conectores do Claude: o que são, quais planos permitem e como adicionar um
+
+Os conectores do Claude (em inglês, Claude connectors) são extensões que permitem ao Claude ler dados em outro aplicativo e agir nele, por exemplo no seu e-mail, na sua agenda, nos seus arquivos ou no seu CRM, com as permissões que você já tem lá. Você escolhe um no diretório de conectores da Anthropic ou, para qualquer serviço que ofereça um [servidor MCP](/blog/what-is-an-mcp-server) remoto, adiciona você mesmo um conector personalizado com uma URL. Os conectores personalizados funcionam em todos os planos do Claude, e o Free permite um.
+
+Este guia explica os dois tipos, quais planos podem adicionar qual, o que seis conectores úteis para o trabalho com clientes permitem ao Claude (verificado em 12 de novembro de 2026 na central de ajuda da Anthropic e nas páginas dos fornecedores), quais permissões definir e como adicionar um conector personalizado passo a passo. O exemplo desenvolvido é o Customermates, o CRM de código aberto que publica este guia, porque ele funciona como conector personalizado; para outros CRMs, veja o [guia de Claude e CRM](/blog/claude-crm).
+
+<ArticleSummary title="Em resumo">
+  <SummaryItem label="Resposta curta">Um conector dá ao Claude ferramentas em outro aplicativo. Os conectores do diretório já vêm prontos; um conector personalizado é qualquer URL de servidor MCP remoto que você adiciona.</SummaryItem>
+  <SummaryItem label="Planos">Os conectores personalizados funcionam em Free, Pro, Max, Ultra, Team e Enterprise, e o Free é limitado a um. No Team, um Owner o adiciona e depois cada membro se conecta individualmente.</SummaryItem>
+  <SummaryItem label="Controle">O Claude age com as suas permissões no aplicativo, nunca com mais. Deixe em Needs approval toda ferramenta que grava, envia ou apaga.</SummaryItem>
+  <SummaryItem label="Verificado">As informações sobre planos e funções foram verificadas em 12 de novembro de 2026 na central de ajuda da Anthropic e nas páginas dos fornecedores. Nós as lemos; não executamos cada conector.</SummaryItem>
+  <SummaryItem label="Transparência">O Customermates publica este guia e aparece nele como um exemplo.</SummaryItem>
+</ArticleSummary>
+
+## O que é um conector do Claude? [#what-is-a-claude-connector]
+
+A central de ajuda da Anthropic descreve assim: “Connectors let Claude access your apps and services, retrieve your data, and take actions within connected services.” Na prática, um conector entrega ao Claude uma lista de ferramentas do outro aplicativo. Se você pedir “Encontre a última conversa de e-mail com Sarah Lee e escreva uma resposta”, o Claude escolhe as ferramentas adequadas (buscar, ler, criar um rascunho) e o aplicativo responde com o que a sua conta pode ver.
+
+Por dentro, um conector personalizado é um [servidor MCP](/blog/what-is-an-mcp-server) remoto com o qual o Claude conversa pela web. Três consequências importam antes de conectar qualquer coisa:
+
+- **O Claude herda as suas permissões.** O que você não pode abrir no aplicativo, o Claude também não pode. Só um conector que usa uma credencial compartilhada dá o mesmo acesso a todos.
+- **A lista de ferramentas vem do desenvolvedor, não da Anthropic.** Nas suas fichas, a Anthropic diz que não controla quais ferramentas os desenvolvedores oferecem e que não pode verificar se elas não vão mudar.
+- **O que o Claude lê passa a fazer parte da conversa.** O aplicativo conectado trata os seus dados conforme os próprios termos; leia-os antes de conectar dados de clientes.
+
+## Como um conector do diretório se diferencia de um conector personalizado? [#directory-vs-custom]
+
+O diretório reúne conectores prontos; um conector personalizado você adiciona com uma URL quando o aplicativo não está listado ou você mantém a sua própria instância.
+
+| | Conector do diretório | Conector personalizado |
+| --- | --- | --- |
+| Quem o constrói | O desenvolvedor do aplicativo ou a Anthropic, listado no [diretório de conectores](https://claude.com/connectors) da Anthropic, que em 12 de novembro de 2026 mostrava mais de 1.100 entradas | Você ou o seu fornecedor: qualquer serviço com uma URL de servidor MCP remoto |
+| Como adicionar | Buscar no diretório e clicar em **Connect**, ou em **Add to Claude** na ficha | **Customize › Connectors**, depois **+ Add**, **Add custom connector**, um nome e a URL |
+| Verificado pela Anthropic | Algumas fichas trazem o selo “Anthropic verified”, por exemplo Gmail, Google Calendar, Google Drive, Microsoft 365 e HubSpot | Não. Segundo a Anthropic, conectores personalizados podem alcançar serviços que ela não verificou |
+| Planos | Conectores web: todos os usuários do Claude, do Cowork, do Claude Desktop e dos apps móveis. Extensões de desktop: Claude Desktop | Free, Pro, Max, Ultra, Team e Enterprise; usuários do Free têm um |
+| Acessibilidade | O fornecedor o hospeda | O servidor precisa ser acessível pela internet a partir das faixas de IP da Anthropic; um servidor em rede privada precisa de liberação |
+| Quando escolher | O aplicativo de que você precisa está listado | O aplicativo não está listado, ou você o hospeda por conta própria |
+
+O diretório filtra por tipo (Web, Desktop extension, Interactive) e por categoria, por exemplo Productivity, Communication, Developer tools e Sales & marketing. As fichas têm o título “Claude Marketplace”, então quem procura o marketplace de conectores do Claude cai nas mesmas páginas. Interactive é um terceiro tipo que o filtro oferece, e os Owners de Team e Enterprise podem desativar as chamadas de ferramenta que exibem conectores interativos.
+
+## Quais planos podem usar os conectores do Claude? [#plans]
+
+Todos os planos podem usar conectores. O que muda é quem os adiciona (central de ajuda da Anthropic, verificada em 12 de novembro de 2026):
+
+| Plano | Conectores do diretório | Conectores personalizados | Quem adiciona |
+| --- | --- | --- | --- |
+| Free, Pro, Max, Ultra | Sim | Sim; o Free é limitado a um | Você, em **Customize › Connectors** |
+| Team | Sim | Sim | Só Owners e Primary Owners adicionam conectores personalizados; depois cada membro se conecta e o ativa individualmente |
+| Enterprise | Sim | Sim | Owners, Primary Owners e pessoas cuja função personalizada inclui Manage access to Libraries; os membros se conectam individualmente |
+
+No Team e no Enterprise, ativar um conector para a organização o deixa disponível, mas não dá acesso a ninguém: cada membro entra por conta própria no aplicativo. Alguns conectores têm condições próprias. O artigo de ajuda do HubSpot exige um plano pago do Claude (Pro, Max, Team ou Enterprise), e o conector do Microsoft 365 aceita contas pessoais só no Free, Pro, Max e Ultra. Leia a página do conector antes de planejar um rollout.
+
+## Quais conectores do Claude são úteis para o trabalho com clientes? [#client-work-connectors]
+
+O trabalho com clientes acontece em quatro lugares: a caixa de entrada, a agenda, os arquivos compartilhados e o CRM. A tabela mostra o que a Anthropic e cada fornecedor documentam para um conector em cada um desses lugares, verificado em 12 de novembro de 2026 nas páginas linkadas na última coluna. Lemos essas páginas e não executamos cada conector, então uma linha mostra o que está documentado, não uma medição.
+
+| Conector | O que o Claude pode ler | O que o Claude pode alterar ou enviar | Conta e plano | Fontes |
+| --- | --- | --- | --- | --- |
+| Gmail | Buscar e-mails, ler conversas inteiras, listar marcadores e rascunhos salvos; anexos só como metadados | Redigir, enviar, responder e encaminhar e-mails; por padrão, o Claude pede a sua aprovação antes de cada ação | Sua conta do Google; no Team e no Enterprise, um Owner o ativa primeiro | [Ajuda da Anthropic](https://support.claude.com/en/articles/10166901-use-google-workspace-connectors), [ficha](https://claude.com/connectors/gmail) |
+| Google Calendar | Ver eventos e agendas compartilhadas, encontrar horários em comum | Criar, atualizar e apagar eventos, responder a convites, configurar reuniões recorrentes | Sua conta do Google; mesma regra para Team e Enterprise | [Ajuda da Anthropic](https://support.claude.com/en/articles/10166901-use-google-workspace-connectors), [ficha](https://claude.com/connectors/google-calendar) |
+| Google Drive | Buscar e ler Docs, Sheets, Slides, PDFs, imagens e arquivos do Office; só o texto é extraído | Enviar arquivos, criar pastas, compartilhar, mover e enviar para a lixeira; compartilhar, mover e apagar exigem aprovação por padrão | Sua conta do Google; mesma regra para Team e Enterprise | [Ajuda da Anthropic](https://support.claude.com/en/articles/10166901-use-google-workspace-connectors), [ficha](https://claude.com/connectors/google-drive) |
+| Microsoft 365 (Outlook, SharePoint, OneDrive, Teams) | Buscar e analisar e-mail, agenda, documentos e chats | Somente leitura até as ferramentas de escrita serem ativadas: em contas de trabalho ou escola um administrador as ativa, em contas pessoais elas já estão incluídas; depois, rascunhos, envios e alterações de agenda, sem anexos | Contas pessoais no Free, Pro, Max e Ultra; contas de trabalho ou escola em todos os planos após um consentimento único de um administrador global do Microsoft Entra | [Connect to Microsoft 365](https://support.claude.com/en/articles/15183774-connect-to-microsoft-365), [configuração do administrador](https://support.claude.com/en/articles/12542951-set-up-the-microsoft-365-connector) |
+| HubSpot | Contatos, leads, empresas, negócios, tickets, objetos personalizados, histórico de interações | Criar e atualizar a maioria dos registros do CRM e das interações; não apaga; alterações em massa de no máximo 10 registros por vez | Todos os planos do HubSpot; Claude Pro, Max, Team ou Enterprise; um Super Admin precisa aprovar antes, a menos que você seja um ou tenha acesso ao App Marketplace | [Ajuda do HubSpot](https://knowledge.hubspot.com/integrations/set-up-and-use-the-hubspot-connector-for-claude), [ficha](https://claude.com/connectors/hubspot) |
+| Customermates (conector personalizado) | Registros de cada lista que você criar (por exemplo contatos, organizações, negócios e tarefas), suas notas e arquivos, a Base de conhecimento; agendas conectadas somente leitura | Criar, atualizar e apagar registros ([[derived.mcp.tools.total]] ferramentas no total). A partir do Pro, também conversas de e-mail, LinkedIn e chat, rascunhos e envios; não consegue reservar eventos de agenda | Todos os planos e hospedagem própria; o Free compartilha [[commercial.limit.free.apiRequestsPerMinute]] solicitações por minuto e [[commercial.limit.free.apiRequestsPerDay]] por dia por espaço de trabalho | [Guia do conector](/docs/connect-custom-connector), [referência de MCP](/docs/mcp) |
+
+O diretório também lista, entre outros, Slack, Notion, Asana, Atlassian, Linear, monday.com e Box. Para Close, Attio, Pipedrive, folk, Breakcold, Zoho CRM, Capsule e Salesforce, o [guia de Claude e CRM](/blog/claude-crm) compara o que o conector de cada CRM deixa o Claude alterar. Se você só quer ver o e-mail do Gmail ou do Outlook junto dos registros de clientes em um CRM, veja a [integração do Gmail com o CRM](/blog/gmail-crm-integration) e a [integração do Outlook com o CRM](/blog/outlook-crm-integration) em vez de um conector.
+
+## Como adiciono um conector personalizado no Claude? [#add-custom-connector]
+
+Os passos seguem o artigo de ajuda da Anthropic sobre conectores personalizados, verificado em 12 de novembro de 2026. Valem para qualquer servidor MCP remoto.
+
+<Steps>
+  <Step title="Verificar quem pode adicioná-lo">
+    No Free, Pro, Max e Ultra, você mesmo o adiciona, e o Free permite um. No Team, um Owner ou Primary Owner abre **Organization settings › Connectors › Add**, passa o cursor sobre **Custom** e escolhe **Web**. No Enterprise, podem fazer o mesmo os Owners e as funções com Manage access to Libraries.
+  </Step>
+  <Step title="Abrir o formulário e informar a URL">
+    No Claude, abra **Customize › Connectors**, clique em **+ Add** e escolha **Add custom connector**. Informe um nome e a URL do servidor MCP remoto e clique em **Continue**.
+  </Step>
+  <Step title="Revisar a autenticação">
+    O Claude mostra as configurações detectadas. Escolha **Sign in now**, **Sign in when needed** ou **No sign in** e uma opção de cliente OAuth; “Use Claude’s published identity” é a recomendada. Credenciais fixas, como uma chave de API, vão em **Request headers**. Depois clique em **Add**.
+  </Step>
+  <Step title="Conectar e ativar">
+    No Team e no Enterprise, cada membro abre **Customize › Connectors**, encontra o conector (em geral com o selo Custom) e clica em **Connect**. Em um chat, o botão **+** no canto inferior esquerdo e depois **Connectors** o ativam para aquela conversa.
+  </Step>
+</Steps>
+
+O Claude Code funciona com os mesmos servidores. Ele lista os conectores da sua conta do claude.ai como servidores MCP com a menor precedência, e você também pode adicionar um servidor diretamente. Execute o comando e depois digite `/mcp` no Claude Code para concluir o login ([documentação do Claude Code](https://code.claude.com/docs/en/mcp), verificada em 12 de novembro de 2026):
+
+```bash
+claude mcp add --transport http <name> <remote-mcp-url>
+```
+
+Para um servidor que usa uma chave de API em vez de OAuth, o Claude Code aceita `--header`; o [guia da CLI](/docs/connect-cli) mostra a variante para o Customermates. Conecte só servidores construídos e hospedados por organizações em que você confia: a Anthropic alerta que um servidor malicioso pode usar injeção de prompt e que o desenvolvedor pode mudar depois o comportamento de uma ferramenta.
+
+## Como conecto o Claude ao Customermates como conector personalizado? [#connect-customermates]
+
+O Customermates inclui um servidor MCP remoto, então se conecta pelo caminho do conector personalizado. Cada espaço de trabalho tem a própria URL, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>`, em que `<BASE_URL>` é o endereço pelo qual você abre o Customermates, na nuvem ou na sua própria instância. Você não precisa montá-la: o aplicativo a mostra com um botão para copiar. São os passos do [guia do conector](/docs/connect-custom-connector); os passos dentro do Claude correspondem ao artigo da Anthropic acima.
+
+<Steps>
+  <Step title="Copiar a URL do espaço de trabalho">
+    No Customermates, abra **Configurações › Chaves de API e conectores**, clique em **Adicionar**, escolha **Claude** em **Conexões rápidas** e depois **Conta do Claude**. A janela mostra a URL do seu espaço de trabalho atual. Para conectar é preciso ter **Acesso de leitura** **Todos** na linha **API e webhooks** da sua função; a função Administrador integrada tem esse acesso.
+  </Step>
+  <Step title="Adicionar o conector no Claude">
+    Abra **Customize › Connectors**, clique em **+ Add**, escolha **Add custom connector**, dê um nome e cole a URL. Deixe a autenticação em OAuth: não há chave para copiar. O botão **Adicionar ao Claude** na mesma janela abre o formulário do Claude com a URL preenchida (só Claude na web e Team).
+  </Step>
+  <Step title="Entrar e aprovar">
+    Uma janela do Customermates se abre. Entre, confira se a tela de consentimento nomeia o aplicativo que está se conectando e o host em **Destino da conexão** e clique em **Aprovar**. Escolha **Negar** para qualquer conexão que você não iniciou.
+  </Step>
+  <Step title="Confirmar as ferramentas e testar uma alteração">
+    De volta ao Claude, o Customermates aparece com as suas ferramentas. Faça primeiro uma pergunta de leitura, depois altere um campo em um registro de teste e procure a alteração no painel **Histórico** do registro, desde que a sua função possa ler o registro de auditoria.
+  </Step>
+</Steps>
+
+Cada espaço de trabalho define as próprias listas e campos, então peça ao Claude que chame `discover_record_types` e `get_record_model` antes de gravar. Três pedidos para começar:
+
+1. “Mostre os últimos dez contatos que criei. Algum está sem endereço de e-mail?” (leitura)
+2. “No negócio da Acme, coloque o campo Status em Ganho e acrescente nas notas que o contrato foi assinado hoje.” (alteração)
+3. “Quais conversas de clientes aguardam a minha resposta? Escreva uma resposta para a mais antiga e salve como rascunho.” (exige um plano com mensagens, na nuvem a partir do Pro)
+
+Adicione um conector por espaço de trabalho; o Claude recusa um segundo conector com uma URL que já conhece. No plano Free, com o seu único conector personalizado, você consegue portanto conectar um espaço de trabalho. Para dar menos ferramentas ao Claude, acrescente `?toolsets=records,messaging` à URL, como explica a [referência de MCP](/docs/mcp#narrowing-with-toolsets). Para experimentar com a sua própria conta do Claude, [comece o seu teste de [[commercial.trial.days]] dias](/auth/signup?job=followup). Sem cartão de crédito.
+
+## Que permissões um conector do Claude recebe, e como as limito? [#permissions]
+
+- **As suas permissões, não mais.** Segundo a Anthropic, o acesso é aplicado no nível do usuário: você entra no aplicativo, e o Claude só alcança o que a sua conta pode ver. A exceção é um conector com uma chave de API compartilhada: no Team e no Enterprise ele dá a todos o acesso dessa chave.
+- **Permissões de ferramentas por conector.** Cada conector tem **Tool permissions**, onde você escolhe entre Always allow e Needs approval. Permita as ferramentas de leitura; o que grava, envia ou apaga fica em Needs approval. No Team e no Enterprise, os Owners podem definir uma permissão como Always allow, Needs approval ou Blocked para toda a organização, os membros não conseguem contorná-la, e uma restrição nunca dá mais acesso do que o aplicativo permite.
+- **Padrões da Anthropic.** No Gmail, Calendar e Drive, enviar, responder, encaminhar, compartilhar, mover e apagar exigem a sua aprovação por padrão. Em contas do Microsoft 365 de trabalho ou escola, o Claude pergunta toda vez que envia ou encaminha um e-mail ou altera um evento, a menos que um administrador tenha definido essa ferramenta como Always allow.
+- **Modo Research.** A Anthropic observa que, durante o Research, o Claude pode chamar ferramentas de conectores sem nova aprovação; desative, portanto, as ferramentas que gravam.
+- **Customermates.** O servidor pede aos clientes que confirmem antes de apagar ou enviar, mas não impõe isso: se o Claude pode chamar uma ferramenta, a chamada é executada. O que protege você são as Tool permissions no Claude. Uma conexão leva as permissões do usuário que a aprovou, sem escopo por chave; para ter menos permissões, conecte um usuário separado com uma função mais restrita (ele ocupa uma vaga) ou use `?toolsets=`. O envio é imediato, então peça ao Claude que salve um rascunho e envie você mesmo pela caixa de entrada.
+- **Dados.** Nos conectores do Google, os dados recuperados ficam ligados ao chat: apagar o chat os apaga. Um serviço conectado trata os seus dados conforme os próprios termos, que, observa a Anthropic, podem valer fora dos Estados Unidos.
+
+## Quando um conector do Claude é a escolha errada? [#wrong-choice]
+
+- **Uma tarefa pontual de poucas linhas.** Cole o texto no chat; não há nada a autorizar.
+- **Centenas de registros.** Um conector trabalha registro por registro, e os fornecedores limitam chamadas em massa (o conector do HubSpot altera 10 registros por vez). Use a importação do CRM.
+- **Um servidor que você não controla ou em que não confia.** Um conector personalizado pode alcançar serviços que a Anthropic não verificou.
+- **O Customermates, em particular.** Ele é a escolha errada se o Claude precisar reservar ou alterar eventos de agenda (as agendas conectadas são somente leitura: use ao lado dele o conector do Google Calendar ou do Microsoft 365), se você quiser uma ligação nativa com o Slack (ao Slack só o n8n chega) ou se precisar de telefonia ou sequências de e-mails, que ele não tem. Se o seu time já usa o HubSpot e está satisfeito, use o conector do HubSpot.
+
+## O que fazer se um conector do Claude não conecta? [#troubleshooting]
+
+| Sintoma | Causa provável | Solução |
+| --- | --- | --- |
+| “Access blocked: your institution’s admin needs to review Claude for Google Drive” | Um administrador do Google Workspace não marcou o Claude como app confiável | O administrador abre admin.google.com, depois **Security › Access and data control › API controls › Manage third-party app access** (o caminho do artigo da Anthropic), procura o Claude, define como Trusted e espera cerca de 15 minutos |
+| Sem a opção **Add custom connector**, ou um segundo é recusado | O Free permite um conector personalizado | Remover o conector personalizado existente, ou escolher um plano pago |
+| “Couldn’t register with the sign-in service” | A URL está errada, ou os servidores da Anthropic não conseguem alcançá-la | Copiar a URL de novo no aplicativo; um servidor em rede privada precisa de liberação |
+| “A connector with this URL already exists in your organization” | Essa URL já está conectada, talvez para outro espaço de trabalho | Adicionar o outro espaço de trabalho com a própria URL, copiada com esse espaço aberto |
+| O Customermates responde HTTP 401 com `invalid_token` | A conexão foi aprovada para outro espaço de trabalho | Reconectar; o Claude entra de novo para o espaço de trabalho da URL |
+| “Tool not found” | Um cache do conector desatualizado | Remover o conector e adicioná-lo de novo |
+
+O [guia do conector](/docs/connect-custom-connector#troubleshooting) traz a tabela completa para o Customermates.
+
+## Perguntas frequentes
+
+<Faq>
+<FaqItem question="Existe uma lista dos conectores do Claude?">
+A lista é o [diretório de conectores](https://claude.com/connectors) da Anthropic: em 12 de novembro de 2026 ele mostrava mais de 1.100 conectores, filtráveis por categoria e por tipo (Web, Desktop extension, Interactive). A tabela acima cobre seis para o trabalho com clientes, e o [guia de Claude e CRM](/blog/claude-crm) cobre os CRMs.
+</FaqItem>
+
+<FaqItem question="Existe um conector do Claude para o Outlook?">
+Sim, com o conector do Microsoft 365, que cobre e-mail e agenda do Outlook, SharePoint, OneDrive e Teams. Ele é somente leitura até as ferramentas de escrita serem ativadas: em contas de trabalho ou escola um administrador as ativa, e as contas pessoais as incluem. Contas de trabalho ou escola também precisam do consentimento único de um administrador global do Microsoft Entra.
+</FaqItem>
+
+<FaqItem question="Os conectores do Claude podem enviar e-mails?">
+O conector do Gmail pode enviar, responder e encaminhar e-mails, e por padrão o Claude pede a sua aprovação antes de cada ação. O conector do Microsoft 365 redige e envia depois que as ferramentas de escrita estão ativas. No conector de um CRM, confira o fornecedor: o Customermates envia imediatamente se você permitir a ferramenta, então salve rascunhos primeiro.
+</FaqItem>
+
+<FaqItem question="Posso usar os conectores do Claude no plano Free?">
+Sim. Os conectores web do diretório estão abertos a todos os usuários, e uma conta Free pode adicionar um conector personalizado. Alguns exigem mais: o do HubSpot exige um plano pago do Claude.
+</FaqItem>
+
+<FaqItem question="Qual é a diferença entre um conector e um servidor MCP?">
+Um servidor MCP é o programa que oferece ferramentas pelo Model Context Protocol; um conector personalizado é a forma de ligar ao Claude um servidor MCP remoto com uma URL. Os conectores do diretório já vêm prontos, e algumas extensões de desktop rodam no Claude Desktop. O protocolo é explicado no [artigo sobre o servidor MCP](/blog/what-is-an-mcp-server), e [MCP versus API](/blog/mcp-vs-api) o compara com uma integração clássica.
+</FaqItem>
+
+<FaqItem question="Os conectores do Claude funcionam no Claude Code?">
+O Claude Code lista os conectores da sua conta do claude.ai como servidores MCP, com precedência menor que os servidores que você adiciona, e você pode desativar um por projeto com `/mcp`. Também dá para adicionar um servidor remoto diretamente com `claude mcp add --transport http`, como mostrado acima.
+</FaqItem>
+
+<FaqItem question="Os conectores do Claude são seguros?">
+São tão seguros quanto o servidor por trás deles e as permissões que você dá. Conecte só servidores de organizações em que você confia, leia os pedidos de aprovação, permita por padrão só as ferramentas de leitura e lembre que os dados recuperados passam a fazer parte da conversa.
+</FaqItem>
+</Faq>
+
+Informações dos fornecedores verificadas em 12 de novembro de 2026 na [visão geral de conectores da Anthropic](https://support.claude.com/en/articles/11176164-use-connectors-to-extend-claude-s-capabilities), no [guia da Anthropic sobre conectores personalizados](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp), no [artigo da Anthropic sobre os conectores do Google Workspace](https://support.claude.com/en/articles/10166901-use-google-workspace-connectors), em [Connect to Microsoft 365](https://support.claude.com/en/articles/15183774-connect-to-microsoft-365), na [configuração do administrador do Microsoft 365](https://support.claude.com/en/articles/12542951-set-up-the-microsoft-365-connector), no [diretório de conectores](https://claude.com/connectors), no [artigo do HubSpot sobre o conector do Claude](https://knowledge.hubspot.com/integrations/set-up-and-use-the-hubspot-connector-for-claude) e na [documentação de MCP do Claude Code](https://code.claude.com/docs/en/mcp).

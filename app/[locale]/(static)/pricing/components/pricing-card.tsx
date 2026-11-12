@@ -19,11 +19,11 @@ export function PricingCardComponent({ card, compact = false, displayPrice, pric
   if (compact) {
     return (
       <article
-        className="mk-card flex flex-col gap-5 p-6 sm:flex-row sm:items-start sm:justify-between"
+        className="mk-card flex flex-col gap-5 p-6 sm:flex-row sm:items-start sm:justify-between md:flex-col md:items-stretch lg:flex-row lg:items-start"
         data-pricing-plan={card.plan}
       >
         <div className="min-w-0">
-          <div className="flex items-baseline gap-3">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
             <h2 className="mk-title m-0">{card.title}</h2>
 
             <span className="text-xl font-semibold tracking-[-0.03em] tabular-nums">{displayPrice}</span>
@@ -44,7 +44,7 @@ export function PricingCardComponent({ card, compact = false, displayPrice, pric
           </ul>
         </div>
 
-        <MarketingButton className="shrink-0" href={card.buttonHref} variant={buttonVariant}>
+        <MarketingButton className="shrink-0 md:self-start lg:self-auto" href={card.buttonHref} variant={buttonVariant}>
           {card.buttonText}
         </MarketingButton>
       </article>
