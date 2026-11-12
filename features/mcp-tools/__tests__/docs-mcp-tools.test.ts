@@ -10,6 +10,7 @@ import { CONTENT_LOCALES, type ContentLocale } from "@/i18n/locale-registry";
 import { getDocsPageTool, listDocsSlugs, searchDocsTool, docsPageResult } from "../docs.mcp-tools";
 import { mcpToolResultText, type McpToolResult } from "../mcp-tool";
 import { GET_STARTED_PROMPT } from "../server-instructions";
+import { TOOL_GUIDANCE } from "../tool-guidance";
 import { MCP_ALWAYS_ON_TOOLS } from "../tool-registry";
 
 function getPage(args: { slug: string; locale?: ContentLocale; source?: "docs" | "api" }) {
@@ -173,14 +174,14 @@ describe("stateless documentation section handoff", () => {
   });
 
   it("directs search and get to pass the selected anchor and allows an empty-anchor full read", () => {
-    expect(searchDocsTool.description).toContain(
+    expect(TOOL_GUIDANCE.search_docs).toContain(
       "nonempty returned anchor as anchor and the original question as query",
     );
-    expect(searchDocsTool.description).toContain("omit anchor and query for an empty anchor");
-    expect(getDocsPageTool.description).toContain(
+    expect(TOOL_GUIDANCE.search_docs).toContain("omit anchor and query for an empty anchor");
+    expect(TOOL_GUIDANCE.get_docs_page).toContain(
       "nonempty anchor returned by search_docs as anchor and the original question as query",
     );
-    expect(getDocsPageTool.description).toContain("For an empty anchor, omit anchor and query");
+    expect(TOOL_GUIDANCE.get_docs_page).toContain("For an empty anchor, omit anchor and query");
     const section = getDocsPageTool.inputSchema.parse({
       slug: "webhooks",
       query: "how-do-i-create-a-webhook",

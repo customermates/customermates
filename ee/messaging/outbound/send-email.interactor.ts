@@ -77,13 +77,13 @@ export const SendEmailSchema = z
       .max(EMAIL_FILE_ATTACHMENTS_MAX_COUNT)
       .optional()
       .describe(
-        "Files to attach from the CRM file store: a file value, a record's files list or an upload without recordId. Omit when sending a saved draft to send the draft's own files",
+        "Files to attach from the CRM file store: a file value, a record's files list or an upload without recordId. When sending a saved draft, omitting it sends the draft's own files",
       ),
     draftMessageId: z
       .uuid()
       .optional()
       .describe(
-        "Saved draft to send. Each draft revision is sent at most once: repeating the call returns the first result",
+        "Id of the saved draft to send. Each draft revision is sent at most once; a repeated send returns the first result",
       ),
     draftRevision: DraftRevisionSchema.optional().describe(
       "Opaque revision returned with the saved draft; required whenever draftMessageId is provided",

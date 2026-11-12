@@ -26,7 +26,7 @@ describe("identifier lookup to updateMany handoff", () => {
     const request = JSON.stringify(operation?.requestBody);
     expect(response).toContain('"schemaRevision"');
     expect(response).toContain('"version"');
-    expect(response).toContain("deduplicate by typeId and recordId");
+    expect(response).toContain("one typeId and recordId pair can occur in several matches");
     expect(request).toContain('"maxItems":1000');
   });
 

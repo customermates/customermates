@@ -47,7 +47,7 @@ const ManageDataViewsToolSchema = z
     action: z
       .enum(["surfaces", "config", "list", "create", "update", "select", "delete", "reset", "share", "publish"])
       .describe(
-        "surfaces discovers supported pages; config reads one capability section; list pages view summaries or reads one exact view; create/update/select/delete change your own views; reset removes personal overrides for the given fields; share sets who else in the workspace sees one of your views; publish creates or revokes the public link of one of your dashboard or list views.",
+        "surfaces discovers supported pages; config reads one capability section; list pages view summaries or reads one exact view; create/update/select/delete change the caller's own views; reset removes personal overrides for the given fields; share sets who else in the workspace sees one of the caller's views; publish creates or revokes the public link of one of the caller's dashboard or list views.",
       ),
     surfaceKey: AiManageableDataViewSurfaceKeySchema.optional().describe(
       "Required for every action except surfaces. Operator-console surfaces are intentionally unavailable.",
@@ -56,7 +56,7 @@ const ManageDataViewsToolSchema = z
       "list: optional exact view whose state is needed. Required for update/select/delete/share/publish. __all__ cannot be renamed, deleted, shared or published.",
     ),
     section: DataViewConfigSectionSchema.optional().describe(
-      "config only. Defaults to overview; use filters, sorting, grouping or appearance for paged field metadata.",
+      "config only. Defaults to overview; filters, sorting, grouping and appearance return paged field metadata.",
     ),
     page: ManageDataViewPageSchema.optional().describe(
       "Config and summary-list only. 1-indexed page; default 1. Ignored when list has an exact viewKey.",
@@ -65,7 +65,7 @@ const ManageDataViewsToolSchema = z
       "Config and summary-list only. Results per page, 1-25, served exactly; default 10. Ignored for an exact viewKey.",
     ),
     query: ManageDataViewQuerySchema.describe(
-      "Config and summary-list only. Narrow by an exact or partial field id, label, view id or view name after a truncated or broad result. Ignored for an exact viewKey.",
+      "Config and summary-list only. Narrows to an exact or partial field id, label, view id or view name, useful after a truncated or broad result. Ignored for an exact viewKey.",
     ),
     name: z
       .string()
@@ -83,14 +83,14 @@ const ManageDataViewsToolSchema = z
         "reset only: remove personal overrides for these keys; the list then shows every field in its configured order as an ungrouped, unsorted table. Only dynamic record surfaces support reset.",
       ),
     visibility: DataViewVisibilitySchema.optional().describe(
-      "share only: private (only you), workspace (every member) or roles (members with one of roleIds).",
+      "share only: private (only the owner), workspace (every member) or roles (members with one of roleIds).",
     ),
     roleIds: z
       .array(z.uuid())
       .min(1)
       .max(DATA_VIEW_SHARE_ROLE_LIMIT)
       .optional()
-      .describe("share with visibility roles only: role ids from manage_roles."),
+      .describe("share with visibility roles only: ids of workspace roles."),
     public: z
       .boolean()
       .optional()
@@ -103,7 +103,7 @@ const ManageDataViewsToolSchema = z
       .optional()
       .describe("publish with public true only: optional last day (YYYY-MM-DD) the link opens."),
     state: AgentDataViewStateSchema.optional().describe(
-      "Call config first. Create: initial state. Update: call list immediately before every update with the exact viewKey; include only keys the user asked to change. Keys equal to the listed value are no-ops. Arrays replace. Never copy old conversation/full state.",
+      "Create: the initial state. Update: the keys to change relative to the view's current state. Keys equal to the listed value are no-ops, and arrays replace the stored array.",
     ),
   })
   .strict()
@@ -124,15 +124,15 @@ export const manageDataViewsTool = {
   name: "manage_data_views",
   title: "Manage saved views",
   description:
-    "Manage saved views on supported workspace pages; operator-console views are excluded. " +
-    "Discover authorized pages with surfaces, including customer-defined record types; dynamic surface keys contain stable type IDs. Select filters use stable option IDs from config, not editable labels. Start config at overview, then page filters/sorting/grouping/appearance; narrow query/page after truncation. " +
-    "List returns paged summaries; pass viewKey to read current state immediately before update. Create requires name/state and selects it; update patches only supplied keys, so omit name unless the user requested renaming and include only changed state keys. Select remembers a view. Reset (dynamic record surfaces only) removes personal overrides for the given fields, so the list shows every field in its configured order as an ungrouped, unsorted table. " +
+    "Manages saved views on supported workspace pages; operator-console views are excluded. " +
+    "surfaces lists the authorized pages, including customer-defined record types; dynamic surface keys contain stable type IDs. Select filters use stable option IDs from config, not editable labels. config starts at overview and pages filters, sorting, grouping and appearance; query and page narrow a truncated result. " +
+    "List returns paged summaries; with viewKey it returns that view's current state. Create requires name/state and selects it; update patches only supplied keys. Select remembers a view. Reset (dynamic record surfaces only) removes personal overrides for the given fields, so the list shows every field in its configured order as an ungrouped, unsorted table. " +
     "Record lists offer the layouts config lists in viewModes: table, card (a board grouped by a single choice) and calendar when the list has a date field; a calendar view sets viewMode calendar and calendar {dateFieldId, endDateFieldId, colorFieldId, mode} with fields from config appearance. " +
-    "Clear filters with [], search with an empty string, and sort/grouping/calendar with null; filters are ANDed. Timeline views accept only filters and sortDescriptor. Use only filter fields config returns for that surface, following their descriptions; never create a custom column to manufacture a missing saved-view filter. If the requested field is absent, report that it is unavailable and leave the view unchanged. Record option IDs come from get_record_model. " +
-    "Relative days (last N, over N ago, N-M ago) use whole-day inLastDays/notInLastDays, never absolute dates. Verify every requested condition in the saved state before reporting success. " +
-    "Views are private until shared: share with visibility workspace or roles (with roleIds) lets teammates open the view read-only, and each of them sees only the records and fields their own role allows; private stops sharing. List marks views others shared with you with sharedBy; you can select them but not update, delete or share them. " +
-    "Publish (dashboard or list views you own) creates a public link anyone can open without signing in, live, read-only and calculated with your access: a dashboard shows its charts and numbers and opens the records behind a chart (calendar, map and activity widgets are left out); a list shows its table with only the visible columns, saved filters and sorting. It needs the publicLinks permission and public links allowed in the workspace; only publish when the person explicitly asks, and give them the returned publicLink.url. Publishing also shares the view with the whole workspace; public false revokes the link at once, and sharing the view privately or with roles afterwards revokes it too. " +
-    "Deleting a view requires its exact current name and viewKey; a mismatched name returns a name-mismatch error without changing anything. Read the view and ask the person before correcting a near-match. Deletion moves it to Trash (a dashboard view takes its widgets along), where it is deleted permanently after 30 days unless manage_trash restores it with the returned trashBatchId; it never deletes records, and All (__all__) cannot be renamed or deleted. Use the returned absolute link rather than constructing one.",
+    "Filters are cleared with [], search with an empty string, and sort/grouping/calendar with null; filters are ANDed. Timeline views accept only filters and sortDescriptor. Filters accept only the filter fields config returns for that surface; no custom column is created for a missing saved-view filter, and a request for an absent field leaves the view unchanged. Record option IDs are those of the record model. " +
+    "Relative days (last N, over N ago, N-M ago) are expressed as whole-day inLastDays/notInLastDays filters rather than absolute dates. " +
+    "Views are private until shared: share with visibility workspace or roles (with roleIds) lets teammates open the view read-only, and each of them sees only the records and fields their own role allows; private stops sharing. List marks views others shared with the caller with sharedBy; the caller can select them but not update, delete or share them. " +
+    "Publish (dashboard or list views the caller owns) creates a public link anyone can open without signing in, live, read-only and calculated with the owner's access: a dashboard shows its charts and numbers and opens the records behind a chart (calendar, map and activity widgets are left out); a list shows its table with only the visible columns, saved filters and sorting. It needs the publicLinks permission and public links allowed in the workspace and returns the link as publicLink.url. Publishing also shares the view with the whole workspace; public false revokes the link at once, and sharing the view privately or with roles afterwards revokes it too. " +
+    "Deleting a view requires its exact current name and viewKey; a mismatched name returns a name-mismatch error without changing anything. Deletion moves the view to Trash (a dashboard view takes its widgets along), where it is deleted permanently after 30 days; the returned trashBatchId identifies the Trash batch it can be restored from. It does not delete records, and All (__all__) cannot be renamed or deleted. Responses carry the absolute link of the view.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: true,

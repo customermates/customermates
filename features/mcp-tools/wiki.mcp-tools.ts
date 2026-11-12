@@ -59,7 +59,7 @@ const MarkdownInputSchema = z
         "Markdown contains escaped line breaks. Retry with actual newline characters between headings and steps.",
     },
   )
-  .describe("Markdown with actual newline characters, never literal backslash-n separators.");
+  .describe("Markdown with actual newline characters; escaped backslash-n separators are rejected.");
 
 const ListSchema = z.object({
   page: mcpPage(),
@@ -110,12 +110,12 @@ const ManageWikiPagesSchema = z.object({
   id: z.uuid().optional().describe("Page id."),
   query: z.string().optional().describe("Search terms."),
   offset: z.coerce.number().int().min(0).optional().describe("Hit offset or prior nextOffset."),
-  anchor: z.string().optional().describe("Section anchor from search; get returns only that section."),
+  anchor: z.string().optional().describe("Section anchor as returned by a search hit; get returns only that section."),
   page: mcpPage(),
   pages: z.array(PageInputSchema).min(1).max(5).optional().describe("Created atomically."),
   requireEmpty: z.boolean().optional().describe("Only into an empty Knowledge Base."),
   expectedUpdatedAt: z.string().optional().describe("updatedAt from a prior read."),
-  targetId: z.uuid().optional().describe("move only: the page to place this page next to."),
+  targetId: z.uuid().optional().describe("move only: the reference page this page is placed beside."),
   placement: MoveWikiPageSchema.shape.placement
     .optional()
     .describe("move only: before or after targetId in the saved order."),
@@ -355,12 +355,12 @@ export const manageWikiPagesTool = {
   description:
     "Knowledge Base of company facts, processes, voice and support guidance. " +
     "kind: guide = the one Operating Guide; procedure = numbered steps + whenToUse; default knowledge. " +
-    "list: 5 per page, guide pinned first, remaining pages in saved order; search: follow hasMore to continue; total is a lower bound unless totalIsExact. Returns snippets and section offsets, plus didYouMean when a misspelled word was corrected. " +
-    "get: one Markdown chunk (outline at 0); repeat with nextOffset until null; restart at 0 if updatedAt changes; anchor reads one section. " +
+    "list: 5 per page, guide pinned first, remaining pages in saved order; search: hasMore marks further pages; total is a lower bound unless totalIsExact. Returns snippets and section offsets, plus didYouMean when a misspelled word was corrected. " +
+    "get: one Markdown chunk (outline at 0); nextOffset is the offset of the following chunk and null at the end; updatedAt changes when the page changed between chunks; anchor reads one section. " +
     "move: places page id before or after targetId in the saved order; the Operating Guide stays pinned first, so it can neither move nor serve as targetId. " +
     "gaps: questions the Knowledge Base could not answer (editors). " +
-    "delete moves the page to Trash, where it is deleted permanently after 30 days unless manage_trash restores it with the returned trashBatchId. " +
-    "Link pages as /wiki?page=<id>; ids survive renames.",
+    "delete moves the page to Trash, where it is deleted permanently after 30 days; the returned trashBatchId identifies the Trash batch it can be restored from. " +
+    "Pages link as /wiki?page=<id>; ids survive renames.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: true,

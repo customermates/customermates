@@ -39,7 +39,12 @@ const ManageRoutinesSchema = z.object({
       "list = compact routine summaries by default (optional page, pageSize, searchTerm, owner, includePrompts); runs = one routine's run history (id, optional cursor); create = name, prompt, triggerKind, enabled, plus cronExpression and timezone for a schedule or triggerEvents for an event (record events also need recordTrigger or recordSources; optional debounceSeconds); update = id plus the fields to change; pause, run_now and delete = id.",
     ),
   id: z.uuid().optional().describe("Routine id. Required for update, pause, run_now and delete."),
-  cursor: z.string().max(500).nullable().optional().describe("runs only. Page cursor from a previous runs call."),
+  cursor: z
+    .string()
+    .max(500)
+    .nullable()
+    .optional()
+    .describe("runs only. Page cursor returned by a previous runs request."),
   page: mcpPage(),
   pageSize: mcpPageSize(25, `list only. ${MCP_PAGE_SIZE_DESCRIPTION} Default 25.`),
   searchTerm: z.string().optional().describe("list only. Free-text match against the routine name."),
@@ -55,10 +60,7 @@ const ManageRoutinesSchema = z.object({
     .max(ROUTINE_PROMPT_MAX_CHARS)
     .optional()
     .describe("The instructions the assistant receives on every run. Required on create."),
-  enabled: z
-    .boolean()
-    .optional()
-    .describe("Omitting this on create produces a LIVE routine. Pass false to create a draft."),
+  enabled: z.boolean().optional().describe("Omitting this on create produces a LIVE routine; false creates a draft."),
   triggerKind: z.enum(["schedule", "event"]).optional().describe("Required on create."),
   cronExpression: z
     .string()
@@ -75,7 +77,7 @@ const ManageRoutinesSchema = z.object({
   recordTrigger: RoutineRecordTriggerSchema.nullable()
     .optional()
     .describe(
-      "For record.created/updated/deleted from one list: a query with stable typeId, filters and relationships, plus watched field IDs (changedFieldIds). The query filters decide which records fire the routine. Discover the type schema first. Deletion filters match before removal; creation and update filters match the resulting state and are rechecked at admission. Current owner access is always rechecked. Use recordSources instead to watch several lists.",
+      "For record.created/updated/deleted from one list: a query with stable typeId, filters and relationships, plus watched field IDs (changedFieldIds). The query filters decide which records fire the routine. Deletion filters match before removal; creation and update filters match the resulting state and are rechecked at admission. Current owner access is rechecked. recordSources watches several lists.",
     ),
   recordSources: z
     .array(RecordTriggerSourceSchema)
@@ -91,7 +93,9 @@ const ManageRoutinesSchema = z.object({
     .int()
     .nonnegative()
     .optional()
-    .describe("Required when supplying recordTrigger. Use the schema revision returned by type discovery."),
+    .describe(
+      "Required when supplying recordTrigger: the current schema revision of the record model, as returned by type discovery.",
+    ),
   debounceSeconds: z.number().int().min(0).max(86_400).optional(),
 });
 
@@ -118,15 +122,15 @@ export const manageRoutinesTool = {
   name: "manage_routines",
   title: "Manage routines",
   description:
-    "Use this to read, create, change or remove routines: saved instructions the assistant runs on a schedule or when a CRM event fires. " +
-    "action list returns compact summaries (id, name, owner, trigger, enabled) by default; pass includePrompts: true for full configurations including prompts. Pass owner: 'mine' to limit results to routines you own; page, pageSize and searchTerm paginate and search. " +
+    "Reads, creates, changes and removes routines: saved instructions the assistant runs on a schedule or when a CRM event fires. " +
+    "action list returns compact summaries (id, name, owner, trigger, enabled) by default; includePrompts: true returns full configurations including prompts. owner: 'mine' limits results to routines the caller owns; page, pageSize and searchTerm paginate and search. " +
     "action runs returns one routine's run history newest first, paginated by cursor, each with its status, summary, triggerKind and error block reason. " +
     "action create needs name, prompt and triggerKind, plus cronExpression for a schedule, or triggerEvents for an event. Record events (record.created, record.updated, record.deleted) also need recordTrigger for one list or recordSources for several lists; the query filters decide which records fire the routine, and record events can be combined with messaging events in one routine. " +
-    "Omitting enabled on create produces a routine that is immediately LIVE and will start running, so pass enabled false to draft one. " +
+    "Omitting enabled on create produces a routine that is immediately LIVE and will start running; enabled false creates a draft. " +
     "action update changes only the fields supplied, but a change of triggerKind must arrive with that kind's schedule or events or validation fails. " +
-    "action pause disables a routine and settles its queued runs to skipped; re-enabling restores the schedule but never those runs. Only an active system administrator may pause. " +
+    "action pause disables a routine and settles its queued runs to skipped; re-enabling restores the schedule but not those runs. Only an active system administrator may pause. " +
     "action run_now starts a scheduled routine immediately. Manual test runs still have triggerKind schedule. It refuses an event routine, another owner's routine, a disabled routine, paused AI work, an inactive owner or exhausted credits before queuing and reports the reason. " +
-    "action delete moves the routine to Trash, where it stops running; restore it with manage_trash and the returned trashBatchId, and only deleting it permanently removes its history. " +
+    "action delete moves the routine to Trash, where it stops running; the returned trashBatchId identifies the Trash batch it can be restored from, and only deleting it permanently removes its history. " +
     "A routine whose owner has been deactivated cannot be enabled, and creating one may be refused when the owner has used their plan's per-user routine allowance.",
   annotations: {
     readOnlyHint: false,

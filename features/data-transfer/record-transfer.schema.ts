@@ -34,7 +34,9 @@ export const RecordExportSchema = z
       .positive()
       .nullable()
       .optional()
-      .describe("Paged exports only: the page to request next with the same query, or null after the last page."),
+      .describe(
+        "Paged exports only: the number of the following page for the same query, or null after the last page.",
+      ),
   })
   .strict();
 export type RecordExport = z.infer<typeof RecordExportSchema>;
@@ -80,7 +82,9 @@ export const ImportMarkedRecordsSchema = ImportRecordsSchema.extend({
     untrustedTextHandling: z
       .string()
       .optional()
-      .describe("Export-only note from export_crm_records. Accepted so the export can be passed back as-is; ignored."),
+      .describe(
+        "Note on untrusted text that an export carries; accepted so an export can be submitted unchanged, and ignored.",
+      ),
   }).strict(),
 }).strict();
 export type ImportMarkedRecordsInput = z.infer<typeof ImportMarkedRecordsSchema>;

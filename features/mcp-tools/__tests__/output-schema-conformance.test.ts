@@ -50,6 +50,7 @@ import { getCalendarsTool, getMessagingThreadsTool, moveEmailThreadTool } from "
 import { manageRoutinesTool } from "../routine.mcp-tools";
 import { manageWebhooksTool } from "../webhook.mcp-tools";
 import { queryRecordMeasureV2Tool, resolveRecordIdentifiersV2Tool } from "../record-model.mcp-tools";
+import { RECORDS_TOOL_GUIDANCE } from "../tool-guidance/records";
 
 const ada = "00000000-0000-4000-8000-00000000000a";
 const threadId = "00000000-0000-4000-8000-000000000071";
@@ -267,8 +268,9 @@ describe("tool results pass the MCP SDK output validation on the server and in t
     const unversioned = await sdkOutputViolations(resolveRecordIdentifiersV2Tool as McpTool, { identifiers });
     expect(unversioned.server).not.toBeNull();
     expect(unversioned.client).not.toBeNull();
-    expect(resolveRecordIdentifiersV2Tool.description).toMatch(/deduplicate by ref/);
     expect(resolveRecordIdentifiersV2Tool.description).toMatch(/updateMany/);
+    expect(RECORDS_TOOL_GUIDANCE.resolve_record_identifiers).toMatch(/deduplicate by ref/);
+    expect(RECORDS_TOOL_GUIDANCE.resolve_record_identifiers).toMatch(/updateMany/);
     expect(() =>
       resolveRecordIdentifiersV2Tool.inputSchema.parse({
         identifiers: Array.from({ length: 1001 }, () => identifiers[0]),

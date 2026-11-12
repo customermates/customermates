@@ -5,6 +5,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { z } from "zod";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
 
+import { TOOL_GUIDANCE } from "@/features/mcp-tools/tool-guidance";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { solutionSeedRoutines } from "@/prisma/seeds/routines";
 import { solutionWorkspacePlans } from "@/prisma/seeds/solutions/seed-solutions";
@@ -797,12 +798,11 @@ describe("agent tools", () => {
   it("publishes fresh-state and minimal-patch instructions for saved-view updates", () => {
     const definition = getAgentAiToolDefinitions().find(({ name }) => name === "manage_data_views");
     const schema = definition?.inputSchema as { properties?: Record<string, unknown> } | undefined;
-    const state = schema?.properties?.state as { description?: string } | undefined;
 
-    expect(state?.description).toContain("call list immediately before every update");
-    expect(state?.description).toContain("include only keys the user asked to change");
-    expect(state?.description).toContain("Never copy old conversation/full state");
-    expect(definition?.description).toContain(
+    expect(TOOL_GUIDANCE.manage_data_views).toContain("call list immediately before every update");
+    expect(TOOL_GUIDANCE.manage_data_views).toContain("include only keys the user asked to change");
+    expect(TOOL_GUIDANCE.manage_data_views).toContain("Never copy old conversation/full state");
+    expect(TOOL_GUIDANCE.manage_data_views).toContain(
       "never create a custom column to manufacture a missing saved-view filter",
     );
     expect(getAgentAiToolDefinitions().find(({ name }) => name === "configure_record_model")?.description).toContain(

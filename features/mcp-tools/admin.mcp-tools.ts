@@ -61,9 +61,9 @@ export const updateMyProfileTool = {
   name: "update_my_profile",
   title: "Update my profile",
   description:
-    "Use this when updating the current user's own profile and preferences. " +
+    "Updates the current user's own profile and preferences. " +
     "It is a partial update of firstName, lastName, avatarUrl, theme, displayLanguage and formattingLocale; omitted fields keep their current values. " +
-    "It never changes other members or workspace configuration.",
+    "It does not change other members or workspace configuration.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: false,
@@ -102,19 +102,19 @@ const ManageTeamSchema = z.object({
   action: z
     .enum(["invite", "invite_link", "update_member", "remove_member"])
     .describe(
-      "invite = send invitation emails (emails); invite_link = return the workspace invitation link to share yourself; update_member = change an existing member's role or status (userId or email plus roleId and/or status); remove_member = remove another member from this workspace (userId or email).",
+      "invite = send invitation emails (emails); invite_link = return the workspace invitation link for the caller to share; update_member = change an existing member's role or status (userId or email plus roleId and/or status); remove_member = remove another member from this workspace (userId or email).",
     ),
   emails: InviteUsersByEmailSchema.shape.emails
     .optional()
     .describe("invite action: required, 1 to 20 email addresses, each receives a real invitation email"),
   userId: UpdateMemberSchema.shape.userId.describe(
-    "update_member and remove_member actions: user id from list_users; provide userId or email",
+    "update_member and remove_member actions: user id of the member; provide userId or email",
   ),
   email: UpdateMemberSchema.shape.email.describe(
     "update_member and remove_member actions: member email; provide email or userId, and both must match when supplied",
   ),
   roleId: UpdateMemberSchema.shape.roleId.describe(
-    "update_member action: new role id from get_workspace_context roles. Omit to keep the current role.",
+    "update_member action: id of the new role. Omit to keep the current role.",
   ),
   status: UpdateMemberSchema.shape.status.describe(
     "update_member action: new status. Omit to keep the current status.",
@@ -125,13 +125,13 @@ export const manageTeamTool = {
   name: "manage_team",
   title: "Manage team",
   description:
-    "Use this when administering team members. " +
-    "action invite SENDS REAL INVITATION EMAILS to the given addresses (up to 20 per call). " +
-    "action invite_link returns the workspace invitation link and its expiresAt, as the Invite modal shows it, creating one valid for 7 days when none is active; anyone who opens it can request to join, so hand it only to the people the user names. " +
-    "action update_member changes an existing member's role or status: identify the member by userId from list_users.items[].id or email (both must match if supplied), plus roleId from get_workspace_context.roles[].id and/or status; omitted fields keep their current values; " +
-    "a member who has no role assigned yet (e.g. a still pending invite) has no role to keep, so you must pass roleId together with the change or the call is rejected. " +
-    "action remove_member removes another member from this workspace (userId or email, both must match if supplied): their status becomes inactive and they show as left (a declined request leaves the list instead), it permanently revokes their API keys and MCP connections for this workspace, disconnects the mailboxes and LinkedIn accounts they connected here, pauses their routines and frees an active member's seat; for a member waiting for approval it declines the request. It SENDS A REAL EMAIL telling the removed member that their access ended (none for a declined request). Records they own stay. To return they ask to join again with an invitation link, and an admin has to approve the request; you cannot remove yourself, the only active membership of the last Customermates platform operator, a member who already left or the last active admin. " +
-    "last-admin protection is enforced server-side, the workspace can never lose its last active admin. " +
+    "Administers team members. " +
+    "action invite SENDS REAL INVITATION EMAILS to the given addresses (up to 20 per request). " +
+    "action invite_link returns the workspace invitation link and its expiresAt, as the Invite modal shows it, creating one valid for 7 days when none is active; anyone who opens it can request to join. " +
+    "action update_member changes an existing member's role or status: the member is identified by userId or email (both must match if supplied), plus roleId and/or status; omitted fields keep their current values; " +
+    "a member who has no role assigned yet (e.g. a still pending invite) has no role to keep, so roleId is required with the change and the request is rejected without it. " +
+    "action remove_member removes another member from this workspace (userId or email, both must match if supplied): their status becomes inactive and they show as left (a declined request leaves the list rather than showing as left), it permanently revokes their API keys and MCP connections for this workspace, disconnects the mailboxes and LinkedIn accounts they connected here, pauses their routines and frees an active member's seat; for a member waiting for approval it declines the request. It SENDS A REAL EMAIL telling the removed member that their access ended (none for a declined request). Records they own stay. To return they ask to join again with an invitation link, and an admin has to approve the request; the caller cannot remove themselves, the only active membership of the last Customermates platform operator, a member who already left or the last active admin. " +
+    "last-admin protection is enforced server-side, so the workspace cannot lose its last active admin. " +
     "invite requires create permission on users, as does invite_link; update_member requires update permission on users (Edit on Users & Roles), the same check as REST POST /v1/members/update, and remove_member requires the same permission as REST POST /v1/members/remove.",
   annotations: {
     readOnlyHint: false,
@@ -156,7 +156,7 @@ export const manageTeamTool = {
           failed: data.failed,
           failedEmails: data.failedEmails,
           message: data.failed
-            ? `${data.failed} of ${data.sent + data.failed} invitation emails were not sent because the email service did not accept them; tell the user which addresses (failedEmails) and offer the invitation link (action invite_link) for them`
+            ? `${data.failed} of ${data.sent + data.failed} invitation emails were not sent because the email service did not accept them; failedEmails lists those addresses and the invitation link (action invite_link) is available for them`
             : "Invitation emails sent",
         }),
       );

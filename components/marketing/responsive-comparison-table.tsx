@@ -135,20 +135,34 @@ export function ResponsiveComparisonTable({ header, columns, sections }: Respons
               {header}
             </th>
 
-            {columns.map((column) => (
-              <th
-                key={column.key}
-                className={cn(
-                  "min-w-[130px] bg-card px-2 py-5 text-center align-middle text-base font-semibold break-words hyphens-auto lg:px-4",
-                  column.featured &&
-                    "rounded-t-xl bg-[color-mix(in_oklab,var(--card),var(--foreground)_3.5%)] text-foreground shadow-[inset_1.5px_0_0_var(--foreground),inset_-1.5px_0_0_var(--foreground),inset_0_1.5px_0_var(--foreground)]",
-                  stickyHeaderEdge,
-                )}
-                scope="col"
-              >
-                {column.header}
-              </th>
-            ))}
+            {columns.map((column) =>
+              column.featured ? (
+                <th
+                  key={column.key}
+                  className={cn(
+                    "h-px min-w-[130px] bg-card p-0 text-center align-middle text-base font-semibold break-words hyphens-auto",
+                    stickyHeaderEdge,
+                  )}
+                  data-comparison-featured=""
+                  scope="col"
+                >
+                  <div className="flex h-full items-center justify-center rounded-t-xl bg-[color-mix(in_oklab,var(--card),var(--foreground)_3.5%)] px-2 py-5 text-foreground shadow-[inset_1.5px_0_0_var(--foreground),inset_-1.5px_0_0_var(--foreground),inset_0_1.5px_0_var(--foreground)] lg:px-4">
+                    {column.header}
+                  </div>
+                </th>
+              ) : (
+                <th
+                  key={column.key}
+                  className={cn(
+                    "min-w-[130px] bg-card px-2 py-5 text-center align-middle text-base font-semibold break-words hyphens-auto lg:px-4",
+                    stickyHeaderEdge,
+                  )}
+                  scope="col"
+                >
+                  {column.header}
+                </th>
+              ),
+            )}
           </tr>
         </thead>
 

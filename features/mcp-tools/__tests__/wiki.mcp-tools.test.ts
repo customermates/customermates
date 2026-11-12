@@ -7,6 +7,7 @@ import { decode } from "@toon-format/toon";
 import { ForbiddenError } from "@/core/errors/app-errors";
 import { boundedWikiChunk } from "@/features/wiki/wiki-page-chunk";
 import { WikiMarkdownSchema } from "@/features/wiki/wiki.schema";
+import { TOOL_GUIDANCE } from "@/features/mcp-tools/tool-guidance";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { createMockDiModule, MOCK_ENV_MODULE, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
 
@@ -114,7 +115,8 @@ describe("manage_wiki_pages registry", () => {
 
   it("says delete moves to Trash and that a changed page restarts chunking", () => {
     expect(manageWikiPagesTool.description).toContain("delete moves the page to Trash,");
-    expect(manageWikiPagesTool.description).toContain("restart at 0 if updatedAt changes;");
+    expect(manageWikiPagesTool.description).toContain("updatedAt changes when the page changed between chunks;");
+    expect(TOOL_GUIDANCE.manage_wiki_pages).toContain("restart at offset 0 if updatedAt changes");
   });
 });
 

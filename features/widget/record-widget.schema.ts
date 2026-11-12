@@ -15,7 +15,7 @@ export const RecordWidgetReadSchema = z
   .object({
     id: z.uuid(),
     window: CalendarWidgetWindowSchema.optional().describe(
-      "Calendar widgets only: read these days instead of the widget's own range, for example another month or one day.",
+      "Calendar widgets only: read these days in place of the widget's own range, for example another month or one day.",
     ),
   })
   .strict();

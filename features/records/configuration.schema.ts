@@ -70,7 +70,7 @@ const LiveDefinitionSchema = z
   .boolean()
   .optional()
   .refine((archived): boolean => archived !== true, "Use the delete operation to move an item to Trash.")
-  .describe("Always false. Use the delete operation to move an item to Trash.");
+  .describe("Must be false; the delete operation moves an item to Trash.");
 export const ConfigurationReferenceSchema = z.union([z.uuid(), z.string().regex(/^\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$/)]);
 type ConfigurationExpression =
   | { kind: "literal"; value: z.infer<typeof RecordScalarSchema> | null }
@@ -197,7 +197,7 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
     })
     .strict()
     .describe(
-      "Input allows only kind and optional defaultValue. Formula, lookup and rollup require expression. Snapshot requires expression and capture; only snapshots allow override and trigger settings. Omit fields that do not apply.",
+      "Input allows only kind and optional defaultValue. Formula, lookup and rollup require expression. Snapshot requires expression and capture; only snapshots allow override and trigger settings. Fields irrelevant to the kind are omitted.",
     )
     .transform((value, context) => {
       const parsed = ValidatedBehaviorSchema.safeParse(value);
@@ -326,7 +326,7 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
               })
               .strict()
               .describe(
-                "Move a list, field (including a contact details field) or relationship to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed. Deleting a list moves widgets that measure it or show its activity to the same Trash batch; calculations, parent access, bindings, routines and webhooks that use it block the deletion.",
+                "Move a list, field (including a contact details field) or relationship to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed. Deleting a list moves widgets that measure it or show its activity to the same Trash batch; calculations, parent access, bindings, routines and webhooks that depend on it block the deletion.",
               ),
             ...(trashOperations
               ? ([

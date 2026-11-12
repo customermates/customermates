@@ -31,7 +31,7 @@ import {
 
 const SearchSalesLeadsToolSchema = z.object({
   connectedAccountId: LinkedinSearchSalesNavigatorSchema.shape.connectedAccountId.describe(
-    "get_workspace_context.connectedAccounts[].id for a LinkedIn account with a Sales Navigator subscription",
+    "The id of a connected workspace LinkedIn account with a Sales Navigator subscription",
   ),
   url: LinkedinSearchSalesNavigatorSchema.shape.url
     .optional()
@@ -39,7 +39,7 @@ const SearchSalesLeadsToolSchema = z.object({
       "A Sales Navigator search URL copied from the browser (linkedin.com/sales/search/...). When set, filters are ignored",
     ),
   filters: LinkedinSearchSalesPeopleSchema.shape.filters.describe(
-    "Structured people search. Fill fields taking parameter ids with linkedin_get_sales_search_parameters.items[].id using the type named in the field description",
+    "Structured people search. Fields taking parameter ids accept the ids of the parameter type named in the field description",
   ),
   offset: LinkedinSearchSalesNavigatorSchema.shape.offset.describe("Pagination offset (results come in pages)"),
   limit: LinkedinSearchSalesNavigatorSchema.shape.limit.describe("Results per page (1-100, default 10)"),
@@ -47,7 +47,7 @@ const SearchSalesLeadsToolSchema = z.object({
 
 const SearchSalesCompaniesToolSchema = z.object({
   connectedAccountId: LinkedinSearchSalesCompaniesSchema.shape.connectedAccountId.describe(
-    "get_workspace_context.connectedAccounts[].id for a LinkedIn account with a Sales Navigator subscription",
+    "The id of a connected workspace LinkedIn account with a Sales Navigator subscription",
   ),
   url: LinkedinSearchSalesNavigatorSchema.shape.url
     .optional()
@@ -55,7 +55,7 @@ const SearchSalesCompaniesToolSchema = z.object({
       "A Sales Navigator company search URL copied from the browser (linkedin.com/sales/search/company...). When set, filters are ignored",
     ),
   filters: LinkedinSearchSalesCompaniesSchema.shape.filters.describe(
-    "Structured company search. Fill fields taking parameter ids with linkedin_get_sales_search_parameters.items[].id using the type named in the field description",
+    "Structured company search. Fields taking parameter ids accept the ids of the parameter type named in the field description",
   ),
   offset: LinkedinSearchSalesCompaniesSchema.shape.offset.describe("Pagination offset (results come in pages)"),
   limit: LinkedinSearchSalesCompaniesSchema.shape.limit.describe("Results per page (1-100, default 10)"),
@@ -63,10 +63,10 @@ const SearchSalesCompaniesToolSchema = z.object({
 
 const GetSalesSearchParametersToolSchema = z.object({
   connectedAccountId: LinkedinListSalesSearchParametersSchema.shape.connectedAccountId.describe(
-    "get_workspace_context.connectedAccounts[].id for a LinkedIn account with a Sales Navigator subscription",
+    "The id of a connected workspace LinkedIn account with a Sales Navigator subscription",
   ),
   type: LinkedinListSalesSearchParametersSchema.shape.type.describe(
-    "Which parameter family to look up, matching the filter field you want to fill",
+    "Which parameter family to look up, matching the filter field to be filled",
   ),
   keywords: LinkedinListSalesSearchParametersSchema.shape.keywords.describe(
     "Keyword filter, e.g. a city, industry or list name",
@@ -80,21 +80,21 @@ const ManageSalesListsToolSchema = z
     action: z
       .enum(["list", "browse", "save"])
       .describe(
-        "List-list operation: list (enumerate the account's Sales Navigator lists), browse (read the members of one list), or save (add a lead or account to an existing list)",
+        "Operation: list (enumerate the account's Sales Navigator lists), browse (read the members of one list), or save (add a lead or account to an existing list)",
       ),
     connectedAccountId: LinkedinListSalesListsSchema.shape.connectedAccountId.describe(
-      "get_workspace_context.connectedAccounts[].id for a LinkedIn account with a Sales Navigator subscription",
+      "The id of a connected workspace LinkedIn account with a Sales Navigator subscription",
     ),
     kind: LinkedinListSalesListsSchema.shape.kind.describe(
       "Which list family: leads (people, default) or accounts (companies)",
     ),
     listId: LinkedinBrowseSalesListSchema.shape.listId
       .optional()
-      .describe("Required for browse and save: linkedin_manage_sales_lists.items[].id from action=list"),
+      .describe("Required for browse and save: the id of a Sales Navigator list, as returned by action list"),
     providerId: LinkedinSaveToSalesListSchema.shape.providerId
       .optional()
       .describe(
-        "Required for save: linkedin_search_sales_leads.items[].id or get_social_profile.id for kind leads; linkedin_search_sales_companies.items[].id, linkedin_search_sales_leads.items[].current_positions[].company_id, linkedin_manage_sales_lists.items[].current_positions[].company_id from action=browse, or get_social_profile.current_positions[].company_id for kind accounts",
+        "Required for save. For kind leads: the id of a lead from a lead search, or a person profile id. For kind accounts: the id of a company from a company search, or the company_id of a current_positions entry on a lead search result, a list browse row or a person profile",
       ),
     offset: LinkedinListSalesListsSchema.shape.offset.describe("list and browse: pagination offset"),
     limit: LinkedinListSalesListsSchema.shape.limit.describe("list and browse: items per page (1-100, default 10)"),
@@ -197,13 +197,13 @@ export const searchSalesLeadsTool = {
   name: "linkedin_search_sales_leads",
   title: "Search Sales Navigator leads",
   description:
-    "Use this when the user wants to find people via LinkedIn Sales Navigator, for example to import them as contacts. " +
-    "Two modes: pass a Sales Navigator search URL the user copied from their browser, or build a structured search with filters " +
-    "(keywords plus location, industry, company, job title, seniority, headcount and more; resolve parameter ids as linkedin_get_sales_search_parameters.items[].id first). " +
+    "Searches people via LinkedIn Sales Navigator. " +
+    "Two modes: a Sales Navigator search URL copied from the browser, or a structured search with filters " +
+    "(keywords plus location, industry, company, job title, seniority, headcount and more; fields taking parameter ids accept the ids of the matching parameter type). " +
     "Runs through the connected LinkedIn account with the account owner's license. " +
-    "Returns lead rows with items[].id (the providerId for linkedin_manage_sales_lists save), name, headline, location, profile url and current_positions (company, role, company_id, company_url); linkedin_search_sales_leads.items[].current_positions[].company_id works with get_social_profile and profileType=company and as a providerId for account lists; has_been_saved marks leads already on one of your lists. " +
-    "Paginate with offset plus limit; LinkedIn caps a single search at 2500 results, so narrow filters beat deep paging. " +
-    "Requires a connected LinkedIn account with an active Sales Navigator subscription; without one the provider rejects the call.",
+    "Returns lead rows with items[].id (the lead id accepted when saving to a Sales Navigator list), name, headline, location, profile url and current_positions (company, role, company_id, company_url); the company_id is accepted by a company profile lookup and as an account list member id; has_been_saved marks leads already on one of the account's lists. " +
+    "Paginates with offset plus limit; LinkedIn caps a single search at 2500 results. " +
+    "Requires a connected LinkedIn account with an active Sales Navigator subscription; without one the provider rejects the request.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: SearchSalesLeadsToolSchema,
   outputSchema: SearchSalesLeadsOutputSchema,
@@ -244,12 +244,12 @@ export const searchSalesCompaniesTool = {
   name: "linkedin_search_sales_companies",
   title: "Search Sales Navigator companies",
   description:
-    "Use this when the user wants to find companies (accounts) via LinkedIn Sales Navigator, for example to import them as organizations. " +
-    "Two modes: pass a Sales Navigator company search URL the user copied from their browser, or build a structured search with filters " +
-    "(keywords plus location, industry, headcount, annual revenue, spotlights and more; resolve parameter ids as linkedin_get_sales_search_parameters.items[].id first). " +
-    "Returns company rows with items[].id (usable with get_social_profile and profileType=company, and as providerId for linkedin_manage_sales_lists save with kind accounts), name, industry, location, headcount, website, specialties, founded year plus hiring and saved flags. " +
-    "Paginate with offset plus limit; LinkedIn caps a single company search at 1000 results. " +
-    "Requires a connected LinkedIn account with an active Sales Navigator subscription; without one the provider rejects the call.",
+    "Searches companies (accounts) via LinkedIn Sales Navigator. " +
+    "Two modes: a Sales Navigator company search URL copied from the browser, or a structured search with filters " +
+    "(keywords plus location, industry, headcount, annual revenue, spotlights and more; fields taking parameter ids accept the ids of the matching parameter type). " +
+    "Returns company rows with items[].id (the company id accepted by a company profile lookup and as an account list member id), name, industry, location, headcount, website, specialties, founded year plus hiring and saved flags. " +
+    "Paginates with offset plus limit; LinkedIn caps a single company search at 1000 results. " +
+    "Requires a connected LinkedIn account with an active Sales Navigator subscription; without one the provider rejects the request.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: SearchSalesCompaniesToolSchema,
   outputSchema: SearchSalesCompaniesOutputSchema,
@@ -290,11 +290,11 @@ export const getSalesSearchParametersTool = {
   name: "linkedin_get_sales_search_parameters",
   title: "Get Sales Navigator search parameters",
   description:
-    "Use this to resolve the parameter ids that fill the filter fields of linkedin_search_sales_leads and linkedin_search_sales_companies. " +
-    "Pass a type (LOCATION, INDUSTRY, JOB_TITLE, JOB_FUNCTION, COMPANY, SCHOOL, GROUP, RELATION, PERSONA, PROFILE_LANGUAGE, POSTAL_CODE, " +
-    "LEAD_LIST, ACCOUNT_LIST, SAVED_PEOPLE_SEARCH, SAVED_COMPANY_SEARCH, RECENT_SEARCH) plus keywords and get back matching ids with display names. " +
-    "LEAD_LIST and ACCOUNT_LIST also find existing Sales Navigator lists by name; that id is the listId for linkedin_manage_sales_lists. " +
-    "Paginate with offset plus limit when a type has more matches than one page. " +
+    "Returns the Sales Navigator search parameter ids that fill the filter fields of the people and company searches. " +
+    "Takes a type (LOCATION, INDUSTRY, JOB_TITLE, JOB_FUNCTION, COMPANY, SCHOOL, GROUP, RELATION, PERSONA, PROFILE_LANGUAGE, POSTAL_CODE, " +
+    "LEAD_LIST, ACCOUNT_LIST, SAVED_PEOPLE_SEARCH, SAVED_COMPANY_SEARCH, RECENT_SEARCH) plus keywords and returns matching ids with display names. " +
+    "LEAD_LIST and ACCOUNT_LIST also find existing Sales Navigator lists by name; that id is the listId of the Sales Navigator list operations. " +
+    "Paginates with offset plus limit when a type has more matches than one page. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: GetSalesSearchParametersToolSchema,
@@ -323,12 +323,12 @@ export const manageSalesListsTool = {
   name: "linkedin_manage_sales_lists",
   title: "Manage Sales Navigator lists",
   description:
-    "Use this to work with the Sales Navigator lead and account lists of a connected LinkedIn account. " +
+    "Works with the Sales Navigator lead and account lists of a connected LinkedIn account. " +
     "action list enumerates the existing lists (kind leads for people, accounts for companies) with id, name and item count. " +
-    "action browse returns the members of one list (listId); lead rows carry current_positions (company, role, company_id, company_url), and a company_id resolves via get_social_profile with profileType=company. " +
-    "action save ADDS a person or company to an existing list (listId plus providerId): for kind leads pass linkedin_search_sales_leads.items[].id or get_social_profile.id (a get_messaging_threads.items[].participants[].identifier or get_messaging_threads.thread.participants[].identifier must go through get_social_profile first); for kind accounts pass linkedin_search_sales_companies.items[].id or a current_positions[].company_id. The hosted Assistant verifies the person or company and the list with LinkedIn before it calls, refusing the call when either does not resolve. " +
-    "Paginate list and browse with offset plus limit, repeating the same kind and listId while increasing offset. " +
-    "New lists cannot be created via the API; the user creates them in Sales Navigator first. " +
+    "action browse returns the members of one list (listId); lead rows carry current_positions (company, role, company_id, company_url), and a company_id is accepted by a company profile lookup. " +
+    "action save ADDS a person or company to an existing list (listId plus providerId): for kind leads providerId is a lead id from a lead search or a person profile id (a messaging-thread participant identifier is a different identifier type that a profile lookup resolves to a person profile id); for kind accounts a company id from a company search or the company_id of a current_positions entry. In the hosted Assistant the person or company and the list are verified with LinkedIn before the request is sent, and the request is refused when either does not resolve. " +
+    "Paginates list and browse with offset plus limit, repeating the same kind and listId while the offset increases. " +
+    "New lists cannot be created via the API; they are created in Sales Navigator. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
   inputSchema: ManageSalesListsToolSchema,
