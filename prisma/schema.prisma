@@ -211,6 +211,7 @@ model User {
   recordEventSubscriptions        RecordEventSubscription[]
   uploadedRecordFiles             RecordFile[]
   calendarSubscriptions           CalendarSubscription[]
+  bookingLinks                    BookingLink[]
 
   @@unique([companyId, id])
   @@unique([companyId, email])
@@ -258,6 +259,9 @@ model Company {
   accountActivities           AccountActivity[]
   calendars                   Calendar[]
   calendarEvents              CalendarEvent[]
+  calendarEventRecordLinks    CalendarEventRecordLink[]
+  bookingLinks                BookingLink[]
+  bookings                    Booking[]
   subscription                Subscription?
   agentConversations          AgentConversation[]
   agentRunLeases              AgentRunLease[]
@@ -1532,19 +1536,20 @@ model Calendar {
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
   events             CalendarEvent[]
+  bookingLinks       BookingLink[]
 
   @@unique([connectedAccountId, unipileCalendarId])
   @@index([companyId])
 }
 
 model CalendarEvent {
-  id                 String              @id @default(uuid())
+  id                 String                    @id @default(uuid())
   companyId          String
-  company            Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company            Company                   @relation(fields: [companyId], references: [id], onDelete: Cascade)
   connectedAccountId String
-  connectedAccount   ConnectedAccount    @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
+  connectedAccount   ConnectedAccount          @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
   calendarId         String
-  calendar           Calendar            @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  calendar           Calendar                  @relation(fields: [calendarId], references: [id], onDelete: Cascade)
   unipileEventId     String
   title              String
   description        String?
@@ -1552,17 +1557,19 @@ model CalendarEvent {
   conferenceUrl      String?
   startsAt           DateTime
   endsAt             DateTime
-  allDay             Boolean             @default(false)
+  allDay             Boolean                   @default(false)
   timezone           String?
   recurrenceRule     String?
-  status             CalendarEventStatus @default(confirmed)
+  status             CalendarEventStatus       @default(confirmed)
   visibility         String?
-  attendees          Json                @default("[]")
+  attendees          Json                      @default("[]")
   organizer          Json?
   attendeeEmails     String[]
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+  recordLinks        CalendarEventRecordLink[]
 
+  @@unique([companyId, id])
   @@unique([connectedAccountId, unipileEventId])
   @@index([companyId, startsAt])
   @@index([attendeeEmails], type: Gin)
@@ -1571,6 +1578,87 @@ model CalendarEvent {
 enum CalendarEventStatus {
   confirmed
   cancelled
+}
+
+model CalendarEventRecordLink {
+  companyId       String
+  calendarEventId String
+  typeId          String
+  recordId        String
+  createdAt       DateTime      @default(now())
+  event           CalendarEvent @relation(fields: [companyId, calendarEventId], references: [companyId, id], onDelete: Cascade)
+  record          CrmRecord     @relation(fields: [companyId, typeId, recordId], references: [companyId, typeId, id], onDelete: Cascade)
+  company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, calendarEventId, typeId, recordId])
+  @@index([companyId, typeId, recordId])
+}
+
+enum BookingStatus {
+  reserved
+  confirmed
+  cancelled
+}
+
+model BookingLink {
+  id               String    @id @default(uuid())
+  companyId        String
+  userId           String
+  calendarId       String
+  token            String    @unique
+  title            String
+  description      String?
+  durationMinutes  Int
+  bufferMinutes    Int       @default(0)
+  minNoticeMinutes Int       @default(240)
+  horizonDays      Int       @default(30)
+  timeZone         String
+  workingHours     Json
+  withVideo        Boolean   @default(false)
+  personTypeId     String?
+  recordTypeId     String?
+  startFieldId     String?
+  questions        Json      @default("[]")
+  successMessage   String?
+  enabled          Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  company          Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user             User      @relation(fields: [companyId, userId], references: [companyId, id], onDelete: Cascade)
+  calendar         Calendar  @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  bookings         Booking[]
+
+  @@unique([companyId, id])
+  @@index([companyId, userId])
+  @@index([calendarId])
+}
+
+model Booking {
+  id              String        @id @default(uuid())
+  companyId       String
+  bookingLinkId   String
+  calendarEventId String?
+  slotKey         String?
+  status          BookingStatus @default(reserved)
+  inviteeName     String
+  inviteeEmail    String
+  startsAt        DateTime
+  endsAt          DateTime
+  timeZone        String
+  answers         Json          @default("{}")
+  personTypeId    String?
+  personRecordId  String?
+  recordTypeId    String?
+  recordId        String?
+  ipHash          String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  link            BookingLink   @relation(fields: [companyId, bookingLinkId], references: [companyId, id], onDelete: Cascade)
+
+  @@unique([bookingLinkId, slotKey])
+  @@index([companyId, bookingLinkId, startsAt])
+  @@index([companyId, inviteeEmail])
 }
 
 model MessagingFolderPassMessage {
@@ -2243,24 +2331,25 @@ model RecordRelationshipDefinition {
 }
 
 model CrmRecord {
-  companyId   String
-  typeId      String
-  id          String                      @default(uuid())
-  version     Int                         @default(1)
-  systemData  Json?
-  rank        String?
-  deletedAt   DateTime?
-  trashItemId String?
-  createdAt   DateTime                    @default(now())
-  updatedAt   DateTime                    @updatedAt
-  company     Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  type        RecordTypeDefinition        @relation(fields: [companyId, typeId], references: [companyId, id], onDelete: Cascade)
-  values      RecordValue[]
-  outgoing    RecordLink[]                @relation("RecordLinkSource")
-  incoming    RecordLink[]                @relation("RecordLinkTarget")
-  assignments RecordAssignment[]
-  identities  RecordIdentityLink[]
-  threads     MessagingThreadRecordLink[]
+  companyId      String
+  typeId         String
+  id             String                      @default(uuid())
+  version        Int                         @default(1)
+  systemData     Json?
+  rank           String?
+  deletedAt      DateTime?
+  trashItemId    String?
+  createdAt      DateTime                    @default(now())
+  updatedAt      DateTime                    @updatedAt
+  company        Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type           RecordTypeDefinition        @relation(fields: [companyId, typeId], references: [companyId, id], onDelete: Cascade)
+  values         RecordValue[]
+  outgoing       RecordLink[]                @relation("RecordLinkSource")
+  incoming       RecordLink[]                @relation("RecordLinkTarget")
+  assignments    RecordAssignment[]
+  identities     RecordIdentityLink[]
+  threads        MessagingThreadRecordLink[]
+  calendarEvents CalendarEventRecordLink[]
 
   @@id([companyId, typeId, id])
   @@index([companyId, typeId, createdAt, id])
