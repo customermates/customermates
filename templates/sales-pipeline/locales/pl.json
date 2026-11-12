@@ -2,7 +2,7 @@
   "locale": "pl",
   "name": "Lejek sprzedaży",
   "summary": "Siedem etapów z kryteriami wyjścia i wagami, następny krok z terminem przy każdej otwartej szansie, powody wygranej i przegranej oraz zmiana etapu, która tworzy kolejne zadanie.",
-  "description": "Lejek dla małego zespołu sprzedaży: pięć etapów otwartych, Wygrana i Przegrana, wartość ważona każdej szansy, komitet zakupowy przy szansie, powód przegranej i powód wygranej oraz cotygodniowy przegląd. Wagi to ważenie lejka, a nie prognoza: po 20 do 30 zamkniętych szansach zastąp je własnymi wskaźnikami zamknięcia.",
+  "description": "Lejek dla małego zespołu sprzedaży: pięć etapów otwartych, Wygrana i Przegrana, wartość ważona każdej szansy, komitet zakupowy przy szansie, powód przegranej i powód wygranej oraz cotygodniowy przegląd. Wagi służą do ważenia lejka, a nie do prognozowania: po 20 do 30 zamkniętych szansach zastąp je własnymi wskaźnikami zamknięcia.",
   "lists": {
     "contacts": { "label": "Osoba kontaktowa", "pluralLabel": "Osoby kontaktowe", "description": "Osoby po stronie kupującego wraz z ich rolą w decyzji." },
     "accounts": { "label": "Firma", "pluralLabel": "Firmy", "description": "Firmy, którym sprzedajesz." },
@@ -12,8 +12,8 @@
     "opportunities.stage": {
       "label": "Etap",
       "options": {
-        "new": "Nowy",
-        "qualified": "Zakwalifikowany",
+        "new": "Nowa",
+        "qualified": "Zakwalifikowana",
         "discovery": "Analiza potrzeb",
         "proposal_sent": "Oferta wysłana",
         "negotiation": "Negocjacje",
@@ -57,7 +57,7 @@
       "options": {
         "referral": "Polecenie",
         "inbound": "Zapytanie przychodzące",
-        "outbound": "Kontakt własny",
+        "outbound": "Kontakt wychodzący",
         "event": "Wydarzenie",
         "partner": "Partner",
         "existing_customer": "Obecny klient",
@@ -66,7 +66,7 @@
     },
     "opportunities.first_contact_on": { "label": "Pierwszy kontakt" },
     "opportunities.expected_close": { "label": "Planowane zamknięcie" },
-    "opportunities.closed_on": { "label": "Zamknięto dnia" },
+    "opportunities.closed_on": { "label": "Data zamknięcia" },
     "opportunities.next_step": { "label": "Następny krok" },
     "opportunities.next_step_due": { "label": "Termin następnego kroku" },
     "opportunities.decision_date": { "label": "Data decyzji" },
@@ -77,7 +77,7 @@
         "price": "Cena",
         "competitor": "Konkurent",
         "no_budget_or_decision": "Brak budżetu lub decyzji",
-        "timing": "Termin",
+        "timing": "Nieodpowiedni moment",
         "no_response": "Brak odpowiedzi",
         "not_a_fit": "Brak dopasowania",
         "other": "Inny"
@@ -85,7 +85,7 @@
     },
     "opportunities.won_reason": { "label": "Powód wygranej" },
     "opportunities.weighted_value": { "label": "Wartość ważona" },
-    "opportunities.cycle_days": { "label": "Cykl w dniach" },
+    "opportunities.cycle_days": { "label": "Długość cyklu (dni)" },
     "actions.kind": {
       "label": "Rodzaj",
       "options": {
@@ -119,14 +119,14 @@
   },
   "widgets": {
     "pipeline_funnel": { "title": "Otwarte szanse wg etapu" },
-    "open_value_by_stage": { "title": "Otwarta wartość wg etapu" },
+    "open_value_by_stage": { "title": "Wartość otwartych szans wg etapu" },
     "weighted_value_by_stage": { "title": "Wartość ważona wg etapu" },
     "open_opportunities": { "title": "Otwarte szanse" },
-    "open_value": { "title": "Otwarta wartość" },
-    "open_weighted_value": { "title": "Otwarta wartość ważona" },
+    "open_value": { "title": "Wartość otwartych szans" },
+    "open_weighted_value": { "title": "Ważona wartość otwartych szans" },
     "won_last_90_days": { "title": "Wygrane w ostatnich 90 dniach" },
     "lost_reasons": { "title": "Powody przegranej" },
-    "pipeline_by_owner": { "title": "Otwarta wartość wg opiekuna" },
+    "pipeline_by_owner": { "title": "Wartość otwartych szans wg opiekuna" },
     "deals_without_next_step": { "title": "Szanse bez następnego kroku" },
     "upcoming_actions": { "title": "Nadchodzące i zaległe zadania" },
     "expected_closes": { "title": "Planowane zamknięcia" }
@@ -168,7 +168,7 @@
     },
     "send_proposal": {
       "title": "Wyślij ofertę",
-      "description": "Gdy szansa osiąga Analizę potrzeb, zadanie oferty przypada za 5 dni."
+      "description": "Gdy szansa trafia na etap Analiza potrzeb, zadanie oferty przypada za 5 dni."
     },
     "follow_up_proposal": {
       "title": "Wróć do oferty",
@@ -180,15 +180,15 @@
     },
     "confirm_decision": {
       "title": "Potwierdź datę decyzji i decydenta",
-      "description": "Gdy szansa osiąga Negocjacje, zadanie ponownego kontaktu przypada za 5 dni."
+      "description": "Gdy szansa trafia na etap Negocjacje, zadanie ponownego kontaktu przypada za 5 dni."
     },
     "won_close_date": {
       "title": "Ustaw datę zamknięcia",
-      "description": "Gdy szansa jest wygrana, pole Zamknięto dnia dostaje dzisiejszą datę."
+      "description": "Gdy szansa jest wygrana, pole Data zamknięcia dostaje dzisiejszą datę."
     },
     "won_handover": {
       "title": "Przekaż wygraną szansę",
-      "description": "Zadanie przekazania przypada w dniu po wygranej. Zapisz powód wygranej."
+      "description": "Zadanie przekazania przypada dzień po wygranej. Zapisz powód wygranej."
     },
     "lost_revisit": {
       "title": "Wróć do przegranej szansy",
@@ -212,7 +212,7 @@
     },
     "enquiry_form_records": {
       "title": "Utwórz osobę kontaktową, firmę i szansę z zapytania",
-      "description": "Internetowy formularz zapytania tworzy osobę kontaktową, firmę i szansę na etapie Nowy."
+      "description": "Internetowy formularz zapytania tworzy osobę kontaktową, firmę i szansę na etapie Nowa."
     },
     "enquiry_form_notice": {
       "title": "Powiadom opiekuna o zapytaniu",
@@ -220,11 +220,11 @@
     },
     "fill_missing_value": {
       "title": "Uzupełnij wartość tej szansy",
-      "description": "Szansa, która osiąga Analizę potrzeb bez wartości, dostaje zadanie przeglądu."
+      "description": "Szansa, która trafia na etap Analiza potrzeb bez wartości, dostaje zadanie przeglądu."
     },
     "fill_expected_close": {
       "title": "Uzupełnij planowane zamknięcie tej szansy",
-      "description": "Szansa, która osiąga Ofertę wysłaną bez planowanej daty zamknięcia, dostaje zadanie przeglądu."
+      "description": "Szansa, która trafia na etap Oferta wysłana bez planowanej daty zamknięcia, dostaje zadanie przeglądu."
     }
   },
   "acceptanceChecks": {
@@ -232,7 +232,7 @@
     "weighted_value_field": "Każda szansa pokazuje wartość ważoną.",
     "pipeline_board_view": "Lista szans otwiera się jako tablica według etapów z sumami.",
     "funnel_widget": "Pulpit pokazuje otwarte szanse według etapów jako lejek.",
-    "proposal_follow_up_rule": "Szansa, która osiąga Ofertę wysłaną, dostaje zadanie ponownego kontaktu.",
+    "proposal_follow_up_rule": "Szansa, która trafia na etap Oferta wysłana, dostaje zadanie ponownego kontaktu.",
     "stages_page": "Baza wiedzy zawiera etapy i ich kryteria wyjścia."
   },
   "prompt": {
@@ -242,7 +242,7 @@
       "Przez jakie kroki przechodzi szansa od pierwszego kontaktu do podpisu? Które z siedmiu etapów pasują, a które wymagają innej nazwy?",
       "Jak długo trwa typowa szansa i po ilu dniach bez ruchu uznać, że utknęła?",
       "Jakie wskaźniki zamknięcia masz z dawnych szans? Jeśli żadnych, zostają wagi domyślne.",
-      "Gdzie przygotowujesz oferty? Zostają tam, a tutaj trzymany jest tylko odnośnik."
+      "Gdzie przygotowujesz oferty? Zostają tam, a tutaj zapisujemy tylko link."
     ]
   }
 }
