@@ -2,7 +2,7 @@
   "locale": "it",
   "name": "Prenotazioni per creativi",
   "summary": "Per fotografi, videomaker e organizzatori di eventi: una pipeline dalla richiesta alla prenotazione, una fase di consegna dopo la data, acconto e saldo sotto controllo e una nota per ogni anniversario.",
-  "description": "Una riga per prenotazione con due fasi: vendita (da richiesta a prenotato) e consegna (servizio fatto a consegnato). La data resta bloccata finché non sono firmati il contratto e versato l’acconto, il saldo ha una propria scadenza e a ogni consegna si chiede una recensione. Contratti, fatture e gallerie restano nei tuoi strumenti, qui si tengono i collegamenti.",
+  "description": "Una riga per prenotazione con due fasi: vendita (dalla richiesta alla prenotazione) e consegna (dal servizio svolto alla consegna). La data resta bloccata finché il contratto non è firmato e l'acconto versato, il saldo ha una propria scadenza e a ogni consegna si chiede una recensione. Contratti, fatture e gallerie restano nei tuoi strumenti, qui si tengono i link.",
   "lists": {
     "people": { "label": "Persona", "pluralLabel": "Persone", "description": "Clienti, partner dei clienti, organizzatori e referenti delle location." },
     "partners": { "label": "Partner", "pluralLabel": "Partner", "description": "Location, wedding planner, catering e altri fornitori con cui lavori." },
@@ -11,15 +11,15 @@
   "fields": {
     "bookings.stage": {
       "label": "Fase",
-      "options": { "inquiry": "Richiesta", "consultation": "Colloquio", "proposal_sent": "Preventivo inviato", "date_on_hold": "Data bloccata", "booked": "Prenotato", "lost": "Perso" }
+      "options": { "inquiry": "Richiesta", "consultation": "Incontro conoscitivo", "proposal_sent": "Preventivo inviato", "date_on_hold": "Data bloccata", "booked": "Prenotato", "lost": "Perso" }
     },
     "bookings.delivery": {
       "label": "Consegna",
-      "options": { "not_started": "Non iniziata", "preparing": "In preparazione", "shoot_done": "Servizio fatto", "editing": "In post-produzione", "client_review": "Verifica del cliente", "delivered": "Consegnato", "cancelled": "Annullato o rinviato" }
+      "options": { "not_started": "Non iniziata", "preparing": "In preparazione", "shoot_done": "Servizio svolto", "editing": "In post-produzione", "client_review": "Revisione del cliente", "delivered": "Consegnato", "cancelled": "Annullato o rinviato" }
     },
     "people.contact_role": {
       "label": "Ruolo",
-      "options": { "client": "Cliente", "partner_of_client": "Partner del cliente", "payer": "Genitore o pagante", "planner": "Organizzatore", "venue_contact": "Referente della location", "referrer": "Segnalatore" }
+      "options": { "client": "Cliente", "partner_of_client": "Coniuge o partner del cliente", "payer": "Genitore o pagante", "planner": "Organizzatore", "venue_contact": "Referente della location", "referrer": "Segnalatore" }
     },
     "people.preferred_channel": {
       "label": "Canale preferito",
@@ -39,18 +39,18 @@
       "options": { "wedding": "Matrimonio", "portrait": "Ritratto o famiglia", "event": "Evento", "corporate": "Aziendale o ritratti professionali", "commercial": "Pubblicitario", "video": "Video", "planning": "Organizzazione" }
     },
     "bookings.package": { "label": "Pacchetto" },
-    "bookings.event_date": { "label": "Data dell’evento" },
+    "bookings.event_date": { "label": "Data dell'evento" },
     "bookings.location": { "label": "Luogo" },
     "bookings.source": {
       "label": "Provenienza",
-      "options": { "referral": "Passaparola", "instagram": "Instagram", "google_search": "Ricerca su Google", "venue_or_planner": "Location o organizzatore", "wedding_fair": "Fiera del matrimonio", "past_client": "Cliente passato", "other": "Altro" }
+      "options": { "referral": "Segnalazione", "instagram": "Instagram", "google_search": "Ricerca su Google", "venue_or_planner": "Location o organizzatore", "wedding_fair": "Fiera del matrimonio", "past_client": "Ex cliente", "other": "Altro" }
     },
     "bookings.date_hold_until": { "label": "Data bloccata fino al" },
     "bookings.contract_status": {
       "label": "Contratto",
       "options": { "not_sent": "Non inviato", "sent": "Inviato", "signed": "Firmato", "cancelled": "Annullato" }
     },
-    "bookings.deposit_amount": { "label": "Importo dell’acconto" },
+    "bookings.deposit_amount": { "label": "Importo dell'acconto" },
     "bookings.deposit_status": {
       "label": "Acconto",
       "options": { "not_due": "Non dovuto", "requested": "Richiesto", "paid": "Pagato", "refunded": "Rimborsato", "kept": "Trattenuto" }
@@ -66,9 +66,9 @@
     },
     "bookings.delivery_due_on": { "label": "Consegna entro" },
     "bookings.delivered_on": { "label": "Consegnato il" },
-    "bookings.gallery_url": { "label": "Link della galleria" },
+    "bookings.gallery_url": { "label": "Link alla galleria" },
     "bookings.usage_rights": {
-      "label": "Diritti d’uso",
+      "label": "Diritti d'uso",
       "options": { "private_use": "Uso privato", "portfolio_and_social": "Portfolio e social", "commercial_licence": "Licenza commerciale", "not_decided": "Da decidere" }
     },
     "bookings.lost_reason": {
@@ -80,7 +80,7 @@
       "label": "Tipo",
       "options": {
         "reply": "Rispondere alla richiesta",
-        "consult": "Colloquio",
+        "consult": "Incontro conoscitivo",
         "send_proposal": "Inviare il preventivo",
         "send_contract": "Inviare il contratto",
         "chase_payment": "Sollecitare un pagamento",
@@ -90,7 +90,7 @@
         "edit": "Post-produzione",
         "deliver": "Consegna",
         "request_review": "Chiedere una recensione",
-        "anniversary": "Biglietto di anniversario",
+        "anniversary": "Messaggio di anniversario",
         "other": "Altro"
       }
     }
@@ -113,37 +113,37 @@
     "shoots_coming": { "title": "Date prenotate" },
     "deposits_outstanding": { "title": "Acconti richiesti" },
     "balances_coming": { "title": "Saldi in scadenza" },
-    "booked_per_month": { "title": "Valore prenotato per mese dell’evento" },
-    "lost_reasons": { "title": "Perché si sono perse le richieste" }
+    "booked_per_month": { "title": "Valore prenotato per mese dell'evento" },
+    "lost_reasons": { "title": "Motivi di perdita delle richieste" }
   },
   "knowledgePages": {
-    "booking_workflow": { "title": "Flusso di una prenotazione", "sections": ["Dalla richiesta alla prenotazione: rispondere in un giorno, bloccare la data, firma, acconto", "Dal servizio alla consegna: post-produzione, verifica, galleria"] },
-    "contract_checklist": { "title": "Checklist di contratto e pagamento", "sections": ["Che cosa include ed esclude il pacchetto", "Acconto, saldo e annullamento", "Diritti d’uso e liberatoria per le immagini"] },
+    "booking_workflow": { "title": "Flusso di una prenotazione", "sections": ["Dalla richiesta alla prenotazione: rispondere in un giorno, bloccare la data, firmare, versare l'acconto", "Dal servizio alla consegna: post-produzione, verifica, galleria"] },
+    "contract_checklist": { "title": "Checklist di contratto e pagamento", "sections": ["Che cosa include ed esclude il pacchetto", "Acconto, saldo e annullamento", "Diritti d'uso e liberatoria per le immagini"] },
     "delivery_and_usage": { "title": "Consegna, anteprima e richiesta di recensione", "sections": ["Data di consegna e anteprima", "Dove si trova la galleria", "Chiedere una recensione"] }
   },
   "rules": {
     "reply_to_inquiry": { "title": "Rispondere a una nuova richiesta entro un giorno" },
     "send_contract": { "title": "Inviare il contratto quando la data viene bloccata" },
-    "chase_payment_after_signing": { "title": "Sollecitare l’acconto tre giorni dopo la firma del contratto" },
+    "chase_payment_after_signing": { "title": "Sollecitare l'acconto tre giorni dopo la firma del contratto" },
     "questionnaire_before_event": { "title": "Inviare il questionario 45 giorni prima di un evento prenotato" },
     "balance_reminder": { "title": "Sollecitare il saldo una settimana prima della scadenza" },
-    "edit_after_shoot": { "title": "Avviare la post-produzione quando il servizio è fatto" },
+    "edit_after_shoot": { "title": "Avviare la post-produzione quando il servizio è svolto" },
     "request_review": { "title": "Chiedere una recensione due settimane dopo la consegna" },
-    "anniversary_note": { "title": "Scrivere un biglietto il giorno dell’anniversario" },
+    "anniversary_note": { "title": "Scrivere un messaggio il giorno dell'anniversario" },
     "inquiry_form_records": { "title": "Creare la persona e la prenotazione da un modulo di richiesta" }
   },
   "acceptanceChecks": {
     "stage_field": "Ogni prenotazione ha una fase di vendita.",
-    "event_date_field": "Ogni prenotazione ha una data dell’evento.",
-    "bookings_board_view": "Le prenotazioni si aprono come bacheca per fase."
+    "event_date_field": "Ogni prenotazione ha una data dell'evento.",
+    "bookings_board_view": "Le prenotazioni si aprono come board per fase."
   },
   "prompt": {
-    "intro": "Configura le prenotazioni per creativi nel mio spazio di lavoro Customermates: una pipeline dalla richiesta alla prenotazione, una fase di consegna dopo la data, il controllo di acconto e saldo, un questionario prima dell’evento, una richiesta di recensione e biglietti di anniversario.",
+    "intro": "Configura le prenotazioni per creativi nel mio spazio di lavoro Customermates: una pipeline dalla richiesta alla prenotazione, una fase di consegna dopo la data, il controllo di acconto e saldo, un questionario prima dell'evento, una richiesta di recensione e messaggi di anniversario.",
     "questions": [
-      "Che cosa fotografi, riprendi o organizzi e quante prenotazioni hai all’anno?",
+      "Che cosa fotografi, riprendi o organizzi e quante prenotazioni hai all'anno?",
       "Quali passaggi attraversa un cliente dalla richiesta alla prenotazione e quando blocchi la data?",
       "Come incassi acconti e saldi? Le fatture restano nel tuo strumento.",
-      "Dove consegni le gallerie? Qui si tiene solo il collegamento."
+      "Dove consegni le gallerie? Qui si tiene solo il link."
     ]
   }
 }

@@ -1,7 +1,7 @@
 {
   "locale": "it",
   "name": "CRM su misura",
-  "summary": "Un CRM costruito intorno al tuo modo di lavorare: contatti, aziende, trattative e attività con scadenza, con un’importazione dal tuo foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
+  "summary": "Un CRM costruito intorno al tuo modo di lavorare: contatti, aziende, trattative e attività con scadenza, con un'importazione dal tuo foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
   "description": "Parti dalle quattro liste di cui ogni CRM ha bisogno e adattale: fasi, campi e viste sono tuoi. Pensato per chi lascia un foglio Excel, Notion, Airtable o Trello e vuole i propri dati in un CRM senza un progetto. Tiene nota di dove è stato importato ogni record.",
   "lists": {
     "contacts": { "label": "Contatto", "pluralLabel": "Contatti", "description": "Le persone con cui hai a che fare." },
@@ -28,7 +28,7 @@
     "organizations.owner": { "label": "Responsabile" },
     "organizations.source": {
       "label": "Provenienza",
-      "options": { "referral": "Passaparola", "website": "Sito web", "event": "Evento", "outbound": "Contatto diretto", "import": "Importazione", "other": "Altro" }
+      "options": { "referral": "Segnalazione", "website": "Sito web", "event": "Evento", "outbound": "Contatto diretto", "import": "Importazione", "other": "Altro" }
     },
     "organizations.website": { "label": "Sito web" },
     "organizations.address": { "label": "Indirizzo" },
@@ -44,7 +44,7 @@
     "opportunities.weighted_value": { "label": "Valore ponderato" },
     "actions.kind": {
       "label": "Tipo",
-      "options": { "call": "Chiamata", "email": "E-mail", "meeting": "Incontro", "follow_up": "Sollecito", "review": "Revisione", "other": "Altro" }
+      "options": { "call": "Chiamata", "email": "E-mail", "meeting": "Incontro", "follow_up": "Follow-up", "review": "Revisione", "other": "Altro" }
     }
   },
   "relationships": {
@@ -61,18 +61,18 @@
   },
   "widgets": {
     "pipeline_funnel": { "title": "Trattative aperte per fase" },
-    "open_value": { "title": "Valore aperto" },
-    "open_weighted_value": { "title": "Valore ponderato aperto" },
+    "open_value": { "title": "Valore delle trattative aperte" },
+    "open_weighted_value": { "title": "Valore ponderato delle trattative aperte" },
     "lost_reasons": { "title": "Motivi della perdita" },
     "deals_without_next_step": { "title": "Trattative senza prossimo passo" }
   },
   "knowledgePages": {
     "how_we_use_this_crm": { "title": "Come usiamo questo CRM", "sections": ["Che cosa vi entra e chi lo aggiorna", "Fasi e quando una trattativa avanza"] },
     "data_entry_rules": { "title": "Regole di inserimento dei dati", "sections": ["Nomi, e-mail e un record per persona", "Un prossimo passo con data su ogni trattativa aperta"] },
-    "import_notes": { "title": "Note sull’importazione: che cosa viene da dove", "sections": ["Strumento di origine e data di esportazione", "Che cosa non è arrivato e perché"] }
+    "import_notes": { "title": "Note sull'importazione: che cosa viene da dove", "sections": ["Strumento di origine e data di esportazione", "Che cosa non è arrivato e perché"] }
   },
   "rules": {
-    "next_action_per_stage": { "title": "Creare un’attività di seguito quando una trattativa cambia fase" },
+    "next_action_per_stage": { "title": "Creare un'attività di follow-up quando una trattativa cambia fase" },
     "set_a_next_step": { "title": "Chiedere un prossimo passo su ogni trattativa aperta che non ne ha" },
     "next_step_notice": { "title": "Avvisare il responsabile quando un prossimo passo scade" },
     "expected_close_passed": { "title": "Rivedere una trattativa aperta il giorno dopo la chiusura prevista" },
@@ -82,11 +82,11 @@
   },
   "acceptanceChecks": {
     "stage_field": "Ogni trattativa ha una fase.",
-    "board_view": "La pipeline si apre come bacheca per fase, con i totali.",
-    "how_we_use_page": "La knowledge base spiega come il team usa il CRM."
+    "board_view": "La pipeline si apre come board per fase, con i totali.",
+    "how_we_use_page": "La base di conoscenza spiega come il team usa il CRM."
   },
   "prompt": {
-    "intro": "Configura un CRM su misura nel mio spazio di lavoro Customermates: contatti, aziende, trattative con fasi e attività con scadenza, un’importazione dal mio foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
+    "intro": "Configura un CRM su misura nel mio spazio di lavoro Customermates: contatti, aziende, trattative con fasi e attività con scadenza, un'importazione dal mio foglio di calcolo o dal vecchio strumento e una revisione settimanale.",
     "questions": [
       "Da quale strumento o foglio di calcolo vengono i tuoi record e si può esportare?",
       "Quali fasi attraversa una trattativa nella tua attività?",
