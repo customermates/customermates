@@ -41,7 +41,9 @@ export const IncomingWebhookFieldMappingSchema = z
 
 export const IncomingWebhookMappingSchema = z
   .object({
-    mode: z.enum(["create", "upsert"]).describe("create always adds a record; upsert updates the record that matches."),
+    mode: z
+      .enum(["create", "upsert"])
+      .describe("create adds a record for every request; upsert updates the record that matches."),
     matchFieldId: z
       .uuid()
       .nullable()

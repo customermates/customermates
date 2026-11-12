@@ -84,10 +84,10 @@ export const scheduleMeetingTool = {
   title: "Schedule, move and cancel meetings",
   description:
     "Creates, moves and cancels meetings in the caller's own connected Google or Microsoft calendar, and finds free slots from the synced calendars. Needs the inbox plan (Pro and up) and a connected calendar; it is not available when self-hosting. " +
-    "Call options first for the writable calendars, attendee suggestions from a record and its linked People, and the lists that can receive a follow-up Action. " +
-    "slots returns free start times within working hours that do not overlap synced events. create makes the event, links it to the given records so it appears on their activity timeline, and with followUp also creates a record in that list at the meeting start. " +
-    "SIDE EFFECT: create, update and cancel change a real calendar, and unless sendInvites is false the provider sends invitations or updates to every attendee. Confirm title, time, time zone and attendees with the user before calling create or update. " +
-    "cancel notifies the attendees and cancels the event permanently for them. Only events created through this tool or the app and owned by the caller can be changed; event ids come from create or from get_calendars.",
+    "options returns the writable calendars, attendee suggestions from a record and its linked People, and the lists that can receive a follow-up Action. " +
+    "slots returns free start times within working hours that avoid synced events. create makes the event, links it to the given records so it appears on their activity timeline, and with followUp also creates a record in that list at the meeting start. " +
+    "SIDE EFFECT: create, update and cancel change a real calendar, and unless sendInvites is false the provider sends invitations or updates to every attendee. " +
+    "cancel notifies the attendees and cancels the event permanently for them. Only events created through this tool or the app and owned by the caller can be changed; an event id is the id returned by create or the id of a synced calendar event.",
   annotations: {
     readOnlyHint: false,
     idempotentHint: false,
@@ -191,7 +191,7 @@ export const manageBookingLinksTool = {
     "Lists, creates, changes and deletes the caller's public booking pages, a link where anyone can book a meeting in the caller's connected calendar without an account. Needs the inbox plan (Pro and up) and a connected calendar; it is not available when self-hosting. " +
     "A booking link carries the meeting duration, a buffer, minimum notice, how many days ahead slots are offered, working hours in a time zone, an optional video link and the visitor questions. " +
     "Each question is a field of recordTypeId, the list that receives one record per booking; personTypeId names the list whose record is found or created for the visitor, one per email. " +
-    "Call schedule_meeting options for calendarId, and get_record_model for list and field ids. save with an id changes only the keys sent, and questions and workingHours replace the whole value. " +
+    "calendarId is the id of one of the caller's writable calendars; personTypeId, recordTypeId and startFieldId are the stable ids of lists and fields of the record model. save with an id changes only the keys sent, and questions and workingHours replace the whole value. " +
     "The page shows free slots from the synced calendars and creates the calendar event, the Person and the record when someone books; every booking also emits the form.submitted event, so rules can react. " +
     "delete permanently removes the link and its booking history; meetings already booked stay in the calendar.",
   annotations: {

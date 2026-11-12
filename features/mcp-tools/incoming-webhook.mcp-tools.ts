@@ -41,7 +41,7 @@ const ManageIncomingWebhooksSchema = z.object({
     .nullable()
     .optional()
     .describe(
-      "When set, every request must carry a valid signature in signatureHeader. update: omit to keep, null to clear. The secret is never returned.",
+      "When set, every request must carry a valid signature in signatureHeader. update: omit to keep, null to clear. The secret is not returned.",
     ),
   samplePayload: IncomingWebhookBodySchema.nullable()
     .optional()
@@ -98,10 +98,10 @@ export const manageIncomingWebhooksTool = {
   name: "manage_incoming_webhooks",
   title: "Manage incoming webhooks",
   description:
-    "Use this when an outside system such as a form tool, a website, GitHub or Stripe should create or update records in a list by posting JSON to a secret URL. " +
+    "Lets an outside system such as a form tool, a website, GitHub or Stripe create or update records in a list by posting JSON to a secret URL. " +
     "Each endpoint belongs to one list and maps JSON paths of the body to its fields; mode upsert updates the record whose match field equals the mapped value and creates one otherwise. " +
-    "action fields lists the fields a mapping can fill; read it before create. action create requires typeId, name and mapping and returns webhook.url, the secret address that receives POST requests. " +
-    "Set signingSecret to require an HMAC-SHA256 signature of the raw body in signatureHeader. Requests larger than 256 KB or arriving too fast are refused. " +
+    "action fields lists the fields a mapping can fill. action create requires typeId, name and mapping and returns webhook.url, the secret address that receives POST requests. " +
+    "With signingSecret set, every request must carry an HMAC-SHA256 signature of the raw body in signatureHeader. Requests larger than 256 KB or arriving too fast are refused. " +
     "action test shows what a body would write, field by field, without writing anything; action deliveries shows the delivery log with the outcome of each request. " +
     "action update with rotateUrl true replaces the secret address. action delete is IRREVERSIBLE. " +
     "Records are created as the member who created the endpoint, with the endpoint named as their source. Incoming webhooks need a plan with webhooks on the cloud and work on every self-hosted workspace.",

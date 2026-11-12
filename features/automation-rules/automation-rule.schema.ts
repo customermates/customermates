@@ -47,8 +47,8 @@ export const AUTOMATION_NOTIFY_KINDS = [
   "replyReceived",
 ] as const satisfies readonly (keyof typeof NotificationKind)[];
 
-const TypeIdSchema = z.uuid().describe("Stable id of the list (record type), from discover_record_types.");
-const FieldIdSchema = z.uuid().describe("Stable id of the field, from get_record_model.");
+const TypeIdSchema = z.uuid().describe("Stable id of the list (record type).");
+const FieldIdSchema = z.uuid().describe("Stable id of the field.");
 
 export const RecordCreatedTriggerSchema = z
   .object({ kind: z.literal("recordCreated"), typeId: TypeIdSchema })
@@ -140,7 +140,7 @@ export const AutomationConditionSchema = z
       .min(-AUTOMATION_DATE_OFFSET_MAX_DAYS)
       .max(AUTOMATION_DATE_OFFSET_MAX_DAYS)
       .optional()
-      .describe("For before and after instead of value: today plus this many days, read when the rule runs."),
+      .describe("For before and after, in place of value: today plus this many days, read when the rule runs."),
   })
   .strict()
   .superRefine((condition, ctx) => {

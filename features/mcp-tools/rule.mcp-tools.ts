@@ -34,7 +34,7 @@ const ManageRulesSchema = z.object({
     .optional()
     .describe("create and update. Omitting it on create produces a LIVE rule; pass false to save a draft."),
   trigger: AutomationTriggerSchema.optional().describe(
-    "When the rule fires. Required on create; on update REPLACES the trigger. kind is recordCreated, recordUpdated, fieldChanged, dateReached (a date or date and time field, days before or after, at an hour in a time zone), messageReceived, formSubmitted or webhookReceived. List, field and relationship ids come from discover_record_types and get_record_model.",
+    "When the rule fires. Required on create; on update REPLACES the trigger. kind is recordCreated, recordUpdated, fieldChanged, dateReached (a date or date and time field, days before or after, at an hour in a time zone), messageReceived, formSubmitted or webhookReceived. List and field ids are the stable ids of the record model.",
   ),
   conditions: z
     .array(AutomationConditionSchema)
@@ -79,15 +79,15 @@ export const manageRulesTool = {
   name: "manage_rules",
   title: "Manage rules",
   description:
-    "Use this to read, create, change or remove automation rules: deterministic when-if-then rules that run without AI, on every plan and on self-hosted instances. " +
-    "A rule has a trigger (a record created or updated, a field changed to a value, a date reached with an offset in days before or after, a message received, a form submitted or an incoming webhook), optional conditions on the triggering record and one or more effects (set a field, create a record such as an Action, notify members, call a webhook). " +
-    "A rule runs once per record and occurrence, as its owner, with the owner's permissions: it can never do more than the owner could. Changes a rule makes never start the same rule again, and a chain stops after two rules. " +
+    "Reads, creates, changes and removes automation rules: deterministic when-if-then rules that run without AI, on every plan and on self-hosted instances. " +
+    "A rule has a trigger (a record created or updated, a field changed to a value, a date reached with an offset in days before or after, a message received, a form submitted or an incoming webhook), optional conditions on the triggering record and one or more effects (set a field, create a record such as an Action, notify members, send an outbound webhook). " +
+    "A rule runs once per record and occurrence, as its owner, with the owner's permissions: it cannot do more than the owner could. Changes a rule makes cannot start the same rule again, and a chain stops after two rules. " +
     "action list returns compact summaries; get returns one rule in full; runs returns one rule's history, newest first, each with its status, the affected record and the outcome of every effect. " +
-    "action create needs name, trigger and effects; omitting enabled produces a LIVE rule. Plans limit the number of active rules; the refusal names the limit. " +
+    "action create needs name, trigger and effects; omitting enabled produces a LIVE rule and enabled false creates a draft. Plans limit the number of active rules; the refusal names the limit. " +
     "action update changes only the keys supplied; trigger, conditions and effects REPLACE their previous value. Only the owner may change or enable a rule. " +
     "action enable and disable switch a rule on and off; its history is kept; an administrator may also disable. " +
-    "action delete removes the rule and its history permanently and is IRREVERSIBLE; prefer disable. " +
-    "action preview lists which records a date-reached rule would hit on its next sweep (at most 200 are checked), without running anything.",
+    "action delete removes the rule and its history permanently and is IRREVERSIBLE. " +
+    "action preview lists which records a date-reached rule would hit on its upcoming sweep (at most 200 are checked), without running anything.",
   annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
   inputSchema: ManageRulesSchema,
   outputSchema: ManageRulesOutputSchema,

@@ -12,7 +12,7 @@ export const MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO = {
   name: "setup-from-template",
   title: "Set up from a template",
   description:
-    "Build a workspace from a Customermates template: read the workspace first, propose the plan, then build only after approval",
+    "Sets up a workspace from a Customermates template: reads the workspace first, proposes the plan and builds only after approval",
   arguments: [{ name: "template", description: "The template slug, for example client-tracker", required: true }],
 };
 

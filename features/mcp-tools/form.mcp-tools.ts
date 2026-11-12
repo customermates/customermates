@@ -59,12 +59,12 @@ export const manageFormsTool = {
   name: "manage_forms",
   title: "Manage public forms",
   description:
-    "Use this when you need to publish or change a public form that lets anyone outside the workspace add a record to a list without signing in. " +
+    "Publishes and changes public forms that let anyone outside the workspace add a record to a list without signing in. " +
     "Each list has at most one form. Submissions create a record in that list as the member who last turned the form on, with the form named as its source in the record's activity; an optional linked person is found or created by email (one person per email). " +
-    "action fields lists the fields a form can use (input fields of type text, formatted text, number, currency, yes/no, date, single or multiple choice, link and contact details) and the people lists it can link to; read it before create. " +
+    "action fields lists the fields a form can use (input fields of type text, formatted text, number, currency, yes/no, date, single or multiple choice, link and contact details) and the people lists it can link to. " +
     "action create requires typeId, name and config. action update requires id and replaces config when given. action disable turns the form off at once; the same link works again after update with enabled true. " +
     "Free plan forms accept a monthly number of submissions and show a Made with Customermates badge; paid plans and self-hosted workspaces have neither. A workspace administrator can turn public links and forms off in the workspace settings. " +
-    "Each get, create and update result carries url, the public link, and embedSnippet, an iframe to paste into a web page. Visitors only ever see the questions in config.fields, never other fields of the record.",
+    "Each get, create and update result carries url, the public link, and embedSnippet, an iframe to paste into a web page. Visitors see only the questions in config.fields, not other fields of the record.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
   inputSchema: ManageFormsSchema,
   outputSchema: ManageFormsOutputSchema,
