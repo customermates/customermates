@@ -2,7 +2,7 @@
   "locale": "pl",
   "name": "Rezerwacja wizyt online",
   "summary": "Rejestr wizyt dla osoby świadczącej usługi: typy wizyt z czasem trwania i wyprzedzeniem, każda rezerwacja ze statusem, przypomnieniami i wynikiem oraz następnym krokiem.",
-  "description": "Przyjmuj rezerwacje rozmów, konsultacji lub oglądania i trzymaj je w CRM: kilka typów wizyt z czasem trwania, przerwą i minimalnym wyprzedzeniem, rezerwacja tworzy osobę i wizytę, po potwierdzeniu powstaje wydarzenie w kalendarzu, wychodzą dwa przypomnienia, a po każdej wizycie zapisujesz wynik. Rezerwuje tylko czas ludzi. To nie system rezerwacji sal i zasobów, sprzedaży biletów, wizyt lekarskich ani bramka płatności.",
+  "description": "Przyjmuj rezerwacje rozmów, konsultacji lub oglądania nieruchomości i prowadź je w CRM: kilka typów wizyt z czasem trwania, przerwą i minimalnym wyprzedzeniem, rezerwacja, która tworzy kontakt i wizytę, wydarzenie w kalendarzu po potwierdzeniu, dwa przypomnienia i wynik zapisany po każdej wizycie. Rezerwuje wyłącznie czas osób, nie zasobów. To nie jest system rezerwacji sal i zasobów, sprzedaży biletów, wizyt lekarskich ani operator płatności.",
   "lists": {
     "people": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Osoby, które rezerwują wizyty u Ciebie." },
     "appointment_types": { "label": "Typ wizyty", "pluralLabel": "Typy wizyt", "description": "Rodzaj wizyty z czasem trwania, przerwą, wyprzedzeniem i ceną." },
@@ -14,7 +14,7 @@
     "appointment_types.duration_minutes": { "label": "Czas trwania (minuty)" },
     "appointment_types.buffer_minutes": { "label": "Przerwa po wizycie (minuty)" },
     "appointment_types.min_notice_hours": { "label": "Minimalne wyprzedzenie (godziny)" },
-    "appointment_types.booking_window_days": { "label": "Rezerwacja do (dni naprzód)" },
+    "appointment_types.booking_window_days": { "label": "Maksymalne wyprzedzenie rezerwacji (dni)" },
     "appointment_types.daily_limit": { "label": "Limit dzienny" },
     "appointment_types.location_type": {
       "label": "Gdzie",
@@ -24,14 +24,14 @@
     "appointment_types.active": { "label": "Aktywny" },
     "appointments.status": {
       "label": "Status",
-      "options": { "requested": "Zgłoszona", "confirmed": "Potwierdzona", "rescheduled": "Przełożona", "held": "Odbyta", "no_show": "Nieobecność", "cancelled_by_client": "Odwołana przez klienta", "cancelled_by_us": "Odwołana przez nas" }
+      "options": { "requested": "Zgłoszona", "confirmed": "Potwierdzona", "rescheduled": "Przełożona", "held": "Odbyta", "no_show": "Nieobecność klienta", "cancelled_by_client": "Odwołana przez klienta", "cancelled_by_us": "Odwołana przez nas" }
     },
-    "appointments.start_at": { "label": "Początek" },
+    "appointments.start_at": { "label": "Rozpoczęcie" },
     "appointments.source": { "label": "Źródło", "options": { "booking_page": "Strona rezerwacji", "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Telefon", "manual": "Wpisana ręcznie" } },
     "appointments.meeting_url": { "label": "Link do spotkania" },
     "appointments.outcome": {
       "label": "Wynik",
-      "options": { "not_decided": "Jeszcze nie zdecydowano", "qualified": "Zakwalifikowany", "second_call": "Potrzebna druga rozmowa", "proposal_needed": "Potrzebna oferta", "won": "Wygrane na rozmowie", "not_a_fit": "Nie pasuje" }
+      "options": { "not_decided": "Jeszcze nie zdecydowano", "qualified": "Zakwalifikowany", "second_call": "Potrzebna druga rozmowa", "proposal_needed": "Potrzebna oferta", "won": "Wygrane podczas rozmowy", "not_a_fit": "Nie pasuje" }
     },
     "appointments.cancel_reason": {
       "label": "Powód odwołania",
@@ -76,14 +76,14 @@
     "cancellation_policy": { "title": "Odwoływanie i przekładanie", "sections": ["Do kiedy klient może odwołać", "Jak proponujemy nowy termin"] }
   },
   "rules": {
-    "booking_form_records": { "title": "Utworzyć kontakt i wizytę po wysłaniu formularza rezerwacji" },
-    "confirm_event": { "title": "Dodać wydarzenie do kalendarza po potwierdzeniu wizyty" },
-    "notify_new_booking": { "title": "Powiadomić właściciela o nowej rezerwacji" },
-    "first_reminder": { "title": "Wysłać pierwsze przypomnienie 3 dni przed potwierdzoną wizytą" },
-    "second_reminder": { "title": "Wysłać drugie przypomnienie 1 dzień przed potwierdzoną wizytą" },
-    "record_outcome": { "title": "Zapisać wynik po tym, jak potwierdzona wizyta się odbyła" },
-    "no_show_new_slot": { "title": "Zaproponować nowy termin dzień po nieobecności" },
-    "follow_up_held": { "title": "Wysłać wiadomość po wizycie dzień po jej odbyciu" }
+    "booking_form_records": { "title": "Utwórz kontakt i wizytę po wysłaniu formularza rezerwacji" },
+    "confirm_event": { "title": "Dodaj wydarzenie do kalendarza po potwierdzeniu wizyty" },
+    "notify_new_booking": { "title": "Powiadom właściciela o nowej rezerwacji" },
+    "first_reminder": { "title": "Wyślij pierwsze przypomnienie 3 dni przed potwierdzoną wizytą" },
+    "second_reminder": { "title": "Wyślij drugie przypomnienie 1 dzień przed potwierdzoną wizytą" },
+    "record_outcome": { "title": "Zapisz wynik po odbyciu potwierdzonej wizyty" },
+    "no_show_new_slot": { "title": "Zaproponuj nowy termin dzień po nieobecności klienta" },
+    "follow_up_held": { "title": "Wyślij wiadomość podsumowującą dzień po odbytej wizycie" }
   },
   "acceptanceChecks": {
     "status_field": "Każda wizyta ma status.",
@@ -91,9 +91,9 @@
     "appointments_board_view": "Wizyty otwierają się jako tablica według statusu."
   },
   "prompt": {
-    "intro": "Skonfiguruj w moim workspace Customermates rezerwację wizyt online: typy wizyt z czasem trwania, przerwą i wyprzedzeniem, wizyty ze statusem i wynikiem, przypomnienia przed każdą wizytą i wiadomość po niej.",
+    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates rezerwację wizyt online: typy wizyt z czasem trwania, przerwą i wyprzedzeniem, wizyty ze statusem i wynikiem, przypomnienia przed każdą wizytą i wiadomość po niej.",
     "questions": [
-      "Jakie typy wizyt oferujesz i ile trwa każdy?",
+      "Jakie typy wizyt oferujesz i ile trwa każdy z nich?",
       "Jakiego wyprzedzenia potrzebujesz i jak daleko naprzód można rezerwować?",
       "Na jakie pytania ma odpowiedzieć klient przy rezerwacji?",
       "Jak dziś radzisz sobie z nieobecnościami i odwołaniami w ostatniej chwili?"

@@ -1,8 +1,8 @@
 {
   "locale": "pl",
   "name": "Obsługa klienta",
-  "summary": "Lekki system obsługi: zgłoszenia z priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy łączące wiele zgłoszeń z jedną przyczyną oraz ocena zadowolenia.",
-  "description": "Obsługuj klientów w jednym miejscu: każde zgłoszenie ma status, priorytet, typ, osobę odpowiedzialną i termin, do którego należy się pierwsza odpowiedź i rozwiązanie. Połącz zgłoszenia ze znanym problemem, by poinformować wszystkich o naprawie, i miej na oku miesięczny termin wniosku RODO. Przeznaczony na kilkadziesiąt zgłoszeń tygodniowo. To nie centrala telefoniczna, czat na żywo, portal klienta ani kalendarz godzin pracy.",
+  "summary": "Prosty system obsługi zgłoszeń: zgłoszenia z priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy łączące wiele zgłoszeń z jedną przyczyną oraz ocena zadowolenia.",
+  "description": "Obsługuj klientów w jednym miejscu: każde zgłoszenie ma status, priorytet, typ, osobę odpowiedzialną i termin, do którego musisz udzielić pierwszej odpowiedzi i rozwiązać sprawę. Połącz zgłoszenia ze znanym problemem, by poinformować wszystkich o naprawie, i miej na oku miesięczny termin wniosku RODO. Sprawdzi się przy kilkudziesięciu zgłoszeniach tygodniowo. To nie jest centrala telefoniczna, czat na żywo, portal klienta ani kalendarz godzin pracy.",
   "lists": {
     "customers": { "label": "Klient", "pluralLabel": "Klienci", "description": "Osoby, które piszą do Ciebie z prośbą o pomoc." },
     "accounts": { "label": "Konto", "pluralLabel": "Konta", "description": "Firmy stojące za klientami, z ich planem wsparcia." },
@@ -13,7 +13,7 @@
     "customers.preferred_channel": { "label": "Preferowany kanał", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "form": "Formularz zgłoszeniowy", "phone": "Telefon" } },
     "customers.language": { "label": "Język" },
     "accounts.support_plan": { "label": "Plan wsparcia", "options": { "standard": "Standardowy", "priority": "Priorytetowy", "none": "Brak" } },
-    "accounts.contract_end": { "label": "Koniec umowy" },
+    "accounts.contract_end": { "label": "Data zakończenia umowy" },
     "tickets.status": {
       "label": "Status",
       "options": { "new": "Nowe", "open": "Otwarte", "pending_customer": "Oczekuje na klienta", "on_hold": "Oczekuje na stronę trzecią", "solved": "Rozwiązane", "closed": "Zamknięte", "spam_or_duplicate": "Spam lub duplikat" }
@@ -22,16 +22,16 @@
     "tickets.type": { "label": "Typ", "options": { "question": "Pytanie", "problem": "Problem", "request": "Prośba", "complaint": "Reklamacja", "data_request": "Wniosek RODO" } },
     "tickets.channel": { "label": "Kanał", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "form": "Formularz zgłoszeniowy", "phone": "Telefon", "webhook": "Alert z innego systemu" } },
     "tickets.assignee": { "label": "Przypisano do" },
-    "tickets.first_response_due": { "label": "Pierwsza odpowiedź do" },
-    "tickets.resolution_due": { "label": "Rozwiązanie do" },
-    "tickets.solved_on": { "label": "Rozwiązano dnia" },
-    "tickets.rating": { "label": "Ocena" },
+    "tickets.first_response_due": { "label": "Termin pierwszej odpowiedzi" },
+    "tickets.resolution_due": { "label": "Termin rozwiązania" },
+    "tickets.solved_on": { "label": "Data rozwiązania" },
+    "tickets.rating": { "label": "Ocena zadowolenia" },
     "known_issues.status": {
       "label": "Status",
       "options": { "investigating": "W analizie", "workaround_available": "Jest obejście", "fixed": "Naprawiony", "wont_fix": "Nie będzie naprawiony" }
     },
     "known_issues.workaround": { "label": "Obejście" },
-    "known_issues.fixed_on": { "label": "Naprawiono dnia" },
+    "known_issues.fixed_on": { "label": "Data naprawy" },
     "actions.kind": {
       "label": "Rodzaj",
       "options": {
@@ -73,14 +73,14 @@
     "data_requests": { "title": "Wnioski RODO", "sections": ["Zweryfikować tożsamość, zapisać, odpowiedzieć w ciągu miesiąca", "Kto decyduje"] }
   },
   "rules": {
-    "ticket_created": { "title": "Utworzyć zadanie odpowiedzi, gdy powstaje zgłoszenie" },
-    "first_response_missed": { "title": "Powiadomić prowadzącego, gdy pierwsza odpowiedź jest spóźniona" },
-    "nudge_customer": { "title": "Przypomnieć klientowi po 3 dniach oczekiwania" },
-    "send_survey": { "title": "Wysłać ankietę zadowolenia w dniu po rozwiązaniu" },
-    "close_solved": { "title": "Zamknąć zgłoszenie, które było rozwiązane przez 4 dni" },
-    "data_request_clock": { "title": "Ustawić rozwiązanie na 30 dni, gdy zgłoszenie staje się wnioskiem RODO" },
-    "known_issue_fixed": { "title": "Poinformować klientów, gdy znany problem zostanie naprawiony" },
-    "ticket_from_webhook": { "title": "Utworzyć zgłoszenie, gdy inny system wyśle alert" }
+    "ticket_created": { "title": "Utwórz zadanie odpowiedzi, gdy powstaje zgłoszenie" },
+    "first_response_missed": { "title": "Powiadom osobę prowadzącą obsługę, gdy minie termin pierwszej odpowiedzi" },
+    "nudge_customer": { "title": "Przypomnij klientowi po 3 dniach oczekiwania" },
+    "send_survey": { "title": "Wyślij ankietę zadowolenia dzień po rozwiązaniu zgłoszenia" },
+    "close_solved": { "title": "Zamknij zgłoszenie, które pozostaje rozwiązane od 4 dni" },
+    "data_request_clock": { "title": "Ustaw termin rozwiązania na 30 dni, gdy zgłoszenie staje się wnioskiem RODO" },
+    "known_issue_fixed": { "title": "Poinformuj klientów, gdy znany problem zostanie naprawiony" },
+    "ticket_from_webhook": { "title": "Utwórz zgłoszenie, gdy inny system wyśle alert" }
   },
   "acceptanceChecks": {
     "status_field": "Każde zgłoszenie ma status.",
@@ -88,9 +88,9 @@
     "tickets_board_view": "Zgłoszenia otwierają się jako tablica według statusu."
   },
   "prompt": {
-    "intro": "Skonfiguruj w moim workspace Customermates obsługę klienta: zgłoszenia ze statusem, priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy powiązane ze zgłoszeniami, ocenę zadowolenia i zaplanowane kontakty uzupełniające.",
+    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates obsługę klienta: zgłoszenia ze statusem, priorytetem, terminem pierwszej odpowiedzi i terminem rozwiązania, znane problemy powiązane ze zgłoszeniami, ocenę zadowolenia i zaplanowane kolejne kroki.",
     "questions": [
-      "Ile zgłoszeń obsługujesz tygodniowo i kanałami jakiego rodzaju do Ciebie docierają?",
+      "Ile zgłoszeń obsługujesz tygodniowo i jakimi kanałami do Ciebie docierają?",
       "Jakie terminy obiecujesz na pierwszą odpowiedź i rozwiązanie, według priorytetu lub planu wsparcia?",
       "Kto odpowiada i kogo informujesz, gdy zgłoszenie jest spóźnione?",
       "Czy dostajesz wnioski RODO lub alerty z innych systemów, które mają stać się zgłoszeniami?"

@@ -1,13 +1,13 @@
 {
   "locale": "pl",
   "name": "Śledzenie kandydatów",
-  "summary": "Narzędzie rekrutacyjne dla małej firmy: oferty pracy, kandydaci, jedna aplikacja na ofertę w dziewięciu etapach, karta oceny każdego rekrutera i data usunięcia odrzuconych aplikacji.",
-  "description": "Prowadź rekrutację w jednym miejscu: każda oferta ma status, osobę prowadzącą i widełki wynagrodzenia; każda aplikacja przechodzi od otrzymanej do zatrudnionej lub odrzuconej, z terminem rozmowy, terminem odpowiedzi na ofertę i powodem odrzucenia; każdy rekruter wypełnia kartę oceny. Odrzucone aplikacje dostają datę przechowywania, żebyś pamiętał o usunięciu ich lub o zgodzie. To nie portal z ogłoszeniami, parser CV, platforma testów, narzędzie do ofert i podpisów elektronicznych ani źródło prawnej wiedzy o okresach przechowywania.",
+  "summary": "Narzędzie rekrutacyjne dla małej firmy: oferty pracy, kandydaci, jedna aplikacja na ofertę w dziewięciu etapach, karta oceny każdej osoby prowadzącej rozmowę i data usunięcia odrzuconych aplikacji.",
+  "description": "Prowadź rekrutację w jednym miejscu: każda oferta ma status, przyszłego przełożonego i widełki wynagrodzenia; każda aplikacja przechodzi od otrzymanej do zatrudnionej lub odrzuconej, z terminem rozmowy, terminem odpowiedzi na ofertę i powodem odrzucenia; każda osoba prowadząca rozmowę wypełnia kartę oceny. Odrzucone aplikacje dostają datę przechowywania, żeby nie zapomnieć o ich usunięciu albo o uzyskaniu zgody. To nie jest portal z ogłoszeniami, parser CV, platforma do testów kompetencji, narzędzie do ofert zatrudnienia i podpisów elektronicznych ani doradca prawny w sprawie okresów przechowywania danych.",
   "lists": {
     "applicants": { "label": "Kandydat", "pluralLabel": "Kandydaci", "description": "Osoby, które aplikują, ze źródłem i zgodą na przyszłe rekrutacje." },
-    "jobs": { "label": "Oferta pracy", "pluralLabel": "Oferty pracy", "description": "Każde otwarte stanowisko z osobą prowadzącą i widełkami wynagrodzenia." },
+    "jobs": { "label": "Oferta pracy", "pluralLabel": "Oferty pracy", "description": "Każde otwarte stanowisko z przyszłym przełożonym i widełkami wynagrodzenia." },
     "applications": { "label": "Aplikacja", "pluralLabel": "Aplikacje", "description": "Jeden kandydat na jedną ofertę, od otrzymanej do zatrudnionej lub odrzuconej." },
-    "scorecards": { "label": "Karta oceny", "pluralLabel": "Karty ocen", "description": "Ocena i rekomendacja jednego rekrutera dla jednej aplikacji." }
+    "scorecards": { "label": "Karta oceny", "pluralLabel": "Karty ocen", "description": "Ocena i rekomendacja jednej osoby prowadzącej rozmowę dla jednej aplikacji." }
   },
   "fields": {
     "applicants.source": {
@@ -22,23 +22,23 @@
       "options": { "draft": "Szkic", "open": "Otwarta", "on_hold": "Wstrzymana", "filled": "Obsadzona", "cancelled": "Anulowana" }
     },
     "jobs.department": { "label": "Dział" },
-    "jobs.hiring_manager": { "label": "Przełożony rekrutujący" },
+    "jobs.hiring_manager": { "label": "Przyszły przełożony" },
     "jobs.pay_min": { "label": "Wynagrodzenie od" },
     "jobs.pay_max": { "label": "Wynagrodzenie do" },
-    "jobs.apply_by": { "label": "Aplikuj do" },
+    "jobs.apply_by": { "label": "Termin składania aplikacji" },
     "applications.stage": {
       "label": "Etap",
-      "options": { "new": "Otrzymana", "screening": "Wstępna selekcja", "interview_1": "Rozmowa telefoniczna", "interview_2": "Rozmowa kwalifikacyjna", "reference_check": "Referencje", "offer": "Oferta", "hired": "Zatrudniony", "rejected": "Odrzucona", "withdrawn": "Wycofana" }
+      "options": { "new": "Otrzymana", "screening": "Wstępna selekcja", "interview_1": "Rozmowa wstępna", "interview_2": "Rozmowa kwalifikacyjna", "reference_check": "Weryfikacja referencji", "offer": "Oferta", "hired": "Zatrudniony", "rejected": "Odrzucona", "withdrawn": "Wycofana" }
     },
     "applications.interview_at": { "label": "Rozmowa" },
-    "applications.offer_decision_due": { "label": "Odpowiedź na ofertę do" },
+    "applications.offer_decision_due": { "label": "Termin odpowiedzi na ofertę" },
     "applications.rejection_reason": {
       "label": "Powód odrzucenia",
-      "options": { "skills": "Umiejętności", "experience": "Doświadczenie", "salary_mismatch": "Niedopasowane wynagrodzenie", "other_offer": "Przyjął inną ofertę", "position_filled": "Stanowisko obsadzone", "other": "Inny" }
+      "options": { "skills": "Umiejętności", "experience": "Doświadczenie", "salary_mismatch": "Rozbieżne oczekiwania finansowe", "other_offer": "Przyjął inną ofertę", "position_filled": "Stanowisko obsadzone", "other": "Inny" }
     },
     "applications.retain_until": { "label": "Usuń do" },
-    "scorecards.interviewer": { "label": "Rekruter" },
-    "scorecards.round": { "label": "Runda", "options": { "screening": "Wstępna selekcja", "interview_1": "Rozmowa telefoniczna", "interview_2": "Rozmowa kwalifikacyjna" } },
+    "scorecards.interviewer": { "label": "Osoba prowadząca rozmowę" },
+    "scorecards.round": { "label": "Runda", "options": { "screening": "Wstępna selekcja", "interview_1": "Rozmowa wstępna", "interview_2": "Rozmowa kwalifikacyjna" } },
     "scorecards.rating": { "label": "Ocena" },
     "scorecards.recommendation": { "label": "Rekomendacja", "options": { "strong_no": "Zdecydowanie nie", "no": "Nie", "yes": "Tak", "strong_yes": "Zdecydowanie tak" } },
     "actions.kind": {
@@ -74,22 +74,22 @@
     "interviews_coming": { "title": "Nadchodzące rozmowy" },
     "open_jobs": { "title": "Otwarte oferty" },
     "rejection_reasons": { "title": "Powody odrzucenia" },
-    "retention_coming": { "title": "Aplikacje do usunięcia lub odnowienia zgody wkrótce" }
+    "retention_coming": { "title": "Wkrótce do usunięcia lub odnowienia zgody" }
   },
   "knowledgePages": {
     "hiring_process": { "title": "Proces rekrutacji i kto decyduje", "sections": ["Etapy i osoby odpowiedzialne", "Czego szukamy na selekcji i w rozmowach"] },
-    "form_and_retention": { "title": "Formularz aplikacyjny i przechowywanie danych", "sections": ["Jakie dane zbieramy i klauzula informacyjna", "Jak długo trzymamy odrzucone aplikacje"] },
+    "form_and_retention": { "title": "Formularz aplikacyjny i przechowywanie danych", "sections": ["Jakie dane zbieramy i klauzula informacyjna", "Jak długo przechowujemy odrzucone aplikacje"] },
     "candidate_messages": { "title": "Wiadomości do kandydatów", "sections": ["Potwierdzenie, zaproszenie, oferta", "Wiadomość kończąca dla każdego niewybranego kandydata"] }
   },
   "rules": {
-    "application_form_records": { "title": "Utworzyć kandydata i aplikację po wysłaniu formularza aplikacyjnego" },
-    "acknowledge_application": { "title": "Potwierdzić nową aplikację w ciągu 2 dni" },
-    "collect_scorecards": { "title": "Zebrać karty ocen w dniu rozmowy" },
-    "scorecard_reminder": { "title": "Przypomnieć osobie odpowiedzialnej dzień po rozmowie" },
-    "chase_offer": { "title": "Ponaglić odpowiedź 5 dni po ofercie" },
-    "rejection_retention": { "title": "Ustawić datę przechowywania na 180 dni po odrzuceniu aplikacji" },
-    "job_filled_close": { "title": "Napisać do pozostałych kandydatów, gdy oferta zostanie obsadzona" },
-    "retention_review": { "title": "Sprawdzić aplikację, gdy nadejdzie jej data przechowywania" }
+    "application_form_records": { "title": "Utwórz kandydata i aplikację po wysłaniu formularza aplikacyjnego" },
+    "acknowledge_application": { "title": "Potwierdź otrzymanie nowej aplikacji w ciągu 2 dni" },
+    "collect_scorecards": { "title": "Zbierz karty ocen w dniu rozmowy" },
+    "scorecard_reminder": { "title": "Przypomnij osobie odpowiedzialnej dzień po rozmowie" },
+    "chase_offer": { "title": "Ponagl kandydata o odpowiedź 5 dni po złożeniu oferty" },
+    "rejection_retention": { "title": "Ustaw datę przechowywania na 180 dni po odrzuceniu aplikacji" },
+    "job_filled_close": { "title": "Napisz do pozostałych kandydatów, gdy oferta zostanie obsadzona" },
+    "retention_review": { "title": "Sprawdź aplikację, gdy nadejdzie jej data przechowywania" }
   },
   "acceptanceChecks": {
     "stage_field": "Każda aplikacja ma jeden z dziewięciu etapów.",
@@ -97,11 +97,11 @@
     "applications_board_view": "Aplikacje otwierają się jako tablica według etapu."
   },
   "prompt": {
-    "intro": "Skonfiguruj w moim workspace Customermates śledzenie kandydatów: oferty pracy z przełożonym i widełkami wynagrodzenia, kandydaci, aplikacje w dziewięciu etapach, karty ocen z rozmów, data przechowywania odrzuconych aplikacji i zaplanowane kontakty uzupełniające.",
+    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates śledzenie kandydatów: oferty pracy z przyszłym przełożonym i widełkami wynagrodzenia, kandydaci, aplikacje w dziewięciu etapach, karty ocen z rozmów, data przechowywania odrzuconych aplikacji i zaplanowane kolejne kroki.",
     "questions": [
       "Ile ofert jest otwartych jednocześnie i kto rekrutuje na każdą z nich?",
       "Skąd przychodzą kandydaci i czy używasz formularza aplikacyjnego?",
-      "Jak długo trzymasz odrzucone aplikacje i czy prowadzisz bazę talentów za zgodą?",
+      "Jak długo przechowujesz odrzucone aplikacje i czy prowadzisz bazę talentów za zgodą?",
       "Jakie rundy rozmów prowadzisz i kto wypełnia kartę oceny?"
     ]
   }
