@@ -10,6 +10,7 @@ import {
   getExpireAdAttributionInteractor,
   getSendLegalDocumentNoticesInteractor,
   getPruneRoutineRunsInteractor,
+  getSendNotificationDigestInteractor,
   getPruneDraftSendsInteractor,
   getPurgeExpiredTrashInteractor,
   getPurgeExpiredRecordFilesInteractor,
@@ -28,6 +29,7 @@ function concurrentSteps(): LifecycleStep[] {
   const retention: LifecycleStep[] = [
     ["expireAdAttribution", () => getExpireAdAttributionInteractor().invoke()],
     ["pruneRoutineRuns", () => getPruneRoutineRunsInteractor().invoke()],
+    ["sendNotificationDigest", () => getSendNotificationDigestInteractor().invoke()],
     ["pruneDraftSends", () => getPruneDraftSendsInteractor().invoke()],
     ["purgeExpiredTrash", () => getPurgeExpiredTrashInteractor().invoke()],
     ["purgeExpiredRecordFiles", () => getPurgeExpiredRecordFilesInteractor().invoke()],

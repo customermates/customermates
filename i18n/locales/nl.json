@@ -1287,7 +1287,14 @@
       "routineDeleteHasRunningRun": "Wacht tot de actieve uitvoering klaar is voordat je deze routine verwijdert.",
       "routineEditNotOwner": "Alleen de eigenaar van de routine kan de instelling of activering wijzigen.",
       "routineLimitReached": "Je pakket bevat {limit} routines per gebruiker. Upgrade je pakket voor een hoger contingent.",
-      "routineNotFound": "Routine-ID niet gevonden of niet toegankelijk.",
+      "automationRuleAdminRequired": "Alleen de eigenaar van een automatisering of een beheerder kan deze uitzetten of verwijderen.",
+      "automationRuleEditNotOwner": "Alleen de eigenaar van een automatisering kan deze wijzigen of aanzetten.",
+      "automationRuleInvalid": "Deze automatisering past niet bij de werkruimte: een lijst, veld of relatie die ze gebruikt ontbreekt of past niet bij de trigger of de acties.",
+      "automationRuleLimitReached": "Je pakket bevat {limit} actieve automatiseringen. Upgrade je pakket (vanaf {price} per gebruiker per maand) of zet een andere automatisering uit.",
+      "automationRuleNotFound": "Automatiserings-ID niet gevonden of niet toegankelijk.",
+      "automationRuleOwnerIneligible": "De eigenaar van een automatisering moet een actief lid van deze werkruimte zijn.",
+      "notificationNotFound": "Melding niet gevonden.",
+      "routineNotFound":"Routine-ID niet gevonden of niet toegankelijk.",
       "routineOwnerIneligible": "De eigenaar van de routine moet een actief lid van dit bedrijf zijn.",
       "routineRunCursorInvalid": "Die paginalink voor de uitvoeringsgeschiedenis is niet meer geldig. Laad de geschiedenis opnieuw en probeer het nogmaals.",
       "routineRunNotOwner": "Alleen de persoon die eigenaar van deze routine is, kan deze uitvoeren, omdat daarvoor de AI-credits van die persoon worden gebruikt.",
@@ -3209,6 +3216,15 @@
     "documentTitle": "Pagina niet gevonden | Customermates",
     "subtitle": "Deze pagina is op vakantie gegaan zonder het ons te vertellen",
     "title": "Oeps! Je bent in de leegte beland"
+  },
+  "NotificationEmail": {
+    "cta": "Customermates openen",
+    "digestIntro": "Dit nieuws wacht op je in Customermates:",
+    "digestSubject": "Nieuws in Customermates",
+    "greeting": "Hallo {firstName},",
+    "instantIntro": "In Customermates heeft iets je aandacht nodig:",
+    "preferencesHint": "Hoe vaak je deze e-mails krijgt, kies je per soort melding onder Profiel, Meldingen.",
+    "title": "Nieuws uit je werkruimte"
   },
   "OnboardingChoice": {
     "create": {

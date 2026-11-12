@@ -1031,7 +1031,11 @@ export const getWebhookAdmission = () =>
     getPlanLimitsService(),
   );
 export const getProcessEventInteractor = (
-  admission: EventAdmission = new EventAdmissionGroup([getWebhookAdmission(), getRoutineAdmission()]),
+  admission: EventAdmission = new EventAdmissionGroup([
+    getWebhookAdmission(),
+    getRoutineAdmission(),
+    getAutomationRuleAdmission(),
+  ]),
 ) => new ProcessEventInteractor(getEventLogRepo(), admission);
 export const getProcessDueEventsInteractor = () =>
   new ProcessDueEventsInteractor(getEventLogRepo(), getProcessEventInteractor(), getBackgroundTaskService());
@@ -2677,6 +2681,76 @@ export const getReadCalendarSubscriptionInteractor = () =>
   new ReadCalendarSubscriptionInteractor(
     new CalendarSubscriptionTenant(getCalendarSubscriptionRepo(), getUserService()),
     getExportPlannerInteractor(),
+  );
+
+import { upgradeOfferValues } from "@/ee/subscription/plan-upgrade-offer";
+import { PrismaAutomationRuleRepo } from "@/features/automation-rules/prisma-automation-rule.repository";
+import { AutomationEffectRunner } from "@/features/automation-rules/automation-effect-runner";
+import { AutomationPlanLimitsAdapter } from "@/features/automation-rules/automation-plan-limits";
+import { AutomationRuleAdmission } from "@/features/automation-rules/automation-rule-admission";
+import { DeleteAutomationRuleInteractor } from "@/features/automation-rules/delete-automation-rule.interactor";
+import { DiscardAutomationRuleRunInteractor } from "@/features/automation-rules/discard-automation-rule-run.interactor";
+import { GetAutomationRuleRunsInteractor } from "@/features/automation-rules/get-automation-rule-runs.interactor";
+import { GetAutomationRulesInteractor } from "@/features/automation-rules/get-automation-rules.interactor";
+import { OutboundWebhookAutomationPort } from "@/features/automation-rules/outbound-webhook-automation.port";
+import { PreviewAutomationRuleInteractor } from "@/features/automation-rules/preview-automation-rule.interactor";
+import { RecordAutomationPort } from "@/features/automation-rules/record-automation.port";
+import { RunAutomationRuleInteractor } from "@/features/automation-rules/run-automation-rule.interactor";
+import { SetAutomationRuleEnabledInteractor } from "@/features/automation-rules/set-automation-rule-enabled.interactor";
+import { SweepAutomationRulesInteractor } from "@/features/automation-rules/sweep-automation-rules.interactor";
+import { UpsertAutomationRuleInteractor } from "@/features/automation-rules/upsert-automation-rule.interactor";
+import { PrismaNotificationRepo } from "@/features/notifications/prisma-notification.repository";
+import { EmailNotificationMailer } from "@/features/notifications/email-notification-mailer";
+import { GetNotificationPreferencesInteractor } from "@/features/notifications/get-notification-preferences.interactor";
+import { GetNotificationsInteractor } from "@/features/notifications/get-notifications.interactor";
+import { MarkNotificationsReadInteractor } from "@/features/notifications/mark-notifications-read.interactor";
+import { NotificationService } from "@/features/notifications/notification.service";
+import { SendNotificationDigestInteractor } from "@/features/notifications/send-notification-digest.interactor";
+import { SetNotificationPreferencesInteractor } from "@/features/notifications/set-notification-preferences.interactor";
+
+const getNotificationRepo = () => new PrismaNotificationRepo();
+const getNotificationMailer = () => new EmailNotificationMailer(getEmailService());
+export const getNotificationService = () => new NotificationService(getNotificationRepo(), getNotificationMailer());
+export const getGetNotificationsInteractor = () => new GetNotificationsInteractor(getNotificationRepo());
+export const getMarkNotificationsReadInteractor = () => new MarkNotificationsReadInteractor(getNotificationRepo());
+export const getGetNotificationPreferencesInteractor = () =>
+  new GetNotificationPreferencesInteractor(getNotificationRepo());
+export const getSetNotificationPreferencesInteractor = () =>
+  new SetNotificationPreferencesInteractor(getNotificationRepo());
+export const getSendNotificationDigestInteractor = () =>
+  new SendNotificationDigestInteractor(getNotificationRepo(), getNotificationMailer());
+
+const getAutomationRuleRepo = () => new PrismaAutomationRuleRepo();
+const getRecordAutomationPort = () =>
+  new RecordAutomationPort(getGetRecordModelInteractor(), getGetRecordInteractor(), getMutateRecordInteractor());
+const getAutomationPlanLimits = () =>
+  new AutomationPlanLimitsAdapter(getPlanLimitsService(), (plan) => upgradeOfferValues(plan));
+const getAutomationEffectRunner = () =>
+  new AutomationEffectRunner(
+    getRecordAutomationPort(),
+    getNotificationService(),
+    new OutboundWebhookAutomationPort(getAutomationRuleRepo(), getWebhookTransport(), getPlanLimitsService()),
+  );
+export const getAutomationRuleAdmission = () =>
+  new AutomationRuleAdmission(getAutomationRuleRepo(), getBackgroundTaskService());
+export const getGetAutomationRulesInteractor = () => new GetAutomationRulesInteractor(getAutomationRuleRepo());
+export const getGetAutomationRuleRunsInteractor = () => new GetAutomationRuleRunsInteractor(getAutomationRuleRepo());
+export const getUpsertAutomationRuleInteractor = () =>
+  new UpsertAutomationRuleInteractor(getAutomationRuleRepo(), getRecordAutomationPort(), getAutomationPlanLimits());
+export const getSetAutomationRuleEnabledInteractor = () =>
+  new SetAutomationRuleEnabledInteractor(getAutomationRuleRepo(), getAutomationPlanLimits());
+export const getDeleteAutomationRuleInteractor = () => new DeleteAutomationRuleInteractor(getAutomationRuleRepo());
+export const getPreviewAutomationRuleInteractor = () =>
+  new PreviewAutomationRuleInteractor(getAutomationRuleRepo(), getRecordAutomationPort());
+export const getRunAutomationRuleInteractor = () =>
+  new RunAutomationRuleInteractor(getAutomationRuleRepo(), getAutomationEffectRunner(), getRecordAutomationPort());
+export const getDiscardAutomationRuleRunInteractor = () =>
+  new DiscardAutomationRuleRunInteractor(getAutomationRuleRepo());
+export const getSweepAutomationRulesInteractor = () =>
+  new SweepAutomationRulesInteractor(
+    getAutomationRuleRepo(),
+    getBackgroundTaskService(),
+    getDiscardAutomationRuleRunInteractor(),
   );
 
 import { PrismaPublicLinkRepo } from "@/features/public-link/prisma-public-link.repository";

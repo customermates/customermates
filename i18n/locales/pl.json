@@ -1287,7 +1287,14 @@
       "routineDeleteHasRunningRun": "Zanim usuniesz tę rutynę, poczekaj na zakończenie aktywnego uruchomienia.",
       "routineEditNotOwner": "Tylko właściciel rutyny może zmieniać jej konfigurację lub aktywację.",
       "routineLimitReached": "Limit rutyn w Twoim planie to {limit} na użytkownika. Przejdź na wyższy plan, aby mieć większy limit.",
-      "routineNotFound": "Nie znaleziono ID rutyny lub brak do niej dostępu.",
+      "automationRuleAdminRequired": "Tylko właściciel automatyzacji lub administrator może ją wyłączyć albo usunąć.",
+      "automationRuleEditNotOwner": "Tylko właściciel automatyzacji może ją zmienić lub włączyć.",
+      "automationRuleInvalid": "Ta automatyzacja nie pasuje do obszaru roboczego: brakuje listy, pola lub relacji, których używa, albo nie pasują do jej wyzwalacza lub działań.",
+      "automationRuleLimitReached": "Twój plan obejmuje {limit} aktywnych automatyzacji. Przejdź na wyższy plan (od {price} za użytkownika miesięcznie) lub wyłącz inną automatyzację.",
+      "automationRuleNotFound": "Nie znaleziono automatyzacji o tym ID albo brak do niej dostępu.",
+      "automationRuleOwnerIneligible": "Właściciel automatyzacji musi być aktywnym członkiem tego obszaru roboczego.",
+      "notificationNotFound": "Nie znaleziono powiadomienia.",
+      "routineNotFound":"Nie znaleziono ID rutyny lub brak do niej dostępu.",
       "routineOwnerIneligible": "Właściciel rutyny musi być aktywnym członkiem tej firmy.",
       "routineRunCursorInvalid": "Ten link do strony historii uruchomień jest już nieważny. Załaduj historię ponownie i spróbuj jeszcze raz.",
       "routineRunNotOwner": "Tylko właściciel tej rutyny może ją uruchomić, ponieważ zużywa ona jego kredyty AI.",
@@ -3209,6 +3216,15 @@
     "documentTitle": "Nie znaleziono strony | Customermates",
     "subtitle": "Ta strona wyjechała na wakacje, nic nam nie mówiąc",
     "title": "Ups! Trafiasz w pustkę"
+  },
+  "NotificationEmail": {
+    "cta": "Otwórz Customermates",
+    "digestIntro": "Te nowości czekają na Ciebie w Customermates:",
+    "digestSubject": "Nowości w Customermates",
+    "greeting": "Cześć {firstName},",
+    "instantIntro": "W Customermates coś wymaga Twojej uwagi:",
+    "preferencesHint": "To, jak często dostajesz te e-maile, ustawiasz osobno dla każdego rodzaju powiadomień w sekcji Profil, Powiadomienia.",
+    "title": "Nowości z Twojego obszaru roboczego"
   },
   "OnboardingChoice": {
     "create": {

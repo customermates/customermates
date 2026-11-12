@@ -9,6 +9,7 @@ import { indexWikiPages } from "./index-wiki-pages";
 import { loadPostalCodes } from "./load-postal-codes";
 import { normalizePhoneIdentities } from "./normalize-phone-identities";
 import { reconcileRoutineRuns } from "./reconcile-routine-runs";
+import { runAutomationRule } from "./run-automation-rule";
 import { runRoutine } from "./run-routine";
 import { providerAvatarOperation } from "./provider-avatar-operation";
 import { recordOperation } from "./record-operation";
@@ -32,6 +33,7 @@ export const WORKFLOW_REGISTRY = {
   "load-postal-codes": loadPostalCodes,
   "normalize-phone-identities": normalizePhoneIdentities,
   "reconcile-routine-runs": reconcileRoutineRuns,
+  "run-automation-rule": runAutomationRule,
   "run-routine": runRoutine,
   "record-operation": recordOperation,
   "provider-avatar-operation": providerAvatarOperation,

@@ -273,7 +273,7 @@ describe("rule definitions", () => {
       trigger: { kind: "dateReached", typeId: TYPE, fieldId: FIELD, days: 1, direction: "before" },
       effects: [effect],
     });
-    expect(parsed.effects[0]).toMatchObject({ recipients: { ruleOwner: true, assignees: false, userIds: [] } });
+    expect(parsed.effects?.[0]).toMatchObject({ recipients: { ruleOwner: true, assignees: false, userIds: [] } });
   });
 
   it("requires a name, a trigger and effects on create but not on update", () => {

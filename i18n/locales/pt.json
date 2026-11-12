@@ -1287,7 +1287,14 @@
       "routineDeleteHasRunningRun": "Aguarde a execução ativa terminar antes de excluir esta rotina.",
       "routineEditNotOwner": "Somente o proprietário da rotina pode alterar a configuração ou a ativação dela.",
       "routineLimitReached": "Seu plano inclui {limit} rotinas por usuário. Faça upgrade do plano para um limite maior.",
-      "routineNotFound": "ID da rotina não encontrado ou inacessível.",
+      "automationRuleAdminRequired": "Somente o proprietário de uma automação ou um administrador pode desativá-la ou excluí-la.",
+      "automationRuleEditNotOwner": "Somente o proprietário de uma automação pode alterá-la ou ativá-la.",
+      "automationRuleInvalid": "Esta automação não combina com o espaço de trabalho: uma lista, um campo ou uma relação que ela usa está faltando ou não combina com o gatilho ou as ações.",
+      "automationRuleLimitReached": "Seu plano inclui {limit} automações ativas. Faça upgrade do plano (a partir de {price} por usuário por mês) ou desative outra automação.",
+      "automationRuleNotFound": "ID da automação não encontrado ou inacessível.",
+      "automationRuleOwnerIneligible": "O proprietário de uma automação precisa ser um membro ativo deste espaço de trabalho.",
+      "notificationNotFound": "Notificação não encontrada.",
+      "routineNotFound":"ID da rotina não encontrado ou inacessível.",
       "routineOwnerIneligible": "O proprietário da rotina deve ser um membro ativo desta empresa.",
       "routineRunCursorInvalid": "Esse link de página do histórico de execuções não é mais válido. Recarregue o histórico e tente novamente.",
       "routineRunNotOwner": "Somente quem é dono desta rotina pode executá-la, porque ela consome os créditos de IA dessa pessoa.",
@@ -3209,6 +3216,15 @@
     "documentTitle": "Página não encontrada | Customermates",
     "subtitle": "Esta página saiu de férias sem nos avisar",
     "title": "Opa! Você caiu no vazio"
+  },
+  "NotificationEmail": {
+    "cta": "Abrir o Customermates",
+    "digestIntro": "Estas novidades esperam por você no Customermates:",
+    "digestSubject": "Novidades no Customermates",
+    "greeting": "Olá, {firstName},",
+    "instantIntro": "Algo precisa da sua atenção no Customermates:",
+    "preferencesHint": "Você escolhe com que frequência recebe estes e-mails, por tipo de notificação, em Perfil, Notificações.",
+    "title": "Novidades do seu espaço de trabalho"
   },
   "OnboardingChoice": {
     "create": {

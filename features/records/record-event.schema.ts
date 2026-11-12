@@ -87,6 +87,7 @@ const RecordEventCauseSchema = z
     kind: z.enum(["mutation", "configuration", "system"]),
     operationId: z.uuid().optional(),
     routineDepth: z.number().int().nonnegative().optional(),
+    ruleChain: z.array(z.uuid()).max(5).optional(),
   })
   .strict();
 

@@ -1287,7 +1287,14 @@
       "routineDeleteHasRunningRun": "Warte, bis der aktive Lauf beendet ist, bevor du diese Routine löschst.",
       "routineEditNotOwner": "Nur die Eigentümerin oder der Eigentümer kann Einrichtung und Aktivierung dieser Routine ändern.",
       "routineLimitReached": "Dein Tarif enthält {limit} Routinen pro Nutzer. Wechsle deinen Tarif für ein höheres Kontingent.",
-      "routineNotFound": "Routine-ID nicht gefunden oder nicht zugänglich.",
+      "automationRuleAdminRequired": "Nur die Eigentümerin oder der Eigentümer einer Automatisierung oder ein Admin kann sie ausschalten oder löschen.",
+      "automationRuleEditNotOwner": "Nur die Eigentümerin oder der Eigentümer einer Automatisierung kann sie ändern oder einschalten.",
+      "automationRuleInvalid": "Diese Automatisierung passt nicht zum Workspace: Eine Liste, ein Feld oder eine Beziehung fehlt oder passt nicht zu Auslöser oder Aktionen.",
+      "automationRuleLimitReached": "Dein Tarif enthält {limit} aktive Automatisierungen. Wechsle deinen Tarif (ab {price} pro Nutzer und Monat) oder schalte eine andere Automatisierung aus.",
+      "automationRuleNotFound": "Automatisierungs-ID nicht gefunden oder nicht zugänglich.",
+      "automationRuleOwnerIneligible": "Die Eigentümerin oder der Eigentümer einer Automatisierung muss ein aktives Mitglied dieses Workspaces sein.",
+      "notificationNotFound": "Benachrichtigung nicht gefunden.",
+      "routineNotFound":"Routine-ID nicht gefunden oder nicht zugänglich.",
       "routineOwnerIneligible": "Die Eigentümerin oder der Eigentümer der Routine muss ein aktives Mitglied dieses Unternehmens sein.",
       "routineRunCursorInvalid": "Dieser Link zur Seite des Ausführungsverlaufs ist nicht mehr gültig. Lade den Verlauf neu und versuche es noch einmal.",
       "routineRunNotOwner": "Nur wer diese Routine besitzt, kann sie ausführen, da sie dessen KI-Guthaben verbraucht.",
@@ -3209,6 +3216,15 @@
     "documentTitle": "Seite nicht gefunden | Customermates",
     "subtitle": "Diese Seite ist ohne uns zu informieren in den Urlaub gefahren",
     "title": "Huch! Sie haben die Leere betreten"
+  },
+  "NotificationEmail": {
+    "cta": "Customermates öffnen",
+    "digestIntro": "Diese Neuigkeiten warten in Customermates auf dich:",
+    "digestSubject": "Neuigkeiten in Customermates",
+    "greeting": "Hallo {firstName},",
+    "instantIntro": "In Customermates braucht etwas deine Aufmerksamkeit:",
+    "preferencesHint": "Wie oft du diese E-Mails bekommst, stellst du pro Art der Benachrichtigung unter Profil, Benachrichtigungen ein.",
+    "title": "Neuigkeiten aus deinem Workspace"
   },
   "OnboardingChoice": {
     "create": {

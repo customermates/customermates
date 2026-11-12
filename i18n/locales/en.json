@@ -1287,7 +1287,14 @@
       "routineDeleteHasRunningRun": "Wait for the active run to finish before deleting this routine.",
       "routineEditNotOwner": "Only the routine owner can change its setup or activation.",
       "routineLimitReached": "Your plan includes {limit} routines per user. Upgrade your plan for a higher allowance.",
-      "routineNotFound": "Routine ID not found or not accessible.",
+      "automationRuleAdminRequired": "Only the owner of an automation or an administrator can switch it off or delete it.",
+      "automationRuleEditNotOwner": "Only the owner of an automation can change it or switch it on.",
+      "automationRuleInvalid": "This automation does not fit the workspace: a list, field or relationship it uses is missing or does not suit its trigger or effects.",
+      "automationRuleLimitReached": "Your plan includes {limit} active automations. Upgrade your plan (from {price} per user per month) or switch another automation off.",
+      "automationRuleNotFound": "Automation ID not found or not accessible.",
+      "automationRuleOwnerIneligible": "The owner of an automation must be an active member of this workspace.",
+      "notificationNotFound": "Notification not found.",
+      "routineNotFound":"Routine ID not found or not accessible.",
       "routineOwnerIneligible": "The routine owner must be an active member of this company.",
       "routineRunCursorInvalid": "That page link for the run history is no longer valid. Reload the history and try again.",
       "routineRunNotOwner": "Only the person who owns this routine can run it, because it spends their AI credits.",
@@ -3209,6 +3216,15 @@
     "documentTitle": "Page not found | Customermates",
     "subtitle": "This page went on vacation without telling us",
     "title": "Oops! You've entered the void"
+  },
+  "NotificationEmail": {
+    "cta": "Open Customermates",
+    "digestIntro": "These updates are waiting for you in Customermates:",
+    "digestSubject": "New updates in Customermates",
+    "greeting": "Hi {firstName},",
+    "instantIntro": "Something needs your attention in Customermates:",
+    "preferencesHint": "You choose how often you get these emails, per kind of notification, under Profile, Notifications.",
+    "title": "News from your workspace"
   },
   "OnboardingChoice": {
     "create": {

@@ -336,6 +336,7 @@ export const AutomationRuleRunDtoSchema = z.object({
   recordId: z.uuid().nullable(),
   occurrenceKey: z.string(),
   effects: z.array(AutomationEffectOutcomeSchema),
+  reason: z.string().nullable(),
   error: z.string().nullable(),
   scheduledFor: z.string(),
   finishedAt: z.string().nullable(),
