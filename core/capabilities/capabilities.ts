@@ -2,4 +2,10 @@ export const CAPABILITIES = ["forms", "rules", "calendarWrite", "notifications",
 
 export type Capability = (typeof CAPABILITIES)[number];
 
-export const SHIPPED_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>(["calendarWrite"]);
+export const SHIPPED_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
+  "calendarWrite",
+  "forms",
+  "incomingWebhooks",
+  "notifications",
+  "rules",
+]);
