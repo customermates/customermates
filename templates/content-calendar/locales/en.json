@@ -42,7 +42,7 @@
     },
     "pieces.pillar": {
       "label": "Content pillar",
-      "options": { "educate": "Educate", "prove": "Prove", "product": "Product", "community": "Community", "behind_the_scenes": "Behind the scenes" }
+      "options": { "educate": "Educate", "prove": "Proof", "product": "Product", "community": "Community", "behind_the_scenes": "Behind the scenes" }
     },
     "pieces.channels": {
       "label": "Channels",
