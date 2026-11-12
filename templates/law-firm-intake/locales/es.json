@@ -2,11 +2,11 @@
   "locale": "es",
   "name": "Alta de clientes para despachos de abogados",
   "summary": "Un alta de clientes en pasos fijos: consulta, conflicto de intereses, primera reunión, presupuesto, hoja de encargo y poder firmados con provisión de fondos, y una carta escrita para quien no llega a ser cliente.",
-  "description": "Dé de alta a los clientes en un orden fijo: cada consulta registra el área, el plazo más próximo conocido, la comprobación de conflicto de intereses y quién la hizo, luego la reunión, el presupuesto y la hoja de encargo firmada. Una lista de partes apoya la comprobación de conflictos, los expedientes llevan la fecha del poder y una fecha de conservación, y los posibles clientes rechazados o en silencio reciben una carta escrita de no contratación. Guarda una referencia al expediente, nunca hechos del caso, contenido sujeto a secreto profesional, datos de salud ni datos de la parte contraria. No es gestión de expedientes, contabilidad de fondos de clientes, fuente de plazos procesales ni facturación.",
+  "description": "Da de alta a los clientes en un orden fijo: cada consulta registra el área, el plazo más próximo conocido, la comprobación de conflicto de intereses y quién la hizo, luego la reunión, el presupuesto y la hoja de encargo firmada. Una lista de partes apoya la comprobación de conflictos, los expedientes llevan la fecha del poder y una fecha de conservación, y los posibles clientes rechazados o en silencio reciben una carta escrita de no contratación. Guarda una referencia al expediente, nunca hechos del caso, contenido sujeto a secreto profesional, datos de salud ni datos de la parte contraria. No es gestión de expedientes, contabilidad de fondos de clientes, fuente de plazos procesales ni facturación.",
   "lists": {
     "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Posibles clientes, clientes, antiguos clientes y quienes recomiendan." },
     "inquiries": { "label": "Consulta", "pluralLabel": "Consultas", "description": "Una petición de ayuda jurídica, del primer contacto a un expediente o un rechazo." },
-    "matters": { "label": "Expediente", "pluralLabel": "Expedientes", "description": "Una referencia al caso en su programa de gestión, con la fecha del poder y la de conservación." },
+    "matters": { "label": "Expediente", "pluralLabel": "Expedientes", "description": "Una referencia al caso en tu programa de gestión, con la fecha del poder y la de conservación." },
     "parties": { "label": "Parte", "pluralLabel": "Partes", "description": "Partes contrarias y vinculadas, guardadas para la comprobación de conflictos." }
   },
   "fields": {
@@ -32,7 +32,7 @@
     "inquiries.advance_requested_on": { "label": "Provisión solicitada el" },
     "inquiries.advance_received_on": { "label": "Provisión recibida el" },
     "inquiries.responsible_lawyer": { "label": "Abogado responsable" },
-    "inquiries.next_step_due": { "label": "Siguiente paso antes de" },
+    "inquiries.next_step_due": { "label": "Fecha del siguiente paso" },
     "inquiries.lost_reason": {
       "label": "Por qué no hubo encargo",
       "options": { "conflict": "Conflicto de intereses", "outside_practice_area": "Fuera de nuestras áreas", "capacity": "Sin capacidad", "time_limit_referred_out": "Plazo, derivado a otro", "fee": "Honorarios", "chose_other_lawyer": "Eligió otro abogado", "no_response": "Sin respuesta", "self_resolved": "Se resolvió solo" }
@@ -47,7 +47,7 @@
     "parties.party_type": { "label": "Tipo", "options": { "person": "Persona", "organisation": "Organización" } },
     "actions.kind": {
       "label": "Tipo",
-      "options": { "reply": "Responder", "conflict_check": "Hacer la comprobación de conflictos", "consultation_prep": "Preparar la reunión", "fee_proposal": "Enviar el presupuesto", "follow_up": "Dar seguimiento", "advance": "Solicitar la provisión de fondos", "letter": "Redactar una carta", "other": "Otro" }
+      "options": { "reply": "Responder", "conflict_check": "Hacer la comprobación de conflictos", "consultation_prep": "Preparar la reunión", "fee_proposal": "Enviar el presupuesto", "follow_up": "Hacer seguimiento", "advance": "Solicitar la provisión de fondos", "letter": "Redactar una carta", "other": "Otro" }
     }
   },
   "relationships": {
@@ -87,9 +87,9 @@
     "inquiry_form_records": { "title": "Crear el contacto y la consulta cuando se envía el formulario de consulta" },
     "acknowledge_inquiry": { "title": "Responder a una consulta nueva al día siguiente y ofrecer una reunión" },
     "urgent_deadline_alert": { "title": "Avisar a la persona a cargo 14 días antes del plazo de una consulta abierta" },
-    "conflict_check_task": { "title": "Hacer la comprobación de conflictos el día después de pasar a esa fase" },
-    "fee_proposal_task": { "title": "Enviar el presupuesto el día siguiente a la reunión" },
-    "proposal_follow_up": { "title": "Dar seguimiento 3 días después de enviar el presupuesto" },
+    "conflict_check_task": { "title": "Hacer la comprobación de conflictos al día siguiente de pasar a esa fase" },
+    "fee_proposal_task": { "title": "Enviar el presupuesto al día siguiente de la reunión" },
+    "proposal_follow_up": { "title": "Hacer seguimiento 3 días después de enviar el presupuesto" },
     "agreement_signed_set": { "title": "Solicitar la provisión de fondos 2 días después de firmar la hoja de encargo" },
     "advance_chase": { "title": "Avisar al responsable cuando falta la provisión 7 días después de pedirla" },
     "letter_declined": { "title": "Redactar la carta de no contratación cuando el despacho rechaza una consulta" },
@@ -105,12 +105,12 @@
     "conflict_check_page": "La base de conocimiento contiene una página sobre el conflicto de intereses."
   },
   "prompt": {
-    "intro": "Configura en mi espacio de Customermates un alta de clientes para un despacho de abogados: consultas con comprobación de conflictos, plazo más próximo conocido, reunión, presupuesto y hoja de encargo firmada, expedientes como referencias a su programa de gestión, partes para la comprobación de conflictos y cartas escritas de no contratación. No guardes hechos del caso ni contenido sujeto a secreto profesional.",
+    "intro": "Configura en mi espacio de trabajo de Customermates un alta de clientes para un despacho de abogados: consultas con comprobación de conflictos, plazo más próximo conocido, reunión, presupuesto y hoja de encargo firmada, expedientes como referencias a mi programa de gestión, partes para la comprobación de conflictos y cartas escritas de no contratación. No guardes hechos del caso ni contenido sujeto a secreto profesional.",
     "questions": [
-      "¿Qué áreas lleva y cuáles deriva a otros despachos?",
-      "¿Cómo hace la comprobación de conflictos y quién la da por buena?",
-      "¿Qué modelos de honorarios y qué provisión de fondos usa?",
-      "¿Qué programa de gestión usa? Aquí solo se guarda una referencia al expediente."
+      "¿Qué áreas llevas y cuáles derivas a otros despachos?",
+      "¿Cómo haces la comprobación de conflictos y quién la da por buena?",
+      "¿Qué modelos de honorarios y qué provisión de fondos usas?",
+      "¿Qué programa de gestión usas? Aquí solo se guarda una referencia al expediente."
     ]
   }
 }

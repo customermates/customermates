@@ -16,7 +16,7 @@
     },
     "gift_opportunities.stage": {
       "label": "Fase",
-      "options": { "identified": "Identificada", "qualified": "Calificada", "cultivation": "Relación en curso", "ask_made": "Petición hecha", "pledged": "Compromiso recibido", "received": "Recibida", "declined": "Rechazada" }
+      "options": { "identified": "Identificada", "qualified": "Cualificada", "cultivation": "Relación en curso", "ask_made": "Petición hecha", "pledged": "Compromiso recibido", "received": "Recibida", "declined": "Rechazada" }
     },
     "supporters.member_number": { "label": "Número de socio" },
     "supporters.supporter_types": {
@@ -96,7 +96,7 @@
   "relationships": {
     "membership_supporter": { "sourceLabel": "Socio", "targetLabel": "Membresías" },
     "gift_supporter": { "sourceLabel": "Donante", "targetLabel": "Donativos" },
-    "opportunity_supporter": { "sourceLabel": "Potencial donante", "targetLabel": "Oportunidades de donación" },
+    "opportunity_supporter": { "sourceLabel": "Posible donante", "targetLabel": "Oportunidades de donación" },
     "action_supporter": { "sourceLabel": "Colaborador", "targetLabel": "Tareas" }
   },
   "views": {
