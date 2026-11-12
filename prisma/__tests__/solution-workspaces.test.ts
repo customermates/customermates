@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { SOLUTION_CATALOG, SOLUTION_DATA_LOCALES } from "@/core/solutions/solution-catalog";
 import { presetId } from "@/features/records/crm-preset";
+import { resolveRecordPath } from "@/features/records/record-relationship-path";
 import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import { DataViewStateSchema } from "@/core/data-view/data-view-state.schema";
 
@@ -193,6 +194,21 @@ describe("solution demo workspaces", { timeout: 60_000 }, () => {
         workspace.slug,
       ).toEqual(content.lists.map((list) => presetId(workspace.companyId, list.key)));
     }
+  });
+
+  it("labels every relationship path with the plural of the list it ends at, in the workspace's own words", () => {
+    let paths = 0;
+    for (const { workspace, model } of plans) {
+      for (const type of model.types) {
+        for (const path of type.relationshipPaths ?? []) {
+          const end = resolveRecordPath(type.id, path.path, model)?.at(-1);
+          const list = model.types.find((candidate) => candidate.id === end?.typeId);
+          expect(path.label, `${workspace.slug} ${path.id}`).toBe(list?.pluralLabel);
+          paths += 1;
+        }
+      }
+    }
+    expect(paths).toBeGreaterThan(0);
   });
 
   it("gives the team workspace the records its routines and Trash fixtures refer to", () => {
