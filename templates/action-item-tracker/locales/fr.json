@@ -1,8 +1,8 @@
 {
   "locale": "fr",
   "name": "Plan d’action",
-  "summary": "Chaque action avec un pilote et une échéance, liée à la réunion, à la décision ou au projet dont elle vient, avec une revue hebdomadaire et une clôture avec preuve.",
-  "description": "Un tableau de suivi des actions issues des réunions, des projets, des audits et des demandes clients : six statuts, une priorité, un pilote, une échéance, une date de relance, un relevé de décisions et une vérification d’efficacité après les actions correctives. Les rappels viennent des règles d’automatisation et des notifications.",
+  "summary": "Chaque action avec un pilote et une échéance, liée à la réunion, à la décision ou au projet dont elle est issue, avec une revue hebdomadaire et une clôture sur preuve.",
+  "description": "Un tableau de suivi des actions issues des réunions, des projets, des audits et des demandes clients : six statuts, une priorité, un pilote, une échéance, une date de relance, un relevé de décisions et une vérification d’efficacité après les actions correctives. Les rappels viennent des règles d’automatisation et des notifications.",
   "lists": {
     "people": { "label": "Personne", "pluralLabel": "Personnes", "description": "Équipe, partenaires, clients et fournisseurs." },
     "meetings": { "label": "Réunion", "pluralLabel": "Réunions", "description": "D’où viennent les actions et les décisions." },
@@ -77,15 +77,15 @@
     "blocked_count": { "title": "Actions bloquées" },
     "due_soon": { "title": "Bientôt à échéance" },
     "open_by_owner": { "title": "Actions ouvertes par pilote" },
-    "done_per_month": { "title": "Faites par mois" },
+    "done_per_month": { "title": "Actions faites par mois" },
     "actions_by_source": { "title": "Actions par origine" },
     "average_days_late": { "title": "Retard moyen en jours" },
     "activity_timeline": { "title": "Activité récente" }
   },
   "knowledgePages": {
-    "how_we_write_an_action": { "title": "Comment nous rédigeons une action", "sections": ["Un verbe, un pilote, une date", "À quoi ressemble « fait »"] },
-    "weekly_action_review": { "title": "Revue hebdomadaire des actions en 15 minutes", "sections": ["Bloquées, qui glissent, sans prochaine étape", "Redater, déléguer ou annuler"] },
-    "closing_with_proof": { "title": "Clore une action avec une preuve", "sections": ["Lier la preuve", "Vérification d’efficacité des actions correctives"] }
+    "how_we_write_an_action": { "title": "Comment nous rédigeons une action", "sections": ["Un verbe, un pilote, une date", "À quoi ressemble une action « faite »"] },
+    "weekly_action_review": { "title": "Revue hebdomadaire des actions en 15 minutes", "sections": ["Bloquées, en retard ou sans prochaine étape", "Décaler l’échéance, déléguer ou annuler"] },
+    "closing_with_proof": { "title": "Clôturer une action avec une preuve", "sections": ["Lier la preuve", "Vérification d’efficacité des actions correctives"] }
   },
   "rules": {
     "minutes_after_meeting": { "title": "Envoyer le compte rendu et la liste d’actions après une réunion" },
@@ -104,12 +104,12 @@
     "overdue_widget": "Le tableau de bord montre combien d’actions sont en retard."
   },
   "prompt": {
-    "intro": "Mets en place un plan d’action dans mon espace Customermates : des actions avec six statuts, une priorité, un pilote, une échéance et une date de relance, liées aux réunions, aux décisions et aux projets, plus une revue hebdomadaire.",
+    "intro": "Mets en place un plan d’action dans mon espace de travail Customermates : des actions avec six statuts, une priorité, un pilote, une échéance et une date de relance, liées aux réunions, aux décisions et aux projets, plus une revue hebdomadaire.",
     "questions": [
-      "D’où viennent vos actions : réunions, projets, audits, clients ?",
-      "Qui pilote les actions, et qui décide quand l’une est redatée ou annulée ?",
-      "Avez-vous besoin d’actions correctives et préventives avec vérification d’efficacité, comme en ISO 9001 ?",
-      "Gardez-vous les comptes rendus ailleurs ? Seul un lien y est conservé ici."
+      "D’où viennent vos actions : réunions, projets, audits, clients ?",
+      "Qui pilote les actions, et qui décide quand l’une est reportée ou annulée ?",
+      "Avez-vous besoin d’actions correctives et préventives avec vérification d’efficacité, comme dans la norme ISO 9001 ?",
+      "Gardez-vous les comptes rendus ailleurs ? Seul un lien vers eux est conservé ici."
     ]
   }
 }
