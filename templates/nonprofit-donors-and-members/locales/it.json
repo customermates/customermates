@@ -2,10 +2,10 @@
   "locale": "it",
   "name": "Soci e donatori",
   "summary": "Un unico registro per soci, donatori e volontari: tesseramenti con scadenza, donazioni con ringraziamento e ricevuta, e una pipeline per grandi donazioni e bandi.",
-  "description": "Per associazioni, enti del terzo settore e parrocchie: chi vi sostiene e come, quale tessera dura fino a quando, quale donazione attende ancora un ringraziamento o una ricevuta e quale grande donazione o bando è in corso. Non emette ricevute fiscali né incassa quote: mostra quali sono da fare.",
+  "description": "Per associazioni, enti del terzo settore e parrocchie: chi ti sostiene e come, quale tessera dura fino a quando, quale donazione attende ancora un ringraziamento o una ricevuta e quale grande donazione o bando è in corso. Non emette ricevute fiscali né incassa quote: mostra quali sono da fare.",
   "lists": {
     "supporters": { "label": "Sostenitore", "pluralLabel": "Sostenitori", "description": "Soci, donatori, volontari, ospiti e consiglieri." },
-    "memberships": { "label": "Tesseramento", "pluralLabel": "Tesseramenti", "description": "Un’iscrizione con quota e scadenza." },
+    "memberships": { "label": "Tesseramento", "pluralLabel": "Tesseramenti", "description": "Un'iscrizione con quota e scadenza." },
     "gifts": { "label": "Erogazione liberale", "pluralLabel": "Erogazioni liberali", "description": "Ogni donazione con ringraziamento e ricevuta." },
     "gift_opportunities": { "label": "Opportunità di donazione", "pluralLabel": "Opportunità di donazione", "description": "Grandi donazioni, bandi e sponsorizzazioni in corso." }
   },
@@ -43,16 +43,16 @@
     },
     "memberships.fee_status": {
       "label": "Stato della quota",
-      "options": { "open": "Da pagare", "paid": "Pagata", "reminded": "Sollecitata", "overdue": "Scaduta", "waived": "Condonata" }
+      "options": { "open": "Da pagare", "paid": "Pagata", "reminded": "Sollecitata", "overdue": "Scaduta", "waived": "Esonerata" }
     },
-    "memberships.mandate_on_file": { "label": "Mandato di addebito in archivio" },
+    "memberships.mandate_on_file": { "label": "Mandato di addebito diretto in archivio" },
     "memberships.started_on": { "label": "Inizio il" },
     "memberships.renewal_due": { "label": "Scadenza tessera" },
     "memberships.end_reason": {
       "label": "Motivo della fine",
       "options": { "moved_away": "Trasferimento", "cost": "Costo", "lost_interest": "Perdita di interesse", "dissatisfied": "Insoddisfazione", "unpaid_fees": "Quote non pagate", "other": "Altro" }
     },
-    "gifts.received_on": { "label": "Ricevuta il" },
+    "gifts.received_on": { "label": "Data di ricezione" },
     "gifts.amount": { "label": "Importo" },
     "gifts.gift_type": {
       "label": "Tipo di erogazione",
@@ -60,7 +60,7 @@
     },
     "gifts.fund": {
       "label": "Destinazione",
-      "options": { "unrestricted": "Libera", "restricted_project": "Progetto specifico", "appeal": "Campagna di raccolta", "event": "Evento", "in_memory": "In memoria" }
+      "options": { "unrestricted": "Non vincolata", "restricted_project": "Progetto specifico", "appeal": "Campagna di raccolta", "event": "Evento", "in_memory": "In memoria" }
     },
     "gifts.acknowledgement_status": {
       "label": "Ringraziamento",
@@ -139,9 +139,9 @@
   "prompt": {
     "intro": "Configura un registro di soci e donatori nel mio spazio di lavoro Customermates: sostenitori, tesseramenti con quota e scadenza, erogazioni con ringraziamento e stato della ricevuta, e una pipeline per grandi donazioni e bandi.",
     "questions": [
-      "Siete un’associazione, un ente benefico o una parrocchia? Avete soci, donatori, volontari?",
-      "Quali tipi di quota e quali importi usate e come vengono incassati?",
-      "In quale paese siete registrati e quale ricevuta emettete lì?",
+      "Sei un'associazione, un ente benefico o una parrocchia? Hai soci, donatori, volontari?",
+      "Quali tipi di quota e quali importi usi e come vengono incassati?",
+      "In quale paese è registrata la tua organizzazione e quale ricevuta emetti lì?",
       "Quale software tiene i pagamenti o la contabilità? Qui si conserva solo un riferimento."
     ]
   }
