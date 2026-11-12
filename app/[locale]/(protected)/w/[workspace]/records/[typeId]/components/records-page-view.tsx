@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Settings2 } from "lucide-react";
+import { BellRing, Settings2 } from "lucide-react";
 
 import type { ReactNode } from "react";
 import type { RecordPresentationResult } from "@/features/records/get-record-presentation.interactor";
@@ -151,20 +151,44 @@ const RecordsPageViewContent = observer(function RecordsPageView({
   const handleExportWorkbook = useRecordExport(store.presentation, "xlsx");
   const handleImport = useCallback(() => setImportOpen(true), []);
   const configureLabel = t("RecordModel.configureList", { list: store.type?.pluralLabel ?? t("RecordModel.records") });
+  const modelFields = store.presentation.model.fields;
+  const reminderFields = useMemo(
+    () =>
+      modelFields.filter(
+        (field) =>
+          field.typeId === presentation.typeId &&
+          !field.archived &&
+          (field.valueType === "date" || field.valueType === "dateTime"),
+      ),
+    [modelFields, presentation.typeId],
+  );
   const toolbar = useMemo(
     () => (
       <DataViewToolbar
         anchorScope="records"
+        automateHref={`/automations?new=${presentation.typeId}`}
         menuItems={
-          store.presentation.canManageSchema && (
-            <DropdownMenuItem asChild>
-              <IntlLink href={`/configure?typeId=${presentation.typeId}`} id="records-configure">
-                <Settings2 className="size-4" />
+          <>
+            {reminderFields.map((field) => (
+              <DropdownMenuItem key={field.id} asChild>
+                <IntlLink href={`/automations?remind=${presentation.typeId}:${field.id}`}>
+                  <BellRing className="size-4" />
 
-                {configureLabel}
-              </IntlLink>
-            </DropdownMenuItem>
-          )
+                  {t("AutomationRules.remindBefore", { field: field.label })}
+                </IntlLink>
+              </DropdownMenuItem>
+            ))}
+
+            {store.presentation.canManageSchema && (
+              <DropdownMenuItem asChild>
+                <IntlLink href={`/configure?typeId=${presentation.typeId}`} id="records-configure">
+                  <Settings2 className="size-4" />
+
+                  {configureLabel}
+                </IntlLink>
+              </DropdownMenuItem>
+            )}
+          </>
         }
         searchLabel={t("Common.filters.searchFields.records")}
         store={store}
@@ -183,6 +207,8 @@ const RecordsPageViewContent = observer(function RecordsPageView({
       handleImport,
       presentation.typeId,
       configureLabel,
+      reminderFields,
+      t,
     ],
   );
   useSetTopBarActions(toolbar);

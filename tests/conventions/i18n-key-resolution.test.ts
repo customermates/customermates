@@ -696,6 +696,12 @@ const AUTOMATION_SITE_CONSUMERS: ReadonlyArray<readonly [string, readonly string
   [`${NOTIFICATION_SETTINGS_FILE} :: t :: kinds.\${preference.kind}`, NOTIFICATION_KEYS("kinds", NOTIFICATION_KIND_NAMES)],
   ["app/components/notifications/notification-bell.tsx :: t :: kinds.${item.kind}", NOTIFICATION_KEYS("kinds", NOTIFICATION_KIND_NAMES)],
 ];
+const AUTOMATION_QUALIFIED_SITES: ReadonlyArray<readonly [string, readonly string[]]> = AUTOMATION_SITE_CONSUMERS.map(
+  ([site, keys]) => {
+    const [file, body] = site.split(" :: t :: ");
+    return [`${file} :: t :: ${keys[0]?.split(".")[0]}.${body}`, keys] as const;
+  },
+);
 
 const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
   [
@@ -718,7 +724,7 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
     RECORD_TYPE_ICON_KEYS.map((key) => `RecordModel.icons.${key}`),
   ],
   ["ee/subscription/entitlement.service.ts :: t :: ConnectedAccountsCard.${code}", ENTITLEMENT_DENIAL_KEYS],
-  ...AUTOMATION_SITE_CONSUMERS,
+  ...AUTOMATION_QUALIFIED_SITES,
 ]);
 
 const ENFORCED = true;
@@ -957,23 +963,7 @@ export const DYNAMIC_KEY_SITES = [
   "features/records/workspace-record-preset.ts :: t :: Common.defaultData.${preset.entityType}.columnLabel",
   "features/records/workspace-record-preset.ts :: t :: Common.defaultData.${preset.entityType}.options.${option.key}",
   "features/records/workspace-record-preset.ts :: t :: RecordModel.priceModes.${option.id}",
-  "app/[locale]/(protected)/w/[workspace]/automations/components/automation-builder.tsx :: t :: builder.boolean.${option}",
-  "app/[locale]/(protected)/w/[workspace]/automations/components/automation-builder.tsx :: t :: effect.${kind}",
-  "app/[locale]/(protected)/w/[workspace]/automations/components/automation-builder.tsx :: t :: notificationKind.${kind}",
-  "app/[locale]/(protected)/w/[workspace]/automations/components/automation-builder.tsx :: t :: operator.${operator}",
-  "app/[locale]/(protected)/w/[workspace]/automations/components/automation-builder.tsx :: t :: trigger.${kind}",
-  "app/[locale]/(protected)/w/[workspace]/automations/components/automation-run-history.tsx :: t :: effect.${effect.kind}",
-  "app/[locale]/(protected)/w/[workspace]/automations/components/automation-run-history.tsx :: t :: outcome.${effect.status}",
-  "app/[locale]/(protected)/w/[workspace]/automations/components/automation-run-history.tsx :: t :: reason.${run.reason}",
-  "app/[locale]/(protected)/w/[workspace]/automations/components/automation-run-history.tsx :: t :: status.${run.status}",
-  "app/[locale]/(protected)/w/[workspace]/automations/components/automations-view.tsx :: t :: disabledReason.${rule.disabledReason}",
-  "app/[locale]/(protected)/w/[workspace]/automations/components/automations-view.tsx :: t :: effect.${effect.kind}",
-  "app/[locale]/(protected)/w/[workspace]/automations/components/automations-view.tsx :: t :: status.${rule.lastRunStatus}",
-  "app/[locale]/(protected)/w/[workspace]/automations/components/automations-view.tsx :: t :: summary.${trigger.kind}",
-  "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/notification-preferences-card.tsx :: t :: emailMode.${mode}",
-  "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/notification-preferences-card.tsx :: t :: kindHelp.${preference.kind}",
-  "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/notification-preferences-card.tsx :: t :: kinds.${preference.kind}",
-  "app/components/notifications/notification-bell.tsx :: t :: kinds.${item.kind}",
+  ...AUTOMATION_QUALIFIED_SITES.map(([site]) => site),
 ];
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
