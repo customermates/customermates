@@ -1,12 +1,12 @@
 {
   "locale": "it",
   "name": "Dealflow per investitori",
-  "summary": "Un dealflow per un piccolo fondo o un business angel: otto fasi dall’individuazione al closing o al rifiuto, chi ha presentato ogni operazione, un motivo del rifiuto e una data per riprendere il contatto.",
-  "description": "Segui startup e investitori da sourcing, valutazione, incontri, due diligence fino al term sheet. Ogni operazione registra chi l’ha presentata, quanto aderisce alla tesi, il ruolo di lead, un link alla data room, il motivo del rifiuto e quando riguardarla. È uno strumento di relazione, non una cap table, né una data room legale, né un modello di punteggio. I pesi sono approssimativi e sono tuoi.",
+  "summary": "Un dealflow per un piccolo fondo o un business angel: otto fasi dall'individuazione al closing o al rifiuto, chi ha fatto l'introduzione per ogni operazione, un motivo del rifiuto e una data per riprendere il contatto.",
+  "description": "Segui startup e investitori dal sourcing alla valutazione, agli incontri e alla due diligence, fino al term sheet. Ogni operazione registra chi l'ha introdotta, quanto aderisce alla tesi, il ruolo di lead, un link alla data room, il motivo del rifiuto e quando riguardarla. È uno strumento di relazione, non una cap table, né una data room legale, né un modello di punteggio. I pesi sono approssimativi e sono tuoi.",
   "lists": {
-    "people": { "label": "Persona", "pluralLabel": "Persone", "description": "Fondatori, investitori, co-investitori e presentatori." },
+    "people": { "label": "Persona", "pluralLabel": "Persone", "description": "Fondatori, investitori, co-investitori e introduttori." },
     "organizations": { "label": "Organizzazione", "pluralLabel": "Organizzazioni", "description": "Startup, fondi, sindacati e acceleratori." },
-    "deals": { "label": "Operazione", "pluralLabel": "Operazioni", "description": "Un’opportunità di investimento dal sourcing al closing o al rifiuto." }
+    "deals": { "label": "Operazione", "pluralLabel": "Operazioni", "description": "Un'opportunità di investimento dal sourcing al closing o al rifiuto." }
   },
   "fields": {
     "deals.stage": {
@@ -15,7 +15,7 @@
     },
     "people.person_role": {
       "label": "Ruolo",
-      "options": { "founder": "Fondatore", "investor": "Partner investitore", "angel": "Business angel", "co_investor": "Co-investitore", "introducer": "Presentatore", "advisor": "Consulente" }
+      "options": { "founder": "Fondatore", "investor": "Partner investitore", "angel": "Business angel", "co_investor": "Co-investitore", "introducer": "Introduttore", "advisor": "Consulente" }
     },
     "people.focus_stages": {
       "label": "Fasi di interesse",
@@ -27,7 +27,7 @@
     "people.relationship_owner": { "label": "Referente" },
     "organizations.org_type": {
       "label": "Tipo",
-      "options": { "startup": "Startup", "vc_fund": "Fondo di venture capital", "angel_syndicate": "Sindacato di angel", "corporate_vc": "Corporate venture", "accelerator": "Acceleratore", "other": "Altro" }
+      "options": { "startup": "Startup", "vc_fund": "Fondo di venture capital", "angel_syndicate": "Sindacato di business angel", "corporate_vc": "Corporate venture", "accelerator": "Acceleratore", "other": "Altro" }
     },
     "organizations.website": { "label": "Sito web" },
     "organizations.sector": { "label": "Settore" },
@@ -41,15 +41,15 @@
       "label": "Round",
       "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Serie A", "series_b": "Serie B", "bridge": "Round ponte" }
     },
-    "deals.lead_role": { "label": "Il nostro ruolo", "options": { "lead": "Lead", "follow": "Follower", "undecided": "Da decidere" } },
+    "deals.lead_role": { "label": "Il nostro ruolo", "options": { "lead": "Lead", "follow": "Segue il lead", "undecided": "Da decidere" } },
     "deals.thesis_fit": { "label": "Aderenza alla tesi", "options": { "strong": "Forte", "partial": "Parziale", "weak": "Debole" } },
     "deals.owner": { "label": "Responsabile" },
     "deals.source": {
       "label": "Provenienza",
-      "options": { "warm_introduction": "Presentazione personale", "inbound": "Richiesta in entrata", "outbound": "Contatto diretto", "event": "Evento", "portfolio_referral": "Segnalazione dal portafoglio", "co_investor": "Co-investitore" }
+      "options": { "warm_introduction": "Introduzione personale", "inbound": "Richiesta in entrata", "outbound": "Contatto diretto", "event": "Evento", "portfolio_referral": "Segnalazione dal portafoglio", "co_investor": "Co-investitore" }
     },
-    "deals.intro_requested_on": { "label": "Presentazione richiesta il" },
-    "deals.intro_made_on": { "label": "Presentazione fatta il" },
+    "deals.intro_requested_on": { "label": "Introduzione richiesta il" },
+    "deals.intro_made_on": { "label": "Introduzione fatta il" },
     "deals.first_meeting_on": { "label": "Primo incontro il" },
     "deals.decision_on": { "label": "Decisione il" },
     "deals.term_sheet_on": { "label": "Term sheet il" },
@@ -60,21 +60,21 @@
       "options": { "thesis_mismatch": "Fuori tesi", "team": "Team", "market": "Mercato", "too_early": "Troppo presto", "valuation": "Valutazione", "timing": "Tempi", "other": "Altro" }
     },
     "deals.revisit_on": { "label": "Da riprendere il" },
-    "deals.data_room_url": { "label": "Link della data room" },
+    "deals.data_room_url": { "label": "Link alla data room" },
     "deals.days_to_term_sheet": { "label": "Giorni dal primo incontro al term sheet" },
     "deals.weighted_value": { "label": "Valore ponderato" },
     "actions.kind": {
       "label": "Tipo",
       "options": {
-        "request_intro": "Chiedere una presentazione",
+        "request_intro": "Chiedere un'introduzione",
         "send_deck": "Inviare il deck",
         "prepare_meeting": "Preparare un incontro",
-        "follow_up": "Sollecito",
+        "follow_up": "Follow-up",
         "diligence_request": "Richiesta di due diligence",
         "write_memo": "Scrivere il memo",
         "send_pass_note": "Inviare un rifiuto",
         "revisit": "Ripresa del contatto",
-        "thank_introducer": "Ringraziare o sollecitare il presentatore",
+        "thank_introducer": "Ringraziare o sollecitare l'introduttore",
         "other": "Altro"
       }
     }
@@ -100,28 +100,28 @@
   },
   "knowledgePages": {
     "investment_thesis": { "title": "Tesi di investimento e focus", "sections": ["Fase, settore e dimensione del ticket", "Dove non investiamo"] },
-    "stage_criteria": { "title": "Criteri per fase", "sections": ["Che cosa fa avanzare un’operazione alla fase successiva", "Chi decide in comitato"] },
+    "stage_criteria": { "title": "Criteri per fase", "sections": ["Che cosa fa avanzare un'operazione alla fase successiva", "Chi decide in comitato"] },
     "pass_notes": { "title": "Rifiuti e regole di ripresa del contatto", "sections": ["Come rifiutiamo", "Quando riguardiamo"] }
   },
   "rules": {
     "follow_up_after_meeting": { "title": "Inviare un messaggio con i prossimi passi dopo un primo incontro" },
-    "stale_screening": { "title": "Rilanciare o rifiutare un’operazione ferma da 14 giorni in valutazione" },
-    "pass_note": { "title": "Inviare un rifiuto quando un’operazione viene rifiutata" },
-    "revisit_deal": { "title": "Riprendere un’operazione rifiutata alla data di ripresa" },
+    "stale_screening": { "title": "Rilanciare o rifiutare un'operazione ferma da 14 giorni in valutazione" },
+    "pass_note": { "title": "Inviare un rifiuto quando un'operazione viene rifiutata" },
+    "revisit_deal": { "title": "Riprendere un'operazione rifiutata alla data di ripresa" },
     "diligence_checklist": { "title": "Avviare la checklist di due diligence quando è concordato un term sheet" },
-    "first_check_in_after_close": { "title": "Fare un check-in 30 giorni dopo il closing" },
-    "intro_nudge": { "title": "Sollecitare il presentatore una settimana dopo la presentazione richiesta" }
+    "first_check_in_after_close": { "title": "Fare un ricontatto 30 giorni dopo il closing" },
+    "intro_nudge": { "title": "Sollecitare l'introduttore una settimana dopo l'introduzione richiesta" }
   },
   "acceptanceChecks": {
     "stage_field": "Ogni operazione ha una delle otto fasi.",
     "pass_reason_field": "Ogni operazione registra perché è stata rifiutata.",
-    "board_view": "Le operazioni si aprono come bacheca per fase."
+    "board_view": "Le operazioni si aprono come board per fase."
   },
   "prompt": {
-    "intro": "Configura un dealflow nel mio spazio di lavoro Customermates: operazioni con otto fasi, chi le ha presentate, aderenza alla tesi, ruolo di lead, un motivo del rifiuto e una data di ripresa, più startup, investitori e solleciti con scadenza.",
+    "intro": "Configura un dealflow nel mio spazio di lavoro Customermates: operazioni con otto fasi, chi le ha introdotte, aderenza alla tesi, ruolo di lead, un motivo del rifiuto e una data di ripresa, più startup, investitori e solleciti con scadenza.",
     "questions": [
       "In quali fasi e settori investi e qual è la dimensione abituale del ticket?",
-      "Come ti arrivano le operazioni e chi le presenta?",
+      "Come ti arrivano le operazioni e chi le introduce?",
       "Chi decide a ogni fase e quando rifiuti?",
       "Dove tieni i documenti legali e la data room? Qui si conserva solo un link."
     ]
