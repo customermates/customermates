@@ -13,7 +13,10 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => ({ ...createMockDiModule(() => mockUser) }));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
 
+import * as ErrorReporter from "@/core/observability/server";
+import { UnipileRequestError } from "../../../unipile-request-error";
 import { BackfillChatsInteractor } from "../backfill-chats.interactor";
 import { ACCOUNT_WIDE_SOURCE } from "../prepare-backfill.interactor";
 
@@ -225,6 +228,21 @@ describe("BackfillChatsInteractor (list-only page)", () => {
       expect(repo.recordUnusableItemUnscoped).not.toHaveBeenCalled();
       expect(messagingService.listChatMessages).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it("skips a chat whose messages or participants hit a transient provider error without reporting it", async () => {
+    const badGateway = new UnipileRequestError(502, "api/proxy_error", '{"title":"Bad Gateway"}');
+    const { interactor, ingest, messagingService } = build({
+      chats: [{ ...groupChat, participants: [], participants_count: 2 }],
+    });
+    messagingService.listChatMessages.mockRejectedValueOnce(badGateway);
+    messagingService.listChatParticipants.mockRejectedValueOnce(badGateway);
+
+    await interactor.invoke(accountWide as any);
+
+    expect(ingest.upsertChatThreadUnscoped).toHaveBeenCalledTimes(1);
+    expect(ingest.ingestMessageUnscoped).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
   });
 
   it("lists a LinkedIn inbox source via listInboxChats, honoring the incoming cursor", async () => {
