@@ -66,6 +66,8 @@ export const AGENT_ACTIVITY_KINDS = [
   "routines.update",
   "routines.delete",
   "routines.configure",
+  "rules.create",
+  "rules.manage",
   "support.escalate",
   "generic",
 ] as const;
@@ -106,6 +108,11 @@ const AGENT_CONSEQUENCE_ACTIONS = [
   "routine.pause",
   "routine.run",
   "routine.delete",
+  "rule.create",
+  "rule.update",
+  "rule.enable",
+  "rule.disable",
+  "rule.delete",
   "calendarSubscription.revoke",
   "records.delete",
   "workspace.configure",
@@ -120,6 +127,34 @@ const AGENT_CONSEQUENCE_ACTIONS = [
   "external.manage",
 ] as const;
 
+export const AGENT_RULE_TRIGGER_KINDS = [
+  "recordCreated",
+  "recordUpdated",
+  "fieldChanged",
+  "dateReached",
+  "messageReceived",
+  "formSubmitted",
+  "webhookReceived",
+] as const;
+export const AGENT_RULE_EFFECT_KINDS = ["setField", "createRecord", "notify", "callWebhook"] as const;
+
+export const AgentActivityRuleSchema = z
+  .object({
+    trigger: z.enum(AGENT_RULE_TRIGGER_KINDS).optional(),
+    effects: z
+      .array(
+        z
+          .object({
+            kind: z.enum(AGENT_RULE_EFFECT_KINDS),
+            title: z.string().max(200).transform(sanitizeAgentPlainText).optional(),
+          })
+          .strict(),
+      )
+      .max(4),
+    live: z.boolean().optional(),
+  })
+  .strict();
+
 export const AgentActivityConsequenceSchema = z
   .object({
     action: z.enum(AGENT_CONSEQUENCE_ACTIONS),
@@ -128,6 +163,7 @@ export const AgentActivityConsequenceSchema = z
     preview: z.string().max(240).transform(sanitizeAgentPlainText).optional(),
     count: z.number().int().min(0).max(100).optional(),
     state: z.string().max(80).transform(sanitizeAgentPlainText).optional(),
+    rule: AgentActivityRuleSchema.optional(),
   })
   .strict();
 
@@ -214,6 +250,42 @@ function safeStringList(value: unknown, maxItems = 3) {
 
 function boundedCount(value: unknown) {
   return Array.isArray(value) ? Math.min(value.length, 500) : undefined;
+}
+
+type AgentActivityRule = z.infer<typeof AgentActivityRuleSchema>;
+
+function isRuleTrigger(value: unknown): value is (typeof AGENT_RULE_TRIGGER_KINDS)[number] {
+  return typeof value === "string" && (AGENT_RULE_TRIGGER_KINDS as readonly string[]).includes(value);
+}
+
+function isRuleEffect(value: unknown): value is (typeof AGENT_RULE_EFFECT_KINDS)[number] {
+  return typeof value === "string" && (AGENT_RULE_EFFECT_KINDS as readonly string[]).includes(value);
+}
+
+function ruleTitle(value: unknown) {
+  return safeText(typeof value === "string" ? value.replace(/\s*:?\s*\{\{[^}]*\}\}/g, "") : value, 200);
+}
+
+function ruleActivity(details: Record<string, unknown>): AgentActivityRule {
+  const trigger = inputRecord(details.trigger).kind;
+  const effects = Array.isArray(details.effects)
+    ? details.effects.slice(0, 4).flatMap((entry) => {
+        const effect = inputRecord(entry);
+        if (!isRuleEffect(effect.kind)) return [];
+        const title =
+          effect.kind === "createRecord"
+            ? ruleTitle(inputRecord(effect.title).text)
+            : effect.kind === "notify"
+              ? ruleTitle(effect.title)
+              : undefined;
+        return [{ kind: effect.kind, ...(title ? { title } : {}) }];
+      })
+    : [];
+  return {
+    ...(isRuleTrigger(trigger) ? { trigger } : {}),
+    effects,
+    ...(typeof details.enabled === "boolean" ? { live: details.enabled } : {}),
+  };
 }
 
 function actionValue(input: Record<string, unknown>) {
@@ -427,6 +499,30 @@ function describeAgentToolAction(
       ? descriptor(kind, undefined, risk, [], { action: consequenceAction })
       : descriptor(kind, undefined, risk);
   }
+  if (toolName === "manage_rules" && !isMultiplexedRead(toolName, details)) {
+    const action = actionValue(details);
+    const rule = ruleActivity(details);
+    const consequenceAction =
+      action === "create"
+        ? "rule.create"
+        : action === "enable"
+          ? "rule.enable"
+          : action === "disable"
+            ? "rule.disable"
+            : action === "delete"
+              ? "rule.delete"
+              : "rule.update";
+    return descriptor(
+      action === "create" ? "rules.create" : "rules.manage",
+      undefined,
+      multiplexedRisk(toolName, details),
+      [],
+      {
+        action: consequenceAction,
+        rule: { ...rule, ...(action === "create" ? { live: details.enabled !== false } : {}) },
+      },
+    );
+  }
   if (isMultiplexedRead(toolName, details)) return descriptor("workspace.read", undefined, "read");
   if (toolName === "update_my_profile") return descriptor("profile.configure", undefined, "write");
 
@@ -592,6 +688,8 @@ export const AGENT_APPROVAL_COPY_KINDS: readonly AgentActivityCopyKind[] = [
   "workspace.configure",
   "routines.configure",
   "routines.delete",
+  "rules.create",
+  "rules.manage",
   "views.configure",
   "views.delete",
   "workspace.configure",
@@ -607,6 +705,48 @@ function countedResourceCopy(
   const key = resourceKey ?? "records";
 
   return t(`AgentChat.activity.counted.${key}`, { count });
+}
+
+function ruleTriggerText(kind: (typeof AGENT_RULE_TRIGGER_KINDS)[number], t: AgentTranslator) {
+  switch (kind) {
+    case "recordCreated":
+      return t("AgentChat.activity.rule.trigger.recordCreated");
+    case "recordUpdated":
+      return t("AgentChat.activity.rule.trigger.recordUpdated");
+    case "fieldChanged":
+      return t("AgentChat.activity.rule.trigger.fieldChanged");
+    case "dateReached":
+      return t("AgentChat.activity.rule.trigger.dateReached");
+    case "messageReceived":
+      return t("AgentChat.activity.rule.trigger.messageReceived");
+    case "formSubmitted":
+      return t("AgentChat.activity.rule.trigger.formSubmitted");
+    case "webhookReceived":
+      return t("AgentChat.activity.rule.trigger.webhookReceived");
+  }
+}
+
+function ruleEffectText(effect: AgentActivityRule["effects"][number], t: AgentTranslator) {
+  switch (effect.kind) {
+    case "setField":
+      return t("AgentChat.activity.rule.effect.setField");
+    case "callWebhook":
+      return t("AgentChat.activity.rule.effect.callWebhook");
+    case "createRecord":
+      return effect.title ? t("AgentChat.activity.rule.effect.createRecord", { title: effect.title }) : undefined;
+    case "notify":
+      return effect.title ? t("AgentChat.activity.rule.effect.notify", { title: effect.title }) : undefined;
+  }
+}
+
+function ruleSummary(rule: AgentActivityRule | undefined, t: AgentTranslator) {
+  if (!rule?.trigger) return undefined;
+  const effects = rule.effects.map((effect) => ruleEffectText(effect, t)).filter((text) => text !== undefined);
+  if (effects.length === 0) return undefined;
+  return t("AgentChat.activity.consequence.ruleSummary", {
+    when: ruleTriggerText(rule.trigger, t),
+    then: effects.join(", "),
+  });
 }
 
 function agentConsequenceDetail(activity: AgentActivityDescriptor, t: AgentTranslator) {
@@ -639,6 +779,23 @@ function agentConsequenceDetail(activity: AgentActivityDescriptor, t: AgentTrans
       return t("AgentChat.activity.consequence.routineRun");
     case "routine.delete":
       return t("AgentChat.activity.consequence.routineDelete");
+    case "rule.create":
+    case "rule.update":
+      return compact([
+        consequence.action === "rule.update" ? t("AgentChat.activity.consequence.ruleUpdate") : undefined,
+        ruleSummary(consequence.rule, t),
+        consequence.rule?.live === undefined
+          ? undefined
+          : consequence.rule.live
+            ? t("AgentChat.activity.consequence.ruleLive")
+            : t("AgentChat.activity.consequence.ruleDraft"),
+      ]);
+    case "rule.enable":
+      return t("AgentChat.activity.consequence.ruleEnable");
+    case "rule.disable":
+      return t("AgentChat.activity.consequence.ruleDisable");
+    case "rule.delete":
+      return t("AgentChat.activity.consequence.ruleDelete");
     case "calendarSubscription.revoke":
       return t("AgentChat.activity.consequence.calendarSubscriptionRevoke");
     case "thread.update":

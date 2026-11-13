@@ -94,6 +94,10 @@
           "configure": "Listo para pausar o ejecutar la rutina",
           "delete": "Listo para mover la rutina y su historial a la Papelera"
         },
+        "rules": {
+          "create": "Listo para crear la regla de automatización",
+          "manage": "Listo para cambiar una regla de automatización"
+        },
         "support": {
           "escalate": "Listo para enviar tu solicitud al soporte por correo"
         },
@@ -132,6 +136,13 @@
         "routineDelete": "Mover la rutina seleccionada y su historial a la Papelera, donde puedes restaurarla durante 30 días",
         "routinePause": "Pausar la rutina seleccionada",
         "routineRun": "Ejecutar ahora la rutina seleccionada",
+        "ruleDelete": "Eliminar de forma permanente la regla seleccionada y su historial de ejecuciones",
+        "ruleDisable": "Desactivar la regla seleccionada",
+        "ruleDraft": "Guardada como borrador, sin activar",
+        "ruleEnable": "Activar la regla seleccionada",
+        "ruleLive": "Se activa de inmediato",
+        "ruleSummary": "Cuando {when}, entonces {then}",
+        "ruleUpdate": "Cambiar la regla seleccionada",
         "salesListSave": "Añadir el prospecto seleccionado a una lista de Sales Navigator",
         "salesListSaveTarget": "Añadir {target} a la lista {list} de Sales Navigator",
         "socialAccept": "Aceptar la solicitud de conexión seleccionada",
@@ -175,6 +186,23 @@
         "messages": "conversaciones",
         "widgets": "widgets del Dashboard",
         "wiki": "páginas de la base de conocimientos"
+      },
+      "rule": {
+        "effect": {
+          "callWebhook": "llamar a un webhook",
+          "createRecord": "crear el registro «{title}»",
+          "notify": "enviar la alerta «{title}»",
+          "setField": "establecer el valor de un campo"
+        },
+        "trigger": {
+          "dateReached": "se alcanza una fecha",
+          "fieldChanged": "cambia un campo",
+          "formSubmitted": "se envía un formulario",
+          "messageReceived": "llega un mensaje",
+          "recordCreated": "se crea un registro",
+          "recordUpdated": "se actualiza un registro",
+          "webhookReceived": "se recibe un webhook"
+        }
       },
       "state": {
         "accounts": {
@@ -350,6 +378,18 @@
             "done": "Rutina actualizada",
             "error": "No se pudo actualizar la rutina",
             "running": "Actualizando la rutina"
+          }
+        },
+        "rules": {
+          "create": {
+            "done": "Regla de automatización creada",
+            "error": "No se pudo crear la regla de automatización",
+            "running": "Creando la regla de automatización"
+          },
+          "manage": {
+            "done": "Regla de automatización cambiada",
+            "error": "No se pudo cambiar la regla de automatización",
+            "running": "Cambiando la regla de automatización"
           }
         },
         "support": {

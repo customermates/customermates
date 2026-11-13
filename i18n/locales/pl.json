@@ -94,6 +94,10 @@
           "configure": "Gotowe do wstrzymania lub uruchomienia rutyny",
           "delete": "Gotowe do przeniesienia rutyny i jej historii do Kosza"
         },
+        "rules": {
+          "create": "Gotowe do utworzenia reguły automatyzacji",
+          "manage": "Gotowe do zmiany reguły automatyzacji"
+        },
         "support": {
           "escalate": "Gotowe do wysłania Twojej prośby e-mailem do wsparcia"
         },
@@ -132,6 +136,13 @@
         "routineDelete": "Przenieś wybraną rutynę i historię jej uruchomień do Kosza, skąd możesz ją przywrócić w ciągu 30 dni",
         "routinePause": "Wstrzymaj wybraną rutynę",
         "routineRun": "Uruchom wybraną rutynę teraz",
+        "ruleDelete": "Trwale usuń wybraną regułę i historię jej uruchomień",
+        "ruleDisable": "Wyłącz wybraną regułę",
+        "ruleDraft": "Zapisana jako wersja robocza, nieaktywna",
+        "ruleEnable": "Włącz wybraną regułę",
+        "ruleLive": "Zacznie działać od razu",
+        "ruleSummary": "Gdy {when}, wtedy {then}",
+        "ruleUpdate": "Zmień wybraną regułę",
         "salesListSave": "Dodaj wybranego potencjalnego klienta do listy Sales Navigator",
         "salesListSaveTarget": "Dodaj {target} do listy Sales Navigator {list}",
         "socialAccept": "Zaakceptuj wybrane zaproszenie do kontaktów",
@@ -175,6 +186,23 @@
         "messages": "rozmowy",
         "widgets": "widżety pulpitu",
         "wiki": "strony Bazy wiedzy"
+      },
+      "rule": {
+        "effect": {
+          "callWebhook": "wywołaj webhook",
+          "createRecord": "utwórz rekord „{title}”",
+          "notify": "wyślij alert „{title}”",
+          "setField": "ustaw wartość pola"
+        },
+        "trigger": {
+          "dateReached": "nadejdzie określona data",
+          "fieldChanged": "zmieni się pole",
+          "formSubmitted": "zostanie wysłany formularz",
+          "messageReceived": "nadejdzie wiadomość",
+          "recordCreated": "zostanie utworzony rekord",
+          "recordUpdated": "zostanie zaktualizowany rekord",
+          "webhookReceived": "zostanie odebrany webhook"
+        }
       },
       "state": {
         "accounts": {
@@ -350,6 +378,18 @@
             "done": "Zaktualizowano rutynę",
             "error": "Nie udało się zaktualizować rutyny",
             "running": "Aktualizowanie rutyny"
+          }
+        },
+        "rules": {
+          "create": {
+            "done": "Utworzono regułę automatyzacji",
+            "error": "Nie udało się utworzyć reguły automatyzacji",
+            "running": "Tworzenie reguły automatyzacji"
+          },
+          "manage": {
+            "done": "Zmieniono regułę automatyzacji",
+            "error": "Nie udało się zmienić reguły automatyzacji",
+            "running": "Zmiana reguły automatyzacji"
           }
         },
         "support": {

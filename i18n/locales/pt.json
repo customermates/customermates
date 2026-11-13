@@ -94,6 +94,10 @@
           "configure": "Pronto para pausar ou executar a rotina",
           "delete": "Pronto para mover a rotina e o histórico dela para a Lixeira"
         },
+        "rules": {
+          "create": "Pronto para criar a regra de automação",
+          "manage": "Pronto para alterar uma regra de automação"
+        },
         "support": {
           "escalate": "Pronto para enviar sua solicitação por e-mail ao suporte"
         },
@@ -132,6 +136,13 @@
         "routineDelete": "Mover a rotina selecionada e o histórico de execuções dela para a Lixeira, de onde você pode restaurá-la por 30 dias",
         "routinePause": "Pausar a rotina selecionada",
         "routineRun": "Executar a rotina selecionada agora",
+        "ruleDelete": "Excluir permanentemente a regra selecionada e seu histórico de execuções",
+        "ruleDisable": "Desativar a regra selecionada",
+        "ruleDraft": "Salva como rascunho, sem ativar",
+        "ruleEnable": "Ativar a regra selecionada",
+        "ruleLive": "Entra em vigor na hora",
+        "ruleSummary": "Quando {when}, então {then}",
+        "ruleUpdate": "Alterar a regra selecionada",
         "salesListSave": "Adicionar o prospect selecionado a uma lista do Sales Navigator",
         "salesListSaveTarget": "Adicionar {target} à lista {list} do Sales Navigator",
         "socialAccept": "Aceitar a solicitação de conexão selecionada",
@@ -175,6 +186,23 @@
         "messages": "conversas",
         "widgets": "widgets do painel",
         "wiki": "páginas da Base de conhecimento"
+      },
+      "rule": {
+        "effect": {
+          "callWebhook": "chamar um webhook",
+          "createRecord": "criar o registro “{title}”",
+          "notify": "enviar o alerta “{title}”",
+          "setField": "definir o valor de um campo"
+        },
+        "trigger": {
+          "dateReached": "uma data é atingida",
+          "fieldChanged": "um campo muda",
+          "formSubmitted": "um formulário é enviado",
+          "messageReceived": "uma mensagem chega",
+          "recordCreated": "um registro é criado",
+          "recordUpdated": "um registro é atualizado",
+          "webhookReceived": "um webhook é recebido"
+        }
       },
       "state": {
         "accounts": {
@@ -350,6 +378,18 @@
             "done": "Rotina atualizada",
             "error": "Não foi possível atualizar a rotina",
             "running": "Atualizando a rotina"
+          }
+        },
+        "rules": {
+          "create": {
+            "done": "Regra de automação criada",
+            "error": "Não foi possível criar a regra de automação",
+            "running": "Criando a regra de automação"
+          },
+          "manage": {
+            "done": "Regra de automação alterada",
+            "error": "Não foi possível alterar a regra de automação",
+            "running": "Alterando a regra de automação"
           }
         },
         "support": {

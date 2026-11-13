@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import type { RecordModel } from "@/features/records/record-model.schema";
 import type { SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
 import type { WorkspaceSetupRecord } from "@/ee/workspace-setup/workspace-setup.schema";
@@ -6,6 +9,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { compileTemplate } from "@/core/templates/compile-template";
 import { getTemplate, getTemplateText } from "@/core/templates/__tests__/template-fixtures";
+import { agentActivityCopy, describeAgentTool } from "@/ee/agent-chat/agent-activity";
 import { isApprovalFreeActionCall } from "@/ee/agent-chat/gated-tools";
 import {
   AgentTemplateRules,
@@ -126,6 +130,26 @@ describe("AgentTemplateRules", () => {
     expect(ready.some((rule) => rule.notes.length > 0)).toBe(true);
     expect(brief).toContain("stayed unchanged");
     expect(brief).toContain("manage_routines with enabled false");
+  });
+
+  it("raises an approval card for each ready rule that names it and says when it fires and what it does", async () => {
+    const ready = readyRules((await serviceFor().service.brief()) ?? "");
+    const english = (key: string, values: Record<string, string | number> = {}) => {
+      const messages = JSON.parse(readFileSync(join(process.cwd(), "i18n", "locales", "en.json"), "utf8"));
+      const value = key.split(".").reduce((node, part) => node?.[part], messages) as string;
+      return value.replace(/\{(\w+)\}/g, (match, name: string) => (name in values ? String(values[name]) : match));
+    };
+
+    expect(ready.length).toBeGreaterThan(0);
+    for (const rule of ready) {
+      const card = agentActivityCopy(
+        describeAgentTool(internalToolIdentity("manage_rules"), { action: "create", ...(rule.input as object) }),
+        english,
+      );
+      expect(card.approval, rule.name).toContain("Ready to create the automation rule");
+      expect(card.approval, rule.name).toContain(rule.name.slice(0, 40));
+      expect(card.detail, rule.name).toMatch(/^When .+, then .+ · Goes live at once$/);
+    }
   });
 
   it("leaves out a rule the owner already has", async () => {

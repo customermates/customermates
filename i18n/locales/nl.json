@@ -94,6 +94,10 @@
           "configure": "Klaar om de routine te pauzeren of uit te voeren",
           "delete": "Klaar om de routine en de bijbehorende geschiedenis naar de prullenbak te verplaatsen"
         },
+        "rules": {
+          "create": "Klaar om de automatiseringsregel aan te maken",
+          "manage": "Klaar om een automatiseringsregel te wijzigen"
+        },
         "support": {
           "escalate": "Klaar om je verzoek per e-mail naar de support te sturen"
         },
@@ -132,6 +136,13 @@
         "routineDelete": "De geselecteerde routine en de bijbehorende uitvoeringsgeschiedenis naar de prullenbak verplaatsen, waar je deze 30 dagen kunt herstellen",
         "routinePause": "De geselecteerde routine pauzeren",
         "routineRun": "De geselecteerde routine nu uitvoeren",
+        "ruleDelete": "De geselecteerde regel en de uitvoeringsgeschiedenis definitief verwijderen",
+        "ruleDisable": "De geselecteerde regel uitschakelen",
+        "ruleDraft": "Opgeslagen als concept, niet actief",
+        "ruleEnable": "De geselecteerde regel inschakelen",
+        "ruleLive": "Gaat meteen live",
+        "ruleSummary": "Wanneer {when}, dan {then}",
+        "ruleUpdate": "De geselecteerde regel wijzigen",
         "salesListSave": "De geselecteerde prospect toevoegen aan een Sales Navigator-lijst",
         "salesListSaveTarget": "{target} toevoegen aan Sales Navigator-lijst {list}",
         "socialAccept": "Het geselecteerde verbindingsverzoek accepteren",
@@ -175,6 +186,23 @@
         "messages": "gesprekken",
         "widgets": "dashboardwidgets",
         "wiki": "Kennisbankpagina’s"
+      },
+      "rule": {
+        "effect": {
+          "callWebhook": "een webhook aanroepen",
+          "createRecord": "het record “{title}” aanmaken",
+          "notify": "de melding “{title}” sturen",
+          "setField": "een veldwaarde instellen"
+        },
+        "trigger": {
+          "dateReached": "een datum wordt bereikt",
+          "fieldChanged": "een veld verandert",
+          "formSubmitted": "een formulier wordt verzonden",
+          "messageReceived": "een bericht binnenkomt",
+          "recordCreated": "een record wordt aangemaakt",
+          "recordUpdated": "een record wordt bijgewerkt",
+          "webhookReceived": "een webhook binnenkomt"
+        }
       },
       "state": {
         "accounts": {
@@ -350,6 +378,18 @@
             "done": "De routine bijgewerkt",
             "error": "Kon de routine niet bijwerken",
             "running": "De routine bijwerken"
+          }
+        },
+        "rules": {
+          "create": {
+            "done": "De automatiseringsregel aangemaakt",
+            "error": "Kon de automatiseringsregel niet aanmaken",
+            "running": "De automatiseringsregel aanmaken"
+          },
+          "manage": {
+            "done": "De automatiseringsregel gewijzigd",
+            "error": "Kon de automatiseringsregel niet wijzigen",
+            "running": "De automatiseringsregel wijzigen"
           }
         },
         "support": {

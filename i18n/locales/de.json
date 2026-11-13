@@ -94,6 +94,10 @@
           "configure": "Bereit, die Routine zu pausieren oder auszuführen",
           "delete": "Bereit, die Routine samt Verlauf in den Papierkorb zu verschieben"
         },
+        "rules": {
+          "create": "Bereit, die Automatisierungsregel anzulegen",
+          "manage": "Bereit, eine Automatisierungsregel zu ändern"
+        },
         "support": {
           "escalate": "Bereit, deine Anfrage an den Support zu senden"
         },
@@ -132,6 +136,13 @@
         "routineDelete": "Die ausgewählte Routine samt Verlauf in den Papierkorb verschieben, wo du sie 30 Tage lang wiederherstellen kannst",
         "routinePause": "Die ausgewählte Routine pausieren",
         "routineRun": "Die ausgewählte Routine jetzt ausführen",
+        "ruleDelete": "Die ausgewählte Regel und ihren Ausführungsverlauf dauerhaft löschen",
+        "ruleDisable": "Die ausgewählte Regel ausschalten",
+        "ruleDraft": "Als Entwurf gespeichert, nicht aktiv",
+        "ruleEnable": "Die ausgewählte Regel einschalten",
+        "ruleLive": "Wird sofort aktiv",
+        "ruleSummary": "Wenn {when}, dann {then}",
+        "ruleUpdate": "Die ausgewählte Regel ändern",
         "salesListSave": "Den ausgewählten Interessenten zu einer Sales-Navigator-Liste hinzufügen",
         "salesListSaveTarget": "{target} zur Sales-Navigator-Liste {list} hinzufügen",
         "socialAccept": "Die ausgewählte Kontaktanfrage annehmen",
@@ -175,6 +186,23 @@
         "messages": "Unterhaltungen",
         "widgets": "Dashboard-Widgets",
         "wiki": "Wissensdatenbank-Seiten"
+      },
+      "rule": {
+        "effect": {
+          "callWebhook": "einen Webhook aufrufen",
+          "createRecord": "den Datensatz „{title}“ anlegen",
+          "notify": "die Meldung „{title}“ senden",
+          "setField": "einen Feldwert setzen"
+        },
+        "trigger": {
+          "dateReached": "ein Datum erreicht ist",
+          "fieldChanged": "sich ein Feld ändert",
+          "formSubmitted": "ein Formular abgeschickt wird",
+          "messageReceived": "eine Nachricht eintrifft",
+          "recordCreated": "ein Datensatz angelegt wird",
+          "recordUpdated": "ein Datensatz geändert wird",
+          "webhookReceived": "ein Webhook eingeht"
+        }
       },
       "state": {
         "accounts": {
@@ -350,6 +378,18 @@
             "done": "Routine wurde geändert",
             "error": "Routine konnte nicht geändert werden",
             "running": "Routine wird geändert"
+          }
+        },
+        "rules": {
+          "create": {
+            "done": "Automatisierungsregel wurde angelegt",
+            "error": "Automatisierungsregel konnte nicht angelegt werden",
+            "running": "Automatisierungsregel wird angelegt"
+          },
+          "manage": {
+            "done": "Automatisierungsregel wurde geändert",
+            "error": "Automatisierungsregel konnte nicht geändert werden",
+            "running": "Automatisierungsregel wird geändert"
           }
         },
         "support": {

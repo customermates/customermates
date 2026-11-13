@@ -94,6 +94,10 @@
           "configure": "Ready to pause or run the routine",
           "delete": "Ready to move the routine and its history to Trash"
         },
+        "rules": {
+          "create": "Ready to create the automation rule",
+          "manage": "Ready to change an automation rule"
+        },
         "support": {
           "escalate": "Ready to email your request to support"
         },
@@ -132,6 +136,13 @@
         "routineDelete": "Move the selected routine and its run history to Trash, where you can restore it for 30 days",
         "routinePause": "Pause the selected routine",
         "routineRun": "Run the selected routine now",
+        "ruleDelete": "Permanently delete the selected rule and its run history",
+        "ruleDisable": "Switch off the selected rule",
+        "ruleDraft": "Saved as a draft, not live",
+        "ruleEnable": "Switch on the selected rule",
+        "ruleLive": "Goes live at once",
+        "ruleSummary": "When {when}, then {then}",
+        "ruleUpdate": "Change the selected rule",
         "salesListSave": "Add the selected prospect to a Sales Navigator list",
         "salesListSaveTarget": "Add {target} to Sales Navigator list {list}",
         "socialAccept": "Accept the selected connection request",
@@ -175,6 +186,23 @@
         "messages": "conversations",
         "widgets": "dashboard widgets",
         "wiki": "Knowledge Base pages"
+      },
+      "rule": {
+        "effect": {
+          "callWebhook": "call a webhook",
+          "createRecord": "create the record “{title}”",
+          "notify": "send the alert “{title}”",
+          "setField": "set a field value"
+        },
+        "trigger": {
+          "dateReached": "a date is reached",
+          "fieldChanged": "a field changes",
+          "formSubmitted": "a form is submitted",
+          "messageReceived": "a message arrives",
+          "recordCreated": "a record is created",
+          "recordUpdated": "a record is updated",
+          "webhookReceived": "a webhook is received"
+        }
       },
       "state": {
         "accounts": {
@@ -350,6 +378,18 @@
             "done": "Updated the routine",
             "error": "Couldn’t update the routine",
             "running": "Updating the routine"
+          }
+        },
+        "rules": {
+          "create": {
+            "done": "Created the automation rule",
+            "error": "Couldn’t create the automation rule",
+            "running": "Creating the automation rule"
+          },
+          "manage": {
+            "done": "Changed the automation rule",
+            "error": "Couldn’t change the automation rule",
+            "running": "Changing the automation rule"
           }
         },
         "support": {

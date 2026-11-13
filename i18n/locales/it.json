@@ -94,6 +94,10 @@
           "configure": "Pronto a mettere in pausa o eseguire la routine",
           "delete": "Pronto a spostare la routine e la sua cronologia nel Cestino"
         },
+        "rules": {
+          "create": "Pronto a creare la regola di automazione",
+          "manage": "Pronto a modificare una regola di automazione"
+        },
         "support": {
           "escalate": "Pronto a inviare la tua richiesta all’assistenza via e-mail"
         },
@@ -132,6 +136,13 @@
         "routineDelete": "Spostare la routine selezionata e la sua cronologia nel Cestino, da cui puoi ripristinarla per 30 giorni",
         "routinePause": "Mettere in pausa la routine selezionata",
         "routineRun": "Eseguire ora la routine selezionata",
+        "ruleDelete": "Eliminare definitivamente la regola selezionata e la sua cronologia di esecuzione",
+        "ruleDisable": "Disattivare la regola selezionata",
+        "ruleDraft": "Salvata come bozza, non attiva",
+        "ruleEnable": "Attivare la regola selezionata",
+        "ruleLive": "Diventa attiva subito",
+        "ruleSummary": "Quando {when}, allora {then}",
+        "ruleUpdate": "Modificare la regola selezionata",
         "salesListSave": "Aggiungere il potenziale cliente selezionato a un elenco Sales Navigator",
         "salesListSaveTarget": "Aggiungere {target} all'elenco Sales Navigator {list}",
         "socialAccept": "Accettare la richiesta di collegamento selezionata",
@@ -175,6 +186,23 @@
         "messages": "conversazioni",
         "widgets": "widget della dashboard",
         "wiki": "pagine della base di conoscenza"
+      },
+      "rule": {
+        "effect": {
+          "callWebhook": "chiamare un webhook",
+          "createRecord": "creare il record “{title}”",
+          "notify": "inviare l’avviso “{title}”",
+          "setField": "impostare il valore di un campo"
+        },
+        "trigger": {
+          "dateReached": "viene raggiunta una data",
+          "fieldChanged": "cambia un campo",
+          "formSubmitted": "viene inviato un modulo",
+          "messageReceived": "arriva un messaggio",
+          "recordCreated": "viene creato un record",
+          "recordUpdated": "viene aggiornato un record",
+          "webhookReceived": "viene ricevuto un webhook"
+        }
       },
       "state": {
         "accounts": {
@@ -350,6 +378,18 @@
             "done": "Routine aggiornata",
             "error": "Impossibile aggiornare la routine",
             "running": "Aggiornamento della routine"
+          }
+        },
+        "rules": {
+          "create": {
+            "done": "Regola di automazione creata",
+            "error": "Impossibile creare la regola di automazione",
+            "running": "Creazione della regola di automazione"
+          },
+          "manage": {
+            "done": "Regola di automazione modificata",
+            "error": "Impossibile modificare la regola di automazione",
+            "running": "Modifica della regola di automazione"
           }
         },
         "support": {
