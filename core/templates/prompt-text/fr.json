@@ -4,6 +4,10 @@
     "rule": "une règle d’automatisation",
     "unavailable": "pas encore disponible, ne pas configurer"
   },
+  "defaultView": {
+    "marker": "vue par défaut",
+    "rule": "Une vue marquée comme vue par défaut est la vue intégrée de la liste qui affiche tous les enregistrements : configure-la là plutôt que de créer une deuxième vue, puis sélectionne-la à la fin pour que la liste s’ouvre dessus."
+  },
   "due": {
     "afterDays": {
       "one": "échéance après {days} jour",

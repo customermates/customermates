@@ -118,10 +118,12 @@ function viewSection(spec: TemplateSpec, text: TemplateLocale, copy: TemplatePro
     const grouping = view.groupBy
       ? `, ${fillPrompt(copy.groupedBy, { field: needText(text.fields, view.groupBy, "fields").label })}`
       : "";
-    return bullet(`${needText(text.views, view.key, "views").name} (${copy.layouts[view.layout]}${grouping})`);
+    const marker = view.default ? `, ${copy.defaultView.marker}` : "";
+    return bullet(`${needText(text.views, view.key, "views").name} (${copy.layouts[view.layout]}${grouping}${marker})`);
   });
+  const rule = spec.views.some((view) => view.default) ? [bullet(copy.defaultView.rule)] : [];
   const widgets = spec.widgets.map((widget) => bullet(needText(text.widgets, widget.key, "widgets").title));
-  return [heading(copy.headings.views, 5), ...views, heading(copy.headings.dashboardWidgets, 6), ...widgets];
+  return [heading(copy.headings.views, 5), ...views, ...rule, heading(copy.headings.dashboardWidgets, 6), ...widgets];
 }
 
 function pageSection(spec: TemplateSpec, text: TemplateLocale, copy: TemplatePromptText): string[] {

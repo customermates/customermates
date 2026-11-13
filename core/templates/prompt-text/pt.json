@@ -4,6 +4,10 @@
     "rule": "uma regra de automação",
     "unavailable": "ainda não disponível, não configure"
   },
+  "defaultView": {
+    "marker": "visualização padrão",
+    "rule": "Uma visualização marcada como padrão é a visualização integrada da lista que mostra todos os registros: configure-a ali em vez de criar uma segunda visualização e selecione-a no fim para que a lista abra com ela."
+  },
   "due": {
     "afterDays": {
       "one": "vence após {days} dia",

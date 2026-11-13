@@ -32,6 +32,7 @@ export type PromptPluralForms = Partial<Record<Intl.LDMLPluralRule, string>> & {
 
 export type TemplatePromptText = {
   availability: { routine: string; rule: string; unavailable: string };
+  defaultView: { marker: string; rule: string };
   due: { afterDays: PromptPluralForms; sameDay: string };
   fieldTypes: Record<(typeof PROMPT_FIELD_TYPES)[number], string>;
   groupedBy: string;

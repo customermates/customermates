@@ -4,6 +4,10 @@
     "rule": "una regla de automatización",
     "unavailable": "aún no disponible, no la configures"
   },
+  "defaultView": {
+    "marker": "vista predeterminada",
+    "rule": "Una vista marcada como predeterminada es la vista integrada de la lista que muestra todos los registros: configúrala ahí en lugar de crear una segunda vista y selecciónala al terminar para que la lista se abra con ella."
+  },
   "due": {
     "afterDays": {
       "one": "vence tras {days} día",

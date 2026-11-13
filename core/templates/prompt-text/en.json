@@ -4,6 +4,10 @@
     "rule": "an automation rule",
     "unavailable": "not available yet, do not set up"
   },
+  "defaultView": {
+    "marker": "default view",
+    "rule": "A view marked as default is the list's built-in view that shows every record: set it up there instead of creating a second view, then select it when you are done so the list opens on it."
+  },
   "due": {
     "afterDays": {
       "one": "due after {days} day",

@@ -4,6 +4,10 @@
     "rule": "een automatiseringsregel",
     "unavailable": "nog niet beschikbaar, niet instellen"
   },
+  "defaultView": {
+    "marker": "standaardweergave",
+    "rule": "Een weergave die als standaard is gemarkeerd, is de ingebouwde weergave van de lijst die alle records toont: stel die daar in in plaats van een tweede weergave te maken, en selecteer hem aan het einde zodat de lijst erop opent."
+  },
   "due": {
     "afterDays": {
       "one": "deadline na {days} dag",

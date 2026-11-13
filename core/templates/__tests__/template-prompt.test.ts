@@ -72,6 +72,14 @@ describe("renderTemplatePrompt", () => {
     expect(text).toContain("Fristen und Termine");
   });
 
+  it("marks the default view and tells the agent to set it up on the built-in view", () => {
+    const text = prompt("client-tracker");
+    expect(text).toContain("- All clients (table, default view)");
+    expect(text).toContain("- Clients by status (board, grouped by Status)");
+    expect(text).toContain("set it up there instead of creating a second view");
+    expect(prompt("client-tracker", {}, "de")).toContain("(Tabelle, Standardansicht)");
+  });
+
   it("marks rules by whether their capability has shipped", () => {
     const none = prompt("client-tracker", { shipped: new Set<Capability>() });
     expect(none).toContain("[not available yet, do not set up]");

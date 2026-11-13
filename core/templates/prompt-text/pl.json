@@ -4,6 +4,10 @@
     "rule": "reguła automatyzacji",
     "unavailable": "jeszcze niedostępne, nie konfiguruj"
   },
+  "defaultView": {
+    "marker": "widok domyślny",
+    "rule": "Widok oznaczony jako domyślny to wbudowany widok listy pokazujący wszystkie rekordy: skonfiguruj go tam, zamiast tworzyć drugi widok, a na końcu wybierz go, aby lista otwierała się na nim."
+  },
   "due": {
     "afterDays": {
       "few": "termin po {days} dniach",

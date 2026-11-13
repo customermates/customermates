@@ -4,6 +4,10 @@
     "rule": "eine Automatisierungsregel",
     "unavailable": "noch nicht verfügbar, nicht einrichten"
   },
+  "defaultView": {
+    "marker": "Standardansicht",
+    "rule": "Eine als Standardansicht markierte Ansicht ist die eingebaute Ansicht der Liste, die alle Datensätze zeigt: Richte sie dort ein, statt eine zweite Ansicht anzulegen, und wähle sie am Ende aus, damit die Liste damit öffnet."
+  },
   "due": {
     "afterDays": {
       "one": "fällig nach {days} Tag",
