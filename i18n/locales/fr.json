@@ -5793,6 +5793,7 @@
       "freeCurrent": "Free · formule actuelle",
       "freeSummary": "{members, plural, one {Une personne} other {# personnes}} et jusqu’à {records} enregistrements. API et MCP avec une limite de requêtes.",
       "hostedAiUsage": "Usage Mate {multiplier}x par utilisateur actif / mois",
+      "keepsAccounts": "Vous avez jusqu’à {connected} comptes connectés par utilisateur. Cette offre en conserve {kept} ; les plus récents sont déconnectés au paiement.",
       "perUserMonth": "par utilisateur / mois",
       "recommendedForYou": "Recommandé pour vous",
       "routinesPerUser": "{routines, plural, one {# routine par utilisateur} other {# routines par utilisateur}}",
@@ -5804,8 +5805,7 @@
         "pro": "Relancez depuis LinkedIn et l’e-mail",
         "starter": "Votre espace de travail et votre propre IA"
       },
-      "unlimitedRoutinesPerUser": "Routines illimitées par utilisateur",
-      "keepsAccounts": "Vous avez jusqu’à {connected} comptes connectés par utilisateur. Cette offre en conserve {kept} ; les plus récents sont déconnectés au paiement."
+      "unlimitedRoutinesPerUser": "Routines illimitées par utilisateur"
     },
     "plan": "Formule",
     "planNames": {

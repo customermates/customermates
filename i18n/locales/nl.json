@@ -5793,6 +5793,7 @@
       "freeCurrent": "Free · huidig abonnement",
       "freeSummary": "{members, plural, one {Eén persoon} other {# personen}} en maximaal {records} records. API en MCP met een aanvraaglimiet.",
       "hostedAiUsage": "{multiplier}x Mate-gebruik per actieve gebruiker / maand",
+      "keepsAccounts": "Je hebt maximaal {connected} verbonden accounts per gebruiker. Dit abonnement behoudt er {kept}; de nieuwste worden bij betaling losgekoppeld.",
       "perUserMonth": "per gebruiker / maand",
       "recommendedForYou": "Aanbevolen voor jou",
       "routinesPerUser": "{routines, plural, one {# routine per gebruiker} other {# routines per gebruiker}}",
@@ -5804,8 +5805,7 @@
         "pro": "Opvolgen vanuit LinkedIn en e-mail",
         "starter": "Jouw werkruimte en je eigen AI"
       },
-      "unlimitedRoutinesPerUser": "Onbeperkt aantal routines per gebruiker",
-      "keepsAccounts": "Je hebt maximaal {connected} verbonden accounts per gebruiker. Dit abonnement behoudt er {kept}; de nieuwste worden bij betaling losgekoppeld."
+      "unlimitedRoutinesPerUser": "Onbeperkt aantal routines per gebruiker"
     },
     "plan": "Abonnement",
     "planNames": {

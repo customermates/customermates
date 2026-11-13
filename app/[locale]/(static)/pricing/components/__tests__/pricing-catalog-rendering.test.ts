@@ -37,6 +37,8 @@ vi.mock("mobx-react-lite", () => ({
   observer: <T>(component: T) => component,
 }));
 
+vi.mock("@/app/components/upsell/use-plan-fit", () => ({ usePlanFit: () => null }));
+
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     intlStore: { resolvedFormattingLanguageTag: "de-DE" },

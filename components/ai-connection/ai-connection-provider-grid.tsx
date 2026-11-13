@@ -55,7 +55,7 @@ export function AiConnectionProviderGrid({ disabled, onSelect, onSelectOther, re
 
           <Button
             className="h-auto p-0 text-xs"
-            data-provider="other"
+            data-other-client=""
             disabled={disabled}
             type="button"
             variant="link"

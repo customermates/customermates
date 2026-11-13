@@ -38,6 +38,14 @@ async function funnelEvents(database: Client, companyId: string) {
   return rows;
 }
 
+async function skipChannelStepInCloud(page: Page) {
+  if (e2eAppMode() !== "cloud") return;
+  await expect(
+    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.channel.title, exact: true }),
+  ).toBeVisible();
+  await clickHydrated(page.locator("#onboarding-channel-skip"));
+}
+
 function question(page: Page, id: string) {
   return page.locator(`[aria-labelledby="setup-question-${id}"]`);
 }
@@ -195,6 +203,7 @@ test("starting with an empty workspace skips only the guided setup and continues
   );
   expect(afterSetup).toEqual([{ wizard: null, setup: expect.any(Date) }]);
   await page.getByRole("button", { name: englishMessages.OnboardingWizard.next, exact: true }).click();
+  await skipChannelStepInCloud(page);
   await expect(page.getByRole("heading", { level: 1, name: steps.ai.title, exact: true })).toBeVisible();
   await page.getByRole("button", { name: englishMessages.OnboardingWizard.finish, exact: true }).click();
 
@@ -350,8 +359,11 @@ test("connecting an own AI agent skips the setup interview and opens the AI conn
   await clickHydrated(page.locator("#onboarding-goal-continue"));
 
   const steps = englishMessages.OnboardingWizard.steps;
-  await expect(page.getByRole("heading", { level: 1, name: steps.connect.title, exact: true })).toBeVisible();
+  if (e2eAppMode() === "cloud")
+    await expect(page.getByRole("heading", { level: 1, name: steps.channel.title, exact: true })).toBeVisible();
   expect(await funnelEvents(database, companyId)).toEqual([{ type: "jobSelected", job: "agent" }]);
+  await skipChannelStepInCloud(page);
+  await expect(page.getByRole("heading", { level: 1, name: steps.connect.title, exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByRole("heading", { level: 1, name: steps.connect.title, exact: true })).toBeVisible();
   expect(errors).toEqual([]);
@@ -375,6 +387,7 @@ test("the quiet footer link starts an empty workspace without a template and ski
   await page.reload();
   await expect(page.getByRole("heading", { level: 1, name: steps.invite.title, exact: true })).toBeVisible();
   await page.getByRole("button", { name: englishMessages.OnboardingWizard.next, exact: true }).click();
+  await skipChannelStepInCloud(page);
   await expect(page.getByRole("heading", { level: 1, name: steps.ai.title, exact: true })).toBeVisible();
   await page.getByRole("button", { name: englishMessages.OnboardingWizard.finish, exact: true }).click();
 
@@ -382,6 +395,6 @@ test("the quiet footer link starts an empty workspace without a template and ski
   const lists = await database.query('SELECT 1 FROM "RecordTypeDefinition" WHERE "companyId"=$1', [companyId]);
   expect(lists.rowCount).toBe(0);
   const events = await database.query('SELECT type::text FROM "CompanyFunnelEvent" WHERE "companyId"=$1', [companyId]);
-  expect(events.rows).toEqual([{ type: "jobSelected" }]);
+  expect(events.rows.filter((event) => event.type !== "channelSkipped")).toEqual([{ type: "jobSelected" }]);
   expect(errors).toEqual([]);
 });

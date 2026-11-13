@@ -317,7 +317,7 @@ describe("OnboardingWizard", () => {
     const html = renderWizard({ profileCompleted: true, setupStatus: AVAILABLE });
 
     expect(html).toContain('data-step="setup"');
-    expect(html).toContain("OnboardingWizard.progress current=3 total=5");
+    expect(html).toContain("OnboardingWizard.progress current=3 total=6");
     expect(html).toContain("OnboardingWizard.steps.setup.title");
     expect(html).toContain("max-w-3xl");
     expect(testContext.hydrated).toEqual([AVAILABLE]);
@@ -426,12 +426,51 @@ describe("OnboardingWizard", () => {
     expect(html).toContain("max-w-3xl");
   });
 
+  it("opens the channel step first once a cloud owner chose the own agent, and the invitations before it for a team", () => {
+    const solo = renderWizard({
+      profileCompleted: true,
+      setupStatus: AVAILABLE,
+      setupStepCompleted: true,
+      jobChoice: choice("agent"),
+    });
+
+    expect(solo).toContain("OnboardingWizard.steps.channel.title");
+    expect(solo).toContain("OnboardingWizard.milestones.channel");
+    expect(solo).not.toContain("OnboardingWizard.milestones.invite");
+    expect(solo).toContain("OnboardingWizard.progress current=3 total=4");
+
+    const team = renderWizard({
+      profileCompleted: true,
+      setupStatus: AVAILABLE,
+      setupStepCompleted: true,
+      jobChoice: choice("agent", { teamSize: "small" }),
+    });
+
+    expect(team).toContain('data-step="invite"');
+    expect(team).toContain("OnboardingWizard.progress current=3 total=5");
+  });
+
+  it("keeps a self-hosted owner on the agent connection, where no channel can be connected", () => {
+    const html = renderWizard({
+      appMode: "self-hosted",
+      profileCompleted: true,
+      setupStatus: SELF_HOSTED,
+      setupStepCompleted: true,
+      jobChoice: choice("agent"),
+    });
+
+    expect(html).toContain("OnboardingWizard.steps.connect.title");
+    expect(html).not.toContain("OnboardingWizard.milestones.channel");
+  });
+
   it("resumes on the connect step once the owner chose the own agent and names it as a step of its own", () => {
+    const saved = { step: "ai", inviteTab: "link", ai: {}, template: null, schemaBaseline: null };
     const html = renderWizard({
       profileCompleted: true,
       setupStatus: AVAILABLE,
       setupStepCompleted: true,
       jobChoice: choice("agent"),
+      savedProgress: saved as never,
     });
 
     expect(html).toContain("OnboardingWizard.steps.connect.title");
@@ -455,7 +494,7 @@ describe("OnboardingWizard", () => {
     expect(html).toContain("OnboardingWizard.steps.template.title");
     expect(html).toContain("OnboardingWizard.steps.template.subtitle");
     expect(html).toContain("max-w-4xl");
-    expect(html).toContain("OnboardingWizard.progress current=4 total=4");
+    expect(html).toContain("OnboardingWizard.progress current=5 total=5");
   });
 
   it("resumes on the goal step after Back to it and shows the path picked there instead of the saved choice", () => {
@@ -517,7 +556,7 @@ describe("OnboardingWizard", () => {
     });
 
     expect(html).toContain("OnboardingWizard.steps.prompt.title agent=Claude");
-    expect(html).toContain("OnboardingWizard.progress current=4 total=4");
+    expect(html).toContain("OnboardingWizard.progress current=5 total=5");
     expect(html).not.toContain("OnboardingWizard.milestones.setup");
   });
 
@@ -530,7 +569,7 @@ describe("OnboardingWizard", () => {
     });
 
     expect(html).toContain("OnboardingWizard.steps.template.subtitleMate");
-    expect(html).toContain("OnboardingWizard.progress current=3 total=6");
+    expect(html).toContain("OnboardingWizard.progress current=3 total=7");
   });
 
   it("opens Mate's flow on the setup once a setup exists", () => {
@@ -559,7 +598,7 @@ describe("OnboardingWizard", () => {
     });
 
     expect(html).toContain('data-step="invite"');
-    expect(html).toContain("OnboardingWizard.progress current=3 total=4");
+    expect(html).toContain("OnboardingWizard.progress current=3 total=5");
   });
 
   it("shows the plan with its own title in a wide card", () => {

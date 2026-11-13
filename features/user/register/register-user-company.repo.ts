@@ -16,4 +16,5 @@ export abstract class RegisterUserCompanyRepo {
   abstract existsUnscoped(companyId: string): Promise<boolean>;
   abstract createRegisteredCompany(setup?: WorkspaceSetup): Promise<string>;
   abstract recordSignupConversion(companyId: string, occurredAt: Date): Promise<void>;
-  abstract recordSignupSource(companyId: string, source: RegistrationSignupSource): Promise<void>;}
+  abstract recordSignupSource(companyId: string, source: RegistrationSignupSource): Promise<void>;
+}

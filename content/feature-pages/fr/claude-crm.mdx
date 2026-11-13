@@ -1,0 +1,85 @@
+---
+title: "CRM pour Claude : le CRM où travaille votre Claude"
+description: "Connecteur CRM pour Claude : clients, affaires, e-mails et LinkedIn dans un espace de travail que Claude lit et met à jour. Essai de [[commercial.trial.days]] jours, sans carte."
+featureName: CRM pour Claude
+
+relatedHrefs:
+  - /features/claude-linkedin
+  - /docs/connect-custom-connector
+  - /docs/mcp
+  - /features/api
+
+sections:
+  visual:
+    kind: os
+  steps:
+    title: "Connecté en trois étapes"
+    items:
+      - title: "Démarrer l’essai"
+        description: "Inscrivez-vous et indiquez combien de personnes utiliseront l’espace de travail. L’essai dure [[commercial.trial.days]] jours sur la formule Pro et ne demande pas de carte bancaire."
+      - title: "Ajouter Customermates à Claude"
+        description: "Dans Claude, ouvrez Settings › Connectors › Add custom connector et collez l’adresse du serveur https://customermates.com/api/v1/mcp. La configuration affiche l’adresse de votre propre espace de travail et attend l’arrivée du premier appel de Claude."
+      - title: "Laisser Claude construire votre CRM"
+        description: "Dites à Claude ce que vous vendez et comment vous travaillez. Claude propose vos listes, votre pipeline et vos relances, et les crée dans l’espace de travail dès que vous êtes d’accord."
+
+hero:
+  title: "Le CRM où travaille votre Claude"
+  description: "Customermates est un CRM que Claude lit et met à jour par un connecteur : clients, affaires, tâches et, dès que vous les connectez, vos conversations par e-mail et sur LinkedIn. Adresse du serveur : https://customermates.com/api/v1/mcp"
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Lire le guide du connecteur
+  buttonRightHref: /docs/connect-custom-connector
+  hint: "✓ Sans carte bancaire ✓ Produit indépendant, non affilié à Anthropic"
+
+cta:
+  action: "Donnez à Claude un CRM dans lequel travailler"
+  description: "Démarrez l’essai, ajoutez le connecteur et laissez Claude configurer l’espace de travail. Vous approuvez le plan avant que Claude ne le mette en place."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Lire le guide du connecteur
+  buttonRightHref: /docs/connect-custom-connector
+  hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
+---
+
+Un CRM pour Claude est un CRM que Claude peut lire et modifier lui-même, plutôt qu’un CRM dont vous recopiez le texte. Customermates donne cela à Claude par un connecteur : Claude retrouve un client, lit la dernière conversation, met à jour l’affaire et écrit la prochaine tâche, dans le même espace de travail que votre équipe ouvre dans le navigateur.
+
+## Ce que vous pouvez demander à Claude
+
+- **« Quelles affaires n’ont eu aucun contact depuis deux semaines ? »** Claude lit votre pipeline et les conversations liées à chaque affaire.
+- **« Ajoutez les trois personnes de cet e-mail à la bonne entreprise et notez ce qu’elles ont demandé. »** Claude crée les contacts et les relie.
+- **« Quelles conversations attendent ma réponse ? »** Avec une boîte mail ou [LinkedIn connecté](/features/claude-linkedin), Claude liste les conversations ouvertes et peut rédiger les réponses.
+
+Claude travaille avec vos propres listes et champs : le CRM emploie donc vos mots pour les clients, les affaires et les étapes.
+
+## Ce qu’il fait et ce qu’il ne fait pas
+
+**Il fait :** lire et écrire des enregistrements, des listes, des champs et des vues avec les permissions de la personne qui l’a connecté ; chercher dans la base de connaissances de l’espace de travail ; lire des conversations et enregistrer des brouillons dès qu’un canal est connecté.
+
+**Il ne fait pas :** contourner vos rôles et vos permissions, modifier quoi que ce soit sans un appel que vous pouvez voir dans Claude, ou agir en arrière-plan pendant que Claude est fermé. Pour un travail planifié, il y a les [routines](/docs/app-routines) avec l’assistant intégré Mate.
+
+**Pour l’approbation :** Customermates indique à Claude de demander avant d’envoyer un message ou de supprimer quelque chose. Que Claude demande à chaque fois dépend des permissions des outils que vous réglez dans Claude.
+
+Le côté technique, avec chaque outil proposé par le connecteur, se trouve dans le [guide MCP](/docs/mcp).
+
+## Ce que cela coûte
+
+L’essai dure [[commercial.trial.days]] jours sur la formule Pro et ne demande pas de carte bancaire. Les formules payantes commencent à [[commercial.price.starter.monthly]] par utilisateur et par mois pour le CRM avec le connecteur ; la boîte de réception pour l’e-mail et LinkedIn fait partie de Pro à [[commercial.price.pro.monthly]]. Sans abonnement, l’espace de travail passe sur la formule Free pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements. Le connecteur ne coûte rien de plus, et Claude facture son propre usage via votre formule Claude.
+
+## Qui l’exploite
+
+Customermates est un produit indépendant. Il n’est pas affilié à Anthropic, qui ne l’approuve ni ne le parraine. Le cœur du CRM est open source sous AGPL-3.0 et peut être auto-hébergé ; la base de données cloud est configurée dans la région AWS de Francfort, et la [page des sous-traitants](/subprocessors) nomme chaque fournisseur concerné.
+
+<Faq>
+<FaqItem question="Cela fonctionne-t-il aussi avec ChatGPT et d’autres clients IA ?">
+Oui. Le même connecteur fonctionne avec ChatGPT, Cursor, Gemini et d’autres clients compatibles MCP. Le [guide du connecteur](/docs/connect-custom-connector) décrit les étapes pour chacun.
+</FaqItem>
+<FaqItem question="Claude voit-il toutes mes données ?">
+Claude voit ce que la personne qui l’a connecté a le droit de voir. Il agit avec le rôle et les permissions de cette personne, dans l’espace de travail qu’elle a choisi à la connexion.
+</FaqItem>
+<FaqItem question="Faut-il une formule Claude payante ?">
+Claude propose les connecteurs personnalisés dans toutes ses formules ; la formule Free en autorise un. ChatGPT demande une formule payante pour les connecteurs personnalisés.
+</FaqItem>
+<FaqItem question="Puis-je l’héberger moi-même ?">
+Le cœur open source peut être auto-hébergé et inclut le connecteur. La boîte de réception pour l’e-mail et LinkedIn et l’assistant intégré Mate font partie de Customermates Cloud.
+</FaqItem>
+</Faq>

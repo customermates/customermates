@@ -18,5 +18,7 @@ const MICROSOFT_DOMAINS = new Set([
 
 export function orderedEmailChannels(email: string): EmailChannelKey[] {
   const domain = emailDomain(email);
-  return domain !== null && MICROSOFT_DOMAINS.has(domain) ? ["outlook", "google", "imap"] : ["google", "outlook", "imap"];
+  return domain !== null && MICROSOFT_DOMAINS.has(domain)
+    ? ["outlook", "google", "imap"]
+    : ["google", "outlook", "imap"];
 }

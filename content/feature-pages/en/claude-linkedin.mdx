@@ -1,0 +1,92 @@
+---
+title: "Connect LinkedIn to Claude: Your Inbox as a Connector"
+description: "Connect LinkedIn to Claude: see which conversations wait for your reply, let Claude draft, send it yourself. [[commercial.trial.days]]-day trial, no card. Not a scraper."
+featureName: LinkedIn in Claude
+
+relatedHrefs:
+  - /features/claude-crm
+  - /features/linkedin-integration
+  - /docs/connect-custom-connector
+  - /features/unified-inbox
+
+sections:
+  visual:
+    kind: os
+  steps:
+    title: "Connected in three steps"
+    items:
+      - title: "Start the trial and connect LinkedIn"
+        description: "Sign up, then connect your LinkedIn account in the setup. Your conversations come in, private to you by default. The trial runs [[commercial.trial.days]] days and needs no card."
+      - title: "Add Customermates to Claude"
+        description: "In Claude, open Settings › Connectors › Add custom connector and paste the server address https://customermates.com/api/v1/mcp. The setup also shows the address of your own workspace and a button that fills it in for you."
+      - title: "Sign in and ask"
+        description: "Claude opens the Customermates sign-in page. Approve the access, then ask Claude which LinkedIn conversations are waiting for your reply."
+
+hero:
+  title: "Your LinkedIn inbox in Claude"
+  description: "Connect your LinkedIn account to Customermates and add Customermates to Claude as a connector. Claude then sees which conversations wait for your reply, drafts the answer from the client's record, and you send it. Server address: https://customermates.com/api/v1/mcp"
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Read the connector guide
+  buttonRightHref: /docs/connect-custom-connector
+  hint: "✓ No credit card required ✓ Independent product, not affiliated with Anthropic or LinkedIn"
+
+cta:
+  action: "See which LinkedIn conversations wait for your reply"
+  description: "Start the trial, connect LinkedIn and add the connector to Claude. The first question takes a few minutes, and you can disconnect either side at any time."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Read the connector guide
+  buttonRightHref: /docs/connect-custom-connector
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+---
+
+To connect LinkedIn to Claude, you need something between the two: Claude has no LinkedIn connector of its own. Customermates is a CRM with an inbox. You connect your LinkedIn account to it once, and Claude reaches the inbox through the Customermates connector. Your conversations, the people in them and your notes on each client are then one question away in Claude.
+
+## What you can ask Claude
+
+Write the question the way you would ask a colleague. Three that work on the first day:
+
+- **"Which LinkedIn conversations are waiting for my reply?"** Claude lists the open threads with the last message of each.
+- **"Draft a reply to the last message from Anna, using what we know about her company."** Claude reads the thread and the client's record and saves a draft in your inbox.
+- **"Who did I promise to get back to this week, and have I?"** Claude goes through your recent conversations and names the ones that are still open.
+
+The same connector covers your email once you connect a mailbox, so the answer can include both.
+
+## What it does and what it does not
+
+**It does:** read the conversations of the account you connected, read and update your client records, save a draft for you to review, and send a single message or connection request when you tell Claude to.
+
+**It does not:** scrape profiles or search results, send bulk invites or mass messages, run sequences, or act in the background. Customermates is not a LinkedIn automation tool. It keeps a conservative request budget for LinkedIn and pauses before LinkedIn would push back; the numbers are in the [messaging rate limits](/docs/messaging-rate-limits).
+
+**On sending:** Customermates tells Claude to ask you before it sends anything. Whether Claude asks each time depends on the tool permissions you set in Claude, so keep the send tools on "ask" there. A draft never leaves your inbox until you send it.
+
+The longer description of the LinkedIn side, including Sales Navigator, is on the [LinkedIn integration](/features/linkedin-integration) page.
+
+## What it costs
+
+The trial runs [[commercial.trial.days]] days on the Pro plan and needs no credit card. After it, Pro costs [[commercial.price.pro.monthly]] per user and month and includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user. If you do not subscribe, the workspace moves to the Free plan: the CRM stays, the inbox does not. The connector itself costs nothing extra, and Claude bills its own usage through your Claude plan.
+
+Claude offers custom connectors on every plan; its free plan allows one. The [connector guide](/docs/connect-custom-connector) has the steps for Claude and for ChatGPT.
+
+## Who runs it
+
+Customermates is an independent product. It is not affiliated with, endorsed by or sponsored by Anthropic or LinkedIn. The core of the CRM is open source under AGPL-3.0, and the cloud database is configured in the AWS Frankfurt region. The [list of subprocessors](/subprocessors) names every provider involved, including the one that connects your LinkedIn account.
+
+<Faq>
+<FaqItem question="Does Claude have an official LinkedIn connector?">
+No. Claude reaches LinkedIn conversations only through a connector that someone else provides. With Customermates, the conversations come from the LinkedIn account you connect yourself, and Claude reads them through the Customermates connector.
+</FaqItem>
+<FaqItem question="Can Claude send LinkedIn messages for me?">
+Claude can save a draft in your Customermates inbox, and it can send one message when you tell it to. Customermates instructs Claude to ask first; your tool permissions in Claude decide whether it does. There are no bulk messages and no sequences.
+</FaqItem>
+<FaqItem question="Is this a LinkedIn scraper or automation tool?">
+No. It reads the conversations of your own connected account and looks up a profile when you ask for one. It does not scrape, enrich in the background or send invitations in bulk.
+</FaqItem>
+<FaqItem question="Does it work on the free Claude plan?">
+Claude's free plan allows one custom connector, so it works if that slot is free. ChatGPT needs a paid plan for custom connectors.
+</FaqItem>
+<FaqItem question="What happens after the trial?">
+You choose a plan or do nothing. Without a subscription the workspace moves to the Free plan, which keeps the CRM for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records and has no inbox.
+</FaqItem>
+</Faq>

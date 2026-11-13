@@ -4,12 +4,15 @@ import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const planFit = vi.hoisted(() => ({ current: null as { maxAccountsPerUser: number } | null }));
+
 vi.mock("next-intl", () => {
   const t = (key: string) => key;
   t.raw = () => [];
   return { useTranslations: () => t };
 });
 vi.mock("mobx-react-lite", () => ({ observer: <T,>(component: T) => component }));
+vi.mock("@/app/components/upsell/use-plan-fit", () => ({ usePlanFit: () => planFit.current }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({ resolvedFormattingLanguageTag: "en", formatNumber: (value: number) => String(value) }),
 }));
@@ -47,6 +50,25 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount());
   container.remove();
+  planFit.current = null;
+});
+
+describe("plan picker connected accounts", () => {
+  it("says nothing while every plan with an inbox keeps the connected accounts", () => {
+    planFit.current = { maxAccountsPerUser: 1 };
+    render();
+
+    expect(container.querySelector("[data-account-overage]")).toBeNull();
+  });
+
+  it("names the plans that keep fewer accounts than a trial user connected", () => {
+    planFit.current = { maxAccountsPerUser: 2 };
+    render();
+
+    expect(card("pro")?.querySelector("[data-account-overage]")?.textContent).toBe("Subscription.picker.keepsAccounts");
+    expect(card("business")?.querySelector("[data-account-overage]")).toBeNull();
+    expect(card("starter")?.querySelector("[data-account-overage]")).toBeNull();
+  });
 });
 
 describe("plan picker focus", () => {

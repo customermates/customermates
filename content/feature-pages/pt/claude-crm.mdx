@@ -1,0 +1,85 @@
+---
+title: "CRM para o Claude: o CRM onde o seu Claude trabalha"
+description: "Conector de CRM para o Claude: clientes, negócios e conversas de e-mail e LinkedIn que o Claude lê e atualiza. Teste de [[commercial.trial.days]] dias, sem cartão. Código aberto."
+featureName: CRM para o Claude
+
+relatedHrefs:
+  - /features/claude-linkedin
+  - /docs/connect-custom-connector
+  - /docs/mcp
+  - /features/api
+
+sections:
+  visual:
+    kind: os
+  steps:
+    title: "Conectado em três passos"
+    items:
+      - title: "Comece o teste"
+        description: "Cadastre-se e informe quantas pessoas vão usar o espaço de trabalho. O teste dura [[commercial.trial.days]] dias no plano Pro e não exige cartão."
+      - title: "Adicione o Customermates ao Claude"
+        description: "No Claude, abra Settings › Connectors › Add custom connector e cole o endereço do servidor https://customermates.com/api/v1/mcp. A configuração mostra o endereço do seu próprio espaço de trabalho e espera até chegar a primeira chamada do Claude."
+      - title: "Deixe o Claude montar o seu CRM"
+        description: "Conte ao Claude o que você vende e como trabalha. O Claude propõe as suas listas, o pipeline e os follow-ups e os monta no espaço de trabalho assim que você concordar."
+
+hero:
+  title: "O CRM onde o seu Claude trabalha"
+  description: "O Customermates é um CRM que o Claude lê e atualiza por meio de um conector: clientes, negócios, tarefas e, assim que você as conectar, as suas conversas de e-mail e LinkedIn. Endereço do servidor: https://customermates.com/api/v1/mcp"
+  buttonLeftText: "Comece seu teste de [[commercial.trial.days]] dias"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Leia o guia do conector
+  buttonRightHref: /docs/connect-custom-connector
+  hint: "✓ Sem cartão de crédito ✓ Produto independente, sem vínculo com a Anthropic"
+
+cta:
+  action: "Dê ao Claude um CRM para trabalhar"
+  description: "Comece o teste, adicione o conector e deixe o Claude configurar o espaço de trabalho. Você aprova a proposta antes que o Claude a monte."
+  buttonLeftText: "Comece seu teste de [[commercial.trial.days]] dias"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Leia o guia do conector
+  buttonRightHref: /docs/connect-custom-connector
+  hint: "✓ Sem cartão de crédito ✓ Primeiros [[commercial.trial.days]] dias grátis"
+---
+
+Um CRM para o Claude é um CRM que o próprio Claude pode ler e alterar, em vez de um do qual você copia texto. O Customermates oferece isso por meio de um conector: o Claude consulta um cliente, lê a última conversa, atualiza o negócio e escreve a próxima tarefa, no mesmo espaço de trabalho que a sua equipe abre no navegador.
+
+## O que você pode perguntar ao Claude
+
+- **“Quais negócios estão sem contato há duas semanas?”** O Claude lê o seu pipeline e as conversas ligadas a cada negócio.
+- **“Adicione as três pessoas deste e-mail à empresa certa e anote o que elas pediram.”** O Claude cria os contatos e os vincula.
+- **“Quais conversas estão aguardando a minha resposta?”** Com uma caixa de e-mail ou uma [conta do LinkedIn conectada](/features/claude-linkedin), o Claude lista as conversas abertas e pode redigir as respostas.
+
+O Claude trabalha com as suas próprias listas e campos, então o CRM usa as suas palavras para clientes, negócios e etapas.
+
+## O que ele faz e o que não faz
+
+**Faz:** ler e gravar registros, listas, campos e visualizações com as permissões de quem o conectou; pesquisar a Base de conhecimento do espaço de trabalho; ler conversas e salvar rascunhos assim que um canal é conectado.
+
+**Não faz:** contornar as suas funções e permissões, alterar algo sem uma chamada que você possa ver no Claude ou agir em segundo plano enquanto o Claude está fechado. Para trabalho em horários definidos, há as [rotinas](/docs/app-routines) com o assistente integrado Mate.
+
+**Sobre a aprovação:** o Customermates orienta o Claude a perguntar antes de enviar uma mensagem ou excluir algo. Se o Claude pergunta a cada vez depende das permissões de ferramentas que você define no Claude.
+
+A parte técnica, com todas as ferramentas que o conector oferece, está no [guia do MCP](/docs/mcp).
+
+## Quanto custa
+
+O teste dura [[commercial.trial.days]] dias no plano Pro e não exige cartão de crédito. Os planos pagos começam em [[commercial.price.starter.monthly]] por usuário ao mês para o CRM com o conector; a caixa de entrada de e-mail e LinkedIn faz parte do Pro, a [[commercial.price.pro.monthly]]. Sem assinatura, o espaço de trabalho passa para o plano Free para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros. O conector não custa nada a mais, e o Claude cobra o próprio uso pelo seu plano do Claude.
+
+## Quem está por trás
+
+O Customermates é um produto independente. Ele não é afiliado à Anthropic, nem endossado ou patrocinado por ela. O núcleo do CRM é de código aberto sob AGPL-3.0 e pode ser hospedado por conta própria; o banco de dados da nuvem está configurado na região AWS de Frankfurt, e a [lista de subprocessadores](/subprocessors) nomeia todos os provedores envolvidos.
+
+<Faq>
+<FaqItem question="Funciona também com o ChatGPT e com outros clientes de IA?">
+Sim. O mesmo conector funciona com o ChatGPT, o Cursor, o Gemini e outros clientes compatíveis com MCP. O [guia do conector](/docs/connect-custom-connector) traz os passos de cada um.
+</FaqItem>
+<FaqItem question="O Claude vê todos os meus dados?">
+O Claude vê o que a pessoa que o conectou pode ver. Ele age com a função e as permissões dessa pessoa, no espaço de trabalho que ela escolheu ao entrar.
+</FaqItem>
+<FaqItem question="Preciso de um plano pago do Claude?">
+O Claude oferece conectores personalizados em todos os planos; o plano gratuito permite um. O ChatGPT exige um plano pago para conectores personalizados.
+</FaqItem>
+<FaqItem question="Posso hospedar por conta própria?">
+O núcleo de código aberto pode ser hospedado por conta própria e inclui o conector. A caixa de entrada de e-mail e LinkedIn e o assistente integrado Mate fazem parte do Customermates Cloud.
+</FaqItem>
+</Faq>

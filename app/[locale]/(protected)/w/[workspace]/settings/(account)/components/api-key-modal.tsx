@@ -126,8 +126,8 @@ export const ApiKeyModal = observer(() => {
           : aiConnectionStore.route.screen === "other"
             ? t("OnboardingWizard.ai.other.title")
             : t("OnboardingWizard.ai.screen.setup.title", {
-              provider: t(`OnboardingWizard.ai.choices.${aiConnectionStore.route.provider}`),
-            });
+                provider: t(`OnboardingWizard.ai.choices.${aiConnectionStore.route.provider}`),
+              });
 
   const title = isView
     ? viewingKey?.name?.trim() || t("ApiKeysCard.unnamed")

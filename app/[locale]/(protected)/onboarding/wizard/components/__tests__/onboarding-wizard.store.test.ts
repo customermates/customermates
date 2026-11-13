@@ -232,6 +232,7 @@ describe("OnboardingWizardStore", () => {
       "playbook",
       "setup",
       "invite",
+      "channel",
       "ai",
       "template",
       "prompt",

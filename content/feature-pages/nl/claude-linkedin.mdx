@@ -1,0 +1,92 @@
+---
+title: "LinkedIn koppelen aan Claude: je inbox als connector"
+description: "LinkedIn koppelen aan Claude: zie wie er op antwoord wacht, Claude schrijft een concept, jij verstuurt. [[commercial.trial.days]] dagen proberen, geen creditcard. Geen scraper."
+featureName: LinkedIn in Claude
+
+relatedHrefs:
+  - /features/claude-crm
+  - /features/linkedin-integration
+  - /docs/connect-custom-connector
+  - /features/unified-inbox
+
+sections:
+  visual:
+    kind: os
+  steps:
+    title: "In drie stappen gekoppeld"
+    items:
+      - title: "Start de proefperiode en koppel LinkedIn"
+        description: "Meld je aan en koppel daarna in de setup je LinkedIn-account. Je gesprekken komen binnen en zijn standaard alleen voor jou zichtbaar. De proefperiode duurt [[commercial.trial.days]] dagen en heeft geen creditcard nodig."
+      - title: "Voeg Customermates toe in Claude"
+        description: "Open in Claude Settings › Connectors › Add custom connector en plak het serveradres https://customermates.com/api/v1/mcp. De setup toont ook het adres van je eigen werkruimte en een knop die het voor je invult."
+      - title: "Log in en stel je vraag"
+        description: "Claude opent de inlogpagina van Customermates. Keur de toegang goed en vraag Claude daarna op welke LinkedIn-gesprekken een antwoord van jou wacht."
+
+hero:
+  title: "Je LinkedIn-inbox in Claude"
+  description: "Koppel je LinkedIn-account aan Customermates en voeg Customermates in Claude toe als connector. Claude ziet dan op welke gesprekken een antwoord van jou wacht, schrijft op basis van het klantrecord een concept van het antwoord en jij verstuurt het. Serveradres: https://customermates.com/api/v1/mcp"
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Lees de gids voor de connector
+  buttonRightHref: /docs/connect-custom-connector
+  hint: "✓ Geen creditcard nodig ✓ Onafhankelijk product, niet gelieerd aan Anthropic of LinkedIn"
+
+cta:
+  action: "Zie op welke LinkedIn-gesprekken een antwoord van jou wacht"
+  description: "Start de proefperiode, koppel LinkedIn en voeg de connector toe in Claude. Voor de eerste vraag heb je een paar minuten nodig en je kunt beide kanten op elk moment weer ontkoppelen."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Lees de gids voor de connector
+  buttonRightHref: /docs/connect-custom-connector
+  hint: "✓ Geen creditcard nodig ✓ Eerste [[commercial.trial.days]] dagen gratis"
+---
+
+Om LinkedIn aan Claude te koppelen heb je iets ertussen nodig: Claude heeft geen eigen LinkedIn-connector. Customermates is een CRM met een inbox. Je koppelt je LinkedIn-account er één keer aan, en Claude bereikt de inbox via de connector van Customermates. Je gesprekken, de mensen daarin en je notities bij elke klant zijn dan met één vraag in Claude op te halen.
+
+## Wat je Claude kunt vragen
+
+Stel de vraag zoals je hem aan een collega zou stellen. Drie vragen die op de eerste dag werken:
+
+- **"Op welke LinkedIn-gesprekken wacht een antwoord van mij?"** Claude toont de openstaande gesprekken met het laatste bericht van elk.
+- **"Schrijf een antwoord op het laatste bericht van Anna, met wat we over haar bedrijf weten."** Claude leest het gesprek en het klantrecord en bewaart een concept in je inbox.
+- **"Wie heb ik deze week een reactie beloofd, en heb ik die gegeven?"** Claude loopt je recente gesprekken door en noemt de gesprekken die nog openstaan.
+
+Dezelfde connector dekt ook je e-mail zodra je een mailbox koppelt, dus het antwoord kan beide bevatten.
+
+## Wat het wel en niet doet
+
+**Het doet:** de gesprekken van het gekoppelde account lezen, je klantrecords lezen en bijwerken, een concept bewaren dat jij nakijkt en één bericht of connectieverzoek versturen zodra je Claude erom vraagt.
+
+**Het doet niet:** profielen of zoekresultaten scrapen, bulkuitnodigingen of massaberichten versturen, sequenties draaien of op de achtergrond handelen. Customermates is geen tool voor LinkedIn-automatisering. Het houdt een behoudend verzoekbudget voor LinkedIn aan en pauzeert voordat LinkedIn zou ingrijpen; de cijfers staan in de [limieten voor berichten](/docs/messaging-rate-limits).
+
+**Over het versturen:** Customermates geeft Claude de instructie om eerst bij je na te vragen voordat het iets verstuurt. Of Claude elke keer vraagt, hangt af van de toolrechten die je in Claude instelt, dus laat de verzendtools daar op "Ask" staan. Een concept verlaat je inbox pas als jij het verstuurt.
+
+De uitgebreidere beschrijving van de LinkedIn-kant, ook over Sales Navigator, staat op de pagina [LinkedIn CRM koppeling](/features/linkedin-integration).
+
+## Wat het kost
+
+De proefperiode duurt [[commercial.trial.days]] dagen op Pro en heeft geen creditcard nodig. Daarna kost Pro [[commercial.price.pro.monthly]] per gebruiker per maand en bevat het [[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per gebruiker. Neem je geen abonnement, dan gaat de werkruimte over op het Free-abonnement: het CRM blijft, de inbox niet. De connector zelf kost niets extra, en Claude rekent zijn eigen gebruik af via je Claude-abonnement.
+
+Claude biedt eigen connectoren op elk abonnement aan; Claude Free staat er één toe. De [gids voor de connector](/docs/connect-custom-connector) beschrijft de stappen voor Claude en voor ChatGPT.
+
+## Wie erachter zit
+
+Customermates is een onafhankelijk product. Het is niet gelieerd aan, onderschreven door of gesponsord door Anthropic of LinkedIn. De kern van het CRM is open source onder AGPL-3.0 en de clouddatabase is ingesteld in de AWS-regio Frankfurt. De [lijst met subverwerkers](/subprocessors) noemt elke betrokken aanbieder, ook de aanbieder die je LinkedIn-account verbindt.
+
+<Faq>
+<FaqItem question="Heeft Claude een officiële LinkedIn-connector?">
+Nee. Claude bereikt LinkedIn-gesprekken alleen via een connector die iemand anders levert. Bij Customermates komen de gesprekken uit het LinkedIn-account dat je zelf koppelt, en Claude leest ze via de connector van Customermates.
+</FaqItem>
+<FaqItem question="Kan Claude LinkedIn-berichten voor me versturen?">
+Claude kan een concept bewaren in je Customermates-inbox en één bericht versturen zodra je daarom vraagt. Customermates geeft Claude de instructie om eerst te vragen; je toolrechten in Claude bepalen of het dat ook doet. Er zijn geen massaberichten en geen sequenties.
+</FaqItem>
+<FaqItem question="Is dit een LinkedIn-scraper of een automatiseringstool?">
+Nee. Het leest de gesprekken van je eigen gekoppelde account en zoekt een profiel op wanneer je daarom vraagt. Het scrapet niet, verrijkt niets op de achtergrond en verstuurt geen uitnodigingen in bulk.
+</FaqItem>
+<FaqItem question="Werkt het met het gratis Claude-abonnement?">
+Claude Free staat één eigen connector toe, dus het werkt als die plek vrij is. ChatGPT vraagt een betaald abonnement voor eigen connectoren.
+</FaqItem>
+<FaqItem question="Wat gebeurt er na de proefperiode?">
+Je kiest een abonnement of doet niets. Zonder abonnement gaat de werkruimte over op het Free-abonnement. Dat houdt het CRM voor [[commercial.limit.free.maxMembers]] persoon en [[commercial.limit.free.maxRecords]] records en heeft geen inbox.
+</FaqItem>
+</Faq>

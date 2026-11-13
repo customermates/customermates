@@ -5793,6 +5793,7 @@
       "freeCurrent": "Free · plan actual",
       "freeSummary": "{members, plural, one {Una persona} other {# personas}} y hasta {records} registros. API y MCP con límite de solicitudes.",
       "hostedAiUsage": "{multiplier}x uso de Mate por usuario activo / mes",
+      "keepsAccounts": "Tienes hasta {connected} cuentas conectadas por usuario. Este plan conserva {kept}; las más recientes se desconectan al pagar.",
       "perUserMonth": "por usuario / mes",
       "recommendedForYou": "Recomendado para ti",
       "routinesPerUser": "{routines, plural, one {# rutina por usuario} other {# rutinas por usuario}}",
@@ -5804,8 +5805,7 @@
         "pro": "Haz seguimiento desde LinkedIn y el correo",
         "starter": "Tu espacio de trabajo y tu propia IA"
       },
-      "unlimitedRoutinesPerUser": "Rutinas ilimitadas por usuario",
-      "keepsAccounts": "Tienes hasta {connected} cuentas conectadas por usuario. Este plan conserva {kept}; las más recientes se desconectan al pagar."
+      "unlimitedRoutinesPerUser": "Rutinas ilimitadas por usuario"
     },
     "plan": "Plan",
     "planNames": {

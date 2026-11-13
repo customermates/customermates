@@ -91,6 +91,21 @@ async function signUp(database: Client, visitor: Visitor, workspaceName: string)
   await page.locator("#workspaceName").fill(workspaceName);
   await page.locator("#agreeToTerms").click();
   await clickHydrated(page.getByRole("button", { name: englishMessages.OnboardingWizard.next, exact: true }));
+  await expect(page.locator("#onboarding-team-size-error")).toHaveText(
+    englishMessages.OnboardingWizard.profile.teamSize.required,
+  );
+  await page.locator("#onboarding-team-size-small").click();
+  await expect(page.locator("#onboarding-team-size-error")).toHaveCount(0);
+  await clickHydrated(page.getByRole("button", { name: englishMessages.OnboardingWizard.next, exact: true }));
+  await expect
+    .poll(async () => {
+      const { rows } = await database.query<{ teamSize: string | null }>(
+        'SELECT "teamSize" FROM "Company" WHERE "createdByAuthUserId"=$1',
+        [visitor.authUserId],
+      );
+      return rows.map((row) => row.teamSize);
+    })
+    .toEqual(["small"]);
   await expect
     .poll(async () => {
       const { rows } = await database.query<{ id: string }>('SELECT id FROM "Company" WHERE "createdByAuthUserId"=$1', [

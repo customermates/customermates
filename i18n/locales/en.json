@@ -5793,6 +5793,7 @@
       "freeCurrent": "Free · current plan",
       "freeSummary": "{members, plural, one {One person} other {# people}} and up to {records} records. API and MCP with a request limit.",
       "hostedAiUsage": "{multiplier}x Mate usage per active user / month",
+      "keepsAccounts": "You have up to {connected} connected accounts per user. This plan keeps {kept}; the newest are disconnected when you pay.",
       "perUserMonth": "per user / month",
       "recommendedForYou": "Recommended for you",
       "routinesPerUser": "{routines, plural, one {# routine per user} other {# routines per user}}",
@@ -5804,8 +5805,7 @@
         "pro": "Follow up from LinkedIn and email",
         "starter": "Your workspace and your own AI"
       },
-      "unlimitedRoutinesPerUser": "Unlimited routines per user",
-      "keepsAccounts": "You have up to {connected} connected accounts per user. This plan keeps {kept}; the newest are disconnected when you pay."
+      "unlimitedRoutinesPerUser": "Unlimited routines per user"
     },
     "plan": "Plan",
     "planNames": {

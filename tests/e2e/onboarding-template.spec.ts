@@ -85,10 +85,17 @@ async function expectNoHorizontalOverflow(page: Page) {
   );
 }
 
+async function skipChannelStep(page: Page) {
+  await expect(heading(page, steps.channel.title)).toBeVisible();
+  await expect(page.locator("#onboarding-channel-continue")).toBeDisabled();
+  await clickHydrated(page.locator("#onboarding-channel-skip"));
+}
+
 async function openAgentConnect(page: Page, database: Client, workspace: BrowserWorkspace) {
   const companyId = await openGoalOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Agent Template"));
   await expect(page.getByRole("radio", { name: new RegExp(`^${goal.agent.title}`) })).toBeChecked();
   await clickHydrated(page.locator("#onboarding-goal-continue"));
+  await skipChannelStep(page);
   await expect(heading(page, steps.connect.title)).toBeVisible();
   return companyId;
 }
@@ -108,8 +115,13 @@ test.describe("cloud onboarding with templates", () => {
     await page.reload();
 
     await expect(page.getByRole("radio", { name: new RegExp(`^${goal.agent.title}`) })).toBeChecked();
+    await expect(page.locator("#onboarding-goal-works-with")).toHaveText(goal.agent.worksWith);
     await clickHydrated(page.locator("#onboarding-goal-continue"));
+    await skipChannelStep(page);
     await expect(heading(page, steps.connect.title)).toBeVisible();
+    await expect.poll(async () => (await funnelEvents(database, companyId)).map((event) => event.type)).toContain(
+      "channelSkipped",
+    );
 
     const status = page.locator("#onboarding-agent-status");
     const connectContinue = page.locator("#onboarding-connect-continue");
@@ -194,6 +206,8 @@ test.describe("cloud onboarding with templates", () => {
     const mate = page.getByRole("radio", { name: new RegExp(`^${goal.workspace.title}`) });
 
     await clickHydrated(page.getByRole("button", { name: englishMessages.Common.actions.back, exact: true }));
+    await expect(heading(page, steps.channel.title)).toBeVisible();
+    await clickHydrated(page.locator("#onboarding-channel-back"));
     await expect(heading(page, steps.goal.title)).toBeVisible();
     await expect.poll(async () => (await savedProgress(database, companyId))?.step).toBe("goal");
 
@@ -211,6 +225,38 @@ test.describe("cloud onboarding with templates", () => {
     await expect(heading(page, steps.goal.title)).toBeVisible();
     await expect(heading(page, steps.connect.title)).toHaveCount(0);
     await expect(mate).toBeChecked();
+    expect(errors).toEqual([]);
+  });
+
+  test("a team on the own agent path is asked to invite and to connect a channel before the agent", async ({
+    page,
+    database,
+    workspace,
+  }) => {
+    const errors = collectPageErrors(page);
+    const companyId = await openGoalOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Agent Team"));
+    await database.query('UPDATE "Company" SET "teamSize"=$1 WHERE id=$2', ["small", companyId]);
+    await page.reload();
+
+    await expect(page.getByRole("radio", { name: new RegExp(`^${goal.agent.title}`) })).toBeChecked();
+    await clickHydrated(page.locator("#onboarding-goal-continue"));
+    await expect(heading(page, steps.invite.title)).toBeVisible();
+    await clickHydrated(page.locator("#onboarding-next"));
+
+    await expect(heading(page, steps.channel.title)).toBeVisible();
+    await expect(page.locator("#onboarding-channel-linkedin")).toBeVisible();
+    await expect(page.locator("#onboarding-channel-google")).toBeVisible();
+    await expect(page.locator("#onboarding-channel-outlook")).toBeVisible();
+    await expect.poll(async () => (await savedProgress(database, companyId))?.step).toBe("channel");
+    await page.reload();
+    await expect(heading(page, steps.channel.title)).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+
+    await clickHydrated(page.locator("#onboarding-channel-skip"));
+    await expect(heading(page, steps.connect.title)).toBeVisible();
+    await expect(page.locator("[data-other-client]")).toBeVisible();
+    await clickHydrated(page.locator("[data-other-client]"));
+    await expect(page.locator("[data-ai-other-setup]")).toContainText("/api/v1/mcp");
     expect(errors).toEqual([]);
   });
 

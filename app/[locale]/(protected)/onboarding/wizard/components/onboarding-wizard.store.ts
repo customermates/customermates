@@ -19,8 +19,8 @@ import {
   getOnboardingAgentStatusAction,
   getOnboardingTemplatePromptAction,
   recordChannelSkippedAction,
+  startOnboardingChannelConnectAction,
 } from "../onboarding-agent-actions";
-import { startConnectAccountAction } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/channels/actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
 import { readOnboardingWizardProgress } from "@/features/onboarding-wizard/onboarding-wizard-progress.schema";
@@ -363,7 +363,7 @@ export class OnboardingWizardStore {
     this.setIsSubmitting(true);
     try {
       if (this.userId && !(await this.persistProgress(this.progressAt("channel", this.goalPinned)))) return;
-      const result = await startConnectAccountAction(channel);
+      const result = await startOnboardingChannelConnectAction(channel);
       if (result.ok) {
         globalThis.location.assign(result.data.url);
         return;

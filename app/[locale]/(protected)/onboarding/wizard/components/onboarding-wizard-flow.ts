@@ -47,15 +47,7 @@ const AGENT_TEMPLATE_STEPS: readonly WizardStep[] = [
   "prompt",
 ];
 const SETUP_STEPS: readonly WizardStep[] = ["profile", "goal", "setup", "invite", "channel", "ai"];
-const SETUP_TEMPLATE_STEPS: readonly WizardStep[] = [
-  "profile",
-  "goal",
-  "template",
-  "setup",
-  "invite",
-  "channel",
-  "ai",
-];
+const SETUP_TEMPLATE_STEPS: readonly WizardStep[] = ["profile", "goal", "template", "setup", "invite", "channel", "ai"];
 
 function coreWizardSteps(context: WizardFlowContext, flow: WizardFlowKey): readonly WizardStep[] {
   const choose = context.chooseAvailable ?? false;
@@ -116,7 +108,8 @@ function firstAfterGoal(steps: readonly WizardStep[]): WizardStep {
 function resumeStepOpen(input: WizardResumeInput, steps: readonly WizardStep[], job: OnboardingJob): WizardStep {
   if (!(input.jobSelected ?? true)) return "goal";
   if (job === "followup") return "playbook";
-  if (job === "agent") return input.savedStep && steps.includes(input.savedStep) ? input.savedStep : firstAfterGoal(steps);
+  if (job === "agent")
+    return input.savedStep && steps.includes(input.savedStep) ? input.savedStep : firstAfterGoal(steps);
   return (input.templatesAvailable ?? false) && !input.setupStarted ? "template" : "setup";
 }
 

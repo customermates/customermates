@@ -5793,6 +5793,7 @@
       "freeCurrent": "Free · aktueller Tarif",
       "freeSummary": "{members, plural, one {Eine Person} other {# Personen}} und bis zu {records} Datensätze. API und MCP mit Anfragelimit.",
       "hostedAiUsage": "{multiplier}x Mate-Nutzung pro aktivem Nutzer / Monat",
+      "keepsAccounts": "Du hast bis zu {connected} verbundene Konten pro Nutzer. Dieser Tarif behält {kept}; die neuesten werden bei der Zahlung getrennt.",
       "perUserMonth": "pro Nutzer / Monat",
       "recommendedForYou": "Für dich empfohlen",
       "routinesPerUser": "{routines, plural, one {# Routine pro Nutzer} other {# Routinen pro Nutzer}}",
@@ -5804,8 +5805,7 @@
         "pro": "Nachfassen über LinkedIn und E-Mail",
         "starter": "Dein Workspace und deine eigene KI"
       },
-      "unlimitedRoutinesPerUser": "Unbegrenzte Routinen pro Nutzer",
-      "keepsAccounts": "Du hast bis zu {connected} verbundene Konten pro Nutzer. Dieser Tarif behält {kept}; die neuesten werden bei der Zahlung getrennt."
+      "unlimitedRoutinesPerUser": "Unbegrenzte Routinen pro Nutzer"
     },
     "plan": "Tarif",
     "planNames": {
