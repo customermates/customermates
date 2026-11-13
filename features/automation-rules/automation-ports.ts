@@ -10,7 +10,9 @@ export type AutomationRecordView = {
   values: Map<string, CalculatedValue>;
 };
 
-export type AutomationMutationResult = { ok: true; refs: RecordRef[] } | { ok: false; message: string };
+export type AutomationMutationResult =
+  | { ok: true; refs: RecordRef[] }
+  | { ok: false; message: string; versionChanged?: boolean };
 
 export type AutomationRecordPort = {
   model(): Promise<RecordModelView>;

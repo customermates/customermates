@@ -14,6 +14,8 @@ import { renderAutomationTemplate } from "./automation-template";
 
 type FieldAssignment = z.infer<typeof RecordFieldAssignmentSchema>;
 
+const SET_FIELD_ATTEMPTS = 3;
+
 export type AutomationEffectContext = {
   companyId: string;
   runId: string;
@@ -96,17 +98,22 @@ export class AutomationEffectRunner {
     context: AutomationEffectContext,
   ): Promise<AutomationEffectOutcome> {
     const kind = effect.kind;
-    const record = context.recordRef ? await this.records.read(context.recordRef) : null;
-    if (!record || !context.recordRef) return { kind, status: "skipped", detail: "recordMissing" };
-    const mutation: RecordMutation = {
-      action: "update",
-      ref: context.recordRef,
-      expectedVersion: record.version,
-      fields: effect.fields,
-    };
-    const result = await this.records.mutate({ idempotencyKey: `rule:${context.runId}:${index}`, mutation });
-    if (!result.ok) return { kind, status: "failed", detail: result.message.slice(0, 300) };
-    return { kind, status: "applied", recordRef: context.recordRef };
+    const recordRef = context.recordRef;
+    if (!recordRef) return { kind, status: "skipped", detail: "recordMissing" };
+    for (let attempt = 1; ; attempt += 1) {
+      const record = await this.records.read(recordRef);
+      if (!record) return { kind, status: "skipped", detail: "recordMissing" };
+      const mutation: RecordMutation = {
+        action: "update",
+        ref: recordRef,
+        expectedVersion: record.version,
+        fields: effect.fields,
+      };
+      const result = await this.records.mutate({ idempotencyKey: `rule:${context.runId}:${index}`, mutation });
+      if (result.ok) return { kind, status: "applied", recordRef };
+      if (!result.versionChanged || attempt >= SET_FIELD_ATTEMPTS)
+        return { kind, status: "failed", detail: result.message.slice(0, 300) };
+    }
   }
 
   private async createRecord(

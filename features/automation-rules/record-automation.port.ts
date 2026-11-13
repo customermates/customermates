@@ -5,6 +5,8 @@ import type { CalculatedValue, RecordDto, RecordModelView, RecordRef } from "@/f
 import type { RecordMutation } from "@/features/records/record-query.schema";
 import type { AutomationMutationResult, AutomationRecordPort, AutomationRecordView } from "./automation-ports";
 
+import { CustomErrorCode } from "@/core/validation/validation.types";
+
 function recordName(record: RecordDto, model: RecordModelView): string {
   const primary = model.types.find((type) => type.id === record.ref.typeId)?.primaryFieldId;
   const result = record.fields.find((field) => field.fieldId === primary)?.result;
@@ -44,7 +46,14 @@ export class RecordAutomationPort implements AutomationRecordPort {
       idempotencyKey: input.idempotencyKey,
       mutation: input.mutation,
     });
-    if (!result.ok) return { ok: false, message: result.error.issues[0]?.message ?? "mutationFailed" };
+    if (!result.ok) {
+      const issue = result.error.issues[0];
+      return {
+        ok: false,
+        message: issue?.message ?? "mutationFailed",
+        versionChanged: issue?.customCode === CustomErrorCode.recordVersionChanged,
+      };
+    }
     if (result.data.status !== "completed") return { ok: false, message: "mutationPending" };
     return { ok: true, refs: result.data.refs };
   }

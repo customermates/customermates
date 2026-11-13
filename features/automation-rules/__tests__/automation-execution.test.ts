@@ -114,6 +114,33 @@ describe("automation effects", () => {
     });
   });
 
+  it("sets fields again at the new version when a sibling rule changed the record in between", async () => {
+    const { records, runner } = ports();
+    records.read.mockResolvedValueOnce(view({ version: 3 })).mockResolvedValueOnce(view({ version: 4 }));
+    records.mutate
+      .mockResolvedValueOnce({ ok: false, message: "This record changed.", versionChanged: true })
+      .mockResolvedValueOnce({ ok: true, refs: [] });
+    const fields = [{ fieldId: STAGE, value: { kind: "select" as const, value: "lost" } }];
+    const { outcomes, failure } = await runner.run([{ kind: "setField", fields }], context());
+    expect(failure).toBeNull();
+    expect(outcomes).toEqual([{ kind: "setField", status: "applied", recordRef: { typeId: TYPE, recordId: RECORD } }]);
+    expect(records.mutate.mock.calls.map(([call]) => call.mutation.expectedVersion)).toEqual([3, 4]);
+  });
+
+  it("gives up on a record that keeps changing and never retries another failure", async () => {
+    const fields = [{ fieldId: STAGE, value: { kind: "select" as const, value: "lost" } }];
+    const busy = ports();
+    busy.records.mutate.mockResolvedValue({ ok: false, message: "This record changed.", versionChanged: true });
+    const exhausted = await busy.runner.run([{ kind: "setField", fields }], context());
+    expect(exhausted.outcomes).toEqual([{ kind: "setField", status: "failed", detail: "This record changed." }]);
+    expect(busy.records.mutate).toHaveBeenCalledTimes(3);
+    const refused = ports();
+    refused.records.mutate.mockResolvedValue({ ok: false, message: "Not allowed." });
+    const other = await refused.runner.run([{ kind: "setField", fields }], context());
+    expect(other.outcomes).toEqual([{ kind: "setField", status: "failed", detail: "Not allowed." }]);
+    expect(refused.records.mutate).toHaveBeenCalledTimes(1);
+  });
+
   it("skips a record effect when the record cannot be read", async () => {
     const { records, runner } = ports(null);
     const { outcomes } = await runner.run([{ kind: "setField", fields: [{ fieldId: STAGE, value: null }] }], context());
