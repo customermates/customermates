@@ -1,0 +1,262 @@
+---
+title: "Claude Data Privacy: GDPR Checklist for Customer Data"
+description: "Claude data privacy by plan: training, retention, DPA and data location, plus a GDPR checklist and a Customermates setup. Checked 13 November 2026."
+
+relatedHrefs:
+  - /blog/gdpr-crm
+  - /blog/claude-connectors
+  - /blog/claude-crm
+  - /docs/mcp
+
+hero:
+  title: "Claude Data Privacy: What Anthropic Does With Your Inputs and How to Use Customer Data Under the GDPR"
+  description: "Claude data privacy by plan (Free, Pro, Max, Team, Enterprise, API): training, retention, DPA and data location, a GDPR checklist, and how to connect Claude to a CRM that reads only what a task needs."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Back to Blog
+  by: by Benjamin Wagner
+  date: 2026-11-13
+  tags:
+    - Claude
+    - Data Privacy
+    - GDPR
+    - MCP
+    - CRM
+---
+
+# Claude Data Privacy: What Anthropic Does With Your Inputs and How to Use Customer Data Under the GDPR
+
+Claude data privacy depends on the plan: for customer data, only the commercial plans (Team, Enterprise and the API) qualify, because only they come with a data processing addendum (DPA), and Anthropic says it does not train on your inputs by default. Free, Pro and Max are consumer products: their terms have no DPA, and the version for the European Economic Area (EEA) rules out business use.
+
+This guide shows, plan by plan, what Anthropic's own pages say about training, retention, contract and data location (checked on 13 November 2026, with a link to every source), walks through a GDPR checklist for using Claude with personal data, and shows how to keep customer data in your CRM and let Claude read only what a task needs. The worked example is Customermates, the open-source CRM that publishes this guide. It is general information, not legal advice: for your case, ask a lawyer or your data protection officer. For what a CRM itself has to do under the GDPR, see the guide to a [GDPR-compliant CRM](/blog/gdpr-crm).
+
+<ArticleSummary title="At a glance">
+  <SummaryItem label="Short answer">For customer data, use only Team, Enterprise or the API: they come with the DPA and Standard Contractual Clauses, Anthropic acts as processor, and it does not train on your inputs by default. Free, Pro and Max do not qualify.</SummaryItem>
+  <SummaryItem label="Data location">Anthropic's own page says data is stored in the US and names no EU region: inference runs "global" or "us". You need a transfer basis under Articles 44 to 46 GDPR.</SummaryItem>
+  <SummaryItem label="Retention">API: 30 days. Team and Enterprise: chats stay until deleted, deleted chats leave the backend within 30 days, and Enterprise can set its own periods from 30 days. Flagged content is kept for up to 2 years.</SummaryItem>
+  <SummaryItem label="With Customermates">Customer data stays in the CRM (database configured in Frankfurt), and Claude reads over MCP only what roles, toolsets and approvals allow. What Claude reads does reach Anthropic. Customermates does not make Anthropic's processing compliant.</SummaryItem>
+  <SummaryItem label="Checked">Anthropic's statements were read on the linked pages on 13 November 2026. The Customermates steps follow the product documentation and were not run against a live workspace for this guide.</SummaryItem>
+  <SummaryItem label="Disclosure">Customermates publishes this guide and appears in one labelled section.</SummaryItem>
+</ArticleSummary>
+
+## How does Claude protect my data, and what does Anthropic do with my inputs? [#how-does-claude-protect-data]
+
+Claude privacy is spread over four documents: the terms, the privacy policy, the DPA and the help articles in the [Privacy Center](https://privacy.claude.com/en/). The Privacy Center separates two groups: consumers on Free, Pro and Max, and commercial customers on the API, Console, Team and Enterprise. Three differences matter for customer data.
+
+- **Contract.** Commercial customers are under the [Commercial Terms of Service](https://www.anthropic.com/legal/commercial-terms) (effective 17 June 2025 per the page). They incorporate the [DPA](https://www.anthropic.com/legal/data-processing-addendum), and accepting the terms means accepting it ([Anthropic's help article](https://privacy.claude.com/en/articles/7996862-how-do-i-view-and-sign-your-data-processing-addendum-dpa)). For customers in the EEA, Switzerland and the UK, the contracting party is Anthropic Ireland, Limited. The [consumer terms](https://www.anthropic.com/legal/consumer-terms) for users in the EEA and Switzerland (effective 8 October 2025) contain no DPA, apply to consumers acting "wholly or mainly outside" their trade or profession, and state: "Non-commercial use only. You agree that you will not use our Services for any commercial or business purposes".
+- **Training.** For commercial products, [Anthropic's help article](https://privacy.claude.com/en/articles/7996868-is-my-data-used-for-model-training) (dated 18 August 2026) says: "By default, we will not use your inputs or outputs from our commercial products (e.g. Claude for Work, Anthropic API, Claude Gov, etc.) to train our models." The Commercial Terms make it a contract term: "Anthropic may not train models on Customer Content from Services." The exceptions are feedback you submit (thumbs up or down) and joining the Development Partner Program. On consumer products, training depends on the "Model Improvement" setting, and even with it off, Anthropic can use conversations flagged for safety review or ones you give feedback on ([consumer help article](https://privacy.claude.com/en/articles/10023580-is-my-data-used-for-model-training), dated 16 March 2026).
+- **Roles.** On Team and Enterprise, the customer is the controller and Anthropic the processor, according to [Anthropic](https://privacy.claude.com/en/articles/9267385-does-anthropic-act-as-a-data-processor-or-controller). The DPA says the same in section B.1: "Customer is the controller and Anthropic is Customer’s processor." Anthropic then processes the data only to provide the service and on your documented instructions.
+
+## Which Claude plan fits customer data? Plans compared [#plans-by-data-handling]
+
+The table summarizes what Anthropic documents on contract, training, retention, zero data retention (ZDR) and data location. Each row reflects the pages as read on 13 November 2026; the sources are listed under the table.
+
+| Plan | Contract and DPA | Training on your inputs | Retention | Zero data retention | Data location |
+| --- | --- | --- | --- | --- | --- |
+| Free, Pro, Max (Ultra) | Consumer terms with Anthropic Ireland, Limited; no DPA; the EEA version rules out business use | Depends on the "Model Improvement" setting; flagged conversations and feedback can be used even with it off; Incognito chats are not | Deleted chats leave the backend within 30 days; if training is allowed, de-identified for up to 5 years in training pipelines; flagged chats up to 2 years; feedback 5 years | No | Transfer to the US and other countries outside the EEA, based on adequacy decisions or Standard Contractual Clauses |
+| Team | Commercial Terms with the DPA and Standard Contractual Clauses; customer is controller | No by default; exceptions: submitted feedback (Owners can disable it), Development Partner Program | Chats stay until deleted; deleted chats leave the backend within 30 days; Incognito within 30 days; flagged content up to 2 years; feedback 5 years; custom periods only on Enterprise | No, the Team interface is not ZDR-eligible | Stored in the US; processing by default in selected countries in the US, Europe, Asia and Australia; no US-only setting |
+| Enterprise | Same as Team | Same as Team | Same as Team, plus custom periods from 30 days under Organization settings › Data and Privacy; without a setting, data is kept indefinitely | No; only Claude Code on Enterprise for qualified accounts, enabled separately | Same as Team; US-only inference on Enterprise plans with usage-based billing |
+| API and Console | Commercial Terms with the DPA and Standard Contractual Clauses | No by default | Inputs and outputs are deleted within 30 days of receipt or generation, except longer retention under your control (Files API), an agreed deviation, Usage Policy enforcement or legal duty | On request, per organization, through sales; not in the Console, not for the Batch API, Files API and code execution | Stored in the US; `inference_geo` accepts only `global` and `us` (US-only at 1.1x the token price from Claude 4.6) |
+
+Three notes on the table:
+
+- **Ultra.** The training and retention pages name Free, Pro and Max; the API data retention page and the Covered Models page count Ultra among the consumer plans.
+- **Partner clouds.** On Amazon Bedrock and Google-managed Claude on Google Cloud, the cloud provider is the data processor, according to Anthropic; its terms and regions apply, and we did not check them.
+- **Covered Models.** For the models Anthropic designates as Covered Models (per the page, since 9 June 2026: Claude Fable 5, 5.1 and 5.2 and Claude Mythos 5, 5.1 and 5.2), Anthropic requires 30-day retention, also for organizations with ZDR, unless Anthropic expressly authorizes otherwise. If you need ZDR, clear it with your Anthropic contact before choosing the model.
+
+Sources of the table, each checked on 13 November 2026: [training (commercial)](https://privacy.claude.com/en/articles/7996868-is-my-data-used-for-model-training), [training (consumer)](https://privacy.claude.com/en/articles/10023580-is-my-data-used-for-model-training), [retention (commercial)](https://privacy.claude.com/en/articles/7996866-how-long-do-you-store-my-organization-s-data), [retention (consumer)](https://privacy.claude.com/en/articles/10023548-how-long-do-you-store-my-data), [custom retention on Enterprise](https://privacy.claude.com/en/articles/10440198-configure-custom-data-retention-controls-for-enterprise-plans), [server location](https://privacy.claude.com/en/articles/7996890-where-are-your-servers-located-do-you-host-your-models-on-eu-servers), [API and data retention with ZDR](https://platform.claude.com/docs/en/manage-claude/api-and-data-retention), [data residency](https://platform.claude.com/docs/en/manage-claude/data-residency), [US-only inference](https://support.claude.com/en/articles/15422948-enable-us-only-inference-for-your-organization), [Covered Models](https://privacy.claude.com/en/articles/15425996-data-retention-practices-for-covered-models) and the [privacy policy](https://www.anthropic.com/legal/privacy) (effective 10 September 2026).
+
+## Is Claude GDPR compliant? [#is-claude-gdpr-compliant]
+
+No AI service is GDPR compliant by itself. Compliance describes how you use it: on what legal basis, under what contract, with how little data, and with what answers to requests. The obligations sit with the controller, which is you. Anthropic can supply the contracts and information you need for that. Anthropic's DPA (effective 24 February 2025, checked on 13 November 2026) covers the points that Article 28(3) GDPR ([text on EUR-Lex](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng)) requires from a processing contract:
+
+| What to look for | What Anthropic's DPA says |
+| --- | --- |
+| Instructions (Art. 28(3)(a)) | B.2: Anthropic processes personal data only to provide or maintain the services and on your documented instructions. B.3: no "selling" or "sharing" of the data. B.5: Anthropic tells you if it thinks an instruction breaks the law |
+| Confidentiality (b) | B.7: people who process the data are bound by a duty of confidentiality |
+| Security (c) | E.1 and Schedule 2: technical and organizational measures, described in the annex; Anthropic may update them if the overall level does not drop |
+| Subprocessors (d) | C: general authorization for the [list](https://www.anthropic.com/subprocessors); new subprocessors announced with reasonable notice; objection within 15 days on reasonable data privacy or security grounds, otherwise consent is deemed given; contractual duties "substantially as protective"; Anthropic is liable for them |
+| Data subject requests (e) | D: Anthropic forwards requests to you and assists with reasonable and timely help |
+| Breaches and impact assessment (f) | G.1: written notice without undue delay and within 48 hours of becoming aware. B.6: help with a data protection impact assessment and consultation of the supervisory authority |
+| End of service (g) | H.1: within 30 days of termination, a copy on request, then deletion of all copies at Anthropic and its subprocessors, except for legal duty, a dispute or to combat harmful use |
+| Audits (h) | F: annual audits by external auditors, evidence such as a SOC 2 report on request, an audit right at your cost, generally at most once in twelve months |
+| Transfers (Art. 44 to 46) | I: Standard Contractual Clauses Module Two and Three, Irish law and courts; I.4: Anthropic supports you with information for a transfer impact assessment |
+
+Three limits belong with it. First, Schedule 1, B.3 of the DPA lists "None" under "Special categories of personal data": clear it in writing before health data or other Article 9 data reaches Claude. Second, Anthropic may amend the DPA "on reasonable notice" where changes in law require it, so keep the version and date you accepted. Third, the [subprocessor list](https://www.anthropic.com/subprocessors) could not be read as text on 13 November 2026 (it loads dynamically), so we do not reproduce it: read it yourself. Anthropic also lists ISO 27001:2022, ISO/IEC 42001:2023 and SOC 2 Type I and II ([Anthropic's help article](https://privacy.claude.com/en/articles/10015870-what-certifications-has-anthropic-obtained)). Those are security and management certifications; they replace neither the DPA nor your own assessment.
+
+## Where does Claude store data, and is there an EU region? [#data-location]
+
+According to [Anthropic's server location page](https://privacy.claude.com/en/articles/7996890-where-are-your-servers-located-do-you-host-your-models-on-eu-servers) (dated 15 June 2026), data is stored in the US: "Note that data is stored in the US." By default Anthropic may route customer traffic to "select countries in the US, Europe, Asia and Australia", unless otherwise agreed or at your instruction.
+
+The only choice is the US. On the [data residency page](https://platform.claude.com/docs/en/manage-claude/data-residency), the `inference_geo` parameter takes `global` (the default) and `us`, and a workspace's storage location can currently only be `us`. The page lists both under "Current limitations". In the Claude app, [Anthropic](https://support.claude.com/en/articles/15422948-enable-us-only-inference-for-your-organization) offers US-only inference on Enterprise plans with usage-based billing; Team does not show the setting. None of these pages names an EU region.
+
+For you that means: with Claude directly from Anthropic, plan for a transfer to a third country (Articles 44 to 46 GDPR). Anthropic bases it on Standard Contractual Clauses in the DPA. Whether that holds for your data in your case is yours to assess and document, with the support the DPA promises in I.4. One more line in Anthropic's help applies to anything you connect to Claude: connected services process data "on their own infrastructure, under their own terms, which may be located outside the United States", and the US-only setting does not change where those services operate ([Anthropic](https://support.claude.com/en/articles/11176164-use-connectors-to-extend-claude-s-capabilities)).
+
+## Which cloud is GDPR compliant? [#which-cloud]
+
+None is by itself, and no vendor takes your obligations off you. For every service, Claude included, check four things:
+
+1. **Role and contract:** who is the processor, and is there a data processing agreement under Article 28? For Claude: yes on Team, Enterprise and the API, no on Free, Pro and Max.
+2. **Location:** where is data stored and processed, including at subprocessors? For Claude: stored in the US, processed globally or only in the US.
+3. **Transfer:** on what basis does data go to a third country (Articles 44 to 46)? For Claude: Standard Contractual Clauses in the DPA.
+4. **Exit:** how do you get the data back or have it deleted? For Claude: return and deletion within 30 days of termination (H.1) and the deletion periods in the table.
+
+A badge or a location in Germany does not answer these four questions. How a vendor's seat, its database location and the providers in its chain differ is explained in the guide to a [CRM from Germany](/blog/gdpr-crm). We cannot source a ranking of the "most secure German cloud", so we do not give one.
+
+## How do I use Claude under the GDPR with customer data? [#gdpr-checklist]
+
+The checklist follows the order in which you work through it. It draws on the [GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng) and on the guidance "Künstliche Intelligenz und Datenschutz" of the German Data Protection Conference (DSK), [version 1.0 of 6 May 2024](https://www.datenschutzkonferenz-online.de/media/oh/20240506_DSK_Orientierungshilfe_KI_und_Datenschutz.pdf) (in German), which according to the DSK addresses companies, authorities and other organizations and serves as a guide, not an exhaustive catalogue. We read both on 13 November 2026. The checklist is information, not legal advice.
+
+<Steps>
+  <Step title="Define the purpose and the kinds of data">
+    Write down what Claude is for and which data it needs. The DSK recommends fixing use cases and purposes in advance (section 1.1) and checking whether there are separable use cases with no personal data at all (1.3). A template text does not need access to your customers.
+  </Step>
+  <Step title="Settle the legal basis for each processing step">
+    Every step in which Claude processes personal data needs a basis under Article 6(1), including the transfer to Anthropic (DSK 1.5 and 3.1). With customers that is usually contract (point (b)) or legitimate interests (point (f)) with a balancing test. Special categories under Article 9 stay out unless an exception under Article 9(2) applies.
+  </Step>
+  <Step title="Choose the right plan and accept the DPA">
+    Team, Enterprise or the API, not Free, Pro or Max. Accept the Commercial Terms with the DPA (Article 28(1) and (3)), file the version and date, and read the subprocessor list. Anthropic's [Trust Center](https://trust.anthropic.com/updates) offers a news feed that reports where its subprocessors operate.
+  </Step>
+  <Step title="Assess and document the transfer to the US">
+    Check whether the Standard Contractual Clauses in the DPA hold for your data (Article 46) and document the result. Anthropic provides information for that on request (I.4).
+  </Step>
+  <Step title="Apply data minimisation">
+    Only the records and fields the task needs (Article 5(1)(c), Article 25(2)). Removing names from a text often is not enough: according to DSK 3.1, removing names and addresses from an input is regularly not enough ("reicht es regelmäßig nicht, Namen und Anschriften einer Eingabe zu entfernen"), because a person can be identified from the context. Limit access itself instead, as in the Customermates section below.
+  </Step>
+  <Step title="Work accounts, internal rules and who to involve">
+    Give employees work accounts instead of private ones (DSK 2.4), write down what Claude may and may not be used for, ideally with examples (2.2), and involve the data protection officer and, where relevant, the works council (1.12). Decisions with legal effect on a person must in principle not be taken by automated means alone (Article 22(1)): Claude proposes, a human decides (DSK 1.6).
+  </Step>
+  <Step title="Update your record of processing activities">
+    Enter the use of Claude as a processing activity, with purpose, kinds of data, Anthropic as recipient and the third-country transfer (Article 30).
+  </Step>
+  <Step title="Consider a data protection impact assessment">
+    Article 35 requires an assessment where a processing operation, "in particular using new technologies", is likely to result in a high risk to the rights and freedoms of people. The DSK writes that this will often be the case with AI applications (2.3). Check your supervisory authority's list; under the DPA, Anthropic assists with an impact assessment (B.6).
+  </Step>
+  <Step title="Inform the people concerned">
+    Your privacy notice (Articles 13 and 14) names Anthropic as a recipient and the transfer to a third country.
+  </Step>
+  <Step title="Plan for requests, deletion and a recheck">
+    Access and erasure (Articles 15 and 17) also cover chats at Anthropic: deleted chats leave the backend within 30 days, and Enterprise sets its own periods. Recheck the terms, the DPA and the subprocessors after every change notice.
+  </Step>
+</Steps>
+
+## What data should not go into Claude? [#what-not-to-paste]
+
+- **Special categories under Article 9** such as health, biometric or genetic data, or data on religion, beliefs or trade union membership, unless an exception under Article 9(2) applies (DSK 3.2) and the DPA expressly covers such data.
+- **Customer data on Free, Pro or Max.** Those plans have no DPA, and the consumer terms for the EEA rule out business use.
+- **Whole lists and exports** when a task needs two records.
+- **Credentials and keys**: passwords, API keys and tokens.
+- **Data without a purpose limit**, such as a list collected for another purpose, and content you must keep confidential under a contract or professional rules.
+
+## How do I keep customer data in the CRM, and what does Claude read of it? [#customermates-setup]
+
+*Disclosure: Customermates is our product.* Customermates is an open-source CRM from Germany. In Customermates Cloud, the primary production database is configured in the AWS Frankfurt region (`eu-central-1`). That is a selected setting, not a contractual commitment on data location; the application runs on Vercel in the USA, and the [subprocessor list](/subprocessors) names every provider with its location and transfer basis. The idea: the CRM stays the system of record, and Claude reaches only what a task needs through the [MCP server](/docs/mcp), limited by role, toolsets and approvals. What an MCP server is, the guide to the [MCP server](/blog/what-is-an-mcp-server) explains.
+
+The MCP server answers calls: Claude calls a tool (search, read, change), Customermates checks user, workspace and role, and returns what the role may see. It sends nothing to Claude by itself. MCP works on every plan, Free included, and self-hosted; every workspace has its own URL.
+
+### What reaches Anthropic when Claude reads a record?
+
+Everything a tool returns becomes part of the conversation and so goes to Anthropic: Claude can only use what it receives. According to Anthropic, a custom connector reaches your MCP server from Anthropic's cloud infrastructure, "rather than from your local device", in every Claude client ([Anthropic's help article](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp)). The table shows what the main Customermates calls hand to Claude (after the [MCP reference](/docs/mcp#tool-catalog)).
+
+| Call | What reaches Anthropic |
+| --- | --- |
+| `get_workspace_context` (first call) | Your user, the company name, the role catalog with permissions, accessible connected messaging accounts, plus the Operating Guide, the procedure index and the titles of the knowledge pages your role may read |
+| `discover_record_types`, `get_record_model` | Names of lists, fields and select options; every role may read the data model. No records |
+| `query_crm_records`, `search_crm_records` | The fields of the records found (the query can limit them with `fields`) and the search terms Claude writes |
+| `read_crm_record` | The whole record: field values, notes and relationships |
+| `export_crm_records` | A whole list as JSON, up to 5,000 records, as far as the role may read it |
+| `get_messaging_threads` (cloud, Pro and up, role with Inbox messages permission) | The text of whole conversations that Claude opens |
+| `search`, `fetch` | Hits and text from the Knowledge Base, from files attached to readable records (extracted text) and from records |
+| Never | Lists and records your role may not read, and records Claude does not fetch. Not your Customermates password either: sign-in runs through OAuth in a Customermates window |
+
+What sits at Anthropic afterwards depends on your plan (table above): with Team, Enterprise or the API the DPA applies and retention follows the periods there. The Privacy Center excludes "raw content from connectors", remote MCP servers included, from feedback data (commercial) and from data used for model training (consumer), "though data may be included if it’s directly copied into your conversation with Claude". Rely on the plan, not on that: Claude's answers and drafts that quote this content are part of the chat.
+
+### How do I set up Claude with narrow access to Customermates?
+
+The steps follow the [connector guide](/docs/connect-custom-connector), the [roles documentation](/docs/app-company#roles-tab) and Anthropic's help article on custom connectors (checked on 13 November 2026). Use an Anthropic plan with a DPA for this.
+
+<Steps>
+  <Step title="Define the task and the data">
+    Note what Claude should do, for example match call notes to the right contact, and which lists and fields it needs for that. This is the purpose from step 1 of the checklist.
+  </Step>
+  <Step title="Create a role with narrow access">
+    Open **Settings › Roles** and click **Add**. On the **Record types** tab, grant only the lists the task needs, with **Read access** **All** (or **Assigned**, which limits it to records assigned to the user) and without **Create**, **Edit** and **Delete**. New roles start without record access. On the **Workspace** tab the role needs **Read access** **All** on the **API & Webhooks** row, otherwise the MCP server refuses the connection; set **Inbox messages** and **Users & Roles** to **None**. There are no field-level permissions: a role applies to every field of a list. Put sensitive data in a separate list the role may not read.
+  </Step>
+  <Step title="Create a separate user for Claude">
+    Under **Settings › Members**, invite a user with that role; it takes a seat. A connection carries the permissions of the user who approved it, with no scope per key: with your own user, Claude would see everything you see. Setting a member to **Inactive** also blocks their MCP connections.
+  </Step>
+  <Step title="Copy the workspace URL and set toolsets">
+    Open **Settings › API keys & connectors**, click **Add**, choose **Claude** under **Quick connections** and then **Claude account**. Copy the URL and append `?toolsets=records`. The server then offers only the record tools (plus Trash and operation status): messaging, role and member administration, webhooks and routines are gone. `search` and `fetch` always stay on. If Claude should also read the Knowledge Base, add `wiki`: `?toolsets=records,wiki`. The [MCP reference](/docs/mcp#narrowing-with-toolsets) lists all toolsets.
+  </Step>
+  <Step title="Add the connector in Claude">
+    In Claude, open **Customize › Connectors**, click **+ Add**, choose **Add custom connector**, name it and paste the URL. Leave authentication on OAuth. In the Customermates window, sign in as the Claude user (in a private browser window if you are otherwise signed in as yourself), check the host under **Connection destination** and click **Approve**. On Team and Enterprise an Owner adds the connector once, and each member then connects individually.
+  </Step>
+  <Step title="Set tool permissions">
+    In Claude, open **Customize › Connectors › Customermates** and set the Tool permissions. Allow read tools one by one with Always allow, not the whole read-only group: `export_crm_records` also carries the read-only flag but returns a whole list. Keep it, and every tool that writes or sends, on Needs approval. The server does not enforce a confirmation before deleting or sending; Claude does.
+  </Step>
+  <Step title="Test and check what comes back">
+    Ask a read question, such as the open deals of one organization. Claude shows its tool calls; check which fields came back and ask Claude to request only the fields it needs. Also check that a record in a list the role may not read does not show up.
+  </Step>
+  <Step title="Document it">
+    Add to your record of processing activities: purpose, role, toolsets, Anthropic plan and DPA, date.
+  </Step>
+</Steps>
+
+To try it on your own Claude account, [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup). No credit card. The connector steps are also covered in the guide to [Claude connectors](/blog/claude-connectors) and the [Claude CRM guide](/blog/claude-crm).
+
+### What does this setup not do?
+
+| Limit | Consequence | What you do |
+| --- | --- | --- |
+| Customermates does not make Anthropic's processing compliant | The plan with a DPA, the legal basis, the transfer assessment and the impact assessment remain your job | Work through the checklist above |
+| What Claude reads sits at Anthropic | If you delete a record in the CRM, the chat stays at Anthropic until it is deleted there; Customermates cannot delete it | Delete chats according to your plan's retention; on Enterprise set your own period |
+| No field-level permissions | Read access means every field of a list | Put sensitive data in a separate list |
+| The server does not enforce a confirmation before deleting or sending | An allowed call runs, and emails go out immediately | Use a role without write permissions, set Needs approval, have Claude save drafts |
+| The Activity log documents changes | Reads are not among the events its documentation lists | Review the calls in the Claude chat |
+| Self-hosting only moves the database | What Claude reads still goes to Anthropic; per Anthropic the server must be reachable from its IP ranges over the internet | Choose [self-hosting](/features/self-hosted) only if it fits your infrastructure |
+| Mate is a different route | The assistant inside Customermates Cloud sends requests through Vercel AI Gateway to Claude models on Google Cloud Vertex AI and to other providers, not directly to Anthropic; the subprocessor list names providers and locations | Read it before using Mate with customer data |
+| Free plan | REST and MCP share [[commercial.limit.free.apiRequestsPerMinute]] requests per minute and [[commercial.limit.free.apiRequestsPerDay]] per day per workspace | Use a paid plan for daily work |
+
+The [security guide](/docs/architecture-security) explains tenant isolation, API keys and OAuth; the legal texts are in the [Customermates DPA](/dpa).
+
+<AcquisitionCallout title="Where Customermates is the wrong fit" variant="boundary">
+  If you need a contractual commitment that data is processed only in the EU, neither Claude directly at Anthropic (its pages name no EU region) nor Customermates Cloud (the database location is a setting, not a commitment) can give it today. If you need field-level permissions or a recognized certification, Customermates has neither. If your team is happy in HubSpot, use its connector rather than switching; the [Claude CRM guide](/blog/claude-crm) compares them.
+</AcquisitionCallout>
+
+## Frequently asked questions
+
+<Faq>
+<FaqItem question="How does Claude protect my data?">
+As well as your plan, contract and settings allow. With Team, Enterprise or the API, the DPA applies and training on your inputs is off by default; Anthropic lists ISO 27001, ISO 42001 and SOC 2. Data is stored in the US, and Anthropic names no EU region. What you type into Claude or let a connector read is your decision, and you stay responsible for it.
+</FaqItem>
+<FaqItem question="Does Anthropic train on my inputs?">
+Not by default on Team, Enterprise and the API; the exceptions are feedback you submit and the Development Partner Program. On Free, Pro and Max it depends on the "Model Improvement" setting, and flagged or feedback conversations can be used even with it off.
+</FaqItem>
+<FaqItem question="Do I need a DPA with Anthropic?">
+Yes, if Anthropic processes personal data for you (Article 28 GDPR). On Team, Enterprise and the API the DPA is part of the Commercial Terms and applies once you accept them. Free, Pro and Max have none.
+</FaqItem>
+<FaqItem question="Can I use Claude with customer data on the free plan?">
+We advise against it. The consumer terms for the EEA rule out business use, and there is no DPA. For customer data you need Team, Enterprise or the API.
+</FaqItem>
+<FaqItem question="How long does Anthropic keep my chats?">
+It depends on the plan. API: inputs and outputs are deleted within 30 days. Team and Enterprise: chats stay until deleted, deleted chats leave the backend within 30 days, and Enterprise can set its own periods from 30 days. Anthropic keeps content flagged as a violation for up to 2 years, and feedback for 5 years.
+</FaqItem>
+<FaqItem question="Where does Anthropic store data, and is there an EU region?">
+According to Anthropic, in the US. Only `global` and `us` are selectable for inference, and `us` for a workspace's storage location; Anthropic names no EU region. The transfer rests on Standard Contractual Clauses in the DPA.
+</FaqItem>
+<FaqItem question="Which German cloud is the most secure?">
+There is no ranking we can source, and a German location replaces neither a DPA nor a check of the chain. Compare by role and contract, location, transfer basis and exit, as described above.
+</FaqItem>
+<FaqItem question="Do I need a data protection impact assessment for Claude?">
+It depends on the risk. Article 35 GDPR requires one where processing is likely to result in a high risk, and the DSK writes that this will often be the case with AI applications. Do at least a documented preliminary check and read your supervisory authority's list.
+</FaqItem>
+<FaqItem question="What does Anthropic see when Claude reads my CRM?">
+Everything the called tools return: the fields of the records read, Claude's search terms and, where used, message text or file text. Your role in Customermates limits what the server hands out. The table in the Customermates section shows it call by call.
+</FaqItem>
+<FaqItem question="Does Customermates make using Claude GDPR compliant?">
+No. Customermates keeps customer data in the CRM and limits what Claude reads through role and toolsets. The plan with a DPA, the legal basis, the transfer assessment and the impact assessment remain your job.
+</FaqItem>
+</Faq>
+
+Anthropic's statements checked on 13 November 2026: the [Privacy Center](https://privacy.claude.com/en/), the [Commercial Terms of Service](https://www.anthropic.com/legal/commercial-terms), the [Data Processing Addendum](https://www.anthropic.com/legal/data-processing-addendum), the [Consumer Terms of Service](https://www.anthropic.com/legal/consumer-terms), the [privacy policy](https://www.anthropic.com/legal/privacy), the help articles on [connectors](https://support.claude.com/en/articles/11176164-use-connectors-to-extend-claude-s-capabilities) and [custom connectors](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp), [API and data retention](https://platform.claude.com/docs/en/manage-claude/api-and-data-retention), [data residency](https://platform.claude.com/docs/en/manage-claude/data-residency), [viewing and signing the DPA](https://privacy.claude.com/en/articles/7996862-how-do-i-view-and-sign-your-data-processing-addendum-dpa), [controller or processor](https://privacy.claude.com/en/articles/9267385-does-anthropic-act-as-a-data-processor-or-controller) and [certifications](https://privacy.claude.com/en/articles/10015870-what-certifications-has-anthropic-obtained). Law and supervision checked on 13 November 2026: [Regulation (EU) 2016/679 on EUR-Lex](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng) and the [DSK guidance](https://www.datenschutzkonferenz-online.de/media/oh/20240506_DSK_Orientierungshilfe_KI_und_Datenschutz.pdf). Statements about Customermates come from the [MCP reference](/docs/mcp), the [connector guide](/docs/connect-custom-connector), the [roles documentation](/docs/app-company#roles-tab), the [security documentation](/docs/architecture-security) and the [subprocessor list](/subprocessors) as of this date.
