@@ -159,7 +159,7 @@ export class ProcessLemonSqueezyWebhookInteractor {
           ErrorReporter.captureException(error, { tags: { kind: "funnel-paid", companyId: synced.companyId } });
         });
     }
-    const planInForce = synced.changedPlan ?? (synced.active ? synced.plan : null);
+    const planInForce = synced.changedPlan ?? (synced.becameActive ? synced.plan : null);
     if (planInForce) await this.deleteAccountsForPlan.invoke({ companyId: synced.companyId, plan: planInForce });
     await this.freePlan?.syncUnscoped(synced.companyId).catch((error: unknown) => {
       ErrorReporter.captureException(error, { tags: { kind: "free-plan-pause-sync", companyId: synced.companyId } });

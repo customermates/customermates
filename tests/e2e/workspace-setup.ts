@@ -120,7 +120,10 @@ export async function finishOnboarding(page: Page) {
   }
   await expect(invite).toBeVisible();
   await clickHydrated(page.locator("#onboarding-next"));
-  await expect(heading(englishMessages.OnboardingWizard.steps.ai.title)).toBeVisible();
+  const ai = heading(englishMessages.OnboardingWizard.steps.ai.title);
+  await expect(heading(steps.channel.title).or(ai)).toBeVisible();
+  if (!(await ai.isVisible())) await clickHydrated(page.locator("#onboarding-channel-skip"));
+  await expect(ai).toBeVisible();
   await clickHydrated(page.getByRole("button", { name: englishMessages.OnboardingWizard.finish, exact: true }));
   await expect(page).toHaveURL(anyWorkspaceUrlPattern("/dashboard$"));
   return slugFromUrl(page.url());
