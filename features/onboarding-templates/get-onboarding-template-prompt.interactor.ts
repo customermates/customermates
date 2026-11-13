@@ -3,10 +3,12 @@ import type { RouteGuardService } from "@/features/auth/route-guard.service";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { TemplateBundle } from "@/core/templates/template-spec.schema";
 import type { TemplateSlug } from "@/core/templates/template-slugs";
+import type { OnboardingAgentStatusRepo } from "@/features/onboarding-funnel/onboarding-agent.repo";
 import type { OnboardingTemplateDeployment } from "./onboarding-template-offer";
 
 import { z } from "zod";
 
+import { runWithTenant } from "@/core/decorators/tenant-context";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { TEMPLATE_SLUGS } from "@/core/templates/template-slugs";
@@ -25,7 +27,7 @@ const Schema = z.strictObject({
 });
 export type GetOnboardingTemplatePromptData = z.infer<typeof Schema>;
 
-export type OnboardingTemplatePrompt = { prompt: string | null };
+export type OnboardingTemplatePrompt = { prompt: string | null; connected: boolean };
 
 export type TemplateBundleLoader = (slug: TemplateSlug) => Promise<TemplateBundle | null>;
 
@@ -38,6 +40,7 @@ export class GetOnboardingTemplatePromptInteractor {
   constructor(
     private readonly loadBundle: TemplateBundleLoader,
     private readonly routeGuardService: RouteGuardService,
+    private readonly agentStatus: Pick<OnboardingAgentStatusRepo, "findOnboardingAgentStatus">,
   ) {}
 
   @Validate(Schema)
@@ -56,8 +59,9 @@ export class GetOnboardingTemplatePromptInteractor {
     );
     const bundle = offered ? await this.loadBundle(data.slug) : null;
     const text = bundle?.text[data.locale] ?? bundle?.text[DEFAULT_LOCALE];
-    if (!bundle || !text) return { ok: true as const, data: { prompt: null } };
+    if (!bundle || !text) return { ok: true as const, data: { prompt: null, connected: false } };
 
+    const { connected } = await runWithTenant(user, () => this.agentStatus.findOnboardingAgentStatus());
     return {
       ok: true as const,
       data: {
@@ -67,7 +71,9 @@ export class GetOnboardingTemplatePromptInteractor {
           deployment: mode,
           baseUrl: env.BASE_URL,
           mcpUrl: mcpWorkspaceUrl(env.BASE_URL, user.companyId),
+          connected,
         }),
+        connected,
       },
     };
   }

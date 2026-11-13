@@ -70,6 +70,7 @@
     "cloud": "Lege unter {url} einen Customermates-Workspace an und verbinde deinen Assistenten damit. Die Vorlage ist dort vorausgewählt.",
     "connected": "Du bist bereits mit dem Customermates-Workspace verbunden, der diese Vorlage aufnehmen soll. Arbeite darin und lege keinen weiteren an.",
     "connectedAt": "Dieser Workspace existiert bereits, und du bist über MCP unter {mcpUrl} mit ihm verbunden. Arbeite in diesem Workspace und in keinem anderen.",
+    "existsAt": "Dieser Workspace existiert bereits, aber dein Assistent ist noch nicht mit ihm verbunden. Verbinde ihn über MCP unter {mcpUrl}, mit einem API-Schlüssel aus Einstellungen, API-Schlüssel & Konnektoren. Solange die Verbindung fehlt, bitte mich, sie abzuschließen, bevor du etwas änderst. Arbeite danach in diesem Workspace und in keinem anderen.",
     "selfHosted": "Nutze deine eigene Customermates-Instanz. Verbinde deinen Assistenten mit ihrem MCP-Endpunkt unter <Adresse deiner Instanz>/api/v1/mcp, mit einem API-Schlüssel aus Einstellungen, API-Schlüssel & Konnektoren. Nichts hier hängt von der gehosteten Cloud ab."
   }
 }

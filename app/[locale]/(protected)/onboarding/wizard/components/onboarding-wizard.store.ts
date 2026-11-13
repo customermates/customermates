@@ -84,6 +84,7 @@ export class OnboardingWizardStore {
   selectedTemplate: TemplateSlug | null = null;
   promptState: PromptState = "idle";
   promptText: string | null = null;
+  promptConnected: boolean | null = null;
   agentConnected = false;
   agentStatusFailed = false;
   schemaRevision: number | null = null;
@@ -241,6 +242,7 @@ export class OnboardingWizardStore {
     this.promptVersion += 1;
     this.promptState = "idle";
     this.promptText = null;
+    this.promptConnected = null;
   };
 
   applyPlaybook = async (skip = false): Promise<void> => {
@@ -383,7 +385,31 @@ export class OnboardingWizardStore {
       if (this.currentStep === "prompt" && this.schemaBaseline === null)
         this.schemaBaseline = result.data.schemaRevision;
     });
+    if (this.agentConnected && this.promptState === "ready" && this.promptConnected === false)
+      await this.reloadPromptWording();
   };
+
+  private async reloadPromptWording(): Promise<void> {
+    const slug = this.selectedTemplate;
+    if (!slug) return;
+    const version = (this.promptVersion += 1);
+    runInAction(() => {
+      this.promptConnected = null;
+    });
+    try {
+      const result = await getOnboardingTemplatePromptAction({ slug });
+      if (version !== this.promptVersion) return;
+      runInAction(() => {
+        if (result.ok && result.data.prompt !== null) {
+          this.promptText = result.data.prompt;
+          this.promptConnected = result.data.connected;
+        } else this.promptConnected = false;
+      });
+    } catch (error) {
+      if (version === this.promptVersion) runInAction(() => (this.promptConnected = false));
+      reportApplicationError(error);
+    }
+  }
 
   loadPrompt = async (): Promise<void> => {
     const slug = this.selectedTemplate;
@@ -396,6 +422,7 @@ export class OnboardingWizardStore {
       runInAction(() => {
         const prompt = result.ok ? result.data.prompt : null;
         this.promptText = prompt;
+        this.promptConnected = result.ok && prompt !== null ? result.data.connected : null;
         this.promptState = prompt === null ? "failed" : "ready";
       });
     } catch (error) {

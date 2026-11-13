@@ -9,11 +9,12 @@ export function renderOnboardingTemplatePrompt(args: {
   deployment: OnboardingTemplateDeployment;
   baseUrl: string;
   mcpUrl: string;
+  connected: boolean;
 }): string {
   return renderTemplatePrompt(args.spec, args.text, {
     deployment: args.deployment,
     signupUrl: args.baseUrl,
-    connected: true,
+    connected: args.connected,
     mcpUrl: args.mcpUrl,
   });
 }

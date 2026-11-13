@@ -72,6 +72,7 @@
     "cloud": "Załóż przestrzeń roboczą Customermates pod adresem {url} i połącz z nią asystenta. Szablon jest tam już wybrany.",
     "connected": "Jesteś już połączony z przestrzenią roboczą Customermates, która przyjmie ten szablon. Pracuj w niej i nie zakładaj kolejnej.",
     "connectedAt": "Ta przestrzeń robocza już istnieje i jesteś z nią połączony przez MCP pod adresem {mcpUrl}. Pracuj w tej przestrzeni roboczej i w żadnej innej.",
+    "existsAt": "Ta przestrzeń robocza już istnieje, ale asystent nie jest jeszcze z nią połączony. Połącz go przez MCP pod adresem {mcpUrl} za pomocą klucza API z Ustawienia, Klucze API i konektory. Dopóki połączenia nie ma, poproś mnie o jego dokończenie, zanim cokolwiek zmienisz. Potem pracuj w tej przestrzeni roboczej i w żadnej innej.",
     "selfHosted": "Użyj własnej instancji Customermates. Połącz asystenta z jej punktem końcowym MCP pod adresem <adres instancji>/api/v1/mcp za pomocą klucza API z Ustawienia, Klucze API i konektory. Nic tutaj nie zależy od hostowanej chmury."
   }
 }

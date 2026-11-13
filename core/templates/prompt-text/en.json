@@ -70,6 +70,7 @@
     "cloud": "Create a Customermates workspace at {url} and connect your assistant to it. The template is preselected there.",
     "connected": "You are already connected to the Customermates workspace that will hold this template. Work in it and do not create another one.",
     "connectedAt": "This workspace already exists and you are connected to it through MCP at {mcpUrl}. Work in this workspace and in no other.",
+    "existsAt": "This workspace already exists, but your assistant is not connected to it yet. Connect it through MCP at {mcpUrl}, with an API key from Settings, API keys. Until it is connected, ask me to finish the connection before you change anything. Then work in this workspace and in no other.",
     "selfHosted": "Use your own Customermates instance. Connect your assistant to its MCP endpoint at <your instance address>/api/v1/mcp with an API key from Settings, API keys. Nothing here depends on the hosted cloud."
   }
 }

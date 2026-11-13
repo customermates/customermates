@@ -433,6 +433,81 @@ describe("the template prompt", () => {
     expect(store.promptText).toBe("# Tracker");
   });
 
+  it("swaps the wording once the agent connects after the prompt was written for an unconnected one", async () => {
+    agentActions.getOnboardingTemplatePromptAction.mockResolvedValueOnce({
+      ok: true,
+      data: { prompt: "# Sales, connect first", connected: false },
+    });
+    const { store } = atGoal("agent");
+    await store.loadPrompt();
+    expect(store.promptConnected).toBe(false);
+
+    await store.refreshAgentStatus();
+    expect(store.agentConnected).toBe(false);
+    expect(store.promptText).toBe("# Sales, connect first");
+    expect(agentActions.getOnboardingTemplatePromptAction).toHaveBeenCalledOnce();
+
+    agentActions.getOnboardingAgentStatusAction.mockResolvedValue({
+      ok: true,
+      data: { connected: true, schemaRevision: 3 },
+    });
+    agentActions.getOnboardingTemplatePromptAction.mockResolvedValueOnce({
+      ok: true,
+      data: { prompt: "# Sales, connected", connected: true },
+    });
+    await store.refreshAgentStatus();
+
+    expect(store.promptText).toBe("# Sales, connected");
+    expect(store.promptConnected).toBe(true);
+    expect(store.promptState).toBe("ready");
+
+    await store.refreshAgentStatus();
+    expect(agentActions.getOnboardingTemplatePromptAction).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps the prompt text when the rewritten one cannot be loaded and tries again on the next check", async () => {
+    agentActions.getOnboardingTemplatePromptAction.mockResolvedValueOnce({
+      ok: true,
+      data: { prompt: "# Sales, connect first", connected: false },
+    });
+    const { store } = atGoal("agent");
+    await store.loadPrompt();
+    agentActions.getOnboardingAgentStatusAction.mockResolvedValue({
+      ok: true,
+      data: { connected: true, schemaRevision: 3 },
+    });
+
+    agentActions.getOnboardingTemplatePromptAction.mockRejectedValueOnce(new Error("offline"));
+    await store.refreshAgentStatus();
+    expect(store.promptText).toBe("# Sales, connect first");
+    expect(store.promptState).toBe("ready");
+    expect(store.promptConnected).toBe(false);
+
+    agentActions.getOnboardingTemplatePromptAction.mockResolvedValueOnce({
+      ok: true,
+      data: { prompt: "# Sales, connected", connected: true },
+    });
+    await store.refreshAgentStatus();
+    expect(store.promptText).toBe("# Sales, connected");
+  });
+
+  it("does not rewrite a prompt that was already written for a connected agent", async () => {
+    agentActions.getOnboardingTemplatePromptAction.mockResolvedValueOnce({
+      ok: true,
+      data: { prompt: "# Sales, connected", connected: true },
+    });
+    const { store } = atGoal("agent");
+    await store.loadPrompt();
+    agentActions.getOnboardingAgentStatusAction.mockResolvedValue({
+      ok: true,
+      data: { connected: true, schemaRevision: 3 },
+    });
+
+    await store.refreshAgentStatus();
+
+    expect(agentActions.getOnboardingTemplatePromptAction).toHaveBeenCalledOnce();
+  });
+
   it("reports a prompt that cannot be rendered and lets the user retry", async () => {
     agentActions.getOnboardingTemplatePromptAction.mockResolvedValueOnce({ ok: true, data: { prompt: null } });
     const { store } = atGoal("agent");

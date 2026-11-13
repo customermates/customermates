@@ -70,6 +70,7 @@
     "cloud": "Crée un espace de travail Customermates sur {url} et connecte ton assistant. Le modèle y est présélectionné.",
     "connected": "Tu es déjà connecté à l’espace de travail Customermates qui accueillera ce modèle. Travaille dedans et n’en crée pas un autre.",
     "connectedAt": "Cet espace de travail existe déjà et tu y es connecté par MCP à l’adresse {mcpUrl}. Travaille dans cet espace de travail et dans aucun autre.",
+    "existsAt": "Cet espace de travail existe déjà, mais ton assistant n’y est pas encore connecté. Connecte-le par MCP à l’adresse {mcpUrl}, avec une clé API tirée de Paramètres, Clés API et connecteurs. Tant que la connexion manque, demande-moi de la terminer avant de modifier quoi que ce soit. Travaille ensuite dans cet espace de travail et dans aucun autre.",
     "selfHosted": "Utilise ta propre instance Customermates. Connecte ton assistant à son point de terminaison MCP à l’adresse <adresse de ton instance>/api/v1/mcp avec une clé API tirée de Paramètres, Clés API et connecteurs. Rien ici ne dépend du cloud hébergé."
   }
 }

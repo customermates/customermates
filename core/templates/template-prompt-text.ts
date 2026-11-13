@@ -56,7 +56,7 @@ export type TemplatePromptText = {
   relationship: string;
   roadRules: { neverInvent: string; noSamples: string; readBack: string; sendNothing: string; sensitiveData: string };
   routinesIntro: string;
-  workspace: { cloud: string; connected: string; connectedAt: string; selfHosted: string };
+  workspace: { cloud: string; connected: string; connectedAt: string; existsAt: string; selfHosted: string };
 };
 
 const PROMPT_TEXT: Readonly<Record<AppLocale, TemplatePromptText>> = { de, en, es, fr, it, nl, pl, pt };

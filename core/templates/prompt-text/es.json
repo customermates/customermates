@@ -70,6 +70,7 @@
     "cloud": "Crea un espacio de trabajo de Customermates en {url} y conecta tu asistente. La plantilla ya viene preseleccionada allí.",
     "connected": "Ya estás conectado al espacio de trabajo de Customermates que alojará esta plantilla. Trabaja en él y no crees otro.",
     "connectedAt": "Este espacio de trabajo ya existe y estás conectado a él por MCP en {mcpUrl}. Trabaja en este espacio de trabajo y en ningún otro.",
+    "existsAt": "Este espacio de trabajo ya existe, pero tu asistente aún no está conectado a él. Conéctalo por MCP en {mcpUrl}, con una clave de API de Ajustes, Claves de API y conectores. Mientras falte la conexión, pídeme que la complete antes de cambiar nada. Después trabaja en este espacio de trabajo y en ningún otro.",
     "selfHosted": "Usa tu propia instancia de Customermates. Conecta tu asistente a su endpoint MCP en <dirección de tu instancia>/api/v1/mcp con una clave de API de Ajustes, Claves de API y conectores. Nada de esto depende de la nube alojada."
   }
 }

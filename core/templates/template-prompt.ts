@@ -41,6 +41,9 @@ function workspaceSection(spec: TemplateSpec, options: PromptOptions, copy: Temp
     ];
   }
   if (options.connected) return [heading(copy.headings.thisWorkspace, 1), copy.workspace.connected];
+  if (options.mcpUrl) {
+    return [heading(copy.headings.yourWorkspace, 1), fillPrompt(copy.workspace.existsAt, { mcpUrl: options.mcpUrl })];
+  }
   if (options.deployment === "cloud") {
     return [
       heading(copy.headings.getWorkspace, 1),

@@ -70,6 +70,7 @@
     "cloud": "Maak een Customermates-werkruimte aan via {url} en verbind je assistent ermee. Het sjabloon is daar al voorgeselecteerd.",
     "connected": "Je bent al verbonden met de Customermates-werkruimte die dit sjabloon gaat bevatten. Werk daarin en maak geen nieuwe aan.",
     "connectedAt": "Deze werkruimte bestaat al en je bent er via MCP mee verbonden op {mcpUrl}. Werk in deze werkruimte en in geen andere.",
+    "existsAt": "Deze werkruimte bestaat al, maar je assistent is er nog niet mee verbonden. Verbind hem via MCP op {mcpUrl}, met een API-sleutel uit Instellingen, API-sleutels & connectoren. Zolang de verbinding ontbreekt, vraag me haar af te ronden voordat je iets wijzigt. Werk daarna in deze werkruimte en in geen andere.",
     "selfHosted": "Gebruik je eigen Customermates-instantie. Verbind je assistent met het MCP-eindpunt op <adres van je instantie>/api/v1/mcp met een API-sleutel uit Instellingen, API-sleutels & connectoren. Niets hiervan hangt af van de gehoste cloud."
   }
 }

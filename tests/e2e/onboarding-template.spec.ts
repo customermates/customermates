@@ -246,6 +246,29 @@ test.describe("cloud onboarding with templates", () => {
     expect(errors).toEqual([]);
   });
 
+  test("connecting later writes the prompt for an agent that still has to connect, and rewrites it after the first call", async ({
+    page,
+    database,
+    workspace,
+  }) => {
+    const errors = collectPageErrors(page);
+    const companyId = await openAgentConnect(page, database, workspace);
+    await clickHydrated(page.locator("#onboarding-connect-later"));
+    await expect(heading(page, steps.template.title)).toBeVisible();
+    await clickHydrated(page.locator("#onboarding-template-continue"));
+
+    await expect(heading(page, steps.prompt.titleGeneric)).toBeVisible();
+    const prompt = page.locator("#onboarding-template-prompt");
+    await expect(prompt).toHaveAttribute("aria-busy", "false");
+    await expect(prompt).toContainText("your assistant is not connected to it yet");
+    await expect(prompt).not.toContainText("you are connected");
+
+    await database.query('UPDATE "Company" SET "agentFirstCallAt"=NOW() WHERE id=$1', [companyId]);
+    await expect(prompt).toContainText("you are connected to it through MCP", { timeout: 20_000 });
+    await expect(prompt).not.toContainText("not connected to it yet");
+    expect(errors).toEqual([]);
+  });
+
   test("the prompt falls back to a selected text when the clipboard refuses", async ({ page, database, workspace }) => {
     const errors = collectPageErrors(page);
     await stubClipboard(page, true);

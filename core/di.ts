@@ -1355,7 +1355,7 @@ export const getRecordDiscoveryAnswerInteractor = () =>
 export const getGetOnboardingAgentStatusInteractor = () =>
   new GetOnboardingAgentStatusInteractor(getOnboardingFunnelRepo(), getRouteGuardService());
 export const getGetOnboardingTemplatePromptInteractor = () =>
-  new GetOnboardingTemplatePromptInteractor(loadTemplateBundle, getRouteGuardService());
+  new GetOnboardingTemplatePromptInteractor(loadTemplateBundle, getRouteGuardService(), getOnboardingFunnelRepo());
 export const getGetOnboardingTemplateChoiceInteractor = () =>
   new GetOnboardingTemplateChoiceInteractor(getOnboardingFunnelRepo());
 
