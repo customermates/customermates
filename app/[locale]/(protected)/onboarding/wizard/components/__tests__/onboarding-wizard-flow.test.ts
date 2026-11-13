@@ -56,8 +56,9 @@ describe("wizard steps", () => {
     expect(persistedWizardStep("ai")).toBe("ai");
     expect(persistedWizardStep("template")).toBe("template");
     expect(persistedWizardStep("prompt")).toBe("prompt");
-    expect(persistedWizardStep("goal")).toBe("invite");
+    expect(persistedWizardStep("goal")).toBe("goal");
     expect(persistedWizardStep("setup")).toBe("invite");
+    expect(persistedWizardStep("playbook")).toBe("invite");
   });
 });
 
@@ -92,6 +93,60 @@ describe("resuming the wizard", () => {
     expect(resolveWizardResume({ ...agent, savedStep: "ai" }).resumeStepIndex).toBe(2);
     expect(resolveWizardResume({ ...agent, savedStep: "invite" }).resumeStepIndex).toBe(2);
     expect(resolveWizardResume({ ...agent, savedStep: undefined }).flow).toBe("agent");
+  });
+
+  it("resumes on the goal step after Back to it, whatever flow the choice there leads to", () => {
+    const back = { ...owner, setupStepCompleted: true, jobSelected: true, savedStep: "goal" as const };
+
+    expect(resolveWizardResume({ ...back, job: "agent" })).toMatchObject({ resumeStepIndex: 1, flow: "agent" });
+    expect(resolveWizardResume({ ...back, job: "workspace" })).toMatchObject({
+      steps: ["profile", "goal", "template", "setup", "invite", "ai"],
+      resumeStepIndex: 1,
+      flow: "workspace",
+    });
+    expect(resolveWizardResume({ ...back, job: "followup" }).resumeStepIndex).toBe(1);
+    expect(resolveWizardResume({ ...back, setupStepCompleted: false, job: "agent" }).resumeStepIndex).toBe(1);
+    expect(resolveWizardResume({ ...back, jobSelected: false })).toMatchObject({ resumeStepIndex: 1, flow: "empty" });
+  });
+
+  it("resumes on the goal step behind the source question, never in front of it", () => {
+    const withSource = {
+      ...owner,
+      sourceAvailable: true,
+      setupStepCompleted: true,
+      jobSelected: true,
+      job: "agent" as const,
+    };
+
+    expect(resolveWizardResume({ ...withSource, savedStep: "goal" })).toMatchObject({
+      steps: ["profile", "source", "goal", "ai", "template", "prompt"],
+      resumeStepIndex: 2,
+    });
+    expect(
+      resolveWizardResume({
+        ...withSource,
+        setupStepCompleted: false,
+        jobSelected: false,
+        sourceResolved: false,
+        savedStep: "goal",
+      }).resumeStepIndex,
+    ).toBe(1);
+  });
+
+  it("ignores a saved goal step where the flow has none", () => {
+    expect(
+      resolveWizardResume({
+        setupAvailable: false,
+        chooseAvailable: false,
+        profileCompleted: true,
+        isInvited: false,
+        setupStepCompleted: true,
+        savedStep: "goal",
+      }),
+    ).toMatchObject({ steps: ["profile", "invite", "ai"], resumeStepIndex: 1 });
+    expect(
+      resolveWizardResume({ ...owner, isInvited: true, setupStepCompleted: true, jobSelected: true, savedStep: "goal" }),
+    ).toMatchObject({ steps: ["profile", "invite", "ai"], resumeStepIndex: 1 });
   });
 
   it("resumes the agent flow before the choice is saved on the connect step", () => {

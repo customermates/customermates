@@ -107,7 +107,7 @@ const EmptyWorkspaceAction = observer(() => {
 export const StepGoal = observer(() => {
   const t = useTranslations();
   const { onboardingWizardStore: store } = useRootStore();
-  const disabled = store.isSubmitting || store.isSaving || store.isInitializing;
+  const disabled = store.isSubmitting || store.isInitializing;
   const followupVisible = !store.selfHosted && (store.suggestedJob === "followup" || store.selectedJob === "followup");
   const jobs: OnboardingJob[] = ["agent", "workspace", ...(followupVisible ? (["followup"] as const) : [])];
   const mateTitle = store.selfHosted

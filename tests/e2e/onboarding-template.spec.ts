@@ -16,7 +16,7 @@ const steps = wizard.steps;
 const SIGNUP_TEMPLATE = "client-tracker";
 const DEFAULT_TEMPLATE = "sales-pipeline";
 
-type SavedProgress = { step: string; template: string | null; schemaBaseline: number | null };
+type SavedProgress = { step: string; job: string | null; template: string | null; schemaBaseline: number | null };
 
 function heading(page: Page, name: string) {
   return page.getByRole("heading", { level: 1, name, exact: true });
@@ -70,6 +70,12 @@ async function stubClipboard(page: Page, blocked: boolean) {
       document.execCommand = () => false;
     }
   }, blocked);
+}
+
+async function refocusTab(page: Page) {
+  const refreshed = page.waitForResponse((response) => response.url().includes("_rsc="));
+  await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
+  await refreshed;
 }
 
 async function expectNoHorizontalOverflow(page: Page) {
@@ -175,6 +181,36 @@ test.describe("cloud onboarding with templates", () => {
       [companyId],
     );
     expect(rows).toEqual([{ done: expect.any(Date) }]);
+    expect(errors).toEqual([]);
+  });
+
+  test("Back to the goal step stays there on a refocus and a reload and keeps the path picked there", async ({
+    page,
+    database,
+    workspace,
+  }) => {
+    const errors = collectPageErrors(page);
+    const companyId = await openAgentConnect(page, database, workspace);
+    const mate = page.getByRole("radio", { name: new RegExp(`^${goal.workspace.title}`) });
+
+    await clickHydrated(page.getByRole("button", { name: englishMessages.Common.actions.back, exact: true }));
+    await expect(heading(page, steps.goal.title)).toBeVisible();
+    await expect.poll(async () => (await savedProgress(database, companyId))?.step).toBe("goal");
+
+    await refocusTab(page);
+    await expect(heading(page, steps.goal.title)).toBeVisible();
+    await expect(heading(page, steps.connect.title)).toHaveCount(0);
+
+    await clickHydrated(mate);
+    await expect.poll(async () => (await savedProgress(database, companyId))?.job).toBe("workspace");
+    await refocusTab(page);
+    await expect(heading(page, steps.goal.title)).toBeVisible();
+    await expect(mate).toBeChecked();
+
+    await page.reload();
+    await expect(heading(page, steps.goal.title)).toBeVisible();
+    await expect(heading(page, steps.connect.title)).toHaveCount(0);
+    await expect(mate).toBeChecked();
     expect(errors).toEqual([]);
   });
 

@@ -63,7 +63,7 @@ export function connectsAgentWithVerification(context: WizardFlowContext, flow: 
 type PersistedStep = OnboardingWizardProgress["step"];
 
 export function persistedWizardStep(step: WizardStep): PersistedStep {
-  return step === "ai" || step === "template" || step === "prompt" ? step : "invite";
+  return step === "goal" || step === "ai" || step === "template" || step === "prompt" ? step : "invite";
 }
 
 export type WizardResumeInput = WizardFlowContext & {
@@ -122,13 +122,16 @@ export function resolveWizardResume(input: WizardResumeInput): WizardResume {
     !(input.sourceResolved ?? true) &&
     !(input.jobSelected ?? true) &&
     !input.setupStarted;
+  const resumesGoal = owner && input.savedStep === "goal" && steps.includes("goal");
   const resumeStep: WizardStep = !owner
     ? "invite"
     : awaitingSource
       ? "source"
-      : open
-        ? resumeStepOpen(input, steps, job)
-        : resumeStepAfterSetup(steps, flow, input.savedStep);
+      : resumesGoal
+        ? "goal"
+        : open
+          ? resumeStepOpen(input, steps, job)
+          : resumeStepAfterSetup(steps, flow, input.savedStep);
   const positions = [resumeStep, "invite", "goal", "profile"].map((step) => steps.indexOf(step as WizardStep));
   return { steps, resumeStepIndex: positions.find((position) => position !== -1) ?? 0, flow };
 }

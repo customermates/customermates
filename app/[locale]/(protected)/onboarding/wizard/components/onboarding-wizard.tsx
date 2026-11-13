@@ -113,6 +113,7 @@ const OnboardingWizardContent = observer(
       ? Boolean(setupStatus?.available) && !isInvited
       : appMode === "cloud" && !isInvited;
     const { store: setupStore, ready: setupReady } = useHydratedSetupStore(setupStatus ?? UNAVAILABLE_SETUP);
+    const savedGoalJob = chooseAvailable && savedProgress?.step === "goal" ? savedProgress.job : null;
     const { steps, resumeStepIndex, flow } = resolveWizardResume({
       profileCompleted,
       isInvited,
@@ -123,7 +124,7 @@ const OnboardingWizardContent = observer(
       sourceResolved: jobChoice?.discoveryResolved,
       setupStepCompleted,
       jobSelected: !jobChoice || jobChoice.selectedJob !== null,
-      job: jobChoice?.preselectedJob ?? (chooseAvailable ? PRESELECTED_ONBOARDING_JOB : undefined),
+      job: savedGoalJob ?? jobChoice?.preselectedJob ?? (chooseAvailable ? PRESELECTED_ONBOARDING_JOB : undefined),
       setupStarted: Boolean(setupStatus?.setup),
       savedStep: savedProgress?.step,
     });
@@ -135,10 +136,14 @@ const OnboardingWizardContent = observer(
         wizardJobChoice(
           preselectedJob === undefined
             ? undefined
-            : { preselectedJob, signupJob: signupJob ?? null, suggestedPlaybook: suggestedPlaybook ?? null },
-          chooseAvailable ? PRESELECTED_ONBOARDING_JOB : undefined,
+            : {
+                preselectedJob: savedGoalJob ?? preselectedJob,
+                signupJob: signupJob ?? null,
+                suggestedPlaybook: suggestedPlaybook ?? null,
+              },
+          savedGoalJob ?? (chooseAvailable ? PRESELECTED_ONBOARDING_JOB : undefined),
         ),
-      [chooseAvailable, preselectedJob, signupJob, suggestedPlaybook],
+      [chooseAvailable, preselectedJob, savedGoalJob, signupJob, suggestedPlaybook],
     );
     const savedTemplate = savedProgress?.template ?? null;
     const initialTemplate =

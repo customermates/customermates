@@ -149,10 +149,15 @@ export class OnboardingWizardStore {
   }
 
   get progress(): OnboardingWizardProgress {
+    return this.progressAt(this.currentStep);
+  }
+
+  private progressAt(step: WizardStep): OnboardingWizardProgress {
     return {
-      step: persistedWizardStep(this.currentStep),
+      step: persistedWizardStep(step),
       inviteTab: this.inviteTab,
       ai: this.rootStore.stepAiStore.selection,
+      job: step === "goal" ? this.selectedJob : null,
       template: this.selectedTemplate,
       schemaBaseline: this.schemaBaseline,
     };
@@ -275,7 +280,7 @@ export class OnboardingWizardStore {
         return;
       }
       if (outcome.next === "ai") {
-        if (this.userId && !(await this.persistProgress({ ...this.progress, step: "ai" }))) return;
+        if (this.userId && !(await this.persistProgress(this.progressAt("ai")))) return;
         this.moveTo("ai", { closeBehind: !this.connectsAgent });
         return;
       }
@@ -322,8 +327,7 @@ export class OnboardingWizardStore {
 
   private async moveToPersisted(step: WizardStep): Promise<boolean> {
     const version = this.initializationVersion;
-    if (this.userId && !(await this.persistProgress({ ...this.progress, step: persistedWizardStep(step) })))
-      return false;
+    if (this.userId && !(await this.persistProgress(this.progressAt(step)))) return false;
     if (version !== this.initializationVersion) return false;
     this.moveTo(step, { closeBehind: false });
     return true;
@@ -473,8 +477,8 @@ export class OnboardingWizardStore {
   next = async () => {
     if (this.isSaving || this.currentStepIndex >= this.steps.length - 1) return;
     const version = this.initializationVersion;
-    const step = persistedWizardStep(this.steps[this.currentStepIndex + 1]);
-    if (this.userId && !(await this.persistProgress({ ...this.progress, step }))) return;
+    const step = this.steps[this.currentStepIndex + 1];
+    if (this.userId && !(await this.persistProgress(this.progressAt(step)))) return;
     if (version !== this.initializationVersion) return;
     runInAction(() => {
       this.currentStepIndex += 1;
@@ -484,8 +488,8 @@ export class OnboardingWizardStore {
   back = async () => {
     if (this.isSaving || this.currentStepIndex <= this.minStepIndex) return;
     const version = this.initializationVersion;
-    const target = persistedWizardStep(this.steps[this.currentStepIndex - 1]);
-    if (this.userId && !(await this.persistProgress({ ...this.progress, step: target }))) return;
+    const target = this.steps[this.currentStepIndex - 1];
+    if (this.userId && !(await this.persistProgress(this.progressAt(target)))) return;
     if (version !== this.initializationVersion) return;
     runInAction(() => {
       if (this.currentStepIndex > this.minStepIndex) this.currentStepIndex -= 1;

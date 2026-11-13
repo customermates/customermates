@@ -457,6 +457,52 @@ describe("OnboardingWizard", () => {
     expect(html).toContain("OnboardingWizard.progress current=4 total=4");
   });
 
+  it("resumes on the goal step after Back to it and shows the path picked there instead of the saved choice", () => {
+    const base = { step: "goal", inviteTab: "link", ai: {}, template: null, schemaBaseline: null };
+    const render = (job: string | null) =>
+      renderWizard({
+        profileCompleted: true,
+        setupStatus: AVAILABLE,
+        setupStepCompleted: true,
+        jobChoice: choice("agent"),
+        templates: CARDS,
+        savedProgress: { ...base, job } as never,
+      });
+
+    const agent = render("agent");
+    expect(agent).toContain("OnboardingWizard.steps.goal.title");
+    expect(agent).not.toContain("OnboardingWizard.steps.connect.title");
+    expect(agent).not.toContain("OnboardingWizard.milestones.setup");
+
+    const mate = render("workspace");
+    expect(mate).toContain("OnboardingWizard.steps.goal.title");
+    expect(mate).toContain("OnboardingWizard.milestones.setup");
+    expect(render(null)).toContain("OnboardingWizard.steps.goal.title");
+  });
+
+  it("does not let a saved goal step reach an invited member or a demo workspace", () => {
+    const saved = { step: "goal", inviteTab: "link", ai: {}, template: null, job: "workspace", schemaBaseline: null };
+
+    expect(
+      renderWizard({
+        profileCompleted: true,
+        isInvited: true,
+        setupStepCompleted: true,
+        savedProgress: saved as never,
+      }),
+    ).not.toContain("OnboardingWizard.steps.goal.title");
+    expect(
+      renderWizard({
+        profileCompleted: true,
+        appMode: "demo",
+        jobChoice: undefined,
+        setupStatus: SELF_HOSTED,
+        setupStepCompleted: true,
+        savedProgress: saved as never,
+      }),
+    ).not.toContain("OnboardingWizard.steps.goal.title");
+  });
+
   it("names the agent in the title of the prompt step and counts it as part of the template milestone", () => {
     testContext.agentName = "Claude";
     const saved = { step: "prompt", inviteTab: "link", ai: {}, template: "sales-pipeline", schemaBaseline: 3 };

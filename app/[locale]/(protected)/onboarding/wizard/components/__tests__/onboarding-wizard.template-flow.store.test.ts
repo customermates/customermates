@@ -22,7 +22,9 @@ vi.mock("@/app/[locale]/(protected)/w/[workspace]/settings/(account)/actions", (
 vi.mock("@/core/errors/report-application-error", () => ({ reportApplicationError: vi.fn() }));
 
 import { OnboardingWizardStore, type WizardFlowOptions } from "../onboarding-wizard.store";
+import { resolveWizardResume } from "../onboarding-wizard-flow";
 import { AiConnectionStore } from "@/components/ai-connection/ai-connection.store";
+import { readOnboardingWizardProgress } from "@/features/onboarding-wizard/onboarding-wizard-progress.schema";
 
 const CLOUD_FLOW: WizardFlowOptions = { chooseAvailable: true, templatesAvailable: true, template: "sales-pipeline" };
 
@@ -70,6 +72,80 @@ describe("the user's own agent", () => {
     await store.back();
     expect(store.currentStep).toBe("goal");
     expect(store.isFirstStep).toBe(true);
+  });
+
+  it("saves the goal step with the chosen path when Back returns to it", async () => {
+    actions.selectOnboardingJobAction.mockResolvedValue({ ok: true, data: { job: "agent", next: "ai" } });
+    const { store } = atGoal("agent");
+    await store.chooseJob();
+
+    await store.back();
+
+    expect(actions.saveOnboardingWizardProgressAction).toHaveBeenLastCalledWith(
+      expect.objectContaining({ progress: expect.objectContaining({ step: "goal", job: "agent" }) }),
+    );
+  });
+
+  it("resumes on the goal step after Back when the page reloads or refreshes on refocus", async () => {
+    actions.selectOnboardingJobAction.mockResolvedValue({ ok: true, data: { job: "agent", next: "ai" } });
+    const { store } = atGoal("agent");
+    await store.chooseJob();
+    await store.back();
+    const saved = readOnboardingWizardProgress(actions.saveOnboardingWizardProgressAction.mock.lastCall?.[0].progress);
+
+    const resume = resolveWizardResume({
+      setupAvailable: true,
+      chooseAvailable: true,
+      templatesAvailable: true,
+      profileCompleted: true,
+      isInvited: false,
+      setupStepCompleted: true,
+      jobSelected: true,
+      job: saved.job ?? "agent",
+      savedStep: saved.step,
+    });
+    const { store: reloaded } = newStore();
+    reloaded.initialize(
+      resume.resumeStepIndex,
+      "owner-a",
+      saved,
+      true,
+      { selectedJob: saved.job ?? "agent", suggestedJob: null },
+      CLOUD_FLOW,
+    );
+
+    expect(reloaded.currentStep).toBe("goal");
+    expect(reloaded.selectedJob).toBe("agent");
+    expect(reloaded.isFirstStep).toBe(true);
+  });
+
+  it("saves the path picked on the goal step and keeps it only while the step is open", async () => {
+    const { store } = atGoal("agent");
+
+    store.setSelectedJob("workspace");
+    await store.persistProgress();
+    expect(actions.saveOnboardingWizardProgressAction).toHaveBeenLastCalledWith(
+      expect.objectContaining({ progress: expect.objectContaining({ step: "goal", job: "workspace" }) }),
+    );
+
+    actions.selectOnboardingJobAction.mockResolvedValue({ ok: true, data: { job: "workspace", next: "setup" } });
+    await store.chooseJob();
+    await store.persistProgress();
+    expect(store.currentStep).toBe("template");
+    expect(actions.saveOnboardingWizardProgressAction).toHaveBeenLastCalledWith(
+      expect.objectContaining({ progress: expect.objectContaining({ step: "template", job: null }) }),
+    );
+  });
+
+  it("restores the saved goal step and its path when the page opens again", () => {
+    const { store } = newStore();
+    const saved = { ...readOnboardingWizardProgress(null), step: "goal" as const, job: "workspace" as const };
+
+    store.initialize(1, "owner-a", saved, true, { selectedJob: "workspace", suggestedJob: null }, CLOUD_FLOW);
+
+    expect(store.currentStep).toBe("goal");
+    expect(store.selectedJob).toBe("workspace");
+    expect(store.steps).toEqual(["profile", "goal", "template", "setup", "invite", "ai"]);
   });
 
   it("moves from the connect step to the template step and saves it", async () => {
