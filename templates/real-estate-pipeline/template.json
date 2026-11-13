@@ -552,6 +552,7 @@
     },
     {
       "key": "weekly_owner_update",
+      "priority": 3,
       "trigger": { "kind": "schedule", "every": "week", "list": "listings" },
       "condition": [{ "operator": "in", "field": "listings.stage", "options": ["on_market"] }],
       "action": { "kind": "create_task", "taskKind": "owner_update", "assignee": "record_owner", "about": "listings" },
@@ -575,6 +576,7 @@
     },
     {
       "key": "listing_key_dates",
+      "priority": 1,
       "trigger": { "kind": "field_changed", "field": "listings.stage", "to": "under_contract" },
       "action": { "kind": "create_records", "lists": ["key_dates"] },
       "dueOffsetDays": 1,
@@ -582,6 +584,7 @@
     },
     {
       "key": "buyer_key_dates",
+      "priority": 2,
       "trigger": { "kind": "field_changed", "field": "buyer_searches.stage", "to": "under_contract" },
       "action": { "kind": "create_records", "lists": ["key_dates"] },
       "dueOffsetDays": 1,
@@ -632,6 +635,7 @@
     },
     {
       "key": "buyer_re_engage",
+      "priority": 5,
       "trigger": { "kind": "schedule", "every": "week", "weekday": 1, "list": "buyer_searches" },
       "condition": [
         { "operator": "in", "field": "buyer_searches.stage", "options": ["viewing"] },
@@ -643,6 +647,7 @@
     },
     {
       "key": "listing_price_review",
+      "priority": 4,
       "trigger": { "kind": "schedule", "every": "week", "weekday": 1, "list": "listings" },
       "condition": [{ "operator": "in", "field": "listings.stage", "options": ["on_market"] }],
       "action": { "kind": "create_task", "taskKind": "owner_update", "assignee": "record_owner", "about": "listings" },
@@ -651,6 +656,7 @@
     },
     {
       "key": "past_client_monthly_touch",
+      "priority": 6,
       "trigger": { "kind": "schedule", "every": "week", "weekday": 1, "list": "contacts" },
       "condition": [{ "operator": "olderThanDays", "field": "contacts.last_contact", "days": 30 }],
       "action": { "kind": "create_task", "taskKind": "nurture", "assignee": "workspace_owner", "about": "contacts" },

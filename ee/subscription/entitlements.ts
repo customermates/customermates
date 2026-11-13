@@ -59,6 +59,10 @@ export function effectivePlanId(subscription: PlanSubscription, now: Date = new 
   return isOnFreePlan(subscription, now) ? FREE_PLAN_ID : subscription.plan;
 }
 
+export function routineAllowanceOf(subscription: PlanSubscription, now: Date = new Date()): number | "unlimited" {
+  return getEntitlements(effectivePlanId(subscription, now)).includedRoutinesPerUser;
+}
+
 export function isSubscriptionLocked(subscription: PlanSubscription): boolean {
   return isSubscriptionExpired(subscription) && !isOnFreePlan(subscription);
 }

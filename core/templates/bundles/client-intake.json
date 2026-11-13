@@ -1096,7 +1096,8 @@
           "about": "intakes"
         },
         "dueOffsetDays": 1,
-        "needs": "today"
+        "needs": "today",
+        "priority": 1
       },
       {
         "key": "chase_form",
@@ -1113,7 +1114,8 @@
           "about": "intakes"
         },
         "dueOffsetDays": 3,
-        "needs": "today"
+        "needs": "today",
+        "priority": 2
       },
       {
         "key": "chase_document",
@@ -1157,7 +1159,8 @@
           "about": "intakes"
         },
         "dueOffsetDays": 1,
-        "needs": "today"
+        "needs": "today",
+        "priority": 6
       },
       {
         "key": "chase_signature",
@@ -1174,7 +1177,8 @@
           "about": "intakes"
         },
         "dueOffsetDays": 7,
-        "needs": "today"
+        "needs": "today",
+        "priority": 3
       },
       {
         "key": "decline_letter",
@@ -1191,7 +1195,8 @@
           "about": "intakes"
         },
         "dueOffsetDays": 1,
-        "needs": "today"
+        "needs": "today",
+        "priority": 5
       },
       {
         "key": "kickoff_event",
@@ -1222,7 +1227,8 @@
           "about": "intakes"
         },
         "dueOffsetDays": 14,
-        "needs": "today"
+        "needs": "today",
+        "priority": 7
       },
       {
         "key": "stalled_intake",
@@ -1248,7 +1254,8 @@
           "about": "intakes"
         },
         "dueOffsetDays": 0,
-        "needs": "today"
+        "needs": "today",
+        "priority": 4
       },
       {
         "key": "intake_form_records",

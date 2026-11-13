@@ -928,7 +928,8 @@
           "about": "opportunities"
         },
         "dueOffsetDays": 1,
-        "needs": "today"
+        "needs": "today",
+        "priority": 1
       },
       {
         "key": "book_discovery_call",
@@ -945,7 +946,8 @@
           "about": "opportunities"
         },
         "dueOffsetDays": 3,
-        "needs": "today"
+        "needs": "today",
+        "priority": 5
       },
       {
         "key": "send_proposal",
@@ -962,7 +964,8 @@
           "about": "opportunities"
         },
         "dueOffsetDays": 5,
-        "needs": "today"
+        "needs": "today",
+        "priority": 4
       },
       {
         "key": "follow_up_proposal",
@@ -979,7 +982,8 @@
           "about": "opportunities"
         },
         "dueOffsetDays": 3,
-        "needs": "today"
+        "needs": "today",
+        "priority": 2
       },
       {
         "key": "second_proposal_follow_up",
@@ -996,7 +1000,8 @@
           "about": "opportunities"
         },
         "dueOffsetDays": 10,
-        "needs": "today"
+        "needs": "today",
+        "priority": 9
       },
       {
         "key": "confirm_decision",
@@ -1013,7 +1018,8 @@
           "about": "opportunities"
         },
         "dueOffsetDays": 5,
-        "needs": "today"
+        "needs": "today",
+        "priority": 6
       },
       {
         "key": "won_close_date",
@@ -1033,7 +1039,8 @@
           ]
         },
         "dueOffsetDays": 0,
-        "needs": "today"
+        "needs": "today",
+        "priority": 11
       },
       {
         "key": "won_handover",
@@ -1050,7 +1057,8 @@
           "about": "opportunities"
         },
         "dueOffsetDays": 1,
-        "needs": "today"
+        "needs": "today",
+        "priority": 7
       },
       {
         "key": "lost_revisit",
@@ -1067,7 +1075,8 @@
           "about": "opportunities"
         },
         "dueOffsetDays": 90,
-        "needs": "today"
+        "needs": "today",
+        "priority": 10
       },
       {
         "key": "stale_deal_sweep",
@@ -1096,7 +1105,8 @@
           "about": "opportunities"
         },
         "dueOffsetDays": 0,
-        "needs": "today"
+        "needs": "today",
+        "priority": 3
       },
       {
         "key": "expected_close_passed",
@@ -1168,7 +1178,8 @@
           "assignee": "workspace_owner"
         },
         "dueOffsetDays": 0,
-        "needs": "today"
+        "needs": "today",
+        "priority": 8
       },
       {
         "key": "enquiry_form_records",
@@ -1222,7 +1233,8 @@
           "about": "opportunities"
         },
         "dueOffsetDays": 1,
-        "needs": "today"
+        "needs": "today",
+        "priority": 12
       },
       {
         "key": "fill_expected_close",
@@ -1244,7 +1256,8 @@
           "about": "opportunities"
         },
         "dueOffsetDays": 1,
-        "needs": "today"
+        "needs": "today",
+        "priority": 13
       }
     ],
     "acceptanceChecks": [

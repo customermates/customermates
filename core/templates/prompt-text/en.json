@@ -70,6 +70,11 @@
     "sendNothing": "Send nothing: no emails, messages, invitations or posts. Drafts only, and only when I ask.",
     "sensitiveData": "Keep sensitive personal data out of the workspace unless I ask for it."
   },
+  "routineAllowance": {
+    "limited": "The assistant routine allowance of your plan is {count} per user, and creating more is refused. Create only the first {count} of the numbered routines below, in that order, since the most useful come first. List the others as optional without creating them, and do not delete anything to make room.",
+    "none": "Your plan includes no assistant routines. Create none of the routines below and list them all as optional.",
+    "optional": "optional"
+  },
   "routinesIntro": "Propose these as a set. Set up only the ones marked as available and tell me about the rest.",
   "workspace": {
     "cloud": "Create a Customermates workspace at {url} and connect your assistant to it. The template is preselected there.",

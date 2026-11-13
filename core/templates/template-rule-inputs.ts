@@ -21,7 +21,13 @@ export type TemplateRuleDraft = {
   notes: string[];
   input: UpsertAutomationRuleInput;
 };
-export type TemplateRuleSkip = { key: string; name: string; reason: string };
+export type TemplateRuleSkip = {
+  key: string;
+  name: string;
+  reason: string;
+  routine: boolean;
+  priority: number | null;
+};
 export type TemplateRuleInputs = { ready: TemplateRuleDraft[]; skipped: TemplateRuleSkip[] };
 export type TemplateRuleOptions = { timezone: string; atHour: number };
 
@@ -231,14 +237,27 @@ export function templateRuleInputs(
   const hasTasksList = setupRoleList(plan, "tasks") !== null;
   for (const proposal of proposals) {
     if (!proposal.supported) {
-      result.skipped.push({ key: proposal.key, name: proposal.name, reason: proposal.reason });
+      result.skipped.push({
+        key: proposal.key,
+        name: proposal.name,
+        reason: proposal.reason,
+        routine: proposal.routine,
+        priority: proposal.priority,
+      });
       continue;
     }
     const draft = hasTasksList
       ? draftOf(proposal, plan, resolver, options)
       : refuse<TemplateRuleDraft>("The workspace has no tasks list.");
     if (draft.ok) result.ready.push(draft.value);
-    else result.skipped.push({ key: proposal.key, name: proposal.name, reason: draft.reason });
+    else
+      result.skipped.push({
+        key: proposal.key,
+        name: proposal.name,
+        reason: draft.reason,
+        routine: false,
+        priority: null,
+      });
   }
   return result;
 }

@@ -104,9 +104,9 @@
   ],
   "followUpRules": [
     { "key": "enquiry_form_records", "trigger": { "kind": "form_submitted", "form": "enquiry" }, "action": { "kind": "create_records", "lists": ["contacts", "companies", "opportunities"] }, "dueOffsetDays": 0, "needs": "forms" },
-    { "key": "recap_reply", "trigger": { "kind": "record_created", "list": "opportunities" }, "action": { "kind": "create_task", "taskKind": "reply", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 1, "needs": "today" },
-    { "key": "discovery_proposal", "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "discovery_done" }, "action": { "kind": "create_task", "taskKind": "proposal", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 2, "needs": "today" },
-    { "key": "pilot_start_check", "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "pilot" }, "action": { "kind": "create_task", "taskKind": "pilot_check", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 14, "needs": "today" },
+    { "key": "recap_reply", "priority": 1,"trigger": { "kind": "record_created", "list": "opportunities" }, "action": { "kind": "create_task", "taskKind": "reply", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 1, "needs": "today" },
+    { "key": "discovery_proposal", "priority": 2,"trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "discovery_done" }, "action": { "kind": "create_task", "taskKind": "proposal", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 2, "needs": "today" },
+    { "key": "pilot_start_check", "priority": 6,"trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "pilot" }, "action": { "kind": "create_task", "taskKind": "pilot_check", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 14, "needs": "today" },
     {
       "key": "pilot_review",
       "trigger": { "kind": "date_reached", "field": "opportunities.pilot_end", "offsetDays": -3 },
@@ -115,11 +115,11 @@
       "dueOffsetDays": 0,
       "needs": "rules"
     },
-    { "key": "proposal_follow_up", "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "proposal" }, "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 3, "needs": "today" },
-    { "key": "parked_revisit_date", "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "parked" }, "action": { "kind": "set_dates", "dates": [{ "field": "opportunities.revisit_on", "offsetDays": 90 }] }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "proposal_follow_up", "priority": 3,"trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "proposal" }, "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 3, "needs": "today" },
+    { "key": "parked_revisit_date", "priority": 4,"trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "parked" }, "action": { "kind": "set_dates", "dates": [{ "field": "opportunities.revisit_on", "offsetDays": 90 }] }, "dueOffsetDays": 0, "needs": "rules" },
     { "key": "revisit_reopen", "trigger": { "kind": "date_reached", "field": "opportunities.revisit_on", "offsetDays": 0 }, "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 0, "needs": "rules" },
-    { "key": "won_handover", "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "won" }, "action": { "kind": "create_task", "taskKind": "handover", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 1, "needs": "today" },
-    { "key": "won_intro_request", "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "won" }, "action": { "kind": "create_task", "taskKind": "intro_request", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 30, "needs": "today" }
+    { "key": "won_handover", "priority": 5,"trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "won" }, "action": { "kind": "create_task", "taskKind": "handover", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 1, "needs": "today" },
+    { "key": "won_intro_request", "priority": 7,"trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "won" }, "action": { "kind": "create_task", "taskKind": "intro_request", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 30, "needs": "today" }
   ],
   "acceptanceChecks": [
     { "key": "stage_field", "kind": "field_exists", "ref": "opportunities.stage" },

@@ -70,6 +70,11 @@
     "sendNothing": "Non inviare nulla: né e-mail, né messaggi, né inviti, né post. Solo bozze, e solo se te lo chiedo.",
     "sensitiveData": "Tieni i dati personali sensibili fuori dallo spazio di lavoro, a meno che non lo chieda io."
   },
+  "routineAllowance": {
+    "limited": "La quota di routine dell’assistente del tuo piano è di {count} per utente e oltre non è consentito. Crea solo le prime {count} delle routine numerate qui sotto, in quest’ordine, perché le più utili vengono per prime. Elenca le altre come facoltative senza crearle e non eliminare nulla per fare spazio.",
+    "none": "Il tuo piano non include routine dell’assistente. Non creare nessuna delle routine qui sotto ed elencale tutte come facoltative.",
+    "optional": "facoltativa"
+  },
   "routinesIntro": "Proponile come insieme. Configura solo quelle contrassegnate come disponibili e parlami delle altre.",
   "workspace": {
     "cloud": "Crea uno spazio di lavoro Customermates su {url} e collega il tuo assistente. Il modello è già preselezionato lì.",

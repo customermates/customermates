@@ -70,6 +70,11 @@
     "sendNothing": "Verstuur niets: geen e-mails, berichten, uitnodigingen of posts. Alleen concepten, en alleen als ik erom vraag.",
     "sensitiveData": "Houd gevoelige persoonsgegevens buiten de werkruimte, tenzij ik erom vraag."
   },
+  "routineAllowance": {
+    "limited": "De quota voor assistentroutines van je abonnement is {count} per gebruiker, meer worden geweigerd. Maak alleen de eerste {count} van de genummerde routines hieronder aan, in die volgorde, want de nuttigste staan vooraan. Noem de overige als optioneel zonder ze aan te maken, en verwijder niets om ruimte te maken.",
+    "none": "Je abonnement bevat geen assistentroutines. Maak geen van de routines hieronder aan en noem ze allemaal optioneel.",
+    "optional": "optioneel"
+  },
   "routinesIntro": "Stel deze voor als een geheel. Stel alleen de als beschikbaar gemarkeerde in en vertel me over de rest.",
   "workspace": {
     "cloud": "Maak een Customermates-werkruimte aan via {url} en verbind je assistent ermee. Het sjabloon is daar al voorgeselecteerd.",

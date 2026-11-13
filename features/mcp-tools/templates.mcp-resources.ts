@@ -5,8 +5,9 @@ import { ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { completable } from "@modelcontextprotocol/sdk/server/completable.js";
 import { z } from "zod";
 
-import { getUserService } from "@/core/di";
+import { getCompanyRepo, getUserService } from "@/core/di";
 import { resolveActiveTenantUser } from "@/core/decorators/resolve-tenant-user";
+import { runWithTenant } from "@/core/decorators/tenant-context";
 import { compileTemplate } from "@/core/templates/compile-template";
 import { compileTemplateAutomation } from "@/core/templates/compile-template-automation";
 import { renderTemplatePrompt } from "@/core/templates/template-prompt";
@@ -17,6 +18,7 @@ import {
   loadTemplate,
 } from "@/core/templates/template-registry";
 import { type TemplateSlug, TEMPLATE_SLUGS, isTemplateSlug } from "@/core/templates/template-slugs";
+import { routineAllowanceOf } from "@/ee/subscription/entitlements";
 import { env } from "@/env";
 import { DEFAULT_LOCALE, isAppLocale } from "@/i18n/locale-registry";
 
@@ -34,6 +36,16 @@ async function workspaceLocale(): Promise<string> {
     return isAppLocale(user.displayLanguage) ? user.displayLanguage : DEFAULT_LOCALE;
   } catch {
     return DEFAULT_LOCALE;
+  }
+}
+
+async function workspaceRoutineAllowance(): Promise<number | "unlimited" | null> {
+  try {
+    const user = await resolveActiveTenantUser(() => getUserService().getActiveTenantUserOrThrow());
+    const subscription = await runWithTenant(user, () => getCompanyRepo().findSubscription());
+    return subscription ? routineAllowanceOf(subscription) : null;
+  } catch {
+    return null;
   }
 }
 
@@ -69,6 +81,7 @@ export async function templatePromptText(slug: TemplateSlug, locale: string): Pr
     deployment: deployment(),
     signupUrl: `${env.BASE_URL}/signup`,
     connected: true,
+    routineAllowance: await workspaceRoutineAllowance(),
   });
 }
 

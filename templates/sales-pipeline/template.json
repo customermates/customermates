@@ -351,6 +351,7 @@
   "followUpRules": [
     {
       "key": "qualify_new_opportunity",
+      "priority": 1,
       "trigger": { "kind": "record_created", "list": "opportunities" },
       "action": { "kind": "create_task", "taskKind": "call", "assignee": "record_owner", "about": "opportunities" },
       "dueOffsetDays": 1,
@@ -358,6 +359,7 @@
     },
     {
       "key": "book_discovery_call",
+      "priority": 5,
       "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "qualified" },
       "action": { "kind": "create_task", "taskKind": "meeting", "assignee": "record_owner", "about": "opportunities" },
       "dueOffsetDays": 3,
@@ -365,6 +367,7 @@
     },
     {
       "key": "send_proposal",
+      "priority": 4,
       "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "discovery" },
       "action": { "kind": "create_task", "taskKind": "proposal", "assignee": "record_owner", "about": "opportunities" },
       "dueOffsetDays": 5,
@@ -372,6 +375,7 @@
     },
     {
       "key": "follow_up_proposal",
+      "priority": 2,
       "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "proposal_sent" },
       "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "opportunities" },
       "dueOffsetDays": 3,
@@ -379,6 +383,7 @@
     },
     {
       "key": "second_proposal_follow_up",
+      "priority": 9,
       "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "proposal_sent" },
       "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "opportunities" },
       "dueOffsetDays": 10,
@@ -386,6 +391,7 @@
     },
     {
       "key": "confirm_decision",
+      "priority": 6,
       "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "negotiation" },
       "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "opportunities" },
       "dueOffsetDays": 5,
@@ -393,6 +399,7 @@
     },
     {
       "key": "won_close_date",
+      "priority": 11,
       "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "won" },
       "action": { "kind": "set_dates", "dates": [{ "field": "opportunities.closed_on", "offsetDays": 0 }] },
       "dueOffsetDays": 0,
@@ -400,6 +407,7 @@
     },
     {
       "key": "won_handover",
+      "priority": 7,
       "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "won" },
       "action": { "kind": "create_task", "taskKind": "handover", "assignee": "record_owner", "about": "opportunities" },
       "dueOffsetDays": 1,
@@ -407,6 +415,7 @@
     },
     {
       "key": "lost_revisit",
+      "priority": 10,
       "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "lost" },
       "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "opportunities" },
       "dueOffsetDays": 90,
@@ -414,6 +423,7 @@
     },
     {
       "key": "stale_deal_sweep",
+      "priority": 3,
       "trigger": { "kind": "unchanged_for", "field": "opportunities.stage", "days": 14 },
       "condition": [
         { "operator": "in", "field": "opportunities.stage", "options": ["new", "qualified", "discovery", "proposal_sent", "negotiation"] }
@@ -444,6 +454,7 @@
     },
     {
       "key": "weekly_pipeline_report",
+      "priority": 8,
       "trigger": { "kind": "schedule", "every": "week", "weekday": 5 },
       "action": { "kind": "create_task", "taskKind": "review", "assignee": "workspace_owner" },
       "dueOffsetDays": 0,
@@ -465,6 +476,7 @@
     },
     {
       "key": "fill_missing_value",
+      "priority": 12,
       "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "discovery" },
       "condition": [{ "operator": "empty", "field": "opportunities.value" }],
       "action": { "kind": "create_task", "taskKind": "review", "assignee": "record_owner", "about": "opportunities" },
@@ -473,6 +485,7 @@
     },
     {
       "key": "fill_expected_close",
+      "priority": 13,
       "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "proposal_sent" },
       "condition": [{ "operator": "empty", "field": "opportunities.expected_close" }],
       "action": { "kind": "create_task", "taskKind": "review", "assignee": "record_owner", "about": "opportunities" },

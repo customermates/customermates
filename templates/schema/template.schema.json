@@ -1648,6 +1648,11 @@
               "incomingWebhooks"
             ]
           },
+          "priority": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99
+          },
           "variants": {
             "type": "object",
             "propertyNames": {

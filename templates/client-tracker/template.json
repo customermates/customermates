@@ -283,6 +283,7 @@
     },
     {
       "key": "chase_waiting_client",
+      "priority": 2,
       "trigger": { "kind": "field_changed", "field": "clients.status", "to": "waiting_on_client" },
       "action": { "kind": "create_task", "taskKind": "chase", "assignee": "record_owner", "about": "clients" },
       "dueOffsetDays": 7,
@@ -298,6 +299,7 @@
     },
     {
       "key": "daily_next_step_sweep",
+      "priority": 1,
       "trigger": { "kind": "schedule", "every": "day", "list": "clients" },
       "condition": [{ "operator": "in", "field": "clients.status", "options": ["active", "onboarding"] }],
       "action": { "kind": "create_task", "taskKind": "check_in", "assignee": "record_owner", "about": "clients" },
@@ -306,6 +308,7 @@
     },
     {
       "key": "stalled_client_sweep",
+      "priority": 3,
       "trigger": { "kind": "schedule", "every": "week", "weekday": 1, "list": "clients" },
       "condition": [
         { "operator": "in", "field": "clients.status", "options": ["active"] },
@@ -317,6 +320,7 @@
     },
     {
       "key": "closed_client_dates",
+      "priority": 5,
       "trigger": { "kind": "field_changed", "field": "clients.status", "to": "closed" },
       "action": {
         "kind": "set_dates",
@@ -330,6 +334,7 @@
     },
     {
       "key": "closed_client_data_review",
+      "priority": 6,
       "trigger": { "kind": "field_changed", "field": "clients.status", "to": "closed" },
       "action": { "kind": "create_task", "taskKind": "data_review", "assignee": "record_owner", "about": "clients" },
       "dueOffsetDays": 1095,
@@ -337,6 +342,7 @@
     },
     {
       "key": "inactive_reactivation",
+      "priority": 7,
       "trigger": { "kind": "field_changed", "field": "clients.status", "to": "inactive" },
       "action": { "kind": "create_task", "taskKind": "check_in", "assignee": "record_owner", "about": "clients" },
       "dueOffsetDays": 90,
@@ -358,6 +364,7 @@
     },
     {
       "key": "weekly_client_review",
+      "priority": 4,
       "trigger": { "kind": "schedule", "every": "week", "weekday": 1 },
       "action": { "kind": "create_task", "taskKind": "review", "assignee": "workspace_owner" },
       "dueOffsetDays": 0,

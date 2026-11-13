@@ -72,6 +72,11 @@
     "sendNothing": "Niczego nie wysyłaj: ani e-maili, ani wiadomości, ani zaproszeń, ani postów. Tylko szkice i tylko na moją prośbę.",
     "sensitiveData": "Trzymaj wrażliwe dane osobowe poza przestrzenią roboczą, chyba że o to poproszę."
   },
+  "routineAllowance": {
+    "limited": "Limit rutyn asystenta w tym planie wynosi {count} na użytkownika, a kolejne są odrzucane. Utwórz tylko pierwsze {count} z ponumerowanych rutyn poniżej, w tej kolejności, bo najprzydatniejsze są na początku. Pozostałe wypisz jako opcjonalne, nie tworząc ich, i niczego nie usuwaj, żeby zrobić miejsce.",
+    "none": "Ten plan nie obejmuje rutyn asystenta. Nie twórz żadnej z poniższych rutyn i wypisz wszystkie jako opcjonalne.",
+    "optional": "opcjonalna"
+  },
   "routinesIntro": "Zaproponuj je jako zestaw. Skonfiguruj tylko te oznaczone jako dostępne, a o pozostałych mi powiedz.",
   "workspace": {
     "cloud": "Załóż przestrzeń roboczą Customermates pod adresem {url} i połącz z nią asystenta. Szablon jest tam już wybrany.",

@@ -70,6 +70,26 @@ describe("compileTemplateAutomation", () => {
     ]);
   });
 
+  it("marks the rules the engine cannot run as routines and keeps their importance for Mate", () => {
+    const { proposals: mapped } = proposals("client-tracker");
+    const routines = mapped.flatMap((proposal) => (!proposal.supported && proposal.routine ? [proposal] : []));
+
+    expect(routines.map((proposal) => proposal.priority)).toEqual(expect.arrayContaining([1, 2, 3, 4, 5, 6, 7]));
+    expect(
+      routines.toSorted((first, second) => (first.priority ?? 0) - (second.priority ?? 0)).map((entry) => entry.key),
+    ).toEqual([
+      "dailyNextStepSweep",
+      "chaseWaitingClient",
+      "stalledClientSweep",
+      "weeklyClientReview",
+      "closedClientDates",
+      "closedClientDataReview",
+      "inactiveReactivation",
+    ]);
+    const formRule = mapped.find((proposal) => proposal.key === "enquiryFormRecords");
+    expect(formRule).toMatchObject({ supported: false, routine: false, priority: null });
+  });
+
   it("explains what the rules engine cannot do", () => {
     const reasons = Object.fromEntries(
       proposals("client-support-desk")

@@ -13,6 +13,7 @@ export type CompiledRule = {
   action: TemplateRule["action"];
   dueOffsetDays: number;
   needs: TemplateRule["needs"];
+  priority: number | null;
 };
 
 export type CompiledSavedView = {
@@ -119,6 +120,7 @@ function compileRules(spec: TemplateSpec, text: TemplateLocale, country: string)
       action: camelAction(rule.action),
       dueOffsetDays: rule.dueOffsetDays,
       needs: rule.needs,
+      priority: rule.priority ?? null,
     };
   });
 }

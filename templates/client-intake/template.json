@@ -324,6 +324,7 @@
   "followUpRules": [
     {
       "key": "reply_to_enquiry",
+      "priority": 1,
       "trigger": { "kind": "record_created", "list": "intakes" },
       "action": { "kind": "create_task", "taskKind": "reply", "assignee": "record_owner", "about": "intakes" },
       "dueOffsetDays": 1,
@@ -331,6 +332,7 @@
     },
     {
       "key": "chase_form",
+      "priority": 2,
       "trigger": { "kind": "field_changed", "field": "intakes.stage", "to": "form_sent" },
       "action": { "kind": "create_task", "taskKind": "chase_form", "assignee": "record_owner", "about": "intakes" },
       "dueOffsetDays": 3,
@@ -346,6 +348,7 @@
     },
     {
       "key": "review_received_document",
+      "priority": 6,
       "trigger": { "kind": "field_changed", "field": "document_requests.status", "to": "received" },
       "action": { "kind": "create_task", "taskKind": "review", "assignee": "record_owner", "about": "intakes" },
       "dueOffsetDays": 1,
@@ -353,6 +356,7 @@
     },
     {
       "key": "chase_signature",
+      "priority": 3,
       "trigger": { "kind": "field_changed", "field": "intakes.stage", "to": "agreement_sent" },
       "action": { "kind": "create_task", "taskKind": "chase_signature", "assignee": "record_owner", "about": "intakes" },
       "dueOffsetDays": 7,
@@ -360,6 +364,7 @@
     },
     {
       "key": "decline_letter",
+      "priority": 5,
       "trigger": { "kind": "field_changed", "field": "intakes.stage", "to": "declined" },
       "action": { "kind": "create_task", "taskKind": "decline_letter", "assignee": "record_owner", "about": "intakes" },
       "dueOffsetDays": 1,
@@ -374,6 +379,7 @@
     },
     {
       "key": "first_value_check",
+      "priority": 7,
       "trigger": { "kind": "field_changed", "field": "intakes.stage", "to": "onboarded" },
       "action": { "kind": "create_task", "taskKind": "check", "assignee": "record_owner", "about": "intakes" },
       "dueOffsetDays": 14,
@@ -381,6 +387,7 @@
     },
     {
       "key": "stalled_intake",
+      "priority": 4,
       "trigger": { "kind": "unchanged_for", "field": "intakes.stage", "days": 7 },
       "condition": [{ "operator": "notIn", "field": "intakes.stage", "options": ["onboarded", "declined"] }],
       "action": { "kind": "create_task", "taskKind": "review", "assignee": "record_owner", "about": "intakes" },

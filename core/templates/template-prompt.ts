@@ -18,7 +18,10 @@ type PromptOptions = {
   connected?: boolean;
   mcpUrl?: string;
   country?: string | null;
+  routineAllowance?: number | "unlimited" | null;
 };
+
+type RuleKind = keyof TemplatePromptText["availability"];
 
 function bullet(text: string): string {
   return `- ${text}`;
@@ -151,12 +154,12 @@ function pageSection(spec: TemplateSpec, text: TemplateLocale, copy: TemplatePro
   return [heading(copy.headings.knowledgePages, 7), ...pages];
 }
 
-function availability(rule: TemplateRule, shipped: ReadonlySet<Capability>, copy: TemplatePromptText): string {
-  if (rule.needs === "today") return copy.availability.routine;
-  if (!shipped.has(rule.needs)) return copy.availability.unavailable;
+function ruleKind(rule: TemplateRule, shipped: ReadonlySet<Capability>): RuleKind {
+  if (rule.needs === "today") return "routine";
+  if (!shipped.has(rule.needs)) return "unavailable";
   const gap = ruleEngineGap(rule);
-  if (gap === "unavailable") return copy.availability.unavailable;
-  return gap === "routine" ? copy.availability.routine : copy.availability.rule;
+  if (gap === "unavailable") return "unavailable";
+  return gap === "routine" ? "routine" : "rule";
 }
 
 function dueText(rule: TemplateRule, copy: TemplatePromptText, locale: string): string {
@@ -166,22 +169,41 @@ function dueText(rule: TemplateRule, copy: TemplatePromptText, locale: string): 
   });
 }
 
+const UNRANKED = 1_000;
+
 function ruleSection(
   spec: TemplateSpec,
   text: TemplateLocale,
   shipped: ReadonlySet<Capability>,
   copy: TemplatePromptText,
   country: string,
+  allowance: PromptOptions["routineAllowance"],
 ): string[] {
   if (!spec.followUpRules.length) return [];
-  const lines = spec.followUpRules.map((declared) => {
+  const entries = spec.followUpRules.map((declared) => {
     const rule = resolveTemplateRule(declared, country);
     const label = templateRuleText(needText(text.rules, declared.key, "rules"), declared, country);
-    return bullet(
-      `${label.title}${label.description ? `: ${label.description}` : ""}, ${dueText(rule, copy, text.locale)} [${availability(rule, shipped, copy)}]`,
-    );
+    const sentence = `${label.title}${label.description ? `: ${label.description}` : ""}, ${dueText(rule, copy, text.locale)}`;
+    return { kind: ruleKind(rule, shipped), priority: declared.priority ?? UNRANKED, sentence };
   });
-  return [heading(copy.headings.followUpRoutines, 8), copy.routinesIntro, ...lines];
+  const routines = entries.filter((entry) => entry.kind === "routine");
+  if (typeof allowance !== "number" || routines.length <= allowance) {
+    const lines = entries.map((entry) => bullet(`${entry.sentence} [${copy.availability[entry.kind]}]`));
+    return [heading(copy.headings.followUpRoutines, 8), copy.routinesIntro, ...lines];
+  }
+  const others = entries.filter((entry) => entry.kind !== "routine");
+  const ranked = [...routines].sort((first, second) => first.priority - second.priority);
+  const optional = `${copy.availability.routine}, ${copy.routineAllowance.optional}`;
+  return [
+    heading(copy.headings.followUpRoutines, 8),
+    copy.routinesIntro,
+    ...others.map((entry) => bullet(`${entry.sentence} [${copy.availability[entry.kind]}]`)),
+    allowance === 0 ? copy.routineAllowance.none : fillPrompt(copy.routineAllowance.limited, { count: allowance }),
+    ...ranked.map(
+      (entry, position) =>
+        `${position + 1}. ${entry.sentence} [${position < allowance ? copy.availability.routine : optional}]`,
+    ),
+  ];
 }
 
 function questionSection(text: TemplateLocale, copy: TemplatePromptText): string[] {
@@ -213,7 +235,7 @@ export function renderTemplatePrompt(spec: TemplateSpec, text: TemplateLocale, o
     relationshipSection(spec, text, copy),
     viewSection(spec, text, copy),
     pageSection(spec, text, copy),
-    ruleSection(spec, text, shipped, copy, templateCountry(text.locale, options.country)),
+    ruleSection(spec, text, shipped, copy, templateCountry(text.locale, options.country), options.routineAllowance),
     questionSection(text, copy),
     ruleOfTheRoad(copy),
   ];

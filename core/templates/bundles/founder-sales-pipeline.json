@@ -852,7 +852,8 @@
           "about": "opportunities"
         },
         "dueOffsetDays": 1,
-        "needs": "today"
+        "needs": "today",
+        "priority": 1
       },
       {
         "key": "discovery_proposal",
@@ -869,7 +870,8 @@
           "about": "opportunities"
         },
         "dueOffsetDays": 2,
-        "needs": "today"
+        "needs": "today",
+        "priority": 2
       },
       {
         "key": "pilot_start_check",
@@ -886,7 +888,8 @@
           "about": "opportunities"
         },
         "dueOffsetDays": 14,
-        "needs": "today"
+        "needs": "today",
+        "priority": 6
       },
       {
         "key": "pilot_review",
@@ -928,7 +931,8 @@
           "about": "opportunities"
         },
         "dueOffsetDays": 3,
-        "needs": "today"
+        "needs": "today",
+        "priority": 3
       },
       {
         "key": "parked_revisit_date",
@@ -948,7 +952,8 @@
           ]
         },
         "dueOffsetDays": 0,
-        "needs": "rules"
+        "needs": "rules",
+        "priority": 4
       },
       {
         "key": "revisit_reopen",
@@ -982,7 +987,8 @@
           "about": "opportunities"
         },
         "dueOffsetDays": 1,
-        "needs": "today"
+        "needs": "today",
+        "priority": 5
       },
       {
         "key": "won_intro_request",
@@ -999,7 +1005,8 @@
           "about": "opportunities"
         },
         "dueOffsetDays": 30,
-        "needs": "today"
+        "needs": "today",
+        "priority": 7
       }
     ],
     "acceptanceChecks": [

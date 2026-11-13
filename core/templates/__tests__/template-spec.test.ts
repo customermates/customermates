@@ -19,6 +19,18 @@ describe("template spec validation", () => {
     expect(messages.join()).toContain("requiresCapabilities must equal");
   });
 
+  it("rejects two rules with the same priority and a priority below one", () => {
+    const repeated = specIssuesAfter((spec) => {
+      spec.followUpRules[0].priority = 1;
+      spec.followUpRules[1].priority = 1;
+    });
+    expect(repeated.join()).toContain("Rule priority repeats: 1");
+    const none = schemaMessagesAfter((spec) => {
+      spec.followUpRules[0].priority = 0;
+    });
+    expect(none.length).toBeGreaterThan(0);
+  });
+
   it("rejects a rule that points at an unknown option", () => {
     const messages = specIssuesAfter((spec) => {
       const rule = spec.followUpRules.find((candidate) => candidate.trigger.kind === "field_changed");

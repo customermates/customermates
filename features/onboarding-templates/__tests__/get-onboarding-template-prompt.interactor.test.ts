@@ -16,6 +16,11 @@ import { loadTemplateBundle } from "@/core/templates/template-bundle-loader";
 
 import { GetOnboardingTemplatePromptInteractor } from "../get-onboarding-template-prompt.interactor";
 
+function routineLines(prompt: string): string[] {
+  const section = prompt.split(/^## 8\. .*$/m)[1]?.split(/^## 9\. /m)[0] ?? "";
+  return section.split("\n").filter((line) => /^\d+\. /.test(line));
+}
+
 const owner = createMockUser({ onboardingWizardCompletedAt: null, companyId: "6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f" });
 const env = MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted"; BASE_URL: string };
 
@@ -23,6 +28,8 @@ describe("GetOnboardingTemplatePromptInteractor", () => {
   let routeGuardService: { resolveAccountState: ReturnType<typeof vi.fn> };
   let loadBundle: ReturnType<typeof vi.fn>;
   let agentStatus: { findOnboardingAgentStatus: ReturnType<typeof vi.fn> };
+  let subscriptions: { findSubscription: ReturnType<typeof vi.fn> };
+  const trialEndDate = () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
   beforeEach(() => {
     env.APP_MODE = "cloud";
@@ -30,10 +37,18 @@ describe("GetOnboardingTemplatePromptInteractor", () => {
     routeGuardService = { resolveAccountState: vi.fn().mockResolvedValue({ state: "onboarding", user: owner }) };
     loadBundle = vi.fn(loadTemplateBundle);
     agentStatus = { findOnboardingAgentStatus: vi.fn().mockResolvedValue({ connected: true, schemaRevision: 2 }) };
+    subscriptions = {
+      findSubscription: vi.fn().mockResolvedValue({ status: "trial", plan: "pro", trialEndDate: trialEndDate() }),
+    };
   });
 
   const interactor = () =>
-    new GetOnboardingTemplatePromptInteractor(loadBundle as never, routeGuardService as never, agentStatus as never);
+    new GetOnboardingTemplatePromptInteractor(
+      loadBundle as never,
+      routeGuardService as never,
+      agentStatus as never,
+      subscriptions as never,
+    );
 
   it("renders the prompt of the chosen template for this workspace in the user's language", async () => {
     const result = await interactor().invoke({ slug: "sales-pipeline", locale: "de" });
@@ -45,6 +60,48 @@ describe("GetOnboardingTemplatePromptInteractor", () => {
     expect(prompt).not.toContain("?template=");
     expect(prompt).toContain("https://app.example.test/api/v1/mcp/w/6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f");
     expect(loadBundle).toHaveBeenCalledExactlyOnceWith("sales-pipeline");
+  });
+
+  it("tells the agent the routine allowance of the plan and which routines come first when the template has more", async () => {
+    const result = await interactor().invoke({ slug: "client-tracker", locale: "en" });
+    const prompt = (result as { data: { prompt: string } }).data.prompt;
+
+    expect(prompt).toContain("The assistant routine allowance of your plan is 5 per user");
+    const numbered = routineLines(prompt);
+    expect(numbered).toHaveLength(7);
+    expect(numbered[0]).toContain("Check in: no open Action on this client");
+    expect(numbered.slice(0, 5).join("\n")).not.toContain("optional]");
+    expect(numbered[5]).toContain("optional]");
+    expect(numbered[6]).toContain("optional]");
+  });
+
+  it("leaves the routines unnumbered on an unlimited plan, on an unknown plan and on a template that fits", async () => {
+    subscriptions.findSubscription.mockResolvedValue({ status: "active", plan: "business", trialEndDate: null });
+    const unlimited = await interactor().invoke({ slug: "client-tracker", locale: "en" });
+    expect((unlimited as { data: { prompt: string } }).data.prompt).not.toContain("routine allowance");
+
+    subscriptions.findSubscription.mockResolvedValue(null);
+    const unknown = await interactor().invoke({ slug: "client-tracker", locale: "en" });
+    expect((unknown as { data: { prompt: string } }).data.prompt).not.toContain("routine allowance");
+
+    subscriptions.findSubscription.mockResolvedValue({ status: "trial", plan: "pro", trialEndDate: trialEndDate() });
+    const fits = await interactor().invoke({ slug: "booking-page", locale: "en" });
+    expect((fits as { data: { prompt: string } }).data.prompt).not.toContain("routine allowance");
+  });
+
+  it("tells a workspace on the free plan that no routine can be created", async () => {
+    subscriptions.findSubscription.mockResolvedValue({
+      status: "expired",
+      plan: "pro",
+      trialEndDate: new Date("2020-01-01T00:00:00Z"),
+    });
+
+    const result = await interactor().invoke({ slug: "client-tracker", locale: "en" });
+
+    const prompt = (result as { data: { prompt: string } }).data.prompt;
+    expect(prompt).toContain("Your plan includes no assistant routines");
+    expect(routineLines(prompt)).toHaveLength(7);
+    expect(routineLines(prompt).every((line) => line.includes("optional]"))).toBe(true);
   });
 
   it("says the assistant is connected only once its first call reached the workspace", async () => {

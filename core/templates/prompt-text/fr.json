@@ -70,6 +70,11 @@
     "sendNothing": "N’envoie rien : ni e-mails, ni messages, ni invitations, ni publications. Des brouillons seulement, et seulement si je le demande.",
     "sensitiveData": "Garde les données personnelles sensibles hors de l’espace de travail, sauf si je le demande."
   },
+  "routineAllowance": {
+    "limited": "Le quota de routines d’assistant de ton forfait est de {count} par utilisateur, et les suivantes sont refusées. Crée seulement les {count} premières des routines numérotées ci-dessous, dans cet ordre, car les plus utiles viennent en premier. Indique les autres comme facultatives sans les créer, et ne supprime rien pour faire de la place.",
+    "none": "Ton forfait n’inclut aucune routine d’assistant. Ne crée aucune des routines ci-dessous et indique-les toutes comme facultatives.",
+    "optional": "facultative"
+  },
   "routinesIntro": "Propose-les comme un ensemble. Ne configure que celles marquées comme disponibles et parle-moi des autres.",
   "workspace": {
     "cloud": "Crée un espace de travail Customermates sur {url} et connecte ton assistant. Le modèle y est présélectionné.",

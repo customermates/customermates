@@ -330,6 +330,7 @@ const FollowUpRuleSchema = z.strictObject({
   action: RuleActionSchema,
   dueOffsetDays: DueOffsetDaysSchema,
   needs: z.enum(TEMPLATE_RULE_NEEDS),
+  priority: z.number().int().min(1).max(99).optional(),
   variants: z.record(CountryKeySchema, RuleVariantSchema).optional(),
 });
 

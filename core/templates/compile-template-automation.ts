@@ -40,7 +40,7 @@ export type AutomationProposal =
       conditions: AutomationProposalCondition[];
       effects: AutomationProposalEffect[];
     }
-  | { key: string; name: string; supported: false; reason: string };
+  | { key: string; name: string; supported: false; reason: string; routine: boolean; priority: number | null };
 
 const AGENT_ROUTINE = "This rule runs through an agent routine, not through the rules engine.";
 const NO_TRIGGER: Partial<Record<CompiledRule["trigger"]["kind"], string>> = {
@@ -66,6 +66,10 @@ export function ruleEngineGap(rule: {
   if (rule.trigger.kind in NO_TRIGGER || rule.action.kind === "set_dates") return "routine";
   if (rule.action.kind === "create_records" && !(rule.trigger.kind in SELF_CREATING_TRIGGER)) return "routine";
   return null;
+}
+
+export function ruleIsRoutine(rule: { needs: string; trigger: { kind: string }; action: { kind: string } }): boolean {
+  return rule.needs === "today" || ruleEngineGap(rule) === "routine";
 }
 
 function mapTrigger(trigger: CompiledRule["trigger"]): AutomationProposalTrigger | null {
@@ -130,7 +134,14 @@ function mapEffect(rule: CompiledRule, tasksList: string): AutomationProposalEff
 }
 
 function unsupported(rule: CompiledRule, reason: string): AutomationProposal {
-  return { key: rule.key, name: rule.title, supported: false, reason };
+  return {
+    key: rule.key,
+    name: rule.title,
+    supported: false,
+    reason,
+    routine: ruleIsRoutine(rule),
+    priority: rule.priority,
+  };
 }
 
 export function compileTemplateAutomation(spec: TemplateSpec, rules: CompiledRule[]): AutomationProposal[] {

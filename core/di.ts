@@ -1355,7 +1355,12 @@ export const getRecordDiscoveryAnswerInteractor = () =>
 export const getGetOnboardingAgentStatusInteractor = () =>
   new GetOnboardingAgentStatusInteractor(getOnboardingFunnelRepo(), getRouteGuardService());
 export const getGetOnboardingTemplatePromptInteractor = () =>
-  new GetOnboardingTemplatePromptInteractor(loadTemplateBundle, getRouteGuardService(), getOnboardingFunnelRepo());
+  new GetOnboardingTemplatePromptInteractor(
+    loadTemplateBundle,
+    getRouteGuardService(),
+    getOnboardingFunnelRepo(),
+    getCompanyRepo(),
+  );
 export const getGetOnboardingTemplateChoiceInteractor = () =>
   new GetOnboardingTemplateChoiceInteractor(getOnboardingFunnelRepo());
 
@@ -2340,7 +2345,7 @@ export const getReconcileRetrievalReservationsInteractor = () =>
   new ReconcileRetrievalReservationsInteractor(getAgentUsageService());
 
 export const getAgentTemplateRules = () =>
-  new AgentTemplateRules(getWorkspaceSetupRepo(), getRecordRepo(), getGetAutomationRulesInteractor());
+  new AgentTemplateRules(getWorkspaceSetupRepo(), getRecordRepo(), getGetAutomationRulesInteractor(), getCompanyRepo());
 
 export const getSendAgentMessageInteractor = () =>
   new SendAgentMessageInteractor(

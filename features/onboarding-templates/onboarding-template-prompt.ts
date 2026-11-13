@@ -10,11 +10,13 @@ export function renderOnboardingTemplatePrompt(args: {
   baseUrl: string;
   mcpUrl: string;
   connected: boolean;
+  routineAllowance?: number | "unlimited" | null;
 }): string {
   return renderTemplatePrompt(args.spec, args.text, {
     deployment: args.deployment,
     signupUrl: args.baseUrl,
     connected: args.connected,
     mcpUrl: args.mcpUrl,
+    routineAllowance: args.routineAllowance,
   });
 }

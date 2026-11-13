@@ -1621,7 +1621,8 @@
           "about": "listings"
         },
         "dueOffsetDays": 0,
-        "needs": "rules"
+        "needs": "rules",
+        "priority": 3
       },
       {
         "key": "viewing_feedback",
@@ -1675,7 +1676,8 @@
           ]
         },
         "dueOffsetDays": 1,
-        "needs": "rules"
+        "needs": "rules",
+        "priority": 1
       },
       {
         "key": "buyer_key_dates",
@@ -1692,7 +1694,8 @@
           ]
         },
         "dueOffsetDays": 1,
-        "needs": "rules"
+        "needs": "rules",
+        "priority": 2
       },
       {
         "key": "key_date_calendar",
@@ -1828,7 +1831,8 @@
           "about": "buyer_searches"
         },
         "dueOffsetDays": 0,
-        "needs": "today"
+        "needs": "today",
+        "priority": 5
       },
       {
         "key": "listing_price_review",
@@ -1854,7 +1858,8 @@
           "about": "listings"
         },
         "dueOffsetDays": 0,
-        "needs": "today"
+        "needs": "today",
+        "priority": 4
       },
       {
         "key": "past_client_monthly_touch",
@@ -1878,7 +1883,8 @@
           "about": "contacts"
         },
         "dueOffsetDays": 3,
-        "needs": "today"
+        "needs": "today",
+        "priority": 6
       }
     ],
     "acceptanceChecks": [

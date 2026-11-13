@@ -70,6 +70,11 @@
     "sendNothing": "Sende nichts: keine E-Mails, Nachrichten, Einladungen oder Beiträge. Nur Entwürfe, und nur wenn ich darum bitte.",
     "sensitiveData": "Halte sensible personenbezogene Daten aus dem Workspace heraus, es sei denn, ich verlange es."
   },
+  "routineAllowance": {
+    "limited": "Das Kontingent deines Tarifs für Assistenten-Routinen beträgt {count} pro Nutzer, weitere werden abgelehnt. Lege nur die ersten {count} der nummerierten Routinen unten an, in dieser Reihenfolge, denn die nützlichsten stehen vorn. Führe die übrigen als optional auf, ohne sie anzulegen, und lösche nichts, um Platz zu schaffen.",
+    "none": "Dein Tarif enthält keine Assistenten-Routinen. Lege keine der Routinen unten an und führe alle als optional auf.",
+    "optional": "optional"
+  },
   "routinesIntro": "Schlage diese als Gesamtpaket vor. Richte nur die als verfügbar markierten ein und sag mir Bescheid über den Rest.",
   "workspace": {
     "cloud": "Lege unter {url} einen Customermates-Workspace an und verbinde deinen Assistenten damit. Die Vorlage ist dort vorausgewählt.",

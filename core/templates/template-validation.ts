@@ -393,8 +393,13 @@ function ruleIssues(spec: TemplateSpecObject, report: Report, index: Index) {
     report,
     "Rule",
   );
+  const priorities = new Set<number>();
   spec.followUpRules.forEach((rule, position) => {
     const path: Path = ["followUpRules", position];
+    if (rule.priority !== undefined) {
+      if (priorities.has(rule.priority)) report([...path, "priority"], `Rule priority repeats: ${rule.priority}`);
+      priorities.add(rule.priority);
+    }
     triggerIssues(spec, rule, path, index, report);
     conditionIssues(rule, path, index, report);
     actionIssues(spec, rule, path, index, report);

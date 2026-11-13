@@ -3,6 +3,7 @@ import type { RouteGuardService } from "@/features/auth/route-guard.service";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { TemplateBundle } from "@/core/templates/template-spec.schema";
 import type { TemplateSlug } from "@/core/templates/template-slugs";
+import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement-subscription.repo";
 import type { OnboardingAgentStatusRepo } from "@/features/onboarding-funnel/onboarding-agent.repo";
 import type { OnboardingTemplateDeployment } from "./onboarding-template-offer";
 
@@ -12,6 +13,7 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { TEMPLATE_SLUGS } from "@/core/templates/template-slugs";
+import { routineAllowanceOf } from "@/ee/subscription/entitlements";
 import { accountStateRedirect } from "@/features/auth/account-state";
 import { redirectTo } from "@/features/auth/auth-outcome";
 import { mcpWorkspaceUrl } from "@/features/auth/mcp-resource";
@@ -41,6 +43,7 @@ export class GetOnboardingTemplatePromptInteractor {
     private readonly loadBundle: TemplateBundleLoader,
     private readonly routeGuardService: RouteGuardService,
     private readonly agentStatus: Pick<OnboardingAgentStatusRepo, "findOnboardingAgentStatus">,
+    private readonly subscriptions: Pick<EntitlementSubscriptionRepo, "findSubscription">,
   ) {}
 
   @Validate(Schema)
@@ -61,7 +64,13 @@ export class GetOnboardingTemplatePromptInteractor {
     const text = bundle?.text[data.locale] ?? bundle?.text[DEFAULT_LOCALE];
     if (!bundle || !text) return { ok: true as const, data: { prompt: null, connected: false } };
 
-    const { connected } = await runWithTenant(user, () => this.agentStatus.findOnboardingAgentStatus());
+    const { connected, routineAllowance } = await runWithTenant(user, async () => {
+      const [status, subscription] = await Promise.all([
+        this.agentStatus.findOnboardingAgentStatus(),
+        this.subscriptions.findSubscription(),
+      ]);
+      return { connected: status.connected, routineAllowance: subscription ? routineAllowanceOf(subscription) : null };
+    });
     return {
       ok: true as const,
       data: {
@@ -72,6 +81,7 @@ export class GetOnboardingTemplatePromptInteractor {
           baseUrl: env.BASE_URL,
           mcpUrl: mcpWorkspaceUrl(env.BASE_URL, user.companyId),
           connected,
+          routineAllowance,
         }),
         connected,
       },

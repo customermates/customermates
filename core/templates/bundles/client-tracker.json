@@ -813,7 +813,8 @@
           "about": "clients"
         },
         "dueOffsetDays": 7,
-        "needs": "today"
+        "needs": "today",
+        "priority": 2
       },
       {
         "key": "review_before_due",
@@ -864,7 +865,8 @@
           "about": "clients"
         },
         "dueOffsetDays": 0,
-        "needs": "today"
+        "needs": "today",
+        "priority": 1
       },
       {
         "key": "stalled_client_sweep",
@@ -895,7 +897,8 @@
           "about": "clients"
         },
         "dueOffsetDays": 0,
-        "needs": "today"
+        "needs": "today",
+        "priority": 3
       },
       {
         "key": "closed_client_dates",
@@ -919,7 +922,8 @@
           ]
         },
         "dueOffsetDays": 0,
-        "needs": "today"
+        "needs": "today",
+        "priority": 5
       },
       {
         "key": "closed_client_data_review",
@@ -936,7 +940,8 @@
           "about": "clients"
         },
         "dueOffsetDays": 1095,
-        "needs": "today"
+        "needs": "today",
+        "priority": 6
       },
       {
         "key": "inactive_reactivation",
@@ -953,7 +958,8 @@
           "about": "clients"
         },
         "dueOffsetDays": 90,
-        "needs": "today"
+        "needs": "today",
+        "priority": 7
       },
       {
         "key": "enquiry_form_records",
@@ -1002,7 +1008,8 @@
           "assignee": "workspace_owner"
         },
         "dueOffsetDays": 0,
-        "needs": "today"
+        "needs": "today",
+        "priority": 4
       }
     ],
     "acceptanceChecks": [

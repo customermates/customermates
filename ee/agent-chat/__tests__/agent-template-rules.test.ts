@@ -69,10 +69,13 @@ function setupOf(overrides: Partial<Record<keyof WorkspaceSetupRecord, unknown>>
   return { setup, model };
 }
 
+const PRO_TRIAL = { status: "trial", plan: "pro", trialEndDate: new Date("2026-11-20T00:00:00Z") };
+
 function serviceFor(
   overrides: Partial<Record<keyof WorkspaceSetupRecord, unknown>> | null = {},
   rules: { ok: boolean; names?: string[] } = { ok: true },
   now = NOW,
+  subscription: object | null = PRO_TRIAL,
 ) {
   const { setup, model } = setupOf(overrides ?? {});
   const names = rules.names ?? [];
@@ -87,9 +90,19 @@ function serviceFor(
     { findCurrent: () => Promise.resolve(overrides === null ? null : setup) },
     { getModel: () => Promise.resolve(model) },
     { invoke } as never,
+    { findSubscription: () => Promise.resolve(subscription) } as never,
     () => now,
   );
   return { service, invoke };
+}
+
+function skippedRules(brief: string) {
+  const line = brief.split("\n").find((entry) => entry.startsWith("Skipped (JSON): "));
+  return JSON.parse(line?.slice("Skipped (JSON): ".length) ?? "[]") as Array<{
+    name: string;
+    reason: string;
+    routine: boolean;
+  }>;
 }
 
 function readyRules(brief: string) {
@@ -138,8 +151,55 @@ describe("AgentTemplateRules", () => {
 
   it("proposes nothing when no rule can be created", () => {
     expect(
-      renderTemplateRulesBrief("Client tracker", { ready: [], skipped: [{ key: "a", name: "A", reason: "r" }] }),
+      renderTemplateRulesBrief("Client tracker", {
+        ready: [],
+        skipped: [{ key: "a", name: "A", reason: "r", routine: true, priority: 1 }],
+      }),
     ).toBe(null);
+  });
+
+  it("tells Mate the routine allowance of the owner's plan and to create routines in the listed order", async () => {
+    const brief = (await serviceFor().service.brief()) ?? "";
+
+    expect(brief).toContain("allows 5 routines per user and refuses more, also as drafts");
+    expect(brief).toContain("never delete a routine to make room");
+    const skipped = skippedRules(brief);
+    const firstOther = skipped.findIndex((rule) => !rule.routine);
+    expect(skipped.slice(0, firstOther === -1 ? skipped.length : firstOther).every((rule) => rule.routine)).toBe(true);
+    expect(skipped.slice(firstOther === -1 ? skipped.length : firstOther).some((rule) => rule.routine)).toBe(false);
+  });
+
+  it("tells Mate that a workspace on the free plan has no routines and says nothing on an unlimited or unknown plan", async () => {
+    const free = { status: "expired", plan: "pro", trialEndDate: new Date("2020-01-01T00:00:00Z") };
+    expect(await serviceFor({}, { ok: true }, NOW, free).service.brief()).toContain("includes no assistant routines");
+
+    const business = { status: "active", plan: "business", trialEndDate: null };
+    for (const subscription of [business, null]) {
+      const brief = (await serviceFor({}, { ok: true }, NOW, subscription).service.brief()) ?? "";
+      expect(brief).not.toContain("routines per user");
+      expect(brief).not.toContain("assistant routines");
+    }
+  });
+
+  it("lists the skipped routines most important first, then the unranked ones, then what is no routine", () => {
+    const draft = { key: "r", name: "R", notes: [], input: {} } as never;
+    const brief =
+      renderTemplateRulesBrief(
+        "Client tracker",
+        {
+          ready: [draft],
+          skipped: [
+            { key: "c", name: "C", reason: "r", routine: true, priority: 3 },
+            { key: "u", name: "U", reason: "r", routine: false, priority: null },
+            { key: "a", name: "A", reason: "r", routine: true, priority: 1 },
+            { key: "b", name: "B", reason: "r", routine: true, priority: null },
+          ],
+        },
+        2,
+      ) ?? "";
+
+    expect(skippedRules(brief).map((rule) => rule.name)).toEqual(["A", "C", "B", "U"]);
+    expect(brief).toContain("allows 2 routines per user");
   });
 });
 

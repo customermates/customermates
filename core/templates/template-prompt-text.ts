@@ -56,6 +56,7 @@ export type TemplatePromptText = {
   procedure: { askQuestions: string; describePlan: string; readContext: string; reuse: string };
   relationship: string;
   roadRules: { neverInvent: string; noSamples: string; readBack: string; sendNothing: string; sensitiveData: string };
+  routineAllowance: { limited: string; none: string; optional: string };
   routinesIntro: string;
   workspace: { cloud: string; connected: string; connectedAt: string; existsAt: string; selfHosted: string };
 };
