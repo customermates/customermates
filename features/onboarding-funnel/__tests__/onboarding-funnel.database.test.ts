@@ -56,6 +56,7 @@ describeDatabase("onboarding funnel events and signup source on PostgreSQL", () 
       signupJob: "followup",
       signupLandingPath: "/en/consultants",
       discoveryResolved: false,
+      teamSize: null,
     });
   });
 
@@ -97,6 +98,7 @@ describeDatabase("onboarding funnel events and signup source on PostgreSQL", () 
       signupJob: "followup",
       signupLandingPath: "/en/consultants",
       discoveryResolved: false,
+      teamSize: null,
     });
   });
 
@@ -106,6 +108,7 @@ describeDatabase("onboarding funnel events and signup source on PostgreSQL", () 
       signupJob: null,
       signupLandingPath: null,
       discoveryResolved: false,
+      teamSize: null,
     });
     await runWithTenant(tenant(otherCompanyId), () =>
       repo.recordFunnelEvent({ type: "agentConnected", occurredAt: new Date() }),
@@ -154,6 +157,7 @@ describeDatabase("onboarding funnel events and signup source on PostgreSQL", () 
     await client.query('UPDATE "Company" SET "createdByAuthUserId"=NULL WHERE "id"=$1', [otherCompanyId]);
     await expect(runWithTenant(tenant(otherCompanyId), () => repo.findOnboardingJobChoice())).resolves.toMatchObject({
       discoveryResolved: false,
+      teamSize: null,
     });
   });
 });

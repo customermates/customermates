@@ -506,7 +506,9 @@ describeDatabase("registration against a real database", () => {
 
     void afterResponseTasks[0]();
     await vi.waitFor(() => expect(registeredWhenSending).toBe(true));
-    expect(sendNewUserNotificationEmail).toHaveBeenCalledWith({ email: registrationEmail, name: "Slow Mail" });
+    expect(sendNewUserNotificationEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ email: registrationEmail, name: "Slow Mail" }),
+    );
   }, 15_000);
 
   it("persists an invited cloud user's acknowledgement without company-wide acceptance", async () => {
