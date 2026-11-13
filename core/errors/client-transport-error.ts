@@ -3,6 +3,7 @@ const CLIENT_TRANSPORT_ERROR_MESSAGES = new Set([
   "Load failed",
   "NetworkError when attempting to fetch resource.",
   "network error",
+  "Error in input stream",
 ]);
 
 const UNEXPECTED_ACTION_RESPONSE = "An unexpected response was received from the server.";
