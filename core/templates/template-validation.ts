@@ -366,6 +366,8 @@ function actionIssues(spec: TemplateSpecObject, rule: TemplateRule, path: Path, 
     if (!kinds || kinds.type !== "select") report(at, "create_task needs a select field kind on the tasks list.");
     else if (!kinds.options.includes(action.taskKind))
       report([...at, "taskKind"], `Unknown task kind: ${action.taskKind}`);
+    const due = tasks ? index.get(`${tasks}.due`) : undefined;
+    if (!due || !DATE_TYPES.has(due.type)) report(at, "create_task needs a date field due on the tasks list.");
     if (action.about && !lists.has(action.about)) report([...at, "about"], `Unknown list: ${action.about}`);
   }
   if (action.kind === "add_calendar_event") {

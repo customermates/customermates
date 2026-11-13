@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { renderTemplatePrompt, templateSignupUrl } from "@/core/templates/template-prompt";
+import { templatePromptText } from "@/core/templates/template-prompt-text";
 import { TEMPLATE_SLUGS } from "@/core/templates/template-registry";
 
 import type { Capability } from "@/core/capabilities/capabilities";
@@ -71,6 +72,51 @@ describe("renderTemplatePrompt", () => {
     expect(text).toContain("Maklerauftrag unterschrieben");
     expect(text).toContain("Fristen und Termine");
   });
+
+  it("names the contact details of the contacts, which an inquiry form needs for the sender's email", () => {
+    const text = prompt("client-tracker");
+    const line = text.split("\n").find((entry) => entry.startsWith("- Contacts ("));
+    expect(line).toContain("Contact details (contact channels: email, phone and social profiles)");
+    expect(line?.indexOf("Contact details")).toBeLessThan(line?.indexOf("Job title") ?? -1);
+    expect(prompt("client-tracker", {}, "de")).toContain("Kontaktdaten (Kontaktkanäle: E-Mail, Telefon");
+  });
+
+  it.each(TEMPLATE_SLUGS)(
+    "lists the fields the product adds to the people, deals and offerings lists of %s in every locale",
+    (slug) => {
+      const spec = getTemplate(slug);
+      const filledByForms = new Set(
+        spec.followUpRules.flatMap((rule) =>
+          (rule.trigger.kind === "form_submitted" || rule.trigger.kind === "webhook_received") &&
+          rule.action.kind === "create_records"
+            ? rule.action.lists
+            : [],
+        ),
+      );
+      for (const locale of Object.keys(spec.status)) {
+        const text = cloneText(slug, locale);
+        const copy = templatePromptText(locale);
+        const lines = prompt(slug, {}, locale).split("\n");
+        const anchors = {
+          people: copy.anchorFields.channels,
+          deals: copy.anchorFields.value,
+          offerings: copy.anchorFields.price,
+        };
+        for (const list of spec.lists) {
+          if (!list.role || !(list.role in anchors)) continue;
+          const label = text.lists[list.key];
+          const prefix = `- ${label.pluralLabel}${label.description ? ` (${label.description})` : ""}: `;
+          const line = lines.find((entry) => entry.startsWith(prefix));
+          const expected = anchors[list.role as keyof typeof anchors];
+          expect(line, `${slug} ${locale} ${list.key}`).toContain(`${expected} (`);
+          if (list.role === "people" && filledByForms.has(list.key))
+            expect(line, `${slug} ${locale} ${list.key} receives the sender of a form`).toContain(
+              `${copy.anchorFields.channels} (${copy.fieldTypes.channels})`,
+            );
+        }
+      }
+    },
+  );
 
   it("marks the default view and tells the agent to set it up on the built-in view", () => {
     const text = prompt("client-tracker");

@@ -1,4 +1,9 @@
 {
+  "anchorFields": {
+    "channels": "Dados de contato",
+    "price": "Preço",
+    "value": "Valor"
+  },
   "availability": {
     "routine": "uma rotina do assistente com agenda",
     "rule": "uma regra de automação",
@@ -18,7 +23,7 @@
   "fieldTypes": {
     "address": "endereço",
     "boolean": "sim ou não",
-    "channels": "canais de contato",
+    "channels": "canais de contato: e-mail, telefone e perfis sociais",
     "currency": "valor",
     "date": "data",
     "dateRange": "período de datas",

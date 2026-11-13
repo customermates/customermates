@@ -31,6 +31,7 @@ export const PROMPT_FIELD_TYPES = [
 export type PromptPluralForms = Partial<Record<Intl.LDMLPluralRule, string>> & { other: string };
 
 export type TemplatePromptText = {
+  anchorFields: { channels: string; price: string; value: string };
   availability: { routine: string; rule: string; unavailable: string };
   defaultView: { marker: string; rule: string };
   due: { afterDays: PromptPluralForms; sameDay: string };

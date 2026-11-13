@@ -1,4 +1,9 @@
 {
+  "anchorFields": {
+    "channels": "Recapiti",
+    "price": "Prezzo",
+    "value": "Valore"
+  },
   "availability": {
     "routine": "una routine dell’assistente pianificata",
     "rule": "una regola di automazione",
@@ -18,7 +23,7 @@
   "fieldTypes": {
     "address": "indirizzo",
     "boolean": "sì o no",
-    "channels": "canali di contatto",
+    "channels": "canali di contatto: e-mail, telefono e profili social",
     "currency": "importo",
     "date": "data",
     "dateRange": "intervallo di date",

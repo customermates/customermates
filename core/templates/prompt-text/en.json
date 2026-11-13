@@ -1,4 +1,9 @@
 {
+  "anchorFields": {
+    "channels": "Contact details",
+    "price": "Price",
+    "value": "Value"
+  },
   "availability": {
     "routine": "an assistant routine that runs on a schedule",
     "rule": "an automation rule",
@@ -18,7 +23,7 @@
   "fieldTypes": {
     "address": "address",
     "boolean": "yes or no",
-    "channels": "contact channels",
+    "channels": "contact channels: email, phone and social profiles",
     "currency": "amount",
     "date": "date",
     "dateRange": "date range",

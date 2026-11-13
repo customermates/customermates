@@ -4,6 +4,7 @@ import type { TemplateLocale, TemplateRule, TemplateSpec } from "./template-spec
 import type { TemplatePromptText } from "./template-prompt-text";
 
 import { SHIPPED_CAPABILITIES } from "@/core/capabilities/capabilities";
+import { setupAnchorFields } from "@/features/workspace-setup/setup-anchors";
 
 import { ruleEngineGap } from "./compile-template-automation";
 import { needText } from "./compile-template-support";
@@ -79,6 +80,18 @@ function fieldLine(
   return `${label.label} (${copy.fieldTypes[type]}${choices})`;
 }
 
+const ANCHOR_PROMPT_TYPES: Readonly<
+  Record<keyof TemplatePromptText["anchorFields"], keyof TemplatePromptText["fieldTypes"]>
+> = { channels: "channels", price: "currency", value: "currency" };
+
+function anchorLines(list: TemplateSpec["lists"][number], copy: TemplatePromptText): string[] {
+  return setupAnchorFields([list]).flatMap((ref) => {
+    const name = ref.split(".")[1];
+    if (name !== "channels" && name !== "price" && name !== "value") return [];
+    return [`${copy.anchorFields[name]} (${copy.fieldTypes[ANCHOR_PROMPT_TYPES[name]]})`];
+  });
+}
+
 function listSection(spec: TemplateSpec, text: TemplateLocale, copy: TemplatePromptText): string[] {
   const lines = spec.lists.map((list) => {
     const label = needText(text.lists, list.key, "lists");
@@ -91,7 +104,7 @@ function listSection(spec: TemplateSpec, text: TemplateLocale, copy: TemplatePro
     const calculated = spec.calculations
       .filter((calculation) => calculation.key.startsWith(`${list.key}.`))
       .map((calculation) => fieldLine(spec, text, copy, calculation.key, calculation.type));
-    const all = [...stageFields, ...declared, ...calculated];
+    const all = [...anchorLines(list, copy), ...stageFields, ...declared, ...calculated];
     return bullet(
       `${label.pluralLabel}${label.description ? ` (${label.description})` : ""}: ${all.join("; ") || copy.nameOnly}`,
     );

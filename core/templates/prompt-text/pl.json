@@ -1,4 +1,9 @@
 {
+  "anchorFields": {
+    "channels": "Dane kontaktowe",
+    "price": "Cena",
+    "value": "Wartość"
+  },
   "availability": {
     "routine": "rutyna asystenta uruchamiana według harmonogramu",
     "rule": "reguła automatyzacji",
@@ -20,7 +25,7 @@
   "fieldTypes": {
     "address": "adres",
     "boolean": "tak lub nie",
-    "channels": "kanały kontaktu",
+    "channels": "kanały kontaktu: e-mail, telefon i profile społecznościowe",
     "currency": "kwota",
     "date": "data",
     "dateRange": "zakres dat",

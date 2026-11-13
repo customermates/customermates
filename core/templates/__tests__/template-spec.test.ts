@@ -35,6 +35,21 @@ describe("template spec validation", () => {
     expect(messages.join()).toContain("Unknown task kind: teleport");
   });
 
+  it("rejects a rule that creates tasks on a tasks list without a due date", () => {
+    const messages = specIssuesAfter((spec) => {
+      spec.fields = spec.fields.filter((field) => field.key !== "actions.due");
+    });
+    expect(messages.join()).toContain("create_task needs a date field due on the tasks list");
+  });
+
+  it("rejects a due field that is not a date", () => {
+    const messages = specIssuesAfter((spec) => {
+      const due = spec.fields.find((field) => field.key === "actions.due");
+      if (due) due.type = "text";
+    });
+    expect(messages.join()).toContain("create_task needs a date field due on the tasks list");
+  });
+
   it("rejects a field that the product adds by itself", () => {
     const messages = specIssuesAfter((spec) => {
       spec.fields.push({ key: "contacts.channels", type: "text", required: false, multiple: false, options: [] });

@@ -1,4 +1,9 @@
 {
+  "anchorFields": {
+    "channels": "Contactgegevens",
+    "price": "Prijs",
+    "value": "Waarde"
+  },
   "availability": {
     "routine": "een assistentroutine volgens schema",
     "rule": "een automatiseringsregel",
@@ -18,7 +23,7 @@
   "fieldTypes": {
     "address": "adres",
     "boolean": "ja of nee",
-    "channels": "contactkanalen",
+    "channels": "contactkanalen: e-mail, telefoon en sociale profielen",
     "currency": "bedrag",
     "date": "datum",
     "dateRange": "datumbereik",
