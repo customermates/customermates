@@ -14,6 +14,13 @@ test.skip(e2eAppMode() !== "cloud", "Ad click attribution exists in the managed 
 
 const COOKIE = "cm_ad_attribution";
 const LANDING = "/en/about";
+const SIGNUP_CAMPAIGN = {
+  source: "google",
+  medium: "cpc",
+  campaign: "de-company-k1",
+  content: "crm-outlook",
+  term: "crm outlook",
+};
 const consent = englishMessages.AcquisitionConsent;
 
 type StoredCookie = {
@@ -61,8 +68,8 @@ async function signUp(database: Client, visitor: Visitor, workspaceName: string)
   const secret = process.env.BETTER_AUTH_SECRET;
   if (!secret) throw new Error("A local authentication secret is required");
   await database.query(
-    'INSERT INTO "AuthUser" (id,"companyId",email,name,"emailVerified","updatedAt") VALUES ($1,NULL,$2,\'Ada Visitor\',true,NOW())',
-    [visitor.authUserId, visitor.email],
+    'INSERT INTO "AuthUser" (id,"companyId",email,name,"emailVerified","signupCampaign","updatedAt") VALUES ($1,NULL,$2,\'Ada Visitor\',true,$3,NOW())',
+    [visitor.authUserId, visitor.email, JSON.stringify(SIGNUP_CAMPAIGN)],
   );
   const token = randomBytes(32).toString("hex");
   await database.query(
@@ -99,13 +106,18 @@ async function signUp(database: Client, visitor: Visitor, workspaceName: string)
   await clickHydrated(page.getByRole("button", { name: englishMessages.OnboardingWizard.next, exact: true }));
   await expect
     .poll(async () => {
-      const { rows } = await database.query<{ teamSize: string | null }>(
-        'SELECT "teamSize" FROM "Company" WHERE "createdByAuthUserId"=$1',
+      const { rows } = await database.query<{ teamSize: string | null; signupCampaign: unknown }>(
+        'SELECT "teamSize","signupCampaign" FROM "Company" WHERE "createdByAuthUserId"=$1',
         [visitor.authUserId],
       );
-      return rows.map((row) => row.teamSize);
+      return rows;
     })
-    .toEqual(["small"]);
+    .toEqual([{ teamSize: "small", signupCampaign: SIGNUP_CAMPAIGN }]);
+  const pending = await database.query<{ signupCampaign: string | null }>(
+    'SELECT "signupCampaign" FROM "AuthUser" WHERE id=$1',
+    [visitor.authUserId],
+  );
+  expect(pending.rows).toEqual([{ signupCampaign: null }]);
   await expect
     .poll(async () => {
       const { rows } = await database.query<{ id: string }>('SELECT id FROM "Company" WHERE "createdByAuthUserId"=$1', [
