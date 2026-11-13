@@ -97,6 +97,9 @@ describe("renderTemplatePrompt", () => {
     expect(text).toMatch(/Send the owner update: .*\[an assistant routine that runs on a schedule\]/);
     expect(text).toMatch(/Add the key date to the agent's calendar: .*\[not available yet, do not set up\]/);
     expect(text).toMatch(/Contact the new lead today: .*\[an automation rule\]/);
+    expect(text).toMatch(/Create the key dates from the contract: .*\[an assistant routine that runs on a schedule\]/);
+    const inquiry = prompt("client-tracker", { shipped });
+    expect(inquiry).toMatch(/Create the client and the contact from an inquiry: .*\[an automation rule\]/);
   });
 
   it.each(TEMPLATE_SLUGS)("contains no dash characters for %s", (slug) => {
