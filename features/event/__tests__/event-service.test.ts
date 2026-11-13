@@ -109,6 +109,23 @@ describe("EventService", () => {
     });
   });
 
+  it.each([DomainEvent.FORM_SUBMITTED, DomainEvent.WEBHOOK_RECEIVED])(
+    "queues %s for a rule that subscribes and drops it when nobody does",
+    async (kind) => {
+      const payload = { typeId: ENTITY_ID, recordId: ENTITY_ID } as never;
+      await service.publish(kind, { entityId: ENTITY_ID, payload }, { systemCompanyId: SYSTEM_COMPANY_ID });
+      expect(eventLog.hasSubscribersUnscoped).toHaveBeenCalledWith(SYSTEM_COMPANY_ID, kind);
+      expect(eventLog.appendUnscoped).not.toHaveBeenCalled();
+
+      eventLog.hasSubscribersUnscoped.mockResolvedValue(true);
+      await service.publish(kind, { entityId: ENTITY_ID, payload }, { systemCompanyId: SYSTEM_COMPANY_ID });
+      expect(eventLog.appendUnscoped).toHaveBeenCalledExactlyOnceWith(
+        SYSTEM_COMPANY_ID,
+        expect.objectContaining({ kind, delivered: false }),
+      );
+    },
+  );
+
   it("keeps the system actor of a system event", async () => {
     await service.publish(
       DomainEvent.CONNECTED_ACCOUNT_DELETED,

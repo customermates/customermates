@@ -7,6 +7,7 @@ import type { EventVia } from "./event-via";
 import { UserAccessor } from "@/core/base/user-accessor";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { env } from "@/env";
+import { isExternalTriggerEvent } from "./external-trigger-events";
 
 type ScopedEventData<E extends DomainEvent> = Omit<DomainEventMap[E], "userId" | "companyId">;
 
@@ -48,7 +49,7 @@ export class EventService extends UserAccessor {
   }
 
   private async log(event: DomainEvent, data: DomainEventMap[DomainEvent], via: EventVia | null): Promise<boolean> {
-    const subscribable = WebhookEventSchema.options.some((option) => option === event);
+    const subscribable = WebhookEventSchema.options.some((option) => option === event) || isExternalTriggerEvent(event);
     if (subscribable && !(await this.eventLog.hasSubscribersUnscoped(data.companyId, event))) return false;
     await this.eventLog.appendUnscoped(data.companyId, {
       kind: event,
