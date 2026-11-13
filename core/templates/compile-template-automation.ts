@@ -53,6 +53,15 @@ const NO_ACTION: Partial<Record<CompiledRule["action"]["kind"], string>> = {
   create_records: "The form or the incoming webhook creates these records itself.",
 };
 
+export function ruleEngineGap(rule: {
+  trigger: { kind: string };
+  action: { kind: string };
+}): "routine" | "unavailable" | null {
+  if (rule.action.kind === "add_calendar_event") return "unavailable";
+  if (rule.trigger.kind in NO_TRIGGER || rule.action.kind === "set_dates") return "routine";
+  return null;
+}
+
 function mapTrigger(trigger: CompiledRule["trigger"]): AutomationProposalTrigger | null {
   switch (trigger.kind) {
     case "record_created":

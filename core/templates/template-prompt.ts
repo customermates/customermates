@@ -5,6 +5,7 @@ import type { TemplatePromptText } from "./template-prompt-text";
 
 import { SHIPPED_CAPABILITIES } from "@/core/capabilities/capabilities";
 
+import { ruleEngineGap } from "./compile-template-automation";
 import { needText } from "./compile-template-support";
 import { fillPrompt, pluralPrompt, promptLocale, templatePromptText } from "./template-prompt-text";
 import { resolveTemplateRule, templateCountry, templateRuleText } from "./template-rule-variants";
@@ -136,7 +137,10 @@ function pageSection(spec: TemplateSpec, text: TemplateLocale, copy: TemplatePro
 
 function availability(rule: TemplateRule, shipped: ReadonlySet<Capability>, copy: TemplatePromptText): string {
   if (rule.needs === "today") return copy.availability.routine;
-  return shipped.has(rule.needs) ? copy.availability.rule : copy.availability.unavailable;
+  if (!shipped.has(rule.needs)) return copy.availability.unavailable;
+  const gap = ruleEngineGap(rule);
+  if (gap === "unavailable") return copy.availability.unavailable;
+  return gap === "routine" ? copy.availability.routine : copy.availability.rule;
 }
 
 function dueText(rule: TemplateRule, copy: TemplatePromptText, locale: string): string {

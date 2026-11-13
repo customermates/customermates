@@ -91,6 +91,14 @@ describe("renderTemplatePrompt", () => {
     expect(all).not.toContain("[not available yet, do not set up]");
   });
 
+  it("does not offer a rule as a rule when the rules engine cannot run it", () => {
+    const shipped = new Set<Capability>(["forms", "rules", "notifications", "calendarWrite", "incomingWebhooks"]);
+    const text = prompt("real-estate-pipeline", { shipped });
+    expect(text).toMatch(/Send the owner update: .*\[an assistant routine that runs on a schedule\]/);
+    expect(text).toMatch(/Add the key date to the agent's calendar: .*\[not available yet, do not set up\]/);
+    expect(text).toMatch(/Contact the new lead today: .*\[an automation rule\]/);
+  });
+
   it.each(TEMPLATE_SLUGS)("contains no dash characters for %s", (slug) => {
     for (const locale of Object.keys(getTemplate(slug).status))
       expect(DASHES.test(prompt(slug, {}, locale))).toBe(false);
