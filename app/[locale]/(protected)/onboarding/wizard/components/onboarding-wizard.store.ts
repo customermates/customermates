@@ -4,6 +4,7 @@ import equal from "fast-deep-equal/es6";
 import type { RootStore } from "@/core/stores/root.store";
 import type { OnboardingWizardProgress } from "@/features/onboarding-wizard/onboarding-wizard-progress.schema";
 import type { TemplateSlug } from "@/core/templates/template-slugs";
+import type { ConnectChannel } from "@/ee/messaging/connect/connect-channels";
 import type { WizardFlowContext, WizardFlowKey } from "./onboarding-wizard-flow";
 
 import {
@@ -14,7 +15,12 @@ import {
   saveOnboardingWizardProgressAction,
   selectOnboardingJobAction,
 } from "../actions";
-import { getOnboardingAgentStatusAction, getOnboardingTemplatePromptAction } from "../onboarding-agent-actions";
+import {
+  getOnboardingAgentStatusAction,
+  getOnboardingTemplatePromptAction,
+  recordChannelSkippedAction,
+} from "../onboarding-agent-actions";
+import { startConnectAccountAction } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/channels/actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
 import { readOnboardingWizardProgress } from "@/features/onboarding-wizard/onboarding-wizard-progress.schema";
@@ -54,6 +60,8 @@ export type WizardFlowOptions = {
   chooseAvailable?: boolean;
   templatesAvailable?: boolean;
   sourceAvailable?: boolean;
+  channelAvailable?: boolean;
+  teamInvite?: boolean;
   emptyChosen?: boolean;
   selfHosted?: boolean;
   template?: TemplateSlug | null;
@@ -72,6 +80,8 @@ export class OnboardingWizardStore {
   chooseAvailable = false;
   templatesAvailable = false;
   sourceAvailable = false;
+  channelAvailable = false;
+  teamInvite = false;
   selectedDiscovery: DiscoveryChoice | null = null;
   discoveryDetail = "";
   emptyChosen = false;
@@ -111,6 +121,8 @@ export class OnboardingWizardStore {
       chooseAvailable: this.chooseAvailable,
       templatesAvailable: this.templatesAvailable,
       sourceAvailable: this.sourceAvailable,
+      channelAvailable: this.channelAvailable,
+      teamInvite: this.teamInvite,
     };
   }
 
@@ -178,6 +190,8 @@ export class OnboardingWizardStore {
     this.chooseAvailable = flow.chooseAvailable ?? false;
     this.templatesAvailable = flow.templatesAvailable ?? false;
     this.sourceAvailable = flow.sourceAvailable ?? false;
+    this.channelAvailable = flow.channelAvailable ?? false;
+    this.teamInvite = flow.teamInvite ?? false;
     this.emptyChosen = flow.emptyChosen ?? false;
     this.selfHosted = flow.selfHosted ?? false;
     this.selectedJob = jobChoice.selectedJob;
@@ -201,7 +215,10 @@ export class OnboardingWizardStore {
   private minimumStepIndex(resumeStepIndex: number): number {
     const goal = this.steps.indexOf("goal");
     const step = this.steps[resumeStepIndex];
-    const reachesGoal = step === "template" || step === "prompt" || (step === "ai" && this.connectsAgent);
+    const reachesGoal =
+      step === "template" ||
+      step === "prompt" ||
+      ((step === "ai" || step === "channel" || step === "invite") && this.connectsAgent);
     return this.chooseAvailable && goal !== -1 && reachesGoal ? goal : resumeStepIndex;
   }
 
@@ -286,8 +303,9 @@ export class OnboardingWizardStore {
         return;
       }
       if (outcome.next === "ai") {
-        if (this.userId && !(await this.persistProgress(this.progressAt("ai", this.goalPinned)))) return;
-        this.moveTo("ai", { closeBehind: !this.connectsAgent });
+        const target = this.steps[this.steps.indexOf("goal") + 1] ?? "ai";
+        if (this.userId && !(await this.persistProgress(this.progressAt(target, this.goalPinned)))) return;
+        this.moveTo(target, { closeBehind: !this.connectsAgent });
         return;
       }
       this.moveTo(this.templatesAvailable && this.chooseAvailable ? "template" : "setup", {
@@ -339,6 +357,34 @@ export class OnboardingWizardStore {
     this.moveTo(step, { closeBehind: false });
     return true;
   }
+
+  connectChannel = async (channel: ConnectChannel): Promise<void> => {
+    if (this.isSubmitting || this.currentStep !== "channel") return;
+    this.setIsSubmitting(true);
+    try {
+      if (this.userId && !(await this.persistProgress(this.progressAt("channel", this.goalPinned)))) return;
+      const result = await startConnectAccountAction(channel);
+      if (result.ok) {
+        globalThis.location.assign(result.data.url);
+        return;
+      }
+      toastZodErrorTree(result.error);
+    } finally {
+      this.setIsSubmitting(false);
+    }
+  };
+
+  leaveChannelStep = async (skipped: boolean): Promise<void> => {
+    if (this.isSubmitting || this.currentStep !== "channel") return;
+    this.setIsSubmitting(true);
+    try {
+      if (skipped) await recordChannelSkippedAction().catch(reportApplicationError);
+      if (this.currentStep !== "channel") return;
+      await this.next();
+    } finally {
+      this.setIsSubmitting(false);
+    }
+  };
 
   continueFromConnect = async (): Promise<void> => {
     if (this.isSubmitting || this.currentStep !== "ai" || !this.connectsAgent) return;

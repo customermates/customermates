@@ -3705,8 +3705,17 @@
           }
         }
       },
+      "other": {
+        "description": "Plak deze URL waar je client een externe MCP-server of een eigen connector toevoegt. Er opent een inlogpagina waar je de toegang goedkeurt.",
+        "keyNote": "Heeft je client een API-sleutel nodig in plaats van inloggen? <guide>De MCP-handleiding</guide> laat zien welke header je meestuurt.",
+        "stepsTitle": "Voeg Customermates toe als externe MCP-server",
+        "subtitle": "Elke client die een externe MCP-server kan toevoegen, werkt met deze URL.",
+        "title": "Andere MCP-client",
+        "workspaceNote": "Deze URL koppelt {workspace}. Elke werkruimte heeft een eigen URL."
+      },
       "providers": {
-        "ariaLabel": "AI-clients"
+        "ariaLabel": "AI-clients",
+        "more": "Meer:"
       },
       "savedKey": "Je hebt al een API-sleutel gemaakt voor deze installatie. Je kunt de onboarding afronden. Heb je de sleutelwaarde opnieuw nodig, maak dan een nieuwe sleutel.",
       "screen": {
@@ -3725,6 +3734,15 @@
         }
       }
     },
+    "channel": {
+      "addAnother": "Voeg nog een kanaal toe als je klanten je ook ergens anders schrijven.",
+      "connected": "Gekoppeld",
+      "connectedLabel": "Gekoppelde kanalen",
+      "emailDescription": "Koppel de mailbox waar je klanten naartoe schrijven. Je e-mails komen binnen en zijn standaard alleen voor jou zichtbaar.",
+      "emailTitle": "E-mail",
+      "later": "WhatsApp, Telegram en meer kanalen vind je na de inrichting in de instellingen.",
+      "skip": "Voorlopig overslaan"
+    },
     "connect": {
       "checkAgain": "Opnieuw controleren",
       "connected": "Verbonden. Je agent heeft deze werkruimte bereikt.",
@@ -3738,17 +3756,16 @@
     "finish": "Afronden",
     "goal": {
       "agent": {
-        "anyClient": "Elke MCP-client",
         "description": "Koppel hem aan Customermates, plak een sjabloon, en hij bouwt je lijsten, pipeline en opvolgstappen.",
         "descriptionSelfHosted": "Koppel hem aan deze instantie, plak een sjabloon, en hij bouwt je lijsten, pipeline en opvolgstappen.",
-        "providersLabel": "Ondersteunde AI-agents",
         "steps": {
           "approve": "Plak en keur het plan goed",
           "connect": "Koppel je agent",
           "template": "Kies een sjabloon"
         },
         "stepsLabel": "Zo werkt het",
-        "title": "Gebruik de AI-agent die je al hebt"
+        "title": "Gebruik de AI-agent die je al hebt",
+        "worksWith": "Werkt met Claude, ChatGPT, Cursor, Gemini en elke andere MCP-client."
       },
       "channelsHint": {
         "action": "Dashboard openen",
@@ -3803,6 +3820,7 @@
     },
     "milestones": {
       "ai": "AI-tools",
+      "channel": "Kanaal",
       "connect": "Koppelen",
       "goal": "Inrichting",
       "invite": "Team",
@@ -3820,6 +3838,14 @@
       "writesTitle": "Drie kennisbankpagina's, klaar om te bewerken"
     },
     "profile": {
+      "teamSize": {
+        "label": "Hoeveel mensen gaan deze werkruimte gebruiken?",
+        "large": "Meer dan 20",
+        "medium": "6 tot 20",
+        "required": "Kies een antwoord om door te gaan.",
+        "small": "2 tot 5",
+        "solo": "Alleen ik"
+      },
       "websitePlaceholder": "voorbeeld.nl"
     },
     "progress": "Stap {current} van {total}",
@@ -3865,12 +3891,16 @@
         "subtitle": "Kies een AI-tool om te koppelen met je werkruimte en de bijbehorende kennis. Koppel er nu een, voeg later andere toe of sla deze stap over.",
         "title": "Koppel de AI die je al gebruikt"
       },
+      "channel": {
+        "subtitle": "Je gesprekken staan dan bij elke klant, klaar voor concepten en opvolging. Er wordt niets verstuurd zonder jou, en je kunt deze stap overslaan.",
+        "title": "Koppel het kanaal waarop je klanten je schrijven"
+      },
       "connect": {
         "subtitle": "Welke agent gebruik je? We laten de exacte stappen ervoor zien.",
         "title": "Koppel je agent"
       },
       "goal": {
-        "subtitle": "Kies een sjabloon dat bij je manier van werken past. Je controleert elke wijziging voordat die wordt toegepast.",
+        "subtitle": "Kies wie de werkruimte inricht. Je controleert elke wijziging voordat die wordt toegepast.",
         "subtitleSelfHosted": "Je gegevens blijven op je eigen server. Je eigen agent koppelt via MCP en bouwt de werkruimte uit een sjabloon.",
         "title": "Hoe richten we je werkruimte in?",
         "titleSelfHosted": "Hoe richten we deze instantie in?"
@@ -4177,7 +4207,11 @@
       "events": {
         "agentConnected": "Agent gekoppeld",
         "channelConnected": "Kanaal gekoppeld",
+        "channelSkipped": "Kanaal overgeslagen",
+        "inviteAccepted": "Lid toegetreden",
+        "inviteSent": "Uitnodiging verstuurd",
         "jobSelected": "Doel gekozen",
+        "paid": "Betaald",
         "setupCompleted": "Inrichting voltooid"
       },
       "jobs": {
@@ -5770,7 +5804,8 @@
         "pro": "Opvolgen vanuit LinkedIn en e-mail",
         "starter": "Jouw werkruimte en je eigen AI"
       },
-      "unlimitedRoutinesPerUser": "Onbeperkt aantal routines per gebruiker"
+      "unlimitedRoutinesPerUser": "Onbeperkt aantal routines per gebruiker",
+      "keepsAccounts": "Je hebt maximaal {connected} verbonden accounts per gebruiker. Dit abonnement behoudt er {kept}; de nieuwste worden bij betaling losgekoppeld."
     },
     "plan": "Abonnement",
     "planNames": {

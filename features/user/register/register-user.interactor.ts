@@ -8,6 +8,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { RouteGuardService } from "@/features/auth/route-guard.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 import type { WorkspaceRegistrationService } from "./workspace-registration.service";
+import type { OnboardingFunnelRepo } from "@/features/onboarding-funnel/onboarding-funnel.repo";
 
 import { z } from "zod";
 import { Locale, Status } from "@/generated/prisma";
@@ -36,6 +37,9 @@ import { TEMPLATE_SLUGS, type TemplateSlug } from "@/core/templates/template-slu
 import { startsWithTrial } from "@/features/workspace/workspace-trial-policy";
 import { workspaceCreationLimit } from "@/features/workspace/workspace-creation-limit";
 import { WorkspaceNameSchema } from "@/features/workspace/workspace.schema";
+import { decodeSignupCampaign } from "@/features/acquisition/signup-campaign";
+import { TeamSizeSchema } from "@/features/onboarding-funnel/team-size";
+import { isBusinessEmail } from "@/features/acquisition/business-email";
 
 const RegisterUserSchema = z
   .object({
@@ -49,6 +53,7 @@ const RegisterUserSchema = z
       (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
       WorkspaceNameSchema.optional(),
     ),
+    teamSize: TeamSizeSchema.nullable().optional(),
   })
   .superRefine((data, ctx) => {
     if (env.APP_MODE === "cloud" && data.agreeToTerms !== true) {
@@ -99,6 +104,7 @@ export class RegisterUserInteractor {
     private companyRepo: RegisterUserCompanyRepo,
     private registration: Pick<WorkspaceRegistrationService, "createCompanyAndUser">,
     private seats: Pick<PlanLimitsService, "admitMembers"> = UNLIMITED_PLAN_LIMITS,
+    private funnel?: Pick<OnboardingFunnelRepo, "recordFunnelEventUnscoped">,
   ) {}
 
   async invoke(
@@ -140,8 +146,16 @@ export class RegisterUserInteractor {
     data: RegistrationData,
     plannedCompanyId: string | null | undefined,
   ): Promise<Awaited<Validated<RegisterUserResult>> | Redirect> {
-    const { sessionUserId, adAttribution, signupSource, signupTemplate, target, workspaceName, ...registrationData } =
-      data;
+    const {
+      sessionUserId,
+      adAttribution,
+      signupSource,
+      signupTemplate,
+      target,
+      workspaceName,
+      teamSize,
+      ...registrationData
+    } = data;
     if (plannedCompanyId && !(await this.companyRepo.existsUnscoped(plannedCompanyId)))
       return redirectTo(target.type === "invitation" ? "/auth/error?type=invalidInviteLink" : "/onboarding");
 
@@ -191,6 +205,10 @@ export class RegisterUserInteractor {
       await this.authService.revokeMembershipCredentials(sessionUserId, companyId);
     const signupLastPage =
       !companyId && isNewCloudCompany ? await this.repo.takeSignupLastPageUnscoped(sessionUserId) : null;
+    const signupCampaign =
+      !companyId && isNewCloudCompany
+        ? decodeSignupCampaign(await this.repo.takeSignupCampaignUnscoped(sessionUserId))
+        : null;
     const tenantUser = companyId
       ? await this.repo.registerExistingCompany({
           ...registrationData,
@@ -206,8 +224,17 @@ export class RegisterUserInteractor {
             trial: await startsWithTrial(sessionUserId, this.repo),
             signupTemplate: env.APP_MODE === "cloud" ? signupTemplate : null,
             signupLastPage,
+            signupCampaign,
+            teamSize: teamSize ?? null,
           },
         });
+    if (target.type === "invitation") {
+      await this.funnel?.recordFunnelEventUnscoped({
+        companyId: target.companyId,
+        type: "inviteAccepted",
+        occurredAt: new Date(),
+      });
+    }
 
     await this.repo.bindAuthUserToCompanyOrThrowUnscoped({
       authUserId: sessionUserId,
@@ -243,6 +270,16 @@ export class RegisterUserInteractor {
         this.authService.sendNewUserNotificationEmail({
           email: tenantUser.email,
           name: `${tenantUser.firstName} ${tenantUser.lastName}`,
+          signup:
+            target.type === "createCompany"
+              ? {
+                  businessEmail: isBusinessEmail(tenantUser.email),
+                  teamSize: teamSize ?? null,
+                  campaign: signupCampaign,
+                  template: env.APP_MODE === "cloud" ? signupTemplate : null,
+                  lastPage: signupLastPage,
+                }
+              : undefined,
         }),
       );
     });

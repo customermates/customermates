@@ -20,6 +20,7 @@ type AiConnectionRoute =
   | { screen: "providers" }
   | { screen: "claude" }
   | { screen: "openai" }
+  | { screen: "other" }
   | { screen: "setup"; provider: AiConnectionDirectProvider };
 
 export type AiConnectionCredential = {
@@ -102,7 +103,7 @@ export class AiConnectionStore {
 
   get canFinish(): boolean {
     if (this.isCreating) return false;
-    if (this.connectorProvider) return true;
+    if (this.connectorProvider || this.route.screen === "other") return true;
     return this.selectedTool !== null && (this.credential !== null || this.hasSavedApiKey);
   }
 
@@ -170,6 +171,14 @@ export class AiConnectionStore {
         : provider === "openai"
           ? { screen: "openai" }
           : { screen: "setup", provider };
+  };
+
+  selectOtherClient = () => {
+    if (this.isCreating) return;
+
+    this.selectedProvider = null;
+    this.errorTool = null;
+    this.route = { screen: "other" };
   };
 
   selectClaudeMethod = (method: AiConnectionClaudeMethod) => {

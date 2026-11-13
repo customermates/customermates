@@ -7,6 +7,12 @@ import {
   parseOnboardingJob,
 } from "@/features/onboarding-funnel/onboarding-job";
 import { SignupLastPageSchema, signupLastPageFromReferer } from "./signup-last-page";
+import {
+  SignupCampaignSchema,
+  encodeSignupCampaign,
+  signupCampaignFromRequest,
+  type SignupCampaign,
+} from "./signup-campaign";
 
 export const SIGNUP_JOURNEY_COOKIE_NAME = "cm_signup_journey";
 export const SIGNUP_TEMPLATE_QUERY_PARAM = "template";
@@ -52,13 +58,21 @@ export const SignupJourneySchema = SignupJourneyInputSchema.extend({ capturedAt:
 export type SignupJourney = z.infer<typeof SignupJourneySchema>;
 
 const LastPageCarrierSchema = z.object({ lastPage: SignupLastPageSchema.nullable().default(null) });
+const CampaignCarrierSchema = z.object({ campaign: SignupCampaignSchema.nullable().default(null) });
 
-export const SignupRequestSchema = SignupJourneyInputSchema.extend(LastPageCarrierSchema.shape);
-export type SignupRequest = SignupJourneyInput & { lastPage?: string | null };
+export const SignupRequestSchema = SignupJourneyInputSchema.extend(LastPageCarrierSchema.shape).extend(
+  CampaignCarrierSchema.shape,
+);
+export type SignupRequest = SignupJourneyInput & { lastPage?: string | null; campaign?: SignupCampaign | null };
 
 export function signupLastPageFromRequest(input: unknown): string | null {
   const parsed = LastPageCarrierSchema.safeParse(input);
   return parsed.success ? parsed.data.lastPage : null;
+}
+
+export function signupCampaignFromSignupRequest(input: unknown): string | null {
+  const parsed = CampaignCarrierSchema.safeParse(input);
+  return parsed.success ? encodeSignupCampaign(parsed.data.campaign) : null;
 }
 
 export const RegistrationSignupSourceSchema = SignupJourneyInputSchema.omit({ template: true }).extend({
@@ -128,7 +142,11 @@ export function signupRequestFromRequest(args: {
   referer: string | null;
   baseUrl: string;
 }): SignupRequest {
-  return { ...signupJourneyFromRequest(args), lastPage: signupLastPageFromReferer(args) };
+  return {
+    ...signupJourneyFromRequest(args),
+    lastPage: signupLastPageFromReferer(args),
+    campaign: signupCampaignFromRequest(args),
+  };
 }
 
 export function withoutMarketingFields<T extends SignupJourneyInput>(journey: T): T {

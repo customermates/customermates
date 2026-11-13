@@ -255,11 +255,12 @@ export function subscriptionSummary(
     if (!subscription) continue;
     count += 1;
     if (subscription.status === SubscriptionStatus.active) paying += 1;
-    const key = `${subscription.billing}|${subscription.plan}|${subscription.status}`;
+    const key = `${subscription.billing}|${subscription.plan}|${subscription.status}|${subscription.trialEnded}`;
     const group = groups.get(key) ?? {
       billing: subscription.billing,
       plan: subscription.plan,
       status: subscription.status,
+      trialEnded: subscription.trialEnded,
       workspaces: 0,
       activeSeats: 0,
     };
@@ -276,7 +277,8 @@ export function subscriptionSummary(
         b.workspaces - a.workspaces ||
         operatorCollator().compare(a.billing, b.billing) ||
         operatorCollator().compare(a.plan, b.plan) ||
-        operatorCollator().compare(a.status, b.status),
+        operatorCollator().compare(a.status, b.status) ||
+        Number(a.trialEnded) - Number(b.trialEnded),
     ),
   };
 }

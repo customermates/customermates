@@ -31,13 +31,14 @@ import { cn } from "@/core/utils/cn";
 import type { WizardStep } from "./onboarding-wizard.store";
 import type { MilestoneStep } from "./onboarding-wizard-flow";
 
-type SceneStep = Exclude<WizardStep, "setup" | "goal" | "playbook" | "template" | "prompt" | "source">;
+type SceneStep = Exclude<WizardStep, "setup" | "goal" | "playbook" | "template" | "prompt" | "source" | "channel">;
 const STEP_ICONS = {
   profile: UserRound,
   goal: Compass,
   playbook: BookOpen,
   setup: Blocks,
   invite: UsersRound,
+  channel: Mail,
   ai: Sparkles,
   template: LayoutTemplate,
   prompt: ClipboardCheck,

@@ -3705,8 +3705,17 @@
           }
         }
       },
+      "other": {
+        "description": "Paste this URL where your client adds a remote MCP server or custom connector. It opens a sign-in page, and you approve the access there.",
+        "keyNote": "Does your client need an API key instead of a sign-in? <guide>The MCP guide</guide> shows the header to send.",
+        "stepsTitle": "Add Customermates as a remote MCP server",
+        "subtitle": "Any client that can add a remote MCP server works with this URL.",
+        "title": "Other MCP client",
+        "workspaceNote": "This URL connects {workspace}. Every workspace has its own URL."
+      },
       "providers": {
-        "ariaLabel": "AI clients"
+        "ariaLabel": "AI clients",
+        "more": "More:"
       },
       "savedKey": "You already created an API key for this setup. You can finish onboarding. If you need the key value again, create a new key.",
       "screen": {
@@ -3725,6 +3734,15 @@
         }
       }
     },
+    "channel": {
+      "addAnother": "Add another channel if your clients also write to you elsewhere.",
+      "connected": "Connected",
+      "connectedLabel": "Connected channels",
+      "emailDescription": "Connect the mailbox your clients write to. Your emails come in, private to you by default.",
+      "emailTitle": "Email",
+      "later": "WhatsApp, Telegram and more channels are in the settings after setup.",
+      "skip": "Skip for now"
+    },
     "connect": {
       "checkAgain": "Check again",
       "connected": "Connected. Your agent reached this workspace.",
@@ -3738,17 +3756,16 @@
     "finish": "Finish",
     "goal": {
       "agent": {
-        "anyClient": "Any MCP client",
         "description": "Connect it to Customermates, paste a template, and it builds your lists, pipeline and follow-ups.",
         "descriptionSelfHosted": "Connect it to this instance, paste a template, and it builds your lists, pipeline and follow-ups.",
-        "providersLabel": "Supported AI agents",
         "steps": {
           "approve": "Paste and approve the plan",
           "connect": "Connect your agent",
           "template": "Pick a template"
         },
         "stepsLabel": "How it works",
-        "title": "Use the AI agent you already have"
+        "title": "Use the AI agent you already have",
+        "worksWith": "Works with Claude, ChatGPT, Cursor, Gemini and any other MCP client."
       },
       "channelsHint": {
         "action": "Open dashboard",
@@ -3803,6 +3820,7 @@
     },
     "milestones": {
       "ai": "AI tools",
+      "channel": "Channel",
       "connect": "Connect",
       "goal": "Setup",
       "invite": "Team",
@@ -3820,6 +3838,14 @@
       "writesTitle": "Three Knowledge Base pages, ready to edit"
     },
     "profile": {
+      "teamSize": {
+        "label": "How many people will use this workspace?",
+        "large": "More than 20",
+        "medium": "6 to 20",
+        "required": "Choose one to continue.",
+        "small": "2 to 5",
+        "solo": "Just me"
+      },
       "websitePlaceholder": "example.com"
     },
     "progress": "Step {current} of {total}",
@@ -3865,12 +3891,16 @@
         "subtitle": "Choose an AI tool to connect with your workspace and its knowledge. Connect one now, add others later, or skip this step.",
         "title": "Connect the AI you already use"
       },
+      "channel": {
+        "subtitle": "Your conversations then sit next to each client, ready for drafts and follow-ups. Nothing is sent without you, and you can skip this step.",
+        "title": "Connect where your clients write to you"
+      },
       "connect": {
         "subtitle": "Which agent do you use? We show the exact steps for it.",
         "title": "Connect your agent"
       },
       "goal": {
-        "subtitle": "Pick a template for the way you work. You review every change before it is applied.",
+        "subtitle": "Choose who builds it. You review every change before it is applied.",
         "subtitleSelfHosted": "Your data stays on your server. Your own agent connects over MCP and builds the workspace from a template.",
         "title": "How should we set up your workspace?",
         "titleSelfHosted": "How should we set up this instance?"
@@ -4177,7 +4207,11 @@
       "events": {
         "agentConnected": "Agent connected",
         "channelConnected": "Channel connected",
+        "channelSkipped": "Channel skipped",
+        "inviteAccepted": "Member joined",
+        "inviteSent": "Invite sent",
         "jobSelected": "Goal chosen",
+        "paid": "Paid",
         "setupCompleted": "Setup built"
       },
       "jobs": {
@@ -5770,7 +5804,8 @@
         "pro": "Follow up from LinkedIn and email",
         "starter": "Your workspace and your own AI"
       },
-      "unlimitedRoutinesPerUser": "Unlimited routines per user"
+      "unlimitedRoutinesPerUser": "Unlimited routines per user",
+      "keepsAccounts": "You have up to {connected} connected accounts per user. This plan keeps {kept}; the newest are disconnected when you pay."
     },
     "plan": "Plan",
     "planNames": {

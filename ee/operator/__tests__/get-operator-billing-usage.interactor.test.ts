@@ -49,6 +49,8 @@ function workspace(companyId: string, createdAt: string, deletedAt: string | nul
           trialEndDate: null,
           currentPeriodEnd: null,
           enterpriseAgentCreditsPerUser: 2000,
+          trialEnded: false,
+          effectivePlan: "enterprise" as const,
         },
   };
 }
@@ -84,6 +86,14 @@ function measurement(overrides: Partial<WorkspaceMeasurementRow> = {}): Workspac
   return {
     signupTemplate: null,
     signupLastPage: null,
+    signupCampaign: null,
+    teamSize: null,
+    agentLastCallAt: null,
+    funnelChannelSkippedAt: null,
+    funnelInviteSentAt: null,
+    funnelInviteAcceptedAt: null,
+    funnelPaidAt: null,
+    secondSeatAt: null,
     discoveryChoice: null,
     discoveryDetail: null,
     discoveryAnsweredAt: null,
@@ -137,7 +147,9 @@ describe("GetOperatorBillingUsageInteractor", () => {
     expect(result.data.subscriptions).toEqual({
       workspaces: 1,
       paying: 1,
-      groups: [{ billing: "manual", plan: "enterprise", status: "active", workspaces: 1, activeSeats: 1 }],
+      groups: [
+        { billing: "manual", plan: "enterprise", status: "active", trialEnded: false, workspaces: 1, activeSeats: 1 },
+      ],
     });
   });
 
@@ -175,6 +187,10 @@ describe("GetOperatorBillingUsageInteractor", () => {
     expect(live.acquisition).toEqual({
       signupTemplate: "law-firm-intake",
       lastPageBeforeSignup: "/en/for/law-firms",
+      campaign: null,
+      teamSize: null,
+      businessEmail: null,
+      company: null,
       discovery: { choice: "aiAssistant", detail: null, answeredAt: new Date("2026-01-01T00:05:00.000Z") },
       consentedSource: null,
     });

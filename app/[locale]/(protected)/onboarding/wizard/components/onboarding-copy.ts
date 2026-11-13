@@ -1,18 +1,8 @@
 import type { useTranslations } from "next-intl";
 
-import type { AiConnectionProvider } from "@/components/ai-connection/ai-connection.store";
 import type { TemplateIndexEntry } from "@/core/templates/template-index.types";
 
 type Translate = ReturnType<typeof useTranslations>;
-
-export function aiProviderLabels(t: Translate): Record<AiConnectionProvider, string> {
-  return {
-    claude: t("OnboardingWizard.ai.choices.claude"),
-    openai: t("OnboardingWizard.ai.choices.openai"),
-    cursor: t("OnboardingWizard.ai.choices.cursor"),
-    gemini: t("OnboardingWizard.ai.choices.gemini"),
-  };
-}
 
 export function templateFamilyLabel(t: Translate, family: TemplateIndexEntry["family"]): string {
   switch (family) {

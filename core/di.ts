@@ -253,6 +253,7 @@ import { ApplyOnboardingPlaybookInteractor } from "@/features/onboarding-funnel/
 import { RecordAgentConnectedInteractor } from "@/features/onboarding-funnel/record-agent-connected.interactor";
 import { RecordAgentFirstCallInteractor } from "@/features/onboarding-funnel/record-agent-first-call.interactor";
 import { RecordDiscoveryAnswerInteractor } from "@/features/onboarding-funnel/record-discovery-answer.interactor";
+import { RecordChannelSkippedInteractor } from "@/features/onboarding-funnel/record-channel-skipped.interactor";
 import { GetOnboardingAgentStatusInteractor } from "@/features/onboarding-funnel/get-onboarding-agent-status.interactor";
 import { GetOnboardingTemplatePromptInteractor } from "@/features/onboarding-templates/get-onboarding-template-prompt.interactor";
 import { GetOnboardingTemplateChoiceInteractor } from "@/features/onboarding-templates/get-onboarding-template-choice.interactor";
@@ -1305,6 +1306,7 @@ export const getRegisterUserInteractor = () =>
     getCompanyRepo(),
     new WorkspaceRegistrationService(getCompanyRepo(), getRoleRepo(), getUserRepo()),
     getPlanLimitsService(),
+    getOnboardingFunnelRepo(),
   );
 
 export const getRegisterOnboardingProfileInteractor = () =>
@@ -1350,6 +1352,8 @@ export const getApplyOnboardingPlaybookInteractor = () =>
   );
 export const getRecordAgentConnectedInteractor = () => new RecordAgentConnectedInteractor(getOnboardingFunnelRepo());
 export const getRecordAgentFirstCallInteractor = () => new RecordAgentFirstCallInteractor(getCompanyRepo());
+export const getRecordChannelSkippedInteractor = () =>
+  new RecordChannelSkippedInteractor(getOnboardingFunnelRepo(), getRouteGuardService());
 export const getRecordDiscoveryAnswerInteractor = () =>
   new RecordDiscoveryAnswerInteractor(getCompanyRepo(), getRouteGuardService());
 export const getGetOnboardingAgentStatusInteractor = () =>
@@ -1519,6 +1523,7 @@ export const getInviteUsersByEmailInteractor = () =>
     getGetOrCreateInviteTokenInteractor(),
     getCompanyRepo(),
     getPlanLimitsService(),
+    getOnboardingFunnelRepo(),
   );
 
 export const getInviteTokenValidationInteractor = () => new InviteTokenValidationInteractor(getCompanyRepo());
@@ -2272,6 +2277,7 @@ export const getProcessLemonSqueezyWebhookInteractor = () =>
     getDeleteAccountsForPlanInteractor(),
     getEmailService(),
     getFreePlanPauseService(),
+    getOnboardingFunnelRepo(),
   );
 
 export const getGetSubscriptionInteractor = () =>

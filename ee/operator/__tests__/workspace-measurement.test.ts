@@ -12,6 +12,14 @@ function row(overrides: Partial<WorkspaceMeasurementRow> = {}): WorkspaceMeasure
   return {
     signupTemplate: null,
     signupLastPage: null,
+    signupCampaign: null,
+    teamSize: null,
+    agentLastCallAt: null,
+    funnelChannelSkippedAt: null,
+    funnelInviteSentAt: null,
+    funnelInviteAcceptedAt: null,
+    funnelPaidAt: null,
+    secondSeatAt: null,
     discoveryChoice: null,
     discoveryDetail: null,
     discoveryAnsweredAt: null,
@@ -65,8 +73,32 @@ describe("workspaceAcquisition", () => {
     ).toEqual({
       signupTemplate: "client-tracker",
       lastPageBeforeSignup: "/en/templates/client-tracker",
+      campaign: null,
+      teamSize: null,
+      businessEmail: null,
+      company: null,
       discovery: { choice: "other", detail: "newsletter", answeredAt: day(0) },
       consentedSource: signupSource,
+    });
+  });
+
+  it("carries the campaign, the team size and whether the signup is a company", () => {
+    const campaign = { source: "google", medium: "cpc", campaign: "de-company-k1", content: null, term: "crm outlook" };
+
+    expect(
+      workspaceAcquisition(row({ signupCampaign: campaign, teamSize: "small" }), "jane@acme.example"),
+    ).toMatchObject({ campaign, teamSize: "small", businessEmail: true, company: true });
+    expect(workspaceAcquisition(row({ teamSize: "small" }), "jane@gmail.com")).toMatchObject({
+      businessEmail: false,
+      company: false,
+    });
+    expect(workspaceAcquisition(row({ teamSize: "solo" }), "jane@acme.example").company).toBe(false);
+    expect(workspaceAcquisition(row({ teamSize: "solo", secondSeatAt: day(2) }), "jane@acme.example").company).toBe(
+      true,
+    );
+    expect(workspaceAcquisition(row({ signupCampaign: { source: "<bad>" }, teamSize: "huge" }))).toMatchObject({
+      campaign: null,
+      teamSize: null,
     });
   });
 });

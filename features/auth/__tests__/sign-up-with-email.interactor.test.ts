@@ -92,15 +92,16 @@ describe("SignUpWithEmailInteractor and the last page before signup", () => {
     const recordSignupLastPageUnscoped = vi
       .fn()
       .mockImplementation(() => (args.failToRecord ? Promise.reject(new Error("down")) : Promise.resolve()));
+    const recordSignupCampaignUnscoped = vi.fn().mockResolvedValue(undefined);
     const registerWithEmail = vi
       .fn()
       .mockResolvedValue(args.error ? { ok: false, error: args.error } : { ok: true, user: { id: "new-user" } });
     const interactor = new SignUpWithEmailInteractor(
       { registerWithEmail, isEmailPendingVerification: vi.fn().mockResolvedValue(false) } as unknown as AuthService,
       onboardingIntentService as never,
-      { recordSignupLastPageUnscoped },
+      { recordSignupLastPageUnscoped, recordSignupCampaignUnscoped },
     );
-    return { interactor, recordSignupLastPageUnscoped, registerWithEmail };
+    return { interactor, recordSignupLastPageUnscoped, recordSignupCampaignUnscoped, registerWithEmail };
   }
 
   it("keeps the page on the new login so the company can take it at creation", async () => {

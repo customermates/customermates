@@ -3705,8 +3705,17 @@
           }
         }
       },
+      "other": {
+        "description": "Füge diese URL dort ein, wo dein Client einen entfernten MCP-Server oder einen eigenen Konnektor hinzufügt. Es öffnet sich eine Anmeldeseite, auf der du den Zugriff freigibst.",
+        "keyNote": "Braucht dein Client statt der Anmeldung einen API-Schlüssel? <guide>Die MCP-Anleitung</guide> zeigt den Header, den er senden muss.",
+        "stepsTitle": "Customermates als entfernten MCP-Server hinzufügen",
+        "subtitle": "Jeder Client, der einen entfernten MCP-Server hinzufügen kann, funktioniert mit dieser URL.",
+        "title": "Anderer MCP-Client",
+        "workspaceNote": "Diese URL verbindet {workspace}. Jeder Workspace hat eine eigene URL."
+      },
       "providers": {
-        "ariaLabel": "KI-Clients"
+        "ariaLabel": "KI-Clients",
+        "more": "Weitere:"
       },
       "savedKey": "Du hast bereits einen API-Schlüssel für diese Einrichtung erstellt. Du kannst das Onboarding abschließen. Wenn du den Schlüsselwert erneut benötigst, erstelle einen neuen Schlüssel.",
       "screen": {
@@ -3725,6 +3734,15 @@
         }
       }
     },
+    "channel": {
+      "addAnother": "Füge einen weiteren Kanal hinzu, wenn deine Kunden dir auch woanders schreiben.",
+      "connected": "Verbunden",
+      "connectedLabel": "Verbundene Kanäle",
+      "emailDescription": "Verbinde das Postfach, an das deine Kunden schreiben. Deine E-Mails kommen herein und sind standardmäßig nur für dich sichtbar.",
+      "emailTitle": "E-Mail",
+      "later": "WhatsApp, Telegram und weitere Kanäle findest du nach der Einrichtung in den Einstellungen.",
+      "skip": "Vorerst überspringen"
+    },
     "connect": {
       "checkAgain": "Erneut prüfen",
       "connected": "Verbunden. Dein Agent hat diesen Workspace erreicht.",
@@ -3738,17 +3756,16 @@
     "finish": "Fertig",
     "goal": {
       "agent": {
-        "anyClient": "Beliebiger MCP-Client",
         "description": "Verbinde ihn mit Customermates, füge eine Vorlage ein, und er baut deine Listen, deine Pipeline und deine Nachfass-Schritte.",
         "descriptionSelfHosted": "Verbinde ihn mit dieser Instanz, füge eine Vorlage ein, und er baut deine Listen, deine Pipeline und deine Nachfass-Schritte.",
-        "providersLabel": "Unterstützte KI-Agenten",
         "steps": {
           "approve": "Einfügen und Plan freigeben",
           "connect": "Agent verbinden",
           "template": "Vorlage wählen"
         },
         "stepsLabel": "So funktioniert es",
-        "title": "Den KI-Agenten nutzen, den du schon hast"
+        "title": "Den KI-Agenten nutzen, den du schon hast",
+        "worksWith": "Funktioniert mit Claude, ChatGPT, Cursor, Gemini und jedem anderen MCP-Client."
       },
       "channelsHint": {
         "action": "Dashboard öffnen",
@@ -3803,6 +3820,7 @@
     },
     "milestones": {
       "ai": "KI-Tools",
+      "channel": "Kanal",
       "connect": "Verbinden",
       "goal": "Einrichtung",
       "invite": "Team",
@@ -3820,6 +3838,14 @@
       "writesTitle": "Drei Seiten in der Wissensdatenbank, bereit zum Bearbeiten"
     },
     "profile": {
+      "teamSize": {
+        "label": "Wie viele Personen werden diesen Workspace nutzen?",
+        "large": "Mehr als 20",
+        "medium": "6 bis 20",
+        "required": "Wähle eine Antwort, um fortzufahren.",
+        "small": "2 bis 5",
+        "solo": "Nur ich"
+      },
       "websitePlaceholder": "beispiel.de"
     },
     "progress": "Schritt {current} von {total}",
@@ -3865,12 +3891,16 @@
         "subtitle": "Wähle ein KI-Tool und verbinde es mit deinem Workspace und seinem Wissen. Verbinde jetzt eines, ergänze später weitere oder überspringe diesen Schritt.",
         "title": "Verbinde die KI, die du schon nutzt"
       },
+      "channel": {
+        "subtitle": "Deine Gespräche liegen dann bei jedem Kunden, bereit für Entwürfe und zum Nachfassen. Ohne dich wird nichts gesendet, und du kannst diesen Schritt überspringen.",
+        "title": "Verbinde den Kanal, über den deine Kunden dir schreiben"
+      },
       "connect": {
         "subtitle": "Welchen Agenten nutzt du? Wir zeigen dir die genauen Schritte dafür.",
         "title": "Agent verbinden"
       },
       "goal": {
-        "subtitle": "Wähle eine Vorlage für deine Arbeitsweise. Du prüfst jede Änderung, bevor sie angewendet wird.",
+        "subtitle": "Wähle, wer den Workspace aufbaut. Du prüfst jede Änderung, bevor sie angewendet wird.",
         "subtitleSelfHosted": "Deine Daten bleiben auf deinem Server. Dein eigener Agent verbindet sich über MCP und baut den Workspace aus einer Vorlage.",
         "title": "Wie sollen wir deinen Workspace einrichten?",
         "titleSelfHosted": "Wie sollen wir diese Instanz einrichten?"
@@ -4177,7 +4207,11 @@
       "events": {
         "agentConnected": "Agent verbunden",
         "channelConnected": "Kanal verbunden",
+        "channelSkipped": "Kanal übersprungen",
+        "inviteAccepted": "Mitglied beigetreten",
+        "inviteSent": "Einladung gesendet",
         "jobSelected": "Ziel gewählt",
+        "paid": "Bezahlt",
         "setupCompleted": "Einrichtung fertig"
       },
       "jobs": {
@@ -5770,7 +5804,8 @@
         "pro": "Nachfassen über LinkedIn und E-Mail",
         "starter": "Dein Workspace und deine eigene KI"
       },
-      "unlimitedRoutinesPerUser": "Unbegrenzte Routinen pro Nutzer"
+      "unlimitedRoutinesPerUser": "Unbegrenzte Routinen pro Nutzer",
+      "keepsAccounts": "Du hast bis zu {connected} verbundene Konten pro Nutzer. Dieser Tarif behält {kept}; die neuesten werden bei der Zahlung getrennt."
     },
     "plan": "Tarif",
     "planNames": {

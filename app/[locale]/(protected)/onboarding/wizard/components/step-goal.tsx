@@ -5,8 +5,6 @@ import { useTranslations } from "next-intl";
 import { ArrowRight, Bot, Cloud, Loader2, MessagesSquare, Sparkles } from "lucide-react";
 import { useState } from "react";
 
-import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
-import { AI_CONNECTION_PROVIDERS } from "@/components/ai-connection/ai-connection.store";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { ConfirmDialog } from "@/components/modal/confirm-dialog";
 import { Badge } from "@/components/ui/badge";
@@ -17,30 +15,16 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import type { OnboardingJob } from "@/features/onboarding-funnel/onboarding-job";
 
-import { agentChecklist, aiProviderLabels } from "./onboarding-copy";
+import { agentChecklist } from "./onboarding-copy";
 import { SetupChoiceCard } from "./setup-choice-card";
 
 const AgentProviders = () => {
   const t = useTranslations();
-  const labels = aiProviderLabels(t);
 
   return (
-    <ul aria-label={t("OnboardingWizard.goal.agent.providersLabel")} className="flex flex-wrap gap-2">
-      {AI_CONNECTION_PROVIDERS.map((provider) => (
-        <li
-          key={provider}
-          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs font-medium"
-        >
-          <AiClientLogo className="size-3.5" provider={provider} />
-
-          {labels[provider]}
-        </li>
-      ))}
-
-      <li className="inline-flex items-center rounded-full border border-border bg-card px-2.5 py-1 text-xs font-medium">
-        {t("OnboardingWizard.goal.agent.anyClient")}
-      </li>
-    </ul>
+    <p className="text-xs text-muted-foreground" id="onboarding-goal-works-with">
+      {t("OnboardingWizard.goal.agent.worksWith")}
+    </p>
   );
 };
 

@@ -36,6 +36,8 @@ import { StepAi, StepAiFooter } from "./step-ai";
 import { StepTemplate, StepTemplateFooter } from "./step-template";
 import { StepPrompt, StepPromptFooter } from "./step-prompt";
 import { StepInvite } from "./step-invite";
+import { StepChannel, StepChannelFooter } from "./step-channel";
+import { isTeam } from "@/features/onboarding-funnel/team-size";
 import { StepSetup, useHydratedSetupStore } from "./setup/step-setup";
 import { resolveSetupStage } from "./setup/setup-interview-state";
 import { useSelectedAgentName } from "./use-selected-agent-name";
@@ -109,6 +111,8 @@ const OnboardingWizardContent = observer(
     const chooseAvailable = !isInvited && appMode !== "demo";
     const templatesAvailable = chooseAvailable && templates.length > 0;
     const sourceAvailable = chooseAvailable && sourceOffered && appMode === "cloud";
+    const channelAvailable = chooseAvailable && appMode === "cloud";
+    const teamInvite = chooseAvailable && isTeam(jobChoice?.teamSize);
     const setupAvailable = profileCompleted
       ? Boolean(setupStatus?.available) && !isInvited
       : appMode === "cloud" && !isInvited;
@@ -121,6 +125,8 @@ const OnboardingWizardContent = observer(
       chooseAvailable,
       templatesAvailable,
       sourceAvailable,
+      channelAvailable,
+      teamInvite,
       sourceResolved: jobChoice?.discoveryResolved,
       setupStepCompleted,
       jobSelected: !jobChoice || jobChoice.selectedJob !== null,
@@ -161,6 +167,8 @@ const OnboardingWizardContent = observer(
       chooseAvailable,
       templatesAvailable,
       sourceAvailable,
+      channelAvailable,
+      teamInvite,
       emptyChosen,
       selfHosted,
       initialTemplate,
@@ -194,6 +202,8 @@ const OnboardingWizardContent = observer(
         chooseAvailable,
         templatesAvailable,
         sourceAvailable,
+        channelAvailable,
+        teamInvite,
         emptyChosen,
         selfHosted,
         template: initialTemplate,
@@ -207,6 +217,7 @@ const OnboardingWizardContent = observer(
         { equals: comparer.structural },
       );
     }, [
+      channelAvailable,
       chooseAvailable,
       emptyChosen,
       initialJobChoice,
@@ -218,6 +229,7 @@ const OnboardingWizardContent = observer(
       selfHosted,
       setupAvailable,
       sourceAvailable,
+      teamInvite,
       templatesAvailable,
       userId,
     ]);
@@ -265,6 +277,12 @@ const OnboardingWizardContent = observer(
           return setupReady ? <StepSetup /> : <div aria-busy="true" className="min-h-36" />;
         case "invite":
           return <StepInvite />;
+        case "channel":
+          return isStepSynchronized ? (
+            <StepChannel email={sessionEmail} />
+          ) : (
+            <div aria-busy="true" className="min-h-36" />
+          );
       }
     };
 
@@ -361,6 +379,7 @@ const OnboardingWizardContent = observer(
                   playbook: t("OnboardingWizard.milestones.playbook"),
                   setup: t("OnboardingWizard.milestones.setup"),
                   invite: t("OnboardingWizard.milestones.invite"),
+                  channel: t("OnboardingWizard.milestones.channel"),
                   ai: connectsAgent ? t("OnboardingWizard.milestones.connect") : t("OnboardingWizard.milestones.ai"),
                   template: t("OnboardingWizard.milestones.template"),
                   prompt: t("OnboardingWizard.milestones.template"),
@@ -406,6 +425,8 @@ const OnboardingWizardContent = observer(
         )}
 
         {currentStep === "goal" && isStepSynchronized ? <StepGoalFooter /> : null}
+
+        {currentStep === "channel" && isStepSynchronized ? <StepChannelFooter /> : null}
 
         {currentStep === "ai" && isStepSynchronized ? <StepAiFooter /> : null}
 

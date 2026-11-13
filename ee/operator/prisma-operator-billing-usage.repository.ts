@@ -1,11 +1,12 @@
 import type { BillingUsageLedger, GetOperatorBillingUsageRepo } from "./get/get-operator-billing-usage.repo";
 import type { WorkspaceSubscriptionDto } from "./billing-usage.schema";
 import type { WorkspaceMeasurementRow } from "./workspace-measurement";
-import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
+import type { SubscriptionPlan } from "@/generated/prisma";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
-import { ConnectedAccountStatus, Status } from "@/generated/prisma";
+import { ConnectedAccountStatus, Status, SubscriptionStatus } from "@/generated/prisma";
+import { effectivePlanId } from "@/ee/subscription/entitlements";
 
 import { OBSERVATION_LAG_MS } from "./billing-usage";
 import { OPERATOR_AUDIT_ACTION } from "./operator.schema";
@@ -33,8 +34,17 @@ function workspaceSubscription(subscription: {
   enterpriseAgentCreditsPerUser: number | null;
 }): WorkspaceSubscriptionDto {
   const { lemonSqueezyId, ...terms } = subscription;
+  const now = new Date();
 
-  return { ...terms, billing: lemonSqueezyId ? "lemonSqueezy" : "manual" };
+  return {
+    ...terms,
+    billing: lemonSqueezyId ? "lemonSqueezy" : "manual",
+    trialEnded:
+      subscription.status === SubscriptionStatus.trial &&
+      subscription.trialEndDate !== null &&
+      subscription.trialEndDate < now,
+    effectivePlan: effectivePlanId(subscription, now),
+  };
 }
 
 const INTERVAL_SELECT = {
@@ -241,13 +251,16 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
     if (workspaces.length === 0) return new Map();
     const companyIds = workspaces.map((workspace) => workspace.companyId);
     const now = new Date();
-    const [companies, accounts, owners, revisions, records, secondWeek] = await Promise.all([
+    const [companies, accounts, owners, revisions, records, secondWeek, members] = await Promise.all([
       this.prisma.company.findMany({
         where: { id: { in: companyIds } },
         select: {
           id: true,
           signupTemplate: true,
           signupLastPage: true,
+          signupCampaign: true,
+          teamSize: true,
+          agentLastCallAt: true,
           discoveryChoice: true,
           discoveryDetail: true,
           discoveryAnsweredAt: true,
@@ -292,7 +305,20 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
         _min: { createdAt: true },
       }),
       this.firstChangesInSecondWeek(workspaces, now),
+      this.prisma.user.findMany({
+        where: { companyId: { in: companyIds } },
+        select: { companyId: true, createdAt: true },
+        orderBy: { createdAt: "asc" },
+      }),
     ]);
+
+    const seatsSeen = new Map<string, number>();
+    const secondSeat = new Map<string, Date>();
+    for (const member of members) {
+      const seen = (seatsSeen.get(member.companyId) ?? 0) + 1;
+      seatsSeen.set(member.companyId, seen);
+      if (seen === 2) secondSeat.set(member.companyId, member.createdAt);
+    }
 
     const firstAccount = new Map(accounts.map((row) => [row.companyId, row._min.createdAt]));
     const firstOwnerWizard = new Map(owners.map((row) => [row.companyId, row._min.onboardingWizardCompletedAt]));
@@ -305,6 +331,14 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
         const row: WorkspaceMeasurementRow = {
           signupTemplate: company.signupTemplate,
           signupLastPage: company.signupLastPage,
+          signupCampaign: company.signupCampaign,
+          teamSize: company.teamSize,
+          agentLastCallAt: company.agentLastCallAt,
+          funnelChannelSkippedAt: funnel.get("channelSkipped") ?? null,
+          funnelInviteSentAt: funnel.get("inviteSent") ?? null,
+          funnelInviteAcceptedAt: funnel.get("inviteAccepted") ?? null,
+          funnelPaidAt: funnel.get("paid") ?? null,
+          secondSeatAt: secondSeat.get(company.id) ?? null,
           discoveryChoice: company.discoveryChoice,
           discoveryDetail: company.discoveryDetail,
           discoveryAnsweredAt: company.discoveryAnsweredAt,

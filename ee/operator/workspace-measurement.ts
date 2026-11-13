@@ -1,10 +1,15 @@
 import type { WorkspaceAcquisitionDto, WorkspaceActivationDto } from "./billing-usage.schema";
 
 import { activeWorkspace, earliestOf } from "./workspace-activation";
+import { readSignupCampaign } from "@/features/acquisition/signup-campaign";
+import { isBusinessEmail } from "@/features/acquisition/business-email";
+import { isTeam, parseTeamSize } from "@/features/onboarding-funnel/team-size";
 
 export type WorkspaceMeasurementRow = {
   signupTemplate: string | null;
   signupLastPage: string | null;
+  signupCampaign: unknown;
+  teamSize: string | null;
   discoveryChoice: string | null;
   discoveryDetail: string | null;
   discoveryAnsweredAt: Date | null;
@@ -19,9 +24,15 @@ export type WorkspaceMeasurementRow = {
     capturedAt: Date;
   } | null;
   agentFirstCallAt: Date | null;
+  agentLastCallAt: Date | null;
   funnelSetupCompletedAt: Date | null;
   funnelAgentConnectedAt: Date | null;
   funnelChannelConnectedAt: Date | null;
+  funnelChannelSkippedAt: Date | null;
+  funnelInviteSentAt: Date | null;
+  funnelInviteAcceptedAt: Date | null;
+  funnelPaidAt: Date | null;
+  secondSeatAt: Date | null;
   wizardCompletedAt: Date | null;
   firstConnectedAccountAt: Date | null;
   firstModelChangeAt: Date | null;
@@ -29,10 +40,21 @@ export type WorkspaceMeasurementRow = {
   changeInSecondWeekAt: Date | null;
 };
 
-export function workspaceAcquisition(row: WorkspaceMeasurementRow): WorkspaceAcquisitionDto {
+export function workspaceAcquisition(
+  row: WorkspaceMeasurementRow,
+  ownerEmail: string | null = null,
+): WorkspaceAcquisitionDto {
+  const teamSize = parseTeamSize(row.teamSize);
+  const businessEmail = ownerEmail === null ? null : isBusinessEmail(ownerEmail);
+  const secondSeat = earliestOf(row.funnelInviteAcceptedAt, row.secondSeatAt) !== null;
+
   return {
     signupTemplate: row.signupTemplate,
     lastPageBeforeSignup: row.signupLastPage,
+    campaign: readSignupCampaign(row.signupCampaign),
+    teamSize,
+    businessEmail,
+    company: businessEmail === null ? null : businessEmail && (isTeam(teamSize) || secondSeat),
     discovery: row.discoveryAnsweredAt
       ? { choice: row.discoveryChoice, detail: row.discoveryDetail, answeredAt: row.discoveryAnsweredAt }
       : null,
@@ -65,9 +87,14 @@ export function workspaceActivation(args: {
       wizardCompletedAt: row.wizardCompletedAt,
       agentFirstCallAt,
       firstChannelConnectedAt,
+      channelSkippedAt: row.funnelChannelSkippedAt,
+      inviteSentAt: row.funnelInviteSentAt,
+      inviteAcceptedAt: earliestOf(row.funnelInviteAcceptedAt, row.secondSeatAt),
+      paidAt: row.funnelPaidAt,
       firstModelChangeAt: row.firstModelChangeAt,
       firstRecordCreatedAt: row.firstRecordCreatedAt,
     },
+    agentLastCallAt: row.agentLastCallAt,
     ...active,
   };
 }

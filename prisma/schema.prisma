@@ -17,6 +17,7 @@ model AuthUser {
   companyId          String?
   trialConsumedAt    DateTime?
   signupLastPage     String?            @db.VarChar(512)
+  signupCampaign     String?            @db.VarChar(1024)
   /// Platform operator access belongs to the login, not to one of its workspace memberships.
   isPlatformOperator Boolean            @default(false)
   createdAt          DateTime           @default(now())
@@ -244,6 +245,9 @@ model Company {
   discoveryDetail             String?                          @db.VarChar(200)
   discoveryUserId             String?
   discoveryAnsweredAt         DateTime?
+  signupCampaign              Json?
+  teamSize                    String?                          @db.VarChar(16)
+  agentLastCallAt             DateTime?
   users                       User[]
   apiKeys                     Apikey[]
   oauthAccessTokens           OauthAccessToken[]
@@ -2403,6 +2407,10 @@ enum CompanyFunnelEventType {
   setupCompleted
   channelConnected
   agentConnected
+  channelSkipped
+  inviteSent
+  inviteAccepted
+  paid
 }
 
 model CompanyFunnelEvent {

@@ -123,7 +123,9 @@ export const ApiKeyModal = observer(() => {
         ? t("OnboardingWizard.ai.screen.claude.title")
         : aiConnectionStore.route.screen === "openai"
           ? t("OnboardingWizard.ai.screen.openai.title")
-          : t("OnboardingWizard.ai.screen.setup.title", {
+          : aiConnectionStore.route.screen === "other"
+            ? t("OnboardingWizard.ai.other.title")
+            : t("OnboardingWizard.ai.screen.setup.title", {
               provider: t(`OnboardingWizard.ai.choices.${aiConnectionStore.route.provider}`),
             });
 

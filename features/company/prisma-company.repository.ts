@@ -494,6 +494,8 @@ export class PrismaCompanyRepo
             createdByAuthUserId: setup.createdByAuthUserId ?? null,
             signupTemplate: setup.signupTemplate ?? null,
             signupLastPage: setup.signupLastPage ?? null,
+            ...(setup.signupCampaign ? { signupCampaign: setup.signupCampaign } : {}),
+            teamSize: setup.teamSize ?? null,
           },
         ],
         skipDuplicates: true,
@@ -550,6 +552,16 @@ export class PrismaCompanyRepo
       data: { agentFirstCallAt: new Date() },
     });
     return count === 1;
+  }
+
+  async recordAgentCall(staleBefore: Date) {
+    await this.prisma.company.updateMany({
+      where: {
+        id: this.user.companyId,
+        OR: [{ agentLastCallAt: null }, { agentLastCallAt: { lt: staleBefore } }],
+      },
+      data: { agentLastCallAt: new Date() },
+    });
   }
 
   async recordDiscoveryAnswer({ userId, choice, detail }: DiscoveryAnswerWrite) {

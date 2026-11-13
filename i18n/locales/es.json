@@ -3705,8 +3705,17 @@
           }
         }
       },
+      "other": {
+        "description": "Pega esta URL donde tu cliente añade un servidor MCP remoto o un conector personalizado. Se abre una página de inicio de sesión y allí apruebas el acceso.",
+        "keyNote": "¿Tu cliente necesita una clave de API en lugar de iniciar sesión? <guide>La guía de MCP</guide> muestra la cabecera que debe enviar.",
+        "stepsTitle": "Añade Customermates como servidor MCP remoto",
+        "subtitle": "Cualquier cliente que pueda añadir un servidor MCP remoto funciona con esta URL.",
+        "title": "Otro cliente MCP",
+        "workspaceNote": "Esta URL conecta {workspace}. Cada espacio de trabajo tiene su propia URL."
+      },
       "providers": {
-        "ariaLabel": "Clientes de IA"
+        "ariaLabel": "Clientes de IA",
+        "more": "Más:"
       },
       "savedKey": "Ya has creado una clave de API para esta configuración. Puedes finalizar la configuración inicial. Si necesitas volver a ver su valor, crea una nueva clave.",
       "screen": {
@@ -3725,6 +3734,15 @@
         }
       }
     },
+    "channel": {
+      "addAnother": "Añade otro canal si tus clientes también te escriben por otro medio.",
+      "connected": "Conectado",
+      "connectedLabel": "Canales conectados",
+      "emailDescription": "Conecta el buzón al que escriben tus clientes. Tus correos entran y, por defecto, solo los ves tú.",
+      "emailTitle": "Correo",
+      "later": "WhatsApp, Telegram y más canales están en los ajustes después de la configuración.",
+      "skip": "Omitir por ahora"
+    },
     "connect": {
       "checkAgain": "Comprobar de nuevo",
       "connected": "Conectado. Tu agente ha llegado a este espacio de trabajo.",
@@ -3738,17 +3756,16 @@
     "finish": "Finalizar",
     "goal": {
       "agent": {
-        "anyClient": "Cualquier cliente MCP",
         "description": "Conéctalo a Customermates, pega una plantilla y él construye tus listas, tu pipeline y tus seguimientos.",
         "descriptionSelfHosted": "Conéctalo a esta instancia, pega una plantilla y él construye tus listas, tu pipeline y tus seguimientos.",
-        "providersLabel": "Agentes de IA compatibles",
         "steps": {
           "approve": "Pega y aprueba el plan",
           "connect": "Conecta tu agente",
           "template": "Elige una plantilla"
         },
         "stepsLabel": "Cómo funciona",
-        "title": "Usa el agente de IA que ya tienes"
+        "title": "Usa el agente de IA que ya tienes",
+        "worksWith": "Funciona con Claude, ChatGPT, Cursor, Gemini y cualquier otro cliente MCP."
       },
       "channelsHint": {
         "action": "Abrir el panel",
@@ -3803,6 +3820,7 @@
     },
     "milestones": {
       "ai": "Herramientas IA",
+      "channel": "Canal",
       "connect": "Conectar",
       "goal": "Configuración",
       "invite": "Equipo",
@@ -3820,6 +3838,14 @@
       "writesTitle": "Tres páginas de la base de conocimiento, listas para editar"
     },
     "profile": {
+      "teamSize": {
+        "label": "¿Cuántas personas usarán este espacio de trabajo?",
+        "large": "Más de 20",
+        "medium": "De 6 a 20",
+        "required": "Elige una opción para continuar.",
+        "small": "De 2 a 5",
+        "solo": "Solo yo"
+      },
       "websitePlaceholder": "ejemplo.es"
     },
     "progress": "Paso {current} de {total}",
@@ -3865,12 +3891,16 @@
         "subtitle": "Elige una herramienta de IA para conectarla a tu espacio de trabajo y a su conocimiento. Conecta una ahora, añade otras más adelante o salta este paso.",
         "title": "Conecta la IA que ya utilizas"
       },
+      "channel": {
+        "subtitle": "Tus conversaciones quedan junto a cada cliente, listas para borradores y seguimientos. Nada se envía sin ti, y puedes omitir este paso.",
+        "title": "Conecta el canal por el que te escriben tus clientes"
+      },
       "connect": {
         "subtitle": "¿Qué agente usas? Te mostramos los pasos exactos para él.",
         "title": "Conecta tu agente"
       },
       "goal": {
-        "subtitle": "Elige una plantilla para tu forma de trabajar. Revisas cada cambio antes de que se aplique.",
+        "subtitle": "Elige quién lo crea. Revisas cada cambio antes de que se aplique.",
         "subtitleSelfHosted": "Tus datos se quedan en tu servidor. Tu propio agente se conecta por MCP y construye el espacio de trabajo a partir de una plantilla.",
         "title": "¿Cómo configuramos tu espacio de trabajo?",
         "titleSelfHosted": "¿Cómo configuramos esta instancia?"
@@ -4177,7 +4207,11 @@
       "events": {
         "agentConnected": "Agente conectado",
         "channelConnected": "Canal conectado",
+        "channelSkipped": "Canal omitido",
+        "inviteAccepted": "Miembro incorporado",
+        "inviteSent": "Invitación enviada",
         "jobSelected": "Objetivo elegido",
+        "paid": "Pagado",
         "setupCompleted": "Configuración lista"
       },
       "jobs": {
@@ -5770,7 +5804,8 @@
         "pro": "Haz seguimiento desde LinkedIn y el correo",
         "starter": "Tu espacio de trabajo y tu propia IA"
       },
-      "unlimitedRoutinesPerUser": "Rutinas ilimitadas por usuario"
+      "unlimitedRoutinesPerUser": "Rutinas ilimitadas por usuario",
+      "keepsAccounts": "Tienes hasta {connected} cuentas conectadas por usuario. Este plan conserva {kept}; las más recientes se desconectan al pagar."
     },
     "plan": "Plan",
     "planNames": {

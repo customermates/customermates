@@ -19,6 +19,9 @@ import { WORKSPACE_NAME_MAX_LENGTH } from "@/features/workspace/workspace.schema
 import { Locale } from "@/generated/prisma";
 import { DISPLAY_LANGUAGE_VALUES } from "@/i18n/user-locale";
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
+import { SelectableCard } from "@/components/forms/selectable-card";
+import { RadioGroup } from "@/components/ui/radio-group";
+import { TEAM_SIZES, type TeamSize } from "@/features/onboarding-funnel/team-size";
 
 type Props = {
   email: string;
@@ -50,6 +53,15 @@ export const StepProfile = observer(
       store.setWithUnsavedChangesGuard(false);
     });
     const { isLoading } = store;
+    const asksTeamSize = appMode === "cloud" && !isInvited;
+    const teamSizeLabels: Record<TeamSize, string> = {
+      solo: t("OnboardingWizard.profile.teamSize.solo"),
+      small: t("OnboardingWizard.profile.teamSize.small"),
+      medium: t("OnboardingWizard.profile.teamSize.medium"),
+      large: t("OnboardingWizard.profile.teamSize.large"),
+    };
+
+    useEffect(() => store.setRequiresTeamSize(asksTeamSize), [asksTeamSize, store]);
 
     useEffect(
       () => store.onInitOrRefresh({ email, firstName, lastName, avatarUrl, onboardingIntent, displayLanguage }),
@@ -112,6 +124,44 @@ export const StepProfile = observer(
               name="organization"
               placeholder={t("WorkspaceOnboarding.workspaceNamePlaceholder")}
             />
+          ) : null}
+
+          {asksTeamSize ? (
+            <fieldset className="flex flex-col gap-2" id="onboarding-team-size">
+              <legend className="mb-2 text-sm font-medium">
+                {t("OnboardingWizard.profile.teamSize.label")}
+
+                <span aria-hidden="true" className="text-destructive">
+                  {" *"}
+                </span>
+              </legend>
+
+              <RadioGroup
+                aria-label={t("OnboardingWizard.profile.teamSize.label")}
+                aria-required="true"
+                className="grid grid-cols-2 gap-2 sm:grid-cols-4"
+                disabled={isLoading}
+                value={store.form.teamSize ?? ""}
+                onValueChange={store.setTeamSize}
+              >
+                {TEAM_SIZES.map((size) => (
+                  <SelectableCard
+                    key={size}
+                    disabled={isLoading}
+                    id={`onboarding-team-size-${size}`}
+                    label={teamSizeLabels[size]}
+                    selectionMode="single"
+                    value={size}
+                  />
+                ))}
+              </RadioGroup>
+
+              {store.teamSizeMissing ? (
+                <p className="text-xs text-destructive" id="onboarding-team-size-error" role="alert">
+                  {t("OnboardingWizard.profile.teamSize.required")}
+                </p>
+              ) : null}
+            </fieldset>
           ) : null}
 
           {appMode === "cloud" ? (

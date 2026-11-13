@@ -36,8 +36,8 @@ export class RefreshSubscriptionInteractor extends AuthenticatedInteractor<void,
     );
     if (!synced) return { ok: true as const, data: null };
 
-    if (synced.changedPlan)
-      await this.deleteAccountsForPlan.invoke({ companyId: synced.companyId, plan: synced.changedPlan });
+    const planInForce = synced.changedPlan ?? (synced.active ? synced.plan : null);
+    if (planInForce) await this.deleteAccountsForPlan.invoke({ companyId: synced.companyId, plan: planInForce });
     await this.freePlan?.syncUnscoped(synced.companyId).catch((error: unknown) => {
       ErrorReporter.captureException(error, { tags: { kind: "free-plan-pause-sync", companyId: synced.companyId } });
     });

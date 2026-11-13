@@ -5,15 +5,28 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 
 const MAX_REMEMBERED_WORKSPACES = 10_000;
+export const AGENT_LAST_CALL_RESOLUTION_MS = 60 * 60 * 1_000;
 const recordedWorkspaces = new Set<string>();
+const lastCallStamps = new Map<string, number>();
 
 function remember(companyId: string) {
   if (recordedWorkspaces.size >= MAX_REMEMBERED_WORKSPACES) recordedWorkspaces.clear();
   recordedWorkspaces.add(companyId);
 }
 
+function lastCallIsFresh(companyId: string, now: number): boolean {
+  const stamped = lastCallStamps.get(companyId);
+  return stamped !== undefined && now - stamped < AGENT_LAST_CALL_RESOLUTION_MS;
+}
+
+function rememberLastCall(companyId: string, now: number) {
+  if (lastCallStamps.size >= MAX_REMEMBERED_WORKSPACES) lastCallStamps.clear();
+  lastCallStamps.set(companyId, now);
+}
+
 export function forgetRecordedAgentFirstCalls() {
   recordedWorkspaces.clear();
+  lastCallStamps.clear();
 }
 
 @TenantInteractor()
@@ -24,6 +37,11 @@ export class RecordAgentFirstCallInteractor extends AuthenticatedInteractor<void
 
   async invoke(): Validated<{ recorded: boolean }> {
     const companyId = this.companyId;
+    const now = Date.now();
+    if (!lastCallIsFresh(companyId, now)) {
+      await this.repo.recordAgentCall(new Date(now - AGENT_LAST_CALL_RESOLUTION_MS));
+      rememberLastCall(companyId, now);
+    }
     if (recordedWorkspaces.has(companyId)) return { ok: true as const, data: { recorded: false } };
     const recorded = await this.repo.recordAgentFirstCall();
     remember(companyId);

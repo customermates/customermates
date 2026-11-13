@@ -3,6 +3,9 @@ import { z } from "zod";
 import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
 import { NOT_ACTIVE_REASONS } from "./workspace-activation";
+import { PLAN_IDS } from "@/core/commercial/plan-catalog";
+import { SignupCampaignSchema } from "@/features/acquisition/signup-campaign";
+import { TeamSizeSchema } from "@/features/onboarding-funnel/team-size";
 
 export const BILLING_USAGE_MONTH_PATTERN = /^20\d{2}-(0[1-9]|1[0-2])$/;
 
@@ -57,12 +60,18 @@ export const WorkspaceSubscriptionDtoSchema = z.object({
   trialEndDate: z.date().nullable(),
   currentPeriodEnd: z.date().nullable(),
   enterpriseAgentCreditsPerUser: z.number().int().nullable(),
+  trialEnded: z.boolean(),
+  effectivePlan: z.enum(PLAN_IDS),
 });
 export type WorkspaceSubscriptionDto = z.infer<typeof WorkspaceSubscriptionDtoSchema>;
 
 export const WorkspaceAcquisitionDtoSchema = z.object({
   signupTemplate: z.string().nullable(),
   lastPageBeforeSignup: z.string().nullable(),
+  campaign: SignupCampaignSchema.nullable(),
+  teamSize: TeamSizeSchema.nullable(),
+  businessEmail: z.boolean().nullable(),
+  company: z.boolean().nullable(),
   discovery: z
     .object({ choice: z.string().nullable(), detail: z.string().nullable(), answeredAt: z.date() })
     .nullable(),
@@ -87,9 +96,14 @@ export const WorkspaceActivationDtoSchema = z.object({
     wizardCompletedAt: z.date().nullable(),
     agentFirstCallAt: z.date().nullable(),
     firstChannelConnectedAt: z.date().nullable(),
+    channelSkippedAt: z.date().nullable(),
+    inviteSentAt: z.date().nullable(),
+    inviteAcceptedAt: z.date().nullable(),
+    paidAt: z.date().nullable(),
     firstModelChangeAt: z.date().nullable(),
     firstRecordCreatedAt: z.date().nullable(),
   }),
+  agentLastCallAt: z.date().nullable(),
   active: z.boolean(),
   activeSince: z.date().nullable(),
   notActiveBecause: z.enum(NOT_ACTIVE_REASONS).nullable(),
@@ -137,6 +151,7 @@ export const OperatorBillingUsageDtoSchema = z.object({
         billing: z.enum(BILLING_SOURCES),
         plan: z.enum(SubscriptionPlan),
         status: z.enum(SubscriptionStatus),
+        trialEnded: z.boolean(),
         workspaces: z.number().int().min(0),
         activeSeats: z.number().int().min(0),
       }),

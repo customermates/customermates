@@ -55,7 +55,7 @@ export class GetOperatorBillingUsageInteractor {
             window,
             includeDetails: Boolean(data.companyId),
           }),
-          acquisition: measurement ? workspaceAcquisition(measurement) : null,
+          acquisition: measurement ? workspaceAcquisition(measurement, workspace.ownerEmail) : null,
           activation: measurement
             ? workspaceActivation({ row: measurement, createdAt: workspace.createdAt, now })
             : null,

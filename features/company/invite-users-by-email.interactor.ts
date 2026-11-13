@@ -2,6 +2,7 @@ import type { Validated, Data } from "@/core/validation/validation.utils";
 import type { EmailService } from "@/features/email/email.service";
 import type { GetOrCreateInviteTokenInteractor } from "@/features/company/get-or-create-invite-token.interactor";
 import type { GetCompanyRepo } from "@/features/company/get-company.repo";
+import type { OnboardingFunnelRepo } from "@/features/onboarding-funnel/onboarding-funnel.repo";
 import { UNLIMITED_PLAN_LIMITS, type PlanLimitsService } from "@/ee/subscription/plan-limits.service";
 
 import { z } from "zod";
@@ -45,6 +46,7 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
     private readonly getOrCreateInviteToken: GetOrCreateInviteTokenInteractor,
     private readonly companyRepo: GetCompanyRepo,
     private readonly seats: Pick<PlanLimitsService, "admitMembers"> = UNLIMITED_PLAN_LIMITS,
+    private readonly funnel?: Pick<OnboardingFunnelRepo, "recordFunnelEvent">,
   ) {
     super();
   }
@@ -99,6 +101,8 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
     );
 
     const failedEmails = uniqueEmails.filter((_, index) => !accepted[index]);
+    if (failedEmails.length < uniqueEmails.length)
+      await this.funnel?.recordFunnelEvent({ type: "inviteSent", occurredAt: new Date() });
 
     return {
       ok: true as const,

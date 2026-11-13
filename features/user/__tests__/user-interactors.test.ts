@@ -52,6 +52,7 @@ describe("RegisterUserInteractor", () => {
   let mockRouteGuardService: any;
   let mockCompanyRepo: any;
   let mockRegistration: any;
+  let mockFunnel: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -72,6 +73,7 @@ describe("RegisterUserInteractor", () => {
       hasLeftMembershipUnscoped: vi.fn().mockResolvedValue(false),
       registerExistingCompany: vi.fn().mockResolvedValue(mockTenantUser),
       takeSignupLastPageUnscoped: vi.fn().mockResolvedValue(null),
+      takeSignupCampaignUnscoped: vi.fn().mockResolvedValue(null),
     };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
@@ -93,6 +95,7 @@ describe("RegisterUserInteractor", () => {
     };
     mockCompanyRepo = { existsUnscoped: vi.fn().mockResolvedValue(true) };
     mockRegistration = { createCompanyAndUser: vi.fn().mockResolvedValue(mockTenantUser) };
+    mockFunnel = { recordFunnelEventUnscoped: vi.fn().mockResolvedValue(true) };
   });
 
   function createInteractor() {
@@ -103,6 +106,8 @@ describe("RegisterUserInteractor", () => {
       mockRouteGuardService,
       mockCompanyRepo,
       mockRegistration,
+      undefined,
+      mockFunnel,
     );
   }
 
@@ -416,6 +421,7 @@ describe("RegisterUserInteractor", () => {
     expect(mockAuthService.sendNewUserNotificationEmail).toHaveBeenCalledWith({
       email: "jane@example.com",
       name: "Jane Doe",
+      signup: { businessEmail: true, teamSize: null, campaign: null, template: null, lastPage: null },
     });
   });
 
@@ -704,6 +710,8 @@ describe("RegisterUserInteractor", () => {
           trial: true,
           signupTemplate: null,
           signupLastPage: null,
+          signupCampaign: null,
+          teamSize: null,
         },
       }),
     );
@@ -729,6 +737,59 @@ describe("RegisterUserInteractor", () => {
     expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
       expect.objectContaining({ workspace: expect.objectContaining({ signupLastPage: "/en/for/law-firms" }) }),
     );
+  });
+
+  it("stores the campaign of the signup link and the team size on the new cloud company", async () => {
+    mutableEnv.APP_MODE = "cloud";
+    const campaign = { source: "google", medium: "cpc", campaign: "de-company-k1", content: null, term: "crm outlook" };
+    mockRepo.takeSignupCampaignUnscoped.mockResolvedValue(JSON.stringify(campaign));
+
+    await createInteractor().invoke(
+      {
+        email: "jane@acme.example",
+        firstName: "Jane",
+        lastName: "Doe",
+        avatarUrl: null,
+        agreeToTerms: true,
+        teamSize: "small",
+      },
+      { target: { type: "createCompany" } },
+    );
+
+    expect(mockRepo.takeSignupCampaignUnscoped).toHaveBeenCalledWith(USER_ID);
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        workspace: expect.objectContaining({ signupCampaign: campaign, teamSize: "small" }),
+      }),
+    );
+    expect(mockRegistration.createCompanyAndUser.mock.calls[0][0]).not.toHaveProperty("teamSize");
+  });
+
+  it("ignores a stored campaign that is not valid", async () => {
+    mutableEnv.APP_MODE = "cloud";
+    mockRepo.takeSignupCampaignUnscoped.mockResolvedValue('{"source":"<script>"}');
+
+    await createInteractor().invoke(
+      { email: "jane@example.com", firstName: "Jane", lastName: "Doe", avatarUrl: null, agreeToTerms: true },
+      { target: { type: "createCompany" } },
+    );
+
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
+      expect.objectContaining({ workspace: expect.objectContaining({ signupCampaign: null }) }),
+    );
+  });
+
+  it("records that an invited member joined", async () => {
+    await createInteractor().invoke(
+      { email: "jane@example.com", firstName: "Jane", lastName: "Doe", avatarUrl: null, agreeToTerms: true },
+      { target: { type: "invitation", companyId: "company-1" } },
+    );
+
+    expect(mockFunnel.recordFunnelEventUnscoped).toHaveBeenCalledWith({
+      companyId: "company-1",
+      type: "inviteAccepted",
+      occurredAt: expect.any(Date),
+    });
   });
 
   it("does not take the last page before signup outside a new cloud company", async () => {
@@ -774,6 +835,8 @@ describe("RegisterUserInteractor", () => {
           trial: true,
           signupTemplate: "client-tracker",
           signupLastPage: null,
+          signupCampaign: null,
+          teamSize: null,
         },
       }),
     );
@@ -802,6 +865,8 @@ describe("RegisterUserInteractor", () => {
           trial: false,
           signupTemplate: null,
           signupLastPage: null,
+          signupCampaign: null,
+          teamSize: null,
         },
       }),
     );

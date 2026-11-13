@@ -1,6 +1,16 @@
 import type { OnboardingJob } from "./onboarding-job";
+import type { TeamSize } from "./team-size";
 
-export const FUNNEL_EVENT_TYPES = ["jobSelected", "setupCompleted", "channelConnected", "agentConnected"] as const;
+export const FUNNEL_EVENT_TYPES = [
+  "jobSelected",
+  "setupCompleted",
+  "channelConnected",
+  "agentConnected",
+  "channelSkipped",
+  "inviteSent",
+  "inviteAccepted",
+  "paid",
+] as const;
 export type FunnelEventType = (typeof FUNNEL_EVENT_TYPES)[number];
 
 export type OnboardingJobChoice = {
@@ -8,6 +18,7 @@ export type OnboardingJobChoice = {
   signupJob: OnboardingJob | null;
   signupLandingPath: string | null;
   discoveryResolved: boolean;
+  teamSize: TeamSize | null;
 };
 
 export type FunnelEventInput = { type: FunnelEventType; occurredAt: Date; job?: OnboardingJob };

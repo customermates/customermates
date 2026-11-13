@@ -135,7 +135,12 @@ export class SubscriptionService {
   async syncSubscription(
     workspace: SyncedWorkspace,
     subscription: LemonSqueezySubscription,
-  ): Promise<{ companyId: string; changedPlan: SubscriptionPlan | null } | null> {
+  ): Promise<{
+    companyId: string;
+    changedPlan: SubscriptionPlan | null;
+    active: boolean;
+    plan: SubscriptionPlan;
+  } | null> {
     const attributes = subscription.data.attributes;
     const status = this.mapLemonSqueezyStatusToSubscriptionStatus(attributes.status);
     const renewsAt = attributes.renews_at ? new Date(attributes.renews_at) : undefined;
@@ -167,6 +172,8 @@ export class SubscriptionService {
     return {
       companyId: workspace.companyId,
       changedPlan: syncedPlan !== null && syncedPlan !== workspace.plan ? syncedPlan : null,
+      active: status === SubscriptionStatus.active,
+      plan: syncedPlan ?? workspace.plan,
     };
   }
 

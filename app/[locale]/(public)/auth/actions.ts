@@ -25,11 +25,12 @@ import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
 import { buildLocalePath } from "@/i18n/locale-registry";
 import { rememberSignupJourney } from "@/features/acquisition/next/signup-journey-cookie";
-import { signupLastPageFromRequest } from "@/features/acquisition/signup-source";
+import { signupCampaignFromSignupRequest, signupLastPageFromRequest } from "@/features/acquisition/signup-source";
 
-function lastPageOf(signupJourney: unknown): { signupLastPage?: string } {
+function lastPageOf(signupJourney: unknown): { signupLastPage?: string; signupCampaign?: string } {
   const signupLastPage = signupLastPageFromRequest(signupJourney);
-  return signupLastPage ? { signupLastPage } : {};
+  const signupCampaign = signupCampaignFromSignupRequest(signupJourney);
+  return { ...(signupLastPage ? { signupLastPage } : {}), ...(signupCampaign ? { signupCampaign } : {}) };
 }
 
 export async function signInWithEmailAction(data: EmailSignInData) {

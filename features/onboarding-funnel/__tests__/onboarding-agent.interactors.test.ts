@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ACCOUNT_STATES, accountStateRedirect } from "@/features/auth/account-state";
 import { runWithTenant } from "@/core/decorators/tenant-context";
@@ -13,12 +13,32 @@ import { RecordAgentFirstCallInteractor, forgetRecordedAgentFirstCalls } from ".
 const owner = createMockUser({ onboardingWizardCompletedAt: null });
 
 describe("RecordAgentFirstCallInteractor", () => {
-  let repo: { recordAgentFirstCall: ReturnType<typeof vi.fn> };
+  let repo: { recordAgentFirstCall: ReturnType<typeof vi.fn>; recordAgentCall: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     forgetRecordedAgentFirstCalls();
     (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "cloud";
-    repo = { recordAgentFirstCall: vi.fn().mockResolvedValue(true) };
+    repo = {
+      recordAgentFirstCall: vi.fn().mockResolvedValue(true),
+      recordAgentCall: vi.fn().mockResolvedValue(undefined),
+    };
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("stamps the latest agent call at most once an hour per workspace", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-11-13T10:00:00.000Z"));
+    await record();
+    await record();
+    expect(repo.recordAgentCall).toHaveBeenCalledOnce();
+    expect(repo.recordAgentCall).toHaveBeenCalledWith(new Date("2026-11-13T09:00:00.000Z"));
+
+    vi.setSystemTime(new Date("2026-11-13T11:00:01.000Z"));
+    await record();
+    expect(repo.recordAgentCall).toHaveBeenCalledTimes(2);
   });
 
   const record = (user = owner) =>

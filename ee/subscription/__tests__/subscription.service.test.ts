@@ -216,7 +216,7 @@ describe("SubscriptionService.syncSubscription", () => {
       syncedSubscription({ status: "active", renews_at: "2026-07-01T00:00:00.000Z", variant_id: 2002 }),
     );
 
-    expect(result).toEqual({ companyId: "company-1", changedPlan: "pro" });
+    expect(result).toEqual({ companyId: "company-1", changedPlan: "pro", active: true, plan: "pro" });
   });
 
   it("reports no plan change when the synced variant maps to the stored plan", async () => {
@@ -284,7 +284,7 @@ describe("SubscriptionService.syncSubscription", () => {
       currentPeriodEnd: new Date("2026-11-16T09:12:34.000Z"),
       checkoutStartedAt: null,
     });
-    expect(result).toEqual({ companyId: "company-1", changedPlan: "business" });
+    expect(result).toEqual({ companyId: "company-1", changedPlan: "business", active: true, plan: "business" });
   });
 
   it("settles a started checkout when the sync binds a subscription the workspace did not hold", async () => {

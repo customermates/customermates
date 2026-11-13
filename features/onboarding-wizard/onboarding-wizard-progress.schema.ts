@@ -7,6 +7,7 @@ const AiConnectionSelectionSchema = z.strictObject({
     z.strictObject({ screen: z.literal("providers") }),
     z.strictObject({ screen: z.literal("claude") }),
     z.strictObject({ screen: z.literal("openai") }),
+    z.strictObject({ screen: z.literal("other") }),
     z.strictObject({
       screen: z.literal("setup"),
       provider: z.enum(["cursor", "gemini"]),
@@ -25,7 +26,7 @@ const AiConnectionSelectionSchema = z.strictObject({
 export type AiConnectionSelection = z.infer<typeof AiConnectionSelectionSchema>;
 
 export const OnboardingWizardProgressSchema = z.strictObject({
-  step: z.enum(["goal", "invite", "ai", "template", "prompt"]),
+  step: z.enum(["goal", "invite", "channel", "ai", "template", "prompt"]),
   inviteTab: z.enum(["link", "email"]),
   ai: AiConnectionSelectionSchema,
   job: OnboardingJobSchema.nullable().default(null),

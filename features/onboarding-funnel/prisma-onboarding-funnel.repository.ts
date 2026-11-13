@@ -9,6 +9,7 @@ import type { OnboardingJob } from "./onboarding-job";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
+import { parseTeamSize } from "./team-size";
 
 export class PrismaOnboardingFunnelRepo
   extends TenantRepository
@@ -39,7 +40,7 @@ export class PrismaOnboardingFunnelRepo
       this.prisma.companySignupSource.findFirst({ where: { companyId }, select: { job: true, landingPath: true } }),
       this.prisma.company.findUnique({
         where: { id: companyId },
-        select: { discoveryAnsweredAt: true, createdByAuthUserId: true },
+        select: { discoveryAnsweredAt: true, createdByAuthUserId: true, teamSize: true },
       }),
     ]);
     const discoveryResolved =
@@ -50,6 +51,7 @@ export class PrismaOnboardingFunnelRepo
       signupJob: source?.job ?? null,
       signupLandingPath: source?.landingPath ?? null,
       discoveryResolved,
+      teamSize: parseTeamSize(company?.teamSize),
     };
   }
 

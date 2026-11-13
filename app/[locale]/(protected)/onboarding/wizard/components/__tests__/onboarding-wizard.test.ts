@@ -90,6 +90,7 @@ const choice = (
   preselectedJob: selectedJob ?? "agent",
   suggestedPlaybook: null,
   discoveryResolved: false,
+  teamSize: null,
   ...over,
 });
 
