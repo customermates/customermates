@@ -5,9 +5,8 @@ import { ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { completable } from "@modelcontextprotocol/sdk/server/completable.js";
 import { z } from "zod";
 
-import { getCompanyRepo, getUserService } from "@/core/di";
+import { getGetSubscriptionInteractor, getUserService } from "@/core/di";
 import { resolveActiveTenantUser } from "@/core/decorators/resolve-tenant-user";
-import { runWithTenant } from "@/core/decorators/tenant-context";
 import { compileTemplate } from "@/core/templates/compile-template";
 import { compileTemplateAutomation } from "@/core/templates/compile-template-automation";
 import { renderTemplatePrompt } from "@/core/templates/template-prompt";
@@ -41,9 +40,8 @@ async function workspaceLocale(): Promise<string> {
 
 async function workspaceRoutineAllowance(): Promise<number | "unlimited" | null> {
   try {
-    const user = await resolveActiveTenantUser(() => getUserService().getActiveTenantUserOrThrow());
-    const subscription = await runWithTenant(user, () => getCompanyRepo().findSubscription());
-    return subscription ? routineAllowanceOf(subscription) : null;
+    const subscription = await getGetSubscriptionInteractor().invoke();
+    return subscription.ok ? routineAllowanceOf(subscription.data) : null;
   } catch {
     return null;
   }

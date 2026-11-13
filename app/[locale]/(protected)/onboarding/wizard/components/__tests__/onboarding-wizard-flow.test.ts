@@ -145,7 +145,13 @@ describe("resuming the wizard", () => {
       }),
     ).toMatchObject({ steps: ["profile", "invite", "ai"], resumeStepIndex: 1 });
     expect(
-      resolveWizardResume({ ...owner, isInvited: true, setupStepCompleted: true, jobSelected: true, savedStep: "goal" }),
+      resolveWizardResume({
+        ...owner,
+        isInvited: true,
+        setupStepCompleted: true,
+        jobSelected: true,
+        savedStep: "goal",
+      }),
     ).toMatchObject({ steps: ["profile", "invite", "ai"], resumeStepIndex: 1 });
   });
 

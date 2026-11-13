@@ -11,6 +11,7 @@ const state = vi.hoisted(() => ({
   shipped: new Set<string>(),
   locale: "de",
   appMode: "cloud",
+  subscription: (() => Promise.resolve({ ok: false })) as () => Promise<unknown>,
 }));
 
 vi.mock("@/env", () => ({
@@ -29,6 +30,7 @@ vi.mock("@/core/di", () => ({
   getUserService: () => ({
     getActiveTenantUserOrThrow: () => Promise.resolve({ displayLanguage: state.locale }),
   }),
+  getGetSubscriptionInteractor: () => ({ invoke: () => state.subscription() }),
 }));
 
 import { TEMPLATE_SLUGS } from "@/core/templates/template-slugs";
@@ -58,6 +60,11 @@ beforeEach(() => {
   state.shipped.clear();
   state.locale = "de";
   state.appMode = "cloud";
+  state.subscription = () =>
+    Promise.resolve({
+      ok: true,
+      data: { status: "trial", plan: "pro", trialEndDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) },
+    });
 });
 
 describe("template MCP prompt and resources", () => {
@@ -120,6 +127,31 @@ describe("template MCP prompt and resources", () => {
     const client = await open();
     const read = await client.readResource({ uri: "templates://client-tracker" });
     expect(JSON.parse(textOf(read)).locale).toBe("en");
+  });
+
+  it("tells the agent the routine allowance of the workspace's plan and says nothing where it is unlimited or unknown", async () => {
+    ALL.forEach((capability) => state.shipped.add(capability));
+    state.locale = "en";
+    const client = await open();
+    const ask = async () => {
+      const prompt = await client.getPrompt({
+        name: MCP_SETUP_FROM_TEMPLATE_PROMPT_INFO.name,
+        arguments: { template: "client-tracker" },
+      });
+      return String((prompt.messages[0].content as { text: string }).text);
+    };
+
+    expect(await ask()).toContain("The assistant routine allowance of your plan is 5 per user");
+
+    state.subscription = () =>
+      Promise.resolve({ ok: true, data: { status: "active", plan: "business", trialEndDate: null } });
+    expect(await ask()).not.toContain("routine allowance");
+
+    state.subscription = () => Promise.resolve({ ok: false });
+    expect(await ask()).not.toContain("routine allowance");
+
+    state.subscription = () => Promise.reject(new Error("no tenant"));
+    expect(await ask()).not.toContain("routine allowance");
   });
 
   it("serves the prompt of a template without asking for a new workspace", async () => {

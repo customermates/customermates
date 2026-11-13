@@ -21,6 +21,7 @@ const AUTHENTICATED_TENANT_ENTRYPOINTS = [
   "features/onboarding-funnel/get-onboarding-agent-status.interactor.ts",
   "features/onboarding-funnel/record-discovery-answer.interactor.ts",
   "features/onboarding-funnel/select-onboarding-job.interactor.ts",
+  "features/onboarding-templates/get-onboarding-template-prompt.interactor.ts",
   "features/onboarding-wizard/complete-onboarding-setup-step.interactor.ts",
   "features/onboarding-wizard/complete-onboarding-wizard.interactor.ts",
   "features/onboarding-wizard/get-onboarding-wizard-progress.interactor.ts",

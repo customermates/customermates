@@ -223,6 +223,7 @@ describe("the user's own agent", () => {
         step: "prompt",
         inviteTab: "link",
         ai: store.savedProgress?.ai ?? initialAi(),
+        job: null,
         template: "client-tracker",
         schemaBaseline: 7,
       },

@@ -158,10 +158,11 @@ describe("renderTemplatePrompt", () => {
           const line = lines.find((entry) => entry.startsWith(prefix));
           const expected = anchors[list.role as keyof typeof anchors];
           expect(line, `${slug} ${locale} ${list.key}`).toContain(`${expected} (`);
-          if (list.role === "people" && filledByForms.has(list.key))
+          if (list.role === "people" && filledByForms.has(list.key)) {
             expect(line, `${slug} ${locale} ${list.key} receives the sender of a form`).toContain(
               `${copy.anchorFields.channels} (${copy.fieldTypes.channels})`,
             );
+          }
         }
       }
     },
@@ -202,10 +203,11 @@ describe("renderTemplatePrompt", () => {
           expect(lines[position], `${slug} ${locale} ${key}`).toContain(`${position + 1}. ${title}`);
           expect(lines[position]).not.toContain(copy.routineAllowance.optional);
         });
-        for (const line of lines.slice(TRIAL_ROUTINES))
+        for (const line of lines.slice(TRIAL_ROUTINES)) {
           expect(line, `${slug} ${locale}`).toContain(
             `${copy.availability.routine}, ${copy.routineAllowance.optional}]`,
           );
+        }
         expect(prompt(slug, { shipped: ALL_SHIPPED, routineAllowance: TRIAL_ROUTINES }, locale)).toContain(
           fillPrompt(copy.routineAllowance.limited, { count: TRIAL_ROUTINES }),
         );

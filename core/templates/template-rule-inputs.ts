@@ -249,15 +249,17 @@ export function templateRuleInputs(
     const draft = hasTasksList
       ? draftOf(proposal, plan, resolver, options)
       : refuse<TemplateRuleDraft>("The workspace has no tasks list.");
-    if (draft.ok) result.ready.push(draft.value);
-    else
-      result.skipped.push({
-        key: proposal.key,
-        name: proposal.name,
-        reason: draft.reason,
-        routine: false,
-        priority: null,
-      });
+    if (draft.ok) {
+      result.ready.push(draft.value);
+      continue;
+    }
+    result.skipped.push({
+      key: proposal.key,
+      name: proposal.name,
+      reason: draft.reason,
+      routine: false,
+      priority: null,
+    });
   }
   return result;
 }

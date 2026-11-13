@@ -92,11 +92,12 @@ describe("manage_rules activity", () => {
   });
 
   it("treats reading rules as a read and ignores trigger and effect kinds it does not know", () => {
-    for (const action of ["list", "get", "runs", "preview"])
+    for (const action of ["list", "get", "runs", "preview"]) {
       expect(describeInternalTool("manage_rules", { action, id: "x" })).toMatchObject({
         kind: "workspace.read",
         risk: "read",
       });
+    }
     const odd = describeInternalTool("manage_rules", {
       action: "create",
       name: "Odd",
@@ -139,10 +140,11 @@ describe("manage_rules activity", () => {
         "AgentChat.activity.consequence.ruleSummary",
         "AgentChat.activity.rule.trigger.fieldChanged",
         "AgentChat.activity.rule.effect.createRecord",
-      ])
+      ]) {
         expect(t(key, { title: "T", when: "W", then: "H" }), `${locale} ${key}`).not.toBe(
           english(key, { title: "T", when: "W", then: "H" }),
         );
+      }
     }
   });
 
