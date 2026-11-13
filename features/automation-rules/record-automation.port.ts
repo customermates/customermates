@@ -51,7 +51,7 @@ export class RecordAutomationPort implements AutomationRecordPort {
       return {
         ok: false,
         message: issue?.message ?? "mutationFailed",
-        versionChanged: issue?.customCode === CustomErrorCode.recordVersionChanged,
+        versionChanged: issue?.code === "custom" && issue.params?.error === CustomErrorCode.recordVersionChanged,
       };
     }
     if (result.data.status !== "completed") return { ok: false, message: "mutationPending" };
