@@ -62,8 +62,9 @@ export function connectsAgentWithVerification(context: WizardFlowContext, flow: 
 
 type PersistedStep = OnboardingWizardProgress["step"];
 
-export function persistedWizardStep(step: WizardStep): PersistedStep {
-  return step === "goal" || step === "ai" || step === "template" || step === "prompt" ? step : "invite";
+export function persistedWizardStep(step: WizardStep, goalSaved = true): PersistedStep {
+  if (step === "goal") return goalSaved ? "goal" : "invite";
+  return step === "ai" || step === "template" || step === "prompt" ? step : "invite";
 }
 
 export type WizardResumeInput = WizardFlowContext & {

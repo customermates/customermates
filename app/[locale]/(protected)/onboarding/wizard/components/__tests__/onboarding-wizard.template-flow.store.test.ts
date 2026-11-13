@@ -84,6 +84,36 @@ describe("the user's own agent", () => {
     expect(actions.saveOnboardingWizardProgressAction).toHaveBeenLastCalledWith(
       expect.objectContaining({ progress: expect.objectContaining({ step: "goal", job: "agent" }) }),
     );
+    expect(store.goalPinned).toBe(true);
+    expect(store.progress).toMatchObject({ step: "goal", job: "agent" });
+  });
+
+  it("does not save the goal step, the path or the template shown there while the owner only arrives on it", async () => {
+    const { store } = atGoal("agent");
+
+    expect(store.currentStep).toBe("goal");
+    expect(store.goalPinned).toBe(false);
+    expect(store.progress).toMatchObject({ step: "invite", job: null });
+    await store.persistProgress();
+
+    const savedSteps = actions.saveOnboardingWizardProgressAction.mock.calls.map(([{ progress }]) => progress.step);
+    expect(savedSteps).not.toContain("goal");
+    expect(actions.saveOnboardingWizardProgressAction).toHaveBeenLastCalledWith(
+      expect.objectContaining({ progress: expect.objectContaining({ step: "invite", job: null }) }),
+    );
+  });
+
+  it("does not save the goal step when Continue on the profile step arrives on it", async () => {
+    const { store } = newStore();
+    store.initialize(0, "owner-a", undefined, true, { selectedJob: "agent", suggestedJob: null }, CLOUD_FLOW);
+
+    await store.next();
+
+    expect(store.currentStep).toBe("goal");
+    expect(actions.saveOnboardingWizardProgressAction).toHaveBeenLastCalledWith(
+      expect.objectContaining({ progress: expect.objectContaining({ step: "invite", job: null }) }),
+    );
+    expect(store.progress).toMatchObject({ step: "invite", job: null });
   });
 
   it("resumes on the goal step after Back when the page reloads or refreshes on refocus", async () => {
@@ -146,6 +176,8 @@ describe("the user's own agent", () => {
     expect(store.currentStep).toBe("goal");
     expect(store.selectedJob).toBe("workspace");
     expect(store.steps).toEqual(["profile", "goal", "template", "setup", "invite", "ai"]);
+    expect(store.goalPinned).toBe(true);
+    expect(store.progress).toMatchObject({ step: "goal", job: "workspace" });
   });
 
   it("moves from the connect step to the template step and saves it", async () => {
@@ -323,6 +355,22 @@ describe("the empty workspace", () => {
     expect(store.currentStep).toBe("invite");
     expect(store.isFirstStep).toBe(true);
     expect(store.connectsAgent).toBe(false);
+  });
+
+  it("saves the team step before it closes the setup step, so a refresh in between cannot reopen a saved goal step", async () => {
+    const { store } = atGoal("agent");
+    store.setSelectedJob("workspace");
+    await store.persistProgress();
+    expect(store.progress).toMatchObject({ step: "goal", job: "workspace" });
+
+    await store.startEmptyWorkspace();
+
+    const saveOrder = actions.saveOnboardingWizardProgressAction.mock.invocationCallOrder.at(-1) ?? 0;
+    expect(actions.saveOnboardingWizardProgressAction).toHaveBeenLastCalledWith(
+      expect.objectContaining({ progress: expect.objectContaining({ step: "invite", job: null }) }),
+    );
+    expect(saveOrder).toBeLessThan(actions.completeOnboardingSetupStepAction.mock.invocationCallOrder[0]);
+    expect(store.currentStep).toBe("invite");
   });
 
   it("keeps the plain AI step after a reload even though the own agent is still preselected", () => {

@@ -57,6 +57,7 @@ describe("wizard steps", () => {
     expect(persistedWizardStep("template")).toBe("template");
     expect(persistedWizardStep("prompt")).toBe("prompt");
     expect(persistedWizardStep("goal")).toBe("goal");
+    expect(persistedWizardStep("goal", false)).toBe("invite");
     expect(persistedWizardStep("setup")).toBe("invite");
     expect(persistedWizardStep("playbook")).toBe("invite");
   });

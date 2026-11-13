@@ -78,6 +78,7 @@ export class OnboardingWizardStore {
   selfHosted = false;
   cloudTrialOpened = false;
   selectedJob: OnboardingJob = DEFAULT_ONBOARDING_JOB;
+  goalPinned = false;
   suggestedJob: OnboardingJob | null = null;
   selectedPlaybook: OnboardingPlaybook | null = null;
   suggestedPlaybook: OnboardingPlaybook | null = null;
@@ -150,15 +151,15 @@ export class OnboardingWizardStore {
   }
 
   get progress(): OnboardingWizardProgress {
-    return this.progressAt(this.currentStep);
+    return this.progressAt(this.currentStep, this.goalPinned);
   }
 
-  private progressAt(step: WizardStep): OnboardingWizardProgress {
+  private progressAt(step: WizardStep, goalPinned: boolean): OnboardingWizardProgress {
     return {
-      step: persistedWizardStep(step),
+      step: persistedWizardStep(step, goalPinned),
       inviteTab: this.inviteTab,
       ai: this.rootStore.stepAiStore.selection,
-      job: step === "goal" ? this.selectedJob : null,
+      job: step === "goal" && goalPinned ? this.selectedJob : null,
       template: this.selectedTemplate,
       schemaBaseline: this.schemaBaseline,
     };
@@ -187,6 +188,7 @@ export class OnboardingWizardStore {
     this.initializationVersion += 1;
     this.userId = userId;
     this.savedProgress = resumeStepIndex > 0 ? readOnboardingWizardProgress(progress) : null;
+    this.goalPinned = this.savedProgress?.step === "goal";
     this.rootStore.stepAiStore.reset(identityChanged);
     this.selectedTemplate = flow.template ?? null;
     this.applyProgress(this.savedProgress ?? readOnboardingWizardProgress(null));
@@ -205,7 +207,9 @@ export class OnboardingWizardStore {
 
   setSelectedJob = (value: string) => {
     const job = parseOnboardingJob(value);
-    if (job && !this.isSubmitting) this.selectedJob = job;
+    if (!job || this.isSubmitting) return;
+    this.selectedJob = job;
+    this.goalPinned = true;
   };
 
   setSelectedDiscovery = (value: string) => {
@@ -282,7 +286,7 @@ export class OnboardingWizardStore {
         return;
       }
       if (outcome.next === "ai") {
-        if (this.userId && !(await this.persistProgress(this.progressAt("ai")))) return;
+        if (this.userId && !(await this.persistProgress(this.progressAt("ai", this.goalPinned)))) return;
         this.moveTo("ai", { closeBehind: !this.connectsAgent });
         return;
       }
@@ -298,6 +302,7 @@ export class OnboardingWizardStore {
     if (this.isSubmitting || this.currentStep !== "goal") return;
     this.setIsSubmitting(true);
     try {
+      if (this.userId && !(await this.persistProgress(this.progressAt("invite", false)))) return;
       const result = await completeOnboardingSetupStepAction();
       if (!result.ok) {
         toastZodErrorTree(serializedFailureErrorTree(result.failure));
@@ -329,7 +334,7 @@ export class OnboardingWizardStore {
 
   private async moveToPersisted(step: WizardStep): Promise<boolean> {
     const version = this.initializationVersion;
-    if (this.userId && !(await this.persistProgress(this.progressAt(step)))) return false;
+    if (this.userId && !(await this.persistProgress(this.progressAt(step, this.goalPinned)))) return false;
     if (version !== this.initializationVersion) return false;
     this.moveTo(step, { closeBehind: false });
     return true;
@@ -505,7 +510,7 @@ export class OnboardingWizardStore {
     if (this.isSaving || this.currentStepIndex >= this.steps.length - 1) return;
     const version = this.initializationVersion;
     const step = this.steps[this.currentStepIndex + 1];
-    if (this.userId && !(await this.persistProgress(this.progressAt(step)))) return;
+    if (this.userId && !(await this.persistProgress(this.progressAt(step, this.goalPinned)))) return;
     if (version !== this.initializationVersion) return;
     runInAction(() => {
       this.currentStepIndex += 1;
@@ -516,10 +521,12 @@ export class OnboardingWizardStore {
     if (this.isSaving || this.currentStepIndex <= this.minStepIndex) return;
     const version = this.initializationVersion;
     const target = this.steps[this.currentStepIndex - 1];
-    if (this.userId && !(await this.persistProgress(this.progressAt(target)))) return;
+    if (this.userId && !(await this.persistProgress(this.progressAt(target, true)))) return;
     if (version !== this.initializationVersion) return;
     runInAction(() => {
-      if (this.currentStepIndex > this.minStepIndex) this.currentStepIndex -= 1;
+      if (this.currentStepIndex <= this.minStepIndex) return;
+      this.currentStepIndex -= 1;
+      if (target === "goal") this.goalPinned = true;
     });
   };
 

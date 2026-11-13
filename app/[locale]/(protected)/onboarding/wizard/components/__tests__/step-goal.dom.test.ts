@@ -68,7 +68,7 @@ async function renderGoal(
   const ai = {
     reset: vi.fn(),
     restoreSelection: vi.fn(),
-    selection: {},
+    selection: { apiKeyIds: {} },
     selectedProvider: null,
     forgetApiKeyIds: vi.fn(),
   };
@@ -178,12 +178,10 @@ describe("StepGoal", () => {
 
     await act(async () => {
       container.querySelector<HTMLButtonElement>("#confirm-empty")?.click();
-      await Promise.resolve();
-      await Promise.resolve();
+      await vi.waitFor(() => expect(store.currentStep).toBe("invite"));
     });
 
     expect(harness.completeStep).toHaveBeenCalledOnce();
-    expect(store.currentStep).toBe("invite");
   });
 
   it("disables the choices while a request runs", async () => {
