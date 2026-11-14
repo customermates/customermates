@@ -53,7 +53,7 @@ const ActorSchema = z.object({
       "Set when an automatic process made the change instead of a person: messaging sync, Trash cleanup or another process",
     ),
   via: EventViaSchema.optional().describe(
-    "Set when the person made the change through an API key or a connected application such as an AI agent over MCP; names that key or application",
+    "Set when the change came through an API key, a connected application such as an AI agent over MCP, a public form or an incoming webhook; names that key, application, form or webhook",
   ),
 });
 

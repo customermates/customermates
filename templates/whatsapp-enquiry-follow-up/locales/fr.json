@@ -1,0 +1,94 @@
+{
+  "locale": "fr",
+  "name": "Suivi des demandes WhatsApp",
+  "summary": "Un pipeline pour une petite entreprise dont les clients écrivent sur WhatsApp : noter la demande, répondre vite, envoyer un devis, relancer en quelques jours, confirmer la commande et penser au réachat.",
+  "description": "Transformez les conversations WhatsApp en demandes suivies : chaque conversation devient une demande avec ce que veut le client, le devis et sa validité, une prochaine relance datée, une étape de paiement et une date pour revenir quand la réponse était « plus tard ». Chaque contact indique s’il a accepté de recevoir des messages et quand un réachat est attendu. Les réponses sont rédigées une à une et relues. Il n’envoie ni diffusions, ni campagnes, ni menus de chatbot, et n’utilise pas la plateforme officielle WhatsApp Business. WhatsApp peut restreindre un compte utilisé d’une façon que sa politique interdit.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes qui vous écrivent, avec leur accord WhatsApp et leur date de réachat." },
+    "enquiries": { "label": "Demande", "pluralLabel": "Demandes (affaires)", "description": "Une demande venue d’une conversation, du premier message à commande confirmée, perdue ou plus tard." }
+  },
+  "fields": {
+    "contacts.whatsapp_opt_in": {
+      "label": "Accord WhatsApp",
+      "options": { "customer_started_chat": "Le client a lancé la conversation", "gave_permission": "A donné son accord", "unknown": "Inconnu", "opted_out": "A demandé l’arrêt" }
+    },
+    "contacts.last_order_on": { "label": "Dernière commande" },
+    "contacts.reorder_due": { "label": "Réachat attendu" },
+    "enquiries.stage": {
+      "label": "Étape",
+      "options": { "new_chat": "Nouveau message", "qualifying": "Qualification", "quote_sent": "Devis envoyé", "awaiting_payment": "En attente de paiement", "won": "Commande confirmée", "lost": "Perdu", "later": "Plus tard" }
+    },
+    "enquiries.source": { "label": "Source", "options": { "click_to_chat": "Lien WhatsApp", "website": "Site web", "instagram": "Instagram", "referral": "Recommandation", "walk_in": "Visite en boutique", "phone": "Téléphone", "ad": "Publicité" } },
+    "enquiries.interest": { "label": "Besoin" },
+    "enquiries.received_at": { "label": "Premier message reçu" },
+    "enquiries.quote_valid_until": { "label": "Devis valable jusqu’au" },
+    "enquiries.ordered_on": { "label": "Commandé le" },
+    "enquiries.service_date": { "label": "Date de livraison ou de rendez-vous" },
+    "enquiries.next_step_due": { "label": "Prochaine relance" },
+    "enquiries.lost_reason": {
+      "label": "Motif de perte",
+      "options": { "price": "Prix", "chose_competitor": "A choisi un concurrent", "no_response": "Sans réponse", "timing": "Calendrier", "not_available": "Indisponible", "not_a_fit": "Ne convient pas" }
+    },
+    "enquiries.revisit_on": { "label": "Recontacter le" },
+    "enquiries.weighted_value": { "label": "Valeur pondérée" },
+    "actions.kind": {
+      "label": "Type",
+      "options": { "reply": "Répondre", "send_quote": "Envoyer le devis", "follow_up": "Relancer", "confirm_order": "Confirmer la commande", "request_payment": "Demander le paiement", "confirm_appointment": "Confirmer le rendez-vous", "reorder_reminder": "Rappel de réachat", "other": "Autre" }
+    }
+  },
+  "relationships": {
+    "enquiry_contact": { "sourceLabel": "Contact", "targetLabel": "Demandes (affaires)" },
+    "action_enquiry": { "sourceLabel": "Demande", "targetLabel": "Actions" }
+  },
+  "views": {
+    "enquiries_board": { "name": "Demandes par étape" },
+    "enquiries_all": { "name": "Toutes les demandes" },
+    "open_quotes": { "name": "Devis en attente de réponse" },
+    "later_to_revisit": { "name": "Plus tard, à recontacter" },
+    "contacts_all": { "name": "Tous les contacts" }
+  },
+  "widgets": {
+    "enquiries_funnel": { "title": "Demandes par étape" },
+    "open_quotes_value": { "title": "Montant des devis en attente" },
+    "new_chats": { "title": "Nouveaux messages à traiter" },
+    "reorders_due": { "title": "Réachats à venir" },
+    "services_coming": { "title": "Livraisons et rendez-vous à venir" },
+    "by_source": { "title": "Demandes par source" },
+    "lost_reasons": { "title": "Motifs de perte des demandes" }
+  },
+  "knowledgePages": {
+    "enquiry_playbook": { "title": "Guide des demandes WhatsApp", "sections": ["Répondre, noter, chiffrer, relancer, confirmer, se souvenir", "Qui répond et en combien de temps"] },
+    "opt_in_rules": { "title": "Consentement et arrêt des messages", "sections": ["Quand un client a accepté de recevoir des messages", "Ce qui se passe quand quelqu’un demande l’arrêt"] },
+    "follow_up_rhythm": { "title": "Rythme de relance et moment d’arrêter", "sections": ["Délai entre les relances après un devis", "Le message de clôture et la date pour recontacter"] },
+    "what_whatsapp_allows": { "title": "Ce que WhatsApp permet et ce que cette configuration ne fait pas", "sections": ["Pas de diffusions, de campagnes ni de chatbots", "Le risque d’utiliser un compte lié"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Créer le contact et la demande quand le formulaire avec la case WhatsApp est envoyé" },
+    "reply_new_chat": { "title": "Créer une tâche de réponse quand une demande est créée" },
+    "first_reply_missed": { "title": "Prévenir le responsable quand une demande est encore un nouveau message un jour plus tard" },
+    "quote_follow_up": { "title": "Relancer 2 jours après l’envoi d’un devis" },
+    "quote_expiring": { "title": "Relancer ou clore quand un devis atteint sa date de validité" },
+    "payment_request": { "title": "Demander le paiement le lendemain de l’entrée en attente de paiement" },
+    "won_reorder": { "title": "Créer un rappel de réachat 90 jours après la confirmation d’une commande" },
+    "service_calendar": { "title": "Ajouter la livraison ou le rendez-vous à l’agenda quand la commande est confirmée" },
+    "appointment_confirm": { "title": "Confirmer le rendez-vous la veille" },
+    "later_revisit_date": { "title": "Fixer la date pour recontacter à 90 jours quand une demande passe à plus tard" },
+    "revisit_follow_up": { "title": "Relancer à la date pour recontacter" },
+    "unanswered_sweep": { "title": "Chaque jour, créer une tâche de réponse pour chaque nouveau message sans réponse" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Chaque demande a une étape.",
+    "opt_in_field": "Chaque contact indique son accord WhatsApp.",
+    "quote_valid_field": "Chaque devis indique sa durée de validité.",
+    "enquiries_board_view": "Les demandes s’ouvrent en board par étape."
+  },
+  "prompt": {
+    "intro": "Mets en place dans mon espace de travail Customermates le suivi des demandes WhatsApp : une demande par conversation avec devis et validité, prochaine relance datée, étape de paiement, date pour recontacter et date de réachat par contact, ainsi que l’accord WhatsApp du contact. Rédige les réponses une à une pour relecture et n’envoie rien en masse.",
+    "questions": [
+      "Que vous demandent les clients sur WhatsApp, et comment chiffrez-vous ?",
+      "En combien de temps voulez-vous répondre à un nouveau message ?",
+      "Combien de jours attendez-vous après un devis avant de relancer, et quand arrêtez-vous ?",
+      "Vos clients rachètent-ils, et au bout de combien de temps ?"
+    ]
+  }
+}

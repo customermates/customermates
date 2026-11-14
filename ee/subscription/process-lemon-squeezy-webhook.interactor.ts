@@ -3,6 +3,7 @@ import type { FreePlanPauseService } from "./free-plan-pause.service";
 import type { ProcessLemonSqueezyWebhookRepo, WorkspaceBilling } from "./process-lemon-squeezy-webhook.repo";
 import type { DeleteAccountsForPlanInteractor } from "@/ee/messaging/connect/delete-accounts-for-plan.interactor";
 import type { EmailService } from "@/features/email/email.service";
+import type { OnboardingFunnelRepo } from "@/features/onboarding-funnel/onboarding-funnel.repo";
 
 import React from "react";
 import * as ErrorReporter from "@/core/observability/server";
@@ -61,6 +62,7 @@ export class ProcessLemonSqueezyWebhookInteractor {
     private deleteAccountsForPlan: DeleteAccountsForPlanInteractor,
     private emailService: EmailService,
     private freePlan?: Pick<FreePlanPauseService, "syncUnscoped">,
+    private funnel?: Pick<OnboardingFunnelRepo, "recordFunnelEventUnscoped">,
   ) {}
 
   async invoke(event: LemonSqueezyWebhookEvent): Promise<LemonSqueezyWebhookOutcome> {
@@ -150,8 +152,15 @@ export class ProcessLemonSqueezyWebhookInteractor {
     }
 
     await announce?.();
-    if (synced.changedPlan)
-      await this.deleteAccountsForPlan.invoke({ companyId: synced.companyId, plan: synced.changedPlan });
+    if (synced.active) {
+      await this.funnel
+        ?.recordFunnelEventUnscoped({ companyId: synced.companyId, type: "paid", occurredAt: new Date() })
+        .catch((error: unknown) => {
+          ErrorReporter.captureException(error, { tags: { kind: "funnel-paid", companyId: synced.companyId } });
+        });
+    }
+    const planInForce = synced.changedPlan ?? (synced.becameActive ? synced.plan : null);
+    if (planInForce) await this.deleteAccountsForPlan.invoke({ companyId: synced.companyId, plan: planInForce });
     await this.freePlan?.syncUnscoped(synced.companyId).catch((error: unknown) => {
       ErrorReporter.captureException(error, { tags: { kind: "free-plan-pause-sync", companyId: synced.companyId } });
     });

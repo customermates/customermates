@@ -68,6 +68,8 @@ Pide al cliente que liste sus herramientas; `get_workspace_context` debería est
 
 Cuando un cliente se conecta, el servidor envía una guía de flujo de trabajo: leer primero el esquema, buscar los ID antes de escribir, cambiar registros y relaciones con `mutate_crm_record` y obtener la confirmación del usuario, indicando los registros o los destinatarios exactos, antes de eliminar o enviar. Esta guía no es una puerta de confirmación impuesta por el servidor, y que un cliente se la pase o no al modelo depende del propio cliente. Comprueba cómo trata tu cliente las instrucciones y las aprobaciones antes de conceder acceso de escritura, de eliminación o de mensajería. Los clientes que admiten prompts MCP pueden ejecutar el prompt integrado `get-started`, que resume el espacio de trabajo para un arranque personalizado; se ofrece cuando los toolsets `workspace` y `records` están activos, como ocurre cuando la URL no selecciona ningún `toolsets`.
 
+El prompt `setup-from-template` (argumento `template`, con autocompletado de los slugs disponibles) configura un espacio de trabajo a partir de una plantilla de Customermates: el asistente lee primero el espacio de trabajo, propone el plan y solo construye tras tu aprobación, no crea registros de ejemplo y no envía nada. Cada plantilla también se puede leer como el recurso `templates://<slug>`, que devuelve su especificación, su texto en el idioma de la interfaz del usuario, el plan de configuración compilado (listas, campos, etapas, vistas, widgets y páginas de la base de conocimiento) y las reglas de seguimiento como propuestas de `manage_rules`, cada una con las claves de su lista y de sus campos o con el motivo por el que no puede ejecutarse como regla de automatización; `resources/list` muestra las plantillas que ofrece esta instalación. Una plantilla que necesita una función que el producto aún no incluye no se ofrece.
+
 Por defecto está disponible toda la superficie de herramientas. Añade `?toolsets=` a la URL del endpoint para reducirla, por ejemplo `/api/v1/mcp?toolsets=records,messaging`; consulta [Reducir con ?toolsets=](/docs/mcp#narrowing-with-toolsets).
 
 ## Base de conocimientos compartida [#shared-workspace-wiki]
@@ -176,7 +178,7 @@ Customermates expone hasta [[derived.mcp.tools.total]] herramientas MCP, todas a
 {/* mcp-catalog:flags */}
 **Solo lectura:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `lookup_address`, `check_address`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
-**Puede eliminar datos:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_calendar`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_team`, `manage_roles`
+**Puede eliminar datos:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_calendar`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `schedule_meeting`, `manage_booking_links`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_rules`, `manage_webhooks`, `manage_incoming_webhooks`, `manage_team`, `manage_roles`
 {/* /mcp-catalog */}
 
 El JSON Schema completo de cada herramienta está disponible en vivo en `POST /api/v1/mcp` con `method: "tools/list"`.
@@ -423,6 +425,12 @@ Obligatorio: `typeId`, `action`. Opcional: `expectedRevision`, `idempotencyKey`,
 Lee y cambia tu calendario personal: options enumera las listas con campos de fecha y tus calendarios conectados, read devuelve la configuración y si sigue aplicándose la predeterminada (el primer campo de fecha única de cada lista o, si no, su primer rango de fechas, hasta 12 listas), update recibe una config solo con las claves que cambian y comprueba cada lista, campo, filtro y calendario, y reset vuelve a la predeterminada. subscriptions enumera las URL de suscripción de tu calendario y revoke desactiva una de forma permanente por ID. Los registros, los eventos del calendario y los calendarios de otros usuarios nunca cambian.
 
 **Puede eliminar datos.** Obligatorio: `action`. Opcional: `config`, `id`.
+
+#### `manage_forms`
+
+Una sola herramienta con un conmutador `action`: list, get, fields, create, update, disable. Un formulario es una página pública, con un código para incrustarla en un iframe, que permite a cualquiera añadir un registro a una lista sin iniciar sesión. `fields` devuelve los campos que puede usar un formulario y las listas de personas desde las que puede vincular una persona (encontrada o creada por correo, una persona por correo); léelo antes de create. create y update reciben toda la definición en `config`: título, descripción, etiqueta del botón, campos con etiqueta, texto de ayuda e indicador de obligatorio, texto de consentimiento con enlace de privacidad, mensaje de éxito o redirección e idioma; update la sustituye y disable desactiva el enlace al instante. Una lista tiene un formulario. Los envíos crean el registro como el miembro que activó el formulario por última vez, con el formulario como origen. El plan Free limita los envíos por mes y muestra una insignia. Requiere Crear en Enlaces públicos y enlaces públicos permitidos en los ajustes del espacio de trabajo.
+
+Obligatorio: `action`. Opcional: `id`, `typeId`, `name`, `enabled`, `config`.
 {/* /mcp-catalog */}
 
 ### Base de conocimientos [#workspace-wiki]
@@ -513,6 +521,18 @@ Obligatorio: `channel`.
 Lista tus cuentas conectadas con sus carpetas y ajustes de correo, y cambia una que te pertenezca: elige las carpetas de correo sincronizadas, define la firma y el aspecto del correo, compártela con el espacio de trabajo o hazla privada, vuelve a sincronizarla o desconéctala. La desconexión no se puede deshacer. Requiere Editar en Mensajes de la bandeja de entrada, y Eliminar para desconectar.
 
 **Puede eliminar datos.** Obligatorio: `action`. Opcional: `id`, `selectedFolderIds`, `signature`, `settings`, `shared`.
+
+#### `schedule_meeting`
+
+Crea, mueve y cancela reuniones en el calendario de Google o Microsoft conectado de quien llama y busca horarios libres.
+
+**Puede eliminar datos.** Obligatorio: `action`. Opcional: `record`, `id`, `calendarId`, `title`, `description`, `location`, `startsAt`, `durationMinutes`, `timeZone`, `attendees`, `videoLink`, `sendInvites`, `records`, `followUp`, `from`, `days`, `workingHours`, `bufferMinutes`, `comment`.
+
+#### `manage_booking_links`
+
+Lista, crea, cambia y elimina páginas de reserva públicas con las que cualquiera puede reservar una reunión en el calendario de quien llama.
+
+**Puede eliminar datos.** Obligatorio: `action`. Opcional: `id`, `calendarId`, `title`, `description`, `durationMinutes`, `bufferMinutes`, `minNoticeMinutes`, `horizonDays`, `timeZone`, `workingHours`, `withVideo`, `personTypeId`, `recordTypeId`, `startFieldId`, `questions`, `successMessage`, `enabled`.
 {/* /mcp-catalog */}
 
 ### Publicaciones sociales [#social-posts]
@@ -682,6 +702,12 @@ Lista o lee widgets; crea, actualiza o elimina configuraciones de gráficos, act
 Una sola herramienta con un conmutador `action`: list, runs, create, update, pause, run_now, delete. Una rutina son instrucciones guardadas que el asistente ejecuta con una programación cron o cuando se dispara un evento del CRM. Si se omite `enabled` al crear, se crea una rutina ACTIVA, así que pasa `enabled: false` para dejarla en borrador; el asistente alojado debe indicar `enabled` de forma explícita y crea borradores salvo que el usuario haya pedido activarla. Un cambio de `triggerKind` debe llegar con la programación o los eventos de ese tipo. pause desactiva la rutina y marca como omitidas sus ejecuciones en cola, algo que reactivarla no deshace; solo un administrador de sistema activo puede pausar o eliminar una rutina. run_now se aplica solo a las rutinas programadas, y solo a una rutina activada que pertenezca a quien llama. Rechaza el trabajo de IA en pausa, los propietarios inactivos y los créditos agotados antes de ponerlo en cola. Una pausa de la plataforma Customermates devuelve `platformPaused`; los administradores del espacio de trabajo no pueden levantarla. Una rutina pausada por un administrador del espacio de trabajo usa `adminPaused`; las ejecuciones de prueba manuales siguen usando `triggerKind: schedule`. Las ejecuciones se paginan con `cursor` y llevan el estado, el resumen, el desencadenante y el motivo de bloqueo del bloque `error`. delete mueve la rutina a la Papelera, donde deja de ejecutarse hasta que manage_trash la restaura. list devuelve por defecto resúmenes compactos con nombre, propietario, desencadenante y estado de activación. Pasa includePrompts: true para las configuraciones completas con los prompts, o owner: "mine" para las rutinas que te pertenecen.
 
 **Puede eliminar datos.** Obligatorio: `action`. Opcional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `owner`, `includePrompts`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `recordTrigger`, `recordSources`, `expectedSchemaRevision`, `debounceSeconds`.
+
+#### `manage_rules`
+
+Una sola herramienta con un conmutador `action`: list, get, runs, create, update, enable, disable, delete, preview. Una regla es una automatización determinista «cuando, si, entonces» que se ejecuta sin IA en todos los planes y en instancias autoalojadas: un disparador (registro creado o actualizado, campo cambiado, fecha alcanzada con un desfase en días, mensaje recibido, formulario enviado, webhook entrante), condiciones opcionales sobre el registro que la disparó y efectos ordenados (fijar un campo, crear un registro como una acción, notificar a miembros, llamar a un webhook). Una regla se ejecuta una vez por registro y ocurrencia, como su propietario y con sus permisos; sus propios cambios nunca la vuelven a iniciar. Sin `enabled`, create produce una regla ACTIVA, y el plan limita el número de reglas activas (`automationRuleLimitReached`). `trigger`, `conditions` y `effects` sustituyen su valor anterior en update. Solo el propietario puede modificar o activar una regla; un administrador también puede desactivarla o eliminarla. delete elimina la regla y su historial de forma definitiva. preview lista los registros que una regla de fecha afectaría en la próxima pasada. runs devuelve el historial con el resultado de cada efecto. [Automatizaciones](/docs/app-automations) explica las pantallas, las notificaciones y los límites de los planes.
+
+**Puede eliminar datos.** Obligatorio: `action`. Opcional: `id`, `name`, `enabled`, `trigger`, `conditions`, `effects`, `typeId`, `owner`, `page`, `pageSize`.
 {/* /mcp-catalog */}
 
 ### Webhooks [#webhooks]
@@ -692,6 +718,12 @@ Una sola herramienta con un conmutador `action`: list, runs, create, update, pau
 Una sola herramienta con un conmutador `action`: list, get, create, update, delete, además del registro de entregas (acción list_deliveries, limitado a la url actual de un webhook cuando pasas su `id`) y el reenvío (acción resend_delivery). Las lecturas requieren acceso de lectura Todos en API y webhooks; create y resend_delivery requieren Crear, update requiere Editar y delete requiere Eliminar en API y webhooks.
 
 **Puede eliminar datos.** Obligatorio: `action`. Opcional: `recordTrigger`, `recordSources`, `recordOwnerUserId`, `expectedSchemaRevision`, `id`, `url`, `description`, `events`, `secret`, `headers`, `bodyTemplate`, `enabled`, `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+
+#### `manage_incoming_webhooks`
+
+Una sola herramienta con un conmutador `action`: list, get, fields, create, update, delete, test, deliveries. Un webhook entrante da a una lista una URL secreta que crea o actualiza registros a partir de JSON enviado: `mapping` asigna rutas JSON a campos, y el modo upsert actualiza el registro cuyo campo de coincidencia es igual al valor. Se aplican una comprobación opcional de firma HMAC-SHA256, un límite de 256 KB para el cuerpo y límites de frecuencia. `test` muestra qué escribiría un cuerpo sin escribirlo, `deliveries` es el registro con el resultado de cada solicitud y update con `rotateUrl` sustituye la URL. Las lecturas requieren acceso de lectura Todos en API y webhooks; create requiere Crear, update Editar y delete Eliminar en API y webhooks, y la nube requiere un plan con webhooks.
+
+**Puede eliminar datos.** Obligatorio: `action`. Opcional: `id`, `typeId`, `name`, `mapping`, `enabled`, `signatureHeader`, `signingSecret`, `samplePayload`, `rotateUrl`, `payload`, `limit`.
 {/* /mcp-catalog */}
 
 ### Administración y equipo [#admin-and-team]

@@ -4,7 +4,7 @@ import { apiKey } from "@better-auth/api-key";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth/minimal";
 import { z } from "zod";
-import { APIError, createAuthMiddleware, getSessionFromCtx } from "better-auth/api";
+import { APIError, createAuthMiddleware, getOAuthState, getSessionFromCtx } from "better-auth/api";
 import * as ErrorReporter from "@/core/observability/server";
 
 import { prisma } from "@/prisma/db";
@@ -12,6 +12,8 @@ import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { getTransactionClient } from "@/core/decorators/transaction-context";
 import { env } from "@/env";
 import { callbackUrlSchema } from "@/features/auth/callback-url.schema";
+import { SignupLastPageSchema } from "@/features/acquisition/signup-last-page";
+import { EncodedSignupCampaignSchema } from "@/features/acquisition/signup-campaign";
 import { onboardingIntentFromPath, pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 import { API_KEY_MAX_EXPIRATION_DAYS, API_KEY_MIN_EXPIRATION_DAYS } from "@/features/api-key/api-key-expiration";
 import { API_KEY_NAME_MAX_LENGTH, API_KEY_NAME_MIN_LENGTH } from "@/features/api-key/api-key-name";
@@ -198,6 +200,23 @@ export const auth = betterAuth({
   }),
 
   databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          const state = await getOAuthState();
+          const lastPage = SignupLastPageSchema.safeParse(state?.signupLastPage);
+          const campaign = EncodedSignupCampaignSchema.safeParse(state?.signupCampaign);
+          if (!lastPage.success && !campaign.success) return undefined;
+          return {
+            data: {
+              ...user,
+              ...(lastPage.success ? { signupLastPage: lastPage.data } : {}),
+              ...(campaign.success ? { signupCampaign: campaign.data } : {}),
+            },
+          };
+        },
+      },
+    },
     session: {
       create: {
         after: async (session) => {
@@ -246,6 +265,20 @@ export const auth = betterAuth({
         required: false,
         defaultValue: null,
         input: false,
+      },
+      signupLastPage: {
+        type: "string",
+        required: false,
+        defaultValue: null,
+        input: false,
+        returned: false,
+      },
+      signupCampaign: {
+        type: "string",
+        required: false,
+        defaultValue: null,
+        input: false,
+        returned: false,
       },
     },
   },

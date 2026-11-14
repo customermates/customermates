@@ -78,6 +78,7 @@ describe("command registry", () => {
         "settings.billing",
         "settings.webhooks",
         "settings.webhook-deliveries",
+        "settings.incoming-webhooks",
         "setting.profile.displayLanguage",
         "setting.profile.formattingLocale",
         "setting.profile.theme",

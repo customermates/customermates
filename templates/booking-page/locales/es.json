@@ -1,0 +1,102 @@
+{
+  "locale": "es",
+  "name": "Reservas de citas",
+  "summary": "Un registro de citas para quien presta servicios: tipos de cita con duración y antelación, cada reserva con su estado, recordatorios y resultado, y un siguiente paso en cada una.",
+  "description": "Recibe reservas para llamadas, consultas o visitas y guárdalas en el CRM: pocos tipos de cita con duración, margen y antelación mínima, una reserva que crea la persona y la cita, un evento de calendario al confirmar, dos recordatorios y un resultado anotado tras cada cita. Solo gestiona el tiempo de las personas. No es un sistema de reserva de salas o recursos, una herramienta de entradas, un programa de citas médicas ni una pasarela de pago.",
+  "lists": {
+    "people": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Las personas que reservan contigo." },
+    "appointment_types": { "label": "Tipo de cita", "pluralLabel": "Tipos de cita", "description": "Un tipo de cita con su duración, margen, antelación y precio." },
+    "appointments": { "label": "Cita", "pluralLabel": "Citas", "description": "Una reserva, de solicitada a realizada, no asistida o cancelada." }
+  },
+  "fields": {
+    "people.preferred_channel": { "label": "Canal preferido", "options": { "email": "Correo electrónico", "whatsapp": "WhatsApp", "phone": "Teléfono" } },
+    "people.time_zone": { "label": "Zona horaria" },
+    "appointment_types.duration_minutes": { "label": "Duración (minutos)" },
+    "appointment_types.buffer_minutes": { "label": "Margen posterior (minutos)" },
+    "appointment_types.min_notice_hours": { "label": "Antelación mínima (horas)" },
+    "appointment_types.booking_window_days": { "label": "Reservable hasta (días antes)" },
+    "appointment_types.daily_limit": { "label": "Límite diario" },
+    "appointment_types.location_type": {
+      "label": "Dónde",
+      "options": { "video_call": "Videollamada", "phone": "Teléfono", "office": "En la oficina", "client_site": "En casa del cliente" }
+    },
+    "appointment_types.price": { "label": "Precio" },
+    "appointment_types.active": { "label": "Activo" },
+    "appointments.status": {
+      "label": "Estado",
+      "options": { "requested": "Solicitada", "confirmed": "Confirmada", "rescheduled": "Reprogramada", "held": "Realizada", "no_show": "No se presentó", "cancelled_by_client": "Cancelada por el cliente", "cancelled_by_us": "Cancelada por nosotros" }
+    },
+    "appointments.start_at": { "label": "Inicio" },
+    "appointments.source": { "label": "Origen", "options": { "booking_page": "Página de reservas", "email": "Correo electrónico", "whatsapp": "WhatsApp", "phone": "Teléfono", "manual": "Introducida a mano" } },
+    "appointments.meeting_url": { "label": "Enlace de la reunión" },
+    "appointments.outcome": {
+      "label": "Resultado",
+      "options": { "not_decided": "Aún sin decidir", "qualified": "Cualificado", "second_call": "Hace falta una segunda llamada", "proposal_needed": "Hace falta una propuesta", "won": "Cerrado en la llamada", "not_a_fit": "No encaja" }
+    },
+    "appointments.cancel_reason": {
+      "label": "Motivo de cancelación",
+      "options": { "schedule_conflict": "Conflicto de agenda", "other_provider": "Encontró otro proveedor", "no_longer_needed": "Ya no lo necesita", "personal": "Motivo personal", "other": "Otro" }
+    },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "confirm_booking": "Confirmar la reserva",
+        "send_reminder": "Enviar un recordatorio",
+        "prepare_call": "Preparar la cita",
+        "send_follow_up": "Enviar el seguimiento",
+        "offer_new_slot": "Ofrecer un nuevo hueco",
+        "record_outcome": "Anotar el resultado",
+        "other": "Otro"
+      }
+    }
+  },
+  "relationships": {
+    "appointment_person": { "sourceLabel": "Contacto", "targetLabel": "Citas" },
+    "appointment_type": { "sourceLabel": "Tipo de cita", "targetLabel": "Citas" },
+    "action_appointment": { "sourceLabel": "Cita", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "appointments_all": { "name": "Todas las citas" },
+    "appointments_board": { "name": "Tablero de citas" },
+    "missed_or_cancelled": { "name": "No asistidas o canceladas" },
+    "appointment_types_all": { "name": "Todos los tipos de cita" },
+    "people_all": { "name": "Todos los contactos" }
+  },
+  "widgets": {
+    "upcoming_appointments": { "title": "Próximas citas" },
+    "appointments_by_status": { "title": "Citas por estado" },
+    "outcomes_of_held": { "title": "Resultados de las citas realizadas" },
+    "requests_waiting": { "title": "Solicitudes pendientes de respuesta" },
+    "no_shows": { "title": "Ausencias" },
+    "bookings_by_source": { "title": "Reservas por origen" }
+  },
+  "knowledgePages": {
+    "appointment_types_rules": { "title": "Tipos de cita y disponibilidad", "sections": ["Tipos, duraciones, márgenes y antelación", "Horario y límites diarios"] },
+    "reminder_policy": { "title": "Recordatorios y ausencias", "sections": ["Recordatorios 3 días y 1 día antes", "Qué hacemos tras una ausencia"] },
+    "cancellation_policy": { "title": "Cancelación y cambio de fecha", "sections": ["Hasta cuándo puede cancelar un cliente", "Cómo se ofrece un nuevo hueco"] }
+  },
+  "rules": {
+    "booking_form_records": { "title": "Crear el contacto y la cita cuando se envía el formulario de reserva" },
+    "confirm_event": { "title": "Añadir un evento al calendario cuando se confirma una cita" },
+    "notify_new_booking": { "title": "Avisar al propietario cuando llega una reserva" },
+    "first_reminder": { "title": "Enviar un primer recordatorio 3 días antes de una cita confirmada" },
+    "second_reminder": { "title": "Enviar un segundo recordatorio 1 día antes de una cita confirmada" },
+    "record_outcome": { "title": "Anotar el resultado después de que una cita confirmada haya tenido lugar" },
+    "no_show_new_slot": { "title": "Ofrecer un nuevo hueco al día siguiente de una ausencia" },
+    "follow_up_held": { "title": "Enviar el seguimiento al día siguiente de una cita realizada" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Cada cita tiene un estado.",
+    "start_field": "Cada cita indica cuándo comienza.",
+    "appointments_board_view": "Las citas se abren como tablero por estado."
+  },
+  "prompt": {
+    "intro": "Configura en mi espacio de trabajo de Customermates unas reservas de citas: tipos de cita con duración, margen y antelación, citas con estado y resultado, recordatorios antes de cada cita y un seguimiento después.",
+    "questions": [
+      "¿Qué tipos de cita ofreces y cuánto dura cada una?",
+      "¿Cuánta antelación necesitas y con cuánto tiempo se puede reservar?",
+      "¿Qué preguntas debe responder un cliente al reservar?",
+      "¿Cómo gestionas hoy las ausencias y las cancelaciones de última hora?"
+    ]
+  }
+}

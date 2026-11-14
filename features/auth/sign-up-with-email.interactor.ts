@@ -1,12 +1,16 @@
 import type { AuthService } from "./auth.service";
 import type { Redirect } from "./auth-outcome";
 import type { OnboardingIntentService } from "@/features/company/onboarding-intent.service";
+import type { RegisterUserRepo } from "@/features/user/register/register-user.repo";
 
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
 
+import * as ErrorReporter from "@/core/observability/server";
 import { createZodError, zx, type Data, type Validated } from "@/core/validation/validation.utils";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+import { SignupLastPageSchema } from "@/features/acquisition/signup-last-page";
+import { EncodedSignupCampaignSchema } from "@/features/acquisition/signup-campaign";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { redirectTo } from "./auth-outcome";
@@ -21,6 +25,8 @@ const Schema = z
     confirmPassword: z.string(),
     callbackURL: callbackUrlSchema.optional(),
     onboardingIntent: z.string().optional(),
+    signupLastPage: SignupLastPageSchema.optional(),
+    signupCampaign: EncodedSignupCampaignSchema.optional(),
   })
   .superRefine((data, ctx) => {
     if (data.email !== data.confirmEmail) {
@@ -46,6 +52,7 @@ export class SignUpWithEmailInteractor {
   constructor(
     private authService: AuthService,
     private onboardingIntentService: OnboardingIntentService,
+    private signupLastPages?: Pick<RegisterUserRepo, "recordSignupLastPageUnscoped" | "recordSignupCampaignUnscoped">,
   ) {}
 
   async invoke(data: EmailSignUpData): Promise<Awaited<Validated<EmailSignUpData>> | Redirect> {
@@ -88,6 +95,20 @@ export class SignUpWithEmailInteractor {
         ok: false,
         error,
       };
+    }
+    if (data.signupLastPage && this.signupLastPages) {
+      try {
+        await this.signupLastPages.recordSignupLastPageUnscoped(res.user.id, data.signupLastPage);
+      } catch (error) {
+        ErrorReporter.captureException(error);
+      }
+    }
+    if (data.signupCampaign && this.signupLastPages) {
+      try {
+        await this.signupLastPages.recordSignupCampaignUnscoped(res.user.id, data.signupCampaign);
+      } catch (error) {
+        ErrorReporter.captureException(error);
+      }
     }
     return redirectTo(data.callbackURL ?? "/onboarding");
   }

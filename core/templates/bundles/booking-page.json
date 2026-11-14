@@ -1,0 +1,3254 @@
+{
+  "spec": {
+    "id": "tpl_booking_page",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "booking-page",
+    "family": "operations",
+    "kind": "tracker",
+    "jurisdictions": [
+      "global"
+    ],
+    "dashboardAudience": "me",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "calendarWrite",
+      "notifications"
+    ],
+    "pairedPages": {},
+    "modules": [
+      "actions_core",
+      "actions_dashboard"
+    ],
+    "lists": [
+      {
+        "key": "people",
+        "role": "people",
+        "icon": "contact"
+      },
+      {
+        "key": "appointment_types",
+        "icon": "clock"
+      },
+      {
+        "key": "appointments",
+        "icon": "calendarCheck"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "people.preferred_channel",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "email"
+          },
+          {
+            "key": "whatsapp"
+          },
+          {
+            "key": "phone"
+          }
+        ]
+      },
+      {
+        "key": "people.time_zone",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "appointment_types.duration_minutes",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "appointment_types.buffer_minutes",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "appointment_types.min_notice_hours",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "appointment_types.booking_window_days",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "appointment_types.daily_limit",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "appointment_types.location_type",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "video_call"
+          },
+          {
+            "key": "phone"
+          },
+          {
+            "key": "office"
+          },
+          {
+            "key": "client_site"
+          }
+        ]
+      },
+      {
+        "key": "appointment_types.price",
+        "type": "currency",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "appointment_types.active",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "appointments.start_at",
+        "type": "dateTime",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "appointments.source",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "booking_page"
+          },
+          {
+            "key": "email"
+          },
+          {
+            "key": "whatsapp"
+          },
+          {
+            "key": "phone"
+          },
+          {
+            "key": "manual"
+          }
+        ]
+      },
+      {
+        "key": "appointments.meeting_url",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "appointments.outcome",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "not_decided"
+          },
+          {
+            "key": "qualified",
+            "color": "success"
+          },
+          {
+            "key": "second_call"
+          },
+          {
+            "key": "proposal_needed"
+          },
+          {
+            "key": "won",
+            "color": "success"
+          },
+          {
+            "key": "not_a_fit",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "appointments.cancel_reason",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "schedule_conflict"
+          },
+          {
+            "key": "other_provider"
+          },
+          {
+            "key": "no_longer_needed"
+          },
+          {
+            "key": "personal"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "confirm_booking"
+          },
+          {
+            "key": "send_reminder"
+          },
+          {
+            "key": "prepare_call"
+          },
+          {
+            "key": "send_follow_up"
+          },
+          {
+            "key": "offer_new_slot"
+          },
+          {
+            "key": "record_outcome"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "appointments.status",
+        "items": [
+          {
+            "key": "requested",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "confirmed",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "rescheduled",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "held",
+            "outcome": "won",
+            "weight": 0
+          },
+          {
+            "key": "no_show",
+            "outcome": "lost",
+            "weight": 0
+          },
+          {
+            "key": "cancelled_by_client",
+            "outcome": "lost",
+            "weight": 0
+          },
+          {
+            "key": "cancelled_by_us",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [],
+    "relationships": [
+      {
+        "key": "appointment_person",
+        "source": "appointments",
+        "target": "people",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "appointment_type",
+        "source": "appointments",
+        "target": "appointment_types",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_appointment",
+        "source": "actions",
+        "target": "appointments",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "appointments_all",
+        "list": "appointments",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "appointments.start_at",
+          "direction": "asc"
+        },
+        "columns": [
+          "appointments.status",
+          "appointments.start_at",
+          "appointments.source",
+          "appointments.outcome"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "appointments_board",
+        "list": "appointments",
+        "default": false,
+        "layout": "board",
+        "groupBy": "appointments.status",
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "missed_or_cancelled",
+        "list": "appointments",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "appointments.status",
+            "options": [
+              "no_show",
+              "cancelled_by_client",
+              "cancelled_by_us"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "appointment_types_all",
+        "list": "appointment_types",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "appointment_types.duration_minutes",
+          "appointment_types.location_type",
+          "appointment_types.price",
+          "appointment_types.active"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "people_all",
+        "list": "people",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "people.preferred_channel",
+          "people.time_zone"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "calendar",
+        "key": "upcoming_appointments",
+        "list": "appointments",
+        "layout": "upcoming",
+        "dateField": "appointments.start_at",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "appointments.status",
+            "options": [
+              "requested",
+              "confirmed",
+              "rescheduled"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "appointments_by_status",
+        "list": "appointments",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "appointments.status"
+        },
+        "filters": [],
+        "display": "doughnutChart"
+      },
+      {
+        "kind": "chart",
+        "key": "outcomes_of_held",
+        "list": "appointments",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "appointments.outcome"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "appointments.status",
+            "options": [
+              "held"
+            ]
+          }
+        ],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "chart",
+        "key": "requests_waiting",
+        "list": "appointments",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "appointments.status",
+            "options": [
+              "requested"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "no_shows",
+        "list": "appointments",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "appointments.status",
+            "options": [
+              "no_show"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "bookings_by_source",
+        "list": "appointments",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "appointments.source"
+        },
+        "filters": [],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_actions",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "appointment_types_rules",
+        "kind": "overview"
+      },
+      {
+        "key": "reminder_policy",
+        "kind": "processes"
+      },
+      {
+        "key": "cancellation_policy",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "booking_form_records",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "booking"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "people",
+            "appointments"
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "forms"
+      },
+      {
+        "key": "confirm_event",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "appointments.status",
+          "to": "confirmed"
+        },
+        "condition": [],
+        "action": {
+          "kind": "add_calendar_event",
+          "dateField": "appointments.start_at"
+        },
+        "dueOffsetDays": 0,
+        "needs": "calendarWrite"
+      },
+      {
+        "key": "notify_new_booking",
+        "trigger": {
+          "kind": "record_created",
+          "list": "appointments"
+        },
+        "condition": [],
+        "action": {
+          "kind": "notify",
+          "recipient": "workspace_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "first_reminder",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "appointments.start_at",
+          "offsetDays": -3
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "appointments.status",
+            "options": [
+              "confirmed"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "send_reminder",
+          "assignee": "record_owner",
+          "about": "appointments"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "second_reminder",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "appointments.start_at",
+          "offsetDays": -1
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "appointments.status",
+            "options": [
+              "confirmed"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "send_reminder",
+          "assignee": "record_owner",
+          "about": "appointments"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "record_outcome",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "appointments.start_at",
+          "offsetDays": 0
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "appointments.status",
+            "options": [
+              "confirmed"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "record_outcome",
+          "assignee": "record_owner",
+          "about": "appointments"
+        },
+        "dueOffsetDays": 1,
+        "needs": "rules"
+      },
+      {
+        "key": "no_show_new_slot",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "appointments.status",
+          "to": "no_show"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "offer_new_slot",
+          "assignee": "record_owner",
+          "about": "appointments"
+        },
+        "dueOffsetDays": 1,
+        "needs": "today"
+      },
+      {
+        "key": "follow_up_held",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "appointments.status",
+          "to": "held"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "send_follow_up",
+          "assignee": "record_owner",
+          "about": "appointments"
+        },
+        "dueOffsetDays": 1,
+        "needs": "today"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "status_field",
+        "kind": "field_exists",
+        "ref": "appointments.status"
+      },
+      {
+        "key": "start_field",
+        "kind": "field_exists",
+        "ref": "appointments.start_at"
+      },
+      {
+        "key": "appointments_board_view",
+        "kind": "view_exists",
+        "ref": "appointments_board"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://calendly.com/help/how-to-fine-tune-your-availability-settings",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://cal.com/help/event-types/booking-questions",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://cal.com/blog/calendly-alternatives",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://knowledge.hubspot.com/meetings-tool/create-and-edit-scheduling-pages",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://support.pipedrive.com/en/article/scheduler",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://schedulingkit.com/hub/scheduling/how-to-create-booking-page-that-converts",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.schedulingkit.com/statistics/appointment-reminder-statistics",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.nsw.gov.au/departments-and-agencies/behavioural-insights-unit/blog/using-reminders-to-cut-missed-hospital-appointments",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.jivochat.com.br/blog/ferramentas/sistema-de-agendamento-online.html",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "status": {
+      "en": "draft",
+      "de": "draft",
+      "fr": "draft",
+      "it": "draft",
+      "es": "draft",
+      "pt": "draft",
+      "pl": "draft",
+      "nl": "draft"
+    },
+    "publicPage": {
+      "en": "own",
+      "de": "own",
+      "fr": "own",
+      "it": "own",
+      "es": "own",
+      "pt": "own",
+      "pl": "own",
+      "nl": "own"
+    },
+    "publishWave": {
+      "en": "wave2",
+      "de": "wave2",
+      "fr": "wave2",
+      "it": "wave2",
+      "es": "wave2",
+      "pt": "wave2",
+      "pl": "wave2",
+      "nl": "wave2"
+    }
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Terminbuchung",
+      "summary": "Ein Terminregister für Dienstleister: Terminarten mit Dauer und Vorlaufzeit, jede Buchung mit Status, Erinnerungen und Ergebnis, und zu jeder ein nächster Schritt.",
+      "description": "Buchungen für Gespräche, Beratungen oder Besichtigungen annehmen und im CRM halten: wenige Terminarten mit Dauer, Pufferzeit und Vorlaufzeit, eine Buchung legt Person und Termin an, nach der Bestätigung entsteht ein Kalendereintrag, zwei Erinnerungen gehen raus, und nach jedem Termin wird das Ergebnis festgehalten. Gebucht wird nur Zeit von Personen. Kein System für Räume oder Ressourcen, kein Ticketverkauf, keine Praxissoftware und kein Zahlungsdienst.",
+      "lists": {
+        "actions": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "people": {
+          "label": "Kontakt",
+          "pluralLabel": "Kontakte",
+          "description": "Die Personen, die bei dir buchen."
+        },
+        "appointment_types": {
+          "label": "Terminart",
+          "pluralLabel": "Terminarten",
+          "description": "Eine Art von Termin mit Dauer, Pufferzeit, Vorlaufzeit und Preis."
+        },
+        "appointments": {
+          "label": "Termin",
+          "pluralLabel": "Termine",
+          "description": "Eine Buchung, von angefragt bis stattgefunden, nicht erschienen oder abgesagt."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "people.preferred_channel": {
+          "label": "Bevorzugter Kanal",
+          "options": {
+            "email": "E-Mail",
+            "whatsapp": "WhatsApp",
+            "phone": "Telefon"
+          }
+        },
+        "people.time_zone": {
+          "label": "Zeitzone",
+          "options": {}
+        },
+        "appointment_types.duration_minutes": {
+          "label": "Dauer (Minuten)",
+          "options": {}
+        },
+        "appointment_types.buffer_minutes": {
+          "label": "Pufferzeit danach (Minuten)",
+          "options": {}
+        },
+        "appointment_types.min_notice_hours": {
+          "label": "Vorlaufzeit (Stunden)",
+          "options": {}
+        },
+        "appointment_types.booking_window_days": {
+          "label": "Buchbar bis (Tage im Voraus)",
+          "options": {}
+        },
+        "appointment_types.daily_limit": {
+          "label": "Tageslimit",
+          "options": {}
+        },
+        "appointment_types.location_type": {
+          "label": "Wo",
+          "options": {
+            "video_call": "Videogespräch",
+            "phone": "Telefon",
+            "office": "Im Büro",
+            "client_site": "Beim Kunden"
+          }
+        },
+        "appointment_types.price": {
+          "label": "Preis",
+          "options": {}
+        },
+        "appointment_types.active": {
+          "label": "Aktiv",
+          "options": {}
+        },
+        "appointments.status": {
+          "label": "Status",
+          "options": {
+            "requested": "Angefragt",
+            "confirmed": "Bestätigt",
+            "rescheduled": "Verschoben",
+            "held": "Stattgefunden",
+            "no_show": "Nicht erschienen",
+            "cancelled_by_client": "Vom Kunden abgesagt",
+            "cancelled_by_us": "Von uns abgesagt"
+          }
+        },
+        "appointments.start_at": {
+          "label": "Beginn",
+          "options": {}
+        },
+        "appointments.source": {
+          "label": "Quelle",
+          "options": {
+            "booking_page": "Buchungsseite",
+            "email": "E-Mail",
+            "whatsapp": "WhatsApp",
+            "phone": "Telefon",
+            "manual": "Von Hand eingetragen"
+          }
+        },
+        "appointments.meeting_url": {
+          "label": "Link zum Gespräch",
+          "options": {}
+        },
+        "appointments.outcome": {
+          "label": "Ergebnis",
+          "options": {
+            "not_decided": "Noch offen",
+            "qualified": "Qualifiziert",
+            "second_call": "Zweites Gespräch nötig",
+            "proposal_needed": "Angebot nötig",
+            "won": "Im Gespräch gewonnen",
+            "not_a_fit": "Passt nicht"
+          }
+        },
+        "appointments.cancel_reason": {
+          "label": "Absagegrund",
+          "options": {
+            "schedule_conflict": "Terminkonflikt",
+            "other_provider": "Anderen Anbieter gefunden",
+            "no_longer_needed": "Nicht mehr nötig",
+            "personal": "Persönlicher Grund",
+            "other": "Sonstiger"
+          }
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "confirm_booking": "Buchung bestätigen",
+            "send_reminder": "Erinnerung senden",
+            "prepare_call": "Termin vorbereiten",
+            "send_follow_up": "Nachfassen",
+            "offer_new_slot": "Neuen Termin anbieten",
+            "record_outcome": "Ergebnis festhalten",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "appointment_person": {
+          "sourceLabel": "Kontakt",
+          "targetLabel": "Termine"
+        },
+        "appointment_type": {
+          "sourceLabel": "Terminart",
+          "targetLabel": "Termine"
+        },
+        "action_appointment": {
+          "sourceLabel": "Termin",
+          "targetLabel": "Aufgaben"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle Aufgaben"
+        },
+        "appointments_all": {
+          "name": "Alle Termine"
+        },
+        "appointments_board": {
+          "name": "Termin-Board"
+        },
+        "missed_or_cancelled": {
+          "name": "Nicht erschienen oder abgesagt"
+        },
+        "appointment_types_all": {
+          "name": "Alle Terminarten"
+        },
+        "people_all": {
+          "name": "Alle Kontakte"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Anstehende Aufgaben"
+        },
+        "overdue_actions": {
+          "title": "Überfällige Aufgaben"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        },
+        "upcoming_appointments": {
+          "title": "Anstehende Termine"
+        },
+        "appointments_by_status": {
+          "title": "Termine nach Status"
+        },
+        "outcomes_of_held": {
+          "title": "Ergebnisse der stattgefundenen Termine"
+        },
+        "requests_waiting": {
+          "title": "Anfragen ohne Antwort"
+        },
+        "no_shows": {
+          "title": "Nicht erschienen"
+        },
+        "bookings_by_source": {
+          "title": "Buchungen nach Quelle"
+        }
+      },
+      "knowledgePages": {
+        "appointment_types_rules": {
+          "title": "Terminarten und Verfügbarkeit",
+          "sections": [
+            "Arten, Dauer, Pufferzeit und Vorlaufzeit",
+            "Öffnungszeiten und Tageslimits"
+          ]
+        },
+        "reminder_policy": {
+          "title": "Erinnerungen und Nichterscheinen",
+          "sections": [
+            "Erinnerungen 3 Tage und 1 Tag vorher",
+            "Was wir nach einem Nichterscheinen tun"
+          ]
+        },
+        "cancellation_policy": {
+          "title": "Absage und Verschiebung",
+          "sections": [
+            "Bis wann Kunden absagen können",
+            "Wie ein neuer Termin angeboten wird"
+          ]
+        }
+      },
+      "rules": {
+        "booking_form_records": {
+          "title": "Kontakt und Termin anlegen, wenn das Buchungsformular abgeschickt wird",
+          "description": ""
+        },
+        "confirm_event": {
+          "title": "Einen Kalendereintrag anlegen, wenn ein Termin bestätigt wird",
+          "description": ""
+        },
+        "notify_new_booking": {
+          "title": "Den Inhaber informieren, wenn eine Buchung eingeht",
+          "description": ""
+        },
+        "first_reminder": {
+          "title": "3 Tage vor einem bestätigten Termin eine erste Erinnerung senden",
+          "description": ""
+        },
+        "second_reminder": {
+          "title": "1 Tag vor einem bestätigten Termin eine zweite Erinnerung senden",
+          "description": ""
+        },
+        "record_outcome": {
+          "title": "Das Ergebnis festhalten, nachdem ein bestätigter Termin stattgefunden hat",
+          "description": ""
+        },
+        "no_show_new_slot": {
+          "title": "Am Tag nach einem Nichterscheinen einen neuen Termin anbieten",
+          "description": ""
+        },
+        "follow_up_held": {
+          "title": "Am Tag nach einem stattgefundenen Termin nachfassen",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Jeder Termin hat einen Status.",
+        "start_field": "Jeder Termin hält fest, wann er beginnt.",
+        "appointments_board_view": "Die Termine öffnen sich als Board nach Status."
+      },
+      "prompt": {
+        "intro": "Richte in meinem Customermates-Workspace eine Terminbuchung ein: Terminarten mit Dauer, Pufferzeit und Vorlaufzeit, Termine mit Status und Ergebnis, Erinnerungen vor jedem Termin und ein Nachfassen danach.",
+        "questions": [
+          "Welche Terminarten bietest du an, und wie lange dauert jede?",
+          "Wie viel Vorlaufzeit brauchst du, und wie weit im Voraus kann man buchen?",
+          "Welche Fragen soll ein Kunde bei der Buchung beantworten?",
+          "Wie gehst du heute mit Nichterscheinen und kurzfristigen Absagen um?"
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Booking page",
+      "summary": "An appointment register for a service professional: appointment types with duration and notice, every booking with its status, reminders and outcome, and a next step on each.",
+      "description": "Take bookings for calls, consultations or viewings and keep them in the CRM: a few appointment types with a duration, a buffer and a minimum notice, a booking that creates the person and the appointment, a calendar event once you confirm, two reminders and an outcome recorded after every appointment. It books people's time only. It is not a room or resource booking system, a ticketing tool, a medical appointment system or a payment processor.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "people": {
+          "label": "Person",
+          "pluralLabel": "People",
+          "description": "The people who book with you."
+        },
+        "appointment_types": {
+          "label": "Appointment type",
+          "pluralLabel": "Appointment types",
+          "description": "A kind of appointment with its duration, buffer, notice and price."
+        },
+        "appointments": {
+          "label": "Appointment",
+          "pluralLabel": "Appointments",
+          "description": "One booking, from requested to held, missed or cancelled."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "people.preferred_channel": {
+          "label": "Preferred channel",
+          "options": {
+            "email": "Email",
+            "whatsapp": "WhatsApp",
+            "phone": "Phone"
+          }
+        },
+        "people.time_zone": {
+          "label": "Time zone",
+          "options": {}
+        },
+        "appointment_types.duration_minutes": {
+          "label": "Duration (minutes)",
+          "options": {}
+        },
+        "appointment_types.buffer_minutes": {
+          "label": "Buffer after (minutes)",
+          "options": {}
+        },
+        "appointment_types.min_notice_hours": {
+          "label": "Minimum notice (hours)",
+          "options": {}
+        },
+        "appointment_types.booking_window_days": {
+          "label": "Bookable up to (days ahead)",
+          "options": {}
+        },
+        "appointment_types.daily_limit": {
+          "label": "Daily limit",
+          "options": {}
+        },
+        "appointment_types.location_type": {
+          "label": "Where",
+          "options": {
+            "video_call": "Video call",
+            "phone": "Phone",
+            "office": "At the office",
+            "client_site": "At the client's site"
+          }
+        },
+        "appointment_types.price": {
+          "label": "Price",
+          "options": {}
+        },
+        "appointment_types.active": {
+          "label": "Active",
+          "options": {}
+        },
+        "appointments.status": {
+          "label": "Status",
+          "options": {
+            "requested": "Requested",
+            "confirmed": "Confirmed",
+            "rescheduled": "Rescheduled",
+            "held": "Held",
+            "no_show": "No-show",
+            "cancelled_by_client": "Cancelled by the client",
+            "cancelled_by_us": "Cancelled by us"
+          }
+        },
+        "appointments.start_at": {
+          "label": "Starts",
+          "options": {}
+        },
+        "appointments.source": {
+          "label": "Source",
+          "options": {
+            "booking_page": "Booking page",
+            "email": "Email",
+            "whatsapp": "WhatsApp",
+            "phone": "Phone",
+            "manual": "Entered by hand"
+          }
+        },
+        "appointments.meeting_url": {
+          "label": "Meeting link",
+          "options": {}
+        },
+        "appointments.outcome": {
+          "label": "Outcome",
+          "options": {
+            "not_decided": "Not decided yet",
+            "qualified": "Qualified",
+            "second_call": "Needs a second call",
+            "proposal_needed": "Proposal needed",
+            "won": "Won on the call",
+            "not_a_fit": "Not a fit"
+          }
+        },
+        "appointments.cancel_reason": {
+          "label": "Cancellation reason",
+          "options": {
+            "schedule_conflict": "Schedule conflict",
+            "other_provider": "Found another provider",
+            "no_longer_needed": "No longer needed",
+            "personal": "Personal reason",
+            "other": "Other"
+          }
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "confirm_booking": "Confirm the booking",
+            "send_reminder": "Send a reminder",
+            "prepare_call": "Prepare the appointment",
+            "send_follow_up": "Send the follow-up",
+            "offer_new_slot": "Offer a new slot",
+            "record_outcome": "Record the outcome",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "appointment_person": {
+          "sourceLabel": "Person",
+          "targetLabel": "Appointments"
+        },
+        "appointment_type": {
+          "sourceLabel": "Appointment type",
+          "targetLabel": "Appointments"
+        },
+        "action_appointment": {
+          "sourceLabel": "Appointment",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "All actions"
+        },
+        "appointments_all": {
+          "name": "All appointments"
+        },
+        "appointments_board": {
+          "name": "Appointment board"
+        },
+        "missed_or_cancelled": {
+          "name": "Missed or cancelled"
+        },
+        "appointment_types_all": {
+          "name": "All appointment types"
+        },
+        "people_all": {
+          "name": "All people"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Upcoming actions"
+        },
+        "overdue_actions": {
+          "title": "Overdue actions"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        },
+        "upcoming_appointments": {
+          "title": "Upcoming appointments"
+        },
+        "appointments_by_status": {
+          "title": "Appointments by status"
+        },
+        "outcomes_of_held": {
+          "title": "Outcomes of held appointments"
+        },
+        "requests_waiting": {
+          "title": "Requests waiting for an answer"
+        },
+        "no_shows": {
+          "title": "No-shows"
+        },
+        "bookings_by_source": {
+          "title": "Bookings by source"
+        }
+      },
+      "knowledgePages": {
+        "appointment_types_rules": {
+          "title": "Appointment types and availability",
+          "sections": [
+            "Types, durations, buffers and notice",
+            "Opening hours and daily limits"
+          ]
+        },
+        "reminder_policy": {
+          "title": "Reminder and no-show policy",
+          "sections": [
+            "Reminders 3 days and 1 day before",
+            "What we do after a no-show"
+          ]
+        },
+        "cancellation_policy": {
+          "title": "Cancellation and rescheduling",
+          "sections": [
+            "How late a client can cancel",
+            "How a new slot is offered"
+          ]
+        }
+      },
+      "rules": {
+        "booking_form_records": {
+          "title": "Create the person and the appointment when the booking form is submitted",
+          "description": ""
+        },
+        "confirm_event": {
+          "title": "Add a calendar event when an appointment is confirmed",
+          "description": ""
+        },
+        "notify_new_booking": {
+          "title": "Notify the owner when a booking arrives",
+          "description": ""
+        },
+        "first_reminder": {
+          "title": "Send a first reminder 3 days before a confirmed appointment",
+          "description": ""
+        },
+        "second_reminder": {
+          "title": "Send a second reminder 1 day before a confirmed appointment",
+          "description": ""
+        },
+        "record_outcome": {
+          "title": "Record the outcome after a confirmed appointment has taken place",
+          "description": ""
+        },
+        "no_show_new_slot": {
+          "title": "Offer a new slot the day after a no-show",
+          "description": ""
+        },
+        "follow_up_held": {
+          "title": "Send the follow-up the day after an appointment was held",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Every appointment has a status.",
+        "start_field": "Every appointment records when it starts.",
+        "appointments_board_view": "The appointments open as a board by status."
+      },
+      "prompt": {
+        "intro": "Set up a booking page in my Customermates workspace: appointment types with duration, buffer and notice, appointments with a status and an outcome, reminders before each appointment and a follow-up after it.",
+        "questions": [
+          "Which kinds of appointments do you offer, and how long is each?",
+          "How much notice do you need, and how far ahead can people book?",
+          "Which questions should a client answer when booking?",
+          "How do you handle no-shows and late cancellations today?"
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "Reservas de citas",
+      "summary": "Un registro de citas para quien presta servicios: tipos de cita con duración y antelación, cada reserva con su estado, recordatorios y resultado, y un siguiente paso en cada una.",
+      "description": "Recibe reservas para llamadas, consultas o visitas y guárdalas en el CRM: pocos tipos de cita con duración, margen y antelación mínima, una reserva que crea la persona y la cita, un evento de calendario al confirmar, dos recordatorios y un resultado anotado tras cada cita. Solo gestiona el tiempo de las personas. No es un sistema de reserva de salas o recursos, una herramienta de entradas, un programa de citas médicas ni una pasarela de pago.",
+      "lists": {
+        "actions": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un siguiente paso con fecha por cada asunto abierto."
+        },
+        "people": {
+          "label": "Contacto",
+          "pluralLabel": "Contactos",
+          "description": "Las personas que reservan contigo."
+        },
+        "appointment_types": {
+          "label": "Tipo de cita",
+          "pluralLabel": "Tipos de cita",
+          "description": "Un tipo de cita con su duración, margen, antelación y precio."
+        },
+        "appointments": {
+          "label": "Cita",
+          "pluralLabel": "Citas",
+          "description": "Una reserva, de solicitada a realizada, no asistida o cancelada."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierta",
+            "waiting": "En espera",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "people.preferred_channel": {
+          "label": "Canal preferido",
+          "options": {
+            "email": "Correo electrónico",
+            "whatsapp": "WhatsApp",
+            "phone": "Teléfono"
+          }
+        },
+        "people.time_zone": {
+          "label": "Zona horaria",
+          "options": {}
+        },
+        "appointment_types.duration_minutes": {
+          "label": "Duración (minutos)",
+          "options": {}
+        },
+        "appointment_types.buffer_minutes": {
+          "label": "Margen posterior (minutos)",
+          "options": {}
+        },
+        "appointment_types.min_notice_hours": {
+          "label": "Antelación mínima (horas)",
+          "options": {}
+        },
+        "appointment_types.booking_window_days": {
+          "label": "Reservable hasta (días antes)",
+          "options": {}
+        },
+        "appointment_types.daily_limit": {
+          "label": "Límite diario",
+          "options": {}
+        },
+        "appointment_types.location_type": {
+          "label": "Dónde",
+          "options": {
+            "video_call": "Videollamada",
+            "phone": "Teléfono",
+            "office": "En la oficina",
+            "client_site": "En casa del cliente"
+          }
+        },
+        "appointment_types.price": {
+          "label": "Precio",
+          "options": {}
+        },
+        "appointment_types.active": {
+          "label": "Activo",
+          "options": {}
+        },
+        "appointments.status": {
+          "label": "Estado",
+          "options": {
+            "requested": "Solicitada",
+            "confirmed": "Confirmada",
+            "rescheduled": "Reprogramada",
+            "held": "Realizada",
+            "no_show": "No se presentó",
+            "cancelled_by_client": "Cancelada por el cliente",
+            "cancelled_by_us": "Cancelada por nosotros"
+          }
+        },
+        "appointments.start_at": {
+          "label": "Inicio",
+          "options": {}
+        },
+        "appointments.source": {
+          "label": "Origen",
+          "options": {
+            "booking_page": "Página de reservas",
+            "email": "Correo electrónico",
+            "whatsapp": "WhatsApp",
+            "phone": "Teléfono",
+            "manual": "Introducida a mano"
+          }
+        },
+        "appointments.meeting_url": {
+          "label": "Enlace de la reunión",
+          "options": {}
+        },
+        "appointments.outcome": {
+          "label": "Resultado",
+          "options": {
+            "not_decided": "Aún sin decidir",
+            "qualified": "Cualificado",
+            "second_call": "Hace falta una segunda llamada",
+            "proposal_needed": "Hace falta una propuesta",
+            "won": "Cerrado en la llamada",
+            "not_a_fit": "No encaja"
+          }
+        },
+        "appointments.cancel_reason": {
+          "label": "Motivo de cancelación",
+          "options": {
+            "schedule_conflict": "Conflicto de agenda",
+            "other_provider": "Encontró otro proveedor",
+            "no_longer_needed": "Ya no lo necesita",
+            "personal": "Motivo personal",
+            "other": "Otro"
+          }
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "confirm_booking": "Confirmar la reserva",
+            "send_reminder": "Enviar un recordatorio",
+            "prepare_call": "Preparar la cita",
+            "send_follow_up": "Enviar el seguimiento",
+            "offer_new_slot": "Ofrecer un nuevo hueco",
+            "record_outcome": "Anotar el resultado",
+            "other": "Otro"
+          }
+        }
+      },
+      "relationships": {
+        "appointment_person": {
+          "sourceLabel": "Contacto",
+          "targetLabel": "Citas"
+        },
+        "appointment_type": {
+          "sourceLabel": "Tipo de cita",
+          "targetLabel": "Citas"
+        },
+        "action_appointment": {
+          "sourceLabel": "Cita",
+          "targetLabel": "Tareas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas las tareas"
+        },
+        "appointments_all": {
+          "name": "Todas las citas"
+        },
+        "appointments_board": {
+          "name": "Tablero de citas"
+        },
+        "missed_or_cancelled": {
+          "name": "No asistidas o canceladas"
+        },
+        "appointment_types_all": {
+          "name": "Todos los tipos de cita"
+        },
+        "people_all": {
+          "name": "Todos los contactos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tareas"
+        },
+        "overdue_actions": {
+          "title": "Tareas vencidas"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        },
+        "upcoming_appointments": {
+          "title": "Próximas citas"
+        },
+        "appointments_by_status": {
+          "title": "Citas por estado"
+        },
+        "outcomes_of_held": {
+          "title": "Resultados de las citas realizadas"
+        },
+        "requests_waiting": {
+          "title": "Solicitudes pendientes de respuesta"
+        },
+        "no_shows": {
+          "title": "Ausencias"
+        },
+        "bookings_by_source": {
+          "title": "Reservas por origen"
+        }
+      },
+      "knowledgePages": {
+        "appointment_types_rules": {
+          "title": "Tipos de cita y disponibilidad",
+          "sections": [
+            "Tipos, duraciones, márgenes y antelación",
+            "Horario y límites diarios"
+          ]
+        },
+        "reminder_policy": {
+          "title": "Recordatorios y ausencias",
+          "sections": [
+            "Recordatorios 3 días y 1 día antes",
+            "Qué hacemos tras una ausencia"
+          ]
+        },
+        "cancellation_policy": {
+          "title": "Cancelación y cambio de fecha",
+          "sections": [
+            "Hasta cuándo puede cancelar un cliente",
+            "Cómo se ofrece un nuevo hueco"
+          ]
+        }
+      },
+      "rules": {
+        "booking_form_records": {
+          "title": "Crear el contacto y la cita cuando se envía el formulario de reserva",
+          "description": ""
+        },
+        "confirm_event": {
+          "title": "Añadir un evento al calendario cuando se confirma una cita",
+          "description": ""
+        },
+        "notify_new_booking": {
+          "title": "Avisar al propietario cuando llega una reserva",
+          "description": ""
+        },
+        "first_reminder": {
+          "title": "Enviar un primer recordatorio 3 días antes de una cita confirmada",
+          "description": ""
+        },
+        "second_reminder": {
+          "title": "Enviar un segundo recordatorio 1 día antes de una cita confirmada",
+          "description": ""
+        },
+        "record_outcome": {
+          "title": "Anotar el resultado después de que una cita confirmada haya tenido lugar",
+          "description": ""
+        },
+        "no_show_new_slot": {
+          "title": "Ofrecer un nuevo hueco al día siguiente de una ausencia",
+          "description": ""
+        },
+        "follow_up_held": {
+          "title": "Enviar el seguimiento al día siguiente de una cita realizada",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Cada cita tiene un estado.",
+        "start_field": "Cada cita indica cuándo comienza.",
+        "appointments_board_view": "Las citas se abren como tablero por estado."
+      },
+      "prompt": {
+        "intro": "Configura en mi espacio de trabajo de Customermates unas reservas de citas: tipos de cita con duración, margen y antelación, citas con estado y resultado, recordatorios antes de cada cita y un seguimiento después.",
+        "questions": [
+          "¿Qué tipos de cita ofreces y cuánto dura cada una?",
+          "¿Cuánta antelación necesitas y con cuánto tiempo se puede reservar?",
+          "¿Qué preguntas debe responder un cliente al reservar?",
+          "¿Cómo gestionas hoy las ausencias y las cancelaciones de última hora?"
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "Prise de rendez-vous",
+      "summary": "Un registre de rendez-vous pour un prestataire de services : types de rendez-vous avec durée et délai de prévenance, chaque réservation avec son statut, ses rappels et son résultat, et une prochaine étape pour chacune.",
+      "description": "Prenez des réservations pour des appels, des consultations ou des visites et gardez-les dans le CRM : quelques types de rendez-vous avec durée, temps de battement et délai de prévenance, une réservation qui crée la personne et le rendez-vous, un événement d’agenda une fois confirmé, deux rappels et un résultat noté après chaque rendez-vous. Il ne gère que le temps des personnes. Ce n’est ni un système de réservation de salles ou de ressources, ni une billetterie, ni un logiciel de rendez-vous médicaux, ni un service de paiement.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Une prochaine étape datée par dossier ouvert."
+        },
+        "people": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "Les personnes qui prennent rendez-vous avec vous."
+        },
+        "appointment_types": {
+          "label": "Type de rendez-vous",
+          "pluralLabel": "Types de rendez-vous",
+          "description": "Un type de rendez-vous avec sa durée, son temps de battement, son délai de prévenance et son prix."
+        },
+        "appointments": {
+          "label": "Rendez-vous",
+          "pluralLabel": "Rendez-vous",
+          "description": "Une réservation, de demandée à tenue, manquée ou annulée."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "waiting": "En attente",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "people.preferred_channel": {
+          "label": "Canal préféré",
+          "options": {
+            "email": "E-mail",
+            "whatsapp": "WhatsApp",
+            "phone": "Téléphone"
+          }
+        },
+        "people.time_zone": {
+          "label": "Fuseau horaire",
+          "options": {}
+        },
+        "appointment_types.duration_minutes": {
+          "label": "Durée (minutes)",
+          "options": {}
+        },
+        "appointment_types.buffer_minutes": {
+          "label": "Temps de battement après (minutes)",
+          "options": {}
+        },
+        "appointment_types.min_notice_hours": {
+          "label": "Délai de prévenance (heures)",
+          "options": {}
+        },
+        "appointment_types.booking_window_days": {
+          "label": "Réservable jusqu’à (jours à l’avance)",
+          "options": {}
+        },
+        "appointment_types.daily_limit": {
+          "label": "Limite par jour",
+          "options": {}
+        },
+        "appointment_types.location_type": {
+          "label": "Lieu",
+          "options": {
+            "video_call": "Visioconférence",
+            "phone": "Téléphone",
+            "office": "Au cabinet",
+            "client_site": "Chez le client"
+          }
+        },
+        "appointment_types.price": {
+          "label": "Prix",
+          "options": {}
+        },
+        "appointment_types.active": {
+          "label": "Actif",
+          "options": {}
+        },
+        "appointments.status": {
+          "label": "Statut",
+          "options": {
+            "requested": "Demandé",
+            "confirmed": "Confirmé",
+            "rescheduled": "Reporté",
+            "held": "Tenu",
+            "no_show": "Absent",
+            "cancelled_by_client": "Annulé par le client",
+            "cancelled_by_us": "Annulé par nous"
+          }
+        },
+        "appointments.start_at": {
+          "label": "Début",
+          "options": {}
+        },
+        "appointments.source": {
+          "label": "Source",
+          "options": {
+            "booking_page": "Page de réservation",
+            "email": "E-mail",
+            "whatsapp": "WhatsApp",
+            "phone": "Téléphone",
+            "manual": "Saisi manuellement"
+          }
+        },
+        "appointments.meeting_url": {
+          "label": "Lien de la réunion",
+          "options": {}
+        },
+        "appointments.outcome": {
+          "label": "Résultat",
+          "options": {
+            "not_decided": "Pas encore décidé",
+            "qualified": "Qualifié",
+            "second_call": "Deuxième appel nécessaire",
+            "proposal_needed": "Proposition à envoyer",
+            "won": "Gagné pendant l’appel",
+            "not_a_fit": "Ne convient pas"
+          }
+        },
+        "appointments.cancel_reason": {
+          "label": "Motif d’annulation",
+          "options": {
+            "schedule_conflict": "Conflit d’agenda",
+            "other_provider": "A trouvé un autre prestataire",
+            "no_longer_needed": "N’en a plus besoin",
+            "personal": "Raison personnelle",
+            "other": "Autre"
+          }
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "confirm_booking": "Confirmer la réservation",
+            "send_reminder": "Envoyer un rappel",
+            "prepare_call": "Préparer le rendez-vous",
+            "send_follow_up": "Envoyer le message de suivi",
+            "offer_new_slot": "Proposer un nouveau créneau",
+            "record_outcome": "Noter le résultat",
+            "other": "Autre"
+          }
+        }
+      },
+      "relationships": {
+        "appointment_person": {
+          "sourceLabel": "Contact",
+          "targetLabel": "Rendez-vous"
+        },
+        "appointment_type": {
+          "sourceLabel": "Type de rendez-vous",
+          "targetLabel": "Rendez-vous"
+        },
+        "action_appointment": {
+          "sourceLabel": "Rendez-vous",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "appointments_all": {
+          "name": "Tous les rendez-vous"
+        },
+        "appointments_board": {
+          "name": "Board des rendez-vous"
+        },
+        "missed_or_cancelled": {
+          "name": "Manqués ou annulés"
+        },
+        "appointment_types_all": {
+          "name": "Tous les types de rendez-vous"
+        },
+        "people_all": {
+          "name": "Tous les contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Actions à venir"
+        },
+        "overdue_actions": {
+          "title": "Actions en retard"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        },
+        "upcoming_appointments": {
+          "title": "Rendez-vous à venir"
+        },
+        "appointments_by_status": {
+          "title": "Rendez-vous par statut"
+        },
+        "outcomes_of_held": {
+          "title": "Résultats des rendez-vous tenus"
+        },
+        "requests_waiting": {
+          "title": "Demandes en attente de réponse"
+        },
+        "no_shows": {
+          "title": "Absences"
+        },
+        "bookings_by_source": {
+          "title": "Réservations par source"
+        }
+      },
+      "knowledgePages": {
+        "appointment_types_rules": {
+          "title": "Types de rendez-vous et disponibilités",
+          "sections": [
+            "Types, durées, temps de battement et délai de prévenance",
+            "Horaires et limites par jour"
+          ]
+        },
+        "reminder_policy": {
+          "title": "Rappels et absences",
+          "sections": [
+            "Rappels 3 jours et 1 jour avant",
+            "Ce que nous faisons après une absence"
+          ]
+        },
+        "cancellation_policy": {
+          "title": "Annulation et report",
+          "sections": [
+            "Jusqu’à quand un client peut annuler",
+            "Comment un nouveau créneau est proposé"
+          ]
+        }
+      },
+      "rules": {
+        "booking_form_records": {
+          "title": "Créer le contact et le rendez-vous quand le formulaire de réservation est envoyé",
+          "description": ""
+        },
+        "confirm_event": {
+          "title": "Ajouter un événement d’agenda quand un rendez-vous est confirmé",
+          "description": ""
+        },
+        "notify_new_booking": {
+          "title": "Prévenir le responsable quand une réservation arrive",
+          "description": ""
+        },
+        "first_reminder": {
+          "title": "Envoyer un premier rappel 3 jours avant un rendez-vous confirmé",
+          "description": ""
+        },
+        "second_reminder": {
+          "title": "Envoyer un second rappel 1 jour avant un rendez-vous confirmé",
+          "description": ""
+        },
+        "record_outcome": {
+          "title": "Noter le résultat après qu’un rendez-vous confirmé a eu lieu",
+          "description": ""
+        },
+        "no_show_new_slot": {
+          "title": "Proposer un nouveau créneau le lendemain d’une absence",
+          "description": ""
+        },
+        "follow_up_held": {
+          "title": "Envoyer le suivi le lendemain d’un rendez-vous tenu",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Chaque rendez-vous a un statut.",
+        "start_field": "Chaque rendez-vous indique quand il commence.",
+        "appointments_board_view": "Les rendez-vous s’ouvrent en board par statut."
+      },
+      "prompt": {
+        "intro": "Mets en place dans mon espace de travail Customermates une prise de rendez-vous : types de rendez-vous avec durée, temps de battement et délai de prévenance, rendez-vous avec statut et résultat, rappels avant chaque rendez-vous et suivi après.",
+        "questions": [
+          "Quels types de rendez-vous proposez-vous, et combien de temps dure chacun ?",
+          "De quel délai de prévenance avez-vous besoin, et jusqu’à combien de temps à l’avance peut-on réserver ?",
+          "Quelles questions un client doit-il renseigner en réservant ?",
+          "Comment gérez-vous aujourd’hui les absences et les annulations tardives ?"
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "Prenotazione online",
+      "summary": "Un registro di appuntamenti per chi offre servizi: tipi di appuntamento con durata e preavviso, ogni prenotazione con stato, promemoria ed esito, e un prossimo passo per ciascuna.",
+      "description": "Ricevi prenotazioni per chiamate, consulenze o visite e tienile nel CRM: pochi tipi di appuntamento con durata, pausa e preavviso minimo, una prenotazione che crea la persona e l'appuntamento, un evento in agenda una volta confermato, due promemoria e un esito registrato dopo ogni appuntamento. Prenota solo il tempo delle persone. Non è un sistema per prenotare sale o risorse, uno strumento per biglietti, un gestionale per appuntamenti medici né un servizio di pagamento.",
+      "lists": {
+        "actions": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un prossimo passo con data per ogni pratica aperta."
+        },
+        "people": {
+          "label": "Contatto",
+          "pluralLabel": "Contatti",
+          "description": "Le persone che prenotano con te."
+        },
+        "appointment_types": {
+          "label": "Tipo di appuntamento",
+          "pluralLabel": "Tipi di appuntamento",
+          "description": "Un tipo di appuntamento con durata, pausa, preavviso e prezzo."
+        },
+        "appointments": {
+          "label": "Appuntamento",
+          "pluralLabel": "Appuntamenti",
+          "description": "Una prenotazione, da richiesta a svolta, mancata o annullata."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "waiting": "In attesa",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "people.preferred_channel": {
+          "label": "Canale preferito",
+          "options": {
+            "email": "Email",
+            "whatsapp": "WhatsApp",
+            "phone": "Telefono"
+          }
+        },
+        "people.time_zone": {
+          "label": "Fuso orario",
+          "options": {}
+        },
+        "appointment_types.duration_minutes": {
+          "label": "Durata (minuti)",
+          "options": {}
+        },
+        "appointment_types.buffer_minutes": {
+          "label": "Pausa dopo (minuti)",
+          "options": {}
+        },
+        "appointment_types.min_notice_hours": {
+          "label": "Preavviso minimo (ore)",
+          "options": {}
+        },
+        "appointment_types.booking_window_days": {
+          "label": "Prenotabile fino a (giorni prima)",
+          "options": {}
+        },
+        "appointment_types.daily_limit": {
+          "label": "Limite giornaliero",
+          "options": {}
+        },
+        "appointment_types.location_type": {
+          "label": "Dove",
+          "options": {
+            "video_call": "Videochiamata",
+            "phone": "Telefono",
+            "office": "In studio",
+            "client_site": "Dal cliente"
+          }
+        },
+        "appointment_types.price": {
+          "label": "Prezzo",
+          "options": {}
+        },
+        "appointment_types.active": {
+          "label": "Attivo",
+          "options": {}
+        },
+        "appointments.status": {
+          "label": "Stato",
+          "options": {
+            "requested": "Richiesto",
+            "confirmed": "Confermato",
+            "rescheduled": "Spostato",
+            "held": "Svolto",
+            "no_show": "Assente",
+            "cancelled_by_client": "Annullato dal cliente",
+            "cancelled_by_us": "Annullato da noi"
+          }
+        },
+        "appointments.start_at": {
+          "label": "Inizio",
+          "options": {}
+        },
+        "appointments.source": {
+          "label": "Fonte",
+          "options": {
+            "booking_page": "Pagina di prenotazione",
+            "email": "Email",
+            "whatsapp": "WhatsApp",
+            "phone": "Telefono",
+            "manual": "Inserito manualmente"
+          }
+        },
+        "appointments.meeting_url": {
+          "label": "Link alla riunione",
+          "options": {}
+        },
+        "appointments.outcome": {
+          "label": "Esito",
+          "options": {
+            "not_decided": "Non ancora deciso",
+            "qualified": "Qualificato",
+            "second_call": "Serve una seconda chiamata",
+            "proposal_needed": "Serve una proposta",
+            "won": "Chiuso durante la chiamata",
+            "not_a_fit": "Non adatto"
+          }
+        },
+        "appointments.cancel_reason": {
+          "label": "Motivo dell'annullamento",
+          "options": {
+            "schedule_conflict": "Impegno concomitante",
+            "other_provider": "Ha scelto un altro professionista",
+            "no_longer_needed": "Non serve più",
+            "personal": "Motivo personale",
+            "other": "Altro"
+          }
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "confirm_booking": "Confermare la prenotazione",
+            "send_reminder": "Inviare un promemoria",
+            "prepare_call": "Preparare l'appuntamento",
+            "send_follow_up": "Inviare il follow-up",
+            "offer_new_slot": "Proporre un nuovo orario",
+            "record_outcome": "Registrare l'esito",
+            "other": "Altro"
+          }
+        }
+      },
+      "relationships": {
+        "appointment_person": {
+          "sourceLabel": "Contatto",
+          "targetLabel": "Appuntamenti"
+        },
+        "appointment_type": {
+          "sourceLabel": "Tipo di appuntamento",
+          "targetLabel": "Appuntamenti"
+        },
+        "action_appointment": {
+          "sourceLabel": "Appuntamento",
+          "targetLabel": "Attività"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Tutte le attività"
+        },
+        "appointments_all": {
+          "name": "Tutti gli appuntamenti"
+        },
+        "appointments_board": {
+          "name": "Board degli appuntamenti"
+        },
+        "missed_or_cancelled": {
+          "name": "Mancati o annullati"
+        },
+        "appointment_types_all": {
+          "name": "Tutti i tipi di appuntamento"
+        },
+        "people_all": {
+          "name": "Tutti i contatti"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Attività in arrivo"
+        },
+        "overdue_actions": {
+          "title": "Attività scadute"
+        },
+        "activity_timeline": {
+          "title": "Attività recenti"
+        },
+        "upcoming_appointments": {
+          "title": "Prossimi appuntamenti"
+        },
+        "appointments_by_status": {
+          "title": "Appuntamenti per stato"
+        },
+        "outcomes_of_held": {
+          "title": "Esiti degli appuntamenti svolti"
+        },
+        "requests_waiting": {
+          "title": "Richieste in attesa di risposta"
+        },
+        "no_shows": {
+          "title": "Assenze"
+        },
+        "bookings_by_source": {
+          "title": "Prenotazioni per fonte"
+        }
+      },
+      "knowledgePages": {
+        "appointment_types_rules": {
+          "title": "Tipi di appuntamento e disponibilità",
+          "sections": [
+            "Tipi, durate, pause e preavviso",
+            "Orari e limiti giornalieri"
+          ]
+        },
+        "reminder_policy": {
+          "title": "Promemoria e assenze",
+          "sections": [
+            "Promemoria 3 giorni e 1 giorno prima",
+            "Che cosa facciamo dopo un'assenza"
+          ]
+        },
+        "cancellation_policy": {
+          "title": "Annullamento e spostamento",
+          "sections": [
+            "Fino a quando un cliente può annullare",
+            "Come viene proposto un nuovo orario"
+          ]
+        }
+      },
+      "rules": {
+        "booking_form_records": {
+          "title": "Creare contatto e appuntamento quando viene inviato il modulo di prenotazione",
+          "description": ""
+        },
+        "confirm_event": {
+          "title": "Aggiungere un evento in agenda quando un appuntamento viene confermato",
+          "description": ""
+        },
+        "notify_new_booking": {
+          "title": "Avvisare il titolare quando arriva una prenotazione",
+          "description": ""
+        },
+        "first_reminder": {
+          "title": "Inviare un primo promemoria 3 giorni prima di un appuntamento confermato",
+          "description": ""
+        },
+        "second_reminder": {
+          "title": "Inviare un secondo promemoria 1 giorno prima di un appuntamento confermato",
+          "description": ""
+        },
+        "record_outcome": {
+          "title": "Registrare l'esito dopo che un appuntamento confermato ha avuto luogo",
+          "description": ""
+        },
+        "no_show_new_slot": {
+          "title": "Proporre un nuovo orario il giorno dopo un'assenza",
+          "description": ""
+        },
+        "follow_up_held": {
+          "title": "Inviare il follow-up il giorno dopo un appuntamento svolto",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Ogni appuntamento ha uno stato.",
+        "start_field": "Ogni appuntamento indica quando inizia.",
+        "appointments_board_view": "Gli appuntamenti si aprono come board per stato."
+      },
+      "prompt": {
+        "intro": "Imposta nel mio spazio di lavoro Customermates una prenotazione online: tipi di appuntamento con durata, pausa e preavviso, appuntamenti con stato ed esito, promemoria prima di ogni appuntamento e un follow-up dopo.",
+        "questions": [
+          "Quali tipi di appuntamento offri e quanto dura ciascuno?",
+          "Quanto preavviso ti serve e con quanto anticipo si può prenotare?",
+          "Quali domande deve compilare un cliente al momento della prenotazione?",
+          "Come gestisci oggi le assenze e le disdette tardive?"
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "Online afspraken maken",
+      "summary": "Een afsprakenregister voor dienstverleners: afspraaktypes met duur en minimale termijn, elke boeking met status, herinneringen en uitkomst, en bij elk een volgende stap.",
+      "description": "Boekingen aannemen voor gesprekken, consulten of bezichtigingen en ze bewaren in het CRM: een paar afspraaktypes met duur, buffer en minimale termijn, een boeking die de persoon en de afspraak aanmaakt, een agenda-item zodra je bevestigt, twee herinneringen en een uitkomst na elke afspraak. Het boekt alleen tijd van mensen. Geen systeem voor het reserveren van ruimtes of middelen, geen ticketverkoop, geen afsprakensysteem voor de zorg en geen betaaldienst.",
+      "lists": {
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén volgende stap met datum per open dossier."
+        },
+        "people": {
+          "label": "Contactpersoon",
+          "pluralLabel": "Contactpersonen",
+          "description": "De mensen die bij jou boeken."
+        },
+        "appointment_types": {
+          "label": "Afspraaktype",
+          "pluralLabel": "Afspraaktypes",
+          "description": "Een soort afspraak met duur, buffer, minimale termijn en prijs."
+        },
+        "appointments": {
+          "label": "Afspraak",
+          "pluralLabel": "Afspraken",
+          "description": "Eén boeking, van aangevraagd tot gehouden, niet verschenen of geannuleerd."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "In de wacht",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "people.preferred_channel": {
+          "label": "Voorkeurskanaal",
+          "options": {
+            "email": "E-mail",
+            "whatsapp": "WhatsApp",
+            "phone": "Telefoon"
+          }
+        },
+        "people.time_zone": {
+          "label": "Tijdzone",
+          "options": {}
+        },
+        "appointment_types.duration_minutes": {
+          "label": "Duur (minuten)",
+          "options": {}
+        },
+        "appointment_types.buffer_minutes": {
+          "label": "Buffer erna (minuten)",
+          "options": {}
+        },
+        "appointment_types.min_notice_hours": {
+          "label": "Minimale termijn (uren)",
+          "options": {}
+        },
+        "appointment_types.booking_window_days": {
+          "label": "Boekbaar tot (dagen vooruit)",
+          "options": {}
+        },
+        "appointment_types.daily_limit": {
+          "label": "Limiet per dag",
+          "options": {}
+        },
+        "appointment_types.location_type": {
+          "label": "Waar",
+          "options": {
+            "video_call": "Videogesprek",
+            "phone": "Telefoon",
+            "office": "Op kantoor",
+            "client_site": "Bij de klant"
+          }
+        },
+        "appointment_types.price": {
+          "label": "Prijs",
+          "options": {}
+        },
+        "appointment_types.active": {
+          "label": "Actief",
+          "options": {}
+        },
+        "appointments.status": {
+          "label": "Status",
+          "options": {
+            "requested": "Aangevraagd",
+            "confirmed": "Bevestigd",
+            "rescheduled": "Verzet",
+            "held": "Gehouden",
+            "no_show": "Niet verschenen",
+            "cancelled_by_client": "Geannuleerd door de klant",
+            "cancelled_by_us": "Geannuleerd door ons"
+          }
+        },
+        "appointments.start_at": {
+          "label": "Begin",
+          "options": {}
+        },
+        "appointments.source": {
+          "label": "Bron",
+          "options": {
+            "booking_page": "Boekingspagina",
+            "email": "E-mail",
+            "whatsapp": "WhatsApp",
+            "phone": "Telefoon",
+            "manual": "Handmatig ingevoerd"
+          }
+        },
+        "appointments.meeting_url": {
+          "label": "Meetinglink",
+          "options": {}
+        },
+        "appointments.outcome": {
+          "label": "Uitkomst",
+          "options": {
+            "not_decided": "Nog niet beslist",
+            "qualified": "Gekwalificeerd",
+            "second_call": "Tweede gesprek nodig",
+            "proposal_needed": "Offerte nodig",
+            "won": "Gewonnen in het gesprek",
+            "not_a_fit": "Past niet"
+          }
+        },
+        "appointments.cancel_reason": {
+          "label": "Reden van annulering",
+          "options": {
+            "schedule_conflict": "Agendaconflict",
+            "other_provider": "Andere aanbieder gevonden",
+            "no_longer_needed": "Niet meer nodig",
+            "personal": "Persoonlijke reden",
+            "other": "Overig"
+          }
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "confirm_booking": "Boeking bevestigen",
+            "send_reminder": "Herinnering sturen",
+            "prepare_call": "Afspraak voorbereiden",
+            "send_follow_up": "Opvolging sturen",
+            "offer_new_slot": "Nieuw tijdstip aanbieden",
+            "record_outcome": "Uitkomst vastleggen",
+            "other": "Overig"
+          }
+        }
+      },
+      "relationships": {
+        "appointment_person": {
+          "sourceLabel": "Contactpersoon",
+          "targetLabel": "Afspraken"
+        },
+        "appointment_type": {
+          "sourceLabel": "Afspraaktype",
+          "targetLabel": "Afspraken"
+        },
+        "action_appointment": {
+          "sourceLabel": "Afspraak",
+          "targetLabel": "Acties"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "appointments_all": {
+          "name": "Alle afspraken"
+        },
+        "appointments_board": {
+          "name": "Afsprakenbord"
+        },
+        "missed_or_cancelled": {
+          "name": "Gemist of geannuleerd"
+        },
+        "appointment_types_all": {
+          "name": "Alle afspraaktypes"
+        },
+        "people_all": {
+          "name": "Alle contactpersonen"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Aankomende acties"
+        },
+        "overdue_actions": {
+          "title": "Achterstallige acties"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        },
+        "upcoming_appointments": {
+          "title": "Komende afspraken"
+        },
+        "appointments_by_status": {
+          "title": "Afspraken per status"
+        },
+        "outcomes_of_held": {
+          "title": "Uitkomsten van gehouden afspraken"
+        },
+        "requests_waiting": {
+          "title": "Aanvragen die op antwoord wachten"
+        },
+        "no_shows": {
+          "title": "Niet verschenen"
+        },
+        "bookings_by_source": {
+          "title": "Boekingen per bron"
+        }
+      },
+      "knowledgePages": {
+        "appointment_types_rules": {
+          "title": "Afspraaktypes en beschikbaarheid",
+          "sections": [
+            "Types, duur, buffers en minimale termijn",
+            "Openingstijden en limieten per dag"
+          ]
+        },
+        "reminder_policy": {
+          "title": "Herinneringen en no-shows",
+          "sections": [
+            "Herinneringen 3 dagen en 1 dag van tevoren",
+            "Wat we doen na een no-show"
+          ]
+        },
+        "cancellation_policy": {
+          "title": "Annuleren en verzetten",
+          "sections": [
+            "Tot wanneer een klant kan annuleren",
+            "Hoe een nieuw tijdstip wordt aangeboden"
+          ]
+        }
+      },
+      "rules": {
+        "booking_form_records": {
+          "title": "Maak een contactpersoon en een afspraak aan als het boekingsformulier is ingediend",
+          "description": ""
+        },
+        "confirm_event": {
+          "title": "Voeg een agenda-item toe als een afspraak wordt bevestigd",
+          "description": ""
+        },
+        "notify_new_booking": {
+          "title": "Waarschuw de eigenaar als er een boeking binnenkomt",
+          "description": ""
+        },
+        "first_reminder": {
+          "title": "Stuur 3 dagen voor een bevestigde afspraak een eerste herinnering",
+          "description": ""
+        },
+        "second_reminder": {
+          "title": "Stuur 1 dag voor een bevestigde afspraak een tweede herinnering",
+          "description": ""
+        },
+        "record_outcome": {
+          "title": "Leg de uitkomst vast nadat een bevestigde afspraak heeft plaatsgevonden",
+          "description": ""
+        },
+        "no_show_new_slot": {
+          "title": "Bied de dag na een no-show een nieuw tijdstip aan",
+          "description": ""
+        },
+        "follow_up_held": {
+          "title": "Stuur de dag na een gehouden afspraak de opvolging",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Elke afspraak heeft een status.",
+        "start_field": "Elke afspraak legt vast wanneer ze begint.",
+        "appointments_board_view": "De afspraken openen als bord per status."
+      },
+      "prompt": {
+        "intro": "Richt in mijn Customermates-werkruimte online afspraken in: afspraaktypes met duur, buffer en minimale termijn, afspraken met status en uitkomst, herinneringen vóór elke afspraak en een opvolging erna.",
+        "questions": [
+          "Welke soorten afspraken bied je aan en hoe lang duurt elke?",
+          "Hoeveel tijd van tevoren moet iemand boeken en hoe ver vooruit kan men boeken?",
+          "Welke vragen moet een klant bij het boeken beantwoorden?",
+          "Hoe ga je nu om met no-shows en late annuleringen?"
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Rezerwacja wizyt online",
+      "summary": "Rejestr wizyt dla osoby świadczącej usługi: typy wizyt z czasem trwania i wyprzedzeniem, każda rezerwacja ze statusem, przypomnieniami i wynikiem oraz następnym krokiem.",
+      "description": "Przyjmuj rezerwacje rozmów, konsultacji lub oglądania nieruchomości i prowadź je w CRM: kilka typów wizyt z czasem trwania, przerwą i minimalnym wyprzedzeniem, rezerwacja, która tworzy kontakt i wizytę, wydarzenie w kalendarzu po potwierdzeniu, dwa przypomnienia i wynik zapisany po każdej wizycie. Rezerwuje wyłącznie czas osób, nie zasobów. To nie jest system rezerwacji sal i zasobów, sprzedaży biletów, wizyt lekarskich ani operator płatności.",
+      "lists": {
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jeden następny krok z terminem dla każdej otwartej sprawy."
+        },
+        "people": {
+          "label": "Kontakt",
+          "pluralLabel": "Kontakty",
+          "description": "Osoby, które rezerwują wizyty u Ciebie."
+        },
+        "appointment_types": {
+          "label": "Typ wizyty",
+          "pluralLabel": "Typy wizyt",
+          "description": "Rodzaj wizyty z czasem trwania, przerwą, wyprzedzeniem i ceną."
+        },
+        "appointments": {
+          "label": "Wizyta",
+          "pluralLabel": "Wizyty",
+          "description": "Jedna rezerwacja, od zgłoszonej do odbytej, nieodbytej lub odwołanej."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarte",
+            "waiting": "Oczekuje",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "people.preferred_channel": {
+          "label": "Preferowany kanał",
+          "options": {
+            "email": "E-mail",
+            "whatsapp": "WhatsApp",
+            "phone": "Telefon"
+          }
+        },
+        "people.time_zone": {
+          "label": "Strefa czasowa",
+          "options": {}
+        },
+        "appointment_types.duration_minutes": {
+          "label": "Czas trwania (minuty)",
+          "options": {}
+        },
+        "appointment_types.buffer_minutes": {
+          "label": "Przerwa po wizycie (minuty)",
+          "options": {}
+        },
+        "appointment_types.min_notice_hours": {
+          "label": "Minimalne wyprzedzenie (godziny)",
+          "options": {}
+        },
+        "appointment_types.booking_window_days": {
+          "label": "Maksymalne wyprzedzenie rezerwacji (dni)",
+          "options": {}
+        },
+        "appointment_types.daily_limit": {
+          "label": "Limit dzienny",
+          "options": {}
+        },
+        "appointment_types.location_type": {
+          "label": "Gdzie",
+          "options": {
+            "video_call": "Wideorozmowa",
+            "phone": "Telefon",
+            "office": "W biurze",
+            "client_site": "U klienta"
+          }
+        },
+        "appointment_types.price": {
+          "label": "Cena",
+          "options": {}
+        },
+        "appointment_types.active": {
+          "label": "Aktywny",
+          "options": {}
+        },
+        "appointments.status": {
+          "label": "Status",
+          "options": {
+            "requested": "Zgłoszona",
+            "confirmed": "Potwierdzona",
+            "rescheduled": "Przełożona",
+            "held": "Odbyta",
+            "no_show": "Nieobecność klienta",
+            "cancelled_by_client": "Odwołana przez klienta",
+            "cancelled_by_us": "Odwołana przez nas"
+          }
+        },
+        "appointments.start_at": {
+          "label": "Rozpoczęcie",
+          "options": {}
+        },
+        "appointments.source": {
+          "label": "Źródło",
+          "options": {
+            "booking_page": "Strona rezerwacji",
+            "email": "E-mail",
+            "whatsapp": "WhatsApp",
+            "phone": "Telefon",
+            "manual": "Wpisana ręcznie"
+          }
+        },
+        "appointments.meeting_url": {
+          "label": "Link do spotkania",
+          "options": {}
+        },
+        "appointments.outcome": {
+          "label": "Wynik",
+          "options": {
+            "not_decided": "Jeszcze nie zdecydowano",
+            "qualified": "Zakwalifikowany",
+            "second_call": "Potrzebna druga rozmowa",
+            "proposal_needed": "Potrzebna oferta",
+            "won": "Wygrane podczas rozmowy",
+            "not_a_fit": "Nie pasuje"
+          }
+        },
+        "appointments.cancel_reason": {
+          "label": "Powód odwołania",
+          "options": {
+            "schedule_conflict": "Kolizja terminów",
+            "other_provider": "Znalazł innego usługodawcę",
+            "no_longer_needed": "Już niepotrzebne",
+            "personal": "Powód osobisty",
+            "other": "Inny"
+          }
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "confirm_booking": "Potwierdzić rezerwację",
+            "send_reminder": "Wysłać przypomnienie",
+            "prepare_call": "Przygotować wizytę",
+            "send_follow_up": "Wysłać wiadomość po wizycie",
+            "offer_new_slot": "Zaproponować nowy termin",
+            "record_outcome": "Zapisać wynik",
+            "other": "Inne"
+          }
+        }
+      },
+      "relationships": {
+        "appointment_person": {
+          "sourceLabel": "Kontakt",
+          "targetLabel": "Wizyty"
+        },
+        "appointment_type": {
+          "sourceLabel": "Typ wizyty",
+          "targetLabel": "Wizyty"
+        },
+        "action_appointment": {
+          "sourceLabel": "Wizyta",
+          "targetLabel": "Zadania"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "appointments_all": {
+          "name": "Wszystkie wizyty"
+        },
+        "appointments_board": {
+          "name": "Tablica wizyt"
+        },
+        "missed_or_cancelled": {
+          "name": "Nieodbyte lub odwołane"
+        },
+        "appointment_types_all": {
+          "name": "Wszystkie typy wizyt"
+        },
+        "people_all": {
+          "name": "Wszystkie kontakty"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Nadchodzące zadania"
+        },
+        "overdue_actions": {
+          "title": "Zaległe zadania"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        },
+        "upcoming_appointments": {
+          "title": "Nadchodzące wizyty"
+        },
+        "appointments_by_status": {
+          "title": "Wizyty według statusu"
+        },
+        "outcomes_of_held": {
+          "title": "Wyniki odbytych wizyt"
+        },
+        "requests_waiting": {
+          "title": "Zgłoszenia czekające na odpowiedź"
+        },
+        "no_shows": {
+          "title": "Nieobecności"
+        },
+        "bookings_by_source": {
+          "title": "Rezerwacje według źródła"
+        }
+      },
+      "knowledgePages": {
+        "appointment_types_rules": {
+          "title": "Typy wizyt i dostępność",
+          "sections": [
+            "Typy, czas trwania, przerwy i wyprzedzenie",
+            "Godziny pracy i limity dzienne"
+          ]
+        },
+        "reminder_policy": {
+          "title": "Przypomnienia i nieobecności",
+          "sections": [
+            "Przypomnienia 3 dni i 1 dzień przed",
+            "Co robimy po nieobecności"
+          ]
+        },
+        "cancellation_policy": {
+          "title": "Odwoływanie i przekładanie",
+          "sections": [
+            "Do kiedy klient może odwołać",
+            "Jak proponujemy nowy termin"
+          ]
+        }
+      },
+      "rules": {
+        "booking_form_records": {
+          "title": "Utwórz kontakt i wizytę po wysłaniu formularza rezerwacji",
+          "description": ""
+        },
+        "confirm_event": {
+          "title": "Dodaj wydarzenie do kalendarza po potwierdzeniu wizyty",
+          "description": ""
+        },
+        "notify_new_booking": {
+          "title": "Powiadom właściciela o nowej rezerwacji",
+          "description": ""
+        },
+        "first_reminder": {
+          "title": "Wyślij pierwsze przypomnienie 3 dni przed potwierdzoną wizytą",
+          "description": ""
+        },
+        "second_reminder": {
+          "title": "Wyślij drugie przypomnienie 1 dzień przed potwierdzoną wizytą",
+          "description": ""
+        },
+        "record_outcome": {
+          "title": "Zapisz wynik po odbyciu potwierdzonej wizyty",
+          "description": ""
+        },
+        "no_show_new_slot": {
+          "title": "Zaproponuj nowy termin dzień po nieobecności klienta",
+          "description": ""
+        },
+        "follow_up_held": {
+          "title": "Wyślij wiadomość podsumowującą dzień po odbytej wizycie",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Każda wizyta ma status.",
+        "start_field": "Każda wizyta zapisuje, kiedy się zaczyna.",
+        "appointments_board_view": "Wizyty otwierają się jako tablica według statusu."
+      },
+      "prompt": {
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates rezerwację wizyt online: typy wizyt z czasem trwania, przerwą i wyprzedzeniem, wizyty ze statusem i wynikiem, przypomnienia przed każdą wizytą i wiadomość po niej.",
+        "questions": [
+          "Jakie typy wizyt oferujesz i ile trwa każdy z nich?",
+          "Jakiego wyprzedzenia potrzebujesz i jak daleko naprzód można rezerwować?",
+          "Na jakie pytania ma odpowiedzieć klient przy rezerwacji?",
+          "Jak dziś radzisz sobie z nieobecnościami i odwołaniami w ostatniej chwili?"
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "Agendamento online",
+      "summary": "Uma agenda de atendimentos para quem presta serviços: tipos de atendimento com duração e antecedência mínima, cada agendamento com status, lembretes e resultado, e um próximo passo em cada um.",
+      "description": "Receba agendamentos de chamadas, consultas ou visitas e guarde tudo no CRM: poucos tipos de atendimento com duração, intervalo e antecedência mínima, um agendamento que cria a pessoa e o atendimento, um evento na agenda quando você confirma, dois lembretes e um resultado registrado depois de cada atendimento. Gerencia apenas o tempo das pessoas. Não é um sistema de reserva de salas ou recursos, uma ferramenta de ingressos, um sistema de consultas médicas nem um meio de pagamento.",
+      "lists": {
+        "actions": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um próximo passo com data para cada item em aberto."
+        },
+        "people": {
+          "label": "Contato",
+          "pluralLabel": "Contatos",
+          "description": "As pessoas que agendam com você."
+        },
+        "appointment_types": {
+          "label": "Tipo de atendimento",
+          "pluralLabel": "Tipos de atendimento",
+          "description": "Um tipo de atendimento com duração, intervalo, antecedência mínima e preço."
+        },
+        "appointments": {
+          "label": "Atendimento",
+          "pluralLabel": "Atendimentos",
+          "description": "Um agendamento, de solicitado a realizado, faltou ou cancelado."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberta",
+            "waiting": "Aguardando",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "people.preferred_channel": {
+          "label": "Canal preferido",
+          "options": {
+            "email": "E-mail",
+            "whatsapp": "WhatsApp",
+            "phone": "Telefone"
+          }
+        },
+        "people.time_zone": {
+          "label": "Fuso horário",
+          "options": {}
+        },
+        "appointment_types.duration_minutes": {
+          "label": "Duração (minutos)",
+          "options": {}
+        },
+        "appointment_types.buffer_minutes": {
+          "label": "Intervalo depois (minutos)",
+          "options": {}
+        },
+        "appointment_types.min_notice_hours": {
+          "label": "Antecedência mínima (horas)",
+          "options": {}
+        },
+        "appointment_types.booking_window_days": {
+          "label": "Agendável até (dias antes)",
+          "options": {}
+        },
+        "appointment_types.daily_limit": {
+          "label": "Limite por dia",
+          "options": {}
+        },
+        "appointment_types.location_type": {
+          "label": "Onde",
+          "options": {
+            "video_call": "Videochamada",
+            "phone": "Telefone",
+            "office": "No escritório",
+            "client_site": "No local do cliente"
+          }
+        },
+        "appointment_types.price": {
+          "label": "Preço",
+          "options": {}
+        },
+        "appointment_types.active": {
+          "label": "Ativo",
+          "options": {}
+        },
+        "appointments.status": {
+          "label": "Status",
+          "options": {
+            "requested": "Solicitado",
+            "confirmed": "Confirmado",
+            "rescheduled": "Remarcado",
+            "held": "Realizado",
+            "no_show": "Faltou",
+            "cancelled_by_client": "Cancelado pelo cliente",
+            "cancelled_by_us": "Cancelado por nós"
+          }
+        },
+        "appointments.start_at": {
+          "label": "Início",
+          "options": {}
+        },
+        "appointments.source": {
+          "label": "Origem",
+          "options": {
+            "booking_page": "Página de agendamento",
+            "email": "E-mail",
+            "whatsapp": "WhatsApp",
+            "phone": "Telefone",
+            "manual": "Lançado manualmente"
+          }
+        },
+        "appointments.meeting_url": {
+          "label": "Link da reunião",
+          "options": {}
+        },
+        "appointments.outcome": {
+          "label": "Resultado",
+          "options": {
+            "not_decided": "Ainda não decidido",
+            "qualified": "Qualificado",
+            "second_call": "Precisa de uma segunda conversa",
+            "proposal_needed": "Precisa de proposta",
+            "won": "Fechado na conversa",
+            "not_a_fit": "Não se encaixa"
+          }
+        },
+        "appointments.cancel_reason": {
+          "label": "Motivo do cancelamento",
+          "options": {
+            "schedule_conflict": "Conflito de agenda",
+            "other_provider": "Encontrou outro fornecedor",
+            "no_longer_needed": "Não precisa mais",
+            "personal": "Motivo pessoal",
+            "other": "Outro"
+          }
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "confirm_booking": "Confirmar o agendamento",
+            "send_reminder": "Enviar um lembrete",
+            "prepare_call": "Preparar o atendimento",
+            "send_follow_up": "Enviar o acompanhamento",
+            "offer_new_slot": "Oferecer um novo horário",
+            "record_outcome": "Registrar o resultado",
+            "other": "Outro"
+          }
+        }
+      },
+      "relationships": {
+        "appointment_person": {
+          "sourceLabel": "Contato",
+          "targetLabel": "Atendimentos"
+        },
+        "appointment_type": {
+          "sourceLabel": "Tipo de atendimento",
+          "targetLabel": "Atendimentos"
+        },
+        "action_appointment": {
+          "sourceLabel": "Atendimento",
+          "targetLabel": "Tarefas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas as tarefas"
+        },
+        "appointments_all": {
+          "name": "Todos os atendimentos"
+        },
+        "appointments_board": {
+          "name": "Quadro de atendimentos"
+        },
+        "missed_or_cancelled": {
+          "name": "Faltas ou cancelados"
+        },
+        "appointment_types_all": {
+          "name": "Todos os tipos de atendimento"
+        },
+        "people_all": {
+          "name": "Todos os contatos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tarefas"
+        },
+        "overdue_actions": {
+          "title": "Tarefas atrasadas"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        },
+        "upcoming_appointments": {
+          "title": "Próximos atendimentos"
+        },
+        "appointments_by_status": {
+          "title": "Atendimentos por status"
+        },
+        "outcomes_of_held": {
+          "title": "Resultados dos atendimentos realizados"
+        },
+        "requests_waiting": {
+          "title": "Solicitações aguardando resposta"
+        },
+        "no_shows": {
+          "title": "Faltas"
+        },
+        "bookings_by_source": {
+          "title": "Agendamentos por origem"
+        }
+      },
+      "knowledgePages": {
+        "appointment_types_rules": {
+          "title": "Tipos de atendimento e disponibilidade",
+          "sections": [
+            "Tipos, durações, intervalos e antecedência",
+            "Horário de atendimento e limites por dia"
+          ]
+        },
+        "reminder_policy": {
+          "title": "Lembretes e faltas",
+          "sections": [
+            "Lembretes 3 dias e 1 dia antes",
+            "O que fazemos depois de uma falta"
+          ]
+        },
+        "cancellation_policy": {
+          "title": "Cancelamento e remarcação",
+          "sections": [
+            "Até quando o cliente pode cancelar",
+            "Como um novo horário é oferecido"
+          ]
+        }
+      },
+      "rules": {
+        "booking_form_records": {
+          "title": "Criar o contato e o atendimento quando o formulário de agendamento for enviado",
+          "description": ""
+        },
+        "confirm_event": {
+          "title": "Adicionar um evento na agenda quando um atendimento for confirmado",
+          "description": ""
+        },
+        "notify_new_booking": {
+          "title": "Avisar o responsável quando chegar um agendamento",
+          "description": ""
+        },
+        "first_reminder": {
+          "title": "Enviar um primeiro lembrete 3 dias antes de um atendimento confirmado",
+          "description": ""
+        },
+        "second_reminder": {
+          "title": "Enviar um segundo lembrete 1 dia antes de um atendimento confirmado",
+          "description": ""
+        },
+        "record_outcome": {
+          "title": "Registrar o resultado depois que um atendimento confirmado aconteceu",
+          "description": ""
+        },
+        "no_show_new_slot": {
+          "title": "Oferecer um novo horário no dia seguinte a uma falta",
+          "description": ""
+        },
+        "follow_up_held": {
+          "title": "Enviar o acompanhamento no dia seguinte a um atendimento realizado",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Todo atendimento tem um status.",
+        "start_field": "Todo atendimento registra quando começa.",
+        "appointments_board_view": "Os atendimentos abrem como quadro por status."
+      },
+      "prompt": {
+        "intro": "Configure no meu espaço de trabalho do Customermates um agendamento online: tipos de atendimento com duração, intervalo e antecedência mínima, atendimentos com status e resultado, lembretes antes de cada atendimento e um acompanhamento depois.",
+        "questions": [
+          "Quais tipos de atendimento você oferece e quanto dura cada um?",
+          "De quanta antecedência você precisa e com quanto tempo de antecedência dá para agendar?",
+          "Que perguntas o cliente deve responder ao agendar?",
+          "Como você lida hoje com faltas e cancelamentos de última hora?"
+        ]
+      }
+    }
+  }
+}

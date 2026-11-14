@@ -2,7 +2,7 @@
 
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 
-import { ArrowDownToLine, ArrowUpFromLine, FileSpreadsheet, MoreHorizontal } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, FileSpreadsheet, MoreHorizontal, Workflow } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { observer } from "mobx-react-lite";
@@ -10,7 +10,7 @@ import { useTranslations } from "next-intl";
 
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { AskAiAction } from "@/components/ui/ask-ai-action";
-import { TopBarPrimaryButton, TopBarMenuButton } from "@/components/shared/top-bar-action-buttons";
+import { TopBarActionButton, TopBarPrimaryButton, TopBarMenuButton } from "@/components/shared/top-bar-action-buttons";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { DataViewDisplayOptions } from "./header/display-options";
@@ -28,6 +28,7 @@ type Props<E extends HasId> = {
   anchorScope?: string;
   addLabel?: string;
   menuItems?: ReactNode;
+  automateHref?: string;
 };
 
 export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId>({
@@ -41,6 +42,7 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
   anchorScope,
   addLabel,
   menuItems,
+  automateHref,
 }: Props<E>) {
   const t = useTranslations();
   const ai = useViewAi(store, { registerPageContext: false });
@@ -57,6 +59,18 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
           id={anchorScope ? `${anchorScope}-ask-ai` : undefined}
           placement="topbar"
           onClick={ai.openCurrent}
+        />
+      )}
+
+      {automateHref && (
+        <TopBarActionButton
+          action={{
+            id: `${anchorScope ?? "list"}-automate`,
+            anchorId: anchorScope ? `${anchorScope}-automate` : undefined,
+            href: automateHref,
+            icon: Workflow,
+            label: t("AutomationRules.automate"),
+          }}
         />
       )}
 

@@ -1,0 +1,97 @@
+{
+  "locale": "pl",
+  "name": "Własny CRM",
+  "summary": "CRM zbudowany wokół Twojego sposobu pracy: kontakty, organizacje, szanse sprzedaży i zadania z terminem, z importem z arkusza lub starego narzędzia i cotygodniowym przeglądem.",
+  "description": "Zacznij od czterech list, których potrzebuje każdy CRM, i dopasuj je: etapy, pola i widoki należą do Ciebie. Dla tych, którzy odchodzą od arkusza, Notion, Airtable lub Trello i chcą mieć dane w CRM bez osobnego projektu wdrożeniowego. Zapisuje, skąd zaimportowano każdy rekord.",
+  "lists": {
+    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Osoby, z którymi masz do czynienia." },
+    "organizations": { "label": "Organizacja", "pluralLabel": "Organizacje", "description": "Firmy i inne podmioty." },
+    "opportunities": { "label": "Szansa sprzedaży", "pluralLabel": "Szanse sprzedaży", "description": "Jedna szansa od leada do wygranej lub przegranej." }
+  },
+  "fields": {
+    "opportunities.stage": {
+      "label": "Etap",
+      "options": { "lead": "Lead", "qualified": "Zakwalifikowany", "proposal": "Oferta", "negotiation": "Negocjacje", "won": "Wygrana", "lost": "Przegrana" }
+    },
+    "contacts.job_title": { "label": "Stanowisko" },
+    "contacts.contact_role": {
+      "label": "Rola",
+      "options": { "decision_maker": "Decydent", "influencer": "Osoba wpływająca na decyzję", "user": "Użytkownik", "billing": "Rozliczenia", "other": "Inna" }
+    },
+    "contacts.language": { "label": "Język" },
+    "contacts.last_contact": { "label": "Ostatni kontakt" },
+    "contacts.consent": { "label": "Zgoda na kontakt" },
+    "organizations.relationship": {
+      "label": "Relacja",
+      "options": { "prospect": "Potencjalny", "customer": "Klient", "former_customer": "Były klient", "partner": "Partner", "other": "Inna" }
+    },
+    "organizations.owner": { "label": "Opiekun" },
+    "organizations.source": {
+      "label": "Źródło",
+      "options": { "referral": "Polecenie", "website": "Strona internetowa", "event": "Wydarzenie", "outbound": "Kontakt wychodzący", "import": "Import", "other": "Inne" }
+    },
+    "organizations.website": { "label": "Strona internetowa" },
+    "organizations.address": { "label": "Adres" },
+    "organizations.imported_from": { "label": "Zaimportowano z" },
+    "opportunities.owner": { "label": "Opiekun" },
+    "opportunities.expected_close": { "label": "Planowane zamknięcie" },
+    "opportunities.next_step": { "label": "Następny krok" },
+    "opportunities.next_step_due": { "label": "Termin następnego kroku" },
+    "opportunities.lost_reason": {
+      "label": "Powód przegranej",
+      "options": { "price": "Cena", "competitor": "Konkurent", "no_decision": "Brak decyzji", "timing": "Nieodpowiedni moment", "no_response": "Brak odpowiedzi", "not_a_fit": "Brak dopasowania", "other": "Inny" }
+    },
+    "opportunities.weighted_value": { "label": "Wartość ważona" },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": { "call": "Rozmowa telefoniczna", "email": "E-mail", "meeting": "Spotkanie", "follow_up": "Ponowny kontakt", "review": "Przegląd", "other": "Inne" }
+    }
+  },
+  "relationships": {
+    "contact_organization": { "sourceLabel": "Organizacja", "targetLabel": "Kontakty" },
+    "opportunity_organization": { "sourceLabel": "Organizacja", "targetLabel": "Szanse sprzedaży" },
+    "action_opportunity": { "sourceLabel": "Szansa sprzedaży", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "pipeline_board": { "name": "Lejek" },
+    "opportunities_all": { "name": "Wszystkie szanse" },
+    "no_next_step": { "name": "Bez następnego kroku" },
+    "organizations_all": { "name": "Wszystkie organizacje" },
+    "contacts_all": { "name": "Wszystkie kontakty" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Otwarte szanse wg etapu" },
+    "open_value": { "title": "Wartość otwartych szans" },
+    "open_weighted_value": { "title": "Ważona wartość otwartych szans" },
+    "lost_reasons": { "title": "Powody przegranej" },
+    "deals_without_next_step": { "title": "Szanse bez następnego kroku" }
+  },
+  "knowledgePages": {
+    "how_we_use_this_crm": { "title": "Jak używamy tego CRM", "sections": ["Co tu trafia i kto to aktualizuje", "Etapy i kiedy szansa idzie dalej"] },
+    "data_entry_rules": { "title": "Zasady wprowadzania danych", "sections": ["Nazwy, e-maile i jeden rekord na osobę", "Następny krok z terminem przy każdej otwartej szansie"] },
+    "import_notes": { "title": "Notatki z importu: co skąd pochodzi", "sections": ["Narzędzie źródłowe i data eksportu", "Co nie przeszło i dlaczego"] }
+  },
+  "rules": {
+    "next_action_per_stage": { "title": "Utwórz zadanie z kolejnym krokiem, gdy szansa zmienia etap" },
+    "set_a_next_step": { "title": "Ustal następny krok dla każdej otwartej szansy, która go nie ma" },
+    "next_step_notice": { "title": "Powiadom opiekuna, gdy nadchodzi termin następnego kroku" },
+    "expected_close_passed": { "title": "Przejrzyj otwartą szansę dzień po planowanym zamknięciu" },
+    "weekly_review": { "title": "Przeprowadź cotygodniowy przegląd w każdy piątek" },
+    "enquiry_form_records": { "title": "Utwórz kontakt, organizację i szansę z formularza zapytania" },
+    "webhook_upsert": { "title": "Utwórz lub zaktualizuj rekordy ze starego narzędzia przez przychodzący webhook" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Każda szansa ma etap.",
+    "board_view": "Lejek otwiera się jako tablica według etapów z sumami.",
+    "how_we_use_page": "Baza wiedzy wyjaśnia, jak zespół korzysta z CRM."
+  },
+  "prompt": {
+    "intro": "Skonfiguruj własny CRM w mojej przestrzeni roboczej Customermates: kontakty, organizacje, szanse sprzedaży z etapami i zadania z terminem, import z mojego arkusza lub starego narzędzia i cotygodniowy przegląd.",
+    "questions": [
+      "Z jakiego narzędzia lub arkusza pochodzą Twoje rekordy i czy da się je wyeksportować?",
+      "Przez jakie etapy przechodzi szansa w Twojej firmie?",
+      "Jakich pól naprawdę dziś używasz, a które możesz zostawić?",
+      "Kto pracuje w CRM i kto odpowiada za które rekordy?"
+    ]
+  }
+}

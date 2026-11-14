@@ -1,0 +1,195 @@
+{
+  "locale": "de",
+  "name": "Personalvermittlung",
+  "summary": "Ein Arbeitsplatz für Personalberatung und selbstständige Recruiter: Aufträge von der Anfrage bis zur Besetzung, ein Vorgang je Kandidat und Auftrag, Provisions- und Garantietermine, Nachbetreuung und ein Löschdatum für jeden Kandidaten.",
+  "description": "Führen Sie Ihre Personalvermittlung an einem Ort: Kunden mit Vermittlungsvertrag, Aufträge mit Phase und erwarteter Provision, vorgestellte Kandidaten je Auftrag mit eigener Phase, Vermittlungen mit Ende der Garantiezeit und Nachbetreuung sowie ein Datum für die Löschprüfung bei jedem Kandidaten. Passend für ein Team aus einer bis fünf Personen. Es ist keine Jobbörse, kein Lebenslauf-Parser, kein Tool für Massenansprache und keine Zeiterfassung mit Lohnabrechnung. Nichts geht automatisch an Kandidaten oder Kunden.",
+  "lists": {
+    "people": { "label": "Person", "pluralLabel": "Personen", "description": "Kandidaten, Ansprechpartner beim Kunden und Empfehler." },
+    "clients": { "label": "Kunde", "pluralLabel": "Kunden", "description": "Unternehmen, für die du suchst, mit Provisions- und Garantiebedingungen." },
+    "jobs": { "label": "Auftrag", "pluralLabel": "Aufträge", "description": "Eine Suche für einen Kunden, von der Anfrage bis besetzt oder verloren." },
+    "submissions": { "label": "Vorschlag", "pluralLabel": "Vorschläge", "description": "Ein Kandidat auf einen Auftrag, mit eigener Phase." },
+    "placements": { "label": "Vermittlung", "pluralLabel": "Vermittlungen", "description": "Ein Kandidat, der zugesagt hat, mit Eintrittsdatum, Provision und Ende der Garantiezeit." }
+  },
+  "fields": {
+    "jobs.stage": {
+      "label": "Phase",
+      "options": { "lead": "Anfrage", "brief": "Briefing", "terms_agreed": "Vermittlungsvertrag unterschrieben", "searching": "Suche läuft", "submitted": "Profile vorgestellt", "interviews": "Vorstellungsgespräche", "offer": "Angebot", "placed": "Besetzt", "lost": "Verloren" }
+    },
+    "submissions.stage": {
+      "label": "Phase",
+      "options": { "sourced": "Gefunden", "contacted": "Kontaktiert", "screened": "Vorgespräch geführt", "submitted": "Dem Kunden vorgestellt", "client_interview": "Gespräch beim Kunden", "offer": "Angebot", "placed": "Eingestellt", "rejected_internal": "Von uns abgelehnt", "rejected_by_client": "Vom Kunden abgelehnt", "withdrawn": "Zurückgezogen" }
+    },
+    "people.person_type": {
+      "label": "Art",
+      "options": { "candidate": "Kandidat", "client_contact": "Ansprechpartner beim Kunden", "referrer": "Empfehler", "other": "Sonstige" }
+    },
+    "people.job_title": { "label": "Position" },
+    "people.candidate_status": {
+      "label": "Kandidatenstatus",
+      "options": { "active": "Aktiv", "passive": "Passiv", "placed": "Vermittelt", "do_not_contact": "Nicht kontaktieren", "archived": "Archiviert" }
+    },
+    "people.source": {
+      "label": "Quelle",
+      "options": { "referral": "Empfehlung", "linkedin": "LinkedIn", "job_board": "Jobbörse", "own_database": "Eigene Datenbank", "event": "Veranstaltung", "inbound": "Eigenbewerbung", "other": "Sonstige" }
+    },
+    "people.salary_expectation": { "label": "Gehaltswunsch (Jahresbrutto)" },
+    "people.notice_period": { "label": "Kündigungsfrist" },
+    "people.location": { "label": "Wohnort" },
+    "people.data_basis": {
+      "label": "Grundlage der Speicherung",
+      "options": { "pre_contract": "Vorvertragliche Maßnahmen", "talent_pool_consent": "Einwilligung Talentpool", "legitimate_interest": "Selbst gefunden, berechtigtes Interesse" }
+    },
+    "people.retain_until": { "label": "Löschen am" },
+    "people.last_contact": { "label": "Letzter Kontakt" },
+    "people.owner": { "label": "Zuständig" },
+    "clients.client_status": {
+      "label": "Status",
+      "options": { "prospect": "Interessent", "active_client": "Aktiver Kunde", "past_client": "Ehemaliger Kunde", "do_not_contact": "Nicht kontaktieren" }
+    },
+    "clients.agreement_type": {
+      "label": "Vereinbarung",
+      "options": { "contingency": "Erfolgsabhängig", "retained": "Retained (Honorar in Raten)", "container": "Kontingent", "other": "Sonstige" }
+    },
+    "clients.fee_percent": { "label": "Vermittlungsprovision (% vom Jahresbrutto)" },
+    "clients.guarantee_days": { "label": "Garantiezeit (Tage)" },
+    "clients.terms_signed_on": { "label": "Vertrag unterschrieben am" },
+    "clients.terms_url": { "label": "Link zum Vertrag" },
+    "clients.website": { "label": "Website" },
+    "clients.next_touch": { "label": "Nächster Kontakt" },
+    "clients.owner": { "label": "Zuständig" },
+    "jobs.salary": { "label": "Zielgehalt (Jahresbrutto)" },
+    "jobs.fee_percent": { "label": "Provision (%)" },
+    "jobs.opened_on": { "label": "Eröffnet am" },
+    "jobs.filled_on": { "label": "Besetzt am" },
+    "jobs.exclusive": { "label": "Exklusiv" },
+    "jobs.location": { "label": "Einsatzort" },
+    "jobs.work_model": { "label": "Arbeitsmodell", "options": { "on_site": "Vor Ort", "hybrid": "Hybrid", "remote": "Remote" } },
+    "jobs.must_haves": { "label": "Muss- und Kann-Kriterien" },
+    "jobs.brief_url": { "label": "Link zum Anforderungsprofil" },
+    "jobs.next_step": { "label": "Nächster Schritt" },
+    "jobs.next_step_due": { "label": "Nächster Schritt fällig" },
+    "jobs.lost_reason": {
+      "label": "Verlustgrund",
+      "options": { "client_filled_internally": "Kunde hat intern besetzt", "client_froze_search": "Kunde hat die Suche gestoppt", "filled_by_competitor": "Von einem Wettbewerber besetzt", "terms_not_agreed": "Keine Einigung über die Konditionen", "role_cancelled": "Stelle gestrichen", "no_suitable_candidates": "Keine passenden Kandidaten" }
+    },
+    "jobs.owner": { "label": "Zuständig" },
+    "jobs.days_to_fill": { "label": "Tage bis zur Besetzung" },
+    "jobs.weighted_fee": { "label": "Gewichtete Provision" },
+    "submissions.submitted_on": { "label": "Vorgestellt am" },
+    "submissions.interview_at": { "label": "Vorstellungsgespräch" },
+    "submissions.feedback_due": { "label": "Feedback des Kunden fällig" },
+    "submissions.rejection_reason": {
+      "label": "Absagegrund",
+      "options": { "skills": "Fachliche Eignung", "culture_fit": "Passung zum Team", "salary_mismatch": "Gehalt passt nicht", "other_offer": "Anderes Angebot", "no_response": "Keine Rückmeldung", "location_or_notice": "Ort oder Kündigungsfrist" }
+    },
+    "submissions.notes": { "label": "Notizen" },
+    "submissions.owner": { "label": "Zuständig" },
+    "placements.start_date": { "label": "Eintrittsdatum" },
+    "placements.agreed_salary": { "label": "Vereinbartes Gehalt" },
+    "placements.fee_amount": { "label": "Provision" },
+    "placements.invoice_reference": { "label": "Rechnungsnummer" },
+    "placements.guarantee_ends": { "label": "Garantiezeit endet" },
+    "placements.status": {
+      "label": "Status",
+      "options": { "in_guarantee": "In der Garantiezeit", "guarantee_passed": "Garantiezeit überstanden", "fell_out_replaced": "Ausgefallen, ersetzt", "fell_out_refunded": "Ausgefallen, erstattet" }
+    },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "call_client": "Kunden anrufen",
+        "call_candidate": "Kandidaten anrufen",
+        "submit_candidate": "Kandidaten vorstellen",
+        "request_feedback": "Feedback einholen",
+        "prepare_interview": "Gespräch vorbereiten",
+        "debrief": "Gespräch nachbesprechen",
+        "chase_terms": "Unterschriebenen Vertrag nachfassen",
+        "check_in": "Nachfragen",
+        "retention_review": "Löschprüfung",
+        "review_search": "Stockende Suche prüfen",
+        "invoice_request": "Rechnung anfordern",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "person_client": { "sourceLabel": "Arbeitgeber oder Kunde", "targetLabel": "Personen" },
+    "job_client": { "sourceLabel": "Kunde", "targetLabel": "Aufträge" },
+    "job_contacts": { "sourceLabel": "Ansprechpartner beim Kunden", "targetLabel": "Aufträge" },
+    "submission_job": { "sourceLabel": "Auftrag", "targetLabel": "Vorschläge" },
+    "submission_candidate": { "sourceLabel": "Kandidat", "targetLabel": "Vorschläge" },
+    "placement_job": { "sourceLabel": "Auftrag", "targetLabel": "Vermittlungen" },
+    "placement_candidate": { "sourceLabel": "Kandidat", "targetLabel": "Vermittlungen" },
+    "action_person": { "sourceLabel": "Person", "targetLabel": "Aufgaben" },
+    "action_job": { "sourceLabel": "Auftrag", "targetLabel": "Aufgaben" },
+    "action_submission": { "sourceLabel": "Vorschlag", "targetLabel": "Aufgaben" },
+    "action_client": { "sourceLabel": "Kunde", "targetLabel": "Aufgaben" },
+    "action_placement": { "sourceLabel": "Vermittlung", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "jobs_board": { "name": "Aufträge nach Phase" },
+    "jobs_all": { "name": "Alle Aufträge" },
+    "searches_without_next_step": { "name": "Offene Suchen ohne nächsten Schritt" },
+    "submissions_board": { "name": "Kandidaten nach Phase" },
+    "feedback_pending": { "name": "Warten auf Feedback des Kunden" },
+    "placements_all": { "name": "Alle Vermittlungen" },
+    "clients_all": { "name": "Alle Kunden" },
+    "people_all": { "name": "Alle Personen" }
+  },
+  "widgets": {
+    "jobs_funnel": { "title": "Offene Aufträge nach Phase" },
+    "weighted_fees": { "title": "Gewichtete Provision in der Pipeline" },
+    "submissions_by_stage": { "title": "Kandidaten nach Phase" },
+    "placements_per_month": { "title": "Provision nach Eintrittsmonat" },
+    "interviews_coming": { "title": "Anstehende Vorstellungsgespräche" },
+    "guarantees_ending": { "title": "Endende Garantiezeiten" },
+    "retention_due": { "title": "Kandidatendaten zur Löschprüfung" },
+    "lost_reasons": { "title": "Warum Aufträge verloren gingen" },
+    "average_days_to_fill": { "title": "Durchschnittliche Tage bis zur Besetzung" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "So arbeitet die Personalvermittlung", "sections": ["Die zwei Pipelines: Aufträge und Kandidaten", "Wer welche Phase verantwortet, und die Regel: eine terminierte Aufgabe je offenem Vorgang"] },
+    "client_intake_call": { "title": "Auftragsgespräch mit dem Kunden: Anforderungsprofil", "sections": ["Position, Einsatzort, Arbeitsmodell, Gehaltsrahmen und Eintrittstermin", "Muss- und Kann-Kriterien, Grund der Vakanz und wer entscheidet"] },
+    "terms_checklist": { "title": "Provision, Garantie und Exklusivität", "sections": ["Berechnungsgrundlage, Fälligkeit und Zahlungsziel", "Garantiezeit und Ersatzbesetzung, Exklusivität (nutze deinen eigenen Vertrag, keine Rechtsberatung)"] },
+    "screening_call": { "title": "Leitfaden für das Kandidatengespräch", "sections": ["Motivation, Kündigungsfrist, Gehaltswunsch, andere Verfahren", "Was du nicht fragst und nicht festhältst"] },
+    "submission_email": { "title": "Kandidaten beim Kunden vorstellen", "sections": ["Kurzprofil in drei Zeilen und warum diese Person", "Verfügbarkeit, Gehaltswunsch und Lebenslauf im Anhang (ein Entwurf, nie automatisch gesendet)"] },
+    "interview_routine": { "title": "Vorbereitung und Nachbesprechung von Gesprächen", "sections": ["Kandidat und Ansprechpartner beim Kunden briefen", "Ergebnis innerhalb eines Tages festhalten"] },
+    "candidate_data": { "title": "Kandidatendaten: Grundlage, Information und Löschfristen", "sections": ["Aufbewahrung je Land und Datenschutzhinweis", "Einwilligung für den Talentpool und Datum der Prüfung"] },
+    "aftercare_routine": { "title": "Nachbetreuung von Tag 1 bis Tag 90", "sections": ["Nachfragen zum Start, nach einer Woche, nach 30, 60 und 90 Tagen", "Ende der Garantiezeit und Rechnung der Provision"] }
+  },
+  "rules": {
+    "chase_terms": { "title": "Unterschriebenen Vermittlungsvertrag drei Tage nach der Vertragsvereinbarung nachfassen" },
+    "request_client_feedback": { "title": "Zwei Tage nach der Vorstellung eines Kandidaten Feedback beim Kunden einholen" },
+    "prepare_interview": { "title": "Den Kandidaten am Tag vor dem Gespräch beim Kunden briefen" },
+    "debrief_interview": { "title": "Kandidat und Kunde am Tag des Gesprächs nachbesprechen" },
+    "chase_offer_decision": { "title": "Zwei Tage nach dem Angebot die Entscheidung des Kandidaten erfragen" },
+    "start_day_confirmation": { "title": "Den Start am ersten Tag der Vermittlung bestätigen" },
+    "check_in_week_1": { "title": "Eine Woche nach dem Start nachfragen" },
+    "check_in_day_30": { "title": "30 Tage nach dem Start nachfragen" },
+    "check_in_day_60": { "title": "60 Tage nach dem Start nachfragen" },
+    "check_in_day_90": { "title": "90 Tage nach dem Start nachfragen" },
+    "guarantee_check": { "title": "14 Tage vor Ende der Garantiezeit prüfen, ob die Stelle stabil ist und die Provision bezahlt wurde" },
+    "retention_review": { "title": "Am Löschdatum den Kandidaten löschen oder eine neue Einwilligung festhalten" },
+    "client_touch": { "title": "Aktiven Kunden zum nächsten Kontakttermin nach anstehenden Einstellungen fragen" },
+    "stalled_search_review": { "title": "Eine Suche prüfen, die länger als 10 Tage offen ist" },
+    "application_received": { "title": "Kandidat und Rückruf anlegen, wenn ein Bewerbungsformular abgeschickt wird" },
+    "feedback_overdue_notice": { "title": "Den Zuständigen benachrichtigen, wenn das Feedback des Kunden überfällig ist" },
+    "interview_calendar": { "title": "Das Gespräch in den Kalender des Zuständigen eintragen, sobald es vereinbart ist" }
+  },
+  "acceptanceChecks": {
+    "job_stage_field": "Jeder Auftrag hat eine von neun Phasen.",
+    "submission_stage_field": "Jeder Kandidat hat in einem Auftrag eine eigene Phase.",
+    "guarantee_end_field": "Jede Vermittlung hält fest, wann die Garantiezeit endet.",
+    "retain_until_field": "Jede Person hält fest, bis wann ihre Daten gespeichert werden.",
+    "jobs_board_view": "Die Aufträge öffnen sich als Board nach Phase.",
+    "candidate_data_page": "Die Wissensdatenbank enthält eine Seite zu Kandidatendaten und Löschfristen."
+  },
+  "prompt": {
+    "intro": "Richte in meinem Customermates-Workspace eine Personalvermittlung ein: Kunden mit ihren Konditionen, Aufträge mit neun Phasen und erwarteter Provision, einen Vorschlag je Kandidat und Auftrag, Vermittlungen mit Garantieende und Nachbetreuung sowie ein Löschdatum für jeden Kandidaten.",
+    "questions": [
+      "Arbeitest du erfolgsabhängig, retained oder beides, und welche Provision und Garantiezeit vereinbarst du üblicherweise?",
+      "Wie viele Aufträge und Kandidaten betreust du gleichzeitig, und wer verantwortet welche Phase?",
+      "Wie lange speicherst du Kandidatendaten, und in welchen Ländern suchst du?",
+      "Wo liegen unterschriebene Verträge und Rechnungen? Hier wird nur ein Link oder eine Referenz gespeichert."
+    ]
+  }
+}

@@ -216,7 +216,27 @@ describe("SubscriptionService.syncSubscription", () => {
       syncedSubscription({ status: "active", renews_at: "2026-07-01T00:00:00.000Z", variant_id: 2002 }),
     );
 
-    expect(result).toEqual({ companyId: "company-1", changedPlan: "pro" });
+    expect(result).toMatchObject({ companyId: "company-1", changedPlan: "pro", active: true, plan: "pro" });
+  });
+
+  it("reports the first activation only when the stored subscription was not active before", async () => {
+    const service = new SubscriptionService(makeRepo() as never);
+    const provider = syncedSubscription({ status: "active", renews_at: "2026-07-01T00:00:00.000Z", variant_id: 2002 });
+
+    const stored = (status?: "trial" | "active") => ({
+      companyId: "company-1",
+      plan: "pro" as const,
+      lemonSqueezyId: "sub-1",
+      status,
+    });
+
+    const afterTrial = await service.syncSubscription(stored("trial"), provider);
+    const renewal = await service.syncSubscription(stored("active"), provider);
+    const unknownBefore = await service.syncSubscription(stored(), provider);
+
+    expect(afterTrial?.becameActive).toBe(true);
+    expect(renewal?.becameActive).toBe(false);
+    expect(unknownBefore?.becameActive).toBe(false);
   });
 
   it("reports no plan change when the synced variant maps to the stored plan", async () => {
@@ -284,7 +304,7 @@ describe("SubscriptionService.syncSubscription", () => {
       currentPeriodEnd: new Date("2026-11-16T09:12:34.000Z"),
       checkoutStartedAt: null,
     });
-    expect(result).toEqual({ companyId: "company-1", changedPlan: "business" });
+    expect(result).toMatchObject({ companyId: "company-1", changedPlan: "business", active: true, plan: "business" });
   });
 
   it("settles a started checkout when the sync binds a subscription the workspace did not hold", async () => {

@@ -1,0 +1,248 @@
+{
+  "locale": "nl",
+  "name": "Sales pipeline",
+  "summary": "Zeven fasen met uitstapcriteria en weging, een volgende stap met datum bij elke open deal, redenen voor gewonnen en verloren en een fasewijziging die de volgende actie aanmaakt.",
+  "description": "Een pipeline voor een klein salesteam: vijf open fasen, Gewonnen en Verloren, een gewogen waarde per deal, het besluitvormingsteam bij de deal, een reden voor verlies en een reden voor winst, en de wekelijkse controle. De weging is een indicatie voor de pipeline, geen prognose: vervang haar door je eigen slagingspercentages na 20 tot 30 gesloten deals.",
+  "lists": {
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen aan de kant van de koper, met hun rol in de beslissing." },
+    "accounts": { "label": "Bedrijf", "pluralLabel": "Bedrijven", "description": "De bedrijven waaraan je verkoopt." },
+    "opportunities": { "label": "Deal", "pluralLabel": "Deals", "description": "Eén deal, van eerste contact tot gewonnen of verloren." }
+  },
+  "fields": {
+    "opportunities.stage": {
+      "label": "Fase",
+      "options": {
+        "new": "Nieuw",
+        "qualified": "Gekwalificeerd",
+        "discovery": "Kennismaking",
+        "proposal_sent": "Offerte verstuurd",
+        "negotiation": "Onderhandeling",
+        "won": "Gewonnen",
+        "lost": "Verloren"
+      }
+    },
+    "contacts.job_title": { "label": "Functie" },
+    "contacts.buying_role": {
+      "label": "Rol in de aankoop",
+      "options": {
+        "decision_maker": "Beslisser",
+        "budget_holder": "Budgethouder",
+        "champion": "Interne pleitbezorger",
+        "influencer": "Beïnvloeder",
+        "user": "Gebruiker",
+        "blocker": "Tegenstander"
+      }
+    },
+    "contacts.language": { "label": "Taal" },
+    "contacts.outreach_consent": { "label": "Toestemming voor commerciële benadering" },
+    "accounts.relationship": {
+      "label": "Relatie",
+      "options": { "prospect": "Prospect", "customer": "Klant", "former_customer": "Oud-klant", "partner": "Partner" }
+    },
+    "accounts.size": {
+      "label": "Grootte",
+      "options": { "micro": "1 tot 10", "small": "11 tot 50", "medium": "51 tot 250", "large": "251 en meer" }
+    },
+    "accounts.industry": { "label": "Branche" },
+    "accounts.website": { "label": "Website" },
+    "accounts.address": { "label": "Adres" },
+    "accounts.owner": { "label": "Eigenaar" },
+    "opportunities.owner": { "label": "Eigenaar" },
+    "opportunities.deal_type": {
+      "label": "Type deal",
+      "options": { "new_business": "Nieuwe klant", "expansion": "Uitbreiding", "renewal": "Verlenging" }
+    },
+    "opportunities.source": {
+      "label": "Herkomst",
+      "options": {
+        "referral": "Aanbeveling",
+        "inbound": "Inkomende aanvraag",
+        "outbound": "Eigen acquisitie",
+        "event": "Evenement",
+        "partner": "Partner",
+        "existing_customer": "Bestaande klant",
+        "other": "Overig"
+      }
+    },
+    "opportunities.first_contact_on": { "label": "Eerste contact" },
+    "opportunities.expected_close": { "label": "Verwachte afsluitdatum" },
+    "opportunities.closed_on": { "label": "Gesloten op" },
+    "opportunities.next_step": { "label": "Volgende stap" },
+    "opportunities.next_step_due": { "label": "Datum volgende stap" },
+    "opportunities.decision_date": { "label": "Beslisdatum" },
+    "opportunities.competitor": { "label": "Concurrent" },
+    "opportunities.lost_reason": {
+      "label": "Reden van verlies",
+      "options": {
+        "price": "Prijs",
+        "competitor": "Concurrent",
+        "no_budget_or_decision": "Geen budget of besluit",
+        "timing": "Timing",
+        "no_response": "Geen reactie",
+        "not_a_fit": "Past niet",
+        "other": "Overig"
+      }
+    },
+    "opportunities.won_reason": { "label": "Reden van winst" },
+    "opportunities.weighted_value": { "label": "Gewogen waarde" },
+    "opportunities.cycle_days": { "label": "Looptijd in dagen" },
+    "actions.kind": {
+      "label": "Soort",
+      "options": {
+        "call": "Telefoongesprek",
+        "email": "E-mail",
+        "meeting": "Afspraak",
+        "proposal": "Offerte",
+        "follow_up": "Opvolging",
+        "handover": "Overdracht",
+        "review": "Controle",
+        "other": "Overig"
+      }
+    }
+  },
+  "relationships": {
+    "contact_account": { "sourceLabel": "Bedrijf", "targetLabel": "Contactpersonen" },
+    "opportunity_account": { "sourceLabel": "Bedrijf", "targetLabel": "Deals" },
+    "opportunity_contacts": { "sourceLabel": "Besluitvormingsteam", "targetLabel": "Deals" },
+    "action_opportunity": { "sourceLabel": "Deal", "targetLabel": "Acties" },
+    "action_contact": { "sourceLabel": "Contactpersoon", "targetLabel": "Acties" }
+  },
+  "views": {
+    "pipeline_board": { "name": "Pipeline" },
+    "opportunities_all": { "name": "Alle deals" },
+    "no_next_step": { "name": "Zonder volgende stap" },
+    "won_handover": { "name": "Gewonnen, over te dragen" },
+    "lost_to_revisit": { "name": "Verloren, opnieuw te benaderen" },
+    "actions_all": { "name": "Alle acties" },
+    "accounts_all": { "name": "Alle bedrijven" },
+    "contacts_all": { "name": "Alle contactpersonen" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Open deals per fase" },
+    "open_value_by_stage": { "title": "Open waarde per fase" },
+    "weighted_value_by_stage": { "title": "Gewogen waarde per fase" },
+    "open_opportunities": { "title": "Open deals" },
+    "open_value": { "title": "Open waarde" },
+    "open_weighted_value": { "title": "Open gewogen waarde" },
+    "won_last_90_days": { "title": "Gewonnen in de laatste 90 dagen" },
+    "lost_reasons": { "title": "Redenen van verlies" },
+    "pipeline_by_owner": { "title": "Open waarde per eigenaar" },
+    "deals_without_next_step": { "title": "Deals zonder volgende stap" },
+    "upcoming_actions": { "title": "Aankomende en achterstallige acties" },
+    "expected_closes": { "title": "Verwachte afsluitdata" }
+  },
+  "knowledgePages": {
+    "stages_exit_criteria": {
+      "title": "Salesfasen en uitstapcriteria",
+      "sections": ["Instap- en uitstapcriterium per fase", "Wie een deal mag verplaatsen en op welk bewijs", "Wegingen en wanneer je ze vervangt"]
+    },
+    "qualification_questions": {
+      "title": "Kwalificatievragen",
+      "sections": ["Budget, bevoegdheid, behoefte en timing", "Wat er gebeurt als de prospect niets doet", "Wie er nog meer beslist"]
+    },
+    "proposal_cadence": {
+      "title": "Ritme van offertes en opvolging",
+      "sections": ["Opvolgen na 3 en na 10 dagen", "Eén afsluitend bericht", "Daarna een datum om terug te komen"]
+    },
+    "weekly_review": {
+      "title": "Wekelijkse pipelinecontrole",
+      "sections": ["Deals die stilstaan", "Deals voorbij hun verwachte afsluitdatum", "Deals zonder volgende stap", "De top vijf op gewogen waarde"]
+    },
+    "win_loss_review": {
+      "title": "Terugblik op winst en verlies",
+      "sections": ["Lees elke maand de redenen voor verlies en de concurrenten", "Lees de redenen voor winst", "Eén verbeteractie"]
+    },
+    "message_templates": {
+      "title": "Sjablonen voor opvolgberichten",
+      "sections": ["Eerste antwoord", "Na de kennismaking", "Begeleidend bericht bij de offerte", "Herinnering over de offerte", "Afsluiting: misschien is de timing niet goed", "Terugkomen na 90 dagen"]
+    }
+  },
+  "rules": {
+    "qualify_new_opportunity": {
+      "title": "Kwalificeer de nieuwe deal",
+      "description": "Een nieuwe deal krijgt een belactie met deadline de volgende dag."
+    },
+    "book_discovery_call": {
+      "title": "Plan de kennismaking in",
+      "description": "Wanneer een deal Gekwalificeerd wordt, staat over 3 dagen een afspraakactie klaar."
+    },
+    "send_proposal": {
+      "title": "Stuur de offerte",
+      "description": "Wanneer een deal Kennismaking bereikt, staat over 5 dagen een offerteactie klaar."
+    },
+    "follow_up_proposal": {
+      "title": "Volg de offerte op",
+      "description": "Drie dagen nadat de offerte is verstuurd, staat er een opvolgactie klaar."
+    },
+    "second_proposal_follow_up": {
+      "title": "Volg de offerte voor de tweede keer op",
+      "description": "Tien dagen nadat de offerte is verstuurd, staat een tweede opvolgactie klaar. Sluit die als de prospect al heeft gereageerd."
+    },
+    "confirm_decision": {
+      "title": "Bevestig de beslisdatum en de beslisser",
+      "description": "Wanneer een deal Onderhandeling bereikt, staat over 5 dagen een opvolgactie klaar."
+    },
+    "won_close_date": {
+      "title": "Stel de afsluitdatum in",
+      "description": "Wanneer een deal is gewonnen, krijgt Gesloten op de datum van vandaag."
+    },
+    "won_handover": {
+      "title": "Draag de gewonnen deal over",
+      "description": "De dag na winst staat een overdrachtsactie klaar. Noteer de reden van winst."
+    },
+    "lost_revisit": {
+      "title": "Benader de verloren deal opnieuw",
+      "description": "Negentig dagen na verlies vraagt een opvolgactie of de timing is veranderd. Noteer eerst de reden van verlies."
+    },
+    "stale_deal_sweep": {
+      "title": "Haal de stilstaande deal terug of kwalificeer hem af",
+      "description": "Een open deal die 14 dagen in dezelfde fase bleef, krijgt een opvolgactie."
+    },
+    "expected_close_passed": {
+      "title": "Werk de verwachte afsluitdatum bij of sluit de deal",
+      "description": "Wanneer de verwachte afsluitdatum van een open deal is verstreken, wordt een controleactie aangemaakt."
+    },
+    "next_step_due_notice": {
+      "title": "Informeer de eigenaar dat een volgende stap aan de beurt is",
+      "description": "Op de datum van de volgende stap van een open deal krijgt de eigenaar een melding."
+    },
+    "weekly_pipeline_report": {
+      "title": "Bekijk het wekelijkse pipelinerapport",
+      "description": "Elke vrijdag somt één controleactie aantallen en waarde per fase en eigenaar op, gewonnen en verloren deals met redenen en deals voorbij hun verwachte afsluitdatum."
+    },
+    "enquiry_form_records": {
+      "title": "Maak contactpersoon, bedrijf en deal aan uit een aanvraag",
+      "description": "Een webformulier voor aanvragen maakt de contactpersoon, het bedrijf en een deal in de fase Nieuw aan."
+    },
+    "enquiry_form_notice": {
+      "title": "Informeer de eigenaar over de aanvraag",
+      "description": "De eigenaar krijgt een melding van elke nieuwe aanvraag."
+    },
+    "fill_missing_value": {
+      "title": "Vul de waarde van deze deal in",
+      "description": "Een deal die Kennismaking bereikt zonder waarde, krijgt een controleactie."
+    },
+    "fill_expected_close": {
+      "title": "Vul de verwachte afsluitdatum van deze deal in",
+      "description": "Een deal die Offerte verstuurd bereikt zonder verwachte afsluitdatum, krijgt een controleactie."
+    }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Elke deal heeft een van de zeven fasen.",
+    "weighted_value_field": "Elke deal toont zijn gewogen waarde.",
+    "pipeline_board_view": "De dealslijst opent als bord per fase met totalen.",
+    "funnel_widget": "Het dashboard toont open deals per fase als trechter.",
+    "proposal_follow_up_rule": "Een deal die Offerte verstuurd bereikt, krijgt een opvolgactie.",
+    "stages_page": "De kennisbank bevat de fasen en hun uitstapcriteria."
+  },
+  "prompt": {
+    "intro": "Richt een sales pipeline in mijn Customermates-werkruimte in: deals met zeven fasen en wegingen, een gewogen waarde, een volgende stap met datum bij elke open deal, redenen voor verlies en winst, het besluitvormingsteam bij elke deal en een actie die bij elke fasewijziging wordt aangemaakt.",
+    "questions": [
+      "Wat verkoop je en hoeveel mensen verkopen het?",
+      "Welke stappen doorloopt een deal van eerste contact tot handtekening? Welke van de zeven fasen passen en welke hebben een andere naam nodig?",
+      "Hoe lang duurt een gemiddelde deal en na hoeveel dagen zonder beweging telt een deal als stilstaand?",
+      "Welke slagingspercentages heb je uit eerdere deals? Zonder cijfers blijven de standaardwegingen.",
+      "Waar maak je offertes? Die blijven daar en hier wordt alleen een link bewaard."
+    ]
+  }
+}

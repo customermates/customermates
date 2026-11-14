@@ -1,0 +1,92 @@
+{
+  "locale": "de",
+  "name": "Team-Aufgaben",
+  "summary": "Ein Arbeitstracker für ein kleines Team: Projekte, Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben und Anfragen von außen auf derselben Liste.",
+  "description": "Ein Team von zwei bis fünfzehn Personen auf einer Liste führen: Jede Aufgabe hat Status, Priorität, Verantwortlichen und Fälligkeitstermin, und Überfälliges oder Blockiertes sehen Sie auf einen Blick. Wiederkehrende Aufgaben erzeugen sich selbst, Anfragen von Kollegen oder Kunden kommen über ein Formular, und eine blockierte oder liegengebliebene Aufgabe erinnert ihren Verantwortlichen. Kein Sprint-Werkzeug, keine Gantt-Planung, keine Zeiterfassung und kein Personalsystem.",
+  "lists": {
+    "requesters": { "label": "Anfragender", "pluralLabel": "Anfragende", "description": "Die Personen außerhalb des Teams, die Arbeit anfragen." },
+    "projects": { "label": "Projekt", "pluralLabel": "Projekte", "description": "Ein Bündel von Aufgaben mit Verantwortlichem, Ampel und Termin." },
+    "tasks": { "label": "Aufgabe", "pluralLabel": "Aufgaben", "description": "Eine Arbeit mit einem Verantwortlichen und einem Termin." },
+    "recurring": { "label": "Wiederkehrende Aufgabe", "pluralLabel": "Wiederkehrende Aufgaben", "description": "Eine Aufgabe, die wöchentlich, monatlich, vierteljährlich oder jährlich wiederkommt." }
+  },
+  "fields": {
+    "requesters.relation": {
+      "label": "Beziehung",
+      "options": { "customer": "Kunde", "colleague": "Kollege", "partner": "Partner", "vendor": "Lieferant", "other": "Sonstige" }
+    },
+    "requesters.team": { "label": "Team" },
+    "projects.status": {
+      "label": "Status",
+      "options": { "planned": "Geplant", "active": "Aktiv", "on_hold": "Pausiert", "done": "Abgeschlossen", "cancelled": "Abgebrochen" }
+    },
+    "projects.health": { "label": "Ampel", "options": { "on_track": "Im Plan", "at_risk": "Gefährdet", "off_track": "Außer Plan" } },
+    "projects.owner": { "label": "Verantwortlich" },
+    "projects.due_date": { "label": "Fällig am" },
+    "projects.repo_url": { "label": "Link zum Repository" },
+    "tasks.status": {
+      "label": "Status",
+      "options": { "backlog": "Backlog", "todo": "Geplant", "in_progress": "In Arbeit", "in_review": "In Prüfung", "blocked": "Blockiert", "done": "Erledigt", "cancelled": "Abgebrochen" }
+    },
+    "tasks.kind": { "label": "Art", "options": { "task": "Aufgabe", "bug": "Fehler", "feature": "Funktion", "chore": "Routineaufgabe", "request": "Anfrage" } },
+    "tasks.priority": { "label": "Priorität", "options": { "urgent": "Dringend", "high": "Hoch", "medium": "Mittel", "low": "Niedrig" } },
+    "tasks.owner": { "label": "Verantwortlich" },
+    "tasks.due": { "label": "Fällig am" },
+    "tasks.original_due": { "label": "Ursprünglicher Termin" },
+    "tasks.done_on": { "label": "Erledigt am" },
+    "tasks.blocked_reason": { "label": "Blockiert wegen" },
+    "tasks.external_url": { "label": "Link (Pull Request oder Ticket)" },
+    "recurring.cadence": { "label": "Wiederholung", "options": { "weekly": "Wöchentlich", "monthly": "Monatlich", "quarterly": "Vierteljährlich", "yearly": "Jährlich" } },
+    "recurring.next_due": { "label": "Nächste Fälligkeit" },
+    "recurring.owner": { "label": "Verantwortlich" }
+  },
+  "relationships": {
+    "task_project": { "sourceLabel": "Projekt", "targetLabel": "Aufgaben" },
+    "task_requester": { "sourceLabel": "Anfragender", "targetLabel": "Aufgaben" },
+    "recurring_project": { "sourceLabel": "Projekt", "targetLabel": "Wiederkehrende Aufgaben" }
+  },
+  "views": {
+    "tasks_all": { "name": "Alle Aufgaben" },
+    "tasks_board": { "name": "Aufgaben-Board" },
+    "blocked_tasks": { "name": "Blockierte Aufgaben" },
+    "projects_all": { "name": "Alle Projekte" },
+    "recurring_all": { "name": "Alle wiederkehrenden Aufgaben" },
+    "requesters_all": { "name": "Alle Anfragenden" }
+  },
+  "widgets": {
+    "tasks_by_status": { "title": "Aufgaben nach Status" },
+    "open_by_priority": { "title": "Offene Aufgaben nach Priorität" },
+    "overdue_tasks": { "title": "Überfällige Aufgaben" },
+    "due_soon": { "title": "Bald fällige Aufgaben" },
+    "blocked_count": { "title": "Blockierte Aufgaben" },
+    "activity_timeline": { "title": "Letzte Aktivität" }
+  },
+  "knowledgePages": {
+    "how_we_work": { "title": "So arbeiten wir", "sections": ["Status, Prioritäten und was erledigt bedeutet", "Ein Verantwortlicher und ein Termin je Aufgabe"] },
+    "weekly_review": { "title": "Wochenrückblick", "sections": ["Überfälliges, Blockiertes und Unzugewiesenes", "Was sich diese Woche ändert"] },
+    "triage": { "title": "Einordnung von Anfragen und Fehlern", "sections": ["Wer entscheidet, was hereinkommt", "Schweregrad gegenüber Priorität"] }
+  },
+  "rules": {
+    "task_assigned": { "title": "Den neuen Verantwortlichen informieren, wenn eine Aufgabe zugewiesen wird" },
+    "due_tomorrow": { "title": "Den Verantwortlichen am Tag vor der Fälligkeit erinnern" },
+    "overdue_task": { "title": "Die Leitung am Tag nach der Fälligkeit informieren" },
+    "blocked_stale": { "title": "Die Leitung informieren, wenn eine Aufgabe 3 Tage blockiert bleibt" },
+    "stale_in_progress": { "title": "Den Verantwortlichen erinnern, wenn sich eine Aufgabe 5 Tage nicht bewegt hat" },
+    "recurring_due": { "title": "Eine Aufgabe anlegen, wenn eine wiederkehrende Aufgabe fällig wird" },
+    "task_from_git": { "title": "Eine Aufgabe anlegen, wenn der Git-Dienst ein Ereignis schickt" },
+    "request_form": { "title": "Aufgabe und Anfragenden anlegen, wenn das Anfrageformular abgeschickt wird" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Jede Aufgabe hat einen Status.",
+    "due_field": "Jede Aufgabe hat einen Fälligkeitstermin.",
+    "tasks_board_view": "Die Aufgaben öffnen sich als Board nach Status."
+  },
+  "prompt": {
+    "intro": "Richte in meinem Customermates-Workspace einen Team-Aufgabentracker ein: Projekte, Aufgaben mit einem Verantwortlichen und einem Termin, wiederkehrende Aufgaben, Anfragen von außerhalb des Teams und Erinnerungen für Überfälliges oder Blockiertes.",
+    "questions": [
+      "Wie viele Personen hat das Team, und woran arbeiten sie?",
+      "Welche Status nutzt du heute in Trello, Jira, Asana oder einer Tabelle?",
+      "Welche Aufgaben kommen jede Woche oder jeden Monat wieder, und wer ist zuständig?",
+      "Woher kommen Anfragen, und sollen sie über ein Formular eingehen?"
+    ]
+  }
+}

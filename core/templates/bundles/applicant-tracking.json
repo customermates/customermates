@@ -1,0 +1,3559 @@
+{
+  "spec": {
+    "id": "tpl_applicant_tracking",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "applicant-tracking",
+    "family": "recruiting",
+    "kind": "pipeline",
+    "jurisdictions": [
+      "DE",
+      "FR",
+      "IT",
+      "ES",
+      "BR",
+      "PL",
+      "NL"
+    ],
+    "dashboardAudience": "team",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "notifications"
+    ],
+    "pairedPages": {},
+    "modules": [
+      "actions_core",
+      "actions_dashboard"
+    ],
+    "lists": [
+      {
+        "key": "applicants",
+        "role": "people",
+        "icon": "userPlus"
+      },
+      {
+        "key": "jobs",
+        "icon": "briefcase"
+      },
+      {
+        "key": "applications",
+        "icon": "clipboard"
+      },
+      {
+        "key": "scorecards",
+        "icon": "star"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "applicants.source",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "careers_page"
+          },
+          {
+            "key": "job_board"
+          },
+          {
+            "key": "referral"
+          },
+          {
+            "key": "linkedin"
+          },
+          {
+            "key": "agency"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "applicants.location",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "applicants.salary_expectation",
+        "type": "currency",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "applicants.pool_consent",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "jobs.department",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "jobs.hiring_manager",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "jobs.pay_min",
+        "type": "currency",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "jobs.pay_max",
+        "type": "currency",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "jobs.apply_by",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "applications.interview_at",
+        "type": "dateTime",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "applications.offer_decision_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "applications.rejection_reason",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "skills"
+          },
+          {
+            "key": "experience"
+          },
+          {
+            "key": "salary_mismatch"
+          },
+          {
+            "key": "other_offer"
+          },
+          {
+            "key": "position_filled"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "applications.retain_until",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "scorecards.interviewer",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "scorecards.round",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "screening"
+          },
+          {
+            "key": "interview_1"
+          },
+          {
+            "key": "interview_2"
+          }
+        ]
+      },
+      {
+        "key": "scorecards.rating",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "scorecards.recommendation",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "strong_no",
+            "color": "destructive"
+          },
+          {
+            "key": "no",
+            "color": "warning"
+          },
+          {
+            "key": "yes",
+            "color": "info"
+          },
+          {
+            "key": "strong_yes",
+            "color": "success"
+          }
+        ]
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "acknowledge"
+          },
+          {
+            "key": "screen"
+          },
+          {
+            "key": "schedule_interview"
+          },
+          {
+            "key": "collect_scorecards"
+          },
+          {
+            "key": "chase_offer"
+          },
+          {
+            "key": "close_message"
+          },
+          {
+            "key": "retention_review"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "applications.stage",
+        "items": [
+          {
+            "key": "new",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "screening",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "interview_1",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "interview_2",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "reference_check",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "offer",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "hired",
+            "outcome": "won",
+            "weight": 0
+          },
+          {
+            "key": "rejected",
+            "outcome": "lost",
+            "weight": 0
+          },
+          {
+            "key": "withdrawn",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      },
+      {
+        "field": "jobs.status",
+        "items": [
+          {
+            "key": "draft",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "open",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "on_hold",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "filled",
+            "outcome": "won",
+            "weight": 0
+          },
+          {
+            "key": "cancelled",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [],
+    "relationships": [
+      {
+        "key": "application_applicant",
+        "source": "applications",
+        "target": "applicants",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "application_job",
+        "source": "applications",
+        "target": "jobs",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "scorecard_application",
+        "source": "scorecards",
+        "target": "applications",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_application",
+        "source": "actions",
+        "target": "applications",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "applications_all",
+        "list": "applications",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "applications.interview_at",
+          "direction": "asc"
+        },
+        "columns": [
+          "applications.stage",
+          "applications.interview_at",
+          "applications.offer_decision_due",
+          "applications.rejection_reason"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "applications_board",
+        "list": "applications",
+        "default": false,
+        "layout": "board",
+        "groupBy": "applications.stage",
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "jobs_all",
+        "list": "jobs",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "jobs.apply_by",
+          "direction": "asc"
+        },
+        "columns": [
+          "jobs.status",
+          "jobs.hiring_manager",
+          "jobs.apply_by",
+          "jobs.pay_min",
+          "jobs.pay_max"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "applicants_all",
+        "list": "applicants",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "applicants.source",
+          "applicants.location",
+          "applicants.pool_consent"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "scorecards_all",
+        "list": "scorecards",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "scorecards.interviewer",
+          "scorecards.round",
+          "scorecards.rating",
+          "scorecards.recommendation"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "chart",
+        "key": "applications_funnel",
+        "list": "applications",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "applications.stage"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "applications.stage",
+            "options": [
+              "new",
+              "screening",
+              "interview_1",
+              "interview_2",
+              "reference_check",
+              "offer",
+              "hired"
+            ]
+          }
+        ],
+        "display": "funnelChart"
+      },
+      {
+        "kind": "chart",
+        "key": "applicants_by_source",
+        "list": "applicants",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "applicants.source"
+        },
+        "filters": [],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "calendar",
+        "key": "interviews_coming",
+        "list": "applications",
+        "layout": "upcoming",
+        "dateField": "applications.interview_at",
+        "amountField": null,
+        "filters": []
+      },
+      {
+        "kind": "chart",
+        "key": "open_jobs",
+        "list": "jobs",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "jobs.status",
+            "options": [
+              "open"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "rejection_reasons",
+        "list": "applications",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "applications.rejection_reason"
+        },
+        "filters": [],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "calendar",
+        "key": "retention_coming",
+        "list": "applications",
+        "layout": "upcoming",
+        "dateField": "applications.retain_until",
+        "amountField": null,
+        "filters": []
+      },
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_actions",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "hiring_process",
+        "kind": "overview"
+      },
+      {
+        "key": "form_and_retention",
+        "kind": "processes"
+      },
+      {
+        "key": "candidate_messages",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "application_form_records",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "application"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "applicants",
+            "applications"
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "forms"
+      },
+      {
+        "key": "acknowledge_application",
+        "trigger": {
+          "kind": "record_created",
+          "list": "applications"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "acknowledge",
+          "assignee": "record_owner",
+          "about": "applications"
+        },
+        "dueOffsetDays": 2,
+        "needs": "rules"
+      },
+      {
+        "key": "collect_scorecards",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "applications.interview_at",
+          "offsetDays": 0
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "collect_scorecards",
+          "assignee": "record_owner",
+          "about": "applications"
+        },
+        "dueOffsetDays": 1,
+        "needs": "rules"
+      },
+      {
+        "key": "scorecard_reminder",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "applications.interview_at",
+          "offsetDays": 1
+        },
+        "condition": [],
+        "action": {
+          "kind": "notify",
+          "recipient": "record_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "chase_offer",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "applications.stage",
+          "to": "offer"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "chase_offer",
+          "assignee": "record_owner",
+          "about": "applications"
+        },
+        "dueOffsetDays": 5,
+        "needs": "rules"
+      },
+      {
+        "key": "rejection_retention",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "applications.stage",
+          "to": "rejected"
+        },
+        "condition": [],
+        "action": {
+          "kind": "set_dates",
+          "dates": [
+            {
+              "field": "applications.retain_until",
+              "offsetDays": 180
+            }
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules",
+        "variants": {
+          "PL": {
+            "action": {
+              "kind": "set_dates",
+              "dates": [
+                {
+                  "field": "applications.retain_until",
+                  "offsetDays": 30
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "key": "job_filled_close",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "jobs.status",
+          "to": "filled"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "close_message",
+          "assignee": "record_owner",
+          "about": "jobs"
+        },
+        "dueOffsetDays": 1,
+        "needs": "rules"
+      },
+      {
+        "key": "retention_review",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "applications.retain_until",
+          "offsetDays": 0
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "retention_review",
+          "assignee": "record_owner",
+          "about": "applications"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "stage_field",
+        "kind": "field_exists",
+        "ref": "applications.stage"
+      },
+      {
+        "key": "retain_until_field",
+        "kind": "field_exists",
+        "ref": "applications.retain_until"
+      },
+      {
+        "key": "applications_board_view",
+        "kind": "view_exists",
+        "ref": "applications_board"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://learn.g2.com/time-to-hire-metric",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.careerplug.com/blog/how-to-use-recruiting-metrics/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://resources.workable.com/tutorial/gdpr-compliance-guide-recruiting",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/employment/recruitment-and-selection/keeping-recruitment-records/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.cnil.fr/recrutement-et-donnees-personnelles-dans-les-tpepme-cinq-questions-incontournables-se-poser",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.dr-datenschutz.de/die-aufbewahrungsfristen-von-bewerberdaten/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.hrworks.de/lexikon/bewerbermanagement/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.involve.me/de/blog/online-bewerbungsformular-erstellen",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.smartsheet.com/content/applicant-tracking-templates",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.airtable.com/templates/professional/expksc99BziBsZRgR/applicant-tracking-system",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.hubspot.com/resources/templates/recruitment-tracking-spreadsheet",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://uodo.gov.pl/file/1469",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.jazzhr.com/insights/best-free-ats",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "status": {
+      "en": "draft",
+      "de": "draft",
+      "fr": "draft",
+      "it": "draft",
+      "es": "draft",
+      "pt": "draft",
+      "pl": "draft",
+      "nl": "draft"
+    },
+    "publicPage": {
+      "en": "own",
+      "de": "own",
+      "fr": "own",
+      "it": "none",
+      "es": "own",
+      "pt": "own",
+      "pl": "own",
+      "nl": "own"
+    },
+    "publishWave": {
+      "en": "wave2",
+      "de": "wave2",
+      "fr": "wave2",
+      "es": "wave2",
+      "pt": "wave2",
+      "pl": "wave2",
+      "nl": "wave2"
+    }
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Bewerbermanagement",
+      "summary": "Ein Bewerbertracker für kleine Unternehmen: Stellen, Bewerber, eine Bewerbung je Stelle durch neun Phasen, ein Interviewbogen je Interviewer und ein Löschtermin für Absagen.",
+      "description": "Das Recruiting an einem Ort steuern: Jede Stelle hat Status, Fachvorgesetzten und Gehaltsspanne; jede Bewerbung läuft vom Eingang bis zur Einstellung oder Absage, mit Gesprächstermin, Angebotsfrist und Absagegrund; jeder Interviewer legt einen Interviewbogen ab. Abgelehnte Bewerbungen erhalten ein Löschdatum, damit Sie sie rechtzeitig löschen oder eine Einwilligung einholen. Kein Stellenportal, kein CV-Parser, keine Testplattform, kein Werkzeug für Vertragsangebote oder elektronische Unterschriften und keine Rechtsauskunft zu Aufbewahrungsfristen.",
+      "lists": {
+        "actions": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "applicants": {
+          "label": "Bewerber",
+          "pluralLabel": "Bewerber",
+          "description": "Die Personen, die sich bewerben, mit Quelle und Einwilligung zum Talentpool."
+        },
+        "jobs": {
+          "label": "Stelle",
+          "pluralLabel": "Stellen",
+          "description": "Jede offene Position mit Fachvorgesetztem und Gehaltsspanne."
+        },
+        "applications": {
+          "label": "Bewerbung",
+          "pluralLabel": "Bewerbungen",
+          "description": "Ein Bewerber für eine Stelle, vom Eingang bis zur Einstellung oder Absage."
+        },
+        "scorecards": {
+          "label": "Interviewbogen",
+          "pluralLabel": "Interviewbögen",
+          "description": "Bewertung und Empfehlung eines Interviewers zu einer Bewerbung."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "applicants.source": {
+          "label": "Quelle",
+          "options": {
+            "careers_page": "Karriereseite",
+            "job_board": "Jobbörse",
+            "referral": "Empfehlung",
+            "linkedin": "LinkedIn",
+            "agency": "Agentur",
+            "other": "Sonstige"
+          }
+        },
+        "applicants.location": {
+          "label": "Wohnort",
+          "options": {}
+        },
+        "applicants.salary_expectation": {
+          "label": "Gehaltsvorstellung",
+          "options": {}
+        },
+        "applicants.pool_consent": {
+          "label": "Einwilligung Talentpool",
+          "options": {}
+        },
+        "jobs.status": {
+          "label": "Status",
+          "options": {
+            "draft": "Entwurf",
+            "open": "Offen",
+            "on_hold": "Pausiert",
+            "filled": "Besetzt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "jobs.department": {
+          "label": "Abteilung",
+          "options": {}
+        },
+        "jobs.hiring_manager": {
+          "label": "Fachvorgesetzter",
+          "options": {}
+        },
+        "jobs.pay_min": {
+          "label": "Gehalt ab",
+          "options": {}
+        },
+        "jobs.pay_max": {
+          "label": "Gehalt bis",
+          "options": {}
+        },
+        "jobs.apply_by": {
+          "label": "Bewerbung bis",
+          "options": {}
+        },
+        "applications.stage": {
+          "label": "Phase",
+          "options": {
+            "new": "Eingang",
+            "screening": "Vorauswahl",
+            "interview_1": "Erstgespräch",
+            "interview_2": "Zweitgespräch",
+            "reference_check": "Referenzprüfung",
+            "offer": "Angebot",
+            "hired": "Eingestellt",
+            "rejected": "Absage",
+            "withdrawn": "Zurückgezogen"
+          }
+        },
+        "applications.interview_at": {
+          "label": "Gespräch am",
+          "options": {}
+        },
+        "applications.offer_decision_due": {
+          "label": "Antwort auf Angebot bis",
+          "options": {}
+        },
+        "applications.rejection_reason": {
+          "label": "Absagegrund",
+          "options": {
+            "skills": "Qualifikation",
+            "experience": "Erfahrung",
+            "salary_mismatch": "Gehalt passt nicht",
+            "other_offer": "Hat ein anderes Angebot angenommen",
+            "position_filled": "Stelle besetzt",
+            "other": "Sonstiger"
+          }
+        },
+        "applications.retain_until": {
+          "label": "Löschen am",
+          "options": {}
+        },
+        "scorecards.interviewer": {
+          "label": "Interviewer",
+          "options": {}
+        },
+        "scorecards.round": {
+          "label": "Runde",
+          "options": {
+            "screening": "Vorauswahl",
+            "interview_1": "Erstgespräch",
+            "interview_2": "Zweitgespräch"
+          }
+        },
+        "scorecards.rating": {
+          "label": "Bewertung",
+          "options": {}
+        },
+        "scorecards.recommendation": {
+          "label": "Empfehlung",
+          "options": {
+            "strong_no": "Klar nein",
+            "no": "Nein",
+            "yes": "Ja",
+            "strong_yes": "Klar ja"
+          }
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "acknowledge": "Eingang bestätigen",
+            "screen": "Bewerbung vorauswählen",
+            "schedule_interview": "Gespräch terminieren",
+            "collect_scorecards": "Interviewbögen einsammeln",
+            "chase_offer": "Antwort auf Angebot nachfassen",
+            "close_message": "Absage schicken",
+            "retention_review": "Aufbewahrung prüfen",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "application_applicant": {
+          "sourceLabel": "Bewerber",
+          "targetLabel": "Bewerbungen"
+        },
+        "application_job": {
+          "sourceLabel": "Stelle",
+          "targetLabel": "Bewerbungen"
+        },
+        "scorecard_application": {
+          "sourceLabel": "Bewerbung",
+          "targetLabel": "Interviewbögen"
+        },
+        "action_application": {
+          "sourceLabel": "Bewerbung",
+          "targetLabel": "Aufgaben"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle Aufgaben"
+        },
+        "applications_all": {
+          "name": "Alle Bewerbungen"
+        },
+        "applications_board": {
+          "name": "Bewerbungs-Board"
+        },
+        "jobs_all": {
+          "name": "Alle Stellen"
+        },
+        "applicants_all": {
+          "name": "Alle Bewerber"
+        },
+        "scorecards_all": {
+          "name": "Alle Interviewbögen"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Anstehende Aufgaben"
+        },
+        "overdue_actions": {
+          "title": "Überfällige Aufgaben"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        },
+        "applications_funnel": {
+          "title": "Bewerbungen nach Phase"
+        },
+        "applicants_by_source": {
+          "title": "Bewerber nach Quelle"
+        },
+        "interviews_coming": {
+          "title": "Anstehende Gespräche"
+        },
+        "open_jobs": {
+          "title": "Offene Stellen"
+        },
+        "rejection_reasons": {
+          "title": "Absagegründe"
+        },
+        "retention_coming": {
+          "title": "Bald zu löschende oder zu erneuernde Bewerbungen"
+        }
+      },
+      "knowledgePages": {
+        "hiring_process": {
+          "title": "Ablauf der Einstellung und wer entscheidet",
+          "sections": [
+            "Phasen und Zuständigkeiten",
+            "Worauf wir bei Vorauswahl und Gesprächen achten"
+          ]
+        },
+        "form_and_retention": {
+          "title": "Bewerbungsformular und Aufbewahrung",
+          "sections": [
+            "Abgefragte Angaben und Datenschutzhinweis",
+            "Wie lange wir Absagen aufbewahren"
+          ]
+        },
+        "candidate_messages": {
+          "title": "Nachrichten an Bewerber",
+          "sections": [
+            "Eingangsbestätigung, Einladung, Angebot",
+            "Absage an jeden nicht berücksichtigten Bewerber"
+          ]
+        }
+      },
+      "rules": {
+        "application_form_records": {
+          "title": "Bewerber und Bewerbung anlegen, wenn das Bewerbungsformular abgeschickt wird",
+          "description": ""
+        },
+        "acknowledge_application": {
+          "title": "Eine neue Bewerbung innerhalb von 2 Tagen bestätigen",
+          "description": ""
+        },
+        "collect_scorecards": {
+          "title": "Am Gesprächstag die Interviewbögen einsammeln",
+          "description": ""
+        },
+        "scorecard_reminder": {
+          "title": "Den Zuständigen am Tag nach dem Gespräch erinnern",
+          "description": ""
+        },
+        "chase_offer": {
+          "title": "5 Tage nach einem Angebot nach der Entscheidung fragen",
+          "description": ""
+        },
+        "rejection_retention": {
+          "title": "Löschdatum auf 180 Tage setzen, wenn eine Bewerbung abgelehnt wird",
+          "description": "",
+          "variants": {
+            "PL": {
+              "title": "Löschdatum auf 30 Tage setzen, wenn eine Bewerbung abgelehnt wird (Polen: länger nur mit Einwilligung)",
+              "description": "Die polnische Datenschutzbehörde (UODO) erwartet, dass Bewerberdaten nach Abschluss des Verfahrens gelöscht werden, außer der Bewerber hat in künftige Verfahren eingewilligt. Das ist ein Standardwert: Setze die Frist deiner eigenen Aufbewahrungsrichtlinie und bei Einwilligung ein späteres Datum von Hand."
+            }
+          }
+        },
+        "job_filled_close": {
+          "title": "Den übrigen Bewerbern absagen, wenn eine Stelle besetzt ist",
+          "description": ""
+        },
+        "retention_review": {
+          "title": "Eine Bewerbung prüfen, wenn ihr Löschdatum erreicht ist",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Jede Bewerbung hat eine von neun Phasen.",
+        "retain_until_field": "Jede Bewerbung hält fest, wie lange sie aufbewahrt wird.",
+        "applications_board_view": "Die Bewerbungen öffnen sich als Board nach Phase."
+      },
+      "prompt": {
+        "intro": "Richte in meinem Customermates-Workspace ein Bewerbermanagement ein: Stellen mit Fachvorgesetztem und Gehaltsspanne, Bewerber, Bewerbungen durch neun Phasen, Interviewbögen, ein Löschdatum für Absagen und terminierte Folgeaufgaben.",
+        "questions": [
+          "Wie viele Stellen sind gleichzeitig offen, und wer stellt jeweils ein?",
+          "Woher kommen die Bewerber, und nutzt du ein Bewerbungsformular?",
+          "Wie lange bewahrst du Absagen auf, und führst du einen Talentpool mit Einwilligung?",
+          "Welche Gesprächsrunden gibt es, und wer legt einen Interviewbogen ab?"
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Applicant tracking",
+      "summary": "A hiring tracker for a small business: jobs, applicants, one application per job through nine stages, a scorecard per interviewer and a date to delete rejected applications.",
+      "description": "Run hiring from one place: each job has a status, a hiring manager and a pay range; each application moves from new to hired or rejected with its interview time, offer deadline and rejection reason; every interviewer files a scorecard. Rejected applications get a retention date so you remember to delete them or ask for consent. It is not a job board, a CV parser, an assessment platform, an offer-letter or e-signature tool, or a legal authority on retention periods.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "applicants": {
+          "label": "Applicant",
+          "pluralLabel": "Applicants",
+          "description": "The people who apply, with their source and talent pool consent."
+        },
+        "jobs": {
+          "label": "Job",
+          "pluralLabel": "Jobs",
+          "description": "Each open position with its hiring manager and pay range."
+        },
+        "applications": {
+          "label": "Application",
+          "pluralLabel": "Applications",
+          "description": "One applicant for one job, from received to hired or rejected."
+        },
+        "scorecards": {
+          "label": "Scorecard",
+          "pluralLabel": "Scorecards",
+          "description": "One interviewer's rating and recommendation for one application."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "applicants.source": {
+          "label": "Source",
+          "options": {
+            "careers_page": "Careers page",
+            "job_board": "Job board",
+            "referral": "Referral",
+            "linkedin": "LinkedIn",
+            "agency": "Agency",
+            "other": "Other"
+          }
+        },
+        "applicants.location": {
+          "label": "Location",
+          "options": {}
+        },
+        "applicants.salary_expectation": {
+          "label": "Salary expectation",
+          "options": {}
+        },
+        "applicants.pool_consent": {
+          "label": "Talent pool consent",
+          "options": {}
+        },
+        "jobs.status": {
+          "label": "Status",
+          "options": {
+            "draft": "Draft",
+            "open": "Open",
+            "on_hold": "On hold",
+            "filled": "Filled",
+            "cancelled": "Cancelled"
+          }
+        },
+        "jobs.department": {
+          "label": "Department",
+          "options": {}
+        },
+        "jobs.hiring_manager": {
+          "label": "Hiring manager",
+          "options": {}
+        },
+        "jobs.pay_min": {
+          "label": "Pay from",
+          "options": {}
+        },
+        "jobs.pay_max": {
+          "label": "Pay up to",
+          "options": {}
+        },
+        "jobs.apply_by": {
+          "label": "Apply by",
+          "options": {}
+        },
+        "applications.stage": {
+          "label": "Stage",
+          "options": {
+            "new": "New",
+            "screening": "Screening",
+            "interview_1": "First interview",
+            "interview_2": "Second interview",
+            "reference_check": "Reference check",
+            "offer": "Offer",
+            "hired": "Hired",
+            "rejected": "Rejected",
+            "withdrawn": "Withdrawn"
+          }
+        },
+        "applications.interview_at": {
+          "label": "Interview",
+          "options": {}
+        },
+        "applications.offer_decision_due": {
+          "label": "Offer decision due",
+          "options": {}
+        },
+        "applications.rejection_reason": {
+          "label": "Rejection reason",
+          "options": {
+            "skills": "Skills",
+            "experience": "Experience",
+            "salary_mismatch": "Salary mismatch",
+            "other_offer": "Took another offer",
+            "position_filled": "Position filled",
+            "other": "Other"
+          }
+        },
+        "applications.retain_until": {
+          "label": "Keep until",
+          "options": {}
+        },
+        "scorecards.interviewer": {
+          "label": "Interviewer",
+          "options": {}
+        },
+        "scorecards.round": {
+          "label": "Round",
+          "options": {
+            "screening": "Screening",
+            "interview_1": "First interview",
+            "interview_2": "Second interview"
+          }
+        },
+        "scorecards.rating": {
+          "label": "Rating",
+          "options": {}
+        },
+        "scorecards.recommendation": {
+          "label": "Recommendation",
+          "options": {
+            "strong_no": "Strong no",
+            "no": "No",
+            "yes": "Yes",
+            "strong_yes": "Strong yes"
+          }
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "acknowledge": "Acknowledge the application",
+            "screen": "Screen the application",
+            "schedule_interview": "Schedule an interview",
+            "collect_scorecards": "Collect the scorecards",
+            "chase_offer": "Chase the offer decision",
+            "close_message": "Send a closing message",
+            "retention_review": "Review retention",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "application_applicant": {
+          "sourceLabel": "Applicant",
+          "targetLabel": "Applications"
+        },
+        "application_job": {
+          "sourceLabel": "Job",
+          "targetLabel": "Applications"
+        },
+        "scorecard_application": {
+          "sourceLabel": "Application",
+          "targetLabel": "Scorecards"
+        },
+        "action_application": {
+          "sourceLabel": "Application",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "All actions"
+        },
+        "applications_all": {
+          "name": "All applications"
+        },
+        "applications_board": {
+          "name": "Hiring board"
+        },
+        "jobs_all": {
+          "name": "All jobs"
+        },
+        "applicants_all": {
+          "name": "All applicants"
+        },
+        "scorecards_all": {
+          "name": "All scorecards"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Upcoming actions"
+        },
+        "overdue_actions": {
+          "title": "Overdue actions"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        },
+        "applications_funnel": {
+          "title": "Applications by stage"
+        },
+        "applicants_by_source": {
+          "title": "Applicants by source"
+        },
+        "interviews_coming": {
+          "title": "Interviews coming up"
+        },
+        "open_jobs": {
+          "title": "Open jobs"
+        },
+        "rejection_reasons": {
+          "title": "Rejection reasons"
+        },
+        "retention_coming": {
+          "title": "Applications due for deletion or fresh consent"
+        }
+      },
+      "knowledgePages": {
+        "hiring_process": {
+          "title": "Hiring process and who decides",
+          "sections": [
+            "Stages and owners",
+            "What we look for in screening and interviews"
+          ]
+        },
+        "form_and_retention": {
+          "title": "Application form and data retention",
+          "sections": [
+            "Fields we ask for and the privacy notice",
+            "How long we keep rejected applications"
+          ]
+        },
+        "candidate_messages": {
+          "title": "Candidate messages",
+          "sections": [
+            "Acknowledgement, invitation, offer",
+            "Closing message for every unsuccessful applicant"
+          ]
+        }
+      },
+      "rules": {
+        "application_form_records": {
+          "title": "Create the applicant and the application when the application form is submitted",
+          "description": ""
+        },
+        "acknowledge_application": {
+          "title": "Acknowledge a new application within 2 days",
+          "description": ""
+        },
+        "collect_scorecards": {
+          "title": "Collect the scorecards on the day of an interview",
+          "description": ""
+        },
+        "scorecard_reminder": {
+          "title": "Remind the owner the day after an interview",
+          "description": ""
+        },
+        "chase_offer": {
+          "title": "Chase the decision 5 days after an offer",
+          "description": ""
+        },
+        "rejection_retention": {
+          "title": "Set the retention date to 180 days out when an application is rejected",
+          "description": "",
+          "variants": {
+            "PL": {
+              "title": "Set the retention date to 30 days out when an application is rejected (Poland: longer only with consent)",
+              "description": "Poland's data protection authority (UODO) expects candidate data to be deleted once the recruitment ends, unless the candidate consented to future recruitment. This is a default: set the period your own retention policy requires, and a later date by hand where there is consent."
+            }
+          }
+        },
+        "job_filled_close": {
+          "title": "Send a closing message to the other applicants when a job is filled",
+          "description": ""
+        },
+        "retention_review": {
+          "title": "Review an application when its retention date arrives",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Every application has one of nine stages.",
+        "retain_until_field": "Every application records how long it is kept.",
+        "applications_board_view": "The applications open as a board by stage."
+      },
+      "prompt": {
+        "intro": "Set up applicant tracking in my Customermates workspace: jobs with a hiring manager and pay range, applicants, applications through nine stages, interview scorecards, a retention date for rejected applications and dated follow-ups.",
+        "questions": [
+          "How many jobs are open at a time, and who hires for each?",
+          "Where do applicants come from, and do you use an application form?",
+          "How long do you keep rejected applications, and do you keep a talent pool with consent?",
+          "Which interview rounds do you run, and who files a scorecard?"
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "Seguimiento de candidaturas",
+      "summary": "Un seguimiento de selección para una pequeña empresa: vacantes, candidatos, una candidatura por vacante en nueve fases, una ficha de evaluación por entrevistador y una fecha para eliminar los descartes.",
+      "description": "Gestiona la selección en un solo lugar: cada vacante tiene un estado, un responsable y un rango salarial; cada candidatura avanza de recibida a incorporada o descartada, con la fecha de entrevista, el plazo de respuesta a la oferta y el motivo de descarte; cada entrevistador rellena una ficha de evaluación. Las candidaturas descartadas reciben una fecha de conservación para que te acuerdes de eliminarlas o de pedir consentimiento. No es un portal de empleo, un lector de currículos, una plataforma de pruebas, una herramienta de cartas de oferta y firma electrónica ni una autoridad legal sobre los plazos de conservación.",
+      "lists": {
+        "actions": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un siguiente paso con fecha por cada asunto abierto."
+        },
+        "applicants": {
+          "label": "Candidato",
+          "pluralLabel": "Candidatos",
+          "description": "Las personas que se presentan, con su origen y su consentimiento para futuros procesos."
+        },
+        "jobs": {
+          "label": "Vacante",
+          "pluralLabel": "Vacantes",
+          "description": "Cada puesto abierto con su responsable y su rango salarial."
+        },
+        "applications": {
+          "label": "Candidatura",
+          "pluralLabel": "Candidaturas",
+          "description": "Un candidato para una vacante, de recibida a incorporado o descartado."
+        },
+        "scorecards": {
+          "label": "Ficha de evaluación",
+          "pluralLabel": "Fichas de evaluación",
+          "description": "La puntuación y la recomendación de un entrevistador para una candidatura."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierta",
+            "waiting": "En espera",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "applicants.source": {
+          "label": "Origen",
+          "options": {
+            "careers_page": "Página de empleo",
+            "job_board": "Portal de empleo",
+            "referral": "Recomendación",
+            "linkedin": "LinkedIn",
+            "agency": "Agencia",
+            "other": "Otro"
+          }
+        },
+        "applicants.location": {
+          "label": "Localidad",
+          "options": {}
+        },
+        "applicants.salary_expectation": {
+          "label": "Pretensión salarial",
+          "options": {}
+        },
+        "applicants.pool_consent": {
+          "label": "Consentimiento para futuros procesos",
+          "options": {}
+        },
+        "jobs.status": {
+          "label": "Estado",
+          "options": {
+            "draft": "Borrador",
+            "open": "Abierta",
+            "on_hold": "En pausa",
+            "filled": "Cubierta",
+            "cancelled": "Cancelada"
+          }
+        },
+        "jobs.department": {
+          "label": "Departamento",
+          "options": {}
+        },
+        "jobs.hiring_manager": {
+          "label": "Responsable de la selección",
+          "options": {}
+        },
+        "jobs.pay_min": {
+          "label": "Salario desde",
+          "options": {}
+        },
+        "jobs.pay_max": {
+          "label": "Salario hasta",
+          "options": {}
+        },
+        "jobs.apply_by": {
+          "label": "Inscripción hasta",
+          "options": {}
+        },
+        "applications.stage": {
+          "label": "Fase",
+          "options": {
+            "new": "Recibida",
+            "screening": "Preselección",
+            "interview_1": "Entrevista inicial",
+            "interview_2": "Entrevista con responsable",
+            "reference_check": "Referencias",
+            "offer": "Oferta",
+            "hired": "Incorporado",
+            "rejected": "Descartado",
+            "withdrawn": "Retirado"
+          }
+        },
+        "applications.interview_at": {
+          "label": "Entrevista",
+          "options": {}
+        },
+        "applications.offer_decision_due": {
+          "label": "Respuesta a la oferta antes de",
+          "options": {}
+        },
+        "applications.rejection_reason": {
+          "label": "Motivo de descarte",
+          "options": {
+            "skills": "Competencias",
+            "experience": "Experiencia",
+            "salary_mismatch": "Salario no encaja",
+            "other_offer": "Aceptó otra oferta",
+            "position_filled": "Vacante cubierta",
+            "other": "Otro"
+          }
+        },
+        "applications.retain_until": {
+          "label": "Conservar hasta",
+          "options": {}
+        },
+        "scorecards.interviewer": {
+          "label": "Entrevistador",
+          "options": {}
+        },
+        "scorecards.round": {
+          "label": "Ronda",
+          "options": {
+            "screening": "Preselección",
+            "interview_1": "Entrevista inicial",
+            "interview_2": "Entrevista con responsable"
+          }
+        },
+        "scorecards.rating": {
+          "label": "Puntuación",
+          "options": {}
+        },
+        "scorecards.recommendation": {
+          "label": "Recomendación",
+          "options": {
+            "strong_no": "Claramente no",
+            "no": "No",
+            "yes": "Sí",
+            "strong_yes": "Claramente sí"
+          }
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "acknowledge": "Confirmar la recepción",
+            "screen": "Preseleccionar la candidatura",
+            "schedule_interview": "Programar una entrevista",
+            "collect_scorecards": "Recoger las fichas",
+            "chase_offer": "Reclamar la respuesta a la oferta",
+            "close_message": "Enviar un mensaje de cierre",
+            "retention_review": "Revisar la conservación",
+            "other": "Otro"
+          }
+        }
+      },
+      "relationships": {
+        "application_applicant": {
+          "sourceLabel": "Candidato",
+          "targetLabel": "Candidaturas"
+        },
+        "application_job": {
+          "sourceLabel": "Vacante",
+          "targetLabel": "Candidaturas"
+        },
+        "scorecard_application": {
+          "sourceLabel": "Candidatura",
+          "targetLabel": "Fichas de evaluación"
+        },
+        "action_application": {
+          "sourceLabel": "Candidatura",
+          "targetLabel": "Tareas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas las tareas"
+        },
+        "applications_all": {
+          "name": "Todas las candidaturas"
+        },
+        "applications_board": {
+          "name": "Tablero de selección"
+        },
+        "jobs_all": {
+          "name": "Todas las vacantes"
+        },
+        "applicants_all": {
+          "name": "Todos los candidatos"
+        },
+        "scorecards_all": {
+          "name": "Todas las fichas de evaluación"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tareas"
+        },
+        "overdue_actions": {
+          "title": "Tareas vencidas"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        },
+        "applications_funnel": {
+          "title": "Candidaturas por fase"
+        },
+        "applicants_by_source": {
+          "title": "Candidatos por origen"
+        },
+        "interviews_coming": {
+          "title": "Entrevistas próximas"
+        },
+        "open_jobs": {
+          "title": "Vacantes abiertas"
+        },
+        "rejection_reasons": {
+          "title": "Motivos de descarte"
+        },
+        "retention_coming": {
+          "title": "Candidaturas por eliminar o renovar pronto"
+        }
+      },
+      "knowledgePages": {
+        "hiring_process": {
+          "title": "Proceso de selección y quién decide",
+          "sections": [
+            "Fases y responsables",
+            "Qué buscamos en la preselección y en las entrevistas"
+          ]
+        },
+        "form_and_retention": {
+          "title": "Formulario de candidatura y conservación de datos",
+          "sections": [
+            "Datos que pedimos y aviso de privacidad",
+            "Cuánto tiempo conservamos las candidaturas descartadas"
+          ]
+        },
+        "candidate_messages": {
+          "title": "Mensajes a los candidatos",
+          "sections": [
+            "Confirmación, invitación, oferta",
+            "Mensaje de cierre para cada candidato no seleccionado"
+          ]
+        }
+      },
+      "rules": {
+        "application_form_records": {
+          "title": "Crear el candidato y la candidatura cuando se envía el formulario de candidatura",
+          "description": ""
+        },
+        "acknowledge_application": {
+          "title": "Confirmar una candidatura nueva en un plazo de 2 días",
+          "description": ""
+        },
+        "collect_scorecards": {
+          "title": "Recoger las fichas el día de la entrevista",
+          "description": ""
+        },
+        "scorecard_reminder": {
+          "title": "Recordar al responsable al día siguiente de una entrevista",
+          "description": ""
+        },
+        "chase_offer": {
+          "title": "Reclamar la respuesta 5 días después de una oferta",
+          "description": ""
+        },
+        "rejection_retention": {
+          "title": "Fijar la conservación a 180 días cuando se descarta una candidatura",
+          "description": "",
+          "variants": {
+            "PL": {
+              "title": "Fijar la conservación a 30 días cuando se descarta una candidatura (Polonia: más tiempo solo con consentimiento)",
+              "description": "La autoridad polaca de protección de datos (UODO) espera que los datos del candidato se supriman al terminar el proceso, salvo que haya consentido futuros procesos. Es un valor por defecto: fija el plazo de tu propia política de conservación y, si hay consentimiento, una fecha posterior a mano."
+            }
+          }
+        },
+        "job_filled_close": {
+          "title": "Escribir al resto de candidatos cuando se cubre una vacante",
+          "description": ""
+        },
+        "retention_review": {
+          "title": "Revisar una candidatura cuando llega su fecha de conservación",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada candidatura tiene una de las nueve fases.",
+        "retain_until_field": "Cada candidatura indica hasta cuándo se conserva.",
+        "applications_board_view": "Las candidaturas se abren como tablero por fase."
+      },
+      "prompt": {
+        "intro": "Configura en mi espacio de trabajo de Customermates un seguimiento de candidaturas: vacantes con responsable y rango salarial, candidatos, candidaturas en nueve fases, fichas de evaluación, una fecha de conservación para los descartes y seguimientos con fecha.",
+        "questions": [
+          "¿Cuántas vacantes tienes abiertas a la vez y quién selecciona para cada una?",
+          "¿De dónde vienen los candidatos y usas un formulario de candidatura?",
+          "¿Cuánto tiempo conservas las candidaturas descartadas y mantienes una bolsa de talento con consentimiento?",
+          "¿Qué rondas de entrevistas haces y quién rellena una ficha de evaluación?"
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "Suivi des candidatures",
+      "summary": "Un suivi de recrutement pour une petite entreprise : offres d’emploi, candidats, une candidature par offre en neuf étapes, une fiche d’entretien par recruteur et une date de suppression des candidatures refusées.",
+      "description": "Pilotez le recrutement au même endroit : chaque offre a un statut, un responsable du recrutement et une fourchette de salaire ; chaque candidature avance de reçue à embauchée ou refusée, avec la date d’entretien, le délai de réponse à la proposition et le motif de refus ; chaque recruteur remplit une fiche d’entretien. Les candidatures refusées reçoivent une date de conservation pour penser à les supprimer ou à demander un consentement. Ce n’est ni un job board, ni un analyseur de CV, ni une plateforme de tests, ni un outil de promesse d’embauche ou de signature électronique, ni un conseil juridique sur les durées de conservation.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Une prochaine étape datée par dossier ouvert."
+        },
+        "applicants": {
+          "label": "Candidat",
+          "pluralLabel": "Candidats",
+          "description": "Les personnes qui postulent, avec leur source et leur consentement au vivier."
+        },
+        "jobs": {
+          "label": "Offre d’emploi",
+          "pluralLabel": "Offres d’emploi",
+          "description": "Chaque poste ouvert avec son responsable du recrutement et sa fourchette de salaire."
+        },
+        "applications": {
+          "label": "Candidature",
+          "pluralLabel": "Candidatures",
+          "description": "Un candidat pour une offre, de reçue à embauché ou refusé."
+        },
+        "scorecards": {
+          "label": "Fiche d’entretien",
+          "pluralLabel": "Fiches d’entretien",
+          "description": "La note et la recommandation d’un recruteur pour une candidature."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "waiting": "En attente",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "applicants.source": {
+          "label": "Source",
+          "options": {
+            "careers_page": "Page carrières",
+            "job_board": "Site d’emploi",
+            "referral": "Cooptation",
+            "linkedin": "LinkedIn",
+            "agency": "Cabinet de recrutement",
+            "other": "Autre"
+          }
+        },
+        "applicants.location": {
+          "label": "Localisation",
+          "options": {}
+        },
+        "applicants.salary_expectation": {
+          "label": "Prétentions salariales",
+          "options": {}
+        },
+        "applicants.pool_consent": {
+          "label": "Consentement au vivier",
+          "options": {}
+        },
+        "jobs.status": {
+          "label": "Statut",
+          "options": {
+            "draft": "Brouillon",
+            "open": "Ouverte",
+            "on_hold": "En pause",
+            "filled": "Pourvue",
+            "cancelled": "Annulée"
+          }
+        },
+        "jobs.department": {
+          "label": "Service",
+          "options": {}
+        },
+        "jobs.hiring_manager": {
+          "label": "Responsable du recrutement",
+          "options": {}
+        },
+        "jobs.pay_min": {
+          "label": "Salaire à partir de",
+          "options": {}
+        },
+        "jobs.pay_max": {
+          "label": "Salaire jusqu’à",
+          "options": {}
+        },
+        "jobs.apply_by": {
+          "label": "Candidater avant le",
+          "options": {}
+        },
+        "applications.stage": {
+          "label": "Étape",
+          "options": {
+            "new": "Reçue",
+            "screening": "Présélection",
+            "interview_1": "Entretien RH",
+            "interview_2": "Entretien manager",
+            "reference_check": "Vérification des références",
+            "offer": "Proposition",
+            "hired": "Embauché",
+            "rejected": "Refusé",
+            "withdrawn": "Retiré"
+          }
+        },
+        "applications.interview_at": {
+          "label": "Entretien",
+          "options": {}
+        },
+        "applications.offer_decision_due": {
+          "label": "Réponse à la proposition avant le",
+          "options": {}
+        },
+        "applications.rejection_reason": {
+          "label": "Motif de refus",
+          "options": {
+            "skills": "Compétences",
+            "experience": "Expérience",
+            "salary_mismatch": "Prétentions salariales inadaptées",
+            "other_offer": "A accepté une autre offre",
+            "position_filled": "Poste pourvu",
+            "other": "Autre"
+          }
+        },
+        "applications.retain_until": {
+          "label": "Conserver jusqu’au",
+          "options": {}
+        },
+        "scorecards.interviewer": {
+          "label": "Recruteur",
+          "options": {}
+        },
+        "scorecards.round": {
+          "label": "Tour d’entretien",
+          "options": {
+            "screening": "Présélection",
+            "interview_1": "Entretien RH",
+            "interview_2": "Entretien manager"
+          }
+        },
+        "scorecards.rating": {
+          "label": "Note",
+          "options": {}
+        },
+        "scorecards.recommendation": {
+          "label": "Recommandation",
+          "options": {
+            "strong_no": "Très défavorable",
+            "no": "Défavorable",
+            "yes": "Favorable",
+            "strong_yes": "Très favorable"
+          }
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "acknowledge": "Accuser réception",
+            "screen": "Présélectionner la candidature",
+            "schedule_interview": "Planifier un entretien",
+            "collect_scorecards": "Recueillir les fiches d’entretien",
+            "chase_offer": "Relancer pour la réponse à la proposition",
+            "close_message": "Envoyer un message de clôture",
+            "retention_review": "Revoir la conservation",
+            "other": "Autre"
+          }
+        }
+      },
+      "relationships": {
+        "application_applicant": {
+          "sourceLabel": "Candidat",
+          "targetLabel": "Candidatures"
+        },
+        "application_job": {
+          "sourceLabel": "Offre d’emploi",
+          "targetLabel": "Candidatures"
+        },
+        "scorecard_application": {
+          "sourceLabel": "Candidature",
+          "targetLabel": "Fiches d’entretien"
+        },
+        "action_application": {
+          "sourceLabel": "Candidature",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "applications_all": {
+          "name": "Toutes les candidatures"
+        },
+        "applications_board": {
+          "name": "Board de recrutement"
+        },
+        "jobs_all": {
+          "name": "Toutes les offres"
+        },
+        "applicants_all": {
+          "name": "Tous les candidats"
+        },
+        "scorecards_all": {
+          "name": "Toutes les fiches d’entretien"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Actions à venir"
+        },
+        "overdue_actions": {
+          "title": "Actions en retard"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        },
+        "applications_funnel": {
+          "title": "Candidatures par étape"
+        },
+        "applicants_by_source": {
+          "title": "Candidats par source"
+        },
+        "interviews_coming": {
+          "title": "Entretiens à venir"
+        },
+        "open_jobs": {
+          "title": "Offres ouvertes"
+        },
+        "rejection_reasons": {
+          "title": "Motifs de refus"
+        },
+        "retention_coming": {
+          "title": "Candidatures à supprimer ou à renouveler bientôt"
+        }
+      },
+      "knowledgePages": {
+        "hiring_process": {
+          "title": "Processus de recrutement et qui décide",
+          "sections": [
+            "Étapes et responsables",
+            "Ce que nous cherchons en présélection et en entretien"
+          ]
+        },
+        "form_and_retention": {
+          "title": "Formulaire de candidature et conservation des données",
+          "sections": [
+            "Informations demandées et mention d’information",
+            "Durée de conservation des candidatures refusées"
+          ]
+        },
+        "candidate_messages": {
+          "title": "Messages aux candidats",
+          "sections": [
+            "Accusé de réception, convocation, proposition",
+            "Message de clôture pour chaque candidat non retenu"
+          ]
+        }
+      },
+      "rules": {
+        "application_form_records": {
+          "title": "Créer le candidat et la candidature quand le formulaire de candidature est envoyé",
+          "description": ""
+        },
+        "acknowledge_application": {
+          "title": "Accuser réception d’une nouvelle candidature sous 2 jours",
+          "description": ""
+        },
+        "collect_scorecards": {
+          "title": "Recueillir les fiches d’entretien le jour de l’entretien",
+          "description": ""
+        },
+        "scorecard_reminder": {
+          "title": "Relancer le responsable le lendemain d’un entretien",
+          "description": ""
+        },
+        "chase_offer": {
+          "title": "Relancer pour la réponse 5 jours après une proposition",
+          "description": ""
+        },
+        "rejection_retention": {
+          "title": "Fixer la date de conservation à 180 jours quand une candidature est refusée",
+          "description": "",
+          "variants": {
+            "PL": {
+              "title": "Fixer la date de conservation à 30 jours quand une candidature est refusée (Pologne : plus long seulement avec consentement)",
+              "description": "L’autorité polonaise de protection des données (UODO) attend que les données d’un candidat soient supprimées à la fin du recrutement, sauf si le candidat a consenti à de futurs recrutements. C’est une valeur par défaut : fixez le délai de votre propre politique de conservation et, en cas de consentement, une date plus tardive à la main."
+            }
+          }
+        },
+        "job_filled_close": {
+          "title": "Écrire aux autres candidats quand une offre est pourvue",
+          "description": ""
+        },
+        "retention_review": {
+          "title": "Revoir une candidature quand sa date de conservation arrive",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Chaque candidature a l’une des neuf étapes.",
+        "retain_until_field": "Chaque candidature indique jusqu’à quand elle est conservée.",
+        "applications_board_view": "Les candidatures s’ouvrent en board par étape."
+      },
+      "prompt": {
+        "intro": "Mets en place dans mon espace de travail Customermates un suivi des candidatures : offres d’emploi avec responsable et fourchette de salaire, candidats, candidatures en neuf étapes, fiches d’entretien, date de conservation des candidatures refusées et relances datées.",
+        "questions": [
+          "Combien d’offres sont ouvertes en même temps, et qui recrute pour chacune ?",
+          "D’où viennent les candidats, et utilisez-vous un formulaire de candidature ?",
+          "Combien de temps conservez-vous les candidatures refusées, et tenez-vous un vivier avec consentement ?",
+          "Quels tours d’entretien organisez-vous, et qui remplit une fiche d’entretien ?"
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "Gestione candidature",
+      "summary": "Un tracker per la selezione del personale in una piccola azienda: posizioni, candidati, una candidatura per posizione in nove fasi, una scheda di valutazione per ogni intervistatore e una data di cancellazione per le candidature scartate.",
+      "description": "Gestisci la selezione in un unico posto: ogni posizione ha uno stato, un responsabile e una fascia retributiva; ogni candidatura avanza da ricevuta ad assunto o scartato, con data del colloquio, scadenza dell'offerta e motivo dello scarto; ogni intervistatore compila una scheda di valutazione. Le candidature scartate ricevono una data di conservazione per ricordarti di cancellarle o di chiedere il consenso. Non è un job board, un parser di CV, una piattaforma di test, uno strumento per lettere d'offerta e firma elettronica né una consulenza legale sui tempi di conservazione.",
+      "lists": {
+        "actions": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un prossimo passo con data per ogni pratica aperta."
+        },
+        "applicants": {
+          "label": "Candidato",
+          "pluralLabel": "Candidati",
+          "description": "Le persone che si candidano, con la fonte e il consenso per future selezioni."
+        },
+        "jobs": {
+          "label": "Posizione",
+          "pluralLabel": "Posizioni",
+          "description": "Ogni posizione con il suo responsabile e la fascia retributiva."
+        },
+        "applications": {
+          "label": "Candidatura",
+          "pluralLabel": "Candidature",
+          "description": "Un candidato per una posizione, da ricevuta ad assunto o scartato."
+        },
+        "scorecards": {
+          "label": "Scheda di valutazione",
+          "pluralLabel": "Schede di valutazione",
+          "description": "Voto e raccomandazione di un intervistatore per una candidatura."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "waiting": "In attesa",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "applicants.source": {
+          "label": "Fonte",
+          "options": {
+            "careers_page": "Pagina «Lavora con noi»",
+            "job_board": "Portale di offerte di lavoro",
+            "referral": "Segnalazione",
+            "linkedin": "LinkedIn",
+            "agency": "Agenzia per il lavoro",
+            "other": "Altro"
+          }
+        },
+        "applicants.location": {
+          "label": "Località",
+          "options": {}
+        },
+        "applicants.salary_expectation": {
+          "label": "RAL desiderata",
+          "options": {}
+        },
+        "applicants.pool_consent": {
+          "label": "Consenso per future selezioni",
+          "options": {}
+        },
+        "jobs.status": {
+          "label": "Stato",
+          "options": {
+            "draft": "Bozza",
+            "open": "Aperta",
+            "on_hold": "In pausa",
+            "filled": "Coperta",
+            "cancelled": "Annullata"
+          }
+        },
+        "jobs.department": {
+          "label": "Reparto",
+          "options": {}
+        },
+        "jobs.hiring_manager": {
+          "label": "Responsabile della selezione",
+          "options": {}
+        },
+        "jobs.pay_min": {
+          "label": "Retribuzione da",
+          "options": {}
+        },
+        "jobs.pay_max": {
+          "label": "Retribuzione fino a",
+          "options": {}
+        },
+        "jobs.apply_by": {
+          "label": "Candidarsi entro",
+          "options": {}
+        },
+        "applications.stage": {
+          "label": "Fase",
+          "options": {
+            "new": "Ricevuta",
+            "screening": "Preselezione",
+            "interview_1": "Colloquio conoscitivo",
+            "interview_2": "Colloquio tecnico",
+            "reference_check": "Verifica delle referenze",
+            "offer": "Offerta",
+            "hired": "Assunto",
+            "rejected": "Scartato",
+            "withdrawn": "Ritirato"
+          }
+        },
+        "applications.interview_at": {
+          "label": "Colloquio",
+          "options": {}
+        },
+        "applications.offer_decision_due": {
+          "label": "Risposta all'offerta entro",
+          "options": {}
+        },
+        "applications.rejection_reason": {
+          "label": "Motivo dello scarto",
+          "options": {
+            "skills": "Competenze",
+            "experience": "Esperienza",
+            "salary_mismatch": "Aspettative retributive non allineate",
+            "other_offer": "Ha accettato un'altra offerta",
+            "position_filled": "Posizione coperta",
+            "other": "Altro"
+          }
+        },
+        "applications.retain_until": {
+          "label": "Conservare fino al",
+          "options": {}
+        },
+        "scorecards.interviewer": {
+          "label": "Intervistatore",
+          "options": {}
+        },
+        "scorecards.round": {
+          "label": "Tipo di colloquio",
+          "options": {
+            "screening": "Preselezione",
+            "interview_1": "Colloquio conoscitivo",
+            "interview_2": "Colloquio tecnico"
+          }
+        },
+        "scorecards.rating": {
+          "label": "Voto",
+          "options": {}
+        },
+        "scorecards.recommendation": {
+          "label": "Raccomandazione",
+          "options": {
+            "strong_no": "Decisamente no",
+            "no": "No",
+            "yes": "Sì",
+            "strong_yes": "Decisamente sì"
+          }
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "acknowledge": "Confermare la ricezione",
+            "screen": "Preselezionare la candidatura",
+            "schedule_interview": "Fissare un colloquio",
+            "collect_scorecards": "Raccogliere le schede",
+            "chase_offer": "Sollecitare la risposta all'offerta",
+            "close_message": "Inviare un messaggio di chiusura",
+            "retention_review": "Rivedere la conservazione",
+            "other": "Altro"
+          }
+        }
+      },
+      "relationships": {
+        "application_applicant": {
+          "sourceLabel": "Candidato",
+          "targetLabel": "Candidature"
+        },
+        "application_job": {
+          "sourceLabel": "Posizione",
+          "targetLabel": "Candidature"
+        },
+        "scorecard_application": {
+          "sourceLabel": "Candidatura",
+          "targetLabel": "Schede di valutazione"
+        },
+        "action_application": {
+          "sourceLabel": "Candidatura",
+          "targetLabel": "Attività"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Tutte le attività"
+        },
+        "applications_all": {
+          "name": "Tutte le candidature"
+        },
+        "applications_board": {
+          "name": "Board di selezione"
+        },
+        "jobs_all": {
+          "name": "Tutte le posizioni"
+        },
+        "applicants_all": {
+          "name": "Tutti i candidati"
+        },
+        "scorecards_all": {
+          "name": "Tutte le schede di valutazione"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Attività in arrivo"
+        },
+        "overdue_actions": {
+          "title": "Attività scadute"
+        },
+        "activity_timeline": {
+          "title": "Attività recenti"
+        },
+        "applications_funnel": {
+          "title": "Candidature per fase"
+        },
+        "applicants_by_source": {
+          "title": "Candidati per fonte"
+        },
+        "interviews_coming": {
+          "title": "Colloqui in arrivo"
+        },
+        "open_jobs": {
+          "title": "Posizioni aperte"
+        },
+        "rejection_reasons": {
+          "title": "Motivi di scarto"
+        },
+        "retention_coming": {
+          "title": "Candidature da cancellare o con consenso da rinnovare"
+        }
+      },
+      "knowledgePages": {
+        "hiring_process": {
+          "title": "Processo di selezione e chi decide",
+          "sections": [
+            "Fasi e responsabili",
+            "Che cosa cerchiamo in preselezione e nei colloqui"
+          ]
+        },
+        "form_and_retention": {
+          "title": "Modulo di candidatura e conservazione dei dati",
+          "sections": [
+            "Dati richiesti e informativa privacy",
+            "Per quanto tempo conserviamo le candidature scartate"
+          ]
+        },
+        "candidate_messages": {
+          "title": "Messaggi ai candidati",
+          "sections": [
+            "Conferma di ricezione, invito, offerta",
+            "Messaggio di chiusura per ogni candidato non selezionato"
+          ]
+        }
+      },
+      "rules": {
+        "application_form_records": {
+          "title": "Creare candidato e candidatura quando viene inviato il modulo di candidatura",
+          "description": ""
+        },
+        "acknowledge_application": {
+          "title": "Confermare una nuova candidatura entro 2 giorni",
+          "description": ""
+        },
+        "collect_scorecards": {
+          "title": "Raccogliere le schede il giorno del colloquio",
+          "description": ""
+        },
+        "scorecard_reminder": {
+          "title": "Ricordare al responsabile il giorno dopo il colloquio",
+          "description": ""
+        },
+        "chase_offer": {
+          "title": "Sollecitare la risposta 5 giorni dopo un'offerta",
+          "description": ""
+        },
+        "rejection_retention": {
+          "title": "Impostare la data di conservazione a 180 giorni quando una candidatura viene scartata",
+          "description": "",
+          "variants": {
+            "PL": {
+              "title": "Impostare la data di conservazione a 30 giorni quando una candidatura viene scartata (Polonia: più a lungo solo con consenso)",
+              "description": "L'autorità polacca per la protezione dei dati (UODO) si aspetta che i dati del candidato siano cancellati al termine della selezione, salvo consenso del candidato a selezioni future. È un valore predefinito: imposta il termine della tua politica di conservazione e, in caso di consenso, una data successiva a mano."
+            }
+          }
+        },
+        "job_filled_close": {
+          "title": "Scrivere agli altri candidati quando una posizione è coperta",
+          "description": ""
+        },
+        "retention_review": {
+          "title": "Rivedere una candidatura quando arriva la data di conservazione",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Ogni candidatura ha una delle nove fasi.",
+        "retain_until_field": "Ogni candidatura indica fino a quando viene conservata.",
+        "applications_board_view": "Le candidature si aprono come board per fase."
+      },
+      "prompt": {
+        "intro": "Imposta nel mio spazio di lavoro Customermates la gestione delle candidature: posizioni con responsabile e fascia retributiva, candidati, candidature in nove fasi, schede di valutazione, una data di conservazione per le candidature scartate e attività di follow-up con data.",
+        "questions": [
+          "Quante posizioni hai aperte contemporaneamente e chi seleziona per ciascuna?",
+          "Da dove arrivano i candidati e usi un modulo di candidatura?",
+          "Per quanto tempo conservi le candidature scartate e tieni un archivio di candidati (talent pool) con consenso?",
+          "Quali colloqui prevedi e chi compila una scheda di valutazione?"
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "Sollicitatiebeheer",
+      "summary": "Een wervingsoverzicht voor een klein bedrijf: vacatures, sollicitanten, één sollicitatie per vacature in negen fasen, een beoordelingsformulier per interviewer en een datum om afwijzingen te verwijderen.",
+      "description": "Beheer de werving op één plek: elke vacature heeft een status, een leidinggevende en een salarisrange; elke sollicitatie loopt van ontvangen tot aangenomen of afgewezen, met gesprekstijd, uiterste datum voor antwoord op het aanbod en reden van afwijzing; elke interviewer vult een beoordelingsformulier in. Afgewezen sollicitaties krijgen een bewaardatum zodat je ze op tijd verwijdert of om toestemming vraagt. Geen vacaturesite, geen cv-parser, geen testplatform, geen hulpmiddel voor aanbiedingsbrieven en e-handtekeningen en geen juridisch advies over bewaartermijnen.",
+      "lists": {
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén volgende stap met datum per open dossier."
+        },
+        "applicants": {
+          "label": "Sollicitant",
+          "pluralLabel": "Sollicitanten",
+          "description": "De mensen die solliciteren, met bron en toestemming voor de talentpool."
+        },
+        "jobs": {
+          "label": "Vacature",
+          "pluralLabel": "Vacatures",
+          "description": "Elke open functie met leidinggevende en salarisrange."
+        },
+        "applications": {
+          "label": "Sollicitatie",
+          "pluralLabel": "Sollicitaties",
+          "description": "Eén sollicitant voor één vacature, van ontvangen tot aangenomen of afgewezen."
+        },
+        "scorecards": {
+          "label": "Beoordelingsformulier",
+          "pluralLabel": "Beoordelingsformulieren",
+          "description": "De score en aanbeveling van één interviewer voor één sollicitatie."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "In de wacht",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "applicants.source": {
+          "label": "Bron",
+          "options": {
+            "careers_page": "Werken-bij-pagina",
+            "job_board": "Vacaturesite",
+            "referral": "Aanbeveling",
+            "linkedin": "LinkedIn",
+            "agency": "Bureau",
+            "other": "Overig"
+          }
+        },
+        "applicants.location": {
+          "label": "Woonplaats",
+          "options": {}
+        },
+        "applicants.salary_expectation": {
+          "label": "Salarisverwachting",
+          "options": {}
+        },
+        "applicants.pool_consent": {
+          "label": "Toestemming voor talentpool",
+          "options": {}
+        },
+        "jobs.status": {
+          "label": "Status",
+          "options": {
+            "draft": "Concept",
+            "open": "Open",
+            "on_hold": "On hold",
+            "filled": "Vervuld",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "jobs.department": {
+          "label": "Afdeling",
+          "options": {}
+        },
+        "jobs.hiring_manager": {
+          "label": "Leidinggevende",
+          "options": {}
+        },
+        "jobs.pay_min": {
+          "label": "Salaris vanaf",
+          "options": {}
+        },
+        "jobs.pay_max": {
+          "label": "Salaris tot",
+          "options": {}
+        },
+        "jobs.apply_by": {
+          "label": "Solliciteren tot",
+          "options": {}
+        },
+        "applications.stage": {
+          "label": "Fase",
+          "options": {
+            "new": "Ontvangen",
+            "screening": "Voorselectie",
+            "interview_1": "Eerste gesprek",
+            "interview_2": "Tweede gesprek",
+            "reference_check": "Referentiecheck",
+            "offer": "Aanbod",
+            "hired": "Aangenomen",
+            "rejected": "Afgewezen",
+            "withdrawn": "Ingetrokken"
+          }
+        },
+        "applications.interview_at": {
+          "label": "Gesprek",
+          "options": {}
+        },
+        "applications.offer_decision_due": {
+          "label": "Antwoord op aanbod voor",
+          "options": {}
+        },
+        "applications.rejection_reason": {
+          "label": "Reden van afwijzing",
+          "options": {
+            "skills": "Vaardigheden",
+            "experience": "Ervaring",
+            "salary_mismatch": "Salaris past niet",
+            "other_offer": "Ander aanbod aangenomen",
+            "position_filled": "Vacature vervuld",
+            "other": "Overig"
+          }
+        },
+        "applications.retain_until": {
+          "label": "Bewaren tot",
+          "options": {}
+        },
+        "scorecards.interviewer": {
+          "label": "Interviewer",
+          "options": {}
+        },
+        "scorecards.round": {
+          "label": "Ronde",
+          "options": {
+            "screening": "Voorselectie",
+            "interview_1": "Eerste gesprek",
+            "interview_2": "Tweede gesprek"
+          }
+        },
+        "scorecards.rating": {
+          "label": "Score",
+          "options": {}
+        },
+        "scorecards.recommendation": {
+          "label": "Aanbeveling",
+          "options": {
+            "strong_no": "Zeker niet",
+            "no": "Nee",
+            "yes": "Ja",
+            "strong_yes": "Zeker wel"
+          }
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "acknowledge": "Ontvangst bevestigen",
+            "screen": "Sollicitatie voorselecteren",
+            "schedule_interview": "Gesprek inplannen",
+            "collect_scorecards": "Beoordelingsformulieren verzamelen",
+            "chase_offer": "Antwoord op aanbod opvragen",
+            "close_message": "Afsluitend bericht sturen",
+            "retention_review": "Bewaartermijn nalopen",
+            "other": "Overig"
+          }
+        }
+      },
+      "relationships": {
+        "application_applicant": {
+          "sourceLabel": "Sollicitant",
+          "targetLabel": "Sollicitaties"
+        },
+        "application_job": {
+          "sourceLabel": "Vacature",
+          "targetLabel": "Sollicitaties"
+        },
+        "scorecard_application": {
+          "sourceLabel": "Sollicitatie",
+          "targetLabel": "Beoordelingsformulieren"
+        },
+        "action_application": {
+          "sourceLabel": "Sollicitatie",
+          "targetLabel": "Acties"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "applications_all": {
+          "name": "Alle sollicitaties"
+        },
+        "applications_board": {
+          "name": "Wervingsbord"
+        },
+        "jobs_all": {
+          "name": "Alle vacatures"
+        },
+        "applicants_all": {
+          "name": "Alle sollicitanten"
+        },
+        "scorecards_all": {
+          "name": "Alle beoordelingsformulieren"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Aankomende acties"
+        },
+        "overdue_actions": {
+          "title": "Achterstallige acties"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        },
+        "applications_funnel": {
+          "title": "Sollicitaties per fase"
+        },
+        "applicants_by_source": {
+          "title": "Sollicitanten per bron"
+        },
+        "interviews_coming": {
+          "title": "Komende gesprekken"
+        },
+        "open_jobs": {
+          "title": "Open vacatures"
+        },
+        "rejection_reasons": {
+          "title": "Redenen van afwijzing"
+        },
+        "retention_coming": {
+          "title": "Sollicitaties die binnenkort verwijderd of verlengd moeten worden"
+        }
+      },
+      "knowledgePages": {
+        "hiring_process": {
+          "title": "Wervingsproces en wie beslist",
+          "sections": [
+            "Fasen en eigenaren",
+            "Waar we op letten bij voorselectie en gesprekken"
+          ]
+        },
+        "form_and_retention": {
+          "title": "Sollicitatieformulier en bewaartermijn",
+          "sections": [
+            "Gevraagde gegevens en privacyverklaring",
+            "Hoe lang we afgewezen sollicitaties bewaren"
+          ]
+        },
+        "candidate_messages": {
+          "title": "Berichten aan kandidaten",
+          "sections": [
+            "Ontvangstbevestiging, uitnodiging, aanbod",
+            "Afsluitend bericht voor elke afgewezen kandidaat"
+          ]
+        }
+      },
+      "rules": {
+        "application_form_records": {
+          "title": "Maak een sollicitant en een sollicitatie aan zodra het sollicitatieformulier is ingediend",
+          "description": ""
+        },
+        "acknowledge_application": {
+          "title": "Bevestig een nieuwe sollicitatie binnen 2 dagen",
+          "description": ""
+        },
+        "collect_scorecards": {
+          "title": "Verzamel de beoordelingsformulieren op de dag van het gesprek",
+          "description": ""
+        },
+        "scorecard_reminder": {
+          "title": "Stuur de verantwoordelijke de dag na een gesprek een herinnering",
+          "description": ""
+        },
+        "chase_offer": {
+          "title": "Vraag 5 dagen na een aanbod naar het antwoord",
+          "description": ""
+        },
+        "rejection_retention": {
+          "title": "Zet de bewaardatum op 180 dagen als een sollicitatie wordt afgewezen",
+          "description": "",
+          "variants": {
+            "PL": {
+              "title": "Zet de bewaardatum op 30 dagen als een sollicitatie wordt afgewezen (Polen: langer alleen met toestemming)",
+              "description": "De Poolse toezichthouder (UODO) verwacht dat sollicitantgegevens worden verwijderd zodra de procedure is afgerond, tenzij de kandidaat toestemming gaf voor toekomstige procedures. Dit is een standaardwaarde: stel de termijn van je eigen bewaarbeleid in en bij toestemming handmatig een latere datum."
+            }
+          }
+        },
+        "job_filled_close": {
+          "title": "Stuur de overige kandidaten een afsluitend bericht als een vacature is vervuld",
+          "description": ""
+        },
+        "retention_review": {
+          "title": "Loop een sollicitatie na als de bewaardatum is bereikt",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Elke sollicitatie zit in een van de negen fasen.",
+        "retain_until_field": "Elke sollicitatie legt vast hoe lang ze wordt bewaard.",
+        "applications_board_view": "De sollicitaties openen als bord per fase."
+      },
+      "prompt": {
+        "intro": "Richt in mijn Customermates-werkruimte sollicitatiebeheer in: vacatures met leidinggevende en salarisrange, sollicitanten, sollicitaties in negen fasen, beoordelingsformulieren voor gesprekken, een bewaardatum voor afwijzingen en opvolging met datum.",
+        "questions": [
+          "Hoeveel vacatures staan er tegelijk open en wie neemt voor elke vacature aan?",
+          "Waar komen sollicitanten vandaan en gebruik je een sollicitatieformulier?",
+          "Hoe lang bewaar je afgewezen sollicitaties en houd je een talentpool bij met toestemming?",
+          "Welke gespreksrondes houd je en wie vult een beoordelingsformulier in?"
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Śledzenie kandydatów",
+      "summary": "Narzędzie rekrutacyjne dla małej firmy: oferty pracy, kandydaci, jedna aplikacja na ofertę w dziewięciu etapach, karta oceny każdej osoby prowadzącej rozmowę i data usunięcia odrzuconych aplikacji.",
+      "description": "Prowadź rekrutację w jednym miejscu: każda oferta ma status, przyszłego przełożonego i widełki wynagrodzenia; każda aplikacja przechodzi od otrzymanej do zatrudnionej lub odrzuconej, z terminem rozmowy, terminem odpowiedzi na ofertę i powodem odrzucenia; każda osoba prowadząca rozmowę wypełnia kartę oceny. Odrzucone aplikacje dostają datę przechowywania, żeby nie zapomnieć o ich usunięciu albo o uzyskaniu zgody. To nie jest portal z ogłoszeniami, parser CV, platforma do testów kompetencji, narzędzie do ofert zatrudnienia i podpisów elektronicznych ani doradca prawny w sprawie okresów przechowywania danych.",
+      "lists": {
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jeden następny krok z terminem dla każdej otwartej sprawy."
+        },
+        "applicants": {
+          "label": "Kandydat",
+          "pluralLabel": "Kandydaci",
+          "description": "Osoby, które aplikują, ze źródłem i zgodą na przyszłe rekrutacje."
+        },
+        "jobs": {
+          "label": "Oferta pracy",
+          "pluralLabel": "Oferty pracy",
+          "description": "Każde otwarte stanowisko z przyszłym przełożonym i widełkami wynagrodzenia."
+        },
+        "applications": {
+          "label": "Aplikacja",
+          "pluralLabel": "Aplikacje",
+          "description": "Jeden kandydat na jedną ofertę, od otrzymanej do zatrudnionej lub odrzuconej."
+        },
+        "scorecards": {
+          "label": "Karta oceny",
+          "pluralLabel": "Karty ocen",
+          "description": "Ocena i rekomendacja jednej osoby prowadzącej rozmowę dla jednej aplikacji."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarte",
+            "waiting": "Oczekuje",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "applicants.source": {
+          "label": "Źródło",
+          "options": {
+            "careers_page": "Strona kariery",
+            "job_board": "Portal z ogłoszeniami",
+            "referral": "Polecenie",
+            "linkedin": "LinkedIn",
+            "agency": "Agencja",
+            "other": "Inne"
+          }
+        },
+        "applicants.location": {
+          "label": "Miejscowość",
+          "options": {}
+        },
+        "applicants.salary_expectation": {
+          "label": "Oczekiwania finansowe",
+          "options": {}
+        },
+        "applicants.pool_consent": {
+          "label": "Zgoda na przyszłe rekrutacje",
+          "options": {}
+        },
+        "jobs.status": {
+          "label": "Status",
+          "options": {
+            "draft": "Szkic",
+            "open": "Otwarta",
+            "on_hold": "Wstrzymana",
+            "filled": "Obsadzona",
+            "cancelled": "Anulowana"
+          }
+        },
+        "jobs.department": {
+          "label": "Dział",
+          "options": {}
+        },
+        "jobs.hiring_manager": {
+          "label": "Przyszły przełożony",
+          "options": {}
+        },
+        "jobs.pay_min": {
+          "label": "Wynagrodzenie od",
+          "options": {}
+        },
+        "jobs.pay_max": {
+          "label": "Wynagrodzenie do",
+          "options": {}
+        },
+        "jobs.apply_by": {
+          "label": "Termin składania aplikacji",
+          "options": {}
+        },
+        "applications.stage": {
+          "label": "Etap",
+          "options": {
+            "new": "Otrzymana",
+            "screening": "Wstępna selekcja",
+            "interview_1": "Rozmowa wstępna",
+            "interview_2": "Rozmowa kwalifikacyjna",
+            "reference_check": "Weryfikacja referencji",
+            "offer": "Oferta",
+            "hired": "Zatrudniony",
+            "rejected": "Odrzucona",
+            "withdrawn": "Wycofana"
+          }
+        },
+        "applications.interview_at": {
+          "label": "Rozmowa",
+          "options": {}
+        },
+        "applications.offer_decision_due": {
+          "label": "Termin odpowiedzi na ofertę",
+          "options": {}
+        },
+        "applications.rejection_reason": {
+          "label": "Powód odrzucenia",
+          "options": {
+            "skills": "Umiejętności",
+            "experience": "Doświadczenie",
+            "salary_mismatch": "Rozbieżne oczekiwania finansowe",
+            "other_offer": "Przyjął inną ofertę",
+            "position_filled": "Stanowisko obsadzone",
+            "other": "Inny"
+          }
+        },
+        "applications.retain_until": {
+          "label": "Usuń do",
+          "options": {}
+        },
+        "scorecards.interviewer": {
+          "label": "Osoba prowadząca rozmowę",
+          "options": {}
+        },
+        "scorecards.round": {
+          "label": "Runda",
+          "options": {
+            "screening": "Wstępna selekcja",
+            "interview_1": "Rozmowa wstępna",
+            "interview_2": "Rozmowa kwalifikacyjna"
+          }
+        },
+        "scorecards.rating": {
+          "label": "Ocena",
+          "options": {}
+        },
+        "scorecards.recommendation": {
+          "label": "Rekomendacja",
+          "options": {
+            "strong_no": "Zdecydowanie nie",
+            "no": "Nie",
+            "yes": "Tak",
+            "strong_yes": "Zdecydowanie tak"
+          }
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "acknowledge": "Potwierdzić otrzymanie",
+            "screen": "Wstępnie ocenić aplikację",
+            "schedule_interview": "Umówić rozmowę",
+            "collect_scorecards": "Zebrać karty ocen",
+            "chase_offer": "Ponaglić odpowiedź na ofertę",
+            "close_message": "Wysłać wiadomość kończącą",
+            "retention_review": "Sprawdzić przechowywanie danych",
+            "other": "Inne"
+          }
+        }
+      },
+      "relationships": {
+        "application_applicant": {
+          "sourceLabel": "Kandydat",
+          "targetLabel": "Aplikacje"
+        },
+        "application_job": {
+          "sourceLabel": "Oferta pracy",
+          "targetLabel": "Aplikacje"
+        },
+        "scorecard_application": {
+          "sourceLabel": "Aplikacja",
+          "targetLabel": "Karty ocen"
+        },
+        "action_application": {
+          "sourceLabel": "Aplikacja",
+          "targetLabel": "Zadania"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "applications_all": {
+          "name": "Wszystkie aplikacje"
+        },
+        "applications_board": {
+          "name": "Tablica rekrutacji"
+        },
+        "jobs_all": {
+          "name": "Wszystkie oferty"
+        },
+        "applicants_all": {
+          "name": "Wszyscy kandydaci"
+        },
+        "scorecards_all": {
+          "name": "Wszystkie karty ocen"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Nadchodzące zadania"
+        },
+        "overdue_actions": {
+          "title": "Zaległe zadania"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        },
+        "applications_funnel": {
+          "title": "Aplikacje według etapu"
+        },
+        "applicants_by_source": {
+          "title": "Kandydaci według źródła"
+        },
+        "interviews_coming": {
+          "title": "Nadchodzące rozmowy"
+        },
+        "open_jobs": {
+          "title": "Otwarte oferty"
+        },
+        "rejection_reasons": {
+          "title": "Powody odrzucenia"
+        },
+        "retention_coming": {
+          "title": "Wkrótce do usunięcia lub odnowienia zgody"
+        }
+      },
+      "knowledgePages": {
+        "hiring_process": {
+          "title": "Proces rekrutacji i kto decyduje",
+          "sections": [
+            "Etapy i osoby odpowiedzialne",
+            "Czego szukamy na selekcji i w rozmowach"
+          ]
+        },
+        "form_and_retention": {
+          "title": "Formularz aplikacyjny i przechowywanie danych",
+          "sections": [
+            "Jakie dane zbieramy i klauzula informacyjna",
+            "Jak długo przechowujemy odrzucone aplikacje"
+          ]
+        },
+        "candidate_messages": {
+          "title": "Wiadomości do kandydatów",
+          "sections": [
+            "Potwierdzenie, zaproszenie, oferta",
+            "Wiadomość kończąca dla każdego niewybranego kandydata"
+          ]
+        }
+      },
+      "rules": {
+        "application_form_records": {
+          "title": "Utwórz kandydata i aplikację po wysłaniu formularza aplikacyjnego",
+          "description": ""
+        },
+        "acknowledge_application": {
+          "title": "Potwierdź otrzymanie nowej aplikacji w ciągu 2 dni",
+          "description": ""
+        },
+        "collect_scorecards": {
+          "title": "Zbierz karty ocen w dniu rozmowy",
+          "description": ""
+        },
+        "scorecard_reminder": {
+          "title": "Przypomnij osobie odpowiedzialnej dzień po rozmowie",
+          "description": ""
+        },
+        "chase_offer": {
+          "title": "Ponagl kandydata o odpowiedź 5 dni po złożeniu oferty",
+          "description": ""
+        },
+        "rejection_retention": {
+          "title": "Ustaw datę przechowywania na 180 dni po odrzuceniu aplikacji",
+          "description": "",
+          "variants": {
+            "PL": {
+              "title": "Ustaw datę przechowywania na 30 dni po odrzuceniu aplikacji (dłużej tylko za zgodą kandydata)",
+              "description": "Według poradnika UODO dane kandydata usuwa się po zakończeniu rekrutacji, chyba że kandydat zgodził się na udział w przyszłych rekrutacjach. To ustawienie domyślne: ustaw termin zgodny z polityką retencji firmy, a przy zgodzie kandydata późniejszą datę wpisz ręcznie."
+            }
+          }
+        },
+        "job_filled_close": {
+          "title": "Napisz do pozostałych kandydatów, gdy oferta zostanie obsadzona",
+          "description": ""
+        },
+        "retention_review": {
+          "title": "Sprawdź aplikację, gdy nadejdzie jej data przechowywania",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Każda aplikacja ma jeden z dziewięciu etapów.",
+        "retain_until_field": "Każda aplikacja zapisuje, jak długo jest przechowywana.",
+        "applications_board_view": "Aplikacje otwierają się jako tablica według etapu."
+      },
+      "prompt": {
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates śledzenie kandydatów: oferty pracy z przyszłym przełożonym i widełkami wynagrodzenia, kandydaci, aplikacje w dziewięciu etapach, karty ocen z rozmów, data przechowywania odrzuconych aplikacji i zaplanowane kolejne kroki.",
+        "questions": [
+          "Ile ofert jest otwartych jednocześnie i kto rekrutuje na każdą z nich?",
+          "Skąd przychodzą kandydaci i czy używasz formularza aplikacyjnego?",
+          "Jak długo przechowujesz odrzucone aplikacje i czy prowadzisz bazę talentów za zgodą?",
+          "Jakie rundy rozmów prowadzisz i kto wypełnia kartę oceny?"
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "Acompanhamento de candidaturas",
+      "summary": "Um acompanhamento de seleção para uma pequena empresa: vagas, candidatos, uma candidatura por vaga em nove etapas, uma avaliação por entrevistador e uma data para excluir os reprovados.",
+      "description": "Conduza a seleção em um só lugar: cada vaga tem status, gestor e faixa salarial; cada candidatura avança de recebida a admitido ou reprovado, com data da entrevista, prazo de resposta à proposta e motivo da reprovação; cada entrevistador preenche uma avaliação. As candidaturas reprovadas recebem uma data de guarda para você lembrar de excluí-las ou pedir consentimento. Não é um site de vagas, um leitor de currículos, uma plataforma de testes, uma ferramenta de carta-proposta e assinatura eletrônica nem uma autoridade jurídica sobre prazos de guarda.",
+      "lists": {
+        "actions": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um próximo passo com data para cada item em aberto."
+        },
+        "applicants": {
+          "label": "Candidato",
+          "pluralLabel": "Candidatos",
+          "description": "As pessoas que se candidatam, com a origem e o consentimento para o banco de talentos."
+        },
+        "jobs": {
+          "label": "Vaga",
+          "pluralLabel": "Vagas",
+          "description": "Cada vaga aberta com o gestor e a faixa salarial."
+        },
+        "applications": {
+          "label": "Candidatura",
+          "pluralLabel": "Candidaturas",
+          "description": "Um candidato para uma vaga, de recebida a admitido ou reprovado."
+        },
+        "scorecards": {
+          "label": "Avaliação",
+          "pluralLabel": "Avaliações",
+          "description": "A nota e a recomendação de um entrevistador para uma candidatura."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberta",
+            "waiting": "Aguardando",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "applicants.source": {
+          "label": "Origem",
+          "options": {
+            "careers_page": "Página de carreiras",
+            "job_board": "Site de vagas",
+            "referral": "Indicação",
+            "linkedin": "LinkedIn",
+            "agency": "Consultoria de RH",
+            "other": "Outra"
+          }
+        },
+        "applicants.location": {
+          "label": "Cidade",
+          "options": {}
+        },
+        "applicants.salary_expectation": {
+          "label": "Pretensão salarial",
+          "options": {}
+        },
+        "applicants.pool_consent": {
+          "label": "Consentimento para o banco de talentos",
+          "options": {}
+        },
+        "jobs.status": {
+          "label": "Status",
+          "options": {
+            "draft": "Rascunho",
+            "open": "Aberta",
+            "on_hold": "Pausada",
+            "filled": "Preenchida",
+            "cancelled": "Cancelada"
+          }
+        },
+        "jobs.department": {
+          "label": "Área",
+          "options": {}
+        },
+        "jobs.hiring_manager": {
+          "label": "Gestor da vaga",
+          "options": {}
+        },
+        "jobs.pay_min": {
+          "label": "Salário a partir de",
+          "options": {}
+        },
+        "jobs.pay_max": {
+          "label": "Salário até",
+          "options": {}
+        },
+        "jobs.apply_by": {
+          "label": "Inscrições até",
+          "options": {}
+        },
+        "applications.stage": {
+          "label": "Etapa",
+          "options": {
+            "new": "Recebida",
+            "screening": "Triagem",
+            "interview_1": "Entrevista com RH",
+            "interview_2": "Entrevista com gestor",
+            "reference_check": "Checagem de referências",
+            "offer": "Proposta",
+            "hired": "Admitido",
+            "rejected": "Reprovado",
+            "withdrawn": "Desistiu"
+          }
+        },
+        "applications.interview_at": {
+          "label": "Entrevista",
+          "options": {}
+        },
+        "applications.offer_decision_due": {
+          "label": "Resposta à proposta até",
+          "options": {}
+        },
+        "applications.rejection_reason": {
+          "label": "Motivo da reprovação",
+          "options": {
+            "skills": "Competências",
+            "experience": "Experiência",
+            "salary_mismatch": "Salário incompatível",
+            "other_offer": "Aceitou outra proposta",
+            "position_filled": "Vaga preenchida",
+            "other": "Outro"
+          }
+        },
+        "applications.retain_until": {
+          "label": "Manter até",
+          "options": {}
+        },
+        "scorecards.interviewer": {
+          "label": "Entrevistador",
+          "options": {}
+        },
+        "scorecards.round": {
+          "label": "Rodada",
+          "options": {
+            "screening": "Triagem",
+            "interview_1": "Entrevista com RH",
+            "interview_2": "Entrevista com gestor"
+          }
+        },
+        "scorecards.rating": {
+          "label": "Nota",
+          "options": {}
+        },
+        "scorecards.recommendation": {
+          "label": "Recomendação",
+          "options": {
+            "strong_no": "Com certeza não",
+            "no": "Não",
+            "yes": "Sim",
+            "strong_yes": "Com certeza sim"
+          }
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "acknowledge": "Confirmar o recebimento",
+            "screen": "Fazer a triagem da candidatura",
+            "schedule_interview": "Agendar uma entrevista",
+            "collect_scorecards": "Coletar as avaliações",
+            "chase_offer": "Cobrar a resposta à proposta",
+            "close_message": "Enviar uma mensagem de encerramento",
+            "retention_review": "Revisar a guarda dos dados",
+            "other": "Outro"
+          }
+        }
+      },
+      "relationships": {
+        "application_applicant": {
+          "sourceLabel": "Candidato",
+          "targetLabel": "Candidaturas"
+        },
+        "application_job": {
+          "sourceLabel": "Vaga",
+          "targetLabel": "Candidaturas"
+        },
+        "scorecard_application": {
+          "sourceLabel": "Candidatura",
+          "targetLabel": "Avaliações"
+        },
+        "action_application": {
+          "sourceLabel": "Candidatura",
+          "targetLabel": "Tarefas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas as tarefas"
+        },
+        "applications_all": {
+          "name": "Todas as candidaturas"
+        },
+        "applications_board": {
+          "name": "Quadro de seleção"
+        },
+        "jobs_all": {
+          "name": "Todas as vagas"
+        },
+        "applicants_all": {
+          "name": "Todos os candidatos"
+        },
+        "scorecards_all": {
+          "name": "Todas as avaliações"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tarefas"
+        },
+        "overdue_actions": {
+          "title": "Tarefas atrasadas"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        },
+        "applications_funnel": {
+          "title": "Candidaturas por etapa"
+        },
+        "applicants_by_source": {
+          "title": "Candidatos por origem"
+        },
+        "interviews_coming": {
+          "title": "Entrevistas próximas"
+        },
+        "open_jobs": {
+          "title": "Vagas abertas"
+        },
+        "rejection_reasons": {
+          "title": "Motivos de reprovação"
+        },
+        "retention_coming": {
+          "title": "Candidaturas para excluir ou renovar em breve"
+        }
+      },
+      "knowledgePages": {
+        "hiring_process": {
+          "title": "Processo seletivo e quem decide",
+          "sections": [
+            "Etapas e responsáveis",
+            "O que buscamos na triagem e nas entrevistas"
+          ]
+        },
+        "form_and_retention": {
+          "title": "Formulário de candidatura e guarda dos dados",
+          "sections": [
+            "Dados que pedimos e aviso de privacidade",
+            "Por quanto tempo guardamos candidaturas reprovadas"
+          ]
+        },
+        "candidate_messages": {
+          "title": "Mensagens aos candidatos",
+          "sections": [
+            "Confirmação, convite, proposta",
+            "Mensagem de encerramento para cada candidato não selecionado"
+          ]
+        }
+      },
+      "rules": {
+        "application_form_records": {
+          "title": "Criar o candidato e a candidatura quando o formulário de candidatura for enviado",
+          "description": ""
+        },
+        "acknowledge_application": {
+          "title": "Confirmar uma nova candidatura em até 2 dias",
+          "description": ""
+        },
+        "collect_scorecards": {
+          "title": "Coletar as avaliações no dia da entrevista",
+          "description": ""
+        },
+        "scorecard_reminder": {
+          "title": "Lembrar o responsável no dia seguinte à entrevista",
+          "description": ""
+        },
+        "chase_offer": {
+          "title": "Cobrar a resposta 5 dias depois de uma proposta",
+          "description": ""
+        },
+        "rejection_retention": {
+          "title": "Definir a guarda em 180 dias quando uma candidatura é reprovada",
+          "description": "",
+          "variants": {
+            "PL": {
+              "title": "Definir a guarda em 30 dias quando uma candidatura é reprovada (Polônia: mais tempo só com consentimento)",
+              "description": "A autoridade polonesa de proteção de dados (UODO) espera que os dados do candidato sejam excluídos ao fim do processo, salvo consentimento para processos futuros. É um valor padrão: defina o prazo da sua própria política de retenção e, havendo consentimento, uma data posterior à mão."
+            }
+          }
+        },
+        "job_filled_close": {
+          "title": "Escrever aos demais candidatos quando uma vaga é preenchida",
+          "description": ""
+        },
+        "retention_review": {
+          "title": "Revisar uma candidatura quando chegar a data de guarda",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Toda candidatura está em uma das nove etapas.",
+        "retain_until_field": "Toda candidatura registra até quando é mantida.",
+        "applications_board_view": "As candidaturas abrem como quadro por etapa."
+      },
+      "prompt": {
+        "intro": "Configure no meu espaço de trabalho do Customermates um acompanhamento de candidaturas: vagas com gestor e faixa salarial, candidatos, candidaturas em nove etapas, avaliações de entrevista, uma data de guarda para os reprovados e acompanhamentos com data.",
+        "questions": [
+          "Quantas vagas ficam abertas ao mesmo tempo e quem contrata para cada uma?",
+          "De onde vêm os candidatos e você usa um formulário de candidatura?",
+          "Por quanto tempo você guarda candidaturas reprovadas e mantém um banco de talentos com consentimento?",
+          "Quais rodadas de entrevista você faz e quem preenche uma avaliação?"
+        ]
+      }
+    }
+  }
+}

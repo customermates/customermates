@@ -60,6 +60,8 @@ import { TimelineDetailModalStore } from "@/features/messaging/activities/activi
 import { RecordWorkspaceStore } from "./record-workspace.store";
 import { WikiPageStore } from "@/app/[locale]/(protected)/w/[workspace]/wiki/components/wiki-page.store";
 import { CreateWorkspaceModalStore } from "@/app/components/workspaces/create-workspace-modal.store";
+import { ScheduleMeetingModalStore } from "@/app/components/schedule-meeting/schedule-meeting-modal.store";
+import { BookingLinkModalStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(account)/components/booking-link-modal.store";
 import { WorkspacesStore } from "@/app/components/workspaces/workspaces.store";
 
 import { AgentChatStore } from "@/app/components/agent-chat/agent-chat.store";
@@ -119,6 +121,8 @@ export class RootStore {
 
   private _companyInviteModalStore?: CompanyInviteModalStore;
   private _createWorkspaceModalStore?: CreateWorkspaceModalStore;
+  private _scheduleMeetingModalStore?: ScheduleMeetingModalStore;
+  private _bookingLinkModalStore?: BookingLinkModalStore;
   private _createApiKeyModalStore?: ApiKeyModalStore;
   private _deleteConfirmationModalStore?: DeleteConfirmationModalStore;
   private _globalSearchModalStore?: GlobalSearchModalStore;
@@ -207,6 +211,14 @@ export class RootStore {
 
   get createWorkspaceModalStore() {
     return (this._createWorkspaceModalStore ??= new CreateWorkspaceModalStore(this));
+  }
+
+  get scheduleMeetingModalStore() {
+    return (this._scheduleMeetingModalStore ??= new ScheduleMeetingModalStore(this));
+  }
+
+  get bookingLinkModalStore() {
+    return (this._bookingLinkModalStore ??= new BookingLinkModalStore(this));
   }
 
   get workspaceGeneralStore() {

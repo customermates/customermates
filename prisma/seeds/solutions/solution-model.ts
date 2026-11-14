@@ -10,6 +10,7 @@ import {
   type RecordType,
 } from "@/features/records/record-model.schema";
 import { validateRecordModel } from "@/features/records/record-model-validation";
+import { labelRelationshipPaths } from "@/features/records/relationship-path-labels";
 import { createWorkspaceRecordPreset } from "@/features/records/workspace-record-preset";
 import de from "@/i18n/locales/de.json";
 import en from "@/i18n/locales/en.json";
@@ -276,6 +277,11 @@ export function buildSolutionModel(
     relation.sourceLabel = relation.sourceCardinality === "one" ? target.singular : target.plural;
     relation.targetLabel = relation.targetCardinality === "one" ? source.singular : source.plural;
   }
+  labelRelationshipPaths({ types, relationships }, (typeId) => {
+    const label = labels.get(typeId);
+    if (!label) throw new Error(`Relationship path ends at a removed list ${typeId}`);
+    return label.plural;
+  });
 
   const model = RecordModelSchema.parse({
     ...preset,

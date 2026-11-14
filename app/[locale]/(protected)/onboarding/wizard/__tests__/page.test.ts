@@ -7,6 +7,16 @@ const mocks = vi.hoisted(() => ({
   getProgress: vi.fn(),
   listWorkspaces: vi.fn(),
   getJobChoice: vi.fn(),
+  getTemplateChoice: vi.fn(),
+  offeredTemplateCards: vi.fn(),
+  preselectOnboardingTemplate: vi.fn(),
+  env: { APP_MODE: "cloud" as "cloud" | "self-hosted" | "demo" },
+}));
+
+vi.mock("@/env", () => ({ env: mocks.env }));
+vi.mock("@/features/onboarding-templates/onboarding-template-offer", () => ({
+  offeredTemplateCards: mocks.offeredTemplateCards,
+  preselectOnboardingTemplate: mocks.preselectOnboardingTemplate,
 }));
 
 vi.mock("next/navigation", () => ({
@@ -25,6 +35,7 @@ vi.mock("@/core/di", () => ({
   getGetWorkspaceSetupStatusInteractor: () => ({ invoke: mocks.getSetupStatus }),
   getListMyWorkspacesInteractor: () => ({ invoke: mocks.listWorkspaces }),
   getGetOnboardingJobChoiceInteractor: () => ({ invoke: mocks.getJobChoice }),
+  getGetOnboardingTemplateChoiceInteractor: () => ({ invoke: mocks.getTemplateChoice }),
 }));
 vi.mock("@/features/company/next/onboarding-intent", () => ({
   resolveOnboardingIntent: mocks.resolveOnboardingIntent,
@@ -47,6 +58,13 @@ describe("OnboardingWizardPage authentication detours", () => {
       ok: true,
       data: { selectedJob: null, signupJob: "agent", preselectedJob: "agent" },
     });
+    mocks.env.APP_MODE = "cloud";
+    mocks.getTemplateChoice.mockResolvedValue({
+      ok: true,
+      data: { signupTemplate: null, signupLandingPath: null },
+    });
+    mocks.offeredTemplateCards.mockReturnValue([]);
+    mocks.preselectOnboardingTemplate.mockReturnValue({ slug: null, reason: null });
   });
 
   it("passes the saved AI setup and owner identity to a fresh wizard render", async () => {
@@ -186,13 +204,111 @@ describe("OnboardingWizardPage authentication detours", () => {
     });
   });
 
-  it("does not ask what to do first once the setup step is completed", async () => {
+  it("still reads the owner's choice once the setup step is completed, so a reload resumes the same flow", async () => {
     registeredOwner(new Date("2026-01-01T00:00:00.000Z"));
 
     const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
 
-    expect(page.props.children.props.jobChoice).toBeUndefined();
+    expect(page.props.children.props.jobChoice).toMatchObject({ signupJob: "agent" });
+    expect(mocks.getJobChoice).toHaveBeenCalledOnce();
+  });
+
+  it("reads no choice for an invited member and in the demo", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({
+      sessionUser: { id: "user-a", email: "member@example.com", companyId: "company-a" },
+      user: { companyId: "company-a", role: { isSystemRole: false }, onboardingWikiStepCompletedAt: null },
+    });
+    const invited = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+    expect(invited.props.children.props).toMatchObject({ templates: [] });
     expect(mocks.getJobChoice).not.toHaveBeenCalled();
+    expect(mocks.offeredTemplateCards).not.toHaveBeenCalled();
+
+    mocks.env.APP_MODE = "demo";
+    mocks.getSetupStatus.mockResolvedValue({ ok: true, data: { available: false, reason: "demo", setup: null } });
+    registeredOwner(null);
+    const demo = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+    expect(demo.props.children.props.jobChoice).toBeUndefined();
+    expect(demo.props.children.props).toMatchObject({ setupStepCompleted: true, templates: [] });
+    expect(mocks.getJobChoice).not.toHaveBeenCalled();
+  });
+
+  it("offers the optional source question to a cloud owner only", async () => {
+    registeredOwner(null);
+    const cloud = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+    expect(cloud.props.children.props).toMatchObject({ sourceAvailable: true });
+
+    mocks.env.APP_MODE = "self-hosted";
+    registeredOwner(null);
+    const selfHosted = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+    expect(selfHosted.props.children.props).toMatchObject({ sourceAvailable: false });
+
+    mocks.env.APP_MODE = "cloud";
+    mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({
+      sessionUser: { id: "user-a", email: "member@example.com", companyId: "company-a" },
+      user: { companyId: "company-a", role: { isSystemRole: false }, onboardingWikiStepCompletedAt: null },
+    });
+    const invited = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+    expect(invited.props.children.props).toMatchObject({ sourceAvailable: false });
+  });
+
+  it("offers the templates of the language and the cloud, and preselects from the signup", async () => {
+    registeredOwner(null);
+    const cards = [{ slug: "client-tracker", name: "Client tracker" }];
+    mocks.offeredTemplateCards.mockReturnValue(cards);
+    mocks.getTemplateChoice.mockResolvedValue({
+      ok: true,
+      data: { signupTemplate: "client-tracker", signupLandingPath: "/en/for/consultants" },
+    });
+    mocks.preselectOnboardingTemplate.mockReturnValue({ slug: "client-tracker", reason: "signup" });
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+
+    expect(mocks.offeredTemplateCards).toHaveBeenCalledExactlyOnceWith({ locale: "en", deployment: "cloud" });
+    expect(mocks.preselectOnboardingTemplate).toHaveBeenCalledExactlyOnceWith({
+      cards,
+      signupTemplate: "client-tracker",
+      landingPath: "/en/for/consultants",
+    });
+    expect(page.props.children.props).toMatchObject({
+      templates: cards,
+      templatePreselection: { slug: "client-tracker", reason: "signup" },
+    });
+  });
+
+  it("offers a self-hosted owner the choice with the templates a self-hosted instance can run", async () => {
+    mocks.env.APP_MODE = "self-hosted";
+    registeredOwner(null);
+    mocks.getSetupStatus.mockResolvedValue({ ok: true, data: { available: false, reason: "selfHosted", setup: null } });
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+
+    expect(mocks.offeredTemplateCards).toHaveBeenCalledWith({ locale: "en", deployment: "self-hosted" });
+    expect(page.props.children.props).toMatchObject({ setupStepCompleted: false });
+    expect(page.props.children.props.jobChoice).toBeDefined();
+  });
+
+  it("offers the templates before the profile exists, without a stored choice", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({
+      type: "createCompany",
+      authUserId: "user-a",
+      intent: "signed.create",
+      status: "valid",
+    });
+    mocks.requireAccountState.mockResolvedValue({
+      sessionUser: { id: "user-a", email: "owner@example.com", companyId: null },
+      user: null,
+    });
+    mocks.offeredTemplateCards.mockReturnValue([{ slug: "client-tracker" }]);
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({ intent: "signed.create" }) });
+
+    expect(page.props.children.props).toMatchObject({
+      templates: [{ slug: "client-tracker" }],
+      profileCompleted: false,
+    });
+    expect(mocks.getTemplateChoice).not.toHaveBeenCalled();
   });
 
   it("skips the setup step only after the owner completed it", async () => {
@@ -204,7 +320,7 @@ describe("OnboardingWizardPage authentication detours", () => {
   });
 
   it.each(["selfHosted", "configured"])(
-    "never waits on the setup step where it is unavailable (%s)",
+    "lets the owner choose how to set up even where Mate's setup is unavailable (%s)",
     async (reason) => {
       registeredOwner(null);
       const unavailable = { available: false, reason, setup: null };
@@ -215,7 +331,7 @@ describe("OnboardingWizardPage authentication detours", () => {
       expect(page.props.children.props).toMatchObject({
         profileCompleted: true,
         setupStatus: unavailable,
-        setupStepCompleted: true,
+        setupStepCompleted: false,
       });
     },
   );

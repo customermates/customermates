@@ -10,6 +10,7 @@ describe("settings sections", () => {
       "profile",
       "workspaces",
       "channels",
+      "booking",
       "api-keys",
     ]);
     expect(SETTINGS_SECTIONS.workspace.map(({ slug }) => slug)).toEqual([
@@ -20,8 +21,10 @@ describe("settings sections", () => {
       "activity",
       "webhooks",
       "webhook-deliveries",
+      "incoming-webhooks",
     ]);
     expect(settingsSectionOf("billing")).toBe("workspace");
+    expect(settingsSectionOf("incoming-webhooks")).toBe("workspace");
     expect(settingsSectionOf("general")).toBe("workspace");
     expect(settingsSectionOf("workspaces")).toBe("account");
     expect(settingsSectionOf("unknown")).toBeNull();
@@ -40,11 +43,21 @@ describe("settings sections", () => {
       "activity",
       "webhooks",
       "webhook-deliveries",
+      "incoming-webhooks",
     ]);
+    expect(visibleSubroutes("workspace", "cloud", onlyUsers).map(({ slug }) => slug)).toEqual([
+      "general",
+      "members",
+      "roles",
+    ]);
+    expect(
+      visibleSubroutes("workspace", "cloud", (resource) => resource === Resource.api).map(({ slug }) => slug),
+    ).toEqual(["general", "webhooks", "webhook-deliveries", "incoming-webhooks"]);
     expect(visibleSubroutes("account", "cloud", () => true).map(({ slug }) => slug)).toEqual([
       "profile",
       "workspaces",
       "channels",
+      "booking",
       "api-keys",
     ]);
   });

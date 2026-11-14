@@ -1,0 +1,195 @@
+{
+  "locale": "pl",
+  "name": "Baza klientów",
+  "summary": "Jeden wiersz na klienta, jeden opiekun, jeden następny krok z terminem, do tego cotygodniowy przegląd i data przeglądu danych dla każdego zakończonego klienta.",
+  "description": "Zwięzła, zdyscyplinowana baza klientów: siedem statusów, data ostatniego kontaktu, termin następnego kroku, który napędza pracę, rytm przeglądów dla każdego segmentu i data przeglądu danych dla klientów zakończonych. Osoby kontaktowe, zadania z terminem i powiązane rozmowy są obok każdego klienta.",
+  "lists": {
+    "clients": { "label": "Klient", "pluralLabel": "Klienci", "description": "Jeden wiersz na klienta, jeden opiekun, jeden następny krok z terminem." },
+    "contacts": { "label": "Osoba kontaktowa", "pluralLabel": "Osoby kontaktowe", "description": "Ludzie, z którymi pracujesz u każdego klienta." }
+  },
+  "fields": {
+    "clients.status": {
+      "label": "Status",
+      "options": {
+        "prospect": "Potencjalny",
+        "onboarding": "W trakcie wdrożenia",
+        "active": "Aktywny",
+        "waiting_on_client": "Oczekuje na klienta",
+        "at_risk": "Zagrożony",
+        "inactive": "Nieaktywny",
+        "closed": "Zakończony"
+      }
+    },
+    "clients.segment": {
+      "label": "Segment",
+      "options": { "a_key": "A: klient kluczowy", "b_regular": "B: klient stały", "c_occasional": "C: klient okazjonalny" }
+    },
+    "clients.owner": { "label": "Opiekun" },
+    "clients.source": {
+      "label": "Źródło",
+      "options": {
+        "referral": "Polecenie",
+        "website": "Strona internetowa",
+        "event": "Wydarzenie",
+        "outbound": "Kontakt wychodzący",
+        "existing_network": "Dotychczasowa sieć kontaktów",
+        "other": "Inne"
+      }
+    },
+    "clients.client_since": { "label": "Klient od" },
+    "clients.last_contact": { "label": "Ostatni kontakt" },
+    "clients.next_step": { "label": "Następny krok" },
+    "clients.next_step_due": { "label": "Termin następnego kroku" },
+    "clients.review_interval": {
+      "label": "Częstotliwość przeglądu",
+      "options": { "monthly": "Co miesiąc", "quarterly": "Co kwartał", "half_yearly": "Co pół roku", "yearly": "Co rok" }
+    },
+    "clients.next_review": { "label": "Następny przegląd" },
+    "clients.annual_value": { "label": "Wartość roczna" },
+    "clients.website": { "label": "Strona internetowa" },
+    "clients.address": { "label": "Adres" },
+    "clients.registration_id": { "label": "NIP" },
+    "clients.closed_on": { "label": "Data zakończenia współpracy" },
+    "clients.data_review_on": { "label": "Data przeglądu danych" },
+    "contacts.job_title": { "label": "Stanowisko" },
+    "contacts.contact_role": {
+      "label": "Rola",
+      "options": { "decision_maker": "Decydent", "day_to_day": "Kontakt na co dzień", "billing": "Rozliczenia", "other": "Inna" }
+    },
+    "contacts.preferred_channel": {
+      "label": "Preferowany kanał",
+      "options": { "email": "E-mail", "phone": "Telefon", "whatsapp": "WhatsApp", "linkedin": "LinkedIn", "in_person": "Osobiście" }
+    },
+    "contacts.language": { "label": "Język" },
+    "contacts.marketing_consent": { "label": "Zgoda marketingowa" },
+    "contacts.consent_date": { "label": "Data zgody" },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": {
+        "check_in": "Kontakt kontrolny",
+        "reply": "Odpowiedź",
+        "request_document": "Prośba o dokument",
+        "review": "Przegląd",
+        "chase": "Ponaglenie",
+        "data_review": "Przegląd danych",
+        "other": "Inne"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Klient", "targetLabel": "Osoby kontaktowe" },
+    "action_client": { "sourceLabel": "Klient", "targetLabel": "Zadania" },
+    "action_contact": { "sourceLabel": "Osoba kontaktowa", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "clients_all": { "name": "Wszyscy klienci" },
+    "clients_board": { "name": "Klienci wg statusu" },
+    "needs_next_step": { "name": "Bez następnego kroku" },
+    "overdue_next_step": { "name": "Zaległe następne kroki" },
+    "waiting_on_client": { "name": "Oczekuje na klienta" },
+    "at_risk": { "name": "Zagrożeni" },
+    "data_review_due": { "name": "Do przeglądu danych" },
+    "actions_all": { "name": "Wszystkie zadania" },
+    "contacts_all": { "name": "Wszystkie osoby kontaktowe" }
+  },
+  "widgets": {
+    "upcoming_actions": { "title": "Nadchodzące zadania" },
+    "review_calendar": { "title": "Przeglądy klientów w tym miesiącu" },
+    "clients_by_status": { "title": "Klienci wg statusu" },
+    "clients_by_segment": { "title": "Klienci wg segmentu" },
+    "clients_per_owner": { "title": "Klienci wg opiekuna" },
+    "active_without_next_step": { "title": "Aktywni klienci bez następnego kroku" },
+    "waiting_on_client_count": { "title": "Oczekuje na klienta" },
+    "at_risk_count": { "title": "Zagrożeni" },
+    "value_by_segment": { "title": "Wartość roczna wg segmentu" },
+    "new_clients_per_month": { "title": "Nowi klienci w poszczególnych miesiącach" },
+    "overdue_actions": { "title": "Zaległe zadania" },
+    "activity_timeline": { "title": "Ostatnia aktywność" }
+  },
+  "knowledgePages": {
+    "playbook": {
+      "title": "Instrukcja bazy klientów",
+      "sections": ["Jeden wiersz, jeden opiekun, jeden następny krok z terminem", "Co oznacza każdy status", "Aktualizuj wiersz tego samego dnia po każdej rozmowie lub ofercie"]
+    },
+    "weekly_review": {
+      "title": "Cotygodniowy 15-minutowy przegląd klientów",
+      "sections": ["Sortuj według terminu następnego kroku i statusu", "Zaległe, aktywni bez następnego kroku, potencjalni w zawieszeniu", "Zakończ terminem w każdym wierszu"]
+    },
+    "status_definitions": {
+      "title": "Definicje statusów klientów",
+      "sections": ["Reguła wejścia i wyjścia dla każdego statusu", "Ponaglij po 7 dniach, eskaluj po 14", "Kto może zmienić status"]
+    },
+    "message_templates": {
+      "title": "Wzory wiadomości: kontakt kontrolny i reaktywacja",
+      "sections": ["Kontakt kontrolny po okresie ciszy", "Ponaglenie klienta, który ma odpowiedzieć", "Zaproszenie na przegląd", "Reaktywacja po 90 dniach", "Uprzejme zamknięcie"]
+    },
+    "data_retention": {
+      "title": "Przechowywanie danych i RODO w bazie klientów",
+      "sections": ["Cel i przechowywane dane", "Okres przechowywania w zależności od kraju", "Dowód zgody", "Odpowiedź na wniosek o dostęp lub usunięcie"]
+    }
+  },
+  "rules": {
+    "overdue_action_notice": {
+      "title": "Powiadom opiekuna, że zadanie jest zaległe",
+      "description": "Gdy upływa termin otwartego zadania, opiekun dostaje powiadomienie."
+    },
+    "chase_waiting_client": {
+      "title": "Ponaglij klienta w sprawie otwartej kwestii",
+      "description": "Gdy klient przechodzi do statusu Oczekuje na klienta, jego opiekun dostaje zadanie ponaglenia po 7 dniach."
+    },
+    "review_before_due": {
+      "title": "Przejrzyj kartę klienta",
+      "description": "Siedem dni przed następnym przeglądem aktywnego klienta powstaje dla opiekuna zadanie przeglądu."
+    },
+    "daily_next_step_sweep": {
+      "title": "Kontakt kontrolny: brak otwartego zadania przy tym kliencie",
+      "description": "Każdego dnia aktywny klient lub klient we wdrożeniu bez powiązanego otwartego zadania dostaje zadanie kontrolne na dziś."
+    },
+    "stalled_client_sweep": {
+      "title": "Kontakt kontrolny: brak kontaktu od 45 dni",
+      "description": "W każdy poniedziałek aktywny klient bez kontaktu od 45 dni dostaje zadanie kontrolne. Status nigdy nie zmienia się sam."
+    },
+    "closed_client_dates": {
+      "title": "Ustaw datę zakończenia i datę przeglądu danych",
+      "description": "Gdy klient dostaje status Zakończony, pole Data zakończenia współpracy dostaje dzisiejszą datę, a Data przeglądu danych datę za trzy lata. Dostosuj okres do swojego kraju."
+    },
+    "closed_client_data_review": {
+      "title": "Przejrzyj dane tego zakończonego klienta",
+      "description": "Zadanie przeglądu danych przypada w dniu przeglądu danych."
+    },
+    "inactive_reactivation": {
+      "title": "Zapytaj, czy klient jest nadal zainteresowany",
+      "description": "Dziewięćdziesiąt dni po przejściu klienta do statusu Nieaktywny zadanie kontrolne stawia pytanie o reaktywację."
+    },
+    "enquiry_form_records": {
+      "title": "Utwórz klienta i osobę kontaktową z zapytania",
+      "description": "Publiczny formularz zapytania tworzy klienta ze statusem Potencjalny oraz jego osobę kontaktową."
+    },
+    "enquiry_form_reply": {
+      "title": "Odpowiedz na zapytanie",
+      "description": "Każde zapytanie dostaje zadanie odpowiedzi z terminem na następny dzień."
+    },
+    "weekly_client_review": {
+      "title": "Cotygodniowy przegląd klientów",
+      "description": "W każdy poniedziałek jedno zadanie przeglądu zbiera klientów z zaległościami, klientów bez następnego kroku i potencjalnych w zawieszeniu."
+    }
+  },
+  "acceptanceChecks": {
+    "status_field": "Każdy klient ma jeden z siedmiu statusów.",
+    "next_step_date_field": "Każdy klient ma następny krok i termin dla niego.",
+    "clients_default_view": "Lista klientów otwiera się posortowana według terminu następnego kroku.",
+    "overdue_widget": "Pulpit pokazuje, ile zadań jest zaległych.",
+    "chase_rule": "Klient przeniesiony do statusu Oczekuje na klienta dostaje zadanie ponaglenia.",
+    "playbook_page": "Baza wiedzy zawiera instrukcję bazy klientów."
+  },
+  "prompt": {
+    "intro": "Skonfiguruj bazę klientów w mojej przestrzeni roboczej Customermates: jeden wiersz na klienta z opiekunem, statusem, datą ostatniego kontaktu i następnym krokiem z terminem, do tego osoby kontaktowe, zadania z terminem, cotygodniowy przegląd i data przeglądu danych dla klientów zakończonych.",
+    "questions": [
+      "Ilu klientów obsługujesz dziś i kto jeszcze pracuje w bazie?",
+      "Jakich statusów klientów już używasz? Czy któryś z siedmiu zmienić lub pominąć?",
+      "Jak często chcesz przeglądać klientów kluczowych, stałych i okazjonalnych?",
+      "W jakim kraju pracujesz, aby ustawić okres przechowywania danych klientów zakończonych?",
+      "Czy faktury prowadzisz w innym narzędziu? Jeśli tak, w jakim, żebyśmy nie dodawali tu pól rozliczeniowych."
+    ]
+  }
+}

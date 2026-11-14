@@ -1,0 +1,129 @@
+{
+  "locale": "pl",
+  "name": "Dealflow inwestora",
+  "summary": "Dealflow dla małego funduszu lub anioła biznesu: osiem etapów od wyszukania do zamknięcia lub odrzucenia, osoba polecająca przy każdym dealu, powód odrzucenia i data ponownej oceny.",
+  "description": "Prowadź startupy i inwestorów przez sourcing, wstępną ocenę, spotkania, due diligence i term sheet. Każdy deal zapisuje, kto go polecił, jak pasuje do tezy inwestycyjnej, rolę lidera, link do data roomu, powód odrzucenia i kiedy spojrzeć ponownie. To narzędzie do relacji, a nie tabela kapitałowa, prawny data room ani model punktowy. Wagi są przybliżone, a ich ustawienie należy do Ciebie.",
+  "lists": {
+    "people": { "label": "Osoba", "pluralLabel": "Osoby", "description": "Założyciele, inwestorzy, współinwestorzy i osoby polecające." },
+    "organizations": { "label": "Organizacja", "pluralLabel": "Organizacje", "description": "Startupy, fundusze, syndykaty i akceleratory." },
+    "deals": { "label": "Deal", "pluralLabel": "Deale", "description": "Jedna szansa inwestycyjna od sourcingu do zamknięcia lub odrzucenia." }
+  },
+  "fields": {
+    "deals.stage": {
+      "label": "Etap",
+      "options": { "sourced": "Wyszukany", "screening": "Wstępna ocena", "first_meeting": "Pierwsze spotkanie", "partner_meeting": "Komitet inwestycyjny", "diligence": "Due diligence", "term_sheet": "Term sheet", "closed": "Zamknięty", "passed": "Odrzucony" }
+    },
+    "people.person_role": {
+      "label": "Rola",
+      "options": { "founder": "Założyciel", "investor": "Partner inwestycyjny", "angel": "Anioł biznesu", "co_investor": "Współinwestor", "introducer": "Osoba polecająca", "advisor": "Doradca" }
+    },
+    "people.focus_stages": {
+      "label": "Preferowane etapy",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Seria A", "series_b_plus": "Seria B i późniejsze" }
+    },
+    "people.thesis": { "label": "Teza inwestycyjna" },
+    "people.relationship_strength": { "label": "Relacja", "options": { "strong": "Silna", "warm": "Ciepła", "new": "Nowa" } },
+    "people.last_meeting_on": { "label": "Ostatnie spotkanie" },
+    "people.relationship_owner": { "label": "Opiekun" },
+    "organizations.org_type": {
+      "label": "Rodzaj",
+      "options": { "startup": "Startup", "vc_fund": "Fundusz VC", "angel_syndicate": "Syndykat aniołów biznesu", "corporate_vc": "Corporate venture", "accelerator": "Akcelerator", "other": "Inny" }
+    },
+    "organizations.website": { "label": "Strona internetowa" },
+    "organizations.sector": { "label": "Branża" },
+    "organizations.stage": {
+      "label": "Etap",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Seria A", "series_b": "Seria B", "growth": "Wzrost" }
+    },
+    "organizations.country": { "label": "Kraj" },
+    "organizations.conflict_check": { "label": "Sprawdzenie konfliktu interesów", "options": { "to_check": "Do sprawdzenia", "clear": "Brak konfliktu", "conflict": "Konflikt" } },
+    "deals.round": {
+      "label": "Runda",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Seria A", "series_b": "Seria B", "bridge": "Runda pomostowa" }
+    },
+    "deals.lead_role": { "label": "Nasza rola", "options": { "lead": "Lider", "follow": "Współinwestor", "undecided": "Do ustalenia" } },
+    "deals.thesis_fit": { "label": "Dopasowanie do tezy", "options": { "strong": "Silne", "partial": "Częściowe", "weak": "Słabe" } },
+    "deals.owner": { "label": "Osoba odpowiedzialna" },
+    "deals.source": {
+      "label": "Źródło",
+      "options": { "warm_introduction": "Osobiste polecenie", "inbound": "Zapytanie przychodzące", "outbound": "Kontakt wychodzący", "event": "Wydarzenie", "portfolio_referral": "Polecenie z portfela", "co_investor": "Współinwestor" }
+    },
+    "deals.intro_requested_on": { "label": "Data prośby o przedstawienie" },
+    "deals.intro_made_on": { "label": "Data przedstawienia" },
+    "deals.first_meeting_on": { "label": "Data pierwszego spotkania" },
+    "deals.decision_on": { "label": "Data decyzji" },
+    "deals.term_sheet_on": { "label": "Data term sheet" },
+    "deals.closed_on": { "label": "Data zamknięcia" },
+    "deals.nda_signed": { "label": "NDA podpisane" },
+    "deals.pass_reason": {
+      "label": "Powód odrzucenia",
+      "options": { "thesis_mismatch": "Poza tezą", "team": "Zespół", "market": "Rynek", "too_early": "Za wcześnie", "valuation": "Wycena", "timing": "Nieodpowiedni moment", "other": "Inny" }
+    },
+    "deals.revisit_on": { "label": "Data ponownej oceny" },
+    "deals.data_room_url": { "label": "Link do data roomu" },
+    "deals.days_to_term_sheet": { "label": "Dni od pierwszego spotkania do term sheet" },
+    "deals.weighted_value": { "label": "Wartość ważona" },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": {
+        "request_intro": "Poprosić o przedstawienie",
+        "send_deck": "Wysłać prezentację",
+        "prepare_meeting": "Przygotować spotkanie",
+        "follow_up": "Ponowny kontakt",
+        "diligence_request": "Prośba w ramach due diligence",
+        "write_memo": "Napisać memorandum",
+        "send_pass_note": "Wysłać odmowę",
+        "revisit": "Ponowna ocena",
+        "thank_introducer": "Podziękować lub przypomnieć osobie polecającej",
+        "other": "Inne"
+      }
+    }
+  },
+  "relationships": {
+    "deal_company": { "sourceLabel": "Firma", "targetLabel": "Deale" },
+    "deal_contacts": { "sourceLabel": "Założyciele i kontakty", "targetLabel": "Deale" },
+    "action_deal": { "sourceLabel": "Deal", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "deals_board": { "name": "Dealflow" },
+    "deals_all": { "name": "Wszystkie deale" },
+    "passed_to_revisit": { "name": "Odrzucone, do ponownej oceny" },
+    "organizations_all": { "name": "Wszystkie organizacje" },
+    "people_all": { "name": "Wszystkie osoby" }
+  },
+  "widgets": {
+    "deal_funnel": { "title": "Otwarte deale wg etapu" },
+    "deals_by_source": { "title": "Deale wg źródła" },
+    "pass_reasons": { "title": "Powody odrzucenia" },
+    "average_days_to_term_sheet": { "title": "Średnia liczba dni do term sheet" },
+    "revisits_coming": { "title": "Nadchodzące ponowne oceny" }
+  },
+  "knowledgePages": {
+    "investment_thesis": { "title": "Teza inwestycyjna i obszar zainteresowań", "sections": ["Etap, branża i wielkość biletu", "W co nie inwestujemy"] },
+    "stage_criteria": { "title": "Kryteria etapów", "sections": ["Co przenosi deal na następny etap", "Kto decyduje na komitecie"] },
+    "pass_notes": { "title": "Odmowy i zasady ponownej oceny", "sections": ["Jak odmawiamy", "Kiedy patrzymy ponownie"] }
+  },
+  "rules": {
+    "follow_up_after_meeting": { "title": "Wyślij wiadomość z kolejnymi krokami po pierwszym spotkaniu" },
+    "stale_screening": { "title": "Wznów lub odrzuć deal, który 14 dni stał we wstępnej ocenie" },
+    "pass_note": { "title": "Wyślij odmowę, gdy deal zostaje odrzucony" },
+    "revisit_deal": { "title": "Wróć do odrzuconego dealu w wyznaczonym dniu" },
+    "diligence_checklist": { "title": "Uruchom listę due diligence, gdy ustalono term sheet" },
+    "first_check_in_after_close": { "title": "Zapytaj o postępy 30 dni po zamknięciu" },
+    "intro_nudge": { "title": "Przypomnij osobie polecającej tydzień po prośbie o przedstawienie" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Każdy deal ma jeden z ośmiu etapów.",
+    "pass_reason_field": "Każdy deal zapisuje, dlaczego został odrzucony.",
+    "board_view": "Deale otwierają się jako tablica według etapów."
+  },
+  "prompt": {
+    "intro": "Skonfiguruj dealflow w mojej przestrzeni roboczej Customermates: deale z ośmioma etapami, osobą polecającą, dopasowaniem do tezy, rolą lidera, powodem odrzucenia i datą ponownej oceny, do tego startupy, inwestorzy i zadania z terminem.",
+    "questions": [
+      "W jakie etapy i branże inwestujesz i jaka jest Twoja typowa wielkość biletu?",
+      "Jak deale do Ciebie docierają i kto je poleca?",
+      "Kto decyduje na każdym etapie i kiedy odmawiasz?",
+      "Gdzie przechowujesz dokumenty prawne i data room? Tutaj zapisujemy tylko link."
+    ]
+  }
+}

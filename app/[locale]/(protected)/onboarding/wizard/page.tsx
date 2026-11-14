@@ -13,6 +13,7 @@ import { ONBOARDING_INTENT_QUERY_PARAM, onboardingIntentAuthRedirects } from "@/
 import { resolveOnboardingIntent } from "@/features/company/next/onboarding-intent";
 import {
   getGetOnboardingJobChoiceInteractor,
+  getGetOnboardingTemplateChoiceInteractor,
   getGetOnboardingWizardProgressInteractor,
   getGetWorkspaceSetupStatusInteractor,
   getListMyWorkspacesInteractor,
@@ -22,6 +23,17 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { isRedirect } from "@/features/auth/auth-outcome";
 import type { WorkspaceSetupStatusView } from "@/ee/workspace-setup/workspace-setup-status";
 import type { OnboardingJobChoiceView } from "@/features/onboarding-funnel/get-onboarding-job-choice.interactor";
+import type {
+  OnboardingTemplateCard,
+  OnboardingTemplatePreselection,
+} from "@/features/onboarding-templates/onboarding-template-offer";
+
+import { env } from "@/env";
+import { appLocaleOrDefault } from "@/i18n/locale-registry";
+import {
+  offeredTemplateCards,
+  preselectOnboardingTemplate,
+} from "@/features/onboarding-templates/onboarding-template-offer";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -66,16 +78,31 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
   );
   if (!user && !isInvited && !canCreateCompany) redirect(await appRedirectHref("/onboarding"));
 
+  const choosing = !isInvited && env.APP_MODE !== "demo";
   let setupStatus: WorkspaceSetupStatusView | undefined;
   let setupStepCompleted = false;
   if (user?.role?.isSystemRole) {
     const status = await runWithTenant(user, () => getGetWorkspaceSetupStatusInteractor().invoke());
     if (status.ok) setupStatus = status.data;
-    setupStepCompleted = user.onboardingWikiStepCompletedAt !== null || !setupStatus?.available;
+    setupStepCompleted = user.onboardingWikiStepCompletedAt !== null || (!setupStatus?.available && !choosing);
   }
+  const templates: OnboardingTemplateCard[] = choosing
+    ? offeredTemplateCards({
+        locale: appLocaleOrDefault(await getLocale()),
+        deployment: env.APP_MODE === "self-hosted" ? "self-hosted" : "cloud",
+      })
+    : [];
   let jobChoice: OnboardingJobChoiceView | undefined;
-  if (user?.role?.isSystemRole && !isInvited && !setupStepCompleted)
+  let templatePreselection: OnboardingTemplatePreselection = { slug: null, reason: null };
+  if (user?.role?.isSystemRole && choosing) {
     jobChoice = (await runWithTenant(user, () => getGetOnboardingJobChoiceInteractor().invoke())).data;
+    const templateChoice = (await runWithTenant(user, () => getGetOnboardingTemplateChoiceInteractor().invoke())).data;
+    templatePreselection = preselectOnboardingTemplate({
+      cards: templates,
+      signupTemplate: templateChoice.signupTemplate,
+      landingPath: templateChoice.signupLandingPath,
+    });
+  }
 
   const sessionName = sessionUser.name ?? "";
   const isEmail = sessionName.includes("@");
@@ -106,6 +133,9 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
         sessionLastName={sessionLastName}
         setupStatus={setupStatus}
         setupStepCompleted={setupStepCompleted}
+        sourceAvailable={choosing && env.APP_MODE === "cloud"}
+        templatePreselection={templatePreselection}
+        templates={templates}
         userId={user?.role?.isSystemRole ? user.id : undefined}
         workspaceName={invitation?.companyName}
       />

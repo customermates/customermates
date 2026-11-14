@@ -1,0 +1,406 @@
+{
+  "id": "tpl_client_tracker",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "client-tracker",
+  "family": "clients",
+  "kind": "tracker",
+  "jurisdictions": ["DE", "FR", "IT", "ES", "BR", "PL", "NL"],
+  "dashboardAudience": "me",
+  "modules": ["actions_core"],
+  "requiresCapabilities": ["forms", "rules", "notifications"],
+  "pairedPages": {
+    "en": "/features/contact-management",
+    "de": "/features/contact-management",
+    "fr": "/features/contact-management",
+    "it": "/features/contact-management",
+    "es": "/features/contact-management",
+    "pt": "/features/contact-management",
+    "pl": "/features/contact-management",
+    "nl": "/features/contact-management"
+  },
+  "lists": [
+    { "key": "clients", "icon": "building" },
+    { "key": "contacts", "role": "people", "icon": "contact" }
+  ],
+  "stages": [
+    {
+      "field": "clients.status",
+      "items": [
+        { "key": "prospect" },
+        { "key": "onboarding" },
+        { "key": "active" },
+        { "key": "waiting_on_client" },
+        { "key": "at_risk" },
+        { "key": "inactive" },
+        { "key": "closed" }
+      ]
+    }
+  ],
+  "fields": [
+    {
+      "key": "clients.segment",
+      "type": "select",
+      "options": [{ "key": "a_key" }, { "key": "b_regular" }, { "key": "c_occasional" }]
+    },
+    { "key": "clients.owner", "type": "member" },
+    {
+      "key": "clients.source",
+      "type": "select",
+      "options": [
+        { "key": "referral" },
+        { "key": "website" },
+        { "key": "event" },
+        { "key": "outbound" },
+        { "key": "existing_network" },
+        { "key": "other" }
+      ]
+    },
+    { "key": "clients.client_since", "type": "date" },
+    { "key": "clients.last_contact", "type": "date" },
+    { "key": "clients.next_step", "type": "text" },
+    { "key": "clients.next_step_due", "type": "date" },
+    {
+      "key": "clients.review_interval",
+      "type": "select",
+      "options": [{ "key": "monthly" }, { "key": "quarterly" }, { "key": "half_yearly" }, { "key": "yearly" }]
+    },
+    { "key": "clients.next_review", "type": "date" },
+    { "key": "clients.annual_value", "type": "currency" },
+    { "key": "clients.website", "type": "url" },
+    { "key": "clients.address", "type": "address" },
+    { "key": "clients.registration_id", "type": "text" },
+    { "key": "clients.closed_on", "type": "date" },
+    { "key": "clients.data_review_on", "type": "date" },
+    { "key": "contacts.job_title", "type": "text" },
+    {
+      "key": "contacts.contact_role",
+      "type": "select",
+      "options": [{ "key": "decision_maker" }, { "key": "day_to_day" }, { "key": "billing" }, { "key": "other" }]
+    },
+    {
+      "key": "contacts.preferred_channel",
+      "type": "select",
+      "options": [{ "key": "email" }, { "key": "phone" }, { "key": "whatsapp" }, { "key": "linkedin" }, { "key": "in_person" }]
+    },
+    { "key": "contacts.language", "type": "text" },
+    { "key": "contacts.marketing_consent", "type": "boolean" },
+    { "key": "contacts.consent_date", "type": "date" },
+    {
+      "key": "actions.kind",
+      "type": "select",
+      "options": [
+        { "key": "check_in" },
+        { "key": "reply" },
+        { "key": "request_document" },
+        { "key": "review" },
+        { "key": "chase" },
+        { "key": "data_review" },
+        { "key": "other" }
+      ]
+    }
+  ],
+  "relationships": [
+    { "key": "contact_client", "source": "contacts", "target": "clients", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_client", "source": "actions", "target": "clients", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_contact", "source": "actions", "target": "contacts", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    {
+      "key": "clients_all",
+      "list": "clients",
+      "default": true,
+      "layout": "table",
+      "sort": { "field": "clients.next_step_due", "direction": "asc" },
+      "columns": ["clients.status", "clients.owner", "clients.segment", "clients.last_contact", "clients.next_step", "clients.next_step_due"]
+    },
+    { "key": "clients_board", "list": "clients", "default": false, "layout": "board", "groupBy": "clients.status" },
+    {
+      "key": "needs_next_step",
+      "list": "clients",
+      "default": false,
+      "layout": "table",
+      "filters": [
+        { "operator": "in", "field": "clients.status", "options": ["active", "onboarding"] },
+        { "operator": "empty", "field": "clients.next_step_due" }
+      ]
+    },
+    {
+      "key": "overdue_next_step",
+      "list": "clients",
+      "default": false,
+      "layout": "table",
+      "sort": { "field": "clients.next_step_due", "direction": "asc" },
+      "filters": [{ "operator": "inLastDays", "field": "clients.next_step_due", "days": 3650 }]
+    },
+    {
+      "key": "waiting_on_client",
+      "list": "clients",
+      "default": false,
+      "layout": "table",
+      "filters": [{ "operator": "in", "field": "clients.status", "options": ["waiting_on_client"] }]
+    },
+    {
+      "key": "at_risk",
+      "list": "clients",
+      "default": false,
+      "layout": "table",
+      "filters": [{ "operator": "in", "field": "clients.status", "options": ["at_risk"] }]
+    },
+    {
+      "key": "data_review_due",
+      "list": "clients",
+      "default": false,
+      "layout": "table",
+      "sort": { "field": "clients.data_review_on", "direction": "asc" },
+      "filters": [
+        { "operator": "in", "field": "clients.status", "options": ["closed"] },
+        { "operator": "notEmpty", "field": "clients.data_review_on" }
+      ]
+    },
+    {
+      "key": "actions_all",
+      "list": "actions",
+      "default": true,
+      "layout": "table",
+      "sort": { "field": "actions.due", "direction": "asc" },
+      "columns": ["actions.due", "actions.status", "actions.kind", "actions.owner"]
+    },
+    {
+      "key": "contacts_all",
+      "list": "contacts",
+      "default": true,
+      "layout": "table",
+      "columns": ["contacts.contact_role", "contacts.preferred_channel", "contacts.language"]
+    }
+  ],
+  "widgets": [
+    {
+      "kind": "calendar",
+      "key": "upcoming_actions",
+      "list": "actions",
+      "layout": "upcoming",
+      "dateField": "actions.due",
+      "filters": [{ "operator": "in", "field": "actions.status", "options": ["open", "waiting"] }]
+    },
+    { "kind": "calendar", "key": "review_calendar", "list": "clients", "layout": "month", "dateField": "clients.next_review" },
+    {
+      "kind": "chart",
+      "key": "clients_by_status",
+      "list": "clients",
+      "aggregation": "count",
+      "groupBy": { "field": "clients.status" },
+      "display": "doughnutChart"
+    },
+    {
+      "kind": "chart",
+      "key": "clients_by_segment",
+      "list": "clients",
+      "aggregation": "count",
+      "groupBy": { "field": "clients.segment" },
+      "display": "horizontalBarChart"
+    },
+    {
+      "kind": "chart",
+      "key": "clients_per_owner",
+      "list": "clients",
+      "aggregation": "count",
+      "groupBy": { "field": "clients.owner" },
+      "display": "rankedTable"
+    },
+    {
+      "kind": "chart",
+      "key": "active_without_next_step",
+      "list": "clients",
+      "aggregation": "count",
+      "filters": [
+        { "operator": "in", "field": "clients.status", "options": ["active", "onboarding"] },
+        { "operator": "empty", "field": "clients.next_step_due" }
+      ],
+      "display": "number"
+    },
+    {
+      "kind": "chart",
+      "key": "waiting_on_client_count",
+      "list": "clients",
+      "aggregation": "count",
+      "filters": [{ "operator": "in", "field": "clients.status", "options": ["waiting_on_client"] }],
+      "display": "number"
+    },
+    {
+      "kind": "chart",
+      "key": "at_risk_count",
+      "list": "clients",
+      "aggregation": "count",
+      "filters": [{ "operator": "in", "field": "clients.status", "options": ["at_risk"] }],
+      "display": "number"
+    },
+    {
+      "kind": "chart",
+      "key": "value_by_segment",
+      "list": "clients",
+      "aggregation": "sum",
+      "valueField": "clients.annual_value",
+      "groupBy": { "field": "clients.segment" },
+      "display": "verticalBarChart"
+    },
+    {
+      "kind": "chart",
+      "key": "new_clients_per_month",
+      "list": "clients",
+      "aggregation": "count",
+      "groupBy": { "field": "clients.client_since", "dateInterval": "month" },
+      "display": "areaChart"
+    },
+    {
+      "kind": "chart",
+      "key": "overdue_actions",
+      "list": "actions",
+      "aggregation": "count",
+      "filters": [
+        { "operator": "in", "field": "actions.status", "options": ["open"] },
+        { "operator": "inLastDays", "field": "actions.due", "days": 3650 }
+      ],
+      "display": "number"
+    },
+    { "kind": "activity", "key": "activity_timeline" }
+  ],
+  "knowledgePages": [
+    { "key": "playbook", "kind": "processes" },
+    { "key": "weekly_review", "kind": "processes" },
+    { "key": "status_definitions", "kind": "processes" },
+    { "key": "message_templates", "kind": "salesPlaybook" },
+    { "key": "data_retention", "kind": "processes" }
+  ],
+  "followUpRules": [
+    {
+      "key": "overdue_action_notice",
+      "trigger": { "kind": "date_reached", "field": "actions.due", "offsetDays": 0 },
+      "condition": [{ "operator": "in", "field": "actions.status", "options": ["open"] }],
+      "action": { "kind": "notify", "recipient": "record_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    {
+      "key": "chase_waiting_client",
+      "priority": 2,
+      "trigger": { "kind": "field_changed", "field": "clients.status", "to": "waiting_on_client" },
+      "action": { "kind": "create_task", "taskKind": "chase", "assignee": "record_owner", "about": "clients" },
+      "dueOffsetDays": 7,
+      "needs": "today"
+    },
+    {
+      "key": "review_before_due",
+      "trigger": { "kind": "date_reached", "field": "clients.next_review", "offsetDays": -7 },
+      "condition": [{ "operator": "in", "field": "clients.status", "options": ["active"] }],
+      "action": { "kind": "create_task", "taskKind": "review", "assignee": "record_owner", "about": "clients" },
+      "dueOffsetDays": 7,
+      "needs": "rules"
+    },
+    {
+      "key": "daily_next_step_sweep",
+      "priority": 1,
+      "trigger": { "kind": "schedule", "every": "day", "list": "clients" },
+      "condition": [{ "operator": "in", "field": "clients.status", "options": ["active", "onboarding"] }],
+      "action": { "kind": "create_task", "taskKind": "check_in", "assignee": "record_owner", "about": "clients" },
+      "dueOffsetDays": 0,
+      "needs": "today"
+    },
+    {
+      "key": "stalled_client_sweep",
+      "priority": 3,
+      "trigger": { "kind": "schedule", "every": "week", "weekday": 1, "list": "clients" },
+      "condition": [
+        { "operator": "in", "field": "clients.status", "options": ["active"] },
+        { "operator": "olderThanDays", "field": "clients.last_contact", "days": 45 }
+      ],
+      "action": { "kind": "create_task", "taskKind": "check_in", "assignee": "record_owner", "about": "clients" },
+      "dueOffsetDays": 0,
+      "needs": "today"
+    },
+    {
+      "key": "closed_client_dates",
+      "priority": 5,
+      "trigger": { "kind": "field_changed", "field": "clients.status", "to": "closed" },
+      "action": {
+        "kind": "set_dates",
+        "dates": [
+          { "field": "clients.closed_on", "offsetDays": 0 },
+          { "field": "clients.data_review_on", "offsetDays": 1095 }
+        ]
+      },
+      "dueOffsetDays": 0,
+      "needs": "today"
+    },
+    {
+      "key": "closed_client_data_review",
+      "priority": 6,
+      "trigger": { "kind": "field_changed", "field": "clients.status", "to": "closed" },
+      "action": { "kind": "create_task", "taskKind": "data_review", "assignee": "record_owner", "about": "clients" },
+      "dueOffsetDays": 1095,
+      "needs": "today"
+    },
+    {
+      "key": "inactive_reactivation",
+      "priority": 7,
+      "trigger": { "kind": "field_changed", "field": "clients.status", "to": "inactive" },
+      "action": { "kind": "create_task", "taskKind": "check_in", "assignee": "record_owner", "about": "clients" },
+      "dueOffsetDays": 90,
+      "needs": "today"
+    },
+    {
+      "key": "enquiry_form_records",
+      "trigger": { "kind": "form_submitted", "form": "enquiry" },
+      "action": { "kind": "create_records", "lists": ["clients", "contacts"] },
+      "dueOffsetDays": 0,
+      "needs": "forms"
+    },
+    {
+      "key": "enquiry_form_reply",
+      "trigger": { "kind": "form_submitted", "form": "enquiry" },
+      "action": { "kind": "create_task", "taskKind": "reply", "assignee": "workspace_owner", "about": "clients" },
+      "dueOffsetDays": 1,
+      "needs": "forms"
+    },
+    {
+      "key": "weekly_client_review",
+      "priority": 4,
+      "trigger": { "kind": "schedule", "every": "week", "weekday": 1 },
+      "action": { "kind": "create_task", "taskKind": "review", "assignee": "workspace_owner" },
+      "dueOffsetDays": 0,
+      "needs": "today"
+    }
+  ],
+  "acceptanceChecks": [
+    { "key": "status_field", "kind": "field_exists", "ref": "clients.status" },
+    { "key": "next_step_date_field", "kind": "field_exists", "ref": "clients.next_step_due" },
+    { "key": "clients_default_view", "kind": "view_exists", "ref": "clients_all" },
+    { "key": "overdue_widget", "kind": "widget_exists", "ref": "overdue_actions" },
+    { "key": "chase_rule", "kind": "rule_exists", "ref": "chase_waiting_client" },
+    { "key": "playbook_page", "kind": "page_exists", "ref": "playbook" }
+  ],
+  "sources": [
+    { "url": "https://capsulecrm.com/blog/customer-tracking-spreadsheet/", "checkedOn": "2026-11-12" },
+    { "url": "https://capsulecrm.com/blog/free-client-tracker-template/", "checkedOn": "2026-11-12" },
+    { "url": "https://clustdoc.com/blog/best-client-management-software/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.hubspot.com/resources/templates/customer-relationship-management", "checkedOn": "2026-11-12" },
+    { "url": "https://www.cnil.fr/fr/cnil-direct/question/gestion-des-clients-et-prospects-que-faire", "checkedOn": "2026-11-12" },
+    {
+      "url": "https://www.cnil.fr/sites/cnil/files/atoms/files/referentiel_traitements-donnees-caractere-personnel_gestion-activites-commerciales.pdf",
+      "checkedOn": "2026-11-12"
+    },
+    {
+      "url": "https://www.ihk.de/ulm/hauptnavigation/mitgliedsunternehmen/beraten-informieren/recht-steuern/auskuenfte-zum-steuerrecht/bilanzierung-rechnungslegung-steuerpruefung/aufbewahrungspflichten-6694208",
+      "checkedOn": "2026-11-12"
+    },
+    { "url": "https://www.omie.com.br/blog/cadastro-de-clientes/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.agendor.com.br/blog/significado-gestao-clientes/", "checkedOn": "2026-11-12" },
+    { "url": "https://factorial.es/blog/ficha-de-cliente-como-elaborar-una-base-de-datos/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.12h15.fr/outils-gestion-donnees-clients/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.b2bmarketeers.nl/relatiebeheer-wat-is-dat-eigenlijk/", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "own", "de": "own", "fr": "own", "it": "own", "es": "none", "pt": "own", "pl": "own", "nl": "own" },
+  "publishWave": { "en": "wave2", "de": "wave2", "fr": "wave1", "it": "wave1", "pt": "wave1", "pl": "wave1", "nl": "wave2" }
+}

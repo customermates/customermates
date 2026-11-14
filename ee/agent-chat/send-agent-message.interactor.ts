@@ -46,6 +46,7 @@ import type { AgentRunContext } from "./agent-run-context";
 import type { AgentUsageService } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
+import type { AgentTemplateRules } from "./agent-template-rules";
 import { agentSystemPromptParts, routineTriggerEventOf } from "./system-prompt";
 import { agentToolDefinitionsForToolsets, agentToolDefinitionsForTurn } from "./agent-tools";
 import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-routing";
@@ -154,6 +155,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       findLatestCrawl(): Promise<{ pendingHosts: string[] } | null>;
     },
     private chatFiles?: AgentChatFileService,
+    private templateRules?: Pick<AgentTemplateRules, "brief">,
   ) {
     super();
   }
@@ -236,6 +238,16 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     try {
       const discovery = await this.recordTypes.invoke({ includeEmbedded: false, page: 1, pageSize: 25 });
       return discovery.ok ? renderAgentSchemaDigest(discovery.data) : null;
+    } catch (error) {
+      ErrorReporter.captureException(error);
+      return null;
+    }
+  }
+
+  private async templateRulesBrief(mode: AgentInvocationMode) {
+    if (mode !== "interactive" || !this.templateRules) return null;
+    try {
+      return await this.templateRules.brief();
     } catch (error) {
       ErrorReporter.captureException(error);
       return null;
@@ -391,9 +403,10 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       return fail(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
     const turnModel = resolveAgentModel(requestedModelKey, surface);
     const locale = data.locale ?? resolveUserLocale(user);
-    const [wikiContext, schemaDigest] = await Promise.all([
+    const [wikiContext, schemaDigest, templateRules] = await Promise.all([
       this.wikiTurnContext(mode, conversation?.wikiCatalogSnapshot ?? null),
       this.schemaDigest(),
+      this.templateRulesBrief(mode),
     ]);
     if (!wikiContext.ok) return wikiContext.failure;
     const { wikiCatalog, wikiWebsiteSetup } = wikiContext;
@@ -414,6 +427,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         surface,
         triggerEvent: routineTriggerEventOf(data.text),
         schemaDigest,
+        templateRules,
         wikiWebsiteSetup,
         webSearchEnabled: true,
       }),
@@ -616,6 +630,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         toolsets,
         requestToolsets: [...requestedToolsets],
         ...(schemaDigest ? { schemaDigest } : {}),
+        ...(templateRules ? { templateRules } : {}),
         ...(wikiWebsiteSetup
           ? {
               wikiWebsiteSetup: {

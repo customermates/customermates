@@ -1,0 +1,212 @@
+{
+  "locale": "nl",
+  "name": "Klantintake en onboarding",
+  "summary": "Eén intake per opdracht: aanvraag, eerste screening, intakeformulier, documenten, overeenkomst en kickoff, met een stap met datum in elke fase en een reden als je afwijst.",
+  "description": "Een korte pipeline om een nieuwe klant aan te nemen: binnen een dag reageren, op geschiktheid screenen, het intakeformulier sturen, documenten verzamelen, de overeenkomst sturen, starten. Gereguleerde beroepen leggen vast wie de identiteit controleerde en wanneer, nooit het document zelf. Geen hulpmiddel voor e-handtekeningen, Wwft-controle of betalingen.",
+  "lists": {
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen bij elke klant: hoofdcontact, facturatie, ondertekenaar." },
+    "clients": { "label": "Klant", "pluralLabel": "Klanten", "description": "Bedrijven, zzp’ers en particulieren die je aanneemt." },
+    "intakes": { "label": "Intake", "pluralLabel": "Intakes", "description": "Eén intake per opdracht, van aanvraag tot gestart of afgewezen." },
+    "document_requests": { "label": "Documentverzoek", "pluralLabel": "Documentverzoeken", "description": "Eén regel per document dat je bij een klant opvraagt." }
+  },
+  "fields": {
+    "intakes.stage": {
+      "label": "Fase",
+      "options": {
+        "enquiry": "Aanvraag",
+        "screening": "Eerste screening",
+        "form_sent": "Intakeformulier verstuurd",
+        "review_checks": "Controle",
+        "agreement_sent": "Overeenkomst verstuurd",
+        "ready_to_start": "Klaar voor start",
+        "kickoff_scheduled": "Kickoff gepland",
+        "onboarded": "Gestart",
+        "declined": "Afgewezen"
+      }
+    },
+    "contacts.job_title": { "label": "Functie" },
+    "contacts.contact_role": {
+      "label": "Rol",
+      "options": { "primary": "Hoofdcontact", "billing": "Facturatie", "signatory": "Ondertekenaar", "technical": "Technisch", "other": "Overig" }
+    },
+    "contacts.language": { "label": "Taal" },
+    "contacts.privacy_notice_sent_on": { "label": "Privacyverklaring verstuurd op" },
+    "clients.client_type": {
+      "label": "Type klant",
+      "options": { "company": "Bedrijf", "sole_trader": "Zzp’er", "individual": "Particulier", "organisation": "Vereniging of organisatie" }
+    },
+    "clients.owner": { "label": "Accountmanager" },
+    "clients.website": { "label": "Website" },
+    "clients.address": { "label": "Adres" },
+    "clients.registration_id": { "label": "KvK- of btw-nummer" },
+    "clients.source": {
+      "label": "Herkomst",
+      "options": { "referral": "Aanbeveling", "website": "Website", "event": "Evenement", "outbound": "Eigen acquisitie", "partner": "Partner", "other": "Overig" }
+    },
+    "intakes.owner": { "label": "Verantwoordelijke" },
+    "intakes.service": { "label": "Dienst" },
+    "intakes.received_on": { "label": "Ontvangen op" },
+    "intakes.first_response_on": { "label": "Eerste reactie op" },
+    "intakes.form_sent_on": { "label": "Formulier verstuurd op" },
+    "intakes.form_received_on": { "label": "Formulier ontvangen op" },
+    "intakes.agreement_sent_on": { "label": "Overeenkomst verstuurd op" },
+    "intakes.agreement_signed_on": { "label": "Overeenkomst getekend op" },
+    "intakes.kickoff_on": { "label": "Kickoff op" },
+    "intakes.fee_model": {
+      "label": "Tariefmodel",
+      "options": { "fixed": "Vaste prijs", "hourly": "Uurtarief", "retainer": "Maandelijkse retainer", "other": "Overig" }
+    },
+    "intakes.deposit_required": { "label": "Voorschot vereist" },
+    "intakes.deposit_received_on": { "label": "Voorschot ontvangen op" },
+    "intakes.identity_verified_on": { "label": "Identiteit gecontroleerd op" },
+    "intakes.identity_verified_by": { "label": "Identiteit gecontroleerd door" },
+    "intakes.conflict_check": {
+      "label": "Controle op belangenconflict",
+      "options": { "not_required": "Niet vereist", "pending": "In behandeling", "clear": "Geen conflict", "conflict_found": "Conflict gevonden" }
+    },
+    "intakes.risk_rating": {
+      "label": "Risicobeoordeling",
+      "options": { "not_assessed": "Niet beoordeeld", "low": "Laag", "standard": "Standaard", "high": "Hoog" }
+    },
+    "intakes.decline_reason": {
+      "label": "Reden van afwijzing",
+      "options": {
+        "conflict": "Belangenconflict",
+        "not_a_fit": "Past niet",
+        "no_capacity": "Geen capaciteit",
+        "no_response": "Geen reactie",
+        "client_withdrew": "Klant trok zich terug",
+        "risk": "Risico",
+        "other": "Overig"
+      }
+    },
+    "intakes.decline_notice_sent_on": { "label": "Afwijzing verstuurd op" },
+    "intakes.next_step": { "label": "Volgende stap" },
+    "intakes.next_step_due": { "label": "Datum volgende stap" },
+    "intakes.days_to_first_response": { "label": "Dagen tot eerste reactie" },
+    "intakes.days_to_kickoff": { "label": "Dagen tot kickoff" },
+    "document_requests.kind": {
+      "label": "Soort",
+      "options": {
+        "identity": "Identiteitsbewijs",
+        "proof_of_address": "Bewijs van adres",
+        "company_register": "Uittreksel Kamer van Koophandel",
+        "prior_year_return": "Aangifte vorig jaar",
+        "contract": "Contract",
+        "questionnaire": "Vragenlijst",
+        "access_credentials": "Inloggegevens",
+        "other": "Overig"
+      }
+    },
+    "document_requests.status": {
+      "label": "Status",
+      "options": { "requested": "Opgevraagd", "partial": "Deels ontvangen", "received": "Ontvangen", "needs_correction": "Moet worden gecorrigeerd", "not_needed": "Niet nodig" }
+    },
+    "document_requests.requested_on": { "label": "Opgevraagd op" },
+    "document_requests.needed_by": { "label": "Uiterste datum" },
+    "document_requests.received_on": { "label": "Ontvangen op" },
+    "document_requests.where_stored": { "label": "Waar het is opgeslagen" },
+    "document_requests.owner": { "label": "Verantwoordelijke" },
+    "actions.kind": {
+      "label": "Soort",
+      "options": {
+        "reply": "Antwoord",
+        "chase_form": "Formulier opvolgen",
+        "chase_document": "Document opvolgen",
+        "review": "Controle",
+        "check": "Check",
+        "send_agreement": "Overeenkomst sturen",
+        "chase_signature": "Handtekening opvolgen",
+        "kickoff": "Kickoff",
+        "decline_letter": "Afwijzingsbrief",
+        "other": "Overig"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Klant", "targetLabel": "Contactpersonen" },
+    "intake_client": { "sourceLabel": "Klant", "targetLabel": "Intakes" },
+    "intake_contact": { "sourceLabel": "Hoofdcontact", "targetLabel": "Intakes" },
+    "document_request_intake": { "sourceLabel": "Intake", "targetLabel": "Documentverzoeken" },
+    "action_intake": { "sourceLabel": "Intake", "targetLabel": "Acties" }
+  },
+  "views": {
+    "intakes_all": { "name": "Alle intakes" },
+    "intakes_board": { "name": "Intakes per fase" },
+    "awaiting_signature": { "name": "Wacht op handtekening" },
+    "no_first_response": { "name": "Zonder eerste reactie" },
+    "declined_intakes": { "name": "Afgewezen" },
+    "document_requests_all": { "name": "Alle documentverzoeken" },
+    "documents_outstanding": { "name": "Wacht op documenten" },
+    "clients_all": { "name": "Alle klanten" },
+    "contacts_all": { "name": "Alle contactpersonen" }
+  },
+  "widgets": {
+    "intakes_by_stage": { "title": "Open intakes per fase" },
+    "open_intakes_by_owner": { "title": "Open intakes per verantwoordelijke" },
+    "enquiries_without_reply": { "title": "Aanvragen zonder eerste reactie" },
+    "documents_outstanding": { "title": "Openstaande documenten" },
+    "awaiting_signature_count": { "title": "Wacht op handtekening" },
+    "average_days_to_reply": { "title": "Gemiddeld aantal dagen tot eerste reactie" },
+    "average_days_to_kickoff": { "title": "Gemiddeld aantal dagen tot kickoff" },
+    "decline_reasons": { "title": "Redenen van afwijzing" },
+    "new_intakes_per_month": { "title": "Nieuwe intakes per maand" }
+  },
+  "knowledgePages": {
+    "intake_process": {
+      "title": "Intakeproces voor klanten",
+      "sections": ["De negen fasen en wat elke fase afsluit", "Wie antwoordt, wie screent, wie tekent", "Tijdskaders: binnen een dag reageren, opvolgen na 3 en 7 dagen"]
+    },
+    "intake_questionnaire": {
+      "title": "Intakeformulier per type klant",
+      "sections": ["Bedrijf, zzp’er, particulier, vereniging", "Vragen die over geschiktheid beslissen", "Waar je nooit naar vraagt"]
+    },
+    "document_requests_guide": {
+      "title": "Documentenlijst en herinneringsberichten",
+      "sections": ["Standaardlijst per dienst", "Eerste verzoek en herinneringen", "Als een document gecorrigeerd moet worden"]
+    },
+    "agreement_checklist": {
+      "title": "Checklist overeenkomst",
+      "sections": ["Reikwijdte, tariefmodel en voorschot", "Wie tekent en in welke tool", "Wat te doen als de handtekening uitblijft"]
+    },
+    "regulated_checks": {
+      "title": "Controle op identiteit, conflict en risico voor gereguleerde beroepen",
+      "sections": ["Leg vast wie wanneer controleerde, nooit het document", "Conflictcontrole voordat het werk begint", "Risicobeoordeling en wanneer je afwijst"]
+    },
+    "privacy_at_intake": {
+      "title": "Privacy: wat we bij de intake verzamelen en waarom",
+      "sections": ["Doel en grondslag", "Wat buiten de werkruimte blijft", "Bewaartermijn en verzoeken om verwijdering"]
+    }
+  },
+  "rules": {
+    "reply_to_enquiry": { "title": "Beantwoord de aanvraag", "description": "Een nieuwe intake krijgt een antwoordactie met deadline de volgende dag." },
+    "chase_form": { "title": "Volg het intakeformulier op", "description": "Drie dagen nadat het formulier is verstuurd, staat er een opvolgactie klaar." },
+    "chase_document": { "title": "Volg het ontbrekende document op", "description": "Wanneer de uiterste datum van een open documentverzoek is bereikt, wordt een opvolgactie aangemaakt." },
+    "review_received_document": { "title": "Controleer het ontvangen document", "description": "Wanneer een document als ontvangen is gemarkeerd, staat de volgende dag een controleactie klaar." },
+    "chase_signature": { "title": "Volg de handtekening op", "description": "Zeven dagen nadat de overeenkomst is verstuurd, staat er een opvolgactie klaar." },
+    "decline_letter": { "title": "Stuur de afwijzingsbrief", "description": "Een afgewezen intake krijgt een actie voor de afwijzingsbrief, met deadline de volgende dag. Vermeld dat er geen opdracht bestaat en noem een naderende termijn." },
+    "kickoff_event": { "title": "Zet de kickoff in de agenda", "description": "Zodra de kickoffdatum is ingesteld, wordt de afspraak in de agenda van de verantwoordelijke gezet." },
+    "first_value_check": { "title": "Controleer het eerste resultaat", "description": "Veertien dagen na de start vraagt een controleactie of de klant een eerste resultaat heeft gezien." },
+    "stalled_intake": { "title": "Bekijk de vastgelopen intake", "description": "Een open intake die 7 dagen in dezelfde fase bleef, krijgt een controleactie." },
+    "intake_form_records": { "title": "Maak klant, contactpersoon en intake aan uit het formulier", "description": "Een openbaar intakeformulier maakt de klant, de contactpersoon en een intake in de fase Aanvraag aan." },
+    "intake_form_notice": { "title": "Informeer de verantwoordelijke over de nieuwe intake", "description": "De eigenaar van de werkruimte krijgt een melding van elke inzending." }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Elke intake heeft een van de negen fasen.",
+    "first_response_field": "Elke intake legt vast wanneer je voor het eerst reageerde.",
+    "document_requests_list": "Documentverzoeken worden in een eigen lijst bijgehouden.",
+    "intakes_board_view": "De intakelijst is te zien als bord per fase.",
+    "chase_signature_rule": "Een verstuurde overeenkomst krijgt na 7 dagen een opvolgactie.",
+    "process_page": "De kennisbank bevat het intakeproces."
+  },
+  "prompt": {
+    "intro": "Richt de klantintake in mijn Customermates-werkruimte in: één intake per opdracht met negen fasen, documentverzoeken, een stap met datum in elke fase, een reden van afwijzing en optionele controles op identiteit, conflict en risico die vastleggen wie wanneer controleerde.",
+    "questions": [
+      "Wat verkoop je en wie zijn je klanten: bedrijven, zzp’ers of particulieren?",
+      "Welke stappen doorloopt een nieuwe klant nu en welke van de negen fasen heb je niet nodig?",
+      "Is je beroep gereguleerd, zodat identiteit, conflict of risico moeten worden vastgelegd? In welk land?",
+      "Welke documenten vraag je altijd op en waar bewaar je ze? Hier wordt alleen een link bewaard.",
+      "Waar tekenen klanten de overeenkomst? Die blijft daar en hier worden de data bewaard."
+    ]
+  }
+}

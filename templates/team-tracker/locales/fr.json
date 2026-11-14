@@ -1,0 +1,92 @@
+{
+  "locale": "fr",
+  "name": "Suivi d’équipe",
+  "summary": "Un suivi du travail pour une petite équipe : projets, tâches avec un responsable et une échéance, tâches récurrentes et demandes venues de l’extérieur sur la même liste.",
+  "description": "Gardez une équipe de deux à quinze personnes sur une seule liste : chaque tâche a un statut, une priorité, un responsable et une échéance, et vous voyez d’un coup d’œil ce qui est en retard ou bloqué. Les tâches récurrentes se créent seules, les demandes de collègues ou de clients arrivent par un formulaire, et une tâche bloquée ou à l’arrêt relance son responsable. Ce n’est ni un outil de sprints, ni un diagramme de Gantt, ni un suivi du temps, ni un système RH.",
+  "lists": {
+    "requesters": { "label": "Demandeur", "pluralLabel": "Demandeurs", "description": "Les personnes extérieures à l’équipe qui demandent du travail." },
+    "projects": { "label": "Projet", "pluralLabel": "Projets", "description": "Un ensemble de tâches avec un responsable, un état de santé et une échéance." },
+    "tasks": { "label": "Tâche", "pluralLabel": "Tâches", "description": "Un travail avec un responsable et une échéance." },
+    "recurring": { "label": "Tâche récurrente", "pluralLabel": "Tâches récurrentes", "description": "Une tâche qui revient chaque semaine, mois, trimestre ou année." }
+  },
+  "fields": {
+    "requesters.relation": {
+      "label": "Relation",
+      "options": { "customer": "Client", "colleague": "Collègue", "partner": "Partenaire", "vendor": "Fournisseur", "other": "Autre" }
+    },
+    "requesters.team": { "label": "Équipe" },
+    "projects.status": {
+      "label": "Statut",
+      "options": { "planned": "Prévu", "active": "Actif", "on_hold": "En pause", "done": "Terminé", "cancelled": "Annulé" }
+    },
+    "projects.health": { "label": "Santé du projet", "options": { "on_track": "Dans les temps", "at_risk": "À risque", "off_track": "En dérive" } },
+    "projects.owner": { "label": "Responsable" },
+    "projects.due_date": { "label": "Échéance" },
+    "projects.repo_url": { "label": "Lien du dépôt" },
+    "tasks.status": {
+      "label": "Statut",
+      "options": { "backlog": "Backlog", "todo": "À faire", "in_progress": "En cours", "in_review": "En revue", "blocked": "Bloquée", "done": "Terminée", "cancelled": "Annulée" }
+    },
+    "tasks.kind": { "label": "Type", "options": { "task": "Tâche", "bug": "Bug", "feature": "Fonctionnalité", "chore": "Routine", "request": "Demande" } },
+    "tasks.priority": { "label": "Priorité", "options": { "urgent": "Urgente", "high": "Haute", "medium": "Moyenne", "low": "Basse" } },
+    "tasks.owner": { "label": "Responsable" },
+    "tasks.due": { "label": "Échéance" },
+    "tasks.original_due": { "label": "Échéance d’origine" },
+    "tasks.done_on": { "label": "Terminée le" },
+    "tasks.blocked_reason": { "label": "Motif du blocage" },
+    "tasks.external_url": { "label": "Lien (pull request ou ticket)" },
+    "recurring.cadence": { "label": "Répétition", "options": { "weekly": "Chaque semaine", "monthly": "Chaque mois", "quarterly": "Chaque trimestre", "yearly": "Chaque année" } },
+    "recurring.next_due": { "label": "Prochaine échéance" },
+    "recurring.owner": { "label": "Responsable" }
+  },
+  "relationships": {
+    "task_project": { "sourceLabel": "Projet", "targetLabel": "Tâches" },
+    "task_requester": { "sourceLabel": "Demandeur", "targetLabel": "Tâches" },
+    "recurring_project": { "sourceLabel": "Projet", "targetLabel": "Tâches récurrentes" }
+  },
+  "views": {
+    "tasks_all": { "name": "Toutes les tâches" },
+    "tasks_board": { "name": "Board des tâches" },
+    "blocked_tasks": { "name": "Tâches bloquées" },
+    "projects_all": { "name": "Tous les projets" },
+    "recurring_all": { "name": "Toutes les tâches récurrentes" },
+    "requesters_all": { "name": "Tous les demandeurs" }
+  },
+  "widgets": {
+    "tasks_by_status": { "title": "Tâches par statut" },
+    "open_by_priority": { "title": "Tâches ouvertes par priorité" },
+    "overdue_tasks": { "title": "Tâches en retard" },
+    "due_soon": { "title": "Tâches bientôt à échéance" },
+    "blocked_count": { "title": "Tâches bloquées" },
+    "activity_timeline": { "title": "Activité récente" }
+  },
+  "knowledgePages": {
+    "how_we_work": { "title": "Notre façon de travailler", "sections": ["Statuts, priorités et ce que « terminé » veut dire", "Un responsable et une date par tâche"] },
+    "weekly_review": { "title": "Revue hebdomadaire", "sections": ["Retards, blocages et tâches sans responsable", "Ce qui change cette semaine"] },
+    "triage": { "title": "Tri des demandes et des bugs", "sections": ["Qui décide de ce qui entre", "Gravité et priorité"] }
+  },
+  "rules": {
+    "task_assigned": { "title": "Prévenir le nouveau responsable quand une tâche lui est attribuée" },
+    "due_tomorrow": { "title": "Prévenir le responsable la veille de l’échéance" },
+    "overdue_task": { "title": "Prévenir le chef d’équipe le lendemain de l’échéance" },
+    "blocked_stale": { "title": "Prévenir le chef d’équipe quand une tâche reste bloquée 3 jours" },
+    "stale_in_progress": { "title": "Relancer le responsable quand une tâche n’a pas bougé depuis 5 jours" },
+    "recurring_due": { "title": "Créer une tâche quand une tâche récurrente arrive à échéance" },
+    "task_from_git": { "title": "Créer une tâche quand l’hébergeur Git envoie un événement" },
+    "request_form": { "title": "Créer la tâche et le demandeur quand le formulaire de demande est envoyé" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Chaque tâche a un statut.",
+    "due_field": "Chaque tâche a une échéance.",
+    "tasks_board_view": "Les tâches s’ouvrent en board par statut."
+  },
+  "prompt": {
+    "intro": "Mets en place dans mon espace de travail Customermates un suivi d’équipe : projets, tâches avec un responsable et une échéance, tâches récurrentes, demandes venues de l’extérieur et rappels pour le travail en retard ou bloqué.",
+    "questions": [
+      "Combien de personnes compte l’équipe, et sur quoi travaillent-elles ?",
+      "Quels statuts utilisez-vous aujourd’hui dans Trello, Jira, Asana ou un tableur ?",
+      "Quelles tâches reviennent chaque semaine ou chaque mois, et qui en est responsable ?",
+      "D’où viennent les demandes, et doivent-elles arriver par un formulaire ?"
+    ]
+  }
+}

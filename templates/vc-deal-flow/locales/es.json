@@ -1,0 +1,129 @@
+{
+  "locale": "es",
+  "name": "Dealflow para inversores",
+  "summary": "Un dealflow para un fondo pequeño o un business angel: ocho etapas de la detección al cierre o al rechazo, quién presentó cada operación, un motivo de rechazo y una fecha para retomar.",
+  "description": "Sigue startups e inversores desde la detección, el filtrado, las reuniones y la due diligence hasta el term sheet. Cada operación anota quién la presentó, cuánto encaja con la tesis, el papel de lead, un enlace a la data room, el motivo del rechazo y cuándo volver a mirarla. Es una herramienta de relaciones, no una tabla de capitalización, ni una data room legal, ni un modelo de puntuación. Las ponderaciones son aproximadas y tuyas.",
+  "lists": {
+    "people": { "label": "Persona", "pluralLabel": "Personas", "description": "Fundadores, inversores, coinversores y quienes presentan operaciones." },
+    "organizations": { "label": "Organización", "pluralLabel": "Organizaciones", "description": "Startups, fondos, sindicatos y aceleradoras." },
+    "deals": { "label": "Operación", "pluralLabel": "Operaciones", "description": "Una oportunidad de inversión de la detección al cierre o al rechazo." }
+  },
+  "fields": {
+    "deals.stage": {
+      "label": "Etapa",
+      "options": { "sourced": "Detectada", "screening": "Filtrado", "first_meeting": "Primera reunión", "partner_meeting": "Comité de inversión", "diligence": "Due diligence", "term_sheet": "Term sheet", "closed": "Cerrada", "passed": "Rechazada" }
+    },
+    "people.person_role": {
+      "label": "Función",
+      "options": { "founder": "Fundador", "investor": "Socio inversor", "angel": "Business angel", "co_investor": "Coinversor", "introducer": "Quien presenta", "advisor": "Asesor" }
+    },
+    "people.focus_stages": {
+      "label": "Etapas de interés",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Serie A", "series_b_plus": "Serie B y posteriores" }
+    },
+    "people.thesis": { "label": "Tesis de inversión" },
+    "people.relationship_strength": { "label": "Relación", "options": { "strong": "Fuerte", "warm": "Buena", "new": "Nueva" } },
+    "people.last_meeting_on": { "label": "Última reunión" },
+    "people.relationship_owner": { "label": "Responsable" },
+    "organizations.org_type": {
+      "label": "Tipo",
+      "options": { "startup": "Startup", "vc_fund": "Fondo de venture capital", "angel_syndicate": "Sindicato de business angels", "corporate_vc": "Corporate venture", "accelerator": "Aceleradora", "other": "Otro" }
+    },
+    "organizations.website": { "label": "Sitio web" },
+    "organizations.sector": { "label": "Sector" },
+    "organizations.stage": {
+      "label": "Etapa",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Serie A", "series_b": "Serie B", "growth": "Crecimiento" }
+    },
+    "organizations.country": { "label": "País" },
+    "organizations.conflict_check": { "label": "Comprobación de conflicto de intereses", "options": { "to_check": "Por comprobar", "clear": "Sin conflicto", "conflict": "Conflicto" } },
+    "deals.round": {
+      "label": "Ronda",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Serie A", "series_b": "Serie B", "bridge": "Ronda puente" }
+    },
+    "deals.lead_role": { "label": "Nuestro papel", "options": { "lead": "Lead", "follow": "Seguidor", "undecided": "Sin decidir" } },
+    "deals.thesis_fit": { "label": "Encaje con la tesis", "options": { "strong": "Fuerte", "partial": "Parcial", "weak": "Débil" } },
+    "deals.owner": { "label": "Responsable" },
+    "deals.source": {
+      "label": "Origen",
+      "options": { "warm_introduction": "Presentación personal", "inbound": "Solicitud entrante", "outbound": "Prospección", "event": "Evento", "portfolio_referral": "Recomendación de la cartera", "co_investor": "Coinversor" }
+    },
+    "deals.intro_requested_on": { "label": "Presentación solicitada el" },
+    "deals.intro_made_on": { "label": "Presentación hecha el" },
+    "deals.first_meeting_on": { "label": "Primera reunión el" },
+    "deals.decision_on": { "label": "Decisión el" },
+    "deals.term_sheet_on": { "label": "Term sheet el" },
+    "deals.closed_on": { "label": "Cierre el" },
+    "deals.nda_signed": { "label": "NDA firmado" },
+    "deals.pass_reason": {
+      "label": "Motivo de rechazo",
+      "options": { "thesis_mismatch": "Fuera de tesis", "team": "Equipo", "market": "Mercado", "too_early": "Demasiado pronto", "valuation": "Valoración", "timing": "Momento", "other": "Otro" }
+    },
+    "deals.revisit_on": { "label": "Fecha para retomar" },
+    "deals.data_room_url": { "label": "Enlace de la data room" },
+    "deals.days_to_term_sheet": { "label": "Días de la primera reunión al term sheet" },
+    "deals.weighted_value": { "label": "Valor ponderado" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "request_intro": "Pedir una presentación",
+        "send_deck": "Enviar el deck",
+        "prepare_meeting": "Preparar una reunión",
+        "follow_up": "Seguimiento",
+        "diligence_request": "Petición de due diligence",
+        "write_memo": "Escribir el memo",
+        "send_pass_note": "Enviar un rechazo",
+        "revisit": "Retomar el contacto",
+        "thank_introducer": "Agradecer o recordar a quien presentó",
+        "other": "Otro"
+      }
+    }
+  },
+  "relationships": {
+    "deal_company": { "sourceLabel": "Empresa", "targetLabel": "Operaciones" },
+    "deal_contacts": { "sourceLabel": "Fundadores y contactos", "targetLabel": "Operaciones" },
+    "action_deal": { "sourceLabel": "Operación", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "deals_board": { "name": "Dealflow" },
+    "deals_all": { "name": "Todas las operaciones" },
+    "passed_to_revisit": { "name": "Rechazadas, por retomar" },
+    "organizations_all": { "name": "Todas las organizaciones" },
+    "people_all": { "name": "Todas las personas" }
+  },
+  "widgets": {
+    "deal_funnel": { "title": "Operaciones abiertas por etapa" },
+    "deals_by_source": { "title": "Operaciones por origen" },
+    "pass_reasons": { "title": "Motivos de rechazo" },
+    "average_days_to_term_sheet": { "title": "Media de días hasta el term sheet" },
+    "revisits_coming": { "title": "Próximos contactos por retomar" }
+  },
+  "knowledgePages": {
+    "investment_thesis": { "title": "Tesis de inversión y foco", "sections": ["Etapa, sector y tamaño de ticket", "En qué no invertimos"] },
+    "stage_criteria": { "title": "Criterios por etapa", "sections": ["Qué lleva una operación a la siguiente etapa", "Quién decide en el comité"] },
+    "pass_notes": { "title": "Rechazos y reglas para retomar", "sections": ["Cómo rechazamos", "Cuándo volvemos a mirar"] }
+  },
+  "rules": {
+    "follow_up_after_meeting": { "title": "Enviar un mensaje con los siguientes pasos tras una primera reunión" },
+    "stale_screening": { "title": "Reactivar o rechazar una operación parada 14 días en filtrado" },
+    "pass_note": { "title": "Enviar un rechazo cuando se rechaza una operación" },
+    "revisit_deal": { "title": "Retomar una operación rechazada en su fecha" },
+    "diligence_checklist": { "title": "Iniciar la lista de due diligence cuando se acuerda un term sheet" },
+    "first_check_in_after_close": { "title": "Hacer un seguimiento 30 días después del cierre" },
+    "intro_nudge": { "title": "Recordar a quien presentó una semana después de pedir la presentación" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada operación tiene una de las ocho etapas.",
+    "pass_reason_field": "Cada operación anota por qué se rechazó.",
+    "board_view": "Las operaciones se abren como tablero por etapa."
+  },
+  "prompt": {
+    "intro": "Configura un dealflow en mi espacio de trabajo de Customermates: operaciones con ocho etapas, quién las presentó, encaje con la tesis, papel de lead, un motivo de rechazo y una fecha para retomar, además de startups, inversores y seguimientos con fecha.",
+    "questions": [
+      "¿En qué etapas y sectores inviertes y cuál es el tamaño habitual de tu ticket?",
+      "¿Cómo te llegan las operaciones y quién las presenta?",
+      "¿Quién decide en cada etapa y cuándo rechazas?",
+      "¿Dónde guardas los documentos legales y la data room? Aquí solo se guarda un enlace."
+    ]
+  }
+}

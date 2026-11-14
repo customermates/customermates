@@ -1,0 +1,5035 @@
+{
+  "spec": {
+    "id": "tpl_sales_pipeline",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "sales-pipeline",
+    "family": "sales",
+    "kind": "pipeline",
+    "jurisdictions": [
+      "global"
+    ],
+    "dashboardAudience": "team",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "notifications"
+    ],
+    "pairedPages": {
+      "en": "/features/pipeline",
+      "de": "/features/pipeline",
+      "fr": "/features/pipeline",
+      "it": "/features/pipeline",
+      "es": "/features/pipeline",
+      "pt": "/features/pipeline",
+      "pl": "/features/pipeline",
+      "nl": "/features/pipeline"
+    },
+    "modules": [
+      "actions_core"
+    ],
+    "lists": [
+      {
+        "key": "contacts",
+        "role": "people",
+        "icon": "contact"
+      },
+      {
+        "key": "accounts",
+        "icon": "building"
+      },
+      {
+        "key": "opportunities",
+        "role": "deals",
+        "icon": "handshake"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "contacts.job_title",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "contacts.buying_role",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "decision_maker"
+          },
+          {
+            "key": "budget_holder"
+          },
+          {
+            "key": "champion"
+          },
+          {
+            "key": "influencer"
+          },
+          {
+            "key": "user"
+          },
+          {
+            "key": "blocker"
+          }
+        ]
+      },
+      {
+        "key": "contacts.language",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "contacts.outreach_consent",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "accounts.relationship",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "prospect"
+          },
+          {
+            "key": "customer"
+          },
+          {
+            "key": "former_customer"
+          },
+          {
+            "key": "partner"
+          }
+        ]
+      },
+      {
+        "key": "accounts.size",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "micro"
+          },
+          {
+            "key": "small"
+          },
+          {
+            "key": "medium"
+          },
+          {
+            "key": "large"
+          }
+        ]
+      },
+      {
+        "key": "accounts.industry",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "accounts.website",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "accounts.address",
+        "type": "address",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "accounts.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.deal_type",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "new_business"
+          },
+          {
+            "key": "expansion"
+          },
+          {
+            "key": "renewal"
+          }
+        ]
+      },
+      {
+        "key": "opportunities.source",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "referral"
+          },
+          {
+            "key": "inbound"
+          },
+          {
+            "key": "outbound"
+          },
+          {
+            "key": "event"
+          },
+          {
+            "key": "partner"
+          },
+          {
+            "key": "existing_customer"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "opportunities.first_contact_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.expected_close",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.closed_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.next_step",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.next_step_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.decision_date",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.competitor",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "opportunities.lost_reason",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "price"
+          },
+          {
+            "key": "competitor"
+          },
+          {
+            "key": "no_budget_or_decision"
+          },
+          {
+            "key": "timing"
+          },
+          {
+            "key": "no_response"
+          },
+          {
+            "key": "not_a_fit"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "opportunities.won_reason",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "call"
+          },
+          {
+            "key": "email"
+          },
+          {
+            "key": "meeting"
+          },
+          {
+            "key": "proposal"
+          },
+          {
+            "key": "follow_up"
+          },
+          {
+            "key": "handover"
+          },
+          {
+            "key": "review"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "opportunities.stage",
+        "items": [
+          {
+            "key": "new",
+            "outcome": "open",
+            "weight": 10
+          },
+          {
+            "key": "qualified",
+            "outcome": "open",
+            "weight": 25
+          },
+          {
+            "key": "discovery",
+            "outcome": "open",
+            "weight": 40
+          },
+          {
+            "key": "proposal_sent",
+            "outcome": "open",
+            "weight": 60
+          },
+          {
+            "key": "negotiation",
+            "outcome": "open",
+            "weight": 80
+          },
+          {
+            "key": "won",
+            "outcome": "won",
+            "weight": 100
+          },
+          {
+            "key": "lost",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [
+      {
+        "key": "opportunities.weighted_value",
+        "type": "currency",
+        "expression": {
+          "op": "divide",
+          "left": {
+            "op": "multiply",
+            "left": {
+              "op": "field",
+              "field": "opportunities.value"
+            },
+            "right": {
+              "op": "optionWeight",
+              "field": "opportunities.stage"
+            }
+          },
+          "right": {
+            "op": "number",
+            "value": "100"
+          }
+        }
+      },
+      {
+        "key": "opportunities.cycle_days",
+        "type": "number",
+        "expression": {
+          "op": "daysBetween",
+          "from": "opportunities.first_contact_on",
+          "to": "opportunities.closed_on"
+        }
+      }
+    ],
+    "relationships": [
+      {
+        "key": "contact_account",
+        "source": "contacts",
+        "target": "accounts",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "opportunity_account",
+        "source": "opportunities",
+        "target": "accounts",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "opportunity_contacts",
+        "source": "opportunities",
+        "target": "contacts",
+        "sourceCardinality": "many",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_opportunity",
+        "source": "actions",
+        "target": "opportunities",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_contact",
+        "source": "actions",
+        "target": "contacts",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "pipeline_board",
+        "list": "opportunities",
+        "default": true,
+        "layout": "board",
+        "groupBy": "opportunities.stage",
+        "sort": {
+          "field": "opportunities.next_step_due",
+          "direction": "asc"
+        },
+        "columns": [
+          "opportunities.value",
+          "opportunities.weighted_value",
+          "opportunities.owner",
+          "opportunities.next_step_due"
+        ],
+        "summaries": [
+          {
+            "field": "opportunities.value",
+            "aggregation": "sum"
+          },
+          {
+            "field": "opportunities.weighted_value",
+            "aggregation": "sum"
+          }
+        ],
+        "filters": []
+      },
+      {
+        "key": "opportunities_all",
+        "list": "opportunities",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "opportunities.next_step_due",
+          "direction": "asc"
+        },
+        "columns": [
+          "opportunities.stage",
+          "opportunities.value",
+          "opportunities.weighted_value",
+          "opportunities.owner",
+          "opportunities.next_step_due"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "no_next_step",
+        "list": "opportunities",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          },
+          {
+            "operator": "empty",
+            "field": "opportunities.next_step_due"
+          }
+        ]
+      },
+      {
+        "key": "won_handover",
+        "list": "opportunities",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "opportunities.stage",
+            "options": [
+              "won"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "lost_to_revisit",
+        "list": "opportunities",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "opportunities.stage",
+            "options": [
+              "lost"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "accounts_all",
+        "list": "accounts",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "accounts.relationship",
+          "accounts.size",
+          "accounts.industry",
+          "accounts.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "contacts_all",
+        "list": "contacts",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "contacts.buying_role",
+          "contacts.language"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "chart",
+        "key": "pipeline_funnel",
+        "list": "opportunities",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "opportunities.stage"
+        },
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          }
+        ],
+        "display": "funnelChart",
+        "size": "large"
+      },
+      {
+        "kind": "chart",
+        "key": "open_value_by_stage",
+        "list": "opportunities",
+        "aggregation": "sum",
+        "valueField": "opportunities.value",
+        "groupBy": {
+          "path": [],
+          "field": "opportunities.stage"
+        },
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          }
+        ],
+        "display": "verticalBarChart"
+      },
+      {
+        "kind": "chart",
+        "key": "weighted_value_by_stage",
+        "list": "opportunities",
+        "aggregation": "sum",
+        "valueField": "opportunities.weighted_value",
+        "groupBy": {
+          "path": [],
+          "field": "opportunities.stage"
+        },
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          }
+        ],
+        "display": "verticalBarChart"
+      },
+      {
+        "kind": "chart",
+        "key": "open_opportunities",
+        "list": "opportunities",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "open_value",
+        "list": "opportunities",
+        "aggregation": "sum",
+        "valueField": "opportunities.value",
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "open_weighted_value",
+        "list": "opportunities",
+        "aggregation": "sum",
+        "valueField": "opportunities.weighted_value",
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "won_last_90_days",
+        "list": "opportunities",
+        "aggregation": "sum",
+        "valueField": "opportunities.value",
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "opportunities.stage",
+            "options": [
+              "won"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "opportunities.closed_on",
+            "days": 90
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "lost_reasons",
+        "list": "opportunities",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "opportunities.lost_reason"
+        },
+        "filters": [],
+        "display": "doughnutChart"
+      },
+      {
+        "kind": "chart",
+        "key": "pipeline_by_owner",
+        "list": "opportunities",
+        "aggregation": "sum",
+        "valueField": "opportunities.value",
+        "groupBy": {
+          "path": [],
+          "field": "opportunities.owner"
+        },
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          }
+        ],
+        "display": "rankedTable"
+      },
+      {
+        "kind": "chart",
+        "key": "deals_without_next_step",
+        "list": "opportunities",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "opportunities.stage",
+            "options": [
+              "won",
+              "lost"
+            ]
+          },
+          {
+            "operator": "empty",
+            "field": "opportunities.next_step_due"
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "calendar",
+        "key": "expected_closes",
+        "list": "opportunities",
+        "layout": "month",
+        "dateField": "opportunities.expected_close",
+        "amountField": "opportunities.value",
+        "filters": []
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "stages_exit_criteria",
+        "kind": "processes"
+      },
+      {
+        "key": "qualification_questions",
+        "kind": "salesPlaybook"
+      },
+      {
+        "key": "proposal_cadence",
+        "kind": "salesPlaybook"
+      },
+      {
+        "key": "weekly_review",
+        "kind": "processes"
+      },
+      {
+        "key": "win_loss_review",
+        "kind": "processes"
+      },
+      {
+        "key": "message_templates",
+        "kind": "salesPlaybook"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "qualify_new_opportunity",
+        "trigger": {
+          "kind": "record_created",
+          "list": "opportunities"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "call",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 1,
+        "needs": "today",
+        "priority": 1
+      },
+      {
+        "key": "book_discovery_call",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "opportunities.stage",
+          "to": "qualified"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "meeting",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 3,
+        "needs": "today",
+        "priority": 5
+      },
+      {
+        "key": "send_proposal",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "opportunities.stage",
+          "to": "discovery"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "proposal",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 5,
+        "needs": "today",
+        "priority": 4
+      },
+      {
+        "key": "follow_up_proposal",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "opportunities.stage",
+          "to": "proposal_sent"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 3,
+        "needs": "today",
+        "priority": 2
+      },
+      {
+        "key": "second_proposal_follow_up",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "opportunities.stage",
+          "to": "proposal_sent"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 10,
+        "needs": "today",
+        "priority": 9
+      },
+      {
+        "key": "confirm_decision",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "opportunities.stage",
+          "to": "negotiation"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 5,
+        "needs": "today",
+        "priority": 6
+      },
+      {
+        "key": "won_close_date",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "opportunities.stage",
+          "to": "won"
+        },
+        "condition": [],
+        "action": {
+          "kind": "set_dates",
+          "dates": [
+            {
+              "field": "opportunities.closed_on",
+              "offsetDays": 0
+            }
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "today",
+        "priority": 11
+      },
+      {
+        "key": "won_handover",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "opportunities.stage",
+          "to": "won"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "handover",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 1,
+        "needs": "today",
+        "priority": 7
+      },
+      {
+        "key": "lost_revisit",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "opportunities.stage",
+          "to": "lost"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 90,
+        "needs": "today",
+        "priority": 10
+      },
+      {
+        "key": "stale_deal_sweep",
+        "trigger": {
+          "kind": "unchanged_for",
+          "field": "opportunities.stage",
+          "days": 14
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "opportunities.stage",
+            "options": [
+              "new",
+              "qualified",
+              "discovery",
+              "proposal_sent",
+              "negotiation"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 0,
+        "needs": "today",
+        "priority": 3
+      },
+      {
+        "key": "expected_close_passed",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "opportunities.expected_close",
+          "offsetDays": 1
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "opportunities.stage",
+            "options": [
+              "new",
+              "qualified",
+              "discovery",
+              "proposal_sent",
+              "negotiation"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "next_step_due_notice",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "opportunities.next_step_due",
+          "offsetDays": 0
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "opportunities.stage",
+            "options": [
+              "new",
+              "qualified",
+              "discovery",
+              "proposal_sent",
+              "negotiation"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "notify",
+          "recipient": "record_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "weekly_pipeline_report",
+        "trigger": {
+          "kind": "schedule",
+          "every": "week",
+          "weekday": 5
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "workspace_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "today",
+        "priority": 8
+      },
+      {
+        "key": "enquiry_form_records",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "enquiry"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "contacts",
+            "accounts",
+            "opportunities"
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "forms"
+      },
+      {
+        "key": "enquiry_form_notice",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "enquiry"
+        },
+        "condition": [],
+        "action": {
+          "kind": "notify",
+          "recipient": "workspace_owner"
+        },
+        "dueOffsetDays": 1,
+        "needs": "notifications"
+      },
+      {
+        "key": "fill_missing_value",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "opportunities.stage",
+          "to": "discovery"
+        },
+        "condition": [
+          {
+            "operator": "empty",
+            "field": "opportunities.value"
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 1,
+        "needs": "today",
+        "priority": 12
+      },
+      {
+        "key": "fill_expected_close",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "opportunities.stage",
+          "to": "proposal_sent"
+        },
+        "condition": [
+          {
+            "operator": "empty",
+            "field": "opportunities.expected_close"
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "record_owner",
+          "about": "opportunities"
+        },
+        "dueOffsetDays": 1,
+        "needs": "today",
+        "priority": 13
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "stage_field",
+        "kind": "field_exists",
+        "ref": "opportunities.stage"
+      },
+      {
+        "key": "weighted_value_field",
+        "kind": "field_exists",
+        "ref": "opportunities.weighted_value"
+      },
+      {
+        "key": "pipeline_board_view",
+        "kind": "view_exists",
+        "ref": "pipeline_board"
+      },
+      {
+        "key": "funnel_widget",
+        "kind": "widget_exists",
+        "ref": "pipeline_funnel"
+      },
+      {
+        "key": "proposal_follow_up_rule",
+        "kind": "rule_exists",
+        "ref": "follow_up_proposal"
+      },
+      {
+        "key": "stages_page",
+        "kind": "page_exists",
+        "ref": "stages_exit_criteria"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://www.salesforce.com/sales/pipeline/management/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.superoffice.com/blog/sales-pipeline-management-tips/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://knowledge.hubspot.com/object-settings/set-up-and-customize-pipelines",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.pipedrive.com/es/blog/como-hacer-un-pipeline-de-ventas",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.pipedrive.com/en/resources/free-sales-pipeline-template",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://uptoo.fr/blog/pipeline-commercial-definition-outils-tout-savoir/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.teamsystem.com/magazine/crm/pipeline-di-vendita/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://pipedrive.com/pl/blog/proces-sprzedazy",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://attio.com/help/reference/managing-your-data/attributes/formula-attribute-examples",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://attio.com/templates/sales/ecv-and-pcd-reminder",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.conversion.com.br/blog/planilha-funil-de-vendas",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.pipedrive.com/de/blog/crm-vertrieb",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "status": {
+      "en": "draft",
+      "de": "draft",
+      "fr": "draft",
+      "it": "draft",
+      "es": "draft",
+      "pt": "draft",
+      "pl": "draft",
+      "nl": "draft"
+    },
+    "publicPage": {
+      "en": "own",
+      "de": "own",
+      "fr": "own",
+      "it": "none",
+      "es": "none",
+      "pt": "own",
+      "pl": "none",
+      "nl": "none"
+    },
+    "publishWave": {
+      "en": "hold",
+      "de": "wave2",
+      "fr": "wave2",
+      "pt": "hold"
+    }
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Vertriebspipeline",
+      "summary": "Sieben Phasen mit Abschlusskriterien und Gewichtung, ein terminierter nächster Schritt bei jeder offenen Chance, Verlust- und Gewinngründe und bei jedem Phasenwechsel die nächste Aufgabe.",
+      "description": "Eine Pipeline für ein kleines Vertriebsteam: fünf offene Phasen, Gewonnen und Verloren, ein gewichteter Wert je Verkaufschance, das Entscheidergremium an der Chance, Verlust- und Gewinngrund und die wöchentliche Durchsicht. Die Gewichtung ist eine Pipeline-Gewichtung und keine Prognose: Ersetzen Sie sie nach 20 bis 30 abgeschlossenen Chancen durch Ihre eigenen Abschlussquoten.",
+      "lists": {
+        "actions": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "contacts": {
+          "label": "Kontakt",
+          "pluralLabel": "Kontakte",
+          "description": "Die Personen auf der Kundenseite mit ihrer Rolle in der Entscheidung."
+        },
+        "accounts": {
+          "label": "Unternehmen",
+          "pluralLabel": "Unternehmen",
+          "description": "Die Firmen, an die du verkaufst."
+        },
+        "opportunities": {
+          "label": "Verkaufschance",
+          "pluralLabel": "Verkaufschancen",
+          "description": "Eine Chance vom ersten Kontakt bis gewonnen oder verloren."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Phase",
+          "options": {
+            "new": "Neu",
+            "qualified": "Qualifiziert",
+            "discovery": "Bedarfsanalyse",
+            "proposal_sent": "Angebot gesendet",
+            "negotiation": "Verhandlung",
+            "won": "Gewonnen",
+            "lost": "Verloren"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Position",
+          "options": {}
+        },
+        "contacts.buying_role": {
+          "label": "Rolle im Kaufprozess",
+          "options": {
+            "decision_maker": "Entscheider",
+            "budget_holder": "Budgetverantwortlicher",
+            "champion": "Fürsprecher",
+            "influencer": "Einflussnehmer",
+            "user": "Anwender",
+            "blocker": "Blockierer"
+          }
+        },
+        "contacts.language": {
+          "label": "Sprache",
+          "options": {}
+        },
+        "contacts.outreach_consent": {
+          "label": "Einwilligung zur Ansprache",
+          "options": {}
+        },
+        "accounts.relationship": {
+          "label": "Beziehung",
+          "options": {
+            "prospect": "Interessent",
+            "customer": "Kunde",
+            "former_customer": "Ehemaliger Kunde",
+            "partner": "Partner"
+          }
+        },
+        "accounts.size": {
+          "label": "Größe",
+          "options": {
+            "micro": "1 bis 10",
+            "small": "11 bis 50",
+            "medium": "51 bis 250",
+            "large": "251 und mehr"
+          }
+        },
+        "accounts.industry": {
+          "label": "Branche",
+          "options": {}
+        },
+        "accounts.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "accounts.address": {
+          "label": "Anschrift",
+          "options": {}
+        },
+        "accounts.owner": {
+          "label": "Betreuer",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Verantwortlich",
+          "options": {}
+        },
+        "opportunities.deal_type": {
+          "label": "Art der Chance",
+          "options": {
+            "new_business": "Neugeschäft",
+            "expansion": "Erweiterung",
+            "renewal": "Verlängerung"
+          }
+        },
+        "opportunities.source": {
+          "label": "Herkunft",
+          "options": {
+            "referral": "Empfehlung",
+            "inbound": "Anfrage von außen",
+            "outbound": "Eigene Akquise",
+            "event": "Veranstaltung",
+            "partner": "Partner",
+            "existing_customer": "Bestandskunde",
+            "other": "Sonstiges"
+          }
+        },
+        "opportunities.first_contact_on": {
+          "label": "Erstkontakt",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Erwarteter Abschluss",
+          "options": {}
+        },
+        "opportunities.closed_on": {
+          "label": "Abgeschlossen am",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Nächster Schritt",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Wiedervorlage",
+          "options": {}
+        },
+        "opportunities.decision_date": {
+          "label": "Entscheidungstermin",
+          "options": {}
+        },
+        "opportunities.competitor": {
+          "label": "Wettbewerber",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Verlustgrund",
+          "options": {
+            "price": "Preis",
+            "competitor": "Wettbewerber",
+            "no_budget_or_decision": "Kein Budget oder keine Entscheidung",
+            "timing": "Zeitpunkt",
+            "no_response": "Keine Antwort",
+            "not_a_fit": "Passt nicht",
+            "other": "Sonstiges"
+          }
+        },
+        "opportunities.won_reason": {
+          "label": "Gewinngrund",
+          "options": {}
+        },
+        "opportunities.weighted_value": {
+          "label": "Gewichteter Wert",
+          "options": {}
+        },
+        "opportunities.cycle_days": {
+          "label": "Dauer in Tagen",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "call": "Anruf",
+            "email": "E-Mail",
+            "meeting": "Termin",
+            "proposal": "Angebot",
+            "follow_up": "Nachfassen",
+            "handover": "Übergabe",
+            "review": "Prüfung",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "contact_account": {
+          "sourceLabel": "Unternehmen",
+          "targetLabel": "Kontakte"
+        },
+        "opportunity_account": {
+          "sourceLabel": "Unternehmen",
+          "targetLabel": "Verkaufschancen"
+        },
+        "opportunity_contacts": {
+          "sourceLabel": "Entscheidergremium",
+          "targetLabel": "Verkaufschancen"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Verkaufschance",
+          "targetLabel": "Aufgaben"
+        },
+        "action_contact": {
+          "sourceLabel": "Kontakt",
+          "targetLabel": "Aufgaben"
+        }
+      },
+      "views": {
+        "pipeline_board": {
+          "name": "Pipeline"
+        },
+        "opportunities_all": {
+          "name": "Alle Verkaufschancen"
+        },
+        "no_next_step": {
+          "name": "Ohne nächsten Schritt"
+        },
+        "won_handover": {
+          "name": "Gewonnen, zu übergeben"
+        },
+        "lost_to_revisit": {
+          "name": "Verloren, wieder aufgreifen"
+        },
+        "actions_all": {
+          "name": "Alle Aufgaben"
+        },
+        "accounts_all": {
+          "name": "Alle Unternehmen"
+        },
+        "contacts_all": {
+          "name": "Alle Kontakte"
+        }
+      },
+      "widgets": {
+        "pipeline_funnel": {
+          "title": "Offene Verkaufschancen nach Phase"
+        },
+        "open_value_by_stage": {
+          "title": "Offener Wert nach Phase"
+        },
+        "weighted_value_by_stage": {
+          "title": "Gewichteter Wert nach Phase"
+        },
+        "open_opportunities": {
+          "title": "Offene Verkaufschancen"
+        },
+        "open_value": {
+          "title": "Offener Wert"
+        },
+        "open_weighted_value": {
+          "title": "Offener gewichteter Wert"
+        },
+        "won_last_90_days": {
+          "title": "Gewonnen in den letzten 90 Tagen"
+        },
+        "lost_reasons": {
+          "title": "Verlustgründe"
+        },
+        "pipeline_by_owner": {
+          "title": "Offener Wert je Verantwortlichem"
+        },
+        "deals_without_next_step": {
+          "title": "Chancen ohne nächsten Schritt"
+        },
+        "upcoming_actions": {
+          "title": "Anstehende und überfällige Aufgaben"
+        },
+        "expected_closes": {
+          "title": "Erwartete Abschlüsse"
+        }
+      },
+      "knowledgePages": {
+        "stages_exit_criteria": {
+          "title": "Vertriebsphasen und Abschlusskriterien",
+          "sections": [
+            "Eintritts- und Austrittskriterium je Phase",
+            "Wer eine Chance verschieben darf und mit welchem Nachweis",
+            "Gewichtung und wann du sie ersetzt"
+          ]
+        },
+        "qualification_questions": {
+          "title": "Qualifizierungsfragen",
+          "sections": [
+            "Budget, Entscheidungsbefugnis, Bedarf und Zeitpunkt",
+            "Was passiert, wenn der Interessent nichts tut",
+            "Wer entscheidet noch mit"
+          ]
+        },
+        "proposal_cadence": {
+          "title": "Angebots- und Nachfass-Rhythmus",
+          "sections": [
+            "Nachfassen nach 3 und nach 10 Tagen",
+            "Eine abschließende Nachricht",
+            "Danach ein Wiedervorlagetermin"
+          ]
+        },
+        "weekly_review": {
+          "title": "Wöchentliche Pipeline-Durchsicht",
+          "sections": [
+            "Stockende Chancen",
+            "Chancen nach dem erwarteten Abschluss",
+            "Chancen ohne nächsten Schritt",
+            "Die fünf größten nach gewichtetem Wert"
+          ]
+        },
+        "win_loss_review": {
+          "title": "Gewinn- und Verlustanalyse",
+          "sections": [
+            "Jeden Monat Verlustgründe und Wettbewerber lesen",
+            "Gewinngründe lesen",
+            "Eine Verbesserungsaufgabe festlegen"
+          ]
+        },
+        "message_templates": {
+          "title": "Vorlagen für Nachfassnachrichten",
+          "sections": [
+            "Erste Antwort",
+            "Nach der Bedarfsanalyse",
+            "Begleitschreiben zum Angebot",
+            "Nachfassen zum Angebot",
+            "Abschluss: Der Zeitpunkt passt vielleicht nicht",
+            "Wiederaufnahme nach 90 Tagen"
+          ]
+        }
+      },
+      "rules": {
+        "qualify_new_opportunity": {
+          "title": "Neue Verkaufschance qualifizieren",
+          "description": "Eine neue Verkaufschance erhält eine Anruf-Aufgabe, fällig am nächsten Tag."
+        },
+        "book_discovery_call": {
+          "title": "Termin zur Bedarfsanalyse vereinbaren",
+          "description": "Wird eine Chance Qualifiziert, ist in 3 Tagen eine Termin-Aufgabe fällig."
+        },
+        "send_proposal": {
+          "title": "Angebot senden",
+          "description": "Erreicht eine Chance die Bedarfsanalyse, ist in 5 Tagen eine Angebots-Aufgabe fällig."
+        },
+        "follow_up_proposal": {
+          "title": "Zum Angebot nachfassen",
+          "description": "Drei Tage nach dem Angebot wird eine Aufgabe zum Nachfassen fällig."
+        },
+        "second_proposal_follow_up": {
+          "title": "Zweites Nachfassen zum Angebot",
+          "description": "Zehn Tage nach dem Angebot wird eine zweite Aufgabe zum Nachfassen fällig. Schließe sie, wenn der Interessent schon geantwortet hat."
+        },
+        "confirm_decision": {
+          "title": "Entscheidungstermin und Entscheider bestätigen",
+          "description": "Erreicht eine Chance die Verhandlung, ist in 5 Tagen eine Aufgabe zum Nachfassen fällig."
+        },
+        "won_close_date": {
+          "title": "Abschlussdatum setzen",
+          "description": "Wird eine Chance gewonnen, wird Abgeschlossen am auf heute gesetzt."
+        },
+        "won_handover": {
+          "title": "Gewonnene Chance übergeben",
+          "description": "Am Tag nach dem Abschluss ist eine Übergabe-Aufgabe fällig. Trage den Gewinngrund ein."
+        },
+        "lost_revisit": {
+          "title": "Verlorene Chance wieder aufgreifen",
+          "description": "Neunzig Tage nach dem Verlust fragt eine Aufgabe zum Nachfassen, ob sich der Zeitpunkt geändert hat. Trage vorher den Verlustgrund ein."
+        },
+        "stale_deal_sweep": {
+          "title": "Stockende Chance wiederbeleben oder aussortieren",
+          "description": "Eine offene Chance, die 14 Tage in derselben Phase blieb, erhält eine Aufgabe zum Nachfassen."
+        },
+        "expected_close_passed": {
+          "title": "Erwarteten Abschluss anpassen oder Chance schließen",
+          "description": "Ist der erwartete Abschluss einer offenen Chance verstrichen, entsteht eine Prüfungs-Aufgabe."
+        },
+        "next_step_due_notice": {
+          "title": "Verantwortlichen an den fälligen nächsten Schritt erinnern",
+          "description": "Sobald die Wiedervorlage einer offenen Chance erreicht ist, wird der Verantwortliche benachrichtigt."
+        },
+        "weekly_pipeline_report": {
+          "title": "Wöchentlicher Pipeline-Bericht",
+          "description": "Jeden Freitag listet eine Prüfungs-Aufgabe Anzahl und Wert je Phase und Verantwortlichem, gewonnene und verlorene Chancen mit Gründen und Chancen nach dem erwarteten Abschluss."
+        },
+        "enquiry_form_records": {
+          "title": "Kontakt, Unternehmen und Verkaufschance aus einer Anfrage anlegen",
+          "description": "Ein Anfrageformular auf der Website legt den Kontakt, das Unternehmen und eine Verkaufschance in der Phase Neu an."
+        },
+        "enquiry_form_notice": {
+          "title": "Verantwortlichen über die Anfrage informieren",
+          "description": "Der Verantwortliche wird über jede neue Anfrage benachrichtigt."
+        },
+        "fill_missing_value": {
+          "title": "Wert dieser Chance eintragen",
+          "description": "Eine Chance, die ohne Wert die Bedarfsanalyse erreicht, erhält eine Prüfungs-Aufgabe."
+        },
+        "fill_expected_close": {
+          "title": "Erwarteten Abschluss dieser Chance eintragen",
+          "description": "Eine Chance, die ohne erwarteten Abschluss die Phase Angebot gesendet erreicht, erhält eine Prüfungs-Aufgabe."
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Jede Verkaufschance hat eine von sieben Phasen.",
+        "weighted_value_field": "Jede Verkaufschance zeigt ihren gewichteten Wert.",
+        "pipeline_board_view": "Die Liste der Verkaufschancen öffnet sich als Board nach Phase mit Summen.",
+        "funnel_widget": "Das Dashboard zeigt offene Verkaufschancen nach Phase als Trichter.",
+        "proposal_follow_up_rule": "Eine Chance, die Angebot gesendet erreicht, erhält eine Aufgabe zum Nachfassen.",
+        "stages_page": "Die Wissensdatenbank enthält die Phasen und ihre Abschlusskriterien."
+      },
+      "page": {
+        "metaTitle": "Vertriebspipeline als Vorlage für Ihren KI-Agenten",
+        "metaDescription": "Kopieren Sie die Vertriebspipeline in Claude, ChatGPT oder Codex: sieben Phasen mit Gewichtung und ein nächster Schritt mit Datum je Chance.",
+        "headline": "Eine Vertriebspipeline, die Ihr KI-Agent in Ihrem CRM aufbaut",
+        "answer": "Die Pipeline eines kleinen Teams braucht wenige Phasen, für jede ein Abschlusskriterium, einen gewichteten Wert und bei jeder offenen Chance einen nächsten Schritt mit Datum. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Pipeline in Customermates auf: sieben Phasen, die Entscheider auf jeder Chance, Gründe für gewonnen und verloren und eine Aufgabe bei jedem Phasenwechsel. Sie genehmigen den Plan, bevor etwas geschrieben wird.",
+        "routine": {
+          "title": "Die wöchentliche Pipeline-Durchsicht",
+          "steps": [
+            "Öffnen Sie das Board und sehen Sie sich jede Chance an, die länger als 14 Tage in ihrer Phase steht.",
+            "Entscheiden Sie je Chance: weiterschieben, weil das Abschlusskriterium erfüllt ist, mit einem neuen nächsten Schritt wiederbeleben oder mit Grund als verloren schließen.",
+            "Prüfen Sie, dass jede offene Chance einen nächsten Schritt mit Datum hat, gesetzt am Ende jedes Gesprächs.",
+            "Sehen Sie gewonnene und verlorene Chancen mit ihren Gründen durch, dazu die Chancen nach dem erwarteten Abschluss."
+          ]
+        },
+        "limits": [
+          "Es erstellt keine Angebote oder Rechnungen. Das Angebot entsteht in Ihrem Dokumentenwerkzeug und wird mit der Chance verknüpft.",
+          "Es ist kein Werkzeug für Sequenzen oder Massenansprache. Nachfassen sind Entwürfe für einzelne Personen, und Sie senden sie selbst.",
+          "Es gibt kein Lead-Scoring, keine Anreicherung, keine Forecast-Kategorien und keine Quoten- oder Provisionsverwaltung. Der gewichtete Wert ist eine einfache Gewichtung Ihrer Chancenwerte nach Phase, keine Prognose.",
+          "Telefonie und SMS gibt es nicht.",
+          "Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt. Die Vorlage schlägt sie vor, Sie entscheiden, welche Sie einschalten.",
+          "Ausgelegt ist es für ein bis zehn Vertriebsmitarbeitende. Teams mit einem förmlichen Forecast-Prozess sind mit einem dafür gebauten Werkzeug besser bedient."
+        ],
+        "faq": [
+          {
+            "question": "Wie viele Phasen sollte eine Vertriebspipeline haben?",
+            "answer": "Die Meinungen gehen auseinander: Manche raten zu fünf oder weniger, andere nutzen neun. Diese Vorlage hat fünf offene Phasen plus gewonnen und verloren, weil jede Phase ein messbares Abschlusskriterium hat. Benennen Sie Phasen im Plan, den Ihr Agent vorschlägt, um oder lassen Sie welche weg."
+          },
+          {
+            "question": "Was ist der gewichtete Wert einer Chance?",
+            "answer": "Der Wert der Chance multipliziert mit der Gewichtung ihrer Phase, zum Beispiel 10, 25, 40, 60 und 80 Prozent von der ersten bis zur fünften Phase. Es ist eine Gewichtung, die Sie an Ihre eigenen Abschlussquoten anpassen können, keine Vorhersage."
+          },
+          {
+            "question": "Warum einen Grund für gewonnen und verloren festhalten?",
+            "answer": "Auswertungen einer Pipeline funktionieren nur, wenn beide Ergebnisse existieren, und die Gründe zeigen, was zu ändern ist. Die Vorlage fragt beim Schließen nach einem Grund und legt eine Folgeaufgabe an, um verlorene Chancen nach 90 Tagen wieder aufzugreifen."
+          },
+          {
+            "question": "Versendet der Agent meine Nachfassnachrichten?",
+            "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Richte in meinem Customermates-Workspace eine Vertriebspipeline ein: Verkaufschancen mit sieben Phasen und Gewichtung, einem gewichteten Wert, einem terminierten nächsten Schritt bei jeder offenen Chance, Verlust- und Gewinngründen, dem Entscheidergremium an jeder Chance und einer Aufgabe bei jedem Phasenwechsel.",
+        "questions": [
+          "Was verkaufst du, und wie viele Personen verkaufen es?",
+          "Welche Schritte durchläuft eine Chance vom Erstkontakt bis zur Unterschrift? Welche der sieben Phasen passen, und welche brauchen andere Namen?",
+          "Wie lange dauert eine typische Chance, und nach wie vielen Tagen ohne Bewegung gilt sie als stockend?",
+          "Welche Abschlussquoten kennst du aus früheren Chancen? Gibt es keine, bleibt die Standard-Gewichtung.",
+          "Wo erstellst du Angebote? Sie bleiben dort, hier wird nur ein Link gespeichert."
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Sales pipeline",
+      "summary": "Seven stages with exit criteria and weights, a dated next step on every open deal, lost and won reasons, and a stage change that creates the next Action.",
+      "description": "A pipeline for a small sales team: five open stages, Won and Lost, a weighted value per deal, the buying committee on the deal, a lost reason and a won reason, and the weekly review. Weights are a pipeline weighting, not a forecast: replace them with your own close rates after 20 to 30 closed deals.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "The people on the buying side, with their role in the decision."
+        },
+        "accounts": {
+          "label": "Account",
+          "pluralLabel": "Accounts",
+          "description": "The companies you sell to."
+        },
+        "opportunities": {
+          "label": "Opportunity",
+          "pluralLabel": "Opportunities",
+          "description": "One deal, from first contact to won or lost."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Stage",
+          "options": {
+            "new": "New",
+            "qualified": "Qualified",
+            "discovery": "Discovery",
+            "proposal_sent": "Proposal sent",
+            "negotiation": "Negotiation",
+            "won": "Won",
+            "lost": "Lost"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Job title",
+          "options": {}
+        },
+        "contacts.buying_role": {
+          "label": "Buying role",
+          "options": {
+            "decision_maker": "Decision maker",
+            "budget_holder": "Budget holder",
+            "champion": "Champion",
+            "influencer": "Influencer",
+            "user": "User",
+            "blocker": "Blocker"
+          }
+        },
+        "contacts.language": {
+          "label": "Language",
+          "options": {}
+        },
+        "contacts.outreach_consent": {
+          "label": "Outreach consent",
+          "options": {}
+        },
+        "accounts.relationship": {
+          "label": "Relationship",
+          "options": {
+            "prospect": "Prospect",
+            "customer": "Customer",
+            "former_customer": "Former customer",
+            "partner": "Partner"
+          }
+        },
+        "accounts.size": {
+          "label": "Size",
+          "options": {
+            "micro": "1 to 10",
+            "small": "11 to 50",
+            "medium": "51 to 250",
+            "large": "251 and more"
+          }
+        },
+        "accounts.industry": {
+          "label": "Industry",
+          "options": {}
+        },
+        "accounts.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "accounts.address": {
+          "label": "Address",
+          "options": {}
+        },
+        "accounts.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "opportunities.deal_type": {
+          "label": "Deal type",
+          "options": {
+            "new_business": "New business",
+            "expansion": "Expansion",
+            "renewal": "Renewal"
+          }
+        },
+        "opportunities.source": {
+          "label": "Source",
+          "options": {
+            "referral": "Referral",
+            "inbound": "Inbound",
+            "outbound": "Outbound",
+            "event": "Event",
+            "partner": "Partner",
+            "existing_customer": "Existing customer",
+            "other": "Other"
+          }
+        },
+        "opportunities.first_contact_on": {
+          "label": "First contact",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Expected close",
+          "options": {}
+        },
+        "opportunities.closed_on": {
+          "label": "Closed on",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Next step",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Next step due",
+          "options": {}
+        },
+        "opportunities.decision_date": {
+          "label": "Decision date",
+          "options": {}
+        },
+        "opportunities.competitor": {
+          "label": "Competitor",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Lost reason",
+          "options": {
+            "price": "Price",
+            "competitor": "Competitor",
+            "no_budget_or_decision": "No budget or decision",
+            "timing": "Timing",
+            "no_response": "No response",
+            "not_a_fit": "Not a fit",
+            "other": "Other"
+          }
+        },
+        "opportunities.won_reason": {
+          "label": "Won reason",
+          "options": {}
+        },
+        "opportunities.weighted_value": {
+          "label": "Weighted value",
+          "options": {}
+        },
+        "opportunities.cycle_days": {
+          "label": "Cycle in days",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "call": "Call",
+            "email": "Email",
+            "meeting": "Meeting",
+            "proposal": "Proposal",
+            "follow_up": "Follow-up",
+            "handover": "Handover",
+            "review": "Review",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "contact_account": {
+          "sourceLabel": "Account",
+          "targetLabel": "Contacts"
+        },
+        "opportunity_account": {
+          "sourceLabel": "Account",
+          "targetLabel": "Opportunities"
+        },
+        "opportunity_contacts": {
+          "sourceLabel": "Buying committee",
+          "targetLabel": "Opportunities"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Opportunity",
+          "targetLabel": "Actions"
+        },
+        "action_contact": {
+          "sourceLabel": "Contact",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "pipeline_board": {
+          "name": "Pipeline"
+        },
+        "opportunities_all": {
+          "name": "All opportunities"
+        },
+        "no_next_step": {
+          "name": "No next step"
+        },
+        "won_handover": {
+          "name": "Won, to hand over"
+        },
+        "lost_to_revisit": {
+          "name": "Lost, to revisit"
+        },
+        "actions_all": {
+          "name": "All actions"
+        },
+        "accounts_all": {
+          "name": "All accounts"
+        },
+        "contacts_all": {
+          "name": "All contacts"
+        }
+      },
+      "widgets": {
+        "pipeline_funnel": {
+          "title": "Open opportunities by stage"
+        },
+        "open_value_by_stage": {
+          "title": "Open value by stage"
+        },
+        "weighted_value_by_stage": {
+          "title": "Weighted value by stage"
+        },
+        "open_opportunities": {
+          "title": "Open opportunities"
+        },
+        "open_value": {
+          "title": "Open value"
+        },
+        "open_weighted_value": {
+          "title": "Open weighted value"
+        },
+        "won_last_90_days": {
+          "title": "Won in the last 90 days"
+        },
+        "lost_reasons": {
+          "title": "Lost reasons"
+        },
+        "pipeline_by_owner": {
+          "title": "Open value by owner"
+        },
+        "deals_without_next_step": {
+          "title": "Deals without a next step"
+        },
+        "upcoming_actions": {
+          "title": "Upcoming and overdue actions"
+        },
+        "expected_closes": {
+          "title": "Expected closes"
+        }
+      },
+      "knowledgePages": {
+        "stages_exit_criteria": {
+          "title": "Sales stages and exit criteria",
+          "sections": [
+            "Entry and exit criterion per stage",
+            "Who may move a deal and on what evidence",
+            "Weights and when to replace them"
+          ]
+        },
+        "qualification_questions": {
+          "title": "Qualification questions",
+          "sections": [
+            "Budget, authority, need and timing",
+            "What happens if the prospect does nothing",
+            "Who else decides"
+          ]
+        },
+        "proposal_cadence": {
+          "title": "Proposal and follow-up cadence",
+          "sections": [
+            "Follow up after 3 and after 10 days",
+            "One closing message",
+            "Then a callback date"
+          ]
+        },
+        "weekly_review": {
+          "title": "Weekly pipeline review",
+          "sections": [
+            "Stale deals",
+            "Deals past their expected close",
+            "Deals without a next step",
+            "Top five by weighted value"
+          ]
+        },
+        "win_loss_review": {
+          "title": "Win and loss review",
+          "sections": [
+            "Read the lost reasons and competitors each month",
+            "Read the won reasons",
+            "One improvement Action"
+          ]
+        },
+        "message_templates": {
+          "title": "Follow-up message templates",
+          "sections": [
+            "First reply",
+            "After discovery",
+            "Proposal cover note",
+            "Proposal chase",
+            "Closing: the timing may not be right",
+            "Revisit after 90 days"
+          ]
+        }
+      },
+      "rules": {
+        "qualify_new_opportunity": {
+          "title": "Qualify the new opportunity",
+          "description": "A new opportunity gets a call Action due the next day."
+        },
+        "book_discovery_call": {
+          "title": "Book the discovery call",
+          "description": "When a deal becomes Qualified, a meeting Action is due in 3 days."
+        },
+        "send_proposal": {
+          "title": "Send the proposal",
+          "description": "When a deal reaches Discovery, a proposal Action is due in 5 days."
+        },
+        "follow_up_proposal": {
+          "title": "Follow up on the proposal",
+          "description": "Three days after the proposal is sent, a follow-up Action falls due."
+        },
+        "second_proposal_follow_up": {
+          "title": "Second follow-up on the proposal",
+          "description": "Ten days after the proposal is sent, a second follow-up Action falls due. Close it if the prospect has already replied."
+        },
+        "confirm_decision": {
+          "title": "Confirm the decision date and the decision maker",
+          "description": "When a deal reaches Negotiation, a follow-up Action is due in 5 days."
+        },
+        "won_close_date": {
+          "title": "Set the close date",
+          "description": "When a deal is won, Closed on is set to today."
+        },
+        "won_handover": {
+          "title": "Hand the won deal over",
+          "description": "A handover Action is due the day after a deal is won. Record the won reason."
+        },
+        "lost_revisit": {
+          "title": "Revisit the lost deal",
+          "description": "Ninety days after a deal is lost, a follow-up Action asks whether the timing has changed. Record the lost reason first."
+        },
+        "stale_deal_sweep": {
+          "title": "Revive or disqualify the stale deal",
+          "description": "An open deal that stayed in the same stage for 14 days gets a follow-up Action."
+        },
+        "expected_close_passed": {
+          "title": "Update the expected close or close the deal",
+          "description": "When the expected close date of an open deal has passed, a review Action is created."
+        },
+        "next_step_due_notice": {
+          "title": "Tell the owner that a next step is due",
+          "description": "When the next step date of an open deal is reached, the owner is notified."
+        },
+        "weekly_pipeline_report": {
+          "title": "Weekly pipeline report",
+          "description": "Each Friday, one review Action lists counts and value per stage and owner, won and lost deals with reasons, and deals past their expected close."
+        },
+        "enquiry_form_records": {
+          "title": "Create the contact, account and opportunity from an inquiry",
+          "description": "A web inquiry form creates the contact, the account and an opportunity in the New stage."
+        },
+        "enquiry_form_notice": {
+          "title": "Tell the owner about the inquiry",
+          "description": "The owner is notified of every new inquiry."
+        },
+        "fill_missing_value": {
+          "title": "Fill in the value of this deal",
+          "description": "A deal that reaches Discovery without a value gets a review Action."
+        },
+        "fill_expected_close": {
+          "title": "Fill in the expected close of this deal",
+          "description": "A deal that reaches Proposal sent without an expected close date gets a review Action."
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Every opportunity has one of seven stages.",
+        "weighted_value_field": "Every opportunity shows its weighted value.",
+        "pipeline_board_view": "The opportunity list opens as a board by stage with totals.",
+        "funnel_widget": "The dashboard shows open opportunities by stage as a funnel.",
+        "proposal_follow_up_rule": "A deal that reaches Proposal sent gets a follow-up Action.",
+        "stages_page": "The Knowledge Base holds the stages and their exit criteria."
+      },
+      "page": {
+        "metaTitle": "Sales Pipeline Template for Your AI Agent",
+        "metaDescription": "Copy a sales pipeline into Claude, ChatGPT or Codex: seven stages with weights, a dated next step on every deal and reasons for won and lost.",
+        "headline": "A sales pipeline your AI agent builds in your CRM",
+        "answer": "A small team's pipeline needs few stages, an exit criterion for each, a weighted value and a dated next step on every open deal. Paste this template into your AI agent and it builds that pipeline in Customermates: seven stages, the buying committee on each deal, reasons for won and lost, and an Action created at every stage change. You approve the plan before anything is written.",
+        "routine": {
+          "title": "The weekly pipeline check",
+          "steps": [
+            "Open the board and look at every deal that has stayed in its stage for more than 14 days.",
+            "For each one, decide: move it forward with its exit criterion met, revive it with a new next step, or close it as lost with a reason.",
+            "Make sure every open deal has a next step with a date, set at the end of each call.",
+            "Review won and lost with their reasons, and the deals past their expected close date."
+          ]
+        },
+        "limits": [
+          "It does not make quotes or invoices. The proposal is written in your document tool and linked to the deal.",
+          "It is not a sequence or mass-outreach tool. Follow-ups are drafts for individual people, and you send them yourself.",
+          "There is no lead scoring or enrichment, no forecast categories and no quota or commission management. The weighted value is a simple weighting of your deal values by stage, not a forecast.",
+          "There is no telephony or SMS.",
+          "Reminders come from automation rules and notifications, or from a routine your agent runs on a schedule. The template proposes them and you decide which ones to switch on.",
+          "It is sized for one to ten sellers. Teams with a formal forecast process are better served by a tool built for it."
+        ],
+        "faq": [
+          {
+            "question": "How many stages should a sales pipeline have?",
+            "answer": "Practitioners disagree: some advise five or fewer, others use nine. This template uses five open stages plus won and lost, because each stage has one measurable exit criterion. Rename or drop stages in the plan your agent proposes."
+          },
+          {
+            "question": "What is the weighted value of a deal?",
+            "answer": "The deal value multiplied by the weight of its stage, for example 10, 25, 40, 60 and 80 percent from the first to the fifth stage. It is a weighting you can adjust to your own close rates, not a prediction."
+          },
+          {
+            "question": "Why record a reason for won and lost?",
+            "answer": "Reports about a pipeline only work when both outcomes exist, and the reasons show what to change. The template asks for a reason when a deal is closed and creates a follow-up Action to revisit lost deals after 90 days."
+          },
+          {
+            "question": "Does the agent send my follow-ups?",
+            "answer": "No. The prompt tells the agent to send nothing and to create no sample records. Drafts exist only when you ask for them, and you send them yourself."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Set up a sales pipeline in my Customermates workspace: opportunities with seven stages and weights, a weighted value, a dated next step on every open deal, lost and won reasons, the buying committee on each deal, and an Action created at every stage change.",
+        "questions": [
+          "What do you sell, and how many people sell it?",
+          "What does a deal go through from first contact to signature? Which of the seven stages fit, and which need other names?",
+          "How long does a typical deal take, and how many days without movement should count as stale?",
+          "Which close rates do you have from past deals? If none, the default weights stay.",
+          "Where do you make quotes? They stay there, and only a link is kept here."
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "Pipeline de ventas",
+      "summary": "Siete etapas con criterios de salida y ponderación, un siguiente paso con fecha en cada oportunidad abierta, motivos de pérdida y de victoria y un cambio de etapa que crea la siguiente tarea.",
+      "description": "Un pipeline para un equipo comercial pequeño: cinco etapas abiertas, Ganada y Perdida, un valor ponderado por oportunidad, el comité de compra en la oportunidad, un motivo de pérdida y un motivo de victoria, y la revisión semanal. Las ponderaciones sirven para valorar el pipeline, no para prever ventas: sustitúyelas por tus propias tasas de cierre cuando tengas entre 20 y 30 oportunidades cerradas.",
+      "lists": {
+        "actions": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un siguiente paso con fecha por cada asunto abierto."
+        },
+        "contacts": {
+          "label": "Persona de contacto",
+          "pluralLabel": "Personas de contacto",
+          "description": "Las personas del lado comprador, con su papel en la decisión."
+        },
+        "accounts": {
+          "label": "Empresa",
+          "pluralLabel": "Empresas",
+          "description": "Las empresas a las que vendes."
+        },
+        "opportunities": {
+          "label": "Oportunidad",
+          "pluralLabel": "Oportunidades",
+          "description": "Una oportunidad, desde el primer contacto hasta ganada o perdida."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierta",
+            "waiting": "En espera",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Etapa",
+          "options": {
+            "new": "Nueva",
+            "qualified": "Cualificada",
+            "discovery": "Reunión de diagnóstico",
+            "proposal_sent": "Presupuesto enviado",
+            "negotiation": "Negociación",
+            "won": "Ganada",
+            "lost": "Perdida"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Cargo",
+          "options": {}
+        },
+        "contacts.buying_role": {
+          "label": "Papel en la compra",
+          "options": {
+            "decision_maker": "Decisor",
+            "budget_holder": "Responsable del presupuesto",
+            "champion": "Impulsor interno",
+            "influencer": "Prescriptor",
+            "user": "Usuario",
+            "blocker": "Detractor"
+          }
+        },
+        "contacts.language": {
+          "label": "Idioma",
+          "options": {}
+        },
+        "contacts.outreach_consent": {
+          "label": "Consentimiento para contacto comercial",
+          "options": {}
+        },
+        "accounts.relationship": {
+          "label": "Relación",
+          "options": {
+            "prospect": "Cliente potencial",
+            "customer": "Cliente",
+            "former_customer": "Excliente",
+            "partner": "Socio"
+          }
+        },
+        "accounts.size": {
+          "label": "Tamaño",
+          "options": {
+            "micro": "De 1 a 10",
+            "small": "De 11 a 50",
+            "medium": "De 51 a 250",
+            "large": "251 o más"
+          }
+        },
+        "accounts.industry": {
+          "label": "Sector",
+          "options": {}
+        },
+        "accounts.website": {
+          "label": "Sitio web",
+          "options": {}
+        },
+        "accounts.address": {
+          "label": "Dirección",
+          "options": {}
+        },
+        "accounts.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "opportunities.deal_type": {
+          "label": "Tipo de oportunidad",
+          "options": {
+            "new_business": "Cliente nuevo",
+            "expansion": "Ampliación",
+            "renewal": "Renovación"
+          }
+        },
+        "opportunities.source": {
+          "label": "Origen",
+          "options": {
+            "referral": "Recomendación",
+            "inbound": "Solicitud entrante",
+            "outbound": "Prospección",
+            "event": "Evento",
+            "partner": "Socio",
+            "existing_customer": "Cliente existente",
+            "other": "Otro"
+          }
+        },
+        "opportunities.first_contact_on": {
+          "label": "Primer contacto",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Cierre previsto",
+          "options": {}
+        },
+        "opportunities.closed_on": {
+          "label": "Cerrada el",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Siguiente paso",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Fecha del siguiente paso",
+          "options": {}
+        },
+        "opportunities.decision_date": {
+          "label": "Fecha de decisión",
+          "options": {}
+        },
+        "opportunities.competitor": {
+          "label": "Competidor",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Motivo de pérdida",
+          "options": {
+            "price": "Precio",
+            "competitor": "Competidor",
+            "no_budget_or_decision": "Sin presupuesto ni decisión",
+            "timing": "Momento",
+            "no_response": "Sin respuesta",
+            "not_a_fit": "No encaja",
+            "other": "Otro"
+          }
+        },
+        "opportunities.won_reason": {
+          "label": "Motivo de victoria",
+          "options": {}
+        },
+        "opportunities.weighted_value": {
+          "label": "Valor ponderado",
+          "options": {}
+        },
+        "opportunities.cycle_days": {
+          "label": "Ciclo en días",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "call": "Llamada",
+            "email": "Correo",
+            "meeting": "Reunión",
+            "proposal": "Presupuesto",
+            "follow_up": "Seguimiento",
+            "handover": "Traspaso",
+            "review": "Revisión",
+            "other": "Otro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_account": {
+          "sourceLabel": "Empresa",
+          "targetLabel": "Personas de contacto"
+        },
+        "opportunity_account": {
+          "sourceLabel": "Empresa",
+          "targetLabel": "Oportunidades"
+        },
+        "opportunity_contacts": {
+          "sourceLabel": "Comité de compra",
+          "targetLabel": "Oportunidades"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Oportunidad",
+          "targetLabel": "Tareas"
+        },
+        "action_contact": {
+          "sourceLabel": "Persona de contacto",
+          "targetLabel": "Tareas"
+        }
+      },
+      "views": {
+        "pipeline_board": {
+          "name": "Pipeline"
+        },
+        "opportunities_all": {
+          "name": "Todas las oportunidades"
+        },
+        "no_next_step": {
+          "name": "Sin siguiente paso"
+        },
+        "won_handover": {
+          "name": "Ganadas, por traspasar"
+        },
+        "lost_to_revisit": {
+          "name": "Perdidas, por retomar"
+        },
+        "actions_all": {
+          "name": "Todas las tareas"
+        },
+        "accounts_all": {
+          "name": "Todas las empresas"
+        },
+        "contacts_all": {
+          "name": "Todas las personas de contacto"
+        }
+      },
+      "widgets": {
+        "pipeline_funnel": {
+          "title": "Oportunidades abiertas por etapa"
+        },
+        "open_value_by_stage": {
+          "title": "Valor abierto por etapa"
+        },
+        "weighted_value_by_stage": {
+          "title": "Valor ponderado por etapa"
+        },
+        "open_opportunities": {
+          "title": "Oportunidades abiertas"
+        },
+        "open_value": {
+          "title": "Valor abierto"
+        },
+        "open_weighted_value": {
+          "title": "Valor ponderado abierto"
+        },
+        "won_last_90_days": {
+          "title": "Ganadas en los últimos 90 días"
+        },
+        "lost_reasons": {
+          "title": "Motivos de pérdida"
+        },
+        "pipeline_by_owner": {
+          "title": "Valor abierto por responsable"
+        },
+        "deals_without_next_step": {
+          "title": "Oportunidades sin siguiente paso"
+        },
+        "upcoming_actions": {
+          "title": "Tareas próximas y vencidas"
+        },
+        "expected_closes": {
+          "title": "Cierres previstos"
+        }
+      },
+      "knowledgePages": {
+        "stages_exit_criteria": {
+          "title": "Etapas de venta y criterios de salida",
+          "sections": [
+            "Criterio de entrada y de salida de cada etapa",
+            "Quién mueve una oportunidad y con qué prueba",
+            "Ponderaciones y cuándo sustituirlas"
+          ]
+        },
+        "qualification_questions": {
+          "title": "Preguntas de cualificación",
+          "sections": [
+            "Presupuesto, autoridad, necesidad y plazo",
+            "Qué pasa si el cliente potencial no hace nada",
+            "Quién más decide"
+          ]
+        },
+        "proposal_cadence": {
+          "title": "Ritmo de presupuestos y seguimientos",
+          "sections": [
+            "Hacer seguimiento a los 3 y a los 10 días",
+            "Un mensaje de cierre",
+            "Después, una fecha para retomar"
+          ]
+        },
+        "weekly_review": {
+          "title": "Revisión semanal del pipeline",
+          "sections": [
+            "Oportunidades estancadas",
+            "Oportunidades pasadas de su cierre previsto",
+            "Oportunidades sin siguiente paso",
+            "Las cinco primeras por valor ponderado"
+          ]
+        },
+        "win_loss_review": {
+          "title": "Análisis de oportunidades ganadas y perdidas",
+          "sections": [
+            "Leer cada mes los motivos de pérdida y los competidores",
+            "Leer los motivos de victoria",
+            "Una tarea de mejora"
+          ]
+        },
+        "message_templates": {
+          "title": "Plantillas de mensajes de seguimiento",
+          "sections": [
+            "Primera respuesta",
+            "Tras la reunión de diagnóstico",
+            "Mensaje de envío del presupuesto",
+            "Seguimiento del presupuesto",
+            "Cierre: puede que no sea el momento",
+            "Retomar a los 90 días"
+          ]
+        }
+      },
+      "rules": {
+        "qualify_new_opportunity": {
+          "title": "Cualificar la nueva oportunidad",
+          "description": "Una oportunidad nueva recibe una tarea de llamada para el día siguiente."
+        },
+        "book_discovery_call": {
+          "title": "Agendar la reunión de diagnóstico",
+          "description": "Cuando una oportunidad pasa a Cualificada, una tarea de reunión vence en 3 días."
+        },
+        "send_proposal": {
+          "title": "Enviar el presupuesto",
+          "description": "Cuando una oportunidad llega a Reunión de diagnóstico, una tarea de presupuesto vence en 5 días."
+        },
+        "follow_up_proposal": {
+          "title": "Hacer seguimiento del presupuesto",
+          "description": "Tres días después de enviar el presupuesto vence una tarea de seguimiento."
+        },
+        "second_proposal_follow_up": {
+          "title": "Segundo seguimiento del presupuesto",
+          "description": "Diez días después de enviar el presupuesto vence una segunda tarea de seguimiento. Ciérrala si el cliente potencial ya respondió."
+        },
+        "confirm_decision": {
+          "title": "Confirmar la fecha de decisión y al decisor",
+          "description": "Cuando una oportunidad llega a Negociación, una tarea de seguimiento vence en 5 días."
+        },
+        "won_close_date": {
+          "title": "Fijar la fecha de cierre",
+          "description": "Cuando se gana una oportunidad, Cerrada el toma la fecha de hoy."
+        },
+        "won_handover": {
+          "title": "Traspasar la oportunidad ganada",
+          "description": "Una tarea de traspaso vence el día siguiente a ganar la oportunidad. Anota el motivo de victoria."
+        },
+        "lost_revisit": {
+          "title": "Retomar la oportunidad perdida",
+          "description": "Noventa días después de perder una oportunidad, una tarea de seguimiento pregunta si el momento ha cambiado. Anota antes el motivo de pérdida."
+        },
+        "stale_deal_sweep": {
+          "title": "Reactivar o descartar la oportunidad estancada",
+          "description": "Una oportunidad abierta que lleva 14 días en la misma etapa recibe una tarea de seguimiento."
+        },
+        "expected_close_passed": {
+          "title": "Actualizar el cierre previsto o cerrar la oportunidad",
+          "description": "Cuando pasa la fecha de cierre previsto de una oportunidad abierta, se crea una tarea de revisión."
+        },
+        "next_step_due_notice": {
+          "title": "Avisar al responsable de que vence un siguiente paso",
+          "description": "Al llegar la fecha del siguiente paso de una oportunidad abierta, se avisa al responsable."
+        },
+        "weekly_pipeline_report": {
+          "title": "Informe semanal del pipeline",
+          "description": "Cada viernes, una tarea de revisión lista cantidades y valor por etapa y responsable, oportunidades ganadas y perdidas con sus motivos y las que pasaron su cierre previsto."
+        },
+        "enquiry_form_records": {
+          "title": "Crear persona de contacto, empresa y oportunidad a partir de una consulta",
+          "description": "Un formulario de consulta web crea la persona de contacto, la empresa y una oportunidad en la etapa Nueva."
+        },
+        "enquiry_form_notice": {
+          "title": "Avisar al responsable de la consulta",
+          "description": "Se avisa al responsable de cada consulta nueva."
+        },
+        "fill_missing_value": {
+          "title": "Completar el valor de esta oportunidad",
+          "description": "Una oportunidad que llega a Reunión de diagnóstico sin valor recibe una tarea de revisión."
+        },
+        "fill_expected_close": {
+          "title": "Completar el cierre previsto de esta oportunidad",
+          "description": "Una oportunidad que llega a Presupuesto enviado sin fecha de cierre previsto recibe una tarea de revisión."
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada oportunidad tiene una de las siete etapas.",
+        "weighted_value_field": "Cada oportunidad muestra su valor ponderado.",
+        "pipeline_board_view": "La lista de oportunidades se abre como tablero por etapa, con totales.",
+        "funnel_widget": "El panel muestra las oportunidades abiertas por etapa como embudo.",
+        "proposal_follow_up_rule": "Una oportunidad que llega a Presupuesto enviado recibe una tarea de seguimiento.",
+        "stages_page": "La base de conocimiento contiene las etapas y sus criterios de salida."
+      },
+      "prompt": {
+        "intro": "Configura un pipeline de ventas en mi espacio de trabajo de Customermates: oportunidades con siete etapas y ponderaciones, un valor ponderado, un siguiente paso con fecha en cada oportunidad abierta, motivos de pérdida y de victoria, el comité de compra en cada oportunidad y una tarea creada en cada cambio de etapa.",
+        "questions": [
+          "¿Qué vendes y cuántas personas lo venden?",
+          "¿Qué pasos sigue una oportunidad desde el primer contacto hasta la firma? ¿Cuáles de las siete etapas encajan y cuáles necesitan otro nombre?",
+          "¿Cuánto dura una oportunidad típica y tras cuántos días sin movimiento debe considerarse estancada?",
+          "¿Qué tasas de cierre tienes de oportunidades anteriores? Si no las tienes, se mantienen las ponderaciones por defecto.",
+          "¿Dónde preparas los presupuestos? Se quedan allí y aquí solo se guarda un enlace."
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "Pipeline commercial",
+      "summary": "Sept étapes avec critères de sortie et pondération, une prochaine action datée sur chaque affaire ouverte, les motifs de gain et de perte, et un changement d’étape qui crée la prochaine action.",
+      "description": "Un pipeline pour une petite équipe commerciale : cinq étapes ouvertes, Signé et Perdu, une valeur pondérée par affaire, le comité d’achat sur l’affaire, un motif de perte et un motif de gain, et la revue hebdomadaire. Les pondérations sont une pondération du pipeline, pas une prévision : remplacez-les par vos propres taux de transformation après 20 à 30 affaires closes.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Une prochaine étape datée par dossier ouvert."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "Les personnes côté acheteur, avec leur rôle dans la décision."
+        },
+        "accounts": {
+          "label": "Compte",
+          "pluralLabel": "Comptes",
+          "description": "Les entreprises auxquelles vous vendez."
+        },
+        "opportunities": {
+          "label": "Affaire",
+          "pluralLabel": "Affaires",
+          "description": "Une affaire, du premier contact à signée ou perdue."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "waiting": "En attente",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Étape",
+          "options": {
+            "new": "Prospect",
+            "qualified": "Qualifié",
+            "discovery": "Rendez-vous découverte",
+            "proposal_sent": "Devis envoyé",
+            "negotiation": "Négociation",
+            "won": "Signé",
+            "lost": "Perdu"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Fonction",
+          "options": {}
+        },
+        "contacts.buying_role": {
+          "label": "Rôle dans l’achat",
+          "options": {
+            "decision_maker": "Décideur",
+            "budget_holder": "Détenteur du budget",
+            "champion": "Sponsor interne",
+            "influencer": "Prescripteur",
+            "user": "Utilisateur",
+            "blocker": "Opposant"
+          }
+        },
+        "contacts.language": {
+          "label": "Langue",
+          "options": {}
+        },
+        "contacts.outreach_consent": {
+          "label": "Consentement à la prospection",
+          "options": {}
+        },
+        "accounts.relationship": {
+          "label": "Relation",
+          "options": {
+            "prospect": "Prospect",
+            "customer": "Client",
+            "former_customer": "Ancien client",
+            "partner": "Partenaire"
+          }
+        },
+        "accounts.size": {
+          "label": "Taille",
+          "options": {
+            "micro": "1 à 10",
+            "small": "11 à 50",
+            "medium": "51 à 250",
+            "large": "251 et plus"
+          }
+        },
+        "accounts.industry": {
+          "label": "Secteur",
+          "options": {}
+        },
+        "accounts.website": {
+          "label": "Site web",
+          "options": {}
+        },
+        "accounts.address": {
+          "label": "Adresse",
+          "options": {}
+        },
+        "accounts.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "opportunities.deal_type": {
+          "label": "Type d’affaire",
+          "options": {
+            "new_business": "Nouveau client",
+            "expansion": "Développement",
+            "renewal": "Renouvellement"
+          }
+        },
+        "opportunities.source": {
+          "label": "Origine",
+          "options": {
+            "referral": "Recommandation",
+            "inbound": "Demande entrante",
+            "outbound": "Prospection",
+            "event": "Événement",
+            "partner": "Partenaire",
+            "existing_customer": "Client existant",
+            "other": "Autre"
+          }
+        },
+        "opportunities.first_contact_on": {
+          "label": "Premier contact",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Date de signature prévue",
+          "options": {}
+        },
+        "opportunities.closed_on": {
+          "label": "Date de clôture",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Prochaine action",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Échéance de la prochaine action",
+          "options": {}
+        },
+        "opportunities.decision_date": {
+          "label": "Date de décision",
+          "options": {}
+        },
+        "opportunities.competitor": {
+          "label": "Concurrent",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Motif de perte",
+          "options": {
+            "price": "Prix",
+            "competitor": "Concurrent",
+            "no_budget_or_decision": "Pas de budget ni de décision",
+            "timing": "Calendrier",
+            "no_response": "Pas de réponse",
+            "not_a_fit": "Ne convient pas",
+            "other": "Autre"
+          }
+        },
+        "opportunities.won_reason": {
+          "label": "Motif de gain",
+          "options": {}
+        },
+        "opportunities.weighted_value": {
+          "label": "Valeur pondérée",
+          "options": {}
+        },
+        "opportunities.cycle_days": {
+          "label": "Cycle en jours",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "call": "Appel",
+            "email": "E-mail",
+            "meeting": "Rendez-vous",
+            "proposal": "Devis",
+            "follow_up": "Relance",
+            "handover": "Passation",
+            "review": "Revue",
+            "other": "Autre"
+          }
+        }
+      },
+      "relationships": {
+        "contact_account": {
+          "sourceLabel": "Compte",
+          "targetLabel": "Contacts"
+        },
+        "opportunity_account": {
+          "sourceLabel": "Compte",
+          "targetLabel": "Affaires"
+        },
+        "opportunity_contacts": {
+          "sourceLabel": "Comité d’achat",
+          "targetLabel": "Affaires"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Affaire",
+          "targetLabel": "Actions"
+        },
+        "action_contact": {
+          "sourceLabel": "Contact",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "pipeline_board": {
+          "name": "Pipeline"
+        },
+        "opportunities_all": {
+          "name": "Toutes les affaires"
+        },
+        "no_next_step": {
+          "name": "Sans prochaine action"
+        },
+        "won_handover": {
+          "name": "Signées, à transmettre"
+        },
+        "lost_to_revisit": {
+          "name": "Perdues, à rouvrir"
+        },
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "accounts_all": {
+          "name": "Tous les comptes"
+        },
+        "contacts_all": {
+          "name": "Tous les contacts"
+        }
+      },
+      "widgets": {
+        "pipeline_funnel": {
+          "title": "Affaires ouvertes par étape"
+        },
+        "open_value_by_stage": {
+          "title": "Montant des affaires ouvertes par étape"
+        },
+        "weighted_value_by_stage": {
+          "title": "Valeur pondérée par étape"
+        },
+        "open_opportunities": {
+          "title": "Affaires ouvertes"
+        },
+        "open_value": {
+          "title": "Montant des affaires ouvertes"
+        },
+        "open_weighted_value": {
+          "title": "Valeur pondérée des affaires ouvertes"
+        },
+        "won_last_90_days": {
+          "title": "Signées sur les 90 derniers jours"
+        },
+        "lost_reasons": {
+          "title": "Motifs de perte"
+        },
+        "pipeline_by_owner": {
+          "title": "Montant des affaires ouvertes par responsable"
+        },
+        "deals_without_next_step": {
+          "title": "Affaires sans prochaine action"
+        },
+        "upcoming_actions": {
+          "title": "Actions à venir et en retard"
+        },
+        "expected_closes": {
+          "title": "Signatures prévues"
+        }
+      },
+      "knowledgePages": {
+        "stages_exit_criteria": {
+          "title": "Étapes de vente et critères de sortie",
+          "sections": [
+            "Critère d’entrée et de sortie de chaque étape",
+            "Qui fait avancer une affaire, et sur quelle preuve",
+            "Pondérations et quand les remplacer"
+          ]
+        },
+        "qualification_questions": {
+          "title": "Questions de qualification",
+          "sections": [
+            "Budget, pouvoir de décision, besoin et calendrier",
+            "Ce qui se passe si le prospect ne fait rien",
+            "Qui d’autre décide"
+          ]
+        },
+        "proposal_cadence": {
+          "title": "Rythme des devis et des relances",
+          "sections": [
+            "Relancer après 3 puis après 10 jours",
+            "Un message de clôture",
+            "Puis une date de rappel"
+          ]
+        },
+        "weekly_review": {
+          "title": "Revue hebdomadaire du pipeline",
+          "sections": [
+            "Affaires qui stagnent",
+            "Affaires au-delà de la date de signature prévue",
+            "Affaires sans prochaine action",
+            "Les cinq premières par valeur pondérée"
+          ]
+        },
+        "win_loss_review": {
+          "title": "Revue des gains et des pertes",
+          "sections": [
+            "Lire chaque mois les motifs de perte et les concurrents",
+            "Lire les motifs de gain",
+            "Une action d’amélioration"
+          ]
+        },
+        "message_templates": {
+          "title": "Modèles de messages de relance",
+          "sections": [
+            "Première réponse",
+            "Après le rendez-vous découverte",
+            "Message d’accompagnement du devis",
+            "Relance du devis",
+            "Clôture : le moment n’est peut-être pas le bon",
+            "Reprise de contact après 90 jours"
+          ]
+        }
+      },
+      "rules": {
+        "qualify_new_opportunity": {
+          "title": "Qualifier la nouvelle affaire",
+          "description": "Une nouvelle affaire reçoit une action d’appel pour le lendemain."
+        },
+        "book_discovery_call": {
+          "title": "Fixer le rendez-vous découverte",
+          "description": "Quand une affaire passe à « Qualifié », une action de rendez-vous est due dans 3 jours."
+        },
+        "send_proposal": {
+          "title": "Envoyer le devis",
+          "description": "Quand une affaire atteint « Rendez-vous découverte », une action de devis est due dans 5 jours."
+        },
+        "follow_up_proposal": {
+          "title": "Relancer le devis",
+          "description": "Trois jours après l’envoi du devis, une action de relance arrive à échéance."
+        },
+        "second_proposal_follow_up": {
+          "title": "Seconde relance du devis",
+          "description": "Dix jours après l’envoi du devis, une seconde action de relance arrive à échéance. Clôturez-la si le prospect a déjà répondu."
+        },
+        "confirm_decision": {
+          "title": "Confirmer la date de décision et le décideur",
+          "description": "Quand une affaire atteint « Négociation », une action de relance est due dans 5 jours."
+        },
+        "won_close_date": {
+          "title": "Renseigner la date de clôture",
+          "description": "Quand une affaire est signée, « Date de clôture » prend la date du jour."
+        },
+        "won_handover": {
+          "title": "Transmettre l’affaire signée",
+          "description": "Une action de passation est due le lendemain de la signature. Notez le motif de gain."
+        },
+        "lost_revisit": {
+          "title": "Rouvrir l’affaire perdue",
+          "description": "Quatre-vingt-dix jours après la perte, une action de relance demande si le calendrier a changé. Notez d’abord le motif de perte."
+        },
+        "stale_deal_sweep": {
+          "title": "Relancer ou disqualifier l’affaire qui stagne",
+          "description": "Une affaire ouverte restée 14 jours dans la même étape reçoit une action de relance."
+        },
+        "expected_close_passed": {
+          "title": "Mettre à jour la date de signature ou clôturer l’affaire",
+          "description": "Quand la date de signature prévue d’une affaire ouverte est dépassée, une action de revue est créée."
+        },
+        "next_step_due_notice": {
+          "title": "Prévenir le responsable qu’une prochaine action est due",
+          "description": "À l’échéance de la prochaine action d’une affaire ouverte, le responsable est averti."
+        },
+        "weekly_pipeline_report": {
+          "title": "Bilan hebdomadaire du pipeline",
+          "description": "Chaque vendredi, une action de revue liste le nombre et le montant par étape et par responsable, les affaires signées et perdues avec leurs motifs, et les affaires au-delà de la date prévue."
+        },
+        "enquiry_form_records": {
+          "title": "Créer le contact, le compte et l’affaire à partir d’une demande",
+          "description": "Un formulaire de demande web crée le contact, le compte et une affaire à l’étape « Prospect »."
+        },
+        "enquiry_form_notice": {
+          "title": "Prévenir le responsable de la demande",
+          "description": "Le responsable est averti de chaque nouvelle demande."
+        },
+        "fill_missing_value": {
+          "title": "Renseigner le montant de cette affaire",
+          "description": "Une affaire qui atteint « Rendez-vous découverte » sans montant reçoit une action de revue."
+        },
+        "fill_expected_close": {
+          "title": "Renseigner la date de signature prévue de cette affaire",
+          "description": "Une affaire qui atteint « Devis envoyé » sans date de signature prévue reçoit une action de revue."
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Chaque affaire a l’une des sept étapes.",
+        "weighted_value_field": "Chaque affaire affiche sa valeur pondérée.",
+        "pipeline_board_view": "La liste des affaires s’ouvre en board par étape, avec les totaux.",
+        "funnel_widget": "Le tableau de bord montre les affaires ouvertes par étape sous forme d’entonnoir.",
+        "proposal_follow_up_rule": "Une affaire qui atteint « Devis envoyé » reçoit une action de relance.",
+        "stages_page": "La base de connaissances contient les étapes et leurs critères de sortie."
+      },
+      "page": {
+        "metaTitle": "Modèle de pipeline commercial pour votre agent IA",
+        "metaDescription": "Copiez le pipeline commercial dans Claude, ChatGPT ou Codex : sept étapes pondérées, une action datée par affaire et les motifs de gain et de perte.",
+        "headline": "Un pipeline commercial que votre agent IA construit dans votre CRM",
+        "answer": "Le pipeline d’une petite équipe demande peu d’étapes, un critère de sortie pour chacune, une valeur pondérée et une prochaine action datée sur chaque affaire ouverte. Collez ce modèle dans votre agent IA et il construit ce pipeline dans Customermates : sept étapes, le comité d’achat sur chaque affaire, les motifs de gain et de perte, et une action créée à chaque changement d’étape. Vous validez le plan avant toute écriture.",
+        "routine": {
+          "title": "La revue hebdomadaire du pipeline",
+          "steps": [
+            "Ouvrez le tableau et regardez chaque affaire restée plus de 14 jours dans son étape.",
+            "Pour chacune, décidez : la faire avancer parce que son critère de sortie est rempli, la relancer avec une nouvelle prochaine action, ou la clore comme perdue avec un motif.",
+            "Vérifiez que chaque affaire ouverte a une prochaine action datée, fixée à la fin de chaque appel.",
+            "Passez en revue les affaires gagnées et perdues avec leurs motifs, ainsi que celles dont la date de signature prévue est dépassée."
+          ]
+        },
+        "limits": [
+          "Il ne produit ni devis ni factures. La proposition est rédigée dans votre outil documentaire et liée à l’affaire.",
+          "Ce n’est pas un outil de séquences ou de prospection de masse. Les relances sont des brouillons pour des personnes précises, et c’est vous qui les envoyez.",
+          "Il n’y a ni notation des leads, ni enrichissement, ni catégories de prévision, ni gestion des quotas ou des commissions. La valeur pondérée est une simple pondération du montant de vos affaires par étape, pas une prévision.",
+          "Il n’y a ni téléphonie ni SMS.",
+          "Les rappels viennent des règles d’automatisation et des notifications, ou d’une routine que votre agent exécute à intervalles réguliers. Le modèle les propose, vous décidez lesquelles activer.",
+          "Il est dimensionné pour un à dix commerciaux. Les équipes avec un processus de prévision formel sont mieux servies par un outil conçu pour cela."
+        ],
+        "faq": [
+          {
+            "question": "Combien d’étapes un pipeline commercial doit-il avoir ?",
+            "answer": "Les praticiens ne sont pas d’accord : certains conseillent cinq au plus, d’autres en utilisent neuf. Ce modèle compte cinq étapes ouvertes plus gagné et perdu, parce que chaque étape a un critère de sortie mesurable. Renommez ou retirez des étapes dans le plan que propose votre agent."
+          },
+          {
+            "question": "Qu’est-ce que la valeur pondérée d’une affaire ?",
+            "answer": "Le montant de l’affaire multiplié par la pondération de son étape, par exemple 10, 25, 40, 60 et 80 % de la première à la cinquième étape. C’est une pondération que vous pouvez ajuster à vos propres taux de transformation, pas une prédiction."
+          },
+          {
+            "question": "Pourquoi noter un motif de gain et de perte ?",
+            "answer": "Les rapports sur un pipeline ne fonctionnent que si les deux issues existent, et les motifs montrent ce qu’il faut changer. Le modèle demande un motif à la clôture et crée une action de suivi pour reprendre les affaires perdues après 90 jours."
+          },
+          {
+            "question": "L’agent envoie-t-il mes relances ?",
+            "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Mets en place un pipeline commercial dans mon espace de travail Customermates : des affaires avec sept étapes et leur pondération, une valeur pondérée, une prochaine action datée sur chaque affaire ouverte, les motifs de perte et de gain, le comité d’achat sur chaque affaire et une action créée à chaque changement d’étape.",
+        "questions": [
+          "Que vendez-vous, et combien de personnes le vendent ?",
+          "Par quelles étapes passe une affaire entre le premier contact et la signature ? Lesquelles des sept conviennent, lesquelles doivent changer de nom ?",
+          "Combien de temps dure une affaire type, et au bout de combien de jours sans mouvement une affaire stagne-t-elle ?",
+          "Quels taux de transformation avez-vous sur vos affaires passées ? À défaut, les pondérations par défaut restent.",
+          "Où faites-vous vos devis ? Ils y restent, et seul un lien est conservé ici."
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "Pipeline commerciale",
+      "summary": "Sette fasi con criteri di uscita e pesi, un prossimo passo con scadenza su ogni trattativa aperta, motivi di vittoria e di perdita e un cambio di fase che crea la prossima attività.",
+      "description": "Una pipeline per un piccolo team di vendita: cinque fasi aperte, Vinta e Persa, un valore ponderato per trattativa, il comitato d'acquisto sulla trattativa, un motivo della perdita e un motivo della vittoria, e la revisione settimanale. I pesi sono una ponderazione della pipeline, non una previsione: sostituiscili con i tuoi tassi di chiusura dopo 20 o 30 trattative chiuse.",
+      "lists": {
+        "actions": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un prossimo passo con data per ogni pratica aperta."
+        },
+        "contacts": {
+          "label": "Referente",
+          "pluralLabel": "Referenti",
+          "description": "Le persone lato acquirente, con il loro ruolo nella decisione."
+        },
+        "accounts": {
+          "label": "Azienda",
+          "pluralLabel": "Aziende",
+          "description": "Le aziende a cui vendi."
+        },
+        "opportunities": {
+          "label": "Trattativa",
+          "pluralLabel": "Trattative",
+          "description": "Una trattativa, dal primo contatto a vinta o persa."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "waiting": "In attesa",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Fase",
+          "options": {
+            "new": "Nuovo contatto",
+            "qualified": "Qualificata",
+            "discovery": "Analisi esigenze",
+            "proposal_sent": "Preventivo inviato",
+            "negotiation": "Negoziazione",
+            "won": "Vinta",
+            "lost": "Persa"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Ruolo aziendale",
+          "options": {}
+        },
+        "contacts.buying_role": {
+          "label": "Ruolo nell'acquisto",
+          "options": {
+            "decision_maker": "Decisore",
+            "budget_holder": "Responsabile del budget",
+            "champion": "Sostenitore interno",
+            "influencer": "Influenzatore",
+            "user": "Utilizzatore",
+            "blocker": "Oppositore"
+          }
+        },
+        "contacts.language": {
+          "label": "Lingua",
+          "options": {}
+        },
+        "contacts.outreach_consent": {
+          "label": "Consenso al contatto commerciale",
+          "options": {}
+        },
+        "accounts.relationship": {
+          "label": "Relazione",
+          "options": {
+            "prospect": "Potenziale",
+            "customer": "Cliente",
+            "former_customer": "Ex cliente",
+            "partner": "Partner"
+          }
+        },
+        "accounts.size": {
+          "label": "Dimensione",
+          "options": {
+            "micro": "da 1 a 10",
+            "small": "da 11 a 50",
+            "medium": "da 51 a 250",
+            "large": "251 e oltre"
+          }
+        },
+        "accounts.industry": {
+          "label": "Settore",
+          "options": {}
+        },
+        "accounts.website": {
+          "label": "Sito web",
+          "options": {}
+        },
+        "accounts.address": {
+          "label": "Indirizzo",
+          "options": {}
+        },
+        "accounts.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "opportunities.deal_type": {
+          "label": "Tipo di trattativa",
+          "options": {
+            "new_business": "Nuovo cliente",
+            "expansion": "Ampliamento",
+            "renewal": "Rinnovo"
+          }
+        },
+        "opportunities.source": {
+          "label": "Provenienza",
+          "options": {
+            "referral": "Segnalazione",
+            "inbound": "Richiesta in entrata",
+            "outbound": "Contatto diretto",
+            "event": "Evento",
+            "partner": "Partner",
+            "existing_customer": "Cliente esistente",
+            "other": "Altro"
+          }
+        },
+        "opportunities.first_contact_on": {
+          "label": "Primo contatto",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Chiusura prevista",
+          "options": {}
+        },
+        "opportunities.closed_on": {
+          "label": "Chiusa il",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Prossimo passo",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Scadenza del prossimo passo",
+          "options": {}
+        },
+        "opportunities.decision_date": {
+          "label": "Data della decisione",
+          "options": {}
+        },
+        "opportunities.competitor": {
+          "label": "Concorrente",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Motivo della perdita",
+          "options": {
+            "price": "Prezzo",
+            "competitor": "Concorrente",
+            "no_budget_or_decision": "Nessun budget o decisione",
+            "timing": "Tempi",
+            "no_response": "Nessuna risposta",
+            "not_a_fit": "Non adatto",
+            "other": "Altro"
+          }
+        },
+        "opportunities.won_reason": {
+          "label": "Motivo della vittoria",
+          "options": {}
+        },
+        "opportunities.weighted_value": {
+          "label": "Valore ponderato",
+          "options": {}
+        },
+        "opportunities.cycle_days": {
+          "label": "Ciclo in giorni",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "call": "Chiamata",
+            "email": "E-mail",
+            "meeting": "Incontro",
+            "proposal": "Preventivo",
+            "follow_up": "Follow-up",
+            "handover": "Passaggio di consegne",
+            "review": "Revisione",
+            "other": "Altro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_account": {
+          "sourceLabel": "Azienda",
+          "targetLabel": "Referenti"
+        },
+        "opportunity_account": {
+          "sourceLabel": "Azienda",
+          "targetLabel": "Trattative"
+        },
+        "opportunity_contacts": {
+          "sourceLabel": "Comitato d'acquisto",
+          "targetLabel": "Trattative"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Trattativa",
+          "targetLabel": "Attività"
+        },
+        "action_contact": {
+          "sourceLabel": "Referente",
+          "targetLabel": "Attività"
+        }
+      },
+      "views": {
+        "pipeline_board": {
+          "name": "Pipeline"
+        },
+        "opportunities_all": {
+          "name": "Tutte le trattative"
+        },
+        "no_next_step": {
+          "name": "Senza prossimo passo"
+        },
+        "won_handover": {
+          "name": "Vinte, da passare in consegna"
+        },
+        "lost_to_revisit": {
+          "name": "Perse, da riprendere"
+        },
+        "actions_all": {
+          "name": "Tutte le attività"
+        },
+        "accounts_all": {
+          "name": "Tutte le aziende"
+        },
+        "contacts_all": {
+          "name": "Tutti i referenti"
+        }
+      },
+      "widgets": {
+        "pipeline_funnel": {
+          "title": "Trattative aperte per fase"
+        },
+        "open_value_by_stage": {
+          "title": "Valore delle trattative aperte per fase"
+        },
+        "weighted_value_by_stage": {
+          "title": "Valore ponderato per fase"
+        },
+        "open_opportunities": {
+          "title": "Trattative aperte"
+        },
+        "open_value": {
+          "title": "Valore delle trattative aperte"
+        },
+        "open_weighted_value": {
+          "title": "Valore ponderato delle trattative aperte"
+        },
+        "won_last_90_days": {
+          "title": "Vinte negli ultimi 90 giorni"
+        },
+        "lost_reasons": {
+          "title": "Motivi della perdita"
+        },
+        "pipeline_by_owner": {
+          "title": "Valore delle trattative aperte per responsabile"
+        },
+        "deals_without_next_step": {
+          "title": "Trattative senza prossimo passo"
+        },
+        "upcoming_actions": {
+          "title": "Attività in arrivo e scadute"
+        },
+        "expected_closes": {
+          "title": "Chiusure previste"
+        }
+      },
+      "knowledgePages": {
+        "stages_exit_criteria": {
+          "title": "Fasi di vendita e criteri di uscita",
+          "sections": [
+            "Criterio di ingresso e di uscita per ogni fase",
+            "Chi può spostare una trattativa e con quali prove",
+            "Pesi e quando sostituirli"
+          ]
+        },
+        "qualification_questions": {
+          "title": "Domande di qualificazione",
+          "sections": [
+            "Budget, autorità, bisogno e tempi",
+            "Che cosa succede se il potenziale cliente non fa nulla",
+            "Chi altro decide"
+          ]
+        },
+        "proposal_cadence": {
+          "title": "Ritmo di preventivi e solleciti",
+          "sections": [
+            "Sollecitare dopo 3 e dopo 10 giorni",
+            "Un messaggio di chiusura",
+            "Poi una data per riprendere il contatto"
+          ]
+        },
+        "weekly_review": {
+          "title": "Revisione settimanale della pipeline",
+          "sections": [
+            "Trattative ferme",
+            "Trattative oltre la chiusura prevista",
+            "Trattative senza prossimo passo",
+            "Le prime cinque per valore ponderato"
+          ]
+        },
+        "win_loss_review": {
+          "title": "Analisi di vittorie e perdite",
+          "sections": [
+            "Leggere ogni mese i motivi della perdita e i concorrenti",
+            "Leggere i motivi della vittoria",
+            "Un'attività di miglioramento"
+          ]
+        },
+        "message_templates": {
+          "title": "Modelli di messaggio di sollecito",
+          "sections": [
+            "Prima risposta",
+            "Dopo l'analisi delle esigenze",
+            "Messaggio di accompagnamento del preventivo",
+            "Sollecito del preventivo",
+            "Chiusura: forse non è il momento giusto",
+            "Ripresa del contatto dopo 90 giorni"
+          ]
+        }
+      },
+      "rules": {
+        "qualify_new_opportunity": {
+          "title": "Qualificare la nuova trattativa",
+          "description": "Una nuova trattativa riceve un'attività di chiamata con scadenza il giorno dopo."
+        },
+        "book_discovery_call": {
+          "title": "Fissare l'incontro di analisi delle esigenze",
+          "description": "Quando una trattativa diventa «Qualificata», un'attività di incontro scade tra 3 giorni."
+        },
+        "send_proposal": {
+          "title": "Inviare il preventivo",
+          "description": "Quando una trattativa arriva ad «Analisi esigenze», un'attività di preventivo scade tra 5 giorni."
+        },
+        "follow_up_proposal": {
+          "title": "Sollecitare il preventivo",
+          "description": "Tre giorni dopo l'invio del preventivo scade un'attività di sollecito."
+        },
+        "second_proposal_follow_up": {
+          "title": "Secondo sollecito del preventivo",
+          "description": "Dieci giorni dopo l'invio del preventivo scade una seconda attività di sollecito. Chiudila se il potenziale cliente ha già risposto."
+        },
+        "confirm_decision": {
+          "title": "Confermare la data della decisione e il decisore",
+          "description": "Quando una trattativa arriva a «Negoziazione», un'attività di sollecito scade tra 5 giorni."
+        },
+        "won_close_date": {
+          "title": "Impostare la data di chiusura",
+          "description": "Quando una trattativa è vinta, «Chiusa il» prende la data di oggi."
+        },
+        "won_handover": {
+          "title": "Passare in consegna la trattativa vinta",
+          "description": "Un'attività di passaggio di consegne scade il giorno dopo la vittoria. Registra il motivo della vittoria."
+        },
+        "lost_revisit": {
+          "title": "Riprendere la trattativa persa",
+          "description": "Novanta giorni dopo la perdita, un'attività di sollecito chiede se i tempi sono cambiati. Registra prima il motivo della perdita."
+        },
+        "stale_deal_sweep": {
+          "title": "Rilanciare o scartare la trattativa ferma",
+          "description": "Una trattativa aperta rimasta 14 giorni nella stessa fase riceve un'attività di sollecito."
+        },
+        "expected_close_passed": {
+          "title": "Aggiornare la chiusura prevista o chiudere la trattativa",
+          "description": "Quando la data di chiusura prevista di una trattativa aperta è passata, viene creata un'attività di revisione."
+        },
+        "next_step_due_notice": {
+          "title": "Avvisare il responsabile che un prossimo passo scade",
+          "description": "Alla data del prossimo passo di una trattativa aperta, il responsabile riceve un avviso."
+        },
+        "weekly_pipeline_report": {
+          "title": "Report settimanale della pipeline",
+          "description": "Ogni venerdì, un'attività di revisione elenca numero e valore per fase e responsabile, trattative vinte e perse con i motivi e trattative oltre la chiusura prevista."
+        },
+        "enquiry_form_records": {
+          "title": "Creare referente, azienda e trattativa da una richiesta",
+          "description": "Un modulo di richiesta sul web crea il referente, l'azienda e una trattativa nella fase «Nuovo contatto»."
+        },
+        "enquiry_form_notice": {
+          "title": "Avvisare il responsabile della richiesta",
+          "description": "Il responsabile riceve un avviso per ogni nuova richiesta."
+        },
+        "fill_missing_value": {
+          "title": "Inserire il valore di questa trattativa",
+          "description": "Una trattativa che arriva ad «Analisi esigenze» senza valore riceve un'attività di revisione."
+        },
+        "fill_expected_close": {
+          "title": "Inserire la chiusura prevista di questa trattativa",
+          "description": "Una trattativa che arriva a «Preventivo inviato» senza data di chiusura prevista riceve un'attività di revisione."
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Ogni trattativa ha una delle sette fasi.",
+        "weighted_value_field": "Ogni trattativa mostra il suo valore ponderato.",
+        "pipeline_board_view": "L'elenco delle trattative si apre come board per fase, con i totali.",
+        "funnel_widget": "La dashboard mostra le trattative aperte per fase come imbuto.",
+        "proposal_follow_up_rule": "Una trattativa che arriva a «Preventivo inviato» riceve un'attività di sollecito.",
+        "stages_page": "La base di conoscenza contiene le fasi e i loro criteri di uscita."
+      },
+      "page": {
+        "metaTitle": "Pipeline commerciale: modello per il tuo agente IA",
+        "metaDescription": "Copia la pipeline commerciale in Claude, ChatGPT o Codex: sette fasi con pesi, un prossimo passo datato per trattativa e i motivi di vittoria e perdita.",
+        "headline": "Una pipeline commerciale che il tuo agente IA costruisce nel tuo CRM",
+        "answer": "La pipeline di un piccolo team ha poche fasi, un criterio di uscita per ciascuna, un valore ponderato e un prossimo passo con scadenza su ogni trattativa aperta. Incolla questo modello nel tuo agente IA e lui costruisce la pipeline in Customermates: sette fasi, il comitato d'acquisto su ogni trattativa, i motivi di vittoria e di perdita e un'attività creata a ogni cambio di fase. Approvi il piano prima che venga scritto qualcosa.",
+        "routine": {
+          "title": "Il controllo settimanale della pipeline",
+          "steps": [
+            "Apri la bacheca e guarda ogni trattativa ferma nella sua fase da più di 14 giorni.",
+            "Per ciascuna decidi: farla avanzare perché il criterio di uscita è soddisfatto, rilanciarla con un nuovo prossimo passo oppure chiuderla come persa con un motivo.",
+            "Assicurati che ogni trattativa aperta abbia un prossimo passo con scadenza, fissato alla fine di ogni chiamata.",
+            "Rivedi le trattative vinte e perse con i loro motivi, e quelle che hanno superato la chiusura prevista."
+          ]
+        },
+        "limits": [
+          "Non crea preventivi né fatture. La proposta si scrive nel tuo strumento per i documenti e si collega alla trattativa.",
+          "Non è uno strumento per sequenze o invii di massa. I follow-up sono bozze per singole persone, e li invii tu.",
+          "Non ci sono lead scoring né arricchimento dei dati, categorie di previsione o gestione di quote e provvigioni. Il valore ponderato è una semplice ponderazione degli importi delle trattative per fase, non una previsione.",
+          "Non ci sono telefonia né SMS.",
+          "I promemoria arrivano dalle regole di automazione e dalle notifiche, oppure da una routine che il tuo agente esegue a intervalli regolari. Il modello li propone, tu decidi quali attivare.",
+          "È pensato per un team da uno a dieci venditori. I team con un processo di previsione formale sono serviti meglio da uno strumento fatto per quello."
+        ],
+        "faq": [
+          {
+            "question": "Quante fasi dovrebbe avere una pipeline commerciale?",
+            "answer": "I professionisti non sono d'accordo: alcuni consigliano cinque o meno, altri ne usano nove. Questo modello ha cinque fasi aperte più vinta e persa, perché ogni fase ha un criterio di uscita misurabile. Rinomina o togli fasi nel piano che il tuo agente propone."
+          },
+          {
+            "question": "Che cos'è il valore ponderato di una trattativa?",
+            "answer": "L'importo della trattativa moltiplicato per il peso della sua fase, per esempio 10, 25, 40, 60 e 80 per cento dalla prima alla quinta fase. È un peso che puoi adattare ai tuoi tassi di chiusura, non una previsione."
+          },
+          {
+            "question": "Perché registrare un motivo di vittoria e di perdita?",
+            "answer": "I report su una pipeline funzionano solo se esistono entrambi gli esiti, e i motivi mostrano cosa cambiare. Il modello chiede un motivo alla chiusura e crea un'attività di follow-up per riprendere le trattative perse dopo 90 giorni."
+          },
+          {
+            "question": "L'agente invia i miei follow-up?",
+            "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+          }
+        ]
+      },
+      "prompt": {
+        "intro": "Configura una pipeline commerciale nel mio spazio di lavoro Customermates: trattative con sette fasi e pesi, un valore ponderato, un prossimo passo con scadenza su ogni trattativa aperta, motivi della perdita e della vittoria, il comitato d'acquisto su ogni trattativa e un'attività creata a ogni cambio di fase.",
+        "questions": [
+          "Che cosa vendi e quante persone lo vendono?",
+          "Quali passaggi attraversa una trattativa dal primo contatto alla firma? Quali delle sette fasi vanno bene e quali vanno rinominate?",
+          "Quanto dura una trattativa tipica e dopo quanti giorni senza movimento va considerata ferma?",
+          "Quali tassi di chiusura hai sulle trattative passate? Se non ne hai, restano i pesi predefiniti.",
+          "Dove prepari i preventivi? Restano lì e qui si conserva solo un link."
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "Sales pipeline",
+      "summary": "Zeven fasen met uitstapcriteria en weging, een volgende stap met datum bij elke open deal, redenen voor gewonnen en verloren en een fasewijziging die de volgende actie aanmaakt.",
+      "description": "Een pipeline voor een klein salesteam: vijf open fasen, Gewonnen en Verloren, een gewogen waarde per deal, het besluitvormingsteam bij de deal, een reden voor verlies en een reden voor winst, en de wekelijkse controle. De weging is een indicatie voor de pipeline, geen prognose: vervang haar door je eigen slagingspercentages na 20 tot 30 gesloten deals.",
+      "lists": {
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén volgende stap met datum per open dossier."
+        },
+        "contacts": {
+          "label": "Contactpersoon",
+          "pluralLabel": "Contactpersonen",
+          "description": "De mensen aan de kant van de koper, met hun rol in de beslissing."
+        },
+        "accounts": {
+          "label": "Bedrijf",
+          "pluralLabel": "Bedrijven",
+          "description": "De bedrijven waaraan je verkoopt."
+        },
+        "opportunities": {
+          "label": "Deal",
+          "pluralLabel": "Deals",
+          "description": "Eén deal, van eerste contact tot gewonnen of verloren."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "In de wacht",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Fase",
+          "options": {
+            "new": "Nieuw",
+            "qualified": "Gekwalificeerd",
+            "discovery": "Kennismaking",
+            "proposal_sent": "Offerte verstuurd",
+            "negotiation": "Onderhandeling",
+            "won": "Gewonnen",
+            "lost": "Verloren"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Functie",
+          "options": {}
+        },
+        "contacts.buying_role": {
+          "label": "Rol in de aankoop",
+          "options": {
+            "decision_maker": "Beslisser",
+            "budget_holder": "Budgethouder",
+            "champion": "Interne pleitbezorger",
+            "influencer": "Beïnvloeder",
+            "user": "Gebruiker",
+            "blocker": "Tegenstander"
+          }
+        },
+        "contacts.language": {
+          "label": "Taal",
+          "options": {}
+        },
+        "contacts.outreach_consent": {
+          "label": "Toestemming voor commerciële benadering",
+          "options": {}
+        },
+        "accounts.relationship": {
+          "label": "Relatie",
+          "options": {
+            "prospect": "Prospect",
+            "customer": "Klant",
+            "former_customer": "Oud-klant",
+            "partner": "Partner"
+          }
+        },
+        "accounts.size": {
+          "label": "Grootte",
+          "options": {
+            "micro": "1 tot 10",
+            "small": "11 tot 50",
+            "medium": "51 tot 250",
+            "large": "251 en meer"
+          }
+        },
+        "accounts.industry": {
+          "label": "Branche",
+          "options": {}
+        },
+        "accounts.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "accounts.address": {
+          "label": "Adres",
+          "options": {}
+        },
+        "accounts.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "opportunities.deal_type": {
+          "label": "Type deal",
+          "options": {
+            "new_business": "Nieuwe klant",
+            "expansion": "Uitbreiding",
+            "renewal": "Verlenging"
+          }
+        },
+        "opportunities.source": {
+          "label": "Herkomst",
+          "options": {
+            "referral": "Aanbeveling",
+            "inbound": "Inkomende aanvraag",
+            "outbound": "Eigen acquisitie",
+            "event": "Evenement",
+            "partner": "Partner",
+            "existing_customer": "Bestaande klant",
+            "other": "Overig"
+          }
+        },
+        "opportunities.first_contact_on": {
+          "label": "Eerste contact",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Verwachte afsluitdatum",
+          "options": {}
+        },
+        "opportunities.closed_on": {
+          "label": "Gesloten op",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Volgende stap",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Datum volgende stap",
+          "options": {}
+        },
+        "opportunities.decision_date": {
+          "label": "Beslisdatum",
+          "options": {}
+        },
+        "opportunities.competitor": {
+          "label": "Concurrent",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Reden van verlies",
+          "options": {
+            "price": "Prijs",
+            "competitor": "Concurrent",
+            "no_budget_or_decision": "Geen budget of besluit",
+            "timing": "Timing",
+            "no_response": "Geen reactie",
+            "not_a_fit": "Past niet",
+            "other": "Overig"
+          }
+        },
+        "opportunities.won_reason": {
+          "label": "Reden van winst",
+          "options": {}
+        },
+        "opportunities.weighted_value": {
+          "label": "Gewogen waarde",
+          "options": {}
+        },
+        "opportunities.cycle_days": {
+          "label": "Looptijd in dagen",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "call": "Telefoongesprek",
+            "email": "E-mail",
+            "meeting": "Afspraak",
+            "proposal": "Offerte",
+            "follow_up": "Opvolging",
+            "handover": "Overdracht",
+            "review": "Controle",
+            "other": "Overig"
+          }
+        }
+      },
+      "relationships": {
+        "contact_account": {
+          "sourceLabel": "Bedrijf",
+          "targetLabel": "Contactpersonen"
+        },
+        "opportunity_account": {
+          "sourceLabel": "Bedrijf",
+          "targetLabel": "Deals"
+        },
+        "opportunity_contacts": {
+          "sourceLabel": "Besluitvormingsteam",
+          "targetLabel": "Deals"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Deal",
+          "targetLabel": "Acties"
+        },
+        "action_contact": {
+          "sourceLabel": "Contactpersoon",
+          "targetLabel": "Acties"
+        }
+      },
+      "views": {
+        "pipeline_board": {
+          "name": "Pipeline"
+        },
+        "opportunities_all": {
+          "name": "Alle deals"
+        },
+        "no_next_step": {
+          "name": "Zonder volgende stap"
+        },
+        "won_handover": {
+          "name": "Gewonnen, over te dragen"
+        },
+        "lost_to_revisit": {
+          "name": "Verloren, opnieuw te benaderen"
+        },
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "accounts_all": {
+          "name": "Alle bedrijven"
+        },
+        "contacts_all": {
+          "name": "Alle contactpersonen"
+        }
+      },
+      "widgets": {
+        "pipeline_funnel": {
+          "title": "Open deals per fase"
+        },
+        "open_value_by_stage": {
+          "title": "Open waarde per fase"
+        },
+        "weighted_value_by_stage": {
+          "title": "Gewogen waarde per fase"
+        },
+        "open_opportunities": {
+          "title": "Open deals"
+        },
+        "open_value": {
+          "title": "Open waarde"
+        },
+        "open_weighted_value": {
+          "title": "Open gewogen waarde"
+        },
+        "won_last_90_days": {
+          "title": "Gewonnen in de laatste 90 dagen"
+        },
+        "lost_reasons": {
+          "title": "Redenen van verlies"
+        },
+        "pipeline_by_owner": {
+          "title": "Open waarde per eigenaar"
+        },
+        "deals_without_next_step": {
+          "title": "Deals zonder volgende stap"
+        },
+        "upcoming_actions": {
+          "title": "Aankomende en achterstallige acties"
+        },
+        "expected_closes": {
+          "title": "Verwachte afsluitdata"
+        }
+      },
+      "knowledgePages": {
+        "stages_exit_criteria": {
+          "title": "Salesfasen en uitstapcriteria",
+          "sections": [
+            "Instap- en uitstapcriterium per fase",
+            "Wie een deal mag verplaatsen en op welk bewijs",
+            "Wegingen en wanneer je ze vervangt"
+          ]
+        },
+        "qualification_questions": {
+          "title": "Kwalificatievragen",
+          "sections": [
+            "Budget, bevoegdheid, behoefte en timing",
+            "Wat er gebeurt als de prospect niets doet",
+            "Wie er nog meer beslist"
+          ]
+        },
+        "proposal_cadence": {
+          "title": "Ritme van offertes en opvolging",
+          "sections": [
+            "Opvolgen na 3 en na 10 dagen",
+            "Eén afsluitend bericht",
+            "Daarna een datum om terug te komen"
+          ]
+        },
+        "weekly_review": {
+          "title": "Wekelijkse pipelinecontrole",
+          "sections": [
+            "Deals die stilstaan",
+            "Deals voorbij hun verwachte afsluitdatum",
+            "Deals zonder volgende stap",
+            "De top vijf op gewogen waarde"
+          ]
+        },
+        "win_loss_review": {
+          "title": "Terugblik op winst en verlies",
+          "sections": [
+            "Lees elke maand de redenen voor verlies en de concurrenten",
+            "Lees de redenen voor winst",
+            "Eén verbeteractie"
+          ]
+        },
+        "message_templates": {
+          "title": "Sjablonen voor opvolgberichten",
+          "sections": [
+            "Eerste antwoord",
+            "Na de kennismaking",
+            "Begeleidend bericht bij de offerte",
+            "Herinnering over de offerte",
+            "Afsluiting: misschien is de timing niet goed",
+            "Terugkomen na 90 dagen"
+          ]
+        }
+      },
+      "rules": {
+        "qualify_new_opportunity": {
+          "title": "Kwalificeer de nieuwe deal",
+          "description": "Een nieuwe deal krijgt een belactie met deadline de volgende dag."
+        },
+        "book_discovery_call": {
+          "title": "Plan de kennismaking in",
+          "description": "Wanneer een deal Gekwalificeerd wordt, staat over 3 dagen een afspraakactie klaar."
+        },
+        "send_proposal": {
+          "title": "Stuur de offerte",
+          "description": "Wanneer een deal Kennismaking bereikt, staat over 5 dagen een offerteactie klaar."
+        },
+        "follow_up_proposal": {
+          "title": "Volg de offerte op",
+          "description": "Drie dagen nadat de offerte is verstuurd, staat er een opvolgactie klaar."
+        },
+        "second_proposal_follow_up": {
+          "title": "Volg de offerte voor de tweede keer op",
+          "description": "Tien dagen nadat de offerte is verstuurd, staat een tweede opvolgactie klaar. Sluit die als de prospect al heeft gereageerd."
+        },
+        "confirm_decision": {
+          "title": "Bevestig de beslisdatum en de beslisser",
+          "description": "Wanneer een deal Onderhandeling bereikt, staat over 5 dagen een opvolgactie klaar."
+        },
+        "won_close_date": {
+          "title": "Stel de afsluitdatum in",
+          "description": "Wanneer een deal is gewonnen, krijgt Gesloten op de datum van vandaag."
+        },
+        "won_handover": {
+          "title": "Draag de gewonnen deal over",
+          "description": "De dag na winst staat een overdrachtsactie klaar. Noteer de reden van winst."
+        },
+        "lost_revisit": {
+          "title": "Benader de verloren deal opnieuw",
+          "description": "Negentig dagen na verlies vraagt een opvolgactie of de timing is veranderd. Noteer eerst de reden van verlies."
+        },
+        "stale_deal_sweep": {
+          "title": "Haal de stilstaande deal terug of kwalificeer hem af",
+          "description": "Een open deal die 14 dagen in dezelfde fase bleef, krijgt een opvolgactie."
+        },
+        "expected_close_passed": {
+          "title": "Werk de verwachte afsluitdatum bij of sluit de deal",
+          "description": "Wanneer de verwachte afsluitdatum van een open deal is verstreken, wordt een controleactie aangemaakt."
+        },
+        "next_step_due_notice": {
+          "title": "Informeer de eigenaar dat een volgende stap aan de beurt is",
+          "description": "Op de datum van de volgende stap van een open deal krijgt de eigenaar een melding."
+        },
+        "weekly_pipeline_report": {
+          "title": "Bekijk het wekelijkse pipelinerapport",
+          "description": "Elke vrijdag somt één controleactie aantallen en waarde per fase en eigenaar op, gewonnen en verloren deals met redenen en deals voorbij hun verwachte afsluitdatum."
+        },
+        "enquiry_form_records": {
+          "title": "Maak contactpersoon, bedrijf en deal aan uit een aanvraag",
+          "description": "Een webformulier voor aanvragen maakt de contactpersoon, het bedrijf en een deal in de fase Nieuw aan."
+        },
+        "enquiry_form_notice": {
+          "title": "Informeer de eigenaar over de aanvraag",
+          "description": "De eigenaar krijgt een melding van elke nieuwe aanvraag."
+        },
+        "fill_missing_value": {
+          "title": "Vul de waarde van deze deal in",
+          "description": "Een deal die Kennismaking bereikt zonder waarde, krijgt een controleactie."
+        },
+        "fill_expected_close": {
+          "title": "Vul de verwachte afsluitdatum van deze deal in",
+          "description": "Een deal die Offerte verstuurd bereikt zonder verwachte afsluitdatum, krijgt een controleactie."
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Elke deal heeft een van de zeven fasen.",
+        "weighted_value_field": "Elke deal toont zijn gewogen waarde.",
+        "pipeline_board_view": "De dealslijst opent als bord per fase met totalen.",
+        "funnel_widget": "Het dashboard toont open deals per fase als trechter.",
+        "proposal_follow_up_rule": "Een deal die Offerte verstuurd bereikt, krijgt een opvolgactie.",
+        "stages_page": "De kennisbank bevat de fasen en hun uitstapcriteria."
+      },
+      "prompt": {
+        "intro": "Richt een sales pipeline in mijn Customermates-werkruimte in: deals met zeven fasen en wegingen, een gewogen waarde, een volgende stap met datum bij elke open deal, redenen voor verlies en winst, het besluitvormingsteam bij elke deal en een actie die bij elke fasewijziging wordt aangemaakt.",
+        "questions": [
+          "Wat verkoop je en hoeveel mensen verkopen het?",
+          "Welke stappen doorloopt een deal van eerste contact tot handtekening? Welke van de zeven fasen passen en welke hebben een andere naam nodig?",
+          "Hoe lang duurt een gemiddelde deal en na hoeveel dagen zonder beweging telt een deal als stilstaand?",
+          "Welke slagingspercentages heb je uit eerdere deals? Zonder cijfers blijven de standaardwegingen.",
+          "Waar maak je offertes? Die blijven daar en hier wordt alleen een link bewaard."
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Lejek sprzedaży",
+      "summary": "Siedem etapów z kryteriami wyjścia i wagami, następny krok z terminem przy każdej otwartej szansie, powody wygranej i przegranej oraz zmiana etapu, która tworzy kolejne zadanie.",
+      "description": "Lejek dla małego zespołu sprzedaży: pięć etapów otwartych, Wygrana i Przegrana, wartość ważona każdej szansy, komitet zakupowy przy szansie, powód przegranej i powód wygranej oraz cotygodniowy przegląd. Wagi służą do ważenia lejka, a nie do prognozowania: po 20 do 30 zamkniętych szansach zastąp je własnymi wskaźnikami zamknięcia.",
+      "lists": {
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jeden następny krok z terminem dla każdej otwartej sprawy."
+        },
+        "contacts": {
+          "label": "Osoba kontaktowa",
+          "pluralLabel": "Osoby kontaktowe",
+          "description": "Osoby po stronie kupującego wraz z ich rolą w decyzji."
+        },
+        "accounts": {
+          "label": "Firma",
+          "pluralLabel": "Firmy",
+          "description": "Firmy, którym sprzedajesz."
+        },
+        "opportunities": {
+          "label": "Szansa sprzedaży",
+          "pluralLabel": "Szanse sprzedaży",
+          "description": "Jedna szansa, od pierwszego kontaktu do wygranej lub przegranej."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarte",
+            "waiting": "Oczekuje",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Etap",
+          "options": {
+            "new": "Nowa",
+            "qualified": "Zakwalifikowana",
+            "discovery": "Analiza potrzeb",
+            "proposal_sent": "Oferta wysłana",
+            "negotiation": "Negocjacje",
+            "won": "Wygrana",
+            "lost": "Przegrana"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Stanowisko",
+          "options": {}
+        },
+        "contacts.buying_role": {
+          "label": "Rola w zakupie",
+          "options": {
+            "decision_maker": "Decydent",
+            "budget_holder": "Dysponent budżetu",
+            "champion": "Wewnętrzny orędownik",
+            "influencer": "Osoba wpływająca na decyzję",
+            "user": "Użytkownik",
+            "blocker": "Przeciwnik"
+          }
+        },
+        "contacts.language": {
+          "label": "Język",
+          "options": {}
+        },
+        "contacts.outreach_consent": {
+          "label": "Zgoda na kontakt handlowy",
+          "options": {}
+        },
+        "accounts.relationship": {
+          "label": "Relacja",
+          "options": {
+            "prospect": "Potencjalny",
+            "customer": "Klient",
+            "former_customer": "Były klient",
+            "partner": "Partner"
+          }
+        },
+        "accounts.size": {
+          "label": "Wielkość",
+          "options": {
+            "micro": "1 do 10",
+            "small": "11 do 50",
+            "medium": "51 do 250",
+            "large": "251 i więcej"
+          }
+        },
+        "accounts.industry": {
+          "label": "Branża",
+          "options": {}
+        },
+        "accounts.website": {
+          "label": "Strona internetowa",
+          "options": {}
+        },
+        "accounts.address": {
+          "label": "Adres",
+          "options": {}
+        },
+        "accounts.owner": {
+          "label": "Opiekun",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Opiekun",
+          "options": {}
+        },
+        "opportunities.deal_type": {
+          "label": "Rodzaj szansy",
+          "options": {
+            "new_business": "Nowy klient",
+            "expansion": "Rozszerzenie",
+            "renewal": "Odnowienie"
+          }
+        },
+        "opportunities.source": {
+          "label": "Źródło",
+          "options": {
+            "referral": "Polecenie",
+            "inbound": "Zapytanie przychodzące",
+            "outbound": "Kontakt wychodzący",
+            "event": "Wydarzenie",
+            "partner": "Partner",
+            "existing_customer": "Obecny klient",
+            "other": "Inne"
+          }
+        },
+        "opportunities.first_contact_on": {
+          "label": "Pierwszy kontakt",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Planowane zamknięcie",
+          "options": {}
+        },
+        "opportunities.closed_on": {
+          "label": "Data zamknięcia",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Następny krok",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Termin następnego kroku",
+          "options": {}
+        },
+        "opportunities.decision_date": {
+          "label": "Data decyzji",
+          "options": {}
+        },
+        "opportunities.competitor": {
+          "label": "Konkurent",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Powód przegranej",
+          "options": {
+            "price": "Cena",
+            "competitor": "Konkurent",
+            "no_budget_or_decision": "Brak budżetu lub decyzji",
+            "timing": "Nieodpowiedni moment",
+            "no_response": "Brak odpowiedzi",
+            "not_a_fit": "Brak dopasowania",
+            "other": "Inny"
+          }
+        },
+        "opportunities.won_reason": {
+          "label": "Powód wygranej",
+          "options": {}
+        },
+        "opportunities.weighted_value": {
+          "label": "Wartość ważona",
+          "options": {}
+        },
+        "opportunities.cycle_days": {
+          "label": "Długość cyklu (dni)",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "call": "Rozmowa telefoniczna",
+            "email": "E-mail",
+            "meeting": "Spotkanie",
+            "proposal": "Oferta",
+            "follow_up": "Ponowny kontakt",
+            "handover": "Przekazanie",
+            "review": "Przegląd",
+            "other": "Inne"
+          }
+        }
+      },
+      "relationships": {
+        "contact_account": {
+          "sourceLabel": "Firma",
+          "targetLabel": "Osoby kontaktowe"
+        },
+        "opportunity_account": {
+          "sourceLabel": "Firma",
+          "targetLabel": "Szanse sprzedaży"
+        },
+        "opportunity_contacts": {
+          "sourceLabel": "Komitet zakupowy",
+          "targetLabel": "Szanse sprzedaży"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Szansa sprzedaży",
+          "targetLabel": "Zadania"
+        },
+        "action_contact": {
+          "sourceLabel": "Osoba kontaktowa",
+          "targetLabel": "Zadania"
+        }
+      },
+      "views": {
+        "pipeline_board": {
+          "name": "Lejek"
+        },
+        "opportunities_all": {
+          "name": "Wszystkie szanse"
+        },
+        "no_next_step": {
+          "name": "Bez następnego kroku"
+        },
+        "won_handover": {
+          "name": "Wygrane, do przekazania"
+        },
+        "lost_to_revisit": {
+          "name": "Przegrane, do wznowienia"
+        },
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "accounts_all": {
+          "name": "Wszystkie firmy"
+        },
+        "contacts_all": {
+          "name": "Wszystkie osoby kontaktowe"
+        }
+      },
+      "widgets": {
+        "pipeline_funnel": {
+          "title": "Otwarte szanse wg etapu"
+        },
+        "open_value_by_stage": {
+          "title": "Wartość otwartych szans wg etapu"
+        },
+        "weighted_value_by_stage": {
+          "title": "Wartość ważona wg etapu"
+        },
+        "open_opportunities": {
+          "title": "Otwarte szanse"
+        },
+        "open_value": {
+          "title": "Wartość otwartych szans"
+        },
+        "open_weighted_value": {
+          "title": "Ważona wartość otwartych szans"
+        },
+        "won_last_90_days": {
+          "title": "Wygrane w ostatnich 90 dniach"
+        },
+        "lost_reasons": {
+          "title": "Powody przegranej"
+        },
+        "pipeline_by_owner": {
+          "title": "Wartość otwartych szans wg opiekuna"
+        },
+        "deals_without_next_step": {
+          "title": "Szanse bez następnego kroku"
+        },
+        "upcoming_actions": {
+          "title": "Nadchodzące i zaległe zadania"
+        },
+        "expected_closes": {
+          "title": "Planowane zamknięcia"
+        }
+      },
+      "knowledgePages": {
+        "stages_exit_criteria": {
+          "title": "Etapy sprzedaży i kryteria wyjścia",
+          "sections": [
+            "Kryterium wejścia i wyjścia dla każdego etapu",
+            "Kto przesuwa szansę i na podstawie jakiego dowodu",
+            "Wagi i kiedy je zastąpić"
+          ]
+        },
+        "qualification_questions": {
+          "title": "Pytania kwalifikacyjne",
+          "sections": [
+            "Budżet, uprawnienia, potrzeba i termin",
+            "Co się stanie, jeśli klient nic nie zrobi",
+            "Kto jeszcze decyduje"
+          ]
+        },
+        "proposal_cadence": {
+          "title": "Rytm ofert i ponownych kontaktów",
+          "sections": [
+            "Ponowny kontakt po 3 i po 10 dniach",
+            "Jedna wiadomość zamykająca",
+            "Potem termin powrotu do rozmowy"
+          ]
+        },
+        "weekly_review": {
+          "title": "Cotygodniowy przegląd lejka",
+          "sections": [
+            "Szanse, które utknęły",
+            "Szanse po planowanym zamknięciu",
+            "Szanse bez następnego kroku",
+            "Pięć największych wg wartości ważonej"
+          ]
+        },
+        "win_loss_review": {
+          "title": "Przegląd wygranych i przegranych",
+          "sections": [
+            "Co miesiąc czytaj powody przegranych i konkurentów",
+            "Czytaj powody wygranych",
+            "Jedno zadanie usprawniające"
+          ]
+        },
+        "message_templates": {
+          "title": "Wzory wiadomości po ofercie",
+          "sections": [
+            "Pierwsza odpowiedź",
+            "Po analizie potrzeb",
+            "Wiadomość przewodnia do oferty",
+            "Ponaglenie w sprawie oferty",
+            "Zamknięcie: to może nie być dobry moment",
+            "Powrót po 90 dniach"
+          ]
+        }
+      },
+      "rules": {
+        "qualify_new_opportunity": {
+          "title": "Zakwalifikuj nową szansę",
+          "description": "Nowa szansa dostaje zadanie telefoniczne z terminem na następny dzień."
+        },
+        "book_discovery_call": {
+          "title": "Umów rozmowę o potrzebach",
+          "description": "Gdy szansa staje się Zakwalifikowana, zadanie spotkania przypada za 3 dni."
+        },
+        "send_proposal": {
+          "title": "Wyślij ofertę",
+          "description": "Gdy szansa trafia na etap Analiza potrzeb, zadanie oferty przypada za 5 dni."
+        },
+        "follow_up_proposal": {
+          "title": "Wróć do oferty",
+          "description": "Trzy dni po wysłaniu oferty przypada zadanie ponownego kontaktu."
+        },
+        "second_proposal_follow_up": {
+          "title": "Drugi kontakt w sprawie oferty",
+          "description": "Dziesięć dni po wysłaniu oferty przypada drugie zadanie ponownego kontaktu. Zamknij je, jeśli klient już odpowiedział."
+        },
+        "confirm_decision": {
+          "title": "Potwierdź datę decyzji i decydenta",
+          "description": "Gdy szansa trafia na etap Negocjacje, zadanie ponownego kontaktu przypada za 5 dni."
+        },
+        "won_close_date": {
+          "title": "Ustaw datę zamknięcia",
+          "description": "Gdy szansa jest wygrana, pole Data zamknięcia dostaje dzisiejszą datę."
+        },
+        "won_handover": {
+          "title": "Przekaż wygraną szansę",
+          "description": "Zadanie przekazania przypada dzień po wygranej. Zapisz powód wygranej."
+        },
+        "lost_revisit": {
+          "title": "Wróć do przegranej szansy",
+          "description": "Dziewięćdziesiąt dni po przegranej zadanie ponownego kontaktu pyta, czy termin się zmienił. Najpierw zapisz powód przegranej."
+        },
+        "stale_deal_sweep": {
+          "title": "Ożyw albo zdyskwalifikuj szansę, która utknęła",
+          "description": "Otwarta szansa, która przez 14 dni została na tym samym etapie, dostaje zadanie ponownego kontaktu."
+        },
+        "expected_close_passed": {
+          "title": "Zaktualizuj planowane zamknięcie albo zamknij szansę",
+          "description": "Gdy minie planowana data zamknięcia otwartej szansy, powstaje zadanie przeglądu."
+        },
+        "next_step_due_notice": {
+          "title": "Powiadom opiekuna, że termin następnego kroku nadszedł",
+          "description": "W dniu następnego kroku otwartej szansy opiekun dostaje powiadomienie."
+        },
+        "weekly_pipeline_report": {
+          "title": "Cotygodniowy raport lejka",
+          "description": "W każdy piątek jedno zadanie przeglądu zbiera liczby i wartość wg etapu i opiekuna, wygrane i przegrane z powodami oraz szanse po planowanym zamknięciu."
+        },
+        "enquiry_form_records": {
+          "title": "Utwórz osobę kontaktową, firmę i szansę z zapytania",
+          "description": "Internetowy formularz zapytania tworzy osobę kontaktową, firmę i szansę na etapie Nowa."
+        },
+        "enquiry_form_notice": {
+          "title": "Powiadom opiekuna o zapytaniu",
+          "description": "Opiekun dostaje powiadomienie o każdym nowym zapytaniu."
+        },
+        "fill_missing_value": {
+          "title": "Uzupełnij wartość tej szansy",
+          "description": "Szansa, która trafia na etap Analiza potrzeb bez wartości, dostaje zadanie przeglądu."
+        },
+        "fill_expected_close": {
+          "title": "Uzupełnij planowane zamknięcie tej szansy",
+          "description": "Szansa, która trafia na etap Oferta wysłana bez planowanej daty zamknięcia, dostaje zadanie przeglądu."
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Każda szansa ma jeden z siedmiu etapów.",
+        "weighted_value_field": "Każda szansa pokazuje wartość ważoną.",
+        "pipeline_board_view": "Lista szans otwiera się jako tablica według etapów z sumami.",
+        "funnel_widget": "Pulpit pokazuje otwarte szanse według etapów jako lejek.",
+        "proposal_follow_up_rule": "Szansa, która trafia na etap Oferta wysłana, dostaje zadanie ponownego kontaktu.",
+        "stages_page": "Baza wiedzy zawiera etapy i ich kryteria wyjścia."
+      },
+      "prompt": {
+        "intro": "Skonfiguruj lejek sprzedaży w mojej przestrzeni roboczej Customermates: szanse sprzedaży z siedmioma etapami i wagami, wartość ważona, następny krok z terminem przy każdej otwartej szansie, powody przegranej i wygranej, komitet zakupowy przy każdej szansie i zadanie tworzone przy każdej zmianie etapu.",
+        "questions": [
+          "Co sprzedajesz i ile osób to sprzedaje?",
+          "Przez jakie kroki przechodzi szansa od pierwszego kontaktu do podpisu? Które z siedmiu etapów pasują, a które wymagają innej nazwy?",
+          "Jak długo trwa typowa szansa i po ilu dniach bez ruchu uznać, że utknęła?",
+          "Jakie wskaźniki zamknięcia masz z dawnych szans? Jeśli żadnych, zostają wagi domyślne.",
+          "Gdzie przygotowujesz oferty? Zostają tam, a tutaj zapisujemy tylko link."
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "Funil de vendas",
+      "summary": "Sete etapas com critérios de saída e pesos, um próximo passo com data em cada negócio aberto, motivos de ganho e de perda e uma mudança de etapa que cria a próxima tarefa.",
+      "description": "Um funil para uma equipe comercial pequena: cinco etapas abertas, Ganho e Perdido, um valor ponderado por negócio, o comitê de compra no negócio, um motivo da perda e um motivo do ganho, e a revisão semanal. Os pesos são uma ponderação do funil, não uma previsão: troque-os pelas suas próprias taxas de conversão depois de 20 a 30 negócios encerrados.",
+      "lists": {
+        "actions": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um próximo passo com data para cada item em aberto."
+        },
+        "contacts": {
+          "label": "Contato",
+          "pluralLabel": "Contatos",
+          "description": "As pessoas do lado comprador, com o papel de cada uma na decisão."
+        },
+        "accounts": {
+          "label": "Empresa",
+          "pluralLabel": "Empresas",
+          "description": "As empresas para as quais você vende."
+        },
+        "opportunities": {
+          "label": "Negócio",
+          "pluralLabel": "Negócios",
+          "description": "Um negócio, do primeiro contato até ganho ou perdido."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberta",
+            "waiting": "Aguardando",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "opportunities.stage": {
+          "label": "Etapa",
+          "options": {
+            "new": "Novo lead",
+            "qualified": "Qualificado",
+            "discovery": "Reunião de diagnóstico",
+            "proposal_sent": "Proposta enviada",
+            "negotiation": "Negociação",
+            "won": "Ganho",
+            "lost": "Perdido"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Cargo",
+          "options": {}
+        },
+        "contacts.buying_role": {
+          "label": "Papel na compra",
+          "options": {
+            "decision_maker": "Decisor",
+            "budget_holder": "Responsável pelo orçamento",
+            "champion": "Defensor interno",
+            "influencer": "Influenciador",
+            "user": "Usuário",
+            "blocker": "Opositor"
+          }
+        },
+        "contacts.language": {
+          "label": "Idioma",
+          "options": {}
+        },
+        "contacts.outreach_consent": {
+          "label": "Consentimento para contato comercial",
+          "options": {}
+        },
+        "accounts.relationship": {
+          "label": "Relacionamento",
+          "options": {
+            "prospect": "Prospect",
+            "customer": "Cliente",
+            "former_customer": "Ex-cliente",
+            "partner": "Parceiro"
+          }
+        },
+        "accounts.size": {
+          "label": "Porte",
+          "options": {
+            "micro": "De 1 a 10",
+            "small": "De 11 a 50",
+            "medium": "De 51 a 250",
+            "large": "251 ou mais"
+          }
+        },
+        "accounts.industry": {
+          "label": "Setor",
+          "options": {}
+        },
+        "accounts.website": {
+          "label": "Site",
+          "options": {}
+        },
+        "accounts.address": {
+          "label": "Endereço",
+          "options": {}
+        },
+        "accounts.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "opportunities.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "opportunities.deal_type": {
+          "label": "Tipo de negócio",
+          "options": {
+            "new_business": "Cliente novo",
+            "expansion": "Expansão",
+            "renewal": "Renovação"
+          }
+        },
+        "opportunities.source": {
+          "label": "Origem",
+          "options": {
+            "referral": "Indicação",
+            "inbound": "Contato recebido",
+            "outbound": "Prospecção ativa",
+            "event": "Evento",
+            "partner": "Parceiro",
+            "existing_customer": "Cliente atual",
+            "other": "Outra"
+          }
+        },
+        "opportunities.first_contact_on": {
+          "label": "Primeiro contato",
+          "options": {}
+        },
+        "opportunities.expected_close": {
+          "label": "Previsão de fechamento",
+          "options": {}
+        },
+        "opportunities.closed_on": {
+          "label": "Fechado em",
+          "options": {}
+        },
+        "opportunities.next_step": {
+          "label": "Próximo passo",
+          "options": {}
+        },
+        "opportunities.next_step_due": {
+          "label": "Data do próximo passo",
+          "options": {}
+        },
+        "opportunities.decision_date": {
+          "label": "Data da decisão",
+          "options": {}
+        },
+        "opportunities.competitor": {
+          "label": "Concorrente",
+          "options": {}
+        },
+        "opportunities.lost_reason": {
+          "label": "Motivo da perda",
+          "options": {
+            "price": "Preço",
+            "competitor": "Concorrente",
+            "no_budget_or_decision": "Sem orçamento ou decisão",
+            "timing": "Momento",
+            "no_response": "Sem resposta",
+            "not_a_fit": "Sem aderência",
+            "other": "Outro"
+          }
+        },
+        "opportunities.won_reason": {
+          "label": "Motivo do ganho",
+          "options": {}
+        },
+        "opportunities.weighted_value": {
+          "label": "Valor ponderado",
+          "options": {}
+        },
+        "opportunities.cycle_days": {
+          "label": "Ciclo em dias",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "call": "Ligação",
+            "email": "E-mail",
+            "meeting": "Reunião",
+            "proposal": "Proposta",
+            "follow_up": "Retorno",
+            "handover": "Repasse",
+            "review": "Revisão",
+            "other": "Outro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_account": {
+          "sourceLabel": "Empresa",
+          "targetLabel": "Contatos"
+        },
+        "opportunity_account": {
+          "sourceLabel": "Empresa",
+          "targetLabel": "Negócios"
+        },
+        "opportunity_contacts": {
+          "sourceLabel": "Comitê de compra",
+          "targetLabel": "Negócios"
+        },
+        "action_opportunity": {
+          "sourceLabel": "Negócio",
+          "targetLabel": "Tarefas"
+        },
+        "action_contact": {
+          "sourceLabel": "Contato",
+          "targetLabel": "Tarefas"
+        }
+      },
+      "views": {
+        "pipeline_board": {
+          "name": "Funil"
+        },
+        "opportunities_all": {
+          "name": "Todos os negócios"
+        },
+        "no_next_step": {
+          "name": "Sem próximo passo"
+        },
+        "won_handover": {
+          "name": "Ganhos, a repassar"
+        },
+        "lost_to_revisit": {
+          "name": "Perdidos, a retomar"
+        },
+        "actions_all": {
+          "name": "Todas as tarefas"
+        },
+        "accounts_all": {
+          "name": "Todas as empresas"
+        },
+        "contacts_all": {
+          "name": "Todos os contatos"
+        }
+      },
+      "widgets": {
+        "pipeline_funnel": {
+          "title": "Negócios abertos por etapa"
+        },
+        "open_value_by_stage": {
+          "title": "Valor aberto por etapa"
+        },
+        "weighted_value_by_stage": {
+          "title": "Valor ponderado por etapa"
+        },
+        "open_opportunities": {
+          "title": "Negócios abertos"
+        },
+        "open_value": {
+          "title": "Valor aberto"
+        },
+        "open_weighted_value": {
+          "title": "Valor ponderado aberto"
+        },
+        "won_last_90_days": {
+          "title": "Ganhos nos últimos 90 dias"
+        },
+        "lost_reasons": {
+          "title": "Motivos da perda"
+        },
+        "pipeline_by_owner": {
+          "title": "Valor aberto por responsável"
+        },
+        "deals_without_next_step": {
+          "title": "Negócios sem próximo passo"
+        },
+        "upcoming_actions": {
+          "title": "Tarefas próximas e atrasadas"
+        },
+        "expected_closes": {
+          "title": "Fechamentos previstos"
+        }
+      },
+      "knowledgePages": {
+        "stages_exit_criteria": {
+          "title": "Etapas de venda e critérios de saída",
+          "sections": [
+            "Critério de entrada e de saída de cada etapa",
+            "Quem move um negócio e com que comprovação",
+            "Pesos e quando substituí-los"
+          ]
+        },
+        "qualification_questions": {
+          "title": "Perguntas de qualificação",
+          "sections": [
+            "Orçamento, autoridade, necessidade e prazo",
+            "O que acontece se o prospect não fizer nada",
+            "Quem mais decide"
+          ]
+        },
+        "proposal_cadence": {
+          "title": "Ritmo de propostas e retornos",
+          "sections": [
+            "Retornar após 3 e após 10 dias",
+            "Uma mensagem de encerramento",
+            "Depois, uma data para retomar"
+          ]
+        },
+        "weekly_review": {
+          "title": "Revisão semanal do funil",
+          "sections": [
+            "Negócios parados",
+            "Negócios além da previsão de fechamento",
+            "Negócios sem próximo passo",
+            "Os cinco maiores por valor ponderado"
+          ]
+        },
+        "win_loss_review": {
+          "title": "Análise de ganhos e perdas",
+          "sections": [
+            "Ler todo mês os motivos da perda e os concorrentes",
+            "Ler os motivos do ganho",
+            "Uma tarefa de melhoria"
+          ]
+        },
+        "message_templates": {
+          "title": "Modelos de mensagem de retorno",
+          "sections": [
+            "Primeira resposta",
+            "Depois da reunião de diagnóstico",
+            "Mensagem de envio da proposta",
+            "Retorno sobre a proposta",
+            "Encerramento: talvez não seja o momento",
+            "Retomada após 90 dias"
+          ]
+        }
+      },
+      "rules": {
+        "qualify_new_opportunity": {
+          "title": "Qualificar o novo negócio",
+          "description": "Um novo negócio recebe uma tarefa de ligação para o dia seguinte."
+        },
+        "book_discovery_call": {
+          "title": "Agendar a reunião de diagnóstico",
+          "description": "Quando um negócio vira Qualificado, uma tarefa de reunião vence em 3 dias."
+        },
+        "send_proposal": {
+          "title": "Enviar a proposta",
+          "description": "Quando um negócio chega a Reunião de diagnóstico, uma tarefa de proposta vence em 5 dias."
+        },
+        "follow_up_proposal": {
+          "title": "Cobrar retorno da proposta",
+          "description": "Três dias depois do envio da proposta vence uma tarefa de retorno."
+        },
+        "second_proposal_follow_up": {
+          "title": "Segundo retorno da proposta",
+          "description": "Dez dias depois do envio da proposta vence uma segunda tarefa de retorno. Conclua a tarefa se o prospect já respondeu."
+        },
+        "confirm_decision": {
+          "title": "Confirmar a data da decisão e o decisor",
+          "description": "Quando um negócio chega a Negociação, uma tarefa de retorno vence em 5 dias."
+        },
+        "won_close_date": {
+          "title": "Definir a data de fechamento",
+          "description": "Quando um negócio é ganho, Fechado em recebe a data de hoje."
+        },
+        "won_handover": {
+          "title": "Repassar o negócio ganho",
+          "description": "Uma tarefa de repasse vence no dia seguinte ao ganho. Registre o motivo do ganho."
+        },
+        "lost_revisit": {
+          "title": "Retomar o negócio perdido",
+          "description": "Noventa dias depois da perda, uma tarefa de retorno pergunta se o momento mudou. Registre antes o motivo da perda."
+        },
+        "stale_deal_sweep": {
+          "title": "Reativar ou descartar o negócio parado",
+          "description": "Um negócio aberto que ficou 14 dias na mesma etapa recebe uma tarefa de retorno."
+        },
+        "expected_close_passed": {
+          "title": "Atualizar a previsão de fechamento ou encerrar o negócio",
+          "description": "Quando a previsão de fechamento de um negócio aberto passa, é criada uma tarefa de revisão."
+        },
+        "next_step_due_notice": {
+          "title": "Avisar o responsável de que um próximo passo vence",
+          "description": "Na data do próximo passo de um negócio aberto, o responsável é avisado."
+        },
+        "weekly_pipeline_report": {
+          "title": "Relatório semanal do funil",
+          "description": "Toda sexta-feira, uma tarefa de revisão lista quantidades e valor por etapa e responsável, negócios ganhos e perdidos com os motivos e negócios além da previsão de fechamento."
+        },
+        "enquiry_form_records": {
+          "title": "Criar contato, empresa e negócio a partir de uma solicitação",
+          "description": "Um formulário de solicitação no site cria o contato, a empresa e um negócio na etapa Novo lead."
+        },
+        "enquiry_form_notice": {
+          "title": "Avisar o responsável da solicitação",
+          "description": "O responsável é avisado de cada nova solicitação."
+        },
+        "fill_missing_value": {
+          "title": "Preencher o valor deste negócio",
+          "description": "Um negócio que chega a Reunião de diagnóstico sem valor recebe uma tarefa de revisão."
+        },
+        "fill_expected_close": {
+          "title": "Preencher a previsão de fechamento deste negócio",
+          "description": "Um negócio que chega a Proposta enviada sem previsão de fechamento recebe uma tarefa de revisão."
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada negócio tem uma das sete etapas.",
+        "weighted_value_field": "Cada negócio mostra o valor ponderado.",
+        "pipeline_board_view": "A lista de negócios abre como quadro por etapa, com totais.",
+        "funnel_widget": "O painel mostra os negócios abertos por etapa como funil.",
+        "proposal_follow_up_rule": "Um negócio que chega a Proposta enviada recebe uma tarefa de retorno.",
+        "stages_page": "A base de conhecimento contém as etapas e seus critérios de saída."
+      },
+      "prompt": {
+        "intro": "Configure um funil de vendas no meu espaço de trabalho do Customermates: negócios com sete etapas e pesos, um valor ponderado, um próximo passo com data em cada negócio aberto, motivos de perda e de ganho, o comitê de compra em cada negócio e uma tarefa criada a cada mudança de etapa.",
+        "questions": [
+          "O que você vende e quantas pessoas vendem?",
+          "Por quais passos um negócio passa do primeiro contato à assinatura? Quais das sete etapas servem e quais precisam de outro nome?",
+          "Quanto dura um negócio típico e depois de quantos dias sem movimento ele deve ser considerado parado?",
+          "Quais taxas de conversão você tem de negócios passados? Se não tiver, mantemos os pesos padrão.",
+          "Onde você faz as propostas? Elas ficam lá e aqui só se guarda um link."
+        ]
+      }
+    }
+  }
+}

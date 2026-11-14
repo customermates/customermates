@@ -1,0 +1,92 @@
+{
+  "locale": "pt",
+  "name": "Formulário para CRM",
+  "summary": "Transformar as mensagens dos formulários do site em oportunidades acompanhadas: uma solicitação por envio com a origem, uma resposta pendente, uma etapa de nova a convertida, e spam e sem fit à parte.",
+  "description": "Cada mensagem vinda de um formulário de contato, de orçamento ou de triagem vira uma solicitação ligada a um contato, com o formulário de origem, de onde veio o visitante, para quando precisa e uma resposta a dar no dia seguinte. As solicitações passam de nova a convertida, sem fit ou spam, e uma solicitação sem resposta é sinalizada. O consentimento e uma data de revisão acompanham os dados coletados. Não é um criador de formulários para pagamentos, quizzes ou envio de documentos sensíveis.",
+  "lists": {
+    "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas que escrevem para você por um formulário." },
+    "requests": { "label": "Solicitação", "pluralLabel": "Solicitações", "description": "Um envio de formulário, de nova a convertida, sem fit ou spam." }
+  },
+  "fields": {
+    "contacts.company_name": { "label": "Empresa" },
+    "contacts.language": { "label": "Idioma" },
+    "contacts.marketing_consent": { "label": "Consentimento para e-mails de marketing" },
+    "contacts.marketing_consent_on": { "label": "Consentimento dado em" },
+    "requests.stage": {
+      "label": "Etapa",
+      "options": { "new": "Nova", "contacted": "Contatada", "qualified": "Qualificada", "converted": "Convertida", "not_a_fit": "Sem fit", "spam": "Spam" }
+    },
+    "requests.form": { "label": "Formulário", "options": { "contact": "Formulário de contato", "quote_request": "Pedido de orçamento", "intake": "Formulário de triagem", "callback": "Pedido de retorno", "other": "Outro" } },
+    "requests.owner": { "label": "Responsável" },
+    "requests.service_interest": { "label": "Serviço de interesse" },
+    "requests.needed_by": {
+      "label": "Prazo",
+      "options": { "asap": "O mais rápido possível", "within_a_month": "Em até um mês", "within_three_months": "Em até três meses", "just_looking": "Só pesquisando", "no_answer": "Sem resposta" }
+    },
+    "requests.budget_band": { "label": "Faixa de orçamento", "options": { "no_answer": "Sem resposta", "low": "Baixa", "medium": "Média", "high": "Alta" } },
+    "requests.submitted_at": { "label": "Recebida em" },
+    "requests.first_response_at": { "label": "Primeira resposta" },
+    "requests.utm_source": { "label": "Origem do visitante" },
+    "requests.landing_page": { "label": "Página do formulário" },
+    "requests.repeat_submission": { "label": "Já escreveu antes" },
+    "requests.not_a_fit_reason": {
+      "label": "Por que não tem fit",
+      "options": { "out_of_area": "Fora da nossa região", "no_budget": "Sem orçamento", "wrong_service": "Serviço errado", "no_response": "Sem resposta", "duplicate": "Duplicada", "other": "Outro" }
+    },
+    "requests.closed_on": { "label": "Encerrada em" },
+    "requests.data_review_on": { "label": "Revisar os dados em" },
+    "requests.days_to_close": { "label": "Dias do envio ao encerramento" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "reply": "Responder", "qualify_call": "Conversa de qualificação", "send_quote": "Enviar um orçamento", "convert": "Passar para o funil", "chase": "Cobrar retorno", "data_review": "Revisar os dados", "other": "Outro" }
+    }
+  },
+  "relationships": {
+    "request_contact": { "sourceLabel": "Contato", "targetLabel": "Solicitações" },
+    "action_request": { "sourceLabel": "Solicitação", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "requests_all": { "name": "Todas as solicitações" },
+    "requests_board": { "name": "Quadro de solicitações" },
+    "new_requests": { "name": "Solicitações novas" },
+    "closed_without_deal": { "name": "Sem fit ou spam" },
+    "contacts_all": { "name": "Todos os contatos" }
+  },
+  "widgets": {
+    "requests_funnel": { "title": "Solicitações por etapa" },
+    "requests_per_week": { "title": "Solicitações por semana" },
+    "requests_by_form": { "title": "Solicitações por formulário" },
+    "new_requests_count": { "title": "Solicitações novas" },
+    "not_a_fit_reasons": { "title": "Por que as solicitações não têm fit" },
+    "average_days_to_close": { "title": "Média de dias até o encerramento" }
+  },
+  "knowledgePages": {
+    "form_playbook": { "title": "Guia do formulário ao CRM", "sections": ["Quais formulários usamos e quem responde", "Em quanto tempo respondemos"] },
+    "privacy_notice": { "title": "Aviso de privacidade dos formulários", "sections": ["O que informamos no formulário", "Por quanto tempo guardamos uma solicitação"] },
+    "spam_and_duplicates": { "title": "Spam e envios repetidos", "sections": ["O que conta como spam", "O que fazemos quando a mesma pessoa escreve de novo"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Criar o contato e a solicitação quando o formulário de contato for enviado" },
+    "reply_task": { "title": "Criar uma tarefa de resposta para o dia seguinte quando uma solicitação é criada" },
+    "first_response_missed": { "title": "Avisar o responsável quando uma solicitação continua nova um dia depois de recebida" },
+    "chase_contacted": { "title": "Cobrar retorno de uma solicitação contatada parada há 3 dias" },
+    "converted_task": { "title": "Passar a solicitação para o funil quando ela for convertida" },
+    "review_date_not_a_fit": { "title": "Definir a revisão dos dados em um ano quando uma solicitação não tem fit" },
+    "data_review": { "title": "Revisar os dados quando chegar a data de revisão" },
+    "external_form_records": { "title": "Criar o contato e a solicitação quando outra ferramenta de formulários enviar uma resposta" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Toda solicitação tem uma etapa.",
+    "submitted_field": "Toda solicitação registra quando foi recebida.",
+    "requests_board_view": "As solicitações abrem como quadro por etapa."
+  },
+  "prompt": {
+    "intro": "Configure no meu espaço de trabalho do Customermates a ligação do formulário ao CRM: uma solicitação por envio com a origem, uma resposta devida, seis etapas, o consentimento e uma data de revisão dos dados, e acompanhamentos com data.",
+    "questions": [
+      "Quais formulários você usa e o que precisa saber para orçar ou encaminhar um contato?",
+      "Quem responde e em quanto tempo você se compromete a responder?",
+      "O que você informa às pessoas sobre os dados delas no formulário?",
+      "Você usa outra ferramenta de formulários, como Typeform, Tally ou Jotform?"
+    ]
+  }
+}

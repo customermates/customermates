@@ -1,0 +1,92 @@
+{
+  "locale": "it",
+  "name": "Dal modulo al CRM",
+  "summary": "Trasforma le richieste dei moduli web in contatti seguiti: una richiesta per ogni invio con la sua origine, una scadenza di risposta, una fase da nuova a convertita, con spam e richieste non idonee tenuti a parte.",
+  "description": "Ogni messaggio inviato da un modulo di contatto, preventivo o accoglienza diventa una richiesta collegata a un contatto, con il modulo di provenienza, da dove è arrivato il visitatore, entro quando serve e una risposta da dare entro il giorno dopo. Le richieste passano da nuova a convertita, non idonea o spam e una richiesta rimasta senza risposta viene segnalata. Consenso e una data di revisione accompagnano i dati raccolti. Non è un costruttore di moduli per pagamenti, quiz o caricamento di documenti sensibili.",
+  "lists": {
+    "contacts": { "label": "Contatto", "pluralLabel": "Contatti", "description": "Le persone che ti scrivono tramite un modulo." },
+    "requests": { "label": "Richiesta", "pluralLabel": "Richieste", "description": "Un invio di modulo, da nuova a convertita, non idonea o spam." }
+  },
+  "fields": {
+    "contacts.company_name": { "label": "Azienda" },
+    "contacts.language": { "label": "Lingua" },
+    "contacts.marketing_consent": { "label": "Consenso alle email promozionali" },
+    "contacts.marketing_consent_on": { "label": "Consenso dato il" },
+    "requests.stage": {
+      "label": "Fase",
+      "options": { "new": "Nuova", "contacted": "Contattata", "qualified": "Qualificata", "converted": "Convertita", "not_a_fit": "Non idonea", "spam": "Spam" }
+    },
+    "requests.form": { "label": "Modulo", "options": { "contact": "Modulo di contatto", "quote_request": "Richiesta preventivo", "intake": "Modulo di accoglienza", "callback": "Richiesta di richiamata", "other": "Altro" } },
+    "requests.owner": { "label": "Responsabile" },
+    "requests.service_interest": { "label": "Servizio richiesto" },
+    "requests.needed_by": {
+      "label": "Entro quando",
+      "options": { "asap": "Appena possibile", "within_a_month": "Entro un mese", "within_three_months": "Entro tre mesi", "just_looking": "Solo informazioni", "no_answer": "Nessuna risposta" }
+    },
+    "requests.budget_band": { "label": "Budget", "options": { "no_answer": "Nessuna risposta", "low": "Basso", "medium": "Medio", "high": "Alto" } },
+    "requests.submitted_at": { "label": "Ricevuta il" },
+    "requests.first_response_at": { "label": "Prima risposta" },
+    "requests.utm_source": { "label": "Origine del visitatore" },
+    "requests.landing_page": { "label": "Pagina del modulo" },
+    "requests.repeat_submission": { "label": "Ha già scritto" },
+    "requests.not_a_fit_reason": {
+      "label": "Motivo di non idoneità",
+      "options": { "out_of_area": "Fuori zona", "no_budget": "Nessun budget", "wrong_service": "Servizio sbagliato", "no_response": "Nessuna risposta", "duplicate": "Duplicato", "other": "Altro" }
+    },
+    "requests.closed_on": { "label": "Chiusa il" },
+    "requests.data_review_on": { "label": "Rivedere i dati il" },
+    "requests.days_to_close": { "label": "Giorni dall'invio alla chiusura" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "reply": "Rispondere", "qualify_call": "Chiamata di qualifica", "send_quote": "Inviare un preventivo", "convert": "Passare alla pipeline", "chase": "Sollecitare", "data_review": "Rivedere i dati", "other": "Altro" }
+    }
+  },
+  "relationships": {
+    "request_contact": { "sourceLabel": "Contatto", "targetLabel": "Richieste" },
+    "action_request": { "sourceLabel": "Richiesta", "targetLabel": "Attività" }
+  },
+  "views": {
+    "requests_all": { "name": "Tutte le richieste" },
+    "requests_board": { "name": "Board delle richieste" },
+    "new_requests": { "name": "Nuove richieste" },
+    "closed_without_deal": { "name": "Non idonee o spam" },
+    "contacts_all": { "name": "Tutti i contatti" }
+  },
+  "widgets": {
+    "requests_funnel": { "title": "Richieste per fase" },
+    "requests_per_week": { "title": "Richieste per settimana" },
+    "requests_by_form": { "title": "Richieste per modulo" },
+    "new_requests_count": { "title": "Nuove richieste" },
+    "not_a_fit_reasons": { "title": "Perché le richieste non sono idonee" },
+    "average_days_to_close": { "title": "Giorni medi alla chiusura" }
+  },
+  "knowledgePages": {
+    "form_playbook": { "title": "Guida dal modulo al CRM", "sections": ["Quali moduli usiamo e chi risponde", "In quanto tempo rispondiamo"] },
+    "privacy_notice": { "title": "Informativa privacy dei moduli", "sections": ["Che cosa comunichiamo sul modulo", "Per quanto tempo conserviamo una richiesta"] },
+    "spam_and_duplicates": { "title": "Spam e invii ripetuti", "sections": ["Che cosa conta come spam", "Che cosa facciamo quando la stessa persona scrive di nuovo"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Creare contatto e richiesta quando viene inviato il modulo di richiesta" },
+    "reply_task": { "title": "Creare un'attività di risposta per il giorno dopo quando nasce una richiesta" },
+    "first_response_missed": { "title": "Avvisare il responsabile quando una richiesta è ancora nuova un giorno dopo l'invio" },
+    "chase_contacted": { "title": "Sollecitare una richiesta contattata ferma da 3 giorni" },
+    "converted_task": { "title": "Passare la richiesta alla pipeline quando viene convertita" },
+    "review_date_not_a_fit": { "title": "Fissare la revisione dei dati a un anno quando una richiesta è non idonea" },
+    "data_review": { "title": "Rivedere i dati quando arriva la data di revisione" },
+    "external_form_records": { "title": "Creare contatto e richiesta quando un altro strumento di moduli trasmette un invio" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Ogni richiesta ha una fase.",
+    "submitted_field": "Ogni richiesta indica quando è stata ricevuta.",
+    "requests_board_view": "Le richieste si aprono come board per fase."
+  },
+  "prompt": {
+    "intro": "Imposta nel mio spazio di lavoro Customermates il passaggio dal modulo al CRM: una richiesta per ogni invio con la sua origine, una scadenza di risposta, sei fasi, il consenso e una data di revisione dei dati, e attività di follow-up con data.",
+    "questions": [
+      "Quali moduli usi e che cosa devi sapere per fare un preventivo o smistare una richiesta?",
+      "Chi risponde e in quanto tempo ti impegni a farlo?",
+      "Che cosa dici alle persone sui loro dati nel modulo?",
+      "Usi un altro strumento di moduli come Typeform, Tally o Jotform?"
+    ]
+  }
+}

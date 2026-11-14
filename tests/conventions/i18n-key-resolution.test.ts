@@ -390,12 +390,30 @@ const DEFAULT_DATA_OPTION_KEYS = [
   "Common.defaultData.task.options.onHold",
   "Common.defaultData.task.options.open",
 ] as const;
-const ONBOARDING_STEP_TITLE_KEYS = ["profile", "goal", "playbook", "setup", "invite", "ai"].map(
-  (step) => `OnboardingWizard.steps.${step}.title`,
-);
-const ONBOARDING_STEP_SUBTITLE_KEYS = ["profile", "goal", "playbook", "setup", "invite", "ai"].map(
-  (step) => `OnboardingWizard.steps.${step}.subtitle`,
-);
+const ONBOARDING_STEP_TITLE_KEYS = [
+  "profile",
+  "goal",
+  "playbook",
+  "setup",
+  "invite",
+  "channel",
+  "ai",
+  "template",
+  "prompt",
+  "source",
+].map((step) => `OnboardingWizard.steps.${step}.title`);
+const ONBOARDING_STEP_SUBTITLE_KEYS = [
+  "profile",
+  "goal",
+  "playbook",
+  "setup",
+  "invite",
+  "channel",
+  "ai",
+  "template",
+  "prompt",
+  "source",
+].map((step) => `OnboardingWizard.steps.${step}.subtitle`);
 const ONBOARDING_CHOICE_KEYS = [
   "chatgpt",
   "claude",
@@ -435,10 +453,11 @@ const AGENT_READ_ONLY_SUGGESTION_KEYS = [
   "AgentChat.suggestions.readOnly.tour",
 ];
 
-const AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS = [
-  "AgentChat.activity.resourceSingular.messages",
-  "AgentChat.activity.resourceSingular.widgets",
-  "AgentChat.activity.resourceSingular.wiki",
+const AGENT_ACTIVITY_COUNTED_KEYS = [
+  "AgentChat.activity.counted.messages",
+  "AgentChat.activity.counted.records",
+  "AgentChat.activity.counted.widgets",
+  "AgentChat.activity.counted.wiki",
 ];
 const AGENT_ACTIVITY_STATE_KEYS = AGENT_ACTIVITY_COPY_KINDS.flatMap((kind) =>
   (["done", "error", "running"] as const).map((state) => `AgentChat.activity.state.${kind}.${state}`),
@@ -624,7 +643,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["WebhookDeliveryModal.deliveryStatus.${*}", WEBHOOK_DELIVERY_STATUS_KEYS],
   ["documents.${*}", LEGAL_DOCUMENT_KEYS],
   ["AgentChat.activity.resource.${*}", AGENT_ACTIVITY_RESOURCE_KEYS],
-  ["AgentChat.activity.resourceSingular.${*}", AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS],
+  ["AgentChat.activity.counted.${*}", AGENT_ACTIVITY_COUNTED_KEYS],
   ["AgentChat.activity.label.${*}", AGENT_ACTIVITY_LABEL_KEYS],
   ["AgentChat.activity.state.${*}.${*}", AGENT_ACTIVITY_STATE_KEYS],
   ["AgentChat.activity.approval.${*}", AGENT_ACTIVITY_APPROVAL_KEYS],
@@ -635,6 +654,72 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["AgentChat.suggestions.readOnly.${*}.label", AGENT_READ_ONLY_SUGGESTION_KEYS.map((key) => `${key}.label`)],
   ["AgentChat.suggestions.readOnly.${*}.prompt", AGENT_READ_ONLY_SUGGESTION_KEYS.map((key) => `${key}.prompt`)],
 ]);
+
+const AUTOMATIONS_DIRECTORY = "app/[locale]/(protected)/w/[workspace]/automations/components";
+const NOTIFICATION_SETTINGS_FILE =
+  "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/notification-preferences-card.tsx";
+const AUTOMATION_KEYS = (group: string, names: readonly string[]) =>
+  names.map((name) => `AutomationRules.${group}.${name}`);
+const NOTIFICATION_KEYS = (group: string, names: readonly string[]) =>
+  names.map((name) => `Notifications.${group}.${name}`);
+const AUTOMATION_EFFECT_KINDS = ["callWebhook", "createRecord", "notify", "setField"] as const;
+const AUTOMATION_RUN_STATUSES = ["applied", "failed", "queued", "running", "skipped"] as const;
+const AUTOMATION_TRIGGER_KINDS = [
+  "dateReached",
+  "fieldChanged",
+  "messageReceived",
+  "recordCreated",
+  "recordUpdated",
+] as const;
+const NOTIFICATION_KIND_NAMES = ["assigned", "dueToday", "formSubmission", "replyReceived", "ruleAlert"] as const;
+const AUTOMATION_SITE_CONSUMERS: ReadonlyArray<readonly [string, readonly string[]]> = [
+  [`${AUTOMATIONS_DIRECTORY}/automation-builder.tsx :: t :: builder.boolean.\${option}`, AUTOMATION_KEYS("builder.boolean", ["false", "true"])],
+  [`${AUTOMATIONS_DIRECTORY}/automation-builder.tsx :: t :: effect.\${kind}`, AUTOMATION_KEYS("effect", ["createRecord", "notify", "setField"])],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-builder.tsx :: t :: notificationKind.\${kind}`,
+    AUTOMATION_KEYS("notificationKind", ["dueToday", "replyReceived", "ruleAlert"]),
+  ],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-builder.tsx :: t :: operator.\${operator}`,
+    AUTOMATION_KEYS("operator", ["after", "before", "empty", "equals", "notEmpty", "notEquals"]),
+  ],
+  [`${AUTOMATIONS_DIRECTORY}/automation-builder.tsx :: t :: trigger.\${kind}`, AUTOMATION_KEYS("trigger", AUTOMATION_TRIGGER_KINDS)],
+  [`${AUTOMATIONS_DIRECTORY}/automation-run-history.tsx :: t :: effect.\${effect.kind}`, AUTOMATION_KEYS("effect", AUTOMATION_EFFECT_KINDS)],
+  [`${AUTOMATIONS_DIRECTORY}/automation-run-history.tsx :: t :: outcome.\${effect.status}`, AUTOMATION_KEYS("outcome", ["applied", "failed", "skipped"])],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automation-run-history.tsx :: t :: reason.\${run.reason}`,
+    AUTOMATION_KEYS("reason", [
+      "conditionsNotMet",
+      "ownerChanged",
+      "ownerInactive",
+      "ownerMissing",
+      "ownerNotPermitted",
+      "recordUnavailable",
+      "ruleDisabled",
+    ]),
+  ],
+  [`${AUTOMATIONS_DIRECTORY}/automation-run-history.tsx :: t :: status.\${run.status}`, AUTOMATION_KEYS("status", AUTOMATION_RUN_STATUSES)],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automations-view.tsx :: t :: disabledReason.\${rule.disabledReason}`,
+    AUTOMATION_KEYS("disabledReason", ["disabledByUser", "ownerInactive", "ownerMissing"]),
+  ],
+  [`${AUTOMATIONS_DIRECTORY}/automations-view.tsx :: t :: effect.\${effect.kind}`, AUTOMATION_KEYS("effect", AUTOMATION_EFFECT_KINDS)],
+  [`${AUTOMATIONS_DIRECTORY}/automations-view.tsx :: t :: status.\${rule.lastRunStatus}`, AUTOMATION_KEYS("status", AUTOMATION_RUN_STATUSES)],
+  [
+    `${AUTOMATIONS_DIRECTORY}/automations-view.tsx :: t :: summary.\${trigger.kind}`,
+    AUTOMATION_KEYS("summary", [...AUTOMATION_TRIGGER_KINDS, "formSubmitted", "webhookReceived"]),
+  ],
+  [`${NOTIFICATION_SETTINGS_FILE} :: t :: emailMode.\${mode}`, NOTIFICATION_KEYS("emailMode", ["digest", "instant", "off"])],
+  [`${NOTIFICATION_SETTINGS_FILE} :: t :: kindHelp.\${preference.kind}`, NOTIFICATION_KEYS("kindHelp", NOTIFICATION_KIND_NAMES)],
+  [`${NOTIFICATION_SETTINGS_FILE} :: t :: kinds.\${preference.kind}`, NOTIFICATION_KEYS("kinds", NOTIFICATION_KIND_NAMES)],
+  ["app/components/notifications/notification-bell.tsx :: t :: kinds.${item.kind}", NOTIFICATION_KEYS("kinds", NOTIFICATION_KIND_NAMES)],
+];
+const AUTOMATION_QUALIFIED_SITES: ReadonlyArray<readonly [string, readonly string[]]> = AUTOMATION_SITE_CONSUMERS.map(
+  ([site, keys]) => {
+    const [file, body] = site.split(" :: t :: ");
+    return [`${file} :: t :: ${keys[0]?.split(".")[0]}.${body}`, keys] as const;
+  },
+);
 
 const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
   [
@@ -657,6 +742,7 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
     RECORD_TYPE_ICON_KEYS.map((key) => `RecordModel.icons.${key}`),
   ],
   ["ee/subscription/entitlement.service.ts :: t :: ConnectedAccountsCard.${code}", ENTITLEMENT_DENIAL_KEYS],
+  ...AUTOMATION_QUALIFIED_SITES,
 ]);
 
 const ENFORCED = true;
@@ -688,6 +774,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/components/upsell/upsell-cta.tsx :: t :: Subscription.planNames.${plan}",
   "features/record-files/record-file-upload.service.ts :: t :: Subscription.planNames.${upgradePlan}",
   "app/components/navigation/trial-sidebar-card.tsx :: t :: Subscription.planNames.${MESSAGING_UPSELL_PLAN}",
+  "app/components/schedule-meeting/schedule-meeting-modal.tsx :: t :: Subscription.planNames.${MESSAGING_UPSELL_PLAN}",
   "app/components/upsell/free-plan-feature-overlay.tsx :: t :: Subscription.planNames.${plan}",
   "app/components/upsell/plan-paused-banner.tsx :: t :: Subscription.planNames.${plan}",
   "app/[locale]/(public)/auth/paused/plan-paused-card.tsx :: t :: Subscription.planNames.${FREE_PLAN_UPGRADE_PLAN}",
@@ -852,6 +939,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/shared/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${currentLocale}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${locale}",
+  "components/public-form/public-form-settings.tsx :: t :: Common.locales.${locale}",
   "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-field.tsx :: t :: Common.locales.${locale}",
   "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-interview.tsx :: t.raw :: WorkspaceSetup.suggestedSteps.${suggestion}",
   "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-screen-summary.ts :: t :: Common.locales.${value.value}",
@@ -859,7 +947,7 @@ export const DYNAMIC_KEY_SITES = [
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.approval.${copyKind}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.label.${name}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resource.${activity.resource}",
-  "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resourceSingular.${resourceKey}",
+  "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.counted.${key}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.state.${copyKind}.${name}",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.label",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.prompt",
@@ -894,6 +982,7 @@ export const DYNAMIC_KEY_SITES = [
   "features/records/workspace-record-preset.ts :: t :: Common.defaultData.${preset.entityType}.columnLabel",
   "features/records/workspace-record-preset.ts :: t :: Common.defaultData.${preset.entityType}.options.${option.key}",
   "features/records/workspace-record-preset.ts :: t :: RecordModel.priceModes.${option.id}",
+  ...AUTOMATION_QUALIFIED_SITES.map(([site]) => site),
 ];
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([

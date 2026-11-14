@@ -1,0 +1,125 @@
+{
+  "locale": "en",
+  "name": "Insurance broker pipeline",
+  "summary": "Two pipelines for an insurance broker: new business from lead to bound with the advice documented before the offer, and a renewal case for every policy that starts 120 to 45 days before expiry.",
+  "description": "Run new business and renewals side by side: opportunities from the first inquiry through needs analysis, quotes, offer and decision to a bound policy, an advice-documented date on every offer, and policies with their renewal date that open a renewal case on their own. It holds a reference to the advice record and to the policy in your agency system, never health data, claims details, bank details or identity copies. It is not policy administration, a comparison or rating engine, claims handling or commission reconciliation.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Policyholders, prospects, decision makers and referrers." },
+    "opportunities": { "label": "Opportunity", "pluralLabel": "Opportunities", "description": "New business from the first inquiry to a bound policy or a loss." },
+    "policies": { "label": "Policy", "pluralLabel": "Policies", "description": "A policy with its line, renewal date and a link to the agency system." },
+    "renewals": { "label": "Renewal", "pluralLabel": "Renewals", "description": "The yearly renewal case of one policy." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Role", "options": { "policyholder": "Policyholder", "prospect": "Prospect", "decision_maker": "Decision maker", "referrer": "Referrer" } },
+    "contacts.preferred_channel": { "label": "Preferred channel", "options": { "email": "Email", "phone": "Phone", "whatsapp": "WhatsApp", "post": "Post" } },
+    "contacts.broker_mandate_on": { "label": "Broker mandate signed on" },
+    "opportunities.stage": {
+      "label": "Stage",
+      "options": { "lead": "Lead", "needs_analysis": "Needs analysis", "quotes_requested": "Quotes requested", "offer_presented": "Offer presented", "awaiting_decision": "Awaiting decision", "application_submitted": "Application submitted", "bound": "Bound", "lost": "Lost" }
+    },
+    "opportunities.line": {
+      "label": "Line of business",
+      "options": { "motor": "Motor", "home_contents": "Home and contents", "liability": "Liability", "legal_expenses": "Legal expenses", "life_pension": "Life and pension", "health": "Health", "commercial_property": "Commercial property", "commercial_liability": "Commercial liability", "cyber": "Cyber", "other": "Other" }
+    },
+    "opportunities.source": { "label": "Source", "options": { "referral": "Referral", "web_form": "Web form", "comparison_portal": "Comparison portal", "existing_client": "Existing client", "partner": "Partner", "event": "Event" } },
+    "opportunities.needs_analysis_on": { "label": "Needs analysis on" },
+    "opportunities.advice_documented_on": { "label": "Advice documented on" },
+    "opportunities.advice_record_ref": { "label": "Link to the advice record" },
+    "opportunities.decision_expected": { "label": "Decision expected" },
+    "opportunities.next_step_due": { "label": "Next step due" },
+    "opportunities.lost_reason": {
+      "label": "Lost reason",
+      "options": { "price": "Price", "coverage_not_matching": "Cover did not match", "stayed_with_current": "Stayed with the current insurer", "no_response": "No response", "declined_by_carrier": "Declined by the insurer", "timing": "Timing" }
+    },
+    "opportunities.producer": { "label": "Producer" },
+    "policies.policy_ref": { "label": "Policy number" },
+    "policies.line": {
+      "label": "Line of business",
+      "options": { "motor": "Motor", "home_contents": "Home and contents", "liability": "Liability", "legal_expenses": "Legal expenses", "life_pension": "Life and pension", "health": "Health", "commercial_property": "Commercial property", "commercial_liability": "Commercial liability", "cyber": "Cyber", "other": "Other" }
+    },
+    "policies.line_group": { "label": "Segment", "options": { "commercial": "Commercial", "personal": "Personal" } },
+    "policies.status": { "label": "Status", "options": { "pending": "Pending", "active": "Active", "lapsed": "Lapsed", "cancelled": "Cancelled" } },
+    "policies.renewal_date": { "label": "Renewal date" },
+    "policies.annual_premium": { "label": "Annual premium" },
+    "policies.notice_days": { "label": "Notice period (days)" },
+    "policies.system_ref": { "label": "Link in the agency system" },
+    "renewals.stage": {
+      "label": "Stage",
+      "options": { "upcoming": "Upcoming", "review_started": "Review started", "market_check": "Market check", "offer_sent": "Offer sent", "awaiting_client": "Awaiting the client", "renewed": "Renewed", "lapsed": "Lapsed" }
+    },
+    "renewals.renewal_date": { "label": "Renewal date" },
+    "renewals.offer_sent_on": { "label": "Offer sent on" },
+    "renewals.decision_on": { "label": "Client decided on" },
+    "renewals.premium_change_percent": { "label": "Premium change (%)" },
+    "renewals.advice_documented_on": { "label": "Advice documented on" },
+    "renewals.lost_reason": {
+      "label": "Lost reason",
+      "options": { "price": "Price", "switched_broker": "Switched broker", "switched_carrier": "Switched insurer", "business_closed": "Business closed", "no_response": "No response", "other": "Other" }
+    },
+    "actions.kind": {
+      "label": "Kind",
+      "options": { "call": "Call", "send_quote": "Send the quote", "chase_carrier": "Chase the insurer", "advice_record": "Record the advice", "renewal_review": "Review the renewal", "cross_sell": "Cross-sell review", "letter": "Write a letter", "other": "Other" }
+    }
+  },
+  "relationships": {
+    "opportunity_contact": { "sourceLabel": "Contact", "targetLabel": "Opportunities" },
+    "policy_contact": { "sourceLabel": "Policyholder", "targetLabel": "Policies" },
+    "policy_opportunity": { "sourceLabel": "Opportunity", "targetLabel": "Policies" },
+    "renewal_policy": { "sourceLabel": "Policy", "targetLabel": "Renewals" },
+    "action_opportunity": { "sourceLabel": "Opportunity", "targetLabel": "Actions" },
+    "action_renewal": { "sourceLabel": "Renewal", "targetLabel": "Actions" },
+    "action_policy": { "sourceLabel": "Policy", "targetLabel": "Actions" }
+  },
+  "views": {
+    "opportunities_board": { "name": "New business by stage" },
+    "opportunities_all": { "name": "All opportunities" },
+    "offers_without_advice": { "name": "Offers without an advice record" },
+    "renewals_board": { "name": "Renewals by stage" },
+    "policies_all": { "name": "All policies" },
+    "contacts_all": { "name": "All contacts" }
+  },
+  "widgets": {
+    "opportunities_funnel": { "title": "New business by stage" },
+    "renewals_coming": { "title": "Renewals coming up" },
+    "offers_no_advice": { "title": "Offers without an advice record" },
+    "renewals_by_stage": { "title": "Open renewals by stage" },
+    "active_premium": { "title": "Annual premium of active policies" },
+    "lost_reasons": { "title": "Why opportunities were lost" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "How the broker desk runs", "sections": ["The two pipelines: new business and renewals", "Who owns which stage and the rule of one dated Action per open item"] },
+    "advice_documentation": { "title": "Needs analysis and advice documentation", "sections": ["What is asked and recorded before an offer", "Where the record lives: only a reference is kept here"] },
+    "renewal_playbook": { "title": "Renewal playbook", "sections": ["Commercial lines from 120 days, personal lines from 45 days", "Review, market check, offer and the decision before the notice date"] },
+    "policy_data_rules": { "title": "Policy data: what lives in the agency system", "sections": ["Policy truth and commission statements stay in the agency system", "What this workspace keeps and what it never holds"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Create the contact and the opportunity when the inquiry form is submitted" },
+    "respond_new_lead": { "title": "Respond to a new lead the next day" },
+    "needs_analysis_task": { "title": "Record the advice within 3 days when an opportunity reaches needs analysis" },
+    "quotes_chase": { "title": "Chase the insurers 3 days after quotes are requested" },
+    "offer_follow_up": { "title": "Follow up the day after an offer is presented" },
+    "bound_welcome": { "title": "Call the client a week after a policy is bound" },
+    "renewal_commercial": { "title": "Open a renewal case 120 days before an active commercial policy renews" },
+    "renewal_personal": { "title": "Open a renewal case 45 days before an active personal policy renews" },
+    "renewal_review_task": { "title": "Review the renewal within a week of opening the case" },
+    "renewal_offer_chase": { "title": "Notify the owner when a renewal offer has waited 7 days for the client" },
+    "decision_deadline_notice": { "title": "Notify the owner 30 days before renewal to confirm the client's decision" },
+    "unpaid_premium_notice": { "title": "Write to the client when the agency system reports an unpaid premium" }
+  },
+  "acceptanceChecks": {
+    "opportunity_stage_field": "Every opportunity has a stage.",
+    "advice_documented_field": "Every opportunity records when the advice was documented.",
+    "renewal_date_field": "Every policy records its renewal date.",
+    "renewals_board_view": "The renewals open as a board by stage.",
+    "advice_documentation_page": "The knowledge base holds a page on advice documentation."
+  },
+  "prompt": {
+    "intro": "Set up an insurance broker pipeline in my Customermates workspace: new business from lead to bound with the advice documented before the offer, policies with a renewal date and a renewal case for each, and dated follow-ups. Store no health data, claims details or identity copies.",
+    "questions": [
+      "Which lines do you place, and do you serve commercial clients, private clients or both?",
+      "How long before expiry do you start a renewal, and how long is the usual notice period?",
+      "Where do you keep the advice record and the policy data? Only links are kept here.",
+      "Which country do you work in, and which advice duties apply to you?"
+    ]
+  }
+}

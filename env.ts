@@ -31,6 +31,7 @@ export const env = {
   CI: process.env.CI,
 
   APP_MODE: resolveAppMode(process.env),
+  TEMPLATES_PREVIEW: resolveStrictBoolean("TEMPLATES_PREVIEW", process.env.TEMPLATES_PREVIEW),
   AGENT_CHAT_DISABLED: Boolean(process.env.AGENT_CHAT_DISABLED),
   AI_GATEWAY_API_KEY: process.env.AI_GATEWAY_API_KEY,
   HOSTED_AI_OPERATOR_CONTROLS_ENABLED: resolveStrictBoolean(

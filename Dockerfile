@@ -33,6 +33,7 @@ COPY --from=builder /app/tsconfig.json ./tsconfig.json
 COPY --from=builder /app/next.config.ts ./next.config.ts
 COPY --from=builder /app/env.ts ./env.ts
 COPY --from=builder /app/core/config/environment.ts ./core/config/environment.ts
+COPY --from=builder /app/core/config/public-form-frame.ts ./core/config/public-form-frame.ts
 COPY --from=builder /app/core/seo/route-aliases.ts ./core/seo/route-aliases.ts
 COPY --from=builder /app/core/navigation/workspace-paths.ts ./core/navigation/workspace-paths.ts
 COPY --from=builder /app/features/record-file-index/record-file-parser-packages.ts ./features/record-file-index/record-file-parser-packages.ts
@@ -46,5 +47,6 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/generated ./generated
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/core/fumadocs ./core/fumadocs
+COPY --from=builder /app/core/templates/bundles ./core/templates/bundles
 EXPOSE 4000
 CMD ["sh", "-c", "npx prisma migrate deploy && yarn workflow:setup && exec yarn start"]

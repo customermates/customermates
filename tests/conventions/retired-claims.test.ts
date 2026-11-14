@@ -138,10 +138,13 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
     pattern:
       /\b(?:two[- ]way|bidirectional|write[- ]enabled|automatic|Zwei[- ]Wege|bidirektional|automatisch)[ -]?(?:calendar|Kalender)[ -]?(?:sync|integration|Synchronisierung|Integration)?\b|\b(?:creat|edit|updat|delet|writ|book|schedul|sync|erstell|änder|aktualisier|lösch|schreib|buch|plan|synchronisier)\w*[^.!?;,|]{0,24}\b(?:calendar events?|appointments?|Kalendertermine?|Termine?)\b|\b(?:calendar events?|appointments?|Kalendertermine?|Termine?)[^.!?;,|]{0,24}\b(?:are\s+|werden\s+)?(?:creat|edit|updat|delet|writ|book|schedul|erstell|änder|aktualisier|lösch|schreib|buch|plan)\w*\b/iu,
     permittedContext: [...NO_OR_EXTERNAL, /\b(?:read[- ]only|nur lesend|schreibgeschützt\w*)\b/iu],
-    why: "Connected calendar and event access is read-only",
-    authority: "features/mcp-tools/tool-registry.ts",
+    why: "Calendar sync is one-way; only the schedule-meeting window, booking pages and the schedule_meeting tool write events",
+    authority: "features/mcp-tools/calendar-write.mcp-tools.ts, core/capabilities/capabilities.ts",
     appliesTo: (unit) =>
-      !(unit.kind === "json-value" && /#\/Common\/events\/messaging\/calendar_event\//u.test(unit.locator)),
+      !(
+        unit.kind === "json-value" &&
+        /#\/(?:Common\/events\/messaging\/calendar_event|ScheduleMeeting|Booking|PublicBooking)\//u.test(unit.locator)
+      ),
   },
   {
     id: "native-mobile-or-offline",

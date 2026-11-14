@@ -1,0 +1,3601 @@
+{
+  "spec": {
+    "id": "tpl_action_item_tracker",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "action-item-tracker",
+    "family": "operations",
+    "kind": "tracker",
+    "jurisdictions": [
+      "global"
+    ],
+    "dashboardAudience": "team",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "notifications"
+    ],
+    "pairedPages": {
+      "en": "/features/task-management",
+      "de": "/features/task-management",
+      "fr": "/features/task-management",
+      "it": "/features/task-management",
+      "es": "/features/task-management",
+      "pt": "/features/task-management",
+      "pl": "/features/task-management",
+      "nl": "/features/task-management"
+    },
+    "modules": [],
+    "lists": [
+      {
+        "key": "people",
+        "role": "people",
+        "icon": "contact"
+      },
+      {
+        "key": "meetings",
+        "icon": "calendarCheck"
+      },
+      {
+        "key": "decisions",
+        "icon": "gavel"
+      },
+      {
+        "key": "projects",
+        "icon": "kanban"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "people.person_role",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "team_member"
+          },
+          {
+            "key": "external"
+          },
+          {
+            "key": "customer"
+          },
+          {
+            "key": "supplier"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "people.team",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "meetings.meeting_type",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "team"
+          },
+          {
+            "key": "project"
+          },
+          {
+            "key": "steering"
+          },
+          {
+            "key": "customer"
+          },
+          {
+            "key": "audit"
+          }
+        ]
+      },
+      {
+        "key": "meetings.held_at",
+        "type": "dateTime",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "meetings.agenda_url",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "meetings.minutes_url",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "meetings.minutes_sent_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "meetings.next_meeting_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "decisions.decision_text",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "decisions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "valid",
+            "color": "success"
+          },
+          {
+            "key": "superseded",
+            "color": "secondary"
+          },
+          {
+            "key": "revoked",
+            "color": "destructive"
+          }
+        ]
+      },
+      {
+        "key": "decisions.decided_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "decisions.review_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "projects.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "projects.start_date",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "projects.end_date",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.priority",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "high",
+            "color": "destructive"
+          },
+          {
+            "key": "medium",
+            "color": "warning"
+          },
+          {
+            "key": "low",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "action"
+          },
+          {
+            "key": "follow_up"
+          },
+          {
+            "key": "review"
+          },
+          {
+            "key": "corrective"
+          },
+          {
+            "key": "preventive"
+          },
+          {
+            "key": "customer_request"
+          }
+        ]
+      },
+      {
+        "key": "actions.source",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "meeting"
+          },
+          {
+            "key": "email"
+          },
+          {
+            "key": "project_plan"
+          },
+          {
+            "key": "audit"
+          },
+          {
+            "key": "complaint"
+          },
+          {
+            "key": "incident"
+          }
+        ]
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.follow_up_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.done_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.blocker_note",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.proof_url",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "actions.status",
+        "items": [
+          {
+            "key": "open",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "in_progress",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "blocked",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "in_review",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "done",
+            "outcome": "won",
+            "weight": 100
+          },
+          {
+            "key": "cancelled",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      },
+      {
+        "field": "projects.status",
+        "items": [
+          {
+            "key": "planned",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "active",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "on_hold",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "done",
+            "outcome": "won",
+            "weight": 100
+          }
+        ]
+      }
+    ],
+    "calculations": [
+      {
+        "key": "actions.days_late",
+        "type": "number",
+        "expression": {
+          "op": "daysBetween",
+          "from": "actions.due",
+          "to": "actions.done_on"
+        }
+      }
+    ],
+    "relationships": [
+      {
+        "key": "action_meeting",
+        "source": "actions",
+        "target": "meetings",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_project",
+        "source": "actions",
+        "target": "projects",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "decision_meeting",
+        "source": "decisions",
+        "target": "meetings",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.status",
+          "actions.priority",
+          "actions.owner",
+          "actions.due",
+          "actions.source"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "actions_board",
+        "list": "actions",
+        "default": false,
+        "layout": "board",
+        "groupBy": "actions.status",
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "blocked_actions",
+        "list": "actions",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "blocked"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "overdue_list",
+        "list": "actions",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "actions.status",
+            "options": [
+              "done",
+              "cancelled"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ]
+      },
+      {
+        "key": "meetings_all",
+        "list": "meetings",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "meetings.held_at",
+          "direction": "desc"
+        },
+        "columns": [
+          "meetings.meeting_type",
+          "meetings.held_at",
+          "meetings.minutes_sent_on"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "decisions_all",
+        "list": "decisions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "decisions.decided_on",
+          "direction": "desc"
+        },
+        "columns": [
+          "decisions.status",
+          "decisions.decided_on",
+          "decisions.review_on"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "chart",
+        "key": "actions_by_status",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "actions.status"
+        },
+        "filters": [],
+        "display": "doughnutChart"
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_count",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "actions.status",
+            "options": [
+              "done",
+              "cancelled"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "blocked_count",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "blocked"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "calendar",
+        "key": "due_soon",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "actions.status",
+            "options": [
+              "done",
+              "cancelled"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "open_by_owner",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "actions.owner"
+        },
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "actions.status",
+            "options": [
+              "done",
+              "cancelled"
+            ]
+          }
+        ],
+        "display": "rankedTable"
+      },
+      {
+        "kind": "chart",
+        "key": "done_per_month",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "actions.done_on",
+          "dateInterval": "month"
+        },
+        "filters": [],
+        "display": "areaChart"
+      },
+      {
+        "kind": "chart",
+        "key": "actions_by_source",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "actions.source"
+        },
+        "filters": [],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "chart",
+        "key": "average_days_late",
+        "list": "actions",
+        "aggregation": "average",
+        "valueField": "actions.days_late",
+        "groupBy": null,
+        "filters": [],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "how_we_write_an_action",
+        "kind": "overview"
+      },
+      {
+        "key": "weekly_action_review",
+        "kind": "processes"
+      },
+      {
+        "key": "closing_with_proof",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "minutes_after_meeting",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "meetings.held_at",
+          "offsetDays": 0
+        },
+        "condition": [
+          {
+            "operator": "empty",
+            "field": "meetings.minutes_sent_on"
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "workspace_owner",
+          "about": "meetings"
+        },
+        "dueOffsetDays": 1,
+        "needs": "rules"
+      },
+      {
+        "key": "unblock_action",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "actions.status",
+          "to": "blocked"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "actions"
+        },
+        "dueOffsetDays": 2,
+        "needs": "today"
+      },
+      {
+        "key": "due_reminder",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "actions.due",
+          "offsetDays": -2
+        },
+        "condition": [
+          {
+            "operator": "notIn",
+            "field": "actions.status",
+            "options": [
+              "done",
+              "cancelled"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "notify",
+          "recipient": "record_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "overdue_notice",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "actions.due",
+          "offsetDays": 1
+        },
+        "condition": [
+          {
+            "operator": "notIn",
+            "field": "actions.status",
+            "options": [
+              "done",
+              "cancelled"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "notify",
+          "recipient": "record_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "follow_up_date",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "actions.follow_up_on",
+          "offsetDays": 0
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "actions"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "effectiveness_check",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "actions.status",
+          "to": "done"
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "actions.kind",
+            "options": [
+              "corrective",
+              "preventive"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "record_owner",
+          "about": "actions"
+        },
+        "dueOffsetDays": 30,
+        "needs": "today"
+      },
+      {
+        "key": "weekly_action_review",
+        "trigger": {
+          "kind": "schedule",
+          "every": "week",
+          "weekday": 1
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "workspace_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "today"
+      },
+      {
+        "key": "decision_review",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "decisions.review_on",
+          "offsetDays": 0
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "workspace_owner",
+          "about": "decisions"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "request_form_action",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "request"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "actions"
+          ]
+        },
+        "dueOffsetDays": 2,
+        "needs": "forms"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "status_field",
+        "kind": "field_exists",
+        "ref": "actions.status"
+      },
+      {
+        "key": "due_field",
+        "kind": "field_exists",
+        "ref": "actions.due"
+      },
+      {
+        "key": "overdue_widget",
+        "kind": "widget_exists",
+        "ref": "overdue_count"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://www.projectmanager.com/blog/guide-to-action-items",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.read.ai/articles/action-item-tracking-best-practices-tools",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.smartsheet.com/content/action-items-templates",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://asana.com/templates/action-log",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.whk-controlling.de/wissen/massnahmenplan-vorlage",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://ecommercenapratica.com/blog/planilha-5w2h/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://gotranscript.com/fr/blog/rolling-action-log-reunions-recurrentes-carryover-modele",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.vertex42.com/ExcelTemplates/action-items-template.html",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "status": {
+      "en": "draft",
+      "de": "draft",
+      "fr": "draft",
+      "it": "draft",
+      "es": "draft",
+      "pt": "draft",
+      "pl": "draft",
+      "nl": "draft"
+    },
+    "publicPage": {
+      "en": "own",
+      "de": "own",
+      "fr": "own",
+      "it": "none",
+      "es": "none",
+      "pt": "own",
+      "pl": "none",
+      "nl": "own"
+    },
+    "publishWave": {
+      "en": "hold",
+      "de": "wave2",
+      "fr": "wave2",
+      "pt": "wave1",
+      "nl": "wave1"
+    }
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Maßnahmenplan",
+      "summary": "Jede Maßnahme mit einem Verantwortlichen und einer Deadline, verknüpft mit Besprechung, Beschluss oder Projekt, mit wöchentlicher Durchsicht und Abschluss mit Nachweis.",
+      "description": "Eine Maßnahmenliste für alles, was aus Besprechungen, Projekten, Audits und Kundenanfragen folgt: sechs Status, Priorität, Verantwortlicher, Deadline, Wiedervorlage, ein Beschlussprotokoll und eine Wirksamkeitsprüfung nach Korrekturmaßnahmen. Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen.",
+      "lists": {
+        "people": {
+          "label": "Person",
+          "pluralLabel": "Personen",
+          "description": "Teammitglieder, Partner, Kunden und Lieferanten."
+        },
+        "meetings": {
+          "label": "Besprechung",
+          "pluralLabel": "Besprechungen",
+          "description": "Woher Maßnahmen und Beschlüsse kommen."
+        },
+        "decisions": {
+          "label": "Beschluss",
+          "pluralLabel": "Beschlüsse",
+          "description": "Das Beschlussprotokoll mit Prüfdatum."
+        },
+        "projects": {
+          "label": "Projekt",
+          "pluralLabel": "Projekte",
+          "description": "Das Projekt, zu dem eine Maßnahme gehört."
+        },
+        "actions": {
+          "label": "Maßnahme",
+          "pluralLabel": "Maßnahmen",
+          "description": "Ein Verantwortlicher und eine Frist je Maßnahme."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "in_progress": "In Bearbeitung",
+            "blocked": "Blockiert",
+            "in_review": "In Prüfung",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "projects.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Geplant",
+            "active": "Aktiv",
+            "on_hold": "Pausiert",
+            "done": "Abgeschlossen"
+          }
+        },
+        "people.person_role": {
+          "label": "Rolle",
+          "options": {
+            "team_member": "Teammitglied",
+            "external": "Externer Partner",
+            "customer": "Kunde",
+            "supplier": "Lieferant",
+            "other": "Sonstige"
+          }
+        },
+        "people.team": {
+          "label": "Team",
+          "options": {}
+        },
+        "meetings.meeting_type": {
+          "label": "Art der Besprechung",
+          "options": {
+            "team": "Teambesprechung",
+            "project": "Projektbesprechung",
+            "steering": "Lenkungsausschuss",
+            "customer": "Kundentermin",
+            "audit": "Audit oder Review"
+          }
+        },
+        "meetings.held_at": {
+          "label": "Stattgefunden am",
+          "options": {}
+        },
+        "meetings.agenda_url": {
+          "label": "Link zur Tagesordnung",
+          "options": {}
+        },
+        "meetings.minutes_url": {
+          "label": "Link zum Protokoll",
+          "options": {}
+        },
+        "meetings.minutes_sent_on": {
+          "label": "Protokoll versendet am",
+          "options": {}
+        },
+        "meetings.next_meeting_on": {
+          "label": "Nächste Besprechung am",
+          "options": {}
+        },
+        "decisions.decision_text": {
+          "label": "Beschluss",
+          "options": {}
+        },
+        "decisions.status": {
+          "label": "Status",
+          "options": {
+            "valid": "Gültig",
+            "superseded": "Ersetzt",
+            "revoked": "Aufgehoben"
+          }
+        },
+        "decisions.decided_on": {
+          "label": "Beschlossen am",
+          "options": {}
+        },
+        "decisions.review_on": {
+          "label": "Prüfung am",
+          "options": {}
+        },
+        "projects.owner": {
+          "label": "Verantwortlich",
+          "options": {}
+        },
+        "projects.start_date": {
+          "label": "Start",
+          "options": {}
+        },
+        "projects.end_date": {
+          "label": "Ende",
+          "options": {}
+        },
+        "actions.priority": {
+          "label": "Priorität",
+          "options": {
+            "high": "Hoch",
+            "medium": "Mittel",
+            "low": "Niedrig"
+          }
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "action": "Maßnahme",
+            "follow_up": "Nachverfolgung",
+            "review": "Prüfung",
+            "corrective": "Korrekturmaßnahme",
+            "preventive": "Vorbeugungsmaßnahme",
+            "customer_request": "Kundenanfrage"
+          }
+        },
+        "actions.source": {
+          "label": "Quelle",
+          "options": {
+            "meeting": "Besprechung",
+            "email": "E-Mail",
+            "project_plan": "Projektplan",
+            "audit": "Audit oder Prüfung",
+            "complaint": "Reklamation",
+            "incident": "Vorfall"
+          }
+        },
+        "actions.owner": {
+          "label": "Verantwortlich",
+          "options": {}
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.follow_up_on": {
+          "label": "Wiedervorlage am",
+          "options": {}
+        },
+        "actions.done_on": {
+          "label": "Erledigt am",
+          "options": {}
+        },
+        "actions.blocker_note": {
+          "label": "Was blockiert",
+          "options": {}
+        },
+        "actions.proof_url": {
+          "label": "Link zum Nachweis",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "actions.days_late": {
+          "label": "Tage verspätet",
+          "options": {}
+        }
+      },
+      "relationships": {
+        "action_meeting": {
+          "sourceLabel": "Besprechung",
+          "targetLabel": "Maßnahmen"
+        },
+        "action_project": {
+          "sourceLabel": "Projekt",
+          "targetLabel": "Maßnahmen"
+        },
+        "decision_meeting": {
+          "sourceLabel": "Besprechung",
+          "targetLabel": "Beschlüsse"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle Maßnahmen"
+        },
+        "actions_board": {
+          "name": "Maßnahmen nach Status"
+        },
+        "blocked_actions": {
+          "name": "Blockiert"
+        },
+        "overdue_list": {
+          "name": "Überfällig"
+        },
+        "meetings_all": {
+          "name": "Alle Besprechungen"
+        },
+        "decisions_all": {
+          "name": "Beschlussprotokoll"
+        }
+      },
+      "widgets": {
+        "actions_by_status": {
+          "title": "Maßnahmen nach Status"
+        },
+        "overdue_count": {
+          "title": "Überfällige Maßnahmen"
+        },
+        "blocked_count": {
+          "title": "Blockierte Maßnahmen"
+        },
+        "due_soon": {
+          "title": "Bald fällig"
+        },
+        "open_by_owner": {
+          "title": "Offene Maßnahmen je Verantwortlichem"
+        },
+        "done_per_month": {
+          "title": "Erledigt pro Monat"
+        },
+        "actions_by_source": {
+          "title": "Maßnahmen nach Quelle"
+        },
+        "average_days_late": {
+          "title": "Durchschnittliche Verspätung in Tagen"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        }
+      },
+      "knowledgePages": {
+        "how_we_write_an_action": {
+          "title": "So formulieren wir eine Maßnahme",
+          "sections": [
+            "Ein Verb, ein Verantwortlicher, ein Datum",
+            "Woran man erkennt, dass sie erledigt ist"
+          ]
+        },
+        "weekly_action_review": {
+          "title": "Wöchentliche Maßnahmen-Durchsicht in 15 Minuten",
+          "sections": [
+            "Blockiert, verzögert, ohne nächsten Schritt",
+            "Neu terminieren, delegieren oder abbrechen"
+          ]
+        },
+        "closing_with_proof": {
+          "title": "Maßnahme mit Nachweis abschließen",
+          "sections": [
+            "Den Nachweis verlinken",
+            "Wirksamkeitsprüfung bei Korrekturmaßnahmen"
+          ]
+        }
+      },
+      "rules": {
+        "minutes_after_meeting": {
+          "title": "Nach einer Besprechung Protokoll und Maßnahmenliste versenden",
+          "description": ""
+        },
+        "unblock_action": {
+          "title": "Festlegen, wer die Blockade einer Maßnahme auflösen kann",
+          "description": ""
+        },
+        "due_reminder": {
+          "title": "Den Verantwortlichen zwei Tage vor der Deadline erinnern",
+          "description": ""
+        },
+        "overdue_notice": {
+          "title": "Den Verantwortlichen am Tag nach Überschreiten der Deadline informieren",
+          "description": ""
+        },
+        "follow_up_date": {
+          "title": "Die Maßnahme am Tag der Wiedervorlage erneut ansehen",
+          "description": ""
+        },
+        "effectiveness_check": {
+          "title": "Wirksamkeit einer Korrektur- oder Vorbeugungsmaßnahme nach 30 Tagen prüfen",
+          "description": ""
+        },
+        "weekly_action_review": {
+          "title": "Jeden Montag die Maßnahmen-Durchsicht durchführen",
+          "description": ""
+        },
+        "decision_review": {
+          "title": "Einen Beschluss zum Prüfdatum überprüfen",
+          "description": ""
+        },
+        "request_form_action": {
+          "title": "Aus einer über ein Formular gesendeten Anfrage eine Maßnahme anlegen",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Jede Maßnahme hat einen von sechs Status.",
+        "due_field": "Jede Maßnahme hat einen Verantwortlichen und eine Deadline.",
+        "overdue_widget": "Das Dashboard zeigt, wie viele Maßnahmen überfällig sind."
+      },
+      "prompt": {
+        "intro": "Richte einen Maßnahmenplan in meinem Customermates-Workspace ein: Maßnahmen mit sechs Status, Priorität, Verantwortlichem, Deadline und Wiedervorlage, verknüpft mit Besprechungen, Beschlüssen und Projekten, dazu eine wöchentliche Durchsicht.",
+        "questions": [
+          "Woher kommen deine Maßnahmen: Besprechungen, Projekte, Audits, Kunden?",
+          "Wer verantwortet Maßnahmen, und wer entscheidet, wenn eine neu terminiert oder abgebrochen wird?",
+          "Brauchst du Korrektur- und Vorbeugungsmaßnahmen mit Wirksamkeitsprüfung, etwa nach ISO 9001?",
+          "Führst du Protokolle anderswo? Hier wird nur ein Link dazu gespeichert."
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Action item tracker",
+      "summary": "Every action with one owner and a due date, linked to the meeting, decision or project it came from, with a weekly review and a way to close it with proof.",
+      "description": "A tracker for the actions that come out of meetings, projects, audits and customer requests: six statuses, a priority, an owner, a due date, a follow-up date, a decision log and a check after corrective actions. Reminders come from automation rules and notifications.",
+      "lists": {
+        "people": {
+          "label": "Person",
+          "pluralLabel": "People",
+          "description": "Team members, partners, customers and suppliers."
+        },
+        "meetings": {
+          "label": "Meeting",
+          "pluralLabel": "Meetings",
+          "description": "Where actions and decisions come from."
+        },
+        "decisions": {
+          "label": "Decision",
+          "pluralLabel": "Decisions",
+          "description": "The decision log with a review date."
+        },
+        "projects": {
+          "label": "Project",
+          "pluralLabel": "Projects",
+          "description": "The project an action belongs to."
+        },
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One owner and one due date per action."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "in_progress": "In progress",
+            "blocked": "Blocked",
+            "in_review": "In review",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "projects.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Planned",
+            "active": "Active",
+            "on_hold": "On hold",
+            "done": "Done"
+          }
+        },
+        "people.person_role": {
+          "label": "Role",
+          "options": {
+            "team_member": "Team member",
+            "external": "External partner",
+            "customer": "Customer",
+            "supplier": "Supplier",
+            "other": "Other"
+          }
+        },
+        "people.team": {
+          "label": "Team",
+          "options": {}
+        },
+        "meetings.meeting_type": {
+          "label": "Meeting type",
+          "options": {
+            "team": "Team meeting",
+            "project": "Project meeting",
+            "steering": "Steering committee",
+            "customer": "Customer meeting",
+            "audit": "Audit or review"
+          }
+        },
+        "meetings.held_at": {
+          "label": "Held at",
+          "options": {}
+        },
+        "meetings.agenda_url": {
+          "label": "Agenda link",
+          "options": {}
+        },
+        "meetings.minutes_url": {
+          "label": "Minutes link",
+          "options": {}
+        },
+        "meetings.minutes_sent_on": {
+          "label": "Minutes sent on",
+          "options": {}
+        },
+        "meetings.next_meeting_on": {
+          "label": "Next meeting on",
+          "options": {}
+        },
+        "decisions.decision_text": {
+          "label": "Decision",
+          "options": {}
+        },
+        "decisions.status": {
+          "label": "Status",
+          "options": {
+            "valid": "Valid",
+            "superseded": "Superseded",
+            "revoked": "Revoked"
+          }
+        },
+        "decisions.decided_on": {
+          "label": "Decided on",
+          "options": {}
+        },
+        "decisions.review_on": {
+          "label": "Review on",
+          "options": {}
+        },
+        "projects.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "projects.start_date": {
+          "label": "Start date",
+          "options": {}
+        },
+        "projects.end_date": {
+          "label": "End date",
+          "options": {}
+        },
+        "actions.priority": {
+          "label": "Priority",
+          "options": {
+            "high": "High",
+            "medium": "Medium",
+            "low": "Low"
+          }
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "action": "Action",
+            "follow_up": "Follow-up",
+            "review": "Review",
+            "corrective": "Corrective action",
+            "preventive": "Preventive action",
+            "customer_request": "Customer request"
+          }
+        },
+        "actions.source": {
+          "label": "Source",
+          "options": {
+            "meeting": "Meeting",
+            "email": "Email",
+            "project_plan": "Project plan",
+            "audit": "Audit or inspection",
+            "complaint": "Complaint",
+            "incident": "Incident"
+          }
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.follow_up_on": {
+          "label": "Follow up on",
+          "options": {}
+        },
+        "actions.done_on": {
+          "label": "Done on",
+          "options": {}
+        },
+        "actions.blocker_note": {
+          "label": "What blocks it",
+          "options": {}
+        },
+        "actions.proof_url": {
+          "label": "Proof link",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "actions.days_late": {
+          "label": "Days late",
+          "options": {}
+        }
+      },
+      "relationships": {
+        "action_meeting": {
+          "sourceLabel": "Meeting",
+          "targetLabel": "Actions"
+        },
+        "action_project": {
+          "sourceLabel": "Project",
+          "targetLabel": "Actions"
+        },
+        "decision_meeting": {
+          "sourceLabel": "Meeting",
+          "targetLabel": "Decisions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "All actions"
+        },
+        "actions_board": {
+          "name": "Actions by status"
+        },
+        "blocked_actions": {
+          "name": "Blocked"
+        },
+        "overdue_list": {
+          "name": "Overdue"
+        },
+        "meetings_all": {
+          "name": "All meetings"
+        },
+        "decisions_all": {
+          "name": "Decision log"
+        }
+      },
+      "widgets": {
+        "actions_by_status": {
+          "title": "Actions by status"
+        },
+        "overdue_count": {
+          "title": "Overdue actions"
+        },
+        "blocked_count": {
+          "title": "Blocked actions"
+        },
+        "due_soon": {
+          "title": "Due soon"
+        },
+        "open_by_owner": {
+          "title": "Open actions per owner"
+        },
+        "done_per_month": {
+          "title": "Done per month"
+        },
+        "actions_by_source": {
+          "title": "Actions by source"
+        },
+        "average_days_late": {
+          "title": "Average days late"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        }
+      },
+      "knowledgePages": {
+        "how_we_write_an_action": {
+          "title": "How we write an action",
+          "sections": [
+            "One verb, one owner, one date",
+            "What done looks like"
+          ]
+        },
+        "weekly_action_review": {
+          "title": "Weekly 15-minute action review",
+          "sections": [
+            "Blocked, slipping, no next step",
+            "Re-date, delegate or cancel"
+          ]
+        },
+        "closing_with_proof": {
+          "title": "Closing an action with proof",
+          "sections": [
+            "Link the proof",
+            "Effectiveness check for corrective actions"
+          ]
+        }
+      },
+      "rules": {
+        "minutes_after_meeting": {
+          "title": "Send the minutes and the action list after a meeting",
+          "description": ""
+        },
+        "unblock_action": {
+          "title": "Name who can unblock an action that becomes blocked",
+          "description": ""
+        },
+        "due_reminder": {
+          "title": "Remind the owner two days before an action is due",
+          "description": ""
+        },
+        "overdue_notice": {
+          "title": "Tell the owner the day after an action became overdue",
+          "description": ""
+        },
+        "follow_up_date": {
+          "title": "Look at the action again on its follow-up date",
+          "description": ""
+        },
+        "effectiveness_check": {
+          "title": "Check the effectiveness of a corrective or preventive action after 30 days",
+          "description": ""
+        },
+        "weekly_action_review": {
+          "title": "Run the weekly action review every Monday",
+          "description": ""
+        },
+        "decision_review": {
+          "title": "Review a decision on its review date",
+          "description": ""
+        },
+        "request_form_action": {
+          "title": "Create an action from a request sent through a form",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Every action has one of six statuses.",
+        "due_field": "Every action has an owner and a due date.",
+        "overdue_widget": "The dashboard shows how many actions are overdue."
+      },
+      "prompt": {
+        "intro": "Set up an action item tracker in my Customermates workspace: actions with six statuses, a priority, an owner, a due date and a follow-up date, linked to meetings, decisions and projects, plus a weekly review.",
+        "questions": [
+          "Where do your actions come from: meetings, projects, audits, customers?",
+          "Who owns actions, and who decides when one is re-dated or cancelled?",
+          "Do you need corrective and preventive actions with an effectiveness check, as in ISO 9001?",
+          "Do you keep minutes elsewhere? Only a link to them is kept here."
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "Plan de acción",
+      "summary": "Cada acción con un responsable y una fecha límite, vinculada a la reunión, la decisión o el proyecto de donde sale, con revisión semanal y cierre con evidencia.",
+      "description": "Un seguimiento de las acciones que salen de reuniones, proyectos, auditorías y peticiones de clientes: seis estados, una prioridad, un responsable, una fecha límite, una fecha de seguimiento, un registro de decisiones y una verificación de eficacia tras las acciones correctivas. Los recordatorios vienen de las reglas de automatización y las notificaciones.",
+      "lists": {
+        "people": {
+          "label": "Persona",
+          "pluralLabel": "Personas",
+          "description": "Equipo, socios, clientes y proveedores."
+        },
+        "meetings": {
+          "label": "Reunión",
+          "pluralLabel": "Reuniones",
+          "description": "De dónde salen las acciones y las decisiones."
+        },
+        "decisions": {
+          "label": "Decisión",
+          "pluralLabel": "Decisiones",
+          "description": "El registro de decisiones con una fecha de revisión."
+        },
+        "projects": {
+          "label": "Proyecto",
+          "pluralLabel": "Proyectos",
+          "description": "El proyecto al que pertenece una acción."
+        },
+        "actions": {
+          "label": "Acción",
+          "pluralLabel": "Acciones",
+          "description": "Un responsable y una fecha límite por acción."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Pendiente",
+            "in_progress": "En curso",
+            "blocked": "Bloqueada",
+            "in_review": "En revisión",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "projects.status": {
+          "label": "Estado",
+          "options": {
+            "planned": "Planificado",
+            "active": "Activo",
+            "on_hold": "En pausa",
+            "done": "Terminado"
+          }
+        },
+        "people.person_role": {
+          "label": "Función",
+          "options": {
+            "team_member": "Miembro del equipo",
+            "external": "Colaborador externo",
+            "customer": "Cliente",
+            "supplier": "Proveedor",
+            "other": "Otro"
+          }
+        },
+        "people.team": {
+          "label": "Equipo",
+          "options": {}
+        },
+        "meetings.meeting_type": {
+          "label": "Tipo de reunión",
+          "options": {
+            "team": "Reunión de equipo",
+            "project": "Reunión de proyecto",
+            "steering": "Comité de dirección",
+            "customer": "Reunión con cliente",
+            "audit": "Auditoría o revisión"
+          }
+        },
+        "meetings.held_at": {
+          "label": "Celebrada el",
+          "options": {}
+        },
+        "meetings.agenda_url": {
+          "label": "Enlace del orden del día",
+          "options": {}
+        },
+        "meetings.minutes_url": {
+          "label": "Enlace del acta",
+          "options": {}
+        },
+        "meetings.minutes_sent_on": {
+          "label": "Acta enviada el",
+          "options": {}
+        },
+        "meetings.next_meeting_on": {
+          "label": "Próxima reunión el",
+          "options": {}
+        },
+        "decisions.decision_text": {
+          "label": "Decisión",
+          "options": {}
+        },
+        "decisions.status": {
+          "label": "Estado",
+          "options": {
+            "valid": "Vigente",
+            "superseded": "Sustituida",
+            "revoked": "Revocada"
+          }
+        },
+        "decisions.decided_on": {
+          "label": "Decidida el",
+          "options": {}
+        },
+        "decisions.review_on": {
+          "label": "Revisión el",
+          "options": {}
+        },
+        "projects.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "projects.start_date": {
+          "label": "Inicio",
+          "options": {}
+        },
+        "projects.end_date": {
+          "label": "Fin",
+          "options": {}
+        },
+        "actions.priority": {
+          "label": "Prioridad",
+          "options": {
+            "high": "Alta",
+            "medium": "Media",
+            "low": "Baja"
+          }
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "action": "Acción",
+            "follow_up": "Seguimiento",
+            "review": "Revisión",
+            "corrective": "Acción correctiva",
+            "preventive": "Acción preventiva",
+            "customer_request": "Petición de cliente"
+          }
+        },
+        "actions.source": {
+          "label": "Origen",
+          "options": {
+            "meeting": "Reunión",
+            "email": "Correo",
+            "project_plan": "Plan de proyecto",
+            "audit": "Auditoría o inspección",
+            "complaint": "Reclamación",
+            "incident": "Incidente"
+          }
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.due": {
+          "label": "Fecha límite",
+          "options": {}
+        },
+        "actions.follow_up_on": {
+          "label": "Seguimiento el",
+          "options": {}
+        },
+        "actions.done_on": {
+          "label": "Hecha el",
+          "options": {}
+        },
+        "actions.blocker_note": {
+          "label": "Qué la bloquea",
+          "options": {}
+        },
+        "actions.proof_url": {
+          "label": "Enlace de la evidencia",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "actions.days_late": {
+          "label": "Días de retraso",
+          "options": {}
+        }
+      },
+      "relationships": {
+        "action_meeting": {
+          "sourceLabel": "Reunión",
+          "targetLabel": "Acciones"
+        },
+        "action_project": {
+          "sourceLabel": "Proyecto",
+          "targetLabel": "Acciones"
+        },
+        "decision_meeting": {
+          "sourceLabel": "Reunión",
+          "targetLabel": "Decisiones"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas las acciones"
+        },
+        "actions_board": {
+          "name": "Acciones por estado"
+        },
+        "blocked_actions": {
+          "name": "Bloqueadas"
+        },
+        "overdue_list": {
+          "name": "Vencidas"
+        },
+        "meetings_all": {
+          "name": "Todas las reuniones"
+        },
+        "decisions_all": {
+          "name": "Registro de decisiones"
+        }
+      },
+      "widgets": {
+        "actions_by_status": {
+          "title": "Acciones por estado"
+        },
+        "overdue_count": {
+          "title": "Acciones vencidas"
+        },
+        "blocked_count": {
+          "title": "Acciones bloqueadas"
+        },
+        "due_soon": {
+          "title": "Vencen pronto"
+        },
+        "open_by_owner": {
+          "title": "Acciones abiertas por responsable"
+        },
+        "done_per_month": {
+          "title": "Hechas por mes"
+        },
+        "actions_by_source": {
+          "title": "Acciones por origen"
+        },
+        "average_days_late": {
+          "title": "Retraso medio en días"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        }
+      },
+      "knowledgePages": {
+        "how_we_write_an_action": {
+          "title": "Cómo redactamos una acción",
+          "sections": [
+            "Un verbo, un responsable, una fecha",
+            "Qué aspecto tiene «hecha»"
+          ]
+        },
+        "weekly_action_review": {
+          "title": "Revisión semanal de acciones en 15 minutos",
+          "sections": [
+            "Bloqueadas, retrasadas, sin siguiente paso",
+            "Cambiar la fecha, delegar o cancelar"
+          ]
+        },
+        "closing_with_proof": {
+          "title": "Cerrar una acción con evidencia",
+          "sections": [
+            "Enlazar la evidencia",
+            "Verificación de la eficacia de las acciones correctivas"
+          ]
+        }
+      },
+      "rules": {
+        "minutes_after_meeting": {
+          "title": "Enviar el acta y la lista de acciones tras una reunión",
+          "description": ""
+        },
+        "unblock_action": {
+          "title": "Indicar quién puede desbloquear una acción que pasa a bloqueada",
+          "description": ""
+        },
+        "due_reminder": {
+          "title": "Recordar al responsable dos días antes de la fecha límite",
+          "description": ""
+        },
+        "overdue_notice": {
+          "title": "Avisar al responsable al día siguiente de vencer la fecha límite",
+          "description": ""
+        },
+        "follow_up_date": {
+          "title": "Retomar la acción en su fecha de seguimiento",
+          "description": ""
+        },
+        "effectiveness_check": {
+          "title": "Verificar la eficacia de una acción correctiva o preventiva a los 30 días",
+          "description": ""
+        },
+        "weekly_action_review": {
+          "title": "Hacer la revisión semanal de acciones cada lunes",
+          "description": ""
+        },
+        "decision_review": {
+          "title": "Revisar una decisión en su fecha de revisión",
+          "description": ""
+        },
+        "request_form_action": {
+          "title": "Crear una acción a partir de una petición enviada por formulario",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Cada acción tiene uno de los seis estados.",
+        "due_field": "Cada acción tiene un responsable y una fecha límite.",
+        "overdue_widget": "El panel muestra cuántas acciones están vencidas."
+      },
+      "prompt": {
+        "intro": "Configura un plan de acción en mi espacio de trabajo de Customermates: acciones con seis estados, una prioridad, un responsable, una fecha límite y una fecha de seguimiento, vinculadas a reuniones, decisiones y proyectos, más una revisión semanal.",
+        "questions": [
+          "¿De dónde salen tus acciones: reuniones, proyectos, auditorías, clientes?",
+          "¿Quién es responsable de las acciones y quién decide cuándo una cambia de fecha o se cancela?",
+          "¿Necesitas acciones correctivas y preventivas con comprobación de eficacia, como en ISO 9001?",
+          "¿Guardas las actas en otro sitio? Aquí solo se guarda un enlace."
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "Plan d’action",
+      "summary": "Chaque action avec un pilote et une échéance, liée à la réunion, à la décision ou au projet dont elle est issue, avec une revue hebdomadaire et une clôture sur preuve.",
+      "description": "Un tableau de suivi des actions issues des réunions, des projets, des audits et des demandes clients : six statuts, une priorité, un pilote, une échéance, une date de relance, un relevé de décisions et une vérification d’efficacité après les actions correctives. Les rappels viennent des règles d’automatisation et des notifications.",
+      "lists": {
+        "people": {
+          "label": "Personne",
+          "pluralLabel": "Personnes",
+          "description": "Équipe, partenaires, clients et fournisseurs."
+        },
+        "meetings": {
+          "label": "Réunion",
+          "pluralLabel": "Réunions",
+          "description": "D’où viennent les actions et les décisions."
+        },
+        "decisions": {
+          "label": "Décision",
+          "pluralLabel": "Décisions",
+          "description": "Le relevé de décisions avec une date de revue."
+        },
+        "projects": {
+          "label": "Projet",
+          "pluralLabel": "Projets",
+          "description": "Le projet auquel une action se rattache."
+        },
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Un pilote et une échéance par action."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "À faire",
+            "in_progress": "En cours",
+            "blocked": "Bloquée",
+            "in_review": "En revue",
+            "done": "Faite",
+            "cancelled": "Annulée"
+          }
+        },
+        "projects.status": {
+          "label": "Statut",
+          "options": {
+            "planned": "Prévu",
+            "active": "Actif",
+            "on_hold": "En pause",
+            "done": "Terminé"
+          }
+        },
+        "people.person_role": {
+          "label": "Rôle",
+          "options": {
+            "team_member": "Membre de l’équipe",
+            "external": "Partenaire externe",
+            "customer": "Client",
+            "supplier": "Fournisseur",
+            "other": "Autre"
+          }
+        },
+        "people.team": {
+          "label": "Équipe",
+          "options": {}
+        },
+        "meetings.meeting_type": {
+          "label": "Type de réunion",
+          "options": {
+            "team": "Réunion d’équipe",
+            "project": "Réunion de projet",
+            "steering": "Comité de pilotage",
+            "customer": "Réunion client",
+            "audit": "Audit ou revue"
+          }
+        },
+        "meetings.held_at": {
+          "label": "Tenue le",
+          "options": {}
+        },
+        "meetings.agenda_url": {
+          "label": "Lien de l’ordre du jour",
+          "options": {}
+        },
+        "meetings.minutes_url": {
+          "label": "Lien du compte rendu",
+          "options": {}
+        },
+        "meetings.minutes_sent_on": {
+          "label": "Compte rendu envoyé le",
+          "options": {}
+        },
+        "meetings.next_meeting_on": {
+          "label": "Prochaine réunion le",
+          "options": {}
+        },
+        "decisions.decision_text": {
+          "label": "Décision",
+          "options": {}
+        },
+        "decisions.status": {
+          "label": "Statut",
+          "options": {
+            "valid": "En vigueur",
+            "superseded": "Remplacée",
+            "revoked": "Annulée"
+          }
+        },
+        "decisions.decided_on": {
+          "label": "Décidée le",
+          "options": {}
+        },
+        "decisions.review_on": {
+          "label": "Revue le",
+          "options": {}
+        },
+        "projects.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "projects.start_date": {
+          "label": "Début",
+          "options": {}
+        },
+        "projects.end_date": {
+          "label": "Fin",
+          "options": {}
+        },
+        "actions.priority": {
+          "label": "Priorité",
+          "options": {
+            "high": "Haute",
+            "medium": "Moyenne",
+            "low": "Basse"
+          }
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "action": "Action",
+            "follow_up": "Relance",
+            "review": "Revue",
+            "corrective": "Action corrective",
+            "preventive": "Action préventive",
+            "customer_request": "Demande client"
+          }
+        },
+        "actions.source": {
+          "label": "Origine",
+          "options": {
+            "meeting": "Réunion",
+            "email": "E-mail",
+            "project_plan": "Plan de projet",
+            "audit": "Audit ou contrôle",
+            "complaint": "Réclamation",
+            "incident": "Incident"
+          }
+        },
+        "actions.owner": {
+          "label": "Pilote",
+          "options": {}
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.follow_up_on": {
+          "label": "Relance le",
+          "options": {}
+        },
+        "actions.done_on": {
+          "label": "Faite le",
+          "options": {}
+        },
+        "actions.blocker_note": {
+          "label": "Ce qui bloque",
+          "options": {}
+        },
+        "actions.proof_url": {
+          "label": "Lien de la preuve",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "actions.days_late": {
+          "label": "Jours de retard",
+          "options": {}
+        }
+      },
+      "relationships": {
+        "action_meeting": {
+          "sourceLabel": "Réunion",
+          "targetLabel": "Actions"
+        },
+        "action_project": {
+          "sourceLabel": "Projet",
+          "targetLabel": "Actions"
+        },
+        "decision_meeting": {
+          "sourceLabel": "Réunion",
+          "targetLabel": "Décisions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "actions_board": {
+          "name": "Actions par statut"
+        },
+        "blocked_actions": {
+          "name": "Bloquées"
+        },
+        "overdue_list": {
+          "name": "En retard"
+        },
+        "meetings_all": {
+          "name": "Toutes les réunions"
+        },
+        "decisions_all": {
+          "name": "Relevé de décisions"
+        }
+      },
+      "widgets": {
+        "actions_by_status": {
+          "title": "Actions par statut"
+        },
+        "overdue_count": {
+          "title": "Actions en retard"
+        },
+        "blocked_count": {
+          "title": "Actions bloquées"
+        },
+        "due_soon": {
+          "title": "Bientôt à échéance"
+        },
+        "open_by_owner": {
+          "title": "Actions ouvertes par pilote"
+        },
+        "done_per_month": {
+          "title": "Actions faites par mois"
+        },
+        "actions_by_source": {
+          "title": "Actions par origine"
+        },
+        "average_days_late": {
+          "title": "Retard moyen en jours"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        }
+      },
+      "knowledgePages": {
+        "how_we_write_an_action": {
+          "title": "Comment nous rédigeons une action",
+          "sections": [
+            "Un verbe, un pilote, une date",
+            "À quoi ressemble une action « faite »"
+          ]
+        },
+        "weekly_action_review": {
+          "title": "Revue hebdomadaire des actions en 15 minutes",
+          "sections": [
+            "Bloquées, en retard ou sans prochaine étape",
+            "Décaler l’échéance, déléguer ou annuler"
+          ]
+        },
+        "closing_with_proof": {
+          "title": "Clôturer une action avec une preuve",
+          "sections": [
+            "Lier la preuve",
+            "Vérification d’efficacité des actions correctives"
+          ]
+        }
+      },
+      "rules": {
+        "minutes_after_meeting": {
+          "title": "Envoyer le compte rendu et la liste d’actions après une réunion",
+          "description": ""
+        },
+        "unblock_action": {
+          "title": "Nommer qui peut débloquer une action qui passe à bloquée",
+          "description": ""
+        },
+        "due_reminder": {
+          "title": "Rappeler au pilote deux jours avant l’échéance",
+          "description": ""
+        },
+        "overdue_notice": {
+          "title": "Prévenir le pilote le lendemain du dépassement de l’échéance",
+          "description": ""
+        },
+        "follow_up_date": {
+          "title": "Reprendre l’action à sa date de relance",
+          "description": ""
+        },
+        "effectiveness_check": {
+          "title": "Vérifier l’efficacité d’une action corrective ou préventive après 30 jours",
+          "description": ""
+        },
+        "weekly_action_review": {
+          "title": "Mener la revue hebdomadaire des actions chaque lundi",
+          "description": ""
+        },
+        "decision_review": {
+          "title": "Revoir une décision à sa date de revue",
+          "description": ""
+        },
+        "request_form_action": {
+          "title": "Créer une action à partir d’une demande envoyée par formulaire",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Chaque action a l’un des six statuts.",
+        "due_field": "Chaque action a un pilote et une échéance.",
+        "overdue_widget": "Le tableau de bord montre combien d’actions sont en retard."
+      },
+      "prompt": {
+        "intro": "Mets en place un plan d’action dans mon espace de travail Customermates : des actions avec six statuts, une priorité, un pilote, une échéance et une date de relance, liées aux réunions, aux décisions et aux projets, plus une revue hebdomadaire.",
+        "questions": [
+          "D’où viennent vos actions : réunions, projets, audits, clients ?",
+          "Qui pilote les actions, et qui décide quand l’une est reportée ou annulée ?",
+          "Avez-vous besoin d’actions correctives et préventives avec vérification d’efficacité, comme dans la norme ISO 9001 ?",
+          "Gardez-vous les comptes rendus ailleurs ? Seul un lien vers eux est conservé ici."
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "Piano d'azione",
+      "summary": "Ogni azione con un responsabile e una scadenza, collegata alla riunione, alla decisione o al progetto da cui nasce, con una revisione settimanale e la chiusura con una prova a supporto.",
+      "description": "Un elenco delle azioni che nascono da riunioni, progetti, audit e richieste dei clienti: sei stati, una priorità, un responsabile, una scadenza, una data di follow-up, un registro delle decisioni e una verifica di efficacia dopo le azioni correttive. I promemoria vengono dalle regole di automazione e dalle notifiche.",
+      "lists": {
+        "people": {
+          "label": "Persona",
+          "pluralLabel": "Persone",
+          "description": "Team, partner, clienti e fornitori."
+        },
+        "meetings": {
+          "label": "Riunione",
+          "pluralLabel": "Riunioni",
+          "description": "Da dove nascono azioni e decisioni."
+        },
+        "decisions": {
+          "label": "Decisione",
+          "pluralLabel": "Decisioni",
+          "description": "Il registro delle decisioni con una data di verifica."
+        },
+        "projects": {
+          "label": "Progetto",
+          "pluralLabel": "Progetti",
+          "description": "Il progetto a cui appartiene un'azione."
+        },
+        "actions": {
+          "label": "Azione",
+          "pluralLabel": "Azioni",
+          "description": "Un responsabile e una scadenza per ogni azione."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Da fare",
+            "in_progress": "In corso",
+            "blocked": "Bloccata",
+            "in_review": "In verifica",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "projects.status": {
+          "label": "Stato",
+          "options": {
+            "planned": "Pianificato",
+            "active": "Attivo",
+            "on_hold": "In pausa",
+            "done": "Concluso"
+          }
+        },
+        "people.person_role": {
+          "label": "Ruolo",
+          "options": {
+            "team_member": "Membro del team",
+            "external": "Partner esterno",
+            "customer": "Cliente",
+            "supplier": "Fornitore",
+            "other": "Altro"
+          }
+        },
+        "people.team": {
+          "label": "Team",
+          "options": {}
+        },
+        "meetings.meeting_type": {
+          "label": "Tipo di riunione",
+          "options": {
+            "team": "Riunione di team",
+            "project": "Riunione di progetto",
+            "steering": "Comitato guida",
+            "customer": "Riunione con il cliente",
+            "audit": "Audit o revisione"
+          }
+        },
+        "meetings.held_at": {
+          "label": "Svolta il",
+          "options": {}
+        },
+        "meetings.agenda_url": {
+          "label": "Link all'ordine del giorno",
+          "options": {}
+        },
+        "meetings.minutes_url": {
+          "label": "Link al verbale",
+          "options": {}
+        },
+        "meetings.minutes_sent_on": {
+          "label": "Verbale inviato il",
+          "options": {}
+        },
+        "meetings.next_meeting_on": {
+          "label": "Prossima riunione il",
+          "options": {}
+        },
+        "decisions.decision_text": {
+          "label": "Decisione",
+          "options": {}
+        },
+        "decisions.status": {
+          "label": "Stato",
+          "options": {
+            "valid": "Valida",
+            "superseded": "Sostituita",
+            "revoked": "Revocata"
+          }
+        },
+        "decisions.decided_on": {
+          "label": "Decisa il",
+          "options": {}
+        },
+        "decisions.review_on": {
+          "label": "Verifica il",
+          "options": {}
+        },
+        "projects.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "projects.start_date": {
+          "label": "Inizio",
+          "options": {}
+        },
+        "projects.end_date": {
+          "label": "Fine",
+          "options": {}
+        },
+        "actions.priority": {
+          "label": "Priorità",
+          "options": {
+            "high": "Alta",
+            "medium": "Media",
+            "low": "Bassa"
+          }
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "action": "Azione",
+            "follow_up": "Follow-up",
+            "review": "Revisione",
+            "corrective": "Azione correttiva",
+            "preventive": "Azione preventiva",
+            "customer_request": "Richiesta del cliente"
+          }
+        },
+        "actions.source": {
+          "label": "Origine",
+          "options": {
+            "meeting": "Riunione",
+            "email": "E-mail",
+            "project_plan": "Piano di progetto",
+            "audit": "Audit o ispezione",
+            "complaint": "Reclamo",
+            "incident": "Incidente"
+          }
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.follow_up_on": {
+          "label": "Follow-up il",
+          "options": {}
+        },
+        "actions.done_on": {
+          "label": "Completata il",
+          "options": {}
+        },
+        "actions.blocker_note": {
+          "label": "Che cosa blocca",
+          "options": {}
+        },
+        "actions.proof_url": {
+          "label": "Link alla prova",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "actions.days_late": {
+          "label": "Giorni di ritardo",
+          "options": {}
+        }
+      },
+      "relationships": {
+        "action_meeting": {
+          "sourceLabel": "Riunione",
+          "targetLabel": "Azioni"
+        },
+        "action_project": {
+          "sourceLabel": "Progetto",
+          "targetLabel": "Azioni"
+        },
+        "decision_meeting": {
+          "sourceLabel": "Riunione",
+          "targetLabel": "Decisioni"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Tutte le azioni"
+        },
+        "actions_board": {
+          "name": "Azioni per stato"
+        },
+        "blocked_actions": {
+          "name": "Bloccate"
+        },
+        "overdue_list": {
+          "name": "Scadute"
+        },
+        "meetings_all": {
+          "name": "Tutte le riunioni"
+        },
+        "decisions_all": {
+          "name": "Registro delle decisioni"
+        }
+      },
+      "widgets": {
+        "actions_by_status": {
+          "title": "Azioni per stato"
+        },
+        "overdue_count": {
+          "title": "Azioni scadute"
+        },
+        "blocked_count": {
+          "title": "Azioni bloccate"
+        },
+        "due_soon": {
+          "title": "In scadenza a breve"
+        },
+        "open_by_owner": {
+          "title": "Azioni aperte per responsabile"
+        },
+        "done_per_month": {
+          "title": "Azioni completate per mese"
+        },
+        "actions_by_source": {
+          "title": "Azioni per origine"
+        },
+        "average_days_late": {
+          "title": "Ritardo medio in giorni"
+        },
+        "activity_timeline": {
+          "title": "Attività recenti"
+        }
+      },
+      "knowledgePages": {
+        "how_we_write_an_action": {
+          "title": "Come scriviamo un'azione",
+          "sections": [
+            "Un verbo, un responsabile, una data",
+            "Come si riconosce che è completata"
+          ]
+        },
+        "weekly_action_review": {
+          "title": "Revisione settimanale delle azioni in 15 minuti",
+          "sections": [
+            "Bloccate, in ritardo, senza prossimo passo",
+            "Spostare la scadenza, delegare o annullare"
+          ]
+        },
+        "closing_with_proof": {
+          "title": "Chiudere un'azione con una prova",
+          "sections": [
+            "Collegare la prova",
+            "Verifica di efficacia per le azioni correttive"
+          ]
+        }
+      },
+      "rules": {
+        "minutes_after_meeting": {
+          "title": "Inviare il verbale e l'elenco delle azioni dopo una riunione",
+          "description": ""
+        },
+        "unblock_action": {
+          "title": "Indicare chi può sbloccare un'azione che diventa bloccata",
+          "description": ""
+        },
+        "due_reminder": {
+          "title": "Ricordare al responsabile due giorni prima della scadenza",
+          "description": ""
+        },
+        "overdue_notice": {
+          "title": "Avvisare il responsabile il giorno dopo il superamento della scadenza",
+          "description": ""
+        },
+        "follow_up_date": {
+          "title": "Riprendere l'azione alla data di follow-up",
+          "description": ""
+        },
+        "effectiveness_check": {
+          "title": "Verificare l'efficacia di un'azione correttiva o preventiva dopo 30 giorni",
+          "description": ""
+        },
+        "weekly_action_review": {
+          "title": "Fare la revisione settimanale delle azioni ogni lunedì",
+          "description": ""
+        },
+        "decision_review": {
+          "title": "Riesaminare una decisione alla data di verifica",
+          "description": ""
+        },
+        "request_form_action": {
+          "title": "Creare un'azione da una richiesta inviata con un modulo",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Ogni azione ha uno dei sei stati.",
+        "due_field": "Ogni azione ha un responsabile e una scadenza.",
+        "overdue_widget": "La dashboard mostra quante azioni sono scadute."
+      },
+      "prompt": {
+        "intro": "Configura un piano d'azione nel mio spazio di lavoro Customermates: azioni con sei stati, una priorità, un responsabile, una scadenza e una data di follow-up, collegate a riunioni, decisioni e progetti, più una revisione settimanale.",
+        "questions": [
+          "Da dove nascono le tue azioni: riunioni, progetti, audit, clienti?",
+          "Chi è responsabile delle azioni e chi decide quando una viene rinviata o annullata?",
+          "Ti servono azioni correttive e preventive con verifica di efficacia, come nella ISO 9001?",
+          "Tieni i verbali altrove? Qui si conserva solo un link."
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "Actielijst",
+      "summary": "Elke actie met één eigenaar en een deadline, gekoppeld aan het overleg, het besluit of het project waaruit ze komt, met een wekelijkse controle en afsluiting met bewijs.",
+      "description": "Een actiepuntenlijst voor wat uit overleggen, projecten, audits en klantverzoeken volgt: zes statussen, een prioriteit, een eigenaar, een deadline, een opvolgdatum, een besluitenlijst en een effectiviteitscontrole na corrigerende acties. Herinneringen komen uit automatiseringsregels en meldingen.",
+      "lists": {
+        "people": {
+          "label": "Persoon",
+          "pluralLabel": "Personen",
+          "description": "Teamleden, partners, klanten en leveranciers."
+        },
+        "meetings": {
+          "label": "Overleg",
+          "pluralLabel": "Overleggen",
+          "description": "Waar acties en besluiten vandaan komen."
+        },
+        "decisions": {
+          "label": "Besluit",
+          "pluralLabel": "Besluiten",
+          "description": "De besluitenlijst met een controledatum."
+        },
+        "projects": {
+          "label": "Project",
+          "pluralLabel": "Projecten",
+          "description": "Het project waartoe een actie behoort."
+        },
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén eigenaar en één deadline per actie."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "in_progress": "In uitvoering",
+            "blocked": "Geblokkeerd",
+            "in_review": "Ter beoordeling",
+            "done": "Afgerond",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "projects.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Gepland",
+            "active": "Actief",
+            "on_hold": "On hold",
+            "done": "Afgerond"
+          }
+        },
+        "people.person_role": {
+          "label": "Rol",
+          "options": {
+            "team_member": "Teamlid",
+            "external": "Externe partner",
+            "customer": "Klant",
+            "supplier": "Leverancier",
+            "other": "Overig"
+          }
+        },
+        "people.team": {
+          "label": "Team",
+          "options": {}
+        },
+        "meetings.meeting_type": {
+          "label": "Soort overleg",
+          "options": {
+            "team": "Teamoverleg",
+            "project": "Projectoverleg",
+            "steering": "Stuurgroep",
+            "customer": "Klantgesprek",
+            "audit": "Audit of review"
+          }
+        },
+        "meetings.held_at": {
+          "label": "Gehouden op",
+          "options": {}
+        },
+        "meetings.agenda_url": {
+          "label": "Link naar agenda",
+          "options": {}
+        },
+        "meetings.minutes_url": {
+          "label": "Link naar notulen",
+          "options": {}
+        },
+        "meetings.minutes_sent_on": {
+          "label": "Notulen verstuurd op",
+          "options": {}
+        },
+        "meetings.next_meeting_on": {
+          "label": "Volgend overleg op",
+          "options": {}
+        },
+        "decisions.decision_text": {
+          "label": "Besluit",
+          "options": {}
+        },
+        "decisions.status": {
+          "label": "Status",
+          "options": {
+            "valid": "Geldig",
+            "superseded": "Vervangen",
+            "revoked": "Ingetrokken"
+          }
+        },
+        "decisions.decided_on": {
+          "label": "Besloten op",
+          "options": {}
+        },
+        "decisions.review_on": {
+          "label": "Controle op",
+          "options": {}
+        },
+        "projects.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "projects.start_date": {
+          "label": "Start",
+          "options": {}
+        },
+        "projects.end_date": {
+          "label": "Einde",
+          "options": {}
+        },
+        "actions.priority": {
+          "label": "Prioriteit",
+          "options": {
+            "high": "Hoog",
+            "medium": "Gemiddeld",
+            "low": "Laag"
+          }
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "action": "Actie",
+            "follow_up": "Opvolging",
+            "review": "Controle",
+            "corrective": "Corrigerende actie",
+            "preventive": "Preventieve actie",
+            "customer_request": "Klantverzoek"
+          }
+        },
+        "actions.source": {
+          "label": "Bron",
+          "options": {
+            "meeting": "Overleg",
+            "email": "E-mail",
+            "project_plan": "Projectplan",
+            "audit": "Audit of inspectie",
+            "complaint": "Klacht",
+            "incident": "Incident"
+          }
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.follow_up_on": {
+          "label": "Opvolgen op",
+          "options": {}
+        },
+        "actions.done_on": {
+          "label": "Afgerond op",
+          "options": {}
+        },
+        "actions.blocker_note": {
+          "label": "Wat blokkeert",
+          "options": {}
+        },
+        "actions.proof_url": {
+          "label": "Link naar bewijs",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "actions.days_late": {
+          "label": "Dagen te laat",
+          "options": {}
+        }
+      },
+      "relationships": {
+        "action_meeting": {
+          "sourceLabel": "Overleg",
+          "targetLabel": "Acties"
+        },
+        "action_project": {
+          "sourceLabel": "Project",
+          "targetLabel": "Acties"
+        },
+        "decision_meeting": {
+          "sourceLabel": "Overleg",
+          "targetLabel": "Besluiten"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "actions_board": {
+          "name": "Acties per status"
+        },
+        "blocked_actions": {
+          "name": "Geblokkeerd"
+        },
+        "overdue_list": {
+          "name": "Achterstallig"
+        },
+        "meetings_all": {
+          "name": "Alle overleggen"
+        },
+        "decisions_all": {
+          "name": "Besluitenlijst"
+        }
+      },
+      "widgets": {
+        "actions_by_status": {
+          "title": "Acties per status"
+        },
+        "overdue_count": {
+          "title": "Achterstallige acties"
+        },
+        "blocked_count": {
+          "title": "Geblokkeerde acties"
+        },
+        "due_soon": {
+          "title": "Deadline nadert"
+        },
+        "open_by_owner": {
+          "title": "Open acties per eigenaar"
+        },
+        "done_per_month": {
+          "title": "Afgerond per maand"
+        },
+        "actions_by_source": {
+          "title": "Acties per bron"
+        },
+        "average_days_late": {
+          "title": "Gemiddeld aantal dagen te laat"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        }
+      },
+      "knowledgePages": {
+        "how_we_write_an_action": {
+          "title": "Hoe we een actie opschrijven",
+          "sections": [
+            "Eén werkwoord, één eigenaar, één datum",
+            "Hoe een afgeronde actie eruitziet"
+          ]
+        },
+        "weekly_action_review": {
+          "title": "Wekelijkse actiecontrole van 15 minuten",
+          "sections": [
+            "Geblokkeerd, vertraagd, zonder volgende stap",
+            "Verzetten, delegeren of annuleren"
+          ]
+        },
+        "closing_with_proof": {
+          "title": "Een actie afsluiten met bewijs",
+          "sections": [
+            "Het bewijs koppelen",
+            "Effectiviteitscontrole bij corrigerende acties"
+          ]
+        }
+      },
+      "rules": {
+        "minutes_after_meeting": {
+          "title": "Stuur na een overleg de notulen en de actielijst",
+          "description": ""
+        },
+        "unblock_action": {
+          "title": "Benoem wie een geblokkeerde actie kan losmaken",
+          "description": ""
+        },
+        "due_reminder": {
+          "title": "Herinner de eigenaar twee dagen voor de deadline",
+          "description": ""
+        },
+        "overdue_notice": {
+          "title": "Waarschuw de eigenaar de dag nadat de deadline is verstreken",
+          "description": ""
+        },
+        "follow_up_date": {
+          "title": "Bekijk de actie opnieuw op de opvolgdatum",
+          "description": ""
+        },
+        "effectiveness_check": {
+          "title": "Controleer na 30 dagen de effectiviteit van een corrigerende of preventieve actie",
+          "description": ""
+        },
+        "weekly_action_review": {
+          "title": "Houd elke maandag de wekelijkse actiecontrole",
+          "description": ""
+        },
+        "decision_review": {
+          "title": "Beoordeel een besluit op de controledatum",
+          "description": ""
+        },
+        "request_form_action": {
+          "title": "Maak een actie aan uit een verzoek via een formulier",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Elke actie heeft een van de zes statussen.",
+        "due_field": "Elke actie heeft een eigenaar en een deadline.",
+        "overdue_widget": "Het dashboard toont hoeveel acties achterstallig zijn."
+      },
+      "prompt": {
+        "intro": "Richt een actielijst in mijn Customermates-werkruimte in: acties met zes statussen, een prioriteit, een eigenaar, een deadline en een opvolgdatum, gekoppeld aan overleggen, besluiten en projecten, plus een wekelijkse controle.",
+        "questions": [
+          "Waar komen je acties vandaan: overleggen, projecten, audits, klanten?",
+          "Wie is eigenaar van acties en wie beslist wanneer er een wordt verzet of geannuleerd?",
+          "Heb je corrigerende en preventieve acties met effectiviteitscontrole nodig, zoals in ISO 9001?",
+          "Bewaar je notulen elders? Hier wordt alleen een link bewaard."
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Rejestr zadań i działań",
+      "summary": "Każde zadanie z jedną osobą odpowiedzialną i terminem, powiązane ze spotkaniem, decyzją lub projektem, z którego wynika, z cotygodniowym przeglądem i zamykaniem z dowodem wykonania.",
+      "description": "Lista zadań wynikających ze spotkań, projektów, audytów i próśb klientów: sześć statusów, priorytet, osoba odpowiedzialna, termin, termin kontrolny, rejestr decyzji i sprawdzenie skuteczności po działaniach korygujących. Przypomnienia pochodzą z reguł automatyzacji i powiadomień.",
+      "lists": {
+        "people": {
+          "label": "Osoba",
+          "pluralLabel": "Osoby",
+          "description": "Zespół, partnerzy, klienci i dostawcy."
+        },
+        "meetings": {
+          "label": "Spotkanie",
+          "pluralLabel": "Spotkania",
+          "description": "Skąd biorą się zadania i decyzje."
+        },
+        "decisions": {
+          "label": "Decyzja",
+          "pluralLabel": "Decyzje",
+          "description": "Rejestr decyzji z datą przeglądu."
+        },
+        "projects": {
+          "label": "Projekt",
+          "pluralLabel": "Projekty",
+          "description": "Projekt, do którego należy zadanie."
+        },
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jedna osoba odpowiedzialna i jeden termin na zadanie."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Do zrobienia",
+            "in_progress": "W toku",
+            "blocked": "Zablokowane",
+            "in_review": "Do weryfikacji",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "projects.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Zaplanowany",
+            "active": "Aktywny",
+            "on_hold": "Wstrzymany",
+            "done": "Zakończony"
+          }
+        },
+        "people.person_role": {
+          "label": "Rola",
+          "options": {
+            "team_member": "Członek zespołu",
+            "external": "Partner zewnętrzny",
+            "customer": "Klient",
+            "supplier": "Dostawca",
+            "other": "Inna"
+          }
+        },
+        "people.team": {
+          "label": "Zespół",
+          "options": {}
+        },
+        "meetings.meeting_type": {
+          "label": "Rodzaj spotkania",
+          "options": {
+            "team": "Spotkanie zespołu",
+            "project": "Spotkanie projektowe",
+            "steering": "Komitet sterujący",
+            "customer": "Spotkanie z klientem",
+            "audit": "Audyt lub przegląd"
+          }
+        },
+        "meetings.held_at": {
+          "label": "Data spotkania",
+          "options": {}
+        },
+        "meetings.agenda_url": {
+          "label": "Link do agendy",
+          "options": {}
+        },
+        "meetings.minutes_url": {
+          "label": "Link do protokołu",
+          "options": {}
+        },
+        "meetings.minutes_sent_on": {
+          "label": "Data wysłania protokołu",
+          "options": {}
+        },
+        "meetings.next_meeting_on": {
+          "label": "Data następnego spotkania",
+          "options": {}
+        },
+        "decisions.decision_text": {
+          "label": "Decyzja",
+          "options": {}
+        },
+        "decisions.status": {
+          "label": "Status",
+          "options": {
+            "valid": "Obowiązuje",
+            "superseded": "Zastąpiona",
+            "revoked": "Uchylona"
+          }
+        },
+        "decisions.decided_on": {
+          "label": "Data podjęcia",
+          "options": {}
+        },
+        "decisions.review_on": {
+          "label": "Data przeglądu",
+          "options": {}
+        },
+        "projects.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "projects.start_date": {
+          "label": "Data rozpoczęcia",
+          "options": {}
+        },
+        "projects.end_date": {
+          "label": "Data zakończenia",
+          "options": {}
+        },
+        "actions.priority": {
+          "label": "Priorytet",
+          "options": {
+            "high": "Wysoki",
+            "medium": "Średni",
+            "low": "Niski"
+          }
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "action": "Zadanie",
+            "follow_up": "Kontynuacja",
+            "review": "Przegląd",
+            "corrective": "Działanie korygujące",
+            "preventive": "Działanie zapobiegawcze",
+            "customer_request": "Prośba klienta"
+          }
+        },
+        "actions.source": {
+          "label": "Źródło",
+          "options": {
+            "meeting": "Spotkanie",
+            "email": "E-mail",
+            "project_plan": "Plan projektu",
+            "audit": "Audyt lub kontrola",
+            "complaint": "Reklamacja",
+            "incident": "Incydent"
+          }
+        },
+        "actions.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.follow_up_on": {
+          "label": "Termin kontrolny",
+          "options": {}
+        },
+        "actions.done_on": {
+          "label": "Data wykonania",
+          "options": {}
+        },
+        "actions.blocker_note": {
+          "label": "Co blokuje",
+          "options": {}
+        },
+        "actions.proof_url": {
+          "label": "Link do dowodu",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "actions.days_late": {
+          "label": "Dni opóźnienia",
+          "options": {}
+        }
+      },
+      "relationships": {
+        "action_meeting": {
+          "sourceLabel": "Spotkanie",
+          "targetLabel": "Zadania"
+        },
+        "action_project": {
+          "sourceLabel": "Projekt",
+          "targetLabel": "Zadania"
+        },
+        "decision_meeting": {
+          "sourceLabel": "Spotkanie",
+          "targetLabel": "Decyzje"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "actions_board": {
+          "name": "Zadania wg statusu"
+        },
+        "blocked_actions": {
+          "name": "Zablokowane"
+        },
+        "overdue_list": {
+          "name": "Zaległe"
+        },
+        "meetings_all": {
+          "name": "Wszystkie spotkania"
+        },
+        "decisions_all": {
+          "name": "Rejestr decyzji"
+        }
+      },
+      "widgets": {
+        "actions_by_status": {
+          "title": "Zadania wg statusu"
+        },
+        "overdue_count": {
+          "title": "Zaległe zadania"
+        },
+        "blocked_count": {
+          "title": "Zablokowane zadania"
+        },
+        "due_soon": {
+          "title": "Zbliżające się terminy"
+        },
+        "open_by_owner": {
+          "title": "Otwarte zadania wg osoby"
+        },
+        "done_per_month": {
+          "title": "Zrobione w poszczególnych miesiącach"
+        },
+        "actions_by_source": {
+          "title": "Zadania wg źródła"
+        },
+        "average_days_late": {
+          "title": "Średnie opóźnienie w dniach"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        }
+      },
+      "knowledgePages": {
+        "how_we_write_an_action": {
+          "title": "Jak zapisujemy zadanie",
+          "sections": [
+            "Jeden czasownik, jedna osoba, jedna data",
+            "Jak wygląda wykonane zadanie"
+          ]
+        },
+        "weekly_action_review": {
+          "title": "Cotygodniowy 15-minutowy przegląd zadań",
+          "sections": [
+            "Zablokowane, opóźnione, bez następnego kroku",
+            "Zmień termin, przekaż komuś innemu lub anuluj"
+          ]
+        },
+        "closing_with_proof": {
+          "title": "Zamykanie zadania z dowodem",
+          "sections": [
+            "Dołącz link do dowodu",
+            "Sprawdzenie skuteczności działań korygujących"
+          ]
+        }
+      },
+      "rules": {
+        "minutes_after_meeting": {
+          "title": "Wyślij protokół i listę zadań po spotkaniu",
+          "description": ""
+        },
+        "unblock_action": {
+          "title": "Wskaż, kto może odblokować zadanie, gdy zostanie zablokowane",
+          "description": ""
+        },
+        "due_reminder": {
+          "title": "Przypomnij osobie odpowiedzialnej o terminie na dwa dni przed jego upływem",
+          "description": ""
+        },
+        "overdue_notice": {
+          "title": "Powiadom osobę odpowiedzialną dzień po przekroczeniu terminu zadania",
+          "description": ""
+        },
+        "follow_up_date": {
+          "title": "Wróć do zadania w terminie kontrolnym",
+          "description": ""
+        },
+        "effectiveness_check": {
+          "title": "Sprawdź skuteczność działania korygującego lub zapobiegawczego po 30 dniach",
+          "description": ""
+        },
+        "weekly_action_review": {
+          "title": "Przeprowadź cotygodniowy przegląd zadań w każdy poniedziałek",
+          "description": ""
+        },
+        "decision_review": {
+          "title": "Przejrzyj decyzję w terminie jej przeglądu",
+          "description": ""
+        },
+        "request_form_action": {
+          "title": "Utwórz zadanie z prośby wysłanej przez formularz",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Każde zadanie ma jeden z sześciu statusów.",
+        "due_field": "Każde zadanie ma osobę odpowiedzialną i termin.",
+        "overdue_widget": "Pulpit pokazuje, ile zadań jest zaległych."
+      },
+      "prompt": {
+        "intro": "Skonfiguruj rejestr zadań i działań w mojej przestrzeni roboczej Customermates: zadania z sześcioma statusami, priorytetem, osobą odpowiedzialną, terminem i terminem kontrolnym, powiązane ze spotkaniami, decyzjami i projektami, do tego cotygodniowy przegląd.",
+        "questions": [
+          "Skąd biorą się Twoje zadania: spotkania, projekty, audyty, klienci?",
+          "Kto odpowiada za zadania i kto decyduje o zmianie terminu lub anulowaniu zadania?",
+          "Czy potrzebujesz działań korygujących i zapobiegawczych ze sprawdzeniem skuteczności, jak w ISO 9001?",
+          "Czy protokoły prowadzisz w innym miejscu? Tutaj zapisujemy tylko link do nich."
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "Plano de ação",
+      "summary": "Cada ação com um responsável e um prazo, vinculada à reunião, à decisão ou ao projeto de onde vem, com revisão semanal e encerramento com comprovação.",
+      "description": "Um controle das ações que saem de reuniões, projetos, auditorias e pedidos de clientes: seis status, uma prioridade, um responsável, um prazo, uma data de retorno, um registro de decisões e uma verificação de eficácia depois de ações corretivas. Os lembretes vêm de regras de automação e notificações. O modelo 5W2H cabe aqui com os campos de responsável, prazo e origem.",
+      "lists": {
+        "people": {
+          "label": "Pessoa",
+          "pluralLabel": "Pessoas",
+          "description": "Equipe, parceiros, clientes e fornecedores."
+        },
+        "meetings": {
+          "label": "Reunião",
+          "pluralLabel": "Reuniões",
+          "description": "De onde vêm as ações e as decisões."
+        },
+        "decisions": {
+          "label": "Decisão",
+          "pluralLabel": "Decisões",
+          "description": "O registro de decisões com data de revisão."
+        },
+        "projects": {
+          "label": "Projeto",
+          "pluralLabel": "Projetos",
+          "description": "O projeto a que uma ação pertence."
+        },
+        "actions": {
+          "label": "Ação",
+          "pluralLabel": "Ações",
+          "description": "Um responsável e um prazo por ação."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "A fazer",
+            "in_progress": "Em andamento",
+            "blocked": "Bloqueada",
+            "in_review": "Em revisão",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "projects.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Planejado",
+            "active": "Ativo",
+            "on_hold": "Em pausa",
+            "done": "Concluído"
+          }
+        },
+        "people.person_role": {
+          "label": "Papel",
+          "options": {
+            "team_member": "Membro da equipe",
+            "external": "Parceiro externo",
+            "customer": "Cliente",
+            "supplier": "Fornecedor",
+            "other": "Outro"
+          }
+        },
+        "people.team": {
+          "label": "Equipe",
+          "options": {}
+        },
+        "meetings.meeting_type": {
+          "label": "Tipo de reunião",
+          "options": {
+            "team": "Reunião de equipe",
+            "project": "Reunião de projeto",
+            "steering": "Comitê diretivo",
+            "customer": "Reunião com cliente",
+            "audit": "Auditoria ou revisão"
+          }
+        },
+        "meetings.held_at": {
+          "label": "Realizada em",
+          "options": {}
+        },
+        "meetings.agenda_url": {
+          "label": "Link da pauta",
+          "options": {}
+        },
+        "meetings.minutes_url": {
+          "label": "Link da ata",
+          "options": {}
+        },
+        "meetings.minutes_sent_on": {
+          "label": "Ata enviada em",
+          "options": {}
+        },
+        "meetings.next_meeting_on": {
+          "label": "Próxima reunião em",
+          "options": {}
+        },
+        "decisions.decision_text": {
+          "label": "Decisão",
+          "options": {}
+        },
+        "decisions.status": {
+          "label": "Status",
+          "options": {
+            "valid": "Válida",
+            "superseded": "Substituída",
+            "revoked": "Revogada"
+          }
+        },
+        "decisions.decided_on": {
+          "label": "Decidida em",
+          "options": {}
+        },
+        "decisions.review_on": {
+          "label": "Revisão em",
+          "options": {}
+        },
+        "projects.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "projects.start_date": {
+          "label": "Início",
+          "options": {}
+        },
+        "projects.end_date": {
+          "label": "Fim",
+          "options": {}
+        },
+        "actions.priority": {
+          "label": "Prioridade",
+          "options": {
+            "high": "Alta",
+            "medium": "Média",
+            "low": "Baixa"
+          }
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "action": "Ação",
+            "follow_up": "Retorno",
+            "review": "Revisão",
+            "corrective": "Ação corretiva",
+            "preventive": "Ação preventiva",
+            "customer_request": "Pedido de cliente"
+          }
+        },
+        "actions.source": {
+          "label": "Origem",
+          "options": {
+            "meeting": "Reunião",
+            "email": "E-mail",
+            "project_plan": "Plano de projeto",
+            "audit": "Auditoria ou inspeção",
+            "complaint": "Reclamação",
+            "incident": "Incidente"
+          }
+        },
+        "actions.owner": {
+          "label": "Quem",
+          "options": {}
+        },
+        "actions.due": {
+          "label": "Quando (prazo)",
+          "options": {}
+        },
+        "actions.follow_up_on": {
+          "label": "Retomar em",
+          "options": {}
+        },
+        "actions.done_on": {
+          "label": "Concluída em",
+          "options": {}
+        },
+        "actions.blocker_note": {
+          "label": "O que bloqueia",
+          "options": {}
+        },
+        "actions.proof_url": {
+          "label": "Link da comprovação",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "actions.days_late": {
+          "label": "Dias de atraso",
+          "options": {}
+        }
+      },
+      "relationships": {
+        "action_meeting": {
+          "sourceLabel": "Reunião",
+          "targetLabel": "Ações"
+        },
+        "action_project": {
+          "sourceLabel": "Projeto",
+          "targetLabel": "Ações"
+        },
+        "decision_meeting": {
+          "sourceLabel": "Reunião",
+          "targetLabel": "Decisões"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas as ações"
+        },
+        "actions_board": {
+          "name": "Ações por status"
+        },
+        "blocked_actions": {
+          "name": "Bloqueadas"
+        },
+        "overdue_list": {
+          "name": "Atrasadas"
+        },
+        "meetings_all": {
+          "name": "Todas as reuniões"
+        },
+        "decisions_all": {
+          "name": "Registro de decisões"
+        }
+      },
+      "widgets": {
+        "actions_by_status": {
+          "title": "Ações por status"
+        },
+        "overdue_count": {
+          "title": "Ações atrasadas"
+        },
+        "blocked_count": {
+          "title": "Ações bloqueadas"
+        },
+        "due_soon": {
+          "title": "Vencem em breve"
+        },
+        "open_by_owner": {
+          "title": "Ações abertas por responsável"
+        },
+        "done_per_month": {
+          "title": "Concluídas por mês"
+        },
+        "actions_by_source": {
+          "title": "Ações por origem"
+        },
+        "average_days_late": {
+          "title": "Atraso médio em dias"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        }
+      },
+      "knowledgePages": {
+        "how_we_write_an_action": {
+          "title": "Como escrevemos uma ação",
+          "sections": [
+            "Um verbo, um responsável, uma data",
+            "Como é uma ação concluída"
+          ]
+        },
+        "weekly_action_review": {
+          "title": "Revisão semanal das ações em 15 minutos",
+          "sections": [
+            "Bloqueadas, atrasadas, sem próximo passo",
+            "Alterar o prazo, delegar ou cancelar"
+          ]
+        },
+        "closing_with_proof": {
+          "title": "Encerrar uma ação com comprovação",
+          "sections": [
+            "Vincular a comprovação",
+            "Verificação de eficácia das ações corretivas"
+          ]
+        }
+      },
+      "rules": {
+        "minutes_after_meeting": {
+          "title": "Enviar a ata e a lista de ações depois de uma reunião",
+          "description": ""
+        },
+        "unblock_action": {
+          "title": "Indicar quem pode desbloquear uma ação que fica bloqueada",
+          "description": ""
+        },
+        "due_reminder": {
+          "title": "Lembrar o responsável dois dias antes do prazo",
+          "description": ""
+        },
+        "overdue_notice": {
+          "title": "Avisar o responsável no dia seguinte ao vencimento do prazo",
+          "description": ""
+        },
+        "follow_up_date": {
+          "title": "Retomar a ação na data de retorno",
+          "description": ""
+        },
+        "effectiveness_check": {
+          "title": "Verificar a eficácia de uma ação corretiva ou preventiva após 30 dias",
+          "description": ""
+        },
+        "weekly_action_review": {
+          "title": "Fazer a revisão semanal das ações toda segunda-feira",
+          "description": ""
+        },
+        "decision_review": {
+          "title": "Revisar uma decisão na data de revisão",
+          "description": ""
+        },
+        "request_form_action": {
+          "title": "Criar uma ação a partir de um pedido enviado por formulário",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Cada ação tem um dos seis status.",
+        "due_field": "Cada ação tem um responsável e um prazo.",
+        "overdue_widget": "O painel mostra quantas ações estão atrasadas."
+      },
+      "prompt": {
+        "intro": "Configure um plano de ação no meu espaço de trabalho do Customermates: ações com seis status, uma prioridade, um responsável, um prazo e uma data de retorno, vinculadas a reuniões, decisões e projetos, mais uma revisão semanal.",
+        "questions": [
+          "De onde vêm as suas ações: reuniões, projetos, auditorias, clientes?",
+          "Quem é responsável pelas ações e quem decide quando o prazo de uma muda ou ela é cancelada?",
+          "Você precisa de ações corretivas e preventivas com checagem de eficácia, como na ISO 9001?",
+          "Você guarda as atas em outro lugar? Aqui só se guarda um link."
+        ]
+      }
+    }
+  }
+}

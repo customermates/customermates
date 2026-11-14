@@ -1,0 +1,69 @@
+---
+title: "Automatisierungen: Regeln ohne KI, Erinnerungen, Hinweise"
+description: "Automatisierungen laufen ohne KI, wenn etwas passiert und es passt: Aufbau mit Wenn, Falls und Dann, Erinnerungen, Benachrichtigungsglocke und E-Mails."
+---
+
+Eine Automatisierung ist eine Regel, die ohne KI läuft: Wenn etwas passiert und es passt, tut Customermates, was Sie eingerichtet haben. Sie kann eine Folgeaufgabe anlegen, ein Feld setzen, Sie oder Ihr Team in der Benachrichtigungsglocke und per E-Mail informieren oder einen Webhook aufrufen. Automatisierungen funktionieren in jedem Tarif und auf selbst gehosteten Instanzen. Sie sind keine [Routinen](app:routines): Eine Routine lässt Mate selbstständig arbeiten, eine Automatisierung tut genau das, was ihre drei Karten sagen, und nichts darüber hinaus.
+
+Die Seite **Automatisierungen** steht in der Seitenleiste neben **Routinen**. Wer sie sieht, richtet sich nach der Zeile **Routinen** der jeweiligen Rolle unter [Rollen](app:settings/roles): **Lesen** mit **Alle** zeigt jede Automatisierung im Workspace, **Zugewiesen** nur die eigenen, und **Keine** blendet die Seite aus. Anlegen erfordert **Erstellen**.
+
+## Wie lege ich eine Automatisierung an? [#how-do-i-create-an-automation]
+
+Öffnen Sie **Automatisierungen** und klicken Sie auf **Neue Automatisierung**, oder klicken Sie in der Werkzeugleiste einer beliebigen Liste auf **Diese Liste automatisieren**, damit die Liste schon gewählt ist. Geben Sie einen **Namen** ein, füllen Sie die drei Karten und speichern Sie. Eine gespeicherte Automatisierung ist eingeschaltet.
+
+- **Wenn** wählt die Liste und den Auslöser: **Ein Datensatz wird angelegt**, **Ein Datensatz wird geändert**, **Ein Feld ändert sich** (optional **Auf den Wert**, damit die Regel nur auslöst, wenn das Feld auf diesen Wert wechselt) oder **Ein Datum ist erreicht**.
+- **Falls (optional)** ergänzt Bedingungen für den Datensatz, der die Regel ausgelöst hat: **ist**, **ist nicht**, **ist leer**, **ist nicht leer**, **liegt vor heute plus** oder **liegt nach heute plus** eine Zahl von Tagen. Alle Bedingungen müssen zutreffen.
+- **Dann** listet der Reihe nach auf, was passiert: **Feld setzen**, **Datensatz anlegen**, **Benachrichtigen** oder **Webhook aufrufen**. Mit **Datensatz anlegen** erzeugt eine Automatisierung eine Folgeaufgabe: Wählen Sie die Aufgabenliste, das **Titelfeld** und den **Titel**, das **Fälligkeitsfeld** und **Fällig in Tagen**, ob die Aufgabe **Mir zuweisen** gilt und wie sie **Mit dem auslösenden Datensatz verknüpfen als** wird. In Titeln und Details wird `{{record.name}}` durch den Namen des Datensatzes und `{{rule.name}}` durch den Namen der Automatisierung ersetzt.
+
+Regeln für Formularantworten, eingehende Webhooks und eingehende Nachrichten gibt es ebenfalls. Sie legen sie mit `manage_rules` über MCP oder REST an, und die Seite listet sie auf; ein Auslöser oder eine Aktion, die der Builder nicht bearbeiten kann, zeigt einen Hinweis und bleibt unverändert.
+
+## Wie erhalte ich eine Erinnerung vor einem Datum? [#how-do-i-get-a-reminder-before-a-date]
+
+Öffnen Sie eine Liste mit einem Datums- oder Datum-und-Uhrzeit-Feld, öffnen Sie in der Werkzeugleiste **Weitere Aktionen** und wählen Sie **Mich an Feldname erinnern** mit dem Namen des Feldes. Der Builder öffnet sich mit dem Auslöser **Ein Datum ist erreicht** für dieses Feld, sodass Sie nur noch **Tage**, **Vor oder nach**, **Um (Stunde 0 bis 23)** und **Zeitzone** wählen und eine Aktion **Benachrichtigen** hinzufügen, die Sie informiert. Die Erinnerung erreicht Sie in der Benachrichtigungsglocke und, je nach Ihrer Einstellung, per E-Mail.
+
+Eine Datumsregel löst einmal pro Datensatz aus, sobald das um Ihren Versatz verschobene Datum erreicht ist. Sie wird alle paar Minuten geprüft. Eine Regel, die Sie später anlegen oder einschalten, erfasst trotzdem Daten, die in den letzten 7 Tagen erreicht wurden, und ein Datensatz, dessen Datum Sie auf einen anderen Tag ändern, löst für das neue Datum erneut aus. **Preview** über MCP oder REST listet die Datensätze auf, die eine Datumsregel als Nächstes träfe.
+
+## Wie laufen Automatisierungen, und was zeigt der Verlauf? [#how-do-automations-run]
+
+Eine Automatisierung läuft als ihre Eigentümerin oder ihr Eigentümer, mit deren Berechtigungen: Sie kann nie mehr tun, als die Eigentümerin oder der Eigentümer dürfte. Wer sie anlegt, ist Eigentümer. Nur die Eigentümerin oder der Eigentümer kann eine Automatisierung ändern oder einschalten; eine Administratorin oder ein Administrator kann sie auch ausschalten oder löschen. Wird die Eigentümerin oder der Eigentümer kein aktives Mitglied mehr, schaltet sich die Automatisierung selbst aus und nennt den Grund.
+
+Ein Lauf findet einmal pro Datensatz und Auslöser statt. Was eine Automatisierung ändert, startet dieselbe Automatisierung nie erneut, und eine Kette endet nach zwei Regeln, sodass sich zwei Automatisierungen nicht endlos gegenseitig starten. Schlägt eine Aktion fehl, laufen die folgenden Aktionen nicht.
+
+Klicken Sie bei einer Automatisierung auf **Verlauf**, um ihre Läufe zu sehen, die neuesten zuerst. Jeder Lauf zeigt seinen Status (**In Warteschlange**, **Läuft**, **Erledigt**, **Übersprungen** oder **Fehlgeschlagen**), das Ergebnis jeder Aktion und einen Link **Datensatz öffnen**. Ein übersprungener Lauf nennt den Grund: Die Bedingungen trafen nicht zu, die Automatisierung war aus, der Datensatz ist weg oder für die Eigentümerin oder den Eigentümer nicht lesbar, die Eigentümerschaft hat gewechselt, oder die Eigentümerin oder der Eigentümer ist nicht mehr aktiv oder hat keinen Zugriff mehr auf Automatisierungen.
+
+Beim Löschen einer Automatisierung gehen sie und ihr Verlauf endgültig verloren; schalten Sie sie lieber aus, wenn Sie sie vielleicht wieder brauchen.
+
+## Wie funktionieren Benachrichtigungen und E-Mail-Einstellungen? [#how-do-notifications-work]
+
+Die Glocke in der oberen Leiste zeigt, wie viele Benachrichtigungen ungelesen sind. Öffnen Sie sie, um die neuesten zu sehen, den Datensatz dahinter zu öffnen oder **Alle als gelesen markieren** zu wählen. Benachrichtigungen entstehen aus fünf Arten von Ereignissen: **Dir zugewiesen**, **Heute fällig**, **Formularantworten**, **Erhaltene Antworten** und **Hinweise von Automatisierungen**. Die Glocke zeigt immer alles und behält Benachrichtigungen 90 Tage.
+
+Ob eine Art Sie zusätzlich per E-Mail erreicht, entscheiden Sie pro Art in der Karte **E-Mails zu Benachrichtigungen** unter [Profil & Einstellungen](app:settings/profile): **Sofort per E-Mail**, **Tägliche Zusammenfassung** oder **Keine E-Mail**. Solange Sie nichts ändern, kommen Zuweisungen, Formularantworten und Hinweise von Automatisierungen sofort, Fälligkeiten und Antworten in der täglichen Zusammenfassung. Die Zusammenfassung ist eine E-Mail pro Tag mit dem, was noch nicht per E-Mail gemeldet wurde.
+
+## Wie viele Automatisierungen enthält mein Tarif? [#how-many-automations-does-my-plan-include]
+
+Das Limit zählt eingeschaltete Automatisierungen: Free enthält [[commercial.entitlement.free.activeRules]], Starter [[commercial.entitlement.starter.activeRules]], und Pro, Business, Max und Enterprise [[commercial.entitlement.pro.activeRules]]. Wer eine Automatisierung ausschaltet, gibt ihren Platz sofort frei. Am Limit wird das Anlegen oder Einschalten einer weiteren abgelehnt, mit dem Hinweis, unter [Abrechnung](app:settings/billing) zu upgraden oder eine andere Automatisierung auszuschalten. Selbst gehostete Instanzen haben keinen Tarif, daher gilt dort kein Limit.
+
+## Wie verwaltet Mate Automatisierungen? [#how-does-mate-manage-automations]
+
+In einem Chat kann Mate Ihre Automatisierungen auflisten, eine samt Lauf-Verlauf lesen und vorab zeigen, welche Datensätze eine Datumsregel treffen würde, ohne vorher zu fragen. Anlegen, Ändern, Ein- oder Ausschalten und Löschen einer Automatisierung fragen jeweils nach Ihrer Freigabe. Hat Mate Ihren Workspace aus einer Vorlage eingerichtet, bietet es die Regeln dieser Vorlage einmal an, nachdem die Listen bestehen, und legt jede erst nach Ihrer Freigabe an; Regeln, die eine Agenten-Routine oder einen Auslöser brauchen, den die Regel-Engine nicht hat, werden stattdessen mit dem Grund genannt.
+
+## Für Agenten [#for-agents]
+
+Nutzen Sie `manage_rules` über [MCP](/docs/mcp) mit den Aktionen `list`, `get`, `runs`, `create`, `update`, `enable`, `disable`, `delete` und `preview`. Fehlt `enabled` bei `create`, entsteht eine aktive Automatisierung; übergeben Sie `enabled: false`, um einen Entwurf zu speichern. Auslöser sind `recordCreated`, `recordUpdated`, `fieldChanged`, `dateReached`, `messageReceived`, `formSubmitted` und `webhookReceived`; Listen- und Feld-IDs liefern `discover_record_types` und `get_record_model`. Eine Tarifablehnung kommt mit dem Limit und dem Upgrade-Preis. REST bietet dieselben Operationen als `POST /api/v1/rules/list`, `read`, `runs`, `create`, `update`, `enable`, `disable`, `delete` und `preview`, mit Leseberechtigung für **Routinen** zum Lesen und Erstellen-Berechtigung zum Anlegen; siehe die [API-Referenz](/docs/openapi).
+
+## Häufige Fragen [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Ist eine Automatisierung dasselbe wie eine Routine?">
+Nein. Eine Routine öffnet eine Unterhaltung und lässt Mate arbeiten, nutzt das Mate-Kontingent der Eigentümerin oder des Eigentümers und gibt es nur in Customermates Cloud. Eine Automatisierung führt eine feste Wenn-Falls-Dann-Regel ohne KI aus, in jedem Tarif und auf selbst gehosteten Instanzen. Die andere Art beschreiben die [Routinen](/docs/app-routines).
+</FaqItem>
+<FaqItem question="Warum lief meine Automatisierung für einen Datensatz nicht?">
+Öffnen Sie den **Verlauf** der Automatisierung. Ein übersprungener Lauf nennt den Grund, etwa nicht erfüllte Bedingungen oder eine Eigentümerin oder einen Eigentümer, die oder der nicht mehr aktiv ist. Eine Datumsregel braucht außerdem ein Datum im Feld und löst einmal pro Datensatz und Datum aus.
+</FaqItem>
+<FaqItem question="Kann eine Automatisierung eine E-Mail an einen Kunden senden?">
+Nicht direkt. Eine Automatisierung sendet selbst keine E-Mails oder Nachrichten. Sie kann Mitglieder Ihres Workspace benachrichtigen, was sie auch per E-Mail erreichen kann, und einen Ihrer Webhooks aufrufen, zum Beispiel um einen [n8n](/docs/n8n)-Workflow zu starten, der etwas versendet.
+</FaqItem>
+<FaqItem question="Wer erhält die Benachrichtigung, wenn eine Automatisierung jemanden informiert?">
+Das bestimmt die Aktion: **Mich benachrichtigen** erreicht die Eigentümerin oder den Eigentümer der Automatisierung, **Die zugewiesenen Personen benachrichtigen** erreicht die Mitglieder, denen der auslösende Datensatz zugewiesen ist. Die Benachrichtigung erscheint in ihrer Glocke und folgt ihrer E-Mail-Einstellung für **Hinweise von Automatisierungen**.
+</FaqItem>
+</Faq>

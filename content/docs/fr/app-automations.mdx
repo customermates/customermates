@@ -1,0 +1,69 @@
+---
+title: "Automatisations : règles sans IA, rappels, notifications"
+description: "Les automatisations s’exécutent sans IA quand un événement correspond : créez-les avec Quand, Si et Alors, avec rappels, cloche de notifications et e-mails."
+---
+
+Une automatisation est une règle qui s’exécute sans IA : quand quelque chose se produit et correspond, Customermates fait ce que vous avez configuré. Elle peut créer une tâche de suivi, définir un champ, vous prévenir ou prévenir votre équipe dans la cloche de notifications et par e-mail, ou appeler un webhook. Les automatisations fonctionnent sur tous les forfaits et sur les instances auto-hébergées. Ce ne sont pas des [Routines](app:routines) : une routine laisse Mate travailler seul, une automatisation fait exactement ce que disent ses trois cartes, et rien d’autre.
+
+La page **Automatisations** se trouve dans la barre latérale, à côté de **Routines**. Qui la voit dépend de la ligne **Routines** du rôle de chacun dans [Rôles](app:settings/roles) : l’**Accès en lecture** **Tous** affiche toutes les automatisations de l’espace de travail, **Assignés** uniquement les siennes, et **Aucun** masque la page. La création exige **Créer**.
+
+## Comment créer une automatisation ? [#how-do-i-create-an-automation]
+
+Ouvrez **Automatisations** et cliquez sur **Nouvelle automatisation**, ou cliquez sur **Automatiser cette liste** dans la barre d’outils d’une liste pour partir de cette liste déjà choisie. Donnez-lui un **Nom**, remplissez les trois cartes, puis enregistrez. Une automatisation enregistrée est activée.
+
+- **Quand** choisit la liste et ce qui déclenche la règle : **Un enregistrement est créé**, **Un enregistrement est modifié**, **Un champ change** (avec en option **Vers la valeur**, pour ne déclencher que si le champ prend cette valeur) ou **Une date est atteinte**.
+- **Si (facultatif)** ajoute des conditions sur l’enregistrement qui a déclenché la règle : **est**, **n’est pas**, **est vide**, **n’est pas vide**, **est avant aujourd’hui plus** ou **est après aujourd’hui plus** un nombre de jours. Toutes les conditions doivent correspondre.
+- **Alors** liste ce qui se passe, dans l’ordre : **Définir un champ**, **Créer un enregistrement**, **Notifier** ou **Appeler un webhook**. **Créer un enregistrement** permet à une automatisation de créer une tâche de suivi : choisissez la liste des tâches, le **Champ de titre** et le **Titre**, le **Champ d’échéance** et **Échéance en jours**, si elle doit **Me l’assigner** et comment **Lier à l’enregistrement déclencheur comme**. Dans les titres et les détails, `{{record.name}}` est remplacé par le nom de l’enregistrement et `{{rule.name}}` par le nom de l’automatisation.
+
+Des règles existent aussi pour les envois de formulaires, les webhooks entrants et les messages qui arrivent. Vous les créez avec `manage_rules` via MCP ou REST, et la page les liste ; un déclencheur ou une action que le générateur ne peut pas modifier affiche une note et reste tel quel.
+
+## Comment recevoir un rappel avant une date ? [#how-do-i-get-a-reminder-before-a-date]
+
+Ouvrez une liste qui a un champ de date ou de date et heure, ouvrez **Plus d’actions** dans la barre d’outils et choisissez **Me rappeler** suivi du nom du champ. Le générateur s’ouvre avec un déclencheur **Une date est atteinte** pour ce champ : il ne reste qu’à choisir **Jours**, **Avant ou après**, **À l’heure (0 à 23)** et **Fuseau horaire**, puis à ajouter une action **Notifier** qui vous prévient. Le rappel vous parvient dans la cloche de notifications et, selon votre préférence, par e-mail.
+
+Une règle de date se déclenche une fois par enregistrement, quand la date décalée de votre écart est atteinte. Elle est vérifiée toutes les quelques minutes. Une règle que vous créez ou activez plus tard rattrape quand même les dates atteintes dans les 7 derniers jours, et un enregistrement dont vous changez la date pour un autre jour se déclenche de nouveau pour la nouvelle date. **Preview** via MCP ou REST liste les enregistrements qu’une règle de date toucherait ensuite.
+
+## Comment les automatisations s’exécutent-elles, et que montre l’historique ? [#how-do-automations-run]
+
+Une automatisation s’exécute en tant que son propriétaire, avec ses autorisations : elle ne peut jamais faire plus que ce que son propriétaire pourrait faire. Le créateur en est le propriétaire. Seul le propriétaire peut modifier ou activer une automatisation ; un administrateur peut aussi la désactiver ou la supprimer. Si le propriétaire cesse d’être un membre actif, l’automatisation se désactive d’elle-même et l’indique.
+
+Une exécution a lieu une fois par enregistrement et par déclencheur. Ce qu’une automatisation modifie ne relance jamais la même automatisation, et une chaîne s’arrête après deux règles, de sorte que deux automatisations ne se relancent pas à l’infini. Si une action échoue, les actions suivantes ne s’exécutent pas.
+
+Cliquez sur **Historique** sur une automatisation pour voir ses exécutions, les plus récentes d’abord. Chaque exécution indique son statut (**En attente**, **En cours**, **Terminée**, **Ignorée** ou **Échec**), le résultat de chaque action et un lien **Ouvrir l’enregistrement**. Une exécution ignorée donne la raison : les conditions n’étaient pas remplies, l’automatisation était désactivée, l’enregistrement a disparu ou n’est pas lisible pour le propriétaire, le propriétaire a changé, ou il n’est plus actif ou n’a plus accès aux automatisations.
+
+Supprimer une automatisation la retire définitivement avec son historique ; désactivez-la plutôt si vous pouvez en avoir encore besoin.
+
+## Comment fonctionnent les notifications et les préférences d’e-mail ? [#how-do-notifications-work]
+
+La cloche de la barre supérieure indique combien de notifications ne sont pas lues. Ouvrez-la pour voir les plus récentes, ouvrir l’enregistrement concerné ou choisir **Tout marquer comme lu**. Les notifications viennent de cinq types d’événements : **Assigné à vous**, **À faire aujourd’hui**, **Réponses aux formulaires**, **Réponses reçues** et **Alertes d’automatisation**. La cloche montre toujours tout et garde les notifications 90 jours.
+
+Que chaque type vous parvienne aussi par e-mail, c’est votre choix, type par type, dans la carte **E-mails de notification** de [Profil et préférences](app:settings/profile) : **E-mail immédiat**, **Résumé quotidien** ou **Pas d’e-mail**. Tant que vous ne changez rien, les assignations, les réponses aux formulaires et les alertes d’automatisation arrivent tout de suite, les échéances et les réponses dans le résumé quotidien. Le résumé est un e-mail par jour avec ce qui n’a pas encore été envoyé par e-mail.
+
+## Combien d’automatisations mon forfait inclut-il ? [#how-many-automations-does-my-plan-include]
+
+La limite compte les automatisations activées : Free en inclut [[commercial.entitlement.free.activeRules]], Starter [[commercial.entitlement.starter.activeRules]], et Pro, Business, Max et Enterprise [[commercial.entitlement.pro.activeRules]]. Désactiver une automatisation libère aussitôt sa place. À la limite, la création ou l’activation d’une autre est refusée avec une invitation à passer à un forfait supérieur sous [Facturation](app:settings/billing) ou à désactiver une autre automatisation. Les instances auto-hébergées n’ont pas de forfait, donc aucune limite ne s’y applique.
+
+## Comment Mate gère-t-il les automatisations ? [#how-does-mate-manage-automations]
+
+Dans un chat, Mate peut lister vos automatisations, en lire une avec l’historique de ses exécutions et prévisualiser les enregistrements qu’une règle de date toucherait, sans demander d’abord. Créer, modifier, activer ou désactiver et supprimer une automatisation demandent chacun votre approbation. Quand Mate a configuré votre espace de travail à partir d’un modèle, il propose une fois les règles de ce modèle, une fois les listes créées, et crée chacune seulement après votre approbation ; les règles qui exigent une routine d’agent ou un déclencheur que le moteur de règles n’a pas sont nommées avec la raison.
+
+## Pour les agents [#for-agents]
+
+Utilisez `manage_rules` via [MCP](/docs/mcp), avec les actions `list`, `get`, `runs`, `create`, `update`, `enable`, `disable`, `delete` et `preview`. Si `enabled` est omis à `create`, l’automatisation est active ; passez `enabled: false` pour enregistrer un brouillon. Les déclencheurs sont `recordCreated`, `recordUpdated`, `fieldChanged`, `dateReached`, `messageReceived`, `formSubmitted` et `webhookReceived` ; les identifiants de liste et de champ viennent de `discover_record_types` et `get_record_model`. Un refus lié au forfait arrive avec la limite et le prix de la mise à niveau. REST propose les mêmes opérations sous la forme `POST /api/v1/rules/list`, `read`, `runs`, `create`, `update`, `enable`, `disable`, `delete` et `preview`, avec l’autorisation de lecture sur **Routines** pour lire et l’autorisation de création pour créer ; voir la [référence API](/docs/openapi).
+
+## Questions fréquentes [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Une automatisation, est-ce la même chose qu’une routine ?">
+Non. Une routine ouvre une conversation et laisse Mate travailler, utilise le quota Mate du propriétaire et n’existe que sur Customermates Cloud. Une automatisation exécute une règle fixe quand, si, alors sans IA, sur tous les forfaits et sur les instances auto-hébergées. Voir les [Routines](/docs/app-routines) pour l’autre type.
+</FaqItem>
+<FaqItem question="Pourquoi mon automatisation ne s’est-elle pas exécutée pour un enregistrement ?">
+Ouvrez l’**Historique** de l’automatisation. Une exécution ignorée donne la raison, par exemple des conditions non remplies ou un propriétaire qui n’est plus actif. Une règle de date a aussi besoin d’une date dans le champ et se déclenche une fois par enregistrement et par date.
+</FaqItem>
+<FaqItem question="Une automatisation peut-elle envoyer un e-mail à un client ?">
+Pas directement. Une automatisation n’envoie elle-même ni e-mails ni messages. Elle peut notifier des membres de votre espace de travail, ce qui peut les atteindre par e-mail, et appeler l’un de vos webhooks, par exemple pour lancer un workflow [n8n](/docs/n8n) qui envoie quelque chose.
+</FaqItem>
+<FaqItem question="Qui reçoit la notification quand une automatisation prévient quelqu’un ?">
+L’action en décide : **Me prévenir** atteint le propriétaire de l’automatisation, **Prévenir les personnes assignées** atteint les membres auxquels l’enregistrement déclencheur est assigné. La notification apparaît dans leur cloche et suit leur préférence d’e-mail pour **Alertes d’automatisation**.
+</FaqItem>
+</Faq>

@@ -1,0 +1,248 @@
+{
+  "locale": "pl",
+  "name": "Lejek sprzedaży",
+  "summary": "Siedem etapów z kryteriami wyjścia i wagami, następny krok z terminem przy każdej otwartej szansie, powody wygranej i przegranej oraz zmiana etapu, która tworzy kolejne zadanie.",
+  "description": "Lejek dla małego zespołu sprzedaży: pięć etapów otwartych, Wygrana i Przegrana, wartość ważona każdej szansy, komitet zakupowy przy szansie, powód przegranej i powód wygranej oraz cotygodniowy przegląd. Wagi służą do ważenia lejka, a nie do prognozowania: po 20 do 30 zamkniętych szansach zastąp je własnymi wskaźnikami zamknięcia.",
+  "lists": {
+    "contacts": { "label": "Osoba kontaktowa", "pluralLabel": "Osoby kontaktowe", "description": "Osoby po stronie kupującego wraz z ich rolą w decyzji." },
+    "accounts": { "label": "Firma", "pluralLabel": "Firmy", "description": "Firmy, którym sprzedajesz." },
+    "opportunities": { "label": "Szansa sprzedaży", "pluralLabel": "Szanse sprzedaży", "description": "Jedna szansa, od pierwszego kontaktu do wygranej lub przegranej." }
+  },
+  "fields": {
+    "opportunities.stage": {
+      "label": "Etap",
+      "options": {
+        "new": "Nowa",
+        "qualified": "Zakwalifikowana",
+        "discovery": "Analiza potrzeb",
+        "proposal_sent": "Oferta wysłana",
+        "negotiation": "Negocjacje",
+        "won": "Wygrana",
+        "lost": "Przegrana"
+      }
+    },
+    "contacts.job_title": { "label": "Stanowisko" },
+    "contacts.buying_role": {
+      "label": "Rola w zakupie",
+      "options": {
+        "decision_maker": "Decydent",
+        "budget_holder": "Dysponent budżetu",
+        "champion": "Wewnętrzny orędownik",
+        "influencer": "Osoba wpływająca na decyzję",
+        "user": "Użytkownik",
+        "blocker": "Przeciwnik"
+      }
+    },
+    "contacts.language": { "label": "Język" },
+    "contacts.outreach_consent": { "label": "Zgoda na kontakt handlowy" },
+    "accounts.relationship": {
+      "label": "Relacja",
+      "options": { "prospect": "Potencjalny", "customer": "Klient", "former_customer": "Były klient", "partner": "Partner" }
+    },
+    "accounts.size": {
+      "label": "Wielkość",
+      "options": { "micro": "1 do 10", "small": "11 do 50", "medium": "51 do 250", "large": "251 i więcej" }
+    },
+    "accounts.industry": { "label": "Branża" },
+    "accounts.website": { "label": "Strona internetowa" },
+    "accounts.address": { "label": "Adres" },
+    "accounts.owner": { "label": "Opiekun" },
+    "opportunities.owner": { "label": "Opiekun" },
+    "opportunities.deal_type": {
+      "label": "Rodzaj szansy",
+      "options": { "new_business": "Nowy klient", "expansion": "Rozszerzenie", "renewal": "Odnowienie" }
+    },
+    "opportunities.source": {
+      "label": "Źródło",
+      "options": {
+        "referral": "Polecenie",
+        "inbound": "Zapytanie przychodzące",
+        "outbound": "Kontakt wychodzący",
+        "event": "Wydarzenie",
+        "partner": "Partner",
+        "existing_customer": "Obecny klient",
+        "other": "Inne"
+      }
+    },
+    "opportunities.first_contact_on": { "label": "Pierwszy kontakt" },
+    "opportunities.expected_close": { "label": "Planowane zamknięcie" },
+    "opportunities.closed_on": { "label": "Data zamknięcia" },
+    "opportunities.next_step": { "label": "Następny krok" },
+    "opportunities.next_step_due": { "label": "Termin następnego kroku" },
+    "opportunities.decision_date": { "label": "Data decyzji" },
+    "opportunities.competitor": { "label": "Konkurent" },
+    "opportunities.lost_reason": {
+      "label": "Powód przegranej",
+      "options": {
+        "price": "Cena",
+        "competitor": "Konkurent",
+        "no_budget_or_decision": "Brak budżetu lub decyzji",
+        "timing": "Nieodpowiedni moment",
+        "no_response": "Brak odpowiedzi",
+        "not_a_fit": "Brak dopasowania",
+        "other": "Inny"
+      }
+    },
+    "opportunities.won_reason": { "label": "Powód wygranej" },
+    "opportunities.weighted_value": { "label": "Wartość ważona" },
+    "opportunities.cycle_days": { "label": "Długość cyklu (dni)" },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": {
+        "call": "Rozmowa telefoniczna",
+        "email": "E-mail",
+        "meeting": "Spotkanie",
+        "proposal": "Oferta",
+        "follow_up": "Ponowny kontakt",
+        "handover": "Przekazanie",
+        "review": "Przegląd",
+        "other": "Inne"
+      }
+    }
+  },
+  "relationships": {
+    "contact_account": { "sourceLabel": "Firma", "targetLabel": "Osoby kontaktowe" },
+    "opportunity_account": { "sourceLabel": "Firma", "targetLabel": "Szanse sprzedaży" },
+    "opportunity_contacts": { "sourceLabel": "Komitet zakupowy", "targetLabel": "Szanse sprzedaży" },
+    "action_opportunity": { "sourceLabel": "Szansa sprzedaży", "targetLabel": "Zadania" },
+    "action_contact": { "sourceLabel": "Osoba kontaktowa", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "pipeline_board": { "name": "Lejek" },
+    "opportunities_all": { "name": "Wszystkie szanse" },
+    "no_next_step": { "name": "Bez następnego kroku" },
+    "won_handover": { "name": "Wygrane, do przekazania" },
+    "lost_to_revisit": { "name": "Przegrane, do wznowienia" },
+    "actions_all": { "name": "Wszystkie zadania" },
+    "accounts_all": { "name": "Wszystkie firmy" },
+    "contacts_all": { "name": "Wszystkie osoby kontaktowe" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Otwarte szanse wg etapu" },
+    "open_value_by_stage": { "title": "Wartość otwartych szans wg etapu" },
+    "weighted_value_by_stage": { "title": "Wartość ważona wg etapu" },
+    "open_opportunities": { "title": "Otwarte szanse" },
+    "open_value": { "title": "Wartość otwartych szans" },
+    "open_weighted_value": { "title": "Ważona wartość otwartych szans" },
+    "won_last_90_days": { "title": "Wygrane w ostatnich 90 dniach" },
+    "lost_reasons": { "title": "Powody przegranej" },
+    "pipeline_by_owner": { "title": "Wartość otwartych szans wg opiekuna" },
+    "deals_without_next_step": { "title": "Szanse bez następnego kroku" },
+    "upcoming_actions": { "title": "Nadchodzące i zaległe zadania" },
+    "expected_closes": { "title": "Planowane zamknięcia" }
+  },
+  "knowledgePages": {
+    "stages_exit_criteria": {
+      "title": "Etapy sprzedaży i kryteria wyjścia",
+      "sections": ["Kryterium wejścia i wyjścia dla każdego etapu", "Kto przesuwa szansę i na podstawie jakiego dowodu", "Wagi i kiedy je zastąpić"]
+    },
+    "qualification_questions": {
+      "title": "Pytania kwalifikacyjne",
+      "sections": ["Budżet, uprawnienia, potrzeba i termin", "Co się stanie, jeśli klient nic nie zrobi", "Kto jeszcze decyduje"]
+    },
+    "proposal_cadence": {
+      "title": "Rytm ofert i ponownych kontaktów",
+      "sections": ["Ponowny kontakt po 3 i po 10 dniach", "Jedna wiadomość zamykająca", "Potem termin powrotu do rozmowy"]
+    },
+    "weekly_review": {
+      "title": "Cotygodniowy przegląd lejka",
+      "sections": ["Szanse, które utknęły", "Szanse po planowanym zamknięciu", "Szanse bez następnego kroku", "Pięć największych wg wartości ważonej"]
+    },
+    "win_loss_review": {
+      "title": "Przegląd wygranych i przegranych",
+      "sections": ["Co miesiąc czytaj powody przegranych i konkurentów", "Czytaj powody wygranych", "Jedno zadanie usprawniające"]
+    },
+    "message_templates": {
+      "title": "Wzory wiadomości po ofercie",
+      "sections": ["Pierwsza odpowiedź", "Po analizie potrzeb", "Wiadomość przewodnia do oferty", "Ponaglenie w sprawie oferty", "Zamknięcie: to może nie być dobry moment", "Powrót po 90 dniach"]
+    }
+  },
+  "rules": {
+    "qualify_new_opportunity": {
+      "title": "Zakwalifikuj nową szansę",
+      "description": "Nowa szansa dostaje zadanie telefoniczne z terminem na następny dzień."
+    },
+    "book_discovery_call": {
+      "title": "Umów rozmowę o potrzebach",
+      "description": "Gdy szansa staje się Zakwalifikowana, zadanie spotkania przypada za 3 dni."
+    },
+    "send_proposal": {
+      "title": "Wyślij ofertę",
+      "description": "Gdy szansa trafia na etap Analiza potrzeb, zadanie oferty przypada za 5 dni."
+    },
+    "follow_up_proposal": {
+      "title": "Wróć do oferty",
+      "description": "Trzy dni po wysłaniu oferty przypada zadanie ponownego kontaktu."
+    },
+    "second_proposal_follow_up": {
+      "title": "Drugi kontakt w sprawie oferty",
+      "description": "Dziesięć dni po wysłaniu oferty przypada drugie zadanie ponownego kontaktu. Zamknij je, jeśli klient już odpowiedział."
+    },
+    "confirm_decision": {
+      "title": "Potwierdź datę decyzji i decydenta",
+      "description": "Gdy szansa trafia na etap Negocjacje, zadanie ponownego kontaktu przypada za 5 dni."
+    },
+    "won_close_date": {
+      "title": "Ustaw datę zamknięcia",
+      "description": "Gdy szansa jest wygrana, pole Data zamknięcia dostaje dzisiejszą datę."
+    },
+    "won_handover": {
+      "title": "Przekaż wygraną szansę",
+      "description": "Zadanie przekazania przypada dzień po wygranej. Zapisz powód wygranej."
+    },
+    "lost_revisit": {
+      "title": "Wróć do przegranej szansy",
+      "description": "Dziewięćdziesiąt dni po przegranej zadanie ponownego kontaktu pyta, czy termin się zmienił. Najpierw zapisz powód przegranej."
+    },
+    "stale_deal_sweep": {
+      "title": "Ożyw albo zdyskwalifikuj szansę, która utknęła",
+      "description": "Otwarta szansa, która przez 14 dni została na tym samym etapie, dostaje zadanie ponownego kontaktu."
+    },
+    "expected_close_passed": {
+      "title": "Zaktualizuj planowane zamknięcie albo zamknij szansę",
+      "description": "Gdy minie planowana data zamknięcia otwartej szansy, powstaje zadanie przeglądu."
+    },
+    "next_step_due_notice": {
+      "title": "Powiadom opiekuna, że termin następnego kroku nadszedł",
+      "description": "W dniu następnego kroku otwartej szansy opiekun dostaje powiadomienie."
+    },
+    "weekly_pipeline_report": {
+      "title": "Cotygodniowy raport lejka",
+      "description": "W każdy piątek jedno zadanie przeglądu zbiera liczby i wartość wg etapu i opiekuna, wygrane i przegrane z powodami oraz szanse po planowanym zamknięciu."
+    },
+    "enquiry_form_records": {
+      "title": "Utwórz osobę kontaktową, firmę i szansę z zapytania",
+      "description": "Internetowy formularz zapytania tworzy osobę kontaktową, firmę i szansę na etapie Nowa."
+    },
+    "enquiry_form_notice": {
+      "title": "Powiadom opiekuna o zapytaniu",
+      "description": "Opiekun dostaje powiadomienie o każdym nowym zapytaniu."
+    },
+    "fill_missing_value": {
+      "title": "Uzupełnij wartość tej szansy",
+      "description": "Szansa, która trafia na etap Analiza potrzeb bez wartości, dostaje zadanie przeglądu."
+    },
+    "fill_expected_close": {
+      "title": "Uzupełnij planowane zamknięcie tej szansy",
+      "description": "Szansa, która trafia na etap Oferta wysłana bez planowanej daty zamknięcia, dostaje zadanie przeglądu."
+    }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Każda szansa ma jeden z siedmiu etapów.",
+    "weighted_value_field": "Każda szansa pokazuje wartość ważoną.",
+    "pipeline_board_view": "Lista szans otwiera się jako tablica według etapów z sumami.",
+    "funnel_widget": "Pulpit pokazuje otwarte szanse według etapów jako lejek.",
+    "proposal_follow_up_rule": "Szansa, która trafia na etap Oferta wysłana, dostaje zadanie ponownego kontaktu.",
+    "stages_page": "Baza wiedzy zawiera etapy i ich kryteria wyjścia."
+  },
+  "prompt": {
+    "intro": "Skonfiguruj lejek sprzedaży w mojej przestrzeni roboczej Customermates: szanse sprzedaży z siedmioma etapami i wagami, wartość ważona, następny krok z terminem przy każdej otwartej szansie, powody przegranej i wygranej, komitet zakupowy przy każdej szansie i zadanie tworzone przy każdej zmianie etapu.",
+    "questions": [
+      "Co sprzedajesz i ile osób to sprzedaje?",
+      "Przez jakie kroki przechodzi szansa od pierwszego kontaktu do podpisu? Które z siedmiu etapów pasują, a które wymagają innej nazwy?",
+      "Jak długo trwa typowa szansa i po ilu dniach bez ruchu uznać, że utknęła?",
+      "Jakie wskaźniki zamknięcia masz z dawnych szans? Jeśli żadnych, zostają wagi domyślne.",
+      "Gdzie przygotowujesz oferty? Zostają tam, a tutaj zapisujemy tylko link."
+    ]
+  }
+}

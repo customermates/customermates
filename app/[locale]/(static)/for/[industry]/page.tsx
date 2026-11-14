@@ -9,11 +9,13 @@ import { LandingHero } from "@/components/marketing/landing-hero";
 import { PageUpdatedAt } from "@/components/marketing/page-updated-at";
 import { PageEnding } from "@/components/marketing/page-ending";
 import { ProductFilm } from "@/components/marketing/product-film";
+import { TemplateProofBlock } from "@/components/marketing/templates/template-proof-block";
 import { UseCasesSection } from "@/components/marketing/use-cases-section";
 import { productDemoForIndustry } from "@/components/marketing/product-demo-config";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { forPagesSource } from "@/core/fumadocs/source";
+import { forPagesBodySource } from "@/core/fumadocs/body-sources/for-pages";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { breadcrumbListSchema, webPageSchema } from "@/core/seo/schemas";
 import { resolvePageLastModified } from "@/core/seo/sitemap";
@@ -52,7 +54,7 @@ export default async function ForIndustryPage({ params }: Props) {
 
   const [rawLocale, t] = await Promise.all([getLocale(), getTranslations("StructuredData.breadcrumb")]);
   const locale = marketingLocaleOrDefault(rawLocale);
-  const page = forPagesSource.getPage([industry], locale);
+  const page = forPagesBodySource.getPage([industry], locale);
 
   if (!page) notFound();
 
@@ -106,6 +108,8 @@ export default async function ForIndustryPage({ params }: Props) {
       <LandingArticle founderContact items={page.data.toc}>
         <MDX components={components} />
       </LandingArticle>
+
+      <TemplateProofBlock locale={locale} path={`/for/${industry}`} />
 
       <PageEnding
         cta={page.data.acquisition?.cta ?? page.data.cta}

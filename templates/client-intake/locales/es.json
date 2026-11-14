@@ -1,0 +1,212 @@
+{
+  "locale": "es",
+  "name": "Ficha de cliente y alta",
+  "summary": "Un alta por encargo: solicitud, valoración, cuestionario, documentación solicitada, hoja de encargo y reunión de arranque, con un paso fechado en cada etapa y un motivo cuando rechazas.",
+  "description": "Un pipeline breve para dar de alta a un cliente nuevo: responder en un día, valorar si encaja, enviar el cuestionario, reunir la documentación, enviar la hoja de encargo, empezar. Las profesiones reguladas anotan quién verificó la identidad y cuándo, nunca el documento. No es una herramienta de firma electrónica, de prevención del blanqueo ni de pagos.",
+  "lists": {
+    "contacts": { "label": "Persona de contacto", "pluralLabel": "Personas de contacto", "description": "Las personas de cada cliente: contacto principal, facturación, firmante." },
+    "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Empresas, autónomos y particulares a los que das de alta." },
+    "intakes": { "label": "Alta", "pluralLabel": "Altas", "description": "Un alta por encargo, desde la solicitud hasta cliente activo o rechazado." },
+    "document_requests": { "label": "Documento solicitado", "pluralLabel": "Documentos solicitados", "description": "Una fila por cada documento que pides a un cliente." }
+  },
+  "fields": {
+    "intakes.stage": {
+      "label": "Etapa",
+      "options": {
+        "enquiry": "Solicitud",
+        "screening": "Valoración",
+        "form_sent": "Cuestionario enviado",
+        "review_checks": "Revisión",
+        "agreement_sent": "Hoja de encargo enviada",
+        "ready_to_start": "Listo para empezar",
+        "kickoff_scheduled": "Reunión de arranque",
+        "onboarded": "Cliente activo",
+        "declined": "Rechazado"
+      }
+    },
+    "contacts.job_title": { "label": "Cargo" },
+    "contacts.contact_role": {
+      "label": "Función",
+      "options": { "primary": "Contacto principal", "billing": "Facturación", "signatory": "Firmante", "technical": "Técnico", "other": "Otro" }
+    },
+    "contacts.language": { "label": "Idioma" },
+    "contacts.privacy_notice_sent_on": { "label": "Información de privacidad enviada el" },
+    "clients.client_type": {
+      "label": "Tipo de cliente",
+      "options": { "company": "Empresa", "sole_trader": "Autónomo", "individual": "Particular", "organisation": "Asociación u organización" }
+    },
+    "clients.owner": { "label": "Responsable" },
+    "clients.website": { "label": "Sitio web" },
+    "clients.address": { "label": "Dirección" },
+    "clients.registration_id": { "label": "NIF o CIF" },
+    "clients.source": {
+      "label": "Origen",
+      "options": { "referral": "Recomendación", "website": "Sitio web", "event": "Evento", "outbound": "Prospección", "partner": "Socio", "other": "Otro" }
+    },
+    "intakes.owner": { "label": "Responsable" },
+    "intakes.service": { "label": "Servicio" },
+    "intakes.received_on": { "label": "Recibida el" },
+    "intakes.first_response_on": { "label": "Primera respuesta el" },
+    "intakes.form_sent_on": { "label": "Cuestionario enviado el" },
+    "intakes.form_received_on": { "label": "Cuestionario recibido el" },
+    "intakes.agreement_sent_on": { "label": "Hoja de encargo enviada el" },
+    "intakes.agreement_signed_on": { "label": "Hoja de encargo firmada el" },
+    "intakes.kickoff_on": { "label": "Arranque el" },
+    "intakes.fee_model": {
+      "label": "Modelo de honorarios",
+      "options": { "fixed": "Precio fijo", "hourly": "Por horas", "retainer": "Iguala mensual", "other": "Otro" }
+    },
+    "intakes.deposit_required": { "label": "Provisión de fondos exigida" },
+    "intakes.deposit_received_on": { "label": "Provisión recibida el" },
+    "intakes.identity_verified_on": { "label": "Identidad verificada el" },
+    "intakes.identity_verified_by": { "label": "Identidad verificada por" },
+    "intakes.conflict_check": {
+      "label": "Comprobación de conflicto de intereses",
+      "options": { "not_required": "No exigida", "pending": "Pendiente", "clear": "Sin conflicto", "conflict_found": "Conflicto detectado" }
+    },
+    "intakes.risk_rating": {
+      "label": "Nivel de riesgo",
+      "options": { "not_assessed": "Sin valorar", "low": "Bajo", "standard": "Normal", "high": "Alto" }
+    },
+    "intakes.decline_reason": {
+      "label": "Motivo del rechazo",
+      "options": {
+        "conflict": "Conflicto de intereses",
+        "not_a_fit": "No encaja",
+        "no_capacity": "Sin capacidad",
+        "no_response": "Sin respuesta",
+        "client_withdrew": "El cliente se retiró",
+        "risk": "Riesgo",
+        "other": "Otro"
+      }
+    },
+    "intakes.decline_notice_sent_on": { "label": "Rechazo enviado el" },
+    "intakes.next_step": { "label": "Siguiente paso" },
+    "intakes.next_step_due": { "label": "Fecha del siguiente paso" },
+    "intakes.days_to_first_response": { "label": "Días hasta la primera respuesta" },
+    "intakes.days_to_kickoff": { "label": "Días hasta el arranque" },
+    "document_requests.kind": {
+      "label": "Tipo",
+      "options": {
+        "identity": "Documento de identidad",
+        "proof_of_address": "Justificante de domicilio",
+        "company_register": "Nota simple del Registro Mercantil",
+        "prior_year_return": "Declaración de impuestos del año anterior",
+        "contract": "Contrato",
+        "questionnaire": "Cuestionario",
+        "access_credentials": "Claves de acceso",
+        "other": "Otro"
+      }
+    },
+    "document_requests.status": {
+      "label": "Estado",
+      "options": { "requested": "Solicitado", "partial": "Recibido en parte", "received": "Recibido", "needs_correction": "Hay que corregirlo", "not_needed": "No necesario" }
+    },
+    "document_requests.requested_on": { "label": "Documentación solicitada el" },
+    "document_requests.needed_by": { "label": "Fecha límite" },
+    "document_requests.received_on": { "label": "Recibido el" },
+    "document_requests.where_stored": { "label": "Dónde está guardado" },
+    "document_requests.owner": { "label": "Responsable" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "reply": "Respuesta",
+        "chase_form": "Reclamar el cuestionario",
+        "chase_document": "Reclamar un documento",
+        "review": "Revisión",
+        "check": "Comprobación",
+        "send_agreement": "Enviar la hoja de encargo",
+        "chase_signature": "Reclamar la firma",
+        "kickoff": "Arranque",
+        "decline_letter": "Carta de rechazo",
+        "other": "Otro"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Cliente", "targetLabel": "Personas de contacto" },
+    "intake_client": { "sourceLabel": "Cliente", "targetLabel": "Altas" },
+    "intake_contact": { "sourceLabel": "Contacto principal", "targetLabel": "Altas" },
+    "document_request_intake": { "sourceLabel": "Alta", "targetLabel": "Documentos solicitados" },
+    "action_intake": { "sourceLabel": "Alta", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "intakes_all": { "name": "Todas las altas" },
+    "intakes_board": { "name": "Altas por etapa" },
+    "awaiting_signature": { "name": "A la espera de firma" },
+    "no_first_response": { "name": "Sin primera respuesta" },
+    "declined_intakes": { "name": "Rechazadas" },
+    "document_requests_all": { "name": "Todos los documentos solicitados" },
+    "documents_outstanding": { "name": "A la espera de documentos" },
+    "clients_all": { "name": "Todos los clientes" },
+    "contacts_all": { "name": "Todas las personas de contacto" }
+  },
+  "widgets": {
+    "intakes_by_stage": { "title": "Altas abiertas por etapa" },
+    "open_intakes_by_owner": { "title": "Altas abiertas por responsable" },
+    "enquiries_without_reply": { "title": "Solicitudes sin primera respuesta" },
+    "documents_outstanding": { "title": "Documentos pendientes" },
+    "awaiting_signature_count": { "title": "A la espera de firma" },
+    "average_days_to_reply": { "title": "Media de días hasta la primera respuesta" },
+    "average_days_to_kickoff": { "title": "Media de días hasta el arranque" },
+    "decline_reasons": { "title": "Motivos de rechazo" },
+    "new_intakes_per_month": { "title": "Altas nuevas por mes" }
+  },
+  "knowledgePages": {
+    "intake_process": {
+      "title": "Proceso de alta de clientes",
+      "sections": ["Las nueve etapas y qué cierra cada una", "Quién responde, quién valora, quién firma", "Plazos: responder en un día, reclamar a los 3 y a los 7 días"]
+    },
+    "intake_questionnaire": {
+      "title": "Cuestionario según el tipo de cliente",
+      "sections": ["Empresa, autónomo, particular, asociación", "Preguntas que deciden si encaja", "Qué no pides nunca"]
+    },
+    "document_requests_guide": {
+      "title": "Lista de documentos y mensajes de recordatorio",
+      "sections": ["Lista estándar por servicio", "Primera petición y recordatorios", "Cuando hay que corregir un documento"]
+    },
+    "agreement_checklist": {
+      "title": "Lista de la hoja de encargo",
+      "sections": ["Alcance, modelo de honorarios y provisión de fondos", "Quién firma y con qué herramienta", "Qué hacer si queda sin firmar"]
+    },
+    "regulated_checks": {
+      "title": "Comprobaciones de identidad, conflicto y riesgo en profesiones reguladas",
+      "sections": ["Anotar quién comprobó y cuándo, nunca el documento", "Búsqueda de conflictos antes de empezar", "Nivel de riesgo y cuándo rechazar"]
+    },
+    "privacy_at_intake": {
+      "title": "Privacidad: qué recogemos en el alta y por qué",
+      "sections": ["Finalidad y base jurídica", "Qué queda fuera del espacio de trabajo", "Conservación y solicitudes de supresión"]
+    }
+  },
+  "rules": {
+    "reply_to_enquiry": { "title": "Responder a la solicitud", "description": "Un alta nueva recibe una tarea de respuesta para el día siguiente." },
+    "chase_form": { "title": "Reclamar el cuestionario", "description": "Tres días después de enviar el cuestionario vence una tarea de reclamación." },
+    "chase_document": { "title": "Reclamar el documento que falta", "description": "Al llegar la fecha límite de un documento solicitado aún abierto se crea una tarea de reclamación." },
+    "review_received_document": { "title": "Revisar el documento recibido", "description": "Cuando un documento se marca como recibido, una tarea de revisión vence al día siguiente." },
+    "chase_signature": { "title": "Reclamar la firma", "description": "Siete días después de enviar la hoja de encargo vence una tarea de reclamación." },
+    "decline_letter": { "title": "Enviar la carta de rechazo", "description": "Un alta rechazada recibe una tarea de carta para el día siguiente. Indica que no existe encargo y menciona cualquier plazo cercano." },
+    "kickoff_event": { "title": "Poner la reunión de arranque en el calendario", "description": "Al fijar la fecha de arranque, el evento se escribe en el calendario del responsable." },
+    "first_value_check": { "title": "Comprobar el primer resultado", "description": "Catorce días después del alta, una tarea de comprobación pregunta si el cliente ha visto un primer resultado." },
+    "stalled_intake": { "title": "Revisar el alta estancada", "description": "Un alta abierta que lleva 7 días en la misma etapa recibe una tarea de revisión." },
+    "intake_form_records": { "title": "Crear cliente, persona de contacto y alta desde el formulario", "description": "Un formulario público de alta crea el cliente, la persona de contacto y un alta en la etapa Solicitud." },
+    "intake_form_notice": { "title": "Avisar al propietario del alta nueva", "description": "Se avisa al propietario del espacio de trabajo de cada envío." }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada alta tiene una de las nueve etapas.",
+    "first_response_field": "Cada alta anota cuándo respondiste por primera vez.",
+    "document_requests_list": "Los documentos solicitados se siguen en su propia lista.",
+    "intakes_board_view": "La lista de altas se puede ver como tablero por etapa.",
+    "chase_signature_rule": "Una hoja de encargo enviada recibe una tarea de reclamación a los 7 días.",
+    "process_page": "La base de conocimiento contiene el proceso de alta."
+  },
+  "prompt": {
+    "intro": "Configura el alta de clientes en mi espacio de trabajo de Customermates: un alta por encargo con nueve etapas, documentos solicitados, un paso fechado en cada etapa, un motivo de rechazo y comprobaciones opcionales de identidad, conflicto y riesgo que anotan quién comprobó y cuándo.",
+    "questions": [
+      "¿Qué vendes y quiénes son tus clientes: empresas, autónomos o particulares?",
+      "¿Por qué pasos pasa hoy un cliente nuevo y cuáles de las nueve etapas no necesitas?",
+      "¿Tu profesión está regulada, de modo que haya que registrar identidad, conflicto o riesgo? ¿En qué país?",
+      "¿Qué documentos pides siempre y dónde los guardas? Aquí solo se guarda un enlace.",
+      "¿Dónde firman los clientes la hoja de encargo? Se queda allí y aquí se guardan las fechas."
+    ]
+  }
+}

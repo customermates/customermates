@@ -1,0 +1,124 @@
+{
+  "id": "tpl_form_to_crm",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "form-to-crm",
+  "family": "intake",
+  "kind": "pipeline",
+  "jurisdictions": ["DE", "FR", "IT", "ES", "BR", "PL", "NL"],
+  "dashboardAudience": "team",
+  "modules": ["actions_core", "actions_dashboard"],
+  "requiresCapabilities": ["forms", "rules", "notifications", "incomingWebhooks"],
+  "pairedPages": {},
+  "lists": [
+    { "key": "contacts", "role": "people", "icon": "contact" },
+    { "key": "requests", "role": "deals", "icon": "inbox" }
+  ],
+  "stages": [
+    {
+      "field": "requests.stage",
+      "items": [
+        { "key": "new", "outcome": "open", "weight": 0 },
+        { "key": "contacted", "outcome": "open", "weight": 0 },
+        { "key": "qualified", "outcome": "open", "weight": 0 },
+        { "key": "converted", "outcome": "won", "weight": 0 },
+        { "key": "not_a_fit", "outcome": "lost", "weight": 0 },
+        { "key": "spam", "outcome": "lost", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "contacts.company_name", "type": "text" },
+    { "key": "contacts.language", "type": "text" },
+    { "key": "contacts.marketing_consent", "type": "boolean" },
+    { "key": "contacts.marketing_consent_on", "type": "dateTime" },
+    { "key": "requests.form", "type": "select", "options": [{ "key": "contact" }, { "key": "quote_request" }, { "key": "intake" }, { "key": "callback" }, { "key": "other" }] },
+    { "key": "requests.owner", "type": "member" },
+    { "key": "requests.service_interest", "type": "text" },
+    { "key": "requests.needed_by", "type": "select", "options": [{ "key": "asap", "color": "warning" }, { "key": "within_a_month" }, { "key": "within_three_months" }, { "key": "just_looking" }, { "key": "no_answer" }] },
+    { "key": "requests.budget_band", "type": "select", "options": [{ "key": "no_answer" }, { "key": "low" }, { "key": "medium" }, { "key": "high" }] },
+    { "key": "requests.submitted_at", "type": "dateTime" },
+    { "key": "requests.first_response_at", "type": "dateTime" },
+    { "key": "requests.utm_source", "type": "text" },
+    { "key": "requests.landing_page", "type": "url" },
+    { "key": "requests.repeat_submission", "type": "boolean" },
+    { "key": "requests.not_a_fit_reason", "type": "select", "options": [{ "key": "out_of_area" }, { "key": "no_budget" }, { "key": "wrong_service" }, { "key": "no_response" }, { "key": "duplicate" }, { "key": "other" }] },
+    { "key": "requests.closed_on", "type": "date" },
+    { "key": "requests.data_review_on", "type": "date" },
+    { "key": "actions.kind", "type": "select", "options": [{ "key": "reply" }, { "key": "qualify_call" }, { "key": "send_quote" }, { "key": "convert" }, { "key": "chase" }, { "key": "data_review" }, { "key": "other" }] }
+  ],
+  "calculations": [
+    { "key": "requests.days_to_close", "type": "number", "expression": { "op": "daysBetween", "from": "requests.submitted_at", "to": "requests.closed_on" } }
+  ],
+  "relationships": [
+    { "key": "request_contact", "source": "requests", "target": "contacts", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_request", "source": "actions", "target": "requests", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    { "key": "requests_all", "list": "requests", "default": true, "layout": "table", "sort": { "field": "requests.submitted_at", "direction": "desc" }, "columns": ["requests.stage", "requests.form", "requests.owner", "requests.needed_by", "requests.submitted_at"] },
+    { "key": "requests_board", "list": "requests", "default": false, "layout": "board", "groupBy": "requests.stage" },
+    { "key": "new_requests", "list": "requests", "default": false, "layout": "table", "filters": [{ "operator": "in", "field": "requests.stage", "options": ["new"] }] },
+    { "key": "closed_without_deal", "list": "requests", "default": false, "layout": "table", "filters": [{ "operator": "in", "field": "requests.stage", "options": ["not_a_fit", "spam"] }] },
+    { "key": "contacts_all", "list": "contacts", "default": true, "layout": "table", "columns": ["contacts.company_name", "contacts.language", "contacts.marketing_consent"] }
+  ],
+  "widgets": [
+    { "kind": "chart", "key": "requests_funnel", "list": "requests", "aggregation": "count", "groupBy": { "field": "requests.stage" }, "filters": [{ "operator": "in", "field": "requests.stage", "options": ["new", "contacted", "qualified", "converted"] }], "display": "funnelChart" },
+    { "kind": "chart", "key": "requests_per_week", "list": "requests", "aggregation": "count", "groupBy": { "field": "requests.submitted_at", "dateInterval": "week" }, "display": "areaChart" },
+    { "kind": "chart", "key": "requests_by_form", "list": "requests", "aggregation": "count", "groupBy": { "field": "requests.form" }, "display": "doughnutChart" },
+    { "kind": "chart", "key": "new_requests_count", "list": "requests", "aggregation": "count", "filters": [{ "operator": "in", "field": "requests.stage", "options": ["new"] }], "display": "number" },
+    { "kind": "chart", "key": "not_a_fit_reasons", "list": "requests", "aggregation": "count", "groupBy": { "field": "requests.not_a_fit_reason" }, "display": "horizontalBarChart" },
+    { "kind": "chart", "key": "average_days_to_close", "list": "requests", "aggregation": "average", "valueField": "requests.days_to_close", "display": "number" }
+  ],
+  "knowledgePages": [
+    { "key": "form_playbook", "kind": "overview" },
+    { "key": "privacy_notice", "kind": "processes" },
+    { "key": "spam_and_duplicates", "kind": "processes" }
+  ],
+  "followUpRules": [
+    { "key": "enquiry_form_records", "trigger": { "kind": "form_submitted", "form": "enquiry" }, "action": { "kind": "create_records", "lists": ["contacts", "requests"] }, "dueOffsetDays": 0, "needs": "forms" },
+    { "key": "reply_task", "trigger": { "kind": "record_created", "list": "requests" }, "action": { "kind": "create_task", "taskKind": "reply", "assignee": "record_owner", "about": "requests" }, "dueOffsetDays": 1, "needs": "rules" },
+    {
+      "key": "first_response_missed",
+      "trigger": { "kind": "date_reached", "field": "requests.submitted_at", "offsetDays": 1 },
+      "condition": [{ "operator": "in", "field": "requests.stage", "options": ["new"] }],
+      "action": { "kind": "notify", "recipient": "workspace_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    {
+      "key": "chase_contacted",
+      "trigger": { "kind": "unchanged_for", "field": "requests.stage", "days": 3 },
+      "condition": [{ "operator": "in", "field": "requests.stage", "options": ["contacted"] }],
+      "action": { "kind": "create_task", "taskKind": "chase", "assignee": "record_owner", "about": "requests" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "converted_task", "trigger": { "kind": "field_changed", "field": "requests.stage", "to": "converted" }, "action": { "kind": "create_task", "taskKind": "convert", "assignee": "record_owner", "about": "requests" }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "review_date_not_a_fit", "trigger": { "kind": "field_changed", "field": "requests.stage", "to": "not_a_fit" }, "action": { "kind": "set_dates", "dates": [{ "field": "requests.data_review_on", "offsetDays": 365 }] }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "data_review", "trigger": { "kind": "date_reached", "field": "requests.data_review_on", "offsetDays": 0 }, "action": { "kind": "create_task", "taskKind": "data_review", "assignee": "record_owner", "about": "requests" }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "external_form_records", "trigger": { "kind": "webhook_received", "source": "external_form" }, "action": { "kind": "create_records", "lists": ["contacts", "requests"] }, "dueOffsetDays": 0, "needs": "incomingWebhooks" }
+  ],
+  "acceptanceChecks": [
+    { "key": "stage_field", "kind": "field_exists", "ref": "requests.stage" },
+    { "key": "submitted_field", "kind": "field_exists", "ref": "requests.submitted_at" },
+    { "key": "requests_board_view", "kind": "view_exists", "ref": "requests_board" }
+  ],
+  "sources": [
+    { "url": "https://www.involve.me/blog/quote-request-form-best-practices", "checkedOn": "2026-11-12" },
+    { "url": "https://www.salesforceben.com/the-admins-playbook-for-web-to-lead-in-salesforce-security-routing-and-data/", "checkedOn": "2026-11-12" },
+    { "url": "https://knowledge.hubspot.com/forms/create-and-edit-forms", "checkedOn": "2026-11-12" },
+    { "url": "https://www.pipedrive.com/en/features/web-forms", "checkedOn": "2026-11-12" },
+    { "url": "https://donneespersonnelles.fr/formulaire-contact-rgpd", "checkedOn": "2026-11-12" },
+    { "url": "https://www.cnil.fr/sites/cnil/files/atoms/files/referentiel_traitements-donnees-caractere-personnel_gestion-activites-commerciales.pdf", "checkedOn": "2026-11-12" },
+    { "url": "https://www.edpb.europa.eu/system/files/2026-04/edpb-summary-consent_en.pdf", "checkedOn": "2026-11-12" },
+    { "url": "https://formbricks.com/blog/jotform-alternative", "checkedOn": "2026-11-12" },
+    { "url": "https://formidableforms.com/form-templates/request-a-quote-form/", "checkedOn": "2026-11-12" },
+    { "url": "https://webflow-prod.typeform.com/templates/request-for-quote-form-template", "checkedOn": "2026-11-12" },
+    { "url": "https://www.jotform.com/fr/", "checkedOn": "2026-11-12" },
+    { "url": "https://forms.app/fr/modeles/formulaire-de-demande-de-devis", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "own", "de": "own", "fr": "own", "it": "own", "es": "own", "pt": "own", "pl": "none", "nl": "own" },
+  "publishWave": { "en": "wave2", "de": "wave2", "fr": "wave2", "it": "wave2", "es": "wave2", "pt": "wave2", "nl": "wave2" }
+}

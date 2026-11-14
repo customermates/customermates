@@ -1,0 +1,98 @@
+{
+  "locale": "fr",
+  "name": "Pipeline commercial du fondateur",
+  "summary": "Un pipeline court pour un fondateur qui vend lui-même : échanges, rendez-vous découverte, un pilote facultatif avec date de fin fixe, une proposition et un état en pause avec une date de relance.",
+  "description": "Vendez en tant que fondateur avec de quelques-unes à quelques dizaines de conversations ouvertes : chaque affaire consigne le problème dans les mots du client, l’urgence, l’état du budget et si le décideur est impliqué ; un pilote a une date de fin et indique s’il est payant ; une affaire silencieuse est mise en pause avec une date de relance au lieu d’être relancée sans cesse. Les pondérations sont approximatives, car un fondateur n’a pas encore d’historique de transformation, et c’est à vous de les fixer. Ce n’est ni de la prospection en séquences à grande échelle, ni une levée de fonds, ni une prévision pour une équipe de plusieurs commerciaux.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes avec qui vous parlez, avec leur rôle dans la décision d’achat." },
+    "companies": { "label": "Entreprise", "pluralLabel": "Entreprises", "description": "Prospects, pilotes, clients et partenaires." },
+    "opportunities": { "label": "Affaire", "pluralLabel": "Affaires", "description": "Une vente possible, du premier échange à signée, perdue ou en pause." }
+  },
+  "fields": {
+    "contacts.buying_role": { "label": "Rôle dans l’achat", "options": { "decision_maker": "Décideur", "budget_holder": "Détenteur du budget", "champion": "Soutien interne", "user": "Utilisateur", "other": "Autre" } },
+    "contacts.outreach_consent": { "label": "Accepte d’être contacté" },
+    "companies.relationship": { "label": "Relation", "options": { "prospect": "Prospect", "pilot": "Pilote", "customer": "Client", "churned": "Ancien client", "partner": "Partenaire" } },
+    "companies.size": { "label": "Taille", "options": { "micro": "1 à 10 personnes", "small": "11 à 50 personnes", "medium": "51 à 250 personnes", "large": "Plus de 250 personnes" } },
+    "companies.website": { "label": "Site web" },
+    "opportunities.stage": {
+      "label": "Étape",
+      "options": { "new": "Nouvel échange", "discovery_done": "Rendez-vous découverte", "pilot": "Pilote (POC)", "proposal": "Proposition", "won": "Signé", "lost": "Perdu", "parked": "En pause" }
+    },
+    "opportunities.source": { "label": "Source", "options": { "own_network": "Réseau personnel", "introduction": "Mise en relation", "inbound": "Demande entrante", "community": "Communauté", "outbound": "Prospection", "event": "Événement" } },
+    "opportunities.problem": { "label": "Le problème, dans leurs mots" },
+    "opportunities.urgency": { "label": "Urgence", "options": { "burning": "Brûlante", "important": "Importante", "nice_to_have": "Souhaitable" } },
+    "opportunities.budget_status": { "label": "Budget", "options": { "unknown": "Inconnu", "has_budget": "Budget disponible", "needs_budget": "Doit obtenir un budget", "no_budget": "Pas de budget" } },
+    "opportunities.decision_maker_engaged": { "label": "Décideur impliqué" },
+    "opportunities.pilot_end": { "label": "Fin du pilote" },
+    "opportunities.pilot_paid": { "label": "Le pilote est payant" },
+    "opportunities.expected_close": { "label": "Signature attendue" },
+    "opportunities.revisit_on": { "label": "Date de relance" },
+    "opportunities.next_step_due": { "label": "Prochaine action avant le" },
+    "opportunities.lost_reason": {
+      "label": "Motif de perte",
+      "options": { "no_budget": "Pas de budget", "no_urgency": "Pas d’urgence", "competitor": "A choisi un concurrent", "built_in_house": "Développé en interne", "wrong_buyer": "Mauvais interlocuteur", "no_response": "Sans réponse", "not_a_fit": "Ne convient pas" }
+    },
+    "opportunities.weighted_value": { "label": "Valeur pondérée" },
+    "actions.kind": {
+      "label": "Type",
+      "options": { "reply": "Répondre avec un récapitulatif", "call": "Appeler", "intro_request": "Demander une mise en relation", "pilot_check": "Faire le point sur le pilote", "proposal": "Envoyer la proposition", "follow_up": "Relancer", "handover": "Passer le relais", "review": "Faire le bilan", "other": "Autre" }
+    }
+  },
+  "relationships": {
+    "contact_company": { "sourceLabel": "Entreprise", "targetLabel": "Contacts" },
+    "opportunity_company": { "sourceLabel": "Entreprise", "targetLabel": "Affaires" },
+    "opportunity_contacts": { "sourceLabel": "Contacts", "targetLabel": "Affaires" },
+    "action_opportunity": { "sourceLabel": "Affaire", "targetLabel": "Actions" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Affaires par étape" },
+    "opportunities_all": { "name": "Toutes les affaires" },
+    "parked_to_revisit": { "name": "En pause, à relancer" },
+    "without_next_step": { "name": "Ouvertes sans prochaine action" },
+    "companies_all": { "name": "Toutes les entreprises" },
+    "contacts_all": { "name": "Tous les contacts" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Affaires par étape" },
+    "weighted_pipeline": { "title": "Pipeline pondéré" },
+    "customers_won": { "title": "Clients gagnés" },
+    "pilots_running": { "title": "Pilotes en cours" },
+    "pilot_ends": { "title": "Pilotes qui se terminent" },
+    "revisits_coming": { "title": "Affaires en pause à relancer" },
+    "urgency_split": { "title": "Affaires ouvertes par urgence" },
+    "lost_reasons": { "title": "Motifs de perte des affaires" }
+  },
+  "knowledgePages": {
+    "founder_playbook": { "title": "Guide de vente du fondateur", "sections": ["À qui nous vendons et ce que nous avons appris", "Bilan hebdomadaire du fondateur"] },
+    "discovery_questions": { "title": "Questions du rendez-vous découverte", "sections": ["Problème, urgence, budget et décideurs", "Ce qu’il faut noter après l’échange"] },
+    "pilot_plan": { "title": "Plan de pilote et grille d’évaluation", "sections": ["Date de fin fixe et critères de réussite", "Payant par défaut et passage du pilote au contrat"] },
+    "when_to_hire": { "title": "Quand recruter le premier commercial", "sections": ["Signes que la vente se reproduit sans vous", "Ce qu’il faut transmettre en premier"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Créer le contact, l’entreprise et l’affaire quand le formulaire de demande est envoyé" },
+    "recap_reply": { "title": "Répondre avec un récapitulatif personnel et une prochaine étape le lendemain du premier échange" },
+    "discovery_proposal": { "title": "Envoyer le plan de pilote ou la proposition 2 jours après le rendez-vous découverte" },
+    "pilot_start_check": { "title": "Faire le point 14 jours après le début du pilote" },
+    "pilot_review": { "title": "Tenir l’appel de décision 3 jours avant la fin du pilote" },
+    "proposal_follow_up": { "title": "Relancer 3 jours après l’envoi d’une proposition" },
+    "parked_revisit_date": { "title": "Fixer la relance à 90 jours quand une affaire est mise en pause" },
+    "revisit_reopen": { "title": "Rouvrir la conversation à la date de relance" },
+    "won_handover": { "title": "Passer le relais pour le client le lendemain d’une signature" },
+    "won_intro_request": { "title": "Demander une mise en relation au client 30 jours après une signature" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Chaque affaire a une étape.",
+    "problem_field": "Chaque affaire consigne le problème dans les mots du client.",
+    "pilot_end_field": "Chaque pilote a une date de fin.",
+    "opportunities_board_view": "Les affaires s’ouvrent en board par étape."
+  },
+  "prompt": {
+    "intro": "Mets en place dans mon espace de travail Customermates un pipeline commercial du fondateur : affaires du premier échange à signée avec notes de découverte, un pilote facultatif avec date de fin fixe, un état en pause avec date de relance et des relances datées. N’envoie rien automatiquement.",
+    "questions": [
+      "Que vendez-vous, et qui a déjà acheté chez vous ?",
+      "Faites-vous des pilotes ou des essais, et sont-ils payants ?",
+      "Combien de temps relancez-vous une affaire silencieuse avant de la mettre en pause ?",
+      "D’où viennent vos conversations : réseau, mises en relation, demandes entrantes ou événements ?"
+    ]
+  }
+}

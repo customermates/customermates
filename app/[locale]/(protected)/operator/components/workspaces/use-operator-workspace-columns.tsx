@@ -31,6 +31,10 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
       setupCompleted: t("OperatorWorkspaces.signup.events.setupCompleted"),
       channelConnected: t("OperatorWorkspaces.signup.events.channelConnected"),
       agentConnected: t("OperatorWorkspaces.signup.events.agentConnected"),
+      channelSkipped: t("OperatorWorkspaces.signup.events.channelSkipped"),
+      inviteSent: t("OperatorWorkspaces.signup.events.inviteSent"),
+      inviteAccepted: t("OperatorWorkspaces.signup.events.inviteAccepted"),
+      paid: t("OperatorWorkspaces.signup.events.paid"),
     };
 
     return [

@@ -1,0 +1,4022 @@
+{
+  "spec": {
+    "id": "tpl_trades_job_pipeline",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "trades-job-pipeline",
+    "family": "trades",
+    "kind": "pipeline",
+    "jurisdictions": [
+      "DE",
+      "FR",
+      "IT",
+      "ES",
+      "BR",
+      "PL",
+      "NL"
+    ],
+    "dashboardAudience": "team",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "calendarWrite"
+    ],
+    "pairedPages": {
+      "en": "/for/tradespeople",
+      "de": "/for/tradespeople",
+      "fr": "/for/tradespeople",
+      "it": "/for/tradespeople",
+      "es": "/for/tradespeople",
+      "pt": "/for/tradespeople",
+      "pl": "/for/tradespeople",
+      "nl": "/for/tradespeople"
+    },
+    "modules": [
+      "actions_core",
+      "actions_dashboard"
+    ],
+    "lists": [
+      {
+        "key": "customers",
+        "role": "people",
+        "icon": "contact"
+      },
+      {
+        "key": "sites",
+        "icon": "mapPin"
+      },
+      {
+        "key": "jobs",
+        "role": "deals",
+        "icon": "hammer"
+      },
+      {
+        "key": "agreements",
+        "icon": "repeat"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "customers.customer_type",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "private"
+          },
+          {
+            "key": "landlord"
+          },
+          {
+            "key": "property_manager"
+          },
+          {
+            "key": "commercial"
+          },
+          {
+            "key": "builder_contractor"
+          }
+        ]
+      },
+      {
+        "key": "customers.marketing_ok",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "sites.address",
+        "type": "address",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "sites.access_notes",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "jobs.work_status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "not_scheduled"
+          },
+          {
+            "key": "scheduled",
+            "color": "info"
+          },
+          {
+            "key": "in_progress",
+            "color": "warning"
+          },
+          {
+            "key": "completed",
+            "color": "success"
+          },
+          {
+            "key": "invoiced"
+          },
+          {
+            "key": "paid",
+            "color": "success"
+          }
+        ]
+      },
+      {
+        "key": "jobs.work_type",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "repair"
+          },
+          {
+            "key": "installation"
+          },
+          {
+            "key": "renovation"
+          },
+          {
+            "key": "maintenance"
+          },
+          {
+            "key": "inspection"
+          },
+          {
+            "key": "emergency",
+            "color": "destructive"
+          }
+        ]
+      },
+      {
+        "key": "jobs.visit_at",
+        "type": "dateTime",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "jobs.quote_valid_until",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "jobs.withdrawal_ends",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "jobs.scheduled_start",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "jobs.completed_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "jobs.warranty_ends",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "jobs.payment_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "jobs.lost_reason",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "price"
+          },
+          {
+            "key": "timing"
+          },
+          {
+            "key": "chose_competitor"
+          },
+          {
+            "key": "no_response"
+          },
+          {
+            "key": "job_cancelled"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "agreements.interval",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "monthly"
+          },
+          {
+            "key": "quarterly"
+          },
+          {
+            "key": "twice_yearly"
+          },
+          {
+            "key": "yearly"
+          }
+        ]
+      },
+      {
+        "key": "agreements.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "active",
+            "color": "success"
+          },
+          {
+            "key": "paused",
+            "color": "warning"
+          },
+          {
+            "key": "ended",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "agreements.next_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "agreements.renewal_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "call_back"
+          },
+          {
+            "key": "book_visit"
+          },
+          {
+            "key": "send_quote"
+          },
+          {
+            "key": "follow_up_quote"
+          },
+          {
+            "key": "confirm_schedule"
+          },
+          {
+            "key": "handover"
+          },
+          {
+            "key": "check_payment"
+          },
+          {
+            "key": "warranty_check"
+          },
+          {
+            "key": "book_service"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "jobs.stage",
+        "items": [
+          {
+            "key": "enquiry",
+            "outcome": "open",
+            "weight": 10
+          },
+          {
+            "key": "assessment",
+            "outcome": "open",
+            "weight": 20
+          },
+          {
+            "key": "to_quote",
+            "outcome": "open",
+            "weight": 30
+          },
+          {
+            "key": "quote_sent",
+            "outcome": "open",
+            "weight": 40
+          },
+          {
+            "key": "negotiating",
+            "outcome": "open",
+            "weight": 60
+          },
+          {
+            "key": "won",
+            "outcome": "won",
+            "weight": 100
+          },
+          {
+            "key": "lost",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [],
+    "relationships": [
+      {
+        "key": "site_customer",
+        "source": "sites",
+        "target": "customers",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "job_customer",
+        "source": "jobs",
+        "target": "customers",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "job_site",
+        "source": "jobs",
+        "target": "sites",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "agreement_site",
+        "source": "agreements",
+        "target": "sites",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_job",
+        "source": "actions",
+        "target": "jobs",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "jobs_board",
+        "list": "jobs",
+        "default": true,
+        "layout": "board",
+        "groupBy": "jobs.stage",
+        "sort": null,
+        "columns": [
+          "jobs.work_type",
+          "jobs.visit_at",
+          "jobs.quote_valid_until"
+        ],
+        "summaries": [
+          {
+            "field": "jobs.value",
+            "aggregation": "sum"
+          }
+        ],
+        "filters": []
+      },
+      {
+        "key": "jobs_all",
+        "list": "jobs",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "jobs.visit_at",
+          "direction": "asc"
+        },
+        "columns": [
+          "jobs.stage",
+          "jobs.work_status",
+          "jobs.work_type",
+          "jobs.visit_at",
+          "jobs.quote_valid_until"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "open_quotes",
+        "list": "jobs",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "jobs.quote_valid_until",
+          "direction": "asc"
+        },
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "jobs.stage",
+            "options": [
+              "quote_sent",
+              "negotiating"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "work_in_progress",
+        "list": "jobs",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "jobs.scheduled_start",
+          "direction": "asc"
+        },
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "jobs.work_status",
+            "options": [
+              "scheduled",
+              "in_progress"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "customers_all",
+        "list": "customers",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "customers.customer_type",
+          "customers.marketing_ok"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "sites_all",
+        "list": "sites",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "sites.address",
+          "sites.access_notes"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "agreements_all",
+        "list": "agreements",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "agreements.next_due",
+          "direction": "asc"
+        },
+        "columns": [
+          "agreements.status",
+          "agreements.interval",
+          "agreements.next_due",
+          "agreements.renewal_on"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "chart",
+        "key": "jobs_funnel",
+        "list": "jobs",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "jobs.stage"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "jobs.stage",
+            "options": [
+              "enquiry",
+              "assessment",
+              "to_quote",
+              "quote_sent",
+              "negotiating",
+              "won"
+            ]
+          }
+        ],
+        "display": "funnelChart"
+      },
+      {
+        "kind": "chart",
+        "key": "open_quotes_value",
+        "list": "jobs",
+        "aggregation": "sum",
+        "valueField": "jobs.value",
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "jobs.stage",
+            "options": [
+              "quote_sent",
+              "negotiating"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "calendar",
+        "key": "visits_coming",
+        "list": "jobs",
+        "layout": "upcoming",
+        "dateField": "jobs.visit_at",
+        "amountField": null,
+        "filters": []
+      },
+      {
+        "kind": "chart",
+        "key": "jobs_by_work_status",
+        "list": "jobs",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "jobs.work_status"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "jobs.stage",
+            "options": [
+              "won"
+            ]
+          }
+        ],
+        "display": "doughnutChart"
+      },
+      {
+        "kind": "chart",
+        "key": "lost_reasons",
+        "list": "jobs",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "jobs.lost_reason"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "jobs.stage",
+            "options": [
+              "lost"
+            ]
+          }
+        ],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "calendar",
+        "key": "warranties_ending",
+        "list": "jobs",
+        "layout": "upcoming",
+        "dateField": "jobs.warranty_ends",
+        "amountField": null,
+        "filters": []
+      },
+      {
+        "kind": "calendar",
+        "key": "services_due",
+        "list": "agreements",
+        "layout": "upcoming",
+        "dateField": "agreements.next_due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "agreements.status",
+            "options": [
+              "active"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_actions",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "operating_guide",
+        "kind": "overview"
+      },
+      {
+        "key": "quote_checklist",
+        "kind": "processes"
+      },
+      {
+        "key": "withdrawal_and_acceptance",
+        "kind": "processes"
+      },
+      {
+        "key": "warranty_and_service",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "enquiry_form_records",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "enquiry"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "customers",
+            "sites",
+            "jobs"
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "forms"
+      },
+      {
+        "key": "call_back_new",
+        "trigger": {
+          "kind": "record_created",
+          "list": "jobs"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "call_back",
+          "assignee": "record_owner",
+          "about": "jobs"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "quote_after_visit",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "jobs.visit_at",
+          "offsetDays": 0
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "jobs.stage",
+            "options": [
+              "assessment"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "send_quote",
+          "assignee": "record_owner",
+          "about": "jobs"
+        },
+        "dueOffsetDays": 2,
+        "needs": "rules"
+      },
+      {
+        "key": "quote_follow_up",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "jobs.stage",
+          "to": "quote_sent"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up_quote",
+          "assignee": "record_owner",
+          "about": "jobs"
+        },
+        "dueOffsetDays": 3,
+        "needs": "rules"
+      },
+      {
+        "key": "quote_expiring",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "jobs.quote_valid_until",
+          "offsetDays": -3
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "jobs.stage",
+            "options": [
+              "quote_sent",
+              "negotiating"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up_quote",
+          "assignee": "record_owner",
+          "about": "jobs"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "withdrawal_clock",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "jobs.stage",
+          "to": "won"
+        },
+        "condition": [],
+        "action": {
+          "kind": "set_dates",
+          "dates": [
+            {
+              "field": "jobs.withdrawal_ends",
+              "offsetDays": 14
+            }
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules",
+        "variants": {
+          "BR": {
+            "action": {
+              "kind": "set_dates",
+              "dates": [
+                {
+                  "field": "jobs.withdrawal_ends",
+                  "offsetDays": 7
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "key": "payment_check",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "jobs.payment_due",
+          "offsetDays": 3
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "jobs.work_status",
+            "options": [
+              "invoiced"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "check_payment",
+          "assignee": "record_owner",
+          "about": "jobs"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "warranty_check",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "jobs.warranty_ends",
+          "offsetDays": -30
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "warranty_check",
+          "assignee": "record_owner",
+          "about": "jobs"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "service_due",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "agreements.next_due",
+          "offsetDays": -30
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "agreements.status",
+            "options": [
+              "active"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "book_service",
+          "assignee": "record_owner",
+          "about": "agreements"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "visit_calendar",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "jobs.stage",
+          "to": "assessment"
+        },
+        "condition": [],
+        "action": {
+          "kind": "add_calendar_event",
+          "dateField": "jobs.visit_at"
+        },
+        "dueOffsetDays": 0,
+        "needs": "calendarWrite"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "stage_field",
+        "kind": "field_exists",
+        "ref": "jobs.stage"
+      },
+      {
+        "key": "work_status_field",
+        "kind": "field_exists",
+        "ref": "jobs.work_status"
+      },
+      {
+        "key": "warranty_field",
+        "kind": "field_exists",
+        "ref": "jobs.warranty_ends"
+      },
+      {
+        "key": "jobs_board_view",
+        "kind": "view_exists",
+        "ref": "jobs_board"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://getjobber.com/academy/how-to-follow-up-on-quote/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://help.getjobber.com/hc/en-us/articles/34647017424023-Sales-Pipeline-Beta",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.subcontractorhub.com/blog/roofing-sales-process",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://help.servicetitan.com/roofing/docs/roofing-sales-lifecycle-overview-in-servicetitan",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://myquoteiq.com/crm-for-landscaping-business/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.streit-software.de/wissen/widerrufsbelehrung-handwerk",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://das-programm.io/gewerke/dachdecker-software/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://hero-software.de/features/kundenverwaltung-crm",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.salesforce.com/crm/crm-for-contractors/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://monday.com/blog/crm-and-sales/crm-for-construction/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "status": {
+      "en": "draft",
+      "de": "draft",
+      "fr": "draft",
+      "it": "draft",
+      "es": "draft",
+      "pt": "draft",
+      "pl": "draft",
+      "nl": "draft"
+    },
+    "publicPage": {
+      "en": "proof",
+      "de": "proof",
+      "fr": "proof",
+      "it": "proof",
+      "es": "none",
+      "pt": "proof",
+      "pl": "none",
+      "nl": "proof"
+    },
+    "publishWave": {}
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Handwerker-Aufträge",
+      "summary": "Eine Pipeline für den Handwerksbetrieb: Anfrage, Besichtigung, Angebot und Nachfassen, danach die Ausführung von geplant bis bezahlt, mit Widerrufs-, Gewährleistungs- und Wartungsterminen an jedem Auftrag.",
+      "description": "Einen Auftrag von der ersten Anfrage bis zur Schlussrechnung begleiten: Kunden und Objekte, an denen Sie arbeiten, Aufträge mit einer Vertriebsphase und einem eigenen Ausführungsstatus, Bindefrist des Angebots, Besichtigung und Termin, Widerrufsfrist bei Verbraucherverträgen, Gewährleistungsende und Wartungsverträge, die Folgeaufträge bringen. Die Vorlage hält Auftrag, Termine und Nachfassen fest. Kein Werkzeug für Angebote und Rechnungen, keine Einsatzplanung und keine Zeiterfassung. Rechtliche Fristen sind Felder, die Sie selbst bestätigen, keine Rechtsberatung.",
+      "lists": {
+        "actions": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "customers": {
+          "label": "Kunde",
+          "pluralLabel": "Kunden",
+          "description": "Eigentümer, Vermieter, Hausverwaltungen und Firmen, für die du arbeitest."
+        },
+        "sites": {
+          "label": "Objekt",
+          "pluralLabel": "Objekte",
+          "description": "Die Adresse der Baustelle, die vom Kunden abweichen kann."
+        },
+        "jobs": {
+          "label": "Auftrag",
+          "pluralLabel": "Aufträge",
+          "description": "Eine Arbeit, von der Anfrage bis Auftrag oder Verloren, danach durch die Ausführung."
+        },
+        "agreements": {
+          "label": "Wartungsvertrag",
+          "pluralLabel": "Wartungsverträge",
+          "description": "Wiederkehrende Wartung eines Objekts mit nächstem Termin und Verlängerungsdatum."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "customers.customer_type": {
+          "label": "Art",
+          "options": {
+            "private": "Privatkunde",
+            "landlord": "Vermieter",
+            "property_manager": "Hausverwaltung",
+            "commercial": "Gewerbekunde",
+            "builder_contractor": "Bauunternehmen"
+          }
+        },
+        "customers.marketing_ok": {
+          "label": "Einwilligung zu Werbung",
+          "options": {}
+        },
+        "sites.address": {
+          "label": "Adresse",
+          "options": {}
+        },
+        "sites.access_notes": {
+          "label": "Hinweise zum Zugang",
+          "options": {}
+        },
+        "jobs.stage": {
+          "label": "Phase",
+          "options": {
+            "enquiry": "Anfrage",
+            "assessment": "Besichtigung",
+            "to_quote": "Angebot erstellen",
+            "quote_sent": "Angebot versendet",
+            "negotiating": "Nachverhandlung",
+            "won": "Auftrag",
+            "lost": "Verloren"
+          }
+        },
+        "jobs.work_status": {
+          "label": "Ausführung",
+          "options": {
+            "not_scheduled": "Nicht terminiert",
+            "scheduled": "Terminiert",
+            "in_progress": "In Arbeit",
+            "completed": "Fertiggestellt",
+            "invoiced": "Abgerechnet",
+            "paid": "Bezahlt"
+          }
+        },
+        "jobs.work_type": {
+          "label": "Art der Arbeit",
+          "options": {
+            "repair": "Reparatur",
+            "installation": "Einbau",
+            "renovation": "Sanierung",
+            "maintenance": "Wartung",
+            "inspection": "Prüfung",
+            "emergency": "Notfall"
+          }
+        },
+        "jobs.visit_at": {
+          "label": "Besichtigung",
+          "options": {}
+        },
+        "jobs.quote_valid_until": {
+          "label": "Angebot gültig bis",
+          "options": {}
+        },
+        "jobs.withdrawal_ends": {
+          "label": "Widerrufsfrist bis",
+          "options": {}
+        },
+        "jobs.scheduled_start": {
+          "label": "Arbeitsbeginn",
+          "options": {}
+        },
+        "jobs.completed_on": {
+          "label": "Fertiggestellt am",
+          "options": {}
+        },
+        "jobs.warranty_ends": {
+          "label": "Gewährleistung bis",
+          "options": {}
+        },
+        "jobs.payment_due": {
+          "label": "Zahlungsziel",
+          "options": {}
+        },
+        "jobs.lost_reason": {
+          "label": "Verlustgrund",
+          "options": {
+            "price": "Preis",
+            "timing": "Zeitpunkt",
+            "chose_competitor": "Anderer Anbieter gewählt",
+            "no_response": "Keine Rückmeldung",
+            "job_cancelled": "Auftrag abgesagt",
+            "other": "Sonstiger"
+          }
+        },
+        "agreements.interval": {
+          "label": "Turnus",
+          "options": {
+            "monthly": "Monatlich",
+            "quarterly": "Vierteljährlich",
+            "twice_yearly": "Halbjährlich",
+            "yearly": "Jährlich"
+          }
+        },
+        "agreements.status": {
+          "label": "Status",
+          "options": {
+            "active": "Aktiv",
+            "paused": "Pausiert",
+            "ended": "Beendet"
+          }
+        },
+        "agreements.next_due": {
+          "label": "Nächster Termin",
+          "options": {}
+        },
+        "agreements.renewal_on": {
+          "label": "Verlängerung am",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "call_back": "Zurückrufen",
+            "book_visit": "Besichtigung vereinbaren",
+            "send_quote": "Angebot senden",
+            "follow_up_quote": "Angebot nachfassen",
+            "confirm_schedule": "Termin bestätigen",
+            "handover": "Übergeben und Abnahme festhalten",
+            "check_payment": "Zahlung prüfen",
+            "warranty_check": "Zum Gewährleistungsende nach Mängeln fragen",
+            "book_service": "Wartungstermin vereinbaren",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "site_customer": {
+          "sourceLabel": "Kunde",
+          "targetLabel": "Objekte"
+        },
+        "job_customer": {
+          "sourceLabel": "Kunde",
+          "targetLabel": "Aufträge"
+        },
+        "job_site": {
+          "sourceLabel": "Objekt",
+          "targetLabel": "Aufträge"
+        },
+        "agreement_site": {
+          "sourceLabel": "Objekt",
+          "targetLabel": "Wartungsverträge"
+        },
+        "action_job": {
+          "sourceLabel": "Auftrag",
+          "targetLabel": "Aufgaben"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle Aufgaben"
+        },
+        "jobs_board": {
+          "name": "Aufträge nach Phase"
+        },
+        "jobs_all": {
+          "name": "Alle Aufträge"
+        },
+        "open_quotes": {
+          "name": "Offene Angebote"
+        },
+        "work_in_progress": {
+          "name": "Terminiert und in Arbeit"
+        },
+        "customers_all": {
+          "name": "Alle Kunden"
+        },
+        "sites_all": {
+          "name": "Alle Objekte"
+        },
+        "agreements_all": {
+          "name": "Alle Wartungsverträge"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Anstehende Aufgaben"
+        },
+        "overdue_actions": {
+          "title": "Überfällige Aufgaben"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        },
+        "jobs_funnel": {
+          "title": "Aufträge nach Phase"
+        },
+        "open_quotes_value": {
+          "title": "Wert der offenen Angebote"
+        },
+        "visits_coming": {
+          "title": "Anstehende Besichtigungen"
+        },
+        "jobs_by_work_status": {
+          "title": "Erteilte Aufträge nach Ausführung"
+        },
+        "lost_reasons": {
+          "title": "Warum Aufträge verloren gingen"
+        },
+        "warranties_ending": {
+          "title": "Auslaufende Gewährleistungen"
+        },
+        "services_due": {
+          "title": "Fällige Wartungstermine"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Von der Anfrage zum Auftrag",
+          "sections": [
+            "Antwort, Besichtigung und Angebot: wer was wie schnell erledigt",
+            "Wöchentliche Durchsicht offener Angebote, abzurechnender Aufträge und offener Rechnungen"
+          ]
+        },
+        "quote_checklist": {
+          "title": "Checkliste fürs Angebot",
+          "sections": [
+            "Leistungsumfang, Ausschlüsse, Preis, Bindefrist und Anzahlung",
+            "Beginn, Zahlungsziel und Nachfass-Nachrichten"
+          ]
+        },
+        "withdrawal_and_acceptance": {
+          "title": "Widerruf, Übergabe und Abnahme",
+          "sections": [
+            "Verbraucherwiderruf bei Verträgen beim Kunden und Notfallarbeiten",
+            "Checkliste für Übergabe und Abnahme"
+          ]
+        },
+        "warranty_and_service": {
+          "title": "Gewährleistung, Mängel und Wartungsverträge",
+          "sections": [
+            "Wie ein Mangel bearbeitet wird",
+            "Wartungsvertrag anbieten und verlängern"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Kunde, Objekt und Auftrag anlegen, wenn das Anfrageformular abgeschickt wird",
+          "description": ""
+        },
+        "call_back_new": {
+          "title": "Eine neue Anfrage am selben Tag zurückrufen",
+          "description": ""
+        },
+        "quote_after_visit": {
+          "title": "Das Angebot binnen 2 Tagen nach der Besichtigung senden",
+          "description": ""
+        },
+        "quote_follow_up": {
+          "title": "3 Tage nach dem Versand eines Angebots nachfassen",
+          "description": ""
+        },
+        "quote_expiring": {
+          "title": "3 Tage vor Ablauf der Bindefrist nachfassen",
+          "description": ""
+        },
+        "withdrawal_clock": {
+          "title": "Das Ende der 14-tägigen Widerrufsfrist setzen, wenn ein Auftrag erteilt wird",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Das Ende der 7-tägigen Widerrufsfrist setzen, wenn ein Auftrag erteilt wird (Brasilien)",
+              "description": "Nach dem brasilianischen Verbraucherschutzgesetz (CDC, Art. 49) kann ein Kunde binnen 7 Tagen widerrufen, wenn der Vertrag außerhalb der Geschäftsräume zustande kam, etwa bei ihm zu Hause."
+            }
+          }
+        },
+        "payment_check": {
+          "title": "Einen abgerechneten Auftrag 3 Tage nach dem Zahlungsziel prüfen",
+          "description": ""
+        },
+        "warranty_check": {
+          "title": "30 Tage vor Ende der Gewährleistung nach Mängeln fragen",
+          "description": ""
+        },
+        "service_due": {
+          "title": "Den Wartungstermin 30 Tage vor Fälligkeit vereinbaren",
+          "description": ""
+        },
+        "visit_calendar": {
+          "title": "Die Besichtigung in den Kalender eintragen, wenn ein Auftrag die Besichtigungsphase erreicht",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Jeder Auftrag hat eine Vertriebsphase.",
+        "work_status_field": "Jeder Auftrag hat einen eigenen Ausführungsstatus.",
+        "warranty_field": "Jeder Auftrag hält fest, bis wann die Gewährleistung gilt.",
+        "jobs_board_view": "Die Aufträge öffnen sich als Board nach Phase."
+      },
+      "prompt": {
+        "intro": "Richte in meinem Customermates-Workspace eine Auftragspipeline für den Handwerksbetrieb ein: Kunden, Objekte, Aufträge mit Vertriebsphase und Ausführungsstatus, Bindefrist, Besichtigungs- und Bautermine, Gewährleistungsende und Wartungsverträge, mit terminierten Folgeaufgaben.",
+        "questions": [
+          "Welche Arbeiten führst du aus, und für wen: Eigentümer, Vermieter oder Firmen?",
+          "Wie schnell beantwortest du eine Anfrage und sendest nach der Besichtigung ein Angebot?",
+          "Wie lange sind deine Angebote bindend, und wie lang ist deine Gewährleistung?",
+          "Verkaufst du Wartungsverträge für Folgeaufträge?"
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Trades job pipeline",
+      "summary": "A pipeline for a trade business: inquiry, site visit, quote and follow-up, then the work itself from scheduled to paid, with withdrawal, warranty and service dates on every job.",
+      "description": "Follow a job from the first call to the last invoice: customers and the sites you work at, jobs with a sales stage and a separate work status, quote validity, the visit and the schedule, a withdrawal date for consumer contracts, warranty end and service agreements that bring repeat work. It stores the job, the dates and the follow-up. It is not a quoting or invoicing tool, a dispatch system or a timesheet. Legal dates are fields you confirm, not legal advice.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "customers": {
+          "label": "Customer",
+          "pluralLabel": "Customers",
+          "description": "Homeowners, landlords, property managers and companies you work for."
+        },
+        "sites": {
+          "label": "Site",
+          "pluralLabel": "Sites",
+          "description": "The address where the work happens, which can differ from the customer."
+        },
+        "jobs": {
+          "label": "Job",
+          "pluralLabel": "Jobs",
+          "description": "One piece of work, from inquiry to won or lost, then through the work itself."
+        },
+        "agreements": {
+          "label": "Service agreement",
+          "pluralLabel": "Service agreements",
+          "description": "Recurring maintenance for a site, with the next visit and the renewal date."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "customers.customer_type": {
+          "label": "Type",
+          "options": {
+            "private": "Private",
+            "landlord": "Landlord",
+            "property_manager": "Property manager",
+            "commercial": "Commercial",
+            "builder_contractor": "Builder or contractor"
+          }
+        },
+        "customers.marketing_ok": {
+          "label": "Agreed to marketing messages",
+          "options": {}
+        },
+        "sites.address": {
+          "label": "Address",
+          "options": {}
+        },
+        "sites.access_notes": {
+          "label": "Access notes",
+          "options": {}
+        },
+        "jobs.stage": {
+          "label": "Stage",
+          "options": {
+            "enquiry": "Inquiry",
+            "assessment": "Site visit",
+            "to_quote": "Quote to write",
+            "quote_sent": "Quote sent",
+            "negotiating": "Negotiating",
+            "won": "Won",
+            "lost": "Lost"
+          }
+        },
+        "jobs.work_status": {
+          "label": "Work status",
+          "options": {
+            "not_scheduled": "Not scheduled",
+            "scheduled": "Scheduled",
+            "in_progress": "In progress",
+            "completed": "Completed",
+            "invoiced": "Invoiced",
+            "paid": "Paid"
+          }
+        },
+        "jobs.work_type": {
+          "label": "Type of work",
+          "options": {
+            "repair": "Repair",
+            "installation": "Installation",
+            "renovation": "Renovation",
+            "maintenance": "Maintenance",
+            "inspection": "Inspection",
+            "emergency": "Emergency"
+          }
+        },
+        "jobs.visit_at": {
+          "label": "Site visit",
+          "options": {}
+        },
+        "jobs.quote_valid_until": {
+          "label": "Quote valid until",
+          "options": {}
+        },
+        "jobs.withdrawal_ends": {
+          "label": "Withdrawal period ends",
+          "options": {}
+        },
+        "jobs.scheduled_start": {
+          "label": "Work starts",
+          "options": {}
+        },
+        "jobs.completed_on": {
+          "label": "Completed on",
+          "options": {}
+        },
+        "jobs.warranty_ends": {
+          "label": "Warranty ends",
+          "options": {}
+        },
+        "jobs.payment_due": {
+          "label": "Payment due",
+          "options": {}
+        },
+        "jobs.lost_reason": {
+          "label": "Lost reason",
+          "options": {
+            "price": "Price",
+            "timing": "Timing",
+            "chose_competitor": "Chose a competitor",
+            "no_response": "No response",
+            "job_cancelled": "Job cancelled",
+            "other": "Other"
+          }
+        },
+        "agreements.interval": {
+          "label": "Interval",
+          "options": {
+            "monthly": "Monthly",
+            "quarterly": "Quarterly",
+            "twice_yearly": "Twice a year",
+            "yearly": "Yearly"
+          }
+        },
+        "agreements.status": {
+          "label": "Status",
+          "options": {
+            "active": "Active",
+            "paused": "Paused",
+            "ended": "Ended"
+          }
+        },
+        "agreements.next_due": {
+          "label": "Next visit due",
+          "options": {}
+        },
+        "agreements.renewal_on": {
+          "label": "Renewal on",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "call_back": "Call back",
+            "book_visit": "Book a site visit",
+            "send_quote": "Send the quote",
+            "follow_up_quote": "Follow up the quote",
+            "confirm_schedule": "Confirm the schedule",
+            "handover": "Hand over and record acceptance",
+            "check_payment": "Check the payment",
+            "warranty_check": "Ask about defects at the warranty end",
+            "book_service": "Book the service visit",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "site_customer": {
+          "sourceLabel": "Customer",
+          "targetLabel": "Sites"
+        },
+        "job_customer": {
+          "sourceLabel": "Customer",
+          "targetLabel": "Jobs"
+        },
+        "job_site": {
+          "sourceLabel": "Site",
+          "targetLabel": "Jobs"
+        },
+        "agreement_site": {
+          "sourceLabel": "Site",
+          "targetLabel": "Service agreements"
+        },
+        "action_job": {
+          "sourceLabel": "Job",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "All actions"
+        },
+        "jobs_board": {
+          "name": "Jobs by stage"
+        },
+        "jobs_all": {
+          "name": "All jobs"
+        },
+        "open_quotes": {
+          "name": "Open quotes"
+        },
+        "work_in_progress": {
+          "name": "Scheduled and in progress"
+        },
+        "customers_all": {
+          "name": "All customers"
+        },
+        "sites_all": {
+          "name": "All sites"
+        },
+        "agreements_all": {
+          "name": "All service agreements"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Upcoming actions"
+        },
+        "overdue_actions": {
+          "title": "Overdue actions"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        },
+        "jobs_funnel": {
+          "title": "Jobs by stage"
+        },
+        "open_quotes_value": {
+          "title": "Value of open quotes"
+        },
+        "visits_coming": {
+          "title": "Site visits coming up"
+        },
+        "jobs_by_work_status": {
+          "title": "Won jobs by work status"
+        },
+        "lost_reasons": {
+          "title": "Why jobs were lost"
+        },
+        "warranties_ending": {
+          "title": "Warranties ending"
+        },
+        "services_due": {
+          "title": "Service visits due"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "How inquiries become jobs",
+          "sections": [
+            "Reply, visit and quote: who does what and how fast",
+            "Weekly review of open quotes, jobs to invoice and unpaid invoices"
+          ]
+        },
+        "quote_checklist": {
+          "title": "Quote checklist",
+          "sections": [
+            "Scope, exclusions, price, validity and deposit",
+            "Start date, payment terms and follow-up messages"
+          ]
+        },
+        "withdrawal_and_acceptance": {
+          "title": "Withdrawal, handover and acceptance",
+          "sections": [
+            "Consumer withdrawal for contracts at the customer's home and emergency work",
+            "Handover and acceptance checklist"
+          ]
+        },
+        "warranty_and_service": {
+          "title": "Warranty, defects and service agreements",
+          "sections": [
+            "How a defect is handled",
+            "Offering and renewing a service agreement"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Create the customer, the site and the job when the inquiry form is submitted",
+          "description": ""
+        },
+        "call_back_new": {
+          "title": "Call back a new inquiry the same day",
+          "description": ""
+        },
+        "quote_after_visit": {
+          "title": "Send the quote within 2 days of the site visit",
+          "description": ""
+        },
+        "quote_follow_up": {
+          "title": "Follow up 3 days after a quote is sent",
+          "description": ""
+        },
+        "quote_expiring": {
+          "title": "Follow up 3 days before a quote expires",
+          "description": ""
+        },
+        "withdrawal_clock": {
+          "title": "Set the end of the 14-day withdrawal period when a job is won",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Set the end of the 7-day withdrawal period when a job is won (Brazil, CDC art. 49)",
+              "description": "Under Brazil's consumer code (CDC art. 49), a customer can withdraw within 7 days when the contract was made outside the business premises, for example at their home."
+            }
+          }
+        },
+        "payment_check": {
+          "title": "Check an invoiced job 3 days after the payment is due",
+          "description": ""
+        },
+        "warranty_check": {
+          "title": "Ask about defects 30 days before the warranty ends",
+          "description": ""
+        },
+        "service_due": {
+          "title": "Book the service visit 30 days before it is due",
+          "description": ""
+        },
+        "visit_calendar": {
+          "title": "Add the site visit to the calendar when a job reaches the visit stage",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Every job has a sales stage.",
+        "work_status_field": "Every job has a work status of its own.",
+        "warranty_field": "Every job records when its warranty ends.",
+        "jobs_board_view": "The jobs open as a board by stage."
+      },
+      "prompt": {
+        "intro": "Set up a trades job pipeline in my Customermates workspace: customers, sites, jobs with a sales stage and a work status, quote validity, visit and schedule dates, warranty end and service agreements, with dated follow-ups.",
+        "questions": [
+          "Which kinds of work do you do, and for whom: homeowners, landlords or companies?",
+          "How quickly do you answer an inquiry and send a quote after the visit?",
+          "How long are your quotes valid, and how long is your warranty?",
+          "Do you sell service agreements for repeat work?"
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "Trabajos para oficios",
+      "summary": "Un pipeline para una empresa de oficios: solicitud, visita técnica, presupuesto y seguimiento, y luego el trabajo de programado a pagado, con fechas de desistimiento, garantía y mantenimiento en cada trabajo.",
+      "description": "Sigue un trabajo desde la primera llamada hasta la última factura: clientes y obras donde trabajas, trabajos con una fase comercial y un estado de ejecución aparte, validez del presupuesto, visita y calendario, fecha de desistimiento en contratos con consumidores, fin de la garantía y contratos de mantenimiento que traen nuevo trabajo. Guarda el trabajo, las fechas y el seguimiento. No es una herramienta de presupuestos y facturas, un sistema de planificación de equipos ni un control de horas. Las fechas legales son campos que tú confirmas, no asesoramiento jurídico.",
+      "lists": {
+        "actions": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un siguiente paso con fecha por cada asunto abierto."
+        },
+        "customers": {
+          "label": "Cliente",
+          "pluralLabel": "Clientes",
+          "description": "Particulares, propietarios, administradores de fincas y empresas para los que trabajas."
+        },
+        "sites": {
+          "label": "Obra",
+          "pluralLabel": "Obras",
+          "description": "La dirección donde se hace el trabajo, que puede ser distinta de la del cliente."
+        },
+        "jobs": {
+          "label": "Trabajo",
+          "pluralLabel": "Trabajos",
+          "description": "Un trabajo, de la solicitud a aceptado o perdido, y después durante la ejecución."
+        },
+        "agreements": {
+          "label": "Contrato de mantenimiento",
+          "pluralLabel": "Contratos de mantenimiento",
+          "description": "Mantenimiento recurrente de una obra, con la próxima visita y la fecha de renovación."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierta",
+            "waiting": "En espera",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "customers.customer_type": {
+          "label": "Tipo",
+          "options": {
+            "private": "Particular",
+            "landlord": "Propietario",
+            "property_manager": "Administrador de fincas",
+            "commercial": "Empresa",
+            "builder_contractor": "Constructora"
+          }
+        },
+        "customers.marketing_ok": {
+          "label": "Acepta mensajes comerciales",
+          "options": {}
+        },
+        "sites.address": {
+          "label": "Dirección",
+          "options": {}
+        },
+        "sites.access_notes": {
+          "label": "Notas de acceso",
+          "options": {}
+        },
+        "jobs.stage": {
+          "label": "Fase",
+          "options": {
+            "enquiry": "Solicitud",
+            "assessment": "Visita técnica",
+            "to_quote": "Presupuesto por hacer",
+            "quote_sent": "Presupuesto enviado",
+            "negotiating": "Negociación",
+            "won": "Aceptado",
+            "lost": "Perdido"
+          }
+        },
+        "jobs.work_status": {
+          "label": "Estado de la obra",
+          "options": {
+            "not_scheduled": "Sin programar",
+            "scheduled": "Programado",
+            "in_progress": "En curso",
+            "completed": "Terminado",
+            "invoiced": "Facturado",
+            "paid": "Pagado"
+          }
+        },
+        "jobs.work_type": {
+          "label": "Tipo de trabajo",
+          "options": {
+            "repair": "Reparación",
+            "installation": "Instalación",
+            "renovation": "Reforma",
+            "maintenance": "Mantenimiento",
+            "inspection": "Revisión",
+            "emergency": "Urgencia"
+          }
+        },
+        "jobs.visit_at": {
+          "label": "Visita técnica",
+          "options": {}
+        },
+        "jobs.quote_valid_until": {
+          "label": "Presupuesto válido hasta",
+          "options": {}
+        },
+        "jobs.withdrawal_ends": {
+          "label": "Fin del plazo de desistimiento",
+          "options": {}
+        },
+        "jobs.scheduled_start": {
+          "label": "Inicio de la obra",
+          "options": {}
+        },
+        "jobs.completed_on": {
+          "label": "Terminado el",
+          "options": {}
+        },
+        "jobs.warranty_ends": {
+          "label": "Garantía hasta",
+          "options": {}
+        },
+        "jobs.payment_due": {
+          "label": "Vencimiento del pago",
+          "options": {}
+        },
+        "jobs.lost_reason": {
+          "label": "Motivo de pérdida",
+          "options": {
+            "price": "Precio",
+            "timing": "Plazos",
+            "chose_competitor": "Eligió a la competencia",
+            "no_response": "Sin respuesta",
+            "job_cancelled": "Trabajo cancelado",
+            "other": "Otro"
+          }
+        },
+        "agreements.interval": {
+          "label": "Periodicidad",
+          "options": {
+            "monthly": "Mensual",
+            "quarterly": "Trimestral",
+            "twice_yearly": "Semestral",
+            "yearly": "Anual"
+          }
+        },
+        "agreements.status": {
+          "label": "Estado",
+          "options": {
+            "active": "Activo",
+            "paused": "En pausa",
+            "ended": "Terminado"
+          }
+        },
+        "agreements.next_due": {
+          "label": "Próxima visita",
+          "options": {}
+        },
+        "agreements.renewal_on": {
+          "label": "Renovación el",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "call_back": "Devolver la llamada",
+            "book_visit": "Concertar una visita",
+            "send_quote": "Enviar el presupuesto",
+            "follow_up_quote": "Hacer seguimiento del presupuesto",
+            "confirm_schedule": "Confirmar el calendario",
+            "handover": "Entregar y anotar la aceptación",
+            "check_payment": "Comprobar el pago",
+            "warranty_check": "Preguntar por defectos al acabar la garantía",
+            "book_service": "Concertar la visita de mantenimiento",
+            "other": "Otro"
+          }
+        }
+      },
+      "relationships": {
+        "site_customer": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Obras"
+        },
+        "job_customer": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Trabajos"
+        },
+        "job_site": {
+          "sourceLabel": "Obra",
+          "targetLabel": "Trabajos"
+        },
+        "agreement_site": {
+          "sourceLabel": "Obra",
+          "targetLabel": "Contratos de mantenimiento"
+        },
+        "action_job": {
+          "sourceLabel": "Trabajo",
+          "targetLabel": "Tareas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas las tareas"
+        },
+        "jobs_board": {
+          "name": "Trabajos por fase"
+        },
+        "jobs_all": {
+          "name": "Todos los trabajos"
+        },
+        "open_quotes": {
+          "name": "Presupuestos abiertos"
+        },
+        "work_in_progress": {
+          "name": "Programados y en curso"
+        },
+        "customers_all": {
+          "name": "Todos los clientes"
+        },
+        "sites_all": {
+          "name": "Todas las obras"
+        },
+        "agreements_all": {
+          "name": "Todos los contratos de mantenimiento"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tareas"
+        },
+        "overdue_actions": {
+          "title": "Tareas vencidas"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        },
+        "jobs_funnel": {
+          "title": "Trabajos por fase"
+        },
+        "open_quotes_value": {
+          "title": "Importe de los presupuestos abiertos"
+        },
+        "visits_coming": {
+          "title": "Visitas próximas"
+        },
+        "jobs_by_work_status": {
+          "title": "Trabajos aceptados por estado de la obra"
+        },
+        "lost_reasons": {
+          "title": "Por qué se pierden trabajos"
+        },
+        "warranties_ending": {
+          "title": "Garantías que terminan"
+        },
+        "services_due": {
+          "title": "Visitas de mantenimiento pendientes"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "De la solicitud al trabajo aceptado",
+          "sections": [
+            "Respuesta, visita y presupuesto: quién hace qué y en cuánto tiempo",
+            "Revisión semanal de presupuestos abiertos, trabajos por facturar y facturas impagadas"
+          ]
+        },
+        "quote_checklist": {
+          "title": "Lista de control del presupuesto",
+          "sections": [
+            "Alcance, exclusiones, precio, validez y anticipo",
+            "Fecha de inicio, condiciones de pago y mensajes de seguimiento"
+          ]
+        },
+        "withdrawal_and_acceptance": {
+          "title": "Desistimiento, entrega y aceptación",
+          "sections": [
+            "Desistimiento del consumidor en contratos fuera del establecimiento y trabajos urgentes",
+            "Lista de control de la entrega y la aceptación"
+          ]
+        },
+        "warranty_and_service": {
+          "title": "Garantía, defectos y contratos de mantenimiento",
+          "sections": [
+            "Cómo se gestiona un defecto",
+            "Ofrecer y renovar un contrato de mantenimiento"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Crear el cliente, la obra y el trabajo cuando se envía el formulario de solicitud",
+          "description": ""
+        },
+        "call_back_new": {
+          "title": "Devolver la llamada a una solicitud nueva el mismo día",
+          "description": ""
+        },
+        "quote_after_visit": {
+          "title": "Enviar el presupuesto en los 2 días siguientes a la visita",
+          "description": ""
+        },
+        "quote_follow_up": {
+          "title": "Hacer seguimiento 3 días después de enviar un presupuesto",
+          "description": ""
+        },
+        "quote_expiring": {
+          "title": "Hacer seguimiento 3 días antes de que venza un presupuesto",
+          "description": ""
+        },
+        "withdrawal_clock": {
+          "title": "Fijar el fin del plazo de desistimiento de 14 días cuando se acepta un trabajo",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Fijar el fin del plazo de desistimiento de 7 días cuando se acepta un trabajo (Brasil)",
+              "description": "Según el código brasileño del consumidor (CDC, art. 49), el cliente puede desistir en 7 días cuando el contrato se firmó fuera del establecimiento, por ejemplo en su domicilio."
+            }
+          }
+        },
+        "payment_check": {
+          "title": "Comprobar un trabajo facturado 3 días después del vencimiento del pago",
+          "description": ""
+        },
+        "warranty_check": {
+          "title": "Preguntar por defectos 30 días antes de que termine la garantía",
+          "description": ""
+        },
+        "service_due": {
+          "title": "Concertar la visita de mantenimiento 30 días antes de su vencimiento",
+          "description": ""
+        },
+        "visit_calendar": {
+          "title": "Añadir la visita al calendario cuando un trabajo llega a la fase de visita",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada trabajo tiene una fase comercial.",
+        "work_status_field": "Cada trabajo tiene su propio estado de ejecución.",
+        "warranty_field": "Cada trabajo indica hasta cuándo dura su garantía.",
+        "jobs_board_view": "Los trabajos se abren como tablero por fase."
+      },
+      "prompt": {
+        "intro": "Configura en mi espacio de trabajo de Customermates un pipeline para una empresa de oficios: clientes, obras, trabajos con fase comercial y estado de ejecución, validez del presupuesto, fechas de visita y de obra, fin de garantía y contratos de mantenimiento, con seguimientos con fecha.",
+        "questions": [
+          "¿Qué trabajos realizas y para quién: particulares, propietarios o empresas?",
+          "¿En cuánto tiempo respondes a una solicitud y envías el presupuesto tras la visita?",
+          "¿Cuánto tiempo son válidos tus presupuestos y cuánto dura tu garantía?",
+          "¿Vendes contratos de mantenimiento para trabajo recurrente?"
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "Dossiers d’artisan",
+      "summary": "Un pipeline pour une entreprise de travaux : demande, visite, devis et relance, puis le chantier de planifié à payé, avec les dates de rétractation, de garantie et d’entretien sur chaque dossier.",
+      "description": "Suivez un dossier de la première demande à la dernière facture : clients et chantiers où vous intervenez, dossiers avec une étape commerciale et un statut de travaux distinct, validité du devis, visite et planning, date de rétractation pour les contrats de consommateurs, fin de garantie et contrats d’entretien qui ramènent du travail. Il conserve le dossier, les dates et la relance. Ce n’est ni un outil de devis et de facturation, ni un système de planification d’équipes, ni un suivi des heures. Les dates légales sont des champs que vous confirmez, pas un conseil juridique.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Une prochaine étape datée par dossier ouvert."
+        },
+        "customers": {
+          "label": "Client",
+          "pluralLabel": "Clients",
+          "description": "Particuliers, bailleurs, syndics et entreprises pour lesquels vous travaillez."
+        },
+        "sites": {
+          "label": "Chantier",
+          "pluralLabel": "Chantiers",
+          "description": "L’adresse où le travail a lieu, qui peut différer de celle du client."
+        },
+        "jobs": {
+          "label": "Dossier",
+          "pluralLabel": "Dossiers",
+          "description": "Un travail, de la demande à accepté ou perdu, puis tout au long de l’exécution."
+        },
+        "agreements": {
+          "label": "Contrat d’entretien",
+          "pluralLabel": "Contrats d’entretien",
+          "description": "Entretien récurrent d’un chantier, avec la prochaine intervention et la date de reconduction."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "waiting": "En attente",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "customers.customer_type": {
+          "label": "Type",
+          "options": {
+            "private": "Particulier",
+            "landlord": "Bailleur",
+            "property_manager": "Syndic ou gestionnaire",
+            "commercial": "Professionnel",
+            "builder_contractor": "Entreprise du bâtiment"
+          }
+        },
+        "customers.marketing_ok": {
+          "label": "Accepte les messages commerciaux",
+          "options": {}
+        },
+        "sites.address": {
+          "label": "Adresse",
+          "options": {}
+        },
+        "sites.access_notes": {
+          "label": "Consignes d’accès",
+          "options": {}
+        },
+        "jobs.stage": {
+          "label": "Étape",
+          "options": {
+            "enquiry": "Demande",
+            "assessment": "Visite et relevé",
+            "to_quote": "Devis à établir",
+            "quote_sent": "Devis envoyé",
+            "negotiating": "Négociation",
+            "won": "Accepté",
+            "lost": "Perdu"
+          }
+        },
+        "jobs.work_status": {
+          "label": "Statut des travaux",
+          "options": {
+            "not_scheduled": "Non planifié",
+            "scheduled": "Planifié",
+            "in_progress": "En cours",
+            "completed": "Terminé",
+            "invoiced": "Facturé",
+            "paid": "Payé"
+          }
+        },
+        "jobs.work_type": {
+          "label": "Nature des travaux",
+          "options": {
+            "repair": "Réparation",
+            "installation": "Installation",
+            "renovation": "Rénovation",
+            "maintenance": "Entretien",
+            "inspection": "Contrôle",
+            "emergency": "Urgence"
+          }
+        },
+        "jobs.visit_at": {
+          "label": "Visite",
+          "options": {}
+        },
+        "jobs.quote_valid_until": {
+          "label": "Devis valable jusqu’au",
+          "options": {}
+        },
+        "jobs.withdrawal_ends": {
+          "label": "Fin du délai de rétractation",
+          "options": {}
+        },
+        "jobs.scheduled_start": {
+          "label": "Début des travaux",
+          "options": {}
+        },
+        "jobs.completed_on": {
+          "label": "Terminé le",
+          "options": {}
+        },
+        "jobs.warranty_ends": {
+          "label": "Garantie jusqu’au",
+          "options": {}
+        },
+        "jobs.payment_due": {
+          "label": "Échéance de paiement",
+          "options": {}
+        },
+        "jobs.lost_reason": {
+          "label": "Motif de perte",
+          "options": {
+            "price": "Prix",
+            "timing": "Délai",
+            "chose_competitor": "A choisi un concurrent",
+            "no_response": "Sans réponse",
+            "job_cancelled": "Projet annulé",
+            "other": "Autre"
+          }
+        },
+        "agreements.interval": {
+          "label": "Périodicité",
+          "options": {
+            "monthly": "Mensuelle",
+            "quarterly": "Trimestrielle",
+            "twice_yearly": "Semestrielle",
+            "yearly": "Annuelle"
+          }
+        },
+        "agreements.status": {
+          "label": "Statut",
+          "options": {
+            "active": "Actif",
+            "paused": "En pause",
+            "ended": "Terminé"
+          }
+        },
+        "agreements.next_due": {
+          "label": "Prochaine intervention",
+          "options": {}
+        },
+        "agreements.renewal_on": {
+          "label": "Reconduction le",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "call_back": "Rappeler",
+            "book_visit": "Fixer une visite",
+            "send_quote": "Envoyer le devis",
+            "follow_up_quote": "Relancer le devis",
+            "confirm_schedule": "Confirmer le planning",
+            "handover": "Livrer et noter la réception des travaux",
+            "check_payment": "Vérifier le paiement",
+            "warranty_check": "Demander s’il y a des défauts",
+            "book_service": "Fixer la visite d’entretien",
+            "other": "Autre"
+          }
+        }
+      },
+      "relationships": {
+        "site_customer": {
+          "sourceLabel": "Client",
+          "targetLabel": "Chantiers"
+        },
+        "job_customer": {
+          "sourceLabel": "Client",
+          "targetLabel": "Dossiers"
+        },
+        "job_site": {
+          "sourceLabel": "Chantier",
+          "targetLabel": "Dossiers"
+        },
+        "agreement_site": {
+          "sourceLabel": "Chantier",
+          "targetLabel": "Contrats d’entretien"
+        },
+        "action_job": {
+          "sourceLabel": "Dossier",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "jobs_board": {
+          "name": "Dossiers par étape"
+        },
+        "jobs_all": {
+          "name": "Tous les dossiers"
+        },
+        "open_quotes": {
+          "name": "Devis en cours"
+        },
+        "work_in_progress": {
+          "name": "Planifiés et en cours"
+        },
+        "customers_all": {
+          "name": "Tous les clients"
+        },
+        "sites_all": {
+          "name": "Tous les chantiers"
+        },
+        "agreements_all": {
+          "name": "Tous les contrats d’entretien"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Actions à venir"
+        },
+        "overdue_actions": {
+          "title": "Actions en retard"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        },
+        "jobs_funnel": {
+          "title": "Dossiers par étape"
+        },
+        "open_quotes_value": {
+          "title": "Montant des devis en cours"
+        },
+        "visits_coming": {
+          "title": "Visites à venir"
+        },
+        "jobs_by_work_status": {
+          "title": "Dossiers acceptés par statut des travaux"
+        },
+        "lost_reasons": {
+          "title": "Motifs de perte des dossiers"
+        },
+        "warranties_ending": {
+          "title": "Garanties qui se terminent"
+        },
+        "services_due": {
+          "title": "Interventions d’entretien à prévoir"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "De la demande au dossier accepté",
+          "sections": [
+            "Réponse, visite et devis : qui fait quoi et en combien de temps",
+            "Revue hebdomadaire des devis en cours, des dossiers à facturer et des factures impayées"
+          ]
+        },
+        "quote_checklist": {
+          "title": "Liste de contrôle du devis",
+          "sections": [
+            "Travaux, exclusions, prix, validité et acompte",
+            "Date de début, conditions de paiement et messages de relance"
+          ]
+        },
+        "withdrawal_and_acceptance": {
+          "title": "Rétractation, livraison et réception",
+          "sections": [
+            "Rétractation du consommateur pour les contrats conclus à domicile et travaux d’urgence",
+            "Liste de contrôle de la livraison et de la réception"
+          ]
+        },
+        "warranty_and_service": {
+          "title": "Garantie, défauts et contrats d’entretien",
+          "sections": [
+            "Comment un défaut est traité",
+            "Proposer et reconduire un contrat d’entretien"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Créer le client, le chantier et le dossier quand le formulaire de demande est envoyé",
+          "description": ""
+        },
+        "call_back_new": {
+          "title": "Rappeler une nouvelle demande le jour même",
+          "description": ""
+        },
+        "quote_after_visit": {
+          "title": "Envoyer le devis dans les 2 jours suivant la visite",
+          "description": ""
+        },
+        "quote_follow_up": {
+          "title": "Relancer 3 jours après l’envoi d’un devis",
+          "description": ""
+        },
+        "quote_expiring": {
+          "title": "Relancer 3 jours avant l’expiration d’un devis",
+          "description": ""
+        },
+        "withdrawal_clock": {
+          "title": "Fixer la fin du délai de rétractation de 14 jours quand un dossier est accepté",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Fixer la fin du délai de rétractation de 7 jours quand un dossier est accepté (Brésil)",
+              "description": "Selon le code brésilien de la consommation (CDC, art. 49), le client peut se rétracter sous 7 jours quand le contrat est conclu hors de l’établissement, par exemple à son domicile."
+            }
+          }
+        },
+        "payment_check": {
+          "title": "Vérifier un dossier facturé 3 jours après l’échéance de paiement",
+          "description": ""
+        },
+        "warranty_check": {
+          "title": "Demander s’il y a des défauts 30 jours avant la fin de la garantie",
+          "description": ""
+        },
+        "service_due": {
+          "title": "Fixer la visite d’entretien 30 jours avant son échéance",
+          "description": ""
+        },
+        "visit_calendar": {
+          "title": "Ajouter la visite à l’agenda quand un dossier atteint l’étape de visite",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Chaque dossier a une étape commerciale.",
+        "work_status_field": "Chaque dossier a un statut de travaux distinct.",
+        "warranty_field": "Chaque dossier indique jusqu’à quand court sa garantie.",
+        "jobs_board_view": "Les dossiers s’ouvrent en board par étape."
+      },
+      "prompt": {
+        "intro": "Mets en place dans mon espace de travail Customermates un pipeline pour une entreprise de travaux : clients, chantiers, dossiers avec étape commerciale et statut des travaux, validité du devis, dates de visite et de chantier, fin de garantie et contrats d’entretien, avec des relances datées.",
+        "questions": [
+          "Quels travaux réalisez-vous, et pour qui : particuliers, bailleurs ou entreprises ?",
+          "En combien de temps répondez-vous à une demande et envoyez-vous un devis après la visite ?",
+          "Quelle est la durée de validité de vos devis, et la durée de votre garantie ?",
+          "Vendez-vous des contrats d’entretien pour du travail récurrent ?"
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "Commesse per artigiani",
+      "summary": "Una pipeline per un'impresa artigiana: richiesta, sopralluogo, preventivo e sollecito, poi il lavoro da programmato a pagato, con date di recesso, garanzia e manutenzione su ogni commessa.",
+      "description": "Segui una commessa dalla prima chiamata all'ultima fattura: clienti e cantieri in cui lavori, commesse con una fase commerciale e uno stato lavori separato, validità del preventivo, sopralluogo e programma, data di recesso per i contratti con i consumatori, fine della garanzia e contratti di manutenzione che portano nuovo lavoro. Conserva la commessa, le date e i solleciti. Non è uno strumento per preventivi e fatture, un sistema di pianificazione delle squadre né un sistema di rilevazione delle ore. Le date legali sono campi che confermi tu, non una consulenza legale.",
+      "lists": {
+        "actions": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un prossimo passo con data per ogni pratica aperta."
+        },
+        "customers": {
+          "label": "Cliente",
+          "pluralLabel": "Clienti",
+          "description": "Privati, proprietari, amministratori di condominio e aziende per cui lavori."
+        },
+        "sites": {
+          "label": "Cantiere",
+          "pluralLabel": "Cantieri",
+          "description": "L'indirizzo dove si svolge il lavoro, che può essere diverso da quello del cliente."
+        },
+        "jobs": {
+          "label": "Commessa",
+          "pluralLabel": "Commesse",
+          "description": "Un lavoro, dalla richiesta ad accettato o perso, poi lungo tutta l'esecuzione."
+        },
+        "agreements": {
+          "label": "Contratto di manutenzione",
+          "pluralLabel": "Contratti di manutenzione",
+          "description": "Manutenzione periodica di un cantiere, con il prossimo intervento e la data di rinnovo."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "waiting": "In attesa",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "customers.customer_type": {
+          "label": "Tipo",
+          "options": {
+            "private": "Privato",
+            "landlord": "Proprietario",
+            "property_manager": "Amministratore di condominio",
+            "commercial": "Azienda",
+            "builder_contractor": "Impresa edile"
+          }
+        },
+        "customers.marketing_ok": {
+          "label": "Consenso ai messaggi promozionali",
+          "options": {}
+        },
+        "sites.address": {
+          "label": "Indirizzo",
+          "options": {}
+        },
+        "sites.access_notes": {
+          "label": "Note sull'accesso",
+          "options": {}
+        },
+        "jobs.stage": {
+          "label": "Fase",
+          "options": {
+            "enquiry": "Richiesta",
+            "assessment": "Sopralluogo",
+            "to_quote": "Preventivo da fare",
+            "quote_sent": "Preventivo inviato",
+            "negotiating": "Trattativa",
+            "won": "Accettata",
+            "lost": "Persa"
+          }
+        },
+        "jobs.work_status": {
+          "label": "Stato dei lavori",
+          "options": {
+            "not_scheduled": "Non programmata",
+            "scheduled": "Programmata",
+            "in_progress": "In corso",
+            "completed": "Completata",
+            "invoiced": "Fatturata",
+            "paid": "Pagata"
+          }
+        },
+        "jobs.work_type": {
+          "label": "Tipo di lavoro",
+          "options": {
+            "repair": "Riparazione",
+            "installation": "Installazione",
+            "renovation": "Ristrutturazione",
+            "maintenance": "Manutenzione",
+            "inspection": "Verifica",
+            "emergency": "Emergenza"
+          }
+        },
+        "jobs.visit_at": {
+          "label": "Sopralluogo",
+          "options": {}
+        },
+        "jobs.quote_valid_until": {
+          "label": "Preventivo valido fino al",
+          "options": {}
+        },
+        "jobs.withdrawal_ends": {
+          "label": "Fine del termine di recesso",
+          "options": {}
+        },
+        "jobs.scheduled_start": {
+          "label": "Inizio lavori",
+          "options": {}
+        },
+        "jobs.completed_on": {
+          "label": "Completata il",
+          "options": {}
+        },
+        "jobs.warranty_ends": {
+          "label": "Garanzia fino al",
+          "options": {}
+        },
+        "jobs.payment_due": {
+          "label": "Scadenza del pagamento",
+          "options": {}
+        },
+        "jobs.lost_reason": {
+          "label": "Motivo della perdita",
+          "options": {
+            "price": "Prezzo",
+            "timing": "Tempi",
+            "chose_competitor": "Ha scelto un concorrente",
+            "no_response": "Nessuna risposta",
+            "job_cancelled": "Lavoro annullato",
+            "other": "Altro"
+          }
+        },
+        "agreements.interval": {
+          "label": "Periodicità",
+          "options": {
+            "monthly": "Mensile",
+            "quarterly": "Trimestrale",
+            "twice_yearly": "Semestrale",
+            "yearly": "Annuale"
+          }
+        },
+        "agreements.status": {
+          "label": "Stato",
+          "options": {
+            "active": "Attivo",
+            "paused": "In pausa",
+            "ended": "Concluso"
+          }
+        },
+        "agreements.next_due": {
+          "label": "Prossimo intervento",
+          "options": {}
+        },
+        "agreements.renewal_on": {
+          "label": "Rinnovo il",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "call_back": "Richiamare",
+            "book_visit": "Fissare un sopralluogo",
+            "send_quote": "Inviare il preventivo",
+            "follow_up_quote": "Sollecitare il preventivo",
+            "confirm_schedule": "Confermare il programma",
+            "handover": "Consegnare e registrare l'accettazione",
+            "check_payment": "Verificare il pagamento",
+            "warranty_check": "Chiedere se ci sono difetti",
+            "book_service": "Fissare l'intervento di manutenzione",
+            "other": "Altro"
+          }
+        }
+      },
+      "relationships": {
+        "site_customer": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Cantieri"
+        },
+        "job_customer": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Commesse"
+        },
+        "job_site": {
+          "sourceLabel": "Cantiere",
+          "targetLabel": "Commesse"
+        },
+        "agreement_site": {
+          "sourceLabel": "Cantiere",
+          "targetLabel": "Contratti di manutenzione"
+        },
+        "action_job": {
+          "sourceLabel": "Commessa",
+          "targetLabel": "Attività"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Tutte le attività"
+        },
+        "jobs_board": {
+          "name": "Commesse per fase"
+        },
+        "jobs_all": {
+          "name": "Tutte le commesse"
+        },
+        "open_quotes": {
+          "name": "Preventivi aperti"
+        },
+        "work_in_progress": {
+          "name": "Programmate e in corso"
+        },
+        "customers_all": {
+          "name": "Tutti i clienti"
+        },
+        "sites_all": {
+          "name": "Tutti i cantieri"
+        },
+        "agreements_all": {
+          "name": "Tutti i contratti di manutenzione"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Attività in arrivo"
+        },
+        "overdue_actions": {
+          "title": "Attività scadute"
+        },
+        "activity_timeline": {
+          "title": "Attività recenti"
+        },
+        "jobs_funnel": {
+          "title": "Commesse per fase"
+        },
+        "open_quotes_value": {
+          "title": "Valore dei preventivi aperti"
+        },
+        "visits_coming": {
+          "title": "Sopralluoghi in arrivo"
+        },
+        "jobs_by_work_status": {
+          "title": "Commesse accettate per stato dei lavori"
+        },
+        "lost_reasons": {
+          "title": "Motivi di perdita delle commesse"
+        },
+        "warranties_ending": {
+          "title": "Garanzie in scadenza"
+        },
+        "services_due": {
+          "title": "Interventi di manutenzione in scadenza"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Da richiesta a commessa",
+          "sections": [
+            "Risposta, sopralluogo e preventivo: chi fa che cosa e con che tempi",
+            "Revisione settimanale di preventivi aperti, commesse da fatturare e fatture non pagate"
+          ]
+        },
+        "quote_checklist": {
+          "title": "Lista di controllo del preventivo",
+          "sections": [
+            "Lavori, esclusioni, prezzo, validità e acconto",
+            "Data di inizio, condizioni di pagamento e messaggi di sollecito"
+          ]
+        },
+        "withdrawal_and_acceptance": {
+          "title": "Recesso, consegna e accettazione",
+          "sections": [
+            "Recesso del consumatore per contratti fuori dai locali e lavori urgenti",
+            "Lista di controllo di consegna e accettazione"
+          ]
+        },
+        "warranty_and_service": {
+          "title": "Garanzia, difetti e contratti di manutenzione",
+          "sections": [
+            "Come si gestisce un difetto",
+            "Proporre e rinnovare un contratto di manutenzione"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Creare cliente, cantiere e commessa quando viene inviato il modulo di richiesta",
+          "description": ""
+        },
+        "call_back_new": {
+          "title": "Richiamare una nuova richiesta lo stesso giorno",
+          "description": ""
+        },
+        "quote_after_visit": {
+          "title": "Inviare il preventivo entro 2 giorni dal sopralluogo",
+          "description": ""
+        },
+        "quote_follow_up": {
+          "title": "Sollecitare 3 giorni dopo l'invio di un preventivo",
+          "description": ""
+        },
+        "quote_expiring": {
+          "title": "Sollecitare 3 giorni prima della scadenza di un preventivo",
+          "description": ""
+        },
+        "withdrawal_clock": {
+          "title": "Fissare la fine dei 14 giorni di recesso quando una commessa è accettata",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Fissare la fine dei 7 giorni di recesso quando una commessa è accettata (Brasile)",
+              "description": "Secondo il codice brasiliano del consumo (CDC, art. 49), il cliente può recedere entro 7 giorni se il contratto è stato concluso fuori dai locali commerciali, per esempio a casa sua."
+            }
+          }
+        },
+        "payment_check": {
+          "title": "Verificare una commessa fatturata 3 giorni dopo la scadenza del pagamento",
+          "description": ""
+        },
+        "warranty_check": {
+          "title": "Chiedere se ci sono difetti 30 giorni prima della fine della garanzia",
+          "description": ""
+        },
+        "service_due": {
+          "title": "Fissare l'intervento di manutenzione 30 giorni prima della scadenza",
+          "description": ""
+        },
+        "visit_calendar": {
+          "title": "Aggiungere il sopralluogo all'agenda quando una commessa raggiunge la fase di sopralluogo",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Ogni commessa ha una fase commerciale.",
+        "work_status_field": "Ogni commessa ha uno stato dei lavori a sé.",
+        "warranty_field": "Ogni commessa indica fino a quando dura la garanzia.",
+        "jobs_board_view": "Le commesse si aprono come board per fase."
+      },
+      "prompt": {
+        "intro": "Imposta nel mio spazio di lavoro Customermates una pipeline per un'impresa artigiana: clienti, cantieri, commesse con fase commerciale e stato dei lavori, validità del preventivo, date di sopralluogo e di cantiere, fine della garanzia e contratti di manutenzione, con solleciti con data.",
+        "questions": [
+          "Quali lavori esegui e per chi: privati, proprietari o aziende?",
+          "Con che rapidità rispondi a una richiesta e invii il preventivo dopo il sopralluogo?",
+          "Quanto durano i tuoi preventivi e quanto dura la tua garanzia?",
+          "Vendi contratti di manutenzione per lavori ricorrenti?"
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "Opdrachten voor vakmensen",
+      "summary": "Een pijplijn voor een vakbedrijf: aanvraag, opname, offerte en opvolging, daarna het werk zelf van ingepland tot betaald, met bedenktijd-, garantie- en onderhoudsdata bij elke opdracht.",
+      "description": "Volg een opdracht van het eerste telefoontje tot de laatste factuur: klanten en projectlocaties waar je werkt, opdrachten met een verkoopfase en een aparte werkstatus, geldigheid van de offerte, opname en planning, einde van de bedenktijd bij consumentencontracten, einde van de garantie en onderhoudscontracten die vervolgwerk opleveren. Het bewaart de opdracht, de data en de opvolging. Geen programma voor offertes en facturen, geen planning van ploegen en geen urenregistratie. Wettelijke data zijn velden die je zelf bevestigt, geen juridisch advies.",
+      "lists": {
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén volgende stap met datum per open dossier."
+        },
+        "customers": {
+          "label": "Klant",
+          "pluralLabel": "Klanten",
+          "description": "Huiseigenaren, verhuurders, vastgoedbeheerders en bedrijven voor wie je werkt."
+        },
+        "sites": {
+          "label": "Locatie",
+          "pluralLabel": "Locaties",
+          "description": "Het adres waar het werk gebeurt, dat kan afwijken van dat van de klant."
+        },
+        "jobs": {
+          "label": "Opdracht",
+          "pluralLabel": "Opdrachten",
+          "description": "Eén stuk werk, van aanvraag tot opdracht of verloren, daarna door de uitvoering."
+        },
+        "agreements": {
+          "label": "Onderhoudscontract",
+          "pluralLabel": "Onderhoudscontracten",
+          "description": "Terugkerend onderhoud van een locatie, met het volgende bezoek en de verlengingsdatum."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "In de wacht",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "customers.customer_type": {
+          "label": "Type",
+          "options": {
+            "private": "Particulier",
+            "landlord": "Verhuurder",
+            "property_manager": "Vastgoedbeheerder",
+            "commercial": "Zakelijk",
+            "builder_contractor": "Aannemer"
+          }
+        },
+        "customers.marketing_ok": {
+          "label": "Toestemming voor marketingberichten",
+          "options": {}
+        },
+        "sites.address": {
+          "label": "Adres",
+          "options": {}
+        },
+        "sites.access_notes": {
+          "label": "Toegangsnotities",
+          "options": {}
+        },
+        "jobs.stage": {
+          "label": "Fase",
+          "options": {
+            "enquiry": "Aanvraag",
+            "assessment": "Opname",
+            "to_quote": "Offerte maken",
+            "quote_sent": "Offerte verstuurd",
+            "negotiating": "Onderhandeling",
+            "won": "Opdracht",
+            "lost": "Verloren"
+          }
+        },
+        "jobs.work_status": {
+          "label": "Werkstatus",
+          "options": {
+            "not_scheduled": "Niet ingepland",
+            "scheduled": "Ingepland",
+            "in_progress": "In uitvoering",
+            "completed": "Opgeleverd",
+            "invoiced": "Gefactureerd",
+            "paid": "Betaald"
+          }
+        },
+        "jobs.work_type": {
+          "label": "Soort werk",
+          "options": {
+            "repair": "Reparatie",
+            "installation": "Installatie",
+            "renovation": "Verbouwing",
+            "maintenance": "Onderhoud",
+            "inspection": "Inspectie",
+            "emergency": "Spoed"
+          }
+        },
+        "jobs.visit_at": {
+          "label": "Opname",
+          "options": {}
+        },
+        "jobs.quote_valid_until": {
+          "label": "Offerte geldig tot",
+          "options": {}
+        },
+        "jobs.withdrawal_ends": {
+          "label": "Einde bedenktijd",
+          "options": {}
+        },
+        "jobs.scheduled_start": {
+          "label": "Start werk",
+          "options": {}
+        },
+        "jobs.completed_on": {
+          "label": "Opgeleverd op",
+          "options": {}
+        },
+        "jobs.warranty_ends": {
+          "label": "Garantie tot",
+          "options": {}
+        },
+        "jobs.payment_due": {
+          "label": "Betalen uiterlijk op",
+          "options": {}
+        },
+        "jobs.lost_reason": {
+          "label": "Reden van verlies",
+          "options": {
+            "price": "Prijs",
+            "timing": "Timing",
+            "chose_competitor": "Koos een concurrent",
+            "no_response": "Geen reactie",
+            "job_cancelled": "Opdracht geannuleerd",
+            "other": "Overig"
+          }
+        },
+        "agreements.interval": {
+          "label": "Interval",
+          "options": {
+            "monthly": "Maandelijks",
+            "quarterly": "Elk kwartaal",
+            "twice_yearly": "Twee keer per jaar",
+            "yearly": "Jaarlijks"
+          }
+        },
+        "agreements.status": {
+          "label": "Status",
+          "options": {
+            "active": "Actief",
+            "paused": "Gepauzeerd",
+            "ended": "Beëindigd"
+          }
+        },
+        "agreements.next_due": {
+          "label": "Volgend bezoek",
+          "options": {}
+        },
+        "agreements.renewal_on": {
+          "label": "Verlenging op",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "call_back": "Terugbellen",
+            "book_visit": "Opname inplannen",
+            "send_quote": "Offerte sturen",
+            "follow_up_quote": "Offerte opvolgen",
+            "confirm_schedule": "Planning bevestigen",
+            "handover": "Opleveren en akkoord vastleggen",
+            "check_payment": "Betaling controleren",
+            "warranty_check": "Naar gebreken vragen aan het einde van de garantie",
+            "book_service": "Onderhoudsbezoek inplannen",
+            "other": "Overig"
+          }
+        }
+      },
+      "relationships": {
+        "site_customer": {
+          "sourceLabel": "Klant",
+          "targetLabel": "Locaties"
+        },
+        "job_customer": {
+          "sourceLabel": "Klant",
+          "targetLabel": "Opdrachten"
+        },
+        "job_site": {
+          "sourceLabel": "Locatie",
+          "targetLabel": "Opdrachten"
+        },
+        "agreement_site": {
+          "sourceLabel": "Locatie",
+          "targetLabel": "Onderhoudscontracten"
+        },
+        "action_job": {
+          "sourceLabel": "Opdracht",
+          "targetLabel": "Acties"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "jobs_board": {
+          "name": "Opdrachten per fase"
+        },
+        "jobs_all": {
+          "name": "Alle opdrachten"
+        },
+        "open_quotes": {
+          "name": "Openstaande offertes"
+        },
+        "work_in_progress": {
+          "name": "Ingepland en in uitvoering"
+        },
+        "customers_all": {
+          "name": "Alle klanten"
+        },
+        "sites_all": {
+          "name": "Alle locaties"
+        },
+        "agreements_all": {
+          "name": "Alle onderhoudscontracten"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Aankomende acties"
+        },
+        "overdue_actions": {
+          "title": "Achterstallige acties"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        },
+        "jobs_funnel": {
+          "title": "Opdrachten per fase"
+        },
+        "open_quotes_value": {
+          "title": "Waarde van openstaande offertes"
+        },
+        "visits_coming": {
+          "title": "Komende opnames"
+        },
+        "jobs_by_work_status": {
+          "title": "Gewonnen opdrachten per werkstatus"
+        },
+        "lost_reasons": {
+          "title": "Waarom opdrachten verloren gingen"
+        },
+        "warranties_ending": {
+          "title": "Garanties die aflopen"
+        },
+        "services_due": {
+          "title": "Onderhoudsbezoeken die aan de beurt zijn"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Van aanvraag naar opdracht",
+          "sections": [
+            "Reactie, opname en offerte: wie doet wat en hoe snel",
+            "Wekelijkse controle van openstaande offertes, te factureren opdrachten en onbetaalde facturen"
+          ]
+        },
+        "quote_checklist": {
+          "title": "Checklist voor de offerte",
+          "sections": [
+            "Werkzaamheden, uitsluitingen, prijs, geldigheid en aanbetaling",
+            "Startdatum, betalingsvoorwaarden en opvolgberichten"
+          ]
+        },
+        "withdrawal_and_acceptance": {
+          "title": "Bedenktijd, oplevering en acceptatie",
+          "sections": [
+            "Herroepingsrecht van de consument bij contracten buiten de verkoopruimte en spoedwerk",
+            "Checklist voor oplevering en acceptatie"
+          ]
+        },
+        "warranty_and_service": {
+          "title": "Garantie, gebreken en onderhoudscontracten",
+          "sections": [
+            "Hoe een gebrek wordt afgehandeld",
+            "Een onderhoudscontract aanbieden en verlengen"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Maak een klant, een locatie en een opdracht aan als het aanvraagformulier is ingediend",
+          "description": ""
+        },
+        "call_back_new": {
+          "title": "Bel een nieuwe aanvraag dezelfde dag terug",
+          "description": ""
+        },
+        "quote_after_visit": {
+          "title": "Stuur de offerte binnen 2 dagen na de opname",
+          "description": ""
+        },
+        "quote_follow_up": {
+          "title": "Volg een offerte 3 dagen na het versturen op",
+          "description": ""
+        },
+        "quote_expiring": {
+          "title": "Volg een offerte 3 dagen voordat ze verloopt op",
+          "description": ""
+        },
+        "withdrawal_clock": {
+          "title": "Leg het einde van de bedenktijd van 14 dagen vast als een opdracht is gewonnen",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Leg het einde van de bedenktijd van 7 dagen vast als een opdracht is gewonnen (Brazilië)",
+              "description": "Volgens het Braziliaanse consumentenwetboek (CDC, art. 49) kan een klant binnen 7 dagen afzien als het contract buiten het bedrijfspand is gesloten, bijvoorbeeld bij hem thuis."
+            }
+          }
+        },
+        "payment_check": {
+          "title": "Controleer een gefactureerde opdracht 3 dagen na de betaaltermijn",
+          "description": ""
+        },
+        "warranty_check": {
+          "title": "Vraag 30 dagen voor het einde van de garantie naar gebreken",
+          "description": ""
+        },
+        "service_due": {
+          "title": "Plan het onderhoudsbezoek 30 dagen voor de vervaldatum in",
+          "description": ""
+        },
+        "visit_calendar": {
+          "title": "Zet de opname in de agenda als een opdracht de opnamefase bereikt",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Elke opdracht heeft een verkoopfase.",
+        "work_status_field": "Elke opdracht heeft een eigen werkstatus.",
+        "warranty_field": "Elke opdracht legt vast tot wanneer de garantie loopt.",
+        "jobs_board_view": "De opdrachten openen als bord per fase."
+      },
+      "prompt": {
+        "intro": "Richt in mijn Customermates-werkruimte een pijplijn voor een vakbedrijf in: klanten, locaties, opdrachten met verkoopfase en werkstatus, geldigheid van de offerte, opname- en uitvoeringsdata, einde van de garantie en onderhoudscontracten, met opvolging met datum.",
+        "questions": [
+          "Welk werk voer je uit en voor wie: particulieren, verhuurders of bedrijven?",
+          "Hoe snel beantwoord je een aanvraag en stuur je na de opname een offerte?",
+          "Hoe lang zijn je offertes geldig en hoe lang is je garantie?",
+          "Verkoop je onderhoudscontracten voor terugkerend werk?"
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Zlecenia dla firm usługowych",
+      "summary": "Lejek dla firmy remontowej lub instalacyjnej: zapytanie, oględziny, wycena i przypomnienie, potem praca od zaplanowanej do opłaconej, z terminami odstąpienia, rękojmi i serwisu przy każdym zleceniu.",
+      "description": "Prowadź zlecenie od pierwszego telefonu do ostatniej faktury: klienci i obiekty, w których pracujesz, zlecenia z etapem sprzedaży i osobnym statusem prac, ważność oferty, oględziny i harmonogram, termin odstąpienia od umowy konsumenckiej, koniec rękojmi oraz umowy serwisowe, które przynoszą kolejne prace. Narzędzie zapisuje zlecenie, terminy i przypomnienia. To nie program do ofert i faktur, planowania ekip ani rejestru czasu pracy. Terminy prawne to pola, które potwierdzasz samodzielnie, a nie porada prawna.",
+      "lists": {
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jeden następny krok z terminem dla każdej otwartej sprawy."
+        },
+        "customers": {
+          "label": "Klient",
+          "pluralLabel": "Klienci",
+          "description": "Właściciele domów, wynajmujący, zarządcy nieruchomości i firmy, dla których pracujesz."
+        },
+        "sites": {
+          "label": "Obiekt",
+          "pluralLabel": "Obiekty",
+          "description": "Adres, pod którym wykonujesz prace, który może różnić się od adresu klienta."
+        },
+        "jobs": {
+          "label": "Zlecenie",
+          "pluralLabel": "Zlecenia",
+          "description": "Jedna praca, od zapytania do przyjętej lub utraconej, potem w trakcie wykonania."
+        },
+        "agreements": {
+          "label": "Umowa serwisowa",
+          "pluralLabel": "Umowy serwisowe",
+          "description": "Cykliczny serwis obiektu z następną wizytą i datą odnowienia."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarte",
+            "waiting": "Oczekuje",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "customers.customer_type": {
+          "label": "Typ",
+          "options": {
+            "private": "Osoba prywatna",
+            "landlord": "Wynajmujący",
+            "property_manager": "Zarządca nieruchomości",
+            "commercial": "Firma",
+            "builder_contractor": "Firma budowlana"
+          }
+        },
+        "customers.marketing_ok": {
+          "label": "Zgoda na wiadomości marketingowe",
+          "options": {}
+        },
+        "sites.address": {
+          "label": "Adres",
+          "options": {}
+        },
+        "sites.access_notes": {
+          "label": "Uwagi o dostępie",
+          "options": {}
+        },
+        "jobs.stage": {
+          "label": "Etap",
+          "options": {
+            "enquiry": "Zapytanie",
+            "assessment": "Oględziny",
+            "to_quote": "Do wyceny",
+            "quote_sent": "Oferta wysłana",
+            "negotiating": "Negocjacje",
+            "won": "Przyjęte",
+            "lost": "Utracone"
+          }
+        },
+        "jobs.work_status": {
+          "label": "Status prac",
+          "options": {
+            "not_scheduled": "Bez terminu",
+            "scheduled": "Zaplanowane",
+            "in_progress": "W toku",
+            "completed": "Zakończone",
+            "invoiced": "Zafakturowane",
+            "paid": "Opłacone"
+          }
+        },
+        "jobs.work_type": {
+          "label": "Rodzaj prac",
+          "options": {
+            "repair": "Naprawa",
+            "installation": "Montaż",
+            "renovation": "Remont",
+            "maintenance": "Konserwacja",
+            "inspection": "Przegląd",
+            "emergency": "Awaria"
+          }
+        },
+        "jobs.visit_at": {
+          "label": "Oględziny",
+          "options": {}
+        },
+        "jobs.quote_valid_until": {
+          "label": "Oferta ważna do",
+          "options": {}
+        },
+        "jobs.withdrawal_ends": {
+          "label": "Koniec terminu odstąpienia",
+          "options": {}
+        },
+        "jobs.scheduled_start": {
+          "label": "Start prac",
+          "options": {}
+        },
+        "jobs.completed_on": {
+          "label": "Data zakończenia prac",
+          "options": {}
+        },
+        "jobs.warranty_ends": {
+          "label": "Data końca rękojmi",
+          "options": {}
+        },
+        "jobs.payment_due": {
+          "label": "Termin płatności",
+          "options": {}
+        },
+        "jobs.lost_reason": {
+          "label": "Powód utraty",
+          "options": {
+            "price": "Cena",
+            "timing": "Nieodpowiedni moment",
+            "chose_competitor": "Klient wybrał konkurencję",
+            "no_response": "Brak odpowiedzi",
+            "job_cancelled": "Zlecenie odwołane",
+            "other": "Inny"
+          }
+        },
+        "agreements.interval": {
+          "label": "Częstotliwość",
+          "options": {
+            "monthly": "Co miesiąc",
+            "quarterly": "Co kwartał",
+            "twice_yearly": "Co pół roku",
+            "yearly": "Co rok"
+          }
+        },
+        "agreements.status": {
+          "label": "Status",
+          "options": {
+            "active": "Aktywna",
+            "paused": "Wstrzymana",
+            "ended": "Zakończona"
+          }
+        },
+        "agreements.next_due": {
+          "label": "Następna wizyta",
+          "options": {}
+        },
+        "agreements.renewal_on": {
+          "label": "Data odnowienia",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "call_back": "Oddzwonić",
+            "book_visit": "Umówić oględziny",
+            "send_quote": "Wysłać ofertę",
+            "follow_up_quote": "Przypomnieć o ofercie",
+            "confirm_schedule": "Potwierdzić harmonogram",
+            "handover": "Przekazać i zapisać odbiór",
+            "check_payment": "Sprawdzić płatność",
+            "warranty_check": "Zapytać o usterki pod koniec rękojmi",
+            "book_service": "Umówić wizytę serwisową",
+            "other": "Inne"
+          }
+        }
+      },
+      "relationships": {
+        "site_customer": {
+          "sourceLabel": "Klient",
+          "targetLabel": "Obiekty"
+        },
+        "job_customer": {
+          "sourceLabel": "Klient",
+          "targetLabel": "Zlecenia"
+        },
+        "job_site": {
+          "sourceLabel": "Obiekt",
+          "targetLabel": "Zlecenia"
+        },
+        "agreement_site": {
+          "sourceLabel": "Obiekt",
+          "targetLabel": "Umowy serwisowe"
+        },
+        "action_job": {
+          "sourceLabel": "Zlecenie",
+          "targetLabel": "Zadania"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "jobs_board": {
+          "name": "Zlecenia według etapu"
+        },
+        "jobs_all": {
+          "name": "Wszystkie zlecenia"
+        },
+        "open_quotes": {
+          "name": "Otwarte oferty"
+        },
+        "work_in_progress": {
+          "name": "Zaplanowane i w toku"
+        },
+        "customers_all": {
+          "name": "Wszyscy klienci"
+        },
+        "sites_all": {
+          "name": "Wszystkie obiekty"
+        },
+        "agreements_all": {
+          "name": "Wszystkie umowy serwisowe"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Nadchodzące zadania"
+        },
+        "overdue_actions": {
+          "title": "Zaległe zadania"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        },
+        "jobs_funnel": {
+          "title": "Zlecenia według etapu"
+        },
+        "open_quotes_value": {
+          "title": "Wartość otwartych ofert"
+        },
+        "visits_coming": {
+          "title": "Nadchodzące oględziny"
+        },
+        "jobs_by_work_status": {
+          "title": "Przyjęte zlecenia według statusu prac"
+        },
+        "lost_reasons": {
+          "title": "Powody utraty zleceń"
+        },
+        "warranties_ending": {
+          "title": "Kończące się rękojmie"
+        },
+        "services_due": {
+          "title": "Wizyty serwisowe do wykonania"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Od zapytania do zlecenia",
+          "sections": [
+            "Odpowiedź, oględziny i wycena: kto co robi i w jakim czasie",
+            "Tygodniowy przegląd otwartych ofert, zleceń do zafakturowania i nieopłaconych faktur"
+          ]
+        },
+        "quote_checklist": {
+          "title": "Lista kontrolna oferty",
+          "sections": [
+            "Zakres, wyłączenia, cena, ważność i zaliczka",
+            "Termin rozpoczęcia, warunki płatności i wiadomości z przypomnieniem"
+          ]
+        },
+        "withdrawal_and_acceptance": {
+          "title": "Odstąpienie, przekazanie i odbiór",
+          "sections": [
+            "Odstąpienie konsumenta od umowy zawartej poza lokalem i prace awaryjne",
+            "Lista kontrolna przekazania i odbioru"
+          ]
+        },
+        "warranty_and_service": {
+          "title": "Rękojmia, usterki i umowy serwisowe",
+          "sections": [
+            "Jak postępujemy z usterką",
+            "Oferowanie i odnawianie umowy serwisowej"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Utwórz klienta, obiekt i zlecenie po wysłaniu formularza zapytania",
+          "description": ""
+        },
+        "call_back_new": {
+          "title": "Oddzwoń w sprawie nowego zapytania tego samego dnia",
+          "description": ""
+        },
+        "quote_after_visit": {
+          "title": "Wyślij ofertę w ciągu 2 dni od oględzin",
+          "description": ""
+        },
+        "quote_follow_up": {
+          "title": "Przypomnij o ofercie 3 dni po jej wysłaniu",
+          "description": ""
+        },
+        "quote_expiring": {
+          "title": "Przypomnij o ofercie 3 dni przed końcem jej ważności",
+          "description": ""
+        },
+        "withdrawal_clock": {
+          "title": "Ustaw koniec 14-dniowego terminu odstąpienia, gdy zlecenie zostanie przyjęte",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Ustaw koniec 7-dniowego terminu odstąpienia, gdy zlecenie zostanie przyjęte (Brazylia)",
+              "description": "Zgodnie z brazylijskim kodeksem ochrony konsumenta (CDC, art. 49) klient może odstąpić od umowy w ciągu 7 dni, gdy zawarto ją poza lokalem przedsiębiorcy, na przykład w jego domu."
+            }
+          }
+        },
+        "payment_check": {
+          "title": "Sprawdź zafakturowane zlecenie 3 dni po terminie płatności",
+          "description": ""
+        },
+        "warranty_check": {
+          "title": "Zapytaj o usterki 30 dni przed końcem rękojmi",
+          "description": ""
+        },
+        "service_due": {
+          "title": "Umów wizytę serwisową 30 dni przed terminem",
+          "description": ""
+        },
+        "visit_calendar": {
+          "title": "Dodaj oględziny do kalendarza, gdy zlecenie trafi na etap oględzin",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Każde zlecenie ma etap sprzedaży.",
+        "work_status_field": "Każde zlecenie ma własny status prac.",
+        "warranty_field": "Każde zlecenie zapisuje, do kiedy trwa rękojmia.",
+        "jobs_board_view": "Zlecenia otwierają się jako tablica według etapu."
+      },
+      "prompt": {
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates lejek dla firmy remontowej lub instalacyjnej: klienci, obiekty, zlecenia z etapem sprzedaży i statusem prac, ważność oferty, terminy oględzin i prac, koniec rękojmi i umowy serwisowe, z zaplanowanymi kolejnymi krokami.",
+        "questions": [
+          "Jakie prace wykonujesz i dla kogo: osób prywatnych, wynajmujących czy firm?",
+          "Jak szybko odpowiadasz na zapytanie i wysyłasz ofertę po oględzinach?",
+          "Jak długo ważne są Twoje oferty i jak długo trwa Twoja rękojmia?",
+          "Czy sprzedajesz umowy serwisowe na prace cykliczne?"
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "Obras e serviços",
+      "summary": "Um funil para uma empresa de serviços e obras: solicitação, visita técnica, orçamento e retorno, e depois a execução de agendada a paga, com datas de arrependimento, garantia e manutenção em cada serviço.",
+      "description": "Acompanhe um serviço da primeira ligação à última nota: clientes e obras onde você atua, serviços com uma etapa comercial e um status da obra separado, validade do orçamento, visita e cronograma, data de arrependimento para contratos com consumidores, fim da garantia e contratos de manutenção que trazem novo trabalho. Guarde o serviço, as datas e o retorno. Não é uma ferramenta de orçamentos e notas, um sistema de escala de equipes nem um controle de horas. As datas legais são campos que você confirma, não aconselhamento jurídico.",
+      "lists": {
+        "actions": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um próximo passo com data para cada item em aberto."
+        },
+        "customers": {
+          "label": "Cliente",
+          "pluralLabel": "Clientes",
+          "description": "Moradores, proprietários, administradoras de condomínio e empresas para quem você trabalha."
+        },
+        "sites": {
+          "label": "Obra",
+          "pluralLabel": "Obras",
+          "description": "O endereço onde o trabalho acontece, que pode ser diferente do cliente."
+        },
+        "jobs": {
+          "label": "Serviço (OS)",
+          "pluralLabel": "Serviços (OS)",
+          "description": "Um trabalho, da solicitação a aprovado ou perdido, e depois ao longo da execução."
+        },
+        "agreements": {
+          "label": "Contrato de manutenção",
+          "pluralLabel": "Contratos de manutenção",
+          "description": "Manutenção recorrente de uma obra, com a próxima visita e a data de renovação."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberta",
+            "waiting": "Aguardando",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "customers.customer_type": {
+          "label": "Tipo",
+          "options": {
+            "private": "Pessoa física",
+            "landlord": "Proprietário",
+            "property_manager": "Administradora de imóveis",
+            "commercial": "Empresa",
+            "builder_contractor": "Construtora"
+          }
+        },
+        "customers.marketing_ok": {
+          "label": "Aceita mensagens de marketing",
+          "options": {}
+        },
+        "sites.address": {
+          "label": "Endereço",
+          "options": {}
+        },
+        "sites.access_notes": {
+          "label": "Observações de acesso",
+          "options": {}
+        },
+        "jobs.stage": {
+          "label": "Etapa",
+          "options": {
+            "enquiry": "Solicitação",
+            "assessment": "Visita técnica",
+            "to_quote": "Orçamento a elaborar",
+            "quote_sent": "Orçamento enviado",
+            "negotiating": "Negociação",
+            "won": "Aprovado",
+            "lost": "Perdido"
+          }
+        },
+        "jobs.work_status": {
+          "label": "Status da obra",
+          "options": {
+            "not_scheduled": "Sem data",
+            "scheduled": "Agendada",
+            "in_progress": "Em andamento",
+            "completed": "Concluída",
+            "invoiced": "Faturada",
+            "paid": "Paga"
+          }
+        },
+        "jobs.work_type": {
+          "label": "Tipo de serviço",
+          "options": {
+            "repair": "Reparo",
+            "installation": "Instalação",
+            "renovation": "Reforma",
+            "maintenance": "Manutenção",
+            "inspection": "Inspeção",
+            "emergency": "Emergência"
+          }
+        },
+        "jobs.visit_at": {
+          "label": "Visita técnica",
+          "options": {}
+        },
+        "jobs.quote_valid_until": {
+          "label": "Validade do orçamento",
+          "options": {}
+        },
+        "jobs.withdrawal_ends": {
+          "label": "Fim do prazo de arrependimento",
+          "options": {}
+        },
+        "jobs.scheduled_start": {
+          "label": "Início da obra",
+          "options": {}
+        },
+        "jobs.completed_on": {
+          "label": "Entrega da obra em",
+          "options": {}
+        },
+        "jobs.warranty_ends": {
+          "label": "Garantia até",
+          "options": {}
+        },
+        "jobs.payment_due": {
+          "label": "Vencimento do pagamento",
+          "options": {}
+        },
+        "jobs.lost_reason": {
+          "label": "Motivo da perda",
+          "options": {
+            "price": "Preço",
+            "timing": "Prazo",
+            "chose_competitor": "Escolheu a concorrência",
+            "no_response": "Sem resposta",
+            "job_cancelled": "Serviço cancelado",
+            "other": "Outro"
+          }
+        },
+        "agreements.interval": {
+          "label": "Periodicidade",
+          "options": {
+            "monthly": "Mensal",
+            "quarterly": "Trimestral",
+            "twice_yearly": "Semestral",
+            "yearly": "Anual"
+          }
+        },
+        "agreements.status": {
+          "label": "Status",
+          "options": {
+            "active": "Ativo",
+            "paused": "Pausado",
+            "ended": "Encerrado"
+          }
+        },
+        "agreements.next_due": {
+          "label": "Próxima visita",
+          "options": {}
+        },
+        "agreements.renewal_on": {
+          "label": "Renovação em",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "call_back": "Retornar a ligação",
+            "book_visit": "Marcar uma visita",
+            "send_quote": "Enviar o orçamento",
+            "follow_up_quote": "Acompanhar o orçamento",
+            "confirm_schedule": "Confirmar o cronograma",
+            "handover": "Entregar e registrar o aceite",
+            "check_payment": "Conferir o pagamento",
+            "warranty_check": "Perguntar sobre defeitos no fim da garantia",
+            "book_service": "Marcar a visita de manutenção",
+            "other": "Outro"
+          }
+        }
+      },
+      "relationships": {
+        "site_customer": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Obras"
+        },
+        "job_customer": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Serviços (OS)"
+        },
+        "job_site": {
+          "sourceLabel": "Obra",
+          "targetLabel": "Serviços (OS)"
+        },
+        "agreement_site": {
+          "sourceLabel": "Obra",
+          "targetLabel": "Contratos de manutenção"
+        },
+        "action_job": {
+          "sourceLabel": "Serviço (OS)",
+          "targetLabel": "Tarefas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas as tarefas"
+        },
+        "jobs_board": {
+          "name": "Serviços por etapa"
+        },
+        "jobs_all": {
+          "name": "Todos os serviços"
+        },
+        "open_quotes": {
+          "name": "Orçamentos em aberto"
+        },
+        "work_in_progress": {
+          "name": "Agendados e em andamento"
+        },
+        "customers_all": {
+          "name": "Todos os clientes"
+        },
+        "sites_all": {
+          "name": "Todas as obras"
+        },
+        "agreements_all": {
+          "name": "Todos os contratos de manutenção"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tarefas"
+        },
+        "overdue_actions": {
+          "title": "Tarefas atrasadas"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        },
+        "jobs_funnel": {
+          "title": "Serviços por etapa"
+        },
+        "open_quotes_value": {
+          "title": "Valor dos orçamentos em aberto"
+        },
+        "visits_coming": {
+          "title": "Visitas próximas"
+        },
+        "jobs_by_work_status": {
+          "title": "Serviços aprovados por status da obra"
+        },
+        "lost_reasons": {
+          "title": "Por que serviços são perdidos"
+        },
+        "warranties_ending": {
+          "title": "Garantias terminando"
+        },
+        "services_due": {
+          "title": "Visitas de manutenção a fazer"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Da solicitação ao serviço aprovado",
+          "sections": [
+            "Resposta, visita e orçamento: quem faz o quê e em quanto tempo",
+            "Revisão semanal de orçamentos em aberto, serviços a faturar e notas em atraso"
+          ]
+        },
+        "quote_checklist": {
+          "title": "Checklist do orçamento",
+          "sections": [
+            "Escopo, exclusões, preço, validade e sinal",
+            "Data de início, condições de pagamento e mensagens de retorno"
+          ]
+        },
+        "withdrawal_and_acceptance": {
+          "title": "Arrependimento, entrega e aceite",
+          "sections": [
+            "Direito de arrependimento do consumidor em contratos fora do estabelecimento (7 dias, CDC, art. 49)",
+            "Checklist de entrega e aceite"
+          ]
+        },
+        "warranty_and_service": {
+          "title": "Garantia, defeitos e contratos de manutenção",
+          "sections": [
+            "Como um defeito é tratado",
+            "Oferecer e renovar um contrato de manutenção"
+          ]
+        }
+      },
+      "rules": {
+        "enquiry_form_records": {
+          "title": "Criar o cliente, a obra e o serviço quando o formulário de solicitação for enviado",
+          "description": ""
+        },
+        "call_back_new": {
+          "title": "Retornar uma solicitação nova no mesmo dia",
+          "description": ""
+        },
+        "quote_after_visit": {
+          "title": "Enviar o orçamento em até 2 dias depois da visita",
+          "description": ""
+        },
+        "quote_follow_up": {
+          "title": "Fazer o retorno 3 dias depois de enviar um orçamento",
+          "description": ""
+        },
+        "quote_expiring": {
+          "title": "Fazer o retorno 3 dias antes de um orçamento vencer",
+          "description": ""
+        },
+        "withdrawal_clock": {
+          "title": "Definir o fim do prazo de arrependimento de 14 dias quando um serviço é aprovado",
+          "description": "",
+          "variants": {
+            "BR": {
+              "title": "Definir o fim do prazo de arrependimento de 7 dias quando um serviço é aprovado",
+              "description": "Pelo Código de Defesa do Consumidor (art. 49), o cliente pode desistir em até 7 dias quando o contrato foi feito fora do estabelecimento, por exemplo na casa dele."
+            }
+          }
+        },
+        "payment_check": {
+          "title": "Conferir um serviço faturado 3 dias depois do vencimento do pagamento",
+          "description": ""
+        },
+        "warranty_check": {
+          "title": "Perguntar sobre defeitos 30 dias antes do fim da garantia",
+          "description": ""
+        },
+        "service_due": {
+          "title": "Marcar a visita de manutenção 30 dias antes do vencimento",
+          "description": ""
+        },
+        "visit_calendar": {
+          "title": "Colocar a visita na agenda quando um serviço chega à etapa de visita",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Todo serviço tem uma etapa comercial.",
+        "work_status_field": "Todo serviço tem um status da obra próprio.",
+        "warranty_field": "Todo serviço registra até quando vai a garantia.",
+        "jobs_board_view": "Os serviços abrem como quadro por etapa."
+      },
+      "prompt": {
+        "intro": "Configure no meu espaço de trabalho do Customermates um funil para uma empresa de obras e serviços: clientes, obras, serviços com etapa comercial e status da obra, validade do orçamento, datas de visita e de obra, fim da garantia e contratos de manutenção, com acompanhamentos com data.",
+        "questions": [
+          "Quais serviços você executa e para quem: pessoas físicas, proprietários ou empresas?",
+          "Em quanto tempo você responde a uma solicitação e envia o orçamento depois da visita?",
+          "Qual a validade dos seus orçamentos e a duração da sua garantia?",
+          "Você vende contratos de manutenção para serviços recorrentes?"
+        ]
+      }
+    }
+  }
+}

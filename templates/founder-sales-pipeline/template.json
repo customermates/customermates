@@ -1,0 +1,147 @@
+{
+  "id": "tpl_founder_sales_pipeline",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "founder-sales-pipeline",
+  "family": "sales",
+  "kind": "pipeline",
+  "jurisdictions": ["global"],
+  "dashboardAudience": "me",
+  "modules": ["actions_core", "actions_dashboard"],
+  "requiresCapabilities": ["forms", "rules"],
+  "pairedPages": {
+    "en": "/features/simple-crm",
+    "de": "/features/simple-crm",
+    "fr": "/features/simple-crm",
+    "it": "/features/simple-crm",
+    "es": "/features/simple-crm",
+    "pt": "/features/simple-crm",
+    "pl": "/features/simple-crm",
+    "nl": "/features/simple-crm"
+  },
+  "lists": [
+    { "key": "contacts", "role": "people", "icon": "contact" },
+    { "key": "companies", "icon": "building" },
+    { "key": "opportunities", "role": "deals", "icon": "rocket" }
+  ],
+  "stages": [
+    {
+      "field": "opportunities.stage",
+      "items": [
+        { "key": "new", "outcome": "open", "weight": 10 },
+        { "key": "discovery_done", "outcome": "open", "weight": 30 },
+        { "key": "pilot", "outcome": "open", "weight": 50 },
+        { "key": "proposal", "outcome": "open", "weight": 70 },
+        { "key": "won", "outcome": "won", "weight": 100 },
+        { "key": "lost", "outcome": "lost", "weight": 0 },
+        { "key": "parked", "outcome": "open", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "contacts.buying_role", "type": "select", "options": [{ "key": "decision_maker" }, { "key": "budget_holder" }, { "key": "champion", "color": "success" }, { "key": "user" }, { "key": "other" }] },
+    { "key": "contacts.outreach_consent", "type": "boolean" },
+    { "key": "companies.relationship", "type": "select", "options": [{ "key": "prospect" }, { "key": "pilot", "color": "info" }, { "key": "customer", "color": "success" }, { "key": "churned", "color": "secondary" }, { "key": "partner" }] },
+    { "key": "companies.size", "type": "select", "options": [{ "key": "micro" }, { "key": "small" }, { "key": "medium" }, { "key": "large" }] },
+    { "key": "companies.website", "type": "url" },
+    { "key": "opportunities.source", "type": "select", "options": [{ "key": "own_network" }, { "key": "introduction" }, { "key": "inbound" }, { "key": "community" }, { "key": "outbound" }, { "key": "event" }] },
+    { "key": "opportunities.problem", "type": "richText" },
+    { "key": "opportunities.urgency", "type": "select", "options": [{ "key": "burning", "color": "destructive" }, { "key": "important", "color": "warning" }, { "key": "nice_to_have", "color": "secondary" }] },
+    { "key": "opportunities.budget_status", "type": "select", "options": [{ "key": "unknown" }, { "key": "has_budget", "color": "success" }, { "key": "needs_budget" }, { "key": "no_budget", "color": "destructive" }] },
+    { "key": "opportunities.decision_maker_engaged", "type": "boolean" },
+    { "key": "opportunities.pilot_end", "type": "date" },
+    { "key": "opportunities.pilot_paid", "type": "boolean" },
+    { "key": "opportunities.expected_close", "type": "date" },
+    { "key": "opportunities.revisit_on", "type": "date" },
+    { "key": "opportunities.next_step_due", "type": "date" },
+    { "key": "opportunities.lost_reason", "type": "select", "options": [{ "key": "no_budget" }, { "key": "no_urgency" }, { "key": "competitor" }, { "key": "built_in_house" }, { "key": "wrong_buyer" }, { "key": "no_response" }, { "key": "not_a_fit" }] },
+    {
+      "key": "actions.kind",
+      "type": "select",
+      "options": [{ "key": "reply" }, { "key": "call" }, { "key": "intro_request" }, { "key": "pilot_check" }, { "key": "proposal" }, { "key": "follow_up" }, { "key": "handover" }, { "key": "review" }, { "key": "other" }]
+    }
+  ],
+  "calculations": [
+    {
+      "key": "opportunities.weighted_value",
+      "type": "currency",
+      "expression": {
+        "op": "divide",
+        "left": { "op": "multiply", "left": { "op": "field", "field": "opportunities.value" }, "right": { "op": "optionWeight", "field": "opportunities.stage" } },
+        "right": { "op": "number", "value": "100" }
+      }
+    }
+  ],
+  "relationships": [
+    { "key": "contact_company", "source": "contacts", "target": "companies", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "opportunity_company", "source": "opportunities", "target": "companies", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "opportunity_contacts", "source": "opportunities", "target": "contacts", "sourceCardinality": "many", "targetCardinality": "many" },
+    { "key": "action_opportunity", "source": "actions", "target": "opportunities", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    { "key": "opportunities_board", "list": "opportunities", "default": true, "layout": "board", "groupBy": "opportunities.stage", "columns": ["opportunities.urgency", "opportunities.budget_status", "opportunities.next_step_due"], "summaries": [{ "field": "opportunities.value", "aggregation": "sum" }] },
+    { "key": "opportunities_all", "list": "opportunities", "default": false, "layout": "table", "sort": { "field": "opportunities.next_step_due", "direction": "asc" }, "columns": ["opportunities.stage", "opportunities.urgency", "opportunities.budget_status", "opportunities.expected_close", "opportunities.next_step_due"] },
+    { "key": "parked_to_revisit", "list": "opportunities", "default": false, "layout": "table", "sort": { "field": "opportunities.revisit_on", "direction": "asc" }, "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["parked"] }] },
+    { "key": "without_next_step", "list": "opportunities", "default": false, "layout": "table", "filters": [{ "operator": "notIn", "field": "opportunities.stage", "options": ["won", "lost", "parked"] }, { "operator": "empty", "field": "opportunities.next_step_due" }] },
+    { "key": "companies_all", "list": "companies", "default": true, "layout": "table", "columns": ["companies.relationship", "companies.size", "companies.website"] },
+    { "key": "contacts_all", "list": "contacts", "default": true, "layout": "table", "columns": ["contacts.buying_role", "contacts.outreach_consent"] }
+  ],
+  "widgets": [
+    { "kind": "chart", "key": "pipeline_funnel", "list": "opportunities", "aggregation": "count", "groupBy": { "field": "opportunities.stage" }, "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["new", "discovery_done", "pilot", "proposal", "won"] }], "display": "funnelChart" },
+    { "kind": "chart", "key": "weighted_pipeline", "list": "opportunities", "aggregation": "sum", "valueField": "opportunities.weighted_value", "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["new", "discovery_done", "pilot", "proposal"] }], "display": "number" },
+    { "kind": "chart", "key": "customers_won", "list": "opportunities", "aggregation": "count", "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["won"] }], "display": "number" },
+    { "kind": "chart", "key": "pilots_running", "list": "opportunities", "aggregation": "count", "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["pilot"] }], "display": "number" },
+    { "kind": "calendar", "key": "pilot_ends", "list": "opportunities", "layout": "upcoming", "dateField": "opportunities.pilot_end", "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["pilot"] }] },
+    { "kind": "calendar", "key": "revisits_coming", "list": "opportunities", "layout": "upcoming", "dateField": "opportunities.revisit_on", "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["parked"] }] },
+    { "kind": "chart", "key": "urgency_split", "list": "opportunities", "aggregation": "count", "groupBy": { "field": "opportunities.urgency" }, "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["new", "discovery_done", "pilot", "proposal"] }], "display": "doughnutChart" },
+    { "kind": "chart", "key": "lost_reasons", "list": "opportunities", "aggregation": "count", "groupBy": { "field": "opportunities.lost_reason" }, "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["lost"] }], "display": "horizontalBarChart" }
+  ],
+  "knowledgePages": [
+    { "key": "founder_playbook", "kind": "overview" },
+    { "key": "discovery_questions", "kind": "salesPlaybook" },
+    { "key": "pilot_plan", "kind": "processes" },
+    { "key": "when_to_hire", "kind": "processes" }
+  ],
+  "followUpRules": [
+    { "key": "enquiry_form_records", "trigger": { "kind": "form_submitted", "form": "enquiry" }, "action": { "kind": "create_records", "lists": ["contacts", "companies", "opportunities"] }, "dueOffsetDays": 0, "needs": "forms" },
+    { "key": "recap_reply", "priority": 1,"trigger": { "kind": "record_created", "list": "opportunities" }, "action": { "kind": "create_task", "taskKind": "reply", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 1, "needs": "today" },
+    { "key": "discovery_proposal", "priority": 2,"trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "discovery_done" }, "action": { "kind": "create_task", "taskKind": "proposal", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 2, "needs": "today" },
+    { "key": "pilot_start_check", "priority": 6,"trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "pilot" }, "action": { "kind": "create_task", "taskKind": "pilot_check", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 14, "needs": "today" },
+    {
+      "key": "pilot_review",
+      "trigger": { "kind": "date_reached", "field": "opportunities.pilot_end", "offsetDays": -3 },
+      "condition": [{ "operator": "in", "field": "opportunities.stage", "options": ["pilot"] }],
+      "action": { "kind": "create_task", "taskKind": "review", "assignee": "record_owner", "about": "opportunities" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "proposal_follow_up", "priority": 3,"trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "proposal" }, "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 3, "needs": "today" },
+    { "key": "parked_revisit_date", "priority": 4,"trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "parked" }, "action": { "kind": "set_dates", "dates": [{ "field": "opportunities.revisit_on", "offsetDays": 90 }] }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "revisit_reopen", "trigger": { "kind": "date_reached", "field": "opportunities.revisit_on", "offsetDays": 0 }, "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "won_handover", "priority": 5,"trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "won" }, "action": { "kind": "create_task", "taskKind": "handover", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 1, "needs": "today" },
+    { "key": "won_intro_request", "priority": 7,"trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "won" }, "action": { "kind": "create_task", "taskKind": "intro_request", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 30, "needs": "today" }
+  ],
+  "acceptanceChecks": [
+    { "key": "stage_field", "kind": "field_exists", "ref": "opportunities.stage" },
+    { "key": "problem_field", "kind": "field_exists", "ref": "opportunities.problem" },
+    { "key": "pilot_end_field", "kind": "field_exists", "ref": "opportunities.pilot_end" },
+    { "key": "opportunities_board_view", "kind": "view_exists", "ref": "opportunities_board" }
+  ],
+  "sources": [
+    { "url": "https://handbook.opencoreventures.com/founder-led-sales", "checkedOn": "2026-11-12" },
+    { "url": "https://startuphub.ai/news/the-sales-playbook-for-founders-from-design-partnerships-to-recurring-revenue", "checkedOn": "2026-11-12" },
+    { "url": "https://www.saastr.com/should-a-startup-founder-handle-sales-when-first-getting-started", "checkedOn": "2026-11-12" },
+    { "url": "https://mercury.com/blog/the-founder-led-sales-blueprint", "checkedOn": "2026-11-12" },
+    { "url": "https://www.folk.app/articles/crm-templates", "checkedOn": "2026-11-12" },
+    { "url": "https://www.quickbase.com/blog/best-crm-for-startups-small-business", "checkedOn": "2026-11-12" },
+    { "url": "https://www.salesforce.com/crm/startup-crm/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.airtable.com/templates/sales-and-customers/expGObpa2AGjv2Z8t/lightweight-crm", "checkedOn": "2026-11-12" },
+    { "url": "https://www.salesbook.com/pl/blog/sprzedaz/crm-jako-wirtualny-asystent-handlowca", "checkedOn": "2026-11-12" },
+    { "url": "https://www.fuer-gruender.de/blog/crm-systeme/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.hubspot.fr/products/crm/crm-for-ceo", "checkedOn": "2026-11-12" },
+    { "url": "https://www.cartelis.com/blog/comparatif-logiciels-crm-marketing/", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "proof", "de": "proof", "fr": "proof", "it": "none", "es": "none", "pt": "none", "pl": "none", "nl": "none" }
+}

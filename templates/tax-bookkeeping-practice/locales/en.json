@@ -1,0 +1,136 @@
+{
+  "locale": "en",
+  "name": "Tax and bookkeeping practice",
+  "summary": "A practice desk with two flows: winning a mandate through an identification step and engagement letter, and doing the recurring work per client, with a deadline register that a second person verifies.",
+  "description": "Run a tax or bookkeeping practice from one place: mandates from inquiry to an active engagement with a money-laundering identification step in between, recurring jobs per client and period with a waiting-for-documents status, and a register of deadlines with a pre-deadline and the person who verified each date. It is the relationship, deadline-evidence and follow-up layer next to your practice software. It does not compute legal dates, file returns, keep ledgers, run payroll or bill time, and it holds no tax IDs or ID copies.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "People at your clients who send documents and sign." },
+    "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Individuals, sole traders, companies and associations you act for." },
+    "mandates": { "label": "Mandate", "pluralLabel": "Mandates", "description": "One engagement from inquiry to active or declined." },
+    "jobs": { "label": "Job", "pluralLabel": "Jobs", "description": "Recurring work for a client and period, such as a monthly close or a VAT return." },
+    "deadlines": { "label": "Deadline", "pluralLabel": "Deadlines", "description": "A legal or authority date with its source, a pre-deadline and the person who verified it." }
+  },
+  "fields": {
+    "contacts.preferred_channel": { "label": "Preferred channel", "options": { "email": "Email", "phone": "Phone", "portal": "Portal", "whatsapp": "WhatsApp", "post": "Post" } },
+    "clients.client_type": { "label": "Type", "options": { "individual": "Individual", "sole_trader": "Sole trader", "company": "Company", "association": "Association" } },
+    "clients.vat_frequency": { "label": "VAT returns", "options": { "monthly": "Monthly", "quarterly": "Quarterly", "annual": "Annual", "not_applicable": "Not applicable" } },
+    "clients.authorisation_on": { "label": "Authorisation on file since" },
+    "clients.aml_risk": {
+      "label": "Money-laundering risk",
+      "options": { "not_assessed": "Not assessed", "low": "Low", "standard": "Standard", "enhanced": "Enhanced", "declined": "Declined" }
+    },
+    "clients.aml_next_review": { "label": "Next risk review" },
+    "mandates.stage": {
+      "label": "Stage",
+      "options": { "inquiry": "Inquiry", "intro_call": "Intro call", "proposal_sent": "Proposal sent", "aml_check": "Identification", "engagement_letter_out": "Engagement letter sent", "active": "Active", "declined": "Declined", "not_going_ahead": "Not going ahead" }
+    },
+    "mandates.services": {
+      "label": "Services",
+      "options": { "bookkeeping": "Bookkeeping", "payroll": "Payroll", "vat_returns": "VAT returns", "annual_accounts": "Annual accounts", "tax_returns": "Tax returns", "advisory": "Advisory" }
+    },
+    "mandates.fee_model": { "label": "Fee model", "options": { "fixed_monthly": "Fixed monthly", "hourly": "Hourly", "per_filing": "Per filing", "value_based": "Value based" } },
+    "mandates.next_step_due": { "label": "Next step due" },
+    "mandates.lost_reason": {
+      "label": "Reason",
+      "options": { "capacity": "No capacity", "risk_declined": "Declined for risk", "scope_mismatch": "Scope mismatch", "price": "Price", "chose_other_advisor": "Chose another advisor", "no_response": "No response" }
+    },
+    "jobs.status": {
+      "label": "Status",
+      "options": { "planned": "Planned", "waiting_for_documents": "Waiting for documents", "in_preparation": "In preparation", "in_review": "In review", "client_approval": "Waiting for client approval", "submitted": "Submitted", "waiting_for_authority": "Waiting for the authority", "done": "Done" }
+    },
+    "jobs.job_type": {
+      "label": "Job type",
+      "options": { "monthly_bookkeeping": "Monthly bookkeeping", "payroll_run": "Payroll run", "vat_return": "VAT return", "annual_accounts": "Annual accounts", "tax_return": "Tax return", "year_end": "Year-end" }
+    },
+    "jobs.period": { "label": "Period" },
+    "jobs.documents_due": { "label": "Documents needed by" },
+    "jobs.internal_due": { "label": "Internal due date" },
+    "jobs.reviewer": { "label": "Reviewer" },
+    "jobs.notice_received_on": { "label": "Authority notice received on" },
+    "deadlines.kind": {
+      "label": "Kind",
+      "options": { "vat_return": "VAT return", "vat_payment": "VAT payment", "payroll_report": "Payroll report", "annual_accounts": "Annual accounts", "tax_return": "Tax return", "appeal": "Appeal", "payment": "Payment", "aml_review": "Risk review", "other": "Other" }
+    },
+    "deadlines.due_date": { "label": "Due date" },
+    "deadlines.pre_deadline": { "label": "Pre-deadline" },
+    "deadlines.source_ref": { "label": "Source of the date" },
+    "deadlines.verified_by": { "label": "Verified by" },
+    "deadlines.status": { "label": "Status", "options": { "open": "Open", "in_progress": "In progress", "filed": "Filed", "extended": "Extended", "cancelled": "Cancelled" } },
+    "actions.kind": {
+      "label": "Kind",
+      "options": {
+        "request_documents": "Request documents",
+        "chase_documents": "Chase documents",
+        "chase_approval": "Chase approval or signature",
+        "review": "Review",
+        "reply": "Reply",
+        "aml": "Identification and risk rating",
+        "filing": "Filing",
+        "other": "Other"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Client", "targetLabel": "Contacts" },
+    "mandate_client": { "sourceLabel": "Client", "targetLabel": "Mandates" },
+    "job_client": { "sourceLabel": "Client", "targetLabel": "Jobs" },
+    "deadline_client": { "sourceLabel": "Client", "targetLabel": "Deadlines" },
+    "action_job": { "sourceLabel": "Job", "targetLabel": "Actions" },
+    "action_client": { "sourceLabel": "Client", "targetLabel": "Actions" }
+  },
+  "views": {
+    "mandates_board": { "name": "Mandates by stage" },
+    "mandates_all": { "name": "All mandates" },
+    "jobs_board": { "name": "Jobs by status" },
+    "jobs_waiting_documents": { "name": "Waiting for documents" },
+    "deadlines_all": { "name": "All deadlines" },
+    "unverified_deadlines": { "name": "Deadlines nobody has verified" },
+    "clients_all": { "name": "All clients" },
+    "contacts_all": { "name": "All contacts" }
+  },
+  "widgets": {
+    "deadlines_coming": { "title": "Deadlines coming up" },
+    "unverified_count": { "title": "Open deadlines without a verifier" },
+    "jobs_by_status": { "title": "Open jobs by status" },
+    "documents_waiting": { "title": "Jobs waiting for documents" },
+    "jobs_waiting_on_client": { "title": "Jobs waiting for client approval" },
+    "mandates_funnel": { "title": "Mandates by stage" },
+    "aml_reviews": { "title": "Risk reviews due" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "How the practice runs", "sections": ["The two flows: winning a mandate and doing the work", "Who owns which stage and the rule of one dated Action per open job"] },
+    "onboarding_and_aml": { "title": "Onboarding and identification", "sections": ["Identifying the client and the beneficial owner, and the risk rating", "Engagement letter checklist (no ID copies are stored here)"] },
+    "deadline_control": { "title": "Deadline control", "sections": ["How a date is entered with its source and verified by a second person", "Pre-deadline check and extension decision"] },
+    "document_checklists": { "title": "Document requests by service", "sections": ["What we ask for each service and by when", "Reminders and what happens when documents stay missing"] }
+  },
+  "rules": {
+    "proposal_follow_up": { "title": "Follow up on a proposal 3 days after it is sent" },
+    "aml_identification": { "title": "Identify the client within 2 days when a mandate reaches the identification stage" },
+    "onboarding_set": { "title": "Request the authorisation and the first documents when a mandate becomes active" },
+    "recontact_not_going_ahead": { "title": "Set the next step to 90 days out when a mandate is not going ahead" },
+    "documents_chase": { "title": "Chase the documents 3 days before they are needed" },
+    "documents_overdue_notice": { "title": "Notify the owner when the documents are due and still missing" },
+    "pre_deadline_check": { "title": "Notify the owner on the pre-deadline of an open deadline" },
+    "due_date_escalation": { "title": "Notify the lead 2 days before an open deadline" },
+    "approval_chase": { "title": "Chase the client approval after 5 days of waiting" },
+    "notice_check": { "title": "Check an authority notice within 3 days of receiving it" },
+    "aml_review": { "title": "Review the risk rating when the next review date arrives" },
+    "monthly_close_jobs": { "title": "Create the monthly jobs at the start of each month" }
+  },
+  "acceptanceChecks": {
+    "mandate_stage_field": "Every mandate has a stage.",
+    "job_status_field": "Every job has a status, including waiting for documents.",
+    "deadline_due_field": "Every deadline records its due date.",
+    "deadline_verifier_field": "Every deadline records who verified it.",
+    "deadline_control_page": "The knowledge base holds a page on deadline control."
+  },
+  "prompt": {
+    "intro": "Set up a tax and bookkeeping practice in my Customermates workspace: mandates from inquiry to active with an identification step, recurring jobs per client and period, a deadline register with a pre-deadline and a verifier, and dated follow-ups. Never compute legal dates and never store ID copies.",
+    "questions": [
+      "Which services do you offer, and which recurring jobs do you run per client?",
+      "In which country do you practise, and which deadlines do you track?",
+      "Who prepares, who reviews, and who verifies a deadline?",
+      "How do you identify new clients, and how often do you review their risk rating?"
+    ]
+  }
+}

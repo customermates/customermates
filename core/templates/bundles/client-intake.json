@@ -1,0 +1,5432 @@
+{
+  "spec": {
+    "id": "tpl_client_intake",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "client-intake",
+    "family": "intake",
+    "kind": "checklist",
+    "jurisdictions": [
+      "global"
+    ],
+    "dashboardAudience": "team",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "calendarWrite",
+      "notifications"
+    ],
+    "pairedPages": {
+      "en": "/for/professional-services",
+      "de": "/for/professional-services",
+      "fr": "/for/professional-services",
+      "it": "/for/professional-services",
+      "es": "/for/professional-services",
+      "pt": "/for/professional-services",
+      "pl": "/for/professional-services",
+      "nl": "/for/professional-services"
+    },
+    "modules": [
+      "actions_core",
+      "actions_dashboard"
+    ],
+    "lists": [
+      {
+        "key": "contacts",
+        "role": "people",
+        "icon": "contact"
+      },
+      {
+        "key": "clients",
+        "icon": "building"
+      },
+      {
+        "key": "intakes",
+        "icon": "clipboard"
+      },
+      {
+        "key": "document_requests",
+        "icon": "files"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "contacts.job_title",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "contacts.contact_role",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "primary"
+          },
+          {
+            "key": "billing"
+          },
+          {
+            "key": "signatory"
+          },
+          {
+            "key": "technical"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "contacts.language",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "contacts.privacy_notice_sent_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "clients.client_type",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "company"
+          },
+          {
+            "key": "sole_trader"
+          },
+          {
+            "key": "individual"
+          },
+          {
+            "key": "organisation"
+          }
+        ]
+      },
+      {
+        "key": "clients.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "clients.website",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "clients.address",
+        "type": "address",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "clients.registration_id",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "clients.source",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "referral"
+          },
+          {
+            "key": "website"
+          },
+          {
+            "key": "event"
+          },
+          {
+            "key": "outbound"
+          },
+          {
+            "key": "partner"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "intakes.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "intakes.service",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "intakes.received_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "intakes.first_response_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "intakes.form_sent_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "intakes.form_received_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "intakes.agreement_sent_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "intakes.agreement_signed_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "intakes.kickoff_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "intakes.fee_model",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "fixed"
+          },
+          {
+            "key": "hourly"
+          },
+          {
+            "key": "retainer"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "intakes.deposit_required",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "intakes.deposit_received_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "intakes.identity_verified_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "intakes.identity_verified_by",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "intakes.conflict_check",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "not_required"
+          },
+          {
+            "key": "pending",
+            "color": "warning"
+          },
+          {
+            "key": "clear",
+            "color": "success"
+          },
+          {
+            "key": "conflict_found",
+            "color": "destructive"
+          }
+        ]
+      },
+      {
+        "key": "intakes.risk_rating",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "not_assessed"
+          },
+          {
+            "key": "low",
+            "color": "success"
+          },
+          {
+            "key": "standard"
+          },
+          {
+            "key": "high",
+            "color": "destructive"
+          }
+        ]
+      },
+      {
+        "key": "intakes.decline_reason",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "conflict"
+          },
+          {
+            "key": "not_a_fit"
+          },
+          {
+            "key": "no_capacity"
+          },
+          {
+            "key": "no_response"
+          },
+          {
+            "key": "client_withdrew"
+          },
+          {
+            "key": "risk"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "intakes.decline_notice_sent_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "intakes.next_step",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "intakes.next_step_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "document_requests.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "identity"
+          },
+          {
+            "key": "proof_of_address"
+          },
+          {
+            "key": "company_register"
+          },
+          {
+            "key": "prior_year_return"
+          },
+          {
+            "key": "contract"
+          },
+          {
+            "key": "questionnaire"
+          },
+          {
+            "key": "access_credentials"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "document_requests.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "requested"
+          },
+          {
+            "key": "partial",
+            "color": "warning"
+          },
+          {
+            "key": "received",
+            "color": "success"
+          },
+          {
+            "key": "needs_correction",
+            "color": "destructive"
+          },
+          {
+            "key": "not_needed",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "document_requests.requested_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "document_requests.needed_by",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "document_requests.received_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "document_requests.where_stored",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "document_requests.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "reply"
+          },
+          {
+            "key": "chase_form"
+          },
+          {
+            "key": "chase_document"
+          },
+          {
+            "key": "review"
+          },
+          {
+            "key": "check"
+          },
+          {
+            "key": "send_agreement"
+          },
+          {
+            "key": "chase_signature"
+          },
+          {
+            "key": "kickoff"
+          },
+          {
+            "key": "decline_letter"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "intakes.stage",
+        "items": [
+          {
+            "key": "enquiry",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "screening",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "form_sent",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "review_checks",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "agreement_sent",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "ready_to_start",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "kickoff_scheduled",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "onboarded",
+            "outcome": "won",
+            "weight": 0
+          },
+          {
+            "key": "declined",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [
+      {
+        "key": "intakes.days_to_first_response",
+        "type": "number",
+        "expression": {
+          "op": "daysBetween",
+          "from": "intakes.received_on",
+          "to": "intakes.first_response_on"
+        }
+      },
+      {
+        "key": "intakes.days_to_kickoff",
+        "type": "number",
+        "expression": {
+          "op": "daysBetween",
+          "from": "intakes.received_on",
+          "to": "intakes.kickoff_on"
+        }
+      }
+    ],
+    "relationships": [
+      {
+        "key": "contact_client",
+        "source": "contacts",
+        "target": "clients",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "intake_client",
+        "source": "intakes",
+        "target": "clients",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "intake_contact",
+        "source": "intakes",
+        "target": "contacts",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "document_request_intake",
+        "source": "document_requests",
+        "target": "intakes",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_intake",
+        "source": "actions",
+        "target": "intakes",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "intakes_all",
+        "list": "intakes",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "intakes.next_step_due",
+          "direction": "asc"
+        },
+        "columns": [
+          "intakes.stage",
+          "intakes.owner",
+          "intakes.service",
+          "intakes.next_step",
+          "intakes.next_step_due"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "intakes_board",
+        "list": "intakes",
+        "default": false,
+        "layout": "board",
+        "groupBy": "intakes.stage",
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "awaiting_signature",
+        "list": "intakes",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "intakes.stage",
+            "options": [
+              "agreement_sent"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "no_first_response",
+        "list": "intakes",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "intakes.stage",
+            "options": [
+              "enquiry"
+            ]
+          },
+          {
+            "operator": "empty",
+            "field": "intakes.first_response_on"
+          }
+        ]
+      },
+      {
+        "key": "declined_intakes",
+        "list": "intakes",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "intakes.stage",
+            "options": [
+              "declined"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "document_requests_all",
+        "list": "document_requests",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "document_requests.needed_by",
+          "direction": "asc"
+        },
+        "columns": [
+          "document_requests.kind",
+          "document_requests.status",
+          "document_requests.needed_by",
+          "document_requests.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "documents_outstanding",
+        "list": "document_requests",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "document_requests.status",
+            "options": [
+              "requested",
+              "partial",
+              "needs_correction"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "clients_all",
+        "list": "clients",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "clients.client_type",
+          "clients.owner",
+          "clients.source"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "contacts_all",
+        "list": "contacts",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "contacts.contact_role",
+          "contacts.language",
+          "contacts.privacy_notice_sent_on"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "chart",
+        "key": "intakes_by_stage",
+        "list": "intakes",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "intakes.stage"
+        },
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "intakes.stage",
+            "options": [
+              "onboarded",
+              "declined"
+            ]
+          }
+        ],
+        "display": "funnelChart",
+        "size": "large"
+      },
+      {
+        "kind": "chart",
+        "key": "open_intakes_by_owner",
+        "list": "intakes",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "intakes.owner"
+        },
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "intakes.stage",
+            "options": [
+              "onboarded",
+              "declined"
+            ]
+          }
+        ],
+        "display": "rankedTable"
+      },
+      {
+        "kind": "chart",
+        "key": "enquiries_without_reply",
+        "list": "intakes",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "intakes.stage",
+            "options": [
+              "enquiry"
+            ]
+          },
+          {
+            "operator": "empty",
+            "field": "intakes.first_response_on"
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "documents_outstanding",
+        "list": "document_requests",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "document_requests.status",
+            "options": [
+              "requested",
+              "partial",
+              "needs_correction"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "awaiting_signature_count",
+        "list": "intakes",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "intakes.stage",
+            "options": [
+              "agreement_sent"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "average_days_to_reply",
+        "list": "intakes",
+        "aggregation": "average",
+        "valueField": "intakes.days_to_first_response",
+        "groupBy": null,
+        "filters": [],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "average_days_to_kickoff",
+        "list": "intakes",
+        "aggregation": "average",
+        "valueField": "intakes.days_to_kickoff",
+        "groupBy": null,
+        "filters": [],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "decline_reasons",
+        "list": "intakes",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "intakes.decline_reason"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "intakes.stage",
+            "options": [
+              "declined"
+            ]
+          }
+        ],
+        "display": "doughnutChart"
+      },
+      {
+        "kind": "chart",
+        "key": "new_intakes_per_month",
+        "list": "intakes",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "intakes.received_on",
+          "dateInterval": "month"
+        },
+        "filters": [],
+        "display": "areaChart"
+      },
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_actions",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "intake_process",
+        "kind": "overview"
+      },
+      {
+        "key": "intake_questionnaire",
+        "kind": "processes"
+      },
+      {
+        "key": "document_requests_guide",
+        "kind": "processes"
+      },
+      {
+        "key": "agreement_checklist",
+        "kind": "processes"
+      },
+      {
+        "key": "regulated_checks",
+        "kind": "processes"
+      },
+      {
+        "key": "privacy_at_intake",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "reply_to_enquiry",
+        "trigger": {
+          "kind": "record_created",
+          "list": "intakes"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "reply",
+          "assignee": "record_owner",
+          "about": "intakes"
+        },
+        "dueOffsetDays": 1,
+        "needs": "today",
+        "priority": 1
+      },
+      {
+        "key": "chase_form",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "intakes.stage",
+          "to": "form_sent"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "chase_form",
+          "assignee": "record_owner",
+          "about": "intakes"
+        },
+        "dueOffsetDays": 3,
+        "needs": "today",
+        "priority": 2
+      },
+      {
+        "key": "chase_document",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "document_requests.needed_by",
+          "offsetDays": 0
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "document_requests.status",
+            "options": [
+              "requested",
+              "partial",
+              "needs_correction"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "chase_document",
+          "assignee": "record_owner",
+          "about": "intakes"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "review_received_document",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "document_requests.status",
+          "to": "received"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "record_owner",
+          "about": "intakes"
+        },
+        "dueOffsetDays": 1,
+        "needs": "today",
+        "priority": 6
+      },
+      {
+        "key": "chase_signature",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "intakes.stage",
+          "to": "agreement_sent"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "chase_signature",
+          "assignee": "record_owner",
+          "about": "intakes"
+        },
+        "dueOffsetDays": 7,
+        "needs": "today",
+        "priority": 3
+      },
+      {
+        "key": "decline_letter",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "intakes.stage",
+          "to": "declined"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "decline_letter",
+          "assignee": "record_owner",
+          "about": "intakes"
+        },
+        "dueOffsetDays": 1,
+        "needs": "today",
+        "priority": 5
+      },
+      {
+        "key": "kickoff_event",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "intakes.kickoff_on"
+        },
+        "condition": [],
+        "action": {
+          "kind": "add_calendar_event",
+          "dateField": "intakes.kickoff_on"
+        },
+        "dueOffsetDays": 0,
+        "needs": "calendarWrite"
+      },
+      {
+        "key": "first_value_check",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "intakes.stage",
+          "to": "onboarded"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "check",
+          "assignee": "record_owner",
+          "about": "intakes"
+        },
+        "dueOffsetDays": 14,
+        "needs": "today",
+        "priority": 7
+      },
+      {
+        "key": "stalled_intake",
+        "trigger": {
+          "kind": "unchanged_for",
+          "field": "intakes.stage",
+          "days": 7
+        },
+        "condition": [
+          {
+            "operator": "notIn",
+            "field": "intakes.stage",
+            "options": [
+              "onboarded",
+              "declined"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "record_owner",
+          "about": "intakes"
+        },
+        "dueOffsetDays": 0,
+        "needs": "today",
+        "priority": 4
+      },
+      {
+        "key": "intake_form_records",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "intake"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "clients",
+            "contacts",
+            "intakes"
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "forms"
+      },
+      {
+        "key": "intake_form_notice",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "intake"
+        },
+        "condition": [],
+        "action": {
+          "kind": "notify",
+          "recipient": "workspace_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "stage_field",
+        "kind": "field_exists",
+        "ref": "intakes.stage"
+      },
+      {
+        "key": "first_response_field",
+        "kind": "field_exists",
+        "ref": "intakes.first_response_on"
+      },
+      {
+        "key": "document_requests_list",
+        "kind": "list_exists",
+        "ref": "document_requests"
+      },
+      {
+        "key": "intakes_board_view",
+        "kind": "view_exists",
+        "ref": "intakes_board"
+      },
+      {
+        "key": "chase_signature_rule",
+        "kind": "rule_exists",
+        "ref": "chase_signature"
+      },
+      {
+        "key": "process_page",
+        "kind": "page_exists",
+        "ref": "intake_process"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://zapier.com/blog/client-onboarding-checklist/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://karbonhq.com/templates/client-onboarding-checklist-template/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://clustdoc.com/blog/onboarding-checklist-templates/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.rocketlane.com/blogs/client-onboarding",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://app.manifest.ly/public/checklists/04916cf60d40e88bbc2e03a394672140",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://clickup.com/blog/client-onboarding-questionnaire/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.deubner-steuern.de/themen/transparenzregister/geldwaeschegesetz/sorgfaltspflichten.html",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.omie.com.br/blog/ficha-de-cadastro-de-clientes-o-que-nao-pode-faltar/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.jotform.com/pt/form-templates/ficha-cadastral-de-cliente",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://negoziopronto.it/risorse-gratuite/scheda-cliente",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://factorial.es/blog/ficha-de-cliente-como-elaborar-una-base-de-datos/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.cnil.fr/fr/cnil-direct/question/gestion-des-clients-et-prospects-que-faire",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "status": {
+      "en": "draft",
+      "de": "draft",
+      "fr": "draft",
+      "it": "draft",
+      "es": "draft",
+      "pt": "draft",
+      "pl": "draft",
+      "nl": "draft"
+    },
+    "publicPage": {
+      "en": "own",
+      "de": "none",
+      "fr": "own",
+      "it": "own",
+      "es": "own",
+      "pt": "own",
+      "pl": "own",
+      "nl": "own"
+    },
+    "publishWave": {
+      "en": "hold",
+      "fr": "wave2",
+      "it": "wave1",
+      "es": "wave2",
+      "pt": "wave2",
+      "pl": "wave1",
+      "nl": "wave1"
+    }
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Mandantenaufnahme und Onboarding",
+      "summary": "Eine Aufnahme pro Mandat: Anfrage, Vorprüfung, Fragebogen, Unterlagenanforderung, Auftragsbestätigung und Kickoff, mit einem Termin je Phase und einem Grund bei Ablehnung.",
+      "description": "Eine kurze Pipeline für die Aufnahme neuer Kunden und Mandanten: binnen eines Tages antworten, auf Passung prüfen, Fragebogen senden, Unterlagen einholen, Auftragsbestätigung senden, starten. Regulierte Berufe halten fest, wer wann identifiziert hat, nie das Dokument selbst. Kein Werkzeug für elektronische Signatur, Geldwäscheprüfung oder Zahlungen.",
+      "lists": {
+        "actions": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "contacts": {
+          "label": "Ansprechpartner",
+          "pluralLabel": "Ansprechpartner",
+          "description": "Die Personen beim Mandanten: Hauptkontakt, Buchhaltung, Unterzeichner."
+        },
+        "clients": {
+          "label": "Mandant",
+          "pluralLabel": "Mandanten",
+          "description": "Unternehmen, Einzelunternehmer und Privatpersonen, die du aufnimmst."
+        },
+        "intakes": {
+          "label": "Aufnahme",
+          "pluralLabel": "Aufnahmen",
+          "description": "Eine Aufnahme pro Mandat, von der Anfrage bis aufgenommen oder abgelehnt."
+        },
+        "document_requests": {
+          "label": "Unterlagenanforderung",
+          "pluralLabel": "Unterlagenanforderungen",
+          "description": "Eine Zeile pro Unterlage, die du vom Mandanten anforderst."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "intakes.stage": {
+          "label": "Phase",
+          "options": {
+            "enquiry": "Anfrage",
+            "screening": "Vorprüfung",
+            "form_sent": "Fragebogen versendet",
+            "review_checks": "Prüfung und Identifizierung",
+            "agreement_sent": "Auftragsbestätigung versendet",
+            "ready_to_start": "Startbereit",
+            "kickoff_scheduled": "Kickoff geplant",
+            "onboarded": "Aufgenommen",
+            "declined": "Abgelehnt"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Position",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Rolle",
+          "options": {
+            "primary": "Hauptansprechpartner",
+            "billing": "Buchhaltung",
+            "signatory": "Unterzeichner",
+            "technical": "Technik",
+            "other": "Sonstige"
+          }
+        },
+        "contacts.language": {
+          "label": "Sprache",
+          "options": {}
+        },
+        "contacts.privacy_notice_sent_on": {
+          "label": "Datenschutzhinweis gesendet am",
+          "options": {}
+        },
+        "clients.client_type": {
+          "label": "Mandantenart",
+          "options": {
+            "company": "Unternehmen",
+            "sole_trader": "Einzelunternehmer",
+            "individual": "Privatperson",
+            "organisation": "Verein oder Organisation"
+          }
+        },
+        "clients.owner": {
+          "label": "Betreuer",
+          "options": {}
+        },
+        "clients.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "clients.address": {
+          "label": "Anschrift",
+          "options": {}
+        },
+        "clients.registration_id": {
+          "label": "Handelsregister- oder Steuernummer",
+          "options": {}
+        },
+        "clients.source": {
+          "label": "Herkunft",
+          "options": {
+            "referral": "Empfehlung",
+            "website": "Website",
+            "event": "Veranstaltung",
+            "outbound": "Eigene Akquise",
+            "partner": "Partner",
+            "other": "Sonstige"
+          }
+        },
+        "intakes.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "intakes.service": {
+          "label": "Leistung",
+          "options": {}
+        },
+        "intakes.received_on": {
+          "label": "Eingegangen am",
+          "options": {}
+        },
+        "intakes.first_response_on": {
+          "label": "Erste Antwort am",
+          "options": {}
+        },
+        "intakes.form_sent_on": {
+          "label": "Fragebogen gesendet am",
+          "options": {}
+        },
+        "intakes.form_received_on": {
+          "label": "Fragebogen erhalten am",
+          "options": {}
+        },
+        "intakes.agreement_sent_on": {
+          "label": "Auftragsbestätigung gesendet am",
+          "options": {}
+        },
+        "intakes.agreement_signed_on": {
+          "label": "Auftragsbestätigung unterschrieben am",
+          "options": {}
+        },
+        "intakes.kickoff_on": {
+          "label": "Kickoff am",
+          "options": {}
+        },
+        "intakes.fee_model": {
+          "label": "Honorarmodell",
+          "options": {
+            "fixed": "Festpreis",
+            "hourly": "Stundensatz",
+            "retainer": "Monatspauschale",
+            "other": "Sonstige"
+          }
+        },
+        "intakes.deposit_required": {
+          "label": "Vorschuss erforderlich",
+          "options": {}
+        },
+        "intakes.deposit_received_on": {
+          "label": "Vorschuss erhalten am",
+          "options": {}
+        },
+        "intakes.identity_verified_on": {
+          "label": "Identifiziert am",
+          "options": {}
+        },
+        "intakes.identity_verified_by": {
+          "label": "Identifiziert durch",
+          "options": {}
+        },
+        "intakes.conflict_check": {
+          "label": "Interessenkonflikt-Prüfung",
+          "options": {
+            "not_required": "Nicht erforderlich",
+            "pending": "Offen",
+            "clear": "Unbedenklich",
+            "conflict_found": "Konflikt festgestellt"
+          }
+        },
+        "intakes.risk_rating": {
+          "label": "Risikoeinstufung",
+          "options": {
+            "not_assessed": "Nicht bewertet",
+            "low": "Gering",
+            "standard": "Normal",
+            "high": "Hoch"
+          }
+        },
+        "intakes.decline_reason": {
+          "label": "Ablehnungsgrund",
+          "options": {
+            "conflict": "Interessenkonflikt",
+            "not_a_fit": "Passt nicht",
+            "no_capacity": "Keine Kapazität",
+            "no_response": "Keine Antwort",
+            "client_withdrew": "Mandant hat zurückgezogen",
+            "risk": "Risiko",
+            "other": "Sonstiges"
+          }
+        },
+        "intakes.decline_notice_sent_on": {
+          "label": "Absage gesendet am",
+          "options": {}
+        },
+        "intakes.next_step": {
+          "label": "Nächster Schritt",
+          "options": {}
+        },
+        "intakes.next_step_due": {
+          "label": "Wiedervorlage am",
+          "options": {}
+        },
+        "intakes.days_to_first_response": {
+          "label": "Tage bis zur ersten Antwort",
+          "options": {}
+        },
+        "intakes.days_to_kickoff": {
+          "label": "Tage bis zum Kickoff",
+          "options": {}
+        },
+        "document_requests.kind": {
+          "label": "Art",
+          "options": {
+            "identity": "Ausweis",
+            "proof_of_address": "Adressnachweis",
+            "company_register": "Handelsregisterauszug",
+            "prior_year_return": "Steuererklärung des Vorjahres",
+            "contract": "Vertrag",
+            "questionnaire": "Fragebogen",
+            "access_credentials": "Zugangsdaten",
+            "other": "Sonstige"
+          }
+        },
+        "document_requests.status": {
+          "label": "Status",
+          "options": {
+            "requested": "Angefordert",
+            "partial": "Teilweise erhalten",
+            "received": "Erhalten",
+            "needs_correction": "Muss korrigiert werden",
+            "not_needed": "Nicht nötig"
+          }
+        },
+        "document_requests.requested_on": {
+          "label": "Angefordert am",
+          "options": {}
+        },
+        "document_requests.needed_by": {
+          "label": "Frist bis",
+          "options": {}
+        },
+        "document_requests.received_on": {
+          "label": "Erhalten am",
+          "options": {}
+        },
+        "document_requests.where_stored": {
+          "label": "Ablageort",
+          "options": {}
+        },
+        "document_requests.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "reply": "Antwort",
+            "chase_form": "Fragebogen nachfassen",
+            "chase_document": "Unterlage nachfassen",
+            "review": "Prüfung",
+            "check": "Kontrolle",
+            "send_agreement": "Auftragsbestätigung senden",
+            "chase_signature": "Unterschrift nachfassen",
+            "kickoff": "Kickoff",
+            "decline_letter": "Absage",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Mandant",
+          "targetLabel": "Ansprechpartner"
+        },
+        "intake_client": {
+          "sourceLabel": "Mandant",
+          "targetLabel": "Aufnahmen"
+        },
+        "intake_contact": {
+          "sourceLabel": "Hauptansprechpartner",
+          "targetLabel": "Aufnahmen"
+        },
+        "document_request_intake": {
+          "sourceLabel": "Aufnahme",
+          "targetLabel": "Unterlagenanforderungen"
+        },
+        "action_intake": {
+          "sourceLabel": "Aufnahme",
+          "targetLabel": "Aufgaben"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle Aufgaben"
+        },
+        "intakes_all": {
+          "name": "Alle Aufnahmen"
+        },
+        "intakes_board": {
+          "name": "Aufnahmen nach Phase"
+        },
+        "awaiting_signature": {
+          "name": "Wartet auf Unterschrift"
+        },
+        "no_first_response": {
+          "name": "Ohne erste Antwort"
+        },
+        "declined_intakes": {
+          "name": "Abgelehnt"
+        },
+        "document_requests_all": {
+          "name": "Alle Unterlagenanforderungen"
+        },
+        "documents_outstanding": {
+          "name": "Wartet auf Unterlagen"
+        },
+        "clients_all": {
+          "name": "Alle Mandanten"
+        },
+        "contacts_all": {
+          "name": "Alle Ansprechpartner"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Anstehende Aufgaben"
+        },
+        "overdue_actions": {
+          "title": "Überfällige Aufgaben"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        },
+        "intakes_by_stage": {
+          "title": "Offene Aufnahmen nach Phase"
+        },
+        "open_intakes_by_owner": {
+          "title": "Offene Aufnahmen je Zuständigem"
+        },
+        "enquiries_without_reply": {
+          "title": "Anfragen ohne erste Antwort"
+        },
+        "documents_outstanding": {
+          "title": "Ausstehende Unterlagen"
+        },
+        "awaiting_signature_count": {
+          "title": "Wartet auf Unterschrift"
+        },
+        "average_days_to_reply": {
+          "title": "Durchschnittliche Tage bis zur ersten Antwort"
+        },
+        "average_days_to_kickoff": {
+          "title": "Durchschnittliche Tage bis zum Kickoff"
+        },
+        "decline_reasons": {
+          "title": "Ablehnungsgründe"
+        },
+        "new_intakes_per_month": {
+          "title": "Neue Aufnahmen pro Monat"
+        }
+      },
+      "knowledgePages": {
+        "intake_process": {
+          "title": "Ablauf der Mandantenaufnahme",
+          "sections": [
+            "Die neun Phasen und was jede abschließt",
+            "Wer antwortet, wer prüft, wer unterschreibt",
+            "Zeitrahmen: binnen eines Tages antworten, nach 3 und 7 Tagen nachfassen"
+          ]
+        },
+        "intake_questionnaire": {
+          "title": "Fragebogen nach Mandantenart",
+          "sections": [
+            "Unternehmen, Einzelunternehmer, Privatperson, Verein",
+            "Fragen, die über die Passung entscheiden",
+            "Wonach du nie fragst"
+          ]
+        },
+        "document_requests_guide": {
+          "title": "Unterlagenliste und Erinnerungsnachrichten",
+          "sections": [
+            "Standardliste je Leistung",
+            "Erste Anforderung und Erinnerungen",
+            "Wenn eine Unterlage korrigiert werden muss"
+          ]
+        },
+        "agreement_checklist": {
+          "title": "Checkliste Auftragsbestätigung",
+          "sections": [
+            "Umfang, Honorarmodell und Vorschuss",
+            "Wer in welchem Werkzeug unterschreibt",
+            "Was zu tun ist, wenn die Unterschrift fehlt"
+          ]
+        },
+        "regulated_checks": {
+          "title": "Identifizierung, Konflikt- und Risikoprüfung für regulierte Berufe",
+          "sections": [
+            "Festhalten, wer wann geprüft hat, nie das Dokument",
+            "Konfliktabfrage vor Arbeitsbeginn",
+            "Risikoeinstufung und wann abzulehnen ist"
+          ]
+        },
+        "privacy_at_intake": {
+          "title": "Datenschutz: was wir bei der Aufnahme erheben und warum",
+          "sections": [
+            "Zweck und Rechtsgrundlage",
+            "Was nicht in den Workspace gehört",
+            "Aufbewahrung und Löschanfragen"
+          ]
+        }
+      },
+      "rules": {
+        "reply_to_enquiry": {
+          "title": "Auf die Anfrage antworten",
+          "description": "Eine neue Aufnahme erhält eine Antwortaufgabe, fällig am nächsten Tag."
+        },
+        "chase_form": {
+          "title": "Fragebogen nachfassen",
+          "description": "Drei Tage nach dem Versand des Fragebogens wird eine Nachfrageaufgabe fällig."
+        },
+        "chase_document": {
+          "title": "Fehlende Unterlage nachfassen",
+          "description": "Erreicht die Frist einer offenen Unterlagenanforderung ihr Datum, entsteht eine Nachfrageaufgabe."
+        },
+        "review_received_document": {
+          "title": "Erhaltene Unterlage prüfen",
+          "description": "Wird eine Unterlage als erhalten markiert, ist am nächsten Tag eine Prüfaufgabe fällig."
+        },
+        "chase_signature": {
+          "title": "Unterschrift nachfassen",
+          "description": "Sieben Tage nach dem Versand der Auftragsbestätigung wird eine Nachfrageaufgabe fällig."
+        },
+        "decline_letter": {
+          "title": "Absage senden",
+          "description": "Eine abgelehnte Aufnahme erhält eine Absageaufgabe für den nächsten Tag. Schreibe, dass kein Mandat besteht, und nenne nahende Fristen."
+        },
+        "kickoff_event": {
+          "title": "Kickoff in den Kalender eintragen",
+          "description": "Ist das Kickoff-Datum gesetzt, wird der Termin in den Kalender des Zuständigen geschrieben."
+        },
+        "first_value_check": {
+          "title": "Erstes Ergebnis prüfen",
+          "description": "Vierzehn Tage nach der Aufnahme fragt eine Kontrollaufgabe, ob der Mandant ein erstes Ergebnis gesehen hat."
+        },
+        "stalled_intake": {
+          "title": "Festgefahrene Aufnahme prüfen",
+          "description": "Eine offene Aufnahme, die 7 Tage in derselben Phase blieb, erhält eine Prüfaufgabe."
+        },
+        "intake_form_records": {
+          "title": "Mandant, Ansprechpartner und Aufnahme aus dem Formular anlegen",
+          "description": "Ein öffentliches Aufnahmeformular legt den Mandanten, den Ansprechpartner und eine Aufnahme in der Phase Anfrage an."
+        },
+        "intake_form_notice": {
+          "title": "Den Zuständigen über die neue Aufnahme informieren",
+          "description": "Die Inhaberin oder der Inhaber des Workspaces wird über jede Einsendung benachrichtigt."
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Jede Aufnahme hat eine von neun Phasen.",
+        "first_response_field": "Jede Aufnahme hält fest, wann du zuerst geantwortet hast.",
+        "document_requests_list": "Unterlagenanforderungen stehen in einer eigenen Liste.",
+        "intakes_board_view": "Die Aufnahmeliste lässt sich als Board nach Phase ansehen.",
+        "chase_signature_rule": "Eine versendete Auftragsbestätigung erhält nach 7 Tagen eine Nachfrageaufgabe.",
+        "process_page": "Die Wissensdatenbank enthält den Aufnahmeablauf."
+      },
+      "prompt": {
+        "intro": "Richte die Mandantenaufnahme in meinem Customermates-Workspace ein: eine Aufnahme pro Mandat mit neun Phasen, Unterlagenanforderungen, einem Termin in jeder Phase, einem Ablehnungsgrund und optionalen Identifizierungs-, Konflikt- und Risikoprüfungen, die festhalten, wer wann geprüft hat.",
+        "questions": [
+          "Was verkaufst du, und wer sind deine Mandanten: Unternehmen, Einzelunternehmer oder Privatpersonen?",
+          "Welche Schritte durchläuft ein neuer Mandant heute, und welche der neun Phasen brauchst du nicht?",
+          "Ist dein Beruf reguliert, sodass Identifizierung, Konflikt- oder Risikoprüfung festgehalten werden müssen? In welchem Land?",
+          "Welche Unterlagen forderst du immer an, und wo legst du sie ab? Hier wird nur ein Link gespeichert.",
+          "Wo unterschreiben Mandanten die Auftragsbestätigung? Sie bleibt dort, die Daten werden hier festgehalten."
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Client intake and onboarding",
+      "summary": "One intake per engagement: inquiry, screening, form, document requests, agreement and kickoff, with a dated step at every stage and a reason when you decline.",
+      "description": "A short pipeline for taking on a new client: reply within a day, screen for fit, send the intake form, collect documents, send the agreement, start. Regulated professions can record who verified identity and when, never the document itself. Not an e-signature, KYC or payment tool.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "The people at each client: primary, billing, signatory."
+        },
+        "clients": {
+          "label": "Client",
+          "pluralLabel": "Clients",
+          "description": "Companies, sole traders and individuals you take on."
+        },
+        "intakes": {
+          "label": "Intake",
+          "pluralLabel": "Intakes",
+          "description": "One intake per engagement, from inquiry to onboarded or declined."
+        },
+        "document_requests": {
+          "label": "Document request",
+          "pluralLabel": "Document requests",
+          "description": "One row per document you ask a client for."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "intakes.stage": {
+          "label": "Stage",
+          "options": {
+            "enquiry": "Inquiry",
+            "screening": "Screening",
+            "form_sent": "Intake form sent",
+            "review_checks": "Review and checks",
+            "agreement_sent": "Agreement sent",
+            "ready_to_start": "Ready to start",
+            "kickoff_scheduled": "Kickoff scheduled",
+            "onboarded": "Onboarded",
+            "declined": "Declined"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Job title",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Role",
+          "options": {
+            "primary": "Primary contact",
+            "billing": "Billing",
+            "signatory": "Signatory",
+            "technical": "Technical",
+            "other": "Other"
+          }
+        },
+        "contacts.language": {
+          "label": "Language",
+          "options": {}
+        },
+        "contacts.privacy_notice_sent_on": {
+          "label": "Privacy notice sent on",
+          "options": {}
+        },
+        "clients.client_type": {
+          "label": "Client type",
+          "options": {
+            "company": "Company",
+            "sole_trader": "Sole trader",
+            "individual": "Individual",
+            "organisation": "Organization"
+          }
+        },
+        "clients.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "clients.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "clients.address": {
+          "label": "Address",
+          "options": {}
+        },
+        "clients.registration_id": {
+          "label": "Company registration or tax number",
+          "options": {}
+        },
+        "clients.source": {
+          "label": "Source",
+          "options": {
+            "referral": "Referral",
+            "website": "Website",
+            "event": "Event",
+            "outbound": "Outbound",
+            "partner": "Partner",
+            "other": "Other"
+          }
+        },
+        "intakes.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "intakes.service": {
+          "label": "Service",
+          "options": {}
+        },
+        "intakes.received_on": {
+          "label": "Received on",
+          "options": {}
+        },
+        "intakes.first_response_on": {
+          "label": "First response on",
+          "options": {}
+        },
+        "intakes.form_sent_on": {
+          "label": "Form sent on",
+          "options": {}
+        },
+        "intakes.form_received_on": {
+          "label": "Form received on",
+          "options": {}
+        },
+        "intakes.agreement_sent_on": {
+          "label": "Agreement sent on",
+          "options": {}
+        },
+        "intakes.agreement_signed_on": {
+          "label": "Agreement signed on",
+          "options": {}
+        },
+        "intakes.kickoff_on": {
+          "label": "Kickoff on",
+          "options": {}
+        },
+        "intakes.fee_model": {
+          "label": "Fee model",
+          "options": {
+            "fixed": "Fixed fee",
+            "hourly": "Hourly",
+            "retainer": "Retainer",
+            "other": "Other"
+          }
+        },
+        "intakes.deposit_required": {
+          "label": "Deposit required",
+          "options": {}
+        },
+        "intakes.deposit_received_on": {
+          "label": "Deposit received on",
+          "options": {}
+        },
+        "intakes.identity_verified_on": {
+          "label": "Identity verified on",
+          "options": {}
+        },
+        "intakes.identity_verified_by": {
+          "label": "Identity verified by",
+          "options": {}
+        },
+        "intakes.conflict_check": {
+          "label": "Conflict check",
+          "options": {
+            "not_required": "Not required",
+            "pending": "Pending",
+            "clear": "Clear",
+            "conflict_found": "Conflict found"
+          }
+        },
+        "intakes.risk_rating": {
+          "label": "Risk rating",
+          "options": {
+            "not_assessed": "Not assessed",
+            "low": "Low",
+            "standard": "Standard",
+            "high": "High"
+          }
+        },
+        "intakes.decline_reason": {
+          "label": "Decline reason",
+          "options": {
+            "conflict": "Conflict",
+            "not_a_fit": "Not a fit",
+            "no_capacity": "No capacity",
+            "no_response": "No response",
+            "client_withdrew": "Client withdrew",
+            "risk": "Risk",
+            "other": "Other"
+          }
+        },
+        "intakes.decline_notice_sent_on": {
+          "label": "Decline notice sent on",
+          "options": {}
+        },
+        "intakes.next_step": {
+          "label": "Next step",
+          "options": {}
+        },
+        "intakes.next_step_due": {
+          "label": "Next step due",
+          "options": {}
+        },
+        "intakes.days_to_first_response": {
+          "label": "Days to first response",
+          "options": {}
+        },
+        "intakes.days_to_kickoff": {
+          "label": "Days to kickoff",
+          "options": {}
+        },
+        "document_requests.kind": {
+          "label": "Kind",
+          "options": {
+            "identity": "Identity",
+            "proof_of_address": "Proof of address",
+            "company_register": "Company register extract",
+            "prior_year_return": "Prior-year return",
+            "contract": "Contract",
+            "questionnaire": "Questionnaire",
+            "access_credentials": "Access credentials",
+            "other": "Other"
+          }
+        },
+        "document_requests.status": {
+          "label": "Status",
+          "options": {
+            "requested": "Requested",
+            "partial": "Partly received",
+            "received": "Received",
+            "needs_correction": "Needs correction",
+            "not_needed": "Not needed"
+          }
+        },
+        "document_requests.requested_on": {
+          "label": "Requested on",
+          "options": {}
+        },
+        "document_requests.needed_by": {
+          "label": "Needed by",
+          "options": {}
+        },
+        "document_requests.received_on": {
+          "label": "Received on",
+          "options": {}
+        },
+        "document_requests.where_stored": {
+          "label": "Where it is stored",
+          "options": {}
+        },
+        "document_requests.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "reply": "Reply",
+            "chase_form": "Chase the form",
+            "chase_document": "Chase a document",
+            "review": "Review",
+            "check": "Check",
+            "send_agreement": "Send the agreement",
+            "chase_signature": "Chase the signature",
+            "kickoff": "Kickoff",
+            "decline_letter": "Decline letter",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Contacts"
+        },
+        "intake_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Intakes"
+        },
+        "intake_contact": {
+          "sourceLabel": "Primary contact",
+          "targetLabel": "Intakes"
+        },
+        "document_request_intake": {
+          "sourceLabel": "Intake",
+          "targetLabel": "Document requests"
+        },
+        "action_intake": {
+          "sourceLabel": "Intake",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "All actions"
+        },
+        "intakes_all": {
+          "name": "All intakes"
+        },
+        "intakes_board": {
+          "name": "Intakes by stage"
+        },
+        "awaiting_signature": {
+          "name": "Awaiting signature"
+        },
+        "no_first_response": {
+          "name": "No first response"
+        },
+        "declined_intakes": {
+          "name": "Declined"
+        },
+        "document_requests_all": {
+          "name": "All document requests"
+        },
+        "documents_outstanding": {
+          "name": "Waiting for documents"
+        },
+        "clients_all": {
+          "name": "All clients"
+        },
+        "contacts_all": {
+          "name": "All contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Upcoming actions"
+        },
+        "overdue_actions": {
+          "title": "Overdue actions"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        },
+        "intakes_by_stage": {
+          "title": "Open intakes by stage"
+        },
+        "open_intakes_by_owner": {
+          "title": "Open intakes per owner"
+        },
+        "enquiries_without_reply": {
+          "title": "Inquiries without a first response"
+        },
+        "documents_outstanding": {
+          "title": "Documents outstanding"
+        },
+        "awaiting_signature_count": {
+          "title": "Awaiting signature"
+        },
+        "average_days_to_reply": {
+          "title": "Average days to first response"
+        },
+        "average_days_to_kickoff": {
+          "title": "Average days to kickoff"
+        },
+        "decline_reasons": {
+          "title": "Decline reasons"
+        },
+        "new_intakes_per_month": {
+          "title": "New intakes per month"
+        }
+      },
+      "knowledgePages": {
+        "intake_process": {
+          "title": "Client intake process",
+          "sections": [
+            "The nine stages and what ends each one",
+            "Who replies, who screens, who signs",
+            "Time boxes: reply in a day, chase at 3 and 7 days"
+          ]
+        },
+        "intake_questionnaire": {
+          "title": "Intake questionnaire by client type",
+          "sections": [
+            "Company, sole trader, individual, organization",
+            "Questions that decide fit",
+            "What you never ask for"
+          ]
+        },
+        "document_requests_guide": {
+          "title": "Document request list and chase messages",
+          "sections": [
+            "Standard list per service",
+            "First request and reminders",
+            "When a document needs correction"
+          ]
+        },
+        "agreement_checklist": {
+          "title": "Engagement agreement checklist",
+          "sections": [
+            "Scope, fee model and deposit",
+            "Who signs and in which tool",
+            "What to do when it stays unsigned"
+          ]
+        },
+        "regulated_checks": {
+          "title": "Identity, conflict and risk checks for regulated professions",
+          "sections": [
+            "Record who checked and when, never the document",
+            "Conflict search before work starts",
+            "Risk rating and when to decline"
+          ]
+        },
+        "privacy_at_intake": {
+          "title": "Privacy: what we collect at intake and why",
+          "sections": [
+            "Purpose and legal basis",
+            "What stays out of the workspace",
+            "Retention and deletion requests"
+          ]
+        }
+      },
+      "rules": {
+        "reply_to_enquiry": {
+          "title": "Reply to the inquiry",
+          "description": "A new intake gets a reply Action due the next day."
+        },
+        "chase_form": {
+          "title": "Chase the intake form",
+          "description": "Three days after the form is sent, a chase Action falls due."
+        },
+        "chase_document": {
+          "title": "Chase the missing document",
+          "description": "When the needed-by date of an open document request is reached, a chase Action is created."
+        },
+        "review_received_document": {
+          "title": "Review the received document",
+          "description": "When a document is marked received, a review Action is due the next day."
+        },
+        "chase_signature": {
+          "title": "Chase the signature",
+          "description": "Seven days after the agreement is sent, a chase Action falls due."
+        },
+        "decline_letter": {
+          "title": "Send the decline letter",
+          "description": "A declined intake gets a letter Action due the next day. State that no engagement exists and name any approaching deadline."
+        },
+        "kickoff_event": {
+          "title": "Put the kickoff in the calendar",
+          "description": "When the kickoff date is set, the event is written to the owner's calendar."
+        },
+        "first_value_check": {
+          "title": "Check the first result",
+          "description": "Fourteen days after onboarding, a check Action asks whether the client has seen a first result."
+        },
+        "stalled_intake": {
+          "title": "Review the stalled intake",
+          "description": "An open intake that stayed in the same stage for 7 days gets a review Action."
+        },
+        "intake_form_records": {
+          "title": "Create the client, contact and intake from the form",
+          "description": "A public intake form creates the client, the contact and an intake in the Inquiry stage."
+        },
+        "intake_form_notice": {
+          "title": "Tell the owner about the new intake",
+          "description": "The workspace owner is notified of every submission."
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Every intake has one of nine stages.",
+        "first_response_field": "Every intake records when you first replied.",
+        "document_requests_list": "Document requests are tracked in their own list.",
+        "intakes_board_view": "The intake list can be seen as a board by stage.",
+        "chase_signature_rule": "An agreement that is sent gets a chase Action after 7 days.",
+        "process_page": "The Knowledge Base holds the intake process."
+      },
+      "prompt": {
+        "intro": "Set up client intake in my Customermates workspace: one intake per engagement with nine stages, document requests, dated steps at every stage, a decline reason and optional identity, conflict and risk checks that record who checked and when.",
+        "questions": [
+          "What do you sell, and who are your clients: companies, sole traders or individuals?",
+          "Which steps does a new client go through today, and which of the nine stages do you not need?",
+          "Is your profession regulated, so that identity, conflict or risk checks must be recorded? In which country?",
+          "Which documents do you always ask for, and where do you store them? Only a link is kept here.",
+          "Where do clients sign the agreement? It stays there, and the dates are kept here."
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "Ficha de cliente y alta",
+      "summary": "Un alta por encargo: solicitud, valoración, cuestionario, documentación solicitada, hoja de encargo y reunión de arranque, con un paso fechado en cada etapa y un motivo cuando rechazas.",
+      "description": "Un pipeline breve para dar de alta a un cliente nuevo: responder en un día, valorar si encaja, enviar el cuestionario, reunir la documentación, enviar la hoja de encargo, empezar. Las profesiones reguladas anotan quién verificó la identidad y cuándo, nunca el documento. No es una herramienta de firma electrónica, de prevención del blanqueo ni de pagos.",
+      "lists": {
+        "actions": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un siguiente paso con fecha por cada asunto abierto."
+        },
+        "contacts": {
+          "label": "Persona de contacto",
+          "pluralLabel": "Personas de contacto",
+          "description": "Las personas de cada cliente: contacto principal, facturación, firmante."
+        },
+        "clients": {
+          "label": "Cliente",
+          "pluralLabel": "Clientes",
+          "description": "Empresas, autónomos y particulares a los que das de alta."
+        },
+        "intakes": {
+          "label": "Alta",
+          "pluralLabel": "Altas",
+          "description": "Un alta por encargo, desde la solicitud hasta cliente activo o rechazado."
+        },
+        "document_requests": {
+          "label": "Documento solicitado",
+          "pluralLabel": "Documentos solicitados",
+          "description": "Una fila por cada documento que pides a un cliente."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierta",
+            "waiting": "En espera",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "intakes.stage": {
+          "label": "Etapa",
+          "options": {
+            "enquiry": "Solicitud",
+            "screening": "Valoración",
+            "form_sent": "Cuestionario enviado",
+            "review_checks": "Revisión",
+            "agreement_sent": "Hoja de encargo enviada",
+            "ready_to_start": "Listo para empezar",
+            "kickoff_scheduled": "Reunión de arranque",
+            "onboarded": "Cliente activo",
+            "declined": "Rechazado"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Cargo",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Función",
+          "options": {
+            "primary": "Contacto principal",
+            "billing": "Facturación",
+            "signatory": "Firmante",
+            "technical": "Técnico",
+            "other": "Otro"
+          }
+        },
+        "contacts.language": {
+          "label": "Idioma",
+          "options": {}
+        },
+        "contacts.privacy_notice_sent_on": {
+          "label": "Información de privacidad enviada el",
+          "options": {}
+        },
+        "clients.client_type": {
+          "label": "Tipo de cliente",
+          "options": {
+            "company": "Empresa",
+            "sole_trader": "Autónomo",
+            "individual": "Particular",
+            "organisation": "Asociación u organización"
+          }
+        },
+        "clients.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "clients.website": {
+          "label": "Sitio web",
+          "options": {}
+        },
+        "clients.address": {
+          "label": "Dirección",
+          "options": {}
+        },
+        "clients.registration_id": {
+          "label": "NIF o CIF",
+          "options": {}
+        },
+        "clients.source": {
+          "label": "Origen",
+          "options": {
+            "referral": "Recomendación",
+            "website": "Sitio web",
+            "event": "Evento",
+            "outbound": "Prospección",
+            "partner": "Socio",
+            "other": "Otro"
+          }
+        },
+        "intakes.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "intakes.service": {
+          "label": "Servicio",
+          "options": {}
+        },
+        "intakes.received_on": {
+          "label": "Recibida el",
+          "options": {}
+        },
+        "intakes.first_response_on": {
+          "label": "Primera respuesta el",
+          "options": {}
+        },
+        "intakes.form_sent_on": {
+          "label": "Cuestionario enviado el",
+          "options": {}
+        },
+        "intakes.form_received_on": {
+          "label": "Cuestionario recibido el",
+          "options": {}
+        },
+        "intakes.agreement_sent_on": {
+          "label": "Hoja de encargo enviada el",
+          "options": {}
+        },
+        "intakes.agreement_signed_on": {
+          "label": "Hoja de encargo firmada el",
+          "options": {}
+        },
+        "intakes.kickoff_on": {
+          "label": "Arranque el",
+          "options": {}
+        },
+        "intakes.fee_model": {
+          "label": "Modelo de honorarios",
+          "options": {
+            "fixed": "Precio fijo",
+            "hourly": "Por horas",
+            "retainer": "Iguala mensual",
+            "other": "Otro"
+          }
+        },
+        "intakes.deposit_required": {
+          "label": "Provisión de fondos exigida",
+          "options": {}
+        },
+        "intakes.deposit_received_on": {
+          "label": "Provisión recibida el",
+          "options": {}
+        },
+        "intakes.identity_verified_on": {
+          "label": "Identidad verificada el",
+          "options": {}
+        },
+        "intakes.identity_verified_by": {
+          "label": "Identidad verificada por",
+          "options": {}
+        },
+        "intakes.conflict_check": {
+          "label": "Comprobación de conflicto de intereses",
+          "options": {
+            "not_required": "No exigida",
+            "pending": "Pendiente",
+            "clear": "Sin conflicto",
+            "conflict_found": "Conflicto detectado"
+          }
+        },
+        "intakes.risk_rating": {
+          "label": "Nivel de riesgo",
+          "options": {
+            "not_assessed": "Sin valorar",
+            "low": "Bajo",
+            "standard": "Normal",
+            "high": "Alto"
+          }
+        },
+        "intakes.decline_reason": {
+          "label": "Motivo del rechazo",
+          "options": {
+            "conflict": "Conflicto de intereses",
+            "not_a_fit": "No encaja",
+            "no_capacity": "Sin capacidad",
+            "no_response": "Sin respuesta",
+            "client_withdrew": "El cliente se retiró",
+            "risk": "Riesgo",
+            "other": "Otro"
+          }
+        },
+        "intakes.decline_notice_sent_on": {
+          "label": "Rechazo enviado el",
+          "options": {}
+        },
+        "intakes.next_step": {
+          "label": "Siguiente paso",
+          "options": {}
+        },
+        "intakes.next_step_due": {
+          "label": "Fecha del siguiente paso",
+          "options": {}
+        },
+        "intakes.days_to_first_response": {
+          "label": "Días hasta la primera respuesta",
+          "options": {}
+        },
+        "intakes.days_to_kickoff": {
+          "label": "Días hasta el arranque",
+          "options": {}
+        },
+        "document_requests.kind": {
+          "label": "Tipo",
+          "options": {
+            "identity": "Documento de identidad",
+            "proof_of_address": "Justificante de domicilio",
+            "company_register": "Nota simple del Registro Mercantil",
+            "prior_year_return": "Declaración de impuestos del año anterior",
+            "contract": "Contrato",
+            "questionnaire": "Cuestionario",
+            "access_credentials": "Claves de acceso",
+            "other": "Otro"
+          }
+        },
+        "document_requests.status": {
+          "label": "Estado",
+          "options": {
+            "requested": "Solicitado",
+            "partial": "Recibido en parte",
+            "received": "Recibido",
+            "needs_correction": "Hay que corregirlo",
+            "not_needed": "No necesario"
+          }
+        },
+        "document_requests.requested_on": {
+          "label": "Documentación solicitada el",
+          "options": {}
+        },
+        "document_requests.needed_by": {
+          "label": "Fecha límite",
+          "options": {}
+        },
+        "document_requests.received_on": {
+          "label": "Recibido el",
+          "options": {}
+        },
+        "document_requests.where_stored": {
+          "label": "Dónde está guardado",
+          "options": {}
+        },
+        "document_requests.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Respuesta",
+            "chase_form": "Reclamar el cuestionario",
+            "chase_document": "Reclamar un documento",
+            "review": "Revisión",
+            "check": "Comprobación",
+            "send_agreement": "Enviar la hoja de encargo",
+            "chase_signature": "Reclamar la firma",
+            "kickoff": "Arranque",
+            "decline_letter": "Carta de rechazo",
+            "other": "Otro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Personas de contacto"
+        },
+        "intake_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Altas"
+        },
+        "intake_contact": {
+          "sourceLabel": "Contacto principal",
+          "targetLabel": "Altas"
+        },
+        "document_request_intake": {
+          "sourceLabel": "Alta",
+          "targetLabel": "Documentos solicitados"
+        },
+        "action_intake": {
+          "sourceLabel": "Alta",
+          "targetLabel": "Tareas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas las tareas"
+        },
+        "intakes_all": {
+          "name": "Todas las altas"
+        },
+        "intakes_board": {
+          "name": "Altas por etapa"
+        },
+        "awaiting_signature": {
+          "name": "A la espera de firma"
+        },
+        "no_first_response": {
+          "name": "Sin primera respuesta"
+        },
+        "declined_intakes": {
+          "name": "Rechazadas"
+        },
+        "document_requests_all": {
+          "name": "Todos los documentos solicitados"
+        },
+        "documents_outstanding": {
+          "name": "A la espera de documentos"
+        },
+        "clients_all": {
+          "name": "Todos los clientes"
+        },
+        "contacts_all": {
+          "name": "Todas las personas de contacto"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tareas"
+        },
+        "overdue_actions": {
+          "title": "Tareas vencidas"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        },
+        "intakes_by_stage": {
+          "title": "Altas abiertas por etapa"
+        },
+        "open_intakes_by_owner": {
+          "title": "Altas abiertas por responsable"
+        },
+        "enquiries_without_reply": {
+          "title": "Solicitudes sin primera respuesta"
+        },
+        "documents_outstanding": {
+          "title": "Documentos pendientes"
+        },
+        "awaiting_signature_count": {
+          "title": "A la espera de firma"
+        },
+        "average_days_to_reply": {
+          "title": "Media de días hasta la primera respuesta"
+        },
+        "average_days_to_kickoff": {
+          "title": "Media de días hasta el arranque"
+        },
+        "decline_reasons": {
+          "title": "Motivos de rechazo"
+        },
+        "new_intakes_per_month": {
+          "title": "Altas nuevas por mes"
+        }
+      },
+      "knowledgePages": {
+        "intake_process": {
+          "title": "Proceso de alta de clientes",
+          "sections": [
+            "Las nueve etapas y qué cierra cada una",
+            "Quién responde, quién valora, quién firma",
+            "Plazos: responder en un día, reclamar a los 3 y a los 7 días"
+          ]
+        },
+        "intake_questionnaire": {
+          "title": "Cuestionario según el tipo de cliente",
+          "sections": [
+            "Empresa, autónomo, particular, asociación",
+            "Preguntas que deciden si encaja",
+            "Qué no pides nunca"
+          ]
+        },
+        "document_requests_guide": {
+          "title": "Lista de documentos y mensajes de recordatorio",
+          "sections": [
+            "Lista estándar por servicio",
+            "Primera petición y recordatorios",
+            "Cuando hay que corregir un documento"
+          ]
+        },
+        "agreement_checklist": {
+          "title": "Lista de la hoja de encargo",
+          "sections": [
+            "Alcance, modelo de honorarios y provisión de fondos",
+            "Quién firma y con qué herramienta",
+            "Qué hacer si queda sin firmar"
+          ]
+        },
+        "regulated_checks": {
+          "title": "Comprobaciones de identidad, conflicto y riesgo en profesiones reguladas",
+          "sections": [
+            "Anotar quién comprobó y cuándo, nunca el documento",
+            "Búsqueda de conflictos antes de empezar",
+            "Nivel de riesgo y cuándo rechazar"
+          ]
+        },
+        "privacy_at_intake": {
+          "title": "Privacidad: qué recogemos en el alta y por qué",
+          "sections": [
+            "Finalidad y base jurídica",
+            "Qué queda fuera del espacio de trabajo",
+            "Conservación y solicitudes de supresión"
+          ]
+        }
+      },
+      "rules": {
+        "reply_to_enquiry": {
+          "title": "Responder a la solicitud",
+          "description": "Un alta nueva recibe una tarea de respuesta para el día siguiente."
+        },
+        "chase_form": {
+          "title": "Reclamar el cuestionario",
+          "description": "Tres días después de enviar el cuestionario vence una tarea de reclamación."
+        },
+        "chase_document": {
+          "title": "Reclamar el documento que falta",
+          "description": "Al llegar la fecha límite de un documento solicitado aún abierto se crea una tarea de reclamación."
+        },
+        "review_received_document": {
+          "title": "Revisar el documento recibido",
+          "description": "Cuando un documento se marca como recibido, una tarea de revisión vence al día siguiente."
+        },
+        "chase_signature": {
+          "title": "Reclamar la firma",
+          "description": "Siete días después de enviar la hoja de encargo vence una tarea de reclamación."
+        },
+        "decline_letter": {
+          "title": "Enviar la carta de rechazo",
+          "description": "Un alta rechazada recibe una tarea de carta para el día siguiente. Indica que no existe encargo y menciona cualquier plazo cercano."
+        },
+        "kickoff_event": {
+          "title": "Poner la reunión de arranque en el calendario",
+          "description": "Al fijar la fecha de arranque, el evento se escribe en el calendario del responsable."
+        },
+        "first_value_check": {
+          "title": "Comprobar el primer resultado",
+          "description": "Catorce días después del alta, una tarea de comprobación pregunta si el cliente ha visto un primer resultado."
+        },
+        "stalled_intake": {
+          "title": "Revisar el alta estancada",
+          "description": "Un alta abierta que lleva 7 días en la misma etapa recibe una tarea de revisión."
+        },
+        "intake_form_records": {
+          "title": "Crear cliente, persona de contacto y alta desde el formulario",
+          "description": "Un formulario público de alta crea el cliente, la persona de contacto y un alta en la etapa Solicitud."
+        },
+        "intake_form_notice": {
+          "title": "Avisar al propietario del alta nueva",
+          "description": "Se avisa al propietario del espacio de trabajo de cada envío."
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada alta tiene una de las nueve etapas.",
+        "first_response_field": "Cada alta anota cuándo respondiste por primera vez.",
+        "document_requests_list": "Los documentos solicitados se siguen en su propia lista.",
+        "intakes_board_view": "La lista de altas se puede ver como tablero por etapa.",
+        "chase_signature_rule": "Una hoja de encargo enviada recibe una tarea de reclamación a los 7 días.",
+        "process_page": "La base de conocimiento contiene el proceso de alta."
+      },
+      "prompt": {
+        "intro": "Configura el alta de clientes en mi espacio de trabajo de Customermates: un alta por encargo con nueve etapas, documentos solicitados, un paso fechado en cada etapa, un motivo de rechazo y comprobaciones opcionales de identidad, conflicto y riesgo que anotan quién comprobó y cuándo.",
+        "questions": [
+          "¿Qué vendes y quiénes son tus clientes: empresas, autónomos o particulares?",
+          "¿Por qué pasos pasa hoy un cliente nuevo y cuáles de las nueve etapas no necesitas?",
+          "¿Tu profesión está regulada, de modo que haya que registrar identidad, conflicto o riesgo? ¿En qué país?",
+          "¿Qué documentos pides siempre y dónde los guardas? Aquí solo se guarda un enlace.",
+          "¿Dónde firman los clientes la hoja de encargo? Se queda allí y aquí se guardan las fechas."
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "Fiche client et intégration",
+      "summary": "Une intégration par mission : demande, qualification, questionnaire, pièces demandées, lettre de mission et réunion de lancement, avec une étape datée à chaque phase et un motif en cas de refus.",
+      "description": "Un court pipeline pour accueillir un nouveau client : répondre sous un jour, vérifier l’adéquation, envoyer le questionnaire, réunir les pièces, envoyer la lettre de mission, démarrer. Les professions réglementées notent qui a vérifié l’identité et quand, jamais la pièce elle-même. Ce n’est pas un outil de signature électronique, de LCB-FT ou de paiement.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Une prochaine étape datée par dossier ouvert."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "Les personnes chez chaque client : interlocuteur principal, facturation, signataire."
+        },
+        "clients": {
+          "label": "Client",
+          "pluralLabel": "Clients",
+          "description": "Entreprises, indépendants et particuliers que vous accueillez."
+        },
+        "intakes": {
+          "label": "Intégration",
+          "pluralLabel": "Intégrations",
+          "description": "Une intégration par mission, de la demande à intégré ou refusé."
+        },
+        "document_requests": {
+          "label": "Pièce demandée",
+          "pluralLabel": "Pièces demandées",
+          "description": "Une ligne par document demandé à un client."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "waiting": "En attente",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "intakes.stage": {
+          "label": "Étape",
+          "options": {
+            "enquiry": "Demande",
+            "screening": "Qualification",
+            "form_sent": "Questionnaire envoyé",
+            "review_checks": "Vérification",
+            "agreement_sent": "Lettre de mission envoyée",
+            "ready_to_start": "Prêt à démarrer",
+            "kickoff_scheduled": "Réunion de lancement",
+            "onboarded": "Intégré",
+            "declined": "Refusé"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Fonction",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Rôle",
+          "options": {
+            "primary": "Interlocuteur principal",
+            "billing": "Facturation",
+            "signatory": "Signataire",
+            "technical": "Technique",
+            "other": "Autre"
+          }
+        },
+        "contacts.language": {
+          "label": "Langue",
+          "options": {}
+        },
+        "contacts.privacy_notice_sent_on": {
+          "label": "Mention d’information RGPD envoyée le",
+          "options": {}
+        },
+        "clients.client_type": {
+          "label": "Type de client",
+          "options": {
+            "company": "Société",
+            "sole_trader": "Indépendant",
+            "individual": "Particulier",
+            "organisation": "Association ou organisme"
+          }
+        },
+        "clients.owner": {
+          "label": "Responsable de compte",
+          "options": {}
+        },
+        "clients.website": {
+          "label": "Site web",
+          "options": {}
+        },
+        "clients.address": {
+          "label": "Adresse",
+          "options": {}
+        },
+        "clients.registration_id": {
+          "label": "SIREN ou numéro de TVA",
+          "options": {}
+        },
+        "clients.source": {
+          "label": "Origine",
+          "options": {
+            "referral": "Recommandation",
+            "website": "Site web",
+            "event": "Événement",
+            "outbound": "Prospection",
+            "partner": "Partenaire",
+            "other": "Autre"
+          }
+        },
+        "intakes.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "intakes.service": {
+          "label": "Prestation",
+          "options": {}
+        },
+        "intakes.received_on": {
+          "label": "Reçue le",
+          "options": {}
+        },
+        "intakes.first_response_on": {
+          "label": "Première réponse le",
+          "options": {}
+        },
+        "intakes.form_sent_on": {
+          "label": "Questionnaire envoyé le",
+          "options": {}
+        },
+        "intakes.form_received_on": {
+          "label": "Questionnaire reçu le",
+          "options": {}
+        },
+        "intakes.agreement_sent_on": {
+          "label": "Lettre de mission envoyée le",
+          "options": {}
+        },
+        "intakes.agreement_signed_on": {
+          "label": "Lettre de mission signée le",
+          "options": {}
+        },
+        "intakes.kickoff_on": {
+          "label": "Lancement le",
+          "options": {}
+        },
+        "intakes.fee_model": {
+          "label": "Mode de facturation",
+          "options": {
+            "fixed": "Forfait",
+            "hourly": "Au temps passé",
+            "retainer": "Abonnement mensuel",
+            "other": "Autre"
+          }
+        },
+        "intakes.deposit_required": {
+          "label": "Acompte exigé",
+          "options": {}
+        },
+        "intakes.deposit_received_on": {
+          "label": "Acompte reçu le",
+          "options": {}
+        },
+        "intakes.identity_verified_on": {
+          "label": "Identité vérifiée le",
+          "options": {}
+        },
+        "intakes.identity_verified_by": {
+          "label": "Identité vérifiée par",
+          "options": {}
+        },
+        "intakes.conflict_check": {
+          "label": "Vérification des conflits d’intérêts",
+          "options": {
+            "not_required": "Non requise",
+            "pending": "En cours",
+            "clear": "Aucun conflit",
+            "conflict_found": "Conflit constaté"
+          }
+        },
+        "intakes.risk_rating": {
+          "label": "Niveau de risque",
+          "options": {
+            "not_assessed": "Non évalué",
+            "low": "Faible",
+            "standard": "Normal",
+            "high": "Élevé"
+          }
+        },
+        "intakes.decline_reason": {
+          "label": "Motif de refus",
+          "options": {
+            "conflict": "Conflit d’intérêts",
+            "not_a_fit": "Ne convient pas",
+            "no_capacity": "Pas de disponibilité",
+            "no_response": "Pas de réponse",
+            "client_withdrew": "Le client s’est retiré",
+            "risk": "Risque",
+            "other": "Autre"
+          }
+        },
+        "intakes.decline_notice_sent_on": {
+          "label": "Refus envoyé le",
+          "options": {}
+        },
+        "intakes.next_step": {
+          "label": "Prochaine action",
+          "options": {}
+        },
+        "intakes.next_step_due": {
+          "label": "Prochaine action avant le",
+          "options": {}
+        },
+        "intakes.days_to_first_response": {
+          "label": "Jours jusqu’à la première réponse",
+          "options": {}
+        },
+        "intakes.days_to_kickoff": {
+          "label": "Jours jusqu’au lancement",
+          "options": {}
+        },
+        "document_requests.kind": {
+          "label": "Type",
+          "options": {
+            "identity": "Pièce d’identité",
+            "proof_of_address": "Justificatif de domicile",
+            "company_register": "Extrait Kbis",
+            "prior_year_return": "Déclaration de l’année précédente",
+            "contract": "Contrat",
+            "questionnaire": "Questionnaire",
+            "access_credentials": "Accès et identifiants",
+            "other": "Autre"
+          }
+        },
+        "document_requests.status": {
+          "label": "Statut",
+          "options": {
+            "requested": "Demandée",
+            "partial": "Reçue en partie",
+            "received": "Reçue",
+            "needs_correction": "À corriger",
+            "not_needed": "Sans objet"
+          }
+        },
+        "document_requests.requested_on": {
+          "label": "Demandée le",
+          "options": {}
+        },
+        "document_requests.needed_by": {
+          "label": "À fournir avant le",
+          "options": {}
+        },
+        "document_requests.received_on": {
+          "label": "Reçue le",
+          "options": {}
+        },
+        "document_requests.where_stored": {
+          "label": "Lieu de stockage",
+          "options": {}
+        },
+        "document_requests.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "reply": "Réponse",
+            "chase_form": "Relancer le questionnaire",
+            "chase_document": "Relancer une pièce",
+            "review": "Revue",
+            "check": "Vérification",
+            "send_agreement": "Envoyer la lettre de mission",
+            "chase_signature": "Relancer la signature",
+            "kickoff": "Lancement",
+            "decline_letter": "Courrier de refus",
+            "other": "Autre"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Contacts"
+        },
+        "intake_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Intégrations"
+        },
+        "intake_contact": {
+          "sourceLabel": "Interlocuteur principal",
+          "targetLabel": "Intégrations"
+        },
+        "document_request_intake": {
+          "sourceLabel": "Intégration",
+          "targetLabel": "Pièces demandées"
+        },
+        "action_intake": {
+          "sourceLabel": "Intégration",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "intakes_all": {
+          "name": "Toutes les intégrations"
+        },
+        "intakes_board": {
+          "name": "Intégrations par étape"
+        },
+        "awaiting_signature": {
+          "name": "En attente de signature"
+        },
+        "no_first_response": {
+          "name": "Sans première réponse"
+        },
+        "declined_intakes": {
+          "name": "Refusées"
+        },
+        "document_requests_all": {
+          "name": "Toutes les pièces demandées"
+        },
+        "documents_outstanding": {
+          "name": "En attente de pièces"
+        },
+        "clients_all": {
+          "name": "Tous les clients"
+        },
+        "contacts_all": {
+          "name": "Tous les contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Actions à venir"
+        },
+        "overdue_actions": {
+          "title": "Actions en retard"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        },
+        "intakes_by_stage": {
+          "title": "Intégrations ouvertes par étape"
+        },
+        "open_intakes_by_owner": {
+          "title": "Intégrations ouvertes par responsable"
+        },
+        "enquiries_without_reply": {
+          "title": "Demandes sans première réponse"
+        },
+        "documents_outstanding": {
+          "title": "Pièces en attente"
+        },
+        "awaiting_signature_count": {
+          "title": "En attente de signature"
+        },
+        "average_days_to_reply": {
+          "title": "Moyenne de jours jusqu’à la première réponse"
+        },
+        "average_days_to_kickoff": {
+          "title": "Moyenne de jours jusqu’au lancement"
+        },
+        "decline_reasons": {
+          "title": "Motifs de refus"
+        },
+        "new_intakes_per_month": {
+          "title": "Nouvelles intégrations par mois"
+        }
+      },
+      "knowledgePages": {
+        "intake_process": {
+          "title": "Processus d’intégration d’un client",
+          "sections": [
+            "Les neuf étapes et ce qui clôt chacune",
+            "Qui répond, qui qualifie, qui signe",
+            "Délais : répondre sous un jour, relancer à 3 et à 7 jours"
+          ]
+        },
+        "intake_questionnaire": {
+          "title": "Questionnaire selon le type de client",
+          "sections": [
+            "Société, indépendant, particulier, association",
+            "Questions qui décident de l’adéquation",
+            "Ce que vous ne demandez jamais"
+          ]
+        },
+        "document_requests_guide": {
+          "title": "Liste des pièces et messages de relance",
+          "sections": [
+            "Liste standard par prestation",
+            "Première demande et relances",
+            "Quand une pièce doit être corrigée"
+          ]
+        },
+        "agreement_checklist": {
+          "title": "Check-list de la lettre de mission",
+          "sections": [
+            "Périmètre, mode de facturation et acompte",
+            "Qui signe et dans quel outil",
+            "Que faire quand elle reste non signée"
+          ]
+        },
+        "regulated_checks": {
+          "title": "Vérifications d’identité, de conflit et de risque pour les professions réglementées",
+          "sections": [
+            "Noter qui a vérifié et quand, jamais la pièce",
+            "Recherche de conflit avant le début du travail",
+            "Niveau de risque et quand refuser"
+          ]
+        },
+        "privacy_at_intake": {
+          "title": "Données personnelles : ce que nous collectons à l’intégration et pourquoi",
+          "sections": [
+            "Finalité et base légale",
+            "Ce qui reste hors de l’espace de travail",
+            "Conservation et demandes de suppression"
+          ]
+        }
+      },
+      "rules": {
+        "reply_to_enquiry": {
+          "title": "Répondre à la demande",
+          "description": "Une nouvelle intégration reçoit une action de réponse due le lendemain."
+        },
+        "chase_form": {
+          "title": "Relancer le questionnaire",
+          "description": "Trois jours après l’envoi du questionnaire, une action de relance arrive à échéance."
+        },
+        "chase_document": {
+          "title": "Relancer la pièce manquante",
+          "description": "À la date limite d’une pièce demandée encore ouverte, une action de relance est créée."
+        },
+        "review_received_document": {
+          "title": "Contrôler la pièce reçue",
+          "description": "Quand une pièce est marquée reçue, une action de contrôle est due le lendemain."
+        },
+        "chase_signature": {
+          "title": "Relancer la signature",
+          "description": "Sept jours après l’envoi de la lettre de mission, une action de relance arrive à échéance."
+        },
+        "decline_letter": {
+          "title": "Envoyer le courrier de refus",
+          "description": "Une intégration refusée reçoit une action de courrier pour le lendemain. Précisez qu’aucune mission n’est engagée et mentionnez tout délai proche."
+        },
+        "kickoff_event": {
+          "title": "Inscrire la réunion de lancement dans l’agenda",
+          "description": "Quand la date de lancement est fixée, l’événement est inscrit dans l’agenda du responsable."
+        },
+        "first_value_check": {
+          "title": "Vérifier le premier résultat",
+          "description": "Quatorze jours après l’intégration, une action de vérification demande si le client a vu un premier résultat."
+        },
+        "stalled_intake": {
+          "title": "Revoir l’intégration qui stagne",
+          "description": "Une intégration ouverte restée 7 jours à la même étape reçoit une action de revue."
+        },
+        "intake_form_records": {
+          "title": "Créer le client, le contact et l’intégration à partir du formulaire",
+          "description": "Un formulaire d’intégration public crée le client, le contact et une intégration à l’étape Demande."
+        },
+        "intake_form_notice": {
+          "title": "Prévenir le responsable de la nouvelle intégration",
+          "description": "Le propriétaire de l’espace de travail est averti de chaque envoi."
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Chaque intégration a l’une des neuf étapes.",
+        "first_response_field": "Chaque intégration note quand vous avez répondu pour la première fois.",
+        "document_requests_list": "Les pièces demandées sont suivies dans leur propre liste.",
+        "intakes_board_view": "La liste des intégrations peut s’afficher en board par étape.",
+        "chase_signature_rule": "Une lettre de mission envoyée reçoit une action de relance au bout de 7 jours.",
+        "process_page": "La base de connaissances contient le processus d’intégration."
+      },
+      "prompt": {
+        "intro": "Mets en place l’intégration des clients dans mon espace de travail Customermates : une intégration par mission avec neuf étapes, des pièces demandées, une étape datée à chaque phase, un motif de refus et des vérifications facultatives d’identité, de conflit et de risque qui notent qui a vérifié et quand.",
+        "questions": [
+          "Que vendez-vous, et qui sont vos clients : sociétés, indépendants ou particuliers ?",
+          "Par quelles étapes passe un nouveau client aujourd’hui, et lesquelles des neuf étapes ne vous servent pas ?",
+          "Votre profession est-elle réglementée, avec des vérifications d’identité, de conflit ou de risque à consigner ? Dans quel pays ?",
+          "Quelles pièces demandez-vous toujours, et où les rangez-vous ? Seul un lien est gardé ici.",
+          "Où les clients signent-ils la lettre de mission ? Elle y reste ; seules les dates sont gardées ici."
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "Scheda cliente e accoglienza",
+      "summary": "Un'accoglienza per incarico: richiesta, valutazione, questionario, documenti richiesti, lettera d'incarico e riunione di avvio, con un passaggio datato a ogni fase e un motivo quando rifiuti.",
+      "description": "Una breve pipeline per accogliere un nuovo cliente: rispondere entro un giorno, valutare l'adeguatezza, inviare il questionario, raccogliere i documenti, inviare la lettera d'incarico, partire. Le professioni regolamentate annotano chi ha verificato l'identità e quando, mai il documento. Non è uno strumento di firma elettronica, di antiriciclaggio o di pagamento.",
+      "lists": {
+        "actions": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un prossimo passo con data per ogni pratica aperta."
+        },
+        "contacts": {
+          "label": "Referente",
+          "pluralLabel": "Referenti",
+          "description": "Le persone presso ogni cliente: referente principale, amministrazione, firmatario."
+        },
+        "clients": {
+          "label": "Cliente",
+          "pluralLabel": "Clienti",
+          "description": "Aziende, ditte individuali e privati che accogli."
+        },
+        "intakes": {
+          "label": "Accoglienza",
+          "pluralLabel": "Accoglienze",
+          "description": "Un'accoglienza per incarico, dalla richiesta ad acquisito o rifiutato."
+        },
+        "document_requests": {
+          "label": "Documento richiesto",
+          "pluralLabel": "Documenti richiesti",
+          "description": "Una riga per ogni documento che chiedi a un cliente."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "waiting": "In attesa",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "intakes.stage": {
+          "label": "Fase",
+          "options": {
+            "enquiry": "Richiesta",
+            "screening": "Valutazione",
+            "form_sent": "Questionario inviato",
+            "review_checks": "Verifica",
+            "agreement_sent": "Lettera d'incarico inviata",
+            "ready_to_start": "Pronto all'avvio",
+            "kickoff_scheduled": "Riunione di avvio",
+            "onboarded": "Acquisito",
+            "declined": "Rifiutato"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Ruolo aziendale",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Funzione",
+          "options": {
+            "primary": "Referente principale",
+            "billing": "Amministrazione",
+            "signatory": "Firmatario",
+            "technical": "Tecnico",
+            "other": "Altro"
+          }
+        },
+        "contacts.language": {
+          "label": "Lingua",
+          "options": {}
+        },
+        "contacts.privacy_notice_sent_on": {
+          "label": "Informativa privacy inviata il",
+          "options": {}
+        },
+        "clients.client_type": {
+          "label": "Tipo di cliente",
+          "options": {
+            "company": "Società",
+            "sole_trader": "Ditta individuale",
+            "individual": "Privato",
+            "organisation": "Associazione o ente"
+          }
+        },
+        "clients.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "clients.website": {
+          "label": "Sito web",
+          "options": {}
+        },
+        "clients.address": {
+          "label": "Indirizzo",
+          "options": {}
+        },
+        "clients.registration_id": {
+          "label": "Partita IVA o codice fiscale",
+          "options": {}
+        },
+        "clients.source": {
+          "label": "Provenienza",
+          "options": {
+            "referral": "Segnalazione",
+            "website": "Sito web",
+            "event": "Evento",
+            "outbound": "Contatto diretto",
+            "partner": "Partner",
+            "other": "Altro"
+          }
+        },
+        "intakes.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "intakes.service": {
+          "label": "Servizio",
+          "options": {}
+        },
+        "intakes.received_on": {
+          "label": "Ricevuta il",
+          "options": {}
+        },
+        "intakes.first_response_on": {
+          "label": "Prima risposta il",
+          "options": {}
+        },
+        "intakes.form_sent_on": {
+          "label": "Questionario inviato il",
+          "options": {}
+        },
+        "intakes.form_received_on": {
+          "label": "Questionario ricevuto il",
+          "options": {}
+        },
+        "intakes.agreement_sent_on": {
+          "label": "Lettera d'incarico inviata il",
+          "options": {}
+        },
+        "intakes.agreement_signed_on": {
+          "label": "Lettera d'incarico firmata il",
+          "options": {}
+        },
+        "intakes.kickoff_on": {
+          "label": "Avvio il",
+          "options": {}
+        },
+        "intakes.fee_model": {
+          "label": "Modello di compenso",
+          "options": {
+            "fixed": "Importo fisso",
+            "hourly": "A ore",
+            "retainer": "Canone mensile",
+            "other": "Altro"
+          }
+        },
+        "intakes.deposit_required": {
+          "label": "Acconto richiesto",
+          "options": {}
+        },
+        "intakes.deposit_received_on": {
+          "label": "Acconto ricevuto il",
+          "options": {}
+        },
+        "intakes.identity_verified_on": {
+          "label": "Identità verificata il",
+          "options": {}
+        },
+        "intakes.identity_verified_by": {
+          "label": "Identità verificata da",
+          "options": {}
+        },
+        "intakes.conflict_check": {
+          "label": "Verifica del conflitto di interessi",
+          "options": {
+            "not_required": "Non richiesta",
+            "pending": "In corso",
+            "clear": "Nessun conflitto",
+            "conflict_found": "Conflitto rilevato"
+          }
+        },
+        "intakes.risk_rating": {
+          "label": "Livello di rischio",
+          "options": {
+            "not_assessed": "Non valutato",
+            "low": "Basso",
+            "standard": "Normale",
+            "high": "Alto"
+          }
+        },
+        "intakes.decline_reason": {
+          "label": "Motivo del rifiuto",
+          "options": {
+            "conflict": "Conflitto di interessi",
+            "not_a_fit": "Non adatto",
+            "no_capacity": "Nessuna disponibilità",
+            "no_response": "Nessuna risposta",
+            "client_withdrew": "Il cliente si è ritirato",
+            "risk": "Rischio",
+            "other": "Altro"
+          }
+        },
+        "intakes.decline_notice_sent_on": {
+          "label": "Rifiuto inviato il",
+          "options": {}
+        },
+        "intakes.next_step": {
+          "label": "Prossimo passo",
+          "options": {}
+        },
+        "intakes.next_step_due": {
+          "label": "Scadenza del prossimo passo",
+          "options": {}
+        },
+        "intakes.days_to_first_response": {
+          "label": "Giorni alla prima risposta",
+          "options": {}
+        },
+        "intakes.days_to_kickoff": {
+          "label": "Giorni all'avvio",
+          "options": {}
+        },
+        "document_requests.kind": {
+          "label": "Tipo",
+          "options": {
+            "identity": "Documento d'identità",
+            "proof_of_address": "Attestazione di residenza",
+            "company_register": "Visura camerale",
+            "prior_year_return": "Dichiarazione dei redditi dell'anno precedente",
+            "contract": "Contratto",
+            "questionnaire": "Questionario",
+            "access_credentials": "Credenziali di accesso",
+            "other": "Altro"
+          }
+        },
+        "document_requests.status": {
+          "label": "Stato",
+          "options": {
+            "requested": "Richiesto",
+            "partial": "Ricevuto in parte",
+            "received": "Ricevuto",
+            "needs_correction": "Da correggere",
+            "not_needed": "Non necessario"
+          }
+        },
+        "document_requests.requested_on": {
+          "label": "Richiesto il",
+          "options": {}
+        },
+        "document_requests.needed_by": {
+          "label": "Da consegnare entro",
+          "options": {}
+        },
+        "document_requests.received_on": {
+          "label": "Ricevuto il",
+          "options": {}
+        },
+        "document_requests.where_stored": {
+          "label": "Dove è conservato",
+          "options": {}
+        },
+        "document_requests.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Risposta",
+            "chase_form": "Sollecitare il questionario",
+            "chase_document": "Sollecitare un documento",
+            "review": "Revisione",
+            "check": "Verifica",
+            "send_agreement": "Inviare la lettera d'incarico",
+            "chase_signature": "Sollecitare la firma",
+            "kickoff": "Avvio",
+            "decline_letter": "Lettera di rifiuto",
+            "other": "Altro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Referenti"
+        },
+        "intake_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Accoglienze"
+        },
+        "intake_contact": {
+          "sourceLabel": "Referente principale",
+          "targetLabel": "Accoglienze"
+        },
+        "document_request_intake": {
+          "sourceLabel": "Accoglienza",
+          "targetLabel": "Documenti richiesti"
+        },
+        "action_intake": {
+          "sourceLabel": "Accoglienza",
+          "targetLabel": "Attività"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Tutte le attività"
+        },
+        "intakes_all": {
+          "name": "Tutte le accoglienze"
+        },
+        "intakes_board": {
+          "name": "Accoglienze per fase"
+        },
+        "awaiting_signature": {
+          "name": "In attesa di firma"
+        },
+        "no_first_response": {
+          "name": "Senza prima risposta"
+        },
+        "declined_intakes": {
+          "name": "Rifiutate"
+        },
+        "document_requests_all": {
+          "name": "Tutti i documenti richiesti"
+        },
+        "documents_outstanding": {
+          "name": "In attesa di documenti"
+        },
+        "clients_all": {
+          "name": "Tutti i clienti"
+        },
+        "contacts_all": {
+          "name": "Tutti i referenti"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Attività in arrivo"
+        },
+        "overdue_actions": {
+          "title": "Attività scadute"
+        },
+        "activity_timeline": {
+          "title": "Attività recenti"
+        },
+        "intakes_by_stage": {
+          "title": "Accoglienze aperte per fase"
+        },
+        "open_intakes_by_owner": {
+          "title": "Accoglienze aperte per responsabile"
+        },
+        "enquiries_without_reply": {
+          "title": "Richieste senza prima risposta"
+        },
+        "documents_outstanding": {
+          "title": "Documenti in sospeso"
+        },
+        "awaiting_signature_count": {
+          "title": "In attesa di firma"
+        },
+        "average_days_to_reply": {
+          "title": "Media dei giorni alla prima risposta"
+        },
+        "average_days_to_kickoff": {
+          "title": "Media dei giorni all'avvio"
+        },
+        "decline_reasons": {
+          "title": "Motivi del rifiuto"
+        },
+        "new_intakes_per_month": {
+          "title": "Nuove accoglienze al mese"
+        }
+      },
+      "knowledgePages": {
+        "intake_process": {
+          "title": "Processo di accoglienza del cliente",
+          "sections": [
+            "Le nove fasi e che cosa chiude ciascuna",
+            "Chi risponde, chi valuta, chi firma",
+            "Tempi: rispondere entro un giorno, sollecitare a 3 e a 7 giorni"
+          ]
+        },
+        "intake_questionnaire": {
+          "title": "Questionario per tipo di cliente",
+          "sections": [
+            "Società, ditta individuale, privato, associazione",
+            "Domande che decidono l'adeguatezza",
+            "Che cosa non chiedi mai"
+          ]
+        },
+        "document_requests_guide": {
+          "title": "Elenco dei documenti e messaggi di sollecito",
+          "sections": [
+            "Elenco standard per servizio",
+            "Prima richiesta e solleciti",
+            "Quando un documento va corretto"
+          ]
+        },
+        "agreement_checklist": {
+          "title": "Checklist della lettera d'incarico",
+          "sections": [
+            "Ambito, modello di compenso e acconto",
+            "Chi firma e con quale strumento",
+            "Che cosa fare se resta non firmata"
+          ]
+        },
+        "regulated_checks": {
+          "title": "Verifiche di identità, conflitto e rischio per le professioni regolamentate",
+          "sections": [
+            "Annotare chi ha verificato e quando, mai il documento",
+            "Ricerca di conflitti prima di iniziare",
+            "Livello di rischio e quando rifiutare"
+          ]
+        },
+        "privacy_at_intake": {
+          "title": "Privacy: che cosa raccogliamo all'accoglienza e perché",
+          "sections": [
+            "Finalità e base giuridica",
+            "Che cosa resta fuori dallo spazio di lavoro",
+            "Conservazione e richieste di cancellazione"
+          ]
+        }
+      },
+      "rules": {
+        "reply_to_enquiry": {
+          "title": "Rispondere alla richiesta",
+          "description": "Una nuova accoglienza riceve un'attività di risposta con scadenza il giorno dopo."
+        },
+        "chase_form": {
+          "title": "Sollecitare il questionario",
+          "description": "Tre giorni dopo l'invio del questionario scade un'attività di sollecito."
+        },
+        "chase_document": {
+          "title": "Sollecitare il documento mancante",
+          "description": "Alla data limite di un documento richiesto ancora aperto viene creata un'attività di sollecito."
+        },
+        "review_received_document": {
+          "title": "Controllare il documento ricevuto",
+          "description": "Quando un documento è segnato come ricevuto, un'attività di controllo scade il giorno dopo."
+        },
+        "chase_signature": {
+          "title": "Sollecitare la firma",
+          "description": "Sette giorni dopo l'invio della lettera d'incarico scade un'attività di sollecito."
+        },
+        "decline_letter": {
+          "title": "Inviare la lettera di rifiuto",
+          "description": "Un'accoglienza rifiutata riceve un'attività di lettera con scadenza il giorno dopo. Precisa che non esiste alcun incarico e indica eventuali termini in scadenza."
+        },
+        "kickoff_event": {
+          "title": "Inserire la riunione di avvio nel calendario",
+          "description": "Quando la data di avvio è impostata, l'evento viene scritto nel calendario del responsabile."
+        },
+        "first_value_check": {
+          "title": "Verificare il primo risultato",
+          "description": "Quattordici giorni dopo l'acquisizione, un'attività di verifica chiede se il cliente ha visto un primo risultato."
+        },
+        "stalled_intake": {
+          "title": "Rivedere l'accoglienza ferma",
+          "description": "Un'accoglienza aperta rimasta 7 giorni nella stessa fase riceve un'attività di revisione."
+        },
+        "intake_form_records": {
+          "title": "Creare cliente, referente e accoglienza dal modulo",
+          "description": "Un modulo di accoglienza pubblico crea il cliente, il referente e un'accoglienza nella fase Richiesta."
+        },
+        "intake_form_notice": {
+          "title": "Avvisare il responsabile della nuova accoglienza",
+          "description": "Il titolare dello spazio di lavoro riceve un avviso a ogni invio."
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Ogni accoglienza ha una delle nove fasi.",
+        "first_response_field": "Ogni accoglienza registra quando hai risposto per la prima volta.",
+        "document_requests_list": "I documenti richiesti sono seguiti in un elenco proprio.",
+        "intakes_board_view": "L'elenco delle accoglienze si può vedere come board per fase.",
+        "chase_signature_rule": "Una lettera d'incarico inviata riceve un'attività di sollecito dopo 7 giorni.",
+        "process_page": "La base di conoscenza contiene il processo di accoglienza."
+      },
+      "prompt": {
+        "intro": "Configura l'accoglienza dei clienti nel mio spazio di lavoro Customermates: un'accoglienza per incarico con nove fasi, documenti richiesti, un passaggio datato a ogni fase, un motivo del rifiuto e verifiche facoltative di identità, conflitto e rischio che annotano chi ha verificato e quando.",
+        "questions": [
+          "Che cosa vendi e chi sono i tuoi clienti: società, ditte individuali o privati?",
+          "Quali passaggi attraversa oggi un nuovo cliente e quali delle nove fasi non ti servono?",
+          "La tua professione è regolamentata e richiede di registrare verifiche di identità, conflitto o rischio? In quale paese?",
+          "Quali documenti chiedi sempre e dove li conservi? Qui si tiene solo un link.",
+          "Dove firmano i clienti la lettera d'incarico? Resta lì e qui si tengono le date."
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "Klantintake en onboarding",
+      "summary": "Eén intake per opdracht: aanvraag, eerste screening, intakeformulier, documenten, overeenkomst en kickoff, met een stap met datum in elke fase en een reden als je afwijst.",
+      "description": "Een korte pipeline om een nieuwe klant aan te nemen: binnen een dag reageren, op geschiktheid screenen, het intakeformulier sturen, documenten verzamelen, de overeenkomst sturen, starten. Gereguleerde beroepen leggen vast wie de identiteit controleerde en wanneer, nooit het document zelf. Geen hulpmiddel voor e-handtekeningen, Wwft-controle of betalingen.",
+      "lists": {
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén volgende stap met datum per open dossier."
+        },
+        "contacts": {
+          "label": "Contactpersoon",
+          "pluralLabel": "Contactpersonen",
+          "description": "De mensen bij elke klant: hoofdcontact, facturatie, ondertekenaar."
+        },
+        "clients": {
+          "label": "Klant",
+          "pluralLabel": "Klanten",
+          "description": "Bedrijven, zzp’ers en particulieren die je aanneemt."
+        },
+        "intakes": {
+          "label": "Intake",
+          "pluralLabel": "Intakes",
+          "description": "Eén intake per opdracht, van aanvraag tot gestart of afgewezen."
+        },
+        "document_requests": {
+          "label": "Documentverzoek",
+          "pluralLabel": "Documentverzoeken",
+          "description": "Eén regel per document dat je bij een klant opvraagt."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "In de wacht",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "intakes.stage": {
+          "label": "Fase",
+          "options": {
+            "enquiry": "Aanvraag",
+            "screening": "Eerste screening",
+            "form_sent": "Intakeformulier verstuurd",
+            "review_checks": "Controle",
+            "agreement_sent": "Overeenkomst verstuurd",
+            "ready_to_start": "Klaar voor start",
+            "kickoff_scheduled": "Kickoff gepland",
+            "onboarded": "Gestart",
+            "declined": "Afgewezen"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Functie",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Rol",
+          "options": {
+            "primary": "Hoofdcontact",
+            "billing": "Facturatie",
+            "signatory": "Ondertekenaar",
+            "technical": "Technisch",
+            "other": "Overig"
+          }
+        },
+        "contacts.language": {
+          "label": "Taal",
+          "options": {}
+        },
+        "contacts.privacy_notice_sent_on": {
+          "label": "Privacyverklaring verstuurd op",
+          "options": {}
+        },
+        "clients.client_type": {
+          "label": "Type klant",
+          "options": {
+            "company": "Bedrijf",
+            "sole_trader": "Zzp’er",
+            "individual": "Particulier",
+            "organisation": "Vereniging of organisatie"
+          }
+        },
+        "clients.owner": {
+          "label": "Accountmanager",
+          "options": {}
+        },
+        "clients.website": {
+          "label": "Website",
+          "options": {}
+        },
+        "clients.address": {
+          "label": "Adres",
+          "options": {}
+        },
+        "clients.registration_id": {
+          "label": "KvK- of btw-nummer",
+          "options": {}
+        },
+        "clients.source": {
+          "label": "Herkomst",
+          "options": {
+            "referral": "Aanbeveling",
+            "website": "Website",
+            "event": "Evenement",
+            "outbound": "Eigen acquisitie",
+            "partner": "Partner",
+            "other": "Overig"
+          }
+        },
+        "intakes.owner": {
+          "label": "Verantwoordelijke",
+          "options": {}
+        },
+        "intakes.service": {
+          "label": "Dienst",
+          "options": {}
+        },
+        "intakes.received_on": {
+          "label": "Ontvangen op",
+          "options": {}
+        },
+        "intakes.first_response_on": {
+          "label": "Eerste reactie op",
+          "options": {}
+        },
+        "intakes.form_sent_on": {
+          "label": "Formulier verstuurd op",
+          "options": {}
+        },
+        "intakes.form_received_on": {
+          "label": "Formulier ontvangen op",
+          "options": {}
+        },
+        "intakes.agreement_sent_on": {
+          "label": "Overeenkomst verstuurd op",
+          "options": {}
+        },
+        "intakes.agreement_signed_on": {
+          "label": "Overeenkomst getekend op",
+          "options": {}
+        },
+        "intakes.kickoff_on": {
+          "label": "Kickoff op",
+          "options": {}
+        },
+        "intakes.fee_model": {
+          "label": "Tariefmodel",
+          "options": {
+            "fixed": "Vaste prijs",
+            "hourly": "Uurtarief",
+            "retainer": "Maandelijkse retainer",
+            "other": "Overig"
+          }
+        },
+        "intakes.deposit_required": {
+          "label": "Voorschot vereist",
+          "options": {}
+        },
+        "intakes.deposit_received_on": {
+          "label": "Voorschot ontvangen op",
+          "options": {}
+        },
+        "intakes.identity_verified_on": {
+          "label": "Identiteit gecontroleerd op",
+          "options": {}
+        },
+        "intakes.identity_verified_by": {
+          "label": "Identiteit gecontroleerd door",
+          "options": {}
+        },
+        "intakes.conflict_check": {
+          "label": "Controle op belangenconflict",
+          "options": {
+            "not_required": "Niet vereist",
+            "pending": "In behandeling",
+            "clear": "Geen conflict",
+            "conflict_found": "Conflict gevonden"
+          }
+        },
+        "intakes.risk_rating": {
+          "label": "Risicobeoordeling",
+          "options": {
+            "not_assessed": "Niet beoordeeld",
+            "low": "Laag",
+            "standard": "Standaard",
+            "high": "Hoog"
+          }
+        },
+        "intakes.decline_reason": {
+          "label": "Reden van afwijzing",
+          "options": {
+            "conflict": "Belangenconflict",
+            "not_a_fit": "Past niet",
+            "no_capacity": "Geen capaciteit",
+            "no_response": "Geen reactie",
+            "client_withdrew": "Klant trok zich terug",
+            "risk": "Risico",
+            "other": "Overig"
+          }
+        },
+        "intakes.decline_notice_sent_on": {
+          "label": "Afwijzing verstuurd op",
+          "options": {}
+        },
+        "intakes.next_step": {
+          "label": "Volgende stap",
+          "options": {}
+        },
+        "intakes.next_step_due": {
+          "label": "Datum volgende stap",
+          "options": {}
+        },
+        "intakes.days_to_first_response": {
+          "label": "Dagen tot eerste reactie",
+          "options": {}
+        },
+        "intakes.days_to_kickoff": {
+          "label": "Dagen tot kickoff",
+          "options": {}
+        },
+        "document_requests.kind": {
+          "label": "Soort",
+          "options": {
+            "identity": "Identiteitsbewijs",
+            "proof_of_address": "Bewijs van adres",
+            "company_register": "Uittreksel Kamer van Koophandel",
+            "prior_year_return": "Aangifte vorig jaar",
+            "contract": "Contract",
+            "questionnaire": "Vragenlijst",
+            "access_credentials": "Inloggegevens",
+            "other": "Overig"
+          }
+        },
+        "document_requests.status": {
+          "label": "Status",
+          "options": {
+            "requested": "Opgevraagd",
+            "partial": "Deels ontvangen",
+            "received": "Ontvangen",
+            "needs_correction": "Moet worden gecorrigeerd",
+            "not_needed": "Niet nodig"
+          }
+        },
+        "document_requests.requested_on": {
+          "label": "Opgevraagd op",
+          "options": {}
+        },
+        "document_requests.needed_by": {
+          "label": "Uiterste datum",
+          "options": {}
+        },
+        "document_requests.received_on": {
+          "label": "Ontvangen op",
+          "options": {}
+        },
+        "document_requests.where_stored": {
+          "label": "Waar het is opgeslagen",
+          "options": {}
+        },
+        "document_requests.owner": {
+          "label": "Verantwoordelijke",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "reply": "Antwoord",
+            "chase_form": "Formulier opvolgen",
+            "chase_document": "Document opvolgen",
+            "review": "Controle",
+            "check": "Check",
+            "send_agreement": "Overeenkomst sturen",
+            "chase_signature": "Handtekening opvolgen",
+            "kickoff": "Kickoff",
+            "decline_letter": "Afwijzingsbrief",
+            "other": "Overig"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Klant",
+          "targetLabel": "Contactpersonen"
+        },
+        "intake_client": {
+          "sourceLabel": "Klant",
+          "targetLabel": "Intakes"
+        },
+        "intake_contact": {
+          "sourceLabel": "Hoofdcontact",
+          "targetLabel": "Intakes"
+        },
+        "document_request_intake": {
+          "sourceLabel": "Intake",
+          "targetLabel": "Documentverzoeken"
+        },
+        "action_intake": {
+          "sourceLabel": "Intake",
+          "targetLabel": "Acties"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "intakes_all": {
+          "name": "Alle intakes"
+        },
+        "intakes_board": {
+          "name": "Intakes per fase"
+        },
+        "awaiting_signature": {
+          "name": "Wacht op handtekening"
+        },
+        "no_first_response": {
+          "name": "Zonder eerste reactie"
+        },
+        "declined_intakes": {
+          "name": "Afgewezen"
+        },
+        "document_requests_all": {
+          "name": "Alle documentverzoeken"
+        },
+        "documents_outstanding": {
+          "name": "Wacht op documenten"
+        },
+        "clients_all": {
+          "name": "Alle klanten"
+        },
+        "contacts_all": {
+          "name": "Alle contactpersonen"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Aankomende acties"
+        },
+        "overdue_actions": {
+          "title": "Achterstallige acties"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        },
+        "intakes_by_stage": {
+          "title": "Open intakes per fase"
+        },
+        "open_intakes_by_owner": {
+          "title": "Open intakes per verantwoordelijke"
+        },
+        "enquiries_without_reply": {
+          "title": "Aanvragen zonder eerste reactie"
+        },
+        "documents_outstanding": {
+          "title": "Openstaande documenten"
+        },
+        "awaiting_signature_count": {
+          "title": "Wacht op handtekening"
+        },
+        "average_days_to_reply": {
+          "title": "Gemiddeld aantal dagen tot eerste reactie"
+        },
+        "average_days_to_kickoff": {
+          "title": "Gemiddeld aantal dagen tot kickoff"
+        },
+        "decline_reasons": {
+          "title": "Redenen van afwijzing"
+        },
+        "new_intakes_per_month": {
+          "title": "Nieuwe intakes per maand"
+        }
+      },
+      "knowledgePages": {
+        "intake_process": {
+          "title": "Intakeproces voor klanten",
+          "sections": [
+            "De negen fasen en wat elke fase afsluit",
+            "Wie antwoordt, wie screent, wie tekent",
+            "Tijdskaders: binnen een dag reageren, opvolgen na 3 en 7 dagen"
+          ]
+        },
+        "intake_questionnaire": {
+          "title": "Intakeformulier per type klant",
+          "sections": [
+            "Bedrijf, zzp’er, particulier, vereniging",
+            "Vragen die over geschiktheid beslissen",
+            "Waar je nooit naar vraagt"
+          ]
+        },
+        "document_requests_guide": {
+          "title": "Documentenlijst en herinneringsberichten",
+          "sections": [
+            "Standaardlijst per dienst",
+            "Eerste verzoek en herinneringen",
+            "Als een document gecorrigeerd moet worden"
+          ]
+        },
+        "agreement_checklist": {
+          "title": "Checklist overeenkomst",
+          "sections": [
+            "Reikwijdte, tariefmodel en voorschot",
+            "Wie tekent en in welke tool",
+            "Wat te doen als de handtekening uitblijft"
+          ]
+        },
+        "regulated_checks": {
+          "title": "Controle op identiteit, conflict en risico voor gereguleerde beroepen",
+          "sections": [
+            "Leg vast wie wanneer controleerde, nooit het document",
+            "Conflictcontrole voordat het werk begint",
+            "Risicobeoordeling en wanneer je afwijst"
+          ]
+        },
+        "privacy_at_intake": {
+          "title": "Privacy: wat we bij de intake verzamelen en waarom",
+          "sections": [
+            "Doel en grondslag",
+            "Wat buiten de werkruimte blijft",
+            "Bewaartermijn en verzoeken om verwijdering"
+          ]
+        }
+      },
+      "rules": {
+        "reply_to_enquiry": {
+          "title": "Beantwoord de aanvraag",
+          "description": "Een nieuwe intake krijgt een antwoordactie met deadline de volgende dag."
+        },
+        "chase_form": {
+          "title": "Volg het intakeformulier op",
+          "description": "Drie dagen nadat het formulier is verstuurd, staat er een opvolgactie klaar."
+        },
+        "chase_document": {
+          "title": "Volg het ontbrekende document op",
+          "description": "Wanneer de uiterste datum van een open documentverzoek is bereikt, wordt een opvolgactie aangemaakt."
+        },
+        "review_received_document": {
+          "title": "Controleer het ontvangen document",
+          "description": "Wanneer een document als ontvangen is gemarkeerd, staat de volgende dag een controleactie klaar."
+        },
+        "chase_signature": {
+          "title": "Volg de handtekening op",
+          "description": "Zeven dagen nadat de overeenkomst is verstuurd, staat er een opvolgactie klaar."
+        },
+        "decline_letter": {
+          "title": "Stuur de afwijzingsbrief",
+          "description": "Een afgewezen intake krijgt een actie voor de afwijzingsbrief, met deadline de volgende dag. Vermeld dat er geen opdracht bestaat en noem een naderende termijn."
+        },
+        "kickoff_event": {
+          "title": "Zet de kickoff in de agenda",
+          "description": "Zodra de kickoffdatum is ingesteld, wordt de afspraak in de agenda van de verantwoordelijke gezet."
+        },
+        "first_value_check": {
+          "title": "Controleer het eerste resultaat",
+          "description": "Veertien dagen na de start vraagt een controleactie of de klant een eerste resultaat heeft gezien."
+        },
+        "stalled_intake": {
+          "title": "Bekijk de vastgelopen intake",
+          "description": "Een open intake die 7 dagen in dezelfde fase bleef, krijgt een controleactie."
+        },
+        "intake_form_records": {
+          "title": "Maak klant, contactpersoon en intake aan uit het formulier",
+          "description": "Een openbaar intakeformulier maakt de klant, de contactpersoon en een intake in de fase Aanvraag aan."
+        },
+        "intake_form_notice": {
+          "title": "Informeer de verantwoordelijke over de nieuwe intake",
+          "description": "De eigenaar van de werkruimte krijgt een melding van elke inzending."
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Elke intake heeft een van de negen fasen.",
+        "first_response_field": "Elke intake legt vast wanneer je voor het eerst reageerde.",
+        "document_requests_list": "Documentverzoeken worden in een eigen lijst bijgehouden.",
+        "intakes_board_view": "De intakelijst is te zien als bord per fase.",
+        "chase_signature_rule": "Een verstuurde overeenkomst krijgt na 7 dagen een opvolgactie.",
+        "process_page": "De kennisbank bevat het intakeproces."
+      },
+      "prompt": {
+        "intro": "Richt de klantintake in mijn Customermates-werkruimte in: één intake per opdracht met negen fasen, documentverzoeken, een stap met datum in elke fase, een reden van afwijzing en optionele controles op identiteit, conflict en risico die vastleggen wie wanneer controleerde.",
+        "questions": [
+          "Wat verkoop je en wie zijn je klanten: bedrijven, zzp’ers of particulieren?",
+          "Welke stappen doorloopt een nieuwe klant nu en welke van de negen fasen heb je niet nodig?",
+          "Is je beroep gereguleerd, zodat identiteit, conflict of risico moeten worden vastgelegd? In welk land?",
+          "Welke documenten vraag je altijd op en waar bewaar je ze? Hier wordt alleen een link bewaard.",
+          "Waar tekenen klanten de overeenkomst? Die blijft daar en hier worden de data bewaard."
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Przyjęcie klienta i onboarding",
+      "summary": "Jedno przyjęcie na zlecenie: zapytanie, wstępna kwalifikacja, ankieta, dokumenty, umowa i spotkanie startowe, z datowanym krokiem na każdym etapie i powodem, gdy odmawiasz.",
+      "description": "Krótki lejek przyjęcia nowego klienta: odpowiedź w ciągu doby, ocena dopasowania, wysłanie ankiety, zebranie dokumentów, wysłanie umowy, start. Zawody regulowane zapisują, kto i kiedy zweryfikował tożsamość, nigdy samego dokumentu. To nie jest narzędzie do podpisu elektronicznego, weryfikacji KYC/AML ani płatności.",
+      "lists": {
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jeden następny krok z terminem dla każdej otwartej sprawy."
+        },
+        "contacts": {
+          "label": "Osoba kontaktowa",
+          "pluralLabel": "Osoby kontaktowe",
+          "description": "Osoby u każdego klienta: główny kontakt, rozliczenia, osoba podpisująca."
+        },
+        "clients": {
+          "label": "Klient",
+          "pluralLabel": "Klienci",
+          "description": "Firmy, jednoosobowe działalności i osoby prywatne, które przyjmujesz."
+        },
+        "intakes": {
+          "label": "Przyjęcie",
+          "pluralLabel": "Przyjęcia",
+          "description": "Jedno przyjęcie na zlecenie, od zapytania do wdrożonego lub odrzuconego."
+        },
+        "document_requests": {
+          "label": "Dokument",
+          "pluralLabel": "Dokumenty",
+          "description": "Jeden wiersz na dokument, o który prosisz klienta."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarte",
+            "waiting": "Oczekuje",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "intakes.stage": {
+          "label": "Etap",
+          "options": {
+            "enquiry": "Zapytanie",
+            "screening": "Wstępna kwalifikacja",
+            "form_sent": "Ankieta wysłana",
+            "review_checks": "Weryfikacja",
+            "agreement_sent": "Umowa wysłana",
+            "ready_to_start": "Gotowe do startu",
+            "kickoff_scheduled": "Spotkanie startowe",
+            "onboarded": "Wdrożone",
+            "declined": "Odrzucone"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Stanowisko",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Rola",
+          "options": {
+            "primary": "Główny kontakt",
+            "billing": "Rozliczenia",
+            "signatory": "Osoba podpisująca",
+            "technical": "Kontakt techniczny",
+            "other": "Inna"
+          }
+        },
+        "contacts.language": {
+          "label": "Język",
+          "options": {}
+        },
+        "contacts.privacy_notice_sent_on": {
+          "label": "Data wysłania klauzuli informacyjnej",
+          "options": {}
+        },
+        "clients.client_type": {
+          "label": "Rodzaj klienta",
+          "options": {
+            "company": "Firma",
+            "sole_trader": "Jednoosobowa działalność",
+            "individual": "Osoba prywatna",
+            "organisation": "Stowarzyszenie lub organizacja"
+          }
+        },
+        "clients.owner": {
+          "label": "Opiekun",
+          "options": {}
+        },
+        "clients.website": {
+          "label": "Strona internetowa",
+          "options": {}
+        },
+        "clients.address": {
+          "label": "Adres",
+          "options": {}
+        },
+        "clients.registration_id": {
+          "label": "NIP, REGON lub KRS",
+          "options": {}
+        },
+        "clients.source": {
+          "label": "Źródło",
+          "options": {
+            "referral": "Polecenie",
+            "website": "Strona internetowa",
+            "event": "Wydarzenie",
+            "outbound": "Kontakt wychodzący",
+            "partner": "Partner",
+            "other": "Inne"
+          }
+        },
+        "intakes.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "intakes.service": {
+          "label": "Usługa",
+          "options": {}
+        },
+        "intakes.received_on": {
+          "label": "Data otrzymania",
+          "options": {}
+        },
+        "intakes.first_response_on": {
+          "label": "Data pierwszej odpowiedzi",
+          "options": {}
+        },
+        "intakes.form_sent_on": {
+          "label": "Data wysłania ankiety",
+          "options": {}
+        },
+        "intakes.form_received_on": {
+          "label": "Data otrzymania ankiety",
+          "options": {}
+        },
+        "intakes.agreement_sent_on": {
+          "label": "Data wysłania umowy",
+          "options": {}
+        },
+        "intakes.agreement_signed_on": {
+          "label": "Data podpisania umowy",
+          "options": {}
+        },
+        "intakes.kickoff_on": {
+          "label": "Data spotkania startowego",
+          "options": {}
+        },
+        "intakes.fee_model": {
+          "label": "Model wynagrodzenia",
+          "options": {
+            "fixed": "Ryczałt",
+            "hourly": "Za godzinę",
+            "retainer": "Abonament miesięczny",
+            "other": "Inny"
+          }
+        },
+        "intakes.deposit_required": {
+          "label": "Wymagana zaliczka",
+          "options": {}
+        },
+        "intakes.deposit_received_on": {
+          "label": "Data otrzymania zaliczki",
+          "options": {}
+        },
+        "intakes.identity_verified_on": {
+          "label": "Data weryfikacji tożsamości",
+          "options": {}
+        },
+        "intakes.identity_verified_by": {
+          "label": "Kto zweryfikował tożsamość",
+          "options": {}
+        },
+        "intakes.conflict_check": {
+          "label": "Sprawdzenie konfliktu interesów",
+          "options": {
+            "not_required": "Niewymagane",
+            "pending": "W toku",
+            "clear": "Brak konfliktu",
+            "conflict_found": "Wykryto konflikt"
+          }
+        },
+        "intakes.risk_rating": {
+          "label": "Ocena ryzyka",
+          "options": {
+            "not_assessed": "Nieocenione",
+            "low": "Niskie",
+            "standard": "Standardowe",
+            "high": "Wysokie"
+          }
+        },
+        "intakes.decline_reason": {
+          "label": "Powód odmowy",
+          "options": {
+            "conflict": "Konflikt interesów",
+            "not_a_fit": "Brak dopasowania",
+            "no_capacity": "Brak mocy przerobowych",
+            "no_response": "Brak odpowiedzi",
+            "client_withdrew": "Klient się wycofał",
+            "risk": "Ryzyko",
+            "other": "Inny"
+          }
+        },
+        "intakes.decline_notice_sent_on": {
+          "label": "Data wysłania odmowy",
+          "options": {}
+        },
+        "intakes.next_step": {
+          "label": "Następny krok",
+          "options": {}
+        },
+        "intakes.next_step_due": {
+          "label": "Termin następnego kroku",
+          "options": {}
+        },
+        "intakes.days_to_first_response": {
+          "label": "Dni do pierwszej odpowiedzi",
+          "options": {}
+        },
+        "intakes.days_to_kickoff": {
+          "label": "Dni do spotkania startowego",
+          "options": {}
+        },
+        "document_requests.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "identity": "Dokument tożsamości",
+            "proof_of_address": "Potwierdzenie adresu",
+            "company_register": "Odpis z rejestru",
+            "prior_year_return": "Zeznanie podatkowe za poprzedni rok",
+            "contract": "Umowa",
+            "questionnaire": "Ankieta",
+            "access_credentials": "Dane dostępowe",
+            "other": "Inny"
+          }
+        },
+        "document_requests.status": {
+          "label": "Status",
+          "options": {
+            "requested": "Oczekiwany",
+            "partial": "Otrzymany częściowo",
+            "received": "Otrzymany",
+            "needs_correction": "Wymaga poprawy",
+            "not_needed": "Niepotrzebny"
+          }
+        },
+        "document_requests.requested_on": {
+          "label": "Data prośby",
+          "options": {}
+        },
+        "document_requests.needed_by": {
+          "label": "Termin",
+          "options": {}
+        },
+        "document_requests.received_on": {
+          "label": "Data otrzymania",
+          "options": {}
+        },
+        "document_requests.where_stored": {
+          "label": "Miejsce przechowywania",
+          "options": {}
+        },
+        "document_requests.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "reply": "Odpowiedź",
+            "chase_form": "Ponaglić ankietę",
+            "chase_document": "Ponaglić dokument",
+            "review": "Przegląd",
+            "check": "Kontrola",
+            "send_agreement": "Wysłać umowę",
+            "chase_signature": "Ponaglić podpis",
+            "kickoff": "Spotkanie startowe",
+            "decline_letter": "Pismo z odmową",
+            "other": "Inne"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Klient",
+          "targetLabel": "Osoby kontaktowe"
+        },
+        "intake_client": {
+          "sourceLabel": "Klient",
+          "targetLabel": "Przyjęcia"
+        },
+        "intake_contact": {
+          "sourceLabel": "Główny kontakt",
+          "targetLabel": "Przyjęcia"
+        },
+        "document_request_intake": {
+          "sourceLabel": "Przyjęcie",
+          "targetLabel": "Dokumenty"
+        },
+        "action_intake": {
+          "sourceLabel": "Przyjęcie",
+          "targetLabel": "Zadania"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "intakes_all": {
+          "name": "Wszystkie przyjęcia"
+        },
+        "intakes_board": {
+          "name": "Przyjęcia wg etapu"
+        },
+        "awaiting_signature": {
+          "name": "Czeka na podpis"
+        },
+        "no_first_response": {
+          "name": "Bez pierwszej odpowiedzi"
+        },
+        "declined_intakes": {
+          "name": "Odrzucone"
+        },
+        "document_requests_all": {
+          "name": "Wszystkie dokumenty"
+        },
+        "documents_outstanding": {
+          "name": "Czeka na dokumenty"
+        },
+        "clients_all": {
+          "name": "Wszyscy klienci"
+        },
+        "contacts_all": {
+          "name": "Wszystkie osoby kontaktowe"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Nadchodzące zadania"
+        },
+        "overdue_actions": {
+          "title": "Zaległe zadania"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        },
+        "intakes_by_stage": {
+          "title": "Otwarte przyjęcia wg etapu"
+        },
+        "open_intakes_by_owner": {
+          "title": "Otwarte przyjęcia wg osoby odpowiedzialnej"
+        },
+        "enquiries_without_reply": {
+          "title": "Zapytania bez pierwszej odpowiedzi"
+        },
+        "documents_outstanding": {
+          "title": "Brakujące dokumenty"
+        },
+        "awaiting_signature_count": {
+          "title": "Czeka na podpis"
+        },
+        "average_days_to_reply": {
+          "title": "Średnia liczba dni do pierwszej odpowiedzi"
+        },
+        "average_days_to_kickoff": {
+          "title": "Średnia liczba dni do spotkania startowego"
+        },
+        "decline_reasons": {
+          "title": "Powody odmów"
+        },
+        "new_intakes_per_month": {
+          "title": "Nowe przyjęcia w poszczególnych miesiącach"
+        }
+      },
+      "knowledgePages": {
+        "intake_process": {
+          "title": "Proces przyjęcia klienta",
+          "sections": [
+            "Dziewięć etapów i co zamyka każdy z nich",
+            "Kto odpowiada, kto kwalifikuje, kto podpisuje",
+            "Ramy czasowe: odpowiedź w ciągu doby, ponaglenie po 3 i po 7 dniach"
+          ]
+        },
+        "intake_questionnaire": {
+          "title": "Ankieta wg rodzaju klienta",
+          "sections": [
+            "Firma, jednoosobowa działalność, osoba prywatna, stowarzyszenie",
+            "Pytania rozstrzygające o dopasowaniu",
+            "O co nigdy nie pytasz"
+          ]
+        },
+        "document_requests_guide": {
+          "title": "Lista dokumentów i wiadomości ponaglające",
+          "sections": [
+            "Standardowa lista dla usługi",
+            "Pierwsza prośba i przypomnienia",
+            "Gdy dokument wymaga poprawy"
+          ]
+        },
+        "agreement_checklist": {
+          "title": "Lista kontrolna umowy",
+          "sections": [
+            "Zakres, model wynagrodzenia i zaliczka",
+            "Kto podpisuje i w jakim narzędziu",
+            "Co robić, gdy umowa pozostaje niepodpisana"
+          ]
+        },
+        "regulated_checks": {
+          "title": "Weryfikacja tożsamości, konfliktu i ryzyka w zawodach regulowanych",
+          "sections": [
+            "Zapisz, kto i kiedy sprawdził, ale nigdy samego dokumentu",
+            "Sprawdzenie konfliktów przed rozpoczęciem pracy",
+            "Ocena ryzyka i kiedy odmówić"
+          ]
+        },
+        "privacy_at_intake": {
+          "title": "Prywatność: co zbieramy przy przyjęciu i dlaczego",
+          "sections": [
+            "Cel i podstawa prawna",
+            "Co zostaje poza przestrzenią roboczą",
+            "Przechowywanie i wnioski o usunięcie"
+          ]
+        }
+      },
+      "rules": {
+        "reply_to_enquiry": {
+          "title": "Odpowiedz na zapytanie",
+          "description": "Nowe przyjęcie dostaje zadanie odpowiedzi z terminem na następny dzień."
+        },
+        "chase_form": {
+          "title": "Ponagl ankietę",
+          "description": "Trzy dni po wysłaniu ankiety przypada zadanie ponaglenia."
+        },
+        "chase_document": {
+          "title": "Ponagl brakujący dokument",
+          "description": "Gdy upływa termin otwartego dokumentu, powstaje zadanie ponaglenia."
+        },
+        "review_received_document": {
+          "title": "Sprawdź otrzymany dokument",
+          "description": "Gdy dokument zostanie oznaczony jako otrzymany, zadanie kontroli przypada następnego dnia."
+        },
+        "chase_signature": {
+          "title": "Ponagl podpis",
+          "description": "Siedem dni po wysłaniu umowy przypada zadanie ponaglenia."
+        },
+        "decline_letter": {
+          "title": "Wyślij pismo z odmową",
+          "description": "Odrzucone przyjęcie dostaje zadanie pisma z terminem na następny dzień. Napisz, że zlecenie nie istnieje, i wskaż zbliżające się terminy."
+        },
+        "kickoff_event": {
+          "title": "Wpisz spotkanie startowe do kalendarza",
+          "description": "Gdy ustawisz datę spotkania, wydarzenie trafia do kalendarza osoby odpowiedzialnej."
+        },
+        "first_value_check": {
+          "title": "Sprawdź pierwszy efekt",
+          "description": "Czternaście dni po wdrożeniu powstaje zadanie kontrolne: czy klient zobaczył pierwszy efekt."
+        },
+        "stalled_intake": {
+          "title": "Przejrzyj przyjęcie, które utknęło",
+          "description": "Otwarte przyjęcie, które przez 7 dni stoi na tym samym etapie, dostaje zadanie przeglądu."
+        },
+        "intake_form_records": {
+          "title": "Utwórz klienta, osobę kontaktową i przyjęcie z formularza",
+          "description": "Publiczny formularz przyjęcia tworzy klienta, osobę kontaktową i przyjęcie na etapie Zapytanie."
+        },
+        "intake_form_notice": {
+          "title": "Powiadom właściciela o nowym przyjęciu",
+          "description": "Właściciel przestrzeni roboczej dostaje powiadomienie o każdym zgłoszeniu."
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Każde przyjęcie ma jeden z dziewięciu etapów.",
+        "first_response_field": "Każde przyjęcie zapisuje, kiedy pierwszy raz odpowiedziano.",
+        "document_requests_list": "Dokumenty są śledzone na własnej liście.",
+        "intakes_board_view": "Listę przyjęć można zobaczyć jako tablicę wg etapów.",
+        "chase_signature_rule": "Wysłana umowa dostaje zadanie ponaglenia po 7 dniach.",
+        "process_page": "Baza wiedzy zawiera proces przyjęcia."
+      },
+      "prompt": {
+        "intro": "Skonfiguruj przyjmowanie klientów w mojej przestrzeni roboczej Customermates: jedno przyjęcie na zlecenie z dziewięcioma etapami, dokumenty od klienta, datowany krok na każdym etapie, powód odmowy oraz opcjonalna weryfikacja tożsamości, konfliktu i ryzyka, która zapisuje, kto i kiedy sprawdził.",
+        "questions": [
+          "Co sprzedajesz i jacy są Twoi klienci: firmy, jednoosobowe działalności czy osoby prywatne?",
+          "Jakie kroki przechodzi dziś nowy klient i których z dziewięciu etapów nie potrzebujesz?",
+          "Czy wykonujesz zawód regulowany, w którym trzeba zapisywać weryfikację tożsamości, konflikt interesów lub ocenę ryzyka? W jakim kraju?",
+          "O jakie dokumenty zawsze prosisz i gdzie je przechowujesz? Tutaj zapisujemy tylko link.",
+          "Gdzie klienci podpisują umowę? Umowa zostaje tam, a tutaj zapisujemy tylko daty."
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "Ficha cadastral de clientes e integração",
+      "summary": "Uma integração por contrato: solicitação, triagem, questionário, documentos solicitados, contrato e reunião de kickoff, com um passo datado em cada etapa e um motivo quando você recusa.",
+      "description": "Um funil curto para receber um novo cliente: responder em um dia, triar a aderência, enviar o questionário, reunir os documentos, enviar o contrato, começar. Profissões regulamentadas registram quem conferiu a identidade e quando, nunca o documento. Não é uma ferramenta de assinatura eletrônica, de prevenção à lavagem de dinheiro nem de pagamentos.",
+      "lists": {
+        "actions": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um próximo passo com data para cada item em aberto."
+        },
+        "contacts": {
+          "label": "Contato",
+          "pluralLabel": "Contatos",
+          "description": "As pessoas de cada cliente: contato principal, financeiro, signatário."
+        },
+        "clients": {
+          "label": "Cliente",
+          "pluralLabel": "Clientes",
+          "description": "Empresas, autônomos e pessoas físicas que você recebe."
+        },
+        "intakes": {
+          "label": "Integração",
+          "pluralLabel": "Integrações",
+          "description": "Uma integração por contrato, da solicitação até cliente ativo ou recusado."
+        },
+        "document_requests": {
+          "label": "Documento solicitado",
+          "pluralLabel": "Documentos solicitados",
+          "description": "Uma linha por documento que você pede a um cliente."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberta",
+            "waiting": "Aguardando",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "intakes.stage": {
+          "label": "Etapa",
+          "options": {
+            "enquiry": "Solicitação",
+            "screening": "Triagem",
+            "form_sent": "Questionário enviado",
+            "review_checks": "Análise e conferência",
+            "agreement_sent": "Contrato enviado",
+            "ready_to_start": "Pronto para iniciar",
+            "kickoff_scheduled": "Reunião de kickoff",
+            "onboarded": "Cliente ativo",
+            "declined": "Recusado"
+          }
+        },
+        "contacts.job_title": {
+          "label": "Cargo",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Papel",
+          "options": {
+            "primary": "Contato principal",
+            "billing": "Financeiro",
+            "signatory": "Signatário",
+            "technical": "Técnico",
+            "other": "Outro"
+          }
+        },
+        "contacts.language": {
+          "label": "Idioma",
+          "options": {}
+        },
+        "contacts.privacy_notice_sent_on": {
+          "label": "Aviso de privacidade enviado em",
+          "options": {}
+        },
+        "clients.client_type": {
+          "label": "Tipo de cliente",
+          "options": {
+            "company": "Pessoa jurídica",
+            "sole_trader": "Autônomo ou MEI",
+            "individual": "Pessoa física",
+            "organisation": "Associação ou entidade"
+          }
+        },
+        "clients.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "clients.website": {
+          "label": "Site",
+          "options": {}
+        },
+        "clients.address": {
+          "label": "Endereço",
+          "options": {}
+        },
+        "clients.registration_id": {
+          "label": "CNPJ ou CPF",
+          "options": {}
+        },
+        "clients.source": {
+          "label": "Origem",
+          "options": {
+            "referral": "Indicação",
+            "website": "Site",
+            "event": "Evento",
+            "outbound": "Prospecção ativa",
+            "partner": "Parceiro",
+            "other": "Outra"
+          }
+        },
+        "intakes.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "intakes.service": {
+          "label": "Serviço",
+          "options": {}
+        },
+        "intakes.received_on": {
+          "label": "Recebida em",
+          "options": {}
+        },
+        "intakes.first_response_on": {
+          "label": "Primeira resposta em",
+          "options": {}
+        },
+        "intakes.form_sent_on": {
+          "label": "Questionário enviado em",
+          "options": {}
+        },
+        "intakes.form_received_on": {
+          "label": "Questionário recebido em",
+          "options": {}
+        },
+        "intakes.agreement_sent_on": {
+          "label": "Contrato enviado em",
+          "options": {}
+        },
+        "intakes.agreement_signed_on": {
+          "label": "Contrato assinado em",
+          "options": {}
+        },
+        "intakes.kickoff_on": {
+          "label": "Kickoff em",
+          "options": {}
+        },
+        "intakes.fee_model": {
+          "label": "Modelo de honorários",
+          "options": {
+            "fixed": "Valor fixo",
+            "hourly": "Por hora",
+            "retainer": "Mensalidade",
+            "other": "Outro"
+          }
+        },
+        "intakes.deposit_required": {
+          "label": "Adiantamento exigido",
+          "options": {}
+        },
+        "intakes.deposit_received_on": {
+          "label": "Adiantamento recebido em",
+          "options": {}
+        },
+        "intakes.identity_verified_on": {
+          "label": "Identidade conferida em",
+          "options": {}
+        },
+        "intakes.identity_verified_by": {
+          "label": "Identidade conferida por",
+          "options": {}
+        },
+        "intakes.conflict_check": {
+          "label": "Verificação de conflito de interesses",
+          "options": {
+            "not_required": "Não exigida",
+            "pending": "Pendente",
+            "clear": "Sem conflito",
+            "conflict_found": "Conflito encontrado"
+          }
+        },
+        "intakes.risk_rating": {
+          "label": "Nível de risco",
+          "options": {
+            "not_assessed": "Não avaliado",
+            "low": "Baixo",
+            "standard": "Normal",
+            "high": "Alto"
+          }
+        },
+        "intakes.decline_reason": {
+          "label": "Motivo da recusa",
+          "options": {
+            "conflict": "Conflito de interesses",
+            "not_a_fit": "Sem aderência",
+            "no_capacity": "Sem capacidade",
+            "no_response": "Sem resposta",
+            "client_withdrew": "O cliente desistiu",
+            "risk": "Risco",
+            "other": "Outro"
+          }
+        },
+        "intakes.decline_notice_sent_on": {
+          "label": "Recusa enviada em",
+          "options": {}
+        },
+        "intakes.next_step": {
+          "label": "Próximo passo",
+          "options": {}
+        },
+        "intakes.next_step_due": {
+          "label": "Data do próximo passo",
+          "options": {}
+        },
+        "intakes.days_to_first_response": {
+          "label": "Dias até a primeira resposta",
+          "options": {}
+        },
+        "intakes.days_to_kickoff": {
+          "label": "Dias até o kickoff",
+          "options": {}
+        },
+        "document_requests.kind": {
+          "label": "Tipo",
+          "options": {
+            "identity": "Documento de identidade",
+            "proof_of_address": "Comprovante de endereço",
+            "company_register": "Contrato social ou cartão CNPJ",
+            "prior_year_return": "Declaração do ano anterior",
+            "contract": "Contrato",
+            "questionnaire": "Questionário",
+            "access_credentials": "Acessos e senhas",
+            "other": "Outro"
+          }
+        },
+        "document_requests.status": {
+          "label": "Status",
+          "options": {
+            "requested": "Solicitado",
+            "partial": "Recebido em parte",
+            "received": "Recebido",
+            "needs_correction": "Precisa de correção",
+            "not_needed": "Dispensado"
+          }
+        },
+        "document_requests.requested_on": {
+          "label": "Documentos solicitados em",
+          "options": {}
+        },
+        "document_requests.needed_by": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "document_requests.received_on": {
+          "label": "Recebido em",
+          "options": {}
+        },
+        "document_requests.where_stored": {
+          "label": "Onde está guardado",
+          "options": {}
+        },
+        "document_requests.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Resposta",
+            "chase_form": "Cobrar o questionário",
+            "chase_document": "Cobrar um documento",
+            "review": "Revisão",
+            "check": "Conferência",
+            "send_agreement": "Enviar o contrato",
+            "chase_signature": "Cobrar a assinatura",
+            "kickoff": "Kickoff",
+            "decline_letter": "Carta de recusa",
+            "other": "Outro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Contatos"
+        },
+        "intake_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Integrações"
+        },
+        "intake_contact": {
+          "sourceLabel": "Contato principal",
+          "targetLabel": "Integrações"
+        },
+        "document_request_intake": {
+          "sourceLabel": "Integração",
+          "targetLabel": "Documentos solicitados"
+        },
+        "action_intake": {
+          "sourceLabel": "Integração",
+          "targetLabel": "Tarefas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas as tarefas"
+        },
+        "intakes_all": {
+          "name": "Todas as integrações"
+        },
+        "intakes_board": {
+          "name": "Integrações por etapa"
+        },
+        "awaiting_signature": {
+          "name": "Aguardando assinatura"
+        },
+        "no_first_response": {
+          "name": "Sem primeira resposta"
+        },
+        "declined_intakes": {
+          "name": "Recusadas"
+        },
+        "document_requests_all": {
+          "name": "Todos os documentos solicitados"
+        },
+        "documents_outstanding": {
+          "name": "Aguardando documentos"
+        },
+        "clients_all": {
+          "name": "Todos os clientes"
+        },
+        "contacts_all": {
+          "name": "Todos os contatos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tarefas"
+        },
+        "overdue_actions": {
+          "title": "Tarefas atrasadas"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        },
+        "intakes_by_stage": {
+          "title": "Integrações abertas por etapa"
+        },
+        "open_intakes_by_owner": {
+          "title": "Integrações abertas por responsável"
+        },
+        "enquiries_without_reply": {
+          "title": "Solicitações sem primeira resposta"
+        },
+        "documents_outstanding": {
+          "title": "Documentos pendentes"
+        },
+        "awaiting_signature_count": {
+          "title": "Aguardando assinatura"
+        },
+        "average_days_to_reply": {
+          "title": "Média de dias até a primeira resposta"
+        },
+        "average_days_to_kickoff": {
+          "title": "Média de dias até o kickoff"
+        },
+        "decline_reasons": {
+          "title": "Motivos de recusa"
+        },
+        "new_intakes_per_month": {
+          "title": "Novas integrações por mês"
+        }
+      },
+      "knowledgePages": {
+        "intake_process": {
+          "title": "Processo de integração de clientes",
+          "sections": [
+            "As nove etapas e o que encerra cada uma",
+            "Quem responde, quem tria, quem assina",
+            "Prazos: responder em um dia, cobrar aos 3 e aos 7 dias"
+          ]
+        },
+        "intake_questionnaire": {
+          "title": "Questionário por tipo de cliente",
+          "sections": [
+            "Pessoa jurídica, autônomo, pessoa física, associação",
+            "Perguntas que decidem a aderência",
+            "O que você nunca pede"
+          ]
+        },
+        "document_requests_guide": {
+          "title": "Lista de documentos e mensagens de cobrança",
+          "sections": [
+            "Lista padrão por serviço",
+            "Primeiro pedido e lembretes",
+            "Quando um documento precisa de correção"
+          ]
+        },
+        "agreement_checklist": {
+          "title": "Checklist do contrato",
+          "sections": [
+            "Escopo, modelo de honorários e adiantamento",
+            "Quem assina e em qual ferramenta",
+            "O que fazer se ficar sem assinatura"
+          ]
+        },
+        "regulated_checks": {
+          "title": "Conferência de identidade, conflito e risco em profissões regulamentadas",
+          "sections": [
+            "Registrar quem conferiu e quando, nunca o documento",
+            "Busca de conflitos antes de começar",
+            "Nível de risco e quando recusar"
+          ]
+        },
+        "privacy_at_intake": {
+          "title": "Privacidade: o que coletamos na integração e por quê",
+          "sections": [
+            "Finalidade e base legal",
+            "O que fica fora do espaço de trabalho",
+            "Retenção e pedidos de exclusão"
+          ]
+        }
+      },
+      "rules": {
+        "reply_to_enquiry": {
+          "title": "Responder à solicitação",
+          "description": "Uma nova integração recebe uma tarefa de resposta para o dia seguinte."
+        },
+        "chase_form": {
+          "title": "Cobrar o questionário",
+          "description": "Três dias depois do envio do questionário vence uma tarefa de cobrança."
+        },
+        "chase_document": {
+          "title": "Cobrar o documento que falta",
+          "description": "Quando chega o prazo de um documento solicitado ainda aberto, é criada uma tarefa de cobrança."
+        },
+        "review_received_document": {
+          "title": "Conferir o documento recebido",
+          "description": "Quando um documento é marcado como recebido, uma tarefa de conferência vence no dia seguinte."
+        },
+        "chase_signature": {
+          "title": "Cobrar a assinatura",
+          "description": "Sete dias depois do envio do contrato vence uma tarefa de cobrança."
+        },
+        "decline_letter": {
+          "title": "Enviar a carta de recusa",
+          "description": "Uma integração recusada recebe uma tarefa de carta para o dia seguinte. Diga que não existe contrato e cite qualquer prazo próximo."
+        },
+        "kickoff_event": {
+          "title": "Colocar o kickoff na agenda",
+          "description": "Quando a data do kickoff é definida, o evento é gravado na agenda do responsável."
+        },
+        "first_value_check": {
+          "title": "Conferir o primeiro resultado",
+          "description": "Quatorze dias depois da integração, uma tarefa de conferência pergunta se o cliente já viu um primeiro resultado."
+        },
+        "stalled_intake": {
+          "title": "Revisar a integração parada",
+          "description": "Uma integração aberta que ficou 7 dias na mesma etapa recebe uma tarefa de revisão."
+        },
+        "intake_form_records": {
+          "title": "Criar cliente, contato e integração a partir do formulário",
+          "description": "Um formulário público de integração cria o cliente, o contato e uma integração na etapa Solicitação."
+        },
+        "intake_form_notice": {
+          "title": "Avisar o proprietário sobre a nova integração",
+          "description": "O proprietário do espaço de trabalho é avisado de cada envio."
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada integração tem uma das nove etapas.",
+        "first_response_field": "Cada integração registra quando você respondeu pela primeira vez.",
+        "document_requests_list": "Os documentos solicitados são acompanhados em uma lista própria.",
+        "intakes_board_view": "A lista de integrações pode ser vista como quadro por etapa.",
+        "chase_signature_rule": "Um contrato enviado recebe uma tarefa de cobrança após 7 dias.",
+        "process_page": "A base de conhecimento contém o processo de integração."
+      },
+      "prompt": {
+        "intro": "Configure a integração de clientes no meu espaço de trabalho do Customermates: uma integração por contrato com nove etapas, documentos solicitados, um passo datado em cada etapa, um motivo de recusa e conferências opcionais de identidade, conflito e risco que registram quem conferiu e quando.",
+        "questions": [
+          "O que você vende e quem são seus clientes: empresas, autônomos ou pessoas físicas?",
+          "Por quais passos um novo cliente passa hoje e quais das nove etapas você não precisa?",
+          "Sua profissão é regulamentada, de modo que identidade, conflito ou risco precisem ser registrados? Em que país?",
+          "Quais documentos você sempre pede e onde os guarda? Aqui só se guarda um link.",
+          "Onde os clientes assinam o contrato? Ele fica lá e aqui ficam as datas."
+        ]
+      }
+    }
+  }
+}

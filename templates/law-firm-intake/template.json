@@ -1,0 +1,167 @@
+{
+  "id": "tpl_law_firm_intake",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "law-firm-intake",
+  "family": "professional-services",
+  "kind": "pipeline",
+  "jurisdictions": ["DE", "FR", "IT", "ES", "BR", "PL", "NL"],
+  "dashboardAudience": "team",
+  "modules": ["actions_core", "actions_dashboard"],
+  "requiresCapabilities": ["forms", "rules", "notifications"],
+  "pairedPages": {
+    "en": "/for/law-firms",
+    "de": "/for/law-firms",
+    "fr": "/for/law-firms",
+    "it": "/for/law-firms",
+    "es": "/for/law-firms",
+    "pt": "/for/law-firms",
+    "pl": "/for/law-firms",
+    "nl": "/for/law-firms"
+  },
+  "lists": [
+    { "key": "contacts", "role": "people", "icon": "contact" },
+    { "key": "inquiries", "icon": "inbox" },
+    { "key": "matters", "icon": "gavel" },
+    { "key": "parties", "icon": "scale" }
+  ],
+  "stages": [
+    {
+      "field": "inquiries.stage",
+      "items": [
+        { "key": "new_inquiry", "outcome": "open", "weight": 10 },
+        { "key": "screening", "outcome": "open", "weight": 20 },
+        { "key": "consultation", "outcome": "open", "weight": 45 },
+        { "key": "fee_proposal_sent", "outcome": "open", "weight": 60 },
+        { "key": "agreement_signed", "outcome": "open", "weight": 85 },
+        { "key": "matter_opened", "outcome": "won", "weight": 100 },
+        { "key": "declined_by_firm", "outcome": "lost", "weight": 0 },
+        { "key": "not_retained", "outcome": "lost", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "contacts.contact_role", "type": "select", "options": [{ "key": "prospect" }, { "key": "client", "color": "success" }, { "key": "former_client", "color": "secondary" }, { "key": "referrer" }] },
+    { "key": "contacts.preferred_channel", "type": "select", "options": [{ "key": "email" }, { "key": "phone" }, { "key": "whatsapp" }, { "key": "post" }] },
+    {
+      "key": "inquiries.practice_area",
+      "type": "select",
+      "options": [{ "key": "employment" }, { "key": "family" }, { "key": "civil_contract" }, { "key": "real_estate" }, { "key": "corporate" }, { "key": "criminal" }, { "key": "immigration" }, { "key": "inheritance" }, { "key": "administrative" }, { "key": "other" }]
+    },
+    { "key": "inquiries.source", "type": "select", "options": [{ "key": "web_form" }, { "key": "phone" }, { "key": "referral" }, { "key": "whatsapp" }, { "key": "walk_in" }, { "key": "directory" }] },
+    { "key": "inquiries.urgent_deadline", "type": "date" },
+    { "key": "inquiries.deadline_source", "type": "text" },
+    { "key": "inquiries.conflict_check", "type": "select", "options": [{ "key": "pending", "color": "warning" }, { "key": "cleared", "color": "success" }, { "key": "cleared_with_waiver" }, { "key": "conflict_found", "color": "destructive" }] },
+    { "key": "inquiries.consultation_on", "type": "dateTime" },
+    { "key": "inquiries.fee_model", "type": "select", "options": [{ "key": "hourly" }, { "key": "fixed" }, { "key": "success_fee" }, { "key": "insurance_or_legal_aid" }, { "key": "mixed" }] },
+    { "key": "inquiries.advance_requested_on", "type": "date" },
+    { "key": "inquiries.advance_received_on", "type": "date" },
+    { "key": "inquiries.responsible_lawyer", "type": "member" },
+    { "key": "inquiries.next_step_due", "type": "date" },
+    { "key": "inquiries.lost_reason", "type": "select", "options": [{ "key": "conflict" }, { "key": "outside_practice_area" }, { "key": "capacity" }, { "key": "time_limit_referred_out" }, { "key": "fee" }, { "key": "chose_other_lawyer" }, { "key": "no_response" }, { "key": "self_resolved" }] },
+    { "key": "inquiries.non_engagement_letter_on", "type": "date" },
+    { "key": "matters.matter_ref", "type": "text" },
+    { "key": "matters.status", "type": "select", "options": [{ "key": "open", "color": "success" }, { "key": "on_hold", "color": "warning" }, { "key": "closed", "color": "secondary" }] },
+    { "key": "matters.opened_on", "type": "date" },
+    { "key": "matters.poa_valid_until", "type": "date" },
+    { "key": "matters.retention_until", "type": "date" },
+    { "key": "parties.party_role", "type": "select", "options": [{ "key": "opposing_party", "color": "destructive" }, { "key": "related_party" }, { "key": "co_client" }, { "key": "insurer" }, { "key": "third_party" }] },
+    { "key": "parties.party_type", "type": "select", "options": [{ "key": "person" }, { "key": "organisation" }] },
+    {
+      "key": "actions.kind",
+      "type": "select",
+      "options": [{ "key": "reply" }, { "key": "conflict_check" }, { "key": "consultation_prep" }, { "key": "fee_proposal" }, { "key": "follow_up" }, { "key": "advance" }, { "key": "letter" }, { "key": "other" }]
+    }
+  ],
+  "relationships": [
+    { "key": "inquiry_contact", "source": "inquiries", "target": "contacts", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "matter_contact", "source": "matters", "target": "contacts", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "matter_inquiry", "source": "matters", "target": "inquiries", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "party_inquiry", "source": "parties", "target": "inquiries", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "party_matter", "source": "parties", "target": "matters", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_inquiry", "source": "actions", "target": "inquiries", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_matter", "source": "actions", "target": "matters", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    { "key": "inquiries_board", "list": "inquiries", "default": true, "layout": "board", "groupBy": "inquiries.stage", "columns": ["inquiries.practice_area", "inquiries.responsible_lawyer", "inquiries.urgent_deadline", "inquiries.conflict_check"] },
+    { "key": "inquiries_all", "list": "inquiries", "default": false, "layout": "table", "sort": { "field": "inquiries.next_step_due", "direction": "asc" }, "columns": ["inquiries.stage", "inquiries.practice_area", "inquiries.responsible_lawyer", "inquiries.next_step_due"] },
+    { "key": "with_time_limit", "list": "inquiries", "default": false, "layout": "table", "sort": { "field": "inquiries.urgent_deadline", "direction": "asc" }, "filters": [{ "operator": "notIn", "field": "inquiries.stage", "options": ["matter_opened", "declined_by_firm", "not_retained"] }, { "operator": "notEmpty", "field": "inquiries.urgent_deadline" }] },
+    { "key": "conflicts_to_check", "list": "inquiries", "default": false, "layout": "table", "filters": [{ "operator": "notIn", "field": "inquiries.stage", "options": ["matter_opened", "declined_by_firm", "not_retained"] }, { "operator": "in", "field": "inquiries.conflict_check", "options": ["pending"] }] },
+    { "key": "matters_all", "list": "matters", "default": true, "layout": "table", "sort": { "field": "matters.poa_valid_until", "direction": "asc" }, "columns": ["matters.status", "matters.matter_ref", "matters.opened_on", "matters.poa_valid_until", "matters.retention_until"] },
+    { "key": "parties_all", "list": "parties", "default": true, "layout": "table", "columns": ["parties.party_role", "parties.party_type"] },
+    { "key": "contacts_all", "list": "contacts", "default": true, "layout": "table", "columns": ["contacts.contact_role", "contacts.preferred_channel"] }
+  ],
+  "widgets": [
+    { "kind": "chart", "key": "inquiries_funnel", "list": "inquiries", "aggregation": "count", "groupBy": { "field": "inquiries.stage" }, "filters": [{ "operator": "in", "field": "inquiries.stage", "options": ["new_inquiry", "screening", "consultation", "fee_proposal_sent", "agreement_signed", "matter_opened"] }], "display": "funnelChart" },
+    { "kind": "calendar", "key": "urgent_time_limits", "list": "inquiries", "layout": "upcoming", "dateField": "inquiries.urgent_deadline", "filters": [{ "operator": "in", "field": "inquiries.stage", "options": ["new_inquiry", "screening", "consultation", "fee_proposal_sent", "agreement_signed"] }] },
+    { "kind": "calendar", "key": "consultations_coming", "list": "inquiries", "layout": "upcoming", "dateField": "inquiries.consultation_on" },
+    { "kind": "chart", "key": "conflicts_pending", "list": "inquiries", "aggregation": "count", "filters": [{ "operator": "notIn", "field": "inquiries.stage", "options": ["matter_opened", "declined_by_firm", "not_retained"] }, { "operator": "in", "field": "inquiries.conflict_check", "options": ["pending"] }], "display": "number" },
+    { "kind": "chart", "key": "inquiries_by_source", "list": "inquiries", "aggregation": "count", "groupBy": { "field": "inquiries.source" }, "display": "horizontalBarChart" },
+    { "kind": "chart", "key": "lost_reasons", "list": "inquiries", "aggregation": "count", "groupBy": { "field": "inquiries.lost_reason" }, "filters": [{ "operator": "in", "field": "inquiries.stage", "options": ["declined_by_firm", "not_retained"] }], "display": "horizontalBarChart" },
+    { "kind": "calendar", "key": "poa_expiring", "list": "matters", "layout": "upcoming", "dateField": "matters.poa_valid_until", "filters": [{ "operator": "in", "field": "matters.status", "options": ["open", "on_hold"] }] }
+  ],
+  "knowledgePages": [
+    { "key": "operating_guide", "kind": "overview" },
+    { "key": "conflict_check", "kind": "processes" },
+    { "key": "time_limit_triage", "kind": "processes" },
+    { "key": "engagement_checklist", "kind": "processes" }
+  ],
+  "followUpRules": [
+    { "key": "inquiry_form_records", "trigger": { "kind": "form_submitted", "form": "inquiry" }, "action": { "kind": "create_records", "lists": ["contacts", "inquiries"] }, "dueOffsetDays": 0, "needs": "forms" },
+    { "key": "acknowledge_inquiry", "trigger": { "kind": "record_created", "list": "inquiries" }, "action": { "kind": "create_task", "taskKind": "reply", "assignee": "record_owner", "about": "inquiries" }, "dueOffsetDays": 1, "needs": "rules" },
+    {
+      "key": "urgent_deadline_alert",
+      "trigger": { "kind": "date_reached", "field": "inquiries.urgent_deadline", "offsetDays": -14 },
+      "condition": [{ "operator": "notIn", "field": "inquiries.stage", "options": ["matter_opened", "declined_by_firm", "not_retained"] }],
+      "action": { "kind": "notify", "recipient": "workspace_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    { "key": "conflict_check_task", "trigger": { "kind": "field_changed", "field": "inquiries.stage", "to": "screening" }, "action": { "kind": "create_task", "taskKind": "conflict_check", "assignee": "record_owner", "about": "inquiries" }, "dueOffsetDays": 1, "needs": "rules" },
+    {
+      "key": "fee_proposal_task",
+      "trigger": { "kind": "date_reached", "field": "inquiries.consultation_on", "offsetDays": 0 },
+      "condition": [{ "operator": "in", "field": "inquiries.stage", "options": ["consultation"] }],
+      "action": { "kind": "create_task", "taskKind": "fee_proposal", "assignee": "record_owner", "about": "inquiries" },
+      "dueOffsetDays": 1,
+      "needs": "rules"
+    },
+    { "key": "proposal_follow_up", "trigger": { "kind": "field_changed", "field": "inquiries.stage", "to": "fee_proposal_sent" }, "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "inquiries" }, "dueOffsetDays": 3, "needs": "rules" },
+    { "key": "agreement_signed_set", "trigger": { "kind": "field_changed", "field": "inquiries.stage", "to": "agreement_signed" }, "action": { "kind": "create_task", "taskKind": "advance", "assignee": "record_owner", "about": "inquiries" }, "dueOffsetDays": 2, "needs": "rules" },
+    {
+      "key": "advance_chase",
+      "trigger": { "kind": "date_reached", "field": "inquiries.advance_requested_on", "offsetDays": 7 },
+      "condition": [{ "operator": "empty", "field": "inquiries.advance_received_on" }],
+      "action": { "kind": "notify", "recipient": "record_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    { "key": "letter_declined", "trigger": { "kind": "field_changed", "field": "inquiries.stage", "to": "declined_by_firm" }, "action": { "kind": "create_task", "taskKind": "letter", "assignee": "record_owner", "about": "inquiries" }, "dueOffsetDays": 1, "needs": "rules" },
+    { "key": "letter_not_retained", "trigger": { "kind": "field_changed", "field": "inquiries.stage", "to": "not_retained" }, "action": { "kind": "create_task", "taskKind": "letter", "assignee": "record_owner", "about": "inquiries" }, "dueOffsetDays": 1, "needs": "rules" },
+    { "key": "poa_renewal", "trigger": { "kind": "date_reached", "field": "matters.poa_valid_until", "offsetDays": -30 }, "action": { "kind": "create_task", "taskKind": "letter", "assignee": "record_owner", "about": "matters" }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "closing_letter", "trigger": { "kind": "field_changed", "field": "matters.status", "to": "closed" }, "action": { "kind": "create_task", "taskKind": "letter", "assignee": "record_owner", "about": "matters" }, "dueOffsetDays": 7, "needs": "rules" }
+  ],
+  "acceptanceChecks": [
+    { "key": "stage_field", "kind": "field_exists", "ref": "inquiries.stage" },
+    { "key": "conflict_check_field", "kind": "field_exists", "ref": "inquiries.conflict_check" },
+    { "key": "urgent_deadline_field", "kind": "field_exists", "ref": "inquiries.urgent_deadline" },
+    { "key": "inquiries_board_view", "kind": "view_exists", "ref": "inquiries_board" },
+    { "key": "conflict_check_page", "kind": "page_exists", "ref": "conflict_check" }
+  ],
+  "sources": [
+    { "url": "https://www.americanbar.org/groups/young_lawyers/resources/after-the-bar/practice-management/how-the-legal-client-intake-and-conflict-check-process-works/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.projuris.com.br/blog/guia-atendimento-ao-cliente-na-advocacia/", "checkedOn": "2026-11-12" },
+    { "url": "https://schedulingkit.com/de/checklists/legal-practice-client-intake", "checkedOn": "2026-11-12" },
+    { "url": "https://www.docsie.io/assets/templates/legal/client-intake-procedure/template.md", "checkedOn": "2026-11-12" },
+    { "url": "https://www.fast.io/resources/law-firm-client-onboarding.md", "checkedOn": "2026-11-12" },
+    { "url": "https://tallyfy.com/templates/procedures/law-firm-client-onboarding/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.cnb.avocat.fr/sites/default/files/cnb-fr-txt_conventions-honoraires-honoraire-fixe-honoraire-resultatguide-redaction-2020-02-03_bm.docx", "checkedOn": "2026-11-12" },
+    { "url": "https://www.studiocataldi.it/articoli/1000729-procura-alle-liti-e-compenso-dellavvocato", "checkedOn": "2026-11-12" },
+    { "url": "https://icatf.es/wp-content/uploads/2017/11/HOJA_DE_ENCARGO_PROFESIONAL_Formulario.pdf", "checkedOn": "2026-11-12" },
+    { "url": "https://www.advocatenorde.nl/handleiding-wwft-voor-advocaten", "checkedOn": "2026-11-12" },
+    { "url": "https://anwaltspraxis-magazin.de/kanzleimagazin/interessenkonflikte-vermeiden-so-schuetzen-sie-ihre-kanzlei-und-mandant-innen/", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "proof", "de": "proof", "fr": "proof", "it": "proof", "es": "none", "pt": "proof", "pl": "none", "nl": "none" }
+}

@@ -1,0 +1,212 @@
+{
+  "locale": "pt",
+  "name": "Ficha cadastral de clientes e integração",
+  "summary": "Uma integração por contrato: solicitação, triagem, questionário, documentos solicitados, contrato e reunião de kickoff, com um passo datado em cada etapa e um motivo quando você recusa.",
+  "description": "Um funil curto para receber um novo cliente: responder em um dia, triar a aderência, enviar o questionário, reunir os documentos, enviar o contrato, começar. Profissões regulamentadas registram quem conferiu a identidade e quando, nunca o documento. Não é uma ferramenta de assinatura eletrônica, de prevenção à lavagem de dinheiro nem de pagamentos.",
+  "lists": {
+    "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas de cada cliente: contato principal, financeiro, signatário." },
+    "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Empresas, autônomos e pessoas físicas que você recebe." },
+    "intakes": { "label": "Integração", "pluralLabel": "Integrações", "description": "Uma integração por contrato, da solicitação até cliente ativo ou recusado." },
+    "document_requests": { "label": "Documento solicitado", "pluralLabel": "Documentos solicitados", "description": "Uma linha por documento que você pede a um cliente." }
+  },
+  "fields": {
+    "intakes.stage": {
+      "label": "Etapa",
+      "options": {
+        "enquiry": "Solicitação",
+        "screening": "Triagem",
+        "form_sent": "Questionário enviado",
+        "review_checks": "Análise e conferência",
+        "agreement_sent": "Contrato enviado",
+        "ready_to_start": "Pronto para iniciar",
+        "kickoff_scheduled": "Reunião de kickoff",
+        "onboarded": "Cliente ativo",
+        "declined": "Recusado"
+      }
+    },
+    "contacts.job_title": { "label": "Cargo" },
+    "contacts.contact_role": {
+      "label": "Papel",
+      "options": { "primary": "Contato principal", "billing": "Financeiro", "signatory": "Signatário", "technical": "Técnico", "other": "Outro" }
+    },
+    "contacts.language": { "label": "Idioma" },
+    "contacts.privacy_notice_sent_on": { "label": "Aviso de privacidade enviado em" },
+    "clients.client_type": {
+      "label": "Tipo de cliente",
+      "options": { "company": "Pessoa jurídica", "sole_trader": "Autônomo ou MEI", "individual": "Pessoa física", "organisation": "Associação ou entidade" }
+    },
+    "clients.owner": { "label": "Responsável" },
+    "clients.website": { "label": "Site" },
+    "clients.address": { "label": "Endereço" },
+    "clients.registration_id": { "label": "CNPJ ou CPF" },
+    "clients.source": {
+      "label": "Origem",
+      "options": { "referral": "Indicação", "website": "Site", "event": "Evento", "outbound": "Prospecção ativa", "partner": "Parceiro", "other": "Outra" }
+    },
+    "intakes.owner": { "label": "Responsável" },
+    "intakes.service": { "label": "Serviço" },
+    "intakes.received_on": { "label": "Recebida em" },
+    "intakes.first_response_on": { "label": "Primeira resposta em" },
+    "intakes.form_sent_on": { "label": "Questionário enviado em" },
+    "intakes.form_received_on": { "label": "Questionário recebido em" },
+    "intakes.agreement_sent_on": { "label": "Contrato enviado em" },
+    "intakes.agreement_signed_on": { "label": "Contrato assinado em" },
+    "intakes.kickoff_on": { "label": "Kickoff em" },
+    "intakes.fee_model": {
+      "label": "Modelo de honorários",
+      "options": { "fixed": "Valor fixo", "hourly": "Por hora", "retainer": "Mensalidade", "other": "Outro" }
+    },
+    "intakes.deposit_required": { "label": "Adiantamento exigido" },
+    "intakes.deposit_received_on": { "label": "Adiantamento recebido em" },
+    "intakes.identity_verified_on": { "label": "Identidade conferida em" },
+    "intakes.identity_verified_by": { "label": "Identidade conferida por" },
+    "intakes.conflict_check": {
+      "label": "Verificação de conflito de interesses",
+      "options": { "not_required": "Não exigida", "pending": "Pendente", "clear": "Sem conflito", "conflict_found": "Conflito encontrado" }
+    },
+    "intakes.risk_rating": {
+      "label": "Nível de risco",
+      "options": { "not_assessed": "Não avaliado", "low": "Baixo", "standard": "Normal", "high": "Alto" }
+    },
+    "intakes.decline_reason": {
+      "label": "Motivo da recusa",
+      "options": {
+        "conflict": "Conflito de interesses",
+        "not_a_fit": "Sem aderência",
+        "no_capacity": "Sem capacidade",
+        "no_response": "Sem resposta",
+        "client_withdrew": "O cliente desistiu",
+        "risk": "Risco",
+        "other": "Outro"
+      }
+    },
+    "intakes.decline_notice_sent_on": { "label": "Recusa enviada em" },
+    "intakes.next_step": { "label": "Próximo passo" },
+    "intakes.next_step_due": { "label": "Data do próximo passo" },
+    "intakes.days_to_first_response": { "label": "Dias até a primeira resposta" },
+    "intakes.days_to_kickoff": { "label": "Dias até o kickoff" },
+    "document_requests.kind": {
+      "label": "Tipo",
+      "options": {
+        "identity": "Documento de identidade",
+        "proof_of_address": "Comprovante de endereço",
+        "company_register": "Contrato social ou cartão CNPJ",
+        "prior_year_return": "Declaração do ano anterior",
+        "contract": "Contrato",
+        "questionnaire": "Questionário",
+        "access_credentials": "Acessos e senhas",
+        "other": "Outro"
+      }
+    },
+    "document_requests.status": {
+      "label": "Status",
+      "options": { "requested": "Solicitado", "partial": "Recebido em parte", "received": "Recebido", "needs_correction": "Precisa de correção", "not_needed": "Dispensado" }
+    },
+    "document_requests.requested_on": { "label": "Documentos solicitados em" },
+    "document_requests.needed_by": { "label": "Prazo" },
+    "document_requests.received_on": { "label": "Recebido em" },
+    "document_requests.where_stored": { "label": "Onde está guardado" },
+    "document_requests.owner": { "label": "Responsável" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "reply": "Resposta",
+        "chase_form": "Cobrar o questionário",
+        "chase_document": "Cobrar um documento",
+        "review": "Revisão",
+        "check": "Conferência",
+        "send_agreement": "Enviar o contrato",
+        "chase_signature": "Cobrar a assinatura",
+        "kickoff": "Kickoff",
+        "decline_letter": "Carta de recusa",
+        "other": "Outro"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Cliente", "targetLabel": "Contatos" },
+    "intake_client": { "sourceLabel": "Cliente", "targetLabel": "Integrações" },
+    "intake_contact": { "sourceLabel": "Contato principal", "targetLabel": "Integrações" },
+    "document_request_intake": { "sourceLabel": "Integração", "targetLabel": "Documentos solicitados" },
+    "action_intake": { "sourceLabel": "Integração", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "intakes_all": { "name": "Todas as integrações" },
+    "intakes_board": { "name": "Integrações por etapa" },
+    "awaiting_signature": { "name": "Aguardando assinatura" },
+    "no_first_response": { "name": "Sem primeira resposta" },
+    "declined_intakes": { "name": "Recusadas" },
+    "document_requests_all": { "name": "Todos os documentos solicitados" },
+    "documents_outstanding": { "name": "Aguardando documentos" },
+    "clients_all": { "name": "Todos os clientes" },
+    "contacts_all": { "name": "Todos os contatos" }
+  },
+  "widgets": {
+    "intakes_by_stage": { "title": "Integrações abertas por etapa" },
+    "open_intakes_by_owner": { "title": "Integrações abertas por responsável" },
+    "enquiries_without_reply": { "title": "Solicitações sem primeira resposta" },
+    "documents_outstanding": { "title": "Documentos pendentes" },
+    "awaiting_signature_count": { "title": "Aguardando assinatura" },
+    "average_days_to_reply": { "title": "Média de dias até a primeira resposta" },
+    "average_days_to_kickoff": { "title": "Média de dias até o kickoff" },
+    "decline_reasons": { "title": "Motivos de recusa" },
+    "new_intakes_per_month": { "title": "Novas integrações por mês" }
+  },
+  "knowledgePages": {
+    "intake_process": {
+      "title": "Processo de integração de clientes",
+      "sections": ["As nove etapas e o que encerra cada uma", "Quem responde, quem tria, quem assina", "Prazos: responder em um dia, cobrar aos 3 e aos 7 dias"]
+    },
+    "intake_questionnaire": {
+      "title": "Questionário por tipo de cliente",
+      "sections": ["Pessoa jurídica, autônomo, pessoa física, associação", "Perguntas que decidem a aderência", "O que você nunca pede"]
+    },
+    "document_requests_guide": {
+      "title": "Lista de documentos e mensagens de cobrança",
+      "sections": ["Lista padrão por serviço", "Primeiro pedido e lembretes", "Quando um documento precisa de correção"]
+    },
+    "agreement_checklist": {
+      "title": "Checklist do contrato",
+      "sections": ["Escopo, modelo de honorários e adiantamento", "Quem assina e em qual ferramenta", "O que fazer se ficar sem assinatura"]
+    },
+    "regulated_checks": {
+      "title": "Conferência de identidade, conflito e risco em profissões regulamentadas",
+      "sections": ["Registrar quem conferiu e quando, nunca o documento", "Busca de conflitos antes de começar", "Nível de risco e quando recusar"]
+    },
+    "privacy_at_intake": {
+      "title": "Privacidade: o que coletamos na integração e por quê",
+      "sections": ["Finalidade e base legal", "O que fica fora do espaço de trabalho", "Retenção e pedidos de exclusão"]
+    }
+  },
+  "rules": {
+    "reply_to_enquiry": { "title": "Responder à solicitação", "description": "Uma nova integração recebe uma tarefa de resposta para o dia seguinte." },
+    "chase_form": { "title": "Cobrar o questionário", "description": "Três dias depois do envio do questionário vence uma tarefa de cobrança." },
+    "chase_document": { "title": "Cobrar o documento que falta", "description": "Quando chega o prazo de um documento solicitado ainda aberto, é criada uma tarefa de cobrança." },
+    "review_received_document": { "title": "Conferir o documento recebido", "description": "Quando um documento é marcado como recebido, uma tarefa de conferência vence no dia seguinte." },
+    "chase_signature": { "title": "Cobrar a assinatura", "description": "Sete dias depois do envio do contrato vence uma tarefa de cobrança." },
+    "decline_letter": { "title": "Enviar a carta de recusa", "description": "Uma integração recusada recebe uma tarefa de carta para o dia seguinte. Diga que não existe contrato e cite qualquer prazo próximo." },
+    "kickoff_event": { "title": "Colocar o kickoff na agenda", "description": "Quando a data do kickoff é definida, o evento é gravado na agenda do responsável." },
+    "first_value_check": { "title": "Conferir o primeiro resultado", "description": "Quatorze dias depois da integração, uma tarefa de conferência pergunta se o cliente já viu um primeiro resultado." },
+    "stalled_intake": { "title": "Revisar a integração parada", "description": "Uma integração aberta que ficou 7 dias na mesma etapa recebe uma tarefa de revisão." },
+    "intake_form_records": { "title": "Criar cliente, contato e integração a partir do formulário", "description": "Um formulário público de integração cria o cliente, o contato e uma integração na etapa Solicitação." },
+    "intake_form_notice": { "title": "Avisar o proprietário sobre a nova integração", "description": "O proprietário do espaço de trabalho é avisado de cada envio." }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada integração tem uma das nove etapas.",
+    "first_response_field": "Cada integração registra quando você respondeu pela primeira vez.",
+    "document_requests_list": "Os documentos solicitados são acompanhados em uma lista própria.",
+    "intakes_board_view": "A lista de integrações pode ser vista como quadro por etapa.",
+    "chase_signature_rule": "Um contrato enviado recebe uma tarefa de cobrança após 7 dias.",
+    "process_page": "A base de conhecimento contém o processo de integração."
+  },
+  "prompt": {
+    "intro": "Configure a integração de clientes no meu espaço de trabalho do Customermates: uma integração por contrato com nove etapas, documentos solicitados, um passo datado em cada etapa, um motivo de recusa e conferências opcionais de identidade, conflito e risco que registram quem conferiu e quando.",
+    "questions": [
+      "O que você vende e quem são seus clientes: empresas, autônomos ou pessoas físicas?",
+      "Por quais passos um novo cliente passa hoje e quais das nove etapas você não precisa?",
+      "Sua profissão é regulamentada, de modo que identidade, conflito ou risco precisem ser registrados? Em que país?",
+      "Quais documentos você sempre pede e onde os guarda? Aqui só se guarda um link.",
+      "Onde os clientes assinam o contrato? Ele fica lá e aqui ficam as datas."
+    ]
+  }
+}

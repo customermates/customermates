@@ -39,9 +39,13 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "connect_messaging_account",
   "discard_message_draft",
   "linkedin_manage_sales_lists",
+  "manage_booking_links",
   "manage_connected_accounts",
   "manage_data_views",
+  "manage_forms",
+  "manage_incoming_webhooks",
   "manage_routines",
+  "manage_rules",
   "manage_social_relations",
   "manage_webhooks",
   "manage_widgets",
@@ -71,6 +75,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "mutate_crm_record",
   "publish_social_post",
   "request_support",
+  "schedule_meeting",
 ]
 `;
 
@@ -80,6 +85,10 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
     "list",
     "browse",
     "save",
+  ],
+  "manage_booking_links": [
+    "list",
+    "get",
   ],
   "manage_calendar": [
     "options",
@@ -109,6 +118,18 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
     "select",
     "reset",
   ],
+  "manage_forms": [
+    "list",
+    "get",
+    "fields",
+  ],
+  "manage_incoming_webhooks": [
+    "list",
+    "get",
+    "fields",
+    "test",
+    "deliveries",
+  ],
   "manage_record_detail_layout": [
     "read",
     "save",
@@ -124,6 +145,12 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
     "update",
     "pause",
     "run_now",
+  ],
+  "manage_rules": [
+    "list",
+    "get",
+    "runs",
+    "preview",
   ],
   "manage_social_relations": [
     "list",
@@ -158,6 +185,10 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
     "gaps",
     "create",
     "update",
+  ],
+  "schedule_meeting": [
+    "options",
+    "slots",
   ],
 }
 `;

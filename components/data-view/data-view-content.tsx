@@ -25,7 +25,7 @@ type Props<E extends HasId> = {
   rowFocusKey?: (item: E) => string | undefined;
   rowLabel?: (item: E) => string;
   renderCard?: (item: E) => ReactNode;
-  columnStyle?: (columnId: string) => DataTableColumnStyle;
+  columnStyle?: (columnId: string) => DataTableColumnStyle | undefined;
   store: BaseDataViewStore<E>;
   totals?: RecordGroupSummaryResult[];
   view: DataViewView;

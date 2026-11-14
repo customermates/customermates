@@ -123,7 +123,7 @@ export class PrismaWorkspaceSetupRepo
     return this.load({ id });
   }
 
-  async create(data: { websiteUrl: string | null; answers: SetupAnswers }) {
+  async create(data: { websiteUrl: string | null; answers: SetupAnswers; templateSlug: string | null }) {
     try {
       const row = await this.prisma.workspaceSetup.create({
         data: {
@@ -131,6 +131,7 @@ export class PrismaWorkspaceSetupRepo
           userId: this.userId,
           websiteUrl: data.websiteUrl,
           answers: json(data.answers),
+          interview: json(data.templateSlug ? { templateSlug: data.templateSlug } : {}),
         },
         select: SETUP_SELECT,
       });
@@ -141,7 +142,7 @@ export class PrismaWorkspaceSetupRepo
     }
   }
 
-  async restart(id: string, data: { websiteUrl: string | null; answers: SetupAnswers }) {
+  async restart(id: string, data: { websiteUrl: string | null; answers: SetupAnswers; templateSlug: string | null }) {
     const { count } = await this.prisma.workspaceSetup.updateMany({
       where: { id, companyId: this.companyId, status: { in: ["interview", "planned", "failed"] } },
       data: {
@@ -150,7 +151,7 @@ export class PrismaWorkspaceSetupRepo
         websiteUrl: data.websiteUrl,
         crawlId: null,
         answers: json(data.answers),
-        interview: json({}),
+        interview: json(data.templateSlug ? { templateSlug: data.templateSlug } : {}),
         plan: Prisma.DbNull,
         planRevision: 0,
         phases: json({}),

@@ -1,0 +1,4268 @@
+{
+  "spec": {
+    "id": "tpl_consultant_engagements",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "consultant-engagements",
+    "family": "professional-services",
+    "kind": "pipeline",
+    "jurisdictions": [
+      "DE",
+      "FR",
+      "IT",
+      "ES",
+      "BR",
+      "PL",
+      "NL"
+    ],
+    "dashboardAudience": "me",
+    "requiresCapabilities": [
+      "rules",
+      "notifications"
+    ],
+    "pairedPages": {
+      "en": "/for/consultants",
+      "de": "/for/consultants",
+      "fr": "/for/consultants",
+      "it": "/for/consultants",
+      "es": "/for/consultants",
+      "pt": "/for/consultants",
+      "pl": "/for/consultants",
+      "nl": "/for/consultants"
+    },
+    "modules": [
+      "actions_core",
+      "actions_dashboard"
+    ],
+    "lists": [
+      {
+        "key": "contacts",
+        "role": "people",
+        "icon": "contact"
+      },
+      {
+        "key": "clients",
+        "icon": "building"
+      },
+      {
+        "key": "engagements",
+        "role": "deals",
+        "icon": "briefcase"
+      },
+      {
+        "key": "deliverables",
+        "icon": "milestone"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "contacts.role_in_engagement",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "sponsor"
+          },
+          {
+            "key": "day_to_day"
+          },
+          {
+            "key": "signs_off"
+          },
+          {
+            "key": "referrer"
+          },
+          {
+            "key": "influencer"
+          }
+        ]
+      },
+      {
+        "key": "contacts.relationship_strength",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "strong",
+            "color": "success"
+          },
+          {
+            "key": "warm"
+          },
+          {
+            "key": "new",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "contacts.last_meeting",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "clients.relationship",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "prospect"
+          },
+          {
+            "key": "client",
+            "color": "success"
+          },
+          {
+            "key": "former_client",
+            "color": "secondary"
+          },
+          {
+            "key": "referral_partner"
+          }
+        ]
+      },
+      {
+        "key": "clients.industry",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "engagements.engagement_type",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "diagnostic"
+          },
+          {
+            "key": "advisory_review"
+          },
+          {
+            "key": "workshop"
+          },
+          {
+            "key": "interim"
+          },
+          {
+            "key": "retainer"
+          },
+          {
+            "key": "training"
+          }
+        ]
+      },
+      {
+        "key": "engagements.referral_source",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "client_referral"
+          },
+          {
+            "key": "peer_referral"
+          },
+          {
+            "key": "event_or_talk"
+          },
+          {
+            "key": "content"
+          },
+          {
+            "key": "existing_client"
+          },
+          {
+            "key": "marketplace"
+          }
+        ]
+      },
+      {
+        "key": "engagements.day_rate",
+        "type": "currency",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "engagements.days_estimated",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "engagements.acceptance_checked_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "engagements.proposal_follow_up_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "engagements.decision_expected",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "engagements.start_date",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "engagements.end_date",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "engagements.delivery_status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "not_started"
+          },
+          {
+            "key": "kickoff_scheduled",
+            "color": "info"
+          },
+          {
+            "key": "in_delivery",
+            "color": "warning"
+          },
+          {
+            "key": "wrapping_up"
+          },
+          {
+            "key": "completed",
+            "color": "success"
+          }
+        ]
+      },
+      {
+        "key": "engagements.next_step_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "engagements.lost_reason",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "timing"
+          },
+          {
+            "key": "budget"
+          },
+          {
+            "key": "in_house"
+          },
+          {
+            "key": "other_advisor"
+          },
+          {
+            "key": "scope_changed"
+          },
+          {
+            "key": "no_decision"
+          },
+          {
+            "key": "no_response"
+          }
+        ]
+      },
+      {
+        "key": "deliverables.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "interview_summary"
+          },
+          {
+            "key": "workshop"
+          },
+          {
+            "key": "report"
+          },
+          {
+            "key": "recommendation"
+          },
+          {
+            "key": "training_session"
+          },
+          {
+            "key": "handover"
+          }
+        ]
+      },
+      {
+        "key": "deliverables.due_date",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "deliverables.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "reply"
+          },
+          {
+            "key": "write_up"
+          },
+          {
+            "key": "acceptance_check"
+          },
+          {
+            "key": "proposal"
+          },
+          {
+            "key": "follow_up"
+          },
+          {
+            "key": "kickoff"
+          },
+          {
+            "key": "deliver"
+          },
+          {
+            "key": "feedback"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "engagements.stage",
+        "items": [
+          {
+            "key": "introduction",
+            "outcome": "open",
+            "weight": 10
+          },
+          {
+            "key": "discovery",
+            "outcome": "open",
+            "weight": 20
+          },
+          {
+            "key": "scoping",
+            "outcome": "open",
+            "weight": 35
+          },
+          {
+            "key": "proposal_sent",
+            "outcome": "open",
+            "weight": 55
+          },
+          {
+            "key": "decision",
+            "outcome": "open",
+            "weight": 75
+          },
+          {
+            "key": "won",
+            "outcome": "won",
+            "weight": 100
+          },
+          {
+            "key": "lost",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      },
+      {
+        "field": "deliverables.status",
+        "items": [
+          {
+            "key": "planned",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "in_progress",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "delivered",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "accepted",
+            "outcome": "won",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [
+      {
+        "key": "engagements.estimated_fee",
+        "type": "currency",
+        "expression": {
+          "op": "multiply",
+          "left": {
+            "op": "field",
+            "field": "engagements.days_estimated"
+          },
+          "right": {
+            "op": "field",
+            "field": "engagements.day_rate"
+          }
+        }
+      }
+    ],
+    "relationships": [
+      {
+        "key": "contact_client",
+        "source": "contacts",
+        "target": "clients",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "engagement_client",
+        "source": "engagements",
+        "target": "clients",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "engagement_sponsor",
+        "source": "engagements",
+        "target": "contacts",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "deliverable_engagement",
+        "source": "deliverables",
+        "target": "engagements",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_engagement",
+        "source": "actions",
+        "target": "engagements",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "engagements_board",
+        "list": "engagements",
+        "default": true,
+        "layout": "board",
+        "groupBy": "engagements.stage",
+        "sort": null,
+        "columns": [
+          "engagements.engagement_type",
+          "engagements.day_rate",
+          "engagements.decision_expected"
+        ],
+        "summaries": [
+          {
+            "field": "engagements.value",
+            "aggregation": "sum"
+          }
+        ],
+        "filters": []
+      },
+      {
+        "key": "engagements_all",
+        "list": "engagements",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "engagements.next_step_due",
+          "direction": "asc"
+        },
+        "columns": [
+          "engagements.stage",
+          "engagements.engagement_type",
+          "engagements.day_rate",
+          "engagements.next_step_due"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "in_delivery",
+        "list": "engagements",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "engagements.end_date",
+          "direction": "asc"
+        },
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "engagements.stage",
+            "options": [
+              "won"
+            ]
+          },
+          {
+            "operator": "notIn",
+            "field": "engagements.delivery_status",
+            "options": [
+              "completed"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "deliverables_all",
+        "list": "deliverables",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "deliverables.due_date",
+          "direction": "asc"
+        },
+        "columns": [
+          "deliverables.status",
+          "deliverables.kind",
+          "deliverables.due_date",
+          "deliverables.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "clients_all",
+        "list": "clients",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "clients.relationship",
+          "clients.industry"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "contacts_all",
+        "list": "contacts",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "contacts.last_meeting",
+          "direction": "asc"
+        },
+        "columns": [
+          "contacts.role_in_engagement",
+          "contacts.relationship_strength",
+          "contacts.last_meeting"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "chart",
+        "key": "engagements_funnel",
+        "list": "engagements",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "engagements.stage"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "engagements.stage",
+            "options": [
+              "introduction",
+              "discovery",
+              "scoping",
+              "proposal_sent",
+              "decision",
+              "won"
+            ]
+          }
+        ],
+        "display": "funnelChart"
+      },
+      {
+        "kind": "chart",
+        "key": "open_value",
+        "list": "engagements",
+        "aggregation": "sum",
+        "valueField": "engagements.value",
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "engagements.stage",
+            "options": [
+              "scoping",
+              "proposal_sent",
+              "decision"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "calendar",
+        "key": "decisions_coming",
+        "list": "engagements",
+        "layout": "upcoming",
+        "dateField": "engagements.decision_expected",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "engagements.stage",
+            "options": [
+              "proposal_sent",
+              "decision"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "calendar",
+        "key": "deliverables_due",
+        "list": "deliverables",
+        "layout": "upcoming",
+        "dateField": "deliverables.due_date",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "deliverables.status",
+            "options": [
+              "planned",
+              "in_progress"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "calendar",
+        "key": "engagements_ending",
+        "list": "engagements",
+        "layout": "upcoming",
+        "dateField": "engagements.end_date",
+        "amountField": null,
+        "filters": []
+      },
+      {
+        "kind": "chart",
+        "key": "by_type",
+        "list": "engagements",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "engagements.engagement_type"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "engagements.stage",
+            "options": [
+              "won"
+            ]
+          }
+        ],
+        "display": "doughnutChart"
+      },
+      {
+        "kind": "chart",
+        "key": "lost_reasons",
+        "list": "engagements",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "engagements.lost_reason"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "engagements.stage",
+            "options": [
+              "lost"
+            ]
+          }
+        ],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_actions",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "operating_guide",
+        "kind": "overview"
+      },
+      {
+        "key": "discovery_guide",
+        "kind": "processes"
+      },
+      {
+        "key": "acceptance_check",
+        "kind": "processes"
+      },
+      {
+        "key": "proposal_and_follow_up",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "discovery_writeup",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "engagements.stage",
+          "to": "discovery"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "write_up",
+          "assignee": "record_owner",
+          "about": "engagements"
+        },
+        "dueOffsetDays": 1,
+        "needs": "rules"
+      },
+      {
+        "key": "acceptance_check",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "engagements.stage",
+          "to": "scoping"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "acceptance_check",
+          "assignee": "record_owner",
+          "about": "engagements"
+        },
+        "dueOffsetDays": 1,
+        "needs": "rules"
+      },
+      {
+        "key": "proposal_follow_up",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "engagements.stage",
+          "to": "proposal_sent"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "engagements"
+        },
+        "dueOffsetDays": 3,
+        "needs": "rules"
+      },
+      {
+        "key": "decision_date",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "engagements.decision_expected",
+          "offsetDays": 0
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "engagements.stage",
+            "options": [
+              "proposal_sent",
+              "decision"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "engagements"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "won_kickoff",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "engagements.stage",
+          "to": "won"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "kickoff",
+          "assignee": "record_owner",
+          "about": "engagements"
+        },
+        "dueOffsetDays": 1,
+        "needs": "rules"
+      },
+      {
+        "key": "lost_review",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "engagements.stage",
+          "to": "lost"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "feedback",
+          "assignee": "record_owner",
+          "about": "engagements"
+        },
+        "dueOffsetDays": 2,
+        "needs": "rules"
+      },
+      {
+        "key": "deliverable_due_notice",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "deliverables.due_date",
+          "offsetDays": -3
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "deliverables.status",
+            "options": [
+              "planned",
+              "in_progress"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "notify",
+          "recipient": "record_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "closeout_report",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "engagements.end_date",
+          "offsetDays": 0
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "deliver",
+          "assignee": "record_owner",
+          "about": "engagements"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "testimonial_ask",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "engagements.end_date",
+          "offsetDays": 14
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "feedback",
+          "assignee": "record_owner",
+          "about": "engagements"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "followup_after_end",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "engagements.end_date",
+          "offsetDays": 30
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "engagements"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "stage_field",
+        "kind": "field_exists",
+        "ref": "engagements.stage"
+      },
+      {
+        "key": "follow_up_field",
+        "kind": "field_exists",
+        "ref": "engagements.proposal_follow_up_on"
+      },
+      {
+        "key": "acceptance_checked_field",
+        "kind": "field_exists",
+        "ref": "engagements.acceptance_checked_on"
+      },
+      {
+        "key": "engagements_board_view",
+        "kind": "view_exists",
+        "ref": "engagements_board"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://www.consultingsuccess.com/crms-for-consultants",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://alanweiss.com/million-dollar-consulting-mindset-newsletter/2012-09.php",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.bitrix24.com/articles/proposal-to-kickoff-consulting-delivery-workflow.php",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.projectmanagertemplate.com/post/managing-consulting-projects-ultimate-guide",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://static1.creately.com/guides/consulting-process/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.ihk.de/rhein-neckar/gruendung/unternehmensfuehrung/beratung/beauftragung-beratungsunternehmen-939208",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.bdu.de/fileadmin/user_data/dokumente/pdf-download/Tipps_Zusammenarbeit_Unternehmensberatungen.pdf",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.bdu.de/media/119763/grundlagen-unternehmensrestrukturierung.pdf",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://openclassrooms.com/fr/courses/5164356-construisez-votre-strategie-commerciale-d-independant/5367416-maitrisez-votre-cycle-de-vente",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "status": {
+      "en": "draft",
+      "de": "draft",
+      "fr": "draft",
+      "it": "draft",
+      "es": "draft",
+      "pt": "draft",
+      "pl": "draft",
+      "nl": "draft"
+    },
+    "publicPage": {
+      "en": "proof",
+      "de": "none",
+      "fr": "none",
+      "it": "none",
+      "es": "none",
+      "pt": "none",
+      "pl": "none",
+      "nl": "none"
+    },
+    "publishWave": {}
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Beratungsaufträge",
+      "summary": "Eine Pipeline für selbstständige Berater: Aufträge vom Erstkontakt bis zur Auftragserteilung mit Auftragsklärung vor dem Angebot, einem beim Angebotsgespräch vereinbarten Nachfasstermin und Ergebnissen, die Durchführung und Abschluss steuern.",
+      "description": "Eine Beratung an einem Ort führen: Aufträge über Vorgespräch, Auftragsklärung, Angebot und Entscheidung, den mit dem Auftraggeber vereinbarten Nachfasstermin, eine Annahmeprüfung (Kapazität, Unabhängigkeit, Vertraulichkeit) vor dem Angebot, Ergebnisse mit Fälligkeits- und Abnahmedatum und einen Abschluss, der um Rückmeldung und eine Referenz bittet. Die Vorlage hält Pipeline, Beziehungen und Lieferschritte fest. Keine Zeiterfassung, keine Rechnungsstellung, keine elektronische Unterschrift für Angebote und keine Ressourcenplanung, und keine vertraulichen Daten des Kunden.",
+      "lists": {
+        "actions": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "contacts": {
+          "label": "Ansprechpartner",
+          "pluralLabel": "Ansprechpartner",
+          "description": "Auftraggeber, Ansprechpartner im Tagesgeschäft, Freigebende und Empfehler."
+        },
+        "clients": {
+          "label": "Kunde",
+          "pluralLabel": "Kunden",
+          "description": "Interessenten, Kunden, frühere Kunden und Empfehlungspartner."
+        },
+        "engagements": {
+          "label": "Beratungsauftrag",
+          "pluralLabel": "Beratungsaufträge",
+          "description": "Eine Beratungsleistung, vom ersten Kontakt bis zu Durchführung und Abschluss."
+        },
+        "deliverables": {
+          "label": "Ergebnis",
+          "pluralLabel": "Ergebnisse (Meilensteine)",
+          "description": "Ein Meilenstein, den du übergibst, mit Fälligkeit und Abnahme."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "contacts.role_in_engagement": {
+          "label": "Rolle",
+          "options": {
+            "sponsor": "Auftraggeber",
+            "day_to_day": "Ansprechpartner im Tagesgeschäft",
+            "signs_off": "Gibt frei",
+            "referrer": "Empfehler",
+            "influencer": "Einflussnehmer"
+          }
+        },
+        "contacts.relationship_strength": {
+          "label": "Beziehung",
+          "options": {
+            "strong": "Stark",
+            "warm": "Gut",
+            "new": "Neu"
+          }
+        },
+        "contacts.last_meeting": {
+          "label": "Letztes Treffen",
+          "options": {}
+        },
+        "clients.relationship": {
+          "label": "Beziehung",
+          "options": {
+            "prospect": "Interessent",
+            "client": "Kunde",
+            "former_client": "Früherer Kunde",
+            "referral_partner": "Empfehlungspartner"
+          }
+        },
+        "clients.industry": {
+          "label": "Branche",
+          "options": {}
+        },
+        "engagements.stage": {
+          "label": "Phase",
+          "options": {
+            "introduction": "Erstkontakt",
+            "discovery": "Vorgespräch",
+            "scoping": "Auftragsklärung",
+            "proposal_sent": "Angebot",
+            "decision": "Entscheidung",
+            "won": "Auftrag erteilt",
+            "lost": "Verloren"
+          }
+        },
+        "engagements.engagement_type": {
+          "label": "Art",
+          "options": {
+            "diagnostic": "Analyse",
+            "advisory_review": "Beratende Prüfung",
+            "workshop": "Workshop",
+            "interim": "Interimseinsatz",
+            "retainer": "Laufende Betreuung",
+            "training": "Training"
+          }
+        },
+        "engagements.referral_source": {
+          "label": "Wie der Auftrag kam",
+          "options": {
+            "client_referral": "Empfehlung eines Kunden",
+            "peer_referral": "Empfehlung eines Kollegen",
+            "event_or_talk": "Veranstaltung oder Vortrag",
+            "content": "Fachbeitrag",
+            "existing_client": "Bestandskunde",
+            "marketplace": "Marktplatz"
+          }
+        },
+        "engagements.day_rate": {
+          "label": "Tagessatz",
+          "options": {}
+        },
+        "engagements.days_estimated": {
+          "label": "Geschätzte Beratertage",
+          "options": {}
+        },
+        "engagements.estimated_fee": {
+          "label": "Geschätztes Honorar",
+          "options": {}
+        },
+        "engagements.acceptance_checked_on": {
+          "label": "Annahmeprüfung am",
+          "options": {}
+        },
+        "engagements.proposal_follow_up_on": {
+          "label": "Nachfassen vereinbart für",
+          "options": {}
+        },
+        "engagements.decision_expected": {
+          "label": "Entscheidung erwartet",
+          "options": {}
+        },
+        "engagements.start_date": {
+          "label": "Beginn",
+          "options": {}
+        },
+        "engagements.end_date": {
+          "label": "Ende",
+          "options": {}
+        },
+        "engagements.delivery_status": {
+          "label": "Durchführung",
+          "options": {
+            "not_started": "Nicht begonnen",
+            "kickoff_scheduled": "Auftakt terminiert",
+            "in_delivery": "In Durchführung",
+            "wrapping_up": "Im Abschluss",
+            "completed": "Abgeschlossen"
+          }
+        },
+        "engagements.next_step_due": {
+          "label": "Nächster Schritt bis",
+          "options": {}
+        },
+        "engagements.lost_reason": {
+          "label": "Verlustgrund",
+          "options": {
+            "timing": "Zeitpunkt",
+            "budget": "Budget",
+            "in_house": "Wird intern umgesetzt",
+            "other_advisor": "Anderen Berater gewählt",
+            "scope_changed": "Umfang geändert",
+            "no_decision": "Keine Entscheidung",
+            "no_response": "Keine Rückmeldung"
+          }
+        },
+        "deliverables.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Geplant",
+            "in_progress": "In Arbeit",
+            "delivered": "Übergeben",
+            "accepted": "Abgenommen"
+          }
+        },
+        "deliverables.kind": {
+          "label": "Art",
+          "options": {
+            "interview_summary": "Interviewzusammenfassung",
+            "workshop": "Workshop",
+            "report": "Bericht",
+            "recommendation": "Empfehlung",
+            "training_session": "Schulung",
+            "handover": "Übergabe"
+          }
+        },
+        "deliverables.due_date": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "deliverables.owner": {
+          "label": "Verantwortlich",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "reply": "Antworten",
+            "write_up": "Gespräch nachbereiten",
+            "acceptance_check": "Annahme prüfen",
+            "proposal": "Angebot schreiben",
+            "follow_up": "Nachfassen",
+            "kickoff": "Auftakt",
+            "deliver": "Liefern",
+            "feedback": "Um Rückmeldung bitten",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Kunde",
+          "targetLabel": "Ansprechpartner"
+        },
+        "engagement_client": {
+          "sourceLabel": "Kunde",
+          "targetLabel": "Beratungsaufträge"
+        },
+        "engagement_sponsor": {
+          "sourceLabel": "Auftraggeber und Ansprechpartner",
+          "targetLabel": "Beratungsaufträge"
+        },
+        "deliverable_engagement": {
+          "sourceLabel": "Beratungsauftrag",
+          "targetLabel": "Ergebnisse (Meilensteine)"
+        },
+        "action_engagement": {
+          "sourceLabel": "Beratungsauftrag",
+          "targetLabel": "Aufgaben"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle Aufgaben"
+        },
+        "engagements_board": {
+          "name": "Beratungsaufträge nach Phase"
+        },
+        "engagements_all": {
+          "name": "Alle Beratungsaufträge"
+        },
+        "in_delivery": {
+          "name": "Erteilt und noch nicht abgeschlossen"
+        },
+        "deliverables_all": {
+          "name": "Alle Ergebnisse"
+        },
+        "clients_all": {
+          "name": "Alle Kunden"
+        },
+        "contacts_all": {
+          "name": "Alle Ansprechpartner"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Anstehende Aufgaben"
+        },
+        "overdue_actions": {
+          "title": "Überfällige Aufgaben"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        },
+        "engagements_funnel": {
+          "title": "Beratungsaufträge nach Phase"
+        },
+        "open_value": {
+          "title": "Wert der laufenden Angebote"
+        },
+        "decisions_coming": {
+          "title": "Erwartete Entscheidungen"
+        },
+        "deliverables_due": {
+          "title": "Fällige Ergebnisse"
+        },
+        "engagements_ending": {
+          "title": "Endende Beratungsaufträge"
+        },
+        "by_type": {
+          "title": "Erteilte Aufträge nach Art"
+        },
+        "lost_reasons": {
+          "title": "Warum Aufträge verloren gingen"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "So läuft die Beratung",
+          "sections": [
+            "Phasen und die Regel eines terminierten nächsten Schritts je offenem Auftrag",
+            "Was außerhalb bleibt: Zeiterfassung und Rechnungsstellung"
+          ]
+        },
+        "discovery_guide": {
+          "title": "Leitfaden Vorgespräch",
+          "sections": [
+            "Das Problem in den Worten des Kunden, Beteiligte und Budgetsignale",
+            "Was am nächsten Tag festgehalten wird"
+          ]
+        },
+        "acceptance_check": {
+          "title": "Annahmeprüfung vor dem Angebot",
+          "sections": [
+            "Kapazität, Unabhängigkeit, Vertraulichkeit und Eignung",
+            "Wer über die Annahme entscheidet"
+          ]
+        },
+        "proposal_and_follow_up": {
+          "title": "Aufbau des Angebots und Nachfassen",
+          "sections": [
+            "Angebotene Optionen und die empfohlene",
+            "Den Nachfasstermin im Angebotsgespräch vereinbaren"
+          ]
+        }
+      },
+      "rules": {
+        "discovery_writeup": {
+          "title": "Das Vorgespräch am nächsten Tag nachbereiten",
+          "description": ""
+        },
+        "acceptance_check": {
+          "title": "Am Tag nach Eintritt in die Auftragsklärung die Annahme prüfen",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "3 Tage nach dem Angebot nachfassen",
+          "description": ""
+        },
+        "decision_date": {
+          "title": "Zum erwarteten Entscheidungstermin nach der Entscheidung fragen",
+          "description": ""
+        },
+        "won_kickoff": {
+          "title": "Am Tag nach der Auftragserteilung den Auftakt terminieren",
+          "description": ""
+        },
+        "lost_review": {
+          "title": "2 Tage nach einem Verlust fragen, was man hätte anders machen können",
+          "description": ""
+        },
+        "deliverable_due_notice": {
+          "title": "Den Verantwortlichen 3 Tage vor der Fälligkeit eines Ergebnisses informieren",
+          "description": ""
+        },
+        "closeout_report": {
+          "title": "Am Enddatum den Abschlussbericht übergeben",
+          "description": ""
+        },
+        "testimonial_ask": {
+          "title": "14 Tage nach dem Enddatum um eine Referenz bitten",
+          "description": ""
+        },
+        "followup_after_end": {
+          "title": "30 Tage nach dem Enddatum Folgearbeiten anbieten",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Jeder Beratungsauftrag hat eine Phase.",
+        "follow_up_field": "Jedes Angebot hält den mit dem Auftraggeber vereinbarten Nachfasstermin fest.",
+        "acceptance_checked_field": "Jeder Beratungsauftrag hält fest, wann die Annahme geprüft wurde.",
+        "engagements_board_view": "Die Beratungsaufträge öffnen sich als Board nach Phase."
+      },
+      "prompt": {
+        "intro": "Richte in meinem Customermates-Workspace Beratungsaufträge ein: Aufträge vom Erstkontakt bis zur Auftragserteilung mit Annahmeprüfung und einem im Angebotsgespräch vereinbarten Nachfasstermin, Ergebnisse mit Fälligkeits- und Abnahmedatum und einen Abschluss, der um Rückmeldung bittet. Speichere keine vertraulichen Kundendaten.",
+        "questions": [
+          "Welche Arten von Aufträgen verkaufst du, und zu welchem Tagessatz?",
+          "Wie entscheidest du, ob du einen Auftrag annimmst?",
+          "Wie lange wartest du nach einem Angebot, bevor du nachfasst?",
+          "Welche Ergebnisse sind Meilensteine, die du abrechnest?"
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Consultant engagements",
+      "summary": "A pipeline for an independent consultant: engagements from introduction to won with an acceptance check before the offer, a follow-up date agreed on the proposal call, and deliverables that gate delivery and closeout.",
+      "description": "Run a consulting practice in one place: engagements through discovery, scoping, proposal and decision, the date of the follow-up agreed with the sponsor, an acceptance check (capacity, independence, confidentiality) before the offer, deliverables with their due and acceptance dates, and a closeout that asks for feedback and a testimonial. It stores the pipeline, the relationships and the delivery gates. It is not time tracking, invoicing, proposal e-signature or resource planning, and it holds no confidential client data.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "Sponsors, day-to-day contacts, people who sign off and referrers."
+        },
+        "clients": {
+          "label": "Client",
+          "pluralLabel": "Clients",
+          "description": "Prospects, clients, former clients and referral partners."
+        },
+        "engagements": {
+          "label": "Engagement",
+          "pluralLabel": "Engagements",
+          "description": "One piece of consulting work, from the first introduction to delivery and closeout."
+        },
+        "deliverables": {
+          "label": "Deliverable",
+          "pluralLabel": "Deliverables",
+          "description": "A milestone you hand over, with its due date and acceptance."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "contacts.role_in_engagement": {
+          "label": "Role",
+          "options": {
+            "sponsor": "Sponsor",
+            "day_to_day": "Day-to-day contact",
+            "signs_off": "Signs off",
+            "referrer": "Referrer",
+            "influencer": "Influencer"
+          }
+        },
+        "contacts.relationship_strength": {
+          "label": "Relationship",
+          "options": {
+            "strong": "Strong",
+            "warm": "Warm",
+            "new": "New"
+          }
+        },
+        "contacts.last_meeting": {
+          "label": "Last meeting",
+          "options": {}
+        },
+        "clients.relationship": {
+          "label": "Relationship",
+          "options": {
+            "prospect": "Prospect",
+            "client": "Client",
+            "former_client": "Former client",
+            "referral_partner": "Referral partner"
+          }
+        },
+        "clients.industry": {
+          "label": "Industry",
+          "options": {}
+        },
+        "engagements.stage": {
+          "label": "Stage",
+          "options": {
+            "introduction": "Introduction",
+            "discovery": "Discovery",
+            "scoping": "Scoping",
+            "proposal_sent": "Proposal sent",
+            "decision": "Decision",
+            "won": "Won",
+            "lost": "Lost"
+          }
+        },
+        "engagements.engagement_type": {
+          "label": "Type",
+          "options": {
+            "diagnostic": "Diagnostic",
+            "advisory_review": "Advisory review",
+            "workshop": "Workshop",
+            "interim": "Interim role",
+            "retainer": "Retainer",
+            "training": "Training"
+          }
+        },
+        "engagements.referral_source": {
+          "label": "How it came in",
+          "options": {
+            "client_referral": "Client referral",
+            "peer_referral": "Peer referral",
+            "event_or_talk": "Event or talk",
+            "content": "Content",
+            "existing_client": "Existing client",
+            "marketplace": "Marketplace"
+          }
+        },
+        "engagements.day_rate": {
+          "label": "Day rate",
+          "options": {}
+        },
+        "engagements.days_estimated": {
+          "label": "Days estimated",
+          "options": {}
+        },
+        "engagements.estimated_fee": {
+          "label": "Estimated fee",
+          "options": {}
+        },
+        "engagements.acceptance_checked_on": {
+          "label": "Acceptance checked on",
+          "options": {}
+        },
+        "engagements.proposal_follow_up_on": {
+          "label": "Follow-up agreed for",
+          "options": {}
+        },
+        "engagements.decision_expected": {
+          "label": "Decision expected",
+          "options": {}
+        },
+        "engagements.start_date": {
+          "label": "Start date",
+          "options": {}
+        },
+        "engagements.end_date": {
+          "label": "End date",
+          "options": {}
+        },
+        "engagements.delivery_status": {
+          "label": "Delivery status",
+          "options": {
+            "not_started": "Not started",
+            "kickoff_scheduled": "Kickoff scheduled",
+            "in_delivery": "In delivery",
+            "wrapping_up": "Wrapping up",
+            "completed": "Completed"
+          }
+        },
+        "engagements.next_step_due": {
+          "label": "Next step due",
+          "options": {}
+        },
+        "engagements.lost_reason": {
+          "label": "Lost reason",
+          "options": {
+            "timing": "Timing",
+            "budget": "Budget",
+            "in_house": "Doing it in-house",
+            "other_advisor": "Chose another advisor",
+            "scope_changed": "Scope changed",
+            "no_decision": "No decision",
+            "no_response": "No response"
+          }
+        },
+        "deliverables.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Planned",
+            "in_progress": "In progress",
+            "delivered": "Delivered",
+            "accepted": "Accepted"
+          }
+        },
+        "deliverables.kind": {
+          "label": "Kind",
+          "options": {
+            "interview_summary": "Interview summary",
+            "workshop": "Workshop",
+            "report": "Report",
+            "recommendation": "Recommendation",
+            "training_session": "Training session",
+            "handover": "Handover"
+          }
+        },
+        "deliverables.due_date": {
+          "label": "Due date",
+          "options": {}
+        },
+        "deliverables.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "reply": "Reply",
+            "write_up": "Write up the conversation",
+            "acceptance_check": "Check acceptance",
+            "proposal": "Write the proposal",
+            "follow_up": "Follow up",
+            "kickoff": "Kickoff",
+            "deliver": "Deliver",
+            "feedback": "Ask for feedback",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Contacts"
+        },
+        "engagement_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Engagements"
+        },
+        "engagement_sponsor": {
+          "sourceLabel": "Sponsor and contacts",
+          "targetLabel": "Engagements"
+        },
+        "deliverable_engagement": {
+          "sourceLabel": "Engagement",
+          "targetLabel": "Deliverables"
+        },
+        "action_engagement": {
+          "sourceLabel": "Engagement",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "All actions"
+        },
+        "engagements_board": {
+          "name": "Engagements by stage"
+        },
+        "engagements_all": {
+          "name": "All engagements"
+        },
+        "in_delivery": {
+          "name": "Won and not yet completed"
+        },
+        "deliverables_all": {
+          "name": "All deliverables"
+        },
+        "clients_all": {
+          "name": "All clients"
+        },
+        "contacts_all": {
+          "name": "All contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Upcoming actions"
+        },
+        "overdue_actions": {
+          "title": "Overdue actions"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        },
+        "engagements_funnel": {
+          "title": "Engagements by stage"
+        },
+        "open_value": {
+          "title": "Value of proposals in play"
+        },
+        "decisions_coming": {
+          "title": "Decisions expected"
+        },
+        "deliverables_due": {
+          "title": "Deliverables due"
+        },
+        "engagements_ending": {
+          "title": "Engagements ending"
+        },
+        "by_type": {
+          "title": "Won engagements by type"
+        },
+        "lost_reasons": {
+          "title": "Why engagements were lost"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "How the practice runs",
+          "sections": [
+            "Stages, and the rule of one dated next step per open engagement",
+            "What stays outside: time tracking and invoicing"
+          ]
+        },
+        "discovery_guide": {
+          "title": "Discovery conversation guide",
+          "sections": [
+            "The problem in the client's words, stakeholders and budget signals",
+            "What to write up the next day"
+          ]
+        },
+        "acceptance_check": {
+          "title": "Acceptance check before the offer",
+          "sections": [
+            "Capacity, independence, confidentiality and fit",
+            "Who decides to take the work"
+          ]
+        },
+        "proposal_and_follow_up": {
+          "title": "Proposal structure and follow-up",
+          "sections": [
+            "Options offered and the recommended one",
+            "Agreeing the follow-up date on the proposal call"
+          ]
+        }
+      },
+      "rules": {
+        "discovery_writeup": {
+          "title": "Write up the discovery conversation the next day",
+          "description": ""
+        },
+        "acceptance_check": {
+          "title": "Check acceptance the day after an engagement reaches scoping",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Follow up 3 days after the proposal is sent",
+          "description": ""
+        },
+        "decision_date": {
+          "title": "Ask for the decision on the expected decision date",
+          "description": ""
+        },
+        "won_kickoff": {
+          "title": "Schedule the kickoff the day after an engagement is won",
+          "description": ""
+        },
+        "lost_review": {
+          "title": "Ask what could have been done differently 2 days after an engagement is lost",
+          "description": ""
+        },
+        "deliverable_due_notice": {
+          "title": "Notify the owner 3 days before a deliverable is due",
+          "description": ""
+        },
+        "closeout_report": {
+          "title": "Hand over the final report on the end date",
+          "description": ""
+        },
+        "testimonial_ask": {
+          "title": "Ask for a testimonial 14 days after the end date",
+          "description": ""
+        },
+        "followup_after_end": {
+          "title": "Propose follow-up work 30 days after the end date",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Every engagement has a stage.",
+        "follow_up_field": "Every proposal records the follow-up date agreed with the sponsor.",
+        "acceptance_checked_field": "Every engagement records when acceptance was checked.",
+        "engagements_board_view": "The engagements open as a board by stage."
+      },
+      "prompt": {
+        "intro": "Set up consultant engagements in my Customermates workspace: engagements from introduction to won with an acceptance check and a follow-up date agreed on the proposal call, deliverables with due and acceptance dates, and a closeout that asks for feedback. Store no confidential client data.",
+        "questions": [
+          "What kinds of engagements do you sell, and at which day rate?",
+          "How do you decide whether to accept a piece of work?",
+          "How long do you usually wait after a proposal before you follow up?",
+          "Which deliverables mark a milestone you invoice?"
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "Encargos de consultoría",
+      "summary": "Un pipeline para un consultor independiente: encargos del contacto al encargo ganado con comprobación de aceptación antes de la oferta, una fecha de seguimiento acordada en la llamada de la propuesta y entregables que regulan la ejecución y el cierre.",
+      "description": "Lleva tu consultoría en un solo lugar: encargos a través de exploración, alcance, propuesta y decisión, la fecha de seguimiento acordada con el patrocinador, una comprobación de aceptación (capacidad, independencia, confidencialidad) antes de la oferta, entregables con su fecha límite y su aceptación, y un cierre que pide opinión y un testimonio. Guarda el pipeline, las relaciones y los hitos de entrega. No sirve para controlar horas, facturar, firmar propuestas electrónicamente ni planificar recursos, y no contiene datos confidenciales del cliente.",
+      "lists": {
+        "actions": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un siguiente paso con fecha por cada asunto abierto."
+        },
+        "contacts": {
+          "label": "Contacto",
+          "pluralLabel": "Contactos",
+          "description": "Patrocinadores, contactos del día a día, quienes firman y quienes recomiendan."
+        },
+        "clients": {
+          "label": "Cliente",
+          "pluralLabel": "Clientes",
+          "description": "Clientes potenciales, clientes, antiguos clientes y socios que recomiendan."
+        },
+        "engagements": {
+          "label": "Encargo",
+          "pluralLabel": "Encargos",
+          "description": "Un trabajo de consultoría, del primer contacto a la entrega y el cierre."
+        },
+        "deliverables": {
+          "label": "Entregable",
+          "pluralLabel": "Entregables",
+          "description": "Un hito que entregas, con su fecha límite y su aceptación."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierta",
+            "waiting": "En espera",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "contacts.role_in_engagement": {
+          "label": "Papel",
+          "options": {
+            "sponsor": "Patrocinador",
+            "day_to_day": "Contacto del día a día",
+            "signs_off": "Da el visto bueno",
+            "referrer": "Quien recomienda",
+            "influencer": "Influyente"
+          }
+        },
+        "contacts.relationship_strength": {
+          "label": "Relación",
+          "options": {
+            "strong": "Fuerte",
+            "warm": "Buena",
+            "new": "Nueva"
+          }
+        },
+        "contacts.last_meeting": {
+          "label": "Última reunión",
+          "options": {}
+        },
+        "clients.relationship": {
+          "label": "Relación",
+          "options": {
+            "prospect": "Cliente potencial",
+            "client": "Cliente",
+            "former_client": "Antiguo cliente",
+            "referral_partner": "Socio que recomienda"
+          }
+        },
+        "clients.industry": {
+          "label": "Sector",
+          "options": {}
+        },
+        "engagements.stage": {
+          "label": "Fase",
+          "options": {
+            "introduction": "Contacto",
+            "discovery": "Exploración",
+            "scoping": "Alcance",
+            "proposal_sent": "Propuesta enviada",
+            "decision": "Decisión",
+            "won": "Ganado",
+            "lost": "Perdido"
+          }
+        },
+        "engagements.engagement_type": {
+          "label": "Tipo",
+          "options": {
+            "diagnostic": "Diagnóstico",
+            "advisory_review": "Revisión de asesoramiento",
+            "workshop": "Taller",
+            "interim": "Dirección interina",
+            "retainer": "Asesoramiento continuo",
+            "training": "Formación"
+          }
+        },
+        "engagements.referral_source": {
+          "label": "Cómo llegó",
+          "options": {
+            "client_referral": "Recomendación de un cliente",
+            "peer_referral": "Recomendación de un colega",
+            "event_or_talk": "Evento o charla",
+            "content": "Contenidos publicados",
+            "existing_client": "Cliente existente",
+            "marketplace": "Plataforma"
+          }
+        },
+        "engagements.day_rate": {
+          "label": "Tarifa diaria",
+          "options": {}
+        },
+        "engagements.days_estimated": {
+          "label": "Días estimados",
+          "options": {}
+        },
+        "engagements.estimated_fee": {
+          "label": "Honorarios estimados",
+          "options": {}
+        },
+        "engagements.acceptance_checked_on": {
+          "label": "Aceptación comprobada el",
+          "options": {}
+        },
+        "engagements.proposal_follow_up_on": {
+          "label": "Seguimiento acordado para el",
+          "options": {}
+        },
+        "engagements.decision_expected": {
+          "label": "Decisión esperada",
+          "options": {}
+        },
+        "engagements.start_date": {
+          "label": "Inicio",
+          "options": {}
+        },
+        "engagements.end_date": {
+          "label": "Fin",
+          "options": {}
+        },
+        "engagements.delivery_status": {
+          "label": "Ejecución",
+          "options": {
+            "not_started": "Sin empezar",
+            "kickoff_scheduled": "Arranque programado",
+            "in_delivery": "En curso",
+            "wrapping_up": "En cierre",
+            "completed": "Completado"
+          }
+        },
+        "engagements.next_step_due": {
+          "label": "Fecha del siguiente paso",
+          "options": {}
+        },
+        "engagements.lost_reason": {
+          "label": "Motivo de pérdida",
+          "options": {
+            "timing": "Momento",
+            "budget": "Presupuesto",
+            "in_house": "Lo hace internamente",
+            "other_advisor": "Eligió otro asesor",
+            "scope_changed": "Cambió el alcance",
+            "no_decision": "Sin decisión",
+            "no_response": "Sin respuesta"
+          }
+        },
+        "deliverables.status": {
+          "label": "Estado",
+          "options": {
+            "planned": "Planificado",
+            "in_progress": "En curso",
+            "delivered": "Entregado",
+            "accepted": "Aceptado"
+          }
+        },
+        "deliverables.kind": {
+          "label": "Tipo",
+          "options": {
+            "interview_summary": "Resumen de entrevistas",
+            "workshop": "Taller",
+            "report": "Informe",
+            "recommendation": "Recomendación",
+            "training_session": "Sesión de formación",
+            "handover": "Traspaso"
+          }
+        },
+        "deliverables.due_date": {
+          "label": "Fecha límite",
+          "options": {}
+        },
+        "deliverables.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Responder",
+            "write_up": "Redactar el resumen de la conversación",
+            "acceptance_check": "Comprobar la aceptación",
+            "proposal": "Redactar la propuesta",
+            "follow_up": "Hacer seguimiento",
+            "kickoff": "Arranque",
+            "deliver": "Entregar",
+            "feedback": "Pedir opinión",
+            "other": "Otro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Contactos"
+        },
+        "engagement_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Encargos"
+        },
+        "engagement_sponsor": {
+          "sourceLabel": "Patrocinador y contactos",
+          "targetLabel": "Encargos"
+        },
+        "deliverable_engagement": {
+          "sourceLabel": "Encargo",
+          "targetLabel": "Entregables"
+        },
+        "action_engagement": {
+          "sourceLabel": "Encargo",
+          "targetLabel": "Tareas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas las tareas"
+        },
+        "engagements_board": {
+          "name": "Encargos por fase"
+        },
+        "engagements_all": {
+          "name": "Todos los encargos"
+        },
+        "in_delivery": {
+          "name": "Ganados y sin completar"
+        },
+        "deliverables_all": {
+          "name": "Todos los entregables"
+        },
+        "clients_all": {
+          "name": "Todos los clientes"
+        },
+        "contacts_all": {
+          "name": "Todos los contactos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tareas"
+        },
+        "overdue_actions": {
+          "title": "Tareas vencidas"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        },
+        "engagements_funnel": {
+          "title": "Encargos por fase"
+        },
+        "open_value": {
+          "title": "Importe de las propuestas en curso"
+        },
+        "decisions_coming": {
+          "title": "Decisiones esperadas"
+        },
+        "deliverables_due": {
+          "title": "Entregables por entregar"
+        },
+        "engagements_ending": {
+          "title": "Encargos que terminan"
+        },
+        "by_type": {
+          "title": "Encargos ganados por tipo"
+        },
+        "lost_reasons": {
+          "title": "Por qué se pierden encargos"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Cómo funciona la consultoría",
+          "sections": [
+            "Las fases y la regla de un siguiente paso con fecha por encargo abierto",
+            "Lo que queda fuera: control de horas y facturación"
+          ]
+        },
+        "discovery_guide": {
+          "title": "Guía de la conversación de exploración",
+          "sections": [
+            "El problema con las palabras del cliente, los interesados y las señales de presupuesto",
+            "Qué anotar al día siguiente"
+          ]
+        },
+        "acceptance_check": {
+          "title": "Comprobación de aceptación antes de la oferta",
+          "sections": [
+            "Capacidad, independencia, confidencialidad y encaje",
+            "Quién decide aceptar el trabajo"
+          ]
+        },
+        "proposal_and_follow_up": {
+          "title": "Estructura de la propuesta y seguimiento",
+          "sections": [
+            "Opciones ofrecidas y la recomendada",
+            "Acordar la fecha de seguimiento en la llamada de la propuesta"
+          ]
+        }
+      },
+      "rules": {
+        "discovery_writeup": {
+          "title": "Redactar la conversación de exploración al día siguiente",
+          "description": ""
+        },
+        "acceptance_check": {
+          "title": "Comprobar la aceptación al día siguiente de pasar a alcance",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Hacer seguimiento 3 días después de enviar la propuesta",
+          "description": ""
+        },
+        "decision_date": {
+          "title": "Pedir la decisión en la fecha de decisión esperada",
+          "description": ""
+        },
+        "won_kickoff": {
+          "title": "Programar el arranque al día siguiente de ganar un encargo",
+          "description": ""
+        },
+        "lost_review": {
+          "title": "Preguntar qué se podría haber hecho distinto 2 días después de perder un encargo",
+          "description": ""
+        },
+        "deliverable_due_notice": {
+          "title": "Avisar al responsable 3 días antes de la fecha límite de un entregable",
+          "description": ""
+        },
+        "closeout_report": {
+          "title": "Entregar el informe final en la fecha de fin",
+          "description": ""
+        },
+        "testimonial_ask": {
+          "title": "Pedir un testimonio 14 días después de la fecha de fin",
+          "description": ""
+        },
+        "followup_after_end": {
+          "title": "Proponer nuevo trabajo 30 días después de la fecha de fin",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada encargo tiene una fase.",
+        "follow_up_field": "Cada propuesta registra la fecha de seguimiento acordada con el patrocinador.",
+        "acceptance_checked_field": "Cada encargo registra cuándo se comprobó la aceptación.",
+        "engagements_board_view": "Los encargos se abren como tablero por fase."
+      },
+      "prompt": {
+        "intro": "Configura en mi espacio de trabajo de Customermates encargos de consultoría: encargos del contacto al ganado con comprobación de aceptación y fecha de seguimiento acordada en la llamada de la propuesta, entregables con fecha límite y aceptación, y un cierre que pide opinión. No guardes datos confidenciales del cliente.",
+        "questions": [
+          "¿Qué tipos de encargos vendes y a qué tarifa diaria?",
+          "¿Cómo decides si aceptas un trabajo?",
+          "¿Cuánto esperas tras una propuesta antes de hacer seguimiento?",
+          "¿Qué entregables marcan un hito que facturas?"
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "Missions de conseil",
+      "summary": "Un pipeline pour un consultant indépendant : missions de la prospection à la mission signée avec contrôle d’acceptation avant la proposition, une date de relance convenue lors de l’appel sur la proposition, et des livrables qui encadrent l’exécution et la clôture.",
+      "description": "Pilotez une activité de conseil au même endroit : missions à travers la qualification, le cadrage, la proposition commerciale et la décision, la date de relance convenue avec le sponsor, un contrôle d’acceptation (capacité, indépendance, confidentialité) avant la proposition, des livrables avec leur échéance et leur validation, et une clôture qui demande un retour et un témoignage. Il conserve le pipeline, les relations et les jalons de livraison. Ce n’est ni du suivi du temps, ni de la facturation, ni de la signature électronique de propositions, ni de la planification de ressources, et il ne contient aucune donnée confidentielle du client.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Une prochaine étape datée par dossier ouvert."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "Sponsors, interlocuteurs du quotidien, signataires et prescripteurs."
+        },
+        "clients": {
+          "label": "Client",
+          "pluralLabel": "Clients",
+          "description": "Prospects, clients, anciens clients et partenaires apporteurs."
+        },
+        "engagements": {
+          "label": "Mission",
+          "pluralLabel": "Missions",
+          "description": "Une mission de conseil, de la première prise de contact à la livraison et à la clôture."
+        },
+        "deliverables": {
+          "label": "Livrable",
+          "pluralLabel": "Livrables",
+          "description": "Un jalon que vous remettez, avec son échéance et sa validation."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "waiting": "En attente",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "contacts.role_in_engagement": {
+          "label": "Rôle",
+          "options": {
+            "sponsor": "Sponsor",
+            "day_to_day": "Interlocuteur du quotidien",
+            "signs_off": "Valide et signe",
+            "referrer": "Prescripteur",
+            "influencer": "Influenceur"
+          }
+        },
+        "contacts.relationship_strength": {
+          "label": "Relation",
+          "options": {
+            "strong": "Forte",
+            "warm": "Bonne",
+            "new": "Nouvelle"
+          }
+        },
+        "contacts.last_meeting": {
+          "label": "Dernière rencontre",
+          "options": {}
+        },
+        "clients.relationship": {
+          "label": "Relation",
+          "options": {
+            "prospect": "Prospect",
+            "client": "Client",
+            "former_client": "Ancien client",
+            "referral_partner": "Partenaire apporteur"
+          }
+        },
+        "clients.industry": {
+          "label": "Secteur",
+          "options": {}
+        },
+        "engagements.stage": {
+          "label": "Étape",
+          "options": {
+            "introduction": "Prospection",
+            "discovery": "Qualification",
+            "scoping": "Cadrage",
+            "proposal_sent": "Proposition commerciale",
+            "decision": "Décision",
+            "won": "Mission signée",
+            "lost": "Perdue"
+          }
+        },
+        "engagements.engagement_type": {
+          "label": "Type",
+          "options": {
+            "diagnostic": "Diagnostic",
+            "advisory_review": "Revue-conseil",
+            "workshop": "Atelier",
+            "interim": "Management de transition",
+            "retainer": "Accompagnement récurrent",
+            "training": "Formation"
+          }
+        },
+        "engagements.referral_source": {
+          "label": "Origine de la mission",
+          "options": {
+            "client_referral": "Recommandation d’un client",
+            "peer_referral": "Recommandation d’un confrère",
+            "event_or_talk": "Événement ou conférence",
+            "content": "Contenu publié",
+            "existing_client": "Client existant",
+            "marketplace": "Plateforme"
+          }
+        },
+        "engagements.day_rate": {
+          "label": "Taux journalier (TJM)",
+          "options": {}
+        },
+        "engagements.days_estimated": {
+          "label": "Jours estimés",
+          "options": {}
+        },
+        "engagements.estimated_fee": {
+          "label": "Honoraires estimés",
+          "options": {}
+        },
+        "engagements.acceptance_checked_on": {
+          "label": "Acceptation contrôlée le",
+          "options": {}
+        },
+        "engagements.proposal_follow_up_on": {
+          "label": "Relance convenue pour le",
+          "options": {}
+        },
+        "engagements.decision_expected": {
+          "label": "Décision attendue",
+          "options": {}
+        },
+        "engagements.start_date": {
+          "label": "Début",
+          "options": {}
+        },
+        "engagements.end_date": {
+          "label": "Fin",
+          "options": {}
+        },
+        "engagements.delivery_status": {
+          "label": "Exécution",
+          "options": {
+            "not_started": "Pas commencée",
+            "kickoff_scheduled": "Lancement planifié",
+            "in_delivery": "En cours",
+            "wrapping_up": "En clôture",
+            "completed": "Terminée"
+          }
+        },
+        "engagements.next_step_due": {
+          "label": "Prochaine étape avant le",
+          "options": {}
+        },
+        "engagements.lost_reason": {
+          "label": "Motif de perte",
+          "options": {
+            "timing": "Calendrier",
+            "budget": "Budget",
+            "in_house": "Réalisé en interne",
+            "other_advisor": "A choisi un autre consultant",
+            "scope_changed": "Périmètre modifié",
+            "no_decision": "Pas de décision",
+            "no_response": "Sans réponse"
+          }
+        },
+        "deliverables.status": {
+          "label": "Statut",
+          "options": {
+            "planned": "Prévu",
+            "in_progress": "En cours",
+            "delivered": "Remis",
+            "accepted": "Validé"
+          }
+        },
+        "deliverables.kind": {
+          "label": "Type",
+          "options": {
+            "interview_summary": "Synthèse d’entretiens",
+            "workshop": "Atelier",
+            "report": "Rapport",
+            "recommendation": "Recommandation",
+            "training_session": "Session de formation",
+            "handover": "Passation"
+          }
+        },
+        "deliverables.due_date": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "deliverables.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "reply": "Répondre",
+            "write_up": "Rédiger le compte rendu",
+            "acceptance_check": "Contrôler l’acceptation",
+            "proposal": "Rédiger la proposition",
+            "follow_up": "Relancer",
+            "kickoff": "Lancement",
+            "deliver": "Livrer",
+            "feedback": "Demander un retour",
+            "other": "Autre"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Contacts"
+        },
+        "engagement_client": {
+          "sourceLabel": "Client",
+          "targetLabel": "Missions"
+        },
+        "engagement_sponsor": {
+          "sourceLabel": "Sponsor et contacts",
+          "targetLabel": "Missions"
+        },
+        "deliverable_engagement": {
+          "sourceLabel": "Mission",
+          "targetLabel": "Livrables"
+        },
+        "action_engagement": {
+          "sourceLabel": "Mission",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "engagements_board": {
+          "name": "Missions par étape"
+        },
+        "engagements_all": {
+          "name": "Toutes les missions"
+        },
+        "in_delivery": {
+          "name": "Signées et pas encore terminées"
+        },
+        "deliverables_all": {
+          "name": "Tous les livrables"
+        },
+        "clients_all": {
+          "name": "Tous les clients"
+        },
+        "contacts_all": {
+          "name": "Tous les contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Actions à venir"
+        },
+        "overdue_actions": {
+          "title": "Actions en retard"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        },
+        "engagements_funnel": {
+          "title": "Missions par étape"
+        },
+        "open_value": {
+          "title": "Montant des propositions en cours"
+        },
+        "decisions_coming": {
+          "title": "Décisions attendues"
+        },
+        "deliverables_due": {
+          "title": "Livrables à remettre"
+        },
+        "engagements_ending": {
+          "title": "Missions qui se terminent"
+        },
+        "by_type": {
+          "title": "Missions signées par type"
+        },
+        "lost_reasons": {
+          "title": "Motifs de perte des missions"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Comment fonctionne l’activité",
+          "sections": [
+            "Les étapes et la règle d’une prochaine étape datée par mission ouverte",
+            "Ce qui reste hors de l’outil : suivi du temps et facturation"
+          ]
+        },
+        "discovery_guide": {
+          "title": "Guide de l’entretien de qualification",
+          "sections": [
+            "Le problème dans les mots du client, les parties prenantes et les signaux de budget",
+            "Ce qu’il faut rédiger le lendemain"
+          ]
+        },
+        "acceptance_check": {
+          "title": "Contrôle d’acceptation avant la proposition",
+          "sections": [
+            "Capacité, indépendance, confidentialité et adéquation",
+            "Qui décide d’accepter la mission"
+          ]
+        },
+        "proposal_and_follow_up": {
+          "title": "Structure de la proposition et relance",
+          "sections": [
+            "Options proposées et option recommandée",
+            "Convenir de la date de relance lors de l’appel sur la proposition"
+          ]
+        }
+      },
+      "rules": {
+        "discovery_writeup": {
+          "title": "Rédiger le compte rendu de l’entretien de qualification le lendemain",
+          "description": ""
+        },
+        "acceptance_check": {
+          "title": "Contrôler l’acceptation le lendemain de l’entrée en cadrage",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Relancer 3 jours après l’envoi de la proposition",
+          "description": ""
+        },
+        "decision_date": {
+          "title": "Demander la décision à la date de décision attendue",
+          "description": ""
+        },
+        "won_kickoff": {
+          "title": "Planifier le lancement le lendemain d’une mission signée",
+          "description": ""
+        },
+        "lost_review": {
+          "title": "Demander ce qui aurait pu être fait autrement 2 jours après une perte",
+          "description": ""
+        },
+        "deliverable_due_notice": {
+          "title": "Prévenir le responsable 3 jours avant l’échéance d’un livrable",
+          "description": ""
+        },
+        "closeout_report": {
+          "title": "Remettre le rapport final à la date de fin",
+          "description": ""
+        },
+        "testimonial_ask": {
+          "title": "Demander un témoignage 14 jours après la date de fin",
+          "description": ""
+        },
+        "followup_after_end": {
+          "title": "Proposer une suite 30 jours après la date de fin",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Chaque mission a une étape.",
+        "follow_up_field": "Chaque proposition indique la date de relance convenue avec le sponsor.",
+        "acceptance_checked_field": "Chaque mission indique quand l’acceptation a été contrôlée.",
+        "engagements_board_view": "Les missions s’ouvrent en board par étape."
+      },
+      "prompt": {
+        "intro": "Mets en place dans mon espace de travail Customermates des missions de conseil : missions de la prospection à la mission signée avec contrôle d’acceptation et date de relance convenue lors de l’appel sur la proposition, livrables avec échéance et validation, et une clôture qui demande un retour. Ne stocke aucune donnée confidentielle du client.",
+        "questions": [
+          "Quels types de missions vendez-vous, et à quel taux journalier ?",
+          "Comment décidez-vous d’accepter ou non une mission ?",
+          "Combien de temps attendez-vous après une proposition avant de relancer ?",
+          "Quels livrables marquent un jalon que vous facturez ?"
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "Incarichi di consulenza",
+      "summary": "Una pipeline per un consulente indipendente: incarichi dal contatto all'incarico vinto con verifica di accettazione prima dell'offerta, una data di follow-up concordata nella chiamata sulla proposta e deliverable che regolano esecuzione e chiusura.",
+      "description": "Gestisci un'attività di consulenza in un unico posto: incarichi attraverso analisi, definizione dell'ambito, proposta e decisione, la data di follow-up concordata con lo sponsor, una verifica di accettazione (capacità, indipendenza, riservatezza) prima dell'offerta, deliverable con scadenza e accettazione, e una chiusura che chiede un riscontro e una testimonianza. Conserva pipeline, relazioni e punti di controllo della consegna. Non è rilevazione dei tempi, fatturazione, firma elettronica delle proposte né pianificazione delle risorse e non contiene dati riservati del cliente.",
+      "lists": {
+        "actions": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un prossimo passo con data per ogni pratica aperta."
+        },
+        "contacts": {
+          "label": "Referente",
+          "pluralLabel": "Referenti",
+          "description": "Sponsor, referenti operativi, chi firma e segnalatori."
+        },
+        "clients": {
+          "label": "Cliente",
+          "pluralLabel": "Clienti",
+          "description": "Potenziali clienti, clienti, ex clienti e partner segnalatori."
+        },
+        "engagements": {
+          "label": "Incarico",
+          "pluralLabel": "Incarichi",
+          "description": "Un lavoro di consulenza, dal primo contatto alla consegna e alla chiusura."
+        },
+        "deliverables": {
+          "label": "Deliverable",
+          "pluralLabel": "Deliverable",
+          "description": "Un traguardo che consegni, con scadenza e accettazione."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "waiting": "In attesa",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "contacts.role_in_engagement": {
+          "label": "Ruolo",
+          "options": {
+            "sponsor": "Sponsor",
+            "day_to_day": "Referente operativo",
+            "signs_off": "Approva e firma",
+            "referrer": "Segnalatore",
+            "influencer": "Influenzatore"
+          }
+        },
+        "contacts.relationship_strength": {
+          "label": "Relazione",
+          "options": {
+            "strong": "Forte",
+            "warm": "Buona",
+            "new": "Nuova"
+          }
+        },
+        "contacts.last_meeting": {
+          "label": "Ultimo incontro",
+          "options": {}
+        },
+        "clients.relationship": {
+          "label": "Relazione",
+          "options": {
+            "prospect": "Potenziale cliente",
+            "client": "Cliente",
+            "former_client": "Ex cliente",
+            "referral_partner": "Partner segnalatore"
+          }
+        },
+        "clients.industry": {
+          "label": "Settore",
+          "options": {}
+        },
+        "engagements.stage": {
+          "label": "Fase",
+          "options": {
+            "introduction": "Contatto",
+            "discovery": "Analisi",
+            "scoping": "Definizione dell'ambito",
+            "proposal_sent": "Proposta",
+            "decision": "Decisione",
+            "won": "Vinto",
+            "lost": "Perso"
+          }
+        },
+        "engagements.engagement_type": {
+          "label": "Tipo",
+          "options": {
+            "diagnostic": "Diagnosi",
+            "advisory_review": "Revisione consulenziale",
+            "workshop": "Workshop",
+            "interim": "Incarico interim",
+            "retainer": "Consulenza continuativa",
+            "training": "Formazione"
+          }
+        },
+        "engagements.referral_source": {
+          "label": "Origine dell'incarico",
+          "options": {
+            "client_referral": "Segnalazione di un cliente",
+            "peer_referral": "Segnalazione di un collega",
+            "event_or_talk": "Evento o intervento",
+            "content": "Contenuti pubblicati",
+            "existing_client": "Cliente esistente",
+            "marketplace": "Piattaforma"
+          }
+        },
+        "engagements.day_rate": {
+          "label": "Tariffa giornaliera",
+          "options": {}
+        },
+        "engagements.days_estimated": {
+          "label": "Giorni stimati",
+          "options": {}
+        },
+        "engagements.estimated_fee": {
+          "label": "Compenso stimato",
+          "options": {}
+        },
+        "engagements.acceptance_checked_on": {
+          "label": "Accettazione verificata il",
+          "options": {}
+        },
+        "engagements.proposal_follow_up_on": {
+          "label": "Follow-up concordato per il",
+          "options": {}
+        },
+        "engagements.decision_expected": {
+          "label": "Decisione attesa",
+          "options": {}
+        },
+        "engagements.start_date": {
+          "label": "Inizio",
+          "options": {}
+        },
+        "engagements.end_date": {
+          "label": "Fine",
+          "options": {}
+        },
+        "engagements.delivery_status": {
+          "label": "Esecuzione",
+          "options": {
+            "not_started": "Non iniziata",
+            "kickoff_scheduled": "Kickoff fissato",
+            "in_delivery": "In corso",
+            "wrapping_up": "In chiusura",
+            "completed": "Completata"
+          }
+        },
+        "engagements.next_step_due": {
+          "label": "Prossimo passo entro",
+          "options": {}
+        },
+        "engagements.lost_reason": {
+          "label": "Motivo della perdita",
+          "options": {
+            "timing": "Tempi",
+            "budget": "Budget",
+            "in_house": "Lo gestisce internamente",
+            "other_advisor": "Ha scelto un altro consulente",
+            "scope_changed": "Ambito modificato",
+            "no_decision": "Nessuna decisione",
+            "no_response": "Nessuna risposta"
+          }
+        },
+        "deliverables.status": {
+          "label": "Stato",
+          "options": {
+            "planned": "Pianificato",
+            "in_progress": "In corso",
+            "delivered": "Consegnato",
+            "accepted": "Accettato"
+          }
+        },
+        "deliverables.kind": {
+          "label": "Tipo",
+          "options": {
+            "interview_summary": "Sintesi delle interviste",
+            "workshop": "Workshop",
+            "report": "Relazione",
+            "recommendation": "Raccomandazione",
+            "training_session": "Sessione di formazione",
+            "handover": "Passaggio di consegne"
+          }
+        },
+        "deliverables.due_date": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "deliverables.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Rispondere",
+            "write_up": "Redigere il resoconto",
+            "acceptance_check": "Verificare l'accettazione",
+            "proposal": "Scrivere la proposta",
+            "follow_up": "Fare follow-up",
+            "kickoff": "Kickoff",
+            "deliver": "Consegnare",
+            "feedback": "Chiedere un riscontro",
+            "other": "Altro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Referenti"
+        },
+        "engagement_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Incarichi"
+        },
+        "engagement_sponsor": {
+          "sourceLabel": "Sponsor e referenti",
+          "targetLabel": "Incarichi"
+        },
+        "deliverable_engagement": {
+          "sourceLabel": "Incarico",
+          "targetLabel": "Deliverable"
+        },
+        "action_engagement": {
+          "sourceLabel": "Incarico",
+          "targetLabel": "Attività"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Tutte le attività"
+        },
+        "engagements_board": {
+          "name": "Incarichi per fase"
+        },
+        "engagements_all": {
+          "name": "Tutti gli incarichi"
+        },
+        "in_delivery": {
+          "name": "Vinti e non ancora completati"
+        },
+        "deliverables_all": {
+          "name": "Tutti i deliverable"
+        },
+        "clients_all": {
+          "name": "Tutti i clienti"
+        },
+        "contacts_all": {
+          "name": "Tutti i referenti"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Attività in arrivo"
+        },
+        "overdue_actions": {
+          "title": "Attività scadute"
+        },
+        "activity_timeline": {
+          "title": "Attività recenti"
+        },
+        "engagements_funnel": {
+          "title": "Incarichi per fase"
+        },
+        "open_value": {
+          "title": "Valore delle proposte in corso"
+        },
+        "decisions_coming": {
+          "title": "Decisioni attese"
+        },
+        "deliverables_due": {
+          "title": "Deliverable in scadenza"
+        },
+        "engagements_ending": {
+          "title": "Incarichi che finiscono"
+        },
+        "by_type": {
+          "title": "Incarichi vinti per tipo"
+        },
+        "lost_reasons": {
+          "title": "Motivi di perdita degli incarichi"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Come funziona l'attività",
+          "sections": [
+            "Le fasi e la regola di un prossimo passo con data per incarico aperto",
+            "Che cosa resta fuori: rilevazione dei tempi e fatturazione"
+          ]
+        },
+        "discovery_guide": {
+          "title": "Guida al colloquio di analisi",
+          "sections": [
+            "Il problema nelle parole del cliente, i soggetti coinvolti e i segnali di budget",
+            "Che cosa annotare il giorno dopo"
+          ]
+        },
+        "acceptance_check": {
+          "title": "Verifica di accettazione prima dell'offerta",
+          "sections": [
+            "Capacità, indipendenza, riservatezza e adeguatezza",
+            "Chi decide se accettare il lavoro"
+          ]
+        },
+        "proposal_and_follow_up": {
+          "title": "Struttura della proposta e follow-up",
+          "sections": [
+            "Opzioni offerte e quella raccomandata",
+            "Concordare la data di follow-up nella chiamata sulla proposta"
+          ]
+        }
+      },
+      "rules": {
+        "discovery_writeup": {
+          "title": "Redigere il resoconto del colloquio di analisi il giorno dopo",
+          "description": ""
+        },
+        "acceptance_check": {
+          "title": "Verificare l'accettazione il giorno dopo l'ingresso nella definizione dell'ambito",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Fare follow-up 3 giorni dopo l'invio della proposta",
+          "description": ""
+        },
+        "decision_date": {
+          "title": "Chiedere la decisione alla data di decisione attesa",
+          "description": ""
+        },
+        "won_kickoff": {
+          "title": "Fissare il kickoff il giorno dopo un incarico vinto",
+          "description": ""
+        },
+        "lost_review": {
+          "title": "Chiedere che cosa si poteva fare diversamente 2 giorni dopo una perdita",
+          "description": ""
+        },
+        "deliverable_due_notice": {
+          "title": "Avvisare il responsabile 3 giorni prima della scadenza di un deliverable",
+          "description": ""
+        },
+        "closeout_report": {
+          "title": "Consegnare la relazione finale alla data di fine",
+          "description": ""
+        },
+        "testimonial_ask": {
+          "title": "Chiedere una testimonianza 14 giorni dopo la data di fine",
+          "description": ""
+        },
+        "followup_after_end": {
+          "title": "Proporre nuovo lavoro 30 giorni dopo la data di fine",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Ogni incarico ha una fase.",
+        "follow_up_field": "Ogni proposta registra la data di follow-up concordata con lo sponsor.",
+        "acceptance_checked_field": "Ogni incarico indica quando è stata verificata l'accettazione.",
+        "engagements_board_view": "Gli incarichi si aprono come board per fase."
+      },
+      "prompt": {
+        "intro": "Imposta nel mio spazio di lavoro Customermates gli incarichi di consulenza: incarichi dal primo contatto all'incarico vinto con verifica di accettazione e data di follow-up concordata nella chiamata sulla proposta, deliverable con scadenza e accettazione e una chiusura che chiede un riscontro. Non conservare dati riservati del cliente.",
+        "questions": [
+          "Che tipi di incarico vendi e a quale tariffa giornaliera?",
+          "Come decidi se accettare un lavoro?",
+          "Quanto aspetti dopo una proposta prima di sollecitare?",
+          "Quali deliverable segnano un traguardo che fatturi?"
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "Adviesopdrachten",
+      "summary": "Een pijplijn voor een zelfstandig adviseur: opdrachten van kennismaking tot gewonnen met een acceptatiecheck vóór het voorstel, een bij het offertegesprek afgesproken opvolgdatum en resultaten die uitvoering en afsluiting bewaken.",
+      "description": "Beheer een adviespraktijk op één plek: opdrachten via verkenning, afbakening, voorstel en beslissing, de met de opdrachtgever afgesproken opvolgdatum, een acceptatiecheck (capaciteit, onafhankelijkheid, vertrouwelijkheid) vóór het voorstel, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback en een referentie vraagt. Het bewaart de pijplijn, de relaties en de opleverpunten. Geen urenregistratie, geen facturering, geen elektronische handtekening voor voorstellen en geen capaciteitsplanning, en geen vertrouwelijke gegevens van de klant.",
+      "lists": {
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén volgende stap met datum per open dossier."
+        },
+        "contacts": {
+          "label": "Contactpersoon",
+          "pluralLabel": "Contactpersonen",
+          "description": "Opdrachtgevers, dagelijkse contactpersonen, mensen die goedkeuren en doorverwijzers."
+        },
+        "clients": {
+          "label": "Klant",
+          "pluralLabel": "Klanten",
+          "description": "Prospects, klanten, voormalige klanten en doorverwijspartners."
+        },
+        "engagements": {
+          "label": "Opdracht",
+          "pluralLabel": "Opdrachten",
+          "description": "Eén adviesopdracht, van eerste kennismaking tot uitvoering en afsluiting."
+        },
+        "deliverables": {
+          "label": "Resultaat",
+          "pluralLabel": "Resultaten",
+          "description": "Een mijlpaal die je oplevert, met opleverdatum en acceptatie."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "In de wacht",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "contacts.role_in_engagement": {
+          "label": "Rol",
+          "options": {
+            "sponsor": "Opdrachtgever",
+            "day_to_day": "Dagelijks contact",
+            "signs_off": "Tekent af",
+            "referrer": "Doorverwijzer",
+            "influencer": "Beïnvloeder"
+          }
+        },
+        "contacts.relationship_strength": {
+          "label": "Relatie",
+          "options": {
+            "strong": "Sterk",
+            "warm": "Goed",
+            "new": "Nieuw"
+          }
+        },
+        "contacts.last_meeting": {
+          "label": "Laatste afspraak",
+          "options": {}
+        },
+        "clients.relationship": {
+          "label": "Relatie",
+          "options": {
+            "prospect": "Prospect",
+            "client": "Klant",
+            "former_client": "Voormalige klant",
+            "referral_partner": "Doorverwijspartner"
+          }
+        },
+        "clients.industry": {
+          "label": "Sector",
+          "options": {}
+        },
+        "engagements.stage": {
+          "label": "Fase",
+          "options": {
+            "introduction": "Kennismaking",
+            "discovery": "Verkenning",
+            "scoping": "Afbakening",
+            "proposal_sent": "Voorstel verstuurd",
+            "decision": "Beslissing",
+            "won": "Gewonnen",
+            "lost": "Verloren"
+          }
+        },
+        "engagements.engagement_type": {
+          "label": "Type",
+          "options": {
+            "diagnostic": "Diagnose",
+            "advisory_review": "Adviserende toets",
+            "workshop": "Workshop",
+            "interim": "Interimopdracht",
+            "retainer": "Doorlopend advies",
+            "training": "Training"
+          }
+        },
+        "engagements.referral_source": {
+          "label": "Hoe het binnenkwam",
+          "options": {
+            "client_referral": "Aanbeveling van een klant",
+            "peer_referral": "Aanbeveling van een vakgenoot",
+            "event_or_talk": "Evenement of lezing",
+            "content": "Gepubliceerde content",
+            "existing_client": "Bestaande klant",
+            "marketplace": "Platform"
+          }
+        },
+        "engagements.day_rate": {
+          "label": "Dagtarief",
+          "options": {}
+        },
+        "engagements.days_estimated": {
+          "label": "Geschatte dagen",
+          "options": {}
+        },
+        "engagements.estimated_fee": {
+          "label": "Geschatte fee",
+          "options": {}
+        },
+        "engagements.acceptance_checked_on": {
+          "label": "Acceptatie gecontroleerd op",
+          "options": {}
+        },
+        "engagements.proposal_follow_up_on": {
+          "label": "Opvolging afgesproken op",
+          "options": {}
+        },
+        "engagements.decision_expected": {
+          "label": "Beslissing verwacht",
+          "options": {}
+        },
+        "engagements.start_date": {
+          "label": "Startdatum",
+          "options": {}
+        },
+        "engagements.end_date": {
+          "label": "Einddatum",
+          "options": {}
+        },
+        "engagements.delivery_status": {
+          "label": "Uitvoering",
+          "options": {
+            "not_started": "Niet gestart",
+            "kickoff_scheduled": "Kick-off ingepland",
+            "in_delivery": "In uitvoering",
+            "wrapping_up": "Wordt afgerond",
+            "completed": "Afgerond"
+          }
+        },
+        "engagements.next_step_due": {
+          "label": "Volgende stap uiterlijk op",
+          "options": {}
+        },
+        "engagements.lost_reason": {
+          "label": "Reden van verlies",
+          "options": {
+            "timing": "Timing",
+            "budget": "Budget",
+            "in_house": "Pakt het intern op",
+            "other_advisor": "Koos een andere adviseur",
+            "scope_changed": "Omvang veranderd",
+            "no_decision": "Geen beslissing",
+            "no_response": "Geen reactie"
+          }
+        },
+        "deliverables.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Gepland",
+            "in_progress": "In uitvoering",
+            "delivered": "Opgeleverd",
+            "accepted": "Geaccepteerd"
+          }
+        },
+        "deliverables.kind": {
+          "label": "Soort",
+          "options": {
+            "interview_summary": "Samenvatting van interviews",
+            "workshop": "Workshop",
+            "report": "Rapport",
+            "recommendation": "Aanbeveling",
+            "training_session": "Trainingssessie",
+            "handover": "Overdracht"
+          }
+        },
+        "deliverables.due_date": {
+          "label": "Opleverdatum",
+          "options": {}
+        },
+        "deliverables.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "reply": "Reageren",
+            "write_up": "Gesprek uitwerken",
+            "acceptance_check": "Acceptatie controleren",
+            "proposal": "Voorstel schrijven",
+            "follow_up": "Opvolgen",
+            "kickoff": "Kick-off",
+            "deliver": "Opleveren",
+            "feedback": "Om feedback vragen",
+            "other": "Overig"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Klant",
+          "targetLabel": "Contactpersonen"
+        },
+        "engagement_client": {
+          "sourceLabel": "Klant",
+          "targetLabel": "Opdrachten"
+        },
+        "engagement_sponsor": {
+          "sourceLabel": "Opdrachtgever en contactpersonen",
+          "targetLabel": "Opdrachten"
+        },
+        "deliverable_engagement": {
+          "sourceLabel": "Opdracht",
+          "targetLabel": "Resultaten"
+        },
+        "action_engagement": {
+          "sourceLabel": "Opdracht",
+          "targetLabel": "Acties"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "engagements_board": {
+          "name": "Opdrachten per fase"
+        },
+        "engagements_all": {
+          "name": "Alle opdrachten"
+        },
+        "in_delivery": {
+          "name": "Gewonnen en nog niet afgerond"
+        },
+        "deliverables_all": {
+          "name": "Alle resultaten"
+        },
+        "clients_all": {
+          "name": "Alle klanten"
+        },
+        "contacts_all": {
+          "name": "Alle contactpersonen"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Aankomende acties"
+        },
+        "overdue_actions": {
+          "title": "Achterstallige acties"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        },
+        "engagements_funnel": {
+          "title": "Opdrachten per fase"
+        },
+        "open_value": {
+          "title": "Waarde van lopende voorstellen"
+        },
+        "decisions_coming": {
+          "title": "Verwachte beslissingen"
+        },
+        "deliverables_due": {
+          "title": "Op te leveren resultaten"
+        },
+        "engagements_ending": {
+          "title": "Opdrachten die aflopen"
+        },
+        "by_type": {
+          "title": "Gewonnen opdrachten per type"
+        },
+        "lost_reasons": {
+          "title": "Waarom opdrachten verloren gingen"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Hoe de praktijk draait",
+          "sections": [
+            "Fasen en de regel van één volgende stap met datum per open opdracht",
+            "Wat erbuiten blijft: urenregistratie en facturering"
+          ]
+        },
+        "discovery_guide": {
+          "title": "Gids voor het verkennende gesprek",
+          "sections": [
+            "Het probleem in de woorden van de klant, betrokkenen en budgetsignalen",
+            "Wat de volgende dag wordt vastgelegd"
+          ]
+        },
+        "acceptance_check": {
+          "title": "Acceptatiecheck vóór het voorstel",
+          "sections": [
+            "Capaciteit, onafhankelijkheid, vertrouwelijkheid en match",
+            "Wie beslist om de opdracht aan te nemen"
+          ]
+        },
+        "proposal_and_follow_up": {
+          "title": "Opbouw van het voorstel en opvolging",
+          "sections": [
+            "Aangeboden opties en de aanbevolen optie",
+            "De opvolgdatum afspreken in het gesprek over het voorstel"
+          ]
+        }
+      },
+      "rules": {
+        "discovery_writeup": {
+          "title": "Werk het verkennende gesprek de volgende dag uit",
+          "description": ""
+        },
+        "acceptance_check": {
+          "title": "Controleer de acceptatie de dag nadat een opdracht de afbakening bereikt",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Volg het voorstel 3 dagen na het versturen op",
+          "description": ""
+        },
+        "decision_date": {
+          "title": "Vraag op de verwachte beslisdatum om de beslissing",
+          "description": ""
+        },
+        "won_kickoff": {
+          "title": "Plan de kick-off in de dag na een gewonnen opdracht",
+          "description": ""
+        },
+        "lost_review": {
+          "title": "Vraag 2 dagen na een verloren opdracht wat anders had gekund",
+          "description": ""
+        },
+        "deliverable_due_notice": {
+          "title": "Waarschuw de eigenaar 3 dagen voor de opleverdatum van een resultaat",
+          "description": ""
+        },
+        "closeout_report": {
+          "title": "Draag op de einddatum het eindrapport over",
+          "description": ""
+        },
+        "testimonial_ask": {
+          "title": "Vraag 14 dagen na de einddatum om een referentie",
+          "description": ""
+        },
+        "followup_after_end": {
+          "title": "Stel 30 dagen na de einddatum vervolgwerk voor",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Elke opdracht heeft een fase.",
+        "follow_up_field": "Elk voorstel legt de met de opdrachtgever afgesproken opvolgdatum vast.",
+        "acceptance_checked_field": "Elke opdracht legt vast wanneer de acceptatie is gecontroleerd.",
+        "engagements_board_view": "De opdrachten openen als bord per fase."
+      },
+      "prompt": {
+        "intro": "Richt in mijn Customermates-werkruimte adviesopdrachten in: opdrachten van kennismaking tot gewonnen met een acceptatiecheck en een bij het voorstelgesprek afgesproken opvolgdatum, resultaten met opleverdatum en acceptatie, en een afsluiting die om feedback vraagt. Bewaar geen vertrouwelijke gegevens van de klant.",
+        "questions": [
+          "Welke soorten opdrachten verkoop je en tegen welk dagtarief?",
+          "Hoe beslis je of je een opdracht aanneemt?",
+          "Hoe lang wacht je na een voorstel voordat je opvolgt?",
+          "Welke resultaten zijn mijlpalen die je factureert?"
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Zlecenia konsultingowe",
+      "summary": "Lejek dla niezależnego konsultanta: zlecenia od kontaktu do wygranego z kontrolą przyjęcia zlecenia przed ofertą, terminem ponownego kontaktu ustalonym podczas rozmowy o ofercie i rezultatami, od których zależą realizacja i zamknięcie.",
+      "description": "Prowadź działalność konsultingową w jednym miejscu: zlecenia przez rozmowę odkrywczą, zakres, ofertę i decyzję, termin ponownego kontaktu ustalony ze sponsorem, kontrolę przyjęcia zlecenia (moce przerobowe, niezależność, poufność) przed ofertą, rezultaty z terminem i odbiorem oraz zamknięcie, które prosi o opinię i referencje. Narzędzie zapisuje lejek, relacje i punkty kontrolne realizacji. To nie jest rejestr czasu pracy, system do fakturowania, podpisu elektronicznego ofert ani planowania zasobów i nie przechowuje poufnych danych klienta.",
+      "lists": {
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jeden następny krok z terminem dla każdej otwartej sprawy."
+        },
+        "contacts": {
+          "label": "Kontakt",
+          "pluralLabel": "Kontakty",
+          "description": "Sponsorzy, osoby kontaktowe na co dzień, osoby akceptujące i polecający."
+        },
+        "clients": {
+          "label": "Klient",
+          "pluralLabel": "Klienci",
+          "description": "Potencjalni klienci, klienci, byli klienci i partnerzy polecający."
+        },
+        "engagements": {
+          "label": "Zlecenie",
+          "pluralLabel": "Zlecenia",
+          "description": "Jedna praca konsultingowa, od pierwszego kontaktu do realizacji i zamknięcia."
+        },
+        "deliverables": {
+          "label": "Rezultat",
+          "pluralLabel": "Rezultaty",
+          "description": "Kamień milowy, który przekazujesz, z terminem i odbiorem."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarte",
+            "waiting": "Oczekuje",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "contacts.role_in_engagement": {
+          "label": "Rola",
+          "options": {
+            "sponsor": "Sponsor",
+            "day_to_day": "Kontakt na co dzień",
+            "signs_off": "Zatwierdza",
+            "referrer": "Polecający",
+            "influencer": "Osoba wpływowa"
+          }
+        },
+        "contacts.relationship_strength": {
+          "label": "Relacja",
+          "options": {
+            "strong": "Silna",
+            "warm": "Ciepła",
+            "new": "Nowa"
+          }
+        },
+        "contacts.last_meeting": {
+          "label": "Ostatnie spotkanie",
+          "options": {}
+        },
+        "clients.relationship": {
+          "label": "Relacja",
+          "options": {
+            "prospect": "Potencjalny klient",
+            "client": "Klient",
+            "former_client": "Były klient",
+            "referral_partner": "Partner polecający"
+          }
+        },
+        "clients.industry": {
+          "label": "Branża",
+          "options": {}
+        },
+        "engagements.stage": {
+          "label": "Etap",
+          "options": {
+            "introduction": "Kontakt",
+            "discovery": "Rozmowa odkrywcza",
+            "scoping": "Zakres",
+            "proposal_sent": "Oferta wysłana",
+            "decision": "Decyzja",
+            "won": "Wygrane",
+            "lost": "Przegrane"
+          }
+        },
+        "engagements.engagement_type": {
+          "label": "Typ",
+          "options": {
+            "diagnostic": "Diagnoza",
+            "advisory_review": "Przegląd doradczy",
+            "workshop": "Warsztat",
+            "interim": "Zarządzanie interim",
+            "retainer": "Stała współpraca",
+            "training": "Szkolenie"
+          }
+        },
+        "engagements.referral_source": {
+          "label": "Skąd pochodzi zlecenie",
+          "options": {
+            "client_referral": "Polecenie klienta",
+            "peer_referral": "Polecenie kolegi z branży",
+            "event_or_talk": "Wydarzenie lub wystąpienie",
+            "content": "Publikacje",
+            "existing_client": "Obecny klient",
+            "marketplace": "Platforma"
+          }
+        },
+        "engagements.day_rate": {
+          "label": "Stawka dzienna",
+          "options": {}
+        },
+        "engagements.days_estimated": {
+          "label": "Szacowana liczba dni",
+          "options": {}
+        },
+        "engagements.estimated_fee": {
+          "label": "Szacowane wynagrodzenie",
+          "options": {}
+        },
+        "engagements.acceptance_checked_on": {
+          "label": "Data kontroli przyjęcia",
+          "options": {}
+        },
+        "engagements.proposal_follow_up_on": {
+          "label": "Ustalony termin ponownego kontaktu",
+          "options": {}
+        },
+        "engagements.decision_expected": {
+          "label": "Spodziewana decyzja",
+          "options": {}
+        },
+        "engagements.start_date": {
+          "label": "Data rozpoczęcia",
+          "options": {}
+        },
+        "engagements.end_date": {
+          "label": "Data zakończenia",
+          "options": {}
+        },
+        "engagements.delivery_status": {
+          "label": "Realizacja",
+          "options": {
+            "not_started": "Nierozpoczęta",
+            "kickoff_scheduled": "Spotkanie startowe umówione",
+            "in_delivery": "W realizacji",
+            "wrapping_up": "Zamykanie",
+            "completed": "Zakończona"
+          }
+        },
+        "engagements.next_step_due": {
+          "label": "Termin następnego kroku",
+          "options": {}
+        },
+        "engagements.lost_reason": {
+          "label": "Powód utraty",
+          "options": {
+            "timing": "Nieodpowiedni moment",
+            "budget": "Budżet",
+            "in_house": "Zrobi to we własnym zakresie",
+            "other_advisor": "Klient wybrał innego doradcę",
+            "scope_changed": "Zmienił się zakres",
+            "no_decision": "Brak decyzji",
+            "no_response": "Brak odpowiedzi"
+          }
+        },
+        "deliverables.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Zaplanowany",
+            "in_progress": "W toku",
+            "delivered": "Przekazany",
+            "accepted": "Odebrany"
+          }
+        },
+        "deliverables.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "interview_summary": "Podsumowanie wywiadów",
+            "workshop": "Warsztat",
+            "report": "Raport",
+            "recommendation": "Rekomendacja",
+            "training_session": "Sesja szkoleniowa",
+            "handover": "Przekazanie"
+          }
+        },
+        "deliverables.due_date": {
+          "label": "Termin",
+          "options": {}
+        },
+        "deliverables.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "reply": "Odpowiedzieć",
+            "write_up": "Opisać rozmowę",
+            "acceptance_check": "Sprawdzić przyjęcie",
+            "proposal": "Napisać ofertę",
+            "follow_up": "Skontaktować się ponownie",
+            "kickoff": "Spotkanie startowe",
+            "deliver": "Dostarczyć",
+            "feedback": "Poprosić o opinię",
+            "other": "Inne"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Klient",
+          "targetLabel": "Kontakty"
+        },
+        "engagement_client": {
+          "sourceLabel": "Klient",
+          "targetLabel": "Zlecenia"
+        },
+        "engagement_sponsor": {
+          "sourceLabel": "Sponsor i kontakty",
+          "targetLabel": "Zlecenia"
+        },
+        "deliverable_engagement": {
+          "sourceLabel": "Zlecenie",
+          "targetLabel": "Rezultaty"
+        },
+        "action_engagement": {
+          "sourceLabel": "Zlecenie",
+          "targetLabel": "Zadania"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "engagements_board": {
+          "name": "Zlecenia według etapu"
+        },
+        "engagements_all": {
+          "name": "Wszystkie zlecenia"
+        },
+        "in_delivery": {
+          "name": "Wygrane i jeszcze niezakończone"
+        },
+        "deliverables_all": {
+          "name": "Wszystkie rezultaty"
+        },
+        "clients_all": {
+          "name": "Wszyscy klienci"
+        },
+        "contacts_all": {
+          "name": "Wszystkie kontakty"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Nadchodzące zadania"
+        },
+        "overdue_actions": {
+          "title": "Zaległe zadania"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        },
+        "engagements_funnel": {
+          "title": "Zlecenia według etapu"
+        },
+        "open_value": {
+          "title": "Wartość ofert w toku"
+        },
+        "decisions_coming": {
+          "title": "Spodziewane decyzje"
+        },
+        "deliverables_due": {
+          "title": "Rezultaty do przekazania"
+        },
+        "engagements_ending": {
+          "title": "Kończące się zlecenia"
+        },
+        "by_type": {
+          "title": "Wygrane zlecenia według typu"
+        },
+        "lost_reasons": {
+          "title": "Powody utraty zleceń"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Jak działa praktyka konsultingowa",
+          "sections": [
+            "Etapy i zasada jednego następnego kroku z terminem na otwarte zlecenie",
+            "Co zostaje na zewnątrz: rejestr czasu i fakturowanie"
+          ]
+        },
+        "discovery_guide": {
+          "title": "Przewodnik po rozmowie odkrywczej",
+          "sections": [
+            "Problem słowami klienta, interesariusze i sygnały dotyczące budżetu",
+            "Co zapisać następnego dnia"
+          ]
+        },
+        "acceptance_check": {
+          "title": "Kontrola przyjęcia zlecenia przed ofertą",
+          "sections": [
+            "Moce przerobowe, niezależność, poufność i dopasowanie",
+            "Kto decyduje o przyjęciu zlecenia"
+          ]
+        },
+        "proposal_and_follow_up": {
+          "title": "Struktura oferty i ponowny kontakt",
+          "sections": [
+            "Przedstawione opcje i rekomendowana",
+            "Ustalenie terminu ponownego kontaktu podczas rozmowy o ofercie"
+          ]
+        }
+      },
+      "rules": {
+        "discovery_writeup": {
+          "title": "Opisz rozmowę odkrywczą następnego dnia",
+          "description": ""
+        },
+        "acceptance_check": {
+          "title": "Sprawdź przyjęcie zlecenia dzień po wejściu w etap zakresu",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Przypomnij o ofercie 3 dni po jej wysłaniu",
+          "description": ""
+        },
+        "decision_date": {
+          "title": "Zapytaj o decyzję w spodziewanym terminie decyzji",
+          "description": ""
+        },
+        "won_kickoff": {
+          "title": "Umów spotkanie startowe dzień po wygraniu zlecenia",
+          "description": ""
+        },
+        "lost_review": {
+          "title": "Zapytaj, co można było zrobić inaczej, 2 dni po utracie zlecenia",
+          "description": ""
+        },
+        "deliverable_due_notice": {
+          "title": "Powiadom osobę odpowiedzialną 3 dni przed terminem rezultatu",
+          "description": ""
+        },
+        "closeout_report": {
+          "title": "Przekaż raport końcowy w dniu zakończenia",
+          "description": ""
+        },
+        "testimonial_ask": {
+          "title": "Poproś o referencje 14 dni po zakończeniu",
+          "description": ""
+        },
+        "followup_after_end": {
+          "title": "Zaproponuj dalszą pracę 30 dni po zakończeniu",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Każde zlecenie ma etap.",
+        "follow_up_field": "Każda oferta zapisuje termin ponownego kontaktu ustalony ze sponsorem.",
+        "acceptance_checked_field": "Każde zlecenie zapisuje, kiedy sprawdzono przyjęcie.",
+        "engagements_board_view": "Zlecenia otwierają się jako tablica według etapu."
+      },
+      "prompt": {
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates zlecenia konsultingowe: zlecenia od kontaktu do wygranego z kontrolą przyjęcia i terminem ponownego kontaktu ustalonym podczas rozmowy o ofercie, rezultaty z terminem i odbiorem oraz zamknięcie, które prosi o opinię. Nie zapisuj poufnych danych klienta.",
+        "questions": [
+          "Jakie rodzaje zleceń sprzedajesz i w jakiej stawce dziennej?",
+          "Jak decydujesz, czy przyjąć zlecenie?",
+          "Jak długo czekasz po ofercie, zanim przypomnisz o sobie?",
+          "Które rezultaty są kamieniami milowymi, za które fakturujesz?"
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "Projetos de consultoria",
+      "summary": "Um funil para um consultor independente: projetos do contato ao projeto ganho com checagem de aceitação antes da proposta, uma data de retorno combinada na conversa da proposta e entregáveis que regulam a execução e o encerramento.",
+      "description": "Conduza uma consultoria em um só lugar: projetos por diagnóstico, escopo, proposta e decisão, a data de retorno combinada com o patrocinador, uma checagem de aceitação (capacidade, independência, confidencialidade) antes da proposta, entregáveis com prazo e aceite, e um encerramento que pede feedback e um depoimento. Guarda o funil, os relacionamentos e as etapas de entrega. Não é controle de horas, emissão de notas fiscais, assinatura eletrônica de propostas nem planejamento de recursos, e não contém dados confidenciais do cliente.",
+      "lists": {
+        "actions": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um próximo passo com data para cada item em aberto."
+        },
+        "contacts": {
+          "label": "Contato",
+          "pluralLabel": "Contatos",
+          "description": "Patrocinadores, contatos do dia a dia, quem assina e quem indica."
+        },
+        "clients": {
+          "label": "Cliente",
+          "pluralLabel": "Clientes",
+          "description": "Prospects, clientes, ex-clientes e parceiros que indicam."
+        },
+        "engagements": {
+          "label": "Projeto",
+          "pluralLabel": "Projetos",
+          "description": "Um trabalho de consultoria, do primeiro contato à entrega e ao encerramento."
+        },
+        "deliverables": {
+          "label": "Entregável",
+          "pluralLabel": "Entregáveis",
+          "description": "Um marco que você entrega, com prazo e aceite."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberta",
+            "waiting": "Aguardando",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "contacts.role_in_engagement": {
+          "label": "Papel",
+          "options": {
+            "sponsor": "Patrocinador",
+            "day_to_day": "Contato do dia a dia",
+            "signs_off": "Dá o aval",
+            "referrer": "Quem indica",
+            "influencer": "Influenciador"
+          }
+        },
+        "contacts.relationship_strength": {
+          "label": "Relacionamento",
+          "options": {
+            "strong": "Forte",
+            "warm": "Bom",
+            "new": "Novo"
+          }
+        },
+        "contacts.last_meeting": {
+          "label": "Última reunião",
+          "options": {}
+        },
+        "clients.relationship": {
+          "label": "Relacionamento",
+          "options": {
+            "prospect": "Prospect",
+            "client": "Cliente",
+            "former_client": "Ex-cliente",
+            "referral_partner": "Parceiro que indica"
+          }
+        },
+        "clients.industry": {
+          "label": "Setor",
+          "options": {}
+        },
+        "engagements.stage": {
+          "label": "Etapa",
+          "options": {
+            "introduction": "Contato",
+            "discovery": "Diagnóstico",
+            "scoping": "Escopo",
+            "proposal_sent": "Proposta enviada",
+            "decision": "Decisão",
+            "won": "Ganho",
+            "lost": "Perdido"
+          }
+        },
+        "engagements.engagement_type": {
+          "label": "Tipo",
+          "options": {
+            "diagnostic": "Diagnóstico",
+            "advisory_review": "Revisão consultiva",
+            "workshop": "Workshop",
+            "interim": "Gestão interina",
+            "retainer": "Consultoria recorrente",
+            "training": "Treinamento"
+          }
+        },
+        "engagements.referral_source": {
+          "label": "Como chegou",
+          "options": {
+            "client_referral": "Indicação de cliente",
+            "peer_referral": "Indicação de colega",
+            "event_or_talk": "Evento ou palestra",
+            "content": "Conteúdo publicado",
+            "existing_client": "Cliente existente",
+            "marketplace": "Plataforma"
+          }
+        },
+        "engagements.day_rate": {
+          "label": "Valor da diária",
+          "options": {}
+        },
+        "engagements.days_estimated": {
+          "label": "Dias estimados",
+          "options": {}
+        },
+        "engagements.estimated_fee": {
+          "label": "Honorários estimados",
+          "options": {}
+        },
+        "engagements.acceptance_checked_on": {
+          "label": "Aceitação checada em",
+          "options": {}
+        },
+        "engagements.proposal_follow_up_on": {
+          "label": "Retorno combinado para",
+          "options": {}
+        },
+        "engagements.decision_expected": {
+          "label": "Decisão esperada",
+          "options": {}
+        },
+        "engagements.start_date": {
+          "label": "Início",
+          "options": {}
+        },
+        "engagements.end_date": {
+          "label": "Fim",
+          "options": {}
+        },
+        "engagements.delivery_status": {
+          "label": "Execução",
+          "options": {
+            "not_started": "Não iniciada",
+            "kickoff_scheduled": "Kickoff agendado",
+            "in_delivery": "Em andamento",
+            "wrapping_up": "Em encerramento",
+            "completed": "Concluída"
+          }
+        },
+        "engagements.next_step_due": {
+          "label": "Próximo passo até",
+          "options": {}
+        },
+        "engagements.lost_reason": {
+          "label": "Motivo da perda",
+          "options": {
+            "timing": "Momento",
+            "budget": "Orçamento",
+            "in_house": "Vai fazer internamente",
+            "other_advisor": "Escolheu outro consultor",
+            "scope_changed": "Escopo mudou",
+            "no_decision": "Sem decisão",
+            "no_response": "Sem resposta"
+          }
+        },
+        "deliverables.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Planejado",
+            "in_progress": "Em andamento",
+            "delivered": "Entregue",
+            "accepted": "Aceito"
+          }
+        },
+        "deliverables.kind": {
+          "label": "Tipo",
+          "options": {
+            "interview_summary": "Resumo de entrevistas",
+            "workshop": "Workshop",
+            "report": "Relatório",
+            "recommendation": "Recomendação",
+            "training_session": "Sessão de treinamento",
+            "handover": "Passagem de bastão"
+          }
+        },
+        "deliverables.due_date": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "deliverables.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Responder",
+            "write_up": "Registrar a conversa",
+            "acceptance_check": "Checar a aceitação",
+            "proposal": "Escrever a proposta",
+            "follow_up": "Fazer o retorno",
+            "kickoff": "Kickoff",
+            "deliver": "Entregar",
+            "feedback": "Pedir feedback",
+            "other": "Outro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Contatos"
+        },
+        "engagement_client": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Projetos"
+        },
+        "engagement_sponsor": {
+          "sourceLabel": "Patrocinador e contatos",
+          "targetLabel": "Projetos"
+        },
+        "deliverable_engagement": {
+          "sourceLabel": "Projeto",
+          "targetLabel": "Entregáveis"
+        },
+        "action_engagement": {
+          "sourceLabel": "Projeto",
+          "targetLabel": "Tarefas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas as tarefas"
+        },
+        "engagements_board": {
+          "name": "Projetos por etapa"
+        },
+        "engagements_all": {
+          "name": "Todos os projetos"
+        },
+        "in_delivery": {
+          "name": "Ganhos e ainda não concluídos"
+        },
+        "deliverables_all": {
+          "name": "Todos os entregáveis"
+        },
+        "clients_all": {
+          "name": "Todos os clientes"
+        },
+        "contacts_all": {
+          "name": "Todos os contatos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tarefas"
+        },
+        "overdue_actions": {
+          "title": "Tarefas atrasadas"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        },
+        "engagements_funnel": {
+          "title": "Projetos por etapa"
+        },
+        "open_value": {
+          "title": "Valor das propostas em andamento"
+        },
+        "decisions_coming": {
+          "title": "Decisões esperadas"
+        },
+        "deliverables_due": {
+          "title": "Entregáveis a entregar"
+        },
+        "engagements_ending": {
+          "title": "Projetos terminando"
+        },
+        "by_type": {
+          "title": "Projetos ganhos por tipo"
+        },
+        "lost_reasons": {
+          "title": "Por que projetos foram perdidos"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Como funciona a consultoria",
+          "sections": [
+            "As etapas e a regra de um próximo passo com data por projeto aberto",
+            "O que fica de fora: controle de horas e faturamento"
+          ]
+        },
+        "discovery_guide": {
+          "title": "Guia da conversa de diagnóstico",
+          "sections": [
+            "O problema nas palavras do cliente, os envolvidos e os sinais de orçamento",
+            "O que registrar no dia seguinte"
+          ]
+        },
+        "acceptance_check": {
+          "title": "Checagem de aceitação antes da proposta",
+          "sections": [
+            "Capacidade, independência, confidencialidade e adequação",
+            "Quem decide aceitar o trabalho"
+          ]
+        },
+        "proposal_and_follow_up": {
+          "title": "Estrutura da proposta e retorno",
+          "sections": [
+            "Opções oferecidas e a recomendada",
+            "Combinar a data de retorno na conversa da proposta"
+          ]
+        }
+      },
+      "rules": {
+        "discovery_writeup": {
+          "title": "Registrar a conversa de diagnóstico no dia seguinte",
+          "description": ""
+        },
+        "acceptance_check": {
+          "title": "Checar a aceitação no dia seguinte à entrada no escopo",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Fazer o retorno 3 dias depois de enviar a proposta",
+          "description": ""
+        },
+        "decision_date": {
+          "title": "Pedir a decisão na data de decisão esperada",
+          "description": ""
+        },
+        "won_kickoff": {
+          "title": "Agendar o kickoff no dia seguinte a um projeto ganho",
+          "description": ""
+        },
+        "lost_review": {
+          "title": "Perguntar o que poderia ter sido diferente 2 dias depois de perder um projeto",
+          "description": ""
+        },
+        "deliverable_due_notice": {
+          "title": "Avisar o responsável 3 dias antes do prazo de um entregável",
+          "description": ""
+        },
+        "closeout_report": {
+          "title": "Entregar o relatório final na data de fim",
+          "description": ""
+        },
+        "testimonial_ask": {
+          "title": "Pedir um depoimento 14 dias depois da data de fim",
+          "description": ""
+        },
+        "followup_after_end": {
+          "title": "Propor novo trabalho 30 dias depois da data de fim",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Todo projeto tem uma etapa.",
+        "follow_up_field": "Toda proposta registra a data de retorno combinada com o patrocinador.",
+        "acceptance_checked_field": "Todo projeto registra quando a aceitação foi checada.",
+        "engagements_board_view": "Os projetos abrem como quadro por etapa."
+      },
+      "prompt": {
+        "intro": "Configure no meu espaço de trabalho do Customermates projetos de consultoria: projetos do contato ao ganho com checagem de aceitação e data de retorno combinada na conversa da proposta, entregáveis com prazo e aceite, e um encerramento que pede feedback. Não guarde dados confidenciais do cliente.",
+        "questions": [
+          "Que tipos de projeto você vende e a qual valor de diária?",
+          "Como você decide se aceita um trabalho?",
+          "Quanto tempo você espera depois de uma proposta antes de fazer o retorno?",
+          "Quais entregáveis correspondem a um marco que você fatura?"
+        ]
+      }
+    }
+  }
+}

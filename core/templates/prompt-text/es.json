@@ -1,0 +1,86 @@
+{
+  "anchorFields": {
+    "channels": "Datos de contacto",
+    "price": "Precio",
+    "value": "Valor"
+  },
+  "availability": {
+    "routine": "una rutina del asistente con horario",
+    "rule": "una regla de automatización",
+    "unavailable": "aún no disponible, no la configures"
+  },
+  "defaultView": {
+    "marker": "vista predeterminada",
+    "rule": "Una vista marcada como predeterminada es la vista integrada de la lista que muestra todos los registros: configúrala ahí en lugar de crear una segunda vista y selecciónala al terminar para que la lista se abra con ella."
+  },
+  "due": {
+    "afterDays": {
+      "one": "vence tras {days} día",
+      "other": "vence tras {days} días"
+    },
+    "sameDay": "vence el mismo día"
+  },
+  "fieldTypes": {
+    "address": "dirección",
+    "boolean": "sí o no",
+    "channels": "canales de contacto: correo electrónico, teléfono y perfiles sociales",
+    "currency": "importe",
+    "date": "fecha",
+    "dateRange": "intervalo de fechas",
+    "dateTime": "fecha y hora",
+    "file": "archivo",
+    "member": "miembro del equipo",
+    "number": "número",
+    "richText": "texto con formato",
+    "select": "opción",
+    "text": "texto",
+    "url": "enlace"
+  },
+  "groupedBy": "agrupada por {field}",
+  "headings": {
+    "beforeYouWrite": "Antes de escribir nada",
+    "dashboardWidgets": "Widgets del panel",
+    "followUpRoutines": "Rutinas de seguimiento",
+    "getWorkspace": "Conseguir un espacio de trabajo",
+    "knowledgePages": "Páginas de la base de conocimiento (solo esquemas, para rellenar con mis propios datos)",
+    "listsAndFields": "Listas y campos",
+    "questions": "Preguntas para mí",
+    "relationships": "Relaciones",
+    "rules": "Reglas",
+    "thisWorkspace": "Este espacio de trabajo",
+    "views": "Vistas",
+    "yourWorkspace": "Tu espacio de trabajo"
+  },
+  "layouts": {
+    "board": "tablero",
+    "table": "tabla"
+  },
+  "nameOnly": "solo el nombre",
+  "procedure": {
+    "askQuestions": "Haz primero las preguntas del final. Deja vacío todo lo que no sepas en lugar de adivinar.",
+    "describePlan": "Describe el plan de abajo con palabras sencillas, adaptado a mis respuestas, y espera mi aprobación antes de cambiar nada.",
+    "readContext": "Llama a get_workspace_context y lee la guía operativa, las listas, los campos, las vistas y las páginas de la base de conocimiento que ya existen.",
+    "reuse": "Reutiliza lo que ya existe. No crees nunca una segunda lista para algo que el espacio de trabajo ya registra."
+  },
+  "relationship": "{source} se vinculan con {target} (se muestran como {sourceLabel} en {source} y {targetLabel} en {target})",
+  "roadRules": {
+    "neverInvent": "No inventes nunca precios, importes, fechas ni nombres. Déjalos vacíos hasta que te los diga.",
+    "noSamples": "No crees registros de ejemplo, de demostración ni de relleno.",
+    "readBack": "Tras la construcción, relee el resultado y dime qué existe y qué has omitido.",
+    "sendNothing": "No envíes nada: ni correos, ni mensajes, ni invitaciones, ni publicaciones. Solo borradores, y solo si te lo pido.",
+    "sensitiveData": "Mantén los datos personales sensibles fuera del espacio de trabajo, salvo que te lo pida."
+  },
+  "routineAllowance": {
+    "limited": "El cupo de rutinas del asistente de tu plan es de {count} por usuario y no admite más. Crea solo las primeras {count} de las rutinas numeradas de abajo, en ese orden, porque las más útiles van primero. Enumera las demás como opcionales sin crearlas y no borres nada para hacer sitio.",
+    "none": "Tu plan no incluye rutinas del asistente. No crees ninguna de las rutinas de abajo y enuméralas todas como opcionales.",
+    "optional": "opcional"
+  },
+  "routinesIntro": "Propónlas como conjunto. Configura solo las marcadas como disponibles y cuéntame lo demás.",
+  "workspace": {
+    "cloud": "Crea un espacio de trabajo de Customermates en {url} y conecta tu asistente. La plantilla ya viene preseleccionada allí.",
+    "connected": "Ya estás conectado al espacio de trabajo de Customermates que alojará esta plantilla. Trabaja en él y no crees otro.",
+    "connectedAt": "Este espacio de trabajo ya existe y estás conectado a él por MCP en {mcpUrl}. Trabaja en este espacio de trabajo y en ningún otro.",
+    "existsAt": "Este espacio de trabajo ya existe, pero tu asistente aún no está conectado a él. Conéctalo por MCP en {mcpUrl}, con una clave de API de Ajustes, Claves de API y conectores. Mientras falte la conexión, pídeme que la complete antes de cambiar nada. Después trabaja en este espacio de trabajo y en ningún otro.",
+    "selfHosted": "Usa tu propia instancia de Customermates. Conecta tu asistente a su endpoint MCP en <dirección de tu instancia>/api/v1/mcp con una clave de API de Ajustes, Claves de API y conectores. Nada de esto depende de la nube alojada."
+  }
+}

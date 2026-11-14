@@ -33,6 +33,8 @@ type Props = { initialRoutines: GetResult<RoutineDto> };
 
 const ROUTINE_FOCUS_KINDS: FocusKind[] = ["routine"];
 
+const routineColumnStyle = (columnId: string) => (columnId === "name" ? { emphasis: true, flexible: true } : undefined);
+
 const RoutinesPageViewContent = observer(function RoutinesPageView({ initialRoutines }: Props) {
   const { routineModalStore, routinesStore } = useRootStore();
 
@@ -148,6 +150,7 @@ const RoutinesPageViewContent = observer(function RoutinesPageView({ initialRout
     case "content":
       body = (
         <DataViewContent
+          columnStyle={routineColumnStyle}
           columns={columns}
           rowActions={rowActions}
           store={routinesStore}

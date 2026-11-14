@@ -1,0 +1,129 @@
+{
+  "locale": "en",
+  "name": "VC deal flow",
+  "summary": "A deal flow for a small fund or angel: eight stages from sourced to closed or passed, the introducer on every deal, a pass reason and a date to revisit.",
+  "description": "Track startups and investors through sourcing, screening, meetings, diligence and term sheet. Each deal records who introduced it, how well it fits the thesis, the lead role, a data room link, the pass reason and when to look again. It is a relationship tool, not a cap table, a legal data room or a scoring model. Weights are rough and yours to set.",
+  "lists": {
+    "people": { "label": "Person", "pluralLabel": "People", "description": "Founders, investors, co-investors and introducers." },
+    "organizations": { "label": "Organization", "pluralLabel": "Organizations", "description": "Startups, funds, syndicates and accelerators." },
+    "deals": { "label": "Deal", "pluralLabel": "Deals", "description": "One investment opportunity from sourcing to closed or passed." }
+  },
+  "fields": {
+    "deals.stage": {
+      "label": "Stage",
+      "options": { "sourced": "Sourced", "screening": "Screening", "first_meeting": "First meeting", "partner_meeting": "Partner meeting", "diligence": "Diligence", "term_sheet": "Term sheet", "closed": "Closed", "passed": "Passed" }
+    },
+    "people.person_role": {
+      "label": "Role",
+      "options": { "founder": "Founder", "investor": "Investor partner", "angel": "Angel", "co_investor": "Co-investor", "introducer": "Introducer", "advisor": "Advisor" }
+    },
+    "people.focus_stages": {
+      "label": "Focus stages",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Series A", "series_b_plus": "Series B and later" }
+    },
+    "people.thesis": { "label": "Thesis" },
+    "people.relationship_strength": { "label": "Relationship", "options": { "strong": "Strong", "warm": "Warm", "new": "New" } },
+    "people.last_meeting_on": { "label": "Last meeting" },
+    "people.relationship_owner": { "label": "Relationship owner" },
+    "organizations.org_type": {
+      "label": "Type",
+      "options": { "startup": "Startup", "vc_fund": "VC fund", "angel_syndicate": "Angel syndicate", "corporate_vc": "Corporate VC", "accelerator": "Accelerator", "other": "Other" }
+    },
+    "organizations.website": { "label": "Website" },
+    "organizations.sector": { "label": "Sector" },
+    "organizations.stage": {
+      "label": "Stage",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Series A", "series_b": "Series B", "growth": "Growth" }
+    },
+    "organizations.country": { "label": "Country" },
+    "organizations.conflict_check": { "label": "Conflict check", "options": { "to_check": "To check", "clear": "Clear", "conflict": "Conflict" } },
+    "deals.round": {
+      "label": "Round",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Series A", "series_b": "Series B", "bridge": "Bridge" }
+    },
+    "deals.lead_role": { "label": "Our role", "options": { "lead": "Lead", "follow": "Follow", "undecided": "Undecided" } },
+    "deals.thesis_fit": { "label": "Thesis fit", "options": { "strong": "Strong", "partial": "Partial", "weak": "Weak" } },
+    "deals.owner": { "label": "Owner" },
+    "deals.source": {
+      "label": "Source",
+      "options": { "warm_introduction": "Warm introduction", "inbound": "Inbound", "outbound": "Outbound", "event": "Event", "portfolio_referral": "Portfolio referral", "co_investor": "Co-investor" }
+    },
+    "deals.intro_requested_on": { "label": "Introduction requested on" },
+    "deals.intro_made_on": { "label": "Introduction made on" },
+    "deals.first_meeting_on": { "label": "First meeting on" },
+    "deals.decision_on": { "label": "Decision on" },
+    "deals.term_sheet_on": { "label": "Term sheet on" },
+    "deals.closed_on": { "label": "Closed on" },
+    "deals.nda_signed": { "label": "NDA signed" },
+    "deals.pass_reason": {
+      "label": "Pass reason",
+      "options": { "thesis_mismatch": "Thesis mismatch", "team": "Team", "market": "Market", "too_early": "Too early", "valuation": "Valuation", "timing": "Timing", "other": "Other" }
+    },
+    "deals.revisit_on": { "label": "Revisit on" },
+    "deals.data_room_url": { "label": "Data room link" },
+    "deals.days_to_term_sheet": { "label": "Days from first meeting to term sheet" },
+    "deals.weighted_value": { "label": "Weighted value" },
+    "actions.kind": {
+      "label": "Kind",
+      "options": {
+        "request_intro": "Request an introduction",
+        "send_deck": "Send the deck",
+        "prepare_meeting": "Prepare a meeting",
+        "follow_up": "Follow up",
+        "diligence_request": "Diligence request",
+        "write_memo": "Write the memo",
+        "send_pass_note": "Send a pass note",
+        "revisit": "Revisit",
+        "thank_introducer": "Thank or nudge the introducer",
+        "other": "Other"
+      }
+    }
+  },
+  "relationships": {
+    "deal_company": { "sourceLabel": "Company", "targetLabel": "Deals" },
+    "deal_contacts": { "sourceLabel": "Founders and contacts", "targetLabel": "Deals" },
+    "action_deal": { "sourceLabel": "Deal", "targetLabel": "Actions" }
+  },
+  "views": {
+    "deals_board": { "name": "Deal flow" },
+    "deals_all": { "name": "All deals" },
+    "passed_to_revisit": { "name": "Passed, to revisit" },
+    "organizations_all": { "name": "All organizations" },
+    "people_all": { "name": "All people" }
+  },
+  "widgets": {
+    "deal_funnel": { "title": "Open deals by stage" },
+    "deals_by_source": { "title": "Deals by source" },
+    "pass_reasons": { "title": "Pass reasons" },
+    "average_days_to_term_sheet": { "title": "Average days to term sheet" },
+    "revisits_coming": { "title": "Revisits coming up" }
+  },
+  "knowledgePages": {
+    "investment_thesis": { "title": "Investment thesis and focus", "sections": ["Stage, sector and check size", "What we do not invest in"] },
+    "stage_criteria": { "title": "Stage criteria", "sections": ["What moves a deal to the next stage", "Who decides at the partner meeting"] },
+    "pass_notes": { "title": "Pass notes and revisit rules", "sections": ["How we decline", "When we look again"] }
+  },
+  "rules": {
+    "follow_up_after_meeting": { "title": "Send a follow-up with next steps after a first meeting" },
+    "stale_screening": { "title": "Re-engage or pass on a deal that stayed in screening for 14 days" },
+    "pass_note": { "title": "Send a pass note when a deal is passed" },
+    "revisit_deal": { "title": "Revisit a passed deal on its revisit date" },
+    "diligence_checklist": { "title": "Start the diligence checklist when a term sheet is agreed" },
+    "first_check_in_after_close": { "title": "Check in 30 days after closing" },
+    "intro_nudge": { "title": "Nudge the introducer a week after an introduction was requested" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Every deal has one of eight stages.",
+    "pass_reason_field": "Every deal records why it was passed.",
+    "board_view": "The deals open as a board by stage."
+  },
+  "prompt": {
+    "intro": "Set up a VC deal flow in my Customermates workspace: deals with eight stages, the introducer, thesis fit, lead role, a pass reason and a date to revisit, plus startups, investors and dated follow-ups.",
+    "questions": [
+      "Which stages and sectors do you invest in, and what is your usual check size?",
+      "How do deals reach you, and who introduces them?",
+      "Who decides at each stage, and when do you pass?",
+      "Where do you keep legal documents and the data room? Only a link is kept here."
+    ]
+  }
+}

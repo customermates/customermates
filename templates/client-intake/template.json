@@ -1,0 +1,438 @@
+{
+  "id": "tpl_client_intake",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "client-intake",
+  "family": "intake",
+  "kind": "checklist",
+  "jurisdictions": ["global"],
+  "dashboardAudience": "team",
+  "modules": ["actions_core", "actions_dashboard"],
+  "requiresCapabilities": ["forms", "rules", "calendarWrite", "notifications"],
+  "pairedPages": {
+    "en": "/for/professional-services",
+    "de": "/for/professional-services",
+    "fr": "/for/professional-services",
+    "it": "/for/professional-services",
+    "es": "/for/professional-services",
+    "pt": "/for/professional-services",
+    "pl": "/for/professional-services",
+    "nl": "/for/professional-services"
+  },
+  "lists": [
+    { "key": "contacts", "role": "people", "icon": "contact" },
+    { "key": "clients", "icon": "building" },
+    { "key": "intakes", "icon": "clipboard" },
+    { "key": "document_requests", "icon": "files" }
+  ],
+  "stages": [
+    {
+      "field": "intakes.stage",
+      "items": [
+        { "key": "enquiry", "outcome": "open", "weight": 0 },
+        { "key": "screening", "outcome": "open", "weight": 0 },
+        { "key": "form_sent", "outcome": "open", "weight": 0 },
+        { "key": "review_checks", "outcome": "open", "weight": 0 },
+        { "key": "agreement_sent", "outcome": "open", "weight": 0 },
+        { "key": "ready_to_start", "outcome": "open", "weight": 0 },
+        { "key": "kickoff_scheduled", "outcome": "open", "weight": 0 },
+        { "key": "onboarded", "outcome": "won", "weight": 0 },
+        { "key": "declined", "outcome": "lost", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "contacts.job_title", "type": "text" },
+    {
+      "key": "contacts.contact_role",
+      "type": "select",
+      "options": [{ "key": "primary" }, { "key": "billing" }, { "key": "signatory" }, { "key": "technical" }, { "key": "other" }]
+    },
+    { "key": "contacts.language", "type": "text" },
+    { "key": "contacts.privacy_notice_sent_on", "type": "date" },
+    {
+      "key": "clients.client_type",
+      "type": "select",
+      "options": [{ "key": "company" }, { "key": "sole_trader" }, { "key": "individual" }, { "key": "organisation" }]
+    },
+    { "key": "clients.owner", "type": "member" },
+    { "key": "clients.website", "type": "url" },
+    { "key": "clients.address", "type": "address" },
+    { "key": "clients.registration_id", "type": "text" },
+    {
+      "key": "clients.source",
+      "type": "select",
+      "options": [{ "key": "referral" }, { "key": "website" }, { "key": "event" }, { "key": "outbound" }, { "key": "partner" }, { "key": "other" }]
+    },
+    { "key": "intakes.owner", "type": "member" },
+    { "key": "intakes.service", "type": "text" },
+    { "key": "intakes.received_on", "type": "date" },
+    { "key": "intakes.first_response_on", "type": "date" },
+    { "key": "intakes.form_sent_on", "type": "date" },
+    { "key": "intakes.form_received_on", "type": "date" },
+    { "key": "intakes.agreement_sent_on", "type": "date" },
+    { "key": "intakes.agreement_signed_on", "type": "date" },
+    { "key": "intakes.kickoff_on", "type": "date" },
+    {
+      "key": "intakes.fee_model",
+      "type": "select",
+      "options": [{ "key": "fixed" }, { "key": "hourly" }, { "key": "retainer" }, { "key": "other" }]
+    },
+    { "key": "intakes.deposit_required", "type": "boolean" },
+    { "key": "intakes.deposit_received_on", "type": "date" },
+    { "key": "intakes.identity_verified_on", "type": "date" },
+    { "key": "intakes.identity_verified_by", "type": "member" },
+    {
+      "key": "intakes.conflict_check",
+      "type": "select",
+      "options": [{ "key": "not_required" }, { "key": "pending", "color": "warning" }, { "key": "clear", "color": "success" }, { "key": "conflict_found", "color": "destructive" }]
+    },
+    {
+      "key": "intakes.risk_rating",
+      "type": "select",
+      "options": [{ "key": "not_assessed" }, { "key": "low", "color": "success" }, { "key": "standard" }, { "key": "high", "color": "destructive" }]
+    },
+    {
+      "key": "intakes.decline_reason",
+      "type": "select",
+      "options": [
+        { "key": "conflict" },
+        { "key": "not_a_fit" },
+        { "key": "no_capacity" },
+        { "key": "no_response" },
+        { "key": "client_withdrew" },
+        { "key": "risk" },
+        { "key": "other" }
+      ]
+    },
+    { "key": "intakes.decline_notice_sent_on", "type": "date" },
+    { "key": "intakes.next_step", "type": "text" },
+    { "key": "intakes.next_step_due", "type": "date" },
+    {
+      "key": "document_requests.kind",
+      "type": "select",
+      "options": [
+        { "key": "identity" },
+        { "key": "proof_of_address" },
+        { "key": "company_register" },
+        { "key": "prior_year_return" },
+        { "key": "contract" },
+        { "key": "questionnaire" },
+        { "key": "access_credentials" },
+        { "key": "other" }
+      ]
+    },
+    {
+      "key": "document_requests.status",
+      "type": "select",
+      "options": [{ "key": "requested" }, { "key": "partial", "color": "warning" }, { "key": "received", "color": "success" }, { "key": "needs_correction", "color": "destructive" }, { "key": "not_needed", "color": "secondary" }]
+    },
+    { "key": "document_requests.requested_on", "type": "date" },
+    { "key": "document_requests.needed_by", "type": "date" },
+    { "key": "document_requests.received_on", "type": "date" },
+    { "key": "document_requests.where_stored", "type": "url" },
+    { "key": "document_requests.owner", "type": "member" },
+    {
+      "key": "actions.kind",
+      "type": "select",
+      "options": [
+        { "key": "reply" },
+        { "key": "chase_form" },
+        { "key": "chase_document" },
+        { "key": "review" },
+        { "key": "check" },
+        { "key": "send_agreement" },
+        { "key": "chase_signature" },
+        { "key": "kickoff" },
+        { "key": "decline_letter" },
+        { "key": "other" }
+      ]
+    }
+  ],
+  "calculations": [
+    {
+      "key": "intakes.days_to_first_response",
+      "type": "number",
+      "expression": { "op": "daysBetween", "from": "intakes.received_on", "to": "intakes.first_response_on" }
+    },
+    {
+      "key": "intakes.days_to_kickoff",
+      "type": "number",
+      "expression": { "op": "daysBetween", "from": "intakes.received_on", "to": "intakes.kickoff_on" }
+    }
+  ],
+  "relationships": [
+    { "key": "contact_client", "source": "contacts", "target": "clients", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "intake_client", "source": "intakes", "target": "clients", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "intake_contact", "source": "intakes", "target": "contacts", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "document_request_intake", "source": "document_requests", "target": "intakes", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_intake", "source": "actions", "target": "intakes", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    {
+      "key": "intakes_all",
+      "list": "intakes",
+      "default": true,
+      "layout": "table",
+      "sort": { "field": "intakes.next_step_due", "direction": "asc" },
+      "columns": ["intakes.stage", "intakes.owner", "intakes.service", "intakes.next_step", "intakes.next_step_due"]
+    },
+    { "key": "intakes_board", "list": "intakes", "default": false, "layout": "board", "groupBy": "intakes.stage" },
+    {
+      "key": "awaiting_signature",
+      "list": "intakes",
+      "default": false,
+      "layout": "table",
+      "filters": [{ "operator": "in", "field": "intakes.stage", "options": ["agreement_sent"] }]
+    },
+    {
+      "key": "no_first_response",
+      "list": "intakes",
+      "default": false,
+      "layout": "table",
+      "filters": [
+        { "operator": "in", "field": "intakes.stage", "options": ["enquiry"] },
+        { "operator": "empty", "field": "intakes.first_response_on" }
+      ]
+    },
+    {
+      "key": "declined_intakes",
+      "list": "intakes",
+      "default": false,
+      "layout": "table",
+      "filters": [{ "operator": "in", "field": "intakes.stage", "options": ["declined"] }]
+    },
+    {
+      "key": "document_requests_all",
+      "list": "document_requests",
+      "default": true,
+      "layout": "table",
+      "sort": { "field": "document_requests.needed_by", "direction": "asc" },
+      "columns": ["document_requests.kind", "document_requests.status", "document_requests.needed_by", "document_requests.owner"]
+    },
+    {
+      "key": "documents_outstanding",
+      "list": "document_requests",
+      "default": false,
+      "layout": "table",
+      "filters": [{ "operator": "in", "field": "document_requests.status", "options": ["requested", "partial", "needs_correction"] }]
+    },
+    {
+      "key": "clients_all",
+      "list": "clients",
+      "default": true,
+      "layout": "table",
+      "columns": ["clients.client_type", "clients.owner", "clients.source"]
+    },
+    {
+      "key": "contacts_all",
+      "list": "contacts",
+      "default": true,
+      "layout": "table",
+      "columns": ["contacts.contact_role", "contacts.language", "contacts.privacy_notice_sent_on"]
+    }
+  ],
+  "widgets": [
+    {
+      "kind": "chart",
+      "key": "intakes_by_stage",
+      "list": "intakes",
+      "aggregation": "count",
+      "groupBy": { "field": "intakes.stage" },
+      "filters": [{ "operator": "notIn", "field": "intakes.stage", "options": ["onboarded", "declined"] }],
+      "display": "funnelChart",
+      "size": "large"
+    },
+    {
+      "kind": "chart",
+      "key": "open_intakes_by_owner",
+      "list": "intakes",
+      "aggregation": "count",
+      "groupBy": { "field": "intakes.owner" },
+      "filters": [{ "operator": "notIn", "field": "intakes.stage", "options": ["onboarded", "declined"] }],
+      "display": "rankedTable"
+    },
+    {
+      "kind": "chart",
+      "key": "enquiries_without_reply",
+      "list": "intakes",
+      "aggregation": "count",
+      "filters": [
+        { "operator": "in", "field": "intakes.stage", "options": ["enquiry"] },
+        { "operator": "empty", "field": "intakes.first_response_on" }
+      ],
+      "display": "number"
+    },
+    {
+      "kind": "chart",
+      "key": "documents_outstanding",
+      "list": "document_requests",
+      "aggregation": "count",
+      "filters": [{ "operator": "in", "field": "document_requests.status", "options": ["requested", "partial", "needs_correction"] }],
+      "display": "number"
+    },
+    {
+      "kind": "chart",
+      "key": "awaiting_signature_count",
+      "list": "intakes",
+      "aggregation": "count",
+      "filters": [{ "operator": "in", "field": "intakes.stage", "options": ["agreement_sent"] }],
+      "display": "number"
+    },
+    {
+      "kind": "chart",
+      "key": "average_days_to_reply",
+      "list": "intakes",
+      "aggregation": "average",
+      "valueField": "intakes.days_to_first_response",
+      "display": "number"
+    },
+    {
+      "kind": "chart",
+      "key": "average_days_to_kickoff",
+      "list": "intakes",
+      "aggregation": "average",
+      "valueField": "intakes.days_to_kickoff",
+      "display": "number"
+    },
+    {
+      "kind": "chart",
+      "key": "decline_reasons",
+      "list": "intakes",
+      "aggregation": "count",
+      "groupBy": { "field": "intakes.decline_reason" },
+      "filters": [{ "operator": "in", "field": "intakes.stage", "options": ["declined"] }],
+      "display": "doughnutChart"
+    },
+    {
+      "kind": "chart",
+      "key": "new_intakes_per_month",
+      "list": "intakes",
+      "aggregation": "count",
+      "groupBy": { "field": "intakes.received_on", "dateInterval": "month" },
+      "display": "areaChart"
+    }
+  ],
+  "knowledgePages": [
+    { "key": "intake_process", "kind": "overview" },
+    { "key": "intake_questionnaire", "kind": "processes" },
+    { "key": "document_requests_guide", "kind": "processes" },
+    { "key": "agreement_checklist", "kind": "processes" },
+    { "key": "regulated_checks", "kind": "processes" },
+    { "key": "privacy_at_intake", "kind": "processes" }
+  ],
+  "followUpRules": [
+    {
+      "key": "reply_to_enquiry",
+      "priority": 1,
+      "trigger": { "kind": "record_created", "list": "intakes" },
+      "action": { "kind": "create_task", "taskKind": "reply", "assignee": "record_owner", "about": "intakes" },
+      "dueOffsetDays": 1,
+      "needs": "today"
+    },
+    {
+      "key": "chase_form",
+      "priority": 2,
+      "trigger": { "kind": "field_changed", "field": "intakes.stage", "to": "form_sent" },
+      "action": { "kind": "create_task", "taskKind": "chase_form", "assignee": "record_owner", "about": "intakes" },
+      "dueOffsetDays": 3,
+      "needs": "today"
+    },
+    {
+      "key": "chase_document",
+      "trigger": { "kind": "date_reached", "field": "document_requests.needed_by", "offsetDays": 0 },
+      "condition": [{ "operator": "in", "field": "document_requests.status", "options": ["requested", "partial", "needs_correction"] }],
+      "action": { "kind": "create_task", "taskKind": "chase_document", "assignee": "record_owner", "about": "intakes" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    {
+      "key": "review_received_document",
+      "priority": 6,
+      "trigger": { "kind": "field_changed", "field": "document_requests.status", "to": "received" },
+      "action": { "kind": "create_task", "taskKind": "review", "assignee": "record_owner", "about": "intakes" },
+      "dueOffsetDays": 1,
+      "needs": "today"
+    },
+    {
+      "key": "chase_signature",
+      "priority": 3,
+      "trigger": { "kind": "field_changed", "field": "intakes.stage", "to": "agreement_sent" },
+      "action": { "kind": "create_task", "taskKind": "chase_signature", "assignee": "record_owner", "about": "intakes" },
+      "dueOffsetDays": 7,
+      "needs": "today"
+    },
+    {
+      "key": "decline_letter",
+      "priority": 5,
+      "trigger": { "kind": "field_changed", "field": "intakes.stage", "to": "declined" },
+      "action": { "kind": "create_task", "taskKind": "decline_letter", "assignee": "record_owner", "about": "intakes" },
+      "dueOffsetDays": 1,
+      "needs": "today"
+    },
+    {
+      "key": "kickoff_event",
+      "trigger": { "kind": "field_changed", "field": "intakes.kickoff_on" },
+      "action": { "kind": "add_calendar_event", "dateField": "intakes.kickoff_on" },
+      "dueOffsetDays": 0,
+      "needs": "calendarWrite"
+    },
+    {
+      "key": "first_value_check",
+      "priority": 7,
+      "trigger": { "kind": "field_changed", "field": "intakes.stage", "to": "onboarded" },
+      "action": { "kind": "create_task", "taskKind": "check", "assignee": "record_owner", "about": "intakes" },
+      "dueOffsetDays": 14,
+      "needs": "today"
+    },
+    {
+      "key": "stalled_intake",
+      "priority": 4,
+      "trigger": { "kind": "unchanged_for", "field": "intakes.stage", "days": 7 },
+      "condition": [{ "operator": "notIn", "field": "intakes.stage", "options": ["onboarded", "declined"] }],
+      "action": { "kind": "create_task", "taskKind": "review", "assignee": "record_owner", "about": "intakes" },
+      "dueOffsetDays": 0,
+      "needs": "today"
+    },
+    {
+      "key": "intake_form_records",
+      "trigger": { "kind": "form_submitted", "form": "intake" },
+      "action": { "kind": "create_records", "lists": ["clients", "contacts", "intakes"] },
+      "dueOffsetDays": 0,
+      "needs": "forms"
+    },
+    {
+      "key": "intake_form_notice",
+      "trigger": { "kind": "form_submitted", "form": "intake" },
+      "action": { "kind": "notify", "recipient": "workspace_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    }
+  ],
+  "acceptanceChecks": [
+    { "key": "stage_field", "kind": "field_exists", "ref": "intakes.stage" },
+    { "key": "first_response_field", "kind": "field_exists", "ref": "intakes.first_response_on" },
+    { "key": "document_requests_list", "kind": "list_exists", "ref": "document_requests" },
+    { "key": "intakes_board_view", "kind": "view_exists", "ref": "intakes_board" },
+    { "key": "chase_signature_rule", "kind": "rule_exists", "ref": "chase_signature" },
+    { "key": "process_page", "kind": "page_exists", "ref": "intake_process" }
+  ],
+  "sources": [
+    { "url": "https://zapier.com/blog/client-onboarding-checklist/", "checkedOn": "2026-11-12" },
+    { "url": "https://karbonhq.com/templates/client-onboarding-checklist-template/", "checkedOn": "2026-11-12" },
+    { "url": "https://clustdoc.com/blog/onboarding-checklist-templates/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.rocketlane.com/blogs/client-onboarding", "checkedOn": "2026-11-12" },
+    { "url": "https://app.manifest.ly/public/checklists/04916cf60d40e88bbc2e03a394672140", "checkedOn": "2026-11-12" },
+    { "url": "https://clickup.com/blog/client-onboarding-questionnaire/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.deubner-steuern.de/themen/transparenzregister/geldwaeschegesetz/sorgfaltspflichten.html", "checkedOn": "2026-11-12" },
+    { "url": "https://www.omie.com.br/blog/ficha-de-cadastro-de-clientes-o-que-nao-pode-faltar/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.jotform.com/pt/form-templates/ficha-cadastral-de-cliente", "checkedOn": "2026-11-12" },
+    { "url": "https://negoziopronto.it/risorse-gratuite/scheda-cliente", "checkedOn": "2026-11-12" },
+    { "url": "https://factorial.es/blog/ficha-de-cliente-como-elaborar-una-base-de-datos/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.cnil.fr/fr/cnil-direct/question/gestion-des-clients-et-prospects-que-faire", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "own", "de": "none", "fr": "own", "it": "own", "es": "own", "pt": "own", "pl": "own", "nl": "own" },
+  "publishWave": { "en": "hold", "fr": "wave2", "it": "wave1", "es": "wave2", "pt": "wave2", "pl": "wave1", "nl": "wave1" }
+}

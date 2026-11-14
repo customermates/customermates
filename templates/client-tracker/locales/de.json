@@ -1,0 +1,236 @@
+{
+  "locale": "de",
+  "name": "Kundenverwaltung",
+  "summary": "Eine Zeile pro Kunde, ein Betreuer, ein terminierter nächster Schritt, dazu eine wöchentliche Durchsicht und ein Prüfdatum für jeden beendeten Kunden.",
+  "description": "Eine schlanke Kundenkartei mit sieben Status, dem Datum des letzten Kontakts, einer Wiedervorlage, die die Arbeit steuert, einem Prüfrhythmus je Segment und einem Löschprüfdatum für beendete Kunden. Ansprechpartner, terminierte Wiedervorlagen und verknüpfte Unterhaltungen stehen direkt am Kunden.",
+  "lists": {
+    "clients": { "label": "Kunde", "pluralLabel": "Kunden", "description": "Eine Zeile pro Kunde, ein Betreuer, ein terminierter nächster Schritt." },
+    "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Die Personen, mit denen du bei jedem Kunden zu tun hast." },
+    "actions": { "label": "Wiedervorlage", "pluralLabel": "Wiedervorlagen", "description": "Ein terminierter nächster Schritt pro offenem Vorgang." }
+  },
+  "fields": {
+    "clients.status": {
+      "label": "Status",
+      "options": {
+        "prospect": "Interessent",
+        "onboarding": "Onboarding",
+        "active": "Aktiv",
+        "waiting_on_client": "Wartet auf Kunde",
+        "at_risk": "Gefährdet",
+        "inactive": "Ruhend",
+        "closed": "Beendet"
+      }
+    },
+    "clients.segment": {
+      "label": "Segment",
+      "options": { "a_key": "A-Kunde", "b_regular": "B-Kunde", "c_occasional": "C-Kunde" }
+    },
+    "clients.owner": { "label": "Betreuer" },
+    "clients.source": {
+      "label": "Herkunft",
+      "options": {
+        "referral": "Empfehlung",
+        "website": "Website",
+        "event": "Veranstaltung",
+        "outbound": "Eigene Akquise",
+        "existing_network": "Bestehendes Netzwerk",
+        "other": "Sonstiges"
+      }
+    },
+    "clients.client_since": { "label": "Kunde seit" },
+    "clients.last_contact": { "label": "Letzter Kontakt" },
+    "clients.next_step": { "label": "Nächster Schritt" },
+    "clients.next_step_due": { "label": "Wiedervorlage am" },
+    "clients.review_interval": {
+      "label": "Prüfintervall",
+      "options": { "monthly": "Monatlich", "quarterly": "Vierteljährlich", "half_yearly": "Halbjährlich", "yearly": "Jährlich" }
+    },
+    "clients.next_review": { "label": "Nächste Prüfung" },
+    "clients.annual_value": { "label": "Jahreswert" },
+    "clients.website": { "label": "Website" },
+    "clients.address": { "label": "Anschrift" },
+    "clients.registration_id": { "label": "Handelsregisternummer oder USt-IdNr." },
+    "clients.closed_on": { "label": "Beendet am" },
+    "clients.data_review_on": { "label": "Datenprüfung am" },
+    "contacts.job_title": { "label": "Position" },
+    "contacts.contact_role": {
+      "label": "Rolle",
+      "options": { "decision_maker": "Entscheider", "day_to_day": "Ansprechpartner im Tagesgeschäft", "billing": "Buchhaltung", "other": "Sonstige" }
+    },
+    "contacts.preferred_channel": {
+      "label": "Bevorzugter Kanal",
+      "options": { "email": "E-Mail", "phone": "Telefon", "whatsapp": "WhatsApp", "linkedin": "LinkedIn", "in_person": "Persönlich" }
+    },
+    "contacts.language": { "label": "Sprache" },
+    "contacts.marketing_consent": { "label": "Werbeeinwilligung" },
+    "contacts.consent_date": { "label": "Datum der Einwilligung" },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "check_in": "Nachfassen",
+        "reply": "Antworten",
+        "request_document": "Unterlage anfordern",
+        "review": "Prüfung",
+        "chase": "Erinnern",
+        "data_review": "Datenprüfung",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Kunde", "targetLabel": "Ansprechpartner" },
+    "action_client": { "sourceLabel": "Kunde", "targetLabel": "Wiedervorlagen" },
+    "action_contact": { "sourceLabel": "Ansprechpartner", "targetLabel": "Wiedervorlagen" }
+  },
+  "views": {
+    "clients_all": { "name": "Alle Kunden" },
+    "clients_board": { "name": "Kunden nach Status" },
+    "needs_next_step": { "name": "Ohne nächsten Schritt" },
+    "overdue_next_step": { "name": "Überfällige Wiedervorlagen" },
+    "waiting_on_client": { "name": "Wartet auf Kunde" },
+    "at_risk": { "name": "Gefährdet" },
+    "data_review_due": { "name": "Datenprüfung fällig" },
+    "actions_all": { "name": "Alle Wiedervorlagen" },
+    "contacts_all": { "name": "Alle Ansprechpartner" }
+  },
+  "widgets": {
+    "upcoming_actions": { "title": "Anstehende Wiedervorlagen" },
+    "review_calendar": { "title": "Kundenprüfungen in diesem Monat" },
+    "clients_by_status": { "title": "Kunden nach Status" },
+    "clients_by_segment": { "title": "Kunden nach Segment" },
+    "clients_per_owner": { "title": "Kunden je Betreuer" },
+    "active_without_next_step": { "title": "Aktive Kunden ohne nächsten Schritt" },
+    "waiting_on_client_count": { "title": "Wartet auf Kunde" },
+    "at_risk_count": { "title": "Gefährdet" },
+    "value_by_segment": { "title": "Jahreswert nach Segment" },
+    "new_clients_per_month": { "title": "Neue Kunden pro Monat" },
+    "overdue_actions": { "title": "Überfällige Wiedervorlagen" },
+    "activity_timeline": { "title": "Letzte Aktivitäten" }
+  },
+  "knowledgePages": {
+    "playbook": {
+      "title": "Leitfaden Kundenverwaltung",
+      "sections": ["Eine Zeile, ein Betreuer, ein terminierter nächster Schritt", "Was jeder Status bedeutet", "Die Zeile am Tag jedes Anrufs oder Angebots aktualisieren"]
+    },
+    "weekly_review": {
+      "title": "Wöchentliche Kundendurchsicht in 15 Minuten",
+      "sections": ["Nach Wiedervorlage und Status sortieren", "Überfällig, aktiv ohne nächsten Schritt, stockende Interessenten", "Am Ende steht bei jeder Zeile ein Datum"]
+    },
+    "status_definitions": {
+      "title": "Definition der Kundenstatus",
+      "sections": ["Eintritts- und Austrittsregel je Status", "Nach 7 Tagen erinnern, nach 14 Tagen eskalieren", "Wer einen Status ändern darf"]
+    },
+    "message_templates": {
+      "title": "Vorlagen für Nachfassen und Reaktivierung",
+      "sections": ["Nachfassen nach einer ruhigen Phase", "Erinnerung bei wartendem Kunden", "Einladung zur Durchsicht", "Reaktivierung nach 90 Tagen", "Höflicher Abschluss"]
+    },
+    "data_retention": {
+      "title": "Aufbewahrung und Datenschutz in der Kundenkartei",
+      "sections": ["Zweck und gespeicherte Daten", "Aufbewahrungsfristen (DSGVO, HGB, AO)", "Nachweis der Einwilligung", "Auskunfts- und Löschersuchen beantworten"]
+    }
+  },
+  "rules": {
+    "overdue_action_notice": {
+      "title": "Betreuer über eine überfällige Wiedervorlage informieren",
+      "description": "Sobald das Fälligkeitsdatum einer offenen Wiedervorlage erreicht ist, wird der Zuständige benachrichtigt."
+    },
+    "chase_waiting_client": {
+      "title": "Beim Kunden an den offenen Punkt erinnern",
+      "description": "Wechselt ein Kunde auf „Wartet auf Kunde“, erhält der Betreuer nach 7 Tagen eine Wiedervorlage zum Erinnern."
+    },
+    "review_before_due": {
+      "title": "Kundenakte prüfen",
+      "description": "Sieben Tage vor dem nächsten Prüftermin eines aktiven Kunden entsteht eine Prüfungs-Wiedervorlage für den Betreuer."
+    },
+    "daily_next_step_sweep": {
+      "title": "Nachfassen: keine offene Wiedervorlage bei diesem Kunden",
+      "description": "Täglich erhält ein aktiver Kunde oder ein Kunde im Onboarding ohne offene verknüpfte Wiedervorlage eine Wiedervorlage zum Nachfassen, fällig heute."
+    },
+    "stalled_client_sweep": {
+      "title": "Nachfassen: seit 45 Tagen kein Kontakt",
+      "description": "Jeden Montag erhält ein aktiver Kunde ohne Kontakt seit 45 Tagen eine Wiedervorlage zum Nachfassen. Der Status ändert sich nie von selbst."
+    },
+    "closed_client_dates": {
+      "title": "Beendigungsdatum und Datenprüfungsdatum setzen",
+      "description": "Wird ein Kunde beendet, wird „Beendet am“ auf heute und „Datenprüfung am“ auf drei Jahre später gesetzt. Passe die Frist an deine Pflichten an."
+    },
+    "closed_client_data_review": {
+      "title": "Daten dieses beendeten Kunden prüfen",
+      "description": "Zum Datum der Datenprüfung wird eine Wiedervorlage zur Datenprüfung fällig."
+    },
+    "inactive_reactivation": {
+      "title": "Fragen, ob der Kunde noch relevant ist",
+      "description": "Neunzig Tage nachdem ein Kunde auf „Ruhend“ gesetzt wurde, stellt eine Wiedervorlage die Reaktivierungsfrage."
+    },
+    "enquiry_form_records": {
+      "title": "Kunde und Ansprechpartner aus einer Anfrage anlegen",
+      "description": "Ein öffentliches Anfrageformular legt einen Kunden als Interessent und dessen Ansprechpartner an."
+    },
+    "enquiry_form_reply": {
+      "title": "Die Anfrage beantworten",
+      "description": "Jede Anfrage erhält eine Wiedervorlage zum Antworten, fällig am nächsten Tag."
+    },
+    "weekly_client_review": {
+      "title": "Wöchentliche Kundendurchsicht",
+      "description": "Jeden Montag listet eine Wiedervorlage überfällige Kunden, Kunden ohne nächsten Schritt und stockende Interessenten auf."
+    }
+  },
+  "acceptanceChecks": {
+    "status_field": "Jeder Kunde hat einen Status aus den sieben Werten.",
+    "next_step_date_field": "Jeder Kunde hat einen nächsten Schritt und ein Datum dafür.",
+    "clients_default_view": "Die Kundenliste öffnet sich nach Wiedervorlage sortiert.",
+    "overdue_widget": "Das Dashboard zeigt, wie viele Wiedervorlagen überfällig sind.",
+    "chase_rule": "Ein Kunde, der auf „Wartet auf Kunde“ gesetzt wird, erhält eine Wiedervorlage zum Erinnern.",
+    "playbook_page": "Die Wissensdatenbank enthält den Leitfaden zur Kundenverwaltung."
+  },
+  "page": {
+    "metaTitle": "Kundenverwaltung als Vorlage für Ihren KI-Agenten",
+    "metaDescription": "Kopieren Sie die Kundenverwaltung in Claude, ChatGPT oder Codex: eine Zeile pro Kunde, ein Betreuer, eine Wiedervorlage und eine wöchentliche Durchsicht.",
+    "headline": "Eine Kundenverwaltung, die Ihr KI-Agent in Ihrem CRM aufbaut",
+    "answer": "Eine Kundenverwaltung ist eine kurze Liste: eine Zeile pro Kunde, ein Betreuer, ein Status, das Datum des letzten Kontakts und ein nächster Schritt mit Wiedervorlage. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Liste in Customermates auf, mit Ansprechpartnern, terminierten Wiedervorlagen und einer wöchentlichen Durchsicht. Sie genehmigen den Plan, bevor etwas geschrieben wird.",
+    "routine": {
+      "title": "Die wöchentliche Kundendurchsicht in 15 Minuten",
+      "steps": [
+        "Sortieren Sie die Kundenliste nach Wiedervorlage und nach Status.",
+        "Erledigen Sie zuerst alles Überfällige, dann die aktiven Kunden ohne nächsten Schritt.",
+        "Prüfen Sie ruhig gewordene Interessenten und entscheiden Sie: nachfassen oder schließen.",
+        "Schließen Sie mit einem Datum in jeder Zeile ab, damit kein Kunde ohne nächsten Schritt bleibt."
+      ]
+    },
+    "limits": [
+      "Es ist kein Werkzeug für Rechnungen, Angebote oder Zeiterfassung. Die Abrechnung bleibt in Ihrer Buchhaltungssoftware; hier steht höchstens ein Link und ein Jahreswert.",
+      "Unterschriebene Verträge werden nicht abgelegt, und ein Kundenportal ist es nicht. Kunden können sich nicht anmelden, um ihren Stand zu sehen.",
+      "Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt. Die Vorlage schlägt sie vor, Sie entscheiden, welche Sie einschalten.",
+      "Sensible Kundenakten wie Gesundheits-, Rechts- oder Therapieunterlagen gehören nicht hinein. Die Beziehung steht hier, der Fallinhalt in einem dafür gebauten System.",
+      "Ausgelegt ist es für ein bis zehn Personen. Müssen einzelne Spalten vor Kollegen verborgen bleiben, legen Sie sie in eine eigene Liste mit eigenem Zugriff."
+    ],
+    "faq": [
+      {
+        "question": "Was gehört in eine Kundenverwaltung?",
+        "answer": "Eine Zeile pro Kunde mit einem Betreuer, einem Status aus einer kurzen Liste, dem Datum des letzten Kontakts und einem nächsten Schritt mit Datum. Das Wiedervorlage-Datum steuert die Arbeit: einmal pro Woche danach sortieren, dann geht nichts verloren."
+      },
+      {
+        "question": "Ab wann reicht eine Tabelle für die Kundenverwaltung nicht mehr?",
+        "answer": "Praxisleitfäden nennen etwa 25 bis 50 Kunden, mehrere Bearbeiter oder den Punkt, an dem niemand mehr an Wiedervorlagen erinnert wird. Dann hilft ein CRM: Ansprechpartner sind verknüpft, nächste Schritte sind terminierte Wiedervorlagen, und die Gespräche stehen neben jedem Kunden."
+      },
+      {
+        "question": "Wie lange darf ich die Daten beendeter Kunden aufbewahren?",
+        "answer": "Das hängt vom Land und von den Daten ab. Zwei Beispiele: Die französische Datenschutzbehörde erlaubt Kundendaten, die für Werbung genutzt werden, für die Dauer der Beziehung plus drei Jahre, und das deutsche Handelsrecht verlangt sechs Jahre für Geschäftsbriefe und acht Jahre für Buchungsbelege. Die Vorlage setzt für jeden beendeten Kunden ein Prüfdatum; passen Sie die Frist an Ihr Land an und fragen Sie Ihre Beraterin oder Ihren Berater. Das ist keine Rechtsberatung."
+      },
+      {
+        "question": "Schreibt der Agent meine Kunden an?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Richte in meinem Customermates-Workspace eine Kundenverwaltung ein: eine Zeile pro Kunde mit einem Betreuer, einem Status, dem Datum des letzten Kontakts und einer terminierten Wiedervorlage, dazu Ansprechpartner, terminierte Wiedervorlagen, eine wöchentliche Durchsicht und ein Prüfdatum für beendete Kunden.",
+    "questions": [
+      "Wie viele Kunden betreust du heute, und wer arbeitet noch an der Kartei mit?",
+      "Welche Kundenstatus nutzt du schon? Soll einer der sieben umbenannt oder weggelassen werden?",
+      "Wie oft möchtest du A-, B- und C-Kunden durchsehen?",
+      "In welchem Land arbeitest du, damit die Aufbewahrungsfrist für beendete Kunden gesetzt werden kann?",
+      "Führst du Rechnungen in einem anderen Programm? Wenn ja, in welchem, damit hier keine Rechnungsfelder entstehen."
+    ]
+  }
+}

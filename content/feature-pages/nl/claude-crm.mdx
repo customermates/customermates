@@ -1,0 +1,85 @@
+---
+title: "CRM voor Claude: het CRM waarin jouw Claude werkt"
+description: "CRM voor Claude: klanten, deals, e-mail en LinkedIn-gesprekken in één werkruimte die Claude leest en wijzigt. [[commercial.trial.days]] dagen proef, geen creditcard. Open source."
+featureName: CRM voor Claude
+
+relatedHrefs:
+  - /features/claude-linkedin
+  - /docs/connect-custom-connector
+  - /docs/mcp
+  - /features/api
+
+sections:
+  visual:
+    kind: os
+  steps:
+    title: "In drie stappen gekoppeld"
+    items:
+      - title: "Start de proefperiode"
+        description: "Meld je aan en geef aan hoeveel mensen de werkruimte gaan gebruiken. De proefperiode duurt [[commercial.trial.days]] dagen op Pro en heeft geen creditcard nodig."
+      - title: "Voeg Customermates toe in Claude"
+        description: "Open in Claude Settings › Connectors › Add custom connector en plak het serveradres https://customermates.com/api/v1/mcp. De setup toont het adres van je eigen werkruimte en wacht tot de eerste aanroep van Claude binnenkomt."
+      - title: "Laat Claude je CRM opbouwen"
+        description: "Vertel Claude wat je verkoopt en hoe je werkt. Claude stelt je lijsten, pipeline en follow-ups voor en bouwt ze in de werkruimte zodra je akkoord gaat."
+
+hero:
+  title: "Het CRM waarin jouw Claude werkt"
+  description: "Customermates is een CRM dat Claude via een connector leest en bijwerkt: klanten, deals, taken en, zodra je ze koppelt, je e-mail- en LinkedIn-gesprekken. Serveradres: https://customermates.com/api/v1/mcp"
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Lees de gids voor de connector
+  buttonRightHref: /docs/connect-custom-connector
+  hint: "✓ Geen creditcard nodig ✓ Onafhankelijk product, niet gelieerd aan Anthropic"
+
+cta:
+  action: "Geef Claude een CRM om in te werken"
+  description: "Start de proefperiode, voeg de connector toe en laat Claude de werkruimte inrichten. Je gaat akkoord met het plan voordat Claude het opbouwt."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Lees de gids voor de connector
+  buttonRightHref: /docs/connect-custom-connector
+  hint: "✓ Geen creditcard nodig ✓ Eerste [[commercial.trial.days]] dagen gratis"
+---
+
+Een CRM voor Claude is een CRM dat Claude zelf kan lezen en wijzigen, in plaats van een systeem waaruit je tekst kopieert. Customermates geeft Claude dat via een connector: Claude zoekt een klant op, leest het laatste gesprek, werkt de deal bij en schrijft de volgende taak, in dezelfde werkruimte die je team in de browser opent.
+
+## Wat je Claude kunt vragen
+
+- **"Welke deals hebben al twee weken geen contact gehad?"** Claude leest je pipeline en de gesprekken die aan elke deal gekoppeld zijn.
+- **"Voeg de drie mensen uit deze e-mail toe aan het juiste bedrijf en noteer wat ze hebben gevraagd."** Claude maakt de contactpersonen aan en koppelt ze.
+- **"Op welke gesprekken wacht een antwoord van mij?"** Met een gekoppelde mailbox of een [gekoppeld LinkedIn-account](/features/claude-linkedin) toont Claude de openstaande gesprekken en kan het de antwoorden als concept opstellen.
+
+Claude werkt met je eigen lijsten en velden, dus het CRM gebruikt jouw woorden voor klanten, deals en fases.
+
+## Wat het wel en niet doet
+
+**Het doet:** records, lijsten, velden en weergaven lezen en schrijven met de rechten van de persoon die het heeft gekoppeld; in de Kennisbank van de werkruimte zoeken; gesprekken lezen en concepten bewaren zodra een kanaal is gekoppeld.
+
+**Het doet niet:** je rollen en rechten omzeilen, iets wijzigen zonder een aanroep die je in Claude kunt zien, of op de achtergrond handelen terwijl Claude gesloten is. Voor werk volgens een schema zijn er [Routines](/docs/app-routines) met de ingebouwde assistent Mate.
+
+**Over goedkeuring:** Customermates geeft Claude de instructie om te vragen voordat het een bericht verstuurt of iets verwijdert. Of Claude elke keer vraagt, hangt af van de toolrechten die je in Claude instelt.
+
+De technische kant, met alle tools die de connector biedt, staat in de [MCP-referentie](/docs/mcp).
+
+## Wat het kost
+
+De proefperiode duurt [[commercial.trial.days]] dagen op Pro en heeft geen creditcard nodig. Betaalde abonnementen beginnen bij [[commercial.price.starter.monthly]] per gebruiker per maand voor het CRM met de connector; de inbox voor e-mail en LinkedIn zit in Pro voor [[commercial.price.pro.monthly]]. Zonder abonnement gaat de werkruimte over op het Free-abonnement voor [[commercial.limit.free.maxMembers]] persoon en [[commercial.limit.free.maxRecords]] records. De connector kost niets extra, en Claude rekent zijn eigen gebruik af via je Claude-abonnement.
+
+## Wie erachter zit
+
+Customermates is een onafhankelijk product. Het is niet gelieerd aan, onderschreven door of gesponsord door Anthropic. De kern van het CRM is open source onder AGPL-3.0 en kan zelf worden gehost; de clouddatabase is ingesteld in de AWS-regio Frankfurt, en de [lijst met subverwerkers](/subprocessors) noemt elke betrokken aanbieder.
+
+<Faq>
+<FaqItem question="Werkt het ook met ChatGPT en andere AI-clients?">
+Ja. Dezelfde connector werkt met ChatGPT, Cursor, Gemini en andere clients die MCP ondersteunen. De [gids voor de connector](/docs/connect-custom-connector) beschrijft de stappen voor elk ervan.
+</FaqItem>
+<FaqItem question="Ziet Claude al mijn gegevens?">
+Claude ziet wat de persoon die het heeft gekoppeld mag zien. Het handelt met de rol en de rechten van die persoon, in de werkruimte die bij het inloggen is gekozen.
+</FaqItem>
+<FaqItem question="Heb ik een betaald Claude-abonnement nodig?">
+Claude biedt eigen connectoren op elk abonnement aan; Claude Free staat er één toe. ChatGPT vraagt een betaald abonnement voor eigen connectoren.
+</FaqItem>
+<FaqItem question="Kan ik het zelf hosten?">
+De open source kern kun je zelf hosten en bevat de connector. De inbox voor e-mail en LinkedIn en de ingebouwde assistent Mate horen bij Customermates Cloud.
+</FaqItem>
+</Faq>

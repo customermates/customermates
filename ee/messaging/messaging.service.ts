@@ -43,7 +43,12 @@ import { MessagingProvider } from "@/generated/prisma";
 
 import { env } from "@/env";
 import { isEmailProvider } from "./provider";
-import { UnipileAccountSchema, UnipileAttachmentSchema, UnipileUserSchema } from "./unipile.schema";
+import {
+  UnipileAccountSchema,
+  UnipileAttachmentSchema,
+  UnipileCalendarEventSchema,
+  UnipileUserSchema,
+} from "./unipile.schema";
 import {
   SocialPostSchema,
   SocialPostListSchema,
@@ -82,6 +87,32 @@ export type StartChatSpecifics = {
 };
 
 type EmailAttendee = { email: string; display_name?: string };
+
+export type CalendarConferenceProvider = "google_meet" | "teams";
+
+export type CalendarEventWriteInput = {
+  accountId: string;
+  calendarId: string;
+  title: string;
+  description?: string;
+  location?: string;
+  attendeeEmails: string[];
+  startsAt: Date;
+  endsAt: Date;
+  timeZone: string;
+  conferenceProvider?: CalendarConferenceProvider;
+  notifyAttendees: boolean;
+};
+
+export type UnipileCalendarEventRecord = z.infer<typeof UnipileCalendarEventSchema>;
+
+function calendarEventTime(instant: Date, timeZone: string | undefined) {
+  return {
+    type: "datetime" as const,
+    date_time: instant.toISOString().replace(/\.\d{3}Z$/, "Z"),
+    ...(timeZone ? { timezone: timeZone } : {}),
+  };
+}
 
 type MessagingSendResult<T> = { ok: true; data: T } | { ok: false; error: CustomErrorCode; retryAfterSeconds?: number };
 
@@ -631,6 +662,110 @@ export class MessagingService {
             : { offset: input.offset, limit: input.limit, start: input.start, expand_recurring: input.expandRecurring },
       }),
     );
+  }
+
+  async createCalendarEvent(input: CalendarEventWriteInput): Promise<MessagingSendResult<UnipileCalendarEventRecord>> {
+    try {
+      const raw = await requestData(
+        this.sdk.calendar.createCalendarEvent({
+          path: { account_id: input.accountId, calendar_id: input.calendarId },
+          body: {
+            title: input.title,
+            ...(input.description ? { body: input.description } : {}),
+            ...(input.location ? { location: input.location } : {}),
+            attendees: input.attendeeEmails.map((email) => ({ email })),
+            start: calendarEventTime(input.startsAt, input.timeZone),
+            end: calendarEventTime(input.endsAt, input.timeZone),
+            ...(input.conferenceProvider ? { conference: { provider: input.conferenceProvider } } : {}),
+            notify: input.notifyAttendees ? "all" : "none",
+          },
+          headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
+        }),
+      );
+
+      return { ok: true, data: await this.completeCalendarEvent(raw, input.accountId, input.calendarId) };
+    } catch (err) {
+      return this.mapSendError(err);
+    }
+  }
+
+  async updateCalendarEvent(
+    input: Partial<CalendarEventWriteInput> & { accountId: string; calendarId: string; eventId: string },
+  ): Promise<MessagingSendResult<UnipileCalendarEventRecord>> {
+    try {
+      const raw = await requestData(
+        this.sdk.calendar.updateCalendarEvent({
+          path: { account_id: input.accountId, calendar_id: input.calendarId, event_id: input.eventId },
+          body: {
+            ...(input.title !== undefined ? { title: input.title } : {}),
+            ...(input.description !== undefined ? { body: input.description } : {}),
+            ...(input.location !== undefined ? { location: input.location } : {}),
+            ...(input.attendeeEmails ? { attendees: input.attendeeEmails.map((email) => ({ email })) } : {}),
+            ...(input.startsAt && input.endsAt
+              ? {
+                  start: calendarEventTime(input.startsAt, input.timeZone),
+                  end: calendarEventTime(input.endsAt, input.timeZone),
+                }
+              : {}),
+            ...(input.conferenceProvider ? { conference: { provider: input.conferenceProvider } } : {}),
+            ...(input.notifyAttendees !== undefined ? { notify: input.notifyAttendees ? "all" : "none" } : {}),
+          },
+          headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
+        }),
+      );
+
+      return {
+        ok: true,
+        data: await this.completeCalendarEvent(raw, input.accountId, input.calendarId, input.eventId),
+      };
+    } catch (err) {
+      return this.mapSendError(err);
+    }
+  }
+
+  async cancelCalendarEvent(input: {
+    accountId: string;
+    calendarId: string;
+    eventId: string;
+    comment?: string;
+  }): Promise<MessagingSendResult<{ eventId: string }>> {
+    try {
+      await requestData(
+        this.sdk.calendar.cancelCalendarEvent({
+          path: { account_id: input.accountId, calendar_id: input.calendarId, event_id: input.eventId },
+          body: input.comment ? { comment: input.comment } : {},
+          headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
+        }),
+      );
+
+      return { ok: true, data: { eventId: input.eventId } };
+    } catch (err) {
+      return this.mapSendError(err);
+    }
+  }
+
+  private async completeCalendarEvent(
+    raw: unknown,
+    accountId: string,
+    calendarId: string,
+    knownEventId?: string,
+  ): Promise<UnipileCalendarEventRecord> {
+    const created = z
+      .looseObject({ id: z.string().min(1).optional(), event_id: z.string().min(1).optional() })
+      .parse(raw);
+    const eventId = created.id ?? created.event_id ?? knownEventId;
+    if (!eventId) throw new z.ZodError([{ code: "custom", message: "The calendar event id is missing", path: ["id"] }]);
+
+    const full = UnipileCalendarEventSchema.safeParse(raw);
+    if (full.success && full.data.start) return full.data;
+
+    const fetched = await requestData(
+      this.sdk.calendar.getCalendarEvent({
+        path: { account_id: accountId, calendar_id: calendarId, event_id: eventId },
+      }),
+    );
+
+    return UnipileCalendarEventSchema.parse(fetched);
   }
 
   async getProviderProfile(input: {

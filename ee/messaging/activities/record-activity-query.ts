@@ -172,11 +172,15 @@ export function compileRecordActivityIndex(
       JOIN ${source} scope ON scope."typeId" = association."typeId" AND scope.id = association."recordId" AND scope.threading
       WHERE association."companyId" = ${companyId} AND association."threadId" = thread.id)
   )`;
-  const calendarMatches = (source = Prisma.raw("activity_scope")) => Prisma.sql`EXISTS (
+  const calendarMatches = (source = Prisma.raw("activity_scope")) => Prisma.sql`(EXISTS (
       SELECT 1 FROM "RecordIdentityKey" identity_key JOIN "RecordIdentity" identity ON identity."companyId" = ${companyId} AND identity.id = identity_key."identityId"
       JOIN "RecordIdentityLink" association ON association."companyId" = ${companyId} AND association."identityId" = identity.id
     JOIN ${source} scope ON scope."typeId" = association."typeId" AND scope.id = association."recordId" AND scope.messaging
-      WHERE identity_key."companyId" = ${companyId} AND identity_key."channelClass" = 'email' AND identity_key.value = ANY(event."attendeeEmails"))`;
+      WHERE identity_key."companyId" = ${companyId} AND identity_key."channelClass" = 'email' AND identity_key.value = ANY(event."attendeeEmails"))
+    OR EXISTS (
+      SELECT 1 FROM "CalendarEventRecordLink" calendar_link
+      JOIN ${source} scope ON scope."typeId" = calendar_link."typeId" AND scope.id = calendar_link."recordId" AND scope.threading
+      WHERE calendar_link."companyId" = ${companyId} AND calendar_link."calendarEventId" = event.id))`;
   const auditMatches = (typeId: Prisma.Sql, recordId: Prisma.Sql) =>
     matchingRecords(
       (_activity, history) => Prisma.sql`EXISTS (

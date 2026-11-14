@@ -1,0 +1,454 @@
+{
+  "locale": "fr",
+  "name": "Pipeline immobilier",
+  "summary": "Deux pipelines qui se rejoignent au compromis : décrocher et commercialiser le bien, et suivre l’acquéreur, avec les visites, les dates clés et une routine pour les anciens clients.",
+  "description": "Une agence immobilière mène un côté propriétaire (estimation, mandat, commercialisation, offres) et un côté acquéreur (prospect, qualification, visites, offre), puis une phase commune sous compromis avec des dates impératives. Ce modèle suit les deux, le type de mandat et sa date de fin, chaque visite avec son retour, les dates clés après la signature et une routine datée pour les anciens clients. La valeur d’un bien correspond aux honoraires attendus.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Propriétaires, bailleurs, acquéreurs, locataires et apporteurs d’affaires." },
+    "organizations": { "label": "Organisation", "pluralLabel": "Organisations", "description": "Promoteurs, banques, notaires et partenaires apporteurs." },
+    "listings": { "label": "Bien", "pluralLabel": "Biens", "description": "Le mandat du propriétaire et son pipeline. La valeur correspond aux honoraires attendus." },
+    "buyer_searches": { "label": "Recherche acquéreur", "pluralLabel": "Recherches acquéreurs", "description": "Une recherche d’acquéreur ou de locataire, de la demande à la signature." },
+    "viewings": { "label": "Visite", "pluralLabel": "Visites", "description": "Chaque visite avec son retour." },
+    "key_dates": { "label": "Date clé", "pluralLabel": "Dates clés", "description": "Les dates qui courent après la signature du compromis." },
+    "actions": { "label": "Tâche", "pluralLabel": "Tâches", "description": "Une prochaine étape datée par bien ou recherche ouverte." }
+  },
+  "fields": {
+    "listings.stage": {
+      "label": "Étape",
+      "options": {
+        "owner_lead": "Prospect propriétaire",
+        "valuation": "Estimation",
+        "listing_proposal_sent": "Proposition de mandat",
+        "agreement_signed": "Mandat signé",
+        "on_market": "Diffusé",
+        "offer_stage": "Offre",
+        "under_contract": "Compromis",
+        "completed": "Acte signé",
+        "lost": "Perdu"
+      }
+    },
+    "buyer_searches.stage": {
+      "label": "Étape",
+      "options": {
+        "new_lead": "Nouvelle demande",
+        "qualified": "Qualifié",
+        "viewing": "Visite",
+        "offer_made": "Offre faite",
+        "under_contract": "Compromis",
+        "completed": "Acte signé",
+        "lost": "Perdu"
+      }
+    },
+    "contacts.contact_role": {
+      "label": "Rôle",
+      "options": {
+        "seller": "Vendeur",
+        "landlord": "Bailleur",
+        "buyer": "Acquéreur",
+        "tenant": "Locataire",
+        "investor": "Investisseur",
+        "referrer": "Apporteur d’affaires",
+        "other": "Autre"
+      }
+    },
+    "contacts.preferred_channel": {
+      "label": "Canal préféré",
+      "options": { "email": "E-mail", "phone": "Téléphone", "whatsapp": "WhatsApp", "portal": "Portail" }
+    },
+    "contacts.language": { "label": "Langue" },
+    "contacts.marketing_consent_on": { "label": "Consentement à la prospection le" },
+    "contacts.last_contact": { "label": "Dernier contact" },
+    "organizations.org_type": {
+      "label": "Type",
+      "options": {
+        "developer": "Promoteur",
+        "investor": "Investisseur",
+        "bank_or_lender": "Banque ou prêteur",
+        "notary_or_lawyer": "Notaire ou avocat",
+        "referral_partner": "Partenaire apporteur",
+        "other": "Autre"
+      }
+    },
+    "organizations.website": { "label": "Site web" },
+    "listings.transaction_type": { "label": "Vente ou location", "options": { "sale": "Vente", "let": "Location" } },
+    "listings.address": { "label": "Adresse" },
+    "listings.property_type": {
+      "label": "Type de bien",
+      "options": {
+        "apartment": "Appartement",
+        "house": "Maison",
+        "land": "Terrain",
+        "commercial": "Local commercial",
+        "parking_or_storage": "Parking ou cave",
+        "other": "Autre"
+      }
+    },
+    "listings.size_m2": { "label": "Surface en mètres carrés" },
+    "listings.rooms": { "label": "Pièces" },
+    "listings.asking_price": { "label": "Prix demandé" },
+    "listings.source": {
+      "label": "Origine",
+      "options": {
+        "referral": "Recommandation",
+        "portal": "Portail",
+        "web_form": "Formulaire web",
+        "whatsapp": "WhatsApp",
+        "canvassing": "Prospection terrain",
+        "past_client": "Ancien client",
+        "expired_listing": "Mandat expiré"
+      }
+    },
+    "listings.agreement_type": {
+      "label": "Type de mandat",
+      "options": { "open": "Simple", "sole_agency": "Semi-exclusif", "exclusive": "Exclusif" }
+    },
+    "listings.agreement_start": { "label": "Début du mandat" },
+    "listings.agreement_end": { "label": "Fin du mandat" },
+    "listings.commission_rate": { "label": "Honoraires en pourcentage" },
+    "listings.first_response_on": { "label": "Première réponse le" },
+    "listings.valuation_on": { "label": "Estimation le" },
+    "listings.proposal_sent_on": { "label": "Proposition de mandat envoyée le" },
+    "listings.signed_on": { "label": "Mandat signé le" },
+    "listings.live_on": { "label": "Diffusé le" },
+    "listings.first_offer_on": { "label": "Première offre le" },
+    "listings.contract_signed_on": { "label": "Compromis signé le" },
+    "listings.completion_on": { "label": "Acte signé le" },
+    "listings.energy_label": { "label": "Étiquette énergie (DPE)" },
+    "listings.listing_url": { "label": "Lien de l’annonce" },
+    "listings.external_id": { "label": "Référence dans votre autre logiciel" },
+    "listings.aml_checked_on": { "label": "Identification vérifiée le" },
+    "listings.next_step": { "label": "Prochaine action" },
+    "listings.next_step_due": { "label": "Échéance de la prochaine action" },
+    "listings.lost_reason": {
+      "label": "Motif de perte",
+      "options": {
+        "price_too_high": "Prix trop élevé",
+        "chose_other_agent": "A choisi une autre agence",
+        "owner_changed_mind": "Le propriétaire a changé d’avis",
+        "sold_privately": "Vendu entre particuliers",
+        "agreement_expired": "Mandat expiré",
+        "unrealistic_expectations": "Attentes irréalistes"
+      }
+    },
+    "listings.days_to_first_offer": { "label": "Jours entre diffusion et première offre" },
+    "buyer_searches.source": {
+      "label": "Origine",
+      "options": {
+        "portal": "Portail",
+        "web_form": "Formulaire web",
+        "whatsapp": "WhatsApp",
+        "referral": "Recommandation",
+        "walk_in": "Visite en agence",
+        "past_client": "Ancien client"
+      }
+    },
+    "buyer_searches.criteria": { "label": "Critères de recherche" },
+    "buyer_searches.budget_max": { "label": "Budget maximum" },
+    "buyer_searches.financing": {
+      "label": "Financement",
+      "options": { "cash": "Comptant", "pre_approved": "Accord de principe", "mortgage_needed": "Prêt à obtenir", "unknown": "Inconnu" }
+    },
+    "buyer_searches.preapproval_verified_on": { "label": "Accord de principe vérifié le" },
+    "buyer_searches.timeframe": {
+      "label": "Délai",
+      "options": { "asap": "Dès que possible", "three_months": "Sous trois mois", "six_months": "Sous six mois", "later": "Plus tard" }
+    },
+    "buyer_searches.first_response_on": { "label": "Première réponse le" },
+    "buyer_searches.last_activity_on": { "label": "Dernière activité le" },
+    "buyer_searches.aml_checked_on": { "label": "Identification vérifiée le" },
+    "buyer_searches.next_step": { "label": "Prochaine action" },
+    "buyer_searches.next_step_due": { "label": "Échéance de la prochaine action" },
+    "buyer_searches.lost_reason": {
+      "label": "Motif de perte",
+      "options": {
+        "bought_elsewhere": "A acheté ailleurs",
+        "financing_failed": "Financement refusé",
+        "stopped_searching": "A arrêté de chercher",
+        "no_response": "Pas de réponse",
+        "chose_other_agent": "A choisi une autre agence"
+      }
+    },
+    "viewings.viewing_on": { "label": "Visite le" },
+    "viewings.interest": {
+      "label": "Intérêt",
+      "options": { "none": "Aucun", "low": "Faible", "medium": "Moyen", "high": "Élevé", "offer": "Offre" }
+    },
+    "viewings.feedback": { "label": "Retour de visite" },
+    "viewings.feedback_sent_on": { "label": "Retour envoyé le" },
+    "key_dates.kind": {
+      "label": "Type",
+      "options": {
+        "reservation_deposit_due": "Dépôt de garantie à verser",
+        "financing_deadline": "Date limite de financement",
+        "inspection_deadline": "Date limite des diagnostics",
+        "cooling_off_ends": "Fin du délai de rétractation",
+        "notary_appointment": "Rendez-vous chez le notaire",
+        "handover": "Remise des clés",
+        "other": "Autre"
+      }
+    },
+    "key_dates.due_date": { "label": "Échéance" },
+    "key_dates.status": { "label": "Statut", "options": { "open": "Ouverte", "done": "Faite", "waived": "Levée" } },
+    "key_dates.source_ref": { "label": "Référence dans le compromis" },
+    "key_dates.verified_by": { "label": "Vérifié par" },
+    "actions.kind": {
+      "label": "Type",
+      "options": {
+        "call": "Appel",
+        "viewing": "Visite",
+        "valuation": "Estimation",
+        "listing_proposal": "Proposition de mandat",
+        "offer": "Offre",
+        "key_date": "Date clé",
+        "owner_update": "Point au propriétaire",
+        "nurture": "Garder le contact",
+        "other": "Autre"
+      }
+    }
+  },
+  "relationships": {
+    "contact_organization": { "sourceLabel": "Organisation", "targetLabel": "Contacts" },
+    "listing_owner": { "sourceLabel": "Propriétaire", "targetLabel": "Biens" },
+    "listing_referrer": { "sourceLabel": "Apporteur", "targetLabel": "Biens apportés" },
+    "buyer_search_contact": { "sourceLabel": "Acquéreur", "targetLabel": "Recherches acquéreurs" },
+    "buyer_search_listing": { "sourceLabel": "Bien faisant l’objet de l’offre", "targetLabel": "Recherches acquéreurs" },
+    "viewing_listing": { "sourceLabel": "Bien", "targetLabel": "Visites" },
+    "viewing_buyer_search": { "sourceLabel": "Recherche acquéreur", "targetLabel": "Visites" },
+    "key_date_listing": { "sourceLabel": "Bien", "targetLabel": "Dates clés" },
+    "key_date_buyer_search": { "sourceLabel": "Recherche acquéreur", "targetLabel": "Dates clés" },
+    "action_contact": { "sourceLabel": "Contact", "targetLabel": "Tâches" },
+    "action_listing": { "sourceLabel": "Bien", "targetLabel": "Tâches" },
+    "action_buyer_search": { "sourceLabel": "Recherche acquéreur", "targetLabel": "Tâches" },
+    "action_viewing": { "sourceLabel": "Visite", "targetLabel": "Tâches" }
+  },
+  "views": {
+    "listings_board": { "name": "Biens par étape" },
+    "listings_all": { "name": "Tous les biens" },
+    "agreements_ending": { "name": "Mandats qui se terminent" },
+    "buyer_board": { "name": "Acquéreurs par étape" },
+    "leads_not_contacted": { "name": "Demandes pas encore contactées" },
+    "viewings_all": { "name": "Visites par date" },
+    "key_dates_all": { "name": "Dates clés" },
+    "actions_all": { "name": "Toutes les tâches" },
+    "actions_overdue": { "name": "Tâches en retard" },
+    "contacts_all": { "name": "Tous les contacts" },
+    "organizations_all": { "name": "Toutes les organisations" }
+  },
+  "widgets": {
+    "listings_by_stage": { "title": "Honoraires par étape du bien" },
+    "buyers_by_stage": { "title": "Recherches acquéreurs par étape" },
+    "viewings_coming": { "title": "Visites à venir" },
+    "agreements_ending_soon": { "title": "Mandats qui se terminent, en diffusion" },
+    "key_dates_next": { "title": "Dates clés ouvertes" },
+    "commission_per_month": { "title": "Honoraires conclus par mois" },
+    "new_leads_not_contacted": { "title": "Nouvelles demandes pas encore contactées" },
+    "listing_lost_reasons": { "title": "Motifs de perte des biens" },
+    "days_live_to_offer": { "title": "Délai moyen entre diffusion et première offre" },
+    "lead_sources": { "title": "Origine des biens" },
+    "under_contract_count": { "title": "Biens sous compromis" },
+    "actions_due": { "title": "Tâches à faire" }
+  },
+  "knowledgePages": {
+    "operating_guide": {
+      "title": "Mode d’emploi : pipeline immobilier",
+      "sections": ["Deux pipelines, une tâche datée par dossier ouvert", "Ce que signifie chaque étape", "Ce qui reste hors de l’espace de travail"]
+    },
+    "lead_response": {
+      "title": "Délai de réponse aux demandes et questions de qualification",
+      "sections": ["Répondre le jour même", "Questions à l’acquéreur : délai, financement, critères indispensables", "Questions au propriétaire : calendrier et documents", "Noter de façon neutre"]
+    },
+    "valuation_checklist": {
+      "title": "Check-list de la visite d’estimation",
+      "sections": ["Documents à rassembler", "Références de comparaison", "Autorisation de photographier"]
+    },
+    "agreement_checklist": {
+      "title": "Check-list de la proposition de mandat et du mandat",
+      "sections": ["Type de mandat et durée", "Honoraires et qui les paie", "Information sur la rétractation", "Forme du mandat et inscription au registre", "Saisir la date de fin"]
+    },
+    "marketing_launch": {
+      "title": "Check-list de lancement de la commercialisation",
+      "sections": ["Photos et plan", "Diagnostic de performance énergétique", "Vérification du prix", "Diffusion sur les portails", "Accord du propriétaire"]
+    },
+    "viewing_routine": {
+      "title": "Routine de visite et modèle de retour",
+      "sections": ["Confirmer à l’avance", "Enregistrer la visite", "Envoyer le retour au propriétaire sous un jour"]
+    },
+    "offer_handling": {
+      "title": "Traitement des offres",
+      "sections": ["Présenter l’offre le jour même", "Offre écrite et conditions", "Identification des parties", "Qui décide"]
+    },
+    "under_contract_timeline": {
+      "title": "Calendrier sous compromis et dates clés",
+      "sections": ["Lire chaque date dans le compromis et noter où elle figure", "Dépôt de garantie, financement, diagnostics et rétractation", "Rendez-vous chez le notaire et remise des clés"]
+    },
+    "closing_handover": {
+      "title": "Check-list de signature de l’acte et de remise des clés",
+      "sections": ["Clés et relevés de compteurs", "Acte et publication", "Facture d’honoraires dans votre outil de comptabilité", "Archivage"]
+    },
+    "past_client_routine": {
+      "title": "Routine pour les anciens clients",
+      "sections": ["Un signe chaque mois", "Appel d’anniversaire", "Remercier les recommandations", "Demander un avis"]
+    },
+    "message_templates": {
+      "title": "Modèles de messages",
+      "sections": ["Réponse à une demande", "Confirmation d’estimation", "Proposition de mandat", "Point au propriétaire", "Retour de visite", "Avis d’offre", "Remerciement"]
+    },
+    "data_rules": {
+      "title": "Règles sur les données : identification, équité, ce qui reste dehors",
+      "sections": ["Noter que l’identification a été vérifiée, jamais les pièces", "Les critères de recherche décrivent le bien, jamais la personne", "Durée de conservation"]
+    }
+  },
+  "rules": {
+    "portal_lead_contact": {
+      "title": "Contacter la nouvelle demande aujourd’hui",
+      "description": "Une demande qui arrive d’un portail immobilier ou de WhatsApp reçoit une tâche d’appel pour le jour même."
+    },
+    "prepare_valuation": {
+      "title": "Préparer l’estimation et la liste de documents",
+      "description": "Quand un bien passe à Estimation, une tâche d’estimation est due le lendemain."
+    },
+    "send_listing_proposal": {
+      "title": "Envoyer la proposition de mandat",
+      "description": "Après la date d’estimation, un bien encore à Estimation reçoit une tâche de proposition pour le lendemain."
+    },
+    "proposal_message_day_2": {
+      "title": "Relancer la proposition de mandat par message",
+      "description": "Deux jours après l’envoi de la proposition."
+    },
+    "proposal_call_day_5": {
+      "title": "Appeler au sujet de la proposition de mandat",
+      "description": "Cinq jours après l’envoi de la proposition."
+    },
+    "proposal_final_call_day_10": {
+      "title": "Dernier appel au sujet de la proposition de mandat",
+      "description": "Dix jours après l’envoi de la proposition."
+    },
+    "prepare_property": {
+      "title": "Préparer le bien et le diffuser",
+      "description": "Photos, plan, diagnostic et documents ; inscrire le mandat au registre là où c’est exigé ; puis diffuser. Échéance trois jours après la signature du mandat."
+    },
+    "agreement_end_review": {
+      "title": "Faire le point sur le mandat : renouveler, prolonger ou revoir le prix",
+      "description": "Trente jours avant la fin du mandat, un bien en diffusion reçoit une tâche pour le responsable."
+    },
+    "agreement_end_notice": {
+      "title": "Prévenir le négociateur que le mandat se termine dans une semaine",
+      "description": "Sept jours avant la fin du mandat, le responsable du bien est averti pour décider du renouvellement."
+    },
+    "weekly_owner_update": {
+      "title": "Envoyer le point au propriétaire",
+      "description": "Chaque semaine, un bien en diffusion reçoit une tâche pour rendre compte au propriétaire des visites, retours et demandes."
+    },
+    "viewing_feedback": {
+      "title": "Recueillir le retour de visite et l’envoyer au propriétaire",
+      "description": "Le lendemain d’une visite, une tâche est créée si aucun retour n’est enregistré."
+    },
+    "offer_notice": {
+      "title": "Prévenir le négociateur qu’une offre doit être présentée",
+      "description": "Quand un bien atteint l’étape Offre, le responsable du bien est averti pour présenter l’offre le jour même."
+    },
+    "listing_key_dates": {
+      "title": "Créer les dates clés à partir du compromis",
+      "description": "Quand un bien passe sous compromis, ses dates clés sont créées à partir du compromis."
+    },
+    "buyer_key_dates": {
+      "title": "Créer les dates clés à partir du compromis de l’acquéreur",
+      "description": "Quand une recherche acquéreur passe sous compromis, les dates clés sont créées à partir du compromis."
+    },
+    "key_date_calendar": {
+      "title": "Ajouter la date clé à l’agenda du négociateur",
+      "description": "Chaque nouvelle date clé est inscrite dans l’agenda du négociateur."
+    },
+    "key_date_reminder": {
+      "title": "Prévenir le négociateur qu’une date clé est dans deux jours",
+      "description": "Deux jours avant une date clé ouverte, le responsable est averti pour confirmer l’étape ou relancer."
+    },
+    "completed_handover": {
+      "title": "Remettre les clés et demander un avis",
+      "description": "Check-list de remise, remerciement et demande d’avis, due sept jours après la signature de l’acte."
+    },
+    "completed_anniversary": {
+      "title": "Appel d’anniversaire",
+      "description": "Un an après la signature de l’acte, une tâche pour garder le contact arrive à échéance."
+    },
+    "identify_before_contract": {
+      "title": "Enregistrer l’identification des parties",
+      "description": "Quand un bien atteint l’étape Offre, une tâche demande de noter que l’identification a été vérifiée avant le compromis."
+    },
+    "identify_buyer_offer": {
+      "title": "Enregistrer l’identification de l’acquéreur",
+      "description": "Quand une recherche acquéreur atteint Offre faite, une tâche demande de noter que l’identification a été vérifiée."
+    },
+    "buyer_re_engage": {
+      "title": "Relancer l’acquéreur avec de nouveaux biens correspondants",
+      "description": "Chaque lundi, une recherche acquéreur à l’étape Visite sans activité depuis sept jours reçoit une tâche pour garder le contact."
+    },
+    "listing_price_review": {
+      "title": "Point sur le prix et la commercialisation avec le propriétaire",
+      "description": "Chaque lundi, un bien en diffusion sans visite depuis 14 jours reçoit une tâche de revue."
+    },
+    "past_client_monthly_touch": {
+      "title": "Garder le contact avec l’ancien client",
+      "description": "Chaque lundi, un ancien client sans contact depuis 30 jours reçoit une tâche pour garder le contact."
+    }
+  },
+  "acceptanceChecks": {
+    "listing_stage_field": "Chaque bien a l’une des neuf étapes.",
+    "buyer_stage_field": "Chaque recherche acquéreur a l’une des sept étapes.",
+    "agreement_end_field": "Chaque bien note la date de fin de son mandat.",
+    "key_dates_list": "Les dates qui suivent la signature du compromis sont suivies dans leur propre liste.",
+    "listings_board_view": "La liste des biens s’ouvre en board par étape.",
+    "operating_guide_page": "La base de connaissances contient le mode d’emploi."
+  },
+  "page": {
+    "metaTitle": "Modèle de pipeline immobilier pour votre agent IA",
+    "metaDescription": "Copiez le pipeline immobilier dans Claude, ChatGPT ou Codex : biens, acquéreurs, visites avec retour et dates clés après le compromis, dans votre CRM.",
+    "headline": "Un pipeline immobilier que votre agent IA construit dans votre CRM",
+    "answer": "Une agence immobilière mène deux pipelines qui se rejoignent au compromis : décrocher et commercialiser le bien pour le propriétaire, et suivre l’acquéreur de la visite jusqu’à l’offre. Collez ce modèle dans votre agent IA et il construit les deux dans Customermates, avec les mandats, les visites, les dates clés et une routine datée pour les anciens clients. Vous validez le plan avant toute écriture.",
+    "routine": {
+      "title": "La tournée hebdomadaire des biens et des acquéreurs",
+      "steps": [
+        "Envoyez à chaque propriétaire d’un bien commercialisé un court point sur les visites et les retours de la semaine.",
+        "Passez en revue les biens dont le mandat se termine bientôt : renouveler, prolonger ou revoir le prix.",
+        "Relancez avec des biens adaptés les acquéreurs en phase de visites qui n’ont pas bougé depuis sept jours.",
+        "Confirmez les prochaines dates clés après le compromis et gardez le contact chaque mois avec les anciens clients."
+      ]
+    },
+    "limits": [
+      "Ce n’est pas un système de diffusion sur les portails. Votre propre logiciel immobilier continue de diffuser sur les portails et de tenir le registre des mandats ; ici, vous gardez un identifiant et le pipeline qui l’entoure.",
+      "Il ne gère ni les transactions, ni les fonds séquestrés, ni la signature électronique. Les contrats et les signatures restent chez votre notaire et dans votre outil de signature.",
+      "Ce n’est pas de la gestion locative : loyers, entretien et comptes des locataires relèvent d’un autre métier.",
+      "Il n’estime pas les biens et ne fait ni comptabilité ni répartition des honoraires.",
+      "Il n’envoie rien automatiquement. Les demandes WhatsApp arrivent dans la boîte de réception et les réponses sont des brouillons que vous relisez.",
+      "Gardez-en à l’écart les copies de pièces d’identité, les justificatifs de revenus et les relevés bancaires. Le modèle ne stocke que la date à laquelle l’identité a été vérifiée."
+    ],
+    "faq": [
+      {
+        "question": "Pourquoi deux pipelines pour un agent immobilier ?",
+        "answer": "Propriétaires et acquéreurs suivent des étapes différentes. Côté propriétaire, on va de l’estimation et de la proposition de mandat jusqu’au mandat signé et à la mise en vente ; côté acquéreur, de la demande aux visites puis à l’offre. Les deux se rejoignent au compromis, où les dates clés sont communes."
+      },
+      {
+        "question": "Quelles dates le modèle suit-il ?",
+        "answer": "Le type et la fin de chaque mandat, les visites avec le retour que vous devez au propriétaire et, après le compromis, les dates qui comptent dans votre pays, comme l’acompte, la condition suspensive de financement, l’expertise et le rendez-vous chez le notaire. Quelles dates s’appliquent, c’est la première question que votre agent vous pose."
+      },
+      {
+        "question": "Puis-je l’utiliser avec mon logiciel immobilier ou mon portail ?",
+        "answer": "Oui. Les portails et votre propre logiciel gardent les données des biens et la diffusion. Le modèle est la couche de pipeline, de dates clés et de relance à leurs côtés ; les demandes venues des portails arrivent par e-mail dans votre boîte connectée ou par un webhook entrant, et celles de WhatsApp dans la boîte de réception une fois le compte connecté."
+      },
+      {
+        "question": "L’agent contacte-t-il les propriétaires ou les acquéreurs ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Mets en place un pipeline immobilier dans mon espace de travail Customermates : des biens avec le type de mandat et sa date de fin, des recherches acquéreurs, des visites avec retour, les dates clés après la signature du compromis et une tâche datée pour chaque dossier ouvert.",
+    "questions": [
+      "Travaillez-vous pour des propriétaires, pour des acquéreurs ou pour les deux ? Vendez-vous, louez-vous ou les deux ?",
+      "Dans quel pays travaillez-vous, et quels types de mandat y utilisez-vous ?",
+      "Comment les demandes vous parviennent-elles : portails immobiliers, votre site, WhatsApp ou recommandations ?",
+      "Quel logiciel contient vos biens et les diffuse sur les portails ? Seule une référence est gardée ici, rien n’est copié.",
+      "Quelles dates clés comptent dans vos contrats, par exemple dépôt de garantie, financement, diagnostics ou notaire ?"
+    ]
+  }
+}

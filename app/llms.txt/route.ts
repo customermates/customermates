@@ -1,17 +1,13 @@
-import rawManifest from "@/generated/raw-docs-manifest.json";
-
 import { env } from "@/env";
 import { DOC_NAV_GROUPS } from "@/features/docs/docs-nav";
+import { rawDocsManifest } from "@/features/mcp-tools/raw-docs-manifest";
 import { offeredMcpToolCount } from "@/features/mcp-tools/tool-registry";
+import { pagePublicationOptions } from "@/core/templates/template-deployment";
+import { templateLlmsLines } from "@/core/templates/template-llms";
 import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
-type ManifestPage = { title: string; description: string; content: string };
-type Manifest = Record<string, Record<string, Record<string, ManifestPage>>>;
-
-const manifest = rawManifest as Manifest;
-
 export function GET() {
-  const pages = manifest.docs[DEFAULT_LOCALE];
+  const pages = rawDocsManifest().docs[DEFAULT_LOCALE];
   const translatedPrefixes = CONTENT_LOCALES.filter((locale) => locale !== DEFAULT_LOCALE).map(
     (locale) => `/${locale}/`,
   );
@@ -37,6 +33,8 @@ export function GET() {
     if (items.length === 0) continue;
     lines.push(`## ${group.labelEn}`, ...items, "");
   }
+
+  lines.push(...templateLlmsLines(env.BASE_URL, pagePublicationOptions()));
 
   lines.push(
     "## Optional",

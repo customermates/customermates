@@ -1,0 +1,135 @@
+{
+  "id": "tpl_custom_crm",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "custom-crm",
+  "family": "custom",
+  "kind": "pipeline",
+  "jurisdictions": ["global"],
+  "dashboardAudience": "team",
+  "modules": ["actions_core", "actions_dashboard"],
+  "requiresCapabilities": ["forms", "rules", "notifications", "incomingWebhooks"],
+  "pairedPages": {},
+  "lists": [
+    { "key": "contacts", "role": "people", "icon": "contact" },
+    { "key": "organizations", "icon": "building" },
+    { "key": "opportunities", "role": "deals", "icon": "handshake" }
+  ],
+  "stages": [
+    {
+      "field": "opportunities.stage",
+      "items": [
+        { "key": "lead", "outcome": "open", "weight": 10 },
+        { "key": "qualified", "outcome": "open", "weight": 30 },
+        { "key": "proposal", "outcome": "open", "weight": 60 },
+        { "key": "negotiation", "outcome": "open", "weight": 80 },
+        { "key": "won", "outcome": "won", "weight": 100 },
+        { "key": "lost", "outcome": "lost", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "contacts.job_title", "type": "text" },
+    { "key": "contacts.contact_role", "type": "select", "options": [{ "key": "decision_maker" }, { "key": "influencer" }, { "key": "user" }, { "key": "billing" }, { "key": "other" }] },
+    { "key": "contacts.language", "type": "text" },
+    { "key": "contacts.last_contact", "type": "date" },
+    { "key": "contacts.consent", "type": "boolean" },
+    { "key": "organizations.relationship", "type": "select", "options": [{ "key": "prospect" }, { "key": "customer", "color": "success" }, { "key": "former_customer", "color": "secondary" }, { "key": "partner" }, { "key": "other" }] },
+    { "key": "organizations.owner", "type": "member" },
+    { "key": "organizations.source", "type": "select", "options": [{ "key": "referral" }, { "key": "website" }, { "key": "event" }, { "key": "outbound" }, { "key": "import" }, { "key": "other" }] },
+    { "key": "organizations.website", "type": "url" },
+    { "key": "organizations.address", "type": "address" },
+    { "key": "organizations.imported_from", "type": "text" },
+    { "key": "opportunities.owner", "type": "member" },
+    { "key": "opportunities.expected_close", "type": "date" },
+    { "key": "opportunities.next_step", "type": "text" },
+    { "key": "opportunities.next_step_due", "type": "date" },
+    { "key": "opportunities.lost_reason", "type": "select", "options": [{ "key": "price" }, { "key": "competitor" }, { "key": "no_decision" }, { "key": "timing" }, { "key": "no_response" }, { "key": "not_a_fit" }, { "key": "other" }] },
+    { "key": "actions.kind", "type": "select", "options": [{ "key": "call" }, { "key": "email" }, { "key": "meeting" }, { "key": "follow_up" }, { "key": "review" }, { "key": "other" }] }
+  ],
+  "calculations": [
+    {
+      "key": "opportunities.weighted_value",
+      "type": "currency",
+      "expression": {
+        "op": "divide",
+        "left": { "op": "multiply", "left": { "op": "field", "field": "opportunities.value" }, "right": { "op": "optionWeight", "field": "opportunities.stage" } },
+        "right": { "op": "number", "value": "100" }
+      }
+    }
+  ],
+  "relationships": [
+    { "key": "contact_organization", "source": "contacts", "target": "organizations", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "opportunity_organization", "source": "opportunities", "target": "organizations", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_opportunity", "source": "actions", "target": "opportunities", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    { "key": "pipeline_board", "list": "opportunities", "default": true, "layout": "board", "groupBy": "opportunities.stage", "summaries": [{ "field": "opportunities.value", "aggregation": "sum" }] },
+    {
+      "key": "opportunities_all",
+      "list": "opportunities",
+      "default": false,
+      "layout": "table",
+      "sort": { "field": "opportunities.next_step_due", "direction": "asc" },
+      "columns": ["opportunities.stage", "opportunities.owner", "opportunities.value", "opportunities.next_step", "opportunities.next_step_due"]
+    },
+    {
+      "key": "no_next_step",
+      "list": "opportunities",
+      "default": false,
+      "layout": "table",
+      "filters": [
+        { "operator": "notIn", "field": "opportunities.stage", "options": ["won", "lost"] },
+        { "operator": "empty", "field": "opportunities.next_step_due" }
+      ]
+    },
+    { "key": "organizations_all", "list": "organizations", "default": true, "layout": "table", "columns": ["organizations.relationship", "organizations.owner", "organizations.source"] },
+    { "key": "contacts_all", "list": "contacts", "default": true, "layout": "table", "columns": ["contacts.contact_role", "contacts.last_contact", "contacts.consent"] }
+  ],
+  "widgets": [
+    { "kind": "chart", "key": "pipeline_funnel", "list": "opportunities", "aggregation": "count", "groupBy": { "field": "opportunities.stage" }, "filters": [{ "operator": "notIn", "field": "opportunities.stage", "options": ["won", "lost"] }], "display": "funnelChart", "size": "large" },
+    { "kind": "chart", "key": "open_value", "list": "opportunities", "aggregation": "sum", "valueField": "opportunities.value", "filters": [{ "operator": "notIn", "field": "opportunities.stage", "options": ["won", "lost"] }], "display": "number" },
+    { "kind": "chart", "key": "open_weighted_value", "list": "opportunities", "aggregation": "sum", "valueField": "opportunities.weighted_value", "filters": [{ "operator": "notIn", "field": "opportunities.stage", "options": ["won", "lost"] }], "display": "number" },
+    { "kind": "chart", "key": "lost_reasons", "list": "opportunities", "aggregation": "count", "groupBy": { "field": "opportunities.lost_reason" }, "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["lost"] }], "display": "doughnutChart" },
+    { "kind": "chart", "key": "deals_without_next_step", "list": "opportunities", "aggregation": "count", "filters": [{ "operator": "notIn", "field": "opportunities.stage", "options": ["won", "lost"] }, { "operator": "empty", "field": "opportunities.next_step_due" }], "display": "number" }
+  ],
+  "knowledgePages": [
+    { "key": "how_we_use_this_crm", "kind": "overview" },
+    { "key": "data_entry_rules", "kind": "processes" },
+    { "key": "import_notes", "kind": "processes" }
+  ],
+  "followUpRules": [
+    { "key": "next_action_per_stage", "trigger": { "kind": "field_changed", "field": "opportunities.stage" }, "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 3, "needs": "today" },
+    { "key": "set_a_next_step", "trigger": { "kind": "schedule", "every": "day", "list": "opportunities" }, "condition": [{ "operator": "empty", "field": "opportunities.next_step_due" }], "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 0, "needs": "today" },
+    { "key": "next_step_notice", "trigger": { "kind": "date_reached", "field": "opportunities.next_step_due", "offsetDays": 0 }, "action": { "kind": "notify", "recipient": "record_owner" }, "dueOffsetDays": 0, "needs": "notifications" },
+    { "key": "expected_close_passed", "trigger": { "kind": "date_reached", "field": "opportunities.expected_close", "offsetDays": 1 }, "condition": [{ "operator": "notIn", "field": "opportunities.stage", "options": ["won", "lost"] }], "action": { "kind": "create_task", "taskKind": "review", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "weekly_review", "trigger": { "kind": "schedule", "every": "week", "weekday": 5 }, "action": { "kind": "create_task", "taskKind": "review", "assignee": "workspace_owner" }, "dueOffsetDays": 0, "needs": "today" },
+    { "key": "enquiry_form_records", "trigger": { "kind": "form_submitted", "form": "enquiry" }, "action": { "kind": "create_records", "lists": ["contacts", "organizations", "opportunities"] }, "dueOffsetDays": 1, "needs": "forms" },
+    { "key": "webhook_upsert", "trigger": { "kind": "webhook_received", "source": "old_tool" }, "action": { "kind": "create_records", "lists": ["contacts", "organizations"] }, "dueOffsetDays": 0, "needs": "incomingWebhooks" }
+  ],
+  "acceptanceChecks": [
+    { "key": "stage_field", "kind": "field_exists", "ref": "opportunities.stage" },
+    { "key": "board_view", "kind": "view_exists", "ref": "pipeline_board" },
+    { "key": "how_we_use_page", "kind": "page_exists", "ref": "how_we_use_this_crm" }
+  ],
+  "sources": [
+    { "url": "https://ninox.com/de/ressourcen/blog/baue-dein-eigenes-crm-system", "checkedOn": "2026-11-12" },
+    { "url": "https://www.adito.de/knowhow/blog/crm-selbst-erstellen", "checkedOn": "2026-11-12" },
+    { "url": "https://appmaster.io/pt/blog/como-criar-um-software-crm-personalizado-sem-codificacao", "checkedOn": "2026-11-12" },
+    { "url": "https://br.hubspot.com/blog/service/como-implantar-crm", "checkedOn": "2026-11-12" },
+    { "url": "https://www.salesforce.com/crm/custom-crm/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.creatio.com/glossary/customizable-crm", "checkedOn": "2026-11-12" },
+    { "url": "https://www.knack.com/solutions/custom-crm/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.appvizer.fr/magazine/relation-client/customer-relationship-management-crm/crm-sur-mesure", "checkedOn": "2026-11-12" },
+    { "url": "https://www.notion.com/help/export-your-content", "checkedOn": "2026-11-12" },
+    { "url": "https://www.notion.com/help/relations-and-rollups", "checkedOn": "2026-11-12" },
+    { "url": "https://support.atlassian.com/trello/docs/exporting-data-from-trello/", "checkedOn": "2026-11-12" },
+    { "url": "https://help.smartsheet.com/articles/770623-exporting-sheets-reports-from-smartsheet", "checkedOn": "2026-11-12" },
+    { "url": "https://support.airtable.com/articles/9139007724-attachment-fields-in-airtable", "checkedOn": "2026-11-12" },
+    { "url": "https://customermates.com/en/docs/app-records", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "own", "de": "own", "fr": "own", "it": "none", "es": "own", "pt": "own", "pl": "none", "nl": "own" },
+  "publishWave": { "en": "hold", "de": "wave2", "fr": "wave1", "es": "wave2", "pt": "wave2", "nl": "wave1" }
+}

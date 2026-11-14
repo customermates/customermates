@@ -116,7 +116,7 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
   constructor(
     private repo: WorkspaceSetupRepo,
     private models: Pick<WorkspaceSetupModelService, "generate" | "drainWarnings">,
-    private planner: Pick<WorkspaceSetupPlanner, "attempt" | "assemble">,
+    private planner: Pick<WorkspaceSetupPlanner, "attempt" | "assemble" | "fromTemplate">,
   ) {
     super();
   }
@@ -222,6 +222,14 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
     const setup = await this.repo.get(setupId);
     if (!setup || setup.status !== "planning") return "skip";
     if (setup.interview.followUps !== "idle") return "none";
+    if (setup.interview.templateSlug) {
+      await this.repo.mutate(setupId, (current) =>
+        current.status === "planning" && current.interview.followUps === "idle"
+          ? { interview: { ...current.interview, followUps: "skipped" } }
+          : null,
+      );
+      return "none";
+    }
     const catalog = await setupInterviewCatalog();
     const result = await this.models.generate({
       label: "Workspace setup follow-ups",
@@ -274,9 +282,11 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
     const state = planPartState(setup, part);
     if (state.value !== null && state.value !== undefined) return "done";
     if (state.failure) return "failed";
+    const input = await this.planInput(setup);
+    if ((await this.templateOutcome(input))?.ok) return "done";
     const { model, knowledge } = planDrafts(setup);
     if (!(await this.heartbeatPlan(setupId, revision))) return "skip";
-    const next = await this.planner.attempt(part, await this.planInput(setup), state, { model, knowledge });
+    const next = await this.planner.attempt(part, input, state, { model, knowledge });
     const stored = await this.repo.mutate(setupId, (current) =>
       planning(current, revision)
         ? {
@@ -288,6 +298,10 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
     if (!stored?.changed) return "skip";
     if (next.value !== null && next.value !== undefined) return "done";
     return next.failure ? "failed" : "retry";
+  }
+
+  private templateOutcome(input: SetupPlanInput): Promise<SetupPlanOutcome | null> {
+    return input.templateSlug ? this.planner.fromTemplate(input) : Promise.resolve(null);
   }
 
   private async heartbeatPlan(setupId: string, revision: number): Promise<boolean> {
@@ -307,9 +321,12 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
     const setup = await this.repo.get(setupId);
     if (!setup || !planning(setup, revision)) return "skip";
     const drafts = planDrafts(setup);
-    const outcome: SetupPlanOutcome =
-      drafts.model && drafts.knowledge && drafts.views
-        ? await this.planner.assemble(await this.planInput(setup), {
+    const input = await this.planInput(setup);
+    const templated = await this.templateOutcome(input);
+    const outcome: SetupPlanOutcome = templated?.ok
+      ? templated
+      : drafts.model && drafts.knowledge && drafts.views
+        ? await this.planner.assemble(input, {
             model: drafts.model,
             knowledge: drafts.knowledge,
             views: drafts.views,
@@ -373,6 +390,7 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
       sources: setup.crawlId ? await this.repo.crawlSources(setup.crawlId) : [],
       website: setup.crawlId !== null,
       sheet,
+      templateSlug: setup.interview.templateSlug,
     };
   }
 }

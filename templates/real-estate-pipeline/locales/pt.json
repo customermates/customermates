@@ -1,0 +1,413 @@
+{
+  "locale": "pt",
+  "name": "Funil imobiliário",
+  "summary": "Dois funis que se encontram no contrato: captar e divulgar o imóvel, e atender o comprador, com visitas, prazos e um acompanhamento periódico de clientes antigos.",
+  "description": "Uma imobiliária trabalha um lado proprietário (avaliação, autorização de venda, divulgação, propostas) e um lado comprador (lead, qualificação, visitas, proposta), depois uma fase comum com o contrato assinado e prazos firmes. Este modelo acompanha os dois, o tipo de autorização e o seu fim, cada visita com o retorno, os prazos depois da assinatura e um acompanhamento com datas para clientes antigos. O valor de um imóvel guarda a comissão esperada.",
+  "lists": {
+    "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "Proprietários, locadores, compradores, locatários e quem indica." },
+    "organizations": { "label": "Organização", "pluralLabel": "Organizações", "description": "Construtoras, bancos, cartórios e parceiros indicadores." },
+    "listings": { "label": "Imóvel", "pluralLabel": "Imóveis", "description": "A captação do proprietário e o funil dela. O valor é a comissão esperada." },
+    "buyer_searches": { "label": "Busca de comprador", "pluralLabel": "Buscas de compradores", "description": "A busca de um comprador ou locatário, do lead à escritura." },
+    "viewings": { "label": "Visita", "pluralLabel": "Visitas", "description": "Cada visita com o seu retorno." },
+    "key_dates": { "label": "Prazo", "pluralLabel": "Prazos", "description": "Datas que correm depois da assinatura do contrato." },
+    "actions": { "label": "Tarefa", "pluralLabel": "Tarefas", "description": "Um próximo passo com data para cada imóvel ou busca em aberto." }
+  },
+  "fields": {
+    "listings.stage": {
+      "label": "Etapa",
+      "options": {
+        "owner_lead": "Lead proprietário",
+        "valuation": "Avaliação",
+        "listing_proposal_sent": "Proposta de captação",
+        "agreement_signed": "Contrato de captação assinado",
+        "on_market": "Imóvel ativo",
+        "offer_stage": "Proposta",
+        "under_contract": "Contrato assinado",
+        "completed": "Escritura",
+        "lost": "Perdido"
+      }
+    },
+    "buyer_searches.stage": {
+      "label": "Etapa",
+      "options": {
+        "new_lead": "Lead",
+        "qualified": "Atendimento",
+        "viewing": "Visita",
+        "offer_made": "Proposta feita",
+        "under_contract": "Contrato assinado",
+        "completed": "Escritura",
+        "lost": "Perdida"
+      }
+    },
+    "contacts.contact_role": {
+      "label": "Papel",
+      "options": {
+        "seller": "Vendedor",
+        "landlord": "Locador",
+        "buyer": "Comprador",
+        "tenant": "Locatário",
+        "investor": "Investidor",
+        "referrer": "Quem indicou",
+        "other": "Outro"
+      }
+    },
+    "contacts.preferred_channel": {
+      "label": "Canal preferido",
+      "options": { "email": "E-mail", "phone": "Telefone", "whatsapp": "WhatsApp", "portal": "Portal" }
+    },
+    "contacts.language": { "label": "Idioma" },
+    "contacts.marketing_consent_on": { "label": "Consentimento de marketing em" },
+    "contacts.last_contact": { "label": "Último contato" },
+    "organizations.org_type": {
+      "label": "Tipo",
+      "options": {
+        "developer": "Construtora",
+        "investor": "Investidor",
+        "bank_or_lender": "Banco ou financiador",
+        "notary_or_lawyer": "Cartório ou advogado",
+        "referral_partner": "Parceiro indicador",
+        "other": "Outro"
+      }
+    },
+    "organizations.website": { "label": "Site" },
+    "listings.transaction_type": { "label": "Venda ou locação", "options": { "sale": "Venda", "let": "Locação" } },
+    "listings.address": { "label": "Endereço" },
+    "listings.property_type": {
+      "label": "Tipo de imóvel",
+      "options": {
+        "apartment": "Apartamento",
+        "house": "Casa",
+        "land": "Terreno",
+        "commercial": "Sala comercial",
+        "parking_or_storage": "Vaga ou depósito",
+        "other": "Outro"
+      }
+    },
+    "listings.size_m2": { "label": "Área em metros quadrados" },
+    "listings.rooms": { "label": "Cômodos" },
+    "listings.asking_price": { "label": "Preço pedido" },
+    "listings.source": {
+      "label": "Origem",
+      "options": {
+        "referral": "Indicação",
+        "portal": "Portal",
+        "web_form": "Formulário do site",
+        "whatsapp": "WhatsApp",
+        "canvassing": "Captação de rua",
+        "past_client": "Cliente antigo",
+        "expired_listing": "Autorização vencida"
+      }
+    },
+    "listings.agreement_type": {
+      "label": "Tipo de autorização",
+      "options": { "open": "Sem exclusividade", "sole_agency": "Exclusividade parcial", "exclusive": "Exclusividade" }
+    },
+    "listings.agreement_start": { "label": "Início da autorização" },
+    "listings.agreement_end": { "label": "Fim da autorização" },
+    "listings.commission_rate": { "label": "Comissão em porcentagem" },
+    "listings.first_response_on": { "label": "Primeira resposta em" },
+    "listings.valuation_on": { "label": "Avaliação em" },
+    "listings.proposal_sent_on": { "label": "Proposta de captação enviada em" },
+    "listings.signed_on": { "label": "Contrato de captação assinado em" },
+    "listings.live_on": { "label": "Ativo desde" },
+    "listings.first_offer_on": { "label": "Primeira proposta em" },
+    "listings.contract_signed_on": { "label": "Contrato assinado em" },
+    "listings.completion_on": { "label": "Escritura em" },
+    "listings.energy_label": { "label": "Eficiência energética" },
+    "listings.listing_url": { "label": "Link do anúncio" },
+    "listings.external_id": { "label": "Referência no seu outro software" },
+    "listings.aml_checked_on": { "label": "Identificação conferida em" },
+    "listings.next_step": { "label": "Próximo passo" },
+    "listings.next_step_due": { "label": "Data do próximo passo" },
+    "listings.lost_reason": {
+      "label": "Motivo da perda",
+      "options": {
+        "price_too_high": "Preço alto demais",
+        "chose_other_agent": "Escolheu outra imobiliária",
+        "owner_changed_mind": "O proprietário mudou de ideia",
+        "sold_privately": "Vendido sem corretor",
+        "agreement_expired": "Autorização vencida",
+        "unrealistic_expectations": "Expectativas irreais"
+      }
+    },
+    "listings.days_to_first_offer": { "label": "Dias do anúncio à primeira proposta" },
+    "buyer_searches.source": {
+      "label": "Origem",
+      "options": {
+        "portal": "Portal",
+        "web_form": "Formulário do site",
+        "whatsapp": "WhatsApp",
+        "referral": "Indicação",
+        "walk_in": "Visita à imobiliária",
+        "past_client": "Cliente antigo"
+      }
+    },
+    "buyer_searches.criteria": { "label": "Critérios da busca" },
+    "buyer_searches.budget_max": { "label": "Orçamento máximo" },
+    "buyer_searches.financing": {
+      "label": "Financiamento",
+      "options": { "cash": "À vista", "pre_approved": "Pré-aprovado", "mortgage_needed": "Financiamento a obter", "unknown": "Desconhecido" }
+    },
+    "buyer_searches.preapproval_verified_on": { "label": "Pré-aprovação conferida em" },
+    "buyer_searches.timeframe": {
+      "label": "Prazo",
+      "options": { "asap": "O quanto antes", "three_months": "Em até três meses", "six_months": "Em até seis meses", "later": "Mais adiante" }
+    },
+    "buyer_searches.first_response_on": { "label": "Primeira resposta em" },
+    "buyer_searches.last_activity_on": { "label": "Última atividade em" },
+    "buyer_searches.aml_checked_on": { "label": "Identificação conferida em" },
+    "buyer_searches.next_step": { "label": "Próximo passo" },
+    "buyer_searches.next_step_due": { "label": "Data do próximo passo" },
+    "buyer_searches.lost_reason": {
+      "label": "Motivo da perda",
+      "options": {
+        "bought_elsewhere": "Comprou em outro lugar",
+        "financing_failed": "Financiamento negado",
+        "stopped_searching": "Parou de procurar",
+        "no_response": "Sem resposta",
+        "chose_other_agent": "Escolheu outra imobiliária"
+      }
+    },
+    "viewings.viewing_on": { "label": "Visita em" },
+    "viewings.interest": {
+      "label": "Interesse",
+      "options": { "none": "Nenhum", "low": "Baixo", "medium": "Médio", "high": "Alto", "offer": "Proposta" }
+    },
+    "viewings.feedback": { "label": "Retorno da visita" },
+    "viewings.feedback_sent_on": { "label": "Retorno enviado em" },
+    "key_dates.kind": {
+      "label": "Tipo",
+      "options": {
+        "reservation_deposit_due": "Sinal a pagar",
+        "financing_deadline": "Prazo do financiamento",
+        "inspection_deadline": "Prazo da vistoria",
+        "cooling_off_ends": "Fim do prazo de arrependimento",
+        "notary_appointment": "Agendamento no cartório",
+        "handover": "Entrega das chaves",
+        "other": "Outro"
+      }
+    },
+    "key_dates.due_date": { "label": "Prazo" },
+    "key_dates.status": { "label": "Status", "options": { "open": "Aberto", "done": "Feito", "waived": "Dispensado" } },
+    "key_dates.source_ref": { "label": "Onde está no contrato" },
+    "key_dates.verified_by": { "label": "Conferido por" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "call": "Ligação",
+        "viewing": "Visita",
+        "valuation": "Avaliação",
+        "listing_proposal": "Proposta de captação",
+        "offer": "Proposta",
+        "key_date": "Prazo",
+        "owner_update": "Posição ao proprietário",
+        "nurture": "Manter contato",
+        "other": "Outro"
+      }
+    }
+  },
+  "relationships": {
+    "contact_organization": { "sourceLabel": "Organização", "targetLabel": "Contatos" },
+    "listing_owner": { "sourceLabel": "Proprietário", "targetLabel": "Imóveis" },
+    "listing_referrer": { "sourceLabel": "Quem indicou", "targetLabel": "Imóveis indicados" },
+    "buyer_search_contact": { "sourceLabel": "Comprador", "targetLabel": "Buscas de compradores" },
+    "buyer_search_listing": { "sourceLabel": "Imóvel em proposta", "targetLabel": "Buscas de compradores" },
+    "viewing_listing": { "sourceLabel": "Imóvel", "targetLabel": "Visitas" },
+    "viewing_buyer_search": { "sourceLabel": "Busca de comprador", "targetLabel": "Visitas" },
+    "key_date_listing": { "sourceLabel": "Imóvel", "targetLabel": "Prazos" },
+    "key_date_buyer_search": { "sourceLabel": "Busca de comprador", "targetLabel": "Prazos" },
+    "action_contact": { "sourceLabel": "Contato", "targetLabel": "Tarefas" },
+    "action_listing": { "sourceLabel": "Imóvel", "targetLabel": "Tarefas" },
+    "action_buyer_search": { "sourceLabel": "Busca de comprador", "targetLabel": "Tarefas" },
+    "action_viewing": { "sourceLabel": "Visita", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "listings_board": { "name": "Imóveis por etapa" },
+    "listings_all": { "name": "Todos os imóveis" },
+    "agreements_ending": { "name": "Autorizações terminando" },
+    "buyer_board": { "name": "Compradores por etapa" },
+    "leads_not_contacted": { "name": "Leads ainda não contatados" },
+    "viewings_all": { "name": "Visitas por data" },
+    "key_dates_all": { "name": "Prazos" },
+    "actions_all": { "name": "Todas as tarefas" },
+    "actions_overdue": { "name": "Tarefas atrasadas" },
+    "contacts_all": { "name": "Todos os contatos" },
+    "organizations_all": { "name": "Todas as organizações" }
+  },
+  "widgets": {
+    "listings_by_stage": { "title": "Comissão por etapa do imóvel" },
+    "buyers_by_stage": { "title": "Buscas de compradores por etapa" },
+    "viewings_coming": { "title": "Próximas visitas" },
+    "agreements_ending_soon": { "title": "Autorizações terminando, imóveis ativos" },
+    "key_dates_next": { "title": "Prazos em aberto" },
+    "commission_per_month": { "title": "Comissão concluída por mês" },
+    "new_leads_not_contacted": { "title": "Novos leads ainda não contatados" },
+    "listing_lost_reasons": { "title": "Por que imóveis foram perdidos" },
+    "days_live_to_offer": { "title": "Média de dias do anúncio à primeira proposta" },
+    "lead_sources": { "title": "Origem dos imóveis" },
+    "under_contract_count": { "title": "Imóveis com contrato assinado" },
+    "actions_due": { "title": "Tarefas a fazer" }
+  },
+  "knowledgePages": {
+    "operating_guide": {
+      "title": "Guia de operação: funil imobiliário",
+      "sections": ["Dois funis, uma tarefa com data por registro aberto", "O que cada etapa significa", "O que fica fora do espaço de trabalho"]
+    },
+    "lead_response": {
+      "title": "Padrão de resposta aos leads e perguntas de qualificação",
+      "sections": ["Responder no mesmo dia", "Perguntas ao comprador: prazo, financiamento, requisitos essenciais", "Perguntas ao proprietário: prazo e documentos", "Registrar de forma neutra"]
+    },
+    "valuation_checklist": {
+      "title": "Checklist da visita de avaliação",
+      "sections": ["Documentos a reunir", "Imóveis comparáveis", "Autorização para fotografar"]
+    },
+    "agreement_checklist": {
+      "title": "Checklist da proposta e do contrato de captação",
+      "sections": ["Tipo de autorização e prazo", "Comissão e quem paga", "Informação sobre desistência", "Forma do contrato", "Registrar a data de fim"]
+    },
+    "marketing_launch": {
+      "title": "Checklist de lançamento da divulgação",
+      "sections": ["Fotos e planta", "Documentos do imóvel (matrícula e certidões)", "Conferência do preço", "Publicação nos portais", "Aprovação do proprietário"]
+    },
+    "viewing_routine": {
+      "title": "Passo a passo das visitas e modelo de retorno",
+      "sections": ["Confirmar com antecedência", "Registrar a visita", "Enviar o retorno ao proprietário em até um dia"]
+    },
+    "offer_handling": {
+      "title": "Tratamento de propostas",
+      "sections": ["Apresentar a proposta no mesmo dia", "Proposta por escrito e condições", "Identificação das partes", "Quem decide"]
+    },
+    "under_contract_timeline": {
+      "title": "Cronograma depois do contrato e prazos",
+      "sections": ["Ler cada data no contrato e anotar onde está", "Sinal, financiamento, vistoria e arrependimento", "Cartório e entrega"]
+    },
+    "closing_handover": {
+      "title": "Checklist de escritura e entrega",
+      "sections": ["Chaves e leitura dos medidores", "Escritura e registro", "Nota fiscal da comissão na sua ferramenta de contabilidade", "Arquivo"]
+    },
+    "past_client_routine": {
+      "title": "Acompanhamento de clientes antigos",
+      "sections": ["Um contato por mês", "Ligação de aniversário", "Agradecer as indicações", "Pedir uma avaliação"]
+    },
+    "message_templates": {
+      "title": "Modelos de mensagem",
+      "sections": ["Resposta a um lead", "Confirmação da avaliação", "Proposta de captação", "Posição ao proprietário", "Retorno da visita", "Aviso de proposta", "Agradecimento"]
+    },
+    "data_rules": {
+      "title": "Regras de dados: identificação, tratamento justo, o que fica de fora",
+      "sections": ["Registrar que a identificação foi conferida, nunca os documentos", "Os critérios de busca descrevem o imóvel, nunca a pessoa", "Retenção"]
+    }
+  },
+  "rules": {
+    "portal_lead_contact": {
+      "title": "Contatar hoje o novo lead",
+      "description": "Um lead que chega de um portal imobiliário ou do WhatsApp recebe uma tarefa de ligação para o mesmo dia."
+    },
+    "prepare_valuation": {
+      "title": "Preparar a avaliação e a lista de documentos",
+      "description": "Quando um imóvel passa para Avaliação, uma tarefa de avaliação vence no dia seguinte."
+    },
+    "send_listing_proposal": {
+      "title": "Enviar a proposta de captação",
+      "description": "Depois da data da avaliação, um imóvel ainda em Avaliação recebe uma tarefa de proposta para o dia seguinte."
+    },
+    "proposal_message_day_2": {
+      "title": "Cobrar retorno da proposta de captação por mensagem",
+      "description": "Dois dias depois do envio da proposta."
+    },
+    "proposal_call_day_5": {
+      "title": "Ligar sobre a proposta de captação",
+      "description": "Cinco dias depois do envio da proposta."
+    },
+    "proposal_final_call_day_10": {
+      "title": "Última ligação sobre a proposta de captação",
+      "description": "Dez dias depois do envio da proposta."
+    },
+    "prepare_property": {
+      "title": "Preparar o imóvel e publicar",
+      "description": "Fotos, planta e documentos do imóvel; depois publicar. Vence três dias depois da assinatura do contrato de captação."
+    },
+    "agreement_end_review": {
+      "title": "Rever a autorização: renovar, prorrogar ou reajustar o preço",
+      "description": "Trinta dias antes do fim da autorização, um imóvel ativo recebe uma tarefa para o responsável."
+    },
+    "agreement_end_notice": {
+      "title": "Avisar o corretor de que a autorização termina em uma semana",
+      "description": "Sete dias antes do fim da autorização, o responsável pelo imóvel é avisado para decidir sobre a renovação."
+    },
+    "weekly_owner_update": {
+      "title": "Enviar a posição ao proprietário",
+      "description": "Toda semana, um imóvel ativo recebe uma tarefa para informar o proprietário sobre visitas, retornos e contatos."
+    },
+    "viewing_feedback": {
+      "title": "Colher o retorno da visita e enviá-lo ao proprietário",
+      "description": "No dia seguinte a uma visita, uma tarefa é criada se não houver retorno registrado."
+    },
+    "offer_notice": {
+      "title": "Avisar o corretor de que uma proposta precisa ser apresentada",
+      "description": "Quando um imóvel chega à etapa Proposta, o responsável é avisado para apresentar a proposta hoje."
+    },
+    "listing_key_dates": {
+      "title": "Criar os prazos a partir do contrato",
+      "description": "Quando um imóvel passa para Contrato assinado, os prazos dele são criados a partir do contrato."
+    },
+    "buyer_key_dates": {
+      "title": "Criar os prazos a partir do contrato do comprador",
+      "description": "Quando uma busca de comprador passa para Contrato assinado, os prazos são criados a partir do contrato."
+    },
+    "key_date_calendar": {
+      "title": "Adicionar o prazo à agenda do corretor",
+      "description": "Todo novo prazo é gravado na agenda do corretor."
+    },
+    "key_date_reminder": {
+      "title": "Avisar o corretor de que um prazo chega em dois dias",
+      "description": "Dois dias antes de um prazo em aberto, o responsável é avisado para confirmar a etapa ou cobrar."
+    },
+    "completed_handover": {
+      "title": "Entregar e pedir uma avaliação",
+      "description": "Checklist de entrega, agradecimento e pedido de avaliação, com vencimento sete dias depois da escritura."
+    },
+    "completed_anniversary": {
+      "title": "Ligação de aniversário",
+      "description": "Um ano depois da escritura vence uma tarefa para manter o contato."
+    },
+    "identify_before_contract": {
+      "title": "Registrar a identificação das partes",
+      "description": "Quando um imóvel chega à etapa Proposta, uma tarefa pede para anotar que a identificação foi conferida antes do contrato."
+    },
+    "identify_buyer_offer": {
+      "title": "Registrar a identificação do comprador",
+      "description": "Quando uma busca de comprador chega a Proposta feita, uma tarefa pede para anotar que a identificação foi conferida."
+    },
+    "buyer_re_engage": {
+      "title": "Retomar o comprador com novos imóveis compatíveis",
+      "description": "Toda segunda-feira, uma busca de comprador na etapa Visita sem atividade há sete dias recebe uma tarefa para manter o contato."
+    },
+    "listing_price_review": {
+      "title": "Revisão de preço e divulgação com o proprietário",
+      "description": "Toda segunda-feira, um imóvel ativo sem visita há 14 dias recebe uma tarefa de revisão."
+    },
+    "past_client_monthly_touch": {
+      "title": "Manter contato com o cliente antigo",
+      "description": "Toda segunda-feira, um cliente antigo sem contato há 30 dias recebe uma tarefa para manter o contato."
+    }
+  },
+  "acceptanceChecks": {
+    "listing_stage_field": "Cada imóvel tem uma das nove etapas.",
+    "buyer_stage_field": "Cada busca de comprador tem uma das sete etapas.",
+    "agreement_end_field": "Cada imóvel registra quando termina a sua autorização.",
+    "key_dates_list": "Os prazos depois da assinatura são acompanhados em uma lista própria.",
+    "listings_board_view": "A lista de imóveis abre como quadro por etapa.",
+    "operating_guide_page": "A base de conhecimento contém o guia de operação."
+  },
+  "prompt": {
+    "intro": "Configure um funil imobiliário no meu espaço de trabalho do Customermates: imóveis com o tipo de autorização e o fim dela, buscas de compradores, visitas com retorno, prazos depois da assinatura do contrato e uma tarefa com data para cada registro aberto.",
+    "questions": [
+      "Você trabalha para proprietários, para compradores ou para os dois? Vende, aluga ou ambos?",
+      "Em que país você trabalha e quais tipos de autorização usa lá?",
+      "Como os contatos chegam até você: portais imobiliários, seu site, WhatsApp ou indicações?",
+      "Qual software guarda seus imóveis e os publica nos portais? Aqui fica uma referência a ele, nada é copiado.",
+      "Quais prazos importam nos seus contratos, por exemplo sinal, financiamento, vistoria ou cartório?"
+    ]
+  }
+}

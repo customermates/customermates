@@ -1,0 +1,104 @@
+{
+  "locale": "es",
+  "name": "Encargos de consultoría",
+  "summary": "Un pipeline para un consultor independiente: encargos del contacto al encargo ganado con comprobación de aceptación antes de la oferta, una fecha de seguimiento acordada en la llamada de la propuesta y entregables que regulan la ejecución y el cierre.",
+  "description": "Lleva tu consultoría en un solo lugar: encargos a través de exploración, alcance, propuesta y decisión, la fecha de seguimiento acordada con el patrocinador, una comprobación de aceptación (capacidad, independencia, confidencialidad) antes de la oferta, entregables con su fecha límite y su aceptación, y un cierre que pide opinión y un testimonio. Guarda el pipeline, las relaciones y los hitos de entrega. No sirve para controlar horas, facturar, firmar propuestas electrónicamente ni planificar recursos, y no contiene datos confidenciales del cliente.",
+  "lists": {
+    "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Patrocinadores, contactos del día a día, quienes firman y quienes recomiendan." },
+    "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Clientes potenciales, clientes, antiguos clientes y socios que recomiendan." },
+    "engagements": { "label": "Encargo", "pluralLabel": "Encargos", "description": "Un trabajo de consultoría, del primer contacto a la entrega y el cierre." },
+    "deliverables": { "label": "Entregable", "pluralLabel": "Entregables", "description": "Un hito que entregas, con su fecha límite y su aceptación." }
+  },
+  "fields": {
+    "contacts.role_in_engagement": { "label": "Papel", "options": { "sponsor": "Patrocinador", "day_to_day": "Contacto del día a día", "signs_off": "Da el visto bueno", "referrer": "Quien recomienda", "influencer": "Influyente" } },
+    "contacts.relationship_strength": { "label": "Relación", "options": { "strong": "Fuerte", "warm": "Buena", "new": "Nueva" } },
+    "contacts.last_meeting": { "label": "Última reunión" },
+    "clients.relationship": { "label": "Relación", "options": { "prospect": "Cliente potencial", "client": "Cliente", "former_client": "Antiguo cliente", "referral_partner": "Socio que recomienda" } },
+    "clients.industry": { "label": "Sector" },
+    "engagements.stage": {
+      "label": "Fase",
+      "options": { "introduction": "Contacto", "discovery": "Exploración", "scoping": "Alcance", "proposal_sent": "Propuesta enviada", "decision": "Decisión", "won": "Ganado", "lost": "Perdido" }
+    },
+    "engagements.engagement_type": { "label": "Tipo", "options": { "diagnostic": "Diagnóstico", "advisory_review": "Revisión de asesoramiento", "workshop": "Taller", "interim": "Dirección interina", "retainer": "Asesoramiento continuo", "training": "Formación" } },
+    "engagements.referral_source": { "label": "Cómo llegó", "options": { "client_referral": "Recomendación de un cliente", "peer_referral": "Recomendación de un colega", "event_or_talk": "Evento o charla", "content": "Contenidos publicados", "existing_client": "Cliente existente", "marketplace": "Plataforma" } },
+    "engagements.day_rate": { "label": "Tarifa diaria" },
+    "engagements.days_estimated": { "label": "Días estimados" },
+    "engagements.estimated_fee": { "label": "Honorarios estimados" },
+    "engagements.acceptance_checked_on": { "label": "Aceptación comprobada el" },
+    "engagements.proposal_follow_up_on": { "label": "Seguimiento acordado para el" },
+    "engagements.decision_expected": { "label": "Decisión esperada" },
+    "engagements.start_date": { "label": "Inicio" },
+    "engagements.end_date": { "label": "Fin" },
+    "engagements.delivery_status": { "label": "Ejecución", "options": { "not_started": "Sin empezar", "kickoff_scheduled": "Arranque programado", "in_delivery": "En curso", "wrapping_up": "En cierre", "completed": "Completado" } },
+    "engagements.next_step_due": { "label": "Fecha del siguiente paso" },
+    "engagements.lost_reason": {
+      "label": "Motivo de pérdida",
+      "options": { "timing": "Momento", "budget": "Presupuesto", "in_house": "Lo hace internamente", "other_advisor": "Eligió otro asesor", "scope_changed": "Cambió el alcance", "no_decision": "Sin decisión", "no_response": "Sin respuesta" }
+    },
+    "deliverables.status": { "label": "Estado", "options": { "planned": "Planificado", "in_progress": "En curso", "delivered": "Entregado", "accepted": "Aceptado" } },
+    "deliverables.kind": { "label": "Tipo", "options": { "interview_summary": "Resumen de entrevistas", "workshop": "Taller", "report": "Informe", "recommendation": "Recomendación", "training_session": "Sesión de formación", "handover": "Traspaso" } },
+    "deliverables.due_date": { "label": "Fecha límite" },
+    "deliverables.owner": { "label": "Responsable" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "reply": "Responder", "write_up": "Redactar el resumen de la conversación", "acceptance_check": "Comprobar la aceptación", "proposal": "Redactar la propuesta", "follow_up": "Hacer seguimiento", "kickoff": "Arranque", "deliver": "Entregar", "feedback": "Pedir opinión", "other": "Otro" }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Cliente", "targetLabel": "Contactos" },
+    "engagement_client": { "sourceLabel": "Cliente", "targetLabel": "Encargos" },
+    "engagement_sponsor": { "sourceLabel": "Patrocinador y contactos", "targetLabel": "Encargos" },
+    "deliverable_engagement": { "sourceLabel": "Encargo", "targetLabel": "Entregables" },
+    "action_engagement": { "sourceLabel": "Encargo", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "engagements_board": { "name": "Encargos por fase" },
+    "engagements_all": { "name": "Todos los encargos" },
+    "in_delivery": { "name": "Ganados y sin completar" },
+    "deliverables_all": { "name": "Todos los entregables" },
+    "clients_all": { "name": "Todos los clientes" },
+    "contacts_all": { "name": "Todos los contactos" }
+  },
+  "widgets": {
+    "engagements_funnel": { "title": "Encargos por fase" },
+    "open_value": { "title": "Importe de las propuestas en curso" },
+    "decisions_coming": { "title": "Decisiones esperadas" },
+    "deliverables_due": { "title": "Entregables por entregar" },
+    "engagements_ending": { "title": "Encargos que terminan" },
+    "by_type": { "title": "Encargos ganados por tipo" },
+    "lost_reasons": { "title": "Por qué se pierden encargos" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Cómo funciona la consultoría", "sections": ["Las fases y la regla de un siguiente paso con fecha por encargo abierto", "Lo que queda fuera: control de horas y facturación"] },
+    "discovery_guide": { "title": "Guía de la conversación de exploración", "sections": ["El problema con las palabras del cliente, los interesados y las señales de presupuesto", "Qué anotar al día siguiente"] },
+    "acceptance_check": { "title": "Comprobación de aceptación antes de la oferta", "sections": ["Capacidad, independencia, confidencialidad y encaje", "Quién decide aceptar el trabajo"] },
+    "proposal_and_follow_up": { "title": "Estructura de la propuesta y seguimiento", "sections": ["Opciones ofrecidas y la recomendada", "Acordar la fecha de seguimiento en la llamada de la propuesta"] }
+  },
+  "rules": {
+    "discovery_writeup": { "title": "Redactar la conversación de exploración al día siguiente" },
+    "acceptance_check": { "title": "Comprobar la aceptación al día siguiente de pasar a alcance" },
+    "proposal_follow_up": { "title": "Hacer seguimiento 3 días después de enviar la propuesta" },
+    "decision_date": { "title": "Pedir la decisión en la fecha de decisión esperada" },
+    "won_kickoff": { "title": "Programar el arranque al día siguiente de ganar un encargo" },
+    "lost_review": { "title": "Preguntar qué se podría haber hecho distinto 2 días después de perder un encargo" },
+    "deliverable_due_notice": { "title": "Avisar al responsable 3 días antes de la fecha límite de un entregable" },
+    "closeout_report": { "title": "Entregar el informe final en la fecha de fin" },
+    "testimonial_ask": { "title": "Pedir un testimonio 14 días después de la fecha de fin" },
+    "followup_after_end": { "title": "Proponer nuevo trabajo 30 días después de la fecha de fin" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada encargo tiene una fase.",
+    "follow_up_field": "Cada propuesta registra la fecha de seguimiento acordada con el patrocinador.",
+    "acceptance_checked_field": "Cada encargo registra cuándo se comprobó la aceptación.",
+    "engagements_board_view": "Los encargos se abren como tablero por fase."
+  },
+  "prompt": {
+    "intro": "Configura en mi espacio de trabajo de Customermates encargos de consultoría: encargos del contacto al ganado con comprobación de aceptación y fecha de seguimiento acordada en la llamada de la propuesta, entregables con fecha límite y aceptación, y un cierre que pide opinión. No guardes datos confidenciales del cliente.",
+    "questions": [
+      "¿Qué tipos de encargos vendes y a qué tarifa diaria?",
+      "¿Cómo decides si aceptas un trabajo?",
+      "¿Cuánto esperas tras una propuesta antes de hacer seguimiento?",
+      "¿Qué entregables marcan un hito que facturas?"
+    ]
+  }
+}

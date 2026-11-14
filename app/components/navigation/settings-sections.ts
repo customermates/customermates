@@ -2,7 +2,9 @@ import type { LucideIcon } from "lucide-react";
 
 import {
   Building2,
+  CalendarClock,
   CreditCard,
+  Download,
   History,
   KeyRound,
   Mail,
@@ -40,6 +42,13 @@ export const SETTINGS_SECTIONS: Record<SettingsSection, SettingsSubroute[]> = {
       resource: Resource.inboxMessages,
       cloudOnly: true,
     },
+    {
+      slug: "booking",
+      icon: CalendarClock,
+      labelKey: "SettingsNav.booking",
+      resource: Resource.inboxMessages,
+      cloudOnly: true,
+    },
     { slug: "api-keys", icon: KeyRound, labelKey: "SettingsNav.apiKeys", resource: Resource.api },
   ],
   workspace: [
@@ -50,6 +59,12 @@ export const SETTINGS_SECTIONS: Record<SettingsSection, SettingsSubroute[]> = {
     { slug: "activity", icon: History, labelKey: "SettingsNav.activity", resource: Resource.activityLog },
     { slug: "webhooks", icon: Webhook, labelKey: "SettingsNav.webhooks", resource: Resource.api },
     { slug: "webhook-deliveries", icon: Send, labelKey: "SettingsNav.deliveries", resource: Resource.api },
+    {
+      slug: "incoming-webhooks",
+      icon: Download,
+      labelKey: "SettingsNav.incomingWebhooks",
+      resource: Resource.api,
+    },
   ],
 };
 

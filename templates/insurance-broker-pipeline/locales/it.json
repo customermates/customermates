@@ -1,0 +1,125 @@
+{
+  "locale": "it",
+  "name": "Broker assicurativo",
+  "summary": "Due pipeline per un broker assicurativo: nuove trattative dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, e una pratica di rinnovo per ogni polizza che si apre da 120 a 45 giorni prima della scadenza.",
+  "description": "Gestisci nuovi affari e rinnovi fianco a fianco: trattative dalla prima richiesta all'analisi delle esigenze, alla richiesta di quotazioni, alla proposta e alla decisione fino alla polizza attiva, una data di consulenza documentata su ogni proposta, e polizze con la loro scadenza che aprono da sole una pratica di rinnovo. Conserva un rimando alla documentazione della consulenza e alla polizza nel gestionale assicurativo, mai dati sanitari, dettagli dei sinistri, coordinate bancarie o copie dei documenti d'identità. Non è amministrazione delle polizze, un comparatore o un motore tariffario, gestione dei sinistri né riconciliazione delle provvigioni.",
+  "lists": {
+    "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Contraenti, potenziali clienti, decisori e segnalatori." },
+    "opportunities": { "label": "Trattativa", "pluralLabel": "Trattative", "description": "Un nuovo affare dalla prima richiesta alla polizza attiva o alla perdita." },
+    "policies": { "label": "Polizza", "pluralLabel": "Polizze", "description": "Una polizza con il suo ramo, la scadenza e un link al gestionale assicurativo." },
+    "renewals": { "label": "Rinnovo", "pluralLabel": "Scadenze (rinnovi)", "description": "La pratica di rinnovo annuale di una polizza." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Ruolo", "options": { "policyholder": "Contraente", "prospect": "Potenziale cliente", "decision_maker": "Decisore", "referrer": "Segnalatore" } },
+    "contacts.preferred_channel": { "label": "Canale preferito", "options": { "email": "Email", "phone": "Telefono", "whatsapp": "WhatsApp", "post": "Posta" } },
+    "contacts.broker_mandate_on": { "label": "Mandato di brokeraggio firmato il" },
+    "opportunities.stage": {
+      "label": "Fase",
+      "options": { "lead": "Richiesta", "needs_analysis": "Analisi delle esigenze", "quotes_requested": "Richiesta di quotazioni", "offer_presented": "Proposta", "awaiting_decision": "Decisione", "application_submitted": "Richiesta di emissione", "bound": "Polizza attiva", "lost": "Persa" }
+    },
+    "opportunities.line": {
+      "label": "Ramo",
+      "options": { "motor": "Auto", "home_contents": "Casa", "liability": "Responsabilità civile", "legal_expenses": "Tutela legale", "life_pension": "Vita e previdenza", "health": "Salute", "commercial_property": "Danni ai beni aziendali", "commercial_liability": "Responsabilità civile aziendale", "cyber": "Cyber", "other": "Altro" }
+    },
+    "opportunities.source": { "label": "Origine", "options": { "referral": "Segnalazione", "web_form": "Modulo web", "comparison_portal": "Comparatore", "existing_client": "Cliente esistente", "partner": "Partner", "event": "Evento" } },
+    "opportunities.needs_analysis_on": { "label": "Analisi delle esigenze il" },
+    "opportunities.advice_documented_on": { "label": "Consulenza documentata il" },
+    "opportunities.advice_record_ref": { "label": "Link alla documentazione della consulenza" },
+    "opportunities.decision_expected": { "label": "Decisione attesa" },
+    "opportunities.next_step_due": { "label": "Prossimo passo entro" },
+    "opportunities.lost_reason": {
+      "label": "Motivo della perdita",
+      "options": { "price": "Prezzo", "coverage_not_matching": "Garanzie non adatte", "stayed_with_current": "Resta con la compagnia attuale", "no_response": "Nessuna risposta", "declined_by_carrier": "Rifiutato dalla compagnia", "timing": "Tempi" }
+    },
+    "opportunities.producer": { "label": "Produttore" },
+    "policies.policy_ref": { "label": "Numero di polizza" },
+    "policies.line": {
+      "label": "Ramo",
+      "options": { "motor": "Auto", "home_contents": "Casa", "liability": "Responsabilità civile", "legal_expenses": "Tutela legale", "life_pension": "Vita e previdenza", "health": "Salute", "commercial_property": "Danni ai beni aziendali", "commercial_liability": "Responsabilità civile aziendale", "cyber": "Cyber", "other": "Altro" }
+    },
+    "policies.line_group": { "label": "Segmento", "options": { "commercial": "Aziende", "personal": "Privati" } },
+    "policies.status": { "label": "Stato", "options": { "pending": "In emissione", "active": "Attiva", "lapsed": "Sospesa per mancato pagamento", "cancelled": "Disdetta" } },
+    "policies.renewal_date": { "label": "Scadenza" },
+    "policies.annual_premium": { "label": "Premio annuo" },
+    "policies.notice_days": { "label": "Preavviso di disdetta (giorni)" },
+    "policies.system_ref": { "label": "Link nel gestionale assicurativo" },
+    "renewals.stage": {
+      "label": "Fase",
+      "options": { "upcoming": "In arrivo", "review_started": "Revisione avviata", "market_check": "Verifica del mercato", "offer_sent": "Proposta inviata", "awaiting_client": "In attesa del cliente", "renewed": "Rinnovata", "lapsed": "Non rinnovata" }
+    },
+    "renewals.renewal_date": { "label": "Scadenza" },
+    "renewals.offer_sent_on": { "label": "Proposta inviata il" },
+    "renewals.decision_on": { "label": "Decisione del cliente il" },
+    "renewals.premium_change_percent": { "label": "Variazione del premio (%)" },
+    "renewals.advice_documented_on": { "label": "Consulenza documentata il" },
+    "renewals.lost_reason": {
+      "label": "Motivo della perdita",
+      "options": { "price": "Prezzo", "switched_broker": "Ha cambiato broker", "switched_carrier": "Ha cambiato compagnia", "business_closed": "Attività chiusa", "no_response": "Nessuna risposta", "other": "Altro" }
+    },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "call": "Chiamare", "send_quote": "Inviare la proposta", "chase_carrier": "Sollecitare la compagnia", "advice_record": "Documentare la consulenza", "renewal_review": "Rivedere il rinnovo", "cross_sell": "Verifica di cross-selling", "letter": "Scrivere una lettera", "other": "Altro" }
+    }
+  },
+  "relationships": {
+    "opportunity_contact": { "sourceLabel": "Referente", "targetLabel": "Trattative" },
+    "policy_contact": { "sourceLabel": "Contraente", "targetLabel": "Polizze" },
+    "policy_opportunity": { "sourceLabel": "Trattativa", "targetLabel": "Polizze" },
+    "renewal_policy": { "sourceLabel": "Polizza", "targetLabel": "Scadenze (rinnovi)" },
+    "action_opportunity": { "sourceLabel": "Trattativa", "targetLabel": "Attività" },
+    "action_renewal": { "sourceLabel": "Rinnovo", "targetLabel": "Attività" },
+    "action_policy": { "sourceLabel": "Polizza", "targetLabel": "Attività" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Trattative per fase" },
+    "opportunities_all": { "name": "Tutte le trattative" },
+    "offers_without_advice": { "name": "Proposte senza documentazione della consulenza" },
+    "renewals_board": { "name": "Rinnovi per fase" },
+    "policies_all": { "name": "Tutte le polizze" },
+    "contacts_all": { "name": "Tutti i referenti" }
+  },
+  "widgets": {
+    "opportunities_funnel": { "title": "Trattative per fase" },
+    "renewals_coming": { "title": "Scadenze in arrivo" },
+    "offers_no_advice": { "title": "Proposte senza documentazione della consulenza" },
+    "renewals_by_stage": { "title": "Rinnovi aperti per fase" },
+    "active_premium": { "title": "Premio annuo delle polizze attive" },
+    "lost_reasons": { "title": "Motivi di perdita delle trattative" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Come funziona l'attività del broker", "sections": ["Le due pipeline: nuovi affari e rinnovi", "Chi è responsabile di quale fase e la regola di un'attività con data per elemento aperto"] },
+    "advice_documentation": { "title": "Analisi delle esigenze e documentazione della consulenza", "sections": ["Che cosa si chiede e si registra prima di una proposta", "Dove si trova la documentazione: qui si conserva solo un rimando"] },
+    "renewal_playbook": { "title": "Guida al rinnovo", "sections": ["Aziende da 120 giorni, privati da 45 giorni prima della scadenza", "Revisione, verifica del mercato, proposta e decisione prima del termine di disdetta"] },
+    "policy_data_rules": { "title": "Dati delle polizze: che cosa resta nel gestionale assicurativo", "sections": ["I dati di riferimento della polizza e gli estratti provvigionali restano nel gestionale assicurativo", "Che cosa conserva questo spazio e che cosa non conserva mai"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Creare referente e trattativa quando viene inviato il modulo di richiesta" },
+    "respond_new_lead": { "title": "Rispondere a una nuova richiesta il giorno dopo" },
+    "needs_analysis_task": { "title": "Documentare la consulenza entro 3 giorni quando una trattativa raggiunge l'analisi delle esigenze" },
+    "quotes_chase": { "title": "Sollecitare le compagnie 3 giorni dopo la richiesta di quotazioni" },
+    "offer_follow_up": { "title": "Fare follow-up il giorno dopo la presentazione di una proposta" },
+    "bound_welcome": { "title": "Chiamare il cliente una settimana dopo l'emissione della polizza" },
+    "renewal_commercial": { "title": "Aprire una pratica di rinnovo 120 giorni prima della scadenza di una polizza aziende attiva" },
+    "renewal_personal": { "title": "Aprire una pratica di rinnovo 45 giorni prima della scadenza di una polizza privati attiva" },
+    "renewal_review_task": { "title": "Rivedere il rinnovo entro una settimana dall'apertura della pratica" },
+    "renewal_offer_chase": { "title": "Avvisare il responsabile quando una proposta di rinnovo attende il cliente da 7 giorni" },
+    "decision_deadline_notice": { "title": "Avvisare il responsabile 30 giorni prima della scadenza per confermare la decisione del cliente" },
+    "unpaid_premium_notice": { "title": "Scrivere al cliente quando il gestionale assicurativo segnala un premio non pagato" }
+  },
+  "acceptanceChecks": {
+    "opportunity_stage_field": "Ogni trattativa ha una fase.",
+    "advice_documented_field": "Ogni trattativa indica quando la consulenza è stata documentata.",
+    "renewal_date_field": "Ogni polizza indica la sua scadenza.",
+    "renewals_board_view": "I rinnovi si aprono come board per fase.",
+    "advice_documentation_page": "La base di conoscenza contiene una pagina sulla documentazione della consulenza."
+  },
+  "prompt": {
+    "intro": "Imposta nel mio spazio di lavoro Customermates una pipeline per un broker assicurativo: nuove trattative dalla richiesta alla polizza attiva con la consulenza documentata prima della proposta, polizze con scadenza e una pratica di rinnovo per ciascuna, e attività di follow-up con data. Non conservare dati sanitari, dettagli dei sinistri né copie dei documenti d'identità.",
+    "questions": [
+      "Quali rami collochi e segui aziende, privati o entrambi?",
+      "Quanto tempo prima della scadenza avvii un rinnovo e qual è il preavviso di disdetta abituale?",
+      "Dove conservi la documentazione della consulenza e i dati delle polizze? Qui si tengono solo link.",
+      "In quale Paese lavori e quali obblighi di consulenza ti riguardano?"
+    ]
+  }
+}

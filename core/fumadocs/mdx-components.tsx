@@ -13,6 +13,7 @@ import {
 import { Faq, FaqItem } from "@/components/marketing/faq";
 import { ProductDemo } from "@/components/marketing/product-demo";
 import { Step, Steps } from "@/components/marketing/process-steps";
+import { SwitchKit } from "@/components/marketing/templates/switch-kit";
 
 import { markdownBaseComponents } from "./markdown-base-components";
 import { McpInstallSnippet } from "./mcp-install-snippet";
@@ -37,6 +38,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     Step,
     Steps: ProgressSteps,
     SummaryItem,
+    SwitchKit,
     StatusAvailable,
     StatusPartial,
     StatusUnavailable,

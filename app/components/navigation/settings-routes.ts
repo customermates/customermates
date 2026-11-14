@@ -4,6 +4,7 @@ export type SettingsSlug =
   | "profile"
   | "workspaces"
   | "channels"
+  | "booking"
   | "api-keys"
   | "general"
   | "members"
@@ -11,7 +12,8 @@ export type SettingsSlug =
   | "billing"
   | "activity"
   | "webhooks"
-  | "webhook-deliveries";
+  | "webhook-deliveries"
+  | "incoming-webhooks";
 
 export function settingsHref(slug: SettingsSlug) {
   return `/settings/${slug}`;

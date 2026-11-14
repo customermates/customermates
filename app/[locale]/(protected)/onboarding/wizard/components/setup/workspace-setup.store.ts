@@ -253,7 +253,12 @@ export class WorkspaceSetupStore {
 
   start = (websiteUrl: string | null) =>
     this.run("start", async () => {
-      const result = await startWorkspaceSetupAction({ websiteUrl, locale: this.appLocale });
+      const templateSlug = this.rootStore.onboardingWizardStore.selectedTemplate;
+      const result = await startWorkspaceSetupAction({
+        websiteUrl,
+        locale: this.appLocale,
+        ...(templateSlug === null ? {} : { templateSlug }),
+      });
       if (result.ok) await this.refresh();
       return result;
     });

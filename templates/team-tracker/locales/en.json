@@ -1,0 +1,92 @@
+{
+  "locale": "en",
+  "name": "Team tracker",
+  "summary": "A work tracker for a small team: projects, tasks with one owner and one due date, recurring chores and requests from outside the team on the same list.",
+  "description": "Keep a team of two to fifteen on one list: every task has a status, a priority, an owner and a due date, and you can see what is overdue or blocked at a glance. Recurring chores create their own tasks, requests from colleagues or customers arrive through a form, and a blocked or stale task nudges its owner. It is not a sprint tool, a Gantt planner, a time tracker or an HR system.",
+  "lists": {
+    "requesters": { "label": "Requester", "pluralLabel": "Requesters", "description": "The people outside the team who ask for work." },
+    "projects": { "label": "Project", "pluralLabel": "Projects", "description": "A bundle of tasks with an owner, a health and a due date." },
+    "tasks": { "label": "Task", "pluralLabel": "Tasks", "description": "One piece of work with one owner and one due date." },
+    "recurring": { "label": "Recurring task", "pluralLabel": "Recurring tasks", "description": "A chore that comes back weekly, monthly, quarterly or yearly." }
+  },
+  "fields": {
+    "requesters.relation": {
+      "label": "Relation",
+      "options": { "customer": "Customer", "colleague": "Colleague", "partner": "Partner", "vendor": "Vendor", "other": "Other" }
+    },
+    "requesters.team": { "label": "Team" },
+    "projects.status": {
+      "label": "Status",
+      "options": { "planned": "Planned", "active": "Active", "on_hold": "On hold", "done": "Done", "cancelled": "Cancelled" }
+    },
+    "projects.health": { "label": "Health", "options": { "on_track": "On track", "at_risk": "At risk", "off_track": "Off track" } },
+    "projects.owner": { "label": "Owner" },
+    "projects.due_date": { "label": "Due date" },
+    "projects.repo_url": { "label": "Repository link" },
+    "tasks.status": {
+      "label": "Status",
+      "options": { "backlog": "Backlog", "todo": "To do", "in_progress": "In progress", "in_review": "In review", "blocked": "Blocked", "done": "Done", "cancelled": "Cancelled" }
+    },
+    "tasks.kind": { "label": "Kind", "options": { "task": "Task", "bug": "Bug", "feature": "Feature", "chore": "Chore", "request": "Request" } },
+    "tasks.priority": { "label": "Priority", "options": { "urgent": "Urgent", "high": "High", "medium": "Medium", "low": "Low" } },
+    "tasks.owner": { "label": "Owner" },
+    "tasks.due": { "label": "Due date" },
+    "tasks.original_due": { "label": "Original due date" },
+    "tasks.done_on": { "label": "Done on" },
+    "tasks.blocked_reason": { "label": "Blocked because" },
+    "tasks.external_url": { "label": "Link (pull request or ticket)" },
+    "recurring.cadence": { "label": "Repeats", "options": { "weekly": "Weekly", "monthly": "Monthly", "quarterly": "Quarterly", "yearly": "Yearly" } },
+    "recurring.next_due": { "label": "Next due" },
+    "recurring.owner": { "label": "Owner" }
+  },
+  "relationships": {
+    "task_project": { "sourceLabel": "Project", "targetLabel": "Tasks" },
+    "task_requester": { "sourceLabel": "Requester", "targetLabel": "Tasks" },
+    "recurring_project": { "sourceLabel": "Project", "targetLabel": "Recurring tasks" }
+  },
+  "views": {
+    "tasks_all": { "name": "All tasks" },
+    "tasks_board": { "name": "Task board" },
+    "blocked_tasks": { "name": "Blocked tasks" },
+    "projects_all": { "name": "All projects" },
+    "recurring_all": { "name": "All recurring tasks" },
+    "requesters_all": { "name": "All requesters" }
+  },
+  "widgets": {
+    "tasks_by_status": { "title": "Tasks by status" },
+    "open_by_priority": { "title": "Open tasks by priority" },
+    "overdue_tasks": { "title": "Overdue tasks" },
+    "due_soon": { "title": "Tasks due soon" },
+    "blocked_count": { "title": "Blocked tasks" },
+    "activity_timeline": { "title": "Recent activity" }
+  },
+  "knowledgePages": {
+    "how_we_work": { "title": "How we work", "sections": ["Statuses, priorities and what done means", "One owner and one date per task"] },
+    "weekly_review": { "title": "Weekly review", "sections": ["Overdue, blocked and unassigned work", "What changes this week"] },
+    "triage": { "title": "Triage of requests and bugs", "sections": ["Who decides what comes in", "Severity versus priority"] }
+  },
+  "rules": {
+    "task_assigned": { "title": "Notify the new owner when a task is assigned" },
+    "due_tomorrow": { "title": "Notify the owner the day before a task is due" },
+    "overdue_task": { "title": "Notify the lead the day after a task was due" },
+    "blocked_stale": { "title": "Notify the lead when a task stays blocked for 3 days" },
+    "stale_in_progress": { "title": "Remind the owner when a task has not moved for 5 days" },
+    "recurring_due": { "title": "Create a task when a recurring task comes due" },
+    "task_from_git": { "title": "Create a task when the Git host sends an event" },
+    "request_form": { "title": "Create a task and a requester when the request form is submitted" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Every task has a status.",
+    "due_field": "Every task has a due date.",
+    "tasks_board_view": "The tasks open as a board by status."
+  },
+  "prompt": {
+    "intro": "Set up a team tracker in my Customermates workspace: projects, tasks with one owner and one due date, recurring chores, requests from outside the team and reminders for overdue or blocked work.",
+    "questions": [
+      "How many people are on the team, and what do they work on?",
+      "Which statuses do you use today in Trello, Jira, Asana or a spreadsheet?",
+      "Which chores come back every week or month, and who owns them?",
+      "Where do requests come from, and should they arrive through a form?"
+    ]
+  }
+}

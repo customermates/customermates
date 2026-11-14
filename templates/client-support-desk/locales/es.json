@@ -1,0 +1,107 @@
+{
+  "locale": "es",
+  "name": "Soporte al cliente",
+  "summary": "Un soporte ligero: tickets con prioridad, tiempo de primera respuesta y plazo de resolución, incidencias conocidas que unen varios tickets a una causa y una valoración de satisfacción.",
+  "description": "Atiende a tus clientes desde un solo lugar: cada ticket tiene un estado, una prioridad, un tipo, un responsable y la fecha límite de la primera respuesta y de la solución. Vincula los tickets a una incidencia conocida para avisar a todos cuando se resuelva y mantén a la vista el plazo de un mes de una solicitud de datos. Pensado para unas decenas de tickets por semana. No es una centralita, un chat en vivo, un portal de clientes ni un calendario de horario laboral.",
+  "lists": {
+    "customers": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Las personas que te escriben para pedir ayuda." },
+    "accounts": { "label": "Cuenta", "pluralLabel": "Cuentas", "description": "Las empresas detrás de tus clientes, con su plan de soporte." },
+    "tickets": { "label": "Ticket", "pluralLabel": "Tickets", "description": "Una solicitud de ayuda, del primer mensaje a la resolución." },
+    "known_issues": { "label": "Incidencia conocida", "pluralLabel": "Incidencias conocidas", "description": "Una causa detrás de varios tickets, con su solución provisional y su fecha de corrección." }
+  },
+  "fields": {
+    "customers.preferred_channel": { "label": "Canal preferido", "options": { "email": "Correo electrónico", "whatsapp": "WhatsApp", "form": "Formulario de solicitud", "phone": "Teléfono" } },
+    "customers.language": { "label": "Idioma" },
+    "accounts.support_plan": { "label": "Plan de soporte", "options": { "standard": "Estándar", "priority": "Prioritario", "none": "Ninguno" } },
+    "accounts.contract_end": { "label": "Fin del contrato" },
+    "tickets.status": {
+      "label": "Estado",
+      "options": { "new": "Nuevo", "open": "Abierto", "pending_customer": "Esperando al cliente", "on_hold": "En espera de terceros", "solved": "Resuelto", "closed": "Cerrado", "spam_or_duplicate": "Spam o duplicado" }
+    },
+    "tickets.priority": { "label": "Prioridad", "options": { "urgent": "Urgente", "high": "Alta", "normal": "Normal", "low": "Baja" } },
+    "tickets.type": { "label": "Tipo", "options": { "question": "Pregunta", "problem": "Problema", "request": "Solicitud", "complaint": "Queja", "data_request": "Solicitud de datos" } },
+    "tickets.channel": { "label": "Canal", "options": { "email": "Correo electrónico", "whatsapp": "WhatsApp", "form": "Formulario de solicitud", "phone": "Teléfono", "webhook": "Alerta de otro sistema" } },
+    "tickets.assignee": { "label": "Asignado a" },
+    "tickets.first_response_due": { "label": "Primera respuesta antes de" },
+    "tickets.resolution_due": { "label": "Resolución antes de" },
+    "tickets.solved_on": { "label": "Resuelto el" },
+    "tickets.rating": { "label": "Valoración" },
+    "known_issues.status": {
+      "label": "Estado",
+      "options": { "investigating": "En análisis", "workaround_available": "Solución provisional disponible", "fixed": "Corregida", "wont_fix": "No se corregirá" }
+    },
+    "known_issues.workaround": { "label": "Solución provisional" },
+    "known_issues.fixed_on": { "label": "Corregida el" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "reply": "Responder",
+        "nudge_customer": "Recordar al cliente",
+        "send_survey": "Enviar la encuesta de satisfacción",
+        "close_ticket": "Cerrar el ticket",
+        "tell_customer_fixed": "Avisar al cliente de que está resuelto",
+        "verify_identity": "Verificar la identidad",
+        "other": "Otro"
+      }
+    }
+  },
+  "relationships": {
+    "customer_account": { "sourceLabel": "Cuenta", "targetLabel": "Clientes" },
+    "ticket_customer": { "sourceLabel": "Cliente", "targetLabel": "Tickets" },
+    "ticket_known_issue": { "sourceLabel": "Incidencia conocida", "targetLabel": "Tickets" },
+    "action_ticket": { "sourceLabel": "Ticket", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "tickets_all": { "name": "Todos los tickets" },
+    "tickets_board": { "name": "Tablero de tickets" },
+    "waiting_on_us": { "name": "Esperando nuestra respuesta" },
+    "known_issues_all": { "name": "Todas las incidencias conocidas" },
+    "customers_all": { "name": "Todos los clientes" },
+    "accounts_all": { "name": "Todas las cuentas" }
+  },
+  "widgets": {
+    "tickets_by_status": { "title": "Tickets por estado" },
+    "open_by_priority": { "title": "Tickets abiertos por prioridad" },
+    "waiting_on_us_count": { "title": "Tickets esperando nuestra respuesta" },
+    "responses_due": { "title": "Primeras respuestas pendientes" },
+    "average_rating": { "title": "Valoración media" },
+    "tickets_by_type": { "title": "Tickets por tipo" }
+  },
+  "knowledgePages": {
+    "how_we_run_support": { "title": "Cómo gestionamos el soporte", "sections": ["Estados y prioridades", "Objetivos de primera respuesta y de resolución", "Quién está de guardia"] },
+    "triage_and_replies": { "title": "Clasificación y respuestas tipo", "sections": ["Tipo, prioridad y responsable", "Primera respuesta, pedir más información, resuelto, sin respuesta"] },
+    "data_requests": { "title": "Solicitudes de datos (RGPD)", "sections": ["Verificar la identidad, registrar, responder dentro del plazo legal (un mes según el RGPD, 15 días según la LGPD)", "Quién decide"] }
+  },
+  "rules": {
+    "ticket_created": { "title": "Crear una tarea de respuesta cuando se crea un ticket" },
+    "first_response_missed": { "title": "Avisar al responsable cuando la primera respuesta va con retraso" },
+    "nudge_customer": { "title": "Recordar al cliente tras 3 días de espera" },
+    "send_survey": { "title": "Enviar la encuesta de satisfacción al día siguiente de resolver" },
+    "close_solved": { "title": "Cerrar un ticket que lleva 4 días resuelto" },
+    "data_request_clock": {
+      "title": "Fijar la resolución a 30 días cuando un ticket pasa a ser una solicitud de datos",
+      "variants": {
+        "BR": {
+          "title": "Fijar la resolución a 15 días cuando un ticket pasa a ser una solicitud de datos (Brasil, LGPD)",
+          "description": "Según el art. 19 de la LGPD, la respuesta completa a una solicitud de acceso o de confirmación debe darse en 15 días."
+        }
+      }
+    },
+    "known_issue_fixed": { "title": "Avisar a los clientes cuando se corrige una incidencia conocida" },
+    "ticket_from_webhook": { "title": "Crear un ticket cuando otro sistema envía una alerta" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Cada ticket tiene un estado.",
+    "first_response_field": "Cada ticket indica cuándo vence la primera respuesta.",
+    "tickets_board_view": "Los tickets se abren como tablero por estado."
+  },
+  "prompt": {
+    "intro": "Configura en mi espacio de trabajo de Customermates un soporte al cliente: tickets con estado, prioridad, tiempo de primera respuesta y plazo de resolución, incidencias conocidas vinculadas a los tickets, una valoración de satisfacción y seguimientos con fecha.",
+    "questions": [
+      "¿Cuántos tickets gestionas por semana y por qué canales llegan?",
+      "¿Qué plazos prometes para la primera respuesta y la resolución, según la prioridad o el plan de soporte?",
+      "¿Quién responde y a quién se avisa cuando un ticket va con retraso?",
+      "¿Recibes solicitudes de datos o alertas de otros sistemas que deban convertirse en tickets?"
+    ]
+  }
+}

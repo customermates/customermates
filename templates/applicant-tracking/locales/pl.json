@@ -1,0 +1,116 @@
+{
+  "locale": "pl",
+  "name": "Śledzenie kandydatów",
+  "summary": "Narzędzie rekrutacyjne dla małej firmy: oferty pracy, kandydaci, jedna aplikacja na ofertę w dziewięciu etapach, karta oceny każdej osoby prowadzącej rozmowę i data usunięcia odrzuconych aplikacji.",
+  "description": "Prowadź rekrutację w jednym miejscu: każda oferta ma status, przyszłego przełożonego i widełki wynagrodzenia; każda aplikacja przechodzi od otrzymanej do zatrudnionej lub odrzuconej, z terminem rozmowy, terminem odpowiedzi na ofertę i powodem odrzucenia; każda osoba prowadząca rozmowę wypełnia kartę oceny. Odrzucone aplikacje dostają datę przechowywania, żeby nie zapomnieć o ich usunięciu albo o uzyskaniu zgody. To nie jest portal z ogłoszeniami, parser CV, platforma do testów kompetencji, narzędzie do ofert zatrudnienia i podpisów elektronicznych ani doradca prawny w sprawie okresów przechowywania danych.",
+  "lists": {
+    "applicants": { "label": "Kandydat", "pluralLabel": "Kandydaci", "description": "Osoby, które aplikują, ze źródłem i zgodą na przyszłe rekrutacje." },
+    "jobs": { "label": "Oferta pracy", "pluralLabel": "Oferty pracy", "description": "Każde otwarte stanowisko z przyszłym przełożonym i widełkami wynagrodzenia." },
+    "applications": { "label": "Aplikacja", "pluralLabel": "Aplikacje", "description": "Jeden kandydat na jedną ofertę, od otrzymanej do zatrudnionej lub odrzuconej." },
+    "scorecards": { "label": "Karta oceny", "pluralLabel": "Karty ocen", "description": "Ocena i rekomendacja jednej osoby prowadzącej rozmowę dla jednej aplikacji." }
+  },
+  "fields": {
+    "applicants.source": {
+      "label": "Źródło",
+      "options": { "careers_page": "Strona kariery", "job_board": "Portal z ogłoszeniami", "referral": "Polecenie", "linkedin": "LinkedIn", "agency": "Agencja", "other": "Inne" }
+    },
+    "applicants.location": { "label": "Miejscowość" },
+    "applicants.salary_expectation": { "label": "Oczekiwania finansowe" },
+    "applicants.pool_consent": { "label": "Zgoda na przyszłe rekrutacje" },
+    "jobs.status": {
+      "label": "Status",
+      "options": { "draft": "Szkic", "open": "Otwarta", "on_hold": "Wstrzymana", "filled": "Obsadzona", "cancelled": "Anulowana" }
+    },
+    "jobs.department": { "label": "Dział" },
+    "jobs.hiring_manager": { "label": "Przyszły przełożony" },
+    "jobs.pay_min": { "label": "Wynagrodzenie od" },
+    "jobs.pay_max": { "label": "Wynagrodzenie do" },
+    "jobs.apply_by": { "label": "Termin składania aplikacji" },
+    "applications.stage": {
+      "label": "Etap",
+      "options": { "new": "Otrzymana", "screening": "Wstępna selekcja", "interview_1": "Rozmowa wstępna", "interview_2": "Rozmowa kwalifikacyjna", "reference_check": "Weryfikacja referencji", "offer": "Oferta", "hired": "Zatrudniony", "rejected": "Odrzucona", "withdrawn": "Wycofana" }
+    },
+    "applications.interview_at": { "label": "Rozmowa" },
+    "applications.offer_decision_due": { "label": "Termin odpowiedzi na ofertę" },
+    "applications.rejection_reason": {
+      "label": "Powód odrzucenia",
+      "options": { "skills": "Umiejętności", "experience": "Doświadczenie", "salary_mismatch": "Rozbieżne oczekiwania finansowe", "other_offer": "Przyjął inną ofertę", "position_filled": "Stanowisko obsadzone", "other": "Inny" }
+    },
+    "applications.retain_until": { "label": "Usuń do" },
+    "scorecards.interviewer": { "label": "Osoba prowadząca rozmowę" },
+    "scorecards.round": { "label": "Runda", "options": { "screening": "Wstępna selekcja", "interview_1": "Rozmowa wstępna", "interview_2": "Rozmowa kwalifikacyjna" } },
+    "scorecards.rating": { "label": "Ocena" },
+    "scorecards.recommendation": { "label": "Rekomendacja", "options": { "strong_no": "Zdecydowanie nie", "no": "Nie", "yes": "Tak", "strong_yes": "Zdecydowanie tak" } },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": {
+        "acknowledge": "Potwierdzić otrzymanie",
+        "screen": "Wstępnie ocenić aplikację",
+        "schedule_interview": "Umówić rozmowę",
+        "collect_scorecards": "Zebrać karty ocen",
+        "chase_offer": "Ponaglić odpowiedź na ofertę",
+        "close_message": "Wysłać wiadomość kończącą",
+        "retention_review": "Sprawdzić przechowywanie danych",
+        "other": "Inne"
+      }
+    }
+  },
+  "relationships": {
+    "application_applicant": { "sourceLabel": "Kandydat", "targetLabel": "Aplikacje" },
+    "application_job": { "sourceLabel": "Oferta pracy", "targetLabel": "Aplikacje" },
+    "scorecard_application": { "sourceLabel": "Aplikacja", "targetLabel": "Karty ocen" },
+    "action_application": { "sourceLabel": "Aplikacja", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "applications_all": { "name": "Wszystkie aplikacje" },
+    "applications_board": { "name": "Tablica rekrutacji" },
+    "jobs_all": { "name": "Wszystkie oferty" },
+    "applicants_all": { "name": "Wszyscy kandydaci" },
+    "scorecards_all": { "name": "Wszystkie karty ocen" }
+  },
+  "widgets": {
+    "applications_funnel": { "title": "Aplikacje według etapu" },
+    "applicants_by_source": { "title": "Kandydaci według źródła" },
+    "interviews_coming": { "title": "Nadchodzące rozmowy" },
+    "open_jobs": { "title": "Otwarte oferty" },
+    "rejection_reasons": { "title": "Powody odrzucenia" },
+    "retention_coming": { "title": "Wkrótce do usunięcia lub odnowienia zgody" }
+  },
+  "knowledgePages": {
+    "hiring_process": { "title": "Proces rekrutacji i kto decyduje", "sections": ["Etapy i osoby odpowiedzialne", "Czego szukamy na selekcji i w rozmowach"] },
+    "form_and_retention": { "title": "Formularz aplikacyjny i przechowywanie danych", "sections": ["Jakie dane zbieramy i klauzula informacyjna", "Jak długo przechowujemy odrzucone aplikacje"] },
+    "candidate_messages": { "title": "Wiadomości do kandydatów", "sections": ["Potwierdzenie, zaproszenie, oferta", "Wiadomość kończąca dla każdego niewybranego kandydata"] }
+  },
+  "rules": {
+    "application_form_records": { "title": "Utwórz kandydata i aplikację po wysłaniu formularza aplikacyjnego" },
+    "acknowledge_application": { "title": "Potwierdź otrzymanie nowej aplikacji w ciągu 2 dni" },
+    "collect_scorecards": { "title": "Zbierz karty ocen w dniu rozmowy" },
+    "scorecard_reminder": { "title": "Przypomnij osobie odpowiedzialnej dzień po rozmowie" },
+    "chase_offer": { "title": "Ponagl kandydata o odpowiedź 5 dni po złożeniu oferty" },
+    "rejection_retention": {
+      "title": "Ustaw datę przechowywania na 180 dni po odrzuceniu aplikacji",
+      "variants": {
+        "PL": {
+          "title": "Ustaw datę przechowywania na 30 dni po odrzuceniu aplikacji (dłużej tylko za zgodą kandydata)",
+          "description": "Według poradnika UODO dane kandydata usuwa się po zakończeniu rekrutacji, chyba że kandydat zgodził się na udział w przyszłych rekrutacjach. To ustawienie domyślne: ustaw termin zgodny z polityką retencji firmy, a przy zgodzie kandydata późniejszą datę wpisz ręcznie."
+        }
+      }
+    },
+    "job_filled_close": { "title": "Napisz do pozostałych kandydatów, gdy oferta zostanie obsadzona" },
+    "retention_review": { "title": "Sprawdź aplikację, gdy nadejdzie jej data przechowywania" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Każda aplikacja ma jeden z dziewięciu etapów.",
+    "retain_until_field": "Każda aplikacja zapisuje, jak długo jest przechowywana.",
+    "applications_board_view": "Aplikacje otwierają się jako tablica według etapu."
+  },
+  "prompt": {
+    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates śledzenie kandydatów: oferty pracy z przyszłym przełożonym i widełkami wynagrodzenia, kandydaci, aplikacje w dziewięciu etapach, karty ocen z rozmów, data przechowywania odrzuconych aplikacji i zaplanowane kolejne kroki.",
+    "questions": [
+      "Ile ofert jest otwartych jednocześnie i kto rekrutuje na każdą z nich?",
+      "Skąd przychodzą kandydaci i czy używasz formularza aplikacyjnego?",
+      "Jak długo przechowujesz odrzucone aplikacje i czy prowadzisz bazę talentów za zgodą?",
+      "Jakie rundy rozmów prowadzisz i kto wypełnia kartę oceny?"
+    ]
+  }
+}

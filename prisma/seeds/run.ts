@@ -27,7 +27,7 @@ export type SyntheticSeedReport = { reset: string[]; slugsAssigned: number; work
  */
 export async function runSyntheticSeed(
   context: SeedContext,
-  options: { includeLocalOperatorAccess?: boolean } = {},
+  options: { includeLocalOperatorAccess?: boolean; signal?: AbortSignal } = {},
 ): Promise<SyntheticSeedReport> {
   const plans = solutionWorkspacePlans();
   const reset = await resetOutdatedSolutionWorkspaces(context.prisma, plans);
@@ -38,7 +38,8 @@ export async function runSyntheticSeed(
   await seedHostedAiOperatorUserTableFixtures(context, options);
   await initializeOperatorFixtureModels(context);
 
-  const workspaces = await seedSolutionWorkspaces(context, plans);
+  options.signal?.throwIfAborted();
+  const workspaces = await seedSolutionWorkspaces(context, plans, { signal: options.signal });
   const slugsAssigned = await assignSolutionWorkspaceSlugs(context.prisma);
 
   await seedTrash(context);

@@ -15,6 +15,7 @@ import { UserAccessor } from "@/core/base/user-accessor";
 import { createZodError } from "@/core/validation/validation.utils";
 import { resolveRequestOrigin } from "@/core/config/environment";
 import { getEntitlements } from "@/ee/subscription/entitlements";
+import { trialAccountAllowance } from "@/ee/subscription/trial-account-allowance";
 import { redirectTo } from "@/features/auth/auth-outcome";
 import { env } from "@/env";
 
@@ -92,7 +93,8 @@ export class CreateAuthLinkInteractor extends UserAccessor {
     const included = getEntitlements(subscription.plan).includedAccountsPerUser;
     if (included === "unlimited") return null;
 
-    if ((await this.repo.countActiveAccountsForUser()) < included) return null;
+    const allowed = trialAccountAllowance({ subscription, included, email: this.user.email });
+    if ((await this.repo.countActiveAccountsForUser()) < allowed) return null;
 
     if (subscription.plan === SubscriptionPlan.business || subscription.plan === SubscriptionPlan.max)
       return { key: "ConnectedAccountsCard.accountLimitReached", code: "accountLimitReached" };

@@ -1,0 +1,127 @@
+{
+  "locale": "pt",
+  "name": "Questionário de fornecedores",
+  "summary": "Um cadastro de fornecedores com questionário de qualificação, certidões com validade, nível de risco, decisão de homologação e data da próxima avaliação.",
+  "description": "Qualifique fornecedores e prestadores em um só lugar: envie um questionário, reúna certificados e certidões com a data de validade, classifique cada fornecedor por nível de risco, registre a decisão (homologar, homologar com restrições, escalar, reprovar) e veja o que vence primeiro. O modelo coordena as evidências. Ele não decide a conformidade legal, não consulta sanções nem risco financeiro e não substitui o sistema de qualidade, o ERP ou o arquivo de documentos.",
+  "lists": {
+    "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas dos fornecedores que respondem aos questionários e enviam documentos." },
+    "suppliers": { "label": "Fornecedor", "pluralLabel": "Fornecedores", "description": "Cada fornecedor ou prestador, de candidato a homologado ou reprovado." },
+    "questionnaires": { "label": "Questionário", "pluralLabel": "Questionários", "description": "Um questionário enviado a um fornecedor, com prazo e decisão." },
+    "documents": { "label": "Documento", "pluralLabel": "Documentos", "description": "Certificados, certidões e contratos com a data de validade." }
+  },
+  "fields": {
+    "contacts.contact_role": {
+      "label": "Função",
+      "options": { "sales": "Comercial", "quality": "Qualidade", "compliance": "Compliance", "finance": "Financeiro", "other": "Outro" }
+    },
+    "contacts.language": { "label": "Idioma" },
+    "suppliers.status": {
+      "label": "Status",
+      "options": { "candidate": "Candidato", "questionnaire_sent": "Questionário enviado", "under_review": "Em análise", "approved": "Homologado", "approved_with_conditions": "Homologado com restrições", "blocked": "Reprovado", "offboarded": "Descredenciado" }
+    },
+    "suppliers.risk_tier": { "label": "Nível de risco", "options": { "low": "Baixo", "moderate": "Médio", "high": "Alto", "critical": "Crítico" } },
+    "suppliers.category": {
+      "label": "Categoria",
+      "options": { "raw_materials": "Matéria-prima", "components": "Componentes", "services": "Serviços", "subcontracting": "Terceirização", "software_it": "Software e TI", "logistics": "Logística" }
+    },
+    "suppliers.country": { "label": "País" },
+    "suppliers.critical_supplier": { "label": "Fornecedor crítico" },
+    "suppliers.processes_personal_data": { "label": "Trata dados pessoais" },
+    "suppliers.review_owner": { "label": "Responsável pela avaliação" },
+    "suppliers.qualified_on": { "label": "Qualificado em" },
+    "suppliers.next_review": { "label": "Próxima avaliação" },
+    "questionnaires.kind": {
+      "label": "Tipo",
+      "options": { "registration": "Cadastro", "qualification": "Qualificação", "re_evaluation": "Reavaliação", "regulatory_evidence": "Evidências regulatórias" }
+    },
+    "questionnaires.status": {
+      "label": "Status",
+      "options": { "draft": "Rascunho", "sent": "Enviado", "partial": "Resposta parcial", "received": "Recebido", "reviewed": "Analisado" }
+    },
+    "questionnaires.sent_on": { "label": "Enviado em" },
+    "questionnaires.due_on": { "label": "Prazo" },
+    "questionnaires.received_on": { "label": "Recebido em" },
+    "questionnaires.score": { "label": "Pontuação" },
+    "questionnaires.decision": {
+      "label": "Decisão",
+      "options": { "approve": "Homologar", "approve_with_conditions": "Homologar com restrições", "escalate": "Escalar", "reject": "Reprovar" }
+    },
+    "questionnaires.reviewer": { "label": "Avaliador" },
+    "questionnaires.form_link": { "label": "Link do formulário" },
+    "documents.doc_type": {
+      "label": "Tipo de documento",
+      "options": { "quality_certificate": "Certificado de qualidade", "environmental_certificate": "Certificado ambiental", "security_certificate": "Certificado de segurança", "insurance": "Seguro", "tax_clearance": "Certidão negativa", "registration_extract": "Contrato social", "data_processing_agreement": "Contrato de operador (LGPD)", "other": "Outro" }
+    },
+    "documents.status": {
+      "label": "Status",
+      "options": { "requested": "Solicitado", "received": "Recebido", "under_review": "Em análise", "accepted": "Aceito", "rejected": "Recusado", "expired": "Vencido" }
+    },
+    "documents.requested_on": { "label": "Solicitado em" },
+    "documents.received_on": { "label": "Recebido em" },
+    "documents.valid_until": { "label": "Validade" },
+    "documents.evidence_link": { "label": "Link do arquivo" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "send_questionnaire": "Enviar o questionário",
+        "chase_supplier": "Cobrar o fornecedor",
+        "review_answers": "Analisar as respostas",
+        "request_document": "Solicitar um documento",
+        "verify_document": "Conferir um documento",
+        "decide": "Decidir",
+        "re_evaluate": "Reavaliar",
+        "other": "Outro"
+      }
+    }
+  },
+  "relationships": {
+    "contact_supplier": { "sourceLabel": "Fornecedor", "targetLabel": "Contatos" },
+    "questionnaire_supplier": { "sourceLabel": "Fornecedor", "targetLabel": "Questionários" },
+    "document_supplier": { "sourceLabel": "Fornecedor", "targetLabel": "Documentos" },
+    "action_supplier": { "sourceLabel": "Fornecedor", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "suppliers_all": { "name": "Todos os fornecedores" },
+    "suppliers_board": { "name": "Quadro de homologação" },
+    "documents_all": { "name": "Todos os documentos" },
+    "expired_documents": { "name": "Vencidos ou recusados" },
+    "questionnaires_all": { "name": "Todos os questionários" },
+    "contacts_all": { "name": "Todos os contatos" }
+  },
+  "widgets": {
+    "suppliers_by_status": { "title": "Fornecedores por status" },
+    "suppliers_by_risk": { "title": "Fornecedores por nível de risco" },
+    "documents_expiring": { "title": "Documentos a vencer" },
+    "questionnaires_open": { "title": "Questionários aguardando resposta" },
+    "reviews_coming": { "title": "Avaliações próximas" },
+    "documents_expired": { "title": "Documentos vencidos" }
+  },
+  "knowledgePages": {
+    "qualification_process": { "title": "Procedimento de homologação de fornecedores", "sections": ["Necessidade, critérios e quem aprova", "Questionário, documentos, decisão"] },
+    "document_requirements": { "title": "Certificados e certidões que pedimos", "sections": ["Por categoria e nível de risco", "Quanto tempo vale cada um"] },
+    "re_evaluation": { "title": "Calendário de reavaliação", "sections": ["Datas de avaliação por nível de risco", "Fatos que antecipam a avaliação"] }
+  },
+  "rules": {
+    "chase_questionnaire": { "title": "Cobrar o fornecedor quando um questionário passa do prazo" },
+    "review_answers": { "title": "Analisar as respostas 3 dias depois de receber um questionário" },
+    "renew_document": { "title": "Pedir o documento renovado 30 dias antes do vencimento" },
+    "document_expiry_notice": { "title": "Avisar o responsável quando um documento vence" },
+    "re_evaluate_supplier": { "title": "Iniciar uma reavaliação 14 dias antes da próxima avaliação" },
+    "decide_after_review": { "title": "Decidir em 5 dias quando um fornecedor entra em análise" },
+    "registration_form_records": { "title": "Criar o fornecedor e o contato quando o formulário de cadastro for enviado" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Cada fornecedor tem um status de qualificação.",
+    "valid_until_field": "Cada documento registra até quando é válido.",
+    "suppliers_board_view": "Os fornecedores abrem como quadro por status."
+  },
+  "prompt": {
+    "intro": "Configure no meu espaço de trabalho do Customermates um cadastro de fornecedores: fornecedores com nível de risco e status de qualificação, questionários com prazos e decisão, documentos com data de validade e acompanhamentos com data.",
+    "questions": [
+      "Quantos fornecedores você tem e como os divide por nível de risco?",
+      "Quais certificados ou certidões você pede e quanto tempo vale cada um?",
+      "Quem analisa as respostas e quem homologa um fornecedor?",
+      "Com que frequência você reavalia um fornecedor? Os arquivos ficam no seu sistema de documentos e aqui só se guarda um link."
+    ]
+  }
+}

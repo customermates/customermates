@@ -1,0 +1,195 @@
+{
+  "locale": "it",
+  "name": "Ricerca e selezione del personale",
+  "summary": "Uno strumento per agenzie di ricerca e selezione o recruiter indipendenti: incarichi dal briefing all'inserimento, una scheda per candidato e incarico, scadenze di fee e garanzia, ricontatti dopo l'inserimento e una data di conservazione per ogni candidato.",
+  "description": "Gestisci l'agenzia in un unico posto: clienti e condizioni di incarico, incarichi con una fase e una fee prevista, candidati presentati per incarico con la propria fase, inserimenti con la fine del periodo di garanzia e i ricontatti dopo l'ingresso, e una data di revisione della conservazione su ogni candidato. Adatto a un team da una a cinque persone. Non è un job board, né un parser di CV, né uno strumento di invii di massa, né un sistema di timesheet e paghe. Nulla viene inviato automaticamente a candidati o clienti.",
+  "lists": {
+    "people": { "label": "Persona", "pluralLabel": "Candidati e referenti", "description": "Candidati, referenti presso il cliente e segnalatori." },
+    "clients": { "label": "Cliente", "pluralLabel": "Clienti", "description": "Le aziende per cui ricerchi, con fee e condizioni di garanzia." },
+    "jobs": { "label": "Incarico di ricerca", "pluralLabel": "Incarichi di ricerca", "description": "Una ricerca per un cliente, dalla richiesta all'inserimento o alla perdita." },
+    "submissions": { "label": "Candidatura presentata", "pluralLabel": "Candidature presentate", "description": "Un candidato su un incarico, con la propria fase." },
+    "placements": { "label": "Inserimento", "pluralLabel": "Inserimenti", "description": "Un candidato che ha accettato, con data di inizio, fee e fine della garanzia." }
+  },
+  "fields": {
+    "jobs.stage": {
+      "label": "Fase",
+      "options": { "lead": "Richiesta", "brief": "Briefing", "terms_agreed": "Condizioni concordate", "searching": "Ricerca", "submitted": "Short list presentata", "interviews": "Colloqui in azienda", "offer": "Offerta", "placed": "Inserito", "lost": "Perso" }
+    },
+    "submissions.stage": {
+      "label": "Fase",
+      "options": { "sourced": "Individuato", "contacted": "Contattato", "screened": "Valutato", "submitted": "Presentato al cliente", "client_interview": "Colloquio in azienda", "offer": "Offerta", "placed": "Inserito", "rejected_internal": "Scartato da noi", "rejected_by_client": "Scartato dal cliente", "withdrawn": "Ritirato" }
+    },
+    "people.person_type": {
+      "label": "Tipo",
+      "options": { "candidate": "Candidato", "client_contact": "Referente del cliente", "referrer": "Segnalatore", "other": "Altro" }
+    },
+    "people.job_title": { "label": "Ruolo" },
+    "people.candidate_status": {
+      "label": "Stato del candidato",
+      "options": { "active": "In cerca attiva", "passive": "Passivo", "placed": "Inserito", "do_not_contact": "Non contattare", "archived": "Archiviato" }
+    },
+    "people.source": {
+      "label": "Fonte",
+      "options": { "referral": "Segnalazione", "linkedin": "LinkedIn", "job_board": "Job board", "own_database": "Banca dati interna", "event": "Evento", "inbound": "Autocandidatura", "other": "Altro" }
+    },
+    "people.salary_expectation": { "label": "Aspettativa retributiva" },
+    "people.notice_period": { "label": "Preavviso" },
+    "people.location": { "label": "Sede" },
+    "people.data_basis": {
+      "label": "Base per conservare i dati",
+      "options": { "pre_contract": "Misure precontrattuali", "talent_pool_consent": "Consenso per future selezioni", "legitimate_interest": "Individuato, legittimo interesse" }
+    },
+    "people.retain_until": { "label": "Conservare fino al" },
+    "people.last_contact": { "label": "Ultimo contatto" },
+    "people.owner": { "label": "Responsabile" },
+    "clients.client_status": {
+      "label": "Stato",
+      "options": { "prospect": "Potenziale", "active_client": "Cliente attivo", "past_client": "Ex cliente", "do_not_contact": "Non contattare" }
+    },
+    "clients.agreement_type": {
+      "label": "Accordo",
+      "options": { "contingency": "A successo", "retained": "Retained (in tre tranche)", "container": "A pacchetto", "other": "Altro" }
+    },
+    "clients.fee_percent": { "label": "Fee (% della RAL)" },
+    "clients.guarantee_days": { "label": "Periodo di garanzia (giorni)" },
+    "clients.terms_signed_on": { "label": "Condizioni firmate il" },
+    "clients.terms_url": { "label": "Link alle condizioni" },
+    "clients.website": { "label": "Sito web" },
+    "clients.next_touch": { "label": "Prossimo contatto" },
+    "clients.owner": { "label": "Responsabile" },
+    "jobs.salary": { "label": "RAL prevista" },
+    "jobs.fee_percent": { "label": "Fee (%)" },
+    "jobs.opened_on": { "label": "Aperto il" },
+    "jobs.filled_on": { "label": "Coperto il" },
+    "jobs.exclusive": { "label": "In esclusiva" },
+    "jobs.location": { "label": "Sede di lavoro" },
+    "jobs.work_model": { "label": "Modalità di lavoro", "options": { "on_site": "In sede", "hybrid": "Ibrido", "remote": "Da remoto" } },
+    "jobs.must_haves": { "label": "Requisiti indispensabili e preferenziali" },
+    "jobs.brief_url": { "label": "Link al briefing" },
+    "jobs.next_step": { "label": "Prossimo passo" },
+    "jobs.next_step_due": { "label": "Scadenza del prossimo passo" },
+    "jobs.lost_reason": {
+      "label": "Motivo della perdita",
+      "options": { "client_filled_internally": "Coperto internamente dal cliente", "client_froze_search": "Ricerca sospesa dal cliente", "filled_by_competitor": "Coperto da un concorrente", "terms_not_agreed": "Condizioni non concordate", "role_cancelled": "Posizione cancellata", "no_suitable_candidates": "Nessun candidato adatto" }
+    },
+    "jobs.owner": { "label": "Responsabile" },
+    "jobs.days_to_fill": { "label": "Giorni per coprire la posizione" },
+    "jobs.weighted_fee": { "label": "Fee ponderata" },
+    "submissions.submitted_on": { "label": "Presentato il" },
+    "submissions.interview_at": { "label": "Colloquio" },
+    "submissions.feedback_due": { "label": "Feedback del cliente atteso il" },
+    "submissions.rejection_reason": {
+      "label": "Motivo dello scarto",
+      "options": { "skills": "Competenze", "culture_fit": "Affinità con la cultura aziendale", "salary_mismatch": "Retribuzione non compatibile", "other_offer": "Altra offerta", "no_response": "Nessuna risposta", "location_or_notice": "Sede o preavviso" }
+    },
+    "submissions.notes": { "label": "Note" },
+    "submissions.owner": { "label": "Responsabile" },
+    "placements.start_date": { "label": "Data di inizio" },
+    "placements.agreed_salary": { "label": "RAL concordata" },
+    "placements.fee_amount": { "label": "Fee" },
+    "placements.invoice_reference": { "label": "Riferimento fattura" },
+    "placements.guarantee_ends": { "label": "Fine della garanzia" },
+    "placements.status": {
+      "label": "Stato",
+      "options": { "in_guarantee": "In garanzia", "guarantee_passed": "Garanzia conclusa", "fell_out_replaced": "Uscito, sostituito", "fell_out_refunded": "Uscito, rimborsato" }
+    },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "call_client": "Chiamare il cliente",
+        "call_candidate": "Chiamare il candidato",
+        "submit_candidate": "Presentare un candidato",
+        "request_feedback": "Chiedere un feedback",
+        "prepare_interview": "Preparare un colloquio",
+        "debrief": "Fare il debriefing",
+        "chase_terms": "Sollecitare le condizioni firmate",
+        "check_in": "Fare un ricontatto",
+        "retention_review": "Revisione della conservazione",
+        "review_search": "Rivedere una ricerca ferma",
+        "invoice_request": "Chiedere una fattura",
+        "other": "Altro"
+      }
+    }
+  },
+  "relationships": {
+    "person_client": { "sourceLabel": "Datore di lavoro o cliente", "targetLabel": "Candidati e referenti" },
+    "job_client": { "sourceLabel": "Cliente", "targetLabel": "Incarichi di ricerca" },
+    "job_contacts": { "sourceLabel": "Referenti del cliente", "targetLabel": "Incarichi di ricerca" },
+    "submission_job": { "sourceLabel": "Incarico", "targetLabel": "Candidature presentate" },
+    "submission_candidate": { "sourceLabel": "Candidato", "targetLabel": "Candidature presentate" },
+    "placement_job": { "sourceLabel": "Incarico", "targetLabel": "Inserimenti" },
+    "placement_candidate": { "sourceLabel": "Candidato", "targetLabel": "Inserimenti" },
+    "action_person": { "sourceLabel": "Persona", "targetLabel": "Attività" },
+    "action_job": { "sourceLabel": "Incarico", "targetLabel": "Attività" },
+    "action_submission": { "sourceLabel": "Candidatura presentata", "targetLabel": "Attività" },
+    "action_client": { "sourceLabel": "Cliente", "targetLabel": "Attività" },
+    "action_placement": { "sourceLabel": "Inserimento", "targetLabel": "Attività" }
+  },
+  "views": {
+    "jobs_board": { "name": "Incarichi per fase" },
+    "jobs_all": { "name": "Tutti gli incarichi" },
+    "searches_without_next_step": { "name": "Ricerche aperte senza prossimo passo" },
+    "submissions_board": { "name": "Candidati per fase" },
+    "feedback_pending": { "name": "In attesa del feedback del cliente" },
+    "placements_all": { "name": "Tutti gli inserimenti" },
+    "clients_all": { "name": "Tutti i clienti" },
+    "people_all": { "name": "Tutti i candidati e i referenti" }
+  },
+  "widgets": {
+    "jobs_funnel": { "title": "Incarichi aperti per fase" },
+    "weighted_fees": { "title": "Fee ponderate in pipeline" },
+    "submissions_by_stage": { "title": "Candidati per fase" },
+    "placements_per_month": { "title": "Fee per mese di inizio" },
+    "interviews_coming": { "title": "Colloqui in arrivo" },
+    "guarantees_ending": { "title": "Garanzie in scadenza" },
+    "retention_due": { "title": "Dati dei candidati da rivedere" },
+    "lost_reasons": { "title": "Motivi di perdita degli incarichi" },
+    "average_days_to_fill": { "title": "Giorni medi per coprire una posizione" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Come funziona l'attività di ricerca", "sections": ["Le due pipeline: incarichi e candidati", "Chi segue quale fase, e la regola di un'attività con data per ogni pratica aperta"] },
+    "client_intake_call": { "title": "Chiamata di briefing con il cliente: scheda dell'incarico", "sections": ["Ruolo, sede, modalità di lavoro, fascia retributiva e data di inizio", "Requisiti indispensabili e preferenziali, motivo dell'apertura e chi decide"] },
+    "terms_checklist": { "title": "Fee, garanzia ed esclusiva", "sections": ["Base di calcolo, quando matura e termini di pagamento", "Durata e rimedio della garanzia, esclusiva (usa il tuo contratto, non è consulenza legale)"] },
+    "screening_call": { "title": "Guida al colloquio di screening", "sections": ["Motivazione, preavviso, aspettativa retributiva, altri processi", "Che cosa non chiedere e che cosa non registrare"] },
+    "submission_email": { "title": "Presentare un candidato al cliente", "sections": ["Sintesi in tre righe e perché questa persona", "Disponibilità, aspettative e CV in allegato (una bozza, mai inviata in automatico)"] },
+    "interview_routine": { "title": "Preparazione e debriefing dei colloqui", "sections": ["Fare il briefing al candidato e al referente del cliente", "Registrare l'esito entro un giorno"] },
+    "candidate_data": { "title": "Dati dei candidati: base giuridica, informativa e conservazione", "sections": ["Tempi di conservazione e informativa privacy", "Consenso per future selezioni e data di revisione"] },
+    "aftercare_routine": { "title": "Ricontatti dopo l'inserimento dal giorno 1 al giorno 90", "sections": ["Ricontatti all'inizio, dopo una settimana, a 30, 60 e 90 giorni", "Fine della garanzia e fatturazione della fee"] }
+  },
+  "rules": {
+    "chase_terms": { "title": "Sollecitare le condizioni firmate tre giorni dopo l'accordo sull'incarico" },
+    "request_client_feedback": { "title": "Chiedere un feedback al cliente due giorni dopo la presentazione di un candidato" },
+    "prepare_interview": { "title": "Preparare il candidato il giorno prima del colloquio in azienda" },
+    "debrief_interview": { "title": "Fare il debriefing con candidato e cliente il giorno del colloquio" },
+    "chase_offer_decision": { "title": "Sollecitare la decisione del candidato due giorni dopo l'offerta" },
+    "start_day_confirmation": { "title": "Confermare l'inizio il primo giorno dell'inserimento" },
+    "check_in_week_1": { "title": "Fare un ricontatto una settimana dopo l'inizio" },
+    "check_in_day_30": { "title": "Fare un ricontatto 30 giorni dopo l'inizio" },
+    "check_in_day_60": { "title": "Fare un ricontatto 60 giorni dopo l'inizio" },
+    "check_in_day_90": { "title": "Fare un ricontatto 90 giorni dopo l'inizio" },
+    "guarantee_check": { "title": "Verificare 14 giorni prima della fine della garanzia che l'inserimento sia stabile e la fee pagata" },
+    "retention_review": { "title": "Alla data di conservazione cancellare il candidato o registrare un nuovo consenso" },
+    "client_touch": { "title": "Chiamare un cliente attivo alla data del prossimo contatto per sapere delle assunzioni in arrivo" },
+    "stalled_search_review": { "title": "Rivedere una ricerca aperta da oltre 10 giorni" },
+    "application_received": { "title": "Creare il candidato e una chiamata quando arriva un modulo di candidatura" },
+    "feedback_overdue_notice": { "title": "Avvisare il responsabile quando il feedback del cliente è in ritardo" },
+    "interview_calendar": { "title": "Aggiungere il colloquio al calendario del responsabile appena è concordato" }
+  },
+  "acceptanceChecks": {
+    "job_stage_field": "Ogni incarico ha una delle nove fasi.",
+    "submission_stage_field": "Ogni candidato ha una fase propria su un incarico.",
+    "guarantee_end_field": "Ogni inserimento registra quando finisce la garanzia.",
+    "retain_until_field": "Ogni persona registra fino a quando i suoi dati sono conservati.",
+    "jobs_board_view": "Gli incarichi si aprono come board per fase.",
+    "candidate_data_page": "La base di conoscenza contiene una pagina sui dati dei candidati e sulla conservazione."
+  },
+  "prompt": {
+    "intro": "Configura nel mio spazio di lavoro Customermates un sistema per la ricerca e selezione del personale: clienti con le loro condizioni, incarichi con nove fasi e una fee prevista, una candidatura per candidato e incarico, inserimenti con la fine della garanzia e i ricontatti, e una data di conservazione per ogni candidato.",
+    "questions": [
+      "Lavori a successo, in retained o in entrambi i modi, e che fee e garanzia concordi di solito?",
+      "Quanti incarichi e candidati gestisci in parallelo e chi segue quale fase?",
+      "Per quanto tempo conservi i dati dei candidati e in quali paesi ricerchi?",
+      "Dove tieni le condizioni firmate e le fatture? Qui si conserva solo un link o un riferimento."
+    ]
+  }
+}

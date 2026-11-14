@@ -1,0 +1,92 @@
+{
+  "locale": "nl",
+  "name": "Teamtaken",
+  "summary": "Een werkoverzicht voor een klein team: projecten, taken met één eigenaar en één deadline, terugkerende taken en verzoeken van buiten het team op dezelfde lijst.",
+  "description": "Houd een team van twee tot vijftien mensen op één lijst: elke taak heeft een status, een prioriteit, een eigenaar en een deadline, en wat te laat of geblokkeerd is zie je in één oogopslag. Terugkerende taken maken zichzelf aan, verzoeken van collega's of klanten komen binnen via een formulier en een geblokkeerde of stilstaande taak stuurt zijn eigenaar een herinnering. Geen sprinttool, geen Gantt-planner, geen urenregistratie en geen hr-systeem.",
+  "lists": {
+    "requesters": { "label": "Aanvrager", "pluralLabel": "Aanvragers", "description": "De mensen buiten het team die werk vragen." },
+    "projects": { "label": "Project", "pluralLabel": "Projecten", "description": "Een bundel taken met eigenaar, stoplicht en deadline." },
+    "tasks": { "label": "Taak", "pluralLabel": "Taken", "description": "Eén stuk werk met één eigenaar en één deadline." },
+    "recurring": { "label": "Terugkerende taak", "pluralLabel": "Terugkerende taken", "description": "Een taak die elke week, maand, kwartaal of jaar terugkomt." }
+  },
+  "fields": {
+    "requesters.relation": {
+      "label": "Relatie",
+      "options": { "customer": "Klant", "colleague": "Collega", "partner": "Partner", "vendor": "Leverancier", "other": "Overig" }
+    },
+    "requesters.team": { "label": "Team" },
+    "projects.status": {
+      "label": "Status",
+      "options": { "planned": "Gepland", "active": "Actief", "on_hold": "On hold", "done": "Klaar", "cancelled": "Geannuleerd" }
+    },
+    "projects.health": { "label": "Stoplicht", "options": { "on_track": "Op koers", "at_risk": "Loopt risico", "off_track": "Uit koers" } },
+    "projects.owner": { "label": "Eigenaar" },
+    "projects.due_date": { "label": "Deadline" },
+    "projects.repo_url": { "label": "Link naar de repository" },
+    "tasks.status": {
+      "label": "Status",
+      "options": { "backlog": "Backlog", "todo": "Te doen", "in_progress": "In uitvoering", "in_review": "In review", "blocked": "Geblokkeerd", "done": "Klaar", "cancelled": "Geannuleerd" }
+    },
+    "tasks.kind": { "label": "Soort", "options": { "task": "Taak", "bug": "Bug", "feature": "Feature", "chore": "Routinetaak", "request": "Verzoek" } },
+    "tasks.priority": { "label": "Prioriteit", "options": { "urgent": "Urgent", "high": "Hoog", "medium": "Gemiddeld", "low": "Laag" } },
+    "tasks.owner": { "label": "Eigenaar" },
+    "tasks.due": { "label": "Deadline" },
+    "tasks.original_due": { "label": "Oorspronkelijke deadline" },
+    "tasks.done_on": { "label": "Klaar op" },
+    "tasks.blocked_reason": { "label": "Reden van blokkade" },
+    "tasks.external_url": { "label": "Link (pull request of ticket)" },
+    "recurring.cadence": { "label": "Herhaling", "options": { "weekly": "Wekelijks", "monthly": "Maandelijks", "quarterly": "Elk kwartaal", "yearly": "Jaarlijks" } },
+    "recurring.next_due": { "label": "Volgende deadline" },
+    "recurring.owner": { "label": "Eigenaar" }
+  },
+  "relationships": {
+    "task_project": { "sourceLabel": "Project", "targetLabel": "Taken" },
+    "task_requester": { "sourceLabel": "Aanvrager", "targetLabel": "Taken" },
+    "recurring_project": { "sourceLabel": "Project", "targetLabel": "Terugkerende taken" }
+  },
+  "views": {
+    "tasks_all": { "name": "Alle taken" },
+    "tasks_board": { "name": "Takenbord" },
+    "blocked_tasks": { "name": "Geblokkeerde taken" },
+    "projects_all": { "name": "Alle projecten" },
+    "recurring_all": { "name": "Alle terugkerende taken" },
+    "requesters_all": { "name": "Alle aanvragers" }
+  },
+  "widgets": {
+    "tasks_by_status": { "title": "Taken per status" },
+    "open_by_priority": { "title": "Open taken per prioriteit" },
+    "overdue_tasks": { "title": "Achterstallige taken" },
+    "due_soon": { "title": "Taken met een naderende deadline" },
+    "blocked_count": { "title": "Geblokkeerde taken" },
+    "activity_timeline": { "title": "Recente activiteit" }
+  },
+  "knowledgePages": {
+    "how_we_work": { "title": "Zo werken wij", "sections": ["Statussen, prioriteiten en wat klaar betekent", "Eén eigenaar en één datum per taak"] },
+    "weekly_review": { "title": "Wekelijkse review", "sections": ["Achterstallig, geblokkeerd en zonder eigenaar", "Wat er deze week verandert"] },
+    "triage": { "title": "Triage van verzoeken en bugs", "sections": ["Wie beslist wat er binnenkomt", "Ernst versus prioriteit"] }
+  },
+  "rules": {
+    "task_assigned": { "title": "Waarschuw de nieuwe eigenaar als een taak wordt toegewezen" },
+    "due_tomorrow": { "title": "Waarschuw de eigenaar de dag voor de deadline" },
+    "overdue_task": { "title": "Waarschuw de teamleider de dag na de deadline" },
+    "blocked_stale": { "title": "Waarschuw de teamleider als een taak 3 dagen geblokkeerd blijft" },
+    "stale_in_progress": { "title": "Stuur de eigenaar een herinnering als een taak 5 dagen stilstaat" },
+    "recurring_due": { "title": "Maak een taak aan als een terugkerende taak aan de beurt is" },
+    "task_from_git": { "title": "Maak een taak aan als de Git-dienst een gebeurtenis stuurt" },
+    "request_form": { "title": "Maak een taak en een aanvrager aan als het aanvraagformulier is ingediend" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Elke taak heeft een status.",
+    "due_field": "Elke taak heeft een deadline.",
+    "tasks_board_view": "De taken openen als bord per status."
+  },
+  "prompt": {
+    "intro": "Richt in mijn Customermates-werkruimte een teamoverzicht in: projecten, taken met één eigenaar en één deadline, terugkerende taken, verzoeken van buiten het team en herinneringen voor werk dat te laat of geblokkeerd is.",
+    "questions": [
+      "Hoeveel mensen telt het team en waar werken ze aan?",
+      "Welke statussen gebruik je nu in Trello, Jira, Asana of een spreadsheet?",
+      "Welke taken komen elke week of maand terug en wie is eigenaar?",
+      "Waar komen verzoeken vandaan en moeten ze via een formulier binnenkomen?"
+    ]
+  }
+}

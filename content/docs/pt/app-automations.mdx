@@ -1,0 +1,69 @@
+---
+title: "Automações: regras sem IA, lembretes e notificações"
+description: "As automações rodam sem IA quando algo acontece e corresponde: monte com Quando, Se e Então, com lembretes, sino de notificações e e-mails."
+---
+
+Uma automação é uma regra que roda sem IA: quando algo acontece e corresponde, o Customermates faz o que você configurou. Ela pode criar uma tarefa de acompanhamento, definir um campo, avisar você ou sua equipe no sino de notificações e por e-mail, ou chamar um webhook. As automações funcionam em todos os planos e em instâncias auto-hospedadas. Elas não são [Rotinas](app:routines): uma rotina deixa o Mate trabalhar por conta própria, uma automação faz exatamente o que dizem os três cartões dela e nada além disso.
+
+A página **Automações** fica na barra lateral, ao lado de **Rotinas**. Quem a vê depende da linha **Rotinas** da própria função em [Funções](app:settings/roles): **Acesso de leitura** **Todos** mostra todas as automações do espaço de trabalho, **Atribuídos** só as da própria pessoa, e **Nenhum** oculta a página. Criar exige **Criar**.
+
+## Como crio uma automação? [#how-do-i-create-an-automation]
+
+Abra **Automações** e clique em **Nova automação**, ou clique em **Automatizar esta lista** na barra de ferramentas de qualquer lista para começar com essa lista já escolhida. Dê um **Nome**, preencha os três cartões e salve. Uma automação salva fica ligada.
+
+- **Quando** escolhe a lista e o que inicia a regra: **Um registro é criado**, **Um registro é atualizado**, **Um campo muda** (com **Para o valor** opcional, para disparar só quando o campo mudar para esse valor) ou **Uma data é alcançada**.
+- **Se (opcional)** acrescenta condições sobre o registro que iniciou a regra: **é**, **não é**, **está vazio**, **não está vazio**, **é antes de hoje mais** ou **é depois de hoje mais** um número de dias. Todas as condições precisam corresponder.
+- **Então** lista o que acontece, em ordem: **Definir um campo**, **Criar um registro**, **Notificar** ou **Chamar um webhook**. **Criar um registro** é como uma automação cria uma tarefa de acompanhamento: escolha a lista de tarefas, o **Campo de título** e o **Título**, o **Campo de vencimento** e **Vence em dias**, se deve **Atribuir a mim** e como **Vincular ao registro que a disparou como**. Em títulos e detalhes, `{{record.name}}` é substituído pelo nome do registro e `{{rule.name}}` pelo nome da automação.
+
+Também existem regras para envios de formulários, webhooks de entrada e mensagens que chegam. Você as cria com `manage_rules` por MCP ou REST, e a página as lista; um gatilho ou uma ação que o construtor não consegue editar mostra uma observação e continua como está.
+
+## Como recebo um lembrete antes de uma data? [#how-do-i-get-a-reminder-before-a-date]
+
+Abra uma lista que tenha um campo de data ou de data e hora, abra **Mais ações** na barra de ferramentas e escolha **Lembrar-me de** seguido do nome do campo. O construtor abre com um gatilho **Uma data é alcançada** para esse campo, então você só escolhe **Dias**, **Antes ou depois**, **Na hora (0 a 23)** e **Fuso horário**, e acrescenta uma ação **Notificar** que avisa você. O lembrete chega a você no sino de notificações e, conforme sua preferência, por e-mail.
+
+Uma regra de data dispara uma vez por registro, quando a data deslocada pelo seu intervalo é alcançada. Ela é verificada a cada poucos minutos. Uma regra que você cria ou liga depois ainda pega as datas alcançadas nos últimos 7 dias, e um registro cuja data você muda para outro dia dispara de novo para a nova data. **Preview** por MCP ou REST lista os registros que uma regra de data atingiria em seguida.
+
+## Como as automações rodam, e o que o histórico mostra? [#how-do-automations-run]
+
+Uma automação roda como o proprietário dela, com as permissões dele: nunca pode fazer mais do que o proprietário poderia. Quem a cria é o proprietário. Só o proprietário pode alterar ou ligar uma automação; um administrador também pode desligá-la ou excluí-la. Se o proprietário deixa de ser um membro ativo, a automação se desliga sozinha e informa isso.
+
+Uma execução acontece uma vez por registro e gatilho. O que uma automação altera nunca inicia a mesma automação de novo, e uma cadeia termina depois de duas regras, para que duas automações não se iniciem uma à outra sem fim. Se uma ação falha, as ações seguintes não rodam.
+
+Clique em **Histórico** em uma automação para ver as execuções dela, das mais recentes para as mais antigas. Cada execução mostra o status (**Na fila**, **Em andamento**, **Concluída**, **Ignorada** ou **Falhou**), o resultado de cada ação e um link **Abrir o registro**. Uma execução ignorada diz o motivo: as condições não foram atendidas, a automação estava desligada, o registro não existe mais ou o proprietário não consegue lê-lo, o proprietário mudou, ou ele não está mais ativo ou não tem mais acesso às automações.
+
+Excluir uma automação a remove para sempre junto com o histórico; desligue-a em vez disso se talvez precise dela de novo.
+
+## Como funcionam as notificações e as preferências de e-mail? [#how-do-notifications-work]
+
+O sino na barra superior mostra quantas notificações não foram lidas. Abra-o para ver as mais recentes, abrir o registro correspondente ou escolher **Marcar tudo como lido**. As notificações vêm de cinco tipos de eventos: **Atribuídos a você**, **Vencem hoje**, **Envios de formulários**, **Respostas recebidas** e **Alertas de automação**. O sino sempre mostra tudo e guarda as notificações por 90 dias.
+
+Se um tipo também chega a você por e-mail, a escolha é sua, tipo por tipo, no cartão **E-mails de notificação** em [Perfil e preferências](app:settings/profile): **E-mail imediato**, **Resumo diário** ou **Sem e-mail**. Enquanto você não mudar nada, atribuições, envios de formulários e alertas de automação chegam na hora, e vencimentos e respostas chegam no resumo diário. O resumo é um e-mail por dia com o que ainda não foi enviado por e-mail.
+
+## Quantas automações meu plano inclui? [#how-many-automations-does-my-plan-include]
+
+O limite conta as automações ligadas: o Free inclui [[commercial.entitlement.free.activeRules]], o Starter [[commercial.entitlement.starter.activeRules]], e o Pro, o Business, o Max e o Enterprise [[commercial.entitlement.pro.activeRules]]. Desligar uma automação libera a vaga dela na hora. No limite, criar ou ligar outra é recusado com um convite para fazer upgrade em [Faturamento](app:settings/billing) ou para desligar outra automação. Instâncias auto-hospedadas não têm plano, então lá não vale nenhum limite.
+
+## Como o Mate gerencia as automações? [#how-does-mate-manage-automations]
+
+Em um chat, o Mate pode listar suas automações, ler uma com o histórico de execuções e mostrar antes quais registros uma regra de data atingiria, sem pedir antes. Criar, alterar, ligar ou desligar e excluir uma automação pedem, cada um, a sua aprovação. Quando o Mate configurou seu espaço de trabalho a partir de um modelo, ele oferece uma vez as regras desse modelo, depois que as listas existem, e cria cada uma só depois da sua aprovação; as regras que exigem uma rotina de agente ou um gatilho que o mecanismo de regras não tem são citadas com o motivo.
+
+## Para agentes [#for-agents]
+
+Use `manage_rules` por [MCP](/docs/mcp), com as ações `list`, `get`, `runs`, `create`, `update`, `enable`, `disable`, `delete` e `preview`. Se `enabled` for omitido em `create`, a automação nasce ligada; passe `enabled: false` para salvar um rascunho. Os gatilhos são `recordCreated`, `recordUpdated`, `fieldChanged`, `dateReached`, `messageReceived`, `formSubmitted` e `webhookReceived`; os ids de lista e de campo vêm de `discover_record_types` e `get_record_model`. Uma recusa por causa do plano chega com o limite e o preço do upgrade. REST oferece as mesmas operações como `POST /api/v1/rules/list`, `read`, `runs`, `create`, `update`, `enable`, `disable`, `delete` e `preview`, com permissão de leitura em **Rotinas** para ler e permissão de criação para criar; veja a [referência da API](/docs/openapi).
+
+## Perguntas frequentes [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Uma automação é a mesma coisa que uma rotina?">
+Não. Uma rotina abre uma conversa e deixa o Mate trabalhar, usa a franquia do Mate do proprietário e só existe no Customermates Cloud. Uma automação executa uma regra fixa de quando, se e então sem IA, em todos os planos e em instâncias auto-hospedadas. Para o outro tipo, veja as [rotinas](/docs/app-routines).
+</FaqItem>
+<FaqItem question="Por que minha automação não rodou para um registro?">
+Abra o **Histórico** da automação. Uma execução ignorada diz o motivo, por exemplo condições não atendidas ou um proprietário que não está mais ativo. Uma regra de data também precisa de uma data no campo e dispara uma vez por registro e data.
+</FaqItem>
+<FaqItem question="Uma automação pode enviar um e-mail para um cliente?">
+Não diretamente. Uma automação não envia e-mails nem mensagens por si mesma. Ela pode notificar membros do seu espaço de trabalho, o que pode alcançá-los por e-mail, e pode chamar um dos seus webhooks, por exemplo para iniciar um fluxo do [n8n](/docs/n8n) que envie algo.
+</FaqItem>
+<FaqItem question="Quem recebe a notificação quando uma automação avisa alguém?">
+A ação decide: **Avisar-me** alcança o proprietário da automação, **Avisar as pessoas atribuídas** alcança os membros a quem o registro que a disparou está atribuído. A notificação aparece no sino deles e segue a preferência de e-mail deles para **Alertas de automação**.
+</FaqItem>
+</Faq>

@@ -1,0 +1,102 @@
+{
+  "locale": "pt",
+  "name": "Agendamento online",
+  "summary": "Uma agenda de atendimentos para quem presta serviços: tipos de atendimento com duração e antecedência mínima, cada agendamento com status, lembretes e resultado, e um próximo passo em cada um.",
+  "description": "Receba agendamentos de chamadas, consultas ou visitas e guarde tudo no CRM: poucos tipos de atendimento com duração, intervalo e antecedência mínima, um agendamento que cria a pessoa e o atendimento, um evento na agenda quando você confirma, dois lembretes e um resultado registrado depois de cada atendimento. Gerencia apenas o tempo das pessoas. Não é um sistema de reserva de salas ou recursos, uma ferramenta de ingressos, um sistema de consultas médicas nem um meio de pagamento.",
+  "lists": {
+    "people": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas que agendam com você." },
+    "appointment_types": { "label": "Tipo de atendimento", "pluralLabel": "Tipos de atendimento", "description": "Um tipo de atendimento com duração, intervalo, antecedência mínima e preço." },
+    "appointments": { "label": "Atendimento", "pluralLabel": "Atendimentos", "description": "Um agendamento, de solicitado a realizado, faltou ou cancelado." }
+  },
+  "fields": {
+    "people.preferred_channel": { "label": "Canal preferido", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Telefone" } },
+    "people.time_zone": { "label": "Fuso horário" },
+    "appointment_types.duration_minutes": { "label": "Duração (minutos)" },
+    "appointment_types.buffer_minutes": { "label": "Intervalo depois (minutos)" },
+    "appointment_types.min_notice_hours": { "label": "Antecedência mínima (horas)" },
+    "appointment_types.booking_window_days": { "label": "Agendável até (dias antes)" },
+    "appointment_types.daily_limit": { "label": "Limite por dia" },
+    "appointment_types.location_type": {
+      "label": "Onde",
+      "options": { "video_call": "Videochamada", "phone": "Telefone", "office": "No escritório", "client_site": "No local do cliente" }
+    },
+    "appointment_types.price": { "label": "Preço" },
+    "appointment_types.active": { "label": "Ativo" },
+    "appointments.status": {
+      "label": "Status",
+      "options": { "requested": "Solicitado", "confirmed": "Confirmado", "rescheduled": "Remarcado", "held": "Realizado", "no_show": "Faltou", "cancelled_by_client": "Cancelado pelo cliente", "cancelled_by_us": "Cancelado por nós" }
+    },
+    "appointments.start_at": { "label": "Início" },
+    "appointments.source": { "label": "Origem", "options": { "booking_page": "Página de agendamento", "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Telefone", "manual": "Lançado manualmente" } },
+    "appointments.meeting_url": { "label": "Link da reunião" },
+    "appointments.outcome": {
+      "label": "Resultado",
+      "options": { "not_decided": "Ainda não decidido", "qualified": "Qualificado", "second_call": "Precisa de uma segunda conversa", "proposal_needed": "Precisa de proposta", "won": "Fechado na conversa", "not_a_fit": "Não se encaixa" }
+    },
+    "appointments.cancel_reason": {
+      "label": "Motivo do cancelamento",
+      "options": { "schedule_conflict": "Conflito de agenda", "other_provider": "Encontrou outro fornecedor", "no_longer_needed": "Não precisa mais", "personal": "Motivo pessoal", "other": "Outro" }
+    },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "confirm_booking": "Confirmar o agendamento",
+        "send_reminder": "Enviar um lembrete",
+        "prepare_call": "Preparar o atendimento",
+        "send_follow_up": "Enviar o acompanhamento",
+        "offer_new_slot": "Oferecer um novo horário",
+        "record_outcome": "Registrar o resultado",
+        "other": "Outro"
+      }
+    }
+  },
+  "relationships": {
+    "appointment_person": { "sourceLabel": "Contato", "targetLabel": "Atendimentos" },
+    "appointment_type": { "sourceLabel": "Tipo de atendimento", "targetLabel": "Atendimentos" },
+    "action_appointment": { "sourceLabel": "Atendimento", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "appointments_all": { "name": "Todos os atendimentos" },
+    "appointments_board": { "name": "Quadro de atendimentos" },
+    "missed_or_cancelled": { "name": "Faltas ou cancelados" },
+    "appointment_types_all": { "name": "Todos os tipos de atendimento" },
+    "people_all": { "name": "Todos os contatos" }
+  },
+  "widgets": {
+    "upcoming_appointments": { "title": "Próximos atendimentos" },
+    "appointments_by_status": { "title": "Atendimentos por status" },
+    "outcomes_of_held": { "title": "Resultados dos atendimentos realizados" },
+    "requests_waiting": { "title": "Solicitações aguardando resposta" },
+    "no_shows": { "title": "Faltas" },
+    "bookings_by_source": { "title": "Agendamentos por origem" }
+  },
+  "knowledgePages": {
+    "appointment_types_rules": { "title": "Tipos de atendimento e disponibilidade", "sections": ["Tipos, durações, intervalos e antecedência", "Horário de atendimento e limites por dia"] },
+    "reminder_policy": { "title": "Lembretes e faltas", "sections": ["Lembretes 3 dias e 1 dia antes", "O que fazemos depois de uma falta"] },
+    "cancellation_policy": { "title": "Cancelamento e remarcação", "sections": ["Até quando o cliente pode cancelar", "Como um novo horário é oferecido"] }
+  },
+  "rules": {
+    "booking_form_records": { "title": "Criar o contato e o atendimento quando o formulário de agendamento for enviado" },
+    "confirm_event": { "title": "Adicionar um evento na agenda quando um atendimento for confirmado" },
+    "notify_new_booking": { "title": "Avisar o responsável quando chegar um agendamento" },
+    "first_reminder": { "title": "Enviar um primeiro lembrete 3 dias antes de um atendimento confirmado" },
+    "second_reminder": { "title": "Enviar um segundo lembrete 1 dia antes de um atendimento confirmado" },
+    "record_outcome": { "title": "Registrar o resultado depois que um atendimento confirmado aconteceu" },
+    "no_show_new_slot": { "title": "Oferecer um novo horário no dia seguinte a uma falta" },
+    "follow_up_held": { "title": "Enviar o acompanhamento no dia seguinte a um atendimento realizado" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Todo atendimento tem um status.",
+    "start_field": "Todo atendimento registra quando começa.",
+    "appointments_board_view": "Os atendimentos abrem como quadro por status."
+  },
+  "prompt": {
+    "intro": "Configure no meu espaço de trabalho do Customermates um agendamento online: tipos de atendimento com duração, intervalo e antecedência mínima, atendimentos com status e resultado, lembretes antes de cada atendimento e um acompanhamento depois.",
+    "questions": [
+      "Quais tipos de atendimento você oferece e quanto dura cada um?",
+      "De quanta antecedência você precisa e com quanto tempo de antecedência dá para agendar?",
+      "Que perguntas o cliente deve responder ao agendar?",
+      "Como você lida hoje com faltas e cancelamentos de última hora?"
+    ]
+  }
+}

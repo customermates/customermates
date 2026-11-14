@@ -1,0 +1,212 @@
+{
+  "locale": "en",
+  "name": "Client intake and onboarding",
+  "summary": "One intake per engagement: inquiry, screening, form, document requests, agreement and kickoff, with a dated step at every stage and a reason when you decline.",
+  "description": "A short pipeline for taking on a new client: reply within a day, screen for fit, send the intake form, collect documents, send the agreement, start. Regulated professions can record who verified identity and when, never the document itself. Not an e-signature, KYC or payment tool.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "The people at each client: primary, billing, signatory." },
+    "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Companies, sole traders and individuals you take on." },
+    "intakes": { "label": "Intake", "pluralLabel": "Intakes", "description": "One intake per engagement, from inquiry to onboarded or declined." },
+    "document_requests": { "label": "Document request", "pluralLabel": "Document requests", "description": "One row per document you ask a client for." }
+  },
+  "fields": {
+    "intakes.stage": {
+      "label": "Stage",
+      "options": {
+        "enquiry": "Inquiry",
+        "screening": "Screening",
+        "form_sent": "Intake form sent",
+        "review_checks": "Review and checks",
+        "agreement_sent": "Agreement sent",
+        "ready_to_start": "Ready to start",
+        "kickoff_scheduled": "Kickoff scheduled",
+        "onboarded": "Onboarded",
+        "declined": "Declined"
+      }
+    },
+    "contacts.job_title": { "label": "Job title" },
+    "contacts.contact_role": {
+      "label": "Role",
+      "options": { "primary": "Primary contact", "billing": "Billing", "signatory": "Signatory", "technical": "Technical", "other": "Other" }
+    },
+    "contacts.language": { "label": "Language" },
+    "contacts.privacy_notice_sent_on": { "label": "Privacy notice sent on" },
+    "clients.client_type": {
+      "label": "Client type",
+      "options": { "company": "Company", "sole_trader": "Sole trader", "individual": "Individual", "organisation": "Organization" }
+    },
+    "clients.owner": { "label": "Owner" },
+    "clients.website": { "label": "Website" },
+    "clients.address": { "label": "Address" },
+    "clients.registration_id": { "label": "Company registration or tax number" },
+    "clients.source": {
+      "label": "Source",
+      "options": { "referral": "Referral", "website": "Website", "event": "Event", "outbound": "Outbound", "partner": "Partner", "other": "Other" }
+    },
+    "intakes.owner": { "label": "Owner" },
+    "intakes.service": { "label": "Service" },
+    "intakes.received_on": { "label": "Received on" },
+    "intakes.first_response_on": { "label": "First response on" },
+    "intakes.form_sent_on": { "label": "Form sent on" },
+    "intakes.form_received_on": { "label": "Form received on" },
+    "intakes.agreement_sent_on": { "label": "Agreement sent on" },
+    "intakes.agreement_signed_on": { "label": "Agreement signed on" },
+    "intakes.kickoff_on": { "label": "Kickoff on" },
+    "intakes.fee_model": {
+      "label": "Fee model",
+      "options": { "fixed": "Fixed fee", "hourly": "Hourly", "retainer": "Retainer", "other": "Other" }
+    },
+    "intakes.deposit_required": { "label": "Deposit required" },
+    "intakes.deposit_received_on": { "label": "Deposit received on" },
+    "intakes.identity_verified_on": { "label": "Identity verified on" },
+    "intakes.identity_verified_by": { "label": "Identity verified by" },
+    "intakes.conflict_check": {
+      "label": "Conflict check",
+      "options": { "not_required": "Not required", "pending": "Pending", "clear": "Clear", "conflict_found": "Conflict found" }
+    },
+    "intakes.risk_rating": {
+      "label": "Risk rating",
+      "options": { "not_assessed": "Not assessed", "low": "Low", "standard": "Standard", "high": "High" }
+    },
+    "intakes.decline_reason": {
+      "label": "Decline reason",
+      "options": {
+        "conflict": "Conflict",
+        "not_a_fit": "Not a fit",
+        "no_capacity": "No capacity",
+        "no_response": "No response",
+        "client_withdrew": "Client withdrew",
+        "risk": "Risk",
+        "other": "Other"
+      }
+    },
+    "intakes.decline_notice_sent_on": { "label": "Decline notice sent on" },
+    "intakes.next_step": { "label": "Next step" },
+    "intakes.next_step_due": { "label": "Next step due" },
+    "intakes.days_to_first_response": { "label": "Days to first response" },
+    "intakes.days_to_kickoff": { "label": "Days to kickoff" },
+    "document_requests.kind": {
+      "label": "Kind",
+      "options": {
+        "identity": "Identity",
+        "proof_of_address": "Proof of address",
+        "company_register": "Company register extract",
+        "prior_year_return": "Prior-year return",
+        "contract": "Contract",
+        "questionnaire": "Questionnaire",
+        "access_credentials": "Access credentials",
+        "other": "Other"
+      }
+    },
+    "document_requests.status": {
+      "label": "Status",
+      "options": { "requested": "Requested", "partial": "Partly received", "received": "Received", "needs_correction": "Needs correction", "not_needed": "Not needed" }
+    },
+    "document_requests.requested_on": { "label": "Requested on" },
+    "document_requests.needed_by": { "label": "Needed by" },
+    "document_requests.received_on": { "label": "Received on" },
+    "document_requests.where_stored": { "label": "Where it is stored" },
+    "document_requests.owner": { "label": "Owner" },
+    "actions.kind": {
+      "label": "Kind",
+      "options": {
+        "reply": "Reply",
+        "chase_form": "Chase the form",
+        "chase_document": "Chase a document",
+        "review": "Review",
+        "check": "Check",
+        "send_agreement": "Send the agreement",
+        "chase_signature": "Chase the signature",
+        "kickoff": "Kickoff",
+        "decline_letter": "Decline letter",
+        "other": "Other"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Client", "targetLabel": "Contacts" },
+    "intake_client": { "sourceLabel": "Client", "targetLabel": "Intakes" },
+    "intake_contact": { "sourceLabel": "Primary contact", "targetLabel": "Intakes" },
+    "document_request_intake": { "sourceLabel": "Intake", "targetLabel": "Document requests" },
+    "action_intake": { "sourceLabel": "Intake", "targetLabel": "Actions" }
+  },
+  "views": {
+    "intakes_all": { "name": "All intakes" },
+    "intakes_board": { "name": "Intakes by stage" },
+    "awaiting_signature": { "name": "Awaiting signature" },
+    "no_first_response": { "name": "No first response" },
+    "declined_intakes": { "name": "Declined" },
+    "document_requests_all": { "name": "All document requests" },
+    "documents_outstanding": { "name": "Waiting for documents" },
+    "clients_all": { "name": "All clients" },
+    "contacts_all": { "name": "All contacts" }
+  },
+  "widgets": {
+    "intakes_by_stage": { "title": "Open intakes by stage" },
+    "open_intakes_by_owner": { "title": "Open intakes per owner" },
+    "enquiries_without_reply": { "title": "Inquiries without a first response" },
+    "documents_outstanding": { "title": "Documents outstanding" },
+    "awaiting_signature_count": { "title": "Awaiting signature" },
+    "average_days_to_reply": { "title": "Average days to first response" },
+    "average_days_to_kickoff": { "title": "Average days to kickoff" },
+    "decline_reasons": { "title": "Decline reasons" },
+    "new_intakes_per_month": { "title": "New intakes per month" }
+  },
+  "knowledgePages": {
+    "intake_process": {
+      "title": "Client intake process",
+      "sections": ["The nine stages and what ends each one", "Who replies, who screens, who signs", "Time boxes: reply in a day, chase at 3 and 7 days"]
+    },
+    "intake_questionnaire": {
+      "title": "Intake questionnaire by client type",
+      "sections": ["Company, sole trader, individual, organization", "Questions that decide fit", "What you never ask for"]
+    },
+    "document_requests_guide": {
+      "title": "Document request list and chase messages",
+      "sections": ["Standard list per service", "First request and reminders", "When a document needs correction"]
+    },
+    "agreement_checklist": {
+      "title": "Engagement agreement checklist",
+      "sections": ["Scope, fee model and deposit", "Who signs and in which tool", "What to do when it stays unsigned"]
+    },
+    "regulated_checks": {
+      "title": "Identity, conflict and risk checks for regulated professions",
+      "sections": ["Record who checked and when, never the document", "Conflict search before work starts", "Risk rating and when to decline"]
+    },
+    "privacy_at_intake": {
+      "title": "Privacy: what we collect at intake and why",
+      "sections": ["Purpose and legal basis", "What stays out of the workspace", "Retention and deletion requests"]
+    }
+  },
+  "rules": {
+    "reply_to_enquiry": { "title": "Reply to the inquiry", "description": "A new intake gets a reply Action due the next day." },
+    "chase_form": { "title": "Chase the intake form", "description": "Three days after the form is sent, a chase Action falls due." },
+    "chase_document": { "title": "Chase the missing document", "description": "When the needed-by date of an open document request is reached, a chase Action is created." },
+    "review_received_document": { "title": "Review the received document", "description": "When a document is marked received, a review Action is due the next day." },
+    "chase_signature": { "title": "Chase the signature", "description": "Seven days after the agreement is sent, a chase Action falls due." },
+    "decline_letter": { "title": "Send the decline letter", "description": "A declined intake gets a letter Action due the next day. State that no engagement exists and name any approaching deadline." },
+    "kickoff_event": { "title": "Put the kickoff in the calendar", "description": "When the kickoff date is set, the event is written to the owner's calendar." },
+    "first_value_check": { "title": "Check the first result", "description": "Fourteen days after onboarding, a check Action asks whether the client has seen a first result." },
+    "stalled_intake": { "title": "Review the stalled intake", "description": "An open intake that stayed in the same stage for 7 days gets a review Action." },
+    "intake_form_records": { "title": "Create the client, contact and intake from the form", "description": "A public intake form creates the client, the contact and an intake in the Inquiry stage." },
+    "intake_form_notice": { "title": "Tell the owner about the new intake", "description": "The workspace owner is notified of every submission." }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Every intake has one of nine stages.",
+    "first_response_field": "Every intake records when you first replied.",
+    "document_requests_list": "Document requests are tracked in their own list.",
+    "intakes_board_view": "The intake list can be seen as a board by stage.",
+    "chase_signature_rule": "An agreement that is sent gets a chase Action after 7 days.",
+    "process_page": "The Knowledge Base holds the intake process."
+  },
+  "prompt": {
+    "intro": "Set up client intake in my Customermates workspace: one intake per engagement with nine stages, document requests, dated steps at every stage, a decline reason and optional identity, conflict and risk checks that record who checked and when.",
+    "questions": [
+      "What do you sell, and who are your clients: companies, sole traders or individuals?",
+      "Which steps does a new client go through today, and which of the nine stages do you not need?",
+      "Is your profession regulated, so that identity, conflict or risk checks must be recorded? In which country?",
+      "Which documents do you always ask for, and where do you store them? Only a link is kept here.",
+      "Where do clients sign the agreement? It stays there, and the dates are kept here."
+    ]
+  }
+}

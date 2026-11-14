@@ -36,6 +36,64 @@ Les calendriers connectés demandent le droit existant à la messagerie et la pe
 
 Copiez l’URL quand elle est créée : elle n’est affichée qu’une seule fois. Toute personne qui la possède peut lire les évènements sélectionnés tant que vous conservez votre accès. Chaque actualisation vérifie votre appartenance active et vos permissions actuelles. **Révoquer l’abonnement** arrête immédiatement les récupérations futures ; les applications de calendrier peuvent conserver les évènements déjà téléchargés. Les modifications vont de Customermates vers l’application de calendrier. Modifier un évènement importé ne met pas à jour son enregistrement du CRM ; ce n’est pas une connexion de calendrier bidirectionnelle.
 
+## Comment planifier une réunion ? [#schedule-meetings]
+
+Cliquez sur **Planifier une réunion** dans l’en-tête de n’importe quel enregistrement, par exemple une personne, une organisation ou une affaire. Dans [Calendrier](app:calendar), double-cliquez sur un créneau vide de la vue semaine ou mois (ou utilisez **+** sur un jour du mois) et choisissez **Nouvelle réunion** ; ce choix est proposé à côté de la création d’un enregistrement lorsqu’une source de liste le permet. Les deux ouvrent la même fenêtre.
+
+### Que puis-je définir ? [#schedule-meeting-options]
+
+La fenêtre comporte ces champs :
+
+- Un titre, la date, l’heure de début et la durée (de 15 à 120 minutes).
+- Les créneaux libres du jour, tirés de vos calendriers synchronisés pendant les heures de travail (du lundi au vendredi, de 9 h 00 à 17 h 00 dans votre fuseau horaire). Vous pouvez tout de même saisir n’importe quelle heure de début.
+- Le calendrier, affiché seulement si vous avez plus d’un calendrier connecté.
+- Les participants : des adresses e-mail sont suggérées à partir de l’enregistrement et des personnes qui lui sont liées, et vous pouvez en saisir d’autres.
+- Un lieu, une description et, si vous le souhaitez, un lien de visioconférence : Google Meet pour les calendriers Google, Microsoft Teams pour Outlook.
+- Un interrupteur pour envoyer les invitations. Google ou Microsoft les envoie.
+- Un suivi facultatif : choisissez une liste et l’un de ses champs de date ou de date et heure, et l’application crée dans cette liste un enregistrement au début de la réunion, lié à l’enregistrement.
+
+### Que se passe-t-il après l’enregistrement ? [#schedule-meeting-result]
+
+L’évènement est créé dans votre propre calendrier Google ou Microsoft connecté. Il apparaît dans [Calendrier](app:calendar) et dans l’historique d’activité des enregistrements concernés, ainsi que des personnes dont l’adresse e-mail figure parmi les participants. Seuls vos propres calendriers connectés peuvent recevoir des évènements. Si le compte connecté a perdu l’autorisation d’accès au calendrier, l’application vous demande de le reconnecter dans [Canaux et agendas](app:settings/channels).
+
+### De quoi ai-je besoin pour planifier des réunions ? [#schedule-meeting-requirements]
+
+D’un compte Google ou Microsoft connecté et de la formule dont a besoin la [boîte de réception](/docs/app-inbox#who-can-use-the-inbox) : Pro ou supérieure. La planification de réunions n’est pas disponible en auto-hébergement, car la connexion au calendrier passe par le service hébergé, ni dans l’espace de travail de démonstration.
+
+### Un agent peut-il planifier des réunions ? [#schedule-meeting-agents]
+
+Oui, avec l’outil MCP `schedule_meeting`, dont les actions sont `options`, `slots`, `create`, `update` et `cancel`. `slots` trouve des créneaux libres ; `create`, `update` et `cancel` modifient les réunions dans le propre calendrier connecté de l’appelant. Comme les autres outils de messagerie, il demande une formule Pro ou supérieure et Customermates Cloud. Les schémas exacts figurent dans le [catalogue MCP](/docs/mcp#tool-catalog).
+
+## Comment permettre aux autres de réserver une réunion avec moi ? [#booking-pages]
+
+Une page de réservation est un lien public que chacun peut ouvrir sans compte, comme une petite page de prise de rendez-vous qui vous est propre. Les visiteurs choisissent un créneau libre dans votre calendrier, et chaque réservation crée un évènement de calendrier, une personne et un enregistrement dans votre CRM. Vous créez et gérez les pages dans les paramètres, sous [Pages de réservation](app:settings/booking), à côté de [Canaux et agendas](app:settings/channels). Chaque utilisateur peut avoir jusqu’à 10 pages de réservation.
+
+### Que puis-je régler sur une page de réservation ? [#booking-page-settings]
+
+- Un titre, une description et le calendrier qui reçoit les évènements.
+- La durée de la réunion (de 15 à 120 minutes), la marge entre deux réunions, le préavis minimal et le nombre de jours à l’avance où l’on peut réserver (jusqu’à 90).
+- Le fuseau horaire, les heures de travail de chaque jour de la semaine et, si vous le souhaitez, un lien de visioconférence.
+- La liste où la personne du visiteur est trouvée ou créée (une personne par adresse e-mail), la liste qui reçoit un enregistrement par réservation et le champ de cette liste qui reçoit le début de la réunion.
+- Jusqu’à 8 questions. Chaque question est un champ de la liste des réservations (texte, lien, choix unique, nombre, oui/non ou date) et peut être obligatoire.
+- Un message affiché après la réservation.
+- L’interrupteur **Accepter les réservations**.
+
+Désactivez **Accepter les réservations** pour mettre une page en pause sans la supprimer. Supprimer une page retire son lien et son historique de réservations ; les réunions déjà réservées restent dans votre calendrier.
+
+### Que se passe-t-il quand quelqu’un réserve ? [#booking-page-visitors]
+
+Le visiteur voit les créneaux libres de votre calendrier synchronisé, dans son propre fuseau horaire. Les plages occupées masquent les créneaux, et deux réservations ne peuvent pas se chevaucher, car le créneau est réservé en premier. Le visiteur saisit son nom et son adresse e-mail, répond à vos questions et confirme. L’application crée alors l’évènement de calendrier avec le visiteur comme participant (Google ou Microsoft envoie l’invitation), trouve ou crée la personne d’après l’adresse e-mail, crée l’enregistrement de réservation et lie l’évènement aux deux. Chaque réservation produit aussi l’évènement `form.submitted`, avec la réservation comme contenu, auquel des règles peuvent réagir.
+
+Les pages de réservation se protègent elles-mêmes : limites de débit par visiteur et par lien, champ piège caché (honeypot), au plus 3 réservations à venir par adresse e-mail et par page, et limites sur la taille des saisies.
+
+### De quoi ai-je besoin pour les pages de réservation ? [#booking-page-requirements]
+
+Des mêmes conditions que pour planifier des réunions : un compte Google ou Microsoft connecté, la formule dont a besoin la [boîte de réception](/docs/app-inbox#who-can-use-the-inbox) (Pro ou supérieure) et Customermates Cloud. Les pages de réservation ne sont disponibles ni en auto-hébergement ni dans l’espace de travail de démonstration. Si la formule ou la connexion au calendrier de la personne qui possède une page prend fin, la page indique qu’elle n’est pas disponible.
+
+### Un agent peut-il gérer les pages de réservation ? [#booking-page-agents]
+
+Oui, avec l’outil MCP `manage_booking_links`, dont les actions sont `list`, `get`, `save` et `delete`. Comme les autres outils de messagerie, il demande une formule Pro ou supérieure et Customermates Cloud. Les schémas exacts figurent dans le [catalogue MCP](/docs/mcp#tool-catalog).
+
 ## Pour les agents [#tips-for-agents]
 
 Modifiez le calendrier d’une personne avec `manage_calendar` plutôt qu’en pilotant la page ; l’outil ne modifie que le calendrier de l’appelant. Appelez d’abord `options` : il liste les listes avec des champs de date, leurs champs à choix pour les couleurs et, là où la messagerie connectée est disponible, les calendriers connectés de l’appelant, le tout par identifiants stables. `read` renvoie la configuration et `saved`, qui reste faux tant que la configuration par défaut s’applique. `update` prend un `config` avec seulement les clés à modifier : `sources` et `calendarIds` remplacent la liste entière, et les `filters` d’une source utilisent les champs de filtre du `config` de `manage_data_views` pour la surface de la liste. Passez `timeZone` dès la première mise à jour, car la valeur par défaut est UTC. `reset` revient à la configuration par défaut. `subscriptions` liste les URL d’abonnement et `revoke` en révoque une par `id` ; la création d’une URL d’abonnement reste dans l’application. Il n’existe pas de point d’accès REST pour le calendrier. Les schémas exacts figurent dans le [catalogue MCP](/docs/mcp#tool-catalog).

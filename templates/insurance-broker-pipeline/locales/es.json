@@ -1,0 +1,125 @@
+{
+  "locale": "es",
+  "name": "Correduría de seguros",
+  "summary": "Dos pipelines para una correduría de seguros: nuevo negocio de la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, y un caso de renovación para cada póliza que empieza de 120 a 45 días antes del vencimiento.",
+  "description": "Lleva el nuevo negocio y las renovaciones a la vez: oportunidades de la primera consulta al análisis de necesidades, la solicitud de ofertas, la propuesta y la decisión hasta la póliza activa, una fecha de asesoramiento documentado en cada propuesta, y pólizas con su vencimiento que abren solas un caso de renovación. Guarda una referencia al registro del asesoramiento y a la póliza en tu programa de gestión, nunca datos de salud, detalles de siniestros, datos bancarios ni copias de documentos de identidad. No es administración de pólizas, un comparador o tarificador, tramitación de siniestros ni conciliación de comisiones.",
+  "lists": {
+    "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Tomadores, posibles clientes, decisores y quienes recomiendan." },
+    "opportunities": { "label": "Oportunidad", "pluralLabel": "Oportunidades", "description": "Nuevo negocio de la primera consulta a la póliza activa o a la pérdida." },
+    "policies": { "label": "Póliza", "pluralLabel": "Pólizas", "description": "Una póliza con su ramo, su vencimiento y un enlace al programa de gestión." },
+    "renewals": { "label": "Renovación", "pluralLabel": "Renovaciones", "description": "El caso de renovación anual de una póliza." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Papel", "options": { "policyholder": "Tomador", "prospect": "Posible cliente", "decision_maker": "Decisor", "referrer": "Quien recomienda" } },
+    "contacts.preferred_channel": { "label": "Canal preferido", "options": { "email": "Correo electrónico", "phone": "Teléfono", "whatsapp": "WhatsApp", "post": "Correo postal" } },
+    "contacts.broker_mandate_on": { "label": "Nota de encargo firmada el" },
+    "opportunities.stage": {
+      "label": "Fase",
+      "options": { "lead": "Consulta", "needs_analysis": "Análisis de necesidades", "quotes_requested": "Solicitud de ofertas", "offer_presented": "Propuesta", "awaiting_decision": "Decisión", "application_submitted": "Emisión", "bound": "Póliza activa", "lost": "Perdido" }
+    },
+    "opportunities.line": {
+      "label": "Ramo",
+      "options": { "motor": "Autos", "home_contents": "Hogar", "liability": "Responsabilidad civil", "legal_expenses": "Defensa jurídica", "life_pension": "Vida y pensiones", "health": "Salud", "commercial_property": "Daños a bienes de empresa", "commercial_liability": "Responsabilidad civil de empresa", "cyber": "Ciber", "other": "Otro" }
+    },
+    "opportunities.source": { "label": "Origen", "options": { "referral": "Recomendación", "web_form": "Formulario web", "comparison_portal": "Comparador", "existing_client": "Cliente existente", "partner": "Colaborador", "event": "Evento" } },
+    "opportunities.needs_analysis_on": { "label": "Análisis de necesidades el" },
+    "opportunities.advice_documented_on": { "label": "Asesoramiento documentado el" },
+    "opportunities.advice_record_ref": { "label": "Enlace al registro del asesoramiento" },
+    "opportunities.decision_expected": { "label": "Decisión esperada" },
+    "opportunities.next_step_due": { "label": "Fecha del siguiente paso" },
+    "opportunities.lost_reason": {
+      "label": "Motivo de pérdida",
+      "options": { "price": "Precio", "coverage_not_matching": "Coberturas inadecuadas", "stayed_with_current": "Se queda con su aseguradora actual", "no_response": "Sin respuesta", "declined_by_carrier": "Rechazado por la aseguradora", "timing": "Momento" }
+    },
+    "opportunities.producer": { "label": "Gestor comercial" },
+    "policies.policy_ref": { "label": "Número de póliza" },
+    "policies.line": {
+      "label": "Ramo",
+      "options": { "motor": "Autos", "home_contents": "Hogar", "liability": "Responsabilidad civil", "legal_expenses": "Defensa jurídica", "life_pension": "Vida y pensiones", "health": "Salud", "commercial_property": "Daños a bienes de empresa", "commercial_liability": "Responsabilidad civil de empresa", "cyber": "Ciber", "other": "Otro" }
+    },
+    "policies.line_group": { "label": "Segmento", "options": { "commercial": "Empresas", "personal": "Particulares" } },
+    "policies.status": { "label": "Estado", "options": { "pending": "Pendiente de emisión", "active": "Activa", "lapsed": "Anulada por impago", "cancelled": "Cancelada" } },
+    "policies.renewal_date": { "label": "Vencimiento" },
+    "policies.annual_premium": { "label": "Prima anual" },
+    "policies.notice_days": { "label": "Preaviso de cancelación (días)" },
+    "policies.system_ref": { "label": "Enlace en el programa de gestión" },
+    "renewals.stage": {
+      "label": "Fase",
+      "options": { "upcoming": "Próxima", "review_started": "Revisión iniciada", "market_check": "Consulta al mercado", "offer_sent": "Propuesta enviada", "awaiting_client": "A la espera del cliente", "renewed": "Renovada", "lapsed": "No renovada" }
+    },
+    "renewals.renewal_date": { "label": "Vencimiento" },
+    "renewals.offer_sent_on": { "label": "Propuesta enviada el" },
+    "renewals.decision_on": { "label": "Decisión del cliente el" },
+    "renewals.premium_change_percent": { "label": "Variación de la prima (%)" },
+    "renewals.advice_documented_on": { "label": "Asesoramiento documentado el" },
+    "renewals.lost_reason": {
+      "label": "Motivo de pérdida",
+      "options": { "price": "Precio", "switched_broker": "Cambió de correduría", "switched_carrier": "Cambió de aseguradora", "business_closed": "Negocio cerrado", "no_response": "Sin respuesta", "other": "Otro" }
+    },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "call": "Llamar", "send_quote": "Enviar la propuesta", "chase_carrier": "Reclamar a la aseguradora", "advice_record": "Documentar el asesoramiento", "renewal_review": "Revisar la renovación", "cross_sell": "Revisión de venta cruzada", "letter": "Redactar una carta", "other": "Otro" }
+    }
+  },
+  "relationships": {
+    "opportunity_contact": { "sourceLabel": "Contacto", "targetLabel": "Oportunidades" },
+    "policy_contact": { "sourceLabel": "Tomador", "targetLabel": "Pólizas" },
+    "policy_opportunity": { "sourceLabel": "Oportunidad", "targetLabel": "Pólizas" },
+    "renewal_policy": { "sourceLabel": "Póliza", "targetLabel": "Renovaciones" },
+    "action_opportunity": { "sourceLabel": "Oportunidad", "targetLabel": "Tareas" },
+    "action_renewal": { "sourceLabel": "Renovación", "targetLabel": "Tareas" },
+    "action_policy": { "sourceLabel": "Póliza", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Nuevo negocio por fase" },
+    "opportunities_all": { "name": "Todas las oportunidades" },
+    "offers_without_advice": { "name": "Propuestas sin registro del asesoramiento" },
+    "renewals_board": { "name": "Renovaciones por fase" },
+    "policies_all": { "name": "Todas las pólizas" },
+    "contacts_all": { "name": "Todos los contactos" }
+  },
+  "widgets": {
+    "opportunities_funnel": { "title": "Nuevo negocio por fase" },
+    "renewals_coming": { "title": "Vencimientos próximos" },
+    "offers_no_advice": { "title": "Propuestas sin registro del asesoramiento" },
+    "renewals_by_stage": { "title": "Renovaciones abiertas por fase" },
+    "active_premium": { "title": "Prima anual de las pólizas activas" },
+    "lost_reasons": { "title": "Por qué se pierden oportunidades" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Cómo funciona el día a día de la correduría", "sections": ["Los dos pipelines: nuevo negocio y renovaciones", "Quién es responsable de cada fase y la regla de una tarea con fecha por elemento abierto"] },
+    "advice_documentation": { "title": "Análisis de necesidades y documentación del asesoramiento", "sections": ["Qué se pregunta y se registra antes de una propuesta", "Dónde está el registro: aquí solo se guarda una referencia"] },
+    "renewal_playbook": { "title": "Guía de renovación", "sections": ["Empresas desde 120 días, particulares desde 45 días antes del vencimiento", "Revisión, consulta al mercado, propuesta y decisión antes de la fecha de preaviso"] },
+    "policy_data_rules": { "title": "Datos de pólizas: qué queda en el programa de gestión", "sections": ["Los datos de referencia de la póliza y los extractos de comisiones quedan en el programa de gestión", "Qué guarda este espacio y qué no guarda nunca"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Crear el contacto y la oportunidad cuando se envía el formulario de consulta" },
+    "respond_new_lead": { "title": "Responder a una consulta nueva al día siguiente" },
+    "needs_analysis_task": { "title": "Documentar el asesoramiento en 3 días cuando una oportunidad llega al análisis de necesidades" },
+    "quotes_chase": { "title": "Reclamar a las aseguradoras 3 días después de solicitar las ofertas" },
+    "offer_follow_up": { "title": "Hacer seguimiento al día siguiente de presentar una propuesta" },
+    "bound_welcome": { "title": "Llamar al cliente una semana después de emitirse la póliza" },
+    "renewal_commercial": { "title": "Abrir un caso de renovación 120 días antes de que venza una póliza de empresa activa" },
+    "renewal_personal": { "title": "Abrir un caso de renovación 45 días antes de que venza una póliza de particular activa" },
+    "renewal_review_task": { "title": "Revisar la renovación en la semana siguiente a la apertura del caso" },
+    "renewal_offer_chase": { "title": "Avisar al responsable cuando una propuesta de renovación espera al cliente 7 días" },
+    "decision_deadline_notice": { "title": "Avisar al responsable 30 días antes del vencimiento para confirmar la decisión del cliente" },
+    "unpaid_premium_notice": { "title": "Escribir al cliente cuando el programa de gestión avisa de una prima impagada" }
+  },
+  "acceptanceChecks": {
+    "opportunity_stage_field": "Cada oportunidad tiene una fase.",
+    "advice_documented_field": "Cada oportunidad registra cuándo se documentó el asesoramiento.",
+    "renewal_date_field": "Cada póliza registra su vencimiento.",
+    "renewals_board_view": "Las renovaciones se abren como tablero por fase.",
+    "advice_documentation_page": "La base de conocimiento contiene una página sobre la documentación del asesoramiento."
+  },
+  "prompt": {
+    "intro": "Configura en mi espacio de trabajo de Customermates un pipeline para una correduría de seguros: nuevo negocio de la consulta a la póliza activa con el asesoramiento documentado antes de la propuesta, pólizas con vencimiento y un caso de renovación para cada una, y seguimientos con fecha. No guardes datos de salud, detalles de siniestros ni copias de documentos de identidad.",
+    "questions": [
+      "¿Qué ramos colocas y atiendes a empresas, a particulares o a ambos?",
+      "¿Con cuánta antelación al vencimiento empieza una renovación y cuál es el preaviso habitual?",
+      "¿Dónde guardas el registro del asesoramiento y los datos de las pólizas? Aquí solo se guardan enlaces.",
+      "¿En qué país trabajas y qué deberes de asesoramiento te afectan?"
+    ]
+  }
+}

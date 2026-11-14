@@ -1,0 +1,159 @@
+{
+  "id": "tpl_agency_client_pipeline",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "agency-client-pipeline",
+  "family": "professional-services",
+  "kind": "pipeline",
+  "jurisdictions": ["DE", "FR", "IT", "ES", "BR", "PL", "NL"],
+  "dashboardAudience": "team",
+  "modules": ["actions_core", "actions_dashboard"],
+  "requiresCapabilities": ["forms", "rules", "notifications"],
+  "pairedPages": {
+    "en": "/for/agencies",
+    "de": "/for/agencies",
+    "fr": "/for/agencies",
+    "it": "/for/agencies",
+    "es": "/for/agencies",
+    "pt": "/for/agencies",
+    "pl": "/for/agencies",
+    "nl": "/for/agencies"
+  },
+  "lists": [
+    { "key": "contacts", "role": "people", "icon": "contact" },
+    { "key": "clients", "icon": "building" },
+    { "key": "opportunities", "role": "deals", "icon": "target" },
+    { "key": "engagements", "icon": "repeat" }
+  ],
+  "stages": [
+    {
+      "field": "opportunities.stage",
+      "items": [
+        { "key": "prospect", "outcome": "open", "weight": 5 },
+        { "key": "conversation", "outcome": "open", "weight": 10 },
+        { "key": "qualified", "outcome": "open", "weight": 25 },
+        { "key": "brief_or_pitch", "outcome": "open", "weight": 40 },
+        { "key": "proposal_sent", "outcome": "open", "weight": 60 },
+        { "key": "negotiation", "outcome": "open", "weight": 80 },
+        { "key": "won", "outcome": "won", "weight": 100 },
+        { "key": "lost", "outcome": "lost", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "contacts.contact_role", "type": "select", "options": [{ "key": "decision_maker" }, { "key": "marketing_lead" }, { "key": "procurement" }, { "key": "day_to_day" }, { "key": "referrer" }] },
+    { "key": "contacts.preferred_channel", "type": "select", "options": [{ "key": "email" }, { "key": "phone" }, { "key": "linkedin" }, { "key": "whatsapp" }, { "key": "chat" }] },
+    { "key": "clients.relationship", "type": "select", "options": [{ "key": "prospect" }, { "key": "client", "color": "success" }, { "key": "former_client", "color": "secondary" }, { "key": "partner" }] },
+    { "key": "clients.website", "type": "url" },
+    { "key": "opportunities.opportunity_type", "type": "select", "options": [{ "key": "retainer" }, { "key": "project" }, { "key": "audit_or_workshop" }, { "key": "one_off" }] },
+    { "key": "opportunities.services", "type": "select", "options": [{ "key": "seo" }, { "key": "paid_media" }, { "key": "social" }, { "key": "content" }, { "key": "web" }, { "key": "branding" }, { "key": "pr" }] },
+    { "key": "opportunities.source", "type": "select", "options": [{ "key": "referral" }, { "key": "inbound" }, { "key": "outbound" }, { "key": "existing_client" }, { "key": "event" }, { "key": "marketplace" }] },
+    { "key": "opportunities.competitive_pitch", "type": "boolean" },
+    { "key": "opportunities.pitch_date", "type": "date" },
+    { "key": "opportunities.monthly_fee", "type": "currency" },
+    { "key": "opportunities.decision_expected", "type": "date" },
+    { "key": "opportunities.next_step_due", "type": "date" },
+    { "key": "opportunities.lost_reason", "type": "select", "options": [{ "key": "price" }, { "key": "chose_other_agency" }, { "key": "in_house" }, { "key": "budget_cut" }, { "key": "no_decision" }, { "key": "scope_mismatch" }, { "key": "no_response" }] },
+    { "key": "engagements.engagement_status", "type": "select", "options": [{ "key": "onboarding", "color": "info" }, { "key": "active", "color": "success" }, { "key": "at_risk", "color": "warning" }, { "key": "paused" }, { "key": "ended", "color": "secondary" }] },
+    { "key": "engagements.health", "type": "select", "options": [{ "key": "green", "color": "success" }, { "key": "amber", "color": "warning" }, { "key": "red", "color": "destructive" }] },
+    { "key": "engagements.start_date", "type": "date" },
+    { "key": "engagements.renewal_date", "type": "date" },
+    { "key": "engagements.notice_days", "type": "number" },
+    { "key": "engagements.monthly_fee", "type": "currency" },
+    { "key": "engagements.next_qbr_on", "type": "date" },
+    { "key": "engagements.account_manager", "type": "member" },
+    { "key": "engagements.ended_reason", "type": "select", "options": [{ "key": "client_ended" }, { "key": "agency_ended" }, { "key": "project_completed" }, { "key": "budget" }, { "key": "in_house" }, { "key": "moved_agency" }] },
+    {
+      "key": "actions.kind",
+      "type": "select",
+      "options": [{ "key": "call" }, { "key": "email" }, { "key": "proposal" }, { "key": "onboarding" }, { "key": "report" }, { "key": "qbr" }, { "key": "renewal" }, { "key": "other" }]
+    }
+  ],
+  "relationships": [
+    { "key": "contact_client", "source": "contacts", "target": "clients", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "opportunity_client", "source": "opportunities", "target": "clients", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "engagement_client", "source": "engagements", "target": "clients", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "engagement_opportunity", "source": "engagements", "target": "opportunities", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_opportunity", "source": "actions", "target": "opportunities", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_engagement", "source": "actions", "target": "engagements", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    { "key": "opportunities_board", "list": "opportunities", "default": true, "layout": "board", "groupBy": "opportunities.stage", "columns": ["opportunities.opportunity_type", "opportunities.monthly_fee", "opportunities.decision_expected"], "summaries": [{ "field": "opportunities.monthly_fee", "aggregation": "sum" }] },
+    { "key": "opportunities_all", "list": "opportunities", "default": false, "layout": "table", "sort": { "field": "opportunities.next_step_due", "direction": "asc" }, "columns": ["opportunities.stage", "opportunities.opportunity_type", "opportunities.monthly_fee", "opportunities.next_step_due"] },
+    { "key": "engagements_all", "list": "engagements", "default": true, "layout": "table", "sort": { "field": "engagements.renewal_date", "direction": "asc" }, "columns": ["engagements.engagement_status", "engagements.health", "engagements.monthly_fee", "engagements.renewal_date", "engagements.next_qbr_on"] },
+    { "key": "at_risk_engagements", "list": "engagements", "default": false, "layout": "table", "filters": [{ "operator": "in", "field": "engagements.health", "options": ["amber", "red"] }, { "operator": "notIn", "field": "engagements.engagement_status", "options": ["ended"] }] },
+    { "key": "clients_all", "list": "clients", "default": true, "layout": "table", "columns": ["clients.relationship", "clients.website"] },
+    { "key": "contacts_all", "list": "contacts", "default": true, "layout": "table", "columns": ["contacts.contact_role", "contacts.preferred_channel"] }
+  ],
+  "widgets": [
+    { "kind": "chart", "key": "opportunities_funnel", "list": "opportunities", "aggregation": "count", "groupBy": { "field": "opportunities.stage" }, "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["prospect", "conversation", "qualified", "brief_or_pitch", "proposal_sent", "negotiation", "won"] }], "display": "funnelChart" },
+    { "kind": "chart", "key": "recurring_revenue", "list": "engagements", "aggregation": "sum", "valueField": "engagements.monthly_fee", "filters": [{ "operator": "in", "field": "engagements.engagement_status", "options": ["onboarding", "active", "at_risk"] }], "display": "number" },
+    { "kind": "chart", "key": "pipeline_fees", "list": "opportunities", "aggregation": "sum", "valueField": "opportunities.monthly_fee", "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["qualified", "brief_or_pitch", "proposal_sent", "negotiation"] }], "display": "number" },
+    { "kind": "calendar", "key": "renewals_coming", "list": "engagements", "layout": "upcoming", "dateField": "engagements.renewal_date", "filters": [{ "operator": "in", "field": "engagements.engagement_status", "options": ["active", "at_risk"] }] },
+    { "kind": "calendar", "key": "qbrs_coming", "list": "engagements", "layout": "upcoming", "dateField": "engagements.next_qbr_on", "filters": [{ "operator": "in", "field": "engagements.engagement_status", "options": ["active", "at_risk"] }] },
+    { "kind": "chart", "key": "health_split", "list": "engagements", "aggregation": "count", "groupBy": { "field": "engagements.health" }, "filters": [{ "operator": "notIn", "field": "engagements.engagement_status", "options": ["ended"] }], "display": "doughnutChart" },
+    { "kind": "calendar", "key": "pitches_coming", "list": "opportunities", "layout": "upcoming", "dateField": "opportunities.pitch_date" },
+    { "kind": "chart", "key": "lost_reasons", "list": "opportunities", "aggregation": "count", "groupBy": { "field": "opportunities.lost_reason" }, "filters": [{ "operator": "in", "field": "opportunities.stage", "options": ["lost"] }], "display": "horizontalBarChart" }
+  ],
+  "knowledgePages": [
+    { "key": "operating_guide", "kind": "overview" },
+    { "key": "pitch_go_no_go", "kind": "processes" },
+    { "key": "onboarding_checklist", "kind": "processes" },
+    { "key": "renewal_playbook", "kind": "processes" }
+  ],
+  "followUpRules": [
+    { "key": "brief_form_records", "trigger": { "kind": "form_submitted", "form": "brief" }, "action": { "kind": "create_records", "lists": ["contacts", "opportunities"] }, "dueOffsetDays": 0, "needs": "forms" },
+    { "key": "respond_to_brief", "trigger": { "kind": "record_created", "list": "opportunities" }, "action": { "kind": "create_task", "taskKind": "email", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 1, "needs": "rules" },
+    { "key": "qualify_check", "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "qualified" }, "action": { "kind": "create_task", "taskKind": "call", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 2, "needs": "rules" },
+    { "key": "pitch_go_no_go", "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "brief_or_pitch" }, "action": { "kind": "create_task", "taskKind": "proposal", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 1, "needs": "rules" },
+    { "key": "pitch_rehearsal", "trigger": { "kind": "date_reached", "field": "opportunities.pitch_date", "offsetDays": -3 }, "action": { "kind": "notify", "recipient": "record_owner" }, "dueOffsetDays": 0, "needs": "notifications" },
+    { "key": "proposal_follow_up", "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "proposal_sent" }, "action": { "kind": "create_task", "taskKind": "call", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 2, "needs": "rules" },
+    { "key": "onboarding_set", "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "won" }, "action": { "kind": "create_task", "taskKind": "onboarding", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 1, "needs": "rules" },
+    { "key": "lost_feedback", "trigger": { "kind": "field_changed", "field": "opportunities.stage", "to": "lost" }, "action": { "kind": "create_task", "taskKind": "email", "assignee": "record_owner", "about": "opportunities" }, "dueOffsetDays": 2, "needs": "rules" },
+    {
+      "key": "renewal_review",
+      "trigger": { "kind": "date_reached", "field": "engagements.renewal_date", "offsetDays": -90 },
+      "condition": [{ "operator": "in", "field": "engagements.engagement_status", "options": ["active", "at_risk"] }],
+      "action": { "kind": "create_task", "taskKind": "renewal", "assignee": "record_owner", "about": "engagements" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    {
+      "key": "renewal_notice",
+      "trigger": { "kind": "date_reached", "field": "engagements.renewal_date", "offsetDays": -45 },
+      "condition": [{ "operator": "in", "field": "engagements.engagement_status", "options": ["active", "at_risk"] }],
+      "action": { "kind": "notify", "recipient": "record_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    {
+      "key": "qbr_due",
+      "trigger": { "kind": "date_reached", "field": "engagements.next_qbr_on", "offsetDays": 0 },
+      "condition": [{ "operator": "in", "field": "engagements.engagement_status", "options": ["active", "at_risk"] }],
+      "action": { "kind": "create_task", "taskKind": "qbr", "assignee": "record_owner", "about": "engagements" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "health_red", "trigger": { "kind": "field_changed", "field": "engagements.health", "to": "red" }, "action": { "kind": "notify", "recipient": "workspace_owner" }, "dueOffsetDays": 2, "needs": "notifications" }
+  ],
+  "acceptanceChecks": [
+    { "key": "stage_field", "kind": "field_exists", "ref": "opportunities.stage" },
+    { "key": "renewal_date_field", "kind": "field_exists", "ref": "engagements.renewal_date" },
+    { "key": "notice_days_field", "kind": "field_exists", "ref": "engagements.notice_days" },
+    { "key": "opportunities_board_view", "kind": "view_exists", "ref": "opportunities_board" }
+  ],
+  "sources": [
+    { "url": "https://manifest.agency/the-typical-agency-sales-funnel-explained/", "checkedOn": "2026-11-12" },
+    { "url": "https://manyrequests.com/blog/agency-sales-process", "checkedOn": "2026-11-12" },
+    { "url": "https://sevenfigureagency.com/agency-sales-process", "checkedOn": "2026-11-12" },
+    { "url": "https://www.qualiant.com/agentursoftware/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.mocoapp.com/agentursoftware/agenturen", "checkedOn": "2026-11-12" },
+    { "url": "https://www.wko.at/tirol/information-consulting/werbung-marktkommunikation/wkv-20-005-pitchratgeber-tirol-210x280-2021-11-15-lay4.pdf", "checkedOn": "2026-11-12" },
+    { "url": "https://www.ra-kotz.de/kuendigung-eines-werbeagenturvertrages.htm", "checkedOn": "2026-11-12" },
+    { "url": "https://enterprisedna.co/resources/blog/agencies-contract-renewal-upsell-automation", "checkedOn": "2026-11-12" },
+    { "url": "https://blog.hubspot.com/marketing/9-of-the-best-crms-for-digital-agencies", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "proof", "de": "proof", "fr": "none", "it": "none", "es": "none", "pt": "none", "pl": "none", "nl": "none" }
+}

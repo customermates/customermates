@@ -18,7 +18,10 @@ const AUTHENTICATED_TENANT_ENTRYPOINTS = [
   "core/decorators/tenant-interactor.decorator.ts",
   "features/acquisition/withdraw-ad-attribution.interactor.ts",
   "features/onboarding-funnel/apply-onboarding-playbook.interactor.ts",
+  "features/onboarding-funnel/get-onboarding-agent-status.interactor.ts",
+  "features/onboarding-funnel/record-discovery-answer.interactor.ts",
   "features/onboarding-funnel/select-onboarding-job.interactor.ts",
+  "features/onboarding-templates/get-onboarding-template-prompt.interactor.ts",
   "features/onboarding-wizard/complete-onboarding-setup-step.interactor.ts",
   "features/onboarding-wizard/complete-onboarding-wizard.interactor.ts",
   "features/onboarding-wizard/get-onboarding-wizard-progress.interactor.ts",
@@ -36,7 +39,9 @@ const BACKGROUND_TENANT_DEFINITION = "core/decorators/background-tenant.ts";
 const BACKGROUND_TENANT_CALLER_PREFIX = "workflows/";
 
 const TOKEN_VERIFIED_STORED_USER_ENTRYPOINTS = [
+  "features/incoming-webhook/incoming-webhook-tenant.ts",
   "features/planner/calendar-subscription-tenant.ts",
+  "features/public-form/public-form-tenant.ts",
   "features/public-link/public-link-tenant.ts",
   "features/record-files/record-file-grant-tenant.ts",
 ];

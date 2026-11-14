@@ -1,0 +1,162 @@
+{
+  "locale": "en",
+  "name": "Content calendar",
+  "summary": "One row per piece with a status, an owner, a reviewer and a publish date, plus campaigns, key dates and a weekly editorial routine.",
+  "description": "An editorial calendar for blog, newsletter, social and video: seven statuses from idea to published, a publishing calendar, a content pillar per piece, a disclosure check for paid or gifted content and a results check after 30 days. It plans and tracks; it does not publish.",
+  "lists": {
+    "people": { "label": "Person", "pluralLabel": "People", "description": "Authors, editors, reviewers, approvers and guests." },
+    "pieces": { "label": "Piece", "pluralLabel": "Pieces", "description": "One piece of content from idea to published." },
+    "campaigns": { "label": "Campaign", "pluralLabel": "Campaigns", "description": "A theme that groups several pieces." },
+    "key_dates": { "label": "Key date", "pluralLabel": "Key dates", "description": "Holidays, events and launches to plan content around." }
+  },
+  "fields": {
+    "pieces.stage": {
+      "label": "Status",
+      "options": { "idea": "Idea", "drafting": "Drafting", "in_review": "In review", "approved": "Approved", "scheduled": "Scheduled", "published": "Published", "killed": "Killed" }
+    },
+    "campaigns.status": {
+      "label": "Status",
+      "options": { "planned": "Planned", "running": "Running", "done": "Done", "dropped": "Dropped" }
+    },
+    "people.person_role": {
+      "label": "Role",
+      "options": { "author": "Author", "editor": "Editor", "reviewer": "Reviewer", "approver": "Approver", "client_contact": "Client contact", "guest": "Guest or interviewee" }
+    },
+    "people.profile_url": { "label": "Profile link" },
+    "pieces.owner": { "label": "Owner" },
+    "pieces.reviewer": { "label": "Reviewer" },
+    "pieces.format": {
+      "label": "Format",
+      "options": {
+        "blog_post": "Blog post",
+        "newsletter": "Newsletter",
+        "short_video": "Short video",
+        "long_video": "Long video",
+        "carousel": "Carousel",
+        "image_post": "Image post",
+        "text_post": "Text post",
+        "podcast": "Podcast episode",
+        "webinar": "Webinar",
+        "case_study": "Case study"
+      }
+    },
+    "pieces.pillar": {
+      "label": "Content pillar",
+      "options": { "educate": "Educate", "prove": "Proof", "product": "Product", "community": "Community", "behind_the_scenes": "Behind the scenes" }
+    },
+    "pieces.channels": {
+      "label": "Channels",
+      "options": {
+        "blog": "Blog",
+        "newsletter": "Newsletter",
+        "linkedin": "LinkedIn",
+        "instagram": "Instagram",
+        "facebook": "Facebook",
+        "tiktok": "TikTok",
+        "youtube": "YouTube",
+        "x": "X",
+        "podcast": "Podcast",
+        "other": "Other"
+      }
+    },
+    "pieces.brief_url": { "label": "Brief link" },
+    "pieces.draft_url": { "label": "Draft link" },
+    "pieces.target_keyword": { "label": "Target keyword" },
+    "pieces.call_to_action": { "label": "Call to action" },
+    "pieces.draft_due": { "label": "Draft due" },
+    "pieces.review_due": { "label": "Review due" },
+    "pieces.publish_at": { "label": "Publish at" },
+    "pieces.ad_disclosure": {
+      "label": "Disclosure",
+      "options": { "none": "None", "paid_partnership": "Paid partnership or ad", "gifted_product": "Gifted product", "affiliate_link": "Affiliate link" }
+    },
+    "pieces.disclosure_checked": { "label": "Disclosure checked" },
+    "pieces.published_url": { "label": "Published link" },
+    "pieces.published_on": { "label": "Published on" },
+    "pieces.reach": { "label": "Reach" },
+    "pieces.engagements": { "label": "Engagements" },
+    "pieces.clicks": { "label": "Clicks" },
+    "pieces.killed_reason": {
+      "label": "Killed reason",
+      "options": { "off_topic": "Off topic", "duplicate": "Duplicate", "no_owner": "No owner", "stale": "Stale", "replaced": "Replaced", "client_declined": "Client declined" }
+    },
+    "campaigns.goal": { "label": "Goal" },
+    "campaigns.start_date": { "label": "Start date" },
+    "campaigns.end_date": { "label": "End date" },
+    "campaigns.budget": { "label": "Budget" },
+    "campaigns.owner": { "label": "Owner" },
+    "key_dates.date": { "label": "Date" },
+    "key_dates.date_type": {
+      "label": "Type",
+      "options": { "holiday": "Holiday", "industry_event": "Industry event", "product_launch": "Product launch", "awareness_day": "Awareness day", "own_event": "Own event", "deadline": "Deadline" }
+    },
+    "key_dates.idea_note": { "label": "Content idea" },
+    "actions.kind": {
+      "label": "Kind",
+      "options": {
+        "write_brief": "Write the brief",
+        "draft": "Draft",
+        "review": "Review",
+        "revise": "Revise",
+        "approve": "Approve",
+        "schedule": "Schedule",
+        "publish": "Publish",
+        "measure": "Measure",
+        "plan": "Plan",
+        "other": "Other"
+      }
+    }
+  },
+  "relationships": {
+    "piece_campaign": { "sourceLabel": "Campaign", "targetLabel": "Pieces" },
+    "piece_author": { "sourceLabel": "Author", "targetLabel": "Pieces" },
+    "action_piece": { "sourceLabel": "Piece", "targetLabel": "Actions" }
+  },
+  "views": {
+    "pieces_all": { "name": "All pieces" },
+    "pieces_board": { "name": "Pieces by status" },
+    "in_review_pieces": { "name": "In review" },
+    "campaigns_all": { "name": "All campaigns" },
+    "key_dates_all": { "name": "Key dates" },
+    "people_all": { "name": "All people" }
+  },
+  "widgets": {
+    "publishing_calendar": { "title": "Publishing calendar" },
+    "pieces_by_stage": { "title": "Pieces by status" },
+    "open_pieces_by_owner": { "title": "Open pieces per owner" },
+    "pieces_by_pillar": { "title": "Pieces by content pillar" },
+    "published_per_month": { "title": "Published per month" },
+    "reach_by_pillar": { "title": "Reach by content pillar" },
+    "key_dates_coming": { "title": "Key dates coming up" }
+  },
+  "knowledgePages": {
+    "content_pillars": { "title": "Content pillars and mix", "sections": ["The pillars and the share of each", "What belongs under each pillar"] },
+    "editorial_rhythm": { "title": "Publishing rhythm and weekly editorial meeting", "sections": ["Slots per channel", "Shipped, at risk, blocked", "Statuses and who moves them"] },
+    "review_and_approval": { "title": "Review and approval turnaround", "sections": ["Who reviews and in how many days", "Client approval when needed"] },
+    "disclosure_checklist": { "title": "Ad and partnership disclosure checklist", "sections": ["When a post needs a label", "Wording and placement", "Check before publishing"] }
+  },
+  "rules": {
+    "review_task": { "title": "Create a review task when a piece goes to review" },
+    "schedule_task": { "title": "Create a scheduling task when a piece is approved" },
+    "at_risk_before_publish": { "title": "Flag a piece still in draft three days before it is due to publish" },
+    "measure_after_30_days": { "title": "Create a results check after a piece is published" },
+    "stale_piece": { "title": "Review a piece that has sat in drafting or review for 14 days" },
+    "weekly_editorial_prep": { "title": "Prepare the weekly editorial meeting every Monday" },
+    "plan_for_key_date": { "title": "Plan content three weeks before a key date" },
+    "idea_form_piece": { "title": "Create a piece from an idea submitted through a form" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Every piece has one of seven statuses.",
+    "publish_field": "Every piece has a publish date and time.",
+    "calendar_widget": "The dashboard shows the publishing calendar."
+  },
+  "prompt": {
+    "intro": "Set up a content calendar in my Customermates workspace: pieces with seven statuses, an owner, a reviewer and a publish date, campaigns, key dates, a disclosure check and a weekly editorial routine.",
+    "questions": [
+      "What do you publish, on which channels, and how often?",
+      "Who writes, who reviews and who approves? Is a client involved?",
+      "Which content pillars do you use, and which of the seven statuses do you need?",
+      "Which tool publishes the content? It stays there, and only the link and the date are kept here."
+    ]
+  }
+}

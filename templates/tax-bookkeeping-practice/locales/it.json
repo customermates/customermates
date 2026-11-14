@@ -1,0 +1,136 @@
+{
+  "locale": "it",
+  "name": "Studio commercialista",
+  "summary": "Uno strumento per lo studio con due flussi: acquisire un incarico, con adeguata verifica e lettera di incarico, e svolgere il lavoro ricorrente per cliente, con uno scadenzario verificato da una seconda persona.",
+  "description": "Gestisci uno studio di commercialisti in un unico posto: incarichi dalla richiesta all'incarico attivo con un passaggio di adeguata verifica antiriciclaggio in mezzo, pratiche ricorrenti per cliente e periodo con lo stato in attesa di documenti, e uno scadenzario con una data di preavviso e la persona che ha verificato ogni data. È il livello di relazione, prova delle scadenze e solleciti accanto al tuo software di studio. Non calcola scadenze di legge, non invia dichiarazioni, non tiene la contabilità, non elabora paghe né fattura il tempo e non conserva codici fiscali né copie dei documenti d'identità.",
+  "lists": {
+    "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Le persone presso i clienti che inviano i documenti e firmano." },
+    "clients": { "label": "Cliente", "pluralLabel": "Clienti", "description": "Privati, ditte individuali, società e associazioni per cui operi." },
+    "mandates": { "label": "Incarico", "pluralLabel": "Incarichi", "description": "Un incarico dalla richiesta ad attivo o rifiutato." },
+    "jobs": { "label": "Pratica", "pluralLabel": "Pratiche e adempimenti", "description": "Lavoro ricorrente per un cliente e un periodo, come la chiusura mensile o la liquidazione IVA." },
+    "deadlines": { "label": "Scadenza", "pluralLabel": "Scadenze", "description": "Una data di legge o dell'amministrazione con la sua fonte, una data di preavviso e la persona che l'ha verificata." }
+  },
+  "fields": {
+    "contacts.preferred_channel": { "label": "Canale preferito", "options": { "email": "Email", "phone": "Telefono", "portal": "Portale", "whatsapp": "WhatsApp", "post": "Posta" } },
+    "clients.client_type": { "label": "Tipo", "options": { "individual": "Privato", "sole_trader": "Ditta individuale", "company": "Società", "association": "Associazione" } },
+    "clients.vat_frequency": { "label": "Liquidazioni IVA", "options": { "monthly": "Mensili", "quarterly": "Trimestrali", "annual": "Annuali", "not_applicable": "Non applicabile" } },
+    "clients.authorisation_on": { "label": "Delega in archivio dal" },
+    "clients.aml_risk": {
+      "label": "Profilo di rischio antiriciclaggio",
+      "options": { "not_assessed": "Non valutato", "low": "Basso", "standard": "Medio", "enhanced": "Alto", "declined": "Rifiutato" }
+    },
+    "clients.aml_next_review": { "label": "Prossima rivalutazione del rischio" },
+    "mandates.stage": {
+      "label": "Fase",
+      "options": { "inquiry": "Richiesta", "intro_call": "Primo colloquio", "proposal_sent": "Preventivo", "aml_check": "Adeguata verifica", "engagement_letter_out": "Lettera di incarico inviata", "active": "Attivo", "declined": "Rifiutato", "not_going_ahead": "Non concluso" }
+    },
+    "mandates.services": {
+      "label": "Servizi",
+      "options": { "bookkeeping": "Contabilità", "payroll": "Paghe", "vat_returns": "IVA", "annual_accounts": "Bilancio", "tax_returns": "Dichiarazioni dei redditi", "advisory": "Consulenza" }
+    },
+    "mandates.fee_model": { "label": "Compenso", "options": { "fixed_monthly": "Canone mensile", "hourly": "A ore", "per_filing": "A dichiarazione", "value_based": "A valore" } },
+    "mandates.next_step_due": { "label": "Prossimo passo entro" },
+    "mandates.lost_reason": {
+      "label": "Motivo",
+      "options": { "capacity": "Nessuna disponibilità", "risk_declined": "Rifiutato per rischio", "scope_mismatch": "Ambito non adatto", "price": "Prezzo", "chose_other_advisor": "Ha scelto un altro consulente", "no_response": "Nessuna risposta" }
+    },
+    "jobs.status": {
+      "label": "Stato",
+      "options": { "planned": "Pianificata", "waiting_for_documents": "In attesa di documenti", "in_preparation": "In lavorazione", "in_review": "In revisione", "client_approval": "In attesa dell'approvazione del cliente", "submitted": "Inviata", "waiting_for_authority": "In attesa dell'amministrazione", "done": "Completata" }
+    },
+    "jobs.job_type": {
+      "label": "Tipo di pratica",
+      "options": { "monthly_bookkeeping": "Contabilità mensile", "payroll_run": "Elaborazione paghe", "vat_return": "Liquidazione IVA", "annual_accounts": "Bilancio", "tax_return": "Dichiarazione dei redditi", "year_end": "Chiusura d'esercizio" }
+    },
+    "jobs.period": { "label": "Periodo" },
+    "jobs.documents_due": { "label": "Documenti entro" },
+    "jobs.internal_due": { "label": "Scadenza interna" },
+    "jobs.reviewer": { "label": "Responsabile del controllo" },
+    "jobs.notice_received_on": { "label": "Avviso dell'amministrazione ricevuto il" },
+    "deadlines.kind": {
+      "label": "Tipo",
+      "options": { "vat_return": "Liquidazione IVA", "vat_payment": "Versamento IVA", "payroll_report": "Denuncia contributiva", "annual_accounts": "Bilancio", "tax_return": "Dichiarazione dei redditi", "appeal": "Ricorso", "payment": "Pagamento (F24)", "aml_review": "Rivalutazione del rischio", "other": "Altro" }
+    },
+    "deadlines.due_date": { "label": "Scadenza" },
+    "deadlines.pre_deadline": { "label": "Data di preavviso" },
+    "deadlines.source_ref": { "label": "Fonte della data" },
+    "deadlines.verified_by": { "label": "Verificata da" },
+    "deadlines.status": { "label": "Stato", "options": { "open": "Aperta", "in_progress": "In corso", "filed": "Adempiuta", "extended": "Prorogata", "cancelled": "Annullata" } },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "request_documents": "Richiedere documenti",
+        "chase_documents": "Sollecitare i documenti",
+        "chase_approval": "Sollecitare approvazione o firma",
+        "review": "Rivedere",
+        "reply": "Rispondere",
+        "aml": "Identificazione e profilo di rischio",
+        "filing": "Invio",
+        "other": "Altro"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Cliente", "targetLabel": "Referenti" },
+    "mandate_client": { "sourceLabel": "Cliente", "targetLabel": "Incarichi" },
+    "job_client": { "sourceLabel": "Cliente", "targetLabel": "Pratiche e adempimenti" },
+    "deadline_client": { "sourceLabel": "Cliente", "targetLabel": "Scadenze" },
+    "action_job": { "sourceLabel": "Pratica", "targetLabel": "Attività" },
+    "action_client": { "sourceLabel": "Cliente", "targetLabel": "Attività" }
+  },
+  "views": {
+    "mandates_board": { "name": "Incarichi per fase" },
+    "mandates_all": { "name": "Tutti gli incarichi" },
+    "jobs_board": { "name": "Pratiche per stato" },
+    "jobs_waiting_documents": { "name": "In attesa di documenti" },
+    "deadlines_all": { "name": "Tutte le scadenze" },
+    "unverified_deadlines": { "name": "Scadenze non verificate" },
+    "clients_all": { "name": "Tutti i clienti" },
+    "contacts_all": { "name": "Tutti i referenti" }
+  },
+  "widgets": {
+    "deadlines_coming": { "title": "Scadenze in arrivo" },
+    "unverified_count": { "title": "Scadenze aperte senza verifica" },
+    "jobs_by_status": { "title": "Pratiche aperte per stato" },
+    "documents_waiting": { "title": "Pratiche in attesa di documenti" },
+    "jobs_waiting_on_client": { "title": "Pratiche in attesa dell'approvazione del cliente" },
+    "mandates_funnel": { "title": "Incarichi per fase" },
+    "aml_reviews": { "title": "Rivalutazioni del rischio in scadenza" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Come funziona lo studio", "sections": ["I due flussi: acquisire un incarico e svolgere il lavoro", "Chi è responsabile di quale fase e la regola di un'attività con data per pratica aperta"] },
+    "onboarding_and_aml": { "title": "Acquisizione del cliente e adeguata verifica", "sections": ["Identificare il cliente e il titolare effettivo, profilo di rischio", "Lista di controllo della lettera di incarico (qui non si conservano copie dei documenti)"] },
+    "deadline_control": { "title": "Controllo delle scadenze", "sections": ["Come si inserisce una data con la sua fonte e la si fa verificare da una seconda persona", "Controllo della data di preavviso e decisione sulla proroga"] },
+    "document_checklists": { "title": "Richieste di documenti per servizio", "sections": ["Che cosa chiediamo per ogni servizio e per quando", "Solleciti e che cosa fare quando mancano documenti"] }
+  },
+  "rules": {
+    "proposal_follow_up": { "title": "Sollecitare un preventivo 3 giorni dopo l'invio" },
+    "aml_identification": { "title": "Identificare il cliente entro 2 giorni quando un incarico arriva alla fase di adeguata verifica" },
+    "onboarding_set": { "title": "Richiedere la delega e i primi documenti quando un incarico diventa attivo" },
+    "recontact_not_going_ahead": { "title": "Fissare il prossimo passo a 90 giorni quando un incarico non si conclude" },
+    "documents_chase": { "title": "Sollecitare i documenti 3 giorni prima della data richiesta" },
+    "documents_overdue_notice": { "title": "Avvisare il responsabile quando i documenti sono dovuti e mancano ancora" },
+    "pre_deadline_check": { "title": "Avvisare il responsabile alla data di preavviso di una scadenza aperta" },
+    "due_date_escalation": { "title": "Avvisare il titolare dello studio 2 giorni prima di una scadenza aperta" },
+    "approval_chase": { "title": "Sollecitare l'approvazione del cliente dopo 5 giorni di attesa" },
+    "notice_check": { "title": "Esaminare un avviso dell'amministrazione entro 3 giorni dal ricevimento" },
+    "aml_review": { "title": "Rivalutare il profilo di rischio quando arriva la data di rivalutazione" },
+    "monthly_close_jobs": { "title": "Creare le pratiche mensili all'inizio di ogni mese" }
+  },
+  "acceptanceChecks": {
+    "mandate_stage_field": "Ogni incarico ha una fase.",
+    "job_status_field": "Ogni pratica ha uno stato, compreso in attesa di documenti.",
+    "deadline_due_field": "Ogni scadenza indica la sua data.",
+    "deadline_verifier_field": "Ogni scadenza indica chi l'ha verificata.",
+    "deadline_control_page": "La base di conoscenza contiene una pagina sul controllo delle scadenze."
+  },
+  "prompt": {
+    "intro": "Imposta nel mio spazio di lavoro Customermates uno studio di commercialisti: incarichi dalla richiesta ad attivo con una fase di adeguata verifica, pratiche ricorrenti per cliente e periodo, uno scadenzario con data di preavviso e verificatore e solleciti con data. Non calcolare mai scadenze di legge e non conservare copie dei documenti d'identità.",
+    "questions": [
+      "Quali servizi offri e quali pratiche ricorrenti segui per cliente?",
+      "In quale Paese operi e quali scadenze monitori?",
+      "Chi prepara, chi rivede e chi verifica una scadenza?",
+      "Come identifichi i nuovi clienti e ogni quanto rivedi il loro profilo di rischio?"
+    ]
+  }
+}

@@ -1,4 +1,8 @@
-import { getSweepRecordDeliveriesInteractor, getSweepRecordFileIndexInteractor } from "@/core/di";
+import {
+  getSweepAutomationRulesInteractor,
+  getSweepRecordDeliveriesInteractor,
+  getSweepRecordFileIndexInteractor,
+} from "@/core/di";
 import { env } from "@/env";
 
 export const runtime = "nodejs";
@@ -16,5 +20,6 @@ export async function GET(req: Request) {
     ok: true,
     ...(await getSweepRecordDeliveriesInteractor().invoke()),
     ...(await getSweepRecordFileIndexInteractor().invoke()),
+    ...(await getSweepAutomationRulesInteractor().invoke()),
   });
 }

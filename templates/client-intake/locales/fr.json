@@ -1,0 +1,212 @@
+{
+  "locale": "fr",
+  "name": "Fiche client et intégration",
+  "summary": "Une intégration par mission : demande, qualification, questionnaire, pièces demandées, lettre de mission et réunion de lancement, avec une étape datée à chaque phase et un motif en cas de refus.",
+  "description": "Un court pipeline pour accueillir un nouveau client : répondre sous un jour, vérifier l’adéquation, envoyer le questionnaire, réunir les pièces, envoyer la lettre de mission, démarrer. Les professions réglementées notent qui a vérifié l’identité et quand, jamais la pièce elle-même. Ce n’est pas un outil de signature électronique, de LCB-FT ou de paiement.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes chez chaque client : interlocuteur principal, facturation, signataire." },
+    "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Entreprises, indépendants et particuliers que vous accueillez." },
+    "intakes": { "label": "Intégration", "pluralLabel": "Intégrations", "description": "Une intégration par mission, de la demande à intégré ou refusé." },
+    "document_requests": { "label": "Pièce demandée", "pluralLabel": "Pièces demandées", "description": "Une ligne par document demandé à un client." }
+  },
+  "fields": {
+    "intakes.stage": {
+      "label": "Étape",
+      "options": {
+        "enquiry": "Demande",
+        "screening": "Qualification",
+        "form_sent": "Questionnaire envoyé",
+        "review_checks": "Vérification",
+        "agreement_sent": "Lettre de mission envoyée",
+        "ready_to_start": "Prêt à démarrer",
+        "kickoff_scheduled": "Réunion de lancement",
+        "onboarded": "Intégré",
+        "declined": "Refusé"
+      }
+    },
+    "contacts.job_title": { "label": "Fonction" },
+    "contacts.contact_role": {
+      "label": "Rôle",
+      "options": { "primary": "Interlocuteur principal", "billing": "Facturation", "signatory": "Signataire", "technical": "Technique", "other": "Autre" }
+    },
+    "contacts.language": { "label": "Langue" },
+    "contacts.privacy_notice_sent_on": { "label": "Mention d’information RGPD envoyée le" },
+    "clients.client_type": {
+      "label": "Type de client",
+      "options": { "company": "Société", "sole_trader": "Indépendant", "individual": "Particulier", "organisation": "Association ou organisme" }
+    },
+    "clients.owner": { "label": "Responsable de compte" },
+    "clients.website": { "label": "Site web" },
+    "clients.address": { "label": "Adresse" },
+    "clients.registration_id": { "label": "SIREN ou numéro de TVA" },
+    "clients.source": {
+      "label": "Origine",
+      "options": { "referral": "Recommandation", "website": "Site web", "event": "Événement", "outbound": "Prospection", "partner": "Partenaire", "other": "Autre" }
+    },
+    "intakes.owner": { "label": "Responsable" },
+    "intakes.service": { "label": "Prestation" },
+    "intakes.received_on": { "label": "Reçue le" },
+    "intakes.first_response_on": { "label": "Première réponse le" },
+    "intakes.form_sent_on": { "label": "Questionnaire envoyé le" },
+    "intakes.form_received_on": { "label": "Questionnaire reçu le" },
+    "intakes.agreement_sent_on": { "label": "Lettre de mission envoyée le" },
+    "intakes.agreement_signed_on": { "label": "Lettre de mission signée le" },
+    "intakes.kickoff_on": { "label": "Lancement le" },
+    "intakes.fee_model": {
+      "label": "Mode de facturation",
+      "options": { "fixed": "Forfait", "hourly": "Au temps passé", "retainer": "Abonnement mensuel", "other": "Autre" }
+    },
+    "intakes.deposit_required": { "label": "Acompte exigé" },
+    "intakes.deposit_received_on": { "label": "Acompte reçu le" },
+    "intakes.identity_verified_on": { "label": "Identité vérifiée le" },
+    "intakes.identity_verified_by": { "label": "Identité vérifiée par" },
+    "intakes.conflict_check": {
+      "label": "Vérification des conflits d’intérêts",
+      "options": { "not_required": "Non requise", "pending": "En cours", "clear": "Aucun conflit", "conflict_found": "Conflit constaté" }
+    },
+    "intakes.risk_rating": {
+      "label": "Niveau de risque",
+      "options": { "not_assessed": "Non évalué", "low": "Faible", "standard": "Normal", "high": "Élevé" }
+    },
+    "intakes.decline_reason": {
+      "label": "Motif de refus",
+      "options": {
+        "conflict": "Conflit d’intérêts",
+        "not_a_fit": "Ne convient pas",
+        "no_capacity": "Pas de disponibilité",
+        "no_response": "Pas de réponse",
+        "client_withdrew": "Le client s’est retiré",
+        "risk": "Risque",
+        "other": "Autre"
+      }
+    },
+    "intakes.decline_notice_sent_on": { "label": "Refus envoyé le" },
+    "intakes.next_step": { "label": "Prochaine action" },
+    "intakes.next_step_due": { "label": "Prochaine action avant le" },
+    "intakes.days_to_first_response": { "label": "Jours jusqu’à la première réponse" },
+    "intakes.days_to_kickoff": { "label": "Jours jusqu’au lancement" },
+    "document_requests.kind": {
+      "label": "Type",
+      "options": {
+        "identity": "Pièce d’identité",
+        "proof_of_address": "Justificatif de domicile",
+        "company_register": "Extrait Kbis",
+        "prior_year_return": "Déclaration de l’année précédente",
+        "contract": "Contrat",
+        "questionnaire": "Questionnaire",
+        "access_credentials": "Accès et identifiants",
+        "other": "Autre"
+      }
+    },
+    "document_requests.status": {
+      "label": "Statut",
+      "options": { "requested": "Demandée", "partial": "Reçue en partie", "received": "Reçue", "needs_correction": "À corriger", "not_needed": "Sans objet" }
+    },
+    "document_requests.requested_on": { "label": "Demandée le" },
+    "document_requests.needed_by": { "label": "À fournir avant le" },
+    "document_requests.received_on": { "label": "Reçue le" },
+    "document_requests.where_stored": { "label": "Lieu de stockage" },
+    "document_requests.owner": { "label": "Responsable" },
+    "actions.kind": {
+      "label": "Type",
+      "options": {
+        "reply": "Réponse",
+        "chase_form": "Relancer le questionnaire",
+        "chase_document": "Relancer une pièce",
+        "review": "Revue",
+        "check": "Vérification",
+        "send_agreement": "Envoyer la lettre de mission",
+        "chase_signature": "Relancer la signature",
+        "kickoff": "Lancement",
+        "decline_letter": "Courrier de refus",
+        "other": "Autre"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Client", "targetLabel": "Contacts" },
+    "intake_client": { "sourceLabel": "Client", "targetLabel": "Intégrations" },
+    "intake_contact": { "sourceLabel": "Interlocuteur principal", "targetLabel": "Intégrations" },
+    "document_request_intake": { "sourceLabel": "Intégration", "targetLabel": "Pièces demandées" },
+    "action_intake": { "sourceLabel": "Intégration", "targetLabel": "Actions" }
+  },
+  "views": {
+    "intakes_all": { "name": "Toutes les intégrations" },
+    "intakes_board": { "name": "Intégrations par étape" },
+    "awaiting_signature": { "name": "En attente de signature" },
+    "no_first_response": { "name": "Sans première réponse" },
+    "declined_intakes": { "name": "Refusées" },
+    "document_requests_all": { "name": "Toutes les pièces demandées" },
+    "documents_outstanding": { "name": "En attente de pièces" },
+    "clients_all": { "name": "Tous les clients" },
+    "contacts_all": { "name": "Tous les contacts" }
+  },
+  "widgets": {
+    "intakes_by_stage": { "title": "Intégrations ouvertes par étape" },
+    "open_intakes_by_owner": { "title": "Intégrations ouvertes par responsable" },
+    "enquiries_without_reply": { "title": "Demandes sans première réponse" },
+    "documents_outstanding": { "title": "Pièces en attente" },
+    "awaiting_signature_count": { "title": "En attente de signature" },
+    "average_days_to_reply": { "title": "Moyenne de jours jusqu’à la première réponse" },
+    "average_days_to_kickoff": { "title": "Moyenne de jours jusqu’au lancement" },
+    "decline_reasons": { "title": "Motifs de refus" },
+    "new_intakes_per_month": { "title": "Nouvelles intégrations par mois" }
+  },
+  "knowledgePages": {
+    "intake_process": {
+      "title": "Processus d’intégration d’un client",
+      "sections": ["Les neuf étapes et ce qui clôt chacune", "Qui répond, qui qualifie, qui signe", "Délais : répondre sous un jour, relancer à 3 et à 7 jours"]
+    },
+    "intake_questionnaire": {
+      "title": "Questionnaire selon le type de client",
+      "sections": ["Société, indépendant, particulier, association", "Questions qui décident de l’adéquation", "Ce que vous ne demandez jamais"]
+    },
+    "document_requests_guide": {
+      "title": "Liste des pièces et messages de relance",
+      "sections": ["Liste standard par prestation", "Première demande et relances", "Quand une pièce doit être corrigée"]
+    },
+    "agreement_checklist": {
+      "title": "Check-list de la lettre de mission",
+      "sections": ["Périmètre, mode de facturation et acompte", "Qui signe et dans quel outil", "Que faire quand elle reste non signée"]
+    },
+    "regulated_checks": {
+      "title": "Vérifications d’identité, de conflit et de risque pour les professions réglementées",
+      "sections": ["Noter qui a vérifié et quand, jamais la pièce", "Recherche de conflit avant le début du travail", "Niveau de risque et quand refuser"]
+    },
+    "privacy_at_intake": {
+      "title": "Données personnelles : ce que nous collectons à l’intégration et pourquoi",
+      "sections": ["Finalité et base légale", "Ce qui reste hors de l’espace de travail", "Conservation et demandes de suppression"]
+    }
+  },
+  "rules": {
+    "reply_to_enquiry": { "title": "Répondre à la demande", "description": "Une nouvelle intégration reçoit une action de réponse due le lendemain." },
+    "chase_form": { "title": "Relancer le questionnaire", "description": "Trois jours après l’envoi du questionnaire, une action de relance arrive à échéance." },
+    "chase_document": { "title": "Relancer la pièce manquante", "description": "À la date limite d’une pièce demandée encore ouverte, une action de relance est créée." },
+    "review_received_document": { "title": "Contrôler la pièce reçue", "description": "Quand une pièce est marquée reçue, une action de contrôle est due le lendemain." },
+    "chase_signature": { "title": "Relancer la signature", "description": "Sept jours après l’envoi de la lettre de mission, une action de relance arrive à échéance." },
+    "decline_letter": { "title": "Envoyer le courrier de refus", "description": "Une intégration refusée reçoit une action de courrier pour le lendemain. Précisez qu’aucune mission n’est engagée et mentionnez tout délai proche." },
+    "kickoff_event": { "title": "Inscrire la réunion de lancement dans l’agenda", "description": "Quand la date de lancement est fixée, l’événement est inscrit dans l’agenda du responsable." },
+    "first_value_check": { "title": "Vérifier le premier résultat", "description": "Quatorze jours après l’intégration, une action de vérification demande si le client a vu un premier résultat." },
+    "stalled_intake": { "title": "Revoir l’intégration qui stagne", "description": "Une intégration ouverte restée 7 jours à la même étape reçoit une action de revue." },
+    "intake_form_records": { "title": "Créer le client, le contact et l’intégration à partir du formulaire", "description": "Un formulaire d’intégration public crée le client, le contact et une intégration à l’étape Demande." },
+    "intake_form_notice": { "title": "Prévenir le responsable de la nouvelle intégration", "description": "Le propriétaire de l’espace de travail est averti de chaque envoi." }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Chaque intégration a l’une des neuf étapes.",
+    "first_response_field": "Chaque intégration note quand vous avez répondu pour la première fois.",
+    "document_requests_list": "Les pièces demandées sont suivies dans leur propre liste.",
+    "intakes_board_view": "La liste des intégrations peut s’afficher en board par étape.",
+    "chase_signature_rule": "Une lettre de mission envoyée reçoit une action de relance au bout de 7 jours.",
+    "process_page": "La base de connaissances contient le processus d’intégration."
+  },
+  "prompt": {
+    "intro": "Mets en place l’intégration des clients dans mon espace de travail Customermates : une intégration par mission avec neuf étapes, des pièces demandées, une étape datée à chaque phase, un motif de refus et des vérifications facultatives d’identité, de conflit et de risque qui notent qui a vérifié et quand.",
+    "questions": [
+      "Que vendez-vous, et qui sont vos clients : sociétés, indépendants ou particuliers ?",
+      "Par quelles étapes passe un nouveau client aujourd’hui, et lesquelles des neuf étapes ne vous servent pas ?",
+      "Votre profession est-elle réglementée, avec des vérifications d’identité, de conflit ou de risque à consigner ? Dans quel pays ?",
+      "Quelles pièces demandez-vous toujours, et où les rangez-vous ? Seul un lien est gardé ici.",
+      "Où les clients signent-ils la lettre de mission ? Elle y reste ; seules les dates sont gardées ici."
+    ]
+  }
+}

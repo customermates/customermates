@@ -17,6 +17,7 @@ vi.mock("@/core/di", () => ({
   getManageDataViewsInteractor: () => ({ invoke: interactors.manage }),
   getAuthService: () => ({ isMcpApiKeyValid: () => Promise.resolve(true) }),
   getAuthorizeMcpConnectionInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: true }) }),
+  getRecordAgentFirstCallInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: { recorded: false } }) }),
   getOperatorAccessService: () => ({ isReadEligible: () => Promise.resolve(false) }),
 }));
 
@@ -100,6 +101,7 @@ describe("saved-view MCP HTTP transport", () => {
       "fetch",
       "manage_calendar",
       "manage_data_views",
+      "manage_forms",
       "manage_record_detail_layout",
       "search",
     ]);

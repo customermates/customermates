@@ -30,7 +30,7 @@ sections:
 
 hero:
   title: "Ein einfaches CRM, um jedes Kundengespräch nachzufassen"
-  description: "Ein neuer Workspace startet ohne Listen. In Customermates Cloud baut die KI-Einrichtung Listen, Phasen und Dashboard aus Ihrer Beschreibung, oder Sie legen sie selbst an. Dann Tabelle importieren und ab Pro LinkedIn und E-Mail verbinden, damit die Gespräche jedes Kunden an seinem Datensatz liegen."
+  description: "Für Teams von 2 bis 20 Personen. Die KI-Einrichtung baut Listen, Phasen und Dashboard aus Ihrer Beschreibung, Sie importieren Ihre Tabelle und laden das Team ein. Ab Pro liegen Outlook-, Gmail- und LinkedIn-Gespräche an jedem Kunden. Abgerechnet wird pro Nutzer, die Datenbank steht in Frankfurt."
   buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup?job=workspace
   buttonRightText: Live-Demo ansehen
@@ -65,6 +65,14 @@ Was die Einrichtung außerdem kurz hält:
 - **Eine Listenansicht für alles.** Jede Liste öffnet sich als Tabelle oder Board, mit Suche, Filtern, Gruppierung und Sortierung in derselben Werkzeugleiste. Mehr dazu unter [Datensätze in der App](/docs/app-records).
 - **Ansichten merken sich Ihre Einstellung.** Filter, Sortierung, Darstellung, Gruppierung und Spalten werden zusammen als benannte Ansicht gespeichert und erscheinen als Chip. Änderungen bleiben vorläufig, bis Sie sie in der Ansicht speichern. Eine Ansicht gehört Ihnen, bis Sie sie mit dem ganzen Team oder mit ausgewählten Rollen teilen.
 
+## Ein CRM-System für kleine Unternehmen
+
+Customermates ist ein CRM-System für kleine Firmen mit 2 bis 20 Personen: Kontakte, Unternehmen, Deals und Aufgaben an einem Ort, eine Pipeline mit Ihren eigenen Phasen und ab Pro die E-Mail- und LinkedIn-Gespräche an jedem Kunden. Outlook und Gmail verbinden Sie ohne Add-in direkt in der Web-App. Es läuft als Cloud-Software mit monatlicher Abrechnung pro Nutzer, und die Datenbank ist in der AWS-Region Frankfurt konfiguriert.
+
+## Angebote nachfassen
+
+Ein verschicktes Angebot ist ein Deal in der Phase „Angebot verschickt“ mit einem Datum für den nächsten Schritt. Eine gespeicherte Ansicht, sortiert nach diesem Datum, zeigt, welche Angebote heute fällig sind. Mit einer [Automatisierung](/docs/app-automations) erinnert Customermates Sie vor dem Datum über die Glocke und per E-Mail. Ab Pro liegt die E-Mail, mit der Sie das Angebot verschickt haben, am selben Datensatz, sodass Sie beim Nachfassen den Verlauf vor sich haben. Angebotsdokumente erstellt Customermates nicht; die schreiben Sie weiter in Ihrem gewohnten Programm.
+
 ## Welcher Tarif passt
 
 | Bedarf | Tarif |
@@ -79,10 +87,10 @@ Ein Team mit drei Personen zahlt im Tarif Starter [[commercial.price.starter.mon
 ## Was dieses einfache CRM nicht kann
 
 <AcquisitionCallout title="Prüfen Sie das vor der Entscheidung" variant="boundary">
-Keine Erinnerungen oder Benachrichtigungen zu Aufgaben, keine wiederkehrenden Aufgaben. Keine Mobile-App; die Web-App läuft im Browser. Keine E-Mail-Sequenzen und kein Massenversand. Kein eingebauter grafischer Workflow-Editor.
+Keine wiederkehrenden Aufgaben. Keine Mobile-App; die Web-App läuft im Browser. Keine E-Mail-Sequenzen und kein Massenversand. Kein frei verzweigter grafischer Workflow-Editor.
 </AcquisitionCallout>
 
-Automatisierung gibt es, aber an zwei getrennten Stellen. In Customermates Cloud führen [Routinen](/docs/app-routines) eine gespeicherte Anweisung über Mate nach Zeitplan oder bei einer Änderung an einem Datensatz aus und verbrauchen dabei gehostete KI-Credits. Eine Routine läuft als ihr Eigentümer und sieht, was dieser sieht. Für regelbasierte Abläufe binden Sie eine separat betriebene oder abonnierte n8n-Instanz über Webhooks, die REST-API oder den Community-Node an.
+Automatisierung gibt es an drei getrennten Stellen. [Automatisierungen](/docs/app-automations) laufen ohne KI nach festen Regeln mit Wenn, Falls und Dann: Sie erinnern vor einem Datum, legen eine Folgeaufgabe an oder benachrichtigen Sie über die Glocke und per E-Mail. In Customermates Cloud führen [Routinen](/docs/app-routines) eine gespeicherte Anweisung über Mate nach Zeitplan oder bei einer Änderung an einem Datensatz aus und verbrauchen dabei gehostete KI-Credits. Eine Routine läuft als ihr Eigentümer und sieht, was dieser sieht. Für regelbasierte Abläufe binden Sie eine separat betriebene oder abonnierte n8n-Instanz über Webhooks, die REST-API oder den Community-Node an.
 
 Wenn Ihr Team auf Push-Erinnerungen am Smartphone angewiesen ist oder dauerhaft einen kostenlosen Tarif sucht, ist eines der folgenden Tools wahrscheinlich der bessere Start.
 

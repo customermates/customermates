@@ -176,6 +176,24 @@ export class PrismaCalendarRepo
   }
 
   @BypassTenantGuard
+  async markCalendarEventCancelledUnscoped(args: RepoArgs<CalendarWriteRepo, "markCalendarEventCancelledUnscoped">) {
+    const event = await this.prisma.calendarEvent.findUnique({
+      where: {
+        connectedAccountId_unipileEventId: {
+          connectedAccountId: args.connectedAccountId,
+          unipileEventId: args.unipileEventId,
+        },
+      },
+      select: { id: true },
+    });
+    if (!event) return null;
+
+    await this.prisma.calendarEvent.update({ where: { id: event.id }, data: { status: "cancelled" } });
+
+    return { id: event.id };
+  }
+
+  @BypassTenantGuard
   async deleteCalendarEventUnscoped(args: RepoArgs<CalendarWriteRepo, "deleteCalendarEventUnscoped">) {
     const event = await this.prisma.calendarEvent.findUnique({
       where: {

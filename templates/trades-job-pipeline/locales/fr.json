@@ -1,0 +1,129 @@
+{
+  "locale": "fr",
+  "name": "Dossiers d’artisan",
+  "summary": "Un pipeline pour une entreprise de travaux : demande, visite, devis et relance, puis le chantier de planifié à payé, avec les dates de rétractation, de garantie et d’entretien sur chaque dossier.",
+  "description": "Suivez un dossier de la première demande à la dernière facture : clients et chantiers où vous intervenez, dossiers avec une étape commerciale et un statut de travaux distinct, validité du devis, visite et planning, date de rétractation pour les contrats de consommateurs, fin de garantie et contrats d’entretien qui ramènent du travail. Il conserve le dossier, les dates et la relance. Ce n’est ni un outil de devis et de facturation, ni un système de planification d’équipes, ni un suivi des heures. Les dates légales sont des champs que vous confirmez, pas un conseil juridique.",
+  "lists": {
+    "customers": { "label": "Client", "pluralLabel": "Clients", "description": "Particuliers, bailleurs, syndics et entreprises pour lesquels vous travaillez." },
+    "sites": { "label": "Chantier", "pluralLabel": "Chantiers", "description": "L’adresse où le travail a lieu, qui peut différer de celle du client." },
+    "jobs": { "label": "Dossier", "pluralLabel": "Dossiers", "description": "Un travail, de la demande à accepté ou perdu, puis tout au long de l’exécution." },
+    "agreements": { "label": "Contrat d’entretien", "pluralLabel": "Contrats d’entretien", "description": "Entretien récurrent d’un chantier, avec la prochaine intervention et la date de reconduction." }
+  },
+  "fields": {
+    "customers.customer_type": {
+      "label": "Type",
+      "options": { "private": "Particulier", "landlord": "Bailleur", "property_manager": "Syndic ou gestionnaire", "commercial": "Professionnel", "builder_contractor": "Entreprise du bâtiment" }
+    },
+    "customers.marketing_ok": { "label": "Accepte les messages commerciaux" },
+    "sites.address": { "label": "Adresse" },
+    "sites.access_notes": { "label": "Consignes d’accès" },
+    "jobs.stage": {
+      "label": "Étape",
+      "options": { "enquiry": "Demande", "assessment": "Visite et relevé", "to_quote": "Devis à établir", "quote_sent": "Devis envoyé", "negotiating": "Négociation", "won": "Accepté", "lost": "Perdu" }
+    },
+    "jobs.work_status": {
+      "label": "Statut des travaux",
+      "options": { "not_scheduled": "Non planifié", "scheduled": "Planifié", "in_progress": "En cours", "completed": "Terminé", "invoiced": "Facturé", "paid": "Payé" }
+    },
+    "jobs.work_type": {
+      "label": "Nature des travaux",
+      "options": { "repair": "Réparation", "installation": "Installation", "renovation": "Rénovation", "maintenance": "Entretien", "inspection": "Contrôle", "emergency": "Urgence" }
+    },
+    "jobs.visit_at": { "label": "Visite" },
+    "jobs.quote_valid_until": { "label": "Devis valable jusqu’au" },
+    "jobs.withdrawal_ends": { "label": "Fin du délai de rétractation" },
+    "jobs.scheduled_start": { "label": "Début des travaux" },
+    "jobs.completed_on": { "label": "Terminé le" },
+    "jobs.warranty_ends": { "label": "Garantie jusqu’au" },
+    "jobs.payment_due": { "label": "Échéance de paiement" },
+    "jobs.lost_reason": {
+      "label": "Motif de perte",
+      "options": { "price": "Prix", "timing": "Délai", "chose_competitor": "A choisi un concurrent", "no_response": "Sans réponse", "job_cancelled": "Projet annulé", "other": "Autre" }
+    },
+    "agreements.interval": { "label": "Périodicité", "options": { "monthly": "Mensuelle", "quarterly": "Trimestrielle", "twice_yearly": "Semestrielle", "yearly": "Annuelle" } },
+    "agreements.status": { "label": "Statut", "options": { "active": "Actif", "paused": "En pause", "ended": "Terminé" } },
+    "agreements.next_due": { "label": "Prochaine intervention" },
+    "agreements.renewal_on": { "label": "Reconduction le" },
+    "actions.kind": {
+      "label": "Type",
+      "options": {
+        "call_back": "Rappeler",
+        "book_visit": "Fixer une visite",
+        "send_quote": "Envoyer le devis",
+        "follow_up_quote": "Relancer le devis",
+        "confirm_schedule": "Confirmer le planning",
+        "handover": "Livrer et noter la réception des travaux",
+        "check_payment": "Vérifier le paiement",
+        "warranty_check": "Demander s’il y a des défauts",
+        "book_service": "Fixer la visite d’entretien",
+        "other": "Autre"
+      }
+    }
+  },
+  "relationships": {
+    "site_customer": { "sourceLabel": "Client", "targetLabel": "Chantiers" },
+    "job_customer": { "sourceLabel": "Client", "targetLabel": "Dossiers" },
+    "job_site": { "sourceLabel": "Chantier", "targetLabel": "Dossiers" },
+    "agreement_site": { "sourceLabel": "Chantier", "targetLabel": "Contrats d’entretien" },
+    "action_job": { "sourceLabel": "Dossier", "targetLabel": "Actions" }
+  },
+  "views": {
+    "jobs_board": { "name": "Dossiers par étape" },
+    "jobs_all": { "name": "Tous les dossiers" },
+    "open_quotes": { "name": "Devis en cours" },
+    "work_in_progress": { "name": "Planifiés et en cours" },
+    "customers_all": { "name": "Tous les clients" },
+    "sites_all": { "name": "Tous les chantiers" },
+    "agreements_all": { "name": "Tous les contrats d’entretien" }
+  },
+  "widgets": {
+    "jobs_funnel": { "title": "Dossiers par étape" },
+    "open_quotes_value": { "title": "Montant des devis en cours" },
+    "visits_coming": { "title": "Visites à venir" },
+    "jobs_by_work_status": { "title": "Dossiers acceptés par statut des travaux" },
+    "lost_reasons": { "title": "Motifs de perte des dossiers" },
+    "warranties_ending": { "title": "Garanties qui se terminent" },
+    "services_due": { "title": "Interventions d’entretien à prévoir" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "De la demande au dossier accepté", "sections": ["Réponse, visite et devis : qui fait quoi et en combien de temps", "Revue hebdomadaire des devis en cours, des dossiers à facturer et des factures impayées"] },
+    "quote_checklist": { "title": "Liste de contrôle du devis", "sections": ["Travaux, exclusions, prix, validité et acompte", "Date de début, conditions de paiement et messages de relance"] },
+    "withdrawal_and_acceptance": { "title": "Rétractation, livraison et réception", "sections": ["Rétractation du consommateur pour les contrats conclus à domicile et travaux d’urgence", "Liste de contrôle de la livraison et de la réception"] },
+    "warranty_and_service": { "title": "Garantie, défauts et contrats d’entretien", "sections": ["Comment un défaut est traité", "Proposer et reconduire un contrat d’entretien"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Créer le client, le chantier et le dossier quand le formulaire de demande est envoyé" },
+    "call_back_new": { "title": "Rappeler une nouvelle demande le jour même" },
+    "quote_after_visit": { "title": "Envoyer le devis dans les 2 jours suivant la visite" },
+    "quote_follow_up": { "title": "Relancer 3 jours après l’envoi d’un devis" },
+    "quote_expiring": { "title": "Relancer 3 jours avant l’expiration d’un devis" },
+    "withdrawal_clock": {
+      "title": "Fixer la fin du délai de rétractation de 14 jours quand un dossier est accepté",
+      "variants": {
+        "BR": {
+          "title": "Fixer la fin du délai de rétractation de 7 jours quand un dossier est accepté (Brésil)",
+          "description": "Selon le code brésilien de la consommation (CDC, art. 49), le client peut se rétracter sous 7 jours quand le contrat est conclu hors de l’établissement, par exemple à son domicile."
+        }
+      }
+    },
+    "payment_check": { "title": "Vérifier un dossier facturé 3 jours après l’échéance de paiement" },
+    "warranty_check": { "title": "Demander s’il y a des défauts 30 jours avant la fin de la garantie" },
+    "service_due": { "title": "Fixer la visite d’entretien 30 jours avant son échéance" },
+    "visit_calendar": { "title": "Ajouter la visite à l’agenda quand un dossier atteint l’étape de visite" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Chaque dossier a une étape commerciale.",
+    "work_status_field": "Chaque dossier a un statut de travaux distinct.",
+    "warranty_field": "Chaque dossier indique jusqu’à quand court sa garantie.",
+    "jobs_board_view": "Les dossiers s’ouvrent en board par étape."
+  },
+  "prompt": {
+    "intro": "Mets en place dans mon espace de travail Customermates un pipeline pour une entreprise de travaux : clients, chantiers, dossiers avec étape commerciale et statut des travaux, validité du devis, dates de visite et de chantier, fin de garantie et contrats d’entretien, avec des relances datées.",
+    "questions": [
+      "Quels travaux réalisez-vous, et pour qui : particuliers, bailleurs ou entreprises ?",
+      "En combien de temps répondez-vous à une demande et envoyez-vous un devis après la visite ?",
+      "Quelle est la durée de validité de vos devis, et la durée de votre garantie ?",
+      "Vendez-vous des contrats d’entretien pour du travail récurrent ?"
+    ]
+  }
+}

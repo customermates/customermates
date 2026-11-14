@@ -1,0 +1,85 @@
+---
+title: "CRM for Claude: The CRM Your Claude Works In"
+description: "A CRM connector for Claude: clients, deals, email and LinkedIn conversations in one workspace Claude reads and updates. [[commercial.trial.days]]-day trial, no card. Open source."
+featureName: CRM for Claude
+
+relatedHrefs:
+  - /features/claude-linkedin
+  - /docs/connect-custom-connector
+  - /docs/mcp
+  - /features/api
+
+sections:
+  visual:
+    kind: os
+  steps:
+    title: "Connected in three steps"
+    items:
+      - title: "Start the trial"
+        description: "Sign up and say how many people will use the workspace. The trial runs [[commercial.trial.days]] days on the Pro plan and needs no card."
+      - title: "Add Customermates to Claude"
+        description: "In Claude, open Settings › Connectors › Add custom connector and paste the server address https://customermates.com/api/v1/mcp. The setup shows the address of your own workspace and waits until Claude's first call arrives."
+      - title: "Let Claude build your CRM"
+        description: "Tell Claude what you sell and how you work. Claude proposes your lists, pipeline and follow-ups, and builds them in the workspace once you agree."
+
+hero:
+  title: "The CRM your Claude works in"
+  description: "Customermates is a CRM that Claude reads and updates through a connector: clients, deals, tasks and, once you connect them, your email and LinkedIn conversations. Server address: https://customermates.com/api/v1/mcp"
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Read the connector guide
+  buttonRightHref: /docs/connect-custom-connector
+  hint: "✓ No credit card required ✓ Independent product, not affiliated with Anthropic"
+
+cta:
+  action: "Give Claude a CRM to work in"
+  description: "Start the trial, add the connector and let Claude set up the workspace. You agree to the plan before Claude builds it."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Read the connector guide
+  buttonRightHref: /docs/connect-custom-connector
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+---
+
+A CRM for Claude is one that Claude can read and change itself, instead of one you copy text out of. Customermates gives Claude that through a connector: Claude looks up a client, reads the last conversation, updates the deal and writes the next task, in the same workspace your team opens in the browser.
+
+## What you can ask Claude
+
+- **"Which deals have had no contact for two weeks?"** Claude reads your pipeline and the conversations linked to each deal.
+- **"Add the three people from this email to the right company and note what they asked for."** Claude creates the contacts and links them.
+- **"Which conversations are waiting for my reply?"** With a mailbox or [LinkedIn connected](/features/claude-linkedin), Claude lists the open threads and can draft the answers.
+
+Claude works with your own lists and fields, so the CRM uses your words for clients, deals and stages.
+
+## What it does and what it does not
+
+**It does:** read and write records, lists, fields and views with the permissions of the person who connected it; search the workspace's Knowledge Base; read conversations and save drafts once a channel is connected.
+
+**It does not:** work around your roles and permissions, change anything without a call you can see in Claude, or act in the background while Claude is closed. For work on a schedule there are [routines](/docs/app-routines) with the built-in assistant Mate.
+
+**On approval:** Customermates tells Claude to ask before it sends a message or deletes something. Whether Claude asks each time depends on the tool permissions you set in Claude.
+
+The technical side, with every tool the connector offers, is in the [MCP guide](/docs/mcp).
+
+## What it costs
+
+The trial runs [[commercial.trial.days]] days on the Pro plan and needs no credit card. Paid plans start at [[commercial.price.starter.monthly]] per user and month for the CRM with the connector; the inbox for email and LinkedIn is part of Pro at [[commercial.price.pro.monthly]]. Without a subscription the workspace moves to the Free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records. The connector costs nothing extra, and Claude bills its own usage through your Claude plan.
+
+## Who runs it
+
+Customermates is an independent product. It is not affiliated with, endorsed by or sponsored by Anthropic. The core of the CRM is open source under AGPL-3.0 and can be self-hosted; the cloud database is configured in the AWS Frankfurt region, and the [list of subprocessors](/subprocessors) names every provider involved.
+
+<Faq>
+<FaqItem question="Does it work with ChatGPT and other AI clients too?">
+Yes. The same connector works with ChatGPT, Cursor, Gemini and other clients that support MCP. The [connector guide](/docs/connect-custom-connector) has the steps for each.
+</FaqItem>
+<FaqItem question="Does Claude see all my data?">
+Claude sees what the person who connected it may see. It acts with that person's role and permissions, in the workspace they chose at sign-in.
+</FaqItem>
+<FaqItem question="Do I need a paid Claude plan?">
+Claude offers custom connectors on every plan; its free plan allows one. ChatGPT needs a paid plan for custom connectors.
+</FaqItem>
+<FaqItem question="Can I host it myself?">
+The open-source core can be self-hosted and includes the connector. The inbox for email and LinkedIn and the built-in assistant Mate are part of Customermates Cloud.
+</FaqItem>
+</Faq>

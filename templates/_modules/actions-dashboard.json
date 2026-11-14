@@ -1,0 +1,102 @@
+{
+  "key": "actions_dashboard",
+  "description": "The default Actions view and the three dashboard widgets every follow-up template shows: upcoming Actions, overdue Actions and recent activity. Needs actions_core and a kind field on the Actions list.",
+  "views": [
+    {
+      "key": "actions_all",
+      "list": "actions",
+      "default": true,
+      "layout": "table",
+      "sort": { "field": "actions.due", "direction": "asc" },
+      "columns": ["actions.due", "actions.status", "actions.kind", "actions.owner"]
+    }
+  ],
+  "widgets": [
+    {
+      "kind": "calendar",
+      "key": "upcoming_actions",
+      "list": "actions",
+      "layout": "upcoming",
+      "dateField": "actions.due",
+      "filters": [{ "operator": "in", "field": "actions.status", "options": ["open", "waiting"] }]
+    },
+    {
+      "kind": "chart",
+      "key": "overdue_actions",
+      "list": "actions",
+      "aggregation": "count",
+      "filters": [
+        { "operator": "in", "field": "actions.status", "options": ["open"] },
+        { "operator": "inLastDays", "field": "actions.due", "days": 3650 }
+      ],
+      "display": "number"
+    },
+    { "kind": "activity", "key": "activity_timeline" }
+  ],
+  "text": {
+    "en": {
+      "views": { "actions_all": { "name": "All actions" } },
+      "widgets": {
+        "upcoming_actions": { "title": "Upcoming actions" },
+        "overdue_actions": { "title": "Overdue actions" },
+        "activity_timeline": { "title": "Recent activity" }
+      }
+    },
+    "de": {
+      "views": { "actions_all": { "name": "Alle Aufgaben" } },
+      "widgets": {
+        "upcoming_actions": { "title": "Anstehende Aufgaben" },
+        "overdue_actions": { "title": "Überfällige Aufgaben" },
+        "activity_timeline": { "title": "Letzte Aktivität" }
+      }
+    },
+    "fr": {
+      "views": { "actions_all": { "name": "Toutes les actions" } },
+      "widgets": {
+        "upcoming_actions": { "title": "Actions à venir" },
+        "overdue_actions": { "title": "Actions en retard" },
+        "activity_timeline": { "title": "Activité récente" }
+      }
+    },
+    "it": {
+      "views": { "actions_all": { "name": "Tutte le attività" } },
+      "widgets": {
+        "upcoming_actions": { "title": "Attività in arrivo" },
+        "overdue_actions": { "title": "Attività scadute" },
+        "activity_timeline": { "title": "Attività recenti" }
+      }
+    },
+    "es": {
+      "views": { "actions_all": { "name": "Todas las tareas" } },
+      "widgets": {
+        "upcoming_actions": { "title": "Próximas tareas" },
+        "overdue_actions": { "title": "Tareas vencidas" },
+        "activity_timeline": { "title": "Actividad reciente" }
+      }
+    },
+    "pt": {
+      "views": { "actions_all": { "name": "Todas as tarefas" } },
+      "widgets": {
+        "upcoming_actions": { "title": "Próximas tarefas" },
+        "overdue_actions": { "title": "Tarefas atrasadas" },
+        "activity_timeline": { "title": "Atividade recente" }
+      }
+    },
+    "pl": {
+      "views": { "actions_all": { "name": "Wszystkie zadania" } },
+      "widgets": {
+        "upcoming_actions": { "title": "Nadchodzące zadania" },
+        "overdue_actions": { "title": "Zaległe zadania" },
+        "activity_timeline": { "title": "Ostatnia aktywność" }
+      }
+    },
+    "nl": {
+      "views": { "actions_all": { "name": "Alle acties" } },
+      "widgets": {
+        "upcoming_actions": { "title": "Aankomende acties" },
+        "overdue_actions": { "title": "Achterstallige acties" },
+        "activity_timeline": { "title": "Recente activiteit" }
+      }
+    }
+  }
+}

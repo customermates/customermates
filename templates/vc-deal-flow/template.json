@@ -1,0 +1,163 @@
+{
+  "id": "tpl_vc_deal_flow",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "vc-deal-flow",
+  "family": "investing",
+  "kind": "pipeline",
+  "jurisdictions": ["global"],
+  "dashboardAudience": "team",
+  "modules": ["actions_core", "actions_dashboard"],
+  "requiresCapabilities": ["rules"],
+  "pairedPages": {},
+  "lists": [
+    { "key": "people", "role": "people", "icon": "contact" },
+    { "key": "organizations", "icon": "landmark" },
+    { "key": "deals", "role": "deals", "icon": "rocket" }
+  ],
+  "stages": [
+    {
+      "field": "deals.stage",
+      "items": [
+        { "key": "sourced", "outcome": "open", "weight": 1 },
+        { "key": "screening", "outcome": "open", "weight": 2 },
+        { "key": "first_meeting", "outcome": "open", "weight": 3 },
+        { "key": "partner_meeting", "outcome": "open", "weight": 12 },
+        { "key": "diligence", "outcome": "open", "weight": 40 },
+        { "key": "term_sheet", "outcome": "open", "weight": 80 },
+        { "key": "closed", "outcome": "won", "weight": 100 },
+        { "key": "passed", "outcome": "lost", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "people.person_role", "type": "select", "options": [{ "key": "founder" }, { "key": "investor" }, { "key": "angel" }, { "key": "co_investor" }, { "key": "introducer" }, { "key": "advisor" }] },
+    { "key": "people.focus_stages", "type": "select", "multiple": true, "options": [{ "key": "pre_seed" }, { "key": "seed" }, { "key": "series_a" }, { "key": "series_b_plus" }] },
+    { "key": "people.thesis", "type": "text" },
+    { "key": "people.relationship_strength", "type": "select", "options": [{ "key": "strong", "color": "success" }, { "key": "warm", "color": "warning" }, { "key": "new" }] },
+    { "key": "people.last_meeting_on", "type": "date" },
+    { "key": "people.relationship_owner", "type": "member" },
+    { "key": "organizations.org_type", "type": "select", "options": [{ "key": "startup" }, { "key": "vc_fund" }, { "key": "angel_syndicate" }, { "key": "corporate_vc" }, { "key": "accelerator" }, { "key": "other" }] },
+    { "key": "organizations.website", "type": "url" },
+    { "key": "organizations.sector", "type": "text" },
+    { "key": "organizations.stage", "type": "select", "options": [{ "key": "pre_seed" }, { "key": "seed" }, { "key": "series_a" }, { "key": "series_b" }, { "key": "growth" }] },
+    { "key": "organizations.country", "type": "text" },
+    { "key": "organizations.conflict_check", "type": "select", "options": [{ "key": "to_check", "color": "warning" }, { "key": "clear", "color": "success" }, { "key": "conflict", "color": "destructive" }] },
+    { "key": "deals.round", "type": "select", "options": [{ "key": "pre_seed" }, { "key": "seed" }, { "key": "series_a" }, { "key": "series_b" }, { "key": "bridge" }] },
+    { "key": "deals.lead_role", "type": "select", "options": [{ "key": "lead" }, { "key": "follow" }, { "key": "undecided" }] },
+    { "key": "deals.thesis_fit", "type": "select", "options": [{ "key": "strong", "color": "success" }, { "key": "partial", "color": "warning" }, { "key": "weak", "color": "destructive" }] },
+    { "key": "deals.owner", "type": "member" },
+    { "key": "deals.source", "type": "select", "options": [{ "key": "warm_introduction" }, { "key": "inbound" }, { "key": "outbound" }, { "key": "event" }, { "key": "portfolio_referral" }, { "key": "co_investor" }] },
+    { "key": "deals.intro_requested_on", "type": "date" },
+    { "key": "deals.intro_made_on", "type": "date" },
+    { "key": "deals.first_meeting_on", "type": "date" },
+    { "key": "deals.decision_on", "type": "date" },
+    { "key": "deals.term_sheet_on", "type": "date" },
+    { "key": "deals.closed_on", "type": "date" },
+    { "key": "deals.nda_signed", "type": "boolean" },
+    { "key": "deals.pass_reason", "type": "select", "options": [{ "key": "thesis_mismatch" }, { "key": "team" }, { "key": "market" }, { "key": "too_early" }, { "key": "valuation" }, { "key": "timing" }, { "key": "other" }] },
+    { "key": "deals.revisit_on", "type": "date" },
+    { "key": "deals.data_room_url", "type": "url" },
+    { "key": "actions.kind", "type": "select", "options": [{ "key": "request_intro" }, { "key": "send_deck" }, { "key": "prepare_meeting" }, { "key": "follow_up" }, { "key": "diligence_request" }, { "key": "write_memo" }, { "key": "send_pass_note" }, { "key": "revisit" }, { "key": "thank_introducer" }, { "key": "other" }] }
+  ],
+  "calculations": [
+    { "key": "deals.days_to_term_sheet", "type": "number", "expression": { "op": "daysBetween", "from": "deals.first_meeting_on", "to": "deals.term_sheet_on" } },
+    {
+      "key": "deals.weighted_value",
+      "type": "currency",
+      "expression": {
+        "op": "divide",
+        "left": { "op": "multiply", "left": { "op": "field", "field": "deals.value" }, "right": { "op": "optionWeight", "field": "deals.stage" } },
+        "right": { "op": "number", "value": "100" }
+      }
+    }
+  ],
+  "relationships": [
+    { "key": "deal_company", "source": "deals", "target": "organizations", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "deal_contacts", "source": "deals", "target": "people", "sourceCardinality": "many", "targetCardinality": "many" },
+    { "key": "action_deal", "source": "actions", "target": "deals", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    { "key": "deals_board", "list": "deals", "default": true, "layout": "board", "groupBy": "deals.stage" },
+    {
+      "key": "deals_all",
+      "list": "deals",
+      "default": false,
+      "layout": "table",
+      "sort": { "field": "deals.decision_on", "direction": "asc" },
+      "columns": ["deals.stage", "deals.owner", "deals.lead_role", "deals.thesis_fit", "deals.decision_on"]
+    },
+    {
+      "key": "passed_to_revisit",
+      "list": "deals",
+      "default": false,
+      "layout": "table",
+      "sort": { "field": "deals.revisit_on", "direction": "asc" },
+      "filters": [
+        { "operator": "in", "field": "deals.stage", "options": ["passed"] },
+        { "operator": "notEmpty", "field": "deals.revisit_on" }
+      ]
+    },
+    { "key": "organizations_all", "list": "organizations", "default": true, "layout": "table", "columns": ["organizations.org_type", "organizations.sector", "organizations.stage", "organizations.conflict_check"] },
+    { "key": "people_all", "list": "people", "default": true, "layout": "table", "columns": ["people.person_role", "people.relationship_strength", "people.last_meeting_on", "people.relationship_owner"] }
+  ],
+  "widgets": [
+    { "kind": "chart", "key": "deal_funnel", "list": "deals", "aggregation": "count", "groupBy": { "field": "deals.stage" }, "filters": [{ "operator": "notIn", "field": "deals.stage", "options": ["closed", "passed"] }], "display": "funnelChart", "size": "large" },
+    { "kind": "chart", "key": "deals_by_source", "list": "deals", "aggregation": "count", "groupBy": { "field": "deals.source" }, "display": "horizontalBarChart" },
+    { "kind": "chart", "key": "pass_reasons", "list": "deals", "aggregation": "count", "groupBy": { "field": "deals.pass_reason" }, "filters": [{ "operator": "in", "field": "deals.stage", "options": ["passed"] }], "display": "doughnutChart" },
+    { "kind": "chart", "key": "average_days_to_term_sheet", "list": "deals", "aggregation": "average", "valueField": "deals.days_to_term_sheet", "display": "number" },
+    { "kind": "calendar", "key": "revisits_coming", "list": "deals", "layout": "upcoming", "dateField": "deals.revisit_on" }
+  ],
+  "knowledgePages": [
+    { "key": "investment_thesis", "kind": "overview" },
+    { "key": "stage_criteria", "kind": "processes" },
+    { "key": "pass_notes", "kind": "salesPlaybook" }
+  ],
+  "followUpRules": [
+    { "key": "follow_up_after_meeting", "trigger": { "kind": "field_changed", "field": "deals.stage", "to": "first_meeting" }, "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "deals" }, "dueOffsetDays": 2, "needs": "today" },
+    {
+      "key": "stale_screening",
+      "trigger": { "kind": "unchanged_for", "field": "deals.stage", "days": 14 },
+      "condition": [{ "operator": "in", "field": "deals.stage", "options": ["screening", "first_meeting"] }],
+      "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "deals" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "pass_note", "trigger": { "kind": "field_changed", "field": "deals.stage", "to": "passed" }, "action": { "kind": "create_task", "taskKind": "send_pass_note", "assignee": "record_owner", "about": "deals" }, "dueOffsetDays": 1, "needs": "today" },
+    { "key": "revisit_deal", "trigger": { "kind": "date_reached", "field": "deals.revisit_on", "offsetDays": 0 }, "action": { "kind": "create_task", "taskKind": "revisit", "assignee": "record_owner", "about": "deals" }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "diligence_checklist", "trigger": { "kind": "field_changed", "field": "deals.stage", "to": "term_sheet" }, "action": { "kind": "create_task", "taskKind": "diligence_request", "assignee": "record_owner", "about": "deals" }, "dueOffsetDays": 1, "needs": "today" },
+    { "key": "first_check_in_after_close", "trigger": { "kind": "field_changed", "field": "deals.stage", "to": "closed" }, "action": { "kind": "create_task", "taskKind": "follow_up", "assignee": "record_owner", "about": "deals" }, "dueOffsetDays": 30, "needs": "today" },
+    {
+      "key": "intro_nudge",
+      "trigger": { "kind": "date_reached", "field": "deals.intro_requested_on", "offsetDays": 7 },
+      "condition": [{ "operator": "empty", "field": "deals.intro_made_on" }],
+      "action": { "kind": "create_task", "taskKind": "thank_introducer", "assignee": "record_owner", "about": "deals" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    }
+  ],
+  "acceptanceChecks": [
+    { "key": "stage_field", "kind": "field_exists", "ref": "deals.stage" },
+    { "key": "pass_reason_field", "kind": "field_exists", "ref": "deals.pass_reason" },
+    { "key": "board_view", "kind": "view_exists", "ref": "deals_board" }
+  ],
+  "sources": [
+    { "url": "https://www.affinity.co/guides/how-to-choose-the-best-crm-for-venture-capital", "checkedOn": "2026-11-12" },
+    { "url": "https://www.affinity.co/blog/how-to-organize-your-deal-flow", "checkedOn": "2026-11-12" },
+    { "url": "https://visible.vc/blog/best-crm-for-venture-capital/", "checkedOn": "2026-11-12" },
+    { "url": "https://visible.vc/blog/deal-flow-venture-capital", "checkedOn": "2026-11-12" },
+    { "url": "https://www.allied.vc/guides/fundraising-investor-funnel-that-converts", "checkedOn": "2026-11-12" },
+    { "url": "https://adamant.beehiiv.com/p/fundraising-conversion-funnel", "checkedOn": "2026-11-12" },
+    { "url": "https://www.capitaly.vc/blog/the-investor-pipeline-template-organize-your-raise-like-a-pro", "checkedOn": "2026-11-12" },
+    { "url": "https://attio.com/f/best-crm-for-venture-capital", "checkedOn": "2026-11-12" },
+    { "url": "https://www.airtable.com/templates/fundraising-crm/expQrNqXl4bUBrb8B", "checkedOn": "2026-11-12" },
+    { "url": "https://cms.law/de/deu/legal-updates/der-ablauf-eines-venture-capital-investments", "checkedOn": "2026-11-12" },
+    { "url": "https://startups.com.br/artigo/processo-de-investimento-de-venture-capital/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.vcstack.io/category/crm", "checkedOn": "2026-11-12" },
+    { "url": "https://fi.co/insight/venture-capital-crm", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "own", "de": "own", "fr": "none", "it": "none", "es": "none", "pt": "none", "pl": "none", "nl": "none" },
+  "publishWave": { "en": "wave2", "de": "wave2" }
+}

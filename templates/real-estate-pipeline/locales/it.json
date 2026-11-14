@@ -1,0 +1,454 @@
+{
+  "locale": "it",
+  "name": "Pipeline immobiliare",
+  "summary": "Due pipeline che si incontrano al compromesso: acquisire e promuovere l'immobile, e seguire l'acquirente, con visite, scadenze e una routine per gli ex clienti.",
+  "description": "Un'agenzia immobiliare gestisce un lato proprietario (valutazione, incarico, promozione, proposte) e un lato acquirente (contatto, qualificazione, visite, proposta), poi una fase comune dopo il compromesso con scadenze vincolanti. Questo modello segue entrambi, il tipo di incarico e la sua scadenza, ogni visita con il suo riscontro, le scadenze dopo la firma e una routine con date per gli ex clienti. Il valore di un immobile contiene la provvigione attesa.",
+  "lists": {
+    "contacts": { "label": "Contatto", "pluralLabel": "Contatti", "description": "Proprietari, locatori, acquirenti, inquilini e segnalatori." },
+    "organizations": { "label": "Organizzazione", "pluralLabel": "Organizzazioni", "description": "Costruttori, banche, notai e partner segnalatori." },
+    "listings": { "label": "Immobile", "pluralLabel": "Immobili", "description": "L'incarico del proprietario e la sua pipeline. Il valore è la provvigione attesa." },
+    "buyer_searches": { "label": "Richiesta acquirente", "pluralLabel": "Richieste acquirenti", "description": "Una ricerca di un acquirente o di un inquilino, dalla richiesta al rogito." },
+    "viewings": { "label": "Visita", "pluralLabel": "Visite", "description": "Ogni visita con il suo riscontro." },
+    "key_dates": { "label": "Scadenza", "pluralLabel": "Scadenze", "description": "Le date che decorrono dopo la firma del compromesso." },
+    "actions": { "label": "Attività", "pluralLabel": "Attività", "description": "Un prossimo passo con data per ogni immobile o richiesta aperta." }
+  },
+  "fields": {
+    "listings.stage": {
+      "label": "Fase",
+      "options": {
+        "owner_lead": "Contatto proprietario",
+        "valuation": "Valutazione",
+        "listing_proposal_sent": "Proposta di incarico",
+        "agreement_signed": "Incarico firmato",
+        "on_market": "In vendita",
+        "offer_stage": "Proposta d'acquisto",
+        "under_contract": "Compromesso",
+        "completed": "Rogito",
+        "lost": "Perso"
+      }
+    },
+    "buyer_searches.stage": {
+      "label": "Fase",
+      "options": {
+        "new_lead": "Nuova richiesta",
+        "qualified": "Qualificata",
+        "viewing": "Visita",
+        "offer_made": "Proposta presentata",
+        "under_contract": "Compromesso",
+        "completed": "Rogito",
+        "lost": "Persa"
+      }
+    },
+    "contacts.contact_role": {
+      "label": "Ruolo",
+      "options": {
+        "seller": "Venditore",
+        "landlord": "Locatore",
+        "buyer": "Acquirente",
+        "tenant": "Conduttore",
+        "investor": "Investitore",
+        "referrer": "Segnalatore",
+        "other": "Altro"
+      }
+    },
+    "contacts.preferred_channel": {
+      "label": "Canale preferito",
+      "options": { "email": "E-mail", "phone": "Telefono", "whatsapp": "WhatsApp", "portal": "Portale" }
+    },
+    "contacts.language": { "label": "Lingua" },
+    "contacts.marketing_consent_on": { "label": "Consenso al marketing il" },
+    "contacts.last_contact": { "label": "Ultimo contatto" },
+    "organizations.org_type": {
+      "label": "Tipo",
+      "options": {
+        "developer": "Costruttore",
+        "investor": "Investitore",
+        "bank_or_lender": "Banca o finanziatore",
+        "notary_or_lawyer": "Notaio o avvocato",
+        "referral_partner": "Partner segnalatore",
+        "other": "Altro"
+      }
+    },
+    "organizations.website": { "label": "Sito web" },
+    "listings.transaction_type": { "label": "Vendita o locazione", "options": { "sale": "Vendita", "let": "Locazione" } },
+    "listings.address": { "label": "Indirizzo" },
+    "listings.property_type": {
+      "label": "Tipo di immobile",
+      "options": {
+        "apartment": "Appartamento",
+        "house": "Casa",
+        "land": "Terreno",
+        "commercial": "Locale commerciale",
+        "parking_or_storage": "Box o cantina",
+        "other": "Altro"
+      }
+    },
+    "listings.size_m2": { "label": "Superficie in metri quadrati" },
+    "listings.rooms": { "label": "Locali" },
+    "listings.asking_price": { "label": "Prezzo richiesto" },
+    "listings.source": {
+      "label": "Provenienza",
+      "options": {
+        "referral": "Segnalazione",
+        "portal": "Portale",
+        "web_form": "Modulo web",
+        "whatsapp": "WhatsApp",
+        "canvassing": "Porta a porta",
+        "past_client": "Ex cliente",
+        "expired_listing": "Incarico scaduto"
+      }
+    },
+    "listings.agreement_type": {
+      "label": "Tipo di incarico",
+      "options": { "open": "Senza esclusiva", "sole_agency": "Esclusiva parziale", "exclusive": "Esclusiva" }
+    },
+    "listings.agreement_start": { "label": "Inizio dell'incarico" },
+    "listings.agreement_end": { "label": "Fine dell'incarico" },
+    "listings.commission_rate": { "label": "Provvigione in percentuale" },
+    "listings.first_response_on": { "label": "Prima risposta il" },
+    "listings.valuation_on": { "label": "Valutazione il" },
+    "listings.proposal_sent_on": { "label": "Proposta di incarico inviata il" },
+    "listings.signed_on": { "label": "Incarico firmato il" },
+    "listings.live_on": { "label": "In vendita dal" },
+    "listings.first_offer_on": { "label": "Prima proposta il" },
+    "listings.contract_signed_on": { "label": "Compromesso firmato il" },
+    "listings.completion_on": { "label": "Rogito il" },
+    "listings.energy_label": { "label": "Classe energetica" },
+    "listings.listing_url": { "label": "Link dell'annuncio" },
+    "listings.external_id": { "label": "Riferimento nell'altro tuo software" },
+    "listings.aml_checked_on": { "label": "Identificazione verificata il" },
+    "listings.next_step": { "label": "Prossimo passo" },
+    "listings.next_step_due": { "label": "Scadenza del prossimo passo" },
+    "listings.lost_reason": {
+      "label": "Motivo della perdita",
+      "options": {
+        "price_too_high": "Prezzo troppo alto",
+        "chose_other_agent": "Ha scelto un'altra agenzia",
+        "owner_changed_mind": "Il proprietario ha cambiato idea",
+        "sold_privately": "Venduto in proprio",
+        "agreement_expired": "Incarico scaduto",
+        "unrealistic_expectations": "Aspettative irrealistiche"
+      }
+    },
+    "listings.days_to_first_offer": { "label": "Giorni da pubblicazione a prima proposta" },
+    "buyer_searches.source": {
+      "label": "Provenienza",
+      "options": {
+        "portal": "Portale",
+        "web_form": "Modulo web",
+        "whatsapp": "WhatsApp",
+        "referral": "Segnalazione",
+        "walk_in": "Visita in agenzia",
+        "past_client": "Ex cliente"
+      }
+    },
+    "buyer_searches.criteria": { "label": "Criteri di ricerca" },
+    "buyer_searches.budget_max": { "label": "Budget massimo" },
+    "buyer_searches.financing": {
+      "label": "Finanziamento",
+      "options": { "cash": "Contanti", "pre_approved": "Mutuo pre-approvato", "mortgage_needed": "Mutuo da ottenere", "unknown": "Sconosciuto" }
+    },
+    "buyer_searches.preapproval_verified_on": { "label": "Pre-approvazione verificata il" },
+    "buyer_searches.timeframe": {
+      "label": "Tempistica",
+      "options": { "asap": "Appena possibile", "three_months": "Entro tre mesi", "six_months": "Entro sei mesi", "later": "Più avanti" }
+    },
+    "buyer_searches.first_response_on": { "label": "Prima risposta il" },
+    "buyer_searches.last_activity_on": { "label": "Ultima attività il" },
+    "buyer_searches.aml_checked_on": { "label": "Identificazione verificata il" },
+    "buyer_searches.next_step": { "label": "Prossimo passo" },
+    "buyer_searches.next_step_due": { "label": "Scadenza del prossimo passo" },
+    "buyer_searches.lost_reason": {
+      "label": "Motivo della perdita",
+      "options": {
+        "bought_elsewhere": "Ha comprato altrove",
+        "financing_failed": "Finanziamento negato",
+        "stopped_searching": "Ha smesso di cercare",
+        "no_response": "Nessuna risposta",
+        "chose_other_agent": "Ha scelto un'altra agenzia"
+      }
+    },
+    "viewings.viewing_on": { "label": "Visita il" },
+    "viewings.interest": {
+      "label": "Interesse",
+      "options": { "none": "Nessuno", "low": "Basso", "medium": "Medio", "high": "Alto", "offer": "Proposta" }
+    },
+    "viewings.feedback": { "label": "Riscontro" },
+    "viewings.feedback_sent_on": { "label": "Riscontro inviato il" },
+    "key_dates.kind": {
+      "label": "Tipo",
+      "options": {
+        "reservation_deposit_due": "Caparra da versare",
+        "financing_deadline": "Termine per il finanziamento",
+        "inspection_deadline": "Termine per le verifiche",
+        "cooling_off_ends": "Fine del termine di recesso",
+        "notary_appointment": "Appuntamento dal notaio",
+        "handover": "Consegna delle chiavi",
+        "other": "Altro"
+      }
+    },
+    "key_dates.due_date": { "label": "Scadenza" },
+    "key_dates.status": { "label": "Stato", "options": { "open": "Aperta", "done": "Fatta", "waived": "Rinunciata" } },
+    "key_dates.source_ref": { "label": "Riferimento nel contratto" },
+    "key_dates.verified_by": { "label": "Verificato da" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "call": "Chiamata",
+        "viewing": "Visita",
+        "valuation": "Valutazione",
+        "listing_proposal": "Proposta di incarico",
+        "offer": "Proposta d'acquisto",
+        "key_date": "Scadenza",
+        "owner_update": "Aggiornamento al proprietario",
+        "nurture": "Mantenere il contatto",
+        "other": "Altro"
+      }
+    }
+  },
+  "relationships": {
+    "contact_organization": { "sourceLabel": "Organizzazione", "targetLabel": "Contatti" },
+    "listing_owner": { "sourceLabel": "Proprietario", "targetLabel": "Immobili" },
+    "listing_referrer": { "sourceLabel": "Segnalatore", "targetLabel": "Immobili segnalati" },
+    "buyer_search_contact": { "sourceLabel": "Acquirente", "targetLabel": "Richieste acquirenti" },
+    "buyer_search_listing": { "sourceLabel": "Immobile oggetto della proposta", "targetLabel": "Richieste acquirenti" },
+    "viewing_listing": { "sourceLabel": "Immobile", "targetLabel": "Visite" },
+    "viewing_buyer_search": { "sourceLabel": "Richiesta acquirente", "targetLabel": "Visite" },
+    "key_date_listing": { "sourceLabel": "Immobile", "targetLabel": "Scadenze" },
+    "key_date_buyer_search": { "sourceLabel": "Richiesta acquirente", "targetLabel": "Scadenze" },
+    "action_contact": { "sourceLabel": "Contatto", "targetLabel": "Attività" },
+    "action_listing": { "sourceLabel": "Immobile", "targetLabel": "Attività" },
+    "action_buyer_search": { "sourceLabel": "Richiesta acquirente", "targetLabel": "Attività" },
+    "action_viewing": { "sourceLabel": "Visita", "targetLabel": "Attività" }
+  },
+  "views": {
+    "listings_board": { "name": "Immobili per fase" },
+    "listings_all": { "name": "Tutti gli immobili" },
+    "agreements_ending": { "name": "Incarichi in scadenza" },
+    "buyer_board": { "name": "Acquirenti per fase" },
+    "leads_not_contacted": { "name": "Richieste non ancora contattate" },
+    "viewings_all": { "name": "Visite per data" },
+    "key_dates_all": { "name": "Scadenze" },
+    "actions_all": { "name": "Tutte le attività" },
+    "actions_overdue": { "name": "Attività scadute" },
+    "contacts_all": { "name": "Tutti i contatti" },
+    "organizations_all": { "name": "Tutte le organizzazioni" }
+  },
+  "widgets": {
+    "listings_by_stage": { "title": "Provvigione per fase dell'immobile" },
+    "buyers_by_stage": { "title": "Richieste acquirenti per fase" },
+    "viewings_coming": { "title": "Visite in arrivo" },
+    "agreements_ending_soon": { "title": "Incarichi in scadenza, in vendita" },
+    "key_dates_next": { "title": "Scadenze aperte" },
+    "commission_per_month": { "title": "Provvigione conclusa al mese" },
+    "new_leads_not_contacted": { "title": "Nuove richieste non ancora contattate" },
+    "listing_lost_reasons": { "title": "Motivi di perdita degli immobili" },
+    "days_live_to_offer": { "title": "Media dei giorni da pubblicazione a prima proposta" },
+    "lead_sources": { "title": "Provenienza degli immobili" },
+    "under_contract_count": { "title": "Immobili con compromesso" },
+    "actions_due": { "title": "Attività da fare" }
+  },
+  "knowledgePages": {
+    "operating_guide": {
+      "title": "Guida operativa: pipeline immobiliare",
+      "sections": ["Due pipeline, un'attività con data per ogni pratica aperta", "Che cosa significa ogni fase", "Che cosa resta fuori dallo spazio di lavoro"]
+    },
+    "lead_response": {
+      "title": "Tempi di risposta alle richieste e domande di qualificazione",
+      "sections": ["Rispondere lo stesso giorno", "Domande all'acquirente: tempi, finanziamento, requisiti imprescindibili", "Domande al proprietario: tempi e documenti", "Annotare in modo neutro"]
+    },
+    "valuation_checklist": {
+      "title": "Checklist della visita di valutazione",
+      "sections": ["Documenti da raccogliere", "Dati di confronto", "Autorizzazione a fotografare"]
+    },
+    "agreement_checklist": {
+      "title": "Checklist della proposta di incarico e dell'incarico",
+      "sections": ["Tipo di incarico e durata", "Provvigione e chi la paga", "Informazioni sul recesso", "Forma dell'incarico e registrazione, dove prevista", "Inserire la data di fine"]
+    },
+    "marketing_launch": {
+      "title": "Checklist di avvio della promozione",
+      "sections": ["Foto e planimetria", "Attestato di prestazione energetica", "Verifica del prezzo", "Pubblicazione sui portali", "Approvazione del proprietario"]
+    },
+    "viewing_routine": {
+      "title": "Routine delle visite e modello di riscontro",
+      "sections": ["Confermare in anticipo", "Registrare la visita", "Inviare il riscontro al proprietario entro un giorno"]
+    },
+    "offer_handling": {
+      "title": "Gestione delle proposte",
+      "sections": ["Presentare la proposta lo stesso giorno", "Proposta scritta e condizioni", "Identificazione delle parti", "Chi decide"]
+    },
+    "under_contract_timeline": {
+      "title": "Calendario dopo il compromesso e scadenze",
+      "sections": ["Leggere ogni data nel contratto e annotare dove si trova", "Caparra, finanziamento, verifiche e recesso", "Appuntamento dal notaio e consegna"]
+    },
+    "closing_handover": {
+      "title": "Checklist di rogito e consegna",
+      "sections": ["Chiavi e letture dei contatori", "Atto e trascrizione", "Fattura della provvigione nel tuo strumento contabile", "Archiviazione"]
+    },
+    "past_client_routine": {
+      "title": "Routine per gli ex clienti",
+      "sections": ["Un contatto al mese", "Chiamata dell'anniversario", "Ringraziare per le segnalazioni", "Chiedere una recensione"]
+    },
+    "message_templates": {
+      "title": "Modelli di messaggio",
+      "sections": ["Risposta a una richiesta", "Conferma della valutazione", "Proposta di incarico", "Aggiornamento al proprietario", "Riscontro della visita", "Avviso di proposta", "Ringraziamento"]
+    },
+    "data_rules": {
+      "title": "Regole sui dati: identificazione, correttezza, che cosa resta fuori",
+      "sections": ["Annotare che l'identificazione è stata verificata, mai i documenti", "I criteri di ricerca descrivono l'immobile, mai la persona", "Conservazione"]
+    }
+  },
+  "rules": {
+    "portal_lead_contact": {
+      "title": "Contattare oggi la nuova richiesta",
+      "description": "Una richiesta che arriva da un portale immobiliare o da WhatsApp riceve un'attività di chiamata con scadenza oggi."
+    },
+    "prepare_valuation": {
+      "title": "Preparare la valutazione e l'elenco dei documenti",
+      "description": "Quando un immobile passa a Valutazione, un'attività di valutazione scade il giorno dopo."
+    },
+    "send_listing_proposal": {
+      "title": "Inviare la proposta di incarico",
+      "description": "Dopo la data di valutazione, un immobile ancora in Valutazione riceve un'attività di proposta con scadenza il giorno dopo."
+    },
+    "proposal_message_day_2": {
+      "title": "Sollecitare la proposta di incarico con un messaggio",
+      "description": "Due giorni dopo l'invio della proposta."
+    },
+    "proposal_call_day_5": {
+      "title": "Chiamare per la proposta di incarico",
+      "description": "Cinque giorni dopo l'invio della proposta."
+    },
+    "proposal_final_call_day_10": {
+      "title": "Ultima chiamata per la proposta di incarico",
+      "description": "Dieci giorni dopo l'invio della proposta."
+    },
+    "prepare_property": {
+      "title": "Preparare l'immobile e pubblicarlo",
+      "description": "Foto, planimetria, attestato e documenti; poi la pubblicazione. Scadenza tre giorni dopo la firma dell'incarico."
+    },
+    "agreement_end_review": {
+      "title": "Fare il punto sull'incarico: rinnovare, prorogare o rivedere il prezzo",
+      "description": "Trenta giorni prima della fine dell'incarico, un immobile in vendita riceve un'attività per il responsabile."
+    },
+    "agreement_end_notice": {
+      "title": "Avvisare l'agente che l'incarico termina tra una settimana",
+      "description": "Sette giorni prima della fine dell'incarico, il responsabile dell'immobile riceve un avviso per decidere sul rinnovo."
+    },
+    "weekly_owner_update": {
+      "title": "Inviare l'aggiornamento al proprietario",
+      "description": "Ogni settimana, un immobile in vendita riceve un'attività per riferire al proprietario visite, riscontri e richieste."
+    },
+    "viewing_feedback": {
+      "title": "Raccogliere il riscontro della visita e inviarlo al proprietario",
+      "description": "Il giorno dopo una visita viene creata un'attività se non è registrato alcun riscontro."
+    },
+    "offer_notice": {
+      "title": "Avvisare l'agente che una proposta va presentata",
+      "description": "Quando un immobile raggiunge la fase Proposta d'acquisto, il responsabile riceve un avviso per presentarla oggi."
+    },
+    "listing_key_dates": {
+      "title": "Creare le scadenze dal contratto",
+      "description": "Quando un immobile passa a Compromesso, le sue scadenze vengono create dal contratto."
+    },
+    "buyer_key_dates": {
+      "title": "Creare le scadenze dal contratto dell'acquirente",
+      "description": "Quando una richiesta acquirente passa a Compromesso, le scadenze vengono create dal contratto."
+    },
+    "key_date_calendar": {
+      "title": "Aggiungere la scadenza al calendario dell'agente",
+      "description": "Ogni nuova scadenza viene scritta nel calendario dell'agente."
+    },
+    "key_date_reminder": {
+      "title": "Avvisare l'agente che una scadenza è tra due giorni",
+      "description": "Due giorni prima di una scadenza aperta, il responsabile riceve un avviso per confermare il passaggio o sollecitare."
+    },
+    "completed_handover": {
+      "title": "Consegnare e chiedere una recensione",
+      "description": "Checklist di consegna, ringraziamento e richiesta di recensione, con scadenza sette giorni dopo il rogito."
+    },
+    "completed_anniversary": {
+      "title": "Chiamata dell'anniversario",
+      "description": "Un anno dopo il rogito scade un'attività per mantenere il contatto."
+    },
+    "identify_before_contract": {
+      "title": "Registrare l'identificazione delle parti",
+      "description": "Quando un immobile raggiunge la fase Proposta d'acquisto, un'attività chiede di annotare che l'identificazione è stata verificata prima del contratto."
+    },
+    "identify_buyer_offer": {
+      "title": "Registrare l'identificazione dell'acquirente",
+      "description": "Quando una richiesta acquirente raggiunge Proposta presentata, un'attività chiede di annotare che l'identificazione è stata verificata."
+    },
+    "buyer_re_engage": {
+      "title": "Riprendere il contatto con l'acquirente con nuovi immobili adatti",
+      "description": "Ogni lunedì, una richiesta acquirente nella fase Visita senza attività da sette giorni riceve un'attività per mantenere il contatto."
+    },
+    "listing_price_review": {
+      "title": "Verifica di prezzo e promozione con il proprietario",
+      "description": "Ogni lunedì, un immobile in vendita senza visite da 14 giorni riceve un'attività di revisione."
+    },
+    "past_client_monthly_touch": {
+      "title": "Mantenere il contatto con l'ex cliente",
+      "description": "Ogni lunedì, un ex cliente senza contatti da 30 giorni riceve un'attività per mantenere il contatto."
+    }
+  },
+  "acceptanceChecks": {
+    "listing_stage_field": "Ogni immobile ha una delle nove fasi.",
+    "buyer_stage_field": "Ogni richiesta acquirente ha una delle sette fasi.",
+    "agreement_end_field": "Ogni immobile registra quando termina il suo incarico.",
+    "key_dates_list": "Le date dopo la firma del compromesso sono seguite in un elenco proprio.",
+    "listings_board_view": "L'elenco degli immobili si apre come board per fase.",
+    "operating_guide_page": "La base di conoscenza contiene la guida operativa."
+  },
+  "page": {
+    "metaTitle": "Pipeline immobiliare: modello per il tuo agente IA",
+    "metaDescription": "Copia la pipeline immobiliare in Claude, ChatGPT o Codex: immobili, acquirenti, visite con riscontro e le scadenze dopo il compromesso, nel tuo CRM.",
+    "headline": "Una pipeline immobiliare che il tuo agente IA costruisce nel tuo CRM",
+    "answer": "Un'agenzia immobiliare porta avanti due pipeline che si incontrano al compromesso: acquisire e promuovere l'immobile per il proprietario, e seguire l'acquirente dalle visite fino alla proposta. Incolla questo modello nel tuo agente IA e lui costruisce entrambe in Customermates, con incarichi, visite, scadenze e una routine con date per gli ex clienti. Approvi il piano prima che venga scritto qualcosa.",
+    "routine": {
+      "title": "Il giro settimanale tra immobili e acquirenti",
+      "steps": [
+        "Manda a ogni proprietario di un immobile in vendita un breve aggiornamento con le visite e i riscontri della settimana.",
+        "Controlla gli immobili con un incarico in scadenza: rinnova, proroga o rivedi il prezzo.",
+        "Riprendi i contatti con gli acquirenti in fase di visita fermi da sette giorni, proponendo immobili adatti.",
+        "Conferma le prossime scadenze dopo il compromesso e mantieni il contatto mensile con gli ex clienti."
+      ]
+    },
+    "limits": [
+      "Non è un sistema per pubblicare sui portali. Il tuo gestionale immobiliare continua a pubblicare sui portali e a tenere il registro degli incarichi; qui tieni un identificativo e la pipeline intorno.",
+      "Non gestisce transazioni, depositi fiduciari o firme elettroniche. Contratti e firme restano dal notaio e nel tuo strumento di firma.",
+      "Non è gestione degli affitti: canoni, manutenzione e conti degli inquilini sono un altro lavoro.",
+      "Non valuta gli immobili e non fa contabilità né ripartizione delle provvigioni.",
+      "Non invia nulla in automatico. Le richieste su WhatsApp arrivano nella posta in arrivo e le risposte sono bozze che rivedi tu.",
+      "Tieni fuori copie di documenti d'identità, redditi ed estratti conto. Il modello salva solo la data in cui l'identità è stata verificata."
+    ],
+    "faq": [
+      {
+        "question": "Perché due pipeline per un agente immobiliare?",
+        "answer": "Proprietari e acquirenti seguono passaggi diversi. Sul lato proprietario si va dalla valutazione e dalla proposta di incarico fino all'incarico firmato e alla vendita; sul lato acquirente dalla richiesta alle visite fino alla proposta d'acquisto. Si incontrano al compromesso, dove le scadenze sono condivise."
+      },
+      {
+        "question": "Quali scadenze segue il modello?",
+        "answer": "Tipo e durata di ogni incarico, le visite con il riscontro che devi al proprietario e, dopo il compromesso, le scadenze che contano nel tuo paese, come caparra, condizione di finanziamento, verifiche e rogito. Quali scadenze valgono è la prima domanda che il tuo agente ti fa."
+      },
+      {
+        "question": "Posso usarlo con il mio gestionale o con un portale?",
+        "answer": "Sì. I portali e il tuo software tengono i dati degli immobili e la pubblicazione. Il modello è lo strato di pipeline, scadenze e follow-up accanto a loro; le richieste dai portali arrivano via e-mail nella tua casella collegata o tramite un webhook in ingresso, quelle di WhatsApp nella posta in arrivo una volta collegato l'account."
+      },
+      {
+        "question": "L'agente contatta proprietari o acquirenti?",
+        "answer": "No. Il prompt dice all'agente di non inviare nulla e di non creare dati di esempio. Le bozze esistono solo se le chiedi, e le invii tu."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Configura una pipeline immobiliare nel mio spazio di lavoro Customermates: immobili con il tipo di incarico e la sua scadenza, richieste di acquirenti, visite con riscontro, le scadenze dopo la firma del compromesso e un'attività con data per ogni pratica aperta.",
+    "questions": [
+      "Lavori per i proprietari, per gli acquirenti o per entrambi? Vendi, affitti o fai entrambe le cose?",
+      "In quale paese lavori e quali tipi di incarico usi?",
+      "Come ti arrivano le richieste: portali immobiliari, il tuo sito, WhatsApp o segnalazioni?",
+      "Quale software contiene i tuoi immobili e li pubblica sui portali? Qui si conserva un riferimento, non si copia nulla.",
+      "Quali scadenze contano nei tuoi contratti, per esempio caparra, finanziamento, verifiche o notaio?"
+    ]
+  }
+}

@@ -30,6 +30,7 @@ import {
   User,
   UserPlus,
   Webhook,
+  Workflow,
   Trash2,
 } from "lucide-react";
 
@@ -200,6 +201,14 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     target: { href: "/routines" },
     shortcut: "goRoutines",
     requires: { resource: Resource.routines, cloudOnly: true },
+  },
+  {
+    id: "page.automations",
+    labelKey: "NavigationBar.automations",
+    kind: "page",
+    icon: Workflow,
+    target: { href: "/automations" },
+    requires: { resource: Resource.routines },
   },
   {
     id: "page.trash",

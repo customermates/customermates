@@ -1,0 +1,92 @@
+{
+  "locale": "en",
+  "name": "Form to CRM",
+  "summary": "Turn web form inquiries into worked leads: a request for every submission with its source, a reply due, a stage from new to converted, and spam and not-a-fit kept apart.",
+  "description": "Every inquiry from a contact, quote or intake form becomes a request linked to a contact, with the form it came from, where the visitor arrived from, when it is needed and a reply due the next day. Requests move from new to converted, not a fit or spam, and a request nobody answered is flagged. Consent and a review date are kept for the data you collect. It is not a form builder for payments, quizzes or file uploads of sensitive documents.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "The people who write to you through a form." },
+    "requests": { "label": "Request", "pluralLabel": "Requests", "description": "One form submission, from new to converted, not a fit or spam." }
+  },
+  "fields": {
+    "contacts.company_name": { "label": "Company" },
+    "contacts.language": { "label": "Language" },
+    "contacts.marketing_consent": { "label": "Agreed to marketing emails" },
+    "contacts.marketing_consent_on": { "label": "Consent given on" },
+    "requests.stage": {
+      "label": "Stage",
+      "options": { "new": "New", "contacted": "Contacted", "qualified": "Qualified", "converted": "Converted", "not_a_fit": "Not a fit", "spam": "Spam" }
+    },
+    "requests.form": { "label": "Form", "options": { "contact": "Contact form", "quote_request": "Quote request", "intake": "Intake form", "callback": "Callback request", "other": "Other" } },
+    "requests.owner": { "label": "Owner" },
+    "requests.service_interest": { "label": "Service of interest" },
+    "requests.needed_by": {
+      "label": "Needed by",
+      "options": { "asap": "As soon as possible", "within_a_month": "Within a month", "within_three_months": "Within three months", "just_looking": "Just looking", "no_answer": "No answer" }
+    },
+    "requests.budget_band": { "label": "Budget", "options": { "no_answer": "No answer", "low": "Low", "medium": "Medium", "high": "High" } },
+    "requests.submitted_at": { "label": "Submitted" },
+    "requests.first_response_at": { "label": "First reply" },
+    "requests.utm_source": { "label": "Where the visitor came from" },
+    "requests.landing_page": { "label": "Page of the form" },
+    "requests.repeat_submission": { "label": "Sent before" },
+    "requests.not_a_fit_reason": {
+      "label": "Why not a fit",
+      "options": { "out_of_area": "Outside our area", "no_budget": "No budget", "wrong_service": "Wrong service", "no_response": "No response", "duplicate": "Duplicate", "other": "Other" }
+    },
+    "requests.closed_on": { "label": "Closed on" },
+    "requests.data_review_on": { "label": "Review the data on" },
+    "requests.days_to_close": { "label": "Days from submission to close" },
+    "actions.kind": {
+      "label": "Kind",
+      "options": { "reply": "Reply", "qualify_call": "Qualifying call", "send_quote": "Send a quote", "convert": "Hand over to the pipeline", "chase": "Chase", "data_review": "Review the data", "other": "Other" }
+    }
+  },
+  "relationships": {
+    "request_contact": { "sourceLabel": "Contact", "targetLabel": "Requests" },
+    "action_request": { "sourceLabel": "Request", "targetLabel": "Actions" }
+  },
+  "views": {
+    "requests_all": { "name": "All requests" },
+    "requests_board": { "name": "Request board" },
+    "new_requests": { "name": "New requests" },
+    "closed_without_deal": { "name": "Not a fit or spam" },
+    "contacts_all": { "name": "All contacts" }
+  },
+  "widgets": {
+    "requests_funnel": { "title": "Requests by stage" },
+    "requests_per_week": { "title": "Requests per week" },
+    "requests_by_form": { "title": "Requests by form" },
+    "new_requests_count": { "title": "New requests" },
+    "not_a_fit_reasons": { "title": "Why requests are not a fit" },
+    "average_days_to_close": { "title": "Average days to close" }
+  },
+  "knowledgePages": {
+    "form_playbook": { "title": "Form to CRM playbook", "sections": ["Which forms we run and who answers", "How fast we reply"] },
+    "privacy_notice": { "title": "Privacy notice for forms", "sections": ["What we tell people at the form", "How long we keep an inquiry"] },
+    "spam_and_duplicates": { "title": "Spam and repeat submissions", "sections": ["What counts as spam", "What we do when the same person writes again"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Create the contact and the request when the inquiry form is submitted" },
+    "reply_task": { "title": "Create a reply task, due the next day, when a request is created" },
+    "first_response_missed": { "title": "Notify the lead when a request is still new a day after it was submitted" },
+    "chase_contacted": { "title": "Chase a contacted request that has not moved for 3 days" },
+    "converted_task": { "title": "Hand the request over to the pipeline when it is converted" },
+    "review_date_not_a_fit": { "title": "Set the data review date to one year out when a request is not a fit" },
+    "data_review": { "title": "Review the data when the review date arrives" },
+    "external_form_records": { "title": "Create the contact and the request when another form tool sends a submission" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Every request has a stage.",
+    "submitted_field": "Every request records when it was submitted.",
+    "requests_board_view": "The requests open as a board by stage."
+  },
+  "prompt": {
+    "intro": "Set up form to CRM in my Customermates workspace: a request for every form submission with its source, a reply due, six stages, consent and a data review date, and dated follow-ups.",
+    "questions": [
+      "Which forms do you run, and what do you need to know to price or route an inquiry?",
+      "Who answers, and how fast do you promise to reply?",
+      "What do you tell people about their data at the form?",
+      "Do you use another form tool such as Typeform, Tally or Jotform?"
+    ]
+  }
+}

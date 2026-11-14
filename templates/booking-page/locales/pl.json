@@ -1,0 +1,102 @@
+{
+  "locale": "pl",
+  "name": "Rezerwacja wizyt online",
+  "summary": "Rejestr wizyt dla osoby świadczącej usługi: typy wizyt z czasem trwania i wyprzedzeniem, każda rezerwacja ze statusem, przypomnieniami i wynikiem oraz następnym krokiem.",
+  "description": "Przyjmuj rezerwacje rozmów, konsultacji lub oglądania nieruchomości i prowadź je w CRM: kilka typów wizyt z czasem trwania, przerwą i minimalnym wyprzedzeniem, rezerwacja, która tworzy kontakt i wizytę, wydarzenie w kalendarzu po potwierdzeniu, dwa przypomnienia i wynik zapisany po każdej wizycie. Rezerwuje wyłącznie czas osób, nie zasobów. To nie jest system rezerwacji sal i zasobów, sprzedaży biletów, wizyt lekarskich ani operator płatności.",
+  "lists": {
+    "people": { "label": "Kontakt", "pluralLabel": "Kontakty", "description": "Osoby, które rezerwują wizyty u Ciebie." },
+    "appointment_types": { "label": "Typ wizyty", "pluralLabel": "Typy wizyt", "description": "Rodzaj wizyty z czasem trwania, przerwą, wyprzedzeniem i ceną." },
+    "appointments": { "label": "Wizyta", "pluralLabel": "Wizyty", "description": "Jedna rezerwacja, od zgłoszonej do odbytej, nieodbytej lub odwołanej." }
+  },
+  "fields": {
+    "people.preferred_channel": { "label": "Preferowany kanał", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Telefon" } },
+    "people.time_zone": { "label": "Strefa czasowa" },
+    "appointment_types.duration_minutes": { "label": "Czas trwania (minuty)" },
+    "appointment_types.buffer_minutes": { "label": "Przerwa po wizycie (minuty)" },
+    "appointment_types.min_notice_hours": { "label": "Minimalne wyprzedzenie (godziny)" },
+    "appointment_types.booking_window_days": { "label": "Maksymalne wyprzedzenie rezerwacji (dni)" },
+    "appointment_types.daily_limit": { "label": "Limit dzienny" },
+    "appointment_types.location_type": {
+      "label": "Gdzie",
+      "options": { "video_call": "Wideorozmowa", "phone": "Telefon", "office": "W biurze", "client_site": "U klienta" }
+    },
+    "appointment_types.price": { "label": "Cena" },
+    "appointment_types.active": { "label": "Aktywny" },
+    "appointments.status": {
+      "label": "Status",
+      "options": { "requested": "Zgłoszona", "confirmed": "Potwierdzona", "rescheduled": "Przełożona", "held": "Odbyta", "no_show": "Nieobecność klienta", "cancelled_by_client": "Odwołana przez klienta", "cancelled_by_us": "Odwołana przez nas" }
+    },
+    "appointments.start_at": { "label": "Rozpoczęcie" },
+    "appointments.source": { "label": "Źródło", "options": { "booking_page": "Strona rezerwacji", "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Telefon", "manual": "Wpisana ręcznie" } },
+    "appointments.meeting_url": { "label": "Link do spotkania" },
+    "appointments.outcome": {
+      "label": "Wynik",
+      "options": { "not_decided": "Jeszcze nie zdecydowano", "qualified": "Zakwalifikowany", "second_call": "Potrzebna druga rozmowa", "proposal_needed": "Potrzebna oferta", "won": "Wygrane podczas rozmowy", "not_a_fit": "Nie pasuje" }
+    },
+    "appointments.cancel_reason": {
+      "label": "Powód odwołania",
+      "options": { "schedule_conflict": "Kolizja terminów", "other_provider": "Znalazł innego usługodawcę", "no_longer_needed": "Już niepotrzebne", "personal": "Powód osobisty", "other": "Inny" }
+    },
+    "actions.kind": {
+      "label": "Rodzaj",
+      "options": {
+        "confirm_booking": "Potwierdzić rezerwację",
+        "send_reminder": "Wysłać przypomnienie",
+        "prepare_call": "Przygotować wizytę",
+        "send_follow_up": "Wysłać wiadomość po wizycie",
+        "offer_new_slot": "Zaproponować nowy termin",
+        "record_outcome": "Zapisać wynik",
+        "other": "Inne"
+      }
+    }
+  },
+  "relationships": {
+    "appointment_person": { "sourceLabel": "Kontakt", "targetLabel": "Wizyty" },
+    "appointment_type": { "sourceLabel": "Typ wizyty", "targetLabel": "Wizyty" },
+    "action_appointment": { "sourceLabel": "Wizyta", "targetLabel": "Zadania" }
+  },
+  "views": {
+    "appointments_all": { "name": "Wszystkie wizyty" },
+    "appointments_board": { "name": "Tablica wizyt" },
+    "missed_or_cancelled": { "name": "Nieodbyte lub odwołane" },
+    "appointment_types_all": { "name": "Wszystkie typy wizyt" },
+    "people_all": { "name": "Wszystkie kontakty" }
+  },
+  "widgets": {
+    "upcoming_appointments": { "title": "Nadchodzące wizyty" },
+    "appointments_by_status": { "title": "Wizyty według statusu" },
+    "outcomes_of_held": { "title": "Wyniki odbytych wizyt" },
+    "requests_waiting": { "title": "Zgłoszenia czekające na odpowiedź" },
+    "no_shows": { "title": "Nieobecności" },
+    "bookings_by_source": { "title": "Rezerwacje według źródła" }
+  },
+  "knowledgePages": {
+    "appointment_types_rules": { "title": "Typy wizyt i dostępność", "sections": ["Typy, czas trwania, przerwy i wyprzedzenie", "Godziny pracy i limity dzienne"] },
+    "reminder_policy": { "title": "Przypomnienia i nieobecności", "sections": ["Przypomnienia 3 dni i 1 dzień przed", "Co robimy po nieobecności"] },
+    "cancellation_policy": { "title": "Odwoływanie i przekładanie", "sections": ["Do kiedy klient może odwołać", "Jak proponujemy nowy termin"] }
+  },
+  "rules": {
+    "booking_form_records": { "title": "Utwórz kontakt i wizytę po wysłaniu formularza rezerwacji" },
+    "confirm_event": { "title": "Dodaj wydarzenie do kalendarza po potwierdzeniu wizyty" },
+    "notify_new_booking": { "title": "Powiadom właściciela o nowej rezerwacji" },
+    "first_reminder": { "title": "Wyślij pierwsze przypomnienie 3 dni przed potwierdzoną wizytą" },
+    "second_reminder": { "title": "Wyślij drugie przypomnienie 1 dzień przed potwierdzoną wizytą" },
+    "record_outcome": { "title": "Zapisz wynik po odbyciu potwierdzonej wizyty" },
+    "no_show_new_slot": { "title": "Zaproponuj nowy termin dzień po nieobecności klienta" },
+    "follow_up_held": { "title": "Wyślij wiadomość podsumowującą dzień po odbytej wizycie" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Każda wizyta ma status.",
+    "start_field": "Każda wizyta zapisuje, kiedy się zaczyna.",
+    "appointments_board_view": "Wizyty otwierają się jako tablica według statusu."
+  },
+  "prompt": {
+    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates rezerwację wizyt online: typy wizyt z czasem trwania, przerwą i wyprzedzeniem, wizyty ze statusem i wynikiem, przypomnienia przed każdą wizytą i wiadomość po niej.",
+    "questions": [
+      "Jakie typy wizyt oferujesz i ile trwa każdy z nich?",
+      "Jakiego wyprzedzenia potrzebujesz i jak daleko naprzód można rezerwować?",
+      "Na jakie pytania ma odpowiedzieć klient przy rezerwacji?",
+      "Jak dziś radzisz sobie z nieobecnościami i odwołaniami w ostatniej chwili?"
+    ]
+  }
+}

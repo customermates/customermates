@@ -1,0 +1,4434 @@
+{
+  "spec": {
+    "id": "tpl_content_calendar",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "content-calendar",
+    "family": "content",
+    "kind": "tracker",
+    "jurisdictions": [
+      "global"
+    ],
+    "dashboardAudience": "team",
+    "requiresCapabilities": [
+      "forms",
+      "rules"
+    ],
+    "pairedPages": {},
+    "modules": [
+      "actions_core",
+      "actions_dashboard"
+    ],
+    "lists": [
+      {
+        "key": "people",
+        "role": "people",
+        "icon": "contact"
+      },
+      {
+        "key": "pieces",
+        "icon": "newspaper"
+      },
+      {
+        "key": "campaigns",
+        "icon": "megaphone"
+      },
+      {
+        "key": "key_dates",
+        "icon": "calendar"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "people.person_role",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "author"
+          },
+          {
+            "key": "editor"
+          },
+          {
+            "key": "reviewer"
+          },
+          {
+            "key": "approver"
+          },
+          {
+            "key": "client_contact"
+          },
+          {
+            "key": "guest"
+          }
+        ]
+      },
+      {
+        "key": "people.profile_url",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "pieces.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "pieces.reviewer",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "pieces.format",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "blog_post"
+          },
+          {
+            "key": "newsletter"
+          },
+          {
+            "key": "short_video"
+          },
+          {
+            "key": "long_video"
+          },
+          {
+            "key": "carousel"
+          },
+          {
+            "key": "image_post"
+          },
+          {
+            "key": "text_post"
+          },
+          {
+            "key": "podcast"
+          },
+          {
+            "key": "webinar"
+          },
+          {
+            "key": "case_study"
+          }
+        ]
+      },
+      {
+        "key": "pieces.pillar",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "educate"
+          },
+          {
+            "key": "prove"
+          },
+          {
+            "key": "product"
+          },
+          {
+            "key": "community"
+          },
+          {
+            "key": "behind_the_scenes"
+          }
+        ]
+      },
+      {
+        "key": "pieces.channels",
+        "type": "select",
+        "required": false,
+        "multiple": true,
+        "options": [
+          {
+            "key": "blog"
+          },
+          {
+            "key": "newsletter"
+          },
+          {
+            "key": "linkedin"
+          },
+          {
+            "key": "instagram"
+          },
+          {
+            "key": "facebook"
+          },
+          {
+            "key": "tiktok"
+          },
+          {
+            "key": "youtube"
+          },
+          {
+            "key": "x"
+          },
+          {
+            "key": "podcast"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "pieces.brief_url",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "pieces.draft_url",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "pieces.target_keyword",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "pieces.call_to_action",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "pieces.draft_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "pieces.review_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "pieces.publish_at",
+        "type": "dateTime",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "pieces.ad_disclosure",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "none"
+          },
+          {
+            "key": "paid_partnership"
+          },
+          {
+            "key": "gifted_product"
+          },
+          {
+            "key": "affiliate_link"
+          }
+        ]
+      },
+      {
+        "key": "pieces.disclosure_checked",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "pieces.published_url",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "pieces.published_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "pieces.reach",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "pieces.engagements",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "pieces.clicks",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "pieces.killed_reason",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "off_topic"
+          },
+          {
+            "key": "duplicate"
+          },
+          {
+            "key": "no_owner"
+          },
+          {
+            "key": "stale"
+          },
+          {
+            "key": "replaced"
+          },
+          {
+            "key": "client_declined"
+          }
+        ]
+      },
+      {
+        "key": "campaigns.goal",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "campaigns.start_date",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "campaigns.end_date",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "campaigns.budget",
+        "type": "currency",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "campaigns.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "key_dates.date",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "key_dates.date_type",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "holiday"
+          },
+          {
+            "key": "industry_event"
+          },
+          {
+            "key": "product_launch"
+          },
+          {
+            "key": "awareness_day"
+          },
+          {
+            "key": "own_event"
+          },
+          {
+            "key": "deadline"
+          }
+        ]
+      },
+      {
+        "key": "key_dates.idea_note",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "write_brief"
+          },
+          {
+            "key": "draft"
+          },
+          {
+            "key": "review"
+          },
+          {
+            "key": "revise"
+          },
+          {
+            "key": "approve"
+          },
+          {
+            "key": "schedule"
+          },
+          {
+            "key": "publish"
+          },
+          {
+            "key": "measure"
+          },
+          {
+            "key": "plan"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "pieces.stage",
+        "items": [
+          {
+            "key": "idea",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "drafting",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "in_review",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "approved",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "scheduled",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "published",
+            "outcome": "won",
+            "weight": 100
+          },
+          {
+            "key": "killed",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      },
+      {
+        "field": "campaigns.status",
+        "items": [
+          {
+            "key": "planned",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "running",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "done",
+            "outcome": "won",
+            "weight": 100
+          },
+          {
+            "key": "dropped",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [],
+    "relationships": [
+      {
+        "key": "piece_campaign",
+        "source": "pieces",
+        "target": "campaigns",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "piece_author",
+        "source": "pieces",
+        "target": "people",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_piece",
+        "source": "actions",
+        "target": "pieces",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "pieces_all",
+        "list": "pieces",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "pieces.publish_at",
+          "direction": "asc"
+        },
+        "columns": [
+          "pieces.stage",
+          "pieces.owner",
+          "pieces.format",
+          "pieces.channels",
+          "pieces.publish_at"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "pieces_board",
+        "list": "pieces",
+        "default": false,
+        "layout": "board",
+        "groupBy": "pieces.stage",
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "in_review_pieces",
+        "list": "pieces",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "pieces.stage",
+            "options": [
+              "in_review"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "campaigns_all",
+        "list": "campaigns",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "campaigns.status",
+          "campaigns.start_date",
+          "campaigns.end_date",
+          "campaigns.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "key_dates_all",
+        "list": "key_dates",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "key_dates.date",
+          "direction": "asc"
+        },
+        "columns": [
+          "key_dates.date",
+          "key_dates.date_type"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "people_all",
+        "list": "people",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "people.person_role",
+          "people.profile_url"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "calendar",
+        "key": "publishing_calendar",
+        "list": "pieces",
+        "layout": "month",
+        "dateField": "pieces.publish_at",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "pieces.stage",
+            "options": [
+              "killed"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "pieces_by_stage",
+        "list": "pieces",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "pieces.stage"
+        },
+        "filters": [],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "chart",
+        "key": "open_pieces_by_owner",
+        "list": "pieces",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "pieces.owner"
+        },
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "pieces.stage",
+            "options": [
+              "published",
+              "killed"
+            ]
+          }
+        ],
+        "display": "rankedTable"
+      },
+      {
+        "kind": "chart",
+        "key": "pieces_by_pillar",
+        "list": "pieces",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "pieces.pillar"
+        },
+        "filters": [],
+        "display": "doughnutChart"
+      },
+      {
+        "kind": "chart",
+        "key": "published_per_month",
+        "list": "pieces",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "pieces.published_on",
+          "dateInterval": "month"
+        },
+        "filters": [],
+        "display": "areaChart"
+      },
+      {
+        "kind": "chart",
+        "key": "reach_by_pillar",
+        "list": "pieces",
+        "aggregation": "sum",
+        "valueField": "pieces.reach",
+        "groupBy": {
+          "path": [],
+          "field": "pieces.pillar"
+        },
+        "filters": [],
+        "display": "verticalBarChart"
+      },
+      {
+        "kind": "calendar",
+        "key": "key_dates_coming",
+        "list": "key_dates",
+        "layout": "upcoming",
+        "dateField": "key_dates.date",
+        "amountField": null,
+        "filters": []
+      },
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_actions",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "content_pillars",
+        "kind": "overview"
+      },
+      {
+        "key": "editorial_rhythm",
+        "kind": "processes"
+      },
+      {
+        "key": "review_and_approval",
+        "kind": "processes"
+      },
+      {
+        "key": "disclosure_checklist",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "review_task",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "pieces.stage",
+          "to": "in_review"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "record_owner",
+          "about": "pieces"
+        },
+        "dueOffsetDays": 2,
+        "needs": "today"
+      },
+      {
+        "key": "schedule_task",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "pieces.stage",
+          "to": "approved"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "schedule",
+          "assignee": "record_owner",
+          "about": "pieces"
+        },
+        "dueOffsetDays": 1,
+        "needs": "today"
+      },
+      {
+        "key": "at_risk_before_publish",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "pieces.publish_at",
+          "offsetDays": -3
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "pieces.stage",
+            "options": [
+              "idea",
+              "drafting",
+              "in_review"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "plan",
+          "assignee": "record_owner",
+          "about": "pieces"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "measure_after_30_days",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "pieces.stage",
+          "to": "published"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "measure",
+          "assignee": "record_owner",
+          "about": "pieces"
+        },
+        "dueOffsetDays": 30,
+        "needs": "today"
+      },
+      {
+        "key": "stale_piece",
+        "trigger": {
+          "kind": "unchanged_for",
+          "field": "pieces.stage",
+          "days": 14
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "pieces.stage",
+            "options": [
+              "drafting",
+              "in_review"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review",
+          "assignee": "record_owner",
+          "about": "pieces"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "weekly_editorial_prep",
+        "trigger": {
+          "kind": "schedule",
+          "every": "week",
+          "weekday": 1
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "plan",
+          "assignee": "workspace_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "today"
+      },
+      {
+        "key": "plan_for_key_date",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "key_dates.date",
+          "offsetDays": -21
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "plan",
+          "assignee": "workspace_owner",
+          "about": "key_dates"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "idea_form_piece",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "idea"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "pieces"
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "forms"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "stage_field",
+        "kind": "field_exists",
+        "ref": "pieces.stage"
+      },
+      {
+        "key": "publish_field",
+        "kind": "field_exists",
+        "ref": "pieces.publish_at"
+      },
+      {
+        "key": "calendar_widget",
+        "kind": "widget_exists",
+        "ref": "publishing_calendar"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://resources.rework.com/guides/content-marketer-playbooks/editorial-calendars-that-ship",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://sproutsocial.com/insights/social-media-calendar-template/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://blog.hubspot.de/marketing/social-media-kalender",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.bitrix24.com/articles/build-content-calendar-survives-reality.php",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://distribb.io/blog/content-calendar-template",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://blog.socialmediastrategiessummit.com/free-content-calendar-templates/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://lacontent.it/calendario-editoriale/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.ftc.gov/business-guidance/resources/disclosures-101-social-media-influencers",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.airtable.com/templates/content-calendar/exp3FNmOkdHZvprXB",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.notion.com/templates/category/content-calendar",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://offers.hubspot.com/social-media-content-calendar",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "status": {
+      "en": "draft",
+      "de": "draft",
+      "fr": "draft",
+      "it": "draft",
+      "es": "draft",
+      "pt": "draft",
+      "pl": "draft",
+      "nl": "draft"
+    },
+    "publicPage": {
+      "en": "own",
+      "de": "own",
+      "fr": "own",
+      "it": "own",
+      "es": "own",
+      "pt": "own",
+      "pl": "none",
+      "nl": "own"
+    },
+    "publishWave": {
+      "en": "wave2",
+      "de": "wave1",
+      "fr": "wave2",
+      "it": "wave1",
+      "es": "wave2",
+      "pt": "hold",
+      "nl": "wave1"
+    }
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Redaktionsplan",
+      "summary": "Eine Zeile pro Beitrag mit Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, dazu Kampagnen, Anlässe und eine wöchentliche Redaktionsroutine.",
+      "description": "Ein Redaktionsplan für Blog, Newsletter, Social Media und Video: sieben Status von Idee bis veröffentlicht, ein Veröffentlichungskalender, eine Content-Säule pro Beitrag, eine Werbekennzeichnungs-Prüfung für bezahlte oder geschenkte Inhalte und eine Erfolgskontrolle nach 30 Tagen. Er plant und verfolgt, er veröffentlicht nicht.",
+      "lists": {
+        "actions": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "people": {
+          "label": "Person",
+          "pluralLabel": "Personen",
+          "description": "Autoren, Redakteure, Prüfer, Freigebende und Gäste."
+        },
+        "pieces": {
+          "label": "Beitrag",
+          "pluralLabel": "Beiträge",
+          "description": "Ein Inhalt von der Idee bis zur Veröffentlichung."
+        },
+        "campaigns": {
+          "label": "Kampagne",
+          "pluralLabel": "Kampagnen",
+          "description": "Ein Thema, das mehrere Beiträge bündelt."
+        },
+        "key_dates": {
+          "label": "Anlass",
+          "pluralLabel": "Anlässe",
+          "description": "Feiertage, Veranstaltungen und Launches, um die herum Inhalte geplant werden."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "pieces.stage": {
+          "label": "Status",
+          "options": {
+            "idea": "Idee",
+            "drafting": "Entwurf",
+            "in_review": "In Prüfung",
+            "approved": "Freigegeben",
+            "scheduled": "Geplant",
+            "published": "Veröffentlicht",
+            "killed": "Verworfen"
+          }
+        },
+        "campaigns.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Geplant",
+            "running": "Läuft",
+            "done": "Abgeschlossen",
+            "dropped": "Gestrichen"
+          }
+        },
+        "people.person_role": {
+          "label": "Rolle",
+          "options": {
+            "author": "Autor",
+            "editor": "Redakteur",
+            "reviewer": "Prüfer",
+            "approver": "Freigebender",
+            "client_contact": "Kundenkontakt",
+            "guest": "Gast oder Interviewpartner"
+          }
+        },
+        "people.profile_url": {
+          "label": "Profil-Link",
+          "options": {}
+        },
+        "pieces.owner": {
+          "label": "Verantwortlich",
+          "options": {}
+        },
+        "pieces.reviewer": {
+          "label": "Prüfer",
+          "options": {}
+        },
+        "pieces.format": {
+          "label": "Format",
+          "options": {
+            "blog_post": "Blogartikel",
+            "newsletter": "Newsletter",
+            "short_video": "Kurzvideo",
+            "long_video": "Langes Video",
+            "carousel": "Karussell",
+            "image_post": "Bildbeitrag",
+            "text_post": "Textbeitrag",
+            "podcast": "Podcast-Folge",
+            "webinar": "Webinar",
+            "case_study": "Fallstudie"
+          }
+        },
+        "pieces.pillar": {
+          "label": "Content-Säule",
+          "options": {
+            "educate": "Wissen vermitteln",
+            "prove": "Belegen",
+            "product": "Produkt",
+            "community": "Community",
+            "behind_the_scenes": "Hinter den Kulissen"
+          }
+        },
+        "pieces.channels": {
+          "label": "Kanäle",
+          "options": {
+            "blog": "Blog",
+            "newsletter": "Newsletter",
+            "linkedin": "LinkedIn",
+            "instagram": "Instagram",
+            "facebook": "Facebook",
+            "tiktok": "TikTok",
+            "youtube": "YouTube",
+            "x": "X",
+            "podcast": "Podcast",
+            "other": "Sonstige"
+          }
+        },
+        "pieces.brief_url": {
+          "label": "Link zum Briefing",
+          "options": {}
+        },
+        "pieces.draft_url": {
+          "label": "Link zum Entwurf",
+          "options": {}
+        },
+        "pieces.target_keyword": {
+          "label": "Ziel-Keyword",
+          "options": {}
+        },
+        "pieces.call_to_action": {
+          "label": "Call-to-Action",
+          "options": {}
+        },
+        "pieces.draft_due": {
+          "label": "Entwurf fällig am",
+          "options": {}
+        },
+        "pieces.review_due": {
+          "label": "Prüfung fällig am",
+          "options": {}
+        },
+        "pieces.publish_at": {
+          "label": "Veröffentlichung am",
+          "options": {}
+        },
+        "pieces.ad_disclosure": {
+          "label": "Werbekennzeichnung",
+          "options": {
+            "none": "Keine",
+            "paid_partnership": "Bezahlte Partnerschaft oder Werbung",
+            "gifted_product": "Geschenktes Produkt",
+            "affiliate_link": "Affiliate-Link"
+          }
+        },
+        "pieces.disclosure_checked": {
+          "label": "Kennzeichnung geprüft",
+          "options": {}
+        },
+        "pieces.published_url": {
+          "label": "Link zum veröffentlichten Beitrag",
+          "options": {}
+        },
+        "pieces.published_on": {
+          "label": "Veröffentlicht am",
+          "options": {}
+        },
+        "pieces.reach": {
+          "label": "Reichweite",
+          "options": {}
+        },
+        "pieces.engagements": {
+          "label": "Interaktionen",
+          "options": {}
+        },
+        "pieces.clicks": {
+          "label": "Klicks",
+          "options": {}
+        },
+        "pieces.killed_reason": {
+          "label": "Grund für das Verwerfen",
+          "options": {
+            "off_topic": "Thema verfehlt",
+            "duplicate": "Doppelt",
+            "no_owner": "Kein Verantwortlicher",
+            "stale": "Überholt",
+            "replaced": "Ersetzt",
+            "client_declined": "Kunde hat abgelehnt"
+          }
+        },
+        "campaigns.goal": {
+          "label": "Ziel",
+          "options": {}
+        },
+        "campaigns.start_date": {
+          "label": "Start",
+          "options": {}
+        },
+        "campaigns.end_date": {
+          "label": "Ende",
+          "options": {}
+        },
+        "campaigns.budget": {
+          "label": "Budget",
+          "options": {}
+        },
+        "campaigns.owner": {
+          "label": "Verantwortlich",
+          "options": {}
+        },
+        "key_dates.date": {
+          "label": "Datum",
+          "options": {}
+        },
+        "key_dates.date_type": {
+          "label": "Art",
+          "options": {
+            "holiday": "Feiertag",
+            "industry_event": "Branchenveranstaltung",
+            "product_launch": "Produktlaunch",
+            "awareness_day": "Aktionstag",
+            "own_event": "Eigene Veranstaltung",
+            "deadline": "Frist"
+          }
+        },
+        "key_dates.idea_note": {
+          "label": "Inhaltsidee",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "write_brief": "Briefing schreiben",
+            "draft": "Entwurf",
+            "review": "Prüfung",
+            "revise": "Überarbeitung",
+            "approve": "Freigabe",
+            "schedule": "Einplanen",
+            "publish": "Veröffentlichen",
+            "measure": "Erfolg messen",
+            "plan": "Planung",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "piece_campaign": {
+          "sourceLabel": "Kampagne",
+          "targetLabel": "Beiträge"
+        },
+        "piece_author": {
+          "sourceLabel": "Autor",
+          "targetLabel": "Beiträge"
+        },
+        "action_piece": {
+          "sourceLabel": "Beitrag",
+          "targetLabel": "Aufgaben"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle Aufgaben"
+        },
+        "pieces_all": {
+          "name": "Alle Beiträge"
+        },
+        "pieces_board": {
+          "name": "Beiträge nach Status"
+        },
+        "in_review_pieces": {
+          "name": "In Prüfung"
+        },
+        "campaigns_all": {
+          "name": "Alle Kampagnen"
+        },
+        "key_dates_all": {
+          "name": "Anlässe"
+        },
+        "people_all": {
+          "name": "Alle Personen"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Anstehende Aufgaben"
+        },
+        "overdue_actions": {
+          "title": "Überfällige Aufgaben"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        },
+        "publishing_calendar": {
+          "title": "Veröffentlichungskalender"
+        },
+        "pieces_by_stage": {
+          "title": "Beiträge nach Status"
+        },
+        "open_pieces_by_owner": {
+          "title": "Offene Beiträge je Verantwortlichem"
+        },
+        "pieces_by_pillar": {
+          "title": "Beiträge nach Content-Säule"
+        },
+        "published_per_month": {
+          "title": "Veröffentlicht pro Monat"
+        },
+        "reach_by_pillar": {
+          "title": "Reichweite nach Content-Säule"
+        },
+        "key_dates_coming": {
+          "title": "Anstehende Anlässe"
+        }
+      },
+      "knowledgePages": {
+        "content_pillars": {
+          "title": "Content-Säulen und Mix",
+          "sections": [
+            "Die Säulen und ihr Anteil",
+            "Was zu welcher Säule gehört"
+          ]
+        },
+        "editorial_rhythm": {
+          "title": "Veröffentlichungsrhythmus und wöchentliche Redaktionssitzung",
+          "sections": [
+            "Slots je Kanal",
+            "Erschienen, gefährdet, blockiert",
+            "Status und wer sie setzt"
+          ]
+        },
+        "review_and_approval": {
+          "title": "Prüf- und Freigabezeiten",
+          "sections": [
+            "Wer prüft und in wie vielen Tagen",
+            "Kundenfreigabe, wenn nötig"
+          ]
+        },
+        "disclosure_checklist": {
+          "title": "Checkliste Werbekennzeichnung und Partnerschaften",
+          "sections": [
+            "Wann ein Beitrag gekennzeichnet werden muss",
+            "Wortlaut und Platzierung",
+            "Prüfung vor der Veröffentlichung"
+          ]
+        }
+      },
+      "rules": {
+        "review_task": {
+          "title": "Prüfaufgabe anlegen, wenn ein Beitrag in die Prüfung geht",
+          "description": ""
+        },
+        "schedule_task": {
+          "title": "Einplanungsaufgabe anlegen, wenn ein Beitrag freigegeben ist",
+          "description": ""
+        },
+        "at_risk_before_publish": {
+          "title": "Beitrag melden, der drei Tage vor der Veröffentlichung noch im Entwurf ist",
+          "description": ""
+        },
+        "measure_after_30_days": {
+          "title": "Erfolgskontrolle anlegen, wenn ein Beitrag veröffentlicht ist",
+          "description": ""
+        },
+        "stale_piece": {
+          "title": "Beitrag prüfen, der 14 Tage im Entwurf oder in der Prüfung liegt",
+          "description": ""
+        },
+        "weekly_editorial_prep": {
+          "title": "Jeden Montag die Redaktionssitzung vorbereiten",
+          "description": ""
+        },
+        "plan_for_key_date": {
+          "title": "Drei Wochen vor einem Anlass Inhalte planen",
+          "description": ""
+        },
+        "idea_form_piece": {
+          "title": "Aus einer über ein Formular eingereichten Idee einen Beitrag anlegen",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Jeder Beitrag hat einen von sieben Status.",
+        "publish_field": "Jeder Beitrag hat ein Veröffentlichungsdatum mit Uhrzeit.",
+        "calendar_widget": "Das Dashboard zeigt den Veröffentlichungskalender."
+      },
+      "prompt": {
+        "intro": "Richte einen Redaktionsplan in meinem Customermates-Workspace ein: Beiträge mit sieben Status, Verantwortlichem, Prüfer und Veröffentlichungsdatum, Kampagnen, Anlässe, eine Kennzeichnungsprüfung und eine wöchentliche Redaktionsroutine.",
+        "questions": [
+          "Was veröffentlichst du, auf welchen Kanälen und wie oft?",
+          "Wer schreibt, wer prüft und wer gibt frei? Ist ein Kunde beteiligt?",
+          "Welche Content-Säulen nutzt du, und welche der sieben Status brauchst du?",
+          "Mit welchem Werkzeug wird veröffentlicht? Dort bleibt der Inhalt, hier werden nur Link und Datum festgehalten."
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Content calendar",
+      "summary": "One row per piece with a status, an owner, a reviewer and a publish date, plus campaigns, key dates and a weekly editorial routine.",
+      "description": "An editorial calendar for blog, newsletter, social and video: seven statuses from idea to published, a publishing calendar, a content pillar per piece, a disclosure check for paid or gifted content and a results check after 30 days. It plans and tracks; it does not publish.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "people": {
+          "label": "Person",
+          "pluralLabel": "People",
+          "description": "Authors, editors, reviewers, approvers and guests."
+        },
+        "pieces": {
+          "label": "Piece",
+          "pluralLabel": "Pieces",
+          "description": "One piece of content from idea to published."
+        },
+        "campaigns": {
+          "label": "Campaign",
+          "pluralLabel": "Campaigns",
+          "description": "A theme that groups several pieces."
+        },
+        "key_dates": {
+          "label": "Key date",
+          "pluralLabel": "Key dates",
+          "description": "Holidays, events and launches to plan content around."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "pieces.stage": {
+          "label": "Status",
+          "options": {
+            "idea": "Idea",
+            "drafting": "Drafting",
+            "in_review": "In review",
+            "approved": "Approved",
+            "scheduled": "Scheduled",
+            "published": "Published",
+            "killed": "Killed"
+          }
+        },
+        "campaigns.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Planned",
+            "running": "Running",
+            "done": "Done",
+            "dropped": "Dropped"
+          }
+        },
+        "people.person_role": {
+          "label": "Role",
+          "options": {
+            "author": "Author",
+            "editor": "Editor",
+            "reviewer": "Reviewer",
+            "approver": "Approver",
+            "client_contact": "Client contact",
+            "guest": "Guest or interviewee"
+          }
+        },
+        "people.profile_url": {
+          "label": "Profile link",
+          "options": {}
+        },
+        "pieces.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "pieces.reviewer": {
+          "label": "Reviewer",
+          "options": {}
+        },
+        "pieces.format": {
+          "label": "Format",
+          "options": {
+            "blog_post": "Blog post",
+            "newsletter": "Newsletter",
+            "short_video": "Short video",
+            "long_video": "Long video",
+            "carousel": "Carousel",
+            "image_post": "Image post",
+            "text_post": "Text post",
+            "podcast": "Podcast episode",
+            "webinar": "Webinar",
+            "case_study": "Case study"
+          }
+        },
+        "pieces.pillar": {
+          "label": "Content pillar",
+          "options": {
+            "educate": "Educate",
+            "prove": "Proof",
+            "product": "Product",
+            "community": "Community",
+            "behind_the_scenes": "Behind the scenes"
+          }
+        },
+        "pieces.channels": {
+          "label": "Channels",
+          "options": {
+            "blog": "Blog",
+            "newsletter": "Newsletter",
+            "linkedin": "LinkedIn",
+            "instagram": "Instagram",
+            "facebook": "Facebook",
+            "tiktok": "TikTok",
+            "youtube": "YouTube",
+            "x": "X",
+            "podcast": "Podcast",
+            "other": "Other"
+          }
+        },
+        "pieces.brief_url": {
+          "label": "Brief link",
+          "options": {}
+        },
+        "pieces.draft_url": {
+          "label": "Draft link",
+          "options": {}
+        },
+        "pieces.target_keyword": {
+          "label": "Target keyword",
+          "options": {}
+        },
+        "pieces.call_to_action": {
+          "label": "Call to action",
+          "options": {}
+        },
+        "pieces.draft_due": {
+          "label": "Draft due",
+          "options": {}
+        },
+        "pieces.review_due": {
+          "label": "Review due",
+          "options": {}
+        },
+        "pieces.publish_at": {
+          "label": "Publish at",
+          "options": {}
+        },
+        "pieces.ad_disclosure": {
+          "label": "Disclosure",
+          "options": {
+            "none": "None",
+            "paid_partnership": "Paid partnership or ad",
+            "gifted_product": "Gifted product",
+            "affiliate_link": "Affiliate link"
+          }
+        },
+        "pieces.disclosure_checked": {
+          "label": "Disclosure checked",
+          "options": {}
+        },
+        "pieces.published_url": {
+          "label": "Published link",
+          "options": {}
+        },
+        "pieces.published_on": {
+          "label": "Published on",
+          "options": {}
+        },
+        "pieces.reach": {
+          "label": "Reach",
+          "options": {}
+        },
+        "pieces.engagements": {
+          "label": "Engagements",
+          "options": {}
+        },
+        "pieces.clicks": {
+          "label": "Clicks",
+          "options": {}
+        },
+        "pieces.killed_reason": {
+          "label": "Killed reason",
+          "options": {
+            "off_topic": "Off topic",
+            "duplicate": "Duplicate",
+            "no_owner": "No owner",
+            "stale": "Stale",
+            "replaced": "Replaced",
+            "client_declined": "Client declined"
+          }
+        },
+        "campaigns.goal": {
+          "label": "Goal",
+          "options": {}
+        },
+        "campaigns.start_date": {
+          "label": "Start date",
+          "options": {}
+        },
+        "campaigns.end_date": {
+          "label": "End date",
+          "options": {}
+        },
+        "campaigns.budget": {
+          "label": "Budget",
+          "options": {}
+        },
+        "campaigns.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "key_dates.date": {
+          "label": "Date",
+          "options": {}
+        },
+        "key_dates.date_type": {
+          "label": "Type",
+          "options": {
+            "holiday": "Holiday",
+            "industry_event": "Industry event",
+            "product_launch": "Product launch",
+            "awareness_day": "Awareness day",
+            "own_event": "Own event",
+            "deadline": "Deadline"
+          }
+        },
+        "key_dates.idea_note": {
+          "label": "Content idea",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "write_brief": "Write the brief",
+            "draft": "Draft",
+            "review": "Review",
+            "revise": "Revise",
+            "approve": "Approve",
+            "schedule": "Schedule",
+            "publish": "Publish",
+            "measure": "Measure",
+            "plan": "Plan",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "piece_campaign": {
+          "sourceLabel": "Campaign",
+          "targetLabel": "Pieces"
+        },
+        "piece_author": {
+          "sourceLabel": "Author",
+          "targetLabel": "Pieces"
+        },
+        "action_piece": {
+          "sourceLabel": "Piece",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "All actions"
+        },
+        "pieces_all": {
+          "name": "All pieces"
+        },
+        "pieces_board": {
+          "name": "Pieces by status"
+        },
+        "in_review_pieces": {
+          "name": "In review"
+        },
+        "campaigns_all": {
+          "name": "All campaigns"
+        },
+        "key_dates_all": {
+          "name": "Key dates"
+        },
+        "people_all": {
+          "name": "All people"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Upcoming actions"
+        },
+        "overdue_actions": {
+          "title": "Overdue actions"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        },
+        "publishing_calendar": {
+          "title": "Publishing calendar"
+        },
+        "pieces_by_stage": {
+          "title": "Pieces by status"
+        },
+        "open_pieces_by_owner": {
+          "title": "Open pieces per owner"
+        },
+        "pieces_by_pillar": {
+          "title": "Pieces by content pillar"
+        },
+        "published_per_month": {
+          "title": "Published per month"
+        },
+        "reach_by_pillar": {
+          "title": "Reach by content pillar"
+        },
+        "key_dates_coming": {
+          "title": "Key dates coming up"
+        }
+      },
+      "knowledgePages": {
+        "content_pillars": {
+          "title": "Content pillars and mix",
+          "sections": [
+            "The pillars and the share of each",
+            "What belongs under each pillar"
+          ]
+        },
+        "editorial_rhythm": {
+          "title": "Publishing rhythm and weekly editorial meeting",
+          "sections": [
+            "Slots per channel",
+            "Shipped, at risk, blocked",
+            "Statuses and who moves them"
+          ]
+        },
+        "review_and_approval": {
+          "title": "Review and approval turnaround",
+          "sections": [
+            "Who reviews and in how many days",
+            "Client approval when needed"
+          ]
+        },
+        "disclosure_checklist": {
+          "title": "Ad and partnership disclosure checklist",
+          "sections": [
+            "When a post needs a label",
+            "Wording and placement",
+            "Check before publishing"
+          ]
+        }
+      },
+      "rules": {
+        "review_task": {
+          "title": "Create a review task when a piece goes to review",
+          "description": ""
+        },
+        "schedule_task": {
+          "title": "Create a scheduling task when a piece is approved",
+          "description": ""
+        },
+        "at_risk_before_publish": {
+          "title": "Flag a piece still in draft three days before it is due to publish",
+          "description": ""
+        },
+        "measure_after_30_days": {
+          "title": "Create a results check after a piece is published",
+          "description": ""
+        },
+        "stale_piece": {
+          "title": "Review a piece that has sat in drafting or review for 14 days",
+          "description": ""
+        },
+        "weekly_editorial_prep": {
+          "title": "Prepare the weekly editorial meeting every Monday",
+          "description": ""
+        },
+        "plan_for_key_date": {
+          "title": "Plan content three weeks before a key date",
+          "description": ""
+        },
+        "idea_form_piece": {
+          "title": "Create a piece from an idea submitted through a form",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Every piece has one of seven statuses.",
+        "publish_field": "Every piece has a publish date and time.",
+        "calendar_widget": "The dashboard shows the publishing calendar."
+      },
+      "prompt": {
+        "intro": "Set up a content calendar in my Customermates workspace: pieces with seven statuses, an owner, a reviewer and a publish date, campaigns, key dates, a disclosure check and a weekly editorial routine.",
+        "questions": [
+          "What do you publish, on which channels, and how often?",
+          "Who writes, who reviews and who approves? Is a client involved?",
+          "Which content pillars do you use, and which of the seven statuses do you need?",
+          "Which tool publishes the content? It stays there, and only the link and the date are kept here."
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "Calendario editorial",
+      "summary": "Una fila por pieza con estado, responsable, revisor y fecha de publicación, más campañas, fechas clave y una reunión editorial semanal.",
+      "description": "Un calendario editorial para blog, newsletter, redes sociales y vídeo: siete estados de la idea a publicado, un calendario de publicación, un pilar de contenido por pieza, una comprobación de la identificación de la publicidad en el contenido pagado o regalado y un repaso de resultados a los 30 días. Planifica y hace seguimiento, pero no publica.",
+      "lists": {
+        "actions": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un siguiente paso con fecha por cada asunto abierto."
+        },
+        "people": {
+          "label": "Persona",
+          "pluralLabel": "Personas",
+          "description": "Autores, editores, revisores, aprobadores e invitados."
+        },
+        "pieces": {
+          "label": "Pieza",
+          "pluralLabel": "Piezas",
+          "description": "Una pieza de contenido de la idea a la publicación."
+        },
+        "campaigns": {
+          "label": "Campaña",
+          "pluralLabel": "Campañas",
+          "description": "Un tema que agrupa varias piezas."
+        },
+        "key_dates": {
+          "label": "Fecha clave",
+          "pluralLabel": "Fechas clave",
+          "description": "Festivos, eventos y lanzamientos en torno a los que planificar."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierta",
+            "waiting": "En espera",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "pieces.stage": {
+          "label": "Estado",
+          "options": {
+            "idea": "Idea",
+            "drafting": "Redacción",
+            "in_review": "En revisión",
+            "approved": "Aprobado",
+            "scheduled": "Programado",
+            "published": "Publicado",
+            "killed": "Descartado"
+          }
+        },
+        "campaigns.status": {
+          "label": "Estado",
+          "options": {
+            "planned": "Planificada",
+            "running": "En marcha",
+            "done": "Terminada",
+            "dropped": "Abandonada"
+          }
+        },
+        "people.person_role": {
+          "label": "Función",
+          "options": {
+            "author": "Autor",
+            "editor": "Editor",
+            "reviewer": "Revisor",
+            "approver": "Aprobador",
+            "client_contact": "Contacto del cliente",
+            "guest": "Invitado o entrevistado"
+          }
+        },
+        "people.profile_url": {
+          "label": "Enlace del perfil",
+          "options": {}
+        },
+        "pieces.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "pieces.reviewer": {
+          "label": "Revisor",
+          "options": {}
+        },
+        "pieces.format": {
+          "label": "Formato",
+          "options": {
+            "blog_post": "Artículo de blog",
+            "newsletter": "Newsletter",
+            "short_video": "Vídeo corto",
+            "long_video": "Vídeo largo",
+            "carousel": "Carrusel",
+            "image_post": "Publicación con imagen",
+            "text_post": "Publicación de texto",
+            "podcast": "Episodio de pódcast",
+            "webinar": "Webinar",
+            "case_study": "Caso de éxito"
+          }
+        },
+        "pieces.pillar": {
+          "label": "Pilar de contenido",
+          "options": {
+            "educate": "Educar",
+            "prove": "Demostrar",
+            "product": "Producto",
+            "community": "Comunidad",
+            "behind_the_scenes": "Entre bastidores"
+          }
+        },
+        "pieces.channels": {
+          "label": "Canales",
+          "options": {
+            "blog": "Blog",
+            "newsletter": "Newsletter",
+            "linkedin": "LinkedIn",
+            "instagram": "Instagram",
+            "facebook": "Facebook",
+            "tiktok": "TikTok",
+            "youtube": "YouTube",
+            "x": "X",
+            "podcast": "Pódcast",
+            "other": "Otro"
+          }
+        },
+        "pieces.brief_url": {
+          "label": "Enlace del briefing",
+          "options": {}
+        },
+        "pieces.draft_url": {
+          "label": "Enlace del borrador",
+          "options": {}
+        },
+        "pieces.target_keyword": {
+          "label": "Palabra clave objetivo",
+          "options": {}
+        },
+        "pieces.call_to_action": {
+          "label": "Llamada a la acción",
+          "options": {}
+        },
+        "pieces.draft_due": {
+          "label": "Borrador para el",
+          "options": {}
+        },
+        "pieces.review_due": {
+          "label": "Revisión para el",
+          "options": {}
+        },
+        "pieces.publish_at": {
+          "label": "Publicación el",
+          "options": {}
+        },
+        "pieces.ad_disclosure": {
+          "label": "Identificación de la publicidad",
+          "options": {
+            "none": "Ninguno",
+            "paid_partnership": "Colaboración pagada o publicidad",
+            "gifted_product": "Producto regalado",
+            "affiliate_link": "Enlace de afiliado"
+          }
+        },
+        "pieces.disclosure_checked": {
+          "label": "Identificación comprobada",
+          "options": {}
+        },
+        "pieces.published_url": {
+          "label": "Enlace de la pieza publicada",
+          "options": {}
+        },
+        "pieces.published_on": {
+          "label": "Publicado el",
+          "options": {}
+        },
+        "pieces.reach": {
+          "label": "Alcance",
+          "options": {}
+        },
+        "pieces.engagements": {
+          "label": "Interacciones",
+          "options": {}
+        },
+        "pieces.clicks": {
+          "label": "Clics",
+          "options": {}
+        },
+        "pieces.killed_reason": {
+          "label": "Motivo del descarte",
+          "options": {
+            "off_topic": "Fuera de tema",
+            "duplicate": "Duplicada",
+            "no_owner": "Sin responsable",
+            "stale": "Obsoleta",
+            "replaced": "Sustituida",
+            "client_declined": "Rechazada por el cliente"
+          }
+        },
+        "campaigns.goal": {
+          "label": "Objetivo",
+          "options": {}
+        },
+        "campaigns.start_date": {
+          "label": "Inicio",
+          "options": {}
+        },
+        "campaigns.end_date": {
+          "label": "Fin",
+          "options": {}
+        },
+        "campaigns.budget": {
+          "label": "Presupuesto",
+          "options": {}
+        },
+        "campaigns.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "key_dates.date": {
+          "label": "Fecha",
+          "options": {}
+        },
+        "key_dates.date_type": {
+          "label": "Tipo",
+          "options": {
+            "holiday": "Festivo",
+            "industry_event": "Evento del sector",
+            "product_launch": "Lanzamiento de producto",
+            "awareness_day": "Día temático",
+            "own_event": "Evento propio",
+            "deadline": "Fecha límite"
+          }
+        },
+        "key_dates.idea_note": {
+          "label": "Idea de contenido",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "write_brief": "Escribir el briefing",
+            "draft": "Redacción",
+            "review": "Revisión",
+            "revise": "Corrección",
+            "approve": "Aprobación",
+            "schedule": "Programación",
+            "publish": "Publicación",
+            "measure": "Medición",
+            "plan": "Planificación",
+            "other": "Otro"
+          }
+        }
+      },
+      "relationships": {
+        "piece_campaign": {
+          "sourceLabel": "Campaña",
+          "targetLabel": "Piezas"
+        },
+        "piece_author": {
+          "sourceLabel": "Autor",
+          "targetLabel": "Piezas"
+        },
+        "action_piece": {
+          "sourceLabel": "Pieza",
+          "targetLabel": "Tareas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas las tareas"
+        },
+        "pieces_all": {
+          "name": "Todas las piezas"
+        },
+        "pieces_board": {
+          "name": "Piezas por estado"
+        },
+        "in_review_pieces": {
+          "name": "En revisión"
+        },
+        "campaigns_all": {
+          "name": "Todas las campañas"
+        },
+        "key_dates_all": {
+          "name": "Fechas clave"
+        },
+        "people_all": {
+          "name": "Todas las personas"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tareas"
+        },
+        "overdue_actions": {
+          "title": "Tareas vencidas"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        },
+        "publishing_calendar": {
+          "title": "Calendario de publicación"
+        },
+        "pieces_by_stage": {
+          "title": "Piezas por estado"
+        },
+        "open_pieces_by_owner": {
+          "title": "Piezas abiertas por responsable"
+        },
+        "pieces_by_pillar": {
+          "title": "Piezas por pilar"
+        },
+        "published_per_month": {
+          "title": "Publicadas por mes"
+        },
+        "reach_by_pillar": {
+          "title": "Alcance por pilar"
+        },
+        "key_dates_coming": {
+          "title": "Próximas fechas clave"
+        }
+      },
+      "knowledgePages": {
+        "content_pillars": {
+          "title": "Pilares de contenido y reparto",
+          "sections": [
+            "Los pilares y el peso de cada uno",
+            "Qué corresponde a cada pilar"
+          ]
+        },
+        "editorial_rhythm": {
+          "title": "Ritmo de publicación y reunión editorial semanal",
+          "sections": [
+            "Huecos por canal",
+            "Publicado, en riesgo, bloqueado",
+            "Estados y quién los cambia"
+          ]
+        },
+        "review_and_approval": {
+          "title": "Plazos de revisión y aprobación",
+          "sections": [
+            "Quién revisa y en cuántos días",
+            "Aprobación del cliente cuando haga falta"
+          ]
+        },
+        "disclosure_checklist": {
+          "title": "Lista de identificación de publicidad y colaboraciones",
+          "sections": [
+            "Cuándo una publicación debe identificarse como publicidad",
+            "Redacción y colocación",
+            "Comprobación antes de publicar"
+          ]
+        }
+      },
+      "rules": {
+        "review_task": {
+          "title": "Crear una tarea de revisión cuando una pieza pasa a revisión",
+          "description": ""
+        },
+        "schedule_task": {
+          "title": "Crear una tarea de programación cuando una pieza se aprueba",
+          "description": ""
+        },
+        "at_risk_before_publish": {
+          "title": "Avisar de una pieza que sigue en borrador tres días antes de publicarse",
+          "description": ""
+        },
+        "measure_after_30_days": {
+          "title": "Crear un repaso de resultados cuando una pieza se publica",
+          "description": ""
+        },
+        "stale_piece": {
+          "title": "Revisar una pieza parada 14 días en redacción o revisión",
+          "description": ""
+        },
+        "weekly_editorial_prep": {
+          "title": "Preparar cada lunes la reunión editorial",
+          "description": ""
+        },
+        "plan_for_key_date": {
+          "title": "Planificar contenido tres semanas antes de una fecha clave",
+          "description": ""
+        },
+        "idea_form_piece": {
+          "title": "Crear una pieza a partir de una idea enviada por formulario",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada pieza tiene uno de los siete estados.",
+        "publish_field": "Cada pieza tiene fecha y hora de publicación.",
+        "calendar_widget": "El panel muestra el calendario de publicación."
+      },
+      "prompt": {
+        "intro": "Configura un calendario editorial en mi espacio de trabajo de Customermates: piezas con siete estados, un responsable, un revisor y una fecha de publicación, campañas, fechas clave, una comprobación de la identificación de la publicidad y una reunión editorial semanal.",
+        "questions": [
+          "¿Qué publicas, en qué canales y con qué frecuencia?",
+          "¿Quién escribe, quién revisa y quién aprueba? ¿Interviene un cliente?",
+          "¿Qué pilares de contenido usas y cuáles de los siete estados necesitas?",
+          "¿Qué herramienta publica el contenido? Se queda allí y aquí solo se guardan el enlace y la fecha."
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "Calendrier éditorial",
+      "summary": "Une ligne par contenu avec un statut, un responsable, un relecteur et une date de publication, plus des campagnes, des dates clés et une routine éditoriale hebdomadaire.",
+      "description": "Un calendrier éditorial pour blog, newsletter, réseaux sociaux et vidéo : sept statuts de l’idée à la publication, un calendrier de publication, un pilier de contenu par contenu, une vérification de la mention de partenariat pour les contenus rémunérés ou offerts et un point sur les résultats après 30 jours. Il planifie et suit, il ne publie pas.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Une prochaine étape datée par dossier ouvert."
+        },
+        "people": {
+          "label": "Personne",
+          "pluralLabel": "Personnes",
+          "description": "Auteurs, rédacteurs en chef, relecteurs, validateurs et invités."
+        },
+        "pieces": {
+          "label": "Contenu",
+          "pluralLabel": "Contenus",
+          "description": "Un contenu de l’idée à la publication."
+        },
+        "campaigns": {
+          "label": "Campagne",
+          "pluralLabel": "Campagnes",
+          "description": "Un thème qui regroupe plusieurs contenus."
+        },
+        "key_dates": {
+          "label": "Date clé",
+          "pluralLabel": "Dates clés",
+          "description": "Fêtes, événements et lancements autour desquels planifier."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "waiting": "En attente",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "pieces.stage": {
+          "label": "Statut",
+          "options": {
+            "idea": "Idée",
+            "drafting": "Rédaction",
+            "in_review": "Relecture",
+            "approved": "Validé",
+            "scheduled": "Programmé",
+            "published": "Publié",
+            "killed": "Abandonné"
+          }
+        },
+        "campaigns.status": {
+          "label": "Statut",
+          "options": {
+            "planned": "Prévue",
+            "running": "En cours",
+            "done": "Terminée",
+            "dropped": "Abandonnée"
+          }
+        },
+        "people.person_role": {
+          "label": "Rôle",
+          "options": {
+            "author": "Auteur",
+            "editor": "Rédacteur en chef",
+            "reviewer": "Relecteur",
+            "approver": "Validateur",
+            "client_contact": "Contact client",
+            "guest": "Invité ou interviewé"
+          }
+        },
+        "people.profile_url": {
+          "label": "Lien du profil",
+          "options": {}
+        },
+        "pieces.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "pieces.reviewer": {
+          "label": "Relecteur",
+          "options": {}
+        },
+        "pieces.format": {
+          "label": "Format",
+          "options": {
+            "blog_post": "Article de blog",
+            "newsletter": "Newsletter",
+            "short_video": "Vidéo courte",
+            "long_video": "Vidéo longue",
+            "carousel": "Carrousel",
+            "image_post": "Post image",
+            "text_post": "Post texte",
+            "podcast": "Épisode de podcast",
+            "webinar": "Webinaire",
+            "case_study": "Étude de cas"
+          }
+        },
+        "pieces.pillar": {
+          "label": "Pilier de contenu",
+          "options": {
+            "educate": "Éduquer",
+            "prove": "Preuves",
+            "product": "Produit",
+            "community": "Communauté",
+            "behind_the_scenes": "Coulisses"
+          }
+        },
+        "pieces.channels": {
+          "label": "Canaux",
+          "options": {
+            "blog": "Blog",
+            "newsletter": "Newsletter",
+            "linkedin": "LinkedIn",
+            "instagram": "Instagram",
+            "facebook": "Facebook",
+            "tiktok": "TikTok",
+            "youtube": "YouTube",
+            "x": "X",
+            "podcast": "Podcast",
+            "other": "Autre"
+          }
+        },
+        "pieces.brief_url": {
+          "label": "Lien du brief",
+          "options": {}
+        },
+        "pieces.draft_url": {
+          "label": "Lien du brouillon",
+          "options": {}
+        },
+        "pieces.target_keyword": {
+          "label": "Mot-clé cible",
+          "options": {}
+        },
+        "pieces.call_to_action": {
+          "label": "Appel à l’action",
+          "options": {}
+        },
+        "pieces.draft_due": {
+          "label": "Brouillon pour le",
+          "options": {}
+        },
+        "pieces.review_due": {
+          "label": "Relecture pour le",
+          "options": {}
+        },
+        "pieces.publish_at": {
+          "label": "Publication le",
+          "options": {}
+        },
+        "pieces.ad_disclosure": {
+          "label": "Mention de partenariat",
+          "options": {
+            "none": "Aucune",
+            "paid_partnership": "Partenariat rémunéré ou publicité",
+            "gifted_product": "Produit offert",
+            "affiliate_link": "Lien d’affiliation"
+          }
+        },
+        "pieces.disclosure_checked": {
+          "label": "Mention vérifiée",
+          "options": {}
+        },
+        "pieces.published_url": {
+          "label": "Lien du contenu publié",
+          "options": {}
+        },
+        "pieces.published_on": {
+          "label": "Publié le",
+          "options": {}
+        },
+        "pieces.reach": {
+          "label": "Portée",
+          "options": {}
+        },
+        "pieces.engagements": {
+          "label": "Interactions",
+          "options": {}
+        },
+        "pieces.clicks": {
+          "label": "Clics",
+          "options": {}
+        },
+        "pieces.killed_reason": {
+          "label": "Motif d’abandon",
+          "options": {
+            "off_topic": "Hors sujet",
+            "duplicate": "Doublon",
+            "no_owner": "Sans responsable",
+            "stale": "Obsolète",
+            "replaced": "Remplacé",
+            "client_declined": "Refusé par le client"
+          }
+        },
+        "campaigns.goal": {
+          "label": "Objectif",
+          "options": {}
+        },
+        "campaigns.start_date": {
+          "label": "Début",
+          "options": {}
+        },
+        "campaigns.end_date": {
+          "label": "Fin",
+          "options": {}
+        },
+        "campaigns.budget": {
+          "label": "Budget",
+          "options": {}
+        },
+        "campaigns.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "key_dates.date": {
+          "label": "Date",
+          "options": {}
+        },
+        "key_dates.date_type": {
+          "label": "Type",
+          "options": {
+            "holiday": "Jour férié",
+            "industry_event": "Événement du secteur",
+            "product_launch": "Lancement de produit",
+            "awareness_day": "Journée thématique",
+            "own_event": "Notre événement",
+            "deadline": "Échéance"
+          }
+        },
+        "key_dates.idea_note": {
+          "label": "Idée de contenu",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "write_brief": "Rédiger le brief",
+            "draft": "Rédaction",
+            "review": "Relecture",
+            "revise": "Révision",
+            "approve": "Validation",
+            "schedule": "Programmation",
+            "publish": "Publication",
+            "measure": "Mesure des résultats",
+            "plan": "Planification",
+            "other": "Autre"
+          }
+        }
+      },
+      "relationships": {
+        "piece_campaign": {
+          "sourceLabel": "Campagne",
+          "targetLabel": "Contenus"
+        },
+        "piece_author": {
+          "sourceLabel": "Auteur",
+          "targetLabel": "Contenus"
+        },
+        "action_piece": {
+          "sourceLabel": "Contenu",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "pieces_all": {
+          "name": "Tous les contenus"
+        },
+        "pieces_board": {
+          "name": "Contenus par statut"
+        },
+        "in_review_pieces": {
+          "name": "En relecture"
+        },
+        "campaigns_all": {
+          "name": "Toutes les campagnes"
+        },
+        "key_dates_all": {
+          "name": "Dates clés"
+        },
+        "people_all": {
+          "name": "Toutes les personnes"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Actions à venir"
+        },
+        "overdue_actions": {
+          "title": "Actions en retard"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        },
+        "publishing_calendar": {
+          "title": "Calendrier de publication"
+        },
+        "pieces_by_stage": {
+          "title": "Contenus par statut"
+        },
+        "open_pieces_by_owner": {
+          "title": "Contenus ouverts par responsable"
+        },
+        "pieces_by_pillar": {
+          "title": "Contenus par pilier"
+        },
+        "published_per_month": {
+          "title": "Publiés par mois"
+        },
+        "reach_by_pillar": {
+          "title": "Portée par pilier"
+        },
+        "key_dates_coming": {
+          "title": "Dates clés à venir"
+        }
+      },
+      "knowledgePages": {
+        "content_pillars": {
+          "title": "Piliers de contenu et répartition",
+          "sections": [
+            "Les piliers et la part de chacun",
+            "Ce qui relève de chaque pilier"
+          ]
+        },
+        "editorial_rhythm": {
+          "title": "Rythme de publication et point éditorial hebdomadaire",
+          "sections": [
+            "Créneaux par canal",
+            "Publié, à risque, bloqué",
+            "Statuts et qui les change"
+          ]
+        },
+        "review_and_approval": {
+          "title": "Délais de relecture et de validation",
+          "sections": [
+            "Qui relit et en combien de jours",
+            "Validation client si besoin"
+          ]
+        },
+        "disclosure_checklist": {
+          "title": "Check-list des mentions de publicité et de partenariat",
+          "sections": [
+            "Quand un post doit être signalé",
+            "Formulation et emplacement",
+            "Vérification avant publication"
+          ]
+        }
+      },
+      "rules": {
+        "review_task": {
+          "title": "Créer une tâche de relecture quand un contenu passe en relecture",
+          "description": ""
+        },
+        "schedule_task": {
+          "title": "Créer une tâche de programmation quand un contenu est validé",
+          "description": ""
+        },
+        "at_risk_before_publish": {
+          "title": "Signaler un contenu encore en brouillon trois jours avant sa publication",
+          "description": ""
+        },
+        "measure_after_30_days": {
+          "title": "Créer un point sur les résultats après la publication d’un contenu",
+          "description": ""
+        },
+        "stale_piece": {
+          "title": "Revoir un contenu resté 14 jours en rédaction ou en relecture",
+          "description": ""
+        },
+        "weekly_editorial_prep": {
+          "title": "Préparer le point éditorial chaque lundi",
+          "description": ""
+        },
+        "plan_for_key_date": {
+          "title": "Planifier les contenus trois semaines avant une date clé",
+          "description": ""
+        },
+        "idea_form_piece": {
+          "title": "Créer un contenu à partir d’une idée envoyée par formulaire",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Chaque contenu a l’un des sept statuts.",
+        "publish_field": "Chaque contenu a une date et une heure de publication.",
+        "calendar_widget": "Le tableau de bord montre le calendrier de publication."
+      },
+      "prompt": {
+        "intro": "Mets en place un calendrier éditorial dans mon espace de travail Customermates : des contenus avec sept statuts, un responsable, un relecteur et une date de publication, des campagnes, des dates clés, une vérification des mentions de partenariat et une routine éditoriale hebdomadaire.",
+        "questions": [
+          "Que publiez-vous, sur quels canaux, et à quel rythme ?",
+          "Qui écrit, qui relit et qui valide ? Un client intervient-il ?",
+          "Quels piliers de contenu utilisez-vous, et lesquels des sept statuts vous servent ?",
+          "Quel outil publie les contenus ? Ils y restent, et seuls le lien et la date sont gardés ici."
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "Calendario editoriale",
+      "summary": "Una riga per contenuto con stato, responsabile, revisore e data di pubblicazione, più campagne, date chiave e una routine editoriale settimanale.",
+      "description": "Un calendario editoriale per blog, newsletter, social e video: sette stati dall'idea al pubblicato, un calendario di pubblicazione, un pilastro di contenuto per ogni contenuto, un controllo della segnalazione pubblicitaria per i contenuti sponsorizzati o con prodotti ricevuti in omaggio e una verifica dei risultati dopo 30 giorni. Pianifica e tiene traccia, non pubblica.",
+      "lists": {
+        "actions": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un prossimo passo con data per ogni pratica aperta."
+        },
+        "people": {
+          "label": "Persona",
+          "pluralLabel": "Persone",
+          "description": "Autori, redattori, revisori, approvatori e ospiti."
+        },
+        "pieces": {
+          "label": "Contenuto",
+          "pluralLabel": "Contenuti",
+          "description": "Un contenuto dall'idea alla pubblicazione."
+        },
+        "campaigns": {
+          "label": "Campagna",
+          "pluralLabel": "Campagne",
+          "description": "Un tema che raggruppa più contenuti."
+        },
+        "key_dates": {
+          "label": "Data chiave",
+          "pluralLabel": "Date chiave",
+          "description": "Festività, eventi e lanci intorno ai quali pianificare."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "waiting": "In attesa",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "pieces.stage": {
+          "label": "Stato",
+          "options": {
+            "idea": "Idea",
+            "drafting": "Stesura",
+            "in_review": "In revisione",
+            "approved": "Approvato",
+            "scheduled": "Programmato",
+            "published": "Pubblicato",
+            "killed": "Scartato"
+          }
+        },
+        "campaigns.status": {
+          "label": "Stato",
+          "options": {
+            "planned": "Pianificata",
+            "running": "In corso",
+            "done": "Conclusa",
+            "dropped": "Abbandonata"
+          }
+        },
+        "people.person_role": {
+          "label": "Ruolo",
+          "options": {
+            "author": "Autore",
+            "editor": "Redattore",
+            "reviewer": "Revisore",
+            "approver": "Approvatore",
+            "client_contact": "Referente del cliente",
+            "guest": "Ospite o intervistato"
+          }
+        },
+        "people.profile_url": {
+          "label": "Link al profilo",
+          "options": {}
+        },
+        "pieces.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "pieces.reviewer": {
+          "label": "Revisore",
+          "options": {}
+        },
+        "pieces.format": {
+          "label": "Formato",
+          "options": {
+            "blog_post": "Articolo del blog",
+            "newsletter": "Newsletter",
+            "short_video": "Video breve",
+            "long_video": "Video lungo",
+            "carousel": "Carosello",
+            "image_post": "Post con immagine",
+            "text_post": "Post di testo",
+            "podcast": "Puntata di podcast",
+            "webinar": "Webinar",
+            "case_study": "Caso di studio"
+          }
+        },
+        "pieces.pillar": {
+          "label": "Pilastro di contenuto",
+          "options": {
+            "educate": "Informare",
+            "prove": "Dimostrare",
+            "product": "Prodotto",
+            "community": "Community",
+            "behind_the_scenes": "Dietro le quinte"
+          }
+        },
+        "pieces.channels": {
+          "label": "Canali",
+          "options": {
+            "blog": "Blog",
+            "newsletter": "Newsletter",
+            "linkedin": "LinkedIn",
+            "instagram": "Instagram",
+            "facebook": "Facebook",
+            "tiktok": "TikTok",
+            "youtube": "YouTube",
+            "x": "X",
+            "podcast": "Podcast",
+            "other": "Altro"
+          }
+        },
+        "pieces.brief_url": {
+          "label": "Link al brief",
+          "options": {}
+        },
+        "pieces.draft_url": {
+          "label": "Link alla bozza",
+          "options": {}
+        },
+        "pieces.target_keyword": {
+          "label": "Parola chiave target",
+          "options": {}
+        },
+        "pieces.call_to_action": {
+          "label": "Invito all'azione",
+          "options": {}
+        },
+        "pieces.draft_due": {
+          "label": "Bozza entro",
+          "options": {}
+        },
+        "pieces.review_due": {
+          "label": "Revisione entro",
+          "options": {}
+        },
+        "pieces.publish_at": {
+          "label": "Pubblicazione il",
+          "options": {}
+        },
+        "pieces.ad_disclosure": {
+          "label": "Segnalazione pubblicitaria",
+          "options": {
+            "none": "Nessuna",
+            "paid_partnership": "Partnership a pagamento o pubblicità",
+            "gifted_product": "Prodotto in omaggio",
+            "affiliate_link": "Link di affiliazione"
+          }
+        },
+        "pieces.disclosure_checked": {
+          "label": "Segnalazione verificata",
+          "options": {}
+        },
+        "pieces.published_url": {
+          "label": "Link al contenuto pubblicato",
+          "options": {}
+        },
+        "pieces.published_on": {
+          "label": "Pubblicato il",
+          "options": {}
+        },
+        "pieces.reach": {
+          "label": "Copertura",
+          "options": {}
+        },
+        "pieces.engagements": {
+          "label": "Interazioni",
+          "options": {}
+        },
+        "pieces.clicks": {
+          "label": "Clic",
+          "options": {}
+        },
+        "pieces.killed_reason": {
+          "label": "Motivo dello scarto",
+          "options": {
+            "off_topic": "Fuori tema",
+            "duplicate": "Duplicato",
+            "no_owner": "Senza responsabile",
+            "stale": "Obsoleto",
+            "replaced": "Sostituito",
+            "client_declined": "Rifiutato dal cliente"
+          }
+        },
+        "campaigns.goal": {
+          "label": "Obiettivo",
+          "options": {}
+        },
+        "campaigns.start_date": {
+          "label": "Inizio",
+          "options": {}
+        },
+        "campaigns.end_date": {
+          "label": "Fine",
+          "options": {}
+        },
+        "campaigns.budget": {
+          "label": "Budget",
+          "options": {}
+        },
+        "campaigns.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "key_dates.date": {
+          "label": "Data",
+          "options": {}
+        },
+        "key_dates.date_type": {
+          "label": "Tipo",
+          "options": {
+            "holiday": "Festività",
+            "industry_event": "Evento di settore",
+            "product_launch": "Lancio di prodotto",
+            "awareness_day": "Giornata tematica",
+            "own_event": "Evento aziendale",
+            "deadline": "Scadenza"
+          }
+        },
+        "key_dates.idea_note": {
+          "label": "Idea di contenuto",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "write_brief": "Scrivere il brief",
+            "draft": "Stesura",
+            "review": "Revisione",
+            "revise": "Correzione",
+            "approve": "Approvazione",
+            "schedule": "Programmazione",
+            "publish": "Pubblicazione",
+            "measure": "Misurazione",
+            "plan": "Pianificazione",
+            "other": "Altro"
+          }
+        }
+      },
+      "relationships": {
+        "piece_campaign": {
+          "sourceLabel": "Campagna",
+          "targetLabel": "Contenuti"
+        },
+        "piece_author": {
+          "sourceLabel": "Autore",
+          "targetLabel": "Contenuti"
+        },
+        "action_piece": {
+          "sourceLabel": "Contenuto",
+          "targetLabel": "Attività"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Tutte le attività"
+        },
+        "pieces_all": {
+          "name": "Tutti i contenuti"
+        },
+        "pieces_board": {
+          "name": "Contenuti per stato"
+        },
+        "in_review_pieces": {
+          "name": "In revisione"
+        },
+        "campaigns_all": {
+          "name": "Tutte le campagne"
+        },
+        "key_dates_all": {
+          "name": "Date chiave"
+        },
+        "people_all": {
+          "name": "Tutte le persone"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Attività in arrivo"
+        },
+        "overdue_actions": {
+          "title": "Attività scadute"
+        },
+        "activity_timeline": {
+          "title": "Attività recenti"
+        },
+        "publishing_calendar": {
+          "title": "Calendario di pubblicazione"
+        },
+        "pieces_by_stage": {
+          "title": "Contenuti per stato"
+        },
+        "open_pieces_by_owner": {
+          "title": "Contenuti aperti per responsabile"
+        },
+        "pieces_by_pillar": {
+          "title": "Contenuti per pilastro"
+        },
+        "published_per_month": {
+          "title": "Pubblicati al mese"
+        },
+        "reach_by_pillar": {
+          "title": "Copertura per pilastro"
+        },
+        "key_dates_coming": {
+          "title": "Prossime date chiave"
+        }
+      },
+      "knowledgePages": {
+        "content_pillars": {
+          "title": "Pilastri di contenuto e mix",
+          "sections": [
+            "I pilastri e la quota di ciascuno",
+            "Che cosa rientra in ogni pilastro"
+          ]
+        },
+        "editorial_rhythm": {
+          "title": "Ritmo di pubblicazione e riunione editoriale settimanale",
+          "sections": [
+            "Slot per canale",
+            "Uscito, a rischio, bloccato",
+            "Stati e chi li cambia"
+          ]
+        },
+        "review_and_approval": {
+          "title": "Tempi di revisione e approvazione",
+          "sections": [
+            "Chi rivede e in quanti giorni",
+            "Approvazione del cliente, se serve"
+          ]
+        },
+        "disclosure_checklist": {
+          "title": "Checklist della segnalazione di pubblicità e partnership",
+          "sections": [
+            "Quando un post va segnalato",
+            "Formulazione e posizione",
+            "Controllo prima della pubblicazione"
+          ]
+        }
+      },
+      "rules": {
+        "review_task": {
+          "title": "Creare un'attività di revisione quando un contenuto va in revisione",
+          "description": ""
+        },
+        "schedule_task": {
+          "title": "Creare un'attività di programmazione quando un contenuto è approvato",
+          "description": ""
+        },
+        "at_risk_before_publish": {
+          "title": "Segnalare un contenuto ancora in bozza tre giorni prima della pubblicazione",
+          "description": ""
+        },
+        "measure_after_30_days": {
+          "title": "Creare una verifica dei risultati dopo la pubblicazione",
+          "description": ""
+        },
+        "stale_piece": {
+          "title": "Rivedere un contenuto fermo da 14 giorni in stesura o revisione",
+          "description": ""
+        },
+        "weekly_editorial_prep": {
+          "title": "Preparare ogni lunedì la riunione editoriale",
+          "description": ""
+        },
+        "plan_for_key_date": {
+          "title": "Pianificare i contenuti tre settimane prima di una data chiave",
+          "description": ""
+        },
+        "idea_form_piece": {
+          "title": "Creare un contenuto da un'idea inviata con un modulo",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Ogni contenuto ha uno dei sette stati.",
+        "publish_field": "Ogni contenuto ha una data e un'ora di pubblicazione.",
+        "calendar_widget": "La dashboard mostra il calendario di pubblicazione."
+      },
+      "prompt": {
+        "intro": "Configura un calendario editoriale nel mio spazio di lavoro Customermates: contenuti con sette stati, un responsabile, un revisore e una data di pubblicazione, campagne, date chiave, un controllo della segnalazione pubblicitaria e una routine editoriale settimanale.",
+        "questions": [
+          "Che cosa pubblichi, su quali canali e con quale frequenza?",
+          "Chi scrive, chi rivede e chi approva? È coinvolto un cliente?",
+          "Quali pilastri di contenuto usi e quali dei sette stati ti servono?",
+          "Quale strumento pubblica i contenuti? Restano lì e qui si conservano solo il link e la data."
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "Contentkalender",
+      "summary": "Eén regel per stuk met status, eigenaar, reviewer en publicatiedatum, plus campagnes, belangrijke data en een wekelijkse redactieroutine.",
+      "description": "Een redactiekalender voor blog, nieuwsbrief, social media en video: zeven statussen van idee tot gepubliceerd, een publicatiekalender, een contentpijler per stuk, een controle op reclamelabels voor betaalde of cadeau gekregen content en een resultaatcheck na 30 dagen. Hij plant en volgt, hij publiceert niet.",
+      "lists": {
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén volgende stap met datum per open dossier."
+        },
+        "people": {
+          "label": "Persoon",
+          "pluralLabel": "Personen",
+          "description": "Auteurs, redacteuren, reviewers, goedkeurders en gasten."
+        },
+        "pieces": {
+          "label": "Contentstuk",
+          "pluralLabel": "Contentstukken",
+          "description": "Eén stuk content van idee tot gepubliceerd."
+        },
+        "campaigns": {
+          "label": "Campagne",
+          "pluralLabel": "Campagnes",
+          "description": "Een thema dat meerdere stukken bundelt."
+        },
+        "key_dates": {
+          "label": "Belangrijke datum",
+          "pluralLabel": "Belangrijke data",
+          "description": "Feestdagen, evenementen en lanceringen om content omheen te plannen."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "In de wacht",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "pieces.stage": {
+          "label": "Status",
+          "options": {
+            "idea": "Idee",
+            "drafting": "Concept",
+            "in_review": "Review",
+            "approved": "Goedgekeurd",
+            "scheduled": "Ingepland",
+            "published": "Gepubliceerd",
+            "killed": "Geschrapt"
+          }
+        },
+        "campaigns.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Gepland",
+            "running": "Lopend",
+            "done": "Afgerond",
+            "dropped": "Vervallen"
+          }
+        },
+        "people.person_role": {
+          "label": "Rol",
+          "options": {
+            "author": "Auteur",
+            "editor": "Redacteur",
+            "reviewer": "Reviewer",
+            "approver": "Goedkeurder",
+            "client_contact": "Klantcontact",
+            "guest": "Gast of geïnterviewde"
+          }
+        },
+        "people.profile_url": {
+          "label": "Link naar profiel",
+          "options": {}
+        },
+        "pieces.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "pieces.reviewer": {
+          "label": "Reviewer",
+          "options": {}
+        },
+        "pieces.format": {
+          "label": "Formaat",
+          "options": {
+            "blog_post": "Blogartikel",
+            "newsletter": "Nieuwsbrief",
+            "short_video": "Korte video",
+            "long_video": "Lange video",
+            "carousel": "Carrousel",
+            "image_post": "Beeldpost",
+            "text_post": "Tekstpost",
+            "podcast": "Podcastaflevering",
+            "webinar": "Webinar",
+            "case_study": "Praktijkvoorbeeld"
+          }
+        },
+        "pieces.pillar": {
+          "label": "Contentpijler",
+          "options": {
+            "educate": "Informeren",
+            "prove": "Bewijzen",
+            "product": "Product",
+            "community": "Community",
+            "behind_the_scenes": "Achter de schermen"
+          }
+        },
+        "pieces.channels": {
+          "label": "Kanalen",
+          "options": {
+            "blog": "Blog",
+            "newsletter": "Nieuwsbrief",
+            "linkedin": "LinkedIn",
+            "instagram": "Instagram",
+            "facebook": "Facebook",
+            "tiktok": "TikTok",
+            "youtube": "YouTube",
+            "x": "X",
+            "podcast": "Podcast",
+            "other": "Overig"
+          }
+        },
+        "pieces.brief_url": {
+          "label": "Link naar briefing",
+          "options": {}
+        },
+        "pieces.draft_url": {
+          "label": "Link naar concept",
+          "options": {}
+        },
+        "pieces.target_keyword": {
+          "label": "Zoekwoord",
+          "options": {}
+        },
+        "pieces.call_to_action": {
+          "label": "Call-to-action",
+          "options": {}
+        },
+        "pieces.draft_due": {
+          "label": "Concept klaar op",
+          "options": {}
+        },
+        "pieces.review_due": {
+          "label": "Review klaar op",
+          "options": {}
+        },
+        "pieces.publish_at": {
+          "label": "Publiceren op",
+          "options": {}
+        },
+        "pieces.ad_disclosure": {
+          "label": "Reclamelabel",
+          "options": {
+            "none": "Geen",
+            "paid_partnership": "Betaalde samenwerking of advertentie",
+            "gifted_product": "Cadeau gekregen product",
+            "affiliate_link": "Affiliatelink"
+          }
+        },
+        "pieces.disclosure_checked": {
+          "label": "Reclamelabel gecontroleerd",
+          "options": {}
+        },
+        "pieces.published_url": {
+          "label": "Link naar gepubliceerd stuk",
+          "options": {}
+        },
+        "pieces.published_on": {
+          "label": "Gepubliceerd op",
+          "options": {}
+        },
+        "pieces.reach": {
+          "label": "Bereik",
+          "options": {}
+        },
+        "pieces.engagements": {
+          "label": "Interacties",
+          "options": {}
+        },
+        "pieces.clicks": {
+          "label": "Klikken",
+          "options": {}
+        },
+        "pieces.killed_reason": {
+          "label": "Reden van schrappen",
+          "options": {
+            "off_topic": "Past niet bij het thema",
+            "duplicate": "Dubbel",
+            "no_owner": "Geen eigenaar",
+            "stale": "Verouderd",
+            "replaced": "Vervangen",
+            "client_declined": "Klant wees af"
+          }
+        },
+        "campaigns.goal": {
+          "label": "Doel",
+          "options": {}
+        },
+        "campaigns.start_date": {
+          "label": "Start",
+          "options": {}
+        },
+        "campaigns.end_date": {
+          "label": "Einde",
+          "options": {}
+        },
+        "campaigns.budget": {
+          "label": "Budget",
+          "options": {}
+        },
+        "campaigns.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "key_dates.date": {
+          "label": "Datum",
+          "options": {}
+        },
+        "key_dates.date_type": {
+          "label": "Soort",
+          "options": {
+            "holiday": "Feestdag",
+            "industry_event": "Branche-evenement",
+            "product_launch": "Productlancering",
+            "awareness_day": "Themadag",
+            "own_event": "Eigen evenement",
+            "deadline": "Deadline"
+          }
+        },
+        "key_dates.idea_note": {
+          "label": "Idee voor content",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "write_brief": "Briefing schrijven",
+            "draft": "Concept",
+            "review": "Review",
+            "revise": "Aanpassen",
+            "approve": "Goedkeuren",
+            "schedule": "Inplannen",
+            "publish": "Publiceren",
+            "measure": "Meten",
+            "plan": "Plannen",
+            "other": "Overig"
+          }
+        }
+      },
+      "relationships": {
+        "piece_campaign": {
+          "sourceLabel": "Campagne",
+          "targetLabel": "Contentstukken"
+        },
+        "piece_author": {
+          "sourceLabel": "Auteur",
+          "targetLabel": "Contentstukken"
+        },
+        "action_piece": {
+          "sourceLabel": "Contentstuk",
+          "targetLabel": "Acties"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "pieces_all": {
+          "name": "Alle contentstukken"
+        },
+        "pieces_board": {
+          "name": "Contentstukken per status"
+        },
+        "in_review_pieces": {
+          "name": "In review"
+        },
+        "campaigns_all": {
+          "name": "Alle campagnes"
+        },
+        "key_dates_all": {
+          "name": "Belangrijke data"
+        },
+        "people_all": {
+          "name": "Alle personen"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Aankomende acties"
+        },
+        "overdue_actions": {
+          "title": "Achterstallige acties"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        },
+        "publishing_calendar": {
+          "title": "Publicatiekalender"
+        },
+        "pieces_by_stage": {
+          "title": "Contentstukken per status"
+        },
+        "open_pieces_by_owner": {
+          "title": "Open contentstukken per eigenaar"
+        },
+        "pieces_by_pillar": {
+          "title": "Contentstukken per pijler"
+        },
+        "published_per_month": {
+          "title": "Gepubliceerd per maand"
+        },
+        "reach_by_pillar": {
+          "title": "Bereik per pijler"
+        },
+        "key_dates_coming": {
+          "title": "Aankomende belangrijke data"
+        }
+      },
+      "knowledgePages": {
+        "content_pillars": {
+          "title": "Contentpijlers en verdeling",
+          "sections": [
+            "De pijlers en het aandeel van elk",
+            "Wat onder welke pijler valt"
+          ]
+        },
+        "editorial_rhythm": {
+          "title": "Publicatieritme en wekelijks redactieoverleg",
+          "sections": [
+            "Slots per kanaal",
+            "Verschenen, loopt risico, geblokkeerd",
+            "Statussen en wie ze wijzigt"
+          ]
+        },
+        "review_and_approval": {
+          "title": "Doorlooptijd voor review en goedkeuring",
+          "sections": [
+            "Wie reviewt en in hoeveel dagen",
+            "Goedkeuring door de klant waar nodig"
+          ]
+        },
+        "disclosure_checklist": {
+          "title": "Checklist voor reclamelabels en samenwerkingen",
+          "sections": [
+            "Wanneer een post een label nodig heeft",
+            "Formulering en plaatsing",
+            "Controle voor publicatie"
+          ]
+        }
+      },
+      "rules": {
+        "review_task": {
+          "title": "Maak een reviewactie aan wanneer een stuk naar review gaat",
+          "description": ""
+        },
+        "schedule_task": {
+          "title": "Maak een inplanactie aan wanneer een stuk is goedgekeurd",
+          "description": ""
+        },
+        "at_risk_before_publish": {
+          "title": "Signaleer een stuk dat drie dagen voor publicatie nog een concept is",
+          "description": ""
+        },
+        "measure_after_30_days": {
+          "title": "Maak een resultaatcheck aan nadat een stuk is gepubliceerd",
+          "description": ""
+        },
+        "stale_piece": {
+          "title": "Bekijk een stuk dat 14 dagen in concept of review staat",
+          "description": ""
+        },
+        "weekly_editorial_prep": {
+          "title": "Bereid elke maandag het redactieoverleg voor",
+          "description": ""
+        },
+        "plan_for_key_date": {
+          "title": "Plan content drie weken voor een belangrijke datum",
+          "description": ""
+        },
+        "idea_form_piece": {
+          "title": "Maak een contentstuk aan uit een idee dat via een formulier binnenkomt",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Elk contentstuk heeft een van de zeven statussen.",
+        "publish_field": "Elk contentstuk heeft een publicatiedatum met tijd.",
+        "calendar_widget": "Het dashboard toont de publicatiekalender."
+      },
+      "prompt": {
+        "intro": "Richt een contentkalender in mijn Customermates-werkruimte in: contentstukken met zeven statussen, een eigenaar, een reviewer en een publicatiedatum, campagnes, belangrijke data, een controle op reclamelabels en een wekelijkse redactieroutine.",
+        "questions": [
+          "Wat publiceer je, op welke kanalen en hoe vaak?",
+          "Wie schrijft, wie reviewt en wie keurt goed? Is er een klant bij betrokken?",
+          "Welke contentpijlers gebruik je en welke van de zeven statussen heb je nodig?",
+          "Welke tool publiceert de content? Die blijft daar en hier worden alleen de link en de datum bewaard."
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Kalendarz treści",
+      "summary": "Jeden wiersz na materiał ze statusem, osobą odpowiedzialną, recenzentem i datą publikacji, do tego kampanie, ważne daty i cotygodniowa rutyna redakcyjna.",
+      "description": "Kalendarz redakcyjny dla bloga, newslettera, mediów społecznościowych i wideo: siedem statusów od pomysłu do opublikowanego, kalendarz publikacji, filar treści przy każdym materiale, kontrola oznaczenia reklamy dla treści płatnych lub powstałych w zamian za produkt i sprawdzenie wyników po 30 dniach. Planuje i śledzi, nie publikuje.",
+      "lists": {
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jeden następny krok z terminem dla każdej otwartej sprawy."
+        },
+        "people": {
+          "label": "Osoba",
+          "pluralLabel": "Osoby",
+          "description": "Autorzy, redaktorzy, recenzenci, osoby akceptujące i goście."
+        },
+        "pieces": {
+          "label": "Materiał",
+          "pluralLabel": "Materiały",
+          "description": "Jeden materiał od pomysłu do publikacji."
+        },
+        "campaigns": {
+          "label": "Kampania",
+          "pluralLabel": "Kampanie",
+          "description": "Temat, który łączy kilka materiałów."
+        },
+        "key_dates": {
+          "label": "Ważna data",
+          "pluralLabel": "Ważne daty",
+          "description": "Święta, wydarzenia i premiery, wokół których planujesz treści."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarte",
+            "waiting": "Oczekuje",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "pieces.stage": {
+          "label": "Status",
+          "options": {
+            "idea": "Pomysł",
+            "drafting": "W pracy",
+            "in_review": "Do akceptacji",
+            "approved": "Zaakceptowane",
+            "scheduled": "Zaplanowane",
+            "published": "Opublikowane",
+            "killed": "Odrzucone"
+          }
+        },
+        "campaigns.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Zaplanowana",
+            "running": "W toku",
+            "done": "Zakończona",
+            "dropped": "Porzucona"
+          }
+        },
+        "people.person_role": {
+          "label": "Rola",
+          "options": {
+            "author": "Autor",
+            "editor": "Redaktor",
+            "reviewer": "Recenzent",
+            "approver": "Osoba akceptująca",
+            "client_contact": "Kontakt po stronie klienta",
+            "guest": "Gość lub rozmówca"
+          }
+        },
+        "people.profile_url": {
+          "label": "Link do profilu",
+          "options": {}
+        },
+        "pieces.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "pieces.reviewer": {
+          "label": "Recenzent",
+          "options": {}
+        },
+        "pieces.format": {
+          "label": "Format",
+          "options": {
+            "blog_post": "Wpis na blogu",
+            "newsletter": "Newsletter",
+            "short_video": "Krótkie wideo",
+            "long_video": "Długie wideo",
+            "carousel": "Karuzela",
+            "image_post": "Post ze zdjęciem",
+            "text_post": "Post tekstowy",
+            "podcast": "Odcinek podcastu",
+            "webinar": "Webinar",
+            "case_study": "Studium przypadku"
+          }
+        },
+        "pieces.pillar": {
+          "label": "Filar treści",
+          "options": {
+            "educate": "Edukacja",
+            "prove": "Dowody",
+            "product": "Produkt",
+            "community": "Społeczność",
+            "behind_the_scenes": "Kulisy"
+          }
+        },
+        "pieces.channels": {
+          "label": "Kanały",
+          "options": {
+            "blog": "Blog",
+            "newsletter": "Newsletter",
+            "linkedin": "LinkedIn",
+            "instagram": "Instagram",
+            "facebook": "Facebook",
+            "tiktok": "TikTok",
+            "youtube": "YouTube",
+            "x": "X",
+            "podcast": "Podcast",
+            "other": "Inny"
+          }
+        },
+        "pieces.brief_url": {
+          "label": "Link do briefu",
+          "options": {}
+        },
+        "pieces.draft_url": {
+          "label": "Link do szkicu",
+          "options": {}
+        },
+        "pieces.target_keyword": {
+          "label": "Słowo kluczowe",
+          "options": {}
+        },
+        "pieces.call_to_action": {
+          "label": "Wezwanie do działania",
+          "options": {}
+        },
+        "pieces.draft_due": {
+          "label": "Termin szkicu",
+          "options": {}
+        },
+        "pieces.review_due": {
+          "label": "Termin akceptacji",
+          "options": {}
+        },
+        "pieces.publish_at": {
+          "label": "Data publikacji",
+          "options": {}
+        },
+        "pieces.ad_disclosure": {
+          "label": "Oznaczenie reklamy",
+          "options": {
+            "none": "Brak",
+            "paid_partnership": "Płatna współpraca lub reklama",
+            "gifted_product": "Produkt otrzymany bezpłatnie",
+            "affiliate_link": "Link afiliacyjny"
+          }
+        },
+        "pieces.disclosure_checked": {
+          "label": "Oznaczenie sprawdzone",
+          "options": {}
+        },
+        "pieces.published_url": {
+          "label": "Link do opublikowanego materiału",
+          "options": {}
+        },
+        "pieces.published_on": {
+          "label": "Data opublikowania",
+          "options": {}
+        },
+        "pieces.reach": {
+          "label": "Zasięg",
+          "options": {}
+        },
+        "pieces.engagements": {
+          "label": "Interakcje",
+          "options": {}
+        },
+        "pieces.clicks": {
+          "label": "Kliknięcia",
+          "options": {}
+        },
+        "pieces.killed_reason": {
+          "label": "Powód odrzucenia",
+          "options": {
+            "off_topic": "Poza tematem",
+            "duplicate": "Duplikat",
+            "no_owner": "Brak osoby odpowiedzialnej",
+            "stale": "Nieaktualny",
+            "replaced": "Zastąpiony",
+            "client_declined": "Klient odrzucił"
+          }
+        },
+        "campaigns.goal": {
+          "label": "Cel",
+          "options": {}
+        },
+        "campaigns.start_date": {
+          "label": "Data rozpoczęcia",
+          "options": {}
+        },
+        "campaigns.end_date": {
+          "label": "Data zakończenia",
+          "options": {}
+        },
+        "campaigns.budget": {
+          "label": "Budżet",
+          "options": {}
+        },
+        "campaigns.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "key_dates.date": {
+          "label": "Data",
+          "options": {}
+        },
+        "key_dates.date_type": {
+          "label": "Rodzaj",
+          "options": {
+            "holiday": "Święto",
+            "industry_event": "Wydarzenie branżowe",
+            "product_launch": "Premiera produktu",
+            "awareness_day": "Dzień tematyczny",
+            "own_event": "Własne wydarzenie",
+            "deadline": "Termin"
+          }
+        },
+        "key_dates.idea_note": {
+          "label": "Pomysł na treść",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "write_brief": "Napisanie briefu",
+            "draft": "Szkic",
+            "review": "Przegląd",
+            "revise": "Poprawki",
+            "approve": "Akceptacja",
+            "schedule": "Zaplanowanie",
+            "publish": "Publikacja",
+            "measure": "Pomiar wyników",
+            "plan": "Planowanie",
+            "other": "Inne"
+          }
+        }
+      },
+      "relationships": {
+        "piece_campaign": {
+          "sourceLabel": "Kampania",
+          "targetLabel": "Materiały"
+        },
+        "piece_author": {
+          "sourceLabel": "Autor",
+          "targetLabel": "Materiały"
+        },
+        "action_piece": {
+          "sourceLabel": "Materiał",
+          "targetLabel": "Zadania"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "pieces_all": {
+          "name": "Wszystkie materiały"
+        },
+        "pieces_board": {
+          "name": "Materiały wg statusu"
+        },
+        "in_review_pieces": {
+          "name": "Do akceptacji"
+        },
+        "campaigns_all": {
+          "name": "Wszystkie kampanie"
+        },
+        "key_dates_all": {
+          "name": "Ważne daty"
+        },
+        "people_all": {
+          "name": "Wszystkie osoby"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Nadchodzące zadania"
+        },
+        "overdue_actions": {
+          "title": "Zaległe zadania"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        },
+        "publishing_calendar": {
+          "title": "Kalendarz publikacji"
+        },
+        "pieces_by_stage": {
+          "title": "Materiały wg statusu"
+        },
+        "open_pieces_by_owner": {
+          "title": "Otwarte materiały wg osoby odpowiedzialnej"
+        },
+        "pieces_by_pillar": {
+          "title": "Materiały wg filaru"
+        },
+        "published_per_month": {
+          "title": "Opublikowane w poszczególnych miesiącach"
+        },
+        "reach_by_pillar": {
+          "title": "Zasięg wg filaru"
+        },
+        "key_dates_coming": {
+          "title": "Nadchodzące ważne daty"
+        }
+      },
+      "knowledgePages": {
+        "content_pillars": {
+          "title": "Filary treści i proporcje",
+          "sections": [
+            "Filary i udział każdego z nich",
+            "Co należy do którego filaru"
+          ]
+        },
+        "editorial_rhythm": {
+          "title": "Rytm publikacji i cotygodniowe spotkanie redakcyjne",
+          "sections": [
+            "Terminy publikacji dla każdego kanału",
+            "Opublikowane, zagrożone, zablokowane",
+            "Statusy i kto je zmienia"
+          ]
+        },
+        "review_and_approval": {
+          "title": "Czas na przegląd i akceptację",
+          "sections": [
+            "Kto przegląda i w ile dni",
+            "Akceptacja klienta, gdy jest potrzebna"
+          ]
+        },
+        "disclosure_checklist": {
+          "title": "Lista kontrolna oznaczania reklam i współpracy",
+          "sections": [
+            "Kiedy post trzeba oznaczyć",
+            "Sformułowanie i miejsce oznaczenia",
+            "Kontrola przed publikacją"
+          ]
+        }
+      },
+      "rules": {
+        "review_task": {
+          "title": "Utwórz zadanie przeglądu, gdy materiał trafia do akceptacji",
+          "description": ""
+        },
+        "schedule_task": {
+          "title": "Utwórz zadanie zaplanowania, gdy materiał zostaje zaakceptowany",
+          "description": ""
+        },
+        "at_risk_before_publish": {
+          "title": "Zgłoś materiał, który trzy dni przed publikacją jest wciąż szkicem",
+          "description": ""
+        },
+        "measure_after_30_days": {
+          "title": "Utwórz zadanie sprawdzenia wyników po publikacji materiału",
+          "description": ""
+        },
+        "stale_piece": {
+          "title": "Przejrzyj materiał, który od 14 dni stoi w pracy lub akceptacji",
+          "description": ""
+        },
+        "weekly_editorial_prep": {
+          "title": "Przygotuj w każdy poniedziałek spotkanie redakcyjne",
+          "description": ""
+        },
+        "plan_for_key_date": {
+          "title": "Zaplanuj treści trzy tygodnie przed ważną datą",
+          "description": ""
+        },
+        "idea_form_piece": {
+          "title": "Utwórz materiał z pomysłu przesłanego przez formularz",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Każdy materiał ma jeden z siedmiu statusów.",
+        "publish_field": "Każdy materiał ma datę i godzinę publikacji.",
+        "calendar_widget": "Pulpit pokazuje kalendarz publikacji."
+      },
+      "prompt": {
+        "intro": "Skonfiguruj kalendarz treści w mojej przestrzeni roboczej Customermates: materiały z siedmioma statusami, osobą odpowiedzialną, recenzentem i datą publikacji, kampanie, ważne daty, kontrola oznaczenia reklamy i cotygodniowa rutyna redakcyjna.",
+        "questions": [
+          "Co publikujesz, w jakich kanałach i jak często?",
+          "Kto pisze, kto przegląda i kto akceptuje? Czy uczestniczy klient?",
+          "Jakich filarów treści używasz i które z siedmiu statusów są Ci potrzebne?",
+          "Jakie narzędzie publikuje treści? Zostają tam, a tutaj zapisujemy tylko link i datę."
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "Calendário editorial",
+      "summary": "Uma linha por conteúdo com status, responsável, revisor e data de publicação, mais campanhas, datas-chave e uma reunião editorial semanal.",
+      "description": "Um calendário editorial para blog, newsletter, redes sociais e vídeo: sete status da ideia ao publicado, um calendário de postagens, um pilar por conteúdo, uma conferência da identificação de publicidade para conteúdo pago ou recebido de presente e uma checagem de resultados após 30 dias. Planeja e acompanha, não publica.",
+      "lists": {
+        "actions": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um próximo passo com data para cada item em aberto."
+        },
+        "people": {
+          "label": "Pessoa",
+          "pluralLabel": "Pessoas",
+          "description": "Autores, editores, revisores, aprovadores e convidados."
+        },
+        "pieces": {
+          "label": "Conteúdo",
+          "pluralLabel": "Conteúdos",
+          "description": "Um conteúdo da ideia à publicação."
+        },
+        "campaigns": {
+          "label": "Campanha",
+          "pluralLabel": "Campanhas",
+          "description": "Um tema que reúne vários conteúdos."
+        },
+        "key_dates": {
+          "label": "Data-chave",
+          "pluralLabel": "Datas-chave",
+          "description": "Feriados, eventos e lançamentos em torno dos quais planejar."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberta",
+            "waiting": "Aguardando",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "pieces.stage": {
+          "label": "Status",
+          "options": {
+            "idea": "Ideia",
+            "drafting": "Rascunho",
+            "in_review": "Em revisão",
+            "approved": "Aprovado",
+            "scheduled": "Agendado",
+            "published": "Publicado",
+            "killed": "Descartado"
+          }
+        },
+        "campaigns.status": {
+          "label": "Status",
+          "options": {
+            "planned": "Planejada",
+            "running": "Em andamento",
+            "done": "Concluída",
+            "dropped": "Cancelada"
+          }
+        },
+        "people.person_role": {
+          "label": "Papel",
+          "options": {
+            "author": "Autor",
+            "editor": "Editor",
+            "reviewer": "Revisor",
+            "approver": "Aprovador",
+            "client_contact": "Contato do cliente",
+            "guest": "Convidado ou entrevistado"
+          }
+        },
+        "people.profile_url": {
+          "label": "Link do perfil",
+          "options": {}
+        },
+        "pieces.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "pieces.reviewer": {
+          "label": "Revisor",
+          "options": {}
+        },
+        "pieces.format": {
+          "label": "Formato",
+          "options": {
+            "blog_post": "Artigo de blog",
+            "newsletter": "Newsletter",
+            "short_video": "Vídeo curto",
+            "long_video": "Vídeo longo",
+            "carousel": "Carrossel",
+            "image_post": "Post com imagem",
+            "text_post": "Post de texto",
+            "podcast": "Episódio de podcast",
+            "webinar": "Webinar",
+            "case_study": "Estudo de caso"
+          }
+        },
+        "pieces.pillar": {
+          "label": "Pilar de conteúdo",
+          "options": {
+            "educate": "Educar",
+            "prove": "Provar",
+            "product": "Produto",
+            "community": "Comunidade",
+            "behind_the_scenes": "Bastidores"
+          }
+        },
+        "pieces.channels": {
+          "label": "Canais",
+          "options": {
+            "blog": "Blog",
+            "newsletter": "Newsletter",
+            "linkedin": "LinkedIn",
+            "instagram": "Instagram",
+            "facebook": "Facebook",
+            "tiktok": "TikTok",
+            "youtube": "YouTube",
+            "x": "X",
+            "podcast": "Podcast",
+            "other": "Outro"
+          }
+        },
+        "pieces.brief_url": {
+          "label": "Link do briefing",
+          "options": {}
+        },
+        "pieces.draft_url": {
+          "label": "Link do rascunho",
+          "options": {}
+        },
+        "pieces.target_keyword": {
+          "label": "Palavra-chave alvo",
+          "options": {}
+        },
+        "pieces.call_to_action": {
+          "label": "Chamada para ação",
+          "options": {}
+        },
+        "pieces.draft_due": {
+          "label": "Rascunho até",
+          "options": {}
+        },
+        "pieces.review_due": {
+          "label": "Revisão até",
+          "options": {}
+        },
+        "pieces.publish_at": {
+          "label": "Publicar em",
+          "options": {}
+        },
+        "pieces.ad_disclosure": {
+          "label": "Identificação de publicidade",
+          "options": {
+            "none": "Nenhuma",
+            "paid_partnership": "Parceria paga ou publicidade",
+            "gifted_product": "Produto recebido de presente",
+            "affiliate_link": "Link de afiliado"
+          }
+        },
+        "pieces.disclosure_checked": {
+          "label": "Identificação conferida",
+          "options": {}
+        },
+        "pieces.published_url": {
+          "label": "Link do conteúdo publicado",
+          "options": {}
+        },
+        "pieces.published_on": {
+          "label": "Publicado em",
+          "options": {}
+        },
+        "pieces.reach": {
+          "label": "Alcance",
+          "options": {}
+        },
+        "pieces.engagements": {
+          "label": "Engajamentos",
+          "options": {}
+        },
+        "pieces.clicks": {
+          "label": "Cliques",
+          "options": {}
+        },
+        "pieces.killed_reason": {
+          "label": "Motivo do descarte",
+          "options": {
+            "off_topic": "Fora do tema",
+            "duplicate": "Duplicado",
+            "no_owner": "Sem responsável",
+            "stale": "Desatualizado",
+            "replaced": "Substituído",
+            "client_declined": "Recusado pelo cliente"
+          }
+        },
+        "campaigns.goal": {
+          "label": "Objetivo",
+          "options": {}
+        },
+        "campaigns.start_date": {
+          "label": "Início",
+          "options": {}
+        },
+        "campaigns.end_date": {
+          "label": "Fim",
+          "options": {}
+        },
+        "campaigns.budget": {
+          "label": "Orçamento",
+          "options": {}
+        },
+        "campaigns.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "key_dates.date": {
+          "label": "Data",
+          "options": {}
+        },
+        "key_dates.date_type": {
+          "label": "Tipo",
+          "options": {
+            "holiday": "Feriado",
+            "industry_event": "Evento do setor",
+            "product_launch": "Lançamento de produto",
+            "awareness_day": "Dia temático",
+            "own_event": "Evento próprio",
+            "deadline": "Prazo"
+          }
+        },
+        "key_dates.idea_note": {
+          "label": "Ideia de conteúdo",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "write_brief": "Escrever o briefing",
+            "draft": "Rascunho",
+            "review": "Revisão",
+            "revise": "Ajustes",
+            "approve": "Aprovação",
+            "schedule": "Agendamento",
+            "publish": "Publicação",
+            "measure": "Medição",
+            "plan": "Planejamento",
+            "other": "Outro"
+          }
+        }
+      },
+      "relationships": {
+        "piece_campaign": {
+          "sourceLabel": "Campanha",
+          "targetLabel": "Conteúdos"
+        },
+        "piece_author": {
+          "sourceLabel": "Autor",
+          "targetLabel": "Conteúdos"
+        },
+        "action_piece": {
+          "sourceLabel": "Conteúdo",
+          "targetLabel": "Tarefas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas as tarefas"
+        },
+        "pieces_all": {
+          "name": "Todos os conteúdos"
+        },
+        "pieces_board": {
+          "name": "Conteúdos por status"
+        },
+        "in_review_pieces": {
+          "name": "Em revisão"
+        },
+        "campaigns_all": {
+          "name": "Todas as campanhas"
+        },
+        "key_dates_all": {
+          "name": "Datas-chave"
+        },
+        "people_all": {
+          "name": "Todas as pessoas"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tarefas"
+        },
+        "overdue_actions": {
+          "title": "Tarefas atrasadas"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        },
+        "publishing_calendar": {
+          "title": "Calendário de postagens"
+        },
+        "pieces_by_stage": {
+          "title": "Conteúdos por status"
+        },
+        "open_pieces_by_owner": {
+          "title": "Conteúdos abertos por responsável"
+        },
+        "pieces_by_pillar": {
+          "title": "Conteúdos por pilar"
+        },
+        "published_per_month": {
+          "title": "Publicados por mês"
+        },
+        "reach_by_pillar": {
+          "title": "Alcance por pilar"
+        },
+        "key_dates_coming": {
+          "title": "Próximas datas-chave"
+        }
+      },
+      "knowledgePages": {
+        "content_pillars": {
+          "title": "Pilares de conteúdo e mix",
+          "sections": [
+            "Os pilares e a parte de cada um",
+            "O que pertence a cada pilar"
+          ]
+        },
+        "editorial_rhythm": {
+          "title": "Ritmo de publicação e reunião editorial semanal",
+          "sections": [
+            "Lacunas por canal",
+            "Publicado, em risco, bloqueado",
+            "Status e quem os muda"
+          ]
+        },
+        "review_and_approval": {
+          "title": "Prazos de revisão e aprovação",
+          "sections": [
+            "Quem revisa e em quantos dias",
+            "Aprovação do cliente quando necessária"
+          ]
+        },
+        "disclosure_checklist": {
+          "title": "Checklist de identificação de publicidade e parcerias",
+          "sections": [
+            "Quando um post precisa de identificação",
+            "Redação e posição da identificação",
+            "Conferência antes de publicar"
+          ]
+        }
+      },
+      "rules": {
+        "review_task": {
+          "title": "Criar uma tarefa de revisão quando um conteúdo entra em revisão",
+          "description": ""
+        },
+        "schedule_task": {
+          "title": "Criar uma tarefa de agendamento quando um conteúdo é aprovado",
+          "description": ""
+        },
+        "at_risk_before_publish": {
+          "title": "Sinalizar um conteúdo ainda em rascunho três dias antes da publicação",
+          "description": ""
+        },
+        "measure_after_30_days": {
+          "title": "Criar uma checagem de resultados depois que um conteúdo é publicado",
+          "description": ""
+        },
+        "stale_piece": {
+          "title": "Revisar um conteúdo parado há 14 dias em rascunho ou revisão",
+          "description": ""
+        },
+        "weekly_editorial_prep": {
+          "title": "Preparar toda segunda-feira a reunião editorial",
+          "description": ""
+        },
+        "plan_for_key_date": {
+          "title": "Planejar conteúdo três semanas antes de uma data-chave",
+          "description": ""
+        },
+        "idea_form_piece": {
+          "title": "Criar um conteúdo a partir de uma ideia enviada por formulário",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada conteúdo tem um dos sete status.",
+        "publish_field": "Cada conteúdo tem data e hora de publicação.",
+        "calendar_widget": "O painel mostra o calendário de postagens."
+      },
+      "prompt": {
+        "intro": "Configure um calendário editorial no meu espaço de trabalho do Customermates: conteúdos com sete status, um responsável, um revisor e uma data de publicação, campanhas, datas-chave, uma conferência da identificação de publicidade e uma reunião editorial semanal.",
+        "questions": [
+          "O que você publica, em quais canais e com que frequência?",
+          "Quem escreve, quem revisa e quem aprova? Há um cliente envolvido?",
+          "Quais pilares de conteúdo você usa e quais dos sete status você precisa?",
+          "Qual ferramenta publica o conteúdo? Ele fica lá e aqui só se guardam o link e a data."
+        ]
+      }
+    }
+  }
+}

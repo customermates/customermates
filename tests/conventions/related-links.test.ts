@@ -12,6 +12,7 @@ import {
 } from "@/components/marketing/related-target";
 import { relatedHrefsSchema } from "@/core/fumadocs/schemas/common";
 import { RELATED_LINK_COUNT } from "@/core/seo/related-selection";
+import { ownPageSlugs } from "@/core/templates/template-publication";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
 import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, walkFiles } from "./walk";
@@ -78,11 +79,12 @@ function entries(collection: string, locale: string): Entry[] {
 }
 
 function publishedRoutes(locale: string) {
-  return new Set(
-    Object.entries(TARGET_COLLECTIONS).flatMap(([collection, base]) =>
+  return new Set([
+    ...Object.entries(TARGET_COLLECTIONS).flatMap(([collection, base]) =>
       entries(collection, locale).map(({ slug }) => `${base}/${slug}`),
     ),
-  );
+    ...ownPageSlugs(locale).map((slug) => `/templates/${slug}`),
+  ]);
 }
 
 describe("related links", () => {
@@ -269,6 +271,14 @@ describe("related links", () => {
     ]) {
       expect(relatedHrefsSchema.safeParse(invalid).success).toBe(false);
     }
+  });
+
+  it("accepts a template page in an authored link list and rejects a template path with a sub-route", () => {
+    const valid = ["/templates/client-tracker", "/features/unified-inbox", "/docs/mcp", "/for/agencies"];
+
+    expect(relatedHrefsSchema.safeParse(valid).success).toBe(true);
+    expect(relatedHrefsSchema.safeParse([...valid.slice(0, 3), "/templates/client-tracker/extra"]).success).toBe(false);
+    expect(relatedHrefsSchema.safeParse([...valid.slice(0, 3), "/templates"]).success).toBe(false);
   });
 
   it("gives every blog article the same four-link and localized CTA shell", () => {

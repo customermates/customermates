@@ -1,0 +1,69 @@
+---
+title: "Automatiseringen: regels zonder AI en herinneringen"
+description: "Automatiseringen draaien zonder AI als er iets gebeurt en het past: bouw ze met Wanneer, Als en Dan, met herinneringen, belletje en e-mails."
+---
+
+Een automatisering is een regel die zonder AI draait: als er iets gebeurt en het past, doet Customermates wat je hebt ingesteld. Ze kan een opvolgtaak aanmaken, een veld instellen, jou of je team op de hoogte stellen in het meldingenbelletje en per e-mail, of een webhook aanroepen. Automatiseringen werken op elk pakket en op zelfgehoste instanties. Het zijn geen [Routines](app:routines): een routine laat Mate zelfstandig werken, een automatisering doet precies wat haar drie kaarten zeggen en niets anders.
+
+De pagina **Automatiseringen** staat in de zijbalk naast **Routines**. Wie haar ziet, hangt af van de rij **Routines** van hun rol in [Rollen](app:settings/roles): **Leestoegang** **Alle** toont elke automatisering in de werkruimte, **Toegewezen** alleen je eigen, en **Geen** verbergt de pagina. Aanmaken vraagt **Aanmaken**.
+
+## Hoe maak ik een automatisering aan? [#how-do-i-create-an-automation]
+
+Open **Automatiseringen** en klik op **Nieuwe automatisering**, of klik op **Deze lijst automatiseren** in de werkbalk van een lijst om met die lijst al gekozen te beginnen. Geef de automatisering een **Naam**, vul de drie kaarten in en sla op. Een opgeslagen automatisering staat aan.
+
+- **Wanneer** kiest de lijst en wat de regel start: **Er wordt een record aangemaakt**, **Een record wordt bijgewerkt**, **Een veld verandert** (eventueel **Naar waarde**, zodat de regel alleen afgaat als het veld naar die waarde verandert) of **Een datum is bereikt**.
+- **Als (optioneel)** voegt voorwaarden toe voor het record dat de regel startte: **is**, **is niet**, **is leeg**, **is niet leeg**, **ligt voor vandaag plus** of **ligt na vandaag plus** een aantal dagen. Alle voorwaarden moeten kloppen.
+- **Dan** somt op wat er gebeurt, op volgorde: **Een veld instellen**, **Een record aanmaken**, **Melden** of **Een webhook aanroepen**. Met **Een record aanmaken** maakt een automatisering een opvolgtaak: kies de takenlijst, het **Titelveld** en de **Titel**, het **Veld voor de deadline** en **Verloopt over dagen**, of het **Aan mij toewijzen** is en hoe je **Koppelen aan het startende record als**. In titels en details wordt `{{record.name}}` vervangen door de naam van het record en `{{rule.name}}` door de naam van de automatisering.
+
+Er bestaan ook regels voor ingevulde formulieren, binnenkomende webhooks en berichten die binnenkomen. Je maakt ze aan met `manage_rules` via MCP of REST, en de pagina toont ze; een trigger of actie die de builder niet kan bewerken toont een opmerking en blijft zoals hij is.
+
+## Hoe krijg ik een herinnering vóór een datum? [#how-do-i-get-a-reminder-before-a-date]
+
+Open een lijst met een datumveld of een veld voor datum en tijd, open **Meer acties** in de werkbalk en kies **Herinner me aan** gevolgd door de veldnaam. De builder opent met een trigger **Een datum is bereikt** voor dat veld, dus je kiest alleen nog **Dagen**, **Voor of na**, **Om uur (0 tot 23)** en **Tijdzone** en voegt een actie **Melden** toe die jou op de hoogte stelt. De herinnering bereikt je in het meldingenbelletje en, naar je voorkeur, per e-mail.
+
+Een datumregel gaat één keer per record af, zodra de datum, verschoven met jouw afstand, is bereikt. Ze wordt om de paar minuten gecontroleerd. Een regel die je later aanmaakt of aanzet, vangt toch datums die in de afgelopen 7 dagen zijn bereikt, en een record waarvan je de datum naar een andere dag verandert, gaat opnieuw af voor de nieuwe datum. **Preview** via MCP of REST toont de records die een datumregel hierna zou raken.
+
+## Hoe draaien automatiseringen, en wat toont de geschiedenis? [#how-do-automations-run]
+
+Een automatisering draait als haar eigenaar, met diens rechten: ze kan nooit meer doen dan de eigenaar zou mogen. Wie haar aanmaakt, is de eigenaar. Alleen de eigenaar kan een automatisering wijzigen of aanzetten; een beheerder kan haar ook uitzetten of verwijderen. Als de eigenaar geen actief lid meer is, zet de automatisering zichzelf uit en meldt dat.
+
+Een uitvoering gebeurt één keer per record en trigger. Wat een automatisering wijzigt, start dezelfde automatisering nooit opnieuw, en een keten stopt na twee regels, zodat twee automatiseringen elkaar niet eindeloos starten. Als een actie mislukt, draaien de acties erna niet.
+
+Klik op **Geschiedenis** bij een automatisering om haar uitvoeringen te zien, de nieuwste eerst. Elke uitvoering toont haar status (**In de wachtrij**, **Bezig**, **Voltooid**, **Overgeslagen** of **Mislukt**), het resultaat van elke actie en een link **Record openen**. Een overgeslagen uitvoering noemt de reden: de voorwaarden klopten niet, de automatisering stond uit, het record is weg of niet leesbaar voor de eigenaar, de eigenaar is gewijzigd, of de eigenaar is niet meer actief of heeft geen toegang meer tot automatiseringen.
+
+Een automatisering verwijderen haalt haar met haar geschiedenis definitief weg; zet haar liever uit als je haar misschien opnieuw nodig hebt.
+
+## Hoe werken meldingen en e-mailvoorkeuren? [#how-do-notifications-work]
+
+Het belletje in de bovenbalk toont hoeveel meldingen ongelezen zijn. Open het om de nieuwste te zien, het bijbehorende record te openen of **Alles als gelezen markeren** te kiezen. Meldingen komen uit vijf soorten gebeurtenissen: **Aan jou toegewezen**, **Vandaag aan de beurt**, **Ingevulde formulieren**, **Ontvangen antwoorden** en **Meldingen van automatiseringen**. Het belletje toont altijd alles en bewaart meldingen 90 dagen.
+
+Of een soort je ook per e-mail bereikt, bepaal je zelf, per soort, in de kaart **E-mails over meldingen** op [Profiel & voorkeuren](app:settings/profile): **Direct per e-mail**, **Dagelijkse samenvatting** of **Geen e-mail**. Zolang je niets wijzigt, komen toewijzingen, ingevulde formulieren en meldingen van automatiseringen direct, en deadlines en antwoorden in de dagelijkse samenvatting. De samenvatting is één e-mail per dag met wat nog niet per e-mail is gemeld.
+
+## Hoeveel automatiseringen bevat mijn pakket? [#how-many-automations-does-my-plan-include]
+
+De limiet telt automatiseringen die aanstaan: Free bevat [[commercial.entitlement.free.activeRules]], Starter [[commercial.entitlement.starter.activeRules]], en Pro, Business, Max en Enterprise [[commercial.entitlement.pro.activeRules]]. Een automatisering uitzetten maakt haar plek meteen vrij. Bij de limiet wordt een nieuwe aanmaken of aanzetten geweigerd, met de uitnodiging een hoger pakket te nemen onder [Facturering](app:settings/billing) of een andere automatisering uit te zetten. Zelfgehoste instanties hebben geen pakket, dus daar geldt geen limiet.
+
+## Hoe beheert Mate automatiseringen? [#how-does-mate-manage-automations]
+
+In een chat kan Mate je automatiseringen oplijsten, er een lezen met de geschiedenis van de uitvoeringen en vooraf tonen welke records een datumregel zou raken, zonder eerst te vragen. Een automatisering aanmaken, wijzigen, aan- of uitzetten en verwijderen vragen elk om jouw goedkeuring. Als Mate je werkruimte vanuit een sjabloon heeft ingericht, biedt het de regels van dat sjabloon één keer aan, nadat de lijsten bestaan, en maakt het elke regel pas aan na jouw goedkeuring; regels die een agentroutine nodig hebben of een trigger die de regelengine niet heeft, worden met de reden genoemd.
+
+## Voor agents [#for-agents]
+
+Gebruik `manage_rules` via [MCP](/docs/mcp), met de acties `list`, `get`, `runs`, `create`, `update`, `enable`, `disable`, `delete` en `preview`. Als `enabled` bij `create` ontbreekt, ontstaat een actieve automatisering; geef `enabled: false` mee om een concept op te slaan. De triggers zijn `recordCreated`, `recordUpdated`, `fieldChanged`, `dateReached`, `messageReceived`, `formSubmitted` en `webhookReceived`; lijst- en veld-id’s komen uit `discover_record_types` en `get_record_model`. Een weigering door het pakket komt met de limiet en de upgradeprijs. REST biedt dezelfde bewerkingen als `POST /api/v1/rules/list`, `read`, `runs`, `create`, `update`, `enable`, `disable`, `delete` en `preview`, met leesrechten op **Routines** om te lezen en aanmaakrechten om aan te maken; zie de [API-referentie](/docs/openapi).
+
+## Veelgestelde vragen [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Is een automatisering hetzelfde als een routine?">
+Nee. Een routine opent een gesprek en laat Mate werken, gebruikt het Mate-tegoed van de eigenaar en bestaat alleen op Customermates Cloud. Een automatisering voert een vaste wanneer-als-dan-regel uit zonder AI, op elk pakket en op zelfgehoste instanties. Zie de [routines](/docs/app-routines) voor het andere soort.
+</FaqItem>
+<FaqItem question="Waarom is mijn automatisering niet afgegaan voor een record?">
+Open de **Geschiedenis** van de automatisering. Een overgeslagen uitvoering noemt de reden, zoals voorwaarden die niet klopten of een eigenaar die niet meer actief is. Een datumregel heeft ook een datum in het veld nodig en gaat één keer per record en datum af.
+</FaqItem>
+<FaqItem question="Kan een automatisering een e-mail naar een klant sturen?">
+Niet rechtstreeks. Een automatisering verstuurt zelf geen e-mails of berichten. Ze kan leden van je werkruimte melden, wat hen ook per e-mail kan bereiken, en een van je webhooks aanroepen, bijvoorbeeld om een [n8n](/docs/n8n)-workflow te starten die iets verstuurt.
+</FaqItem>
+<FaqItem question="Wie krijgt de melding als een automatisering iemand op de hoogte stelt?">
+De actie bepaalt het: **Mij op de hoogte stellen** bereikt de eigenaar van de automatisering, **De toegewezen personen op de hoogte stellen** bereikt de leden aan wie het startende record is toegewezen. De melding verschijnt in hun belletje en volgt hun e-mailvoorkeur voor **Meldingen van automatiseringen**.
+</FaqItem>
+</Faq>

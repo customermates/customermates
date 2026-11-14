@@ -1,0 +1,92 @@
+{
+  "locale": "es",
+  "name": "Formulario a CRM",
+  "summary": "Convertir las consultas de los formularios web en oportunidades trabajadas: una solicitud por envío con su origen, una respuesta pendiente, una fase de nueva a convertida y el spam y las que no encajan aparte.",
+  "description": "Cada consulta de un formulario de contacto, de presupuesto o de admisión se convierte en una solicitud vinculada a un contacto, con el formulario de origen, de dónde llegó el visitante, para cuándo la necesita y una respuesta para el día siguiente. Las solicitudes pasan de nueva a convertida, no encaja o spam, y una solicitud sin respuesta se señala. El consentimiento y una fecha de revisión acompañan a los datos recogidos. No es un creador de formularios para pagos, cuestionarios o subida de documentos sensibles.",
+  "lists": {
+    "contacts": { "label": "Contacto", "pluralLabel": "Contactos", "description": "Las personas que te escriben por un formulario." },
+    "requests": { "label": "Solicitud", "pluralLabel": "Solicitudes", "description": "Un envío de formulario, de nueva a convertida, no encaja o spam." }
+  },
+  "fields": {
+    "contacts.company_name": { "label": "Empresa" },
+    "contacts.language": { "label": "Idioma" },
+    "contacts.marketing_consent": { "label": "Consentimiento para correos comerciales" },
+    "contacts.marketing_consent_on": { "label": "Consentimiento dado el" },
+    "requests.stage": {
+      "label": "Fase",
+      "options": { "new": "Nueva", "contacted": "Contactada", "qualified": "Cualificada", "converted": "Convertida", "not_a_fit": "No encaja", "spam": "Spam" }
+    },
+    "requests.form": { "label": "Formulario", "options": { "contact": "Formulario de contacto", "quote_request": "Solicitud de presupuesto", "intake": "Formulario de admisión", "callback": "Solicitud de llamada", "other": "Otro" } },
+    "requests.owner": { "label": "Responsable" },
+    "requests.service_interest": { "label": "Servicio de interés" },
+    "requests.needed_by": {
+      "label": "Para cuándo",
+      "options": { "asap": "Cuanto antes", "within_a_month": "En un mes", "within_three_months": "En tres meses", "just_looking": "Solo informarse", "no_answer": "Sin respuesta" }
+    },
+    "requests.budget_band": { "label": "Presupuesto", "options": { "no_answer": "Sin respuesta", "low": "Bajo", "medium": "Medio", "high": "Alto" } },
+    "requests.submitted_at": { "label": "Recibida" },
+    "requests.first_response_at": { "label": "Primera respuesta" },
+    "requests.utm_source": { "label": "Origen del visitante" },
+    "requests.landing_page": { "label": "Página del formulario" },
+    "requests.repeat_submission": { "label": "Ya había escrito" },
+    "requests.not_a_fit_reason": {
+      "label": "Por qué no encaja",
+      "options": { "out_of_area": "Fuera de nuestra zona", "no_budget": "Sin presupuesto", "wrong_service": "Servicio equivocado", "no_response": "Sin respuesta", "duplicate": "Duplicada", "other": "Otro" }
+    },
+    "requests.closed_on": { "label": "Cerrada el" },
+    "requests.data_review_on": { "label": "Revisión de datos el" },
+    "requests.days_to_close": { "label": "Días del envío al cierre" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "reply": "Responder", "qualify_call": "Llamada de cualificación", "send_quote": "Enviar un presupuesto", "convert": "Pasar al pipeline", "chase": "Reclamar", "data_review": "Revisar los datos", "other": "Otro" }
+    }
+  },
+  "relationships": {
+    "request_contact": { "sourceLabel": "Contacto", "targetLabel": "Solicitudes" },
+    "action_request": { "sourceLabel": "Solicitud", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "requests_all": { "name": "Todas las solicitudes" },
+    "requests_board": { "name": "Tablero de solicitudes" },
+    "new_requests": { "name": "Solicitudes nuevas" },
+    "closed_without_deal": { "name": "No encajan o spam" },
+    "contacts_all": { "name": "Todos los contactos" }
+  },
+  "widgets": {
+    "requests_funnel": { "title": "Solicitudes por fase" },
+    "requests_per_week": { "title": "Solicitudes por semana" },
+    "requests_by_form": { "title": "Solicitudes por formulario" },
+    "new_requests_count": { "title": "Solicitudes nuevas" },
+    "not_a_fit_reasons": { "title": "Por qué las solicitudes no encajan" },
+    "average_days_to_close": { "title": "Media de días hasta el cierre" }
+  },
+  "knowledgePages": {
+    "form_playbook": { "title": "Guía del formulario al CRM", "sections": ["Qué formularios usamos y quién responde", "En cuánto tiempo respondemos"] },
+    "privacy_notice": { "title": "Aviso de privacidad de los formularios", "sections": ["Qué decimos en el formulario", "Cuánto tiempo conservamos una consulta"] },
+    "spam_and_duplicates": { "title": "Spam y envíos repetidos", "sections": ["Qué cuenta como spam", "Qué hacemos cuando la misma persona vuelve a escribir"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Crear el contacto y la solicitud cuando se envía el formulario de consulta" },
+    "reply_task": { "title": "Crear una tarea de respuesta para el día siguiente cuando se crea una solicitud" },
+    "first_response_missed": { "title": "Avisar a la persona a cargo cuando una solicitud sigue nueva un día después de recibirla" },
+    "chase_contacted": { "title": "Reclamar una solicitud contactada que lleva 3 días sin moverse" },
+    "converted_task": { "title": "Pasar la solicitud al pipeline cuando se convierte" },
+    "review_date_not_a_fit": { "title": "Fijar la revisión de datos dentro de un año cuando una solicitud no encaja" },
+    "data_review": { "title": "Revisar los datos cuando llega la fecha de revisión" },
+    "external_form_records": { "title": "Crear el contacto y la solicitud cuando otra herramienta de formularios envía una respuesta" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada solicitud tiene una fase.",
+    "submitted_field": "Cada solicitud indica cuándo se recibió.",
+    "requests_board_view": "Las solicitudes se abren como tablero por fase."
+  },
+  "prompt": {
+    "intro": "Configura en mi espacio de trabajo de Customermates el paso del formulario al CRM: una solicitud por envío con su origen, una respuesta pendiente, seis fases, el consentimiento y una fecha de revisión de datos, y seguimientos con fecha.",
+    "questions": [
+      "¿Qué formularios usas y qué necesitas saber para presupuestar o derivar una consulta?",
+      "¿Quién responde y en cuánto tiempo te comprometes a hacerlo?",
+      "¿Qué dices a las personas sobre sus datos en el formulario?",
+      "¿Usas otra herramienta de formularios como Typeform, Tally o Jotform?"
+    ]
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "locale": "pt",
+  "name": "Atendimento ao cliente",
+  "summary": "Um atendimento enxuto: chamados com prioridade, prazo de primeira resposta e prazo de resolução, problemas conhecidos que ligam vários chamados a uma causa e uma nota de satisfação.",
+  "description": "Atenda seus clientes em um só lugar: cada chamado tem status, prioridade, tipo, responsável e o prazo em que você deve uma primeira resposta e uma solução. Vincule os chamados a um problema conhecido para avisar a todos quando for resolvido e mantenha à vista o prazo de uma solicitação de titular da LGPD. Pensado para algumas dezenas de chamados por semana. Não é uma central telefônica, um chat ao vivo, um portal do cliente nem um calendário de horário comercial.",
+  "lists": {
+    "customers": { "label": "Cliente", "pluralLabel": "Clientes", "description": "As pessoas que escrevem para você pedindo ajuda." },
+    "accounts": { "label": "Conta", "pluralLabel": "Contas", "description": "As empresas por trás dos seus clientes, com o plano de suporte." },
+    "tickets": { "label": "Chamado", "pluralLabel": "Chamados", "description": "Um pedido de ajuda, da primeira mensagem até a resolução." },
+    "known_issues": { "label": "Problema conhecido", "pluralLabel": "Problemas conhecidos", "description": "Uma causa por trás de vários chamados, com solução alternativa e data de correção." }
+  },
+  "fields": {
+    "customers.preferred_channel": { "label": "Canal preferido", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "form": "Formulário de solicitação", "phone": "Telefone" } },
+    "customers.language": { "label": "Idioma" },
+    "accounts.support_plan": { "label": "Plano de suporte", "options": { "standard": "Padrão", "priority": "Prioritário", "none": "Nenhum" } },
+    "accounts.contract_end": { "label": "Fim do contrato" },
+    "tickets.status": {
+      "label": "Status",
+      "options": { "new": "Novo", "open": "Aberto", "pending_customer": "Aguardando cliente", "on_hold": "Aguardando terceiros", "solved": "Resolvido", "closed": "Fechado", "spam_or_duplicate": "Spam ou duplicado" }
+    },
+    "tickets.priority": { "label": "Prioridade", "options": { "urgent": "Urgente", "high": "Alta", "normal": "Normal", "low": "Baixa" } },
+    "tickets.type": { "label": "Tipo", "options": { "question": "Dúvida", "problem": "Problema", "request": "Solicitação", "complaint": "Reclamação", "data_request": "Solicitação LGPD" } },
+    "tickets.channel": { "label": "Canal", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "form": "Formulário de solicitação", "phone": "Telefone", "webhook": "Alerta de outro sistema" } },
+    "tickets.assignee": { "label": "Responsável" },
+    "tickets.first_response_due": { "label": "Primeira resposta até" },
+    "tickets.resolution_due": { "label": "Resolução até" },
+    "tickets.solved_on": { "label": "Resolvido em" },
+    "tickets.rating": { "label": "Avaliação" },
+    "known_issues.status": {
+      "label": "Status",
+      "options": { "investigating": "Em investigação", "workaround_available": "Solução alternativa disponível", "fixed": "Corrigido", "wont_fix": "Não será corrigido" }
+    },
+    "known_issues.workaround": { "label": "Solução alternativa" },
+    "known_issues.fixed_on": { "label": "Corrigido em" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "reply": "Responder",
+        "nudge_customer": "Lembrar o cliente",
+        "send_survey": "Enviar a pesquisa de satisfação",
+        "close_ticket": "Fechar o chamado",
+        "tell_customer_fixed": "Avisar o cliente de que foi corrigido",
+        "verify_identity": "Verificar a identidade",
+        "other": "Outro"
+      }
+    }
+  },
+  "relationships": {
+    "customer_account": { "sourceLabel": "Conta", "targetLabel": "Clientes" },
+    "ticket_customer": { "sourceLabel": "Cliente", "targetLabel": "Chamados" },
+    "ticket_known_issue": { "sourceLabel": "Problema conhecido", "targetLabel": "Chamados" },
+    "action_ticket": { "sourceLabel": "Chamado", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "tickets_all": { "name": "Todos os chamados" },
+    "tickets_board": { "name": "Quadro de chamados" },
+    "waiting_on_us": { "name": "Aguardando nossa resposta" },
+    "known_issues_all": { "name": "Todos os problemas conhecidos" },
+    "customers_all": { "name": "Todos os clientes" },
+    "accounts_all": { "name": "Todas as contas" }
+  },
+  "widgets": {
+    "tickets_by_status": { "title": "Chamados por status" },
+    "open_by_priority": { "title": "Chamados abertos por prioridade" },
+    "waiting_on_us_count": { "title": "Chamados aguardando nossa resposta" },
+    "responses_due": { "title": "Primeiras respostas a dar" },
+    "average_rating": { "title": "Avaliação média" },
+    "tickets_by_type": { "title": "Chamados por tipo" }
+  },
+  "knowledgePages": {
+    "how_we_run_support": { "title": "Como funciona o nosso atendimento", "sections": ["Status e prioridades", "Metas de primeira resposta e de resolução", "Quem está de plantão"] },
+    "triage_and_replies": { "title": "Triagem e respostas padrão", "sections": ["Tipo, prioridade e responsável", "Primeira resposta, pedido de informações, corrigido, sem retorno"] },
+    "data_requests": { "title": "Solicitações de titulares (LGPD)", "sections": ["Verificar a identidade, registrar e responder dentro do prazo legal (um mês pelo GDPR, 15 dias pela LGPD)", "Quem decide"] }
+  },
+  "rules": {
+    "ticket_created": { "title": "Criar uma tarefa de resposta quando um chamado é aberto" },
+    "first_response_missed": { "title": "Avisar o responsável quando a primeira resposta está atrasada" },
+    "nudge_customer": { "title": "Lembrar o cliente após 3 dias de espera" },
+    "send_survey": { "title": "Enviar a pesquisa de satisfação no dia seguinte à resolução" },
+    "close_solved": { "title": "Fechar um chamado que ficou resolvido por 4 dias" },
+    "data_request_clock": {
+      "title": "Definir a resolução em 30 dias quando um chamado vira solicitação de dados",
+      "variants": {
+        "BR": {
+          "title": "Definir a resolução em 15 dias quando um chamado vira solicitação LGPD",
+          "description": "Pelo art. 19 da LGPD, a resposta completa a um pedido de acesso ou de confirmação é devida em até 15 dias."
+        }
+      }
+    },
+    "known_issue_fixed": { "title": "Avisar os clientes quando um problema conhecido é corrigido" },
+    "ticket_from_webhook": { "title": "Abrir um chamado quando outro sistema envia um alerta" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Todo chamado tem um status.",
+    "first_response_field": "Todo chamado registra o prazo da primeira resposta.",
+    "tickets_board_view": "Os chamados abrem como quadro por status."
+  },
+  "prompt": {
+    "intro": "Configure no meu espaço de trabalho do Customermates um atendimento ao cliente: chamados com status, prioridade, prazo de primeira resposta e prazo de resolução, problemas conhecidos ligados aos chamados, uma nota de satisfação e acompanhamentos com data.",
+    "questions": [
+      "Quantos chamados você atende por semana e por quais canais eles chegam?",
+      "Que prazos você promete para a primeira resposta e a resolução, por prioridade ou plano de suporte?",
+      "Quem responde e quem é avisado quando um chamado está atrasado?",
+      "Você recebe solicitações da LGPD ou alertas de outros sistemas que devem virar chamados?"
+    ]
+  }
+}

@@ -1,0 +1,289 @@
+{
+  "locale": "de",
+  "name": "Vertriebspipeline",
+  "summary": "Sieben Phasen mit Abschlusskriterien und Gewichtung, ein terminierter nächster Schritt bei jeder offenen Chance, Verlust- und Gewinngründe und bei jedem Phasenwechsel die nächste Aufgabe.",
+  "description": "Eine Pipeline für ein kleines Vertriebsteam: fünf offene Phasen, Gewonnen und Verloren, ein gewichteter Wert je Verkaufschance, das Entscheidergremium an der Chance, Verlust- und Gewinngrund und die wöchentliche Durchsicht. Die Gewichtung ist eine Pipeline-Gewichtung und keine Prognose: Ersetzen Sie sie nach 20 bis 30 abgeschlossenen Chancen durch Ihre eigenen Abschlussquoten.",
+  "lists": {
+    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen auf der Kundenseite mit ihrer Rolle in der Entscheidung." },
+    "accounts": { "label": "Unternehmen", "pluralLabel": "Unternehmen", "description": "Die Firmen, an die du verkaufst." },
+    "opportunities": { "label": "Verkaufschance", "pluralLabel": "Verkaufschancen", "description": "Eine Chance vom ersten Kontakt bis gewonnen oder verloren." }
+  },
+  "fields": {
+    "opportunities.stage": {
+      "label": "Phase",
+      "options": {
+        "new": "Neu",
+        "qualified": "Qualifiziert",
+        "discovery": "Bedarfsanalyse",
+        "proposal_sent": "Angebot gesendet",
+        "negotiation": "Verhandlung",
+        "won": "Gewonnen",
+        "lost": "Verloren"
+      }
+    },
+    "contacts.job_title": { "label": "Position" },
+    "contacts.buying_role": {
+      "label": "Rolle im Kaufprozess",
+      "options": {
+        "decision_maker": "Entscheider",
+        "budget_holder": "Budgetverantwortlicher",
+        "champion": "Fürsprecher",
+        "influencer": "Einflussnehmer",
+        "user": "Anwender",
+        "blocker": "Blockierer"
+      }
+    },
+    "contacts.language": { "label": "Sprache" },
+    "contacts.outreach_consent": { "label": "Einwilligung zur Ansprache" },
+    "accounts.relationship": {
+      "label": "Beziehung",
+      "options": { "prospect": "Interessent", "customer": "Kunde", "former_customer": "Ehemaliger Kunde", "partner": "Partner" }
+    },
+    "accounts.size": {
+      "label": "Größe",
+      "options": { "micro": "1 bis 10", "small": "11 bis 50", "medium": "51 bis 250", "large": "251 und mehr" }
+    },
+    "accounts.industry": { "label": "Branche" },
+    "accounts.website": { "label": "Website" },
+    "accounts.address": { "label": "Anschrift" },
+    "accounts.owner": { "label": "Betreuer" },
+    "opportunities.owner": { "label": "Verantwortlich" },
+    "opportunities.deal_type": {
+      "label": "Art der Chance",
+      "options": { "new_business": "Neugeschäft", "expansion": "Erweiterung", "renewal": "Verlängerung" }
+    },
+    "opportunities.source": {
+      "label": "Herkunft",
+      "options": {
+        "referral": "Empfehlung",
+        "inbound": "Anfrage von außen",
+        "outbound": "Eigene Akquise",
+        "event": "Veranstaltung",
+        "partner": "Partner",
+        "existing_customer": "Bestandskunde",
+        "other": "Sonstiges"
+      }
+    },
+    "opportunities.first_contact_on": { "label": "Erstkontakt" },
+    "opportunities.expected_close": { "label": "Erwarteter Abschluss" },
+    "opportunities.closed_on": { "label": "Abgeschlossen am" },
+    "opportunities.next_step": { "label": "Nächster Schritt" },
+    "opportunities.next_step_due": { "label": "Wiedervorlage" },
+    "opportunities.decision_date": { "label": "Entscheidungstermin" },
+    "opportunities.competitor": { "label": "Wettbewerber" },
+    "opportunities.lost_reason": {
+      "label": "Verlustgrund",
+      "options": {
+        "price": "Preis",
+        "competitor": "Wettbewerber",
+        "no_budget_or_decision": "Kein Budget oder keine Entscheidung",
+        "timing": "Zeitpunkt",
+        "no_response": "Keine Antwort",
+        "not_a_fit": "Passt nicht",
+        "other": "Sonstiges"
+      }
+    },
+    "opportunities.won_reason": { "label": "Gewinngrund" },
+    "opportunities.weighted_value": { "label": "Gewichteter Wert" },
+    "opportunities.cycle_days": { "label": "Dauer in Tagen" },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "call": "Anruf",
+        "email": "E-Mail",
+        "meeting": "Termin",
+        "proposal": "Angebot",
+        "follow_up": "Nachfassen",
+        "handover": "Übergabe",
+        "review": "Prüfung",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "contact_account": { "sourceLabel": "Unternehmen", "targetLabel": "Kontakte" },
+    "opportunity_account": { "sourceLabel": "Unternehmen", "targetLabel": "Verkaufschancen" },
+    "opportunity_contacts": { "sourceLabel": "Entscheidergremium", "targetLabel": "Verkaufschancen" },
+    "action_opportunity": { "sourceLabel": "Verkaufschance", "targetLabel": "Aufgaben" },
+    "action_contact": { "sourceLabel": "Kontakt", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "pipeline_board": { "name": "Pipeline" },
+    "opportunities_all": { "name": "Alle Verkaufschancen" },
+    "no_next_step": { "name": "Ohne nächsten Schritt" },
+    "won_handover": { "name": "Gewonnen, zu übergeben" },
+    "lost_to_revisit": { "name": "Verloren, wieder aufgreifen" },
+    "actions_all": { "name": "Alle Aufgaben" },
+    "accounts_all": { "name": "Alle Unternehmen" },
+    "contacts_all": { "name": "Alle Kontakte" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Offene Verkaufschancen nach Phase" },
+    "open_value_by_stage": { "title": "Offener Wert nach Phase" },
+    "weighted_value_by_stage": { "title": "Gewichteter Wert nach Phase" },
+    "open_opportunities": { "title": "Offene Verkaufschancen" },
+    "open_value": { "title": "Offener Wert" },
+    "open_weighted_value": { "title": "Offener gewichteter Wert" },
+    "won_last_90_days": { "title": "Gewonnen in den letzten 90 Tagen" },
+    "lost_reasons": { "title": "Verlustgründe" },
+    "pipeline_by_owner": { "title": "Offener Wert je Verantwortlichem" },
+    "deals_without_next_step": { "title": "Chancen ohne nächsten Schritt" },
+    "upcoming_actions": { "title": "Anstehende und überfällige Aufgaben" },
+    "expected_closes": { "title": "Erwartete Abschlüsse" }
+  },
+  "knowledgePages": {
+    "stages_exit_criteria": {
+      "title": "Vertriebsphasen und Abschlusskriterien",
+      "sections": ["Eintritts- und Austrittskriterium je Phase", "Wer eine Chance verschieben darf und mit welchem Nachweis", "Gewichtung und wann du sie ersetzt"]
+    },
+    "qualification_questions": {
+      "title": "Qualifizierungsfragen",
+      "sections": ["Budget, Entscheidungsbefugnis, Bedarf und Zeitpunkt", "Was passiert, wenn der Interessent nichts tut", "Wer entscheidet noch mit"]
+    },
+    "proposal_cadence": {
+      "title": "Angebots- und Nachfass-Rhythmus",
+      "sections": ["Nachfassen nach 3 und nach 10 Tagen", "Eine abschließende Nachricht", "Danach ein Wiedervorlagetermin"]
+    },
+    "weekly_review": {
+      "title": "Wöchentliche Pipeline-Durchsicht",
+      "sections": ["Stockende Chancen", "Chancen nach dem erwarteten Abschluss", "Chancen ohne nächsten Schritt", "Die fünf größten nach gewichtetem Wert"]
+    },
+    "win_loss_review": {
+      "title": "Gewinn- und Verlustanalyse",
+      "sections": ["Jeden Monat Verlustgründe und Wettbewerber lesen", "Gewinngründe lesen", "Eine Verbesserungsaufgabe festlegen"]
+    },
+    "message_templates": {
+      "title": "Vorlagen für Nachfassnachrichten",
+      "sections": ["Erste Antwort", "Nach der Bedarfsanalyse", "Begleitschreiben zum Angebot", "Nachfassen zum Angebot", "Abschluss: Der Zeitpunkt passt vielleicht nicht", "Wiederaufnahme nach 90 Tagen"]
+    }
+  },
+  "rules": {
+    "qualify_new_opportunity": {
+      "title": "Neue Verkaufschance qualifizieren",
+      "description": "Eine neue Verkaufschance erhält eine Anruf-Aufgabe, fällig am nächsten Tag."
+    },
+    "book_discovery_call": {
+      "title": "Termin zur Bedarfsanalyse vereinbaren",
+      "description": "Wird eine Chance Qualifiziert, ist in 3 Tagen eine Termin-Aufgabe fällig."
+    },
+    "send_proposal": {
+      "title": "Angebot senden",
+      "description": "Erreicht eine Chance die Bedarfsanalyse, ist in 5 Tagen eine Angebots-Aufgabe fällig."
+    },
+    "follow_up_proposal": {
+      "title": "Zum Angebot nachfassen",
+      "description": "Drei Tage nach dem Angebot wird eine Aufgabe zum Nachfassen fällig."
+    },
+    "second_proposal_follow_up": {
+      "title": "Zweites Nachfassen zum Angebot",
+      "description": "Zehn Tage nach dem Angebot wird eine zweite Aufgabe zum Nachfassen fällig. Schließe sie, wenn der Interessent schon geantwortet hat."
+    },
+    "confirm_decision": {
+      "title": "Entscheidungstermin und Entscheider bestätigen",
+      "description": "Erreicht eine Chance die Verhandlung, ist in 5 Tagen eine Aufgabe zum Nachfassen fällig."
+    },
+    "won_close_date": {
+      "title": "Abschlussdatum setzen",
+      "description": "Wird eine Chance gewonnen, wird Abgeschlossen am auf heute gesetzt."
+    },
+    "won_handover": {
+      "title": "Gewonnene Chance übergeben",
+      "description": "Am Tag nach dem Abschluss ist eine Übergabe-Aufgabe fällig. Trage den Gewinngrund ein."
+    },
+    "lost_revisit": {
+      "title": "Verlorene Chance wieder aufgreifen",
+      "description": "Neunzig Tage nach dem Verlust fragt eine Aufgabe zum Nachfassen, ob sich der Zeitpunkt geändert hat. Trage vorher den Verlustgrund ein."
+    },
+    "stale_deal_sweep": {
+      "title": "Stockende Chance wiederbeleben oder aussortieren",
+      "description": "Eine offene Chance, die 14 Tage in derselben Phase blieb, erhält eine Aufgabe zum Nachfassen."
+    },
+    "expected_close_passed": {
+      "title": "Erwarteten Abschluss anpassen oder Chance schließen",
+      "description": "Ist der erwartete Abschluss einer offenen Chance verstrichen, entsteht eine Prüfungs-Aufgabe."
+    },
+    "next_step_due_notice": {
+      "title": "Verantwortlichen an den fälligen nächsten Schritt erinnern",
+      "description": "Sobald die Wiedervorlage einer offenen Chance erreicht ist, wird der Verantwortliche benachrichtigt."
+    },
+    "weekly_pipeline_report": {
+      "title": "Wöchentlicher Pipeline-Bericht",
+      "description": "Jeden Freitag listet eine Prüfungs-Aufgabe Anzahl und Wert je Phase und Verantwortlichem, gewonnene und verlorene Chancen mit Gründen und Chancen nach dem erwarteten Abschluss."
+    },
+    "enquiry_form_records": {
+      "title": "Kontakt, Unternehmen und Verkaufschance aus einer Anfrage anlegen",
+      "description": "Ein Anfrageformular auf der Website legt den Kontakt, das Unternehmen und eine Verkaufschance in der Phase Neu an."
+    },
+    "enquiry_form_notice": {
+      "title": "Verantwortlichen über die Anfrage informieren",
+      "description": "Der Verantwortliche wird über jede neue Anfrage benachrichtigt."
+    },
+    "fill_missing_value": {
+      "title": "Wert dieser Chance eintragen",
+      "description": "Eine Chance, die ohne Wert die Bedarfsanalyse erreicht, erhält eine Prüfungs-Aufgabe."
+    },
+    "fill_expected_close": {
+      "title": "Erwarteten Abschluss dieser Chance eintragen",
+      "description": "Eine Chance, die ohne erwarteten Abschluss die Phase Angebot gesendet erreicht, erhält eine Prüfungs-Aufgabe."
+    }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Jede Verkaufschance hat eine von sieben Phasen.",
+    "weighted_value_field": "Jede Verkaufschance zeigt ihren gewichteten Wert.",
+    "pipeline_board_view": "Die Liste der Verkaufschancen öffnet sich als Board nach Phase mit Summen.",
+    "funnel_widget": "Das Dashboard zeigt offene Verkaufschancen nach Phase als Trichter.",
+    "proposal_follow_up_rule": "Eine Chance, die Angebot gesendet erreicht, erhält eine Aufgabe zum Nachfassen.",
+    "stages_page": "Die Wissensdatenbank enthält die Phasen und ihre Abschlusskriterien."
+  },
+  "page": {
+    "metaTitle": "Vertriebspipeline als Vorlage für Ihren KI-Agenten",
+    "metaDescription": "Kopieren Sie die Vertriebspipeline in Claude, ChatGPT oder Codex: sieben Phasen mit Gewichtung und ein nächster Schritt mit Datum je Chance.",
+    "headline": "Eine Vertriebspipeline, die Ihr KI-Agent in Ihrem CRM aufbaut",
+    "answer": "Die Pipeline eines kleinen Teams braucht wenige Phasen, für jede ein Abschlusskriterium, einen gewichteten Wert und bei jeder offenen Chance einen nächsten Schritt mit Datum. Fügen Sie diese Vorlage in Ihren KI-Agenten ein, und er baut die Pipeline in Customermates auf: sieben Phasen, die Entscheider auf jeder Chance, Gründe für gewonnen und verloren und eine Aufgabe bei jedem Phasenwechsel. Sie genehmigen den Plan, bevor etwas geschrieben wird.",
+    "routine": {
+      "title": "Die wöchentliche Pipeline-Durchsicht",
+      "steps": [
+        "Öffnen Sie das Board und sehen Sie sich jede Chance an, die länger als 14 Tage in ihrer Phase steht.",
+        "Entscheiden Sie je Chance: weiterschieben, weil das Abschlusskriterium erfüllt ist, mit einem neuen nächsten Schritt wiederbeleben oder mit Grund als verloren schließen.",
+        "Prüfen Sie, dass jede offene Chance einen nächsten Schritt mit Datum hat, gesetzt am Ende jedes Gesprächs.",
+        "Sehen Sie gewonnene und verlorene Chancen mit ihren Gründen durch, dazu die Chancen nach dem erwarteten Abschluss."
+      ]
+    },
+    "limits": [
+      "Es erstellt keine Angebote oder Rechnungen. Das Angebot entsteht in Ihrem Dokumentenwerkzeug und wird mit der Chance verknüpft.",
+      "Es ist kein Werkzeug für Sequenzen oder Massenansprache. Nachfassen sind Entwürfe für einzelne Personen, und Sie senden sie selbst.",
+      "Es gibt kein Lead-Scoring, keine Anreicherung, keine Forecast-Kategorien und keine Quoten- oder Provisionsverwaltung. Der gewichtete Wert ist eine einfache Gewichtung Ihrer Chancenwerte nach Phase, keine Prognose.",
+      "Telefonie und SMS gibt es nicht.",
+      "Erinnerungen kommen aus Automatisierungsregeln und Benachrichtigungen oder aus einer Routine, die Ihr Agent nach Zeitplan ausführt. Die Vorlage schlägt sie vor, Sie entscheiden, welche Sie einschalten.",
+      "Ausgelegt ist es für ein bis zehn Vertriebsmitarbeitende. Teams mit einem förmlichen Forecast-Prozess sind mit einem dafür gebauten Werkzeug besser bedient."
+    ],
+    "faq": [
+      {
+        "question": "Wie viele Phasen sollte eine Vertriebspipeline haben?",
+        "answer": "Die Meinungen gehen auseinander: Manche raten zu fünf oder weniger, andere nutzen neun. Diese Vorlage hat fünf offene Phasen plus gewonnen und verloren, weil jede Phase ein messbares Abschlusskriterium hat. Benennen Sie Phasen im Plan, den Ihr Agent vorschlägt, um oder lassen Sie welche weg."
+      },
+      {
+        "question": "Was ist der gewichtete Wert einer Chance?",
+        "answer": "Der Wert der Chance multipliziert mit der Gewichtung ihrer Phase, zum Beispiel 10, 25, 40, 60 und 80 Prozent von der ersten bis zur fünften Phase. Es ist eine Gewichtung, die Sie an Ihre eigenen Abschlussquoten anpassen können, keine Vorhersage."
+      },
+      {
+        "question": "Warum einen Grund für gewonnen und verloren festhalten?",
+        "answer": "Auswertungen einer Pipeline funktionieren nur, wenn beide Ergebnisse existieren, und die Gründe zeigen, was zu ändern ist. Die Vorlage fragt beim Schließen nach einem Grund und legt eine Folgeaufgabe an, um verlorene Chancen nach 90 Tagen wieder aufzugreifen."
+      },
+      {
+        "question": "Versendet der Agent meine Nachfassnachrichten?",
+        "answer": "Nein. Der Prompt weist den Agenten an, nichts zu versenden und keine Beispieldaten anzulegen. Entwürfe gibt es nur auf Ihre Bitte, und Sie senden sie selbst."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Richte in meinem Customermates-Workspace eine Vertriebspipeline ein: Verkaufschancen mit sieben Phasen und Gewichtung, einem gewichteten Wert, einem terminierten nächsten Schritt bei jeder offenen Chance, Verlust- und Gewinngründen, dem Entscheidergremium an jeder Chance und einer Aufgabe bei jedem Phasenwechsel.",
+    "questions": [
+      "Was verkaufst du, und wie viele Personen verkaufen es?",
+      "Welche Schritte durchläuft eine Chance vom Erstkontakt bis zur Unterschrift? Welche der sieben Phasen passen, und welche brauchen andere Namen?",
+      "Wie lange dauert eine typische Chance, und nach wie vielen Tagen ohne Bewegung gilt sie als stockend?",
+      "Welche Abschlussquoten kennst du aus früheren Chancen? Gibt es keine, bleibt die Standard-Gewichtung.",
+      "Wo erstellst du Angebote? Sie bleiben dort, hier wird nur ein Link gespeichert."
+    ]
+  }
+}

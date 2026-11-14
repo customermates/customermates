@@ -1,0 +1,92 @@
+{
+  "locale": "nl",
+  "name": "Formulier naar CRM",
+  "summary": "Aanvragen uit webformulieren omzetten in opgevolgde leads: een aanvraag per inzending met bron, een uiterste antwoorddatum, een fase van nieuw tot omgezet, en spam en niet passend apart.",
+  "description": "Elke aanvraag uit een contact-, offerte- of intakeformulier wordt een aanvraag gekoppeld aan een contactpersoon, met het formulier waaruit ze kwam, waar de bezoeker vandaan kwam, wanneer het nodig is en een uiterste antwoorddatum de volgende dag. Aanvragen lopen van nieuw tot omgezet, niet passend of spam, en een aanvraag zonder antwoord wordt gesignaleerd. Toestemming en een controledatum horen bij de verzamelde gegevens. Geen formulierenbouwer voor betalingen, quizzen of het uploaden van gevoelige documenten.",
+  "lists": {
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen die je via een formulier schrijven." },
+    "requests": { "label": "Aanvraag", "pluralLabel": "Aanvragen", "description": "Eén inzending van een formulier, van nieuw tot omgezet, niet passend of spam." }
+  },
+  "fields": {
+    "contacts.company_name": { "label": "Bedrijf" },
+    "contacts.language": { "label": "Taal" },
+    "contacts.marketing_consent": { "label": "Toestemming voor marketingmail" },
+    "contacts.marketing_consent_on": { "label": "Toestemming gegeven op" },
+    "requests.stage": {
+      "label": "Fase",
+      "options": { "new": "Nieuw", "contacted": "Gecontacteerd", "qualified": "Gekwalificeerd", "converted": "Omgezet", "not_a_fit": "Niet passend", "spam": "Spam" }
+    },
+    "requests.form": { "label": "Formulier", "options": { "contact": "Contactformulier", "quote_request": "Offerteaanvraag", "intake": "Intakeformulier", "callback": "Terugbelverzoek", "other": "Overig" } },
+    "requests.owner": { "label": "Eigenaar" },
+    "requests.service_interest": { "label": "Gewenste dienst" },
+    "requests.needed_by": {
+      "label": "Gewenst uiterlijk",
+      "options": { "asap": "Zo snel mogelijk", "within_a_month": "Binnen een maand", "within_three_months": "Binnen drie maanden", "just_looking": "Gewoon oriënteren", "no_answer": "Niet ingevuld" }
+    },
+    "requests.budget_band": { "label": "Budget", "options": { "no_answer": "Niet ingevuld", "low": "Laag", "medium": "Gemiddeld", "high": "Hoog" } },
+    "requests.submitted_at": { "label": "Ontvangen" },
+    "requests.first_response_at": { "label": "Eerste reactie" },
+    "requests.utm_source": { "label": "Waar de bezoeker vandaan kwam" },
+    "requests.landing_page": { "label": "Pagina van het formulier" },
+    "requests.repeat_submission": { "label": "Eerder geschreven" },
+    "requests.not_a_fit_reason": {
+      "label": "Waarom niet passend",
+      "options": { "out_of_area": "Buiten ons gebied", "no_budget": "Geen budget", "wrong_service": "Verkeerde dienst", "no_response": "Geen reactie", "duplicate": "Dubbel", "other": "Overig" }
+    },
+    "requests.closed_on": { "label": "Gesloten op" },
+    "requests.data_review_on": { "label": "Gegevens controleren op" },
+    "requests.days_to_close": { "label": "Dagen van inzending tot afsluiting" },
+    "actions.kind": {
+      "label": "Soort",
+      "options": { "reply": "Reageren", "qualify_call": "Kwalificatiegesprek", "send_quote": "Offerte sturen", "convert": "Overdragen aan de pijplijn", "chase": "Opvolgen", "data_review": "Gegevens controleren", "other": "Overig" }
+    }
+  },
+  "relationships": {
+    "request_contact": { "sourceLabel": "Contactpersoon", "targetLabel": "Aanvragen" },
+    "action_request": { "sourceLabel": "Aanvraag", "targetLabel": "Acties" }
+  },
+  "views": {
+    "requests_all": { "name": "Alle aanvragen" },
+    "requests_board": { "name": "Aanvragenbord" },
+    "new_requests": { "name": "Nieuwe aanvragen" },
+    "closed_without_deal": { "name": "Niet passend of spam" },
+    "contacts_all": { "name": "Alle contactpersonen" }
+  },
+  "widgets": {
+    "requests_funnel": { "title": "Aanvragen per fase" },
+    "requests_per_week": { "title": "Aanvragen per week" },
+    "requests_by_form": { "title": "Aanvragen per formulier" },
+    "new_requests_count": { "title": "Nieuwe aanvragen" },
+    "not_a_fit_reasons": { "title": "Waarom aanvragen niet passen" },
+    "average_days_to_close": { "title": "Gemiddeld aantal dagen tot afsluiting" }
+  },
+  "knowledgePages": {
+    "form_playbook": { "title": "Draaiboek van formulier naar CRM", "sections": ["Welke formulieren we gebruiken en wie antwoordt", "Hoe snel we antwoorden"] },
+    "privacy_notice": { "title": "Privacyverklaring voor formulieren", "sections": ["Wat we bij het formulier vermelden", "Hoe lang we een aanvraag bewaren"] },
+    "spam_and_duplicates": { "title": "Spam en herhaalde inzendingen", "sections": ["Wat als spam geldt", "Wat we doen als dezelfde persoon opnieuw schrijft"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Maak een contactpersoon en een aanvraag aan als het aanvraagformulier is ingediend" },
+    "reply_task": { "title": "Maak een actie aan om de volgende dag te antwoorden als een aanvraag binnenkomt" },
+    "first_response_missed": { "title": "Waarschuw de teamleider als een aanvraag een dag na ontvangst nog nieuw is" },
+    "chase_contacted": { "title": "Volg een gecontacteerde aanvraag op die 3 dagen stilstaat" },
+    "converted_task": { "title": "Draag de aanvraag over aan de pijplijn als ze wordt omgezet" },
+    "review_date_not_a_fit": { "title": "Zet de controledatum van de gegevens een jaar later als een aanvraag niet past" },
+    "data_review": { "title": "Controleer de gegevens als de controledatum is bereikt" },
+    "external_form_records": { "title": "Maak een contactpersoon en een aanvraag aan als een ander formuliertool een inzending stuurt" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Elke aanvraag heeft een fase.",
+    "submitted_field": "Elke aanvraag legt vast wanneer ze is ontvangen.",
+    "requests_board_view": "De aanvragen openen als bord per fase."
+  },
+  "prompt": {
+    "intro": "Richt in mijn Customermates-werkruimte de stap van formulier naar CRM in: een aanvraag per inzending met bron, een uiterste antwoorddatum, zes fasen, toestemming en een controledatum voor gegevens, en opvolging met datum.",
+    "questions": [
+      "Welke formulieren gebruik je en wat moet je weten om een aanvraag te prijzen of door te sturen?",
+      "Wie antwoordt en binnen welke tijd beloof je te reageren?",
+      "Wat vertel je mensen bij het formulier over hun gegevens?",
+      "Gebruik je een ander formuliertool zoals Typeform, Tally of Jotform?"
+    ]
+  }
+}

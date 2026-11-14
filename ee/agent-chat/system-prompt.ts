@@ -21,6 +21,7 @@ type SystemPromptContext = {
   triggerEvent?: string | null;
   loadedToolsets?: readonly string[];
   schemaDigest?: string | null;
+  templateRules?: string | null;
 };
 
 const ROUTINE_TRIGGER_EVENT_PATTERN = /^(?:\uFEFF)?[ \t]*<routine_trigger\b[^>]*\bevent="([^"\r\n]{1,80})"/;
@@ -122,6 +123,7 @@ export function agentSystemPromptParts(context: SystemPromptContext): AgentSyste
   ].join("\n");
   const volatile = [
     ...(context.schemaDigest ? [context.schemaDigest, ""] : []),
+    ...(context.templateRules && context.surface === "chat" ? [context.templateRules, ""] : []),
     capabilitiesParagraph(context.loadedToolsets ?? []),
     "",
     `You are helping ${context.userName}. Today is ${new Date().toISOString().slice(0, 10)}. Write every reply in ${languageName(context.locale)}, whatever language the workspace data happens to be in, unless the user writes to you in a different language and clearly wants that one instead. Use proper German umlauts when writing German.`,

@@ -1,0 +1,4503 @@
+{
+  "spec": {
+    "id": "tpl_nonprofit_donors_and_members",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "nonprofit-donors-and-members",
+    "family": "community",
+    "kind": "register",
+    "jurisdictions": [
+      "DE",
+      "FR",
+      "IT",
+      "ES",
+      "BR",
+      "PL",
+      "NL"
+    ],
+    "dashboardAudience": "team",
+    "requiresCapabilities": [
+      "forms",
+      "rules"
+    ],
+    "pairedPages": {},
+    "modules": [
+      "actions_core",
+      "actions_dashboard"
+    ],
+    "lists": [
+      {
+        "key": "supporters",
+        "role": "people",
+        "icon": "heart"
+      },
+      {
+        "key": "memberships",
+        "icon": "idCard"
+      },
+      {
+        "key": "gifts",
+        "icon": "gift"
+      },
+      {
+        "key": "gift_opportunities",
+        "role": "deals",
+        "icon": "coins"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "supporters.member_number",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "supporters.supporter_types",
+        "type": "select",
+        "required": false,
+        "multiple": true,
+        "options": [
+          {
+            "key": "member"
+          },
+          {
+            "key": "donor"
+          },
+          {
+            "key": "volunteer"
+          },
+          {
+            "key": "guest"
+          },
+          {
+            "key": "board_member"
+          }
+        ]
+      },
+      {
+        "key": "supporters.lifecycle_status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "prospect"
+          },
+          {
+            "key": "active",
+            "color": "success"
+          },
+          {
+            "key": "lapsed",
+            "color": "warning"
+          },
+          {
+            "key": "former",
+            "color": "secondary"
+          },
+          {
+            "key": "do_not_contact",
+            "color": "destructive"
+          }
+        ]
+      },
+      {
+        "key": "supporters.joined_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "supporters.relationship_owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "supporters.contact_consent",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "granted",
+            "color": "success"
+          },
+          {
+            "key": "not_granted",
+            "color": "destructive"
+          },
+          {
+            "key": "unknown"
+          }
+        ]
+      },
+      {
+        "key": "supporters.consent_date",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "supporters.last_contact_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "memberships.level",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "regular"
+          },
+          {
+            "key": "reduced"
+          },
+          {
+            "key": "family"
+          },
+          {
+            "key": "youth"
+          },
+          {
+            "key": "supporting"
+          },
+          {
+            "key": "honorary"
+          }
+        ]
+      },
+      {
+        "key": "memberships.fee",
+        "type": "currency",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "memberships.billing_cycle",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "yearly"
+          },
+          {
+            "key": "quarterly"
+          },
+          {
+            "key": "monthly"
+          },
+          {
+            "key": "one_off"
+          },
+          {
+            "key": "none"
+          }
+        ]
+      },
+      {
+        "key": "memberships.fee_status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "paid",
+            "color": "success"
+          },
+          {
+            "key": "reminded",
+            "color": "warning"
+          },
+          {
+            "key": "overdue",
+            "color": "destructive"
+          },
+          {
+            "key": "waived",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "memberships.mandate_on_file",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "memberships.started_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "memberships.renewal_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "memberships.end_reason",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "moved_away"
+          },
+          {
+            "key": "cost"
+          },
+          {
+            "key": "lost_interest"
+          },
+          {
+            "key": "dissatisfied"
+          },
+          {
+            "key": "unpaid_fees"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "gifts.received_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "gifts.amount",
+        "type": "currency",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "gifts.gift_type",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "one_off"
+          },
+          {
+            "key": "recurring"
+          },
+          {
+            "key": "pledge_payment"
+          },
+          {
+            "key": "in_kind"
+          },
+          {
+            "key": "legacy"
+          }
+        ]
+      },
+      {
+        "key": "gifts.fund",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "unrestricted"
+          },
+          {
+            "key": "restricted_project"
+          },
+          {
+            "key": "appeal"
+          },
+          {
+            "key": "event"
+          },
+          {
+            "key": "in_memory"
+          }
+        ]
+      },
+      {
+        "key": "gifts.acknowledgement_status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "to_acknowledge",
+            "color": "warning"
+          },
+          {
+            "key": "acknowledged",
+            "color": "success"
+          },
+          {
+            "key": "not_needed",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "gifts.receipt_status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "not_needed",
+            "color": "secondary"
+          },
+          {
+            "key": "to_issue",
+            "color": "warning"
+          },
+          {
+            "key": "issued",
+            "color": "success"
+          },
+          {
+            "key": "annual_summary_sent",
+            "color": "success"
+          }
+        ]
+      },
+      {
+        "key": "gift_opportunities.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "major_gift"
+          },
+          {
+            "key": "grant"
+          },
+          {
+            "key": "sponsorship"
+          },
+          {
+            "key": "legacy"
+          },
+          {
+            "key": "campaign_pledge"
+          }
+        ]
+      },
+      {
+        "key": "gift_opportunities.solicitor",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "gift_opportunities.ask_date",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "gift_opportunities.decision_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "gift_opportunities.report_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "thank_donor"
+          },
+          {
+            "key": "issue_receipt"
+          },
+          {
+            "key": "welcome_member"
+          },
+          {
+            "key": "renewal_notice"
+          },
+          {
+            "key": "chase_fee"
+          },
+          {
+            "key": "ask"
+          },
+          {
+            "key": "report_to_funder"
+          },
+          {
+            "key": "call_or_visit"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "memberships.status",
+        "items": [
+          {
+            "key": "applied",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "active",
+            "outcome": "won",
+            "weight": 100
+          },
+          {
+            "key": "grace_period",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "lapsed",
+            "outcome": "lost",
+            "weight": 0
+          },
+          {
+            "key": "resigned",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      },
+      {
+        "field": "gift_opportunities.stage",
+        "items": [
+          {
+            "key": "identified",
+            "outcome": "open",
+            "weight": 5
+          },
+          {
+            "key": "qualified",
+            "outcome": "open",
+            "weight": 10
+          },
+          {
+            "key": "cultivation",
+            "outcome": "open",
+            "weight": 25
+          },
+          {
+            "key": "ask_made",
+            "outcome": "open",
+            "weight": 50
+          },
+          {
+            "key": "pledged",
+            "outcome": "open",
+            "weight": 85
+          },
+          {
+            "key": "received",
+            "outcome": "won",
+            "weight": 100
+          },
+          {
+            "key": "declined",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [],
+    "relationships": [
+      {
+        "key": "membership_supporter",
+        "source": "memberships",
+        "target": "supporters",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "gift_supporter",
+        "source": "gifts",
+        "target": "supporters",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "opportunity_supporter",
+        "source": "gift_opportunities",
+        "target": "supporters",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_supporter",
+        "source": "actions",
+        "target": "supporters",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "supporters_all",
+        "list": "supporters",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "supporters.supporter_types",
+          "supporters.lifecycle_status",
+          "supporters.relationship_owner",
+          "supporters.last_contact_on"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "memberships_all",
+        "list": "memberships",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "memberships.renewal_due",
+          "direction": "asc"
+        },
+        "columns": [
+          "memberships.status",
+          "memberships.level",
+          "memberships.fee",
+          "memberships.fee_status",
+          "memberships.renewal_due"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "memberships_board",
+        "list": "memberships",
+        "default": false,
+        "layout": "board",
+        "groupBy": "memberships.status",
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "fees_to_chase",
+        "list": "memberships",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "memberships.status",
+            "options": [
+              "active",
+              "grace_period"
+            ]
+          },
+          {
+            "operator": "in",
+            "field": "memberships.fee_status",
+            "options": [
+              "open",
+              "reminded",
+              "overdue"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "gifts_all",
+        "list": "gifts",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "gifts.received_on",
+          "direction": "desc"
+        },
+        "columns": [
+          "gifts.received_on",
+          "gifts.amount",
+          "gifts.fund",
+          "gifts.receipt_status"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "receipts_to_issue",
+        "list": "gifts",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "gifts.receipt_status",
+            "options": [
+              "to_issue"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "opportunities_board",
+        "list": "gift_opportunities",
+        "default": true,
+        "layout": "board",
+        "groupBy": "gift_opportunities.stage",
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "chart",
+        "key": "memberships_by_status",
+        "list": "memberships",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "memberships.status"
+        },
+        "filters": [],
+        "display": "doughnutChart"
+      },
+      {
+        "kind": "chart",
+        "key": "gifts_per_month",
+        "list": "gifts",
+        "aggregation": "sum",
+        "valueField": "gifts.amount",
+        "groupBy": {
+          "path": [],
+          "field": "gifts.received_on",
+          "dateInterval": "month"
+        },
+        "filters": [],
+        "display": "areaChart"
+      },
+      {
+        "kind": "chart",
+        "key": "gifts_by_fund",
+        "list": "gifts",
+        "aggregation": "sum",
+        "valueField": "gifts.amount",
+        "groupBy": {
+          "path": [],
+          "field": "gifts.fund"
+        },
+        "filters": [],
+        "display": "verticalBarChart"
+      },
+      {
+        "kind": "chart",
+        "key": "open_pipeline_value",
+        "list": "gift_opportunities",
+        "aggregation": "sum",
+        "valueField": "gift_opportunities.value",
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "gift_opportunities.stage",
+            "options": [
+              "received",
+              "declined"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "calendar",
+        "key": "renewals_coming",
+        "list": "memberships",
+        "layout": "upcoming",
+        "dateField": "memberships.renewal_due",
+        "amountField": null,
+        "filters": []
+      },
+      {
+        "kind": "chart",
+        "key": "receipts_to_issue_count",
+        "list": "gifts",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "gifts.receipt_status",
+            "options": [
+              "to_issue"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_actions",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "register_rules",
+        "kind": "overview"
+      },
+      {
+        "key": "renewals_and_fees",
+        "kind": "processes"
+      },
+      {
+        "key": "receipts_and_thanks",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "thank_donor",
+        "trigger": {
+          "kind": "record_created",
+          "list": "gifts"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "thank_donor",
+          "assignee": "workspace_owner",
+          "about": "gifts"
+        },
+        "dueOffsetDays": 2,
+        "needs": "today"
+      },
+      {
+        "key": "issue_receipt",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "gifts.receipt_status",
+          "to": "to_issue"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "issue_receipt",
+          "assignee": "workspace_owner",
+          "about": "gifts"
+        },
+        "dueOffsetDays": 14,
+        "needs": "today"
+      },
+      {
+        "key": "welcome_member",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "memberships.status",
+          "to": "applied"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "welcome_member",
+          "assignee": "workspace_owner",
+          "about": "memberships"
+        },
+        "dueOffsetDays": 3,
+        "needs": "today"
+      },
+      {
+        "key": "renewal_notice",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "memberships.renewal_due",
+          "offsetDays": -60
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "memberships.status",
+            "options": [
+              "active"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "renewal_notice",
+          "assignee": "workspace_owner",
+          "about": "memberships"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "renewal_reminder",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "memberships.renewal_due",
+          "offsetDays": -30
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "memberships.fee_status",
+            "options": [
+              "open",
+              "reminded"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "chase_fee",
+          "assignee": "workspace_owner",
+          "about": "memberships"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "expiry_notice",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "memberships.renewal_due",
+          "offsetDays": 0
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "memberships.fee_status",
+            "options": [
+              "open",
+              "reminded",
+              "overdue"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "chase_fee",
+          "assignee": "workspace_owner",
+          "about": "memberships"
+        },
+        "dueOffsetDays": 1,
+        "needs": "rules"
+      },
+      {
+        "key": "report_to_funder",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "gift_opportunities.report_due",
+          "offsetDays": -14
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "report_to_funder",
+          "assignee": "workspace_owner",
+          "about": "gift_opportunities"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "join_form_records",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "membership"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "supporters",
+            "memberships"
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "forms"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "status_field",
+        "kind": "field_exists",
+        "ref": "memberships.status"
+      },
+      {
+        "key": "renewal_field",
+        "kind": "field_exists",
+        "ref": "memberships.renewal_due"
+      },
+      {
+        "key": "receipt_field",
+        "kind": "field_exists",
+        "ref": "gifts.receipt_status"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://bloomerang.com/blog/moves-management",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.irs.gov/charities-non-profits/charitable-organizations/charitable-organizations-substantiation-and-disclosure-requirements",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.whatstheprocessfor.com/blog/first-time-guest-follow-up-church",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.i4a.com/blog/membership-renewal-email-sequences/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.assoconnect.com/blog/4821-recu-fiscal-tout-ce-qu-il-faut-savoir-pour-votre-association",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.kvk.nl/wetten-en-regels/ga-als-vereniging-goed-om-met-privacy-en-avg/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.dr-datenschutz.de/datenschutz-im-verein/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.finanzamt.nrw.de/steuerinfos/weitere-themen/vereine-und-stiftungen/zuwendungsbestaetigung",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.legiscope.com/blog/rodo-stowarzyszenia-fundacje.html",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.planningcenter.com/people",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.wildapricot.com/blog/free-membership-database-template",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://neonone.com/resources/blog/donor-tracking-spreadsheets/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.airtable.com/use-cases/donor-campaign-tracking-nonprofit",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.verenigingen.nl/ledenadministratie/",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "status": {
+      "en": "draft",
+      "de": "draft",
+      "fr": "draft",
+      "it": "draft",
+      "es": "draft",
+      "pt": "draft",
+      "pl": "draft",
+      "nl": "draft"
+    },
+    "publicPage": {
+      "en": "own",
+      "de": "own",
+      "fr": "own",
+      "it": "own",
+      "es": "own",
+      "pt": "own",
+      "pl": "none",
+      "nl": "own"
+    },
+    "publishWave": {
+      "en": "hold",
+      "de": "wave2",
+      "fr": "wave1",
+      "it": "wave1",
+      "es": "wave1",
+      "pt": "wave2",
+      "nl": "wave2"
+    }
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Mitglieder- und Spendenverwaltung",
+      "summary": "Ein Register für Mitglieder, Spender und Ehrenamtliche: Mitgliedschaften mit Fälligkeit, Spenden mit Dank und Zuwendungsbestätigung, dazu eine Pipeline für Großspenden und Förderanträge.",
+      "description": "Für Vereine, gemeinnützige Organisationen und Kirchengemeinden: wer Sie unterstützt und wie, welche Mitgliedschaft bis wann läuft, welche Spende noch einen Dank oder eine Zuwendungsbestätigung braucht und welche Großspende oder Förderung gerade läuft. Es stellt keine Zuwendungsbestätigungen aus und zieht keine Beiträge ein, es zeigt, welche fällig sind.",
+      "lists": {
+        "actions": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "supporters": {
+          "label": "Unterstützer",
+          "pluralLabel": "Unterstützer",
+          "description": "Mitglieder, Spender, Ehrenamtliche, Gäste und Vorstand."
+        },
+        "memberships": {
+          "label": "Mitgliedschaft",
+          "pluralLabel": "Mitgliedschaften",
+          "description": "Eine Mitgliedschaft mit Beitrag und Fälligkeit."
+        },
+        "gifts": {
+          "label": "Spende",
+          "pluralLabel": "Spenden",
+          "description": "Jede Spende mit Dank und Zuwendungsbestätigung."
+        },
+        "gift_opportunities": {
+          "label": "Spendenvorhaben",
+          "pluralLabel": "Spendenvorhaben",
+          "description": "Großspenden, Förderungen und Sponsoring in Arbeit."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "memberships.status": {
+          "label": "Status",
+          "options": {
+            "applied": "Aufnahmeantrag",
+            "active": "Aktiv",
+            "grace_period": "Beitragsverzug",
+            "lapsed": "Erloschen",
+            "resigned": "Austritt"
+          }
+        },
+        "gift_opportunities.stage": {
+          "label": "Phase",
+          "options": {
+            "identified": "Erkannt",
+            "qualified": "Qualifiziert",
+            "cultivation": "Beziehungspflege",
+            "ask_made": "Bitte gestellt",
+            "pledged": "Zugesagt",
+            "received": "Eingegangen",
+            "declined": "Abgelehnt"
+          }
+        },
+        "supporters.member_number": {
+          "label": "Mitgliedsnummer",
+          "options": {}
+        },
+        "supporters.supporter_types": {
+          "label": "Art der Unterstützung",
+          "options": {
+            "member": "Mitglied",
+            "donor": "Spender",
+            "volunteer": "Ehrenamtliche",
+            "guest": "Gast",
+            "board_member": "Vorstand"
+          }
+        },
+        "supporters.lifecycle_status": {
+          "label": "Beziehung",
+          "options": {
+            "prospect": "Interessent",
+            "active": "Aktiv",
+            "lapsed": "Ruhend",
+            "former": "Ehemalig",
+            "do_not_contact": "Nicht kontaktieren"
+          }
+        },
+        "supporters.joined_on": {
+          "label": "Eintritt am",
+          "options": {}
+        },
+        "supporters.relationship_owner": {
+          "label": "Betreuer",
+          "options": {}
+        },
+        "supporters.contact_consent": {
+          "label": "Einwilligung zur Kontaktaufnahme",
+          "options": {
+            "granted": "Erteilt",
+            "not_granted": "Nicht erteilt",
+            "unknown": "Unbekannt"
+          }
+        },
+        "supporters.consent_date": {
+          "label": "Datum der Einwilligung",
+          "options": {}
+        },
+        "supporters.last_contact_on": {
+          "label": "Letzter Kontakt",
+          "options": {}
+        },
+        "memberships.level": {
+          "label": "Beitragsart",
+          "options": {
+            "regular": "Regulär",
+            "reduced": "Ermäßigt",
+            "family": "Familie",
+            "youth": "Jugend",
+            "supporting": "Fördermitglied",
+            "honorary": "Ehrenmitglied"
+          }
+        },
+        "memberships.fee": {
+          "label": "Beitrag",
+          "options": {}
+        },
+        "memberships.billing_cycle": {
+          "label": "Zahlweise",
+          "options": {
+            "yearly": "Jährlich",
+            "quarterly": "Vierteljährlich",
+            "monthly": "Monatlich",
+            "one_off": "Einmalig",
+            "none": "Keine"
+          }
+        },
+        "memberships.fee_status": {
+          "label": "Beitragsstatus",
+          "options": {
+            "open": "Offen",
+            "paid": "Bezahlt",
+            "reminded": "Erinnert",
+            "overdue": "Überfällig",
+            "waived": "Erlassen"
+          }
+        },
+        "memberships.mandate_on_file": {
+          "label": "SEPA-Lastschriftmandat vorhanden",
+          "options": {}
+        },
+        "memberships.started_on": {
+          "label": "Beginn am",
+          "options": {}
+        },
+        "memberships.renewal_due": {
+          "label": "Fälligkeit",
+          "options": {}
+        },
+        "memberships.end_reason": {
+          "label": "Austrittsgrund",
+          "options": {
+            "moved_away": "Umzug",
+            "cost": "Kosten",
+            "lost_interest": "Kein Interesse mehr",
+            "dissatisfied": "Unzufrieden",
+            "unpaid_fees": "Unbezahlte Beiträge",
+            "other": "Sonstiges"
+          }
+        },
+        "gifts.received_on": {
+          "label": "Eingegangen am",
+          "options": {}
+        },
+        "gifts.amount": {
+          "label": "Betrag",
+          "options": {}
+        },
+        "gifts.gift_type": {
+          "label": "Spendenart",
+          "options": {
+            "one_off": "Einmalspende",
+            "recurring": "Dauerspende",
+            "pledge_payment": "Zahlung auf Zusage",
+            "in_kind": "Sachspende",
+            "legacy": "Nachlass"
+          }
+        },
+        "gifts.fund": {
+          "label": "Verwendungszweck",
+          "options": {
+            "unrestricted": "Ohne Zweckbindung",
+            "restricted_project": "Projektbezogen",
+            "appeal": "Spendenaufruf",
+            "event": "Veranstaltung",
+            "in_memory": "Zum Gedenken"
+          }
+        },
+        "gifts.acknowledgement_status": {
+          "label": "Dank",
+          "options": {
+            "to_acknowledge": "Dank offen",
+            "acknowledged": "Bedankt",
+            "not_needed": "Nicht nötig"
+          }
+        },
+        "gifts.receipt_status": {
+          "label": "Zuwendungsbestätigung",
+          "options": {
+            "not_needed": "Nicht nötig",
+            "to_issue": "Auszustellen",
+            "issued": "Ausgestellt",
+            "annual_summary_sent": "Sammelbestätigung gesendet"
+          }
+        },
+        "gift_opportunities.kind": {
+          "label": "Art",
+          "options": {
+            "major_gift": "Großspende",
+            "grant": "Förderung",
+            "sponsorship": "Unternehmenssponsoring",
+            "legacy": "Nachlass",
+            "campaign_pledge": "Zusage zu einer Kampagne"
+          }
+        },
+        "gift_opportunities.solicitor": {
+          "label": "Angefragt von",
+          "options": {}
+        },
+        "gift_opportunities.ask_date": {
+          "label": "Datum der Anfrage",
+          "options": {}
+        },
+        "gift_opportunities.decision_on": {
+          "label": "Entscheidung am",
+          "options": {}
+        },
+        "gift_opportunities.report_due": {
+          "label": "Bericht fällig am",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "thank_donor": "Spender danken",
+            "issue_receipt": "Zuwendungsbestätigung ausstellen",
+            "welcome_member": "Mitglied begrüßen",
+            "renewal_notice": "Beitragsankündigung",
+            "chase_fee": "Beitrag anmahnen",
+            "ask": "Anfrage",
+            "report_to_funder": "Bericht an Geldgeber",
+            "call_or_visit": "Anruf oder Besuch",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "membership_supporter": {
+          "sourceLabel": "Mitglied",
+          "targetLabel": "Mitgliedschaften"
+        },
+        "gift_supporter": {
+          "sourceLabel": "Spender",
+          "targetLabel": "Spenden"
+        },
+        "opportunity_supporter": {
+          "sourceLabel": "Interessent",
+          "targetLabel": "Spendenvorhaben"
+        },
+        "action_supporter": {
+          "sourceLabel": "Unterstützer",
+          "targetLabel": "Aufgaben"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle Aufgaben"
+        },
+        "supporters_all": {
+          "name": "Alle Unterstützer"
+        },
+        "memberships_all": {
+          "name": "Alle Mitgliedschaften"
+        },
+        "memberships_board": {
+          "name": "Mitgliedschaften nach Status"
+        },
+        "fees_to_chase": {
+          "name": "Zu mahnende Beiträge"
+        },
+        "gifts_all": {
+          "name": "Alle Spenden"
+        },
+        "receipts_to_issue": {
+          "name": "Auszustellende Zuwendungsbestätigungen"
+        },
+        "opportunities_board": {
+          "name": "Spendenvorhaben"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Anstehende Aufgaben"
+        },
+        "overdue_actions": {
+          "title": "Überfällige Aufgaben"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        },
+        "memberships_by_status": {
+          "title": "Mitgliedschaften nach Status"
+        },
+        "gifts_per_month": {
+          "title": "Spenden pro Monat"
+        },
+        "gifts_by_fund": {
+          "title": "Spenden nach Verwendungszweck"
+        },
+        "open_pipeline_value": {
+          "title": "Offene Spendenpipeline"
+        },
+        "renewals_coming": {
+          "title": "Anstehende Beitragsfälligkeiten"
+        },
+        "receipts_to_issue_count": {
+          "title": "Auszustellende Zuwendungsbestätigungen"
+        }
+      },
+      "knowledgePages": {
+        "register_rules": {
+          "title": "Was das Register enthält und was draußen bleibt",
+          "sections": [
+            "Zweck und Rechtsgrundlage",
+            "Pflichtangaben und freiwillige Angaben",
+            "Einwilligung und Aufbewahrung"
+          ]
+        },
+        "renewals_and_fees": {
+          "title": "Beitragsfälligkeit und Mahnungen",
+          "sections": [
+            "Ankündigung 60 und 30 Tage vorher",
+            "Beitragsverzug und Ende der Mitgliedschaft nach Satzung"
+          ]
+        },
+        "receipts_and_thanks": {
+          "title": "Dank und Zuwendungsbestätigungen",
+          "sections": [
+            "Binnen zwei Tagen danken",
+            "Wann eine Zuwendungsbestätigung zulässig ist und in welchem Muster"
+          ]
+        }
+      },
+      "rules": {
+        "thank_donor": {
+          "title": "Dem Spender danken, wenn eine Spende erfasst ist",
+          "description": ""
+        },
+        "issue_receipt": {
+          "title": "Zuwendungsbestätigung ausstellen, wenn eine Spende dafür markiert ist",
+          "description": ""
+        },
+        "welcome_member": {
+          "title": "Das Mitglied begrüßen, wenn ein Aufnahmeantrag eingeht",
+          "description": ""
+        },
+        "renewal_notice": {
+          "title": "60 Tage vor der Fälligkeit einer aktiven Mitgliedschaft den Beitrag ankündigen",
+          "description": ""
+        },
+        "renewal_reminder": {
+          "title": "Ein Mitglied mit offenem Beitrag 30 Tage vor der Fälligkeit erinnern",
+          "description": ""
+        },
+        "expiry_notice": {
+          "title": "Am Tag der Fälligkeit den unbezahlten Beitrag anmahnen",
+          "description": ""
+        },
+        "report_to_funder": {
+          "title": "Den Bericht an den Geldgeber zwei Wochen vor der Frist vorbereiten",
+          "description": ""
+        },
+        "join_form_records": {
+          "title": "Unterstützer und Mitgliedschaft aus einem Beitrittsformular anlegen",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Jede Mitgliedschaft hat einen Status.",
+        "renewal_field": "Jede Mitgliedschaft hat ein Fälligkeitsdatum.",
+        "receipt_field": "Jede Spende zeigt, ob eine Zuwendungsbestätigung fällig ist."
+      },
+      "prompt": {
+        "intro": "Richte ein Register für Mitglieder und Spender in meinem Customermates-Workspace ein: Unterstützer, Mitgliedschaften mit Beitrag und Fälligkeit, Spenden mit Dank und Status der Zuwendungsbestätigung und eine Pipeline für Großspenden und Förderungen.",
+        "questions": [
+          "Führst du einen Verein, eine gemeinnützige Organisation oder eine Kirchengemeinde? Welche von Mitgliedern, Spendern und Ehrenamtlichen hast du?",
+          "Welche Beitragsarten und Beiträge nutzt du, und wie werden sie eingezogen?",
+          "In welchem Land bist du eingetragen, und welche Zuwendungsbestätigung stellst du dort aus?",
+          "Welche Software führt Zahlungen oder Buchhaltung? Hier wird nur ein Verweis gespeichert."
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Donors and members",
+      "summary": "One register for members, donors and volunteers: memberships with a renewal date, gifts with thanks and receipts, and a pipeline for major gifts and grants.",
+      "description": "For associations, clubs, charities and congregations: who supports you and how, which membership runs until when, which gift still needs a thank-you or a receipt, and which large gift or grant is in progress. It does not issue tax receipts or collect payments; it tells you which ones are due.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "supporters": {
+          "label": "Supporter",
+          "pluralLabel": "Supporters",
+          "description": "Members, donors, volunteers, guests and board members."
+        },
+        "memberships": {
+          "label": "Membership",
+          "pluralLabel": "Memberships",
+          "description": "One membership with its fee and renewal date."
+        },
+        "gifts": {
+          "label": "Gift",
+          "pluralLabel": "Gifts",
+          "description": "Each donation with its thanks and receipt."
+        },
+        "gift_opportunities": {
+          "label": "Gift opportunity",
+          "pluralLabel": "Gift opportunities",
+          "description": "Major gifts, grants and sponsorships in progress."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "memberships.status": {
+          "label": "Status",
+          "options": {
+            "applied": "Applied",
+            "active": "Active",
+            "grace_period": "Grace period",
+            "lapsed": "Lapsed",
+            "resigned": "Resigned"
+          }
+        },
+        "gift_opportunities.stage": {
+          "label": "Stage",
+          "options": {
+            "identified": "Identified",
+            "qualified": "Qualified",
+            "cultivation": "Cultivation",
+            "ask_made": "Ask made",
+            "pledged": "Pledged",
+            "received": "Received",
+            "declined": "Declined"
+          }
+        },
+        "supporters.member_number": {
+          "label": "Member number",
+          "options": {}
+        },
+        "supporters.supporter_types": {
+          "label": "Supporter type",
+          "options": {
+            "member": "Member",
+            "donor": "Donor",
+            "volunteer": "Volunteer",
+            "guest": "Guest",
+            "board_member": "Board member"
+          }
+        },
+        "supporters.lifecycle_status": {
+          "label": "Relationship",
+          "options": {
+            "prospect": "Prospect",
+            "active": "Active",
+            "lapsed": "Lapsed",
+            "former": "Former",
+            "do_not_contact": "Do not contact"
+          }
+        },
+        "supporters.joined_on": {
+          "label": "Joined on",
+          "options": {}
+        },
+        "supporters.relationship_owner": {
+          "label": "Relationship owner",
+          "options": {}
+        },
+        "supporters.contact_consent": {
+          "label": "Consent to contact",
+          "options": {
+            "granted": "Granted",
+            "not_granted": "Not granted",
+            "unknown": "Unknown"
+          }
+        },
+        "supporters.consent_date": {
+          "label": "Consent date",
+          "options": {}
+        },
+        "supporters.last_contact_on": {
+          "label": "Last contact",
+          "options": {}
+        },
+        "memberships.level": {
+          "label": "Level",
+          "options": {
+            "regular": "Regular",
+            "reduced": "Reduced",
+            "family": "Family",
+            "youth": "Youth",
+            "supporting": "Supporting",
+            "honorary": "Honorary"
+          }
+        },
+        "memberships.fee": {
+          "label": "Fee",
+          "options": {}
+        },
+        "memberships.billing_cycle": {
+          "label": "Billing cycle",
+          "options": {
+            "yearly": "Yearly",
+            "quarterly": "Quarterly",
+            "monthly": "Monthly",
+            "one_off": "One-off",
+            "none": "None"
+          }
+        },
+        "memberships.fee_status": {
+          "label": "Fee status",
+          "options": {
+            "open": "Open",
+            "paid": "Paid",
+            "reminded": "Reminded",
+            "overdue": "Overdue",
+            "waived": "Waived"
+          }
+        },
+        "memberships.mandate_on_file": {
+          "label": "Direct debit mandate on file",
+          "options": {}
+        },
+        "memberships.started_on": {
+          "label": "Started on",
+          "options": {}
+        },
+        "memberships.renewal_due": {
+          "label": "Renewal due",
+          "options": {}
+        },
+        "memberships.end_reason": {
+          "label": "End reason",
+          "options": {
+            "moved_away": "Moved away",
+            "cost": "Cost",
+            "lost_interest": "Lost interest",
+            "dissatisfied": "Dissatisfied",
+            "unpaid_fees": "Unpaid fees",
+            "other": "Other"
+          }
+        },
+        "gifts.received_on": {
+          "label": "Received on",
+          "options": {}
+        },
+        "gifts.amount": {
+          "label": "Amount",
+          "options": {}
+        },
+        "gifts.gift_type": {
+          "label": "Gift type",
+          "options": {
+            "one_off": "One-off",
+            "recurring": "Recurring",
+            "pledge_payment": "Pledge payment",
+            "in_kind": "In kind",
+            "legacy": "Legacy"
+          }
+        },
+        "gifts.fund": {
+          "label": "Fund",
+          "options": {
+            "unrestricted": "Unrestricted",
+            "restricted_project": "Restricted project",
+            "appeal": "Appeal",
+            "event": "Event",
+            "in_memory": "In memory"
+          }
+        },
+        "gifts.acknowledgement_status": {
+          "label": "Thank-you",
+          "options": {
+            "to_acknowledge": "To thank",
+            "acknowledged": "Thanked",
+            "not_needed": "Not needed"
+          }
+        },
+        "gifts.receipt_status": {
+          "label": "Tax receipt",
+          "options": {
+            "not_needed": "Not needed",
+            "to_issue": "To issue",
+            "issued": "Issued",
+            "annual_summary_sent": "Annual summary sent"
+          }
+        },
+        "gift_opportunities.kind": {
+          "label": "Kind",
+          "options": {
+            "major_gift": "Major gift",
+            "grant": "Grant",
+            "sponsorship": "Corporate sponsorship",
+            "legacy": "Legacy",
+            "campaign_pledge": "Campaign pledge"
+          }
+        },
+        "gift_opportunities.solicitor": {
+          "label": "Asked by",
+          "options": {}
+        },
+        "gift_opportunities.ask_date": {
+          "label": "Ask date",
+          "options": {}
+        },
+        "gift_opportunities.decision_on": {
+          "label": "Decision on",
+          "options": {}
+        },
+        "gift_opportunities.report_due": {
+          "label": "Report due",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "thank_donor": "Thank a donor",
+            "issue_receipt": "Issue a receipt",
+            "welcome_member": "Welcome a member",
+            "renewal_notice": "Renewal notice",
+            "chase_fee": "Chase a fee",
+            "ask": "Ask",
+            "report_to_funder": "Report to a funder",
+            "call_or_visit": "Call or visit",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "membership_supporter": {
+          "sourceLabel": "Supporter",
+          "targetLabel": "Memberships"
+        },
+        "gift_supporter": {
+          "sourceLabel": "Donor",
+          "targetLabel": "Gifts"
+        },
+        "opportunity_supporter": {
+          "sourceLabel": "Prospect",
+          "targetLabel": "Gift opportunities"
+        },
+        "action_supporter": {
+          "sourceLabel": "Supporter",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "All actions"
+        },
+        "supporters_all": {
+          "name": "All supporters"
+        },
+        "memberships_all": {
+          "name": "All memberships"
+        },
+        "memberships_board": {
+          "name": "Memberships by status"
+        },
+        "fees_to_chase": {
+          "name": "Fees to chase"
+        },
+        "gifts_all": {
+          "name": "All gifts"
+        },
+        "receipts_to_issue": {
+          "name": "Receipts to issue"
+        },
+        "opportunities_board": {
+          "name": "Gift opportunities"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Upcoming actions"
+        },
+        "overdue_actions": {
+          "title": "Overdue actions"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        },
+        "memberships_by_status": {
+          "title": "Memberships by status"
+        },
+        "gifts_per_month": {
+          "title": "Gifts per month"
+        },
+        "gifts_by_fund": {
+          "title": "Gifts by fund"
+        },
+        "open_pipeline_value": {
+          "title": "Open gift pipeline"
+        },
+        "renewals_coming": {
+          "title": "Renewals coming up"
+        },
+        "receipts_to_issue_count": {
+          "title": "Receipts to issue"
+        }
+      },
+      "knowledgePages": {
+        "register_rules": {
+          "title": "What the register holds and what stays out",
+          "sections": [
+            "Purpose and legal basis",
+            "Which fields are required and which are voluntary",
+            "Consent and retention"
+          ]
+        },
+        "renewals_and_fees": {
+          "title": "Renewals and fee reminders",
+          "sections": [
+            "Notice at 60 and 30 days",
+            "Grace period and lapse under your statute"
+          ]
+        },
+        "receipts_and_thanks": {
+          "title": "Thank-yous and tax receipts",
+          "sections": [
+            "Thank within two days",
+            "When a receipt is allowed and in which format"
+          ]
+        }
+      },
+      "rules": {
+        "thank_donor": {
+          "title": "Thank the donor when a gift is recorded",
+          "description": ""
+        },
+        "issue_receipt": {
+          "title": "Issue the tax receipt when a gift is marked to issue",
+          "description": ""
+        },
+        "welcome_member": {
+          "title": "Welcome the member when an application comes in",
+          "description": ""
+        },
+        "renewal_notice": {
+          "title": "Send a renewal notice 60 days before an active membership renews",
+          "description": ""
+        },
+        "renewal_reminder": {
+          "title": "Remind a member whose fee is open 30 days before renewal",
+          "description": ""
+        },
+        "expiry_notice": {
+          "title": "Chase the fee on the day a membership expires unpaid",
+          "description": ""
+        },
+        "report_to_funder": {
+          "title": "Prepare the report to a funder two weeks before it is due",
+          "description": ""
+        },
+        "join_form_records": {
+          "title": "Create the supporter and the membership from a join form",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Every membership has a status.",
+        "renewal_field": "Every membership has a renewal date.",
+        "receipt_field": "Every gift shows whether a receipt is due."
+      },
+      "prompt": {
+        "intro": "Set up a register of donors and members in my Customermates workspace: supporters, memberships with a fee and a renewal date, gifts with thanks and receipt status, and a pipeline for major gifts and grants.",
+        "questions": [
+          "Are you an association or club, a charity or a congregation? Which of members, donors and volunteers do you have?",
+          "Which membership levels and fees do you use, and how are fees collected?",
+          "In which country are you registered, and which tax receipt do you issue there?",
+          "Which software holds your payments or accounting? Only a reference is kept here."
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "Socios y donantes",
+      "summary": "Un registro único de socios, donantes y voluntarios: membresías con fecha de renovación, donativos con agradecimiento y certificado, y un seguimiento de grandes donaciones y subvenciones.",
+      "description": "Para asociaciones, clubes, entidades sin ánimo de lucro y parroquias: quién os apoya y cómo, qué membresía dura hasta cuándo, qué donativo espera aún un agradecimiento o un certificado y qué gran donación o subvención está en marcha. No emite certificados de donación ni cobra cuotas: indica cuáles toca hacer.",
+      "lists": {
+        "actions": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un siguiente paso con fecha por cada asunto abierto."
+        },
+        "supporters": {
+          "label": "Colaborador",
+          "pluralLabel": "Colaboradores",
+          "description": "Socios, donantes, voluntarios, invitados y junta directiva."
+        },
+        "memberships": {
+          "label": "Membresía",
+          "pluralLabel": "Membresías",
+          "description": "Una membresía con su cuota y su fecha de renovación."
+        },
+        "gifts": {
+          "label": "Donativo",
+          "pluralLabel": "Donativos",
+          "description": "Cada donativo con su agradecimiento y su certificado."
+        },
+        "gift_opportunities": {
+          "label": "Oportunidad de donación",
+          "pluralLabel": "Oportunidades de donación",
+          "description": "Grandes donaciones, subvenciones y patrocinios en curso."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierta",
+            "waiting": "En espera",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "memberships.status": {
+          "label": "Estado",
+          "options": {
+            "applied": "Solicitud",
+            "active": "Socio al corriente",
+            "grace_period": "Cuota pendiente",
+            "lapsed": "Caducada",
+            "resigned": "Baja"
+          }
+        },
+        "gift_opportunities.stage": {
+          "label": "Fase",
+          "options": {
+            "identified": "Identificada",
+            "qualified": "Cualificada",
+            "cultivation": "Relación en curso",
+            "ask_made": "Petición hecha",
+            "pledged": "Compromiso recibido",
+            "received": "Recibida",
+            "declined": "Rechazada"
+          }
+        },
+        "supporters.member_number": {
+          "label": "Número de socio",
+          "options": {}
+        },
+        "supporters.supporter_types": {
+          "label": "Tipo de apoyo",
+          "options": {
+            "member": "Socio",
+            "donor": "Donante",
+            "volunteer": "Voluntario",
+            "guest": "Invitado",
+            "board_member": "Miembro de la junta"
+          }
+        },
+        "supporters.lifecycle_status": {
+          "label": "Relación",
+          "options": {
+            "prospect": "Potencial",
+            "active": "Activo",
+            "lapsed": "Inactivo",
+            "former": "Antiguo",
+            "do_not_contact": "No contactar"
+          }
+        },
+        "supporters.joined_on": {
+          "label": "Alta el",
+          "options": {}
+        },
+        "supporters.relationship_owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "supporters.contact_consent": {
+          "label": "Consentimiento de contacto",
+          "options": {
+            "granted": "Concedido",
+            "not_granted": "No concedido",
+            "unknown": "Desconocido"
+          }
+        },
+        "supporters.consent_date": {
+          "label": "Fecha del consentimiento",
+          "options": {}
+        },
+        "supporters.last_contact_on": {
+          "label": "Último contacto",
+          "options": {}
+        },
+        "memberships.level": {
+          "label": "Modalidad",
+          "options": {
+            "regular": "General",
+            "reduced": "Reducida",
+            "family": "Familiar",
+            "youth": "Joven",
+            "supporting": "Colaborador",
+            "honorary": "Honorario"
+          }
+        },
+        "memberships.fee": {
+          "label": "Cuota",
+          "options": {}
+        },
+        "memberships.billing_cycle": {
+          "label": "Periodicidad",
+          "options": {
+            "yearly": "Anual",
+            "quarterly": "Trimestral",
+            "monthly": "Mensual",
+            "one_off": "Única",
+            "none": "Ninguna"
+          }
+        },
+        "memberships.fee_status": {
+          "label": "Estado de la cuota",
+          "options": {
+            "open": "Pendiente",
+            "paid": "Pagada",
+            "reminded": "Reclamada",
+            "overdue": "Vencida",
+            "waived": "Condonada"
+          }
+        },
+        "memberships.mandate_on_file": {
+          "label": "Orden de domiciliación archivada",
+          "options": {}
+        },
+        "memberships.started_on": {
+          "label": "Inicio el",
+          "options": {}
+        },
+        "memberships.renewal_due": {
+          "label": "Fecha de renovación",
+          "options": {}
+        },
+        "memberships.end_reason": {
+          "label": "Motivo de la baja",
+          "options": {
+            "moved_away": "Cambio de residencia",
+            "cost": "Coste",
+            "lost_interest": "Pérdida de interés",
+            "dissatisfied": "Insatisfacción",
+            "unpaid_fees": "Cuotas impagadas",
+            "other": "Otro"
+          }
+        },
+        "gifts.received_on": {
+          "label": "Recibido el",
+          "options": {}
+        },
+        "gifts.amount": {
+          "label": "Importe",
+          "options": {}
+        },
+        "gifts.gift_type": {
+          "label": "Tipo de donativo",
+          "options": {
+            "one_off": "Puntual",
+            "recurring": "Recurrente",
+            "pledge_payment": "Pago de un compromiso",
+            "in_kind": "En especie",
+            "legacy": "Legado"
+          }
+        },
+        "gifts.fund": {
+          "label": "Destino",
+          "options": {
+            "unrestricted": "Libre",
+            "restricted_project": "Proyecto concreto",
+            "appeal": "Campaña",
+            "event": "Evento",
+            "in_memory": "En memoria de"
+          }
+        },
+        "gifts.acknowledgement_status": {
+          "label": "Agradecimiento",
+          "options": {
+            "to_acknowledge": "Por agradecer",
+            "acknowledged": "Agradecido",
+            "not_needed": "No necesario"
+          }
+        },
+        "gifts.receipt_status": {
+          "label": "Certificado de donación",
+          "options": {
+            "not_needed": "No necesario",
+            "to_issue": "Por emitir",
+            "issued": "Emitido",
+            "annual_summary_sent": "Resumen anual enviado"
+          }
+        },
+        "gift_opportunities.kind": {
+          "label": "Tipo",
+          "options": {
+            "major_gift": "Gran donación",
+            "grant": "Subvención",
+            "sponsorship": "Patrocinio de empresa",
+            "legacy": "Legado",
+            "campaign_pledge": "Compromiso de campaña"
+          }
+        },
+        "gift_opportunities.solicitor": {
+          "label": "Solicitado por",
+          "options": {}
+        },
+        "gift_opportunities.ask_date": {
+          "label": "Fecha de la petición",
+          "options": {}
+        },
+        "gift_opportunities.decision_on": {
+          "label": "Decisión el",
+          "options": {}
+        },
+        "gift_opportunities.report_due": {
+          "label": "Informe para el",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "thank_donor": "Agradecer a un donante",
+            "issue_receipt": "Emitir un certificado",
+            "welcome_member": "Dar la bienvenida a un socio",
+            "renewal_notice": "Aviso de renovación",
+            "chase_fee": "Reclamar una cuota",
+            "ask": "Petición",
+            "report_to_funder": "Informar a un financiador",
+            "call_or_visit": "Llamada o visita",
+            "other": "Otro"
+          }
+        }
+      },
+      "relationships": {
+        "membership_supporter": {
+          "sourceLabel": "Socio",
+          "targetLabel": "Membresías"
+        },
+        "gift_supporter": {
+          "sourceLabel": "Donante",
+          "targetLabel": "Donativos"
+        },
+        "opportunity_supporter": {
+          "sourceLabel": "Posible donante",
+          "targetLabel": "Oportunidades de donación"
+        },
+        "action_supporter": {
+          "sourceLabel": "Colaborador",
+          "targetLabel": "Tareas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas las tareas"
+        },
+        "supporters_all": {
+          "name": "Todos los colaboradores"
+        },
+        "memberships_all": {
+          "name": "Todas las membresías"
+        },
+        "memberships_board": {
+          "name": "Membresías por estado"
+        },
+        "fees_to_chase": {
+          "name": "Cuotas por reclamar"
+        },
+        "gifts_all": {
+          "name": "Todos los donativos"
+        },
+        "receipts_to_issue": {
+          "name": "Certificados por emitir"
+        },
+        "opportunities_board": {
+          "name": "Oportunidades de donación"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tareas"
+        },
+        "overdue_actions": {
+          "title": "Tareas vencidas"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        },
+        "memberships_by_status": {
+          "title": "Membresías por estado"
+        },
+        "gifts_per_month": {
+          "title": "Donativos por mes"
+        },
+        "gifts_by_fund": {
+          "title": "Donativos por destino"
+        },
+        "open_pipeline_value": {
+          "title": "Grandes donaciones en curso"
+        },
+        "renewals_coming": {
+          "title": "Próximas renovaciones"
+        },
+        "receipts_to_issue_count": {
+          "title": "Certificados por emitir"
+        }
+      },
+      "knowledgePages": {
+        "register_rules": {
+          "title": "Qué contiene el registro y qué queda fuera",
+          "sections": [
+            "Finalidad y base jurídica",
+            "Campos obligatorios y voluntarios",
+            "Consentimiento y conservación"
+          ]
+        },
+        "renewals_and_fees": {
+          "title": "Renovaciones y reclamación de cuotas",
+          "sections": [
+            "Aviso a los 60 y a los 30 días",
+            "Periodo de gracia y baja según los estatutos"
+          ]
+        },
+        "receipts_and_thanks": {
+          "title": "Agradecimientos y certificados de donación",
+          "sections": [
+            "Agradecer en dos días",
+            "Cuándo cabe un certificado y con qué modelo"
+          ]
+        }
+      },
+      "rules": {
+        "thank_donor": {
+          "title": "Agradecer al donante cuando se registra un donativo",
+          "description": ""
+        },
+        "issue_receipt": {
+          "title": "Emitir el certificado cuando un donativo se marca por emitir",
+          "description": ""
+        },
+        "welcome_member": {
+          "title": "Dar la bienvenida al socio cuando llega una solicitud",
+          "description": ""
+        },
+        "renewal_notice": {
+          "title": "Enviar un aviso de renovación 60 días antes del vencimiento de una membresía activa",
+          "description": ""
+        },
+        "renewal_reminder": {
+          "title": "Recordar a un socio con la cuota pendiente 30 días antes de la renovación",
+          "description": ""
+        },
+        "expiry_notice": {
+          "title": "Reclamar la cuota impagada el día del vencimiento",
+          "description": ""
+        },
+        "report_to_funder": {
+          "title": "Preparar el informe al financiador dos semanas antes del plazo",
+          "description": ""
+        },
+        "join_form_records": {
+          "title": "Crear el colaborador y la membresía desde un formulario de alta",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Cada membresía tiene un estado.",
+        "renewal_field": "Cada membresía tiene una fecha de renovación.",
+        "receipt_field": "Cada donativo muestra si hay que emitir un certificado."
+      },
+      "prompt": {
+        "intro": "Configura un registro de socios y donantes en mi espacio de trabajo de Customermates: colaboradores, membresías con cuota y fecha de renovación, donativos con agradecimiento y estado del certificado, y un seguimiento de grandes donaciones y subvenciones.",
+        "questions": [
+          "¿Sois una asociación, una entidad benéfica o una parroquia? ¿Tenéis socios, donantes, voluntarios?",
+          "¿Qué modalidades de cuota y qué importes usáis y cómo se cobran?",
+          "¿En qué país estáis registrados y qué certificado de donación emitís allí?",
+          "¿Qué software lleva vuestros pagos o la contabilidad? Aquí solo se guarda una referencia."
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "Adhérents et donateurs",
+      "summary": "Un registre unique pour adhérents, donateurs et bénévoles : adhésions avec date d’échéance, dons avec remerciement et reçu fiscal, et un suivi des grands dons et subventions.",
+      "description": "Pour associations, clubs, organismes caritatifs et paroisses : qui vous soutient et comment, quelle adhésion court jusqu’à quand, quel don attend encore un remerciement ou un reçu fiscal, et quel grand don ou quelle subvention est en cours. L’outil n’émet pas de reçus fiscaux et n’encaisse pas les cotisations : il vous montre lesquels sont à faire.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Une prochaine étape datée par dossier ouvert."
+        },
+        "supporters": {
+          "label": "Personne",
+          "pluralLabel": "Personnes",
+          "description": "Adhérents, donateurs, bénévoles, invités et membres du bureau."
+        },
+        "memberships": {
+          "label": "Adhésion",
+          "pluralLabel": "Adhésions",
+          "description": "Une adhésion avec sa cotisation et son échéance."
+        },
+        "gifts": {
+          "label": "Don",
+          "pluralLabel": "Dons",
+          "description": "Chaque don avec son remerciement et son reçu fiscal."
+        },
+        "gift_opportunities": {
+          "label": "Piste de don",
+          "pluralLabel": "Pistes de dons",
+          "description": "Grands dons, subventions et mécénats en cours."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "waiting": "En attente",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "memberships.status": {
+          "label": "Statut",
+          "options": {
+            "applied": "Adhésion en attente",
+            "active": "Adhérent à jour",
+            "grace_period": "Cotisation à renouveler",
+            "lapsed": "Adhésion échue",
+            "resigned": "Démission"
+          }
+        },
+        "gift_opportunities.stage": {
+          "label": "Étape",
+          "options": {
+            "identified": "Identifiée",
+            "qualified": "Qualifiée",
+            "cultivation": "Relation en cours",
+            "ask_made": "Demande faite",
+            "pledged": "Promesse reçue",
+            "received": "Reçue",
+            "declined": "Refusée"
+          }
+        },
+        "supporters.member_number": {
+          "label": "Numéro d’adhérent",
+          "options": {}
+        },
+        "supporters.supporter_types": {
+          "label": "Type de soutien",
+          "options": {
+            "member": "Adhérent",
+            "donor": "Donateur",
+            "volunteer": "Bénévole",
+            "guest": "Invité",
+            "board_member": "Membre du bureau"
+          }
+        },
+        "supporters.lifecycle_status": {
+          "label": "Relation",
+          "options": {
+            "prospect": "Prospect",
+            "active": "Actif",
+            "lapsed": "Inactif",
+            "former": "Ancien",
+            "do_not_contact": "Ne pas contacter"
+          }
+        },
+        "supporters.joined_on": {
+          "label": "Date d’arrivée",
+          "options": {}
+        },
+        "supporters.relationship_owner": {
+          "label": "Référent",
+          "options": {}
+        },
+        "supporters.contact_consent": {
+          "label": "Consentement au contact",
+          "options": {
+            "granted": "Accordé",
+            "not_granted": "Non accordé",
+            "unknown": "Inconnu"
+          }
+        },
+        "supporters.consent_date": {
+          "label": "Date du consentement",
+          "options": {}
+        },
+        "supporters.last_contact_on": {
+          "label": "Dernier contact",
+          "options": {}
+        },
+        "memberships.level": {
+          "label": "Catégorie",
+          "options": {
+            "regular": "Plein tarif",
+            "reduced": "Tarif réduit",
+            "family": "Famille",
+            "youth": "Jeune",
+            "supporting": "Membre bienfaiteur",
+            "honorary": "Membre d’honneur"
+          }
+        },
+        "memberships.fee": {
+          "label": "Montant de la cotisation",
+          "options": {}
+        },
+        "memberships.billing_cycle": {
+          "label": "Périodicité",
+          "options": {
+            "yearly": "Annuelle",
+            "quarterly": "Trimestrielle",
+            "monthly": "Mensuelle",
+            "one_off": "Unique",
+            "none": "Aucune"
+          }
+        },
+        "memberships.fee_status": {
+          "label": "État de la cotisation",
+          "options": {
+            "open": "À payer",
+            "paid": "Payée",
+            "reminded": "Relancée",
+            "overdue": "En retard",
+            "waived": "Offerte"
+          }
+        },
+        "memberships.mandate_on_file": {
+          "label": "Mandat de prélèvement au dossier",
+          "options": {}
+        },
+        "memberships.started_on": {
+          "label": "Début le",
+          "options": {}
+        },
+        "memberships.renewal_due": {
+          "label": "Date d’échéance",
+          "options": {}
+        },
+        "memberships.end_reason": {
+          "label": "Motif de départ",
+          "options": {
+            "moved_away": "Déménagement",
+            "cost": "Coût",
+            "lost_interest": "Perte d’intérêt",
+            "dissatisfied": "Insatisfaction",
+            "unpaid_fees": "Cotisations impayées",
+            "other": "Autre"
+          }
+        },
+        "gifts.received_on": {
+          "label": "Date de réception",
+          "options": {}
+        },
+        "gifts.amount": {
+          "label": "Montant",
+          "options": {}
+        },
+        "gifts.gift_type": {
+          "label": "Type de don",
+          "options": {
+            "one_off": "Don ponctuel",
+            "recurring": "Don régulier",
+            "pledge_payment": "Versement sur promesse",
+            "in_kind": "Don en nature",
+            "legacy": "Legs"
+          }
+        },
+        "gifts.fund": {
+          "label": "Affectation",
+          "options": {
+            "unrestricted": "Non affecté",
+            "restricted_project": "Projet précis",
+            "appeal": "Appel à dons",
+            "event": "Événement",
+            "in_memory": "En mémoire de"
+          }
+        },
+        "gifts.acknowledgement_status": {
+          "label": "Remerciement",
+          "options": {
+            "to_acknowledge": "À remercier",
+            "acknowledged": "Remercié",
+            "not_needed": "Sans objet"
+          }
+        },
+        "gifts.receipt_status": {
+          "label": "Reçu fiscal",
+          "options": {
+            "not_needed": "Sans objet",
+            "to_issue": "À émettre",
+            "issued": "Émis",
+            "annual_summary_sent": "Récapitulatif annuel envoyé"
+          }
+        },
+        "gift_opportunities.kind": {
+          "label": "Type",
+          "options": {
+            "major_gift": "Grand don",
+            "grant": "Subvention",
+            "sponsorship": "Mécénat d’entreprise",
+            "legacy": "Legs",
+            "campaign_pledge": "Promesse de campagne"
+          }
+        },
+        "gift_opportunities.solicitor": {
+          "label": "Demandé par",
+          "options": {}
+        },
+        "gift_opportunities.ask_date": {
+          "label": "Date de la demande",
+          "options": {}
+        },
+        "gift_opportunities.decision_on": {
+          "label": "Décision le",
+          "options": {}
+        },
+        "gift_opportunities.report_due": {
+          "label": "Compte rendu à remettre le",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "thank_donor": "Remercier un donateur",
+            "issue_receipt": "Émettre un reçu fiscal",
+            "welcome_member": "Accueillir un adhérent",
+            "renewal_notice": "Avis de renouvellement",
+            "chase_fee": "Relancer une cotisation",
+            "ask": "Demande",
+            "report_to_funder": "Rendre compte à un financeur",
+            "call_or_visit": "Appel ou visite",
+            "other": "Autre"
+          }
+        }
+      },
+      "relationships": {
+        "membership_supporter": {
+          "sourceLabel": "Adhérent",
+          "targetLabel": "Adhésions"
+        },
+        "gift_supporter": {
+          "sourceLabel": "Donateur",
+          "targetLabel": "Dons"
+        },
+        "opportunity_supporter": {
+          "sourceLabel": "Prospect",
+          "targetLabel": "Pistes de dons"
+        },
+        "action_supporter": {
+          "sourceLabel": "Personne",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "supporters_all": {
+          "name": "Toutes les personnes"
+        },
+        "memberships_all": {
+          "name": "Toutes les adhésions"
+        },
+        "memberships_board": {
+          "name": "Adhésions par statut"
+        },
+        "fees_to_chase": {
+          "name": "Cotisations à relancer"
+        },
+        "gifts_all": {
+          "name": "Tous les dons"
+        },
+        "receipts_to_issue": {
+          "name": "Reçus fiscaux à émettre"
+        },
+        "opportunities_board": {
+          "name": "Pistes de dons"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Actions à venir"
+        },
+        "overdue_actions": {
+          "title": "Actions en retard"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        },
+        "memberships_by_status": {
+          "title": "Adhésions par statut"
+        },
+        "gifts_per_month": {
+          "title": "Dons par mois"
+        },
+        "gifts_by_fund": {
+          "title": "Dons par affectation"
+        },
+        "open_pipeline_value": {
+          "title": "Grands dons en cours"
+        },
+        "renewals_coming": {
+          "title": "Renouvellements à venir"
+        },
+        "receipts_to_issue_count": {
+          "title": "Reçus fiscaux à émettre"
+        }
+      },
+      "knowledgePages": {
+        "register_rules": {
+          "title": "Ce que contient le registre et ce qui reste dehors",
+          "sections": [
+            "Finalité et base légale",
+            "Champs obligatoires et facultatifs",
+            "Consentement et conservation"
+          ]
+        },
+        "renewals_and_fees": {
+          "title": "Renouvellements et relances de cotisation",
+          "sections": [
+            "Avis à 60 et à 30 jours",
+            "Période de grâce et fin d’adhésion selon vos statuts"
+          ]
+        },
+        "receipts_and_thanks": {
+          "title": "Remerciements et reçus fiscaux",
+          "sections": [
+            "Remercier sous deux jours",
+            "Quand un reçu est possible et sous quel modèle"
+          ]
+        }
+      },
+      "rules": {
+        "thank_donor": {
+          "title": "Remercier le donateur quand un don est enregistré",
+          "description": ""
+        },
+        "issue_receipt": {
+          "title": "Émettre le reçu fiscal quand un don est marqué à émettre",
+          "description": ""
+        },
+        "welcome_member": {
+          "title": "Accueillir l’adhérent quand une demande d’adhésion arrive",
+          "description": ""
+        },
+        "renewal_notice": {
+          "title": "Envoyer un avis de renouvellement 60 jours avant l’échéance d’une adhésion active",
+          "description": ""
+        },
+        "renewal_reminder": {
+          "title": "Relancer un adhérent dont la cotisation est à payer 30 jours avant l’échéance",
+          "description": ""
+        },
+        "expiry_notice": {
+          "title": "Relancer la cotisation impayée le jour de l’échéance",
+          "description": ""
+        },
+        "report_to_funder": {
+          "title": "Préparer le compte rendu au financeur deux semaines avant l’échéance",
+          "description": ""
+        },
+        "join_form_records": {
+          "title": "Créer la personne et l’adhésion à partir d’un formulaire d’adhésion",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Chaque adhésion a un statut.",
+        "renewal_field": "Chaque adhésion a une date d’échéance.",
+        "receipt_field": "Chaque don indique si un reçu fiscal est à émettre."
+      },
+      "prompt": {
+        "intro": "Mets en place un registre d’adhérents et de donateurs dans mon espace de travail Customermates : des personnes, des adhésions avec cotisation et date d’échéance, des dons avec remerciement et état du reçu fiscal, et un suivi des grands dons et subventions.",
+        "questions": [
+          "Êtes-vous une association ou un club, un organisme caritatif ou une paroisse ? Avez-vous des adhérents, des donateurs, des bénévoles ?",
+          "Quelles catégories d’adhésion et quelles cotisations utilisez-vous, et comment sont-elles encaissées ?",
+          "Dans quel pays votre organisation est-elle enregistrée, et quel reçu fiscal y émettez-vous ?",
+          "Quel logiciel tient vos paiements ou votre comptabilité ? Seule une référence est gardée ici."
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "Soci e donatori",
+      "summary": "Un unico registro per soci, donatori e volontari: tesseramenti con scadenza, donazioni con ringraziamento e ricevuta, e una pipeline per grandi donazioni e bandi.",
+      "description": "Per associazioni, enti del terzo settore e parrocchie: chi ti sostiene e come, quale tessera dura fino a quando, quale donazione attende ancora un ringraziamento o una ricevuta e quale grande donazione o bando è in corso. Non emette ricevute fiscali né incassa quote: mostra quali sono da fare.",
+      "lists": {
+        "actions": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un prossimo passo con data per ogni pratica aperta."
+        },
+        "supporters": {
+          "label": "Sostenitore",
+          "pluralLabel": "Sostenitori",
+          "description": "Soci, donatori, volontari, ospiti e consiglieri."
+        },
+        "memberships": {
+          "label": "Tesseramento",
+          "pluralLabel": "Tesseramenti",
+          "description": "Un'iscrizione con quota e scadenza."
+        },
+        "gifts": {
+          "label": "Erogazione liberale",
+          "pluralLabel": "Erogazioni liberali",
+          "description": "Ogni donazione con ringraziamento e ricevuta."
+        },
+        "gift_opportunities": {
+          "label": "Opportunità di donazione",
+          "pluralLabel": "Opportunità di donazione",
+          "description": "Grandi donazioni, bandi e sponsorizzazioni in corso."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "waiting": "In attesa",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "memberships.status": {
+          "label": "Stato",
+          "options": {
+            "applied": "Domanda di ammissione",
+            "active": "Socio attivo",
+            "grace_period": "Quota da rinnovare",
+            "lapsed": "Socio decaduto",
+            "resigned": "Dimissioni"
+          }
+        },
+        "gift_opportunities.stage": {
+          "label": "Fase",
+          "options": {
+            "identified": "Individuata",
+            "qualified": "Qualificata",
+            "cultivation": "Relazione in corso",
+            "ask_made": "Richiesta fatta",
+            "pledged": "Promessa ricevuta",
+            "received": "Ricevuta",
+            "declined": "Rifiutata"
+          }
+        },
+        "supporters.member_number": {
+          "label": "Numero tessera",
+          "options": {}
+        },
+        "supporters.supporter_types": {
+          "label": "Tipo di sostegno",
+          "options": {
+            "member": "Socio",
+            "donor": "Donatore",
+            "volunteer": "Volontario",
+            "guest": "Ospite",
+            "board_member": "Consigliere"
+          }
+        },
+        "supporters.lifecycle_status": {
+          "label": "Relazione",
+          "options": {
+            "prospect": "Potenziale",
+            "active": "Attivo",
+            "lapsed": "Inattivo",
+            "former": "Ex",
+            "do_not_contact": "Non contattare"
+          }
+        },
+        "supporters.joined_on": {
+          "label": "Iscritto dal",
+          "options": {}
+        },
+        "supporters.relationship_owner": {
+          "label": "Referente",
+          "options": {}
+        },
+        "supporters.contact_consent": {
+          "label": "Consenso al contatto",
+          "options": {
+            "granted": "Concesso",
+            "not_granted": "Non concesso",
+            "unknown": "Sconosciuto"
+          }
+        },
+        "supporters.consent_date": {
+          "label": "Data del consenso",
+          "options": {}
+        },
+        "supporters.last_contact_on": {
+          "label": "Ultimo contatto",
+          "options": {}
+        },
+        "memberships.level": {
+          "label": "Tipo di quota",
+          "options": {
+            "regular": "Ordinaria",
+            "reduced": "Ridotta",
+            "family": "Famiglia",
+            "youth": "Giovani",
+            "supporting": "Sostenitore",
+            "honorary": "Onorario"
+          }
+        },
+        "memberships.fee": {
+          "label": "Quota associativa",
+          "options": {}
+        },
+        "memberships.billing_cycle": {
+          "label": "Periodicità",
+          "options": {
+            "yearly": "Annuale",
+            "quarterly": "Trimestrale",
+            "monthly": "Mensile",
+            "one_off": "Una tantum",
+            "none": "Nessuna"
+          }
+        },
+        "memberships.fee_status": {
+          "label": "Stato della quota",
+          "options": {
+            "open": "Da pagare",
+            "paid": "Pagata",
+            "reminded": "Sollecitata",
+            "overdue": "Scaduta",
+            "waived": "Esonerata"
+          }
+        },
+        "memberships.mandate_on_file": {
+          "label": "Mandato di addebito diretto in archivio",
+          "options": {}
+        },
+        "memberships.started_on": {
+          "label": "Inizio il",
+          "options": {}
+        },
+        "memberships.renewal_due": {
+          "label": "Scadenza tessera",
+          "options": {}
+        },
+        "memberships.end_reason": {
+          "label": "Motivo della fine",
+          "options": {
+            "moved_away": "Trasferimento",
+            "cost": "Costo",
+            "lost_interest": "Perdita di interesse",
+            "dissatisfied": "Insoddisfazione",
+            "unpaid_fees": "Quote non pagate",
+            "other": "Altro"
+          }
+        },
+        "gifts.received_on": {
+          "label": "Data di ricezione",
+          "options": {}
+        },
+        "gifts.amount": {
+          "label": "Importo",
+          "options": {}
+        },
+        "gifts.gift_type": {
+          "label": "Tipo di erogazione",
+          "options": {
+            "one_off": "Una tantum",
+            "recurring": "Ricorrente",
+            "pledge_payment": "Pagamento di una promessa",
+            "in_kind": "In natura",
+            "legacy": "Lascito"
+          }
+        },
+        "gifts.fund": {
+          "label": "Destinazione",
+          "options": {
+            "unrestricted": "Non vincolata",
+            "restricted_project": "Progetto specifico",
+            "appeal": "Campagna di raccolta",
+            "event": "Evento",
+            "in_memory": "In memoria"
+          }
+        },
+        "gifts.acknowledgement_status": {
+          "label": "Ringraziamento",
+          "options": {
+            "to_acknowledge": "Da ringraziare",
+            "acknowledged": "Ringraziato",
+            "not_needed": "Non necessario"
+          }
+        },
+        "gifts.receipt_status": {
+          "label": "Ricevuta",
+          "options": {
+            "not_needed": "Non necessaria",
+            "to_issue": "Da emettere",
+            "issued": "Emessa",
+            "annual_summary_sent": "Riepilogo annuale inviato"
+          }
+        },
+        "gift_opportunities.kind": {
+          "label": "Tipo",
+          "options": {
+            "major_gift": "Grande donazione",
+            "grant": "Bando o contributo",
+            "sponsorship": "Sponsorizzazione aziendale",
+            "legacy": "Lascito",
+            "campaign_pledge": "Promessa di campagna"
+          }
+        },
+        "gift_opportunities.solicitor": {
+          "label": "Richiesto da",
+          "options": {}
+        },
+        "gift_opportunities.ask_date": {
+          "label": "Data della richiesta",
+          "options": {}
+        },
+        "gift_opportunities.decision_on": {
+          "label": "Decisione il",
+          "options": {}
+        },
+        "gift_opportunities.report_due": {
+          "label": "Rendicontazione entro",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "thank_donor": "Ringraziare un donatore",
+            "issue_receipt": "Emettere una ricevuta",
+            "welcome_member": "Accogliere un socio",
+            "renewal_notice": "Avviso di rinnovo",
+            "chase_fee": "Sollecitare una quota",
+            "ask": "Richiesta",
+            "report_to_funder": "Rendicontare a un finanziatore",
+            "call_or_visit": "Chiamata o visita",
+            "other": "Altro"
+          }
+        }
+      },
+      "relationships": {
+        "membership_supporter": {
+          "sourceLabel": "Socio",
+          "targetLabel": "Tesseramenti"
+        },
+        "gift_supporter": {
+          "sourceLabel": "Donatore",
+          "targetLabel": "Erogazioni liberali"
+        },
+        "opportunity_supporter": {
+          "sourceLabel": "Potenziale donatore",
+          "targetLabel": "Opportunità di donazione"
+        },
+        "action_supporter": {
+          "sourceLabel": "Sostenitore",
+          "targetLabel": "Attività"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Tutte le attività"
+        },
+        "supporters_all": {
+          "name": "Tutti i sostenitori"
+        },
+        "memberships_all": {
+          "name": "Tutti i tesseramenti"
+        },
+        "memberships_board": {
+          "name": "Tesseramenti per stato"
+        },
+        "fees_to_chase": {
+          "name": "Quote da sollecitare"
+        },
+        "gifts_all": {
+          "name": "Tutte le erogazioni"
+        },
+        "receipts_to_issue": {
+          "name": "Ricevute da emettere"
+        },
+        "opportunities_board": {
+          "name": "Opportunità di donazione"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Attività in arrivo"
+        },
+        "overdue_actions": {
+          "title": "Attività scadute"
+        },
+        "activity_timeline": {
+          "title": "Attività recenti"
+        },
+        "memberships_by_status": {
+          "title": "Tesseramenti per stato"
+        },
+        "gifts_per_month": {
+          "title": "Erogazioni al mese"
+        },
+        "gifts_by_fund": {
+          "title": "Erogazioni per destinazione"
+        },
+        "open_pipeline_value": {
+          "title": "Grandi donazioni in corso"
+        },
+        "renewals_coming": {
+          "title": "Rinnovi in arrivo"
+        },
+        "receipts_to_issue_count": {
+          "title": "Ricevute da emettere"
+        }
+      },
+      "knowledgePages": {
+        "register_rules": {
+          "title": "Che cosa contiene il registro e che cosa resta fuori",
+          "sections": [
+            "Finalità e base giuridica",
+            "Campi obbligatori e facoltativi",
+            "Consenso e conservazione"
+          ]
+        },
+        "renewals_and_fees": {
+          "title": "Rinnovi e solleciti delle quote",
+          "sections": [
+            "Avviso a 60 e a 30 giorni",
+            "Periodo di tolleranza e decadenza secondo lo statuto"
+          ]
+        },
+        "receipts_and_thanks": {
+          "title": "Ringraziamenti e ricevute",
+          "sections": [
+            "Ringraziare entro due giorni",
+            "Quando è ammessa una ricevuta e in quale forma"
+          ]
+        }
+      },
+      "rules": {
+        "thank_donor": {
+          "title": "Ringraziare il donatore quando una donazione è registrata",
+          "description": ""
+        },
+        "issue_receipt": {
+          "title": "Emettere la ricevuta quando una donazione è segnata da emettere",
+          "description": ""
+        },
+        "welcome_member": {
+          "title": "Accogliere il socio quando arriva una domanda di ammissione",
+          "description": ""
+        },
+        "renewal_notice": {
+          "title": "Inviare un avviso di rinnovo 60 giorni prima della scadenza di una tessera attiva",
+          "description": ""
+        },
+        "renewal_reminder": {
+          "title": "Ricordare a un socio con quota da pagare 30 giorni prima della scadenza",
+          "description": ""
+        },
+        "expiry_notice": {
+          "title": "Sollecitare la quota non pagata il giorno della scadenza",
+          "description": ""
+        },
+        "report_to_funder": {
+          "title": "Preparare la rendicontazione al finanziatore due settimane prima del termine",
+          "description": ""
+        },
+        "join_form_records": {
+          "title": "Creare il sostenitore e il tesseramento da un modulo di adesione",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Ogni tesseramento ha uno stato.",
+        "renewal_field": "Ogni tesseramento ha una data di scadenza.",
+        "receipt_field": "Ogni erogazione indica se una ricevuta è da emettere."
+      },
+      "prompt": {
+        "intro": "Configura un registro di soci e donatori nel mio spazio di lavoro Customermates: sostenitori, tesseramenti con quota e scadenza, erogazioni con ringraziamento e stato della ricevuta, e una pipeline per grandi donazioni e bandi.",
+        "questions": [
+          "Sei un'associazione, un ente benefico o una parrocchia? Hai soci, donatori, volontari?",
+          "Quali tipi di quota e quali importi usi e come vengono incassati?",
+          "In quale paese è registrata la tua organizzazione e quale ricevuta emetti lì?",
+          "Quale software tiene i pagamenti o la contabilità? Qui si conserva solo un riferimento."
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "Leden en donateurs",
+      "summary": "Eén register voor leden, donateurs en vrijwilligers: lidmaatschappen met contributiedatum, giften met bedankje en bewijs, en een pijplijn voor grote giften en subsidies.",
+      "description": "Voor verenigingen, stichtingen en kerken: wie jullie steunt en hoe, welk lidmaatschap tot wanneer loopt, welke gift nog een bedankje of bewijs nodig heeft en welke grote gift of subsidie loopt. Het geeft geen donatiebewijzen af en int geen contributie, maar laat zien welke aan de beurt zijn.",
+      "lists": {
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén volgende stap met datum per open dossier."
+        },
+        "supporters": {
+          "label": "Supporter",
+          "pluralLabel": "Supporters",
+          "description": "Leden, donateurs, vrijwilligers, gasten en bestuursleden."
+        },
+        "memberships": {
+          "label": "Lidmaatschap",
+          "pluralLabel": "Lidmaatschappen",
+          "description": "Eén lidmaatschap met contributie en verlengdatum."
+        },
+        "gifts": {
+          "label": "Gift",
+          "pluralLabel": "Giften",
+          "description": "Elke gift met bedankje en bewijs."
+        },
+        "gift_opportunities": {
+          "label": "Gift in voorbereiding",
+          "pluralLabel": "Giften in voorbereiding",
+          "description": "Grote giften, subsidies en sponsoring in behandeling."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "In de wacht",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "memberships.status": {
+          "label": "Status",
+          "options": {
+            "applied": "Aanmelding",
+            "active": "Actief lid",
+            "grace_period": "Contributie open",
+            "lapsed": "Verlopen",
+            "resigned": "Opgezegd"
+          }
+        },
+        "gift_opportunities.stage": {
+          "label": "Fase",
+          "options": {
+            "identified": "Gesignaleerd",
+            "qualified": "Gekwalificeerd",
+            "cultivation": "Relatie opbouwen",
+            "ask_made": "Verzoek gedaan",
+            "pledged": "Toegezegd",
+            "received": "Ontvangen",
+            "declined": "Afgewezen"
+          }
+        },
+        "supporters.member_number": {
+          "label": "Lidnummer",
+          "options": {}
+        },
+        "supporters.supporter_types": {
+          "label": "Soort steun",
+          "options": {
+            "member": "Lid",
+            "donor": "Donateur",
+            "volunteer": "Vrijwilliger",
+            "guest": "Gast",
+            "board_member": "Bestuurslid"
+          }
+        },
+        "supporters.lifecycle_status": {
+          "label": "Relatie",
+          "options": {
+            "prospect": "Prospect",
+            "active": "Actief",
+            "lapsed": "Inactief",
+            "former": "Voormalig",
+            "do_not_contact": "Niet benaderen"
+          }
+        },
+        "supporters.joined_on": {
+          "label": "Lid sinds",
+          "options": {}
+        },
+        "supporters.relationship_owner": {
+          "label": "Relatiebeheerder",
+          "options": {}
+        },
+        "supporters.contact_consent": {
+          "label": "Toestemming voor contact",
+          "options": {
+            "granted": "Gegeven",
+            "not_granted": "Niet gegeven",
+            "unknown": "Onbekend"
+          }
+        },
+        "supporters.consent_date": {
+          "label": "Datum toestemming",
+          "options": {}
+        },
+        "supporters.last_contact_on": {
+          "label": "Laatste contact",
+          "options": {}
+        },
+        "memberships.level": {
+          "label": "Soort lidmaatschap",
+          "options": {
+            "regular": "Regulier",
+            "reduced": "Gereduceerd",
+            "family": "Gezin",
+            "youth": "Jeugd",
+            "supporting": "Steunend lid",
+            "honorary": "Erelid"
+          }
+        },
+        "memberships.fee": {
+          "label": "Contributie",
+          "options": {}
+        },
+        "memberships.billing_cycle": {
+          "label": "Betaalperiode",
+          "options": {
+            "yearly": "Jaarlijks",
+            "quarterly": "Per kwartaal",
+            "monthly": "Maandelijks",
+            "one_off": "Eenmalig",
+            "none": "Geen"
+          }
+        },
+        "memberships.fee_status": {
+          "label": "Status contributie",
+          "options": {
+            "open": "Open",
+            "paid": "Betaald",
+            "reminded": "Herinnerd",
+            "overdue": "Achterstallig",
+            "waived": "Kwijtgescholden"
+          }
+        },
+        "memberships.mandate_on_file": {
+          "label": "Incassomachtiging aanwezig",
+          "options": {}
+        },
+        "memberships.started_on": {
+          "label": "Begin op",
+          "options": {}
+        },
+        "memberships.renewal_due": {
+          "label": "Verlengdatum",
+          "options": {}
+        },
+        "memberships.end_reason": {
+          "label": "Reden van beëindiging",
+          "options": {
+            "moved_away": "Verhuisd",
+            "cost": "Kosten",
+            "lost_interest": "Geen interesse meer",
+            "dissatisfied": "Ontevreden",
+            "unpaid_fees": "Onbetaalde contributie",
+            "other": "Overig"
+          }
+        },
+        "gifts.received_on": {
+          "label": "Ontvangen op",
+          "options": {}
+        },
+        "gifts.amount": {
+          "label": "Bedrag",
+          "options": {}
+        },
+        "gifts.gift_type": {
+          "label": "Soort gift",
+          "options": {
+            "one_off": "Eenmalig",
+            "recurring": "Periodiek",
+            "pledge_payment": "Betaling op toezegging",
+            "in_kind": "In natura",
+            "legacy": "Nalatenschap"
+          }
+        },
+        "gifts.fund": {
+          "label": "Bestemming",
+          "options": {
+            "unrestricted": "Vrij te besteden",
+            "restricted_project": "Specifiek project",
+            "appeal": "Actie",
+            "event": "Evenement",
+            "in_memory": "In herinnering aan"
+          }
+        },
+        "gifts.acknowledgement_status": {
+          "label": "Bedankje",
+          "options": {
+            "to_acknowledge": "Nog te bedanken",
+            "acknowledged": "Bedankt",
+            "not_needed": "Niet nodig"
+          }
+        },
+        "gifts.receipt_status": {
+          "label": "Donatiebewijs",
+          "options": {
+            "not_needed": "Niet nodig",
+            "to_issue": "Af te geven",
+            "issued": "Afgegeven",
+            "annual_summary_sent": "Jaaroverzicht verstuurd"
+          }
+        },
+        "gift_opportunities.kind": {
+          "label": "Soort",
+          "options": {
+            "major_gift": "Grote gift",
+            "grant": "Subsidie",
+            "sponsorship": "Bedrijfssponsoring",
+            "legacy": "Nalatenschap",
+            "campaign_pledge": "Toezegging bij een actie"
+          }
+        },
+        "gift_opportunities.solicitor": {
+          "label": "Gevraagd door",
+          "options": {}
+        },
+        "gift_opportunities.ask_date": {
+          "label": "Datum van het verzoek",
+          "options": {}
+        },
+        "gift_opportunities.decision_on": {
+          "label": "Besluit op",
+          "options": {}
+        },
+        "gift_opportunities.report_due": {
+          "label": "Verslag uiterlijk op",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "thank_donor": "Donateur bedanken",
+            "issue_receipt": "Donatiebewijs afgeven",
+            "welcome_member": "Lid welkom heten",
+            "renewal_notice": "Verlengingsbericht",
+            "chase_fee": "Contributie aanmanen",
+            "ask": "Verzoek",
+            "report_to_funder": "Verslag aan een fonds",
+            "call_or_visit": "Bellen of bezoeken",
+            "other": "Overig"
+          }
+        }
+      },
+      "relationships": {
+        "membership_supporter": {
+          "sourceLabel": "Lid",
+          "targetLabel": "Lidmaatschappen"
+        },
+        "gift_supporter": {
+          "sourceLabel": "Donateur",
+          "targetLabel": "Giften"
+        },
+        "opportunity_supporter": {
+          "sourceLabel": "Prospect",
+          "targetLabel": "Giften in voorbereiding"
+        },
+        "action_supporter": {
+          "sourceLabel": "Supporter",
+          "targetLabel": "Acties"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "supporters_all": {
+          "name": "Alle supporters"
+        },
+        "memberships_all": {
+          "name": "Alle lidmaatschappen"
+        },
+        "memberships_board": {
+          "name": "Lidmaatschappen per status"
+        },
+        "fees_to_chase": {
+          "name": "Aan te manen contributie"
+        },
+        "gifts_all": {
+          "name": "Alle giften"
+        },
+        "receipts_to_issue": {
+          "name": "Af te geven donatiebewijzen"
+        },
+        "opportunities_board": {
+          "name": "Giften in voorbereiding"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Aankomende acties"
+        },
+        "overdue_actions": {
+          "title": "Achterstallige acties"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        },
+        "memberships_by_status": {
+          "title": "Lidmaatschappen per status"
+        },
+        "gifts_per_month": {
+          "title": "Giften per maand"
+        },
+        "gifts_by_fund": {
+          "title": "Giften per bestemming"
+        },
+        "open_pipeline_value": {
+          "title": "Lopende grote giften"
+        },
+        "renewals_coming": {
+          "title": "Aankomende verlengingen"
+        },
+        "receipts_to_issue_count": {
+          "title": "Af te geven donatiebewijzen"
+        }
+      },
+      "knowledgePages": {
+        "register_rules": {
+          "title": "Wat het register bevat en wat erbuiten blijft",
+          "sections": [
+            "Doel en grondslag",
+            "Verplichte en vrijwillige velden",
+            "Toestemming en bewaartermijn"
+          ]
+        },
+        "renewals_and_fees": {
+          "title": "Verlengingen en herinneringen voor contributie",
+          "sections": [
+            "Bericht 60 en 30 dagen vooraf",
+            "Respijt en beëindiging volgens de statuten"
+          ]
+        },
+        "receipts_and_thanks": {
+          "title": "Bedankjes en donatiebewijzen",
+          "sections": [
+            "Binnen twee dagen bedanken",
+            "Wanneer een bewijs kan en in welke vorm"
+          ]
+        }
+      },
+      "rules": {
+        "thank_donor": {
+          "title": "Bedank de donateur zodra een gift is vastgelegd",
+          "description": ""
+        },
+        "issue_receipt": {
+          "title": "Geef het donatiebewijs af zodra een gift daarvoor is gemarkeerd",
+          "description": ""
+        },
+        "welcome_member": {
+          "title": "Heet het lid welkom zodra een aanmelding binnenkomt",
+          "description": ""
+        },
+        "renewal_notice": {
+          "title": "Stuur een verlengingsbericht 60 dagen voor de verlenging van een actief lidmaatschap",
+          "description": ""
+        },
+        "renewal_reminder": {
+          "title": "Herinner een lid met open contributie 30 dagen voor de verlenging",
+          "description": ""
+        },
+        "expiry_notice": {
+          "title": "Maan de onbetaalde contributie aan op de dag dat een lidmaatschap onbetaald verloopt",
+          "description": ""
+        },
+        "report_to_funder": {
+          "title": "Bereid het verslag aan het fonds twee weken voor de deadline voor",
+          "description": ""
+        },
+        "join_form_records": {
+          "title": "Maak supporter en lidmaatschap aan uit een aanmeldformulier",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Elk lidmaatschap heeft een status.",
+        "renewal_field": "Elk lidmaatschap heeft een verlengdatum.",
+        "receipt_field": "Elke gift toont of een donatiebewijs nodig is."
+      },
+      "prompt": {
+        "intro": "Richt een register voor leden en donateurs in mijn Customermates-werkruimte in: supporters, lidmaatschappen met contributie en verlengdatum, giften met bedankje en status van het bewijs, en een pijplijn voor grote giften en subsidies.",
+        "questions": [
+          "Zijn jullie een vereniging, een stichting of een kerk? Hebben jullie leden, donateurs, vrijwilligers?",
+          "Welke soorten lidmaatschap en welke contributie gebruiken jullie en hoe wordt die geïnd?",
+          "In welk land zijn jullie geregistreerd en welk donatiebewijs geven jullie daar af?",
+          "Welke software beheert jullie betalingen of boekhouding? Hier wordt alleen een verwijzing bewaard."
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Członkowie i darczyńcy",
+      "summary": "Jeden rejestr członków, darczyńców i wolontariuszy: członkostwa z terminem składki, darowizny z podziękowaniem i potwierdzeniem oraz lejek dużych darowizn i grantów.",
+      "description": "Dla stowarzyszeń, klubów, fundacji i parafii: kto Cię wspiera i jak, które członkostwo trwa do kiedy, która darowizna czeka jeszcze na podziękowanie lub potwierdzenie i która duża darowizna lub grant jest w toku. Narzędzie nie wystawia potwierdzeń ani nie pobiera składek, pokazuje tylko, które są do zrobienia.",
+      "lists": {
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jeden następny krok z terminem dla każdej otwartej sprawy."
+        },
+        "supporters": {
+          "label": "Sympatyk",
+          "pluralLabel": "Sympatycy",
+          "description": "Członkowie, darczyńcy, wolontariusze, goście i zarząd."
+        },
+        "memberships": {
+          "label": "Członkostwo",
+          "pluralLabel": "Członkostwa",
+          "description": "Jedno członkostwo ze składką i terminem odnowienia."
+        },
+        "gifts": {
+          "label": "Darowizna",
+          "pluralLabel": "Darowizny",
+          "description": "Każda darowizna z podziękowaniem i potwierdzeniem."
+        },
+        "gift_opportunities": {
+          "label": "Szansa na darowiznę",
+          "pluralLabel": "Szanse na darowizny",
+          "description": "Duże darowizny, granty i sponsoring w toku."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarte",
+            "waiting": "Oczekuje",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "memberships.status": {
+          "label": "Status",
+          "options": {
+            "applied": "Deklaracja członkowska",
+            "active": "Aktywne",
+            "grace_period": "Zaległość w składce",
+            "lapsed": "Wygasłe",
+            "resigned": "Rezygnacja"
+          }
+        },
+        "gift_opportunities.stage": {
+          "label": "Etap",
+          "options": {
+            "identified": "Zidentyfikowana",
+            "qualified": "Zakwalifikowana",
+            "cultivation": "Budowanie relacji",
+            "ask_made": "Prośba złożona",
+            "pledged": "Obiecana",
+            "received": "Otrzymana",
+            "declined": "Odrzucona"
+          }
+        },
+        "supporters.member_number": {
+          "label": "Numer członka",
+          "options": {}
+        },
+        "supporters.supporter_types": {
+          "label": "Rodzaj wsparcia",
+          "options": {
+            "member": "Członek",
+            "donor": "Darczyńca",
+            "volunteer": "Wolontariusz",
+            "guest": "Gość",
+            "board_member": "Członek zarządu"
+          }
+        },
+        "supporters.lifecycle_status": {
+          "label": "Relacja",
+          "options": {
+            "prospect": "Potencjalny",
+            "active": "Aktywny",
+            "lapsed": "Nieaktywny",
+            "former": "Były",
+            "do_not_contact": "Nie kontaktować"
+          }
+        },
+        "supporters.joined_on": {
+          "label": "Data wstąpienia",
+          "options": {}
+        },
+        "supporters.relationship_owner": {
+          "label": "Opiekun",
+          "options": {}
+        },
+        "supporters.contact_consent": {
+          "label": "Zgoda na kontakt",
+          "options": {
+            "granted": "Udzielona",
+            "not_granted": "Nieudzielona",
+            "unknown": "Nieznana"
+          }
+        },
+        "supporters.consent_date": {
+          "label": "Data zgody",
+          "options": {}
+        },
+        "supporters.last_contact_on": {
+          "label": "Ostatni kontakt",
+          "options": {}
+        },
+        "memberships.level": {
+          "label": "Rodzaj członkostwa",
+          "options": {
+            "regular": "Zwyczajne",
+            "reduced": "Ulgowe",
+            "family": "Rodzinne",
+            "youth": "Młodzieżowe",
+            "supporting": "Wspierające",
+            "honorary": "Honorowe"
+          }
+        },
+        "memberships.fee": {
+          "label": "Składka",
+          "options": {}
+        },
+        "memberships.billing_cycle": {
+          "label": "Okres rozliczeniowy",
+          "options": {
+            "yearly": "Roczny",
+            "quarterly": "Kwartalny",
+            "monthly": "Miesięczny",
+            "one_off": "Jednorazowy",
+            "none": "Brak"
+          }
+        },
+        "memberships.fee_status": {
+          "label": "Stan składki",
+          "options": {
+            "open": "Do zapłaty",
+            "paid": "Zapłacona",
+            "reminded": "Po przypomnieniu",
+            "overdue": "Zaległa",
+            "waived": "Umorzona"
+          }
+        },
+        "memberships.mandate_on_file": {
+          "label": "Zgoda na polecenie zapłaty złożona",
+          "options": {}
+        },
+        "memberships.started_on": {
+          "label": "Data rozpoczęcia",
+          "options": {}
+        },
+        "memberships.renewal_due": {
+          "label": "Termin składki",
+          "options": {}
+        },
+        "memberships.end_reason": {
+          "label": "Powód zakończenia",
+          "options": {
+            "moved_away": "Przeprowadzka",
+            "cost": "Koszt",
+            "lost_interest": "Utrata zainteresowania",
+            "dissatisfied": "Niezadowolenie",
+            "unpaid_fees": "Niezapłacone składki",
+            "other": "Inny"
+          }
+        },
+        "gifts.received_on": {
+          "label": "Data otrzymania",
+          "options": {}
+        },
+        "gifts.amount": {
+          "label": "Kwota",
+          "options": {}
+        },
+        "gifts.gift_type": {
+          "label": "Rodzaj darowizny",
+          "options": {
+            "one_off": "Jednorazowa",
+            "recurring": "Cykliczna",
+            "pledge_payment": "Wpłata z zobowiązania",
+            "in_kind": "Rzeczowa",
+            "legacy": "Zapis testamentowy"
+          }
+        },
+        "gifts.fund": {
+          "label": "Przeznaczenie",
+          "options": {
+            "unrestricted": "Cel dowolny",
+            "restricted_project": "Konkretny projekt",
+            "appeal": "Zbiórka",
+            "event": "Wydarzenie",
+            "in_memory": "Ku pamięci"
+          }
+        },
+        "gifts.acknowledgement_status": {
+          "label": "Podziękowanie",
+          "options": {
+            "to_acknowledge": "Do podziękowania",
+            "acknowledged": "Podziękowano",
+            "not_needed": "Niepotrzebne"
+          }
+        },
+        "gifts.receipt_status": {
+          "label": "Potwierdzenie darowizny",
+          "options": {
+            "not_needed": "Niepotrzebne",
+            "to_issue": "Do wystawienia",
+            "issued": "Wystawione",
+            "annual_summary_sent": "Zestawienie roczne wysłane"
+          }
+        },
+        "gift_opportunities.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "major_gift": "Duża darowizna",
+            "grant": "Grant",
+            "sponsorship": "Sponsoring firmowy",
+            "legacy": "Zapis testamentowy",
+            "campaign_pledge": "Zobowiązanie w kampanii"
+          }
+        },
+        "gift_opportunities.solicitor": {
+          "label": "Kto prosi o wsparcie",
+          "options": {}
+        },
+        "gift_opportunities.ask_date": {
+          "label": "Data prośby",
+          "options": {}
+        },
+        "gift_opportunities.decision_on": {
+          "label": "Data decyzji",
+          "options": {}
+        },
+        "gift_opportunities.report_due": {
+          "label": "Termin sprawozdania",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "thank_donor": "Podziękować darczyńcy",
+            "issue_receipt": "Wystawić potwierdzenie",
+            "welcome_member": "Powitać członka",
+            "renewal_notice": "Zawiadomienie o składce",
+            "chase_fee": "Ponaglić składkę",
+            "ask": "Prośba",
+            "report_to_funder": "Sprawozdanie dla grantodawcy",
+            "call_or_visit": "Telefon lub wizyta",
+            "other": "Inne"
+          }
+        }
+      },
+      "relationships": {
+        "membership_supporter": {
+          "sourceLabel": "Członek",
+          "targetLabel": "Członkostwa"
+        },
+        "gift_supporter": {
+          "sourceLabel": "Darczyńca",
+          "targetLabel": "Darowizny"
+        },
+        "opportunity_supporter": {
+          "sourceLabel": "Potencjalny darczyńca",
+          "targetLabel": "Szanse na darowizny"
+        },
+        "action_supporter": {
+          "sourceLabel": "Sympatyk",
+          "targetLabel": "Zadania"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "supporters_all": {
+          "name": "Wszyscy sympatycy"
+        },
+        "memberships_all": {
+          "name": "Wszystkie członkostwa"
+        },
+        "memberships_board": {
+          "name": "Członkostwa wg statusu"
+        },
+        "fees_to_chase": {
+          "name": "Składki do ponaglenia"
+        },
+        "gifts_all": {
+          "name": "Wszystkie darowizny"
+        },
+        "receipts_to_issue": {
+          "name": "Potwierdzenia do wystawienia"
+        },
+        "opportunities_board": {
+          "name": "Szanse na darowizny"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Nadchodzące zadania"
+        },
+        "overdue_actions": {
+          "title": "Zaległe zadania"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        },
+        "memberships_by_status": {
+          "title": "Członkostwa wg statusu"
+        },
+        "gifts_per_month": {
+          "title": "Darowizny w poszczególnych miesiącach"
+        },
+        "gifts_by_fund": {
+          "title": "Darowizny wg przeznaczenia"
+        },
+        "open_pipeline_value": {
+          "title": "Duże darowizny w toku"
+        },
+        "renewals_coming": {
+          "title": "Nadchodzące terminy składek"
+        },
+        "receipts_to_issue_count": {
+          "title": "Potwierdzenia do wystawienia"
+        }
+      },
+      "knowledgePages": {
+        "register_rules": {
+          "title": "Co zawiera rejestr i co zostaje poza nim",
+          "sections": [
+            "Cel i podstawa prawna",
+            "Pola obowiązkowe i dobrowolne",
+            "Zgoda i przechowywanie"
+          ]
+        },
+        "renewals_and_fees": {
+          "title": "Składki i przypomnienia",
+          "sections": [
+            "Zawiadomienie po 60 i po 30 dniach",
+            "Zaległość i skreślenie zgodnie ze statutem"
+          ]
+        },
+        "receipts_and_thanks": {
+          "title": "Podziękowania i potwierdzenia darowizn",
+          "sections": [
+            "Podziękuj w ciągu dwóch dni",
+            "Kiedy potwierdzenie jest możliwe i w jakiej formie"
+          ]
+        }
+      },
+      "rules": {
+        "thank_donor": {
+          "title": "Podziękuj darczyńcy, gdy darowizna zostanie zapisana",
+          "description": ""
+        },
+        "issue_receipt": {
+          "title": "Wystaw potwierdzenie, gdy darowizna jest oznaczona do wystawienia",
+          "description": ""
+        },
+        "welcome_member": {
+          "title": "Powitaj członka, gdy wpłynie deklaracja",
+          "description": ""
+        },
+        "renewal_notice": {
+          "title": "Wyślij zawiadomienie o składce 60 dni przed terminem aktywnego członkostwa",
+          "description": ""
+        },
+        "renewal_reminder": {
+          "title": "Przypomnij członkowi z niezapłaconą składką 30 dni przed terminem",
+          "description": ""
+        },
+        "expiry_notice": {
+          "title": "Ponagl niezapłaconą składkę w dniu terminu",
+          "description": ""
+        },
+        "report_to_funder": {
+          "title": "Przygotuj sprawozdanie dla grantodawcy dwa tygodnie przed terminem",
+          "description": ""
+        },
+        "join_form_records": {
+          "title": "Utwórz sympatyka i członkostwo z formularza przystąpienia",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Każde członkostwo ma status.",
+        "renewal_field": "Każde członkostwo ma termin składki.",
+        "receipt_field": "Każda darowizna pokazuje, czy trzeba wystawić potwierdzenie."
+      },
+      "prompt": {
+        "intro": "Skonfiguruj rejestr członków i darczyńców w mojej przestrzeni roboczej Customermates: sympatycy, członkostwa ze składką i terminem, darowizny z podziękowaniem i stanem potwierdzenia oraz lejek dużych darowizn i grantów.",
+        "questions": [
+          "Czy prowadzisz stowarzyszenie, klub, fundację czy parafię? Masz członków, darczyńców, wolontariuszy?",
+          "Jakich rodzajów członkostwa i jakich składek używasz i jak są pobierane?",
+          "W jakim kraju jest zarejestrowana Twoja organizacja i jakie potwierdzenie darowizny tam wystawia?",
+          "Jaki program prowadzi płatności lub księgowość Twojej organizacji? Tutaj zapisujemy tylko link."
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "Associados e doadores",
+      "summary": "Um registro único de associados, doadores e voluntários: mensalidades com data de renovação, doações com agradecimento e recibo, e um acompanhamento de grandes doações e editais.",
+      "description": "Para associações, igrejas, ONGs e clubes: quem apoia você e como, qual vínculo dura até quando, qual doação ainda espera agradecimento ou recibo e qual grande doação ou edital está em andamento. Não emite recibos nem cobra mensalidades: mostra quais estão pendentes. Dados sobre religião são sensíveis pela LGPD: registre só o necessário.",
+      "lists": {
+        "actions": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um próximo passo com data para cada item em aberto."
+        },
+        "supporters": {
+          "label": "Apoiador",
+          "pluralLabel": "Apoiadores",
+          "description": "Associados, doadores, voluntários, visitantes e diretoria."
+        },
+        "memberships": {
+          "label": "Vínculo",
+          "pluralLabel": "Vínculos",
+          "description": "Um vínculo com mensalidade e data de renovação."
+        },
+        "gifts": {
+          "label": "Doação",
+          "pluralLabel": "Doações",
+          "description": "Cada doação com agradecimento e recibo."
+        },
+        "gift_opportunities": {
+          "label": "Oportunidade de doação",
+          "pluralLabel": "Oportunidades de doação",
+          "description": "Grandes doações, editais e patrocínios em andamento."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberta",
+            "waiting": "Aguardando",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "memberships.status": {
+          "label": "Status",
+          "options": {
+            "applied": "Solicitação",
+            "active": "Associado ativo",
+            "grace_period": "Mensalidade a renovar",
+            "lapsed": "Vencido",
+            "resigned": "Desligamento"
+          }
+        },
+        "gift_opportunities.stage": {
+          "label": "Etapa",
+          "options": {
+            "identified": "Identificada",
+            "qualified": "Qualificada",
+            "cultivation": "Relacionamento",
+            "ask_made": "Pedido feito",
+            "pledged": "Compromisso recebido",
+            "received": "Recebida",
+            "declined": "Recusada"
+          }
+        },
+        "supporters.member_number": {
+          "label": "Número de associado",
+          "options": {}
+        },
+        "supporters.supporter_types": {
+          "label": "Tipo de apoio",
+          "options": {
+            "member": "Associado",
+            "donor": "Doador",
+            "volunteer": "Voluntário",
+            "guest": "Visitante",
+            "board_member": "Membro da diretoria"
+          }
+        },
+        "supporters.lifecycle_status": {
+          "label": "Relacionamento",
+          "options": {
+            "prospect": "Potencial",
+            "active": "Ativo",
+            "lapsed": "Inativo",
+            "former": "Ex-associado",
+            "do_not_contact": "Não contatar"
+          }
+        },
+        "supporters.joined_on": {
+          "label": "Entrada em",
+          "options": {}
+        },
+        "supporters.relationship_owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "supporters.contact_consent": {
+          "label": "Consentimento LGPD para contato",
+          "options": {
+            "granted": "Concedido",
+            "not_granted": "Não concedido",
+            "unknown": "Desconhecido"
+          }
+        },
+        "supporters.consent_date": {
+          "label": "Data do consentimento",
+          "options": {}
+        },
+        "supporters.last_contact_on": {
+          "label": "Último contato",
+          "options": {}
+        },
+        "memberships.level": {
+          "label": "Categoria",
+          "options": {
+            "regular": "Regular",
+            "reduced": "Reduzida",
+            "family": "Família",
+            "youth": "Jovem",
+            "supporting": "Contribuinte",
+            "honorary": "Honorário"
+          }
+        },
+        "memberships.fee": {
+          "label": "Mensalidade ou anuidade",
+          "options": {}
+        },
+        "memberships.billing_cycle": {
+          "label": "Periodicidade",
+          "options": {
+            "yearly": "Anual",
+            "quarterly": "Trimestral",
+            "monthly": "Mensal",
+            "one_off": "Única",
+            "none": "Nenhuma"
+          }
+        },
+        "memberships.fee_status": {
+          "label": "Status do pagamento",
+          "options": {
+            "open": "Em aberto",
+            "paid": "Paga",
+            "reminded": "Cobrada",
+            "overdue": "Atrasada",
+            "waived": "Isenta"
+          }
+        },
+        "memberships.mandate_on_file": {
+          "label": "Débito automático autorizado",
+          "options": {}
+        },
+        "memberships.started_on": {
+          "label": "Início em",
+          "options": {}
+        },
+        "memberships.renewal_due": {
+          "label": "Renovação em",
+          "options": {}
+        },
+        "memberships.end_reason": {
+          "label": "Motivo do desligamento",
+          "options": {
+            "moved_away": "Mudança",
+            "cost": "Custo",
+            "lost_interest": "Perda de interesse",
+            "dissatisfied": "Insatisfação",
+            "unpaid_fees": "Mensalidades em atraso",
+            "other": "Outro"
+          }
+        },
+        "gifts.received_on": {
+          "label": "Recebida em",
+          "options": {}
+        },
+        "gifts.amount": {
+          "label": "Valor",
+          "options": {}
+        },
+        "gifts.gift_type": {
+          "label": "Tipo de doação",
+          "options": {
+            "one_off": "Única",
+            "recurring": "Recorrente",
+            "pledge_payment": "Pagamento de compromisso",
+            "in_kind": "Em bens",
+            "legacy": "Legado"
+          }
+        },
+        "gifts.fund": {
+          "label": "Destinação",
+          "options": {
+            "unrestricted": "Livre",
+            "restricted_project": "Projeto específico",
+            "appeal": "Campanha",
+            "event": "Evento",
+            "in_memory": "Em memória de"
+          }
+        },
+        "gifts.acknowledgement_status": {
+          "label": "Agradecimento",
+          "options": {
+            "to_acknowledge": "A agradecer",
+            "acknowledged": "Agradecido",
+            "not_needed": "Dispensado"
+          }
+        },
+        "gifts.receipt_status": {
+          "label": "Recibo",
+          "options": {
+            "not_needed": "Dispensado",
+            "to_issue": "A emitir",
+            "issued": "Emitido",
+            "annual_summary_sent": "Resumo anual enviado"
+          }
+        },
+        "gift_opportunities.kind": {
+          "label": "Tipo",
+          "options": {
+            "major_gift": "Grande doação",
+            "grant": "Edital ou subvenção",
+            "sponsorship": "Patrocínio de empresa",
+            "legacy": "Legado",
+            "campaign_pledge": "Compromisso de campanha"
+          }
+        },
+        "gift_opportunities.solicitor": {
+          "label": "Solicitado por",
+          "options": {}
+        },
+        "gift_opportunities.ask_date": {
+          "label": "Data do pedido",
+          "options": {}
+        },
+        "gift_opportunities.decision_on": {
+          "label": "Decisão em",
+          "options": {}
+        },
+        "gift_opportunities.report_due": {
+          "label": "Prestação de contas até",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "thank_donor": "Agradecer um doador",
+            "issue_receipt": "Emitir um recibo",
+            "welcome_member": "Dar as boas-vindas a um associado",
+            "renewal_notice": "Aviso de renovação",
+            "chase_fee": "Cobrar uma mensalidade",
+            "ask": "Pedido",
+            "report_to_funder": "Prestar contas a um financiador",
+            "call_or_visit": "Ligação ou visita",
+            "other": "Outro"
+          }
+        }
+      },
+      "relationships": {
+        "membership_supporter": {
+          "sourceLabel": "Associado",
+          "targetLabel": "Vínculos"
+        },
+        "gift_supporter": {
+          "sourceLabel": "Doador",
+          "targetLabel": "Doações"
+        },
+        "opportunity_supporter": {
+          "sourceLabel": "Potencial doador",
+          "targetLabel": "Oportunidades de doação"
+        },
+        "action_supporter": {
+          "sourceLabel": "Apoiador",
+          "targetLabel": "Tarefas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas as tarefas"
+        },
+        "supporters_all": {
+          "name": "Todos os apoiadores"
+        },
+        "memberships_all": {
+          "name": "Todos os vínculos"
+        },
+        "memberships_board": {
+          "name": "Vínculos por status"
+        },
+        "fees_to_chase": {
+          "name": "Mensalidades a cobrar"
+        },
+        "gifts_all": {
+          "name": "Todas as doações"
+        },
+        "receipts_to_issue": {
+          "name": "Recibos a emitir"
+        },
+        "opportunities_board": {
+          "name": "Oportunidades de doação"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tarefas"
+        },
+        "overdue_actions": {
+          "title": "Tarefas atrasadas"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        },
+        "memberships_by_status": {
+          "title": "Vínculos por status"
+        },
+        "gifts_per_month": {
+          "title": "Doações por mês"
+        },
+        "gifts_by_fund": {
+          "title": "Doações por destinação"
+        },
+        "open_pipeline_value": {
+          "title": "Grandes doações em andamento"
+        },
+        "renewals_coming": {
+          "title": "Renovações a caminho"
+        },
+        "receipts_to_issue_count": {
+          "title": "Recibos a emitir"
+        }
+      },
+      "knowledgePages": {
+        "register_rules": {
+          "title": "O que o registro guarda e o que fica de fora",
+          "sections": [
+            "Finalidade e base legal",
+            "Campos obrigatórios e voluntários",
+            "Consentimento e retenção"
+          ]
+        },
+        "renewals_and_fees": {
+          "title": "Renovações e cobrança de mensalidades",
+          "sections": [
+            "Aviso aos 60 e aos 30 dias",
+            "Prazo de tolerância e desligamento conforme o estatuto"
+          ]
+        },
+        "receipts_and_thanks": {
+          "title": "Agradecimentos e recibos",
+          "sections": [
+            "Agradecer em até dois dias",
+            "Quando um recibo é possível e em qual modelo"
+          ]
+        }
+      },
+      "rules": {
+        "thank_donor": {
+          "title": "Agradecer o doador quando uma doação é registrada",
+          "description": ""
+        },
+        "issue_receipt": {
+          "title": "Emitir o recibo quando uma doação é marcada para emitir",
+          "description": ""
+        },
+        "welcome_member": {
+          "title": "Dar as boas-vindas ao associado quando chega uma solicitação",
+          "description": ""
+        },
+        "renewal_notice": {
+          "title": "Enviar um aviso de renovação 60 dias antes do vencimento de um vínculo ativo",
+          "description": ""
+        },
+        "renewal_reminder": {
+          "title": "Lembrar um associado com pagamento em aberto 30 dias antes da renovação",
+          "description": ""
+        },
+        "expiry_notice": {
+          "title": "Cobrar a mensalidade não paga no dia do vencimento",
+          "description": ""
+        },
+        "report_to_funder": {
+          "title": "Preparar a prestação de contas ao financiador duas semanas antes do prazo",
+          "description": ""
+        },
+        "join_form_records": {
+          "title": "Criar o apoiador e o vínculo a partir de um formulário de adesão",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Cada vínculo tem um status.",
+        "renewal_field": "Cada vínculo tem uma data de renovação.",
+        "receipt_field": "Cada doação mostra se há um recibo a emitir."
+      },
+      "prompt": {
+        "intro": "Configure um registro de associados e doadores no meu espaço de trabalho do Customermates: apoiadores, vínculos com mensalidade e data de renovação, doações com agradecimento e status do recibo, e um acompanhamento de grandes doações e editais.",
+        "questions": [
+          "Vocês são uma associação, uma ONG ou uma igreja? Têm associados, doadores, voluntários?",
+          "Quais categorias e valores de mensalidade vocês usam e como são cobrados?",
+          "Em que país vocês estão registrados e que recibo emitem lá?",
+          "Qual software guarda seus pagamentos ou a contabilidade? Aqui só se guarda uma referência."
+        ]
+      }
+    }
+  }
+}

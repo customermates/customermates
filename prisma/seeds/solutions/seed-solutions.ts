@@ -42,25 +42,41 @@ export function assertSolutionSeedBudget(durationMs: number, budgetMs = SOLUTION
     throw new Error(`Seeding the demo workspaces took ${durationMs} ms, over the ${budgetMs} ms budget`);
 }
 
+export type SolutionSeedOptions = { signal?: AbortSignal; budgetMs?: number };
+
 /**
  * Seeds every demo workspace: the team workspace first (other workspaces copy Max's profile from it), then the rest
- * with bounded concurrency. Returns the record counts per workspace and fails when the run exceeds its budget.
+ * with bounded concurrency. Returns the record counts per workspace. The first failure, an abort or a spent budget
+ * stops every worker from starting another workspace, and the run settles all workspaces already in flight before it
+ * rethrows, so no transaction is left open behind a failed run.
  */
 export async function seedSolutionWorkspaces(
   context: SeedContext,
   plans: readonly SolutionWorkspacePlan[],
+  options: SolutionSeedOptions = {},
 ): Promise<SolutionSeedCounts[]> {
   const started = Date.now();
+  const budgetMs = options.budgetMs ?? SOLUTION_SEED_BUDGET_MS;
   const [team, ...others] = [...plans].sort((a, b) => Number(b.workspace.team) - Number(a.workspace.team));
   const results: SolutionSeedCounts[] = [];
-  if (team) results.push(await seedSolutionWorkspace(context, team.workspace, team.content, team.model));
+  let failure: { error: unknown } | undefined;
+  const stopped = () => failure !== undefined || options.signal?.aborted === true || Date.now() - started > budgetMs;
+  const seed = async (plan: SolutionWorkspacePlan) => {
+    try {
+      results.push(await seedSolutionWorkspace(context, plan.workspace, plan.content, plan.model));
+    } catch (error) {
+      failure ??= { error };
+    }
+  };
+  if (team) await seed(team);
   const queue = [...others];
   const worker = async () => {
-    for (let plan = queue.shift(); plan; plan = queue.shift())
-      results.push(await seedSolutionWorkspace(context, plan.workspace, plan.content, plan.model));
+    for (let plan = queue.shift(); plan && !stopped(); plan = queue.shift()) await seed(plan);
   };
   await Promise.all(Array.from({ length: SOLUTION_SEED_CONCURRENCY }, worker));
-  assertSolutionSeedBudget(Date.now() - started);
+  if (failure) throw failure.error;
+  options.signal?.throwIfAborted();
+  assertSolutionSeedBudget(Date.now() - started, budgetMs);
   const order = new Map(plans.map(({ workspace }, index) => [workspace.slug, index]));
   return results.sort((a, b) => (order.get(a.slug) ?? 0) - (order.get(b.slug) ?? 0));
 }

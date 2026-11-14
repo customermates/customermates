@@ -365,7 +365,10 @@ test("a member removed from their only workspace starts over on onboarding and c
       await removed.page.locator("#firstName").fill("Tom");
       await removed.page.locator("#lastName").fill("Solo");
       await removed.page.locator("#workspaceName").fill("Tom Fresh Start");
-      if (e2eAppMode() === "cloud") await removed.page.locator("#agreeToTerms").click();
+      if (e2eAppMode() === "cloud") {
+        await removed.page.locator("#agreeToTerms").click();
+        await removed.page.locator("#onboarding-team-size-solo").click();
+      }
       await removed.page.screenshot({
         path: testInfo.outputPath(`ws-remove-only-workspace-onboarding-${testInfo.project.name}.png`),
       });

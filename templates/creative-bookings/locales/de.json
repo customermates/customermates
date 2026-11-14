@@ -1,0 +1,149 @@
+{
+  "locale": "de",
+  "name": "Buchungen für Kreative",
+  "summary": "Für Fotografen, Videografen und Eventplaner: eine Pipeline von der Anfrage bis zur Buchung, eine Lieferphase nach dem Termin, Anzahlung und Restzahlung im Blick und eine Notiz zu jedem Jahrestag.",
+  "description": "Eine Zeile pro Buchung mit zwei Phasen: Vertrieb (Anfrage bis gebucht) und Lieferung (Shooting erledigt bis geliefert). Termine werden gesichert, bis Vertrag und Anzahlung da sind, die Restzahlung hat eine eigene Fälligkeit, und nach jeder Lieferung wird um eine Bewertung gebeten. Verträge, Rechnungen und Galerien bleiben in Ihren eigenen Werkzeugen, hier stehen die Links.",
+  "lists": {
+    "people": { "label": "Person", "pluralLabel": "Personen", "description": "Kunden, Partner der Kunden, Planer und Ansprechpartner der Location." },
+    "partners": { "label": "Partner", "pluralLabel": "Partner", "description": "Locations, Planer, Caterer und andere Dienstleister, mit denen du arbeitest." },
+    "bookings": { "label": "Buchung", "pluralLabel": "Buchungen", "description": "Ein Auftrag von der Anfrage bis zur Lieferung." }
+  },
+  "fields": {
+    "bookings.stage": {
+      "label": "Phase",
+      "options": { "inquiry": "Anfrage", "consultation": "Beratungsgespräch", "proposal_sent": "Angebot gesendet", "date_on_hold": "Termin reserviert", "booked": "Gebucht", "lost": "Verloren" }
+    },
+    "bookings.delivery": {
+      "label": "Lieferung",
+      "options": { "not_started": "Nicht begonnen", "preparing": "In Vorbereitung", "shoot_done": "Shooting erledigt", "editing": "In Bearbeitung", "client_review": "Kunde prüft", "delivered": "Geliefert", "cancelled": "Abgesagt oder verschoben" }
+    },
+    "people.contact_role": {
+      "label": "Rolle",
+      "options": { "client": "Kunde", "partner_of_client": "Partner des Kunden", "payer": "Elternteil oder Zahler", "planner": "Planer", "venue_contact": "Ansprechpartner der Location", "referrer": "Empfehler" }
+    },
+    "people.preferred_channel": {
+      "label": "Bevorzugter Kanal",
+      "options": { "email": "E-Mail", "whatsapp": "WhatsApp", "phone": "Telefon", "instagram": "Instagram" }
+    },
+    "people.anniversary_on": { "label": "Jahrestag" },
+    "people.portfolio_consent": { "label": "Einwilligung für das Portfolio", "options": { "granted": "Erteilt", "declined": "Abgelehnt", "not_asked": "Nicht gefragt" } },
+    "people.consent_date": { "label": "Datum der Einwilligung" },
+    "partners.partner_type": {
+      "label": "Art",
+      "options": { "venue": "Location", "planner": "Planer", "caterer": "Caterer", "florist": "Florist", "band_or_dj": "Band oder DJ", "other": "Sonstige" }
+    },
+    "partners.website": { "label": "Website" },
+    "partners.preferred": { "label": "Bevorzugter Partner" },
+    "bookings.service_type": {
+      "label": "Leistung",
+      "options": { "wedding": "Hochzeit", "portrait": "Porträt oder Familie", "event": "Veranstaltung", "corporate": "Business oder Bewerbungsfotos", "commercial": "Werbung", "video": "Video", "planning": "Planung" }
+    },
+    "bookings.package": { "label": "Paket" },
+    "bookings.event_date": { "label": "Termin des Events" },
+    "bookings.location": { "label": "Ort" },
+    "bookings.source": {
+      "label": "Herkunft",
+      "options": { "referral": "Empfehlung", "instagram": "Instagram", "google_search": "Google-Suche", "venue_or_planner": "Location oder Planer", "wedding_fair": "Hochzeitsmesse", "past_client": "Früherer Kunde", "other": "Sonstige" }
+    },
+    "bookings.date_hold_until": { "label": "Termin reserviert bis" },
+    "bookings.contract_status": {
+      "label": "Vertrag",
+      "options": { "not_sent": "Nicht gesendet", "sent": "Gesendet", "signed": "Unterschrieben", "cancelled": "Storniert" }
+    },
+    "bookings.deposit_amount": { "label": "Höhe der Anzahlung" },
+    "bookings.deposit_status": {
+      "label": "Anzahlung",
+      "options": { "not_due": "Nicht fällig", "requested": "Angefordert", "paid": "Bezahlt", "refunded": "Erstattet", "kept": "Einbehalten" }
+    },
+    "bookings.balance_due_on": { "label": "Restzahlung fällig am" },
+    "bookings.balance_status": {
+      "label": "Restzahlung",
+      "options": { "not_due": "Nicht fällig", "requested": "Angefordert", "paid": "Bezahlt", "overdue": "Überfällig" }
+    },
+    "bookings.questionnaire_status": {
+      "label": "Fragebogen",
+      "options": { "not_sent": "Nicht gesendet", "sent": "Gesendet", "received": "Erhalten" }
+    },
+    "bookings.delivery_due_on": { "label": "Lieferfrist" },
+    "bookings.delivered_on": { "label": "Geliefert am" },
+    "bookings.gallery_url": { "label": "Link zur Galerie" },
+    "bookings.usage_rights": {
+      "label": "Nutzungsrechte",
+      "options": { "private_use": "Private Nutzung", "portfolio_and_social": "Portfolio und Social Media", "commercial_licence": "Kommerzielle Lizenz", "not_decided": "Noch offen" }
+    },
+    "bookings.lost_reason": {
+      "label": "Verlustgrund",
+      "options": { "date_taken": "Termin vergeben", "price": "Preis", "chose_another": "Anderen Anbieter gewählt", "cancelled_or_postponed": "Event abgesagt oder verschoben", "no_response": "Keine Antwort", "style_mismatch": "Stil passt nicht" }
+    },
+    "bookings.weighted_value": { "label": "Gewichteter Wert" },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "reply": "Anfrage beantworten",
+        "consult": "Beratungsgespräch",
+        "send_proposal": "Angebot senden",
+        "send_contract": "Vertrag senden",
+        "chase_payment": "Zahlung nachfassen",
+        "send_questionnaire": "Fragebogen senden",
+        "build_timeline": "Ablaufplan erstellen",
+        "shoot_day": "Shooting-Tag",
+        "edit": "Bearbeitung",
+        "deliver": "Lieferung",
+        "request_review": "Bewertung erbitten",
+        "anniversary": "Jahrestags-Gruß",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "booking_client": { "sourceLabel": "Kunde", "targetLabel": "Buchungen" },
+    "booking_venue": { "sourceLabel": "Location oder Planer", "targetLabel": "Buchungen" },
+    "action_booking": { "sourceLabel": "Buchung", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "bookings_board": { "name": "Buchungen nach Phase" },
+    "bookings_all": { "name": "Alle Buchungen nach Datum" },
+    "delivery_board": { "name": "Lieferung nach Status" },
+    "payments_due": { "name": "Restzahlungen nachfassen" },
+    "people_all": { "name": "Alle Personen" },
+    "partners_all": { "name": "Alle Partner" }
+  },
+  "widgets": {
+    "pipeline_by_stage": { "title": "Offene Anfragen nach Phase" },
+    "shoots_coming": { "title": "Gebuchte Termine" },
+    "deposits_outstanding": { "title": "Angeforderte Anzahlungen" },
+    "balances_coming": { "title": "Anstehende Restzahlungen" },
+    "booked_per_month": { "title": "Gebuchter Wert nach Monat des Termins" },
+    "lost_reasons": { "title": "Warum Anfragen verloren gingen" }
+  },
+  "knowledgePages": {
+    "booking_workflow": { "title": "Ablauf einer Buchung", "sections": ["Von der Anfrage zur Buchung: binnen eines Tages antworten, Termin reservieren, Vertrag, Anzahlung", "Vom Shooting zur Lieferung: Bearbeitung, Prüfung, Galerie"] },
+    "contract_checklist": { "title": "Checkliste Vertrag und Zahlung", "sections": ["Was das Paket enthält und was nicht", "Anzahlung, Restzahlung und Stornierung", "Nutzungsrechte und Einwilligung der abgebildeten Personen"] },
+    "delivery_and_usage": { "title": "Lieferung, Vorschau und Bitte um Bewertung", "sections": ["Liefertermin und Vorschau", "Wo die Galerie liegt", "Um eine Bewertung bitten"] }
+  },
+  "rules": {
+    "reply_to_inquiry": { "title": "Eine neue Anfrage binnen eines Tages beantworten" },
+    "send_contract": { "title": "Den Vertrag senden, wenn der Termin reserviert wird" },
+    "chase_payment_after_signing": { "title": "Drei Tage nach der Unterschrift an die Anzahlung erinnern" },
+    "questionnaire_before_event": { "title": "45 Tage vor einem gebuchten Event den Fragebogen senden" },
+    "balance_reminder": { "title": "Eine Woche vor der Fälligkeit an die Restzahlung erinnern" },
+    "edit_after_shoot": { "title": "Die Bearbeitung beginnen, wenn das Shooting erledigt ist" },
+    "request_review": { "title": "Zwei Wochen nach der Lieferung um eine Bewertung bitten" },
+    "anniversary_note": { "title": "Am Jahrestag eine Nachricht schreiben" },
+    "inquiry_form_records": { "title": "Person und Buchung aus einem Anfrageformular anlegen" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Jede Buchung hat eine Vertriebsphase.",
+    "event_date_field": "Jede Buchung hat einen Termin.",
+    "bookings_board_view": "Die Buchungen öffnen sich als Board nach Phase."
+  },
+  "prompt": {
+    "intro": "Richte Buchungen für Kreative in meinem Customermates-Workspace ein: eine Pipeline von der Anfrage bis zur Buchung, eine Lieferphase nach dem Termin, Anzahlung und Restzahlung, einen Fragebogen vor dem Event, eine Bitte um Bewertung und Jahrestags-Grüße.",
+    "questions": [
+      "Was fotografierst, filmst oder planst du, und wie viele Buchungen hast du im Jahr?",
+      "Welche Schritte durchläuft ein Kunde von der Anfrage bis zur Buchung, und wann reservierst du den Termin?",
+      "Wie nimmst du Anzahlungen und Restzahlungen entgegen? Rechnungen bleiben in deinem eigenen Werkzeug.",
+      "Wo lieferst du Galerien aus? Hier wird nur der Link gespeichert."
+    ]
+  }
+}

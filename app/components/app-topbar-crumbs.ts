@@ -19,6 +19,7 @@ const PAGE_LABEL_KEYS: Record<string, string> = {
   inbox: "NavigationBar.inbox",
   wiki: "NavigationBar.wiki",
   routines: "NavigationBar.routines",
+  automations: "NavigationBar.automations",
   trash: "NavigationBar.trash",
   settings: "NavigationBar.settings",
   operator: "NavigationBar.operator",

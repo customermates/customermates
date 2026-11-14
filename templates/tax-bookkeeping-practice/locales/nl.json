@@ -1,0 +1,136 @@
+{
+  "locale": "nl",
+  "name": "Boekhoud- en belastingkantoor",
+  "summary": "Een kantoorwerkplek met twee stromen: een opdracht binnenhalen, met cliëntenonderzoek en opdrachtbevestiging, en het terugkerende werk per klant doen, met een termijnenregister dat een tweede persoon controleert.",
+  "description": "Beheer een boekhoud- of belastingkantoor op één plek: opdrachten van aanvraag tot actieve opdracht met een cliëntenonderzoek volgens de Wwft ertussen, terugkerende dossiers per klant en periode met de status wacht op documenten, en een termijnenregister met een voortermijn en de persoon die elke datum heeft gecontroleerd. Het is de laag voor relatie, bewijs van termijnen en opvolging naast je kantoorsoftware. Het berekent geen wettelijke data, dient niets in, voert geen administratie, doet geen loonadministratie of tijdfacturering en bewaart geen BSN's of kopieën van identiteitsbewijzen.",
+  "lists": {
+    "contacts": { "label": "Contactpersoon", "pluralLabel": "Contactpersonen", "description": "De mensen bij je klanten die documenten sturen en tekenen." },
+    "clients": { "label": "Klant", "pluralLabel": "Klanten", "description": "Particulieren, eenmanszaken, bedrijven en verenigingen voor wie je werkt." },
+    "mandates": { "label": "Opdracht", "pluralLabel": "Opdrachten", "description": "Eén opdracht van aanvraag tot actief of afgewezen." },
+    "jobs": { "label": "Dossier", "pluralLabel": "Dossiers", "description": "Terugkerend werk voor een klant en periode, zoals een maandafsluiting of een btw-aangifte." },
+    "deadlines": { "label": "Termijn", "pluralLabel": "Termijnen", "description": "Een wettelijke of overheidsdatum met bron, een voortermijn en de persoon die haar controleerde." }
+  },
+  "fields": {
+    "contacts.preferred_channel": { "label": "Voorkeurskanaal", "options": { "email": "E-mail", "phone": "Telefoon", "portal": "Portaal", "whatsapp": "WhatsApp", "post": "Post" } },
+    "clients.client_type": { "label": "Type", "options": { "individual": "Particulier", "sole_trader": "Eenmanszaak", "company": "Bedrijf", "association": "Vereniging" } },
+    "clients.vat_frequency": { "label": "Btw-aangifte", "options": { "monthly": "Maandelijks", "quarterly": "Per kwartaal", "annual": "Jaarlijks", "not_applicable": "Niet van toepassing" } },
+    "clients.authorisation_on": { "label": "Machtiging aanwezig sinds" },
+    "clients.aml_risk": {
+      "label": "Witwasrisico",
+      "options": { "not_assessed": "Niet beoordeeld", "low": "Laag", "standard": "Standaard", "enhanced": "Verhoogd", "declined": "Afgewezen" }
+    },
+    "clients.aml_next_review": { "label": "Volgende risicobeoordeling" },
+    "mandates.stage": {
+      "label": "Fase",
+      "options": { "inquiry": "Aanvraag", "intro_call": "Kennismaking", "proposal_sent": "Offerte", "aml_check": "Cliëntenonderzoek (Wwft)", "engagement_letter_out": "Opdrachtbevestiging verstuurd", "active": "Actief", "declined": "Afgewezen", "not_going_ahead": "Verloren" }
+    },
+    "mandates.services": {
+      "label": "Diensten",
+      "options": { "bookkeeping": "Boekhouding", "payroll": "Loonadministratie", "vat_returns": "Btw", "annual_accounts": "Jaarrekening", "tax_returns": "Belastingaangiften", "advisory": "Advies" }
+    },
+    "mandates.fee_model": { "label": "Tarief", "options": { "fixed_monthly": "Vast per maand", "hourly": "Per uur", "per_filing": "Per aangifte", "value_based": "Waardegebonden" } },
+    "mandates.next_step_due": { "label": "Volgende stap uiterlijk op" },
+    "mandates.lost_reason": {
+      "label": "Reden van verlies",
+      "options": { "capacity": "Geen capaciteit", "risk_declined": "Afgewezen wegens risico", "scope_mismatch": "Omvang past niet", "price": "Prijs", "chose_other_advisor": "Koos een andere adviseur", "no_response": "Geen reactie" }
+    },
+    "jobs.status": {
+      "label": "Status",
+      "options": { "planned": "Gepland", "waiting_for_documents": "Wacht op documenten", "in_preparation": "In voorbereiding", "in_review": "In controle", "client_approval": "Wacht op akkoord van de klant", "submitted": "Ingediend", "waiting_for_authority": "Wacht op de Belastingdienst", "done": "Klaar" }
+    },
+    "jobs.job_type": {
+      "label": "Soort dossier",
+      "options": { "monthly_bookkeeping": "Maandelijkse boekhouding", "payroll_run": "Loonrun", "vat_return": "Btw-aangifte", "annual_accounts": "Jaarrekening", "tax_return": "Belastingaangifte", "year_end": "Jaarafsluiting" }
+    },
+    "jobs.period": { "label": "Periode" },
+    "jobs.documents_due": { "label": "Documenten uiterlijk op" },
+    "jobs.internal_due": { "label": "Interne deadline" },
+    "jobs.reviewer": { "label": "Controleur" },
+    "jobs.notice_received_on": { "label": "Aanslag of beschikking ontvangen op" },
+    "deadlines.kind": {
+      "label": "Soort",
+      "options": { "vat_return": "Btw-aangifte", "vat_payment": "Btw-betaling", "payroll_report": "Loonaangifte", "annual_accounts": "Jaarrekening", "tax_return": "Belastingaangifte", "appeal": "Bezwaartermijn", "payment": "Betaling", "aml_review": "Risicobeoordeling", "other": "Overig" }
+    },
+    "deadlines.due_date": { "label": "Uiterste datum" },
+    "deadlines.pre_deadline": { "label": "Voortermijn" },
+    "deadlines.source_ref": { "label": "Bron van de datum" },
+    "deadlines.verified_by": { "label": "Gecontroleerd door" },
+    "deadlines.status": { "label": "Status", "options": { "open": "Open", "in_progress": "In behandeling", "filed": "Ingediend", "extended": "Uitgesteld", "cancelled": "Vervallen" } },
+    "actions.kind": {
+      "label": "Soort",
+      "options": {
+        "request_documents": "Documenten opvragen",
+        "chase_documents": "Documenten opnieuw opvragen",
+        "chase_approval": "Akkoord of handtekening opvolgen",
+        "review": "Controleren",
+        "reply": "Reageren",
+        "aml": "Identificatie en risicoclassificatie",
+        "filing": "Indienen",
+        "other": "Overig"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Klant", "targetLabel": "Contactpersonen" },
+    "mandate_client": { "sourceLabel": "Klant", "targetLabel": "Opdrachten" },
+    "job_client": { "sourceLabel": "Klant", "targetLabel": "Dossiers" },
+    "deadline_client": { "sourceLabel": "Klant", "targetLabel": "Termijnen" },
+    "action_job": { "sourceLabel": "Dossier", "targetLabel": "Acties" },
+    "action_client": { "sourceLabel": "Klant", "targetLabel": "Acties" }
+  },
+  "views": {
+    "mandates_board": { "name": "Opdrachten per fase" },
+    "mandates_all": { "name": "Alle opdrachten" },
+    "jobs_board": { "name": "Dossiers per status" },
+    "jobs_waiting_documents": { "name": "Wachten op documenten" },
+    "deadlines_all": { "name": "Alle termijnen" },
+    "unverified_deadlines": { "name": "Termijnen zonder controle" },
+    "clients_all": { "name": "Alle klanten" },
+    "contacts_all": { "name": "Alle contactpersonen" }
+  },
+  "widgets": {
+    "deadlines_coming": { "title": "Komende termijnen" },
+    "unverified_count": { "title": "Open termijnen zonder controleur" },
+    "jobs_by_status": { "title": "Open dossiers per status" },
+    "documents_waiting": { "title": "Dossiers die op documenten wachten" },
+    "jobs_waiting_on_client": { "title": "Dossiers die op akkoord van de klant wachten" },
+    "mandates_funnel": { "title": "Opdrachten per fase" },
+    "aml_reviews": { "title": "Risicobeoordelingen die aan de beurt zijn" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Hoe het kantoor draait", "sections": ["De twee stromen: een opdracht binnenhalen en het werk doen", "Wie voor welke fase verantwoordelijk is en de regel van één actie met datum per open dossier"] },
+    "onboarding_and_aml": { "title": "Acceptatie en cliëntenonderzoek", "sections": ["De klant en de uiteindelijk belanghebbende identificeren, risicoclassificatie", "Checklist opdrachtbevestiging (kopieën van identiteitsbewijzen worden hier niet bewaard)"] },
+    "deadline_control": { "title": "Termijnbewaking", "sections": ["Hoe een datum met bron wordt ingevoerd en door een tweede persoon gecontroleerd", "Controle van de voortermijn en besluit over uitstel"] },
+    "document_checklists": { "title": "Documentverzoeken per dienst", "sections": ["Wat we per dienst opvragen en voor wanneer", "Herinneringen en wat we doen als documenten ontbreken"] }
+  },
+  "rules": {
+    "proposal_follow_up": { "title": "Volg een offerte 3 dagen na verzending op" },
+    "aml_identification": { "title": "Identificeer binnen 2 dagen als een opdracht de fase Cliëntenonderzoek bereikt" },
+    "onboarding_set": { "title": "Vraag de machtiging en de eerste documenten op als een opdracht actief wordt" },
+    "recontact_not_going_ahead": { "title": "Zet de volgende stap op 90 dagen als een opdracht niet doorgaat" },
+    "documents_chase": { "title": "Vraag de documenten 3 dagen voor de afgesproken datum opnieuw op" },
+    "documents_overdue_notice": { "title": "Waarschuw de verantwoordelijke als documenten er al moeten zijn en nog ontbreken" },
+    "pre_deadline_check": { "title": "Waarschuw de verantwoordelijke op de voortermijn van een open termijn" },
+    "due_date_escalation": { "title": "Waarschuw de teamleider 2 dagen voor een open termijn" },
+    "approval_chase": { "title": "Volg het akkoord van de klant na 5 dagen wachten op" },
+    "notice_check": { "title": "Beoordeel een aanslag of beschikking binnen 3 dagen na ontvangst" },
+    "aml_review": { "title": "Herzie de risicoclassificatie als de volgende beoordelingsdatum is bereikt" },
+    "monthly_close_jobs": { "title": "Maak aan het begin van elke maand de maanddossiers aan" }
+  },
+  "acceptanceChecks": {
+    "mandate_stage_field": "Elke opdracht heeft een fase.",
+    "job_status_field": "Elk dossier heeft een status, ook wacht op documenten.",
+    "deadline_due_field": "Elke termijn legt zijn datum vast.",
+    "deadline_verifier_field": "Elke termijn legt vast wie hem controleerde.",
+    "deadline_control_page": "De kennisbank bevat een pagina over termijnbewaking."
+  },
+  "prompt": {
+    "intro": "Richt in mijn Customermates-werkruimte een boekhoud- en belastingkantoor in: opdrachten van aanvraag tot actief met een cliëntenonderzoek, terugkerende dossiers per klant en periode, een termijnenregister met voortermijn en controleur, en opvolging met datum. Bereken nooit wettelijke data en bewaar geen kopieën van identiteitsbewijzen.",
+    "questions": [
+      "Welke diensten bied je aan en welke terugkerende dossiers voer je per klant?",
+      "In welk land werk je en welke termijnen bewaak je?",
+      "Wie bereidt voor, wie beoordeelt en wie controleert een termijn?",
+      "Hoe identificeer je nieuwe klanten en hoe vaak herzie je hun risicoclassificatie?"
+    ]
+  }
+}

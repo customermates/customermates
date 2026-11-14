@@ -1,0 +1,92 @@
+---
+title: "Conectar o LinkedIn ao Claude: sua caixa de entrada"
+description: "Conectar o LinkedIn ao Claude: veja quais conversas aguardam sua resposta, o Claude redige e você envia. Teste de [[commercial.trial.days]] dias, sem cartão. Não é um scraper."
+featureName: LinkedIn no Claude
+
+relatedHrefs:
+  - /features/claude-crm
+  - /features/linkedin-integration
+  - /docs/connect-custom-connector
+  - /features/unified-inbox
+
+sections:
+  visual:
+    kind: os
+  steps:
+    title: "Conectado em três passos"
+    items:
+      - title: "Comece o teste e conecte o LinkedIn"
+        description: "Cadastre-se e conecte sua conta do LinkedIn na configuração. Suas conversas chegam e, por padrão, só você as vê. O teste dura [[commercial.trial.days]] dias e não exige cartão."
+      - title: "Adicione o Customermates ao Claude"
+        description: "No Claude, abra Settings › Connectors › Add custom connector e cole o endereço do servidor https://customermates.com/api/v1/mcp. A configuração também mostra o endereço do seu próprio espaço de trabalho e um botão que o preenche para você."
+      - title: "Entre e pergunte"
+        description: "O Claude abre a página de login do Customermates. Aprove o acesso e pergunte ao Claude quais conversas do LinkedIn aguardam a sua resposta."
+
+hero:
+  title: "Sua caixa de entrada do LinkedIn no Claude"
+  description: "Conecte sua conta do LinkedIn ao Customermates e adicione o Customermates ao Claude como conector. O Claude passa a ver quais conversas aguardam a sua resposta, redige a resposta a partir do registro do cliente, e você a envia. Endereço do servidor: https://customermates.com/api/v1/mcp"
+  buttonLeftText: "Comece seu teste de [[commercial.trial.days]] dias"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Leia o guia do conector
+  buttonRightHref: /docs/connect-custom-connector
+  hint: "✓ Sem cartão de crédito ✓ Produto independente, sem vínculo com a Anthropic nem com o LinkedIn"
+
+cta:
+  action: "Veja quais conversas do LinkedIn aguardam a sua resposta"
+  description: "Comece o teste, conecte o LinkedIn e adicione o conector ao Claude. A primeira pergunta leva poucos minutos, e você pode desconectar qualquer um dos lados quando quiser."
+  buttonLeftText: "Comece seu teste de [[commercial.trial.days]] dias"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Leia o guia do conector
+  buttonRightHref: /docs/connect-custom-connector
+  hint: "✓ Sem cartão de crédito ✓ Primeiros [[commercial.trial.days]] dias grátis"
+---
+
+Para conectar o LinkedIn ao Claude, você precisa de algo no meio: o Claude não tem um conector próprio para o LinkedIn. O Customermates é um CRM com caixa de entrada. Você conecta a sua conta do LinkedIn a ele uma vez, e o Claude chega à caixa de entrada pelo conector do Customermates. Suas conversas, as pessoas que aparecem nelas e as suas anotações sobre cada cliente ficam, então, a uma pergunta de distância no Claude.
+
+## O que você pode perguntar ao Claude
+
+Escreva a pergunta como a faria a um colega. Três que funcionam já no primeiro dia:
+
+- **“Quais conversas do LinkedIn estão aguardando a minha resposta?”** O Claude lista as conversas abertas com a última mensagem de cada uma.
+- **“Redija uma resposta à última mensagem da Anna, usando o que sabemos sobre a empresa dela.”** O Claude lê a conversa e o registro do cliente e salva um rascunho na sua caixa de entrada.
+- **“A quem prometi dar um retorno esta semana, e eu dei?”** O Claude percorre as suas conversas recentes e aponta as que ainda estão em aberto.
+
+O mesmo conector cobre o seu e-mail assim que você conecta uma caixa de e-mail, então a resposta pode incluir os dois.
+
+## O que ele faz e o que não faz
+
+**Faz:** ler as conversas da conta que você conectou, ler e atualizar os seus registros de clientes, salvar um rascunho para você revisar e enviar uma única mensagem ou um único convite de conexão quando você pedir ao Claude.
+
+**Não faz:** fazer scraping de perfis ou de resultados de busca, enviar convites ou mensagens em massa, executar sequências nem agir em segundo plano. O Customermates não é uma ferramenta de automação do LinkedIn. Ele mantém um orçamento de requisições conservador para o LinkedIn e faz uma pausa antes que o LinkedIn reaja; os números estão nos [limites de mensageria](/docs/messaging-rate-limits).
+
+**Sobre o envio:** o Customermates orienta o Claude a perguntar antes de enviar qualquer coisa. Se o Claude pergunta a cada vez depende das permissões de ferramentas que você define no Claude, então deixe as ferramentas de envio em *Ask* lá. Um rascunho só sai da sua caixa de entrada quando você o envia.
+
+A descrição mais detalhada do lado do LinkedIn, inclusive o Sales Navigator, está na página [integração com o LinkedIn](/features/linkedin-integration).
+
+## Quanto custa
+
+O teste dura [[commercial.trial.days]] dias no plano Pro e não exige cartão de crédito. Depois dele, o Pro custa [[commercial.price.pro.monthly]] por usuário ao mês e inclui [[commercial.entitlement.pro.includedAccountsPerUser]] conta conectada por usuário. Se você não assinar, o espaço de trabalho passa para o plano Free: o CRM continua, a caixa de entrada não. O conector em si não custa nada a mais, e o Claude cobra o próprio uso pelo seu plano do Claude.
+
+O Claude oferece conectores personalizados em todos os planos; o plano gratuito dele permite um. O [guia do conector](/docs/connect-custom-connector) traz os passos para o Claude e para o ChatGPT.
+
+## Quem está por trás
+
+O Customermates é um produto independente. Ele não é afiliado à Anthropic nem ao LinkedIn, e não é endossado nem patrocinado por eles. O núcleo do CRM é de código aberto sob AGPL-3.0, e o banco de dados da nuvem está configurado na região AWS de Frankfurt. A [lista de subprocessadores](/subprocessors) nomeia todos os provedores envolvidos, inclusive o que conecta a sua conta do LinkedIn.
+
+<Faq>
+<FaqItem question="O Claude tem um conector oficial para o LinkedIn?">
+Não. O Claude só chega às conversas do LinkedIn por um conector fornecido por outra pessoa. Com o Customermates, as conversas vêm da conta do LinkedIn que você mesmo conecta, e o Claude as lê pelo conector do Customermates.
+</FaqItem>
+<FaqItem question="O Claude pode enviar mensagens do LinkedIn por mim?">
+O Claude pode salvar um rascunho na sua caixa de entrada do Customermates e pode enviar uma única mensagem quando você pedir. O Customermates orienta o Claude a perguntar antes; as suas permissões de ferramentas no Claude decidem se ele pergunta. Não há mensagens em massa nem sequências.
+</FaqItem>
+<FaqItem question="Isso é um scraper ou uma ferramenta de automação do LinkedIn?">
+Não. Ele lê as conversas da sua própria conta conectada e consulta um perfil quando você pede. Não faz scraping, não enriquece nada em segundo plano e não envia convites em massa.
+</FaqItem>
+<FaqItem question="Funciona no plano gratuito do Claude?">
+O plano gratuito do Claude permite um conector personalizado, então funciona se essa vaga estiver livre. O ChatGPT exige um plano pago para conectores personalizados.
+</FaqItem>
+<FaqItem question="O que acontece depois do teste?">
+Você escolhe um plano ou não faz nada. Sem assinatura, o espaço de trabalho passa para o plano Free, que mantém o CRM para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros e não tem caixa de entrada.
+</FaqItem>
+</Faq>

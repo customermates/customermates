@@ -1,0 +1,129 @@
+{
+  "key": "actions_core",
+  "description": "The tasks list every follow-up template shares: an Action with a status, a due date, an owner and an outcome. A template adds its own kind field.",
+  "lists": [{ "key": "actions", "role": "tasks", "icon": "check" }],
+  "fields": [
+    {
+      "key": "actions.status",
+      "type": "select",
+      "options": [{ "key": "open" }, { "key": "waiting", "color": "warning" }, { "key": "done", "color": "success" }, { "key": "cancelled", "color": "secondary" }]
+    },
+    { "key": "actions.due", "type": "date" },
+    { "key": "actions.owner", "type": "member" },
+    { "key": "actions.outcome", "type": "richText" }
+  ],
+  "text": {
+    "en": {
+      "lists": {
+        "actions": { "label": "Action", "pluralLabel": "Actions", "description": "One dated next step per open item." }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": { "open": "Open", "waiting": "Waiting", "done": "Done", "cancelled": "Cancelled" }
+        },
+        "actions.due": { "label": "Due date" },
+        "actions.owner": { "label": "Owner" },
+        "actions.outcome": { "label": "Outcome" }
+      }
+    },
+    "de": {
+      "lists": {
+        "actions": { "label": "Aufgabe", "pluralLabel": "Aufgaben", "description": "Ein terminierter nächster Schritt pro offenem Vorgang." }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": { "open": "Offen", "waiting": "Wartet", "done": "Erledigt", "cancelled": "Abgebrochen" }
+        },
+        "actions.due": { "label": "Fällig am" },
+        "actions.owner": { "label": "Zuständig" },
+        "actions.outcome": { "label": "Ergebnis" }
+      }
+    },
+    "fr": {
+      "lists": {
+        "actions": { "label": "Action", "pluralLabel": "Actions", "description": "Une prochaine étape datée par dossier ouvert." }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": { "open": "Ouverte", "waiting": "En attente", "done": "Terminée", "cancelled": "Annulée" }
+        },
+        "actions.due": { "label": "Échéance" },
+        "actions.owner": { "label": "Responsable" },
+        "actions.outcome": { "label": "Résultat" }
+      }
+    },
+    "it": {
+      "lists": {
+        "actions": { "label": "Attività", "pluralLabel": "Attività", "description": "Un prossimo passo con data per ogni pratica aperta." }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": { "open": "Aperta", "waiting": "In attesa", "done": "Completata", "cancelled": "Annullata" }
+        },
+        "actions.due": { "label": "Scadenza" },
+        "actions.owner": { "label": "Responsabile" },
+        "actions.outcome": { "label": "Esito" }
+      }
+    },
+    "es": {
+      "lists": {
+        "actions": { "label": "Tarea", "pluralLabel": "Tareas", "description": "Un siguiente paso con fecha por cada asunto abierto." }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": { "open": "Abierta", "waiting": "En espera", "done": "Hecha", "cancelled": "Cancelada" }
+        },
+        "actions.due": { "label": "Vencimiento" },
+        "actions.owner": { "label": "Responsable" },
+        "actions.outcome": { "label": "Resultado" }
+      }
+    },
+    "pt": {
+      "lists": {
+        "actions": { "label": "Tarefa", "pluralLabel": "Tarefas", "description": "Um próximo passo com data para cada item em aberto." }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": { "open": "Aberta", "waiting": "Aguardando", "done": "Concluída", "cancelled": "Cancelada" }
+        },
+        "actions.due": { "label": "Prazo" },
+        "actions.owner": { "label": "Responsável" },
+        "actions.outcome": { "label": "Resultado" }
+      }
+    },
+    "pl": {
+      "lists": {
+        "actions": { "label": "Zadanie", "pluralLabel": "Zadania", "description": "Jeden następny krok z terminem dla każdej otwartej sprawy." }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": { "open": "Otwarte", "waiting": "Oczekuje", "done": "Zrobione", "cancelled": "Anulowane" }
+        },
+        "actions.due": { "label": "Termin" },
+        "actions.owner": { "label": "Osoba odpowiedzialna" },
+        "actions.outcome": { "label": "Wynik" }
+      }
+    },
+    "nl": {
+      "lists": {
+        "actions": { "label": "Actie", "pluralLabel": "Acties", "description": "Eén volgende stap met datum per open dossier." }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": { "open": "Open", "waiting": "In de wacht", "done": "Klaar", "cancelled": "Geannuleerd" }
+        },
+        "actions.due": { "label": "Deadline" },
+        "actions.owner": { "label": "Eigenaar" },
+        "actions.outcome": { "label": "Resultaat" }
+      }
+    }
+  }
+}

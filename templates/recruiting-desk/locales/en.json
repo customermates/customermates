@@ -1,0 +1,195 @@
+{
+  "locale": "en",
+  "name": "Recruiting desk",
+  "summary": "A desk for a recruitment agency or independent recruiter: job orders from lead to placed, one pipeline entry per candidate, fee and guarantee dates, aftercare check-ins and a retention date on every candidate.",
+  "description": "Run an agency desk in one place: clients and their terms of business, job orders with a stage and an expected fee, candidates submitted per job with their own stages, placements with the guarantee end date and aftercare check-ins, and a retention review date on every candidate. It fits a desk of one to five recruiters. It is not a job board, a CV parser, a bulk outreach tool or a timesheet and payroll system, and nothing is sent to candidates or clients automatically.",
+  "lists": {
+    "people": { "label": "Person", "pluralLabel": "People", "description": "Candidates, client contacts and referrers." },
+    "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Companies you recruit for, with fee and guarantee terms." },
+    "jobs": { "label": "Job order", "pluralLabel": "Job orders", "description": "One search for one client, from lead to placed or lost." },
+    "submissions": { "label": "Submission", "pluralLabel": "Submissions", "description": "One candidate on one job, with their own stage." },
+    "placements": { "label": "Placement", "pluralLabel": "Placements", "description": "A candidate who accepted, with the start date, fee and guarantee end." }
+  },
+  "fields": {
+    "jobs.stage": {
+      "label": "Stage",
+      "options": { "lead": "Lead", "brief": "Brief", "terms_agreed": "Terms agreed", "searching": "Searching", "submitted": "Candidates submitted", "interviews": "Client interviews", "offer": "Offer", "placed": "Placed", "lost": "Lost" }
+    },
+    "submissions.stage": {
+      "label": "Stage",
+      "options": { "sourced": "Sourced", "contacted": "Contacted", "screened": "Screened", "submitted": "Submitted to client", "client_interview": "Client interview", "offer": "Offer", "placed": "Placed", "rejected_internal": "Rejected by us", "rejected_by_client": "Rejected by client", "withdrawn": "Withdrawn" }
+    },
+    "people.person_type": {
+      "label": "Type",
+      "options": { "candidate": "Candidate", "client_contact": "Client contact", "referrer": "Referrer", "other": "Other" }
+    },
+    "people.job_title": { "label": "Job title" },
+    "people.candidate_status": {
+      "label": "Candidate status",
+      "options": { "active": "Active", "passive": "Passive", "placed": "Placed", "do_not_contact": "Do not contact", "archived": "Archived" }
+    },
+    "people.source": {
+      "label": "Source",
+      "options": { "referral": "Referral", "linkedin": "LinkedIn", "job_board": "Job board", "own_database": "Own database", "event": "Event", "inbound": "Inbound", "other": "Other" }
+    },
+    "people.salary_expectation": { "label": "Salary expectation" },
+    "people.notice_period": { "label": "Notice period" },
+    "people.location": { "label": "Location" },
+    "people.data_basis": {
+      "label": "Basis for keeping the data",
+      "options": { "pre_contract": "Steps before a contract", "talent_pool_consent": "Talent pool consent", "legitimate_interest": "Sourced, legitimate interest" }
+    },
+    "people.retain_until": { "label": "Keep until" },
+    "people.last_contact": { "label": "Last contact" },
+    "people.owner": { "label": "Owner" },
+    "clients.client_status": {
+      "label": "Status",
+      "options": { "prospect": "Prospect", "active_client": "Active client", "past_client": "Past client", "do_not_contact": "Do not contact" }
+    },
+    "clients.agreement_type": {
+      "label": "Agreement",
+      "options": { "contingency": "Contingency", "retained": "Retained", "container": "Container", "other": "Other" }
+    },
+    "clients.fee_percent": { "label": "Fee (% of first-year salary)" },
+    "clients.guarantee_days": { "label": "Guarantee (days)" },
+    "clients.terms_signed_on": { "label": "Terms signed on" },
+    "clients.terms_url": { "label": "Link to the terms" },
+    "clients.website": { "label": "Website" },
+    "clients.next_touch": { "label": "Next touch" },
+    "clients.owner": { "label": "Owner" },
+    "jobs.salary": { "label": "Salary" },
+    "jobs.fee_percent": { "label": "Fee (%)" },
+    "jobs.opened_on": { "label": "Opened on" },
+    "jobs.filled_on": { "label": "Filled on" },
+    "jobs.exclusive": { "label": "Exclusive" },
+    "jobs.location": { "label": "Location" },
+    "jobs.work_model": { "label": "Work model", "options": { "on_site": "On site", "hybrid": "Hybrid", "remote": "Remote" } },
+    "jobs.must_haves": { "label": "Must-haves and nice-to-haves" },
+    "jobs.brief_url": { "label": "Link to the brief" },
+    "jobs.next_step": { "label": "Next step" },
+    "jobs.next_step_due": { "label": "Next step due" },
+    "jobs.lost_reason": {
+      "label": "Lost reason",
+      "options": { "client_filled_internally": "Client filled it internally", "client_froze_search": "Client froze the search", "filled_by_competitor": "Filled by a competitor", "terms_not_agreed": "Terms not agreed", "role_cancelled": "Role cancelled", "no_suitable_candidates": "No suitable candidates" }
+    },
+    "jobs.owner": { "label": "Owner" },
+    "jobs.days_to_fill": { "label": "Days to fill" },
+    "jobs.weighted_fee": { "label": "Weighted fee" },
+    "submissions.submitted_on": { "label": "Submitted on" },
+    "submissions.interview_at": { "label": "Interview" },
+    "submissions.feedback_due": { "label": "Client feedback due" },
+    "submissions.rejection_reason": {
+      "label": "Rejection reason",
+      "options": { "skills": "Skills", "culture_fit": "Culture fit", "salary_mismatch": "Salary mismatch", "other_offer": "Other offer", "no_response": "No response", "location_or_notice": "Location or notice period" }
+    },
+    "submissions.notes": { "label": "Notes" },
+    "submissions.owner": { "label": "Owner" },
+    "placements.start_date": { "label": "Start date" },
+    "placements.agreed_salary": { "label": "Agreed salary" },
+    "placements.fee_amount": { "label": "Fee" },
+    "placements.invoice_reference": { "label": "Invoice reference" },
+    "placements.guarantee_ends": { "label": "Guarantee ends" },
+    "placements.status": {
+      "label": "Status",
+      "options": { "in_guarantee": "In guarantee", "guarantee_passed": "Guarantee passed", "fell_out_replaced": "Fell out, replaced", "fell_out_refunded": "Fell out, refunded" }
+    },
+    "actions.kind": {
+      "label": "Kind",
+      "options": {
+        "call_client": "Call the client",
+        "call_candidate": "Call the candidate",
+        "submit_candidate": "Submit a candidate",
+        "request_feedback": "Request feedback",
+        "prepare_interview": "Prepare an interview",
+        "debrief": "Debrief",
+        "chase_terms": "Chase the signed terms",
+        "check_in": "Check in",
+        "retention_review": "Retention review",
+        "review_search": "Review a stalled search",
+        "invoice_request": "Ask for an invoice",
+        "other": "Other"
+      }
+    }
+  },
+  "relationships": {
+    "person_client": { "sourceLabel": "Employer or client", "targetLabel": "People" },
+    "job_client": { "sourceLabel": "Client", "targetLabel": "Job orders" },
+    "job_contacts": { "sourceLabel": "Client contacts", "targetLabel": "Job orders" },
+    "submission_job": { "sourceLabel": "Job order", "targetLabel": "Submissions" },
+    "submission_candidate": { "sourceLabel": "Candidate", "targetLabel": "Submissions" },
+    "placement_job": { "sourceLabel": "Job order", "targetLabel": "Placements" },
+    "placement_candidate": { "sourceLabel": "Candidate", "targetLabel": "Placements" },
+    "action_person": { "sourceLabel": "Person", "targetLabel": "Actions" },
+    "action_job": { "sourceLabel": "Job order", "targetLabel": "Actions" },
+    "action_submission": { "sourceLabel": "Submission", "targetLabel": "Actions" },
+    "action_client": { "sourceLabel": "Client", "targetLabel": "Actions" },
+    "action_placement": { "sourceLabel": "Placement", "targetLabel": "Actions" }
+  },
+  "views": {
+    "jobs_board": { "name": "Job orders by stage" },
+    "jobs_all": { "name": "All job orders" },
+    "searches_without_next_step": { "name": "Open searches without a next step" },
+    "submissions_board": { "name": "Candidates by stage" },
+    "feedback_pending": { "name": "Waiting for client feedback" },
+    "placements_all": { "name": "All placements" },
+    "clients_all": { "name": "All clients" },
+    "people_all": { "name": "All people" }
+  },
+  "widgets": {
+    "jobs_funnel": { "title": "Open job orders by stage" },
+    "weighted_fees": { "title": "Weighted fees in the pipeline" },
+    "submissions_by_stage": { "title": "Candidates by stage" },
+    "placements_per_month": { "title": "Fees by start month" },
+    "interviews_coming": { "title": "Interviews coming up" },
+    "guarantees_ending": { "title": "Guarantees ending" },
+    "retention_due": { "title": "Candidate data to review" },
+    "lost_reasons": { "title": "Why job orders were lost" },
+    "average_days_to_fill": { "title": "Average days to fill" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "How the desk runs", "sections": ["The two pipelines: job orders and candidates", "Who owns which stage, and the rule of one dated Action per open item"] },
+    "client_intake_call": { "title": "Client intake call: job order brief", "sections": ["Role, location, work model, pay range and start date", "Must-haves, nice-to-haves, why the role is open and who decides"] },
+    "terms_checklist": { "title": "Fee, guarantee and exclusivity terms", "sections": ["Fee basis, when it is earned and payment terms", "Guarantee length and remedy, exclusivity (use your own contract, this is not legal advice)"] },
+    "screening_call": { "title": "Candidate screening call guide", "sections": ["Motivation, notice period, salary expectation, other processes", "What not to ask and what not to record"] },
+    "submission_email": { "title": "Submitting a candidate to the client", "sections": ["Three-line summary and why this person", "Availability, salary expectation and the CV to attach (a draft, never sent automatically)"] },
+    "interview_routine": { "title": "Interview preparation and debrief", "sections": ["Briefing the candidate and the client contact", "Recording the outcome within a day"] },
+    "candidate_data": { "title": "Candidate data: basis, notice and retention", "sections": ["Retention by country and the privacy notice", "Talent pool consent and the review date"] },
+    "aftercare_routine": { "title": "Placement aftercare from day 1 to day 90", "sections": ["Check-ins at the start, week 1, day 30, 60 and 90", "Guarantee end and the fee invoice"] }
+  },
+  "rules": {
+    "chase_terms": { "title": "Chase the signed terms of business three days after a job reaches terms agreed" },
+    "request_client_feedback": { "title": "Ask the client for feedback two days after a candidate is submitted" },
+    "prepare_interview": { "title": "Brief the candidate the day before a client interview" },
+    "debrief_interview": { "title": "Debrief the candidate and the client on the day of an interview" },
+    "chase_offer_decision": { "title": "Chase the candidate's decision two days after an offer" },
+    "start_day_confirmation": { "title": "Confirm the start on the first day of a placement" },
+    "check_in_week_1": { "title": "Check in one week after the start" },
+    "check_in_day_30": { "title": "Check in 30 days after the start" },
+    "check_in_day_60": { "title": "Check in 60 days after the start" },
+    "check_in_day_90": { "title": "Check in 90 days after the start" },
+    "guarantee_check": { "title": "Confirm the placement is stable and the fee is paid 14 days before the guarantee ends" },
+    "retention_review": { "title": "Delete the candidate or record fresh consent on the keep-until date" },
+    "client_touch": { "title": "Call an active client on its next-touch date to ask about upcoming hires" },
+    "stalled_search_review": { "title": "Review a search that has been open for more than 10 days" },
+    "application_received": { "title": "Create the candidate and a call when an application form is submitted" },
+    "feedback_overdue_notice": { "title": "Notify the owner when client feedback is overdue" },
+    "interview_calendar": { "title": "Add the interview to the owner's calendar when it is agreed" }
+  },
+  "acceptanceChecks": {
+    "job_stage_field": "Every job order has one of nine stages.",
+    "submission_stage_field": "Every candidate on a job has their own stage.",
+    "guarantee_end_field": "Every placement records when its guarantee ends.",
+    "retain_until_field": "Every person records until when their data is kept.",
+    "jobs_board_view": "The job orders open as a board by stage.",
+    "candidate_data_page": "The knowledge base holds a page on candidate data and retention."
+  },
+  "prompt": {
+    "intro": "Set up a recruiting desk in my Customermates workspace: clients with their terms, job orders with nine stages and an expected fee, one submission per candidate and job, placements with the guarantee end and aftercare check-ins, and a keep-until date on every candidate.",
+    "questions": [
+      "Do you work on contingency, retained or both, and what fee and guarantee do you usually agree?",
+      "How many job orders and candidates do you handle at once, and who owns which stage?",
+      "How long do you keep candidate data, and in which countries do you recruit?",
+      "Where do you keep signed terms and invoices? Only a link or a reference is kept here."
+    ]
+  }
+}

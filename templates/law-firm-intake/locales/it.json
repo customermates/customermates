@@ -1,0 +1,116 @@
+{
+  "locale": "it",
+  "name": "Acquisizione clienti per studi legali",
+  "summary": "Un'acquisizione in passaggi fissi: richiesta, verifica dei conflitti, primo colloquio, preventivo, incarico e procura firmati con acconto, e una lettera scritta per chi non diventa cliente.",
+  "description": "Acquisisci i clienti in un ordine fisso: ogni richiesta registra la materia, il termine più vicino noto, la verifica dei conflitti e chi l'ha fatta, poi il colloquio, il preventivo e l'incarico firmato. Un elenco di controparti sostiene la verifica dei conflitti, le pratiche portano la data della procura e una data di conservazione, e i potenziali clienti rifiutati o silenziosi ricevono una lettera scritta di mancato conferimento. Conserva un rimando alla pratica, mai i fatti della causa, informazioni coperte dal segreto professionale, dati sanitari o dati della controparte. Non è gestione delle pratiche, contabilità dei fondi dei clienti, fonte dei termini processuali né fatturazione.",
+  "lists": {
+    "contacts": { "label": "Referente", "pluralLabel": "Referenti", "description": "Potenziali clienti, clienti, ex clienti e segnalatori." },
+    "inquiries": { "label": "Richiesta", "pluralLabel": "Richieste", "description": "Una richiesta di assistenza legale, dal primo contatto a una pratica o a un rifiuto." },
+    "matters": { "label": "Pratica", "pluralLabel": "Pratiche", "description": "Un rimando alla causa nel gestionale di studio, con la data della procura e quella di conservazione." },
+    "parties": { "label": "Controparte", "pluralLabel": "Controparti", "description": "Controparti e soggetti collegati, conservati per la verifica dei conflitti." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Ruolo", "options": { "prospect": "Potenziale cliente", "client": "Cliente", "former_client": "Ex cliente", "referrer": "Segnalatore" } },
+    "contacts.preferred_channel": { "label": "Canale preferito", "options": { "email": "Email", "phone": "Telefono", "whatsapp": "WhatsApp", "post": "Posta" } },
+    "inquiries.stage": {
+      "label": "Fase",
+      "options": { "new_inquiry": "Richiesta", "screening": "Verifica dei conflitti", "consultation": "Primo colloquio", "fee_proposal_sent": "Preventivo inviato", "agreement_signed": "Incarico e procura firmati", "matter_opened": "Pratica aperta", "declined_by_firm": "Rifiutato dallo studio", "not_retained": "Incarico non conferito" }
+    },
+    "inquiries.practice_area": {
+      "label": "Materia",
+      "options": { "employment": "Lavoro", "family": "Famiglia", "civil_contract": "Civile e contratti", "real_estate": "Immobiliare", "corporate": "Societario", "criminal": "Penale", "immigration": "Immigrazione", "inheritance": "Successioni", "administrative": "Amministrativo", "other": "Altro" }
+    },
+    "inquiries.source": { "label": "Origine", "options": { "web_form": "Modulo web", "phone": "Telefono", "referral": "Segnalazione", "whatsapp": "WhatsApp", "walk_in": "Di persona", "directory": "Elenco" } },
+    "inquiries.urgent_deadline": { "label": "Termine più vicino noto" },
+    "inquiries.deadline_source": { "label": "Da dove deriva il termine" },
+    "inquiries.conflict_check": {
+      "label": "Verifica dei conflitti",
+      "options": { "pending": "Da fare", "cleared": "Nessun conflitto", "cleared_with_waiver": "Superato con consenso", "conflict_found": "Conflitto rilevato" }
+    },
+    "inquiries.consultation_on": { "label": "Primo colloquio" },
+    "inquiries.fee_model": { "label": "Compenso", "options": { "hourly": "A ore", "fixed": "Forfait", "success_fee": "Compenso a risultato", "insurance_or_legal_aid": "Tutela legale o patrocinio a spese dello Stato", "mixed": "Misto" } },
+    "inquiries.advance_requested_on": { "label": "Acconto richiesto il" },
+    "inquiries.advance_received_on": { "label": "Acconto ricevuto il" },
+    "inquiries.responsible_lawyer": { "label": "Avvocato responsabile" },
+    "inquiries.next_step_due": { "label": "Prossimo passo entro" },
+    "inquiries.lost_reason": {
+      "label": "Perché nessun incarico",
+      "options": { "conflict": "Conflitto di interessi", "outside_practice_area": "Fuori dalle nostre materie", "capacity": "Nessuna disponibilità", "time_limit_referred_out": "Termine, indirizzato altrove", "fee": "Compenso", "chose_other_lawyer": "Ha scelto un altro avvocato", "no_response": "Nessuna risposta", "self_resolved": "Risolto da solo" }
+    },
+    "inquiries.non_engagement_letter_on": { "label": "Lettera di mancato conferimento inviata il" },
+    "matters.matter_ref": { "label": "Riferimento nel gestionale" },
+    "matters.status": { "label": "Stato", "options": { "open": "Aperta", "on_hold": "Sospesa", "closed": "Chiusa" } },
+    "matters.opened_on": { "label": "Aperta il" },
+    "matters.poa_valid_until": { "label": "Procura valida fino al" },
+    "matters.retention_until": { "label": "Conservare fino al" },
+    "parties.party_role": { "label": "Ruolo", "options": { "opposing_party": "Controparte", "related_party": "Soggetto collegato", "co_client": "Co-cliente", "insurer": "Assicuratore", "third_party": "Terzo" } },
+    "parties.party_type": { "label": "Tipo", "options": { "person": "Persona", "organisation": "Organizzazione" } },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": { "reply": "Rispondere", "conflict_check": "Fare la verifica dei conflitti", "consultation_prep": "Preparare il colloquio", "fee_proposal": "Inviare il preventivo", "follow_up": "Fare follow-up", "advance": "Chiedere l'acconto", "letter": "Scrivere una lettera", "other": "Altro" }
+    }
+  },
+  "relationships": {
+    "inquiry_contact": { "sourceLabel": "Referente", "targetLabel": "Richieste" },
+    "matter_contact": { "sourceLabel": "Cliente", "targetLabel": "Pratiche" },
+    "matter_inquiry": { "sourceLabel": "Richiesta", "targetLabel": "Pratiche" },
+    "party_inquiry": { "sourceLabel": "Richiesta", "targetLabel": "Controparti" },
+    "party_matter": { "sourceLabel": "Pratica", "targetLabel": "Controparti" },
+    "action_inquiry": { "sourceLabel": "Richiesta", "targetLabel": "Attività" },
+    "action_matter": { "sourceLabel": "Pratica", "targetLabel": "Attività" }
+  },
+  "views": {
+    "inquiries_board": { "name": "Richieste per fase" },
+    "inquiries_all": { "name": "Tutte le richieste" },
+    "with_time_limit": { "name": "Richieste aperte con un termine" },
+    "conflicts_to_check": { "name": "Verifiche dei conflitti da fare" },
+    "matters_all": { "name": "Tutte le pratiche" },
+    "parties_all": { "name": "Tutte le controparti" },
+    "contacts_all": { "name": "Tutti i referenti" }
+  },
+  "widgets": {
+    "inquiries_funnel": { "title": "Richieste per fase" },
+    "urgent_time_limits": { "title": "Termini delle richieste aperte" },
+    "consultations_coming": { "title": "Colloqui in arrivo" },
+    "conflicts_pending": { "title": "Verifiche dei conflitti da fare" },
+    "inquiries_by_source": { "title": "Richieste per origine" },
+    "lost_reasons": { "title": "Perché le richieste non diventano pratiche" },
+    "poa_expiring": { "title": "Procure in scadenza" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Come funziona l'acquisizione", "sections": ["Primo contatto e domande di smistamento", "Chi risponde e con che tempi"] },
+    "conflict_check": { "title": "Procedura di verifica dei conflitti", "sections": ["Che cosa si cerca: controparti, clienti ed ex clienti", "Come si registra l'esito e che cosa fare in caso di conflitto"] },
+    "time_limit_triage": { "title": "Smistamento dei termini urgenti", "sections": ["Chiedere il termine più vicino noto al primo contatto", "Accettare, indirizzare altrove o avvertire per iscritto"] },
+    "engagement_checklist": { "title": "Lista di controllo di preventivo e incarico", "sections": ["Compenso, procura e acconto", "Lettere di mancato conferimento e di chiusura"] }
+  },
+  "rules": {
+    "inquiry_form_records": { "title": "Creare referente e richiesta quando viene inviato il modulo di richiesta" },
+    "acknowledge_inquiry": { "title": "Rispondere a una nuova richiesta il giorno dopo e offrire un colloquio" },
+    "urgent_deadline_alert": { "title": "Avvisare il responsabile 14 giorni prima del termine di una richiesta aperta" },
+    "conflict_check_task": { "title": "Fare la verifica dei conflitti il giorno dopo l'ingresso nella fase di verifica" },
+    "fee_proposal_task": { "title": "Inviare il preventivo il giorno dopo il colloquio" },
+    "proposal_follow_up": { "title": "Fare follow-up 3 giorni dopo l'invio del preventivo" },
+    "agreement_signed_set": { "title": "Chiedere l'acconto 2 giorni dopo la firma dell'incarico" },
+    "advance_chase": { "title": "Avvisare il responsabile quando l'acconto manca 7 giorni dopo la richiesta" },
+    "letter_declined": { "title": "Scrivere la lettera di mancato conferimento quando lo studio rifiuta una richiesta" },
+    "letter_not_retained": { "title": "Scrivere la lettera di mancato conferimento quando un potenziale cliente non conferisce l'incarico" },
+    "poa_renewal": { "title": "Rinnovare la procura 30 giorni prima della scadenza" },
+    "closing_letter": { "title": "Scrivere la lettera di chiusura una settimana dopo la chiusura di una pratica" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Ogni richiesta ha una delle otto fasi.",
+    "conflict_check_field": "Ogni richiesta registra la sua verifica dei conflitti.",
+    "urgent_deadline_field": "Ogni richiesta registra il termine più vicino noto.",
+    "inquiries_board_view": "Le richieste si aprono come board per fase.",
+    "conflict_check_page": "La base di conoscenza contiene una pagina sulla verifica dei conflitti."
+  },
+  "prompt": {
+    "intro": "Imposta nel mio spazio di lavoro Customermates l'acquisizione clienti per uno studio legale: richieste con verifica dei conflitti, termine più vicino noto, colloquio, preventivo e incarico firmato, pratiche come rimandi al gestionale, controparti per la verifica dei conflitti e lettere scritte di mancato conferimento. Non conservare fatti della causa né informazioni coperte dal segreto professionale.",
+    "questions": [
+      "Quali materie tratti e quali indirizzi ad altri?",
+      "Come fai la verifica dei conflitti e chi la approva?",
+      "Quali modelli di compenso e quale acconto usi?",
+      "Quale gestionale di studio usi? Qui si conserva solo un riferimento alla pratica."
+    ]
+  }
+}

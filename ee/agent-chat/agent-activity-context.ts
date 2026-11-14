@@ -66,7 +66,7 @@ export function agentToolInputContext(toolName: string, input: unknown) {
   if (toolName === "web_search" || toolName === "search_docs") return context([data.query]);
   if (toolName === "search_crm_records") return context([data.searchTerm]);
   if (toolName === "query_crm_records") return context([data.search]);
-  if (["manage_routines", "manage_widgets", "manage_data_views"].includes(toolName))
+  if (["manage_routines", "manage_widgets", "manage_data_views", "manage_rules"].includes(toolName))
     return context([data.name ?? data.title]);
   return undefined;
 }
@@ -77,6 +77,7 @@ const RESULT_CONTEXT_TOOLS = new Set([
   "manage_routines",
   "manage_widgets",
   "manage_data_views",
+  "manage_rules",
 ]);
 
 export function agentToolOutputContext(toolName: string | undefined, structuredContent: unknown) {

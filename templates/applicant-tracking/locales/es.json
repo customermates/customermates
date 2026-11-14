@@ -1,0 +1,116 @@
+{
+  "locale": "es",
+  "name": "Seguimiento de candidaturas",
+  "summary": "Un seguimiento de selección para una pequeña empresa: vacantes, candidatos, una candidatura por vacante en nueve fases, una ficha de evaluación por entrevistador y una fecha para eliminar los descartes.",
+  "description": "Gestiona la selección en un solo lugar: cada vacante tiene un estado, un responsable y un rango salarial; cada candidatura avanza de recibida a incorporada o descartada, con la fecha de entrevista, el plazo de respuesta a la oferta y el motivo de descarte; cada entrevistador rellena una ficha de evaluación. Las candidaturas descartadas reciben una fecha de conservación para que te acuerdes de eliminarlas o de pedir consentimiento. No es un portal de empleo, un lector de currículos, una plataforma de pruebas, una herramienta de cartas de oferta y firma electrónica ni una autoridad legal sobre los plazos de conservación.",
+  "lists": {
+    "applicants": { "label": "Candidato", "pluralLabel": "Candidatos", "description": "Las personas que se presentan, con su origen y su consentimiento para futuros procesos." },
+    "jobs": { "label": "Vacante", "pluralLabel": "Vacantes", "description": "Cada puesto abierto con su responsable y su rango salarial." },
+    "applications": { "label": "Candidatura", "pluralLabel": "Candidaturas", "description": "Un candidato para una vacante, de recibida a incorporado o descartado." },
+    "scorecards": { "label": "Ficha de evaluación", "pluralLabel": "Fichas de evaluación", "description": "La puntuación y la recomendación de un entrevistador para una candidatura." }
+  },
+  "fields": {
+    "applicants.source": {
+      "label": "Origen",
+      "options": { "careers_page": "Página de empleo", "job_board": "Portal de empleo", "referral": "Recomendación", "linkedin": "LinkedIn", "agency": "Agencia", "other": "Otro" }
+    },
+    "applicants.location": { "label": "Localidad" },
+    "applicants.salary_expectation": { "label": "Pretensión salarial" },
+    "applicants.pool_consent": { "label": "Consentimiento para futuros procesos" },
+    "jobs.status": {
+      "label": "Estado",
+      "options": { "draft": "Borrador", "open": "Abierta", "on_hold": "En pausa", "filled": "Cubierta", "cancelled": "Cancelada" }
+    },
+    "jobs.department": { "label": "Departamento" },
+    "jobs.hiring_manager": { "label": "Responsable de la selección" },
+    "jobs.pay_min": { "label": "Salario desde" },
+    "jobs.pay_max": { "label": "Salario hasta" },
+    "jobs.apply_by": { "label": "Inscripción hasta" },
+    "applications.stage": {
+      "label": "Fase",
+      "options": { "new": "Recibida", "screening": "Preselección", "interview_1": "Entrevista inicial", "interview_2": "Entrevista con responsable", "reference_check": "Referencias", "offer": "Oferta", "hired": "Incorporado", "rejected": "Descartado", "withdrawn": "Retirado" }
+    },
+    "applications.interview_at": { "label": "Entrevista" },
+    "applications.offer_decision_due": { "label": "Respuesta a la oferta antes de" },
+    "applications.rejection_reason": {
+      "label": "Motivo de descarte",
+      "options": { "skills": "Competencias", "experience": "Experiencia", "salary_mismatch": "Salario no encaja", "other_offer": "Aceptó otra oferta", "position_filled": "Vacante cubierta", "other": "Otro" }
+    },
+    "applications.retain_until": { "label": "Conservar hasta" },
+    "scorecards.interviewer": { "label": "Entrevistador" },
+    "scorecards.round": { "label": "Ronda", "options": { "screening": "Preselección", "interview_1": "Entrevista inicial", "interview_2": "Entrevista con responsable" } },
+    "scorecards.rating": { "label": "Puntuación" },
+    "scorecards.recommendation": { "label": "Recomendación", "options": { "strong_no": "Claramente no", "no": "No", "yes": "Sí", "strong_yes": "Claramente sí" } },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "acknowledge": "Confirmar la recepción",
+        "screen": "Preseleccionar la candidatura",
+        "schedule_interview": "Programar una entrevista",
+        "collect_scorecards": "Recoger las fichas",
+        "chase_offer": "Reclamar la respuesta a la oferta",
+        "close_message": "Enviar un mensaje de cierre",
+        "retention_review": "Revisar la conservación",
+        "other": "Otro"
+      }
+    }
+  },
+  "relationships": {
+    "application_applicant": { "sourceLabel": "Candidato", "targetLabel": "Candidaturas" },
+    "application_job": { "sourceLabel": "Vacante", "targetLabel": "Candidaturas" },
+    "scorecard_application": { "sourceLabel": "Candidatura", "targetLabel": "Fichas de evaluación" },
+    "action_application": { "sourceLabel": "Candidatura", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "applications_all": { "name": "Todas las candidaturas" },
+    "applications_board": { "name": "Tablero de selección" },
+    "jobs_all": { "name": "Todas las vacantes" },
+    "applicants_all": { "name": "Todos los candidatos" },
+    "scorecards_all": { "name": "Todas las fichas de evaluación" }
+  },
+  "widgets": {
+    "applications_funnel": { "title": "Candidaturas por fase" },
+    "applicants_by_source": { "title": "Candidatos por origen" },
+    "interviews_coming": { "title": "Entrevistas próximas" },
+    "open_jobs": { "title": "Vacantes abiertas" },
+    "rejection_reasons": { "title": "Motivos de descarte" },
+    "retention_coming": { "title": "Candidaturas por eliminar o renovar pronto" }
+  },
+  "knowledgePages": {
+    "hiring_process": { "title": "Proceso de selección y quién decide", "sections": ["Fases y responsables", "Qué buscamos en la preselección y en las entrevistas"] },
+    "form_and_retention": { "title": "Formulario de candidatura y conservación de datos", "sections": ["Datos que pedimos y aviso de privacidad", "Cuánto tiempo conservamos las candidaturas descartadas"] },
+    "candidate_messages": { "title": "Mensajes a los candidatos", "sections": ["Confirmación, invitación, oferta", "Mensaje de cierre para cada candidato no seleccionado"] }
+  },
+  "rules": {
+    "application_form_records": { "title": "Crear el candidato y la candidatura cuando se envía el formulario de candidatura" },
+    "acknowledge_application": { "title": "Confirmar una candidatura nueva en un plazo de 2 días" },
+    "collect_scorecards": { "title": "Recoger las fichas el día de la entrevista" },
+    "scorecard_reminder": { "title": "Recordar al responsable al día siguiente de una entrevista" },
+    "chase_offer": { "title": "Reclamar la respuesta 5 días después de una oferta" },
+    "rejection_retention": {
+      "title": "Fijar la conservación a 180 días cuando se descarta una candidatura",
+      "variants": {
+        "PL": {
+          "title": "Fijar la conservación a 30 días cuando se descarta una candidatura (Polonia: más tiempo solo con consentimiento)",
+          "description": "La autoridad polaca de protección de datos (UODO) espera que los datos del candidato se supriman al terminar el proceso, salvo que haya consentido futuros procesos. Es un valor por defecto: fija el plazo de tu propia política de conservación y, si hay consentimiento, una fecha posterior a mano."
+        }
+      }
+    },
+    "job_filled_close": { "title": "Escribir al resto de candidatos cuando se cubre una vacante" },
+    "retention_review": { "title": "Revisar una candidatura cuando llega su fecha de conservación" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada candidatura tiene una de las nueve fases.",
+    "retain_until_field": "Cada candidatura indica hasta cuándo se conserva.",
+    "applications_board_view": "Las candidaturas se abren como tablero por fase."
+  },
+  "prompt": {
+    "intro": "Configura en mi espacio de trabajo de Customermates un seguimiento de candidaturas: vacantes con responsable y rango salarial, candidatos, candidaturas en nueve fases, fichas de evaluación, una fecha de conservación para los descartes y seguimientos con fecha.",
+    "questions": [
+      "¿Cuántas vacantes tienes abiertas a la vez y quién selecciona para cada una?",
+      "¿De dónde vienen los candidatos y usas un formulario de candidatura?",
+      "¿Cuánto tiempo conservas las candidaturas descartadas y mantienes una bolsa de talento con consentimiento?",
+      "¿Qué rondas de entrevistas haces y quién rellena una ficha de evaluación?"
+    ]
+  }
+}

@@ -1,0 +1,289 @@
+{
+  "locale": "fr",
+  "name": "Pipeline commercial",
+  "summary": "Sept étapes avec critères de sortie et pondération, une prochaine action datée sur chaque affaire ouverte, les motifs de gain et de perte, et un changement d’étape qui crée la prochaine action.",
+  "description": "Un pipeline pour une petite équipe commerciale : cinq étapes ouvertes, Signé et Perdu, une valeur pondérée par affaire, le comité d’achat sur l’affaire, un motif de perte et un motif de gain, et la revue hebdomadaire. Les pondérations sont une pondération du pipeline, pas une prévision : remplacez-les par vos propres taux de transformation après 20 à 30 affaires closes.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes côté acheteur, avec leur rôle dans la décision." },
+    "accounts": { "label": "Compte", "pluralLabel": "Comptes", "description": "Les entreprises auxquelles vous vendez." },
+    "opportunities": { "label": "Affaire", "pluralLabel": "Affaires", "description": "Une affaire, du premier contact à signée ou perdue." }
+  },
+  "fields": {
+    "opportunities.stage": {
+      "label": "Étape",
+      "options": {
+        "new": "Prospect",
+        "qualified": "Qualifié",
+        "discovery": "Rendez-vous découverte",
+        "proposal_sent": "Devis envoyé",
+        "negotiation": "Négociation",
+        "won": "Signé",
+        "lost": "Perdu"
+      }
+    },
+    "contacts.job_title": { "label": "Fonction" },
+    "contacts.buying_role": {
+      "label": "Rôle dans l’achat",
+      "options": {
+        "decision_maker": "Décideur",
+        "budget_holder": "Détenteur du budget",
+        "champion": "Sponsor interne",
+        "influencer": "Prescripteur",
+        "user": "Utilisateur",
+        "blocker": "Opposant"
+      }
+    },
+    "contacts.language": { "label": "Langue" },
+    "contacts.outreach_consent": { "label": "Consentement à la prospection" },
+    "accounts.relationship": {
+      "label": "Relation",
+      "options": { "prospect": "Prospect", "customer": "Client", "former_customer": "Ancien client", "partner": "Partenaire" }
+    },
+    "accounts.size": {
+      "label": "Taille",
+      "options": { "micro": "1 à 10", "small": "11 à 50", "medium": "51 à 250", "large": "251 et plus" }
+    },
+    "accounts.industry": { "label": "Secteur" },
+    "accounts.website": { "label": "Site web" },
+    "accounts.address": { "label": "Adresse" },
+    "accounts.owner": { "label": "Responsable" },
+    "opportunities.owner": { "label": "Responsable" },
+    "opportunities.deal_type": {
+      "label": "Type d’affaire",
+      "options": { "new_business": "Nouveau client", "expansion": "Développement", "renewal": "Renouvellement" }
+    },
+    "opportunities.source": {
+      "label": "Origine",
+      "options": {
+        "referral": "Recommandation",
+        "inbound": "Demande entrante",
+        "outbound": "Prospection",
+        "event": "Événement",
+        "partner": "Partenaire",
+        "existing_customer": "Client existant",
+        "other": "Autre"
+      }
+    },
+    "opportunities.first_contact_on": { "label": "Premier contact" },
+    "opportunities.expected_close": { "label": "Date de signature prévue" },
+    "opportunities.closed_on": { "label": "Date de clôture" },
+    "opportunities.next_step": { "label": "Prochaine action" },
+    "opportunities.next_step_due": { "label": "Échéance de la prochaine action" },
+    "opportunities.decision_date": { "label": "Date de décision" },
+    "opportunities.competitor": { "label": "Concurrent" },
+    "opportunities.lost_reason": {
+      "label": "Motif de perte",
+      "options": {
+        "price": "Prix",
+        "competitor": "Concurrent",
+        "no_budget_or_decision": "Pas de budget ni de décision",
+        "timing": "Calendrier",
+        "no_response": "Pas de réponse",
+        "not_a_fit": "Ne convient pas",
+        "other": "Autre"
+      }
+    },
+    "opportunities.won_reason": { "label": "Motif de gain" },
+    "opportunities.weighted_value": { "label": "Valeur pondérée" },
+    "opportunities.cycle_days": { "label": "Cycle en jours" },
+    "actions.kind": {
+      "label": "Type",
+      "options": {
+        "call": "Appel",
+        "email": "E-mail",
+        "meeting": "Rendez-vous",
+        "proposal": "Devis",
+        "follow_up": "Relance",
+        "handover": "Passation",
+        "review": "Revue",
+        "other": "Autre"
+      }
+    }
+  },
+  "relationships": {
+    "contact_account": { "sourceLabel": "Compte", "targetLabel": "Contacts" },
+    "opportunity_account": { "sourceLabel": "Compte", "targetLabel": "Affaires" },
+    "opportunity_contacts": { "sourceLabel": "Comité d’achat", "targetLabel": "Affaires" },
+    "action_opportunity": { "sourceLabel": "Affaire", "targetLabel": "Actions" },
+    "action_contact": { "sourceLabel": "Contact", "targetLabel": "Actions" }
+  },
+  "views": {
+    "pipeline_board": { "name": "Pipeline" },
+    "opportunities_all": { "name": "Toutes les affaires" },
+    "no_next_step": { "name": "Sans prochaine action" },
+    "won_handover": { "name": "Signées, à transmettre" },
+    "lost_to_revisit": { "name": "Perdues, à rouvrir" },
+    "actions_all": { "name": "Toutes les actions" },
+    "accounts_all": { "name": "Tous les comptes" },
+    "contacts_all": { "name": "Tous les contacts" }
+  },
+  "widgets": {
+    "pipeline_funnel": { "title": "Affaires ouvertes par étape" },
+    "open_value_by_stage": { "title": "Montant des affaires ouvertes par étape" },
+    "weighted_value_by_stage": { "title": "Valeur pondérée par étape" },
+    "open_opportunities": { "title": "Affaires ouvertes" },
+    "open_value": { "title": "Montant des affaires ouvertes" },
+    "open_weighted_value": { "title": "Valeur pondérée des affaires ouvertes" },
+    "won_last_90_days": { "title": "Signées sur les 90 derniers jours" },
+    "lost_reasons": { "title": "Motifs de perte" },
+    "pipeline_by_owner": { "title": "Montant des affaires ouvertes par responsable" },
+    "deals_without_next_step": { "title": "Affaires sans prochaine action" },
+    "upcoming_actions": { "title": "Actions à venir et en retard" },
+    "expected_closes": { "title": "Signatures prévues" }
+  },
+  "knowledgePages": {
+    "stages_exit_criteria": {
+      "title": "Étapes de vente et critères de sortie",
+      "sections": ["Critère d’entrée et de sortie de chaque étape", "Qui fait avancer une affaire, et sur quelle preuve", "Pondérations et quand les remplacer"]
+    },
+    "qualification_questions": {
+      "title": "Questions de qualification",
+      "sections": ["Budget, pouvoir de décision, besoin et calendrier", "Ce qui se passe si le prospect ne fait rien", "Qui d’autre décide"]
+    },
+    "proposal_cadence": {
+      "title": "Rythme des devis et des relances",
+      "sections": ["Relancer après 3 puis après 10 jours", "Un message de clôture", "Puis une date de rappel"]
+    },
+    "weekly_review": {
+      "title": "Revue hebdomadaire du pipeline",
+      "sections": ["Affaires qui stagnent", "Affaires au-delà de la date de signature prévue", "Affaires sans prochaine action", "Les cinq premières par valeur pondérée"]
+    },
+    "win_loss_review": {
+      "title": "Revue des gains et des pertes",
+      "sections": ["Lire chaque mois les motifs de perte et les concurrents", "Lire les motifs de gain", "Une action d’amélioration"]
+    },
+    "message_templates": {
+      "title": "Modèles de messages de relance",
+      "sections": ["Première réponse", "Après le rendez-vous découverte", "Message d’accompagnement du devis", "Relance du devis", "Clôture : le moment n’est peut-être pas le bon", "Reprise de contact après 90 jours"]
+    }
+  },
+  "rules": {
+    "qualify_new_opportunity": {
+      "title": "Qualifier la nouvelle affaire",
+      "description": "Une nouvelle affaire reçoit une action d’appel pour le lendemain."
+    },
+    "book_discovery_call": {
+      "title": "Fixer le rendez-vous découverte",
+      "description": "Quand une affaire passe à « Qualifié », une action de rendez-vous est due dans 3 jours."
+    },
+    "send_proposal": {
+      "title": "Envoyer le devis",
+      "description": "Quand une affaire atteint « Rendez-vous découverte », une action de devis est due dans 5 jours."
+    },
+    "follow_up_proposal": {
+      "title": "Relancer le devis",
+      "description": "Trois jours après l’envoi du devis, une action de relance arrive à échéance."
+    },
+    "second_proposal_follow_up": {
+      "title": "Seconde relance du devis",
+      "description": "Dix jours après l’envoi du devis, une seconde action de relance arrive à échéance. Clôturez-la si le prospect a déjà répondu."
+    },
+    "confirm_decision": {
+      "title": "Confirmer la date de décision et le décideur",
+      "description": "Quand une affaire atteint « Négociation », une action de relance est due dans 5 jours."
+    },
+    "won_close_date": {
+      "title": "Renseigner la date de clôture",
+      "description": "Quand une affaire est signée, « Date de clôture » prend la date du jour."
+    },
+    "won_handover": {
+      "title": "Transmettre l’affaire signée",
+      "description": "Une action de passation est due le lendemain de la signature. Notez le motif de gain."
+    },
+    "lost_revisit": {
+      "title": "Rouvrir l’affaire perdue",
+      "description": "Quatre-vingt-dix jours après la perte, une action de relance demande si le calendrier a changé. Notez d’abord le motif de perte."
+    },
+    "stale_deal_sweep": {
+      "title": "Relancer ou disqualifier l’affaire qui stagne",
+      "description": "Une affaire ouverte restée 14 jours dans la même étape reçoit une action de relance."
+    },
+    "expected_close_passed": {
+      "title": "Mettre à jour la date de signature ou clôturer l’affaire",
+      "description": "Quand la date de signature prévue d’une affaire ouverte est dépassée, une action de revue est créée."
+    },
+    "next_step_due_notice": {
+      "title": "Prévenir le responsable qu’une prochaine action est due",
+      "description": "À l’échéance de la prochaine action d’une affaire ouverte, le responsable est averti."
+    },
+    "weekly_pipeline_report": {
+      "title": "Bilan hebdomadaire du pipeline",
+      "description": "Chaque vendredi, une action de revue liste le nombre et le montant par étape et par responsable, les affaires signées et perdues avec leurs motifs, et les affaires au-delà de la date prévue."
+    },
+    "enquiry_form_records": {
+      "title": "Créer le contact, le compte et l’affaire à partir d’une demande",
+      "description": "Un formulaire de demande web crée le contact, le compte et une affaire à l’étape « Prospect »."
+    },
+    "enquiry_form_notice": {
+      "title": "Prévenir le responsable de la demande",
+      "description": "Le responsable est averti de chaque nouvelle demande."
+    },
+    "fill_missing_value": {
+      "title": "Renseigner le montant de cette affaire",
+      "description": "Une affaire qui atteint « Rendez-vous découverte » sans montant reçoit une action de revue."
+    },
+    "fill_expected_close": {
+      "title": "Renseigner la date de signature prévue de cette affaire",
+      "description": "Une affaire qui atteint « Devis envoyé » sans date de signature prévue reçoit une action de revue."
+    }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Chaque affaire a l’une des sept étapes.",
+    "weighted_value_field": "Chaque affaire affiche sa valeur pondérée.",
+    "pipeline_board_view": "La liste des affaires s’ouvre en board par étape, avec les totaux.",
+    "funnel_widget": "Le tableau de bord montre les affaires ouvertes par étape sous forme d’entonnoir.",
+    "proposal_follow_up_rule": "Une affaire qui atteint « Devis envoyé » reçoit une action de relance.",
+    "stages_page": "La base de connaissances contient les étapes et leurs critères de sortie."
+  },
+  "page": {
+    "metaTitle": "Modèle de pipeline commercial pour votre agent IA",
+    "metaDescription": "Copiez le pipeline commercial dans Claude, ChatGPT ou Codex : sept étapes pondérées, une action datée par affaire et les motifs de gain et de perte.",
+    "headline": "Un pipeline commercial que votre agent IA construit dans votre CRM",
+    "answer": "Le pipeline d’une petite équipe demande peu d’étapes, un critère de sortie pour chacune, une valeur pondérée et une prochaine action datée sur chaque affaire ouverte. Collez ce modèle dans votre agent IA et il construit ce pipeline dans Customermates : sept étapes, le comité d’achat sur chaque affaire, les motifs de gain et de perte, et une action créée à chaque changement d’étape. Vous validez le plan avant toute écriture.",
+    "routine": {
+      "title": "La revue hebdomadaire du pipeline",
+      "steps": [
+        "Ouvrez le tableau et regardez chaque affaire restée plus de 14 jours dans son étape.",
+        "Pour chacune, décidez : la faire avancer parce que son critère de sortie est rempli, la relancer avec une nouvelle prochaine action, ou la clore comme perdue avec un motif.",
+        "Vérifiez que chaque affaire ouverte a une prochaine action datée, fixée à la fin de chaque appel.",
+        "Passez en revue les affaires gagnées et perdues avec leurs motifs, ainsi que celles dont la date de signature prévue est dépassée."
+      ]
+    },
+    "limits": [
+      "Il ne produit ni devis ni factures. La proposition est rédigée dans votre outil documentaire et liée à l’affaire.",
+      "Ce n’est pas un outil de séquences ou de prospection de masse. Les relances sont des brouillons pour des personnes précises, et c’est vous qui les envoyez.",
+      "Il n’y a ni notation des leads, ni enrichissement, ni catégories de prévision, ni gestion des quotas ou des commissions. La valeur pondérée est une simple pondération du montant de vos affaires par étape, pas une prévision.",
+      "Il n’y a ni téléphonie ni SMS.",
+      "Les rappels viennent des règles d’automatisation et des notifications, ou d’une routine que votre agent exécute à intervalles réguliers. Le modèle les propose, vous décidez lesquelles activer.",
+      "Il est dimensionné pour un à dix commerciaux. Les équipes avec un processus de prévision formel sont mieux servies par un outil conçu pour cela."
+    ],
+    "faq": [
+      {
+        "question": "Combien d’étapes un pipeline commercial doit-il avoir ?",
+        "answer": "Les praticiens ne sont pas d’accord : certains conseillent cinq au plus, d’autres en utilisent neuf. Ce modèle compte cinq étapes ouvertes plus gagné et perdu, parce que chaque étape a un critère de sortie mesurable. Renommez ou retirez des étapes dans le plan que propose votre agent."
+      },
+      {
+        "question": "Qu’est-ce que la valeur pondérée d’une affaire ?",
+        "answer": "Le montant de l’affaire multiplié par la pondération de son étape, par exemple 10, 25, 40, 60 et 80 % de la première à la cinquième étape. C’est une pondération que vous pouvez ajuster à vos propres taux de transformation, pas une prédiction."
+      },
+      {
+        "question": "Pourquoi noter un motif de gain et de perte ?",
+        "answer": "Les rapports sur un pipeline ne fonctionnent que si les deux issues existent, et les motifs montrent ce qu’il faut changer. Le modèle demande un motif à la clôture et crée une action de suivi pour reprendre les affaires perdues après 90 jours."
+      },
+      {
+        "question": "L’agent envoie-t-il mes relances ?",
+        "answer": "Non. Le prompt demande à l’agent de ne rien envoyer et de ne créer aucun exemple de données. Des brouillons n’existent que si vous en demandez, et c’est vous qui les envoyez."
+      }
+    ]
+  },
+  "prompt": {
+    "intro": "Mets en place un pipeline commercial dans mon espace de travail Customermates : des affaires avec sept étapes et leur pondération, une valeur pondérée, une prochaine action datée sur chaque affaire ouverte, les motifs de perte et de gain, le comité d’achat sur chaque affaire et une action créée à chaque changement d’étape.",
+    "questions": [
+      "Que vendez-vous, et combien de personnes le vendent ?",
+      "Par quelles étapes passe une affaire entre le premier contact et la signature ? Lesquelles des sept conviennent, lesquelles doivent changer de nom ?",
+      "Combien de temps dure une affaire type, et au bout de combien de jours sans mouvement une affaire stagne-t-elle ?",
+      "Quels taux de transformation avez-vous sur vos affaires passées ? À défaut, les pondérations par défaut restent.",
+      "Où faites-vous vos devis ? Ils y restent, et seul un lien est conservé ici."
+    ]
+  }
+}

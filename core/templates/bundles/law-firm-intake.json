@@ -1,0 +1,4568 @@
+{
+  "spec": {
+    "id": "tpl_law_firm_intake",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "law-firm-intake",
+    "family": "professional-services",
+    "kind": "pipeline",
+    "jurisdictions": [
+      "DE",
+      "FR",
+      "IT",
+      "ES",
+      "BR",
+      "PL",
+      "NL"
+    ],
+    "dashboardAudience": "team",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "notifications"
+    ],
+    "pairedPages": {
+      "en": "/for/law-firms",
+      "de": "/for/law-firms",
+      "fr": "/for/law-firms",
+      "it": "/for/law-firms",
+      "es": "/for/law-firms",
+      "pt": "/for/law-firms",
+      "pl": "/for/law-firms",
+      "nl": "/for/law-firms"
+    },
+    "modules": [
+      "actions_core",
+      "actions_dashboard"
+    ],
+    "lists": [
+      {
+        "key": "contacts",
+        "role": "people",
+        "icon": "contact"
+      },
+      {
+        "key": "inquiries",
+        "icon": "inbox"
+      },
+      {
+        "key": "matters",
+        "icon": "gavel"
+      },
+      {
+        "key": "parties",
+        "icon": "scale"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "contacts.contact_role",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "prospect"
+          },
+          {
+            "key": "client",
+            "color": "success"
+          },
+          {
+            "key": "former_client",
+            "color": "secondary"
+          },
+          {
+            "key": "referrer"
+          }
+        ]
+      },
+      {
+        "key": "contacts.preferred_channel",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "email"
+          },
+          {
+            "key": "phone"
+          },
+          {
+            "key": "whatsapp"
+          },
+          {
+            "key": "post"
+          }
+        ]
+      },
+      {
+        "key": "inquiries.practice_area",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "employment"
+          },
+          {
+            "key": "family"
+          },
+          {
+            "key": "civil_contract"
+          },
+          {
+            "key": "real_estate"
+          },
+          {
+            "key": "corporate"
+          },
+          {
+            "key": "criminal"
+          },
+          {
+            "key": "immigration"
+          },
+          {
+            "key": "inheritance"
+          },
+          {
+            "key": "administrative"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "inquiries.source",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "web_form"
+          },
+          {
+            "key": "phone"
+          },
+          {
+            "key": "referral"
+          },
+          {
+            "key": "whatsapp"
+          },
+          {
+            "key": "walk_in"
+          },
+          {
+            "key": "directory"
+          }
+        ]
+      },
+      {
+        "key": "inquiries.urgent_deadline",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "inquiries.deadline_source",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "inquiries.conflict_check",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "pending",
+            "color": "warning"
+          },
+          {
+            "key": "cleared",
+            "color": "success"
+          },
+          {
+            "key": "cleared_with_waiver"
+          },
+          {
+            "key": "conflict_found",
+            "color": "destructive"
+          }
+        ]
+      },
+      {
+        "key": "inquiries.consultation_on",
+        "type": "dateTime",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "inquiries.fee_model",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "hourly"
+          },
+          {
+            "key": "fixed"
+          },
+          {
+            "key": "success_fee"
+          },
+          {
+            "key": "insurance_or_legal_aid"
+          },
+          {
+            "key": "mixed"
+          }
+        ]
+      },
+      {
+        "key": "inquiries.advance_requested_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "inquiries.advance_received_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "inquiries.responsible_lawyer",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "inquiries.next_step_due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "inquiries.lost_reason",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "conflict"
+          },
+          {
+            "key": "outside_practice_area"
+          },
+          {
+            "key": "capacity"
+          },
+          {
+            "key": "time_limit_referred_out"
+          },
+          {
+            "key": "fee"
+          },
+          {
+            "key": "chose_other_lawyer"
+          },
+          {
+            "key": "no_response"
+          },
+          {
+            "key": "self_resolved"
+          }
+        ]
+      },
+      {
+        "key": "inquiries.non_engagement_letter_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "matters.matter_ref",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "matters.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open",
+            "color": "success"
+          },
+          {
+            "key": "on_hold",
+            "color": "warning"
+          },
+          {
+            "key": "closed",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "matters.opened_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "matters.poa_valid_until",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "matters.retention_until",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "parties.party_role",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "opposing_party",
+            "color": "destructive"
+          },
+          {
+            "key": "related_party"
+          },
+          {
+            "key": "co_client"
+          },
+          {
+            "key": "insurer"
+          },
+          {
+            "key": "third_party"
+          }
+        ]
+      },
+      {
+        "key": "parties.party_type",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "person"
+          },
+          {
+            "key": "organisation"
+          }
+        ]
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "reply"
+          },
+          {
+            "key": "conflict_check"
+          },
+          {
+            "key": "consultation_prep"
+          },
+          {
+            "key": "fee_proposal"
+          },
+          {
+            "key": "follow_up"
+          },
+          {
+            "key": "advance"
+          },
+          {
+            "key": "letter"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "inquiries.stage",
+        "items": [
+          {
+            "key": "new_inquiry",
+            "outcome": "open",
+            "weight": 10
+          },
+          {
+            "key": "screening",
+            "outcome": "open",
+            "weight": 20
+          },
+          {
+            "key": "consultation",
+            "outcome": "open",
+            "weight": 45
+          },
+          {
+            "key": "fee_proposal_sent",
+            "outcome": "open",
+            "weight": 60
+          },
+          {
+            "key": "agreement_signed",
+            "outcome": "open",
+            "weight": 85
+          },
+          {
+            "key": "matter_opened",
+            "outcome": "won",
+            "weight": 100
+          },
+          {
+            "key": "declined_by_firm",
+            "outcome": "lost",
+            "weight": 0
+          },
+          {
+            "key": "not_retained",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [],
+    "relationships": [
+      {
+        "key": "inquiry_contact",
+        "source": "inquiries",
+        "target": "contacts",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "matter_contact",
+        "source": "matters",
+        "target": "contacts",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "matter_inquiry",
+        "source": "matters",
+        "target": "inquiries",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "party_inquiry",
+        "source": "parties",
+        "target": "inquiries",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "party_matter",
+        "source": "parties",
+        "target": "matters",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_inquiry",
+        "source": "actions",
+        "target": "inquiries",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_matter",
+        "source": "actions",
+        "target": "matters",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "inquiries_board",
+        "list": "inquiries",
+        "default": true,
+        "layout": "board",
+        "groupBy": "inquiries.stage",
+        "sort": null,
+        "columns": [
+          "inquiries.practice_area",
+          "inquiries.responsible_lawyer",
+          "inquiries.urgent_deadline",
+          "inquiries.conflict_check"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "inquiries_all",
+        "list": "inquiries",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "inquiries.next_step_due",
+          "direction": "asc"
+        },
+        "columns": [
+          "inquiries.stage",
+          "inquiries.practice_area",
+          "inquiries.responsible_lawyer",
+          "inquiries.next_step_due"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "with_time_limit",
+        "list": "inquiries",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "inquiries.urgent_deadline",
+          "direction": "asc"
+        },
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "inquiries.stage",
+            "options": [
+              "matter_opened",
+              "declined_by_firm",
+              "not_retained"
+            ]
+          },
+          {
+            "operator": "notEmpty",
+            "field": "inquiries.urgent_deadline"
+          }
+        ]
+      },
+      {
+        "key": "conflicts_to_check",
+        "list": "inquiries",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "inquiries.stage",
+            "options": [
+              "matter_opened",
+              "declined_by_firm",
+              "not_retained"
+            ]
+          },
+          {
+            "operator": "in",
+            "field": "inquiries.conflict_check",
+            "options": [
+              "pending"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "matters_all",
+        "list": "matters",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "matters.poa_valid_until",
+          "direction": "asc"
+        },
+        "columns": [
+          "matters.status",
+          "matters.matter_ref",
+          "matters.opened_on",
+          "matters.poa_valid_until",
+          "matters.retention_until"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "parties_all",
+        "list": "parties",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "parties.party_role",
+          "parties.party_type"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "contacts_all",
+        "list": "contacts",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "contacts.contact_role",
+          "contacts.preferred_channel"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "chart",
+        "key": "inquiries_funnel",
+        "list": "inquiries",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "inquiries.stage"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "inquiries.stage",
+            "options": [
+              "new_inquiry",
+              "screening",
+              "consultation",
+              "fee_proposal_sent",
+              "agreement_signed",
+              "matter_opened"
+            ]
+          }
+        ],
+        "display": "funnelChart"
+      },
+      {
+        "kind": "calendar",
+        "key": "urgent_time_limits",
+        "list": "inquiries",
+        "layout": "upcoming",
+        "dateField": "inquiries.urgent_deadline",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "inquiries.stage",
+            "options": [
+              "new_inquiry",
+              "screening",
+              "consultation",
+              "fee_proposal_sent",
+              "agreement_signed"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "calendar",
+        "key": "consultations_coming",
+        "list": "inquiries",
+        "layout": "upcoming",
+        "dateField": "inquiries.consultation_on",
+        "amountField": null,
+        "filters": []
+      },
+      {
+        "kind": "chart",
+        "key": "conflicts_pending",
+        "list": "inquiries",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "notIn",
+            "field": "inquiries.stage",
+            "options": [
+              "matter_opened",
+              "declined_by_firm",
+              "not_retained"
+            ]
+          },
+          {
+            "operator": "in",
+            "field": "inquiries.conflict_check",
+            "options": [
+              "pending"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "chart",
+        "key": "inquiries_by_source",
+        "list": "inquiries",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "inquiries.source"
+        },
+        "filters": [],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "chart",
+        "key": "lost_reasons",
+        "list": "inquiries",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "inquiries.lost_reason"
+        },
+        "filters": [
+          {
+            "operator": "in",
+            "field": "inquiries.stage",
+            "options": [
+              "declined_by_firm",
+              "not_retained"
+            ]
+          }
+        ],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "calendar",
+        "key": "poa_expiring",
+        "list": "matters",
+        "layout": "upcoming",
+        "dateField": "matters.poa_valid_until",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "matters.status",
+            "options": [
+              "open",
+              "on_hold"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_actions",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "operating_guide",
+        "kind": "overview"
+      },
+      {
+        "key": "conflict_check",
+        "kind": "processes"
+      },
+      {
+        "key": "time_limit_triage",
+        "kind": "processes"
+      },
+      {
+        "key": "engagement_checklist",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "inquiry_form_records",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "inquiry"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "contacts",
+            "inquiries"
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "forms"
+      },
+      {
+        "key": "acknowledge_inquiry",
+        "trigger": {
+          "kind": "record_created",
+          "list": "inquiries"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "reply",
+          "assignee": "record_owner",
+          "about": "inquiries"
+        },
+        "dueOffsetDays": 1,
+        "needs": "rules"
+      },
+      {
+        "key": "urgent_deadline_alert",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "inquiries.urgent_deadline",
+          "offsetDays": -14
+        },
+        "condition": [
+          {
+            "operator": "notIn",
+            "field": "inquiries.stage",
+            "options": [
+              "matter_opened",
+              "declined_by_firm",
+              "not_retained"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "notify",
+          "recipient": "workspace_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "conflict_check_task",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "inquiries.stage",
+          "to": "screening"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "conflict_check",
+          "assignee": "record_owner",
+          "about": "inquiries"
+        },
+        "dueOffsetDays": 1,
+        "needs": "rules"
+      },
+      {
+        "key": "fee_proposal_task",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "inquiries.consultation_on",
+          "offsetDays": 0
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "inquiries.stage",
+            "options": [
+              "consultation"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "fee_proposal",
+          "assignee": "record_owner",
+          "about": "inquiries"
+        },
+        "dueOffsetDays": 1,
+        "needs": "rules"
+      },
+      {
+        "key": "proposal_follow_up",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "inquiries.stage",
+          "to": "fee_proposal_sent"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "follow_up",
+          "assignee": "record_owner",
+          "about": "inquiries"
+        },
+        "dueOffsetDays": 3,
+        "needs": "rules"
+      },
+      {
+        "key": "agreement_signed_set",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "inquiries.stage",
+          "to": "agreement_signed"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "advance",
+          "assignee": "record_owner",
+          "about": "inquiries"
+        },
+        "dueOffsetDays": 2,
+        "needs": "rules"
+      },
+      {
+        "key": "advance_chase",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "inquiries.advance_requested_on",
+          "offsetDays": 7
+        },
+        "condition": [
+          {
+            "operator": "empty",
+            "field": "inquiries.advance_received_on"
+          }
+        ],
+        "action": {
+          "kind": "notify",
+          "recipient": "record_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "letter_declined",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "inquiries.stage",
+          "to": "declined_by_firm"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "letter",
+          "assignee": "record_owner",
+          "about": "inquiries"
+        },
+        "dueOffsetDays": 1,
+        "needs": "rules"
+      },
+      {
+        "key": "letter_not_retained",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "inquiries.stage",
+          "to": "not_retained"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "letter",
+          "assignee": "record_owner",
+          "about": "inquiries"
+        },
+        "dueOffsetDays": 1,
+        "needs": "rules"
+      },
+      {
+        "key": "poa_renewal",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "matters.poa_valid_until",
+          "offsetDays": -30
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "letter",
+          "assignee": "record_owner",
+          "about": "matters"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "closing_letter",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "matters.status",
+          "to": "closed"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "letter",
+          "assignee": "record_owner",
+          "about": "matters"
+        },
+        "dueOffsetDays": 7,
+        "needs": "rules"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "stage_field",
+        "kind": "field_exists",
+        "ref": "inquiries.stage"
+      },
+      {
+        "key": "conflict_check_field",
+        "kind": "field_exists",
+        "ref": "inquiries.conflict_check"
+      },
+      {
+        "key": "urgent_deadline_field",
+        "kind": "field_exists",
+        "ref": "inquiries.urgent_deadline"
+      },
+      {
+        "key": "inquiries_board_view",
+        "kind": "view_exists",
+        "ref": "inquiries_board"
+      },
+      {
+        "key": "conflict_check_page",
+        "kind": "page_exists",
+        "ref": "conflict_check"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://www.americanbar.org/groups/young_lawyers/resources/after-the-bar/practice-management/how-the-legal-client-intake-and-conflict-check-process-works/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.projuris.com.br/blog/guia-atendimento-ao-cliente-na-advocacia/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://schedulingkit.com/de/checklists/legal-practice-client-intake",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.docsie.io/assets/templates/legal/client-intake-procedure/template.md",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.fast.io/resources/law-firm-client-onboarding.md",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://tallyfy.com/templates/procedures/law-firm-client-onboarding/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.cnb.avocat.fr/sites/default/files/cnb-fr-txt_conventions-honoraires-honoraire-fixe-honoraire-resultatguide-redaction-2020-02-03_bm.docx",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.studiocataldi.it/articoli/1000729-procura-alle-liti-e-compenso-dellavvocato",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://icatf.es/wp-content/uploads/2017/11/HOJA_DE_ENCARGO_PROFESIONAL_Formulario.pdf",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.advocatenorde.nl/handleiding-wwft-voor-advocaten",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://anwaltspraxis-magazin.de/kanzleimagazin/interessenkonflikte-vermeiden-so-schuetzen-sie-ihre-kanzlei-und-mandant-innen/",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "status": {
+      "en": "draft",
+      "de": "draft",
+      "fr": "draft",
+      "it": "draft",
+      "es": "draft",
+      "pt": "draft",
+      "pl": "draft",
+      "nl": "draft"
+    },
+    "publicPage": {
+      "en": "proof",
+      "de": "proof",
+      "fr": "proof",
+      "it": "proof",
+      "es": "none",
+      "pt": "proof",
+      "pl": "none",
+      "nl": "none"
+    },
+    "publishWave": {}
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Mandatsaufnahme für Kanzleien",
+      "summary": "Eine Mandatsaufnahme in festen Schritten: Anfrage, Kollisionsprüfung, Erstberatung, Mandatsangebot, unterschriebene Mandatsvereinbarung mit Vollmacht und Vorschuss und ein Absageschreiben an alle, die nicht Mandant werden.",
+      "description": "Mandanten in fester Reihenfolge aufnehmen: Jede Anfrage hält Rechtsgebiet, den frühesten bekannten Fristablauf, die Kollisionsprüfung und wer sie durchgeführt hat fest, dann Erstberatung, Mandatsangebot und unterschriebene Vereinbarung. Eine Liste der Beteiligten stützt die Kollisionsprüfung, Mandate tragen das Datum der Vollmacht und einen Löschtermin, und abgelehnte oder verstummte Interessenten erhalten ein schriftliches Absageschreiben. Die Vorlage hält einen Verweis auf die Akte, niemals Falldetails, Mandatsgeheimnisse, Gesundheitsdaten oder Angaben zur Gegenseite. Keine Aktenführung, keine Fremdgeldverwaltung, keine Quelle für Verfahrensfristen und keine Abrechnung.",
+      "lists": {
+        "actions": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "contacts": {
+          "label": "Ansprechpartner",
+          "pluralLabel": "Ansprechpartner",
+          "description": "Interessenten, Mandanten, frühere Mandanten und Empfehler."
+        },
+        "inquiries": {
+          "label": "Anfrage",
+          "pluralLabel": "Anfragen",
+          "description": "Eine Bitte um Rechtsrat, vom ersten Kontakt bis zum Mandat oder zur Absage."
+        },
+        "matters": {
+          "label": "Mandat",
+          "pluralLabel": "Mandate",
+          "description": "Ein Verweis auf die Akte im Kanzleisystem, mit Vollmachtsdatum und Löschtermin."
+        },
+        "parties": {
+          "label": "Beteiligter",
+          "pluralLabel": "Beteiligte",
+          "description": "Gegner und verbundene Beteiligte, für die Kollisionsprüfung vorgehalten."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Rolle",
+          "options": {
+            "prospect": "Interessent",
+            "client": "Mandant",
+            "former_client": "Früherer Mandant",
+            "referrer": "Empfehler"
+          }
+        },
+        "contacts.preferred_channel": {
+          "label": "Bevorzugter Kanal",
+          "options": {
+            "email": "E-Mail",
+            "phone": "Telefon",
+            "whatsapp": "WhatsApp",
+            "post": "Post"
+          }
+        },
+        "inquiries.stage": {
+          "label": "Phase",
+          "options": {
+            "new_inquiry": "Anfrage",
+            "screening": "Kollisionsprüfung",
+            "consultation": "Erstberatung",
+            "fee_proposal_sent": "Mandatsangebot",
+            "agreement_signed": "Mandatsvereinbarung",
+            "matter_opened": "Akte angelegt",
+            "declined_by_firm": "Abgelehnt",
+            "not_retained": "Nicht beauftragt"
+          }
+        },
+        "inquiries.practice_area": {
+          "label": "Rechtsgebiet",
+          "options": {
+            "employment": "Arbeitsrecht",
+            "family": "Familienrecht",
+            "civil_contract": "Zivil- und Vertragsrecht",
+            "real_estate": "Immobilienrecht",
+            "corporate": "Gesellschaftsrecht",
+            "criminal": "Strafrecht",
+            "immigration": "Ausländerrecht",
+            "inheritance": "Erbrecht",
+            "administrative": "Verwaltungsrecht",
+            "other": "Sonstiges"
+          }
+        },
+        "inquiries.source": {
+          "label": "Quelle",
+          "options": {
+            "web_form": "Webformular",
+            "phone": "Telefon",
+            "referral": "Empfehlung",
+            "whatsapp": "WhatsApp",
+            "walk_in": "Persönlich",
+            "directory": "Verzeichnis"
+          }
+        },
+        "inquiries.urgent_deadline": {
+          "label": "Frühester bekannter Fristablauf",
+          "options": {}
+        },
+        "inquiries.deadline_source": {
+          "label": "Woher die Frist stammt",
+          "options": {}
+        },
+        "inquiries.conflict_check": {
+          "label": "Kollisionsprüfung",
+          "options": {
+            "pending": "Offen",
+            "cleared": "Unbedenklich",
+            "cleared_with_waiver": "Unbedenklich mit Einwilligung",
+            "conflict_found": "Kollision festgestellt"
+          }
+        },
+        "inquiries.consultation_on": {
+          "label": "Erstberatung",
+          "options": {}
+        },
+        "inquiries.fee_model": {
+          "label": "Vergütung",
+          "options": {
+            "hourly": "Stundensatz",
+            "fixed": "Pauschale",
+            "success_fee": "Erfolgshonorar",
+            "insurance_or_legal_aid": "Rechtsschutz oder Beratungshilfe",
+            "mixed": "Gemischt"
+          }
+        },
+        "inquiries.advance_requested_on": {
+          "label": "Vorschuss angefordert am",
+          "options": {}
+        },
+        "inquiries.advance_received_on": {
+          "label": "Vorschuss eingegangen am",
+          "options": {}
+        },
+        "inquiries.responsible_lawyer": {
+          "label": "Verantwortlicher Anwalt",
+          "options": {}
+        },
+        "inquiries.next_step_due": {
+          "label": "Nächster Schritt bis",
+          "options": {}
+        },
+        "inquiries.lost_reason": {
+          "label": "Grund für kein Mandat",
+          "options": {
+            "conflict": "Interessenkollision",
+            "outside_practice_area": "Außerhalb unserer Rechtsgebiete",
+            "capacity": "Keine Kapazität",
+            "time_limit_referred_out": "Frist, weitervermittelt",
+            "fee": "Honorar",
+            "chose_other_lawyer": "Anderen Anwalt gewählt",
+            "no_response": "Keine Rückmeldung",
+            "self_resolved": "Hat sich erledigt"
+          }
+        },
+        "inquiries.non_engagement_letter_on": {
+          "label": "Absageschreiben gesendet am",
+          "options": {}
+        },
+        "matters.matter_ref": {
+          "label": "Aktenzeichen im Kanzleisystem",
+          "options": {}
+        },
+        "matters.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "on_hold": "Ruhend",
+            "closed": "Abgeschlossen"
+          }
+        },
+        "matters.opened_on": {
+          "label": "Angelegt am",
+          "options": {}
+        },
+        "matters.poa_valid_until": {
+          "label": "Vollmacht gültig bis",
+          "options": {}
+        },
+        "matters.retention_until": {
+          "label": "Löschen am",
+          "options": {}
+        },
+        "parties.party_role": {
+          "label": "Rolle",
+          "options": {
+            "opposing_party": "Gegner",
+            "related_party": "Verbundener Beteiligter",
+            "co_client": "Mitmandant",
+            "insurer": "Versicherer",
+            "third_party": "Dritter"
+          }
+        },
+        "parties.party_type": {
+          "label": "Art",
+          "options": {
+            "person": "Person",
+            "organisation": "Organisation"
+          }
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "reply": "Antworten",
+            "conflict_check": "Kollisionsprüfung durchführen",
+            "consultation_prep": "Erstberatung vorbereiten",
+            "fee_proposal": "Mandatsangebot senden",
+            "follow_up": "Nachfassen",
+            "advance": "Vorschuss einfordern",
+            "letter": "Schreiben verfassen",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "inquiry_contact": {
+          "sourceLabel": "Ansprechpartner",
+          "targetLabel": "Anfragen"
+        },
+        "matter_contact": {
+          "sourceLabel": "Mandant",
+          "targetLabel": "Mandate"
+        },
+        "matter_inquiry": {
+          "sourceLabel": "Anfrage",
+          "targetLabel": "Mandate"
+        },
+        "party_inquiry": {
+          "sourceLabel": "Anfrage",
+          "targetLabel": "Beteiligte"
+        },
+        "party_matter": {
+          "sourceLabel": "Mandat",
+          "targetLabel": "Beteiligte"
+        },
+        "action_inquiry": {
+          "sourceLabel": "Anfrage",
+          "targetLabel": "Aufgaben"
+        },
+        "action_matter": {
+          "sourceLabel": "Mandat",
+          "targetLabel": "Aufgaben"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle Aufgaben"
+        },
+        "inquiries_board": {
+          "name": "Anfragen nach Phase"
+        },
+        "inquiries_all": {
+          "name": "Alle Anfragen"
+        },
+        "with_time_limit": {
+          "name": "Offene Anfragen mit Frist"
+        },
+        "conflicts_to_check": {
+          "name": "Offene Kollisionsprüfungen"
+        },
+        "matters_all": {
+          "name": "Alle Mandate"
+        },
+        "parties_all": {
+          "name": "Alle Beteiligten"
+        },
+        "contacts_all": {
+          "name": "Alle Ansprechpartner"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Anstehende Aufgaben"
+        },
+        "overdue_actions": {
+          "title": "Überfällige Aufgaben"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        },
+        "inquiries_funnel": {
+          "title": "Anfragen nach Phase"
+        },
+        "urgent_time_limits": {
+          "title": "Fristen offener Anfragen"
+        },
+        "consultations_coming": {
+          "title": "Anstehende Erstberatungen"
+        },
+        "conflicts_pending": {
+          "title": "Offene Kollisionsprüfungen"
+        },
+        "inquiries_by_source": {
+          "title": "Anfragen nach Quelle"
+        },
+        "lost_reasons": {
+          "title": "Warum Anfragen kein Mandat wurden"
+        },
+        "poa_expiring": {
+          "title": "Auslaufende Vollmachten"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "So läuft die Mandatsaufnahme",
+          "sections": [
+            "Erstkontakt und Fragen zur Einordnung",
+            "Wer antwortet und wie schnell"
+          ]
+        },
+        "conflict_check": {
+          "title": "Ablauf der Kollisionsprüfung",
+          "sections": [
+            "Was geprüft wird: Beteiligte, Mandanten und frühere Mandanten",
+            "Wie das Ergebnis festgehalten wird und was bei einer Kollision geschieht"
+          ]
+        },
+        "time_limit_triage": {
+          "title": "Einordnung eilbedürftiger Fristen",
+          "sections": [
+            "Den frühesten bekannten Fristablauf beim Erstkontakt erfragen",
+            "Annehmen, weitervermitteln oder den Anfragenden schriftlich warnen"
+          ]
+        },
+        "engagement_checklist": {
+          "title": "Checkliste Honorarvereinbarung und Mandat",
+          "sections": [
+            "Vergütung, Vollmacht und Vorschuss",
+            "Absage- und Abschlussschreiben"
+          ]
+        }
+      },
+      "rules": {
+        "inquiry_form_records": {
+          "title": "Ansprechpartner und Anfrage anlegen, wenn das Anfrageformular abgeschickt wird",
+          "description": ""
+        },
+        "acknowledge_inquiry": {
+          "title": "Eine neue Anfrage am nächsten Tag beantworten und eine Erstberatung anbieten",
+          "description": ""
+        },
+        "urgent_deadline_alert": {
+          "title": "Die Leitung 14 Tage vor dem Fristablauf einer offenen Anfrage informieren",
+          "description": ""
+        },
+        "conflict_check_task": {
+          "title": "Die Kollisionsprüfung am Tag nach Eintritt in die Phase „Kollisionsprüfung“ durchführen",
+          "description": ""
+        },
+        "fee_proposal_task": {
+          "title": "Am Tag nach der Erstberatung das Mandatsangebot senden",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "3 Tage nach dem Mandatsangebot nachfassen",
+          "description": ""
+        },
+        "agreement_signed_set": {
+          "title": "2 Tage nach der unterschriebenen Vereinbarung den Vorschuss einfordern",
+          "description": ""
+        },
+        "advance_chase": {
+          "title": "Den Zuständigen informieren, wenn der Vorschuss 7 Tage nach der Anforderung fehlt",
+          "description": ""
+        },
+        "letter_declined": {
+          "title": "Das Absageschreiben verfassen, wenn die Kanzlei eine Anfrage ablehnt",
+          "description": ""
+        },
+        "letter_not_retained": {
+          "title": "Das Absageschreiben verfassen, wenn ein Interessent kein Mandat erteilt",
+          "description": ""
+        },
+        "poa_renewal": {
+          "title": "Die Vollmacht 30 Tage vor Ablauf erneuern",
+          "description": ""
+        },
+        "closing_letter": {
+          "title": "Eine Woche nach Abschluss eines Mandats das Abschlussschreiben verfassen",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Jede Anfrage hat eine von acht Phasen.",
+        "conflict_check_field": "Jede Anfrage hält ihre Kollisionsprüfung fest.",
+        "urgent_deadline_field": "Jede Anfrage hält den frühesten bekannten Fristablauf fest.",
+        "inquiries_board_view": "Die Anfragen öffnen sich als Board nach Phase.",
+        "conflict_check_page": "Die Wissensdatenbank enthält eine Seite zur Kollisionsprüfung."
+      },
+      "prompt": {
+        "intro": "Richte in meinem Customermates-Workspace eine Mandatsaufnahme für die Kanzlei ein: Anfragen mit Kollisionsprüfung, frühestem bekanntem Fristablauf, Erstberatung, Mandatsangebot und unterschriebener Vereinbarung, Mandate als Verweise auf das Kanzleisystem, Beteiligte für die Kollisionsprüfung und schriftliche Absageschreiben. Speichere keine Falldetails und keine Mandatsgeheimnisse.",
+        "questions": [
+          "Welche Rechtsgebiete nimmst du an, und welche vermittelst du weiter?",
+          "Wie führst du die Kollisionsprüfung durch, und wer zeichnet sie ab?",
+          "Welche Vergütungsmodelle und welchen Vorschuss nutzt du?",
+          "Welches Kanzleisystem nutzt du? Hier wird nur ein Verweis auf die Akte gespeichert."
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Law firm intake",
+      "summary": "A gated intake for a law firm: inquiry, conflict check, consultation, fee proposal, signed engagement with power of attorney and advance, and a written non-engagement letter for everyone who does not become a client.",
+      "description": "Take clients on in a fixed order: every inquiry records its practice area, the earliest known time limit, the conflict check and who made it, then the consultation, the fee proposal and the signed engagement. A list of parties supports the conflict search, matters carry the power of attorney date and a retention date, and declined or silent prospects get a written non-engagement letter. It holds a pointer to the case, never case facts, privileged content, health data or opponents' details. It is not matter management, trust accounting, a procedural deadline authority or billing.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "Prospects, clients, former clients and referrers."
+        },
+        "inquiries": {
+          "label": "Inquiry",
+          "pluralLabel": "Inquiries",
+          "description": "One request for legal help, from the first contact to a matter or a decline."
+        },
+        "matters": {
+          "label": "Matter",
+          "pluralLabel": "Matters",
+          "description": "A pointer to the case in your case system, with the power of attorney date and the retention date."
+        },
+        "parties": {
+          "label": "Party",
+          "pluralLabel": "Parties",
+          "description": "Opposing and related parties, kept for the conflict check."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Role",
+          "options": {
+            "prospect": "Prospect",
+            "client": "Client",
+            "former_client": "Former client",
+            "referrer": "Referrer"
+          }
+        },
+        "contacts.preferred_channel": {
+          "label": "Preferred channel",
+          "options": {
+            "email": "Email",
+            "phone": "Phone",
+            "whatsapp": "WhatsApp",
+            "post": "Post"
+          }
+        },
+        "inquiries.stage": {
+          "label": "Stage",
+          "options": {
+            "new_inquiry": "New inquiry",
+            "screening": "Conflict check",
+            "consultation": "Consultation",
+            "fee_proposal_sent": "Fee proposal sent",
+            "agreement_signed": "Agreement signed",
+            "matter_opened": "Matter opened",
+            "declined_by_firm": "Declined by the firm",
+            "not_retained": "Not retained"
+          }
+        },
+        "inquiries.practice_area": {
+          "label": "Practice area",
+          "options": {
+            "employment": "Employment",
+            "family": "Family",
+            "civil_contract": "Civil and contract",
+            "real_estate": "Real estate",
+            "corporate": "Corporate",
+            "criminal": "Criminal",
+            "immigration": "Immigration",
+            "inheritance": "Inheritance",
+            "administrative": "Administrative",
+            "other": "Other"
+          }
+        },
+        "inquiries.source": {
+          "label": "Source",
+          "options": {
+            "web_form": "Web form",
+            "phone": "Phone",
+            "referral": "Referral",
+            "whatsapp": "WhatsApp",
+            "walk_in": "Walk-in",
+            "directory": "Directory"
+          }
+        },
+        "inquiries.urgent_deadline": {
+          "label": "Earliest known time limit",
+          "options": {}
+        },
+        "inquiries.deadline_source": {
+          "label": "Where the time limit comes from",
+          "options": {}
+        },
+        "inquiries.conflict_check": {
+          "label": "Conflict check",
+          "options": {
+            "pending": "Pending",
+            "cleared": "Cleared",
+            "cleared_with_waiver": "Cleared with waiver",
+            "conflict_found": "Conflict found"
+          }
+        },
+        "inquiries.consultation_on": {
+          "label": "Consultation",
+          "options": {}
+        },
+        "inquiries.fee_model": {
+          "label": "Fee model",
+          "options": {
+            "hourly": "Hourly",
+            "fixed": "Fixed fee",
+            "success_fee": "Success fee",
+            "insurance_or_legal_aid": "Insurance or legal aid",
+            "mixed": "Mixed"
+          }
+        },
+        "inquiries.advance_requested_on": {
+          "label": "Advance requested on",
+          "options": {}
+        },
+        "inquiries.advance_received_on": {
+          "label": "Advance received on",
+          "options": {}
+        },
+        "inquiries.responsible_lawyer": {
+          "label": "Responsible lawyer",
+          "options": {}
+        },
+        "inquiries.next_step_due": {
+          "label": "Next step due",
+          "options": {}
+        },
+        "inquiries.lost_reason": {
+          "label": "Why no engagement",
+          "options": {
+            "conflict": "Conflict",
+            "outside_practice_area": "Outside our practice areas",
+            "capacity": "No capacity",
+            "time_limit_referred_out": "Time limit, referred out",
+            "fee": "Fee",
+            "chose_other_lawyer": "Chose another lawyer",
+            "no_response": "No response",
+            "self_resolved": "Resolved itself"
+          }
+        },
+        "inquiries.non_engagement_letter_on": {
+          "label": "Non-engagement letter sent on",
+          "options": {}
+        },
+        "matters.matter_ref": {
+          "label": "Reference in the case system",
+          "options": {}
+        },
+        "matters.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "on_hold": "On hold",
+            "closed": "Closed"
+          }
+        },
+        "matters.opened_on": {
+          "label": "Opened on",
+          "options": {}
+        },
+        "matters.poa_valid_until": {
+          "label": "Power of attorney valid until",
+          "options": {}
+        },
+        "matters.retention_until": {
+          "label": "Keep until",
+          "options": {}
+        },
+        "parties.party_role": {
+          "label": "Role",
+          "options": {
+            "opposing_party": "Opposing party",
+            "related_party": "Related party",
+            "co_client": "Co-client",
+            "insurer": "Insurer",
+            "third_party": "Third party"
+          }
+        },
+        "parties.party_type": {
+          "label": "Type",
+          "options": {
+            "person": "Person",
+            "organisation": "Organization"
+          }
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "reply": "Reply",
+            "conflict_check": "Run the conflict check",
+            "consultation_prep": "Prepare the consultation",
+            "fee_proposal": "Send the fee proposal",
+            "follow_up": "Follow up",
+            "advance": "Collect the advance",
+            "letter": "Write a letter",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "inquiry_contact": {
+          "sourceLabel": "Contact",
+          "targetLabel": "Inquiries"
+        },
+        "matter_contact": {
+          "sourceLabel": "Client",
+          "targetLabel": "Matters"
+        },
+        "matter_inquiry": {
+          "sourceLabel": "Inquiry",
+          "targetLabel": "Matters"
+        },
+        "party_inquiry": {
+          "sourceLabel": "Inquiry",
+          "targetLabel": "Parties"
+        },
+        "party_matter": {
+          "sourceLabel": "Matter",
+          "targetLabel": "Parties"
+        },
+        "action_inquiry": {
+          "sourceLabel": "Inquiry",
+          "targetLabel": "Actions"
+        },
+        "action_matter": {
+          "sourceLabel": "Matter",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "All actions"
+        },
+        "inquiries_board": {
+          "name": "Inquiries by stage"
+        },
+        "inquiries_all": {
+          "name": "All inquiries"
+        },
+        "with_time_limit": {
+          "name": "Open inquiries with a time limit"
+        },
+        "conflicts_to_check": {
+          "name": "Conflict checks pending"
+        },
+        "matters_all": {
+          "name": "All matters"
+        },
+        "parties_all": {
+          "name": "All parties"
+        },
+        "contacts_all": {
+          "name": "All contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Upcoming actions"
+        },
+        "overdue_actions": {
+          "title": "Overdue actions"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        },
+        "inquiries_funnel": {
+          "title": "Inquiries by stage"
+        },
+        "urgent_time_limits": {
+          "title": "Time limits of open inquiries"
+        },
+        "consultations_coming": {
+          "title": "Consultations coming up"
+        },
+        "conflicts_pending": {
+          "title": "Conflict checks pending"
+        },
+        "inquiries_by_source": {
+          "title": "Inquiries by source"
+        },
+        "lost_reasons": {
+          "title": "Why inquiries did not become matters"
+        },
+        "poa_expiring": {
+          "title": "Powers of attorney expiring"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "How the intake desk runs",
+          "sections": [
+            "First contact and screening questions",
+            "Who answers and how fast"
+          ]
+        },
+        "conflict_check": {
+          "title": "Conflict check procedure",
+          "sections": [
+            "What is searched: parties, clients and former clients",
+            "How the result is recorded and what happens on a conflict"
+          ]
+        },
+        "time_limit_triage": {
+          "title": "Urgent time-limit triage",
+          "sections": [
+            "Asking for the earliest known time limit at first contact",
+            "Accept, refer out or warn the inquirer in writing"
+          ]
+        },
+        "engagement_checklist": {
+          "title": "Fee agreement and engagement checklist",
+          "sections": [
+            "Fee model, power of attorney and advance",
+            "Non-engagement and closing letters"
+          ]
+        }
+      },
+      "rules": {
+        "inquiry_form_records": {
+          "title": "Create the contact and the inquiry when the inquiry form is submitted",
+          "description": ""
+        },
+        "acknowledge_inquiry": {
+          "title": "Reply to a new inquiry the next day and offer a consultation",
+          "description": ""
+        },
+        "urgent_deadline_alert": {
+          "title": "Notify the lead 14 days before the time limit of an open inquiry",
+          "description": ""
+        },
+        "conflict_check_task": {
+          "title": "Run the conflict check the day after an inquiry reaches screening",
+          "description": ""
+        },
+        "fee_proposal_task": {
+          "title": "Send the fee proposal the day after the consultation",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Follow up 3 days after the fee proposal is sent",
+          "description": ""
+        },
+        "agreement_signed_set": {
+          "title": "Collect the advance 2 days after the agreement is signed",
+          "description": ""
+        },
+        "advance_chase": {
+          "title": "Notify the owner when the advance is still missing 7 days after the request",
+          "description": ""
+        },
+        "letter_declined": {
+          "title": "Write the non-engagement letter when the firm declines an inquiry",
+          "description": ""
+        },
+        "letter_not_retained": {
+          "title": "Write the non-engagement letter when a prospect does not retain the firm",
+          "description": ""
+        },
+        "poa_renewal": {
+          "title": "Renew the power of attorney 30 days before it expires",
+          "description": ""
+        },
+        "closing_letter": {
+          "title": "Write the closing letter a week after a matter is closed",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Every inquiry has one of eight stages.",
+        "conflict_check_field": "Every inquiry records its conflict check.",
+        "urgent_deadline_field": "Every inquiry records the earliest known time limit.",
+        "inquiries_board_view": "The inquiries open as a board by stage.",
+        "conflict_check_page": "The knowledge base holds a page on the conflict check."
+      },
+      "prompt": {
+        "intro": "Set up a law firm intake in my Customermates workspace: inquiries with a conflict check, the earliest known time limit, consultation, fee proposal and signed engagement, matters as pointers to the case system, parties for the conflict search and written non-engagement letters. Store no case facts or privileged content.",
+        "questions": [
+          "Which practice areas do you take, and which do you refer out?",
+          "How do you run the conflict check, and who signs it off?",
+          "What fee models and what advance do you use?",
+          "Which case system do you use? Only a reference to the matter is kept here."
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "Alta de clientes para despachos de abogados",
+      "summary": "Un alta de clientes en pasos fijos: consulta, conflicto de intereses, primera reunión, presupuesto, hoja de encargo y poder firmados con provisión de fondos, y una carta escrita para quien no llega a ser cliente.",
+      "description": "Da de alta a los clientes en un orden fijo: cada consulta registra el área, el plazo más próximo conocido, la comprobación de conflicto de intereses y quién la hizo, luego la reunión, el presupuesto y la hoja de encargo firmada. Una lista de partes apoya la comprobación de conflictos, los expedientes llevan la fecha del poder y una fecha de conservación, y los posibles clientes rechazados o en silencio reciben una carta escrita de no contratación. Guarda una referencia al expediente, nunca hechos del caso, contenido sujeto a secreto profesional, datos de salud ni datos de la parte contraria. No es gestión de expedientes, contabilidad de fondos de clientes, fuente de plazos procesales ni facturación.",
+      "lists": {
+        "actions": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un siguiente paso con fecha por cada asunto abierto."
+        },
+        "contacts": {
+          "label": "Contacto",
+          "pluralLabel": "Contactos",
+          "description": "Posibles clientes, clientes, antiguos clientes y quienes recomiendan."
+        },
+        "inquiries": {
+          "label": "Consulta",
+          "pluralLabel": "Consultas",
+          "description": "Una petición de ayuda jurídica, del primer contacto a un expediente o un rechazo."
+        },
+        "matters": {
+          "label": "Expediente",
+          "pluralLabel": "Expedientes",
+          "description": "Una referencia al caso en tu programa de gestión, con la fecha del poder y la de conservación."
+        },
+        "parties": {
+          "label": "Parte",
+          "pluralLabel": "Partes",
+          "description": "Partes contrarias y vinculadas, guardadas para la comprobación de conflictos."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierta",
+            "waiting": "En espera",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Papel",
+          "options": {
+            "prospect": "Posible cliente",
+            "client": "Cliente",
+            "former_client": "Antiguo cliente",
+            "referrer": "Quien recomienda"
+          }
+        },
+        "contacts.preferred_channel": {
+          "label": "Canal preferido",
+          "options": {
+            "email": "Correo electrónico",
+            "phone": "Teléfono",
+            "whatsapp": "WhatsApp",
+            "post": "Correo postal"
+          }
+        },
+        "inquiries.stage": {
+          "label": "Fase",
+          "options": {
+            "new_inquiry": "Consulta",
+            "screening": "Conflicto de intereses",
+            "consultation": "Primera reunión",
+            "fee_proposal_sent": "Presupuesto enviado",
+            "agreement_signed": "Hoja de encargo firmada",
+            "matter_opened": "Expediente abierto",
+            "declined_by_firm": "Rechazado",
+            "not_retained": "No contratado"
+          }
+        },
+        "inquiries.practice_area": {
+          "label": "Área",
+          "options": {
+            "employment": "Laboral",
+            "family": "Familia",
+            "civil_contract": "Civil y contratos",
+            "real_estate": "Inmobiliario",
+            "corporate": "Mercantil",
+            "criminal": "Penal",
+            "immigration": "Extranjería",
+            "inheritance": "Sucesiones",
+            "administrative": "Administrativo",
+            "other": "Otra"
+          }
+        },
+        "inquiries.source": {
+          "label": "Origen",
+          "options": {
+            "web_form": "Formulario web",
+            "phone": "Teléfono",
+            "referral": "Recomendación",
+            "whatsapp": "WhatsApp",
+            "walk_in": "Visita al despacho",
+            "directory": "Directorio"
+          }
+        },
+        "inquiries.urgent_deadline": {
+          "label": "Plazo más próximo conocido",
+          "options": {}
+        },
+        "inquiries.deadline_source": {
+          "label": "De dónde sale el plazo",
+          "options": {}
+        },
+        "inquiries.conflict_check": {
+          "label": "Conflicto de intereses",
+          "options": {
+            "pending": "Pendiente",
+            "cleared": "Sin conflicto",
+            "cleared_with_waiver": "Resuelto con consentimiento",
+            "conflict_found": "Conflicto detectado"
+          }
+        },
+        "inquiries.consultation_on": {
+          "label": "Primera reunión",
+          "options": {}
+        },
+        "inquiries.fee_model": {
+          "label": "Honorarios",
+          "options": {
+            "hourly": "Por horas",
+            "fixed": "Cuota fija",
+            "success_fee": "A resultado",
+            "insurance_or_legal_aid": "Seguro o justicia gratuita",
+            "mixed": "Mixto"
+          }
+        },
+        "inquiries.advance_requested_on": {
+          "label": "Provisión solicitada el",
+          "options": {}
+        },
+        "inquiries.advance_received_on": {
+          "label": "Provisión recibida el",
+          "options": {}
+        },
+        "inquiries.responsible_lawyer": {
+          "label": "Abogado responsable",
+          "options": {}
+        },
+        "inquiries.next_step_due": {
+          "label": "Fecha del siguiente paso",
+          "options": {}
+        },
+        "inquiries.lost_reason": {
+          "label": "Por qué no hubo encargo",
+          "options": {
+            "conflict": "Conflicto de intereses",
+            "outside_practice_area": "Fuera de nuestras áreas",
+            "capacity": "Sin capacidad",
+            "time_limit_referred_out": "Plazo, derivado a otro",
+            "fee": "Honorarios",
+            "chose_other_lawyer": "Eligió otro abogado",
+            "no_response": "Sin respuesta",
+            "self_resolved": "Se resolvió solo"
+          }
+        },
+        "inquiries.non_engagement_letter_on": {
+          "label": "Carta de no contratación enviada el",
+          "options": {}
+        },
+        "matters.matter_ref": {
+          "label": "Referencia en el programa de gestión",
+          "options": {}
+        },
+        "matters.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierto",
+            "on_hold": "En pausa",
+            "closed": "Cerrado"
+          }
+        },
+        "matters.opened_on": {
+          "label": "Abierto el",
+          "options": {}
+        },
+        "matters.poa_valid_until": {
+          "label": "Poder válido hasta",
+          "options": {}
+        },
+        "matters.retention_until": {
+          "label": "Conservar hasta",
+          "options": {}
+        },
+        "parties.party_role": {
+          "label": "Papel",
+          "options": {
+            "opposing_party": "Parte contraria",
+            "related_party": "Parte vinculada",
+            "co_client": "Cocliente",
+            "insurer": "Aseguradora",
+            "third_party": "Tercero"
+          }
+        },
+        "parties.party_type": {
+          "label": "Tipo",
+          "options": {
+            "person": "Persona",
+            "organisation": "Organización"
+          }
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Responder",
+            "conflict_check": "Hacer la comprobación de conflictos",
+            "consultation_prep": "Preparar la reunión",
+            "fee_proposal": "Enviar el presupuesto",
+            "follow_up": "Hacer seguimiento",
+            "advance": "Solicitar la provisión de fondos",
+            "letter": "Redactar una carta",
+            "other": "Otro"
+          }
+        }
+      },
+      "relationships": {
+        "inquiry_contact": {
+          "sourceLabel": "Contacto",
+          "targetLabel": "Consultas"
+        },
+        "matter_contact": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Expedientes"
+        },
+        "matter_inquiry": {
+          "sourceLabel": "Consulta",
+          "targetLabel": "Expedientes"
+        },
+        "party_inquiry": {
+          "sourceLabel": "Consulta",
+          "targetLabel": "Partes"
+        },
+        "party_matter": {
+          "sourceLabel": "Expediente",
+          "targetLabel": "Partes"
+        },
+        "action_inquiry": {
+          "sourceLabel": "Consulta",
+          "targetLabel": "Tareas"
+        },
+        "action_matter": {
+          "sourceLabel": "Expediente",
+          "targetLabel": "Tareas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas las tareas"
+        },
+        "inquiries_board": {
+          "name": "Consultas por fase"
+        },
+        "inquiries_all": {
+          "name": "Todas las consultas"
+        },
+        "with_time_limit": {
+          "name": "Consultas abiertas con plazo"
+        },
+        "conflicts_to_check": {
+          "name": "Conflictos por comprobar"
+        },
+        "matters_all": {
+          "name": "Todos los expedientes"
+        },
+        "parties_all": {
+          "name": "Todas las partes"
+        },
+        "contacts_all": {
+          "name": "Todos los contactos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tareas"
+        },
+        "overdue_actions": {
+          "title": "Tareas vencidas"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        },
+        "inquiries_funnel": {
+          "title": "Consultas por fase"
+        },
+        "urgent_time_limits": {
+          "title": "Plazos de las consultas abiertas"
+        },
+        "consultations_coming": {
+          "title": "Reuniones próximas"
+        },
+        "conflicts_pending": {
+          "title": "Conflictos por comprobar"
+        },
+        "inquiries_by_source": {
+          "title": "Consultas por origen"
+        },
+        "lost_reasons": {
+          "title": "Por qué las consultas no pasan a expediente"
+        },
+        "poa_expiring": {
+          "title": "Poderes que vencen"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Cómo funciona el alta de clientes",
+          "sections": [
+            "Primer contacto y preguntas de clasificación",
+            "Quién responde y en cuánto tiempo"
+          ]
+        },
+        "conflict_check": {
+          "title": "Procedimiento de conflicto de intereses",
+          "sections": [
+            "Qué se busca: partes, clientes y antiguos clientes",
+            "Cómo se anota el resultado y qué hacer si hay conflicto"
+          ]
+        },
+        "time_limit_triage": {
+          "title": "Clasificación de plazos urgentes",
+          "sections": [
+            "Preguntar por el plazo más próximo conocido en el primer contacto",
+            "Aceptar, derivar o avisar por escrito a quien consulta"
+          ]
+        },
+        "engagement_checklist": {
+          "title": "Lista de control de hoja de encargo y presupuesto",
+          "sections": [
+            "Honorarios, poder y provisión de fondos",
+            "Cartas de no contratación y de cierre"
+          ]
+        }
+      },
+      "rules": {
+        "inquiry_form_records": {
+          "title": "Crear el contacto y la consulta cuando se envía el formulario de consulta",
+          "description": ""
+        },
+        "acknowledge_inquiry": {
+          "title": "Responder a una consulta nueva al día siguiente y ofrecer una reunión",
+          "description": ""
+        },
+        "urgent_deadline_alert": {
+          "title": "Avisar a la persona a cargo 14 días antes del plazo de una consulta abierta",
+          "description": ""
+        },
+        "conflict_check_task": {
+          "title": "Hacer la comprobación de conflictos al día siguiente de pasar a esa fase",
+          "description": ""
+        },
+        "fee_proposal_task": {
+          "title": "Enviar el presupuesto al día siguiente de la reunión",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Hacer seguimiento 3 días después de enviar el presupuesto",
+          "description": ""
+        },
+        "agreement_signed_set": {
+          "title": "Solicitar la provisión de fondos 2 días después de firmar la hoja de encargo",
+          "description": ""
+        },
+        "advance_chase": {
+          "title": "Avisar al responsable cuando falta la provisión 7 días después de pedirla",
+          "description": ""
+        },
+        "letter_declined": {
+          "title": "Redactar la carta de no contratación cuando el despacho rechaza una consulta",
+          "description": ""
+        },
+        "letter_not_retained": {
+          "title": "Redactar la carta de no contratación cuando un posible cliente no encarga el asunto",
+          "description": ""
+        },
+        "poa_renewal": {
+          "title": "Renovar el poder 30 días antes de que venza",
+          "description": ""
+        },
+        "closing_letter": {
+          "title": "Redactar la carta de cierre una semana después de cerrar un expediente",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Cada consulta tiene una de las ocho fases.",
+        "conflict_check_field": "Cada consulta registra su comprobación de conflictos.",
+        "urgent_deadline_field": "Cada consulta registra el plazo más próximo conocido.",
+        "inquiries_board_view": "Las consultas se abren como tablero por fase.",
+        "conflict_check_page": "La base de conocimiento contiene una página sobre el conflicto de intereses."
+      },
+      "prompt": {
+        "intro": "Configura en mi espacio de trabajo de Customermates un alta de clientes para un despacho de abogados: consultas con comprobación de conflictos, plazo más próximo conocido, reunión, presupuesto y hoja de encargo firmada, expedientes como referencias a mi programa de gestión, partes para la comprobación de conflictos y cartas escritas de no contratación. No guardes hechos del caso ni contenido sujeto a secreto profesional.",
+        "questions": [
+          "¿Qué áreas llevas y cuáles derivas a otros despachos?",
+          "¿Cómo haces la comprobación de conflictos y quién la da por buena?",
+          "¿Qué modelos de honorarios y qué provisión de fondos usas?",
+          "¿Qué programa de gestión usas? Aquí solo se guarda una referencia al expediente."
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "Prise de dossier pour avocats",
+      "summary": "Une prise de dossier en étapes fixes : demande, vérification des conflits, premier rendez-vous, convention d’honoraires, lettre de mission et pouvoir signés avec provision, et un courrier de non-prise en charge pour chaque personne qui ne devient pas cliente.",
+      "description": "Prenez les clients en charge dans un ordre fixe : chaque demande consigne le domaine du droit, le délai le plus proche connu, la vérification des conflits et qui l’a faite, puis le rendez-vous, la convention d’honoraires et la lettre de mission signée. Une liste de parties soutient la recherche de conflits, les dossiers portent la date du pouvoir et une date de conservation, et les prospects refusés ou silencieux reçoivent un courrier écrit de non-prise en charge. Il conserve un renvoi vers le dossier, jamais les faits de l’affaire, les informations couvertes par le secret professionnel, les données de santé ni les informations sur la partie adverse. Ce n’est ni de la gestion de dossiers, ni de la comptabilité des fonds de tiers, ni une source de délais de procédure, ni de la facturation.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Une prochaine étape datée par dossier ouvert."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "Prospects, clients, anciens clients et prescripteurs."
+        },
+        "inquiries": {
+          "label": "Demande",
+          "pluralLabel": "Demandes",
+          "description": "Une demande d’aide juridique, du premier contact à un dossier ou un refus."
+        },
+        "matters": {
+          "label": "Dossier",
+          "pluralLabel": "Dossiers",
+          "description": "Un renvoi vers l’affaire dans votre logiciel, avec la date du pouvoir et la date de conservation."
+        },
+        "parties": {
+          "label": "Partie",
+          "pluralLabel": "Parties",
+          "description": "Parties adverses et liées, conservées pour la vérification des conflits."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "waiting": "En attente",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Rôle",
+          "options": {
+            "prospect": "Prospect",
+            "client": "Client",
+            "former_client": "Ancien client",
+            "referrer": "Prescripteur"
+          }
+        },
+        "contacts.preferred_channel": {
+          "label": "Canal préféré",
+          "options": {
+            "email": "E-mail",
+            "phone": "Téléphone",
+            "whatsapp": "WhatsApp",
+            "post": "Courrier"
+          }
+        },
+        "inquiries.stage": {
+          "label": "Étape",
+          "options": {
+            "new_inquiry": "Demande",
+            "screening": "Vérification des conflits",
+            "consultation": "Premier rendez-vous",
+            "fee_proposal_sent": "Convention d’honoraires envoyée",
+            "agreement_signed": "Lettre de mission signée",
+            "matter_opened": "Dossier ouvert",
+            "declined_by_firm": "Refusé par le cabinet",
+            "not_retained": "Cabinet non retenu"
+          }
+        },
+        "inquiries.practice_area": {
+          "label": "Domaine du droit",
+          "options": {
+            "employment": "Droit du travail",
+            "family": "Droit de la famille",
+            "civil_contract": "Droit civil et des contrats",
+            "real_estate": "Droit immobilier",
+            "corporate": "Droit des sociétés",
+            "criminal": "Droit pénal",
+            "immigration": "Droit des étrangers",
+            "inheritance": "Successions",
+            "administrative": "Droit administratif",
+            "other": "Autre"
+          }
+        },
+        "inquiries.source": {
+          "label": "Source",
+          "options": {
+            "web_form": "Formulaire web",
+            "phone": "Téléphone",
+            "referral": "Recommandation",
+            "whatsapp": "WhatsApp",
+            "walk_in": "Visite au cabinet",
+            "directory": "Annuaire"
+          }
+        },
+        "inquiries.urgent_deadline": {
+          "label": "Délai le plus proche connu",
+          "options": {}
+        },
+        "inquiries.deadline_source": {
+          "label": "Origine du délai",
+          "options": {}
+        },
+        "inquiries.conflict_check": {
+          "label": "Vérification des conflits",
+          "options": {
+            "pending": "En attente",
+            "cleared": "Aucun conflit",
+            "cleared_with_waiver": "Levé avec accord",
+            "conflict_found": "Conflit constaté"
+          }
+        },
+        "inquiries.consultation_on": {
+          "label": "Premier rendez-vous",
+          "options": {}
+        },
+        "inquiries.fee_model": {
+          "label": "Honoraires",
+          "options": {
+            "hourly": "Au temps passé",
+            "fixed": "Forfait",
+            "success_fee": "Honoraires de résultat",
+            "insurance_or_legal_aid": "Protection juridique ou aide juridictionnelle",
+            "mixed": "Mixte"
+          }
+        },
+        "inquiries.advance_requested_on": {
+          "label": "Provision demandée le",
+          "options": {}
+        },
+        "inquiries.advance_received_on": {
+          "label": "Provision reçue le",
+          "options": {}
+        },
+        "inquiries.responsible_lawyer": {
+          "label": "Avocat responsable",
+          "options": {}
+        },
+        "inquiries.next_step_due": {
+          "label": "Prochaine étape avant le",
+          "options": {}
+        },
+        "inquiries.lost_reason": {
+          "label": "Motif de l’absence de mission",
+          "options": {
+            "conflict": "Conflit d’intérêts",
+            "outside_practice_area": "Hors de nos domaines",
+            "capacity": "Pas de disponibilité",
+            "time_limit_referred_out": "Délai, orienté ailleurs",
+            "fee": "Honoraires",
+            "chose_other_lawyer": "A choisi un autre avocat",
+            "no_response": "Sans réponse",
+            "self_resolved": "Réglé de lui-même"
+          }
+        },
+        "inquiries.non_engagement_letter_on": {
+          "label": "Courrier de non-prise en charge envoyé le",
+          "options": {}
+        },
+        "matters.matter_ref": {
+          "label": "Référence dans le logiciel de gestion",
+          "options": {}
+        },
+        "matters.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouvert",
+            "on_hold": "En suspens",
+            "closed": "Clos"
+          }
+        },
+        "matters.opened_on": {
+          "label": "Ouvert le",
+          "options": {}
+        },
+        "matters.poa_valid_until": {
+          "label": "Pouvoir valable jusqu’au",
+          "options": {}
+        },
+        "matters.retention_until": {
+          "label": "Conserver jusqu’au",
+          "options": {}
+        },
+        "parties.party_role": {
+          "label": "Rôle",
+          "options": {
+            "opposing_party": "Partie adverse",
+            "related_party": "Partie liée",
+            "co_client": "Co-client",
+            "insurer": "Assureur",
+            "third_party": "Tiers"
+          }
+        },
+        "parties.party_type": {
+          "label": "Type",
+          "options": {
+            "person": "Personne",
+            "organisation": "Organisation"
+          }
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "reply": "Répondre",
+            "conflict_check": "Effectuer la vérification des conflits",
+            "consultation_prep": "Préparer le rendez-vous",
+            "fee_proposal": "Envoyer la convention d’honoraires",
+            "follow_up": "Relancer",
+            "advance": "Demander la provision",
+            "letter": "Rédiger un courrier",
+            "other": "Autre"
+          }
+        }
+      },
+      "relationships": {
+        "inquiry_contact": {
+          "sourceLabel": "Contact",
+          "targetLabel": "Demandes"
+        },
+        "matter_contact": {
+          "sourceLabel": "Client",
+          "targetLabel": "Dossiers"
+        },
+        "matter_inquiry": {
+          "sourceLabel": "Demande",
+          "targetLabel": "Dossiers"
+        },
+        "party_inquiry": {
+          "sourceLabel": "Demande",
+          "targetLabel": "Parties"
+        },
+        "party_matter": {
+          "sourceLabel": "Dossier",
+          "targetLabel": "Parties"
+        },
+        "action_inquiry": {
+          "sourceLabel": "Demande",
+          "targetLabel": "Actions"
+        },
+        "action_matter": {
+          "sourceLabel": "Dossier",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "inquiries_board": {
+          "name": "Demandes par étape"
+        },
+        "inquiries_all": {
+          "name": "Toutes les demandes"
+        },
+        "with_time_limit": {
+          "name": "Demandes ouvertes avec un délai"
+        },
+        "conflicts_to_check": {
+          "name": "Vérifications de conflits en attente"
+        },
+        "matters_all": {
+          "name": "Tous les dossiers"
+        },
+        "parties_all": {
+          "name": "Toutes les parties"
+        },
+        "contacts_all": {
+          "name": "Tous les contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Actions à venir"
+        },
+        "overdue_actions": {
+          "title": "Actions en retard"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        },
+        "inquiries_funnel": {
+          "title": "Demandes par étape"
+        },
+        "urgent_time_limits": {
+          "title": "Délais des demandes ouvertes"
+        },
+        "consultations_coming": {
+          "title": "Rendez-vous à venir"
+        },
+        "conflicts_pending": {
+          "title": "Vérifications de conflits en attente"
+        },
+        "inquiries_by_source": {
+          "title": "Demandes par source"
+        },
+        "lost_reasons": {
+          "title": "Motifs des demandes sans dossier"
+        },
+        "poa_expiring": {
+          "title": "Pouvoirs qui expirent"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Comment fonctionne la prise de dossier",
+          "sections": [
+            "Premier contact et questions de tri",
+            "Qui répond et en combien de temps"
+          ]
+        },
+        "conflict_check": {
+          "title": "Procédure de vérification des conflits",
+          "sections": [
+            "Ce qui est recherché : parties, clients et anciens clients",
+            "Comment le résultat est consigné et que faire en cas de conflit"
+          ]
+        },
+        "time_limit_triage": {
+          "title": "Tri des délais urgents",
+          "sections": [
+            "Demander le délai le plus proche connu dès le premier contact",
+            "Accepter, orienter ailleurs ou avertir la personne par écrit"
+          ]
+        },
+        "engagement_checklist": {
+          "title": "Liste de contrôle de la convention d’honoraires et de la lettre de mission",
+          "sections": [
+            "Honoraires, pouvoir et provision",
+            "Courriers de non-prise en charge et de clôture"
+          ]
+        }
+      },
+      "rules": {
+        "inquiry_form_records": {
+          "title": "Créer le contact et la demande quand le formulaire de demande est envoyé",
+          "description": ""
+        },
+        "acknowledge_inquiry": {
+          "title": "Répondre à une nouvelle demande le lendemain et proposer un rendez-vous",
+          "description": ""
+        },
+        "urgent_deadline_alert": {
+          "title": "Prévenir l’avocat responsable 14 jours avant le délai d’une demande ouverte",
+          "description": ""
+        },
+        "conflict_check_task": {
+          "title": "Effectuer la vérification des conflits le lendemain de l’entrée en étape de vérification",
+          "description": ""
+        },
+        "fee_proposal_task": {
+          "title": "Envoyer la convention d’honoraires le lendemain du rendez-vous",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Relancer 3 jours après l’envoi de la convention d’honoraires",
+          "description": ""
+        },
+        "agreement_signed_set": {
+          "title": "Demander la provision 2 jours après la signature de la lettre de mission",
+          "description": ""
+        },
+        "advance_chase": {
+          "title": "Prévenir le responsable quand la provision manque 7 jours après la demande",
+          "description": ""
+        },
+        "letter_declined": {
+          "title": "Rédiger le courrier de non-prise en charge quand le cabinet refuse une demande",
+          "description": ""
+        },
+        "letter_not_retained": {
+          "title": "Rédiger le courrier de non-prise en charge quand un prospect ne confie pas le dossier",
+          "description": ""
+        },
+        "poa_renewal": {
+          "title": "Renouveler le pouvoir 30 jours avant son expiration",
+          "description": ""
+        },
+        "closing_letter": {
+          "title": "Rédiger le courrier de clôture une semaine après la clôture d’un dossier",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Chaque demande a l’une des huit étapes.",
+        "conflict_check_field": "Chaque demande consigne sa vérification des conflits.",
+        "urgent_deadline_field": "Chaque demande consigne le délai le plus proche connu.",
+        "inquiries_board_view": "Les demandes s’ouvrent en board par étape.",
+        "conflict_check_page": "La base de connaissances contient une page sur la vérification des conflits."
+      },
+      "prompt": {
+        "intro": "Mets en place dans mon espace de travail Customermates une prise de dossier pour un cabinet d’avocats : demandes avec vérification des conflits, délai le plus proche connu, rendez-vous, convention d’honoraires et lettre de mission signée, dossiers comme renvois vers le logiciel du cabinet, parties pour la recherche de conflits et courriers écrits de non-prise en charge. Ne stocke aucun fait de l’affaire ni information couverte par le secret professionnel.",
+        "questions": [
+          "Quels domaines du droit acceptez-vous, et lesquels orientez-vous ailleurs ?",
+          "Comment faites-vous la vérification des conflits, et qui la valide ?",
+          "Quels modes d’honoraires et quelle provision utilisez-vous ?",
+          "Quel logiciel de gestion utilisez-vous ? Seule une référence au dossier est conservée ici."
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "Acquisizione clienti per studi legali",
+      "summary": "Un'acquisizione in passaggi fissi: richiesta, verifica dei conflitti, primo colloquio, preventivo, incarico e procura firmati con acconto, e una lettera scritta per chi non diventa cliente.",
+      "description": "Acquisisci i clienti in un ordine fisso: ogni richiesta registra la materia, il termine più vicino noto, la verifica dei conflitti e chi l'ha fatta, poi il colloquio, il preventivo e l'incarico firmato. Un elenco di controparti sostiene la verifica dei conflitti, le pratiche portano la data della procura e una data di conservazione, e i potenziali clienti rifiutati o silenziosi ricevono una lettera scritta di mancato conferimento. Conserva un rimando alla pratica, mai i fatti della causa, informazioni coperte dal segreto professionale, dati sanitari o dati della controparte. Non è gestione delle pratiche, contabilità dei fondi dei clienti, fonte dei termini processuali né fatturazione.",
+      "lists": {
+        "actions": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un prossimo passo con data per ogni pratica aperta."
+        },
+        "contacts": {
+          "label": "Referente",
+          "pluralLabel": "Referenti",
+          "description": "Potenziali clienti, clienti, ex clienti e segnalatori."
+        },
+        "inquiries": {
+          "label": "Richiesta",
+          "pluralLabel": "Richieste",
+          "description": "Una richiesta di assistenza legale, dal primo contatto a una pratica o a un rifiuto."
+        },
+        "matters": {
+          "label": "Pratica",
+          "pluralLabel": "Pratiche",
+          "description": "Un rimando alla causa nel gestionale di studio, con la data della procura e quella di conservazione."
+        },
+        "parties": {
+          "label": "Controparte",
+          "pluralLabel": "Controparti",
+          "description": "Controparti e soggetti collegati, conservati per la verifica dei conflitti."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "waiting": "In attesa",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Ruolo",
+          "options": {
+            "prospect": "Potenziale cliente",
+            "client": "Cliente",
+            "former_client": "Ex cliente",
+            "referrer": "Segnalatore"
+          }
+        },
+        "contacts.preferred_channel": {
+          "label": "Canale preferito",
+          "options": {
+            "email": "Email",
+            "phone": "Telefono",
+            "whatsapp": "WhatsApp",
+            "post": "Posta"
+          }
+        },
+        "inquiries.stage": {
+          "label": "Fase",
+          "options": {
+            "new_inquiry": "Richiesta",
+            "screening": "Verifica dei conflitti",
+            "consultation": "Primo colloquio",
+            "fee_proposal_sent": "Preventivo inviato",
+            "agreement_signed": "Incarico e procura firmati",
+            "matter_opened": "Pratica aperta",
+            "declined_by_firm": "Rifiutato dallo studio",
+            "not_retained": "Incarico non conferito"
+          }
+        },
+        "inquiries.practice_area": {
+          "label": "Materia",
+          "options": {
+            "employment": "Lavoro",
+            "family": "Famiglia",
+            "civil_contract": "Civile e contratti",
+            "real_estate": "Immobiliare",
+            "corporate": "Societario",
+            "criminal": "Penale",
+            "immigration": "Immigrazione",
+            "inheritance": "Successioni",
+            "administrative": "Amministrativo",
+            "other": "Altro"
+          }
+        },
+        "inquiries.source": {
+          "label": "Origine",
+          "options": {
+            "web_form": "Modulo web",
+            "phone": "Telefono",
+            "referral": "Segnalazione",
+            "whatsapp": "WhatsApp",
+            "walk_in": "Di persona",
+            "directory": "Elenco"
+          }
+        },
+        "inquiries.urgent_deadline": {
+          "label": "Termine più vicino noto",
+          "options": {}
+        },
+        "inquiries.deadline_source": {
+          "label": "Da dove deriva il termine",
+          "options": {}
+        },
+        "inquiries.conflict_check": {
+          "label": "Verifica dei conflitti",
+          "options": {
+            "pending": "Da fare",
+            "cleared": "Nessun conflitto",
+            "cleared_with_waiver": "Superato con consenso",
+            "conflict_found": "Conflitto rilevato"
+          }
+        },
+        "inquiries.consultation_on": {
+          "label": "Primo colloquio",
+          "options": {}
+        },
+        "inquiries.fee_model": {
+          "label": "Compenso",
+          "options": {
+            "hourly": "A ore",
+            "fixed": "Forfait",
+            "success_fee": "Compenso a risultato",
+            "insurance_or_legal_aid": "Tutela legale o patrocinio a spese dello Stato",
+            "mixed": "Misto"
+          }
+        },
+        "inquiries.advance_requested_on": {
+          "label": "Acconto richiesto il",
+          "options": {}
+        },
+        "inquiries.advance_received_on": {
+          "label": "Acconto ricevuto il",
+          "options": {}
+        },
+        "inquiries.responsible_lawyer": {
+          "label": "Avvocato responsabile",
+          "options": {}
+        },
+        "inquiries.next_step_due": {
+          "label": "Prossimo passo entro",
+          "options": {}
+        },
+        "inquiries.lost_reason": {
+          "label": "Perché nessun incarico",
+          "options": {
+            "conflict": "Conflitto di interessi",
+            "outside_practice_area": "Fuori dalle nostre materie",
+            "capacity": "Nessuna disponibilità",
+            "time_limit_referred_out": "Termine, indirizzato altrove",
+            "fee": "Compenso",
+            "chose_other_lawyer": "Ha scelto un altro avvocato",
+            "no_response": "Nessuna risposta",
+            "self_resolved": "Risolto da solo"
+          }
+        },
+        "inquiries.non_engagement_letter_on": {
+          "label": "Lettera di mancato conferimento inviata il",
+          "options": {}
+        },
+        "matters.matter_ref": {
+          "label": "Riferimento nel gestionale",
+          "options": {}
+        },
+        "matters.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "on_hold": "Sospesa",
+            "closed": "Chiusa"
+          }
+        },
+        "matters.opened_on": {
+          "label": "Aperta il",
+          "options": {}
+        },
+        "matters.poa_valid_until": {
+          "label": "Procura valida fino al",
+          "options": {}
+        },
+        "matters.retention_until": {
+          "label": "Conservare fino al",
+          "options": {}
+        },
+        "parties.party_role": {
+          "label": "Ruolo",
+          "options": {
+            "opposing_party": "Controparte",
+            "related_party": "Soggetto collegato",
+            "co_client": "Co-cliente",
+            "insurer": "Assicuratore",
+            "third_party": "Terzo"
+          }
+        },
+        "parties.party_type": {
+          "label": "Tipo",
+          "options": {
+            "person": "Persona",
+            "organisation": "Organizzazione"
+          }
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Rispondere",
+            "conflict_check": "Fare la verifica dei conflitti",
+            "consultation_prep": "Preparare il colloquio",
+            "fee_proposal": "Inviare il preventivo",
+            "follow_up": "Fare follow-up",
+            "advance": "Chiedere l'acconto",
+            "letter": "Scrivere una lettera",
+            "other": "Altro"
+          }
+        }
+      },
+      "relationships": {
+        "inquiry_contact": {
+          "sourceLabel": "Referente",
+          "targetLabel": "Richieste"
+        },
+        "matter_contact": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Pratiche"
+        },
+        "matter_inquiry": {
+          "sourceLabel": "Richiesta",
+          "targetLabel": "Pratiche"
+        },
+        "party_inquiry": {
+          "sourceLabel": "Richiesta",
+          "targetLabel": "Controparti"
+        },
+        "party_matter": {
+          "sourceLabel": "Pratica",
+          "targetLabel": "Controparti"
+        },
+        "action_inquiry": {
+          "sourceLabel": "Richiesta",
+          "targetLabel": "Attività"
+        },
+        "action_matter": {
+          "sourceLabel": "Pratica",
+          "targetLabel": "Attività"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Tutte le attività"
+        },
+        "inquiries_board": {
+          "name": "Richieste per fase"
+        },
+        "inquiries_all": {
+          "name": "Tutte le richieste"
+        },
+        "with_time_limit": {
+          "name": "Richieste aperte con un termine"
+        },
+        "conflicts_to_check": {
+          "name": "Verifiche dei conflitti da fare"
+        },
+        "matters_all": {
+          "name": "Tutte le pratiche"
+        },
+        "parties_all": {
+          "name": "Tutte le controparti"
+        },
+        "contacts_all": {
+          "name": "Tutti i referenti"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Attività in arrivo"
+        },
+        "overdue_actions": {
+          "title": "Attività scadute"
+        },
+        "activity_timeline": {
+          "title": "Attività recenti"
+        },
+        "inquiries_funnel": {
+          "title": "Richieste per fase"
+        },
+        "urgent_time_limits": {
+          "title": "Termini delle richieste aperte"
+        },
+        "consultations_coming": {
+          "title": "Colloqui in arrivo"
+        },
+        "conflicts_pending": {
+          "title": "Verifiche dei conflitti da fare"
+        },
+        "inquiries_by_source": {
+          "title": "Richieste per origine"
+        },
+        "lost_reasons": {
+          "title": "Perché le richieste non diventano pratiche"
+        },
+        "poa_expiring": {
+          "title": "Procure in scadenza"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Come funziona l'acquisizione",
+          "sections": [
+            "Primo contatto e domande di smistamento",
+            "Chi risponde e con che tempi"
+          ]
+        },
+        "conflict_check": {
+          "title": "Procedura di verifica dei conflitti",
+          "sections": [
+            "Che cosa si cerca: controparti, clienti ed ex clienti",
+            "Come si registra l'esito e che cosa fare in caso di conflitto"
+          ]
+        },
+        "time_limit_triage": {
+          "title": "Smistamento dei termini urgenti",
+          "sections": [
+            "Chiedere il termine più vicino noto al primo contatto",
+            "Accettare, indirizzare altrove o avvertire per iscritto"
+          ]
+        },
+        "engagement_checklist": {
+          "title": "Lista di controllo di preventivo e incarico",
+          "sections": [
+            "Compenso, procura e acconto",
+            "Lettere di mancato conferimento e di chiusura"
+          ]
+        }
+      },
+      "rules": {
+        "inquiry_form_records": {
+          "title": "Creare referente e richiesta quando viene inviato il modulo di richiesta",
+          "description": ""
+        },
+        "acknowledge_inquiry": {
+          "title": "Rispondere a una nuova richiesta il giorno dopo e offrire un colloquio",
+          "description": ""
+        },
+        "urgent_deadline_alert": {
+          "title": "Avvisare il responsabile 14 giorni prima del termine di una richiesta aperta",
+          "description": ""
+        },
+        "conflict_check_task": {
+          "title": "Fare la verifica dei conflitti il giorno dopo l'ingresso nella fase di verifica",
+          "description": ""
+        },
+        "fee_proposal_task": {
+          "title": "Inviare il preventivo il giorno dopo il colloquio",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Fare follow-up 3 giorni dopo l'invio del preventivo",
+          "description": ""
+        },
+        "agreement_signed_set": {
+          "title": "Chiedere l'acconto 2 giorni dopo la firma dell'incarico",
+          "description": ""
+        },
+        "advance_chase": {
+          "title": "Avvisare il responsabile quando l'acconto manca 7 giorni dopo la richiesta",
+          "description": ""
+        },
+        "letter_declined": {
+          "title": "Scrivere la lettera di mancato conferimento quando lo studio rifiuta una richiesta",
+          "description": ""
+        },
+        "letter_not_retained": {
+          "title": "Scrivere la lettera di mancato conferimento quando un potenziale cliente non conferisce l'incarico",
+          "description": ""
+        },
+        "poa_renewal": {
+          "title": "Rinnovare la procura 30 giorni prima della scadenza",
+          "description": ""
+        },
+        "closing_letter": {
+          "title": "Scrivere la lettera di chiusura una settimana dopo la chiusura di una pratica",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Ogni richiesta ha una delle otto fasi.",
+        "conflict_check_field": "Ogni richiesta registra la sua verifica dei conflitti.",
+        "urgent_deadline_field": "Ogni richiesta registra il termine più vicino noto.",
+        "inquiries_board_view": "Le richieste si aprono come board per fase.",
+        "conflict_check_page": "La base di conoscenza contiene una pagina sulla verifica dei conflitti."
+      },
+      "prompt": {
+        "intro": "Imposta nel mio spazio di lavoro Customermates l'acquisizione clienti per uno studio legale: richieste con verifica dei conflitti, termine più vicino noto, colloquio, preventivo e incarico firmato, pratiche come rimandi al gestionale, controparti per la verifica dei conflitti e lettere scritte di mancato conferimento. Non conservare fatti della causa né informazioni coperte dal segreto professionale.",
+        "questions": [
+          "Quali materie tratti e quali indirizzi ad altri?",
+          "Come fai la verifica dei conflitti e chi la approva?",
+          "Quali modelli di compenso e quale acconto usi?",
+          "Quale gestionale di studio usi? Qui si conserva solo un riferimento alla pratica."
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "Intake voor advocatenkantoren",
+      "summary": "Een intake in vaste stappen: aanvraag, conflictcheck, intake, offerte, getekende opdrachtbevestiging met volmacht en voorschot, en een schriftelijke brief voor iedereen die geen cliënt wordt.",
+      "description": "Cliënten in een vaste volgorde aannemen: elke aanvraag legt het rechtsgebied vast, de vroegst bekende termijn, de conflictcheck en wie die deed, daarna de intake, de offerte en de getekende opdrachtbevestiging. Een lijst met partijen ondersteunt de conflictcheck, zaken dragen de datum van de volmacht en een bewaardatum, en afgewezen of stille aanvragers krijgen een schriftelijke brief dat het kantoor de zaak niet aanneemt. Het bewaart een verwijzing naar het dossier, nooit feiten van de zaak, vertrouwelijke inhoud, gezondheidsgegevens of gegevens van de wederpartij. Geen dossierbeheer, geen derdengeldenadministratie, geen bron voor procestermijnen en geen facturatie.",
+      "lists": {
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén volgende stap met datum per open dossier."
+        },
+        "contacts": {
+          "label": "Contactpersoon",
+          "pluralLabel": "Contactpersonen",
+          "description": "Aanvragers, cliënten, voormalige cliënten en doorverwijzers."
+        },
+        "inquiries": {
+          "label": "Aanvraag",
+          "pluralLabel": "Aanvragen",
+          "description": "Eén verzoek om juridische hulp, van eerste contact tot een zaak of een afwijzing."
+        },
+        "matters": {
+          "label": "Zaak",
+          "pluralLabel": "Zaken",
+          "description": "Een verwijzing naar het dossier in je kantoorsysteem, met de datum van de volmacht en de bewaardatum."
+        },
+        "parties": {
+          "label": "Partij",
+          "pluralLabel": "Partijen",
+          "description": "Wederpartijen en gerelateerde partijen, bewaard voor de conflictcheck."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "In de wacht",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Rol",
+          "options": {
+            "prospect": "Aanvrager",
+            "client": "Cliënt",
+            "former_client": "Voormalige cliënt",
+            "referrer": "Doorverwijzer"
+          }
+        },
+        "contacts.preferred_channel": {
+          "label": "Voorkeurskanaal",
+          "options": {
+            "email": "E-mail",
+            "phone": "Telefoon",
+            "whatsapp": "WhatsApp",
+            "post": "Post"
+          }
+        },
+        "inquiries.stage": {
+          "label": "Fase",
+          "options": {
+            "new_inquiry": "Aanvraag",
+            "screening": "Conflictcheck",
+            "consultation": "Intake",
+            "fee_proposal_sent": "Offerte",
+            "agreement_signed": "Opdrachtbevestiging getekend",
+            "matter_opened": "Dossier geopend",
+            "declined_by_firm": "Afgewezen",
+            "not_retained": "Niet doorgegaan"
+          }
+        },
+        "inquiries.practice_area": {
+          "label": "Rechtsgebied",
+          "options": {
+            "employment": "Arbeidsrecht",
+            "family": "Familierecht",
+            "civil_contract": "Civiel recht en contracten",
+            "real_estate": "Vastgoedrecht",
+            "corporate": "Ondernemingsrecht",
+            "criminal": "Strafrecht",
+            "immigration": "Vreemdelingenrecht",
+            "inheritance": "Erfrecht",
+            "administrative": "Bestuursrecht",
+            "other": "Overig"
+          }
+        },
+        "inquiries.source": {
+          "label": "Bron",
+          "options": {
+            "web_form": "Webformulier",
+            "phone": "Telefoon",
+            "referral": "Doorverwijzing",
+            "whatsapp": "WhatsApp",
+            "walk_in": "Aan de balie",
+            "directory": "Gids"
+          }
+        },
+        "inquiries.urgent_deadline": {
+          "label": "Vroegst bekende termijn",
+          "options": {}
+        },
+        "inquiries.deadline_source": {
+          "label": "Waar de termijn vandaan komt",
+          "options": {}
+        },
+        "inquiries.conflict_check": {
+          "label": "Conflictcheck",
+          "options": {
+            "pending": "Open",
+            "cleared": "Geen conflict",
+            "cleared_with_waiver": "Geen conflict, met toestemming",
+            "conflict_found": "Conflict gevonden"
+          }
+        },
+        "inquiries.consultation_on": {
+          "label": "Intake",
+          "options": {}
+        },
+        "inquiries.fee_model": {
+          "label": "Tarief",
+          "options": {
+            "hourly": "Uurtarief",
+            "fixed": "Vast bedrag",
+            "success_fee": "Resultaatafhankelijk",
+            "insurance_or_legal_aid": "Rechtsbijstandverzekering of toevoeging",
+            "mixed": "Gemengd"
+          }
+        },
+        "inquiries.advance_requested_on": {
+          "label": "Voorschot gevraagd op",
+          "options": {}
+        },
+        "inquiries.advance_received_on": {
+          "label": "Voorschot ontvangen op",
+          "options": {}
+        },
+        "inquiries.responsible_lawyer": {
+          "label": "Verantwoordelijke advocaat",
+          "options": {}
+        },
+        "inquiries.next_step_due": {
+          "label": "Volgende stap uiterlijk op",
+          "options": {}
+        },
+        "inquiries.lost_reason": {
+          "label": "Waarom geen opdracht",
+          "options": {
+            "conflict": "Belangenconflict",
+            "outside_practice_area": "Buiten onze rechtsgebieden",
+            "capacity": "Geen capaciteit",
+            "time_limit_referred_out": "Termijn, doorverwezen",
+            "fee": "Tarief",
+            "chose_other_lawyer": "Koos een andere advocaat",
+            "no_response": "Geen reactie",
+            "self_resolved": "Heeft zich opgelost"
+          }
+        },
+        "inquiries.non_engagement_letter_on": {
+          "label": "Afwijzingsbrief verstuurd op",
+          "options": {}
+        },
+        "matters.matter_ref": {
+          "label": "Verwijzing in het kantoorsysteem",
+          "options": {}
+        },
+        "matters.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "on_hold": "On hold",
+            "closed": "Gesloten"
+          }
+        },
+        "matters.opened_on": {
+          "label": "Geopend op",
+          "options": {}
+        },
+        "matters.poa_valid_until": {
+          "label": "Volmacht geldig tot",
+          "options": {}
+        },
+        "matters.retention_until": {
+          "label": "Bewaren tot",
+          "options": {}
+        },
+        "parties.party_role": {
+          "label": "Rol",
+          "options": {
+            "opposing_party": "Wederpartij",
+            "related_party": "Gerelateerde partij",
+            "co_client": "Medecliënt",
+            "insurer": "Verzekeraar",
+            "third_party": "Derde"
+          }
+        },
+        "parties.party_type": {
+          "label": "Type",
+          "options": {
+            "person": "Persoon",
+            "organisation": "Organisatie"
+          }
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "reply": "Reageren",
+            "conflict_check": "Conflictcheck uitvoeren",
+            "consultation_prep": "Intake voorbereiden",
+            "fee_proposal": "Offerte sturen",
+            "follow_up": "Opvolgen",
+            "advance": "Voorschot opvragen",
+            "letter": "Brief opstellen",
+            "other": "Overig"
+          }
+        }
+      },
+      "relationships": {
+        "inquiry_contact": {
+          "sourceLabel": "Contactpersoon",
+          "targetLabel": "Aanvragen"
+        },
+        "matter_contact": {
+          "sourceLabel": "Cliënt",
+          "targetLabel": "Zaken"
+        },
+        "matter_inquiry": {
+          "sourceLabel": "Aanvraag",
+          "targetLabel": "Zaken"
+        },
+        "party_inquiry": {
+          "sourceLabel": "Aanvraag",
+          "targetLabel": "Partijen"
+        },
+        "party_matter": {
+          "sourceLabel": "Zaak",
+          "targetLabel": "Partijen"
+        },
+        "action_inquiry": {
+          "sourceLabel": "Aanvraag",
+          "targetLabel": "Acties"
+        },
+        "action_matter": {
+          "sourceLabel": "Zaak",
+          "targetLabel": "Acties"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "inquiries_board": {
+          "name": "Aanvragen per fase"
+        },
+        "inquiries_all": {
+          "name": "Alle aanvragen"
+        },
+        "with_time_limit": {
+          "name": "Open aanvragen met een termijn"
+        },
+        "conflicts_to_check": {
+          "name": "Openstaande conflictchecks"
+        },
+        "matters_all": {
+          "name": "Alle zaken"
+        },
+        "parties_all": {
+          "name": "Alle partijen"
+        },
+        "contacts_all": {
+          "name": "Alle contactpersonen"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Aankomende acties"
+        },
+        "overdue_actions": {
+          "title": "Achterstallige acties"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        },
+        "inquiries_funnel": {
+          "title": "Aanvragen per fase"
+        },
+        "urgent_time_limits": {
+          "title": "Termijnen van open aanvragen"
+        },
+        "consultations_coming": {
+          "title": "Komende intakes"
+        },
+        "conflicts_pending": {
+          "title": "Openstaande conflictchecks"
+        },
+        "inquiries_by_source": {
+          "title": "Aanvragen per bron"
+        },
+        "lost_reasons": {
+          "title": "Waarom aanvragen geen zaak werden"
+        },
+        "poa_expiring": {
+          "title": "Volmachten die aflopen"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Hoe de intake draait",
+          "sections": [
+            "Eerste contact en vragen voor de beoordeling",
+            "Wie antwoordt en hoe snel"
+          ]
+        },
+        "conflict_check": {
+          "title": "Procedure voor de conflictcheck",
+          "sections": [
+            "Waarop wordt gezocht: partijen, cliënten en voormalige cliënten",
+            "Hoe de uitkomst wordt vastgelegd en wat te doen bij een conflict"
+          ]
+        },
+        "time_limit_triage": {
+          "title": "Beoordeling van spoedeisende termijnen",
+          "sections": [
+            "Bij het eerste contact naar de vroegst bekende termijn vragen",
+            "Aannemen, doorverwijzen of de aanvrager schriftelijk waarschuwen"
+          ]
+        },
+        "engagement_checklist": {
+          "title": "Checklist opdrachtbevestiging en offerte",
+          "sections": [
+            "Tarief, volmacht en voorschot",
+            "Afwijzings- en afsluitbrieven"
+          ]
+        }
+      },
+      "rules": {
+        "inquiry_form_records": {
+          "title": "Maak een contactpersoon en een aanvraag aan als het aanvraagformulier is ingediend",
+          "description": ""
+        },
+        "acknowledge_inquiry": {
+          "title": "Beantwoord een nieuwe aanvraag de volgende dag en bied een intake aan",
+          "description": ""
+        },
+        "urgent_deadline_alert": {
+          "title": "Waarschuw de verantwoordelijke 14 dagen voor de termijn van een open aanvraag",
+          "description": ""
+        },
+        "conflict_check_task": {
+          "title": "Voer de conflictcheck uit de dag nadat een aanvraag die fase bereikt",
+          "description": ""
+        },
+        "fee_proposal_task": {
+          "title": "Stuur de offerte de dag na de intake",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Volg de offerte 3 dagen na het versturen op",
+          "description": ""
+        },
+        "agreement_signed_set": {
+          "title": "Vraag het voorschot op 2 dagen na de getekende opdrachtbevestiging",
+          "description": ""
+        },
+        "advance_chase": {
+          "title": "Waarschuw de verantwoordelijke als het voorschot 7 dagen na het verzoek nog ontbreekt",
+          "description": ""
+        },
+        "letter_declined": {
+          "title": "Stel de afwijzingsbrief op als het kantoor een aanvraag afwijst",
+          "description": ""
+        },
+        "letter_not_retained": {
+          "title": "Stel de afwijzingsbrief op als een aanvrager de opdracht niet geeft",
+          "description": ""
+        },
+        "poa_renewal": {
+          "title": "Vernieuw de volmacht 30 dagen voor het verlopen",
+          "description": ""
+        },
+        "closing_letter": {
+          "title": "Stel de afsluitbrief op een week nadat een zaak is gesloten",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Elke aanvraag heeft een van de acht fasen.",
+        "conflict_check_field": "Elke aanvraag legt de conflictcheck vast.",
+        "urgent_deadline_field": "Elke aanvraag legt de vroegst bekende termijn vast.",
+        "inquiries_board_view": "De aanvragen openen als bord per fase.",
+        "conflict_check_page": "De kennisbank bevat een pagina over de conflictcheck."
+      },
+      "prompt": {
+        "intro": "Richt in mijn Customermates-werkruimte een intake voor een advocatenkantoor in: aanvragen met conflictcheck, vroegst bekende termijn, intake, offerte en getekende opdrachtbevestiging, zaken als verwijzingen naar het kantoorsysteem, partijen voor de conflictcheck en schriftelijke afwijzingsbrieven. Bewaar geen feiten van de zaak of vertrouwelijke inhoud.",
+        "questions": [
+          "Welke rechtsgebieden neem je aan en welke verwijs je door?",
+          "Hoe voer je de conflictcheck uit en wie tekent die af?",
+          "Welke tariefmodellen en welk voorschot gebruik je?",
+          "Welk kantoorsysteem gebruik je? Hier wordt alleen een verwijzing naar het dossier bewaard."
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Przyjmowanie klientów w kancelarii",
+      "summary": "Przyjmowanie klientów w stałych krokach: zapytanie, weryfikacja konfliktu interesów, konsultacja, oferta, umowa i pełnomocnictwo z zaliczką oraz pismo o niepodjęciu sprawy dla każdego, kto nie zostaje klientem.",
+      "description": "Przyjmuj klientów w stałej kolejności: każde zapytanie zapisuje dziedzinę prawa, najbliższy znany termin, weryfikację konfliktu interesów i kto ją wykonał, potem konsultację, ofertę i podpisaną umowę. Lista stron wspiera weryfikację konfliktu, sprawy mają datę pełnomocnictwa i datę przechowywania, a odrzuceni lub milczący potencjalni klienci dostają pismo o niepodjęciu sprawy. Narzędzie zapisuje odnośnik do sprawy, nigdy okoliczności sprawy, treści objętych tajemnicą zawodową, danych o zdrowiu ani danych drugiej strony. To nie jest system do zarządzania sprawami, rozliczania środków klientów, śledzenia terminów procesowych ani fakturowania.",
+      "lists": {
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jeden następny krok z terminem dla każdej otwartej sprawy."
+        },
+        "contacts": {
+          "label": "Kontakt",
+          "pluralLabel": "Kontakty",
+          "description": "Potencjalni klienci, klienci, byli klienci i polecający."
+        },
+        "inquiries": {
+          "label": "Zapytanie",
+          "pluralLabel": "Zapytania",
+          "description": "Jedna prośba o pomoc prawną, od pierwszego kontaktu do sprawy lub odmowy."
+        },
+        "matters": {
+          "label": "Sprawa",
+          "pluralLabel": "Sprawy",
+          "description": "Odnośnik do sprawy w systemie kancelarii, z datą pełnomocnictwa i datą przechowywania."
+        },
+        "parties": {
+          "label": "Strona",
+          "pluralLabel": "Strony",
+          "description": "Strony przeciwne i powiązane, przechowywane na potrzeby weryfikacji konfliktu."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarte",
+            "waiting": "Oczekuje",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Rola",
+          "options": {
+            "prospect": "Potencjalny klient",
+            "client": "Klient",
+            "former_client": "Były klient",
+            "referrer": "Polecający"
+          }
+        },
+        "contacts.preferred_channel": {
+          "label": "Preferowany kanał",
+          "options": {
+            "email": "E-mail",
+            "phone": "Telefon",
+            "whatsapp": "WhatsApp",
+            "post": "Poczta"
+          }
+        },
+        "inquiries.stage": {
+          "label": "Etap",
+          "options": {
+            "new_inquiry": "Zapytanie",
+            "screening": "Weryfikacja konfliktu interesów",
+            "consultation": "Konsultacja",
+            "fee_proposal_sent": "Oferta wysłana",
+            "agreement_signed": "Umowa i pełnomocnictwo podpisane",
+            "matter_opened": "Sprawa otwarta",
+            "declined_by_firm": "Odmówiono przyjęcia",
+            "not_retained": "Bez zlecenia"
+          }
+        },
+        "inquiries.practice_area": {
+          "label": "Dziedzina prawa",
+          "options": {
+            "employment": "Prawo pracy",
+            "family": "Prawo rodzinne",
+            "civil_contract": "Prawo cywilne i umowy",
+            "real_estate": "Nieruchomości",
+            "corporate": "Prawo spółek",
+            "criminal": "Prawo karne",
+            "immigration": "Prawo imigracyjne",
+            "inheritance": "Spadki",
+            "administrative": "Prawo administracyjne",
+            "other": "Inna"
+          }
+        },
+        "inquiries.source": {
+          "label": "Źródło",
+          "options": {
+            "web_form": "Formularz na stronie",
+            "phone": "Telefon",
+            "referral": "Polecenie",
+            "whatsapp": "WhatsApp",
+            "walk_in": "Wizyta w kancelarii",
+            "directory": "Katalog prawników"
+          }
+        },
+        "inquiries.urgent_deadline": {
+          "label": "Najbliższy znany termin",
+          "options": {}
+        },
+        "inquiries.deadline_source": {
+          "label": "Skąd pochodzi termin",
+          "options": {}
+        },
+        "inquiries.conflict_check": {
+          "label": "Weryfikacja konfliktu interesów",
+          "options": {
+            "pending": "Do wykonania",
+            "cleared": "Brak konfliktu",
+            "cleared_with_waiver": "Dopuszczone za zgodą",
+            "conflict_found": "Wykryto konflikt"
+          }
+        },
+        "inquiries.consultation_on": {
+          "label": "Data konsultacji",
+          "options": {}
+        },
+        "inquiries.fee_model": {
+          "label": "Model wynagrodzenia",
+          "options": {
+            "hourly": "Godzinowo",
+            "fixed": "Ryczałt",
+            "success_fee": "Za wynik",
+            "insurance_or_legal_aid": "Ubezpieczenie lub pomoc prawna z urzędu",
+            "mixed": "Mieszane"
+          }
+        },
+        "inquiries.advance_requested_on": {
+          "label": "Data żądania zaliczki",
+          "options": {}
+        },
+        "inquiries.advance_received_on": {
+          "label": "Data otrzymania zaliczki",
+          "options": {}
+        },
+        "inquiries.responsible_lawyer": {
+          "label": "Prawnik prowadzący",
+          "options": {}
+        },
+        "inquiries.next_step_due": {
+          "label": "Termin następnego kroku",
+          "options": {}
+        },
+        "inquiries.lost_reason": {
+          "label": "Dlaczego bez zlecenia",
+          "options": {
+            "conflict": "Konflikt interesów",
+            "outside_practice_area": "Poza naszymi dziedzinami",
+            "capacity": "Brak mocy przerobowych",
+            "time_limit_referred_out": "Pilny termin, skierowano do innej kancelarii",
+            "fee": "Wysokość wynagrodzenia",
+            "chose_other_lawyer": "Klient wybrał innego prawnika",
+            "no_response": "Brak odpowiedzi",
+            "self_resolved": "Sprawa rozwiązała się sama"
+          }
+        },
+        "inquiries.non_engagement_letter_on": {
+          "label": "Data wysłania pisma o niepodjęciu sprawy",
+          "options": {}
+        },
+        "matters.matter_ref": {
+          "label": "Numer sprawy w systemie kancelarii",
+          "options": {}
+        },
+        "matters.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarta",
+            "on_hold": "Wstrzymana",
+            "closed": "Zamknięta"
+          }
+        },
+        "matters.opened_on": {
+          "label": "Data otwarcia",
+          "options": {}
+        },
+        "matters.poa_valid_until": {
+          "label": "Pełnomocnictwo ważne do",
+          "options": {}
+        },
+        "matters.retention_until": {
+          "label": "Przechowuj do",
+          "options": {}
+        },
+        "parties.party_role": {
+          "label": "Rola",
+          "options": {
+            "opposing_party": "Strona przeciwna",
+            "related_party": "Strona powiązana",
+            "co_client": "Współklient",
+            "insurer": "Ubezpieczyciel",
+            "third_party": "Osoba trzecia"
+          }
+        },
+        "parties.party_type": {
+          "label": "Typ",
+          "options": {
+            "person": "Osoba fizyczna",
+            "organisation": "Firma lub organizacja"
+          }
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "reply": "Odpowiedzieć",
+            "conflict_check": "Wykonać weryfikację konfliktu",
+            "consultation_prep": "Przygotować konsultację",
+            "fee_proposal": "Wysłać ofertę",
+            "follow_up": "Przypomnieć o sobie",
+            "advance": "Poprosić o zaliczkę",
+            "letter": "Napisać pismo",
+            "other": "Inne"
+          }
+        }
+      },
+      "relationships": {
+        "inquiry_contact": {
+          "sourceLabel": "Kontakt",
+          "targetLabel": "Zapytania"
+        },
+        "matter_contact": {
+          "sourceLabel": "Klient",
+          "targetLabel": "Sprawy"
+        },
+        "matter_inquiry": {
+          "sourceLabel": "Zapytanie",
+          "targetLabel": "Sprawy"
+        },
+        "party_inquiry": {
+          "sourceLabel": "Zapytanie",
+          "targetLabel": "Strony"
+        },
+        "party_matter": {
+          "sourceLabel": "Sprawa",
+          "targetLabel": "Strony"
+        },
+        "action_inquiry": {
+          "sourceLabel": "Zapytanie",
+          "targetLabel": "Zadania"
+        },
+        "action_matter": {
+          "sourceLabel": "Sprawa",
+          "targetLabel": "Zadania"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "inquiries_board": {
+          "name": "Zapytania według etapu"
+        },
+        "inquiries_all": {
+          "name": "Wszystkie zapytania"
+        },
+        "with_time_limit": {
+          "name": "Otwarte zapytania z terminem"
+        },
+        "conflicts_to_check": {
+          "name": "Weryfikacje konfliktu do wykonania"
+        },
+        "matters_all": {
+          "name": "Wszystkie sprawy"
+        },
+        "parties_all": {
+          "name": "Wszystkie strony"
+        },
+        "contacts_all": {
+          "name": "Wszystkie kontakty"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Nadchodzące zadania"
+        },
+        "overdue_actions": {
+          "title": "Zaległe zadania"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        },
+        "inquiries_funnel": {
+          "title": "Zapytania według etapu"
+        },
+        "urgent_time_limits": {
+          "title": "Terminy otwartych zapytań"
+        },
+        "consultations_coming": {
+          "title": "Nadchodzące konsultacje"
+        },
+        "conflicts_pending": {
+          "title": "Weryfikacje konfliktu do wykonania"
+        },
+        "inquiries_by_source": {
+          "title": "Zapytania według źródła"
+        },
+        "lost_reasons": {
+          "title": "Powody braku zlecenia"
+        },
+        "poa_expiring": {
+          "title": "Wygasające pełnomocnictwa"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Jak działa przyjmowanie klientów",
+          "sections": [
+            "Pierwszy kontakt i pytania wstępne",
+            "Kto odpowiada i w jakim czasie"
+          ]
+        },
+        "conflict_check": {
+          "title": "Procedura weryfikacji konfliktu interesów",
+          "sections": [
+            "Co sprawdzamy: strony, klientów i byłych klientów",
+            "Jak zapisujemy wynik i co robimy przy konflikcie"
+          ]
+        },
+        "time_limit_triage": {
+          "title": "Ocena pilnych terminów",
+          "sections": [
+            "Pytanie o najbliższy znany termin przy pierwszym kontakcie",
+            "Przyjąć sprawę, skierować do innej kancelarii albo ostrzec pisemnie"
+          ]
+        },
+        "engagement_checklist": {
+          "title": "Lista kontrolna umowy i pełnomocnictwa",
+          "sections": [
+            "Wynagrodzenie, pełnomocnictwo i zaliczka",
+            "Pisma o niepodjęciu sprawy i zakończeniu"
+          ]
+        }
+      },
+      "rules": {
+        "inquiry_form_records": {
+          "title": "Utwórz kontakt i zapytanie po wysłaniu formularza",
+          "description": ""
+        },
+        "acknowledge_inquiry": {
+          "title": "Odpowiedz na nowe zapytanie następnego dnia i zaproponuj konsultację",
+          "description": ""
+        },
+        "urgent_deadline_alert": {
+          "title": "Powiadom prawnika prowadzącego 14 dni przed terminem otwartego zapytania",
+          "description": ""
+        },
+        "conflict_check_task": {
+          "title": "Wykonaj weryfikację konfliktu dzień po tym, jak zapytanie trafi na ten etap",
+          "description": ""
+        },
+        "fee_proposal_task": {
+          "title": "Wyślij ofertę dzień po konsultacji",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Przypomnij o ofercie 3 dni po jej wysłaniu",
+          "description": ""
+        },
+        "agreement_signed_set": {
+          "title": "Poproś o zaliczkę 2 dni po podpisaniu umowy",
+          "description": ""
+        },
+        "advance_chase": {
+          "title": "Powiadom prawnika prowadzącego, gdy zaliczki nadal brak 7 dni po prośbie o wpłatę",
+          "description": ""
+        },
+        "letter_declined": {
+          "title": "Napisz pismo o niepodjęciu sprawy, gdy kancelaria odmawia przyjęcia zapytania",
+          "description": ""
+        },
+        "letter_not_retained": {
+          "title": "Napisz pismo o niepodjęciu sprawy, gdy potencjalny klient nie zleca sprawy",
+          "description": ""
+        },
+        "poa_renewal": {
+          "title": "Odnów pełnomocnictwo 30 dni przed wygaśnięciem",
+          "description": ""
+        },
+        "closing_letter": {
+          "title": "Napisz pismo kończące tydzień po zamknięciu sprawy",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Każde zapytanie ma jeden z ośmiu etapów.",
+        "conflict_check_field": "Każde zapytanie zapisuje weryfikację konfliktu.",
+        "urgent_deadline_field": "Każde zapytanie zapisuje najbliższy znany termin.",
+        "inquiries_board_view": "Zapytania otwierają się jako tablica według etapu.",
+        "conflict_check_page": "Baza wiedzy zawiera stronę o weryfikacji konfliktu interesów."
+      },
+      "prompt": {
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates przyjmowanie klientów w kancelarii: zapytania z weryfikacją konfliktu interesów, najbliższym znanym terminem, konsultacją, ofertą i podpisaną umową, sprawy jako odnośniki do systemu kancelarii, strony na potrzeby weryfikacji konfliktu i pisma o niepodjęciu sprawy. Nie zapisuj okoliczności sprawy ani treści objętych tajemnicą.",
+        "questions": [
+          "Jakie dziedziny prawa przyjmujesz, a jakie kierujesz do innych?",
+          "Jak wykonujesz weryfikację konfliktu interesów i kto ją zatwierdza?",
+          "Jakie modele wynagrodzenia i jaką zaliczkę stosujesz?",
+          "Z jakiego systemu kancelarii korzystasz? Tutaj zapisujemy tylko odnośnik do sprawy."
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "Atendimento de clientes para advocacia",
+      "summary": "Um atendimento em etapas fixas: contato, triagem de conflito e urgência, consulta, proposta de honorários, contrato e procuração assinados e uma carta escrita para quem não vira cliente.",
+      "description": "Receba clientes em uma ordem fixa: cada atendimento registra a área do direito, o prazo mais próximo conhecido, a verificação de conflito e quem a fez, depois a consulta, a proposta de honorários e o contrato assinado. Uma lista de partes apoia a verificação de conflito, os casos levam a data da procuração e uma data de guarda, e interessados recusados ou silenciosos recebem uma carta escrita de não contratação. Guarde uma referência ao caso, nunca fatos do processo, conteúdo sigiloso, dados de saúde ou dados da parte contrária. Não é gestão de processos, contabilidade de valores de clientes, fonte de prazos processuais nem cobrança.",
+      "lists": {
+        "actions": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um próximo passo com data para cada item em aberto."
+        },
+        "contacts": {
+          "label": "Contato",
+          "pluralLabel": "Contatos",
+          "description": "Interessados, clientes, ex-clientes e quem indica."
+        },
+        "inquiries": {
+          "label": "Atendimento",
+          "pluralLabel": "Atendimentos",
+          "description": "Um pedido de ajuda jurídica, do primeiro contato a um caso ou uma recusa."
+        },
+        "matters": {
+          "label": "Caso",
+          "pluralLabel": "Casos (processos)",
+          "description": "Uma referência ao processo no sistema do escritório, com a data da procuração e a data de guarda."
+        },
+        "parties": {
+          "label": "Parte",
+          "pluralLabel": "Partes",
+          "description": "Partes contrárias e relacionadas, guardadas para a verificação de conflito."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberta",
+            "waiting": "Aguardando",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Papel",
+          "options": {
+            "prospect": "Interessado",
+            "client": "Cliente",
+            "former_client": "Ex-cliente",
+            "referrer": "Quem indicou"
+          }
+        },
+        "contacts.preferred_channel": {
+          "label": "Canal preferido",
+          "options": {
+            "email": "E-mail",
+            "phone": "Telefone",
+            "whatsapp": "WhatsApp",
+            "post": "Correio"
+          }
+        },
+        "inquiries.stage": {
+          "label": "Etapa",
+          "options": {
+            "new_inquiry": "Novo contato",
+            "screening": "Triagem (conflito e urgência)",
+            "consultation": "Consulta",
+            "fee_proposal_sent": "Proposta de honorários",
+            "agreement_signed": "Contrato e procuração",
+            "matter_opened": "Caso aberto",
+            "declined_by_firm": "Recusado",
+            "not_retained": "Não contratado"
+          }
+        },
+        "inquiries.practice_area": {
+          "label": "Área do direito",
+          "options": {
+            "employment": "Trabalhista",
+            "family": "Família",
+            "civil_contract": "Cível e contratos",
+            "real_estate": "Imobiliário",
+            "corporate": "Empresarial",
+            "criminal": "Penal",
+            "immigration": "Imigração",
+            "inheritance": "Sucessões",
+            "administrative": "Administrativo",
+            "other": "Outra"
+          }
+        },
+        "inquiries.source": {
+          "label": "Origem",
+          "options": {
+            "web_form": "Formulário do site",
+            "phone": "Telefone",
+            "referral": "Indicação",
+            "whatsapp": "WhatsApp",
+            "walk_in": "Presencial",
+            "directory": "Diretório"
+          }
+        },
+        "inquiries.urgent_deadline": {
+          "label": "Prazo mais próximo conhecido",
+          "options": {}
+        },
+        "inquiries.deadline_source": {
+          "label": "De onde vem o prazo",
+          "options": {}
+        },
+        "inquiries.conflict_check": {
+          "label": "Verificação de conflito",
+          "options": {
+            "pending": "Pendente",
+            "cleared": "Sem conflito",
+            "cleared_with_waiver": "Liberado com anuência",
+            "conflict_found": "Conflito encontrado"
+          }
+        },
+        "inquiries.consultation_on": {
+          "label": "Consulta",
+          "options": {}
+        },
+        "inquiries.fee_model": {
+          "label": "Honorários",
+          "options": {
+            "hourly": "Por hora",
+            "fixed": "Valor fixo",
+            "success_fee": "Êxito",
+            "insurance_or_legal_aid": "Seguro ou assistência judiciária",
+            "mixed": "Misto"
+          }
+        },
+        "inquiries.advance_requested_on": {
+          "label": "Adiantamento pedido em",
+          "options": {}
+        },
+        "inquiries.advance_received_on": {
+          "label": "Adiantamento recebido em",
+          "options": {}
+        },
+        "inquiries.responsible_lawyer": {
+          "label": "Advogado responsável",
+          "options": {}
+        },
+        "inquiries.next_step_due": {
+          "label": "Data do próximo passo",
+          "options": {}
+        },
+        "inquiries.lost_reason": {
+          "label": "Por que não houve contratação",
+          "options": {
+            "conflict": "Conflito de interesses",
+            "outside_practice_area": "Fora das nossas áreas",
+            "capacity": "Sem capacidade",
+            "time_limit_referred_out": "Prazo, encaminhado a outro",
+            "fee": "Honorários",
+            "chose_other_lawyer": "Escolheu outro advogado",
+            "no_response": "Sem resposta",
+            "self_resolved": "Resolveu sozinho"
+          }
+        },
+        "inquiries.non_engagement_letter_on": {
+          "label": "Carta de não contratação enviada em",
+          "options": {}
+        },
+        "matters.matter_ref": {
+          "label": "Referência no sistema do escritório",
+          "options": {}
+        },
+        "matters.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberto",
+            "on_hold": "Suspenso",
+            "closed": "Encerrado"
+          }
+        },
+        "matters.opened_on": {
+          "label": "Aberto em",
+          "options": {}
+        },
+        "matters.poa_valid_until": {
+          "label": "Procuração válida até",
+          "options": {}
+        },
+        "matters.retention_until": {
+          "label": "Guardar até",
+          "options": {}
+        },
+        "parties.party_role": {
+          "label": "Papel",
+          "options": {
+            "opposing_party": "Parte contrária",
+            "related_party": "Parte relacionada",
+            "co_client": "Cocliente",
+            "insurer": "Seguradora",
+            "third_party": "Terceiro"
+          }
+        },
+        "parties.party_type": {
+          "label": "Tipo",
+          "options": {
+            "person": "Pessoa",
+            "organisation": "Organização"
+          }
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "reply": "Responder",
+            "conflict_check": "Fazer a verificação de conflito",
+            "consultation_prep": "Preparar a consulta",
+            "fee_proposal": "Enviar a proposta de honorários",
+            "follow_up": "Fazer o retorno",
+            "advance": "Solicitar o adiantamento",
+            "letter": "Redigir uma carta",
+            "other": "Outro"
+          }
+        }
+      },
+      "relationships": {
+        "inquiry_contact": {
+          "sourceLabel": "Contato",
+          "targetLabel": "Atendimentos"
+        },
+        "matter_contact": {
+          "sourceLabel": "Cliente",
+          "targetLabel": "Casos (processos)"
+        },
+        "matter_inquiry": {
+          "sourceLabel": "Atendimento",
+          "targetLabel": "Casos (processos)"
+        },
+        "party_inquiry": {
+          "sourceLabel": "Atendimento",
+          "targetLabel": "Partes"
+        },
+        "party_matter": {
+          "sourceLabel": "Caso",
+          "targetLabel": "Partes"
+        },
+        "action_inquiry": {
+          "sourceLabel": "Atendimento",
+          "targetLabel": "Tarefas"
+        },
+        "action_matter": {
+          "sourceLabel": "Caso",
+          "targetLabel": "Tarefas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas as tarefas"
+        },
+        "inquiries_board": {
+          "name": "Atendimentos por etapa"
+        },
+        "inquiries_all": {
+          "name": "Todos os atendimentos"
+        },
+        "with_time_limit": {
+          "name": "Atendimentos abertos com prazo"
+        },
+        "conflicts_to_check": {
+          "name": "Verificações de conflito pendentes"
+        },
+        "matters_all": {
+          "name": "Todos os casos"
+        },
+        "parties_all": {
+          "name": "Todas as partes"
+        },
+        "contacts_all": {
+          "name": "Todos os contatos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tarefas"
+        },
+        "overdue_actions": {
+          "title": "Tarefas atrasadas"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        },
+        "inquiries_funnel": {
+          "title": "Atendimentos por etapa"
+        },
+        "urgent_time_limits": {
+          "title": "Prazos dos atendimentos abertos"
+        },
+        "consultations_coming": {
+          "title": "Consultas próximas"
+        },
+        "conflicts_pending": {
+          "title": "Verificações de conflito pendentes"
+        },
+        "inquiries_by_source": {
+          "title": "Atendimentos por origem"
+        },
+        "lost_reasons": {
+          "title": "Por que atendimentos não viram casos"
+        },
+        "poa_expiring": {
+          "title": "Procurações vencendo"
+        }
+      },
+      "knowledgePages": {
+        "operating_guide": {
+          "title": "Como funciona o atendimento",
+          "sections": [
+            "Primeiro contato e perguntas de triagem",
+            "Quem responde e em quanto tempo"
+          ]
+        },
+        "conflict_check": {
+          "title": "Procedimento de verificação de conflito",
+          "sections": [
+            "O que se busca: partes, clientes e ex-clientes",
+            "Como o resultado é registrado e o que fazer se houver conflito"
+          ]
+        },
+        "time_limit_triage": {
+          "title": "Triagem de prazos urgentes",
+          "sections": [
+            "Perguntar pelo prazo mais próximo conhecido no primeiro contato",
+            "Aceitar, encaminhar ou avisar o interessado por escrito"
+          ]
+        },
+        "engagement_checklist": {
+          "title": "Checklist de contrato de honorários e procuração",
+          "sections": [
+            "Honorários, procuração e adiantamento",
+            "Cartas de não contratação e de encerramento"
+          ]
+        }
+      },
+      "rules": {
+        "inquiry_form_records": {
+          "title": "Criar o contato e o atendimento quando o formulário de atendimento for enviado",
+          "description": ""
+        },
+        "acknowledge_inquiry": {
+          "title": "Responder a um atendimento novo no dia seguinte e oferecer uma consulta",
+          "description": ""
+        },
+        "urgent_deadline_alert": {
+          "title": "Avisar o responsável 14 dias antes do prazo de um atendimento aberto",
+          "description": ""
+        },
+        "conflict_check_task": {
+          "title": "Fazer a verificação de conflito no dia seguinte à entrada na triagem",
+          "description": ""
+        },
+        "fee_proposal_task": {
+          "title": "Enviar a proposta de honorários no dia seguinte à consulta",
+          "description": ""
+        },
+        "proposal_follow_up": {
+          "title": "Fazer o retorno 3 dias depois de enviar a proposta",
+          "description": ""
+        },
+        "agreement_signed_set": {
+          "title": "Solicitar o adiantamento 2 dias depois da assinatura do contrato",
+          "description": ""
+        },
+        "advance_chase": {
+          "title": "Avisar o responsável quando o adiantamento falta 7 dias depois do pedido",
+          "description": ""
+        },
+        "letter_declined": {
+          "title": "Redigir a carta de não contratação quando o escritório recusa um atendimento",
+          "description": ""
+        },
+        "letter_not_retained": {
+          "title": "Redigir a carta de não contratação quando um interessado não contrata o escritório",
+          "description": ""
+        },
+        "poa_renewal": {
+          "title": "Renovar a procuração 30 dias antes de vencer",
+          "description": ""
+        },
+        "closing_letter": {
+          "title": "Redigir a carta de encerramento uma semana depois de encerrado um caso",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "stage_field": "Todo atendimento está em uma das oito etapas.",
+        "conflict_check_field": "Todo atendimento registra a verificação de conflito.",
+        "urgent_deadline_field": "Todo atendimento registra o prazo mais próximo conhecido.",
+        "inquiries_board_view": "Os atendimentos abrem como quadro por etapa.",
+        "conflict_check_page": "A base de conhecimento tem uma página sobre a verificação de conflito."
+      },
+      "prompt": {
+        "intro": "Configure no meu espaço de trabalho do Customermates um atendimento de clientes para um escritório de advocacia: atendimentos com verificação de conflito, prazo mais próximo conhecido, consulta, proposta de honorários e contrato assinado, casos como referências ao sistema do escritório, partes para a verificação de conflito e cartas escritas de não contratação. Não guarde fatos do processo nem conteúdo sigiloso.",
+        "questions": [
+          "Quais áreas do direito você atende e quais encaminha a outros?",
+          "Como você faz a verificação de conflito e quem a aprova?",
+          "Que modelos de honorários e que adiantamento você usa?",
+          "Qual sistema de gestão você usa? Aqui só se guarda uma referência ao caso."
+        ]
+      }
+    }
+  }
+}

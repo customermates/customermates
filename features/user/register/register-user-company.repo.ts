@@ -1,9 +1,15 @@
 import type { RegistrationSignupSource } from "@/features/acquisition/signup-source";
+import type { SignupCampaign } from "@/features/acquisition/signup-campaign";
+import type { TeamSize } from "@/features/onboarding-funnel/team-size";
 
 export type WorkspaceSetup = {
   name?: string | null;
   createdByAuthUserId?: string | null;
   trial?: boolean;
+  signupTemplate?: string | null;
+  signupLastPage?: string | null;
+  signupCampaign?: SignupCampaign | null;
+  teamSize?: TeamSize | null;
 };
 
 export abstract class RegisterUserCompanyRepo {

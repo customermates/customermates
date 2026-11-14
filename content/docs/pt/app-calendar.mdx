@@ -36,6 +36,64 @@ Os calendários conectados exigem o direito de mensagens já existente e a permi
 
 Copie a URL quando ela for criada: ela é exibida uma única vez. Quem a tiver pode ler os eventos selecionados enquanto você mantiver o acesso. Cada atualização verifica a sua participação ativa e as suas permissões atuais. **Revogar assinatura** interrompe na hora as próximas consultas; os apps de calendário podem manter os eventos baixados antes. As alterações vão do Customermates para o app de calendário. Editar um evento importado não atualiza o registro dele no CRM; não é uma conexão de calendário bidirecional.
 
+## Como agendo uma reunião? [#schedule-meetings]
+
+Clique em **Agendar reunião** no cabeçalho de qualquer registro, por exemplo uma pessoa, uma organização ou um negócio. No [Calendário](app:calendar), clique duas vezes em um horário vazio na visualização de semana ou de mês (ou use **+** em um dia do mês) e escolha **Nova reunião**; a opção aparece ao lado da criação de um registro quando uma fonte de lista permite. As duas formas abrem a mesma janela.
+
+### O que posso definir? [#schedule-meeting-options]
+
+A janela tem estes campos:
+
+- Um título, a data, o horário de início e a duração (de 15 a 120 minutos).
+- Os horários livres daquele dia, tirados dos seus calendários sincronizados dentro do horário de trabalho (de segunda a sexta, das 9h às 17h no seu fuso horário). Mesmo assim, você pode digitar qualquer horário de início.
+- O calendário, mostrado só quando você tem mais de um calendário conectado.
+- Os participantes: endereços de e-mail são sugeridos a partir do registro e das pessoas vinculadas a ele, e você pode digitar outros.
+- Um local, uma descrição e, se quiser, um link de videochamada: Google Meet para calendários do Google, Microsoft Teams para o Outlook.
+- Uma chave para enviar os convites. Quem envia é o Google ou a Microsoft.
+- Um acompanhamento opcional: escolha uma lista e um dos campos de data ou de data e hora dela, e o app cria um registro nessa lista no início da reunião, vinculado ao registro.
+
+### O que acontece depois de salvar? [#schedule-meeting-result]
+
+O evento é criado no seu próprio calendário do Google ou da Microsoft conectado. Ele aparece no [Calendário](app:calendar) e na linha do tempo de atividades dos registros a que pertence, e das pessoas cujo e-mail está entre os participantes. Só é possível gravar nos seus próprios calendários conectados. Se a conta conectada perdeu a permissão do calendário, o app pede que você a reconecte em [Canais e calendários](app:settings/channels).
+
+### O que preciso para agendar reuniões? [#schedule-meeting-requirements]
+
+Uma conta do Google ou da Microsoft conectada e o plano de que a [Caixa de entrada](/docs/app-inbox#who-can-use-the-inbox) precisa: Pro ou superior. Agendar reuniões não está disponível com hospedagem própria, porque a conexão do calendário passa pelo serviço hospedado, nem no espaço de trabalho de demonstração.
+
+### Um agente pode agendar reuniões? [#schedule-meeting-agents]
+
+Sim, com a ferramenta MCP `schedule_meeting`, cujas ações são `options`, `slots`, `create`, `update` e `cancel`. `slots` encontra horários livres; `create`, `update` e `cancel` alteram reuniões no calendário conectado de quem chama. Como as outras ferramentas de mensagens, ela exige Pro ou superior e o Customermates Cloud. Os esquemas exatos estão no [catálogo do MCP](/docs/mcp#tool-catalog).
+
+## Como deixo outras pessoas agendarem uma reunião comigo? [#booking-pages]
+
+Uma página de agendamento é um link público que qualquer pessoa pode abrir sem conta, como uma pequena página de marcação de horários só sua. Os visitantes escolhem um horário livre do seu calendário e cada agendamento cria um evento de calendário, uma pessoa e um registro no seu CRM. Você cria e gerencia as páginas nas configurações, em [Páginas de agendamento](app:settings/booking), ao lado de [Canais e calendários](app:settings/channels). Cada usuário pode ter até 10 páginas de agendamento.
+
+### O que posso definir em uma página de agendamento? [#booking-page-settings]
+
+- Um título, uma descrição e o calendário que recebe os eventos.
+- A duração da reunião (de 15 a 120 minutos), o intervalo entre reuniões, a antecedência mínima e com quantos dias de antecedência é possível agendar (até 90).
+- O fuso horário, o horário de trabalho de cada dia da semana e, se quiser, um link de videochamada.
+- A lista em que a pessoa do visitante é encontrada ou criada (uma pessoa por endereço de e-mail), a lista que recebe um registro por agendamento e o campo dessa lista que recebe o início da reunião.
+- Até 8 perguntas. Cada pergunta é um campo da lista de agendamentos (texto, link, escolha única, número, sim/não ou data) e pode ser obrigatória.
+- Uma mensagem exibida após o agendamento.
+- A chave **Aceitar agendamentos**.
+
+Desative **Aceitar agendamentos** para pausar uma página sem excluí-la. Excluir uma página remove o link e o histórico de agendamentos dela; as reuniões já agendadas continuam no seu calendário.
+
+### O que acontece quando alguém agenda? [#booking-page-visitors]
+
+O visitante vê os horários livres do seu calendário sincronizado, no próprio fuso horário. O tempo ocupado esconde horários, e dois agendamentos não podem se sobrepor, porque o horário é reservado primeiro. O visitante informa nome e e-mail, responde às suas perguntas e confirma. Em seguida, o app cria o evento de calendário com o visitante como participante (o Google ou a Microsoft envia o convite), encontra ou cria a pessoa pelo e-mail, cria o registro do agendamento e vincula o evento aos dois. Todo agendamento também produz o evento `form.submitted` com o agendamento como conteúdo, ao qual as regras podem reagir.
+
+As páginas de agendamento se protegem sozinhas: limites de requisições por visitante e por link, um campo isca oculto (honeypot), no máximo 3 agendamentos futuros por endereço de e-mail e por página e limites para o tamanho dos dados enviados.
+
+### O que preciso para as páginas de agendamento? [#booking-page-requirements]
+
+O mesmo que para agendar reuniões: uma conta do Google ou da Microsoft conectada, o plano de que a [Caixa de entrada](/docs/app-inbox#who-can-use-the-inbox) precisa (Pro ou superior) e o Customermates Cloud. As páginas de agendamento não estão disponíveis com hospedagem própria nem no espaço de trabalho de demonstração. Se o plano ou a conexão do calendário de quem é dono de uma página acabar, a página mostra que não está disponível.
+
+### Um agente pode gerenciar páginas de agendamento? [#booking-page-agents]
+
+Sim, com a ferramenta MCP `manage_booking_links`, cujas ações são `list`, `get`, `save` e `delete`. Como as outras ferramentas de mensagens, ela exige Pro ou superior e o Customermates Cloud. Os esquemas exatos estão no [catálogo do MCP](/docs/mcp#tool-catalog).
+
 ## Para agentes [#tips-for-agents]
 
 Altere o calendário de uma pessoa com `manage_calendar` em vez de operar a página; ele altera apenas o calendário de quem chama. Chame `options` primeiro: ele lista as listas com campos de data, os campos de escolha delas para as cores e, onde as mensagens conectadas estão disponíveis, os calendários conectados de quem chama, tudo com IDs estáveis. `read` devolve a configuração e `saved`, que continua false enquanto a configuração padrão se aplica. `update` recebe um `config` só com as chaves a alterar: `sources` e `calendarIds` substituem a lista inteira, e os `filters` de uma fonte usam os campos de filtro do `config` de `manage_data_views` para a superfície da lista. Passe `timeZone` na primeira atualização, porque o padrão é UTC. `reset` volta à configuração padrão. `subscriptions` lista as URLs de assinatura e `revoke` revoga uma pelo `id`; criar uma URL de assinatura continua sendo feito no app. Não há endpoint REST para o calendário. Os esquemas exatos estão no [catálogo do MCP](/docs/mcp#tool-catalog).

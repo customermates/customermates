@@ -1,0 +1,85 @@
+---
+title: "CRM dla Claude: CRM, w którym pracuje Twój Claude"
+description: "CRM dla Claude: klienci, szanse sprzedaży, e-mail i LinkedIn w jednej przestrzeni, którą Claude czyta i aktualizuje. [[commercial.trial.days]] dni próby, bez karty. Open source."
+featureName: CRM dla Claude
+
+relatedHrefs:
+  - /features/claude-linkedin
+  - /docs/connect-custom-connector
+  - /docs/mcp
+  - /features/api
+
+sections:
+  visual:
+    kind: os
+  steps:
+    title: "Połączone w trzech krokach"
+    items:
+      - title: "Zacznij okres próbny"
+        description: "Zarejestruj się i podaj, ile osób będzie korzystać z przestrzeni roboczej. Okres próbny trwa [[commercial.trial.days]] dni na planie Pro i nie wymaga karty."
+      - title: "Dodaj Customermates do Claude"
+        description: "W Claude otwórz Settings › Connectors › Add custom connector i wklej adres serwera https://customermates.com/api/v1/mcp. Konfiguracja pokazuje adres Twojej własnej przestrzeni roboczej i czeka na pierwsze wywołanie od Claude."
+      - title: "Pozwól Claude zbudować Twój CRM"
+        description: "Powiedz Claude, co sprzedajesz i jak pracujesz. Claude proponuje Twoje listy, pipeline i follow-upy i buduje je w przestrzeni roboczej, gdy się zgodzisz."
+
+hero:
+  title: "CRM, w którym pracuje Twój Claude"
+  description: "Customermates to CRM, który Claude czyta i aktualizuje przez konektor: klienci, szanse sprzedaży, zadania i, gdy je podłączysz, Twoje rozmowy e-mail i LinkedIn. Adres serwera: https://customermates.com/api/v1/mcp"
+  buttonLeftText: "Zacznij [[commercial.trial.days]]-dniowy okres próbny"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Przeczytaj przewodnik po konektorze
+  buttonRightHref: /docs/connect-custom-connector
+  hint: "✓ Bez karty kredytowej ✓ Niezależny produkt, niepowiązany z Anthropic"
+
+cta:
+  action: "Daj Claude CRM, w którym może pracować"
+  description: "Zacznij okres próbny, dodaj konektor i pozwól Claude skonfigurować przestrzeń roboczą. Plan zatwierdzasz, zanim Claude zacznie go budować."
+  buttonLeftText: "Zacznij [[commercial.trial.days]]-dniowy okres próbny"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Przeczytaj przewodnik po konektorze
+  buttonRightHref: /docs/connect-custom-connector
+  hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
+---
+
+CRM dla Claude to taki, który Claude sam potrafi czytać i zmieniać, a nie taki, z którego tekst trzeba kopiować. Customermates daje Claude tę możliwość przez konektor: Claude wyszukuje klienta, czyta ostatnią rozmowę, aktualizuje szansę sprzedaży i dodaje następne zadanie, w tej samej przestrzeni roboczej, którą Twój zespół otwiera w przeglądarce.
+
+## O co możesz zapytać Claude
+
+- **„Przy których szansach sprzedaży od dwóch tygodni nie było kontaktu?”** Claude czyta Twój pipeline i rozmowy powiązane z każdą szansą sprzedaży.
+- **„Dodaj trzy osoby z tego e-maila do właściwej firmy i zapisz, o co prosiły.”** Claude tworzy kontakty i je powiązuje.
+- **„Które rozmowy czekają na moją odpowiedź?”** Gdy podłączysz skrzynkę pocztową albo [konto LinkedIn](/features/claude-linkedin), Claude wypisuje otwarte wątki i może przygotować odpowiedzi.
+
+Claude pracuje na Twoich własnych listach i polach, więc CRM używa Twoich słów dla klientów, szans sprzedaży i etapów.
+
+## Co robi, a czego nie robi
+
+**Co robi:** czyta i zapisuje rekordy, listy, pola i widoki z uprawnieniami osoby, która go podłączyła; przeszukuje Bazę wiedzy przestrzeni roboczej; czyta rozmowy i zapisuje szkice po podłączeniu kanału.
+
+**Czego nie robi:** nie omija Twoich ról i uprawnień, niczego nie zmienia bez wywołania, które widzisz w Claude, i nie działa w tle, gdy Claude jest zamknięty. Do pracy według harmonogramu służą [rutyny](/docs/app-routines) z wbudowanym asystentem Mate.
+
+**Zatwierdzanie:** Customermates instruuje Claude, żeby zapytał, zanim wyśle wiadomość albo coś usunie. Czy Claude pyta za każdym razem, zależy od uprawnień narzędzi, które ustawiasz w Claude.
+
+Stronę techniczną, ze wszystkimi narzędziami, które oferuje konektor, opisuje [przewodnik po MCP](/docs/mcp).
+
+## Ile to kosztuje
+
+Okres próbny trwa [[commercial.trial.days]] dni na planie Pro i nie wymaga karty kredytowej. Plany płatne zaczynają się od [[commercial.price.starter.monthly]] za użytkownika miesięcznie i obejmują CRM z konektorem; skrzynka odbiorcza dla e-maila i LinkedIn należy do planu Pro w cenie [[commercial.price.pro.monthly]]. Bez subskrypcji przestrzeń robocza przechodzi na plan Free dla [[commercial.limit.free.maxMembers]] osoby i [[commercial.limit.free.maxRecords]] rekordów. Konektor nie kosztuje dodatkowo, a Claude rozlicza własne użycie w ramach Twojego planu Claude.
+
+## Kto za tym stoi
+
+Customermates to niezależny produkt. Nie jest powiązany z firmą Anthropic, nie jest też przez nią rekomendowany ani sponsorowany. Rdzeń CRM jest open source na licencji AGPL-3.0 i można go hostować samodzielnie; baza danych w chmurze jest skonfigurowana w regionie AWS Frankfurt, a [lista podmiotów podprzetwarzających](/subprocessors) wymienia każdego zaangażowanego dostawcę.
+
+<Faq>
+<FaqItem question="Czy działa też z ChatGPT i innymi klientami AI?">
+Tak. Ten sam konektor działa z ChatGPT, Cursor, Gemini i innymi klientami, które obsługują MCP. [Przewodnik po konektorze](/docs/connect-custom-connector) opisuje kroki dla każdego z nich.
+</FaqItem>
+<FaqItem question="Czy Claude widzi wszystkie moje dane?">
+Claude widzi to, co może widzieć osoba, która go podłączyła. Działa z rolą i uprawnieniami tej osoby, w przestrzeni roboczej, którą wybrała przy logowaniu.
+</FaqItem>
+<FaqItem question="Czy potrzebuję płatnego planu Claude?">
+Claude oferuje własne konektory w każdym planie; plan Free pozwala na jeden. ChatGPT wymaga płatnego planu dla własnych konektorów.
+</FaqItem>
+<FaqItem question="Czy mogę hostować to samodzielnie?">
+Rdzeń open source można hostować samodzielnie i zawiera on konektor. Skrzynka odbiorcza dla e-maila i LinkedIn oraz wbudowany asystent Mate należą do Customermates Cloud.
+</FaqItem>
+</Faq>

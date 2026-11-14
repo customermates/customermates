@@ -1,0 +1,129 @@
+{
+  "locale": "pt",
+  "name": "Dealflow para investidores",
+  "summary": "Um dealflow para um fundo pequeno ou um investidor-anjo: oito etapas da identificação ao fechamento ou à recusa, quem indicou cada negócio, um motivo de recusa e uma data para retomar.",
+  "description": "Acompanhe startups e investidores da prospecção, triagem, reuniões e due diligence até o term sheet. Cada negócio registra quem o indicou, o quanto se encaixa na tese, o papel de lead, um link da data room, o motivo da recusa e quando olhar de novo. É uma ferramenta de relacionamento, não uma cap table, nem uma data room jurídica, nem um modelo de pontuação. Os pesos são aproximados e são seus.",
+  "lists": {
+    "people": { "label": "Pessoa", "pluralLabel": "Pessoas", "description": "Fundadores, investidores, coinvestidores e quem indica." },
+    "organizations": { "label": "Organização", "pluralLabel": "Organizações", "description": "Startups, fundos, sindicatos e aceleradoras." },
+    "deals": { "label": "Negócio", "pluralLabel": "Negócios", "description": "Uma oportunidade de investimento da prospecção ao fechamento ou à recusa." }
+  },
+  "fields": {
+    "deals.stage": {
+      "label": "Etapa",
+      "options": { "sourced": "Identificado", "screening": "Triagem", "first_meeting": "Primeira reunião", "partner_meeting": "Comitê de investimento", "diligence": "Due diligence", "term_sheet": "Term sheet", "closed": "Fechado", "passed": "Recusado" }
+    },
+    "people.person_role": {
+      "label": "Papel",
+      "options": { "founder": "Fundador", "investor": "Sócio investidor", "angel": "Investidor-anjo", "co_investor": "Coinvestidor", "introducer": "Quem indica", "advisor": "Conselheiro" }
+    },
+    "people.focus_stages": {
+      "label": "Estágios de interesse",
+      "options": { "pre_seed": "Pré-seed", "seed": "Seed", "series_a": "Série A", "series_b_plus": "Série B e seguintes" }
+    },
+    "people.thesis": { "label": "Tese de investimento" },
+    "people.relationship_strength": { "label": "Relacionamento", "options": { "strong": "Forte", "warm": "Bom", "new": "Novo" } },
+    "people.last_meeting_on": { "label": "Última reunião" },
+    "people.relationship_owner": { "label": "Responsável" },
+    "organizations.org_type": {
+      "label": "Tipo",
+      "options": { "startup": "Startup", "vc_fund": "Fundo de venture capital", "angel_syndicate": "Sindicato de anjos", "corporate_vc": "Corporate venture", "accelerator": "Aceleradora", "other": "Outro" }
+    },
+    "organizations.website": { "label": "Site" },
+    "organizations.sector": { "label": "Setor" },
+    "organizations.stage": {
+      "label": "Estágio",
+      "options": { "pre_seed": "Pré-seed", "seed": "Seed", "series_a": "Série A", "series_b": "Série B", "growth": "Crescimento" }
+    },
+    "organizations.country": { "label": "País" },
+    "organizations.conflict_check": { "label": "Verificação de conflito de interesses", "options": { "to_check": "A verificar", "clear": "Sem conflito", "conflict": "Conflito" } },
+    "deals.round": {
+      "label": "Rodada",
+      "options": { "pre_seed": "Pré-seed", "seed": "Seed", "series_a": "Série A", "series_b": "Série B", "bridge": "Rodada ponte" }
+    },
+    "deals.lead_role": { "label": "Nosso papel", "options": { "lead": "Lead", "follow": "Seguidor", "undecided": "A decidir" } },
+    "deals.thesis_fit": { "label": "Aderência à tese", "options": { "strong": "Forte", "partial": "Parcial", "weak": "Fraca" } },
+    "deals.owner": { "label": "Responsável" },
+    "deals.source": {
+      "label": "Origem",
+      "options": { "warm_introduction": "Indicação pessoal", "inbound": "Contato recebido", "outbound": "Prospecção ativa", "event": "Evento", "portfolio_referral": "Indicação do portfólio", "co_investor": "Coinvestidor" }
+    },
+    "deals.intro_requested_on": { "label": "Apresentação solicitada em" },
+    "deals.intro_made_on": { "label": "Apresentação feita em" },
+    "deals.first_meeting_on": { "label": "Primeira reunião em" },
+    "deals.decision_on": { "label": "Decisão em" },
+    "deals.term_sheet_on": { "label": "Term sheet em" },
+    "deals.closed_on": { "label": "Fechado em" },
+    "deals.nda_signed": { "label": "NDA assinado" },
+    "deals.pass_reason": {
+      "label": "Motivo da recusa",
+      "options": { "thesis_mismatch": "Fora da tese", "team": "Time", "market": "Mercado", "too_early": "Cedo demais", "valuation": "Valuation", "timing": "Momento", "other": "Outro" }
+    },
+    "deals.revisit_on": { "label": "Retomar em" },
+    "deals.data_room_url": { "label": "Link da data room" },
+    "deals.days_to_term_sheet": { "label": "Dias da primeira reunião ao term sheet" },
+    "deals.weighted_value": { "label": "Valor ponderado" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "request_intro": "Pedir uma apresentação",
+        "send_deck": "Enviar o deck",
+        "prepare_meeting": "Preparar uma reunião",
+        "follow_up": "Retorno",
+        "diligence_request": "Pedido de due diligence",
+        "write_memo": "Escrever o memorando",
+        "send_pass_note": "Enviar uma recusa",
+        "revisit": "Retomar o contato",
+        "thank_introducer": "Agradecer ou lembrar quem indicou",
+        "other": "Outro"
+      }
+    }
+  },
+  "relationships": {
+    "deal_company": { "sourceLabel": "Empresa", "targetLabel": "Negócios" },
+    "deal_contacts": { "sourceLabel": "Fundadores e contatos", "targetLabel": "Negócios" },
+    "action_deal": { "sourceLabel": "Negócio", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "deals_board": { "name": "Dealflow" },
+    "deals_all": { "name": "Todos os negócios" },
+    "passed_to_revisit": { "name": "Recusados, a retomar" },
+    "organizations_all": { "name": "Todas as organizações" },
+    "people_all": { "name": "Todas as pessoas" }
+  },
+  "widgets": {
+    "deal_funnel": { "title": "Negócios abertos por etapa" },
+    "deals_by_source": { "title": "Negócios por origem" },
+    "pass_reasons": { "title": "Motivos de recusa" },
+    "average_days_to_term_sheet": { "title": "Média de dias até o term sheet" },
+    "revisits_coming": { "title": "Retomadas a caminho" }
+  },
+  "knowledgePages": {
+    "investment_thesis": { "title": "Tese de investimento e foco", "sections": ["Estágio, setor e tamanho do cheque", "Onde não investimos"] },
+    "stage_criteria": { "title": "Critérios por etapa", "sections": ["O que leva um negócio à próxima etapa", "Quem decide no comitê"] },
+    "pass_notes": { "title": "Recusas e regras para retomar", "sections": ["Como recusamos", "Quando olhamos de novo"] }
+  },
+  "rules": {
+    "follow_up_after_meeting": { "title": "Enviar uma mensagem com os próximos passos depois de uma primeira reunião" },
+    "stale_screening": { "title": "Reativar ou recusar um negócio parado há 14 dias na triagem" },
+    "pass_note": { "title": "Enviar uma recusa quando um negócio é recusado" },
+    "revisit_deal": { "title": "Retomar um negócio recusado na data de retomada" },
+    "diligence_checklist": { "title": "Iniciar a lista de due diligence quando um term sheet é acordado" },
+    "first_check_in_after_close": { "title": "Fazer um acompanhamento 30 dias depois do fechamento" },
+    "intro_nudge": { "title": "Lembrar quem indicou uma semana depois de pedir a apresentação" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada negócio tem uma das oito etapas.",
+    "pass_reason_field": "Cada negócio registra por que foi recusado.",
+    "board_view": "Os negócios abrem como quadro por etapa."
+  },
+  "prompt": {
+    "intro": "Configure um dealflow no meu espaço de trabalho do Customermates: negócios com oito etapas, quem os indicou, aderência à tese, papel de lead, um motivo de recusa e uma data para retomar, além de startups, investidores e retornos com data.",
+    "questions": [
+      "Em quais estágios e setores você investe e qual é o tamanho habitual do cheque?",
+      "Como os negócios chegam até você e quem os indica?",
+      "Quem decide em cada etapa e quando você recusa?",
+      "Onde você guarda os documentos jurídicos e a data room? Aqui só se guarda um link."
+    ]
+  }
+}

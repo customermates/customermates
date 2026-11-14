@@ -1,0 +1,146 @@
+{
+  "id": "tpl_team_tracker",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "team-tracker",
+  "family": "operations",
+  "kind": "tracker",
+  "jurisdictions": ["global"],
+  "dashboardAudience": "team",
+  "modules": [],
+  "requiresCapabilities": ["forms", "rules", "notifications", "incomingWebhooks"],
+  "pairedPages": {},
+  "lists": [
+    { "key": "requesters", "role": "people", "icon": "contact" },
+    { "key": "projects", "icon": "kanban" },
+    { "key": "tasks", "role": "tasks", "icon": "check" },
+    { "key": "recurring", "icon": "repeat" }
+  ],
+  "stages": [
+    {
+      "field": "tasks.status",
+      "items": [
+        { "key": "backlog", "outcome": "open", "weight": 0 },
+        { "key": "todo", "outcome": "open", "weight": 0 },
+        { "key": "in_progress", "outcome": "open", "weight": 0 },
+        { "key": "in_review", "outcome": "open", "weight": 0 },
+        { "key": "blocked", "outcome": "open", "weight": 0 },
+        { "key": "done", "outcome": "won", "weight": 0 },
+        { "key": "cancelled", "outcome": "lost", "weight": 0 }
+      ]
+    },
+    {
+      "field": "projects.status",
+      "items": [
+        { "key": "planned", "outcome": "open", "weight": 0 },
+        { "key": "active", "outcome": "open", "weight": 0 },
+        { "key": "on_hold", "outcome": "open", "weight": 0 },
+        { "key": "done", "outcome": "won", "weight": 0 },
+        { "key": "cancelled", "outcome": "lost", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "requesters.relation", "type": "select", "options": [{ "key": "customer" }, { "key": "colleague" }, { "key": "partner" }, { "key": "vendor" }, { "key": "other" }] },
+    { "key": "requesters.team", "type": "text" },
+    { "key": "projects.health", "type": "select", "options": [{ "key": "on_track", "color": "success" }, { "key": "at_risk", "color": "warning" }, { "key": "off_track", "color": "destructive" }] },
+    { "key": "projects.owner", "type": "member" },
+    { "key": "projects.due_date", "type": "date" },
+    { "key": "projects.repo_url", "type": "url" },
+    { "key": "tasks.kind", "type": "select", "options": [{ "key": "task" }, { "key": "bug", "color": "warning" }, { "key": "feature" }, { "key": "chore" }, { "key": "request", "color": "info" }] },
+    { "key": "tasks.priority", "type": "select", "options": [{ "key": "urgent", "color": "destructive" }, { "key": "high", "color": "warning" }, { "key": "medium" }, { "key": "low", "color": "secondary" }] },
+    { "key": "tasks.owner", "type": "member" },
+    { "key": "tasks.due", "type": "date" },
+    { "key": "tasks.original_due", "type": "date" },
+    { "key": "tasks.done_on", "type": "date" },
+    { "key": "tasks.blocked_reason", "type": "text" },
+    { "key": "tasks.external_url", "type": "url" },
+    { "key": "recurring.cadence", "type": "select", "options": [{ "key": "weekly" }, { "key": "monthly" }, { "key": "quarterly" }, { "key": "yearly" }] },
+    { "key": "recurring.next_due", "type": "date" },
+    { "key": "recurring.owner", "type": "member" }
+  ],
+  "relationships": [
+    { "key": "task_project", "source": "tasks", "target": "projects", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "task_requester", "source": "tasks", "target": "requesters", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "recurring_project", "source": "recurring", "target": "projects", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    { "key": "tasks_all", "list": "tasks", "default": true, "layout": "table", "sort": { "field": "tasks.due", "direction": "asc" }, "columns": ["tasks.status", "tasks.priority", "tasks.kind", "tasks.owner", "tasks.due"] },
+    { "key": "tasks_board", "list": "tasks", "default": false, "layout": "board", "groupBy": "tasks.status" },
+    { "key": "blocked_tasks", "list": "tasks", "default": false, "layout": "table", "filters": [{ "operator": "in", "field": "tasks.status", "options": ["blocked"] }] },
+    { "key": "projects_all", "list": "projects", "default": true, "layout": "table", "sort": { "field": "projects.due_date", "direction": "asc" }, "columns": ["projects.status", "projects.health", "projects.owner", "projects.due_date"] },
+    { "key": "recurring_all", "list": "recurring", "default": true, "layout": "table", "sort": { "field": "recurring.next_due", "direction": "asc" }, "columns": ["recurring.cadence", "recurring.next_due", "recurring.owner"] },
+    { "key": "requesters_all", "list": "requesters", "default": true, "layout": "table", "columns": ["requesters.relation", "requesters.team"] }
+  ],
+  "widgets": [
+    { "kind": "chart", "key": "tasks_by_status", "list": "tasks", "aggregation": "count", "groupBy": { "field": "tasks.status" }, "display": "doughnutChart" },
+    { "kind": "chart", "key": "open_by_priority", "list": "tasks", "aggregation": "count", "groupBy": { "field": "tasks.priority" }, "filters": [{ "operator": "in", "field": "tasks.status", "options": ["backlog", "todo", "in_progress", "in_review", "blocked"] }], "display": "horizontalBarChart" },
+    { "kind": "chart", "key": "overdue_tasks", "list": "tasks", "aggregation": "count", "filters": [{ "operator": "in", "field": "tasks.status", "options": ["todo", "in_progress", "in_review", "blocked"] }, { "operator": "inLastDays", "field": "tasks.due", "days": 3650 }], "display": "number" },
+    { "kind": "calendar", "key": "due_soon", "list": "tasks", "layout": "upcoming", "dateField": "tasks.due", "filters": [{ "operator": "in", "field": "tasks.status", "options": ["todo", "in_progress", "in_review", "blocked"] }] },
+    { "kind": "chart", "key": "blocked_count", "list": "tasks", "aggregation": "count", "filters": [{ "operator": "in", "field": "tasks.status", "options": ["blocked"] }], "display": "number" },
+    { "kind": "activity", "key": "activity_timeline" }
+  ],
+  "knowledgePages": [
+    { "key": "how_we_work", "kind": "overview" },
+    { "key": "weekly_review", "kind": "processes" },
+    { "key": "triage", "kind": "processes" }
+  ],
+  "followUpRules": [
+    { "key": "task_assigned", "trigger": { "kind": "field_changed", "field": "tasks.owner" }, "action": { "kind": "notify", "recipient": "record_owner" }, "dueOffsetDays": 0, "needs": "notifications" },
+    {
+      "key": "due_tomorrow",
+      "trigger": { "kind": "date_reached", "field": "tasks.due", "offsetDays": -1 },
+      "condition": [{ "operator": "notIn", "field": "tasks.status", "options": ["done", "cancelled"] }],
+      "action": { "kind": "notify", "recipient": "record_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    {
+      "key": "overdue_task",
+      "trigger": { "kind": "date_reached", "field": "tasks.due", "offsetDays": 1 },
+      "condition": [{ "operator": "notIn", "field": "tasks.status", "options": ["done", "cancelled"] }],
+      "action": { "kind": "notify", "recipient": "workspace_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    {
+      "key": "blocked_stale",
+      "trigger": { "kind": "unchanged_for", "field": "tasks.status", "days": 3 },
+      "condition": [{ "operator": "in", "field": "tasks.status", "options": ["blocked"] }],
+      "action": { "kind": "notify", "recipient": "workspace_owner" },
+      "dueOffsetDays": 0,
+      "needs": "notifications"
+    },
+    {
+      "key": "stale_in_progress",
+      "trigger": { "kind": "unchanged_for", "field": "tasks.status", "days": 5 },
+      "condition": [{ "operator": "in", "field": "tasks.status", "options": ["in_progress"] }],
+      "action": { "kind": "notify", "recipient": "record_owner" },
+      "dueOffsetDays": 0,
+      "needs": "rules"
+    },
+    { "key": "recurring_due", "trigger": { "kind": "date_reached", "field": "recurring.next_due", "offsetDays": 0 }, "action": { "kind": "create_task", "taskKind": "chore", "assignee": "record_owner", "about": "recurring" }, "dueOffsetDays": 0, "needs": "rules" },
+    { "key": "task_from_git", "trigger": { "kind": "webhook_received", "source": "git" }, "action": { "kind": "create_records", "lists": ["tasks"] }, "dueOffsetDays": 0, "needs": "incomingWebhooks" },
+    { "key": "request_form", "trigger": { "kind": "form_submitted", "form": "request" }, "action": { "kind": "create_records", "lists": ["tasks", "requesters"] }, "dueOffsetDays": 2, "needs": "forms" }
+  ],
+  "acceptanceChecks": [
+    { "key": "status_field", "kind": "field_exists", "ref": "tasks.status" },
+    { "key": "due_field", "kind": "field_exists", "ref": "tasks.due" },
+    { "key": "tasks_board_view", "kind": "view_exists", "ref": "tasks_board" }
+  ],
+  "sources": [
+    { "url": "https://www.browserstack.com/guide/jira-automation-rules", "checkedOn": "2026-11-12" },
+    { "url": "https://www.notion.com/help/guides/getting-started-with-projects-and-tasks", "checkedOn": "2026-11-12" },
+    { "url": "https://www.airtable.com/templates/featured/expOzMycWirMsUOTL/bug-tracker", "checkedOn": "2026-11-12" },
+    { "url": "https://www.smartsheet.com/content/issue-tracking-templates", "checkedOn": "2026-11-12" },
+    { "url": "https://linear.app/docs/conceptual-model", "checkedOn": "2026-11-12" },
+    { "url": "https://www.granola.ai/blog/how-to-run-a-weekly-team-meeting", "checkedOn": "2026-11-12" },
+    { "url": "https://monday.com/blog/pt/gestao-de-projetos-pt/quadro-kanban-tudo-o-que-voce-precisa-saber/", "checkedOn": "2026-11-12" },
+    { "url": "https://clickup.com/nl/blog/3892/software-voor-taakbeheer", "checkedOn": "2026-11-12" },
+    { "url": "https://support.atlassian.com/trello/docs/butler-quotas-and-limits/", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "own", "de": "own", "fr": "own", "it": "own", "es": "own", "pt": "own", "pl": "own", "nl": "own" },
+  "publishWave": { "en": "wave2", "de": "wave2", "fr": "wave2", "it": "wave2", "es": "wave2", "pt": "wave2", "pl": "wave2", "nl": "wave2" }
+}

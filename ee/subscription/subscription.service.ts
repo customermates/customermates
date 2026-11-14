@@ -45,7 +45,12 @@ const MAX_SUBSCRIPTION_PAGES = 10;
 
 export type LemonSqueezySubscription = { data: z.infer<typeof ProviderSubscriptionSchema> };
 
-export type SyncedWorkspace = { companyId: string; plan: SubscriptionPlan; lemonSqueezyId: string | null };
+export type SyncedWorkspace = {
+  companyId: string;
+  plan: SubscriptionPlan;
+  lemonSqueezyId: string | null;
+  status?: SubscriptionStatus;
+};
 
 export class SubscriptionService {
   private isConfigured = false;
@@ -135,7 +140,13 @@ export class SubscriptionService {
   async syncSubscription(
     workspace: SyncedWorkspace,
     subscription: LemonSqueezySubscription,
-  ): Promise<{ companyId: string; changedPlan: SubscriptionPlan | null } | null> {
+  ): Promise<{
+    companyId: string;
+    changedPlan: SubscriptionPlan | null;
+    active: boolean;
+    becameActive: boolean;
+    plan: SubscriptionPlan;
+  } | null> {
     const attributes = subscription.data.attributes;
     const status = this.mapLemonSqueezyStatusToSubscriptionStatus(attributes.status);
     const renewsAt = attributes.renews_at ? new Date(attributes.renews_at) : undefined;
@@ -167,6 +178,12 @@ export class SubscriptionService {
     return {
       companyId: workspace.companyId,
       changedPlan: syncedPlan !== null && syncedPlan !== workspace.plan ? syncedPlan : null,
+      active: status === SubscriptionStatus.active,
+      becameActive:
+        status === SubscriptionStatus.active &&
+        workspace.status !== undefined &&
+        workspace.status !== SubscriptionStatus.active,
+      plan: syncedPlan ?? workspace.plan,
     };
   }
 

@@ -35,13 +35,15 @@ type Props<E extends HasId> = {
   onRowClick?: (item: E) => void;
   rowActions?: (item: E) => ReactNode;
   onRowHref?: (item: E) => string | undefined;
-  columnStyle?: (columnId: string) => DataTableColumnStyle;
+  columnStyle?: (columnId: string) => DataTableColumnStyle | undefined;
   rowFocusKey?: (item: E) => string | undefined;
   totals?: RecordGroupSummaryResult[];
   footer?: ReactNode;
 };
 
-export type DataTableColumnStyle = { align?: "end"; emphasis?: boolean };
+export type DataTableColumnStyle = { align?: "end"; emphasis?: boolean; flexible?: boolean };
+
+const FLEXIBLE_COLUMN_MIN_WIDTH = 160;
 
 const fixedWidthStyle = (width: number) => ({
   width,
@@ -261,6 +263,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                           style && !style.emphasis && !isNameCell && "text-muted-foreground",
                           style?.align === "end" &&
                             "text-right [&_[data-edit-target]]:justify-end [&_[data-inline-edit-space]]:justify-end",
+                          style?.flexible && "w-full max-w-0",
                         )
                 }
                 data-align={style?.align}
@@ -283,6 +286,9 @@ export const DataTable = observer(function DataTable<E extends HasId>({
 
   const rowsById = new Map(table.getRowModel().rows.map((row) => [row.original.id, row]));
   const leafColumnCount = table.getVisibleLeafColumns().length;
+  const lastResizableColumnId = table
+    .getVisibleLeafColumns()
+    .findLast((column) => column.getCanResize() && column.id !== "__select" && column.id !== "__actions")?.id;
   const groups = visibleGroups(store.groupingResult);
 
   const overflow = store.groupingResult?.overflow;
@@ -311,6 +317,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                   className={cn(
                     "relative",
                     columnStyle?.(columnId)?.align === "end" && "text-right [&_button]:ml-auto",
+                    columnStyle?.(columnId)?.flexible && "w-full",
                     canResize && "group/resize-header",
                     canSort && "cursor-pointer select-none",
                     columnId === "__select" && "w-10",
@@ -320,7 +327,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                     liveWidth != null
                       ? fixedWidthStyle(liveWidth)
                       : canResize
-                        ? { minWidth: MIN_COLUMN_WIDTH }
+                        ? { minWidth: columnStyle?.(columnId)?.flexible ? FLEXIBLE_COLUMN_MIN_WIDTH : MIN_COLUMN_WIDTH }
                         : undefined
                   }
                 >
@@ -366,6 +373,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
 
                   {canResize && (
                     <ColumnResizeHandle
+                      className={columnId === lastResizableColumnId ? "translate-x-0" : undefined}
                       columnId={columnId}
                       label={t("DataView.resizeColumn", { column: accessibleColumnLabel })}
                       measure={(handle) => handle.closest("th")?.getBoundingClientRect().width}

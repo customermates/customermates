@@ -35,6 +35,7 @@ import { eventVia, type EventVia } from "@/features/event/event-via";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
+import { isCompanySignup, type NewWorkspaceSignup } from "@/features/acquisition/new-workspace-signup";
 import { getRequestAppLocale } from "@/i18n/request-app-locale";
 
 type AuthUser = {
@@ -318,6 +319,8 @@ export class AuthService {
     provider: "google" | "microsoft";
     callbackURL?: string;
     errorCallbackURL?: string;
+    signupLastPage?: string | null;
+    signupCampaign?: string | null;
   }) {
     const requestHeaders = await headers();
     const requestOrigin = requestHeaders.get("origin") ?? env.BASE_URL;
@@ -334,6 +337,14 @@ export class AuthService {
         provider: args.provider,
         callbackURL: args.callbackURL ?? "/",
         errorCallbackURL: args.errorCallbackURL ?? "/auth/signin",
+        ...(args.signupLastPage || args.signupCampaign
+          ? {
+              additionalData: {
+                ...(args.signupLastPage ? { signupLastPage: args.signupLastPage } : {}),
+                ...(args.signupCampaign ? { signupCampaign: args.signupCampaign } : {}),
+              },
+            }
+          : {}),
       },
     });
 
@@ -345,16 +356,24 @@ export class AuthService {
     (await cookies()).delete(SESSION_HINT_COOKIE_NAME);
   }
 
-  async sendNewUserNotificationEmail(args: { email: string; name: string; provider?: string }): Promise<void> {
+  async sendNewUserNotificationEmail(args: {
+    email: string;
+    name: string;
+    provider?: string;
+    signup?: NewWorkspaceSignup;
+  }): Promise<void> {
+    const company = args.signup ? isCompanySignup(args.signup) : false;
     await this.emailService.send({
       to: env.RESEND_OPERATOR_EMAIL,
-      subject: "New User Registration",
+      subject: company ? "New Company Signup" : "New User Registration",
       react: React.createElement(NewUserNotification, {
         email: args.email,
         layoutCopy: DEFAULT_EMAIL_LAYOUT_COPY,
         locale: DEFAULT_LOCALE,
         name: args.name,
         provider: args.provider,
+        signup: args.signup,
+        company,
       }),
     });
   }

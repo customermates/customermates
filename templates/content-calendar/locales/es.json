@@ -1,0 +1,162 @@
+{
+  "locale": "es",
+  "name": "Calendario editorial",
+  "summary": "Una fila por pieza con estado, responsable, revisor y fecha de publicación, más campañas, fechas clave y una reunión editorial semanal.",
+  "description": "Un calendario editorial para blog, newsletter, redes sociales y vídeo: siete estados de la idea a publicado, un calendario de publicación, un pilar de contenido por pieza, una comprobación de la identificación de la publicidad en el contenido pagado o regalado y un repaso de resultados a los 30 días. Planifica y hace seguimiento, pero no publica.",
+  "lists": {
+    "people": { "label": "Persona", "pluralLabel": "Personas", "description": "Autores, editores, revisores, aprobadores e invitados." },
+    "pieces": { "label": "Pieza", "pluralLabel": "Piezas", "description": "Una pieza de contenido de la idea a la publicación." },
+    "campaigns": { "label": "Campaña", "pluralLabel": "Campañas", "description": "Un tema que agrupa varias piezas." },
+    "key_dates": { "label": "Fecha clave", "pluralLabel": "Fechas clave", "description": "Festivos, eventos y lanzamientos en torno a los que planificar." }
+  },
+  "fields": {
+    "pieces.stage": {
+      "label": "Estado",
+      "options": { "idea": "Idea", "drafting": "Redacción", "in_review": "En revisión", "approved": "Aprobado", "scheduled": "Programado", "published": "Publicado", "killed": "Descartado" }
+    },
+    "campaigns.status": {
+      "label": "Estado",
+      "options": { "planned": "Planificada", "running": "En marcha", "done": "Terminada", "dropped": "Abandonada" }
+    },
+    "people.person_role": {
+      "label": "Función",
+      "options": { "author": "Autor", "editor": "Editor", "reviewer": "Revisor", "approver": "Aprobador", "client_contact": "Contacto del cliente", "guest": "Invitado o entrevistado" }
+    },
+    "people.profile_url": { "label": "Enlace del perfil" },
+    "pieces.owner": { "label": "Responsable" },
+    "pieces.reviewer": { "label": "Revisor" },
+    "pieces.format": {
+      "label": "Formato",
+      "options": {
+        "blog_post": "Artículo de blog",
+        "newsletter": "Newsletter",
+        "short_video": "Vídeo corto",
+        "long_video": "Vídeo largo",
+        "carousel": "Carrusel",
+        "image_post": "Publicación con imagen",
+        "text_post": "Publicación de texto",
+        "podcast": "Episodio de pódcast",
+        "webinar": "Webinar",
+        "case_study": "Caso de éxito"
+      }
+    },
+    "pieces.pillar": {
+      "label": "Pilar de contenido",
+      "options": { "educate": "Educar", "prove": "Demostrar", "product": "Producto", "community": "Comunidad", "behind_the_scenes": "Entre bastidores" }
+    },
+    "pieces.channels": {
+      "label": "Canales",
+      "options": {
+        "blog": "Blog",
+        "newsletter": "Newsletter",
+        "linkedin": "LinkedIn",
+        "instagram": "Instagram",
+        "facebook": "Facebook",
+        "tiktok": "TikTok",
+        "youtube": "YouTube",
+        "x": "X",
+        "podcast": "Pódcast",
+        "other": "Otro"
+      }
+    },
+    "pieces.brief_url": { "label": "Enlace del briefing" },
+    "pieces.draft_url": { "label": "Enlace del borrador" },
+    "pieces.target_keyword": { "label": "Palabra clave objetivo" },
+    "pieces.call_to_action": { "label": "Llamada a la acción" },
+    "pieces.draft_due": { "label": "Borrador para el" },
+    "pieces.review_due": { "label": "Revisión para el" },
+    "pieces.publish_at": { "label": "Publicación el" },
+    "pieces.ad_disclosure": {
+      "label": "Identificación de la publicidad",
+      "options": { "none": "Ninguno", "paid_partnership": "Colaboración pagada o publicidad", "gifted_product": "Producto regalado", "affiliate_link": "Enlace de afiliado" }
+    },
+    "pieces.disclosure_checked": { "label": "Identificación comprobada" },
+    "pieces.published_url": { "label": "Enlace de la pieza publicada" },
+    "pieces.published_on": { "label": "Publicado el" },
+    "pieces.reach": { "label": "Alcance" },
+    "pieces.engagements": { "label": "Interacciones" },
+    "pieces.clicks": { "label": "Clics" },
+    "pieces.killed_reason": {
+      "label": "Motivo del descarte",
+      "options": { "off_topic": "Fuera de tema", "duplicate": "Duplicada", "no_owner": "Sin responsable", "stale": "Obsoleta", "replaced": "Sustituida", "client_declined": "Rechazada por el cliente" }
+    },
+    "campaigns.goal": { "label": "Objetivo" },
+    "campaigns.start_date": { "label": "Inicio" },
+    "campaigns.end_date": { "label": "Fin" },
+    "campaigns.budget": { "label": "Presupuesto" },
+    "campaigns.owner": { "label": "Responsable" },
+    "key_dates.date": { "label": "Fecha" },
+    "key_dates.date_type": {
+      "label": "Tipo",
+      "options": { "holiday": "Festivo", "industry_event": "Evento del sector", "product_launch": "Lanzamiento de producto", "awareness_day": "Día temático", "own_event": "Evento propio", "deadline": "Fecha límite" }
+    },
+    "key_dates.idea_note": { "label": "Idea de contenido" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "write_brief": "Escribir el briefing",
+        "draft": "Redacción",
+        "review": "Revisión",
+        "revise": "Corrección",
+        "approve": "Aprobación",
+        "schedule": "Programación",
+        "publish": "Publicación",
+        "measure": "Medición",
+        "plan": "Planificación",
+        "other": "Otro"
+      }
+    }
+  },
+  "relationships": {
+    "piece_campaign": { "sourceLabel": "Campaña", "targetLabel": "Piezas" },
+    "piece_author": { "sourceLabel": "Autor", "targetLabel": "Piezas" },
+    "action_piece": { "sourceLabel": "Pieza", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "pieces_all": { "name": "Todas las piezas" },
+    "pieces_board": { "name": "Piezas por estado" },
+    "in_review_pieces": { "name": "En revisión" },
+    "campaigns_all": { "name": "Todas las campañas" },
+    "key_dates_all": { "name": "Fechas clave" },
+    "people_all": { "name": "Todas las personas" }
+  },
+  "widgets": {
+    "publishing_calendar": { "title": "Calendario de publicación" },
+    "pieces_by_stage": { "title": "Piezas por estado" },
+    "open_pieces_by_owner": { "title": "Piezas abiertas por responsable" },
+    "pieces_by_pillar": { "title": "Piezas por pilar" },
+    "published_per_month": { "title": "Publicadas por mes" },
+    "reach_by_pillar": { "title": "Alcance por pilar" },
+    "key_dates_coming": { "title": "Próximas fechas clave" }
+  },
+  "knowledgePages": {
+    "content_pillars": { "title": "Pilares de contenido y reparto", "sections": ["Los pilares y el peso de cada uno", "Qué corresponde a cada pilar"] },
+    "editorial_rhythm": { "title": "Ritmo de publicación y reunión editorial semanal", "sections": ["Huecos por canal", "Publicado, en riesgo, bloqueado", "Estados y quién los cambia"] },
+    "review_and_approval": { "title": "Plazos de revisión y aprobación", "sections": ["Quién revisa y en cuántos días", "Aprobación del cliente cuando haga falta"] },
+    "disclosure_checklist": { "title": "Lista de identificación de publicidad y colaboraciones", "sections": ["Cuándo una publicación debe identificarse como publicidad", "Redacción y colocación", "Comprobación antes de publicar"] }
+  },
+  "rules": {
+    "review_task": { "title": "Crear una tarea de revisión cuando una pieza pasa a revisión" },
+    "schedule_task": { "title": "Crear una tarea de programación cuando una pieza se aprueba" },
+    "at_risk_before_publish": { "title": "Avisar de una pieza que sigue en borrador tres días antes de publicarse" },
+    "measure_after_30_days": { "title": "Crear un repaso de resultados cuando una pieza se publica" },
+    "stale_piece": { "title": "Revisar una pieza parada 14 días en redacción o revisión" },
+    "weekly_editorial_prep": { "title": "Preparar cada lunes la reunión editorial" },
+    "plan_for_key_date": { "title": "Planificar contenido tres semanas antes de una fecha clave" },
+    "idea_form_piece": { "title": "Crear una pieza a partir de una idea enviada por formulario" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada pieza tiene uno de los siete estados.",
+    "publish_field": "Cada pieza tiene fecha y hora de publicación.",
+    "calendar_widget": "El panel muestra el calendario de publicación."
+  },
+  "prompt": {
+    "intro": "Configura un calendario editorial en mi espacio de trabajo de Customermates: piezas con siete estados, un responsable, un revisor y una fecha de publicación, campañas, fechas clave, una comprobación de la identificación de la publicidad y una reunión editorial semanal.",
+    "questions": [
+      "¿Qué publicas, en qué canales y con qué frecuencia?",
+      "¿Quién escribe, quién revisa y quién aprueba? ¿Interviene un cliente?",
+      "¿Qué pilares de contenido usas y cuáles de los siete estados necesitas?",
+      "¿Qué herramienta publica el contenido? Se queda allí y aquí solo se guardan el enlace y la fecha."
+    ]
+  }
+}

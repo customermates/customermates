@@ -1,0 +1,129 @@
+{
+  "id": "tpl_applicant_tracking",
+  "version": 1,
+  "schemaVersion": 1,
+  "slug": "applicant-tracking",
+  "family": "recruiting",
+  "kind": "pipeline",
+  "jurisdictions": ["DE", "FR", "IT", "ES", "BR", "PL", "NL"],
+  "dashboardAudience": "team",
+  "modules": ["actions_core", "actions_dashboard"],
+  "requiresCapabilities": ["forms", "rules", "notifications"],
+  "pairedPages": {},
+  "lists": [
+    { "key": "applicants", "role": "people", "icon": "userPlus" },
+    { "key": "jobs", "icon": "briefcase" },
+    { "key": "applications", "icon": "clipboard" },
+    { "key": "scorecards", "icon": "star" }
+  ],
+  "stages": [
+    {
+      "field": "applications.stage",
+      "items": [
+        { "key": "new", "outcome": "open", "weight": 0 },
+        { "key": "screening", "outcome": "open", "weight": 0 },
+        { "key": "interview_1", "outcome": "open", "weight": 0 },
+        { "key": "interview_2", "outcome": "open", "weight": 0 },
+        { "key": "reference_check", "outcome": "open", "weight": 0 },
+        { "key": "offer", "outcome": "open", "weight": 0 },
+        { "key": "hired", "outcome": "won", "weight": 0 },
+        { "key": "rejected", "outcome": "lost", "weight": 0 },
+        { "key": "withdrawn", "outcome": "lost", "weight": 0 }
+      ]
+    },
+    {
+      "field": "jobs.status",
+      "items": [
+        { "key": "draft", "outcome": "open", "weight": 0 },
+        { "key": "open", "outcome": "open", "weight": 0 },
+        { "key": "on_hold", "outcome": "open", "weight": 0 },
+        { "key": "filled", "outcome": "won", "weight": 0 },
+        { "key": "cancelled", "outcome": "lost", "weight": 0 }
+      ]
+    }
+  ],
+  "fields": [
+    { "key": "applicants.source", "type": "select", "options": [{ "key": "careers_page" }, { "key": "job_board" }, { "key": "referral" }, { "key": "linkedin" }, { "key": "agency" }, { "key": "other" }] },
+    { "key": "applicants.location", "type": "text" },
+    { "key": "applicants.salary_expectation", "type": "currency" },
+    { "key": "applicants.pool_consent", "type": "boolean" },
+    { "key": "jobs.department", "type": "text" },
+    { "key": "jobs.hiring_manager", "type": "member" },
+    { "key": "jobs.pay_min", "type": "currency" },
+    { "key": "jobs.pay_max", "type": "currency" },
+    { "key": "jobs.apply_by", "type": "date" },
+    { "key": "applications.interview_at", "type": "dateTime" },
+    { "key": "applications.offer_decision_due", "type": "date" },
+    { "key": "applications.rejection_reason", "type": "select", "options": [{ "key": "skills" }, { "key": "experience" }, { "key": "salary_mismatch" }, { "key": "other_offer" }, { "key": "position_filled" }, { "key": "other" }] },
+    { "key": "applications.retain_until", "type": "date" },
+    { "key": "scorecards.interviewer", "type": "member" },
+    { "key": "scorecards.round", "type": "select", "options": [{ "key": "screening" }, { "key": "interview_1" }, { "key": "interview_2" }] },
+    { "key": "scorecards.rating", "type": "number" },
+    { "key": "scorecards.recommendation", "type": "select", "options": [{ "key": "strong_no", "color": "destructive" }, { "key": "no", "color": "warning" }, { "key": "yes", "color": "info" }, { "key": "strong_yes", "color": "success" }] },
+    {
+      "key": "actions.kind",
+      "type": "select",
+      "options": [{ "key": "acknowledge" }, { "key": "screen" }, { "key": "schedule_interview" }, { "key": "collect_scorecards" }, { "key": "chase_offer" }, { "key": "close_message" }, { "key": "retention_review" }, { "key": "other" }]
+    }
+  ],
+  "relationships": [
+    { "key": "application_applicant", "source": "applications", "target": "applicants", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "application_job", "source": "applications", "target": "jobs", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "scorecard_application", "source": "scorecards", "target": "applications", "sourceCardinality": "one", "targetCardinality": "many" },
+    { "key": "action_application", "source": "actions", "target": "applications", "sourceCardinality": "one", "targetCardinality": "many" }
+  ],
+  "views": [
+    { "key": "applications_all", "list": "applications", "default": true, "layout": "table", "sort": { "field": "applications.interview_at", "direction": "asc" }, "columns": ["applications.stage", "applications.interview_at", "applications.offer_decision_due", "applications.rejection_reason"] },
+    { "key": "applications_board", "list": "applications", "default": false, "layout": "board", "groupBy": "applications.stage" },
+    { "key": "jobs_all", "list": "jobs", "default": true, "layout": "table", "sort": { "field": "jobs.apply_by", "direction": "asc" }, "columns": ["jobs.status", "jobs.hiring_manager", "jobs.apply_by", "jobs.pay_min", "jobs.pay_max"] },
+    { "key": "applicants_all", "list": "applicants", "default": true, "layout": "table", "columns": ["applicants.source", "applicants.location", "applicants.pool_consent"] },
+    { "key": "scorecards_all", "list": "scorecards", "default": true, "layout": "table", "columns": ["scorecards.interviewer", "scorecards.round", "scorecards.rating", "scorecards.recommendation"] }
+  ],
+  "widgets": [
+    { "kind": "chart", "key": "applications_funnel", "list": "applications", "aggregation": "count", "groupBy": { "field": "applications.stage" }, "filters": [{ "operator": "in", "field": "applications.stage", "options": ["new", "screening", "interview_1", "interview_2", "reference_check", "offer", "hired"] }], "display": "funnelChart" },
+    { "kind": "chart", "key": "applicants_by_source", "list": "applicants", "aggregation": "count", "groupBy": { "field": "applicants.source" }, "display": "horizontalBarChart" },
+    { "kind": "calendar", "key": "interviews_coming", "list": "applications", "layout": "upcoming", "dateField": "applications.interview_at" },
+    { "kind": "chart", "key": "open_jobs", "list": "jobs", "aggregation": "count", "filters": [{ "operator": "in", "field": "jobs.status", "options": ["open"] }], "display": "number" },
+    { "kind": "chart", "key": "rejection_reasons", "list": "applications", "aggregation": "count", "groupBy": { "field": "applications.rejection_reason" }, "display": "horizontalBarChart" },
+    { "kind": "calendar", "key": "retention_coming", "list": "applications", "layout": "upcoming", "dateField": "applications.retain_until" }
+  ],
+  "knowledgePages": [
+    { "key": "hiring_process", "kind": "overview" },
+    { "key": "form_and_retention", "kind": "processes" },
+    { "key": "candidate_messages", "kind": "processes" }
+  ],
+  "followUpRules": [
+    { "key": "application_form_records", "trigger": { "kind": "form_submitted", "form": "application" }, "action": { "kind": "create_records", "lists": ["applicants", "applications"] }, "dueOffsetDays": 0, "needs": "forms" },
+    { "key": "acknowledge_application", "trigger": { "kind": "record_created", "list": "applications" }, "action": { "kind": "create_task", "taskKind": "acknowledge", "assignee": "record_owner", "about": "applications" }, "dueOffsetDays": 2, "needs": "rules" },
+    { "key": "collect_scorecards", "trigger": { "kind": "date_reached", "field": "applications.interview_at", "offsetDays": 0 }, "action": { "kind": "create_task", "taskKind": "collect_scorecards", "assignee": "record_owner", "about": "applications" }, "dueOffsetDays": 1, "needs": "rules" },
+    { "key": "scorecard_reminder", "trigger": { "kind": "date_reached", "field": "applications.interview_at", "offsetDays": 1 }, "action": { "kind": "notify", "recipient": "record_owner" }, "dueOffsetDays": 0, "needs": "notifications" },
+    { "key": "chase_offer", "trigger": { "kind": "field_changed", "field": "applications.stage", "to": "offer" }, "action": { "kind": "create_task", "taskKind": "chase_offer", "assignee": "record_owner", "about": "applications" }, "dueOffsetDays": 5, "needs": "rules" },
+    { "key": "rejection_retention", "trigger": { "kind": "field_changed", "field": "applications.stage", "to": "rejected" }, "action": { "kind": "set_dates", "dates": [{ "field": "applications.retain_until", "offsetDays": 180 }] }, "dueOffsetDays": 0, "needs": "rules", "variants": { "PL": { "action": { "kind": "set_dates", "dates": [{ "field": "applications.retain_until", "offsetDays": 30 }] } } } },
+    { "key": "job_filled_close", "trigger": { "kind": "field_changed", "field": "jobs.status", "to": "filled" }, "action": { "kind": "create_task", "taskKind": "close_message", "assignee": "record_owner", "about": "jobs" }, "dueOffsetDays": 1, "needs": "rules" },
+    { "key": "retention_review", "trigger": { "kind": "date_reached", "field": "applications.retain_until", "offsetDays": 0 }, "action": { "kind": "create_task", "taskKind": "retention_review", "assignee": "record_owner", "about": "applications" }, "dueOffsetDays": 0, "needs": "rules" }
+  ],
+  "acceptanceChecks": [
+    { "key": "stage_field", "kind": "field_exists", "ref": "applications.stage" },
+    { "key": "retain_until_field", "kind": "field_exists", "ref": "applications.retain_until" },
+    { "key": "applications_board_view", "kind": "view_exists", "ref": "applications_board" }
+  ],
+  "sources": [
+    { "url": "https://learn.g2.com/time-to-hire-metric", "checkedOn": "2026-11-12" },
+    { "url": "https://www.careerplug.com/blog/how-to-use-recruiting-metrics/", "checkedOn": "2026-11-12" },
+    { "url": "https://resources.workable.com/tutorial/gdpr-compliance-guide-recruiting", "checkedOn": "2026-11-12" },
+    { "url": "https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/employment/recruitment-and-selection/keeping-recruitment-records/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.cnil.fr/recrutement-et-donnees-personnelles-dans-les-tpepme-cinq-questions-incontournables-se-poser", "checkedOn": "2026-11-12" },
+    { "url": "https://www.dr-datenschutz.de/die-aufbewahrungsfristen-von-bewerberdaten/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.hrworks.de/lexikon/bewerbermanagement/", "checkedOn": "2026-11-12" },
+    { "url": "https://www.involve.me/de/blog/online-bewerbungsformular-erstellen", "checkedOn": "2026-11-12" },
+    { "url": "https://www.smartsheet.com/content/applicant-tracking-templates", "checkedOn": "2026-11-12" },
+    { "url": "https://www.airtable.com/templates/professional/expksc99BziBsZRgR/applicant-tracking-system", "checkedOn": "2026-11-12" },
+    { "url": "https://www.hubspot.com/resources/templates/recruitment-tracking-spreadsheet", "checkedOn": "2026-11-12" },
+    { "url": "https://uodo.gov.pl/file/1469", "checkedOn": "2026-11-12" },
+    { "url": "https://www.jazzhr.com/insights/best-free-ats", "checkedOn": "2026-11-12" }
+  ],
+  "reviewedAt": "2026-11-12",
+  "status": { "en": "draft", "de": "draft", "fr": "draft", "it": "draft", "es": "draft", "pt": "draft", "pl": "draft", "nl": "draft" },
+  "publicPage": { "en": "own", "de": "own", "fr": "own", "it": "none", "es": "own", "pt": "own", "pl": "own", "nl": "own" },
+  "publishWave": { "en": "wave2", "de": "wave2", "fr": "wave2", "es": "wave2", "pt": "wave2", "pl": "wave2", "nl": "wave2" }
+}

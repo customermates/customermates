@@ -11,6 +11,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import {
   ArrowUpRight,
+  CalendarPlus,
   SlidersHorizontal,
   ChevronLeft,
   ChevronRight,
@@ -211,15 +212,24 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
     },
     [stores],
   );
+  const canSchedule = root.appMode === "cloud" && options.personalAvailable && options.calendars.length > 0;
+  const scheduleAt = useCallback(
+    (date: CalendarDate, minutes: number | null, opener?: HTMLElement | null) => {
+      root.scheduleMeetingModalStore.start({ date, minutes, timeZone: config.timeZone }, opener);
+    },
+    [root, config.timeZone],
+  );
   const createAt = useCallback(
     (date: CalendarDate, minutes: number | null, opener?: HTMLElement | null, anchor?: DOMRect) => {
       const ids = creatableKey ? creatableKey.split(",") : [];
-      if (ids.length === 1) createIn(ids[0], date, minutes, opener);
-      else if (ids.length > 1)
+      if (ids.length === 0 && canSchedule) scheduleAt(date, minutes, opener);
+      else if (ids.length === 1 && !canSchedule) createIn(ids[0], date, minutes, opener);
+      else if (ids.length > 0)
         setCreating({ date, minutes, opener: opener ?? null, rect: anchor ?? opener?.getBoundingClientRect() ?? null });
     },
-    [creatableKey, createIn],
+    [creatableKey, createIn, canSchedule, scheduleAt],
   );
+  const creatable = Boolean(creatableKey) || canSchedule;
   const adapter = useMemo(
     () =>
       plannerCalendarAdapter({
@@ -232,9 +242,9 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
         refreshing,
         refresh,
         navigate: setAnchor,
-        create: creatableKey ? createAt : null,
+        create: creatable ? createAt : null,
       }),
-    [stores, colors, entries, anchor, windowMode, calendarWindow, refreshing, refresh, creatableKey, createAt],
+    [stores, colors, entries, anchor, windowMode, calendarWindow, refreshing, refresh, creatable, createAt],
   );
   const dateLabel = (date: string, full = false) =>
     format.date(
@@ -474,7 +484,7 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
               refreshing={refreshing}
               store={adapter}
               window={calendarWindow}
-              onCreate={creatableKey ? createAt : undefined}
+              onCreate={creatable ? createAt : undefined}
               onOpen={open}
             />
           </div>
@@ -689,6 +699,22 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
             </PopoverHeader>
 
             <div className="flex flex-col gap-0.5 p-1.5">
+              {canSchedule && (
+                <Button
+                  className="justify-start"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setCreating(null);
+                    scheduleAt(creating.date, creating.minutes, creating.opener);
+                  }}
+                >
+                  <CalendarPlus aria-hidden className="size-4" />
+
+                  <span className="truncate">{t("ScheduleMeeting.newMeeting")}</span>
+                </Button>
+              )}
+
               {config.sources
                 .filter((source) => creatableKey.split(",").includes(source.id))
                 .map((source) => (

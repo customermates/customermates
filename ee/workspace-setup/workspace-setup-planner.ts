@@ -15,6 +15,7 @@ import { z } from "zod";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 import { SOLUTION_TEMPLATES } from "@/core/solutions/solution-templates";
+import { templateSetupPlan } from "@/core/templates/template-setup-plan";
 import { setupAnchorFields } from "@/features/workspace-setup/setup-anchors";
 import { SETUP_PLAN_LIMITS } from "@/features/workspace-setup/setup-plan.schema";
 import { createSetupResolver } from "@/features/workspace-setup/setup-references";
@@ -91,6 +92,7 @@ export type SetupPlanInput = {
   sources: SetupCrawlSource[];
   website: boolean;
   sheet: LoadedSpreadsheet | null;
+  templateSlug?: string | null;
 };
 
 type PlanPart<T> = {
@@ -209,9 +211,26 @@ export class WorkspaceSetupPlanner extends UserAccessor {
     return { ok: true, plan: converted.plan };
   }
 
+  async fromTemplate(input: SetupPlanInput): Promise<SetupPlanOutcome | null> {
+    const plan = await this.templatePlan(input);
+    if (!plan) return null;
+    if ((await this.issues(input.setupId, plan, input.language)).length) return { ok: false, failure: "invalidPlan" };
+    return { ok: true, plan };
+  }
+
+  private templatePlan(input: SetupPlanInput): Promise<SetupPlan | null> {
+    return templateSetupPlan(input.templateSlug, { language: input.language, currency: input.currency });
+  }
+
+  private async referencePlan(input: SetupPlanInput): Promise<string[]> {
+    const chosen = await this.templatePlan(input);
+    if (chosen) return [`Reference template: ${encodePromptJson(chosen)}`];
+    const template = closestSetupSolution(input.answers);
+    return template ? [`Reference template: ${encodePromptJson(SOLUTION_TEMPLATES[template])}`] : [];
+  }
+
   private async context(input: SetupPlanInput) {
     const catalog = await setupInterviewCatalog();
-    const template = closestSetupSolution(input.answers);
     return [
       `Workspace language: ${setupLanguageName(input.language)}. Workspace currency: ${input.currency}.`,
       ...(input.answersLanguage && input.answersLanguage !== input.language
@@ -221,7 +240,7 @@ export class WorkspaceSetupPlanner extends UserAccessor {
       untrustedText(
         encodePromptJson({ answers: setupAnswerDigest(input.answers, catalog), followUps: input.followUps }),
       ),
-      ...(template ? [`Reference template: ${encodePromptJson(SOLUTION_TEMPLATES[template])}`] : []),
+      ...(await this.referencePlan(input)),
     ];
   }
 

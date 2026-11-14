@@ -1,0 +1,3974 @@
+{
+  "spec": {
+    "id": "tpl_supplier_questionnaire",
+    "version": 1,
+    "schemaVersion": 1,
+    "slug": "supplier-questionnaire",
+    "family": "operations",
+    "kind": "register",
+    "jurisdictions": [
+      "DE",
+      "FR",
+      "IT",
+      "ES",
+      "BR",
+      "PL",
+      "NL"
+    ],
+    "dashboardAudience": "team",
+    "requiresCapabilities": [
+      "forms",
+      "rules",
+      "notifications"
+    ],
+    "pairedPages": {},
+    "modules": [
+      "actions_core",
+      "actions_dashboard"
+    ],
+    "lists": [
+      {
+        "key": "contacts",
+        "role": "people",
+        "icon": "contact"
+      },
+      {
+        "key": "suppliers",
+        "icon": "factory"
+      },
+      {
+        "key": "questionnaires",
+        "icon": "clipboard"
+      },
+      {
+        "key": "documents",
+        "icon": "files"
+      },
+      {
+        "key": "actions",
+        "role": "tasks",
+        "icon": "check"
+      }
+    ],
+    "fields": [
+      {
+        "key": "contacts.contact_role",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "sales"
+          },
+          {
+            "key": "quality"
+          },
+          {
+            "key": "compliance"
+          },
+          {
+            "key": "finance"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "contacts.language",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "suppliers.risk_tier",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "low",
+            "color": "success"
+          },
+          {
+            "key": "moderate"
+          },
+          {
+            "key": "high",
+            "color": "warning"
+          },
+          {
+            "key": "critical",
+            "color": "destructive"
+          }
+        ]
+      },
+      {
+        "key": "suppliers.category",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "raw_materials"
+          },
+          {
+            "key": "components"
+          },
+          {
+            "key": "services"
+          },
+          {
+            "key": "subcontracting"
+          },
+          {
+            "key": "software_it"
+          },
+          {
+            "key": "logistics"
+          }
+        ]
+      },
+      {
+        "key": "suppliers.country",
+        "type": "text",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "suppliers.critical_supplier",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "suppliers.processes_personal_data",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "suppliers.review_owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "suppliers.qualified_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "suppliers.next_review",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "questionnaires.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "registration"
+          },
+          {
+            "key": "qualification"
+          },
+          {
+            "key": "re_evaluation"
+          },
+          {
+            "key": "regulatory_evidence"
+          }
+        ]
+      },
+      {
+        "key": "questionnaires.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "draft"
+          },
+          {
+            "key": "sent"
+          },
+          {
+            "key": "partial",
+            "color": "warning"
+          },
+          {
+            "key": "received",
+            "color": "success"
+          },
+          {
+            "key": "reviewed",
+            "color": "success"
+          }
+        ]
+      },
+      {
+        "key": "questionnaires.sent_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "questionnaires.due_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "questionnaires.received_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "questionnaires.score",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "questionnaires.decision",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "approve"
+          },
+          {
+            "key": "approve_with_conditions"
+          },
+          {
+            "key": "escalate"
+          },
+          {
+            "key": "reject"
+          }
+        ]
+      },
+      {
+        "key": "questionnaires.reviewer",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "questionnaires.form_link",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "documents.doc_type",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "quality_certificate"
+          },
+          {
+            "key": "environmental_certificate"
+          },
+          {
+            "key": "security_certificate"
+          },
+          {
+            "key": "insurance"
+          },
+          {
+            "key": "tax_clearance"
+          },
+          {
+            "key": "registration_extract"
+          },
+          {
+            "key": "data_processing_agreement"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "documents.requested_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "documents.received_on",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "documents.valid_until",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "documents.evidence_link",
+        "type": "url",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.kind",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "send_questionnaire"
+          },
+          {
+            "key": "chase_supplier"
+          },
+          {
+            "key": "review_answers"
+          },
+          {
+            "key": "request_document"
+          },
+          {
+            "key": "verify_document"
+          },
+          {
+            "key": "decide"
+          },
+          {
+            "key": "re_evaluate"
+          },
+          {
+            "key": "other"
+          }
+        ]
+      },
+      {
+        "key": "actions.status",
+        "type": "select",
+        "required": false,
+        "multiple": false,
+        "options": [
+          {
+            "key": "open"
+          },
+          {
+            "key": "waiting",
+            "color": "warning"
+          },
+          {
+            "key": "done",
+            "color": "success"
+          },
+          {
+            "key": "cancelled",
+            "color": "secondary"
+          }
+        ]
+      },
+      {
+        "key": "actions.due",
+        "type": "date",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.owner",
+        "type": "member",
+        "required": false,
+        "multiple": false,
+        "options": []
+      },
+      {
+        "key": "actions.outcome",
+        "type": "richText",
+        "required": false,
+        "multiple": false,
+        "options": []
+      }
+    ],
+    "stages": [
+      {
+        "field": "suppliers.status",
+        "items": [
+          {
+            "key": "candidate",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "questionnaire_sent",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "under_review",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "approved",
+            "outcome": "won",
+            "weight": 0
+          },
+          {
+            "key": "approved_with_conditions",
+            "outcome": "won",
+            "weight": 0
+          },
+          {
+            "key": "blocked",
+            "outcome": "lost",
+            "weight": 0
+          },
+          {
+            "key": "offboarded",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      },
+      {
+        "field": "documents.status",
+        "items": [
+          {
+            "key": "requested",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "received",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "under_review",
+            "outcome": "open",
+            "weight": 0
+          },
+          {
+            "key": "accepted",
+            "outcome": "won",
+            "weight": 0
+          },
+          {
+            "key": "rejected",
+            "outcome": "lost",
+            "weight": 0
+          },
+          {
+            "key": "expired",
+            "outcome": "lost",
+            "weight": 0
+          }
+        ]
+      }
+    ],
+    "calculations": [],
+    "relationships": [
+      {
+        "key": "contact_supplier",
+        "source": "contacts",
+        "target": "suppliers",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "questionnaire_supplier",
+        "source": "questionnaires",
+        "target": "suppliers",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "document_supplier",
+        "source": "documents",
+        "target": "suppliers",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      },
+      {
+        "key": "action_supplier",
+        "source": "actions",
+        "target": "suppliers",
+        "sourceCardinality": "one",
+        "targetCardinality": "many"
+      }
+    ],
+    "views": [
+      {
+        "key": "suppliers_all",
+        "list": "suppliers",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "suppliers.next_review",
+          "direction": "asc"
+        },
+        "columns": [
+          "suppliers.status",
+          "suppliers.risk_tier",
+          "suppliers.category",
+          "suppliers.review_owner",
+          "suppliers.next_review"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "suppliers_board",
+        "list": "suppliers",
+        "default": false,
+        "layout": "board",
+        "groupBy": "suppliers.status",
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "documents_all",
+        "list": "documents",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "documents.valid_until",
+          "direction": "asc"
+        },
+        "columns": [
+          "documents.doc_type",
+          "documents.status",
+          "documents.valid_until"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "expired_documents",
+        "list": "documents",
+        "default": false,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [],
+        "summaries": [],
+        "filters": [
+          {
+            "operator": "in",
+            "field": "documents.status",
+            "options": [
+              "expired",
+              "rejected"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "questionnaires_all",
+        "list": "questionnaires",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "questionnaires.due_on",
+          "direction": "asc"
+        },
+        "columns": [
+          "questionnaires.kind",
+          "questionnaires.status",
+          "questionnaires.due_on",
+          "questionnaires.decision"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "contacts_all",
+        "list": "contacts",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": null,
+        "columns": [
+          "contacts.contact_role",
+          "contacts.language"
+        ],
+        "summaries": [],
+        "filters": []
+      },
+      {
+        "key": "actions_all",
+        "list": "actions",
+        "default": true,
+        "layout": "table",
+        "groupBy": null,
+        "sort": {
+          "field": "actions.due",
+          "direction": "asc"
+        },
+        "columns": [
+          "actions.due",
+          "actions.status",
+          "actions.kind",
+          "actions.owner"
+        ],
+        "summaries": [],
+        "filters": []
+      }
+    ],
+    "widgets": [
+      {
+        "kind": "chart",
+        "key": "suppliers_by_status",
+        "list": "suppliers",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "suppliers.status"
+        },
+        "filters": [],
+        "display": "doughnutChart"
+      },
+      {
+        "kind": "chart",
+        "key": "suppliers_by_risk",
+        "list": "suppliers",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": {
+          "path": [],
+          "field": "suppliers.risk_tier"
+        },
+        "filters": [],
+        "display": "horizontalBarChart"
+      },
+      {
+        "kind": "calendar",
+        "key": "documents_expiring",
+        "list": "documents",
+        "layout": "upcoming",
+        "dateField": "documents.valid_until",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "documents.status",
+            "options": [
+              "accepted"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "questionnaires_open",
+        "list": "questionnaires",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "questionnaires.status",
+            "options": [
+              "sent",
+              "partial"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "calendar",
+        "key": "reviews_coming",
+        "list": "suppliers",
+        "layout": "upcoming",
+        "dateField": "suppliers.next_review",
+        "amountField": null,
+        "filters": []
+      },
+      {
+        "kind": "chart",
+        "key": "documents_expired",
+        "list": "documents",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "documents.status",
+            "options": [
+              "expired"
+            ]
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "calendar",
+        "key": "upcoming_actions",
+        "list": "actions",
+        "layout": "upcoming",
+        "dateField": "actions.due",
+        "amountField": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open",
+              "waiting"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "chart",
+        "key": "overdue_actions",
+        "list": "actions",
+        "aggregation": "count",
+        "valueField": null,
+        "groupBy": null,
+        "filters": [
+          {
+            "operator": "in",
+            "field": "actions.status",
+            "options": [
+              "open"
+            ]
+          },
+          {
+            "operator": "inLastDays",
+            "field": "actions.due",
+            "days": 3650
+          }
+        ],
+        "display": "number"
+      },
+      {
+        "kind": "activity",
+        "key": "activity_timeline"
+      }
+    ],
+    "knowledgePages": [
+      {
+        "key": "qualification_process",
+        "kind": "overview"
+      },
+      {
+        "key": "document_requirements",
+        "kind": "processes"
+      },
+      {
+        "key": "re_evaluation",
+        "kind": "processes"
+      }
+    ],
+    "followUpRules": [
+      {
+        "key": "chase_questionnaire",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "questionnaires.due_on",
+          "offsetDays": 0
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "questionnaires.status",
+            "options": [
+              "sent",
+              "partial"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "chase_supplier",
+          "assignee": "record_owner",
+          "about": "questionnaires"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "review_answers",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "questionnaires.status",
+          "to": "received"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "review_answers",
+          "assignee": "record_owner",
+          "about": "questionnaires"
+        },
+        "dueOffsetDays": 3,
+        "needs": "rules"
+      },
+      {
+        "key": "renew_document",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "documents.valid_until",
+          "offsetDays": -30
+        },
+        "condition": [
+          {
+            "operator": "in",
+            "field": "documents.status",
+            "options": [
+              "accepted"
+            ]
+          }
+        ],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "request_document",
+          "assignee": "record_owner",
+          "about": "documents"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "document_expiry_notice",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "documents.valid_until",
+          "offsetDays": 0
+        },
+        "condition": [],
+        "action": {
+          "kind": "notify",
+          "recipient": "record_owner"
+        },
+        "dueOffsetDays": 0,
+        "needs": "notifications"
+      },
+      {
+        "key": "re_evaluate_supplier",
+        "trigger": {
+          "kind": "date_reached",
+          "field": "suppliers.next_review",
+          "offsetDays": -14
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "re_evaluate",
+          "assignee": "record_owner",
+          "about": "suppliers"
+        },
+        "dueOffsetDays": 0,
+        "needs": "rules"
+      },
+      {
+        "key": "decide_after_review",
+        "trigger": {
+          "kind": "field_changed",
+          "field": "suppliers.status",
+          "to": "under_review"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_task",
+          "taskKind": "decide",
+          "assignee": "record_owner",
+          "about": "suppliers"
+        },
+        "dueOffsetDays": 5,
+        "needs": "today"
+      },
+      {
+        "key": "registration_form_records",
+        "trigger": {
+          "kind": "form_submitted",
+          "form": "supplier_registration"
+        },
+        "condition": [],
+        "action": {
+          "kind": "create_records",
+          "lists": [
+            "suppliers",
+            "contacts"
+          ]
+        },
+        "dueOffsetDays": 0,
+        "needs": "forms"
+      }
+    ],
+    "acceptanceChecks": [
+      {
+        "key": "status_field",
+        "kind": "field_exists",
+        "ref": "suppliers.status"
+      },
+      {
+        "key": "valid_until_field",
+        "kind": "field_exists",
+        "ref": "documents.valid_until"
+      },
+      {
+        "key": "suppliers_board_view",
+        "kind": "view_exists",
+        "ref": "suppliers_board"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://www.cybersecurity360.it/legal/privacy-dati-personali/gestione-fornitori-la-fase-di-qualifica-dinamica-per-la-conformita-al-decreto-nis-2-e-al-gdpr/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://riskledger.com/resources/vendor-questionnaire",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.haufe-akademie.de/blog/glossar/lieferantenbewertung/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://asana.com/de/resources/supplier-evaluation",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://nimbi.com.br/3-perigos-de-nao-se-fazer-homologacao-de-fornecedores",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://advisera.com/9001academy/it/documentation/elenco-dei-fornitori-qualificati/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://vinciworks.com/blog/eudr-delayed-again-what-changed-what-is-now-fixed-and-what-businesses-should-do-in-2026/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.taylorwessing.com/de/insights-and-events/insights/2026/01/lksg",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://www.lecoindesentrepreneurs.fr/sous-traitance-verifications-du-donneur-dordre/",
+        "checkedOn": "2026-11-12"
+      },
+      {
+        "url": "https://pagecrawl.io/blog/vendor-risk-assessment-template",
+        "checkedOn": "2026-11-12"
+      }
+    ],
+    "reviewedAt": "2026-11-12",
+    "status": {
+      "en": "draft",
+      "de": "draft",
+      "fr": "draft",
+      "it": "draft",
+      "es": "draft",
+      "pt": "draft",
+      "pl": "draft",
+      "nl": "draft"
+    },
+    "publicPage": {
+      "en": "own",
+      "de": "own",
+      "fr": "own",
+      "it": "own",
+      "es": "own",
+      "pt": "own",
+      "pl": "own",
+      "nl": "own"
+    },
+    "publishWave": {
+      "en": "wave2",
+      "de": "wave2",
+      "fr": "wave2",
+      "it": "wave2",
+      "es": "wave2",
+      "pt": "wave2",
+      "pl": "wave2",
+      "nl": "wave2"
+    }
+  },
+  "text": {
+    "de": {
+      "locale": "de",
+      "name": "Lieferantenfragebogen",
+      "summary": "Ein Lieferantenregister mit Selbstauskunft, Zertifikaten mit Ablaufdatum, Risikoklasse, Freigabeentscheidung und Termin für die nächste Bewertung.",
+      "description": "Lieferanten und Auftragnehmer an einem Ort qualifizieren: Fragebogen versenden, Zertifikate und Bescheinigungen mit ihrem Gültig-bis-Datum sammeln, jeden Lieferanten nach Risiko einstufen, die Entscheidung festhalten (freigeben, bedingt freigeben, eskalieren, ablehnen) und sehen, was als Nächstes abläuft. Die Vorlage koordiniert Nachweise. Sie entscheidet nicht über rechtliche Konformität, prüft keine Sanktionslisten oder Bonität und ersetzt weder Ihr Qualitätssystem noch Ihr ERP oder Ihr Dokumentenarchiv.",
+      "lists": {
+        "actions": {
+          "label": "Aufgabe",
+          "pluralLabel": "Aufgaben",
+          "description": "Ein terminierter nächster Schritt pro offenem Vorgang."
+        },
+        "contacts": {
+          "label": "Ansprechpartner",
+          "pluralLabel": "Ansprechpartner",
+          "description": "Personen bei deinen Lieferanten, die Fragebögen beantworten und Dokumente schicken."
+        },
+        "suppliers": {
+          "label": "Lieferant",
+          "pluralLabel": "Lieferanten",
+          "description": "Jeder Lieferant und Auftragnehmer, vom Kandidaten bis freigegeben oder gesperrt."
+        },
+        "questionnaires": {
+          "label": "Fragebogen",
+          "pluralLabel": "Fragebögen",
+          "description": "Ein Fragebogen an einen Lieferanten, mit Frist und Entscheidung."
+        },
+        "documents": {
+          "label": "Dokument",
+          "pluralLabel": "Dokumente",
+          "description": "Zertifikate, Bescheinigungen und Verträge mit ihrem Gültig-bis-Datum."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Offen",
+            "waiting": "Wartet",
+            "done": "Erledigt",
+            "cancelled": "Abgebrochen"
+          }
+        },
+        "actions.due": {
+          "label": "Fällig am",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Zuständig",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Ergebnis",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Funktion",
+          "options": {
+            "sales": "Vertrieb",
+            "quality": "Qualität",
+            "compliance": "Compliance",
+            "finance": "Finanzen",
+            "other": "Sonstige"
+          }
+        },
+        "contacts.language": {
+          "label": "Sprache",
+          "options": {}
+        },
+        "suppliers.status": {
+          "label": "Status",
+          "options": {
+            "candidate": "Kandidat",
+            "questionnaire_sent": "Fragebogen versendet",
+            "under_review": "In Prüfung",
+            "approved": "Freigegeben",
+            "approved_with_conditions": "Bedingt freigegeben",
+            "blocked": "Gesperrt",
+            "offboarded": "Ausgeschieden"
+          }
+        },
+        "suppliers.risk_tier": {
+          "label": "Risikoklasse",
+          "options": {
+            "low": "Niedrig",
+            "moderate": "Mittel",
+            "high": "Hoch",
+            "critical": "Kritisch"
+          }
+        },
+        "suppliers.category": {
+          "label": "Kategorie",
+          "options": {
+            "raw_materials": "Rohstoffe",
+            "components": "Bauteile",
+            "services": "Dienstleistungen",
+            "subcontracting": "Lohnfertigung",
+            "software_it": "Software und IT",
+            "logistics": "Logistik"
+          }
+        },
+        "suppliers.country": {
+          "label": "Land",
+          "options": {}
+        },
+        "suppliers.critical_supplier": {
+          "label": "Kritischer Lieferant",
+          "options": {}
+        },
+        "suppliers.processes_personal_data": {
+          "label": "Verarbeitet personenbezogene Daten",
+          "options": {}
+        },
+        "suppliers.review_owner": {
+          "label": "Verantwortlich für die Bewertung",
+          "options": {}
+        },
+        "suppliers.qualified_on": {
+          "label": "Qualifiziert am",
+          "options": {}
+        },
+        "suppliers.next_review": {
+          "label": "Nächste Bewertung",
+          "options": {}
+        },
+        "questionnaires.kind": {
+          "label": "Art",
+          "options": {
+            "registration": "Selbstauskunft",
+            "qualification": "Qualifizierung",
+            "re_evaluation": "Neubewertung",
+            "regulatory_evidence": "Nachweis zu Vorschriften"
+          }
+        },
+        "questionnaires.status": {
+          "label": "Status",
+          "options": {
+            "draft": "Entwurf",
+            "sent": "Versendet",
+            "partial": "Teilweise beantwortet",
+            "received": "Eingegangen",
+            "reviewed": "Geprüft"
+          }
+        },
+        "questionnaires.sent_on": {
+          "label": "Versendet am",
+          "options": {}
+        },
+        "questionnaires.due_on": {
+          "label": "Frist",
+          "options": {}
+        },
+        "questionnaires.received_on": {
+          "label": "Eingegangen am",
+          "options": {}
+        },
+        "questionnaires.score": {
+          "label": "Punktzahl",
+          "options": {}
+        },
+        "questionnaires.decision": {
+          "label": "Entscheidung",
+          "options": {
+            "approve": "Freigeben",
+            "approve_with_conditions": "Bedingt freigeben",
+            "escalate": "Eskalieren",
+            "reject": "Ablehnen"
+          }
+        },
+        "questionnaires.reviewer": {
+          "label": "Prüfer",
+          "options": {}
+        },
+        "questionnaires.form_link": {
+          "label": "Link zum Formular",
+          "options": {}
+        },
+        "documents.doc_type": {
+          "label": "Dokumentart",
+          "options": {
+            "quality_certificate": "Qualitätszertifikat",
+            "environmental_certificate": "Umweltzertifikat",
+            "security_certificate": "Sicherheitszertifikat",
+            "insurance": "Versicherungsnachweis",
+            "tax_clearance": "Unbedenklichkeitsbescheinigung",
+            "registration_extract": "Handelsregisterauszug",
+            "data_processing_agreement": "Auftragsverarbeitungsvertrag",
+            "other": "Sonstiges"
+          }
+        },
+        "documents.status": {
+          "label": "Status",
+          "options": {
+            "requested": "Angefordert",
+            "received": "Eingegangen",
+            "under_review": "In Prüfung",
+            "accepted": "Akzeptiert",
+            "rejected": "Abgelehnt",
+            "expired": "Abgelaufen"
+          }
+        },
+        "documents.requested_on": {
+          "label": "Angefordert am",
+          "options": {}
+        },
+        "documents.received_on": {
+          "label": "Eingegangen am",
+          "options": {}
+        },
+        "documents.valid_until": {
+          "label": "Gültig bis",
+          "options": {}
+        },
+        "documents.evidence_link": {
+          "label": "Link zur Datei",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Art",
+          "options": {
+            "send_questionnaire": "Fragebogen senden",
+            "chase_supplier": "Lieferanten erinnern",
+            "review_answers": "Antworten prüfen",
+            "request_document": "Dokument anfordern",
+            "verify_document": "Dokument prüfen",
+            "decide": "Entscheiden",
+            "re_evaluate": "Neu bewerten",
+            "other": "Sonstiges"
+          }
+        }
+      },
+      "relationships": {
+        "contact_supplier": {
+          "sourceLabel": "Lieferant",
+          "targetLabel": "Ansprechpartner"
+        },
+        "questionnaire_supplier": {
+          "sourceLabel": "Lieferant",
+          "targetLabel": "Fragebögen"
+        },
+        "document_supplier": {
+          "sourceLabel": "Lieferant",
+          "targetLabel": "Dokumente"
+        },
+        "action_supplier": {
+          "sourceLabel": "Lieferant",
+          "targetLabel": "Aufgaben"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle Aufgaben"
+        },
+        "suppliers_all": {
+          "name": "Alle Lieferanten"
+        },
+        "suppliers_board": {
+          "name": "Qualifizierungs-Board"
+        },
+        "documents_all": {
+          "name": "Alle Dokumente"
+        },
+        "expired_documents": {
+          "name": "Abgelaufen oder abgelehnt"
+        },
+        "questionnaires_all": {
+          "name": "Alle Fragebögen"
+        },
+        "contacts_all": {
+          "name": "Alle Ansprechpartner"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Anstehende Aufgaben"
+        },
+        "overdue_actions": {
+          "title": "Überfällige Aufgaben"
+        },
+        "activity_timeline": {
+          "title": "Letzte Aktivität"
+        },
+        "suppliers_by_status": {
+          "title": "Lieferanten nach Status"
+        },
+        "suppliers_by_risk": {
+          "title": "Lieferanten nach Risikoklasse"
+        },
+        "documents_expiring": {
+          "title": "Ablaufende Dokumente"
+        },
+        "questionnaires_open": {
+          "title": "Fragebögen ohne Antwort"
+        },
+        "reviews_coming": {
+          "title": "Anstehende Bewertungen"
+        },
+        "documents_expired": {
+          "title": "Abgelaufene Dokumente"
+        }
+      },
+      "knowledgePages": {
+        "qualification_process": {
+          "title": "Ablauf der Lieferantenqualifizierung",
+          "sections": [
+            "Bedarf, Kriterien und wer freigibt",
+            "Fragebogen, Dokumente, Entscheidung"
+          ]
+        },
+        "document_requirements": {
+          "title": "Zertifikate und Bescheinigungen, die wir verlangen",
+          "sections": [
+            "Nach Kategorie und Risikoklasse",
+            "Wie lange jedes Dokument gilt"
+          ]
+        },
+        "re_evaluation": {
+          "title": "Turnus der Lieferantenbewertung",
+          "sections": [
+            "Bewertungstermine nach Risikoklasse",
+            "Anlässe für eine vorzeitige Bewertung"
+          ]
+        }
+      },
+      "rules": {
+        "chase_questionnaire": {
+          "title": "Lieferanten erinnern, wenn die Frist eines Fragebogens verstrichen ist",
+          "description": ""
+        },
+        "review_answers": {
+          "title": "Antworten 3 Tage nach Eingang des Fragebogens prüfen",
+          "description": ""
+        },
+        "renew_document": {
+          "title": "Erneuertes Dokument 30 Tage vor Ablauf anfordern",
+          "description": ""
+        },
+        "document_expiry_notice": {
+          "title": "Zuständige informieren, wenn ein Dokument abläuft",
+          "description": ""
+        },
+        "re_evaluate_supplier": {
+          "title": "Neubewertung 14 Tage vor dem nächsten Bewertungstermin starten",
+          "description": ""
+        },
+        "decide_after_review": {
+          "title": "Innerhalb von 5 Tagen entscheiden, wenn ein Lieferant in Prüfung geht",
+          "description": ""
+        },
+        "registration_form_records": {
+          "title": "Lieferant und Ansprechpartner anlegen, wenn das Formular zur Selbstauskunft abgeschickt wird",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Jeder Lieferant hat einen Qualifizierungsstatus.",
+        "valid_until_field": "Jedes Dokument hält fest, bis wann es gültig ist.",
+        "suppliers_board_view": "Die Lieferanten öffnen sich als Board nach Status."
+      },
+      "prompt": {
+        "intro": "Richte in meinem Customermates-Workspace ein Lieferantenregister ein: Lieferanten mit Risikoklasse und Qualifizierungsstatus, Fragebögen mit Fristen und Entscheidung, Dokumente mit Gültig-bis-Datum und terminierte Folgeaufgaben.",
+        "questions": [
+          "Wie viele Lieferanten hast du, und wie teilst du sie nach Risiko ein?",
+          "Welche Zertifikate oder Bescheinigungen verlangst du, und wie lange ist jedes gültig?",
+          "Wer prüft die Antworten, und wer gibt einen Lieferanten frei?",
+          "Wie oft bewertest du einen Lieferanten neu? Dateien bleiben in deinem Dokumentensystem, hier steht nur ein Link."
+        ]
+      }
+    },
+    "en": {
+      "locale": "en",
+      "name": "Supplier questionnaire",
+      "summary": "A supplier register with a qualification questionnaire, certificates with expiry dates, a risk tier, an approval decision and a date for the next review.",
+      "description": "Qualify suppliers and contractors in one place: send a questionnaire, collect certificates and clearances with their valid-until dates, tier each supplier by risk, record the decision (approve, approve with conditions, escalate, reject) and see what expires next. It coordinates evidence. It does not decide legal compliance, screen sanctions or financial risk, or replace your quality system, ERP or document archive.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "One dated next step per open item."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "People at your suppliers who answer questionnaires and send documents."
+        },
+        "suppliers": {
+          "label": "Supplier",
+          "pluralLabel": "Suppliers",
+          "description": "Every supplier or contractor, from candidate to approved or blocked."
+        },
+        "questionnaires": {
+          "label": "Questionnaire",
+          "pluralLabel": "Questionnaires",
+          "description": "One questionnaire sent to one supplier, with its due date and decision."
+        },
+        "documents": {
+          "label": "Document",
+          "pluralLabel": "Documents",
+          "description": "Certificates, clearances and agreements with their valid-until dates."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "Waiting",
+            "done": "Done",
+            "cancelled": "Cancelled"
+          }
+        },
+        "actions.due": {
+          "label": "Due date",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Owner",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Outcome",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Role",
+          "options": {
+            "sales": "Sales",
+            "quality": "Quality",
+            "compliance": "Compliance",
+            "finance": "Finance",
+            "other": "Other"
+          }
+        },
+        "contacts.language": {
+          "label": "Language",
+          "options": {}
+        },
+        "suppliers.status": {
+          "label": "Status",
+          "options": {
+            "candidate": "Candidate",
+            "questionnaire_sent": "Questionnaire sent",
+            "under_review": "Under review",
+            "approved": "Approved",
+            "approved_with_conditions": "Approved with conditions",
+            "blocked": "Blocked",
+            "offboarded": "Offboarded"
+          }
+        },
+        "suppliers.risk_tier": {
+          "label": "Risk tier",
+          "options": {
+            "low": "Low",
+            "moderate": "Moderate",
+            "high": "High",
+            "critical": "Critical"
+          }
+        },
+        "suppliers.category": {
+          "label": "Category",
+          "options": {
+            "raw_materials": "Raw materials",
+            "components": "Components",
+            "services": "Services",
+            "subcontracting": "Subcontracting",
+            "software_it": "Software and IT",
+            "logistics": "Logistics"
+          }
+        },
+        "suppliers.country": {
+          "label": "Country",
+          "options": {}
+        },
+        "suppliers.critical_supplier": {
+          "label": "Critical supplier",
+          "options": {}
+        },
+        "suppliers.processes_personal_data": {
+          "label": "Processes personal data",
+          "options": {}
+        },
+        "suppliers.review_owner": {
+          "label": "Review owner",
+          "options": {}
+        },
+        "suppliers.qualified_on": {
+          "label": "Qualified on",
+          "options": {}
+        },
+        "suppliers.next_review": {
+          "label": "Next review",
+          "options": {}
+        },
+        "questionnaires.kind": {
+          "label": "Kind",
+          "options": {
+            "registration": "Registration",
+            "qualification": "Qualification",
+            "re_evaluation": "Re-evaluation",
+            "regulatory_evidence": "Regulatory evidence"
+          }
+        },
+        "questionnaires.status": {
+          "label": "Status",
+          "options": {
+            "draft": "Draft",
+            "sent": "Sent",
+            "partial": "Partly answered",
+            "received": "Received",
+            "reviewed": "Reviewed"
+          }
+        },
+        "questionnaires.sent_on": {
+          "label": "Sent on",
+          "options": {}
+        },
+        "questionnaires.due_on": {
+          "label": "Due on",
+          "options": {}
+        },
+        "questionnaires.received_on": {
+          "label": "Received on",
+          "options": {}
+        },
+        "questionnaires.score": {
+          "label": "Score",
+          "options": {}
+        },
+        "questionnaires.decision": {
+          "label": "Decision",
+          "options": {
+            "approve": "Approve",
+            "approve_with_conditions": "Approve with conditions",
+            "escalate": "Escalate",
+            "reject": "Reject"
+          }
+        },
+        "questionnaires.reviewer": {
+          "label": "Reviewer",
+          "options": {}
+        },
+        "questionnaires.form_link": {
+          "label": "Form link",
+          "options": {}
+        },
+        "documents.doc_type": {
+          "label": "Document type",
+          "options": {
+            "quality_certificate": "Quality certificate",
+            "environmental_certificate": "Environmental certificate",
+            "security_certificate": "Security certificate",
+            "insurance": "Insurance",
+            "tax_clearance": "Tax clearance",
+            "registration_extract": "Registration extract",
+            "data_processing_agreement": "Data processing agreement",
+            "other": "Other"
+          }
+        },
+        "documents.status": {
+          "label": "Status",
+          "options": {
+            "requested": "Requested",
+            "received": "Received",
+            "under_review": "Under review",
+            "accepted": "Accepted",
+            "rejected": "Rejected",
+            "expired": "Expired"
+          }
+        },
+        "documents.requested_on": {
+          "label": "Requested on",
+          "options": {}
+        },
+        "documents.received_on": {
+          "label": "Received on",
+          "options": {}
+        },
+        "documents.valid_until": {
+          "label": "Valid until",
+          "options": {}
+        },
+        "documents.evidence_link": {
+          "label": "Link to the file",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Kind",
+          "options": {
+            "send_questionnaire": "Send the questionnaire",
+            "chase_supplier": "Chase the supplier",
+            "review_answers": "Review the answers",
+            "request_document": "Request a document",
+            "verify_document": "Verify a document",
+            "decide": "Decide",
+            "re_evaluate": "Re-evaluate",
+            "other": "Other"
+          }
+        }
+      },
+      "relationships": {
+        "contact_supplier": {
+          "sourceLabel": "Supplier",
+          "targetLabel": "Contacts"
+        },
+        "questionnaire_supplier": {
+          "sourceLabel": "Supplier",
+          "targetLabel": "Questionnaires"
+        },
+        "document_supplier": {
+          "sourceLabel": "Supplier",
+          "targetLabel": "Documents"
+        },
+        "action_supplier": {
+          "sourceLabel": "Supplier",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "All actions"
+        },
+        "suppliers_all": {
+          "name": "All suppliers"
+        },
+        "suppliers_board": {
+          "name": "Qualification board"
+        },
+        "documents_all": {
+          "name": "All documents"
+        },
+        "expired_documents": {
+          "name": "Expired or rejected"
+        },
+        "questionnaires_all": {
+          "name": "All questionnaires"
+        },
+        "contacts_all": {
+          "name": "All contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Upcoming actions"
+        },
+        "overdue_actions": {
+          "title": "Overdue actions"
+        },
+        "activity_timeline": {
+          "title": "Recent activity"
+        },
+        "suppliers_by_status": {
+          "title": "Suppliers by status"
+        },
+        "suppliers_by_risk": {
+          "title": "Suppliers by risk tier"
+        },
+        "documents_expiring": {
+          "title": "Documents expiring"
+        },
+        "questionnaires_open": {
+          "title": "Questionnaires waiting for an answer"
+        },
+        "reviews_coming": {
+          "title": "Reviews coming up"
+        },
+        "documents_expired": {
+          "title": "Expired documents"
+        }
+      },
+      "knowledgePages": {
+        "qualification_process": {
+          "title": "Supplier qualification procedure",
+          "sections": [
+            "Need, criteria and who approves",
+            "Questionnaire, documents, decision"
+          ]
+        },
+        "document_requirements": {
+          "title": "Certificates and clearances we ask for",
+          "sections": [
+            "By category and risk tier",
+            "How long each is valid"
+          ]
+        },
+        "re_evaluation": {
+          "title": "Re-evaluation schedule",
+          "sections": [
+            "Review dates by risk tier",
+            "Events that trigger an early review"
+          ]
+        }
+      },
+      "rules": {
+        "chase_questionnaire": {
+          "title": "Chase the supplier when a questionnaire is past its due date",
+          "description": ""
+        },
+        "review_answers": {
+          "title": "Review the answers 3 days after a questionnaire is received",
+          "description": ""
+        },
+        "renew_document": {
+          "title": "Ask for a renewed document 30 days before it expires",
+          "description": ""
+        },
+        "document_expiry_notice": {
+          "title": "Notify the owner when a document expires",
+          "description": ""
+        },
+        "re_evaluate_supplier": {
+          "title": "Start a re-evaluation 14 days before the next review",
+          "description": ""
+        },
+        "decide_after_review": {
+          "title": "Decide within 5 days when a supplier goes under review",
+          "description": ""
+        },
+        "registration_form_records": {
+          "title": "Create the supplier and contact when the registration form is submitted",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Every supplier has a qualification status.",
+        "valid_until_field": "Every document records when it stops being valid.",
+        "suppliers_board_view": "The suppliers open as a board by status."
+      },
+      "prompt": {
+        "intro": "Set up a supplier register in my Customermates workspace: suppliers with a risk tier and a qualification status, questionnaires with due dates and a decision, documents with valid-until dates, and dated follow-ups.",
+        "questions": [
+          "How many suppliers do you have, and how do you split them by risk?",
+          "Which certificates or clearances do you ask for, and how long is each valid?",
+          "Who reviews the answers and who approves a supplier?",
+          "How often do you re-evaluate a supplier? Files stay in your document system and only a link is kept here."
+        ]
+      }
+    },
+    "es": {
+      "locale": "es",
+      "name": "Cuestionario de proveedores",
+      "summary": "Un registro de proveedores con cuestionario de homologación, documentos con fecha de vencimiento, nivel de riesgo, decisión de homologación y fecha de la próxima evaluación.",
+      "description": "Homologa proveedores y subcontratistas en un solo lugar: envía un cuestionario, reúne certificados y documentación con su fecha de validez, clasifica cada proveedor por nivel de riesgo, registra la decisión (homologar, homologar con condiciones, escalar, rechazar) y consulta qué vence primero. La plantilla coordina las evidencias. No decide el cumplimiento legal, no consulta sanciones ni riesgo financiero y no sustituye tu sistema de calidad, tu ERP ni tu archivo de documentos.",
+      "lists": {
+        "actions": {
+          "label": "Tarea",
+          "pluralLabel": "Tareas",
+          "description": "Un siguiente paso con fecha por cada asunto abierto."
+        },
+        "contacts": {
+          "label": "Contacto",
+          "pluralLabel": "Contactos",
+          "description": "Las personas de tus proveedores que responden los cuestionarios y envían documentos."
+        },
+        "suppliers": {
+          "label": "Proveedor",
+          "pluralLabel": "Proveedores",
+          "description": "Cada proveedor o subcontratista, de candidato a homologado o bloqueado."
+        },
+        "questionnaires": {
+          "label": "Cuestionario",
+          "pluralLabel": "Cuestionarios",
+          "description": "Un cuestionario enviado a un proveedor, con su fecha límite y su decisión."
+        },
+        "documents": {
+          "label": "Documento",
+          "pluralLabel": "Documentos",
+          "description": "Certificados, acreditaciones y contratos con su fecha de validez."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Estado",
+          "options": {
+            "open": "Abierta",
+            "waiting": "En espera",
+            "done": "Hecha",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Vencimiento",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Función",
+          "options": {
+            "sales": "Comercial",
+            "quality": "Calidad",
+            "compliance": "Cumplimiento",
+            "finance": "Finanzas",
+            "other": "Otro"
+          }
+        },
+        "contacts.language": {
+          "label": "Idioma",
+          "options": {}
+        },
+        "suppliers.status": {
+          "label": "Estado",
+          "options": {
+            "candidate": "Candidato",
+            "questionnaire_sent": "Cuestionario enviado",
+            "under_review": "En revisión",
+            "approved": "Homologado",
+            "approved_with_conditions": "Homologado con condiciones",
+            "blocked": "Bloqueado",
+            "offboarded": "Dado de baja"
+          }
+        },
+        "suppliers.risk_tier": {
+          "label": "Nivel de riesgo",
+          "options": {
+            "low": "Bajo",
+            "moderate": "Medio",
+            "high": "Alto",
+            "critical": "Crítico"
+          }
+        },
+        "suppliers.category": {
+          "label": "Categoría",
+          "options": {
+            "raw_materials": "Materias primas",
+            "components": "Componentes",
+            "services": "Servicios",
+            "subcontracting": "Subcontratación",
+            "software_it": "Software e informática",
+            "logistics": "Logística"
+          }
+        },
+        "suppliers.country": {
+          "label": "País",
+          "options": {}
+        },
+        "suppliers.critical_supplier": {
+          "label": "Proveedor crítico",
+          "options": {}
+        },
+        "suppliers.processes_personal_data": {
+          "label": "Trata datos personales",
+          "options": {}
+        },
+        "suppliers.review_owner": {
+          "label": "Responsable de la evaluación",
+          "options": {}
+        },
+        "suppliers.qualified_on": {
+          "label": "Homologado el",
+          "options": {}
+        },
+        "suppliers.next_review": {
+          "label": "Próxima evaluación",
+          "options": {}
+        },
+        "questionnaires.kind": {
+          "label": "Tipo",
+          "options": {
+            "registration": "Alta",
+            "qualification": "Homologación",
+            "re_evaluation": "Reevaluación",
+            "regulatory_evidence": "Evidencias normativas"
+          }
+        },
+        "questionnaires.status": {
+          "label": "Estado",
+          "options": {
+            "draft": "Borrador",
+            "sent": "Enviado",
+            "partial": "Respuesta parcial",
+            "received": "Recibido",
+            "reviewed": "Revisado"
+          }
+        },
+        "questionnaires.sent_on": {
+          "label": "Enviado el",
+          "options": {}
+        },
+        "questionnaires.due_on": {
+          "label": "Fecha límite",
+          "options": {}
+        },
+        "questionnaires.received_on": {
+          "label": "Recibido el",
+          "options": {}
+        },
+        "questionnaires.score": {
+          "label": "Puntuación",
+          "options": {}
+        },
+        "questionnaires.decision": {
+          "label": "Decisión",
+          "options": {
+            "approve": "Homologar",
+            "approve_with_conditions": "Homologar con condiciones",
+            "escalate": "Escalar",
+            "reject": "Rechazar"
+          }
+        },
+        "questionnaires.reviewer": {
+          "label": "Revisor",
+          "options": {}
+        },
+        "questionnaires.form_link": {
+          "label": "Enlace al formulario",
+          "options": {}
+        },
+        "documents.doc_type": {
+          "label": "Tipo de documento",
+          "options": {
+            "quality_certificate": "Certificado de calidad",
+            "environmental_certificate": "Certificado ambiental",
+            "security_certificate": "Certificado de seguridad",
+            "insurance": "Seguro",
+            "tax_clearance": "Certificado de estar al corriente (Hacienda y Seguridad Social)",
+            "registration_extract": "Nota simple del Registro Mercantil",
+            "data_processing_agreement": "Contrato de encargado del tratamiento",
+            "other": "Otro"
+          }
+        },
+        "documents.status": {
+          "label": "Estado",
+          "options": {
+            "requested": "Solicitado",
+            "received": "Recibido",
+            "under_review": "En revisión",
+            "accepted": "Aceptado",
+            "rejected": "Rechazado",
+            "expired": "Vencido"
+          }
+        },
+        "documents.requested_on": {
+          "label": "Solicitado el",
+          "options": {}
+        },
+        "documents.received_on": {
+          "label": "Recibido el",
+          "options": {}
+        },
+        "documents.valid_until": {
+          "label": "Válido hasta",
+          "options": {}
+        },
+        "documents.evidence_link": {
+          "label": "Enlace al archivo",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "send_questionnaire": "Enviar el cuestionario",
+            "chase_supplier": "Reclamar al proveedor",
+            "review_answers": "Revisar las respuestas",
+            "request_document": "Solicitar un documento",
+            "verify_document": "Verificar un documento",
+            "decide": "Decidir",
+            "re_evaluate": "Reevaluar",
+            "other": "Otro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_supplier": {
+          "sourceLabel": "Proveedor",
+          "targetLabel": "Contactos"
+        },
+        "questionnaire_supplier": {
+          "sourceLabel": "Proveedor",
+          "targetLabel": "Cuestionarios"
+        },
+        "document_supplier": {
+          "sourceLabel": "Proveedor",
+          "targetLabel": "Documentos"
+        },
+        "action_supplier": {
+          "sourceLabel": "Proveedor",
+          "targetLabel": "Tareas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas las tareas"
+        },
+        "suppliers_all": {
+          "name": "Todos los proveedores"
+        },
+        "suppliers_board": {
+          "name": "Tablero de homologación"
+        },
+        "documents_all": {
+          "name": "Todos los documentos"
+        },
+        "expired_documents": {
+          "name": "Vencidos o rechazados"
+        },
+        "questionnaires_all": {
+          "name": "Todos los cuestionarios"
+        },
+        "contacts_all": {
+          "name": "Todos los contactos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tareas"
+        },
+        "overdue_actions": {
+          "title": "Tareas vencidas"
+        },
+        "activity_timeline": {
+          "title": "Actividad reciente"
+        },
+        "suppliers_by_status": {
+          "title": "Proveedores por estado"
+        },
+        "suppliers_by_risk": {
+          "title": "Proveedores por nivel de riesgo"
+        },
+        "documents_expiring": {
+          "title": "Documentos por vencer"
+        },
+        "questionnaires_open": {
+          "title": "Cuestionarios pendientes de respuesta"
+        },
+        "reviews_coming": {
+          "title": "Evaluaciones próximas"
+        },
+        "documents_expired": {
+          "title": "Documentos vencidos"
+        }
+      },
+      "knowledgePages": {
+        "qualification_process": {
+          "title": "Procedimiento de homologación de proveedores",
+          "sections": [
+            "Necesidad, criterios y quién aprueba",
+            "Cuestionario, documentos, decisión"
+          ]
+        },
+        "document_requirements": {
+          "title": "Certificados y documentos que pedimos",
+          "sections": [
+            "Por categoría y nivel de riesgo",
+            "Cuánto tiempo vale cada uno"
+          ]
+        },
+        "re_evaluation": {
+          "title": "Calendario de reevaluación",
+          "sections": [
+            "Fechas de evaluación por nivel de riesgo",
+            "Hechos que adelantan la evaluación"
+          ]
+        }
+      },
+      "rules": {
+        "chase_questionnaire": {
+          "title": "Reclamar al proveedor cuando un cuestionario supera su fecha límite",
+          "description": ""
+        },
+        "review_answers": {
+          "title": "Revisar las respuestas 3 días después de recibir un cuestionario",
+          "description": ""
+        },
+        "renew_document": {
+          "title": "Pedir el documento renovado 30 días antes de que venza",
+          "description": ""
+        },
+        "document_expiry_notice": {
+          "title": "Avisar al responsable cuando un documento vence",
+          "description": ""
+        },
+        "re_evaluate_supplier": {
+          "title": "Iniciar una reevaluación 14 días antes de la próxima evaluación",
+          "description": ""
+        },
+        "decide_after_review": {
+          "title": "Decidir en 5 días cuando un proveedor pasa a revisión",
+          "description": ""
+        },
+        "registration_form_records": {
+          "title": "Crear el proveedor y el contacto cuando se envía el formulario de alta",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Cada proveedor tiene un estado de homologación.",
+        "valid_until_field": "Cada documento indica hasta cuándo es válido.",
+        "suppliers_board_view": "Los proveedores se abren como tablero por estado."
+      },
+      "prompt": {
+        "intro": "Configura en mi espacio de trabajo de Customermates un registro de proveedores: proveedores con nivel de riesgo y estado de homologación, cuestionarios con fechas límite y decisión, documentos con fecha de validez y seguimientos con fecha.",
+        "questions": [
+          "¿Cuántos proveedores tienes y cómo los divides por nivel de riesgo?",
+          "¿Qué certificados o documentos pides y cuánto tiempo es válido cada uno?",
+          "¿Quién revisa las respuestas y quién homologa a un proveedor?",
+          "¿Cada cuánto reevalúas a un proveedor? Los archivos se quedan en tu sistema de documentos y aquí solo se guarda un enlace."
+        ]
+      }
+    },
+    "fr": {
+      "locale": "fr",
+      "name": "Questionnaire fournisseurs",
+      "summary": "Un registre de fournisseurs avec questionnaire de qualification, documents et date de validité, niveau de risque, décision de référencement et date de la prochaine évaluation.",
+      "description": "Qualifiez fournisseurs et sous-traitants au même endroit : envoyez un questionnaire, collectez certificats et attestations avec leur date de validité, classez chaque fournisseur par niveau de risque, consignez la décision (référencer, référencer sous conditions, escalader, refuser) et voyez ce qui expire en premier. Il coordonne les justificatifs. Il ne décide pas de la conformité juridique, ne filtre ni les sanctions ni le risque financier et ne remplace ni votre système qualité, ni votre ERP, ni votre archive de documents.",
+      "lists": {
+        "actions": {
+          "label": "Action",
+          "pluralLabel": "Actions",
+          "description": "Une prochaine étape datée par dossier ouvert."
+        },
+        "contacts": {
+          "label": "Contact",
+          "pluralLabel": "Contacts",
+          "description": "Les personnes chez vos fournisseurs qui répondent aux questionnaires et envoient les documents."
+        },
+        "suppliers": {
+          "label": "Fournisseur",
+          "pluralLabel": "Fournisseurs",
+          "description": "Chaque fournisseur ou sous-traitant, de candidat à référencé ou bloqué."
+        },
+        "questionnaires": {
+          "label": "Questionnaire",
+          "pluralLabel": "Questionnaires",
+          "description": "Un questionnaire envoyé à un fournisseur, avec son échéance et sa décision."
+        },
+        "documents": {
+          "label": "Document",
+          "pluralLabel": "Documents",
+          "description": "Certificats, attestations et contrats avec leur date de validité."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Statut",
+          "options": {
+            "open": "Ouverte",
+            "waiting": "En attente",
+            "done": "Terminée",
+            "cancelled": "Annulée"
+          }
+        },
+        "actions.due": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsable",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Résultat",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Fonction",
+          "options": {
+            "sales": "Commercial",
+            "quality": "Qualité",
+            "compliance": "Conformité",
+            "finance": "Finance",
+            "other": "Autre"
+          }
+        },
+        "contacts.language": {
+          "label": "Langue",
+          "options": {}
+        },
+        "suppliers.status": {
+          "label": "Statut",
+          "options": {
+            "candidate": "Candidat",
+            "questionnaire_sent": "Questionnaire envoyé",
+            "under_review": "En revue",
+            "approved": "Référencé",
+            "approved_with_conditions": "Référencé sous conditions",
+            "blocked": "Bloqué",
+            "offboarded": "Déréférencé"
+          }
+        },
+        "suppliers.risk_tier": {
+          "label": "Niveau de risque",
+          "options": {
+            "low": "Faible",
+            "moderate": "Modéré",
+            "high": "Élevé",
+            "critical": "Critique"
+          }
+        },
+        "suppliers.category": {
+          "label": "Catégorie",
+          "options": {
+            "raw_materials": "Matières premières",
+            "components": "Composants",
+            "services": "Prestations",
+            "subcontracting": "Sous-traitance",
+            "software_it": "Logiciels et informatique",
+            "logistics": "Logistique"
+          }
+        },
+        "suppliers.country": {
+          "label": "Pays",
+          "options": {}
+        },
+        "suppliers.critical_supplier": {
+          "label": "Fournisseur critique",
+          "options": {}
+        },
+        "suppliers.processes_personal_data": {
+          "label": "Traite des données personnelles",
+          "options": {}
+        },
+        "suppliers.review_owner": {
+          "label": "Responsable de l’évaluation",
+          "options": {}
+        },
+        "suppliers.qualified_on": {
+          "label": "Qualifié le",
+          "options": {}
+        },
+        "suppliers.next_review": {
+          "label": "Prochaine évaluation",
+          "options": {}
+        },
+        "questionnaires.kind": {
+          "label": "Type",
+          "options": {
+            "registration": "Référencement",
+            "qualification": "Qualification",
+            "re_evaluation": "Réévaluation",
+            "regulatory_evidence": "Justificatifs réglementaires"
+          }
+        },
+        "questionnaires.status": {
+          "label": "Statut",
+          "options": {
+            "draft": "Brouillon",
+            "sent": "Envoyé",
+            "partial": "Réponse partielle",
+            "received": "Reçu",
+            "reviewed": "Examiné"
+          }
+        },
+        "questionnaires.sent_on": {
+          "label": "Envoyé le",
+          "options": {}
+        },
+        "questionnaires.due_on": {
+          "label": "Échéance",
+          "options": {}
+        },
+        "questionnaires.received_on": {
+          "label": "Reçu le",
+          "options": {}
+        },
+        "questionnaires.score": {
+          "label": "Note",
+          "options": {}
+        },
+        "questionnaires.decision": {
+          "label": "Décision",
+          "options": {
+            "approve": "Référencer",
+            "approve_with_conditions": "Référencer sous conditions",
+            "escalate": "Escalader",
+            "reject": "Refuser"
+          }
+        },
+        "questionnaires.reviewer": {
+          "label": "Évaluateur",
+          "options": {}
+        },
+        "questionnaires.form_link": {
+          "label": "Lien du formulaire",
+          "options": {}
+        },
+        "documents.doc_type": {
+          "label": "Type de document",
+          "options": {
+            "quality_certificate": "Certificat qualité",
+            "environmental_certificate": "Certificat environnemental",
+            "security_certificate": "Certificat de sécurité",
+            "insurance": "Attestation d’assurance",
+            "tax_clearance": "Attestation fiscale",
+            "registration_extract": "Extrait Kbis",
+            "data_processing_agreement": "Contrat de sous-traitance des données",
+            "other": "Autre"
+          }
+        },
+        "documents.status": {
+          "label": "Statut",
+          "options": {
+            "requested": "Demandé",
+            "received": "Reçu",
+            "under_review": "En revue",
+            "accepted": "Accepté",
+            "rejected": "Refusé",
+            "expired": "Expiré"
+          }
+        },
+        "documents.requested_on": {
+          "label": "Demandé le",
+          "options": {}
+        },
+        "documents.received_on": {
+          "label": "Reçu le",
+          "options": {}
+        },
+        "documents.valid_until": {
+          "label": "Valable jusqu’au",
+          "options": {}
+        },
+        "documents.evidence_link": {
+          "label": "Lien vers le fichier",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Type",
+          "options": {
+            "send_questionnaire": "Envoyer le questionnaire",
+            "chase_supplier": "Relancer le fournisseur",
+            "review_answers": "Examiner les réponses",
+            "request_document": "Demander un document",
+            "verify_document": "Vérifier un document",
+            "decide": "Décider",
+            "re_evaluate": "Réévaluer",
+            "other": "Autre"
+          }
+        }
+      },
+      "relationships": {
+        "contact_supplier": {
+          "sourceLabel": "Fournisseur",
+          "targetLabel": "Contacts"
+        },
+        "questionnaire_supplier": {
+          "sourceLabel": "Fournisseur",
+          "targetLabel": "Questionnaires"
+        },
+        "document_supplier": {
+          "sourceLabel": "Fournisseur",
+          "targetLabel": "Documents"
+        },
+        "action_supplier": {
+          "sourceLabel": "Fournisseur",
+          "targetLabel": "Actions"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Toutes les actions"
+        },
+        "suppliers_all": {
+          "name": "Tous les fournisseurs"
+        },
+        "suppliers_board": {
+          "name": "Board de qualification"
+        },
+        "documents_all": {
+          "name": "Tous les documents"
+        },
+        "expired_documents": {
+          "name": "Expirés ou refusés"
+        },
+        "questionnaires_all": {
+          "name": "Tous les questionnaires"
+        },
+        "contacts_all": {
+          "name": "Tous les contacts"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Actions à venir"
+        },
+        "overdue_actions": {
+          "title": "Actions en retard"
+        },
+        "activity_timeline": {
+          "title": "Activité récente"
+        },
+        "suppliers_by_status": {
+          "title": "Fournisseurs par statut"
+        },
+        "suppliers_by_risk": {
+          "title": "Fournisseurs par niveau de risque"
+        },
+        "documents_expiring": {
+          "title": "Documents qui expirent"
+        },
+        "questionnaires_open": {
+          "title": "Questionnaires en attente de réponse"
+        },
+        "reviews_coming": {
+          "title": "Évaluations à venir"
+        },
+        "documents_expired": {
+          "title": "Documents expirés"
+        }
+      },
+      "knowledgePages": {
+        "qualification_process": {
+          "title": "Procédure de qualification des fournisseurs",
+          "sections": [
+            "Besoin, critères et qui valide",
+            "Questionnaire, documents, décision"
+          ]
+        },
+        "document_requirements": {
+          "title": "Certificats et attestations demandés",
+          "sections": [
+            "Par catégorie et niveau de risque",
+            "Durée de validité de chacun"
+          ]
+        },
+        "re_evaluation": {
+          "title": "Calendrier de réévaluation",
+          "sections": [
+            "Dates d’évaluation par niveau de risque",
+            "Événements qui déclenchent une évaluation anticipée"
+          ]
+        }
+      },
+      "rules": {
+        "chase_questionnaire": {
+          "title": "Relancer le fournisseur quand l’échéance d’un questionnaire est dépassée",
+          "description": ""
+        },
+        "review_answers": {
+          "title": "Examiner les réponses 3 jours après la réception d’un questionnaire",
+          "description": ""
+        },
+        "renew_document": {
+          "title": "Demander un document renouvelé 30 jours avant son expiration",
+          "description": ""
+        },
+        "document_expiry_notice": {
+          "title": "Prévenir le responsable quand un document expire",
+          "description": ""
+        },
+        "re_evaluate_supplier": {
+          "title": "Lancer une réévaluation 14 jours avant la prochaine évaluation",
+          "description": ""
+        },
+        "decide_after_review": {
+          "title": "Décider sous 5 jours quand un fournisseur passe à « En revue »",
+          "description": ""
+        },
+        "registration_form_records": {
+          "title": "Créer le fournisseur et le contact quand le formulaire de référencement est envoyé",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Chaque fournisseur a un statut de qualification.",
+        "valid_until_field": "Chaque document indique jusqu’à quand il est valable.",
+        "suppliers_board_view": "Les fournisseurs s’ouvrent en board par statut."
+      },
+      "prompt": {
+        "intro": "Mets en place dans mon espace de travail Customermates un registre de fournisseurs : fournisseurs avec niveau de risque et statut de qualification, questionnaires avec échéances et décision, documents avec date de validité et relances datées.",
+        "questions": [
+          "Combien de fournisseurs avez-vous, et comment les répartissez-vous par niveau de risque ?",
+          "Quels certificats ou attestations demandez-vous, et quelle est la durée de validité de chacun ?",
+          "Qui examine les réponses et qui référence un fournisseur ?",
+          "À quelle fréquence réévaluez-vous un fournisseur ? Les fichiers restent dans votre système de documents, seul un lien est conservé ici."
+        ]
+      }
+    },
+    "it": {
+      "locale": "it",
+      "name": "Questionario fornitori",
+      "summary": "Un albo fornitori con questionario di qualifica, certificati con scadenza, livello di rischio, decisione di qualifica e data della prossima rivalutazione.",
+      "description": "Qualifica fornitori e appaltatori in un unico posto: invia un questionario, raccogli certificati e documentazione con la loro scadenza, classifica ogni fornitore per livello di rischio, registra la decisione (qualificare, qualificare con riserva, escalation, respingere) e vedi che cosa scade per primo. Il modello coordina le evidenze. Non decide la conformità normativa, non verifica sanzioni o rischio finanziario e non sostituisce il sistema qualità, il gestionale o l'archivio documentale.",
+      "lists": {
+        "actions": {
+          "label": "Attività",
+          "pluralLabel": "Attività",
+          "description": "Un prossimo passo con data per ogni pratica aperta."
+        },
+        "contacts": {
+          "label": "Referente",
+          "pluralLabel": "Referenti",
+          "description": "Le persone presso i fornitori che rispondono ai questionari e inviano i documenti."
+        },
+        "suppliers": {
+          "label": "Fornitore",
+          "pluralLabel": "Fornitori",
+          "description": "Ogni fornitore o appaltatore, da candidato a qualificato o sospeso."
+        },
+        "questionnaires": {
+          "label": "Questionario",
+          "pluralLabel": "Questionari",
+          "description": "Un questionario inviato a un fornitore, con scadenza e decisione."
+        },
+        "documents": {
+          "label": "Documento",
+          "pluralLabel": "Documenti",
+          "description": "Certificati, DURC e contratti con la loro data di scadenza."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Stato",
+          "options": {
+            "open": "Aperta",
+            "waiting": "In attesa",
+            "done": "Completata",
+            "cancelled": "Annullata"
+          }
+        },
+        "actions.due": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsabile",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Esito",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Ruolo",
+          "options": {
+            "sales": "Commerciale",
+            "quality": "Qualità",
+            "compliance": "Conformità",
+            "finance": "Amministrazione",
+            "other": "Altro"
+          }
+        },
+        "contacts.language": {
+          "label": "Lingua",
+          "options": {}
+        },
+        "suppliers.status": {
+          "label": "Stato",
+          "options": {
+            "candidate": "Candidato",
+            "questionnaire_sent": "Questionario inviato",
+            "under_review": "In valutazione",
+            "approved": "Qualificato",
+            "approved_with_conditions": "Qualificato con riserva",
+            "blocked": "Sospeso",
+            "offboarded": "Cancellato"
+          }
+        },
+        "suppliers.risk_tier": {
+          "label": "Livello di rischio",
+          "options": {
+            "low": "Basso",
+            "moderate": "Medio",
+            "high": "Alto",
+            "critical": "Critico"
+          }
+        },
+        "suppliers.category": {
+          "label": "Categoria",
+          "options": {
+            "raw_materials": "Materie prime",
+            "components": "Componenti",
+            "services": "Servizi",
+            "subcontracting": "Lavorazioni esterne",
+            "software_it": "Software e IT",
+            "logistics": "Logistica"
+          }
+        },
+        "suppliers.country": {
+          "label": "Paese",
+          "options": {}
+        },
+        "suppliers.critical_supplier": {
+          "label": "Fornitore critico",
+          "options": {}
+        },
+        "suppliers.processes_personal_data": {
+          "label": "Tratta dati personali",
+          "options": {}
+        },
+        "suppliers.review_owner": {
+          "label": "Responsabile della valutazione",
+          "options": {}
+        },
+        "suppliers.qualified_on": {
+          "label": "Qualificato il",
+          "options": {}
+        },
+        "suppliers.next_review": {
+          "label": "Prossima rivalutazione",
+          "options": {}
+        },
+        "questionnaires.kind": {
+          "label": "Tipo",
+          "options": {
+            "registration": "Registrazione",
+            "qualification": "Qualifica",
+            "re_evaluation": "Rivalutazione",
+            "regulatory_evidence": "Evidenze normative"
+          }
+        },
+        "questionnaires.status": {
+          "label": "Stato",
+          "options": {
+            "draft": "Bozza",
+            "sent": "Inviato",
+            "partial": "Risposta parziale",
+            "received": "Ricevuto",
+            "reviewed": "Esaminato"
+          }
+        },
+        "questionnaires.sent_on": {
+          "label": "Inviato il",
+          "options": {}
+        },
+        "questionnaires.due_on": {
+          "label": "Scadenza",
+          "options": {}
+        },
+        "questionnaires.received_on": {
+          "label": "Ricevuto il",
+          "options": {}
+        },
+        "questionnaires.score": {
+          "label": "Punteggio",
+          "options": {}
+        },
+        "questionnaires.decision": {
+          "label": "Decisione",
+          "options": {
+            "approve": "Qualificare",
+            "approve_with_conditions": "Qualificare con riserva",
+            "escalate": "Escalation",
+            "reject": "Respingere"
+          }
+        },
+        "questionnaires.reviewer": {
+          "label": "Valutatore",
+          "options": {}
+        },
+        "questionnaires.form_link": {
+          "label": "Link al modulo",
+          "options": {}
+        },
+        "documents.doc_type": {
+          "label": "Tipo di documento",
+          "options": {
+            "quality_certificate": "Certificato qualità",
+            "environmental_certificate": "Certificato ambientale",
+            "security_certificate": "Certificato di sicurezza",
+            "insurance": "Polizza assicurativa",
+            "tax_clearance": "DURC e regolarità fiscale",
+            "registration_extract": "Visura camerale",
+            "data_processing_agreement": "Nomina a responsabile del trattamento",
+            "other": "Altro"
+          }
+        },
+        "documents.status": {
+          "label": "Stato",
+          "options": {
+            "requested": "Richiesto",
+            "received": "Ricevuto",
+            "under_review": "In verifica",
+            "accepted": "Accettato",
+            "rejected": "Rifiutato",
+            "expired": "Scaduto"
+          }
+        },
+        "documents.requested_on": {
+          "label": "Richiesto il",
+          "options": {}
+        },
+        "documents.received_on": {
+          "label": "Ricevuto il",
+          "options": {}
+        },
+        "documents.valid_until": {
+          "label": "Valido fino al",
+          "options": {}
+        },
+        "documents.evidence_link": {
+          "label": "Link al file",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "send_questionnaire": "Inviare il questionario",
+            "chase_supplier": "Sollecitare il fornitore",
+            "review_answers": "Esaminare le risposte",
+            "request_document": "Richiedere un documento",
+            "verify_document": "Verificare un documento",
+            "decide": "Decidere",
+            "re_evaluate": "Rivalutare",
+            "other": "Altro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_supplier": {
+          "sourceLabel": "Fornitore",
+          "targetLabel": "Referenti"
+        },
+        "questionnaire_supplier": {
+          "sourceLabel": "Fornitore",
+          "targetLabel": "Questionari"
+        },
+        "document_supplier": {
+          "sourceLabel": "Fornitore",
+          "targetLabel": "Documenti"
+        },
+        "action_supplier": {
+          "sourceLabel": "Fornitore",
+          "targetLabel": "Attività"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Tutte le attività"
+        },
+        "suppliers_all": {
+          "name": "Tutti i fornitori"
+        },
+        "suppliers_board": {
+          "name": "Board di qualifica"
+        },
+        "documents_all": {
+          "name": "Tutti i documenti"
+        },
+        "expired_documents": {
+          "name": "Scaduti o rifiutati"
+        },
+        "questionnaires_all": {
+          "name": "Tutti i questionari"
+        },
+        "contacts_all": {
+          "name": "Tutti i referenti"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Attività in arrivo"
+        },
+        "overdue_actions": {
+          "title": "Attività scadute"
+        },
+        "activity_timeline": {
+          "title": "Attività recenti"
+        },
+        "suppliers_by_status": {
+          "title": "Fornitori per stato"
+        },
+        "suppliers_by_risk": {
+          "title": "Fornitori per livello di rischio"
+        },
+        "documents_expiring": {
+          "title": "Documenti in scadenza"
+        },
+        "questionnaires_open": {
+          "title": "Questionari in attesa di risposta"
+        },
+        "reviews_coming": {
+          "title": "Rivalutazioni in arrivo"
+        },
+        "documents_expired": {
+          "title": "Documenti scaduti"
+        }
+      },
+      "knowledgePages": {
+        "qualification_process": {
+          "title": "Procedura di qualifica dei fornitori",
+          "sections": [
+            "Esigenza, criteri e chi approva",
+            "Questionario, documenti, decisione"
+          ]
+        },
+        "document_requirements": {
+          "title": "Certificati e documenti che richiediamo",
+          "sections": [
+            "Per categoria e livello di rischio",
+            "Per quanto tempo vale ciascuno"
+          ]
+        },
+        "re_evaluation": {
+          "title": "Calendario delle rivalutazioni",
+          "sections": [
+            "Date di rivalutazione per livello di rischio",
+            "Eventi che anticipano la rivalutazione"
+          ]
+        }
+      },
+      "rules": {
+        "chase_questionnaire": {
+          "title": "Sollecitare il fornitore quando un questionario ha superato la scadenza",
+          "description": ""
+        },
+        "review_answers": {
+          "title": "Esaminare le risposte 3 giorni dopo il ricevimento di un questionario",
+          "description": ""
+        },
+        "renew_document": {
+          "title": "Chiedere il documento rinnovato 30 giorni prima della scadenza",
+          "description": ""
+        },
+        "document_expiry_notice": {
+          "title": "Avvisare il responsabile quando un documento scade",
+          "description": ""
+        },
+        "re_evaluate_supplier": {
+          "title": "Avviare una rivalutazione 14 giorni prima della prossima",
+          "description": ""
+        },
+        "decide_after_review": {
+          "title": "Decidere entro 5 giorni quando un fornitore passa a «In valutazione»",
+          "description": ""
+        },
+        "registration_form_records": {
+          "title": "Creare fornitore e referente quando il modulo di registrazione viene inviato",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Ogni fornitore ha uno stato di qualifica.",
+        "valid_until_field": "Ogni documento indica fino a quando è valido.",
+        "suppliers_board_view": "I fornitori si aprono come board per stato."
+      },
+      "prompt": {
+        "intro": "Imposta nel mio spazio di lavoro Customermates un albo fornitori: fornitori con livello di rischio e stato di qualifica, questionari con scadenze e decisione, documenti con data di scadenza e attività di follow-up con data.",
+        "questions": [
+          "Quanti fornitori hai e come li dividi per livello di rischio?",
+          "Quali certificati o documenti richiedi e quanto dura la validità di ciascuno?",
+          "Chi esamina le risposte e chi qualifica un fornitore?",
+          "Ogni quanto rivaluti un fornitore? I file restano nel tuo sistema documentale, qui si conserva solo un link."
+        ]
+      }
+    },
+    "nl": {
+      "locale": "nl",
+      "name": "Leveranciersvragenlijst",
+      "summary": "Een leveranciersregister met kwalificatievragenlijst, certificaten met vervaldatum, risiconiveau, goedkeuringsbeslissing en de datum van de volgende beoordeling.",
+      "description": "Kwalificeer leveranciers en onderaannemers op één plek: verstuur een vragenlijst, verzamel certificaten en verklaringen met hun geldigheidsdatum, deel elke leverancier in naar risico, leg de beslissing vast (goedkeuren, voorwaardelijk goedkeuren, escaleren, afwijzen) en zie wat als eerste verloopt. De sjabloon coördineert bewijs. Het oordeelt niet over naleving van wetgeving, screent geen sanctielijsten of financieel risico en vervangt je kwaliteitssysteem, ERP of documentarchief niet.",
+      "lists": {
+        "actions": {
+          "label": "Actie",
+          "pluralLabel": "Acties",
+          "description": "Eén volgende stap met datum per open dossier."
+        },
+        "contacts": {
+          "label": "Contactpersoon",
+          "pluralLabel": "Contactpersonen",
+          "description": "Mensen bij je leveranciers die vragenlijsten invullen en documenten sturen."
+        },
+        "suppliers": {
+          "label": "Leverancier",
+          "pluralLabel": "Leveranciers",
+          "description": "Elke leverancier of onderaannemer, van kandidaat tot goedgekeurd of geblokkeerd."
+        },
+        "questionnaires": {
+          "label": "Vragenlijst",
+          "pluralLabel": "Vragenlijsten",
+          "description": "Eén vragenlijst aan één leverancier, met deadline en beslissing."
+        },
+        "documents": {
+          "label": "Document",
+          "pluralLabel": "Documenten",
+          "description": "Certificaten, verklaringen en overeenkomsten met hun geldigheidsdatum."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Open",
+            "waiting": "In de wacht",
+            "done": "Klaar",
+            "cancelled": "Geannuleerd"
+          }
+        },
+        "actions.due": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Eigenaar",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultaat",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Functie",
+          "options": {
+            "sales": "Verkoop",
+            "quality": "Kwaliteit",
+            "compliance": "Compliance",
+            "finance": "Financiën",
+            "other": "Overig"
+          }
+        },
+        "contacts.language": {
+          "label": "Taal",
+          "options": {}
+        },
+        "suppliers.status": {
+          "label": "Status",
+          "options": {
+            "candidate": "Kandidaat",
+            "questionnaire_sent": "Vragenlijst verstuurd",
+            "under_review": "In beoordeling",
+            "approved": "Goedgekeurd",
+            "approved_with_conditions": "Voorwaardelijk goedgekeurd",
+            "blocked": "Geblokkeerd",
+            "offboarded": "Uitgefaseerd"
+          }
+        },
+        "suppliers.risk_tier": {
+          "label": "Risiconiveau",
+          "options": {
+            "low": "Laag",
+            "moderate": "Gemiddeld",
+            "high": "Hoog",
+            "critical": "Kritiek"
+          }
+        },
+        "suppliers.category": {
+          "label": "Categorie",
+          "options": {
+            "raw_materials": "Grondstoffen",
+            "components": "Componenten",
+            "services": "Diensten",
+            "subcontracting": "Onderaanneming",
+            "software_it": "Software en IT",
+            "logistics": "Logistiek"
+          }
+        },
+        "suppliers.country": {
+          "label": "Land",
+          "options": {}
+        },
+        "suppliers.critical_supplier": {
+          "label": "Kritieke leverancier",
+          "options": {}
+        },
+        "suppliers.processes_personal_data": {
+          "label": "Verwerkt persoonsgegevens",
+          "options": {}
+        },
+        "suppliers.review_owner": {
+          "label": "Verantwoordelijk voor de beoordeling",
+          "options": {}
+        },
+        "suppliers.qualified_on": {
+          "label": "Gekwalificeerd op",
+          "options": {}
+        },
+        "suppliers.next_review": {
+          "label": "Volgende beoordeling",
+          "options": {}
+        },
+        "questionnaires.kind": {
+          "label": "Soort",
+          "options": {
+            "registration": "Registratie",
+            "qualification": "Kwalificatie",
+            "re_evaluation": "Herbeoordeling",
+            "regulatory_evidence": "Bewijs voor regelgeving"
+          }
+        },
+        "questionnaires.status": {
+          "label": "Status",
+          "options": {
+            "draft": "Concept",
+            "sent": "Verstuurd",
+            "partial": "Gedeeltelijk beantwoord",
+            "received": "Ontvangen",
+            "reviewed": "Beoordeeld"
+          }
+        },
+        "questionnaires.sent_on": {
+          "label": "Verstuurd op",
+          "options": {}
+        },
+        "questionnaires.due_on": {
+          "label": "Deadline",
+          "options": {}
+        },
+        "questionnaires.received_on": {
+          "label": "Ontvangen op",
+          "options": {}
+        },
+        "questionnaires.score": {
+          "label": "Score",
+          "options": {}
+        },
+        "questionnaires.decision": {
+          "label": "Beslissing",
+          "options": {
+            "approve": "Goedkeuren",
+            "approve_with_conditions": "Voorwaardelijk goedkeuren",
+            "escalate": "Escaleren",
+            "reject": "Afwijzen"
+          }
+        },
+        "questionnaires.reviewer": {
+          "label": "Beoordelaar",
+          "options": {}
+        },
+        "questionnaires.form_link": {
+          "label": "Link naar het formulier",
+          "options": {}
+        },
+        "documents.doc_type": {
+          "label": "Soort document",
+          "options": {
+            "quality_certificate": "Kwaliteitscertificaat",
+            "environmental_certificate": "Milieucertificaat",
+            "security_certificate": "Beveiligingscertificaat",
+            "insurance": "Verzekeringsbewijs",
+            "tax_clearance": "Verklaring betalingsgedrag",
+            "registration_extract": "KvK-uittreksel",
+            "data_processing_agreement": "Verwerkersovereenkomst",
+            "other": "Overig"
+          }
+        },
+        "documents.status": {
+          "label": "Status",
+          "options": {
+            "requested": "Opgevraagd",
+            "received": "Ontvangen",
+            "under_review": "In beoordeling",
+            "accepted": "Geaccepteerd",
+            "rejected": "Afgewezen",
+            "expired": "Verlopen"
+          }
+        },
+        "documents.requested_on": {
+          "label": "Opgevraagd op",
+          "options": {}
+        },
+        "documents.received_on": {
+          "label": "Ontvangen op",
+          "options": {}
+        },
+        "documents.valid_until": {
+          "label": "Geldig tot",
+          "options": {}
+        },
+        "documents.evidence_link": {
+          "label": "Link naar het bestand",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Soort",
+          "options": {
+            "send_questionnaire": "Vragenlijst versturen",
+            "chase_supplier": "Leverancier een herinnering sturen",
+            "review_answers": "Antwoorden beoordelen",
+            "request_document": "Document opvragen",
+            "verify_document": "Document controleren",
+            "decide": "Beslissen",
+            "re_evaluate": "Herbeoordelen",
+            "other": "Overig"
+          }
+        }
+      },
+      "relationships": {
+        "contact_supplier": {
+          "sourceLabel": "Leverancier",
+          "targetLabel": "Contactpersonen"
+        },
+        "questionnaire_supplier": {
+          "sourceLabel": "Leverancier",
+          "targetLabel": "Vragenlijsten"
+        },
+        "document_supplier": {
+          "sourceLabel": "Leverancier",
+          "targetLabel": "Documenten"
+        },
+        "action_supplier": {
+          "sourceLabel": "Leverancier",
+          "targetLabel": "Acties"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Alle acties"
+        },
+        "suppliers_all": {
+          "name": "Alle leveranciers"
+        },
+        "suppliers_board": {
+          "name": "Kwalificatiebord"
+        },
+        "documents_all": {
+          "name": "Alle documenten"
+        },
+        "expired_documents": {
+          "name": "Verlopen of afgewezen"
+        },
+        "questionnaires_all": {
+          "name": "Alle vragenlijsten"
+        },
+        "contacts_all": {
+          "name": "Alle contactpersonen"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Aankomende acties"
+        },
+        "overdue_actions": {
+          "title": "Achterstallige acties"
+        },
+        "activity_timeline": {
+          "title": "Recente activiteit"
+        },
+        "suppliers_by_status": {
+          "title": "Leveranciers per status"
+        },
+        "suppliers_by_risk": {
+          "title": "Leveranciers per risiconiveau"
+        },
+        "documents_expiring": {
+          "title": "Documenten die verlopen"
+        },
+        "questionnaires_open": {
+          "title": "Vragenlijsten die op antwoord wachten"
+        },
+        "reviews_coming": {
+          "title": "Komende beoordelingen"
+        },
+        "documents_expired": {
+          "title": "Verlopen documenten"
+        }
+      },
+      "knowledgePages": {
+        "qualification_process": {
+          "title": "Procedure voor leveranciersgoedkeuring",
+          "sections": [
+            "Behoefte, criteria en wie goedkeurt",
+            "Vragenlijst, documenten, beslissing"
+          ]
+        },
+        "document_requirements": {
+          "title": "Certificaten en verklaringen die we opvragen",
+          "sections": [
+            "Per categorie en risiconiveau",
+            "Hoe lang elk document geldig is"
+          ]
+        },
+        "re_evaluation": {
+          "title": "Planning van herbeoordelingen",
+          "sections": [
+            "Beoordelingsdata per risiconiveau",
+            "Gebeurtenissen die een eerdere beoordeling uitlokken"
+          ]
+        }
+      },
+      "rules": {
+        "chase_questionnaire": {
+          "title": "Stuur de leverancier een herinnering als een vragenlijst de deadline overschrijdt",
+          "description": ""
+        },
+        "review_answers": {
+          "title": "Beoordeel de antwoorden 3 dagen na ontvangst van een vragenlijst",
+          "description": ""
+        },
+        "renew_document": {
+          "title": "Vraag een vernieuwd document op 30 dagen voordat het verloopt",
+          "description": ""
+        },
+        "document_expiry_notice": {
+          "title": "Waarschuw de verantwoordelijke als een document verloopt",
+          "description": ""
+        },
+        "re_evaluate_supplier": {
+          "title": "Start een herbeoordeling 14 dagen voor de volgende beoordeling",
+          "description": ""
+        },
+        "decide_after_review": {
+          "title": "Beslis binnen 5 dagen als een leverancier in beoordeling gaat",
+          "description": ""
+        },
+        "registration_form_records": {
+          "title": "Maak de leverancier en de contactpersoon aan als het registratieformulier is ingediend",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Elke leverancier heeft een kwalificatiestatus.",
+        "valid_until_field": "Elk document legt vast tot wanneer het geldig is.",
+        "suppliers_board_view": "De leveranciers openen als bord per status."
+      },
+      "prompt": {
+        "intro": "Richt in mijn Customermates-werkruimte een leveranciersregister in: leveranciers met een risiconiveau en kwalificatiestatus, vragenlijsten met deadlines en een beslissing, documenten met geldigheidsdatums en opvolgacties met een datum.",
+        "questions": [
+          "Hoeveel leveranciers heb je en hoe deel je ze in naar risico?",
+          "Welke certificaten of verklaringen vraag je op en hoe lang is elk geldig?",
+          "Wie beoordeelt de antwoorden en wie keurt een leverancier goed?",
+          "Hoe vaak beoordeel je een leverancier opnieuw? Bestanden blijven in je documentsysteem en hier wordt alleen een link bewaard."
+        ]
+      }
+    },
+    "pl": {
+      "locale": "pl",
+      "name": "Kwestionariusz dostawcy",
+      "summary": "Rejestr dostawców z kwestionariuszem kwalifikacyjnym, certyfikatami z datą ważności, poziomem ryzyka, decyzją o zatwierdzeniu i terminem następnej oceny.",
+      "description": "Kwalifikuj dostawców i podwykonawców w jednym miejscu: wyślij kwestionariusz, zbieraj certyfikaty i zaświadczenia z datą ważności, przypisz każdemu dostawcy poziom ryzyka, zapisz decyzję (zatwierdzić, zatwierdzić warunkowo, eskalować, odrzucić) i zobacz, co wygasa jako następne. Szablon porządkuje dowody. Nie rozstrzyga o zgodności z prawem, nie sprawdza list sankcyjnych ani kondycji finansowej i nie zastępuje systemu jakości, ERP ani archiwum dokumentów.",
+      "lists": {
+        "actions": {
+          "label": "Zadanie",
+          "pluralLabel": "Zadania",
+          "description": "Jeden następny krok z terminem dla każdej otwartej sprawy."
+        },
+        "contacts": {
+          "label": "Kontakt",
+          "pluralLabel": "Kontakty",
+          "description": "Osoby u dostawców, które wypełniają kwestionariusze i przesyłają dokumenty."
+        },
+        "suppliers": {
+          "label": "Dostawca",
+          "pluralLabel": "Dostawcy",
+          "description": "Każdy dostawca i podwykonawca, od kandydata do zatwierdzonego lub zablokowanego."
+        },
+        "questionnaires": {
+          "label": "Kwestionariusz",
+          "pluralLabel": "Kwestionariusze",
+          "description": "Jeden kwestionariusz wysłany do jednego dostawcy, z terminem i decyzją."
+        },
+        "documents": {
+          "label": "Dokument",
+          "pluralLabel": "Dokumenty",
+          "description": "Certyfikaty, zaświadczenia i umowy z datą ważności."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Otwarte",
+            "waiting": "Oczekuje",
+            "done": "Zrobione",
+            "cancelled": "Anulowane"
+          }
+        },
+        "actions.due": {
+          "label": "Termin",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Osoba odpowiedzialna",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Wynik",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Funkcja",
+          "options": {
+            "sales": "Sprzedaż",
+            "quality": "Jakość",
+            "compliance": "Compliance",
+            "finance": "Finanse",
+            "other": "Inna"
+          }
+        },
+        "contacts.language": {
+          "label": "Język",
+          "options": {}
+        },
+        "suppliers.status": {
+          "label": "Status",
+          "options": {
+            "candidate": "Kandydat",
+            "questionnaire_sent": "Kwestionariusz wysłany",
+            "under_review": "W ocenie",
+            "approved": "Zatwierdzony",
+            "approved_with_conditions": "Zatwierdzony warunkowo",
+            "blocked": "Zablokowany",
+            "offboarded": "Wycofany"
+          }
+        },
+        "suppliers.risk_tier": {
+          "label": "Poziom ryzyka",
+          "options": {
+            "low": "Niski",
+            "moderate": "Umiarkowany",
+            "high": "Wysoki",
+            "critical": "Krytyczny"
+          }
+        },
+        "suppliers.category": {
+          "label": "Kategoria",
+          "options": {
+            "raw_materials": "Surowce",
+            "components": "Komponenty",
+            "services": "Usługi",
+            "subcontracting": "Podwykonawstwo",
+            "software_it": "Oprogramowanie i IT",
+            "logistics": "Logistyka"
+          }
+        },
+        "suppliers.country": {
+          "label": "Kraj",
+          "options": {}
+        },
+        "suppliers.critical_supplier": {
+          "label": "Dostawca krytyczny",
+          "options": {}
+        },
+        "suppliers.processes_personal_data": {
+          "label": "Przetwarza dane osobowe",
+          "options": {}
+        },
+        "suppliers.review_owner": {
+          "label": "Osoba odpowiedzialna za ocenę",
+          "options": {}
+        },
+        "suppliers.qualified_on": {
+          "label": "Data kwalifikacji",
+          "options": {}
+        },
+        "suppliers.next_review": {
+          "label": "Następna ocena",
+          "options": {}
+        },
+        "questionnaires.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "registration": "Rejestracja",
+            "qualification": "Kwalifikacja",
+            "re_evaluation": "Ponowna ocena",
+            "regulatory_evidence": "Dowody wymagane przepisami"
+          }
+        },
+        "questionnaires.status": {
+          "label": "Status",
+          "options": {
+            "draft": "Szkic",
+            "sent": "Wysłany",
+            "partial": "Częściowo wypełniony",
+            "received": "Otrzymany",
+            "reviewed": "Sprawdzony"
+          }
+        },
+        "questionnaires.sent_on": {
+          "label": "Data wysłania",
+          "options": {}
+        },
+        "questionnaires.due_on": {
+          "label": "Termin",
+          "options": {}
+        },
+        "questionnaires.received_on": {
+          "label": "Data otrzymania",
+          "options": {}
+        },
+        "questionnaires.score": {
+          "label": "Punkty",
+          "options": {}
+        },
+        "questionnaires.decision": {
+          "label": "Decyzja",
+          "options": {
+            "approve": "Zatwierdzić",
+            "approve_with_conditions": "Zatwierdzić warunkowo",
+            "escalate": "Eskalować",
+            "reject": "Odrzucić"
+          }
+        },
+        "questionnaires.reviewer": {
+          "label": "Osoba oceniająca",
+          "options": {}
+        },
+        "questionnaires.form_link": {
+          "label": "Link do formularza",
+          "options": {}
+        },
+        "documents.doc_type": {
+          "label": "Rodzaj dokumentu",
+          "options": {
+            "quality_certificate": "Certyfikat jakości",
+            "environmental_certificate": "Certyfikat środowiskowy",
+            "security_certificate": "Certyfikat bezpieczeństwa",
+            "insurance": "Ubezpieczenie",
+            "tax_clearance": "Zaświadczenie o niezaleganiu",
+            "registration_extract": "Odpis z rejestru",
+            "data_processing_agreement": "Umowa powierzenia przetwarzania danych",
+            "other": "Inny"
+          }
+        },
+        "documents.status": {
+          "label": "Status",
+          "options": {
+            "requested": "Oczekiwany",
+            "received": "Otrzymany",
+            "under_review": "W ocenie",
+            "accepted": "Przyjęty",
+            "rejected": "Odrzucony",
+            "expired": "Wygasły"
+          }
+        },
+        "documents.requested_on": {
+          "label": "Data prośby",
+          "options": {}
+        },
+        "documents.received_on": {
+          "label": "Data otrzymania",
+          "options": {}
+        },
+        "documents.valid_until": {
+          "label": "Ważny do",
+          "options": {}
+        },
+        "documents.evidence_link": {
+          "label": "Link do pliku",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Rodzaj",
+          "options": {
+            "send_questionnaire": "Wysłać kwestionariusz",
+            "chase_supplier": "Ponaglić dostawcę",
+            "review_answers": "Sprawdzić odpowiedzi",
+            "request_document": "Poprosić o dokument",
+            "verify_document": "Zweryfikować dokument",
+            "decide": "Podjąć decyzję",
+            "re_evaluate": "Ocenić ponownie",
+            "other": "Inne"
+          }
+        }
+      },
+      "relationships": {
+        "contact_supplier": {
+          "sourceLabel": "Dostawca",
+          "targetLabel": "Kontakty"
+        },
+        "questionnaire_supplier": {
+          "sourceLabel": "Dostawca",
+          "targetLabel": "Kwestionariusze"
+        },
+        "document_supplier": {
+          "sourceLabel": "Dostawca",
+          "targetLabel": "Dokumenty"
+        },
+        "action_supplier": {
+          "sourceLabel": "Dostawca",
+          "targetLabel": "Zadania"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Wszystkie zadania"
+        },
+        "suppliers_all": {
+          "name": "Wszyscy dostawcy"
+        },
+        "suppliers_board": {
+          "name": "Tablica kwalifikacji"
+        },
+        "documents_all": {
+          "name": "Wszystkie dokumenty"
+        },
+        "expired_documents": {
+          "name": "Wygasłe lub odrzucone"
+        },
+        "questionnaires_all": {
+          "name": "Wszystkie kwestionariusze"
+        },
+        "contacts_all": {
+          "name": "Wszystkie kontakty"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Nadchodzące zadania"
+        },
+        "overdue_actions": {
+          "title": "Zaległe zadania"
+        },
+        "activity_timeline": {
+          "title": "Ostatnia aktywność"
+        },
+        "suppliers_by_status": {
+          "title": "Dostawcy według statusu"
+        },
+        "suppliers_by_risk": {
+          "title": "Dostawcy według poziomu ryzyka"
+        },
+        "documents_expiring": {
+          "title": "Dokumenty, które wkrótce wygasną"
+        },
+        "questionnaires_open": {
+          "title": "Kwestionariusze czekające na odpowiedź"
+        },
+        "reviews_coming": {
+          "title": "Nadchodzące oceny"
+        },
+        "documents_expired": {
+          "title": "Wygasłe dokumenty"
+        }
+      },
+      "knowledgePages": {
+        "qualification_process": {
+          "title": "Procedura kwalifikacji dostawców",
+          "sections": [
+            "Potrzeba, kryteria i kto zatwierdza",
+            "Kwestionariusz, dokumenty, decyzja"
+          ]
+        },
+        "document_requirements": {
+          "title": "Certyfikaty i zaświadczenia, o które prosimy",
+          "sections": [
+            "Według kategorii i poziomu ryzyka",
+            "Jak długo ważny jest każdy z nich"
+          ]
+        },
+        "re_evaluation": {
+          "title": "Harmonogram ponownych ocen",
+          "sections": [
+            "Terminy ocen według poziomu ryzyka",
+            "Zdarzenia, które przyspieszają ocenę"
+          ]
+        }
+      },
+      "rules": {
+        "chase_questionnaire": {
+          "title": "Ponagl dostawcę, gdy kwestionariusz przekroczy termin",
+          "description": ""
+        },
+        "review_answers": {
+          "title": "Sprawdź odpowiedzi 3 dni po otrzymaniu kwestionariusza",
+          "description": ""
+        },
+        "renew_document": {
+          "title": "Poproś o odnowiony dokument 30 dni przed wygaśnięciem",
+          "description": ""
+        },
+        "document_expiry_notice": {
+          "title": "Powiadom osobę odpowiedzialną, gdy dokument wygaśnie",
+          "description": ""
+        },
+        "re_evaluate_supplier": {
+          "title": "Rozpocznij ponowną ocenę 14 dni przed następną oceną",
+          "description": ""
+        },
+        "decide_after_review": {
+          "title": "Podejmij decyzję w ciągu 5 dni, gdy dostawca trafi do oceny",
+          "description": ""
+        },
+        "registration_form_records": {
+          "title": "Utwórz dostawcę i kontakt po wysłaniu formularza rejestracyjnego",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Każdy dostawca ma status kwalifikacji.",
+        "valid_until_field": "Każdy dokument zapisuje, do kiedy jest ważny.",
+        "suppliers_board_view": "Dostawcy otwierają się jako tablica według statusu."
+      },
+      "prompt": {
+        "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates rejestr dostawców: dostawców z poziomem ryzyka i statusem kwalifikacji, kwestionariusze z terminami i decyzją, dokumenty z datą ważności oraz zadania z terminem.",
+        "questions": [
+          "Ilu masz dostawców i jak dzielisz ich według ryzyka?",
+          "O jakie certyfikaty lub zaświadczenia prosisz i jak długo ważny jest każdy z nich?",
+          "Kto sprawdza odpowiedzi, a kto zatwierdza dostawcę?",
+          "Jak często oceniasz dostawcę ponownie? Pliki zostają w Twoim systemie dokumentów, a tutaj zapisujemy tylko link."
+        ]
+      }
+    },
+    "pt": {
+      "locale": "pt",
+      "name": "Questionário de fornecedores",
+      "summary": "Um cadastro de fornecedores com questionário de qualificação, certidões com validade, nível de risco, decisão de homologação e data da próxima avaliação.",
+      "description": "Qualifique fornecedores e prestadores em um só lugar: envie um questionário, reúna certificados e certidões com a data de validade, classifique cada fornecedor por nível de risco, registre a decisão (homologar, homologar com restrições, escalar, reprovar) e veja o que vence primeiro. O modelo coordena as evidências. Ele não decide a conformidade legal, não consulta sanções nem risco financeiro e não substitui o sistema de qualidade, o ERP ou o arquivo de documentos.",
+      "lists": {
+        "actions": {
+          "label": "Tarefa",
+          "pluralLabel": "Tarefas",
+          "description": "Um próximo passo com data para cada item em aberto."
+        },
+        "contacts": {
+          "label": "Contato",
+          "pluralLabel": "Contatos",
+          "description": "As pessoas dos fornecedores que respondem aos questionários e enviam documentos."
+        },
+        "suppliers": {
+          "label": "Fornecedor",
+          "pluralLabel": "Fornecedores",
+          "description": "Cada fornecedor ou prestador, de candidato a homologado ou reprovado."
+        },
+        "questionnaires": {
+          "label": "Questionário",
+          "pluralLabel": "Questionários",
+          "description": "Um questionário enviado a um fornecedor, com prazo e decisão."
+        },
+        "documents": {
+          "label": "Documento",
+          "pluralLabel": "Documentos",
+          "description": "Certificados, certidões e contratos com a data de validade."
+        }
+      },
+      "fields": {
+        "actions.status": {
+          "label": "Status",
+          "options": {
+            "open": "Aberta",
+            "waiting": "Aguardando",
+            "done": "Concluída",
+            "cancelled": "Cancelada"
+          }
+        },
+        "actions.due": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "actions.owner": {
+          "label": "Responsável",
+          "options": {}
+        },
+        "actions.outcome": {
+          "label": "Resultado",
+          "options": {}
+        },
+        "contacts.contact_role": {
+          "label": "Função",
+          "options": {
+            "sales": "Comercial",
+            "quality": "Qualidade",
+            "compliance": "Compliance",
+            "finance": "Financeiro",
+            "other": "Outro"
+          }
+        },
+        "contacts.language": {
+          "label": "Idioma",
+          "options": {}
+        },
+        "suppliers.status": {
+          "label": "Status",
+          "options": {
+            "candidate": "Candidato",
+            "questionnaire_sent": "Questionário enviado",
+            "under_review": "Em análise",
+            "approved": "Homologado",
+            "approved_with_conditions": "Homologado com restrições",
+            "blocked": "Reprovado",
+            "offboarded": "Descredenciado"
+          }
+        },
+        "suppliers.risk_tier": {
+          "label": "Nível de risco",
+          "options": {
+            "low": "Baixo",
+            "moderate": "Médio",
+            "high": "Alto",
+            "critical": "Crítico"
+          }
+        },
+        "suppliers.category": {
+          "label": "Categoria",
+          "options": {
+            "raw_materials": "Matéria-prima",
+            "components": "Componentes",
+            "services": "Serviços",
+            "subcontracting": "Terceirização",
+            "software_it": "Software e TI",
+            "logistics": "Logística"
+          }
+        },
+        "suppliers.country": {
+          "label": "País",
+          "options": {}
+        },
+        "suppliers.critical_supplier": {
+          "label": "Fornecedor crítico",
+          "options": {}
+        },
+        "suppliers.processes_personal_data": {
+          "label": "Trata dados pessoais",
+          "options": {}
+        },
+        "suppliers.review_owner": {
+          "label": "Responsável pela avaliação",
+          "options": {}
+        },
+        "suppliers.qualified_on": {
+          "label": "Qualificado em",
+          "options": {}
+        },
+        "suppliers.next_review": {
+          "label": "Próxima avaliação",
+          "options": {}
+        },
+        "questionnaires.kind": {
+          "label": "Tipo",
+          "options": {
+            "registration": "Cadastro",
+            "qualification": "Qualificação",
+            "re_evaluation": "Reavaliação",
+            "regulatory_evidence": "Evidências regulatórias"
+          }
+        },
+        "questionnaires.status": {
+          "label": "Status",
+          "options": {
+            "draft": "Rascunho",
+            "sent": "Enviado",
+            "partial": "Resposta parcial",
+            "received": "Recebido",
+            "reviewed": "Analisado"
+          }
+        },
+        "questionnaires.sent_on": {
+          "label": "Enviado em",
+          "options": {}
+        },
+        "questionnaires.due_on": {
+          "label": "Prazo",
+          "options": {}
+        },
+        "questionnaires.received_on": {
+          "label": "Recebido em",
+          "options": {}
+        },
+        "questionnaires.score": {
+          "label": "Pontuação",
+          "options": {}
+        },
+        "questionnaires.decision": {
+          "label": "Decisão",
+          "options": {
+            "approve": "Homologar",
+            "approve_with_conditions": "Homologar com restrições",
+            "escalate": "Escalar",
+            "reject": "Reprovar"
+          }
+        },
+        "questionnaires.reviewer": {
+          "label": "Avaliador",
+          "options": {}
+        },
+        "questionnaires.form_link": {
+          "label": "Link do formulário",
+          "options": {}
+        },
+        "documents.doc_type": {
+          "label": "Tipo de documento",
+          "options": {
+            "quality_certificate": "Certificado de qualidade",
+            "environmental_certificate": "Certificado ambiental",
+            "security_certificate": "Certificado de segurança",
+            "insurance": "Seguro",
+            "tax_clearance": "Certidão negativa",
+            "registration_extract": "Contrato social",
+            "data_processing_agreement": "Contrato de operador (LGPD)",
+            "other": "Outro"
+          }
+        },
+        "documents.status": {
+          "label": "Status",
+          "options": {
+            "requested": "Solicitado",
+            "received": "Recebido",
+            "under_review": "Em análise",
+            "accepted": "Aceito",
+            "rejected": "Recusado",
+            "expired": "Vencido"
+          }
+        },
+        "documents.requested_on": {
+          "label": "Solicitado em",
+          "options": {}
+        },
+        "documents.received_on": {
+          "label": "Recebido em",
+          "options": {}
+        },
+        "documents.valid_until": {
+          "label": "Validade",
+          "options": {}
+        },
+        "documents.evidence_link": {
+          "label": "Link do arquivo",
+          "options": {}
+        },
+        "actions.kind": {
+          "label": "Tipo",
+          "options": {
+            "send_questionnaire": "Enviar o questionário",
+            "chase_supplier": "Cobrar o fornecedor",
+            "review_answers": "Analisar as respostas",
+            "request_document": "Solicitar um documento",
+            "verify_document": "Conferir um documento",
+            "decide": "Decidir",
+            "re_evaluate": "Reavaliar",
+            "other": "Outro"
+          }
+        }
+      },
+      "relationships": {
+        "contact_supplier": {
+          "sourceLabel": "Fornecedor",
+          "targetLabel": "Contatos"
+        },
+        "questionnaire_supplier": {
+          "sourceLabel": "Fornecedor",
+          "targetLabel": "Questionários"
+        },
+        "document_supplier": {
+          "sourceLabel": "Fornecedor",
+          "targetLabel": "Documentos"
+        },
+        "action_supplier": {
+          "sourceLabel": "Fornecedor",
+          "targetLabel": "Tarefas"
+        }
+      },
+      "views": {
+        "actions_all": {
+          "name": "Todas as tarefas"
+        },
+        "suppliers_all": {
+          "name": "Todos os fornecedores"
+        },
+        "suppliers_board": {
+          "name": "Quadro de homologação"
+        },
+        "documents_all": {
+          "name": "Todos os documentos"
+        },
+        "expired_documents": {
+          "name": "Vencidos ou recusados"
+        },
+        "questionnaires_all": {
+          "name": "Todos os questionários"
+        },
+        "contacts_all": {
+          "name": "Todos os contatos"
+        }
+      },
+      "widgets": {
+        "upcoming_actions": {
+          "title": "Próximas tarefas"
+        },
+        "overdue_actions": {
+          "title": "Tarefas atrasadas"
+        },
+        "activity_timeline": {
+          "title": "Atividade recente"
+        },
+        "suppliers_by_status": {
+          "title": "Fornecedores por status"
+        },
+        "suppliers_by_risk": {
+          "title": "Fornecedores por nível de risco"
+        },
+        "documents_expiring": {
+          "title": "Documentos a vencer"
+        },
+        "questionnaires_open": {
+          "title": "Questionários aguardando resposta"
+        },
+        "reviews_coming": {
+          "title": "Avaliações próximas"
+        },
+        "documents_expired": {
+          "title": "Documentos vencidos"
+        }
+      },
+      "knowledgePages": {
+        "qualification_process": {
+          "title": "Procedimento de homologação de fornecedores",
+          "sections": [
+            "Necessidade, critérios e quem aprova",
+            "Questionário, documentos, decisão"
+          ]
+        },
+        "document_requirements": {
+          "title": "Certificados e certidões que pedimos",
+          "sections": [
+            "Por categoria e nível de risco",
+            "Quanto tempo vale cada um"
+          ]
+        },
+        "re_evaluation": {
+          "title": "Calendário de reavaliação",
+          "sections": [
+            "Datas de avaliação por nível de risco",
+            "Fatos que antecipam a avaliação"
+          ]
+        }
+      },
+      "rules": {
+        "chase_questionnaire": {
+          "title": "Cobrar o fornecedor quando um questionário passa do prazo",
+          "description": ""
+        },
+        "review_answers": {
+          "title": "Analisar as respostas 3 dias depois de receber um questionário",
+          "description": ""
+        },
+        "renew_document": {
+          "title": "Pedir o documento renovado 30 dias antes do vencimento",
+          "description": ""
+        },
+        "document_expiry_notice": {
+          "title": "Avisar o responsável quando um documento vence",
+          "description": ""
+        },
+        "re_evaluate_supplier": {
+          "title": "Iniciar uma reavaliação 14 dias antes da próxima avaliação",
+          "description": ""
+        },
+        "decide_after_review": {
+          "title": "Decidir em 5 dias quando um fornecedor entra em análise",
+          "description": ""
+        },
+        "registration_form_records": {
+          "title": "Criar o fornecedor e o contato quando o formulário de cadastro for enviado",
+          "description": ""
+        }
+      },
+      "acceptanceChecks": {
+        "status_field": "Cada fornecedor tem um status de qualificação.",
+        "valid_until_field": "Cada documento registra até quando é válido.",
+        "suppliers_board_view": "Os fornecedores abrem como quadro por status."
+      },
+      "prompt": {
+        "intro": "Configure no meu espaço de trabalho do Customermates um cadastro de fornecedores: fornecedores com nível de risco e status de qualificação, questionários com prazos e decisão, documentos com data de validade e acompanhamentos com data.",
+        "questions": [
+          "Quantos fornecedores você tem e como os divide por nível de risco?",
+          "Quais certificados ou certidões você pede e quanto tempo vale cada um?",
+          "Quem analisa as respostas e quem homologa um fornecedor?",
+          "Com que frequência você reavalia um fornecedor? Os arquivos ficam no seu sistema de documentos e aqui só se guarda um link."
+        ]
+      }
+    }
+  }
+}

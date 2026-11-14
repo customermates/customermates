@@ -1,0 +1,102 @@
+{
+  "locale": "fr",
+  "name": "Prise de rendez-vous",
+  "summary": "Un registre de rendez-vous pour un prestataire de services : types de rendez-vous avec durée et délai de prévenance, chaque réservation avec son statut, ses rappels et son résultat, et une prochaine étape pour chacune.",
+  "description": "Prenez des réservations pour des appels, des consultations ou des visites et gardez-les dans le CRM : quelques types de rendez-vous avec durée, temps de battement et délai de prévenance, une réservation qui crée la personne et le rendez-vous, un événement d’agenda une fois confirmé, deux rappels et un résultat noté après chaque rendez-vous. Il ne gère que le temps des personnes. Ce n’est ni un système de réservation de salles ou de ressources, ni une billetterie, ni un logiciel de rendez-vous médicaux, ni un service de paiement.",
+  "lists": {
+    "people": { "label": "Contact", "pluralLabel": "Contacts", "description": "Les personnes qui prennent rendez-vous avec vous." },
+    "appointment_types": { "label": "Type de rendez-vous", "pluralLabel": "Types de rendez-vous", "description": "Un type de rendez-vous avec sa durée, son temps de battement, son délai de prévenance et son prix." },
+    "appointments": { "label": "Rendez-vous", "pluralLabel": "Rendez-vous", "description": "Une réservation, de demandée à tenue, manquée ou annulée." }
+  },
+  "fields": {
+    "people.preferred_channel": { "label": "Canal préféré", "options": { "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Téléphone" } },
+    "people.time_zone": { "label": "Fuseau horaire" },
+    "appointment_types.duration_minutes": { "label": "Durée (minutes)" },
+    "appointment_types.buffer_minutes": { "label": "Temps de battement après (minutes)" },
+    "appointment_types.min_notice_hours": { "label": "Délai de prévenance (heures)" },
+    "appointment_types.booking_window_days": { "label": "Réservable jusqu’à (jours à l’avance)" },
+    "appointment_types.daily_limit": { "label": "Limite par jour" },
+    "appointment_types.location_type": {
+      "label": "Lieu",
+      "options": { "video_call": "Visioconférence", "phone": "Téléphone", "office": "Au cabinet", "client_site": "Chez le client" }
+    },
+    "appointment_types.price": { "label": "Prix" },
+    "appointment_types.active": { "label": "Actif" },
+    "appointments.status": {
+      "label": "Statut",
+      "options": { "requested": "Demandé", "confirmed": "Confirmé", "rescheduled": "Reporté", "held": "Tenu", "no_show": "Absent", "cancelled_by_client": "Annulé par le client", "cancelled_by_us": "Annulé par nous" }
+    },
+    "appointments.start_at": { "label": "Début" },
+    "appointments.source": { "label": "Source", "options": { "booking_page": "Page de réservation", "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Téléphone", "manual": "Saisi manuellement" } },
+    "appointments.meeting_url": { "label": "Lien de la réunion" },
+    "appointments.outcome": {
+      "label": "Résultat",
+      "options": { "not_decided": "Pas encore décidé", "qualified": "Qualifié", "second_call": "Deuxième appel nécessaire", "proposal_needed": "Proposition à envoyer", "won": "Gagné pendant l’appel", "not_a_fit": "Ne convient pas" }
+    },
+    "appointments.cancel_reason": {
+      "label": "Motif d’annulation",
+      "options": { "schedule_conflict": "Conflit d’agenda", "other_provider": "A trouvé un autre prestataire", "no_longer_needed": "N’en a plus besoin", "personal": "Raison personnelle", "other": "Autre" }
+    },
+    "actions.kind": {
+      "label": "Type",
+      "options": {
+        "confirm_booking": "Confirmer la réservation",
+        "send_reminder": "Envoyer un rappel",
+        "prepare_call": "Préparer le rendez-vous",
+        "send_follow_up": "Envoyer le message de suivi",
+        "offer_new_slot": "Proposer un nouveau créneau",
+        "record_outcome": "Noter le résultat",
+        "other": "Autre"
+      }
+    }
+  },
+  "relationships": {
+    "appointment_person": { "sourceLabel": "Contact", "targetLabel": "Rendez-vous" },
+    "appointment_type": { "sourceLabel": "Type de rendez-vous", "targetLabel": "Rendez-vous" },
+    "action_appointment": { "sourceLabel": "Rendez-vous", "targetLabel": "Actions" }
+  },
+  "views": {
+    "appointments_all": { "name": "Tous les rendez-vous" },
+    "appointments_board": { "name": "Board des rendez-vous" },
+    "missed_or_cancelled": { "name": "Manqués ou annulés" },
+    "appointment_types_all": { "name": "Tous les types de rendez-vous" },
+    "people_all": { "name": "Tous les contacts" }
+  },
+  "widgets": {
+    "upcoming_appointments": { "title": "Rendez-vous à venir" },
+    "appointments_by_status": { "title": "Rendez-vous par statut" },
+    "outcomes_of_held": { "title": "Résultats des rendez-vous tenus" },
+    "requests_waiting": { "title": "Demandes en attente de réponse" },
+    "no_shows": { "title": "Absences" },
+    "bookings_by_source": { "title": "Réservations par source" }
+  },
+  "knowledgePages": {
+    "appointment_types_rules": { "title": "Types de rendez-vous et disponibilités", "sections": ["Types, durées, temps de battement et délai de prévenance", "Horaires et limites par jour"] },
+    "reminder_policy": { "title": "Rappels et absences", "sections": ["Rappels 3 jours et 1 jour avant", "Ce que nous faisons après une absence"] },
+    "cancellation_policy": { "title": "Annulation et report", "sections": ["Jusqu’à quand un client peut annuler", "Comment un nouveau créneau est proposé"] }
+  },
+  "rules": {
+    "booking_form_records": { "title": "Créer le contact et le rendez-vous quand le formulaire de réservation est envoyé" },
+    "confirm_event": { "title": "Ajouter un événement d’agenda quand un rendez-vous est confirmé" },
+    "notify_new_booking": { "title": "Prévenir le responsable quand une réservation arrive" },
+    "first_reminder": { "title": "Envoyer un premier rappel 3 jours avant un rendez-vous confirmé" },
+    "second_reminder": { "title": "Envoyer un second rappel 1 jour avant un rendez-vous confirmé" },
+    "record_outcome": { "title": "Noter le résultat après qu’un rendez-vous confirmé a eu lieu" },
+    "no_show_new_slot": { "title": "Proposer un nouveau créneau le lendemain d’une absence" },
+    "follow_up_held": { "title": "Envoyer le suivi le lendemain d’un rendez-vous tenu" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Chaque rendez-vous a un statut.",
+    "start_field": "Chaque rendez-vous indique quand il commence.",
+    "appointments_board_view": "Les rendez-vous s’ouvrent en board par statut."
+  },
+  "prompt": {
+    "intro": "Mets en place dans mon espace de travail Customermates une prise de rendez-vous : types de rendez-vous avec durée, temps de battement et délai de prévenance, rendez-vous avec statut et résultat, rappels avant chaque rendez-vous et suivi après.",
+    "questions": [
+      "Quels types de rendez-vous proposez-vous, et combien de temps dure chacun ?",
+      "De quel délai de prévenance avez-vous besoin, et jusqu’à combien de temps à l’avance peut-on réserver ?",
+      "Quelles questions un client doit-il renseigner en réservant ?",
+      "Comment gérez-vous aujourd’hui les absences et les annulations tardives ?"
+    ]
+  }
+}

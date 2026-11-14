@@ -1,0 +1,136 @@
+{
+  "locale": "pt",
+  "name": "Escritório contábil",
+  "summary": "Um espaço de trabalho de escritório com dois fluxos: conquistar um cliente, com diligência de PLD e contrato de prestação de serviços, e fazer o trabalho recorrente por cliente, com um calendário de prazos conferido por uma segunda pessoa.",
+  "description": "Conduza um escritório contábil em um só lugar: contratos da proposta ao contrato ativo com uma etapa de diligência de prevenção à lavagem de dinheiro no meio, entregas recorrentes por cliente e competência com o status aguardando documentos, e um calendário de prazos com aviso antecipado e a pessoa que conferiu cada data. O modelo é a camada de relacionamento, comprovação de prazos e acompanhamento ao lado do seu sistema contábil. Não calcula datas legais, não transmite declarações, não faz escrituração, folha de pagamento nem cobrança de horas e não guarda CPF, CNPJ de terceiros nem cópias de documentos de identidade.",
+  "lists": {
+    "contacts": { "label": "Contato", "pluralLabel": "Contatos", "description": "As pessoas dos seus clientes que enviam documentos e assinam." },
+    "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "Pessoas físicas, MEIs, empresas e associações para quem você atua." },
+    "mandates": { "label": "Contrato de serviços", "pluralLabel": "Contratos de prestação de serviços", "description": "Um contrato da proposta a ativo ou recusado." },
+    "jobs": { "label": "Entrega", "pluralLabel": "Entregas e obrigações", "description": "Trabalho recorrente para um cliente e uma competência, como o fechamento mensal ou a apuração de impostos." },
+    "deadlines": { "label": "Prazo", "pluralLabel": "Prazos", "description": "Uma data legal ou do fisco com a fonte, um aviso antecipado e a pessoa que a conferiu." }
+  },
+  "fields": {
+    "contacts.preferred_channel": { "label": "Canal preferido", "options": { "email": "E-mail", "phone": "Telefone", "portal": "Portal", "whatsapp": "WhatsApp", "post": "Correio" } },
+    "clients.client_type": { "label": "Tipo", "options": { "individual": "Pessoa física", "sole_trader": "MEI ou autônomo", "company": "Empresa", "association": "Associação" } },
+    "clients.vat_frequency": { "label": "Apuração de impostos", "options": { "monthly": "Mensal", "quarterly": "Trimestral", "annual": "Anual", "not_applicable": "Não se aplica" } },
+    "clients.authorisation_on": { "label": "Procuração desde" },
+    "clients.aml_risk": {
+      "label": "Risco de lavagem de dinheiro",
+      "options": { "not_assessed": "Não avaliado", "low": "Baixo", "standard": "Médio", "enhanced": "Alto", "declined": "Recusado" }
+    },
+    "clients.aml_next_review": { "label": "Próxima revisão do risco" },
+    "mandates.stage": {
+      "label": "Etapa",
+      "options": { "inquiry": "Contato", "intro_call": "Reunião", "proposal_sent": "Proposta", "aml_check": "Diligência do cliente", "engagement_letter_out": "Contrato enviado", "active": "Ativo", "declined": "Recusado", "not_going_ahead": "Não seguiu" }
+    },
+    "mandates.services": {
+      "label": "Serviços",
+      "options": { "bookkeeping": "Escrituração", "payroll": "Folha de pagamento", "vat_returns": "Apuração fiscal", "annual_accounts": "Balanço anual", "tax_returns": "Declarações de imposto", "advisory": "Consultoria" }
+    },
+    "mandates.fee_model": { "label": "Honorários", "options": { "fixed_monthly": "Mensalidade fixa", "hourly": "Por hora", "per_filing": "Por declaração", "value_based": "Por valor" } },
+    "mandates.next_step_due": { "label": "Data do próximo passo" },
+    "mandates.lost_reason": {
+      "label": "Motivo",
+      "options": { "capacity": "Sem capacidade", "risk_declined": "Recusado por risco", "scope_mismatch": "Escopo inadequado", "price": "Preço", "chose_other_advisor": "Escolheu outro contador", "no_response": "Sem resposta" }
+    },
+    "jobs.status": {
+      "label": "Status",
+      "options": { "planned": "Planejada", "waiting_for_documents": "Aguardando documentos", "in_preparation": "Em preparação", "in_review": "Em revisão", "client_approval": "Aguardando aprovação do cliente", "submitted": "Transmitida", "waiting_for_authority": "Aguardando o fisco", "done": "Concluída" }
+    },
+    "jobs.job_type": {
+      "label": "Tipo de entrega",
+      "options": { "monthly_bookkeeping": "Escrituração mensal", "payroll_run": "Folha do mês", "vat_return": "Apuração de impostos", "annual_accounts": "Balanço anual", "tax_return": "Declaração de imposto", "year_end": "Encerramento do exercício" }
+    },
+    "jobs.period": { "label": "Competência" },
+    "jobs.documents_due": { "label": "Documentos até" },
+    "jobs.internal_due": { "label": "Prazo interno" },
+    "jobs.reviewer": { "label": "Revisor" },
+    "jobs.notice_received_on": { "label": "Notificação recebida em" },
+    "deadlines.kind": {
+      "label": "Tipo",
+      "options": { "vat_return": "Apuração de impostos", "vat_payment": "Pagamento de imposto", "payroll_report": "Obrigação da folha", "annual_accounts": "Balanço anual", "tax_return": "Declaração de imposto", "appeal": "Recurso", "payment": "Pagamento", "aml_review": "Revisão do risco", "other": "Outro" }
+    },
+    "deadlines.due_date": { "label": "Prazo final" },
+    "deadlines.pre_deadline": { "label": "Aviso antecipado" },
+    "deadlines.source_ref": { "label": "Fonte da data" },
+    "deadlines.verified_by": { "label": "Conferido por" },
+    "deadlines.status": { "label": "Status", "options": { "open": "Aberto", "in_progress": "Em andamento", "filed": "Cumprido", "extended": "Prorrogado", "cancelled": "Cancelado" } },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "request_documents": "Solicitar documentos",
+        "chase_documents": "Cobrar documentos",
+        "chase_approval": "Cobrar aprovação ou assinatura",
+        "review": "Revisar",
+        "reply": "Responder",
+        "aml": "Identificação e classificação de risco",
+        "filing": "Transmissão",
+        "other": "Outro"
+      }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Cliente", "targetLabel": "Contatos" },
+    "mandate_client": { "sourceLabel": "Cliente", "targetLabel": "Contratos de prestação de serviços" },
+    "job_client": { "sourceLabel": "Cliente", "targetLabel": "Entregas e obrigações" },
+    "deadline_client": { "sourceLabel": "Cliente", "targetLabel": "Prazos" },
+    "action_job": { "sourceLabel": "Entrega", "targetLabel": "Tarefas" },
+    "action_client": { "sourceLabel": "Cliente", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "mandates_board": { "name": "Contratos por etapa" },
+    "mandates_all": { "name": "Todos os contratos" },
+    "jobs_board": { "name": "Entregas por status" },
+    "jobs_waiting_documents": { "name": "Aguardando documentos" },
+    "deadlines_all": { "name": "Todos os prazos" },
+    "unverified_deadlines": { "name": "Prazos não conferidos" },
+    "clients_all": { "name": "Todos os clientes" },
+    "contacts_all": { "name": "Todos os contatos" }
+  },
+  "widgets": {
+    "deadlines_coming": { "title": "Prazos próximos" },
+    "unverified_count": { "title": "Prazos abertos sem conferência" },
+    "jobs_by_status": { "title": "Entregas abertas por status" },
+    "documents_waiting": { "title": "Entregas aguardando documentos" },
+    "jobs_waiting_on_client": { "title": "Entregas aguardando aprovação do cliente" },
+    "mandates_funnel": { "title": "Contratos por etapa" },
+    "aml_reviews": { "title": "Revisões de risco a fazer" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Como funciona o escritório", "sections": ["Os dois fluxos: conquistar um cliente e fazer o trabalho", "Quem responde por cada etapa e a regra de uma tarefa com data por entrega aberta"] },
+    "onboarding_and_aml": { "title": "Entrada do cliente e diligência", "sections": ["Identificar o cliente e o beneficiário final, classificação de risco", "Checklist do contrato de prestação de serviços (cópias de documentos de identidade não são guardadas aqui)"] },
+    "deadline_control": { "title": "Controle de prazos", "sections": ["Como uma data é lançada com a fonte e conferida por uma segunda pessoa", "Conferência do aviso antecipado e decisão sobre prorrogação"] },
+    "document_checklists": { "title": "Solicitação de documentos por serviço", "sections": ["O que pedimos em cada serviço e para quando", "Lembretes e o que fazer quando faltam documentos"] }
+  },
+  "rules": {
+    "proposal_follow_up": { "title": "Fazer o retorno de uma proposta 3 dias depois de enviá-la" },
+    "aml_identification": { "title": "Identificar o cliente em 2 dias quando um contrato chega à etapa de diligência" },
+    "onboarding_set": { "title": "Pedir a procuração e os primeiros documentos quando um contrato fica ativo" },
+    "recontact_not_going_ahead": { "title": "Definir o próximo passo para 90 dias quando um contrato não segue" },
+    "documents_chase": { "title": "Cobrar os documentos 3 dias antes da data combinada" },
+    "documents_overdue_notice": { "title": "Avisar o responsável quando os documentos venceram e ainda faltam" },
+    "pre_deadline_check": { "title": "Avisar o responsável na data do aviso antecipado de um prazo aberto" },
+    "due_date_escalation": { "title": "Avisar a liderança 2 dias antes de um prazo aberto" },
+    "approval_chase": { "title": "Cobrar a aprovação do cliente depois de 5 dias de espera" },
+    "notice_check": { "title": "Analisar uma notificação do fisco em até 3 dias do recebimento" },
+    "aml_review": { "title": "Revisar a classificação de risco quando chega a data da próxima revisão" },
+    "monthly_close_jobs": { "title": "Criar as entregas mensais no início de cada mês" }
+  },
+  "acceptanceChecks": {
+    "mandate_stage_field": "Todo contrato tem uma etapa.",
+    "job_status_field": "Toda entrega tem um status, inclusive aguardando documentos.",
+    "deadline_due_field": "Todo prazo registra a data final.",
+    "deadline_verifier_field": "Todo prazo registra quem o conferiu.",
+    "deadline_control_page": "A base de conhecimento tem uma página sobre controle de prazos."
+  },
+  "prompt": {
+    "intro": "Configure no meu espaço de trabalho do Customermates um escritório contábil: contratos da proposta a ativo com uma etapa de diligência, entregas recorrentes por cliente e competência, um calendário de prazos com aviso antecipado e conferência, e acompanhamentos com data. Nunca calcule datas legais e não guarde cópias de documentos de identidade.",
+    "questions": [
+      "Quais serviços você oferece e quais entregas recorrentes mantém por cliente?",
+      "Em qual regime tributário seus clientes costumam estar e quais prazos você acompanha?",
+      "Quem prepara, quem revisa e quem confere um prazo?",
+      "Como você identifica novos clientes e com que frequência revisa a classificação de risco deles?"
+    ]
+  }
+}

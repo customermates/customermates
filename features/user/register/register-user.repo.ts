@@ -16,6 +16,10 @@ export abstract class RegisterUserRepo {
   abstract hasCreatedWorkspaceUnscoped(authUserId: string): Promise<boolean>;
   abstract hasConsumedTrialUnscoped(authUserId: string): Promise<boolean>;
   abstract markTrialConsumedUnscoped(authUserId: string): Promise<void>;
+  abstract recordSignupLastPageUnscoped(authUserId: string, page: string): Promise<void>;
+  abstract takeSignupLastPageUnscoped(authUserId: string): Promise<string | null>;
+  abstract recordSignupCampaignUnscoped(authUserId: string, campaign: string): Promise<void>;
+  abstract takeSignupCampaignUnscoped(authUserId: string): Promise<string | null>;
   abstract countCreatedWorkspacesUnscoped(authUserId: string): Promise<number>;
   abstract hasLeftMembershipUnscoped(email: string, companyId: string): Promise<boolean>;
   abstract bindAuthUserToCompanyOrThrowUnscoped(args: { authUserId: string; companyId: string }): Promise<void>;

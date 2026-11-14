@@ -1,0 +1,85 @@
+---
+title: "CRM per Claude: il CRM in cui lavora il tuo Claude"
+description: "CRM per Claude: clienti, trattative, e-mail e LinkedIn in uno spazio di lavoro che Claude legge e aggiorna. Prova di [[commercial.trial.days]] giorni, senza carta. Open source."
+featureName: CRM per Claude
+
+relatedHrefs:
+  - /features/claude-linkedin
+  - /docs/connect-custom-connector
+  - /docs/mcp
+  - /features/api
+
+sections:
+  visual:
+    kind: os
+  steps:
+    title: "Collegato in tre passaggi"
+    items:
+      - title: "Inizia la prova"
+        description: "Registrati e indica quante persone useranno lo spazio di lavoro. La prova dura [[commercial.trial.days]] giorni sul piano Pro e non richiede carta di credito."
+      - title: "Aggiungi Customermates a Claude"
+        description: "In Claude apri Settings › Connectors › Add custom connector e incolla l’indirizzo del server https://customermates.com/api/v1/mcp. La configurazione mostra l’indirizzo del tuo spazio di lavoro e aspetta che arrivi la prima chiamata di Claude."
+      - title: "Lascia che Claude costruisca il tuo CRM"
+        description: "Racconta a Claude che cosa vendi e come lavori. Claude propone le tue liste, la pipeline e i follow up e, quando sei d’accordo, li costruisce nello spazio di lavoro."
+
+hero:
+  title: "Il CRM in cui lavora il tuo Claude"
+  description: "Customermates è un CRM che Claude legge e aggiorna tramite un connettore: clienti, trattative, attività e, quando li colleghi, le tue conversazioni e-mail e LinkedIn. Indirizzo del server: https://customermates.com/api/v1/mcp"
+  buttonLeftText: "Inizia la prova di [[commercial.trial.days]] giorni"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Leggi la guida al connettore
+  buttonRightHref: /docs/connect-custom-connector
+  hint: "✓ Nessuna carta di credito richiesta ✓ Prodotto indipendente, non affiliato ad Anthropic"
+
+cta:
+  action: "Dai a Claude un CRM in cui lavorare"
+  description: "Inizia la prova, aggiungi il connettore e lascia che Claude configuri lo spazio di lavoro. Approvi il piano prima che Claude lo costruisca."
+  buttonLeftText: "Inizia la prova di [[commercial.trial.days]] giorni"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Leggi la guida al connettore
+  buttonRightHref: /docs/connect-custom-connector
+  hint: "✓ Nessuna carta di credito richiesta ✓ Primi [[commercial.trial.days]] giorni gratis"
+---
+
+Un CRM per Claude è un CRM che Claude può leggere e modificare da solo, invece di uno da cui copi del testo. Customermates lo permette tramite un connettore: Claude cerca un cliente, legge l’ultima conversazione, aggiorna la trattativa e scrive la prossima attività, nello stesso spazio di lavoro che il tuo team apre nel browser.
+
+## Che cosa puoi chiedere a Claude
+
+- **«Quali trattative non hanno contatti da due settimane?»** Claude legge la tua pipeline e le conversazioni collegate a ciascuna trattativa.
+- **«Aggiungi le tre persone di questa e-mail all’azienda giusta e annota che cosa hanno chiesto.»** Claude crea i contatti e li collega.
+- **«Quali conversazioni aspettano una mia risposta?»** Con una casella di posta o [LinkedIn collegato](/features/claude-linkedin), Claude elenca le conversazioni aperte e può preparare le risposte.
+
+Claude lavora con le tue liste e i tuoi campi, quindi il CRM usa le tue parole per clienti, trattative e fasi.
+
+## Che cosa fa e che cosa non fa
+
+**Fa:** leggere e scrivere record, liste, campi e viste con i permessi della persona che l’ha collegato; cercare nella Knowledge Base dello spazio di lavoro; leggere le conversazioni e salvare bozze non appena è collegato un canale.
+
+**Non fa:** aggirare i tuoi ruoli e permessi, cambiare qualcosa senza una chiamata che puoi vedere in Claude, o agire in background mentre Claude è chiuso. Per il lavoro pianificato ci sono le [routine](/docs/app-routines) con l’assistente integrato Mate.
+
+**Sull’approvazione:** Customermates dice a Claude di chiedere conferma prima di inviare un messaggio o eliminare qualcosa. Che Claude lo chieda ogni volta dipende dai permessi degli strumenti che imposti in Claude.
+
+Il lato tecnico, con tutti gli strumenti che offre il connettore, è nella [guida MCP](/docs/mcp).
+
+## Quanto costa
+
+La prova dura [[commercial.trial.days]] giorni sul piano Pro e non richiede carta di credito. I piani a pagamento partono da [[commercial.price.starter.monthly]] per utente al mese per il CRM con il connettore; la Posta in arrivo per e-mail e LinkedIn fa parte di Pro, a [[commercial.price.pro.monthly]]. Senza abbonamento lo spazio di lavoro passa al piano Free per [[commercial.limit.free.maxMembers]] persona e [[commercial.limit.free.maxRecords]] record. Il connettore non costa nulla in più e Claude fattura il proprio utilizzo tramite il tuo piano Claude.
+
+## Chi lo gestisce
+
+Customermates è un prodotto indipendente. Non è affiliato ad Anthropic, che non lo approva né lo sponsorizza. Il nucleo del CRM è open source con licenza AGPL-3.0 e si può installare in self-hosting; il database del cloud è configurato nella regione AWS di Francoforte e l’[elenco dei sub-responsabili](/subprocessors) nomina ogni fornitore coinvolto.
+
+<Faq>
+<FaqItem question="Funziona anche con ChatGPT e altri client IA?">
+Sì. Lo stesso connettore funziona con ChatGPT, Cursor, Gemini e altri client che supportano MCP. La [guida al connettore](/docs/connect-custom-connector) ha i passaggi per ciascuno.
+</FaqItem>
+<FaqItem question="Claude vede tutti i miei dati?">
+Claude vede ciò che può vedere la persona che l’ha collegato. Agisce con il ruolo e i permessi di quella persona, nello spazio di lavoro che ha scelto all’accesso.
+</FaqItem>
+<FaqItem question="Mi serve un piano Claude a pagamento?">
+Claude offre i connettori personalizzati su ogni piano; il piano Free ne consente uno. ChatGPT richiede un piano a pagamento per i connettori personalizzati.
+</FaqItem>
+<FaqItem question="Posso ospitarlo da solo?">
+Il nucleo open source si può installare in self-hosting e include il connettore. La Posta in arrivo per e-mail e LinkedIn e l’assistente integrato Mate fanno parte di Customermates Cloud.
+</FaqItem>
+</Faq>

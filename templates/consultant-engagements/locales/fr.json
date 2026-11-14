@@ -1,0 +1,104 @@
+{
+  "locale": "fr",
+  "name": "Missions de conseil",
+  "summary": "Un pipeline pour un consultant indépendant : missions de la prospection à la mission signée avec contrôle d’acceptation avant la proposition, une date de relance convenue lors de l’appel sur la proposition, et des livrables qui encadrent l’exécution et la clôture.",
+  "description": "Pilotez une activité de conseil au même endroit : missions à travers la qualification, le cadrage, la proposition commerciale et la décision, la date de relance convenue avec le sponsor, un contrôle d’acceptation (capacité, indépendance, confidentialité) avant la proposition, des livrables avec leur échéance et leur validation, et une clôture qui demande un retour et un témoignage. Il conserve le pipeline, les relations et les jalons de livraison. Ce n’est ni du suivi du temps, ni de la facturation, ni de la signature électronique de propositions, ni de la planification de ressources, et il ne contient aucune donnée confidentielle du client.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Sponsors, interlocuteurs du quotidien, signataires et prescripteurs." },
+    "clients": { "label": "Client", "pluralLabel": "Clients", "description": "Prospects, clients, anciens clients et partenaires apporteurs." },
+    "engagements": { "label": "Mission", "pluralLabel": "Missions", "description": "Une mission de conseil, de la première prise de contact à la livraison et à la clôture." },
+    "deliverables": { "label": "Livrable", "pluralLabel": "Livrables", "description": "Un jalon que vous remettez, avec son échéance et sa validation." }
+  },
+  "fields": {
+    "contacts.role_in_engagement": { "label": "Rôle", "options": { "sponsor": "Sponsor", "day_to_day": "Interlocuteur du quotidien", "signs_off": "Valide et signe", "referrer": "Prescripteur", "influencer": "Influenceur" } },
+    "contacts.relationship_strength": { "label": "Relation", "options": { "strong": "Forte", "warm": "Bonne", "new": "Nouvelle" } },
+    "contacts.last_meeting": { "label": "Dernière rencontre" },
+    "clients.relationship": { "label": "Relation", "options": { "prospect": "Prospect", "client": "Client", "former_client": "Ancien client", "referral_partner": "Partenaire apporteur" } },
+    "clients.industry": { "label": "Secteur" },
+    "engagements.stage": {
+      "label": "Étape",
+      "options": { "introduction": "Prospection", "discovery": "Qualification", "scoping": "Cadrage", "proposal_sent": "Proposition commerciale", "decision": "Décision", "won": "Mission signée", "lost": "Perdue" }
+    },
+    "engagements.engagement_type": { "label": "Type", "options": { "diagnostic": "Diagnostic", "advisory_review": "Revue-conseil", "workshop": "Atelier", "interim": "Management de transition", "retainer": "Accompagnement récurrent", "training": "Formation" } },
+    "engagements.referral_source": { "label": "Origine de la mission", "options": { "client_referral": "Recommandation d’un client", "peer_referral": "Recommandation d’un confrère", "event_or_talk": "Événement ou conférence", "content": "Contenu publié", "existing_client": "Client existant", "marketplace": "Plateforme" } },
+    "engagements.day_rate": { "label": "Taux journalier (TJM)" },
+    "engagements.days_estimated": { "label": "Jours estimés" },
+    "engagements.estimated_fee": { "label": "Honoraires estimés" },
+    "engagements.acceptance_checked_on": { "label": "Acceptation contrôlée le" },
+    "engagements.proposal_follow_up_on": { "label": "Relance convenue pour le" },
+    "engagements.decision_expected": { "label": "Décision attendue" },
+    "engagements.start_date": { "label": "Début" },
+    "engagements.end_date": { "label": "Fin" },
+    "engagements.delivery_status": { "label": "Exécution", "options": { "not_started": "Pas commencée", "kickoff_scheduled": "Lancement planifié", "in_delivery": "En cours", "wrapping_up": "En clôture", "completed": "Terminée" } },
+    "engagements.next_step_due": { "label": "Prochaine étape avant le" },
+    "engagements.lost_reason": {
+      "label": "Motif de perte",
+      "options": { "timing": "Calendrier", "budget": "Budget", "in_house": "Réalisé en interne", "other_advisor": "A choisi un autre consultant", "scope_changed": "Périmètre modifié", "no_decision": "Pas de décision", "no_response": "Sans réponse" }
+    },
+    "deliverables.status": { "label": "Statut", "options": { "planned": "Prévu", "in_progress": "En cours", "delivered": "Remis", "accepted": "Validé" } },
+    "deliverables.kind": { "label": "Type", "options": { "interview_summary": "Synthèse d’entretiens", "workshop": "Atelier", "report": "Rapport", "recommendation": "Recommandation", "training_session": "Session de formation", "handover": "Passation" } },
+    "deliverables.due_date": { "label": "Échéance" },
+    "deliverables.owner": { "label": "Responsable" },
+    "actions.kind": {
+      "label": "Type",
+      "options": { "reply": "Répondre", "write_up": "Rédiger le compte rendu", "acceptance_check": "Contrôler l’acceptation", "proposal": "Rédiger la proposition", "follow_up": "Relancer", "kickoff": "Lancement", "deliver": "Livrer", "feedback": "Demander un retour", "other": "Autre" }
+    }
+  },
+  "relationships": {
+    "contact_client": { "sourceLabel": "Client", "targetLabel": "Contacts" },
+    "engagement_client": { "sourceLabel": "Client", "targetLabel": "Missions" },
+    "engagement_sponsor": { "sourceLabel": "Sponsor et contacts", "targetLabel": "Missions" },
+    "deliverable_engagement": { "sourceLabel": "Mission", "targetLabel": "Livrables" },
+    "action_engagement": { "sourceLabel": "Mission", "targetLabel": "Actions" }
+  },
+  "views": {
+    "engagements_board": { "name": "Missions par étape" },
+    "engagements_all": { "name": "Toutes les missions" },
+    "in_delivery": { "name": "Signées et pas encore terminées" },
+    "deliverables_all": { "name": "Tous les livrables" },
+    "clients_all": { "name": "Tous les clients" },
+    "contacts_all": { "name": "Tous les contacts" }
+  },
+  "widgets": {
+    "engagements_funnel": { "title": "Missions par étape" },
+    "open_value": { "title": "Montant des propositions en cours" },
+    "decisions_coming": { "title": "Décisions attendues" },
+    "deliverables_due": { "title": "Livrables à remettre" },
+    "engagements_ending": { "title": "Missions qui se terminent" },
+    "by_type": { "title": "Missions signées par type" },
+    "lost_reasons": { "title": "Motifs de perte des missions" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Comment fonctionne l’activité", "sections": ["Les étapes et la règle d’une prochaine étape datée par mission ouverte", "Ce qui reste hors de l’outil : suivi du temps et facturation"] },
+    "discovery_guide": { "title": "Guide de l’entretien de qualification", "sections": ["Le problème dans les mots du client, les parties prenantes et les signaux de budget", "Ce qu’il faut rédiger le lendemain"] },
+    "acceptance_check": { "title": "Contrôle d’acceptation avant la proposition", "sections": ["Capacité, indépendance, confidentialité et adéquation", "Qui décide d’accepter la mission"] },
+    "proposal_and_follow_up": { "title": "Structure de la proposition et relance", "sections": ["Options proposées et option recommandée", "Convenir de la date de relance lors de l’appel sur la proposition"] }
+  },
+  "rules": {
+    "discovery_writeup": { "title": "Rédiger le compte rendu de l’entretien de qualification le lendemain" },
+    "acceptance_check": { "title": "Contrôler l’acceptation le lendemain de l’entrée en cadrage" },
+    "proposal_follow_up": { "title": "Relancer 3 jours après l’envoi de la proposition" },
+    "decision_date": { "title": "Demander la décision à la date de décision attendue" },
+    "won_kickoff": { "title": "Planifier le lancement le lendemain d’une mission signée" },
+    "lost_review": { "title": "Demander ce qui aurait pu être fait autrement 2 jours après une perte" },
+    "deliverable_due_notice": { "title": "Prévenir le responsable 3 jours avant l’échéance d’un livrable" },
+    "closeout_report": { "title": "Remettre le rapport final à la date de fin" },
+    "testimonial_ask": { "title": "Demander un témoignage 14 jours après la date de fin" },
+    "followup_after_end": { "title": "Proposer une suite 30 jours après la date de fin" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Chaque mission a une étape.",
+    "follow_up_field": "Chaque proposition indique la date de relance convenue avec le sponsor.",
+    "acceptance_checked_field": "Chaque mission indique quand l’acceptation a été contrôlée.",
+    "engagements_board_view": "Les missions s’ouvrent en board par étape."
+  },
+  "prompt": {
+    "intro": "Mets en place dans mon espace de travail Customermates des missions de conseil : missions de la prospection à la mission signée avec contrôle d’acceptation et date de relance convenue lors de l’appel sur la proposition, livrables avec échéance et validation, et une clôture qui demande un retour. Ne stocke aucune donnée confidentielle du client.",
+    "questions": [
+      "Quels types de missions vendez-vous, et à quel taux journalier ?",
+      "Comment décidez-vous d’accepter ou non une mission ?",
+      "Combien de temps attendez-vous après une proposition avant de relancer ?",
+      "Quels livrables marquent un jalon que vous facturez ?"
+    ]
+  }
+}

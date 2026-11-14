@@ -1,0 +1,92 @@
+{
+  "locale": "de",
+  "name": "Kontaktformular mit CRM",
+  "summary": "Anfragen aus Formularen zu bearbeiteten Kontakten machen: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, Phase von neu bis übergeben, Spam und „Kein Bedarf“ getrennt.",
+  "description": "Jede Anfrage aus einem Kontakt-, Angebots- oder Anfrageformular wird zu einer Anfrage mit Verknüpfung zum Kontakt, mit dem Formular, aus dem sie kam, der Herkunft des Besuchers, dem Zeitpunkt, bis wann sie gebraucht wird, und einer Antwort, die am nächsten Tag fällig ist. Anfragen laufen von neu bis übergeben, kein Bedarf oder Spam, und eine unbeantwortete Anfrage wird gemeldet. Einwilligung und ein Prüftermin gehören zu den erhobenen Daten. Kein Formularbaukasten für Zahlungen, Quiz oder den Upload sensibler Dokumente.",
+  "lists": {
+    "contacts": { "label": "Kontakt", "pluralLabel": "Kontakte", "description": "Die Personen, die dir über ein Formular schreiben." },
+    "requests": { "label": "Anfrage", "pluralLabel": "Anfragen", "description": "Eine Formulareinsendung, von neu bis übergeben, kein Bedarf oder Spam." }
+  },
+  "fields": {
+    "contacts.company_name": { "label": "Firma" },
+    "contacts.language": { "label": "Sprache" },
+    "contacts.marketing_consent": { "label": "Einwilligung zu Werbe-E-Mails" },
+    "contacts.marketing_consent_on": { "label": "Einwilligung erteilt am" },
+    "requests.stage": {
+      "label": "Phase",
+      "options": { "new": "Neu", "contacted": "Kontaktiert", "qualified": "Qualifiziert", "converted": "Übergeben", "not_a_fit": "Kein Bedarf", "spam": "Spam" }
+    },
+    "requests.form": { "label": "Formular", "options": { "contact": "Kontaktformular", "quote_request": "Angebotsanfrage", "intake": "Anfrageformular", "callback": "Rückrufwunsch", "other": "Sonstiges" } },
+    "requests.owner": { "label": "Zuständig" },
+    "requests.service_interest": { "label": "Gewünschte Leistung" },
+    "requests.needed_by": {
+      "label": "Gewünscht bis",
+      "options": { "asap": "So schnell wie möglich", "within_a_month": "Innerhalb eines Monats", "within_three_months": "Innerhalb von drei Monaten", "just_looking": "Nur informieren", "no_answer": "Keine Angabe" }
+    },
+    "requests.budget_band": { "label": "Budgetrahmen", "options": { "no_answer": "Keine Angabe", "low": "Niedrig", "medium": "Mittel", "high": "Hoch" } },
+    "requests.submitted_at": { "label": "Eingegangen" },
+    "requests.first_response_at": { "label": "Erste Antwort" },
+    "requests.utm_source": { "label": "Herkunft des Besuchers" },
+    "requests.landing_page": { "label": "Seite des Formulars" },
+    "requests.repeat_submission": { "label": "Schon einmal geschrieben" },
+    "requests.not_a_fit_reason": {
+      "label": "Grund für „Kein Bedarf“",
+      "options": { "out_of_area": "Außerhalb unseres Gebiets", "no_budget": "Kein Budget", "wrong_service": "Falsche Leistung", "no_response": "Keine Antwort", "duplicate": "Duplikat", "other": "Sonstiger" }
+    },
+    "requests.closed_on": { "label": "Abgeschlossen am" },
+    "requests.data_review_on": { "label": "Daten prüfen am" },
+    "requests.days_to_close": { "label": "Tage von der Einsendung bis zum Abschluss" },
+    "actions.kind": {
+      "label": "Art",
+      "options": { "reply": "Antworten", "qualify_call": "Qualifizierungsgespräch", "send_quote": "Angebot senden", "convert": "An die Pipeline übergeben", "chase": "Nachfassen", "data_review": "Daten prüfen", "other": "Sonstiges" }
+    }
+  },
+  "relationships": {
+    "request_contact": { "sourceLabel": "Kontakt", "targetLabel": "Anfragen" },
+    "action_request": { "sourceLabel": "Anfrage", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "requests_all": { "name": "Alle Anfragen" },
+    "requests_board": { "name": "Anfragen-Board" },
+    "new_requests": { "name": "Neue Anfragen" },
+    "closed_without_deal": { "name": "Kein Bedarf oder Spam" },
+    "contacts_all": { "name": "Alle Kontakte" }
+  },
+  "widgets": {
+    "requests_funnel": { "title": "Anfragen nach Phase" },
+    "requests_per_week": { "title": "Anfragen pro Woche" },
+    "requests_by_form": { "title": "Anfragen nach Formular" },
+    "new_requests_count": { "title": "Neue Anfragen" },
+    "not_a_fit_reasons": { "title": "Gründe für „Kein Bedarf“" },
+    "average_days_to_close": { "title": "Durchschnittliche Tage bis zum Abschluss" }
+  },
+  "knowledgePages": {
+    "form_playbook": { "title": "Leitfaden vom Formular zum CRM", "sections": ["Welche Formulare wir betreiben und wer antwortet", "Wie schnell wir antworten"] },
+    "privacy_notice": { "title": "Datenschutzhinweis für Formulare", "sections": ["Was wir am Formular mitteilen", "Wie lange wir eine Anfrage aufbewahren"] },
+    "spam_and_duplicates": { "title": "Spam und Mehrfacheinsendungen", "sections": ["Was als Spam gilt", "Was wir tun, wenn dieselbe Person erneut schreibt"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Kontakt und Anfrage anlegen, wenn das Anfrageformular abgeschickt wird" },
+    "reply_task": { "title": "Eine Antwortaufgabe für den nächsten Tag anlegen, wenn eine Anfrage entsteht" },
+    "first_response_missed": { "title": "Die Leitung informieren, wenn eine Anfrage einen Tag nach Eingang noch neu ist" },
+    "chase_contacted": { "title": "Eine kontaktierte Anfrage nachfassen, die sich 3 Tage nicht bewegt hat" },
+    "converted_task": { "title": "Die Anfrage an die Pipeline übergeben, wenn sie als übergeben markiert wird" },
+    "review_date_not_a_fit": { "title": "Prüftermin auf ein Jahr setzen, wenn eine Anfrage als „Kein Bedarf“ endet" },
+    "data_review": { "title": "Die Daten prüfen, wenn der Prüftermin erreicht ist" },
+    "external_form_records": { "title": "Kontakt und Anfrage anlegen, wenn ein anderes Formular-Tool eine Einsendung schickt" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Jede Anfrage hat eine Phase.",
+    "submitted_field": "Jede Anfrage hält fest, wann sie eingegangen ist.",
+    "requests_board_view": "Die Anfragen öffnen sich als Board nach Phase."
+  },
+  "prompt": {
+    "intro": "Richte in meinem Customermates-Workspace die Verbindung von Formular zu CRM ein: eine Anfrage je Einsendung mit Quelle, fälliger Antwort, sechs Phasen, Einwilligung und Prüftermin sowie terminierte Folgeaufgaben.",
+    "questions": [
+      "Welche Formulare betreibst du, und was musst du wissen, um eine Anfrage zu bepreisen oder zuzuordnen?",
+      "Wer antwortet, und wie schnell versprichst du eine Antwort?",
+      "Was teilst du den Personen am Formular über ihre Daten mit?",
+      "Nutzt du ein anderes Formular-Tool wie Typeform, Tally oder Jotform?"
+    ]
+  }
+}

@@ -14,9 +14,9 @@ describe("onboarding job", () => {
     expect(parseOnboardingJob(value)).toBe(expected);
   });
 
-  it("preselects the chosen job, then the signup job, then the workspace setup", () => {
-    expect(preselectedOnboardingJob({ selectedJob: "agent", signupJob: "followup" })).toBe("agent");
+  it("preselects the chosen job, then the signup job, then the user's own agent", () => {
+    expect(preselectedOnboardingJob({ selectedJob: "workspace", signupJob: "followup" })).toBe("workspace");
     expect(preselectedOnboardingJob({ selectedJob: null, signupJob: "followup" })).toBe("followup");
-    expect(preselectedOnboardingJob({ selectedJob: null, signupJob: null })).toBe("workspace");
+    expect(preselectedOnboardingJob({ selectedJob: null, signupJob: null })).toBe("agent");
   });
 });

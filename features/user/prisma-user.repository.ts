@@ -437,6 +437,14 @@ export class PrismaUserRepo
     });
   }
 
+  async reopenOnboardingSetupStep(args: RepoArgs<CompleteOnboardingSetupStepRepo, "reopenOnboardingSetupStep">) {
+    const { companyId } = this.user;
+    await this.prisma.user.updateMany({
+      data: { onboardingWikiStepCompletedAt: null },
+      where: { id: args.userId, companyId },
+    });
+  }
+
   @Transaction
   async adminUpdateDetailsOrThrow(args: RepoArgs<AdminUpdateUserDetailsRepo, "adminUpdateDetailsOrThrow">) {
     const { companyId } = this.user;
@@ -675,6 +683,44 @@ export class PrismaUserRepo
       where: { id: authUserId, trialConsumedAt: null },
       data: { trialConsumedAt: new Date() },
     });
+  }
+
+  @BypassTenantGuard
+  async recordSignupLastPageUnscoped(authUserId: string, page: string) {
+    await this.prisma.authUser.updateMany({
+      where: { id: authUserId, companyId: null, signupLastPage: null },
+      data: { signupLastPage: page },
+    });
+  }
+
+  @BypassTenantGuard
+  async takeSignupLastPageUnscoped(authUserId: string) {
+    const authUser = await this.prisma.authUser.findUnique({
+      where: { id: authUserId },
+      select: { signupLastPage: true },
+    });
+    if (!authUser?.signupLastPage) return null;
+    await this.prisma.authUser.updateMany({ where: { id: authUserId }, data: { signupLastPage: null } });
+    return authUser.signupLastPage;
+  }
+
+  @BypassTenantGuard
+  async recordSignupCampaignUnscoped(authUserId: string, campaign: string) {
+    await this.prisma.authUser.updateMany({
+      where: { id: authUserId, companyId: null, signupCampaign: null },
+      data: { signupCampaign: campaign },
+    });
+  }
+
+  @BypassTenantGuard
+  async takeSignupCampaignUnscoped(authUserId: string) {
+    const authUser = await this.prisma.authUser.findUnique({
+      where: { id: authUserId },
+      select: { signupCampaign: true },
+    });
+    if (!authUser?.signupCampaign) return null;
+    await this.prisma.authUser.updateMany({ where: { id: authUserId }, data: { signupCampaign: null } });
+    return authUser.signupCampaign;
   }
 
   @BypassTenantGuard

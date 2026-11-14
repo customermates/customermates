@@ -1,0 +1,127 @@
+{
+  "locale": "de",
+  "name": "Lieferantenfragebogen",
+  "summary": "Ein Lieferantenregister mit Selbstauskunft, Zertifikaten mit Ablaufdatum, Risikoklasse, Freigabeentscheidung und Termin für die nächste Bewertung.",
+  "description": "Lieferanten und Auftragnehmer an einem Ort qualifizieren: Fragebogen versenden, Zertifikate und Bescheinigungen mit ihrem Gültig-bis-Datum sammeln, jeden Lieferanten nach Risiko einstufen, die Entscheidung festhalten (freigeben, bedingt freigeben, eskalieren, ablehnen) und sehen, was als Nächstes abläuft. Die Vorlage koordiniert Nachweise. Sie entscheidet nicht über rechtliche Konformität, prüft keine Sanktionslisten oder Bonität und ersetzt weder Ihr Qualitätssystem noch Ihr ERP oder Ihr Dokumentenarchiv.",
+  "lists": {
+    "contacts": { "label": "Ansprechpartner", "pluralLabel": "Ansprechpartner", "description": "Personen bei deinen Lieferanten, die Fragebögen beantworten und Dokumente schicken." },
+    "suppliers": { "label": "Lieferant", "pluralLabel": "Lieferanten", "description": "Jeder Lieferant und Auftragnehmer, vom Kandidaten bis freigegeben oder gesperrt." },
+    "questionnaires": { "label": "Fragebogen", "pluralLabel": "Fragebögen", "description": "Ein Fragebogen an einen Lieferanten, mit Frist und Entscheidung." },
+    "documents": { "label": "Dokument", "pluralLabel": "Dokumente", "description": "Zertifikate, Bescheinigungen und Verträge mit ihrem Gültig-bis-Datum." }
+  },
+  "fields": {
+    "contacts.contact_role": {
+      "label": "Funktion",
+      "options": { "sales": "Vertrieb", "quality": "Qualität", "compliance": "Compliance", "finance": "Finanzen", "other": "Sonstige" }
+    },
+    "contacts.language": { "label": "Sprache" },
+    "suppliers.status": {
+      "label": "Status",
+      "options": { "candidate": "Kandidat", "questionnaire_sent": "Fragebogen versendet", "under_review": "In Prüfung", "approved": "Freigegeben", "approved_with_conditions": "Bedingt freigegeben", "blocked": "Gesperrt", "offboarded": "Ausgeschieden" }
+    },
+    "suppliers.risk_tier": { "label": "Risikoklasse", "options": { "low": "Niedrig", "moderate": "Mittel", "high": "Hoch", "critical": "Kritisch" } },
+    "suppliers.category": {
+      "label": "Kategorie",
+      "options": { "raw_materials": "Rohstoffe", "components": "Bauteile", "services": "Dienstleistungen", "subcontracting": "Lohnfertigung", "software_it": "Software und IT", "logistics": "Logistik" }
+    },
+    "suppliers.country": { "label": "Land" },
+    "suppliers.critical_supplier": { "label": "Kritischer Lieferant" },
+    "suppliers.processes_personal_data": { "label": "Verarbeitet personenbezogene Daten" },
+    "suppliers.review_owner": { "label": "Verantwortlich für die Bewertung" },
+    "suppliers.qualified_on": { "label": "Qualifiziert am" },
+    "suppliers.next_review": { "label": "Nächste Bewertung" },
+    "questionnaires.kind": {
+      "label": "Art",
+      "options": { "registration": "Selbstauskunft", "qualification": "Qualifizierung", "re_evaluation": "Neubewertung", "regulatory_evidence": "Nachweis zu Vorschriften" }
+    },
+    "questionnaires.status": {
+      "label": "Status",
+      "options": { "draft": "Entwurf", "sent": "Versendet", "partial": "Teilweise beantwortet", "received": "Eingegangen", "reviewed": "Geprüft" }
+    },
+    "questionnaires.sent_on": { "label": "Versendet am" },
+    "questionnaires.due_on": { "label": "Frist" },
+    "questionnaires.received_on": { "label": "Eingegangen am" },
+    "questionnaires.score": { "label": "Punktzahl" },
+    "questionnaires.decision": {
+      "label": "Entscheidung",
+      "options": { "approve": "Freigeben", "approve_with_conditions": "Bedingt freigeben", "escalate": "Eskalieren", "reject": "Ablehnen" }
+    },
+    "questionnaires.reviewer": { "label": "Prüfer" },
+    "questionnaires.form_link": { "label": "Link zum Formular" },
+    "documents.doc_type": {
+      "label": "Dokumentart",
+      "options": { "quality_certificate": "Qualitätszertifikat", "environmental_certificate": "Umweltzertifikat", "security_certificate": "Sicherheitszertifikat", "insurance": "Versicherungsnachweis", "tax_clearance": "Unbedenklichkeitsbescheinigung", "registration_extract": "Handelsregisterauszug", "data_processing_agreement": "Auftragsverarbeitungsvertrag", "other": "Sonstiges" }
+    },
+    "documents.status": {
+      "label": "Status",
+      "options": { "requested": "Angefordert", "received": "Eingegangen", "under_review": "In Prüfung", "accepted": "Akzeptiert", "rejected": "Abgelehnt", "expired": "Abgelaufen" }
+    },
+    "documents.requested_on": { "label": "Angefordert am" },
+    "documents.received_on": { "label": "Eingegangen am" },
+    "documents.valid_until": { "label": "Gültig bis" },
+    "documents.evidence_link": { "label": "Link zur Datei" },
+    "actions.kind": {
+      "label": "Art",
+      "options": {
+        "send_questionnaire": "Fragebogen senden",
+        "chase_supplier": "Lieferanten erinnern",
+        "review_answers": "Antworten prüfen",
+        "request_document": "Dokument anfordern",
+        "verify_document": "Dokument prüfen",
+        "decide": "Entscheiden",
+        "re_evaluate": "Neu bewerten",
+        "other": "Sonstiges"
+      }
+    }
+  },
+  "relationships": {
+    "contact_supplier": { "sourceLabel": "Lieferant", "targetLabel": "Ansprechpartner" },
+    "questionnaire_supplier": { "sourceLabel": "Lieferant", "targetLabel": "Fragebögen" },
+    "document_supplier": { "sourceLabel": "Lieferant", "targetLabel": "Dokumente" },
+    "action_supplier": { "sourceLabel": "Lieferant", "targetLabel": "Aufgaben" }
+  },
+  "views": {
+    "suppliers_all": { "name": "Alle Lieferanten" },
+    "suppliers_board": { "name": "Qualifizierungs-Board" },
+    "documents_all": { "name": "Alle Dokumente" },
+    "expired_documents": { "name": "Abgelaufen oder abgelehnt" },
+    "questionnaires_all": { "name": "Alle Fragebögen" },
+    "contacts_all": { "name": "Alle Ansprechpartner" }
+  },
+  "widgets": {
+    "suppliers_by_status": { "title": "Lieferanten nach Status" },
+    "suppliers_by_risk": { "title": "Lieferanten nach Risikoklasse" },
+    "documents_expiring": { "title": "Ablaufende Dokumente" },
+    "questionnaires_open": { "title": "Fragebögen ohne Antwort" },
+    "reviews_coming": { "title": "Anstehende Bewertungen" },
+    "documents_expired": { "title": "Abgelaufene Dokumente" }
+  },
+  "knowledgePages": {
+    "qualification_process": { "title": "Ablauf der Lieferantenqualifizierung", "sections": ["Bedarf, Kriterien und wer freigibt", "Fragebogen, Dokumente, Entscheidung"] },
+    "document_requirements": { "title": "Zertifikate und Bescheinigungen, die wir verlangen", "sections": ["Nach Kategorie und Risikoklasse", "Wie lange jedes Dokument gilt"] },
+    "re_evaluation": { "title": "Turnus der Lieferantenbewertung", "sections": ["Bewertungstermine nach Risikoklasse", "Anlässe für eine vorzeitige Bewertung"] }
+  },
+  "rules": {
+    "chase_questionnaire": { "title": "Lieferanten erinnern, wenn die Frist eines Fragebogens verstrichen ist" },
+    "review_answers": { "title": "Antworten 3 Tage nach Eingang des Fragebogens prüfen" },
+    "renew_document": { "title": "Erneuertes Dokument 30 Tage vor Ablauf anfordern" },
+    "document_expiry_notice": { "title": "Zuständige informieren, wenn ein Dokument abläuft" },
+    "re_evaluate_supplier": { "title": "Neubewertung 14 Tage vor dem nächsten Bewertungstermin starten" },
+    "decide_after_review": { "title": "Innerhalb von 5 Tagen entscheiden, wenn ein Lieferant in Prüfung geht" },
+    "registration_form_records": { "title": "Lieferant und Ansprechpartner anlegen, wenn das Formular zur Selbstauskunft abgeschickt wird" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Jeder Lieferant hat einen Qualifizierungsstatus.",
+    "valid_until_field": "Jedes Dokument hält fest, bis wann es gültig ist.",
+    "suppliers_board_view": "Die Lieferanten öffnen sich als Board nach Status."
+  },
+  "prompt": {
+    "intro": "Richte in meinem Customermates-Workspace ein Lieferantenregister ein: Lieferanten mit Risikoklasse und Qualifizierungsstatus, Fragebögen mit Fristen und Entscheidung, Dokumente mit Gültig-bis-Datum und terminierte Folgeaufgaben.",
+    "questions": [
+      "Wie viele Lieferanten hast du, und wie teilst du sie nach Risiko ein?",
+      "Welche Zertifikate oder Bescheinigungen verlangst du, und wie lange ist jedes gültig?",
+      "Wer prüft die Antworten, und wer gibt einen Lieferanten frei?",
+      "Wie oft bewertest du einen Lieferanten neu? Dateien bleiben in deinem Dokumentensystem, hier steht nur ein Link."
+    ]
+  }
+}

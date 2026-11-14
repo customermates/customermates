@@ -11,6 +11,7 @@ import { withWorkflow } from "workflow/next";
 
 import { env } from "@/env";
 import { frameAncestorsPolicy } from "@/core/config/environment";
+import { PUBLIC_FORM_FRAME_POLICY, PUBLIC_FORM_FRAME_SOURCE } from "@/core/config/public-form-frame";
 import { permanentAliasRedirects, retiredAppRouteRedirects } from "@/core/seo/route-aliases";
 import { recordFileParserPackages } from "@/features/record-file-index/record-file-parser-packages";
 
@@ -70,6 +71,11 @@ const nextConfig: NextConfig = {
   compress: true,
 
   outputFileTracingIncludes: {
+    // The template bundles and the raw docs manifest are read from disk at run time (core/utils/runtime-json.ts) and
+    // are not in the webpack graph: as JSON modules they were emitted once per server layer and chunk group (the
+    // manifest four to six times, 7 to 8 MB each) and, with the rest of the branch's growth, took the Vercel build
+    // over its heap. Any route can reach them through the dependency container, so every route keeps them.
+    "/**": ["./core/templates/bundles/*.json", "./generated/raw-docs-manifest.json"],
     "/.well-known/workflow/v1/flow": [
       "./node_modules/quickjs-wasi/package.json",
       "./node_modules/quickjs-wasi/dist/*.js",
@@ -84,6 +90,12 @@ const nextConfig: NextConfig = {
       "./node_modules/@fontsource/inter/files/inter-latin-700-normal.woff",
       "./public/images/light/customermates-square.svg",
     ],
+  },
+
+  // Each frontmatter module the content heads import depends on its MDX file at build time, so every route that reads
+  // a head (metadata, footer, sitemap, hubs) traced all of content/** (34 MB). Nothing reads content/ at run time.
+  outputFileTracingExcludes: {
+    "/**": ["./content/**"],
   },
 
   images: {
@@ -156,6 +168,14 @@ const nextConfig: NextConfig = {
         headers: [
           { key: "Content-Security-Policy", value: frameAncestorsPolicy(env.APP_MODE) },
           { key: "X-Content-Type-Options", value: "nosniff" },
+        ],
+      },
+      {
+        source: PUBLIC_FORM_FRAME_SOURCE,
+        headers: [
+          { key: "Content-Security-Policy", value: PUBLIC_FORM_FRAME_POLICY },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "no-referrer" },
         ],
       },
       {

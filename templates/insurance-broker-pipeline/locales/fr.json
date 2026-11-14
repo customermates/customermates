@@ -1,0 +1,125 @@
+{
+  "locale": "fr",
+  "name": "Courtier en assurance",
+  "summary": "Deux pipelines pour un courtier en assurance : affaires nouvelles de la demande à l’émission avec le conseil documenté avant la proposition, et un dossier de renouvellement pour chaque contrat qui s’ouvre de 120 à 45 jours avant l’échéance.",
+  "description": "Menez les affaires nouvelles et les renouvellements côte à côte : affaires de la première demande à l’analyse des besoins, à la consultation des assureurs, à la proposition et à la décision jusqu’au contrat émis, une date de conseil documenté sur chaque proposition, et des contrats avec leur échéance principale qui ouvrent d’eux-mêmes un dossier de renouvellement. Il conserve un renvoi vers la trace du conseil et vers le contrat dans votre logiciel de cabinet, jamais de données de santé, de détails de sinistres, de coordonnées bancaires ni de copies de pièces d’identité. Ce n’est ni de la gestion de contrats, ni un comparateur ou un tarificateur, ni de la gestion de sinistres, ni un rapprochement de commissions.",
+  "lists": {
+    "contacts": { "label": "Contact", "pluralLabel": "Contacts", "description": "Souscripteurs, prospects, décideurs et prescripteurs." },
+    "opportunities": { "label": "Affaire nouvelle", "pluralLabel": "Affaires nouvelles", "description": "Une affaire nouvelle de la première demande à l’émission ou à la perte." },
+    "policies": { "label": "Contrat", "pluralLabel": "Contrats", "description": "Un contrat avec sa branche, son échéance principale et un lien vers le logiciel de cabinet." },
+    "renewals": { "label": "Renouvellement", "pluralLabel": "Renouvellements (échéances)", "description": "Le dossier de renouvellement annuel d’un contrat." }
+  },
+  "fields": {
+    "contacts.contact_role": { "label": "Rôle", "options": { "policyholder": "Souscripteur", "prospect": "Prospect", "decision_maker": "Décideur", "referrer": "Prescripteur" } },
+    "contacts.preferred_channel": { "label": "Canal préféré", "options": { "email": "E-mail", "phone": "Téléphone", "whatsapp": "WhatsApp", "post": "Courrier" } },
+    "contacts.broker_mandate_on": { "label": "Lettre de mission signée le" },
+    "opportunities.stage": {
+      "label": "Étape",
+      "options": { "lead": "Demande", "needs_analysis": "Analyse des besoins", "quotes_requested": "Consultation des assureurs", "offer_presented": "Proposition", "awaiting_decision": "Décision", "application_submitted": "Souscription", "bound": "Contrat émis", "lost": "Perdu" }
+    },
+    "opportunities.line": {
+      "label": "Branche",
+      "options": { "motor": "Auto", "home_contents": "Habitation", "liability": "Responsabilité civile", "legal_expenses": "Protection juridique", "life_pension": "Vie et retraite", "health": "Santé", "commercial_property": "Dommages aux biens professionnels", "commercial_liability": "Responsabilité civile professionnelle", "cyber": "Cyber", "other": "Autre" }
+    },
+    "opportunities.source": { "label": "Source", "options": { "referral": "Recommandation", "web_form": "Formulaire web", "comparison_portal": "Comparateur", "existing_client": "Client existant", "partner": "Partenaire", "event": "Événement" } },
+    "opportunities.needs_analysis_on": { "label": "Analyse des besoins le" },
+    "opportunities.advice_documented_on": { "label": "Conseil documenté le" },
+    "opportunities.advice_record_ref": { "label": "Lien vers la trace du conseil" },
+    "opportunities.decision_expected": { "label": "Décision attendue" },
+    "opportunities.next_step_due": { "label": "Prochaine étape avant le" },
+    "opportunities.lost_reason": {
+      "label": "Motif de perte",
+      "options": { "price": "Prix", "coverage_not_matching": "Garanties inadaptées", "stayed_with_current": "Reste chez l’assureur actuel", "no_response": "Sans réponse", "declined_by_carrier": "Refusé par l’assureur", "timing": "Calendrier" }
+    },
+    "opportunities.producer": { "label": "Chargé d’affaires" },
+    "policies.policy_ref": { "label": "Numéro de contrat" },
+    "policies.line": {
+      "label": "Branche",
+      "options": { "motor": "Auto", "home_contents": "Habitation", "liability": "Responsabilité civile", "legal_expenses": "Protection juridique", "life_pension": "Vie et retraite", "health": "Santé", "commercial_property": "Dommages aux biens professionnels", "commercial_liability": "Responsabilité civile professionnelle", "cyber": "Cyber", "other": "Autre" }
+    },
+    "policies.line_group": { "label": "Segment", "options": { "commercial": "Professionnel", "personal": "Particulier" } },
+    "policies.status": { "label": "Statut", "options": { "pending": "En attente d’émission", "active": "Actif", "lapsed": "Résilié par défaut de paiement", "cancelled": "Résilié" } },
+    "policies.renewal_date": { "label": "Échéance principale" },
+    "policies.annual_premium": { "label": "Prime annuelle" },
+    "policies.notice_days": { "label": "Préavis (jours)" },
+    "policies.system_ref": { "label": "Lien dans le logiciel de cabinet" },
+    "renewals.stage": {
+      "label": "Étape",
+      "options": { "upcoming": "À venir", "review_started": "Revue commencée", "market_check": "Consultation du marché", "offer_sent": "Proposition envoyée", "awaiting_client": "En attente du client", "renewed": "Renouvelé", "lapsed": "Non renouvelé" }
+    },
+    "renewals.renewal_date": { "label": "Échéance principale" },
+    "renewals.offer_sent_on": { "label": "Proposition envoyée le" },
+    "renewals.decision_on": { "label": "Décision du client le" },
+    "renewals.premium_change_percent": { "label": "Évolution de la prime (%)" },
+    "renewals.advice_documented_on": { "label": "Conseil documenté le" },
+    "renewals.lost_reason": {
+      "label": "Motif de perte",
+      "options": { "price": "Prix", "switched_broker": "A changé de courtier", "switched_carrier": "A changé d’assureur", "business_closed": "Activité arrêtée", "no_response": "Sans réponse", "other": "Autre" }
+    },
+    "actions.kind": {
+      "label": "Type",
+      "options": { "call": "Appeler", "send_quote": "Envoyer la proposition", "chase_carrier": "Relancer l’assureur", "advice_record": "Consigner le conseil", "renewal_review": "Revoir le renouvellement", "cross_sell": "Revue de vente croisée", "letter": "Rédiger un courrier", "other": "Autre" }
+    }
+  },
+  "relationships": {
+    "opportunity_contact": { "sourceLabel": "Contact", "targetLabel": "Affaires nouvelles" },
+    "policy_contact": { "sourceLabel": "Souscripteur", "targetLabel": "Contrats" },
+    "policy_opportunity": { "sourceLabel": "Affaire nouvelle", "targetLabel": "Contrats" },
+    "renewal_policy": { "sourceLabel": "Contrat", "targetLabel": "Renouvellements (échéances)" },
+    "action_opportunity": { "sourceLabel": "Affaire nouvelle", "targetLabel": "Actions" },
+    "action_renewal": { "sourceLabel": "Renouvellement", "targetLabel": "Actions" },
+    "action_policy": { "sourceLabel": "Contrat", "targetLabel": "Actions" }
+  },
+  "views": {
+    "opportunities_board": { "name": "Affaires nouvelles par étape" },
+    "opportunities_all": { "name": "Toutes les affaires nouvelles" },
+    "offers_without_advice": { "name": "Propositions sans trace du conseil" },
+    "renewals_board": { "name": "Renouvellements par étape" },
+    "policies_all": { "name": "Tous les contrats" },
+    "contacts_all": { "name": "Tous les contacts" }
+  },
+  "widgets": {
+    "opportunities_funnel": { "title": "Affaires nouvelles par étape" },
+    "renewals_coming": { "title": "Échéances à venir" },
+    "offers_no_advice": { "title": "Propositions sans trace du conseil" },
+    "renewals_by_stage": { "title": "Renouvellements ouverts par étape" },
+    "active_premium": { "title": "Prime annuelle des contrats actifs" },
+    "lost_reasons": { "title": "Motifs de perte des affaires" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Comment fonctionne le cabinet de courtage", "sections": ["Les deux pipelines : affaires nouvelles et renouvellements", "Qui est responsable de quelle étape et la règle d’une action datée par élément ouvert"] },
+    "advice_documentation": { "title": "Analyse des besoins et traçabilité du conseil", "sections": ["Ce qui est demandé et consigné avant une proposition", "Où se trouve la trace : seul un renvoi est conservé ici"] },
+    "renewal_playbook": { "title": "Guide du renouvellement", "sections": ["Professionnels dès 120 jours, particuliers dès 45 jours avant l’échéance", "Revue, consultation du marché, proposition et décision avant la date de préavis"] },
+    "policy_data_rules": { "title": "Données des contrats : ce qui reste dans le logiciel de cabinet", "sections": ["Les données de référence des contrats et les relevés de commissions restent dans le logiciel de cabinet", "Ce que cet espace garde et ce qu’il ne détient jamais"] }
+  },
+  "rules": {
+    "enquiry_form_records": { "title": "Créer le contact et l’affaire quand le formulaire de demande est envoyé" },
+    "respond_new_lead": { "title": "Répondre à une nouvelle demande le lendemain" },
+    "needs_analysis_task": { "title": "Consigner le conseil sous 3 jours quand une affaire atteint l’analyse des besoins" },
+    "quotes_chase": { "title": "Relancer les assureurs 3 jours après la consultation" },
+    "offer_follow_up": { "title": "Relancer le lendemain de la présentation d’une proposition" },
+    "bound_welcome": { "title": "Appeler le client une semaine après l’émission du contrat" },
+    "renewal_commercial": { "title": "Ouvrir un dossier de renouvellement 120 jours avant l’échéance d’un contrat professionnel actif" },
+    "renewal_personal": { "title": "Ouvrir un dossier de renouvellement 45 jours avant l’échéance d’un contrat de particulier actif" },
+    "renewal_review_task": { "title": "Revoir le renouvellement dans la semaine suivant l’ouverture du dossier" },
+    "renewal_offer_chase": { "title": "Prévenir le responsable quand une proposition de renouvellement attend le client depuis 7 jours" },
+    "decision_deadline_notice": { "title": "Prévenir le responsable 30 jours avant l’échéance pour confirmer la décision du client" },
+    "unpaid_premium_notice": { "title": "Écrire au client quand le logiciel de cabinet signale une prime impayée" }
+  },
+  "acceptanceChecks": {
+    "opportunity_stage_field": "Chaque affaire nouvelle a une étape.",
+    "advice_documented_field": "Chaque affaire indique quand le conseil a été documenté.",
+    "renewal_date_field": "Chaque contrat indique son échéance principale.",
+    "renewals_board_view": "Les renouvellements s’ouvrent en board par étape.",
+    "advice_documentation_page": "La base de connaissances contient une page sur la traçabilité du conseil."
+  },
+  "prompt": {
+    "intro": "Mets en place dans mon espace de travail Customermates un pipeline pour un courtier en assurance : affaires nouvelles de la demande à l’émission avec le conseil documenté avant la proposition, contrats avec échéance principale et un dossier de renouvellement pour chacun, et relances datées. Ne stocke ni données de santé, ni détails de sinistres, ni copies de pièces d’identité.",
+    "questions": [
+      "Quelles branches placez-vous, et servez-vous des professionnels, des particuliers ou les deux ?",
+      "Combien de temps avant l’échéance démarrez-vous un renouvellement, et quel est le préavis habituel ?",
+      "Où conservez-vous la trace du conseil et les données des contrats ? Seuls des liens sont gardés ici.",
+      "Dans quel pays travaillez-vous, et quelles obligations de conseil s’appliquent à vous ?"
+    ]
+  }
+}

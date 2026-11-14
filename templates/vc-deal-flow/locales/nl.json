@@ -1,0 +1,129 @@
+{
+  "locale": "nl",
+  "name": "Dealflow voor investeerders",
+  "summary": "Een dealflow voor een klein fonds of business angel: acht fasen van gesignaleerd tot gesloten of afgewezen, wie elke deal aandroeg, een reden van afwijzing en een datum om terug te komen.",
+  "description": "Volg startups en investeerders van sourcing, screening en gesprekken via due diligence tot de term sheet. Elke deal legt vast wie hem aandroeg, hoe goed hij past bij de thesis, de rol als lead, een link naar de data room, de reden van afwijzing en wanneer je opnieuw kijkt. Een relatietool, geen aandeelhoudersregister, geen juridische data room en geen scoremodel. De wegingen zijn globaal en van jou.",
+  "lists": {
+    "people": { "label": "Persoon", "pluralLabel": "Personen", "description": "Oprichters, investeerders, co-investeerders en introducers." },
+    "organizations": { "label": "Organisatie", "pluralLabel": "Organisaties", "description": "Startups, fondsen, syndicaten en accelerators." },
+    "deals": { "label": "Deal", "pluralLabel": "Deals", "description": "Eén investeringskans van sourcing tot gesloten of afgewezen." }
+  },
+  "fields": {
+    "deals.stage": {
+      "label": "Fase",
+      "options": { "sourced": "Gesignaleerd", "screening": "Screening", "first_meeting": "Eerste gesprek", "partner_meeting": "Investeringscommissie", "diligence": "Due diligence", "term_sheet": "Term sheet", "closed": "Gesloten", "passed": "Afgewezen" }
+    },
+    "people.person_role": {
+      "label": "Rol",
+      "options": { "founder": "Oprichter", "investor": "Investeringspartner", "angel": "Business angel", "co_investor": "Co-investeerder", "introducer": "Introducer", "advisor": "Adviseur" }
+    },
+    "people.focus_stages": {
+      "label": "Focusfasen",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Serie A", "series_b_plus": "Serie B en later" }
+    },
+    "people.thesis": { "label": "Investeringsthese" },
+    "people.relationship_strength": { "label": "Relatie", "options": { "strong": "Sterk", "warm": "Goed", "new": "Nieuw" } },
+    "people.last_meeting_on": { "label": "Laatste gesprek" },
+    "people.relationship_owner": { "label": "Relatiebeheerder" },
+    "organizations.org_type": {
+      "label": "Soort",
+      "options": { "startup": "Startup", "vc_fund": "Venture capital-fonds", "angel_syndicate": "Angelsyndicaat", "corporate_vc": "Corporate venture", "accelerator": "Accelerator", "other": "Overig" }
+    },
+    "organizations.website": { "label": "Website" },
+    "organizations.sector": { "label": "Sector" },
+    "organizations.stage": {
+      "label": "Fase",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Serie A", "series_b": "Serie B", "growth": "Groei" }
+    },
+    "organizations.country": { "label": "Land" },
+    "organizations.conflict_check": { "label": "Controle op belangenconflict", "options": { "to_check": "Te controleren", "clear": "Geen conflict", "conflict": "Conflict" } },
+    "deals.round": {
+      "label": "Ronde",
+      "options": { "pre_seed": "Pre-seed", "seed": "Seed", "series_a": "Serie A", "series_b": "Serie B", "bridge": "Overbruggingsronde" }
+    },
+    "deals.lead_role": { "label": "Onze rol", "options": { "lead": "Lead", "follow": "Volger", "undecided": "Nog open" } },
+    "deals.thesis_fit": { "label": "Match met de these", "options": { "strong": "Sterk", "partial": "Gedeeltelijk", "weak": "Zwak" } },
+    "deals.owner": { "label": "Verantwoordelijke" },
+    "deals.source": {
+      "label": "Herkomst",
+      "options": { "warm_introduction": "Persoonlijke introductie", "inbound": "Inkomende aanvraag", "outbound": "Eigen benadering", "event": "Evenement", "portfolio_referral": "Verwijzing uit de portefeuille", "co_investor": "Co-investeerder" }
+    },
+    "deals.intro_requested_on": { "label": "Introductie gevraagd op" },
+    "deals.intro_made_on": { "label": "Introductie gedaan op" },
+    "deals.first_meeting_on": { "label": "Eerste gesprek op" },
+    "deals.decision_on": { "label": "Besluit op" },
+    "deals.term_sheet_on": { "label": "Term sheet op" },
+    "deals.closed_on": { "label": "Gesloten op" },
+    "deals.nda_signed": { "label": "NDA getekend" },
+    "deals.pass_reason": {
+      "label": "Reden van afwijzing",
+      "options": { "thesis_mismatch": "Past niet bij de these", "team": "Team", "market": "Markt", "too_early": "Te vroeg", "valuation": "Waardering", "timing": "Timing", "other": "Overig" }
+    },
+    "deals.revisit_on": { "label": "Terugkomen op" },
+    "deals.data_room_url": { "label": "Link naar data room" },
+    "deals.days_to_term_sheet": { "label": "Dagen van eerste gesprek tot term sheet" },
+    "deals.weighted_value": { "label": "Gewogen waarde" },
+    "actions.kind": {
+      "label": "Soort",
+      "options": {
+        "request_intro": "Introductie vragen",
+        "send_deck": "Deck sturen",
+        "prepare_meeting": "Gesprek voorbereiden",
+        "follow_up": "Opvolging",
+        "diligence_request": "Verzoek voor due diligence",
+        "write_memo": "Memo schrijven",
+        "send_pass_note": "Afwijzing sturen",
+        "revisit": "Terugkomen",
+        "thank_introducer": "Introducer bedanken of een herinnering sturen",
+        "other": "Overig"
+      }
+    }
+  },
+  "relationships": {
+    "deal_company": { "sourceLabel": "Bedrijf", "targetLabel": "Deals" },
+    "deal_contacts": { "sourceLabel": "Oprichters en contacten", "targetLabel": "Deals" },
+    "action_deal": { "sourceLabel": "Deal", "targetLabel": "Acties" }
+  },
+  "views": {
+    "deals_board": { "name": "Dealflow" },
+    "deals_all": { "name": "Alle deals" },
+    "passed_to_revisit": { "name": "Afgewezen, om op terug te komen" },
+    "organizations_all": { "name": "Alle organisaties" },
+    "people_all": { "name": "Alle personen" }
+  },
+  "widgets": {
+    "deal_funnel": { "title": "Open deals per fase" },
+    "deals_by_source": { "title": "Deals per herkomst" },
+    "pass_reasons": { "title": "Redenen van afwijzing" },
+    "average_days_to_term_sheet": { "title": "Gemiddeld aantal dagen tot term sheet" },
+    "revisits_coming": { "title": "Aankomende herbeoordelingen" }
+  },
+  "knowledgePages": {
+    "investment_thesis": { "title": "Investeringsthese en focus", "sections": ["Fase, sector en ticketgrootte", "Waarin wij niet investeren"] },
+    "stage_criteria": { "title": "Criteria per fase", "sections": ["Wat een deal naar de volgende fase brengt", "Wie beslist in de commissie"] },
+    "pass_notes": { "title": "Afwijzingen en regels om terug te komen", "sections": ["Hoe we afwijzen", "Wanneer we opnieuw kijken"] }
+  },
+  "rules": {
+    "follow_up_after_meeting": { "title": "Stuur na een eerste gesprek een bericht met de volgende stappen" },
+    "stale_screening": { "title": "Pak een deal die 14 dagen in screening bleef weer op of wijs af" },
+    "pass_note": { "title": "Stuur een afwijzing wanneer een deal wordt afgewezen" },
+    "revisit_deal": { "title": "Kom op de afgesproken datum terug op een afgewezen deal" },
+    "diligence_checklist": { "title": "Start de due-diligencelijst wanneer een term sheet is afgesproken" },
+    "first_check_in_after_close": { "title": "Neem 30 dagen na de closing contact op" },
+    "intro_nudge": { "title": "Stuur de introducer een herinnering een week nadat een introductie is gevraagd" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Elke deal heeft een van de acht fasen.",
+    "pass_reason_field": "Elke deal legt vast waarom hij is afgewezen.",
+    "board_view": "De deals openen als bord per fase."
+  },
+  "prompt": {
+    "intro": "Richt een dealflow in mijn Customermates-werkruimte in: deals met acht fasen, de introducer, match met de these, de rol als lead, een reden van afwijzing en een datum om terug te komen, plus startups, investeerders en opvolgacties met datum.",
+    "questions": [
+      "In welke fasen en sectoren investeer je en hoe groot is je gebruikelijke ticket?",
+      "Hoe komen deals bij je binnen en wie draagt ze aan?",
+      "Wie beslist in elke fase en wanneer wijs je af?",
+      "Waar bewaar je juridische documenten en de data room? Hier wordt alleen een link bewaard."
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "locale": "pl",
+  "name": "Śledzenie zadań zespołu",
+  "summary": "Narzędzie do śledzenia pracy małego zespołu: projekty, zadania z jedną osobą odpowiedzialną i jednym terminem, zadania cykliczne i prośby z zewnątrz na jednej liście.",
+  "description": "Prowadź zespół od dwóch do piętnastu osób na jednej liście: każde zadanie ma status, priorytet, osobę odpowiedzialną i termin, a to, co się spóźnia lub jest zablokowane, widać od razu. Zadania cykliczne tworzą się same, prośby od współpracowników i klientów przychodzą przez formularz, a zadanie zablokowane lub stojące przypomina o sobie osobie odpowiedzialnej. To nie jest narzędzie do sprintów, wykres Gantta, rejestr czasu pracy ani system kadrowy.",
+  "lists": {
+    "requesters": { "label": "Osoba zgłaszająca", "pluralLabel": "Osoby zgłaszające", "description": "Osoby spoza zespołu, które proszą o pracę." },
+    "projects": { "label": "Projekt", "pluralLabel": "Projekty", "description": "Zestaw zadań z osobą odpowiedzialną, stanem realizacji i terminem." },
+    "tasks": { "label": "Zadanie", "pluralLabel": "Zadania", "description": "Jedna praca z jedną osobą odpowiedzialną i jednym terminem." },
+    "recurring": { "label": "Zadanie cykliczne", "pluralLabel": "Zadania cykliczne", "description": "Zadanie, które wraca co tydzień, miesiąc, kwartał lub rok." }
+  },
+  "fields": {
+    "requesters.relation": {
+      "label": "Relacja",
+      "options": { "customer": "Klient", "colleague": "Współpracownik", "partner": "Partner", "vendor": "Dostawca", "other": "Inna" }
+    },
+    "requesters.team": { "label": "Zespół" },
+    "projects.status": {
+      "label": "Status",
+      "options": { "planned": "Zaplanowany", "active": "Aktywny", "on_hold": "Wstrzymany", "done": "Zakończony", "cancelled": "Anulowany" }
+    },
+    "projects.health": { "label": "Stan realizacji", "options": { "on_track": "Zgodnie z planem", "at_risk": "Zagrożony", "off_track": "Poza planem" } },
+    "projects.owner": { "label": "Osoba odpowiedzialna" },
+    "projects.due_date": { "label": "Termin" },
+    "projects.repo_url": { "label": "Link do repozytorium" },
+    "tasks.status": {
+      "label": "Status",
+      "options": { "backlog": "Backlog", "todo": "Do zrobienia", "in_progress": "W toku", "in_review": "Do weryfikacji", "blocked": "Zablokowane", "done": "Zrobione", "cancelled": "Anulowane" }
+    },
+    "tasks.kind": { "label": "Typ", "options": { "task": "Zadanie", "bug": "Błąd", "feature": "Nowa funkcja", "chore": "Czynność rutynowa", "request": "Prośba" } },
+    "tasks.priority": { "label": "Priorytet", "options": { "urgent": "Pilny", "high": "Wysoki", "medium": "Średni", "low": "Niski" } },
+    "tasks.owner": { "label": "Osoba odpowiedzialna" },
+    "tasks.due": { "label": "Termin" },
+    "tasks.original_due": { "label": "Pierwotny termin" },
+    "tasks.done_on": { "label": "Data wykonania" },
+    "tasks.blocked_reason": { "label": "Powód blokady" },
+    "tasks.external_url": { "label": "Link (pull request lub zgłoszenie)" },
+    "recurring.cadence": { "label": "Powtarza się", "options": { "weekly": "Co tydzień", "monthly": "Co miesiąc", "quarterly": "Co kwartał", "yearly": "Co rok" } },
+    "recurring.next_due": { "label": "Następny termin" },
+    "recurring.owner": { "label": "Osoba odpowiedzialna" }
+  },
+  "relationships": {
+    "task_project": { "sourceLabel": "Projekt", "targetLabel": "Zadania" },
+    "task_requester": { "sourceLabel": "Osoba zgłaszająca", "targetLabel": "Zadania" },
+    "recurring_project": { "sourceLabel": "Projekt", "targetLabel": "Zadania cykliczne" }
+  },
+  "views": {
+    "tasks_all": { "name": "Wszystkie zadania" },
+    "tasks_board": { "name": "Tablica zadań" },
+    "blocked_tasks": { "name": "Zablokowane zadania" },
+    "projects_all": { "name": "Wszystkie projekty" },
+    "recurring_all": { "name": "Wszystkie zadania cykliczne" },
+    "requesters_all": { "name": "Wszystkie osoby zgłaszające" }
+  },
+  "widgets": {
+    "tasks_by_status": { "title": "Zadania według statusu" },
+    "open_by_priority": { "title": "Otwarte zadania według priorytetu" },
+    "overdue_tasks": { "title": "Zadania po terminie" },
+    "due_soon": { "title": "Zadania z bliskim terminem" },
+    "blocked_count": { "title": "Zablokowane zadania" },
+    "activity_timeline": { "title": "Ostatnia aktywność" }
+  },
+  "knowledgePages": {
+    "how_we_work": { "title": "Jak pracujemy", "sections": ["Statusy, priorytety i co oznacza zrobione", "Jedna osoba odpowiedzialna i jeden termin na zadanie"] },
+    "weekly_review": { "title": "Przegląd tygodniowy", "sections": ["Zaległości, blokady i zadania bez właściciela", "Co zmienia się w tym tygodniu"] },
+    "triage": { "title": "Kwalifikacja próśb i błędów", "sections": ["Kto decyduje, co wchodzi", "Waga błędu a priorytet"] }
+  },
+  "rules": {
+    "task_assigned": { "title": "Powiadom nową osobę odpowiedzialną, gdy zostanie jej przypisane zadanie" },
+    "due_tomorrow": { "title": "Powiadom osobę odpowiedzialną dzień przed terminem" },
+    "overdue_task": { "title": "Powiadom osobę prowadzącą zespół dzień po terminie zadania" },
+    "blocked_stale": { "title": "Powiadom osobę prowadzącą zespół, gdy zadanie jest zablokowane przez 3 dni" },
+    "stale_in_progress": { "title": "Przypomnij osobie odpowiedzialnej, gdy zadanie nie ruszyło od 5 dni" },
+    "recurring_due": { "title": "Utwórz zadanie, gdy nadchodzi termin zadania cyklicznego" },
+    "task_from_git": { "title": "Utwórz zadanie, gdy platforma Git wyśle zdarzenie" },
+    "request_form": { "title": "Utwórz zadanie i osobę zgłaszającą po wysłaniu formularza zgłoszeniowego" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Każde zadanie ma status.",
+    "due_field": "Każde zadanie ma termin.",
+    "tasks_board_view": "Zadania otwierają się jako tablica według statusu."
+  },
+  "prompt": {
+    "intro": "Skonfiguruj w mojej przestrzeni roboczej Customermates śledzenie zadań zespołu: projekty, zadania z jedną osobą odpowiedzialną i jednym terminem, zadania cykliczne, prośby spoza zespołu i przypomnienia o pracy po terminie lub zablokowanej.",
+    "questions": [
+      "Ile osób liczy zespół i nad czym pracują?",
+      "Jakich statusów używasz dziś w Trello, Jirze, Asanie lub arkuszu?",
+      "Jakie zadania wracają co tydzień lub co miesiąc i kto za nie odpowiada?",
+      "Skąd przychodzą prośby i czy mają trafiać przez formularz?"
+    ]
+  }
+}

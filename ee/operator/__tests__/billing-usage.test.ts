@@ -76,6 +76,8 @@ function subscription(extra: Partial<WorkspaceSubscriptionDto> = {}): WorkspaceS
     trialEndDate: null,
     currentPeriodEnd: null,
     enterpriseAgentCreditsPerUser: null,
+    trialEnded: false,
+    effectivePlan: "pro",
     ...extra,
   };
 }
@@ -348,16 +350,22 @@ describe("subscription summary", () => {
       usage({ companyId: "e", activeSeats: 1, subscription: subscription({ status: "pastDue" }) }),
       usage({ companyId: "f", subscription: null }),
       usage({ companyId: "g", deletedAt: at("2026-09-10T00:00:00.000Z"), subscription: subscription() }),
+      usage({
+        companyId: "h",
+        activeSeats: 1,
+        subscription: subscription({ status: "trial", billing: "manual", trialEnded: true, effectivePlan: "free" }),
+      }),
     ]);
 
     expect(summary).toEqual({
-      workspaces: 5,
+      workspaces: 6,
       paying: 3,
       groups: [
-        { billing: "lemonSqueezy", plan: "pro", status: "active", workspaces: 2, activeSeats: 6 },
-        { billing: "lemonSqueezy", plan: "pro", status: "pastDue", workspaces: 1, activeSeats: 1 },
-        { billing: "manual", plan: "enterprise", status: "active", workspaces: 1, activeSeats: 9 },
-        { billing: "manual", plan: "pro", status: "trial", workspaces: 1, activeSeats: 1 },
+        { billing: "lemonSqueezy", plan: "pro", status: "active", trialEnded: false, workspaces: 2, activeSeats: 6 },
+        { billing: "lemonSqueezy", plan: "pro", status: "pastDue", trialEnded: false, workspaces: 1, activeSeats: 1 },
+        { billing: "manual", plan: "enterprise", status: "active", trialEnded: false, workspaces: 1, activeSeats: 9 },
+        { billing: "manual", plan: "pro", status: "trial", trialEnded: false, workspaces: 1, activeSeats: 1 },
+        { billing: "manual", plan: "pro", status: "trial", trialEnded: true, workspaces: 1, activeSeats: 1 },
       ],
     });
   });

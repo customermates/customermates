@@ -1,0 +1,149 @@
+{
+  "locale": "pt",
+  "name": "Reservas para criativos",
+  "summary": "Para fotógrafos, videomakers e cerimonialistas: um funil da solicitação à reserva, uma etapa de entrega depois da data, controle de sinal e saldo e uma nota para cada aniversário.",
+  "description": "Uma linha por reserva com duas etapas: venda (da solicitação a reservado) e entrega (sessão feita a entregue). A data fica reservada até o contrato ser assinado e o sinal pago, o saldo tem um vencimento próprio e cada entrega pede uma avaliação. Contratos, notas fiscais e galerias ficam nas suas ferramentas, aqui ficam os links.",
+  "lists": {
+    "people": { "label": "Pessoa", "pluralLabel": "Pessoas", "description": "Clientes, parceiros dos clientes, cerimonialistas e contatos de espaços." },
+    "partners": { "label": "Parceiro", "pluralLabel": "Parceiros", "description": "Espaços, cerimonialistas, buffets e outros fornecedores com quem você trabalha." },
+    "bookings": { "label": "Reserva", "pluralLabel": "Reservas", "description": "Um trabalho da solicitação à entrega." }
+  },
+  "fields": {
+    "bookings.stage": {
+      "label": "Etapa",
+      "options": { "inquiry": "Solicitação", "consultation": "Conversa inicial", "proposal_sent": "Orçamento enviado", "date_on_hold": "Data reservada", "booked": "Reservado", "lost": "Perdido" }
+    },
+    "bookings.delivery": {
+      "label": "Entrega",
+      "options": { "not_started": "Não iniciada", "preparing": "Em preparação", "shoot_done": "Sessão realizada", "editing": "Em edição", "client_review": "Revisão do cliente", "delivered": "Entregue", "cancelled": "Cancelado ou adiado" }
+    },
+    "people.contact_role": {
+      "label": "Papel",
+      "options": { "client": "Cliente", "partner_of_client": "Cônjuge ou noivo(a) do cliente", "payer": "Pai, mãe ou pagador", "planner": "Cerimonialista", "venue_contact": "Contato do espaço", "referrer": "Quem indicou" }
+    },
+    "people.preferred_channel": {
+      "label": "Canal preferido",
+      "options": { "email": "E-mail", "whatsapp": "WhatsApp", "phone": "Telefone", "instagram": "Instagram" }
+    },
+    "people.anniversary_on": { "label": "Aniversário" },
+    "people.portfolio_consent": { "label": "Autorização de imagem para o portfólio (LGPD)", "options": { "granted": "Concedida", "declined": "Negada", "not_asked": "Não solicitada" } },
+    "people.consent_date": { "label": "Data da autorização" },
+    "partners.partner_type": {
+      "label": "Tipo",
+      "options": { "venue": "Espaço", "planner": "Cerimonialista", "caterer": "Buffet", "florist": "Floricultura", "band_or_dj": "Banda ou DJ", "other": "Outro" }
+    },
+    "partners.website": { "label": "Site" },
+    "partners.preferred": { "label": "Parceiro preferido" },
+    "bookings.service_type": {
+      "label": "Serviço",
+      "options": { "wedding": "Casamento", "portrait": "Retrato ou família", "event": "Evento", "corporate": "Corporativo ou retratos profissionais", "commercial": "Publicitário", "video": "Vídeo", "planning": "Cerimonial" }
+    },
+    "bookings.package": { "label": "Pacote" },
+    "bookings.event_date": { "label": "Data do evento" },
+    "bookings.location": { "label": "Local" },
+    "bookings.source": {
+      "label": "Origem",
+      "options": { "referral": "Indicação", "instagram": "Instagram", "google_search": "Busca no Google", "venue_or_planner": "Espaço ou cerimonialista", "wedding_fair": "Feira de casamento", "past_client": "Cliente antigo", "other": "Outra" }
+    },
+    "bookings.date_hold_until": { "label": "Data reservada até" },
+    "bookings.contract_status": {
+      "label": "Contrato",
+      "options": { "not_sent": "Não enviado", "sent": "Enviado", "signed": "Assinado", "cancelled": "Cancelado" }
+    },
+    "bookings.deposit_amount": { "label": "Valor do sinal" },
+    "bookings.deposit_status": {
+      "label": "Sinal",
+      "options": { "not_due": "Não exigido", "requested": "Solicitado", "paid": "Pago", "refunded": "Devolvido", "kept": "Retido" }
+    },
+    "bookings.balance_due_on": { "label": "Saldo vence em" },
+    "bookings.balance_status": {
+      "label": "Saldo",
+      "options": { "not_due": "Não exigido", "requested": "Solicitado", "paid": "Pago", "overdue": "Atrasado" }
+    },
+    "bookings.questionnaire_status": {
+      "label": "Questionário",
+      "options": { "not_sent": "Não enviado", "sent": "Enviado", "received": "Recebido" }
+    },
+    "bookings.delivery_due_on": { "label": "Entrega até" },
+    "bookings.delivered_on": { "label": "Entregue em" },
+    "bookings.gallery_url": { "label": "Link da galeria" },
+    "bookings.usage_rights": {
+      "label": "Direitos de uso",
+      "options": { "private_use": "Uso privado", "portfolio_and_social": "Portfólio e redes sociais", "commercial_licence": "Licença comercial", "not_decided": "A definir" }
+    },
+    "bookings.lost_reason": {
+      "label": "Motivo da perda",
+      "options": { "date_taken": "Data ocupada", "price": "Preço", "chose_another": "Escolheu outro profissional", "cancelled_or_postponed": "Evento cancelado ou adiado", "no_response": "Sem resposta", "style_mismatch": "Estilo incompatível" }
+    },
+    "bookings.weighted_value": { "label": "Valor ponderado" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "reply": "Responder à solicitação",
+        "consult": "Conversa inicial",
+        "send_proposal": "Enviar o orçamento",
+        "send_contract": "Enviar o contrato",
+        "chase_payment": "Cobrar um pagamento",
+        "send_questionnaire": "Enviar o questionário",
+        "build_timeline": "Montar o cronograma do dia",
+        "shoot_day": "Dia da sessão",
+        "edit": "Edição",
+        "deliver": "Entrega",
+        "request_review": "Pedir uma avaliação",
+        "anniversary": "Mensagem de aniversário",
+        "other": "Outro"
+      }
+    }
+  },
+  "relationships": {
+    "booking_client": { "sourceLabel": "Cliente", "targetLabel": "Reservas" },
+    "booking_venue": { "sourceLabel": "Espaço ou cerimonialista", "targetLabel": "Reservas" },
+    "action_booking": { "sourceLabel": "Reserva", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "bookings_board": { "name": "Reservas por etapa" },
+    "bookings_all": { "name": "Todas as reservas por data" },
+    "delivery_board": { "name": "Entrega por status" },
+    "payments_due": { "name": "Saldos a cobrar" },
+    "people_all": { "name": "Todas as pessoas" },
+    "partners_all": { "name": "Todos os parceiros" }
+  },
+  "widgets": {
+    "pipeline_by_stage": { "title": "Solicitações abertas por etapa" },
+    "shoots_coming": { "title": "Datas reservadas" },
+    "deposits_outstanding": { "title": "Sinais solicitados" },
+    "balances_coming": { "title": "Saldos a vencer" },
+    "booked_per_month": { "title": "Valor reservado por mês do evento" },
+    "lost_reasons": { "title": "Por que solicitações foram perdidas" }
+  },
+  "knowledgePages": {
+    "booking_workflow": { "title": "Fluxo de uma reserva", "sections": ["Da solicitação à reserva: responder em um dia, reservar a data, assinatura, sinal", "Da sessão à entrega: edição, revisão, galeria"] },
+    "contract_checklist": { "title": "Checklist de contrato e pagamento", "sections": ["O que o pacote inclui e exclui", "Sinal, saldo e cancelamento", "Direitos de uso e autorização de imagem"] },
+    "delivery_and_usage": { "title": "Entrega, prévia e pedido de avaliação", "sections": ["Data de entrega e prévia", "Onde fica a galeria", "Pedir uma avaliação"] }
+  },
+  "rules": {
+    "reply_to_inquiry": { "title": "Responder a uma nova solicitação em um dia" },
+    "send_contract": { "title": "Enviar o contrato quando a data é reservada" },
+    "chase_payment_after_signing": { "title": "Cobrar o sinal três dias depois da assinatura do contrato" },
+    "questionnaire_before_event": { "title": "Enviar o questionário 45 dias antes de um evento reservado" },
+    "balance_reminder": { "title": "Cobrar o saldo uma semana antes do vencimento" },
+    "edit_after_shoot": { "title": "Iniciar a edição quando a sessão é realizada" },
+    "request_review": { "title": "Pedir uma avaliação duas semanas depois da entrega" },
+    "anniversary_note": { "title": "Escrever uma mensagem no dia do aniversário" },
+    "inquiry_form_records": { "title": "Criar a pessoa e a reserva a partir de um formulário de solicitação" }
+  },
+  "acceptanceChecks": {
+    "stage_field": "Cada reserva tem uma etapa de venda.",
+    "event_date_field": "Cada reserva tem uma data do evento.",
+    "bookings_board_view": "As reservas abrem como quadro por etapa."
+  },
+  "prompt": {
+    "intro": "Configure as reservas para criativos no meu espaço de trabalho do Customermates: um funil da solicitação à reserva, uma etapa de entrega depois da data, controle de sinal e saldo, um questionário antes do evento, um pedido de avaliação e mensagens de aniversário.",
+    "questions": [
+      "O que você fotografa, filma ou organiza e quantas reservas tem por ano?",
+      "Por quais passos um cliente passa da solicitação à reserva e quando você reserva a data?",
+      "Como você recebe sinais e saldos? As notas fiscais ficam na sua ferramenta.",
+      "Onde você entrega as galerias? Aqui só se guarda o link."
+    ]
+  }
+}

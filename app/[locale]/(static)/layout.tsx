@@ -4,6 +4,8 @@ import { LemonSqueezyAffiliateScript } from "@/components/acquisition/lemon-sque
 import { Toaster } from "@/components/ui/sonner";
 import { env } from "@/env";
 import { MarketingShell } from "@/app/components/navigation/marketing-shell";
+import { pagePublicationOptions } from "@/core/templates/template-deployment";
+import { hubVisibility } from "@/core/templates/template-publication";
 import { enableMarketingShellLocale } from "@/i18n/static-locale";
 
 type Props = {
@@ -14,11 +16,14 @@ type Props = {
 export const revalidate = 86400;
 
 export default async function StaticLayout({ children, params }: Props) {
-  await enableMarketingShellLocale(params);
+  const locale = await enableMarketingShellLocale(params);
+  const templatesInNav = hubVisibility(locale, pagePublicationOptions()) === "indexable";
 
   return (
     <>
-      <MarketingShell appMode={env.APP_MODE}>{children}</MarketingShell>
+      <MarketingShell appMode={env.APP_MODE} templatesInNav={templatesInNav}>
+        {children}
+      </MarketingShell>
 
       <Toaster />
 

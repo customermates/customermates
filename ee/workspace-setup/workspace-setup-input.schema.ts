@@ -2,6 +2,7 @@ import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
+import { TEMPLATE_SLUGS } from "@/core/templates/template-slugs";
 import { SPREADSHEET_MAX_FILE_BYTES } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 import { SetupAnswerValueSchema } from "@/features/workspace-setup/setup-answers.schema";
 import { SETUP_PART_IDS } from "@/features/workspace-setup/setup-interview";
@@ -13,6 +14,7 @@ export const StartWorkspaceSetupSchema = z
   .object({
     websiteUrl: z.string().trim().min(1).max(2_000).nullable(),
     locale: z.enum(APP_LOCALES).optional(),
+    templateSlug: z.enum(TEMPLATE_SLUGS).optional(),
   })
   .strict();
 export type StartWorkspaceSetupData = Data<typeof StartWorkspaceSetupSchema>;

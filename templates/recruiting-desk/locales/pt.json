@@ -1,0 +1,195 @@
+{
+  "locale": "pt",
+  "name": "Consultoria de recrutamento",
+  "summary": "Um espaço de trabalho para consultoria de recrutamento ou recrutador independente: vagas da solicitação à contratação, uma ficha por candidato e vaga, datas de honorários e garantia, acompanhamento pós-contratação e uma data de retenção para cada candidato.",
+  "description": "Conduza a consultoria em um só lugar: clientes e suas condições, vagas com uma etapa e honorários previstos, candidatos indicados por vaga com etapa própria, contratações com o fim do período de garantia e o acompanhamento pós-contratação, e uma data de revisão de retenção em cada candidato. Serve para uma equipe de uma a cinco pessoas. Não é um portal de vagas, nem um leitor de currículos, nem uma ferramenta de disparos em massa, nem um sistema de ponto e folha de pagamento. Nada é enviado automaticamente a candidatos ou clientes.",
+  "lists": {
+    "people": { "label": "Pessoa", "pluralLabel": "Candidatos e contatos", "description": "Candidatos, contatos no cliente e quem indica." },
+    "clients": { "label": "Cliente", "pluralLabel": "Clientes", "description": "As empresas para as quais você recruta, com honorários e garantia." },
+    "jobs": { "label": "Vaga", "pluralLabel": "Vagas", "description": "Uma busca para um cliente, da solicitação à contratação ou à perda." },
+    "submissions": { "label": "Candidato indicado", "pluralLabel": "Candidatos indicados", "description": "Um candidato em uma vaga, com etapa própria." },
+    "placements": { "label": "Contratação", "pluralLabel": "Contratações", "description": "Um candidato que aceitou, com data de início, honorários e fim da garantia." }
+  },
+  "fields": {
+    "jobs.stage": {
+      "label": "Etapa",
+      "options": { "lead": "Solicitação", "brief": "Briefing", "terms_agreed": "Contrato assinado", "searching": "Busca", "submitted": "Shortlist enviada", "interviews": "Entrevistas com o cliente", "offer": "Proposta", "placed": "Contratado", "lost": "Perdido" }
+    },
+    "submissions.stage": {
+      "label": "Etapa",
+      "options": { "sourced": "Mapeado", "contacted": "Contatado", "screened": "Triado", "submitted": "Indicado ao cliente", "client_interview": "Entrevista com o cliente", "offer": "Proposta", "placed": "Contratado", "rejected_internal": "Reprovado por nós", "rejected_by_client": "Reprovado pelo cliente", "withdrawn": "Desistiu" }
+    },
+    "people.person_type": {
+      "label": "Tipo",
+      "options": { "candidate": "Candidato", "client_contact": "Contato do cliente", "referrer": "Quem indicou", "other": "Outro" }
+    },
+    "people.job_title": { "label": "Cargo" },
+    "people.candidate_status": {
+      "label": "Status do candidato",
+      "options": { "active": "Em busca ativa", "passive": "Passivo", "placed": "Contratado", "do_not_contact": "Não contatar", "archived": "Arquivado" }
+    },
+    "people.source": {
+      "label": "Origem",
+      "options": { "referral": "Indicação", "linkedin": "LinkedIn", "job_board": "Portal de vagas", "own_database": "Banco de talentos próprio", "event": "Evento", "inbound": "Candidatura espontânea", "other": "Outra" }
+    },
+    "people.salary_expectation": { "label": "Pretensão salarial" },
+    "people.notice_period": { "label": "Aviso prévio" },
+    "people.location": { "label": "Localização" },
+    "people.data_basis": {
+      "label": "Base para guardar os dados",
+      "options": { "pre_contract": "Procedimentos preliminares ao contrato", "talent_pool_consent": "Consentimento para o banco de talentos", "legitimate_interest": "Mapeado, legítimo interesse" }
+    },
+    "people.retain_until": { "label": "Guardar até" },
+    "people.last_contact": { "label": "Último contato" },
+    "people.owner": { "label": "Responsável" },
+    "clients.client_status": {
+      "label": "Status",
+      "options": { "prospect": "Prospect", "active_client": "Cliente ativo", "past_client": "Ex-cliente", "do_not_contact": "Não contatar" }
+    },
+    "clients.agreement_type": {
+      "label": "Acordo",
+      "options": { "contingency": "Por êxito", "retained": "Retainer (em três parcelas)", "container": "Pacote de vagas", "other": "Outro" }
+    },
+    "clients.fee_percent": { "label": "Honorários (% do salário anual)" },
+    "clients.guarantee_days": { "label": "Garantia de reposição (dias)" },
+    "clients.terms_signed_on": { "label": "Contrato assinado em" },
+    "clients.terms_url": { "label": "Link do contrato" },
+    "clients.website": { "label": "Site" },
+    "clients.next_touch": { "label": "Próximo contato" },
+    "clients.owner": { "label": "Responsável" },
+    "jobs.salary": { "label": "Salário anual" },
+    "jobs.fee_percent": { "label": "Honorários (%)" },
+    "jobs.opened_on": { "label": "Aberta em" },
+    "jobs.filled_on": { "label": "Preenchida em" },
+    "jobs.exclusive": { "label": "Exclusividade" },
+    "jobs.location": { "label": "Local de trabalho" },
+    "jobs.work_model": { "label": "Modelo de trabalho", "options": { "on_site": "Presencial", "hybrid": "Híbrido", "remote": "Remoto" } },
+    "jobs.must_haves": { "label": "Requisitos obrigatórios e desejáveis" },
+    "jobs.brief_url": { "label": "Link do briefing" },
+    "jobs.next_step": { "label": "Próximo passo" },
+    "jobs.next_step_due": { "label": "Data do próximo passo" },
+    "jobs.lost_reason": {
+      "label": "Motivo da perda",
+      "options": { "client_filled_internally": "O cliente preencheu internamente", "client_froze_search": "O cliente congelou a busca", "filled_by_competitor": "Preenchida por um concorrente", "terms_not_agreed": "Condições não acordadas", "role_cancelled": "Vaga cancelada", "no_suitable_candidates": "Sem candidatos adequados" }
+    },
+    "jobs.owner": { "label": "Responsável" },
+    "jobs.days_to_fill": { "label": "Dias para preencher" },
+    "jobs.weighted_fee": { "label": "Honorários ponderados" },
+    "submissions.submitted_on": { "label": "Indicado em" },
+    "submissions.interview_at": { "label": "Entrevista" },
+    "submissions.feedback_due": { "label": "Retorno do cliente até" },
+    "submissions.rejection_reason": {
+      "label": "Motivo da reprovação",
+      "options": { "skills": "Competências", "culture_fit": "Fit cultural", "salary_mismatch": "Salário incompatível", "other_offer": "Outra proposta", "no_response": "Sem resposta", "location_or_notice": "Localização ou aviso prévio" }
+    },
+    "submissions.notes": { "label": "Anotações" },
+    "submissions.owner": { "label": "Responsável" },
+    "placements.start_date": { "label": "Data de início" },
+    "placements.agreed_salary": { "label": "Salário acordado" },
+    "placements.fee_amount": { "label": "Honorários" },
+    "placements.invoice_reference": { "label": "Referência da nota fiscal" },
+    "placements.guarantee_ends": { "label": "Fim da garantia" },
+    "placements.status": {
+      "label": "Status",
+      "options": { "in_guarantee": "Em garantia", "guarantee_passed": "Garantia concluída", "fell_out_replaced": "Saiu, reposto", "fell_out_refunded": "Saiu, reembolsado" }
+    },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "call_client": "Ligar para o cliente",
+        "call_candidate": "Ligar para o candidato",
+        "submit_candidate": "Indicar um candidato",
+        "request_feedback": "Pedir retorno",
+        "prepare_interview": "Preparar uma entrevista",
+        "debrief": "Fazer o debriefing",
+        "chase_terms": "Cobrar o contrato assinado",
+        "check_in": "Fazer acompanhamento",
+        "retention_review": "Revisão de retenção",
+        "review_search": "Revisar uma busca parada",
+        "invoice_request": "Pedir uma nota fiscal",
+        "other": "Outro"
+      }
+    }
+  },
+  "relationships": {
+    "person_client": { "sourceLabel": "Empregador ou cliente", "targetLabel": "Candidatos e contatos" },
+    "job_client": { "sourceLabel": "Cliente", "targetLabel": "Vagas" },
+    "job_contacts": { "sourceLabel": "Contatos do cliente", "targetLabel": "Vagas" },
+    "submission_job": { "sourceLabel": "Vaga", "targetLabel": "Candidatos indicados" },
+    "submission_candidate": { "sourceLabel": "Candidato", "targetLabel": "Candidatos indicados" },
+    "placement_job": { "sourceLabel": "Vaga", "targetLabel": "Contratações" },
+    "placement_candidate": { "sourceLabel": "Candidato", "targetLabel": "Contratações" },
+    "action_person": { "sourceLabel": "Pessoa", "targetLabel": "Tarefas" },
+    "action_job": { "sourceLabel": "Vaga", "targetLabel": "Tarefas" },
+    "action_submission": { "sourceLabel": "Candidato indicado", "targetLabel": "Tarefas" },
+    "action_client": { "sourceLabel": "Cliente", "targetLabel": "Tarefas" },
+    "action_placement": { "sourceLabel": "Contratação", "targetLabel": "Tarefas" }
+  },
+  "views": {
+    "jobs_board": { "name": "Vagas por etapa" },
+    "jobs_all": { "name": "Todas as vagas" },
+    "searches_without_next_step": { "name": "Buscas abertas sem próximo passo" },
+    "submissions_board": { "name": "Candidatos por etapa" },
+    "feedback_pending": { "name": "Aguardando retorno do cliente" },
+    "placements_all": { "name": "Todas as contratações" },
+    "clients_all": { "name": "Todos os clientes" },
+    "people_all": { "name": "Todos os candidatos e contatos" }
+  },
+  "widgets": {
+    "jobs_funnel": { "title": "Vagas abertas por etapa" },
+    "weighted_fees": { "title": "Honorários ponderados no funil" },
+    "submissions_by_stage": { "title": "Candidatos por etapa" },
+    "placements_per_month": { "title": "Honorários por mês de início" },
+    "interviews_coming": { "title": "Próximas entrevistas" },
+    "guarantees_ending": { "title": "Garantias terminando" },
+    "retention_due": { "title": "Dados de candidatos para revisar" },
+    "lost_reasons": { "title": "Por que as vagas foram perdidas" },
+    "average_days_to_fill": { "title": "Média de dias para preencher" }
+  },
+  "knowledgePages": {
+    "operating_guide": { "title": "Como a consultoria funciona", "sections": ["Os dois funis: vagas e candidatos", "Quem cuida de cada etapa, e a regra de uma tarefa com data para cada item aberto"] },
+    "client_intake_call": { "title": "Reunião de briefing com o cliente", "sections": ["Cargo, local, modelo de trabalho, faixa salarial e data de início", "Requisitos obrigatórios e desejáveis, por que a vaga está aberta e quem decide"] },
+    "terms_checklist": { "title": "Honorários, garantia e exclusividade", "sections": ["Base de cálculo, quando são devidos e prazo de pagamento", "Prazo e forma de reposição da garantia, exclusividade (use o seu próprio contrato, isto não é consultoria jurídica)"] },
+    "screening_call": { "title": "Roteiro da conversa de triagem", "sections": ["Motivação, aviso prévio, pretensão salarial, outros processos", "O que não perguntar e o que não registrar"] },
+    "submission_email": { "title": "Indicar um candidato ao cliente", "sections": ["Resumo em três linhas e por que essa pessoa", "Disponibilidade, pretensão e currículo em anexo (um rascunho, nunca enviado automaticamente)"] },
+    "interview_routine": { "title": "Preparação e debriefing das entrevistas", "sections": ["Orientar o candidato e o contato do cliente", "Registrar o resultado em até um dia"] },
+    "candidate_data": { "title": "Dados dos candidatos: base legal, aviso e retenção (LGPD)", "sections": ["Prazos de retenção e aviso de privacidade", "Consentimento para o banco de talentos e data de revisão"] },
+    "aftercare_routine": { "title": "Acompanhamento do dia 1 ao dia 90", "sections": ["Contatos no início, na semana 1, aos 30, 60 e 90 dias", "Fim da garantia e cobrança dos honorários"] }
+  },
+  "rules": {
+    "chase_terms": { "title": "Cobrar o contrato assinado três dias depois de a vaga chegar a contrato acordado" },
+    "request_client_feedback": { "title": "Pedir retorno ao cliente dois dias depois de indicar um candidato" },
+    "prepare_interview": { "title": "Orientar o candidato na véspera da entrevista com o cliente" },
+    "debrief_interview": { "title": "Fazer o debriefing com candidato e cliente no dia da entrevista" },
+    "chase_offer_decision": { "title": "Cobrar a decisão do candidato dois dias depois da proposta" },
+    "start_day_confirmation": { "title": "Confirmar o início no primeiro dia da contratação" },
+    "check_in_week_1": { "title": "Fazer acompanhamento uma semana depois do início" },
+    "check_in_day_30": { "title": "Fazer acompanhamento 30 dias depois do início" },
+    "check_in_day_60": { "title": "Fazer acompanhamento 60 dias depois do início" },
+    "check_in_day_90": { "title": "Fazer acompanhamento 90 dias depois do início" },
+    "guarantee_check": { "title": "Confirmar 14 dias antes do fim da garantia que a contratação está estável e os honorários pagos" },
+    "retention_review": { "title": "Na data de retenção, excluir o candidato ou registrar um novo consentimento" },
+    "client_touch": { "title": "Ligar para um cliente ativo na data do próximo contato para saber das contratações previstas" },
+    "stalled_search_review": { "title": "Revisar uma busca aberta há mais de 10 dias" },
+    "application_received": { "title": "Criar o candidato e uma ligação quando chegar um formulário de candidatura" },
+    "feedback_overdue_notice": { "title": "Avisar o responsável quando o retorno do cliente estiver atrasado" },
+    "interview_calendar": { "title": "Adicionar a entrevista à agenda do responsável quando for combinada" }
+  },
+  "acceptanceChecks": {
+    "job_stage_field": "Cada vaga tem uma das nove etapas.",
+    "submission_stage_field": "Cada candidato tem a sua própria etapa em uma vaga.",
+    "guarantee_end_field": "Cada contratação registra quando termina a garantia.",
+    "retain_until_field": "Cada pessoa registra até quando seus dados são guardados.",
+    "jobs_board_view": "As vagas abrem como quadro por etapa.",
+    "candidate_data_page": "A base de conhecimento tem uma página sobre dados de candidatos e retenção."
+  },
+  "prompt": {
+    "intro": "Configure no meu espaço de trabalho do Customermates uma consultoria de recrutamento: clientes com suas condições, vagas com nove etapas e honorários previstos, um candidato indicado por candidato e vaga, contratações com o fim da garantia e o acompanhamento, e uma data de retenção para cada candidato.",
+    "questions": [
+      "Você trabalha por êxito, em retainer ou dos dois jeitos, e quais honorários e garantia costuma combinar?",
+      "Quantas vagas e candidatos você acompanha ao mesmo tempo e quem cuida de cada etapa?",
+      "Por quanto tempo você guarda os dados dos candidatos e em quais países recruta?",
+      "Onde ficam os contratos assinados e as notas fiscais? Aqui só se guarda um link ou uma referência."
+    ]
+  }
+}

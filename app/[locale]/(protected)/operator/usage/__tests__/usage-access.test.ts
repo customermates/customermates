@@ -21,7 +21,10 @@ vi.mock("@/core/di", async () => {
   return {
     getOperatorAccessService: () => ({ authorizeRead: state.authorizeRead }),
     getGetOperatorBillingUsageInteractor: () =>
-      new GetOperatorBillingUsageInteractor({ readBillingUsageLedgerUnscoped: state.ledgerReads }),
+      new GetOperatorBillingUsageInteractor({
+        readBillingUsageLedgerUnscoped: state.ledgerReads,
+        readWorkspaceMeasurementsUnscoped: () => Promise.resolve(new Map()),
+      }),
   };
 });
 

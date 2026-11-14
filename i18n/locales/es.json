@@ -94,6 +94,10 @@
           "configure": "Listo para pausar o ejecutar la rutina",
           "delete": "Listo para mover la rutina y su historial a la Papelera"
         },
+        "rules": {
+          "create": "Listo para crear la regla de automatización",
+          "manage": "Listo para cambiar una regla de automatización"
+        },
         "support": {
           "escalate": "Listo para enviar tu solicitud al soporte por correo"
         },
@@ -132,6 +136,13 @@
         "routineDelete": "Mover la rutina seleccionada y su historial a la Papelera, donde puedes restaurarla durante 30 días",
         "routinePause": "Pausar la rutina seleccionada",
         "routineRun": "Ejecutar ahora la rutina seleccionada",
+        "ruleDelete": "Eliminar de forma permanente la regla seleccionada y su historial de ejecuciones",
+        "ruleDisable": "Desactivar la regla seleccionada",
+        "ruleDraft": "Guardada como borrador, sin activar",
+        "ruleEnable": "Activar la regla seleccionada",
+        "ruleLive": "Se activa de inmediato",
+        "ruleSummary": "Cuando {when}, entonces {then}",
+        "ruleUpdate": "Cambiar la regla seleccionada",
         "salesListSave": "Añadir el prospecto seleccionado a una lista de Sales Navigator",
         "salesListSaveTarget": "Añadir {target} a la lista {list} de Sales Navigator",
         "socialAccept": "Aceptar la solicitud de conexión seleccionada",
@@ -159,9 +170,12 @@
       },
       "contextMore": "{labels} (+{count})",
       "contextual": "{action} · {context}",
-      "countedRecordInResource": "1 registro en {resource}",
-      "countedResource": "{count} {resource}",
-      "countedSingular": "1 {resource}",
+      "counted": {
+        "messages": "{count, plural, one {# conversación} other {# conversaciones}}",
+        "records": "{count, plural, one {# registro} other {# registros}}",
+        "widgets": "{count, plural, one {# widget del dashboard} other {# widgets del Dashboard}}",
+        "wiki": "{count, plural, one {# página de la base de conocimientos} other {# páginas de la base de conocimientos}}"
+      },
       "defaultRecords": "registros",
       "label": {
         "preview": "Vista previa",
@@ -173,10 +187,22 @@
         "widgets": "widgets del Dashboard",
         "wiki": "páginas de la base de conocimientos"
       },
-      "resourceSingular": {
-        "messages": "conversación",
-        "widgets": "widget del dashboard",
-        "wiki": "página de la base de conocimientos"
+      "rule": {
+        "effect": {
+          "callWebhook": "llamar a un webhook",
+          "createRecord": "crear el registro «{title}»",
+          "notify": "enviar la alerta «{title}»",
+          "setField": "establecer el valor de un campo"
+        },
+        "trigger": {
+          "dateReached": "se alcanza una fecha",
+          "fieldChanged": "cambia un campo",
+          "formSubmitted": "se envía un formulario",
+          "messageReceived": "llega un mensaje",
+          "recordCreated": "se crea un registro",
+          "recordUpdated": "se actualiza un registro",
+          "webhookReceived": "se recibe un webhook"
+        }
       },
       "state": {
         "accounts": {
@@ -352,6 +378,18 @@
             "done": "Rutina actualizada",
             "error": "No se pudo actualizar la rutina",
             "running": "Actualizando la rutina"
+          }
+        },
+        "rules": {
+          "create": {
+            "done": "Regla de automatización creada",
+            "error": "No se pudo crear la regla de automatización",
+            "running": "Creando la regla de automatización"
+          },
+          "manage": {
+            "done": "Regla de automatización cambiada",
+            "error": "No se pudo cambiar la regla de automatización",
+            "running": "Cambiando la regla de automatización"
           }
         },
         "support": {
@@ -868,6 +906,191 @@
     "userCreationFailed": "No se pudo crear tu cuenta. Inténtalo de nuevo.",
     "userInfoIsMissing": "El proveedor no devolvió tu perfil. Inténtalo de nuevo."
   },
+  "AutomationRules": {
+    "active": "Activar o desactivar {name}",
+    "automate": "Automatizar esta lista",
+    "builder": {
+      "action": "Acción",
+      "active": "Activa",
+      "addCondition": "Añadir una condición",
+      "addEffect": "Añadir una acción",
+      "after": "después",
+      "anyField": "Cualquier campo",
+      "assignToOwner": "Asignármelo",
+      "atHour": "A la hora (0 a 23)",
+      "before": "antes",
+      "body": "Detalles (opcional)",
+      "boolean": {
+        "false": "No",
+        "true": "Sí"
+      },
+      "choose": "Elegir…",
+      "dateField": "Campo de fecha",
+      "days": "Días",
+      "daysFromToday": "Días desde hoy",
+      "direction": "Antes o después",
+      "dueDays": "Vence en días",
+      "dueField": "Campo de vencimiento",
+      "event": "Evento",
+      "field": "Campo",
+      "fixConditions": "Completa cada condición o elimínala.",
+      "fixEffect": "Completa esta acción.",
+      "fixTrigger": "Completa el disparador: elige un campo y un valor válido.",
+      "if": "Si (opcional)",
+      "incomplete": "Esta automatización aún no está completa.",
+      "keptEffect": "Esta acción ({kind}) no se puede editar aquí y se mantiene como está.",
+      "keptTrigger": "Este disparador no se puede editar aquí y se mantiene como está.",
+      "linkTo": "Vincular al registro que la disparó como",
+      "list": "Lista",
+      "name": "Nombre",
+      "namePlaceholder": "Por ejemplo: recordarme antes de que se cierre una oportunidad",
+      "noDueDate": "Sin vencimiento",
+      "noLink": "No vincular",
+      "notificationKind": "Aparece en la campana como",
+      "operator": "Condición",
+      "placeholders": "En los títulos y detalles, {recordName} se sustituye por el nombre del registro y {ruleName} por el nombre de esta automatización.",
+      "then": "Entonces",
+      "timezone": "Zona horaria",
+      "title": "Título",
+      "titleEdit": "Editar automatización",
+      "titleField": "Campo de título",
+      "titleNew": "Nueva automatización",
+      "toAssignees": "Avisar a las personas asignadas",
+      "toOwner": "Avisarme",
+      "toValue": "Al valor (opcional)",
+      "value": "Valor",
+      "when": "Cuando"
+    },
+    "deleteMessage": "¿Eliminar «{name}» y su historial? No se puede deshacer.",
+    "deleteTitle": "Eliminar automatización",
+    "disabledReason": {
+      "disabledByUser": "Desactivada.",
+      "ownerInactive": "Desactivada porque su propietario ya no es un miembro activo.",
+      "ownerMissing": "Desactivada porque no tiene propietario."
+    },
+    "edit": "Editar",
+    "effect": {
+      "callWebhook": "Llamar a un webhook",
+      "createRecord": "Crear un registro",
+      "notify": "Notificar",
+      "setField": "Fijar un campo"
+    },
+    "emptyBody": "Recuerda antes de que se cierre una oportunidad, crea una tarea de seguimiento cuando cambie un registro o avisa a tu equipo cuando llegue un formulario.",
+    "emptyTitle": "Aún no hay automatizaciones",
+    "history": {
+      "empty": "Aún no hay ejecuciones",
+      "open": "Historial",
+      "record": "Abrir el registro",
+      "title": "Ejecuciones de «{name}»"
+    },
+    "lastRun": "Última ejecución {time}",
+    "neverRun": "Aún no se ha ejecutado",
+    "new": "Nueva automatización",
+    "notificationKind": {
+      "dueToday": "Vence hoy",
+      "replyReceived": "Respuesta recibida",
+      "ruleAlert": "Alerta de automatización"
+    },
+    "operator": {
+      "after": "es posterior a hoy más",
+      "before": "es anterior a hoy más",
+      "empty": "está vacío",
+      "equals": "es",
+      "notEmpty": "no está vacío",
+      "notEquals": "no es"
+    },
+    "outcome": {
+      "applied": "hecho",
+      "failed": "fallido",
+      "skipped": "omitido"
+    },
+    "reason": {
+      "conditionsNotMet": "No se cumplían las condiciones.",
+      "ownerChanged": "El propietario cambió.",
+      "ownerInactive": "El propietario ya no es un miembro activo.",
+      "ownerMissing": "La automatización no tiene propietario.",
+      "ownerNotPermitted": "El propietario ya no tiene acceso a las automatizaciones.",
+      "recordUnavailable": "El registro ya no existe o el propietario no puede leerlo.",
+      "ruleDisabled": "La automatización estaba desactivada."
+    },
+    "remindBefore": "Recordarme {field}",
+    "status": {
+      "applied": "Completada",
+      "failed": "Fallida",
+      "queued": "En cola",
+      "running": "En curso",
+      "skipped": "Omitida"
+    },
+    "subtitle": "Reglas sin IA: cuando ocurre algo y coincide, se hace esto.",
+    "summary": {
+      "dateReached": "{direction, select, before {{days, plural, =0 {En la fecha de {field} en {list}} one {# día antes de {field} en {list}} other {# días antes de {field} en {list}}}} other {{days, plural, =0 {En la fecha de {field} en {list}} one {# día después de {field} en {list}} other {# días después de {field} en {list}}}}}",
+      "fieldChanged": "Cuando cambia {field} en {list}",
+      "formSubmitted": "Cuando se envía un formulario",
+      "messageReceived": "Cuando llega un mensaje",
+      "recordCreated": "Cuando se crea un registro en {list}",
+      "recordUpdated": "Cuando se actualiza un registro de {list}",
+      "webhookReceived": "Cuando un webhook entrante entrega datos"
+    },
+    "title": "Automatizaciones",
+    "trigger": {
+      "dateReached": "Se alcanza una fecha",
+      "fieldChanged": "Cambia un campo",
+      "messageReceived": "Llega un mensaje",
+      "recordCreated": "Se crea un registro",
+      "recordUpdated": "Se actualiza un registro"
+    }
+  },
+  "Booking": {
+    "closed": "Cerrado",
+    "days": "{days, plural, one {# día} other {# días}}",
+    "demoNote": "Las páginas de reservas necesitan un calendario conectado y no están disponibles en el espacio de trabajo de demostración.",
+    "description": "Una página de reservas permite que cualquiera reserve una reunión en tu calendario conectado sin necesidad de cuenta. Los visitantes ven tus horarios libres, y cada reserva crea el evento en el calendario, la persona y un registro en tu CRM.",
+    "edit": "Editar",
+    "editTitle": "Editar página de reservas",
+    "empty": "Aún no hay páginas de reservas",
+    "fields": {
+      "buffer": "Margen entre reuniones",
+      "calendar": "Calendario",
+      "description": "Descripción",
+      "duration": "Duración de la reunión",
+      "enabled": "Aceptar reservas",
+      "from": "Desde",
+      "horizon": "Reservable con antelación",
+      "minNotice": "Antelación mínima",
+      "none": "Ninguno",
+      "personList": "Buscar o crear al visitante en",
+      "questions": "Preguntas para el visitante",
+      "recordList": "Crear un registro por cada reserva en",
+      "required": "Obligatorio",
+      "startField": "Guardar el inicio de la reunión en",
+      "successMessage": "Mensaje tras la reserva",
+      "timeZone": "Zona horaria",
+      "title": "Título",
+      "to": "Hasta",
+      "withVideo": "Añadir un enlace de videollamada",
+      "workingHours": "Horario laboral"
+    },
+    "minutes": "{minutes} min",
+    "new": "Nueva página de reservas",
+    "newTitle": "Nueva página de reservas",
+    "notice": "{hours, plural, =0 {Sin antelación mínima} one {# hora de antelación} other {# horas de antelación}}",
+    "open": "Abrir página",
+    "paused": "En pausa",
+    "removeQuestion": "Quitar pregunta",
+    "saved": "Página de reservas guardada",
+    "selfHostedNote": "Las páginas de reservas usan la conexión de calendario alojada y no están disponibles con el autoalojamiento.",
+    "unavailableField": "Campo ya no disponible",
+    "upcoming": "{count, plural, =0 {Sin reservas próximas} one {# reserva próxima} other {# reservas próximas}}",
+    "weekdays": {
+      "friday": "Viernes",
+      "monday": "Lunes",
+      "saturday": "Sábado",
+      "sunday": "Domingo",
+      "thursday": "Jueves",
+      "tuesday": "Martes",
+      "wednesday": "Miércoles"
+    }
+  },
   "BrowserFrame": {
     "open": "Abrir en una nueva pestaña"
   },
@@ -941,6 +1164,7 @@
         "themeSystem": "tema automático, seguir el sistema"
       },
       "page": {
+        "automations": "reglas, reglas de automatización, recordatorios, cuando si entonces, disparadores, notificaciones, recordatorios de fecha",
         "calendar": "planificador, citas, reuniones, eventos, agenda, programación",
         "configure": "modelo de datos, esquema, listas, campos, relaciones, Configurar, campos personalizados, objetos",
         "dashboard": "inicio, resumen, widgets, gráficos, informes, análisis, KPI, métricas",
@@ -990,8 +1214,10 @@
         "activity": "registro de auditoría, historial, cambios, Actividad, registro de auditoría, quién cambió qué",
         "api-keys": "tokens, API, MCP, desarrollador, claves de acceso, conectores, Claude, ChatGPT, Codex, Gemini, Cursor, IA, servidor MCP, n8n, integración",
         "billing": "plan, suscripción, facturas, pago, precios, mejorar plan, recibo, factura",
+        "booking": "página de reservas, enlace de reserva, reservar una reunión, enlace de reunión, Calendly, citas, disponibilidad, horario laboral, calendario público",
         "channels": "cuentas conectadas, cuentas de correo, LinkedIn, WhatsApp, integraciones, Google, Google Calendar, Gmail, Microsoft, Outlook, Instagram, Telegram, calendarios, sincronización de bandeja, sincronización de calendario, sincronización de correo, SMTP, IMAP, Office 365, Sales Navigator",
         "general": "nombre del espacio de trabajo, renombrar espacio de trabajo, salir del espacio de trabajo",
+        "incoming-webhooks": "webhooks entrantes, recibir datos, dirección secreta, URL del webhook, enviar JSON, crear registros desde otras herramientas, herramienta de formularios, Zapier, Make, n8n",
         "members": "equipo, usuarios, personas, compañeros, invitar, asientos, licencias",
         "profile": "mi perfil, cuenta, preferencias, personal",
         "roles": "permisos, acceso, derechos, admin, conjuntos de permisos",
@@ -1146,12 +1372,27 @@
       "apiKeyNameLength": "El nombre de una clave de API debe tener entre 1 y 255 caracteres.",
       "apiKeyNotFound": "No se encontró esta clave de API en este espacio de trabajo.",
       "apiRateLimitReached": "Este espacio de trabajo alcanzó el límite de solicitudes de API y MCP del plan Free. Espera y vuelve a intentarlo, o cámbiate a Starter para quitar el límite.",
+      "automationRuleAdminRequired": "Solo el propietario de una automatización o un administrador puede desactivarla o eliminarla.",
+      "automationRuleEditNotOwner": "Solo el propietario de una automatización puede modificarla o activarla.",
+      "automationRuleInvalid": "Esta automatización no encaja en el espacio de trabajo: falta una lista, un campo o una relación que usa, o no encaja con su disparador o sus acciones.",
+      "automationRuleLimitReached": "Tu plan incluye {limit} automatizaciones activas. Cambia de plan (desde {price} por usuario y mes) o desactiva otra automatización.",
+      "automationRuleNotFound": "ID de automatización no encontrado o no accesible.",
+      "automationRuleOwnerIneligible": "El propietario de una automatización debe ser un miembro activo de este espacio de trabajo.",
       "billingPortalUnavailable": "El portal de facturación no está disponible para este espacio de trabajo. Contacta con soporte para hacer cambios.",
+      "bookingAnswerInvalid": "Falta una respuesta o no es válida.",
+      "bookingLinkLimitReached": "Puedes tener como máximo {limit} páginas de reservas. Elimina una para crear otra.",
+      "bookingLinkNotFound": "ID de página de reservas no encontrado o no accesible.",
+      "bookingListInvalid": "Esta lista o este campo no se puede usar para reservas.",
+      "bookingRateLimited": "Demasiados intentos de reserva. Inténtalo de nuevo más tarde.",
+      "bookingSlotTaken": "Este horario ya no está disponible. Elige otro.",
+      "bookingUnavailable": "Esta página de reservas no está disponible en este momento.",
       "calendarEventNotFound": "ID de evento de calendario no encontrado o no accesible.",
       "calendarExportIncomplete": "Este periodo tiene más entradas de las que puede incluir una exportación. Elige un periodo más corto o filtros de origen más específicos.",
+      "calendarNeedsReconnect": "Vuelve a conectar tu cuenta de Google o Microsoft en Canales y calendarios para permitir cambios en el calendario y inténtalo de nuevo.",
       "calendarNotFound": "ID de calendario no encontrado o no accesible.",
       "calendarSubscriptionLimitReached": "Puedes tener hasta {limit} suscripciones de calendario. Revoca una para crear otra.",
       "calendarSubscriptionNotFound": "Esta suscripción de calendario ya no existe.",
+      "calendarWriteUnavailable": "No se puede modificar ningún calendario de Google o Microsoft conectado. Conecta primero un calendario en Canales y calendarios.",
       "channelAlreadyLinked": "Este número de teléfono, dirección de correo o perfil ya está vinculado a otro registro.",
       "chatThreadRequired": "Este es un hilo de correo. Responde con un correo en lugar de un mensaje de chat.",
       "connectedAccountEmailChangeRequired": "Indica una firma, la configuración de correo o ambas.",
@@ -1187,6 +1428,8 @@
       "enterpriseCheckoutUnavailable": "Los espacios de trabajo Enterprise se facturan manualmente y no pueden iniciar el pago de autoservicio.",
       "filterBetweenInvalidArrayLength": "El operador 'between' requiere un array con exactamente 2 elementos.",
       "generic": "Se ha producido un error.",
+      "incomingWebhookMappingInvalid": "Revisa la asignación de campos: cada campo asignado debe ser un campo de esta lista que un webhook pueda rellenar, y el upsert necesita un campo de coincidencia asignado.",
+      "incomingWebhookNotFound": "No se encontró este webhook entrante.",
       "inmailSignatureRequired": "Añade una firma para el InMail de Recruiter.",
       "inmailSubjectRequired": "Añade un asunto para el InMail.",
       "insufficientPermissions": "Para usar claves de API o conexiones MCP, tu rol necesita acceso de lectura Todo en API y Webhooks. Pídeselo a un administrador del espacio de trabajo.",
@@ -1213,6 +1456,7 @@
       "notAuthenticated": "Inicia sesión para usar esta acción.",
       "notesExceedsMaxLength": "El contenido de las notas supera la longitud máxima.",
       "notesInvalidFormat": "Formato de notas no válido. Debe ser JSON de Tiptap válido o texto markdown.",
+      "notificationNotFound": "Notificación no encontrada.",
       "operatorAllowanceMissing": "Este espacio de trabajo aún no tiene un cupo Enterprise contratado, por lo que no se pueden corregir los créditos. Define primero el cupo en la lista de espacios de trabajo.",
       "operatorConflict": "El cambio fue rechazado. Puede que el registro haya cambiado desde que se cargó la lista, o que el espacio de trabajo no lo permita ahora mismo. Recarga y revisa el estado actual.",
       "operatorConnectedAccountsActive": "Este espacio de trabajo todavía tiene cuentas de mensajería conectadas. Desconéctalas primero para liberar las cuentas del proveedor y elimina después el espacio de trabajo.",
@@ -1231,6 +1475,9 @@
       "planSeatSwapUnavailable": "El puesto activo solo se puede ceder mientras este espacio de trabajo está en Free y la persona está en pausa por el plan.",
       "planWebhooksNotIncluded": "Los webhooks y n8n no están incluidos en el plan Free. Cámbiate a Starter ({price} por usuario y mes) para crear webhooks.",
       "privacyAcknowledgementRequired": "Confirma que has leído la Política de privacidad.",
+      "publicFormConfigurationInvalid": "Revisa el formulario: cada pregunta debe ser un campo de esta lista, y una persona vinculada necesita una lista con datos de contacto y una relación con esta lista.",
+      "publicFormExists": "Esta lista ya tiene un formulario. Actualízalo en su lugar.",
+      "publicFormNotFound": "No se encontró este formulario.",
       "publicLinkExpiryInPast": "La fecha de fin debe ser hoy o posterior.",
       "recordAddressCandidateInvalid": "Esta sugerencia de dirección ya no es válida. Busca la dirección de nuevo.",
       "recordAddressCountryInvalid": "En {field}, {country} no es un código de país.",
@@ -1399,6 +1646,9 @@
         "resynced": "Cuenta resincronizada",
         "updated": "Visibilidad de la cuenta modificada"
       },
+      "form": {
+        "submitted": "Formulario enviado"
+      },
       "legal": {
         "documents_accepted": "Documentos legales aceptados",
         "notice_sent": "Aviso legal enviado"
@@ -1470,6 +1720,7 @@
       "webhook": {
         "created": "Webhook creado",
         "deleted": "Webhook eliminado",
+        "received": "Webhook recibido",
         "updated": "Webhook actualizado"
       },
       "wiki_page": {
@@ -2361,6 +2612,9 @@
       "savedRoles": "Compartida con los roles seleccionados",
       "savedWorkspace": "Compartida con todo este espacio de trabajo",
       "sharedBy": "Compartida por {name}",
+      "tabForm": "Formulario",
+      "tabShare": "Compartir la vista",
+      "tabsLabel": "Opciones para compartir",
       "title": "Compartir «{name}»",
       "withEveryone": "Con todos · solo {name} puede editarla",
       "withRoles": "Con roles seleccionados · solo {name} puede editarla",
@@ -2447,6 +2701,7 @@
   "DocsSidebar": {
     "apiKeys": "Claves de API",
     "appAssistant": "Asistente",
+    "appAutomations": "Automatizaciones",
     "appCalendar": "Calendario",
     "appCompany": "Empresa",
     "appDashboard": "Panel",
@@ -2896,6 +3151,63 @@
     },
     "youPrefix": "Tú:"
   },
+  "IncomingWebhooks": {
+    "add": "Añadir webhook entrante",
+    "addRow": "Añadir campo",
+    "clearSecret": "Quitar el secreto de firma",
+    "deleted": "Webhook entrante eliminado",
+    "deliveries": "Entregas",
+    "deliveriesTitle": "Entregas de {name}",
+    "edit": "Editar",
+    "editTitle": "Editar webhook entrante",
+    "emptyBody": "Crea un endpoint para una lista, asigna los campos del cuerpo JSON y pega la dirección en el otro sistema.",
+    "emptyTitle": "Aún no hay webhooks entrantes",
+    "enabled": "Acepta solicitudes",
+    "field": "Campo",
+    "intro": "Deja que otros sistemas creen o actualicen registros enviando JSON a una dirección secreta. Cada solicitud aparece en el registro de entregas.",
+    "lastReceived": "Última solicitud {date}",
+    "list": "Lista",
+    "loading": "Cargando",
+    "mapping": "Asignación de campos",
+    "matchField": "Encontrar el registro existente por",
+    "mode": "Cuando llega una solicitud",
+    "modeCreate": "Crear siempre un registro",
+    "modeUpsert": "Actualizar el registro coincidente o crear uno",
+    "name": "Nombre",
+    "neverReceived": "Aún no hay solicitudes",
+    "newTitle": "Nuevo webhook entrante",
+    "noDeliveries": "Todavía no se ha recibido ninguna solicitud.",
+    "noLists": "Crea primero una lista. Cada endpoint rellena una lista.",
+    "outcomes": {
+      "created": "Registro creado",
+      "failed": "Fallida",
+      "rejected_limit": "Rechazada: demasiado grande",
+      "rejected_payload": "Rechazada: cuerpo no válido",
+      "rejected_plan": "Rechazada: no incluida en tu plan",
+      "rejected_signature": "Rechazada: firma incorrecta",
+      "updated": "Registro actualizado"
+    },
+    "path": "Ruta JSON",
+    "previewCreate": "Crearía un registro",
+    "previewInvalid": "No válido",
+    "previewMissing": "Falta",
+    "previewRefused": "Sería rechazada",
+    "previewUpdate": "Actualizaría el registro coincidente",
+    "removeRow": "Quitar campo",
+    "rotate": "Sustituir la dirección secreta",
+    "rotated": "Dirección sustituida. Actualízala en el otro sistema.",
+    "sample": "Cuerpo de ejemplo (JSON)",
+    "sampleInvalid": "El ejemplo no es un objeto JSON válido.",
+    "saved": "Webhook entrante guardado",
+    "security": "Comprobación de firma",
+    "signatureHeader": "Cabecera de firma",
+    "signatureHelp": "Con un secreto de firma, cada solicitud debe enviar en esta cabecera el HMAC-SHA256 hexadecimal del cuerpo sin procesar. Se rechazan los cuerpos de más de 256 KB.",
+    "signingSecret": "Secreto de firma (opcional)",
+    "test": "Guardar y probar con el ejemplo",
+    "title": "Webhooks entrantes",
+    "url": "Dirección secreta",
+    "urlAfterSave": "La dirección secreta aparece al guardar."
+  },
   "InvitationCard": {
     "inviter": "Invitación de {inviterName}",
     "joinAction": "Continuar",
@@ -3119,6 +3431,7 @@
     "addPickerDescription": "Elige el tipo de registro que quieres crear.",
     "addPickerTitle": "Crear nuevo…",
     "affiliate": "Programa de afiliados",
+    "automations": "Automatizaciones",
     "dashboard": "Panel",
     "data": "Datos",
     "docs": "Documentación",
@@ -3195,6 +3508,7 @@
         "whatsappCrm": "Chats de WhatsApp con clientes"
       },
       "startups": "Startups",
+      "templates": "Plantillas",
       "whatsappCrm": "CRM para WhatsApp"
     },
     "routines": "Rutinas",
@@ -3209,6 +3523,47 @@
     "documentTitle": "Página no encontrada | Customermates",
     "subtitle": "Esta página se fue de vacaciones sin avisarnos",
     "title": "¡Vaya! Has entrado en el vacío"
+  },
+  "NotificationEmail": {
+    "cta": "Abrir Customermates",
+    "digestIntro": "Estas novedades te esperan en Customermates:",
+    "digestSubject": "Novedades en Customermates",
+    "greeting": "Hola {firstName},",
+    "instantIntro": "Hay algo que requiere tu atención en Customermates:",
+    "preferencesHint": "Tú eliges con qué frecuencia recibes estos correos, por tipo de notificación, en Perfil, Notificaciones.",
+    "title": "Novedades de tu espacio de trabajo"
+  },
+  "Notifications": {
+    "emailMode": {
+      "digest": "Resumen diario",
+      "instant": "Correo inmediato",
+      "off": "Sin correo"
+    },
+    "empty": "Estás al día.",
+    "kindHelp": {
+      "assigned": "Cuando se te asigna un registro.",
+      "dueToday": "Recordatorios de las fechas que llegan hoy.",
+      "formSubmission": "Cuando alguien envía uno de tus formularios.",
+      "replyReceived": "Cuando llega un mensaje que esperabas.",
+      "ruleAlert": "Cuando una de tus automatizaciones te avisa de algo."
+    },
+    "kinds": {
+      "assigned": "Asignados a ti",
+      "dueToday": "Vencen hoy",
+      "formSubmission": "Envíos de formularios",
+      "replyReceived": "Respuestas recibidas",
+      "ruleAlert": "Alertas de automatización"
+    },
+    "loading": "Cargando notificaciones…",
+    "markAllRead": "Marcar todo como leído",
+    "open": "Abrir las notificaciones",
+    "openUnread": "Abrir las notificaciones, {count} sin leer",
+    "preferences": {
+      "description": "La campana siempre lo muestra todo. Elige aquí con qué frecuencia cada tipo te llega también por correo.",
+      "title": "Correos de notificación"
+    },
+    "title": "Notificaciones",
+    "unread": "Sin leer"
   },
   "OnboardingChoice": {
     "create": {
@@ -3350,8 +3705,17 @@
           }
         }
       },
+      "other": {
+        "description": "Pega esta URL donde tu cliente añade un servidor MCP remoto o un conector personalizado. Se abre una página de inicio de sesión y allí apruebas el acceso.",
+        "keyNote": "¿Tu cliente necesita una clave de API en lugar de iniciar sesión? <guide>La guía de MCP</guide> muestra la cabecera que debe enviar.",
+        "stepsTitle": "Añade Customermates como servidor MCP remoto",
+        "subtitle": "Cualquier cliente que pueda añadir un servidor MCP remoto funciona con esta URL.",
+        "title": "Otro cliente MCP",
+        "workspaceNote": "Esta URL conecta {workspace}. Cada espacio de trabajo tiene su propia URL."
+      },
       "providers": {
-        "ariaLabel": "Clientes de IA"
+        "ariaLabel": "Clientes de IA",
+        "more": "Más:"
       },
       "savedKey": "Ya has creado una clave de API para esta configuración. Puedes finalizar la configuración inicial. Si necesitas volver a ver su valor, crea una nueva clave.",
       "screen": {
@@ -3370,11 +3734,38 @@
         }
       }
     },
+    "channel": {
+      "addAnother": "Añade otro canal si tus clientes también te escriben por otro medio.",
+      "connected": "Conectado",
+      "connectedLabel": "Canales conectados",
+      "emailDescription": "Conecta el buzón al que escriben tus clientes. Tus correos entran y, por defecto, solo los ves tú.",
+      "emailTitle": "Correo",
+      "later": "WhatsApp, Telegram y más canales están en los ajustes después de la configuración.",
+      "skip": "Omitir por ahora"
+    },
+    "connect": {
+      "checkAgain": "Comprobar de nuevo",
+      "connected": "Conectado. Tu agente ha llegado a este espacio de trabajo.",
+      "failed": "No pudimos comprobar la conexión. Inténtalo de nuevo en un momento.",
+      "skip": "Conectaré más tarde",
+      "statusLabel": "Estado de la conexión",
+      "waiting": "Esperando la primera llamada de {agent}. La marca aparece sola en cuanto {agent} esté conectado.",
+      "waitingGeneric": "Esperando la primera llamada de tu agente. La marca aparece sola en cuanto tu agente esté conectado."
+    },
+    "continue": "Continuar",
     "finish": "Finalizar",
     "goal": {
       "agent": {
-        "description": "Usa Claude, ChatGPT o un cliente CLI con tu espacio mediante MCP.",
-        "title": "Conectar mi propio agente de IA"
+        "description": "Conéctalo a Customermates, pega una plantilla y él construye tus listas, tu pipeline y tus seguimientos.",
+        "descriptionSelfHosted": "Conéctalo a esta instancia, pega una plantilla y él construye tus listas, tu pipeline y tus seguimientos.",
+        "steps": {
+          "approve": "Pega y aprueba el plan",
+          "connect": "Conecta tu agente",
+          "template": "Elige una plantilla"
+        },
+        "stepsLabel": "Cómo funciona",
+        "title": "Usa el agente de IA que ya tienes",
+        "worksWith": "Funciona con Claude, ChatGPT, Cursor, Gemini y cualquier otro cliente MCP."
       },
       "channelsHint": {
         "action": "Abrir el panel",
@@ -3393,15 +3784,22 @@
         "salesNavigator": "¿Usas Sales Navigator? Conecta LinkedIn con Sales Navigator",
         "title": "Conecta primero LinkedIn"
       },
+      "cloud": {
+        "badge": "Cloud",
+        "description": "Mate funciona en Customermates Cloud. Tu primer espacio cloud elegible recibe {days} días de Pro, sin tarjeta. Abre un espacio cloud aparte.",
+        "opened": "Hemos abierto Customermates Cloud en una pestaña nueva. No se envió nada de esta instancia. Puedes seguir configurando aquí.",
+        "title": "¿Prefieres Mate? Prueba la nube gestionada"
+      },
       "followup": {
         "description": "Elige un playbook, conecta LinkedIn y mira quién espera una respuesta.",
         "title": "Dar seguimiento a conversaciones con clientes"
       },
       "optionsLabel": "Primeros pasos",
+      "recommended": "Recomendado",
       "suggested": "Sugerido",
       "workspace": {
-        "description": "Responde unas preguntas. Creamos tus listas, vistas y panel.",
-        "title": "Configurar mi espacio de clientes"
+        "description": "Elige una plantilla y nuestro agente integrado construye el espacio aquí. Nada que conectar.",
+        "title": "Que Mate lo configure por mí"
       }
     },
     "invite": {
@@ -3422,11 +3820,14 @@
     },
     "milestones": {
       "ai": "Herramientas IA",
-      "goal": "Objetivo",
+      "channel": "Canal",
+      "connect": "Conectar",
+      "goal": "Configuración",
       "invite": "Equipo",
       "playbook": "Playbook",
       "profile": "Tú",
-      "setup": "Espacio"
+      "setup": "Espacio",
+      "template": "Plantilla"
     },
     "next": "Siguiente",
     "playbook": {
@@ -3437,19 +3838,72 @@
       "writesTitle": "Tres páginas de la base de conocimiento, listas para editar"
     },
     "profile": {
+      "teamSize": {
+        "label": "¿Cuántas personas usarán este espacio de trabajo?",
+        "large": "Más de 20",
+        "medium": "De 6 a 20",
+        "required": "Elige una opción para continuar.",
+        "small": "De 2 a 5",
+        "solo": "Solo yo"
+      },
       "websitePlaceholder": "ejemplo.es"
     },
     "progress": "Paso {current} de {total}",
     "progressLabel": "Progreso de la configuración inicial",
     "progressOpen": "Paso {current}",
+    "prompt": {
+      "changed": "Tu agente empezó a construir. Abre tu espacio para seguirlo.",
+      "copied": "Copiado",
+      "copy": "Copiar prompt",
+      "copyFailed": "La copia no funcionó aquí. El prompt está seleccionado: pulsa Ctrl+C o Cmd+C para copiarlo.",
+      "failed": "No pudimos cargar el prompt.",
+      "go": "Ir a mi espacio",
+      "loading": "Preparando tu prompt…",
+      "openIn": "Abrir en {agent}",
+      "promptLabel": "Prompt de la plantilla",
+      "retry": "Reintentar",
+      "steps": {
+        "approve": "Aprueba el plan que te muestra",
+        "copy": "Copia el prompt",
+        "paste": "Pégalo en un chat nuevo de {agent}",
+        "pasteGeneric": "Pégalo en un chat nuevo con tu agente"
+      },
+      "stepsLabel": "Próximos pasos",
+      "watching": "Estamos atentos al primer cambio de tu agente. Aquí ves enseguida cuándo empieza a construir."
+    },
+    "source": {
+      "choices": {
+        "aiAssistant": "Un asistente de IA (ChatGPT, Claude, Perplexity)",
+        "articleOrVideo": "Un artículo o un vídeo",
+        "directory": "Un directorio o un listado",
+        "other": "Otro",
+        "recommendation": "Una recomendación",
+        "searchEngine": "Un buscador",
+        "socialMedia": "Redes sociales"
+      },
+      "detailLabel": "¿Dónde nos encontraste?",
+      "detailPlaceholder": "¿Dónde fue? (opcional)",
+      "optionsLabel": "Cómo conociste Customermates",
+      "skip": "Omitir"
+    },
     "steps": {
       "ai": {
         "subtitle": "Elige una herramienta de IA para conectarla a tu espacio de trabajo y a su conocimiento. Conecta una ahora, añade otras más adelante o salta este paso.",
         "title": "Conecta la IA que ya utilizas"
       },
+      "channel": {
+        "subtitle": "Tus conversaciones quedan junto a cada cliente, listas para borradores y seguimientos. Nada se envía sin ti, y puedes omitir este paso.",
+        "title": "Conecta el canal por el que te escriben tus clientes"
+      },
+      "connect": {
+        "subtitle": "¿Qué agente usas? Te mostramos los pasos exactos para él.",
+        "title": "Conecta tu agente"
+      },
       "goal": {
-        "subtitle": "Elige un punto de partida. Lo demás puedes hacerlo cuando quieras.",
-        "title": "¿Qué quieres hacer primero?"
+        "subtitle": "Elige quién lo crea. Revisas cada cambio antes de que se aplique.",
+        "subtitleSelfHosted": "Tus datos se quedan en tu servidor. Tu propio agente se conecta por MCP y construye el espacio de trabajo a partir de una plantilla.",
+        "title": "¿Cómo configuramos tu espacio de trabajo?",
+        "titleSelfHosted": "¿Cómo configuramos esta instancia?"
       },
       "invite": {
         "subtitle": "Invita a tus compañeros con un enlace compartido o invitaciones individuales por correo. También puedes continuar por tu cuenta e invitarlos más adelante.",
@@ -3465,6 +3919,11 @@
         "subtitle": "Añade tu nombre para que tu equipo te reconozca y elige el idioma que quieres usar. Podrás cambiar ambos más adelante en tu perfil.",
         "title": "Haz tuyo este espacio de trabajo"
       },
+      "prompt": {
+        "subtitle": "{template}: tu agente hace unas preguntas y luego te muestra el plan para que lo apruebes.",
+        "title": "Pega esto en {agent}",
+        "titleGeneric": "Pega esto en tu agente"
+      },
       "setup": {
         "planningSubtitle": "Tus respuestas están guardadas. Mate las convierte en un plan para tu espacio de trabajo que revisas antes de crear nada.",
         "startSubtitle": "Creamos tus listas, pasos, panel y algunas páginas de la base de conocimiento. Podrás cambiarlo todo más adelante.",
@@ -3472,7 +3931,48 @@
         "subtitle": "Lo que leímos en tu sitio web ya está rellenado. Revísalo y cambia lo que no encaje.",
         "title": "Configura tu espacio de trabajo",
         "withoutWebsiteSubtitle": "Unas preguntas rápidas sobre lo que quieres seguir. La mayoría se responden con un clic."
+      },
+      "source": {
+        "subtitle": "Una pregunta opcional. Solo nos ayuda a ver qué canales funcionan, y puedes omitirla.",
+        "title": "¿Cómo nos encontraste?"
+      },
+      "template": {
+        "subtitle": "Tu agente la adapta a ti y muestra el plan antes de cambiar nada.",
+        "subtitleMate": "Mate la adapta a ti y muestra el plan antes de construir nada.",
+        "title": "Elige una plantilla"
       }
+    },
+    "template": {
+      "browseAll": "Ver las {count} plantillas",
+      "connected": "{agent} conectado",
+      "connectedGeneric": "Agente conectado",
+      "counts": "{lists, plural, one {# lista} other {# listas}} · {views, plural, one {# vista} other {# vistas}} · {rules, plural, one {# regla de seguimiento} other {# reglas de seguimiento}}",
+      "countsNoRules": "{lists, plural, one {# lista} other {# listas}} · {views, plural, one {# vista} other {# vistas}}",
+      "empty": "Ninguna plantilla coincide con tu búsqueda.",
+      "families": {
+        "clients": "Clientes",
+        "community": "Comunidad",
+        "content": "Contenido",
+        "custom": "A medida",
+        "intake": "Solicitudes",
+        "investing": "Inversión",
+        "operations": "Operaciones",
+        "professionalServices": "Servicios profesionales",
+        "property": "Inmobiliaria",
+        "recruiting": "Reclutamiento",
+        "sales": "Ventas",
+        "trades": "Oficios"
+      },
+      "filterAll": "Todas",
+      "filtersLabel": "Tipos de plantilla",
+      "none": "Sin plantilla",
+      "optionsLabel": "Plantillas",
+      "recommended": "Recomendada",
+      "searchLabel": "Buscar plantillas",
+      "searchPlaceholder": "Buscar plantillas",
+      "showFewer": "Mostrar menos",
+      "suggested": "Sugerida para ti",
+      "use": "Usar {name}"
     }
   },
   "OperatorAudit": {
@@ -3707,7 +4207,11 @@
       "events": {
         "agentConnected": "Agente conectado",
         "channelConnected": "Canal conectado",
+        "channelSkipped": "Canal omitido",
+        "inviteAccepted": "Miembro incorporado",
+        "inviteSent": "Invitación enviada",
         "jobSelected": "Objetivo elegido",
+        "paid": "Pagado",
         "setupCompleted": "Configuración lista"
       },
       "jobs": {
@@ -3863,6 +4367,104 @@
   },
   "ProfileSections": {
     "apiKeysDescription": "Claves de API de larga duración para el acceso programático."
+  },
+  "PublicBooking": {
+    "confirm": "Confirmar reserva",
+    "confirmedText": "Recibirás una invitación de calendario por correo electrónico.",
+    "confirmedTitle": "Reserva confirmada",
+    "email": "Correo electrónico",
+    "honeypot": "Deja este campo vacío",
+    "joinLink": "Unirse a la videollamada",
+    "loadFailed": "No se pudieron cargar los horarios disponibles. Recarga la página para intentarlo de nuevo.",
+    "minutes": "{minutes} min",
+    "name": "Tu nombre",
+    "noSlots": "No hay horarios libres en las próximas semanas.",
+    "pageTitle": "Reservar una reunión",
+    "problem": {
+      "rateLimited": "Demasiados intentos. Inténtalo de nuevo más tarde.",
+      "slotTaken": "Este horario acaba de ocuparse. Elige otro.",
+      "unavailable": "No se pudo completar la reserva. Inténtalo de nuevo o elige otro horario."
+    },
+    "rateLimited": "Demasiadas solicitudes. Inténtalo de nuevo en unos minutos.",
+    "timeZone": "Horarios mostrados en {timeZone}",
+    "unavailable": "Esta página de reservas no está disponible.",
+    "video": "Videollamada"
+  },
+  "PublicForm": {
+    "badge": "Hecho con Customermates",
+    "blockedBody": "No se pudo enviar tu mensaje. Inténtalo de nuevo más tarde.",
+    "builder": {
+      "badgeNote": "Los formularios del plan Free muestran «Hecho con Customermates».",
+      "consentEnabled": "Pedir consentimiento",
+      "consentEvidence": "Cada envío guarda como prueba el texto del consentimiento, su versión, la hora y una dirección IP cifrada con hash.",
+      "consentText": "Texto del consentimiento",
+      "defaultEmailLabel": "Correo electrónico",
+      "defaultNameLabel": "Nombre",
+      "defaultSubmit": "Enviar",
+      "defaultSuccess": "Gracias. Hemos recibido tu mensaje.",
+      "emailLabel": "Etiqueta del correo",
+      "embed": "Incrustar en tu sitio web",
+      "enabled": "Aceptar envíos",
+      "helpText": "Texto de ayuda",
+      "include": "Incluir {field}",
+      "incomplete": "Para guardar, añade un título, la etiqueta del botón, una etiqueta para cada pregunta y un mensaje de éxito. Con el consentimiento activado, añade también el texto del consentimiento y un enlace a tu aviso de privacidad.",
+      "intro": "Permite que cualquiera añada un registro a {list} desde una página web, sin iniciar sesión. Cada envío crea un registro que muestra el formulario como origen.",
+      "language": "Idioma",
+      "languageAuto": "El navegador del visitante",
+      "link": "Enlace público",
+      "loading": "Cargando el formulario",
+      "moveDown": "Bajar",
+      "moveUp": "Subir",
+      "nameLabel": "Etiqueta del nombre",
+      "noFields": "Esta lista no tiene campos que un formulario pueda usar.",
+      "pageDescription": "Descripción",
+      "pageTitle": "Título",
+      "permissionDenied": "Tu rol no puede publicar formularios para esta lista.",
+      "personEnabled": "Buscar o crear una persona por correo",
+      "personList": "Lista de personas",
+      "personNameField": "Campo para el nombre",
+      "personRelationship": "Relación",
+      "personUnavailable": "Para vincular los envíos a una persona, añade una lista con datos de contacto y una relación con esta lista.",
+      "privacyUrl": "Enlace a tu aviso de privacidad",
+      "questionLabel": "Pregunta",
+      "redirectUrl": "Redirigir a esta dirección en su lugar (opcional)",
+      "required": "Obligatorio",
+      "requiredByList": "Obligatorio según la lista",
+      "saved": "Formulario guardado",
+      "sectionConsent": "Consentimiento",
+      "sectionFields": "Preguntas",
+      "sectionPage": "Página",
+      "sectionPerson": "Persona",
+      "sectionPreview": "Vista previa",
+      "sectionSuccess": "Después de enviar",
+      "submitLabel": "Etiqueta del botón",
+      "successMessage": "Mensaje de éxito",
+      "turnedOff": "Formulario desactivado",
+      "turnOff": "Desactivar formulario",
+      "usageLimited": "Envíos de este mes: {count} de {limit}.",
+      "usageUnlimited": "Envíos de este mes: {count}.",
+      "workspaceDisabled": "Los enlaces públicos y los formularios están desactivados en los ajustes de este espacio de trabajo."
+    },
+    "byline": "Enviado a {workspace}",
+    "errors": {
+      "consent": "Acepta para continuar.",
+      "email": "Introduce un correo electrónico válido.",
+      "invalid": "Revisa esta respuesta.",
+      "required": "Este campo es obligatorio.",
+      "summary": "Algunas respuestas necesitan tu atención."
+    },
+    "honeypot": "Deja este campo vacío",
+    "pageTitle": "Formulario",
+    "privacyNotice": "Aviso de privacidad",
+    "rateLimitedBody": "Llegaron demasiadas solicitudes desde esta conexión. Espera un momento e inténtalo de nuevo.",
+    "rateLimitedSubtitle": "Espera un momento",
+    "rateLimitedTitle": "Demasiadas solicitudes",
+    "sending": "Enviando…",
+    "sentTitle": "Gracias",
+    "toHome": "Ir a customermates.com",
+    "unavailableBody": "Puede que el formulario se haya desactivado o que el enlace esté mal escrito. Pide uno nuevo a quien lo compartió.",
+    "unavailableSubtitle": "Esta página no se puede abrir",
+    "unavailableTitle": "Formulario no disponible"
   },
   "PublicLink": {
     "byline": "Compartido por {workspace}",
@@ -4503,6 +5105,7 @@
     "linkedType": "Vincular a",
     "linkRecord": "Vincular un registro",
     "listActions": "Acciones de la lista",
+    "listCount": "{count} {label}",
     "listCounts": "{fields, plural, one {# campo} other {# campos}} · {relationships, plural, one {# relación} other {# relaciones}}",
     "listUnavailable": "Esta lista no está disponible. Elige otra lista.",
     "member": "Miembro",
@@ -4753,6 +5356,7 @@
     "noRecordsInPeriod": "Sin registros",
     "notes": "Sobre estas cifras",
     "numberContextAverage": "{count, number} {label} · media {average}",
+    "numberContextAverageList": "{count, number} {label} · media {average}",
     "numberRecords": "{count, plural, one {registro} other {registros}}",
     "overall": "Total: {value}",
     "previewFailed": "No se pudo cargar la vista previa. Inténtalo de nuevo.",
@@ -4998,14 +5602,56 @@
     "tuesday": "Martes",
     "wednesday": "Miércoles"
   },
+  "ScheduleMeeting": {
+    "action": "Programar reunión",
+    "attendeesPlaceholder": "Añade una dirección de correo y pulsa Enter",
+    "blocked": {
+      "needsReconnect": "Tu cuenta de Google o Microsoft debe volver a conectarse en Canales y calendarios antes de poder crear reuniones.",
+      "noCalendar": "Conecta un calendario de Google o Microsoft en Canales y calendarios para programar reuniones."
+    },
+    "created": "Reunión programada",
+    "defaultTitle": "Reunión con {name}",
+    "duration": "{minutes} min",
+    "fields": {
+      "attendees": "Asistentes",
+      "calendar": "Calendario",
+      "date": "Fecha",
+      "description": "Descripción",
+      "duration": "Duración",
+      "followUp": "Crear una tarea de seguimiento en",
+      "followUpDate": "Guardar el inicio de la reunión en",
+      "location": "Lugar",
+      "sendInvites": "Enviar invitaciones a los asistentes",
+      "time": "Inicio",
+      "title": "Título",
+      "videoLink": "Añadir un enlace de videollamada"
+    },
+    "followUpNone": "Sin seguimiento",
+    "freeSlots": "Horarios libres ({timeZone})",
+    "loadFailed": "No se pudieron cargar las opciones del calendario. Cierra esta ventana e inténtalo de nuevo.",
+    "newMeeting": "Nueva reunión",
+    "noFreeSlots": "No hay horarios libres este día. Aun así, puedes introducir una hora de inicio.",
+    "partial": "La reunión se creó, pero no se completó su vinculación o la creación de la tarea de seguimiento.",
+    "title": "Programar reunión",
+    "unavailable": {
+      "demo": "Programar reuniones requiere un calendario conectado y no está disponible en el espacio de trabajo de demostración.",
+      "selfHosted": "Programar reuniones requiere la conexión de calendario alojada y no está disponible en instancias autoalojadas."
+    },
+    "upsell": {
+      "detail": "Crea eventos en tu calendario de Google o Microsoft desde cualquier registro.",
+      "title": "Programa reuniones desde {plan}"
+    }
+  },
   "SettingsNav": {
     "account": "Cuenta",
     "activity": "Registro de auditoría",
     "apiKeys": "Claves de API y conectores",
     "billing": "Facturación",
+    "booking": "Páginas de reservas",
     "channels": "Canales y calendarios",
     "deliveries": "Registro de webhooks",
     "general": "General",
+    "incomingWebhooks": "Webhooks entrantes",
     "members": "Miembros",
     "profile": "Perfil y preferencias",
     "roles": "Roles",
@@ -5147,6 +5793,7 @@
       "freeCurrent": "Free · plan actual",
       "freeSummary": "{members, plural, one {Una persona} other {# personas}} y hasta {records} registros. API y MCP con límite de solicitudes.",
       "hostedAiUsage": "{multiplier}x uso de Mate por usuario activo / mes",
+      "keepsAccounts": "Tienes hasta {connected} cuentas conectadas por usuario. Este plan conserva {kept}; las más recientes se desconectan al pagar.",
       "perUserMonth": "por usuario / mes",
       "recommendedForYou": "Recomendado para ti",
       "routinesPerUser": "{routines, plural, one {# rutina por usuario} other {# rutinas por usuario}}",
@@ -5205,6 +5852,156 @@
     "subject": "Tu cuenta está inactiva: podemos ayudarte a recuperar el acceso",
     "subjectNamed": "Tu acceso a «{workspace}» está inactivo: podemos ayudarte a recuperarlo",
     "title": "Suscripción desactivada"
+  },
+  "TemplatePages": {
+    "breadcrumbHome": "Inicio",
+    "breadcrumbTemplates": "Plantillas",
+    "browse": "Ver plantillas",
+    "copied": "Copiado. Pégalo en tu agente.",
+    "copy": "Copiar prompt",
+    "copyFailed": "No se pudo copiar. Selecciona el texto y cópialo a mano.",
+    "copyPrompt": "Copiar prompt",
+    "countFields": "{count, plural, one {# campo} other {# campos}}",
+    "countLists": "{count, plural, one {# lista} other {# listas}}",
+    "countRules": "{count, plural, one {# regla de seguimiento} other {# reglas de seguimiento}}",
+    "countViews": "{count, plural, one {# vista} other {# vistas}}",
+    "countWidgets": "{count, plural, one {# widget del panel} other {# widgets del panel}}",
+    "createsLead": "Listas, campos, etapas, vistas y widgets del panel, como el plan que propone tu agente. Puedes renombrar o quitar cualquier parte.",
+    "createsTitle": "Lo que crea el agente",
+    "ctaAction": "Empieza hoy con {name}",
+    "ctaDescription": "Empieza una prueba gratuita, pega el prompt y aprueba el plan.",
+    "ctaPricing": "Ver precios",
+    "demoLink": "Abrir la demo en vivo",
+    "families": {
+      "clients": "Clientes",
+      "community": "Asociaciones y clubes",
+      "content": "Contenido",
+      "custom": "Tu propio CRM",
+      "intake": "Alta de clientes",
+      "investing": "Inversión",
+      "operations": "Operaciones",
+      "professional-services": "Servicios profesionales",
+      "property": "Inmobiliaria",
+      "recruiting": "Selección de personal",
+      "sales": "Ventas y CRM",
+      "trades": "Oficios"
+    },
+    "faqTitle": "Preguntas frecuentes",
+    "filterAll": "Todas",
+    "filterLabel": "Filtrar por área",
+    "hubCtaAction": "¿No sabes qué plantilla te conviene?",
+    "hubCtaDescription": "Empieza una prueba gratuita, conecta tu agente y describe tu trabajo. Propone una configuración y tú la apruebas antes de que se escriba nada.",
+    "hubEyebrow": "Plantillas de CRM gratuitas para agentes de IA",
+    "hubLede": "Configuraciones listas para tu trabajo. Copia una en Claude, ChatGPT o Codex y construye tus listas, etapas y seguimientos para que los apruebes.",
+    "hubMetaDescription": "Plantillas de CRM listas para ficha de clientes, embudo de ventas y más. Copia una en Claude, ChatGPT o Codex y construye tus listas y seguimientos.",
+    "hubMetaTitle": "Plantillas de CRM gratis para agentes de IA",
+    "hubSteps": {
+      "approve": "Aprueba el plan",
+      "paste": "Pégala en tu agente",
+      "pick": "Elige una plantilla"
+    },
+    "hubTitle": "Pega una plantilla. Tu agente de IA construye el CRM.",
+    "knowledgeLead": "Esquemas para tu propia base de conocimiento, rellenados con tus datos. Son puntos de partida, no políticas terminadas.",
+    "knowledgeTitle": "Páginas de conocimiento que crea",
+    "limitsLead": "Conoce los límites antes de empezar.",
+    "limitsTitle": "Lo que no hace",
+    "moreFields": "+{count} más",
+    "noResults": "Ninguna plantilla coincide. Borra la búsqueda o elige otra área.",
+    "pairedBody": "Esta plantilla acompaña nuestra página sobre {name}.",
+    "pairedLink": "Más sobre {name}",
+    "pairedTitle": "Parte de una solución más amplia",
+    "promptCloud": "Nube",
+    "promptLead": "Un prompt autónomo. Elige dónde se ejecuta tu espacio de trabajo y cópialo.",
+    "promptSelfHosted": "Autoalojado",
+    "promptSwitch": "Dónde se ejecuta tu espacio de trabajo",
+    "promptTitle": "El prompt",
+    "proofLead": "Copia esta configuración en tu agente de IA y la construye en tu CRM para que la apruebes.",
+    "proofOpen": "Abrir la plantilla",
+    "proofSetsUp": "Crea",
+    "proofTitle": "Empieza con una plantilla lista",
+    "relatedTitle": "Más plantillas de esta área",
+    "routineLead": "La plantilla construye la rutina que este trabajo ya tiene, para que siga funcionando después de la configuración.",
+    "ruleAgent": "Se ejecuta con tu agente",
+    "ruleDueAfter": "{days, plural, one {Vence a los # día} other {Vence a los # días}}",
+    "ruleDueSame": "Vence el mismo día",
+    "ruleEngine": "Regla de automatización",
+    "rulesTitle": "Reglas de seguimiento",
+    "searchLabel": "Buscar plantillas",
+    "searchPlaceholder": "Buscar por tarea o profesión",
+    "sourceChecked": "Comprobado el {date}",
+    "sourcesLead": "La práctica en la que se basa esta plantilla procede de estas páginas.",
+    "sourcesTitle": "Fuentes",
+    "stagesTitle": "Etapas",
+    "startFree": "Prueba gratuita",
+    "step1Body": "Crea un espacio de trabajo gratuito de Customermates con esta plantilla preseleccionada, o usa tu propia instancia autoalojada.",
+    "step1Link": "Prueba gratuita",
+    "step1Title": "Consigue un espacio de trabajo",
+    "step2Body": "Copia el prompt de abajo en Claude, ChatGPT o Codex, conectado a tu espacio de trabajo. El agente lee primero tu espacio y propone la configuración con palabras sencillas.",
+    "step2Title": "Pega el prompt en tu agente de IA",
+    "step3Body": "No se escribe nada hasta que digas que sí. El agente no crea registros de ejemplo, no envía nada y al terminar te dice qué existe.",
+    "step3Title": "Aprueba el plan",
+    "stepsTitle": "Cómo funciona",
+    "switchKit": {
+      "checked": "Pasos de exportación comprobados el {date}.",
+      "cta": "Prueba gratuita",
+      "exportLabel": "Cómo exportar",
+      "movesLabel": "Qué se traslada",
+      "note": "Tu agente nunca modifica la herramienta que dejas. Lee tu exportación, muestra cómo se corresponden las columnas, espera tu confirmación e importa una lista cada vez. La importación lee archivos .xlsx y CSV de hasta 10 MB y cinco mil filas por hoja, y el plan Free admite [[commercial.limit.free.maxRecords]] registros.",
+      "replacesLabel": "Sustituye",
+      "sectionLead": "Tu agente lee una exportación de la herramienta que usas hoy y construye los mismos datos en tu espacio de trabajo. Cada kit indica qué se traslada, cómo exportar y qué se queda atrás.",
+      "sectionTitle": "Trae tus datos: kits de cambio",
+      "staysLabel": "Qué no se traslada",
+      "templateLabel": "Plantilla",
+      "title": "Kit de cambio: {tool}",
+      "tools": {
+        "airtable": {
+          "export": "Abre el menú de la vista y elige Download CSV. Cada tabla se descarga por separado y los filtros de la vista limitan las filas. Los campos de adjuntos se exportan como enlaces que caducan al cabo de unas dos horas, así que descarga los archivos enseguida.",
+          "moves": "Un CSV por tabla se convierte en una lista. La selección única pasa a ser un campo de opciones, los colaboradores pasan a ser miembros del equipo y las columnas de registros vinculados pasan a ser relaciones que el agente crea después de la importación. Las columnas de fórmula y de resumen llegan como valores.",
+          "name": "Airtable",
+          "replaces": "Una base como un CRM de ventas con cuentas, contactos, interacciones y oportunidades.",
+          "stays": "Las vistas, interfaces, automatizaciones, formularios, fórmulas como lógica y los propios archivos adjuntos no se trasladan."
+        },
+        "clickup": {
+          "export": "Usa Export Items en los ajustes del espacio de trabajo para obtener un CSV de todas las tareas, o exporta una vista de lista o tabla en CSV o Excel. Los nombres de los menús cambian, así que compruébalos en la aplicación actual.",
+          "moves": "Los nombres de las tareas pasan a ser nombres de oportunidades o de empresas, según el tipo de elemento CRM, que el agente usa para dividir una exportación en varias listas. Los muchos estados se reducen a las cuatro o seis etapas de tu entrevista.",
+          "name": "ClickUp",
+          "replaces": "Una lista CRM con muchos estados y campos personalizados para nombre del contacto, correo, etapa de venta y servicio.",
+          "stays": "Las vistas, paneles, automatizaciones, documentos, control de tiempo, dependencias y diagramas de Gantt no se trasladan."
+        },
+        "notion": {
+          "export": "Abre la base de datos, elige el menú de tres puntos, luego Exportar y después Markdown y CSV. Obtienes un ZIP con el CSV y un archivo Markdown por página. Las relaciones se exportan como texto simple, así que el agente reconstruye los vínculos cruzando los títulos e indica lo que no pudo emparejar.",
+          "moves": "Los títulos pasan a ser nombres, el estado pasa a ser opciones de etapa, la selección y la selección múltiple pasan a ser campos de opciones, las personas pasan a ser miembros del equipo, los números y las fechas pasan a ser campos. El contenido de las páginas solo se traslada si lo pides.",
+          "name": "Notion",
+          "replaces": "Un CRM en una o varias bases de datos, con propiedades de estado, selección, persona, número y relación.",
+          "stays": "Las vistas, las relaciones como vínculos, los rollups y las fórmulas como lógica, las plantillas y las automatizaciones no se trasladan. Notion no indica si los archivos subidos van en la exportación."
+        },
+        "sheets": {
+          "export": "En Google Sheets abre el menú Archivo y guarda el libro como Microsoft Excel (.xlsx). En Excel conserva el .xlsx o guarda como CSV UTF-8. Customermates lee el .xlsx directamente, así que un libro con una hoja por lista es la entrada más limpia.",
+          "moves": "Una hoja por lista: organizaciones, contactos y oportunidades pasan a ser listas, el texto de las etapas pasa a ser opciones de etapa, los valores y las fechas pasan a ser campos. Las filas de interacciones pasan a ser tareas con fecha o notas, como prefieras.",
+          "name": "Google Sheets y Excel",
+          "replaces": "Un CRM llevado en un libro, con hojas de organizaciones, contactos, oportunidades e interacciones, o una sola lista plana.",
+          "stays": "Las fórmulas llegan solo como valores. El formato condicional, los gráficos, los paneles, las listas de validación y las macros no se trasladan."
+        },
+        "smartsheet": {
+          "export": "Guarda la hoja como libro de Excel desde el menú Archivo. Propietarios, administradores y editores pueden hacerlo en los planes de pago. Los comentarios y el resumen de la hoja llegan en pestañas aparte.",
+          "moves": "La hoja exportada pasa a ser una lista, el texto de los desplegables pasa a ser opciones y las columnas de contactos pasan a ser miembros del equipo o nombres de contacto. Las filas principales y secundarias agrupadas se aplanan, y el agente te lo consulta.",
+          "name": "Smartsheet",
+          "replaces": "Un seguimiento de clientes o una hoja de CRM con un desplegable para la etapa de venta.",
+          "stays": "Las fórmulas, agrupaciones, filas de resumen, adjuntos, paneles y flujos de trabajo no se trasladan."
+        },
+        "trello": {
+          "export": "Cada miembro de un tablero puede exportarlo a JSON, que incluye también los comentarios más recientes. El CSV requiere un espacio de trabajo Premium y omite los comentarios. Ninguno de los dos formatos se puede volver a importar en Trello.",
+          "moves": "Los nombres de las listas pasan a ser opciones de etapa, los nombres de las tarjetas nombres de oportunidades, las etiquetas opciones, las fechas de vencimiento fechas del siguiente paso, las descripciones notas y los miembros miembros del equipo. Tu agente pregunta primero qué es una tarjeta: una persona, una empresa o una oportunidad.",
+          "name": "Trello",
+          "replaces": "Un tablero donde las listas son etapas y las tarjetas son contactos u oportunidades.",
+          "stays": "Las automatizaciones de Butler, los power-ups, las imágenes de portada y las tarjetas plantilla no se trasladan."
+        }
+      }
+    },
+    "trialHint": "Sin tarjeta de crédito. Los primeros [[commercial.trial.days]] días son gratis.",
+    "viewsTitle": "Vistas",
+    "widgetsTitle": "Panel",
+    "worksWith": "Funciona con Claude, ChatGPT, Codex"
   },
   "Trash": {
     "bannerDeleted": "Eliminado el {date}. {count, plural, =0 {Se elimina definitivamente hoy} one {Se elimina definitivamente en # día} other {Se elimina definitivamente en # días}}.",

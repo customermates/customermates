@@ -1,0 +1,148 @@
+{
+  "locale": "es",
+  "name": "Socios y donantes",
+  "summary": "Un registro único de socios, donantes y voluntarios: membresías con fecha de renovación, donativos con agradecimiento y certificado, y un seguimiento de grandes donaciones y subvenciones.",
+  "description": "Para asociaciones, clubes, entidades sin ánimo de lucro y parroquias: quién os apoya y cómo, qué membresía dura hasta cuándo, qué donativo espera aún un agradecimiento o un certificado y qué gran donación o subvención está en marcha. No emite certificados de donación ni cobra cuotas: indica cuáles toca hacer.",
+  "lists": {
+    "supporters": { "label": "Colaborador", "pluralLabel": "Colaboradores", "description": "Socios, donantes, voluntarios, invitados y junta directiva." },
+    "memberships": { "label": "Membresía", "pluralLabel": "Membresías", "description": "Una membresía con su cuota y su fecha de renovación." },
+    "gifts": { "label": "Donativo", "pluralLabel": "Donativos", "description": "Cada donativo con su agradecimiento y su certificado." },
+    "gift_opportunities": { "label": "Oportunidad de donación", "pluralLabel": "Oportunidades de donación", "description": "Grandes donaciones, subvenciones y patrocinios en curso." }
+  },
+  "fields": {
+    "memberships.status": {
+      "label": "Estado",
+      "options": { "applied": "Solicitud", "active": "Socio al corriente", "grace_period": "Cuota pendiente", "lapsed": "Caducada", "resigned": "Baja" }
+    },
+    "gift_opportunities.stage": {
+      "label": "Fase",
+      "options": { "identified": "Identificada", "qualified": "Cualificada", "cultivation": "Relación en curso", "ask_made": "Petición hecha", "pledged": "Compromiso recibido", "received": "Recibida", "declined": "Rechazada" }
+    },
+    "supporters.member_number": { "label": "Número de socio" },
+    "supporters.supporter_types": {
+      "label": "Tipo de apoyo",
+      "options": { "member": "Socio", "donor": "Donante", "volunteer": "Voluntario", "guest": "Invitado", "board_member": "Miembro de la junta" }
+    },
+    "supporters.lifecycle_status": {
+      "label": "Relación",
+      "options": { "prospect": "Potencial", "active": "Activo", "lapsed": "Inactivo", "former": "Antiguo", "do_not_contact": "No contactar" }
+    },
+    "supporters.joined_on": { "label": "Alta el" },
+    "supporters.relationship_owner": { "label": "Responsable" },
+    "supporters.contact_consent": { "label": "Consentimiento de contacto", "options": { "granted": "Concedido", "not_granted": "No concedido", "unknown": "Desconocido" } },
+    "supporters.consent_date": { "label": "Fecha del consentimiento" },
+    "supporters.last_contact_on": { "label": "Último contacto" },
+    "memberships.level": {
+      "label": "Modalidad",
+      "options": { "regular": "General", "reduced": "Reducida", "family": "Familiar", "youth": "Joven", "supporting": "Colaborador", "honorary": "Honorario" }
+    },
+    "memberships.fee": { "label": "Cuota" },
+    "memberships.billing_cycle": {
+      "label": "Periodicidad",
+      "options": { "yearly": "Anual", "quarterly": "Trimestral", "monthly": "Mensual", "one_off": "Única", "none": "Ninguna" }
+    },
+    "memberships.fee_status": {
+      "label": "Estado de la cuota",
+      "options": { "open": "Pendiente", "paid": "Pagada", "reminded": "Reclamada", "overdue": "Vencida", "waived": "Condonada" }
+    },
+    "memberships.mandate_on_file": { "label": "Orden de domiciliación archivada" },
+    "memberships.started_on": { "label": "Inicio el" },
+    "memberships.renewal_due": { "label": "Fecha de renovación" },
+    "memberships.end_reason": {
+      "label": "Motivo de la baja",
+      "options": { "moved_away": "Cambio de residencia", "cost": "Coste", "lost_interest": "Pérdida de interés", "dissatisfied": "Insatisfacción", "unpaid_fees": "Cuotas impagadas", "other": "Otro" }
+    },
+    "gifts.received_on": { "label": "Recibido el" },
+    "gifts.amount": { "label": "Importe" },
+    "gifts.gift_type": {
+      "label": "Tipo de donativo",
+      "options": { "one_off": "Puntual", "recurring": "Recurrente", "pledge_payment": "Pago de un compromiso", "in_kind": "En especie", "legacy": "Legado" }
+    },
+    "gifts.fund": {
+      "label": "Destino",
+      "options": { "unrestricted": "Libre", "restricted_project": "Proyecto concreto", "appeal": "Campaña", "event": "Evento", "in_memory": "En memoria de" }
+    },
+    "gifts.acknowledgement_status": {
+      "label": "Agradecimiento",
+      "options": { "to_acknowledge": "Por agradecer", "acknowledged": "Agradecido", "not_needed": "No necesario" }
+    },
+    "gifts.receipt_status": {
+      "label": "Certificado de donación",
+      "options": { "not_needed": "No necesario", "to_issue": "Por emitir", "issued": "Emitido", "annual_summary_sent": "Resumen anual enviado" }
+    },
+    "gift_opportunities.kind": {
+      "label": "Tipo",
+      "options": { "major_gift": "Gran donación", "grant": "Subvención", "sponsorship": "Patrocinio de empresa", "legacy": "Legado", "campaign_pledge": "Compromiso de campaña" }
+    },
+    "gift_opportunities.solicitor": { "label": "Solicitado por" },
+    "gift_opportunities.ask_date": { "label": "Fecha de la petición" },
+    "gift_opportunities.decision_on": { "label": "Decisión el" },
+    "gift_opportunities.report_due": { "label": "Informe para el" },
+    "actions.kind": {
+      "label": "Tipo",
+      "options": {
+        "thank_donor": "Agradecer a un donante",
+        "issue_receipt": "Emitir un certificado",
+        "welcome_member": "Dar la bienvenida a un socio",
+        "renewal_notice": "Aviso de renovación",
+        "chase_fee": "Reclamar una cuota",
+        "ask": "Petición",
+        "report_to_funder": "Informar a un financiador",
+        "call_or_visit": "Llamada o visita",
+        "other": "Otro"
+      }
+    }
+  },
+  "relationships": {
+    "membership_supporter": { "sourceLabel": "Socio", "targetLabel": "Membresías" },
+    "gift_supporter": { "sourceLabel": "Donante", "targetLabel": "Donativos" },
+    "opportunity_supporter": { "sourceLabel": "Posible donante", "targetLabel": "Oportunidades de donación" },
+    "action_supporter": { "sourceLabel": "Colaborador", "targetLabel": "Tareas" }
+  },
+  "views": {
+    "supporters_all": { "name": "Todos los colaboradores" },
+    "memberships_all": { "name": "Todas las membresías" },
+    "memberships_board": { "name": "Membresías por estado" },
+    "fees_to_chase": { "name": "Cuotas por reclamar" },
+    "gifts_all": { "name": "Todos los donativos" },
+    "receipts_to_issue": { "name": "Certificados por emitir" },
+    "opportunities_board": { "name": "Oportunidades de donación" }
+  },
+  "widgets": {
+    "memberships_by_status": { "title": "Membresías por estado" },
+    "gifts_per_month": { "title": "Donativos por mes" },
+    "gifts_by_fund": { "title": "Donativos por destino" },
+    "open_pipeline_value": { "title": "Grandes donaciones en curso" },
+    "renewals_coming": { "title": "Próximas renovaciones" },
+    "receipts_to_issue_count": { "title": "Certificados por emitir" }
+  },
+  "knowledgePages": {
+    "register_rules": { "title": "Qué contiene el registro y qué queda fuera", "sections": ["Finalidad y base jurídica", "Campos obligatorios y voluntarios", "Consentimiento y conservación"] },
+    "renewals_and_fees": { "title": "Renovaciones y reclamación de cuotas", "sections": ["Aviso a los 60 y a los 30 días", "Periodo de gracia y baja según los estatutos"] },
+    "receipts_and_thanks": { "title": "Agradecimientos y certificados de donación", "sections": ["Agradecer en dos días", "Cuándo cabe un certificado y con qué modelo"] }
+  },
+  "rules": {
+    "thank_donor": { "title": "Agradecer al donante cuando se registra un donativo" },
+    "issue_receipt": { "title": "Emitir el certificado cuando un donativo se marca por emitir" },
+    "welcome_member": { "title": "Dar la bienvenida al socio cuando llega una solicitud" },
+    "renewal_notice": { "title": "Enviar un aviso de renovación 60 días antes del vencimiento de una membresía activa" },
+    "renewal_reminder": { "title": "Recordar a un socio con la cuota pendiente 30 días antes de la renovación" },
+    "expiry_notice": { "title": "Reclamar la cuota impagada el día del vencimiento" },
+    "report_to_funder": { "title": "Preparar el informe al financiador dos semanas antes del plazo" },
+    "join_form_records": { "title": "Crear el colaborador y la membresía desde un formulario de alta" }
+  },
+  "acceptanceChecks": {
+    "status_field": "Cada membresía tiene un estado.",
+    "renewal_field": "Cada membresía tiene una fecha de renovación.",
+    "receipt_field": "Cada donativo muestra si hay que emitir un certificado."
+  },
+  "prompt": {
+    "intro": "Configura un registro de socios y donantes en mi espacio de trabajo de Customermates: colaboradores, membresías con cuota y fecha de renovación, donativos con agradecimiento y estado del certificado, y un seguimiento de grandes donaciones y subvenciones.",
+    "questions": [
+      "¿Sois una asociación, una entidad benéfica o una parroquia? ¿Tenéis socios, donantes, voluntarios?",
+      "¿Qué modalidades de cuota y qué importes usáis y cómo se cobran?",
+      "¿En qué país estáis registrados y qué certificado de donación emitís allí?",
+      "¿Qué software lleva vuestros pagos o la contabilidad? Aquí solo se guarda una referencia."
+    ]
+  }
+}

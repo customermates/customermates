@@ -465,6 +465,73 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(await ws.run(() => service.runPhase(setupId, "records", false, RUN_ID))).toBe("skip");
   });
 
+  it("plans from the chosen template without the model and builds its record model", async () => {
+    const { getTemplateText } = await import("@/core/templates/template-registry");
+    const ws = await workspace();
+    const started = await ws.run(() =>
+      di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null, templateSlug: "sales-pipeline" }),
+    );
+    if (!started.ok) throw new Error(JSON.stringify(started.error));
+    const setupId = started.data.setupId;
+    expect((await ws.run(() => di.getWorkspaceSetupRepo().get(setupId)))?.interview.templateSlug).toBe(
+      "sales-pipeline",
+    );
+    const again = await ws.run(() =>
+      di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null, templateSlug: "sales-pipeline" }),
+    );
+    expect(again).toEqual({ ok: true, data: { setupId } });
+    const saved = await ws.run(() =>
+      di.getSaveWorkspaceSetupAnswersInteractor().invoke({
+        setupId,
+        answers: {
+          companyName: { format: "shortText", value: "Studio Example" },
+          language: { format: "singleChoice", value: "en" },
+          currency: { format: "singleChoice", value: "EUR" },
+          existingData: { format: "singleChoice", value: "sampleData" },
+        },
+        followUpAnswers: [],
+      }),
+    );
+    if (!saved.ok) throw new Error(JSON.stringify(saved.error));
+    const queued = await ws.run(() => di.getPlanWorkspaceSetupInteractor().invoke({ setupId }));
+    if (!queued.ok) throw new Error(JSON.stringify(queued.error));
+    expect(await ws.run(() => di.getWorkspaceSetupInterviewService().followUps(setupId))).toBe("none");
+    expect(await draftPlan(ws, setupId)).toBe("planned");
+    expect(state.generate).not.toHaveBeenCalled();
+    const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
+    expect(setup?.plan?.recordModel.lists.map((list) => list.label)).toContain(
+      (await getTemplateText("sales-pipeline", "en")).lists.opportunities.label,
+    );
+
+    const confirmed = await ws.run(() =>
+      di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision: queued.data.planRevision }),
+    );
+    expect(confirmed).toEqual({ ok: true, data: { setupId } });
+    await build(ws, setupId);
+    const model = await ws.run(() => createTestRecordRepo().getModel());
+    expect(model.types.map((type) => type.label)).toContain(
+      (await getTemplateText("sales-pipeline", "en")).lists.opportunities.label,
+    );
+  });
+
+  it("restarts a setup that was started with another template", async () => {
+    const ws = await workspace();
+    const first = await ws.run(() =>
+      di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null, templateSlug: "sales-pipeline" }),
+    );
+    if (!first.ok) throw new Error(JSON.stringify(first.error));
+    const second = await ws.run(() =>
+      di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null, templateSlug: "client-tracker" }),
+    );
+    expect(second).toEqual({ ok: true, data: { setupId: first.data.setupId } });
+    expect((await ws.run(() => di.getWorkspaceSetupRepo().get(first.data.setupId)))?.interview.templateSlug).toBe(
+      "client-tracker",
+    );
+    const none = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null }));
+    expect(none).toEqual({ ok: true, data: { setupId: first.data.setupId } });
+    expect((await ws.run(() => di.getWorkspaceSetupRepo().get(first.data.setupId)))?.interview.templateSlug).toBeNull();
+  });
+
   it("puts a dashboard widget into the next free spot when its planned spot is taken", async () => {
     const ws = await workspace();
     const { setupId, planRevision } = await planned(ws);

@@ -147,6 +147,7 @@ export const StoredSetupInterviewSchema = z.object({
   planError: z.enum(WORKSPACE_SETUP_FAILURES).nullable().default(null),
   planClaimedAt: IsoDateSchema.nullable().default(null),
   planQueuedAt: IsoDateSchema.nullable().default(null),
+  templateSlug: z.string().max(48).nullable().default(null),
 });
 export type StoredSetupInterview = z.infer<typeof StoredSetupInterviewSchema>;
 

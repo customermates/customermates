@@ -89,7 +89,7 @@ function catalogData(excerpt = "Current workspace guidance") {
   };
 }
 
-function fixture() {
+function fixture(templateRules?: { brief: () => Promise<string | null> }) {
   const catalog = {
     invoke: vi.fn().mockResolvedValue({ ok: true, data: catalogData() }),
   };
@@ -159,6 +159,8 @@ function fixture() {
     catalog,
     userService,
     { findLatestCrawl: () => Promise.resolve(null) },
+    undefined,
+    templateRules,
   );
   const payload = () => {
     const call = background.dispatchTracked.mock.calls.at(-1);
@@ -652,6 +654,53 @@ describe("Workspace Wiki admission bootstrap", () => {
         }),
       ).rejects.toBe(error);
       expect(state.background.dispatchTracked).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("template rules brief", () => {
+    const BRIEF = 'Template rules: this workspace was built from the template "Client tracker".';
+
+    it("hands the brief of a template workspace to an interactive turn and into its context budget", async () => {
+      const brief = vi.fn().mockResolvedValue(BRIEF);
+      const state = fixture({ brief });
+      const plain = fixture();
+      const input = { clientRequestId: CLIENT_REQUEST_ID, text: "Hello", retry: false };
+      await state.interactor.invoke(input);
+      await plain.interactor.invoke(input);
+      expect(brief).toHaveBeenCalledOnce();
+      expect(state.payload().templateRules).toBe(BRIEF);
+      expect(plain.payload().templateRules).toBeUndefined();
+      expect(state.usage.prepareTurn.mock.calls[0][2].requiredContextBytes).toBeGreaterThan(
+        plain.usage.prepareTurn.mock.calls[0][2].requiredContextBytes,
+      );
+    });
+
+    it("sends nothing when the workspace was not built from a template", async () => {
+      const state = fixture({ brief: vi.fn().mockResolvedValue(null) });
+      await state.interactor.invoke({ clientRequestId: CLIENT_REQUEST_ID, text: "Hello", retry: false });
+      expect(state.payload().templateRules).toBeUndefined();
+    });
+
+    it("never offers the rules to a routine run", async () => {
+      const brief = vi.fn().mockResolvedValue(BRIEF);
+      const state = fixture({ brief });
+      await runWithTenant(mockUser, () =>
+        state.interactor.invokeRoutine({
+          clientRequestId: CLIENT_REQUEST_ID,
+          conversationId: CONVERSATION_ID,
+          text: "Run",
+          retry: false,
+        }),
+      );
+      expect(brief).not.toHaveBeenCalled();
+      expect(state.payload().templateRules).toBeUndefined();
+    });
+
+    it("keeps the turn running when the brief cannot be built", async () => {
+      const state = fixture({ brief: vi.fn().mockRejectedValue(new Error("model unavailable")) });
+      const result = await state.interactor.invoke({ clientRequestId: CLIENT_REQUEST_ID, text: "Hello", retry: false });
+      expect(result).toMatchObject({ ok: true, data: { disposition: "run" } });
+      expect(state.payload().templateRules).toBeUndefined();
     });
   });
 
