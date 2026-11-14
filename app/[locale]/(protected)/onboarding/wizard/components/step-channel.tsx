@@ -16,6 +16,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 
 import { orderedEmailChannels } from "./channel-suggestions";
+import { WIZARD_FOOTER_CLASS, WIZARD_FOOTER_GROUP_CLASS } from "./wizard-footer";
 
 type EmailChannel = { key: ConnectChannel; icon: MessagingProvider; label: string };
 
@@ -158,7 +159,7 @@ export const StepChannelFooter = observer(() => {
   const hasChannel = connectedAccountsStore.items.some((account) => account.isOwner);
 
   return (
-    <AppCardFooter className="justify-between">
+    <AppCardFooter className={WIZARD_FOOTER_CLASS}>
       <Button
         disabled={disabled || store.isFirstStep}
         id="onboarding-channel-back"
@@ -169,7 +170,7 @@ export const StepChannelFooter = observer(() => {
         {t("Common.actions.back")}
       </Button>
 
-      <div className="flex flex-wrap items-center justify-end gap-2">
+      <div className={`${WIZARD_FOOTER_GROUP_CLASS} justify-end`}>
         {hasChannel ? null : (
           <Button
             disabled={disabled}
@@ -183,6 +184,7 @@ export const StepChannelFooter = observer(() => {
         )}
 
         <Button
+          className="max-sm:disabled:hidden"
           disabled={disabled || !hasChannel}
           id="onboarding-channel-continue"
           type="button"

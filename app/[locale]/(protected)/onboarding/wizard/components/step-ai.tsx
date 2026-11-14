@@ -9,8 +9,10 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { cn } from "@/core/utils/cn";
 
 import { AgentConnectionStatus } from "./agent-connection-status";
+import { WIZARD_FOOTER_CLASS, WIZARD_FOOTER_GROUP_CLASS } from "./wizard-footer";
 
 export const StepAi = observer(() => {
   const { onboardingWizardStore, stepAiStore } = useRootStore();
@@ -46,7 +48,7 @@ const StepConnectFooter = observer(() => {
   const isProviderChooser = stepAiStore.route.screen === "providers";
 
   return (
-    <AppCardFooter className="justify-between">
+    <AppCardFooter className={WIZARD_FOOTER_CLASS}>
       <Button
         disabled={interactionDisabled}
         type="button"
@@ -56,7 +58,7 @@ const StepConnectFooter = observer(() => {
         {t("Common.actions.back")}
       </Button>
 
-      <div className="flex flex-wrap items-center justify-end gap-2">
+      <div className={cn(WIZARD_FOOTER_GROUP_CLASS, "justify-end")}>
         <Button
           disabled={interactionDisabled}
           id="onboarding-connect-later"
@@ -68,6 +70,7 @@ const StepConnectFooter = observer(() => {
         </Button>
 
         <Button
+          className="max-sm:disabled:hidden"
           disabled={interactionDisabled || !onboardingWizardStore.agentConnected}
           id="onboarding-connect-continue"
           type="button"
@@ -95,7 +98,7 @@ export const StepAiFooter = observer(() => {
   if (onboardingWizardStore.connectsAgent) return <StepConnectFooter />;
 
   return (
-    <AppCardFooter>
+    <AppCardFooter className="max-sm:flex-col-reverse max-sm:items-stretch max-sm:gap-2">
       <Button
         disabled={interactionDisabled}
         type="button"

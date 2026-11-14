@@ -15,6 +15,7 @@ import { cn } from "@/core/utils/cn";
 import { useAgentStatusPolling } from "./agent-status-polling";
 import { promptChecklist } from "./onboarding-copy";
 import { useSelectedAgentName } from "./use-selected-agent-name";
+import { WIZARD_FOOTER_CLASS, WIZARD_FOOTER_GROUP_CLASS } from "./wizard-footer";
 
 const COPIED_RESET_MS = 2_500;
 
@@ -75,7 +76,7 @@ export const StepPrompt = observer(() => {
             aria-multiline="true"
             aria-readonly="true"
             className={cn(
-              "max-h-56 min-h-32 overflow-auto rounded-lg border border-border bg-muted/60 p-4 pr-32 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none",
+              "max-h-56 min-h-32 overflow-auto rounded-lg border border-border bg-muted/60 p-4 font-mono max-sm:pt-14 sm:pr-44 text-xs leading-relaxed break-words whitespace-pre-wrap focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none",
               !ready && "animate-pulse motion-reduce:animate-none",
             )}
             id="onboarding-template-prompt"
@@ -159,7 +160,7 @@ export const StepPromptFooter = observer(() => {
   const busy = store.isSubmitting || store.isSaving || store.isInitializing;
 
   return (
-    <AppCardFooter className="justify-between">
+    <AppCardFooter className={WIZARD_FOOTER_CLASS}>
       <Button
         disabled={busy || store.isFirstStep}
         id="onboarding-prompt-back"
@@ -170,7 +171,7 @@ export const StepPromptFooter = observer(() => {
         {t("Common.actions.back")}
       </Button>
 
-      <div className="flex flex-wrap items-center justify-end gap-2">
+      <div className={cn(WIZARD_FOOTER_GROUP_CLASS, "justify-end")}>
         {launchUrl && agent ? (
           <Button asChild variant="secondary">
             <a href={launchUrl} rel="noopener noreferrer" target="_blank">

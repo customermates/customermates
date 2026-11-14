@@ -63,7 +63,7 @@ export const StepSource = observer(() => {
         />
       ) : null}
 
-      <div className="mt-2 flex flex-wrap items-center justify-end gap-2">
+      <div className="mt-2 flex flex-wrap items-center justify-end gap-2 max-sm:flex-col-reverse max-sm:items-stretch">
         <Button
           disabled={disabled}
           id="onboarding-source-skip"

@@ -13,7 +13,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { comparer, reaction } from "mobx";
 import { useTranslations } from "next-intl";
-import { CircleCheck } from "lucide-react";
+import { ArrowRight, CircleCheck } from "lucide-react";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -27,6 +27,7 @@ import { isTemplateSlug } from "@/core/templates/template-slugs";
 
 import { OnboardingArtwork, OnboardingMilestones } from "./onboarding-artwork";
 import { connectsAgentWithVerification, isMilestoneStep, resolveWizardResume } from "./onboarding-wizard-flow";
+import { WIZARD_FOOTER_CLASS } from "./wizard-footer";
 
 import { StepProfile } from "./step-profile";
 import { StepGoal, StepGoalFooter } from "./step-goal";
@@ -324,8 +325,14 @@ const OnboardingWizardContent = observer(
                     : currentStep === "prompt"
                       ? t("OnboardingWizard.steps.prompt.subtitle", { template: selectedTemplateName ?? "" })
                       : t(`OnboardingWizard.steps.${currentStep}.subtitle`);
-    const showArtwork =
-      currentStep === "profile" || currentStep === "invite" || (currentStep === "ai" && !connectsAgent);
+    const artworkStep =
+      currentStep === "profile" ||
+      currentStep === "goal" ||
+      currentStep === "invite" ||
+      currentStep === "channel" ||
+      (currentStep === "ai" && !connectsAgent)
+        ? currentStep
+        : null;
     const agentBadge =
       currentStep === "template" && connectsAgent && onboardingWizardStore.agentConnected
         ? agentName
@@ -349,26 +356,6 @@ const OnboardingWizardContent = observer(
         )}
       >
         <AppCardBody>
-          {showArtwork ? <OnboardingArtwork step={currentStep} /> : null}
-
-          <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
-            <div className="flex min-w-0 flex-col gap-1">
-              <h1 ref={headingRef} className="text-2xl font-semibold" tabIndex={-1}>
-                {title}
-              </h1>
-
-              <p className="text-sm text-muted-foreground">{subtitle}</p>
-            </div>
-
-            {agentBadge ? (
-              <span className="inline-flex items-center gap-1.5 text-sm font-medium text-success" role="status">
-                <CircleCheck aria-hidden="true" className="size-4" />
-
-                {agentBadge}
-              </span>
-            ) : null}
-          </div>
-
           {!isInvited && (
             <>
               <OnboardingMilestones
@@ -384,6 +371,7 @@ const OnboardingWizardContent = observer(
                   template: t("OnboardingWizard.milestones.template"),
                   prompt: t("OnboardingWizard.milestones.template"),
                 }}
+                progressText={progressText}
                 steps={milestoneSteps}
               />
 
@@ -398,16 +386,38 @@ const OnboardingWizardContent = observer(
             </>
           )}
 
+          {artworkStep ? (
+            <OnboardingArtwork className={artworkStep === "profile" ? undefined : "max-sm:hidden"} step={artworkStep} />
+          ) : null}
+
+          <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+            <div className="flex min-w-0 flex-col gap-1">
+              <h1 ref={headingRef} className="text-xl font-semibold text-balance sm:text-2xl" tabIndex={-1}>
+                {title}
+              </h1>
+
+              <p className="text-sm text-pretty text-muted-foreground">{subtitle}</p>
+            </div>
+
+            {agentBadge ? (
+              <span className="inline-flex items-center gap-1.5 text-sm font-medium text-success" role="status">
+                <CircleCheck aria-hidden="true" className="size-4" />
+
+                {agentBadge}
+              </span>
+            ) : null}
+          </div>
+
           {renderStep()}
         </AppCardBody>
 
         {showFooterNav && (
-          <AppCardFooter>
+          <AppCardFooter className={WIZARD_FOOTER_CLASS}>
             <Button
               disabled={isFirstStep || isSubmitting || onboardingWizardStore.isSaving || !isStepSynchronized}
               id="onboarding-back"
               type="button"
-              variant="secondary"
+              variant="ghost"
               onClick={() => runUserAction(back)}
             >
               {t("Common.actions.back")}
@@ -420,6 +430,8 @@ const OnboardingWizardContent = observer(
               onClick={() => runUserAction(next)}
             >
               {t("OnboardingWizard.next")}
+
+              <ArrowRight aria-hidden="true" className="size-4" />
             </Button>
           </AppCardFooter>
         )}

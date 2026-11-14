@@ -20,6 +20,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 
 import { templateFamilyLabel } from "./onboarding-copy";
+import { WIZARD_FOOTER_CLASS, WIZARD_FOOTER_GROUP_CLASS } from "./wizard-footer";
 
 export const TEMPLATE_INITIAL_LIMIT = 6;
 
@@ -206,8 +207,8 @@ export const StepTemplateFooter = observer(({ cards }: Pick<Props, "cards">) => 
   const selected = cards.find((card) => card.slug === store.selectedTemplate);
 
   return (
-    <AppCardFooter className="justify-between">
-      <div className="flex flex-wrap items-center gap-2">
+    <AppCardFooter className={WIZARD_FOOTER_CLASS}>
+      <div className={WIZARD_FOOTER_GROUP_CLASS}>
         <Button
           disabled={busy || store.isFirstStep}
           id="onboarding-template-back"

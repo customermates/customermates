@@ -62,7 +62,7 @@ export const AgentConnectionStatus = observer(() => {
         />
       )}
 
-      <span className="min-w-0 flex-1 text-muted-foreground">{message}</span>
+      <span className="min-w-48 flex-1 text-pretty text-muted-foreground">{message}</span>
 
       {connected ? null : (
         <Button disabled={checking} size="sm" type="button" variant="ghost" onClick={() => runUserAction(checkAgain)}>

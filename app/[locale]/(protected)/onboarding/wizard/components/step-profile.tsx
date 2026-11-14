@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 
 import { FormCheckbox } from "@/components/forms/form-checkbox";
 import { AppForm } from "@/components/forms/form-context";
@@ -100,7 +100,7 @@ export const StepProfile = observer(
             </Alert>
           ) : null}
 
-          <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid w-full grid-cols-2 gap-3">
             <FormInput required autoComplete="given-name" id="firstName" name="given-name" />
 
             <FormInput required autoComplete="family-name" id="lastName" name="family-name" />
@@ -108,7 +108,6 @@ export const StepProfile = observer(
 
           <FormSelect
             required
-            description={t("UserSettingsForm.displayLanguageHint")}
             id="displayLanguage"
             items={displayLanguageItems}
             label={t("Common.inputs.displayLanguage")}
@@ -175,10 +174,12 @@ export const StepProfile = observer(
             />
           ) : null}
 
-          <Button className="self-end mt-2" disabled={isLoading} type="submit">
+          <Button className="mt-2 self-end max-sm:self-stretch" disabled={isLoading} type="submit">
             {isLoading && <Loader2 className="size-4 animate-spin" />}
 
             {t("OnboardingWizard.next")}
+
+            {isLoading ? null : <ArrowRight aria-hidden="true" className="size-4" />}
           </Button>
         </div>
       </AppForm>

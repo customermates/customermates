@@ -17,6 +17,7 @@ import type { OnboardingJob } from "@/features/onboarding-funnel/onboarding-job"
 
 import { agentChecklist } from "./onboarding-copy";
 import { SetupChoiceCard } from "./setup-choice-card";
+import { WIZARD_FOOTER_CLASS } from "./wizard-footer";
 
 const AgentProviders = () => {
   const t = useTranslations();
@@ -188,7 +189,7 @@ export const StepGoalFooter = observer(() => {
   const disabled = store.isSubmitting || store.isSaving || store.isInitializing;
 
   return (
-    <AppCardFooter className="justify-between">
+    <AppCardFooter className={WIZARD_FOOTER_CLASS}>
       <EmptyWorkspaceAction />
 
       <Button
