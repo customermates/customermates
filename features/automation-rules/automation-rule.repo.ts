@@ -98,14 +98,6 @@ export abstract class AutomationRuleRepo {
     page: number;
     pageSize: number;
   }): Promise<{ items: StoredAutomationRuleRun[]; total: number }>;
-  abstract findOccurrences(ruleId: string, keys: string[]): Promise<Set<string>>;
-  abstract findDateCandidates(args: {
-    typeId: string;
-    fieldId: string;
-    from: Date;
-    to: Date;
-    limit: number;
-  }): Promise<{ items: AutomationDateCandidate[]; total: number }>;
 
   abstract findEnabledRulesUnscoped(args: {
     companyId: string;
@@ -125,16 +117,17 @@ export abstract class AutomationRuleRepo {
     runningBefore: Date,
     limit: number,
   ): Promise<{ id: string; companyId: string }[]>;
-  abstract findDateRulesUnscoped(limit: number): Promise<StoredAutomationRule[]>;
-  abstract findDateCandidatesUnscoped(args: {
+  abstract findDateRulesUnscoped(args: { afterId?: string; limit: number }): Promise<StoredAutomationRule[]>;
+  abstract findDateCandidatesCompanyWide(args: {
     companyId: string;
     typeId: string;
     fieldId: string;
     from: Date;
     to: Date;
+    afterRecordId?: string;
     limit: number;
   }): Promise<AutomationDateCandidate[]>;
-  abstract findOccurrencesUnscoped(ruleId: string, keys: string[]): Promise<Set<string>>;
+  abstract findOccurrencesCompanyWide(companyId: string, ruleId: string, keys: string[]): Promise<Set<string>>;
   abstract deleteRunsBeforeUnscoped(before: Date, limit: number): Promise<number>;
   abstract disableRuleUnscoped(companyId: string, ruleId: string, reason: string): Promise<void>;
   abstract disableOwnerRulesUnscoped(companyId: string, ownerUserId: string, reason: string): Promise<number>;

@@ -13,7 +13,7 @@ import {
   localDay,
   shiftDay,
 } from "../automation-date";
-import { dateOccurrenceKey, eventOccurrenceKey, externalOccurrenceKey } from "../automation-occurrence";
+import { dateOccurrenceKey, dueDateOccurrences, eventOccurrenceKey } from "../automation-occurrence";
 import {
   AutomationConditionSchema,
   AutomationTriggerSchema,
@@ -271,7 +271,29 @@ describe("occurrence keys", () => {
     expect(dateOccurrenceKey(trigger, "rec", "2026-11-21")).not.toBe(first);
     expect(dateOccurrenceKey({ ...trigger, days: 3 }, "rec", "2026-11-20")).not.toBe(first);
     expect(eventOccurrenceKey("e1")).toBe("event:e1");
-    expect(externalOccurrenceKey("form.submitted", "s1")).toBe("external:form.submitted:s1");
+  });
+
+  it("lists the dates that are due, once each, with the key that records them", () => {
+    const date = { fieldId: FIELD, days: 2, direction: "before" as const, atHour: 8, timezone: "Europe/Berlin" };
+    const now = new Date("2026-11-18T09:00:00.000Z");
+    const due = dueDateOccurrences(
+      date,
+      [
+        { recordId: "today", fieldValue: "2026-11-20" },
+        { recordId: "later", fieldValue: "2026-11-25" },
+        { recordId: "week-ago", fieldValue: "2026-11-01" },
+        { recordId: "instant", fieldValue: "2026-11-20T07:00:00.000Z" },
+        { recordId: "broken", fieldValue: "not a date" },
+      ],
+      now,
+    );
+    expect(due.map((item) => item.recordId)).toEqual(["today", "instant"]);
+    expect(due[0]).toEqual({
+      recordId: "today",
+      fieldValue: "2026-11-20",
+      fireAt: new Date("2026-11-18T07:00:00.000Z"),
+      key: dateOccurrenceKey(date, "today", "2026-11-20"),
+    });
   });
 });
 

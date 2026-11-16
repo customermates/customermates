@@ -94,14 +94,6 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
     return Promise.resolve({ items, total: items.length });
   }
 
-  findOccurrences(ruleId: string, keys: string[]) {
-    return Promise.resolve(this.occurrences(ruleId, keys));
-  }
-
-  findDateCandidates() {
-    return Promise.resolve({ items: this.candidates, total: this.candidates.length });
-  }
-
   findEnabledRulesUnscoped(args: {
     companyId: string;
     ids?: string[];
@@ -197,17 +189,27 @@ export class FakeAutomationRuleRepo extends AutomationRuleRepo {
     );
   }
 
-  findDateRulesUnscoped(limit: number) {
+  findDateRulesUnscoped(args: { afterId?: string; limit: number }) {
     return Promise.resolve(
-      [...this.rules.values()].filter((rule) => rule.enabled && rule.triggerKind === "dateReached").slice(0, limit),
+      [...this.rules.values()]
+        .filter(
+          (rule) => rule.enabled && rule.triggerKind === "dateReached" && (!args.afterId || rule.id > args.afterId),
+        )
+        .sort((left, right) => left.id.localeCompare(right.id))
+        .slice(0, args.limit),
     );
   }
 
-  findDateCandidatesUnscoped() {
-    return Promise.resolve(this.candidates);
+  findDateCandidatesCompanyWide(args: { afterRecordId?: string; limit: number }) {
+    return Promise.resolve(
+      this.candidates
+        .filter((candidate) => !args.afterRecordId || candidate.recordId > args.afterRecordId)
+        .sort((left, right) => left.recordId.localeCompare(right.recordId))
+        .slice(0, args.limit),
+    );
   }
 
-  findOccurrencesUnscoped(ruleId: string, keys: string[]) {
+  findOccurrencesCompanyWide(_companyId: string, ruleId: string, keys: string[]) {
     return Promise.resolve(this.occurrences(ruleId, keys));
   }
 

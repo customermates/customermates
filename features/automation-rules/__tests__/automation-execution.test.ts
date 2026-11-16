@@ -715,6 +715,24 @@ describe("sweeping date-reached rules", () => {
     seedRule(repo, { triggerKind: "dateReached", trigger });
   });
 
+  it("pages through every rule and every candidate instead of stopping at the first page", async () => {
+    for (const suffix of ["a2", "a3", "a4"])
+      seedRule(repo, { id: RULE_B.replace("a2", suffix), triggerKind: "dateReached", trigger });
+    repo.candidates = ["1", "2", "3", "4", "5"].map((suffix) => ({
+      recordId: `44444444-4444-4444-8444-44444444444${suffix}`,
+      fieldValue: "2026-11-13",
+    }));
+    const discard = new DiscardAutomationRuleRunInteractor(repo, () => NOW);
+    const paged = new SweepAutomationRulesInteractor(repo, { dispatch } as never, discard, { rules: 2, candidates: 2 });
+    await expect(paged.invoke(new Date("2026-11-12T07:00:00.000Z"))).resolves.toMatchObject({
+      automationRulesAdmitted: 4 * 5,
+    });
+    expect(repo.runs.size).toBe(20);
+    await expect(paged.invoke(new Date("2026-11-12T07:05:00.000Z"))).resolves.toMatchObject({
+      automationRulesAdmitted: 0,
+    });
+  });
+
   it("fires once the offset date and hour are reached, and only once", async () => {
     repo.candidates = [{ recordId: RECORD, fieldValue: "2026-11-13" }];
     await expect(sweep.invoke(new Date("2026-11-12T06:59:00.000Z"))).resolves.toMatchObject({

@@ -186,29 +186,6 @@ export class PrismaAutomationRuleRepo
     return { items, total };
   }
 
-  async findOccurrences(ruleId: string, keys: string[]): Promise<Set<string>> {
-    if (keys.length === 0) return new Set();
-    const rows = await this.prisma.automationRuleRun.findMany({
-      where: { companyId: this.companyId, ruleId, occurrenceKey: { in: keys } },
-      select: { occurrenceKey: true },
-    });
-    return new Set(rows.map((row) => row.occurrenceKey));
-  }
-
-  async findDateCandidates(args: { typeId: string; fieldId: string; from: Date; to: Date; limit: number }) {
-    const where = candidateWhere(this.companyId, args);
-    const [rows, total] = await Promise.all([
-      this.prisma.recordValue.findMany({
-        where,
-        select: { recordId: true, lexicalValue: true, instantValue: true },
-        orderBy: [{ instantValue: "asc" }, { recordId: "asc" }],
-        take: args.limit,
-      }),
-      this.prisma.recordValue.count({ where }),
-    ]);
-    return { items: rows.map(candidateOf), total };
-  }
-
   @BypassTenantGuard
   findEnabledRulesUnscoped(args: {
     companyId: string;
@@ -309,38 +286,42 @@ export class PrismaAutomationRuleRepo
   }
 
   @BypassTenantGuard
-  findDateRulesUnscoped(limit: number): Promise<StoredAutomationRule[]> {
+  findDateRulesUnscoped(args: { afterId?: string; limit: number }): Promise<StoredAutomationRule[]> {
     return this.prisma.automationRule.findMany({
-      where: { enabled: true, triggerKind: "dateReached" },
+      where: { enabled: true, triggerKind: "dateReached", ...(args.afterId ? { id: { gt: args.afterId } } : {}) },
       select: RULE_SELECT,
-      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
-      take: limit,
+      orderBy: { id: "asc" },
+      take: args.limit,
     });
   }
 
   @BypassTenantGuard
-  async findDateCandidatesUnscoped(args: {
+  async findDateCandidatesCompanyWide(args: {
     companyId: string;
     typeId: string;
     fieldId: string;
     from: Date;
     to: Date;
+    afterRecordId?: string;
     limit: number;
   }): Promise<AutomationDateCandidate[]> {
     const rows = await this.prisma.recordValue.findMany({
-      where: candidateWhere(args.companyId, args),
+      where: {
+        ...candidateWhere(args.companyId, args),
+        ...(args.afterRecordId ? { recordId: { gt: args.afterRecordId } } : {}),
+      },
       select: { recordId: true, lexicalValue: true, instantValue: true },
-      orderBy: [{ instantValue: "asc" }, { recordId: "asc" }],
+      orderBy: { recordId: "asc" },
       take: args.limit,
     });
     return rows.map(candidateOf);
   }
 
   @BypassTenantGuard
-  async findOccurrencesUnscoped(ruleId: string, keys: string[]): Promise<Set<string>> {
+  async findOccurrencesCompanyWide(companyId: string, ruleId: string, keys: string[]): Promise<Set<string>> {
     if (keys.length === 0) return new Set();
     const rows = await this.prisma.automationRuleRun.findMany({
-      where: { ruleId, occurrenceKey: { in: keys } },
+      where: { companyId, ruleId, occurrenceKey: { in: keys } },
       select: { occurrenceKey: true },
     });
     return new Set(rows.map((row) => row.occurrenceKey));

@@ -15,9 +15,9 @@ import { fail, failNotFound } from "@/core/validation/interactor-failure-server"
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { evaluateConditions } from "./automation-conditions";
-import { dateReachedCandidateWindow, dateReachedFireAt, isDateReachedDue } from "./automation-date";
+import { dateReachedCandidateWindow } from "./automation-date";
 import { automationModelIssues } from "./automation-model-validation";
-import { dateOccurrenceKey } from "./automation-occurrence";
+import { dueDateOccurrences } from "./automation-occurrence";
 import {
   AUTOMATION_DATE_LOOKBACK_DAYS,
   AutomationConditionSchema,
@@ -29,7 +29,6 @@ import {
 
 const CANDIDATE_LIMIT = 200;
 const SAMPLE_LIMIT = 50;
-const DAY_ONLY = /^\d{4}-\d{2}-\d{2}$/;
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.routines, read: true })
@@ -70,29 +69,18 @@ export class PreviewAutomationRuleInteractor extends AuthenticatedInteractor<
     const dateTrigger = trigger.data;
     const now = this.clock();
     const window = dateReachedCandidateWindow(dateTrigger, now, AUTOMATION_DATE_LOOKBACK_DAYS);
-    const { items } = await this.repo.findDateCandidates({
+    const candidates = await this.repo.findDateCandidatesCompanyWide({
+      companyId: this.user.companyId,
       typeId: dateTrigger.typeId,
       fieldId: dateTrigger.fieldId,
       from: window.from,
       to: window.to,
       limit: CANDIDATE_LIMIT,
     });
-    const due = items.flatMap((candidate) => {
-      const fireAt = dateReachedFireAt(dateTrigger, {
-        kind: DAY_ONLY.test(candidate.fieldValue) ? "date" : "dateTime",
-        value: candidate.fieldValue,
-      });
-      return fireAt && isDateReachedDue(fireAt, now, AUTOMATION_DATE_LOOKBACK_DAYS)
-        ? [
-            {
-              recordId: candidate.recordId,
-              key: dateOccurrenceKey(dateTrigger, candidate.recordId, candidate.fieldValue),
-            },
-          ]
-        : [];
-    });
+    const due = dueDateOccurrences(dateTrigger, candidates, now);
     const fired = stored
-      ? await this.repo.findOccurrences(
+      ? await this.repo.findOccurrencesCompanyWide(
+          this.user.companyId,
           stored.id,
           due.map((item) => item.key),
         )
