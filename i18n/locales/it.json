@@ -1173,6 +1173,7 @@
         "documentation": "documenti, aiuto, guida, manuale",
         "inbox": "messaggi, email, posta, conversazioni, chat, posta unificata, messaggi diretti, messaggi LinkedIn, WhatsApp",
         "knowledgeBase": "wiki, note, pagine, articoli, documentazione, playbook, manuale, procedure, informazioni aziendali",
+        "notifications": "avvisi, campanella, promemoria, da leggere, segna come letto, novità",
         "routines": "automazioni, pianificazioni, attività ricorrenti, workflow, trigger, regole di automazione",
         "settings": "preferenze, opzioni, account, spazio di lavoro",
         "trash": "elementi eliminati, cestino, ripristina, annulla eliminazione"
@@ -3446,6 +3447,7 @@
     "docs": "Documentazione",
     "features": "Funzionalità",
     "inbox": "Posta in arrivo",
+    "notifications": "Notifiche",
     "operator": "Console operatore",
     "overview": "Panoramica",
     "pricing": "Prezzi",
@@ -3536,12 +3538,18 @@
     "title": "Novità dal tuo spazio di lavoro"
   },
   "Notifications": {
+    "dayToday": "Oggi",
+    "dayYesterday": "Ieri",
     "emailMode": {
       "digest": "Riepilogo giornaliero",
       "instant": "E-mail immediata",
       "off": "Nessuna e-mail"
     },
     "empty": "Sei in pari con tutto.",
+    "emptyDescription": "Promemoria, risposte e avvisi di automazione compaiono qui.",
+    "emptyFiltered": "Nessuna notifica di questo tipo per ora.",
+    "filterAll": "Tutte",
+    "filtersLabel": "Filtra per tipo",
     "kindHelp": {
       "dueToday": "Promemoria per le date che arrivano oggi.",
       "replyReceived": "Quando arriva un messaggio che aspettavi.",
@@ -3552,15 +3560,11 @@
       "replyReceived": "Risposte ricevute",
       "ruleAlert": "Avvisi di automazione"
     },
-    "loading": "Caricamento delle notifiche…",
     "markAllRead": "Segna tutte come lette",
-    "open": "Apri le notifiche",
-    "openUnread": "Apri le notifiche, {count} da leggere",
     "preferences": {
-      "description": "La campanella mostra sempre tutto. Scegli qui con quale frequenza ogni tipo ti arriva anche via e-mail.",
+      "description": "La pagina Notifiche mostra sempre tutto. Scegli qui con quale frequenza ogni tipo ti arriva anche via e-mail.",
       "title": "E-mail di notifica"
     },
-    "title": "Notifiche",
     "unread": "Da leggere"
   },
   "OnboardingChoice": {

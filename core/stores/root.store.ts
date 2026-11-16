@@ -43,6 +43,7 @@ import { UserStore } from "@/app/[locale]/(protected)/w/[workspace]/settings/(ac
 import { RoutineModalStore } from "@/app/[locale]/(protected)/w/[workspace]/routines/components/routine-modal.store";
 import { RoutinesStore } from "@/app/[locale]/(protected)/w/[workspace]/routines/components/routines.store";
 import { TrashStore } from "@/app/[locale]/(protected)/w/[workspace]/trash/components/trash.store";
+import { NotificationsStore } from "@/app/[locale]/(protected)/w/[workspace]/notifications/components/notifications.store";
 import { SubscriptionExpiredStore } from "@/app/[locale]/(protected)/w/[workspace]/subscription-expired/components/subscription-expired.store";
 import { ErrorTestStore } from "@/app/[locale]/(protected)/w/[workspace]/test/error/error-test.store";
 import { ForgotPasswordStore } from "@/app/[locale]/(public)/auth/forgot-password/forgot-password.store";
@@ -94,6 +95,7 @@ export class RootStore {
   private _incomingWebhooksStore?: IncomingWebhooksStore;
   private _routinesStore?: RoutinesStore;
   private _trashStore?: TrashStore;
+  private _notificationsStore?: NotificationsStore;
   private _widgetsGridStore?: WidgetsStore;
   private _operatorUsersStore?: OperatorUsersStore;
   private _operatorAuditStore?: OperatorAuditStore;
@@ -377,6 +379,10 @@ export class RootStore {
 
   get trashStore() {
     return (this._trashStore ??= new TrashStore(this));
+  }
+
+  get notificationsStore() {
+    return (this._notificationsStore ??= new NotificationsStore());
   }
 
   get webhookModalStore() {

@@ -663,6 +663,8 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
 const AUTOMATIONS_DIRECTORY = "app/[locale]/(protected)/w/[workspace]/automations/components";
 const NOTIFICATION_SETTINGS_FILE =
   "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/notification-preferences-card.tsx";
+const NOTIFICATIONS_PAGE_VIEW_FILE =
+  "app/[locale]/(protected)/w/[workspace]/notifications/components/notifications-page-view.tsx";
 const AUTOMATION_KEYS = (group: string, names: readonly string[]) =>
   names.map((name) => `AutomationRules.${group}.${name}`);
 const NOTIFICATION_KEYS = (group: string, names: readonly string[]) =>
@@ -717,7 +719,8 @@ const AUTOMATION_SITE_CONSUMERS: ReadonlyArray<readonly [string, readonly string
   [`${NOTIFICATION_SETTINGS_FILE} :: t :: emailMode.\${mode}`, NOTIFICATION_KEYS("emailMode", ["digest", "instant", "off"])],
   [`${NOTIFICATION_SETTINGS_FILE} :: t :: kindHelp.\${preference.kind}`, NOTIFICATION_KEYS("kindHelp", NOTIFICATION_KIND_NAMES)],
   [`${NOTIFICATION_SETTINGS_FILE} :: t :: kinds.\${preference.kind}`, NOTIFICATION_KEYS("kinds", NOTIFICATION_KIND_NAMES)],
-  ["app/components/notifications/notification-bell.tsx :: t :: kinds.${item.kind}", NOTIFICATION_KEYS("kinds", NOTIFICATION_KIND_NAMES)],
+  [`${NOTIFICATIONS_PAGE_VIEW_FILE} :: t :: kinds.\${item.kind}`, NOTIFICATION_KEYS("kinds", NOTIFICATION_KIND_NAMES)],
+  [`${NOTIFICATIONS_PAGE_VIEW_FILE} :: t :: kinds.\${option}`, NOTIFICATION_KEYS("kinds", NOTIFICATION_KIND_NAMES)],
 ];
 const AUTOMATION_QUALIFIED_SITES: ReadonlyArray<readonly [string, readonly string[]]> = AUTOMATION_SITE_CONSUMERS.map(
   ([site, keys]) => {

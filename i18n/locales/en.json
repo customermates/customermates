@@ -1173,6 +1173,7 @@
         "documentation": "docs, help, guide, manual",
         "inbox": "messages, email, mail, conversations, chats, unified inbox, DMs, LinkedIn messages, WhatsApp",
         "knowledgeBase": "wiki, notes, pages, articles, docs, playbook, handbook, SOPs, company info",
+        "notifications": "alerts, bell, reminders, unread, mark as read, updates",
         "routines": "automations, schedules, recurring tasks, workflows, triggers, automation rules",
         "settings": "preferences, options, account, workspace",
         "trash": "deleted items, recycle bin, restore, undo delete"
@@ -3446,6 +3447,7 @@
     "docs": "Documentation",
     "features": "Features",
     "inbox": "Inbox",
+    "notifications": "Notifications",
     "operator": "Operator Console",
     "overview": "Overview",
     "pricing": "Pricing",
@@ -3536,12 +3538,18 @@
     "title": "News from your workspace"
   },
   "Notifications": {
+    "dayToday": "Today",
+    "dayYesterday": "Yesterday",
     "emailMode": {
       "digest": "Daily digest",
       "instant": "Email right away",
       "off": "No email"
     },
     "empty": "You are all caught up.",
+    "emptyDescription": "Reminders, replies and automation alerts show up here.",
+    "emptyFiltered": "No notifications of this kind so far.",
+    "filterAll": "All",
+    "filtersLabel": "Filter by kind",
     "kindHelp": {
       "dueToday": "Reminders for dates that arrive today.",
       "replyReceived": "When a message you were waiting for arrives.",
@@ -3552,15 +3560,11 @@
       "replyReceived": "Replies received",
       "ruleAlert": "Automation alerts"
     },
-    "loading": "Loading notifications…",
     "markAllRead": "Mark all as read",
-    "open": "Open notifications",
-    "openUnread": "Open notifications, {count} unread",
     "preferences": {
-      "description": "The bell always shows everything. Choose here how often each kind also reaches you by email.",
+      "description": "The Notifications page always shows everything. Choose here how often each kind also reaches you by email.",
       "title": "Notification emails"
     },
-    "title": "Notifications",
     "unread": "Unread"
   },
   "OnboardingChoice": {

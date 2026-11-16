@@ -5,6 +5,7 @@ import type { ShortcutId } from "./shortcut-registry";
 
 import {
   ArrowLeftRight,
+  Bell,
   BookOpen,
   Building2,
   CalendarDays,
@@ -176,6 +177,13 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     target: { href: "/inbox" },
     shortcut: "goInbox",
     requires: { resource: Resource.inboxMessages, cloudOnly: true },
+  },
+  {
+    id: "page.notifications",
+    labelKey: "NavigationBar.notifications",
+    kind: "page",
+    icon: Bell,
+    target: { href: "/notifications" },
   },
   {
     id: "page.knowledgeBase",

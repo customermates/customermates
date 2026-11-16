@@ -14,6 +14,7 @@ export const WORKSPACE_APP_ROOTS = [
   "/configure",
   "/dashboard",
   "/inbox",
+  "/notifications",
   "/onboarding/wizard",
   "/records",
   "/routines",

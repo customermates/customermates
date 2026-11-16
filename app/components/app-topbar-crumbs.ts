@@ -17,6 +17,7 @@ const PAGE_LABEL_KEYS: Record<string, string> = {
   dashboard: "NavigationBar.dashboard",
   calendar: "Planner.title",
   inbox: "NavigationBar.inbox",
+  notifications: "NavigationBar.notifications",
   wiki: "NavigationBar.wiki",
   routines: "NavigationBar.routines",
   automations: "NavigationBar.automations",

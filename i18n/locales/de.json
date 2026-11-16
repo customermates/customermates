@@ -1173,6 +1173,7 @@
         "documentation": "Doku, Hilfe, Anleitung, Handbuch",
         "inbox": "Nachrichten, E-Mail, Mails, Unterhaltungen, Chats, Posteingang, Direktnachrichten, LinkedIn-Nachrichten, WhatsApp",
         "knowledgeBase": "Wiki, Notizen, Seiten, Artikel, Dokumentation, Playbook, Handbuch, Arbeitsanweisungen, Firmenwissen",
+        "notifications": "Hinweise, Glocke, Erinnerungen, ungelesen, als gelesen markieren, Neuigkeiten",
         "routines": "Automatisierungen, Zeitpläne, wiederkehrende Aufgaben, Workflows, Auslöser, Automatisierungsregeln",
         "settings": "Einstellungen, Optionen, Konto, Arbeitsbereich",
         "trash": "gelöschte Elemente, Papierkorb, wiederherstellen, Löschen rückgängig"
@@ -3446,6 +3447,7 @@
     "docs": "Dokumentation",
     "features": "Features",
     "inbox": "Posteingang",
+    "notifications": "Benachrichtigungen",
     "operator": "Operator-Konsole",
     "overview": "Übersicht",
     "pricing": "Preise",
@@ -3536,12 +3538,18 @@
     "title": "Neuigkeiten aus deinem Workspace"
   },
   "Notifications": {
+    "dayToday": "Heute",
+    "dayYesterday": "Gestern",
     "emailMode": {
       "digest": "Tägliche Zusammenfassung",
       "instant": "Sofort per E-Mail",
       "off": "Keine E-Mail"
     },
     "empty": "Alles erledigt, nichts Neues.",
+    "emptyDescription": "Erinnerungen, Antworten und Hinweise von Automatisierungen erscheinen hier.",
+    "emptyFiltered": "Bisher keine Benachrichtigungen dieser Art.",
+    "filterAll": "Alle",
+    "filtersLabel": "Nach Art filtern",
     "kindHelp": {
       "dueToday": "Erinnerungen an Termine, die heute anstehen.",
       "replyReceived": "Wenn eine Nachricht eintrifft, auf die du wartest.",
@@ -3552,15 +3560,11 @@
       "replyReceived": "Erhaltene Antworten",
       "ruleAlert": "Hinweise von Automatisierungen"
     },
-    "loading": "Benachrichtigungen werden geladen …",
     "markAllRead": "Alle als gelesen markieren",
-    "open": "Benachrichtigungen öffnen",
-    "openUnread": "Benachrichtigungen öffnen, {count} ungelesen",
     "preferences": {
-      "description": "Die Glocke zeigt immer alles. Hier legst du fest, wie oft dich jede Art zusätzlich per E-Mail erreicht.",
+      "description": "Die Seite Benachrichtigungen zeigt immer alles. Hier legst du fest, wie oft dich jede Art zusätzlich per E-Mail erreicht.",
       "title": "E-Mails zu Benachrichtigungen"
     },
-    "title": "Benachrichtigungen",
     "unread": "Ungelesen"
   },
   "OnboardingChoice": {

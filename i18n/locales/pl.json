@@ -1173,6 +1173,7 @@
         "documentation": "dokumentacja, pomoc, przewodnik, instrukcja",
         "inbox": "wiadomości, e-mail, poczta, rozmowy, czaty, wspólna skrzynka, wiadomości prywatne, wiadomości LinkedIn, WhatsApp",
         "knowledgeBase": "wiki, notatki, strony, artykuły, dokumentacja, playbook, podręcznik, procedury, informacje o firmie",
+        "notifications": "alerty, dzwonek, przypomnienia, nieprzeczytane, oznacz jako przeczytane, nowości",
         "routines": "automatyzacje, harmonogramy, zadania cykliczne, przepływy pracy, wyzwalacze, reguły automatyzacji",
         "settings": "preferencje, opcje, konto, przestrzeń robocza",
         "trash": "usunięte elementy, kosz, przywróć, cofnij usunięcie"
@@ -3446,6 +3447,7 @@
     "docs": "Dokumentacja",
     "features": "Funkcje",
     "inbox": "Skrzynka odbiorcza",
+    "notifications": "Powiadomienia",
     "operator": "Konsola operatora",
     "overview": "Przegląd",
     "pricing": "Cennik",
@@ -3536,12 +3538,18 @@
     "title": "Nowości z Twojego obszaru roboczego"
   },
   "Notifications": {
+    "dayToday": "Dzisiaj",
+    "dayYesterday": "Wczoraj",
     "emailMode": {
       "digest": "Dzienne podsumowanie",
       "instant": "E-mail od razu",
       "off": "Bez e-maila"
     },
     "empty": "Wszystko na bieżąco.",
+    "emptyDescription": "Przypomnienia, odpowiedzi i alerty automatyzacji pojawią się tutaj.",
+    "emptyFiltered": "Na razie brak powiadomień tego rodzaju.",
+    "filterAll": "Wszystkie",
+    "filtersLabel": "Filtruj według rodzaju",
     "kindHelp": {
       "dueToday": "Przypomnienia o datach, które nadchodzą dziś.",
       "replyReceived": "Gdy nadejdzie wiadomość, na którą czekasz.",
@@ -3552,15 +3560,11 @@
       "replyReceived": "Otrzymane odpowiedzi",
       "ruleAlert": "Alerty automatyzacji"
     },
-    "loading": "Wczytywanie powiadomień…",
     "markAllRead": "Oznacz wszystkie jako przeczytane",
-    "open": "Otwórz powiadomienia",
-    "openUnread": "Otwórz powiadomienia, nieprzeczytane: {count}",
     "preferences": {
-      "description": "Dzwonek zawsze pokazuje wszystko. Tutaj ustawiasz, jak często każdy rodzaj dociera do Ciebie także e-mailem.",
+      "description": "Strona Powiadomienia zawsze pokazuje wszystko. Tutaj ustawiasz, jak często każdy rodzaj dociera do Ciebie także e-mailem.",
       "title": "E-maile z powiadomieniami"
     },
-    "title": "Powiadomienia",
     "unread": "Nieprzeczytane"
   },
   "OnboardingChoice": {

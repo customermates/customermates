@@ -106,6 +106,7 @@ export const PROTECTED_ROUTES = [
   "/w/:workspace/configure",
   "/w/:workspace/dashboard",
   "/w/:workspace/inbox",
+  "/w/:workspace/notifications",
   "/w/:workspace/onboarding/wizard",
   "/w/:workspace/records/:typeId",
   "/w/:workspace/records/:typeId/:recordId",

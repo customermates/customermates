@@ -1173,6 +1173,7 @@
         "documentation": "docs, ayuda, guía, manual",
         "inbox": "mensajes, correo, email, conversaciones, chats, bandeja unificada, mensajes directos, mensajes de LinkedIn, WhatsApp",
         "knowledgeBase": "wiki, notas, páginas, artículos, documentación, playbook, manual, procedimientos, información de la empresa",
+        "notifications": "avisos, campana, recordatorios, sin leer, marcar como leído, novedades",
         "routines": "automatizaciones, programaciones, tareas recurrentes, flujos de trabajo, disparadores, reglas de automatización",
         "settings": "preferencias, opciones, cuenta, espacio de trabajo",
         "trash": "elementos eliminados, papelera, restaurar, deshacer eliminación"
@@ -3446,6 +3447,7 @@
     "docs": "Documentación",
     "features": "Funciones",
     "inbox": "Bandeja de entrada",
+    "notifications": "Notificaciones",
     "operator": "Consola del operador",
     "overview": "Resumen",
     "pricing": "Precios",
@@ -3536,12 +3538,18 @@
     "title": "Novedades de tu espacio de trabajo"
   },
   "Notifications": {
+    "dayToday": "Hoy",
+    "dayYesterday": "Ayer",
     "emailMode": {
       "digest": "Resumen diario",
       "instant": "Correo inmediato",
       "off": "Sin correo"
     },
     "empty": "Estás al día.",
+    "emptyDescription": "Aquí aparecen los recordatorios, las respuestas y las alertas de automatización.",
+    "emptyFiltered": "Todavía no hay notificaciones de este tipo.",
+    "filterAll": "Todas",
+    "filtersLabel": "Filtrar por tipo",
     "kindHelp": {
       "dueToday": "Recordatorios de las fechas que llegan hoy.",
       "replyReceived": "Cuando llega un mensaje que esperabas.",
@@ -3552,15 +3560,11 @@
       "replyReceived": "Respuestas recibidas",
       "ruleAlert": "Alertas de automatización"
     },
-    "loading": "Cargando notificaciones…",
     "markAllRead": "Marcar todo como leído",
-    "open": "Abrir las notificaciones",
-    "openUnread": "Abrir las notificaciones, {count} sin leer",
     "preferences": {
-      "description": "La campana siempre lo muestra todo. Elige aquí con qué frecuencia cada tipo te llega también por correo.",
+      "description": "La página Notificaciones siempre lo muestra todo. Elige aquí con qué frecuencia cada tipo te llega también por correo.",
       "title": "Correos de notificación"
     },
-    "title": "Notificaciones",
     "unread": "Sin leer"
   },
   "OnboardingChoice": {

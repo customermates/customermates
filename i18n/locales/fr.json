@@ -1173,6 +1173,7 @@
         "documentation": "docs, aide, guide, manuel",
         "inbox": "messages, e-mail, courriel, conversations, discussions, boîte de réception unifiée, messages privés, messages LinkedIn, WhatsApp",
         "knowledgeBase": "wiki, notes, fiches, articles, documentation, playbook, manuel, procédures, infos entreprise",
+        "notifications": "alertes, cloche, rappels, non lues, marquer comme lu, nouveautés",
         "routines": "automatisations, planifications, tâches récurrentes, workflows, déclencheurs, règles d’automatisation",
         "settings": "préférences, options, compte, espace de travail",
         "trash": "éléments supprimés, corbeille, restaurer, annuler la suppression"
@@ -3446,6 +3447,7 @@
     "docs": "Documentation",
     "features": "Fonctionnalités",
     "inbox": "Boîte de réception",
+    "notifications": "Vos notifications",
     "operator": "Console opérateur",
     "overview": "Aperçu",
     "pricing": "Tarifs",
@@ -3536,12 +3538,18 @@
     "title": "Du nouveau dans votre espace de travail"
   },
   "Notifications": {
+    "dayToday": "Aujourd’hui",
+    "dayYesterday": "Hier",
     "emailMode": {
       "digest": "Résumé quotidien",
       "instant": "E-mail immédiat",
       "off": "Pas d’e-mail"
     },
     "empty": "Vous êtes à jour.",
+    "emptyDescription": "Les rappels, les réponses et les alertes d’automatisation apparaissent ici.",
+    "emptyFiltered": "Aucune notification de ce type pour le moment.",
+    "filterAll": "Toutes",
+    "filtersLabel": "Filtrer par type",
     "kindHelp": {
       "dueToday": "Rappels des dates qui arrivent aujourd’hui.",
       "replyReceived": "Quand arrive un message que vous attendiez.",
@@ -3552,15 +3560,11 @@
       "replyReceived": "Réponses reçues",
       "ruleAlert": "Alertes d’automatisation"
     },
-    "loading": "Chargement des notifications…",
     "markAllRead": "Tout marquer comme lu",
-    "open": "Ouvrir les notifications",
-    "openUnread": "Ouvrir les notifications, {count} non lues",
     "preferences": {
-      "description": "La cloche affiche toujours tout. Choisissez ici à quelle fréquence chaque type vous parvient aussi par e-mail.",
+      "description": "La page des notifications affiche toujours tout. Choisissez ici à quelle fréquence chaque type vous parvient aussi par e-mail.",
       "title": "E-mails de notification"
     },
-    "title": "Vos notifications",
     "unread": "Non lue"
   },
   "OnboardingChoice": {

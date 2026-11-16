@@ -15,6 +15,7 @@ import {
   Settings2,
   Settings,
   CreditCard,
+  Bell,
   Inbox,
   Plus,
   LayoutGrid,
@@ -46,7 +47,6 @@ import { workspaceDisplayName } from "@/app/components/workspaces/workspace-iden
 import { WorkspaceSwitcherItems } from "@/app/components/workspaces/workspace-switcher-items";
 
 import { NavHeader } from "./navigation/nav-header";
-import { NotificationBell } from "./notifications/notification-bell";
 import { NavBadge } from "./navigation/nav-main";
 import { resolvePlanChip } from "./navigation/plan-subtitle";
 import { OPERATOR_SUBROUTES } from "./navigation/operator-sections";
@@ -151,7 +151,7 @@ const FullAppSidebar = observer(
       userStore,
       workspacesStore,
     } = rootStore;
-    const { messagingThreadsStore } = rootStore;
+    const { messagingThreadsStore, notificationsStore } = rootStore;
     const isDocsRoute = pathname.split("/")[2] === "docs";
     const inboxVisible =
       !restricted &&
@@ -167,6 +167,9 @@ const FullAppSidebar = observer(
       ? (messagingThreadsStore.unreadThreadCount ?? unreadThreadCount)
       : 0;
     const onInbox = intlPathname === "/inbox";
+    const notificationsVisible = !restricted && !isDocsRoute;
+    const onNotifications = intlPathname === "/notifications";
+    const currentUnreadNotificationCount = notificationsVisible ? (notificationsStore.unreadCount ?? 0) : 0;
     const inboxUpsellPlanName = t(`Subscription.planNames.${MESSAGING_UPSELL_PLAN}`);
     const inboxPlanTag =
       inboxVisible && subscription !== null && !getEntitlements(effectivePlanId(subscription)).messaging
@@ -202,6 +205,17 @@ const FullAppSidebar = observer(
         repeat: !onInbox,
       });
     }, [inboxAvailable, onInbox, messagingThreadsStore]);
+
+    useEffect(() => {
+      if (!notificationsVisible) return;
+      return startBackgroundPoll({
+        refresh: notificationsStore.refreshUnreadCount,
+        onError: reportApplicationError,
+        intervalMs: UNREAD_REFRESH_INTERVAL_MS,
+        immediate: true,
+        repeat: !onNotifications,
+      });
+    }, [notificationsVisible, onNotifications, notificationsStore]);
 
     function closeMobileSidebar(cb?: () => void) {
       if (isMobile) setOpenMobile(false);
@@ -245,6 +259,14 @@ const FullAppSidebar = observer(
               visible: canAccess(Resource.inboxMessages) && rootStore.appMode !== "self-hosted",
               badge: currentUnreadThreadCount,
               planTag: inboxPlanTag,
+            },
+            {
+              key: "notifications",
+              title: t("NavigationBar.notifications"),
+              href: "/notifications",
+              icon: Bell,
+              visible: notificationsVisible,
+              badge: currentUnreadNotificationCount,
             },
             {
               key: "routines",
@@ -301,7 +323,15 @@ const FullAppSidebar = observer(
           ],
         },
       ].filter((g) => g.items.length > 0);
-    }, [t, recordWorkspaceStore.navigation, rootStore.appMode, user, currentUnreadThreadCount]);
+    }, [
+      t,
+      recordWorkspaceStore.navigation,
+      rootStore.appMode,
+      user,
+      currentUnreadThreadCount,
+      notificationsVisible,
+      currentUnreadNotificationCount,
+    ]);
 
     const areaGroups: AreaNavGroup[] = useMemo(() => {
       if (area === "operator") {
@@ -559,7 +589,6 @@ const FullAppSidebar = observer(
             }
             brandName="Customermates"
             logoAlt={t("Common.imageAlt.logo")}
-            notifications={restricted ? null : <NotificationBell />}
             overlaysDisabled={!restricted && !recordWorkspaceStore.routeReady(intlPathname)}
             quickActions={!area}
             searchLabel={t("NavigationBar.search")}

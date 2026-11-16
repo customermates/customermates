@@ -1173,6 +1173,7 @@
         "documentation": "docs, ajuda, guia, manual",
         "inbox": "mensagens, e-mail, conversas, chats, caixa de entrada unificada, mensagens diretas, mensagens do LinkedIn, WhatsApp",
         "knowledgeBase": "wiki, notas, páginas, artigos, docs, playbook, manual, procedimentos, informações da empresa",
+        "notifications": "avisos, sino, lembretes, não lidas, marcar como lida, novidades",
         "routines": "automações, agendamentos, tarefas recorrentes, fluxos de trabalho, gatilhos, regras de automação",
         "settings": "preferências, opções, conta, espaço de trabalho",
         "trash": "itens excluídos, lixeira, restaurar, desfazer exclusão"
@@ -3446,6 +3447,7 @@
     "docs": "Documentação",
     "features": "Funcionalidades",
     "inbox": "Caixa de entrada",
+    "notifications": "Notificações",
     "operator": "Console do operador",
     "overview": "Visão geral",
     "pricing": "Preços",
@@ -3536,12 +3538,18 @@
     "title": "Novidades do seu espaço de trabalho"
   },
   "Notifications": {
+    "dayToday": "Hoje",
+    "dayYesterday": "Ontem",
     "emailMode": {
       "digest": "Resumo diário",
       "instant": "E-mail imediato",
       "off": "Sem e-mail"
     },
     "empty": "Você está em dia.",
+    "emptyDescription": "Lembretes, respostas e alertas de automação aparecem aqui.",
+    "emptyFiltered": "Ainda não há notificações deste tipo.",
+    "filterAll": "Todas",
+    "filtersLabel": "Filtrar por tipo",
     "kindHelp": {
       "dueToday": "Lembretes das datas que chegam hoje.",
       "replyReceived": "Quando chega uma mensagem que você esperava.",
@@ -3552,15 +3560,11 @@
       "replyReceived": "Respostas recebidas",
       "ruleAlert": "Alertas de automação"
     },
-    "loading": "Carregando notificações…",
     "markAllRead": "Marcar tudo como lido",
-    "open": "Abrir as notificações",
-    "openUnread": "Abrir as notificações, {count} não lidas",
     "preferences": {
-      "description": "O sino sempre mostra tudo. Escolha aqui com que frequência cada tipo também chega a você por e-mail.",
+      "description": "A página Notificações sempre mostra tudo. Escolha aqui com que frequência cada tipo também chega a você por e-mail.",
       "title": "E-mails de notificação"
     },
-    "title": "Notificações",
     "unread": "Não lida"
   },
   "OnboardingChoice": {

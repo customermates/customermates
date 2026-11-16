@@ -1173,6 +1173,7 @@
         "documentation": "docs, help, handleiding, gids",
         "inbox": "berichten, e-mail, mail, gesprekken, chats, gezamenlijke inbox, DM's, LinkedIn-berichten, WhatsApp",
         "knowledgeBase": "wiki, notities, pagina's, artikelen, docs, playbook, handboek, werkinstructies, bedrijfsinformatie",
+        "notifications": "meldingen, bel, herinneringen, ongelezen, als gelezen markeren, nieuws",
         "routines": "automatiseringen, schema's, terugkerende taken, workflows, triggers, automatiseringsregels",
         "settings": "voorkeuren, opties, account, werkruimte",
         "trash": "verwijderde items, prullenbak, herstellen, verwijderen ongedaan maken"
@@ -3446,6 +3447,7 @@
     "docs": "Documentatie",
     "features": "Functies",
     "inbox": "Inbox",
+    "notifications": "Meldingen",
     "operator": "Operatorconsole",
     "overview": "Overzicht",
     "pricing": "Prijzen",
@@ -3536,12 +3538,18 @@
     "title": "Nieuws uit je werkruimte"
   },
   "Notifications": {
+    "dayToday": "Vandaag",
+    "dayYesterday": "Gisteren",
     "emailMode": {
       "digest": "Dagelijkse samenvatting",
       "instant": "Direct per e-mail",
       "off": "Geen e-mail"
     },
     "empty": "Je bent helemaal bij.",
+    "emptyDescription": "Herinneringen, antwoorden en meldingen van automatiseringen verschijnen hier.",
+    "emptyFiltered": "Nog geen meldingen van deze soort.",
+    "filterAll": "Alle",
+    "filtersLabel": "Filteren op soort",
     "kindHelp": {
       "dueToday": "Herinneringen voor datums die vandaag aanbreken.",
       "replyReceived": "Wanneer een bericht binnenkomt waar je op wachtte.",
@@ -3552,15 +3560,11 @@
       "replyReceived": "Ontvangen antwoorden",
       "ruleAlert": "Meldingen van automatiseringen"
     },
-    "loading": "Meldingen laden…",
     "markAllRead": "Alles als gelezen markeren",
-    "open": "Meldingen openen",
-    "openUnread": "Meldingen openen, {count} ongelezen",
     "preferences": {
-      "description": "De bel toont altijd alles. Kies hier hoe vaak elke soort je ook per e-mail bereikt.",
+      "description": "De pagina Meldingen toont altijd alles. Kies hier hoe vaak elke soort je ook per e-mail bereikt.",
       "title": "E-mails over meldingen"
     },
-    "title": "Meldingen",
     "unread": "Ongelezen"
   },
   "OnboardingChoice": {

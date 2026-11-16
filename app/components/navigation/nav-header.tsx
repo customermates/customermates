@@ -18,7 +18,6 @@ type Props = {
   workspaceMenuLabel: string;
   workspaceMenuBadge?: { count: number; label: string };
   workspace: { companyId: string; name: string } | null;
-  notifications?: ReactNode;
   onWorkspaceMenuOpen?: () => void;
   brandName: string;
   logoAlt: string;
@@ -39,7 +38,6 @@ export function NavHeader({
   workspaceMenuLabel,
   workspaceMenuBadge,
   workspace,
-  notifications,
   onWorkspaceMenuOpen,
   brandName,
   logoAlt,
@@ -184,14 +182,6 @@ export function NavHeader({
               <ActiveShortcutKeys className="ml-auto" id="add" />
             </SidebarMenuButton>
           </SidebarMenuItem>
-
-          {notifications && <SidebarMenuItem>{notifications}</SidebarMenuItem>}
-        </SidebarMenu>
-      )}
-
-      {!quickActions && notifications && (
-        <SidebarMenu>
-          <SidebarMenuItem>{notifications}</SidebarMenuItem>
         </SidebarMenu>
       )}
     </SidebarHeader>
