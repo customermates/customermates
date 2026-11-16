@@ -140,8 +140,8 @@ describe("a template page", () => {
     const html = await detail();
 
     expect(html).toContain("<h1");
-    expect(html).toContain("A client tracker your AI agent builds in your CRM");
-    expect(html).toContain("A client tracker is a short list with one row per client");
+    expect(html).toContain("Know who to call next: a client tracker your AI agent builds in your CRM");
+    expect(html).toContain("A client tracker is a list with one row per client, one owner and a dated next step");
   });
 
   it("makes the free trial with the template the primary call to action", async () => {
