@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import { isAnswerableField } from "@/features/records/record-value-coercion";
+
 import { buildFormAnswers } from "../public-form-answers";
 import { formFieldOptions, formPeopleLists, invalidFormConfigPaths } from "../public-form-config-validation";
-import { isFormEligibleField } from "../public-form-fields";
 import { presentPublicForm } from "../public-form-presentation";
 import {
   AGREE_FIELD,
@@ -194,10 +195,10 @@ describe("form field eligibility", () => {
     const file = { ...model.fields[0], valueType: "file" as const };
     const multipleText = { ...model.fields[0], multiple: true };
 
-    expect(formula && isFormEligibleField(formula)).toBe(false);
-    expect(isFormEligibleField(archived)).toBe(false);
-    expect(isFormEligibleField(file)).toBe(false);
-    expect(isFormEligibleField(multipleText)).toBe(false);
+    expect(formula && isAnswerableField(formula)).toBe(false);
+    expect(isAnswerableField(archived)).toBe(false);
+    expect(isAnswerableField(file)).toBe(false);
+    expect(isAnswerableField(multipleText)).toBe(false);
   });
 
   it("lists the people lists a form can link, with their name fields", () => {

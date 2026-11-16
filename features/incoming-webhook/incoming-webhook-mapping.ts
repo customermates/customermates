@@ -1,10 +1,9 @@
 import type { RecordField, RecordScalar } from "@/features/records/record-model.schema";
 import type { RecordIdentityInput } from "@/features/records/record-identity.schema";
-import type { FormAnswerValue, FormAssignment } from "@/features/public-form/public-form-answers";
+import type { AnswerAssignment, AnswerValue } from "@/features/records/record-value-coercion";
 import type { IncomingWebhookMapping } from "./incoming-webhook.schema";
 
-import { convertField } from "@/features/public-form/public-form-answers";
-import { isFormEligibleField } from "@/features/public-form/public-form-fields";
+import { convertField, isAnswerableField } from "@/features/records/record-value-coercion";
 
 export type MappedValue = {
   fieldId: string;
@@ -16,7 +15,7 @@ export type MappedValue = {
 export type MappedPayload =
   | {
       ok: true;
-      fields: FormAssignment[];
+      fields: AnswerAssignment[];
       identities: RecordIdentityInput[];
       match: { fieldId: string; scalar: RecordScalar | null; identity: RecordIdentityInput | null } | null;
       values: MappedValue[];
@@ -41,7 +40,7 @@ function scalarText(raw: unknown): string | undefined {
   return undefined;
 }
 
-export function toAnswerValue(field: RecordField, raw: unknown): FormAnswerValue | undefined {
+export function toAnswerValue(field: RecordField, raw: unknown): AnswerValue | undefined {
   if (raw === null || raw === undefined) return undefined;
   if (field.valueType === "boolean") return typeof raw === "boolean" ? raw : scalarText(raw);
   if (Array.isArray(raw)) {
@@ -52,7 +51,7 @@ export function toAnswerValue(field: RecordField, raw: unknown): FormAnswerValue
   return scalarText(raw);
 }
 
-function selectIds(field: RecordField, value: FormAnswerValue | undefined): FormAnswerValue | undefined {
+function selectIds(field: RecordField, value: AnswerValue | undefined): AnswerValue | undefined {
   if (field.valueType !== "select" || value === undefined) return value;
   const toId = (entry: string) => {
     const byId = field.options.find((option) => option.id === entry);
@@ -68,14 +67,14 @@ export function mapIncomingPayload(
   typeId: string,
   modelFields: readonly RecordField[],
 ): MappedPayload {
-  const fields: FormAssignment[] = [];
+  const fields: AnswerAssignment[] = [];
   const identities: RecordIdentityInput[] = [];
   const values: MappedValue[] = [];
   let match: Extract<MappedPayload, { ok: true }>["match"] = null;
 
   for (const entry of mapping.fields) {
     const field = modelFields.find(
-      (candidate) => candidate.id === entry.fieldId && candidate.typeId === typeId && isFormEligibleField(candidate),
+      (candidate) => candidate.id === entry.fieldId && candidate.typeId === typeId && isAnswerableField(candidate),
     );
     if (!field) {
       values.push({ fieldId: entry.fieldId, path: entry.path, value: null, error: "invalid" });

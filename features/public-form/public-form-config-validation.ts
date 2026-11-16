@@ -2,15 +2,14 @@ import type { RecordModel } from "@/features/records/record-model.schema";
 import type { FormPeopleListOption, FormFieldOption, PublicFormConfig } from "./public-form.schema";
 
 import { recordChannelsEnabled } from "@/features/records/record-channels";
-
-import { isFormEligibleField, isFormFieldValueType } from "./public-form-fields";
+import { isAnswerableField, isAnswerableValueType } from "@/features/records/record-value-coercion";
 
 export function formFieldOptions(model: RecordModel, typeId: string): FormFieldOption[] {
   return model.fields
-    .filter((field) => field.typeId === typeId && isFormEligibleField(field))
+    .filter((field) => field.typeId === typeId && isAnswerableField(field))
     .sort((left, right) => left.position - right.position)
     .flatMap((field) =>
-      isFormFieldValueType(field.valueType)
+      isAnswerableValueType(field.valueType)
         ? [
             {
               fieldId: field.id,

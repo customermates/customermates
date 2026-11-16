@@ -3,12 +3,12 @@ import type { RecordModel, RecordRef } from "@/features/records/record-model.sch
 import type { RecordQuery } from "@/features/records/record-query.schema";
 import type { RecordQueryResult } from "@/features/records/record-query-result.schema";
 import type { RecordRepo } from "@/features/records/record.repo";
-import type { FormRecordWriter } from "@/features/public-form/public-form-person";
+import type { RecordWriter } from "@/features/records/person-lookup";
 import type { IncomingWebhookMapping } from "./incoming-webhook.schema";
 import type { MappedPayload } from "./incoming-webhook-mapping";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { findPersonByEmail } from "@/features/public-form/public-form-person";
+import { findPersonByEmail } from "@/features/records/person-lookup";
 
 import { mapIncomingPayload } from "./incoming-webhook-mapping";
 
@@ -43,7 +43,7 @@ export class IncomingWebhookEngine {
   constructor(
     private records: RecordRepo,
     private query: RecordQuerier,
-    private writer: FormRecordWriter,
+    private writer: RecordWriter,
   ) {}
 
   async plan(webhook: PlanInput, payload: unknown): Promise<WebhookPlan> {

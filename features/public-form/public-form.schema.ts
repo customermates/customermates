@@ -1,9 +1,18 @@
+import type { AnswerQuestion } from "@/features/records/record-value-coercion";
+
 import { z } from "zod";
 
 import { isAppLocale } from "@/i18n/locale-registry";
+import { ANSWERABLE_VALUE_TYPES } from "@/features/records/record-value-coercion";
 
-import { FORM_FIELD_VALUE_TYPES } from "./public-form-fields";
-import { PUBLIC_FORM_LIMITS } from "./public-form-limits";
+export const PUBLIC_FORM_LIMITS = {
+  maxFields: 40,
+  ipBucket: { capacity: 5, windowMs: 10 * 60_000 },
+  formBucket: { capacity: 60, windowMs: 10 * 60_000 },
+  viewBucket: { capacity: 120, windowMs: 60_000 },
+  perIpPerHour: 20,
+  perFormPerHour: 300,
+} as const;
 
 const HttpUrlSchema = z.url({ protocol: /^https?$/ }).max(2000);
 
@@ -136,7 +145,7 @@ export const FormFieldOptionSchema = z
   .object({
     fieldId: z.uuid(),
     label: z.string(),
-    valueType: z.enum(FORM_FIELD_VALUE_TYPES),
+    valueType: z.enum(ANSWERABLE_VALUE_TYPES),
     required: z.boolean(),
     multiple: z.boolean(),
     options: z.array(z.object({ id: z.string(), label: z.string() }).strict()),
@@ -175,16 +184,7 @@ export type PublicFormView = {
   submitLabel: string;
   workspaceName: string | null;
   locale: string | null;
-  fields: Array<{
-    fieldId: string;
-    label: string;
-    helpText: string | null;
-    required: boolean;
-    valueType: (typeof FORM_FIELD_VALUE_TYPES)[number];
-    multiple: boolean;
-    options: Array<{ id: string; label: string }>;
-    currency: string | null;
-  }>;
+  fields: AnswerQuestion[];
   person: { emailLabel: string; nameLabel: string | null } | null;
   consent: PublicFormConsent | null;
   badge: boolean;

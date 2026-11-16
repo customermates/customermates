@@ -2944,7 +2944,7 @@ export const getSetPublicLinksAllowedInteractor = () =>
 
 import { PrismaPublicFormRepo } from "@/features/public-form/prisma-public-form.repository";
 import { PublicFormAccess } from "@/features/public-form/public-form-access";
-import { PUBLIC_FORM_LIMITS } from "@/features/public-form/public-form-limits";
+import { PUBLIC_FORM_LIMITS } from "@/features/public-form/public-form.schema";
 import { PlanPublicFormQuota } from "@/features/public-form/public-form-quota";
 import { PublicFormTenant } from "@/features/public-form/public-form-tenant";
 import { DisablePublicFormInteractor } from "@/features/public-form/disable-public-form.interactor";

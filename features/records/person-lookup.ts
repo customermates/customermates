@@ -1,20 +1,21 @@
-import type { MutateRecordInput, RecordOperationResult } from "@/features/records/record-query.schema";
-import type { RecordModel, RecordRef } from "@/features/records/record-model.schema";
-import type { RecordRepo } from "@/features/records/record.repo";
 import type { Validated } from "@/core/validation/validation.utils";
-import type { PublicFormPerson } from "./public-form.schema";
+import type { RecordRef, RecordRelationship } from "./record-model.schema";
+import type { MutateRecordInput, RecordOperationResult } from "./record-query.schema";
+import type { RecordRepo } from "./record.repo";
 
-export type FormRecordWriter = { invoke(input: MutateRecordInput): Validated<RecordOperationResult> };
+export type RecordWriter = { invoke(input: MutateRecordInput): Validated<RecordOperationResult> };
 
 export type PersonLookup = Pick<RecordRepo, "getIdentityOwnersCompanyWide">;
 
-export type ResolvedPerson = { ref: RecordRef; created: boolean };
+export type PersonLink = { typeId: string; relationshipId: string; nameFieldId: string | null };
+
+export type RecordLink = { relationId: string; direction: "outgoing" | "incoming"; record: RecordRef };
 
 export function linkDirection(
-  model: Pick<RecordModel, "relationships">,
-  person: PublicFormPerson,
+  model: { relationships: ReadonlyArray<Pick<RecordRelationship, "id" | "sourceTypeId" | "targetTypeId" | "archived">> },
+  person: Pick<PersonLink, "typeId" | "relationshipId">,
   typeId: string,
-): "outgoing" | "incoming" | null {
+): RecordLink["direction"] | null {
   const relation = model.relationships.find((entry) => entry.id === person.relationshipId && !entry.archived);
   if (!relation || typeId === person.typeId) return null;
   if (relation.sourceTypeId === typeId && relation.targetTypeId === person.typeId) return "outgoing";
@@ -34,9 +35,9 @@ export async function findPersonByEmail(
 }
 
 export async function createPerson(
-  writer: FormRecordWriter,
+  writer: RecordWriter,
   revision: number,
-  person: PublicFormPerson,
+  person: Pick<PersonLink, "typeId" | "nameFieldId">,
   email: string,
   name: string | null,
   idempotencyKey: string,
@@ -48,7 +49,7 @@ export async function createPerson(
       action: "create",
       typeId: person.typeId,
       fields: name && person.nameFieldId ? [{ fieldId: person.nameFieldId, value: { kind: "text", value: name } }] : [],
-      identities: [{ provider: "mail", value: email }],
+      identities: [{ provider: "mail", value: email, ...(name ? { displayName: name } : {}) }],
     },
   });
   if (!result.ok || result.data.status !== "completed") return null;
