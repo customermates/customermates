@@ -4,8 +4,8 @@ description: "Claude connectors explained: directory vs custom, which plans allo
 
 relatedHrefs:
   - /blog/claude-crm
-  - /docs/connect-custom-connector
-  - /blog/what-is-an-mcp-server
+  - /blog/claude-skills-follow-up
+  - /blog/claude-outlook-gmail
   - /blog/claude-data-privacy
 
 hero:
@@ -88,7 +88,7 @@ Client work lives in four places: the inbox, the calendar, shared files and the 
 | HubSpot | Contacts, leads, companies, deals, tickets, custom objects, engagement history | Create and update most CRM records and engagements; no delete; bulk changes 10 records at a time | All HubSpot plans; Claude Pro, Max, Team or Enterprise; a Super Admin approves first unless you are one or have App Marketplace Access | [HubSpot help](https://knowledge.hubspot.com/integrations/set-up-and-use-the-hubspot-connector-for-claude), [listing](https://claude.com/marketplace/connectors/hubspot) |
 | Customermates (custom connector) | Records in every list you set up (for example contacts, organizations, deals and tasks), their notes and files, the Knowledge Base; read-only connected calendars | Create, update and delete records ([[derived.mcp.tools.total]] tools in all). On Pro and higher, also email, LinkedIn and chat threads, drafts and sends; it cannot book calendar events | Every plan and self-hosted; Free shares [[commercial.limit.free.apiRequestsPerMinute]] requests per minute and [[commercial.limit.free.apiRequestsPerDay]] per day per workspace | [Connector guide](/docs/connect-custom-connector), [MCP reference](/docs/mcp) |
 
-The directory also lists, among others, Slack, Notion, Asana, Atlassian, Linear, monday.com and Box. For Close, Attio, Pipedrive, folk, Breakcold, Zoho CRM, Capsule and Salesforce, the [Claude CRM guide](/blog/claude-crm) compares what each CRM's connector lets Claude change. If you only want Gmail or Outlook mail attached to client records in a CRM, see [Gmail CRM integration](/blog/gmail-crm-integration) and [Outlook CRM integration](/blog/outlook-crm-integration) instead of a connector.
+The directory also lists, among others, Slack, Notion, Asana, Atlassian, Linear, monday.com and Box. For Close, Attio, Pipedrive, folk, Breakcold, Zoho CRM, Capsule and Salesforce, the [Claude CRM guide](/blog/claude-crm) compares what each CRM's connector lets Claude change. If you only want Gmail or Outlook mail attached to client records in a CRM, see [Gmail CRM integration](/blog/gmail-crm-integration) and [Outlook CRM integration](/blog/outlook-crm-integration) instead of a connector. How to connect Claude with mailbox, calendar and client history, and which routes exist for Outlook and Gmail, is in [Outlook MCP and Gmail MCP](/blog/claude-outlook-gmail).
 
 ## How do I add a custom connector in Claude? [#add-custom-connector]
 
@@ -152,6 +152,8 @@ Add one connector per workspace; Claude refuses a second connector with a URL it
 - **Research mode.** Anthropic notes that during Research Claude can call connector tools without further approval, so disable tools that write.
 - **Customermates.** The server tells clients to confirm before they delete or send, but it does not enforce that: once Claude may call a tool, the call runs. What protects you is Tool permissions in Claude. A connection carries the permissions of the user who approved it, with no per-key scope, so for narrower access connect a separate user with a narrower role (it takes a seat) or use `?toolsets=`. Sending is immediate, so ask Claude to save a draft and send it yourself from the inbox.
 - **Data.** For the Google connectors, retrieved data stays with its chat, so deleting the chat deletes it. A connected service processes your data under its own terms, which Anthropic notes may be outside the United States.
+
+A connector gives Claude access; it does not tell Claude how the work goes. For a repeatable routine such as following up on client conversations, pair the connector with a skill: [Claude skills for sales follow-up](/blog/claude-skills-follow-up) explains where skills run and includes one to download.
 
 ## When is a Claude connector the wrong choice? [#wrong-choice]
 

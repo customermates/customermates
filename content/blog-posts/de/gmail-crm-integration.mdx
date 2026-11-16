@@ -6,7 +6,7 @@ relatedHrefs:
   - /features/unified-inbox
   - /blog/outlook-crm-integration
   - /docs/app-inbox
-  - /blog/customer-interaction-management
+  - /blog/claude-outlook-gmail
 
 hero:
   title: "Gmail CRM Integration: Drei Varianten und die Auswahl eines CRM"
@@ -143,7 +143,7 @@ Um das mit Ihrem eigenen Gmail auszuprobieren, [starten Sie Ihre Testphase](/aut
 
 Passt kein Produkt, verbinden Sie die Gmail-API mit der API oder den Webhooks des CRM, etwa über n8n oder eigenen Code. Ein Phasenwechsel kann dann eine Nachricht senden, eine eingehende E-Mail einen Datensatz anlegen, und eine Zeile in Google Sheets kann beides auslösen. Die OAuth-App, die Fehlerbehandlung und Googles Prüfung liegen bei Ihnen, und der typische Fehler ist ein Workflow, der leise stehen bleibt: Richten Sie deshalb eine Fehlerbenachrichtigung ein. Liegen Ihre Leads noch in einer Tabelle, zeigt [Google Sheets als CRM](/blog/google-sheets-crm), wann das reicht.
 
-Mit Customermates verbinden Sie Claude, ChatGPT oder einen anderen KI-Client über [MCP](/docs/mcp). Er kann Gmail-Konversationen lesen, einen Entwurf zur Prüfung speichern und E-Mails senden, mit denselben Berechtigungen wie Ihr Konto. Der Server weist Clients an, vor dem Senden nachzufragen, aber diese Bestätigung findet im Client statt, nicht auf dem Server. Testen Sie das Verhalten Ihres Clients zuerst mit einem Entwurf. Externe Clients nutzen Ihren eigenen KI-Anbieter, keine gehosteten Credits.
+Mit Customermates verbinden Sie Claude, ChatGPT oder einen anderen KI-Client über [MCP](/docs/mcp). Er kann Gmail-Konversationen lesen, einen Entwurf zur Prüfung speichern und E-Mails senden, mit denselben Berechtigungen wie Ihr Konto. Der Server weist Clients an, vor dem Senden nachzufragen, aber diese Bestätigung findet im Client statt, nicht auf dem Server. Testen Sie das Verhalten Ihres Clients zuerst mit einem Entwurf. Externe Clients nutzen Ihren eigenen KI-Anbieter, keine gehosteten Credits. Die Wege im Vergleich, vom Connector von Anthropic bis zu Googles Gmail-MCP-Server, zeigt der Beitrag [Claude mit Outlook und Gmail verbinden](/blog/claude-outlook-gmail).
 
 Für regelbasierte Automatisierung melden [Webhooks](/docs/webhooks) [[derived.webhooks.events.total]] Ereignistypen, darunter [[derived.webhooks.events.messaging]] Messaging-Ereignisse wie eine eingegangene E-Mail. Eine separat betriebene n8n-Instanz kann sie über den [n8n-Community-Node](/docs/n8n) verarbeiten, etwa um bei einer Kundenantwort eine Nachricht an anderer Stelle abzusetzen. n8n ist nicht in Customermates enthalten.
 
