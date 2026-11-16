@@ -26,13 +26,13 @@ blogPost:
 
 # CRM gratuito: o que cada plano grátis inclui e onde ele para
 
-Sim, dá para usar um CRM gratuito. HubSpot, Zoho, Salesforce, Capsule, Bitrix24 e CentralStationCRM oferecem um plano hospedado que não custa nada e não tem data de término, mas cada um limita usuários, contatos ou espaço. O outro caminho gratuito é um CRM de código aberto, como SuiteCRM, EspoCRM ou Customermates, que você instala no seu próprio servidor: sem taxa de licença e sem contagem de usuários, mas você paga pelo servidor e pelas horas para mantê-lo no ar.
+Sim, dá para usar um CRM gratuito. HubSpot, Zoho, Salesforce, Capsule, Bitrix24 e CentralStationCRM oferecem um plano hospedado que não custa nada e não tem data de término, mas cada um limita usuários, contatos ou espaço. O outro caminho gratuito é um CRM com hospedagem própria, como SuiteCRM ou EspoCRM (código aberto) ou Customermates (código-fonte disponível), que você instala no seu próprio servidor: sem taxa de licença e sem contagem de usuários, mas você paga pelo servidor e pelas horas para mantê-lo no ar.
 
 Um teste grátis é uma terceira coisa, e não um plano grátis. Pipedrive e Freshsales, por exemplo, oferecem testes de planos pagos. A pergunta útil não é qual CRM grátis é o melhor, e sim qual limite a sua equipe vai atingir primeiro e quanto custa o passo seguinte.
 
 <ArticleSummary title="Em resumo">
   <SummaryItem label="Planos hospedados grátis">A maioria limita a equipe a dois ou três usuários. Os limites de contatos vão de 200 (CentralStationCRM) a 1.000 (HubSpot), e o Zoho conta 5.000 registros em todos os módulos.</SummaryItem>
-  <SummaryItem label="Código aberto">SuiteCRM, EspoCRM e o núcleo do Customermates têm licença AGPL e são grátis para hospedar por conta própria. Hospedagem, atualizações e backups ficam por sua conta.</SummaryItem>
+  <SummaryItem label="Hospedagem própria">SuiteCRM e EspoCRM têm licença AGPL, e a edição Community do Customermates tem o código-fonte disponível; os três são grátis para hospedar por conta própria, para uso interno. Hospedagem, atualizações e backups ficam por sua conta.</SummaryItem>
   <SummaryItem label="Testes">O Pipedrive oferece 14 dias, o Freshsales 21 dias, o Customermates Cloud [[commercial.trial.days]] dias. Depois disso você paga ou sai; o Customermates Cloud passa para o plano grátis para [[commercial.limit.free.maxMembers]] pessoa.</SummaryItem>
   <SummaryItem label="Transparência">O Customermates publica este guia. A lista abaixo não é um ranking, e o Customermates tem uma seção própria, identificada.</SummaryItem>
 </ArticleSummary>
@@ -89,7 +89,7 @@ O preço do plano grátis é zero, mas o passo seguinte não é. As ferramentas 
 
 ## O caminho do código aberto: licença grátis, operação paga
 
-[SuiteCRM](https://github.com/SuiteCRM/SuiteCRM) e [EspoCRM](https://www.espocrm.com/download/) são publicados sob a AGPLv3 e podem ser baixados e executados no seu próprio servidor. Os dois fornecedores também vendem hospedagem e serviços: o SuiteCRM oferece hospedagem, suporte e o programa SuiteASSURED, e o EspoCRM oferece uma versão em nuvem e extensões pagas. O núcleo do Customermates também é AGPL, e o nosso [guia de CRM de código aberto](/blog/open-source-crm) compara com mais profundidade as opções de hospedagem própria.
+[SuiteCRM](https://github.com/SuiteCRM/SuiteCRM) e [EspoCRM](https://www.espocrm.com/download/) são publicados sob a AGPLv3 e podem ser baixados e executados no seu próprio servidor. Os dois fornecedores também vendem hospedagem e serviços: o SuiteCRM oferece hospedagem, suporte e o programa SuiteASSURED, e o EspoCRM oferece uma versão em nuvem e extensões pagas. A edição Community do Customermates tem o código-fonte disponível, sem ser código aberto, e o nosso [guia de CRM de código aberto](/blog/open-source-crm) compara com mais profundidade as opções de hospedagem própria.
 
 A licença não custa nada. O que custa:
 
@@ -134,9 +134,9 @@ Faça a conta do passo seguinte antes de chegar ao limite: o preço por usuário
 
 ## Onde o Customermates se encaixa
 
-*Transparência: o Customermates publica este guia.* O Customermates é um CRM de código aberto e nativo em IA, criado na Alemanha para equipes pequenas que atendem clientes, como consultores, agências e fundadores. É grátis para hospedar por conta própria, e o Customermates Cloud tem um plano grátis pequeno e planos pagos; eles diferem no que incluem.
+*Transparência: o Customermates publica este guia.* O Customermates é um CRM com hospedagem própria, código-fonte disponível e nativo em IA, criado na Alemanha para equipes pequenas que atendem clientes, como consultores, agências e fundadores. É grátis para hospedar por conta própria, e o Customermates Cloud tem um plano grátis pequeno e planos pagos; eles diferem no que incluem.
 
-**Hospedagem própria: grátis, sem contagem de usuários.** Você roda o núcleo AGPL com Docker Compose: um contêiner do app e um contêiner do PostgreSQL. Um espaço de trabalho com hospedagem própria não tem assinatura nem teste, e o app não conta usuários. Você recebe o conjunto de recursos do Starter: contatos, organizações, negócios, serviços e tarefas, campos personalizados, visualizações salvas, painéis, papéis, o log de auditoria, REST, webhooks e MCP para o seu próprio cliente de IA. Você não recebe a caixa de entrada unificada, o Mate nem créditos de IA hospedados. Você precisa da sua própria chave de API do Resend para a entrega de e-mail. A [documentação de hospedagem própria](/docs/self-hosting) percorre a instalação.
+**Hospedagem própria: grátis, sem contagem de usuários.** Você roda a edição Community com Docker Compose, para uso interno: um contêiner do app e um contêiner do PostgreSQL. Um espaço de trabalho com hospedagem própria não tem assinatura nem teste, e o app não conta usuários. Você recebe o conjunto de recursos do Starter: contatos, organizações, negócios, serviços e tarefas, campos personalizados, visualizações salvas, painéis, papéis, o log de auditoria, REST, webhooks e MCP para o seu próprio cliente de IA. Você não recebe a caixa de entrada unificada, o Mate nem créditos de IA hospedados. Você precisa da sua própria chave de API do Resend para a entrega de e-mail. A [documentação de hospedagem própria](/docs/self-hosting) percorre a instalação.
 
 **Nuvem: um plano grátis pequeno, planos pagos e um teste.** O Customermates Cloud tem um plano grátis para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem a caixa de entrada, o Mate nem rotinas. O teste dura [[commercial.trial.days]] dias, sem cartão de crédito. Depois dele, uma equipe de três pessoas paga [[commercial.price.starter.monthly.seats.3]] por mês no Starter, que não tem caixa de entrada, ou [[commercial.price.pro.monthly.seats.3]] no Pro, que acrescenta a caixa de entrada unificada para conversas de e-mail, LinkedIn, WhatsApp, Instagram e Telegram. A cobrança é só mensal. Todo plano pago na nuvem inclui créditos de IA hospedados mensais por usuário ativo para o Mate, o assistente do Customermates Cloud; veja os [preços](/pricing) para os limites.
 
@@ -183,7 +183,7 @@ Aquele cujos limites a sua equipe não vai atingir em um ano. Para duas pessoas,
 </FaqItem>
 
 <FaqItem question="Existe um CRM grátis com usuários ilimitados?">
-Não entre os planos hospedados grátis deste guia: eles param em dois ou três usuários. CRMs de código aberto com hospedagem própria, como SuiteCRM, EspoCRM e Customermates, não contam usuários, então o limite é o seu servidor e o seu tempo.
+Não entre os planos hospedados grátis deste guia: eles param em dois ou três usuários. CRMs com hospedagem própria, como SuiteCRM, EspoCRM e Customermates, não contam usuários, então o limite é o seu servidor e o seu tempo.
 </FaqItem>
 
 <FaqItem question="Qual é a diferença entre um CRM grátis e um teste grátis?">
@@ -195,7 +195,7 @@ Uma planilha funciona para uma pessoa e uma lista curta. Quando negócios, conta
 </FaqItem>
 
 <FaqItem question="O Customermates tem um plano grátis?">
-A hospedagem própria é grátis: sem assinatura, sem teste e sem contagem de usuários, com o núcleo sob a AGPL. Ela usa o conjunto de recursos do Starter, sem a caixa de entrada nem o Mate. O Customermates Cloud tem um plano grátis para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem a caixa de entrada, o Mate nem rotinas; tem também um teste do Pro de [[commercial.trial.days]] dias, sem cartão de crédito, e planos pagos cobrados mensalmente por usuário.
+A hospedagem própria é grátis: sem assinatura, sem teste e sem contagem de usuários, com a edição Community, para uso interno. Ela usa o conjunto de recursos do Starter, sem a caixa de entrada nem o Mate. O Customermates Cloud tem um plano grátis para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem a caixa de entrada, o Mate nem rotinas; tem também um teste do Pro de [[commercial.trial.days]] dias, sem cartão de crédito, e planos pagos cobrados mensalmente por usuário.
 </FaqItem>
 </Faq>
 

@@ -1,5 +1,5 @@
 ---
-title: "Alternativa ao Salesforce: CRM de código aberto para equipes"
+title: "Alternativa ao Salesforce: CRM self-hosted para equipes"
 description: "Alternativa ao Salesforce para equipes pequenas: quanto custa o Sales Cloud, qual CRM serve para cada motivo de saída e como migrar contas e oportunidades."
 competitorName: Salesforce
 
@@ -15,8 +15,8 @@ sections:
       description: "Na página de preços do Salesforce, Digital Channels pertence ao Service Cloud. A partir do Pro, o Customermates reúne e-mail, LinkedIn, WhatsApp, Instagram e Telegram em uma só caixa de entrada, ao lado do cliente."
     - title: "Uma resposta redigida, não um complemento"
       description: "No Customermates Cloud, o Mate redige respostas, resume conversas e atualiza contatos e negócios, com créditos de IA hospedados. Ou conecte o seu próprio Claude ou ChatGPT via MCP."
-    - title: "Mês a mês e código aberto"
-      description: "A cobrança é mensal, sem compromisso anual, e o núcleo AGPL-3.0 roda no seu próprio servidor com Docker Compose e PostgreSQL 16, incluindo a API REST, webhooks e MCP."
+    - title: "Mês a mês e código-fonte disponível"
+      description: "A cobrança é mensal, sem compromisso anual, e a edição Community roda no seu próprio servidor, para uso interno, com Docker Compose e PostgreSQL 16, incluindo a API REST, webhooks e MCP."
   switchSteps: true
 
 hero:
@@ -84,8 +84,8 @@ comparison:
         competitor: AppExchange, a partir do Pro Suite
   - title: Licença e hospedagem
     features:
-      - name: Licença de código aberto
-        source: Núcleo AGPL-3.0
+      - name: Código-fonte disponível
+        source: Sustainable Use License; ee/ sob uma licença comercial separada
         competitor: false
       - name: Hospedagem própria
         source: Docker Compose (sem caixa de entrada nem Mate)
@@ -107,7 +107,7 @@ cta:
   hint: "✓ Sem cartão de crédito ✓ Primeiros [[commercial.trial.days]] dias grátis"
 ---
 
-> Uma boa alternativa ao Salesforce depende de qual parte do Salesforce você sentiria falta. Se você depende de previsão de vendas, cotações, fluxos de aprovação ou apps do AppExchange, fique, ou compare com o HubSpot e o Zoho CRM. Se você quer um software de código aberto no seu próprio servidor, olhe o SuiteCRM, o Twenty ou o Customermates. Se você é uma consultoria ou agência pequena, cujos clientes escrevem no WhatsApp e no LinkedIn tanto quanto por e-mail, e prefere pagar mês a mês a assinar por um ano, o Customermates foi feito para esse caso. O Customermates publica esta comparação; cada detalhe do Salesforce vem de salesforce.com e foi verificado em 8 de outubro de 2026.
+> Uma boa alternativa ao Salesforce depende de qual parte do Salesforce você sentiria falta. Se você depende de previsão de vendas, cotações, fluxos de aprovação ou apps do AppExchange, fique, ou compare com o HubSpot e o Zoho CRM. Se você quer um software de código aberto no seu próprio servidor, olhe o SuiteCRM ou o Twenty; o Customermates tem o código-fonte disponível. Se você é uma consultoria ou agência pequena, cujos clientes escrevem no WhatsApp e no LinkedIn tanto quanto por e-mail, e prefere pagar mês a mês a assinar por um ano, o Customermates foi feito para esse caso. O Customermates publica esta comparação; cada detalhe do Salesforce vem de salesforce.com e foi verificado em 8 de outubro de 2026.
 
 ## Qual alternativa serve para qual motivo
 
@@ -115,7 +115,7 @@ cta:
 |---|---|---|
 | Vocês são duas pessoas com um pipeline simples | Salesforce Free Suite, CRM gratuito do HubSpot | Os dois são gratuitos para dois usuários. A edição gratuita do Zoho CRM cobre três |
 | O preço por licença e o contrato anual do Pro Suite | Zoho CRM, HubSpot, Customermates | Compare os planos deles com o Pro Suite. O Customermates cobra mensalmente |
-| Você quer código aberto ou o seu próprio servidor | SuiteCRM, Twenty, Customermates | Os três podem ser hospedados por conta própria |
+| Você quer código aberto ou o seu próprio servidor | SuiteCRM e Twenty (código aberto), Customermates (código-fonte disponível) | Os três podem ser hospedados por conta própria |
 | Os clientes escrevem no WhatsApp, LinkedIn, Instagram ou Telegram | Customermates Pro ou Business | Esses canais caem em uma só caixa de entrada, ao lado do negócio |
 | Você usa previsão de vendas, cotações, territórios ou fluxos de aprovação | Continue no Salesforce | O Customermates não tem nenhum deles |
 | Você está substituindo o Service Cloud | Uma ferramenta de help desk | O Customermates não tem casos nem tickets |
@@ -181,7 +181,7 @@ Uma consultoria ou agência pequena raramente precisa da plataforma Salesforce i
 
 Já paga o Claude ou o ChatGPT? Conecte-o ao [servidor MCP](/docs/mcp). As chamadas de modelo dele rodam no seu próprio provedor de IA, não em créditos hospedados.
 
-**Código aberto, com escolha de hospedagem.** O núcleo AGPL-3.0 roda no seu próprio servidor com Docker Compose e PostgreSQL 16, incluindo a [API REST](/features/api), webhooks e MCP. Uma [instalação com hospedagem própria](/features/self-hosted) não tem caixa de entrada, Mate nem créditos hospedados. No Customermates Cloud, o banco de dados é configurado na região AWS de Frankfurt, há um [DPA](/dpa) disponível e os [subprocessadores](/subprocessors), inclusive provedores dos EUA, estão listados.
+**Código-fonte disponível, com escolha de hospedagem.** A edição Community (Sustainable Use License, fair-code) roda no seu próprio servidor para uso interno com Docker Compose e PostgreSQL 16, incluindo a [API REST](/features/api), webhooks e MCP. Uma [instalação com hospedagem própria](/features/self-hosted) não tem caixa de entrada, Mate nem créditos hospedados. No Customermates Cloud, o banco de dados é configurado na região AWS de Frankfurt, há um [DPA](/dpa) disponível e os [subprocessadores](/subprocessors), inclusive provedores dos EUA, estão listados.
 
 ## Onde o Customermates é a escolha errada
 
@@ -236,11 +236,11 @@ O Customermates publica esta lista. Os detalhes vêm das páginas de cada fornec
 
 <Faq>
 <FaqItem question="Existe uma alternativa gratuita ao Salesforce?">
-Para dois usuários, o próprio Free Suite do Salesforce não custa nada, desde que alguém entre a cada 60 dias. O CRM gratuito do HubSpot também cobre dois usuários, e a edição gratuita do Zoho CRM, três. SuiteCRM, Twenty e o núcleo AGPL-3.0 do Customermates podem ser hospedados por conta própria sem taxa de licença; o Customermates com hospedagem própria não tem caixa de entrada nem Mate. O Customermates Cloud tem um teste de [[commercial.trial.days]] dias e um plano gratuito para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate nem rotinas.
+Para dois usuários, o próprio Free Suite do Salesforce não custa nada, desde que alguém entre a cada 60 dias. O CRM gratuito do HubSpot também cobre dois usuários, e a edição gratuita do Zoho CRM, três. SuiteCRM, Twenty e a edição Community do Customermates podem ser hospedados por conta própria sem taxa de licença; o Customermates com hospedagem própria não tem caixa de entrada nem Mate. O Customermates Cloud tem um teste de [[commercial.trial.days]] dias e um plano gratuito para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate nem rotinas.
 </FaqItem>
 
 <FaqItem question="Qual é uma boa alternativa de código aberto ao Salesforce?">
-O SuiteCRM tem o conjunto de módulos mais amplo, com marketing, atendimento e cotações. O Twenty serve para equipes que querem os próprios objetos. O Customermates começa sem listas, deixa você criar as que precisa e se concentra em conversas com clientes e IA: o núcleo roda com Docker Compose, e a versão em nuvem acrescenta a caixa de entrada unificada e o Mate. O [guia de CRM de código aberto](/blog/open-source-crm) compara mais opções.
+O SuiteCRM tem o conjunto de módulos mais amplo, com marketing, atendimento e cotações. O Twenty serve para equipes que querem os próprios objetos. O Customermates começa sem listas, deixa você criar as que precisa e se concentra em conversas com clientes e IA: a edição Community roda com Docker Compose, e a versão em nuvem acrescenta a caixa de entrada unificada e o Mate. O [guia de CRM de código aberto](/blog/open-source-crm) compara mais opções.
 </FaqItem>
 
 <FaqItem question="Quanto custa o Salesforce por mês?">

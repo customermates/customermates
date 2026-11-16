@@ -47,8 +47,8 @@ acquisition:
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "Um CRM cloud para você fazer follow-up com cada cliente"
-      body: "No Customermates Cloud, a partir do Pro, as conversas de LinkedIn e e-mail ficam no registro de cada cliente e o Mate prepara as respostas para você revisar. Banco de dados na nuvem em Frankfurt, núcleo AGPL que você pode hospedar por conta própria."
-      checksum: fnv1a-cc2dc2db
+      body: "No Customermates Cloud, a partir do Pro, as conversas de LinkedIn e e-mail ficam no registro de cada cliente e o Mate prepara as respostas para você revisar. Banco de dados na nuvem em Frankfurt, edição Community que você pode hospedar por conta própria."
+      checksum: fnv1a-d808ef80
     kind: none
     reason: "A demo do painel, logo no início, já oferece uma prova direta do produto; uma ilustração extra no topo seria desnecessária."
     selection: explicit
@@ -85,13 +85,13 @@ sections:
       - title: "Nuvem ou hospedado por conta própria"
         description: "A nuvem tira de você o trabalho de operação e cede um pouco de controle. A hospedagem própria mantém servidores e dados nas suas mãos e traz o trabalho de operação junto."
       - title: "Customermates"
-        description: "Nuvem gerenciada com planos mensais por usuário, ou o núcleo de código aberto nos seus servidores com os recursos do Starter: sem caixa de entrada, sem agenda conectada, sem Mate hospedado."
+        description: "Nuvem gerenciada com planos mensais por usuário, ou a edição Community nos seus servidores com os recursos do Starter: sem caixa de entrada, sem agenda conectada, sem Mate hospedado."
       - title: "Antes de comprar"
         description: "Confira onde ficam os dados e o acordo de tratamento de dados, os formatos de exportação, a API, o preço por usuário e o compromisso de disponibilidade. Depois teste uma exportação com registros reais."
 
 hero:
   title: "Um CRM cloud para você fazer follow-up com cada cliente"
-  description: "No Customermates Cloud, a partir do Pro, as conversas de LinkedIn e e-mail ficam no registro de cada cliente e o Mate prepara as respostas para você revisar. Banco de dados na nuvem em Frankfurt, núcleo AGPL que você pode hospedar por conta própria."
+  description: "No Customermates Cloud, a partir do Pro, as conversas de LinkedIn e e-mail ficam no registro de cada cliente e o Mate prepara as respostas para você revisar. Banco de dados na nuvem em Frankfurt, edição Community que você pode hospedar por conta própria."
   buttonLeftText: "Comece seu teste de [[commercial.trial.days]] dias"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Compare os planos
@@ -108,7 +108,7 @@ cta:
   hint: "Sem cartão de crédito. A hospedagem própria é avaliada à parte e usa os recursos do Starter."
 ---
 
-Um **CRM cloud** (também chamado de CRM na nuvem, CRM online ou CRM hospedado) é um software de relacionamento com clientes que o fornecedor hospeda e opera, de modo que sua equipe o usa no navegador e não instala, não atualiza nem faz backup de nada por conta própria. O Customermates é um CRM cloud gerenciado, com o banco de dados principal configurado em Frankfurt, construído sobre um núcleo de código aberto que você também pode hospedar por conta própria com Docker.
+Um **CRM cloud** (também chamado de CRM na nuvem, CRM online ou CRM hospedado) é um software de relacionamento com clientes que o fornecedor hospeda e opera, de modo que sua equipe o usa no navegador e não instala, não atualiza nem faz backup de nada por conta própria. O Customermates é um CRM cloud gerenciado, com o banco de dados principal configurado em Frankfurt, com o código-fonte disponível e uma edição Community que você também pode hospedar por conta própria com Docker.
 
 **O que a nuvem muda no follow-up.** Quando o CRM roda na nuvem, suas conversas de LinkedIn e e-mail podem ficar no registro do cliente e o Mate pode preparar a resposta a partir dali. No Customermates Cloud isso começa no Pro, e o teste gratuito dura [[commercial.trial.days]] dias no Pro. Um núcleo hospedado por conta própria mantém os registros de clientes e o MCP, mas não tem caixa de entrada nem Mate, então o follow-up com rascunho pronto é um recurso da nuvem.
 
@@ -168,7 +168,7 @@ Três modelos costumam ser confundidos. Um CRM cloud (SaaS) é operado pelo forn
 | Saída e exportação | Depende das ferramentas de exportação e do contrato do fornecedor | Acesso direto ao banco de dados | Acesso direto ao banco de dados, mais a exportação do produto |
 | Perfil típico | Equipes sem capacidade de TI que querem começar rápido | Organizações com regras internas de hospedagem e equipe de TI | Equipes que precisam ou querem controlar onde os dados ficam e sabem operá-los |
 
-Código aberto é uma licença, não um modelo de hospedagem: um CRM de código aberto pode ser oferecido como serviço na nuvem ou operado por você. O guia sobre [opções de CRM de código aberto](/blog/open-source-crm) compara as que podem ser hospedadas por conta própria, e o [CRM hospedado por conta própria com Docker e PostgreSQL](/features/self-hosted) mostra o lado do Customermates.
+Código aberto é uma licença, não um modelo de hospedagem: um CRM de código aberto pode ser oferecido como serviço na nuvem ou operado por você. O Customermates não é código aberto no sentido da OSI: tem o código-fonte disponível sob a Sustainable Use License, com uma edição Community gratuita para uso interno. O guia sobre [opções de CRM de código aberto](/blog/open-source-crm) compara as que podem ser hospedadas por conta própria, e o [CRM hospedado por conta própria com Docker e PostgreSQL](/features/self-hosted) mostra o lado do Customermates.
 
 Uma regra prática justa: escolha um CRM cloud, a menos que um requisito concreto aponte para outro caminho, como uma política interna de hospedagem ou uma equipe que já opera os próprios servidores.
 
@@ -194,7 +194,7 @@ Para uma comparação datada de dez ferramentas, com licença, hospedagem, plano
 
 ## Onde o Customermates se encaixa? (nosso produto)
 
-*Transparência: o Customermates publica esta página.* O Customermates é um CRM de código aberto, nativo de IA, feito na Alemanha. Ele existe em duas formas que compartilham o CRM básico, mas não têm os mesmos recursos: o Customermates Cloud, que o próprio Customermates opera, e o núcleo de código aberto, que você opera com Docker Compose e PostgreSQL.
+*Transparência: o Customermates publica esta página.* O Customermates é um CRM com hospedagem própria, código-fonte disponível e nativo de IA, feito na Alemanha. Ele existe em duas formas que compartilham o CRM básico, mas não têm os mesmos recursos: o Customermates Cloud, que o próprio Customermates opera, e a edição Community, que você opera com Docker Compose e PostgreSQL.
 
 ### Customermates Cloud ou hospedado por conta própria?
 
@@ -277,7 +277,7 @@ O Customermates é deliberadamente enxuto. Escolha outro produto, ou adicione um
 - **Previsão preditiva, pontuação de leads ou análise de conversão.** Painéis, histórico de atividades, probabilidades das etapas e valores ponderados de negócios ou do pipeline descrevem o espaço de trabalho atual. Não são previsões.
 - **Uma suíte completa de ERP, contabilidade, estoque, helpdesk ou call center, nem uma migração pronta.** Isso exige outros produtos ou uma integração desenhada de propósito.
 
-O Customermates Cloud atende equipes que querem um CRM gerenciado e acessado pelo navegador, com registros e pipelines flexíveis, que preferem interfaces explícitas a uma promessa de integração fechada e que valorizam um núcleo de código aberto que também pode ser hospedado por conta própria à parte.
+O Customermates Cloud atende equipes que querem um CRM gerenciado e acessado pelo navegador, com registros e pipelines flexíveis, que preferem interfaces explícitas a uma promessa de integração fechada e que valorizam uma edição Community com o código-fonte disponível que também pode ser hospedada por conta própria à parte.
 
 ## Perguntas frequentes
 
@@ -320,7 +320,7 @@ O Customermates Cloud atende equipes que querem um CRM gerenciado e acessado pel
 </FaqItem>
 
 <FaqItem question="Posso hospedar o mesmo CRM por conta própria?">
-  Você pode operar o núcleo de código aberto com Docker Compose e PostgreSQL. A
+  Você pode operar a edição Community com Docker Compose e PostgreSQL. A
   hospedagem própria usa os recursos do Starter e não inclui a caixa de entrada
   unificada, a agenda conectada, o Mate hospedado nem os créditos hospedados.
 </FaqItem>

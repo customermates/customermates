@@ -1,6 +1,6 @@
 ---
 title: "CRM self hosted com Docker Compose e PostgreSQL 16"
-description: "CRM self hosted: rode o Customermates e o PostgreSQL 16 na sua infraestrutura com Docker Compose. Núcleo AGPL, REST, webhooks e MCP, sem cobrar por usuário."
+description: "CRM self hosted: rode o Customermates e o PostgreSQL 16 na sua infraestrutura com Docker Compose. Edição Community, REST, webhooks e MCP, sem cobrar licença."
 featureName: CRM self hosted
 
 acquisition:
@@ -11,7 +11,7 @@ acquisition:
   primaryIntent: Implantação de um CRM self hosted
   metadata:
     title: "CRM self hosted com Docker Compose e PostgreSQL 16"
-    description: "CRM self hosted: rode o Customermates e o PostgreSQL 16 na sua infraestrutura com Docker Compose. Núcleo AGPL, REST, webhooks e MCP, sem cobrar por usuário."
+    description: "CRM self hosted: rode o Customermates e o PostgreSQL 16 na sua infraestrutura com Docker Compose. Edição Community, REST, webhooks e MCP, sem cobrar licença."
   proof:
     factReferences:
       - product:agpl-community-core
@@ -120,7 +120,7 @@ hero:
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: "Leia o guia de instalação"
   buttonRightHref: /docs/self-hosting
-  hint: "Núcleo AGPL • Docker Compose • PostgreSQL 16"
+  hint: "Edição Community • Docker Compose • PostgreSQL 16"
 
 cta:
   action: "Precisa também de follow-up no LinkedIn e no e-mail? Teste primeiro a nuvem"
@@ -132,9 +132,9 @@ cta:
   hint: "Quem opera o sistema cuida da infraestrutura, das atualizações, dos backups e dos provedores conectados."
 ---
 
-O Customermates é um **CRM self hosted** que você pode rodar como dois serviços do Docker Compose: a aplicação e o PostgreSQL 16. Ele serve quando a sua equipe quer operar a infraestrutura do próprio CRM e usar um núcleo de código aberto. Não é a edição self hosted de todos os recursos do Customermates Cloud.
+O Customermates é um **CRM self hosted** que você pode rodar como dois serviços do Docker Compose: a aplicação e o PostgreSQL 16. Ele serve quando a sua equipe quer operar a infraestrutura do próprio CRM e usar uma edição Community com o código-fonte disponível. Não é a edição self hosted de todos os recursos do Customermates Cloud.
 
-Um CRM self hosted roda em servidores que você controla, em vez de na nuvem do fornecedor: você decide onde ficam a aplicação e o banco de dados e assume as atualizações, os backups e a segurança. Saber se o código é aberto é outra questão, sobre direitos de licença, tratada no [guia de CRM open source](/blog/open-source-crm). Esta página trata do lado operacional no Customermates.
+Um CRM self hosted roda em servidores que você controla, em vez de na nuvem do fornecedor: você decide onde ficam a aplicação e o banco de dados e assume as atualizações, os backups e a segurança. Saber se o código é aberto ou apenas disponível é outra questão, sobre direitos de licença, tratada no [guia de CRM de código aberto](/blog/open-source-crm). Esta página trata do lado operacional no Customermates.
 
 **Onde entra o follow-up.** O self hosting mantém nos seus servidores os registros de clientes, as datas dos próximos passos, os painéis e o MCP, para que o seu próprio cliente de IA possa lê-los e atualizá-los. Ele não tem a caixa de entrada que coloca as conversas de LinkedIn e e-mail no cliente e não tem o Mate, que escreve os rascunhos de resposta. Se o que você quer do CRM é o follow-up em rascunho nas conversas, comece pelo Customermates Cloud; o self hosting combina mais quando o controle sobre onde os dados rodam pesa mais.
 
@@ -180,13 +180,13 @@ O arquivo Compose não inclui n8n, modelo de IA, provedor de envio de e-mails ne
 | Visualização somente leitura do calendário conectado | Não incluída            |
 | Contas conectadas compartilhadas                   | Não incluídas             |
 
-A [caixa de entrada unificada do CRM](/features/unified-inbox) é um recurso da nuvem gerenciada a partir do Pro. O self hosting continua focado no núcleo open source do CRM e nos clientes MCP externos.
+A [caixa de entrada unificada do CRM](/features/unified-inbox) é um recurso da nuvem gerenciada a partir do Pro. O self hosting continua focado na edição Community do CRM e nos clientes MCP externos.
 
-## Limites entre código aberto e código comercial
+## Limites entre a Sustainable Use License e o código comercial
 
-O material próprio fora de `ee/` é licenciado sob AGPL-3.0-only. Dentro de `ee/`, o material tem licença comercial, exceto as imagens, fontes, CSS e JavaScript do lado do cliente identificados como AGPL Client Material na Seção 6 de `ee/LICENSE.md`. Leia as duas licenças antes de modificar, redistribuir ou operar o software no seu caso.
+O material próprio fora de `ee/` é licenciado sob a Sustainable Use License: você pode usá-lo e modificá-lo para os fins internos da sua empresa ou para uso pessoal e não comercial, e só pode distribuí-lo de graça e sem fins comerciais. Não é permitido revendê-lo nem hospedá-lo para terceiros. Dentro de `ee/`, o material tem a licença comercial de `ee/LICENSE.md`. Leia as duas licenças antes de modificar, redistribuir ou operar o software no seu caso.
 
-Essa distinção importa quando você compara um [CRM open source](/blog/open-source-crm): um repositório público, sozinho, não diz qual código você pode usar e em quais condições. Se você está avaliando outros projetos que dá para hospedar por conta própria, as comparações com [EspoCRM](/compare/espocrm-alternative) e [Twenty](/compare/twenty-alternative) mostram como diferem os limites de implantação e de licença de cada um.
+Essa distinção importa quando você compara um [CRM open source](/blog/open-source-crm): um repositório público, sozinho, não diz qual código você pode usar e em quais condições, e código-fonte disponível não é a mesma coisa que código aberto. Se você está avaliando outros projetos que dá para hospedar por conta própria, as comparações com [EspoCRM](/compare/espocrm-alternative) e [Twenty](/compare/twenty-alternative) mostram como diferem os limites de implantação e de licença de cada um.
 
 ## Que controle o self hosting oferece?
 
@@ -203,7 +203,7 @@ Os serviços conectados continuam sendo limites de tratamento de dados separados
 | você quer que clientes de IA externos usem o MCP | você quer os direitos dos planos da nuvem e as contas conectadas gerenciadas |
 | você vai cuidar de atualizações, backups e recuperação | você prefere uma assinatura com operação gerenciada     |
 
-Se você quer testar o Customermates antes de operar o seu próprio servidor, a página [CRM open source na nuvem ou self hosted](/features/open-source-crm) coloca as duas opções lado a lado, com o teste gratuito na nuvem como o começo mais rápido.
+Se você quer testar o Customermates antes de operar o seu próprio servidor, a página [CRM na nuvem ou self hosted e as alternativas de código aberto](/features/open-source-crm) coloca as duas opções lado a lado, com o teste gratuito na nuvem como o começo mais rápido.
 
 Os registros passam de uma instalação para outra, ou de outro CRM, como planilhas XLSX, um tipo de registro por vez e dentro dos limites de linhas, ou pela API REST, que também pode enviar arquivos para campos de Arquivo. Uma importação de XLSX não leva anexos e não existe transferência completa da conta, então planeje uma mudança maior como um projeto de migração que você valida.
 
@@ -222,7 +222,7 @@ Os passos completos, as variáveis do `.env`, o proxy reverso com HTTPS, as atua
 
 <Faq>
 <FaqItem question="O Customermates é totalmente open source?">
-O material próprio fora de `ee/` é AGPL-3.0-only. Dentro de `ee/`, o material do lado do cliente identificado na Seção 6 de `ee/LICENSE.md` também é AGPL-3.0-only; o restante do material próprio usa a licença comercial. Leia os dois arquivos de licença para ver o limite exato.
+Não no sentido da OSI: ele tem o código-fonte disponível (source-available, fair-code). O material próprio fora de `ee/` usa a Sustainable Use License, que permite o uso e a modificação para fins internos da empresa ou de forma pessoal e não comercial; o material de `ee/` usa a licença comercial. Leia os dois arquivos de licença para ver o limite exato.
 </FaqItem>
 
 <FaqItem question="O self hosting inclui a caixa de entrada unificada?">
@@ -250,9 +250,10 @@ O material próprio fora de `ee/` é AGPL-3.0-only. Dentro de `ee/`, o material 
 <FaqItem question="O CRM self hosted é gratuito? Preciso de licença?">
   Uma instância self hosted não tem assinatura, não conta usuários e não cobra
   nada: você paga apenas pela sua infraestrutura e pelos provedores que
-  conectar. O código fora de `ee/` é AGPL-3.0-only, e a imagem oficial pode rodar
-  em produção como Community Build, desde que os recursos exclusivos da nuvem
-  fiquem desativados. Os termos exatos estão em `LICENSE` e `ee/LICENSE.md`.
+  conectar. O código fora de `ee/` usa a Sustainable Use License (uso interno da
+  empresa, sem revenda nem hospedagem para terceiros), e a imagem oficial pode rodar
+  em produção como edição Community, desde que os recursos exclusivos da nuvem
+  fiquem desativados. Os termos exatos estão em `LICENSE.md` e `ee/LICENSE.md`.
 </FaqItem>
 
 <FaqItem question="Preciso saber programar para rodar um CRM self hosted?">

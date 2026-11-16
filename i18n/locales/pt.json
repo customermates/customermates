@@ -854,7 +854,7 @@
     }
   },
   "AgplGithubBadge": {
-    "label": "AGPL · Código aberto"
+    "label": "Código-fonte disponível · fair-code"
   },
   "ApiKeyModal": {
     "addDescription": "Crie uma chave para a sua própria integração ou escolha um cliente de IA para uma configuração guiada.",
@@ -2786,7 +2786,7 @@
     "invalid": "Contém erros"
   },
   "EmailLayout": {
-    "tagline": "O CRM de código aberto para o acompanhamento de clientes"
+    "tagline": "O CRM com hospedagem própria para o acompanhamento de clientes"
   },
   "EmailVerification": {
     "notVerified": "E-mail não verificado",
@@ -2991,7 +2991,7 @@
       "cancelAnytime": "Cancele quando quiser",
       "gdpr": "Banco de dados em região da UE; sem alegação de certificação",
       "noLimits": "Planos transparentes",
-      "openSource": "Open core"
+      "openSource": "Código-fonte disponível"
     },
     "eyebrow": "Preços",
     "selfHosted": {
@@ -3001,12 +3001,12 @@
       "featureN8n": "Interfaces para uma instância separada do n8n",
       "featureRecords": "Registros essenciais do CRM",
       "featureUsers": "Usuários do espaço de trabalho",
-      "period": "sob AGPL",
-      "price": "Núcleo gratuito",
-      "tag": "Execute o aplicativo principal AGPL e o PostgreSQL no seu servidor com Docker Compose, com o escopo do Starter, sem a caixa de entrada nem a IA hospedada. Os serviços externos ficam à parte.",
+      "period": "para uso interno",
+      "price": "Community gratuito",
+      "tag": "A versão com hospedagem própria está no GitHub: execute a edição Community e o PostgreSQL no seu servidor com Docker Compose, com o escopo do Starter, sem a caixa de entrada nem a IA hospedada. Uso interno gratuito, sem revenda nem hospedagem para terceiros. Os serviços externos ficam à parte.",
       "title": "Hospedagem própria"
     },
-    "subtitle": "Planos transparentes, sem custos ocultos. Hospede o núcleo AGPL por conta própria, de graça; os serviços externos ficam à parte. Ou comece um teste grátis no Cloud, sem cartão de crédito.",
+    "subtitle": "Planos transparentes, sem custos ocultos. Hospede a edição Community por conta própria para uso interno, de graça; os serviços externos ficam à parte. Ou comece um teste grátis no Cloud, sem cartão de crédito.",
     "title": "Simples, honesto, europeu"
   },
   "HomepageWorkspacePrompt": {
@@ -3482,7 +3482,7 @@
       "mcpDocs": "Documentação do MCP",
       "n8n": "Automação com n8n",
       "openExampleWorkspace": "Abrir este espaço de trabalho de exemplo",
-      "openSourceCrm": "CRM de código aberto",
+      "openSourceCrm": "Alternativas de CRM de código aberto",
       "pillarData": "Dados",
       "pillarDataDescription": "Clientes, negócios e listas do seu jeito",
       "pillarInbox": "Caixa de entrada",
