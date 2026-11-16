@@ -6,7 +6,7 @@ relatedHrefs:
   - /features/unified-inbox
   - /blog/outlook-crm-integration
   - /docs/app-inbox
-  - /blog/customer-interaction-management
+  - /blog/claude-outlook-gmail
 
 hero:
   title: "CRM Google: los tres tipos de integración con Gmail y cómo elegir"
@@ -156,7 +156,7 @@ Para probarlo con tu propio Gmail, [empieza tu prueba](/auth/signup?job=followup
 
 Si ningún producto encaja, conectas la API de Gmail con la API o los webhooks del CRM mediante una herramienta como n8n o con tu propio código. Un cambio de etapa puede enviar un mensaje; un correo entrante puede crear un registro; una fila de Google Sheets puede iniciar cualquiera de los dos. Tuyos son la app de OAuth, la gestión de errores y la verificación de Google, y el fallo típico es un flujo que falla en silencio, así que avisa cuando haya errores. Si tus leads siguen en una hoja de cálculo, [Google Sheets como CRM](/blog/google-sheets-crm) explica cuándo es suficiente.
 
-Con Customermates, si usas Claude, ChatGPT u otro cliente de IA, conéctalo mediante [MCP](/docs/mcp). Puede leer las conversaciones de Gmail, guardar un borrador para revisarlo y enviar correo, con los mismos permisos que tu cuenta. El servidor indica a los clientes que confirmen antes de enviar, pero esa comprobación ocurre en el cliente, no en el servidor. Prueba primero con un borrador cómo la gestiona tu cliente. Los clientes externos usan tu propio proveedor de IA, no créditos alojados.
+Con Customermates, si usas Claude, ChatGPT u otro cliente de IA, conéctalo mediante [MCP](/docs/mcp). Puede leer las conversaciones de Gmail, guardar un borrador para revisarlo y enviar correo, con los mismos permisos que tu cuenta. El servidor indica a los clientes que confirmen antes de enviar, pero esa comprobación ocurre en el cliente, no en el servidor. Prueba primero con un borrador cómo la gestiona tu cliente. Los clientes externos usan tu propio proveedor de IA, no créditos alojados. Las opciones comparadas, del conector de Anthropic al servidor MCP de Gmail de Google, están en [Conectar Claude con Outlook y Gmail](/blog/claude-outlook-gmail).
 
 Para una automatización determinista, los [webhooks](/docs/webhooks) notifican [[derived.webhooks.events.total]] tipos de evento, entre ellos [[derived.webhooks.events.messaging]] eventos de mensajería, como un correo ingerido. Una instancia de n8n que ejecutes aparte puede consumirlos mediante el [nodo de la comunidad de n8n](/docs/n8n), por ejemplo para publicar un mensaje en otro sitio cuando un cliente responde. n8n no se incluye con Customermates.
 

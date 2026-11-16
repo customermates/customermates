@@ -1,0 +1,218 @@
+---
+title: "Claude mit Outlook und Gmail verbinden: Wege im Vergleich"
+description: "Claude mit Outlook und Gmail verbinden: Connectors, Googles und Microsofts MCP-Server im Vergleich, was jeder Weg darf und wie Antwortentwürfe entstehen."
+
+relatedHrefs:
+  - /blog/claude-connectors
+  - /features/outlook-integration
+  - /features/unified-inbox
+  - /docs/connect-custom-connector
+
+hero:
+  title: "Claude mit Outlook und Gmail verbinden: Welche Wege es gibt und was Claude dabei sieht"
+  description: "Welche Connectors Anthropic für Gmail, Google Calendar und Microsoft 365 anbietet, was Googles Gmail-MCP-Server und Microsofts Work IQ MCP heute leisten, wie sich Postfach, Kalender und CRM-Zugriff unterscheiden und wie Claude mit Customermates eine Kundenantwort als Entwurf vorbereitet."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Zurück zum Blog
+  by: von Benjamin Wagner
+  date: 2026-11-16
+  tags:
+    - Claude Outlook
+    - Claude Gmail
+    - Outlook MCP
+    - Gmail MCP
+    - MCP
+---
+
+# Claude mit Outlook und Gmail verbinden: Welche Wege es gibt und was Claude dabei sieht
+
+Claude mit Outlook oder Gmail verbinden Sie über die Connectors für Gmail, Google Calendar und Microsoft 365 aus dem Verzeichnis von Anthropic, in Outlook auch über das Add-in Claude for Outlook: Damit liest Claude Ihr Postfach und entwirft Antworten, kennt aber Ihre Kunden nicht. Dafür braucht es einen zweiten Zugang zu Ihrem CRM, denn Postfach, Kalender und Kundendaten sind drei getrennte Berechtigungen.
+
+Dieser Beitrag vergleicht die Wege, die es am 16. November 2026 gibt: die Connectors und das Outlook-Add-in von Anthropic, Googles Gmail-MCP-Server, Microsofts MCP-Angebote und Community-Brücken. Er zeigt in einer Tabelle, was Claude je Zugang sieht und wer am Ende sendet, und richtet als durchgespieltes Beispiel Customermates ein, ein Open-Source-CRM, das Ihr Gmail- oder Outlook-Postfach einbindet und Claude per [MCP](/docs/mcp) Kundenverlauf liefert. Customermates veröffentlicht diesen Beitrag und erscheint darin als ein Weg unter mehreren. Die Angaben zu Anthropic, Google und Microsoft haben wir am 16. November 2026 auf deren eigenen Seiten gelesen, die Links stehen am Ende. Ausgeführt haben wir die Zugänge von Google und Microsoft nicht.
+
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Kurze Antwort">Für ein einzelnes Postfach reichen die Connectors von Anthropic für Gmail und Microsoft 365, in Outlook auch das Add-in Claude for Outlook. Wer Antworten will, die Kundenhistorie und Deal kennen, ergänzt einen CRM-Connector.</SummaryItem>
+  <SummaryItem label="Postfach">Gmail-Connector: lesen, entwerfen, senden; Microsoft-365-Connector: lesen, mit Schreib-Tools auch entwerfen und senden. Anhänge sind bei beiden eingeschränkt.</SummaryItem>
+  <SummaryItem label="MCP-Server">Googles Gmail-MCP-Server ist eine Developer Preview und sendet keine E-Mails. Microsofts Mail-Tools gelten laut Microsoft nur noch der Kompatibilität; für neue Projekte nennt Microsoft Work IQ MCP, das einen Administrator verlangt.</SummaryItem>
+  <SummaryItem label="Senden">Entscheidend ist, wer sendet. Mit Customermates legt Claude einen Entwurf im Posteingang ab, und Sie senden ihn selbst.</SummaryItem>
+  <SummaryItem label="Geprüft">Alle Angaben der Anbieter wurden am 16. November 2026 auf deren Seiten gelesen, nicht ausgeführt.</SummaryItem>
+</ArticleSummary>
+
+## Welche Wege gibt es, Claude mit Outlook oder Gmail zu verbinden? [#routes]
+
+Es gibt sieben Wege. Die Tabelle nennt, wer den Zugang betreibt und was Claude damit bekommt, Stand 16. November 2026.
+
+| Weg | Wer betreibt ihn | Was Claude bekommt | Stand und Voraussetzung |
+| --- | --- | --- | --- |
+| Connector für Gmail und Google Calendar | Anthropic, im Connector-Verzeichnis | Mails und Verläufe suchen und lesen, Entwürfe, Senden, Antworten, Weiterleiten, Labels; im Kalender Termine ansehen und verwalten | Für alle Nutzer in Claude und Claude Desktop; in Team und Enterprise schaltet ein Owner ihn zuerst für die Organisation frei |
+| Connector für Microsoft 365 | Anthropic, im Connector-Verzeichnis | Outlook-Mail und -Kalender, dazu SharePoint, OneDrive und bei Arbeitskonten Teams | Arbeits- oder Schulkonten in jedem Tarif nach einmaliger Zustimmung eines Entra-Globaladministrators; private Konten in Free, Pro, Max und Ultra |
+| Add-in Claude for Outlook | Anthropic, über Microsoft AppSource | In Outlook neben der geöffneten E-Mail: Postfach sortieren, Antworten als Entwurf, Verläufe zusammenfassen, Anhänge lesen, Postfach durchsuchen, Termine finden; sendet nie | Beta; Pro, Max, Team und Enterprise, nicht Free; Outlook mit Microsoft 365 und Exchange Online; Postfach-Funktionen brauchen die Graph-Zustimmung eines Administrators |
+| Googles Gmail-MCP-Server | Google | Threads suchen und lesen, Labels, Entwürfe anlegen; kein Tool sendet | Developer Preview im Google Workspace Developer Preview Program; Google-Cloud-Projekt und eigener OAuth-Client nötig |
+| Microsofts MCP-Angebote (Work IQ MCP, ältere Mail-Tools) | Microsoft | Mail lesen, schreiben und senden über einen Entra-geschützten Server | Work IQ braucht einen Global Administrator und einen nutzungsbasierten Abrechnungsplan in Copilot Studio; die Mail-Tools sind laut Microsoft nur noch für Kompatibilität gedacht |
+| Community-Brücken | Einzelne Entwickler, gelistet in Verzeichnissen | Je nach Projekt sehr unterschiedlich | Keine Zusage eines Anbieters; Sie geben einem fremden Programm Zugriff auf Ihr Postfach |
+| CRM mit eingebundenem Postfach als Connector (Customermates) | Customermates | Verläufe am Kunden, Datensätze, Aktivitäten, Notizen, Wissensdatenbank, Antwortentwurf speichern; Kalender nur lesend | Customermates Cloud ab Pro oder Testphase |
+
+Welcher Weg passt, hängt an der Aufgabe:
+
+- **Ein Postfach durchsuchen und einzelne Mails beantworten:** der Connector von Anthropic für Gmail oder Microsoft 365, in Outlook alternativ das Add-in Claude for Outlook. Es gibt nichts zu betreiben.
+- **Antworten, die den Kunden kennen:** ein CRM-Connector, der Verlauf, Deal und frühere Vereinbarungen liefert. Gmail und Outlook wissen nicht, was Sie einem Kunden zugesagt haben. Wie andere CRMs mit Claude zusammenarbeiten, vergleicht der [Leitfaden zu Claude und CRM](/blog/claude-crm).
+- **Googles Server ausprobieren:** nur, wenn Sie am Developer Preview Program teilnehmen und mit einem Server ohne Sendefunktion arbeiten wollen.
+
+## Was kann der Gmail-Connector von Claude, und was braucht er? [#claude-gmail]
+
+Nach Anthropics Hilfe zu den Google-Workspace-Connectors sucht und liest Claude damit E-Mails per Suchanfrage, entwirft sie und sendet, beantwortet und leitet sie weiter, verwaltet Labels und Threads und listet gespeicherte Entwürfe. Anhänge sieht Claude nur als Metadaten, nicht als Inhalt. Der Google-Calendar-Connector zeigt Termine und geteilte Kalender, legt Termine an, ändert und löscht sie, findet gemeinsame freie Zeiten und antwortet auf Einladungen.
+
+Drei Punkte entscheiden im Alltag:
+
+- **Freigabe vor dem Senden.** Claude fragt standardmäßig vor jedem Senden, Antworten und Weiterleiten. In Team und Enterprise entscheiden Owner, ob Mitglieder diese Aktionen ohne Nachfrage zulassen dürfen.
+- **Anmeldung.** Jedes Mitglied meldet sich mit dem eigenen Google-Konto an. Verweigert Google den Zugriff, muss ein Google-Workspace-Admin Claude in den API-Steuerungen als vertrauenswürdige App freigeben.
+- **Daten.** Abgerufene Daten bleiben laut Anthropic an ihrem Chat; löschen Sie den Chat, löschen Sie sie. Wie Anthropic Eingaben nach Tarif behandelt, steht im Beitrag zum [Datenschutz bei Claude](/blog/claude-data-privacy).
+
+Der Connector kennt Ihr Postfach und Ihren Kalender, aber keinen Kundendatensatz: Welcher Deal zu einer Mail gehört und was zuletzt vereinbart wurde, steht nicht in Gmail.
+
+## Was ist Claude for Outlook, und wie unterscheidet es sich vom Connector? [#claude-for-outlook]
+
+Claude for Outlook ist ein Add-in von Anthropic, das Claude in Outlook neben die geöffnete E-Mail setzt, statt Outlook in den Claude-Chat zu holen. Laut Anthropics Dokumentation ist es in der Beta und für Pro, Max, Team und Enterprise verfügbar, nicht für Free. Sie installieren es über Microsoft AppSource („Get it now“), öffnen eine E-Mail, klicken auf Claude und melden sich mit Ihrem Claude-Konto an. Es sortiert ungelesene Mails, entwirft Antworten, Allen-antworten und Weiterleitungen, fasst lange Verläufe mit Quellenangaben zusammen, liest `.docx`- und `.xlsx`-Anhänge, durchsucht Ihr Postfach, findet gemeinsame freie Zeiten und bereitet Einladungen vor.
+
+Bei der Frage, wer sendet, ist das Add-in die vorsichtigste Option: Es sendet laut Anthropic nie E-Mails oder Einladungen und fordert die Berechtigung `Mail.Send` nicht an. Jeder Entwurf landet ungesendet im Antwortfenster von Outlook, und Sie klicken auf Senden.
+
+| | Claude for Outlook (Add-in) | Microsoft-365-Connector |
+| --- | --- | --- |
+| Wo Sie arbeiten | In Outlook, neben der geöffneten E-Mail | Im Claude-Chat |
+| Tarife | Pro, Max, Team, Enterprise; Beta | Arbeits- oder Schulkonten in jedem Tarif, private Konten in Free, Pro, Max und Ultra |
+| Outlook und Konten | Outlook im Web, neues und klassisches Outlook für Windows, Outlook für Mac, jeweils mit Microsoft 365; Exchange Online nötig. Nicht unterstützt: Outlook für iOS und Android, Exchange on-premises, Outlook 2016 und 2019 als Kauf- oder Volumenlizenz, freigegebene Postfächer, Gmail-, IMAP- und POP-Konten in Outlook | Microsoft-365-Konten wie in der Tabelle unten |
+| Senden | Nie; Entwürfe bleiben ungesendet | Nur mit aktivierten Schreib-Tools, Claude fragt vorher |
+| Admin | Installation über AppSource oder Bereitstellung durch einen Admin über Integrated apps im Microsoft 365 Admin Center; Postfach-Funktionen (Triage, Suche, Frei/Gebucht) brauchen eine einmalige Graph-Zustimmung eines Global Administrators oder Cloud Application Administrators mit den Berechtigungen `Mail.ReadWrite`, `Calendars.Read`, `User.Read` und `offline_access`; ohne sie arbeitet Claude nur an der geöffneten E-Mail | Ein Owner (Team, Enterprise) und die einmalige Zustimmung eines Entra-Globaladministrators |
+| Kundenverlauf aus dem CRM | Nicht vorhanden | Nicht vorhanden |
+
+Zwei Punkte zur Einordnung. Postfachinhalte, die das Add-in liest, werden Teil des Prompts, der an `api.anthropic.com` geht; für Claude for Outlook nennt Anthropic eine Löschung von Ein- und Ausgaben innerhalb von 30 Tagen, mit den Ausnahmen aus seinem Artikel zur Datenspeicherung. Und Anthropic rät in der Beta davon ab, das Add-in unbeaufsichtigt senden zu lassen oder Post an Kunden zu versenden, ohne den Entwurf zu lesen. Das Add-in kennt Ihr Postfach und Ihren Kalender, aber keinen Kundendatensatz.
+
+## Claude mit Outlook verbinden: Was leistet der Microsoft-365-Connector? [#claude-outlook]
+
+Der Microsoft-365-Connector holt Outlook in den Claude-Chat. Die Hilfe von Anthropic unterscheidet zwei Kontoarten:
+
+| | Arbeits- oder Schulkonto | Privates Konto (Outlook.com, Hotmail, Live, MSN) |
+| --- | --- | --- |
+| Tarife | Alle | Free, Pro, Max und Ultra; in Team und Enterprise erscheint die Option nicht |
+| Claude liest | SharePoint, OneDrive, Outlook-Mail, Outlook-Kalender, Teams | OneDrive, Outlook-Mail, Outlook-Kalender |
+| Schreib-Tools | Entwürfe, Versand, Ablage und Kalenderänderungen: nur, wenn ein Admin sie aktiviert hat | Enthalten; unter Tool permissions abschaltbar |
+| Wer schaltet frei | In Team und Enterprise aktiviert ein Owner den Connector; ein Microsoft-Entra-Globaladministrator stimmt einmal je Mandant zu; Schreib-Tools brauchen eine erneute Zustimmung | Niemand, kein Admin nötig |
+| Grenzen | Anhänge werden in Schreib-Tools nicht unterstützt | Keine freigegebenen Postfächer, keine Posteingangsregeln, keine Abfragen der Verfügbarkeit (Frei/Gebucht); Anhänge ebenfalls nicht |
+
+Die Berechtigungen sind nach Anthropics Admin-Anleitung standardmäßig nur lesend (etwa `Mail.Read` und `Calendars.Read`). Erst mit erneuter Zustimmung kommen `Mail.Send` und `Calendars.ReadWrite` hinzu, und ein Admin setzt jedes Schreib-Tool auf Always allow, Needs approval oder Blocked. Bei privaten Konten fragt Claude, bevor es etwas sendet, erstellt, ändert, verschiebt oder löscht; Suchen und Lesen laufen ohne Nachfrage.
+
+Auch hier gilt: Der Connector liefert Mails und Termine, aber keine Kundenhistorie außerhalb des Postfachs. Wie sich der Connector in der Praxis zu einem CRM-Postfach verhält, vergleichen die Beiträge zur [Outlook-CRM-Integration](/blog/outlook-crm-integration) und zur [Gmail-CRM-Integration](/blog/gmail-crm-integration).
+
+## Gibt es einen offiziellen Outlook-MCP-Server oder Gmail-MCP-Server? [#mcp-servers]
+
+Ja, aber keiner ist ein fertiger Ersatz für den Connector. Was ein MCP-Server überhaupt ist, erklärt der [Beitrag zum MCP-Server](/blog/what-is-an-mcp-server). Die Lage am 16. November 2026:
+
+| Server | Status laut Anbieter | Mail | Voraussetzung |
+| --- | --- | --- | --- |
+| Gmail-MCP-Server von Google (`gmailmcp.googleapis.com`) | Developer Preview | Threads suchen und lesen, Labels, Entwürfe anlegen und auflisten; kein Tool sendet | Mitglied im Google Workspace Developer Preview Program, Google-Cloud-Projekt, OAuth-Client mit der Option „Use this client for an AI-powered agent“, Scopes `gmail.readonly` und `gmail.compose` |
+| Microsoft MCP Server for Enterprise | Preview | Keine: nur Microsoft-Entra-Identitäts- und Verzeichnisdaten, nur lesend | Mandant mit Microsoft Entra |
+| Microsoft-Mail-Tools (anwendungsspezifisch) | Preview, nur für Kompatibilität | Entwurf anlegen, antworten, senden, suchen, ändern, löschen | Laut Microsoft nicht für Produktion und neue Projekte gedacht |
+| Work IQ MCP | Das Tool `retrieve` ist Public Preview | Pfade wie `/me/messages` lesen Mails, `/me/sendMail` sendet, Termine lassen sich anlegen | Entra-Anmeldung, Admin-Zustimmung für alle Work-IQ-Berechtigungen, Global Administrator und Copilot-Studio-Abrechnungsplan für die Einrichtung |
+
+Zwei Dinge fallen auf. Googles Server ist bewusst vorsichtig: Er legt Entwürfe an, sendet aber nichts; den Entwurf prüfen und senden Sie in Gmail selbst. Und der Name „Microsoft MCP Server for Enterprise“ führt in die Irre, wer Outlook sucht: Er deckt Entra-Verzeichnisdaten ab, keine Mails. Für Outlook-Mails nennt Microsoft für neue Projekte Work IQ MCP, und das ist eine Einrichtung für IT-Administratoren, kein Zugang für ein kleines Team, das heute Kundenmails beantworten will.
+
+Googles Gmail-Server lässt sich laut Googles Anleitung in Claude als eigener Connector namens „Gmail“ anbinden: mit der Server-URL, einem OAuth-Client und der Weiterleitungs-URI `https://claude.ai/api/mcp/auth_callback`. Ob sich Claude auch an Microsofts Work-IQ-Server anmelden lässt, beschreibt Microsoft auf den gelesenen Seiten nicht, und wir haben es nicht getestet. In Microsofts Marketplace erscheint ein Eintrag „Work IQ Outlook Mail MCP Server (Preview)“; die Seite war für uns nicht abrufbar, weshalb wir seine Bedingungen nicht wiedergeben.
+
+Community-Brücken sind Programme einzelner Entwickler, die Gmail oder Outlook über deren Schnittstellen an MCP anbinden; Verzeichnisse listen sie zu Dutzenden. Wir haben keine getestet. Wer eine nutzt, übergibt einem fremden Programm einen Zugangstoken zum Postfach, sollte den Code lesen und rechnet damit, dass ein Projekt ohne Vorwarnung aufgegeben oder geändert wird.
+
+## Postfach, Kalender und CRM: Wer sieht was? [#access-separately]
+
+Die meisten Fragen zu „Claude und Outlook“ vermischen drei Zugriffe. Getrennt betrachtet sieht es so aus:
+
+| Zugriff | Wofür Claude ihn braucht | Gmail | Outlook | Customermates |
+| --- | --- | --- | --- | --- |
+| Postfach | Den Verlauf lesen, die Antwort formulieren | Gmail-Connector | Claude for Outlook oder Microsoft-365-Connector | Verläufe des verbundenen Postfachs im Posteingang, nur Ordner, die Sie eingeschaltet haben |
+| Kalender | Terminvorschläge, Verfügbarkeit | Google-Calendar-Connector, mit Schreibzugriff | Claude for Outlook (Zeiten finden, Einladung als Entwurf) oder Microsoft-365-Connector, Schreib-Tools nach Admin-Freigabe | Nur lesend (`get_calendars`), kein Buchen |
+| Kundenhistorie | Wer ist das, welcher Deal, was wurde zugesagt | Nicht vorhanden | Nicht vorhanden | Datensätze, Aktivitäten, Notizen, Dateien, Wissensdatenbank |
+| Senden | Die Antwort verschicken | Claude fragt standardmäßig vorher | Add-in: sendet nie, der Entwurf bleibt in Outlook; Connector, private Konten: Claude fragt vorher; Arbeitskonten: erst nach Admin-Freigabe der Schreib-Tools | `save_message_draft` legt einen Entwurf ab; `send_email` sendet sofort, wenn Sie das Tool erlauben |
+
+Daraus folgt eine einfache Regel: Geben Sie jedem Zugriff nur das, was die Aufgabe braucht. Eine Antwort auf eine Kundenmail braucht Postfach und Kundenhistorie, aber keinen Kalender und kein Löschrecht.
+
+## Wie lasse ich Claude eine Kundenmail mit Verlauf beantworten? Einrichtung mit Customermates [#customermates-steps]
+
+Customermates bindet Gmail, Outlook oder IMAP serverseitig in den [einheitlichen Posteingang](/features/unified-inbox) ein, ordnet Verläufe über die E-Mail-Adresse dem Kontakt zu und bringt einen Remote-MCP-Server mit, den Claude als eigenen Connector nutzt. Voraussetzung ist Customermates Cloud ab dem Pro-Tarif oder die Testphase; Starter und selbst gehostete Installationen haben keinen Posteingang. Ihre Rolle braucht **Lesen** **Alle** bei **Inbox-Nachrichten** und bei **API & Webhooks**; die Rolle Admin hat beides. Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer.
+
+<Steps>
+  <Step title="Postfach verbinden">
+    Öffnen Sie **Einstellungen › Kanäle & Kalender**, klicken Sie auf **Kanal verbinden** und wählen Sie **Gmail** oder **Outlook**; **IMAP** ist für alle anderen Postfächer. Sie melden sich auf einer sicheren Seite beim Anbieter an, danach wird Ihr Verlauf im Hintergrund importiert. Bei Outlook dauert das meist wenige Minuten, bei großen Postfächern bis zu einer Stunde. Erlaubt Ihr Microsoft-365-Mandant Nutzern keine Zustimmung zu Drittanbieter-Apps, muss ein Administrator die Verbindung zuerst freigeben. Prüfen Sie auf dem Tab **Ordner**, welche Ordner ins CRM sollen, und verknüpfen Sie Absender mit Kontakten, sonst fehlt Claude der Bezug zum Kunden.
+  </Step>
+  <Step title="Customermates in Claude hinzufügen">
+    Kopieren Sie unter **Einstellungen › API-Schlüssel & Konnektoren** über **Hinzufügen**, **Claude** und **Claude-Konto** die URL Ihres Workspace. Öffnen Sie in Claude **Customize › Connectors**, klicken Sie auf **+ Add**, wählen Sie **Add custom connector**, tragen Sie Namen und URL ein und lassen Sie die Anmeldung auf OAuth. Melden Sie sich im Customermates-Fenster an und klicken Sie auf **Zulassen**. Die Schritte im Detail stehen in der [Connector-Anleitung](/docs/connect-custom-connector).
+  </Step>
+  <Step title="Freigaben setzen">
+    Öffnen Sie in Claude die **Tool permissions** von Customermates. Lesende Tools (`get_messaging_threads`, `get_activities`, `search_crm_records`, `read_crm_record`) dürfen auf Always allow. Alles andere bleibt auf Needs approval, vor allem `send_email` und `send_chat_message`, die sofort senden. In Team und Enterprise kann ein Owner Tools auf Blocked setzen.
+  </Step>
+  <Step title="Eine Antwort entwerfen lassen">
+    Schreiben Sie zum Beispiel: „Such im Posteingang den letzten Verlauf mit Sarah Lee. Lies am Kontakt und am Deal nach, was wir zuletzt vereinbart haben, und speichere eine Antwort als Entwurf. Sende nichts.“ Claude liest den Verlauf mit `get_messaging_threads`, den Datensatz mit `search_crm_records` und `read_crm_record`, die Historie mit `get_activities` und legt die Antwort mit `save_message_draft` ab. Jeder Workspace hat eigene Listen und Felder, bitten Sie Claude also, vorher `discover_record_types` und `get_record_model` aufzurufen.
+  </Step>
+  <Step title="Entwurf prüfen und selbst senden">
+    Öffnen Sie die Konversation im Posteingang. Der Entwurf wartet dort, Sie bearbeiten ihn und senden ihn selbst. Die Signatur des Kontos hängt Customermates beim Senden an, Claude schreibt also keine Grußformel. Schicken Sie nichts ab, bleibt der Entwurf liegen.
+  </Step>
+</Steps>
+
+Welche Konversationen Claude sieht, bestimmt Ihr Konto: Ein neu verbundener Kanal ist privat, auch Admins sehen private Verläufe von Kolleginnen und Kollegen nicht, und über MCP erreicht Claude nur, was Ihr Nutzer sehen darf. Wie die Verläufe am Kontakt aussehen und wie Sie damit nachfassen, zeigen die Seiten zur [Outlook-Integration](/features/outlook-integration) und zur [Nachfass-Funktion](/features/follow-up).
+
+Wollen Sie es mit Ihrem eigenen Claude-Konto ausprobieren, [testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup). Ohne Kreditkarte.
+
+## Worauf achten, wenn Claude fremde E-Mails liest? [#safety]
+
+Eine eingehende Mail ist Text von einem Fremden, und Claude liest ihn. Google warnt in seiner Anleitung ausdrücklich vor indirekter Prompt Injection: Ein Absender kann Anweisungen in eine Mail schreiben, die ein Modell für Ihre hält. Anthropic nennt dasselbe Risiko bei eigenen Connectors. Was dagegen hilft:
+
+- **Nur die Tools freigeben, die die Aufgabe braucht.** Lesen und Entwurf speichern; Senden und Löschen bleiben gesperrt oder auf Needs approval. Mit `?toolsets=records,messaging` an der URL bietet Customermates weniger Tools an (die Gruppen `records` und `messaging`, dazu immer `search` und `fetch`), schließt Senden und Löschen damit aber nicht aus, wie die [MCP-Referenz](/docs/mcp#narrowing-with-toolsets) erklärt.
+- **Alles Schreibende auf Needs approval lassen.** Customermates fordert Clients auf, vor dem Senden oder Löschen nachzufragen, erzwingt es aber nicht: Der Server führt jeden erlaubten Aufruf aus. Die Kontrolle liegt in Claude und in Ihrem Klick im Posteingang.
+- **Nachrichtentext als Daten behandeln.** Customermates liefert Nachrichten- und Datensatztext zwischen den Markierungen `<<<UNTRUSTED_RECORD_TEXT>>>` und `<<<END_UNTRUSTED_RECORD_TEXT>>>`, damit ein Client ihn nicht als Anweisung liest. Verlassen Sie sich nicht allein darauf, prüfen Sie jeden Entwurf.
+- **Einen Entwurf lesen, bevor Sie senden.** Das gilt für jeden Weg in diesem Beitrag.
+- **Auch bei Claude for Outlook gegenlesen.** Anthropic nennt E-Mail-Text von Fremden unzuverlässige Eingaben und rät in der Beta davon ab, Post an Kunden ohne Lesen des Entwurfs zu versenden. Der Entwurf des Add-ins landet ungesendet in Outlook, geprüft werden muss er trotzdem.
+
+## Wann ist Customermates dafür die falsche Wahl? [#wrong-choice]
+
+- **Sie wollen nur ein Postfach durchsuchen.** Der Connector von Anthropic für Gmail oder Microsoft 365 reicht, und er braucht kein CRM.
+- **Claude soll Termine vereinbaren.** Customermates liest verbundene Kalender nur lesend und bucht keine Termine. Nehmen Sie dafür den Connector für Google Calendar oder Microsoft 365 dazu.
+- **Sie nutzen Free, Starter oder eine selbst gehostete Instanz.** Der Posteingang und die Messaging-Tools beginnen bei Pro in der Cloud. Selbst gehostet bleiben MCP, Datensätze und Wissensdatenbank, aber ohne Postfach.
+- **Sie wollen keine Kopie des Verlaufs.** Customermates importiert die eingeschalteten Ordner in seinen Posteingang, und Trennen des Kontos löscht den Import wieder. Die Connectors von Anthropic halten abgerufene Daten dagegen nur am Chat.
+- **Sie brauchen Serienmails.** Customermates kennt keine Sequenzen und keinen Massenversand; jede Nachricht entsteht einzeln.
+- **Sie wollen das CRM in Outlook oder Gmail sehen.** Es gibt kein Outlook-Add-in und keine Gmail-Seitenleiste.
+
+## Häufige Fragen
+
+<Faq>
+<FaqItem question="Gibt es einen Claude-Connector für Outlook?">
+Ja: den Microsoft-365-Connector, der Outlook-Mail und -Kalender, SharePoint, OneDrive und bei Arbeitskonten Teams abdeckt. Er liest standardmäßig nur. Bei Arbeits- oder Schulkonten schaltet ein Admin Schreib-Tools frei, bei privaten Konten sind sie enthalten. Arbeits- oder Schulkonten brauchen außerdem die einmalige Zustimmung eines Microsoft-Entra-Globaladministrators. Daneben gibt es für Outlook das Add-in Claude for Outlook.
+</FaqItem>
+
+<FaqItem question="Was ist Claude for Outlook?">
+Ein Add-in von Anthropic, das Claude in Outlook neben die geöffnete E-Mail setzt. Es ist in der Beta, für Pro, Max, Team und Enterprise verfügbar, nicht für Free, und läuft in Outlook im Web, im neuen und klassischen Outlook für Windows und in Outlook für Mac mit Microsoft 365 und Exchange Online. Es entwirft Antworten ungesendet und sendet nie selbst; für Postfach-Funktionen wie Suche und Triage braucht es die einmalige Graph-Zustimmung eines Administrators.
+</FaqItem>
+
+<FaqItem question="Gibt es einen offiziellen Outlook-MCP-Server?">
+Microsoft bietet MCP-Server an, aber keinen einfachen Outlook-Server für alle. Der Server für Enterprise deckt nur Entra-Verzeichnisdaten ab. Die anwendungsspezifischen Mail-Tools nennt Microsoft nur noch für Kompatibilität, und für neue Projekte verweist es auf Work IQ MCP, dessen Einrichtung einen Global Administrator und einen Abrechnungsplan in Copilot Studio verlangt.
+</FaqItem>
+
+<FaqItem question="Ist Googles Gmail-MCP-Server dasselbe wie der Gmail-Connector von Claude?">
+Nein. Der Connector kommt von Anthropic, liegt im Verzeichnis und kann E-Mails senden. Googles Server ist eine Developer Preview, verlangt ein Google-Cloud-Projekt und einen eigenen OAuth-Client und hat kein Tool zum Senden.
+</FaqItem>
+
+<FaqItem question="Kann Claude E-Mails ohne meine Freigabe senden?">
+Nicht standardmäßig. Beim Gmail-Connector fragt Claude vor jedem Senden, Antworten und Weiterleiten, und beim Microsoft-365-Connector eines privaten Kontos vor jedem Senden oder Ändern. Wie viel Nachfragen bleibt, legen Sie in den Tool permissions fest, in Team und Enterprise die Owner. Bei Customermates sendet `send_email` sofort, wenn Sie das Tool erlauben; lassen Sie Claude stattdessen einen Entwurf speichern.
+</FaqItem>
+
+<FaqItem question="Kann Claude Termine in Outlook oder Google Calendar anlegen?">
+Mit den Connectors von Anthropic ja, bei Microsoft 365 nur mit aktivierten Schreib-Tools. Customermates liest verbundene Kalender nur und bucht keine Termine.
+</FaqItem>
+
+<FaqItem question="Funktioniert das mit einem privaten Outlook.com-Konto?">
+Der Microsoft-365-Connector akzeptiert private Konten (Outlook.com, Hotmail, Live, MSN) in Free, Pro, Max und Ultra. In Team und Enterprise erscheint die Option nicht. Lässt sich ein Postfach in Customermates nicht über die Option Outlook anmelden, verbindet Customermates es über IMAP.
+</FaqItem>
+
+<FaqItem question="Brauche ich dafür einen Entwickler?">
+Für die Connectors von Anthropic nicht: Sie klicken sich durch die Anmeldung. Googles MCP-Server und Microsofts Work IQ MCP verlangen Cloud-Projekte, OAuth-Clients und Administratorrechte, das ist Aufgabe für jemanden mit Zugriff auf die Verwaltung des Mandanten.
+</FaqItem>
+</Faq>
+
+Angaben der Anbieter geprüft am 16. November 2026 in [Anthropics Artikel zu den Google-Workspace-Connectors](https://support.claude.com/en/articles/10166901-use-google-workspace-connectors), [Connect to Microsoft 365](https://support.claude.com/en/articles/15183774-connect-to-microsoft-365), [der Admin-Einrichtung für Microsoft 365](https://support.claude.com/en/articles/12542951-set-up-the-microsoft-365-connector), [Anthropics Anleitung zu eigenen Connectors](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp), [Anthropics Seite zu Claude for Outlook](https://claude.com/docs/office-agents/outlook), [Googles Anleitung zum Gmail-MCP-Server](https://developers.google.com/workspace/gmail/api/guides/configure-mcp-server), [Googles MCP-Referenz zu Gmail](https://developers.google.com/workspace/gmail/api/reference/mcp), [Microsofts Überblick zum MCP Server for Enterprise](https://learn.microsoft.com/en-us/graph/mcp-server/overview), [Microsofts Mail-Referenz für Copilot Studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-mail-tools), [Microsofts Überblick zu Work IQ MCP](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/work-iq/mcp/overview), [den Berechtigungen von Work IQ](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/work-iq/permissions) und [der Einrichtung von Work IQ](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/work-iq/enable-work-iq). Die Seiten von Anthropic tragen nur die Angabe „Updated this week“, kein festes Datum.
