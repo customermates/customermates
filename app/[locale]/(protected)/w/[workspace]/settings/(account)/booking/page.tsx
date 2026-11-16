@@ -24,7 +24,7 @@ export default async function BookingLinksPage() {
       <PageContainer>
         <BookingLinksPageView
           links={[]}
-          setup={{ calendars: [], lists: [], blockedReason: "noCalendar" }}
+          setup={{ calendars: [], lists: [], relationships: [], blockedReason: "noCalendar" }}
           unavailable={env.APP_MODE === "demo" ? "demo" : "selfHosted"}
         />
       </PageContainer>
@@ -38,7 +38,11 @@ export default async function BookingLinksPage() {
       <PageContainer padded={false}>
         <MessagingUpsellOverlay reason="plan">
           <div className="flex flex-col gap-6 p-4 md:p-6">
-            <BookingLinksPageView locked links={[]} setup={{ calendars: [], lists: [], blockedReason: "noCalendar" }} />
+            <BookingLinksPageView
+              locked
+              links={[]}
+              setup={{ calendars: [], lists: [], relationships: [], blockedReason: "noCalendar" }}
+            />
           </div>
         </MessagingUpsellOverlay>
       </PageContainer>
