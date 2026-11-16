@@ -28,9 +28,9 @@ Customermates is source-available (fair-code), not open source in the OSI sense.
 
 ## Which features are not available when self-hosting? [#which-features-are-not-available-when-self-hosting]
 
-Every self-hosted installation uses the Starter feature set. These cloud-only features stay off, even if you also pay for a cloud plan: connected messaging accounts (email, LinkedIn, WhatsApp, Instagram, Telegram), the unified Inbox, connected calendars and their events, the hosted assistant Mate with its hosted AI credits, Routines, which Mate runs, and the AI workspace setup in onboarding, so a new workspace starts with no lists. External AI clients still work through MCP with your own AI provider. Enterprise SSO (SAML) and white-labeling are not implemented in either deployment model.
+Every self-hosted installation uses the Starter feature set. These cloud-only features stay off, even if you also pay for a cloud plan: connected messaging accounts (email, LinkedIn, WhatsApp, Instagram, Telegram), the unified Inbox, connected calendars and their events, scheduling meetings and booking pages, the hosted assistant Mate with its hosted AI credits, Routines, which Mate runs, and the AI workspace setup in onboarding, so a new workspace starts with no lists. External AI clients still work through MCP with your own AI provider. Enterprise SSO (SAML) and white-labeling are not implemented in either deployment model.
 
-The app hides what does not apply: the sidebar shows no Inbox or Routines, Settings has no Billing or Channels & calendars page, and the role editor hides the **Inbox messages** and **Routines** rows. Opening one of those pages by URL returns you to the Dashboard.
+The app hides what does not apply: the sidebar shows no Inbox or Routines, but Notifications and Automations do show, Settings has no Billing or Channels & calendars page, and the role editor hides the **Inbox messages** row and names the Routines row **Automations**. Opening one of those pages by URL returns you to the Dashboard.
 
 Everything else works as in the cloud: lists and views, Excel import and export, Data model, dashboard widgets, members and roles, the Activity log, REST, webhooks and MCP.
 
@@ -70,7 +70,7 @@ Register, choose **Create a new workspace** and complete the wizard; your accoun
 - `RESEND_API_KEY`, `RESEND_OPERATOR_EMAIL`: email delivery; `RESEND_API_KEY` must not be empty. See [How do I set up email with Resend?](#how-do-i-set-up-email-with-resend-and-can-i-use-smtp).
 - `APP_MODE`: leave it at `self-hosted`; the Compose file sets this value for the app itself.
 - `WEBHOOK_BLOCK_PRIVATE_DESTINATIONS`: optional; set `true` to block webhook requests to private, loopback and link-local addresses. Private destinations are allowed by default so webhooks can reach services on your network. Accepts only `true` or `false`.
-- `CRON_SECRET`: optional, commented out in the template; the secret for the scheduled maintenance calls, see [Which scheduled jobs must I run?](#scheduled-jobs).
+- `CRON_SECRET`: commented out in the template, but needed for date automations and digest emails; the secret for the scheduled maintenance calls, see [Which scheduled jobs must I run?](#scheduled-jobs).
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AZURE_AD_CLIENT_ID`, `AZURE_AD_CLIENT_SECRET`: optional, commented out in the template, see [Can users sign in with Google or Microsoft?](#can-users-sign-in-with-google-or-microsoft).
 - `ADDRESS_LOOKUP_URL`: optional, commented out in the template; adds address search from a Photon service you run yourself, see [How are addresses checked, and how do I add address search?](#address-lookup).
 - `POSTAL_CODE_DATA_URL`: optional, commented out in the template; the source of the postal codes for city and region suggestions: GeoNames when unset, the URL of a mirror, or `off`, see [How are addresses checked, and how do I add address search?](#address-lookup).
@@ -253,10 +253,10 @@ Test the restore regularly on a separate machine. Moving to a new PostgreSQL maj
 
 ## Which scheduled jobs must I run? [#scheduled-jobs]
 
-The cloud calls two maintenance endpoints on a schedule; a self-hosted instance runs them only when you call them. Without the daily one, items in [Trash](/docs/app-trash) are never deleted permanently after their 30 days.
+The cloud calls two maintenance endpoints on a schedule; a self-hosted instance runs them only when you call them. Both calls are required: the five-minute call for date automations, the daily call for notification digest emails and pruning. Without the daily one, items in [Trash](/docs/app-trash) are never deleted permanently after their 30 days.
 
-- `/api/cron/lifecycle`, once a day: deletes Trash items whose 30 days have passed, files removed from records 30 days ago and uploads that were never saved, and runs the other daily housekeeping. On a self-hosted instance it skips cloud jobs for trials, subscriptions and connected accounts.
-- `/api/cron/record-deliveries`, every 5 minutes (optional): starts due webhook deliveries, event processing, text extraction of attached files and other background record work that no running job picked up, for example after a container restart.
+- `/api/cron/lifecycle`, once a day: deletes Trash items whose 30 days have passed, files removed from records 30 days ago and uploads that were never saved, sends the notification digest emails, prunes old form submissions, incoming webhook deliveries and bookings, and runs the other daily housekeeping. On a self-hosted instance it skips cloud jobs for trials, subscriptions and connected accounts.
+- `/api/cron/record-deliveries`, every 5 minutes (required for date automations): fires the date rules that have been reached, starts due webhook deliveries, event processing, text extraction of attached files and other background record work that no running job picked up, for example after a container restart.
 
 Both answer HTTP `401` unless the app has a `CRON_SECRET` and the request sends it as `Authorization: Bearer <secret>`. The template has a commented `CRON_SECRET` line next to `BETTER_AUTH_SECRET`, and the Compose file passes it to the app; if your `docker-compose.yml` does not list `CRON_SECRET` yet, download it again with the `curl` command from the installation steps. Uncomment the line, or add it to an `.env` created before it existed, set a long random value, for example from `openssl rand -hex 32`, run `docker compose up -d`, and schedule the calls on the host, for example with `crontab -e`:
 
