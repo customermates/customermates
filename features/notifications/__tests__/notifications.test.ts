@@ -31,7 +31,12 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { GetNotificationPreferencesInteractor } from "../get-notification-preferences.interactor";
 import { GetNotificationsInteractor } from "../get-notifications.interactor";
 import { MarkNotificationsReadInteractor } from "../mark-notifications-read.interactor";
-import { DEFAULT_NOTIFICATION_EMAIL_MODES, NOTIFICATION_KINDS, NotifyMembersSchema } from "../notification.schema";
+import {
+  DEFAULT_NOTIFICATION_EMAIL_MODES,
+  NOTIFICATION_INSTANT_EMAILS_PER_HOUR,
+  NOTIFICATION_KINDS,
+  NotifyMembersSchema,
+} from "../notification.schema";
 import { NotificationService, effectiveEmailMode } from "../notification.service";
 import { PruneNotificationsInteractor } from "../prune-notifications.interactor";
 import { SendNotificationDigestInteractor } from "../send-notification-digest.interactor";
@@ -91,6 +96,65 @@ describe("notifying members", () => {
     const service = new NotificationService(repo, mail, () => NOW);
     await expect(service.notify({ ...base, recipients: [ME, COLLEAGUE] })).resolves.toEqual({ created: 2, emailed: 0 });
     expect(mail.sendInstant).not.toHaveBeenCalled();
+    expect(repo.rows.every((row) => row.emailedAt === null)).toBe(true);
+  });
+
+  it("emails at most twenty instant notifications per member per rolling hour and leaves the rest unemailed", async () => {
+    const mail = mailer();
+    const service = new NotificationService(repo, mail, () => NOW);
+    let emailed = 0;
+    for (let index = 0; index < NOTIFICATION_INSTANT_EMAILS_PER_HOUR + 5; index += 1)
+      emailed += (await service.notify({ ...base, title: `Alert ${index}`, recipients: [ME] })).emailed;
+
+    expect(emailed).toBe(NOTIFICATION_INSTANT_EMAILS_PER_HOUR);
+    expect(mail.sendInstant).toHaveBeenCalledTimes(NOTIFICATION_INSTANT_EMAILS_PER_HOUR);
+    const held = repo.rows.filter((row) => row.emailedAt === null);
+    expect(held).toHaveLength(5);
+    expect(held.every((row) => row.readAt === null)).toBe(true);
+
+    await expect(service.notify({ ...base, recipients: [COLLEAGUE] })).resolves.toEqual({ created: 1, emailed: 1 });
+  });
+
+  it("applies the cap inside one batch and counts only mails sent in the last hour", async () => {
+    const mail = mailer();
+    const stale = new Date(NOW.getTime() - 61 * 60 * 1000);
+    const recent = new Date(NOW.getTime() - 59 * 60 * 1000);
+    const emailedEarlier = (at: Date, index: number) => ({
+      id: `earlier-${at.getTime()}-${index}`,
+      companyId: COMPANY,
+      userId: ME,
+      kind: base.kind,
+      title: base.title,
+      body: null,
+      href: base.href,
+      sourceRuleId: null,
+      dedupeKey: null,
+      readAt: null,
+      emailedAt: at,
+      createdAt: at,
+    });
+    repo.rows.push(
+      ...Array.from({ length: NOTIFICATION_INSTANT_EMAILS_PER_HOUR - 1 }, (_, index) => emailedEarlier(recent, index)),
+      ...Array.from({ length: 30 }, (_, index) => emailedEarlier(stale, index)),
+    );
+    const service = new NotificationService(repo, mail, () => NOW);
+
+    await expect(service.notify({ ...base, recipients: [ME] })).resolves.toEqual({ created: 1, emailed: 1 });
+    await expect(service.notify({ ...base, title: "One more", recipients: [ME] })).resolves.toEqual({
+      created: 1,
+      emailed: 0,
+    });
+    expect(mail.sendInstant).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not spend the cap on mails that fail to send", async () => {
+    const failing = mailer();
+    failing.sendInstant.mockRejectedValue(new Error("smtp down"));
+    const service = new NotificationService(repo, failing, () => NOW);
+    for (let index = 0; index < NOTIFICATION_INSTANT_EMAILS_PER_HOUR + 1; index += 1)
+      await service.notify({ ...base, title: `Alert ${index}`, recipients: [ME] });
+
+    expect(failing.sendInstant).toHaveBeenCalledTimes(NOTIFICATION_INSTANT_EMAILS_PER_HOUR + 1);
     expect(repo.rows.every((row) => row.emailedAt === null)).toBe(true);
   });
 
@@ -229,7 +293,6 @@ describe("the daily digest", () => {
   it("sends one mail per member with their digest notifications, then marks them emailed", async () => {
     await seed("dueToday", ME);
     await seed("dueToday", ME);
-    await seed("ruleAlert", ME);
     await seed("dueToday", COLLEAGUE);
     repo.preferences.set(COLLEAGUE, new Map([["dueToday", "off"]]));
     const mail = mailer();
@@ -239,6 +302,24 @@ describe("the daily digest", () => {
     expect(mail.sendDigest.mock.calls[0]?.[1]).toHaveLength(2);
     expect(repo.rows.filter((row) => row.emailedAt).length).toBe(2);
     await expect(digest.invoke(NOW)).resolves.toEqual({ notificationDigests: 0 });
+  });
+
+  it("takes instant notifications the cap or a failed mail held back into the next digest once they are older than the grace period", async () => {
+    await seed("ruleAlert", ME, 1);
+    repo.clock = new Date(NOW.getTime() - 60 * 1000);
+    await new NotificationService(repo, mailer(false), () => NOW).notify({
+      ...base,
+      title: "Just now",
+      recipients: [ME],
+    });
+    const mail = mailer();
+
+    await expect(new SendNotificationDigestInteractor(repo, mail).invoke(NOW)).resolves.toEqual({
+      notificationDigests: 1,
+    });
+
+    expect(mail.sendDigest.mock.calls[0]?.[1]).toHaveLength(1);
+    expect(repo.rows.map((row) => row.emailedAt !== null)).toEqual([true, false]);
   });
 
   it("leaves notifications unsent when the mail cannot be delivered, and skips read ones", async () => {

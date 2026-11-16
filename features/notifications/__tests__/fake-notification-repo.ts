@@ -92,6 +92,16 @@ export class FakeNotificationRepo extends NotificationRepo {
     return Promise.resolve();
   }
 
+  countEmailedSinceUnscoped(companyId: string, userIds: string[], since: Date) {
+    const counts = new Map<string, number>();
+    for (const row of this.rows) {
+      if (row.companyId !== companyId || !userIds.includes(row.userId) || !row.emailedAt || row.emailedAt < since)
+        continue;
+      counts.set(row.userId, (counts.get(row.userId) ?? 0) + 1);
+    }
+    return Promise.resolve(counts);
+  }
+
   findDigestUsersUnscoped(since: Date, limit: number) {
     const keys = new Map<string, { companyId: string; userId: string }>();
     for (const row of this.rows) {

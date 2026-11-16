@@ -7,7 +7,13 @@ import type { NotifyMembersInput } from "./notification.schema";
 
 import * as ErrorReporter from "@/core/observability/server";
 
-import { DEFAULT_NOTIFICATION_EMAIL_MODES, NotifyMembersSchema } from "./notification.schema";
+import {
+  DEFAULT_NOTIFICATION_EMAIL_MODES,
+  NOTIFICATION_INSTANT_EMAILS_PER_HOUR,
+  NotifyMembersSchema,
+} from "./notification.schema";
+
+const HOUR_MS = 60 * 60 * 1000;
 
 const DEFAULT_EMAIL_MODES: Partial<Record<NotificationKind, NotificationEmailMode>> = DEFAULT_NOTIFICATION_EMAIL_MODES;
 
@@ -65,19 +71,43 @@ export class NotificationService {
         )
       ).map((item) => [item.id, item]),
     );
+    const now = this.clock();
+    const instantUserIds = [
+      ...new Set(
+        created
+          .filter((row) => effectiveEmailMode(preferences.get(row.userId), row.kind) === "instant")
+          .map((row) => row.userId),
+      ),
+    ];
+    const emailedLastHour = await this.repo.countEmailedSinceUnscoped(
+      companyId,
+      instantUserIds,
+      new Date(now.getTime() - HOUR_MS),
+    );
+    const allowance = new Map(
+      instantUserIds.map((userId) => [
+        userId,
+        Math.max(0, NOTIFICATION_INSTANT_EMAILS_PER_HOUR - (emailedLastHour.get(userId) ?? 0)),
+      ]),
+    );
     const sent: string[] = [];
     for (const row of created) {
       const recipient = byUser.get(row.userId);
       const notification: PendingEmailNotification | undefined = pending.get(row.id);
       if (!recipient || !notification) continue;
       if (effectiveEmailMode(preferences.get(row.userId), row.kind) !== "instant") continue;
+      const remaining = allowance.get(row.userId) ?? 0;
+      if (remaining <= 0) continue;
       try {
-        if (await this.mailer.sendInstant(recipient, notification)) sent.push(row.id);
+        if (await this.mailer.sendInstant(recipient, notification)) {
+          sent.push(row.id);
+          allowance.set(row.userId, remaining - 1);
+        }
       } catch (error) {
         ErrorReporter.captureException(error, { tags: { kind: "notification-email" } });
       }
     }
-    await this.repo.markEmailedUnscoped(sent, this.clock());
+    await this.repo.markEmailedUnscoped(sent, now);
     return sent.length;
   }
 }

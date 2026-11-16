@@ -50,6 +50,7 @@ export abstract class NotificationRepo {
   ): Promise<Map<string, Map<NotificationKind, NotificationEmailMode>>>;
   abstract findNotificationsUnscoped(companyId: string, ids: string[]): Promise<PendingEmailNotification[]>;
   abstract markEmailedUnscoped(ids: string[], now: Date): Promise<void>;
+  abstract countEmailedSinceUnscoped(companyId: string, userIds: string[], since: Date): Promise<Map<string, number>>;
   abstract findDigestUsersUnscoped(since: Date, limit: number): Promise<{ companyId: string; userId: string }[]>;
   abstract findUnemailedUnscoped(companyId: string, userId: string, since: Date): Promise<PendingEmailNotification[]>;
   abstract pruneUnscoped(before: Date, limit: number): Promise<number>;

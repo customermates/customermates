@@ -138,6 +138,17 @@ export class PrismaNotificationRepo extends TenantRepository implements Notifica
   }
 
   @BypassTenantGuard
+  async countEmailedSinceUnscoped(companyId: string, userIds: string[], since: Date): Promise<Map<string, number>> {
+    if (userIds.length === 0) return new Map();
+    const groups = await this.prisma.notification.groupBy({
+      by: ["userId"],
+      where: { companyId, userId: { in: userIds }, emailedAt: { gte: since } },
+      _count: { _all: true },
+    });
+    return new Map(groups.map((group) => [group.userId, group._count._all]));
+  }
+
+  @BypassTenantGuard
   async findDigestUsersUnscoped(since: Date, limit: number) {
     const groups = await this.prisma.notification.groupBy({
       by: ["companyId", "userId"],
