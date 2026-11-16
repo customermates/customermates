@@ -47,6 +47,8 @@ import { RecordImportDialog } from "./record-import-dialog";
 import { RecordCalendarView } from "./record-calendar-view";
 import { useClientReady } from "@/hooks/use-client-ready";
 import { RecordMassActions } from "./record-mass-actions";
+import { automationOffers } from "./record-offers";
+import { Resource } from "@/generated/prisma";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 function recordRowName(store: RecordsStore, record: RecordRow, t: ReturnType<typeof useTranslations>) {
@@ -152,29 +154,24 @@ const RecordsPageViewContent = observer(function RecordsPageView({
   const handleImport = useCallback(() => setImportOpen(true), []);
   const configureLabel = t("RecordModel.configureList", { list: store.type?.pluralLabel ?? t("RecordModel.records") });
   const modelFields = store.presentation.model.fields;
-  const reminderFields = useMemo(
-    () =>
-      modelFields.filter(
-        (field) =>
-          field.typeId === presentation.typeId &&
-          !field.archived &&
-          (field.valueType === "date" || field.valueType === "dateTime"),
-      ),
-    [modelFields, presentation.typeId],
+  const canUseAutomations = root.userStore.canAccess(Resource.routines);
+  const offers = useMemo(
+    () => automationOffers({ canUseAutomations, typeId: presentation.typeId, fields: modelFields }),
+    [canUseAutomations, modelFields, presentation.typeId],
   );
   const toolbar = useMemo(
     () => (
       <DataViewToolbar
         anchorScope="records"
-        automateHref={`/automations?new=${presentation.typeId}`}
+        automateHref={offers.automateHref}
         menuItems={
           <>
-            {reminderFields.map((field) => (
-              <DropdownMenuItem key={field.id} asChild>
-                <IntlLink href={`/automations?remind=${presentation.typeId}:${field.id}`}>
+            {offers.reminders.map((reminder) => (
+              <DropdownMenuItem key={reminder.id} asChild>
+                <IntlLink href={reminder.href}>
                   <BellRing className="size-4" />
 
-                  {t("AutomationRules.remindBefore", { field: field.label })}
+                  {t("AutomationRules.remindBefore", { field: reminder.label })}
                 </IntlLink>
               </DropdownMenuItem>
             ))}
@@ -207,7 +204,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
       handleImport,
       presentation.typeId,
       configureLabel,
-      reminderFields,
+      offers,
       t,
     ],
   );

@@ -11,6 +11,7 @@ import { AppModalActionRail, type AppModalActionProps } from "@/components/modal
 import { useRecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { canOfferScheduleMeeting } from "./record-offers";
 import {
   RecordDetailLayoutStatus,
   useRecordDetailLayout,
@@ -76,7 +77,7 @@ function useRecordHeaderActions({ store, name, deletion, layout, onOpenPage }: H
   const customizing = layout?.isPersonalizing === true;
   const actions: AppModalActionProps[] = [
     ...(askAi && !customizing ? [askAi] : []),
-    ...(record && !customizing && !store.trash
+    ...(record && !customizing && !store.trash && canOfferScheduleMeeting(store.rootStore.appMode)
       ? [
           {
             id: "schedule-meeting",
