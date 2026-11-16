@@ -66,4 +66,9 @@ export abstract class IncomingWebhookRepo {
   abstract listDeliveries(webhookId: string, limit: number): Promise<StoredIncomingDelivery[]>;
   abstract recordDelivery(delivery: NewIncomingDelivery): Promise<{ id: string }>;
   abstract deleteDeliveriesBeforeUnscoped(before: Date, limit: number): Promise<number>;
+  abstract reassignCreatorUnscoped(args: {
+    companyId: string;
+    fromUserIds: string[];
+    toUserId: string;
+  }): Promise<number>;
 }

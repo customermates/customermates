@@ -6,6 +6,7 @@ import type { PlanRoutinePauseRepo } from "../plan-routine-pause.repo";
 import type { PlanRulePauseRepo } from "../plan-rule-pause.repo";
 
 import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
+import { HandOverPublicEndpointsService } from "@/features/workspace/hand-over-public-endpoints.service";
 
 import {
   chooseFreePlanKeepers,
@@ -65,15 +66,18 @@ function setup(sub: ReturnType<typeof subscription>, members: FreePlanMember[], 
   const routines = fns as unknown as PlanRoutinePauseRepo;
   const rules = fns as unknown as PlanRulePauseRepo;
   const seatQuantity = vi.fn().mockResolvedValue(undefined);
+  const forms = { reassignCreatorUnscoped: vi.fn().mockResolvedValue(1) };
+  const webhooks = { reassignCreatorUnscoped: vi.fn().mockResolvedValue(2) };
   const service = new FreePlanPauseService(
     repo,
     invites,
     () => routines,
     () => rules,
+    new HandOverPublicEndpointsService(forms, webhooks),
     "cloud",
     seatQuantity,
   );
-  return { repo, fns, seatQuantity, service };
+  return { repo, fns, seatQuantity, service, forms, webhooks };
 }
 
 describe("choosing who keeps the Free seat", () => {
@@ -179,6 +183,35 @@ describe("Free plan transitions", () => {
     expect(seatQuantity).not.toHaveBeenCalled();
   });
 
+  it("hands the forms and incoming webhooks of paused members to the kept admin", async () => {
+    const members = [
+      member("a", { isAdmin: true }),
+      member("bb"),
+      member("ccc", { email: "owner@example.test", isAdmin: true }),
+    ];
+    const { forms, webhooks, service } = setup(subscription(SubscriptionStatus.trial, -1), members, [
+      "owner@example.test",
+    ]);
+
+    await service.syncUnscoped(COMPANY, NOW);
+
+    const expected = { companyId: COMPANY, fromUserIds: ["a", "bb"], toUserId: "ccc" };
+    expect(forms.reassignCreatorUnscoped).toHaveBeenCalledExactlyOnceWith(expected);
+    expect(webhooks.reassignCreatorUnscoped).toHaveBeenCalledExactlyOnceWith(expected);
+  });
+
+  it("hands nothing over when nobody is paused or on a paid plan", async () => {
+    const small = setup(subscription(SubscriptionStatus.trial, -1), [member("a", { isAdmin: true })]);
+    await small.service.syncUnscoped(COMPANY, NOW);
+    const paid = setup(subscription(SubscriptionStatus.active, -30, SubscriptionPlan.starter), []);
+    await paid.service.syncUnscoped(COMPANY, NOW);
+
+    for (const run of [small, paid]) {
+      expect(run.forms.reassignCreatorUnscoped).not.toHaveBeenCalled();
+      expect(run.webhooks.reassignCreatorUnscoped).not.toHaveBeenCalled();
+    }
+  });
+
   it("brings every plan-paused member and routine back on a paid plan and syncs the paid seats", async () => {
     const { fns, seatQuantity, service } = setup(
       subscription(SubscriptionStatus.active, -30, SubscriptionPlan.starter),
@@ -222,6 +255,7 @@ describe("Free plan transitions", () => {
       { deleteInviteTokensUnscoped: vi.fn() },
       () => ({ pauseRoutinesForPlanCompanyWide: vi.fn(), resumeRoutinesForPlanCompanyWide: vi.fn() }),
       () => ({ syncRulesToPlanLimitCompanyWide: vi.fn() }),
+      { invoke: vi.fn() },
       "self-hosted",
     );
 

@@ -270,6 +270,7 @@ import { EmailService } from "@/features/email/email.service";
 import { EventService } from "@/features/event/event.service";
 import { UserService } from "@/features/user/user.service";
 import { ActiveWorkspaceService } from "@/features/workspace/active-workspace.service";
+import { HandOverPublicEndpointsService } from "@/features/workspace/hand-over-public-endpoints.service";
 import { WorkspaceDepartureService } from "@/features/workspace/workspace-departure.service";
 import { WorkspaceSlugResolver } from "@/features/workspace/workspace-slug-resolver";
 // Task Listeners
@@ -1262,6 +1263,7 @@ export const getFreePlanPauseService = () =>
     getCompanyRepo(),
     (companyId) => getRoutineRepo(companyId),
     (companyId) => getAutomationRuleRepo(companyId),
+    getHandOverPublicEndpointsService(),
     env.APP_MODE,
     new PaidSeatQuantitySync(getCompanyRepo(), getSubscriptionService()).sync,
   );
@@ -1436,6 +1438,7 @@ export const getWorkspaceDepartureService = () =>
     getReleaseOwnerRoutinesInteractor(),
     getConnectedAccountRepo(),
     getDeleteAccountForBillingService(),
+    getHandOverPublicEndpointsService(),
   );
 
 export const getLeaveWorkspaceInteractor = () =>
@@ -3053,6 +3056,9 @@ const getIncomingWebhookSettings = () => ({ baseUrl: env.BASE_URL, authSecret: e
 const getIncomingWebhookRepo = () => new PrismaIncomingWebhookRepo(getIncomingWebhookSettings());
 const getIncomingWebhookEngine = () =>
   new IncomingWebhookEngine(getRecordRepo(), getQueryRecordsInteractor(), getMutateRecordInteractor());
+
+export const getHandOverPublicEndpointsService = () =>
+  new HandOverPublicEndpointsService(getPublicFormRepo(), getIncomingWebhookRepo());
 
 const incomingWebhookLimiters = {
   webhook: new TokenBucketRateLimiter(

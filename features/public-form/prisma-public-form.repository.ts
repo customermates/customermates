@@ -123,6 +123,16 @@ export class PrismaPublicFormRepo extends TenantRepository implements PublicForm
     return count;
   }
 
+  @BypassTenantGuard
+  async reassignCreatorUnscoped(args: { companyId: string; fromUserIds: string[]; toUserId: string }): Promise<number> {
+    if (args.fromUserIds.length === 0) return 0;
+    const { count } = await this.prisma.publicForm.updateMany({
+      where: { companyId: args.companyId, createdById: { in: args.fromUserIds } },
+      data: { createdById: args.toUserId },
+    });
+    return count;
+  }
+
   async publicLinksAllowed(): Promise<boolean> {
     const company = await this.prisma.company.findUnique({
       where: { id: this.companyId },

@@ -5,6 +5,7 @@ import type { SubscriptionService } from "@/ee/subscription/subscription.service
 import type { CountActiveUsersRepo } from "@/features/user/count-active-users.repo";
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-subscription.repo";
 import type { DeleteAccountForBillingService } from "@/ee/messaging/connect/delete-account-for-billing.service";
+import type { HandOverPublicEndpointsService } from "./hand-over-public-endpoints.service";
 import type { LeaveWorkspaceChannelsRepo } from "./leave-workspace-channels.repo";
 import type { WorkspaceMembershipRepo } from "./workspace-membership.repo";
 
@@ -20,6 +21,7 @@ export type WorkspaceDeparture = {
   companyId: string;
   member: { id: string; email: string; status: Status };
   loginId: string | null;
+  successorUserId?: string;
 };
 
 export class WorkspaceDepartureService {
@@ -33,6 +35,7 @@ export class WorkspaceDepartureService {
     private readonly releaseOwnerRoutines: ReleaseOwnerRoutinesInteractor,
     private readonly channels: LeaveWorkspaceChannelsRepo,
     private readonly channelRemoval: Pick<DeleteAccountForBillingService, "deleteForBillingOrThrow">,
+    private readonly handOverEndpoints: Pick<HandOverPublicEndpointsService, "invoke">,
   ) {}
 
   async announce(member: Pick<WorkspaceDeparture["member"], "id" | "status">): Promise<void> {
@@ -41,15 +44,24 @@ export class WorkspaceDepartureService {
       await this.eventService.publish(DomainEvent.USER_UPDATED, { entityId: member.id, payload: { changes } });
   }
 
-  async complete({ companyId, member, loginId }: WorkspaceDeparture): Promise<void> {
+  async complete({ companyId, member, loginId, successorUserId }: WorkspaceDeparture): Promise<void> {
     if (loginId) await this.authService.revokeMembershipCredentials(loginId, companyId);
     await this.disconnectOwnChannels(member.id);
     if (loginId) await this.moveLastUsedWorkspace(loginId, member.email, companyId);
 
+    if (member.status !== Status.pendingAuthorization)
+      await this.handOverPublicEndpoints(companyId, member.id, successorUserId);
     if (member.status === Status.active) {
       await this.releaseOwnerRoutines.invoke({ companyId, ownerUserId: member.id });
       await this.updateSubscriptionQuantity();
     }
+  }
+
+  private async handOverPublicEndpoints(companyId: string, leaverId: string, preferredId?: string): Promise<void> {
+    const admins = (await this.memberships.listActiveAdminIdsUnscoped(companyId)).filter((id) => id !== leaverId);
+    const successor = preferredId && admins.includes(preferredId) ? preferredId : admins[0];
+    if (!successor) return;
+    await this.handOverEndpoints.invoke({ companyId, fromUserIds: [leaverId], toUserId: successor });
   }
 
   private async moveLastUsedWorkspace(loginId: string, email: string, companyId: string): Promise<void> {

@@ -120,7 +120,11 @@ export class PrismaIncomingWebhookRepo
       where: { id, companyId: this.companyId },
       data: {
         ...(patch.name === undefined ? {} : { name: patch.name }),
-        ...(patch.enabled === undefined ? {} : { enabled: patch.enabled }),
+        ...(patch.enabled === undefined
+          ? {}
+          : patch.enabled
+            ? { enabled: true, createdById: this.userId }
+            : { enabled: false }),
         ...(patch.signingSecret === undefined ? {} : { signingSecret: patch.signingSecret }),
         ...(patch.signatureHeader === undefined ? {} : { signatureHeader: patch.signatureHeader }),
         ...(patch.mapping === undefined ? {} : { mapping: patch.mapping }),
@@ -187,6 +191,16 @@ export class PrismaIncomingWebhookRepo
     });
     const { count } = await this.prisma.incomingWebhookDelivery.deleteMany({
       where: { id: { in: expired.map((delivery) => delivery.id) } },
+    });
+    return count;
+  }
+
+  @BypassTenantGuard
+  async reassignCreatorUnscoped(args: { companyId: string; fromUserIds: string[]; toUserId: string }): Promise<number> {
+    if (args.fromUserIds.length === 0) return 0;
+    const { count } = await this.prisma.incomingWebhook.updateMany({
+      where: { companyId: args.companyId, createdById: { in: args.fromUserIds } },
+      data: { createdById: args.toUserId },
     });
     return count;
   }

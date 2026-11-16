@@ -110,6 +110,7 @@ export class RemoveWorkspaceMemberInteractor extends AuthenticatedInteractor<
       companyId,
       member: { id: member.id, email: member.email, status: member.status },
       loginId,
+      successorUserId: this.userId,
     });
     if (loginId && member.status !== Status.pendingAuthorization) await this.notifyRemovedMember(member);
 

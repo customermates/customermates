@@ -25,6 +25,7 @@ import { DemoModeError } from "@/core/errors/app-errors";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { interactorFailureCodes } from "@/core/validation/validation.utils";
 import { unwindFailure } from "@/core/validation/failure-unwind";
+import { HandOverPublicEndpointsService } from "../hand-over-public-endpoints.service";
 import { RemoveWorkspaceMemberInteractor } from "../remove-workspace-member.interactor";
 import { WorkspaceDepartureService } from "../workspace-departure.service";
 
@@ -64,7 +65,10 @@ describe("RemoveWorkspaceMemberInteractor", () => {
     findAuthUserCompanyIdUnscoped: ReturnType<typeof vi.fn>;
     listWorkspaceMembershipsUnscoped: ReturnType<typeof vi.fn>;
     setLastUsedCompanyUnscoped: ReturnType<typeof vi.fn>;
+    listActiveAdminIdsUnscoped: ReturnType<typeof vi.fn>;
   };
+  let forms: { reassignCreatorUnscoped: ReturnType<typeof vi.fn> };
+  let webhooks: { reassignCreatorUnscoped: ReturnType<typeof vi.fn> };
   let authService: { revokeMembershipCredentials: ReturnType<typeof vi.fn> };
   let events: { publish: ReturnType<typeof vi.fn> };
   let subscriptionService: { updateSubscriptionQuantityOrThrow: ReturnType<typeof vi.fn> };
@@ -86,6 +90,7 @@ describe("RemoveWorkspaceMemberInteractor", () => {
       routines as never,
       { findOwnedConnectedAccountIdsCompanyWide: vi.fn().mockResolvedValue(["mailbox-1"]) } as never,
       channelRemoval as never,
+      new HandOverPublicEndpointsService(forms, webhooks),
     );
     return new RemoveWorkspaceMemberInteractor(
       repo as never,
@@ -128,7 +133,10 @@ describe("RemoveWorkspaceMemberInteractor", () => {
         { companyId: "own-company", status: Status.active },
       ]),
       setLastUsedCompanyUnscoped: track("moved"),
+      listActiveAdminIdsUnscoped: vi.fn().mockResolvedValue(["oldest-admin", admin.id]),
     };
+    forms = { reassignCreatorUnscoped: vi.fn().mockResolvedValue(1) };
+    webhooks = { reassignCreatorUnscoped: vi.fn().mockResolvedValue(1) };
     authService = { revokeMembershipCredentials: track("revoked", 2) };
     events = { publish: track("announced") };
     subscriptionService = { updateSubscriptionQuantityOrThrow: track("seats") };
@@ -164,6 +172,33 @@ describe("RemoveWorkspaceMemberInteractor", () => {
     expect(memberships.setLastUsedCompanyUnscoped).toHaveBeenCalledWith("login-nora", "own-company");
     expect(routines.invoke).toHaveBeenCalledWith({ companyId: COMPANY_ID, ownerUserId: member.id });
     expect(subscriptionService.updateSubscriptionQuantityOrThrow).toHaveBeenCalledWith("ls-1", 3);
+  });
+
+  it("hands the removed member's forms and incoming webhooks to the acting admin so their endpoints keep working", async () => {
+    expect(await removeAs()).toMatchObject({ ok: true });
+
+    const handOver = { companyId: COMPANY_ID, fromUserIds: [member.id], toUserId: admin.id };
+    expect(forms.reassignCreatorUnscoped).toHaveBeenCalledExactlyOnceWith(handOver);
+    expect(webhooks.reassignCreatorUnscoped).toHaveBeenCalledExactlyOnceWith(handOver);
+  });
+
+  it("hands them to the oldest active admin when the acting member is not an admin", async () => {
+    memberships.listActiveAdminIdsUnscoped.mockResolvedValue(["oldest-admin", "newer-admin"]);
+
+    expect(await removeAs()).toMatchObject({ ok: true });
+
+    const handOver = { companyId: COMPANY_ID, fromUserIds: [member.id], toUserId: "oldest-admin" };
+    expect(forms.reassignCreatorUnscoped).toHaveBeenCalledExactlyOnceWith(handOver);
+    expect(webhooks.reassignCreatorUnscoped).toHaveBeenCalledExactlyOnceWith(handOver);
+  });
+
+  it("leaves the forms and webhooks alone when no admin is left to take them", async () => {
+    memberships.listActiveAdminIdsUnscoped.mockResolvedValue([member.id]);
+
+    expect(await removeAs()).toMatchObject({ ok: true });
+
+    expect(forms.reassignCreatorUnscoped).not.toHaveBeenCalled();
+    expect(webhooks.reassignCreatorUnscoped).not.toHaveBeenCalled();
   });
 
   it("e-mails the removed member in their language which workspace removed them and how to sign in", async () => {

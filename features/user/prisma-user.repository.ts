@@ -678,6 +678,16 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
+  async listActiveAdminIdsUnscoped(companyId: string) {
+    const admins = await this.prisma.user.findMany({
+      where: { companyId, leftAt: null, status: Status.active, role: { isSystemRole: true } },
+      select: { id: true },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+    });
+    return admins.map((admin) => admin.id);
+  }
+
+  @BypassTenantGuard
   async markTrialConsumedUnscoped(authUserId: string) {
     await this.prisma.authUser.updateMany({
       where: { id: authUserId, trialConsumedAt: null },

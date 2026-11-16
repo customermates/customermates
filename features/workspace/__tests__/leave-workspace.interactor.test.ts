@@ -19,6 +19,7 @@ vi.mock("next-intl/server", () => ({
 import { getTenantUser, runWithTenant } from "@/core/decorators/tenant-context";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { interactorFailureCodes } from "@/core/validation/validation.utils";
+import { HandOverPublicEndpointsService } from "../hand-over-public-endpoints.service";
 import { LeaveWorkspaceInteractor } from "../leave-workspace.interactor";
 import { WorkspaceDepartureService } from "../workspace-departure.service";
 
@@ -36,6 +37,9 @@ describe("LeaveWorkspaceInteractor", () => {
   const order: string[] = [];
   let channels: { findOwnedConnectedAccountIdsCompanyWide: ReturnType<typeof vi.fn> };
   let channelRemoval: { deleteForBillingOrThrow: ReturnType<typeof vi.fn> };
+  let forms: { reassignCreatorUnscoped: ReturnType<typeof vi.fn> };
+  let webhooks: { reassignCreatorUnscoped: ReturnType<typeof vi.fn> };
+  let admins: string[];
   let repo: {
     findMemberCompanyWide: ReturnType<typeof vi.fn>;
     strandsLastPlatformOperatorCompanyWide: ReturnType<typeof vi.fn>;
@@ -55,6 +59,7 @@ describe("LeaveWorkspaceInteractor", () => {
         findAuthUserCompanyIdUnscoped: vi.fn().mockResolvedValue("company-2"),
         listWorkspaceMembershipsUnscoped: vi.fn().mockResolvedValue([]),
         setLastUsedCompanyUnscoped: vi.fn(),
+        listActiveAdminIdsUnscoped: vi.fn(() => Promise.resolve(admins)),
       } as never,
       events as never,
       { updateSubscriptionQuantityOrThrow: vi.fn() } as never,
@@ -65,6 +70,7 @@ describe("LeaveWorkspaceInteractor", () => {
       { invoke: vi.fn().mockResolvedValue({ blocked: 0, disabled: 0 }) } as never,
       channels as never,
       channelRemoval as never,
+      new HandOverPublicEndpointsService(forms, webhooks),
     );
     return new LeaveWorkspaceInteractor(authService as never, repo as never, roleRepo as never, departure);
   }
@@ -101,6 +107,30 @@ describe("LeaveWorkspaceInteractor", () => {
         return Promise.resolve();
       }),
     };
+    forms = { reassignCreatorUnscoped: vi.fn().mockResolvedValue(1) };
+    webhooks = { reassignCreatorUnscoped: vi.fn().mockResolvedValue(1) };
+    admins = ["admin-1", "admin-2"];
+  });
+
+  it("hands the leaver's forms and incoming webhooks to the oldest remaining admin so their endpoints keep working", async () => {
+    const result = await runWithTenant(member, () => interactor().invoke({ companyId: COMPANY_ID }));
+
+    expect(result).toEqual({ ok: true, data: { companyId: COMPANY_ID } });
+    const handOver = { companyId: COMPANY_ID, fromUserIds: ["member-1"], toUserId: "admin-1" };
+    expect(forms.reassignCreatorUnscoped).toHaveBeenCalledExactlyOnceWith(handOver);
+    expect(webhooks.reassignCreatorUnscoped).toHaveBeenCalledExactlyOnceWith(handOver);
+  });
+
+  it("does not hand anything over when leaving is refused", async () => {
+    roleRepo.hasAnotherActiveSystemRoleUser.mockResolvedValue(false);
+
+    const result = await runWithTenant(createMockUser({ ...member, role: adminRole }), () =>
+      interactor().invoke({ companyId: COMPANY_ID }),
+    );
+
+    expect(result.ok).toBe(false);
+    expect(forms.reassignCreatorUnscoped).not.toHaveBeenCalled();
+    expect(webhooks.reassignCreatorUnscoped).not.toHaveBeenCalled();
   });
 
   it("disconnects the leaver's own channels in the workspace right after leaving", async () => {
