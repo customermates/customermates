@@ -48,5 +48,6 @@ export abstract class PublicFormRepo {
   abstract countSubmissionsSince(since: Date): Promise<number>;
   abstract countFormSubmissionsSince(formId: string, since: Date, ipHash?: string): Promise<number>;
   abstract recordSubmission(submission: NewPublicFormSubmission): Promise<{ id: string }>;
+  abstract deleteSubmissionsBeforeUnscoped(before: Date, limit: number): Promise<number>;
   abstract publicLinksAllowed(): Promise<boolean>;
 }

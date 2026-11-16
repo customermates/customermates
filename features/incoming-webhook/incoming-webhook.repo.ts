@@ -64,5 +64,6 @@ export abstract class IncomingWebhookRepo {
   abstract updateWebhook(id: string, patch: IncomingWebhookPatch): Promise<StoredIncomingWebhook>;
   abstract deleteWebhook(id: string): Promise<boolean>;
   abstract listDeliveries(webhookId: string, limit: number): Promise<StoredIncomingDelivery[]>;
-  abstract recordDelivery(delivery: NewIncomingDelivery, retentionDays: number): Promise<{ id: string }>;
+  abstract recordDelivery(delivery: NewIncomingDelivery): Promise<{ id: string }>;
+  abstract deleteDeliveriesBeforeUnscoped(before: Date, limit: number): Promise<number>;
 }

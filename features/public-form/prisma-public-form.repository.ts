@@ -110,6 +110,19 @@ export class PrismaPublicFormRepo extends TenantRepository implements PublicForm
     return created;
   }
 
+  @BypassTenantGuard
+  async deleteSubmissionsBeforeUnscoped(before: Date, limit: number): Promise<number> {
+    const expired = await this.prisma.publicFormSubmission.findMany({
+      where: { createdAt: { lt: before } },
+      select: { id: true },
+      take: limit,
+    });
+    const { count } = await this.prisma.publicFormSubmission.deleteMany({
+      where: { id: { in: expired.map((submission) => submission.id) } },
+    });
+    return count;
+  }
+
   async publicLinksAllowed(): Promise<boolean> {
     const company = await this.prisma.company.findUnique({
       where: { id: this.companyId },

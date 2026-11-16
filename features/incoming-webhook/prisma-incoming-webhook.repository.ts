@@ -36,14 +36,14 @@ const WEBHOOK_SELECT = {
   updatedAt: true,
 } as const;
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
 function jsonValue(value: unknown): Prisma.InputJsonValue | typeof Prisma.JsonNull {
   return value === null || value === undefined ? Prisma.JsonNull : (value as Prisma.InputJsonValue);
 }
 
 export class PrismaIncomingWebhookRepo
   extends QueryRepository<Prisma.IncomingWebhookWhereInput>
+  implements IncomingWebhookRepo, IncomingWebhookLookupRepo, GetIncomingWebhooksRepo
+{
   constructor(private readonly settings?: IncomingWebhookSettings) {
     super();
   }
@@ -86,8 +86,6 @@ export class PrismaIncomingWebhookRepo
     return this.prisma.incomingWebhook.count({ where });
   }
 
-  implements IncomingWebhookRepo, IncomingWebhookLookupRepo, GetIncomingWebhooksRepo
-{
   findWebhook(id: string): Promise<StoredIncomingWebhook | null> {
     return this.prisma.incomingWebhook.findFirst({ where: { id, companyId: this.companyId }, select: WEBHOOK_SELECT });
   }
@@ -157,7 +155,7 @@ export class PrismaIncomingWebhookRepo
   }
 
   @Transaction
-  async recordDelivery(delivery: NewIncomingDelivery, retentionDays: number): Promise<{ id: string }> {
+  async recordDelivery(delivery: NewIncomingDelivery): Promise<{ id: string }> {
     const created = await this.prisma.incomingWebhookDelivery.create({
       data: {
         companyId: this.companyId,
@@ -171,13 +169,6 @@ export class PrismaIncomingWebhookRepo
       },
       select: { id: true },
     });
-    await this.prisma.incomingWebhookDelivery.deleteMany({
-      where: {
-        webhookId: delivery.webhookId,
-        companyId: this.companyId,
-        createdAt: { lt: new Date(Date.now() - retentionDays * DAY_MS) },
-      },
-    });
     if (delivery.outcome === "created" || delivery.outcome === "updated") {
       await this.prisma.incomingWebhook.update({
         where: { id: delivery.webhookId, companyId: this.companyId },
@@ -185,6 +176,19 @@ export class PrismaIncomingWebhookRepo
       });
     }
     return created;
+  }
+
+  @BypassTenantGuard
+  async deleteDeliveriesBeforeUnscoped(before: Date, limit: number): Promise<number> {
+    const expired = await this.prisma.incomingWebhookDelivery.findMany({
+      where: { createdAt: { lt: before } },
+      select: { id: true },
+      take: limit,
+    });
+    const { count } = await this.prisma.incomingWebhookDelivery.deleteMany({
+      where: { id: { in: expired.map((delivery) => delivery.id) } },
+    });
+    return count;
   }
 
   @BypassTenantGuard
