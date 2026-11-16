@@ -10,7 +10,7 @@ import type { SetupPlanInput } from "../workspace-setup-planner";
 import type { WorkspaceSetupPatch, WorkspaceSetupRecord } from "../workspace-setup.schema";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { TEMPLATE_SLUGS, getTemplateText, hasTemplateText } from "@/core/templates/template-registry";
+import { TEMPLATE_SLUGS, hasTemplateText } from "@/core/templates/template-registry";
 import { templateSetupPlan } from "@/core/templates/template-setup-plan";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 import { agencyPlan } from "@/features/workspace-setup/__tests__/setup-plan-fixtures";
@@ -101,27 +101,25 @@ describe("template plans in the Mate planner", () => {
     expect(await run(() => instance.fromTemplate(input))).toEqual({ ok: false, failure: "invalidPlan" });
   });
 
-  it("gives the model the plan of the chosen template as the reference instead of the closest solution", async () => {
+  it("gives the model the closest solution as the reference, with or without a chosen template", async () => {
     const { instance, models, run } = planner();
     models.generate.mockResolvedValue({ ok: false, failure: "generation", rejection: "stop" });
-    const chosen = {
-      ...input,
-      answers: { ...input.answers, workWith: workWith("clients") },
-      templateSlug: "client-tracker",
-    };
-    await run(() => instance.attempt("model", chosen, emptySetupPlanPart(1), { model: null, knowledge: null }));
-    const prompt = String(models.generate.mock.calls[0][0].prompt);
-    expect(prompt).toContain("Reference template: ");
-    expect(prompt).toContain((await getTemplateText("client-tracker", "en")).lists.clients.pluralLabel);
-    expect(prompt).not.toContain("Freelancers");
-  });
-
-  it("keeps the closest solution as the reference when no template was chosen", async () => {
-    const { instance, models, run } = planner();
-    models.generate.mockResolvedValue({ ok: false, failure: "generation", rejection: "stop" });
-    const plain = { ...input, answers: { ...input.answers, workWith: workWith("clients") }, templateSlug: null };
-    await run(() => instance.attempt("model", plain, emptySetupPlanPart(1), { model: null, knowledge: null }));
-    expect(String(models.generate.mock.calls[0][0].prompt)).toContain("Reference template: ");
+    const answers = { ...input.answers, workWith: workWith("clients") };
+    await run(() =>
+      instance.attempt("model", { ...input, answers, templateSlug: "client-tracker" }, emptySetupPlanPart(1), {
+        model: null,
+        knowledge: null,
+      }),
+    );
+    await run(() =>
+      instance.attempt("model", { ...input, answers, templateSlug: null }, emptySetupPlanPart(1), {
+        model: null,
+        knowledge: null,
+      }),
+    );
+    const [chosen, plain] = models.generate.mock.calls.map(([call]) => String(call.prompt));
+    expect(plain).toContain("Reference template: ");
+    expect(chosen).toBe(plain);
   });
 });
 
@@ -170,33 +168,47 @@ function harness(overrides: Partial<WorkspaceSetupRecord> = {}) {
 describe("template plans in the Mate setup steps", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("asks no follow-up questions and drafts nothing with the model when the template validates", async () => {
+  it("compiles the template once at the claim, stores the plan and drafts nothing with the model", async () => {
     const { service, models, mate, run, setup } = harness();
     const plan = SetupPlanSchema.parse(agencyPlan);
     mate.fromTemplate.mockResolvedValue({ ok: true, plan });
     expect(await run(() => service.followUps("setup-1"))).toBe("none");
     expect(setup().interview.followUps).toBe("skipped");
-    await run(() => service.claimPlan("setup-1"));
-    for (const part of ["model", "knowledge", "views"] as const)
-      expect(await run(() => service.planPart("setup-1", 1, part))).toBe("done");
-    expect(mate.attempt).not.toHaveBeenCalled();
-    expect(models.generate).not.toHaveBeenCalled();
-    expect(await run(() => service.finishPlan("setup-1", 1, false))).toBe("planned");
-    expect(mate.assemble).not.toHaveBeenCalled();
-    expect(setup()).toMatchObject({ status: "planned", plan });
+    expect(await run(() => service.claimPlan("setup-1"))).toEqual({ status: "planned" });
+    expect(setup()).toMatchObject({
+      status: "planned",
+      plan,
+      interview: { plan: "completed", planError: null, planClaimedAt: null },
+    });
+    expect(mate.fromTemplate).toHaveBeenCalledOnce();
     expect(mate.fromTemplate).toHaveBeenCalledWith(expect.objectContaining({ templateSlug: "sales-pipeline" }));
+    for (const part of ["model", "knowledge", "views"] as const)
+      expect(await run(() => service.planPart("setup-1", 1, part))).toBe("skip");
+    expect(await run(() => service.finishPlan("setup-1", 1, false))).toBe("skip");
+    expect(mate.fromTemplate).toHaveBeenCalledOnce();
+    expect(mate.attempt).not.toHaveBeenCalled();
+    expect(mate.assemble).not.toHaveBeenCalled();
+    expect(models.generate).not.toHaveBeenCalled();
   });
 
-  it("falls back to the model when the template plan does not validate in this workspace", async () => {
-    const { service, mate, run } = harness();
+  it("falls back to the three model parts when the template plan does not validate in this workspace", async () => {
+    const { service, mate, run, setup } = harness();
     mate.fromTemplate.mockResolvedValue({ ok: false, failure: "invalidPlan" });
     mate.attempt.mockImplementation((_part: string, _input: unknown, state: object) =>
       Promise.resolve({ ...state, attempts: 1, value: { drafted: true }, repair: [], failure: null }),
     );
-    await run(() => service.claimPlan("setup-1"));
+    expect(await run(() => service.claimPlan("setup-1"))).toEqual({ status: "claimed", revision: 1 });
+    expect(setup()).toMatchObject({ status: "planning", plan: null });
     expect(await run(() => service.planPart("setup-1", 1, "model"))).toBe("done");
     expect(mate.attempt).toHaveBeenCalledTimes(1);
     expect(mate.attempt.mock.calls[0][1]).toMatchObject({ templateSlug: "sales-pipeline" });
+    expect(mate.fromTemplate).toHaveBeenCalledOnce();
+  });
+
+  it("falls back to the model when the chosen slug has no template", async () => {
+    const { service, mate, run } = harness();
+    mate.fromTemplate.mockResolvedValue(null);
+    expect(await run(() => service.claimPlan("setup-1"))).toEqual({ status: "claimed", revision: 1 });
   });
 
   it("does not ask the planner for a template when the setup has none", async () => {
@@ -204,7 +216,7 @@ describe("template plans in the Mate setup steps", () => {
     mate.attempt.mockImplementation((_part: string, _input: unknown, state: object) =>
       Promise.resolve({ ...state, attempts: 1, value: { drafted: true }, repair: [], failure: null }),
     );
-    await run(() => service.claimPlan("setup-1"));
+    expect(await run(() => service.claimPlan("setup-1"))).toEqual({ status: "claimed", revision: 1 });
     await run(() => service.planPart("setup-1", 1, "model"));
     expect(mate.fromTemplate).not.toHaveBeenCalled();
     expect(mate.attempt.mock.calls[0][1]).toMatchObject({ templateSlug: null });

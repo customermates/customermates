@@ -212,19 +212,13 @@ export class WorkspaceSetupPlanner extends UserAccessor {
   }
 
   async fromTemplate(input: SetupPlanInput): Promise<SetupPlanOutcome | null> {
-    const plan = await this.templatePlan(input);
+    const plan = await templateSetupPlan(input.templateSlug, { language: input.language, currency: input.currency });
     if (!plan) return null;
     if ((await this.issues(input.setupId, plan, input.language)).length) return { ok: false, failure: "invalidPlan" };
     return { ok: true, plan };
   }
 
-  private templatePlan(input: SetupPlanInput): Promise<SetupPlan | null> {
-    return templateSetupPlan(input.templateSlug, { language: input.language, currency: input.currency });
-  }
-
-  private async referencePlan(input: SetupPlanInput): Promise<string[]> {
-    const chosen = await this.templatePlan(input);
-    if (chosen) return [`Reference template: ${encodePromptJson(chosen)}`];
+  private referencePlan(input: SetupPlanInput): string[] {
     const template = closestSetupSolution(input.answers);
     return template ? [`Reference template: ${encodePromptJson(SOLUTION_TEMPLATES[template])}`] : [];
   }
@@ -240,7 +234,7 @@ export class WorkspaceSetupPlanner extends UserAccessor {
       untrustedText(
         encodePromptJson({ answers: setupAnswerDigest(input.answers, catalog), followUps: input.followUps }),
       ),
-      ...(await this.referencePlan(input)),
+      ...this.referencePlan(input),
     ];
   }
 

@@ -1,5 +1,6 @@
 import type { WorkflowTenant } from "./workflow-tenant";
 import type { WorkspaceSetupPhase } from "@/ee/workspace-setup/workspace-setup.schema";
+import type { PlanClaim } from "@/ee/workspace-setup/workspace-setup-interview.service";
 import type { SetupPlanPart } from "@/ee/workspace-setup/workspace-setup-planner";
 
 import { getWorkflowMetadata, sleep } from "workflow";
@@ -43,9 +44,7 @@ async function followUpWorkspaceSetupStep(
   return { result: present(result, "skip" as const), warnings: service.drainWarnings() };
 }
 
-async function claimWorkspaceSetupPlanStep(
-  payload: WorkspaceSetupWorkflowPayload,
-): Promise<{ status: "claimed"; revision: number } | { status: "busy" | "skip" }> {
+async function claimWorkspaceSetupPlanStep(payload: WorkspaceSetupWorkflowPayload): Promise<PlanClaim> {
   "use step";
   const claim = await asBackgroundOwner(payload.userId, () =>
     getWorkspaceSetupInterviewService().claimPlan(payload.setupId),

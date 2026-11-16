@@ -260,6 +260,7 @@ async function planned(ws: Workspace) {
 async function draftPlan(ws: Workspace, setupId: string) {
   const interview = di.getWorkspaceSetupInterviewService();
   const claim = await ws.run(() => interview.claimPlan(setupId));
+  if (claim.status === "planned") return "planned" as const;
   if (claim.status !== "claimed") throw new Error(`plan not claimed: ${claim.status}`);
   for (const part of ["model", "knowledge", "views"] as const) {
     for (let round = 0; round < 3; round += 1)

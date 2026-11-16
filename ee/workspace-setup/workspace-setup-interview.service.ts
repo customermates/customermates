@@ -1,5 +1,11 @@
 import type { WorkspaceSetupRepo } from "./workspace-setup.repo";
-import type { StoredSetupInterview, WorkspaceSetupFailure, WorkspaceSetupRecord } from "./workspace-setup.schema";
+import type { SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
+import type {
+  StoredSetupInterview,
+  WorkspaceSetupFailure,
+  WorkspaceSetupPatch,
+  WorkspaceSetupRecord,
+} from "./workspace-setup.schema";
 import type { WorkspaceSetupModelService } from "./workspace-setup-model.service";
 import type {
   SetupPlanInput,
@@ -43,7 +49,7 @@ const PREFILL_WEBSITE = { characters: 36_000, perSource: 3_000 };
 const CRAWL_READING = new Set(["queued", "discovering", "fetching"]);
 
 type Claimable = "prefill" | "plan";
-type PlanClaim = { status: "claimed"; revision: number } | { status: "busy" | "skip" };
+export type PlanClaim = { status: "claimed"; revision: number } | { status: "planned" | "busy" | "skip" };
 
 function planPartKey(part: SetupPlanPart): string {
   return `plan:${part}`;
@@ -82,6 +88,15 @@ function withoutPlanParts(artifacts: Record<string, unknown>, keep: (part: Setup
 
 function planning(setup: WorkspaceSetupRecord, revision: number) {
   return setup.status === "planning" && setup.planRevision === revision && setup.interview.plan === "running";
+}
+
+function plannedPatch(setup: WorkspaceSetupRecord, plan: SetupPlan): WorkspaceSetupPatch {
+  return {
+    status: "planned",
+    plan,
+    artifacts: withoutPlanParts(setup.artifacts, () => false),
+    interview: { ...setup.interview, plan: "completed", planError: null, planClaimedAt: null },
+  };
 }
 
 function stale(claimedAt: string | null, now: Date, limitMs = SETUP_GENERATION_STALE_MS) {
@@ -267,9 +282,21 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
 
   async claimPlan(setupId: string): Promise<PlanClaim> {
     const claimed = await this.claim(setupId, "plan", ["queued"]);
-    if (claimed) return { status: "claimed", revision: claimed.planRevision };
-    const setup = await this.repo.get(setupId);
-    return setup?.status === "planning" && setup.interview.plan === "running" ? { status: "busy" } : { status: "skip" };
+    if (!claimed) {
+      const setup = await this.repo.get(setupId);
+      return setup?.status === "planning" && setup.interview.plan === "running"
+        ? { status: "busy" }
+        : { status: "skip" };
+    }
+    const revision = claimed.planRevision;
+    const templated = claimed.interview.templateSlug
+      ? await this.planner.fromTemplate(await this.planInput(claimed))
+      : null;
+    if (!templated?.ok) return { status: "claimed", revision };
+    const stored = await this.repo.mutate(setupId, (current) =>
+      planning(current, revision) ? plannedPatch(current, templated.plan) : null,
+    );
+    return { status: stored?.changed ? "planned" : "skip" };
   }
 
   async planPart(
@@ -282,11 +309,9 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
     const state = planPartState(setup, part);
     if (state.value !== null && state.value !== undefined) return "done";
     if (state.failure) return "failed";
-    const input = await this.planInput(setup);
-    if ((await this.templateOutcome(input))?.ok) return "done";
     const { model, knowledge } = planDrafts(setup);
     if (!(await this.heartbeatPlan(setupId, revision))) return "skip";
-    const next = await this.planner.attempt(part, input, state, { model, knowledge });
+    const next = await this.planner.attempt(part, await this.planInput(setup), state, { model, knowledge });
     const stored = await this.repo.mutate(setupId, (current) =>
       planning(current, revision)
         ? {
@@ -298,10 +323,6 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
     if (!stored?.changed) return "skip";
     if (next.value !== null && next.value !== undefined) return "done";
     return next.failure ? "failed" : "retry";
-  }
-
-  private templateOutcome(input: SetupPlanInput): Promise<SetupPlanOutcome | null> {
-    return input.templateSlug ? this.planner.fromTemplate(input) : Promise.resolve(null);
   }
 
   private async heartbeatPlan(setupId: string, revision: number): Promise<boolean> {
@@ -321,12 +342,9 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
     const setup = await this.repo.get(setupId);
     if (!setup || !planning(setup, revision)) return "skip";
     const drafts = planDrafts(setup);
-    const input = await this.planInput(setup);
-    const templated = await this.templateOutcome(input);
-    const outcome: SetupPlanOutcome = templated?.ok
-      ? templated
-      : drafts.model && drafts.knowledge && drafts.views
-        ? await this.planner.assemble(input, {
+    const outcome: SetupPlanOutcome =
+      drafts.model && drafts.knowledge && drafts.views
+        ? await this.planner.assemble(await this.planInput(setup), {
             model: drafts.model,
             knowledge: drafts.knowledge,
             views: drafts.views,
@@ -336,14 +354,7 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
     const assembled = Boolean(drafts.model && drafts.knowledge && drafts.views);
     const updated = await this.repo.mutate(setupId, (current) => {
       if (!planning(current, revision)) return null;
-      if (outcome.ok) {
-        return {
-          status: "planned",
-          plan: outcome.plan,
-          artifacts: withoutPlanParts(current.artifacts, () => false),
-          interview: { ...current.interview, plan: "completed", planError: null, planClaimedAt: null },
-        };
-      }
+      if (outcome.ok) return plannedPatch(current, outcome.plan);
       if (retry) {
         return {
           artifacts: withoutPlanParts(
