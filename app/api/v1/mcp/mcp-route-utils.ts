@@ -205,7 +205,6 @@ type McpRpcCall = { method?: unknown; id?: unknown };
 
 export type McpToolCallInfo = { toolCall: boolean; singleToolCallId: string | number | null };
 
-/** The JSON-RPC messages of a POST body, or null when the request has no parseable JSON body. */
 async function readRpcMessages(request: Request): Promise<unknown[] | null> {
   if (request.method !== "POST") return null;
   let body: unknown;
@@ -221,10 +220,6 @@ function isRpcCall(message: unknown): message is McpRpcCall {
   return typeof message === "object" && message !== null;
 }
 
-/**
- * Methods answered without a credential at the bare endpoint: the handshake and the tool list, which the public
- * server card already publishes. Every tool call, resource and prompt read still requires sign-in.
- */
 const PUBLIC_DISCOVERY_METHODS: ReadonlySet<unknown> = new Set([
   "initialize",
   "notifications/initialized",
@@ -399,7 +394,6 @@ export function createMcpRoute(
     );
   }
 
-  /** Answers the handshake and tools/list without a credential; nothing here reads workspace data. */
   function anonymousDiscovery(request: Request) {
     const toolsets = resolveToolsetKey(request, knownKeys);
     if ("unknown" in toolsets) return unknownToolsets(toolsets.unknown, knownKeys);
@@ -412,8 +406,6 @@ export function createMcpRoute(
       const foreign = await workspaceCredentialRefusal(request, workspaceId, resourceMetadataUrl);
       if (foreign) return foreign;
     } else if (!(await isMcpRequestAuthorized(request))) {
-      // Only a request without any credential gets anonymous discovery; an invalid or expired credential keeps the
-      // challenge so the client refreshes or signs in again.
       const { apiKey, bearer } = credentialHeaders(request);
       if (!apiKey && !bearer && (await isPublicDiscoveryRequest(request))) return anonymousDiscovery(request);
       return unauthorizedChallenge(resourceMetadataUrl);
